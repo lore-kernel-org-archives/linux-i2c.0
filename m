@@ -1,67 +1,40 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: [PATCH 4/4] i2c: digicolor: Fix module autoload
-Date: Wed, 19 Oct 2016 08:05:28 +0300
-Message-ID: <20161019050528.ahtibbag7n6gksic@tarshish>
-References: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
- <1476824508-4679-5-git-send-email-javier@osg.samsung.com>
+From: "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [v12, 0/8] Fix eSDHC host version register bug
+Date: Wed, 19 Oct 2016 10:27:15 +0200
+Message-ID: <20161019082715.GA6140@kroah.com>
+References: <1474441040-11946-1-git-send-email-yangbo.lu@nxp.com>
+	<CAPDyKFoit0sTPpfi2=AHcdZsDwOJxbBX68O-1jBFL=5JN0m6_w@mail.gmail.com>
+	<AM5PR0401MB2529BA70C6E7AF7C71631A47F8D20@AM5PR0401MB2529.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:52023 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750775AbcJSFFf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 19 Oct 2016 01:05:35 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1476824508-4679-5-git-send-email-javier@osg.samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <AM5PR0401MB2529BA70C6E7AF7C71631A47F8D20-oQ3wXcTHOqqGPub0A97BiI3W/0Ik+aLCnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-clk <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>Leo Li <l>
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-Hi Javier Martinez Canillas,
+On Wed, Oct 19, 2016 at 02:47:07AM +0000, Y.B. Lu wrote:
+> + Greg
+> 
+> Hi Greg,
+> 
+> I submitted this patchset for a MMC bug fix, and introduce the below patch which needs your ACK.
+> > > Arnd Bergmann (1):
+> > >   base: soc: introduce soc_device_match() interface
+> https://patchwork.kernel.org/patch/9342913/
+> 
+> Could you help to review it and give some comments or ACK.
+> Thank you very much.
 
-On Tue, Oct 18, 2016 at 06:01:48PM -0300, Javier Martinez Canillas wrote:
-> If the driver is built as a module, autoload won't work because the module
-> alias information is not filled. So user-space can't match the registered
-> device with the corresponding module.
-> 
-> Export the module alias information using the MODULE_DEVICE_TABLE() macro.
-> 
-> Before this patch:
-> 
-> $ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
-> $
-> 
-> After this patch:
-> 
-> $ modinfo drivers/i2c/busses/i2c-digicolor.ko | grep alias
-> alias:          of:N*T*Ccnxt,cx92755-i2cC*
-> alias:          of:N*T*Ccnxt,cx92755-i2c
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Acked-by: Baruch Siach <baruch@tkos.co.il>
-
-Thanks,
-baruch
-
->  drivers/i2c/busses/i2c-digicolor.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
-> index 9604024e0eb0..49f2084f7bb5 100644
-> --- a/drivers/i2c/busses/i2c-digicolor.c
-> +++ b/drivers/i2c/busses/i2c-digicolor.c
-> @@ -368,6 +368,7 @@ static const struct of_device_id dc_i2c_match[] = {
->  	{ .compatible = "cnxt,cx92755-i2c" },
->  	{ },
->  };
-> +MODULE_DEVICE_TABLE(of, dc_i2c_match);
->  
->  static struct platform_driver dc_i2c_driver = {
->  	.probe   = dc_i2c_probe,
-
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+Now acked.
