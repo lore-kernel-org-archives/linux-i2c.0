@@ -1,738 +1,845 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 05/10] gpio: Introduce SAM gpio driver
-Date: Fri, 21 Oct 2016 01:06:40 +0200
-Message-ID: <CACRpkdZa9OdV3j7X4ptczhEOCBZfd=KKbp3jizQYSQP-xoTmCg@mail.gmail.com>
-References: <1475853518-22264-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853518-22264-6-git-send-email-pantelis.antoniou@konsulko.com>
+From: Pan Wen <wenpan@hisilicon.com>
+Subject: [PATCH resend v4] i2c: hibvt: add Hisilicon BVT I2C controller driver
+Date: Fri, 21 Oct 2016 16:17:09 +0800
+Message-ID: <20161021081709.7307-1-wenpan@hisilicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f170.google.com ([209.85.220.170]:36406 "EHLO
-        mail-qk0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752548AbcJTXGm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Oct 2016 19:06:42 -0400
-Received: by mail-qk0-f170.google.com with SMTP id o68so123549972qkf.3
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Oct 2016 16:06:41 -0700 (PDT)
-In-Reply-To: <1475853518-22264-6-git-send-email-pantelis.antoniou@konsulko.com>
+Received: from szxga01-in.huawei.com ([58.251.152.64]:14017 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753334AbcJUIZN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Oct 2016 04:25:13 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, Peter Rosin <peda@axentia.se>, Debjit Ghosh <dghosh@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, Maryam Seraj <mseraj@juniper.net>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.or
-
-n Fri, Oct 7, 2016 at 5:18 PM, Pantelis Antoniou
-<pantelis.antoniou@konsulko.com> wrote:
-
-> From: Guenter Roeck <groeck@juniper.net>
->
-> The SAM GPIO IP block is present in the Juniper PTX series
-> of routers as part of the SAM FPGA.
->
-> Signed-off-by: Georgi Vlaev <gvlaev@juniper.net>
-> Signed-off-by: Guenter Roeck <groeck@juniper.net>
-> Signed-off-by: Rajat Jain <rajatjain@juniper.net>
-> [Ported from Juniper kernel]
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-
-First copy/paste my other review comments on the previous driver
-I reviewed, this seems to have pretty much all the same issues.
-
-> +config GPIO_SAM
-> +       tristate "SAM FPGA GPIO"
-> +       depends on MFD_JUNIPER_SAM
-> +       default y if MFD_JUNIPER_SAM
-
-I suspect this should use
-select GPIOLIB_IRQCHIP
-
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/pci.h>
-> +#include <linux/gpio.h>
-
-<linux/gpio/driver.h>
-
-> +#include <linux/interrupt.h>
-> +#include <linux/irqdomain.h>
-
-Not needed with GPIOLIB_IRQCHIP
-
-> +#include <linux/errno.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/io.h>
-> +#include <linux/module.h>
-> +#include <linux/sched.h>
-
-Why?
-
-> +#include <linux/mfd/sam.h>
-> +
-> +/* gpio status/configuration */
-> +#define SAM_GPIO_NEG_EDGE      (1 << 8)
-> +#define SAM_GPIO_NEG_EDGE_EN   (1 << 7)
-> +#define SAM_GPIO_POS_EDGE      (1 << 6)
-> +#define SAM_GPIO_POS_EDGE_EN   (1 << 5)
-
-Interrupt triggers I suppose.
-
-> +#define SAM_GPIO_BLINK         (1 << 4)
-
-Cool, we don't support that in gpiolib as of now.
-Maybe we should.
-
-> +#define SAM_GPIO_OUT           (1 << 3)
-> +#define SAM_GPIO_OUT_TS                (1 << 2)
-
-OUT_TS ... what does TS mean here?
-
-> +#define SAM_GPIO_DEBOUNCE_EN   (1 << 1)
-> +#define SAM_GPIO_IN            (1 << 0)
-> +
-> +#define SAM_GPIO_BASE          0x1000
-
-Base into what, and why is this not coming from PCI
-or the device tree?
-
-> +#define SAM_MAX_NGPIO          512
-
-Why do we need to know this and what does it really mean?
-That is the max number the GPIO subsystem can handle by
-the way.
-
-> +#define SAM_GPIO_ADDR(addr, nr)        ((addr) + SAM_GPIO_BASE + (nr) * sizeof(u32))
-
-Why can't we just offset the address earlier, ah well it's OK.
-
-> +struct sam_gpio_irq_group {
-> +       int start;              /* 1st gpio pin */
-> +       int count;              /* # of pins in group */
-> +       int num_enabled;        /* # of enabled interrupts */
-> +};
-> +
-> +/**
-> + * struct sam_gpio - GPIO private data structure.
-> + * @base:                      PCI base address of Memory mapped I/O register.
-> + * @dev:                       Pointer to device structure.
-> + * @gpio:                      Data for GPIO infrastructure.
-> + * @gpio_base:                 1st gpio pin
-> + * @gpio_count:                        # of gpio pins
-> + * @irq_lock:                  Lock used by interrupt subsystem
-> + * @domain:                    Pointer to interrupt domain
-> + * @irq:                       Interrupt # from parent
-> + * @irq_high:                  Second interrupt # from parent
-> + *                             (currently unused)
-> + * @irq_group:                 Interrupt group descriptions
-> + *                             (one group per interrupt bit)
-> + * @irq_type:                  The interrupt type for each gpio pin
-> + */
-
-Why do you need to keep all of this around? Is is all really
-used? gpio_base makes me nervous we generally use dynamic
-allocation of GPIO numbers these days.
-
-> +struct sam_gpio {
-> +       void __iomem *base;
-> +       struct device *dev;
-> +       struct gpio_chip gpio;
-> +       int gpio_base;
-> +       int gpio_count;
-> +       struct mutex irq_lock;
-> +       struct irq_domain *domain;
-> +       int irq;
-> +       int irq_high;
-> +       struct sam_gpio_irq_group irq_group[18];
-> +       u8 irq_type[SAM_MAX_NGPIO];
-> +       struct sam_platform_data *pdata;
-> +       const char **names;
-> +       u32 *export_flags;
-> +};
-> +#define to_sam(chip)   container_of((chip), struct sam_gpio, gpio)
-
-Instead of this use gpiochip_get_data(). Applies everywhere.
-
-> +static void sam_gpio_bitop(struct sam_gpio *sam, unsigned int nr,
-> +                          u32 bit, bool set)
-> +{
-> +       u32 reg;
-> +
-> +       reg = ioread32(SAM_GPIO_ADDR(sam->base, nr));
-> +       if (set)
-> +               reg |= bit;
-> +       else
-> +               reg &= ~bit;
-> +       iowrite32(reg, SAM_GPIO_ADDR(sam->base, nr));
-> +       ioread32(SAM_GPIO_ADDR(sam->base, nr));
-> +}
-
-Does that rally need a helper function?
-
-Use BIT() and inline like I explained in the previous patch.
-
-> +static void sam_gpio_setup(struct sam_gpio *sam)
-> +{
-> +       struct gpio_chip *chip = &sam->gpio;
-> +
-> +       chip->parent = sam->dev;
-> +       chip->label = dev_name(sam->dev);
-> +       chip->owner = THIS_MODULE;
-> +       chip->direction_input = sam_gpio_direction_input;
-> +       chip->get = sam_gpio_get;
-> +       chip->direction_output = sam_gpio_direction_output;
-
-Implement also chip->get_direction
-
-> +       chip->set = sam_gpio_set;
-> +       chip->set_debounce = sam_gpio_debounce;
-> +       chip->dbg_show = NULL;
-> +       chip->base = sam->gpio_base;
-
-Oh no, why. Use -1 please and let gpiolib decide...
-
-> +       chip->ngpio = sam->gpio_count;
-> +#ifdef CONFIG_OF_GPIO
-> +       chip->of_node = sam->dev->of_node;
-> +#endif
-
-I doubt this #ifdef actually. If the driver needs CONFIG_OF_GPIO to
-work it should just depend on it in Kconfig.
-
-> +static int sam_of_get_exports(struct device *dev, struct sam_gpio *sam)
-> +{
-> +       struct device_node *child, *exports;
-> +       int err = 0;
-> +
-> +       if (dev->of_node == NULL)
-> +               return 0;       /* No FDT node, we are done */
-> +
-> +       exports = of_get_child_by_name(dev->of_node, "gpio-exports");
-> +       if (exports == NULL)
-> +               return 0;       /* No exports, we are done */
-> +
-> +       if (of_get_child_count(exports) == 0)
-> +               return 0;       /* No children, we are done */
-> +
-> +       sam->names = devm_kzalloc(dev, sizeof(char *) * sam->gpio_count,
-> +                                 GFP_KERNEL);
-> +       if (sam->names == NULL) {
-> +               err = -ENOMEM;
-> +               goto error;
-> +       }
-> +       sam->export_flags =
-> +               devm_kzalloc(dev, sizeof(u32) * sam->gpio_count, GFP_KERNEL);
-> +       if (sam->export_flags == NULL) {
-> +               err = -ENOMEM;
-> +               goto error;
-> +       }
-> +       for_each_child_of_node(exports, child) {
-> +               const char *label;
-> +               u32 pin, flags;
-> +
-> +               label = of_get_property(child, "label", NULL) ? : child->name;
-> +               err = of_property_read_u32_index(child, "pin", 0, &pin);
-> +               if (err)
-> +                       break;
-> +               if (pin >= sam->gpio_count) {
-> +                       err = -EINVAL;
-> +                       break;
-> +               }
-> +               err = of_property_read_u32_index(child, "pin", 1, &flags);
-> +               if (err)
-> +                       break;
-> +               /*
-> +                * flags:
-> +                * GPIOF_DIR_IN                 bit 0=1
-> +                * GPIOF_DIR_OUT                bit 0=0
-> +                *      GPIOF_INIT_HIGH         bit 1=1
-> +                * GPIOF_ACTIVE_LOW             bit 2=1
-> +                * GPIOF_OPEN_DRAIN             bit 3=1
-> +                * GPIOF_OPEN_SOURCE            bit 4=1
-> +                * GPIOF_EXPORT                 bit 5=1
-> +                * GPIOF_EXPORT_CHANGEABLE      bit 6=1
-> +                */
-> +               sam->names[pin] = label;
-> +               sam->export_flags[pin] = flags;
-> +       }
-> +error:
-> +       of_node_put(exports);
-> +       return err;
-> +}
-
-What? NAK never in my life. This looks like an old hack to
-export stuff to userspace. We don't do that. The kernel supports
-gpio-line-names to name lines in the device tree, and you can use
-the new chardev ABI to access it from userspace, sysfs is dead.
-
-Delete this function entirely.
-
-> +static int sam_gpio_of_init(struct device *dev, struct sam_gpio *sam)
-> +{
-> +       int err;
-> +       u32 val;
-> +       const u32 *igroup;
-> +       u32 group, start, count;
-> +       int i, iglen, ngpio;
-> +
-> +       if (of_have_populated_dt() && !dev->of_node) {
-> +               dev_err(dev, "No device node\n");
-> +               return -ENODEV;
-> +       }
-
-So obviously this driver Kconfig should depend on OF_GPIO.
-
-> +
-> +       err = of_property_read_u32(dev->of_node, "gpio-base", &val);
-> +       if (err)
-> +               val = -1;
-> +       sam->gpio_base = val;
-
-NAK, No Linux bases in the device tree. Only use -1.
-
-> +       err = of_property_read_u32(dev->of_node, "gpio-count", &val);
-> +       if (!err) {
-> +               if (val > SAM_MAX_NGPIO)
-> +                       val = SAM_MAX_NGPIO;
-> +               sam->gpio_count = val;
-> +       }
-
-As described in the generic bindings, use "ngpios" for this if you need it.
-
-> +       igroup = of_get_property(dev->of_node, "gpio-interrupts", &iglen);
-
-NAK on that binding.
-
-> +       if (igroup) {
-> +               iglen /= sizeof(u32);
-> +               if (iglen < 3 || iglen % 3)
-> +                       return -EINVAL;
-> +               iglen /= 3;
-> +               for (i = 0; i < iglen; i++) {
-> +                       group = be32_to_cpu(igroup[i * 3]);
-> +                       if (group >= ARRAY_SIZE(sam->irq_group))
-> +                               return -EINVAL;
-> +                       start = be32_to_cpu(igroup[i * 3 + 1]);
-> +                       count = be32_to_cpu(igroup[i * 3 + 2]);
-> +                       if (start >= sam->gpio_count || count == 0 ||
-> +                           start + count > sam->gpio_count)
-> +                               return -EINVAL;
-> +                       sam->irq_group[group].start = start;
-> +                       sam->irq_group[group].count = count;
-> +               }
-> +       }
-
-Do not invent custom interrupt bindings like this. Use the
-standard device tree mechanism to resolve IRQs from the parent
-controller. Maybe you also need to use hierarchical irqdomain
-in Linux.
-
-> +static int sam_gpio_pin_to_irq_bit(struct sam_gpio *sam, int pin)
-> +{
-> +       int bit;
-> +
-> +       for (bit = 0; bit < ARRAY_SIZE(sam->irq_group); bit++) {
-> +               struct sam_gpio_irq_group *irq_group = &sam->irq_group[bit];
-> +
-> +               if (irq_group->count &&
-> +                   pin >= irq_group->start &&
-> +                   pin <= irq_group->start + irq_group->count)
-> +                       return bit;
-> +       }
-> +       return -EINVAL;
-> +}
-> +
-> +static bool sam_gpio_irq_handle_group(struct sam_gpio *sam,
-> +                                     struct sam_gpio_irq_group *irq_group)
-> +{
-> +       unsigned int virq = 0;
-> +       bool handled = false;
-> +       bool repeat;
-> +       int i;
-> +
-> +       /* no irq_group for the interrupt bit */
-> +       if (!irq_group->count)
-> +               return false;
-> +
-> +       WARN_ON(irq_group->num_enabled == 0);
-> +       do {
-> +               repeat = false;
-> +               for (i = 0; i < irq_group->count; i++) {
-> +                       int pin = irq_group->start + i;
-> +                       bool low, high;
-> +                       u32 regval;
-> +                       u8 type;
-> +
-> +                       regval = ioread32(SAM_GPIO_ADDR(sam->base, pin));
-> +                       /*
-> +                        * write back status to clear POS_EDGE and NEG_EDGE
-> +                        * status for this GPIO pin (status bits are
-> +                        * clear-on-one). This is necessary to clear the
-> +                        * high level interrupt status.
-> +                        * Also consider the interrupt to be handled in that
-> +                        * case, even if there is no taker.
-> +                        */
-> +                       if (regval & (SAM_GPIO_POS_EDGE | SAM_GPIO_NEG_EDGE)) {
-> +                               iowrite32(regval,
-> +                                         SAM_GPIO_ADDR(sam->base, pin));
-> +                               ioread32(SAM_GPIO_ADDR(sam->base, pin));
-> +                               handled = true;
-> +                       }
-> +
-> +                       /*
-> +                        * Check if the pin changed its state.
-> +                        * If it did, and if the expected condition applies,
-> +                        * generate a virtual interrupt.
-> +                        * A pin can only generate an interrupt if
-> +                        * - interrupts are enabled for it
-> +                        * - it is configured as input
-> +                        */
-> +
-> +                       if (!sam->irq_type[pin])
-> +                               continue;
-> +                       if (!(regval & SAM_GPIO_OUT_TS))
-> +                               continue;
-> +
-> +                       high = regval & (SAM_GPIO_IN | SAM_GPIO_POS_EDGE);
-> +                       low = !(regval & SAM_GPIO_IN) ||
-> +                               (regval & SAM_GPIO_NEG_EDGE);
-> +                       type = sam->irq_type[pin];
-> +                       if (((type & IRQ_TYPE_EDGE_RISING) &&
-> +                            (regval & SAM_GPIO_POS_EDGE)) ||
-> +                           ((type & IRQ_TYPE_EDGE_FALLING) &&
-> +                            (regval & SAM_GPIO_NEG_EDGE)) ||
-> +                           ((type & IRQ_TYPE_LEVEL_LOW) && low) ||
-> +                           ((type & IRQ_TYPE_LEVEL_HIGH) && high)) {
-
-
-This if() clause does not look sane, you have to see that.
-If you think this is proper then explain with detailed comments
-what is going on.
-
-> +                               virq = irq_find_mapping(sam->domain, pin);
-> +                               handle_nested_irq(virq);
-> +                               if (type & (IRQ_TYPE_LEVEL_LOW
-> +                                           | IRQ_TYPE_LEVEL_HIGH))
-> +                                       repeat = true;
-> +                       }
-> +               }
-> +               schedule();
-
-Why? Voluntary preemption? Just use a threaded interrupt handler
-instead.
-
-> +       } while (repeat);
-> +
-> +       return handled;
-> +}
-> +
-> +static irqreturn_t sam_gpio_irq_handler(int irq, void *data)
-> +{
-> +       struct sam_gpio *sam = data;
-> +       struct sam_platform_data *pdata = sam->pdata;
-> +       irqreturn_t ret = IRQ_NONE;
-> +       bool handled;
-> +       u32 status;
-> +
-> +       do {
-> +               handled = false;
-> +               status = pdata->irq_status(sam->dev->parent, SAM_IRQ_GPIO,
-> +                                          sam->irq);
-> +               pdata->irq_status_clear(sam->dev->parent, SAM_IRQ_GPIO,
-> +                                       sam->irq, status);
-> +               while (status) {
-> +                       unsigned int bit;
-> +
-> +                       bit = __ffs(status);
-> +                       status &= ~(1 << bit);
-> +                       handled =
-> +                         sam_gpio_irq_handle_group(sam, &sam->irq_group[bit]);
-> +                       if (handled)
-> +                               ret = IRQ_HANDLED;
-> +               }
-> +       } while (handled);
-
-This handled business looks fragile. But OK.
-
-It is a simple IRQ handler, this driver should definately use
-GPIOLIB_IRQCHIP. Please look at other drivers doing that
-for inspiration. It is also well described in
-Documenation/gpio/driver.txt
-
-> +static int sam_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +       struct sam_gpio *sam = to_sam(chip);
-> +
-> +       return irq_create_mapping(sam->domain, offset);
-> +}
-
-With GPIOLIB_IRQCHIP you do not need to implement .to_irq()
-
-> +static void sam_irq_mask(struct irq_data *data)
-> +{
-> +       struct sam_gpio *sam = irq_data_get_irq_chip_data(data);
-> +       struct sam_platform_data *pdata = sam->pdata;
-> +       int bit = sam_gpio_pin_to_irq_bit(sam, data->hwirq);
-> +
-> +       if (bit < 0)
-> +               return;
-> +
-> +       if (--sam->irq_group[bit].num_enabled <= 0) {
-> +               pdata->disable_irq(sam->dev->parent, SAM_IRQ_GPIO, sam->irq,
-> +                                  1 << bit);
-
-Just BIT(bit)
-
-> +static void sam_irq_unmask(struct irq_data *data)
-> +{
-> +       struct sam_gpio *sam = irq_data_get_irq_chip_data(data);
-> +       struct sam_platform_data *pdata = sam->pdata;
-> +       int bit = sam_gpio_pin_to_irq_bit(sam, data->hwirq);
-> +
-> +       if (bit < 0)
-> +               return;
-
-Do you expect this to happen a lot? Else just delete the check or print
-an error message.
-
-> +
-> +       sam->irq_group[bit].num_enabled++;
-> +       pdata->enable_irq(sam->dev->parent, SAM_IRQ_GPIO, sam->irq, 1 << bit);
-
-Dito.
-
-> +static int sam_irq_set_type(struct irq_data *data, unsigned int type)
-> +{
-> +       struct sam_gpio *sam = irq_data_get_irq_chip_data(data);
-> +       int bit = sam_gpio_pin_to_irq_bit(sam, data->hwirq);
-> +
-> +       if (bit < 0)
-> +               return bit;
-> +
-> +       sam->irq_type[data->hwirq] = type & 0x0f;
-
-
-Why storing this and going to all that trouble?
-
-> +       sam_gpio_bitop(sam, data->hwirq, SAM_GPIO_OUT_TS, true);
-> +       sam_gpio_bitop(sam, data->hwirq, SAM_GPIO_DEBOUNCE_EN, type & 0x10);
-> +       sam_gpio_bitop(sam, data->hwirq,
-> +                      SAM_GPIO_POS_EDGE_EN | SAM_GPIO_POS_EDGE,
-> +                      type & (IRQ_TYPE_EDGE_RISING | IRQ_TYPE_LEVEL_HIGH));
-> +       sam_gpio_bitop(sam, data->hwirq,
-> +                      SAM_GPIO_NEG_EDGE_EN | SAM_GPIO_NEG_EDGE,
-> +                      type & (IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_LEVEL_LOW));
-> +
-> +       return 0;
-> +}
-
-Just set up different handlers depending on edge. This likely simplifies your
-IRQ handler code as well, as a special function (.irq_ack()) gets called for
-edge IRQs.
-
-Look how drivers/gpio/gpio-pl061.c does it.
-
-> +static void sam_irq_bus_lock(struct irq_data *data)
-> +{
-> +       struct sam_gpio *sam = irq_data_get_irq_chip_data(data);
-> +
-> +       mutex_lock(&sam->irq_lock);
-> +}
-> +
-> +static void sam_irq_bus_unlock(struct irq_data *data)
-> +{
-> +       struct sam_gpio *sam = irq_data_get_irq_chip_data(data);
-> +
-> +       /* Synchronize interrupts to chip */
-> +
-> +       mutex_unlock(&sam->irq_lock);
-> +}
-
-Aha OK if it's necessary then we need to do this.
-
-> +static struct irq_chip sam_irq_chip = {
-> +       .name = "gpio-sam",
-
-Maybe this should have an instance number or something.
-Just an idea no requirement.
-
-> +       .irq_mask = sam_irq_mask,
-> +       .irq_unmask = sam_irq_unmask,
-
-So I think this needs .irq_ack() to solve the mess above in
-the interrupt handler.
-
-> +       .irq_set_type = sam_irq_set_type,
-> +       .irq_bus_lock = sam_irq_bus_lock,
-> +       .irq_bus_sync_unlock = sam_irq_bus_unlock,
-> +};
-> +
-> +static int sam_gpio_irq_map(struct irq_domain *domain, unsigned int irq,
-> +                           irq_hw_number_t hwirq)
-> +{
-> +       irq_set_chip_data(irq, domain->host_data);
-> +       irq_set_chip(irq, &sam_irq_chip);
-> +       irq_set_nested_thread(irq, true);
-> +
-> +       irq_set_noprobe(irq);
-> +
-> +       return 0;
-> +}
-
-This will not be needed if you use GPIOLIB_IRQCHIP
-
-> +static const struct irq_domain_ops sam_gpio_irq_domain_ops = {
-> +       .map = sam_gpio_irq_map,
-> +       .xlate = irq_domain_xlate_twocell,
-> +};
-
-Nor this.
-
-> +static int sam_gpio_irq_setup(struct device *dev, struct sam_gpio *sam)
-> +{
-> +       int ret;
-> +
-> +       sam->domain = irq_domain_add_linear(dev->of_node,
-> +                                           sam->gpio_count,
-> +                                           &sam_gpio_irq_domain_ops,
-> +                                           sam);
-> +       if (sam->domain == NULL)
-> +               return -ENOMEM;
-
-Nor this.
-
-> +       ret = devm_request_threaded_irq(dev, sam->irq, NULL,
-> +                                       sam_gpio_irq_handler,
-> +                                       IRQF_ONESHOT,
-> +                                       dev_name(dev), sam);
-> +       if (ret)
-> +               goto out_remove_domain;
-
-Are you not setting .can_sleep on the gpiochip?
-
-> +
-> +       sam->gpio.to_irq = sam_gpio_to_irq;
-> +
-> +       if (!try_module_get(dev->parent->driver->owner)) {
-> +               ret = -EINVAL;
-> +               goto out_remove_domain;
-> +       }
-
-Why? Is that the MFD device? Isn't the device core
-handling this?
-
-> +static int sam_gpio_unexport(struct sam_gpio *sam)
-> +{
-> +       int i;
-> +
-> +       if (!sam->export_flags)
-> +               return 0;
-> +
-> +       /* un-export all auto-exported pins */
-> +       for (i = 0; i < sam->gpio_count; i++) {
-> +               struct gpio_desc *desc = gpio_to_desc(sam->gpio.base + i);
-> +
-> +               if (desc == NULL)
-> +                       continue;
-> +
-> +               if (sam->export_flags[i] & GPIOF_EXPORT)
-> +                       gpiochip_free_own_desc(desc);
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int sam_gpio_export(struct sam_gpio *sam)
-> +{
-> +       int i, ret;
-> +
-> +       if (!sam->export_flags)
-> +               return 0;
-> +
-> +       /* auto-export pins as requested */
-> +
-> +       for (i = 0; i < sam->gpio_count; i++) {
-> +               u32 flags = sam->export_flags[i];
-> +               struct gpio_desc *desc;
-> +
-> +               /* request and initialize exported pins */
-> +               if (!(flags & GPIOF_EXPORT))
-> +                       continue;
-> +
-> +               desc  = gpiochip_request_own_desc(&sam->gpio, i, "sam-export");
-> +               if (IS_ERR(desc)) {
-> +                       ret = PTR_ERR(desc);
-> +                       goto error;
-> +               }
-> +               if (flags & GPIOF_DIR_IN) {
-> +                       ret = gpiod_direction_input(desc);
-> +                       if (ret)
-> +                               goto error;
-> +               } else {
-> +                       ret = gpiod_direction_output(desc, flags &
-> +                                                   (GPIOF_OUT_INIT_HIGH |
-> +                                                    GPIOF_ACTIVE_LOW));
-> +                       if (ret)
-> +                               goto error;
-> +               }
-> +               ret = gpiod_export(desc, flags & GPIOF_EXPORT_CHANGEABLE);
-> +
-> +               if (ret)
-> +                       goto error;
-> +       }
-> +       return 0;
-> +
-> +error:
-> +       sam_gpio_unexport(sam);
-> +       return ret;
-> +}
-
-Just delete this. Use the new chardev ABI to access GPIOs from
-userspace as explained earlier.
-
-> +static int sam_gpio_probe(struct platform_device *pdev)
-> +{
-> +       struct device *dev = &pdev->dev;
-> +       struct sam_gpio *sam;
-> +       struct resource *res;
-> +       int ret;
-> +       struct sam_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> +
-> +       sam = devm_kzalloc(dev, sizeof(*sam), GFP_KERNEL);
-> +       if (sam == NULL)
-> +               return -ENOMEM;
-
-if (!sam)
-  return -ENOMEM;
-
-> +       sam->dev = dev;
-> +       sam->pdata = pdata;
-> +       platform_set_drvdata(pdev, sam);
-> +
-> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       if (!res)
-> +               return -ENODEV;
-> +
-> +       sam->irq = platform_get_irq(pdev, 0);
-> +       sam->irq_high = platform_get_irq(pdev, 1);
-> +
-> +       sam->base = devm_ioremap_nocache(dev, res->start, resource_size(res));
-> +       if (!sam->base)
-> +               return -ENOMEM;
-> +
-> +       mutex_init(&sam->irq_lock);
-> +
-> +       ret = sam_gpio_of_init(dev, sam);
-> +       if (ret)
-> +               return ret;
-> +
-> +       sam_gpio_setup(sam);
-> +
-> +       if (pdata && sam->irq >= 0 && of_find_property(dev->of_node,
-> +                                             "interrupt-controller", NULL)) {
-> +               ret = sam_gpio_irq_setup(dev, sam);
-> +               if (ret < 0)
-> +                       return ret;
-> +       }
-
-This is fair, but do it after adding the gpiochip and use GPIOLIB_IRQCHIP
-accessors gpiochip_irqchip_add() and gpiochip_set_chained_irqchip().
-
-Yours,
-Linus Walleij
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, xuejiancheng@hisilicon.com, jalen.hsu@hisilicon.com, lvkuanliang@hisilicon.com, suwenping@hisilicon.com, raojun@hisilicon.com, kevin.lixu@hisilicon.com, wenpan@hisilicon.com
+
+add Hisilicon BVT I2C controller driver support.
+
+Signed-off-by: Pan Wen <wenpan@hisilicon.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+change log
+v4:
+Modify the default frequency to 100KHz.
+v3:
+Add a SoC specific compatible string.
+v2:
+1)Fixed a compile error.
+2)Dropped the clock-names property.
+ .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-hibvt.c                     | 737 +++++++++++++++++++++
+ 4 files changed, 772 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+ create mode 100644 drivers/i2c/busses/i2c-hibvt.c
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+new file mode 100644
+index 0000000..db3d2e2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+@@ -0,0 +1,24 @@
++Hisilicon BVT I2C master controller
++
++Required properties:
++- compatible: should be "hisilicon,hibvt-i2c" and one of the following:
++	"hisilicon,hi3516cv300-i2c"
++- reg: physical base address of the controller and length of memory mapped.
++     region.
++- interrupts: interrupt number to the cpu.
++- clocks: phandles to input clocks.
++
++Optional properties:
++- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000.
++
++Other properties:
++see Documentation/devicetree/bindings/i2c/i2c.txt.
++
++Examples:
++i2c_bus0: i2c@12110000 {
++	compatible = "hisilicon,hi3516cv300-i2c", "hisilicon,hibvt-i2c";
++	reg = <0x12110000 0x100>;
++	interrupts = <20>;
++	clocks = <&crg_ctrl HI3516CV300_APB_CLK>;
++	clock-frequency = <100000>;
++};
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 5c3993b..fc1b679 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -555,6 +555,16 @@ config I2C_GPIO
+ 	  This is a very simple bitbanging I2C driver utilizing the
+ 	  arch-neutral GPIO API to control the SCL and SDA lines.
+ 
++config I2C_HIBVT
++	tristate "Hisilicon BVT I2C Controller"
++	depends on ARCH_HISI
++	help
++	  Say Y here to include support for Hisilicon BVT I2C controller in the
++	  Hisilicon BVT SoCs.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-hibvt.
++
+ config I2C_HIGHLANDER
+ 	tristate "Highlander FPGA SMBus interface"
+ 	depends on SH_HIGHLANDER
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 37f2819..42ef2e0 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -51,6 +51,7 @@ obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+ obj-$(CONFIG_I2C_EMEV2)		+= i2c-emev2.o
+ obj-$(CONFIG_I2C_EXYNOS5)	+= i2c-exynos5.o
+ obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
++obj-$(CONFIG_I2C_HIBVT)		+= i2c-hibvt.o
+ obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+ obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
+ obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+diff --git a/drivers/i2c/busses/i2c-hibvt.c b/drivers/i2c/busses/i2c-hibvt.c
+new file mode 100644
+index 0000000..e8af63e
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-hibvt.c
+@@ -0,0 +1,737 @@
++/*
++ * Hisilicon BVT I2C Controller Driver
++ *
++ * Copyright (c) 2016 HiSilicon Technologies Co., Ltd.
++ *
++ * Authors: wenpan@hisilicon.com
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ */
++
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++/*
++ * I2C Registers offsets
++ */
++#define HIBVT_I2C_GLB		0x0
++#define HIBVT_I2C_SCL_H		0x4
++#define HIBVT_I2C_SCL_L		0x8
++#define HIBVT_I2C_DATA1		0x10
++#define HIBVT_I2C_TXF		0x20
++#define HIBVT_I2C_RXF		0x24
++#define HIBVT_I2C_CMD_BASE	0x30
++#define HIBVT_I2C_LOOP1		0xb0
++#define HIBVT_I2C_DST1		0xb4
++#define HIBVT_I2C_TX_WATER	0xc8
++#define HIBVT_I2C_RX_WATER	0xcc
++#define HIBVT_I2C_CTRL1		0xd0
++#define HIBVT_I2C_STAT		0xd8
++#define HIBVT_I2C_INTR_RAW	0xe0
++#define HIBVT_I2C_INTR_EN	0xe4
++#define HIBVT_I2C_INTR_STAT	0xe8
++
++/*
++ * I2C Global Config Register -- HIBVT_I2C_GLB
++ */
++#define GLB_EN_MASK		BIT(0)
++#define GLB_SDA_HOLD_MASK	GENMASK(23, 8)
++#define GLB_SDA_HOLD_SHIFT	(8)
++
++/*
++ * I2C Timing CMD Register -- HIBVT_I2C_CMD_BASE + n * 4 (n = 0, 1, 2, ... 31)
++ */
++#define CMD_EXIT	0x0
++#define CMD_TX_S	0x1
++#define CMD_TX_D1_2	0x4
++#define CMD_TX_D1_1	0x5
++#define CMD_TX_FIFO	0x9
++#define CMD_RX_FIFO	0x12
++#define CMD_RX_ACK	0x13
++#define CMD_IGN_ACK	0x15
++#define CMD_TX_ACK	0x16
++#define CMD_TX_NACK	0x17
++#define CMD_JMP1	0x18
++#define CMD_UP_TXF	0x1d
++#define CMD_TX_RS	0x1e
++#define CMD_TX_P	0x1f
++
++/*
++ * I2C Control Register 1 -- HIBVT_I2C_CTRL1
++ */
++#define CTRL1_CMD_START_MASK	BIT(0)
++
++/*
++ * I2C Status Register -- HIBVT_I2C_STAT
++ */
++#define STAT_RXF_NOE_MASK	BIT(16) /* RX FIFO not empty flag */
++#define STAT_TXF_NOF_MASK	BIT(19) /* TX FIFO not full flag */
++
++
++/*
++ * I2C Interrupt status and mask Register --
++ * HIBVT_I2C_INTR_RAW, HIBVT_I2C_STAT, HIBVT_I2C_INTR_STAT
++ */
++#define INTR_ABORT_MASK		(BIT(0) | BIT(11))
++#define INTR_RX_MASK		BIT(2)
++#define INTR_TX_MASK		BIT(4)
++#define INTR_CMD_DONE_MASK	BIT(12)
++#define INTR_USE_MASK		(INTR_ABORT_MASK \
++				|INTR_RX_MASK \
++				| INTR_TX_MASK \
++				| INTR_CMD_DONE_MASK)
++#define INTR_ALL_MASK		GENMASK(31, 0)
++
++#define I2C_DEFAULT_FREQUENCY	100000
++#define I2C_TXF_DEPTH		64
++#define I2C_RXF_DEPTH		64
++#define I2C_TXF_WATER		32
++#define I2C_RXF_WATER		32
++#define I2C_WAIT_TIMEOUT	0x10000
++#define I2C_IRQ_TIMEOUT		(msecs_to_jiffies(1000))
++
++
++struct hibvt_i2c_dev {
++	struct device		*dev;
++	struct i2c_adapter	adap;
++	void __iomem		*base;
++	struct clk		*clk;
++	int			irq;
++
++	unsigned int		freq;
++	struct i2c_msg		*msg;
++	unsigned int		msg_num;
++	unsigned int		msg_idx;
++	unsigned int		msg_buf_ptr;
++	struct completion	msg_complete;
++
++	spinlock_t		lock;
++	int			status;
++};
++
++static inline void hibvt_i2c_disable(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int val;
++
++	val = readl(i2c->base + HIBVT_I2C_GLB);
++	val &= ~GLB_EN_MASK;
++	writel(val, i2c->base + HIBVT_I2C_GLB);
++}
++
++static inline void hibvt_i2c_enable(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int val;
++
++	val = readl(i2c->base + HIBVT_I2C_GLB);
++	val |= GLB_EN_MASK;
++	writel(val, i2c->base + HIBVT_I2C_GLB);
++}
++
++static inline void hibvt_i2c_cfg_irq(struct hibvt_i2c_dev *i2c,
++		unsigned int flag)
++{
++	writel(flag, i2c->base + HIBVT_I2C_INTR_EN);
++}
++
++static inline void hibvt_i2c_disable_irq(struct hibvt_i2c_dev *i2c,
++		unsigned int flag)
++{
++	unsigned int val;
++
++	val = readl(i2c->base + HIBVT_I2C_INTR_EN);
++	val &= ~flag;
++	writel(val, i2c->base + HIBVT_I2C_INTR_EN);
++}
++
++static inline unsigned int hibvt_i2c_clr_irq(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int val;
++
++	val = readl(i2c->base + HIBVT_I2C_INTR_STAT);
++	writel(INTR_ALL_MASK, i2c->base + HIBVT_I2C_INTR_RAW);
++
++	return val;
++}
++
++static inline void hibvt_i2c_cmdreg_set(struct hibvt_i2c_dev *i2c,
++		unsigned int cmd, unsigned int *offset)
++{
++	dev_dbg(i2c->dev, "hii2c reg: offset=0x%x, cmd=0x%x...\n",
++			*offset * 4, cmd);
++	writel(cmd, i2c->base + HIBVT_I2C_CMD_BASE + *offset * 4);
++	(*offset)++;
++}
++
++/*
++ * config i2c slave addr
++ */
++static inline void hibvt_i2c_set_addr(struct hibvt_i2c_dev *i2c)
++{
++	struct i2c_msg *msg = i2c->msg;
++	u16 addr;
++
++	if (msg->flags & I2C_M_TEN) {
++		/* First byte is 11110XX0 where XX is upper 2 bits */
++		addr = ((msg->addr & 0x300) << 1) | 0xf000;
++		if (msg->flags & I2C_M_RD)
++			addr |= 1 << 8;
++
++		/* Second byte is the remaining 8 bits */
++		addr |= msg->addr & 0xff;
++	} else {
++		addr = (msg->addr & 0x7f) << 1;
++		if (msg->flags & I2C_M_RD)
++			addr |= 1;
++	}
++
++	writel(addr, i2c->base + HIBVT_I2C_DATA1);
++}
++
++/*
++ * Start command sequence
++ */
++static inline void hibvt_i2c_start_cmd(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int val;
++
++	val = readl(i2c->base + HIBVT_I2C_CTRL1);
++	val |= CTRL1_CMD_START_MASK;
++	writel(val, i2c->base + HIBVT_I2C_CTRL1);
++}
++
++static int hibvt_i2c_wait_rx_noempty(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int time_cnt = 0;
++	unsigned int val;
++
++	do {
++		val = readl(i2c->base + HIBVT_I2C_STAT);
++		if (val & STAT_RXF_NOE_MASK)
++			return 0;
++
++		udelay(50);
++	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
++
++	dev_err(i2c->dev, "wait rx no empty timeout, RIS: 0x%x, SR: 0x%x\n",
++			readl(i2c->base + HIBVT_I2C_INTR_RAW), val);
++	return -EIO;
++}
++
++static int hibvt_i2c_wait_tx_nofull(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int time_cnt = 0;
++	unsigned int val;
++
++	do {
++		val = readl(i2c->base + HIBVT_I2C_STAT);
++		if (val & STAT_TXF_NOF_MASK)
++			return 0;
++
++		udelay(50);
++	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
++
++	dev_err(i2c->dev, "wait rx no empty timeout, RIS: 0x%x, SR: 0x%x\n",
++			readl(i2c->base + HIBVT_I2C_INTR_RAW), val);
++	return -EIO;
++}
++
++static int hibvt_i2c_wait_idle(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int time_cnt = 0;
++	unsigned int val;
++
++	do {
++		val = readl(i2c->base + HIBVT_I2C_INTR_RAW);
++		if (val & (INTR_ABORT_MASK)) {
++			dev_err(i2c->dev, "wait idle abort!, RIS: 0x%x\n",
++					val);
++			return -EIO;
++		}
++
++		if (val & INTR_CMD_DONE_MASK)
++			return 0;
++
++		udelay(50);
++	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
++
++	dev_err(i2c->dev, "wait idle timeout, RIS: 0x%x, SR: 0x%x\n",
++			val, readl(i2c->base + HIBVT_I2C_STAT));
++
++	return -EIO;
++}
++
++static void hibvt_i2c_set_freq(struct hibvt_i2c_dev *i2c)
++{
++	unsigned int max_freq, freq;
++	unsigned int clk_rate;
++	unsigned int val, sda_hold;
++
++	freq = i2c->freq;
++	clk_rate = clk_get_rate(i2c->clk);
++	max_freq = clk_rate >> 1;
++
++	if (freq > max_freq) {
++		i2c->freq = max_freq;
++		freq = i2c->freq;
++	}
++
++	if (freq <= 100000) {
++		val = clk_rate / (freq * 2) - 1;
++		writel(val, i2c->base + HIBVT_I2C_SCL_H);
++		writel(val, i2c->base + HIBVT_I2C_SCL_L);
++	} else {
++		val = (clk_rate * 36) / (freq * 100);
++		writel(val, i2c->base + HIBVT_I2C_SCL_H);
++		val = (clk_rate * 64) / (freq * 100);
++		writel(val, i2c->base + HIBVT_I2C_SCL_L);
++	}
++
++	sda_hold = val * 3 / 10;
++	sda_hold = (sda_hold << GLB_SDA_HOLD_SHIFT) & GLB_SDA_HOLD_MASK;
++	val = readl(i2c->base + HIBVT_I2C_GLB);
++	val &= ~GLB_SDA_HOLD_MASK;
++	val |= sda_hold;
++	writel(val, i2c->base + HIBVT_I2C_GLB);
++}
++
++/*
++ * set i2c controller TX and RX FIFO water
++ */
++static inline void hibvt_i2c_set_water(struct hibvt_i2c_dev *i2c)
++{
++	writel(I2C_TXF_WATER, i2c->base + HIBVT_I2C_TX_WATER);
++	writel(I2C_RXF_WATER, i2c->base + HIBVT_I2C_RX_WATER);
++}
++
++/*
++ * initialise the controller, set i2c bus interface freq
++ */
++static void hibvt_i2c_hw_init(struct hibvt_i2c_dev *i2c)
++{
++	hibvt_i2c_disable(i2c);
++	hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
++	hibvt_i2c_set_freq(i2c);
++	hibvt_i2c_set_water(i2c);
++}
++
++/*
++ * hibvt_i2c_cfg_cmd - config i2c controller command sequence
++ *
++ * After all the timing command is configured,
++ * and then start the command, you can i2c communication,
++ * and then only need to read and write i2c fifo.
++ */
++static void hibvt_i2c_cfg_cmd(struct hibvt_i2c_dev *i2c)
++{
++	struct i2c_msg *msg = i2c->msg;
++	int offset = 0;
++
++	if (i2c->msg_idx == 0)
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_S, &offset);
++	else
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_RS, &offset);
++
++	if (msg->flags & I2C_M_TEN) {
++		if (i2c->msg_idx == 0) {
++			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_2, &offset);
++			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_1, &offset);
++		} else {
++			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_2, &offset);
++		}
++	} else {
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_1, &offset);
++	}
++
++	if (msg->flags & I2C_M_IGNORE_NAK)
++		hibvt_i2c_cmdreg_set(i2c, CMD_IGN_ACK, &offset);
++	else
++		hibvt_i2c_cmdreg_set(i2c, CMD_RX_ACK, &offset);
++
++	if (msg->flags & I2C_M_RD) {
++		if (msg->len >= 2) {
++			writel(offset, i2c->base + HIBVT_I2C_DST1);
++			writel(msg->len - 2, i2c->base + HIBVT_I2C_LOOP1);
++			hibvt_i2c_cmdreg_set(i2c, CMD_RX_FIFO, &offset);
++			hibvt_i2c_cmdreg_set(i2c, CMD_TX_ACK, &offset);
++			hibvt_i2c_cmdreg_set(i2c, CMD_JMP1, &offset);
++		}
++		hibvt_i2c_cmdreg_set(i2c, CMD_RX_FIFO, &offset);
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_NACK, &offset);
++	} else {
++		writel(offset, i2c->base + HIBVT_I2C_DST1);
++		writel(msg->len - 1, i2c->base + HIBVT_I2C_LOOP1);
++		hibvt_i2c_cmdreg_set(i2c, CMD_UP_TXF, &offset);
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_FIFO, &offset);
++
++		if (msg->flags & I2C_M_IGNORE_NAK)
++			hibvt_i2c_cmdreg_set(i2c, CMD_IGN_ACK, &offset);
++		else
++			hibvt_i2c_cmdreg_set(i2c, CMD_RX_ACK, &offset);
++
++		hibvt_i2c_cmdreg_set(i2c, CMD_JMP1, &offset);
++	}
++
++	if ((i2c->msg_idx == (i2c->msg_num - 1)) || (msg->flags & I2C_M_STOP)) {
++		dev_dbg(i2c->dev, "run to %s %d...TX STOP\n",
++				__func__, __LINE__);
++		hibvt_i2c_cmdreg_set(i2c, CMD_TX_P, &offset);
++	}
++
++	hibvt_i2c_cmdreg_set(i2c, CMD_EXIT, &offset);
++}
++
++static int hibvt_i2c_polling_xfer_one_msg(struct hibvt_i2c_dev *i2c)
++{
++	int status;
++	unsigned int val;
++	struct i2c_msg *msg = i2c->msg;
++
++	dev_dbg(i2c->dev, "[%s,%d]msg->flags=0x%x, len=0x%x\n",
++			__func__, __LINE__, msg->flags, msg->len);
++
++	hibvt_i2c_enable(i2c);
++	hibvt_i2c_clr_irq(i2c);
++	hibvt_i2c_set_addr(i2c);
++	hibvt_i2c_cfg_cmd(i2c);
++	hibvt_i2c_start_cmd(i2c);
++
++	i2c->msg_buf_ptr = 0;
++
++	if (msg->flags & I2C_M_RD) {
++		while (i2c->msg_buf_ptr < msg->len) {
++			status = hibvt_i2c_wait_rx_noempty(i2c);
++			if (status)
++				goto end;
++
++			val = readl(i2c->base + HIBVT_I2C_RXF);
++			msg->buf[i2c->msg_buf_ptr] = val;
++			i2c->msg_buf_ptr++;
++
++		}
++	} else {
++		while (i2c->msg_buf_ptr < msg->len) {
++			status = hibvt_i2c_wait_tx_nofull(i2c);
++			if (status)
++				goto end;
++
++			val = msg->buf[i2c->msg_buf_ptr];
++			writel(val, i2c->base + HIBVT_I2C_TXF);
++			i2c->msg_buf_ptr++;
++		}
++	}
++
++	status = hibvt_i2c_wait_idle(i2c);
++end:
++	hibvt_i2c_disable(i2c);
++
++	return status;
++}
++
++static irqreturn_t hibvt_i2c_isr(int irq, void *dev_id)
++{
++	struct hibvt_i2c_dev *i2c = dev_id;
++	unsigned int irq_status;
++	struct i2c_msg *msg = i2c->msg;
++
++	spin_lock(&i2c->lock);
++
++	irq_status = hibvt_i2c_clr_irq(i2c);
++	dev_dbg(i2c->dev, "%s RIS:  0x%x\n", __func__, irq_status);
++
++	if (!irq_status) {
++		dev_dbg(i2c->dev, "no irq\n");
++		goto end;
++	}
++
++	if (irq_status & INTR_ABORT_MASK) {
++		dev_err(i2c->dev, "irq handle abort, RIS: 0x%x\n",
++				irq_status);
++		i2c->status = -EIO;
++		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
++
++		complete(&i2c->msg_complete);
++		goto end;
++	}
++
++	if (msg->flags & I2C_M_RD) {
++		while ((readl(i2c->base + HIBVT_I2C_STAT) & STAT_RXF_NOE_MASK)
++				&& (i2c->msg_buf_ptr < msg->len)) {
++			msg->buf[i2c->msg_buf_ptr] =
++				readl(i2c->base + HIBVT_I2C_RXF);
++			i2c->msg_buf_ptr++;
++		}
++	} else {
++		while ((readl(i2c->base + HIBVT_I2C_STAT) & STAT_TXF_NOF_MASK)
++				&& (i2c->msg_buf_ptr < msg->len)) {
++			writel(msg->buf[i2c->msg_buf_ptr],
++					i2c->base + HIBVT_I2C_TXF);
++			i2c->msg_buf_ptr++;
++		}
++	}
++
++	if (i2c->msg_buf_ptr >= msg->len)
++		hibvt_i2c_disable_irq(i2c, INTR_TX_MASK | INTR_RX_MASK);
++
++	if (irq_status & INTR_CMD_DONE_MASK) {
++		dev_dbg(i2c->dev, "cmd done\n");
++		i2c->status =  0;
++		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
++
++		complete(&i2c->msg_complete);
++	}
++
++end:
++	spin_unlock(&i2c->lock);
++
++	return IRQ_HANDLED;
++}
++
++static int hibvt_i2c_interrupt_xfer_one_msg(struct hibvt_i2c_dev *i2c)
++{
++	int status;
++	struct i2c_msg *msg = i2c->msg;
++	unsigned long timeout;
++	unsigned long flags;
++
++	dev_dbg(i2c->dev, "[%s,%d]msg->flags=0x%x, len=0x%x\n",
++			__func__, __LINE__, msg->flags, msg->len);
++
++	reinit_completion(&i2c->msg_complete);
++	i2c->msg_buf_ptr = 0;
++	i2c->status = -EIO;
++
++	spin_lock_irqsave(&i2c->lock, flags);
++	hibvt_i2c_enable(i2c);
++	hibvt_i2c_clr_irq(i2c);
++	if (msg->flags & I2C_M_RD)
++		hibvt_i2c_cfg_irq(i2c, INTR_USE_MASK & ~INTR_TX_MASK);
++	else
++		hibvt_i2c_cfg_irq(i2c, INTR_USE_MASK & ~INTR_RX_MASK);
++
++	hibvt_i2c_set_addr(i2c);
++	hibvt_i2c_cfg_cmd(i2c);
++	hibvt_i2c_start_cmd(i2c);
++	spin_unlock_irqrestore(&i2c->lock, flags);
++
++	timeout = wait_for_completion_timeout(&i2c->msg_complete,
++			I2C_IRQ_TIMEOUT);
++
++	if (timeout == 0) {
++		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
++		status = -EIO;
++		dev_err(i2c->dev, "%s timeout\n",
++			 msg->flags & I2C_M_RD ? "rx" : "tx");
++	} else {
++		status = i2c->status;
++	}
++
++	hibvt_i2c_disable(i2c);
++
++	return status;
++}
++
++/*
++ * Master transfer function
++ */
++static int hibvt_i2c_xfer(struct i2c_adapter *adap,
++			struct i2c_msg *msgs, int num)
++{
++	struct hibvt_i2c_dev *i2c = i2c_get_adapdata(adap);
++	int status;
++
++	if (!msgs) {
++		dev_err(i2c->dev, "msgs == NULL\n");
++		return -EIO;
++	}
++
++	i2c->msg = msgs;
++	i2c->msg_num = num;
++	i2c->msg_idx = 0;
++
++	if (i2c->irq >= 0) {
++		while (i2c->msg_idx < i2c->msg_num) {
++			status = hibvt_i2c_interrupt_xfer_one_msg(i2c);
++			if (status)
++				break;
++
++			i2c->msg++;
++			i2c->msg_idx++;
++		}
++	} else {
++		while (i2c->msg_idx < i2c->msg_num) {
++			status = hibvt_i2c_polling_xfer_one_msg(i2c);
++			if (status)
++				break;
++
++			i2c->msg++;
++			i2c->msg_idx++;
++		}
++	}
++
++	if (!status || i2c->msg_idx > 0)
++		status = i2c->msg_idx;
++
++	return status;
++}
++
++static u32 hibvt_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR
++		| I2C_FUNC_PROTOCOL_MANGLING;
++}
++
++static const struct i2c_algorithm hibvt_i2c_algo = {
++	.master_xfer		= hibvt_i2c_xfer,
++	.functionality		= hibvt_i2c_func,
++};
++
++static int hibvt_i2c_probe(struct platform_device *pdev)
++{
++	int status;
++	struct hibvt_i2c_dev *i2c;
++	struct i2c_adapter *adap;
++	struct resource *res;
++
++	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, i2c);
++	i2c->dev = &pdev->dev;
++	spin_lock_init(&i2c->lock);
++	init_completion(&i2c->msg_complete);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	i2c->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(i2c->base)) {
++		dev_err(i2c->dev, "cannot ioremap resource\n");
++		return -ENOMEM;
++	}
++
++	i2c->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(i2c->clk)) {
++		dev_err(i2c->dev, "cannot get clock\n");
++		return -ENOENT;
++	}
++	clk_prepare_enable(i2c->clk);
++
++	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
++				&i2c->freq)) {
++		dev_warn(i2c->dev, "setting default clock-frequency@%dHz\n",
++				I2C_DEFAULT_FREQUENCY);
++		i2c->freq = I2C_DEFAULT_FREQUENCY;
++	}
++
++	/* i2c controller initialization, disable interrupt */
++	hibvt_i2c_hw_init(i2c);
++
++	i2c->irq = platform_get_irq(pdev, 0);
++	status = devm_request_irq(&pdev->dev, i2c->irq, hibvt_i2c_isr,
++			IRQF_SHARED, dev_name(&pdev->dev), i2c);
++	if (status) {
++		dev_dbg(i2c->dev, "falling back to polling mode");
++		i2c->irq = -1;
++	}
++
++	adap = &i2c->adap;
++	i2c_set_adapdata(adap, i2c);
++	adap->owner = THIS_MODULE;
++	strlcpy(adap->name, "hibvt-i2c", sizeof(adap->name));
++	adap->dev.parent = &pdev->dev;
++	adap->dev.of_node = pdev->dev.of_node;
++	adap->algo = &hibvt_i2c_algo;
++
++	/* Add the i2c adapter */
++	status = i2c_add_adapter(adap);
++	if (status) {
++		dev_err(i2c->dev, "failed to add bus to i2c core\n");
++		goto err_add_adapter;
++	}
++
++	dev_info(i2c->dev, "%s%d@%dhz registered\n",
++			adap->name, adap->nr, i2c->freq);
++
++	return 0;
++
++err_add_adapter:
++	clk_disable_unprepare(i2c->clk);
++	return status;
++}
++
++static int hibvt_i2c_remove(struct platform_device *pdev)
++{
++	struct hibvt_i2c_dev *i2c = platform_get_drvdata(pdev);
++
++	clk_disable_unprepare(i2c->clk);
++	i2c_del_adapter(&i2c->adap);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM_SLEEP
++static int hibvt_i2c_suspend(struct device *dev)
++{
++	struct hibvt_i2c_dev *i2c = dev_get_drvdata(dev);
++
++	i2c_lock_adapter(&i2c->adap);
++	clk_disable_unprepare(i2c->clk);
++	i2c_unlock_adapter(&i2c->adap);
++
++	return 0;
++}
++
++static int hibvt_i2c_resume(struct device *dev)
++{
++	struct hibvt_i2c_dev *i2c = dev_get_drvdata(dev);
++
++	i2c_lock_adapter(&i2c->adap);
++	clk_prepare_enable(i2c->clk);
++	hibvt_i2c_hw_init(i2c);
++	i2c_unlock_adapter(&i2c->adap);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(hibvt_i2c_dev_pm, hibvt_i2c_suspend,
++		hibvt_i2c_resume);
++
++static const struct of_device_id hibvt_i2c_match[] = {
++	{ .compatible = "hisilicon,hibvt-i2c"},
++	{ .compatible = "hisilicon,hi3516cv300-i2c"},
++	{},
++};
++MODULE_DEVICE_TABLE(of, hibvt_i2c_match);
++
++static struct platform_driver hibvt_i2c_driver = {
++	.driver		= {
++		.name	= "hibvt-i2c",
++		.of_match_table = hibvt_i2c_match,
++		.pm	= &hibvt_i2c_dev_pm,
++	},
++	.probe		= hibvt_i2c_probe,
++	.remove		= hibvt_i2c_remove,
++};
++
++module_platform_driver(hibvt_i2c_driver);
++
++MODULE_AUTHOR("Pan Wen, <wenpan@hisilicon.com>");
++MODULE_DESCRIPTION("HISILICON BVT I2C Bus driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.9.3
