@@ -1,51 +1,37 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 06/10] gpio: gpio-i2cs: Document bindings of I2CS FPGA
- GPIO block
-Date: Fri, 21 Oct 2016 10:59:25 +0200
-Message-ID: <CACRpkdZ=mWYJpBV_WmxYcAwA5TdHM4qv9k17Jb6TnoOL4YAPHA@mail.gmail.com>
-References: <1475853669-22480-1-git-send-email-pantelis.antoniou@konsulko.com> <1475853669-22480-7-git-send-email-pantelis.antoniou@konsulko.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH v2 3/4] Device bindings documentation updated ACPI-enabled
+ platforms not currently supported
+Date: Fri, 21 Oct 2016 10:56:24 +0100
+Message-ID: <76ab13e9-9aa5-97c3-2328-928bbcef9877@synopsys.com>
+References: <cover.1476462204.git.lolivei@synopsys.com>
+ <36f4b1736e36b039af15b13645df0de492f1b6e1.1476462204.git.lolivei@synopsys.com>
+ <20161014173014.GA26269@leverpostej> <20161014182045.GA1509@katana>
+ <55cc91af-8d24-8aea-f74f-2ef40cd8ea5a@synopsys.com>
+ <20161018151706.GA1433@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1475853669-22480-7-git-send-email-pantelis.antoniou@konsulko.com>
+In-Reply-To: <20161018151706.GA1433@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Frank Rowand <frowand.list@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, Jean Delvare <jdelvare@suse.com>, Peter Rosin <peda@axentia.se>, Avirup Banerjee <abanerjee@juniper.net>, Georgi Vlaev <gvlaev@juniper.net>, Guenter Roeck <linux@roeck-us.net>, JawaharBalaji Thirumalaisamy <jawaharb@juniper.net>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.o>
+To: Wolfram Sang <wsa@the-dreams.de>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Luis.Oliveira@synopsys.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, devicetree@vger.kernel.org, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 7, 2016 at 5:21 PM, Pantelis Antoniou
-<pantelis.antoniou@konsulko.com> wrote:
+Since practically 90% of the code is shared between master and slave, I was
+thinking if it will be acceptable to use the same driver for both but
+differentiate the master/slave mode by the compatible strings.
 
-> +This is virtual gpio driver, that maps each bit of the I2CS FPGA to
-> +a gpio. It's used as a compatibility replacement for FRUs that use
-> +I2CS FPGA to report presence, control and report power status in
-> +the Juniper's driver infra that uses gpios. Compatible with any I2CS.
+Thanks,
+Luis
 
-What does "virtual" mean?
-
-I regularly NACK patches that try to shoehorn stuff into
-GPIO not because they are actually GPIO hardware drivers or
-general purpose at all, but because it is convenient. Don't do this.
-
-> +- i2c-gpio-map: Map of "I2CS register" and "direction". The registers
-> +       are 8 bit wide, each bit of the register is mapped to either
-> +       input or output depending on the bits of the "direction". If
-> +       the bit in the direction is 1, then that bit from the I2CS
-> +       register is mapped to gpio input, otherwise to gpio output.
-
-Does this mean that the hardware is synthesized so that some lines
-are hardwired as input and some hardwired as output?
-
-That again does not sound like "general purpose" at all.
-
-I think this happens in other hardware and should be a generic
-binding like
-
-gpio-lines-input-only = <0>, <4>;
-gpio-lines-output-only = <7>, <8>;
-
-And no bitmasking, use the local offset, parse and construct the
-mask.
-
-Yours,
-Linus Walleij
+On 10/18/2016 16:17, Wolfram Sang wrote:
+>> This is needed because the configuration is different and the i2c-designware
+>> cannot be master/slave without a reset. To resolve that I added this property
+>> to bind it as a slave when needed.
+> Aww, pity that the HW can't do that. Do you have details why?
+>
+> If that is really a HW limitation, then I'd suggest having a seperate
+> driver for slave-only mode so we can differentiate by compatible
+> strings.
+>
