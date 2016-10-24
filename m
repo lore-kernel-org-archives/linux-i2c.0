@@ -1,59 +1,95 @@
 From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 1/2] spi: mark device nodes only in case of successful
- instantiation
-Date: Mon, 24 Oct 2016 18:30:51 +0100
-Message-ID: <20161024173051.GK17252@sirena.org.uk>
-References: <20161017135957.20297-1-ralf@ramses-pyramidenbau.de>
- <20161017135957.20297-2-ralf@ramses-pyramidenbau.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="8jNwmpfkpox/fiJK"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:42862 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751292AbcJXRbG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2016 13:31:06 -0400
-Content-Disposition: inline
+Subject: Applied "spi: mark device nodes only in case of successful instantiation" to the spi tree
+Date: Mon, 24 Oct 2016 19:05:20 +0100
+Message-ID: <E1byjce-0001mu-N6@debutante>
+References: <20161017135957.20297-2-ralf@ramses-pyramidenbau.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20161017135957.20297-2-ralf@ramses-pyramidenbau.de>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Linux SPI <linux-spi@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Mark Brown <broonie@kernel.org>, stable@vger.kernel.orgMark Brown <broonie@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Linux SPI <linux-spi@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+List-Id: linux-i2c@vger.kernel.org
 
+The patch
 
---8jNwmpfkpox/fiJK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+   spi: mark device nodes only in case of successful instantiation
 
-On Mon, Oct 17, 2016 at 03:59:56PM +0200, Ralf Ramsauer wrote:
-> Instantiated SPI device nodes are marked with OF_POPULATE. This was
-> introduced in bd6c164. On unloading, loaded device nodes will of course
+has been applied to the spi tree at
 
-Please include human readable descriptions of things like commits and
-issues being discussed in e-mail in your mails, this makes them much
-easier for humans to read especially when they have no internet access.
-I do frequently catch up on my mail on flights or while otherwise
-travelling so this is even more pressing for me than just being about
-making things a bit easier to read.
+   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git 
 
-Please also use longer hashes - the kernel repository is big enough that
-we do actually have a few collisons on shorter hash lengths IIRC.  The
-standard thing is 12 characthers (you can set core.abbrev to 12 to help
-with this).
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
---8jNwmpfkpox/fiJK
-Content-Type: application/pgp-signature; name="signature.asc"
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-iQEcBAEBCAAGBQJYDkVKAAoJECTWi3JdVIfQNA0H+gKYoRfi1hrYmOAC+LbCDmAq
-bFKNP/Wm8QZm4Ox0AFUrJQvg1/ZUA8hOq29Q2iT+Q4aA0wh/kMoYiqptKYHDJR4i
-1cOuJ9f8h7UhlSoQnhVn6Jtkxjyh/NgeE8kUZqw4dKerAPx1S4JIzMWWWqf3IQCm
-WYT5ktLxIflHEuPQXzIeY1sQAr840L/T7MrI2rblEAsGfI0qiM9iXgfJX/aywa8T
-+9M5snM0em9eLdlulGeHxhhQYCIx0pJrOwudcnSCJaTamyJ0rmuzhBQzH9UOWiZo
-fjYfIsSsnNkSV98M3PPnzYWC6hKhgPkt6ByNCvntxEZNxcWgOlNXq7/bBLxnFaE=
-=DPzU
------END PGP SIGNATURE-----
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
---8jNwmpfkpox/fiJK--
+Thanks,
+Mark
+
+>From e0af98a7e025a7263ae7e50264f6f79ed29642a7 Mon Sep 17 00:00:00 2001
+From: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+Date: Mon, 17 Oct 2016 15:59:56 +0200
+Subject: [PATCH] spi: mark device nodes only in case of successful
+ instantiation
+
+Instantiated SPI device nodes are marked with OF_POPULATE. This was
+introduced in bd6c164. On unloading, loaded device nodes will of course
+be unmarked. The problem are nodes that fail during initialisation: If a
+node fails, it won't be unloaded and hence not be unmarked.
+
+If a SPI driver module is unloaded and reloaded, it will skip nodes that
+failed before.
+
+Skip device nodes that are already populated and mark them only in case
+of success.
+
+Note that the same issue exists for I2C.
+
+Fixes: bd6c164 ("spi: Mark instantiated device nodes with OF_POPULATE")
+Signed-off-by: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ drivers/spi/spi.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 5787b723b593..838783c3fed0 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1618,9 +1618,11 @@ static void of_register_spi_devices(struct spi_master *master)
+ 		if (of_node_test_and_set_flag(nc, OF_POPULATED))
+ 			continue;
+ 		spi = of_register_spi_device(master, nc);
+-		if (IS_ERR(spi))
++		if (IS_ERR(spi)) {
+ 			dev_warn(&master->dev, "Failed to create SPI device for %s\n",
+ 				nc->full_name);
++			of_node_clear_flag(nc, OF_POPULATED);
++		}
+ 	}
+ }
+ #else
+@@ -3131,6 +3133,7 @@ static int of_spi_notify(struct notifier_block *nb, unsigned long action,
+ 		if (IS_ERR(spi)) {
+ 			pr_err("%s: failed to create for '%s'\n",
+ 					__func__, rd->dn->full_name);
++			of_node_clear_flag(rd->dn, OF_POPULATED);
+ 			return notifier_from_errno(PTR_ERR(spi));
+ 		}
+ 		break;
+-- 
+2.8.1
