@@ -1,47 +1,53 @@
-From: Ruqiang Ju <juruqiang@huawei.com>
-Subject: [PATCH] i2c: hix5hd2: allow build with ARCH_HISI
-Date: Mon, 24 Oct 2016 16:39:49 +0800
-Message-ID: <1477298389-13462-1-git-send-email-juruqiang@huawei.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH] mfd: axp20x-i2c: Add i2c-ids to fix module auto-loading
+Date: Mon, 24 Oct 2016 11:09:38 +0100
+Message-ID: <20161024100938.GI14477@dell>
+References: <20161005155112.13774-1-hdegoede@redhat.com>
+ <20161005155112.13774-2-hdegoede@redhat.com>
+ <CAGb2v67iQikSHcwS15VmSC6fNMVG9Zya9fz6C6b5+wW43rPZfw@mail.gmail.com>
+ <bbd16837-a260-b574-1b1a-1bede038e3de@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from szxga01-in.huawei.com ([58.251.152.64]:17820 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754759AbcJXJhB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2016 05:37:01 -0400
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:35038 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752395AbcJXKHH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Oct 2016 06:07:07 -0400
+Received: by mail-wm0-f54.google.com with SMTP id c78so95069952wme.0
+        for <linux-i2c@vger.kernel.org>; Mon, 24 Oct 2016 03:07:06 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <bbd16837-a260-b574-1b1a-1bede038e3de@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, xuejiancheng@hisilicon.com, yanhaifeng@hisilicon.com, juruqiang@huawei.com
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, Sebastian Reichel <sre@kernel.org>, Dennis Gilmore <dennis@ausil.us>, Maxime Ripard <maxime.ripard@free-electrons.com>, "open list:THERMAL" <linux-pm@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-This driver should be buildable with ARCH_HISI,
-because some of other HiSilicon SoCs also use it.
+On Tue, 18 Oct 2016, Hans de Goede wrote:
+> On 18-10-16 07:25, Chen-Yu Tsai wrote:
+> > On Wed, Oct 5, 2016 at 11:51 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> > > The i2c subsys does not load modules by compatible, only by
+> > > i2c-id, with e.g. a modalias of: "i2c:axp209".
+> > > 
+> > > Populate the axp20x_i2c_id[] table with supported ids, so that
+> > > module auto-loading will work.
+> > > 
+> > > Reported-by: Dennis Gilmore <dennis@ausil.us>
+> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > 
+> > Acked-by: Chen-Yu Tsai <wens@csie.org>
+> > 
+> > Even though axp20x-i2c seems to be the only "DT only" i2c client,
+> > would it make sense to add DT-based module autoloading to the i2c
+> > core?
+> 
+> If it is not too invasive, then yes that would be a sensible addition IMHO.
 
-Signed-off-by: Ruqiang Ju <juruqiang@huawei.com>
----
- drivers/i2c/busses/Kconfig | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+If I understand you correctly, I already have a patch-set on the ML
+that does this.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 6d94e2e..41abb20 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -79,12 +79,12 @@ config I2C_AMD8111
- 
- config I2C_HIX5HD2
- 	tristate "Hix5hd2 high-speed I2C driver"
--	depends on ARCH_HIX5HD2 || COMPILE_TEST
-+	depends on ARCH_HISI || ARCH_HIX5HD2 || COMPILE_TEST
- 	help
--	  Say Y here to include support for high-speed I2C controller in the
--	  Hisilicon based hix5hd2 SoCs.
-+	  Say Y here to include support for the high-speed I2C controller
-+	  used in HiSilicon hix5hd2 SoCs.
- 
--	  This driver can also be built as a module.  If so, the module
-+	  This driver can also be built as a module. If so, the module
- 	  will be called i2c-hix5hd2.
- 
- config I2C_I801
 -- 
-1.9.1
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
