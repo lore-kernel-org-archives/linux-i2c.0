@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv6 04/11] i2c: Make I2C ID tables non-mandatory for DT'ed devices
-Date: Tue, 25 Oct 2016 17:41:48 +0100
-Message-ID: <1477413715-22894-5-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv6 05/11] i2c: Export i2c_match_id() for direct use by device drivers
+Date: Tue, 25 Oct 2016 17:41:49 +0100
+Message-ID: <1477413715-22894-6-git-send-email-kieran@bingham.xyz>
 References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
@@ -12,11 +12,13 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-Currently the I2C framework insists on devices supplying an I2C ID
-table.  Many of the devices which do so unnecessarily adding quite a
-few wasted lines to kernel code.  This patch allows drivers a means
-to 'not' supply the aforementioned table and match on DT match tables
-instead.
+When there was no other way to match a I2C device to driver i2c_match_id()
+was exclusively used.  However, now there are other types of tables which
+are commonly supplied, matching on an i2c_device_id table is used less
+frequently.  Instead of _always_ calling i2c_match_id() from within the
+framework, we only need to do so from drivers which have no other way of
+matching.  This patch makes i2c_match_id() available to the aforementioned
+device drivers.
 
 Acked-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
@@ -25,38 +27,43 @@ Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
 ---
- drivers/i2c/i2c-core.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core.c | 3 ++-
+ include/linux/i2c.h    | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d5eca0dc32be..a69b47990ae7 100644
+index a69b47990ae7..f20c9b229570 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -607,7 +607,7 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+@@ -586,7 +586,7 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
  
+ /* ------------------------------------------------------------------------- */
  
- 	/* Attempt an OF style match */
--	if (of_driver_match_device(dev, drv))
-+	if (i2c_of_match_device(drv->of_match_table, client))
- 		return 1;
- 
- 	/* Then ACPI style match */
-@@ -833,7 +833,15 @@ static int i2c_device_probe(struct device *dev)
+-static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
++const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ 						const struct i2c_client *client)
+ {
+ 	if (!(id && client))
+@@ -599,6 +599,7 @@ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
  	}
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(i2c_match_id);
  
- 	driver = to_i2c_driver(dev->driver);
--	if (!driver->probe || !driver->id_table)
-+	if (!driver->probe)
-+		return -EINVAL;
-+
-+	/*
-+	 * An I2C ID table is not mandatory, if and only if, a suitable Device
-+	 * Tree match table entry is supplied for the probing device.
-+	 */
-+	if (!driver->id_table &&
-+	    !i2c_of_match_device(dev->driver->of_match_table, client))
- 		return -ENODEV;
+ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 2608e731e401..39f1131a58d1 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -243,6 +243,8 @@ struct i2c_client {
  
- 	if (client->flags & I2C_CLIENT_WAKE) {
+ extern struct i2c_client *i2c_verify_client(struct device *dev);
+ extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
++extern const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
++					const struct i2c_client *client);
+ 
+ static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
+ {
 -- 
 2.7.4
