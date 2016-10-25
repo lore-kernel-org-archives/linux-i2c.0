@@ -1,61 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rk3x: Give the tuning value 0 during
- rk3x_i2c_v0_calc_timings
-Date: Tue, 25 Oct 2016 11:12:49 +0200
-Message-ID: <20161025091249.GB1597@katana>
-References: <1477125822-30644-1-git-send-email-david.wu@rock-chips.com>
+Subject: Re: [PATCH v2 2/2] i2c: mark device nodes only in case of successful
+ instantiation
+Date: Tue, 25 Oct 2016 11:23:01 +0200
+Message-ID: <20161025092301.GC1597@katana>
+References: <20161017135957.20297-1-ralf@ramses-pyramidenbau.de>
+ <20161017135957.20297-3-ralf@ramses-pyramidenbau.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
+        protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49162 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:49201 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751633AbcJYJNG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 05:13:06 -0400
+        id S1758227AbcJYJXI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Oct 2016 05:23:08 -0400
 Content-Disposition: inline
-In-Reply-To: <1477125822-30644-1-git-send-email-david.wu@rock-chips.com>
+In-Reply-To: <20161017135957.20297-3-ralf@ramses-pyramidenbau.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Wu <david.wu@rock-chips.com>
-Cc: heiko@sntech.de, dianders@chromium.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+Cc: Mark Brown <broonie@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux SPI <linux-spi@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>
 
 
---7ZAtKRhVyVSsbBD2
+--z4+8/lEcDcG5Ke9S
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 22, 2016 at 04:43:42PM +0800, David Wu wrote:
-> We found a bug that i2c transfer sometimes failed on 3066a board with
-> stabel-4.8, the con register would be updated by uninitialized tuning
-> value, it made the i2c transfer failed.
+On Mon, Oct 17, 2016 at 03:59:57PM +0200, Ralf Ramsauer wrote:
+> Instantiated I2C device nodes are marked with OF_POPULATE. This was
+> introduced in 4f001fd. On unloading, loaded device nodes will of course
+> be unmarked. The problem are nodes that fail during initialisation: If a
+> node fails, it won't be unloaded and hence not be unmarked.
 >=20
-> So give the tuning value to be zero during rk3x_i2c_v0_calc_timings.
+> If a I2C driver module is unloaded and reloaded, it will skip nodes that
+> failed before.
 >=20
-> Signed-off-by: David Wu <david.wu@rock-chips.com>
+> Skip device nodes that are already populated and mark them only in case
+> of success.
+>=20
+> Note that the same issue exists for SPI.
+>=20
+> Fixes: 4f001fd ("i2c: Mark instantiated device nodes with OF_POPULATE")
+> Signed-off-by: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
 
-Added stable and applied to for-current, thanks!
+Applied to for-current, thanks!
 
 
---7ZAtKRhVyVSsbBD2
+--z4+8/lEcDcG5Ke9S
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYDyIQAAoJEBQN5MwUoCm2lMUP/i82Id2/URoH8Gh4QxcR6rpk
-d/IIEuYFLBjPZfD0iGYxIPH9iabKRTwi+x/c4TgFOA8YU+VybHnzu4ZPQLuIC79l
-5jBc+nkwLgwD69iud+V/7EJF3891C29BPx/UarK+HPouF2CnBUhlKhUtGRxun+AG
-6/m+lOPZ8CvZnxaU08P+qWM0nkVeSLpooU0vM389sd/uHJ/0FmgU4s6LWuC/yqvg
-0wOpXhn4npcT37ApqssKses6MRDCAH1abv8z58zLGDURQZVU50g9D3fOki1pWdQO
-7pw0UdnjE2Ix/4v/9R1MZJdox6cRmRD/x8TCNerUE3ChgecNuX0SDpH6lb8/kxT0
-vJBSw5U+A53Z6vemnU91VfxFg9o/dNE7hRRgP+T0dnL+BRU6iuUaAErdnk97NDzK
-qfpvCEisWeQG0lODuBX16nD1ESgxE+gmPFFyz45ZkNPqmKh2IySNk0mDa4s+wJsD
-8AELlo/uxYNZvMy0fOczOpqE3jRsDxD5CPkgQcUAMrV3xA6anleVdpDZBSrPkcHU
-MDSLw1aQuZHge7eWet8nFsZwYzcRvelFfX3bn6ac3/W5eNdGyaR5NA/nTREpumA9
-fJZsVsNvwEEE4Mobgtv6QjlJj1MPCt6Sdxumb9T5eTPrVdjJCW7jETGr+JwK/y67
-kjA5ov2GIT+tKo3S5Qbh
-=3kD+
+iQIcBAEBAgAGBQJYDyR1AAoJEBQN5MwUoCm2Xj8P/3C1MutimouBmDa59NrKf/DV
+evEZBR9Echq0bu3MlvJYrfoqsgYMLtDQ3Y37sB4gswceD+b8W1cSfn0MK7R97m1l
+78QWtxm9ZISKVg2JIt9Kut47ZM3iFD2dzkM5I0HEkcYOApRB+QADp9t7j1LL0o4P
+fiukJiX0JdBoDRZFoVKLxGt3/X3RUJfwMYs1bTnDvA7UrmX8thcYeGt4yQ9r1eoe
+yUP4lVT0wZKToXnWmnLUYxgGbCZjXMIN4IK9X/33fyAySrIossdwzGTKy/wxSpDb
+neYztFT8B2I8cFfgQOvdhHXJwfV0h8jofgRKjTJGpGYSwzOqr+Pkmmldwifw3Wpc
+0Sg7erFGfEI8hUXu4GlPXXCQzOXCGYyubYLrLmhytA/4+kbF32GjXF7PRKBNxh1a
+hljPdPqNyN2oflWEoPNgJnUKFRCAVZsSOOQeIqcdo1ErUwTA/d7GPKQyOiGFxcqz
+03NkaTYxOIgNP1F/L0NXHyAMKr4brPU2jlVRuwM1Ohvc6MnY+6vVrORPtHrzgsH2
+PMOd9oQjrYygNQ7AFo9EzI2lRxgd+6slZNdlTUnEyh6gwaIgxWzMTNPSSyi4QMeH
+PtYK/gJhSrTL4qb+jKitA0GFvG70Z3FU+V0TGccx/dt30ikihj1Y+YN3dgvT+kgr
+h/wN2a1xBdQIUad28mSf
+=DSaT
 -----END PGP SIGNATURE-----
 
---7ZAtKRhVyVSsbBD2--
+--z4+8/lEcDcG5Ke9S--
