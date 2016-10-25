@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv6 05/11] i2c: Export i2c_match_id() for direct use by device drivers
-Date: Tue, 25 Oct 2016 17:41:49 +0100
-Message-ID: <1477413715-22894-6-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv6 06/11] i2c: Provide a temporary .probe_new() call-back type
+Date: Tue, 25 Oct 2016 17:41:50 +0100
+Message-ID: <1477413715-22894-7-git-send-email-kieran@bingham.xyz>
 References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
@@ -12,58 +12,88 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Lee Jones <lee.jones@linaro.org>
 
-When there was no other way to match a I2C device to driver i2c_match_id()
-was exclusively used.  However, now there are other types of tables which
-are commonly supplied, matching on an i2c_device_id table is used less
-frequently.  Instead of _always_ calling i2c_match_id() from within the
-framework, we only need to do so from drivers which have no other way of
-matching.  This patch makes i2c_match_id() available to the aforementioned
-device drivers.
+This will aid the seamless removal of the current probe()'s, more
+commonly unused than used second parameter.  Most I2C drivers can
+simply switch over to the new interface, others which have DT
+support can use its own matching instead and others can call
+i2c_match_id() themselves.  This brings I2C's device probe method
+into line with other similar interfaces in the kernel and prevents
+the requirement to pass an i2c_device_id table.
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
+Suggested-by: Grant Likely <grant.likely@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
+[Kieran: fix rebase conflicts and adapt for dev_pm_domain_{attach,detach}]
 Tested-by: Kieran Bingham <kieran@bingham.xyz>
 Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
 ---
- drivers/i2c/i2c-core.c | 3 ++-
- include/linux/i2c.h    | 2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+Changes since v4 [Kieran]
+ - Rename .probe2 to probe_new
+ - Checkpatch warnings fixed
+---
+ drivers/i2c/i2c-core.c | 15 ++++++++++++---
+ include/linux/i2c.h    |  8 +++++++-
+ 2 files changed, 19 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index a69b47990ae7..f20c9b229570 100644
+index f20c9b229570..2003334b5246 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -586,7 +586,7 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- 
- /* ------------------------------------------------------------------------- */
- 
--static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 						const struct i2c_client *client)
- {
- 	if (!(id && client))
-@@ -599,6 +599,7 @@ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -834,8 +834,6 @@ static int i2c_device_probe(struct device *dev)
  	}
- 	return NULL;
- }
-+EXPORT_SYMBOL_GPL(i2c_match_id);
  
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
+ 	driver = to_i2c_driver(dev->driver);
+-	if (!driver->probe)
+-		return -EINVAL;
+ 
+ 	/*
+ 	 * An I2C ID table is not mandatory, if and only if, a suitable Device
+@@ -877,7 +875,18 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status == -EPROBE_DEFER)
+ 		goto err_clear_wakeup_irq;
+ 
+-	status = driver->probe(client, i2c_match_id(driver->id_table, client));
++	/*
++	 * When there are no more users of probe(),
++	 * rename probe_new to probe.
++	 */
++	if (driver->probe_new)
++		status = driver->probe_new(client);
++	else if (driver->probe)
++		status = driver->probe(client,
++				       i2c_match_id(driver->id_table, client));
++	else
++		status = -EINVAL;
++
+ 	if (status)
+ 		goto err_detach_pm_domain;
+ 
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 2608e731e401..39f1131a58d1 100644
+index 39f1131a58d1..d31f37e90d11 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -243,6 +243,8 @@ struct i2c_client {
+@@ -135,7 +135,8 @@ enum i2c_alert_protocol {
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+  * @attach_adapter: Callback for bus addition (deprecated)
+- * @probe: Callback for device binding
++ * @probe: Callback for device binding - soon to be deprecated
++ * @probe_new: New callback for device binding
+  * @remove: Callback for device unbinding
+  * @shutdown: Callback for device shutdown
+  * @alert: Alert callback, for example for the SMBus alert protocol
+@@ -178,6 +179,11 @@ struct i2c_driver {
+ 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+ 	int (*remove)(struct i2c_client *);
  
- extern struct i2c_client *i2c_verify_client(struct device *dev);
- extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
-+extern const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+					const struct i2c_client *client);
++	/* New driver model interface to aid the seamless removal of the
++	 * current probe()'s, more commonly unused than used second parameter.
++	 */
++	int (*probe_new)(struct i2c_client *);
++
+ 	/* driver model interfaces that don't relate to enumeration  */
+ 	void (*shutdown)(struct i2c_client *);
  
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
- {
 -- 
 2.7.4
