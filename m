@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv6 10/11] mfd: as3722: Rid driver of superfluous I2C device ID structure
-Date: Tue, 25 Oct 2016 17:41:54 +0100
-Message-ID: <1477413715-22894-11-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv6 07/11] i2c: match dt-style device names from sysfs interface
+Date: Tue, 25 Oct 2016 17:41:51 +0100
+Message-ID: <1477413715-22894-8-git-send-email-kieran@bingham.xyz>
 References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
@@ -10,57 +10,44 @@ To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Kieran B
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+A user can choose to instantiate a device on an i2c bus using the sysfs
+interface by providing a string and address to match and communicate
+with the device on the bus. Presently this string is only matched
+against the old i2c device id style strings, even in the presence of
+full device tree compatible strings with vendor prefixes.
 
-Also remove unused second probe() parameter 'i2c_device_id'.
+Providing a vendor-prefixed string to the sysfs interface will not match
+against the device tree of_match_device() calls as there is no device
+tree node to parse from the sysfs interface.
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Convert i2c_of_match_device_strip_vendor() such that it can match both
+vendor prefixed and stripped compatible strings on the sysfs interface.
+
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
-
 ---
-Changes since v4
- - Rename .probe2 to probe_new
----
- drivers/mfd/as3722.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/i2c/i2c-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
-index f87342c211bc..7d8c5e4136e2 100644
---- a/drivers/mfd/as3722.c
-+++ b/drivers/mfd/as3722.c
-@@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
- 	return 0;
- }
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 2003334b5246..01bce56f733a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1692,6 +1692,16 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
+ 	const char *name;
  
--static int as3722_i2c_probe(struct i2c_client *i2c,
--			const struct i2c_device_id *id)
-+static int as3722_i2c_probe(struct i2c_client *i2c)
- {
- 	struct as3722 *as3722;
- 	unsigned long irq_flags;
-@@ -441,12 +440,6 @@ static const struct of_device_id as3722_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, as3722_of_match);
- 
--static const struct i2c_device_id as3722_i2c_id[] = {
--	{ "as3722", 0 },
--	{},
--};
--MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
--
- static const struct dev_pm_ops as3722_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(as3722_i2c_suspend, as3722_i2c_resume)
- };
-@@ -457,8 +450,7 @@ static struct i2c_driver as3722_i2c_driver = {
- 		.of_match_table = as3722_of_match,
- 		.pm = &as3722_pm_ops,
- 	},
--	.probe = as3722_i2c_probe,
--	.id_table = as3722_i2c_id,
-+	.probe_new = as3722_i2c_probe,
- };
- 
- module_i2c_driver(as3722_i2c_driver);
+ 	for (; matches->compatible[0]; matches++) {
++		/*
++		 * Adding devices through the i2c sysfs interface provides us
++		 * a string to match which may be compatible with the device
++		 * tree compatible strings, however with no actual of_node the
++		 * of_match_device() will not match
++		 */
++		if (!strncasecmp(client->name, matches->compatible,
++				strlen(matches->compatible)))
++			return matches;
++
+ 		name = strchr(matches->compatible, ',');
+ 		if (!name)
+ 			name = matches->compatible;
 -- 
 2.7.4
