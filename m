@@ -1,81 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] drivers/i2c/i2c-dev: Fix kernel memory disclosure
-Date: Tue, 25 Oct 2016 11:45:13 +0200
-Message-ID: <20161025094512.GF1597@katana>
-References: <1476190348-37589-1-git-send-email-vlad@tsyrklevich.net>
+Subject: Re: [PATCH] i2c: xgene: Avoid dma_buffer overrun
+Date: Tue, 25 Oct 2016 11:50:40 +0200
+Message-ID: <20161025095040.GG1597@katana>
+References: <1476119590-21489-1-git-send-email-hotran@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="FeAIMMcddNRN4P4/"
+        protocol="application/pgp-signature"; boundary="Fnm8lRGFTVS/3GuM"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49295 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:49305 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751044AbcJYJpR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 05:45:17 -0400
+        id S1755405AbcJYJup (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Oct 2016 05:50:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1476190348-37589-1-git-send-email-vlad@tsyrklevich.net>
+In-Reply-To: <1476119590-21489-1-git-send-email-hotran@apm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vlad Tsyrklevich <vlad@tsyrklevich.net>
-Cc: linux-i2c@vger.kernel.org
+To: Hoan Tran <hotran@apm.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Phil Endecott <phil_gjouf_endecott@chezphil.org>, Loc Ho <lho@apm.com>, tnhuynh@apm.com, patches@apm.com
 
 
---FeAIMMcddNRN4P4/
+--Fnm8lRGFTVS/3GuM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 11, 2016 at 02:52:28PM +0200, Vlad Tsyrklevich wrote:
-> i2c_smbus_xfer() does not always fill an entire block, allowing
-> kernel stack memory disclosure through the temp variable. Clear
-> it before it's read to.
+On Mon, Oct 10, 2016 at 10:13:10AM -0700, Hoan Tran wrote:
+> SMBus block command uses the first byte of buffer for the data length.
+> The dma_buffer should be increased by 1 to avoid the overrun issue.
 >=20
-> Signed-off-by: Vlad Tsyrklevich <vlad@tsyrklevich.net>
+> Reported-by: Phil Endecott <phil_gjouf_endecott@chezphil.org>
+> Signed-off-by: Hoan Tran <hotran@apm.com>
 
-Yes, thanks. But what about clearing 'temp' when it is declared? This
-would be rock-solid for all future code paths.
+Added stable and applied to for-current, thanks!
 
->=20
-> ---
->  drivers/i2c/i2c-dev.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index 66f323f..62cb111 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -393,6 +393,8 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_cli=
-ent *client,
->  	    (data_arg.read_write =3D=3D I2C_SMBUS_WRITE)) {
->  		if (copy_from_user(&temp, data_arg.data, datasize))
->  			return -EFAULT;
-> +	} else {
-> +		memset(&temp, 0, datasize);
->  	}
->  	if (data_arg.size =3D=3D I2C_SMBUS_I2C_BLOCK_BROKEN) {
->  		/* Convert old I2C block commands to the new
-> --=20
-> 2.7.0
->=20
 
---FeAIMMcddNRN4P4/
+--Fnm8lRGFTVS/3GuM
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYDymoAAoJEBQN5MwUoCm21+gP/0DgEgbaCIN/V5F2h5IaSvtR
-C5zBPgfajvmWwclF2MdUObh7JdLs8xaE45yd9+fgM5mslyi+MiwpWR0mYqFikanj
-QRxbH1vw/QA0rQHPSOXO5cvlAPOycm8c9J7VYrx9b2KYNuCYf4atLhi4a8T/IcIC
-PHguodjkb3PCy4Yq7+0WPZ/oy0bRnV58doLNrpvUUErtQTmaJqrTLhM70g/7z++k
-htiaNFOc+7kWqpFun0RaARhGN/GlXprFK2gERRi2sGve8OQJzlHRZ58b4M1IeUV7
-6ezsG/H/SVr2N3PrPPBOhhbqwDTcleTMqHEcJf2w4SftgS6zTX7/gPK0WQ3EgrEC
-mDTLZroFwKHJsH6nFX083iXSk+XNGtFjFJsrHW8mXf6mwwbutIBrsqXJC+OLiDEx
-Y26Vigqz4TD1m64Vg3wSdUtHmwf3SCfL4BBmE++CtEMjmdTSfQfSm8blqiwBfvaV
-nGd/jCFw+JHfe4ExdABDnj+A3sUjmav4MZf9vLkWPJwj5xM9vHyiF2YDU710KAbz
-r6mCVESBAEqlZJOG7whenSWqsHXXQbX8iAl0GgyN/nUnsD04KZs1RNmiG9oJ90ct
-AF5D0MGH6iNreJsIHAOCIh0dOig1tRBulZv94Kqj5axGj2wMAXncuyf8nLvqtFHL
-V/3EuXM7yI5jPj4z8mzo
-=vyYk
+iQIcBAEBAgAGBQJYDyrwAAoJEBQN5MwUoCm2bXYP/0/0snAO6uDso1CeZ4CtVLU/
+Lf/ahv/3+HNicj/1oIf8VNDUaMk+RUpE7bY1BMZNKzwjDrjwbcsGfA3Nb2OLlTr+
+SthSgkRibUD2XyWWzHC+9g12TM2dNS3yUrwOEYnDZQwLD6hsjUODtsiCLNODncHn
+r01iTC2bcge1STfy7Zhb7hzo18kKMeR3WizdWnCBowSzUeY6LJzyEg0rXU+Pc+1G
+YrMBrTyulWUccoA0dGeepJ/LALCR8WsBtU6nKtVuOkFACLbgqpWSBQiuAoUSW1wd
+Bu1CCeY6fj9cO5DR+6LOX1QbAC3haBdgIwgfdSt0j7kaPI7DBKVhD6mwWDRWMK3W
+D33cy84jceTITzvEpuALVjhgGM0FqAM3kvhVfurgBi28LCWmfTZiTAo8bcZIHDSn
+f0nNETDDInAAg2L49/LQzFJqhhd6dIU3rfe6OfTWBaLYBpOGemIeIFy9Q72XA5S+
+QOt59h/jY09OfYTa32IiMMO8CJBVH8ilC1mIALbqqMgn8Fjo6m2AmMLrYYwwsl1q
+PSBCeBmTjpIjSYQzIuxlomGVEUw0eujARmRYFWJ5Iu14pqWVS5HbKnlCsDRO+Cja
+Z9OuN41FA4Uo0DSoWVDxjsGM74jz2fcVmOhlJec5KsjFP2WWZUOoAhHcW3QxNC9k
+KLiT5Pr0w9Jubcz0h0mh
+=jJbd
 -----END PGP SIGNATURE-----
 
---FeAIMMcddNRN4P4/--
+--Fnm8lRGFTVS/3GuM--
