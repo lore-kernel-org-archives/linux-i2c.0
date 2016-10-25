@@ -1,70 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: mark device nodes only in case of successful
- instantiation
-Date: Tue, 25 Oct 2016 11:23:01 +0200
-Message-ID: <20161025092301.GC1597@katana>
-References: <20161017135957.20297-1-ralf@ramses-pyramidenbau.de>
- <20161017135957.20297-3-ralf@ramses-pyramidenbau.de>
+Subject: Re: [PATCH] i2c: allow configuration of imx driver for ColdFire
+ architecture
+Date: Tue, 25 Oct 2016 11:24:41 +0200
+Message-ID: <20161025092440.GD1597@katana>
+References: <1476669245-3678-1-git-send-email-gerg@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
+        protocol="application/pgp-signature"; boundary="T7mxYSe680VjQnyC"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49201 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:49205 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758227AbcJYJXI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 05:23:08 -0400
+        id S1755975AbcJYJYp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Oct 2016 05:24:45 -0400
 Content-Disposition: inline
-In-Reply-To: <20161017135957.20297-3-ralf@ramses-pyramidenbau.de>
+In-Reply-To: <1476669245-3678-1-git-send-email-gerg@linux-m68k.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
-Cc: Mark Brown <broonie@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux SPI <linux-spi@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+To: Greg Ungerer <gerg@linux-m68k.org>
+Cc: linux-i2c@vger.kernel.org, angelo@sysam.it
 
 
---z4+8/lEcDcG5Ke9S
+--T7mxYSe680VjQnyC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 17, 2016 at 03:59:57PM +0200, Ralf Ramsauer wrote:
-> Instantiated I2C device nodes are marked with OF_POPULATE. This was
-> introduced in 4f001fd. On unloading, loaded device nodes will of course
-> be unmarked. The problem are nodes that fail during initialisation: If a
-> node fails, it won't be unloaded and hence not be unmarked.
+On Mon, Oct 17, 2016 at 11:54:05AM +1000, Greg Ungerer wrote:
+> The i2c controller used by Freescales iMX processors is the same
+> hardware module used on Freescales ColdFire family of processors.
 >=20
-> If a I2C driver module is unloaded and reloaded, it will skip nodes that
-> failed before.
+> We can use the existing i2c-imx driver on ColdFire family members.
+> Modify the configuration to allow it to be selected when compiling
+> for ColdFire targets.
 >=20
-> Skip device nodes that are already populated and mark them only in case
-> of success.
->=20
-> Note that the same issue exists for SPI.
->=20
-> Fixes: 4f001fd ("i2c: Mark instantiated device nodes with OF_POPULATE")
-> Signed-off-by: Ralf Ramsauer <ralf@ramses-pyramidenbau.de>
+> Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 
 Applied to for-current, thanks!
 
 
---z4+8/lEcDcG5Ke9S
+--T7mxYSe680VjQnyC
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYDyR1AAoJEBQN5MwUoCm2Xj8P/3C1MutimouBmDa59NrKf/DV
-evEZBR9Echq0bu3MlvJYrfoqsgYMLtDQ3Y37sB4gswceD+b8W1cSfn0MK7R97m1l
-78QWtxm9ZISKVg2JIt9Kut47ZM3iFD2dzkM5I0HEkcYOApRB+QADp9t7j1LL0o4P
-fiukJiX0JdBoDRZFoVKLxGt3/X3RUJfwMYs1bTnDvA7UrmX8thcYeGt4yQ9r1eoe
-yUP4lVT0wZKToXnWmnLUYxgGbCZjXMIN4IK9X/33fyAySrIossdwzGTKy/wxSpDb
-neYztFT8B2I8cFfgQOvdhHXJwfV0h8jofgRKjTJGpGYSwzOqr+Pkmmldwifw3Wpc
-0Sg7erFGfEI8hUXu4GlPXXCQzOXCGYyubYLrLmhytA/4+kbF32GjXF7PRKBNxh1a
-hljPdPqNyN2oflWEoPNgJnUKFRCAVZsSOOQeIqcdo1ErUwTA/d7GPKQyOiGFxcqz
-03NkaTYxOIgNP1F/L0NXHyAMKr4brPU2jlVRuwM1Ohvc6MnY+6vVrORPtHrzgsH2
-PMOd9oQjrYygNQ7AFo9EzI2lRxgd+6slZNdlTUnEyh6gwaIgxWzMTNPSSyi4QMeH
-PtYK/gJhSrTL4qb+jKitA0GFvG70Z3FU+V0TGccx/dt30ikihj1Y+YN3dgvT+kgr
-h/wN2a1xBdQIUad28mSf
-=DSaT
+iQIcBAEBAgAGBQJYDyTYAAoJEBQN5MwUoCm2nR4P/RNVYzQR99iRc/2aEOh7JfR/
+vzF374pPeWPnJRta5bAkjux73Ghp+aB5H0uANwxfQX5fQ+OJuww5SMq1pxc3QGHz
++U88HybmA33S4b9h5sB6tlLs8KkqzHxgfpvgJJcYe3pP/A6eGSM3B/IQvaVR1pSe
+Y+Mk9YZ9aDX6ycvJ5CUEUiMFdKZaxo77my5kvJSGcQVKz13QtZaThAuFpASN1X2E
+15JS687dU5SG9KUx1U973GZuEnIDMAzfUkfTMjDd62hsm12LRxVxnQRj2TW5N4HI
+6bX0HTOoNIybFP8mZs3PaAqFiketZHx3bti5rmeGIZtDOSFBx/+LPBvwek/tsUP7
+BiefmYmKD8HIKUUmBg1npevA0JeocJsNYM8INWdshJkX1Ckr7aOGlr/3aaOVovl7
+S1ZZA5GhDYHCGHgUyHVxIgLInznwkwA9D+ZBLME95FQE+a0ota+dqZ49VUyH4GbA
+WIlbjWOwn5O9YzjILMlv3DksRMXPSr1mA91kKYyyL39aAqjN5PhUdwsbgsano9+w
+m99ylLMPjZ6MfSz2AVR6nlJKX15Wp76zxlP9lGZaIc2nM43Peq/UXSgB1wxXfOaj
+TuQrp9ODmNErWDg6Z2eZLl0aUs9tPToQWfp1+iQhoJDVWrjjK2oGCN6Jz6VR6suS
+wIOqj+nyRWJv35Bdcq4T
+=xI8Q
 -----END PGP SIGNATURE-----
 
---z4+8/lEcDcG5Ke9S--
+--T7mxYSe680VjQnyC--
