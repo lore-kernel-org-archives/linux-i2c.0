@@ -1,45 +1,32 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1] I2C Designware Core Supports SMBUS BLOCK
-Date: Tue, 25 Oct 2016 15:34:09 +0300
-Message-ID: <1477398849.6423.63.camel@linux.intel.com>
-References: <1477370113-15145-1-git-send-email-tnhuynh@apm.com>
-         <20161025115025.GI1476@lahna.fi.intel.com>
+From: Jean Delvare <jdelvare@suse.com>
+Subject: Re: True Parallel Port Interface for Bit-banging?
+Date: Tue, 25 Oct 2016 15:22:35 +0200
+Message-ID: <1477401755.4275.18.camel@chaos.suse>
+References: <580F4042.5070201@laposte.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161025115025.GI1476@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, tnhuynh@apm.com
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.nue.novell.com ([195.135.221.5]:43693 "EHLO
+        smtp.nue.novell.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932943AbcJYNXA (ORCPT
+        <rfc822;groupwise-linux-i2c@vger.kernel.org:0:0>);
+        Tue, 25 Oct 2016 09:23:00 -0400
+In-Reply-To: <580F4042.5070201@laposte.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sebastian Frias <sf84@laposte.net>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, linux-i2c@vger.kernel.org
 
-On Tue, 2016-10-25 at 14:50 +0300, Mika Westerberg wrote:
-> On Tue, Oct 25, 2016 at 11:35:13AM +0700, tnhuynh@apm.com wrote:
+On mar., 2016-10-25 at 13:21 +0200, Sebastian Frias wrote:
+> Alternatively, does anybody knows if the Parallel Port available thru Laptop
+> docking stations (Dell, HP, Thinkpad, etc.) are True Parallel Ports (ISA
+> compatible)?
 
-> > -- 
-> > CONFIDENTIALITY NOTICE: This e-mail message, including any
-> > attachments, is 
-> > for the sole use of the intended recipient(s) and contains
-> > information that 
-> > is confidential and proprietary to Applied Micro Circuits
-> > Corporation or 
-> > its subsidiaries. It is to be used solely for the purpose of
-> > furthering the 
-> > parties' business relationship. All unauthorized review, use,
-> > disclosure or 
-> > distribution is prohibited. If you are not the intended recipient,
-> > please 
-> > contact the sender by reply e-mail and destroy all copies of the
-> > original 
-> > message.
-
-Tin Huynh, if you want to continue, you *have to* get rid of this
-footer, otherwise no one is going to commit even *the best feature
-ever*. 
-
-Perhaps you need to talk to your lawyers first.
+Some laptops such as the ThinkPad T42 had parallel ports, without the
+need of a docking station. I know because my dad still has one. But well
+these are 2004 machines, may be hard to find these days.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jean Delvare
+SUSE L3 Support
