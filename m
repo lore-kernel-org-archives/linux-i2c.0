@@ -1,62 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] i2c: Fix module autoload for some i2c busses
- platform drivers
-Date: Tue, 25 Oct 2016 11:32:01 +0200
-Message-ID: <20161025093201.GE1597@katana>
-References: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
+Subject: Re: [PATCH] drivers/i2c/i2c-dev: Fix kernel memory disclosure
+Date: Tue, 25 Oct 2016 11:45:13 +0200
+Message-ID: <20161025094512.GF1597@katana>
+References: <1476190348-37589-1-git-send-email-vlad@tsyrklevich.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="CGDBiGfvSTbxKZlW"
+        protocol="application/pgp-signature"; boundary="FeAIMMcddNRN4P4/"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49231 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:49295 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756053AbcJYJcH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 05:32:07 -0400
+        id S1751044AbcJYJpR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Oct 2016 05:45:17 -0400
 Content-Disposition: inline
-In-Reply-To: <1476824508-4679-1-git-send-email-javier@osg.samsung.com>
+In-Reply-To: <1476190348-37589-1-git-send-email-vlad@tsyrklevich.net>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Vlad Tsyrklevich <vlad@tsyrklevich.net>
+Cc: linux-i2c@vger.kernel.org
 
 
---CGDBiGfvSTbxKZlW
+--FeAIMMcddNRN4P4/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 18, 2016 at 06:01:44PM -0300, Javier Martinez Canillas wrote:
-> Hello Wolfram,
+On Tue, Oct 11, 2016 at 02:52:28PM +0200, Vlad Tsyrklevich wrote:
+> i2c_smbus_xfer() does not always fill an entire block, allowing
+> kernel stack memory disclosure through the temp variable. Clear
+> it before it's read to.
 >=20
-> I noticed that module autoload won't be working in some of the i2c
-> busses drivers. This patch series contains the fixes for these.
+> Signed-off-by: Vlad Tsyrklevich <vlad@tsyrklevich.net>
+
+Yes, thanks. But what about clearing 'temp' when it is declared? This
+would be rock-solid for all future code paths.
+
 >=20
-> Best regards,
-> Javier
+> ---
+>  drivers/i2c/i2c-dev.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index 66f323f..62cb111 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -393,6 +393,8 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_cli=
+ent *client,
+>  	    (data_arg.read_write =3D=3D I2C_SMBUS_WRITE)) {
+>  		if (copy_from_user(&temp, data_arg.data, datasize))
+>  			return -EFAULT;
+> +	} else {
+> +		memset(&temp, 0, datasize);
+>  	}
+>  	if (data_arg.size =3D=3D I2C_SMBUS_I2C_BLOCK_BROKEN) {
+>  		/* Convert old I2C block commands to the new
+> --=20
+> 2.7.0
+>=20
 
-Applied to for-current, thank you very much for doing this
-subsystem-wide!
-
-
---CGDBiGfvSTbxKZlW
+--FeAIMMcddNRN4P4/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYDyaRAAoJEBQN5MwUoCm2PqkP/RAW0SBuKi2Ehw+UGQ62By3E
-hgbze/QMiYK9E7GPRzFdYXJQHkfO0eUt6Of2UdcT7OpZwkrdfilq9ldejnRKyFNQ
-VR1qpljZi8PsrBIDWyUFX2AZf2UpbhUxw4A4+8JNtGnLxOlXslDgDYvD9Fn/axTj
-ehGP18r1qc3L2U2BLyoHpH5TQ0qVnpcPmw/nbdWSAlmRSZ2ksgqOg++kATZrM467
-1Wd/ETBFjLQZjPIjtVtQPmOIB4pZAAOjxxxofht/D2tmtmxosoHZm9diIhrZkX4W
-QbcbuuRcigeEsyGJFAIjPb/5wKI+4GrsHPOdNBOUSBVSEB2zl7GGR/8y/TbaZFDX
-0Kh1tkOXTDBpM0ye3n8JvaQp6CdlyD8WygCT7gGYHLu/W4Sg7eK6C4INPf0WCM3E
-Pc4l/ulzVi7oYAC7mVCs2k2bwljUbts/A5/Cw3LNKxSzFAi9/lwPMiGyF15g1Jt2
-9lVRyglstI3uNUsiVwwlmLoRpD74nVJHsJs66TYVjhg2i/U/6i9Yq1Ea8sW5bSZn
-WUr8mCa3FGc2zSDdTVosSj7kSw2Hwdy5z6Zj3Qq2PrnU5GnmHn6scyJVYYjktFCB
-1/+aZrg064xUPgBIlDxRXX/o9RdaZeLA5AP8TsGLAygMGWDShs8jL3hu1vR1iytI
-ujlmhpPr5qwcZGbiEp69
-=BTNS
+iQIcBAEBAgAGBQJYDymoAAoJEBQN5MwUoCm21+gP/0DgEgbaCIN/V5F2h5IaSvtR
+C5zBPgfajvmWwclF2MdUObh7JdLs8xaE45yd9+fgM5mslyi+MiwpWR0mYqFikanj
+QRxbH1vw/QA0rQHPSOXO5cvlAPOycm8c9J7VYrx9b2KYNuCYf4atLhi4a8T/IcIC
+PHguodjkb3PCy4Yq7+0WPZ/oy0bRnV58doLNrpvUUErtQTmaJqrTLhM70g/7z++k
+htiaNFOc+7kWqpFun0RaARhGN/GlXprFK2gERRi2sGve8OQJzlHRZ58b4M1IeUV7
+6ezsG/H/SVr2N3PrPPBOhhbqwDTcleTMqHEcJf2w4SftgS6zTX7/gPK0WQ3EgrEC
+mDTLZroFwKHJsH6nFX083iXSk+XNGtFjFJsrHW8mXf6mwwbutIBrsqXJC+OLiDEx
+Y26Vigqz4TD1m64Vg3wSdUtHmwf3SCfL4BBmE++CtEMjmdTSfQfSm8blqiwBfvaV
+nGd/jCFw+JHfe4ExdABDnj+A3sUjmav4MZf9vLkWPJwj5xM9vHyiF2YDU710KAbz
+r6mCVESBAEqlZJOG7whenSWqsHXXQbX8iAl0GgyN/nUnsD04KZs1RNmiG9oJ90ct
+AF5D0MGH6iNreJsIHAOCIh0dOig1tRBulZv94Kqj5axGj2wMAXncuyf8nLvqtFHL
+V/3EuXM7yI5jPj4z8mzo
+=vyYk
 -----END PGP SIGNATURE-----
 
---CGDBiGfvSTbxKZlW--
+--FeAIMMcddNRN4P4/--
