@@ -1,50 +1,48 @@
 From: Sebastian Frias <sf84@laposte.net>
 Subject: Re: True Parallel Port Interface for Bit-banging?
-Date: Tue, 25 Oct 2016 16:56:47 +0200
-Message-ID: <580F72AF.9070900@laposte.net>
-References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
- <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
+Date: Tue, 25 Oct 2016 18:12:54 +0200
+Message-ID: <580F8486.70203@laposte.net>
+References: <580F4042.5070201@laposte.net>
+ <1477401755.4275.18.camel@chaos.suse>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtpoutz25.laposte.net ([194.117.213.100]:53431 "EHLO
+Received: from smtpoutz28.laposte.net ([194.117.213.103]:48694 "EHLO
         smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752089AbcJYO4w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Oct 2016 10:56:52 -0400
+        with ESMTP id S1754240AbcJYQM5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Oct 2016 12:12:57 -0400
 Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout013 (Postfix) with ESMTP id 197001040F4
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 16:56:49 +0200 (CEST)
+        by lpn-prd-vrout016 (Postfix) with ESMTP id AC24311483F
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
 Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout013 (Postfix) with ESMTP id 0ABDD1046D3
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 16:56:49 +0200 (CEST)
-Received: from lpn-prd-vrin003 (lpn-prd-vrin003.laposte [10.128.63.4])
-        by lpn-prd-vrout013 (Postfix) with ESMTP id 0674D1040F4
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 16:56:49 +0200 (CEST)
-Received: from lpn-prd-vrin003 (localhost [127.0.0.1])
-        by lpn-prd-vrin003 (Postfix) with ESMTP id E870248E078
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 16:56:48 +0200 (CEST)
-In-Reply-To: <20161025142935.GA2875@katana>
+        by lpn-prd-vrout016 (Postfix) with ESMTP id 9FF56114CB6
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
+Received: from lpn-prd-vrin004 (lpn-prd-vrin004.prosodie [10.128.63.5])
+        by lpn-prd-vrout016 (Postfix) with ESMTP id 9D9FA114C41
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
+Received: from lpn-prd-vrin004 (localhost [127.0.0.1])
+        by lpn-prd-vrin004 (Postfix) with ESMTP id 8A63E7101EC
+        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
+In-Reply-To: <1477401755.4275.18.camel@chaos.suse>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, linux-i2c@vger.kernel.org
 
-On 10/25/2016 04:29 PM, Wolfram Sang wrote:
->> The virtualisation idea is not good then?
+On 10/25/2016 03:22 PM, Jean Delvare wrote:
+> On mar., 2016-10-25 at 13:21 +0200, Sebastian Frias wrote:
+>> Alternatively, does anybody knows if the Parallel Port available thru Laptop
+>> docking stations (Dell, HP, Thinkpad, etc.) are True Parallel Ports (ISA
+>> compatible)?
 > 
-> It is not that. I think good old DOSEMU could do that. Bit-Banging ports
-> can be timing critical, though, and in this department virtualization
-> solutions often fail.
+> Some laptops such as the ThinkPad T42 had parallel ports, without the
+> need of a docking station. I know because my dad still has one. But well
+> these are 2004 machines, may be hard to find these days.
 > 
 
-Thanks.
-I understand your point, but I'm guessing that the big-banging routine (or the
-protocol to be used) should be time-independent in order to run on different
-real HW PCs, right? Otherwise a 386DX and a 486DX2 could behave differently,
-right?
+Actually, according to this:
 
-Or is the "timing issue" you talk about more related to unpredictable
-latencies due to the way the SW virtualisation works?
+https://www-user.tu-chemnitz.de/~heha/basteln/PC/USB2LPT/index.en.htm
 
-What about emulation? Do you think emulation would be more predictable?
+PCMCIA cards could work, is anybody able to confirm?
