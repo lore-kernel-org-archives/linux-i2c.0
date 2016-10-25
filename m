@@ -1,48 +1,60 @@
-From: Sebastian Frias <sf84@laposte.net>
-Subject: Re: True Parallel Port Interface for Bit-banging?
-Date: Tue, 25 Oct 2016 18:12:54 +0200
-Message-ID: <580F8486.70203@laposte.net>
-References: <580F4042.5070201@laposte.net>
- <1477401755.4275.18.camel@chaos.suse>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtpoutz28.laposte.net ([194.117.213.103]:48694 "EHLO
-        smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1754240AbcJYQM5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Oct 2016 12:12:57 -0400
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout016 (Postfix) with ESMTP id AC24311483F
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout016 (Postfix) with ESMTP id 9FF56114CB6
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
-Received: from lpn-prd-vrin004 (lpn-prd-vrin004.prosodie [10.128.63.5])
-        by lpn-prd-vrout016 (Postfix) with ESMTP id 9D9FA114C41
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
-Received: from lpn-prd-vrin004 (localhost [127.0.0.1])
-        by lpn-prd-vrin004 (Postfix) with ESMTP id 8A63E7101EC
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Oct 2016 18:12:54 +0200 (CEST)
-In-Reply-To: <1477401755.4275.18.camel@chaos.suse>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Kieran Bingham <kieran@ksquared.org.uk>
+Subject: [PATCHv6 00/11] i2c: Relax mandatory I2C ID table passing
+Date: Tue, 25 Oct 2016 17:41:44 +0100
+Message-ID: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Kieran Bingham <kieran@ksquared.org.uk>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, linux-i2c@vger.kernel.org
 
-On 10/25/2016 03:22 PM, Jean Delvare wrote:
-> On mar., 2016-10-25 at 13:21 +0200, Sebastian Frias wrote:
->> Alternatively, does anybody knows if the Parallel Port available thru Laptop
->> docking stations (Dell, HP, Thinkpad, etc.) are True Parallel Ports (ISA
->> compatible)?
-> 
-> Some laptops such as the ThinkPad T42 had parallel ports, without the
-> need of a docking station. I know because my dad still has one. But well
-> these are 2004 machines, may be hard to find these days.
-> 
+Version 6 of this patchset adds two new patches on top of the existing
+submission to resolve the (final?) pending question from the previous
+discussions during v5 [0]. Javier's tags are also collected here.
 
-Actually, according to this:
+In particular, the remaining issue was that a user could provide a full
+vendor prefixed string to the sysfs interface to instantiate an i2c
+device. In version 5 of this submission this would not have matched
+against a device driver as highlighted by the test patch provided by
+Wolfram.
 
-https://www-user.tu-chemnitz.de/~heha/basteln/PC/USB2LPT/index.en.htm
+As such, in this series I have extended i2c_of_match_device_strip_vendor
+so that it will also perform a search against a full compatible string
+for the matching process. This was not done by the core OF framework as
+the sysfs interface does not create an of_node to match against. If so
+desired, this function could now be renamed to i2c_of_match_device_sysfs
 
-PCMCIA cards could work, is anybody able to confirm?
+Patch 11/11 of this series brings back Wolframs test case (correctly this
+time) and also serves as a demonstration as to how to map the ID's when
+matched against an of-style node. Note that this patch is *not* signed
+off and not suitable for integration.
+
+[0] [PATCHv5 0/8] 2c: Relax mandatory I2C ID table passing
+    https://lkml.org/lkml/2016/5/4/534
+
+Kieran Bingham (3):
+  i2c: match dt-style device names from sysfs interface
+  i2c: match vendorless strings on the internal string length
+  [TESTPATCH] rtc: convert ds1307 to interim probe_new
+
+Lee Jones (8):
+  i2c: Add pointer dereference protection to i2c_match_id()
+  i2c: Add the ability to match device to compatible string without an
+    of_node
+  i2c: Match using traditional OF methods, then by vendor-less
+    compatible strings
+  i2c: Make I2C ID tables non-mandatory for DT'ed devices
+  i2c: Export i2c_match_id() for direct use by device drivers
+  i2c: Provide a temporary .probe_new() call-back type
+  mfd: 88pm860x: Move over to new I2C device .probe() call
+  mfd: as3722: Rid driver of superfluous I2C device ID structure
+
+ drivers/i2c/i2c-core.c      | 85 ++++++++++++++++++++++++++++++++++++++++-----
+ drivers/mfd/88pm860x-core.c |  5 ++-
+ drivers/mfd/as3722.c        | 12 ++-----
+ drivers/rtc/rtc-ds1307.c    | 53 ++++++++++++++++------------
+ include/linux/i2c.h         | 22 +++++++++++-
+ 5 files changed, 132 insertions(+), 45 deletions(-)
+
+-- 
+2.7.4
