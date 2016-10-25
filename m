@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv6 02/11] i2c: Add the ability to match device to compatible string without an of_node
-Date: Tue, 25 Oct 2016 17:41:46 +0100
-Message-ID: <1477413715-22894-3-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv6 08/11] i2c: match vendorless strings on the internal string length
+Date: Tue, 25 Oct 2016 17:41:52 +0100
+Message-ID: <1477413715-22894-9-git-send-email-kieran@bingham.xyz>
 References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
@@ -10,63 +10,32 @@ To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Kieran B
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+If a user provides a shortened string to match a device to the sysfs i2c
+interface it will match on the first string that contains that string
+prefix.
 
-A great deal of I2C devices are currently matched via DT node name, and
-as such the compatible naming convention of '<vendor>,<device>' has gone
-somewhat awry - some nodes don't supply one, some supply an arbitrary
-string and others the correct device name with an arbitrary vendor prefix.
+for example:
+  echo a 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
 
-In an effort to correct this problem we have to supply a mechanism to
-match a device by compatible string AND by simple device name.  This
-function strips off the '<vendor>,' part of a supplied compatible string
-and attempts to match without it.
+will match as3711, as3722, and ak8975 incorrectly.
 
-The plan is to remove this function once all of the compatible strings
-for each device have been brought into line.
-
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: strnicmp to strncasecmp]
-Tested-by: Kieran Bingham <kieran@bingham.xyz>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
 ---
- drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index eec4d4d81bf8..a699ca541702 100644
+index 01bce56f733a..50c9cfdb87b7 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -1666,6 +1666,27 @@ struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node)
- 	return adapter;
- }
- EXPORT_SYMBOL(of_get_i2c_adapter_by_node);
-+
-+static const struct of_device_id*
-+i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct i2c_client *client)
-+{
-+	const char *name;
-+
-+	for (; matches->compatible[0]; matches++) {
-+		name = strchr(matches->compatible, ',');
-+		if (!name)
-+			name = matches->compatible;
-+		else
-+			name++;
-+
-+		if (!strncasecmp(client->name, name, strlen(client->name)))
-+			return matches;
-+	}
-+
-+	return NULL;
-+}
-+
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
+@@ -1708,7 +1708,7 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
+ 		else
+ 			name++;
+ 
+-		if (!strncasecmp(client->name, name, strlen(client->name)))
++		if (!strncasecmp(client->name, name, strlen(name)))
+ 			return matches;
+ 	}
+ 
 -- 
 2.7.4
