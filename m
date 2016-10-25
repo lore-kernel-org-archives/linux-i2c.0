@@ -1,99 +1,64 @@
-From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv6 06/11] i2c: Provide a temporary .probe_new() call-back type
-Date: Tue, 25 Oct 2016 17:41:50 +0100
-Message-ID: <1477413715-22894-7-git-send-email-kieran@bingham.xyz>
-References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Kieran Bingham <kieran@ksquared.org.uk>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: True Parallel Port Interface for Bit-banging?
+Date: Tue, 25 Oct 2016 19:17:59 +0200
+Message-ID: <20161025171752.GA4274@katana>
+References: <580F4042.5070201@laposte.net>
+ <20161025120951.GL1597@katana>
+ <580F6A1D.4000409@laposte.net>
+ <20161025142935.GA2875@katana>
+ <580F72AF.9070900@laposte.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:50708 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1759345AbcJYRSk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Oct 2016 13:18:40 -0400
+Content-Disposition: inline
+In-Reply-To: <580F72AF.9070900@laposte.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sebastian Frias <sf84@laposte.net>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
 
-This will aid the seamless removal of the current probe()'s, more
-commonly unused than used second parameter.  Most I2C drivers can
-simply switch over to the new interface, others which have DT
-support can use its own matching instead and others can call
-i2c_match_id() themselves.  This brings I2C's device probe method
-into line with other similar interfaces in the kernel and prevents
-the requirement to pass an i2c_device_id table.
+--nVMJ2NtxeReIH9PS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Suggested-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: fix rebase conflicts and adapt for dev_pm_domain_{attach,detach}]
-Tested-by: Kieran Bingham <kieran@bingham.xyz>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
----
-Changes since v4 [Kieran]
- - Rename .probe2 to probe_new
- - Checkpatch warnings fixed
----
- drivers/i2c/i2c-core.c | 15 ++++++++++++---
- include/linux/i2c.h    |  8 +++++++-
- 2 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index f20c9b229570..2003334b5246 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -834,8 +834,6 @@ static int i2c_device_probe(struct device *dev)
- 	}
- 
- 	driver = to_i2c_driver(dev->driver);
--	if (!driver->probe)
--		return -EINVAL;
- 
- 	/*
- 	 * An I2C ID table is not mandatory, if and only if, a suitable Device
-@@ -877,7 +875,18 @@ static int i2c_device_probe(struct device *dev)
- 	if (status == -EPROBE_DEFER)
- 		goto err_clear_wakeup_irq;
- 
--	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-+	/*
-+	 * When there are no more users of probe(),
-+	 * rename probe_new to probe.
-+	 */
-+	if (driver->probe_new)
-+		status = driver->probe_new(client);
-+	else if (driver->probe)
-+		status = driver->probe(client,
-+				       i2c_match_id(driver->id_table, client));
-+	else
-+		status = -EINVAL;
-+
- 	if (status)
- 		goto err_detach_pm_domain;
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 39f1131a58d1..d31f37e90d11 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -135,7 +135,8 @@ enum i2c_alert_protocol {
-  * struct i2c_driver - represent an I2C device driver
-  * @class: What kind of i2c device we instantiate (for detect)
-  * @attach_adapter: Callback for bus addition (deprecated)
-- * @probe: Callback for device binding
-+ * @probe: Callback for device binding - soon to be deprecated
-+ * @probe_new: New callback for device binding
-  * @remove: Callback for device unbinding
-  * @shutdown: Callback for device shutdown
-  * @alert: Alert callback, for example for the SMBus alert protocol
-@@ -178,6 +179,11 @@ struct i2c_driver {
- 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
- 	int (*remove)(struct i2c_client *);
- 
-+	/* New driver model interface to aid the seamless removal of the
-+	 * current probe()'s, more commonly unused than used second parameter.
-+	 */
-+	int (*probe_new)(struct i2c_client *);
-+
- 	/* driver model interfaces that don't relate to enumeration  */
- 	void (*shutdown)(struct i2c_client *);
- 
--- 
-2.7.4
+> Or is the "timing issue" you talk about more related to unpredictable
+> latencies due to the way the SW virtualisation works?
+
+Yes, it is all about latencies and meeting deadlines. This is probably
+why the application is DOS after all.
+
+> What about emulation? Do you think emulation would be more predictable?
+
+No difference as long as there is a multi-tasking OS in the background.
+Yes, the RT patchset might help...
+
+
+--nVMJ2NtxeReIH9PS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYD5PGAAoJEBQN5MwUoCm2x98P/RZEO/0Xa3QKFiSeblblw8xh
+fmwwJtmmwQr0CT+y4ZkTwbDbKkGh/VWw2SOqVaH1UpV/teGbkEEIWsiPZ06gWRkn
+lQOaVqaqGyQxPIkU55BUOsYtDTBgZwZMuSl2d0kiHhMTf26zOXkOakbdsmZcwrnX
+45Uh4gAGFOk4APs8W3yWcs+7SzHfldOIAIHOy2ZRLrROZJ2id2OXybQK+HPiRl/g
+UuKNpnBztaBX0UdWhc7CWlRTBmq9+ZN6tE4O8sCsMzCCLGcePxIgdqDPbBfxSq7D
+P+nLZrJnbd1uas1byIlKI8Eog4IQpik38Js8Z9LVFRMVjxqCvQlGPizYMCpDOXNy
+A/hewuqEGnS8U9jeaLWPXvibcHTEpLI2TrdzetCX8z981m1+8ixvyZyKGUYNa0hf
+r5Fqr6i6BmZDaw07g2bbRbyc4nK3/9Ty0EnLTs5knjEhaPx6xyezuulGyx6WpeuO
+KbaqB8Pul6P7zc09osi0dGeHqI2a1KmTWTCliOcHNyTQF8zcN8P3rQJe0zrYA1Ci
+MCm8mo679kk3BvYDi/HOVjiBVdwFJq1oBP4J55+vV/9rfgbdbH/RqLC3HniVLrYD
+o4R0LmUWqjPYdQ1+Rnpn08MHCh8Szm6uJOUHJ/ncSCw4vb68BDK5Csd0YIvl5g5A
+XqjMzYP7Vo7MFL1eF8kI
+=4q6s
+-----END PGP SIGNATURE-----
+
+--nVMJ2NtxeReIH9PS--
