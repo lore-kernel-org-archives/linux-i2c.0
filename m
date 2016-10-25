@@ -1,70 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Avoid aborted transfers with fast
- reacting I2C slaves
-Date: Tue, 25 Oct 2016 12:10:14 +0200
-Message-ID: <20161025101014.GI1597@katana>
-References: <20160929130459.11345-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: imx: defer probe if bus recovery GPIOs are not ready
+Date: Tue, 25 Oct 2016 12:16:37 +0200
+Message-ID: <20161025101637.GJ1597@katana>
+References: <20160927001858.11601-1-stefan@agner.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="y96v7rNg6HAoELs5"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:49356 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935649AbcJYKKV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 06:10:21 -0400
+        protocol="application/pgp-signature"; boundary="MzdA25v054BPvyZa"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20160929130459.11345-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20160927001858.11601-1-stefan@agner.ch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Agner <stefan@agner.ch>
+Cc: leoyang.li@nxp.com, linux-i2c@vger.kernel.org, u.kleine-koenig@pengutronix.de, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jukka Laitinen <jukka.laitinen@intel.com>
 
 
---y96v7rNg6HAoELs5
+--MzdA25v054BPvyZa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 29, 2016 at 04:04:59PM +0300, Jarkko Nikula wrote:
-> I2C DesignWare may abort transfer with arbitration lost if I2C slave pulls
-> SDA down quickly after falling edge of SCL. Reason for this is unknown but
-> after trial and error it was found this can be avoided by enabling non-ze=
-ro
-> SDA RX hold time for the receiver.
+On Mon, Sep 26, 2016 at 05:18:58PM -0700, Stefan Agner wrote:
+> Some SoC might load the GPIO driver after the I2C driver and
+> using the I2C bus recovery mechanism via GPIOs. In this case
+> it is crucial to defer probing if the GPIO request functions
+> do so, otherwise the I2C driver gets loaded without recovery
+> mechanisms enabled.
 >=20
-> By the specification SDA RX hold time extends incoming SDA low to high
-> transition by n * ic_clk cycles but only when SCL is high. However it
-> seems to help avoid above faulty arbitration lost error.
->=20
-> Bits 23:16 in IC_SDA_HOLD register define the SDA RX hold time for the
-> receiver. Be conservative and enable 1 ic_clk cycle long hold time in
-> case boot firmware hasn't set it up.
->=20
-> Reported-by: Jukka Laitinen <jukka.laitinen@intel.com>
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
 
-Applied to for-current, thanks!
+Added stable and applied to for-current, thanks! Please consider adding
+a "Fixes: <sha-id>" next time. This would be helpful.
 
 
---y96v7rNg6HAoELs5
+--MzdA25v054BPvyZa
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYDy+GAAoJEBQN5MwUoCm2qZwP/1aUyGagQuvwOfJD20DbY9Me
-XZS+6woCL7ZQYxzdTCjm+gL4yHUm4rMSpGgJ68R4/1FM7fSoCxS2fmUIyuW11VXT
-HBeLMO/bBFDLAr0KveW1fln4iuA97YynvuJnROj7wUAPYldiUuBE2ee2MLCUcJqv
-i8zvFR+rm7rSdGQba0mppjAsvoaRN1PGBX1xfYERAgtti95cJWcUNURTCU1LScLF
-XWDQXsPZMmbg/ZbPzVtqwE0YUkL4aLH9M/EA7bbv59HTM4t++cWrJJfY9k2DwqtQ
-SQXYNd0E7S0IamVHQ24wp/YGJXogq3GygK5yUlnPb/QTxgPXMvhAqrcIcoLYniT+
-NokLzP+pZvIe2oFXlTH3rfb7LqD8ka1/Kaxjg9VXX+RUvvBgr9E6590dXfzx/sqV
-AY5PAn5zTcRApzdVQAKuPPkP2eSYqb4LTMxJluq6cXC7W4NuI6/12+Ip+LYPbwZJ
-3ehHLvs60CbuP5b3Mf/zPcZhqZPM1IbF11NTeEnDxVo/r6AFKLLWn/QZr3Wgw9Xs
-MEFY/tkrNsePUm0k6OMOigu9tNNmivuEIBkEp1gNspwq8uvq/Tz8xewxDN3J070r
-8B3BZnrAJ4CyMafhGW60GMCDF1MCFMCIyV3rw1MsLnWUOa6ZH3LmSr4Xno16pjDR
-aoFPTypoO0HhTgkNh5ca
-=3LKH
+iQIcBAEBAgAGBQJYDzEFAAoJEBQN5MwUoCm2E+8P+wV2//fxx/727TD0U90oLJSY
+21TvuS3MkWQEJ7L6EUkd2WJ7oTejNVCly3aYunugQOHcBJgah3y/r0Qk3Iticttm
+KqnFzjN1mQk6TD6UYbfkmPEqc3kA6trHRfW3WUYyoAnl6DSVh9cjW9xRSK5NU22K
+2EPx2IxbUjBPv+THFoPFhiX+FJyU5bTcPQo/8otWlG3DLcfB3wmZ3WASkO/naVny
+IzAHzqMvR9Y8S3qSJ5l7Xl1CQeWA4OM7bnvCMy8pXrlF6L+M6sdj9cFUqu1MkMca
+gfSSN0SyZVhHvfwEtSPQEGJdGTydr+I3lb2UGXV2wceKfvhtqnvZAmFs9Ntxhd1n
++PmAKAULz8xtejHFhUVL2vQ0mjQG2YeYq5oe/lIKgCzLxg9vhPbhJrJ/2CwPRtlU
+Jdv0YU+5EKvnV+p9VOZLJDE7LrJD76Vcs9W3E9k+RUPdpBABAATDJ9f/kYpep8vs
+2Sl9ntUiFRp6aGNhHatauiW8w8/0FVQ9gPQe4vGzeaZ9XO91C/wy7y1ybPRGp7D6
+7Bj2kA+rRLsH1Q2dhlm5z5mxVVe4RFRVtmDMzeEqgTZVWVoiYSU31hKW3Ub5EhGy
+ifO6oZD2WFyznXQEYP8a9Cc3vLx9Kldkoz4gV3Fqs3TS5u8BcnrlO10RHW1IbjS+
+0q7GFQ9NKziS5gluCFdT
+=dhZ5
 -----END PGP SIGNATURE-----
 
---y96v7rNg6HAoELs5--
+--MzdA25v054BPvyZa--
