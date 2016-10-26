@@ -1,68 +1,98 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv6 07/11] i2c: match dt-style device names from sysfs
- interface
-Date: Wed, 26 Oct 2016 09:55:36 +0100
-Message-ID: <20161026085536.GL8574@dell>
-References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
- <1477413715-22894-8-git-send-email-kieran@bingham.xyz>
+From: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v3 1/2] Documentation: tpm: add the IBM
+	Virtual TPM device tree binding documentation
+Date: Wed, 26 Oct 2016 05:21:44 -0400
+Message-ID: <1477473705-12746-1-git-send-email-nayna@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1477413715-22894-8-git-send-email-kieran@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <tpmdd-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/tpmdd-devel>,
+	<mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=tpmdd-devel>
+List-Post: <mailto:tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/tpmdd-devel>,
+	<mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: tpmdd-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, honclo-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, cclaudio-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 25 Oct 2016, Kieran Bingham wrote:
+Virtual TPM, which is being used on IBM POWER7+ and POWER8 systems running
+POWERVM, is currently supported by tpm device driver but lacks the
+documentation. This patch adds the missing documentation for the existing
+support.
 
-> A user can choose to instantiate a device on an i2c bus using the sysfs
-> interface by providing a string and address to match and communicate
-> with the device on the bus. Presently this string is only matched
-> against the old i2c device id style strings, even in the presence of
-> full device tree compatible strings with vendor prefixes.
-> 
-> Providing a vendor-prefixed string to the sysfs interface will not match
-> against the device tree of_match_device() calls as there is no device
-> tree node to parse from the sysfs interface.
-> 
-> Convert i2c_of_match_device_strip_vendor() such that it can match both
-> vendor prefixed and stripped compatible strings on the sysfs interface.
-> 
-> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
+Suggested-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+---
+Changelog v3:
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+- No changes done.
 
-> ---
->  drivers/i2c/i2c-core.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 2003334b5246..01bce56f733a 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1692,6 +1692,16 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
->  	const char *name;
->  
->  	for (; matches->compatible[0]; matches++) {
-> +		/*
-> +		 * Adding devices through the i2c sysfs interface provides us
-> +		 * a string to match which may be compatible with the device
-> +		 * tree compatible strings, however with no actual of_node the
-> +		 * of_match_device() will not match
-> +		 */
-> +		if (!strncasecmp(client->name, matches->compatible,
-> +				strlen(matches->compatible)))
-> +			return matches;
-> +
->  		name = strchr(matches->compatible, ',');
->  		if (!name)
->  			name = matches->compatible;
+Changelog v2:
 
+- New Patch.
+
+ .../devicetree/bindings/security/tpm/ibmvtpm.txt   | 41 ++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+
+diff --git a/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+new file mode 100644
+index 0000000..d89f999
+--- /dev/null
++++ b/Documentation/devicetree/bindings/security/tpm/ibmvtpm.txt
+@@ -0,0 +1,41 @@
++* Device Tree Bindings for IBM Virtual Trusted Platform Module(vtpm)
++
++Required properties:
++
++- compatible            : property name that conveys the platform architecture
++                          identifiers, as 'IBM,vtpm'
++- device_type           : specifies type of virtual device
++- interrupts            : property specifying the interrupt source number and
++                          sense code associated with this virtual I/O Adapters
++- ibm,my-drc-index      : integer index for the connector between the device
++                          and its parent - present only if Dynamic
++                          Reconfiguration(DR) Connector is enabled
++- ibm,#dma-address-cells: specifies the number of cells that are used to
++                          encode the physical address field of dma-window
++                          properties
++- ibm,#dma-size-cells   : specifies the number of cells that are used to
++                          encode the size field of dma-window properties
++- ibm,my-dma-window     : specifies DMA window associated with this virtual
++                          IOA
++- ibm,loc-code          : specifies the unique and persistent location code
++                          associated with this virtual I/O Adapters
++- linux,sml-base        : 64-bit base address of the reserved memory allocated
++                          for the firmware event log
++- linux,sml-size        : size of the memory allocated for the firmware event log
++
++Example (IBM Virtual Trusted Platform Module)
++---------------------------------------------
++
++                vtpm@30000003 {
++                        ibm,#dma-size-cells = <0x2>;
++                        compatible = "IBM,vtpm";
++                        device_type = "IBM,vtpm";
++                        ibm,my-drc-index = <0x30000003>;
++                        ibm,#dma-address-cells = <0x2>;
++                        linux,sml-base = <0xc60e 0x0>;
++                        interrupts = <0xa0003 0x0>;
++                        ibm,my-dma-window = <0x10000003 0x0 0x0 0x0 0x10000000>;
++                        ibm,loc-code = "U8286.41A.10082DV-V3-C3";
++                        reg = <0x30000003>;
++                        linux,sml-size = <0xbce10200>;
++                };
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.5.0
+
+
+------------------------------------------------------------------------------
+The Command Line: Reinvented for Modern Developers
+Did the resurgence of CLI tooling catch you by surprise?
+Reconnect with the command line and become more productive. 
+Learn the new .NET and ASP.NET CLI. Get your free copy!
+http://sdm.link/telerik
