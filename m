@@ -1,85 +1,39 @@
-From: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 2/2] Documentation: tpm: add the Physical
-	TPM device tree binding documentation
-Date: Wed, 26 Oct 2016 05:21:45 -0400
-Message-ID: <1477473705-12746-2-git-send-email-nayna@linux.vnet.ibm.com>
-References: <1477473705-12746-1-git-send-email-nayna@linux.vnet.ibm.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v1] I2C Designware Core Supports SMBUS BLOCK
+Date: Wed, 26 Oct 2016 12:30:34 +0300
+Message-ID: <20161026093034.GO1476@lahna.fi.intel.com>
+References: <1477370113-15145-1-git-send-email-tnhuynh@apm.com>
+ <20161025115025.GI1476@lahna.fi.intel.com>
+ <CANQ9TuB5BbR40TEndGqQ6ABDSUsCOGjEhXSvmD78jtuqGRpXvg@mail.gmail.com>
+ <20161026081600.GM1476@lahna.fi.intel.com>
+ <CANQ9TuAgW7ubyKq1RAiw+s=ooF4G99_MMWnG1a0bV3DxKa+UPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <tpmdd-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1477473705-12746-1-git-send-email-nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/tpmdd-devel>,
-	<mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=tpmdd-devel>
-List-Post: <mailto:tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/tpmdd-devel>,
-	<mailto:tpmdd-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: tpmdd-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, honclo-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, cclaudio-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:19923 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758270AbcJZJar (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 26 Oct 2016 05:30:47 -0400
+Content-Disposition: inline
+In-Reply-To: <CANQ9TuAgW7ubyKq1RAiw+s=ooF4G99_MMWnG1a0bV3DxKa+UPw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tin Huynh <tnhuynh@apm.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches <patches@apm.com>
 
-Newly added support of TPM 2.0 eventlog securityfs pseudo files in tpm
-device driver consumes device tree bindings representing I2C based
-Physical TPM. This patch adds the documentation for corresponding device
-tree bindings of I2C based Physical TPM. These bindings are similar to
-vtpm device tree bindings being used on IBM Power7+ and Power8 Systems
-running PowerVM.
+On Wed, Oct 26, 2016 at 04:20:57PM +0700, Tin Huynh wrote:
+>    We need to set stop bit if three conditions are true :  The latest
+>    bytes , the latest msg_write_ids and after receiving the buffer length.
+>    If we use i2c_dw_xfer_need_stop , arguments of function are complex.
 
-Suggested-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
-Signed-off-by: Nayna Jain <nayna-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
----
-Changelog v3:
- - Added documentation for "label" property.
+OK, so you would need to pass dev and buf_len to that.
 
-Changelog v2:
+>    Can i use i2c_dw_xfer_receive_length() function  ?
+>    Thank  you and best regards
+>    Tin
+>                       if (dev->msg_write_idx == dev->msgs_num - 1 &&
+>    -                           buf_len == 1)
+>    +                           buf_len == 1 && !(flags & I2C_M_RECV_LEN))
+>                                    cmd |= BIT(9);
 
-- Include review feedbacks.
-  - Move the doc within bindings/security/tpm.
-  - Add example for compatible property in description.
-  - Delete implicit properties like status, label from description.
-  - Redefine linux,sml-base description.
-
- .../devicetree/bindings/security/tpm/tpm-i2c.txt    | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
-
-diff --git a/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt b/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
-new file mode 100644
-index 0000000..8cb638b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
-@@ -0,0 +1,21 @@
-+* Device Tree Bindings for I2C based Trusted Platform Module(TPM)
-+
-+Required properties:
-+
-+- compatible     : 'manufacturer,model', eg. nuvoton,npct650
-+- label          : human readable string describing the device, eg. "tpm"
-+- linux,sml-base : 64-bit base address of the reserved memory allocated for
-+                   the firmware event log
-+- linux,sml-size : size of the memory allocated for the firmware event log
-+
-+Example (for OpenPower Systems with Nuvoton TPM 2.0 on I2C)
-+----------------------------------------------------------
-+
-+tpm@57 {
-+	reg = <0x57>;
-+	label = "tpm";
-+	compatible = "nuvoton,npct650", "nuvoton,npct601";
-+	linux,sml-base = <0x7f 0xfd450000>;
-+	linux,sml-size = <0x10000>;
-+	status = "okay";
-+};
--- 
-2.5.0
-
-
-------------------------------------------------------------------------------
-The Command Line: Reinvented for Modern Developers
-Did the resurgence of CLI tooling catch you by surprise?
-Reconnect with the command line and become more productive. 
-Learn the new .NET and ASP.NET CLI. Get your free copy!
-http://sdm.link/telerik
+Maybe it is better if you just do it like the above then.
