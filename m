@@ -1,64 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
 Subject: Re: True Parallel Port Interface for Bit-banging?
-Date: Tue, 25 Oct 2016 19:17:59 +0200
-Message-ID: <20161025171752.GA4274@katana>
-References: <580F4042.5070201@laposte.net>
- <20161025120951.GL1597@katana>
- <580F6A1D.4000409@laposte.net>
- <20161025142935.GA2875@katana>
+Date: Wed, 26 Oct 2016 02:04:01 +0200
+Message-ID: <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
+References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
+ <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
  <580F72AF.9070900@laposte.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:50708 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759345AbcJYRSk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 25 Oct 2016 13:18:40 -0400
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-parport-bounces+linux-parport-2=m.gmane.org@lists.infradead.org>
 In-Reply-To: <580F72AF.9070900@laposte.net>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-parport>,
+ <mailto:linux-parport-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-parport/>
+List-Post: <mailto:linux-parport@lists.infradead.org>
+List-Help: <mailto:linux-parport-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-parport>,
+ <mailto:linux-parport-request@lists.infradead.org?subject=subscribe>
+Sender: "Linux-parport" <linux-parport-bounces@lists.infradead.org>
+Errors-To: linux-parport-bounces+linux-parport-2=m.gmane.org@lists.infradead.org
 To: Sebastian Frias <sf84@laposte.net>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.com>, linux-parport@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, philb@gnu.org, tim@cyberelk.net
+List-Id: linux-i2c@vger.kernel.org
 
-
---nVMJ2NtxeReIH9PS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
+On 25.10.2016 16:56, Sebastian Frias wrote:
+> On 10/25/2016 04:29 PM, Wolfram Sang wrote:
+>>> The virtualisation idea is not good then?
+>>
+>> It is not that. I think good old DOSEMU could do that. Bit-Banging ports
+>> can be timing critical, though, and in this department virtualization
+>> solutions often fail.
+>>
+> 
+> Thanks.
+> I understand your point, but I'm guessing that the big-banging routine (or the
+> protocol to be used) should be time-independent in order to run on different
+> real HW PCs, right? Otherwise a 386DX and a 486DX2 could behave differently,
+> right?
+> 
 > Or is the "timing issue" you talk about more related to unpredictable
 > latencies due to the way the SW virtualisation works?
-
-Yes, it is all about latencies and meeting deadlines. This is probably
-why the application is DOS after all.
-
+> 
 > What about emulation? Do you think emulation would be more predictable?
 
-No difference as long as there is a multi-tasking OS in the background.
-Yes, the RT patchset might help...
+I don't have experience with bit-banging parallel port but I do have
+some with bit-banging PC serial ports (which should be very similar)
+and can confirm that old DOS software can be *very* fragile with regard
+to timing.
+I have tried dosemu, dosbox and as far I remember also VirtualBox
+with an old, DOS car service app.
+Wasn't able to make it communicate until I booted true DOS.
+That machine had old-style ISA serial ports so it was possible.
 
+You also have asked previously whether laptop port would work.
+On my current HP Elitebook ports of both types are wired to Super IO,
+and using PC standard IO port and interrupt numbers.
 
---nVMJ2NtxeReIH9PS
-Content-Type: application/pgp-signature; name="signature.asc"
+I also remember that at least on ThinkPads and HP Compaqs that I had
+contact with (these were laptops from 10+ years ago) both serial and
+parallel ports were wired to Super IO chip (including ones available
+only via port replicator).
+So they were also at PC standard resources.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+However, other issue is that sometimes such ports are inactive by
+default (don't respond) until enabled by PnP.
 
-iQIcBAEBAgAGBQJYD5PGAAoJEBQN5MwUoCm2x98P/RZEO/0Xa3QKFiSeblblw8xh
-fmwwJtmmwQr0CT+y4ZkTwbDbKkGh/VWw2SOqVaH1UpV/teGbkEEIWsiPZ06gWRkn
-lQOaVqaqGyQxPIkU55BUOsYtDTBgZwZMuSl2d0kiHhMTf26zOXkOakbdsmZcwrnX
-45Uh4gAGFOk4APs8W3yWcs+7SzHfldOIAIHOy2ZRLrROZJ2id2OXybQK+HPiRl/g
-UuKNpnBztaBX0UdWhc7CWlRTBmq9+ZN6tE4O8sCsMzCCLGcePxIgdqDPbBfxSq7D
-P+nLZrJnbd1uas1byIlKI8Eog4IQpik38Js8Z9LVFRMVjxqCvQlGPizYMCpDOXNy
-A/hewuqEGnS8U9jeaLWPXvibcHTEpLI2TrdzetCX8z981m1+8ixvyZyKGUYNa0hf
-r5Fqr6i6BmZDaw07g2bbRbyc4nK3/9Ty0EnLTs5knjEhaPx6xyezuulGyx6WpeuO
-KbaqB8Pul6P7zc09osi0dGeHqI2a1KmTWTCliOcHNyTQF8zcN8P3rQJe0zrYA1Ci
-MCm8mo679kk3BvYDi/HOVjiBVdwFJq1oBP4J55+vV/9rfgbdbH/RqLC3HniVLrYD
-o4R0LmUWqjPYdQ1+Rnpn08MHCh8Szm6uJOUHJ/ncSCw4vb68BDK5Csd0YIvl5g5A
-XqjMzYP7Vo7MFL1eF8kI
-=4q6s
------END PGP SIGNATURE-----
+This is also a problem with PCMCIA cards - they are disabled
+by default.
+I have Argosy 2xRS232 PCMCIA card and remember it came with
+DOS driver which could enable them on I/O port close to standard
+one - this was one of their major selling points.
+So your ExpressCard would probably need similar software.
 
---nVMJ2NtxeReIH9PS--
+Maciej
