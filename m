@@ -1,594 +1,113 @@
-From: Zahari Doychev <zahari.doychev@linux.com>
-Subject: [RFC PATCH 1/5] dmec: add DMO mfd driver
-Date: Thu, 27 Oct 2016 12:47:12 +0200
-Message-ID: <cf8a6eadff49926d58c47c48b400ca63b4f716aa.1477564996.git-series.zahari.doychev@linux.com>
-References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
-In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
-References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, lee.jones@linaro.org, wsa@the-dreams.de, linus.walleij@linaro.org, wim@iguana.be, linux@roeck-us.net
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, gnurou@gmail.com, linux-watchdog@vger.kernel.org, Zahari Doychev <zahari.doychev@linux.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.9
+Date: Thu, 27 Oct 2016 15:08:42 +0200
+Message-ID: <20161027130838.GA2462@tetsubishi>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:32831 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965141AbcJ0OCC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 27 Oct 2016 10:02:02 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This is a core mfd driver for the on board embedded controllers found on the
-Data Modul embedded CPU modules. The embedded controller may provide the
-following functions: i2c bus, gpio, watchdog, uart and rtm.
 
-Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
----
- drivers/staging/Kconfig          |   2 +-
- drivers/staging/Makefile         |   1 +-
- drivers/staging/dmec/Kconfig     |   9 +-
- drivers/staging/dmec/Makefile    |   1 +-
- drivers/staging/dmec/dmec-core.c | 500 ++++++++++++++++++++++++++++++++-
- drivers/staging/dmec/dmec.h      |   6 +-
- 6 files changed, 519 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/dmec/Kconfig
- create mode 100644 drivers/staging/dmec/Makefile
- create mode 100644 drivers/staging/dmec/dmec-core.c
- create mode 100644 drivers/staging/dmec/dmec.h
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
-index 58a7b35..d95bee2 100644
---- a/drivers/staging/Kconfig
-+++ b/drivers/staging/Kconfig
-@@ -106,4 +106,6 @@ source "drivers/staging/greybus/Kconfig"
- 
- source "drivers/staging/vc04_services/Kconfig"
- 
-+source "drivers/staging/dmec/Kconfig"
-+
- endif # STAGING
-diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index 2fa9745..73b4833 100644
---- a/drivers/staging/Makefile
-+++ b/drivers/staging/Makefile
-@@ -42,3 +42,4 @@ obj-$(CONFIG_ISDN_I4L)		+= i4l/
- obj-$(CONFIG_KS7010)		+= ks7010/
- obj-$(CONFIG_GREYBUS)		+= greybus/
- obj-$(CONFIG_BCM2708_VCHIQ)	+= vc04_services/
-+obj-$(CONFIG_MFD_DMEC)		+= dmec/
-diff --git a/drivers/staging/dmec/Kconfig b/drivers/staging/dmec/Kconfig
-new file mode 100644
-index 0000000..3641907
---- /dev/null
-+++ b/drivers/staging/dmec/Kconfig
-@@ -0,0 +1,9 @@
-+config MFD_DMEC
-+	tristate "Data Modul Embedded Controller MFD"
-+	select MFD_CORE
-+	help
-+	    Say Y here to enable support for a Data Module embedded controller
-+	    found on Data Module CPU Modules
-+
-+	    To compile this driver as a module, say M here: the module will be
-+            called dmec
-diff --git a/drivers/staging/dmec/Makefile b/drivers/staging/dmec/Makefile
-new file mode 100644
-index 0000000..859163b
---- /dev/null
-+++ b/drivers/staging/dmec/Makefile
-@@ -0,0 +1 @@
-+obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
-diff --git a/drivers/staging/dmec/dmec-core.c b/drivers/staging/dmec/dmec-core.c
-new file mode 100644
-index 0000000..40f5481
---- /dev/null
-+++ b/drivers/staging/dmec/dmec-core.c
-@@ -0,0 +1,500 @@
-+/*
-+ * dmec-core: Data Modul AG mfd embedded controller driver
-+ *
-+ * Zahari Doychev  <zahari.doychev@linux.com>
-+ *
-+ * This file is licensed under the terms of the GNU General Public License
-+ * version 2.  This program is licensed "as is" without any warranty of any
-+ * kind, whether express or implied.
-+ */
-+#include <linux/platform_device.h>
-+#include <linux/mfd/core.h>
-+#include <linux/module.h>
-+#include <linux/dmi.h>
-+#include <linux/io.h>
-+#include <linux/delay.h>
-+#include <linux/regmap.h>
-+#include <linux/acpi.h>
-+#include <linux/nls.h>
-+#include "dmec.h"
-+
-+#define DMEC_LBAR			0x00 /* Index addressing 4 bytes */
-+#define DMEC_ECVER0			0x04
-+#define DMEC_ECVER1			0x05
-+#define DMEC_ECFTR0			0x07
-+#define DMEC_ECFTR1			0x08
-+#define DMEC_FPGAVER0			0x0c
-+#define DMEC_FPGAVER1			0x0d
-+#define DMEC_FPGABLD0			0x0e
-+#define DMEC_FPGABLD1			0x0f
-+#define DMEC_IRQCFG0			0x10
-+#define DMEC_IRQCFG1			0x11
-+#define DMEC_RTM_START			0x60
-+#define DMEC_RTM_END			0x6e
-+
-+#define DMEC_MAX_GPIO_CHIPS		2
-+
-+#define DMEC_VERSION_LEN		32
-+
-+#define DMEC_FEATURE_BIT_I2C		BIT(0)
-+#define DMEC_FEATURE_BIT_WDT		BIT(4)
-+#define DMEC_FEATURE_BIT_GPIO		(3 << 6)
-+
-+#define DMEC_REG_MAX		0x7f
-+#define DMEC_MAX_DEVS		ARRAY_SIZE(dmec_devs)
-+#define DMEC_MAX_IO_RES		2
-+#define DMEC_STR_SZ		128
-+
-+static bool i_addr;
-+module_param(i_addr, bool, 0644);
-+MODULE_PARM_DESC(i_addr, "Enable register index addressing usage");
-+
-+static const char * const fw_types[] = {"release", "custom",
-+					"debug", "reserved"};
-+
-+enum dmec_cells {
-+	DMEC_I2C = 0,
-+	DMEC_GPIOA,
-+	DMEC_GPIOB,
-+	DMEC_WDT,
-+	DMEC_RTM
-+};
-+
-+struct dmec_features {
-+	unsigned int i2c_buses:2;
-+	unsigned int uarts:2;
-+	unsigned int wdt:1;
-+	unsigned int rsvd1:1;
-+	unsigned int gpio_chips:2;
-+	unsigned int spi_buses:2;
-+	unsigned int can_buses:2;
-+	unsigned int rsvd2:1;
-+	unsigned int nmi:1;
-+	unsigned int sci:1;
-+	unsigned int smi:1;
-+};
-+
-+struct dmec_info {
-+	unsigned int ec_ver:4;
-+	unsigned int ec_rev:4;
-+	unsigned int ec_num:2;
-+	unsigned int ec_type:2;
-+	unsigned int ec_dbg:4;
-+	u16 fpga_ver;
-+	u16 fpga_bld;
-+	char version[DMEC_VERSION_LEN];
-+};
-+
-+struct dmec_device_data {
-+	void __iomem *io_base;
-+	void __iomem *io_index;
-+	void __iomem *io_data;
-+	union {
-+		u16 feature_mask;
-+		struct dmec_features ftr;
-+	} u;
-+	struct device *dev;
-+	struct dmec_info info;
-+	struct regmap *regmap;
-+	/* use index addressing for register access if set*/
-+	bool i_addr;
-+};
-+
-+struct dmec_platform_data {
-+	int (*get_info)(struct dmec_device_data *);
-+	int (*register_cells)(struct dmec_device_data *);
-+};
-+
-+static struct dmec_i2c_platform_data dmec_i2c_data = {
-+	.reg_shift	= 0,		/* two bytes between registers */
-+	.reg_io_width	= 1,		/* register io read/write width */
-+	.clock_khz	= 50000,	/* input clock of 50MHz */
-+};
-+
-+static struct dmec_gpio_platform_data dmec_gpio_pdata[DMEC_MAX_GPIO_CHIPS] = {
-+	{
-+		.gpio_base = -1,
-+		.chip_num = 0,
-+	},
-+	{
-+		.gpio_base = -1,
-+		.chip_num = 1,
-+	},
-+};
-+
-+/* The gpio block can use up to DMEC_GPIO_MAX_IRQS APIC irqs */
-+static struct resource dmec_gpio_irq_resources[DMEC_MAX_GPIO_CHIPS];
-+static struct resource dmec_wdt_irq_resource;
-+static struct resource dmec_i2c_irq_resource;
-+
-+static struct mfd_cell dmec_devs[] = {
-+	[DMEC_I2C] = {
-+		.name = "dmec-i2c",
-+		.platform_data = &dmec_i2c_data,
-+		.pdata_size = sizeof(dmec_i2c_data),
-+		.resources = &dmec_i2c_irq_resource,
-+		.num_resources = 1,
-+	},
-+	[DMEC_GPIOA] = {
-+		.name = "dmec-gpio",
-+		.platform_data = &dmec_gpio_pdata[0],
-+		.pdata_size = sizeof(struct dmec_gpio_platform_data),
-+		.resources = &dmec_gpio_irq_resources[0],
-+		.num_resources = 1,
-+	},
-+	[DMEC_GPIOB] = {
-+		.name = "dmec-gpio",
-+		.platform_data = &dmec_gpio_pdata[1],
-+		.pdata_size = sizeof(struct dmec_gpio_platform_data),
-+		.resources = &dmec_gpio_irq_resources[1],
-+		.num_resources = 1,
-+	},
-+	[DMEC_WDT] = {
-+		.name = "dmec-wdt",
-+		.resources = &dmec_wdt_irq_resource,
-+		.num_resources = 1,
-+	},
-+	[DMEC_RTM] = {
-+		.name = "dmec-rtm",
-+	},
-+};
-+
-+static void dmec_get_gpio_irqs(struct dmec_device_data *ec)
-+{
-+	unsigned int irq, val;
-+
-+	regmap_read(ec->regmap, DMEC_IRQCFG1, &val);
-+	irq = (val >> 4) & 0xf;
-+	dmec_gpio_irq_resources[0].start = irq;
-+	dmec_gpio_irq_resources[0].end = irq;
-+	dmec_gpio_irq_resources[0].flags = IORESOURCE_IRQ;
-+	irq = val & 0xf;
-+	dmec_gpio_irq_resources[1].start = irq;
-+	dmec_gpio_irq_resources[1].end = irq;
-+	dmec_gpio_irq_resources[1].flags = IORESOURCE_IRQ;
-+}
-+
-+static void dmec_get_wdt_irq(struct dmec_device_data *ec)
-+{
-+	unsigned int irq, val;
-+
-+	regmap_read(ec->regmap, DMEC_IRQCFG0, &val);
-+	irq = val & 0xf;
-+	dmec_wdt_irq_resource.start = irq;
-+	dmec_wdt_irq_resource.end = irq;
-+	dmec_wdt_irq_resource.flags = IORESOURCE_IRQ;
-+}
-+
-+static void dmec_get_i2c_irq(struct dmec_device_data *ec)
-+{
-+	unsigned int irq, val;
-+
-+	regmap_read(ec->regmap, DMEC_IRQCFG0, &val);
-+	irq = (val >> 4) & 0xf;
-+	dmec_i2c_irq_resource.start = irq;
-+	dmec_i2c_irq_resource.end = irq;
-+	dmec_i2c_irq_resource.flags = IORESOURCE_IRQ;
-+}
-+
-+static int dmec_rtm_detect(struct dmec_device_data *ec)
-+{
-+	unsigned int val, n;
-+
-+	for (n = DMEC_RTM_START; n <= DMEC_RTM_END; n++) {
-+		regmap_read(ec->regmap, n, &val);
-+		if (val != 0xff)
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int dmec_register_cells(struct dmec_device_data *ec)
-+{
-+	struct mfd_cell cells[DMEC_MAX_DEVS];
-+	u8 n_dev = 0;
-+
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_I2C) {
-+		dmec_get_i2c_irq(ec);
-+		dmec_devs[DMEC_I2C].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_I2C];
-+	}
-+
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_GPIO) {
-+		dmec_get_gpio_irqs(ec);
-+		dmec_devs[DMEC_GPIOA].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_GPIOA];
-+		if (ec->u.ftr.gpio_chips > 1) {
-+			dmec_devs[DMEC_GPIOB].id = n_dev;
-+			cells[n_dev++] = dmec_devs[DMEC_GPIOB];
-+		}
-+	}
-+
-+	if (ec->u.feature_mask & DMEC_FEATURE_BIT_WDT) {
-+		dmec_get_wdt_irq(ec);
-+		dmec_devs[DMEC_WDT].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_WDT];
-+	}
-+
-+	if (dmec_rtm_detect(ec)) {
-+		dmec_devs[DMEC_RTM].id = n_dev;
-+		cells[n_dev++] = dmec_devs[DMEC_RTM];
-+	}
-+
-+	return devm_mfd_add_devices(ec->dev, 0,
-+				    cells, n_dev, NULL, 0, NULL);
-+}
-+
-+static int dmec_read16(struct dmec_device_data *ec, u8 reg)
-+{
-+	unsigned int lsb, msb;
-+	int ret;
-+
-+	ret = regmap_read(ec->regmap, reg, &lsb);
-+	ret = regmap_read(ec->regmap, reg + 0x1, &msb);
-+
-+	return (msb << 8) | lsb;
-+}
-+
-+static int dmec_get_info(struct dmec_device_data *ec)
-+{
-+	unsigned int ver0, ver1;
-+
-+	regmap_read(ec->regmap, DMEC_ECVER0, &ver0);
-+	regmap_read(ec->regmap, DMEC_ECVER1, &ver1);
-+	if (ver0 == 0xff && ver1 == 0xff)
-+		return -ENODEV;
-+
-+	ec->u.feature_mask = dmec_read16(ec, DMEC_ECFTR0);
-+
-+	ec->info.ec_ver = (ver0 >> 4) & 0xf;
-+	ec->info.ec_rev = ver0 & 0xf;
-+	ec->info.ec_num = ver1 & 0x3;
-+	ec->info.ec_type = (ver1 >> 2) & 0x3;
-+	ec->info.ec_dbg = (ver1 >> 4) & 0xf;
-+
-+	ec->info.fpga_ver = dmec_read16(ec, DMEC_FPGAVER0);
-+	ec->info.fpga_bld = dmec_read16(ec, DMEC_FPGABLD0);
-+
-+	return 0;
-+}
-+
-+static int dmec_regmap_reg_read(void *context,
-+				unsigned int reg, unsigned int *val)
-+{
-+	struct dmec_device_data *ec = context;
-+
-+	if (ec->i_addr) {
-+		iowrite8(reg, ec->io_index);
-+		*val = ioread8(ec->io_data);
-+	} else {
-+		*val = ioread8(ec->io_base + reg);
-+	}
-+
-+	return 0;
-+}
-+
-+static int dmec_regmap_reg_write(void *context,
-+				 unsigned int reg, unsigned int val)
-+{
-+	struct dmec_device_data *ec = context;
-+
-+	if (ec->i_addr) {
-+		iowrite8(reg, ec->io_index);
-+		iowrite8(val, ec->io_data);
-+	} else {
-+		iowrite8(val, ec->io_base + reg);
-+	}
-+
-+	return 0;
-+}
-+
-+struct regmap *dmec_get_regmap(struct device *dev)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+
-+	return ec->regmap;
-+}
-+EXPORT_SYMBOL(dmec_get_regmap);
-+
-+static ssize_t dmec_version_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", ec->info.version);
-+}
-+
-+static ssize_t dmec_fw_type_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+
-+	return scnprintf(buf, PAGE_SIZE,
-+			"ver:        %u.%u\n"
-+			"ec:         %u\n"
-+			"type:       %s\n"
-+			"debug:      %u\n"
-+			"fpga ver:   %x\n"
-+			"fpga build: %x\n",
-+			ec->info.ec_ver,
-+			ec->info.ec_rev,
-+			ec->info.ec_num,
-+			fw_types[ec->info.ec_type % (ARRAY_SIZE(fw_types) - 1)],
-+			ec->info.ec_dbg,
-+			ec->info.fpga_ver,
-+			ec->info.fpga_bld);
-+}
-+
-+static ssize_t dmec_features_show(struct device *dev,
-+				  struct device_attribute *attr,
-+				  char *buf)
-+{
-+	struct dmec_device_data *ec = dev_get_drvdata(dev);
-+	struct dmec_features *ftr = &ec->u.ftr;
-+
-+	return scnprintf(buf, PAGE_SIZE,
-+			 "i2c buses:    %2u\n"
-+			 "uarts:        %2u\n"
-+			 "watchdog:     %2u\n"
-+			 "gpio chips:   %2u\n"
-+			 "spi buses:    %2u\n"
-+			 "can buses:    %2u\n"
-+			 "nmi:          %2u\n"
-+			 "sci:          %2u\n"
-+			 "smi:          %2u\n",
-+			 ftr->i2c_buses, ftr->uarts, ftr->wdt,
-+			 ftr->gpio_chips, ftr->spi_buses, ftr->can_buses,
-+			 ftr->nmi, ftr->sci, ftr->smi);
-+}
-+
-+static DEVICE_ATTR(version, 0444, dmec_version_show, NULL);
-+static DEVICE_ATTR(fw_type, 0444, dmec_fw_type_show, NULL);
-+static DEVICE_ATTR(features, 0444, dmec_features_show, NULL);
-+
-+static struct attribute *dmec_attributes[] = {
-+	&dev_attr_version.attr,
-+	&dev_attr_fw_type.attr,
-+	&dev_attr_features.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group ec_attr_group = {
-+	.attrs = dmec_attributes,
-+};
-+
-+static int dmec_detect_device(struct dmec_device_data *ec)
-+{
-+	int ret;
-+
-+	ret = dmec_get_info(ec);
-+	if (ret)
-+		return ret;
-+
-+	ret = scnprintf(ec->info.version, sizeof(ec->info.version),
-+			"%u.%u",
-+			ec->info.ec_ver, ec->info.ec_rev);
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_info(ec->dev, "v%s (%s) features: %#x\n",
-+		 ec->info.version,
-+		 fw_types[ec->info.ec_type % (ARRAY_SIZE(fw_types) - 1)],
-+		 ec->u.feature_mask);
-+
-+	ret = dmec_register_cells(ec);
-+	if (ret)
-+		return ret;
-+
-+	return sysfs_create_group(&ec->dev->kobj, &ec_attr_group);
-+}
-+
-+static const struct regmap_config dmec_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.reg_stride = 1,
-+	.max_register =	DMEC_REG_MAX,
-+	.reg_write = dmec_regmap_reg_write,
-+	.reg_read = dmec_regmap_reg_read,
-+	.cache_type = REGCACHE_NONE,
-+	.fast_io = true,
-+};
-+
-+static int dmec_mfd_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct dmec_device_data *ec;
-+	struct resource *io_idx, *io;
-+	int ret;
-+
-+	ret = platform_device_add_data(pdev, NULL, 0);
-+	if (ret)
-+		return ret;
-+
-+	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
-+	if (!ec)
-+		return -ENOMEM;
-+
-+	io_idx = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!io_idx)
-+		return -EINVAL;
-+
-+	io = platform_get_resource(pdev, IORESOURCE_IO, 1);
-+	if (!io) {
-+		dev_info(dev, "falling back to index addressing\n");
-+		ec->io_base = devm_ioport_map(dev, io_idx->start,
-+					      io_idx->end - io_idx->start);
-+		i_addr = true;
-+	} else
-+		ec->io_base = devm_ioport_map(dev, io->start,
-+					      io->end - io->start);
-+
-+	if (IS_ERR(ec->io_base))
-+		return PTR_ERR(ec->io_base);
-+
-+	/* In index mode registers @ 0x0 and 0x2 are used by the BIOS */
-+	ec->i_addr = i_addr;
-+	ec->io_index = ec->io_base + 1;
-+	ec->io_data = ec->io_base + 3;
-+	ec->dev = dev;
-+
-+	ec->regmap = devm_regmap_init(dev, NULL, ec, &dmec_regmap_config);
-+	if (IS_ERR(ec->regmap))
-+		return PTR_ERR(ec->regmap);
-+	regcache_cache_bypass(ec->regmap, true);
-+
-+	platform_set_drvdata(pdev, ec);
-+
-+	return dmec_detect_device(ec);
-+}
-+
-+static int dmec_mfd_remove(struct platform_device *pdev)
-+{
-+	struct dmec_device_data *ec = platform_get_drvdata(pdev);
-+
-+	sysfs_remove_group(&ec->dev->kobj, &ec_attr_group);
-+
-+	return 0;
-+}
-+
-+static const struct acpi_device_id dmec_acpi_ids[] = {
-+	{"DMEC0001", 0},
-+	{"", 0},
-+};
-+MODULE_DEVICE_TABLE(acpi, dmec_acpi_ids);
-+
-+static struct platform_driver dmec_driver = {
-+	.probe = dmec_mfd_probe,
-+	.remove = dmec_mfd_remove,
-+	.driver = {
-+		.name = "dmec",
-+		.acpi_match_table = ACPI_PTR(dmec_acpi_ids)
-+	},
-+};
-+
-+module_platform_driver(dmec_driver);
-+
-+MODULE_DESCRIPTION("DMO embedded controller core driver");
-+MODULE_AUTHOR("Zahari Doychev <zahari.doychev@linux.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:dmec-core");
-diff --git a/drivers/staging/dmec/dmec.h b/drivers/staging/dmec/dmec.h
-new file mode 100644
-index 0000000..4d8712d
---- /dev/null
-+++ b/drivers/staging/dmec/dmec.h
-@@ -0,0 +1,6 @@
-+#ifndef _LINUX_MFD_DMEC_H
-+#define _LINUX_MFD_DMEC_H
-+
-+struct regmap *dmec_get_regmap(struct device *dev);
-+
-+#endif
--- 
-git-series 0.8.10
+Linus,
+
+I2C has some driver bugfixes, module autoload fixes, and driver
+enablement on some architectures for you.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 07d9a380680d1c0eb51ef87ff2eab5c994949e69:
+
+  Linux 4.9-rc2 (2016-10-23 17:10:14 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 533169d164c6b4c8571d0d48779f6ff6be593d72:
+
+  i2c: imx: defer probe if bus recovery GPIOs are not ready (2016-10-25 12:15:00 +0200)
+
+----------------------------------------------------------------
+David Wu (1):
+      i2c: rk3x: Give the tuning value 0 during rk3x_i2c_v0_calc_timings
+
+Greg Ungerer (1):
+      i2c: allow configuration of imx driver for ColdFire architecture
+
+Hoan Tran (1):
+      i2c: xgene: Avoid dma_buffer overrun
+
+Jarkko Nikula (1):
+      i2c: designware: Avoid aborted transfers with fast reacting I2C slaves
+
+Javier Martinez Canillas (4):
+      i2c: jz4780: Fix module autoload
+      i2c: xlp9xx: Fix module autoload
+      i2c: xlr: Fix module autoload for OF registration
+      i2c: digicolor: Fix module autoload
+
+Jean Delvare (1):
+      i2c: i801: Fix I2C Block Read on 8-Series/C220 and later
+
+Ralf Ramsauer (1):
+      i2c: mark device nodes only in case of successful instantiation
+
+Ruqiang Ju (1):
+      i2c: hix5hd2: allow build with ARCH_HISI
+
+Stefan Agner (1):
+      i2c: imx: defer probe if bus recovery GPIOs are not ready
+
+ drivers/i2c/busses/Kconfig               | 12 ++++++------
+ drivers/i2c/busses/i2c-designware-core.c | 17 ++++++++++++++---
+ drivers/i2c/busses/i2c-digicolor.c       |  1 +
+ drivers/i2c/busses/i2c-i801.c            | 16 +++++++++++++---
+ drivers/i2c/busses/i2c-imx.c             | 11 +++++++----
+ drivers/i2c/busses/i2c-jz4780.c          |  1 +
+ drivers/i2c/busses/i2c-rk3x.c            |  2 ++
+ drivers/i2c/busses/i2c-xgene-slimpro.c   |  2 +-
+ drivers/i2c/busses/i2c-xlp9xx.c          |  1 +
+ drivers/i2c/busses/i2c-xlr.c             |  1 +
+ drivers/i2c/i2c-core.c                   | 11 ++++++++++-
+ 11 files changed, 57 insertions(+), 18 deletions(-)
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYEfxVAAoJEBQN5MwUoCm22aUQAKBfcrEqS+RvbK1vNsO5YbNW
+TuUxuUILxYM+ev0J+9I+k5vB9b6xD9Y3RVQ4KzwRr/UXI7m08R96ATqUnYSMbOP8
+KJ8D9yH8Ch2Zdq1Qudz4ln53bbHPY8ZEyE55sDfRrLgLPCFIBwXUmeWc4nGr9oiy
+1NjB9W5C2zFRLsHZbM4Pwl1EEQThYXGLj35f4mzGkwsv2cGDYAxmT9C8zCDiNU3l
+ZXVvPahpffgRHaU6khmYyY2wtaUOiciUOsDhK9bk6JSadpzgNDXr4DOp5U/Ehqut
+6r07veEktnWAIlDnibz8nPLT2A00XMR5DKdtB1HTCbOA4KbsQI3d2B4ADr3OUone
+tXIyBtHigIUjv518wPFwxl5HON8uhCE/WAArjCwWPlZIzJ+unbg0qxyDzv9vyTSz
+P/BJEg2Z4QnSr07ZFEnEtvseg4mbaA+X2Cj/epUB0Gm0Z+Q3DZzMHFD/t8H9ee5h
+5kssWq2J07bAoe5Qwy1g9c/ZTrQ4PasP56QU8EOYLeddFNxAZ7/iN8eQHhXAE49H
+FBrW+obYhNupSP0Y9adhzE7MsoJ22zjqnCn28LRt6a7UmYgiqULAQI9rJ0+l7vxf
+HC0rLOPXiuuzDtggzQKL+eR4l4Xtd0kOQk35lb3bFuq1HyQIYnip6J52SdlKyE1H
+BHLG55NSG2WuyarHOw2P
+=i7Au
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
