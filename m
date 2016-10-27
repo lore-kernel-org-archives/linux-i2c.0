@@ -1,143 +1,120 @@
-From: Scott Wood <oss@buserror.net>
-Subject: Re: [v12, 5/8] soc: fsl: add GUTS driver for QorIQ platforms
-Date: Wed, 26 Oct 2016 12:06:06 -0500
-Message-ID: <1477501566.6812.9.camel@buserror.net>
+From: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v12, 5/8] soc: fsl: add GUTS driver for QorIQ platforms
+Date: Thu, 27 Oct 2016 04:34:06 +0000
+Message-ID: <DB6PR0401MB25362658D117DF4D7B92FD48F8AA0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
 References: <1474441040-11946-1-git-send-email-yangbo.lu@nxp.com>
-         <1474441040-11946-6-git-send-email-yangbo.lu@nxp.com>
+	<1474441040-11946-6-git-send-email-yangbo.lu@nxp.com>
+	<1477501566.6812.9.camel@buserror.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1474441040-11946-6-git-send-email-yangbo.lu@nxp.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yangbo Lu <yangbo.lu@nxp.com>, linux-mmc@vger.kernel.org, ulf.hansson@linaro.org, Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc-dev@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux-foundation.org, netdev@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@arm.linux.org.uk>, Jochen Friedrich <jochen@scram.de>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Qiang Zhao <qiang.zhao@nxp.com>, Kumar Gala <galak@codeaurora.org>, Santosh Shilimkar <ssantosh@kernel.org>, Leo Li <leoyang.li@nxp.com>, Xiaobo Xie <xiaobo.xie@nxp.com>, Minghuan Lian <minghuan.lian@nxp.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1477501566.6812.9.camel-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>"linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <l>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2016-09-21 at 14:57 +0800, Yangbo Lu wrote:
-> diff --git a/drivers/soc/fsl/Kconfig b/drivers/soc/fsl/Kconfig
-> new file mode 100644
-> index 0000000..b99764c
-> --- /dev/null
-> +++ b/drivers/soc/fsl/Kconfig
-> @@ -0,0 +1,19 @@
-> +#
-> +# Freescale SOC drivers
-> +#
-> +
-> +source "drivers/soc/fsl/qe/Kconfig"
-> +
-> +config FSL_GUTS
-> +	bool "Freescale QorIQ GUTS driver"
-> +	select SOC_BUS
-> +	help
-> +	  The global utilities block controls power management, I/O device
-> +	  enabling, power-onreset(POR) configuration monitoring, alternate
-> +	  function selection for multiplexed signals,and clock control.
-> +	  This driver is to manage and access global utilities block.
-> +	  Initially only reading SVR and registering soc device are
-> supported.
-> +	  Other guts accesses, such as reading RCW, should eventually be
-> moved
-> +	  into this driver as well.
-> +
-> +	  If you want GUTS driver support, you should say Y here.
-
-This is user-enablable without dependencies, which means it will break some
-randconfigs.  If this is to be enabled via select then remove the text after
-"bool".
-
-> +/* SoC die attribute definition for QorIQ platform */
-> +static const struct fsl_soc_die_attr fsl_soc_die[] = {
-> +#ifdef CONFIG_PPC
-> +	/*
-> +	 * Power Architecture-based SoCs T Series
-> +	 */
-> +
-> +	/* Die: T4240, SoC: T4240/T4160/T4080 */
-> +	{ .die		= "T4240",
-> +	  .svr		= 0x82400000,
-> +	  .mask		= 0xfff00000,
-> +	},
-> +	/* Die: T1040, SoC: T1040/T1020/T1042/T1022 */
-> +	{ .die		= "T1040",
-> +	  .svr		= 0x85200000,
-> +	  .mask		= 0xfff00000,
-> +	},
-> +	/* Die: T2080, SoC: T2080/T2081 */
-> +	{ .die		= "T2080",
-> +	  .svr		= 0x85300000,
-> +	  .mask		= 0xfff00000,
-> +	},
-> +	/* Die: T1024, SoC: T1024/T1014/T1023/T1013 */
-> +	{ .die		= "T1024",
-> +	  .svr		= 0x85400000,
-> +	  .mask		= 0xfff00000,
-> +	},
-> +#endif /* CONFIG_PPC */
-> +#if defined(CONFIG_ARCH_MXC) || defined(CONFIG_ARCH_LAYERSCAPE)
-
-Will this driver ever be probed on MXC?  Why do we need these ifdefs at all?
-
-
-> +	/*
-> +	 * ARM-based SoCs LS Series
-> +	 */
-> +
-> +	/* Die: LS1043A, SoC: LS1043A/LS1023A */
-> +	{ .die		= "LS1043A",
-> +	  .svr		= 0x87920000,
-> +	  .mask		= 0xffff0000,
-> +	},
-> +	/* Die: LS2080A, SoC: LS2080A/LS2040A/LS2085A */
-> +	{ .die		= "LS2080A",
-> +	  .svr		= 0x87010000,
-> +	  .mask		= 0xff3f0000,
-> +	},
-> +	/* Die: LS1088A, SoC: LS1088A/LS1048A/LS1084A/LS1044A */
-> +	{ .die		= "LS1088A",
-> +	  .svr		= 0x87030000,
-> +	  .mask		= 0xff3f0000,
-> +	},
-> +	/* Die: LS1012A, SoC: LS1012A */
-> +	{ .die		= "LS1012A",
-> +	  .svr		= 0x87040000,
-> +	  .mask		= 0xffff0000,
-> +	},
-> +	/* Die: LS1046A, SoC: LS1046A/LS1026A */
-> +	{ .die		= "LS1046A",
-> +	  .svr		= 0x87070000,
-> +	  .mask		= 0xffff0000,
-> +	},
-> +	/* Die: LS2088A, SoC: LS2088A/LS2048A/LS2084A/LS2044A */
-> +	{ .die		= "LS2088A",
-> +	  .svr		= 0x87090000,
-> +	  .mask		= 0xff3f0000,
-> +	},
-> +	/* Die: LS1021A, SoC: LS1021A/LS1020A/LS1022A
-> +	 * Note: Put this die at the end in cause of incorrect
-> identification
-> +	 */
-> +	{ .die		= "LS1021A",
-> +	  .svr		= 0x87000000,
-> +	  .mask		= 0xfff00000,
-> +	},
-> +#endif /* CONFIG_ARCH_MXC || CONFIG_ARCH_LAYERSCAPE */
-
-Instead of relying on ordering, add more bits to the mask so that there's no
-overlap.  I think 0xfff70000 would work.
-
-> +out:
-> +	kfree(soc_dev_attr.machine);
-> +	kfree(soc_dev_attr.family);
-> +	kfree(soc_dev_attr.soc_id);
-> +	kfree(soc_dev_attr.revision);
-> +	iounmap(guts->regs);
-> +out_free:
-> +	kfree(guts);
-> +	return ret;
-> +}
-
-Please use devm.
-
--Scott
+SGkgU2NvdHQsDQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBTY290
+dCBXb29kIFttYWlsdG86b3NzQGJ1c2Vycm9yLm5ldF0NCj4gU2VudDogVGh1cnNkYXksIE9jdG9i
+ZXIgMjcsIDIwMTYgMTowNiBBTQ0KPiBUbzogWS5CLiBMdTsgbGludXgtbW1jQHZnZXIua2VybmVs
+Lm9yZzsgdWxmLmhhbnNzb25AbGluYXJvLm9yZzsgQXJuZA0KPiBCZXJnbWFubg0KPiBDYzogbGlu
+dXhwcGMtZGV2QGxpc3RzLm96bGFicy5vcmc7IGRldmljZXRyZWVAdmdlci5rZXJuZWwub3JnOyBs
+aW51eC1hcm0tDQo+IGtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC1rZXJuZWxAdmdl
+ci5rZXJuZWwub3JnOyBsaW51eC0NCj4gY2xrQHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZn
+ZXIua2VybmVsLm9yZzsgaW9tbXVAbGlzdHMubGludXgtDQo+IGZvdW5kYXRpb24ub3JnOyBuZXRk
+ZXZAdmdlci5rZXJuZWwub3JnOyBNYXJrIFJ1dGxhbmQ7IFJvYiBIZXJyaW5nOw0KPiBSdXNzZWxs
+IEtpbmc7IEpvY2hlbiBGcmllZHJpY2g7IEpvZXJnIFJvZWRlbDsgQ2xhdWRpdSBNYW5vaWw7IEJo
+dXBlc2gNCj4gU2hhcm1hOyBRaWFuZyBaaGFvOyBLdW1hciBHYWxhOyBTYW50b3NoIFNoaWxpbWth
+cjsgTGVvIExpOyBYLkIuIFhpZTsgTS5ILg0KPiBMaWFuDQo+IFN1YmplY3Q6IFJlOiBbdjEyLCA1
+LzhdIHNvYzogZnNsOiBhZGQgR1VUUyBkcml2ZXIgZm9yIFFvcklRIHBsYXRmb3Jtcw0KPiANCj4g
+T24gV2VkLCAyMDE2LTA5LTIxIGF0IDE0OjU3ICswODAwLCBZYW5nYm8gTHUgd3JvdGU6DQo+ID4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvc29jL2ZzbC9LY29uZmlnIGIvZHJpdmVycy9zb2MvZnNsL0tj
+b25maWcgbmV3DQo+ID4gZmlsZSBtb2RlIDEwMDY0NCBpbmRleCAwMDAwMDAwLi5iOTk3NjRjDQo+
+ID4gLS0tIC9kZXYvbnVsbA0KPiA+ICsrKyBiL2RyaXZlcnMvc29jL2ZzbC9LY29uZmlnDQo+ID4g
+QEAgLTAsMCArMSwxOSBAQA0KPiA+ICsjDQo+ID4gKyMgRnJlZXNjYWxlIFNPQyBkcml2ZXJzDQo+
+ID4gKyMNCj4gPiArDQo+ID4gK3NvdXJjZSAiZHJpdmVycy9zb2MvZnNsL3FlL0tjb25maWciDQo+
+ID4gKw0KPiA+ICtjb25maWcgRlNMX0dVVFMNCj4gPiArCWJvb2wgIkZyZWVzY2FsZSBRb3JJUSBH
+VVRTIGRyaXZlciINCj4gPiArCXNlbGVjdCBTT0NfQlVTDQo+ID4gKwloZWxwDQo+ID4gKwnCoMKg
+VGhlIGdsb2JhbCB1dGlsaXRpZXMgYmxvY2sgY29udHJvbHMgcG93ZXIgbWFuYWdlbWVudCwgSS9P
+IGRldmljZQ0KPiA+ICsJwqDCoGVuYWJsaW5nLCBwb3dlci1vbnJlc2V0KFBPUikgY29uZmlndXJh
+dGlvbiBtb25pdG9yaW5nLCBhbHRlcm5hdGUNCj4gPiArCcKgwqBmdW5jdGlvbiBzZWxlY3Rpb24g
+Zm9yIG11bHRpcGxleGVkIHNpZ25hbHMsYW5kIGNsb2NrIGNvbnRyb2wuDQo+ID4gKwnCoMKgVGhp
+cyBkcml2ZXIgaXMgdG8gbWFuYWdlIGFuZCBhY2Nlc3MgZ2xvYmFsIHV0aWxpdGllcyBibG9jay4N
+Cj4gPiArCcKgwqBJbml0aWFsbHkgb25seSByZWFkaW5nIFNWUiBhbmQgcmVnaXN0ZXJpbmcgc29j
+IGRldmljZSBhcmUNCj4gPiBzdXBwb3J0ZWQuDQo+ID4gKwnCoMKgT3RoZXIgZ3V0cyBhY2Nlc3Nl
+cywgc3VjaCBhcyByZWFkaW5nIFJDVywgc2hvdWxkIGV2ZW50dWFsbHkgYmUNCj4gPiBtb3ZlZA0K
+PiA+ICsJwqDCoGludG8gdGhpcyBkcml2ZXIgYXMgd2VsbC4NCj4gPiArDQo+ID4gKwnCoMKgSWYg
+eW91IHdhbnQgR1VUUyBkcml2ZXIgc3VwcG9ydCwgeW91IHNob3VsZCBzYXkgWSBoZXJlLg0KPiAN
+Cj4gVGhpcyBpcyB1c2VyLWVuYWJsYWJsZSB3aXRob3V0IGRlcGVuZGVuY2llcywgd2hpY2ggbWVh
+bnMgaXQgd2lsbCBicmVhaw0KPiBzb21lIHJhbmRjb25maWdzLiDCoElmIHRoaXMgaXMgdG8gYmUg
+ZW5hYmxlZCB2aWEgc2VsZWN0IHRoZW4gcmVtb3ZlIHRoZQ0KPiB0ZXh0IGFmdGVyICJib29sIi4N
+Cg0KW0x1IFlhbmdiby1CNDcwOTNdIFdpbGwgZW5hYmxlIGl0IHZpYSBzZWxlY3QgYW5kIHJlbW92
+ZSB0ZXh0IGFmdGVyICdib29sJy4NCiANCj4gDQo+ID4gKy8qIFNvQyBkaWUgYXR0cmlidXRlIGRl
+ZmluaXRpb24gZm9yIFFvcklRIHBsYXRmb3JtICovIHN0YXRpYyBjb25zdA0KPiA+ICtzdHJ1Y3Qg
+ZnNsX3NvY19kaWVfYXR0ciBmc2xfc29jX2RpZVtdID0geyAjaWZkZWYgQ09ORklHX1BQQw0KPiA+
+ICsJLyoNCj4gPiArCcKgKiBQb3dlciBBcmNoaXRlY3R1cmUtYmFzZWQgU29DcyBUIFNlcmllcw0K
+PiA+ICsJwqAqLw0KPiA+ICsNCj4gPiArCS8qIERpZTogVDQyNDAsIFNvQzogVDQyNDAvVDQxNjAv
+VDQwODAgKi8NCj4gPiArCXsgLmRpZQkJPSAiVDQyNDAiLA0KPiA+ICsJwqDCoC5zdnIJCT0gMHg4
+MjQwMDAwMCwNCj4gPiArCcKgwqAubWFzawkJPSAweGZmZjAwMDAwLA0KPiA+ICsJfSwNCj4gPiAr
+CS8qIERpZTogVDEwNDAsIFNvQzogVDEwNDAvVDEwMjAvVDEwNDIvVDEwMjIgKi8NCj4gPiArCXsg
+LmRpZQkJPSAiVDEwNDAiLA0KPiA+ICsJwqDCoC5zdnIJCT0gMHg4NTIwMDAwMCwNCj4gPiArCcKg
+wqAubWFzawkJPSAweGZmZjAwMDAwLA0KPiA+ICsJfSwNCj4gPiArCS8qIERpZTogVDIwODAsIFNv
+QzogVDIwODAvVDIwODEgKi8NCj4gPiArCXsgLmRpZQkJPSAiVDIwODAiLA0KPiA+ICsJwqDCoC5z
+dnIJCT0gMHg4NTMwMDAwMCwNCj4gPiArCcKgwqAubWFzawkJPSAweGZmZjAwMDAwLA0KPiA+ICsJ
+fSwNCj4gPiArCS8qIERpZTogVDEwMjQsIFNvQzogVDEwMjQvVDEwMTQvVDEwMjMvVDEwMTMgKi8N
+Cj4gPiArCXsgLmRpZQkJPSAiVDEwMjQiLA0KPiA+ICsJwqDCoC5zdnIJCT0gMHg4NTQwMDAwMCwN
+Cj4gPiArCcKgwqAubWFzawkJPSAweGZmZjAwMDAwLA0KPiA+ICsJfSwNCj4gPiArI2VuZGlmIC8q
+IENPTkZJR19QUEMgKi8NCj4gPiArI2lmIGRlZmluZWQoQ09ORklHX0FSQ0hfTVhDKSB8fCBkZWZp
+bmVkKENPTkZJR19BUkNIX0xBWUVSU0NBUEUpDQo+IA0KPiBXaWxsIHRoaXMgZHJpdmVyIGV2ZXIg
+YmUgcHJvYmVkIG9uIE1YQz8gwqBXaHkgZG8gd2UgbmVlZCB0aGVzZSBpZmRlZnMgYXQNCj4gYWxs
+Pw0KDQpbTHUgWWFuZ2JvLUI0NzA5M10gV2lsbCByZW1vdmUgdGhlbS4gSW4gdGhlIHByZXZpb3Vz
+IHZlcnNpb24sIHdlIHVzZSB0b28gbWFueSBtZW1iZXJzIGZvciBzb2MgZGVmaW5pdGlvbiwgc28g
+SSBhZGQgI2lmZGVmIGZvciBBUkNILiANCkNPTkZJR19BUkNIX01YQyB3YXMgZm9yIGxzMTAyMWEu
+DQoNCj4gDQo+IA0KPiA+ICsJLyoNCj4gPiArCcKgKiBBUk0tYmFzZWQgU29DcyBMUyBTZXJpZXMN
+Cj4gPiArCcKgKi8NCj4gPiArDQo+ID4gKwkvKiBEaWU6IExTMTA0M0EsIFNvQzogTFMxMDQzQS9M
+UzEwMjNBICovDQo+ID4gKwl7IC5kaWUJCT0gIkxTMTA0M0EiLA0KPiA+ICsJwqDCoC5zdnIJCT0g
+MHg4NzkyMDAwMCwNCj4gPiArCcKgwqAubWFzawkJPSAweGZmZmYwMDAwLA0KPiA+ICsJfSwNCj4g
+PiArCS8qIERpZTogTFMyMDgwQSwgU29DOiBMUzIwODBBL0xTMjA0MEEvTFMyMDg1QSAqLw0KPiA+
+ICsJeyAuZGllCQk9ICJMUzIwODBBIiwNCj4gPiArCcKgwqAuc3ZyCQk9IDB4ODcwMTAwMDAsDQo+
+ID4gKwnCoMKgLm1hc2sJCT0gMHhmZjNmMDAwMCwNCj4gPiArCX0sDQo+ID4gKwkvKiBEaWU6IExT
+MTA4OEEsIFNvQzogTFMxMDg4QS9MUzEwNDhBL0xTMTA4NEEvTFMxMDQ0QSAqLw0KPiA+ICsJeyAu
+ZGllCQk9ICJMUzEwODhBIiwNCj4gPiArCcKgwqAuc3ZyCQk9IDB4ODcwMzAwMDAsDQo+ID4gKwnC
+oMKgLm1hc2sJCT0gMHhmZjNmMDAwMCwNCj4gPiArCX0sDQo+ID4gKwkvKiBEaWU6IExTMTAxMkEs
+IFNvQzogTFMxMDEyQSAqLw0KPiA+ICsJeyAuZGllCQk9ICJMUzEwMTJBIiwNCj4gPiArCcKgwqAu
+c3ZyCQk9IDB4ODcwNDAwMDAsDQo+ID4gKwnCoMKgLm1hc2sJCT0gMHhmZmZmMDAwMCwNCj4gPiAr
+CX0sDQo+ID4gKwkvKiBEaWU6IExTMTA0NkEsIFNvQzogTFMxMDQ2QS9MUzEwMjZBICovDQo+ID4g
+Kwl7IC5kaWUJCT0gIkxTMTA0NkEiLA0KPiA+ICsJwqDCoC5zdnIJCT0gMHg4NzA3MDAwMCwNCj4g
+PiArCcKgwqAubWFzawkJPSAweGZmZmYwMDAwLA0KPiA+ICsJfSwNCj4gPiArCS8qIERpZTogTFMy
+MDg4QSwgU29DOiBMUzIwODhBL0xTMjA0OEEvTFMyMDg0QS9MUzIwNDRBICovDQo+ID4gKwl7IC5k
+aWUJCT0gIkxTMjA4OEEiLA0KPiA+ICsJwqDCoC5zdnIJCT0gMHg4NzA5MDAwMCwNCj4gPiArCcKg
+wqAubWFzawkJPSAweGZmM2YwMDAwLA0KPiA+ICsJfSwNCj4gPiArCS8qIERpZTogTFMxMDIxQSwg
+U29DOiBMUzEwMjFBL0xTMTAyMEEvTFMxMDIyQQ0KPiA+ICsJwqAqIE5vdGU6IFB1dCB0aGlzIGRp
+ZSBhdCB0aGUgZW5kIGluIGNhdXNlIG9mIGluY29ycmVjdA0KPiA+IGlkZW50aWZpY2F0aW9uDQo+
+ID4gKwnCoCovDQo+ID4gKwl7IC5kaWUJCT0gIkxTMTAyMUEiLA0KPiA+ICsJwqDCoC5zdnIJCT0g
+MHg4NzAwMDAwMCwNCj4gPiArCcKgwqAubWFzawkJPSAweGZmZjAwMDAwLA0KPiA+ICsJfSwNCj4g
+PiArI2VuZGlmIC8qIENPTkZJR19BUkNIX01YQyB8fCBDT05GSUdfQVJDSF9MQVlFUlNDQVBFICov
+DQo+IA0KPiBJbnN0ZWFkIG9mIHJlbHlpbmcgb24gb3JkZXJpbmcsIGFkZCBtb3JlIGJpdHMgdG8g
+dGhlIG1hc2sgc28gdGhhdCB0aGVyZSdzDQo+IG5vIG92ZXJsYXAuIMKgSSB0aGluayAweGZmZjcw
+MDAwIHdvdWxkIHdvcmsuDQoNCltMdSBZYW5nYm8tQjQ3MDkzXSBPaywgV2lsbCBkbyB0aGF0LiBU
+aGVuIHdlIGFkZCAzIGJpdHMgb2YgJ1ZhcmlvdXMgUGVyc29uYWxpdGllcycgZmllbGQgZm9yIGxz
+MTAyMWEgZGllIGlkZW50aWZpY2F0aW9uLg0KDQo+IA0KPiA+ICtvdXQ6DQo+ID4gKwlrZnJlZShz
+b2NfZGV2X2F0dHIubWFjaGluZSk7DQo+ID4gKwlrZnJlZShzb2NfZGV2X2F0dHIuZmFtaWx5KTsN
+Cj4gPiArCWtmcmVlKHNvY19kZXZfYXR0ci5zb2NfaWQpOw0KPiA+ICsJa2ZyZWUoc29jX2Rldl9h
+dHRyLnJldmlzaW9uKTsNCj4gPiArCWlvdW5tYXAoZ3V0cy0+cmVncyk7DQo+ID4gK291dF9mcmVl
+Og0KPiA+ICsJa2ZyZWUoZ3V0cyk7DQo+ID4gKwlyZXR1cm4gcmV0Ow0KPiA+ICt9DQo+IA0KPiBQ
+bGVhc2UgdXNlIGRldm0uDQoNCltMdSBZYW5nYm8tQjQ3MDkzXSBTb3JyeSBmb3IgZm9yZ2V0dGlu
+ZyB0aGlzLiBXaWxsIGRvIHRoYXQgYW5kIHNlbmQgb3V0IHRoZSBuZXcgdmVyc2lvbiBzb29uLg0K
+VGhhbmtzIGZvciB5b3VyIGNvbW1lbnRzLg0KDQo+IA0KPiAtU2NvdHQNCg0KX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaW9tbXUgbWFpbGluZyBsaXN0Cmlv
+bW11QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2lvbW11
