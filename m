@@ -1,87 +1,267 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: Give the tuning value 0 during
- rk3x_i2c_v0_calc_timings
-Date: Thu, 27 Oct 2016 15:11:21 +0200
-Message-ID: <20161027131121.GB1559@tetsubishi>
-References: <1477125822-30644-1-git-send-email-david.wu@rock-chips.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5881455956383642301=="
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1477125822-30644-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Zahari Doychev <zahari.doychev@linux.com>
+Subject: [RFC PATCH 5/5] rtm-dmec: running time meter support
+Date: Thu, 27 Oct 2016 12:47:16 +0200
+Message-ID: <dd57adbd7f03b8cca56484105123c10727562e87.1477564996.git-series.zahari.doychev@linux.com>
+References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.data-modul.de ([212.184.205.171]:49826 "EHLO
+        mail2.data-modul.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S934502AbcJ0N54 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 27 Oct 2016 09:57:56 -0400
+In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
+In-Reply-To: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
+References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, lee.jones@linaro.org, wsa@the-dreams.de, linus.walleij@linaro.org, wim@iguana.be, linux@roeck-us.net
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, gnurou@gmail.com, linux-watchdog@vger.kernel.org, Zahari Doychev <zahari.doychev@linux.com>
 
+This is support for the running time meter(RTM) found on the Data Modul
+embedded boards.
 
---===============5881455956383642301==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
-Content-Disposition: inline
+Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
+---
+ drivers/staging/dmec/Kconfig    |  10 ++-
+ drivers/staging/dmec/Makefile   |   1 +-
+ drivers/staging/dmec/rtm-dmec.c | 203 +++++++++++++++++++++++++++++++++-
+ 3 files changed, 214 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/dmec/rtm-dmec.c
 
-
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Oct 22, 2016 at 04:43:42PM +0800, David Wu wrote:
-> We found a bug that i2c transfer sometimes failed on 3066a board with
-> stabel-4.8, the con register would be updated by uninitialized tuning
-> value, it made the i2c transfer failed.
->=20
-> So give the tuning value to be zero during rk3x_i2c_v0_calc_timings.
->=20
-> Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-
-What I missed to say in my review:
-
-Please use a subject line that describes WHY the change is needed not so
-much WHAT is done. Like: "fix missing initialization causing boot
-problems"
-
-
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYEfz5AAoJEBQN5MwUoCm2K1YP/jsZyYSzW44vvUAOF4LzjrlO
-HNEKroLkxHQGCxHO3NqM4hqT9v0bTDQ07D6YjrgdzNBvg1/GohD+17ggjjAaRhOa
-zHIDz4Gfclmi25y4CfD5IzMGhOXwrEQLiKxBQFBuLPMHhx5xeLY676B+WqnO+W3v
-QFkiSJXvpqB6yKBMcQuNUxSNiUkcgUMr9UI+1vd1EQbtHyLzsc6WKzabRPPQgkTX
-yULWqzJ5iy8tNxkufu2UZCZWhTC68f/fDCo2f11qW8Xwnb16ZFb7AlqzKQXINAvt
-txuMFi0n/Lkqk+SaAZ/wbjtdWHprIGUenM1nOXf8y0lg60xbtEYMLg6lmLs0V1Eg
-RRE/oz6eHDmhw67dwYnVhccBawfJygE1mRxB1t2neSAMUXIhK/unVqmcXp6bXRgD
-hdsRUw0NBu98/1FvXMtorYECCLl/8CYqJ9oHM6NbIjeQf4MVfIMf8f+bz4X6o5UG
-ztZuNIkT88WuIuzkt09QxIa9BdhSXl4srBnb1eIHcteJwVfbmwBfzMo/Y+jzsK3X
-A38i7J40IMMzbL3kd8NiS07jD/5M6cTXJRhc1jpT18rBEWuTVo/9Z/0GY7cU//cP
-hjeBDbGxCCGgoIYfoc44IFL4OUsdkj1/G817VSnSoaZtwIEMuTT0APyr8xHaAf5P
-JPuOOgtdOKeVKvFVZOzv
-=extK
------END PGP SIGNATURE-----
-
---oLBj+sq0vYjzfsbl--
-
-
---===============5881455956383642301==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Linux-rockchip mailing list
-Linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-http://lists.infradead.org/mailman/listinfo/linux-rockchip
-
---===============5881455956383642301==--
+diff --git a/drivers/staging/dmec/Kconfig b/drivers/staging/dmec/Kconfig
+index eddf0bb..f6f4146 100644
+--- a/drivers/staging/dmec/Kconfig
++++ b/drivers/staging/dmec/Kconfig
+@@ -38,3 +38,13 @@ config WDT_DMEC
+ 
+ 	  To compile this driver as a module, say M here: the module will be
+           called wdt-dmec
++
++config RTM_DMEC
++	tristate "Data Modul RTM"
++	depends on MFD_DMEC
++	help
++	  Say Y to enable support for a running time meter(RTM) on a Data Modul
++	  embedded controllers.
++
++	  To compile this driver as a module, say M here: the module will be
++          called wdt-dmec
+diff --git a/drivers/staging/dmec/Makefile b/drivers/staging/dmec/Makefile
+index 8b363cc..b55d56f 100644
+--- a/drivers/staging/dmec/Makefile
++++ b/drivers/staging/dmec/Makefile
+@@ -2,3 +2,4 @@ obj-$(CONFIG_MFD_DMEC)		+= dmec-core.o
+ obj-$(CONFIG_I2C_DMEC)		+= i2c-dmec.o
+ obj-$(CONFIG_GPIO_DMEC) 	+= gpio-dmec.o
+ obj-$(CONFIG_WDT_DMEC)		+= wdt-dmec.o
++obj-$(CONFIG_RTM_DMEC)		+= rtm-dmec.o
+diff --git a/drivers/staging/dmec/rtm-dmec.c b/drivers/staging/dmec/rtm-dmec.c
+new file mode 100644
+index 0000000..cd32536
+--- /dev/null
++++ b/drivers/staging/dmec/rtm-dmec.c
+@@ -0,0 +1,203 @@
++/*
++ * Running time meter for Data Modul AG Embedded Controller
++ *
++ * Copyright (C) 2016 Data Modul AG
++ *
++ * Author: Sebastian Wezel <sebastian@torvus-musica.de>
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/mutex.h>
++
++#include "dmec.h"
++
++#define DMEC_RTM_RTM_OFFSET             0x60
++#define DMEC_RTM_RTMREV_OFFSET          0x63
++#define DMEC_RTM_OOSRTM_OFFSET          0x64
++#define DMEC_RTM_BTCNT_OFFSET           0x68
++#define DMEC_RTM_BBCTNT_OFFSET          0x6c
++
++static DEFINE_MUTEX(rtm_lock);
++static struct regmap *regmap;
++static bool enable_reset;
++
++static unsigned int dmec_rtm_get_three_byte(unsigned int reg,
++					    struct device *dev)
++{
++	unsigned int low = 0, mid = 0, high = 0, val = 0;
++
++	regmap_read(regmap, reg, &low);
++	regmap_read(regmap, reg + 1, &mid);
++	regmap_read(regmap, reg + 2, &high);
++
++	val = ((high << 16) | (mid << 8) | (low & 0x0000ff));
++	return val;
++}
++
++static ssize_t dmec_rtm_time_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_RTM_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_time_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf,
++				   size_t count)
++{
++	unsigned int low = 0, mid = 0, high = 0, higher = 0;
++	long val = 0, ret = -EPERM;
++	int reg = DMEC_RTM_RTM_OFFSET;
++
++	mutex_lock(&rtm_lock);
++	if (enable_reset && !kstrtol(buf, 10, &val)) {
++		higher = (val >> 24) & 0xff;
++		high = (val >> 16) & 0xff;
++		mid = (val >> 8) & 0xff;
++		low = val & 0xff;
++
++		regmap_write(regmap, reg, low);
++		regmap_write(regmap, reg + 1, mid);
++		regmap_write(regmap, reg + 2, high);
++		regmap_write(regmap, reg + 3, higher);
++		enable_reset = false;
++		ret = count;
++	}
++	mutex_unlock(&rtm_lock);
++
++	return ret;
++}
++
++static ssize_t dmec_rtm_version_show(struct device *dev,
++				     struct device_attribute *attr, char *buf)
++{
++	unsigned int val = 0;
++
++	regmap_read(regmap, DMEC_RTM_RTMREV_OFFSET, &val);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_out_of_spec_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_OOSRTM_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_boot_count_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_BTCNT_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_bios_boot_count_show(struct device *dev,
++					     struct device_attribute *attr,
++					     char *buf)
++{
++	unsigned int val = 0;
++
++	val = dmec_rtm_get_three_byte(DMEC_RTM_BBCTNT_OFFSET, dev);
++	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
++}
++
++static ssize_t dmec_rtm_enable_reset_show(struct device *dev,
++					  struct device_attribute *attr,
++					  char *buf)
++{
++	return scnprintf(buf, PAGE_SIZE, "%d\n", enable_reset);
++}
++
++static ssize_t dmec_rtm_enable_reset_store(struct device *dev,
++					   struct device_attribute *attr,
++					   const char *buf, size_t count)
++{
++	long val = 0;
++
++	mutex_lock(&rtm_lock);
++	if (kstrtol(buf, 10, &val) != 0)
++		enable_reset = false;
++
++	/* The enable should only work if the value is 1 */
++	if (val == 1)
++		enable_reset = true;
++	mutex_unlock(&rtm_lock);
++	return count;
++}
++
++static DEVICE_ATTR(rtm_time, 0664, dmec_rtm_time_show, dmec_rtm_time_store);
++static DEVICE_ATTR(rtm_version, 0444, dmec_rtm_version_show, NULL);
++static DEVICE_ATTR(rtm_out_of_spec, 0444, dmec_rtm_out_of_spec_show, NULL);
++static DEVICE_ATTR(rtm_boot_count, 0444, dmec_rtm_boot_count_show, NULL);
++static DEVICE_ATTR(rtm_bios_boot_count, 0444, dmec_rtm_bios_boot_count_show,
++			NULL);
++static DEVICE_ATTR(rtm_enable_reset, 0664, dmec_rtm_enable_reset_show,
++		   dmec_rtm_enable_reset_store);
++
++static struct attribute *rtm_attribute[] = {
++	&dev_attr_rtm_time.attr,
++	&dev_attr_rtm_version.attr,
++	&dev_attr_rtm_out_of_spec.attr,
++	&dev_attr_rtm_boot_count.attr,
++	&dev_attr_rtm_bios_boot_count.attr,
++	&dev_attr_rtm_enable_reset.attr,
++	NULL
++};
++
++static const struct attribute_group rtm_attr_group = {
++	.attrs = rtm_attribute,
++};
++
++static int dmec_rtm_probe(struct platform_device *pdev)
++{
++	int ret;
++
++	regmap = dmec_get_regmap(pdev->dev.parent);
++	enable_reset = 0;
++
++	ret = sysfs_create_group(&pdev->dev.kobj, &rtm_attr_group);
++	if (ret)
++		return ret;
++
++	return ret;
++}
++
++static int dmec_rtm_remove(struct platform_device *pdev)
++{
++	sysfs_remove_group(&pdev->dev.kobj, &rtm_attr_group);
++
++	return 0;
++}
++
++static struct platform_driver dmec_rtm_driver = {
++	.driver = {
++			.name = "dmec-rtm",
++			.owner = THIS_MODULE,
++	},
++	.probe = dmec_rtm_probe,
++	.remove = dmec_rtm_remove,
++};
++
++module_platform_driver(dmec_rtm_driver);
++
++MODULE_DESCRIPTION("dmec rtm driver");
++MODULE_AUTHOR("Sebastian Wezel <sebastian@torvus-musica.de>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:dmec-rtm");
+-- 
+git-series 0.8.10
