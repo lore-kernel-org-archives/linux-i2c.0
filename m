@@ -1,106 +1,87 @@
-From: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Subject: RE: [v13, 5/8] soc: fsl: add GUTS driver for QorIQ platforms
-Date: Fri, 28 Oct 2016 07:08:44 +0000
-Message-ID: <DB6PR0401MB2536E6A29246096648EEC890F8AD0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
-References: <1477625554-46700-1-git-send-email-yangbo.lu@nxp.com>
-	<1477625554-46700-6-git-send-email-yangbo.lu@nxp.com>
-	<1477629956.6812.15.camel@buserror.net>
+From: Sebastian Frias <sf84@laposte.net>
+Subject: Re: [Linux-parport] True Parallel Port Interface for Bit-banging?
+Date: Fri, 28 Oct 2016 12:25:48 +0200
+Message-ID: <581327AC.8060404@laposte.net>
+References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
+ <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
+ <580F72AF.9070900@laposte.net>
+ <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs+mg8Ev75riOw@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtpoutz29.laposte.net ([194.117.213.104]:58737 "EHLO
+        smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752497AbcJ1KZw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 28 Oct 2016 06:25:52 -0400
+Received: from smtp.laposte.net (localhost [127.0.0.1])
+        by lpn-prd-vrout017 (Postfix) with ESMTP id 8DA4EA01A2B
+        for <linux-i2c@vger.kernel.org>; Fri, 28 Oct 2016 12:25:49 +0200 (CEST)
+Received: from smtp.laposte.net (localhost [127.0.0.1])
+        by lpn-prd-vrout017 (Postfix) with ESMTP id 80164A01F6E
+        for <linux-i2c@vger.kernel.org>; Fri, 28 Oct 2016 12:25:49 +0200 (CEST)
+Received: from lpn-prd-vrin003 (lpn-prd-vrin003.prosodie [10.128.63.4])
+        by lpn-prd-vrout017 (Postfix) with ESMTP id 7DB5CA01A2B
+        for <linux-i2c@vger.kernel.org>; Fri, 28 Oct 2016 12:25:49 +0200 (CEST)
+Received: from lpn-prd-vrin003 (localhost [127.0.0.1])
+        by lpn-prd-vrin003 (Postfix) with ESMTP id 6945748DFEE
+        for <linux-i2c@vger.kernel.org>; Fri, 28 Oct 2016 12:25:49 +0200 (CEST)
+In-Reply-To: <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBZLkIuIEx1DQo+IFNlbnQ6IEZy
-aWRheSwgT2N0b2JlciAyOCwgMjAxNiAyOjA2IFBNDQo+IFRvOiBZLkIuIEx1OyAnU2NvdHQgV29v
-ZCc7ICdsaW51eC1tbWNAdmdlci5rZXJuZWwub3JnJzsNCj4gJ3VsZi5oYW5zc29uQGxpbmFyby5v
-cmcnOyAnQXJuZCBCZXJnbWFubicNCj4gQ2M6ICdsaW51eHBwYy1kZXZAbGlzdHMub3psYWJzLm9y
-Zyc7ICdkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZyc7DQo+ICdsaW51eC1hcm0ta2VybmVsQGxp
-c3RzLmluZnJhZGVhZC5vcmcnOyAnbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZyc7DQo+ICds
-aW51eC1jbGtAdmdlci5rZXJuZWwub3JnJzsgJ2xpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcnOw0K
-PiAnaW9tbXVAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcnOyAnbmV0ZGV2QHZnZXIua2VybmVs
-Lm9yZyc7ICdHcmVnDQo+IEtyb2FoLUhhcnRtYW4nOyAnTWFyayBSdXRsYW5kJzsgJ1JvYiBIZXJy
-aW5nJzsgJ1J1c3NlbGwgS2luZyc7ICdKb2NoZW4NCj4gRnJpZWRyaWNoJzsgJ0pvZXJnIFJvZWRl
-bCc7ICdDbGF1ZGl1IE1hbm9pbCc7ICdCaHVwZXNoIFNoYXJtYSc7IFFpYW5nDQo+IFpoYW87ICdL
-dW1hciBHYWxhJzsgJ1NhbnRvc2ggU2hpbGlta2FyJzsgTGVvIExpOyBYLkIuIFhpZTsgTS5ILiBM
-aWFuDQo+IFN1YmplY3Q6IFJFOiBbdjEzLCA1LzhdIHNvYzogZnNsOiBhZGQgR1VUUyBkcml2ZXIg
-Zm9yIFFvcklRIHBsYXRmb3Jtcw0KPiANCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0K
-PiA+IEZyb206IFkuQi4gTHUNCj4gPiBTZW50OiBGcmlkYXksIE9jdG9iZXIgMjgsIDIwMTYgMjow
-MCBQTQ0KPiA+IFRvOiAnU2NvdHQgV29vZCc7IGxpbnV4LW1tY0B2Z2VyLmtlcm5lbC5vcmc7IHVs
-Zi5oYW5zc29uQGxpbmFyby5vcmc7DQo+ID4gQXJuZCBCZXJnbWFubg0KPiA+IENjOiBsaW51eHBw
-Yy1kZXZAbGlzdHMub3psYWJzLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7DQo+ID4g
-bGludXgtYXJtLSBrZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgbGludXgta2VybmVsQHZnZXIu
-a2VybmVsLm9yZzsNCj4gPiBsaW51eC0gY2xrQHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZn
-ZXIua2VybmVsLm9yZzsNCj4gPiBpb21tdUBsaXN0cy5saW51eC0gZm91bmRhdGlvbi5vcmc7IG5l
-dGRldkB2Z2VyLmtlcm5lbC5vcmc7IEdyZWcNCj4gPiBLcm9haC1IYXJ0bWFuOyBNYXJrIFJ1dGxh
-bmQ7IFJvYiBIZXJyaW5nOyBSdXNzZWxsIEtpbmc7IEpvY2hlbg0KPiA+IEZyaWVkcmljaDsgSm9l
-cmcgUm9lZGVsOyBDbGF1ZGl1IE1hbm9pbDsgQmh1cGVzaCBTaGFybWE7IFFpYW5nIFpoYW87DQo+
-IEt1bWFyIEdhbGE7IFNhbnRvc2ggU2hpbGlta2FyOyBMZW8gTGk7IFguQi4NCj4gPiBYaWU7IE0u
-SC4gTGlhbg0KPiA+IFN1YmplY3Q6IFJFOiBbdjEzLCA1LzhdIHNvYzogZnNsOiBhZGQgR1VUUyBk
-cml2ZXIgZm9yIFFvcklRIHBsYXRmb3Jtcw0KPiA+DQo+ID4NCj4gPg0KPiA+ID4gLS0tLS1Pcmln
-aW5hbCBNZXNzYWdlLS0tLS0NCj4gPiA+IEZyb206IGxpbnV4LW1tYy1vd25lckB2Z2VyLmtlcm5l
-bC5vcmcgW21haWx0bzpsaW51eC1tbWMtDQo+ID4gPiBvd25lckB2Z2VyLmtlcm5lbC5vcmddIE9u
-IEJlaGFsZiBPZiBTY290dCBXb29kDQo+ID4gPiBTZW50OiBGcmlkYXksIE9jdG9iZXIgMjgsIDIw
-MTYgMTI6NDYgUE0NCj4gPiA+IFRvOiBZLkIuIEx1OyBsaW51eC1tbWNAdmdlci5rZXJuZWwub3Jn
-OyB1bGYuaGFuc3NvbkBsaW5hcm8ub3JnOyBBcm5kDQo+ID4gPiBCZXJnbWFubg0KPiA+ID4gQ2M6
-IGxpbnV4cHBjLWRldkBsaXN0cy5vemxhYnMub3JnOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9y
-ZzsNCj4gPiA+IGxpbnV4LWFybS0ga2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LWtl
-cm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+ID4gPiBsaW51eC0gY2xrQHZnZXIua2VybmVsLm9yZzsg
-bGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsNCj4gPiA+IGlvbW11QGxpc3RzLmxpbnV4LSBmb3Vu
-ZGF0aW9uLm9yZzsgbmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgR3JlZw0KPiA+ID4gS3JvYWgtSGFy
-dG1hbjsgTWFyayBSdXRsYW5kOyBSb2IgSGVycmluZzsgUnVzc2VsbCBLaW5nOyBKb2NoZW4NCj4g
-PiA+IEZyaWVkcmljaDsgSm9lcmcgUm9lZGVsOyBDbGF1ZGl1IE1hbm9pbDsgQmh1cGVzaCBTaGFy
-bWE7IFFpYW5nIFpoYW87DQo+ID4gS3VtYXIgR2FsYTsgU2FudG9zaCBTaGlsaW1rYXI7IExlbyBM
-aTsgWC5CLg0KPiA+ID4gWGllOyBNLkguIExpYW4NCj4gPiA+IFN1YmplY3Q6IFJlOiBbdjEzLCA1
-LzhdIHNvYzogZnNsOiBhZGQgR1VUUyBkcml2ZXIgZm9yIFFvcklRDQo+ID4gPiBwbGF0Zm9ybXMN
-Cj4gPiA+DQo+ID4gPiBPbiBGcmksIDIwMTYtMTAtMjggYXQgMTE6MzIgKzA4MDAsIFlhbmdibyBM
-dSB3cm90ZToNCj4gPiA+ID4gKwlndXRzLT5yZWdzID0gb2ZfaW9tYXAobnAsIDApOw0KPiA+ID4g
-PiArCWlmICghZ3V0cy0+cmVncykNCj4gPiA+ID4gKwkJcmV0dXJuIC1FTk9NRU07DQo+ID4gPiA+
-ICsNCj4gPiA+ID4gKwkvKiBSZWdpc3RlciBzb2MgZGV2aWNlICovDQo+ID4gPiA+ICsJbWFjaGlu
-ZSA9IG9mX2ZsYXRfZHRfZ2V0X21hY2hpbmVfbmFtZSgpOw0KPiA+ID4gPiArCWlmIChtYWNoaW5l
-KQ0KPiA+ID4gPiArCQlzb2NfZGV2X2F0dHIubWFjaGluZSA9IGRldm1fa3N0cmR1cChkZXYsIG1h
-Y2hpbmUsDQo+ID4gPiA+IEdGUF9LRVJORUwpOw0KPiA+ID4gPiArDQo+ID4gPiA+ICsJc3ZyID0g
-ZnNsX2d1dHNfZ2V0X3N2cigpOw0KPiA+ID4gPiArCXNvY19kaWUgPSBmc2xfc29jX2RpZV9tYXRj
-aChzdnIsIGZzbF9zb2NfZGllKTsNCj4gPiA+ID4gKwlpZiAoc29jX2RpZSkgew0KPiA+ID4gPiAr
-CQlzb2NfZGV2X2F0dHIuZmFtaWx5ID0gZGV2bV9rYXNwcmludGYoZGV2LCBHRlBfS0VSTkVMLA0K
-PiA+ID4gPiArCQkJCQkJwqDCoMKgwqDCoCJRb3JJUSAlcyIsIHNvY19kaWUtDQo+ID4gPiA+ID5k
-aWUpOw0KPiA+ID4gPiArCX0gZWxzZSB7DQo+ID4gPiA+ICsJCXNvY19kZXZfYXR0ci5mYW1pbHkg
-PSBkZXZtX2thc3ByaW50ZihkZXYsIEdGUF9LRVJORUwsDQo+ID4gPiA+ICJRb3JJUSIpOw0KPiA+
-ID4gPiArCX0NCj4gPiA+ID4gKwlzb2NfZGV2X2F0dHIuc29jX2lkID0gZGV2bV9rYXNwcmludGYo
-ZGV2LCBHRlBfS0VSTkVMLA0KPiA+ID4gPiArCQkJCQnCoMKgwqDCoMKgInN2cjoweCUwOHgiLCBz
-dnIpOw0KPiA+ID4gPiArCXNvY19kZXZfYXR0ci5yZXZpc2lvbiA9IGRldm1fa2FzcHJpbnRmKGRl
-diwgR0ZQX0tFUk5FTCwNCj4gIiVkLiVkIiwNCj4gPiA+ID4gKwkJCQkJwqDCoMKgwqDCoMKgwqBT
-VlJfTUFKKHN2ciksIFNWUl9NSU4oc3ZyKSk7DQo+ID4gPiA+ICsNCj4gPiA+ID4gKwlzb2NfZGV2
-ID0gc29jX2RldmljZV9yZWdpc3Rlcigmc29jX2Rldl9hdHRyKTsNCj4gPiA+ID4gKwlpZiAoSVNf
-RVJSKHNvY19kZXYpKQ0KPiA+ID4gPiArCQlyZXR1cm4gUFRSX0VSUihzb2NfZGV2KTsNCj4gPiA+
-DQo+ID4gPiBpb3JlbWFwIGxlYWtzIG9uIHRoaXMgZXJyb3IgcGF0aC4gwqBVc2UgZGV2bV9pb3Jl
-bWFwX3Jlc291cmNlKCkuDQo+ID4gPg0KPiA+DQo+ID4gW0x1IFlhbmdiby1CNDcwOTNdIE9rLiBJ
-IGhhdmUgZml4ZWQgaXQgaW4gdjE0LiBUaGFua3MgOikNCj4gDQo+IFtMdSBZYW5nYm8tQjQ3MDkz
-XSBTb3JyeSwgdXNlZCB0aGUgd3JvbmcgZXJyb3IgY29kZS4uLiBXaWxsIHJlc2VudCBpdA0KDQpb
-THUgWWFuZ2JvLUI0NzA5M10gVGhlIHYxNSBoYWQgYmVlbiBzZW50LiBBbmQgZHJvcHBlZCBwYXRj
-aCAnZHQ6IGJpbmRpbmdzOiB1cGRhdGUgRnJlZXNjYWxlIERDRkcgY29tcGF0aWJsZScsDQpzaW5j
-ZSB0aGF0IHdvcmsgaGFzIGJlZW4gZG9uZSBieSBiZWxvdyBwYXRjaCBvbiBTaGF3bkd1bydzIGxp
-bnV4IHRyZWUuDQonZHQtYmluZGluZ3M6IGZzbDogYWRkIExTMTA0M0EvTFMxMDQ2QS9MUzIwODBB
-IGNvbXBhdGlibGUgZm9yIFNDRkcgYW5kIERDRkcnDQpodHRwczovL2dpdC5rZXJuZWwub3JnL2Nn
-aXQvbGludXgva2VybmVsL2dpdC9zaGF3bmd1by9saW51eC5naXQvY29tbWl0Lz9oPWlteC9kdDY0
-JmlkPTk4MTAzNGEyYmZjYWZmNWM5NWRhZmRlMjRkN2FiZmU3ZjkwMjVjMTkNCg0KVGhhbmtzLg0K
-DQo+IA0KPiA+DQo+ID4gPiAtU2NvdHQNCj4gPiA+DQo+ID4gPiAtLQ0KPiA+ID4gVG8gdW5zdWJz
-Y3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJlIGxpbnV4LW1t
-YyINCj4gPiA+IGluIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJu
-ZWwub3JnIE1vcmUgbWFqb3Jkb21vDQo+ID4gPiBpbmZvIGF0IGh0dHA6Ly92Z2VyLmtlcm5lbC5v
-cmcvbWFqb3Jkb21vLWluZm8uaHRtbA0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KaW9tbXUgbWFpbGluZyBsaXN0CmlvbW11QGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2lvbW11
+On 10/26/2016 02:04 AM, Maciej S. Szmigiero wrote:
+> 
+> I don't have experience with bit-banging parallel port but I do have
+> some with bit-banging PC serial ports (which should be very similar)
+> and can confirm that old DOS software can be *very* fragile with regard
+> to timing.
+> I have tried dosemu, dosbox and as far I remember also VirtualBox
+> with an old, DOS car service app.
+> Wasn't able to make it communicate until I booted true DOS.
+> That machine had old-style ISA serial ports so it was possible.
+> 
+
+Thanks for sharing your experience.
+I think it should be related to the latencies Wolfram discussed.
+
+> You also have asked previously whether laptop port would work.
+> On my current HP Elitebook ports of both types are wired to Super IO,
+> and using PC standard IO port and interrupt numbers.
+
+Would you mind sharing the laptop's model? There are a bunch of
+Elitebooks and maybe not all have the ports wired.
+Does your laptop has the Parallel Port on the docking or on the laptop
+itself?
+
+> 
+> I also remember that at least on ThinkPads and HP Compaqs that I had
+> contact with (these were laptops from 10+ years ago) both serial and
+> parallel ports were wired to Super IO chip (including ones available
+> only via port replicator).
+> So they were also at PC standard resources.
+> 
+
+Yes, it appears that Thinkad T42 could work:
+
+https://forum.linuxcnc.org/forum/49-basic-configuration/15999-thinkpad-t42-parallel-port-not-working
+
+> However, other issue is that sometimes such ports are inactive by
+> default (don't respond) until enabled by PnP.
+> 
+> This is also a problem with PCMCIA cards - they are disabled
+> by default.
+
+Do you know the command to enable them thru PnP? Shouldn't loading
+the kernel module be enough? Or is it the other way around and 
+enabling thru PnP triggers the kernel module load process?
+
+> I have Argosy 2xRS232 PCMCIA card and remember it came with
+> DOS driver which could enable them on I/O port close to standard
+> one - this was one of their major selling points.
+> So your ExpressCard would probably need similar software.
+> 
+
+Thanks for the pointer.
