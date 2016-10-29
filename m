@@ -1,105 +1,288 @@
-From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
-Subject: Re: [Linux-parport] True Parallel Port Interface for Bit-banging?
-Date: Sat, 29 Oct 2016 01:12:10 +0200
-Message-ID: <5461ac01-6054-e222-f707-0b475c24276d@maciej.szmigiero.name>
-References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
- <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
- <580F72AF.9070900@laposte.net>
- <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
- <581327AC.8060404@laposte.net>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC PATCH 3/5] gpio-dmec: gpio support for dmec
+Date: Sat, 29 Oct 2016 11:05:29 +0200
+Message-ID: <CACRpkdZ+v0HGUCQsTAdeK0+ymi+wQsz8M51kRxCGN7Nwjwny1w@mail.gmail.com>
+References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
+ <fe8ac70204de48edd8a3da8a783b10810f3d4ca1.1477564996.git-series.zahari.doychev@linux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from vps-vb.mhejs.net ([37.28.154.113]:35881 "EHLO vps-vb.mhejs.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753245AbcJ1XMS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 28 Oct 2016 19:12:18 -0400
-In-Reply-To: <581327AC.8060404@laposte.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <fe8ac70204de48edd8a3da8a783b10810f3d4ca1.1477564996.git-series.zahari.doychev-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zahari Doychev <zahari.doychev-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sebastian Frias <sf84@laposte.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
-On 28.10.2016 12:25, Sebastian Frias wrote:
-> On 10/26/2016 02:04 AM, Maciej S. Szmigiero wrote:
->>
->> I don't have experience with bit-banging parallel port but I do have
->> some with bit-banging PC serial ports (which should be very similar)
->> and can confirm that old DOS software can be *very* fragile with regard
->> to timing.
->> I have tried dosemu, dosbox and as far I remember also VirtualBox
->> with an old, DOS car service app.
->> Wasn't able to make it communicate until I booted true DOS.
->> That machine had old-style ISA serial ports so it was possible.
->>
-> 
-> Thanks for sharing your experience.
-> I think it should be related to the latencies Wolfram discussed.
+On Thu, Oct 27, 2016 at 12:47 PM, Zahari Doychev
+<zahari.doychev-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org> wrote:
 
-And probably also baudrate UART tweaks than Jan wrote about.
+> This is support for the gpio functionality found on the Data Modul embedded
+> controllers
+>
+> Signed-off-by: Zahari Doychev <zahari.doychev-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/staging/dmec/Kconfig     |  10 +-
+>  drivers/staging/dmec/Makefile    |   1 +-
+>  drivers/staging/dmec/dmec.h      |   5 +-
+>  drivers/staging/dmec/gpio-dmec.c | 390 ++++++++++++++++++++++++++++++++-
 
->> You also have asked previously whether laptop port would work.
->> On my current HP Elitebook ports of both types are wired to Super IO,
->> and using PC standard IO port and interrupt numbers.
-> 
-> Would you mind sharing the laptop's model?
+I guess Greg has already asked, but why is this in staging?
+The driver doesn't seem very complex or anything, it would not
+be overly troublesome to get it into the proper kernel subsystems.
 
-This is Elitebook model 8570p.
+> +config GPIO_DMEC
+> +       tristate "Data Modul GPIO"
+> +       depends on MFD_DMEC && GPIOLIB
 
-> There are a bunch of
-> Elitebooks and maybe not all have the ports wired.
-> Does your laptop has the Parallel Port on the docking or on the laptop
-> itself?
+So the depends on GPIOLIB can go away if you just put it into
+drivers/gpio with the rest.
 
-Only a serial port socket is built-it, parallel port socket is
-available only via a port replicator.
+> +struct dmec_gpio_platform_data {
+> +       int gpio_base;
 
-According to description of this replicator it is compatible with
-a lot of different Elitebooks and Probooks:
-http://h30094.www3.hp.com/product.aspx?sku=10432928&mfg_part=A7E34AA&pagemode=ca
+NAK, always use -1. No hardcoding the GPIO base other than on
+legacy systems.
 
-I wasn't able find any note in this replicator description that port
-availability depends on connected laptop model.
-You can try to search for particular laptop model schematics, even
-if it is available only for sale sometimes there is a preview
-page with block diagram which clearly show where the parallel port
-is connected (this is true for my laptop model for example).
+> +       int chip_num;
 
-However, whether the port is on standard I/O address and interrupt
-line requires some more digging.
+I suspect you may not need this either. struct platform_device
+already contains a ->id field, just use that when instantiating
+your driver if you need an instance number.
 
->> I also remember that at least on ThinkPads and HP Compaqs that I had
->> contact with (these were laptops from 10+ years ago) both serial and
->> parallel ports were wired to Super IO chip (including ones available
->> only via port replicator).
->> So they were also at PC standard resources.
->>
-> 
-> Yes, it appears that Thinkad T42 could work:
-> 
-> https://forum.linuxcnc.org/forum/49-basic-configuration/15999-thinkpad-t42-parallel-port-not-working
-> 
->> However, other issue is that sometimes such ports are inactive by
->> default (don't respond) until enabled by PnP.
->>
->> This is also a problem with PCMCIA cards - they are disabled
->> by default.
-> 
-> Do you know the command to enable them thru PnP? Shouldn't loading
-> the kernel module be enough? Or is it the other way around and 
-> enabling thru PnP triggers the kernel module load process?
+So I think you need zero platform data for this.
 
-If you want to use them under Linux then everything should be taken
-care of by kernel's PnP support.
-It can be problem if you want to use them under pure DOS.
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/io.h>
+> +#include <linux/slab.h>
+> +#include <linux/errno.h>
+> +#include <linux/acpi.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/gpio.h>
 
->> I have Argosy 2xRS232 PCMCIA card and remember it came with
->> DOS driver which could enable them on I/O port close to standard
->> one - this was one of their major selling points.
->> So your ExpressCard would probably need similar software.
->>
-> 
-> Thanks for the pointer.
+You should only need <linux/gpio/driver.h>
 
-Maciej
+> +#ifdef CONFIG_PM
+> +struct dmec_reg_ctx {
+> +       u32 dat;
+> +       u32 dir;
+> +       u32 imask;
+> +       u32 icfg[2];
+> +       u32 emask[2];
+> +};
+> +#endif
+> +
+> +struct dmec_gpio_priv {
+> +       struct regmap *regmap;
+> +       struct gpio_chip gpio_chip;
+> +       struct irq_chip irq_chip;
+> +       unsigned int chip_num;
+> +       unsigned int irq;
+> +       u8 ver;
+> +#ifdef CONFIG_PM
+> +       struct dmec_reg_ctx regs;
+> +#endif
+> +};
+
+The #ifdef for saving the state is a bit kludgy. Can't you just have it there
+all the time? Or is this a footprint-sensitive system?
+
+> +static int dmec_gpio_get(struct gpio_chip *gc, unsigned int offset)
+> +{
+> +       struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
+> +                                                  gpio_chip);
+
+Use the new pattern with
+
+struct dmec_gpio_priv *priv = gpiochip_get_data(gc);
+
+This needs you to use devm_gpiochip_add_data() below.
+
+> +static int dmec_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+> +{
+> +       struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +       struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
+> +                                                  gpio_chip);
+> +       struct regmap *regmap = priv->regmap;
+> +       unsigned int offset, mask, val;
+> +
+> +       offset = DMEC_GPIO_IRQTYPE_OFFSET(priv) + (d->hwirq >> 2);
+> +       mask = ((d->hwirq & 3) << 1);
+> +
+> +       regmap_read(regmap, offset, &val);
+> +
+> +       val &= ~(3 << mask);
+> +       switch (type & IRQ_TYPE_SENSE_MASK) {
+> +       case IRQ_TYPE_LEVEL_LOW:
+> +               break;
+> +       case IRQ_TYPE_EDGE_RISING:
+> +               val |= (1 << mask);
+> +               break;
+> +       case IRQ_TYPE_EDGE_FALLING:
+> +               val |= (2 << mask);
+> +               break;
+> +       case IRQ_TYPE_EDGE_BOTH:
+> +               val |= (3 << mask);
+> +               break;
+> +       default:
+> +               return -EINVAL;
+> +       }
+> +
+> +       regmap_write(regmap, offset, val);
+> +
+> +       return 0;
+> +}
+
+This chip uses handle_simple_irq() which is fine if the chip really has no
+edge detector ACK register.
+
+What some chips have is a special register to clearing (ACK:ing) the edge
+IRQ which makes it possible for a new IRQ to be handled as soon as
+that has happened, and those need to use handle_edge_irq() for edge IRQs
+and handle_level_irq() for level IRQs, with the side effect that the edge
+IRQ path will additionally call the .irq_ack() callback on the irqchip
+when handle_edge_irq() is used. In this case we set handle_bad_irq()
+as default handler and set up the right handler i .set_type().
+
+Look at drivers/gpio/gpio-pl061.c for an example.
+
+If you DON'T have a special edge ACK register, keep it like this.
+
+> +static irqreturn_t dmec_gpio_irq_handler(int irq, void *dev_id)
+> +{
+> +       struct dmec_gpio_priv *p = dev_id;
+> +       struct irq_domain *d = p->gpio_chip.irqdomain;
+> +       unsigned int irqs_handled = 0;
+> +       unsigned int val = 0, stat = 0;
+> +
+> +       regmap_read(p->regmap, DMEC_GPIO_IRQSTA_OFFSET(p), &val);
+> +       stat = val;
+> +       while (stat) {
+> +               int line = __ffs(stat);
+> +               int child_irq = irq_find_mapping(d, line);
+> +
+> +               handle_nested_irq(child_irq);
+> +               stat &= ~(BIT(line));
+> +               irqs_handled++;
+> +       }
+
+I think you should re-read the status register in the loop. An IRQ may
+appear while you are reading.
+
+> +static int dmec_gpio_probe(struct platform_device *pdev)
+> +{
+> +       struct device *dev = &pdev->dev;
+> +       struct dmec_gpio_platform_data *pdata = dev_get_platdata(&pdev->dev);
+> +       struct dmec_gpio_priv *priv;
+> +       struct gpio_chip *gpio_chip;
+> +       struct irq_chip *irq_chip;
+> +       int ret = 0;
+> +
+> +       priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+> +       if (!priv)
+> +               return -ENOMEM;
+> +
+> +       priv->regmap = dmec_get_regmap(pdev->dev.parent);
+
+Do you really need a special accessor function to get the regmap like this?
+If you just use syscon you get these kind of helpers for free. I don't know
+if you can use syscon though, just a suggestion.
+
+> +       priv->chip_num = pdata->chip_num;
+
+As mentioned, why not just use pdev->id
+
+> +       gpio_chip = &priv->gpio_chip;
+> +       gpio_chip->label = "gpio-dmec";
+
+You set the label
+
+> +       gpio_chip->owner = THIS_MODULE;
+> +       gpio_chip->parent = dev;
+> +       gpio_chip->label = dev_name(dev);
+
+You set the label again?
+
+> +       gpio_chip->can_sleep = true;
+> +
+> +       gpio_chip->base = pdata->gpio_base;
+
+NAK. Use -1
+
+> +#ifdef CONFIG_PM
+> +static int dmec_gpio_suspend(struct platform_device *pdev, pm_message_t state)
+> +{
+> +       struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
+> +       struct regmap *regmap = p->regmap;
+> +       struct dmec_reg_ctx *ctx = &p->regs;
+> +
+> +       regmap_read(regmap, DMEC_GPIO_BASE(p), &ctx->dat);
+> +       regmap_read(regmap, DMEC_GPIO_DIR_OFFSET(p), &ctx->dir);
+> +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->imask);
+> +       regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), &ctx->emask[0]);
+> +       regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, &ctx->emask[1]);
+> +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->icfg[0]);
+> +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, &ctx->icfg[1]);
+> +
+> +       devm_free_irq(&pdev->dev, p->irq, p);
+
+That seems a bit violent.
+
+> +static int dmec_gpio_resume(struct platform_device *pdev)
+> +{
+> +       struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
+> +       struct regmap *regmap = p->regmap;
+> +       struct dmec_reg_ctx *ctx = &p->regs;
+> +       int ret;
+> +
+> +       regmap_write(regmap, DMEC_GPIO_BASE(p), ctx->dat);
+> +       regmap_write(regmap, DMEC_GPIO_DIR_OFFSET(p), ctx->dir);
+> +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->icfg[0]);
+> +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, ctx->icfg[1]);
+> +       regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), ctx->emask[0]);
+> +       regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, ctx->emask[1]);
+> +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->imask);
+> +       regmap_write(regmap, DMEC_GPIO_EVTSTA_OFFSET(p), 0xff);
+> +
+> +       ret = devm_request_threaded_irq(&pdev->dev, p->irq,
+> +                                       NULL, dmec_gpio_irq_handler,
+> +                                       IRQF_ONESHOT | IRQF_SHARED,
+> +                                       dev_name(&pdev->dev), p);
+> +       if (ret)
+> +               dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+
+Re-requesting the IRQ for every suspend/resume cycle?
+
+That's not right.
+
+Look into the wakeup API. You need to tell the core whether this IRQ
+should be masked during suspend or not, the default is to mask it I think.
+
+This is too big hammer to solve that.
+
+> +static struct platform_driver dmec_gpio_driver = {
+> +       .driver = {
+> +               .name = "dmec-gpio",
+> +               .owner = THIS_MODULE,
+> +       },
+> +       .probe = dmec_gpio_probe,
+> +       .remove = dmec_gpio_remove,
+> +       .suspend = dmec_gpio_suspend,
+> +       .resume = dmec_gpio_resume,
+> +};
+
+Don't use the legacy suspend/resume callbacks.
+
+Use the DEV_PM_OPS directly in .pm in .driver above. It should
+work the same.
+
+(You probably need to fix this on the other patches too.)
+
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
