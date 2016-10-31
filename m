@@ -1,112 +1,100 @@
-From: Maxim Syrchin <syrchin@dev.rtsoft.ru>
-Subject: Re: [PATCH] i2c: imx: add slave support. v2 status
-Date: Mon, 31 Oct 2016 21:21:21 +0300
-Message-ID: <4553f82f-d5aa-8c31-5a6a-108582810b14@dev.rtsoft.ru>
-References: <1e9f10a4-6ea2-3dd9-159e-fd70f7c40224@mentor.com>
- <2404b260-4bd6-8ff6-3898-c9c63aaf6855@dev.rtsoft.ru>
- <0f7d5f1c-5889-27f3-f4e0-fc79960b8bf2@mentor.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Subject: [PATCH] i2c: core: fix NULL pointer dereference under race condition
+Date: Mon, 31 Oct 2016 21:46:24 +0200
+Message-ID: <1477943184-3419-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0f7d5f1c-5889-27f3-f4e0-fc79960b8bf2@mentor.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Frkuska, Joshua" <joshua_frkuska@mentor.com>, linux-i2c@vger.kernel.org
-Cc: wsa@the-dreams.de, peda@axentia.se, Jiada_Wang@mentor.com, linux-kernel@vger.kernel.org, "Zapolskiy, Vladimir" <vladimir_zapolskiy@mentor.com>, "Baxter, Jim" <Jim_Baxter@mentor.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from relay1.mentorg.com ([192.94.38.131]:35095 "EHLO
+        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S946100AbcJaTql (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Oct 2016 15:46:41 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org
 
-Hello,
+Race condition between registering an I2C device driver and
+deregistering an I2C adapter device which is assumed to manage that
+I2C device may lead to a NULL pointer dereference due to the
+uninitialized list head of driver clients.
 
-Please find some comments below.
+The root cause of the issue is that the I2C bus may know about the
+registered device driver and thus it is matched by bus_for_each_drv(),
+but the list of clients is not initialized and commonly it is NULL,
+because I2C device drivers define struct i2c_driver as static and
+clients field is expected to be initialized by I2C core:
 
+  i2c_register_driver()             i2c_del_adapter()
+    driver_register()                 ...
+      bus_add_driver()                ...
+        ...                           bus_for_each_drv(..., __process_removed_adapter)
+      ...                               i2c_do_del_adapter()
+    ...                                   list_for_each_entry_safe(..., &driver->clients, ...)
+    INIT_LIST_HEAD(&driver->clients);
 
-31.10.2016 5:14, Frkuska, Joshua пишет:
-> Hello Maxim,
->
-> Thank you very much for the intermediate patch. I am in the process of 
-> reviewing it. Please let me clarify a few questions I have.
->
-> 1. What alternative to "bus busy/bus free/IBB" polling do you have in 
-> mind? This seems like a reasonable approach to me.
-We didn't find any suitable alternatives. The only one we're considered 
-was using timeout on receive (which is kind of polling of course)
-> 2. What are the major points you consider in need of refactoring?
-As you can see we have implemented FSM in slave thread.
-- Due to lack of time all master functionality had not been included in 
-State Machine.
-- wait_event_timeout() calls are used in every event handler (obviosly 
-it is better to have only one wait function)
-- Need to review state switching code
-> 3. You mention race conditions being fixed in this version relating to 
-> bus-locking by the slave and breaking slave transactions by the 
-> master. Does this mean mixed slave/master mode works to your 
-> satisfaction? If not, what work still needs to be done here?
-Yes mixed slave/master mode works ok. It had passed long-lasting stress 
-tests (async message exchange of two imx6 boards connected together by 
-i2c bus )
-> 4. You mention the need for a slave locking test and a work-around 
-> (checking IMX_I2C_I2DR and IBB) being in-place. Why is this 
-> work-around not sufficient?
-By the time we discovered I2DR workaround we went far from version 2 of 
-driver and it wasn't tested. I'm sure that I2DR workaround will improve 
-stability, but I do not know if it will fix all issues (i.e. passing of 
-stress tests )
+To solve the problem it is sufficient to do clients list head
+initialization before calling driver_register().
 
+The problem was found while using an I2C device driver with a sluggish
+registration routine on a bus provided by a physically detachable I2C
+master controller, but practically the oops may be reproduced under
+the race between arbitraty I2C device driver registration and managing
+I2C bus device removal e.g. by unbinding the latter over sysfs:
 
-Best Regards,
-Maxim Syrchin
-> Thanks again,
->
-> Joshua
->
->
-> On 10/28/2016 04:38 AM, Maxim Syrchin wrote:
->> Hi,
->> Sorry for huge delay in answering. Unfortunately we don't have enough 
->> resources now to prepare clean enough patch to be accepted by community.
->> Please find the latest version attached.  Driver has passed stress 
->> tests, but looks like it need seriuos refactoring (it is 
->> unnecessarily complicated).
->> We still have polling in slave code. Since imx doesn't generate 
->> interrupt on "bus busy"/"bus free" events we have to test IBB bit in 
->> polling loop.
->> Comparing to v2 version several race conditions were fixed (bus 
->> locking by slave, breaking slave transaction by starting master 
->> xfer). v2 is working pretty good in slave-only or master-only mode. 
->> It is reasonable to add  slave locking test  - sometimes imx6 hw 
->> doesn't release data line. As workaround we use dummy reading of 
->> IMX_I2C_I2DR if driver is in  slave mode and IBB bit is set for a 
->> long time.
->>
->> Thanks,
->> Maxim Syrchin
->>
->>
->> 27.10.2016 10:31, Frkuska, Joshua пишет:
->>> Hi Maxim, Dmitriy, Wolfram,
->>>
->>> If there is no immediate plan for a third release of the below patch 
->>> set, would it be possible to continue with merging v2 after 
->>> addressing the remaining concerns?
->>>
->>>
->>> Thank you and regards,
->>>
->>> Joshua
->>>> Hi Maxim,
->>>>
->>>> On 2016-03-04 11:06:10 in the thread "Re: [PATCH] i2c: imx: add 
->>>> slave support. v2"
->>>> referenced here: https://patchwork.ozlabs.org/patch/573353/ you said:
->>>>> Hi Wolfram,
->>>>> I'm now working on creating new driver version. I think I'll be 
->>>>> able to
->>>>> sent it soon.
->>>> Do you still plan to release a driver update for an i2c imx driver 
->>>> slave support?
->>>>
->>>> Best regards,
->>>> Jim Baxter
->>>>
->>
->
+% echo 21a4000.i2c > /sys/bus/platform/drivers/imx-i2c/unbind
+  Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  Internal error: Oops: 17 [#1] SMP ARM
+  CPU: 2 PID: 533 Comm: sh Not tainted 4.9.0-rc3+ #61
+  Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+  task: e5ada400 task.stack: e4936000
+  PC is at i2c_do_del_adapter+0x20/0xcc
+  LR is at __process_removed_adapter+0x14/0x1c
+  Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+  Control: 10c5387d  Table: 35bd004a  DAC: 00000051
+  Process sh (pid: 533, stack limit = 0xe4936210)
+  Stack: (0xe4937d28 to 0xe4938000)
+  Backtrace:
+  [<c0667be0>] (i2c_do_del_adapter) from [<c0667cc0>] (__process_removed_adapter+0x14/0x1c)
+  [<c0667cac>] (__process_removed_adapter) from [<c0516998>] (bus_for_each_drv+0x6c/0xa0)
+  [<c051692c>] (bus_for_each_drv) from [<c06685ec>] (i2c_del_adapter+0xbc/0x284)
+  [<c0668530>] (i2c_del_adapter) from [<bf0110ec>] (i2c_imx_remove+0x44/0x164 [i2c_imx])
+  [<bf0110a8>] (i2c_imx_remove [i2c_imx]) from [<c051a838>] (platform_drv_remove+0x2c/0x44)
+  [<c051a80c>] (platform_drv_remove) from [<c05183d8>] (__device_release_driver+0x90/0x12c)
+  [<c0518348>] (__device_release_driver) from [<c051849c>] (device_release_driver+0x28/0x34)
+  [<c0518474>] (device_release_driver) from [<c0517150>] (unbind_store+0x80/0x104)
+  [<c05170d0>] (unbind_store) from [<c0516520>] (drv_attr_store+0x28/0x34)
+  [<c05164f8>] (drv_attr_store) from [<c0298acc>] (sysfs_kf_write+0x50/0x54)
+  [<c0298a7c>] (sysfs_kf_write) from [<c029801c>] (kernfs_fop_write+0x100/0x214)
+  [<c0297f1c>] (kernfs_fop_write) from [<c0220130>] (__vfs_write+0x34/0x120)
+  [<c02200fc>] (__vfs_write) from [<c0221088>] (vfs_write+0xa8/0x170)
+  [<c0220fe0>] (vfs_write) from [<c0221e74>] (SyS_write+0x4c/0xa8)
+  [<c0221e28>] (SyS_write) from [<c0108a20>] (ret_fast_syscall+0x0/0x1c)
+
+Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+---
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 1704fc84d647..b432b64e307a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2179,6 +2179,7 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
+ 	/* add the driver to the list of i2c drivers in the driver core */
+ 	driver->driver.owner = owner;
+ 	driver->driver.bus = &i2c_bus_type;
++	INIT_LIST_HEAD(&driver->clients);
+ 
+ 	/* When registration returns, the driver core
+ 	 * will have called probe() for all matching-but-unbound devices.
+@@ -2189,7 +2190,6 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
+ 
+ 	pr_debug("driver [%s] registered\n", driver->driver.name);
+ 
+-	INIT_LIST_HEAD(&driver->clients);
+ 	/* Walk the adapters that are already present */
+ 	i2c_for_each_dev(driver, __process_new_driver);
+ 
+-- 
+2.8.1
