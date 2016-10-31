@@ -1,318 +1,65 @@
-From: Zahari Doychev <zahari.doychev@linux.com>
-Subject: Re: [RFC PATCH 3/5] gpio-dmec: gpio support for dmec
-Date: Mon, 31 Oct 2016 09:50:44 +0100
-Message-ID: <20161031085044.GC9050@riot.zaxnet.org>
-References: <cover.42dd8126f6e33b5130d9afa4596d88a106c54188.1477564996.git-series.zahari.doychev@linux.com>
- <fe8ac70204de48edd8a3da8a783b10810f3d4ca1.1477564996.git-series.zahari.doychev@linux.com>
- <CACRpkdZ+v0HGUCQsTAdeK0+ymi+wQsz8M51kRxCGN7Nwjwny1w@mail.gmail.com>
+From: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [v15, 6/7] base: soc: introduce soc_device_match() interface
+Date: Mon, 31 Oct 2016 09:28:56 +0000
+Message-ID: <DB6PR0401MB2536CAD001BF3CAB4EDB15DCF8AE0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
+References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com>
+	<1477637418-38938-7-git-send-email-yangbo.lu@nxp.com>
+	<2572890.e6aV4hmMEL@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZ+v0HGUCQsTAdeK0+ymi+wQsz8M51kRxCGN7Nwjwny1w@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Greg KH <gregkh@linuxfoundation.org>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Alexandre Courbot <gnurou@gmail.com>, linux-watchdog@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <2572890.e6aV4hmMEL@wuerfel>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Oct 29, 2016 at 11:05:29AM +0200, Linus Walleij wrote:
-> On Thu, Oct 27, 2016 at 12:47 PM, Zahari Doychev
-> <zahari.doychev@linux.com> wrote:
+> -----Original Message-----
+> From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
+> Sent: Friday, October 28, 2016 6:48 PM
+> To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> Cc: Y.B. Lu; linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Scott
+> Wood; Mark Rutland; Greg Kroah-Hartman; X.B. Xie; M.H. Lian; linux-
+> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Qiang Zhao; Russell King;
+> Bhupesh Sharma; Joerg Roedel; Claudiu Manoil; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+> Rob Herring; Santosh Shilimkar; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
+> netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Leo Li;
+> iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; Kumar Gala; Geert Uytterhoeven
+> Subject: Re: [v15, 6/7] base: soc: introduce soc_device_match() interface
 > 
-> > This is support for the gpio functionality found on the Data Modul embedded
-> > controllers
+> On Friday, October 28, 2016 2:50:17 PM CEST Yangbo Lu wrote:
+> > +
+> > +static int soc_device_match_one(struct device *dev, void *arg) {
+> > +       struct soc_device *soc_dev = container_of(dev, struct
+> soc_device, dev);
+> > +       const struct soc_device_attribute *match = arg;
+> > +
+> > +       if (match->machine &&
+> > +           !glob_match(match->machine, soc_dev->attr->machine))
+> > +               return 0;
+> > +
+> > +       if (match->family &&
+> > +           !glob_match(match->family, soc_dev->attr->family))
+> > +               return 0;
+> > +
 > >
-> > Signed-off-by: Zahari Doychev <zahari.doychev@linux.com>
-> > ---
-> >  drivers/staging/dmec/Kconfig     |  10 +-
-> >  drivers/staging/dmec/Makefile    |   1 +-
-> >  drivers/staging/dmec/dmec.h      |   5 +-
-> >  drivers/staging/dmec/gpio-dmec.c | 390 ++++++++++++++++++++++++++++++++-
+> 
+> Geert found a bug in my code, and submitted a fix at
+> https://patchwork.kernel.org/patch/9361395/
+> 
+> I think you should include that one in your series.
 > 
 
-Thanks for the review.
+[Lu Yangbo-B47093] Ok, no problem. Thanks :)
 
-> I guess Greg has already asked, but why is this in staging?
-> The driver doesn't seem very complex or anything, it would not
-> be overly troublesome to get it into the proper kernel subsystems.
-
-I was unsure what was the right way to go with this. Next time I will move it
-out of staging.
-
-> 
-> > +config GPIO_DMEC
-> > +       tristate "Data Modul GPIO"
-> > +       depends on MFD_DMEC && GPIOLIB
-> 
-> So the depends on GPIOLIB can go away if you just put it into
-> drivers/gpio with the rest.
-> 
-> > +struct dmec_gpio_platform_data {
-> > +       int gpio_base;
-> 
-> NAK, always use -1. No hardcoding the GPIO base other than on
-> legacy systems.
-> 
-> > +       int chip_num;
-> 
-> I suspect you may not need this either. struct platform_device
-> already contains a ->id field, just use that when instantiating
-> your driver if you need an instance number.
-> 
-> So I think you need zero platform data for this.
-> 
-> > +#include <linux/init.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> > +#include <linux/io.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/errno.h>
-> > +#include <linux/acpi.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/regmap.h>
-> > +#include <linux/gpio.h>
-> 
-> You should only need <linux/gpio/driver.h>
-> 
-> > +#ifdef CONFIG_PM
-> > +struct dmec_reg_ctx {
-> > +       u32 dat;
-> > +       u32 dir;
-> > +       u32 imask;
-> > +       u32 icfg[2];
-> > +       u32 emask[2];
-> > +};
-> > +#endif
-> > +
-> > +struct dmec_gpio_priv {
-> > +       struct regmap *regmap;
-> > +       struct gpio_chip gpio_chip;
-> > +       struct irq_chip irq_chip;
-> > +       unsigned int chip_num;
-> > +       unsigned int irq;
-> > +       u8 ver;
-> > +#ifdef CONFIG_PM
-> > +       struct dmec_reg_ctx regs;
-> > +#endif
-> > +};
-> 
-> The #ifdef for saving the state is a bit kludgy. Can't you just have it there
-> all the time? Or is this a footprint-sensitive system?
-
-It will be no problem to have it always there.
-
-> 
-> > +static int dmec_gpio_get(struct gpio_chip *gc, unsigned int offset)
-> > +{
-> > +       struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
-> > +                                                  gpio_chip);
-> 
-> Use the new pattern with
-> 
-> struct dmec_gpio_priv *priv = gpiochip_get_data(gc);
-> 
-> This needs you to use devm_gpiochip_add_data() below.
-> 
-> > +static int dmec_gpio_irq_set_type(struct irq_data *d, unsigned int type)
-> > +{
-> > +       struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-> > +       struct dmec_gpio_priv *priv = container_of(gc, struct dmec_gpio_priv,
-> > +                                                  gpio_chip);
-> > +       struct regmap *regmap = priv->regmap;
-> > +       unsigned int offset, mask, val;
-> > +
-> > +       offset = DMEC_GPIO_IRQTYPE_OFFSET(priv) + (d->hwirq >> 2);
-> > +       mask = ((d->hwirq & 3) << 1);
-> > +
-> > +       regmap_read(regmap, offset, &val);
-> > +
-> > +       val &= ~(3 << mask);
-> > +       switch (type & IRQ_TYPE_SENSE_MASK) {
-> > +       case IRQ_TYPE_LEVEL_LOW:
-> > +               break;
-> > +       case IRQ_TYPE_EDGE_RISING:
-> > +               val |= (1 << mask);
-> > +               break;
-> > +       case IRQ_TYPE_EDGE_FALLING:
-> > +               val |= (2 << mask);
-> > +               break;
-> > +       case IRQ_TYPE_EDGE_BOTH:
-> > +               val |= (3 << mask);
-> > +               break;
-> > +       default:
-> > +               return -EINVAL;
-> > +       }
-> > +
-> > +       regmap_write(regmap, offset, val);
-> > +
-> > +       return 0;
-> > +}
-> 
-> This chip uses handle_simple_irq() which is fine if the chip really has no
-> edge detector ACK register.
-> 
-> What some chips have is a special register to clearing (ACK:ing) the edge
-> IRQ which makes it possible for a new IRQ to be handled as soon as
-> that has happened, and those need to use handle_edge_irq() for edge IRQs
-> and handle_level_irq() for level IRQs, with the side effect that the edge
-> IRQ path will additionally call the .irq_ack() callback on the irqchip
-> when handle_edge_irq() is used. In this case we set handle_bad_irq()
-> as default handler and set up the right handler i .set_type().
-> 
-> Look at drivers/gpio/gpio-pl061.c for an example.
-> 
-> If you DON'T have a special edge ACK register, keep it like this.
-
-What is the difference between this special edge ACK register and the normal
-interrupt ACK register? I think I do not have such dedicated register
-but I will have to check this again.
-
-> 
-> > +static irqreturn_t dmec_gpio_irq_handler(int irq, void *dev_id)
-> > +{
-> > +       struct dmec_gpio_priv *p = dev_id;
-> > +       struct irq_domain *d = p->gpio_chip.irqdomain;
-> > +       unsigned int irqs_handled = 0;
-> > +       unsigned int val = 0, stat = 0;
-> > +
-> > +       regmap_read(p->regmap, DMEC_GPIO_IRQSTA_OFFSET(p), &val);
-> > +       stat = val;
-> > +       while (stat) {
-> > +               int line = __ffs(stat);
-> > +               int child_irq = irq_find_mapping(d, line);
-> > +
-> > +               handle_nested_irq(child_irq);
-> > +               stat &= ~(BIT(line));
-> > +               irqs_handled++;
-> > +       }
-> 
-> I think you should re-read the status register in the loop. An IRQ may
-> appear while you are reading.
-
-The irqs are signalled over the SERIRQ of the LPC bus. Wnen irq comes in, it
-should be acknowledged then the embedded controller can trigger the next one.
-Nevertheless I will look at it and fix it if necessary.
-
-> 
-> > +static int dmec_gpio_probe(struct platform_device *pdev)
-> > +{
-> > +       struct device *dev = &pdev->dev;
-> > +       struct dmec_gpio_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> > +       struct dmec_gpio_priv *priv;
-> > +       struct gpio_chip *gpio_chip;
-> > +       struct irq_chip *irq_chip;
-> > +       int ret = 0;
-> > +
-> > +       priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-> > +       if (!priv)
-> > +               return -ENOMEM;
-> > +
-> > +       priv->regmap = dmec_get_regmap(pdev->dev.parent);
-> 
-> Do you really need a special accessor function to get the regmap like this?
-> If you just use syscon you get these kind of helpers for free. I don't know
-> if you can use syscon though, just a suggestion.
-
-The I/O memory is mapped in the mfd driver. The addresing mode is also set
-there which should be the same for all child devices. So in this way I have
-dependcy between the mfd and the rest of the drivers. I am not sure that I
-can use syscon as the driver is getting its resources from acpi.
-
-> 
-> > +       priv->chip_num = pdata->chip_num;
-> 
-> As mentioned, why not just use pdev->id
-> 
-> > +       gpio_chip = &priv->gpio_chip;
-> > +       gpio_chip->label = "gpio-dmec";
-> 
-> You set the label
-> 
-> > +       gpio_chip->owner = THIS_MODULE;
-> > +       gpio_chip->parent = dev;
-> > +       gpio_chip->label = dev_name(dev);
-> 
-> You set the label again?
-> 
-> > +       gpio_chip->can_sleep = true;
-> > +
-> > +       gpio_chip->base = pdata->gpio_base;
-> 
-> NAK. Use -1
-> 
-> > +#ifdef CONFIG_PM
-> > +static int dmec_gpio_suspend(struct platform_device *pdev, pm_message_t state)
-> > +{
-> > +       struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
-> > +       struct regmap *regmap = p->regmap;
-> > +       struct dmec_reg_ctx *ctx = &p->regs;
-> > +
-> > +       regmap_read(regmap, DMEC_GPIO_BASE(p), &ctx->dat);
-> > +       regmap_read(regmap, DMEC_GPIO_DIR_OFFSET(p), &ctx->dir);
-> > +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->imask);
-> > +       regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), &ctx->emask[0]);
-> > +       regmap_read(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, &ctx->emask[1]);
-> > +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), &ctx->icfg[0]);
-> > +       regmap_read(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, &ctx->icfg[1]);
-> > +
-> > +       devm_free_irq(&pdev->dev, p->irq, p);
-> 
-> That seems a bit violent.
-> 
-> > +static int dmec_gpio_resume(struct platform_device *pdev)
-> > +{
-> > +       struct dmec_gpio_priv *p = platform_get_drvdata(pdev);
-> > +       struct regmap *regmap = p->regmap;
-> > +       struct dmec_reg_ctx *ctx = &p->regs;
-> > +       int ret;
-> > +
-> > +       regmap_write(regmap, DMEC_GPIO_BASE(p), ctx->dat);
-> > +       regmap_write(regmap, DMEC_GPIO_DIR_OFFSET(p), ctx->dir);
-> > +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->icfg[0]);
-> > +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p) + 1, ctx->icfg[1]);
-> > +       regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p), ctx->emask[0]);
-> > +       regmap_write(regmap, DMEC_GPIO_IRQTYPE_OFFSET(p) + 1, ctx->emask[1]);
-> > +       regmap_write(regmap, DMEC_GPIO_IRQCFG_OFFSET(p), ctx->imask);
-> > +       regmap_write(regmap, DMEC_GPIO_EVTSTA_OFFSET(p), 0xff);
-> > +
-> > +       ret = devm_request_threaded_irq(&pdev->dev, p->irq,
-> > +                                       NULL, dmec_gpio_irq_handler,
-> > +                                       IRQF_ONESHOT | IRQF_SHARED,
-> > +                                       dev_name(&pdev->dev), p);
-> > +       if (ret)
-> > +               dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
-> 
-> Re-requesting the IRQ for every suspend/resume cycle?
-> 
-> That's not right.
-> 
-> Look into the wakeup API. You need to tell the core whether this IRQ
-> should be masked during suspend or not, the default is to mask it I think.
-> 
-> This is too big hammer to solve that.
-> 
-> > +static struct platform_driver dmec_gpio_driver = {
-> > +       .driver = {
-> > +               .name = "dmec-gpio",
-> > +               .owner = THIS_MODULE,
-> > +       },
-> > +       .probe = dmec_gpio_probe,
-> > +       .remove = dmec_gpio_remove,
-> > +       .suspend = dmec_gpio_suspend,
-> > +       .resume = dmec_gpio_resume,
-> > +};
-> 
-> Don't use the legacy suspend/resume callbacks.
-> 
-> Use the DEV_PM_OPS directly in .pm in .driver above. It should
-> work the same.
-> 
-> (You probably need to fix this on the other patches too.)
-> 
-
-Thanks I will change this.
-
-Regards Zahari
-
-> Yours,
-> Linus Walleij
+> 	Arnd
