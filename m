@@ -1,91 +1,108 @@
-From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: Re: [PATCHv6 08/11] i2c: match vendorless strings on the internal
- string length
-Date: Mon, 31 Oct 2016 15:01:52 +0000
-Message-ID: <51902bcc-f5e6-ff9a-9aeb-bf7b8deeaf26@bingham.xyz>
-References: <1477413715-22894-1-git-send-email-kieran@bingham.xyz>
- <1477413715-22894-9-git-send-email-kieran@bingham.xyz>
- <20161026085316.GK8574@dell>
- <bc87437c-c53e-b6f6-e9b1-2d488639317b@axentia.se>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH] i2c: make busses/i2c-pxa-pci.c explicitly non-modular
+Date: Mon, 31 Oct 2016 13:59:47 -0400
+Message-ID: <20161031175947.10531-1-paul.gortmaker@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bc87437c-c53e-b6f6-e9b1-2d488639317b@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.windriver.com ([147.11.1.11]:32934 "EHLO
+        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S945310AbcJaSBK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Oct 2016 14:01:10 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-i2c@vger.kernel.org
 
-Hi Peter,
+The Kconfig currently controlling compilation of this code is:
 
-Thanks for your review
+drivers/i2c/busses/Kconfig:config I2C_PXA_PCI
+drivers/i2c/busses/Kconfig:     def_bool I2C_PXA && X86_32 && PCI && OF
 
-On 31/10/16 13:55, Peter Rosin wrote:
-> On 2016-10-26 10:53, Lee Jones wrote:
->> On Tue, 25 Oct 2016, Kieran Bingham wrote:
->>
->>> If a user provides a shortened string to match a device to the sysfs i2c
->>> interface it will match on the first string that contains that string
->>> prefix.
->>>
->>> for example:
->>>   echo a 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
->>>
->>> will match as3711, as3722, and ak8975 incorrectly.
->>>
->>> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
->>
->> Acked-by: Lee Jones <lee.jones@linaro.org>
->>   
->>> ---
->>>  drivers/i2c/i2c-core.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->>> index 01bce56f733a..50c9cfdb87b7 100644
->>> --- a/drivers/i2c/i2c-core.c
->>> +++ b/drivers/i2c/i2c-core.c
->>> @@ -1708,7 +1708,7 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
->>>  		else
->>>  			name++;
->>>  
->>> -		if (!strncasecmp(client->name, name, strlen(client->name)))
->>> +		if (!strncasecmp(client->name, name, strlen(name)))
->>>  			return matches;
->>>  	}
->>>  
->>
-> 
-> Is that really so much better?
+...meaning that it currently is not being built as a module by anyone.
 
-My original thought was that it verifies 'more' of the userspace input.
-but...
+Lets remove the modular code that is essentially orphaned, so that
+when reading the driver there is no doubt it is builtin-only.
 
-> With this patch
-> 	echo as3711CRAP 0x68 > /sys/...
-> will match as3711.
->
-> What if there is some as37112 driver that is the real target?
+We explicitly disallow a driver unbind, since that doesn't have a
+sensible use case anyway, and it allows us to drop the ".remove"
+code for non-modular drivers.
 
-You're right - It looks like the only way to do this correctly is to
-match the strncasecmp and the strlen of both strings.
+Since module_pci_driver() uses the same init level priority as
+builtin_pci_driver() the init ordering remains unchanged with
+this commit.
 
-So really we should be using sysfs_streq(). The only limitation there is
-that this original code was performing a case-insensitive compare.
+Also note that MODULE_DEVICE_TABLE is a no-op for non-modular code.
 
-Lee - Where did the requirement for case insensitive matching come from
-in your original code. Is it expected to be case-insensitive from the
-I2C sysfs interface? or are dt-nodes expected to be case-sensitive?
+We also delete the MODULE_LICENSE tag etc. since all that information
+was (or is now) contained at the top of the file in the comments.
 
-Does anyone see reason that this shouldn't be using sysfs_streq()? or do
-we need a sysfs_strcaseeq()...
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ drivers/i2c/busses/i2c-pxa-pci.c | 32 +++++++++-----------------------
+ 1 file changed, 9 insertions(+), 23 deletions(-)
 
-> Cheers,
-> Peter
-> 
-
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index 417464e9ea2a..004deb96afe3 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -1,9 +1,13 @@
+ /*
++ * CE4100 PCI-I2C glue code for PXA's driver
++ * Author: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
++ * License: GPL v2
++ *
+  * The CE4100's I2C device is more or less the same one as found on PXA.
+  * It does not support slave mode, the register slightly moved. This PCI
+  * device provides three bars, every contains a single I2C controller.
+  */
+-#include <linux/module.h>
++#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c/pxa-i2c.h>
+@@ -134,35 +138,17 @@ err_mem:
+ 	return ret;
+ }
+ 
+-static void ce4100_i2c_remove(struct pci_dev *dev)
+-{
+-	struct ce4100_devices *sds;
+-	unsigned int i;
+-
+-	sds = pci_get_drvdata(dev);
+-
+-	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++)
+-		platform_device_unregister(sds->pdev[i]);
+-
+-	pci_disable_device(dev);
+-	kfree(sds);
+-}
+-
+ static const struct pci_device_id ce4100_i2c_devices[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e68)},
+ 	{ },
+ };
+-MODULE_DEVICE_TABLE(pci, ce4100_i2c_devices);
+ 
+ static struct pci_driver ce4100_i2c_driver = {
++	.driver = {
++		.suppress_bind_attrs = true,
++	},
+ 	.name           = "ce4100_i2c",
+ 	.id_table       = ce4100_i2c_devices,
+ 	.probe          = ce4100_i2c_probe,
+-	.remove         = ce4100_i2c_remove,
+ };
+-
+-module_pci_driver(ce4100_i2c_driver);
+-
+-MODULE_DESCRIPTION("CE4100 PCI-I2C glue code for PXA's driver");
+-MODULE_LICENSE("GPL v2");
+-MODULE_AUTHOR("Sebastian Andrzej Siewior <bigeasy@linutronix.de>");
++builtin_pci_driver(ce4100_i2c_driver);
 -- 
-Regards
-
-Kieran Bingham
+2.6.1
