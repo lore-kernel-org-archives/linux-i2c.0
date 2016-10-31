@@ -1,108 +1,112 @@
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
-Subject: [PATCH] i2c: make busses/i2c-pxa-pci.c explicitly non-modular
-Date: Mon, 31 Oct 2016 13:59:47 -0400
-Message-ID: <20161031175947.10531-1-paul.gortmaker@windriver.com>
+From: Maxim Syrchin <syrchin@dev.rtsoft.ru>
+Subject: Re: [PATCH] i2c: imx: add slave support. v2 status
+Date: Mon, 31 Oct 2016 21:21:21 +0300
+Message-ID: <4553f82f-d5aa-8c31-5a6a-108582810b14@dev.rtsoft.ru>
+References: <1e9f10a4-6ea2-3dd9-159e-fd70f7c40224@mentor.com>
+ <2404b260-4bd6-8ff6-3898-c9c63aaf6855@dev.rtsoft.ru>
+ <0f7d5f1c-5889-27f3-f4e0-fc79960b8bf2@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:32934 "EHLO
-        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S945310AbcJaSBK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Oct 2016 14:01:10 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0f7d5f1c-5889-27f3-f4e0-fc79960b8bf2@mentor.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Frkuska, Joshua" <joshua_frkuska@mentor.com>, linux-i2c@vger.kernel.org
+Cc: wsa@the-dreams.de, peda@axentia.se, Jiada_Wang@mentor.com, linux-kernel@vger.kernel.org, "Zapolskiy, Vladimir" <vladimir_zapolskiy@mentor.com>, "Baxter, Jim" <Jim_Baxter@mentor.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-i2c@vger.kernel.org
 
-The Kconfig currently controlling compilation of this code is:
+Hello,
 
-drivers/i2c/busses/Kconfig:config I2C_PXA_PCI
-drivers/i2c/busses/Kconfig:     def_bool I2C_PXA && X86_32 && PCI && OF
+Please find some comments below.
 
-...meaning that it currently is not being built as a module by anyone.
 
-Lets remove the modular code that is essentially orphaned, so that
-when reading the driver there is no doubt it is builtin-only.
+31.10.2016 5:14, Frkuska, Joshua пишет:
+> Hello Maxim,
+>
+> Thank you very much for the intermediate patch. I am in the process of 
+> reviewing it. Please let me clarify a few questions I have.
+>
+> 1. What alternative to "bus busy/bus free/IBB" polling do you have in 
+> mind? This seems like a reasonable approach to me.
+We didn't find any suitable alternatives. The only one we're considered 
+was using timeout on receive (which is kind of polling of course)
+> 2. What are the major points you consider in need of refactoring?
+As you can see we have implemented FSM in slave thread.
+- Due to lack of time all master functionality had not been included in 
+State Machine.
+- wait_event_timeout() calls are used in every event handler (obviosly 
+it is better to have only one wait function)
+- Need to review state switching code
+> 3. You mention race conditions being fixed in this version relating to 
+> bus-locking by the slave and breaking slave transactions by the 
+> master. Does this mean mixed slave/master mode works to your 
+> satisfaction? If not, what work still needs to be done here?
+Yes mixed slave/master mode works ok. It had passed long-lasting stress 
+tests (async message exchange of two imx6 boards connected together by 
+i2c bus )
+> 4. You mention the need for a slave locking test and a work-around 
+> (checking IMX_I2C_I2DR and IBB) being in-place. Why is this 
+> work-around not sufficient?
+By the time we discovered I2DR workaround we went far from version 2 of 
+driver and it wasn't tested. I'm sure that I2DR workaround will improve 
+stability, but I do not know if it will fix all issues (i.e. passing of 
+stress tests )
 
-We explicitly disallow a driver unbind, since that doesn't have a
-sensible use case anyway, and it allows us to drop the ".remove"
-code for non-modular drivers.
 
-Since module_pci_driver() uses the same init level priority as
-builtin_pci_driver() the init ordering remains unchanged with
-this commit.
-
-Also note that MODULE_DEVICE_TABLE is a no-op for non-modular code.
-
-We also delete the MODULE_LICENSE tag etc. since all that information
-was (or is now) contained at the top of the file in the comments.
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
----
- drivers/i2c/busses/i2c-pxa-pci.c | 32 +++++++++-----------------------
- 1 file changed, 9 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
-index 417464e9ea2a..004deb96afe3 100644
---- a/drivers/i2c/busses/i2c-pxa-pci.c
-+++ b/drivers/i2c/busses/i2c-pxa-pci.c
-@@ -1,9 +1,13 @@
- /*
-+ * CE4100 PCI-I2C glue code for PXA's driver
-+ * Author: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-+ * License: GPL v2
-+ *
-  * The CE4100's I2C device is more or less the same one as found on PXA.
-  * It does not support slave mode, the register slightly moved. This PCI
-  * device provides three bars, every contains a single I2C controller.
-  */
--#include <linux/module.h>
-+#include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/platform_device.h>
- #include <linux/i2c/pxa-i2c.h>
-@@ -134,35 +138,17 @@ err_mem:
- 	return ret;
- }
- 
--static void ce4100_i2c_remove(struct pci_dev *dev)
--{
--	struct ce4100_devices *sds;
--	unsigned int i;
--
--	sds = pci_get_drvdata(dev);
--
--	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++)
--		platform_device_unregister(sds->pdev[i]);
--
--	pci_disable_device(dev);
--	kfree(sds);
--}
--
- static const struct pci_device_id ce4100_i2c_devices[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e68)},
- 	{ },
- };
--MODULE_DEVICE_TABLE(pci, ce4100_i2c_devices);
- 
- static struct pci_driver ce4100_i2c_driver = {
-+	.driver = {
-+		.suppress_bind_attrs = true,
-+	},
- 	.name           = "ce4100_i2c",
- 	.id_table       = ce4100_i2c_devices,
- 	.probe          = ce4100_i2c_probe,
--	.remove         = ce4100_i2c_remove,
- };
--
--module_pci_driver(ce4100_i2c_driver);
--
--MODULE_DESCRIPTION("CE4100 PCI-I2C glue code for PXA's driver");
--MODULE_LICENSE("GPL v2");
--MODULE_AUTHOR("Sebastian Andrzej Siewior <bigeasy@linutronix.de>");
-+builtin_pci_driver(ce4100_i2c_driver);
--- 
-2.6.1
+Best Regards,
+Maxim Syrchin
+> Thanks again,
+>
+> Joshua
+>
+>
+> On 10/28/2016 04:38 AM, Maxim Syrchin wrote:
+>> Hi,
+>> Sorry for huge delay in answering. Unfortunately we don't have enough 
+>> resources now to prepare clean enough patch to be accepted by community.
+>> Please find the latest version attached.  Driver has passed stress 
+>> tests, but looks like it need seriuos refactoring (it is 
+>> unnecessarily complicated).
+>> We still have polling in slave code. Since imx doesn't generate 
+>> interrupt on "bus busy"/"bus free" events we have to test IBB bit in 
+>> polling loop.
+>> Comparing to v2 version several race conditions were fixed (bus 
+>> locking by slave, breaking slave transaction by starting master 
+>> xfer). v2 is working pretty good in slave-only or master-only mode. 
+>> It is reasonable to add  slave locking test  - sometimes imx6 hw 
+>> doesn't release data line. As workaround we use dummy reading of 
+>> IMX_I2C_I2DR if driver is in  slave mode and IBB bit is set for a 
+>> long time.
+>>
+>> Thanks,
+>> Maxim Syrchin
+>>
+>>
+>> 27.10.2016 10:31, Frkuska, Joshua пишет:
+>>> Hi Maxim, Dmitriy, Wolfram,
+>>>
+>>> If there is no immediate plan for a third release of the below patch 
+>>> set, would it be possible to continue with merging v2 after 
+>>> addressing the remaining concerns?
+>>>
+>>>
+>>> Thank you and regards,
+>>>
+>>> Joshua
+>>>> Hi Maxim,
+>>>>
+>>>> On 2016-03-04 11:06:10 in the thread "Re: [PATCH] i2c: imx: add 
+>>>> slave support. v2"
+>>>> referenced here: https://patchwork.ozlabs.org/patch/573353/ you said:
+>>>>> Hi Wolfram,
+>>>>> I'm now working on creating new driver version. I think I'll be 
+>>>>> able to
+>>>>> sent it soon.
+>>>> Do you still plan to release a driver update for an i2c imx driver 
+>>>> slave support?
+>>>>
+>>>> Best regards,
+>>>> Jim Baxter
+>>>>
+>>
+>
