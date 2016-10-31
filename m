@@ -1,48 +1,150 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 2/2] Documentation: tpm: add the Physical TPM device
- tree binding documentation
-Date: Sun, 30 Oct 2016 23:02:45 -0500
-Message-ID: <20161031040245.cwnt4kelrm7liaga@rob-hp-laptop>
-References: <1477473705-12746-1-git-send-email-nayna@linux.vnet.ibm.com>
- <1477473705-12746-2-git-send-email-nayna@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: tnhuynh@apm.com
+Subject: [PATCH v3] i2c: designware: Implement support for SMBus block read and write
+Date: Mon, 31 Oct 2016 13:51:17 +0700
+Message-ID: <1477896677-13085-1-git-send-email-tnhuynh@apm.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f193.google.com ([209.85.213.193]:36487 "EHLO
-        mail-yb0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751375AbcJaECs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Oct 2016 00:02:48 -0400
-Content-Disposition: inline
-In-Reply-To: <1477473705-12746-2-git-send-email-nayna@linux.vnet.ibm.com>
+Received: from mail-pf0-f177.google.com ([209.85.192.177]:35928 "EHLO
+        mail-pf0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761547AbcJaGvc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Oct 2016 02:51:32 -0400
+Received: by mail-pf0-f177.google.com with SMTP id 189so18965784pfz.3
+        for <linux-i2c@vger.kernel.org>; Sun, 30 Oct 2016 23:51:31 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Nayna Jain <nayna@linux.vnet.ibm.com>
-Cc: devicetree@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, wsa@the-dreams.de, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, linux-i2c@vger.kernel.org, peterhuewe@gmx.de, tpmdd@selhorst.net, jarkko.sakkinen@linux.intel.com, jgunthorpe@obsidianresearch.com, hellerda@linux.vnet.ibm.com, ltcgcw@us.ibm.com, cclaudio@linux.vnet.ibm.com, honclo@linux.vnet.ibm.com
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 
-On Wed, Oct 26, 2016 at 05:21:45AM -0400, Nayna Jain wrote:
-> Newly added support of TPM 2.0 eventlog securityfs pseudo files in tpm
-> device driver consumes device tree bindings representing I2C based
-> Physical TPM. This patch adds the documentation for corresponding device
-> tree bindings of I2C based Physical TPM. These bindings are similar to
-> vtpm device tree bindings being used on IBM Power7+ and Power8 Systems
-> running PowerVM.
-> 
-> Suggested-by: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-> Signed-off-by: Nayna Jain <nayna@linux.vnet.ibm.com>
-> ---
-> Changelog v3:
->  - Added documentation for "label" property.
-> 
-> Changelog v2:
-> 
-> - Include review feedbacks.
->   - Move the doc within bindings/security/tpm.
->   - Add example for compatible property in description.
->   - Delete implicit properties like status, label from description.
->   - Redefine linux,sml-base description.
-> 
->  .../devicetree/bindings/security/tpm/tpm-i2c.txt    | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/security/tpm/tpm-i2c.txt
+From: Tin Huynh <tnhuynh@apm.com>
 
-Acked-by: Rob Herring <robh@kernel.org>
+Free and Open IPMI use SMBUS BLOCK Read/Write to support SSIF protocol.
+However, I2C Designware Core Driver doesn't handle the case at the moment.
+The below patch supports this feature.
+
+Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+---
+Change from V2:
+- Change subject of email
+- Add a helper function to handle
+  length byte receiving
+Change from V1:
+- Remove empty lines
+- Add flags variable to make clean code
+- Change DW_DEFAULT_FUNCTIONALITY
+  in i2c-designware-pcidrv.c
+---
+ drivers/i2c/busses/i2c-designware-core.c    |   45 +++++++++++++++++++++++++--
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |    1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 3 files changed, 44 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 1fe93c4..69c7ab8 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -543,6 +543,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	intr_mask = DW_IC_INTR_DEFAULT_MASK;
+ 
+ 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
++		u32 flags = msgs[dev->msg_write_idx].flags;
+ 		/*
+ 		 * if target address has changed, we need to
+ 		 * reprogram the target address in the i2c
+@@ -588,8 +589,15 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 			 * detected from the registers so we set it always
+ 			 * when writing/reading the last byte.
+ 			 */
++
++			/*
++			 * i2c-core.c always set the buffer length of
++			 * I2C_FUNC_SMBUS_BLOCK_DATA to 1. The length will
++			 * be adjusted when receiving the first byte.
++			 * Thus we can't stop the transaction here.
++			 */
+ 			if (dev->msg_write_idx == dev->msgs_num - 1 &&
+-			    buf_len == 1)
++			    buf_len == 1 && !(flags & I2C_M_RECV_LEN))
+ 				cmd |= BIT(9);
+ 
+ 			if (need_restart) {
+@@ -614,7 +622,12 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 		dev->tx_buf = buf;
+ 		dev->tx_buf_len = buf_len;
+ 
+-		if (buf_len > 0) {
++		/*
++		 * Because we don't know the buffer length in the
++		 * I2C_FUNC_SMBUS_BLOCK_DATA case, we can't stop
++		 * the transaction here.
++		 */
++		if (buf_len > 0 || flags & I2C_M_RECV_LEN) {
+ 			/* more bytes to be written */
+ 			dev->status |= STATUS_WRITE_IN_PROGRESS;
+ 			break;
+@@ -635,6 +648,25 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	dw_writel(dev, intr_mask,  DW_IC_INTR_MASK);
+ }
+ 
++static u8
++i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
++{
++	struct i2c_msg *msgs = dev->msgs;
++	u32 flags = msgs[dev->msg_read_idx].flags;
++
++	/*
++	 * Adjust the buffer length and mask the flag
++	 * after receiving the first byte
++	 */
++	len = (flags & I2C_CLIENT_PEC) ? len + 2 : len + 1;
++	dev->tx_buf_len = len > dev->rx_outstanding ?
++		len - dev->rx_outstanding : 0;
++	msgs[dev->msg_read_idx].len = len;
++	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
++
++	return len;
++}
++
+ static void
+ i2c_dw_read(struct dw_i2c_dev *dev)
+ {
+@@ -659,7 +691,14 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 		rx_valid = dw_readl(dev, DW_IC_RXFLR);
+ 
+ 		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
+-			*buf++ = dw_readl(dev, DW_IC_DATA_CMD);
++			u32 flags = msgs[dev->msg_read_idx].flags;
++			*buf = dw_readl(dev, DW_IC_DATA_CMD);
++			/* Ensure length byte is a valid value */
++			if (flags & I2C_M_RECV_LEN &&
++				*buf <= I2C_SMBUS_BLOCK_MAX && *buf > 0) {
++				len = i2c_dw_recv_len(dev, *buf);
++			}
++			buf++;
+ 			dev->rx_outstanding--;
+ 		}
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 96f8230..8ffe2da 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -75,6 +75,7 @@ struct dw_pci_controller {
+ 					I2C_FUNC_SMBUS_BYTE |		\
+ 					I2C_FUNC_SMBUS_BYTE_DATA |	\
+ 					I2C_FUNC_SMBUS_WORD_DATA |	\
++					I2C_FUNC_SMBUS_BLOCK_DATA |	\
+ 					I2C_FUNC_SMBUS_I2C_BLOCK)
+ 
+ /* Merrifield HCNT/LCNT/SDA hold time */
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0b42a12..886fb62 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -220,6 +220,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		I2C_FUNC_SMBUS_BYTE |
+ 		I2C_FUNC_SMBUS_BYTE_DATA |
+ 		I2C_FUNC_SMBUS_WORD_DATA |
++		I2C_FUNC_SMBUS_BLOCK_DATA |
+ 		I2C_FUNC_SMBUS_I2C_BLOCK;
+ 
+ 	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+-- 
+1.7.1
