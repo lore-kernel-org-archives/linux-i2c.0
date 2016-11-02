@@ -1,7 +1,7 @@
 From: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Subject: [PATCH v4 2/6] Add Advantech iManager GPIO driver
-Date: Wed,  2 Nov 2016 01:37:47 -0700
-Message-ID: <20161102083751.6335-3-richard.dorsch@gmail.com>
+Subject: [PATCH v4 4/6] Add Advantech iManager I2C driver
+Date: Wed,  2 Nov 2016 01:37:49 -0700
+Message-ID: <20161102083751.6335-5-richard.dorsch@gmail.com>
 References: <20161102083751.6335-1-richard.dorsch@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20161102083751.6335-1-richard.dorsch@gmail.com>
@@ -12,53 +12,53 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 ---
- drivers/gpio/Kconfig         |  10 +++
- drivers/gpio/Makefile        |   1 +
- drivers/gpio/gpio-imanager.c | 155 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 166 insertions(+)
- create mode 100644 drivers/gpio/gpio-imanager.c
+ drivers/i2c/busses/Kconfig        |  10 +
+ drivers/i2c/busses/Makefile       |   1 +
+ drivers/i2c/busses/i2c-imanager.c | 461 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 472 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-imanager.c
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index d011cb8..52e371f 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -884,6 +884,16 @@ config HTC_EGPIO
- 	    several HTC phones.  It provides basic support for input
- 	    pins, output pins, and irqs.
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d252276..7d1ecb4 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -42,6 +42,16 @@ config I2C_ALI15X3
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-ali15x3.
  
-+config GPIO_IMANAGER
-+	tristate "Advantech iManager GPIO"
++config I2C_IMANAGER
++	tristate "Advantech iManager I2C Interface"
 +	depends on MFD_IMANAGER
 +	help
-+	  This enables support for the iManager GPIO interface on some
++	  This enables support for Advantech iManager I2C of some
 +	  Advantech SOM, MIO, AIMB, and PCM modules/boards.
 +
-+	  This driver can also be built as a module. If so, the module will be
-+	  called gpio-imanager.
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-imanager.
 +
- config GPIO_JANZ_TTL
- 	tristate "Janz VMOD-TTL Digital IO Module"
- 	depends on MFD_JANZ_CMODIO
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index ab28a2d..e1250eb 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_GPIO_GPIO_MM)	+= gpio-gpio-mm.o
- obj-$(CONFIG_GPIO_GRGPIO)	+= gpio-grgpio.o
- obj-$(CONFIG_HTC_EGPIO)		+= gpio-htc-egpio.o
- obj-$(CONFIG_GPIO_ICH)		+= gpio-ich.o
-+obj-$(CONFIG_GPIO_IMANAGER)	+= gpio-imanager.o
- obj-$(CONFIG_GPIO_IOP)		+= gpio-iop.o
- obj-$(CONFIG_GPIO_IT87)		+= gpio-it87.o
- obj-$(CONFIG_GPIO_JANZ_TTL)	+= gpio-janz-ttl.o
-diff --git a/drivers/gpio/gpio-imanager.c b/drivers/gpio/gpio-imanager.c
+ config I2C_AMD756
+ 	tristate "AMD 756/766/768/8111 and nVidia nForce"
+ 	depends on PCI
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 29764cc..d9ff210 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+ obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+ obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
+ obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
++obj-$(CONFIG_I2C_IMANAGER)	+= i2c-imanager.o
+ obj-$(CONFIG_I2C_IMG)		+= i2c-img-scb.o
+ obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
+ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+diff --git a/drivers/i2c/busses/i2c-imanager.c b/drivers/i2c/busses/i2c-imanager.c
 new file mode 100644
-index 0000000..f60592b
+index 0000000..15c496d
 --- /dev/null
-+++ b/drivers/gpio/gpio-imanager.c
-@@ -0,0 +1,155 @@
++++ b/drivers/i2c/busses/i2c-imanager.c
+@@ -0,0 +1,461 @@
 +/*
-+ * Advantech iManager GPIO driver
++ * Advantech iManager SMBus bus driver
 + *
 + * Copyright (C) 2016 Advantech Co., Ltd.
 + * Author: Richard Vidal-Dorsch <richard.dorsch@advantech.com>
@@ -72,145 +72,451 @@ index 0000000..f60592b
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
 +#include <linux/device.h>
-+#include <linux/gpio.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
 +#include <linux/init.h>
 +#include <linux/mfd/imanager.h>
 +#include <linux/module.h>
 +#include <linux/mutex.h>
 +#include <linux/platform_device.h>
 +
-+#define EC_GPIOF_DIR_OUT	BIT(6)
-+#define EC_GPIOF_DIR_IN		BIT(7)
++#define I2C_SMBUS_BLOCK_SIZE	32UL
++#define I2C_MAX_READ_SIZE	I2C_SMBUS_BLOCK_SIZE
++#define I2C_MAX_WRITE_SIZE	(I2C_SMBUS_BLOCK_SIZE - 1)
 +
-+struct imanager_gpio_data {
-+	struct imanager_device_data *imgr;
-+	struct gpio_chip chip;
++#define EC_HWRAM_OFFSET_STATUS	0UL
++
++#define I2C_ERR_PROTO		0x19UL
++#define I2C_ERR_TIMEOUT		0x18UL
++#define I2C_ERR_ACCESS		0x17UL
++#define I2C_ERR_UNKNOWN		0x13UL
++#define I2C_ERR_ADDR_NACK	0x10UL
++
++#define SMBUS_FREQ_50KHZ	0x0100
++#define SMBUS_FREQ_100KHZ	0x0200
++#define SMBUS_FREQ_400KHZ	0x0300
++
++#define imanager_i2c_wr_combined(ec, message) \
++	imanager_i2c_block_wr_rw_combined(ec, message, EC_CMD_I2C_WR)
++
++#define imanager_i2c_rw_combined(ec, message) \
++	imanager_i2c_block_wr_rw_combined(ec, message, EC_CMD_I2C_RW)
++
++struct ec_i2c_status {
++	u32 error	: 7;
++	u32 complete	: 1;
 +};
 +
-+static int imanager_gpio_direction_in(struct gpio_chip *chip, uint offset)
-+{
-+	struct imanager_gpio_data *data = gpiochip_get_data(chip);
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
++struct adapter_info {
++	struct i2c_adapter adapter;
++	int smb_devid;
++};
 +
-+	mutex_lock(&imgr->lock);
-+	imanager_write8(&imgr->ec, EC_CMD_GPIO_DIR_WR, attr->did,
-+			EC_GPIOF_DIR_IN);
-+	mutex_unlock(&imgr->lock);
++struct imanager_i2c_data {
++	struct device *dev;
++	struct imanager_device_data *imgr;
++	struct adapter_info adap_info[EC_MAX_SMB_NUM];
++	int nadap;
++};
++
++static int imanager_i2c_eval_status(u8 status)
++{
++	struct ec_i2c_status *_status = (struct ec_i2c_status *)&status;
++
++	switch (_status->error) {
++	case 0:
++		return 0;
++	case I2C_ERR_ADDR_NACK:
++		return -ENXIO;
++	case I2C_ERR_ACCESS:
++		return -EACCES;
++	case I2C_ERR_UNKNOWN:
++		return -EAGAIN;
++	case I2C_ERR_TIMEOUT:
++		return -ETIME;
++	case I2C_ERR_PROTO:
++		return -EPROTO;
++	}
++
++	return -EIO;
++}
++
++static int imanager_i2c_wait_proc_complete(struct imanager_ec_data *ec)
++{
++	int ret, i;
++	u8 val;
++
++	for (i = 0; i < EC_MAX_RETRY; i++) {
++		ret = imanager_read_ram(ec, EC_RAM_HW, EC_HWRAM_OFFSET_STATUS,
++					&val, sizeof(val));
++		if (ret < 0)
++			return ret;
++
++		if (!val)
++			return 0;
++
++		usleep_range(EC_DELAY_MIN, EC_DELAY_MAX);
++	}
++
++	return -ETIME;
++}
++
++static int imanager_i2c_block_wr_rw_combined(struct imanager_ec_data *ec,
++					     struct imanager_ec_message *msg,
++					     unsigned int protocol)
++{
++	int ret;
++
++	ret = imanager_i2c_wait_proc_complete(ec);
++	if (ret)
++		return ret;
++
++	ret = imanager_write(ec, protocol, msg);
++	if (ret)
++		return imanager_i2c_eval_status(ret);
++
++	if (msg->rlen) {
++		if (msg->rlen == 1)
++			return msg->u.data[0];
++		else if (msg->rlen == 2)
++			return (msg->u.data[1] << 8) | msg->u.data[0];
++		else
++			return msg->rlen;
++	}
 +
 +	return 0;
 +}
 +
-+static int
-+imanager_gpio_direction_out(struct gpio_chip *chip, uint offset, int val)
++static inline int
++imanager_i2c_write_freq(struct imanager_ec_data *ec, int did, int freq)
 +{
-+	struct imanager_gpio_data *data = gpiochip_get_data(chip);
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
++	return imanager_write16(ec, EC_CMD_SMB_FREQ_WR, did, freq);
++}
 +
-+	mutex_lock(&imgr->lock);
-+	imanager_write8(&imgr->ec, EC_CMD_GPIO_DIR_WR, attr->did,
-+			EC_GPIOF_DIR_OUT);
-+	mutex_unlock(&imgr->lock);
++static inline int eval_read_len(int len)
++{
++	return len && len <= I2C_MAX_READ_SIZE ? len : I2C_MAX_READ_SIZE;
++}
++
++static inline int
++imanager_i2c_read_block(struct imanager_ec_data *ec,
++			struct imanager_ec_message *msg, u8 *buf)
++{
++	int ret;
++
++	ret = imanager_i2c_wr_combined(ec, msg);
++	if (ret < 0)
++		return ret;
++
++	buf[0] = ret;
++	memcpy(&buf[1], msg->u.data, ret);
 +
 +	return 0;
 +}
 +
-+static int imanager_gpio_get_direction(struct gpio_chip *chip, uint offset)
++static inline int
++imanager_i2c_write_block(struct imanager_ec_data *ec,
++			 struct imanager_ec_message *msg, u8 *buf)
 +{
-+	struct imanager_gpio_data *data = gpiochip_get_data(chip);
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-+	int ret;
++	if (!buf[0] || (buf[0] > I2C_MAX_WRITE_SIZE))
++		return -EINVAL;
 +
-+	mutex_lock(&imgr->lock);
-+	ret = imanager_read8(&imgr->ec, EC_CMD_GPIO_DIR_RD, attr->did);
-+	mutex_unlock(&imgr->lock);
++	memcpy(&msg->u.data[EC_MSG_HDR_SIZE], &buf[1], buf[0]);
 +
-+	return ret & EC_GPIOF_DIR_IN ? GPIOF_DIR_IN : GPIOF_DIR_OUT;
++	return imanager_i2c_wr_combined(ec, msg);
 +}
 +
-+static int imanager_gpio_get(struct gpio_chip *chip, uint offset)
++static s32 imanager_i2c_xfer(struct i2c_adapter *adap, u16 addr, ushort flags,
++			     char read_write, u8 command, int size,
++			     union i2c_smbus_data *smb_data)
 +{
-+	struct imanager_gpio_data *data = gpiochip_get_data(chip);
++	struct imanager_i2c_data *data = i2c_get_adapdata(adap);
 +	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-+	int ret;
++	struct imanager_ec_data *ec = &imgr->ec;
++	struct device *dev = data->dev;
++	int smb_devid = *(int *)adap->algo_data;
++	int val, ret = 0;
++	u16 addr16 = addr << 1; /* convert to 8-bit i2c slave address */
++	u8 *buf = smb_data->block;
++	struct imanager_ec_message msg = {
++		.rlen = 0,
++		.wlen = EC_MSG_HDR_SIZE,
++		.param = smb_devid,
++		.u = {
++			.smb.hdr = {
++				.addr_low  = addr16 & 0x00ff,
++				.addr_high = addr16 >> 8,
++				.rlen = 0,
++				.wlen = 0,
++			},
++		},
++	};
++	struct imanager_ec_smb_message *smb = &msg.u.smb;
 +
 +	mutex_lock(&imgr->lock);
-+	ret = imanager_read8(&imgr->ec, EC_CMD_HWP_RD, attr->did);
++
++	switch (size) {
++	case I2C_SMBUS_QUICK:
++		msg.rlen = 0;
++		smb->hdr.rlen = 0;
++		smb->hdr.wlen = 1;
++		ret = imanager_i2c_wr_combined(ec, &msg);
++		break;
++	case I2C_SMBUS_BYTE:
++		if (read_write == I2C_SMBUS_WRITE) {
++			msg.rlen = 1;
++			smb->hdr.rlen = 1;
++			smb->hdr.wlen = 1;
++			smb->hdr.cmd = command;
++			val = imanager_i2c_wr_combined(ec, &msg);
++			if (val < 0)
++				ret = val;
++		} else {
++			if (!smb_data) {
++				ret = -EINVAL;
++				break;
++			}
++			msg.rlen = 1;
++			smb->hdr.rlen = 1;
++			smb->hdr.wlen = 0;
++			val = imanager_i2c_rw_combined(ec, &msg);
++			if (val < 0)
++				ret = val;
++			else
++				smb_data->byte = val;
++			break;
++		}
++	case I2C_SMBUS_BYTE_DATA:
++		if (!smb_data) {
++			ret = -EINVAL;
++			break;
++		}
++		if (read_write == I2C_SMBUS_WRITE) {
++			msg.rlen = 1;
++			msg.wlen += 1;
++			smb->hdr.rlen = 0;
++			smb->hdr.wlen = 2;
++			smb->hdr.cmd = command;
++			smb->data[0] = smb_data->byte;
++			val = imanager_i2c_wr_combined(ec, &msg);
++		} else {
++			msg.rlen = 1;
++			smb->hdr.rlen = 1;
++			smb->hdr.wlen = 1;
++			smb->hdr.cmd = command;
++			val = imanager_i2c_wr_combined(ec, &msg);
++		}
++		if (val < 0)
++			ret = val;
++		else
++			smb_data->byte = val;
++		break;
++	case I2C_SMBUS_WORD_DATA:
++		if (!smb_data) {
++			ret = -EINVAL;
++			break;
++		}
++		if (read_write == I2C_SMBUS_WRITE) {
++			msg.rlen = 1;
++			msg.wlen += 2;
++			smb->hdr.rlen = 0;
++			smb->hdr.wlen = 3;
++			smb->hdr.cmd = command;
++			smb->data[0] = smb_data->word & 0x00ff;
++			smb->data[1] = smb_data->word >> 8;
++			val = imanager_i2c_wr_combined(ec, &msg);
++		} else {
++			msg.rlen = 2;
++			smb->hdr.rlen = 2;
++			smb->hdr.wlen = 1;
++			smb->hdr.cmd = command;
++			val = imanager_i2c_wr_combined(ec, &msg);
++		}
++		if (val < 0)
++			ret = val;
++		else
++			smb_data->word = val;
++		break;
++	case I2C_SMBUS_BLOCK_DATA:
++		if (!smb_data) {
++			ret = -EINVAL;
++			break;
++		}
++		if (read_write == I2C_SMBUS_WRITE) {
++			msg.rlen = 1;
++			msg.wlen += buf[0];
++			smb->hdr.rlen = 0;
++			smb->hdr.wlen = 1 + buf[0];
++			smb->hdr.cmd = command;
++			ret = imanager_i2c_write_block(ec, &msg, buf);
++		} else {
++			msg.rlen = eval_read_len(buf[0]);
++			smb->hdr.rlen = msg.rlen;
++			smb->hdr.wlen = 1;
++			smb->hdr.cmd = command;
++			ret = imanager_i2c_read_block(ec, &msg, buf);
++		}
++		break;
++	case I2C_SMBUS_I2C_BLOCK_DATA:
++		if (!smb_data) {
++			ret = -EINVAL;
++			break;
++		}
++		if (read_write == I2C_SMBUS_WRITE) {
++			msg.rlen = 1;
++			msg.wlen += buf[0];
++			smb->hdr.rlen = 0;
++			smb->hdr.wlen = 1 + buf[0];
++			smb->hdr.cmd = command;
++			ret = imanager_i2c_write_block(ec, &msg, buf);
++		} else {
++			msg.rlen = eval_read_len(buf[0]);
++			smb->hdr.rlen = msg.rlen;
++			smb->hdr.wlen = 1;
++			smb->hdr.cmd = command;
++			ret = imanager_i2c_read_block(ec, &msg, buf);
++		}
++		break;
++	default:
++		dev_err(dev, "Unsupported transaction %d\n", size);
++		ret = -EOPNOTSUPP;
++	}
++
 +	mutex_unlock(&imgr->lock);
 +
 +	return ret;
 +}
 +
-+static void imanager_gpio_set(struct gpio_chip *chip, uint offset, int val)
++static u32 imanager_i2c_func(struct i2c_adapter *adapter)
 +{
-+	struct imanager_gpio_data *data = gpiochip_get_data(chip);
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-+
-+	mutex_lock(&imgr->lock);
-+	imanager_write8(&imgr->ec, EC_CMD_HWP_WR, attr->did, val);
-+	mutex_unlock(&imgr->lock);
++	return	I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
++		I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_I2C_BLOCK;
 +}
 +
-+static int imanager_gpio_probe(struct platform_device *pdev)
++static const struct i2c_algorithm imanager_i2c_algorithm = {
++	.smbus_xfer     = imanager_i2c_xfer,
++	.functionality  = imanager_i2c_func,
++};
++
++static const struct i2c_adapter imanager_i2c_adapters[] = {
++	[SMB_EEP] = {
++		.owner	= THIS_MODULE,
++		.name	= "iManager SMB EEP adapter",
++		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
++		.algo	= &imanager_i2c_algorithm,
++	},
++	[I2C_OEM] = {
++		.owner	= THIS_MODULE,
++		.name	= "iManager I2C OEM adapter",
++		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
++		.algo	= &imanager_i2c_algorithm,
++	},
++	[SMB_1] = {
++		.owner	= THIS_MODULE,
++		.name	= "iManager SMB 1 adapter",
++		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
++		.algo	= &imanager_i2c_algorithm,
++	},
++	[SMB_PECI] = {
++		.owner	= THIS_MODULE,
++		.name	= "iManager SMB PECI adapter",
++		.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD,
++		.algo	= &imanager_i2c_algorithm,
++	},
++};
++
++static int
++imanager_i2c_add_bus(struct imanager_i2c_data *i2c, struct adapter_info *info,
++		     const struct i2c_adapter *adap, int did, int freq)
 +{
-+	struct device *dev = &pdev->dev;
-+	struct imanager_device_data *imgr = dev_get_drvdata(dev->parent);
-+	struct imanager_gpio_data *gpio;
-+	struct gpio_chip *chip;
 +	int ret;
 +
-+	gpio = devm_kzalloc(dev, sizeof(*gpio), GFP_KERNEL);
-+	if (!gpio)
-+		return -ENOMEM;
++	info->adapter = *adap;
++	info->adapter.dev.parent = i2c->dev;
++	info->smb_devid = did;
++	info->adapter.algo_data = &info->smb_devid;
++	i2c_set_adapdata(&info->adapter, i2c);
 +
-+	gpio->imgr = imgr;
-+
-+	platform_set_drvdata(pdev, gpio);
-+
-+	chip = &gpio->chip;
-+
-+	chip->owner = THIS_MODULE;
-+	chip->parent = dev;
-+	chip->label = "gpio-imanager";
-+	chip->base = -1;
-+	chip->ngpio = imgr->ec.gpio.num;
-+	chip->get = imanager_gpio_get;
-+	chip->set = imanager_gpio_set;
-+	chip->direction_input = imanager_gpio_direction_in;
-+	chip->direction_output = imanager_gpio_direction_out;
-+	chip->get_direction = imanager_gpio_get_direction;
-+	if (!chip->ngpio) {
-+		dev_err(dev, "No GPIO pins detected\n");
-+		return -ENODEV;
-+	}
-+
-+	ret = devm_gpiochip_add_data(dev, chip, gpio);
-+	if (ret < 0) {
-+		dev_err(dev, "Could not register GPIO chip\n");
++	ret = i2c_add_adapter(&info->adapter);
++	if (ret) {
++		dev_warn(i2c->dev, "Failed to add %s\n", info->adapter.name);
 +		return ret;
 +	}
 +
-+	dev_info(dev, "GPIO initialized with %d pins\n", chip->ngpio);
++	ret = imanager_i2c_write_freq(&i2c->imgr->ec, did, freq);
++	if (ret < 0)
++		dev_warn(i2c->dev, "Failed to set bus frequency of %s\n",
++			 info->adapter.name);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver imanager_gpio_driver = {
++static int imanager_i2c_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct imanager_device_data *imgr = dev_get_drvdata(dev->parent);
++	struct imanager_device_attribute **attr = imgr->ec.i2c.attr;
++	struct imanager_i2c_data *data;
++
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	data->imgr = imgr;
++	data->dev = dev;
++
++	if (attr[SMB_EEP])
++		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
++				     &imanager_i2c_adapters[SMB_EEP],
++				     attr[SMB_EEP]->did, SMBUS_FREQ_100KHZ);
++
++	if (attr[I2C_OEM])
++		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
++				     &imanager_i2c_adapters[I2C_OEM],
++				     attr[I2C_OEM]->did, SMBUS_FREQ_400KHZ);
++
++	if (attr[SMB_1])
++		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
++				     &imanager_i2c_adapters[SMB_1],
++				     attr[SMB_1]->did, SMBUS_FREQ_100KHZ);
++
++	if (attr[SMB_PECI])
++		imanager_i2c_add_bus(data, &data->adap_info[data->nadap++],
++				     &imanager_i2c_adapters[SMB_PECI],
++				     attr[SMB_PECI]->did, SMBUS_FREQ_100KHZ);
++
++	platform_set_drvdata(pdev, data);
++
++	return 0;
++}
++
++static int imanager_i2c_remove(struct platform_device *pdev)
++{
++	struct imanager_i2c_data *i2c = dev_get_drvdata(&pdev->dev);
++	int i;
++
++	for (i = 0; i < i2c->nadap; i++) {
++		i2c_del_adapter(&i2c->adap_info[i].adapter);
++		i2c_set_adapdata(&i2c->adap_info[i].adapter, NULL);
++	}
++
++	return 0;
++}
++
++static struct platform_driver imanager_i2c_driver = {
 +	.driver = {
-+		.name	= "imanager-gpio",
++		.name  = "imanager-smbus",
 +	},
-+	.probe	= imanager_gpio_probe,
++	.probe	= imanager_i2c_probe,
++	.remove	= imanager_i2c_remove,
 +};
 +
-+module_platform_driver(imanager_gpio_driver);
++module_platform_driver(imanager_i2c_driver);
 +
-+MODULE_DESCRIPTION("Advantech iManager GPIO Driver");
++MODULE_DESCRIPTION("Advantech iManager SMBus Driver");
 +MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager-gpio");
++MODULE_ALIAS("platform:imanager-smbus");
 -- 
 2.10.1
