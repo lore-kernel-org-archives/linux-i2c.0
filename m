@@ -1,1293 +1,822 @@
-From: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 3/6] Add Advantech iManager HWmon driver
-Date: Wed,  2 Nov 2016 01:37:48 -0700
-Message-ID: <20161102083751.6335-4-richard.dorsch@gmail.com>
-References: <20161102083751.6335-1-richard.dorsch@gmail.com>
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161102083751.6335-1-richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, tomi.valkeinen-l0cyMroinI0@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, k.kozlowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
-Cc: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jo.sunga-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org, weilun.huang-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org, andrew.chou-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org
+From: Vadim Pasternak <vadimp@mellanox.com>
+Subject: RE: [patch v2] i2c: add master driver for mellanox systems
+Date: Wed, 2 Nov 2016 11:28:17 +0000
+Message-ID: <AM5PR0501MB2097195BE8C8766715D5ED66A2A00@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+References: <1474297231-36264-1-git-send-email-vadimp@mellanox.com>
+ <AM5PR0501MB20970D81B8678603EE431A30A2CF0@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AM5PR0501MB20970D81B8678603EE431A30A2CF0@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Richard Vidal-Dorsch <richard.dorsch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/hwmon/Kconfig          |   11 +
- drivers/hwmon/Makefile         |    1 +
- drivers/hwmon/imanager-hwmon.c | 1226 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 1238 insertions(+)
- create mode 100644 drivers/hwmon/imanager-hwmon.c
+Hi,
 
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index 45cef3d..7a9db12 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -625,6 +625,17 @@ config SENSORS_CORETEMP
- 	  sensor inside your CPU. Most of the family 6 CPUs
- 	  are supported. Check Documentation/hwmon/coretemp for details.
- 
-+config SENSORS_IMANAGER
-+	tristate "Advantech iManager Hardware Monitoring"
-+	depends on MFD_IMANAGER
-+	select HWMON_VID
-+	help
-+	  This enables support for Advantech iManager hardware monitoring
-+	  of some Advantech SOM, MIO, AIMB, and PCM modules/boards.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called imanager-hwmon.
-+
- config SENSORS_IT87
- 	tristate "ITE IT87xx and compatibles"
- 	depends on !PPC
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index aecf4ba..3f489ae 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -76,6 +76,7 @@ obj-$(CONFIG_SENSORS_IBMAEM)	+= ibmaem.o
- obj-$(CONFIG_SENSORS_IBMPEX)	+= ibmpex.o
- obj-$(CONFIG_SENSORS_IBMPOWERNV)+= ibmpowernv.o
- obj-$(CONFIG_SENSORS_IIO_HWMON) += iio_hwmon.o
-+obj-$(CONFIG_SENSORS_IMANAGER)	+= imanager-hwmon.o
- obj-$(CONFIG_SENSORS_INA209)	+= ina209.o
- obj-$(CONFIG_SENSORS_INA2XX)	+= ina2xx.o
- obj-$(CONFIG_SENSORS_INA3221)	+= ina3221.o
-diff --git a/drivers/hwmon/imanager-hwmon.c b/drivers/hwmon/imanager-hwmon.c
-new file mode 100644
-index 0000000..af72c35
---- /dev/null
-+++ b/drivers/hwmon/imanager-hwmon.c
-@@ -0,0 +1,1226 @@
-+/*
-+ * Advantech iManager Hardware Monitoring driver
-+ * Partially derived from nct6775
-+ *
-+ * Copyright (C) 2016 Advantech Co., Ltd.
-+ * Author: Richard Vidal-Dorsch <richard.dorsch-ELdSlb/RfAS1Z/+hSey0Gg@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/bitops.h>
-+#include <linux/byteorder/generic.h>
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/hwmon.h>
-+#include <linux/hwmon-sysfs.h>
-+#include <linux/hwmon-vid.h>
-+#include <linux/init.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/mfd/imanager.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/platform_device.h>
-+
-+/* Voltage computation (10-bit ADC, 0..3V input) */
-+#define SCALE_IN			2933 /* (3000mV / (2^10 - 1)) * 1000 */
-+
-+#define HWM_STATUS_UNDEFINED_ITEM	2UL
-+#define HWM_STATUS_UNDEFINED_DID	3UL
-+#define HWM_STATUS_UNDEFINED_HWPIN	4UL
-+
-+/* iManager EC FW pwm[1-*]_mode values are switched */
-+enum imanager_pwm_mode { CTRL_PWM, CTRL_RPM };
-+/* EC FW defines pwm_enable mode 'full speed' besides mode 'off' */
-+enum imanager_pwm_enable { MODE_OFF, MODE_FULL, MODE_MANUAL, MODE_AUTO };
-+
-+/*
-+ * iManager FAN device defs
-+ */
-+struct fan_dev_config {
-+	u8	did,
-+		hwpin,
-+		tachoid,
-+		status,
-+		control,
-+		temp_max,
-+		temp_min,
-+		temp_stop,
-+		pwm_max,
-+		pwm_min;
-+	u16	rpm_max;
-+	u16	rpm_min;
-+	u8	debounce;	/* debounce time, not used */
-+	u8	temp;		/* Current Thermal Zone Temperature */
-+	u16	rpm_target;	/* RPM Target Speed, not used */
-+} __attribute__((__packed__));
-+
-+struct fan_alert_limit {
-+	u16	min,
-+		max;
-+} __attribute__((__packed__));
-+
-+struct fan_status {
-+	u32	sysctl	: 1,	/* System Control flag */
-+		tacho	: 1,	/* FAN tacho source defined */
-+		pulse	: 1,	/* FAN pulse type defined */
-+		thermal	: 1,	/* Thermal zone init */
-+		i2clink	: 1,	/* I2C protocol fail flag (thermal sensor) */
-+		dnc	: 1,	/* don't care */
-+		mode	: 2;	/* FAN Control mode */
-+};
-+
-+/**
-+ * FAN Control bit field
-+ * enable:   0:Disabled, 1:Enabled
-+ * type:     0:PWM,      1:RPM
-+ * pulse:    0:Undefined 1:2 Pulses  2:4 Pulses
-+ * tacho:    1:CPU FAN,  2:SYS FAN1, 3:SYS FAN2
-+ * mode:     0:Off,      1:Full,     2:Manual, 3:Auto
-+ */
-+struct fan_ctrl {
-+	u32	enable	: 1,	/* SmartFAN control on/off */
-+		type	: 1,	/* FAN control type [0, 1] PWM/RPM */
-+		pulse	: 2,	/* FAN pulse [0..2] */
-+		tacho	: 2,	/* FAN Tacho Input [1..3] */
-+		mode	: 2;	/* off/full/manual/auto */
-+};
-+
-+/* Default Voltage Sensors */
-+struct imanager_hwmon_adc {
-+	bool valid; /* if set, below values are valid */
-+	unsigned int value;
-+	unsigned int min;
-+	unsigned int max;
-+	unsigned int average;
-+	unsigned int lowest;
-+	unsigned int highest;
-+};
-+
-+struct imanager_hwmon_smartfan {
-+	bool valid; /* if set, below values are valid */
-+	unsigned int pwm;
-+	unsigned int speed;
-+	bool speed_min_alarm;
-+	bool speed_max_alarm;
-+	struct fan_dev_config cfg;
-+};
-+
-+struct imanager_hwmon_data {
-+	struct imanager_device_data	*imgr;
-+	const struct attribute_group	*groups[3];
-+	unsigned long			samples;
-+	unsigned long			last_updated;
-+	struct imanager_hwmon_adc	adc[EC_MAX_ADC_NUM];
-+	struct imanager_hwmon_smartfan	fan[EC_MAX_FAN_NUM];
-+};
-+
-+static int imanager_hwmon_read_fan_config(struct imanager_ec_data *ec, int num,
-+					  struct imanager_hwmon_smartfan *fan)
-+{
-+	struct imanager_ec_message msg = {
-+		IMANAGER_MSG_SIMPLE(EC_F_HWMON_MSG, 0, num, (u8 *)&fan->cfg)
-+	};
-+	int ret;
-+
-+	ret = imanager_read(ec, EC_CMD_FAN_CTL_RD, &msg);
-+	if (ret)
-+		return ret;
-+
-+	return fan->cfg.did ? 0 : -ENODEV;
-+}
-+
-+static int
-+imanager_hwmon_write_fan_config(struct imanager_ec_data *ec, int num,
-+				struct imanager_hwmon_smartfan *fan)
-+{
-+	struct imanager_ec_message msg = {
-+		IMANAGER_MSG_SIMPLE(0, sizeof(fan->cfg), num, (u8 *)&fan->cfg)
-+	};
-+	int err;
-+
-+	err = imanager_write(ec, EC_CMD_FAN_CTL_WR, &msg);
-+	if (err < 0) {
-+		return err;
-+	} else if (err) {
-+		switch (err) {
-+		case HWM_STATUS_UNDEFINED_ITEM:
-+		case HWM_STATUS_UNDEFINED_DID:
-+		case HWM_STATUS_UNDEFINED_HWPIN:
-+			return -ENODEV;
-+		default:
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * FAN max/min alert bits are stored as bit pairs in a 8-bit register.
-+ * FAN0~2: 2:{max2, min2}, 1:{max1, min1}, 0:{max0, min0}
-+ */
-+#define IS_FAN_ALERT_MIN(fan_num, var) test_bit(BIT((fan_num) << 1), var)
-+#define IS_FAN_ALERT_MAX(fan_num, var) test_bit(BIT(((fan_num) << 1) + 1), var)
-+
-+static int imanager_hwmon_read_fan_alert(struct imanager_ec_data *ec, int num,
-+					 struct imanager_hwmon_smartfan *fan)
-+{
-+	const ulong alert_flags = 0;
-+	int ret;
-+
-+	ret = imanager_read_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT,
-+				(u8 *)&alert_flags, sizeof(u8));
-+	if (ret < 0)
-+		return ret;
-+
-+	fan->speed_min_alarm = IS_FAN_ALERT_MIN(num, &alert_flags);
-+	fan->speed_max_alarm = IS_FAN_ALERT_MAX(num, &alert_flags);
-+
-+	return 0;
-+}
-+
-+static int imanager_hwmon_write_fan_alert(struct imanager_ec_data *ec, int fnum,
-+					  struct imanager_hwmon_smartfan *fan)
-+{
-+	struct fan_alert_limit limits[EC_MAX_FAN_NUM];
-+	struct fan_alert_limit *limit = &limits[fnum];
-+	int ret;
-+
-+	ret = imanager_read_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT_LIMIT,
-+				(u8 *)limits, sizeof(limits));
-+	if (ret < 0)
-+		return ret;
-+
-+	limit->min = fan->cfg.rpm_min;
-+	limit->max = fan->cfg.rpm_max;
-+
-+	return imanager_write_ram(ec, EC_RAM_ACPI, EC_OFFSET_FAN_ALERT_LIMIT,
-+				  (u8 *)limits, sizeof(limits));
-+}
-+
-+static int imanager_hwmon_read_adc(struct imanager_ec_data *ec, int num,
-+				   struct imanager_hwmon_adc *adc)
-+{
-+	struct imanager_device_attribute *attr = ec->hwmon.adc.attr[num];
-+	int ret;
-+
-+	adc->valid = false;
-+
-+	ret = imanager_read16(ec, EC_CMD_HWP_RD, attr->did);
-+	if (ret < 0)
-+		return ret;
-+
-+	adc->value = ret * attr->ecdev->scale;
-+	adc->valid = true;
-+
-+	return 0;
-+}
-+
-+static int imanager_hwmon_read_fan_ctrl(struct imanager_ec_data *ec, int num,
-+					struct imanager_hwmon_smartfan *fan)
-+{
-+	struct imanager_device_attribute *attr = ec->hwmon.adc.attr[num];
-+
-+	int ret;
-+
-+	fan->valid = false;
-+
-+	ret = imanager_hwmon_read_fan_config(ec, num, fan);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = imanager_read16(ec, EC_CMD_HWP_RD, fan->cfg.tachoid);
-+	if (ret < 0)
-+		return ret;
-+
-+	fan->speed = ret;
-+
-+	ret = imanager_read8(ec, EC_CMD_HWP_RD, attr->did);
-+	if (ret < 0)
-+		return ret;
-+
-+	fan->pwm = ret;
-+
-+	ret = imanager_hwmon_read_fan_alert(ec, num, fan);
-+	if (ret)
-+		return ret;
-+
-+	fan->valid = true;
-+
-+	return 0;
-+}
-+
-+static inline uint in_from_reg(u16 val)
-+{
-+	return clamp_val(DIV_ROUND_CLOSEST(val * SCALE_IN, 1000), 0, 65535);
-+}
-+
-+static inline u16 in_to_reg(uint val)
-+{
-+	return clamp_val(DIV_ROUND_CLOSEST(val * 1000, SCALE_IN), 0, 65535);
-+}
-+
-+static struct imanager_hwmon_data *
-+imanager_hwmon_update_device(struct device *dev)
-+{
-+	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_ec_data *ec = &imgr->ec;
-+	struct imanager_hwmon_device *hwmon = &ec->hwmon;
-+	int i;
-+
-+	mutex_lock(&imgr->lock);
-+
-+	if (time_after(jiffies, data->last_updated + HZ + HZ / 2)) {
-+		/* Measured voltages */
-+		for (i = 0; i < hwmon->adc.num; i++)
-+			imanager_hwmon_read_adc(ec, i, &data->adc[i]);
-+
-+		/* Measured fan speeds */
-+		for (i = 0; i < hwmon->fan.num; i++)
-+			imanager_hwmon_read_fan_ctrl(ec, i, &data->fan[i]);
-+
-+		data->last_updated = jiffies;
-+	}
-+
-+	mutex_unlock(&imgr->lock);
-+
-+	return data;
-+}
-+
-+static ssize_t
-+show_in(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+
-+	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].value));
-+}
-+
-+static ssize_t
-+show_in_min(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+
-+	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].min));
-+}
-+
-+static ssize_t
-+show_in_max(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+
-+	return sprintf(buf, "%u\n", in_from_reg(data->adc[nr].max));
-+}
-+
-+static ssize_t
-+store_in_min(struct device *dev, struct device_attribute *attr,
-+	     const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	unsigned long val;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	data->adc[nr].min = in_to_reg(val);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+store_in_max(struct device *dev, struct device_attribute *attr,
-+	     const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	unsigned long val;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	data->adc[nr].max = in_to_reg(val);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_in_alarm(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	struct imanager_hwmon_adc *adc = &data->adc[nr];
-+	int val = 0;
-+
-+	if (adc->valid)
-+		val = (adc->value < adc->min) || (adc->value > adc->max);
-+
-+	return sprintf(buf, "%u\n", val);
-+}
-+
-+static ssize_t
-+show_in_average(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	struct imanager_hwmon_adc *adc = &data->adc[nr];
-+
-+	if (adc->average) {
-+		adc->average = DIV_ROUND_CLOSEST(adc->average * data->samples +
-+						 adc->value, ++data->samples);
-+	} else {
-+		adc->average = adc->value;
-+		data->samples = 1;
-+	}
-+
-+	return sprintf(buf, "%u\n", in_from_reg(adc->average));
-+}
-+
-+static ssize_t
-+show_in_lowest(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	struct imanager_hwmon_adc *adc = &data->adc[nr];
-+
-+	if (!adc->lowest || (adc->value < adc->lowest))
-+		adc->lowest = adc->value;
-+
-+	return sprintf(buf, "%u\n", in_from_reg(adc->lowest));
-+}
-+
-+static ssize_t
-+show_in_highest(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	struct imanager_hwmon_adc *adc = &data->adc[nr];
-+
-+	if (!adc->highest || (adc->value > adc->highest))
-+		adc->highest = adc->value;
-+
-+	return sprintf(buf, "%u\n", in_from_reg(adc->highest));
-+}
-+
-+static ssize_t
-+store_in_reset_history(struct device *dev, struct device_attribute *attr,
-+		       const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index;
-+	unsigned long reset;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &reset);
-+	if (err < 0)
-+		return err;
-+
-+	if (reset) {
-+		data->adc[nr].lowest = 0;
-+		data->adc[nr].highest = 0;
-+		data->adc[nr].average = 0;
-+		data->samples = 0;
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_temp(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%u\n", data->fan[nr].cfg.temp * 1000);
-+}
-+
-+static ssize_t
-+show_fan_in(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+
-+	return sprintf(buf, "%u\n", fan->valid ? fan->speed : 0);
-+}
-+
-+static inline int check_fan_alarm(const struct imanager_hwmon_smartfan *fan)
-+{
-+	int rpm_min = cpu_to_be16(fan->cfg.rpm_min);
-+	int rpm_max = cpu_to_be16(fan->cfg.rpm_max);
-+
-+	return !fan->valid || fan->speed_min_alarm || fan->speed_max_alarm ||
-+	       (!fan->speed && fan->pwm) || (fan->speed < rpm_min) ||
-+	       (fan->speed > rpm_max);
-+}
-+
-+static ssize_t
-+show_fan_alarm(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	bool is_alarm = (ctrl->mode == MODE_AUTO) ? 0 : check_fan_alarm(fan);
-+
-+	return sprintf(buf, "%u\n", is_alarm);
-+}
-+
-+static ssize_t
-+show_fan_min(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	int rpm_min = cpu_to_be16(data->fan[nr].cfg.rpm_min);
-+
-+	return sprintf(buf, "%u\n", rpm_min);
-+}
-+
-+static ssize_t
-+show_fan_max(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	int rpm_max = cpu_to_be16(data->fan[nr].cfg.rpm_max);
-+
-+	return sprintf(buf, "%u\n", rpm_max);
-+}
-+
-+static ssize_t
-+store_fan_min(struct device *dev, struct device_attribute *attr,
-+	      const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	unsigned long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	/* do not apply value if not in cruise mode */
-+	if (ctrl->mode != MODE_AUTO)
-+		return count;
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.rpm_min = cpu_to_be16(val);
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+store_fan_max(struct device *dev, struct device_attribute *attr,
-+	      const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	unsigned long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	/* do not apply value if not in cruise mode */
-+	if (ctrl->mode != MODE_AUTO)
-+		return count;
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.rpm_max = cpu_to_be16(val);
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_pwm(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	u32 val = DIV_ROUND_CLOSEST(data->fan[nr].pwm * 255, 100);
-+
-+	return sprintf(buf, "%u\n", val);
-+}
-+
-+static ssize_t
-+store_pwm(struct device *dev, struct device_attribute *attr,
-+	  const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_device_data *imgr = data->imgr;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	int did = imgr->ec.hwmon.fan.attr[nr]->did;
-+	unsigned long pwm = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &pwm);
-+	if (err < 0)
-+		return err;
-+
-+	pwm = DIV_ROUND_CLOSEST(pwm * 100, 255);
-+
-+	mutex_lock(&imgr->lock);
-+
-+	if (ctrl->mode == MODE_MANUAL) {
-+		ctrl->type = CTRL_PWM;
-+		ctrl->pulse = 0;
-+		ctrl->enable = 1;
-+		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, pwm);
-+	} else if ((ctrl->mode == MODE_AUTO) && (ctrl->type == CTRL_PWM)) {
-+		ctrl->pulse = 0;
-+		ctrl->enable = 1;
-+		fan->cfg.rpm_min = 0;
-+		fan->cfg.rpm_max = 0;
-+		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, pwm);
-+		imanager_hwmon_write_fan_alert(&imgr->ec, nr, fan);
-+	}
-+
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_pwm_min(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%u\n", data->fan[nr].cfg.pwm_min);
-+}
-+
-+static ssize_t
-+show_pwm_max(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%u\n", data->fan[nr].cfg.pwm_max);
-+}
-+
-+static ssize_t
-+show_pwm_enable(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	uint mode = ctrl->mode - 1;
-+
-+	if (ctrl->mode == MODE_OFF)
-+		mode = 0;
-+
-+	return sprintf(buf, "%u\n", mode);
-+}
-+
-+enum pwm_enable { OFF, MANUAL, THERMAL_CRUISE };
-+
-+static ssize_t
-+store_pwm_enable(struct device *dev, struct device_attribute *attr,
-+		 const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	int did = imgr->ec.hwmon.fan.attr[nr]->did;
-+	unsigned long mode = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &mode);
-+	if (err < 0)
-+		return err;
-+
-+	mutex_lock(&imgr->lock);
-+
-+	switch (mode) {
-+	case OFF:
-+		ctrl->mode = MODE_FULL;
-+		ctrl->type = CTRL_PWM;
-+		ctrl->enable = 1;
-+		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 100);
-+		break;
-+	case MANUAL:
-+		ctrl->mode = MODE_MANUAL;
-+		ctrl->type = CTRL_PWM;
-+		ctrl->enable = 1;
-+		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 0);
-+		break;
-+	case THERMAL_CRUISE:
-+		ctrl->mode = MODE_AUTO;
-+		ctrl->enable = 1;
-+		imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+		imanager_write8(&imgr->ec, EC_CMD_HWP_WR, did, 0);
-+		break;
-+	}
-+
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_pwm_mode(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	uint mode = (ctrl->type == CTRL_PWM) ? 1 : 0;
-+
-+	if (ctrl->mode == MODE_OFF)
-+		mode = 0;
-+
-+	return sprintf(buf, "%u\n", mode);
-+}
-+
-+static ssize_t
-+store_pwm_mode(struct device *dev, struct device_attribute *attr,
-+	       const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	unsigned long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	if (ctrl->mode != MODE_AUTO)
-+		return count;
-+
-+	mutex_lock(&imgr->lock);
-+	ctrl->type = val ? CTRL_RPM : CTRL_PWM;
-+	ctrl->enable = 1;
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_temp_min(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%d\n", data->fan[nr].cfg.temp_min * 1000);
-+}
-+
-+static ssize_t
-+show_temp_max(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%u\n", data->fan[nr].cfg.temp_max * 1000);
-+}
-+
-+static inline bool is_outside(int min, int max, int value)
-+{
-+	return (value < min) || (value > max);
-+}
-+
-+static ssize_t
-+show_temp_alarm(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct fan_dev_config *cfg = &data->fan[nr].cfg;
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&cfg->control;
-+	bool is_alarm = (ctrl->mode == MODE_AUTO) ? 0 :
-+			is_outside(cfg->temp_min, cfg->temp_max, cfg->temp);
-+
-+	return sprintf(buf, "%u\n", is_alarm);
-+}
-+
-+static ssize_t store_temp_min(struct device *dev, struct device_attribute *attr,
-+			      const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	/* temperature in 1/10 degC */
-+	val = DIV_ROUND_CLOSEST(val, 1000);
-+	val = val > 100 ? 100 : val;
-+
-+	/* do not apply value if not in cruise mode */
-+	if (ctrl->mode != MODE_AUTO)
-+		return count;
-+
-+	/*
-+	 * The iManager provides three different temperature limit values
-+	 * (stop, min, and max) where stop indicates a minimum temp value
-+	 * (threshold) from which the FAN will turn off.  We are setting
-+	 * temp_stop to the same value as temp_min since it cannot be mapped
-+	 * to anything else.
-+	 */
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.temp_stop = val;
-+	fan->cfg.temp_min = val;
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+store_temp_max(struct device *dev, struct device_attribute *attr,
-+	       const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	struct fan_ctrl *ctrl = (struct fan_ctrl *)&fan->cfg.control;
-+	long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	val = DIV_ROUND_CLOSEST(val, 1000);
-+	val = val > 100 ? 100 : val;
-+
-+	/* do not apply value if not in cruise mode */
-+	if (ctrl->mode != MODE_AUTO)
-+		return count;
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.temp_max = val;
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+store_pwm_min(struct device *dev, struct device_attribute *attr,
-+	      const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	val = DIV_ROUND_CLOSEST(val * 100, 255);
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.pwm_min = val;
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+store_pwm_max(struct device *dev, struct device_attribute *attr,
-+	      const char *buf, size_t count)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_device_data *imgr = data->imgr;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+	struct imanager_hwmon_smartfan *fan = &data->fan[nr];
-+	long val = 0;
-+	int err;
-+
-+	err = kstrtoul(buf, 10, &val);
-+	if (err < 0)
-+		return err;
-+
-+	val = DIV_ROUND_CLOSEST(val * 100, 255);
-+
-+	mutex_lock(&imgr->lock);
-+	fan->cfg.pwm_max = val;
-+	imanager_hwmon_write_fan_config(&imgr->ec, nr, fan);
-+	mutex_unlock(&imgr->lock);
-+
-+	return count;
-+}
-+
-+static ssize_t
-+show_in_label(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
-+	int nr = to_sensor_dev_attr(attr)->index;
-+
-+	return sprintf(buf, "%s\n", hwmon->adc.label[nr]);
-+}
-+
-+static ssize_t
-+show_temp_label(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%s\n", hwmon->fan.temp_label[nr]);
-+}
-+
-+static ssize_t
-+show_fan_label(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct imanager_hwmon_data *data = imanager_hwmon_update_device(dev);
-+	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
-+	int nr = to_sensor_dev_attr(attr)->index - 1;
-+
-+	return sprintf(buf, "%s\n", hwmon->fan.label[nr]);
-+}
-+
-+/*
-+ * Sysfs callback functions
-+ */
-+
-+static SENSOR_DEVICE_ATTR(in0_label, 0444, show_in_label, NULL, 0);
-+static SENSOR_DEVICE_ATTR(in0_input, 0444, show_in, NULL, 0);
-+static SENSOR_DEVICE_ATTR(in0_min, 0644, show_in_min, store_in_min, 0);
-+static SENSOR_DEVICE_ATTR(in0_max, 0644, show_in_max, store_in_max, 0);
-+static SENSOR_DEVICE_ATTR(in0_alarm, 0444, show_in_alarm, NULL, 0);
-+
-+static SENSOR_DEVICE_ATTR(in1_label, 0444, show_in_label, NULL, 1);
-+static SENSOR_DEVICE_ATTR(in1_input, 0444, show_in, NULL, 1);
-+static SENSOR_DEVICE_ATTR(in1_min, 0644, show_in_min, store_in_min, 1);
-+static SENSOR_DEVICE_ATTR(in1_max, 0644, show_in_max, store_in_max, 1);
-+static SENSOR_DEVICE_ATTR(in1_alarm, 0444, show_in_alarm, NULL, 1);
-+
-+static SENSOR_DEVICE_ATTR(in2_label, 0444, show_in_label, NULL, 2);
-+static SENSOR_DEVICE_ATTR(in2_input, 0444, show_in, NULL, 2);
-+static SENSOR_DEVICE_ATTR(in2_min, 0644, show_in_min, store_in_min, 2);
-+static SENSOR_DEVICE_ATTR(in2_max, 0644, show_in_max, store_in_max, 2);
-+static SENSOR_DEVICE_ATTR(in2_alarm, 0444, show_in_alarm, NULL, 2);
-+
-+static SENSOR_DEVICE_ATTR(temp1_label, 0444, show_temp_label, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp1_input, 0444, show_temp, NULL, 1);
-+static SENSOR_DEVICE_ATTR(temp1_min, 0644, show_temp_min, store_temp_min, 1);
-+static SENSOR_DEVICE_ATTR(temp1_max, 0644, show_temp_max, store_temp_max, 1);
-+static SENSOR_DEVICE_ATTR(temp1_alarm, 0444, show_temp_alarm, NULL, 1);
-+
-+static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_temp_label, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp2_input, 0444, show_temp, NULL, 2);
-+static SENSOR_DEVICE_ATTR(temp2_min, 0644, show_temp_min, store_temp_min, 2);
-+static SENSOR_DEVICE_ATTR(temp2_max, 0644, show_temp_max, store_temp_max, 2);
-+static SENSOR_DEVICE_ATTR(temp2_alarm, 0444, show_temp_alarm, NULL, 2);
-+
-+static SENSOR_DEVICE_ATTR(temp3_label, 0444, show_temp_label, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp3_input, 0444, show_temp, NULL, 3);
-+static SENSOR_DEVICE_ATTR(temp3_min, 0644, show_temp_min, store_temp_min, 3);
-+static SENSOR_DEVICE_ATTR(temp3_max, 0644, show_temp_max, store_temp_max, 3);
-+static SENSOR_DEVICE_ATTR(temp3_alarm, 0444, show_temp_alarm, NULL, 3);
-+
-+static SENSOR_DEVICE_ATTR(fan1_label, 0444, show_fan_label, NULL, 1);
-+static SENSOR_DEVICE_ATTR(fan1_input, 0444, show_fan_in, NULL, 1);
-+static SENSOR_DEVICE_ATTR(fan1_min, 0644, show_fan_min, store_fan_min, 1);
-+static SENSOR_DEVICE_ATTR(fan1_max, 0644, show_fan_max, store_fan_max, 1);
-+static SENSOR_DEVICE_ATTR(fan1_alarm, 0444, show_fan_alarm, NULL, 1);
-+
-+static SENSOR_DEVICE_ATTR(fan2_label, 0444, show_fan_label, NULL, 2);
-+static SENSOR_DEVICE_ATTR(fan2_input, 0444, show_fan_in, NULL, 2);
-+static SENSOR_DEVICE_ATTR(fan2_min, 0644, show_fan_min, store_fan_min, 2);
-+static SENSOR_DEVICE_ATTR(fan2_max, 0644, show_fan_max, store_fan_max, 2);
-+static SENSOR_DEVICE_ATTR(fan2_alarm, 0444, show_fan_alarm, NULL, 2);
-+
-+static SENSOR_DEVICE_ATTR(fan3_label, 0444, show_fan_label, NULL, 3);
-+static SENSOR_DEVICE_ATTR(fan3_input, 0444, show_fan_in, NULL, 3);
-+static SENSOR_DEVICE_ATTR(fan3_min, 0644, show_fan_min, store_fan_min, 3);
-+static SENSOR_DEVICE_ATTR(fan3_max, 0644, show_fan_max, store_fan_max, 3);
-+static SENSOR_DEVICE_ATTR(fan3_alarm, 0444, show_fan_alarm, NULL, 3);
-+
-+static SENSOR_DEVICE_ATTR(pwm1, 0644, show_pwm, store_pwm, 1);
-+static SENSOR_DEVICE_ATTR(pwm1_min, 0644, show_pwm_min, store_pwm_min, 1);
-+static SENSOR_DEVICE_ATTR(pwm1_max, 0644, show_pwm_max, store_pwm_max, 1);
-+static SENSOR_DEVICE_ATTR(pwm1_enable, 0644, show_pwm_enable,
-+			  store_pwm_enable, 1);
-+static SENSOR_DEVICE_ATTR(pwm1_mode, 0644, show_pwm_mode, store_pwm_mode, 1);
-+
-+static SENSOR_DEVICE_ATTR(pwm2, 0644, show_pwm, store_pwm, 2);
-+static SENSOR_DEVICE_ATTR(pwm2_min, 0644, show_pwm_min, store_pwm_min, 2);
-+static SENSOR_DEVICE_ATTR(pwm2_max, 0644, show_pwm_max, store_pwm_max, 2);
-+static SENSOR_DEVICE_ATTR(pwm2_enable, 0644, show_pwm_enable,
-+			  store_pwm_enable, 2);
-+static SENSOR_DEVICE_ATTR(pwm2_mode, 0644, show_pwm_mode, store_pwm_mode, 2);
-+
-+static SENSOR_DEVICE_ATTR(pwm3, 0644, show_pwm, store_pwm, 3);
-+static SENSOR_DEVICE_ATTR(pwm3_min, 0644, show_pwm_min, store_pwm_min, 3);
-+static SENSOR_DEVICE_ATTR(pwm3_max, 0644, show_pwm_max, store_pwm_max, 3);
-+static SENSOR_DEVICE_ATTR(pwm3_enable, 0644, show_pwm_enable,
-+			  store_pwm_enable, 3);
-+static SENSOR_DEVICE_ATTR(pwm3_mode, 0644, show_pwm_mode, store_pwm_mode, 3);
-+
-+static SENSOR_DEVICE_ATTR(curr1_input, 0444, show_in, NULL, 4);
-+static SENSOR_DEVICE_ATTR(curr1_min, 0644, show_in_min, store_in_min, 4);
-+static SENSOR_DEVICE_ATTR(curr1_max, 0644, show_in_max, store_in_max, 4);
-+static SENSOR_DEVICE_ATTR(curr1_alarm, 0444, show_in_alarm, NULL, 4);
-+static SENSOR_DEVICE_ATTR(curr1_average, 0444, show_in_average, NULL, 4);
-+static SENSOR_DEVICE_ATTR(curr1_lowest, 0444, show_in_lowest, NULL, 4);
-+static SENSOR_DEVICE_ATTR(curr1_highest, 0444, show_in_highest, NULL, 4);
-+static SENSOR_DEVICE_ATTR(curr1_reset_history, 0200, NULL,
-+			  store_in_reset_history, 4);
-+
-+static SENSOR_DEVICE_ATTR(cpu0_vid, 0444, show_in, NULL, 3);
-+
-+static struct attribute *imanager_in_attributes[] = {
-+	&sensor_dev_attr_in0_label.dev_attr.attr,
-+	&sensor_dev_attr_in0_input.dev_attr.attr,
-+	&sensor_dev_attr_in0_min.dev_attr.attr,
-+	&sensor_dev_attr_in0_max.dev_attr.attr,
-+	&sensor_dev_attr_in0_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_in1_label.dev_attr.attr,
-+	&sensor_dev_attr_in1_input.dev_attr.attr,
-+	&sensor_dev_attr_in1_min.dev_attr.attr,
-+	&sensor_dev_attr_in1_max.dev_attr.attr,
-+	&sensor_dev_attr_in1_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_in2_label.dev_attr.attr,
-+	&sensor_dev_attr_in2_input.dev_attr.attr,
-+	&sensor_dev_attr_in2_min.dev_attr.attr,
-+	&sensor_dev_attr_in2_max.dev_attr.attr,
-+	&sensor_dev_attr_in2_alarm.dev_attr.attr,
-+
-+	NULL
-+};
-+
-+#define to_dev(obj) container_of(obj, struct device, kobj)
-+
-+static umode_t
-+imanager_in_is_visible(struct kobject *kobj, struct attribute *attr, int index)
-+{
-+	struct device *dev = to_dev(kobj);
-+	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
-+	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
-+
-+	if (hwmon->adc.num <= EC_MAX_ADC_NUM)
-+		return attr->mode;
-+
-+	return 0;
-+}
-+
-+static const struct attribute_group imanager_group_in = {
-+	.attrs = imanager_in_attributes,
-+	.is_visible = imanager_in_is_visible,
-+};
-+
-+static struct attribute *imanager_other_attributes[] = {
-+	&sensor_dev_attr_curr1_input.dev_attr.attr,
-+	&sensor_dev_attr_curr1_min.dev_attr.attr,
-+	&sensor_dev_attr_curr1_max.dev_attr.attr,
-+	&sensor_dev_attr_curr1_alarm.dev_attr.attr,
-+	&sensor_dev_attr_curr1_average.dev_attr.attr,
-+	&sensor_dev_attr_curr1_lowest.dev_attr.attr,
-+	&sensor_dev_attr_curr1_highest.dev_attr.attr,
-+	&sensor_dev_attr_curr1_reset_history.dev_attr.attr,
-+
-+	&sensor_dev_attr_cpu0_vid.dev_attr.attr,
-+
-+	NULL
-+};
-+
-+static umode_t imanager_other_is_visible(struct kobject *kobj,
-+					 struct attribute *attr, int index)
-+{
-+	struct device *dev = to_dev(kobj);
-+	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
-+	struct imanager_hwmon_device *hwmon = &data->imgr->ec.hwmon;
-+
-+	/*
-+	 * There are either 3 or 5 VINs available
-+	 * vin3 is current monitoring
-+	 * vin4 is CPU VID
-+	 */
-+	if (hwmon->adc.num == EC_MAX_ADC_NUM)
-+		return attr->mode;
-+
-+	return 0;
-+}
-+
-+static const struct attribute_group imanager_group_other = {
-+	.attrs = imanager_other_attributes,
-+	.is_visible = imanager_other_is_visible,
-+};
-+
-+static struct attribute *imanager_fan_attributes[] = {
-+	&sensor_dev_attr_fan1_label.dev_attr.attr,
-+	&sensor_dev_attr_fan1_input.dev_attr.attr,
-+	&sensor_dev_attr_fan1_min.dev_attr.attr,
-+	&sensor_dev_attr_fan1_max.dev_attr.attr,
-+	&sensor_dev_attr_fan1_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_fan2_label.dev_attr.attr,
-+	&sensor_dev_attr_fan2_input.dev_attr.attr,
-+	&sensor_dev_attr_fan2_min.dev_attr.attr,
-+	&sensor_dev_attr_fan2_max.dev_attr.attr,
-+	&sensor_dev_attr_fan2_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_fan3_label.dev_attr.attr,
-+	&sensor_dev_attr_fan3_input.dev_attr.attr,
-+	&sensor_dev_attr_fan3_min.dev_attr.attr,
-+	&sensor_dev_attr_fan3_max.dev_attr.attr,
-+	&sensor_dev_attr_fan3_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_temp1_label.dev_attr.attr,
-+	&sensor_dev_attr_temp1_input.dev_attr.attr,
-+	&sensor_dev_attr_temp1_min.dev_attr.attr,
-+	&sensor_dev_attr_temp1_max.dev_attr.attr,
-+	&sensor_dev_attr_temp1_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_temp2_label.dev_attr.attr,
-+	&sensor_dev_attr_temp2_input.dev_attr.attr,
-+	&sensor_dev_attr_temp2_min.dev_attr.attr,
-+	&sensor_dev_attr_temp2_max.dev_attr.attr,
-+	&sensor_dev_attr_temp2_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_temp3_label.dev_attr.attr,
-+	&sensor_dev_attr_temp3_input.dev_attr.attr,
-+	&sensor_dev_attr_temp3_min.dev_attr.attr,
-+	&sensor_dev_attr_temp3_max.dev_attr.attr,
-+	&sensor_dev_attr_temp3_alarm.dev_attr.attr,
-+
-+	&sensor_dev_attr_pwm1.dev_attr.attr,
-+	&sensor_dev_attr_pwm1_min.dev_attr.attr,
-+	&sensor_dev_attr_pwm1_max.dev_attr.attr,
-+	&sensor_dev_attr_pwm1_enable.dev_attr.attr,
-+	&sensor_dev_attr_pwm1_mode.dev_attr.attr,
-+
-+	&sensor_dev_attr_pwm2.dev_attr.attr,
-+	&sensor_dev_attr_pwm2_min.dev_attr.attr,
-+	&sensor_dev_attr_pwm2_max.dev_attr.attr,
-+	&sensor_dev_attr_pwm2_enable.dev_attr.attr,
-+	&sensor_dev_attr_pwm2_mode.dev_attr.attr,
-+
-+	&sensor_dev_attr_pwm3.dev_attr.attr,
-+	&sensor_dev_attr_pwm3_min.dev_attr.attr,
-+	&sensor_dev_attr_pwm3_max.dev_attr.attr,
-+	&sensor_dev_attr_pwm3_enable.dev_attr.attr,
-+	&sensor_dev_attr_pwm3_mode.dev_attr.attr,
-+
-+	NULL
-+};
-+
-+static umode_t
-+imanager_fan_is_visible(struct kobject *kobj, struct attribute *attr, int index)
-+{
-+	struct device *dev = to_dev(kobj);
-+	struct imanager_hwmon_data *data = dev_get_drvdata(dev);
-+	struct imanager_fan_device *fan = &data->imgr->ec.hwmon.fan;
-+
-+	if ((index >= 0) && (index <= 14)) { /* fan */
-+		if (!fan->attr[index / 5])
-+			return 0;
-+	} else if ((index >= 15) && (index <= 29)) { /* temp */
-+		if (!fan->attr[(index - 15) / 5])
-+			return 0;
-+	} else if ((index >= 30) && (index <= 34)) { /* pwm */
-+		if (!fan->attr[(index - 30) / 5])
-+			return 0;
-+	}
-+
-+	return attr->mode;
-+}
-+
-+static const struct attribute_group imanager_group_fan = {
-+	.attrs = imanager_fan_attributes,
-+	.is_visible = imanager_fan_is_visible,
-+};
-+
-+static int imanager_hwmon_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct imanager_device_data *imgr = dev_get_drvdata(dev->parent);
-+	struct imanager_ec_data *ec = &imgr->ec;
-+	struct imanager_hwmon_device *hwmon = &ec->hwmon;
-+	struct imanager_hwmon_data *data;
-+	struct device *hwmon_dev;
-+	int i, num_attr_groups = 0;
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->imgr = imgr;
-+	platform_set_drvdata(pdev, data);
-+
-+	/* read fan control settings */
-+	for (i = 0; i < hwmon->fan.num; i++)
-+		imanager_hwmon_read_fan_ctrl(ec, i, &data->fan[i]);
-+
-+	data->groups[num_attr_groups++] = &imanager_group_in;
-+
-+	if (hwmon->adc.num > 3)
-+		data->groups[num_attr_groups++] = &imanager_group_other;
-+
-+	if (hwmon->fan.num)
-+		data->groups[num_attr_groups++] = &imanager_group_fan;
-+
-+	hwmon_dev = devm_hwmon_device_register_with_groups(dev,
-+							   "imanager_hwmon",
-+							   data, data->groups);
-+
-+	return PTR_ERR_OR_ZERO(hwmon_dev);
-+}
-+
-+static struct platform_driver imanager_hwmon_driver = {
-+	.driver = {
-+		.name  = "imanager-hwmon",
-+	},
-+	.probe	= imanager_hwmon_probe,
-+};
-+
-+module_platform_driver(imanager_hwmon_driver);
-+
-+MODULE_DESCRIPTION("Advantech iManager HWmon Driver");
-+MODULE_AUTHOR("Richard Vidal-Dorsch <richard.dorsch at advantech.com>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:imanager-hwmon");
--- 
-2.10.1
+Sorry for reminding regarding the patch.
+Should I modify it? Re-submit?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you very much,
+Vadim.
+
+> -----Original Message-----
+> From: Vadim Pasternak
+> Sent: Wednesday, September 28, 2016 2:51 PM
+> To: Vadim Pasternak <vadimp@mellanox.com>; wsa@the-dreams.de
+> Cc: linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org; jiri@resnull=
+i.us;
+> Michael Shych <michaelsh@mellanox.com>
+> Subject: RE: [patch v2] i2c: add master driver for mellanox systems
+>=20
+> Hi,
+>=20
+> I'd like to kindly clarify whether the patch I sent could be applied, or =
+I need to
+> modify something?
+>=20
+> Best regards,
+> Vadim.
+>=20
+> > -----Original Message-----
+> > From: vadimp@mellanox.com [mailto:vadimp@mellanox.com]
+> > Sent: Monday, September 19, 2016 6:01 PM
+> > To: wsa@the-dreams.de
+> > Cc: linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org;
+> > jiri@resnulli.us; Vadim Pasternak <vadimp@mellanox.com>; Michael Shych
+> > <michaelsh@mellanox.com>
+> > Subject: [patch v2] i2c: add master driver for mellanox systems
+> >
+> > From: Vadim Pasternak <vadimp@mellanox.com>
+> >
+> > Device driver for Mellanox I2C controller logic, implemented in
+> > Lattice CPLD device.
+> > Device supports:
+> >  - Master mode
+> >  - One physical bus
+> >  - Polling mode
+> >
+> > The Kconfig currently controlling compilation of this code is:
+> > drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
+> >
+> > Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+> > Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+> > Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+> > v1->v2
+> >  Fixes added by Vadim:
+> >  - Put new record in Makefile in alphabetic order;
+> >  - Remove http://www.mellanox.com from MAINTAINERS record;
+> > ---
+> >  Documentation/i2c/busses/i2c-mlxcpld |  47 +++
+> >  MAINTAINERS                          |   8 +
+> >  drivers/i2c/busses/Kconfig           |  12 +
+> >  drivers/i2c/busses/Makefile          |   1 +
+> >  drivers/i2c/busses/i2c-mlxcpld.c     | 597
+> > +++++++++++++++++++++++++++++++++++
+> >  5 files changed, 665 insertions(+)
+> >  create mode 100644 Documentation/i2c/busses/i2c-mlxcpld
+> >  create mode 100644 drivers/i2c/busses/i2c-mlxcpld.c
+> >
+> > diff --git a/Documentation/i2c/busses/i2c-mlxcpld
+> > b/Documentation/i2c/busses/i2c-mlxcpld
+> > new file mode 100644
+> > index 0000000..0f8678a
+> > --- /dev/null
+> > +++ b/Documentation/i2c/busses/i2c-mlxcpld
+> > @@ -0,0 +1,47 @@
+> > +Driver i2c-mlxcpld
+> > +
+> > +Author: Michael Shych <michaelsh@mellanox.com>
+> > +
+> > +This is a for Mellanox I2C controller logic, implemented in Lattice
+> > +CPLD device.
+> > +Device supports:
+> > + - Master mode.
+> > + - One physical bus.
+> > + - Polling mode.
+> > +
+> > +This controller is equipped within the next Mellanox systems:
+> > +"msx6710", "msx6720", "msb7700", "msn2700", "msx1410", "msn2410",
+> > +"msb7800", "msn2740", "msn2100".
+> > +
+> > +The next transaction types are supported:
+> > + - Receive Byte/Block.
+> > + - Send Byte/Block.
+> > + - Read Byte/Block.
+> > + - Write Byte/Block.
+> > +
+> > +Registers:
+> > +CTRL		0x1 - control reg.
+> > +			Resets all the registers.
+> > +HALF_CYC	0x4 - cycle reg.
+> > +			Configure the width of I2C SCL half clock cycle (in 4
+> > LPC_CLK
+> > +			units).
+> > +I2C_HOLD	0x5 - hold reg.
+> > +			OE (output enable) is delayed by value set to this
+> > register
+> > +			(in LPC_CLK units)
+> > +CMD			0x6 - command reg.
+> > +			Bit 7(lsb), 0 =3D write, 1 =3D read.
+> > +			Bits [6:0] - the 7bit Address of the I2C device.
+> > +			It should be written last as it triggers an I2C transaction.
+> > +NUM_DATA	0x7 - data size reg.
+> > +			Number of address bytes to write in read transaction
+> > +NUM_ADDR	0x8 - address reg.
+> > +			Number of address bytes to write in read transaction.
+> > +STATUS		0x9 - status reg.
+> > +			Bit 0 - transaction is completed.
+> > +			Bit 4 - ACK/NACK.
+> > +DATAx		0xa - 0x54  - 68 bytes data buffer regs.
+> > +			For write transaction address is specified in four first
+> > bytes
+> > +			(DATA1 - DATA4), data starting from DATA4.
+> > +			For read transactions address is send in separate
+> > transaction and
+> > +			specified in four first bytes (DATA0 - DATA3). Data is
+> > reading
+> > +			starting from DATA0.
+> > diff --git a/MAINTAINERS b/MAINTAINERS index 6781a3f..dc31231 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -7667,6 +7667,14 @@ W:	http://www.mellanox.com
+> >  Q:	http://patchwork.ozlabs.org/project/netdev/list/
+> >  F:	drivers/net/ethernet/mellanox/mlxsw/
+> >
+> > +MELLANOX MLXCPLD I2C DRIVER
+> > +M:	Vadim Pasternak <vadimp@mellanox.com>
+> > +M:	Michael Shych <michaelsh@mellanox.com>
+> > +L:	linux-i2c@vger.kernel.org
+> > +S:	Supported
+> > +F:	drivers/i2c/busses/i2c-mlxcpld.c
+> > +F:	Documentation/i2c/busses/i2c-mlxcpld
+> > +
+> >  SOFT-ROCE DRIVER (rxe)
+> >  M:	Moni Shoua <monis@mellanox.com>
+> >  L:	linux-rdma@vger.kernel.org
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 5c3993b..1126142a 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -1203,4 +1203,16 @@ config I2C_OPAL
+> >  	  This driver can also be built as a module. If so, the module will b=
+e
+> >  	  called as i2c-opal.
+> >
+> > +config I2C_MLXCPLD
+> > +        tristate "Mellanox I2C driver"
+> > +        depends on X86_64
+> > +        default y
+> > +        help
+> > +	  This exposes the Mellanox platform I2C busses to the linux I2C laye=
+r
+> > +	  for X86 based systems.
+> > +	  Controller is implemented as CPLD logic.
+> > +
+> > +	  This driver can also be built as a module. If so, the module will b=
+e
+> > +	  called as i2c-mlxcpld.
+> > +
+> >  endmenu
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index
+> > 37f2819..4df3578 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -118,5 +118,6 @@ obj-$(CONFIG_I2C_PCA_ISA)	+=3D i2c-pca-isa.o
+> >  obj-$(CONFIG_I2C_SIBYTE)	+=3D i2c-sibyte.o
+> >  obj-$(CONFIG_I2C_XGENE_SLIMPRO) +=3D i2c-xgene-slimpro.o
+> >  obj-$(CONFIG_SCx200_ACB)	+=3D scx200_acb.o
+> > +obj-$(CONFIG_I2C_MLXCPLD)	+=3D i2c-mlxcpld.o
+> >
+> >  ccflags-$(CONFIG_I2C_DEBUG_BUS) :=3D -DDEBUG diff --git
+> > a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
+> > new file mode 100644
+> > index 0000000..dd62190
+> > --- /dev/null
+> > +++ b/drivers/i2c/busses/i2c-mlxcpld.c
+> > @@ -0,0 +1,597 @@
+> > +/*
+> > + * drivers/i2c/busses/i2c-mlxcpld.c
+> > + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
+> > + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
+> > + *
+> > + * Redistribution and use in source and binary forms, with or without
+> > + * modification, are permitted provided that the following conditions =
+are
+> met:
+> > + *
+> > + * 1. Redistributions of source code must retain the above copyright
+> > + *    notice, this list of conditions and the following disclaimer.
+> > + * 2. Redistributions in binary form must reproduce the above copyrigh=
+t
+> > + *    notice, this list of conditions and the following disclaimer in =
+the
+> > + *    documentation and/or other materials provided with the distribut=
+ion.
+> > + * 3. Neither the names of the copyright holders nor the names of its
+> > + *    contributors may be used to endorse or promote products derived =
+from
+> > + *    this software without specific prior written permission.
+> > + *
+> > + * Alternatively, this software may be distributed under the terms of
+> > +the
+> > + * GNU General Public License ("GPL") version 2 as published by the
+> > +Free
+> > + * Software Foundation.
+> > + *
+> > + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+> > CONTRIBUTORS "AS IS"
+> > + * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+> > LIMITED
+> > +TO, THE
+> > + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+> > PARTICULAR
+> > +PURPOSE
+> > + * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+> > +CONTRIBUTORS BE
+> > + * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+> > +OR
+> > + * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+> > PROCUREMENT OF
+> > + * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+> > +BUSINESS
+> > + * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+> > WHETHER
+> > +IN
+> > + * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+> > +OTHERWISE)
+> > + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+> > ADVISED
+> > +OF THE
+> > + * POSSIBILITY OF SUCH DAMAGE.
+> > + */
+> > +
+> > +#include <linux/delay.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/init.h>
+> > +#include <linux/io.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +
+> > +/* General defines */
+> > +#define MLXPLAT_CPLD_LPC_I2C_BASE_ADRR	0x2000
+> > +#define MLXCPLD_I2C_DEVICE_NAME		"i2c_mlxcpld"
+> > +#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN |
+> > I2C_M_RD)
+> > +#define MLXCPLD_I2C_BUS_NUM		1
+> > +#define MLXCPLD_I2C_DATA_REG_SZ		36
+> > +#define MLXCPLD_I2C_MAX_ADDR_LEN	4
+> > +#define MLXCPLD_I2C_RETR_NUM		2
+> > +#define MLXCPLD_I2C_XFER_TO		500000 /* msec */
+> > +#define MLXCPLD_I2C_POLL_TIME		2000   /* msec */
+> > +
+> > +/* LPC I2C registers */
+> > +#define MLXCPLD_LPCI2C_LPF_REG		0x0
+> > +#define MLXCPLD_LPCI2C_CTRL_REG		0x1
+> > +#define MLXCPLD_LPCI2C_HALF_CYC_REG	0x4
+> > +#define MLXCPLD_LPCI2C_I2C_HOLD_REG	0x5
+> > +#define MLXCPLD_LPCI2C_CMD_REG		0x6
+> > +#define MLXCPLD_LPCI2C_NUM_DAT_REG	0x7
+> > +#define MLXCPLD_LPCI2C_NUM_ADDR_REG	0x8
+> > +#define MLXCPLD_LPCI2C_STATUS_REG	0x9
+> > +#define MLXCPLD_LPCI2C_DATA_REG		0xa
+> > +
+> > +/* LPC I2C masks and parametres */
+> > +#define MLXCPLD_LPCI2C_RST_SEL_MASK	0x1
+> > +#define MLXCPLD_LPCI2C_LPF_DFLT		0x2
+> > +#define MLXCPLD_LPCI2C_HALF_CYC_100	0x1f
+> > +#define MLXCPLD_LPCI2C_I2C_HOLD_100	0x3c
+> > +#define MLXCPLD_LPCI2C_TRANS_END	0x1
+> > +#define MLXCPLD_LPCI2C_STATUS_NACK	0x10
+> > +#define MLXCPLD_LPCI2C_ERR_IND		-1
+> > +#define MLXCPLD_LPCI2C_NO_IND		0
+> > +#define MLXCPLD_LPCI2C_ACK_IND		1
+> > +#define MLXCPLD_LPCI2C_NACK_IND		2
+> > +
+> > +/**
+> > + * mlxcpld_i2c_regs - controller registers:
+> > + * @half_cyc - half cycle register
+> > + * @i2c_hold - hold register
+> > + * @config - config register
+> > + * @cmd - command register
+> > + * @cmd - status register
+> > + * @data - register data
+> > +**/
+> > +struct mlxcpld_i2c_regs {
+> > +	u8 half_cyc;
+> > +	u8 i2c_hold;
+> > +	u8 config;
+> > +	u8 cmd;
+> > +	u8 status;
+> > +	u8 data[MLXCPLD_I2C_DATA_REG_SZ];
+> > +};
+> > +
+> > +/**
+> > + * mlxcpld_i2c_curr_transf - current transaction parameters:
+> > + * @cmd - command
+> > + * @addr_width - address width
+> > + * @data_len - data length
+> > + * @cmd - command register
+> > + * @msg_num - message number
+> > + * @msg - pointer to message buffer
+> > +**/
+> > +struct mlxcpld_i2c_curr_transf {
+> > +	u8 cmd;
+> > +	u8 addr_width;
+> > +	u8 data_len;
+> > +	u8 msg_num;
+> > +	struct i2c_msg *msg;
+> > +};
+> > +
+> > +/**
+> > + * mlxcpld_i2c_priv - private controller data:
+> > + * @lpc_gen_dec_reg - register space
+> > + * @adap - i2c adapter
+> > + * @dev_id - device id
+> > + * @base_addr - base IO address
+> > + * @poll_time - polling time
+> > + * @xfer_to - transfer timeout in microsec (500000)
+> > + * @retr_num - access retries number (2)
+> > + * @block_sz - maximum data block size (36),
+> > + * @lock - bus access lock
+> > + * @lpc_i2c_res - lpc i2c resourse
+> > + * @lpc_cpld_res - lpc cpld resource
+> > + * @xfer - current i2c transfer block
+> > + * @pdev - platform device
+> > +**/
+> > +struct mlxcpld_i2c_priv {
+> > +	struct i2c_adapter adap;
+> > +	u16 dev_id;
+> > +	u16 base_addr;
+> > +	u16 poll_time;
+> > +	int xfer_to;
+> > +	int retr_num;
+> > +	int block_sz;
+> > +	struct mutex lock;
+> > +	struct mlxcpld_i2c_curr_transf xfer;
+> > +	struct platform_device *pdev;
+> > +};
+> > +struct platform_device *mlxcpld_i2c_plat_dev;
+> > +
+> > +static void mlxcpld_i2c_lpc_write_buf(u8 *data, u8 len, u32 addr) {
+> > +	int i, nbyte, ndword;
+> > +
+> > +	nbyte =3D len % 4;
+> > +	ndword =3D len / 4;
+> > +	for (i =3D 0; i < ndword; i++)
+> > +		outl(*((u32 *)data + i), addr + i * 4);
+> > +	ndword *=3D 4;
+> > +	addr +=3D ndword;
+> > +	data +=3D ndword;
+> > +	for (i =3D 0; i < nbyte; i++)
+> > +		outb(*(data + i), addr + i);
+> > +}
+> > +
+> > +static void mlxcpld_i2c_lpc_read_buf(u8 *data, u8 len, u32 addr) {
+> > +	int i, nbyte, ndword;
+> > +
+> > +	nbyte =3D len % 4;
+> > +	ndword =3D len / 4;
+> > +	for (i =3D 0; i < ndword; i++)
+> > +		*((u32 *)data + i) =3D inl(addr + i * 4);
+> > +	ndword *=3D 4;
+> > +	addr +=3D ndword;
+> > +	data +=3D ndword;
+> > +	for (i =3D 0; i < nbyte; i++)
+> > +		*(data + i) =3D inb(addr + i);
+> > +}
+> > +
+> > +static void mlxcpld_i2c_read_comm(struct mlxcpld_i2c_priv *priv, u8 of=
+fs,
+> > +				  u8 *data, u8 datalen)
+> > +{
+> > +	u32 addr =3D priv->base_addr + offs;
+> > +
+> > +	switch (datalen) {
+> > +	case 1:
+> > +		*(data) =3D inb(addr);
+> > +		break;
+> > +	case 2:
+> > +		*((u16 *)data) =3D inw(addr);
+> > +		break;
+> > +	case 3:
+> > +		*((u16 *)data) =3D inw(addr);
+> > +		*(data + 2) =3D inb(addr + 2);
+> > +		break;
+> > +	case 4:
+> > +		*((u32 *)data) =3D inl(addr);
+> > +		break;
+> > +	default:
+> > +		mlxcpld_i2c_lpc_read_buf(data, datalen, addr);
+> > +		break;
+> > +	}
+> > +}
+> > +
+> > +static void mlxcpld_i2c_write_comm(struct mlxcpld_i2c_priv *priv, u8 o=
+ffs,
+> > +				   u8 *data, u8 datalen)
+> > +{
+> > +	u32 addr =3D priv->base_addr + offs;
+> > +
+> > +	switch (datalen) {
+> > +	case 1:
+> > +		outb(*(data), addr);
+> > +		break;
+> > +	case 2:
+> > +		outw(*((u16 *)data), addr);
+> > +		break;
+> > +	case 3:
+> > +		outw(*((u16 *)data), addr);
+> > +		outb(*(data + 2), addr + 2);
+> > +		break;
+> > +	case 4:
+> > +		outl(*((u32 *)data), addr);
+> > +		break;
+> > +	default:
+> > +		mlxcpld_i2c_lpc_write_buf(data, datalen, addr);
+> > +		break;
+> > +	}
+> > +}
+> > +
+> > +/* Check validity of current i2c message and all transfer.
+> > + * Calculate also coomon length of all i2c messages in transfer.
+> > + */
+> > +static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
+> > +				   const struct i2c_msg *msg, u8 *comm_len) {
+> > +	u8 max_len =3D msg->flags =3D=3D I2C_M_RD ? priv->block_sz -
+> > +		     MLXCPLD_I2C_MAX_ADDR_LEN : priv->block_sz;
+> > +
+> > +	if (msg->len < 0 || msg->len > max_len)
+> > +		return -EINVAL;
+> > +
+> > +	*comm_len +=3D msg->len;
+> > +	if (*comm_len > priv->block_sz)
+> > +		return -EINVAL;
+> > +	else
+> > +		return 0;
+> > +}
+> > +
+> > +/* Check validity of received i2c messages parameters.
+> > + *  Returns 0 if OK, other - in case of invalid parameters
+> > + *  or common length of data that should be passed to CPLD  */ static
+> > +int mlxcpld_i2c_check_msg_params(struct mlxcpld_i2c_priv *priv,
+> > +					struct i2c_msg *msgs, int num,
+> > +					u8 *comm_len)
+> > +{
+> > +	int i;
+> > +
+> > +	if (!num) {
+> > +		dev_err(&priv->pdev->dev, "Incorrect 0 num of messages\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	if (unlikely(msgs[0].addr > 0x7f)) {
+> > +		dev_err(&priv->pdev->dev, "Invalid address 0x%03x\n",
+> > +			msgs[0].addr);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	for (i =3D 0; i < num; ++i) {
+> > +		if (unlikely(!msgs[i].buf)) {
+> > +			dev_err(&priv->pdev->dev, "Invalid buf in msg[%d]\n",
+> > +				i);
+> > +			return -EINVAL;
+> > +		}
+> > +		if (unlikely(msgs[0].addr !=3D msgs[i].addr)) {
+> > +			dev_err(&priv->pdev->dev, "Invalid addr in msg[%d]\n",
+> > +				i);
+> > +			return -EINVAL;
+> > +		}
+> > +		if (unlikely(mlxcpld_i2c_invalid_len(priv, &msgs[i],
+> > +						     comm_len))) {
+> > +			dev_err(&priv->pdev->dev, "Invalid len %d msg[%d],
+> > addr 0x%x, lag %u\n",
+> > +				msgs[i].len, i, msgs[i].addr, msgs[i].flags);
+> > +			return -EINVAL;
+> > +		}
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/* Check if transfer is completed and status of operation.
+> > + * Returns 0 - transfer completed (both ACK or NACK),
+> > + * negative - transfer isn't finished.
+> > + */
+> > +static int mlxcpld_i2c_check_status(struct mlxcpld_i2c_priv *priv,
+> > +int
+> > +*status) {
+> > +	u8 val;
+> > +
+> > +	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
+> > +
+> > +	if (val & MLXCPLD_LPCI2C_TRANS_END) {
+> > +		if (val & MLXCPLD_LPCI2C_STATUS_NACK)
+> > +			/* The slave is unable to accept the data. No such
+> > +			 * slave, command not understood, or unable to accept
+> > +			 * any more data.
+> > +			 */
+> > +			*status =3D MLXCPLD_LPCI2C_NACK_IND;
+> > +		else
+> > +			*status =3D MLXCPLD_LPCI2C_ACK_IND;
+> > +		return 0;
+> > +	}
+> > +	*status =3D MLXCPLD_LPCI2C_NO_IND;
+> > +
+> > +	return -EIO;
+> > +}
+> > +
+> > +static void mlxcpld_i2c_set_transf_data(struct mlxcpld_i2c_priv *priv,
+> > +					struct i2c_msg *msgs, int num,
+> > +					u8 comm_len)
+> > +{
+> > +	priv->xfer.msg =3D msgs;
+> > +	priv->xfer.msg_num =3D num;
+> > +
+> > +	/*
+> > +	 * All upper layers currently are never use transfer with more than
+> > +	 * 2 messages. Actually, it's also not so relevant in Mellanox system=
+s
+> > +	 * because of HW limitation. Max size of transfer is o more than 20B
+> > +	 * in current x86 LPCI2C bridge.
+> > +	 */
+> > +	priv->xfer.cmd =3D (msgs[num - 1].flags & I2C_M_RD);
+> > +
+> > +	if (priv->xfer.cmd =3D=3D I2C_M_RD) {
+> > +		if (comm_len =3D=3D msgs[0].len) {
+> > +			/* Special case of addr_width =3D 0 */
+> > +			priv->xfer.addr_width =3D 0;
+> > +			priv->xfer.data_len =3D comm_len;
+> > +		} else {
+> > +			priv->xfer.addr_width =3D msgs[0].len;
+> > +			priv->xfer.data_len =3D comm_len - priv-
+> > >xfer.addr_width;
+> > +		}
+> > +	} else {
+> > +		/* Width (I2C_NUM_ADDR reg) isn't used in write command. */
+> > +		priv->xfer.addr_width =3D 0;
+> > +		priv->xfer.data_len =3D comm_len;
+> > +	}
+> > +}
+> > +
+> > +/* Reset CPLD LPCI2C block */
+> > +static void mlxcpld_i2c_reset(struct mlxcpld_i2c_priv *priv) {
+> > +	u8 val;
+> > +
+> > +	mutex_lock(&priv->lock);
+> > +	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
+> > +	val &=3D ~MLXCPLD_LPCI2C_RST_SEL_MASK;
+> > +	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
+> > +	mutex_unlock(&priv->lock);
+> > +}
+> > +
+> > +/* Make sure the CPLD is ready to start transmitting.
+> > + * Return 0 if it is, -EBUSY if it is not.
+> > + */
+> > +static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv) {
+> > +	u8 val;
+> > +
+> > +	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
+> > +
+> > +	if (val & MLXCPLD_LPCI2C_TRANS_END)
+> > +		return 0;
+> > +
+> > +	return -EIO;
+> > +}
+> > +
+> > +static int mlxcpld_i2c_wait_for_free(struct mlxcpld_i2c_priv *priv) {
+> > +	int timeout =3D 0;
+> > +
+> > +	do {
+> > +		if (!mlxcpld_i2c_check_busy(priv))
+> > +			break;
+> > +		usleep_range(priv->poll_time/2, priv->poll_time);
+> > +		timeout +=3D priv->poll_time;
+> > +	} while (timeout < priv->xfer_to);
+> > +
+> > +	if (timeout > priv->xfer_to)
+> > +		return -ETIMEDOUT;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/*
+> > + * Wait for master transfer to complete.
+> > + * It puts current process to sleep until we get interrupt or timeout =
+expires.
+> > + * Returns the number of transferred or read bytes or error (<0).
+> > + */
+> > +static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv) {
+> > +	int status, i =3D 1, timeout =3D 0;
+> > +	u8 datalen;
+> > +	int err =3D 0;
+> > +
+> > +	do {
+> > +		usleep_range(priv->poll_time / 2, priv->poll_time);
+> > +		if (!mlxcpld_i2c_check_status(priv, &status))
+> > +			break;
+> > +		timeout +=3D priv->poll_time;
+> > +	} while (status =3D=3D 0 && timeout < priv->xfer_to);
+> > +
+> > +	switch (status) {
+> > +	case MLXCPLD_LPCI2C_NO_IND:
+> > +		return -ETIMEDOUT;
+> > +	case MLXCPLD_LPCI2C_ACK_IND:
+> > +		if (priv->xfer.cmd =3D=3D I2C_M_RD) {
+> > +			/*
+> > +			 * Actual read data len will be always the same as
+> > +			 * requested len. 0xff (line pull-up) will be returned
+> > +			 * if slave has no data to return. Thus don't read
+> > +			 * MLXCPLD_LPCI2C_NUM_DAT_REG reg from CPLD.
+> > +			 */
+> > +			err =3D datalen =3D priv->xfer.data_len;
+> > +			if (priv->xfer.msg_num =3D=3D 1)
+> > +				i =3D 0;
+> > +
+> > +			if (!priv->xfer.msg[i].buf)
+> > +				err =3D -EINVAL;
+> > +			else
+> > +				mlxcpld_i2c_read_comm(priv,
+> > +
+> > MLXCPLD_LPCI2C_DATA_REG,
+> > +						      priv->xfer.msg[i].buf,
+> > +						      datalen);
+> > +		} else {
+> > +			err =3D priv->xfer.addr_width + priv->xfer.data_len;
+> > +		}
+> > +		break;
+> > +	case MLXCPLD_LPCI2C_NACK_IND:
+> > +		err =3D -EAGAIN;
+> > +		break;
+> > +	case MLXCPLD_LPCI2C_ERR_IND:
+> > +		err =3D -EIO;
+> > +		break;
+> > +	default:
+> > +		break;
+> > +	}
+> > +
+> > +	return err;
+> > +}
+> > +
+> > +static void mlxcpld_i2c_xfer_msg(struct mlxcpld_i2c_priv *priv) {
+> > +	int i, len =3D 0;
+> > +	u8 cmd;
+> > +
+> > +	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
+> > +			       &priv->xfer.data_len, 1);
+> > +	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_ADDR_REG,
+> > +			       &priv->xfer.addr_width, 1);
+> > +
+> > +	for (i =3D 0; i < priv->xfer.msg_num; i++) {
+> > +		if ((priv->xfer.msg[i].flags & I2C_M_RD) !=3D I2C_M_RD) {
+> > +			/* Don't write to CPLD buffer in read transaction */
+> > +			mlxcpld_i2c_write_comm(priv,
+> > MLXCPLD_LPCI2C_DATA_REG +
+> > +					       len, priv->xfer.msg[i].buf,
+> > +					       priv->xfer.msg[i].len);
+> > +			len +=3D priv->xfer.msg[i].len;
+> > +		}
+> > +	}
+> > +
+> > +	/* Set target slave address with command for master transfer.
+> > +	 * It should be latest executed function before CPLD transaction.
+> > +	 */
+> > +	cmd =3D (priv->xfer.msg[0].addr << 1) | priv->xfer.cmd;
+> > +	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CMD_REG, &cmd, 1);
+> > }
+> > +
+> > +/* Generic lpc-i2c transfer.
+> > + * Returns the number of processed messages or error (<0).
+> > + */
+> > +static int mlxcpld_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *=
+msgs,
+> > +			    int num)
+> > +{
+> > +	struct mlxcpld_i2c_priv *priv =3D i2c_get_adapdata(adap);
+> > +	u8 comm_len =3D 0;
+> > +	int err;
+> > +
+> > +	err =3D mlxcpld_i2c_check_msg_params(priv, msgs, num, &comm_len);
+> > +	if (err) {
+> > +		dev_err(&priv->pdev->dev, "Incorrect message\n");
+> > +		return err;
+> > +	}
+> > +
+> > +	/* Check bus state */
+> > +	if (mlxcpld_i2c_wait_for_free(priv)) {
+> > +		dev_err(&priv->pdev->dev, "LPCI2C bridge is busy\n");
+> > +
+> > +		/*
+> > +		 * Usually it means something serious has happened.
+> > +		 * We can not have unfinished previous transfer
+> > +		 * so it doesn't make any sense to try to stop it.
+> > +		 * Probably we were not able to recover from the
+> > +		 * previous error.
+> > +		 * The only reasonable thing - is soft reset.
+> > +		 */
+> > +		mlxcpld_i2c_reset(priv);
+> > +		if (mlxcpld_i2c_check_busy(priv)) {
+> > +			dev_err(&priv->pdev->dev, "LPCI2C bridge is busy after
+> > reset\n");
+> > +			return -EIO;
+> > +		}
+> > +	}
+> > +
+> > +	mlxcpld_i2c_set_transf_data(priv, msgs, num, comm_len);
+> > +
+> > +	mutex_lock(&priv->lock);
+> > +	/* Do real transfer. Can't fail */
+> > +	mlxcpld_i2c_xfer_msg(priv);
+> > +	/* Wait for transaction complete */
+> > +	err =3D mlxcpld_i2c_wait_for_tc(priv);
+> > +	mutex_unlock(&priv->lock);
+> > +
+> > +	return err < 0 ? err : num;
+> > +}
+> > +
+> > +static u32 mlxcpld_i2c_func(struct i2c_adapter *adap) {
+> > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+> > I2C_FUNC_SMBUS_BLOCK_DATA;
+> > +}
+> > +
+> > +static const struct i2c_algorithm mlxcpld_i2c_algo =3D {
+> > +	.master_xfer	=3D mlxcpld_i2c_xfer,
+> > +	.functionality	=3D mlxcpld_i2c_func
+> > +};
+> > +
+> > +static struct i2c_adapter mlxcpld_i2c_adapter =3D {
+> > +	.owner          =3D THIS_MODULE,
+> > +	.name           =3D "i2c-mlxcpld",
+> > +	.class          =3D I2C_CLASS_HWMON | I2C_CLASS_SPD,
+> > +	.algo           =3D &mlxcpld_i2c_algo,
+> > +};
+> > +
+> > +static int mlxcpld_i2c_probe(struct platform_device *pdev) {
+> > +	struct mlxcpld_i2c_priv *priv;
+> > +	int err;
+> > +
+> > +	priv =3D devm_kzalloc(&pdev->dev, sizeof(struct mlxcpld_i2c_priv),
+> > +			    GFP_KERNEL);
+> > +	if (!priv)
+> > +		return -ENOMEM;
+> > +
+> > +	mutex_init(&priv->lock);
+> > +	platform_set_drvdata(pdev, priv);
+> > +	priv->pdev =3D pdev;
+> > +	priv->xfer_to =3D MLXCPLD_I2C_XFER_TO;
+> > +	priv->retr_num =3D MLXCPLD_I2C_RETR_NUM;
+> > +	priv->block_sz =3D MLXCPLD_I2C_DATA_REG_SZ;
+> > +	priv->poll_time =3D MLXCPLD_I2C_POLL_TIME;
+> > +	/* Register with i2c layer */
+> > +	priv->adap =3D mlxcpld_i2c_adapter;
+> > +	priv->adap.dev.parent =3D &pdev->dev;
+> > +	i2c_set_adapdata(&priv->adap, priv);
+> > +	priv->adap.retries =3D priv->retr_num;
+> > +	priv->adap.nr =3D MLXCPLD_I2C_BUS_NUM;
+> > +	priv->adap.timeout =3D usecs_to_jiffies(priv->xfer_to);
+> > +
+> > +	err =3D i2c_add_numbered_adapter(&priv->adap);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "Failed to add %s adapter (%d)\n",
+> > +			MLXCPLD_I2C_DEVICE_NAME, err);
+> > +		goto fail_adapter;
+> > +	}
+> > +
+> > +	priv->base_addr =3D MLXPLAT_CPLD_LPC_I2C_BASE_ADRR;
+> > +
+> > +	return 0;
+> > +
+> > +fail_adapter:
+> > +	mutex_destroy(&priv->lock);
+> > +	return err;
+> > +}
+> > +
+> > +static int mlxcpld_i2c_remove(struct platform_device *pdev) {
+> > +	struct mlxcpld_i2c_priv *priv =3D platform_get_drvdata(pdev);
+> > +
+> > +	i2c_del_adapter(&priv->adap);
+> > +	mutex_destroy(&priv->lock);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver mlxcpld_i2c_driver =3D {
+> > +	.probe		=3D mlxcpld_i2c_probe,
+> > +	.remove		=3D mlxcpld_i2c_remove,
+> > +	.driver =3D {
+> > +		.name =3D MLXCPLD_I2C_DEVICE_NAME,
+> > +	},
+> > +};
+> > +
+> > +module_platform_driver(mlxcpld_i2c_driver);
+> > +
+> > +MODULE_AUTHOR("Michael Shych (michaels@mellanox.com)");
+> > +MODULE_DESCRIPTION("Mellanox I2C-CPLD controller driver");
+> > +MODULE_LICENSE("GPL v2"); MODULE_ALIAS("platform:i2c-mlxcpld");
+> > --
+> > 2.1.4
