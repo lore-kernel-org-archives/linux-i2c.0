@@ -1,183 +1,129 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [RFC 00/17] clk: Add per-controller locks to fix deadlocks
-Date: Fri, 04 Nov 2016 11:53:16 +0100
-Message-ID: <7933d51e-92a8-ca6d-84f0-70b22fe17568@samsung.com>
-References: <1471354514-24224-1-git-send-email-k.kozlowski@samsung.com>
- <20160909002432.GE13062@codeaurora.org>
- <CGME20161104105318eucas1p2e9458dbe7039f2a81419fae8cf6bc4c8@eucas1p2.samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: core: fix NULL pointer dereference under race
+ condition
+Date: Fri, 4 Nov 2016 20:42:26 +0100
+Message-ID: <20161104194226.GA1478@katana>
+References: <1477943184-3419-1-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20160909002432.GE13062@codeaurora.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Stephen Boyd <sboyd@codeaurora.org>, Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Kukjin Kim <kgene@kernel.org>, Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>, linux-clk@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Javier
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:38733 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753178AbcKDTmj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 4 Nov 2016 15:42:39 -0400
+Content-Disposition: inline
+In-Reply-To: <1477943184-3419-1-git-send-email-vladimir_zapolskiy@mentor.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Hi Stephen,
-
-Krzysztof has left Samsung, but we would like to continue this task, because
-the ABBA dead-locks related to global prepare lock becomes more and more
-problematic for us to workaround.
-
-On 2016-09-09 02:24, Stephen Boyd wrote:
-> On 08/16, Krzysztof Kozlowski wrote:
->> RFC, please, do not apply, maybe except patch #1 which is harmless.
->>
->>
->> Introduction
->> ============
->> The patchset brings new entity: clock controller representing a hardware
->> block.  The clock controller comes with its own prepare lock which
->> is used then in many places.  The idea is to fix the deadlock mentioned
->> in commit 10ff4c5239a1 ("i2c: exynos5: Fix possible ABBA deadlock by keeping
->> I2C clock prepared") and commit 34e81ad5f0b6 ("i2c: s3c2410: fix ABBA deadlock
->> by keeping clock prepared").
->>
->>
->> Disclaimer
->> ==========
->> Request for comments, so:
->> 1. Only exynos_defconfig builds,
->> 2. A lot of FIXME/TODO note still,
->> 3. Checkpatch not run, lines not aligned,
->> 4. Other (non-exynos) drivers not converted,
->> 5. Probably not yet bisectable,
->> 6. Locking became quite complex.
->>     The previous one lock was simple.  Inefficient and dead-lock prone but
->>     simple.  Because of clock hierarchy spanning through controllers, the
->>     new locking became quite complicated.  I don't like it but...
->>
->>
->> Details
->> =======
->> In Exynos-based boards case the deadlock occurs between clock's
->> prepare_lock and regmap-i2c's lock:
->>
->> CPU #0:                             CPU #1:
->> lock(regmap)
->>                                      s2mps11-clk: clk_prepare_lock()
->>
->> i2c-exynos: clk_prepare_lock() - wait
->>                                      lock(regmap) - wait
->>
->> The clk_prepare_lock() on both CPUs come from different clock drivers
->> and components:
->> 1. I2C clock is part of SoC block and is required by i2c-s3c2410/i2c-exynos5
->>     driver,
->> 2. S2MPS11 clock is separate device, however driver uses I2C regmap.
->>
->> The deadlock was reported by lockdep (always) and was happening
->> in 20% of boots of Odroid XU3 with multi_v7 defconfig.  Workaround for
->> deadlock was implemented by removing prepare/unprepare calls from I2C
->> transfers.  However these are just workarounds... which after applying
->> this patch can be reverted.
->>
->> Additionally Marek Szyprowski's work on domains/clocks/pinctrl exposed
->> the deadlock again in different configuration.
->>
-> Per-controller locks seems to be a misnomer. These patches look
-> more like per-clk_register() locks. The clk registrant can decide
-> how fine grained to make the prepare locking scheme. They can
-> decide to have one lock per clk, one lock for the entire tree, or
-> one lock per arbitrary subtree. I'd prefer to drop the controller
-> concept unless it's really done that way, by attaching to the OF
-> clk provider or device pointer.
-
-This was not phrased well but the idea was to let provider/controller
-have ability to define which clocks will use common lock. Probably
-removing the concept of clock controller and moving the lock to
-clk_provider will be much better approach.
-
-> Given that, it seems that conceptually these patches allow clk
-> registrants to carve out a set of clks that they want to be
-> treated as an atomic unit with regards to the prepare lock.
-> TL;DR trees of per-process recursive prepare mutex locks where
-> the locks cover one or more clks.
->
-> The locks are recursive per-process to simplify the problem where
-> we need to acquire the same lock multiple times while traversing
-> a tree that shares the same lock, right? Otherwise we would need
-> to track which locks we've already grabbed and refcount and we
-> wouldn't be able to re-enter the framework from within the clk
-> ops of the same atomic unit.
->
-> As long as we can guarantee that we always take the locks in the
-> same order we'll be fine. The burden to ensure that would be
-> placed on the clk registrants though, and verifying that will be
-> left up to humans? That seems fragile and error prone. We can
-> always say that we take the global lock and then traverse the
-> children up to the roots, but we can't be sure that during the
-> tree traversal we don't take locks in different order because of
-> how the clk registrant has structured things.
->
-> It would be great if the different clk APIs were listed, with the
-> order of how locks are taken BTW. And really overall just more
-> information about how the locking scheme works. I had to read
-> this patch series quite a few times to come to (hopefully the
-> right) conclusions.
-
-Right, such change requires much more documentation and especially
-that it took significant amount of time to figure out all(?)
-possible use cases and locking schemes.
-
-> So I'm not very fond of this design because the locking scheme is
-> pretty much out of the hands of the framework and can be easily
-> broken.
-
-Well, switching from a single global lock to more granular locking
-is always a good approach. Please note that the global lock sooner
-or later became a serious bottleneck if one wants to make somehow
-more aggressive power management and clock gating.
-
->   I'm biased of course, because I'd prefer we go with my
-> wwmutex design of per-clk locks[1]. Taking locks in any order
-> works fine there, and we resolve quite a few long standing
-> locking problems that we have while improving scalability. The
-> problem there is that we don't get the recursive mutex design
-> (maybe that's a benefit!).
-
-Do you have any plan to continue working on your approach? per-clk
-wwmutex looks like an overkill on the first glance, but that's probably
-the only working solution if you want to get rid of recursive locks.
-I'm still not really convinced that we really need wwmutex here,
-especially if it is possible to guarantee the same order of locking
-operations inside the clock core. This requires a bit of cooperation
-from clock providers (with proper documentation and a list of
-DO/DON'T it shouldn't be that hard).
-
-> Once a clk_op reenters the framework
-> with consumer APIs and tries to grab the same lock we deadlock.
-> This is why I've been slowly splitting consumers from providers
-> so we can easily identify these cases. If we had something like
-> coordinated clk rate switching, we could get rid of clk_ops
-> reentering the framework and avoid this problem (and we really do
-> need to do that).
-
-I'm not sure that this makes really sense split consumers and
-providers. You will get recursive calls to clk core anyway with
-consumers calls if you are implementing i2c clock, for which an i2c
-bus driver does it's own clock gating (i2c controller uses
-consumer clk api).
+To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
 
 
-> The one thing I do like about this patch series though is the
-> gradual movement of providers to the new locking scheme. Maybe if
-> we combined that idea with per-clk wwmutex locks we could have
-> the best of both worlds and fix reentrancy later when we need it?
-> There's wwmutex_trylock() that we could use. Perhaps always pass
-> a NULL context if some clk flag isn't set (CLK_USE_PER_CLK_LOCK).
-> Plus we could assign the same wwmutex all over the place when
-> that flag isn't set and allocate a unique wwmutex at clk_register
-> time otherwise. I haven't thought about it deeply, so there may
-> be some glaring problem that I'm missing like when we have half
-> the clks in a tree with the flag set or something. This is where
-> driving home from the office for 45 minutes helps.
->
-> [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2014-April/251039.html
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+On Mon, Oct 31, 2016 at 09:46:24PM +0200, Vladimir Zapolskiy wrote:
+> Race condition between registering an I2C device driver and
+> deregistering an I2C adapter device which is assumed to manage that
+> I2C device may lead to a NULL pointer dereference due to the
+> uninitialized list head of driver clients.
+>=20
+> The root cause of the issue is that the I2C bus may know about the
+> registered device driver and thus it is matched by bus_for_each_drv(),
+> but the list of clients is not initialized and commonly it is NULL,
+> because I2C device drivers define struct i2c_driver as static and
+> clients field is expected to be initialized by I2C core:
+>=20
+>   i2c_register_driver()             i2c_del_adapter()
+>     driver_register()                 ...
+>       bus_add_driver()                ...
+>         ...                           bus_for_each_drv(..., __process_rem=
+oved_adapter)
+>       ...                               i2c_do_del_adapter()
+>     ...                                   list_for_each_entry_safe(..., &=
+driver->clients, ...)
+>     INIT_LIST_HEAD(&driver->clients);
+>=20
+> To solve the problem it is sufficient to do clients list head
+> initialization before calling driver_register().
+>=20
+> The problem was found while using an I2C device driver with a sluggish
+
+That one must have been really sluggish :)
+
+> registration routine on a bus provided by a physically detachable I2C
+> master controller, but practically the oops may be reproduced under
+> the race between arbitraty I2C device driver registration and managing
+> I2C bus device removal e.g. by unbinding the latter over sysfs:
+>=20
+> % echo 21a4000.i2c > /sys/bus/platform/drivers/imx-i2c/unbind
+>   Unable to handle kernel NULL pointer dereference at virtual address 000=
+00000
+>   Internal error: Oops: 17 [#1] SMP ARM
+>   CPU: 2 PID: 533 Comm: sh Not tainted 4.9.0-rc3+ #61
+>   Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+>   task: e5ada400 task.stack: e4936000
+>   PC is at i2c_do_del_adapter+0x20/0xcc
+>   LR is at __process_removed_adapter+0x14/0x1c
+>   Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+>   Control: 10c5387d  Table: 35bd004a  DAC: 00000051
+>   Process sh (pid: 533, stack limit =3D 0xe4936210)
+>   Stack: (0xe4937d28 to 0xe4938000)
+>   Backtrace:
+>   [<c0667be0>] (i2c_do_del_adapter) from [<c0667cc0>] (__process_removed_=
+adapter+0x14/0x1c)
+>   [<c0667cac>] (__process_removed_adapter) from [<c0516998>] (bus_for_eac=
+h_drv+0x6c/0xa0)
+>   [<c051692c>] (bus_for_each_drv) from [<c06685ec>] (i2c_del_adapter+0xbc=
+/0x284)
+>   [<c0668530>] (i2c_del_adapter) from [<bf0110ec>] (i2c_imx_remove+0x44/0=
+x164 [i2c_imx])
+>   [<bf0110a8>] (i2c_imx_remove [i2c_imx]) from [<c051a838>] (platform_drv=
+_remove+0x2c/0x44)
+>   [<c051a80c>] (platform_drv_remove) from [<c05183d8>] (__device_release_=
+driver+0x90/0x12c)
+>   [<c0518348>] (__device_release_driver) from [<c051849c>] (device_releas=
+e_driver+0x28/0x34)
+>   [<c0518474>] (device_release_driver) from [<c0517150>] (unbind_store+0x=
+80/0x104)
+>   [<c05170d0>] (unbind_store) from [<c0516520>] (drv_attr_store+0x28/0x34)
+>   [<c05164f8>] (drv_attr_store) from [<c0298acc>] (sysfs_kf_write+0x50/0x=
+54)
+>   [<c0298a7c>] (sysfs_kf_write) from [<c029801c>] (kernfs_fop_write+0x100=
+/0x214)
+>   [<c0297f1c>] (kernfs_fop_write) from [<c0220130>] (__vfs_write+0x34/0x1=
+20)
+>   [<c02200fc>] (__vfs_write) from [<c0221088>] (vfs_write+0xa8/0x170)
+>   [<c0220fe0>] (vfs_write) from [<c0221e74>] (SyS_write+0x4c/0xa8)
+>   [<c0221e28>] (SyS_write) from [<c0108a20>] (ret_fast_syscall+0x0/0x1c)
+>=20
+> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
+
+Good catch! Applied to for-current, thanks!
+
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYHOSiAAoJEBQN5MwUoCm2jbsP/1X6t4v3n0V2WaVCdDnYZC1A
+PG0iczyVavyRBjsKwlhBndDqdG8zDW4d+VqluB8clZzEVyKfS7ChYUD/8O9v5BBO
+eg2zYYKaXVYjMdO9lU6lN+Oqx5/L/3O7tAgWUw9CjCyMdhnlxqRgqS1og+0lMo0n
+iCjkgx4Yl3nLAdwjFYs1iXg8uFw5m9beKaPGOSFlRZCn49S4Yorp22P4VPKItU8A
+e9vcjVn3mjG1gtU36YLgHU7sV+RLMEHatcOjC/EQsDgIn8erQDgIhewg4Y4SJkfl
+IDTBb5Vd9mb0IVLGfTbvAx4G7WQzvnsTzppdfqYrqcAtYqVLQ/OnHxSEf1PKkwiR
+WWtL6m13EaTGRxQ5fUqkv42S3OBrSAr1PSJ3+ftDJj68Bv3mLykDTUMjOmAuA+kE
+cS9K8rRzpHWY6nUgjXrgDgqKkPPYYRq3IV/vkyqwSEp4qTcoBsZ8t/xbljdy7egS
+3/+fnFsI+aV8tJY9Kwmi0/KojBfP005ocMCJwvwnK37uRDbcrTtQV048WPEiHYEG
+omggu/WuBTlzrCakV/PAHGrT0yGBfZ2MPnsrP+ZNEIi+4eLhzhWaxx8d05FMM+MF
+Ntm4VyGmTWNK3cx8txY6FVEr23kUh58oTL+medVxOeDxrz6KeP6C+jRKIbjYXYEy
+5J51JJNnLBKd6xvG5pIW
+=DlqH
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
