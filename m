@@ -1,96 +1,75 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 2/6] Add Advantech iManager GPIO driver
-Date: Sat, 5 Nov 2016 09:29:29 +0100
-Message-ID: <CACRpkdZfegDfpV-qK8FkvRnCWZQT8R3CkB_t7r+pyNhQ3_hHpA@mail.gmail.com>
-References: <20161102083751.6335-1-richard.dorsch@gmail.com> <20161102083751.6335-3-richard.dorsch@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.9
+Date: Sat, 5 Nov 2016 23:16:49 +0100
+Message-ID: <20161105221646.GA22098@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161102083751.6335-3-richard.dorsch@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Wim Van Sebroeck <wim@iguana.be>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-hwmon@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-watchdog@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, jo.sunga@advantech.com, weilun.huang@advantech.com, andrew.chou@advantech.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:43107 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750823AbcKEWQ6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 5 Nov 2016 18:16:58 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Nov 2, 2016 at 9:37 AM, Richard Vidal-Dorsch
-<richard.dorsch@gmail.com> wrote:
 
-> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> +#include <linux/device.h>
-> +#include <linux/gpio.h>
+Linus,
 
-#include <linux/gpio/driver.h>
-should be enough.
+here is a bugfix for the I2C core fixing a (rare) race condition.
 
-> +#include <linux/init.h>
-> +#include <linux/mfd/imanager.h>
-> +#include <linux/module.h>
-> +#include <linux/mutex.h>
-> +#include <linux/platform_device.h>
-> +
-> +#define EC_GPIOF_DIR_OUT       BIT(6)
-> +#define EC_GPIOF_DIR_IN                BIT(7)
-> +
-> +struct imanager_gpio_data {
-> +       struct imanager_device_data *imgr;
-> +       struct gpio_chip chip;
-> +};
+Please pull.
 
-Maybe some kerneldoc for this. Not necessary though since its sort of
-self-explanatory.
+Thanks,
 
-> +static int imanager_gpio_direction_in(struct gpio_chip *chip, uint offset)
-> +{
-> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
-> +       struct imanager_device_data *imgr = data->imgr;
-> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-> +
-> +       mutex_lock(&imgr->lock);
-> +       imanager_write8(&imgr->ec, EC_CMD_GPIO_DIR_WR, attr->did,
-> +                       EC_GPIOF_DIR_IN);
-> +       mutex_unlock(&imgr->lock);
+   Wolfram
 
-It kind of looks like it would be smarter if the imanager_write8() was
-taking and releasing the lock so you don't have to do it everywhere.
 
-> +static int imanager_gpio_get_direction(struct gpio_chip *chip, uint offset)
-> +{
-> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
-> +       struct imanager_device_data *imgr = data->imgr;
-> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-> +       int ret;
-> +
-> +       mutex_lock(&imgr->lock);
-> +       ret = imanager_read8(&imgr->ec, EC_CMD_GPIO_DIR_RD, attr->did);
-> +       mutex_unlock(&imgr->lock);
-> +
-> +       return ret & EC_GPIOF_DIR_IN ? GPIOF_DIR_IN : GPIOF_DIR_OUT;
+The following changes since commit a909d3e636995ba7c349e2ca5dbb528154d4ac30:
 
-Don't use GPIOF* flags, those are for consumers. Just return 0/1.
+  Linux 4.9-rc3 (2016-10-29 13:52:02 -0700)
 
-> +static int imanager_gpio_get(struct gpio_chip *chip, uint offset)
-> +{
-> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
-> +       struct imanager_device_data *imgr = data->imgr;
-> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
-> +       int ret;
-> +
-> +       mutex_lock(&imgr->lock);
-> +       ret = imanager_read8(&imgr->ec, EC_CMD_HWP_RD, attr->did);
-> +       mutex_unlock(&imgr->lock);
-> +
-> +       return ret;
-> +}
+are available in the git repository at:
 
-Can the read function return an error code? In that case it should be checked
-everywhere.
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
 
-Also be sure to clamp ret like this:
+for you to fetch changes up to 147b36d5b70c083cc76770c47d60b347e8eaf231:
 
-return !!ret;
+  i2c: core: fix NULL pointer dereference under race condition (2016-11-04 20:36:58 +0100)
 
-Apart from this it looks good.
+----------------------------------------------------------------
+Vladimir Zapolskiy (1):
+      i2c: core: fix NULL pointer dereference under race condition
 
-Yours,
-Linus Walleij
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYHlpOAAoJEBQN5MwUoCm2HOkP/3t8VZE6WboZ1MngGI0KiqAL
+QzaOGzYsImBCsqscfLO+TosDtabkpw0wI79Xw+EOVSme0wDCjRVjmSBgdh0jDW6p
+DFxEY1oK44R5hMCXeUvqFQQBMm5QQPfZcTpu8o4cuxY9cZNqiE0m/0pq/v1JOOPg
+Ykm1XBzwWqNN82XI83YVL+vr1/pjjSaC+xerD0X7mcMyi5amESTbuwf3Zea94V7I
+XQx2RLSOE8OeKRyiyQGT78ZWcYEkqfBtd4Tvr3SB8IqNTbJs1BeWnOFQIVGUZRz9
+CnFWjOBh0ZBTIelSFR/bdwBdMzanSDM3YwAtvRMiVZZFCNrfn70siwlxzSS6D7Ri
+xAaJ1G7ZJH0acaawZRYMhzPEGLQHJzO4A3iw/18oWAL0nUpvWFNOa8Ga65NiTqB1
+EryrwFgWeZrsdbXJ8pLpenfzoU2f5EczhzN36OP7Fo4x8JFBe5rufD9U1XEZd9p/
+wac0boI99y96Q/nR4avi20kmHVfBl1+g57OnwfS77hnKiHlWPwY0G9er0gfZ5isP
+NX7sYCK7zrcXnhWFiD9PvqAKw2415I+PFl6kjiKgfUTS+Qz43DkK2hqiGJyego/i
+XlN5RT6mrA3xWIIFSJtasZjMzCojwg3rPEMPTmEpnFB9SsKhwgxyIk4y4heblJwm
+kY68OX5n0CPr+/KUc8mA
+=Q4nd
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--
