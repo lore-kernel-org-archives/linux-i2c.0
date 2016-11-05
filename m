@@ -1,103 +1,96 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v4 2/2] i2c: aspeed: added documentation for Aspeed I2C driver
-Date: Fri,  4 Nov 2016 18:58:19 -0700
-Message-ID: <1478311099-6771-3-git-send-email-brendanhiggins@google.com>
-References: <1478311099-6771-1-git-send-email-brendanhiggins@google.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:35440 "EHLO
-        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750833AbcKEB7B (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 4 Nov 2016 21:59:01 -0400
-Received: by mail-pf0-f178.google.com with SMTP id i88so60371182pfk.2
-        for <linux-i2c@vger.kernel.org>; Fri, 04 Nov 2016 18:59:00 -0700 (PDT)
-In-Reply-To: <1478311099-6771-1-git-send-email-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v4 2/6] Add Advantech iManager GPIO driver
+Date: Sat, 5 Nov 2016 09:29:29 +0100
+Message-ID: <CACRpkdZfegDfpV-qK8FkvRnCWZQT8R3CkB_t7r+pyNhQ3_hHpA@mail.gmail.com>
+References: <20161102083751.6335-1-richard.dorsch@gmail.com> <20161102083751.6335-3-richard.dorsch@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161102083751.6335-3-richard.dorsch@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Wim Van Sebroeck <wim@iguana.be>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-hwmon@vger.kernel.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-watchdog@vger.kernel.org, Krzysztof Kozlowski <k.kozlowski@samsung.com>, jo.sunga@advantech.com, weilun.huang@advantech.com, andrew.chou@advantech.com
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, joel@jms.id.au, openbmc@lists.ozlabs.org, Brendan Higgins <brendanhiggins@google.com>
 
-Added device tree binding documentation for Aspeed I2C controller and
-busses.
+On Wed, Nov 2, 2016 at 9:37 AM, Richard Vidal-Dorsch
+<richard.dorsch@gmail.com> wrote:
 
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
----
-Changes for v2:
-  - None
-Changes for v3:
-  - Removed reference to "bus" device tree param
-Changes for v4:
-  - None
----
- .../devicetree/bindings/i2c/i2c-aspeed.txt         | 61 ++++++++++++++++++++++
- 1 file changed, 61 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> Signed-off-by: Richard Vidal-Dorsch <richard.dorsch@gmail.com>
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-new file mode 100644
-index 0000000..dd11a97
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-@@ -0,0 +1,61 @@
-+Device tree configuration for the I2C controller and busses on the AST24XX
-+and AST25XX SoCs.
-+
-+Controller:
-+
-+	Required Properties:
-+	- #address-cells	: should be 1
-+	- #size-cells 		: should be 1
-+	- #interrupt-cells 	: should be 1
-+	- compatible 		: should be "aspeed,ast2400-i2c-controller"
-+				  or "aspeed,ast2500-i2c-controller"
-+	- reg			: address start and range of controller
-+	- ranges		: defines address offset and range for busses
-+	- interrupts		: interrupt number
-+	- clocks		: root clock of bus, should reference the APB
-+				  clock
-+	- clock-ranges		: specifies that child busses can inherit clocks
-+	- interrupt-controller	: denotes that the controller receives and fires
-+				  new interrupts for child busses
-+
-+Bus:
-+
-+	Required Properties:
-+	- #address-cells	: should be 1
-+	- #size-cells		: should be 0
-+	- reg			: address offset and range of bus
-+	- compatible		: should be "aspeed,ast2400-i2c-bus"
-+				  or "aspeed,ast2500-i2c-bus"
-+	- interrupts		: interrupt number
-+
-+	Optional Properties:
-+	- clock-frequency	: frequency of the bus clock in Hz
-+				  defaults to 100 kHz when not specified
-+
-+Example:
-+
-+i2c: i2c@1e78a000 {
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	#interrupt-cells = <1>;
-+
-+	compatible = "aspeed,ast2400-i2c-controller";
-+	reg = <0x1e78a000 0x40>;
-+	ranges = <0 0x1e78a000 0x1000>;
-+	interrupts = <12>;
-+	clocks = <&clk_apb>;
-+	clock-ranges;
-+	interrupt-controller;
-+
-+	i2c0: i2c-bus@40 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x40 0x40>;
-+		compatible = "aspeed,ast2400-i2c-bus";
-+		clock-frequency = <100000>;
-+		status = "disabled";
-+		interrupts = <0>;
-+		interrupt-parent = <&i2c>;
-+	};
-+};
-+
--- 
-2.8.0.rc3.226.g39d4020
+> +#include <linux/device.h>
+> +#include <linux/gpio.h>
+
+#include <linux/gpio/driver.h>
+should be enough.
+
+> +#include <linux/init.h>
+> +#include <linux/mfd/imanager.h>
+> +#include <linux/module.h>
+> +#include <linux/mutex.h>
+> +#include <linux/platform_device.h>
+> +
+> +#define EC_GPIOF_DIR_OUT       BIT(6)
+> +#define EC_GPIOF_DIR_IN                BIT(7)
+> +
+> +struct imanager_gpio_data {
+> +       struct imanager_device_data *imgr;
+> +       struct gpio_chip chip;
+> +};
+
+Maybe some kerneldoc for this. Not necessary though since its sort of
+self-explanatory.
+
+> +static int imanager_gpio_direction_in(struct gpio_chip *chip, uint offset)
+> +{
+> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
+> +       struct imanager_device_data *imgr = data->imgr;
+> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
+> +
+> +       mutex_lock(&imgr->lock);
+> +       imanager_write8(&imgr->ec, EC_CMD_GPIO_DIR_WR, attr->did,
+> +                       EC_GPIOF_DIR_IN);
+> +       mutex_unlock(&imgr->lock);
+
+It kind of looks like it would be smarter if the imanager_write8() was
+taking and releasing the lock so you don't have to do it everywhere.
+
+> +static int imanager_gpio_get_direction(struct gpio_chip *chip, uint offset)
+> +{
+> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
+> +       struct imanager_device_data *imgr = data->imgr;
+> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
+> +       int ret;
+> +
+> +       mutex_lock(&imgr->lock);
+> +       ret = imanager_read8(&imgr->ec, EC_CMD_GPIO_DIR_RD, attr->did);
+> +       mutex_unlock(&imgr->lock);
+> +
+> +       return ret & EC_GPIOF_DIR_IN ? GPIOF_DIR_IN : GPIOF_DIR_OUT;
+
+Don't use GPIOF* flags, those are for consumers. Just return 0/1.
+
+> +static int imanager_gpio_get(struct gpio_chip *chip, uint offset)
+> +{
+> +       struct imanager_gpio_data *data = gpiochip_get_data(chip);
+> +       struct imanager_device_data *imgr = data->imgr;
+> +       struct imanager_device_attribute *attr = imgr->ec.gpio.attr[offset];
+> +       int ret;
+> +
+> +       mutex_lock(&imgr->lock);
+> +       ret = imanager_read8(&imgr->ec, EC_CMD_HWP_RD, attr->did);
+> +       mutex_unlock(&imgr->lock);
+> +
+> +       return ret;
+> +}
+
+Can the read function return an error code? In that case it should be checked
+everywhere.
+
+Also be sure to clamp ret like this:
+
+return !!ret;
+
+Apart from this it looks good.
+
+Yours,
+Linus Walleij
