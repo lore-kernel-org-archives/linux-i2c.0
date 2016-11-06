@@ -1,75 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.9
-Date: Sat, 5 Nov 2016 23:16:49 +0100
-Message-ID: <20161105221646.GA22098@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:43107 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750823AbcKEWQ6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 5 Nov 2016 18:16:58 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH v4 01/14] ARM: dts: lager: rename and reindex i2cexio
+Date: Sun,  6 Nov 2016 21:20:19 +0100
+Message-ID: <20161106202032.5227-2-wsa+renesas@sang-engineering.com>
+References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-renesas-soc@vger.kernel.org, Simon Horman <horms@verge.net.au>
+Cc: linux-i2c@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+From: Simon Horman <horms+renesas@verge.net.au>
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The rename from i2cexio to i2cexio0 is in in preparation for adding
+i2cexio1 which will use the dmuxer for IIC1/I2C1.
 
-Linus,
+The reindexing from i2c8 to i2c10 is to allow space for grouping of
+additional GPIO buses to added by follow-up patches to support demuxing of
+other i2c buses.
 
-here is a bugfix for the I2C core fixing a (rare) race condition.
+Also note that fallback to GPIO is not provided by the hardware for IIC0/I2C0.
 
-Please pull.
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+[wsa: rebased, fixed alias and removed typo in commit message]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ arch/arm/boot/dts/r8a7790-lager.dts | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit a909d3e636995ba7c349e2ca5dbb528154d4ac30:
-
-  Linux 4.9-rc3 (2016-10-29 13:52:02 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 147b36d5b70c083cc76770c47d60b347e8eaf231:
-
-  i2c: core: fix NULL pointer dereference under race condition (2016-11-04 20:36:58 +0100)
-
-----------------------------------------------------------------
-Vladimir Zapolskiy (1):
-      i2c: core: fix NULL pointer dereference under race condition
-
- drivers/i2c/i2c-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYHlpOAAoJEBQN5MwUoCm2HOkP/3t8VZE6WboZ1MngGI0KiqAL
-QzaOGzYsImBCsqscfLO+TosDtabkpw0wI79Xw+EOVSme0wDCjRVjmSBgdh0jDW6p
-DFxEY1oK44R5hMCXeUvqFQQBMm5QQPfZcTpu8o4cuxY9cZNqiE0m/0pq/v1JOOPg
-Ykm1XBzwWqNN82XI83YVL+vr1/pjjSaC+xerD0X7mcMyi5amESTbuwf3Zea94V7I
-XQx2RLSOE8OeKRyiyQGT78ZWcYEkqfBtd4Tvr3SB8IqNTbJs1BeWnOFQIVGUZRz9
-CnFWjOBh0ZBTIelSFR/bdwBdMzanSDM3YwAtvRMiVZZFCNrfn70siwlxzSS6D7Ri
-xAaJ1G7ZJH0acaawZRYMhzPEGLQHJzO4A3iw/18oWAL0nUpvWFNOa8Ga65NiTqB1
-EryrwFgWeZrsdbXJ8pLpenfzoU2f5EczhzN36OP7Fo4x8JFBe5rufD9U1XEZd9p/
-wac0boI99y96Q/nR4avi20kmHVfBl1+g57OnwfS77hnKiHlWPwY0G9er0gfZ5isP
-NX7sYCK7zrcXnhWFiD9PvqAKw2415I+PFl6kjiKgfUTS+Qz43DkK2hqiGJyego/i
-XlN5RT6mrA3xWIIFSJtasZjMzCojwg3rPEMPTmEpnFB9SsKhwgxyIk4y4heblJwm
-kY68OX5n0CPr+/KUc8mA
-=Q4nd
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+diff --git a/arch/arm/boot/dts/r8a7790-lager.dts b/arch/arm/boot/dts/r8a7790-lager.dts
+index e42748a5fe10ac..dafa49f837118e 100644
+--- a/arch/arm/boot/dts/r8a7790-lager.dts
++++ b/arch/arm/boot/dts/r8a7790-lager.dts
+@@ -50,7 +50,7 @@
+ 	aliases {
+ 		serial0 = &scif0;
+ 		serial1 = &scifa1;
+-		i2c8 = "i2cexio";
++		i2c10 = &i2cexio0;
+ 	};
+ 
+ 	chosen {
+@@ -273,11 +273,13 @@
+ 	 * bus with IIC3 on pins 110 (SCL) + 112 (SDA), select I2C0 at runtime, and
+ 	 * instantiate the slave device at runtime according to the documentation.
+ 	 * You can then communicate with the slave via IIC3.
++	 *
++	 * IIC0/I2C0 does not appear to support fallback to GPIO.
+ 	 */
+-	i2cexio: i2c-8 {
++	i2cexio0: i2c-10 {
+ 		compatible = "i2c-demux-pinctrl";
+ 		i2c-parent = <&iic0>, <&i2c0>;
+-		i2c-bus-name = "i2c-exio";
++		i2c-bus-name = "i2c-exio0";
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 	};
+@@ -597,12 +599,12 @@
+ 
+ &i2c0	{
+ 	pinctrl-0 = <&i2c0_pins>;
+-	pinctrl-names = "i2c-exio";
++	pinctrl-names = "i2c-exio0";
+ };
+ 
+ &iic0	{
+ 	pinctrl-0 = <&iic0_pins>;
+-	pinctrl-names = "i2c-exio";
++	pinctrl-names = "i2c-exio0";
+ };
+ 
+ &iic1	{
+-- 
+2.9.3
