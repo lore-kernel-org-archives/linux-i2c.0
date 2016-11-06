@@ -1,104 +1,58 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v4 07/14] ARM: dts: koelsch: use demuxer for I2C4
-Date: Sun,  6 Nov 2016 21:20:25 +0100
-Message-ID: <20161106202032.5227-8-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v4 14/14] i2c: mux: demux-pinctrl: make drivers with no pinctrl work again
+Date: Sun,  6 Nov 2016 21:20:32 +0100
+Message-ID: <20161106202032.5227-15-wsa+renesas@sang-engineering.com>
 References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 In-Reply-To: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: linux-renesas-soc@vger.kernel.org, Simon Horman <horms@verge.net.au>
-Cc: linux-i2c@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Simon Horman <horms+renesas@verge.net.au>
+Some drivers like i2c-gpio do not have dedicated pinctrl states. They
+broke when error checking for pinctrl was added. Detect them now, and in
+their case, simply skip over pinctrl configuration.
 
-Make it possible to fallback to GPIO for I2C4 on the EXIO-E connector.
-
-This is based on reference work for the I2C0 core of the lager/r8a7790
-by Wolfram Sang.
-
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
-[wsa: rebased and fixed aliases]
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- arch/arm/boot/dts/r8a7791-koelsch.dts | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7791-koelsch.dts b/arch/arm/boot/dts/r8a7791-koelsch.dts
-index 8d653920957a4b..442d1512a8fa9c 100644
---- a/arch/arm/boot/dts/r8a7791-koelsch.dts
-+++ b/arch/arm/boot/dts/r8a7791-koelsch.dts
-@@ -52,8 +52,10 @@
- 		serial1 = &scif1;
- 		i2c9 = &gpioi2c1;
- 		i2c10 = &gpioi2c2;
-+		i2c11 = &gpioi2c4;
- 		i2c12 = &i2cexio1;
- 		i2c13 = &i2chdmi;
-+		i2c14 = &i2cexio4;
- 	};
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index b3893f6282ba5b..3e6fe1760d82fc 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -69,10 +69,28 @@ static int i2c_demux_activate_master(struct i2c_demux_pinctrl_priv *priv, u32 ne
+ 		goto err_with_revert;
+ 	}
  
- 	chosen {
-@@ -325,6 +327,17 @@
- 		i2c-gpio,delay-us = <5>;
- 	};
- 
-+	gpioi2c4: i2c-11 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "i2c-gpio";
-+		status = "disabled";
-+		gpios = <&gpio7 14 GPIO_ACTIVE_HIGH /* sda */
-+			 &gpio7 13 GPIO_ACTIVE_HIGH /* scl */
-+			>;
-+		i2c-gpio,delay-us = <5>;
-+	};
-+
- 	/*
- 	 * I2C1 is routed to EXIO connector B, pins 64 (SCL) + 66 (SDA).
- 	 * A fallback to GPIO is provided.
-@@ -431,6 +444,18 @@
- 			pagesize = <16>;
- 		};
- 	};
-+
+-	p = devm_pinctrl_get_select(adap->dev.parent, priv->bus_name);
 +	/*
-+	 * I2C4 is routed to EXIO connector E, pins 37 (SCL) + 39 (SDA).
-+	 * A fallback to GPIO is provided.
++	 * Check if there are pinctrl states at all. Note: we cant' use
++	 * devm_pinctrl_get_select() because we need to distinguish between
++	 * the -ENODEV from devm_pinctrl_get() and pinctrl_lookup_state().
 +	 */
-+	i2cexio4: i2c-14 {
-+		compatible = "i2c-demux-pinctrl";
-+		i2c-parent = <&i2c4>, <&gpioi2c4>;
-+		i2c-bus-name = "i2c-exio4";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
- };
- 
- &du {
-@@ -476,6 +501,11 @@
- 		function = "i2c2";
- 	};
- 
-+	i2c4_pins: i2c4 {
-+		groups = "i2c4";
-+		function = "i2c4";
-+	};
++	p = devm_pinctrl_get(adap->dev.parent);
+ 	if (IS_ERR(p)) {
+ 		ret = PTR_ERR(p);
+-		goto err_with_put;
++		/* continue if just no pinctrl states (e.g. i2c-gpio), otherwise exit */
++		if (ret != -ENODEV)
++			goto err_with_put;
++	} else {
++		/* there are states. check and use them */
++		struct pinctrl_state *s = pinctrl_lookup_state(p, priv->bus_name);
 +
- 	du_pins: du {
- 		groups = "du_rgb888", "du_sync", "du_disp", "du_clk_out_0";
- 		function = "du";
-@@ -732,6 +762,11 @@
- 	clock-frequency = <100000>;
- };
++		if (IS_ERR(s)) {
++			ret = PTR_ERR(s);
++			goto err_with_put;
++		}
++		ret = pinctrl_select_state(p, s);
++		if (ret < 0)
++			goto err_with_put;
+ 	}
  
-+&i2c4 {
-+	pinctrl-0 = <&i2c4_pins>;
-+	pinctrl-names = "i2c-exio4";
-+};
-+
- &i2c6 {
- 	status = "okay";
- 	clock-frequency = <100000>;
+ 	priv->chan[new_chan].parent_adap = adap;
 -- 
 2.9.3
