@@ -1,114 +1,82 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v4 02/14] ARM: dts: lager: use demuxer for IIC1/I2C1
-Date: Sun,  6 Nov 2016 21:20:20 +0100
-Message-ID: <20161106202032.5227-3-wsa+renesas@sang-engineering.com>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
+Date: Sun,  6 Nov 2016 21:20:18 +0100
+Message-ID: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46878 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:46877 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751829AbcKFUUy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1751873AbcKFUUy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sun, 6 Nov 2016 15:20:54 -0500
-In-Reply-To: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-renesas-soc@vger.kernel.org, Simon Horman <horms@verge.net.au>
-Cc: linux-i2c@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-From: Simon Horman <horms+renesas@verge.net.au>
+So, here is the newest series for using the I2C demuxer on Gen2 boards.
+Initially done by Simon. The intention of this series is to extend use of the
+demuxer for I2C on the lager, koelsch, porter, koelsch, alt and silk boards to
+cover all I2C IP blocks that are either already used or exposed via an EXIO
+connector.
 
-Make it possible to select which I2C1 IP core you want to run on the
-EXIO-A connector.
+I tested this on a Lager board where I could successfully switch between I2C,
+IIC, and GPIO on I2C2.
 
-This is based on reference work for the I2C0 core of the lager board
-by Wolfram Sang.
+Simon, can you test with your script on the other boards? If all works, I'll
+pick up the i2c patch for 4.9, so the DTS changes should be fine for 4.10.
 
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
-[wsa: rebased and fixed aliases]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- arch/arm/boot/dts/r8a7790-lager.dts | 39 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 37 insertions(+), 2 deletions(-)
+The branch is here:
 
-diff --git a/arch/arm/boot/dts/r8a7790-lager.dts b/arch/arm/boot/dts/r8a7790-lager.dts
-index dafa49f837118e..bd512c86e85222 100644
---- a/arch/arm/boot/dts/r8a7790-lager.dts
-+++ b/arch/arm/boot/dts/r8a7790-lager.dts
-@@ -50,7 +50,9 @@
- 	aliases {
- 		serial0 = &scif0;
- 		serial1 = &scifa1;
-+		i2c8 = &gpioi2c1;
- 		i2c10 = &i2cexio0;
-+		i2c11 = &i2cexio1;
- 	};
- 
- 	chosen {
-@@ -265,6 +267,17 @@
- 		clock-frequency = <148500000>;
- 	};
- 
-+	gpioi2c1: i2c-8 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "i2c-gpio";
-+		status = "disabled";
-+		gpios = <&gpio1 17 GPIO_ACTIVE_HIGH /* sda */
-+			 &gpio1 16 GPIO_ACTIVE_HIGH /* scl */
-+			>;
-+		i2c-gpio,delay-us = <5>;
-+	};
-+
- 	/*
- 	 * IIC0/I2C0 is routed to EXIO connector A, pins 114 (SCL) + 116 (SDA) only.
- 	 * We use the I2C demuxer, so the desired IP core can be selected at runtime
-@@ -283,6 +296,19 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 	};
-+
-+	/*
-+	 * IIC1/I2C1 is routed to EXIO connector A, pins 78 (SCL) + 80 (SDA).
-+	 * This is similar to the arangement described for i2cexio0 (above)
-+	 * with a fallback to GPIO also provided.
-+	 */
-+	i2cexio1: i2c-11 {
-+		compatible = "i2c-demux-pinctrl";
-+		i2c-parent = <&iic1>, <&i2c1>, <&gpioi2c1>;
-+		i2c-bus-name = "i2c-exio1";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
- };
- 
- &du {
-@@ -405,6 +431,11 @@
- 		function = "iic0";
- 	};
- 
-+	i2c1_pins: i2c1 {
-+		groups = "i2c1";
-+		function = "i2c1";
-+	};
-+
- 	iic1_pins: iic1 {
- 		groups = "iic1";
- 		function = "iic1";
-@@ -607,10 +638,14 @@
- 	pinctrl-names = "i2c-exio0";
- };
- 
-+&i2c1	{
-+	pinctrl-0 = <&i2c1_pins>;
-+	pinctrl-names = "i2c-exio1";
-+};
-+
- &iic1	{
--	status = "okay";
- 	pinctrl-0 = <&iic1_pins>;
--	pinctrl-names = "default";
-+	pinctrl-names = "i2c-exio1";
- };
- 
- &iic2	{
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/ip-switch-rework
+
+Regards,
+
+   Wolfram
+
+
+Changes between v4 and v3
+* rebased to latest renesas-drivers (double checked that the moved i2c clients
+  were complete because they changed meanwhile)
+* fixed the aliases to be proper phandles
+* fixed some typos in comments and commit messages
+* added a patch to ensure i2c-gpio works again
+
+Changes between v2 and v3
+* Group extra GPIO buses
+* Add GPIO fallback for IIC1/I2C1 on Lager
+* Add patches for koelsch, porter, alt and silk
+
+Changes between v1 and v2
+* Provide GPIO fallback for I2C2,
+  this does not seem appropriate for other I2C blocks on the lager board
+
+
+
+Simon Horman (13):
+  ARM: dts: lager: rename and reindex i2cexio
+  ARM: dts: lager: use demuxer for IIC1/I2C1
+  ARM: dts: lager: use demuxer for IIC2/I2C2
+  ARM: dts: lager: use demuxer for IIC3/I2C3
+  ARM: dts: koelsch: use demuxer for I2C1
+  ARM: dts: koelsch: use demuxer for I2C2
+  ARM: dts: koelsch: use demuxer for I2C4
+  ARM: dts: porter: use demuxer for I2C2
+  ARM: dts: gose: use demuxer for I2C2
+  ARM: dts: gose: use demuxer for I2C4
+  ARM: dts: alt: use demuxer for I2C1
+  ARM: dts: alt: use demuxer for I2C4
+  ARM: dts: silk: use demuxer for I2C1
+
+Wolfram Sang (1):
+  i2c: mux: demux-pinctrl: make drivers with no pinctrl work again
+
+ arch/arm/boot/dts/r8a7790-lager.dts   | 329 ++++++++++++++++++++++------------
+ arch/arm/boot/dts/r8a7791-koelsch.dts | 263 ++++++++++++++++++---------
+ arch/arm/boot/dts/r8a7791-porter.dts  | 129 +++++++------
+ arch/arm/boot/dts/r8a7793-gose.dts    | 203 +++++++++++++--------
+ arch/arm/boot/dts/r8a7794-alt.dts     |  86 +++++++--
+ arch/arm/boot/dts/r8a7794-silk.dts    | 129 +++++++------
+ drivers/i2c/muxes/i2c-demux-pinctrl.c |  22 ++-
+ 7 files changed, 765 insertions(+), 396 deletions(-)
+
 -- 
 2.9.3
