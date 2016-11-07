@@ -1,44 +1,61 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCHv7 08/11] i2c: match vendorless strings on the internal
- string length
-Date: Mon, 7 Nov 2016 16:12:09 -0300
-Message-ID: <5d2b30a0-78fa-7232-8fd2-dab6ec24e504@osg.samsung.com>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
- <1478522866-29620-9-git-send-email-kieran@bingham.xyz>
+From: Paul Burton <paul.burton@imgtec.com>
+Subject: [PATCH 1/2] i2c: octeon: Fix register access
+Date: Mon, 7 Nov 2016 20:09:20 +0000
+Message-ID: <20161107200921.30284-1-paul.burton@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:60901
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750862AbcKGTWk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2016 14:22:40 -0500
-In-Reply-To: <1478522866-29620-9-git-send-email-kieran@bingham.xyz>
+Received: from mailapp01.imgtec.com ([195.59.15.196]:62981 "EHLO
+        mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752008AbcKGUJm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2016 15:09:42 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
+To: linux-i2c@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Paul Burton <paul.burton@imgtec.com>, Jan Glauber <jglauber@cavium.com>, David Daney <david.daney@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Hello Kieran,
+Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
+retries") attempted to replace potentially infinite loops with ones
+which will time out using readq_poll_timeout, but in doing so it
+inverted the condition for exiting this loop.
 
-On 11/07/2016 09:47 AM, Kieran Bingham wrote:
-> If a user provides a shortened string to match a device to the sysfs i2c
-> interface it will match on the first string that contains that string
-> prefix.
-> 
-> for example:
->   echo a 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
-> will match as3711, as3722, and ak8975 incorrectly.
-> 
-> Correct this by using sysfs_streq to match the string exactly
-> 
-> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
-> 
+Tested on a Rhino Labs UTM-8 with Octeon CN7130.
 
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+Cc: Jan Glauber <jglauber@cavium.com>
+Cc: David Daney <david.daney@cavium.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-Best regards,
+---
+
+ drivers/i2c/busses/i2c-octeon-core.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
+index 1db7c83..d980406 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.h
++++ b/drivers/i2c/busses/i2c-octeon-core.h
+@@ -146,8 +146,9 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
+ 
+ 	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
+ 
+-	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp, tmp & SW_TWSI_V,
+-			   I2C_OCTEON_EVENT_WAIT, i2c->adap.timeout);
++	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
++			   !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
++			   i2c->adap.timeout);
+ }
+ 
+ #define octeon_i2c_ctl_write(i2c, val)					\
+@@ -173,7 +174,7 @@ static inline int octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg,
+ 	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
+ 
+ 	ret = readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
+-				 tmp & SW_TWSI_V, I2C_OCTEON_EVENT_WAIT,
++				 !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
+ 				 i2c->adap.timeout);
+ 	if (error)
+ 		*error = ret;
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.10.2
