@@ -1,83 +1,81 @@
-From: Vadim Pasternak <vadimp@mellanox.com>
-Subject: RE: [patch v4 1/1] i2c: add master driver for mellanox systems
-Date: Mon, 7 Nov 2016 05:49:34 +0000
-Message-ID: <AM5PR0501MB209736D524A05FDE1A101D38A2A70@AM5PR0501MB2097.eurprd05.prod.outlook.com>
-References: <1478250907-147450-1-git-send-email-vadimp@mellanox.com>
- <fe5f890f-6be1-130f-3978-2d73b4a24e7a@mleia.com>
+From: Sebastian Frias <sf84@laposte.net>
+Subject: Re: [Linux-parport] True Parallel Port Interface for Bit-banging?
+Date: Mon, 7 Nov 2016 13:44:54 +0100
+Message-ID: <58207746.2020802@laposte.net>
+References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
+ <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
+ <580F72AF.9070900@laposte.net>
+ <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
+ <581327AC.8060404@laposte.net>
+ <5461ac01-6054-e222-f707-0b475c24276d@maciej.szmigiero.name>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0040.outbound.protection.outlook.com ([104.47.2.40]:31280
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750927AbcKGJVk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Nov 2016 04:21:40 -0500
-In-Reply-To: <fe5f890f-6be1-130f-3978-2d73b4a24e7a@mleia.com>
-Content-Language: en-US
+Received: from smtpoutz27.laposte.net ([194.117.213.102]:46966 "EHLO
+        smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751325AbcKGMo7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2016 07:44:59 -0500
+Received: from smtp.laposte.net (localhost [127.0.0.1])
+        by lpn-prd-vrout015 (Postfix) with ESMTP id ABA1D1C9186
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Nov 2016 13:44:56 +0100 (CET)
+Received: from smtp.laposte.net (localhost [127.0.0.1])
+        by lpn-prd-vrout015 (Postfix) with ESMTP id 9CE651C918B
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Nov 2016 13:44:56 +0100 (CET)
+Received: from lpn-prd-vrin003 (lpn-prd-vrin003.prosodie [10.128.63.4])
+        by lpn-prd-vrout015 (Postfix) with ESMTP id 9878F1C9186
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Nov 2016 13:44:56 +0100 (CET)
+Received: from lpn-prd-vrin003 (localhost [127.0.0.1])
+        by lpn-prd-vrin003 (Postfix) with ESMTP id 7D1D248E079
+        for <linux-i2c@vger.kernel.org>; Mon,  7 Nov 2016 13:44:56 +0100 (CET)
+In-Reply-To: <5461ac01-6054-e222-f707-0b475c24276d@maciej.szmigiero.name>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
+To: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
-SGkgVmxhZGltaXIsDQoNClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHJldmlld3MuDQoNClRoYW5r
-cywNClZhZGltLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFZsYWRp
-bWlyIFphcG9sc2tpeSBbbWFpbHRvOnZ6QG1sZWlhLmNvbV0NCj4gU2VudDogTW9uZGF5LCBOb3Zl
-bWJlciAwNywgMjAxNiAyOjQ3IEFNDQo+IFRvOiBWYWRpbSBQYXN0ZXJuYWsgPHZhZGltcEBtZWxs
-YW5veC5jb20+OyB3c2FAdGhlLWRyZWFtcy5kZQ0KPiBDYzogbGludXgtaTJjQHZnZXIua2VybmVs
-Lm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgamlyaUByZXNudWxsaS51czsNCj4g
-TWljaGFlbCBTaHljaCA8bWljaGFlbHNoQG1lbGxhbm94LmNvbT4NCj4gU3ViamVjdDogUmU6IFtw
-YXRjaCB2NCAxLzFdIGkyYzogYWRkIG1hc3RlciBkcml2ZXIgZm9yIG1lbGxhbm94IHN5c3RlbXMN
-Cj4gDQo+IEhpIFZhZGltLA0KPiANCj4gcGxlYXNlIGZpbmQgYmVsb3cgc29tZSBtb3JlIG5pdHBp
-Y2tpbmdzLg0KPiANCj4gT24gMTEvMDQvMjAxNiAxMToxNSBBTSwgdmFkaW1wQG1lbGxhbm94LmNv
-bSB3cm90ZToNCj4gPiBGcm9tOiBWYWRpbSBQYXN0ZXJuYWsgPHZhZGltcEBtZWxsYW5veC5jb20+
-DQo+ID4NCj4gDQo+IFtzbmlwXQ0KPiANCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVz
-c2VzL0tjb25maWcgYi9kcml2ZXJzL2kyYy9idXNzZXMvS2NvbmZpZw0KPiA+IGluZGV4IGQyNTIy
-NzYuLmI5ZTFjNGMgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcN
-Cj4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvS2NvbmZpZw0KPiA+IEBAIC0xMTUwLDYgKzEx
-NTAsMTggQEAgY29uZmlnIEkyQ19FTEVLVE9SDQo+ID4gIAkgIFRoaXMgc3VwcG9ydCBpcyBhbHNv
-IGF2YWlsYWJsZSBhcyBhIG1vZHVsZS4gIElmIHNvLCB0aGUgbW9kdWxlDQo+ID4gIAkgIHdpbGwg
-YmUgY2FsbGVkIGkyYy1lbGVrdG9yLg0KPiA+DQo+ID4gK2NvbmZpZyBJMkNfTUxYQ1BMRA0KPiA+
-ICsJdHJpc3RhdGUgIk1lbGxhbm94IEkyQyBkcml2ZXIiDQo+ID4gKwlkZXBlbmRzIG9uIFg4Nl82
-NA0KPiA+ICsJZGVmYXVsdCBuDQo+IA0KPiBQbGVhc2UganVzdCByZW1vdmUgJ2RlZmF1bHQgbicg
-bGluZSwgdW5zZXQgZGVmYXVsdCB2YWx1ZSBpbiBLY29uZmlnIGlzIHRoZSBzYW1lIGFzDQo+ICdk
-ZWZhdWx0IG4nLg0KPiANCj4gW3NuaXBdDQo+IA0KPiA+ICsvKiBHZW5lcmFsIGRlZmluZXMgKi8N
-Cj4gPiArI2RlZmluZSBNTFhQTEFUX0NQTERfTFBDX0kyQ19CQVNFX0FERFIJMHgyMDAwDQo+ID4g
-KyNkZWZpbmUgTUxYQ1BMRF9JMkNfREVWSUNFX05BTUUJCSJpMmNfbWx4Y3BsZCINCj4gPiArI2Rl
-ZmluZSBNTFhDUExEX0kyQ19WQUxJRF9GTEFHCQkoSTJDX01fUkVDVl9MRU4gfA0KPiBJMkNfTV9S
-RCkNCj4gPiArI2RlZmluZSBNTFhDUExEX0kyQ19CVVNfTlVNCQkxDQo+ID4gKyNkZWZpbmUgTUxY
-Q1BMRF9JMkNfREFUQV9SRUdfU1oJCTM2DQo+ID4gKyNkZWZpbmUgTUxYQ1BMRF9JMkNfTUFYX0FE
-RFJfTEVOCTQNCj4gPiArI2RlZmluZSBNTFhDUExEX0kyQ19SRVRSX05VTQkJMg0KPiA+ICsjZGVm
-aW5lIE1MWENQTERfSTJDX1hGRVJfVE8JCTUwMDAwMCAvKiBtc2VjICovDQo+ID4gKyNkZWZpbmUg
-TUxYQ1BMRF9JMkNfUE9MTF9USU1FCQkyMDAwICAgLyogbXNlYyAqLw0KPiANCj4gVHdvIGxpbmVz
-IGFib3ZlIGRlZmluZSBtYWNybyB2YWx1ZXMgd2l0aCB0aGUgbWljcm9zZWNvbmQgdW5pdCwgaXRz
-IHNob3J0IGZvcm0gaXMNCj4gZGVub3RlZCBhcyAidXNlYyIgYW5kICJtc2VjIiBvciAibXMiIGlz
-IHVzZWQgdG8gZGVub3RlIG1pbGxpc2Vjb25kcy4gUGxlYXNlDQo+IGNvcnJlY3QgaXQsIHRyYW5z
-ZmVyIHRpbWVvdXQgb2YgIjUwMCBzZWNvbmRzIiBpcyBjb25mdXNpbmcuDQo+IA0KPiBbc25pcF0N
-Cj4gDQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IG1seGNwbGRfaTJjX3Byb2JlKHN0cnVjdCBwbGF0
-Zm9ybV9kZXZpY2UgKnBkZXYpIHsNCj4gPiArCXN0cnVjdCBtbHhjcGxkX2kyY19wcml2ICpwcml2
-Ow0KPiA+ICsJaW50IGVycjsNCj4gPiArDQo+ID4gKwlwcml2ID0gZGV2bV9remFsbG9jKCZwZGV2
-LT5kZXYsIHNpemVvZihzdHJ1Y3QgbWx4Y3BsZF9pMmNfcHJpdiksDQo+ID4gKwkJCSAgICBHRlBf
-S0VSTkVMKTsNCj4gPiArCWlmICghcHJpdikNCj4gPiArCQlyZXR1cm4gLUVOT01FTTsNCj4gPiAr
-DQo+ID4gKwltdXRleF9pbml0KCZwcml2LT5sb2NrKTsNCj4gPiArCXBsYXRmb3JtX3NldF9kcnZk
-YXRhKHBkZXYsIHByaXYpOw0KPiA+ICsNCj4gPiArCXByaXYtPmRldiA9ICZwZGV2LT5kZXY7DQo+
-ID4gKw0KPiA+ICsJLyogUmVnaXN0ZXIgd2l0aCBpMmMgbGF5ZXIgKi8NCj4gPiArCW1seGNwbGRf
-aTJjX2FkYXB0ZXIudGltZW91dCA9DQo+IHVzZWNzX3RvX2ppZmZpZXMoTUxYQ1BMRF9JMkNfWEZF
-Ul9UTyk7DQo+ID4gKwlwcml2LT5hZGFwID0gbWx4Y3BsZF9pMmNfYWRhcHRlcjsNCj4gPiArCXBy
-aXYtPmFkYXAuZGV2LnBhcmVudCA9ICZwZGV2LT5kZXY7DQo+ID4gKwlwcml2LT5iYXNlX2FkZHIg
-PSBNTFhQTEFUX0NQTERfTFBDX0kyQ19CQVNFX0FERFI7DQo+ID4gKwlpMmNfc2V0X2FkYXBkYXRh
-KCZwcml2LT5hZGFwLCBwcml2KTsNCj4gPiArDQo+ID4gKwllcnIgPSBpMmNfYWRkX251bWJlcmVk
-X2FkYXB0ZXIoJnByaXYtPmFkYXApOw0KPiA+ICsJaWYgKGVycikgew0KPiA+ICsJCWRldl9lcnIo
-JnBkZXYtPmRldiwgIkZhaWxlZCB0byBhZGQgJXMgYWRhcHRlciAoJWQpXG4iLA0KPiA+ICsJCQlN
-TFhDUExEX0kyQ19ERVZJQ0VfTkFNRSwgZXJyKTsNCj4gPiArCQlnb3RvIGZhaWxfYWRhcHRlcjsN
-Cj4gPiArCX0NCj4gPiArDQo+ID4gKwlyZXR1cm4gMDsNCj4gPiArDQo+ID4gK2ZhaWxfYWRhcHRl
-cjoNCj4gPiArCW11dGV4X2Rlc3Ryb3koJnByaXYtPmxvY2spOw0KPiA+ICsJcmV0dXJuIGVycjsN
-Cj4gDQo+IEhlcmUgeW91IGNhbiBzYXZlIHNvbWUgbW9yZSBsaW5lcyBvZiBjb2RlIGJ5IGNoYW5n
-aW5nIGl0IHRvDQo+IA0KPiAJZXJyID0gaTJjX2FkZF9udW1iZXJlZF9hZGFwdGVyKCZwcml2LT5h
-ZGFwKTsNCj4gCWlmIChlcnIpDQo+IAkJbXV0ZXhfZGVzdHJveSgmcHJpdi0+bG9jayk7DQo+IA0K
-PiAJcmV0dXJuIGVycjsNCj4gDQo+IE5vdGUsIGRldl9lcnIoKSBpcyBub3QgbmVlZGVkIGhlcmUs
-IGJlY2F1c2UgcHJpbnRpbmcgb2YgdGhlIGVycm9yIG1lc3NhZ2UgaXMNCj4gZGVsZWdhdGVkIHRv
-IHRoZSBJMkMgY29yZS4NCj4gDQo+ID4gK30NCj4gPiArDQo+IA0KPiBQbGVhc2UgZmVlbCBmcmVl
-IHRvIGFkZCBhIHRhZyB0byB0aGUgbmV4dCB2ZXJzaW9uOg0KPiANCj4gUmV2aWV3ZWQtYnk6IFZs
-YWRpbWlyIFphcG9sc2tpeSA8dnpAbWxlaWEuY29tPg0KPiANCj4gLS0NCj4gV2l0aCBiZXN0IHdp
-c2hlcywNCj4gVmxhZGltaXINCg==
+On 10/29/2016 01:12 AM, Maciej S. Szmigiero wrote:
+>> Would you mind sharing the laptop's model?
+> 
+> This is Elitebook model 8570p.
+
+That seems like a fairly recent laptop:
+
+http://www.notebookcheck.net/Review-HP-EliteBook-8570p-B6Q03EA-ABD-Notebook.82291.0.html
+
+and it has a true parallel port? Thanks a lot for the pointer!
+
+>> There are a bunch of
+>> Elitebooks and maybe not all have the ports wired.
+>> Does your laptop has the Parallel Port on the docking or on the laptop
+>> itself?
+> 
+> Only a serial port socket is built-it, parallel port socket is
+> available only via a port replicator.
+> 
+> According to description of this replicator it is compatible with
+> a lot of different Elitebooks and Probooks:
+> http://h30094.www3.hp.com/product.aspx?sku=10432928&mfg_part=A7E34AA&pagemode=ca
+> 
+> I wasn't able find any note in this replicator description that port
+> availability depends on connected laptop model.
+> You can try to search for particular laptop model schematics, even
+> if it is available only for sale sometimes there is a preview
+> page with block diagram which clearly show where the parallel port
+> is connected (this is true for my laptop model for example).
+> 
+> However, whether the port is on standard I/O address and interrupt
+> line requires some more digging.
+
+Thanks for the information.
+
+>> Do you know the command to enable them thru PnP? Shouldn't loading
+>> the kernel module be enough? Or is it the other way around and 
+>> enabling thru PnP triggers the kernel module load process?
+> 
+> If you want to use them under Linux then everything should be taken
+> care of by kernel's PnP support.
+> It can be problem if you want to use them under pure DOS.
+> 
+
+I see, thanks.
