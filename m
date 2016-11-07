@@ -1,145 +1,35 @@
-From: Paul Burton <paul.burton@imgtec.com>
-Subject: [PATCH 2/2] i2c: octeon: Fix waiting for operation completion
-Date: Mon, 7 Nov 2016 20:09:21 +0000
-Message-ID: <20161107200921.30284-2-paul.burton@imgtec.com>
-References: <20161107200921.30284-1-paul.burton@imgtec.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
+Date: Mon, 07 Nov 2016 22:20:18 +0100
+Message-ID: <1543282.vWjeo4ynTa@wuerfel>
+References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com> <2723366.1bJeJ7SKI6@wuerfel> <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:31934 "EHLO
-        mailapp01.imgtec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752002AbcKGUJ4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2016 15:09:56 -0500
-In-Reply-To: <20161107200921.30284-1-paul.burton@imgtec.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0-2mNvjAGDOPkZcyyZo0JLBI3W/0Ik+aLCnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Cc: "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-mips@linux-mips.org, Paul Burton <paul.burton@imgtec.com>, David Daney <david.daney@cavium.com>, Jan Glauber <jglauber@cavium.com>, Peter Swain <pswain@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Commit 1bb1ff3e7c74 ("i2c: octeon: Improve performance if interrupt is
-early") modified octeon_i2c_wait() & octeon_i2c_hlc_wait() to attempt to
-check for a valid bit being clear & if not to sleep for a while then try
-again before waiting on a waitqueue which may time out. However it does
-so by sleeping within a function called as the condition provided to
-wait_event_timeout() which seems to cause strange behaviour, with the
-system hanging during boot with the condition being checked constantly &
-the timeout not seeming to have any effect.
+On Monday, October 31, 2016 9:35:33 AM CET Y.B. Lu wrote:
+> > 
+> > I don't see any of the contents of this header referenced by the soc
+> > driver any more. I think you can just drop this patch.
+> > 
+> 
+> [Lu Yangbo-B47093] This header file was included by guts.c.
+> The guts driver used macro SVR_MAJ/SVR_MIN for calculation.
+> 
+> This header file was for powerpc arch before. And this patch is to made it as
+> common header file for both ARM and PPC.
+> Sooner or later this is needed.
 
-Fix this by instead checking for the valid bit being clear in the
-octeon_i2c(_hlc)_wait() functions & sleeping there if that condition is
-not met, then calling the wait_event_timeout with a condition that does
-not sleep.
+Let's discuss it once we actually need the header then, ok?
 
-Tested on a Rhino Labs UTM-8 with Octeon CN7130.
-
-Signed-off-by: Paul Burton <paul.burton@imgtec.com>
-Cc: David Daney <david.daney@cavium.com>
-Cc: Jan Glauber <jglauber@cavium.com>
-Cc: Peter Swain <pswain@cavium.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
----
-
- drivers/i2c/busses/i2c-octeon-core.c | 58 ++++++++++--------------------------
- 1 file changed, 15 insertions(+), 43 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index 419b54b..2e270a1 100644
---- a/drivers/i2c/busses/i2c-octeon-core.c
-+++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -36,24 +36,6 @@ static bool octeon_i2c_test_iflg(struct octeon_i2c *i2c)
- 	return (octeon_i2c_ctl_read(i2c) & TWSI_CTL_IFLG);
- }
- 
--static bool octeon_i2c_test_ready(struct octeon_i2c *i2c, bool *first)
--{
--	if (octeon_i2c_test_iflg(i2c))
--		return true;
--
--	if (*first) {
--		*first = false;
--		return false;
--	}
--
--	/*
--	 * IRQ has signaled an event but IFLG hasn't changed.
--	 * Sleep and retry once.
--	 */
--	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
--	return octeon_i2c_test_iflg(i2c);
--}
--
- /**
-  * octeon_i2c_wait - wait for the IFLG to be set
-  * @i2c: The struct octeon_i2c
-@@ -80,8 +62,13 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 	}
- 
- 	i2c->int_enable(i2c);
--	time_left = wait_event_timeout(i2c->queue, octeon_i2c_test_ready(i2c, &first),
--				       i2c->adap.timeout);
-+	time_left = i2c->adap.timeout;
-+	if (!octeon_i2c_test_iflg(i2c)) {
-+		usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-+		time_left = wait_event_timeout(i2c->queue,
-+					       octeon_i2c_test_iflg(i2c),
-+					       time_left);
-+	}
- 	i2c->int_disable(i2c);
- 
- 	if (i2c->broken_irq_check && !time_left &&
-@@ -99,26 +86,8 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
- 
- static bool octeon_i2c_hlc_test_valid(struct octeon_i2c *i2c)
- {
--	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
--}
--
--static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c, bool *first)
--{
- 	/* check if valid bit is cleared */
--	if (octeon_i2c_hlc_test_valid(i2c))
--		return true;
--
--	if (*first) {
--		*first = false;
--		return false;
--	}
--
--	/*
--	 * IRQ has signaled an event but valid bit isn't cleared.
--	 * Sleep and retry once.
--	 */
--	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
--	return octeon_i2c_hlc_test_valid(i2c);
-+	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
- }
- 
- static void octeon_i2c_hlc_int_clear(struct octeon_i2c *i2c)
-@@ -176,7 +145,6 @@ static void octeon_i2c_hlc_disable(struct octeon_i2c *i2c)
-  */
- static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- {
--	bool first = true;
- 	int time_left;
- 
- 	/*
-@@ -194,9 +162,13 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
- 	}
- 
- 	i2c->hlc_int_enable(i2c);
--	time_left = wait_event_timeout(i2c->queue,
--				       octeon_i2c_hlc_test_ready(i2c, &first),
--				       i2c->adap.timeout);
-+	time_left = i2c->adap.timeout;
-+	if (!octeon_i2c_hlc_test_valid(i2c)) {
-+		usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-+		time_left = wait_event_timeout(i2c->queue,
-+					       octeon_i2c_hlc_test_valid(i2c),
-+					       time_left);
-+	}
- 	i2c->hlc_int_disable(i2c);
- 	if (!time_left)
- 		octeon_i2c_hlc_int_clear(i2c);
--- 
-2.10.2
+	Arnd
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
