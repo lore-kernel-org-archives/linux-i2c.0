@@ -1,87 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 6/6] i2c: use an IRQ to report Host Notify events, not
- alert
-Date: Mon, 7 Nov 2016 01:20:35 +0100
-Message-ID: <20161107002034.GB1442@katana>
-References: <1476360640-12901-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476360640-12901-7-git-send-email-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4 0/7] i2c: bcm2835: Bring in changes from downstream
+Date: Mon, 7 Nov 2016 01:36:39 +0100
+Message-ID: <20161107003639.GC1442@katana>
+References: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47684 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751130AbcKGAUk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 6 Nov 2016 19:20:40 -0500
+        protocol="application/pgp-signature"; boundary="IpbVkmxF4tDyP/Kb"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1476360640-12901-7-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc: swarren@wwwdotorg.org, eric@anholt.net, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
 
 
---QKdGvSO+nmPlgiQ/
-Content-Type: text/plain; charset=us-ascii
+--IpbVkmxF4tDyP/Kb
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 13, 2016 at 02:10:40PM +0200, Benjamin Tissoires wrote:
-> The current SMBus Host Notify implementation relies on .alert() to
-> relay its notifications. However, the use cases where SMBus Host
-> Notify is needed currently is to signal data ready on touchpads.
+On Mon, Oct 03, 2016 at 10:06:07PM +0200, Noralf Tr=C3=B8nnes wrote:
+
+> This patchset tries to bring in the lessons learned in the downstream
+> driver i2c-bcm2708. The downstream clock stretcing timeout patch has
+> been left out since clock stretching is broken/unreliable on this
+> controller, so no point in setting it.
 >=20
-> This is closer to an IRQ than a custom API through .alert().
-> Given that the 2 touchpad manufacturers (Synaptics and Elan) that
-> use SMBus Host Notify don't put any data in the SMBus payload, the
-> concept actually matches one to one.
+> Changes since version 3:
+> - Add comment about I2C_C_CLEAR on error
 
-I see the advantages. The only question I have: What if we encounter
-devices in the future which do put data in the payload? Can this
-mechanism be extended to handle that?
+Looks like some serious hacking to get around HW limitations. Thanks for
+upporting it.
 
->=20
-> Benefits are multiple:
-> - simpler code and API: the client will just have an IRQ, and
->   nothing needs to be added in the adapter beside internally
->   enabling it.
-> - no more specific workqueue, the threading is handled by IRQ core
->   directly (when required)
-> - no more races when removing the device (the drivers are already
->   required to disable irq on remove)
-> - simpler handling for drivers: use plain regular IRQs
-> - no more dependency on i2c-smbus for i2c-i801 (and any other adapter)
-> - the IRQ domain is created automatically when the adapter exports
->   the Host Notify capability
-> - the IRQ are assign only if ACPI, OF and the caller did not assign
->   one already
-> - the domain is automatically destroyed on remove
-> - fewer lines of code (minus 20, yeah!)
->=20
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thanks for keeping at it!
+Applied to for-next.
 
 
---QKdGvSO+nmPlgiQ/
+--IpbVkmxF4tDyP/Kb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYH8jSAAoJEBQN5MwUoCm2S3YQAKGvnIGT1nT+V6hEGnvBkDbz
-xy21e4q7uDtY9Nq7ZpkxiSosCmgGRbduA+C9IaC9NWXI9bYrG1yNy8oH7iIUuY4R
-/NCtlGxTi2IJr7r3wDTxJw4PYxa1L02zPu+4Jq5zkHm/tjK7UAwmHSn2lNT5peEt
-QQ1SByeToFIBHL3xebryFs86gl2W5UFIf5HBVdCpNdIQQqQVO0Ay7dbqAzeLamzE
-Kq/CobohYV+RdBbYpBPNXWlwbLmdspJpEpyAwaxgStMJJvavaMVe6hWs/lSNlKSQ
-xBz8hQKqtvL48XUg6FL1aKlwMCVXznM784AViCB3MIIq84X9CHCn1tkNMAuowR5U
-W4mUEXIqZ8rBXDd+RxAutH/eyIeCj2hdAU37lf/BRuB96DbCrpJLZvhgD1i7ov7s
-Nmiuv2LvMH+U5joTjvnjyCKhFEOm2XSnjDnCL5lsUd3+5hUrPvcCovcdlj5daYAF
-epH+KLMdomysbPUHcdFvOKfnX7xjPkg2pJaqv5SW2+mBZ9l0OC2O66Co7cunqEUl
-30CZ4X7o+SGvsB+2S9ihklJu9AxMHBdtXlOp1yOmRdSWMIGF0549uum5MtPSvYw0
-9+ZNx6hb27ndr+9I30W6F8Nb4xMSEtiL+7EFq12Faz4iBJAIy1H2tPzb1i7QYOEr
-AEDrwmpuzIyPL8dhRyF9
-=Hzgg
+iQIcBAEBAgAGBQJYH8yXAAoJEBQN5MwUoCm2iywQALF3qzdTRX7xnzU+p4719v+0
+3gAiRlGfdUk8m/hqsWLjBfTVihpx6uQABUYqVRDjwNtalWgOdgaqAXyXw7yqBX5y
+cdnSW1uqnOy/SS25zMUydTp36dR3N3P/GbhmNRTWqZ/9OiOP3cdL04czvJ+9oajA
+UypXcJrEiB47XrGh30AxdMxhKET5M/kxkye7rOrC7aeDK7dhBAgeTbcopvtgIJw5
+Nrtd8c+JDgRol8fZc7kKanwIfLODit6Evi+zGsfQhwZ9nN3PQhrTKv5UE+ZrdTrx
+0Nov9Oa+KLIrhB9tXQ6/4XlDRGVBnUzstNFhTrLl97WtK4ZIv6rrj5zpfILu0o6J
+odwqMoxuNZvhWKVziDhpcwhKgFisfqHOGlpz3mM+xZ9zcptv6U6XOGlkvpuDDf0F
+sXwQFTrB7L0Mewws1eQErIsmAFxAkPNw8pf7CFYmki2xc2O5QIj2Gj+N0P2rdEVV
+JdQGhSEWOQCaOMtRUrHMZIWJjkiTAY8s7q62OK/Th2jqvWfNjj5stryCHHpEoe7+
+y+M27mzUBQ5ejARELpfwK65MknKWi/Cf6zgVPu1gb5jeIaXX1qda9vrdypZWAVb3
+ir4lDh0XdcBFygLBvIV6n6NJ+hf/0lfD5be9rlkkH7eOoB3hPd/d62JcaEaEQqlN
+OKidtn6jt9GiMCZoGWuW
+=lxPY
 -----END PGP SIGNATURE-----
 
---QKdGvSO+nmPlgiQ/--
+--IpbVkmxF4tDyP/Kb--
