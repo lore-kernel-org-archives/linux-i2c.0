@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: [PATCHv7 03/11] i2c: Match using traditional OF methods, then by vendor-less compatible strings
-Date: Mon,  7 Nov 2016 12:47:38 +0000
-Message-ID: <1478522866-29620-4-git-send-email-kieran@bingham.xyz>
+Subject: [PATCHv7 08/11] i2c: match vendorless strings on the internal string length
+Date: Mon,  7 Nov 2016 12:47:43 +0000
+Message-ID: <1478522866-29620-9-git-send-email-kieran@bingham.xyz>
 References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
@@ -10,87 +10,37 @@ To: Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Kieran B
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+If a user provides a shortened string to match a device to the sysfs i2c
+interface it will match on the first string that contains that string
+prefix.
 
-This function provides a single call for all I2C devices which need to
-match firstly using traditional OF means i.e by of_node, then if that
-fails we attempt to match using the supplied I2C client name with a
-list of supplied compatible strings with the '<vendor>,' string
-removed.  The latter is required due to the unruly naming conventions
-used currently by I2C devices.
+for example:
+  echo a 0x68 > /sys/bus/i2c/devices/i2c-2/new_device
+will match as3711, as3722, and ak8975 incorrectly.
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-[Kieran: Fix static inline usage on !CONFIG_OF]
-Tested-by: Kieran Bingham <kieran@bingham.xyz>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Correct this by using sysfs_streq to match the string exactly
+
 Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
 
 ---
-changes from v6
- - Rename i2c_of_match_device_strip_vendor to i2c_of_match_device_sysfs
+Changes from v7
+ - strncasecmp usage converted to sysfs_streq
 
- drivers/i2c/i2c-core.c | 16 ++++++++++++++++
- include/linux/i2c.h    | 12 ++++++++++++
- 2 files changed, 28 insertions(+)
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index dcbda850804f..2adf4a1ed7ca 100644
+index c338c8f3b3db..8b93a262e237 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -1790,6 +1790,22 @@ i2c_of_match_device_sysfs(const struct of_device_id *matches,
- 	return NULL;
- }
+@@ -1810,7 +1810,7 @@ i2c_of_match_device_sysfs(const struct of_device_id *matches,
+ 		else
+ 			name++;
  
-+const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client)
-+{
-+	const struct of_device_id *match;
-+
-+	if (!(client && matches))
-+		return NULL;
-+
-+	match = of_match_device(matches, &client->dev);
-+	if (match)
-+		return match;
-+
-+	return i2c_of_match_device_sysfs(matches, client);
-+}
-+EXPORT_SYMBOL_GPL(i2c_of_match_device);
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6422eef428c4..c0a4a12815aa 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -774,6 +774,10 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- /* must call i2c_put_adapter() when done with returned i2c_adapter device */
- struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node *node);
+-		if (!strncasecmp(client->name, name, strlen(client->name)))
++		if (sysfs_streq(client->name, name))
+ 			return matches;
+ 	}
  
-+extern const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client);
-+
- #else
- 
- static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-@@ -790,6 +794,14 @@ static inline struct i2c_adapter *of_get_i2c_adapter_by_node(struct device_node
- {
- 	return NULL;
- }
-+
-+static inline const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client)
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_OF */
- 
- #if IS_ENABLED(CONFIG_ACPI)
 -- 
 2.7.4
