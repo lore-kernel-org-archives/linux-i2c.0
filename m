@@ -1,58 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C
- device ID structure
-Date: Tue, 8 Nov 2016 00:09:31 +0100
-Message-ID: <20161107230931.GA1439@katana>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
- <1478522866-29620-11-git-send-email-kieran@bingham.xyz>
- <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
+From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Subject: Re: [Linux-parport] True Parallel Port Interface for Bit-banging?
+Date: Tue, 8 Nov 2016 00:53:24 +0100
+Message-ID: <fe33933b-c2ae-e3c6-0a17-f86d5e144e63@maciej.szmigiero.name>
+References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
+ <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
+ <580F72AF.9070900@laposte.net>
+ <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
+ <581327AC.8060404@laposte.net>
+ <5461ac01-6054-e222-f707-0b475c24276d@maciej.szmigiero.name>
+ <58207746.2020802@laposte.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Kieran Bingham <kieran@ksquared.org.uk>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from vps-vb.mhejs.net ([37.28.154.113]:51163 "EHLO vps-vb.mhejs.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750926AbcKGXxb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 7 Nov 2016 18:53:31 -0500
+In-Reply-To: <58207746.2020802@laposte.net>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sebastian Frias <sf84@laposte.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
+On 07.11.2016 13:44, Sebastian Frias wrote:
+> On 10/29/2016 01:12 AM, Maciej S. Szmigiero wrote:
+>>> Would you mind sharing the laptop's model?
+>>
+>> This is Elitebook model 8570p.
+> 
+> That seems like a fairly recent laptop:
+> 
+> http://www.notebookcheck.net/Review-HP-EliteBook-8570p-B6Q03EA-ABD-Notebook.82291.0.html
+> 
+> and it has a true parallel port?
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It has parallel port on address 0x378/0x778, IRQ 5 by default which is
+realized by Super IO chip.
 
+In PnP config also available for selection are addresses 0x278/0x678,
+0x3bc/0x7bc, IRQ 7 and ISA DMA channels 1 and 3.
 
-> Remember that i2c_device_uevent() always reports modalias of the form
-> MODALIAS=i2c:<foo> even when your series allows to match without a I2C
-> device ID table.
+Although I have never used this port personally it looks like what can
+be considered a "true" parallel port.
 
-Not always. Can't we do something similar like ACPI does with
-acpi_device_uevent_modalias()?
+> Thanks a lot for the pointer!
 
-I mean the whole point of this series is to remove the need of having an
-I2C device ID table...
+You are welcome.
 
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYIQmrAAoJEBQN5MwUoCm2Ok0P/3K62wFLPpNZnCuB2sfycnD4
-HA3ZB9eaun6gLUCzsTXKyzJ7NmSPejjp4dH6oTJ8cfHgZxA6Ou9e3a9Ybuj0Ub8k
-Ta5cihDQAwSljdnRmuP/B2KPzgnuXC1dAd/qVke+kel3uOyp4n3h/Mw+RfWDS0HX
-Izj5PeBXCJrc7XmKEwNQAtc41bvimpWFGMswfLcwSJBt+8e2Lj1/mp92PxgVaBVN
-n80eI2oiuPhqJ0bFLRbx4O9uRCM4Onmji4ojWToIdQCI49LxylxESKKfmRmsDI0+
-xp26/Bdc0sm47HPLGAA7RCyz7avBa8EiQcvCkyeB9GZq8eFeh6leQVd+FleVd4Vi
-JbkNkT3+1e9/qa8qI3Zcxd/NLaHiRUAAUxr8GouQquWDRTtQeW0r1xS47lZJEeej
-Llp6mB9+3koq5BBKCsxODIsr86nMkMtuIZTs3KaRagJfmvE0J9+XSHAJiEXZiJ1V
-JCoIszoaKtLx9836zlGNWcftO3udR1oB4BOYrTC8x9TLdXD119iaEVKRwwvLnGwg
-28+maZRP7sqvypj2ihVdGjJ+b/9JZJ0XHxsdVi7x49zkIho2l1f5yhMtxnc+xN7i
-iKx4TZrLcco77n/4vpHqftaGUWawj6xict4lIVjDQYLtZA12G6daTU58EuTpPwph
-A7OVwRDDeMFrnoIqDsL6
-=4yZI
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--
+Maciej
