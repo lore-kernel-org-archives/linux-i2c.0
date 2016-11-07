@@ -1,35 +1,88 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
-Date: Mon, 07 Nov 2016 22:20:18 +0100
-Message-ID: <1543282.vWjeo4ynTa@wuerfel>
-References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com> <2723366.1bJeJ7SKI6@wuerfel> <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
+From: Kieran Bingham <kieran@ksquared.org.uk>
+Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C device
+ ID structure
+Date: Mon, 7 Nov 2016 22:05:42 +0000
+Message-ID: <fee215fd-bdd4-9657-92db-1f77794b1abf@bingham.xyz>
+References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
+ <1478522866-29620-11-git-send-email-kieran@bingham.xyz>
+ <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0-2mNvjAGDOPkZcyyZo0JLBI3W/0Ik+aLCnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Cc: "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, October 31, 2016 9:35:33 AM CET Y.B. Lu wrote:
-> > 
-> > I don't see any of the contents of this header referenced by the soc
-> > driver any more. I think you can just drop this patch.
-> > 
-> 
-> [Lu Yangbo-B47093] This header file was included by guts.c.
-> The guts driver used macro SVR_MAJ/SVR_MIN for calculation.
-> 
-> This header file was for powerpc arch before. And this patch is to made it as
-> common header file for both ARM and PPC.
-> Sooner or later this is needed.
+Thanks for your reviews again Javier,
 
-Let's discuss it once we actually need the header then, ok?
+On 07/11/16 19:20, Javier Martinez Canillas wrote:
+> Hello Kieran,
+> 
+> On 11/07/2016 09:47 AM, Kieran Bingham wrote:
+>> From: Lee Jones <lee.jones@linaro.org>
+>>
+>> Also remove unused second probe() parameter 'i2c_device_id'.
+>>
+>> Acked-by: Grant Likely <grant.likely@linaro.org>
+>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
+>>
+>> ---
+>> Changes since v4
+>>  - Rename .probe2 to probe_new
+>>
+>>  drivers/mfd/as3722.c | 12 ++----------
+>>  1 file changed, 2 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
+>> index f87342c211bc..7d8c5e4136e2 100644
+>> --- a/drivers/mfd/as3722.c
+>> +++ b/drivers/mfd/as3722.c
+>> @@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
+>>  	return 0;
+>>  }
+>>  
+>> -static int as3722_i2c_probe(struct i2c_client *i2c,
+>> -			const struct i2c_device_id *id)
+>> +static int as3722_i2c_probe(struct i2c_client *i2c)
+>>  {
+> 
+> This is OK...
+> 
+>>  	struct as3722 *as3722;
+>>  	unsigned long irq_flags;
+>> @@ -441,12 +440,6 @@ static const struct of_device_id as3722_of_match[] = {
+>>  };
+>>  MODULE_DEVICE_TABLE(of, as3722_of_match);
+>>  
+>> -static const struct i2c_device_id as3722_i2c_id[] = {
+>> -	{ "as3722", 0 },
+>> -	{},
+>> -};
+>> -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+>> -
+> 
+> ... but I don't think this is correct. Otherwise you will break module
+> autoload for this driver since modpost needs the I2C device ID table
+> info to fill the i2c modalias in the drivers' module.
+> 
+> Remember that i2c_device_uevent() always reports modalias of the form
+> MODALIAS=i2c:<foo> even when your series allows to match without a I2C
+> device ID table.
+> 
 
-	Arnd
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ok - Thanks for the reminder. I'll try to bear this in mind when we
+start updating drivers.
+
+For now we can consider this patch dropped from the series I think.
+
+> Best regards,
+> 
+
+-- 
+Regards
+
+Kieran Bingham
