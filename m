@@ -1,60 +1,122 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 0/7] i2c: bcm2835: Bring in changes from downstream
-Date: Mon, 7 Nov 2016 01:36:39 +0100
-Message-ID: <20161107003639.GC1442@katana>
-References: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [patch v4 1/1] i2c: add master driver for mellanox systems
+Date: Mon, 7 Nov 2016 02:47:07 +0200
+Message-ID: <fe5f890f-6be1-130f-3978-2d73b4a24e7a@mleia.com>
+References: <1478250907-147450-1-git-send-email-vadimp@mellanox.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="IpbVkmxF4tDyP/Kb"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1475525174-28604-1-git-send-email-noralf@tronnes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: swarren@wwwdotorg.org, eric@anholt.net, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:43761 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751779AbcKGArK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 6 Nov 2016 19:47:10 -0500
+In-Reply-To: <1478250907-147450-1-git-send-email-vadimp@mellanox.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: vadimp@mellanox.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 
+Hi Vadim,
 
---IpbVkmxF4tDyP/Kb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+please find below some more nitpickings.
 
-On Mon, Oct 03, 2016 at 10:06:07PM +0200, Noralf Tr=C3=B8nnes wrote:
+On 11/04/2016 11:15 AM, vadimp@mellanox.com wrote:
+> From: Vadim Pasternak <vadimp@mellanox.com>
+>
 
-> This patchset tries to bring in the lessons learned in the downstream
-> driver i2c-bcm2708. The downstream clock stretcing timeout patch has
-> been left out since clock stretching is broken/unreliable on this
-> controller, so no point in setting it.
->=20
-> Changes since version 3:
-> - Add comment about I2C_C_CLEAR on error
+[snip]
 
-Looks like some serious hacking to get around HW limitations. Thanks for
-upporting it.
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index d252276..b9e1c4c 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -1150,6 +1150,18 @@ config I2C_ELEKTOR
+>  	  This support is also available as a module.  If so, the module
+>  	  will be called i2c-elektor.
+>
+> +config I2C_MLXCPLD
+> +	tristate "Mellanox I2C driver"
+> +	depends on X86_64
+> +	default n
 
-Applied to for-next.
+Please just remove 'default n' line, unset default value in Kconfig
+is the same as 'default n'.
 
+[snip]
 
---IpbVkmxF4tDyP/Kb
-Content-Type: application/pgp-signature; name="signature.asc"
+> +/* General defines */
+> +#define MLXPLAT_CPLD_LPC_I2C_BASE_ADDR	0x2000
+> +#define MLXCPLD_I2C_DEVICE_NAME		"i2c_mlxcpld"
+> +#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN | I2C_M_RD)
+> +#define MLXCPLD_I2C_BUS_NUM		1
+> +#define MLXCPLD_I2C_DATA_REG_SZ		36
+> +#define MLXCPLD_I2C_MAX_ADDR_LEN	4
+> +#define MLXCPLD_I2C_RETR_NUM		2
+> +#define MLXCPLD_I2C_XFER_TO		500000 /* msec */
+> +#define MLXCPLD_I2C_POLL_TIME		2000   /* msec */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Two lines above define macro values with the microsecond unit, its
+short form is denoted as "usec" and "msec" or "ms" is used to
+denote milliseconds. Please correct it, transfer timeout of "500
+seconds" is confusing.
 
-iQIcBAEBAgAGBQJYH8yXAAoJEBQN5MwUoCm2iywQALF3qzdTRX7xnzU+p4719v+0
-3gAiRlGfdUk8m/hqsWLjBfTVihpx6uQABUYqVRDjwNtalWgOdgaqAXyXw7yqBX5y
-cdnSW1uqnOy/SS25zMUydTp36dR3N3P/GbhmNRTWqZ/9OiOP3cdL04czvJ+9oajA
-UypXcJrEiB47XrGh30AxdMxhKET5M/kxkye7rOrC7aeDK7dhBAgeTbcopvtgIJw5
-Nrtd8c+JDgRol8fZc7kKanwIfLODit6Evi+zGsfQhwZ9nN3PQhrTKv5UE+ZrdTrx
-0Nov9Oa+KLIrhB9tXQ6/4XlDRGVBnUzstNFhTrLl97WtK4ZIv6rrj5zpfILu0o6J
-odwqMoxuNZvhWKVziDhpcwhKgFisfqHOGlpz3mM+xZ9zcptv6U6XOGlkvpuDDf0F
-sXwQFTrB7L0Mewws1eQErIsmAFxAkPNw8pf7CFYmki2xc2O5QIj2Gj+N0P2rdEVV
-JdQGhSEWOQCaOMtRUrHMZIWJjkiTAY8s7q62OK/Th2jqvWfNjj5stryCHHpEoe7+
-y+M27mzUBQ5ejARELpfwK65MknKWi/Cf6zgVPu1gb5jeIaXX1qda9vrdypZWAVb3
-ir4lDh0XdcBFygLBvIV6n6NJ+hf/0lfD5be9rlkkH7eOoB3hPd/d62JcaEaEQqlN
-OKidtn6jt9GiMCZoGWuW
-=lxPY
------END PGP SIGNATURE-----
+[snip]
 
---IpbVkmxF4tDyP/Kb--
+> +
+> +static int mlxcpld_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct mlxcpld_i2c_priv *priv;
+> +	int err;
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct mlxcpld_i2c_priv),
+> +			    GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	mutex_init(&priv->lock);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->dev = &pdev->dev;
+> +
+> +	/* Register with i2c layer */
+> +	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
+> +	priv->adap = mlxcpld_i2c_adapter;
+> +	priv->adap.dev.parent = &pdev->dev;
+> +	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
+> +	i2c_set_adapdata(&priv->adap, priv);
+> +
+> +	err = i2c_add_numbered_adapter(&priv->adap);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "Failed to add %s adapter (%d)\n",
+> +			MLXCPLD_I2C_DEVICE_NAME, err);
+> +		goto fail_adapter;
+> +	}
+> +
+> +	return 0;
+> +
+> +fail_adapter:
+> +	mutex_destroy(&priv->lock);
+> +	return err;
+
+Here you can save some more lines of code by changing it to
+
+	err = i2c_add_numbered_adapter(&priv->adap);
+	if (err)
+		mutex_destroy(&priv->lock);
+
+	return err;
+
+Note, dev_err() is not needed here, because printing of the error
+message is delegated to the I2C core.
+
+> +}
+> +
+
+Please feel free to add a tag to the next version:
+
+Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+
+--
+With best wishes,
+Vladimir
