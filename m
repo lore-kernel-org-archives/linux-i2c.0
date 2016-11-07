@@ -1,88 +1,58 @@
-From: Kieran Bingham <kieran@ksquared.org.uk>
-Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C device
- ID structure
-Date: Mon, 7 Nov 2016 22:05:42 +0000
-Message-ID: <fee215fd-bdd4-9657-92db-1f77794b1abf@bingham.xyz>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C
+ device ID structure
+Date: Tue, 8 Nov 2016 00:09:31 +0100
+Message-ID: <20161107230931.GA1439@katana>
 References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
  <1478522866-29620-11-git-send-email-kieran@bingham.xyz>
  <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Kieran Bingham <kieran@ksquared.org.uk>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks for your reviews again Javier,
 
-On 07/11/16 19:20, Javier Martinez Canillas wrote:
-> Hello Kieran,
-> 
-> On 11/07/2016 09:47 AM, Kieran Bingham wrote:
->> From: Lee Jones <lee.jones@linaro.org>
->>
->> Also remove unused second probe() parameter 'i2c_device_id'.
->>
->> Acked-by: Grant Likely <grant.likely@linaro.org>
->> Signed-off-by: Lee Jones <lee.jones@linaro.org>
->> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
->>
->> ---
->> Changes since v4
->>  - Rename .probe2 to probe_new
->>
->>  drivers/mfd/as3722.c | 12 ++----------
->>  1 file changed, 2 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
->> index f87342c211bc..7d8c5e4136e2 100644
->> --- a/drivers/mfd/as3722.c
->> +++ b/drivers/mfd/as3722.c
->> @@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
->>  	return 0;
->>  }
->>  
->> -static int as3722_i2c_probe(struct i2c_client *i2c,
->> -			const struct i2c_device_id *id)
->> +static int as3722_i2c_probe(struct i2c_client *i2c)
->>  {
-> 
-> This is OK...
-> 
->>  	struct as3722 *as3722;
->>  	unsigned long irq_flags;
->> @@ -441,12 +440,6 @@ static const struct of_device_id as3722_of_match[] = {
->>  };
->>  MODULE_DEVICE_TABLE(of, as3722_of_match);
->>  
->> -static const struct i2c_device_id as3722_i2c_id[] = {
->> -	{ "as3722", 0 },
->> -	{},
->> -};
->> -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
->> -
-> 
-> ... but I don't think this is correct. Otherwise you will break module
-> autoload for this driver since modpost needs the I2C device ID table
-> info to fill the i2c modalias in the drivers' module.
-> 
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
 > Remember that i2c_device_uevent() always reports modalias of the form
 > MODALIAS=i2c:<foo> even when your series allows to match without a I2C
 > device ID table.
-> 
 
-Ok - Thanks for the reminder. I'll try to bear this in mind when we
-start updating drivers.
+Not always. Can't we do something similar like ACPI does with
+acpi_device_uevent_modalias()?
 
-For now we can consider this patch dropped from the series I think.
+I mean the whole point of this series is to remove the need of having an
+I2C device ID table...
 
-> Best regards,
-> 
 
--- 
-Regards
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Kieran Bingham
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYIQmrAAoJEBQN5MwUoCm2Ok0P/3K62wFLPpNZnCuB2sfycnD4
+HA3ZB9eaun6gLUCzsTXKyzJ7NmSPejjp4dH6oTJ8cfHgZxA6Ou9e3a9Ybuj0Ub8k
+Ta5cihDQAwSljdnRmuP/B2KPzgnuXC1dAd/qVke+kel3uOyp4n3h/Mw+RfWDS0HX
+Izj5PeBXCJrc7XmKEwNQAtc41bvimpWFGMswfLcwSJBt+8e2Lj1/mp92PxgVaBVN
+n80eI2oiuPhqJ0bFLRbx4O9uRCM4Onmji4ojWToIdQCI49LxylxESKKfmRmsDI0+
+xp26/Bdc0sm47HPLGAA7RCyz7avBa8EiQcvCkyeB9GZq8eFeh6leQVd+FleVd4Vi
+JbkNkT3+1e9/qa8qI3Zcxd/NLaHiRUAAUxr8GouQquWDRTtQeW0r1xS47lZJEeej
+Llp6mB9+3koq5BBKCsxODIsr86nMkMtuIZTs3KaRagJfmvE0J9+XSHAJiEXZiJ1V
+JCoIszoaKtLx9836zlGNWcftO3udR1oB4BOYrTC8x9TLdXD119iaEVKRwwvLnGwg
+28+maZRP7sqvypj2ihVdGjJ+b/9JZJ0XHxsdVi7x49zkIho2l1f5yhMtxnc+xN7i
+iKx4TZrLcco77n/4vpHqftaGUWawj6xict4lIVjDQYLtZA12G6daTU58EuTpPwph
+A7OVwRDDeMFrnoIqDsL6
+=4yZI
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
