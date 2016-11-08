@@ -1,65 +1,102 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
-Date: Tue, 08 Nov 2016 16:47:00 +0100
-Message-ID: <2774358.lRZpWbmlT7@wuerfel>
-References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com> <1543282.vWjeo4ynTa@wuerfel> <DB6PR0401MB25366BC8FF59C68E2823245EF8A60@DB6PR0401MB2536.eurprd04.prod.outlook.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 2/3] arm64: dts: marvell: Add I2C definitions for the Armada 3700
+Date: Tue, 08 Nov 2016 16:52:01 +0100
+Message-ID: <87h97im0ke.fsf@free-electrons.com>
+References: <20161108151506.1131-1-romain.perier@free-electrons.com>
+        <20161108151506.1131-3-romain.perier@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <DB6PR0401MB25366BC8FF59C68E2823245EF8A60-2mNvjAGDOPkZcyyZo0JLBI3W/0Ik+aLCnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <20161108151506.1131-3-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> (Romain
+        Perier's message of "Tue, 8 Nov 2016 16:15:05 +0100")
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Y.B. Lu" <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Cc: "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "X.B. Xie" <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, "M.H. Lian" <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, November 8, 2016 6:49:51 AM CET Y.B. Lu wrote:
-> Hi Arnd,
-> 
-> 
-> > -----Original Message-----
-> > From: Arnd Bergmann [mailto:arnd-r2nGTMty4D4@public.gmane.org]
-> > Sent: Tuesday, November 08, 2016 5:20 AM
-> > To: Y.B. Lu
-> > Cc: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org; linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> > ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Scott Wood; Mark Rutland; Greg Kroah-Hartman; X.B.
-> > Xie; M.H. Lian; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> > Qiang Zhao; Russell King; Bhupesh Sharma; Joerg Roedel; Claudiu Manoil;
-> > devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Rob Herring; Santosh Shilimkar; linux-arm-
-> > kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> > kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Leo Li; iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; Kumar
-> > Gala
-> > Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
-> > 
-> > On Monday, October 31, 2016 9:35:33 AM CET Y.B. Lu wrote:
-> > > >
-> > > > I don't see any of the contents of this header referenced by the soc
-> > > > driver any more. I think you can just drop this patch.
-> > > >
-> > >
-> > > [Lu Yangbo-B47093] This header file was included by guts.c.
-> > > The guts driver used macro SVR_MAJ/SVR_MIN for calculation.
-> > >
-> > > This header file was for powerpc arch before. And this patch is to
-> > > made it as common header file for both ARM and PPC.
-> > > Sooner or later this is needed.
-> > 
-> > Let's discuss it once we actually need the header then, ok?
-> 
-> [Lu Yangbo-B47093] As I said, this header file was included by guts.c in patch 4.
+Hi Romain and Wolfram, 
+ 
+ On mar., nov. 08 2016, Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
 
-Ah sorry, I misread your earlier reply, thinking you meant a potential
-future patch.
+> The Armada 3700 has two i2c bus interface units, this commit adds the
+> definitions of the corresponding device nodes. It also enables the node
+> on the development board for this SoC.
+>
+> Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-> The guts driver used macro SVR_MAJ/SVR_MIN for calculation which were
-> defined in this header file.
-> Did you suggest we dropped this patch and just calculated them in driver?
+Acked-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-That is probably nicer here: there is not that much value in sharing
-the two one-line macro definitions, and the driver already hardcodes
-the numeric per-chip IDs that make up most of the header file.
+This patch is OK for me but I would like to apply it myself on
+mvebu/dt. Indeed Thomas Petazzoni pointed that I made a typo on the
+peripheral clock label: nb_perih_clk instead of nb_periph_clk. I would
+like to fix it and by applying this patch I will avoid a merge conflict
+or worse a mismatch with the label name.
 
-	Arnd
+Wolfram, once you will be OK with the patch 1 and 3, I will apply the
+patch 2.
+
+Thanks,
+
+Gregory
+
+> ---
+>  arch/arm64/boot/dts/marvell/armada-3720-db.dts |  4 ++++
+>  arch/arm64/boot/dts/marvell/armada-37xx.dtsi   | 18 ++++++++++++++++++
+>  2 files changed, 22 insertions(+)
+>
+> diff --git a/arch/arm64/boot/dts/marvell/armada-3720-db.dts b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+> index 1372e9a6..16d84af 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+> +++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+> @@ -62,6 +62,10 @@
+>  	};
+>  };
+>  
+> +&i2c0 {
+> +	status = "okay";
+> +};
+> +
+>  /* CON3 */
+>  &sata {
+>  	status = "okay";
+> diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+> index c476253..bf2d73d 100644
+> --- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+> +++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+> @@ -98,6 +98,24 @@
+>  			/* 32M internal register @ 0xd000_0000 */
+>  			ranges = <0x0 0x0 0xd0000000 0x2000000>;
+>  
+> +			i2c0: i2c@11000 {
+> +				compatible = "marvell,armada-3700-i2c";
+> +				reg = <0x11000 0x24>;
+> +				clocks = <&nb_perih_clk 10>;
+> +				interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+> +				mrvl,i2c-fast-mode;
+> +				status = "disabled";
+> +			};
+> +
+> +			i2c1: i2c@11080 {
+> +				compatible = "marvell,armada-3700-i2c";
+> +				reg = <0x11080 0x24>;
+> +				clocks = <&nb_perih_clk 9>;
+> +				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+> +				mrvl,i2c-fast-mode;
+> +				status = "disabled";
+> +			};
+> +
+>  			uart0: serial@12000 {
+>  				compatible = "marvell,armada-3700-uart";
+>  				reg = <0x12000 0x400>;
+> -- 
+> 2.9.3
+>
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
