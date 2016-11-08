@@ -1,60 +1,51 @@
-From: <a.vanheur@fontys.nl>
-Subject: 26706 linux-i2c
-Date: Tue, 08 Nov 2016 17:41:10 -0000
-Message-ID: <147862687068.18813.5803834583088674276@hinet.net>
+From: Johnny Bieren <jbieren@redhat.com>
+Subject: Re: amd756 driver error introduced with
+ kernel-4.9.0-0.rc1.git0.2.fc26
+Date: Tue, 8 Nov 2016 13:07:37 -0500
+Message-ID: <58221469.50005@redhat.com>
+References: <5821CA1A.5020608@redhat.com> <20161108145822.7194beac@endymion>
 Mime-Version: 1.0
-Content-Type: application/zip; name="EMAIL_90588431_linux-i2c.zip"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 122-121-239-150.dynamic.hinet.net ([122.121.239.150]:54642 "HELO
-        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-        id S1751243AbcKHRlR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 8 Nov 2016 12:41:17 -0500
-Content-Disposition: attachment
+Received: from mx1.redhat.com ([209.132.183.28]:54604 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750869AbcKHSHi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 8 Nov 2016 13:07:38 -0500
+In-Reply-To: <20161108145822.7194beac@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-i2c@vger.kernel.org
 
-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
-AABQSwUGAAAAAAEAAQBYAAAABAkAAAAA
+Hey Jean,
+
+No, that option is not enabled.
+
+cat /boot/config-4.9.0-0.rc1.git0.2.fc26.x86_64 | grep DEBUG_TEST
+# CONFIG_DEBUG_TEST_DRIVER_REMOVE is not set
+
+Thanks,
+Johnny
+
+On 11/08/2016 08:58 AM, Jean Delvare wrote:
+> Hi Johnny,
+>
+> On Tue, 8 Nov 2016 07:50:34 -0500, Johnny Bieren wrote:
+>> Hello,
+>> It appears that a driver_probe_device failure was introduced with
+>> kernel-4.9.0-0.rc1.git0.2.fc26.  When booting this kernel, or any newer
+>> kernel, I see the following:
+>>
+>> [   15.675485] ------------[ cut here ]------------
+>> [   15.680129] WARNING: CPU: 4 PID: 528 at drivers/base/dd.c:343
+>> driver_probe_device+0x353/0x430
+>> [   15.688678] Modules linked in: i2c_amd756(+) pcc_cpufreq(-) k8temp
+>> (...)
+>>
+>> The problem does not appear in kernel-4.9.0-0.rc0.git9.1.fc26, but it
+>> does appear in kernel-4.9.0-0.rc1.git0.2.fc26.  It reproduces 100% of
+>> the time for me.  Can you please look into this issue?
+> Are the failing kernels built with option DEBUG_TEST_DRIVER_REMOVE
+> enabled?
+>
