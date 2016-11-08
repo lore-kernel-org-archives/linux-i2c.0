@@ -1,65 +1,63 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C device
- ID structure
-Date: Mon, 7 Nov 2016 23:14:22 -0300
-Message-ID: <ed57eb93-4818-bdf7-7abf-da86a6f86bca@osg.samsung.com>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
- <1478522866-29620-11-git-send-email-kieran@bingham.xyz>
- <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
- <20161107230931.GA1439@katana>
+From: "Y.B. Lu" <yangbo.lu@nxp.com>
+Subject: RE: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
+Date: Tue, 8 Nov 2016 06:49:51 +0000
+Message-ID: <DB6PR0401MB25366BC8FF59C68E2823245EF8A60@DB6PR0401MB2536.eurprd04.prod.outlook.com>
+References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com>
+ <2723366.1bJeJ7SKI6@wuerfel>
+ <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
+ <1543282.vWjeo4ynTa@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34197
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752045AbcKHCPJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Nov 2016 21:15:09 -0500
-In-Reply-To: <20161107230931.GA1439@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1543282.vWjeo4ynTa@wuerfel>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Scott Wood <oss@buserror.net>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "X.B. Xie" <xiaobo.xie@nxp.com>, "M.H. Lian" <minghuan.lian@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kieran Bingham <kieran@ksquared.org.uk>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
 
-Hello Wolfram,
+Hi Arnd,
 
-On 11/07/2016 08:09 PM, Wolfram Sang wrote:
-> 
->> Remember that i2c_device_uevent() always reports modalias of the form
->> MODALIAS=i2c:<foo> even when your series allows to match without a I2C
->> device ID table.
-> 
-> Not always. Can't we do something similar like ACPI does with
 
-Right, I meant that it always report a platform I2C modalias for both OF
-and legacy platform data I2C device registration mechanisms.
+> -----Original Message-----
+> From: Arnd Bergmann [mailto:arnd@arndb.de]
+> Sent: Tuesday, November 08, 2016 5:20 AM
+> To: Y.B. Lu
+> Cc: linuxppc-dev@lists.ozlabs.org; linux-mmc@vger.kernel.org;
+> ulf.hansson@linaro.org; Scott Wood; Mark Rutland; Greg Kroah-Hartman; X.B=
+.
+> Xie; M.H. Lian; linux-i2c@vger.kernel.org; linux-clk@vger.kernel.org;
+> Qiang Zhao; Russell King; Bhupesh Sharma; Joerg Roedel; Claudiu Manoil;
+> devicetree@vger.kernel.org; Rob Herring; Santosh Shilimkar; linux-arm-
+> kernel@lists.infradead.org; netdev@vger.kernel.org; linux-
+> kernel@vger.kernel.org; Leo Li; iommu@lists.linux-foundation.org; Kumar
+> Gala
+> Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
+>=20
+> On Monday, October 31, 2016 9:35:33 AM CET Y.B. Lu wrote:
+> > >
+> > > I don't see any of the contents of this header referenced by the soc
+> > > driver any more. I think you can just drop this patch.
+> > >
+> >
+> > [Lu Yangbo-B47093] This header file was included by guts.c.
+> > The guts driver used macro SVR_MAJ/SVR_MIN for calculation.
+> >
+> > This header file was for powerpc arch before. And this patch is to
+> > made it as common header file for both ARM and PPC.
+> > Sooner or later this is needed.
+>=20
+> Let's discuss it once we actually need the header then, ok?
 
-> acpi_device_uevent_modalias()?
->
+[Lu Yangbo-B47093] As I said, this header file was included by guts.c in pa=
+tch 4.
+The guts driver used macro SVR_MAJ/SVR_MIN for calculation which were defin=
+ed in this header file.
+Did you suggest we dropped this patch and just calculated them in driver?
 
-Yes, doing that is trivial. I posted a RFC patch about a year ago that
-changes i2c_device_uevent() to report a proper OF modalias [0] as a part
-of a series that fixed module autoload in a bunch of I2C drivers [1].
+Thanks :)
 
-What's tricky is to make sure that the change won't introduce regressions
-in current I2C drivers. I enumerated the possible issues if the I2C core
-starts reporting OF modaliases and fixed some of them in the same series.
 
-> I mean the whole point of this series is to remove the need of having an
-> I2C device ID table...
->
-
-Agreed, one of the issues was that the I2C table was needed anyways for
-the core to match and pass a struct i2c_device_id to the probe's function.
-
-This series solves that so once it lands, I plan to address the possible
-issues in the I2C drivers and re-send [0] as a proper patch.
-
-[0]: https://patchwork.kernel.org/patch/6903991/
-[1]: https://lkml.org/lkml/2015/7/30/519
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+>=20
+> 	Arnd
