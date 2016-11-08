@@ -1,51 +1,101 @@
-From: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
-Subject: Re: [Linux-parport] True Parallel Port Interface for Bit-banging?
-Date: Tue, 8 Nov 2016 00:53:24 +0100
-Message-ID: <fe33933b-c2ae-e3c6-0a17-f86d5e144e63@maciej.szmigiero.name>
-References: <580F4042.5070201@laposte.net> <20161025120951.GL1597@katana>
- <580F6A1D.4000409@laposte.net> <20161025142935.GA2875@katana>
- <580F72AF.9070900@laposte.net>
- <7bd6ea08-361e-316f-be7f-d400b59aec0d@maciej.szmigiero.name>
- <581327AC.8060404@laposte.net>
- <5461ac01-6054-e222-f707-0b475c24276d@maciej.szmigiero.name>
- <58207746.2020802@laposte.net>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCHv7 10/11] mfd: as3722: Rid driver of superfluous I2C device
+ ID structure
+Date: Mon, 7 Nov 2016 23:02:31 -0300
+Message-ID: <d50b4b74-b91d-41e0-6b10-db8b86b56a95@osg.samsung.com>
+References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
+ <1478522866-29620-11-git-send-email-kieran@bingham.xyz>
+ <1ac3a33e-a85c-e781-81b6-c39f3d533da8@osg.samsung.com>
+ <fee215fd-bdd4-9657-92db-1f77794b1abf@bingham.xyz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from vps-vb.mhejs.net ([37.28.154.113]:51163 "EHLO vps-vb.mhejs.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750926AbcKGXxb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Nov 2016 18:53:31 -0500
-In-Reply-To: <58207746.2020802@laposte.net>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <fee215fd-bdd4-9657-92db-1f77794b1abf@bingham.xyz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kieran Bingham <kieran@ksquared.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
-To: Sebastian Frias <sf84@laposte.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-parport@lists.infradead.org, philb@gnu.org, tim@cyberelk.net, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 
-On 07.11.2016 13:44, Sebastian Frias wrote:
-> On 10/29/2016 01:12 AM, Maciej S. Szmigiero wrote:
->>> Would you mind sharing the laptop's model?
+Hello Kieran,
+
+On 11/07/2016 07:05 PM, Kieran Bingham wrote:
+> Thanks for your reviews again Javier,
+>
+
+Thanks to you for keep pushing this series.
+
+> On 07/11/16 19:20, Javier Martinez Canillas wrote:
+>> Hello Kieran,
 >>
->> This is Elitebook model 8570p.
+>> On 11/07/2016 09:47 AM, Kieran Bingham wrote:
+>>> From: Lee Jones <lee.jones@linaro.org>
+>>>
+>>> Also remove unused second probe() parameter 'i2c_device_id'.
+>>>
+>>> Acked-by: Grant Likely <grant.likely@linaro.org>
+>>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>>> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
+>>>
+>>> ---
+>>> Changes since v4
+>>>  - Rename .probe2 to probe_new
+>>>
+>>>  drivers/mfd/as3722.c | 12 ++----------
+>>>  1 file changed, 2 insertions(+), 10 deletions(-)
+>>>
+>>> diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
+>>> index f87342c211bc..7d8c5e4136e2 100644
+>>> --- a/drivers/mfd/as3722.c
+>>> +++ b/drivers/mfd/as3722.c
+>>> @@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
+>>>  	return 0;
+>>>  }
+>>>  
+>>> -static int as3722_i2c_probe(struct i2c_client *i2c,
+>>> -			const struct i2c_device_id *id)
+>>> +static int as3722_i2c_probe(struct i2c_client *i2c)
+>>>  {
+>>
+>> This is OK...
+>>
+>>>  	struct as3722 *as3722;
+>>>  	unsigned long irq_flags;
+>>> @@ -441,12 +440,6 @@ static const struct of_device_id as3722_of_match[] = {
+>>>  };
+>>>  MODULE_DEVICE_TABLE(of, as3722_of_match);
+>>>  
+>>> -static const struct i2c_device_id as3722_i2c_id[] = {
+>>> -	{ "as3722", 0 },
+>>> -	{},
+>>> -};
+>>> -MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+>>> -
+>>
+>> ... but I don't think this is correct. Otherwise you will break module
+>> autoload for this driver since modpost needs the I2C device ID table
+>> info to fill the i2c modalias in the drivers' module.
+>>
+>> Remember that i2c_device_uevent() always reports modalias of the form
+>> MODALIAS=i2c:<foo> even when your series allows to match without a I2C
+>> device ID table.
+>>
 > 
-> That seems like a fairly recent laptop:
+> Ok - Thanks for the reminder. I'll try to bear this in mind when we
+> start updating drivers.
 > 
-> http://www.notebookcheck.net/Review-HP-EliteBook-8570p-B6Q03EA-ABD-Notebook.82291.0.html
+> For now we can consider this patch dropped from the series I think.
+>
+
+Yes, or you could just do the change that uses probe_new for now but
+leave the MODULE_DEVICE_TABLE().
+
+>> Best regards,
+>>
 > 
-> and it has a true parallel port?
 
-It has parallel port on address 0x378/0x778, IRQ 5 by default which is
-realized by Super IO chip.
-
-In PnP config also available for selection are addresses 0x278/0x678,
-0x3bc/0x7bc, IRQ 7 and ISA DMA channels 1 and 3.
-
-Although I have never used this port personally it looks like what can
-be considered a "true" parallel port.
-
-> Thanks a lot for the pointer!
-
-You are welcome.
-
-Maciej
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
