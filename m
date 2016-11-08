@@ -1,72 +1,38 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: Re: [PATCH v2 3/4] Device bindings documentation updated ACPI-enabled
- platforms not currently supported
-Date: Tue, 8 Nov 2016 14:18:44 +0000
-Message-ID: <9a3dd667-b8ac-7116-a855-538f3e91572f@synopsys.com>
-References: <cover.1476462204.git.lolivei@synopsys.com>
- <36f4b1736e36b039af15b13645df0de492f1b6e1.1476462204.git.lolivei@synopsys.com>
- <20161014173014.GA26269@leverpostej> <20161014182045.GA1509@katana>
- <55cc91af-8d24-8aea-f74f-2ef40cd8ea5a@synopsys.com>
- <20161018151706.GA1433@katana>
- <76ab13e9-9aa5-97c3-2328-928bbcef9877@synopsys.com>
- <1477047272.6423.6.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1477047272.6423.6.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, devicetree@vger.kernel.org, CARLOS.PALMINHA@synopsys.com
+From: Romain Perier <romain.perier@free-electrons.com>
+Subject: [PATCH 3/3] dt-bindings: i2c: pxa: Update the documentation for the Armada 3700
+Date: Tue,  8 Nov 2016 16:15:06 +0100
+Message-ID: <20161108151506.1131-4-romain.perier@free-electrons.com>
+References: <20161108151506.1131-1-romain.perier@free-electrons.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from up.free-electrons.com ([163.172.77.33]:49303 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752626AbcKHPPf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 8 Nov 2016 10:15:35 -0500
+In-Reply-To: <20161108151506.1131-1-romain.perier@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
 
-Hi,
+This commit documents the compatible string to have the compatibility for
+the I2C unit found in the Armada 3700.
 
+Signed-off-by: Romain Perier <romain.perier@free-electrons.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-As you suggested I will split the drivers. I am thinking of doing 5 patches:
-
-- factor out master() parts
-
-- separate Master part to i2c-designware-master.c (changes in i2c-designware-core.c)
-
-- enable Slave part to i2c-designware-slave (changes in i2c-designware-core.c)
-
-- glue drivers and device bindings
-
-- cleaning
-
-
-Regards,
-
-Luis
-
-On 21-Oct-16 11:54, Andy Shevchenko wrote:
-> On Fri, 2016-10-21 at 10:56 +0100, Luis Oliveira wrote:
->> Since practically 90% of the code is shared between master and slave,
->> I was
->> thinking if it will be acceptable to use the same driver for both but
->> differentiate the master/slave mode by the compatible strings.
-> It might be possible to split like other drivers do:
->
-> 1. Core part (i2c-designware-core.c)
-> 2. Master part (i2c-designware-master.c)
-> 3. Slave part (i2c-designware-slave.c)
-> 4. Glue drivers (like: i2c-designware-platdrv.c)
->
->> Thanks,
->> Luis
->>
->> On 10/18/2016 16:17, Wolfram Sang wrote:
->>>> This is needed because the configuration is different and the i2c-
->>>> designware
->>>> cannot be master/slave without a reset. To resolve that I added
->>>> this property
->>>> to bind it as a slave when needed.
->>> Aww, pity that the HW can't do that. Do you have details why?
->>>
->>> If that is really a HW limitation, then I'd suggest having a
->>> seperate
->>> driver for slave-only mode so we can differentiate by compatible
->>> strings.
->>>
->>
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+index 12b78ac..b1b995c 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+@@ -7,6 +7,7 @@ Required properties :
+    compatible processor, e.g. pxa168, pxa910, mmp2, mmp3.
+    For the pxa2xx/pxa3xx, an additional node "mrvl,pxa-i2c" is required
+    as shown in the example below.
++   For the Armada 3700, the compatible should be "marvell,armada-3700".
+ 
+ Recommended properties :
+ 
+-- 
+2.9.3
