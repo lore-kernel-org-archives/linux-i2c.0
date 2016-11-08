@@ -1,63 +1,74 @@
-From: "Y.B. Lu" <yangbo.lu@nxp.com>
-Subject: RE: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
-Date: Tue, 8 Nov 2016 06:49:51 +0000
-Message-ID: <DB6PR0401MB25366BC8FF59C68E2823245EF8A60@DB6PR0401MB2536.eurprd04.prod.outlook.com>
-References: <1477637418-38938-1-git-send-email-yangbo.lu@nxp.com>
- <2723366.1bJeJ7SKI6@wuerfel>
- <DB6PR0401MB2536B1B2E6AC36BDC8FC540DF8AE0@DB6PR0401MB2536.eurprd04.prod.outlook.com>
- <1543282.vWjeo4ynTa@wuerfel>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 1/2] i2c: octeon: Fix register access
+Date: Tue, 8 Nov 2016 08:13:37 +0100
+Message-ID: <20161108071337.GA4601@hardcore>
+References: <20161107200921.30284-1-paul.burton@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543282.vWjeo4ynTa@wuerfel>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>, Scott Wood <oss@buserror.net>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "X.B. Xie" <xiaobo.xie@nxp.com>, "M.H. Lian" <minghuan.lian@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>, Russell King <linux@arm.linux.org.uk>, Bhupesh Sharma <bhupesh.sharma@freescale.com>, Joerg Roedel <joro@8bytes.org>, Claudiu Manoil <claudiu.manoil@freescale.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+In-Reply-To: <20161107200921.30284-1-paul.burton@imgtec.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Paul Burton <paul.burton@imgtec.com>
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd,
+On Mon, Nov 07, 2016 at 08:09:20PM +0000, Paul Burton wrote:
+> Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
+> retries") attempted to replace potentially infinite loops with ones
+> which will time out using readq_poll_timeout, but in doing so it
+> inverted the condition for exiting this loop.
+> 
+> Tested on a Rhino Labs UTM-8 with Octeon CN7130.
+> 
+> Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+> Cc: Jan Glauber <jglauber@cavium.com>
+> Cc: David Daney <david.daney@cavium.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> 
+> ---
 
+Acked-by: Jan Glauber <jglauber@cavium.com>
 
-> -----Original Message-----
-> From: Arnd Bergmann [mailto:arnd@arndb.de]
-> Sent: Tuesday, November 08, 2016 5:20 AM
-> To: Y.B. Lu
-> Cc: linuxppc-dev@lists.ozlabs.org; linux-mmc@vger.kernel.org;
-> ulf.hansson@linaro.org; Scott Wood; Mark Rutland; Greg Kroah-Hartman; X.B=
-.
-> Xie; M.H. Lian; linux-i2c@vger.kernel.org; linux-clk@vger.kernel.org;
-> Qiang Zhao; Russell King; Bhupesh Sharma; Joerg Roedel; Claudiu Manoil;
-> devicetree@vger.kernel.org; Rob Herring; Santosh Shilimkar; linux-arm-
-> kernel@lists.infradead.org; netdev@vger.kernel.org; linux-
-> kernel@vger.kernel.org; Leo Li; iommu@lists.linux-foundation.org; Kumar
-> Gala
-> Subject: Re: [v15, 3/7] powerpc/fsl: move mpc85xx.h to include/linux/fsl
->=20
-> On Monday, October 31, 2016 9:35:33 AM CET Y.B. Lu wrote:
-> > >
-> > > I don't see any of the contents of this header referenced by the soc
-> > > driver any more. I think you can just drop this patch.
-> > >
-> >
-> > [Lu Yangbo-B47093] This header file was included by guts.c.
-> > The guts driver used macro SVR_MAJ/SVR_MIN for calculation.
-> >
-> > This header file was for powerpc arch before. And this patch is to
-> > made it as common header file for both ARM and PPC.
-> > Sooner or later this is needed.
->=20
-> Let's discuss it once we actually need the header then, ok?
+Thanks for spotting this. I think this should go into stable too for
+4.8, so adding Cc: stable@vger.kernel.org.
 
-[Lu Yangbo-B47093] As I said, this header file was included by guts.c in pa=
-tch 4.
-The guts driver used macro SVR_MAJ/SVR_MIN for calculation which were defin=
-ed in this header file.
-Did you suggest we dropped this patch and just calculated them in driver?
-
-Thanks :)
-
-
->=20
-> 	Arnd
+>  drivers/i2c/busses/i2c-octeon-core.h | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
+> index 1db7c83..d980406 100644
+> --- a/drivers/i2c/busses/i2c-octeon-core.h
+> +++ b/drivers/i2c/busses/i2c-octeon-core.h
+> @@ -146,8 +146,9 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
+>  
+>  	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
+>  
+> -	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp, tmp & SW_TWSI_V,
+> -			   I2C_OCTEON_EVENT_WAIT, i2c->adap.timeout);
+> +	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
+> +			   !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
+> +			   i2c->adap.timeout);
+>  }
+>  
+>  #define octeon_i2c_ctl_write(i2c, val)					\
+> @@ -173,7 +174,7 @@ static inline int octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg,
+>  	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
+>  
+>  	ret = readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
+> -				 tmp & SW_TWSI_V, I2C_OCTEON_EVENT_WAIT,
+> +				 !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
+>  				 i2c->adap.timeout);
+>  	if (error)
+>  		*error = ret;
+> -- 
+> 2.10.2
