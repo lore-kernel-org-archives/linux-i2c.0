@@ -1,158 +1,73 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 2/2] i2c: octeon: Fix waiting for operation completion
-Date: Tue, 8 Nov 2016 10:20:17 +0100
-Message-ID: <20161108092017.GC5675@hardcore>
-References: <20161107200921.30284-1-paul.burton@imgtec.com>
- <20161107200921.30284-2-paul.burton@imgtec.com>
+From: Johnny Bieren <jbieren@redhat.com>
+Subject: amd756 driver error introduced with kernel-4.9.0-0.rc1.git0.2.fc26
+Date: Tue, 8 Nov 2016 07:50:34 -0500
+Message-ID: <5821CA1A.5020608@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20161107200921.30284-2-paul.burton@imgtec.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Paul Burton <paul.burton@imgtec.com>
-Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Peter Swain <pswain@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37380 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752883AbcKHMvu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 8 Nov 2016 07:51:50 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com
+Cc: linux-i2c@vger.kernel.org
 
-On Mon, Nov 07, 2016 at 08:09:21PM +0000, Paul Burton wrote:
-> Commit 1bb1ff3e7c74 ("i2c: octeon: Improve performance if interrupt is
-> early") modified octeon_i2c_wait() & octeon_i2c_hlc_wait() to attempt to
-> check for a valid bit being clear & if not to sleep for a while then try
-> again before waiting on a waitqueue which may time out. However it does
-> so by sleeping within a function called as the condition provided to
-> wait_event_timeout() which seems to cause strange behaviour, with the
-> system hanging during boot with the condition being checked constantly &
-> the timeout not seeming to have any effect.
-> 
-> Fix this by instead checking for the valid bit being clear in the
-> octeon_i2c(_hlc)_wait() functions & sleeping there if that condition is
-> not met, then calling the wait_event_timeout with a condition that does
-> not sleep.
-> 
-> Tested on a Rhino Labs UTM-8 with Octeon CN7130.
+Hello,
+It appears that a driver_probe_device failure was introduced with 
+kernel-4.9.0-0.rc1.git0.2.fc26.  When booting this kernel, or any newer 
+kernel, I see the following:
 
-This patch breaks ipmi on ThunderX (CN88xx). We also have not seen the
-problems you mention, although I must admit that I don't like the
-complicated nested waits.
+[   15.675485] ------------[ cut here ]------------
+[   15.680129] WARNING: CPU: 4 PID: 528 at drivers/base/dd.c:343 
+driver_probe_device+0x353/0x430
+[   15.688678] Modules linked in: i2c_amd756(+) pcc_cpufreq(-) k8temp 
+fjes amd_rng acpi_cpufreq tpm_tis tpm_tis_core tpm nfsd auth_rpcgss 
+nfs_acl lockd grace sunrpc xfs libcrc32c hpsa scsi_transport_sas 
+ata_generic pata_acpi serio_raw cciss pata_amd
+[   15.688681] CPU: 4 PID: 528 Comm: systemd-udevd Not tainted 
+4.9.0-0.rc1.git0.2.fc26.x86_64 #1
+[   15.688690] Hardware name: HP ProLiant DL385 G1, BIOS A05 03/01/2006
+[   15.688693]  ffffb5ddc062bb00 ffffffff953e93fd 0000000000000000 
+0000000000000000
+[   15.688695]  ffffb5ddc062bb40 ffffffff950a181b 00000157bd43a0a0 
+ffff8f70bd43a0a0
+[   15.688697]  ffffffffc0440468 ffffffffc0440468 000000000000000b 
+0000000000000001
+[   15.688698] Call Trace:
+[   15.688703]  [<ffffffff953e93fd>] dump_stack+0x63/0x86
+[   15.688706]  [<ffffffff950a181b>] __warn+0xcb/0xf0
+[   15.688708]  [<ffffffff950a194d>] warn_slowpath_null+0x1d/0x20
+[   15.688709]  [<ffffffff955409a3>] driver_probe_device+0x353/0x430
+[   15.688711]  [<ffffffff95540b5f>] __driver_attach+0xdf/0xf0
+[   15.688713]  [<ffffffff95540a80>] ? driver_probe_device+0x430/0x430
+[   15.688715]  [<ffffffff9553e25c>] bus_for_each_dev+0x6c/0xc0
+[   15.688717]  [<ffffffff9553ffbe>] driver_attach+0x1e/0x20
+[   15.688718]  [<ffffffff9553f9f0>] bus_add_driver+0x170/0x270
+[   15.688720]  [<ffffffffc0407000>] ? 0xffffffffc0407000
+[   15.688722]  [<ffffffff95541480>] driver_register+0x60/0xe0
+[   15.688723]  [<ffffffffc0407000>] ? 0xffffffffc0407000
+[   15.688725]  [<ffffffff9543e7dc>] __pci_register_driver+0x4c/0x50
+[   15.688728]  [<ffffffffc040701e>] amd756_driver_init+0x1e/0x1000 
+[i2c_amd756]
+[   15.688731]  [<ffffffff95002190>] do_one_initcall+0x50/0x180
+[   15.688734]  [<ffffffff9520ab81>] ? __vunmap+0x81/0xd0
+[   15.688737]  [<ffffffff9522ad29>] ? kmem_cache_alloc_trace+0x99/0x1b0
+[   15.688739]  [<ffffffff951bb9aa>] ? do_init_module+0x27/0x1ef
+[   15.688741]  [<ffffffff951bb9e2>] do_init_module+0x5f/0x1ef
+[   15.688744]  [<ffffffff9512f581>] load_module+0x25b1/0x2980
+[   15.688746]  [<ffffffff9512be60>] ? __symbol_put+0x60/0x60
+[   15.688749]  [<ffffffff9512fac3>] SYSC_init_module+0x173/0x190
+[   15.688751]  [<ffffffff9512fbfe>] SyS_init_module+0xe/0x10
+[   15.688753]  [<ffffffff95003c17>] do_syscall_64+0x67/0x180
+[   15.688757]  [<ffffffff958112ab>] entry_SYSCALL64_slow_path+0x25/0x25
+[   15.688758] ---[ end trace 9920abb49d6753e2 ]---
 
---Jan
+The problem does not appear in kernel-4.9.0-0.rc0.git9.1.fc26, but it 
+does appear in kernel-4.9.0-0.rc1.git0.2.fc26.  It reproduces 100% of 
+the time for me.  Can you please look into this issue?
 
-> Signed-off-by: Paul Burton <paul.burton@imgtec.com>
-> Cc: David Daney <david.daney@cavium.com>
-> Cc: Jan Glauber <jglauber@cavium.com>
-> Cc: Peter Swain <pswain@cavium.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> ---
-> 
->  drivers/i2c/busses/i2c-octeon-core.c | 58 ++++++++++--------------------------
->  1 file changed, 15 insertions(+), 43 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-> index 419b54b..2e270a1 100644
-> --- a/drivers/i2c/busses/i2c-octeon-core.c
-> +++ b/drivers/i2c/busses/i2c-octeon-core.c
-> @@ -36,24 +36,6 @@ static bool octeon_i2c_test_iflg(struct octeon_i2c *i2c)
->  	return (octeon_i2c_ctl_read(i2c) & TWSI_CTL_IFLG);
->  }
->  
-> -static bool octeon_i2c_test_ready(struct octeon_i2c *i2c, bool *first)
-> -{
-> -	if (octeon_i2c_test_iflg(i2c))
-> -		return true;
-> -
-> -	if (*first) {
-> -		*first = false;
-> -		return false;
-> -	}
-> -
-> -	/*
-> -	 * IRQ has signaled an event but IFLG hasn't changed.
-> -	 * Sleep and retry once.
-> -	 */
-> -	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-> -	return octeon_i2c_test_iflg(i2c);
-> -}
-> -
->  /**
->   * octeon_i2c_wait - wait for the IFLG to be set
->   * @i2c: The struct octeon_i2c
-> @@ -80,8 +62,13 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
->  	}
->  
->  	i2c->int_enable(i2c);
-> -	time_left = wait_event_timeout(i2c->queue, octeon_i2c_test_ready(i2c, &first),
-> -				       i2c->adap.timeout);
-> +	time_left = i2c->adap.timeout;
-> +	if (!octeon_i2c_test_iflg(i2c)) {
-> +		usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-> +		time_left = wait_event_timeout(i2c->queue,
-> +					       octeon_i2c_test_iflg(i2c),
-> +					       time_left);
-> +	}
->  	i2c->int_disable(i2c);
->  
->  	if (i2c->broken_irq_check && !time_left &&
-> @@ -99,26 +86,8 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
->  
->  static bool octeon_i2c_hlc_test_valid(struct octeon_i2c *i2c)
->  {
-> -	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
-> -}
-> -
-> -static bool octeon_i2c_hlc_test_ready(struct octeon_i2c *i2c, bool *first)
-> -{
->  	/* check if valid bit is cleared */
-> -	if (octeon_i2c_hlc_test_valid(i2c))
-> -		return true;
-> -
-> -	if (*first) {
-> -		*first = false;
-> -		return false;
-> -	}
-> -
-> -	/*
-> -	 * IRQ has signaled an event but valid bit isn't cleared.
-> -	 * Sleep and retry once.
-> -	 */
-> -	usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-> -	return octeon_i2c_hlc_test_valid(i2c);
-> +	return (__raw_readq(i2c->twsi_base + SW_TWSI(i2c)) & SW_TWSI_V) == 0;
->  }
->  
->  static void octeon_i2c_hlc_int_clear(struct octeon_i2c *i2c)
-> @@ -176,7 +145,6 @@ static void octeon_i2c_hlc_disable(struct octeon_i2c *i2c)
->   */
->  static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
->  {
-> -	bool first = true;
->  	int time_left;
->  
->  	/*
-> @@ -194,9 +162,13 @@ static int octeon_i2c_hlc_wait(struct octeon_i2c *i2c)
->  	}
->  
->  	i2c->hlc_int_enable(i2c);
-> -	time_left = wait_event_timeout(i2c->queue,
-> -				       octeon_i2c_hlc_test_ready(i2c, &first),
-> -				       i2c->adap.timeout);
-> +	time_left = i2c->adap.timeout;
-> +	if (!octeon_i2c_hlc_test_valid(i2c)) {
-> +		usleep_range(I2C_OCTEON_EVENT_WAIT, 2 * I2C_OCTEON_EVENT_WAIT);
-> +		time_left = wait_event_timeout(i2c->queue,
-> +					       octeon_i2c_hlc_test_valid(i2c),
-> +					       time_left);
-> +	}
->  	i2c->hlc_int_disable(i2c);
->  	if (!time_left)
->  		octeon_i2c_hlc_int_clear(i2c);
-> -- 
-> 2.10.2
+Thanks,
+Johnny Bieren
