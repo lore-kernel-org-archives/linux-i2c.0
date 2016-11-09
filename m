@@ -1,112 +1,64 @@
-From: Paul Burton <paul.burton@imgtec.com>
-Subject: Re: [PATCH 1/2] i2c: octeon: Fix register access
-Date: Wed, 9 Nov 2016 14:09:38 +0000
-Message-ID: <10136944.jCslgNClvG@np-p-burton>
-References: <20161107200921.30284-1-paul.burton@imgtec.com> <20161108071337.GA4601@hardcore>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
+Date: Wed, 9 Nov 2016 15:35:08 +0100
+Message-ID: <20161109143508.GA19184@verge.net.au>
+References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+ <20161109084406.GA22213@verge.net.au>
+ <20161109085954.GA1807@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1679706.iadls1NNpy";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20161108071337.GA4601@hardcore>
-Sender: stable-owner@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20161109085954.GA1807@katana>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---nextPart1679706.iadls1NNpy
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-
-On Tuesday, 8 November 2016 08:13:37 GMT Jan Glauber wrote:
-> On Mon, Nov 07, 2016 at 08:09:20PM +0000, Paul Burton wrote:
-> > Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
-> > retries") attempted to replace potentially infinite loops with ones
-> > which will time out using readq_poll_timeout, but in doing so it
-> > inverted the condition for exiting this loop.
-> > 
-> > Tested on a Rhino Labs UTM-8 with Octeon CN7130.
-> > 
-> > Signed-off-by: Paul Burton <paul.burton@imgtec.com>
-> > Cc: Jan Glauber <jglauber@cavium.com>
-> > Cc: David Daney <david.daney@cavium.com>
-> > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > Cc: linux-i2c@vger.kernel.org
-> > 
-> > ---
+On Wed, Nov 09, 2016 at 09:59:54AM +0100, Wolfram Sang wrote:
+> Hi Simon,
 > 
-> Acked-by: Jan Glauber <jglauber@cavium.com>
+> > I have tested these patches on alt, gose, lager and koelsch.
 > 
-> Thanks for spotting this. I think this should go into stable too for
-> 4.8, so adding Cc: stable@vger.kernel.org.
-
-Hi Jan,
-
-...but the bad patch was only merged for v4.9-rc1?
-
-Thanks,
-    Paul
-
+> Wow, that was quick. Thank you!
 > 
-> >  drivers/i2c/busses/i2c-octeon-core.h | 7 ++++---
-> >  1 file changed, 4 insertions(+), 3 deletions(-)
+> > The switching part seems to work fine, in so far as my test script
+> > succeeds. However, it seems that some IP blocks are not able to handle
+> > this switching. In particular I needed to disable VIDEO_RCAR_VIN and 
+> > REGULATOR_DA9210 to avoid errors shown in the logs below.
+> 
+> Yes. Probably we should activate the shiny new DEBUG_TEST_DRIVER_REMOVE
+> and if that passes, we should be safe.
+> 
+> > My suggestion is to drop the following patches until those problems
+> > can be sorted out, most likely via driver updates.
 > > 
-> > diff --git a/drivers/i2c/busses/i2c-octeon-core.h
-> > b/drivers/i2c/busses/i2c-octeon-core.h index 1db7c83..d980406 100644
-> > --- a/drivers/i2c/busses/i2c-octeon-core.h
-> > +++ b/drivers/i2c/busses/i2c-octeon-core.h
-> > @@ -146,8 +146,9 @@ static inline void octeon_i2c_reg_write(struct
-> > octeon_i2c *i2c, u64 eop_reg, u8> 
-> >  	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + 
-SW_TWSI(i2c));
+> > ARM: dts: alt: use demuxer for I2C1
+> > ARM: dts: gose: use demuxer for I2C2
+> > ARM: dts: lager: use demuxer for IIC2/I2C2
+> > ARM: dts: lager: use demuxer for IIC3/I2C3
+> > ARM: dts: koelsch: use demuxer for I2C2
+> 
+> OK. I'll try to have a look at those drivers nonetheless, because
+> rebasing these patches is a bit of a hazzle once new i2c slaves were
+> added to the busses. But I'll juest resend the patches along with my
+> fixes if I really can find the time.
+> 
+> > I am not in a position to test silk or porter at this time.
+> > But by the same reasoning above I wonder if the following should
+> > be dropped for now.
 > > 
-> > -	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp, tmp & 
-SW_TWSI_V,
-> > -			   I2C_OCTEON_EVENT_WAIT, i2c->adap.timeout);
-> > +	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
-> > +			   !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
-> > +			   i2c->adap.timeout);
-> > 
-> >  }
-> >  
-> >  #define octeon_i2c_ctl_write(i2c, val)					\
-> > 
-> > @@ -173,7 +174,7 @@ static inline int octeon_i2c_reg_read(struct
-> > octeon_i2c *i2c, u64 eop_reg,> 
-> >  	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base +
-> >  	SW_TWSI(i2c));
-> >  	
-> >  	ret = readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
-> > 
-> > -				 tmp & SW_TWSI_V, I2C_OCTEON_EVENT_WAIT,
-> > +				 !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
-> > 
-> >  				 i2c->adap.timeout);
-> >  	
-> >  	if (error)
-> >  	
-> >  		*error = ret;
+> > ARM: dts: gose: use demuxer for I2C2
+> 
+> I assume you mean 'porter' here.
 
+Yes, I meant porter.
 
---nextPart1679706.iadls1NNpy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+> > ARM: dts: silk: use demuxer for I2C1
+> 
+> Will you get access to these boards in the foreseeable future?
 
------BEGIN PGP SIGNATURE-----
+As mentioned by Geert, there is a porter in Magnus's board farm.
+Unforunately I have never had much luck in getting it to boot.
 
-iQIcBAABCAAGBQJYIy4iAAoJEIIg2fppPBxltykP/i2zTP544fkCFKG44pTGgAAb
-/+6uPeid6OB1UAOmNpF1HoZA8M9Ag/6JCxd/lwnAq3L3TzJPb18zqXyHZfhi9Uxk
-7OqC8amjvxJC41hF5NLxyPBc+cuX1yKusy/dRfhWvjchZAwq8x61MpX7UJ14HHLk
-bMmei3sNnL1FL6exVKwvDxGqHaXjULBIEF6LCVaCCaErDD8YIXL2lIqDHum+5wLi
-Sp4jTfRMdyZLRLyWRpdR++H4+CWSYrt427narLwUbHoRIrxWOCENH3qQobWamfqL
-sF54kGtniWLuIKokOcER+FB+sU2zDnkfJ10r+yeejC/+boSEcuLoM6Xs966j+6TS
-nXYkPnmN0a6SmwAWjDFpSxd82oYmGKZTohzVVikCFwhw2LSr4nG8ElJmn/COuuza
-nncIP9B4M0Avoie2saiIq4LMntQgn2N96p0VVW1gGcl6M0lzdVXmCGd80hJrX8L5
-atqxMSCGNli26mu6Hq3Y2iPS+95GSl+GnXCZS4sMxYrZpbaiixwWiNHGTomjo3J3
-d/28rWL1NbbnmC7n4XTUEXn0OuJtQUw2nh2z2vyb5DNYPGAMSpNz5PoL3GSicbrx
-9VlfaI4D0cRNMbppWkjF81KlBynGUEKXZpzSojg4yKI3UWflVtLOhOfYbtGcM1Io
-hNRFZALCF4vOqIi72E82
-=R8TF
------END PGP SIGNATURE-----
-
---nextPart1679706.iadls1NNpy--
+With regards to silk, I'm not aware of any plans at this time.
