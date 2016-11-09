@@ -1,99 +1,90 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] i2c: pxa: Add support for the I2C units found in
- Armada 3700
-Date: Wed, 9 Nov 2016 10:59:47 +0200
-Message-ID: <20161109085946.cmd4ltaxpiojq7il@tarshish>
-References: <20161109081431.10115-1-romain.perier@free-electrons.com>
- <20161109081431.10115-2-romain.perier@free-electrons.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
+Date: Wed, 9 Nov 2016 09:59:54 +0100
+Message-ID: <20161109085954.GA1807@katana>
+References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+ <20161109084406.GA22213@verge.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161109081431.10115-2-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWMP3drIcvDWNA@public.gmane.org
+In-Reply-To: <20161109084406.GA22213@verge.net.au>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Romain,
 
-On Wed, Nov 09, 2016 at 09:14:29AM +0100, Romain Perier wrote:
-> The Armada 3700 has two I2C controllers that is compliant with the I2C
-> Bus Specificiation 2.1, supports multi-master and different bus speed:
-> Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
-> High speed mode (up to 3.4 Mhz).
-> 
-> This IP block has a lot of similarity with the PXA, except some register
-> offsets and bitfield. This commits adds a basic support for this I2C
-> unit.
-> 
-> Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[...]
+Hi Simon,
 
-> @@ -122,7 +131,9 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
->  #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
->  #define ICR_UR		(1 << 14)	   /* unit reset */
->  #define ICR_FM		(1 << 15)	   /* fast mode */
-> +#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
->  #define ICR_HS		(1 << 16)	   /* High Speed mode */
-> +#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
->  #define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
->  
->  #define ISR_RWM		(1 << 0)	   /* read/write mode */
-> @@ -193,6 +204,8 @@ struct pxa_i2c {
->  	unsigned char		master_code;
->  	unsigned long		rate;
->  	bool			highmode_enter;
-> +	unsigned long		fm_mask;
-> +	unsigned long		hs_mask;
+> I have tested these patches on alt, gose, lager and koelsch.
 
-Do you really need 64bit for that?
+Wow, that was quick. Thank you!
 
-baruch
+> The switching part seems to work fine, in so far as my test script
+> succeeds. However, it seems that some IP blocks are not able to handle
+> this switching. In particular I needed to disable VIDEO_RCAR_VIN and=20
+> REGULATOR_DA9210 to avoid errors shown in the logs below.
 
->  };
->  
->  #define _IBMR(i2c)	((i2c)->reg_ibmr)
-> @@ -503,8 +516,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->  		writel(i2c->slave_addr, _ISAR(i2c));
->  
->  	/* set control register values */
-> -	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
-> -	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
-> +	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
-> +	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
->  
->  #ifdef CONFIG_I2C_PXA_SLAVE
->  	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-> @@ -1137,6 +1150,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
->  	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
->  	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
->  	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
-> +	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
->  	{}
->  };
->  MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
-> @@ -1158,6 +1172,13 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
->  		i2c->use_pio = 1;
->  	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
->  		i2c->fast_mode = 1;
-> +	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
-> +		i2c->fm_mask = ICR_BUSMODE_FM;
-> +		i2c->hs_mask = ICR_BUSMODE_HS;
-> +	} else {
-> +		i2c->fm_mask = ICR_FM;
-> +		i2c->hs_mask = ICR_HS;
-> +	}
->  
->  	*i2c_types = (enum pxa_i2c_types)(of_id->data);
+Yes. Probably we should activate the shiny new DEBUG_TEST_DRIVER_REMOVE
+and if that passes, we should be safe.
 
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.52.368.4656, http://www.tkos.co.il -
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> My suggestion is to drop the following patches until those problems
+> can be sorted out, most likely via driver updates.
+>=20
+> ARM: dts: alt: use demuxer for I2C1
+> ARM: dts: gose: use demuxer for I2C2
+> ARM: dts: lager: use demuxer for IIC2/I2C2
+> ARM: dts: lager: use demuxer for IIC3/I2C3
+> ARM: dts: koelsch: use demuxer for I2C2
+
+OK. I'll try to have a look at those drivers nonetheless, because
+rebasing these patches is a bit of a hazzle once new i2c slaves were
+added to the busses. But I'll juest resend the patches along with my
+fixes if I really can find the time.
+
+> I am not in a position to test silk or porter at this time.
+> But by the same reasoning above I wonder if the following should
+> be dropped for now.
+>=20
+> ARM: dts: gose: use demuxer for I2C2
+
+I assume you mean 'porter' here.
+
+> ARM: dts: silk: use demuxer for I2C1
+
+Will you get access to these boards in the foreseeable future?
+
+Thanks,
+
+   Wolfram
+
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYIuWJAAoJEBQN5MwUoCm2oRkQAKpVieJZoZU6XaNuQCLNcZMv
+uXuwar79xNgbQGFbnhHeCcSOFMozy0VORdX1XAJrFydsMiBm38NsAWcQjdlwbz/w
+5HkGfe+9hqd0+ftTqUxQoa8DJvwXZjRi3/6dauHCY+r9DikpkHEddAjObJtUv/Ek
+ha7gUcFO/8qWpVcZ13x/DF60G1pdjXb/ZJvrqj2DDygte9Am6a3nZqhFyVZRIqBv
+KBUZFrQJVJQSQaOaAcLRqjJ9/lxk34eRJPVtD0qP/FFdqmUl+z8MDzYuOUHPir/4
+2jrVqxs5V1Acr95sKXhkbbaaygBids+C2+0Fs3eSOx0HVc6bMs0+Udwb32hPu/iD
+WNXU2v0fq0g8HQoknKVhIItouSX47F4HraqK4PyZhSZMVN3xOlHRuj3Wdb15vwb3
+u9MxRTJLW+xdC1ECesLAo8BBwZA4F6uMNd802S93gtXc7PFGyVcYRaQR4k+Jp2m0
+D3qp24knmK6X+lHnKWL64xnT8b9E/tmgCXyOZs1bEZyZ1tggYWz2Bg7O3S8+X7fE
+TxFo+xGxDmgzzEYh+AzHL89WKf9SgV2CLQ0/vQ6Ha74eM/KaF4nWzDQqbZ7FfWGq
+yHZcEgFlGHW9Szy1Rrg7niy9TMxCP23p9WZ5NG5+BD8pNFrdTxg5XBQi10UZrZyT
+0uSHEloGtkjIPlY+QkDh
+=WRP5
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--
