@@ -1,86 +1,143 @@
-From: <lcrumly@vet.k-state.edu>
-Subject: 35911 linux-i2c
-Date: Wed, 09 Nov 2016 10:45:32 -0000
-Message-ID: <147868833219.17359.11100574795741259496@hinet.net>
-Mime-Version: 1.0
-Content-Type: application/zip; name="MESSAGE_551535988129_linux-i2c.zip"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 111-252-89-12.dynamic.hinet.net ([111.252.89.12]:44518 "HELO
-        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-        id S932286AbcKIKpj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 9 Nov 2016 05:45:39 -0500
-Content-Disposition: attachment
-Sender: linux-i2c-owner@vger.kernel.org
+From: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v4 1/3] i2c: pxa: Add support for the I2C units found in Armada 3700
+Date: Wed,  9 Nov 2016 12:57:13 +0100
+Message-ID: <20161109115715.2557-2-romain.perier@free-electrons.com>
+References: <20161109115715.2557-1-romain.perier@free-electrons.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161109115715.2557-1-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
-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
+The Armada 3700 has two I2C controllers that is compliant with the I2C
+Bus Specificiation 2.1, supports multi-master and different bus speed:
+Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
+High speed mode (up to 3.4 Mhz).
+
+This IP block has a lot of similarity with the PXA, except some register
+offsets and bitfield. This commits adds a basic support for this I2C
+unit.
+
+Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+
+Changes in v4:
+ - Replaced the type of hs_mask and fm_mask by u32, instead of
+   unsigned int, As writel() take an u32 as first argument...
+
+Changes in v3:
+ - Replaced the type of hs_mask and fm_mask by unsigned int,
+   instead of unsigned long.
+
+ drivers/i2c/busses/Kconfig   |  2 +-
+ drivers/i2c/busses/i2c-pxa.c | 25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d252276..2f56a26 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -763,7 +763,7 @@ config I2C_PUV3
+ 
+ config I2C_PXA
+ 	tristate "Intel PXA2XX I2C adapter"
+-	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI && OF)
++	depends on ARCH_PXA || ARCH_MMP || ARCH_MVEBU || (X86_32 && PCI && OF)
+ 	help
+ 	  If you have devices in the PXA I2C bus, say yes to this option.
+ 	  This driver can also be built as a module.  If so, the module
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index e28b825..09b4705 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -55,6 +55,7 @@ enum pxa_i2c_types {
+ 	REGS_PXA3XX,
+ 	REGS_CE4100,
+ 	REGS_PXA910,
++	REGS_A3700,
+ };
+ 
+ /*
+@@ -91,6 +92,13 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
+ 		.ilcr = 0x28,
+ 		.iwcr = 0x30,
+ 	},
++	[REGS_A3700] = {
++		.ibmr = 0x00,
++		.idbr = 0x04,
++		.icr =	0x08,
++		.isr =	0x0c,
++		.isar = 0x10,
++	},
+ };
+ 
+ static const struct platform_device_id i2c_pxa_id_table[] = {
+@@ -98,6 +106,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
+ 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+ 	{ "ce4100-i2c",		REGS_CE4100 },
+ 	{ "pxa910-i2c",		REGS_PXA910 },
++	{ "armada-3700-i2c",	REGS_A3700  },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+@@ -122,7 +131,9 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+ #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+ #define ICR_UR		(1 << 14)	   /* unit reset */
+ #define ICR_FM		(1 << 15)	   /* fast mode */
++#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
+ #define ICR_HS		(1 << 16)	   /* High Speed mode */
++#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
+ #define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
+ 
+ #define ISR_RWM		(1 << 0)	   /* read/write mode */
+@@ -193,6 +204,8 @@ struct pxa_i2c {
+ 	unsigned char		master_code;
+ 	unsigned long		rate;
+ 	bool			highmode_enter;
++	u32			fm_mask;
++	u32			hs_mask;
+ };
+ 
+ #define _IBMR(i2c)	((i2c)->reg_ibmr)
+@@ -503,8 +516,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 		writel(i2c->slave_addr, _ISAR(i2c));
+ 
+ 	/* set control register values */
+-	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+-	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
++	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
++	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+@@ -1137,6 +1150,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
+ 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+ 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+ 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
++	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+@@ -1158,6 +1172,13 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
+ 		i2c->use_pio = 1;
+ 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
+ 		i2c->fast_mode = 1;
++	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
++		i2c->fm_mask = ICR_BUSMODE_FM;
++		i2c->hs_mask = ICR_BUSMODE_HS;
++	} else {
++		i2c->fm_mask = ICR_FM;
++		i2c->hs_mask = ICR_HS;
++	}
+ 
+ 	*i2c_types = (enum pxa_i2c_types)(of_id->data);
+ 
+-- 
+2.9.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
