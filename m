@@ -1,74 +1,86 @@
-From: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 2/3] arm64: dts: marvell: Add I2C definitions for the Armada 3700
-Date: Wed,  9 Nov 2016 11:13:48 +0100
-Message-ID: <20161109101349.18722-3-romain.perier@free-electrons.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v3 1/3] i2c: pxa: Add support for the I2C units found in
+ Armada 3700
+Date: Wed, 09 Nov 2016 11:21:06 +0100
+Message-ID: <87y40tkl7x.fsf@free-electrons.com>
 References: <20161109101349.18722-1-romain.perier@free-electrons.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161109101349.18722-1-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw>
+ <20161109101349.18722-2-romain.perier@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20161109101349.18722-2-romain.perier@free-electrons.com> (Romain
+ Perier's message of "Wed, 9 Nov 2016 11:13:47 +0100")
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Romain Perier <romain.perier@free-electrons.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Yahuda Yitschak <yehuday@marvell.com>, Omri Itach <omrii@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Igal Liberman <igall@marvell.com>, Hanna Hawa <hannah@marvell.com>, Wolfram Sang <wsa@the-dreams.de>, Neta Zur Hershkovits <neta@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Rob Herring <robh+dt@kernel.org>, Andrew Lunn <andrew@lunn.ch>, linux-i2c@vger.kernel.org, Kumar Gala <galak@codeaurora.org>, Shadi Ammouri <shadi@marvell.com>, Marcin Wojtas <mw@semihalf.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The Armada 3700 has two i2c bus interface units, this commit adds the
-definitions of the corresponding device nodes. It also enables the node
-on the development board for this SoC.
+Hi Romain,
 
-Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- arch/arm64/boot/dts/marvell/armada-3720-db.dts |  4 ++++
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi   | 18 ++++++++++++++++++
- 2 files changed, 22 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-db.dts b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-index 1372e9a6..16d84af 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-@@ -62,6 +62,10 @@
- 	};
- };
- 
-+&i2c0 {
-+	status = "okay";
-+};
-+
- /* CON3 */
- &sata {
- 	status = "okay";
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index c476253..bf2d73d 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -98,6 +98,24 @@
- 			/* 32M internal register @ 0xd000_0000 */
- 			ranges = <0x0 0x0 0xd0000000 0x2000000>;
- 
-+			i2c0: i2c@11000 {
-+				compatible = "marvell,armada-3700-i2c";
-+				reg = <0x11000 0x24>;
-+				clocks = <&nb_perih_clk 10>;
-+				interrupts = <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
-+				mrvl,i2c-fast-mode;
-+				status = "disabled";
-+			};
-+
-+			i2c1: i2c@11080 {
-+				compatible = "marvell,armada-3700-i2c";
-+				reg = <0x11080 0x24>;
-+				clocks = <&nb_perih_clk 9>;
-+				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
-+				mrvl,i2c-fast-mode;
-+				status = "disabled";
-+			};
-+
- 			uart0: serial@12000 {
- 				compatible = "marvell,armada-3700-uart";
- 				reg = <0x12000 0x400>;
+You was too fast I didn't have time to commnent about Baruch suggestion.
+
+ On mer., nov. 09 2016, Romain Perier <romain.perier@free-electrons.com> wrote:
+
+> The Armada 3700 has two I2C controllers that is compliant with the I2C
+> Bus Specificiation 2.1, supports multi-master and different bus speed:
+> Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
+> High speed mode (up to 3.4 Mhz).
+>
+> This IP block has a lot of similarity with the PXA, except some register
+> offsets and bitfield. This commits adds a basic support for this I2C
+> unit.
+>
+> Signed-off-by: Romain Perier <romain.perier@free-electrons.com>
+> Tested-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+> ---
+>
+> Changes in v3:
+>  - Replaced the type of hm_mask and fm_mask by unsigned int,
+>    instead of unsigned long.
+
+[...]
+
+
+>  #define ISR_RWM		(1 << 0)	   /* read/write mode */
+> @@ -193,6 +204,8 @@ struct pxa_i2c {
+>  	unsigned char		master_code;
+>  	unsigned long		rate;
+>  	bool			highmode_enter;
+> +	unsigned int		fm_mask;
+> +	unsigned int		hs_mask;
+
+These masks are used with writel and readl which use an u32. So the
+better is to use this type.
+
+Gregory
+
+>  };
+>  
+>  #define _IBMR(i2c)	((i2c)->reg_ibmr)
+> @@ -503,8 +516,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>  		writel(i2c->slave_addr, _ISAR(i2c));
+>  
+>  	/* set control register values */
+> -	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+> -	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+> +	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
+> +	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
+>  
+
+
+
 -- 
-2.9.3
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
