@@ -1,51 +1,83 @@
-From: Johnny Bieren <jbieren@redhat.com>
-Subject: Re: amd756 driver error introduced with
- kernel-4.9.0-0.rc1.git0.2.fc26
-Date: Tue, 8 Nov 2016 13:07:37 -0500
-Message-ID: <58221469.50005@redhat.com>
-References: <5821CA1A.5020608@redhat.com> <20161108145822.7194beac@endymion>
+From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
+Subject: [v16, 0/7] Fix eSDHC host version register bug
+Date: Wed, 9 Nov 2016 11:14:05 +0800
+Message-ID: <1478661252-42439-1-git-send-email-yangbo.lu@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54604 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750869AbcKHSHi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 8 Nov 2016 13:07:38 -0500
-In-Reply-To: <20161108145822.7194beac@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, Minghuan Lian <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org
 
-Hey Jean,
+This patchset is used to fix a host version register bug in the T4240-R1.0-R2.0
+eSDHC controller. To match the SoC version and revision, 15 previous version
+patchsets had tried many methods but all of them were rejected by reviewers.
+Such as
+	- dts compatible method
+	- syscon method
+	- ifdef PPC method
+	- GUTS driver getting SVR method
+Anrd suggested a soc_device_match method in v10, and this is the only available
+method left now. This v11 patchset introduces the soc_device_match interface in
+soc driver.
 
-No, that option is not enabled.
+The first four patches of Yangbo are to add the GUTS driver. This is used to
+register a soc device which contain soc version and revision information.
+The other three patches introduce the soc_device_match method in soc driver
+and apply it on esdhc driver to fix this bug.
 
-cat /boot/config-4.9.0-0.rc1.git0.2.fc26.x86_64 | grep DEBUG_TEST
-# CONFIG_DEBUG_TEST_DRIVER_REMOVE is not set
+---
+Changes for v15:
+	- Dropped patch 'dt: bindings: update Freescale DCFG compatible'
+	  since the work had been done by below patch on ShawnGuo's linux tree.
+	  'dt-bindings: fsl: add LS1043A/LS1046A/LS2080A compatible for SCFG
+	   and DCFG'
+	- Fixed error code issue in guts driver
+Changes for v16:
+	- Dropped patch 'powerpc/fsl: move mpc85xx.h to include/linux/fsl'
+	- Added a bug-fix patch from Geert
+---
 
-Thanks,
-Johnny
+Arnd Bergmann (1):
+  base: soc: introduce soc_device_match() interface
 
-On 11/08/2016 08:58 AM, Jean Delvare wrote:
-> Hi Johnny,
->
-> On Tue, 8 Nov 2016 07:50:34 -0500, Johnny Bieren wrote:
->> Hello,
->> It appears that a driver_probe_device failure was introduced with
->> kernel-4.9.0-0.rc1.git0.2.fc26.  When booting this kernel, or any newer
->> kernel, I see the following:
->>
->> [   15.675485] ------------[ cut here ]------------
->> [   15.680129] WARNING: CPU: 4 PID: 528 at drivers/base/dd.c:343
->> driver_probe_device+0x353/0x430
->> [   15.688678] Modules linked in: i2c_amd756(+) pcc_cpufreq(-) k8temp
->> (...)
->>
->> The problem does not appear in kernel-4.9.0-0.rc0.git9.1.fc26, but it
->> does appear in kernel-4.9.0-0.rc1.git0.2.fc26.  It reproduces 100% of
->> the time for me.  Can you please look into this issue?
-> Are the failing kernels built with option DEBUG_TEST_DRIVER_REMOVE
-> enabled?
->
+Geert Uytterhoeven (1):
+  base: soc: Check for NULL SoC device attributes
+
+Yangbo Lu (5):
+  ARM64: dts: ls2080a: add device configuration node
+  dt: bindings: move guts devicetree doc out of powerpc directory
+  soc: fsl: add GUTS driver for QorIQ platforms
+  MAINTAINERS: add entry for Freescale SoC drivers
+  mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
+
+ .../bindings/{powerpc => soc}/fsl/guts.txt         |   3 +
+ MAINTAINERS                                        |  11 +-
+ arch/arm64/boot/dts/freescale/fsl-ls2080a.dtsi     |   6 +
+ drivers/base/Kconfig                               |   1 +
+ drivers/base/soc.c                                 |  70 ++++++
+ drivers/mmc/host/Kconfig                           |   1 +
+ drivers/mmc/host/sdhci-of-esdhc.c                  |  20 ++
+ drivers/soc/Kconfig                                |   3 +-
+ drivers/soc/fsl/Kconfig                            |  18 ++
+ drivers/soc/fsl/Makefile                           |   1 +
+ drivers/soc/fsl/guts.c                             | 236 +++++++++++++++++++++
+ include/linux/fsl/guts.h                           | 125 ++++++-----
+ include/linux/sys_soc.h                            |   3 +
+ 13 files changed, 447 insertions(+), 51 deletions(-)
+ rename Documentation/devicetree/bindings/{powerpc => soc}/fsl/guts.txt (91%)
+ create mode 100644 drivers/soc/fsl/Kconfig
+ create mode 100644 drivers/soc/fsl/guts.c
+
+-- 
+2.1.0.27.g96db324
