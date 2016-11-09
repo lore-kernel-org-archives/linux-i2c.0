@@ -1,150 +1,134 @@
-From: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Subject: [v16, 7/7] mmc: sdhci-of-esdhc: fix host version for T4240-R1.0-R2.0
-Date: Wed, 9 Nov 2016 11:14:12 +0800
-Message-ID: <1478661252-42439-8-git-send-email-yangbo.lu@nxp.com>
-References: <1478661252-42439-1-git-send-email-yangbo.lu@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <1478661252-42439-1-git-send-email-yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Xiaobo Xie <xiaobo.xie-3arQi8VN3Tc@public.gmane.org>, Minghuan Lian <minghuan.lian-3arQi8VN3Tc@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Qiang Zhao <qiang.zhao-3arQi8VN3Tc@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Bhupesh Sharma <bhupesh.sharma-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Claudiu Manoil <claudiu.manoil-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Leo Li <leoyang.li-3arQi8VN3Tc@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+From: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v2 1/3] i2c: pxa: Add support for the I2C units found in Armada 3700
+Date: Wed,  9 Nov 2016 09:14:29 +0100
+Message-ID: <20161109081431.10115-2-romain.perier@free-electrons.com>
+References: <20161109081431.10115-1-romain.perier@free-electrons.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161109081431.10115-1-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw>
 List-Id: linux-i2c@vger.kernel.org
 
-The eSDHC of T4240-R1.0-R2.0 has incorrect vender version and spec version.
-Acturally the right version numbers should be VVN=0x13 and SVN = 0x1.
-This patch adds the GUTS driver support for eSDHC driver to match SoC.
-And fix host version to avoid that incorrect version numbers break down
-the ADMA data transfer.
+The Armada 3700 has two I2C controllers that is compliant with the I2C
+Bus Specificiation 2.1, supports multi-master and different bus speed:
+Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
+High speed mode (up to 3.4 Mhz).
 
-Signed-off-by: Yangbo Lu <yangbo.lu-3arQi8VN3Tc@public.gmane.org>
-Acked-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>
-Acked-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
----
-Changes for v2:
-	- Got SVR through iomap instead of dts
-Changes for v3:
-	- Managed GUTS through syscon instead of iomap in eSDHC driver
-Changes for v4:
-	- Got SVR by GUTS driver instead of SYSCON
-Changes for v5:
-	- Changed to get SVR through API fsl_guts_get_svr()
-	- Combined patch 4, patch 5 and patch 6 into one
-Changes for v6:
-	- Added 'Acked-by: Ulf Hansson'
-Changes for v7:
-	- None
-Changes for v8:
-	- Added 'Acked-by: Scott Wood'
-Changes for v9:
-	- None
-Changes for v10:
-	- None
-Changes for v11:
-	- Changed to use soc_device_match
-Changes for v12:
-	- Matched soc through .family field instead of .soc_id
-Changes for v13:
-	- None
-Changes for v14:
-	- None
-Changes for v15:
-	- None
-Changes for v16:
-	- Added 'Acked-by: Arnd'
----
- drivers/mmc/host/Kconfig          |  1 +
- drivers/mmc/host/sdhci-of-esdhc.c | 20 ++++++++++++++++++++
- 2 files changed, 21 insertions(+)
+This IP block has a lot of similarity with the PXA, except some register
+offsets and bitfield. This commits adds a basic support for this I2C
+unit.
 
-diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
-index 5cf7eba..4128a3c 100644
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -144,6 +144,7 @@ config MMC_SDHCI_OF_ESDHC
- 	depends on MMC_SDHCI_PLTFM
- 	depends on PPC || ARCH_MXC || ARCH_LAYERSCAPE
- 	select MMC_SDHCI_IO_ACCESSORS
-+	select FSL_GUTS
+Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig   |  2 +-
+ drivers/i2c/busses/i2c-pxa.c | 25 +++++++++++++++++++++++--
+ 2 files changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d252276..2f56a26 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -763,7 +763,7 @@ config I2C_PUV3
+ 
+ config I2C_PXA
+ 	tristate "Intel PXA2XX I2C adapter"
+-	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI && OF)
++	depends on ARCH_PXA || ARCH_MMP || ARCH_MVEBU || (X86_32 && PCI && OF)
  	help
- 	  This selects the Freescale eSDHC controller support.
- 
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index fb71c86..57bdb9e 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -18,6 +18,7 @@
- #include <linux/of.h>
- #include <linux/delay.h>
- #include <linux/module.h>
-+#include <linux/sys_soc.h>
- #include <linux/mmc/host.h>
- #include "sdhci-pltfm.h"
- #include "sdhci-esdhc.h"
-@@ -28,6 +29,7 @@
- struct sdhci_esdhc {
- 	u8 vendor_ver;
- 	u8 spec_ver;
-+	bool quirk_incorrect_hostver;
+ 	  If you have devices in the PXA I2C bus, say yes to this option.
+ 	  This driver can also be built as a module.  If so, the module
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index e28b825..34ea830 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -55,6 +55,7 @@ enum pxa_i2c_types {
+ 	REGS_PXA3XX,
+ 	REGS_CE4100,
+ 	REGS_PXA910,
++	REGS_A3700,
  };
  
- /**
-@@ -73,6 +75,8 @@ static u32 esdhc_readl_fixup(struct sdhci_host *host,
- static u16 esdhc_readw_fixup(struct sdhci_host *host,
- 				     int spec_reg, u32 value)
- {
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
- 	u16 ret;
- 	int shift = (spec_reg & 0x2) * 8;
- 
-@@ -80,6 +84,12 @@ static u16 esdhc_readw_fixup(struct sdhci_host *host,
- 		ret = value & 0xffff;
- 	else
- 		ret = (value >> shift) & 0xffff;
-+	/* Workaround for T4240-R1.0-R2.0 eSDHC which has incorrect
-+	 * vendor version and spec version information.
-+	 */
-+	if ((spec_reg == SDHCI_HOST_VERSION) &&
-+	    (esdhc->quirk_incorrect_hostver))
-+		ret = (VENDOR_V_23 << SDHCI_VENDOR_VER_SHIFT) | SDHCI_SPEC_200;
- 	return ret;
- }
- 
-@@ -558,6 +568,12 @@ static const struct sdhci_pltfm_data sdhci_esdhc_le_pdata = {
- 	.ops = &sdhci_esdhc_le_ops,
+ /*
+@@ -91,6 +92,13 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
+ 		.ilcr = 0x28,
+ 		.iwcr = 0x30,
+ 	},
++	[REGS_A3700] = {
++		.ibmr = 0x00,
++		.idbr = 0x04,
++		.icr =	0x08,
++		.isr =	0x0c,
++		.isar = 0x10,
++	},
  };
  
-+static struct soc_device_attribute soc_incorrect_hostver[] = {
-+	{ .family = "QorIQ T4240", .revision = "1.0", },
-+	{ .family = "QorIQ T4240", .revision = "2.0", },
-+	{ },
-+};
-+
- static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
- {
- 	struct sdhci_pltfm_host *pltfm_host;
-@@ -571,6 +587,10 @@ static void esdhc_init(struct platform_device *pdev, struct sdhci_host *host)
- 	esdhc->vendor_ver = (host_ver & SDHCI_VENDOR_VER_MASK) >>
- 			     SDHCI_VENDOR_VER_SHIFT;
- 	esdhc->spec_ver = host_ver & SDHCI_SPEC_VER_MASK;
-+	if (soc_device_match(soc_incorrect_hostver))
-+		esdhc->quirk_incorrect_hostver = true;
-+	else
-+		esdhc->quirk_incorrect_hostver = false;
- }
+ static const struct platform_device_id i2c_pxa_id_table[] = {
+@@ -98,6 +106,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
+ 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+ 	{ "ce4100-i2c",		REGS_CE4100 },
+ 	{ "pxa910-i2c",		REGS_PXA910 },
++	{ "armada-3700-i2c",	REGS_A3700  },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+@@ -122,7 +131,9 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+ #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+ #define ICR_UR		(1 << 14)	   /* unit reset */
+ #define ICR_FM		(1 << 15)	   /* fast mode */
++#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
+ #define ICR_HS		(1 << 16)	   /* High Speed mode */
++#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
+ #define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
  
- static int sdhci_esdhc_probe(struct platform_device *pdev)
+ #define ISR_RWM		(1 << 0)	   /* read/write mode */
+@@ -193,6 +204,8 @@ struct pxa_i2c {
+ 	unsigned char		master_code;
+ 	unsigned long		rate;
+ 	bool			highmode_enter;
++	unsigned long		fm_mask;
++	unsigned long		hs_mask;
+ };
+ 
+ #define _IBMR(i2c)	((i2c)->reg_ibmr)
+@@ -503,8 +516,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 		writel(i2c->slave_addr, _ISAR(i2c));
+ 
+ 	/* set control register values */
+-	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+-	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
++	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
++	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+@@ -1137,6 +1150,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
+ 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+ 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+ 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
++	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+@@ -1158,6 +1172,13 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
+ 		i2c->use_pio = 1;
+ 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
+ 		i2c->fast_mode = 1;
++	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
++		i2c->fm_mask = ICR_BUSMODE_FM;
++		i2c->hs_mask = ICR_BUSMODE_HS;
++	} else {
++		i2c->fm_mask = ICR_FM;
++		i2c->hs_mask = ICR_HS;
++	}
+ 
+ 	*i2c_types = (enum pxa_i2c_types)(of_id->data);
+ 
 -- 
-2.1.0.27.g96db324
+2.9.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
