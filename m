@@ -1,92 +1,112 @@
 From: Paul Burton <paul.burton@imgtec.com>
-Subject: Re: [PATCH 2/2] i2c: octeon: Fix waiting for operation completion
-Date: Wed, 9 Nov 2016 14:07:58 +0000
-Message-ID: <1595446.2T31j1Ekg5@np-p-burton>
-References: <20161107200921.30284-1-paul.burton@imgtec.com> <20161107200921.30284-2-paul.burton@imgtec.com> <20161109134103.GC2960@hardcore>
+Subject: Re: [PATCH 1/2] i2c: octeon: Fix register access
+Date: Wed, 9 Nov 2016 14:09:38 +0000
+Message-ID: <10136944.jCslgNClvG@np-p-burton>
+References: <20161107200921.30284-1-paul.burton@imgtec.com> <20161108071337.GA4601@hardcore>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2048444.3xMuk2hNqk";
+Content-Type: multipart/signed; boundary="nextPart1679706.iadls1NNpy";
         micalg=pgp-sha256; protocol="application/pgp-signature"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailapp01.imgtec.com ([195.59.15.196]:42628 "EHLO
-        imgpgp01.kl.imgtec.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751537AbcKIOIG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Nov 2016 09:08:06 -0500
-In-Reply-To: <20161109134103.GC2960@hardcore>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20161108071337.GA4601@hardcore>
+Sender: stable-owner@vger.kernel.org
 To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Peter Swain <pswain@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
---nextPart2048444.3xMuk2hNqk
+--nextPart1679706.iadls1NNpy
 Content-Transfer-Encoding: 7Bit
 Content-Type: text/plain; charset="us-ascii"
 
-On Wednesday, 9 November 2016 14:41:03 GMT Jan Glauber wrote:
-> Hi Paul,
+On Tuesday, 8 November 2016 08:13:37 GMT Jan Glauber wrote:
+> On Mon, Nov 07, 2016 at 08:09:20PM +0000, Paul Burton wrote:
+> > Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
+> > retries") attempted to replace potentially infinite loops with ones
+> > which will time out using readq_poll_timeout, but in doing so it
+> > inverted the condition for exiting this loop.
+> > 
+> > Tested on a Rhino Labs UTM-8 with Octeon CN7130.
+> > 
+> > Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+> > Cc: Jan Glauber <jglauber@cavium.com>
+> > Cc: David Daney <david.daney@cavium.com>
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
+> > Cc: linux-i2c@vger.kernel.org
+> > 
+> > ---
 > 
-> I think we should revert commit "70121f7 i2c: octeon: thunderx: Limit
-> register access retries". With debugging enabled I'm getting:
+> Acked-by: Jan Glauber <jglauber@cavium.com>
 > 
-> <snip>
-> 
-> This is not caused by the usleep inside the wait_event but by
-> readq_poll_timeout(). Could you try if it works for you if you only revert
-> this patch?
-> 
-> Thanks,
-> Jan
+> Thanks for spotting this. I think this should go into stable too for
+> 4.8, so adding Cc: stable@vger.kernel.org.
 
 Hi Jan,
 
-If I drop both my patches & just revert 70121f7f3725 ("i2c: octeon: thunderx: 
-Limit register access retries") sadly it doesn't fix my system. A boot of a 
-cavium_octeon_defconfig kernel with initcall_debug ends with:
-
-  calling  octeon_mgmt_mod_init+0x0/0x28 @ 1
-  initcall octeon_mgmt_mod_init+0x0/0x28 returned 0 after 67 usecs
-  calling  ds1307_driver_init+0x0/0x10 @ 1
-  initcall ds1307_driver_init+0x0/0x10 returned 0 after 19 usecs
-  calling  octeon_i2c_driver_init+0x0/0x10 @ 1
-  ata1: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
-  ata1.00: ATA-9: SanDisk SDSSDA240G, Z22000RL, max UDMA/133
-  ata1.00: 468862128 sectors, multi 1: LBA48 NCQ (depth 31/32)
-  ata1.00: configured for UDMA/133
-  scsi 0:0:0:0: Direct-Access     ATA      SanDisk SDSSDA24 00RL PQ: 0 ANSI: 5
-  sd 0:0:0:0: [sda] 468862128 512-byte logical blocks: (240 GB/224 GiB)
-  sd 0:0:0:0: [sda] Write Protect is off
-  sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
-  sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support 
-DPO or FUA
-   sda: sda1 sda2 sda3 sda4
-  sd 0:0:0:0: [sda] Attached SCSI disk
-  ata2: SATA link down (SStatus 0 SControl 300)
-  random: crng init done
-
-As you can see octeon_i2c_driver_init never returns. Are you able to test on 
-one of your MIPS-based systems?
+...but the bad patch was only merged for v4.9-rc1?
 
 Thanks,
     Paul
---nextPart2048444.3xMuk2hNqk
+
+> 
+> >  drivers/i2c/busses/i2c-octeon-core.h | 7 ++++---
+> >  1 file changed, 4 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-octeon-core.h
+> > b/drivers/i2c/busses/i2c-octeon-core.h index 1db7c83..d980406 100644
+> > --- a/drivers/i2c/busses/i2c-octeon-core.h
+> > +++ b/drivers/i2c/busses/i2c-octeon-core.h
+> > @@ -146,8 +146,9 @@ static inline void octeon_i2c_reg_write(struct
+> > octeon_i2c *i2c, u64 eop_reg, u8> 
+> >  	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + 
+SW_TWSI(i2c));
+> > 
+> > -	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp, tmp & 
+SW_TWSI_V,
+> > -			   I2C_OCTEON_EVENT_WAIT, i2c->adap.timeout);
+> > +	readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
+> > +			   !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
+> > +			   i2c->adap.timeout);
+> > 
+> >  }
+> >  
+> >  #define octeon_i2c_ctl_write(i2c, val)					\
+> > 
+> > @@ -173,7 +174,7 @@ static inline int octeon_i2c_reg_read(struct
+> > octeon_i2c *i2c, u64 eop_reg,> 
+> >  	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base +
+> >  	SW_TWSI(i2c));
+> >  	
+> >  	ret = readq_poll_timeout(i2c->twsi_base + SW_TWSI(i2c), tmp,
+> > 
+> > -				 tmp & SW_TWSI_V, I2C_OCTEON_EVENT_WAIT,
+> > +				 !(tmp & SW_TWSI_V), I2C_OCTEON_EVENT_WAIT,
+> > 
+> >  				 i2c->adap.timeout);
+> >  	
+> >  	if (error)
+> >  	
+> >  		*error = ret;
+
+
+--nextPart1679706.iadls1NNpy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part.
 Content-Transfer-Encoding: 7Bit
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAABCAAGBQJYIy2+AAoJEIIg2fppPBxlt1MP/R3u79gTe3JA+K1Esg+MVr0B
-RjXdcqbp2ZBGMS/MMnatWhNDIZwQL/7h656TowEnxeowqvO8XxUj8e6X1IeEgvSR
-4waRbpfEIYxGzJ0cH/oYtW8I6tG85R0FvzKG7OMVL8rbcJTsASjslq/FZJPHEWVN
-E3d0B4JuuZtUQB542dENfrhNXgotEF6M4aCZlosCU08WCntD28h6CJ1fLdI9SCIB
-O5GL6I9q0FYI/7npMt7FT8rmMNFs+cxCuhLBj11JlyAUH1jySZ5eykbF8nRij2Zy
-vHGAO6BEnssPUKo28QfQDYHZAd3cuZcw6C/nVeln5ZMvuU3q28ARyHjfeXGSpj1K
-wf7y7P9Mj639ULp4/JgfWN3NgqqqTvgIOqjykYFM2GehIBBRewuiF6qFtOC4yyKO
-IzY3ZPFVfKZzyghqoC2ABmOVEOi/DIbFX4YMiVmtYrr4IuKI+a2nx2OsW1b7RYCs
-//wM3N3avTaB4QE/v+mpn/8XUZwKOLpnEwX5fhj8aokJ7UnESLhpExna5XVU/+F0
-668bswzT4RyqkAXAnjqSvpqH2lNG3d8G+eEatyFPODMaxd7dE7ASsuyVnjSafubc
-xi58vY3kT3HvY4AFmWkIP9GzAdTRdIu8ehxKV8fQGJYzrAzopV0ptjoVzQVqqiDy
-P9c5T8aqK9peHSTsTUa5
-=ucjp
+iQIcBAABCAAGBQJYIy4iAAoJEIIg2fppPBxltykP/i2zTP544fkCFKG44pTGgAAb
+/+6uPeid6OB1UAOmNpF1HoZA8M9Ag/6JCxd/lwnAq3L3TzJPb18zqXyHZfhi9Uxk
+7OqC8amjvxJC41hF5NLxyPBc+cuX1yKusy/dRfhWvjchZAwq8x61MpX7UJ14HHLk
+bMmei3sNnL1FL6exVKwvDxGqHaXjULBIEF6LCVaCCaErDD8YIXL2lIqDHum+5wLi
+Sp4jTfRMdyZLRLyWRpdR++H4+CWSYrt427narLwUbHoRIrxWOCENH3qQobWamfqL
+sF54kGtniWLuIKokOcER+FB+sU2zDnkfJ10r+yeejC/+boSEcuLoM6Xs966j+6TS
+nXYkPnmN0a6SmwAWjDFpSxd82oYmGKZTohzVVikCFwhw2LSr4nG8ElJmn/COuuza
+nncIP9B4M0Avoie2saiIq4LMntQgn2N96p0VVW1gGcl6M0lzdVXmCGd80hJrX8L5
+atqxMSCGNli26mu6Hq3Y2iPS+95GSl+GnXCZS4sMxYrZpbaiixwWiNHGTomjo3J3
+d/28rWL1NbbnmC7n4XTUEXn0OuJtQUw2nh2z2vyb5DNYPGAMSpNz5PoL3GSicbrx
+9VlfaI4D0cRNMbppWkjF81KlBynGUEKXZpzSojg4yKI3UWflVtLOhOfYbtGcM1Io
+hNRFZALCF4vOqIi72E82
+=R8TF
 -----END PGP SIGNATURE-----
 
---nextPart2048444.3xMuk2hNqk--
+--nextPart1679706.iadls1NNpy--
