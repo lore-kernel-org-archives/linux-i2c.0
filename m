@@ -1,35 +1,99 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
-Date: Wed, 9 Nov 2016 09:55:40 +0100
-Message-ID: <CAMuHMdXxOWb5rijsvETG6tvD-HwjBykrcithPfx+1_8c2nGfAA@mail.gmail.com>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com> <20161109084406.GA22213@verge.net.au>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: Re: [PATCH v2 1/3] i2c: pxa: Add support for the I2C units found in
+ Armada 3700
+Date: Wed, 9 Nov 2016 10:59:47 +0200
+Message-ID: <20161109085946.cmd4ltaxpiojq7il@tarshish>
+References: <20161109081431.10115-1-romain.perier@free-electrons.com>
+ <20161109081431.10115-2-romain.perier@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:33126 "EHLO
-        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752600AbcKIIzl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Nov 2016 03:55:41 -0500
-In-Reply-To: <20161109084406.GA22213@verge.net.au>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20161109081431.10115-2-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWMP3drIcvDWNA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 
-Hi Simon,
+Hi Romain,
 
-On Wed, Nov 9, 2016 at 9:44 AM, Simon Horman <horms@verge.net.au> wrote:
-> I am not in a position to test silk or porter at this time.
+On Wed, Nov 09, 2016 at 09:14:29AM +0100, Romain Perier wrote:
+> The Armada 3700 has two I2C controllers that is compliant with the I2C
+> Bus Specificiation 2.1, supports multi-master and different bus speed:
+> Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
+> High speed mode (up to 3.4 Mhz).
+> 
+> This IP block has a lot of similarity with the PXA, except some register
+> offsets and bitfield. This commits adds a basic support for this I2C
+> unit.
+> 
+> Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-FWIW, Magnus has a Porter in his farm.
+[...]
 
-Gr{oetje,eeting}s,
+> @@ -122,7 +131,9 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+>  #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+>  #define ICR_UR		(1 << 14)	   /* unit reset */
+>  #define ICR_FM		(1 << 15)	   /* fast mode */
+> +#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
+>  #define ICR_HS		(1 << 16)	   /* High Speed mode */
+> +#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
+>  #define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
+>  
+>  #define ISR_RWM		(1 << 0)	   /* read/write mode */
+> @@ -193,6 +204,8 @@ struct pxa_i2c {
+>  	unsigned char		master_code;
+>  	unsigned long		rate;
+>  	bool			highmode_enter;
+> +	unsigned long		fm_mask;
+> +	unsigned long		hs_mask;
 
-                        Geert
+Do you really need 64bit for that?
 
+baruch
+
+>  };
+>  
+>  #define _IBMR(i2c)	((i2c)->reg_ibmr)
+> @@ -503,8 +516,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>  		writel(i2c->slave_addr, _ISAR(i2c));
+>  
+>  	/* set control register values */
+> -	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+> -	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+> +	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
+> +	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
+>  
+>  #ifdef CONFIG_I2C_PXA_SLAVE
+>  	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+> @@ -1137,6 +1150,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
+>  	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+>  	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+>  	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
+> +	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
+>  	{}
+>  };
+>  MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+> @@ -1158,6 +1172,13 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
+>  		i2c->use_pio = 1;
+>  	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
+>  		i2c->fast_mode = 1;
+> +	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
+> +		i2c->fm_mask = ICR_BUSMODE_FM;
+> +		i2c->hs_mask = ICR_BUSMODE_HS;
+> +	} else {
+> +		i2c->fm_mask = ICR_FM;
+> +		i2c->hs_mask = ICR_HS;
+> +	}
+>  
+>  	*i2c_types = (enum pxa_i2c_types)(of_id->data);
+
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.52.368.4656, http://www.tkos.co.il -
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
