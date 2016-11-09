@@ -1,64 +1,75 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
-Date: Wed, 9 Nov 2016 15:35:08 +0100
-Message-ID: <20161109143508.GA19184@verge.net.au>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161109084406.GA22213@verge.net.au>
- <20161109085954.GA1807@katana>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 2/2] i2c: octeon: Fix waiting for operation completion
+Date: Wed, 9 Nov 2016 15:38:04 +0100
+Message-ID: <20161109143804.GE2960@hardcore>
+References: <20161107200921.30284-1-paul.burton@imgtec.com>
+ <20161107200921.30284-2-paul.burton@imgtec.com>
+ <20161109134103.GC2960@hardcore>
+ <1595446.2T31j1Ekg5@np-p-burton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-mips-bounce@linux-mips.org>
 Content-Disposition: inline
-In-Reply-To: <20161109085954.GA1807@katana>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1595446.2T31j1Ekg5@np-p-burton>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Paul Burton <paul.burton@imgtec.com>
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Peter Swain <pswain@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, "Steven J. Hill" <Steven.Hill@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 09, 2016 at 09:59:54AM +0100, Wolfram Sang wrote:
-> Hi Simon,
-> 
-> > I have tested these patches on alt, gose, lager and koelsch.
-> 
-> Wow, that was quick. Thank you!
-> 
-> > The switching part seems to work fine, in so far as my test script
-> > succeeds. However, it seems that some IP blocks are not able to handle
-> > this switching. In particular I needed to disable VIDEO_RCAR_VIN and 
-> > REGULATOR_DA9210 to avoid errors shown in the logs below.
-> 
-> Yes. Probably we should activate the shiny new DEBUG_TEST_DRIVER_REMOVE
-> and if that passes, we should be safe.
-> 
-> > My suggestion is to drop the following patches until those problems
-> > can be sorted out, most likely via driver updates.
+On Wed, Nov 09, 2016 at 02:07:58PM +0000, Paul Burton wrote:
+> On Wednesday, 9 November 2016 14:41:03 GMT Jan Glauber wrote:
+> > Hi Paul,
 > > 
-> > ARM: dts: alt: use demuxer for I2C1
-> > ARM: dts: gose: use demuxer for I2C2
-> > ARM: dts: lager: use demuxer for IIC2/I2C2
-> > ARM: dts: lager: use demuxer for IIC3/I2C3
-> > ARM: dts: koelsch: use demuxer for I2C2
-> 
-> OK. I'll try to have a look at those drivers nonetheless, because
-> rebasing these patches is a bit of a hazzle once new i2c slaves were
-> added to the busses. But I'll juest resend the patches along with my
-> fixes if I really can find the time.
-> 
-> > I am not in a position to test silk or porter at this time.
-> > But by the same reasoning above I wonder if the following should
-> > be dropped for now.
+> > I think we should revert commit "70121f7 i2c: octeon: thunderx: Limit
+> > register access retries". With debugging enabled I'm getting:
 > > 
-> > ARM: dts: gose: use demuxer for I2C2
+> > <snip>
+> > 
+> > This is not caused by the usleep inside the wait_event but by
+> > readq_poll_timeout(). Could you try if it works for you if you only revert
+> > this patch?
+> > 
+> > Thanks,
+> > Jan
 > 
-> I assume you mean 'porter' here.
-
-Yes, I meant porter.
-
-> > ARM: dts: silk: use demuxer for I2C1
+> Hi Jan,
 > 
-> Will you get access to these boards in the foreseeable future?
+> If I drop both my patches & just revert 70121f7f3725 ("i2c: octeon: thunderx: 
+> Limit register access retries") sadly it doesn't fix my system. A boot of a 
+> cavium_octeon_defconfig kernel with initcall_debug ends with:
+> 
+>   calling  octeon_mgmt_mod_init+0x0/0x28 @ 1
+>   initcall octeon_mgmt_mod_init+0x0/0x28 returned 0 after 67 usecs
+>   calling  ds1307_driver_init+0x0/0x10 @ 1
+>   initcall ds1307_driver_init+0x0/0x10 returned 0 after 19 usecs
+>   calling  octeon_i2c_driver_init+0x0/0x10 @ 1
+>   ata1: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+>   ata1.00: ATA-9: SanDisk SDSSDA240G, Z22000RL, max UDMA/133
+>   ata1.00: 468862128 sectors, multi 1: LBA48 NCQ (depth 31/32)
+>   ata1.00: configured for UDMA/133
+>   scsi 0:0:0:0: Direct-Access     ATA      SanDisk SDSSDA24 00RL PQ: 0 ANSI: 5
+>   sd 0:0:0:0: [sda] 468862128 512-byte logical blocks: (240 GB/224 GiB)
+>   sd 0:0:0:0: [sda] Write Protect is off
+>   sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+>   sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support 
+> DPO or FUA
+>    sda: sda1 sda2 sda3 sda4
+>   sd 0:0:0:0: [sda] Attached SCSI disk
+>   ata2: SATA link down (SStatus 0 SControl 300)
+>   random: crng init done
+> 
+> As you can see octeon_i2c_driver_init never returns. Are you able to test on 
+> one of your MIPS-based systems?
 
-As mentioned by Geert, there is a porter in Magnus's board farm.
-Unforunately I have never had much luck in getting it to boot.
+CC'ing Steven who might be able to test on MIPS.
 
-With regards to silk, I'm not aware of any plans at this time.
+> Thanks,
+>     Paul
