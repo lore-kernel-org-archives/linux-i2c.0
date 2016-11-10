@@ -1,57 +1,61 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 1/2] i2c: octeon: Fix register access
-Date: Fri, 11 Nov 2016 08:00:25 +0100
-Message-ID: <20161111070025.GB15806@hardcore>
-References: <20161107200921.30284-1-paul.burton@imgtec.com>
- <20161108071337.GA4601@hardcore>
- <20161110201731.GE1585@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [patch v5] i2c: mux: mellanox: add driver
+Date: Thu, 10 Nov 2016 14:02:20 +0100
+Message-ID: <9850b1e2-40e9-d56f-570a-39edeee0b67e@axentia.se>
+References: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
+ <c530714e-b61e-8a38-a054-9d335f0e8a71@axentia.se>
+ <AM5PR0501MB2097C2A4BA889C44549A0E9FA2A30@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+ <b7cf55af-1354-0e0d-b960-877a6223b357@axentia.se>
+ <AM5PR0501MB2097404BB1877921F0F6C8F5A2B80@AM5PR0501MB2097.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20161110201731.GE1585@katana>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Paul Burton <paul.burton@imgtec.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, "Steven J. Hill" <Steven.Hill@cavium.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AM5PR0501MB2097404BB1877921F0F6C8F5A2B80@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vadim Pasternak <vadimp@mellanox.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 10, 2016 at 09:17:31PM +0100, Wolfram Sang wrote:
-> On Tue, Nov 08, 2016 at 08:13:37AM +0100, Jan Glauber wrote:
-> > On Mon, Nov 07, 2016 at 08:09:20PM +0000, Paul Burton wrote:
-> > > Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
-> > > retries") attempted to replace potentially infinite loops with ones
-> > > which will time out using readq_poll_timeout, but in doing so it
-> > > inverted the condition for exiting this loop.
-> > > 
-> > > Tested on a Rhino Labs UTM-8 with Octeon CN7130.
-> > > 
-> > > Signed-off-by: Paul Burton <paul.burton@imgtec.com>
-> > > Cc: Jan Glauber <jglauber@cavium.com>
-> > > Cc: David Daney <david.daney@cavium.com>
-> > > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > > Cc: linux-i2c@vger.kernel.org
-> > > 
-> > > ---
-> > 
-> > Acked-by: Jan Glauber <jglauber@cavium.com>
-> > 
-> > Thanks for spotting this. I think this should go into stable too for
-> > 4.8, so adding Cc: stable@vger.kernel.org.
+On 2016-11-10 13:56, Vadim Pasternak wrote:
 > 
-> Shall I still apply this one? Seems to me that 70121f7f3725 is still
-> under discussion of being reverted?
 > 
+>> -----Original Message-----
+>> From: Peter Rosin [mailto:peda@axentia.se]
+>> Sent: Thursday, November 10, 2016 1:13 PM
+>> To: Vadim Pasternak <vadimp@mellanox.com>; wsa@the-dreams.de
+>> Cc: linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org; jiri@resnulli.us;
+>> Michael Shych <michaelsh@mellanox.com>
+>> Subject: Re: [patch v5] i2c: mux: mellanox: add driver
+>>
+>> [resend to all, got the wrong button, sorry]
+>>
+>> On 2016-11-10 11:42, Peter Rosin wrote:
+>>> On 2016-11-03 06:20, Vadim Pasternak wrote:
+>>>> Hi,
+>>>>
+>>>> I see that this patch has not been picked-up yet for i2c-next.
+>>>> Is it possible it was missed from some reason?
+>>>
+>>> Yes, apparently, really sorry about that!
+>>>
+>>> I'll put it in a branch and make a pull request for Wolfram (but that
+>>> is a bit new for me, we'll see how it goes).
+>>
+>> But now that I looked again, I noticed that the source is dual licensed and yet
+>> your MODULE_LICENSE tag says only "GPL v2". I.e. the same issue your i2c
+>> master driver had that Vladimir Zapolskiy noticed.
+>>
+>> Please fix this, and it might be a good idea to take a look in your other drivers as
+>> well in case you have further problems in this department...
+> 
+> Hi Peter,
+> 
+> Thank you for reply. 
+> I'll re-submit it from the current i2c next branch.
+> Since I'll fix the license, I guess I should issue it as "patch v6". Right?
 
-70121f7 needs to be reverted, but it looks like i2c devices are still
-not working on Octeon after that. We are still debugging the issue,
-so I would suggest to wait for some more days.
+Sounds right, yes.
 
---Jan
+Cheers,
+Peter
