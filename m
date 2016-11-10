@@ -1,82 +1,46 @@
-From: <lcrumly@vet.k-state.edu>
-Subject: 37387 linux-i2c
-Date: Thu, 10 Nov 2016 13:25:15 -0000
-Message-ID: <147878431526.6045.3087203422625614845@hinet.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH] i2c: i2c-topology: fix minor whitespace nit
+Date: Thu, 10 Nov 2016 15:03:21 +0100
+Message-ID: <1478786601-12895-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: application/zip; name="MESSAGE_5023712376063_linux-i2c.zip"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 59-115-216-196.dynamic.hinet.net ([59.115.216.196]:47647 "HELO
-        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-        id S932295AbcKJNZ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 10 Nov 2016 08:25:57 -0500
-Content-Disposition: attachment
+Received: from mail-db5eur01on0137.outbound.protection.outlook.com ([104.47.2.137]:52965
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932845AbcKJOS7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Nov 2016 09:18:59 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 
-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
-AQBYAAAA3g0AAAAA
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ Documentation/i2c/i2c-topology | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/i2c/i2c-topology b/Documentation/i2c/i2c-topology
+index e0aefeece551..1a014fede0b7 100644
+--- a/Documentation/i2c/i2c-topology
++++ b/Documentation/i2c/i2c-topology
+@@ -326,7 +326,7 @@ Two parent-locked sibling muxes
+ 
+ This is a good topology.
+ 
+-                                   .--------.
++                                    .--------.
+                    .----------.  .--| dev D1 |
+                    |  parent- |--'  '--------'
+                 .--|  locked  |     .--------.
+@@ -350,7 +350,7 @@ Mux-locked and parent-locked sibling muxes
+ 
+ This is a good topology.
+ 
+-                                   .--------.
++                                    .--------.
+                    .----------.  .--| dev D1 |
+                    |   mux-   |--'  '--------'
+                 .--|  locked  |     .--------.
+-- 
+2.1.4
