@@ -1,56 +1,71 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 14/14] i2c: mux: demux-pinctrl: make drivers with no
- pinctrl work again
-Date: Thu, 10 Nov 2016 21:12:42 +0100
-Message-ID: <20161110201242.GD1585@katana>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161106202032.5227-15-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH 1/2] i2c: octeon: Fix register access
+Date: Thu, 10 Nov 2016 21:17:31 +0100
+Message-ID: <20161110201731.GE1585@katana>
+References: <20161107200921.30284-1-paul.burton@imgtec.com>
+ <20161108071337.GA4601@hardcore>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161106202032.5227-15-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, Simon Horman <horms@verge.net.au>, linux-i2c@vger.kernel.org
+In-Reply-To: <20161108071337.GA4601@hardcore>
+Sender: stable-owner@vger.kernel.org
+To: Jan Glauber <jan.glauber@caviumnetworks.com>
+Cc: Paul Burton <paul.burton@imgtec.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---veXX9dWIonWZEC6h
+--+JUInw4efm7IfTNU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Nov 06, 2016 at 09:20:32PM +0100, Wolfram Sang wrote:
-> Some drivers like i2c-gpio do not have dedicated pinctrl states. They
-> broke when error checking for pinctrl was added. Detect them now, and in
-> their case, simply skip over pinctrl configuration.
+On Tue, Nov 08, 2016 at 08:13:37AM +0100, Jan Glauber wrote:
+> On Mon, Nov 07, 2016 at 08:09:20PM +0000, Paul Burton wrote:
+> > Commit 70121f7f3725 ("i2c: octeon: thunderx: Limit register access
+> > retries") attempted to replace potentially infinite loops with ones
+> > which will time out using readq_poll_timeout, but in doing so it
+> > inverted the condition for exiting this loop.
+> >=20
+> > Tested on a Rhino Labs UTM-8 with Octeon CN7130.
+> >=20
+> > Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+> > Cc: Jan Glauber <jglauber@cavium.com>
+> > Cc: David Daney <david.daney@cavium.com>
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
+> > Cc: linux-i2c@vger.kernel.org
+> >=20
+> > ---
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Acked-by: Jan Glauber <jglauber@cavium.com>
+>=20
+> Thanks for spotting this. I think this should go into stable too for
+> 4.8, so adding Cc: stable@vger.kernel.org.
 
-Applied to for-current with Geert's typo fix, thanks!
+Shall I still apply this one? Seems to me that 70121f7f3725 is still
+under discussion of being reverted?
 
 
---veXX9dWIonWZEC6h
+--+JUInw4efm7IfTNU
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYJNS6AAoJEBQN5MwUoCm2qHUP/1D4MO6UdqoA5ezd0dA+Vuoi
-4z6FiY+CjkT3OzSdG6yv1lccGQOw5sF86uJV7fbaQTwVbH/qvOdOxkHS8framXiI
-37AFDoF5jEHccLaSeaKgjAvmIk49rsN5LEFb9UyzXmsvNH9QplUBMOtObBBUyp65
-1quL4yEkdclv4H60xr9qIjLnw5ojmS1WxJSd8RV3RFAdwt3WCMHAIoyfkE8Qtl3v
-b3ELLJ7W9cR62dXHjWoQyJIhJsFuJrADYk0YgC3m2gXiNRgezUwB78qM4wkPz42d
-gMJ4YWALTZ1jkkjBW7nBPATV+ohv4hL82nmZx3wBaISVFarbckUBWsMPZ4i49bnk
-ifbK9kK7H7Xjdx6q6gItgGqLLeGgKPrukLYEX3zVDS3NUcfTyt2KM6ZbiW1S0RsF
-qEdb1O3KC90PI4g9TYF+p/Pd2IuLIMuSAeESz8hgtR786g1DQYPE8DH7A3FZgEju
-m0tzkJd9ohzsIiEzYsdjyjnJ3r94U2rK9LHNNVEIZWmY0YqeCxfDf8bvh75TW6GJ
-6EvBrhXiciYC/+K7g/dS+v4Cr1x2HJMdg2o70eK6xAB/MupeFPz3GcoPu92Zw3pp
-UtjLutLrK8DYsJ+iseCgtaRmRQPDbcU4ljs+64r/GhCd2UpFvv3kucHri9qay9t5
-OVVE0k9tkoFaqWhAeq26
-=iA5Y
+iQIcBAEBAgAGBQJYJNXbAAoJEBQN5MwUoCm2z+wQAK6jROLXhNiQVSYlIiRxi6//
+jniKiwcgArjuKY6bQsnA52WriObDUdgSUPAdTq/LwdobNfOKl40ZDEcQHVKRgE5Y
+1Fo8CdPICsQ57NyxTce9F31AEQrWc8oI8NBEQLUPf/27CSfDTG97p0dbt4ATQSSs
+Khy0NOanLXB3qn5Uc+F7HNny4vnYkm9IkL4hgWlx2Sbg6/VZCzSpthTSmXH4Mv6h
+Iyw85NHtRTl/vIQQr3S/+2Os0V8ofixtyZkD8TiwiCy00hzHLhG96oUvqoR1UpTJ
+GZ15ENG/Ci1MA48YSukrkZypQehzHZV1jP7Sz4TVDUFYXr9Riu39t/io54Gt856B
+3LYqzX7SApBE9TKYXBTda3M5/y5bj5g+TtSNUuCTVt+S/zMUfHyY31DyiJ751mw+
+pBayXUBvSPtBpC0TyBGCNCH24Wk2IDqLvxC+xZm7Hr95joJ2dXdn07ESumPkKCke
+7Wik2QA4xkSZb74sgk3JlRwYX1XSqMnxjnNL/PR3OoaWd23wcaORMq3Jb74x+8jE
+d20Qsy7/Ts3eTCOd4RoEJhmTmNY+0TLBAyQJ0LjAQb1rx4jiR3eQqOH5WZZvSYsR
+Z3xpGMiyVzL3dro+6V7+ORwmrZxUaWG8lxc1vBVcr2vP6V5kE9l28OthEDDllDFi
+RhrZYNN3+tU9n3C1CMJX
+=Fbbf
 -----END PGP SIGNATURE-----
 
---veXX9dWIonWZEC6h--
+--+JUInw4efm7IfTNU--
