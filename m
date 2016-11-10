@@ -1,61 +1,82 @@
-From: MikeB <mabnhdev@gmail.com>
-Subject: Looking for guidance to support 74CBTLV3253 mux
-Date: Thu, 10 Nov 2016 06:59:41 -0500
-Message-ID: <CAAuRgKCgz5gtsCYxvykj9Nf1tMT+HLd--p1wb6ggBYcNJARfVQ@mail.gmail.com>
+From: <lcrumly@vet.k-state.edu>
+Subject: 37387 linux-i2c
+Date: Thu, 10 Nov 2016 13:25:15 -0000
+Message-ID: <147878431526.6045.3087203422625614845@hinet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: application/zip; name="MESSAGE_5023712376063_linux-i2c.zip"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f170.google.com ([209.85.213.170]:36517 "EHLO
-        mail-yb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932632AbcKJMFM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Nov 2016 07:05:12 -0500
-Received: by mail-yb0-f170.google.com with SMTP id v78so87815359ybe.3
-        for <linux-i2c@vger.kernel.org>; Thu, 10 Nov 2016 04:05:12 -0800 (PST)
+Received: from 59-115-216-196.dynamic.hinet.net ([59.115.216.196]:47647 "HELO
+        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+        id S932295AbcKJNZ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Nov 2016 08:25:57 -0500
+Content-Disposition: attachment
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 
-Hello,
-
-I have a system with several 74CBTLV3253 mux set up as below.
-
-+----------------+
-|                |
-|    PCA9547     |
-|                |
-+-------+----+---+
-        |    |
-        |    +-------------------+
-        |                        |
-   +----+----+          +--------+-------+
-   |         +----------+                |
-   |  CPLD   +----------+   74CBTLV3253  |
-   |         |          |                |
-   +---------+          +--+---+--+---+--+
-                           |   |  |   |
-                           |   |  |   |
-                           +   +  +   +
-
-In case the ascii-art is unlcear.  At the top is a PCA9547 mux.  On
-one channel of the PCA9547 is a CPLD device.  On another channel of
-the PCA9547 is a 74CBTLV3253 mux.  The CPLD has two signal lines
-connected to the 74CBTLV3253 mux used to select its channel.  There
-are four channels on the 74CBTLV3253.
-
-I'm looking to provide an i2c mux driver for the 74CBTLV3253 mux.
-
-A register in the CPLD device controls the channel selection in the 74CBTLV3253.
-
-To select a 74CBTLV3253 channel, requires the following sequence.
-
-1. Select the CPLD channel on PCA9547.
-2. Write the 74CBTLV3253 channel number to a register in the CPLD.
-3. Select the 74CBTLV3253 channel on the PCA9547.
-
-I'm struggling with the best way to deal with the fact that the action
-of selecting a channel on the 74CBTLV3253 must access a device on an
-entirely different i2c-adapter.
-
-Any advice or guidance on how to attack this mux driver would be appreciated.
-
-Regards, Mike
+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
+AQBYAAAA3g0AAAAA
