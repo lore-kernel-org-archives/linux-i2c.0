@@ -1,45 +1,33 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [patch v5] i2c: mux: mellanox: add driver
-Date: Thu, 10 Nov 2016 12:13:09 +0100
-Message-ID: <b7cf55af-1354-0e0d-b960-877a6223b357@axentia.se>
-References: <1473799071-12830-1-git-send-email-vadimp@mellanox.com>
- <c530714e-b61e-8a38-a054-9d335f0e8a71@axentia.se>
- <AM5PR0501MB2097C2A4BA889C44549A0E9FA2A30@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Allow reduce bus speed by
+ "clock-frequency" property
+Date: Thu, 10 Nov 2016 16:58:42 +0200
+Message-ID: <20161110145842.GK1470@lahna.fi.intel.com>
+References: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AM5PR0501MB2097C2A4BA889C44549A0E9FA2A30@AM5PR0501MB2097.eurprd05.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vadim Pasternak <vadimp@mellanox.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:28516 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934005AbcKJO6v (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Nov 2016 09:58:51 -0500
+Content-Disposition: inline
+In-Reply-To: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[resend to all, got the wrong button, sorry]
+On Thu, Nov 10, 2016 at 01:37:20PM +0200, Jarkko Nikula wrote:
+> Allow more flexibility to bus speed selection. Now if there are I2C
+> slave connections defined in ACPI the speed of slowest device on the bus
+> will define the bus speed. However if also "clock-frequency" device
+> property is defined we should use the slowest of these two.
+> 
+> This is targeted to maker boards where developer may want to connect
+> slower I2C slave devices to the bus than defined in existing ACPI I2C
+> slave connections.
+> 
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On 2016-11-10 11:42, Peter Rosin wrote:
-> On 2016-11-03 06:20, Vadim Pasternak wrote:
->> Hi,
->>
->> I see that this patch has not been picked-up yet for i2c-next.
->> Is it possible it was missed from some reason?
->
-> Yes, apparently, really sorry about that!
->
-> I'll put it in a branch and make a pull request for Wolfram (but
-> that is a bit new for me, we'll see how it goes).
-
-But now that I looked again, I noticed that the source is
-dual licensed and yet your MODULE_LICENSE tag says only
-"GPL v2". I.e. the same issue your i2c master driver had
-that Vladimir Zapolskiy noticed.
-
-Please fix this, and it might be a good idea to take a look
-in your other drivers as well in case you have further
-problems in this department...
-
-Also, while at it, the patch doesn't apply cleanly anymore,
-please rebase to something more current.
-
-Cheers,
-Peter
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
