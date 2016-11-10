@@ -1,40 +1,48 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v4 01/14] ARM: dts: lager: rename and reindex i2cexio
-Date: Thu, 10 Nov 2016 11:11:19 +0100
-Message-ID: <20161110101119.GB9855@verge.net.au>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161106202032.5227-2-wsa+renesas@sang-engineering.com>
- <CAMuHMdVqy1=uAa7WUgLo_3mpqyTzoab0bSnmHBUgpQ=vJup0Gw@mail.gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v4] i2c: designware: Implement support for SMBus block
+ read and write
+Date: Thu, 10 Nov 2016 13:07:03 +0200
+Message-ID: <166a746e-2e7e-6c87-5c05-cc28dd06bc72@linux.intel.com>
+References: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVqy1=uAa7WUgLo_3mpqyTzoab0bSnmHBUgpQ=vJup0Gw@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:18975 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755197AbcKJLHH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Nov 2016 06:07:07 -0500
+In-Reply-To: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: tnhuynh@apm.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
 
-On Mon, Nov 07, 2016 at 02:12:05PM +0100, Geert Uytterhoeven wrote:
-> On Sun, Nov 6, 2016 at 9:20 PM, Wolfram Sang
-> <wsa+renesas@sang-engineering.com> wrote:
-> > From: Simon Horman <horms+renesas@verge.net.au>
-> >
-> > The rename from i2cexio to i2cexio0 is in in preparation for adding
-> 
-> double "in"
-> 
-> > i2cexio1 which will use the dmuxer for IIC1/I2C1.
-> 
-> demuxer
-> 
-> > The reindexing from i2c8 to i2c10 is to allow space for grouping of
-> > additional GPIO buses to added by follow-up patches to support demuxing of
-> 
-> to be added
-> 
-> > other i2c buses.
-> >
-> > Also note that fallback to GPIO is not provided by the hardware for IIC0/I2C0.
-
-Thanks Geert, I have fixed up the commit message as per your suggestions.
+On 11/10/2016 04:56 AM, tnhuynh@apm.com wrote:
+> From: Tin Huynh <tnhuynh@apm.com>
+>
+> Free and Open IPMI use SMBUS BLOCK Read/Write to support SSIF protocol.
+> However, I2C Designware Core Driver doesn't handle the case at the moment.
+> The below patch supports this feature.
+>
+> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+> ---
+> Change from V3:
+> - Correct coding conventions
+> - Make clean
+> Change from V2:
+> - Change subject of email
+> - Add a helper function to handle
+>   length byte receiving
+> Change from V1:
+> - Remove empty lines
+> - Add flags variable to make clean code
+> - Change DW_DEFAULT_FUNCTIONALITY
+>   in i2c-designware-pcidrv.c
+> ---
+>  drivers/i2c/busses/i2c-designware-core.c    |   46 +++++++++++++++++++++++++--
+>  drivers/i2c/busses/i2c-designware-pcidrv.c  |    1 +
+>  drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+>  3 files changed, 45 insertions(+), 3 deletions(-)
+>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
