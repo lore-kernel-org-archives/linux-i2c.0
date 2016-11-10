@@ -1,42 +1,56 @@
-From: Magnus Damm <magnus.damm@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
-Date: Thu, 10 Nov 2016 12:56:38 +0900
-Message-ID: <CANqRtoRwSh602rjbHA2qo=XHyimpyyi_T=0sh2A4NOfzzVB+oQ@mail.gmail.com>
+Date: Thu, 10 Nov 2016 08:57:19 +0100
+Message-ID: <20161110075719.GA1436@katana>
 References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161109084406.GA22213@verge.net.au> <20161109172813.GA1545@katana>
+ <20161109084406.GA22213@verge.net.au>
+ <20161109172813.GA1545@katana>
+ <CANqRtoRwSh602rjbHA2qo=XHyimpyyi_T=0sh2A4NOfzzVB+oQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20161109172813.GA1545@katana>
+Content-Disposition: inline
+In-Reply-To: <CANqRtoRwSh602rjbHA2qo=XHyimpyyi_T=0sh2A4NOfzzVB+oQ@mail.gmail.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Magnus Damm <magnus.damm@gmail.com>
 Cc: Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux-I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Thu, Nov 10, 2016 at 2:28 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> ARM: dts: lager: use demuxer for IIC3/I2C3
->
-> I think the sanest solution is to drop this patch forever. The WARN from
-> the regulator core is sparse in describing the problem yet it is
-> correct: The regulator is needed, by the CPU! :) And this will probably
-> be the smallest problem when trying to demux the bus which is used to
-> handle all DVFS operations. Let's stick to IIC3 here, I'd say. Gen3 even
-> has this one IIC instance for exactly the DVFS purpose.
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I think postponing merge of patches is one thing but I don't think
-dropping them forever is a long term solution. I think we should have
-a plan how to describe the hardware as-is in DT and work towards
-having software support for it.
 
-My hope has always been that it would be possible to switch I2C master
-during run time without deregister/register of all the slave devices.
-I do realise much work will be needed to make it happen, but from
-hardware point of view it must be possible to switch I2C master
-transparently between the messages on the bus.
+> I think postponing merge of patches is one thing but I don't think
+> dropping them forever is a long term solution. I think we should have
 
-Thanks,
+Just to make sure because you wrote 'them': I talked about one patch of
+the series, not the whole series, namely DVFS. Because Lager is the only
+board we have where you can multiplex DVFS between IIC and I2C, no GPIO
+option here. All other SoCs have dedicated pins for DVFS which you can't
+mux to anything else at all.
 
-/ magnus
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYJCheAAoJEBQN5MwUoCm2r8gP/jT/s6XqN65ivUo6olkMDU9L
+v9yCWKFQU+Rg9QHARvw+pCOP51+fJlUGrzuN084zcnJ9bBt5+QBG/exGwmTamA1N
+rUtIinPhiBNd83ldvVe5JtPHkEbU9JrLZwZRv+FKV4MSEslrkeqPOo0P+CszRRlQ
+W8tKnF9PEKkmi1T3r0INj2GAEHcNIRMs2+/sceBUyJCswi32cMhUc++sCTh7CFxc
+CNHSyuaXkPykaUePkDVQcVwANkEA1r2NdNhlB3KffJvjHQfB/MtS7upXHRp5P9VV
+shK8jsr84w1MXZHljFleJmea4lO7kK9ONwLCQm2RZVuFUcpHzIZz5YuweBgVtssv
+1RtxXtIiyKc0j6pKSen0BvwV+nQFL9Eng+6YiFVdVzzKIfE63ra9suaZRa3Wm24z
+vldRy/TA4FHTFxAPppc3Syo7/AE5kvwqD+dwZOaJ8M+uS+lb/oEMDx6IjrzPvhb8
+vf1IY8uLNu/adrInf20RDLR2BRBbB9cSlY+SM6iZymkb8lcHVcdbVD3ax0tiXngG
++tmCbHDhe6WkSXdmGhJZPw+oLwcp7E+X4ykK23gkeuG44D+uB7Gi3ZKsMcbqh8Dz
+uNN1Hc45ank4kuVrt3YvPUoh7tTFy7WWQauQarIpXcMNb4lX17bR1ziCtfJb9Frl
+HHmMrNNJNtM5958XlvA8
+=HdtU
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--
