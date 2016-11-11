@@ -1,36 +1,55 @@
-From: MikeB <mabnhdev@gmail.com>
-Subject: Re: Looking for guidance to support 74CBTLV3253 mux
-Date: Fri, 11 Nov 2016 06:47:12 -0500
-Message-ID: <CAAuRgKAUNwnGRsfWb=H84svvzWKrCZq5GpBn7Xah47M0LcxOrQ@mail.gmail.com>
-References: <CAAuRgKCgz5gtsCYxvykj9Nf1tMT+HLd--p1wb6ggBYcNJARfVQ@mail.gmail.com>
- <ca761330-e6de-243f-84eb-7a6c9dd9e59f@axentia.se> <f34feb2c-ca27-6b10-e783-aa70e58d99fe@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PULL REQUEST] i2c-mux for 4.10
+Date: Fri, 11 Nov 2016 09:48:08 +0100
+Message-ID: <7599c37b-c5b1-edb7-e8c2-5afa025a1233@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f169.google.com ([209.85.161.169]:34374 "EHLO
-        mail-yw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750849AbcKKLrN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 11 Nov 2016 06:47:13 -0500
-Received: by mail-yw0-f169.google.com with SMTP id t125so8650218ywc.1
-        for <linux-i2c@vger.kernel.org>; Fri, 11 Nov 2016 03:47:13 -0800 (PST)
-In-Reply-To: <f34feb2c-ca27-6b10-e783-aa70e58d99fe@axentia.se>
+Received: from mail-he1eur01on0110.outbound.protection.outlook.com ([104.47.0.110]:47520
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753405AbcKKMUg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 11 Nov 2016 07:20:36 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Thank you for the informative reply.  I was unfamiliar with the new
-mux and parent locking schemes.  They do make the solution for this
-problem much easier to deal with.  I'm working with release 4.4
-(Ubuntu Xenial), so the mux/parent locking hadn't shown up on my radar
-yet.  Unfortunately, the target release for my work is and will remain
-4.4 for a while.
+Wolfram,
 
-Regards, Mike
+here is a driver from Vadim Pasternak that I thought you were going
+to pick up after I acked it, but that didn't happen for some reason?
+Maybe I wasn't clear enough or my ack was buried too deep in some
+thread you didn't follow or something? Then I forgot about it and
+didn't follow up, so it missed the last merge window.
 
-On Thu, Nov 10, 2016 at 8:01 AM, Peter Rosin <peda@axentia.se> wrote:
->> There is however one requirement, the CPLD-mux must be "mux-locked"
->> as explained in Documentation/i2c/i2c-topology. Otherwise accesses
->> to devices behind that mux will lock the PCA9547 mux for the full
->> duration of the transaction and thus lock out any attempts to update
->> the CPLD mux as part of the transaction.
+I'm sending the pull request this early so that the driver can get
+some more bot exposure.
+
+Cheers,
+Peter
+
+The following changes since commit bc33b0ca11e3df467777a4fa7639ba488c9d4911:
+
+  Linux 4.9-rc4 (2016-11-05 16:23:36 -0700)
+
+are available in the git repository at:
+
+  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
+
+for you to fetch changes up to 60fef1374d38aa1182afd46368309f8f98ac435e:
+
+  i2c: mux: mellanox: add driver (2016-11-11 09:09:14 +0100)
+
+----------------------------------------------------------------
+Vadim Pasternak (1):
+      i2c: mux: mellanox: add driver
+
+ MAINTAINERS                         |   7 ++
+ drivers/i2c/muxes/Kconfig           |  11 ++
+ drivers/i2c/muxes/Makefile          |   1 +
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c | 222 ++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/mlxcpld.h         |  53 +++++++++
+ 5 files changed, 294 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-mlxcpld.c
+ create mode 100644 include/linux/i2c/mlxcpld.h
