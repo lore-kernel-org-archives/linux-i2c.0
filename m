@@ -1,75 +1,96 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv7 07/11] i2c: match dt-style device names from sysfs
- interface
-Date: Mon, 14 Nov 2016 23:27:18 +0100
-Message-ID: <20161114194953.GB3603@katana>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
- <1478522866-29620-8-git-send-email-kieran@bingham.xyz>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: mux: fix up dependencies
+Date: Mon, 14 Nov 2016 14:59:47 +0100
+Message-ID: <3ba9773a-b32b-1be3-cf27-2c4e7842197f@axentia.se>
+References: <1479128586-17052-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="b6t245dli6yaldfz"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1478522866-29620-8-git-send-email-kieran@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0093.outbound.protection.outlook.com ([104.47.2.93]:65145
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S936249AbcKNWh5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Nov 2016 17:37:57 -0500
+In-Reply-To: <1479128586-17052-1-git-send-email-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: stable@vger.kernel.org, Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
 
+On 2016-11-14 14:03, Linus Walleij wrote:
+> We get the following build error from UM Linux after adding
+> an entry to drivers/iio/gyro/Kconfig that issues "select I2C_MUX":
+> 
+> ERROR: "devm_ioremap_resource"
+>    [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
+> ERROR: "of_address_to_resource"
+>    [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
+> 
+> It appears that the I2C mux core code actually only requires
+> CONFIG_OF, but depends on HAS_IOMEM for historical reasons,
+> while CONFIG_I2C_MUX_REG does *not* have a direct dependency
+> on HAS_IOMEM.
+> 
+> This creates a situation where a allyesconfig or allmodconfig
+> for UM Linux will select I2C_MUX, and will implicitly enable
+> I2C_MUX_REG as well, and the compilation will fail for the
+> register driver.
+> 
+> Fix this up by making I2C_MUX_REG depend on HAS_IOMEM and
+> the I2C_MUX depend on OF.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Reported-by: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+> Cc: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+> Cc: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>  drivers/i2c/Kconfig       | 2 +-
+>  drivers/i2c/muxes/Kconfig | 1 +
+>  2 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index d223650a97e4..b9e378cfe1d1 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -59,7 +59,7 @@ config I2C_CHARDEV
+>  
+>  config I2C_MUX
+>  	tristate "I2C bus multiplexing support"
+> -	depends on HAS_IOMEM
+> +	depends on OF
 
---b6t245dli6yaldfz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It is not obvious to me that the i2c mux is dependent on
+CONFIG_OF. Sure, there are unconditional calls to things like
+of_property_read_u32 etc, but those are meant to be compiled
+away for the !CONFIG_OF case. I think. The code predates me,
+but that's how I read it...
 
-On Mon, Nov 07, 2016 at 12:47:42PM +0000, Kieran Bingham wrote:
-> A user can choose to instantiate a device on an i2c bus using the sysfs
-> interface by providing a string and address to match and communicate
-> with the device on the bus. Presently this string is only matched
-> against the old i2c device id style strings, even in the presence of
-> full device tree compatible strings with vendor prefixes.
->=20
-> Providing a vendor-prefixed string to the sysfs interface will not match
-> against the device tree of_match_device() calls as there is no device
-> tree node to parse from the sysfs interface.
->=20
-> Convert i2c_of_match_device_strip_vendor() such that it can match both
+So, I agree the HAS_IOMEM is probably hysterical remains from
+some point when i2c-mux was perhaps a specific thing that actually
+controlled the mux using IOMEM from code under that config option,
+and it should probably be moved to where it is needed (below).
 
-The function name here is the old one...
+But don't add "depends on OF", or am I missing something?
 
-> vendor prefixed and stripped compatible strings on the sysfs interface.
->=20
-> Signed-off-by: Kieran Bingham <kieran@bingham.xyz>
+Cheers,
+Peter
 
-=2E.. and in patch 2, the sentence "remove this function if all drivers
-are converted" is obsolete, too, since we need this function always for
-sysfs.
-
-This make me wonder if we shouldn't squash this patch also in into patch
-2 (like I suggested for the next one), and create a best-of-all-worlds
-commit message from these three patches?
-
-Opinions?
-
-
---b6t245dli6yaldfz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAABCAAGBQJYKjpGAAoJEBQN5MwUoCm2yX0QAIcP3nbfRkY9X1rlzQcdl3Xz
-t69Rgwkxnke9nnfxi4eLjetoAMQCNUVykdSxor/HezcohEPBFUDjoyOL0/DOdyG0
-lHoBvQ1fHjwBdnfvZfb48F/7/KXQ6GNNjgdhBknKnB100lTgrUWgpdnvhPR7wbpR
-w109/i8N5MFwQ8aKbQbhWCn6t1qWe6LRfHQxypb0uTe4Yu2zC6QnrNA/nMtupgNg
-/9JIRkl978anBgZUGmmC8xfcf+egqz5wIjxS71YzReEs/UE5XL0Ke0nej2Xl+sLE
-eBlWONYzwSRLjRmGfzcJnL/kmAioREPkvGVoQRkpc+QocjoInec2kfJJZQJUlolQ
-sWs6qppBr5O1UdYBtOoHNNFMkREP6WLZq5ZsE4uiDcx80AkueyrOAxslGOc78f/w
-tKGkxOfdAXkRz3bd8Bz80B8cnIV+sNJqUjJO3Dtx3ssYeERpgizRVj7HMdAZEmbu
-4Libo3icS7uWS0ZMUG2+sFNPI/XOzcEDZA9pi5FQ2HnRMf0mcZlJl5tk+dBHyhMS
-Xt4yoeyhz9Wdc3WF9it2dyAw2fGk7HgD+20D2kgqRwaP5SH1iiTXXdQpwoNFcP3e
-WIWBrXb43pWUBlGaSQH5LNDb3vdN62zSXOBGxoY62kCy6yJThEHzBA2LXIEBRYcR
-2vWyMvZH1c+xz2Fwn10z
-=Wt4M
------END PGP SIGNATURE-----
-
---b6t245dli6yaldfz--
+>  	help
+>  	  Say Y here if you want the I2C core to support the ability to
+>  	  handle multiplexed I2C bus topologies, by presenting each
+> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+> index e280c8ecc0b5..96de9ce5669b 100644
+> --- a/drivers/i2c/muxes/Kconfig
+> +++ b/drivers/i2c/muxes/Kconfig
+> @@ -63,6 +63,7 @@ config I2C_MUX_PINCTRL
+>  
+>  config I2C_MUX_REG
+>  	tristate "Register-based I2C multiplexer"
+> +	depends on HAS_IOMEM
+>  	help
+>  	  If you say yes to this option, support will be included for a
+>  	  register based I2C multiplexer. This driver provides access to
+> 
