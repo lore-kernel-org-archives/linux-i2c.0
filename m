@@ -1,36 +1,54 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/3] dt-bindings: i2c: pxa: Update the documentation
- for the Armada 3700
-Date: Mon, 14 Nov 2016 11:28:26 -0600
-Message-ID: <20161114172826.75mctimsbh4snk4w@rob-hp-laptop>
-References: <20161109115715.2557-1-romain.perier@free-electrons.com>
- <20161109115715.2557-4-romain.perier@free-electrons.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] i2c: mux: fix up dependencies
+Date: Mon, 14 Nov 2016 15:39:54 +0100
+Message-ID: <6094de61-8745-fbff-e516-db95392aa142@axentia.se>
+References: <1479134057-30653-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:34337 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932956AbcKNR2a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Nov 2016 12:28:30 -0500
-Content-Disposition: inline
-In-Reply-To: <20161109115715.2557-4-romain.perier@free-electrons.com>
+Received: from mail-db5eur01on0093.outbound.protection.outlook.com ([104.47.2.93]:56951
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932899AbcKNSP3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Nov 2016 13:15:29 -0500
+In-Reply-To: <1479134057-30653-1-git-send-email-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Romain Perier <romain.perier@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marv>
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: stable@vger.kernel.org, Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
 
-On Wed, Nov 09, 2016 at 12:57:15PM +0100, Romain Perier wrote:
-> This commit documents the compatible string to have the compatibility for
-> the I2C unit found in the Armada 3700.
+On 2016-11-14 15:34, Linus Walleij wrote:
+> We get the following build error from UM Linux after adding
+> an entry to drivers/iio/gyro/Kconfig that issues "select I2C_MUX":
 > 
-> Signed-off-by: Romain Perier <romain.perier@free-electrons.com>
-> ---
+> ERROR: "devm_ioremap_resource"
+>    [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
+> ERROR: "of_address_to_resource"
+>    [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
 > 
-> Changes in v2:
->  - Fixed wrong compatible string, it should be "marvell,armada-3700-i2c"
->    and not "marvell,armada-3700".
+> It appears that the I2C mux core code depends on HAS_IOMEM
+> for historical reasons, while CONFIG_I2C_MUX_REG does *not*
+> have a direct dependency on HAS_IOMEM.
 > 
->  Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 1 +
->  1 file changed, 1 insertion(+)
+> This creates a situation where a allyesconfig or allmodconfig
+> for UM Linux will select I2C_MUX, and will implicitly enable
+> I2C_MUX_REG as well, and the compilation will fail for the
+> register driver.
+> 
+> Fix this up by making I2C_MUX_REG depend on HAS_IOMEM and
+> removing the dependency from I2C_MUX.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Reported-by: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+> Cc: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+> Cc: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Peter Rosin <peda@axentia.se>
+
+Thanks!
+
+Cheers,
+Peter
