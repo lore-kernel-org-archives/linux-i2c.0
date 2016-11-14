@@ -1,54 +1,36 @@
-From: Gao Pan <pandy.gao@nxp.com>
-Subject: [Patch V4 2/2] i2c: imx: add devicetree binding for lpi2c
-Date: Mon, 14 Nov 2016 17:23:31 +0800
-Message-ID: <1479115411-1537-2-git-send-email-pandy.gao@nxp.com>
-References: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: mux: fix up dependencies
+Date: Mon, 14 Nov 2016 15:30:15 +0100
+Message-ID: <CACRpkdYsMupk6DtzWxyCchi=Zv2aSGcV4zkxj=V28fxij-ZedQ@mail.gmail.com>
+References: <1479128586-17052-1-git-send-email-linus.walleij@linaro.org> <3ba9773a-b32b-1be3-cf27-2c4e7842197f@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0057.outbound.protection.outlook.com ([104.47.2.57]:26535
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752214AbcKNN6r (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Nov 2016 08:58:47 -0500
-In-Reply-To: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
+Received: from mail-qk0-f175.google.com ([209.85.220.175]:34917 "EHLO
+        mail-qk0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932164AbcKNOaR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Nov 2016 09:30:17 -0500
+Received: by mail-qk0-f175.google.com with SMTP id n204so97046808qke.2
+        for <linux-i2c@vger.kernel.org>; Mon, 14 Nov 2016 06:30:16 -0800 (PST)
+In-Reply-To: <3ba9773a-b32b-1be3-cf27-2c4e7842197f@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com
-Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
+To: Peter Rosin <peda@axentia.se>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, stable <stable@vger.kernel.org>, Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
 
-Add a binding document for lpi2c driver
+On Mon, Nov 14, 2016 at 2:59 PM, Peter Rosin <peda@axentia.se> wrote:
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
----
- .../devicetree/bindings/i2c/i2c-imx-lpi2c.txt        | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+> It is not obvious to me that the i2c mux is dependent on
+> CONFIG_OF. Sure, there are unconditional calls to things like
+> of_property_read_u32 etc, but those are meant to be compiled
+> away for the !CONFIG_OF case. I think. The code predates me,
+> but that's how I read it...
+(...)
+> But don't add "depends on OF", or am I missing something?
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-new file mode 100644
-index 0000000..edaf04f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-@@ -0,0 +1,20 @@
-+* Freescale Low Power Inter IC (LPI2C) for i.MX
-+
-+Required properties:
-+- compatible :
-+  - "fsl,imx8dv-lpi2c" for LPI2C compatible with the one integrated on i.MX8DV soc
-+  - "fsl,imx7ulp-lpi2c" for LPI2C compatible with the one integrated on i.MX7ULP soc
-+- reg : address and length of the lpi2c master registers
-+- interrupt-parent : core interrupt controller
-+- interrupts : lpi2c interrupt
-+- clocks : lpi2c clock specifier
-+
-+Examples:
-+
-+lpi2c7: lpi2c7@40A50000 {
-+	compatible = "fsl,imx8dv-lpi2c";
-+	reg = <0x40A50000 0x10000>;
-+	interrupt-parent = <&intc>;
-+	interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&clks IMX7ULP_CLK_LPI2C7>;
-+};
--- 
-1.9.1
+Yeah that's right I guess. It can also use ACPI.
+
+I'll update.
+
+Yours,
+Linus Walleij
