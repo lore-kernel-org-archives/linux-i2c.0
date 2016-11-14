@@ -1,68 +1,85 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv7 00/11] i2c: Relax mandatory I2C ID table passing
-Date: Sun, 13 Nov 2016 19:26:45 +0100
-Message-ID: <20161113182645.GA6719@katana>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
+From: "Dr. Felix Collins" <felixcollinsfnb2@gmail.com>
+Subject: PLEASE VIEW THE ATTACHED FILE AND CONTACT ME.
+Date: Mon, 14 Nov 2016 07:44:09 +0000 (UTC)
+Message-ID: <1854903249.914393.1479109449106__2.29999791390156$1479110089$gmane$org@mail.yahoo.com>
+References: <1854903249.914393.1479109449106.ref@mail.yahoo.com>
+Reply-To: "Dr. Felix Collins" <felixcollinsa@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Type: multipart/mixed;
+        boundary="----=_Part_914392_57161530.1479109449106"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46768 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932502AbcKMS1J (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 13 Nov 2016 13:27:09 -0500
-Content-Disposition: inline
-In-Reply-To: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
+Received: from nm34-vm8.bullet.mail.gq1.yahoo.com ([98.136.216.159]:60668 "EHLO
+        nm34-vm8.bullet.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S934930AbcKNHxq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Nov 2016 02:53:46 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+
+------=_Part_914392_57161530.1479109449106
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 07, 2016 at 12:47:35PM +0000, Kieran Bingham wrote:
-> Version 7 of this patchset performs a rebase to linux-4.9-rc4 and adjust
-> the usage of strncasecmps to sysfs_streq. I have also renamed the
-> function i2c_of_match_device_strip_vendor to i2c_of_match_device_sysfs
-> which feels more appropriate now.
->=20
-> Retested with successful usage of full compatible strings, and shortened
-> device id's based on the vendor prefix being stripped.
->=20
-> Wolfram, for your convenience this series is available as a tagged commit
-> at: https://git.kernel.org/pub/scm/linux/kernel/git/kbingham/linux.git=20
-> i2c-dt/v4.9-rc4-probe-conversion-v7, though this includes the TESTPATCH so
-> it is not by itself suitable for a merge.
+------=_Part_914392_57161530.1479109449106
+Content-Type: application/msword
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="FROM FIRST NATIONAL BANK OF SOUTH AFRICA (F.N.B)..rtf"
+Content-ID: <7a5cd6df-04f1-6cf4-dc51-aa1de2c50c02@yahoo.com>
 
-To keep you updated: this series passed my first test. If nothing bad
-happens tomorrow, I'll push it out.
+e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJcZGVmZjBcZGVmbGFuZzcxNzd7XGZvbnR0Ymx7XGYwXGZz
+d2lzc1xmY2hhcnNldDAgQXJpYWw7fX0NCntcKlxnZW5lcmF0b3IgTXNmdGVkaXQgNS40MS4xNS4x
+NTEyO31cdmlld2tpbmQ0XHVjMVxwYXJkXGYwXGZzMjQgSSBhbSBGZWxpeCBDb2xsaW5zLCBJIHdv
+cmsgd2l0aCB0aGUgRklSU1QgTkFUSU9OQUwgQkFOSyBPRiBTT1VUSCBBRlJJQ0EgKEYuTi5CKS5c
+cGFyDQpQbGVhc2UgY29udGFjdCBtZSB3aXRoIHRoaXMgZW1haWwgYWRkcmVzc2VzLlxwYXINCmZl
+bGl4Y29sbGluc2FAZ21haWwuY29tXHBhcg0KUGxlYXNlIGNhbGwgbWUgb24gbXkgcHJpdmF0ZSBu
+dW1iZXIgKCsyNy03OSAtMTQxLTIzODUpXHBhcg0KXHBhcg0KXHBhcg0KQVRURU5USU9OOiBTSVIv
+TUFEQU0sXHBhcg0KXHBhcg0KSSBkbyB1bmRlcnN0YW5kIHRoZSBjb25jZXJuIHRoaXMgbGV0dGVy
+IHdpbGwgYnJpbmcgdG8geW91IGZvciB0aGUgZmFjdCB0aGF0IGl0IGNvbWVzIGZyb20gYSB0b3Rh
+bCBzdHJhbmdlciwgYnV0IGJlIHJlc3QgYXNzdXJlZCBmb3IgaXQgY29tZXMgd2l0aCBnb29kIGlu
+dGVudGlvbnMuIEkgZ290IHlvdXIgY29udGFjdCB0aHJvdWdoIHRoZSBTb3V0aCBBZnJpY2FuIElu
+dGVybmF0aW9uYWwgRXhjaGFuZ2UgTmV0d29yayBPbi1saW5lIGhlcmUgaW4gSm9oYW5uZXNidXJn
+LCBTb3V0aCBBZnJpY2EuIEZvciBwdXJwb3NlIG9mIGludHJvZHVjdGlvbiBJIGFtIEZlbGl4IENv
+bGxpbnMsIEkgd29yayB3aXRoIHRoZSBGSVJTVCBOQVRJT05BTCBCQU5LIE9GIFNPVVRIIEFGUklD
+QSAoRi5OLkIpICBUaGVyZSBpcyBhbiBhY2NvdW50IG9wZW5lZCBpbiB0aGlzIGJhbmsgc2luY2Ug
+MTk4MCBhbmQgc2luY2UgMTk5NSBub2JvZHkgaGFzIG9wZXJhdGVkIG9uIHRoaXMgYWNjb3VudCBh
+Z2Fpbi4gQWZ0ZXIgZ29pbmcgdGhyb3VnaCBzb21lIG9sZCBmaWxlcyBpbiB0aGUgcmVjb3Jkcywg
+SSBkaXNjb3ZlcmVkIHRoYXQgaWYgSSBkb24ndCByZW1pdCB0aGlzIG1vbmV5IG91dCB1cmdlbnRs
+eSBpdCB3b3VsZCBiZSBmb3JmZWl0ZWQgZm9yIG5vdGhpbmcuXHBhcg0KXHBhcg0KVGhlIG93bmVy
+IG9mIHRoaXMgYWNjb3VudCBpcyBNci4gU21pdGggLkIuIEFuZHJlYXMsIGEgZm9yZWlnbmVyIGFu
+ZCBhIG1pbmVyIGF0IEtydWdlciBHb2xkIENvLW9wZXJhdGlvbiwgYSBnZW9sb2dpc3QgYnkgcHJv
+ZmVzc2lvbiBhbmQgaGUgZGllZCBzaW5jZSAxOTk0LiBObyBvdGhlciBwZXJzb24ga25vd3MgYWJv
+dXQgdGhpcyBhY2NvdW50IG9yIGFueXRoaW5nIGNvbmNlcm5pbmcgaXQsIHRoZSBhY2NvdW50IGhh
+cyBubyBvdGhlciBiZW5lZmljaWFyeSBhbmQgbXkgaW52ZXN0aWdhdGlvbiBwcm92ZWQgdG8gbWUg
+YXMgd2VsbCB0aGF0IHRoZSBjb21wYW55IGRvZXMgbm90IGtub3cgYW55dGhpbmcgYWJvdXQgdGhp
+cyBhY2NvdW50IGFuZCB0aGUgYW1vdW50IGludm9sdmVkIGlzIFVTRCQ3NSwwMDAuMDAwLDAwICgg
+U2V2ZW50eSBGaXZlIE1pbGxpb24gVW5pdGVkIFN0YXRlcyBEb2xsYXJzKS4gSSBhbSBvbmx5IGNv
+bnRhY3RpbmcgeW91IGFzIGEgZm9yZWlnbmVyIGJlY2F1c2UgdGhpcyBtb25leSBjYW5ub3QgYmUg
+YXBwcm92ZWQgdG8gYSBsb2NhbCBiYW5rIGhlcmUsIGJ1dCBjYW4gb25seSBiZSBhcHByb3ZlZCB0
+byBhbnkgZm9yZWlnbiBhY2NvdW50IGJlY2F1c2UgdGhlIG1vbmV5IGlzIGluIFVuaXRlZCBTdGF0
+ZXMgRG9sbGFycyBhbmQgdGhlIGZvcm1lciBvd25lciBvZiB0aGUgYWNjb3VudCBNci4gU21pdGgg
+LkIgLiBBbmRyZWFzIGlzIGEgZm9yZWlnbmVyIHRvby4gSSBuZWVkIGEgdHJ1dGhmdWwgcGVyc29u
+IGluIHRoaXMgYnVzaW5lc3MgYmVjYXVzZSBJIGRvbid0IHdhbnQgdG8gbWFrZSBtaXN0YWtlcy5c
+cGFyDQpccGFyDQogSSBuZWVkIHlvdXIgc3Ryb25nIGFzc3VyYW5jZSBhbmQgdHJ1c3QuIFdpdGgg
+bXkgcG9zaXRpb24gbm93IGluIG9mZmljZSBJIGNhbiB0cmFuc2ZlciB0aGlzIG1vbmV5IHRvIGFu
+eSBmb3JlaWduIHJlbGlhYmxlIGFjY291bnQsIHRocm91Z2ggb24tbGluZSBiYW5raW5nIG9yIFRl
+bGVncmFwaGljIFRyYW5zZmVyIChULlQpIHdoaWNoIHlvdSBjYW4gcHJvdmlkZSB3aXRoIGFzc3Vy
+YW5jZSB0aGF0IHRoaXMgbW9uZXkgd2lsbCBiZSBpbnRhY3QgcGVuZGluZyBteSBwaHlzaWNhbCBh
+cnJpdmFsIHRvIHlvdXIgY291bnRyeSBmb3Igc2hhcmluZy4gSSB3aWxsIGFwcGx5IGZvciBhbm51
+YWwgbGVhdmUgdG8gZ2V0IGEgdmlzYSBpbW1lZGlhdGVseSBJIGhlYXIgZnJvbSB5b3UgdGhhdCB5
+b3UgYXJlIHJlYWR5IHRvIGFjdCBhbmQgcmVjZWl2ZSB0aGlzIG1vbmV5IGluIHlvdXIgYWNjb3Vu
+dC4gQXQgdGhlIGNvbmNsdXNpb24gb2YgdGhpcyBidXNpbmVzcywgSSB3aWxsIGNvbWUgdG8geW91
+ciBjb3VudHJ5IGZvciB3aXRoZHJhd2FsIGFuZCBzaGFyaW5nIGFuZCBvdGhlciBpbnZlc3RtZW50
+cy4geW91IHdpbGwgYmUgZ2l2ZW4gNDAlIG9mIHRoZSB0b3RhbCBhbW91bnQsIDUwJSB3aWxsIGJl
+IGZvciBtZSAsIGFuZCB3aGlsZSAxMCUgd2lsbCBiZSBmb3IgZXhwZW5zZXMgYm90aCBwYXJ0aWVz
+IG1pZ2h0IGluY3VyIGR1cmluZyB0aGUgcHJvY2VzcyBvZiB0cmFuc2ZlcnJpbmcgdGhpcyBtb25l
+eS5ccGFyDQpccGFyDQpUaGVyZWZvcmUsIGlmIHlvdSBhcmUgd2lsbGluZyBhbmQgaW50ZXJlc3Rl
+ZCB0byByZW5kZXIgdGhlIG5lZWRlZCBhc3Npc3RhbmNlLCBFbmRlYXZvciB0byByZXBseSB0aHJv
+dWdoIG15IGVtYWlsIGFkZHJlc3MsIEkgYWxzbyBuZWVkIHlvdXIgcHJpdmF0ZSBwaG9uZSBhbmQg
+ZmF4IG51bWJlcnMgZm9yIGVhc3kgY29tbXVuaWNhdGlvbi4gSSB3aWxsIGdpdmUgbW9yZSBjbGFy
+aWZpY2F0aW9ucyBvbiB0aGUgbW9kYWxpdGllcyBuZWVkZWQgZm9yIHRoZSBzdWNjZXNzZnVsIGNv
+bXBsZXRpb24gb2YgdGhpcyB0cmFuc2FjdGlvbi5ccGFyDQpccGFyDQpccGFyDQpCZXN0IFJlZ2Fy
+ZHMsXHBhcg0KRHIuIEZlbGl4IENvbGxpbnNccGFyDQogXHBhcg0KfQ0KAA==
 
-Thanks!
-
-
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYKLBlAAoJEBQN5MwUoCm2yC8P/1ApmgupbLxPhCbywaXuqnkM
-eE0vxMwv1rfGKdpHztX62UeJALo8L4XaaA4blSMm2+Sos5fmGNLQ5J/UeR4zqtGb
-I9cUWLNLO57+2BBWmhbFg864YqJLUYwIYUaaCblqY2cqdFiJZogfJLla+pUYcPxx
-NFcXt5O84BziiWJ1jqQCqXdGvcMvaJ1c+17dIVh5R+R3t6SFD3RBKrrcb4ymfrBN
-NGq7Ph3UUEcjIQAXAP4rjD7Q4Gy08796GbKV9jylOjIKN0KDb8VOsA6YqtD+O6xr
-Nb8J0npK5NIeNSotssjtJrwf3SQKu7oeilyBs8uTxCmJ1WKEjURi8GumxN9zutgk
-YKdKFXRFHxw46tuB+YyzG2QbVZc+6LM47EIEOGsomDjBBuzT087Tk8k+YlIIVjKB
-D6vVSEX04nR5hxo+OXqPLiQycfeHaGFkCu7nuE1wj5KkWLQVNzXiQRSszfjlMD5J
-byEMZ707svcSiUFjj+nkJI6IO3gQjchkk8v/qnAZ6FZ3KNMiUv5J53FJk/6tAYWp
-B4O/5lCYr742DqQIxFsOiHJguMIteQj6fzANiNAF8FMDnwm1LVpEp4BUYNy5Pyvl
-Hu3kvXCdaBwwz4BW3X4C5HDRFwreTgo7lGMEpGx1/BtWjuwR2aJ0u7K8mboEe4g8
-0rhPQkX58CJvhwMUrLaG
-=WIu3
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--
+------=_Part_914392_57161530.1479109449106--
