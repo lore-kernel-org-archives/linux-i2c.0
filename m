@@ -1,69 +1,54 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] i2c: mux: fix up dependencies
-Date: Mon, 14 Nov 2016 14:03:06 +0100
-Message-ID: <1479128586-17052-1-git-send-email-linus.walleij@linaro.org>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, stable@vger.kernel.org, Jonathan Cameron <jic23@jic23.retrosnub.co.uk>, Peter Rosin <peda@axentia.se>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch V4 2/2] i2c: imx: add devicetree binding for lpi2c
+Date: Mon, 14 Nov 2016 17:23:31 +0800
+Message-ID: <1479115411-1537-2-git-send-email-pandy.gao@nxp.com>
+References: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0057.outbound.protection.outlook.com ([104.47.2.57]:26535
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752214AbcKNN6r (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Nov 2016 08:58:47 -0500
+In-Reply-To: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com
+Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
 
-We get the following build error from UM Linux after adding
-an entry to drivers/iio/gyro/Kconfig that issues "select I2C_MUX":
+Add a binding document for lpi2c driver
 
-ERROR: "devm_ioremap_resource"
-   [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
-ERROR: "of_address_to_resource"
-   [drivers/i2c/muxes/i2c-mux-reg.ko] undefined!
-
-It appears that the I2C mux core code actually only requires
-CONFIG_OF, but depends on HAS_IOMEM for historical reasons,
-while CONFIG_I2C_MUX_REG does *not* have a direct dependency
-on HAS_IOMEM.
-
-This creates a situation where a allyesconfig or allmodconfig
-for UM Linux will select I2C_MUX, and will implicitly enable
-I2C_MUX_REG as well, and the compilation will fail for the
-register driver.
-
-Fix this up by making I2C_MUX_REG depend on HAS_IOMEM and
-the I2C_MUX depend on OF.
-
-Cc: stable@vger.kernel.org
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Reported-by: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
-Cc: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
-Cc: Peter Rosin <peda@axentia.se>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 ---
- drivers/i2c/Kconfig       | 2 +-
- drivers/i2c/muxes/Kconfig | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/i2c/i2c-imx-lpi2c.txt        | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index d223650a97e4..b9e378cfe1d1 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -59,7 +59,7 @@ config I2C_CHARDEV
- 
- config I2C_MUX
- 	tristate "I2C bus multiplexing support"
--	depends on HAS_IOMEM
-+	depends on OF
- 	help
- 	  Say Y here if you want the I2C core to support the ability to
- 	  handle multiplexed I2C bus topologies, by presenting each
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index e280c8ecc0b5..96de9ce5669b 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -63,6 +63,7 @@ config I2C_MUX_PINCTRL
- 
- config I2C_MUX_REG
- 	tristate "Register-based I2C multiplexer"
-+	depends on HAS_IOMEM
- 	help
- 	  If you say yes to this option, support will be included for a
- 	  register based I2C multiplexer. This driver provides access to
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
+new file mode 100644
+index 0000000..edaf04f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
+@@ -0,0 +1,20 @@
++* Freescale Low Power Inter IC (LPI2C) for i.MX
++
++Required properties:
++- compatible :
++  - "fsl,imx8dv-lpi2c" for LPI2C compatible with the one integrated on i.MX8DV soc
++  - "fsl,imx7ulp-lpi2c" for LPI2C compatible with the one integrated on i.MX7ULP soc
++- reg : address and length of the lpi2c master registers
++- interrupt-parent : core interrupt controller
++- interrupts : lpi2c interrupt
++- clocks : lpi2c clock specifier
++
++Examples:
++
++lpi2c7: lpi2c7@40A50000 {
++	compatible = "fsl,imx8dv-lpi2c";
++	reg = <0x40A50000 0x10000>;
++	interrupt-parent = <&intc>;
++	interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&clks IMX7ULP_CLK_LPI2C7>;
++};
 -- 
-2.7.4
+1.9.1
