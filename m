@@ -1,84 +1,38 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v4 07/14] ARM: dts: koelsch: use demuxer for I2C4
-Date: Tue, 15 Nov 2016 16:45:01 +0100
-Message-ID: <CAMuHMdXzqakz6RYXFMOe5ps0SPsxDWHbOV024ts_E_qufVOutQ@mail.gmail.com>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com> <20161106202032.5227-8-wsa+renesas@sang-engineering.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:33069 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933828AbcKOPpD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Nov 2016 10:45:03 -0500
-In-Reply-To: <20161106202032.5227-8-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 0/2] i2c: Add Tegra BPMP I2C proxy driver
+Date: Tue, 15 Nov 2016 17:23:48 +0100
+Message-ID: <20161115162350.32405-1-thierry.reding@gmail.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Linux I2C <linux-i2c@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>
+
+From: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
 Hi Wolfram,
 
-On Sun, Nov 6, 2016 at 9:20 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> From: Simon Horman <horms+renesas@verge.net.au>
->
-> Make it possible to fallback to GPIO for I2C4 on the EXIO-E connector.
->
-> This is based on reference work for the I2C0 core of the lager/r8a7790
-> by Wolfram Sang.
->
-> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
-> [wsa: rebased and fixed aliases]
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  arch/arm/boot/dts/r8a7791-koelsch.dts | 35 +++++++++++++++++++++++++++++++++++
->  1 file changed, 35 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/r8a7791-koelsch.dts b/arch/arm/boot/dts/r8a7791-koelsch.dts
-> index 8d653920957a4b..442d1512a8fa9c 100644
-> --- a/arch/arm/boot/dts/r8a7791-koelsch.dts
-> +++ b/arch/arm/boot/dts/r8a7791-koelsch.dts
+This series of patches depends on two branches in the Tegra tree, so I
+think the easiest would be if you Acked-by'd this so that I can manage
+the dependencies in the Tegra tree. The DT binding has already been
+reviewed and I've tested the driver in my development tree for a while
+and it's working great.
 
-> @@ -476,6 +501,11 @@
->                 function = "i2c2";
->         };
->
-> +       i2c4_pins: i2c4 {
-> +               groups = "i2c4";
-> +               function = "i2c4";
-> +       };
-> +
->         du_pins: du {
->                 groups = "du_rgb888", "du_sync", "du_disp", "du_clk_out_0";
->                 function = "du";
-> @@ -732,6 +762,11 @@
->         clock-frequency = <100000>;
->  };
->
-> +&i2c4 {
-> +       pinctrl-0 = <&i2c4_pins>;
-> +       pinctrl-names = "i2c-exio4";
-> +};
+Thierry
 
-i2c4 shares pins with vin0. Hence enabling the former breaks the latter:
+Shardar Shariff Md (1):
+  i2c: Add Tegra BPMP I2C proxy driver
 
-    sh-pfc e6060000.pfc: pin GP_4_13 already requested by
-e6520000.i2c; cannot claim for e6ef0000.video
-    sh-pfc e6060000.pfc: pin-141 (e6ef0000.video) status -22
-    sh-pfc e6060000.pfc: could not request pin 141 (GP_4_13) from
-group vin0_data24  on device sh-pfc
-    rcar-vin e6ef0000.video: Error applying setting, reverse things back
-    rcar-vin: probe of e6ef0000.video failed with error -22
+Stephen Warren (1):
+  dt-bindings: Add Tegra186 BPMP I2C binding
 
-There may be similar issues on other boards. Haven't checked yet.
+ .../bindings/i2c/nvidia,tegra186-bpmp-i2c.txt      |  42 +++
+ drivers/i2c/busses/Kconfig                         |  13 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-tegra-bpmp.c                | 365 +++++++++++++++++++++
+ 4 files changed, 421 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/nvidia,tegra186-bpmp-i2c.txt
+ create mode 100644 drivers/i2c/busses/i2c-tegra-bpmp.c
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+2.10.2
