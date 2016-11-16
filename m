@@ -1,52 +1,53 @@
-From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: EMail problems :(
-Date: Wed, 16 Nov 2016 09:15:17 +0100
-Message-ID: <20161116081517.GF1797@katana>
-References: <20161116081212.GD1797@katana>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v4 07/14] ARM: dts: koelsch: use demuxer for I2C4
+Date: Wed, 16 Nov 2016 11:35:22 +0100
+Message-ID: <CAMuHMdVVqhZgTjaFiGgviCRD0X0DkQPZjpnta2FOhFmV7M+CvQ@mail.gmail.com>
+References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
+ <20161106202032.5227-8-wsa+renesas@sang-engineering.com> <CAMuHMdXzqakz6RYXFMOe5ps0SPsxDWHbOV024ts_E_qufVOutQ@mail.gmail.com>
+ <20161115174450.GA21715@verge.net.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:57626 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932375AbcKPIPU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 16 Nov 2016 03:15:20 -0500
-Content-Disposition: inline
-In-Reply-To: <20161116081212.GD1797@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20161115174450.GA21715@verge.net.au>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
+Hi Simon,
 
---yudcn1FV7Hsu/q59
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, Nov 15, 2016 at 6:44 PM, Simon Horman <horms@verge.net.au> wrote:
+>> i2c4 shares pins with vin0. Hence enabling the former breaks the latter:
+>>
+>>     sh-pfc e6060000.pfc: pin GP_4_13 already requested by
+>> e6520000.i2c; cannot claim for e6ef0000.video
+>>     sh-pfc e6060000.pfc: pin-141 (e6ef0000.video) status -22
+>>     sh-pfc e6060000.pfc: could not request pin 141 (GP_4_13) from
+>> group vin0_data24  on device sh-pfc
+>>     rcar-vin e6ef0000.video: Error applying setting, reverse things back
+>>     rcar-vin: probe of e6ef0000.video failed with error -22
+>>
+>> There may be similar issues on other boards. Haven't checked yet.
+>
+> Thanks, I will drop this patch for now.
+>
+> I checked the boot logs of other boards with similar patches and didn't see
+> anything there.
 
+Do you have CONFIG_VIDEO_ADV7604=y?
 
-> my main mail service (the-dreams.de) seems to be defunct currently.
+I expect the issue to be present on gose, too. So far I didn't see it
+there, yet.
+But the vin DTS of gose is different from koelsch, causing vin0 not to be
+initialized?
 
-No need to resend patches, though. They are tracked in patchwork.
+Gr{oetje,eeting}s,
 
+                        Geert
 
---yudcn1FV7Hsu/q59
-Content-Type: application/pgp-signature; name="signature.asc"
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYLBWVAAoJEBQN5MwUoCm2lMQP/2ol49PVE0PGjfUwwwfaz02P
-+BcoA2f1ySUdytqxaILVl9/haTdKg+nfzzjXEVsfzscICT1u0zRfneIqU5KDlVcE
-M+thJgA9INksJ9yADUAvEITlkj7XvNTqyiOdDIR/SF9+/tQDvTgamFZwPzU95HrG
-3dD2G26m1KO+cG/tNPQjAAZDsAc1Kq4GbZsXNvKUAq176QDP4AMYC7d+skxiVezS
-3VU1DcGEbEPhNqqS0FP+oiMBWGUAj7V7fEmhOwORbkzNoebSfAPTgGENppO3CTUw
-3lBPV/zK/cGRO/4+gUc0xfllLGIjjcNRME2ZCViscDuAbf3gx/J8KDrHA3mF1lPI
-v+T9oS9MYkW4KIxXIcsLMb9YyaKxDj5SHImdmc3NM+RUL5cIYJWYxPhHfHZQ/n4S
-km4Yy7MAcylSuqJJUkCeH6vziBsB4ffeNgLV6H1LT7LYJiJTTGhZRKlSAEZzuUEZ
-4mqDzCEWnOKluliQREf1AcliImrgFwkcShDJk2iXlXm2h1K1QBAsJBFH05v/ke2I
-OXRfyOp15D9KtGCdaXQku8YNqj8sYeuDhkcRGVzxcs5qVaTK5ZzxlB0THjjBobsj
-ZMt4h62S250OUwFSVqVOdrBO+6XFcyrIyb9kcnp938dSDoMzaQVwCx5QCIBuzceM
-JlNrwdCMuHxqA6hZqOIA
-=zOCV
------END PGP SIGNATURE-----
-
---yudcn1FV7Hsu/q59--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
