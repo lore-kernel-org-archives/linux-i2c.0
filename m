@@ -1,67 +1,525 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH v4 07/14] ARM: dts: koelsch: use demuxer for I2C4
-Date: Wed, 16 Nov 2016 15:17:14 +0100
-Message-ID: <20161116141713.GA25812@verge.net.au>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161106202032.5227-8-wsa+renesas@sang-engineering.com>
- <CAMuHMdXzqakz6RYXFMOe5ps0SPsxDWHbOV024ts_E_qufVOutQ@mail.gmail.com>
- <20161115174450.GA21715@verge.net.au>
- <CAMuHMdVVqhZgTjaFiGgviCRD0X0DkQPZjpnta2FOhFmV7M+CvQ@mail.gmail.com>
- <20161116134736.GA20704@verge.net.au>
- <CAMuHMdXsUA+OywpfuNwunuCSupczKSuWnAgs3Zdq7zMxrD6OWQ@mail.gmail.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [RFC PATCH 2/7] misc: minimal mux subsystem and gpio-based mux controller
+Date: Thu, 17 Nov 2016 00:48:26 +0100
+Message-ID: <1479340111-1259-3-git-send-email-peda@axentia.se>
+References: <1479340111-1259-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXsUA+OywpfuNwunuCSupczKSuWnAgs3Zdq7zMxrD6OWQ@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1479340111-1259-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 16, 2016 at 03:14:11PM +0100, Geert Uytterhoeven wrote:
-> Hi Simon,
-> 
-> On Wed, Nov 16, 2016 at 2:47 PM, Simon Horman <horms@verge.net.au> wrote:
-> > On Wed, Nov 16, 2016 at 11:35:22AM +0100, Geert Uytterhoeven wrote:
-> >> On Tue, Nov 15, 2016 at 6:44 PM, Simon Horman <horms@verge.net.au> wrote:
-> >> >> i2c4 shares pins with vin0. Hence enabling the former breaks the latter:
-> >> >>
-> >> >>     sh-pfc e6060000.pfc: pin GP_4_13 already requested by
-> >> >> e6520000.i2c; cannot claim for e6ef0000.video
-> >> >>     sh-pfc e6060000.pfc: pin-141 (e6ef0000.video) status -22
-> >> >>     sh-pfc e6060000.pfc: could not request pin 141 (GP_4_13) from
-> >> >> group vin0_data24  on device sh-pfc
-> >> >>     rcar-vin e6ef0000.video: Error applying setting, reverse things back
-> >> >>     rcar-vin: probe of e6ef0000.video failed with error -22
-> >> >>
-> >> >> There may be similar issues on other boards. Haven't checked yet.
-> >> >
-> >> > Thanks, I will drop this patch for now.
-> >> >
-> >> > I checked the boot logs of other boards with similar patches and didn't see
-> >> > anything there.
-> >>
-> >> Do you have CONFIG_VIDEO_ADV7604=y?
-> >
-> > No, mainly because its not in shmobile_defconfig.
-> >
-> > I tried again with that option enabled and still didn't see
-> > anything of interest in kernel log.
-> >
-> >> I expect the issue to be present on gose, too. So far I didn't see it
-> >> there, yet.
-> >> But the vin DTS of gose is different from koelsch, causing vin0 not to be
-> >> initialized?
-> >
-> > It seems so.
-> 
-> I managed to reproduce the issue on gose, by adding r8a7793 support to
-> my koelsch .config.
-> Apparently I was missing CONFIG_I2C_DEMUX_PINCTRL=y.
+When both the iio subsystem and the i2c subsystem wants to update
+the same mux, there needs to be some coordination. Invent a new
+minimal "mux" subsystem that handles this.
 
-Ok, thanks. Curious that I didn't see it.
+Add a single backend driver for this new subsystem that can
+control gpio based multiplexers.
+---
+ drivers/misc/Kconfig    |   6 +
+ drivers/misc/Makefile   |   2 +
+ drivers/misc/mux-core.c | 285 ++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/misc/mux-gpio.c | 105 ++++++++++++++++++
+ include/linux/mux.h     |  54 +++++++++
+ 5 files changed, 452 insertions(+)
+ create mode 100644 drivers/misc/mux-core.c
+ create mode 100644 drivers/misc/mux-gpio.c
+ create mode 100644 include/linux/mux.h
 
-It looks like we should drop:
-
-ARM: dts: gose: use demuxer for I2C4
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 64971baf11fa..9e119bb78d82 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -766,6 +766,12 @@ config PANEL_BOOT_MESSAGE
+ 	  An empty message will only clear the display at driver init time. Any other
+ 	  printf()-formatted message is valid with newline and escape codes.
+ 
++config MUX_GPIO
++	tristate "GPIO-controlled MUX controller"
++	depends on OF
++	help
++	  GPIO-controlled MUX controller
++
+ source "drivers/misc/c2port/Kconfig"
+ source "drivers/misc/eeprom/Kconfig"
+ source "drivers/misc/cb710/Kconfig"
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 31983366090a..92b547bcbac1 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -53,6 +53,8 @@ obj-$(CONFIG_ECHO)		+= echo/
+ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
+ obj-$(CONFIG_CXL_BASE)		+= cxl/
+ obj-$(CONFIG_PANEL)             += panel.o
++obj-$(CONFIG_MUX_GPIO)          += mux-core.o
++obj-$(CONFIG_MUX_GPIO)          += mux-gpio.o
+ 
+ lkdtm-$(CONFIG_LKDTM)		+= lkdtm_core.o
+ lkdtm-$(CONFIG_LKDTM)		+= lkdtm_bugs.o
+diff --git a/drivers/misc/mux-core.c b/drivers/misc/mux-core.c
+new file mode 100644
+index 000000000000..d7c7b667d1a4
+--- /dev/null
++++ b/drivers/misc/mux-core.c
+@@ -0,0 +1,285 @@
++/*
++ * Multiplexer subsystem
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#define pr_fmt(fmt) "mux-core: " fmt
++
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/idr.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++#include <linux/of.h>
++#include <linux/slab.h>
++
++static struct bus_type mux_bus_type = {
++	.name = "mux",
++};
++
++static int __init mux_init(void)
++{
++	return bus_register(&mux_bus_type);
++}
++
++static void __exit mux_exit(void)
++{
++	bus_unregister(&mux_bus_type);
++}
++
++static DEFINE_IDA(mux_ida);
++
++static void mux_control_release(struct device *dev)
++{
++	struct mux_control *mux = to_mux_control(dev);
++
++	ida_simple_remove(&mux_ida, mux->id);
++	kfree(mux);
++}
++
++static struct device_type mux_control_type = {
++	.name = "mux-control",
++	.release = mux_control_release,
++};
++
++/*
++ * Allocate a mux-control, plus an extra memory area for private use
++ * by the caller.
++ */
++struct mux_control *mux_control_alloc(size_t sizeof_priv)
++{
++	struct mux_control *mux;
++
++	mux = kzalloc(sizeof(*mux) + sizeof_priv, GFP_KERNEL);
++	if (!mux)
++		return NULL;
++
++	mux->dev.bus = &mux_bus_type;
++	mux->dev.type = &mux_control_type;
++	device_initialize(&mux->dev);
++	dev_set_drvdata(&mux->dev, mux);
++
++	init_rwsem(&mux->lock);
++	mux->priv = mux + 1;
++
++	mux->id = ida_simple_get(&mux_ida, 0, 0, GFP_KERNEL);
++	if (mux->id < 0) {
++		pr_err("mux-controlX failed to get device id\n");
++		kfree(mux);
++		return NULL;
++	}
++	dev_set_name(&mux->dev, "mux:control%d", mux->id);
++
++	return mux;
++}
++EXPORT_SYMBOL_GPL(mux_control_alloc);
++
++/*
++ * Register the mux-control, thus readying it for use.
++ */
++int mux_control_register(struct mux_control *mux)
++{
++	/* If the calling driver did not initialize of_node, do it here */
++	if (!mux->dev.of_node && mux->dev.parent)
++		mux->dev.of_node = mux->dev.parent->of_node;
++
++	return device_add(&mux->dev);
++}
++EXPORT_SYMBOL_GPL(mux_control_register);
++
++/*
++ * Take the mux-control off-line.
++ */
++void mux_control_unregister(struct mux_control *mux)
++{
++	device_del(&mux->dev);
++}
++EXPORT_SYMBOL_GPL(mux_control_unregister);
++
++/*
++ * Put away the mux-control for good.
++ */
++void mux_control_put(struct mux_control *mux)
++{
++	if (!mux)
++		return;
++	put_device(&mux->dev);
++}
++EXPORT_SYMBOL_GPL(mux_control_free);
++
++/*
++ * Select the given multiplexer channel. Call mux_control_deselect()
++ * when the operation is complete on the multiplexer channel, and the
++ * multiplexer is free for others to use.
++ */
++int mux_control_select(struct mux_control *mux, int reg)
++{
++	int ret;
++
++	if (down_read_trylock(&mux->lock)) {
++		if (mux->cache == reg)
++			return 0;
++
++		/* Sigh, the mux needs updating... */
++		up_read(&mux->lock);
++	}
++
++	/* ...or it's just contended. */
++	down_write(&mux->lock);
++
++	if (mux->cache == reg) {
++		/*
++		 * Hmmm, someone else changed the mux to my liking.
++		 * That makes me wonder how long I waited for nothing...
++		 */
++		downgrade_write(&mux->lock);
++		return 0;
++	}
++
++	ret = mux->ops->set(mux, reg);
++	if (ret < 0) {
++		up_write(&mux->lock);
++		return ret;
++	}
++
++	mux->cache = reg;
++	downgrade_write(&mux->lock);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(mux_control_select);
++
++/*
++ * Deselect the previously selected multiplexer channel.
++ */
++int mux_control_deselect(struct mux_control *mux)
++{
++	if (mux->do_idle && mux->cache != mux->idle_state) {
++		mux->ops->set(mux, mux->idle_state);
++		mux->cache = mux->idle_state;
++	}
++
++	up_read(&mux->lock);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(mux_control_deselect);
++
++static int of_dev_node_match(struct device *dev, void *data)
++{
++	return dev->of_node == data;
++}
++
++static struct mux_control *of_find_mux_by_node(struct device_node *np)
++{
++	struct device *dev;
++
++	dev = bus_find_device(&mux_bus_type, NULL, np, of_dev_node_match);
++
++	return dev ? to_mux_control(dev) : NULL;
++}
++
++static struct mux_control *of_mux_control_get(struct device_node *np, int index)
++{
++	struct device_node *mux_np;
++	struct mux_control *mux;
++
++	mux_np = of_parse_phandle(np, "control-muxes", index);
++	if (!mux_np)
++		return NULL;
++
++	mux = of_find_mux_by_node(mux_np);
++	of_node_put(mux_np);
++
++	return mux;
++}
++
++/*
++ * Get a named mux.
++ */
++struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
++{
++	struct device_node *np = dev->of_node;
++	struct mux_control *mux;
++	int index;
++
++	index = of_property_match_string(np, "control-mux-names", mux_name);
++	if (index < 0) {
++		dev_err(dev, "failed to get control-mux %s:%s(%i)\n",
++			np->full_name, mux_name ?: "", index);
++		return ERR_PTR(index);
++	}
++
++	mux = of_mux_control_get(np, index);
++	if (!mux)
++		return ERR_PTR(-EPROBE_DEFER);
++
++	return mux;
++}
++EXPORT_SYMBOL_GPL(mux_control_get);
++
++static void devm_mux_control_free(struct device *dev, void *res)
++{
++	struct mux_control *mux = *(struct mux_control **)res;
++
++	mux_control_put(mux);
++}
++
++/*
++ * Get a named mux, with resource management.
++ */
++struct mux_control *devm_mux_control_get(struct device *dev,
++					 const char *mux_name)
++{
++	struct mux_control **ptr, *mux;
++
++	ptr = devres_alloc(devm_mux_control_free, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return ERR_PTR(-ENOMEM);
++
++	mux = mux_control_get(dev, mux_name);
++	if (IS_ERR(mux)) {
++		devres_free(ptr);
++		return mux;
++	}
++
++	*ptr = mux;
++	devres_add(dev, ptr);
++
++	return mux;
++}
++EXPORT_SYMBOL_GPL(devm_mux_control_get);
++
++static int devm_mux_control_match(struct device *dev, void *res, void *data)
++{
++	struct mux_control **r = res;
++
++	if (!r || !*r) {
++		WARN_ON(!r || !*r);
++		return 0;
++	}
++
++	return *r == data;
++}
++
++/*
++ * Resource-managed version mux_control_put.
++ */
++void devm_mux_control_put(struct device *dev, struct mux_control *mux)
++{
++	WARN_ON(devres_release(dev, devm_mux_control_free,
++			       devm_mux_control_match, mux));
++}
++EXPORT_SYMBOL_GPL(devm_mux_control_put);
++
++subsys_initcall(mux_init);
++module_exit(mux_exit);
++
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
++MODULE_DESCRIPTION("MUX subsystem");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/misc/mux-gpio.c b/drivers/misc/mux-gpio.c
+new file mode 100644
+index 000000000000..5fa59a0c49cf
+--- /dev/null
++++ b/drivers/misc/mux-gpio.c
+@@ -0,0 +1,105 @@
++/*
++ * GPIO-controlled multiplexer driver
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/err.h>
++#include <linux/gpio/consumer.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
++#include <linux/platform_device.h>
++
++struct mux_gpio {
++	struct gpio_descs *gpios;
++};
++
++static int mux_gpio_set(struct mux_control *mux, int val)
++{
++	struct mux_gpio *mux_gpio = mux->priv;
++	int i;
++
++	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
++		gpiod_set_value_cansleep(mux_gpio->gpios->desc[i],
++					 val & (1 << i));
++
++	return 0;
++}
++
++static const struct mux_control_ops mux_gpio_ops = {
++	.set = mux_gpio_set,
++};
++
++static const struct of_device_id mux_gpio_dt_ids[] = {
++	{ .compatible = "mux-gpio", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
++
++static int mux_gpio_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *np = pdev->dev.of_node;
++	struct mux_control *mux;
++	struct mux_gpio *mux_gpio;
++	int ret;
++
++	if (!np)
++		return -ENODEV;
++
++	mux = mux_control_alloc(sizeof(*mux_gpio));
++	if (!mux)
++		return -ENOMEM;
++	mux_gpio = mux->priv;
++	mux->dev.parent = dev;
++	mux->ops = &mux_gpio_ops;
++
++	platform_set_drvdata(pdev, mux);
++
++	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
++	if (IS_ERR(mux_gpio->gpios)) {
++		if (PTR_ERR(mux_gpio->gpios) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get gpios\n");
++		mux_control_put(mux);
++		return PTR_ERR(mux_gpio->gpios);
++	}
++
++	ret = mux_control_register(mux);
++	if (ret < 0) {
++		dev_err(dev, "failed to register mux_control\n");
++		mux_control_put(mux);
++		return ret;
++	}
++
++	return ret;
++}
++
++static int mux_gpio_remove(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct mux_control *mux = to_mux_control(dev);
++
++	mux_control_unregister(mux);
++	mux_control_put(mux);
++	return 0;
++}
++
++static struct platform_driver mux_gpio_driver = {
++	.driver = {
++		.name = "mux-gpio",
++		.of_match_table	= of_match_ptr(mux_gpio_dt_ids),
++	},
++	.probe = mux_gpio_probe,
++	.remove = mux_gpio_remove,
++};
++module_platform_driver(mux_gpio_driver);
++
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
++MODULE_DESCRIPTION("GPIO-controlled multiplexer driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mux.h b/include/linux/mux.h
+new file mode 100644
+index 000000000000..6513ffe749bb
+--- /dev/null
++++ b/include/linux/mux.h
+@@ -0,0 +1,54 @@
++/*
++ * mux.h - definitions for the multiplexer interface
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _LINUX_MUX_H
++#define _LINUX_MUX_H
++
++#include <linux/device.h>
++#include <linux/rwsem.h>
++
++struct mux_control;
++
++struct mux_control_ops {
++	int (*set)(struct mux_control *mux, int reg);
++};
++
++struct mux_control {
++	struct rw_semaphore lock; /* protects the state of the mux */
++
++	struct device dev;
++	int id;
++
++	int cache;
++	bool do_idle;
++	int idle_state;
++
++	const struct mux_control_ops *ops;
++
++	void *priv;
++};
++
++#define to_mux_control(x) container_of((x), struct mux_control, dev)
++
++struct mux_control *mux_control_alloc(size_t sizeof_priv);
++int mux_control_register(struct mux_control *mux);
++void mux_control_unregister(struct mux_control *mux);
++void mux_control_put(struct mux_control *mux);
++
++int mux_control_select(struct mux_control *mux, int reg);
++int mux_control_deselect(struct mux_control *mux);
++
++struct mux_control *mux_control_get(struct device *dev,
++				    const char *mux_name);
++struct mux_control *devm_mux_control_get(struct device *dev,
++					 const char *mux_name);
++void devm_mux_control_put(struct device *dev, struct mux_control *mux);
++
++#endif /* _LINUX_MUX_H */
+-- 
+2.1.4
