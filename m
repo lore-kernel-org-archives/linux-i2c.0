@@ -1,108 +1,85 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [RFC PATCH 1/7] dt-bindings: document devicetree bindings for mux-gpio
-Date: Thu, 17 Nov 2016 00:48:25 +0100
-Message-ID: <1479340111-1259-2-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [RFC PATCH 3/7] iio: inkern: api for manipulating ext_info of iio channels
+Date: Thu, 17 Nov 2016 00:48:27 +0100
+Message-ID: <1479340111-1259-4-git-send-email-peda@axentia.se>
 References: <1479340111-1259-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0098.outbound.protection.outlook.com ([104.47.2.98]:64352
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754090AbcKPXs5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 16 Nov 2016 18:48:57 -0500
-In-Reply-To: <1479340111-1259-1-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1479340111-1259-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org
 
+Extend the inkern api with functions for reading and writing ext_info
+of iio channels.
 ---
- .../devicetree/bindings/misc/mux-gpio.txt          | 76 ++++++++++++++++++++++
- 1 file changed, 76 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
+ drivers/iio/inkern.c         | 40 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/iio/consumer.h |  5 +++++
+ 2 files changed, 45 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/misc/mux-gpio.txt b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-new file mode 100644
-index 000000000000..8c1745ecd4ff
---- /dev/null
-+++ b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-@@ -0,0 +1,76 @@
-+GPIO-based multiplexer controller bindings
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index cfca17ba2535..5348735281ee 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -850,3 +850,43 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(iio_write_channel_raw);
 +
-+Define what GPIO pins are used to control a multiplexer. Or several
-+multiplexers, if the same pins control more than one multiplexer.
++int iio_read_channel_ext_info(struct iio_channel *chan,
++			      const char *attr, char *buf)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
 +
-+Required properties:
-+- compatible : "mux-gpio"
-+- mux-gpios : list of gpios used to control the multiplexer, least
-+	      significant bit first.
++	if (!chan->channel->ext_info)
++		return -EINVAL;
 +
-+Example:
-+	control_mux: control-adc-mux {
-+		compatible = "mux-gpio";
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (strcmp(attr, ext_info->name))
++			continue;
 +
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+	};
++		return ext_info->read(chan->indio_dev, ext_info->private,
++				      chan->channel, buf);
++	}
 +
-+	adc-mux {
-+		compatible = "iio-mux";
-+		io-channels = <&adc 0>;
-+		io-channel-names = "parent";
++	return -EINVAL;
++}
++EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
 +
-+		control-muxes = <&control_mux>;
-+		control-mux-names = "mux";
++int iio_write_channel_ext_info(struct iio_channel *chan,
++			       const char *attr, const char *buf, size_t len)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
 +
-+		#address-cells = <1>;
-+		#size-cells = <0>;
++	if (!chan->channel->ext_info)
++		return -EINVAL;
 +
-+		sync-1@0 {
-+			reg = <0>;
-+		};
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (strcmp(attr, ext_info->name))
++			continue;
 +
-+		in@1 {
-+			reg = <1>;
-+		};
++		return ext_info->write(chan->indio_dev, ext_info->private,
++				       chan->channel, buf, len);
++	}
 +
-+		out@2 {
-+			reg = <2>;
-+		};
++	return -EINVAL;
++}
++EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
+diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
+index 9a4f336d8b4a..3859981cea0a 100644
+--- a/include/linux/iio/consumer.h
++++ b/include/linux/iio/consumer.h
+@@ -299,4 +299,9 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
+ int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
+ 	int *processed, unsigned int scale);
+ 
++int iio_read_channel_ext_info(struct iio_channel *chan,
++			      const char *attr, char *buf);
++int iio_write_channel_ext_info(struct iio_channel *chan,
++			       const char *attr, const char *buf, size_t len);
 +
-+		sync-2@3 {
-+			reg = <3>;
-+		};
-+	};
-+
-+	i2c-mux {
-+		compatible = "i2c-mux-simple,mux-locked";
-+		i2c-parent = <&i2c1>;
-+
-+		control-muxes = <&control_mux>;
-+		control-mux-names = "mux";
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		i2c@0 {
-+			reg = <0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			ssd1307: oled@3c {
-+				/* ... */
-+			};
-+		};
-+
-+		i2c@3 {
-+			reg = <3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			pca9555: pca9555@20 {
-+				/* ... */
-+			};
-+		};
-+	};
+ #endif
 -- 
 2.1.4
