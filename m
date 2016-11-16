@@ -1,771 +1,855 @@
-From: vadimp@mellanox.com
-Subject: [patch v5 repost 1/1] i2c: add master driver for mellanox systems
-Date: Wed, 16 Nov 2016 07:08:42 +0000
-Message-ID: <1479280122-109711-1-git-send-email-vadimp@mellanox.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:44207 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750806AbcKPFKS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Nov 2016 00:10:18 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+From: Jiancheng Xue <xuejiancheng@hisilicon.com>
+Subject: Re: [PATCH resend v4] i2c: hibvt: add Hisilicon BVT I2C controller
+ driver
+Date: Wed, 16 Nov 2016 16:00:29 +0800
+Message-ID: <8db0057e-fb23-48d6-5b8d-586c62b7683a@hisilicon.com>
+References: <20161021081709.7307-1-wenpan@hisilicon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161021081709.7307-1-wenpan@hisilicon.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
+Cc: Pan Wen <wenpan@hisilicon.com>, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, howell.yang@hisilicon.com, jalen.hsu@hisilicon.com, lvkuanliang@hisilicon.com, suwenping@hisilicon.com, raojun@hisilicon.com, kevin.lixu@hisilicon.com
+List-Id: linux-i2c@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+Hi Wolfram,
 
-Device driver for Mellanox I2C controller logic, implemented in Lattice
-CPLD device.
-Device supports:
- - Master mode
- - One physical bus
- - Polling mode
+On 2016/10/21 16:17, Pan Wen wrote:
+> add Hisilicon BVT I2C controller driver support.
+> 
+> Signed-off-by: Pan Wen <wenpan@hisilicon.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> ---
+> change log
+> v4:
+> Modify the default frequency to 100KHz.
+> v3:
+> Add a SoC specific compatible string.
+> v2:
+> 1)Fixed a compile error.
+> 2)Dropped the clock-names property.
+>  .../devicetree/bindings/i2c/i2c-hibvt.txt          |  24 +
+>  drivers/i2c/busses/Kconfig                         |  10 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-hibvt.c                     | 737 +++++++++++++++++++++
+>  4 files changed, 772 insertions(+)
 
-The Kconfig currently controlling compilation of this code is:
-drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
+Could you give us some comments on this patch?
+If there are some issues about it, please let us know.
+Thank you very much!
 
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
----
-v4->v5:
- Comments pointed out by Vladimir:
- - Remove "default n" from Kconfig;
- - Fix the comments for timeout and pool time;
- - Optimize error flow in mlxcpld_i2c_probe;
-v3->v4:
- Comments pointed out by Vladimir:
- - Set default to no in Kconfig;
- - Make mlxcpld_i2c_plat_dev static and add empty line before the
-   declaration;
- - In function mlxcpld_i2c_invalid_len remove (msg->len < 0), since len is
-   unsigned;
- - Remove unused symbol mlxcpld_i2c_plat_dev;
- - Remove extra spaces in comments to mlxcpld_i2c_check_msg_params;
- - Remove unnecessary round braces in mlxcpld_i2c_set_transf_data;
- - Remove the assignment of 'i' variable in mlxcpld_i2c_wait_for_tc;
- - Add extra line in mlxcpld_i2c_xfer;
- - Move assignment of the adapter's fields retries and nr inside
-   mlxcpld_i2c_adapter declaration;
-v2->v3:
- Comments pointed out by Vladimir:
- - Use tab symbol as indentation in Kconfig
- - Add the Kconfig section preserving the alphabetical order - added
-   within "Other I2C/SMBus bus drivers" after I2C_ELEKTOR (but after this
-   sections others are not follow alphabetical);
- - Change license to dual;
- - Replace ADRR with ADDR in macros;
- - Remove unused macros: MLXCPLD_LPCI2C_LPF_DFLT,
-   MLXCPLD_LPCI2C_HALF_CYC_100, MLXCPLD_LPCI2C_I2C_HOLD_100,
-   MLXCPLD_LPCI2C_HALF_CYC_REG, MLXCPLD_LPCI2C_I2C_HOLD_REG;
- - Fix checkpatch warnings (**/ and the end of comment);
- - Add empty line before structures mlxcpld_i2c_regs,
-   mlxcpld_i2c_curr_transf, mlxcpld_i2c_priv;
- - Remove unused structure mlxcpld_i2c_regs;
- - Remove from mlxcpld_i2c_priv the next fields:
-   retr_num, poll_time, block_sz, xfer_to; use instead macros
-   respectively: MLXCPLD_I2C_RETR_NUM, MLXCPLD_I2C_POLL_TIME,
-   MLXCPLD_I2C_DATA_REG_SZ, MLXCPLD_I2C_XFER_TO;
- - In mlxcpld_i2c_invalid_len remove unnecessary else;
- - Optimize mlxcpld_i2c_set_transf_data;
- - mlxcpld_i2c_reset - add empty lines after/before mutex
-   lock/unlock;
- - mlxcpld_i2c_wait_for_free - cover case timeout is equal
-   MLXCPLD_I2C_XFER_TO;
- - mlxcpld_i2c_wait_for_tc:
-   - Do not assign err in declaration (also err is removed);
-   - Insert empty line before case MLXCPLD_LPCI2C_ACK_IND;
-   - inside case MLXCPLD_LPCI2C_ACK_IND - avoid unnecessary
-     indentation;
-   - Remove case MLXCPLD_LPCI2C_ERR_IND and remove this macro;
- - Add empty lines in mlxcpld_i2c_xfer before/after mutex_lock/
-   mutex_unlock;
- - In mlxcpld_i2c_probe add emtpy line after platform_set_drvdata;
- - Replace platfrom handle pdev in mlxcpld_i2c_priv with the pointer
-   to the structure device;
- - Place assignment of base_addr near the others;
- - Enclose e-mail with <>;
- Fixes added by Vadim:
- - Change structure description format according to
-   Documentation/kernel-documentation.rst guideline;
- - mlxcpld_i2c_wait_for_tc: return error if status reaches default case;
-v1->v2
- Fixes added by Vadim:
- - Put new record in Makefile in alphabetic order;
- - Remove http://www.mellanox.com from MAINTAINERS record;
----
- Documentation/i2c/busses/i2c-mlxcpld |  47 +++
- MAINTAINERS                          |   8 +
- drivers/i2c/busses/Kconfig           |  11 +
- drivers/i2c/busses/Makefile          |   1 +
- drivers/i2c/busses/i2c-mlxcpld.c     | 551 +++++++++++++++++++++++++++++++++++
- 5 files changed, 618 insertions(+)
- create mode 100644 Documentation/i2c/busses/i2c-mlxcpld
- create mode 100644 drivers/i2c/busses/i2c-mlxcpld.c
+Best Regards,
+Jiancheng
 
-diff --git a/Documentation/i2c/busses/i2c-mlxcpld b/Documentation/i2c/busses/i2c-mlxcpld
-new file mode 100644
-index 0000000..0f8678a
---- /dev/null
-+++ b/Documentation/i2c/busses/i2c-mlxcpld
-@@ -0,0 +1,47 @@
-+Driver i2c-mlxcpld
-+
-+Author: Michael Shych <michaelsh@mellanox.com>
-+
-+This is a for Mellanox I2C controller logic, implemented in Lattice CPLD
-+device.
-+Device supports:
-+ - Master mode.
-+ - One physical bus.
-+ - Polling mode.
-+
-+This controller is equipped within the next Mellanox systems:
-+"msx6710", "msx6720", "msb7700", "msn2700", "msx1410", "msn2410", "msb7800",
-+"msn2740", "msn2100".
-+
-+The next transaction types are supported:
-+ - Receive Byte/Block.
-+ - Send Byte/Block.
-+ - Read Byte/Block.
-+ - Write Byte/Block.
-+
-+Registers:
-+CTRL		0x1 - control reg.
-+			Resets all the registers.
-+HALF_CYC	0x4 - cycle reg.
-+			Configure the width of I2C SCL half clock cycle (in 4 LPC_CLK
-+			units).
-+I2C_HOLD	0x5 - hold reg.
-+			OE (output enable) is delayed by value set to this register
-+			(in LPC_CLK units)
-+CMD			0x6 - command reg.
-+			Bit 7(lsb), 0 = write, 1 = read.
-+			Bits [6:0] - the 7bit Address of the I2C device.
-+			It should be written last as it triggers an I2C transaction.
-+NUM_DATA	0x7 - data size reg.
-+			Number of address bytes to write in read transaction
-+NUM_ADDR	0x8 - address reg.
-+			Number of address bytes to write in read transaction.
-+STATUS		0x9 - status reg.
-+			Bit 0 - transaction is completed.
-+			Bit 4 - ACK/NACK.
-+DATAx		0xa - 0x54  - 68 bytes data buffer regs.
-+			For write transaction address is specified in four first bytes
-+			(DATA1 - DATA4), data starting from DATA4.
-+			For read transactions address is send in separate transaction and
-+			specified in four first bytes (DATA0 - DATA3). Data is reading
-+			starting from DATA0.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 411e3b8..26d05f8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7881,6 +7881,14 @@ W:	http://www.mellanox.com
- Q:	http://patchwork.ozlabs.org/project/netdev/list/
- F:	drivers/net/ethernet/mellanox/mlxsw/
- 
-+MELLANOX MLXCPLD I2C DRIVER
-+M:	Vadim Pasternak <vadimp@mellanox.com>
-+M:	Michael Shych <michaelsh@mellanox.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-mlxcpld.c
-+F:	Documentation/i2c/busses/i2c-mlxcpld
-+
- MELLANOX MLXCPLD LED DRIVER
- M:	Vadim Pasternak <vadimp@mellanox.com>
- L:	linux-leds@vger.kernel.org
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..6399cea 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1150,6 +1150,17 @@ config I2C_ELEKTOR
- 	  This support is also available as a module.  If so, the module
- 	  will be called i2c-elektor.
- 
-+config I2C_MLXCPLD
-+	tristate "Mellanox I2C driver"
-+	depends on X86_64
-+	help
-+	  This exposes the Mellanox platform I2C busses to the linux I2C layer
-+	  for X86 based systems.
-+	  Controller is implemented as CPLD logic.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-mlxcpld.
-+
- config I2C_PCA_ISA
- 	tristate "PCA9564/PCA9665 on an ISA bus"
- 	depends on ISA
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 29764cc..645bf08 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -116,6 +116,7 @@ obj-$(CONFIG_I2C_BCM_KONA)	+= i2c-bcm-kona.o
- obj-$(CONFIG_I2C_BRCMSTB)	+= i2c-brcmstb.o
- obj-$(CONFIG_I2C_CROS_EC_TUNNEL)	+= i2c-cros-ec-tunnel.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
-+obj-$(CONFIG_I2C_MLXCPLD)	+= i2c-mlxcpld.o
- obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
- obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-new file mode 100644
-index 0000000..f7a6f3a
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -0,0 +1,551 @@
-+/*
-+ * drivers/i2c/busses/i2c-mlxcpld.c
-+ * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-+ * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the names of the copyright holders nor the names of its
-+ *    contributors may be used to endorse or promote products derived from
-+ *    this software without specific prior written permission.
-+ *
-+ * Alternatively, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") version 2 as published by the Free
-+ * Software Foundation.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+/* General defines */
-+#define MLXPLAT_CPLD_LPC_I2C_BASE_ADDR	0x2000
-+#define MLXCPLD_I2C_DEVICE_NAME		"i2c_mlxcpld"
-+#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN | I2C_M_RD)
-+#define MLXCPLD_I2C_BUS_NUM		1
-+#define MLXCPLD_I2C_DATA_REG_SZ		36
-+#define MLXCPLD_I2C_MAX_ADDR_LEN	4
-+#define MLXCPLD_I2C_RETR_NUM		2
-+#define MLXCPLD_I2C_XFER_TO		500000 /* usec */
-+#define MLXCPLD_I2C_POLL_TIME		2000   /* usec */
-+
-+/* LPC I2C registers */
-+#define MLXCPLD_LPCI2C_LPF_REG		0x0
-+#define MLXCPLD_LPCI2C_CTRL_REG		0x1
-+#define MLXCPLD_LPCI2C_HALF_CYC_REG	0x4
-+#define MLXCPLD_LPCI2C_I2C_HOLD_REG	0x5
-+#define MLXCPLD_LPCI2C_CMD_REG		0x6
-+#define MLXCPLD_LPCI2C_NUM_DAT_REG	0x7
-+#define MLXCPLD_LPCI2C_NUM_ADDR_REG	0x8
-+#define MLXCPLD_LPCI2C_STATUS_REG	0x9
-+#define MLXCPLD_LPCI2C_DATA_REG		0xa
-+
-+/* LPC I2C masks and parametres */
-+#define MLXCPLD_LPCI2C_RST_SEL_MASK	0x1
-+#define MLXCPLD_LPCI2C_TRANS_END	0x1
-+#define MLXCPLD_LPCI2C_STATUS_NACK	0x10
-+#define MLXCPLD_LPCI2C_NO_IND		0
-+#define MLXCPLD_LPCI2C_ACK_IND		1
-+#define MLXCPLD_LPCI2C_NACK_IND		2
-+
-+/**
-+ * struct mlxcpld_i2c_curr_transf - current transaction parameters:
-+ * @cmd: command;
-+ * @addr_width: address width;
-+ * @data_len: data length;
-+ * @cmd: command register;
-+ * @msg_num: message number;
-+ * @msg: pointer to message buffer;
-+ */
-+
-+struct mlxcpld_i2c_curr_transf {
-+	u8 cmd;
-+	u8 addr_width;
-+	u8 data_len;
-+	u8 msg_num;
-+	struct i2c_msg *msg;
-+};
-+
-+/**
-+ * struct mlxcpld_i2c_priv - private controller data:
-+ * @lpc_gen_dec_reg: register space;
-+ * @adap: i2c adapter;
-+ * @dev_id: device id;
-+ * @base_addr: base IO address;
-+ * @lock: bus access lock;
-+ * @xfer: current i2c transfer block;
-+ * @dev: device handle;
-+ */
-+
-+struct mlxcpld_i2c_priv {
-+	struct i2c_adapter adap;
-+	u16 dev_id;
-+	u16 base_addr;
-+	struct mutex lock;
-+	struct mlxcpld_i2c_curr_transf xfer;
-+	struct device *dev;
-+};
-+
-+static void mlxcpld_i2c_lpc_write_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		outl(*((u32 *)data + i), addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		outb(*(data + i), addr + i);
-+}
-+
-+static void mlxcpld_i2c_lpc_read_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		*((u32 *)data + i) = inl(addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		*(data + i) = inb(addr + i);
-+}
-+
-+static void mlxcpld_i2c_read_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				  u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		*(data) = inb(addr);
-+		break;
-+	case 2:
-+		*((u16 *)data) = inw(addr);
-+		break;
-+	case 3:
-+		*((u16 *)data) = inw(addr);
-+		*(data + 2) = inb(addr + 2);
-+		break;
-+	case 4:
-+		*((u32 *)data) = inl(addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_read_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+static void mlxcpld_i2c_write_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				   u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		outb(*(data), addr);
-+		break;
-+	case 2:
-+		outw(*((u16 *)data), addr);
-+		break;
-+	case 3:
-+		outw(*((u16 *)data), addr);
-+		outb(*(data + 2), addr + 2);
-+		break;
-+	case 4:
-+		outl(*((u32 *)data), addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_write_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+/* Check validity of current i2c message and all transfer.
-+ * Calculate also coomon length of all i2c messages in transfer.
-+ */
-+static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
-+				   const struct i2c_msg *msg, u8 *comm_len)
-+{
-+	u8 max_len = msg->flags == I2C_M_RD ? MLXCPLD_I2C_DATA_REG_SZ -
-+		     MLXCPLD_I2C_MAX_ADDR_LEN : MLXCPLD_I2C_DATA_REG_SZ;
-+
-+	if (msg->len > max_len)
-+		return -EINVAL;
-+
-+	*comm_len += msg->len;
-+	if (*comm_len > MLXCPLD_I2C_DATA_REG_SZ)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/* Check validity of received i2c messages parameters.
-+ * Returns 0 if OK, other - in case of invalid parameters
-+ * or common length of data that should be passed to CPLD
-+ */
-+static int mlxcpld_i2c_check_msg_params(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 *comm_len)
-+{
-+	int i;
-+
-+	if (!num) {
-+		dev_err(priv->dev, "Incorrect 0 num of messages\n");
-+		return -EINVAL;
-+	}
-+
-+	if (unlikely(msgs[0].addr > 0x7f)) {
-+		dev_err(priv->dev, "Invalid address 0x%03x\n",
-+			msgs[0].addr);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < num; ++i) {
-+		if (unlikely(!msgs[i].buf)) {
-+			dev_err(priv->dev, "Invalid buf in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(msgs[0].addr != msgs[i].addr)) {
-+			dev_err(priv->dev, "Invalid addr in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(mlxcpld_i2c_invalid_len(priv, &msgs[i],
-+						     comm_len))) {
-+			dev_err(priv->dev, "Invalid len %d msg[%d], addr 0x%x, lag %u\n",
-+				msgs[i].len, i, msgs[i].addr, msgs[i].flags);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/* Check if transfer is completed and status of operation.
-+ * Returns 0 - transfer completed (both ACK or NACK),
-+ * negative - transfer isn't finished.
-+ */
-+static int mlxcpld_i2c_check_status(struct mlxcpld_i2c_priv *priv, int *status)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END) {
-+		if (val & MLXCPLD_LPCI2C_STATUS_NACK)
-+			/* The slave is unable to accept the data. No such
-+			 * slave, command not understood, or unable to accept
-+			 * any more data.
-+			 */
-+			*status = MLXCPLD_LPCI2C_NACK_IND;
-+		else
-+			*status = MLXCPLD_LPCI2C_ACK_IND;
-+		return 0;
-+	}
-+	*status = MLXCPLD_LPCI2C_NO_IND;
-+
-+	return -EIO;
-+}
-+
-+static void mlxcpld_i2c_set_transf_data(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 comm_len)
-+{
-+	priv->xfer.msg = msgs;
-+	priv->xfer.msg_num = num;
-+
-+	/*
-+	 * All upper layers currently are never use transfer with more than
-+	 * 2 messages. Actually, it's also not so relevant in Mellanox systems
-+	 * because of HW limitation. Max size of transfer is o more than 20B
-+	 * in current x86 LPCI2C bridge.
-+	 */
-+	priv->xfer.cmd = msgs[num - 1].flags & I2C_M_RD;
-+
-+	if (priv->xfer.cmd == I2C_M_RD && comm_len != msgs[0].len) {
-+		priv->xfer.addr_width = msgs[0].len;
-+		priv->xfer.data_len = comm_len - priv->xfer.addr_width;
-+	} else {
-+		priv->xfer.addr_width = 0;
-+		priv->xfer.data_len = comm_len;
-+	}
-+}
-+
-+/* Reset CPLD LPCI2C block */
-+static void mlxcpld_i2c_reset(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mutex_lock(&priv->lock);
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+	val &= ~MLXCPLD_LPCI2C_RST_SEL_MASK;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+
-+	mutex_unlock(&priv->lock);
-+}
-+
-+/* Make sure the CPLD is ready to start transmitting.
-+ * Return 0 if it is, -EBUSY if it is not.
-+ */
-+static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END)
-+		return 0;
-+
-+	return -EIO;
-+}
-+
-+static int mlxcpld_i2c_wait_for_free(struct mlxcpld_i2c_priv *priv)
-+{
-+	int timeout = 0;
-+
-+	do {
-+		if (!mlxcpld_i2c_check_busy(priv))
-+			break;
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (timeout <= MLXCPLD_I2C_XFER_TO);
-+
-+	if (timeout > MLXCPLD_I2C_XFER_TO)
-+		return -ETIMEDOUT;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Wait for master transfer to complete.
-+ * It puts current process to sleep until we get interrupt or timeout expires.
-+ * Returns the number of transferred or read bytes or error (<0).
-+ */
-+static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
-+{
-+	int status, i, timeout = 0;
-+	u8 datalen;
-+
-+	do {
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		if (!mlxcpld_i2c_check_status(priv, &status))
-+			break;
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (status == 0 && timeout < MLXCPLD_I2C_XFER_TO);
-+
-+	switch (status) {
-+	case MLXCPLD_LPCI2C_NO_IND:
-+		return -ETIMEDOUT;
-+
-+	case MLXCPLD_LPCI2C_ACK_IND:
-+		if (priv->xfer.cmd != I2C_M_RD)
-+			return (priv->xfer.addr_width + priv->xfer.data_len);
-+
-+		if (priv->xfer.msg_num == 1)
-+			i = 0;
-+		else
-+			i = 1;
-+
-+		if (!priv->xfer.msg[i].buf)
-+			return -EINVAL;
-+
-+		/*
-+		 * Actual read data len will be always the same as
-+		 * requested len. 0xff (line pull-up) will be returned
-+		 * if slave has no data to return. Thus don't read
-+		 * MLXCPLD_LPCI2C_NUM_DAT_REG reg from CPLD.
-+		 */
-+		datalen = priv->xfer.data_len;
-+
-+		mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_DATA_REG,
-+				      priv->xfer.msg[i].buf, datalen);
-+
-+		return datalen;
-+
-+	case MLXCPLD_LPCI2C_NACK_IND:
-+		return -EAGAIN;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static void mlxcpld_i2c_xfer_msg(struct mlxcpld_i2c_priv *priv)
-+{
-+	int i, len = 0;
-+	u8 cmd;
-+
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
-+			       &priv->xfer.data_len, 1);
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_ADDR_REG,
-+			       &priv->xfer.addr_width, 1);
-+
-+	for (i = 0; i < priv->xfer.msg_num; i++) {
-+		if ((priv->xfer.msg[i].flags & I2C_M_RD) != I2C_M_RD) {
-+			/* Don't write to CPLD buffer in read transaction */
-+			mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_DATA_REG +
-+					       len, priv->xfer.msg[i].buf,
-+					       priv->xfer.msg[i].len);
-+			len += priv->xfer.msg[i].len;
-+		}
-+	}
-+
-+	/* Set target slave address with command for master transfer.
-+	 * It should be latest executed function before CPLD transaction.
-+	 */
-+	cmd = (priv->xfer.msg[0].addr << 1) | priv->xfer.cmd;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CMD_REG, &cmd, 1);
-+}
-+
-+/* Generic lpc-i2c transfer.
-+ * Returns the number of processed messages or error (<0).
-+ */
-+static int mlxcpld_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			    int num)
-+{
-+	struct mlxcpld_i2c_priv *priv = i2c_get_adapdata(adap);
-+	u8 comm_len = 0;
-+	int err;
-+
-+	err = mlxcpld_i2c_check_msg_params(priv, msgs, num, &comm_len);
-+	if (err) {
-+		dev_err(priv->dev, "Incorrect message\n");
-+		return err;
-+	}
-+
-+	/* Check bus state */
-+	if (mlxcpld_i2c_wait_for_free(priv)) {
-+		dev_err(priv->dev, "LPCI2C bridge is busy\n");
-+
-+		/*
-+		 * Usually it means something serious has happened.
-+		 * We can not have unfinished previous transfer
-+		 * so it doesn't make any sense to try to stop it.
-+		 * Probably we were not able to recover from the
-+		 * previous error.
-+		 * The only reasonable thing - is soft reset.
-+		 */
-+		mlxcpld_i2c_reset(priv);
-+		if (mlxcpld_i2c_check_busy(priv)) {
-+			dev_err(priv->dev, "LPCI2C bridge is busy after reset\n");
-+			return -EIO;
-+		}
-+	}
-+
-+	mlxcpld_i2c_set_transf_data(priv, msgs, num, comm_len);
-+
-+	mutex_lock(&priv->lock);
-+
-+	/* Do real transfer. Can't fail */
-+	mlxcpld_i2c_xfer_msg(priv);
-+
-+	/* Wait for transaction complete */
-+	err = mlxcpld_i2c_wait_for_tc(priv);
-+
-+	mutex_unlock(&priv->lock);
-+
-+	return err < 0 ? err : num;
-+}
-+
-+static u32 mlxcpld_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+static const struct i2c_algorithm mlxcpld_i2c_algo = {
-+	.master_xfer	= mlxcpld_i2c_xfer,
-+	.functionality	= mlxcpld_i2c_func
-+};
-+
-+static struct i2c_adapter mlxcpld_i2c_adapter = {
-+	.owner          = THIS_MODULE,
-+	.name           = "i2c-mlxcpld",
-+	.class          = I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+	.algo           = &mlxcpld_i2c_algo,
-+	.retries	= MLXCPLD_I2C_RETR_NUM,
-+	.nr		= MLXCPLD_I2C_BUS_NUM,
-+};
-+
-+static int mlxcpld_i2c_probe(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv;
-+	int err;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(struct mlxcpld_i2c_priv),
-+			    GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	mutex_init(&priv->lock);
-+	platform_set_drvdata(pdev, priv);
-+
-+	priv->dev = &pdev->dev;
-+
-+	/* Register with i2c layer */
-+	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-+	priv->adap = mlxcpld_i2c_adapter;
-+	priv->adap.dev.parent = &pdev->dev;
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
-+	i2c_set_adapdata(&priv->adap, priv);
-+
-+	err = i2c_add_numbered_adapter(&priv->adap);
-+	if (err)
-+		mutex_destroy(&priv->lock);
-+
-+	return err;
-+}
-+
-+static int mlxcpld_i2c_remove(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adap);
-+	mutex_destroy(&priv->lock);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mlxcpld_i2c_driver = {
-+	.probe		= mlxcpld_i2c_probe,
-+	.remove		= mlxcpld_i2c_remove,
-+	.driver = {
-+		.name = MLXCPLD_I2C_DEVICE_NAME,
-+	},
-+};
-+
-+module_platform_driver(mlxcpld_i2c_driver);
-+
-+MODULE_AUTHOR("Michael Shych <michaels@mellanox.com>");
-+MODULE_DESCRIPTION("Mellanox I2C-CPLD controller driver");
-+MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_ALIAS("platform:i2c-mlxcpld");
--- 
-2.1.4
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+>  create mode 100644 drivers/i2c/busses/i2c-hibvt.c
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+> new file mode 100644
+> index 0000000..db3d2e2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-hibvt.txt
+> @@ -0,0 +1,24 @@
+> +Hisilicon BVT I2C master controller
+> +
+> +Required properties:
+> +- compatible: should be "hisilicon,hibvt-i2c" and one of the following:
+> +	"hisilicon,hi3516cv300-i2c"
+> +- reg: physical base address of the controller and length of memory mapped.
+> +     region.
+> +- interrupts: interrupt number to the cpu.
+> +- clocks: phandles to input clocks.
+> +
+> +Optional properties:
+> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000.
+> +
+> +Other properties:
+> +see Documentation/devicetree/bindings/i2c/i2c.txt.
+> +
+> +Examples:
+> +i2c_bus0: i2c@12110000 {
+> +	compatible = "hisilicon,hi3516cv300-i2c", "hisilicon,hibvt-i2c";
+> +	reg = <0x12110000 0x100>;
+> +	interrupts = <20>;
+> +	clocks = <&crg_ctrl HI3516CV300_APB_CLK>;
+> +	clock-frequency = <100000>;
+> +};
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 5c3993b..fc1b679 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -555,6 +555,16 @@ config I2C_GPIO
+>  	  This is a very simple bitbanging I2C driver utilizing the
+>  	  arch-neutral GPIO API to control the SCL and SDA lines.
+>  
+> +config I2C_HIBVT
+> +	tristate "Hisilicon BVT I2C Controller"
+> +	depends on ARCH_HISI
+> +	help
+> +	  Say Y here to include support for Hisilicon BVT I2C controller in the
+> +	  Hisilicon BVT SoCs.
+> +
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called i2c-hibvt.
+> +
+>  config I2C_HIGHLANDER
+>  	tristate "Highlander FPGA SMBus interface"
+>  	depends on SH_HIGHLANDER
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 37f2819..42ef2e0 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -51,6 +51,7 @@ obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+>  obj-$(CONFIG_I2C_EMEV2)		+= i2c-emev2.o
+>  obj-$(CONFIG_I2C_EXYNOS5)	+= i2c-exynos5.o
+>  obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+> +obj-$(CONFIG_I2C_HIBVT)		+= i2c-hibvt.o
+>  obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+>  obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
+>  obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+> diff --git a/drivers/i2c/busses/i2c-hibvt.c b/drivers/i2c/busses/i2c-hibvt.c
+> new file mode 100644
+> index 0000000..e8af63e
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-hibvt.c
+> @@ -0,0 +1,737 @@
+> +/*
+> + * Hisilicon BVT I2C Controller Driver
+> + *
+> + * Copyright (c) 2016 HiSilicon Technologies Co., Ltd.
+> + *
+> + * Authors: wenpan@hisilicon.com
+> + *
+> + * This program is free software; you can redistribute  it and/or modify it
+> + * under  the terms of  the GNU General Public License as published by the
+> + * Free Software Foundation;  either version 2 of the  License, or (at your
+> + * option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+> + *
+> + */
+> +
+> +#include <linux/clk.h>
+> +#include <linux/delay.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +
+> +/*
+> + * I2C Registers offsets
+> + */
+> +#define HIBVT_I2C_GLB		0x0
+> +#define HIBVT_I2C_SCL_H		0x4
+> +#define HIBVT_I2C_SCL_L		0x8
+> +#define HIBVT_I2C_DATA1		0x10
+> +#define HIBVT_I2C_TXF		0x20
+> +#define HIBVT_I2C_RXF		0x24
+> +#define HIBVT_I2C_CMD_BASE	0x30
+> +#define HIBVT_I2C_LOOP1		0xb0
+> +#define HIBVT_I2C_DST1		0xb4
+> +#define HIBVT_I2C_TX_WATER	0xc8
+> +#define HIBVT_I2C_RX_WATER	0xcc
+> +#define HIBVT_I2C_CTRL1		0xd0
+> +#define HIBVT_I2C_STAT		0xd8
+> +#define HIBVT_I2C_INTR_RAW	0xe0
+> +#define HIBVT_I2C_INTR_EN	0xe4
+> +#define HIBVT_I2C_INTR_STAT	0xe8
+> +
+> +/*
+> + * I2C Global Config Register -- HIBVT_I2C_GLB
+> + */
+> +#define GLB_EN_MASK		BIT(0)
+> +#define GLB_SDA_HOLD_MASK	GENMASK(23, 8)
+> +#define GLB_SDA_HOLD_SHIFT	(8)
+> +
+> +/*
+> + * I2C Timing CMD Register -- HIBVT_I2C_CMD_BASE + n * 4 (n = 0, 1, 2, ... 31)
+> + */
+> +#define CMD_EXIT	0x0
+> +#define CMD_TX_S	0x1
+> +#define CMD_TX_D1_2	0x4
+> +#define CMD_TX_D1_1	0x5
+> +#define CMD_TX_FIFO	0x9
+> +#define CMD_RX_FIFO	0x12
+> +#define CMD_RX_ACK	0x13
+> +#define CMD_IGN_ACK	0x15
+> +#define CMD_TX_ACK	0x16
+> +#define CMD_TX_NACK	0x17
+> +#define CMD_JMP1	0x18
+> +#define CMD_UP_TXF	0x1d
+> +#define CMD_TX_RS	0x1e
+> +#define CMD_TX_P	0x1f
+> +
+> +/*
+> + * I2C Control Register 1 -- HIBVT_I2C_CTRL1
+> + */
+> +#define CTRL1_CMD_START_MASK	BIT(0)
+> +
+> +/*
+> + * I2C Status Register -- HIBVT_I2C_STAT
+> + */
+> +#define STAT_RXF_NOE_MASK	BIT(16) /* RX FIFO not empty flag */
+> +#define STAT_TXF_NOF_MASK	BIT(19) /* TX FIFO not full flag */
+> +
+> +
+> +/*
+> + * I2C Interrupt status and mask Register --
+> + * HIBVT_I2C_INTR_RAW, HIBVT_I2C_STAT, HIBVT_I2C_INTR_STAT
+> + */
+> +#define INTR_ABORT_MASK		(BIT(0) | BIT(11))
+> +#define INTR_RX_MASK		BIT(2)
+> +#define INTR_TX_MASK		BIT(4)
+> +#define INTR_CMD_DONE_MASK	BIT(12)
+> +#define INTR_USE_MASK		(INTR_ABORT_MASK \
+> +				|INTR_RX_MASK \
+> +				| INTR_TX_MASK \
+> +				| INTR_CMD_DONE_MASK)
+> +#define INTR_ALL_MASK		GENMASK(31, 0)
+> +
+> +#define I2C_DEFAULT_FREQUENCY	100000
+> +#define I2C_TXF_DEPTH		64
+> +#define I2C_RXF_DEPTH		64
+> +#define I2C_TXF_WATER		32
+> +#define I2C_RXF_WATER		32
+> +#define I2C_WAIT_TIMEOUT	0x10000
+> +#define I2C_IRQ_TIMEOUT		(msecs_to_jiffies(1000))
+> +
+> +
+> +struct hibvt_i2c_dev {
+> +	struct device		*dev;
+> +	struct i2c_adapter	adap;
+> +	void __iomem		*base;
+> +	struct clk		*clk;
+> +	int			irq;
+> +
+> +	unsigned int		freq;
+> +	struct i2c_msg		*msg;
+> +	unsigned int		msg_num;
+> +	unsigned int		msg_idx;
+> +	unsigned int		msg_buf_ptr;
+> +	struct completion	msg_complete;
+> +
+> +	spinlock_t		lock;
+> +	int			status;
+> +};
+> +
+> +static inline void hibvt_i2c_disable(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int val;
+> +
+> +	val = readl(i2c->base + HIBVT_I2C_GLB);
+> +	val &= ~GLB_EN_MASK;
+> +	writel(val, i2c->base + HIBVT_I2C_GLB);
+> +}
+> +
+> +static inline void hibvt_i2c_enable(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int val;
+> +
+> +	val = readl(i2c->base + HIBVT_I2C_GLB);
+> +	val |= GLB_EN_MASK;
+> +	writel(val, i2c->base + HIBVT_I2C_GLB);
+> +}
+> +
+> +static inline void hibvt_i2c_cfg_irq(struct hibvt_i2c_dev *i2c,
+> +		unsigned int flag)
+> +{
+> +	writel(flag, i2c->base + HIBVT_I2C_INTR_EN);
+> +}
+> +
+> +static inline void hibvt_i2c_disable_irq(struct hibvt_i2c_dev *i2c,
+> +		unsigned int flag)
+> +{
+> +	unsigned int val;
+> +
+> +	val = readl(i2c->base + HIBVT_I2C_INTR_EN);
+> +	val &= ~flag;
+> +	writel(val, i2c->base + HIBVT_I2C_INTR_EN);
+> +}
+> +
+> +static inline unsigned int hibvt_i2c_clr_irq(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int val;
+> +
+> +	val = readl(i2c->base + HIBVT_I2C_INTR_STAT);
+> +	writel(INTR_ALL_MASK, i2c->base + HIBVT_I2C_INTR_RAW);
+> +
+> +	return val;
+> +}
+> +
+> +static inline void hibvt_i2c_cmdreg_set(struct hibvt_i2c_dev *i2c,
+> +		unsigned int cmd, unsigned int *offset)
+> +{
+> +	dev_dbg(i2c->dev, "hii2c reg: offset=0x%x, cmd=0x%x...\n",
+> +			*offset * 4, cmd);
+> +	writel(cmd, i2c->base + HIBVT_I2C_CMD_BASE + *offset * 4);
+> +	(*offset)++;
+> +}
+> +
+> +/*
+> + * config i2c slave addr
+> + */
+> +static inline void hibvt_i2c_set_addr(struct hibvt_i2c_dev *i2c)
+> +{
+> +	struct i2c_msg *msg = i2c->msg;
+> +	u16 addr;
+> +
+> +	if (msg->flags & I2C_M_TEN) {
+> +		/* First byte is 11110XX0 where XX is upper 2 bits */
+> +		addr = ((msg->addr & 0x300) << 1) | 0xf000;
+> +		if (msg->flags & I2C_M_RD)
+> +			addr |= 1 << 8;
+> +
+> +		/* Second byte is the remaining 8 bits */
+> +		addr |= msg->addr & 0xff;
+> +	} else {
+> +		addr = (msg->addr & 0x7f) << 1;
+> +		if (msg->flags & I2C_M_RD)
+> +			addr |= 1;
+> +	}
+> +
+> +	writel(addr, i2c->base + HIBVT_I2C_DATA1);
+> +}
+> +
+> +/*
+> + * Start command sequence
+> + */
+> +static inline void hibvt_i2c_start_cmd(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int val;
+> +
+> +	val = readl(i2c->base + HIBVT_I2C_CTRL1);
+> +	val |= CTRL1_CMD_START_MASK;
+> +	writel(val, i2c->base + HIBVT_I2C_CTRL1);
+> +}
+> +
+> +static int hibvt_i2c_wait_rx_noempty(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int time_cnt = 0;
+> +	unsigned int val;
+> +
+> +	do {
+> +		val = readl(i2c->base + HIBVT_I2C_STAT);
+> +		if (val & STAT_RXF_NOE_MASK)
+> +			return 0;
+> +
+> +		udelay(50);
+> +	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
+> +
+> +	dev_err(i2c->dev, "wait rx no empty timeout, RIS: 0x%x, SR: 0x%x\n",
+> +			readl(i2c->base + HIBVT_I2C_INTR_RAW), val);
+> +	return -EIO;
+> +}
+> +
+> +static int hibvt_i2c_wait_tx_nofull(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int time_cnt = 0;
+> +	unsigned int val;
+> +
+> +	do {
+> +		val = readl(i2c->base + HIBVT_I2C_STAT);
+> +		if (val & STAT_TXF_NOF_MASK)
+> +			return 0;
+> +
+> +		udelay(50);
+> +	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
+> +
+> +	dev_err(i2c->dev, "wait rx no empty timeout, RIS: 0x%x, SR: 0x%x\n",
+> +			readl(i2c->base + HIBVT_I2C_INTR_RAW), val);
+> +	return -EIO;
+> +}
+> +
+> +static int hibvt_i2c_wait_idle(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int time_cnt = 0;
+> +	unsigned int val;
+> +
+> +	do {
+> +		val = readl(i2c->base + HIBVT_I2C_INTR_RAW);
+> +		if (val & (INTR_ABORT_MASK)) {
+> +			dev_err(i2c->dev, "wait idle abort!, RIS: 0x%x\n",
+> +					val);
+> +			return -EIO;
+> +		}
+> +
+> +		if (val & INTR_CMD_DONE_MASK)
+> +			return 0;
+> +
+> +		udelay(50);
+> +	} while (time_cnt++ < I2C_WAIT_TIMEOUT);
+> +
+> +	dev_err(i2c->dev, "wait idle timeout, RIS: 0x%x, SR: 0x%x\n",
+> +			val, readl(i2c->base + HIBVT_I2C_STAT));
+> +
+> +	return -EIO;
+> +}
+> +
+> +static void hibvt_i2c_set_freq(struct hibvt_i2c_dev *i2c)
+> +{
+> +	unsigned int max_freq, freq;
+> +	unsigned int clk_rate;
+> +	unsigned int val, sda_hold;
+> +
+> +	freq = i2c->freq;
+> +	clk_rate = clk_get_rate(i2c->clk);
+> +	max_freq = clk_rate >> 1;
+> +
+> +	if (freq > max_freq) {
+> +		i2c->freq = max_freq;
+> +		freq = i2c->freq;
+> +	}
+> +
+> +	if (freq <= 100000) {
+> +		val = clk_rate / (freq * 2) - 1;
+> +		writel(val, i2c->base + HIBVT_I2C_SCL_H);
+> +		writel(val, i2c->base + HIBVT_I2C_SCL_L);
+> +	} else {
+> +		val = (clk_rate * 36) / (freq * 100);
+> +		writel(val, i2c->base + HIBVT_I2C_SCL_H);
+> +		val = (clk_rate * 64) / (freq * 100);
+> +		writel(val, i2c->base + HIBVT_I2C_SCL_L);
+> +	}
+> +
+> +	sda_hold = val * 3 / 10;
+> +	sda_hold = (sda_hold << GLB_SDA_HOLD_SHIFT) & GLB_SDA_HOLD_MASK;
+> +	val = readl(i2c->base + HIBVT_I2C_GLB);
+> +	val &= ~GLB_SDA_HOLD_MASK;
+> +	val |= sda_hold;
+> +	writel(val, i2c->base + HIBVT_I2C_GLB);
+> +}
+> +
+> +/*
+> + * set i2c controller TX and RX FIFO water
+> + */
+> +static inline void hibvt_i2c_set_water(struct hibvt_i2c_dev *i2c)
+> +{
+> +	writel(I2C_TXF_WATER, i2c->base + HIBVT_I2C_TX_WATER);
+> +	writel(I2C_RXF_WATER, i2c->base + HIBVT_I2C_RX_WATER);
+> +}
+> +
+> +/*
+> + * initialise the controller, set i2c bus interface freq
+> + */
+> +static void hibvt_i2c_hw_init(struct hibvt_i2c_dev *i2c)
+> +{
+> +	hibvt_i2c_disable(i2c);
+> +	hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
+> +	hibvt_i2c_set_freq(i2c);
+> +	hibvt_i2c_set_water(i2c);
+> +}
+> +
+> +/*
+> + * hibvt_i2c_cfg_cmd - config i2c controller command sequence
+> + *
+> + * After all the timing command is configured,
+> + * and then start the command, you can i2c communication,
+> + * and then only need to read and write i2c fifo.
+> + */
+> +static void hibvt_i2c_cfg_cmd(struct hibvt_i2c_dev *i2c)
+> +{
+> +	struct i2c_msg *msg = i2c->msg;
+> +	int offset = 0;
+> +
+> +	if (i2c->msg_idx == 0)
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_S, &offset);
+> +	else
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_RS, &offset);
+> +
+> +	if (msg->flags & I2C_M_TEN) {
+> +		if (i2c->msg_idx == 0) {
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_2, &offset);
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_1, &offset);
+> +		} else {
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_2, &offset);
+> +		}
+> +	} else {
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_D1_1, &offset);
+> +	}
+> +
+> +	if (msg->flags & I2C_M_IGNORE_NAK)
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_IGN_ACK, &offset);
+> +	else
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_RX_ACK, &offset);
+> +
+> +	if (msg->flags & I2C_M_RD) {
+> +		if (msg->len >= 2) {
+> +			writel(offset, i2c->base + HIBVT_I2C_DST1);
+> +			writel(msg->len - 2, i2c->base + HIBVT_I2C_LOOP1);
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_RX_FIFO, &offset);
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_TX_ACK, &offset);
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_JMP1, &offset);
+> +		}
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_RX_FIFO, &offset);
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_NACK, &offset);
+> +	} else {
+> +		writel(offset, i2c->base + HIBVT_I2C_DST1);
+> +		writel(msg->len - 1, i2c->base + HIBVT_I2C_LOOP1);
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_UP_TXF, &offset);
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_FIFO, &offset);
+> +
+> +		if (msg->flags & I2C_M_IGNORE_NAK)
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_IGN_ACK, &offset);
+> +		else
+> +			hibvt_i2c_cmdreg_set(i2c, CMD_RX_ACK, &offset);
+> +
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_JMP1, &offset);
+> +	}
+> +
+> +	if ((i2c->msg_idx == (i2c->msg_num - 1)) || (msg->flags & I2C_M_STOP)) {
+> +		dev_dbg(i2c->dev, "run to %s %d...TX STOP\n",
+> +				__func__, __LINE__);
+> +		hibvt_i2c_cmdreg_set(i2c, CMD_TX_P, &offset);
+> +	}
+> +
+> +	hibvt_i2c_cmdreg_set(i2c, CMD_EXIT, &offset);
+> +}
+> +
+> +static int hibvt_i2c_polling_xfer_one_msg(struct hibvt_i2c_dev *i2c)
+> +{
+> +	int status;
+> +	unsigned int val;
+> +	struct i2c_msg *msg = i2c->msg;
+> +
+> +	dev_dbg(i2c->dev, "[%s,%d]msg->flags=0x%x, len=0x%x\n",
+> +			__func__, __LINE__, msg->flags, msg->len);
+> +
+> +	hibvt_i2c_enable(i2c);
+> +	hibvt_i2c_clr_irq(i2c);
+> +	hibvt_i2c_set_addr(i2c);
+> +	hibvt_i2c_cfg_cmd(i2c);
+> +	hibvt_i2c_start_cmd(i2c);
+> +
+> +	i2c->msg_buf_ptr = 0;
+> +
+> +	if (msg->flags & I2C_M_RD) {
+> +		while (i2c->msg_buf_ptr < msg->len) {
+> +			status = hibvt_i2c_wait_rx_noempty(i2c);
+> +			if (status)
+> +				goto end;
+> +
+> +			val = readl(i2c->base + HIBVT_I2C_RXF);
+> +			msg->buf[i2c->msg_buf_ptr] = val;
+> +			i2c->msg_buf_ptr++;
+> +
+> +		}
+> +	} else {
+> +		while (i2c->msg_buf_ptr < msg->len) {
+> +			status = hibvt_i2c_wait_tx_nofull(i2c);
+> +			if (status)
+> +				goto end;
+> +
+> +			val = msg->buf[i2c->msg_buf_ptr];
+> +			writel(val, i2c->base + HIBVT_I2C_TXF);
+> +			i2c->msg_buf_ptr++;
+> +		}
+> +	}
+> +
+> +	status = hibvt_i2c_wait_idle(i2c);
+> +end:
+> +	hibvt_i2c_disable(i2c);
+> +
+> +	return status;
+> +}
+> +
+> +static irqreturn_t hibvt_i2c_isr(int irq, void *dev_id)
+> +{
+> +	struct hibvt_i2c_dev *i2c = dev_id;
+> +	unsigned int irq_status;
+> +	struct i2c_msg *msg = i2c->msg;
+> +
+> +	spin_lock(&i2c->lock);
+> +
+> +	irq_status = hibvt_i2c_clr_irq(i2c);
+> +	dev_dbg(i2c->dev, "%s RIS:  0x%x\n", __func__, irq_status);
+> +
+> +	if (!irq_status) {
+> +		dev_dbg(i2c->dev, "no irq\n");
+> +		goto end;
+> +	}
+> +
+> +	if (irq_status & INTR_ABORT_MASK) {
+> +		dev_err(i2c->dev, "irq handle abort, RIS: 0x%x\n",
+> +				irq_status);
+> +		i2c->status = -EIO;
+> +		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
+> +
+> +		complete(&i2c->msg_complete);
+> +		goto end;
+> +	}
+> +
+> +	if (msg->flags & I2C_M_RD) {
+> +		while ((readl(i2c->base + HIBVT_I2C_STAT) & STAT_RXF_NOE_MASK)
+> +				&& (i2c->msg_buf_ptr < msg->len)) {
+> +			msg->buf[i2c->msg_buf_ptr] =
+> +				readl(i2c->base + HIBVT_I2C_RXF);
+> +			i2c->msg_buf_ptr++;
+> +		}
+> +	} else {
+> +		while ((readl(i2c->base + HIBVT_I2C_STAT) & STAT_TXF_NOF_MASK)
+> +				&& (i2c->msg_buf_ptr < msg->len)) {
+> +			writel(msg->buf[i2c->msg_buf_ptr],
+> +					i2c->base + HIBVT_I2C_TXF);
+> +			i2c->msg_buf_ptr++;
+> +		}
+> +	}
+> +
+> +	if (i2c->msg_buf_ptr >= msg->len)
+> +		hibvt_i2c_disable_irq(i2c, INTR_TX_MASK | INTR_RX_MASK);
+> +
+> +	if (irq_status & INTR_CMD_DONE_MASK) {
+> +		dev_dbg(i2c->dev, "cmd done\n");
+> +		i2c->status =  0;
+> +		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
+> +
+> +		complete(&i2c->msg_complete);
+> +	}
+> +
+> +end:
+> +	spin_unlock(&i2c->lock);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int hibvt_i2c_interrupt_xfer_one_msg(struct hibvt_i2c_dev *i2c)
+> +{
+> +	int status;
+> +	struct i2c_msg *msg = i2c->msg;
+> +	unsigned long timeout;
+> +	unsigned long flags;
+> +
+> +	dev_dbg(i2c->dev, "[%s,%d]msg->flags=0x%x, len=0x%x\n",
+> +			__func__, __LINE__, msg->flags, msg->len);
+> +
+> +	reinit_completion(&i2c->msg_complete);
+> +	i2c->msg_buf_ptr = 0;
+> +	i2c->status = -EIO;
+> +
+> +	spin_lock_irqsave(&i2c->lock, flags);
+> +	hibvt_i2c_enable(i2c);
+> +	hibvt_i2c_clr_irq(i2c);
+> +	if (msg->flags & I2C_M_RD)
+> +		hibvt_i2c_cfg_irq(i2c, INTR_USE_MASK & ~INTR_TX_MASK);
+> +	else
+> +		hibvt_i2c_cfg_irq(i2c, INTR_USE_MASK & ~INTR_RX_MASK);
+> +
+> +	hibvt_i2c_set_addr(i2c);
+> +	hibvt_i2c_cfg_cmd(i2c);
+> +	hibvt_i2c_start_cmd(i2c);
+> +	spin_unlock_irqrestore(&i2c->lock, flags);
+> +
+> +	timeout = wait_for_completion_timeout(&i2c->msg_complete,
+> +			I2C_IRQ_TIMEOUT);
+> +
+> +	if (timeout == 0) {
+> +		hibvt_i2c_disable_irq(i2c, INTR_ALL_MASK);
+> +		status = -EIO;
+> +		dev_err(i2c->dev, "%s timeout\n",
+> +			 msg->flags & I2C_M_RD ? "rx" : "tx");
+> +	} else {
+> +		status = i2c->status;
+> +	}
+> +
+> +	hibvt_i2c_disable(i2c);
+> +
+> +	return status;
+> +}
+> +
+> +/*
+> + * Master transfer function
+> + */
+> +static int hibvt_i2c_xfer(struct i2c_adapter *adap,
+> +			struct i2c_msg *msgs, int num)
+> +{
+> +	struct hibvt_i2c_dev *i2c = i2c_get_adapdata(adap);
+> +	int status;
+> +
+> +	if (!msgs) {
+> +		dev_err(i2c->dev, "msgs == NULL\n");
+> +		return -EIO;
+> +	}
+> +
+> +	i2c->msg = msgs;
+> +	i2c->msg_num = num;
+> +	i2c->msg_idx = 0;
+> +
+> +	if (i2c->irq >= 0) {
+> +		while (i2c->msg_idx < i2c->msg_num) {
+> +			status = hibvt_i2c_interrupt_xfer_one_msg(i2c);
+> +			if (status)
+> +				break;
+> +
+> +			i2c->msg++;
+> +			i2c->msg_idx++;
+> +		}
+> +	} else {
+> +		while (i2c->msg_idx < i2c->msg_num) {
+> +			status = hibvt_i2c_polling_xfer_one_msg(i2c);
+> +			if (status)
+> +				break;
+> +
+> +			i2c->msg++;
+> +			i2c->msg_idx++;
+> +		}
+> +	}
+> +
+> +	if (!status || i2c->msg_idx > 0)
+> +		status = i2c->msg_idx;
+> +
+> +	return status;
+> +}
+> +
+> +static u32 hibvt_i2c_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR
+> +		| I2C_FUNC_PROTOCOL_MANGLING;
+> +}
+> +
+> +static const struct i2c_algorithm hibvt_i2c_algo = {
+> +	.master_xfer		= hibvt_i2c_xfer,
+> +	.functionality		= hibvt_i2c_func,
+> +};
+> +
+> +static int hibvt_i2c_probe(struct platform_device *pdev)
+> +{
+> +	int status;
+> +	struct hibvt_i2c_dev *i2c;
+> +	struct i2c_adapter *adap;
+> +	struct resource *res;
+> +
+> +	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+> +	if (!i2c)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, i2c);
+> +	i2c->dev = &pdev->dev;
+> +	spin_lock_init(&i2c->lock);
+> +	init_completion(&i2c->msg_complete);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	i2c->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(i2c->base)) {
+> +		dev_err(i2c->dev, "cannot ioremap resource\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	i2c->clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(i2c->clk)) {
+> +		dev_err(i2c->dev, "cannot get clock\n");
+> +		return -ENOENT;
+> +	}
+> +	clk_prepare_enable(i2c->clk);
+> +
+> +	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+> +				&i2c->freq)) {
+> +		dev_warn(i2c->dev, "setting default clock-frequency@%dHz\n",
+> +				I2C_DEFAULT_FREQUENCY);
+> +		i2c->freq = I2C_DEFAULT_FREQUENCY;
+> +	}
+> +
+> +	/* i2c controller initialization, disable interrupt */
+> +	hibvt_i2c_hw_init(i2c);
+> +
+> +	i2c->irq = platform_get_irq(pdev, 0);
+> +	status = devm_request_irq(&pdev->dev, i2c->irq, hibvt_i2c_isr,
+> +			IRQF_SHARED, dev_name(&pdev->dev), i2c);
+> +	if (status) {
+> +		dev_dbg(i2c->dev, "falling back to polling mode");
+> +		i2c->irq = -1;
+> +	}
+> +
+> +	adap = &i2c->adap;
+> +	i2c_set_adapdata(adap, i2c);
+> +	adap->owner = THIS_MODULE;
+> +	strlcpy(adap->name, "hibvt-i2c", sizeof(adap->name));
+> +	adap->dev.parent = &pdev->dev;
+> +	adap->dev.of_node = pdev->dev.of_node;
+> +	adap->algo = &hibvt_i2c_algo;
+> +
+> +	/* Add the i2c adapter */
+> +	status = i2c_add_adapter(adap);
+> +	if (status) {
+> +		dev_err(i2c->dev, "failed to add bus to i2c core\n");
+> +		goto err_add_adapter;
+> +	}
+> +
+> +	dev_info(i2c->dev, "%s%d@%dhz registered\n",
+> +			adap->name, adap->nr, i2c->freq);
+> +
+> +	return 0;
+> +
+> +err_add_adapter:
+> +	clk_disable_unprepare(i2c->clk);
+> +	return status;
+> +}
+> +
+> +static int hibvt_i2c_remove(struct platform_device *pdev)
+> +{
+> +	struct hibvt_i2c_dev *i2c = platform_get_drvdata(pdev);
+> +
+> +	clk_disable_unprepare(i2c->clk);
+> +	i2c_del_adapter(&i2c->adap);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int hibvt_i2c_suspend(struct device *dev)
+> +{
+> +	struct hibvt_i2c_dev *i2c = dev_get_drvdata(dev);
+> +
+> +	i2c_lock_adapter(&i2c->adap);
+> +	clk_disable_unprepare(i2c->clk);
+> +	i2c_unlock_adapter(&i2c->adap);
+> +
+> +	return 0;
+> +}
+> +
+> +static int hibvt_i2c_resume(struct device *dev)
+> +{
+> +	struct hibvt_i2c_dev *i2c = dev_get_drvdata(dev);
+> +
+> +	i2c_lock_adapter(&i2c->adap);
+> +	clk_prepare_enable(i2c->clk);
+> +	hibvt_i2c_hw_init(i2c);
+> +	i2c_unlock_adapter(&i2c->adap);
+> +
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(hibvt_i2c_dev_pm, hibvt_i2c_suspend,
+> +		hibvt_i2c_resume);
+> +
+> +static const struct of_device_id hibvt_i2c_match[] = {
+> +	{ .compatible = "hisilicon,hibvt-i2c"},
+> +	{ .compatible = "hisilicon,hi3516cv300-i2c"},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, hibvt_i2c_match);
+> +
+> +static struct platform_driver hibvt_i2c_driver = {
+> +	.driver		= {
+> +		.name	= "hibvt-i2c",
+> +		.of_match_table = hibvt_i2c_match,
+> +		.pm	= &hibvt_i2c_dev_pm,
+> +	},
+> +	.probe		= hibvt_i2c_probe,
+> +	.remove		= hibvt_i2c_remove,
+> +};
+> +
+> +module_platform_driver(hibvt_i2c_driver);
+> +
+> +MODULE_AUTHOR("Pan Wen, <wenpan@hisilicon.com>");
+> +MODULE_DESCRIPTION("HISILICON BVT I2C Bus driver");
+> +MODULE_LICENSE("GPL v2");
+> 
