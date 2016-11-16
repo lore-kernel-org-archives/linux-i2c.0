@@ -1,174 +1,110 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [patch v5 repost 1/1] i2c: add master driver for mellanox systems
-Date: Thu, 17 Nov 2016 02:20:11 +0200
-Message-ID: <00091077-7fa6-6913-e2a4-81b7e805350c@mleia.com>
-References: <1479280122-109711-1-git-send-email-vadimp@mellanox.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [RFC PATCH 0/7] mux controller astraction and iio/i2c muxes
+Date: Thu, 17 Nov 2016 00:48:24 +0100
+Message-ID: <1479340111-1259-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:45710 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754098AbcKQAUP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 16 Nov 2016 19:20:15 -0500
-In-Reply-To: <1479280122-109711-1-git-send-email-vadimp@mellanox.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: vadimp@mellanox.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 
-Hi Vadim,
+Hi!
 
-I've noticed two more minor issues, please consider to fix them.
+This is work in progress, I'm asking for early feedback.
 
-On 11/16/2016 09:08 AM, vadimp@mellanox.com wrote:
-> From: Vadim Pasternak <vadimp@mellanox.com>
->
-> Device driver for Mellanox I2C controller logic, implemented in Lattice
-> CPLD device.
-> Device supports:
->  - Master mode
->  - One physical bus
->  - Polling mode
->
-> The Kconfig currently controlling compilation of this code is:
-> drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
->
-> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-> Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-> Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-> Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+I have a piece of hardware that is using the same 3 GPIO pins
+to control four 8-way muxes. Three of them control ADC lines
+to an ADS1015 chip with an iio driver, and the last one
+controls the SDA line of an i2c bus. We have some deployed
+code to handle this, but you do not want to see it or ever
+hear about it. I'm not sure why I even mention it. Anyway,
+the situation has nagged me to no end for quite some time.
 
-Still valid.
+So, after first getting more intimate with the i2c muxing code
+and later discovering the drivers/iio/inkern.c file and
+writing a couple of drivers making use of it, I came up with
+what I think is an acceptable solution; add a generic mux
+controller driver that is shared between all instances, and
+combine that with an iio mux driver and a new generic i2c mux
+driver. The new i2c mux I called "simple" since it is only
+hooking the i2c muxing and the new mux controller (much like
+the alsa simple card driver does for ASoC).
 
-[snip]
+My initial (private) version didn't add "mux" as a new bus,
+but I couldn't get decent type-checking and nice devicetree
+integration with that. It does however feel a bit rich to
+add a new bus for something as small as mux controllers?
 
-> diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-> new file mode 100644
-> index 0000000..f7a6f3a
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-mlxcpld.c
-> @@ -0,0 +1,551 @@
-> +/*
-> + * drivers/i2c/busses/i2c-mlxcpld.c
+One thing that I would like to do, but don't see a solution
+for, is to move the mux control code that is present in
+various drivers in drivers/i2c/muxes to this new minimalistic
+muxing subsystem, thus converting all present i2c muxes (but
+perhaps not gates and arbitrators) to be i2c-mux-simple muxes.
 
-You can drop this line with the path above.
+I'm using an rwsem to lock a mux, but that isn't really a
+perfect fit. Is there a better locking primitive that I don't
+know about that fits better? I had a mutex at one point, but
+that didn't allow any concurrent accesses at all. At least
+the rwsem allows concurrent access as long as all users
+agree on the mux state, but I suspect that the rwsem will
+degrade to the mutex situation pretty quickly if there is
+any contention.
 
-> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-> + *
+Also, the "mux" name feels a bit ambitious, there are many muxes
+in the world, and this tiny bit of code is probably not good
+enough to be a nice fit for all...
 
-[snip]
+This is all very fresh code and only lightly tested, but it
+feels very promising! Now, go ahead and rip this to pieces...
 
-> +
-> +/**
-> + * struct mlxcpld_i2c_priv - private controller data:
-> + * @lpc_gen_dec_reg: register space;
+Cheers,
+Peter
 
-This field is gone, right?
+Peter Rosin (7):
+  dt-bindings: document devicetree bindings for mux-gpio
+  misc: minimal mux subsystem and gpio-based mux controller
+  iio: inkern: api for manipulating ext_info of iio channels
+  dt-bindings: iio: iio-mux: document iio-mux bindings
+  iio: multiplexer: new iio category and iio-mux driver
+  dt-bindings: i2c: i2c-mux-simple: document i2c-mux-simple bindings
+  i2c: i2c-mux-simple: new driver
 
-> + * @adap: i2c adapter;
-> + * @dev_id: device id;
-> + * @base_addr: base IO address;
-> + * @lock: bus access lock;
-> + * @xfer: current i2c transfer block;
-> + * @dev: device handle;
-> + */
-> +
-> +struct mlxcpld_i2c_priv {
-> +	struct i2c_adapter adap;
-> +	u16 dev_id;
+ .../devicetree/bindings/i2c/i2c-mux-simple.txt     |  91 ++++++
+ .../bindings/iio/multiplexer/iio-mux.txt           |  59 ++++
+ .../devicetree/bindings/misc/mux-gpio.txt          |  76 +++++
+ drivers/i2c/muxes/Kconfig                          |  12 +
+ drivers/i2c/muxes/Makefile                         |   1 +
+ drivers/i2c/muxes/i2c-mux-simple.c                 | 172 +++++++++++
+ drivers/iio/Kconfig                                |   1 +
+ drivers/iio/Makefile                               |   1 +
+ drivers/iio/inkern.c                               |  40 +++
+ drivers/iio/multiplexer/Kconfig                    |  17 ++
+ drivers/iio/multiplexer/Makefile                   |   6 +
+ drivers/iio/multiplexer/iio-mux.c                  | 313 +++++++++++++++++++++
+ drivers/misc/Kconfig                               |   6 +
+ drivers/misc/Makefile                              |   2 +
+ drivers/misc/mux-core.c                            | 285 +++++++++++++++++++
+ drivers/misc/mux-gpio.c                            | 105 +++++++
+ include/linux/iio/consumer.h                       |   5 +
+ include/linux/mux.h                                |  54 ++++
+ 18 files changed, 1246 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+ create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+ create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
+ create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
+ create mode 100644 drivers/iio/multiplexer/Kconfig
+ create mode 100644 drivers/iio/multiplexer/Makefile
+ create mode 100644 drivers/iio/multiplexer/iio-mux.c
+ create mode 100644 drivers/misc/mux-core.c
+ create mode 100644 drivers/misc/mux-gpio.c
+ create mode 100644 include/linux/mux.h
 
-This field is unused, right?
-
-> +	u16 base_addr;
-
-For in[bwl]/out[bwl] IO addr has u32 type, it might be better to have
-it u32 here as well.
-
-> +	struct mutex lock;
-> +	struct mlxcpld_i2c_curr_transf xfer;
-> +	struct device *dev;
-> +};
-> +
-
-[snip]
-
-> +
-> +/* Check validity of current i2c message and all transfer.
-> + * Calculate also coomon length of all i2c messages in transfer.
-
-Typo, s/coomon/common/
-
-> + */
-> +static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
-> +				   const struct i2c_msg *msg, u8 *comm_len)
-
-[snip]
-
-> +
-> +/* Make sure the CPLD is ready to start transmitting.
-> + * Return 0 if it is, -EBUSY if it is not.
-> + */
-
-While it has no runtime effect, the function returns -EIO if bus is
-busy. If you add a comment (by the way you may consider to remove it),
-please make it aligned with the function.
-
-> +static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
-> +{
-> +	u8 val;
-> +
-> +	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-> +
-> +	if (val & MLXCPLD_LPCI2C_TRANS_END)
-> +		return 0;
-> +
-> +	return -EIO;
-> +}
-> +
-
-[snip]
-
-> +
-> +static int mlxcpld_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct mlxcpld_i2c_priv *priv;
-> +	int err;
-> +
-> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct mlxcpld_i2c_priv),
-> +			    GFP_KERNEL);
-
-Common practice to avoid hypothetical problems in future after struct
-renamings etc. is to get sizeof() of the target storage, here it
-should be changed to:
-
-	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-
-There is no dereferencing, so it is a safe expression.
-
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&priv->lock);
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	priv->dev = &pdev->dev;
-> +
-> +	/* Register with i2c layer */
-> +	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-> +	priv->adap = mlxcpld_i2c_adapter;
-> +	priv->adap.dev.parent = &pdev->dev;
-> +	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
-> +	i2c_set_adapdata(&priv->adap, priv);
-> +
-> +	err = i2c_add_numbered_adapter(&priv->adap);
-> +	if (err)
-> +		mutex_destroy(&priv->lock);
-> +
-> +	return err;
-> +}
+-- 
+2.1.4
 
 --
-With best wishes,
-Vladimir
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
