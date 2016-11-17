@@ -1,34 +1,52 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [RFC PATCH 0/7] mux controller astraction and iio/i2c muxes
-Date: Thu, 17 Nov 2016 10:33:02 +0100
-Message-ID: <ac015742-fe68-cdc1-443c-c774e42e28ea@axentia.se>
-References: <1479340111-1259-1-git-send-email-peda@axentia.se>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch V5 1/2] i2c: imx: add devicetree binding for lpi2c
+Date: Thu, 17 Nov 2016 16:17:06 +0800
+Message-ID: <1479370627-26691-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1479340111-1259-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0071.outbound.protection.outlook.com ([104.47.2.71]:55155
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1945968AbcKQKwP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 05:52:15 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com
+Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
 
-On 2016-11-17 00:48, Peter Rosin wrote:
-> Hi!
-> 
-> This is work in progress, I'm asking for early feedback.
+Add a binding document for lpi2c driver
 
-Forgot to mention, sorry, but this series depends on some
-stuff not in mainline yet (the _available work in iio [1]),
-but it is in linux-next.
+Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+---
+ .../devicetree/bindings/i2c/i2c-imx-lpi2c.txt        | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-Cheers,
-Peter
-
-[1] Specifically these patches:
-51239600074b "iio:core: add a callback to allow drivers to provide _available attributes"
-00c5f80c2fad "iio: inkern: add helpers to query available values from channels"
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
+new file mode 100644
+index 0000000..70c054a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
+@@ -0,0 +1,20 @@
++* Freescale Low Power Inter IC (LPI2C) for i.MX
++
++Required properties:
++- compatible :
++  - "fsl,imx7ulp-lpi2c" for LPI2C compatible with the one integrated on i.MX7ULP soc
++  - "fsl,imx8dv-lpi2c" for LPI2C compatible with the one integrated on i.MX8DV soc
++- reg : address and length of the lpi2c master registers
++- interrupt-parent : core interrupt controller
++- interrupts : lpi2c interrupt
++- clocks : lpi2c clock specifier
++
++Examples:
++
++lpi2c7: lpi2c7@40A50000 {
++	compatible = "fsl,imx8dv-lpi2c";
++	reg = <0x40A50000 0x10000>;
++	interrupt-parent = <&intc>;
++	interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&clks IMX7ULP_CLK_LPI2C7>;
++};
+-- 
+1.9.1
