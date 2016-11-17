@@ -1,65 +1,34 @@
-From: Pandy Gao <pandy.gao@nxp.com>
-Subject: RE: [Patch V4 2/2] i2c: imx: add devicetree binding for lpi2c
-Date: Thu, 17 Nov 2016 06:52:27 +0000
-Message-ID: <AM4PR0401MB1780AB0583A61A558AB91B2BF6B10@AM4PR0401MB1780.eurprd04.prod.outlook.com>
-References: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
- <1479115411-1537-2-git-send-email-pandy.gao@nxp.com>
- <19931d8c-08eb-5dd8-795f-20e900e4be4f@mleia.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [RFC PATCH 0/7] mux controller astraction and iio/i2c muxes
+Date: Thu, 17 Nov 2016 10:33:02 +0100
+Message-ID: <ac015742-fe68-cdc1-443c-c774e42e28ea@axentia.se>
+References: <1479340111-1259-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0040.outbound.protection.outlook.com ([104.47.2.40]:30544
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751127AbcKQI01 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Nov 2016 03:26:27 -0500
-In-Reply-To: <19931d8c-08eb-5dd8-795f-20e900e4be4f@mleia.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1479340111-1259-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "cmo@melexis.com" <cmo@melexis.com>, "robh@kernel.org" <robh@kernel.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Andy Duan <fugang.duan@nxp.com>
 
-IEZyb206IFZsYWRpbWlyIFphcG9sc2tpeSA8bWFpbHRvOnZ6QG1sZWlhLmNvbT4gIFNlbnQ6IFRo
-dXJzZGF5LCBOb3ZlbWJlciAxNywgMjAxNiA4OjMyIEFNDQo+IFRvOiBQYW5keSBHYW8gPHBhbmR5
-Lmdhb0BueHAuY29tPjsgd3NhQHRoZS1kcmVhbXMuZGU7IHUua2xlaW5lLQ0KPiBrb2VuaWdAcGVu
-Z3V0cm9uaXguZGU7IGNtb0BtZWxleGlzLmNvbTsgcm9iaEBrZXJuZWwub3JnDQo+IENjOiBsaW51
-eC1pMmNAdmdlci5rZXJuZWwub3JnOyBGcmFuayBMaSA8ZnJhbmsubGlAbnhwLmNvbT47IEFuZHkg
-RHVhbg0KPiA8ZnVnYW5nLmR1YW5AbnhwLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQYXRjaCBWNCAy
-LzJdIGkyYzogaW14OiBhZGQgZGV2aWNldHJlZSBiaW5kaW5nIGZvciBscGkyYw0KPiANCj4gT24g
-MTEvMTQvMjAxNiAxMToyMyBBTSwgR2FvIFBhbiB3cm90ZToNCj4gPiBBZGQgYSBiaW5kaW5nIGRv
-Y3VtZW50IGZvciBscGkyYyBkcml2ZXINCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEdhbyBQYW4g
-PHBhbmR5Lmdhb0BueHAuY29tPg0KPiA+IC0tLQ0KPiA+ICAuLi4vZGV2aWNldHJlZS9iaW5kaW5n
-cy9pMmMvaTJjLWlteC1scGkyYy50eHQgICAgICAgIHwgMjANCj4gKysrKysrKysrKysrKysrKysr
-KysNCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIwIGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYg
-LS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1pbXgtbHBp
-MmMudHh0DQo+ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1p
-bXgtbHBpMmMudHh0DQo+ID4gbmV3IGZpbGUgbW9kZSAxMDA2NDQNCj4gPiBpbmRleCAwMDAwMDAw
-Li5lZGFmMDRmDQo+ID4gLS0tIC9kZXYvbnVsbA0KPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2
-aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC1scGkyYy50eHQNCj4gPiBAQCAtMCwwICsxLDIw
-IEBADQo+ID4gKyogRnJlZXNjYWxlIExvdyBQb3dlciBJbnRlciBJQyAoTFBJMkMpIGZvciBpLk1Y
-DQo+ID4gKw0KPiA+ICtSZXF1aXJlZCBwcm9wZXJ0aWVzOg0KPiA+ICstIGNvbXBhdGlibGUgOg0K
-PiA+ICsgIC0gImZzbCxpbXg4ZHYtbHBpMmMiIGZvciBMUEkyQyBjb21wYXRpYmxlIHdpdGggdGhl
-IG9uZSBpbnRlZ3JhdGVkDQo+ID4gK29uIGkuTVg4RFYgc29jDQo+ID4gKyAgLSAiZnNsLGlteDd1
-bHAtbHBpMmMiIGZvciBMUEkyQyBjb21wYXRpYmxlIHdpdGggdGhlIG9uZSBpbnRlZ3JhdGVkDQo+
-ID4gK29uIGkuTVg3VUxQIHNvYw0KPiA+ICstIHJlZyA6IGFkZHJlc3MgYW5kIGxlbmd0aCBvZiB0
-aGUgbHBpMmMgbWFzdGVyIHJlZ2lzdGVycw0KPiA+ICstIGludGVycnVwdC1wYXJlbnQgOiBjb3Jl
-IGludGVycnVwdCBjb250cm9sbGVyDQo+ID4gKy0gaW50ZXJydXB0cyA6IGxwaTJjIGludGVycnVw
-dA0KPiA+ICstIGNsb2NrcyA6IGxwaTJjIGNsb2NrIHNwZWNpZmllcg0KPiANCj4gSSBkb24ndCBr
-bm93IGlmIGRlc2NyaXB0aW9uIG9mIHN0YW5kYXJkIHByb3BlcnRpZXMgaXMgcmVhbGx5IG5lZWRl
-ZCwgcHJvYmFibHkNCj4gUm9iIGNhbiBhZHZpc2UuDQo+IA0KPiBNeSBwb2ludCBpcyB0aGF0IHBy
-ZXR0eSAiaW50ZXJydXB0cy1leHRlbmRlZCIgaXMgbmV2ZXIgbWVudGlvbmVkLCBhbmQgYWxsIHRo
-cmVlDQo+IGludGVycnVwdCogcHJvcGVydGllcyBhcmUgd2VsbCBkZXNjcmliZWQgaW4gaW50ZXJy
-dXB0cy50eHQsIGFuZCBpbiBnZW5lcmFsIHRoZXJlIGlzDQo+IG5vIHBvaW50IHRvIG1lbnRpb24g
-YWxsIHRob3NlIGludGVycnVwdHMsIGNsb2NrcywgY2xvY2stbmFtZXMgYW5kIGZyaWVuZHMNCj4g
-cHJvcGVydGllcyBhZ2FpbiBhbmQgYWdhaW4uDQo+IA0KPiBCdXQgaGVyZSBiZXR0ZXIgdG8gZ2V0
-IGEgY2xhcmlmaWNhdGlvbiBmcm9tIFJvYi4NCg0KVGhhbmtzLiANCg0KPiA+ICsNCj4gPiArRXhh
-bXBsZXM6DQo+ID4gKw0KPiA+ICtscGkyYzc6IGxwaTJjN0A0MEE1MDAwMCB7DQo+ID4gKwljb21w
-YXRpYmxlID0gImZzbCxpbXg4ZHYtbHBpMmMiOw0KPiA+ICsJcmVnID0gPDB4NDBBNTAwMDAgMHgx
-MDAwMD47DQo+ID4gKwlpbnRlcnJ1cHQtcGFyZW50ID0gPCZpbnRjPjsNCj4gPiArCWludGVycnVw
-dHMgPSA8R0lDX1NQSSAzNyBJUlFfVFlQRV9MRVZFTF9ISUdIPjsNCj4gPiArCWNsb2NrcyA9IDwm
-Y2xrcyBJTVg3VUxQX0NMS19MUEkyQzc+OyB9Ow0KPiA+DQo+IA0KPiBQbGVhc2UgcmVhcnJhbmdl
-IHRoZSBjaGFuZ2VzLCBkZXZpY2V0cmVlIGJpbmRpbmcgY2hhbmdlIHNob3VsZCBiZSAxLzIsIHRo
-ZQ0KPiBkcml2ZXIgY2hhbmdlIHNob3VsZCBiZSAyLzIuDQoNClRoYW5rcywgd2lsbCBjaGFuZ2Ug
-aXQgaW4gbmV4dCB2ZXJzaW9uLg0KDQpCZXN0IFJlZ2FyZHMNCkdhbyBQYW4NCg==
+On 2016-11-17 00:48, Peter Rosin wrote:
+> Hi!
+> 
+> This is work in progress, I'm asking for early feedback.
+
+Forgot to mention, sorry, but this series depends on some
+stuff not in mainline yet (the _available work in iio [1]),
+but it is in linux-next.
+
+Cheers,
+Peter
+
+[1] Specifically these patches:
+51239600074b "iio:core: add a callback to allow drivers to provide _available attributes"
+00c5f80c2fad "iio: inkern: add helpers to query available values from channels"
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
