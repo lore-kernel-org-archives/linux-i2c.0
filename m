@@ -1,123 +1,38 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [RFC PATCH v2 6/7] dt-bindings: i2c: i2c-mux-simple: document i2c-mux-simple bindings
-Date: Thu, 17 Nov 2016 22:48:08 +0100
-Message-ID: <1479419289-17553-7-git-send-email-peda@axentia.se>
-References: <1479419289-17553-1-git-send-email-peda@axentia.se>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [Patch V5 2/2] i2c: imx: add low power i2c bus driver
+Date: Fri, 18 Nov 2016 00:36:55 +0200
+Message-ID: <9f77af01-440b-2a29-ec3d-092aeb97cc60@mleia.com>
+References: <1479370627-26691-1-git-send-email-pandy.gao@nxp.com>
+ <1479370627-26691-2-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0133.outbound.protection.outlook.com ([104.47.1.133]:10311
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752508AbcKQWXG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Nov 2016 17:23:06 -0500
-In-Reply-To: <1479419289-17553-1-git-send-email-peda@axentia.se>
+Received: from mleia.com ([178.79.152.223]:48716 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750776AbcKQWg7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 17:36:59 -0500
+In-Reply-To: <1479370627-26691-2-git-send-email-pandy.gao@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org
+To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org
+Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
----
- .../devicetree/bindings/i2c/i2c-mux-simple.txt     | 91 ++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+On 11/17/2016 10:17 AM, Gao Pan wrote:
+> This patch adds lpi2c bus driver to support new i.MX products
+> which use lpi2c instead of the old imx i2c.
+>
+> The lpi2c can continue operating in stop mode when an appropriate
+> clock is available. It is also designed for low CPU overhead with
+> DMA offloading of FIFO register accesses.
+>
+> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+> Reviewed-by: Fugang Duan <B38611@freescale.com>
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
-new file mode 100644
-index 000000000000..fec1ab39ad64
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
-@@ -0,0 +1,91 @@
-+Simple I2C Bus Mux
-+
-+This binding describes an I2C bus multiplexer that uses GPIOs to
-+route the I2C signals.
-+
-+                                  .-----.  .-----.
-+                                  | dev |  | dev |
-+    .------------.                '-----'  '-----'
-+    | SoC        |                   |        |
-+    |            |          .--------+--------'
-+    |   .------. |  .------+    child bus A, on MUX value set to 0
-+    |   | I2C  |-|--| Mux  |
-+    |   '------' |  '--+---+    child bus B, on MUX value set to 1
-+    |   .------. |     |    '----------+--------+--------.
-+    |   | MUX- | |     |               |        |        |
-+    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
-+    |   '------' |                  | dev |  | dev |  | dev |
-+    '------------'                  '-----'  '-----'  '-----'
-+
-+Required properties:
-+- compatible: i2c-mux-simple,mux-locked or i2c-mux-simple,parent-locked
-+- i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
-+  port is connected to.
-+- control-muxes : Node of the multiplexer that controls "Mux".
-+- control-mux-names : Should be "mux".
-+* Standard I2C mux properties. See i2c-mux.txt in this directory.
-+* I2C child bus nodes. See i2c-mux.txt in this directory.
-+
-+Optional properties:
-+- idle-state: value to set the muxer to when idle. When no value is
-+  given, it defaults to the last value used.
-+
-+For each i2c child node, an I2C child bus will be created. They will
-+be numbered based on their order in the device tree.
-+
-+Whenever an access is made to a device on a child bus, the value set
-+in the relevant node's reg property will be fed to the mux controller.
-+
-+If an idle state is defined, using the idle-state (optional) property,
-+whenever an access is not being made to a device on a child bus, the
-+mux controller will be set according to the idle value.
-+
-+If an idle state is not defined, the most recently used value will be
-+left programmed into hardware whenever no access is being made to a
-+device on a child bus.
-+
-+Example:
-+	control_i2c_mux: control-i2c-mux {
-+		compatible = "mux-gpio";
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+	};
-+
-+	i2c-mux {
-+		compatible = "i2c-mux-simple,mux-locked";
-+		i2c-parent = <&i2c1>;
-+
-+		control-muxes = <&control_i2c_mux>;
-+		control-mux-names = "mux";
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		i2c@1 {
-+			reg = <1>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			ssd1307: oled@3c {
-+				compatible = "solomon,ssd1307fb-i2c";
-+				reg = <0x3c>;
-+				pwms = <&pwm 4 3000>;
-+				reset-gpios = <&gpio2 7 1>;
-+				reset-active-low;
-+			};
-+		};
-+
-+		i2c@3 {
-+			reg = <3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			pca9555: pca9555@20 {
-+				compatible = "nxp,pca9555";
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+				reg = <0x20>;
-+			};
-+		};
-+	};
--- 
-2.1.4
+ From my point of view the code quality is good enough to be included.
+
+Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+
+--
+With best wishes,
+Vladimir
