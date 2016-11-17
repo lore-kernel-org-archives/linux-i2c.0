@@ -1,64 +1,79 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv7 00/11] i2c: Relax mandatory I2C ID table passing
-Date: Thu, 17 Nov 2016 22:15:21 +0100
-Message-ID: <20161117211521.GA4638@katana>
-References: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: Re: [v4, 1/3] i2c: pxa: Add support for the I2C units found in
+ Armada 3700
+Date: Thu, 17 Nov 2016 22:54:40 +0100
+Message-ID: <20161117215440.GA10851@katana>
+References: <20161109115715.2557-2-romain.perier@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:36214 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751665AbcKQVyo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 16:54:44 -0500
 Content-Disposition: inline
-In-Reply-To: <1478522866-29620-1-git-send-email-kieran@bingham.xyz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kieran Bingham <kieran@ksquared.org.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Martinez Canillas <javier@osg.samsung.com>, sameo@linux.intel.com
+In-Reply-To: <20161109115715.2557-2-romain.perier@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Romain Perier <romain.perier@free-electrons.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marv>
 
 
---fUYQa+Pmc3FrFX/N
+--6TrnltStXW4iwmi0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Nov 07, 2016 at 12:47:35PM +0000, Kieran Bingham wrote:
-> Version 7 of this patchset performs a rebase to linux-4.9-rc4 and adjust
-> the usage of strncasecmps to sysfs_streq. I have also renamed the
-> function i2c_of_match_device_strip_vendor to i2c_of_match_device_sysfs
-> which feels more appropriate now.
->=20
-> Retested with successful usage of full compatible strings, and shortened
-> device id's based on the vendor prefix being stripped.
->=20
-> Wolfram, for your convenience this series is available as a tagged commit
-> at: https://git.kernel.org/pub/scm/linux/kernel/git/kbingham/linux.git=20
-> i2c-dt/v4.9-rc4-probe-conversion-v7, though this includes the TESTPATCH so
-> it is not by itself suitable for a merge.
-
-As agreed, I applied this series except the last two patches and
-squashing two of the patches into patch two.
-
-Thanks to all involved!
 
 
---fUYQa+Pmc3FrFX/N
+> +	[REGS_A3700] = {
+> +		.ibmr = 0x00,
+> +		.idbr = 0x04,
+> +		.icr =	0x08,
+> +		.isr =	0x0c,
+> +		.isar = 0x10,
+> +	},
+
+Can't you reuse REGS_PXA3XX?
+
+>  static const struct platform_device_id i2c_pxa_id_table[] = {
+> @@ -98,6 +106,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
+>  	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+>  	{ "ce4100-i2c",		REGS_CE4100 },
+>  	{ "pxa910-i2c",		REGS_PXA910 },
+> +	{ "armada-3700-i2c",	REGS_A3700  },
+
+So, you declare a platform_device_id here...
+
+> +	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
+> +		i2c->fm_mask = ICR_BUSMODE_FM;
+> +		i2c->hs_mask = ICR_BUSMODE_HS;
+> +	} else {
+> +		i2c->fm_mask = ICR_FM;
+> +		i2c->hs_mask = ICR_HS;
+> +	}
+
+... but don't consider this case here?
+
+
+--6TrnltStXW4iwmi0
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLh3pAAoJEBQN5MwUoCm2HcEP/iOcRqJAjyAMhbAXdhR5dCI8
-qBnl+kuxn8v7ORIVSI+95IyRe+WijU0uLzViXx7JIrNlKyt/JFN/BXoQQZFdQ8GZ
-1Oc36XyTfELL+0Q3/CM8eLCzCkiy8eyeNSRNNAH85MCuC9qsGoDcUa31Vc2Gx6Uv
-pXF0sTWMyciUDS+YKXo8evlgjHuaQ1WoT9CaAPBFVTKy6FpfvIl4QTqoXnAQUJvy
-SAChPXHuRCLKN1hn29aW68FJDmN0QlDeQJksWK2SObAyGSmC/4u20XYRigh7nKuh
-PxB5BZ6uIxx0DvJqGufj6B0XDa+2v8OtIxNBYBwIzvvnp0fAleImbnDFe3+Apd0e
-B2TpqrkW55X8r3rTUzfSHlQiCqC7pMNcIfvlO/j7Lcz0Xs2d7nfF7pE6P9Oq74p4
-I99jyDDOXLq+6QdBN07QgEuMMdSjPxCY6Vd4I8v3K6UMWK5sP3zl7kkMys+b0i0v
-hlg9aG5NozflPaba0xMBF6jbxWQSkYSeDPIaWaYlaV4T+cAEC9SuNBolWTm4dTiG
-emq5WIJ5mDFHc+9YptiEu2cJuOdu6OrwCi0LqET5yNT/pFVZScR+zMi51q/v1bA7
-qQBRWPKtcDZjR2IG1UxbJFUeWvHWJo30PaWLTslcX+7gwUKILk0pri4PJFLKtcXr
-DHg5QtEhX7pUeSBjHzyg
-=BIbK
+iQIcBAEBAgAGBQJYLicgAAoJEBQN5MwUoCm2itQP/2D78mzxQjZmSYiLtTdAX9/8
+iy42TibAfL4u86k3dUsOF6yWL8y2ydiLzU2nX88BQNiQUu2o5b/J5pKhJ+GLgX85
+eWPiEy2NEFts+gBbhSYAxEkbbY5V7g9TuY6qssw0wVOhD1Db77GJu9IBmsPFvIZf
+wg9+L+feFelcmPk/DlNQcM8dc8fVrIiHiCBFXVTAfYfdNpVBK8qNFvhAIeIO4Mom
+1iYBZ6OCjzzzHnduyHTEJy1D65AEet9cDfENxAGkRnrXFVpA73EuMX6erXcaJVM8
+NOg1sAa1SpwxcIAPyFLOlsqhzQg7oKIgZAJvu042aRKlQCilaxg0au90okk3inm2
+IPX6HRYJO4/smCQRbIi+d4xcFfUXx46lxrp74KfGXE6tcuqyY8yoJsa0M1l/ZKo7
+tVFoOWFtP5ZQuifq0Yloj6lcjJQ1Uz9JG7y1cXhNujZHHU+lt0jmgNeCpIEV4icw
+sf60DWGrQHeJwvpZaL8ij8oH7ZhWtSMMTbNgmFfMq0a4xLHyAkRvcKmV4rXBV+wh
+dNDGKG2sIQilwrzvibTLaEgkSktyXIq8GKZEco332TZLcqXhAh9KUXm92/bNk5tS
+sr4nshppGcfk4nJLC2yaHJ57Sr/5SiCUYyk0iLtvUhyV3M1+z1U9CqIuOpCj01NN
+9c6mZZb0MoMD6vXYEJFi
+=rN3o
 -----END PGP SIGNATURE-----
 
---fUYQa+Pmc3FrFX/N--
+--6TrnltStXW4iwmi0--
