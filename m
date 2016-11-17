@@ -1,769 +1,177 @@
-From: vadimp@mellanox.com
-Subject: [patch v6 1/1] i2c: add master driver for mellanox systems
-Date: Thu, 17 Nov 2016 08:30:08 +0000
-Message-ID: <1479371408-171218-1-git-send-email-vadimp@mellanox.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
+From: Pandy Gao <pandy.gao@nxp.com>
+Subject: RE: [Patch V4 1/2] i2c: imx: add low power i2c bus driver
+Date: Thu, 17 Nov 2016 06:52:08 +0000
+Message-ID: <AM4PR0401MB17805DF2FC13E1E7176DF12AF6B10@AM4PR0401MB1780.eurprd04.prod.outlook.com>
+References: <1479115411-1537-1-git-send-email-pandy.gao@nxp.com>
+ <62c45c5d-0567-99b6-b435-1f01408f61db@mleia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0040.outbound.protection.outlook.com ([104.47.2.40]:24512
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S938562AbcKQGwO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 01:52:14 -0500
+In-Reply-To: <62c45c5d-0567-99b6-b435-1f01408f61db@mleia.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "cmo@melexis.com" <cmo@melexis.com>, "robh@kernel.org" <robh@kernel.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Andy Duan <fugang.duan@nxp.com>
 
-From: Vadim Pasternak <vadimp@mellanox.com>
-
-Device driver for Mellanox I2C controller logic, implemented in Lattice
-CPLD device.
-Device supports:
- - Master mode
- - One physical bus
- - Polling mode
-
-The Kconfig currently controlling compilation of this code is:
-drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
-
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
----
-v5->v6:
- Comments pointed out by Vladimir:
- - Drop the line with module path from the header;
- - In description of mlxcpld_i2c_priv remove lpc_gen_dec_reg asnd dev_id;
- - In mlxcpld_i2c_priv change type of the filed base_addr to u16 for
-   the alignment with in/out and remove unused dev_id;
- - Fix misspelling in comment for mlxcpld_i2c_invalid_len;
- - Remove comment regarding EBUSY return in mlxcpld_i2c_check_busy;
- - Use sizeof of the target storage in allocation in probe routine;
-v4->v5:
- Comments pointed out by Vladimir:
- - Remove "default n" from Kconfig;
- - Fix the comments for timeout and pool time;
- - Optimize error flow in mlxcpld_i2c_probe;
-v3->v4:
- Comments pointed out by Vladimir:
- - Set default to no in Kconfig;
- - Make mlxcpld_i2c_plat_dev static and add empty line before the
-   declaration;
- - In function mlxcpld_i2c_invalid_len remove (msg->len < 0), since len is
-   unsigned;
- - Remove unused symbol mlxcpld_i2c_plat_dev;
- - Remove extra spaces in comments to mlxcpld_i2c_check_msg_params;
- - Remove unnecessary round braces in mlxcpld_i2c_set_transf_data;
- - Remove the assignment of 'i' variable in mlxcpld_i2c_wait_for_tc;
- - Add extra line in mlxcpld_i2c_xfer;
- - Move assignment of the adapter's fields retries and nr inside
-   mlxcpld_i2c_adapter declaration;
-v2->v3:
- Comments pointed out by Vladimir:
- - Use tab symbol as indentation in Kconfig
- - Add the Kconfig section preserving the alphabetical order - added
-   within "Other I2C/SMBus bus drivers" after I2C_ELEKTOR (but after this
-   sections others are not follow alphabetical);
- - Change license to dual;
- - Replace ADRR with ADDR in macros;
- - Remove unused macros: MLXCPLD_LPCI2C_LPF_DFLT,
-   MLXCPLD_LPCI2C_HALF_CYC_100, MLXCPLD_LPCI2C_I2C_HOLD_100,
-   MLXCPLD_LPCI2C_HALF_CYC_REG, MLXCPLD_LPCI2C_I2C_HOLD_REG;
- - Fix checkpatch warnings (**/ and the end of comment);
- - Add empty line before structures mlxcpld_i2c_regs,
-   mlxcpld_i2c_curr_transf, mlxcpld_i2c_priv;
- - Remove unused structure mlxcpld_i2c_regs;
- - Remove from mlxcpld_i2c_priv the next fields:
-   retr_num, poll_time, block_sz, xfer_to; use instead macros
-   respectively: MLXCPLD_I2C_RETR_NUM, MLXCPLD_I2C_POLL_TIME,
-   MLXCPLD_I2C_DATA_REG_SZ, MLXCPLD_I2C_XFER_TO;
- - In mlxcpld_i2c_invalid_len remove unnecessary else;
- - Optimize mlxcpld_i2c_set_transf_data;
- - mlxcpld_i2c_reset - add empty lines after/before mutex
-   lock/unlock;
- - mlxcpld_i2c_wait_for_free - cover case timeout is equal
-   MLXCPLD_I2C_XFER_TO;
- - mlxcpld_i2c_wait_for_tc:
-   - Do not assign err in declaration (also err is removed);
-   - Insert empty line before case MLXCPLD_LPCI2C_ACK_IND;
-   - inside case MLXCPLD_LPCI2C_ACK_IND - avoid unnecessary
-     indentation;
-   - Remove case MLXCPLD_LPCI2C_ERR_IND and remove this macro;
- - Add empty lines in mlxcpld_i2c_xfer before/after mutex_lock/
-   mutex_unlock;
- - In mlxcpld_i2c_probe add emtpy line after platform_set_drvdata;
- - Replace platfrom handle pdev in mlxcpld_i2c_priv with the pointer
-   to the structure device;
- - Place assignment of base_addr near the others;
- - Enclose e-mail with <>;
- Fixes added by Vadim:
- - Change structure description format according to
-   Documentation/kernel-documentation.rst guideline;
- - mlxcpld_i2c_wait_for_tc: return error if status reaches default case;
-v1->v2
- Fixes added by Vadim:
- - Put new record in Makefile in alphabetic order;
- - Remove http://www.mellanox.com from MAINTAINERS record;
----
- Documentation/i2c/busses/i2c-mlxcpld |  47 +++
- MAINTAINERS                          |   8 +
- drivers/i2c/busses/Kconfig           |  11 +
- drivers/i2c/busses/Makefile          |   1 +
- drivers/i2c/busses/i2c-mlxcpld.c     | 544 +++++++++++++++++++++++++++++++++++
- 5 files changed, 611 insertions(+)
- create mode 100644 Documentation/i2c/busses/i2c-mlxcpld
- create mode 100644 drivers/i2c/busses/i2c-mlxcpld.c
-
-diff --git a/Documentation/i2c/busses/i2c-mlxcpld b/Documentation/i2c/busses/i2c-mlxcpld
-new file mode 100644
-index 0000000..0f8678a
---- /dev/null
-+++ b/Documentation/i2c/busses/i2c-mlxcpld
-@@ -0,0 +1,47 @@
-+Driver i2c-mlxcpld
-+
-+Author: Michael Shych <michaelsh@mellanox.com>
-+
-+This is a for Mellanox I2C controller logic, implemented in Lattice CPLD
-+device.
-+Device supports:
-+ - Master mode.
-+ - One physical bus.
-+ - Polling mode.
-+
-+This controller is equipped within the next Mellanox systems:
-+"msx6710", "msx6720", "msb7700", "msn2700", "msx1410", "msn2410", "msb7800",
-+"msn2740", "msn2100".
-+
-+The next transaction types are supported:
-+ - Receive Byte/Block.
-+ - Send Byte/Block.
-+ - Read Byte/Block.
-+ - Write Byte/Block.
-+
-+Registers:
-+CTRL		0x1 - control reg.
-+			Resets all the registers.
-+HALF_CYC	0x4 - cycle reg.
-+			Configure the width of I2C SCL half clock cycle (in 4 LPC_CLK
-+			units).
-+I2C_HOLD	0x5 - hold reg.
-+			OE (output enable) is delayed by value set to this register
-+			(in LPC_CLK units)
-+CMD			0x6 - command reg.
-+			Bit 7(lsb), 0 = write, 1 = read.
-+			Bits [6:0] - the 7bit Address of the I2C device.
-+			It should be written last as it triggers an I2C transaction.
-+NUM_DATA	0x7 - data size reg.
-+			Number of address bytes to write in read transaction
-+NUM_ADDR	0x8 - address reg.
-+			Number of address bytes to write in read transaction.
-+STATUS		0x9 - status reg.
-+			Bit 0 - transaction is completed.
-+			Bit 4 - ACK/NACK.
-+DATAx		0xa - 0x54  - 68 bytes data buffer regs.
-+			For write transaction address is specified in four first bytes
-+			(DATA1 - DATA4), data starting from DATA4.
-+			For read transactions address is send in separate transaction and
-+			specified in four first bytes (DATA0 - DATA3). Data is reading
-+			starting from DATA0.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 411e3b8..26d05f8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7881,6 +7881,14 @@ W:	http://www.mellanox.com
- Q:	http://patchwork.ozlabs.org/project/netdev/list/
- F:	drivers/net/ethernet/mellanox/mlxsw/
- 
-+MELLANOX MLXCPLD I2C DRIVER
-+M:	Vadim Pasternak <vadimp@mellanox.com>
-+M:	Michael Shych <michaelsh@mellanox.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-mlxcpld.c
-+F:	Documentation/i2c/busses/i2c-mlxcpld
-+
- MELLANOX MLXCPLD LED DRIVER
- M:	Vadim Pasternak <vadimp@mellanox.com>
- L:	linux-leds@vger.kernel.org
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..6399cea 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1150,6 +1150,17 @@ config I2C_ELEKTOR
- 	  This support is also available as a module.  If so, the module
- 	  will be called i2c-elektor.
- 
-+config I2C_MLXCPLD
-+	tristate "Mellanox I2C driver"
-+	depends on X86_64
-+	help
-+	  This exposes the Mellanox platform I2C busses to the linux I2C layer
-+	  for X86 based systems.
-+	  Controller is implemented as CPLD logic.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-mlxcpld.
-+
- config I2C_PCA_ISA
- 	tristate "PCA9564/PCA9665 on an ISA bus"
- 	depends on ISA
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 29764cc..645bf08 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -116,6 +116,7 @@ obj-$(CONFIG_I2C_BCM_KONA)	+= i2c-bcm-kona.o
- obj-$(CONFIG_I2C_BRCMSTB)	+= i2c-brcmstb.o
- obj-$(CONFIG_I2C_CROS_EC_TUNNEL)	+= i2c-cros-ec-tunnel.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
-+obj-$(CONFIG_I2C_MLXCPLD)	+= i2c-mlxcpld.o
- obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
- obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-new file mode 100644
-index 0000000..07d5657
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -0,0 +1,544 @@
-+/*
-+ * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-+ * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the names of the copyright holders nor the names of its
-+ *    contributors may be used to endorse or promote products derived from
-+ *    this software without specific prior written permission.
-+ *
-+ * Alternatively, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") version 2 as published by the Free
-+ * Software Foundation.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+/* General defines */
-+#define MLXPLAT_CPLD_LPC_I2C_BASE_ADDR	0x2000
-+#define MLXCPLD_I2C_DEVICE_NAME		"i2c_mlxcpld"
-+#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN | I2C_M_RD)
-+#define MLXCPLD_I2C_BUS_NUM		1
-+#define MLXCPLD_I2C_DATA_REG_SZ		36
-+#define MLXCPLD_I2C_MAX_ADDR_LEN	4
-+#define MLXCPLD_I2C_RETR_NUM		2
-+#define MLXCPLD_I2C_XFER_TO		500000 /* usec */
-+#define MLXCPLD_I2C_POLL_TIME		2000   /* usec */
-+
-+/* LPC I2C registers */
-+#define MLXCPLD_LPCI2C_LPF_REG		0x0
-+#define MLXCPLD_LPCI2C_CTRL_REG		0x1
-+#define MLXCPLD_LPCI2C_HALF_CYC_REG	0x4
-+#define MLXCPLD_LPCI2C_I2C_HOLD_REG	0x5
-+#define MLXCPLD_LPCI2C_CMD_REG		0x6
-+#define MLXCPLD_LPCI2C_NUM_DAT_REG	0x7
-+#define MLXCPLD_LPCI2C_NUM_ADDR_REG	0x8
-+#define MLXCPLD_LPCI2C_STATUS_REG	0x9
-+#define MLXCPLD_LPCI2C_DATA_REG		0xa
-+
-+/* LPC I2C masks and parametres */
-+#define MLXCPLD_LPCI2C_RST_SEL_MASK	0x1
-+#define MLXCPLD_LPCI2C_TRANS_END	0x1
-+#define MLXCPLD_LPCI2C_STATUS_NACK	0x10
-+#define MLXCPLD_LPCI2C_NO_IND		0
-+#define MLXCPLD_LPCI2C_ACK_IND		1
-+#define MLXCPLD_LPCI2C_NACK_IND		2
-+
-+/**
-+ * struct mlxcpld_i2c_curr_transf - current transaction parameters:
-+ * @cmd: command;
-+ * @addr_width: address width;
-+ * @data_len: data length;
-+ * @cmd: command register;
-+ * @msg_num: message number;
-+ * @msg: pointer to message buffer;
-+ */
-+
-+struct mlxcpld_i2c_curr_transf {
-+	u8 cmd;
-+	u8 addr_width;
-+	u8 data_len;
-+	u8 msg_num;
-+	struct i2c_msg *msg;
-+};
-+
-+/**
-+ * struct mlxcpld_i2c_priv - private controller data:
-+ * @adap: i2c adapter;
-+ * @base_addr: base IO address;
-+ * @lock: bus access lock;
-+ * @xfer: current i2c transfer block;
-+ * @dev: device handle;
-+ */
-+
-+struct mlxcpld_i2c_priv {
-+	struct i2c_adapter adap;
-+	u32 base_addr;
-+	struct mutex lock;
-+	struct mlxcpld_i2c_curr_transf xfer;
-+	struct device *dev;
-+};
-+
-+static void mlxcpld_i2c_lpc_write_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		outl(*((u32 *)data + i), addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		outb(*(data + i), addr + i);
-+}
-+
-+static void mlxcpld_i2c_lpc_read_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i, nbyte, ndword;
-+
-+	nbyte = len % 4;
-+	ndword = len / 4;
-+	for (i = 0; i < ndword; i++)
-+		*((u32 *)data + i) = inl(addr + i * 4);
-+	ndword *= 4;
-+	addr += ndword;
-+	data += ndword;
-+	for (i = 0; i < nbyte; i++)
-+		*(data + i) = inb(addr + i);
-+}
-+
-+static void mlxcpld_i2c_read_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				  u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		*(data) = inb(addr);
-+		break;
-+	case 2:
-+		*((u16 *)data) = inw(addr);
-+		break;
-+	case 3:
-+		*((u16 *)data) = inw(addr);
-+		*(data + 2) = inb(addr + 2);
-+		break;
-+	case 4:
-+		*((u32 *)data) = inl(addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_read_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+static void mlxcpld_i2c_write_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				   u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		outb(*(data), addr);
-+		break;
-+	case 2:
-+		outw(*((u16 *)data), addr);
-+		break;
-+	case 3:
-+		outw(*((u16 *)data), addr);
-+		outb(*(data + 2), addr + 2);
-+		break;
-+	case 4:
-+		outl(*((u32 *)data), addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_write_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+/* Check validity of current i2c message and all transfer.
-+ * Calculate also common length of all i2c messages in transfer.
-+ */
-+static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
-+				   const struct i2c_msg *msg, u8 *comm_len)
-+{
-+	u8 max_len = msg->flags == I2C_M_RD ? MLXCPLD_I2C_DATA_REG_SZ -
-+		     MLXCPLD_I2C_MAX_ADDR_LEN : MLXCPLD_I2C_DATA_REG_SZ;
-+
-+	if (msg->len > max_len)
-+		return -EINVAL;
-+
-+	*comm_len += msg->len;
-+	if (*comm_len > MLXCPLD_I2C_DATA_REG_SZ)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/* Check validity of received i2c messages parameters.
-+ * Returns 0 if OK, other - in case of invalid parameters
-+ * or common length of data that should be passed to CPLD
-+ */
-+static int mlxcpld_i2c_check_msg_params(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 *comm_len)
-+{
-+	int i;
-+
-+	if (!num) {
-+		dev_err(priv->dev, "Incorrect 0 num of messages\n");
-+		return -EINVAL;
-+	}
-+
-+	if (unlikely(msgs[0].addr > 0x7f)) {
-+		dev_err(priv->dev, "Invalid address 0x%03x\n",
-+			msgs[0].addr);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < num; ++i) {
-+		if (unlikely(!msgs[i].buf)) {
-+			dev_err(priv->dev, "Invalid buf in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(msgs[0].addr != msgs[i].addr)) {
-+			dev_err(priv->dev, "Invalid addr in msg[%d]\n",
-+				i);
-+			return -EINVAL;
-+		}
-+		if (unlikely(mlxcpld_i2c_invalid_len(priv, &msgs[i],
-+						     comm_len))) {
-+			dev_err(priv->dev, "Invalid len %d msg[%d], addr 0x%x, lag %u\n",
-+				msgs[i].len, i, msgs[i].addr, msgs[i].flags);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/* Check if transfer is completed and status of operation.
-+ * Returns 0 - transfer completed (both ACK or NACK),
-+ * negative - transfer isn't finished.
-+ */
-+static int mlxcpld_i2c_check_status(struct mlxcpld_i2c_priv *priv, int *status)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END) {
-+		if (val & MLXCPLD_LPCI2C_STATUS_NACK)
-+			/* The slave is unable to accept the data. No such
-+			 * slave, command not understood, or unable to accept
-+			 * any more data.
-+			 */
-+			*status = MLXCPLD_LPCI2C_NACK_IND;
-+		else
-+			*status = MLXCPLD_LPCI2C_ACK_IND;
-+		return 0;
-+	}
-+	*status = MLXCPLD_LPCI2C_NO_IND;
-+
-+	return -EIO;
-+}
-+
-+static void mlxcpld_i2c_set_transf_data(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 comm_len)
-+{
-+	priv->xfer.msg = msgs;
-+	priv->xfer.msg_num = num;
-+
-+	/*
-+	 * All upper layers currently are never use transfer with more than
-+	 * 2 messages. Actually, it's also not so relevant in Mellanox systems
-+	 * because of HW limitation. Max size of transfer is o more than 20B
-+	 * in current x86 LPCI2C bridge.
-+	 */
-+	priv->xfer.cmd = msgs[num - 1].flags & I2C_M_RD;
-+
-+	if (priv->xfer.cmd == I2C_M_RD && comm_len != msgs[0].len) {
-+		priv->xfer.addr_width = msgs[0].len;
-+		priv->xfer.data_len = comm_len - priv->xfer.addr_width;
-+	} else {
-+		priv->xfer.addr_width = 0;
-+		priv->xfer.data_len = comm_len;
-+	}
-+}
-+
-+/* Reset CPLD LPCI2C block */
-+static void mlxcpld_i2c_reset(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mutex_lock(&priv->lock);
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+	val &= ~MLXCPLD_LPCI2C_RST_SEL_MASK;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+
-+	mutex_unlock(&priv->lock);
-+}
-+
-+/* Make sure the CPLD is ready to start transmitting. */
-+static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END)
-+		return 0;
-+
-+	return -EIO;
-+}
-+
-+static int mlxcpld_i2c_wait_for_free(struct mlxcpld_i2c_priv *priv)
-+{
-+	int timeout = 0;
-+
-+	do {
-+		if (!mlxcpld_i2c_check_busy(priv))
-+			break;
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (timeout <= MLXCPLD_I2C_XFER_TO);
-+
-+	if (timeout > MLXCPLD_I2C_XFER_TO)
-+		return -ETIMEDOUT;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Wait for master transfer to complete.
-+ * It puts current process to sleep until we get interrupt or timeout expires.
-+ * Returns the number of transferred or read bytes or error (<0).
-+ */
-+static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
-+{
-+	int status, i, timeout = 0;
-+	u8 datalen;
-+
-+	do {
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		if (!mlxcpld_i2c_check_status(priv, &status))
-+			break;
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (status == 0 && timeout < MLXCPLD_I2C_XFER_TO);
-+
-+	switch (status) {
-+	case MLXCPLD_LPCI2C_NO_IND:
-+		return -ETIMEDOUT;
-+
-+	case MLXCPLD_LPCI2C_ACK_IND:
-+		if (priv->xfer.cmd != I2C_M_RD)
-+			return (priv->xfer.addr_width + priv->xfer.data_len);
-+
-+		if (priv->xfer.msg_num == 1)
-+			i = 0;
-+		else
-+			i = 1;
-+
-+		if (!priv->xfer.msg[i].buf)
-+			return -EINVAL;
-+
-+		/*
-+		 * Actual read data len will be always the same as
-+		 * requested len. 0xff (line pull-up) will be returned
-+		 * if slave has no data to return. Thus don't read
-+		 * MLXCPLD_LPCI2C_NUM_DAT_REG reg from CPLD.
-+		 */
-+		datalen = priv->xfer.data_len;
-+
-+		mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_DATA_REG,
-+				      priv->xfer.msg[i].buf, datalen);
-+
-+		return datalen;
-+
-+	case MLXCPLD_LPCI2C_NACK_IND:
-+		return -EAGAIN;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static void mlxcpld_i2c_xfer_msg(struct mlxcpld_i2c_priv *priv)
-+{
-+	int i, len = 0;
-+	u8 cmd;
-+
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
-+			       &priv->xfer.data_len, 1);
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_ADDR_REG,
-+			       &priv->xfer.addr_width, 1);
-+
-+	for (i = 0; i < priv->xfer.msg_num; i++) {
-+		if ((priv->xfer.msg[i].flags & I2C_M_RD) != I2C_M_RD) {
-+			/* Don't write to CPLD buffer in read transaction */
-+			mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_DATA_REG +
-+					       len, priv->xfer.msg[i].buf,
-+					       priv->xfer.msg[i].len);
-+			len += priv->xfer.msg[i].len;
-+		}
-+	}
-+
-+	/* Set target slave address with command for master transfer.
-+	 * It should be latest executed function before CPLD transaction.
-+	 */
-+	cmd = (priv->xfer.msg[0].addr << 1) | priv->xfer.cmd;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CMD_REG, &cmd, 1);
-+}
-+
-+/* Generic lpc-i2c transfer.
-+ * Returns the number of processed messages or error (<0).
-+ */
-+static int mlxcpld_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			    int num)
-+{
-+	struct mlxcpld_i2c_priv *priv = i2c_get_adapdata(adap);
-+	u8 comm_len = 0;
-+	int err;
-+
-+	err = mlxcpld_i2c_check_msg_params(priv, msgs, num, &comm_len);
-+	if (err) {
-+		dev_err(priv->dev, "Incorrect message\n");
-+		return err;
-+	}
-+
-+	/* Check bus state */
-+	if (mlxcpld_i2c_wait_for_free(priv)) {
-+		dev_err(priv->dev, "LPCI2C bridge is busy\n");
-+
-+		/*
-+		 * Usually it means something serious has happened.
-+		 * We can not have unfinished previous transfer
-+		 * so it doesn't make any sense to try to stop it.
-+		 * Probably we were not able to recover from the
-+		 * previous error.
-+		 * The only reasonable thing - is soft reset.
-+		 */
-+		mlxcpld_i2c_reset(priv);
-+		if (mlxcpld_i2c_check_busy(priv)) {
-+			dev_err(priv->dev, "LPCI2C bridge is busy after reset\n");
-+			return -EIO;
-+		}
-+	}
-+
-+	mlxcpld_i2c_set_transf_data(priv, msgs, num, comm_len);
-+
-+	mutex_lock(&priv->lock);
-+
-+	/* Do real transfer. Can't fail */
-+	mlxcpld_i2c_xfer_msg(priv);
-+
-+	/* Wait for transaction complete */
-+	err = mlxcpld_i2c_wait_for_tc(priv);
-+
-+	mutex_unlock(&priv->lock);
-+
-+	return err < 0 ? err : num;
-+}
-+
-+static u32 mlxcpld_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+static const struct i2c_algorithm mlxcpld_i2c_algo = {
-+	.master_xfer	= mlxcpld_i2c_xfer,
-+	.functionality	= mlxcpld_i2c_func
-+};
-+
-+static struct i2c_adapter mlxcpld_i2c_adapter = {
-+	.owner          = THIS_MODULE,
-+	.name           = "i2c-mlxcpld",
-+	.class          = I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+	.algo           = &mlxcpld_i2c_algo,
-+	.retries	= MLXCPLD_I2C_RETR_NUM,
-+	.nr		= MLXCPLD_I2C_BUS_NUM,
-+};
-+
-+static int mlxcpld_i2c_probe(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv;
-+	int err;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	mutex_init(&priv->lock);
-+	platform_set_drvdata(pdev, priv);
-+
-+	priv->dev = &pdev->dev;
-+
-+	/* Register with i2c layer */
-+	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-+	priv->adap = mlxcpld_i2c_adapter;
-+	priv->adap.dev.parent = &pdev->dev;
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
-+	i2c_set_adapdata(&priv->adap, priv);
-+
-+	err = i2c_add_numbered_adapter(&priv->adap);
-+	if (err)
-+		mutex_destroy(&priv->lock);
-+
-+	return err;
-+}
-+
-+static int mlxcpld_i2c_remove(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adap);
-+	mutex_destroy(&priv->lock);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mlxcpld_i2c_driver = {
-+	.probe		= mlxcpld_i2c_probe,
-+	.remove		= mlxcpld_i2c_remove,
-+	.driver = {
-+		.name = MLXCPLD_I2C_DEVICE_NAME,
-+	},
-+};
-+
-+module_platform_driver(mlxcpld_i2c_driver);
-+
-+MODULE_AUTHOR("Michael Shych <michaels@mellanox.com>");
-+MODULE_DESCRIPTION("Mellanox I2C-CPLD controller driver");
-+MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_ALIAS("platform:i2c-mlxcpld");
--- 
-2.1.4
+IEZyb206IFZsYWRpbWlyIFphcG9sc2tpeSA8bWFpbHRvOnZ6QG1sZWlhLmNvbT4gU2VudDogVGh1
+cnNkYXksIE5vdmVtYmVyIDE3LCAyMDE2IDg6NTkgQU0NCj4gVG86IFBhbmR5IEdhbyA8cGFuZHku
+Z2FvQG54cC5jb20+OyB3c2FAdGhlLWRyZWFtcy5kZTsgdS5rbGVpbmUtDQo+IGtvZW5pZ0BwZW5n
+dXRyb25peC5kZTsgY21vQG1lbGV4aXMuY29tOyByb2JoQGtlcm5lbC5vcmcNCj4gQ2M6IGxpbnV4
+LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IEZyYW5rIExpIDxmcmFuay5saUBueHAuY29tPjsgQW5keSBE
+dWFuDQo+IDxmdWdhbmcuZHVhbkBueHAuY29tPg0KPiBTdWJqZWN0OiBSZTogW1BhdGNoIFY0IDEv
+Ml0gaTJjOiBpbXg6IGFkZCBsb3cgcG93ZXIgaTJjIGJ1cyBkcml2ZXINCj4gDQo+IE9uIDExLzE0
+LzIwMTYgMTE6MjMgQU0sIEdhbyBQYW4gd3JvdGU6DQo+ID4gVGhpcyBwYXRjaCBhZGRzIGxwaTJj
+IGJ1cyBkcml2ZXIgdG8gc3VwcG9ydCBuZXcgaS5NWCBwcm9kdWN0cyB3aGljaA0KPiA+IHVzZSBs
+cGkyYyBpbnN0ZWFkIG9mIHRoZSBvbGQgaW14IGkyYy4NCj4gPg0KPiA+IFRoZSBscGkyYyBjYW4g
+Y29udGludWUgb3BlcmF0aW5nIGluIHN0b3AgbW9kZSB3aGVuIGFuIGFwcHJvcHJpYXRlDQo+ID4g
+Y2xvY2sgaXMgYXZhaWxhYmxlLiBJdCBpcyBhbHNvIGRlc2lnbmVkIGZvciBsb3cgQ1BVIG92ZXJo
+ZWFkIHdpdGggRE1BDQo+ID4gb2ZmbG9hZGluZyBvZiBGSUZPIHJlZ2lzdGVyIGFjY2Vzc2VzLg0K
+PiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogR2FvIFBhbiA8cGFuZHkuZ2FvQG54cC5jb20+DQo+ID4g
+UmV2aWV3ZWQtYnk6IEZ1Z2FuZyBEdWFuIDxCMzg2MTFAZnJlZXNjYWxlLmNvbT4NCj4gPiAtLS0N
+Cj4gDQo+IFtzbmlwXQ0KPiANCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgbHBpMmNfaW14X21hc3Rl
+cl9lbmFibGUoc3RydWN0IGxwaTJjX2lteF9zdHJ1Y3QNCj4gPiArKmxwaTJjX2lteCkgew0KPiA+
+ICsJdW5zaWduZWQgaW50IHRlbXA7DQo+ID4gKwlpbnQgcmV0Ow0KPiA+ICsNCj4gPiArCXJldCA9
+IGNsa19lbmFibGUobHBpMmNfaW14LT5jbGspOw0KPiA+ICsJaWYgKHJldCkNCj4gPiArCQlyZXR1
+cm4gcmV0Ow0KPiA+ICsNCj4gPiArCXRlbXAgPSBNQ1JfUlNUOw0KPiA+ICsJd3JpdGVsKHRlbXAs
+IGxwaTJjX2lteC0+YmFzZSArIExQSTJDX01DUik7DQo+ID4gKwl3cml0ZWwoMCwgbHBpMmNfaW14
+LT5iYXNlICsgTFBJMkNfTUNSKTsNCj4gPiArDQo+ID4gKwlyZXQgPSBscGkyY19pbXhfY29uZmln
+KGxwaTJjX2lteCk7DQo+ID4gKwlpZiAocmV0KQ0KPiA+ICsJCXJldHVybiByZXQ7DQo+IA0KPiBN
+aXNzaW5nIGNsa19kaXNhYmxlKCkgb24gZXJyb3IgcGF0aC4NCiANClRoYW5rcywgd2lsbCBjaGFu
+Z2UgaXQgaW4gbmV4dCAgdmVyc2lvbi4gDQoNCj4gPiArDQo+ID4gKwl0ZW1wID0gcmVhZGwobHBp
+MmNfaW14LT5iYXNlICsgTFBJMkNfTUNSKTsNCj4gPiArCXRlbXAgfD0gTUNSX01FTjsNCj4gPiAr
+CXdyaXRlbCh0ZW1wLCBscGkyY19pbXgtPmJhc2UgKyBMUEkyQ19NQ1IpOw0KPiA+ICsNCj4gPiAr
+CXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IGxwaTJjX2lteF9tYXN0
+ZXJfZGlzYWJsZShzdHJ1Y3QgbHBpMmNfaW14X3N0cnVjdA0KPiA+ICsqbHBpMmNfaW14KSB7DQo+
+ID4gKwl1bnNpZ25lZCBpbnQgdGVtcCA9IDA7DQo+IA0KPiBObyBuZWVkIG9mIGFzc2lnbm1lbnQs
+IGp1c3QgZG8gYSBkZWNsYXJhdGlvbiAidTMyIHRlbXA7Ii4NCiANClRoYW5rcy4NCiANCj4gPiAr
+DQo+ID4gKwl0ZW1wID0gcmVhZGwobHBpMmNfaW14LT5iYXNlICsgTFBJMkNfTUNSKTsNCj4gPiAr
+CXRlbXAgJj0gfk1DUl9NRU47DQo+ID4gKwl3cml0ZWwodGVtcCwgbHBpMmNfaW14LT5iYXNlICsg
+TFBJMkNfTUNSKTsNCj4gPiArDQo+ID4gKwljbGtfZGlzYWJsZShscGkyY19pbXgtPmNsayk7DQo+
+ID4gKw0KPiA+ICsJcmV0dXJuIDA7DQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgbHBp
+MmNfaW14X21zZ19jb21wbGV0ZShzdHJ1Y3QgbHBpMmNfaW14X3N0cnVjdCAqbHBpMmNfaW14KQ0K
+PiA+ICt7DQo+ID4gKwl1bnNpZ25lZCBpbnQgdGltZW91dDsNCj4gDQo+IHVuc2lnbmVkIGxvbmcg
+dGltZW91dDsNCg0KVGhhbmtzLiANCg0KPiA+ICsNCj4gPiArCXRpbWVvdXQgPSB3YWl0X2Zvcl9j
+b21wbGV0aW9uX3RpbWVvdXQoJmxwaTJjX2lteC0+Y29tcGxldGUsIEhaKTsNCj4gPiArDQo+ID4g
+KwlyZXR1cm4gdGltZW91dCA/IDAgOiAtRVRJTUVET1VUOw0KPiA+ICt9DQo+ID4gKw0KPiANCj4g
+W3NuaXBdDQo+IA0KPiA+ICtzdGF0aWMgdm9pZCBscGkyY19pbXhfcmVhZF9yeGZpZm8oc3RydWN0
+IGxwaTJjX2lteF9zdHJ1Y3QgKmxwaTJjX2lteCkNCj4gPiArew0KPiA+ICsJdW5zaWduZWQgaW50
+IGJsb2NrbGVuLCByZW1haW5pbmc7DQo+ID4gKwl1bnNpZ25lZCBpbnQgdGVtcCwgZGF0YTsNCj4g
+PiArDQo+ID4gKwlkbyB7DQo+ID4gKwkJZGF0YSA9IHJlYWRsKGxwaTJjX2lteC0+YmFzZSArIExQ
+STJDX01SRFIpOw0KPiA+ICsJCWlmIChkYXRhICYgTVJEUl9SWEVNUFRZKQ0KPiA+ICsJCQlicmVh
+azsNCj4gPiArDQo+ID4gKwkJbHBpMmNfaW14LT5yeF9idWZbbHBpMmNfaW14LT5kZWxpdmVyZWQr
+K10gPSBkYXRhICYgMHhmZjsNCj4gPiArCX0gd2hpbGUgKDEpOw0KPiA+ICsNCj4gPiArCS8qDQo+
+ID4gKwkgKiBGaXJzdCBieXRlIGlzIHRoZSBsZW5ndGggb2YgcmVtYWluaW5nIHBhY2tldCBpbiB0
+aGUgU01CdXMgYmxvY2sNCj4gPiArCSAqIGRhdGEgcmVhZC4gQWRkIGl0IHRvIG1zZ3MtPmxlbi4N
+Cj4gPiArCSAqLw0KPiA+ICsJaWYgKGxwaTJjX2lteC0+YmxvY2tfZGF0YSkgew0KPiA+ICsJCWJs
+b2NrbGVuID0gbHBpMmNfaW14LT5yeF9idWZbMF07DQo+ID4gKwkJbHBpMmNfaW14LT5tc2dsZW4g
+Kz0gYmxvY2tsZW47DQo+ID4gKwl9DQo+ID4gKw0KPiA+ICsJcmVtYWluaW5nID0gbHBpMmNfaW14
+LT5tc2dsZW4gLSBscGkyY19pbXgtPmRlbGl2ZXJlZDsNCj4gPiArDQo+ID4gKwlpZiAoIXJlbWFp
+bmluZykgew0KPiA+ICsJCWNvbXBsZXRlKCZscGkyY19pbXgtPmNvbXBsZXRlKTsNCj4gPiArCQly
+ZXR1cm47DQo+ID4gKwl9DQo+ID4gKw0KPiA+ICsJLyogbm90IGZpbmlzaGVkLCBzdGlsbCB3YWl0
+aW5nIGZvciByeCBkYXRhICovDQo+ID4gKwlscGkyY19pbXhfc2V0X3J4X3dhdGVybWFyayhscGky
+Y19pbXgpOw0KPiA+ICsNCj4gPiArCS8qIG11bHRpcGxlIHJlY2VpdmUgY29tbWFuZHMgKi8NCj4g
+PiArCWlmIChscGkyY19pbXgtPmJsb2NrX2RhdGEpIHsNCj4gPiArCQlscGkyY19pbXgtPmJsb2Nr
+X2RhdGEgPSAwOw0KPiA+ICsJCXRlbXAgPSByZW1haW5pbmc7DQo+ID4gKwkJdGVtcCB8PSAoUkVD
+Vl9EQVRBIDw8IDgpOw0KPiA+ICsJCXdyaXRlbCh0ZW1wLCBscGkyY19pbXgtPmJhc2UgKyBMUEky
+Q19NVERSKTsNCj4gPiArCX0gZWxzZSBpZiAoIShscGkyY19pbXgtPmRlbGl2ZXJlZCAmIDB4ZmYp
+KSB7DQo+ID4gKwkJdGVtcCA9IHJlbWFpbmluZyA+IENIVU5LX0RBVEEgPyBDSFVOS19EQVRBIC0g
+MSA6DQo+IChyZW1haW5pbmcgLSAxKTsNCj4gDQo+IGNoZWNrcGF0Y2ggY29tcGxhaW5zOg0KPiAN
+Cj4gV0FSTklORzogbGluZSBvdmVyIDgwIGNoYXJhY3RlcnMNCj4gIzQ3MzogRklMRTogZHJpdmVy
+cy9pMmMvYnVzc2VzL2kyYy1pbXgtbHBpMmMuYzo0MjE6DQo+ICsgICAgIHRlbXAgPSByZW1haW5p
+bmcgPiBDSFVOS19EQVRBID8gQ0hVTktfREFUQSAtIDEgOiAocmVtYWluaW5nIC0gMSk7DQo+IA0K
+PiBNYXkgYmUgcmV3cml0ZSBpdCBhcw0KPiANCj4gCXRlbXAgPSAocmVtYWluaW5nID4gQ0hVTktf
+REFUQSA/IENIVU5LX0RBVEEgOiByZW1haW5pbmcpIC0gMTsNCg0KVGhhbmtzLCB3aWxsIGNoYW5n
+ZSAgaXQgaW4gbmV4dCAgdmVyc2lvbi4gDQogDQo+ID4gKwkJdGVtcCB8PSAoUkVDVl9EQVRBIDw8
+IDgpOw0KPiA+ICsJCXdyaXRlbCh0ZW1wLCBscGkyY19pbXgtPmJhc2UgKyBMUEkyQ19NVERSKTsN
+Cj4gPiArCX0NCj4gPiArDQo+ID4gKwlscGkyY19pbXhfaW50Y3RybChscGkyY19pbXgsIE1JRVJf
+UkRJRSk7IH0NCj4gPiArDQo+IA0KPiBbc25pcF0NCj4gDQo+ID4gKw0KPiA+ICtzdGF0aWMgdTMy
+IGxwaTJjX2lteF9mdW5jKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlcikgew0KPiA+ICsJcmV0
+dXJuIEkyQ19GVU5DX0kyQyB8IEkyQ19GVU5DX1NNQlVTX0VNVUwgfA0KPiA+ICsJSTJDX0ZVTkNf
+U01CVVNfUkVBRF9CTE9DS19EQVRBOw0KPiANCj4gUGxlYXNlIGluZGVudCBkZWVwZXIgdGhlIHNl
+Y29uZCBsaW5lLg0KDQpUaGFua3MuIA0KDQo+ID4gK30NCj4gPiArDQo+ID4gK3N0YXRpYyBzdHJ1
+Y3QgaTJjX2FsZ29yaXRobSBscGkyY19pbXhfYWxnbyA9IHsNCj4gPiArCS5tYXN0ZXJfeGZlcgk9
+IGxwaTJjX2lteF94ZmVyLA0KPiA+ICsJLmZ1bmN0aW9uYWxpdHkJPSBscGkyY19pbXhfZnVuYywN
+Cj4gPiArfTsNCj4gPiArDQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgb2ZfZGV2aWNlX2lkIGxw
+aTJjX2lteF9vZl9tYXRjaFtdID0gew0KPiA+ICsJeyAuY29tcGF0aWJsZSA9ICJmc2wsaW14OGR2
+LWxwaTJjIiB9LA0KPiA+ICsJeyAuY29tcGF0aWJsZSA9ICJmc2wsaW14N3VscC1scGkyYyIgfSwN
+Cj4gDQo+IFBsZWFzZSBzb3J0IHRoZSBjb21wYXRpYmxlcyBhbHBoYW51bWVyaWNhbGx5Lg0KDQpU
+aGFua3MsIHdpbGwgY2hhbmdlIGl0IGluIG5leHQgdmVyc2lvbi4gDQoNCj4gPiArCXsgfSwNCj4g
+PiArfTsNCj4gPiArTU9EVUxFX0RFVklDRV9UQUJMRShvZiwgbHBpMmNfaW14X29mX21hdGNoKQ0K
+PiANCj4gTWlzc2luZyBjbG9zaW5nICI7IiAgICAgICAgICAgICAgICAgICAgICAgIF5eXl5eXg0K
+DQpUaGFua3MuIA0KDQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IGxwaTJjX2lteF9wcm9iZShzdHJ1
+Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KSB7DQo+ID4gKwlzdHJ1Y3QgbHBpMmNfaW14X3N0cnVj
+dCAqbHBpMmNfaW14Ow0KPiA+ICsJc3RydWN0IHJlc291cmNlICpyZXM7DQo+ID4gKwlpbnQgaXJx
+LCByZXQ7DQo+ID4gKw0KPiA+ICsJbHBpMmNfaW14ID0gZGV2bV9remFsbG9jKCZwZGV2LT5kZXYs
+DQo+ID4gKwkJCQlzaXplb2YoKmxwaTJjX2lteCksIEdGUF9LRVJORUwpOw0KPiANCj4gUGxlYXNl
+IHBsYWNlIGl0IG9uIGEgc2luZ2xlIGxpbmUsIGl0IGZpdHMgaW50byA4MCBjaGFyYWN0ZXIgbGlt
+aXQuDQoNClRoYW5rcywgd2lsbCBjaGFuZ2UgaXQgaW4gbmV4dCB2ZXJzaW9uLiANCg0KPiA+ICsJ
+aWYgKCFscGkyY19pbXgpDQo+ID4gKwkJcmV0dXJuIC1FTk9NRU07DQo+ID4gKw0KPiA+ICsJcmVz
+ID0gcGxhdGZvcm1fZ2V0X3Jlc291cmNlKHBkZXYsIElPUkVTT1VSQ0VfTUVNLCAwKTsNCj4gPiAr
+CWxwaTJjX2lteC0+YmFzZSA9IGRldm1faW9yZW1hcF9yZXNvdXJjZSgmcGRldi0+ZGV2LCByZXMp
+Ow0KPiA+ICsJaWYgKElTX0VSUihscGkyY19pbXgtPmJhc2UpKQ0KPiA+ICsJCXJldHVybiBQVFJf
+RVJSKGxwaTJjX2lteC0+YmFzZSk7DQo+ID4gKw0KPiA+ICsJaXJxID0gcGxhdGZvcm1fZ2V0X2ly
+cShwZGV2LCAwKTsNCj4gPiArCWlmIChpcnEgPCAwKSB7DQo+ID4gKwkJZGV2X2VycigmcGRldi0+
+ZGV2LCAiY2FuJ3QgZ2V0IGlycSBudW1iZXJcbiIpOw0KPiA+ICsJCXJldHVybiBpcnE7DQo+ID4g
+Kwl9DQo+ID4gKw0KPiA+ICsJbHBpMmNfaW14LT5hZGFwdGVyLm93bmVyCT0gVEhJU19NT0RVTEU7
+DQo+ID4gKwlscGkyY19pbXgtPmFkYXB0ZXIuYWxnbwkJPSAmbHBpMmNfaW14X2FsZ287DQo+ID4g
+KwlscGkyY19pbXgtPmFkYXB0ZXIuZGV2LnBhcmVudAk9ICZwZGV2LT5kZXY7DQo+ID4gKwlscGky
+Y19pbXgtPmFkYXB0ZXIuZGV2Lm9mX25vZGUJPSBwZGV2LT5kZXYub2Zfbm9kZTsNCj4gPiArCXN0
+cmxjcHkobHBpMmNfaW14LT5hZGFwdGVyLm5hbWUsIHBkZXYtPm5hbWUsDQo+ID4gKwkJCQlzaXpl
+b2YobHBpMmNfaW14LT5hZGFwdGVyLm5hbWUpKTsNCj4gDQo+IGNoZWNrcGF0Y2ggLS1zdHJpY3Qg
+Y29tcGxhaW5zOg0KPiANCj4gQ0hFQ0s6IEFsaWdubWVudCBzaG91bGQgbWF0Y2ggb3BlbiBwYXJl
+bnRoZXNpcw0KPiAjNjMwOiBGSUxFOiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC1scGkyYy5j
+OjU3ODoNCj4gKyAgICAgICBzdHJsY3B5KGxwaTJjX2lteC0+YWRhcHRlci5uYW1lLCBwZGV2LT5u
+YW1lLA0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpemVvZihscGkyY19pbXgt
+PmFkYXB0ZXIubmFtZSkpOw0KDQpUaGFua3MsIHdpbGwgY2hhbmdlIGl0IGluIG5leHQgdmVyc2lv
+bi4gDQoNCj4gPiArDQo+ID4gKwlscGkyY19pbXgtPmNsayA9IGRldm1fY2xrX2dldCgmcGRldi0+
+ZGV2LCBOVUxMKTsNCj4gPiArCWlmIChJU19FUlIobHBpMmNfaW14LT5jbGspKSB7DQo+ID4gKwkJ
+ZGV2X2VycigmcGRldi0+ZGV2LCAiY2FuJ3QgZ2V0IEkyQyBwZXJpcGhlcmFsIGNsb2NrXG4iKTsN
+Cj4gPiArCQlyZXR1cm4gUFRSX0VSUihscGkyY19pbXgtPmNsayk7DQo+ID4gKwl9DQo+ID4gKw0K
+PiA+ICsJcmV0ID0gY2xrX3ByZXBhcmUobHBpMmNfaW14LT5jbGspOw0KPiA+ICsJaWYgKHJldCkg
+ew0KPiA+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImNsayBwcmVwYXJlIGZhaWxlZCAlZFxuIiwg
+cmV0KTsNCj4gPiArCQlyZXR1cm4gcmV0Ow0KPiA+ICsJfQ0KPiA+ICsNCj4gPiArCXJldCA9IG9m
+X3Byb3BlcnR5X3JlYWRfdTMyKHBkZXYtPmRldi5vZl9ub2RlLA0KPiA+ICsJCQkJICAgImNsb2Nr
+LWZyZXF1ZW5jeSIsICZscGkyY19pbXgtPmJpdHJhdGUpOw0KPiA+ICsJaWYgKHJldCkNCj4gPiAr
+CQlscGkyY19pbXgtPmJpdHJhdGUgPSBMUEkyQ19ERUZBVUxUX1JBVEU7DQo+ID4gKw0KPiA+ICsJ
+cmV0ID0gZGV2bV9yZXF1ZXN0X2lycSgmcGRldi0+ZGV2LCBpcnEsIGxwaTJjX2lteF9pc3IsIDAs
+DQo+ID4gKwkJCQlwZGV2LT5uYW1lLCBscGkyY19pbXgpOw0KPiA+ICsJaWYgKHJldCkgew0KPiA+
+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImNhbid0IGNsYWltIGlycSAlZFxuIiwgaXJxKTsNCj4g
+PiArCQlyZXR1cm4gcmV0Ow0KPiANCj4gT24gZXJyb3IgcGF0aCB5b3UgbGVhayBjbGtfcHJlcGFy
+ZSgpJ2QgbHBpMmNfaW14LT5jbGsgY2xvY2suDQo+IA0KPiBJIHdvdWxkIHJlY29tbWVuZCB0byBw
+cmVwYXJlIHRoZSBjbG9jayBhZnRlciBzdWNjZXNzZnVsIGFkYXB0ZXIgcmVnaXN0cmF0aW9uLg0K
+DQpUaGFua3MhICBCdXQgIGl0J3MgYmV0dGVyIHRoYXQgY2xrIGlzIHByZXBhcmVkICBiZWZvcmUg
+YWRhcHRlciByZWdpc3RyYXRpb24uICBCZWNhdXNlIGR1cmluZyBhZGFwdGVyIHJlZ2lzdHJhdGlv
+biwgIGkyYyBzbGF2ZSB3aWxsIHByb2JlLiANCkFzIGEgcmVzdWx0LCAgaTJjIHhmZXIgd2lsbCBi
+ZSBjYWxsZWQuIEluIHN1Y2ggc2l0dWF0aW9uLCBjbGtfZW5hYmxlKCkgaXMgY2FsbGVkIHdoaWxl
+IGNsayBoYXMgbm90IGJlZW4gcHJlcGFyZWQuDQoNCj4gPiArCX0NCj4gPiArDQo+ID4gKwlpMmNf
+c2V0X2FkYXBkYXRhKCZscGkyY19pbXgtPmFkYXB0ZXIsIGxwaTJjX2lteCk7DQo+ID4gKwlwbGF0
+Zm9ybV9zZXRfZHJ2ZGF0YShwZGV2LCBscGkyY19pbXgpOw0KPiA+ICsNCj4gPiArCXJldCA9IGky
+Y19hZGRfYWRhcHRlcigmbHBpMmNfaW14LT5hZGFwdGVyKTsNCj4gPiArCWlmIChyZXQpIHsNCj4g
+PiArCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJyZWdpc3RyYXRpb24gZmFpbGVkXG4iKTsNCj4gDQo+
+IFBsZWFzZSByZW1vdmUgdGhpcyBub3RpZmljYXRpb24gbGluZSwgaXQgaXMgcmVwb3J0ZWQgYnkg
+STJDIGNvcmUuDQoNClRoYW5rcywgd2lsbCByZW1vdmUgaXQgaW4gbmV4dCB2ZXJzaW9uLiANCg0K
+PiA+ICsJCXJldHVybiByZXQ7DQo+ID4gKwl9DQo+ID4gKw0KPiA+ICsJZGV2X2luZm8oJmxwaTJj
+X2lteC0+YWRhcHRlci5kZXYsICJMUEkyQyBhZGFwdGVyIHJlZ2lzdGVyZWRcbiIpOw0KPiA+ICsN
+Cj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IGxwaTJjX2lt
+eF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikgew0KPiA+ICsJc3RydWN0IGxw
+aTJjX2lteF9zdHJ1Y3QgKmxwaTJjX2lteCA9IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOw0K
+PiA+ICsNCj4gDQo+IE1pc3NpbmcgY2xrX3VucHJlcGFyZShscGkyY19pbXgtPmNsayBjbG9jayk7
+DQoNClllcywgIHlvdSBhcmUgcmlnaHQuIFRoYW5rcy4gDQoNCj4gPiArCWkyY19kZWxfYWRhcHRl
+cigmbHBpMmNfaW14LT5hZGFwdGVyKTsNCj4gPiArDQo+ID4gKwlyZXR1cm4gMDsNCj4gPiArfQ0K
+PiA+ICsNCj4gPiArc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgbHBpMmNfaW14X2RyaXZl
+ciA9IHsNCj4gPiArCS5wcm9iZSA9IGxwaTJjX2lteF9wcm9iZSwNCj4gPiArCS5yZW1vdmUgPSBs
+cGkyY19pbXhfcmVtb3ZlLA0KPiA+ICsJLmRyaXZlciA9IHsNCj4gPiArCQkubmFtZSA9IERSSVZF
+Ul9OQU1FLA0KPiA+ICsJCS5vZl9tYXRjaF90YWJsZSA9IGxwaTJjX2lteF9vZl9tYXRjaCwNCj4g
+PiArCX0sDQo+ID4gK307DQo+ID4gKw0KPiA+ICttb2R1bGVfcGxhdGZvcm1fZHJpdmVyKGxwaTJj
+X2lteF9kcml2ZXIpOw0KPiA+ICsNCj4gPiArTU9EVUxFX0FVVEhPUigiR2FvIFBhbiA8cGFuZHku
+Z2FvQG54cC5jb20+Iik7DQo+IE1PRFVMRV9ERVNDUklQVElPTigiSTJDDQo+ID4gK2FkYXB0ZXIg
+ZHJpdmVyIGZvciBMUEkyQyBidXMiKTsgTU9EVUxFX0xJQ0VOU0UoIkdQTCB2MiIpOw0KDQoNClRo
+YW5rcyBhZ2FpbiBmb3IgeW91ciB2YWx1YWJsZSBjb21tZW50cyENCg0KQmVzdCAgUmVnYXJkDQpH
+YW8gUGFuDQo=
