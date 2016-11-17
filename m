@@ -1,240 +1,174 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: [RFC PATCH 7/7] i2c: i2c-mux-simple: new driver
-Date: Thu, 17 Nov 2016 00:48:31 +0100
-Message-ID: <1479340111-1259-8-git-send-email-peda@axentia.se>
-References: <1479340111-1259-1-git-send-email-peda@axentia.se>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [patch v5 repost 1/1] i2c: add master driver for mellanox systems
+Date: Thu, 17 Nov 2016 02:20:11 +0200
+Message-ID: <00091077-7fa6-6913-e2a4-81b7e805350c@mleia.com>
+References: <1479280122-109711-1-git-send-email-vadimp@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1479340111-1259-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:45710 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754098AbcKQAUP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 16 Nov 2016 19:20:15 -0500
+In-Reply-To: <1479280122-109711-1-git-send-email-vadimp@mellanox.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: vadimp@mellanox.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 
-This is a generic simple i2c mux that uses the generic multiplexer
-subsystem to do the muxing.
+Hi Vadim,
 
-The user can select if the mux is to be mux-locked and parent-locked
-as described in Documentation/i2c/i2c-topology.
----
- drivers/i2c/muxes/Kconfig          |  12 +++
- drivers/i2c/muxes/Makefile         |   1 +
- drivers/i2c/muxes/i2c-mux-simple.c | 172 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 185 insertions(+)
- create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
+I've noticed two more minor issues, please consider to fix them.
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index e280c8ecc0b5..45e80ad2d4ab 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -72,6 +72,18 @@ config I2C_MUX_REG
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-reg.
- 
-+config I2C_MUX_SIMPLE
-+	tristate "Simple I2C multiplexer"
-+	depends on OF
-+	help
-+	  If you say yes to this option, support will be included for a
-+	  simple generic I2C multiplexer. This driver provides access to
-+	  I2C busses connected through a MUX, which is controlled
-+	  by a generic MUX controller.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-simple.
-+
- config I2C_DEMUX_PINCTRL
- 	tristate "pinctrl-based I2C demultiplexer"
- 	depends on PINCTRL && OF
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 7c267c29b191..eea1fb9e6466 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -10,5 +10,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
- obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-+obj-$(CONFIG_I2C_MUX_SIMPLE)	+= i2c-mux-simple.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/muxes/i2c-mux-simple.c b/drivers/i2c/muxes/i2c-mux-simple.c
-new file mode 100644
-index 000000000000..308ecbf9d66c
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-simple.c
-@@ -0,0 +1,172 @@
-+/*
-+ * Generic simple I2C multiplexer
-+ *
-+ * Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/module.h>
-+#include <linux/mux.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+
-+struct mux {
-+	struct mux_control *control;
-+
-+	int parent;
-+	int n_values;
-+	u32 *values;
-+};
-+
-+static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct mux *mux = i2c_mux_priv(muxc);
-+
-+	return mux_control_select(mux->control, chan);
-+}
-+
-+static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct mux *mux = i2c_mux_priv(muxc);
-+
-+	return mux_control_deselect(mux->control);
-+}
-+
-+static int i2c_mux_probe_dt(struct mux *mux,
-+			    struct device *dev)
-+{
-+	struct device_node *np = dev->of_node;
-+	struct device_node *adapter_np, *child;
-+	struct i2c_adapter *adapter;
-+	int i = 0;
-+
-+	if (!np)
-+		return -ENODEV;
-+
-+	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-+	if (!adapter_np) {
-+		dev_err(dev, "Cannot parse i2c-parent\n");
-+		return -ENODEV;
-+	}
-+	adapter = of_find_i2c_adapter_by_node(adapter_np);
-+	of_node_put(adapter_np);
-+	if (!adapter)
-+		return -EPROBE_DEFER;
-+
-+	mux->parent = i2c_adapter_id(adapter);
-+	put_device(&adapter->dev);
-+
-+	mux->control = devm_mux_control_get(dev, "mux");
-+	if (IS_ERR(mux->control)) {
-+		if (PTR_ERR(mux->control) != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get control-mux\n");
-+		return PTR_ERR(mux->control);
-+	}
-+
-+	mux->n_values = of_get_child_count(np);
-+
-+	mux->values = devm_kzalloc(dev,
-+				   sizeof(*mux->values) * mux->n_values,
-+				   GFP_KERNEL);
-+	if (!mux->values)
-+		return -ENOMEM;
-+
-+	for_each_child_of_node(np, child) {
-+		of_property_read_u32(child, "reg", mux->values + i);
-+		i++;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id i2c_mux_of_match[] = {
-+	{ .compatible = "i2c-mux-simple,parent-locked",
-+	  .data = (void *)0, },
-+	{ .compatible = "i2c-mux-simple,mux-locked",
-+	  .data = (void *)1, },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, i2c_mux_of_match);
-+
-+static int i2c_mux_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	const struct of_device_id *match;
-+	struct i2c_mux_core *muxc;
-+	struct mux *mux;
-+	struct i2c_adapter *parent;
-+	int i, ret;
-+
-+	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
-+	if (!mux)
-+		return -ENOMEM;
-+
-+	ret = i2c_mux_probe_dt(mux, dev);
-+	if (ret < 0)
-+		return ret;
-+
-+	parent = i2c_get_adapter(mux->parent);
-+	if (!parent)
-+		return -EPROBE_DEFER;
-+
-+	muxc = i2c_mux_alloc(parent, dev, mux->n_values, 0, 0,
-+			     i2c_mux_select, i2c_mux_deselect);
-+	if (!muxc) {
-+		ret = -ENOMEM;
-+		goto alloc_failed;
-+	}
-+	muxc->priv = mux;
-+
-+	platform_set_drvdata(pdev, muxc);
-+
-+	match = of_match_device(of_match_ptr(i2c_mux_of_match), dev);
-+	if (match)
-+		muxc->mux_locked = !!of_device_get_match_data(dev);
-+
-+	for (i = 0; i < mux->n_values; i++) {
-+		ret = i2c_mux_add_adapter(muxc, 0, mux->values[i], 0);
-+		if (ret)
-+			goto add_adapter_failed;
-+	}
-+
-+	dev_info(dev, "%d port mux on %s adapter\n",
-+		 mux->n_values, parent->name);
-+
-+	return 0;
-+
-+add_adapter_failed:
-+	i2c_mux_del_adapters(muxc);
-+alloc_failed:
-+	i2c_put_adapter(parent);
-+
-+	return ret;
-+}
-+
-+static int i2c_mux_remove(struct platform_device *pdev)
-+{
-+	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
-+
-+	i2c_mux_del_adapters(muxc);
-+	i2c_put_adapter(muxc->parent);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver i2c_mux_driver = {
-+	.probe	= i2c_mux_probe,
-+	.remove	= i2c_mux_remove,
-+	.driver	= {
-+		.name	= "i2c-mux-simple",
-+		.of_match_table = i2c_mux_of_match,
-+	},
-+};
-+module_platform_driver(i2c_mux_driver);
-+
-+MODULE_DESCRIPTION("Simple I2C multiplexer driver");
-+MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+On 11/16/2016 09:08 AM, vadimp@mellanox.com wrote:
+> From: Vadim Pasternak <vadimp@mellanox.com>
+>
+> Device driver for Mellanox I2C controller logic, implemented in Lattice
+> CPLD device.
+> Device supports:
+>  - Master mode
+>  - One physical bus
+>  - Polling mode
+>
+> The Kconfig currently controlling compilation of this code is:
+> drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
+>
+> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
+> Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+> Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+> Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+
+Still valid.
+
+[snip]
+
+> diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
+> new file mode 100644
+> index 0000000..f7a6f3a
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-mlxcpld.c
+> @@ -0,0 +1,551 @@
+> +/*
+> + * drivers/i2c/busses/i2c-mlxcpld.c
+
+You can drop this line with the path above.
+
+> + * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
+> + * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
+> + *
+
+[snip]
+
+> +
+> +/**
+> + * struct mlxcpld_i2c_priv - private controller data:
+> + * @lpc_gen_dec_reg: register space;
+
+This field is gone, right?
+
+> + * @adap: i2c adapter;
+> + * @dev_id: device id;
+> + * @base_addr: base IO address;
+> + * @lock: bus access lock;
+> + * @xfer: current i2c transfer block;
+> + * @dev: device handle;
+> + */
+> +
+> +struct mlxcpld_i2c_priv {
+> +	struct i2c_adapter adap;
+> +	u16 dev_id;
+
+This field is unused, right?
+
+> +	u16 base_addr;
+
+For in[bwl]/out[bwl] IO addr has u32 type, it might be better to have
+it u32 here as well.
+
+> +	struct mutex lock;
+> +	struct mlxcpld_i2c_curr_transf xfer;
+> +	struct device *dev;
+> +};
+> +
+
+[snip]
+
+> +
+> +/* Check validity of current i2c message and all transfer.
+> + * Calculate also coomon length of all i2c messages in transfer.
+
+Typo, s/coomon/common/
+
+> + */
+> +static int mlxcpld_i2c_invalid_len(struct mlxcpld_i2c_priv *priv,
+> +				   const struct i2c_msg *msg, u8 *comm_len)
+
+[snip]
+
+> +
+> +/* Make sure the CPLD is ready to start transmitting.
+> + * Return 0 if it is, -EBUSY if it is not.
+> + */
+
+While it has no runtime effect, the function returns -EIO if bus is
+busy. If you add a comment (by the way you may consider to remove it),
+please make it aligned with the function.
+
+> +static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
+> +{
+> +	u8 val;
+> +
+> +	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
+> +
+> +	if (val & MLXCPLD_LPCI2C_TRANS_END)
+> +		return 0;
+> +
+> +	return -EIO;
+> +}
+> +
+
+[snip]
+
+> +
+> +static int mlxcpld_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct mlxcpld_i2c_priv *priv;
+> +	int err;
+> +
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(struct mlxcpld_i2c_priv),
+> +			    GFP_KERNEL);
+
+Common practice to avoid hypothetical problems in future after struct
+renamings etc. is to get sizeof() of the target storage, here it
+should be changed to:
+
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+
+There is no dereferencing, so it is a safe expression.
+
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	mutex_init(&priv->lock);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->dev = &pdev->dev;
+> +
+> +	/* Register with i2c layer */
+> +	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
+> +	priv->adap = mlxcpld_i2c_adapter;
+> +	priv->adap.dev.parent = &pdev->dev;
+> +	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
+> +	i2c_set_adapdata(&priv->adap, priv);
+> +
+> +	err = i2c_add_numbered_adapter(&priv->adap);
+> +	if (err)
+> +		mutex_destroy(&priv->lock);
+> +
+> +	return err;
+> +}
+
+--
+With best wishes,
+Vladimir
