@@ -1,59 +1,65 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 2/5] i2c: designware: Master mode as separated driver
-Date: Fri, 18 Nov 2016 14:30:14 +0200
-Message-ID: <1479472214.22212.21.camel@linux.intel.com>
+Subject: Re: [PATCH v3 3/5] i2c: designware: Add slave definitions
+Date: Fri, 18 Nov 2016 14:35:52 +0200
+Message-ID: <1479472552.22212.23.camel@linux.intel.com>
 References: <cover.1479410047.git.lolivei@synopsys.com>
-         <897ada44bfa73aaa5e092d4b178461f52c0566db.1479410047.git.lolivei@synopsys.com>
+         <f1bf9ca52e47cdd79b8f0d5e0c159a8727857269.1479410047.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:50496 "EHLO mga04.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:51100 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752136AbcKRMaU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Nov 2016 07:30:20 -0500
-In-Reply-To: <897ada44bfa73aaa5e092d4b178461f52c0566db.1479410047.git.lolivei@synopsys.com>
+        id S1751527AbcKRMh1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 18 Nov 2016 07:37:27 -0500
+In-Reply-To: <f1bf9ca52e47cdd79b8f0d5e0c159a8727857269.1479410047.git.lolivei@synopsys.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
 On Fri, 2016-11-18 at 11:19 +0000, Luis Oliveira wrote:
->  - The functions related to I2C master mode of operation were
-> transformed in a single driver.
->  - The name of the i2c-designware-core.c had to be changed to i2c-
-> designware-src.c to for the cmake to be able to correctly compile both
-> modules into one
->  - Common definitions were moved to i2c-designware-core.h
+>  - Add slave defintitions to i2c-designware-core
+>  - Changes in Kconfig to auto-enable I2C_SLAVE when compiling the
+> modules
+>  - Add compatible string to designware-core.txt explaining the
+> devicetree bindings
+> 
 
->  drivers/i2c/busses/i2c-designware-src.c            | 252
-> +++++++++++++++
 
-Perhaps i2c-designware-common.c ?
-
-> @@ -21,8 +21,6 @@
->   * ------------------------------------------------------------------
-> ----------
->   *
->   */
-> -
-> -
-
-No need to do that in this patch.
-
->  #define DW_IC_CON_MASTER		0x1
->  #define DW_IC_CON_SPEED_STD		0x2
->  #define DW_IC_CON_SPEED_FAST		0x4
-> @@ -32,6 +30,123 @@
->  #define DW_IC_CON_RESTART_EN		0x20
->  #define DW_IC_CON_SLAVE_DISABLE		0x40
+> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> @@ -2,7 +2,9 @@
 >  
-> +/*
-> + * Registers offset
-> + */
-> +#define DW_IC_CON		0x0
+>  Required properties :
+>  
+> - - compatible : should be "snps,designware-i2c"
+> + - compatible : should be:
+> +   - "snps,designware-i2c" to setup the hardware block as I2C master.
+> +   - "snps,designware-i2c-slave" to setup the hardware block as I2C
+> slave.
 
-Okay, can we split this to move definitions and the rest?
+Not sure about this one.
+
+Compatible string is more generic than list of modes. Basically you have
+to add a property which selects mode.
+
+DT people's ACK is a must for this change.
+
+
+--- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -470,6 +470,7 @@ config I2C_DESIGNWARE_CORE
+>  config I2C_DESIGNWARE_PLATFORM
+>  	tristate "Synopsys DesignWare Platform"
+>  	select I2C_DESIGNWARE_CORE
+> +	select I2C_SLAVE
+> 
+
+Common rule, generic dependencies usually go first
+
+	select I2C_SLAVE
+ 	select I2C_DESIGNWARE_CORE
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
