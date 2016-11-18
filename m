@@ -1,65 +1,54 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: i2c: designware: Allow reduce bus speed by "clock-frequency"
- property
-Date: Fri, 18 Nov 2016 02:08:58 +0100
-Message-ID: <20161118010858.GA31575@katana>
-References: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [1/2] i2c: uniphier: rename jump label to follow coding style
+ guideline
+Date: Fri, 18 Nov 2016 02:22:46 +0100
+Message-ID: <20161118012246.GA3821@katana>
+References: <1478256561-7709-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:48990 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751088AbcKRBJB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Nov 2016 20:09:01 -0500
+        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1478256561-7709-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
---azLHFNyN32YCQGCU
+--Nq2Wo0NMKNjxTN9z
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 10, 2016 at 01:37:20PM +0200, Jarkko Nikula wrote:
-> Allow more flexibility to bus speed selection. Now if there are I2C
-> slave connections defined in ACPI the speed of slowest device on the bus
-> will define the bus speed. However if also "clock-frequency" device
-> property is defined we should use the slowest of these two.
+On Fri, Nov 04, 2016 at 07:49:20PM +0900, Masahiro Yamada wrote:
+> Documentation/CodingStyle recommends to use label names which say
+> what the goto does or why the goto exists.
 >=20
-> This is targeted to maker boards where developer may want to connect
-> slower I2C slave devices to the bus than defined in existing ACPI I2C
-> slave connections.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 
 Applied to for-next, thanks!
 
 
---azLHFNyN32YCQGCU
+--Nq2Wo0NMKNjxTN9z
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLlSqAAoJEBQN5MwUoCm2cgcP/iwaw0QkTUNCboQZ7cO/wGgT
-W47+AKhPvsntIKBXYDOOhnCvfAEBxGssGe2RlJIHsJBzgdOcpdOkZU1Lr1IukwEw
-zC7Zlmp/Zjb6d/368Zw4PAp8pwKqgW4EC8vUelHKmQf6Tz8p7XPjIRLjv9e5gOm/
-VevOxrL4+uux/LM9ancGbVDm7l1LkzQkPYTtOUPUE1nlncodHtz2ghZVaH+kYznv
-xzNbWYTGfFcY4YCaclFD68td8qXpCF4gJ9Ym/ZDLdQba2re36GXrmYqt51Di4V5X
-JgCSA53VOL6soUOhb6eTOAWu9+wWREha/fRPmHXjLwy/2TL0dHuc5LQh15UfN7Jt
-x5K1ZikNdNAts91sQwwwg1pzR8FFDI0nB4+kCZB22Fbh/3Dc1AetVWyVIw5s8bLJ
-3/VWAFu51uBxmuKFZNYQz2NcVSDvO8AmGqQYgwC87lA42YoCM/4J7PtIwf91Tjir
-F7t0tAF4XJ48XQRVGLoJlUaUjtulGvYBENyXAtCmCJK/QqqsnC8qwmpjOTrR04oj
-fA0vLU1t23CEqWRf58X86ggZEjby+YYjY81A1NpxaW1uBPO5lFfi43PuqimwqlX3
-MD94htq1H2XUh+FWStEDZ5anGQdLC445Kh02u56cLrMsK91tvoAnyHlZV/4/0CHf
-I05LBmapHmc78t8CJ4p1
-=O7+6
+iQIcBAEBAgAGBQJYLlflAAoJEBQN5MwUoCm2WUsP/RQCWWbJFIquKyfxlv2sOPHb
+6lHQFhYYietnapFmXLWv2vrnUIUFi55CcS82nDcMkeSSQrGmLU6i4oi6/thMfe3D
+fovyV7aVIgpCUar86cbPAzqA8r5lH02BvKVmgb3Bt7LY6JPzZ1nZFGSBnYOfevB5
+1mqWo1ukY0G04Npcgi9YDc/s/eYfCXy/ms4IWpFHDXs7hAVRKORuI9EJ0Ax2NDDv
+QKC3w4VkslEm1z/RhppNFvYih6m85k4wiqeccbVOyHLpzpensw9hp2RruzXDxgHN
+kSoBa1UTs+3nGRVSR9pHPtKndgh4jOeNspqOHOFGRnY9IvEvi7Q+YfADjfehFe76
+6LYQcZbXAyA4GU5iWgK8vYKujwRmiCtQSIoEi+MqTzob/ovNNC9mOKLaXYCptM1Z
+fMMP7s9/iVHUIvmZOcrsPnZR5zKgTS+mRYZJgFU3PO4uGCMw3UQFay4QVx5+Qnet
+4Iz5auJIKGiiJAxJbEQ24M5m5h3+qJGm5fk2eRpQvDsriMCHB8/6GFrivg18j2GK
+V8NAY3pFK8QR27+dqbQEJPWlsMA2ykuPAkNjvxo7TdTk40SwbKp7A8J37XIqW/bQ
+Gv5mKIgKWM5UCEbSIR/Bgl6khpX1VabZ93xBNXnSMWMUVyUIUMhn3w78cBUE0CtS
+8b0g3EFd/z9kghzdt9fd
+=63dS
 -----END PGP SIGNATURE-----
 
---azLHFNyN32YCQGCU--
+--Nq2Wo0NMKNjxTN9z--
