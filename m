@@ -1,77 +1,61 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: i2c: make busses/i2c-pxa-pci.c explicitly non-modular
-Date: Fri, 18 Nov 2016 01:45:54 +0100
-Message-ID: <20161118004554.GA7785@katana>
-References: <20161031175947.10531-1-paul.gortmaker@windriver.com>
+Subject: Re: [-next] i2c: digicolor: use clk_disable_unprepare instead of
+ clk_unprepare
+Date: Fri, 18 Nov 2016 01:48:47 +0100
+Message-ID: <20161118004847.GA9905@katana>
+References: <1477758677-7831-1-git-send-email-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:39244 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753040AbcKRAsu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 19:48:50 -0500
 Content-Disposition: inline
-In-Reply-To: <20161031175947.10531-1-paul.gortmaker@windriver.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-i2c@vger.kernel.org
+In-Reply-To: <1477758677-7831-1-git-send-email-weiyj.lk@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Baruch Siach <baruch@tkos.co.il>, Wei Yongjun <weiyongjun1@huawei.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
 
---a8Wt8u1KmwUX3Y2C
+--BOKacYhQ+x31HxR3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 31, 2016 at 01:59:47PM -0400, Paul Gortmaker wrote:
-> The Kconfig currently controlling compilation of this code is:
+On Sat, Oct 29, 2016 at 04:31:17PM +0000, Wei Yongjun wrote:
+> From: Wei Yongjun <weiyongjun1@huawei.com>
 >=20
-> drivers/i2c/busses/Kconfig:config I2C_PXA_PCI
-> drivers/i2c/busses/Kconfig:     def_bool I2C_PXA && X86_32 && PCI && OF
+> since clk_prepare_enable() is used to get i2c->clk, we should
+> use clk_disable_unprepare() to release it for the error path.
 >=20
-> ...meaning that it currently is not being built as a module by anyone.
->=20
-> Lets remove the modular code that is essentially orphaned, so that
-> when reading the driver there is no doubt it is builtin-only.
->=20
-> We explicitly disallow a driver unbind, since that doesn't have a
-> sensible use case anyway, and it allows us to drop the ".remove"
-> code for non-modular drivers.
->=20
-> Since module_pci_driver() uses the same init level priority as
-> builtin_pci_driver() the init ordering remains unchanged with
-> this commit.
->=20
-> Also note that MODULE_DEVICE_TABLE is a no-op for non-modular code.
->=20
-> We also delete the MODULE_LICENSE tag etc. since all that information
-> was (or is now) contained at the top of the file in the comments.
->=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-> Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> Acked-by: Baruch Siach <baruch@tkos.co.il>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---a8Wt8u1KmwUX3Y2C
+--BOKacYhQ+x31HxR3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLk9CAAoJEBQN5MwUoCm2QvUQAIhTNvUjsfb8tOc3nH1SypvW
-lL+BtqlJn+PlruN3HFgaZ2V8TVMA72kpcNSuFMjne7YPWlHc8hfgA1/BpHvxL33h
-YVagd+1BelV8DaZw11IS5nxruPlLj32TGq0FBCTwdDI0kaCxlvELTodZps3KR8PM
-lhVMVxAOzMLiRdW2bhnjbG3nWKJnDZ2yH8fUEIPgiNOWz3WwUL2qJtoWGMFrDL4a
-IydW3Ic+M++W6VKMHTs62gRxORfBM+pqVnST5UZTC09/xHMTXomyAdZDUC4wuPte
-65dcZ4MZ2+GHSko7va97yFQdnMe6aNV1X+hQgeDBi44Uyqtc2I94o7weTb7sdDRK
-lbDIrcH21YMMkUThpMShRoWYzP9jp2wP9OZYtJI2sb1kw2ConOIuxLVUIIAscj2n
-bJSupK8MMfgyFLKArTqe7S+Rh9rLy3JB/8pck60XTRv1VaUOsXfMOvnHluRFY68G
-Zn8cSJl4oU4MdhNlMB/oXBZaIJBE+3pzgZVITSbiFZQ+MhOwgY/cpRbV7wF07QtH
-3dyHEjs3RB10hQw6Ga0EXd63cRTFyuJcN08x95h1dpDDwsrNfBUGTtz9T0cG3GYB
-W4SB4nEx2uGJ84l0HRQdMgHXVsob1j/+n1Wa7K6x5mzQWJciyjwNp1kHg+lWFQRi
-jDTmlVD4xCFgd9pfETtQ
-=7oWk
+iQIcBAEBAgAGBQJYLk/vAAoJEBQN5MwUoCm2vh0P/1hsIog2TRlipLDc/vpZAit9
+xlNxY28aHZUpEOufD6FU4ne6bY7Kx8mU7z4SbgJ35mwlpk1fAY8/EABoCm6fWIEF
+2ABz/mfuVzZM/zewDoRBJNOt57woH0OBMcep5MBjUwG3KA+OpXGI9n4qvNdV7C4k
+5r4tMyML5eP7Y1wzZIhOQVCfuGMUXIFM2kzpsVdor4ncQOcTJ/Tytbcd3yAtp0d1
+AujG29mmSz2izzuY8iCWtRg4RBZ4fhPuJCKurN/9JSmZoRq4t97MBRRQVLtjmxoA
+oyQT6xpHy9hE8j4+IbaoGfg+7VYIIJqDxp1Y+cXcibp9b64Japo90dWB56DHZ/40
+vgFDeBTPrbKq1OHHFFkVckAk+I/gD1gDYmkAsqBJSMMUN9UZ4JUZZ/0Be8NVa2Wl
+Z/NiAnyH/zsw3dc0Pl9wAkdkXXge6+Fc9p5P8OWR6NPcieujYVWDwyDedY28qpZz
+M5679tZ86Gr6ms/VheF++suHQZJojp7q/36mg17MH3TPsiiYXHHJkiNj91Zr/vvm
+hmT/h1wlyr89QCP5ao2tMiu8M6m391VepN+zqlcr3E+IJ3HBw6+9npDl9jLaAgeB
+z6p8Od5TEg5MOi/ASOgmE2nuXjCjphuSlz26fjVaGAF7oX02QKUWTx/4a+c/6W44
+wzF/hFMZMRWPgptQM/8J
+=iFVt
 -----END PGP SIGNATURE-----
 
---a8Wt8u1KmwUX3Y2C--
+--BOKacYhQ+x31HxR3--
