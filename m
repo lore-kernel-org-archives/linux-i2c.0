@@ -1,105 +1,60 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [2/2] i2c: constify i2c_adapter_quirks structures
-Date: Fri, 18 Nov 2016 02:00:08 +0100
-Message-ID: <20161118010008.GA24025@katana>
-References: <1476552722-12352-3-git-send-email-Julia.Lawall@lip6.fr>
+Subject: Re: [v4] i2c: designware: Implement support for SMBus block read and
+ write
+Date: Fri, 18 Nov 2016 02:07:12 +0100
+Message-ID: <20161118010712.GA29479@katana>
+References: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+        protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1476552722-12352-3-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Wolfram Sang <wsa@the-dreams.de>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: tnhuynh@apm.com
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---uAKRQypu60I7Lcqm
+--J2SCkAp4GZ/dPZZf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 15, 2016 at 07:32:02PM +0200, Julia Lawall wrote:
-> Check for i2c_adapter_quirks structures that are only stored in the
-> quirks field of an i2c_adapter structure.  This field is declared
-> const, so i2c_adapter_quirks structures that have this property can be
-> declared as const also.
+On Thu, Nov 10, 2016 at 09:56:33AM +0700, tnhuynh@apm.com wrote:
+> From: Tin Huynh <tnhuynh@apm.com>
 >=20
-> The semantic patch that makes this change is as follows:
-> (http://coccinelle.lip6.fr/)
+> Free and Open IPMI use SMBUS BLOCK Read/Write to support SSIF protocol.
+> However, I2C Designware Core Driver doesn't handle the case at the moment.
+> The below patch supports this feature.
 >=20
-> // <smpl>
-> @r disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct i2c_adapter_quirks i@p =3D { ... };
->=20
-> @ok@
-> identifier r.i;
-> struct i2c_adapter e;
-> position p;
-> @@
-> e.quirks =3D &i@p;
->=20
-> @bad@
-> position p !=3D {r.p,ok.p};
-> identifier r.i;
-> struct i2c_adapter_quirks e;
-> @@
-> e@i@p
->=20
-> @depends on !bad disable optional_qualifier@
-> identifier r.i;
-> @@
-> static
-> +const
->  struct i2c_adapter_quirks i =3D { ... };
-> // </smpl>
->=20
-> The effect on the layout of the .o files is shown by the following
-> output of the size command, first before then after the
-> transformation:
->=20
->    text    data     bss     dec     hex filename
->    3651     472       8    4131    1023 drivers/i2c/busses/i2c-axxia.o
->    3683     440       8    4131    1023 drivers/i2c/busses/i2c-axxia.o
->=20
->    text    data     bss     dec     hex filename
->    1069     216       0    1285     505 drivers/i2c/busses/i2c-dln2.o
->    1101     192       0    1293     50d drivers/i2c/busses/i2c-dln2.o
->=20
->    text    data     bss     dec     hex filename
->    3211     484       1    3696     e70 drivers/i2c/busses/i2c-viperboard=
-=2Eo
->    3243     460       1    3704     e78 drivers/i2c/busses/i2c-viperboard=
-=2Eo
->=20
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Squashed with the other similar patch and applied to for-next, thanks!
+Applied to for-next, thanks!
 
 
---uAKRQypu60I7Lcqm
+--J2SCkAp4GZ/dPZZf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLlKYAAoJEBQN5MwUoCm22BEP/1ttdvtqMLobFL5slwsq3d2S
-V/D+79qsGfQrBmcBfJikAJq7kHQeYyBp8OAdO2Mp8TPN8T0vu7x4n44+/jmBLTQt
-jXvbYsvl8pFnyJzeyhl+CMR/7MhZoIHH39Ec6j7N5YkCB0sdH7nIe8OKJvzLx4g6
-oDZOCeJ60JoHwJOr7NYqpDrpWj7iUZe3iN5aFGRs/Aj5M8Gr8EQ6oiWiSnJ48q9o
-jqdm2rWzNXXZ0tjVj9pQD7/UAhg3OFfpoRA2XohwhBM+9qV4evVOMJgf5gXE1toG
-7TWMh8r8yIZyElT+1zI3ZQqKgsTfiu/ZcPHIxQJGGJ3uK3VtpxKTZTLvmUHndnbV
-CMUOrgmqjFTDTdETL9757m6XbXgThyEkmBphSZwRR+2JrekvSjQpc5xKHquob2nu
-+Tist0L5ZjzXTsEpfg3iFCv0dH10PjGNm20Wn2VNRAmEjU1Q9z+vUYcgXKFCMcv2
-Z/6nvsgLLvW2rDbwxFSJOTs4hAwyznx7/UGfDskodm8AQ9UtBaksYwH9NLZ1D4PF
-bT6mh+HJJ3XCOEwJ3ZlQsLMOKFpLqMrGqQwi5Jkv9IVC039wTQYjUXohmMTVGTut
-KNVgORXNe/8Xh1wWMBHYaxFcuFwAQbvhaJoz48+hPm+OsEHJV4vhJEk1h3qrSuXc
-9kyTTPYmxJFiY/1XIulV
-=qoJv
+iQIcBAEBAgAGBQJYLlQ/AAoJEBQN5MwUoCm292cP/02sOAt7C2Fcok184dQ9X1mc
+YQgaE/og1Uj4CYzN6JLvg9KAxsuIeuBpRMRvyaObGkia06ahflh8ews0ydruVjwt
+INL1jEQQbaoac6qoRS2Yj1pkvKesNm0i6wM6ZYK/3S4yjSl4aXgQcPr9glW78Q7F
+7ck+099rndIRg6m6VQ9KRrmpSLeT1q+jIXDrUlwSd/KU9omndLva2ruhV55i9nId
+UfMuAVRJBP1l6ghxF+EKm5TIMONk9AJLxjK59kMObhIRxiWFn889gDr5pcFW2OiP
+J0s7+Mxx4lziVj6fqDHU5aWEts9t92ufgsitgEtQBZ5QwfRXTLKYGxY5te43JNQ0
+ZTzYtZC7nEaSqdxzaoPG81F8DNsPiPeB7kCIGETz0n2SXNS0NDdTayGaWIOlFWq8
+0wY2nX6G5Uk71LrCG1m6PbICXNqDRZH9iPg6jKEQdz7gTWRylrnvnfrXRVoNsxOp
+UadK6OgxeHETwaobNTsdOoacf5rKauS94E/VQMPVfeB6FhoQ84uAv9w5UUuho091
+jgihVVPBkDiJnFppLbdilOLszh4zyf028iK4/85hsTyTuqzLgtqvON8IGYIpB+Wd
+xsjpydfFjP5bqLWNnlC8+YL6d6P1i/8+BRZSPgOHd6kKqvwLlnmm9NbabG54xZjc
+L7R3JwKIPjrN32jcKIuo
+=do+p
 -----END PGP SIGNATURE-----
 
---uAKRQypu60I7Lcqm--
+--J2SCkAp4GZ/dPZZf--
