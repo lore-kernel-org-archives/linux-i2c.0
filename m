@@ -1,224 +1,255 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v3 1/5] i2c: designware: Refactoring of the i2c-designware core and platform module
-Date: Fri, 18 Nov 2016 11:19:30 +0000
-Message-ID: <263695b745c23f19bc83cbf1f18eca6b8c60cd4c.1479410047.git.lolivei@synopsys.com>
-References: <cover.1479410047.git.lolivei@synopsys.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1479410047.git.lolivei@synopsys.com>
-In-Reply-To: <cover.1479410047.git.lolivei@synopsys.com>
-References: <cover.1479410047.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+From: =?UTF-8?B?SGVucsO9IMOew7NyIEJhbGR1cnNzb24=?=
+        <henry.baldursson@gmail.com>
+Subject: Re: Sensor trouble on Lenovo Yoga 910
+Date: Fri, 18 Nov 2016 11:25:39 +0000
+Message-ID: <CABkmk0XCFLgcDYJvhNrNwv2vrNiMxmfTHSJ1GddjB1UjkjFTRw@mail.gmail.com>
+References: <CABkmk0WOV-Kc5BSE+ExVQr9oKWtZanF-Azj5+47+pNULLWF1Cw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f49.google.com ([209.85.214.49]:37025 "EHLO
+        mail-it0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753037AbcKRLZl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2016 06:25:41 -0500
+Received: by mail-it0-f49.google.com with SMTP id y23so25910458itc.0
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2016 03:25:41 -0800 (PST)
+In-Reply-To: <CABkmk0WOV-Kc5BSE+ExVQr9oKWtZanF-Azj5+47+pNULLWF1Cw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-- Factor out _master() parts of code to separate functions.
-- Standardize all code relatated to I2C master.
+I loaded the i2c-hid module with the debug parameter, which I only
+figured out after sending the initial email (duh):
 
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
----
-Changes V2->V3: (Andy Shevchenko)
-- indentation and style fix
-- nothing else was changed in this patch from v2 
+[16455.340845] i2c_hid i2c-SYNA7813:00: Fetching the HID descriptor
+[16455.340853] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D20 00
+[16455.341748] i2c_hid i2c-SYNA7813:00: HID Descriptor: 1e 00 00 01 e1
+01 21 00 24 00 24 00 25 00 17 00 22 00 23 00 cb 06 85 17 02 00 00 00
+00 00
+[16455.341931] i2c_hid i2c-SYNA7813:00: entering i2c_hid_parse
+[16455.341935] i2c_hid i2c-SYNA7813:00: i2c_hid_hwreset
+[16455.341937] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.341941] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.342115] i2c_hid i2c-SYNA7813:00: resetting...
+[16455.342118] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 00 0=
+1
+[16455.342311] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: waiting...
+[16455.343375] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: finished.
+[16455.343381] i2c_hid i2c-SYNA7813:00: asking HID report descriptor
+[16455.343385] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D21 00
+[16455.355087] i2c_hid i2c-SYNA7813:00: Report Descriptor: 05 0d 09 04
+a1 01 85 01 09 22 a1 02 09 42 15 00 25 01 75 01 95 01 81 02 95 07 81
+03 75 08 09 51 25 7f 95 01 81 02 05 01 55 0e 65 11 26 28 0c 35 00 46
+12 0c 75 10 95 01 09 30 81 02 26 e6 06 46
+[16455.356344] i2c_hid i2c-SYNA7813:00: i2c_hid_get_report
+[16455.356347] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 38 0=
+2 23 00
+[16455.356718] i2c_hid i2c-SYNA7813:00: i2c_hid_get_report
+[16455.356720] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 37 0=
+2 23 00
+[16455.363366] input: SYNA7813:00 06CB:1785 as
+/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-SYNA7813:00/001=
+8:06CB:1785.0004/input/input16
+[16455.363652] hid-multitouch 0018:06CB:1785.0004: input,hidraw0: I2C
+HID v1.00 Device [SYNA7813:00 06CB:1785] on i2c-SYNA7813:00
+[16455.363733] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.363738] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.368587] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.368592] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.390670] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.390675] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.415842] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.415850] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.447439] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.447445] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.471032] i2c_hid i2c-SYNA2B31:00: Fetching the HID descriptor
+[16455.471039] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D20 00
+[16455.471945] i2c_hid i2c-SYNA2B31:00: HID Descriptor: 1e 00 00 01 99
+02 21 00 24 00 40 00 25 00 17 00 22 00 23 00 cb 06 8c 7f 03 00 00 00
+00 00
+[16455.472146] i2c_hid i2c-SYNA2B31:00: entering i2c_hid_parse
+[16455.472150] i2c_hid i2c-SYNA2B31:00: i2c_hid_hwreset
+[16455.472153] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.472157] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.473792] i2c_hid i2c-SYNA2B31:00: input: 20 00 03 03 54 01 5f 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 e1 a4 01
+00
+[16455.474049] i2c_hid i2c-SYNA2B31:00: resetting...
+[16455.474056] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 00 0=
+1
+[16455.475716] i2c_hid i2c-SYNA2B31:00: input: 20 00 03 00 80 00 5c 01
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 6f 33 01
+00
+[16455.475962] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: waiting...
+[16455.477639] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: finished.
+[16455.477645] i2c_hid i2c-SYNA2B31:00: asking HID report descriptor
+[16455.477648] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D21 00
+[16455.488898] i2c_hid i2c-SYNA7813:00: i2c_hid_set_power
+[16455.488904] i2c_hid i2c-SYNA7813:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.494888] i2c_hid i2c-SYNA2B31:00: Report Descriptor: 05 01 09 02
+a1 01 85 02 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81
+02 95 06 81 01 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 c0 c0
+05 0d 09 05 a1 01 85 03 05 0d 09 22 a1 02
+[16455.496966] i2c_hid i2c-SYNA2B31:00: i2c_hid_get_report
+[16455.496971] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 38 0=
+2 23 00
+[16455.498592] i2c_hid i2c-SYNA2B31:00: i2c_hid_get_report
+[16455.498598] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 38 0=
+2 23 00
+[16455.498957] i2c_hid i2c-SYNA2B31:00: i2c_hid_get_report
+[16455.498962] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 37 0=
+2 23 00
+[16455.505779] input: SYNA2B31:00 06CB:7F8C Touchpad as
+/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-SYNA2B31:00/001=
+8:06CB:7F8C.0005/input/input18
+[16455.506207] hid-multitouch 0018:06CB:7F8C.0005: input,hidraw1: I2C
+HID v1.00 Mouse [SYNA2B31:00 06CB:7F8C] on i2c-SYNA2B31:00
+[16455.506218] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_or_send_report
+[16455.506223] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00
+34 03 23 00 04 00 04 03
+[16455.510689] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.510692] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.512663] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.512666] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.540884] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.540894] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.586584] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.586590] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.610960] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.610967] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 01 0=
+8
+[16455.617876] i2c_hid i2c-ITE8186:00: Fetching the HID descriptor
+[16455.617883] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D01 00
+[16455.619067] i2c_hid i2c-ITE8186:00: HID Descriptor: 1e 00 00 01 3c
+04 02 00 03 00 11 00 04 00 00 00 05 00 06 00 8d 04 86 81 18 10 00 00
+00 00
+[16455.619255] i2c_hid i2c-ITE8186:00: entering i2c_hid_parse
+[16455.619259] i2c_hid i2c-ITE8186:00: i2c_hid_hwreset
+[16455.619261] i2c_hid i2c-ITE8186:00: i2c_hid_set_power
+[16455.619265] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 00 08
+[16455.619504] i2c_hid i2c-ITE8186:00: resetting...
+[16455.619507] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 00 01
+[16455.621336] i2c_hid i2c-ITE8186:00: __i2c_hid_command: waiting...
+[16455.623987] i2c_hid i2c-ITE8186:00: __i2c_hid_command: finished.
+[16455.623992] i2c_hid i2c-ITE8186:00: asking HID report descriptor
+[16455.623995] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D02 00
+[16455.629566] i2c_hid i2c-SYNA2B31:00: i2c_hid_set_power
+[16455.629572] i2c_hid i2c-SYNA2B31:00: __i2c_hid_command: cmd=3D22 00 00 0=
+8
+[16455.652115] i2c_hid i2c-ITE8186:00: Report Descriptor: 06 83 ff 09
+80 a1 01 85 5a 09 01 15 00 26 ff 00 75 08 95 10 b1 00 c0 05 20 09 01
+a1 01 85 01 05 20 09 73 a1 00 05 20 0a 09 03 15 00 25 02 75 08 95 01
+a1 02 0a 30 08 0a 31 08 0a 32 08 b1 00 c0
+[16455.654650] i2c_hid i2c-ITE8186:00: i2c_hid_get_report
+[16455.654655] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 3f
+02 5a 06 00
+[16455.656684] i2c_hid i2c-ITE8186:00: report (len=3D19): 12 00 5a ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff 06
+[16455.656691] i2c_hid i2c-ITE8186:00: error in i2c_hid_init_report
+size:19 / ret_size:18
+[16455.656701] i2c_hid i2c-ITE8186:00: i2c_hid_get_report
+[16455.656705] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 31 02=
+ 06 00
+[16455.657850] i2c_hid i2c-ITE8186:00: report (len=3D21): 15 00 01 01 01
+05 02 7d 00 00 00 02 00 02 00 12 00 a0 0f 60 f0
+[16455.657859] i2c_hid i2c-ITE8186:00: i2c_hid_get_report
+[16455.657862] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 32 02=
+ 06 00
+[16455.659463] i2c_hid i2c-ITE8186:00: report (len=3D41): 29 00 02 01 01
+05 02 dc 05 00 00 c4 09 ff ff 00 00 54 00 01 00 64 00 05 00 64 00 e8
+03 79 00 5a 0c 91 00 88 13 ae 00 10 27
+[16455.659472] i2c_hid i2c-ITE8186:00: i2c_hid_get_report
+[16455.659475] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 33 02=
+ 06 00
+[16455.660812] i2c_hid i2c-ITE8186:00: report (len=3D35): 23 00 03 01 01
+06 02 50 00 00 00 0a 00 4c 00 65 00 6e 00 6f 00 76 00 6f 00 20 00 59
+00 6f 00 67 00 61 00
+[16455.662221] i2c_hid i2c-ITE8186:00: i2c_hid_set_power
+[16455.662225] i2c_hid i2c-ITE8186:00: __i2c_hid_command: cmd=3D05 00 01 08
 
- drivers/i2c/busses/i2c-designware-core.c    | 66 +++++++++++++++++++----------
- drivers/i2c/busses/i2c-designware-platdrv.c | 36 ++++++++++------
- 2 files changed, 66 insertions(+), 36 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 11e866d..22f79fa 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -87,13 +87,13 @@
- #define DW_IC_INTR_GEN_CALL	0x800
- 
- #define DW_IC_INTR_DEFAULT_MASK		(DW_IC_INTR_RX_FULL | \
--					 DW_IC_INTR_TX_EMPTY | \
- 					 DW_IC_INTR_TX_ABRT | \
- 					 DW_IC_INTR_STOP_DET)
--
-+#define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
-+					 DW_IC_INTR_TX_EMPTY)
- #define DW_IC_STATUS_ACTIVITY		0x1
- #define DW_IC_STATUS_TFE		BIT(2)
--#define DW_IC_STATUS_MST_ACTIVITY	BIT(5)
-+#define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
- 
- #define DW_IC_SDA_HOLD_RX_SHIFT		16
- #define DW_IC_SDA_HOLD_RX_MASK		GENMASK(23, DW_IC_SDA_HOLD_RX_SHIFT)
-@@ -204,6 +204,17 @@ static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- 	}
- }
- 
-+static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
-+{
-+	/* Configure Tx/Rx FIFO threshold levels */
-+	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
-+	dw_writel(dev, 0, DW_IC_RX_TL);
-+
-+	/* configure the i2c master */
-+	dw_writel(dev, dev->master_cfg, DW_IC_CON);
-+	dw_writel(dev, DW_IC_INTR_MASTER_MASK, DW_IC_INTR_MASK);
-+}
-+
- static u32
- i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- {
-@@ -320,10 +331,10 @@ static void i2c_dw_release_lock(struct dw_i2c_dev *dev)
- }
- 
- /**
-- * i2c_dw_init() - initialize the designware i2c master hardware
-+ * i2c_dw_init() - initialize the designware i2c hardware
-  * @dev: device private data
-  *
-- * This functions configures and enables the I2C master.
-+ * This functions configures and enables the I2C.
-  * This function is called during I2C init function, and in case of timeout at
-  * run time.
-  */
-@@ -442,12 +453,9 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 			"Hardware too old to adjust SDA hold time.\n");
- 	}
- 
--	/* Configure Tx/Rx FIFO threshold levels */
--	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
--	dw_writel(dev, 0, DW_IC_RX_TL);
--
--	/* configure the i2c master */
--	dw_writel(dev, dev->master_cfg , DW_IC_CON);
-+	if ((dev->master_cfg & DW_IC_CON_MASTER) &&
-+		(dev->master_cfg & DW_IC_CON_SLAVE_DISABLE))
-+		i2c_dw_configure_fifo_master(dev);
- 
- 	i2c_dw_release_lock(dev);
- 
-@@ -491,7 +499,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 		 */
- 		ic_status = dw_readl(dev, DW_IC_STATUS);
- 		if (!dev->dynamic_tar_update_enabled ||
--		    (ic_status & DW_IC_STATUS_MST_ACTIVITY) ||
-+		    (ic_status & DW_IC_STATUS_MASTER_ACTIVITY) ||
- 		    !(ic_status & DW_IC_STATUS_TFE)) {
- 			__i2c_dw_enable_and_wait(dev, false);
- 			enabled = false;
-@@ -531,7 +539,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 
- 	/* Clear and enable interrupts */
- 	dw_readl(dev, DW_IC_CLR_INTR);
--	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
-+	dw_writel(dev, DW_IC_INTR_MASTER_MASK, DW_IC_INTR_MASK);
- }
- 
- /*
-@@ -551,7 +559,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 	u8 *buf = dev->tx_buf;
- 	bool need_restart = false;
- 
--	intr_mask = DW_IC_INTR_DEFAULT_MASK;
-+	intr_mask = DW_IC_INTR_MASTER_MASK;
- 
- 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
- 		/*
-@@ -850,16 +858,9 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
-  * Interrupt service routine. This gets called whenever an I2C interrupt
-  * occurs.
-  */
--static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
-+static bool i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
- {
--	struct dw_i2c_dev *dev = dev_id;
--	u32 stat, enabled;
--
--	enabled = dw_readl(dev, DW_IC_ENABLE);
--	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
--	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__, enabled, stat);
--	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
--		return IRQ_NONE;
-+	u32 stat;
- 
- 	stat = i2c_dw_read_clear_intrbits(dev);
- 
-@@ -906,7 +907,26 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 		i2c_dw_disable_int(dev);
- 		dw_writel(dev, stat, DW_IC_INTR_MASK);
- 	}
-+	return true;
-+}
-+
-+static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
-+{
-+	struct dw_i2c_dev *dev = dev_id;
-+	u32 stat, enabled, mode;
-+
-+	enabled = dw_readl(dev, DW_IC_ENABLE);
-+	mode = dw_readl(dev, DW_IC_CON);
-+	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
-+
-+	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__, enabled, stat);
-+	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
-+		return IRQ_NONE;
-+
-+	if (i2c_dw_irq_handler_master(dev))
-+		return IRQ_HANDLED;
- 
-+	complete(&dev->cmd_complete);
- 	return IRQ_HANDLED;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0b42a12..f4e28ac 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -138,6 +138,28 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- }
- #endif
- 
-+static void i2c_dw_configure_master(struct platform_device *pdev)
-+{
-+	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-+
-+	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-+			  DW_IC_CON_RESTART_EN;
-+
-+	dev->functionality |= I2C_FUNC_10BIT_ADDR;
-+	dev_info(&pdev->dev, "I am registed as a I2C Master!\n");
-+
-+	switch (dev->clk_freq) {
-+	case 100000:
-+		dev->master_cfg |= DW_IC_CON_SPEED_STD;
-+		break;
-+	case 3400000:
-+		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
-+		break;
-+	default:
-+		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
-+	}
-+}
-+
- static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
- {
- 	if (IS_ERR(i_dev->clk))
-@@ -222,19 +244,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		I2C_FUNC_SMBUS_WORD_DATA |
- 		I2C_FUNC_SMBUS_I2C_BLOCK;
- 
--	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
--			  DW_IC_CON_RESTART_EN;
--
--	switch (dev->clk_freq) {
--	case 100000:
--		dev->master_cfg |= DW_IC_CON_SPEED_STD;
--		break;
--	case 3400000:
--		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
--		break;
--	default:
--		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
--	}
-+	i2c_dw_configure_master(pdev);
- 
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_plat_prepare_clk(dev, true)) {
--- 
-2.10.2
+On Fri, Nov 18, 2016 at 11:15 AM, Henr=C3=BD =C3=9E=C3=B3r Baldursson
+<henry.baldursson@gmail.com> wrote:
+> Hello
+>
+> I'm trying to get sensors working on my Lenovo Ideapad Yoga 910.
+>
+> I'm running kernel 4.8.8. I did try 4.9-rc5 thinking the ISH support
+> might help, but to no avail.
+>
+> Here's iio-sensor-proxy trying to read the sensors:
+>
+> ** (process:10981): DEBUG: Found als at
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
+> ** (process:10981): DEBUG: Found device
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
+> of type ambient light sensor at IIO Buffer Light sensor
+> ** (process:10981): DEBUG: Found accel_3d at
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
+> ** (process:10981): DEBUG: Found device
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
+> of type accelerometer at IIO Buffer accelerometer
+> ** (process:10981): DEBUG: Found associated trigger at
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/trigger1
+> ** (process:10981): DEBUG: Got type for in_accel_y: is signed: 1,
+> bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+> ** (process:10981): DEBUG: Got type for in_accel_x: is signed: 1,
+> bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+> ** (process:10981): DEBUG: Got type for in_accel_z: is signed: 1,
+> bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+> ** (process:10981): DEBUG: Built channel array for in_accel_x: index:
+> 0, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+> 0
+> ** (process:10981): DEBUG: Built channel array for in_accel_y: index:
+> 1, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+> 0
+> ** (process:10981): DEBUG: Built channel array for in_accel_z: index:
+> 2, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+> 0
+> ** (process:10981): DEBUG: Found associated trigger at
+> /sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:0=
+0/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/trigger0
+> ** (process:10981): DEBUG: Got type for in_intensity_both: is signed:
+> 1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0, be: 0
+> ** (process:10981): DEBUG: Built channel array for in_intensity_both:
+> index: 0, is signed: 1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0,
+> be: 0
+> ** (process:10981): DEBUG: Handling driver refcounting method
+> 'ClaimLight' for ambient light sensor device
+> ** (process:10981): DEBUG: Handling driver refcounting method
+> 'ClaimAccelerometer' for accelerometer device
+> ** (process:10981): DEBUG: No new data available on 'iio:device0'
+> ** (process:10981): DEBUG: No new data available on 'iio:device1'
+> ** (process:10981): DEBUG: No new data available on 'iio:device0'
+> ** (process:10981): DEBUG: No new data available on 'iio:device1'
+>
+> It basically reads the accelerometer orientation as 'normal' and never
+> updates it, and the light sensor at 0.0 lux and never updates.
+>
+> I do get this error during boot:
+> [    2.321857] i2c_hid i2c-ITE8186:00: error in i2c_hid_init_report
+> size:19 / ret_size:18
+>
+> It would be nice to get them working, is there anything I can do? I
+> have no experience debugging hardware interfaces like these myself,
+> but I'm usually pretty handy
+>
+>
+> - Henry.
