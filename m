@@ -1,79 +1,139 @@
-From: tnhuynh@apm.com
-Subject: [v1] i2c: mux: pca954x : Supports ACPI
-Date: Fri, 18 Nov 2016 22:01:09 +0700
-Message-ID: <1479481269-16363-1-git-send-email-tnhuynh@apm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [RFC PATCH v2 1/7] dt-bindings: document devicetree bindings for
+ mux-gpio
+Date: Fri, 18 Nov 2016 09:35:28 -0600
+Message-ID: <20161118153528.tl24bp5xjwpjppk6@rob-hp-laptop>
+References: <1479419289-17553-1-git-send-email-peda@axentia.se>
+ <1479419289-17553-2-git-send-email-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:36131 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751180AbcKRPfa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2016 10:35:30 -0500
+Content-Disposition: inline
+In-Reply-To: <1479419289-17553-2-git-send-email-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org
 
-From: Tin Huynh <tnhuynh@apm.com>
+On Thu, Nov 17, 2016 at 10:48:03PM +0100, Peter Rosin wrote:
+> ---
+>  .../devicetree/bindings/misc/mux-gpio.txt          | 79 ++++++++++++++++++++++
+>  1 file changed, 79 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/misc/mux-gpio.txt b/Documentation/devicetree/bindings/misc/mux-gpio.txt
+> new file mode 100644
+> index 000000000000..73699a37824f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/misc/mux-gpio.txt
+> @@ -0,0 +1,79 @@
+> +GPIO-based multiplexer controller bindings
+> +
+> +Define what GPIO pins are used to control a multiplexer. Or several
+> +multiplexers, if the same pins control more than one multiplexer.
 
-This patch enable ACPI support for mux-pca954x driver.
+I think this makes sense in your case, but I think it is too complicated 
+for a non-shared case. Perhaps mux-gpios should be used directly (i.e. 
+in the adc-mux node) and control-muxes only used for the shared case.
 
-Signed-off-by: Tin Huynh <tnhuynh@apm.com>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c |   25 ++++++++++++++++++++++++-
- 1 files changed, 24 insertions(+), 1 deletions(-)
+Part of me feels like you are working around in DT the GPIO subsystem 
+limitation that it can't share GPIO lines. Either this could be fixed 
+in some way in the GPIO subsystem, or the mux subsys could deal with it. 
+You just have to look up if you already have a mux registered for the 
+same GPIOs. Of course, that may make the mux subsys pretty much GPIO 
+only, but I'm having a hard time thinking how you would have shared 
+muxes that are not GPIO controlled. Any other control would be 
+integrated into the mux itself.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 1091346..e7ef93b 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -42,6 +42,7 @@
- #include <linux/i2c/pca954x.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/acpi.h>
- #include <linux/of_device.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
-@@ -120,6 +121,19 @@ struct pca954x {
- };
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
- 
-+static const struct acpi_device_id pca954x_acpi_ids[] = {
-+	{ "PCA9540", pca_9540 },
-+	{ "PCA9542", pca_9540 },
-+	{ "PCA9543", pca_9543 },
-+	{ "PCA9544", pca_9544 },
-+	{ "PCA9545", pca_9545 },
-+	{ "PCA9546", pca_9545 },
-+	{ "PCA9547", pca_9547 },
-+	{ "PCA9548", pca_9548 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, pca954x_acpi_ids);
-+
- #ifdef CONFIG_OF
- static const struct of_device_id pca954x_of_match[] = {
- 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
-@@ -245,8 +259,16 @@ static int pca954x_probe(struct i2c_client *client,
- 	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
- 	if (match)
- 		data->chip = of_device_get_match_data(&client->dev);
--	else
-+	else if (id) {
- 		data->chip = &chips[id->driver_data];
-+	} else {
-+		const struct acpi_device_id *id;
-+
-+		id = acpi_match_device(pca954x_acpi_ids, &client->dev);
-+		if (!id)
-+			return -ENODEV;
-+		data->chip = &chips[id->driver_data];
-+	}
- 
- 	data->last_chan = 0;		   /* force the first selection */
- 
-@@ -321,6 +343,7 @@ static int pca954x_resume(struct device *dev)
- 		.name	= "pca954x",
- 		.pm	= &pca954x_pm,
- 		.of_match_table = of_match_ptr(pca954x_of_match),
-+		.acpi_match_table = ACPI_PTR(pca954x_acpi_ids),
- 	},
- 	.probe		= pca954x_probe,
- 	.remove		= pca954x_remove,
--- 
-1.7.1
+> +
+> +Required properties:
+> +- compatible : "mux-gpio"
+> +- mux-gpios : list of gpios used to control the multiplexer, least
+> +	      significant bit first.
+> +
+> +Optional properties:
+> +- idle-state : if present, the state the mux will have when idle.
+
+Needs some detail on what the value is. One bit per gpio? One cell per 
+gpio?
+
+> +
+> +Example:
+> +	control_mux: control-adc-mux {
+> +		compatible = "mux-gpio";
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "iio-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		control-muxes = <&control_mux>;
+
+This is a common name? It should be in a common mux binding doc.
+
+> +		control-mux-names = "mux";
+
+I think this can be dropped at least until you have more than 1.
+
+> +
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		sync-1@0 {
+> +			reg = <0>;
+> +		};
+> +
+> +		in@1 {
+> +			reg = <1>;
+> +		};
+> +
+> +		out@2 {
+> +			reg = <2>;
+> +		};
+> +
+> +		sync-2@3 {
+> +			reg = <3>;
+> +		};
+> +	};
+> +
+> +	i2c-mux {
+> +		compatible = "i2c-mux-simple,mux-locked";
+> +		i2c-parent = <&i2c1>;
+> +
+> +		control-muxes = <&control_mux>;
+> +		control-mux-names = "mux";
+> +
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		i2c@0 {
+> +			reg = <0>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			ssd1307: oled@3c {
+> +				/* ... */
+> +			};
+> +		};
+> +
+> +		i2c@3 {
+> +			reg = <3>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			pca9555: pca9555@20 {
+> +				/* ... */
+> +			};
+> +		};
+> +	};
+> -- 
+> 2.1.4
+> 
