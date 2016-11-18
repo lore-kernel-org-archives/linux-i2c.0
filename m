@@ -1,58 +1,83 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: Kernel Oops while loading I2C SSDT overlay with Designware I2C
- adapter
-Date: Fri, 18 Nov 2016 11:38:40 +0200
-Message-ID: <20161118093840.GX1446@lahna.fi.intel.com>
-References: <2A172409E576EA4B8BB1D4D44FAD19390FFAF0A7@ORD2MBX05D.mex05.mlsrvr.com>
- <6d74862a-8920-f09e-6aac-d9a24614a3a3@linux.intel.com>
+From: =?UTF-8?B?SGVucsO9IMOew7NyIEJhbGR1cnNzb24=?=
+        <henry.baldursson@gmail.com>
+Subject: Sensor trouble on Lenovo Yoga 910
+Date: Fri, 18 Nov 2016 11:15:41 +0000
+Message-ID: <CABkmk0WOV-Kc5BSE+ExVQr9oKWtZanF-Azj5+47+pNULLWF1Cw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:38275 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752720AbcKRJip (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Nov 2016 04:38:45 -0500
-Content-Disposition: inline
-In-Reply-To: <6d74862a-8920-f09e-6aac-d9a24614a3a3@linux.intel.com>
+Received: from mail-it0-f43.google.com ([209.85.214.43]:35390 "EHLO
+        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752774AbcKRLPn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2016 06:15:43 -0500
+Received: by mail-it0-f43.google.com with SMTP id c20so21705609itb.0
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2016 03:15:42 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: David Scully <dscully@sbimagingsystems.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
 
-On Fri, Nov 18, 2016 at 11:20:36AM +0200, Jarkko Nikula wrote:
-> Hi
-> 
-> On 16.11.2016 00:01, David Scully wrote:
-> > I have written an overlay based on a mix of the DSDT for Lenovo 100s and the example in the ssdt-overlay documentation which binds the audio codec to an i2c interface using  the Synopsys Designware I2C adapter. I have attempted to load the driver via the EFI method as well as the configfs method in the documentation, but both cause an immediate kernel oops. The overlay does not cause an oops if I target bus not controlled by the DesignWare adapter.
-> > 
-> ...
-> > SSDT Overlay: https://gist.github.com/anonymous/eddfbb85aebcda2d547ee61873fa7117
-> 
-> I didn't point anything obviously wrong in your SSDT but I Cc'ed also Mika
-> if he notices something.
+Hello
 
-It should not have _ADR field but that is a separate thing.
+I'm trying to get sensors working on my Lenovo Ideapad Yoga 910.
 
-> I tested the configfs method with ADXL345 on Intel Joule board which is also
-> using Designware I2C adapter and on it I was able dynamically add the chip.
-> I tried both v4.9.0-rc5 and v4.8.3.
-> 
-> > If I'm interpreting the disassembly correctly, I believe that the problem is that the aic31xx_i2c_probe's i2c_client argument is null for the i2c_adapter pointer.
-> > 
-> One way to debug this is to build tlv320aic31xx into the kernel with
-> CONFIG_DEBUG_INFO=y and use "addr2line -e vmlinux [address]" to see the
-> source line where it oopsed. I often also add debug prints around to see
-> pointer values etc.
-> 
+I'm running kernel 4.8.8. I did try 4.9-rc5 thinking the ISH support
+might help, but to no avail.
 
-If I2C device is enumerated by ACPI the i2c_device_id pointer passed to
-probe function is NULL. You need to call acpi_match_device() and friends
-to find out the matching entry.
+Here's iio-sensor-proxy trying to read the sensors:
 
-BTW, as an alternative you can stick the SSDT with initrd like we do
-here:
+** (process:10981): DEBUG: Found als at
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
+** (process:10981): DEBUG: Found device
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
+of type ambient light sensor at IIO Buffer Light sensor
+** (process:10981): DEBUG: Found accel_3d at
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
+** (process:10981): DEBUG: Found device
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
+of type accelerometer at IIO Buffer accelerometer
+** (process:10981): DEBUG: Found associated trigger at
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/trigger1
+** (process:10981): DEBUG: Got type for in_accel_y: is signed: 1,
+bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+** (process:10981): DEBUG: Got type for in_accel_x: is signed: 1,
+bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+** (process:10981): DEBUG: Got type for in_accel_z: is signed: 1,
+bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
+** (process:10981): DEBUG: Built channel array for in_accel_x: index:
+0, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+0
+** (process:10981): DEBUG: Built channel array for in_accel_y: index:
+1, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+0
+** (process:10981): DEBUG: Built channel array for in_accel_z: index:
+2, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
+0
+** (process:10981): DEBUG: Found associated trigger at
+/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/trigger0
+** (process:10981): DEBUG: Got type for in_intensity_both: is signed:
+1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0, be: 0
+** (process:10981): DEBUG: Built channel array for in_intensity_both:
+index: 0, is signed: 1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0,
+be: 0
+** (process:10981): DEBUG: Handling driver refcounting method
+'ClaimLight' for ambient light sensor device
+** (process:10981): DEBUG: Handling driver refcounting method
+'ClaimAccelerometer' for accelerometer device
+** (process:10981): DEBUG: No new data available on 'iio:device0'
+** (process:10981): DEBUG: No new data available on 'iio:device1'
+** (process:10981): DEBUG: No new data available on 'iio:device0'
+** (process:10981): DEBUG: No new data available on 'iio:device1'
 
-https://github.com/westeri/meta-acpi
+It basically reads the accelerometer orientation as 'normal' and never
+updates it, and the light sensor at 0.0 lux and never updates.
 
-It includes ASL samples for Joule and the machinery to generate initrd
-automatically.
+I do get this error during boot:
+[    2.321857] i2c_hid i2c-ITE8186:00: error in i2c_hid_init_report
+size:19 / ret_size:18
+
+It would be nice to get them working, is there anything I can do? I
+have no experience debugging hardware interfaces like these myself,
+but I'm usually pretty handy
+
+
+- Henry.
