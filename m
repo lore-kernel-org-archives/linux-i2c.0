@@ -1,61 +1,105 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [-next] i2c: digicolor: use clk_disable_unprepare instead of
- clk_unprepare
-Date: Fri, 18 Nov 2016 01:48:47 +0100
-Message-ID: <20161118004847.GA9905@katana>
-References: <1477758677-7831-1-git-send-email-weiyj.lk@gmail.com>
+Subject: Re: [2/2] i2c: constify i2c_adapter_quirks structures
+Date: Fri, 18 Nov 2016 02:00:08 +0100
+Message-ID: <20161118010008.GA24025@katana>
+References: <1476552722-12352-3-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:39244 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753040AbcKRAsu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Nov 2016 19:48:50 -0500
+        protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1477758677-7831-1-git-send-email-weiyj.lk@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1476552722-12352-3-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Julia Lawall <julia.lawall@lip6.fr>
+Cc: Wolfram Sang <wsa@the-dreams.de>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Baruch Siach <baruch@tkos.co.il>, Wei Yongjun <weiyongjun1@huawei.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
 
---BOKacYhQ+x31HxR3
+--uAKRQypu60I7Lcqm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 29, 2016 at 04:31:17PM +0000, Wei Yongjun wrote:
-> From: Wei Yongjun <weiyongjun1@huawei.com>
+On Sat, Oct 15, 2016 at 07:32:02PM +0200, Julia Lawall wrote:
+> Check for i2c_adapter_quirks structures that are only stored in the
+> quirks field of an i2c_adapter structure.  This field is declared
+> const, so i2c_adapter_quirks structures that have this property can be
+> declared as const also.
 >=20
-> since clk_prepare_enable() is used to get i2c->clk, we should
-> use clk_disable_unprepare() to release it for the error path.
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
 >=20
-> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-> Acked-by: Baruch Siach <baruch@tkos.co.il>
+> // <smpl>
+> @r disable optional_qualifier@
+> identifier i;
+> position p;
+> @@
+> static struct i2c_adapter_quirks i@p =3D { ... };
+>=20
+> @ok@
+> identifier r.i;
+> struct i2c_adapter e;
+> position p;
+> @@
+> e.quirks =3D &i@p;
+>=20
+> @bad@
+> position p !=3D {r.p,ok.p};
+> identifier r.i;
+> struct i2c_adapter_quirks e;
+> @@
+> e@i@p
+>=20
+> @depends on !bad disable optional_qualifier@
+> identifier r.i;
+> @@
+> static
+> +const
+>  struct i2c_adapter_quirks i =3D { ... };
+> // </smpl>
+>=20
+> The effect on the layout of the .o files is shown by the following
+> output of the size command, first before then after the
+> transformation:
+>=20
+>    text    data     bss     dec     hex filename
+>    3651     472       8    4131    1023 drivers/i2c/busses/i2c-axxia.o
+>    3683     440       8    4131    1023 drivers/i2c/busses/i2c-axxia.o
+>=20
+>    text    data     bss     dec     hex filename
+>    1069     216       0    1285     505 drivers/i2c/busses/i2c-dln2.o
+>    1101     192       0    1293     50d drivers/i2c/busses/i2c-dln2.o
+>=20
+>    text    data     bss     dec     hex filename
+>    3211     484       1    3696     e70 drivers/i2c/busses/i2c-viperboard=
+=2Eo
+>    3243     460       1    3704     e78 drivers/i2c/busses/i2c-viperboard=
+=2Eo
+>=20
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Applied to for-current, thanks!
+Squashed with the other similar patch and applied to for-next, thanks!
 
 
---BOKacYhQ+x31HxR3
+--uAKRQypu60I7Lcqm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLk/vAAoJEBQN5MwUoCm2vh0P/1hsIog2TRlipLDc/vpZAit9
-xlNxY28aHZUpEOufD6FU4ne6bY7Kx8mU7z4SbgJ35mwlpk1fAY8/EABoCm6fWIEF
-2ABz/mfuVzZM/zewDoRBJNOt57woH0OBMcep5MBjUwG3KA+OpXGI9n4qvNdV7C4k
-5r4tMyML5eP7Y1wzZIhOQVCfuGMUXIFM2kzpsVdor4ncQOcTJ/Tytbcd3yAtp0d1
-AujG29mmSz2izzuY8iCWtRg4RBZ4fhPuJCKurN/9JSmZoRq4t97MBRRQVLtjmxoA
-oyQT6xpHy9hE8j4+IbaoGfg+7VYIIJqDxp1Y+cXcibp9b64Japo90dWB56DHZ/40
-vgFDeBTPrbKq1OHHFFkVckAk+I/gD1gDYmkAsqBJSMMUN9UZ4JUZZ/0Be8NVa2Wl
-Z/NiAnyH/zsw3dc0Pl9wAkdkXXge6+Fc9p5P8OWR6NPcieujYVWDwyDedY28qpZz
-M5679tZ86Gr6ms/VheF++suHQZJojp7q/36mg17MH3TPsiiYXHHJkiNj91Zr/vvm
-hmT/h1wlyr89QCP5ao2tMiu8M6m391VepN+zqlcr3E+IJ3HBw6+9npDl9jLaAgeB
-z6p8Od5TEg5MOi/ASOgmE2nuXjCjphuSlz26fjVaGAF7oX02QKUWTx/4a+c/6W44
-wzF/hFMZMRWPgptQM/8J
-=iFVt
+iQIcBAEBAgAGBQJYLlKYAAoJEBQN5MwUoCm22BEP/1ttdvtqMLobFL5slwsq3d2S
+V/D+79qsGfQrBmcBfJikAJq7kHQeYyBp8OAdO2Mp8TPN8T0vu7x4n44+/jmBLTQt
+jXvbYsvl8pFnyJzeyhl+CMR/7MhZoIHH39Ec6j7N5YkCB0sdH7nIe8OKJvzLx4g6
+oDZOCeJ60JoHwJOr7NYqpDrpWj7iUZe3iN5aFGRs/Aj5M8Gr8EQ6oiWiSnJ48q9o
+jqdm2rWzNXXZ0tjVj9pQD7/UAhg3OFfpoRA2XohwhBM+9qV4evVOMJgf5gXE1toG
+7TWMh8r8yIZyElT+1zI3ZQqKgsTfiu/ZcPHIxQJGGJ3uK3VtpxKTZTLvmUHndnbV
+CMUOrgmqjFTDTdETL9757m6XbXgThyEkmBphSZwRR+2JrekvSjQpc5xKHquob2nu
++Tist0L5ZjzXTsEpfg3iFCv0dH10PjGNm20Wn2VNRAmEjU1Q9z+vUYcgXKFCMcv2
+Z/6nvsgLLvW2rDbwxFSJOTs4hAwyznx7/UGfDskodm8AQ9UtBaksYwH9NLZ1D4PF
+bT6mh+HJJ3XCOEwJ3ZlQsLMOKFpLqMrGqQwi5Jkv9IVC039wTQYjUXohmMTVGTut
+KNVgORXNe/8Xh1wWMBHYaxFcuFwAQbvhaJoz48+hPm+OsEHJV4vhJEk1h3qrSuXc
+9kyTTPYmxJFiY/1XIulV
+=qoJv
 -----END PGP SIGNATURE-----
 
---BOKacYhQ+x31HxR3--
+--uAKRQypu60I7Lcqm--
