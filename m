@@ -1,83 +1,50 @@
-From: =?UTF-8?B?SGVucsO9IMOew7NyIEJhbGR1cnNzb24=?=
-        <henry.baldursson@gmail.com>
-Subject: Sensor trouble on Lenovo Yoga 910
-Date: Fri, 18 Nov 2016 11:15:41 +0000
-Message-ID: <CABkmk0WOV-Kc5BSE+ExVQr9oKWtZanF-Azj5+47+pNULLWF1Cw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v3 0/5] i2c: designware: Add slave support
+Date: Fri, 18 Nov 2016 11:19:29 +0000
+Message-ID: <cover.1479410047.git.lolivei@synopsys.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f43.google.com ([209.85.214.43]:35390 "EHLO
-        mail-it0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752774AbcKRLPn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2016 06:15:43 -0500
-Received: by mail-it0-f43.google.com with SMTP id c20so21705609itb.0
-        for <linux-i2c@vger.kernel.org>; Fri, 18 Nov 2016 03:15:42 -0800 (PST)
+Received: from us01smtprelay-2.synopsys.com ([198.182.60.111]:33409 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753175AbcKRLUq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Nov 2016 06:20:46 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-Hello
+The purpose of this patch is to enable Linux to be a I2C slave by enabling the
+slave functionality in the designware I2C controller. The patch refactors the
+original i2c-designware-core and extracts all master functions to a
+i2c-designware-master source file as suggested by Andy Shevchenko. It also 
+creates a i2c-designware-slave source file and keeps the common functions in the
+i2c-designware-src source file. For that changes also had to be made in the 
+Makefile and Kconfig.
+The driver instantiates in slave or master mode by checking the compatible string
+of the device tree (see devicetree/bindings/i2c/i2c-designware.txt). ACPI is not
+supported.
+The functionality was tested using the hardware independent software backend 
+slave-eeprom driver.
 
-I'm trying to get sensors working on my Lenovo Ideapad Yoga 910.
+Luis Oliveira (5):
+  i2c: designware: Refactoring of the i2c-designware core and platform
+    module
+  i2c: designware: Master mode as separated driver
+  i2c: designware: Add slave definitions
+  i2c: designware: Add slave mode as separated driver
+  i2c: designware: Cleaning and commentary fixes
 
-I'm running kernel 4.8.8. I did try 4.9-rc5 thinking the ISH support
-might help, but to no avail.
+ .../devicetree/bindings/i2c/i2c-designware.txt     |   4 +-
+ drivers/i2c/busses/Kconfig                         |   1 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-designware-core.h           | 156 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 391 ++----------------
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 103 ++++-
+ drivers/i2c/busses/i2c-designware-slave.c          | 445 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-src.c            | 258 ++++++++++++
+ 8 files changed, 983 insertions(+), 376 deletions(-)
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (64%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-src.c
 
-Here's iio-sensor-proxy trying to read the sensors:
-
-** (process:10981): DEBUG: Found als at
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
-** (process:10981): DEBUG: Found device
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/iio:device0
-of type ambient light sensor at IIO Buffer Light sensor
-** (process:10981): DEBUG: Found accel_3d at
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
-** (process:10981): DEBUG: Found device
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/iio:device1
-of type accelerometer at IIO Buffer accelerometer
-** (process:10981): DEBUG: Found associated trigger at
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200073.2.auto/trigger1
-** (process:10981): DEBUG: Got type for in_accel_y: is signed: 1,
-bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
-** (process:10981): DEBUG: Got type for in_accel_x: is signed: 1,
-bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
-** (process:10981): DEBUG: Got type for in_accel_z: is signed: 1,
-bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be: 0
-** (process:10981): DEBUG: Built channel array for in_accel_x: index:
-0, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
-0
-** (process:10981): DEBUG: Built channel array for in_accel_y: index:
-1, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
-0
-** (process:10981): DEBUG: Built channel array for in_accel_z: index:
-2, is signed: 1, bytes: 4, bits_used: 16, shift: 0, mask: 0x65535, be:
-0
-** (process:10981): DEBUG: Found associated trigger at
-/sys/devices/pci0000:00/0000:00:15.3/i2c_designware.2/i2c-8/i2c-ITE8186:00/0018:048D:8186.0003/HID-SENSOR-200041.3.auto/trigger0
-** (process:10981): DEBUG: Got type for in_intensity_both: is signed:
-1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0, be: 0
-** (process:10981): DEBUG: Built channel array for in_intensity_both:
-index: 0, is signed: 1, bytes: 4, bits_used: 32, shift: 0, mask: 0x0,
-be: 0
-** (process:10981): DEBUG: Handling driver refcounting method
-'ClaimLight' for ambient light sensor device
-** (process:10981): DEBUG: Handling driver refcounting method
-'ClaimAccelerometer' for accelerometer device
-** (process:10981): DEBUG: No new data available on 'iio:device0'
-** (process:10981): DEBUG: No new data available on 'iio:device1'
-** (process:10981): DEBUG: No new data available on 'iio:device0'
-** (process:10981): DEBUG: No new data available on 'iio:device1'
-
-It basically reads the accelerometer orientation as 'normal' and never
-updates it, and the light sensor at 0.0 lux and never updates.
-
-I do get this error during boot:
-[    2.321857] i2c_hid i2c-ITE8186:00: error in i2c_hid_init_report
-size:19 / ret_size:18
-
-It would be nice to get them working, is there anything I can do? I
-have no experience debugging hardware interfaces like these myself,
-but I'm usually pretty handy
-
-
-- Henry.
+-- 
+2.10.2
