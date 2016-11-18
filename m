@@ -1,60 +1,65 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [v4] i2c: designware: Implement support for SMBus block read and
- write
-Date: Fri, 18 Nov 2016 02:07:12 +0100
-Message-ID: <20161118010712.GA29479@katana>
-References: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
+Subject: Re: i2c: designware: Allow reduce bus speed by "clock-frequency"
+ property
+Date: Fri, 18 Nov 2016 02:08:58 +0100
+Message-ID: <20161118010858.GA31575@katana>
+References: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:48990 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751088AbcKRBJB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Nov 2016 20:09:01 -0500
 Content-Disposition: inline
-In-Reply-To: <1478746593-10905-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: tnhuynh@apm.com
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+In-Reply-To: <20161110113720.16464-1-jarkko.nikula@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
---J2SCkAp4GZ/dPZZf
+--azLHFNyN32YCQGCU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 10, 2016 at 09:56:33AM +0700, tnhuynh@apm.com wrote:
-> From: Tin Huynh <tnhuynh@apm.com>
+On Thu, Nov 10, 2016 at 01:37:20PM +0200, Jarkko Nikula wrote:
+> Allow more flexibility to bus speed selection. Now if there are I2C
+> slave connections defined in ACPI the speed of slowest device on the bus
+> will define the bus speed. However if also "clock-frequency" device
+> property is defined we should use the slowest of these two.
 >=20
-> Free and Open IPMI use SMBUS BLOCK Read/Write to support SSIF protocol.
-> However, I2C Designware Core Driver doesn't handle the case at the moment.
-> The below patch supports this feature.
+> This is targeted to maker boards where developer may want to connect
+> slower I2C slave devices to the bus than defined in existing ACPI I2C
+> slave connections.
 >=20
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Applied to for-next, thanks!
 
 
---J2SCkAp4GZ/dPZZf
+--azLHFNyN32YCQGCU
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYLlQ/AAoJEBQN5MwUoCm292cP/02sOAt7C2Fcok184dQ9X1mc
-YQgaE/og1Uj4CYzN6JLvg9KAxsuIeuBpRMRvyaObGkia06ahflh8ews0ydruVjwt
-INL1jEQQbaoac6qoRS2Yj1pkvKesNm0i6wM6ZYK/3S4yjSl4aXgQcPr9glW78Q7F
-7ck+099rndIRg6m6VQ9KRrmpSLeT1q+jIXDrUlwSd/KU9omndLva2ruhV55i9nId
-UfMuAVRJBP1l6ghxF+EKm5TIMONk9AJLxjK59kMObhIRxiWFn889gDr5pcFW2OiP
-J0s7+Mxx4lziVj6fqDHU5aWEts9t92ufgsitgEtQBZ5QwfRXTLKYGxY5te43JNQ0
-ZTzYtZC7nEaSqdxzaoPG81F8DNsPiPeB7kCIGETz0n2SXNS0NDdTayGaWIOlFWq8
-0wY2nX6G5Uk71LrCG1m6PbICXNqDRZH9iPg6jKEQdz7gTWRylrnvnfrXRVoNsxOp
-UadK6OgxeHETwaobNTsdOoacf5rKauS94E/VQMPVfeB6FhoQ84uAv9w5UUuho091
-jgihVVPBkDiJnFppLbdilOLszh4zyf028iK4/85hsTyTuqzLgtqvON8IGYIpB+Wd
-xsjpydfFjP5bqLWNnlC8+YL6d6P1i/8+BRZSPgOHd6kKqvwLlnmm9NbabG54xZjc
-L7R3JwKIPjrN32jcKIuo
-=do+p
+iQIcBAEBAgAGBQJYLlSqAAoJEBQN5MwUoCm2cgcP/iwaw0QkTUNCboQZ7cO/wGgT
+W47+AKhPvsntIKBXYDOOhnCvfAEBxGssGe2RlJIHsJBzgdOcpdOkZU1Lr1IukwEw
+zC7Zlmp/Zjb6d/368Zw4PAp8pwKqgW4EC8vUelHKmQf6Tz8p7XPjIRLjv9e5gOm/
+VevOxrL4+uux/LM9ancGbVDm7l1LkzQkPYTtOUPUE1nlncodHtz2ghZVaH+kYznv
+xzNbWYTGfFcY4YCaclFD68td8qXpCF4gJ9Ym/ZDLdQba2re36GXrmYqt51Di4V5X
+JgCSA53VOL6soUOhb6eTOAWu9+wWREha/fRPmHXjLwy/2TL0dHuc5LQh15UfN7Jt
+x5K1ZikNdNAts91sQwwwg1pzR8FFDI0nB4+kCZB22Fbh/3Dc1AetVWyVIw5s8bLJ
+3/VWAFu51uBxmuKFZNYQz2NcVSDvO8AmGqQYgwC87lA42YoCM/4J7PtIwf91Tjir
+F7t0tAF4XJ48XQRVGLoJlUaUjtulGvYBENyXAtCmCJK/QqqsnC8qwmpjOTrR04oj
+fA0vLU1t23CEqWRf58X86ggZEjby+YYjY81A1NpxaW1uBPO5lFfi43PuqimwqlX3
+MD94htq1H2XUh+FWStEDZ5anGQdLC445Kh02u56cLrMsK91tvoAnyHlZV/4/0CHf
+I05LBmapHmc78t8CJ4p1
+=O7+6
 -----END PGP SIGNATURE-----
 
---J2SCkAp4GZ/dPZZf--
+--azLHFNyN32YCQGCU--
