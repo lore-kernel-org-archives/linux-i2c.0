@@ -1,68 +1,74 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [PATCH] i2c: i2c-mux-pca954x: fix deselect enabling for
- device-tree
-Date: Sat, 19 Nov 2016 21:49:58 +0100
-Message-ID: <20161119204958.GA2856@katana>
-References: <1479548918-21006-1-git-send-email-peda@axentia.se>
+Subject: Re: [patch v8 1/1] i2c: add master driver for mellanox systems
+Date: Sat, 19 Nov 2016 22:04:44 +0100
+Message-ID: <20161119210444.GB2856@katana>
+References: <1479455458-157627-1-git-send-email-vadimp@mellanox.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:52872 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752881AbcKSUuB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 19 Nov 2016 15:50:01 -0500
+        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1479548918-21006-1-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1479455458-157627-1-git-send-email-vadimp@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: vadimp@mellanox.com
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Alex Hemme <ahemme@cisco.com>, Wolfram Sang <wsa@the-dreams.de>, MakeB <mabnhdev@gmail.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org, Ziyang Wu <ziywu@cisco.com>
 
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 19, 2016 at 10:48:38AM +0100, Peter Rosin wrote:
-> From: Alex Hemme <ahemme@cisco.com>
->=20
-> Deselect functionality can be ignored for device-trees with
-> "i2c-mux-idle-disconnect" entries if no platform_data is available.
-> By enabling the deselect functionality outside the platform_data
-> block the logic works as it did in previous kernels.
->=20
-> Fixes: 7fcac9807175 ("i2c: i2c-mux-pca954x: convert to use an explicit i2=
-c mux core")
-> Cc: <stable@vger.kernel.org> # v4.7+
-> Signed-off-by: Alex Hemme <ahemme@cisco.com>
-> Signed-off-by: Ziyang Wu <ziywu@cisco.com>
-> [touched up a few minor issues /peda]
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+Hi,
 
-Applied to for-current, thanks!
+looks mostly good. I just found this comment which needs clarification:
+
+> +	/*
+> +	 * All upper layers currently are never use transfer with more than
+> +	 * 2 messages.
+
+Have you really checked ALL of the upper layers? And even if so, there
+is the dev-interface to userspace which allows for arbitrary I2C
+transfers using I2C_RDWR.
+
+>  Actually, it's also not so relevant in Mellanox systems
+> +	 * because of HW limitation.
+
+What kind of HW limitation do you mean here? Can Mellanox send more than
+two messages?
+
+> Max size of transfer is o more than 20B
+
+"is o more"? Typo?
+
+> +	 * in current x86 LPCI2C bridge.
+
+What does that mean in result?
+
+Regards,
+
+   Wolfram
 
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYMLr2AAoJEBQN5MwUoCm2A6gP/3mDY0IT6gwqbYFCUOK4twSk
-0uVrmn3ZdqtY2QUUukk4kl0GjI7a+IthzaUp/S39OqC8cdLP9dON0NebLXdZZQ+P
-6ToorI7LVF1RQAqDFQy3+NfO2sUYgCs4f6G1pn707RgRYjrUTt6wu8pvlpJe86r/
-uDYnKKtV3IS8XZCElZMTBF4lzAQNwH+KzsOB2Ya2O/A8+Jx5SDqaFcP8M38AaceA
-IEYskrlG4rWOCC8s3KGcZKOZtUUkTY3pysl8K/JFH+9zdXQ+GwFY1/jiyH9yqybB
-XN/BK4vG+x41btQY0Wxfq/oHXPFVMwoy2TEu0uZGwA7RZAYW28MyVOr6WTi/07dS
-ysnCqG7NiIcXDeOWKp3r1glaB4lI27PH/ddo6LNKFpUXtInGhFK28Yr25DFnipfP
-36eYlCWEvyogZnycUjf6AJXNicmKEn2K0hEE9ybwgV+XbFaHUbTWpcm1eRu0UZ1u
-RmgYVRtVavnxUUo+20i7wWqqWJwGwZiHMzu0oJRv61vNyQS0jNVNC7mqRGFaalA1
-BU0vifTKfVbSbv4WdJ1MkyDMTgaHXoQUpFi8lc11OdwqPswP8uNB5skObvz551HS
-gtP0RKEeRS4Oo/pOZ7EUbIxDtbWdNbsKg/DEDkVzXDr4Bn0+Evf340c0SMvYPq9i
-pCFpPoD6XfShmst7xvbt
-=tlee
+iQIcBAEBAgAGBQJYML5sAAoJEBQN5MwUoCm2sUQP/3Q0yjkFplU6rsCyMTu5TRhg
+GWBK8xG25S82FJUUNiDG69j8akffMyGqMoCjFQ0fu5pDMZS9GEfVqEsBt9BsFn8b
+I/7eBmEPg3eg23qxhqjTAxTspgB8e2g6s+1WWEzrbrLig0PLoh6OyxL/56Padjc/
+TkWqCpGcGy9vjWgXsaWVl7LavA0HwIRDMQnygcH++PDXH5t9m6H8wn+LTks6A5Zc
+DR5K+xB7a1Oedd1HsFK2V344VWqJ8vp8ocLLQof/HOfOacr29d6fyYsL7GIRr31a
+tTsg9ebbMjb3Qscd6+jhMBV7K4boK2YK9WEuJJbfgV+GL751JxOGBpyAwLffpq4V
+tZTUIFWAyn4POHxwjWMvwPh9mqxV/hCiKteIF2NoeOPaezUkkGmYp8zxqEHAAdqT
+kTN1k79ieynUnKlrKquPNCjv7Z3Cw7VtyLghLIlg5WHT29eWM6zN2fTGjKShVc2+
+ehoKt9aZJmtlwjFIPvKsMUchIH50lg0osjyRMwqr1rQ5xoj3RCkMoVq/6TS4nx5D
+iixYMvpNSYaTB0rDt1+ZQptQSI2/fH0Z0N4ZY91rYGY4rRPXxkILP2c4oLPwHGIo
+hwdWw/ACda9HrS5wKdYjwRdab+hKV4al4sIPHOS7Dh5lQs9bogeKHtZtzLWIe5/Z
+Vt2Gjn44Wvc2synRo+lZ
+=aFLf
 -----END PGP SIGNATURE-----
 
---oyUTqETQ0mS9luUI--
+--9zSXsLTf0vkW971A--
