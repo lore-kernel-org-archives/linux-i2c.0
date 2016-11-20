@@ -1,89 +1,59 @@
-From: Vadim Pasternak <vadimp@mellanox.com>
-Subject: RE: [patch v8 1/1] i2c: add master driver for mellanox systems
-Date: Sun, 20 Nov 2016 05:52:56 +0000
-Message-ID: <AM5PR0501MB2097315FB75BFEF681512187A2B20@AM5PR0501MB2097.eurprd05.prod.outlook.com>
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: Re: [patch v8 1/1] i2c: add master driver for mellanox systems
+Date: Sun, 20 Nov 2016 10:02:12 +0100
+Message-ID: <20161120090212.GA1554@katana>
 References: <1479455458-157627-1-git-send-email-vadimp@mellanox.com>
  <20161119210444.GB2856@katana>
+ <AM5PR0501MB2097315FB75BFEF681512187A2B20@AM5PR0501MB2097.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0046.outbound.protection.outlook.com ([104.47.2.46]:16608
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750728AbcKTFxB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 20 Nov 2016 00:53:01 -0500
-In-Reply-To: <20161119210444.GB2856@katana>
-Content-Language: en-US
+Received: from www.zeus03.de ([194.117.254.33]:52218 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753118AbcKTJCQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 20 Nov 2016 04:02:16 -0500
+Content-Disposition: inline
+In-Reply-To: <AM5PR0501MB2097315FB75BFEF681512187A2B20@AM5PR0501MB2097.eurprd05.prod.outlook.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
+To: Vadim Pasternak <vadimp@mellanox.com>
 Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
 
-Hi Wolfram,
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-dev@sang-engineering.com]
-> Sent: Saturday, November 19, 2016 11:05 PM
-> To: Vadim Pasternak <vadimp@mellanox.com>
-> Cc: wsa@the-dreams.de; linux-i2c@vger.kernel.org; linux-
-> kernel@vger.kernel.org; jiri@resnulli.us; Michael Shych
-> <michaelsh@mellanox.com>
-> Subject: Re: [patch v8 1/1] i2c: add master driver for mellanox systems
->=20
-> Hi,
->=20
-> looks mostly good. I just found this comment which needs clarification:
->=20
-> > +	/*
-> > +	 * All upper layers currently are never use transfer with more than
-> > +	 * 2 messages.
->=20
-> Have you really checked ALL of the upper layers? And even if so, there is=
- the dev-
-> interface to userspace which allows for arbitrary I2C transfers using I2C=
-_RDWR.
->=20
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-We are using the next drivers on our switches: max11603, lm75, pmbus, mlxsw=
-_minimal (last one is new, I wrote it to support Mellanox ASIC and it's has=
- 32 byte limitation for I2C transaction chunk) and at24.
 
-I am planning to add some code in the next patch, for handling bufferizatio=
-n for message length greater then data buffer. Allowed by HW.
+> Possibly I should add validation for "num" parameter at the beginning of mlxcpld_i2c_xfer?
 
-Possibly I should add validation for "num" parameter at the beginning of ml=
-xcpld_i2c_xfer?
-
-> >  Actually, it's also not so relevant in Mellanox systems
-> > +	 * because of HW limitation.
->=20
-> What kind of HW limitation do you mean here? Can Mellanox send more than
-> two messages?
->=20
-> > Max size of transfer is o more than 20B
->=20
-> "is o more"? Typo?
-
-Typo.
-Max size of transfer is not more than 32 bytes.
-
->=20
-> > +	 * in current x86 LPCI2C bridge.
->=20
-> What does that mean in result?
-
-In case more than 32 bytes of data length will be set in transaction, such =
-message will fail length validation.
-The 32 is HW limitation - 32 registers of DATAx.
-In new version of LPCI2C logic, there is 64 registers, which can be used fo=
-r data, and I am going to support it in next patch for this driver.
-
->=20
-> Regards,
->=20
->    Wolfram
+There is 'max_num_msgs' in the quirk structure.
 
 Thanks,
 
-Vadim.
+   Wolfram
+
+
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYMWaUAAoJEBQN5MwUoCm2Y5QQAIEtXxexi78GOu4fw0hnTk0y
+z8+w48MXz67stknQw+bBFN3/0+GoeGzKJbJn8E4xHg4CsBGK6xaAfqa8QogKDhmB
+DoWe7fSf7LJjCuXBqwPlYUz7arha6IdPw86WUvB9M27UM6BZp6y/hPczLZH5CoMv
+FaHBiTrQ8TcZyNvQbRVIZjry1PZlRW33f0PmL0PBl4vyFhU1OCx6buEwal09KgYI
+9TNWGdGPlVNAgTXAIyB2fQikUmgAp5/OqnT2ZM4rkPYWKbUwuOBtbfD1BuTYH5yy
+jPBBigkUbZsSqprOc57ysEzkkQW/mdSzf5555lhJyU2iqIIU+ugH5MaGqf2Lu2vq
+47RKKN7GQC78Higa5R5j32AEmTYFfFLLmXBwEE+0PWRXMkzSZHiSJKqsQDZ9pZ0c
+zAp6d9vJ5eycScZDr+EQgH8dyzA6LtQZJP+DwCa/MECBDG+rQfA6rgGRAJJz+XNO
+WuRFufg0bC1BA/xwtxAvT5xij+4Eq2F++jfykkEw/jV4FHi+HOBgFLuFLAMtzgMm
+hFX1swG3Aj2bNBoo/U+wkLeIr1wo/X2jqLOykfMUlWk9Ovq87R9Vg8B26E9kM+/l
+dzQ/Dm4i3YZEu4fXhMDwNxZTtjDxzR8PEd1hO3gMQYfP8s6/d3LfA3U8cXnci/4n
++j2rMH+XHEXSuW+YXlre
+=wj4c
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--
