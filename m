@@ -1,55 +1,97 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: Re: [BUG] i2c-designware silently fails on long transfers
-Date: Mon, 21 Nov 2016 10:43:29 +0000
-Message-ID: <20161121104329.GB1041@n2100.armlinux.org.uk>
-References: <20161118193542.GO1041@n2100.armlinux.org.uk>
- <20161121102901.GF1446@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+Subject: [PATCH 1/1] i2c: designware: Consolidate default functionality bits
+Date: Mon, 21 Nov 2016 11:43:20 +0100
+Message-ID: <1479725000-22513-1-git-send-email-alexander.stein@systec-electronic.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:53130 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752931AbcKUKnk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2016 05:43:40 -0500
-Content-Disposition: inline
-In-Reply-To: <20161121102901.GF1446@lahna.fi.intel.com>
+Received: from webbox1416.server-home.net ([77.236.96.61]:49464 "EHLO
+        webbox1416.server-home.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752075AbcKUKng (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2016 05:43:36 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>, linux-i2c@vger.kernel.org
 
-On Mon, Nov 21, 2016 at 12:29:01PM +0200, Mika Westerberg wrote:
-> On Fri, Nov 18, 2016 at 07:35:42PM +0000, Russell King - ARM Linux wrote:
-> > Another mitigation would be to lower the I2C bus frequency on Juno from
-> > 400kHz to 100kHz, so that there's 4x longer IRQ latency possible.
-> > However, even that isn't going to be reliable - even going to 100kHz
-> > isn't going to allow the above case to be solved - the interrupt is
-> > delayed by around 2ms, and it takes about 1.4ms to send/receive 16 bytes
-> > at 100kHz.  (9 * 16 / (100*10^3)).
-> > 
-> > So, I think all hope is lost for i2c-designware on Juno to cope with
-> > reading the EDID from TDA998x reliably.
-> 
-> :-(
-> 
-> I wonder if we can get it work more reliably by using DMA (provided that
-> there are DMA channels available for I2C in Juno)? That would allow the
-> hardware to perform longer reads without relying on how fast the
-> interrupt handler is able to empty the Rx FIFO.
+Use a common place for default functionality bits for both platform
+and pci driver.
 
-It would need to DMA to the Tx FIFO to keep it filled - it triggers the
-stop condition when the Tx FIFO empties.  From what I can see in the
-driver, the Tx FIFO not only takes the data but also a "command" to tell
-the hardware what to do.
+Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
+---
+This patch requires commit c3ae106050b9 ("i2c: designware: Implement support
+for SMBus block read and write") which is included in current i2c/for-next
+branch.
+BTW: Do merrifield and medfield actually not support 10bit addressing?
 
-The Rx FIFO would also need DMA to avoid it overflowing due to high
-interrupt latency.
+ drivers/i2c/busses/i2c-designware-core.h    | 8 ++++++++
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 9 +--------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 9 +--------
+ 3 files changed, 10 insertions(+), 16 deletions(-)
 
-I don't know what state DMA is in on the Juno, or even whether it has
-DMA - it has a PL330 DMA controller, but I see nothing in the DT files
-making use of it.
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 0d44d2a..26250b4 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -22,6 +22,14 @@
+  *
+  */
+ 
++#include <linux/i2c.h>
++
++#define DW_IC_DEFAULT_FUNCTIONALITY (I2C_FUNC_I2C |			\
++					I2C_FUNC_SMBUS_BYTE |		\
++					I2C_FUNC_SMBUS_BYTE_DATA |	\
++					I2C_FUNC_SMBUS_WORD_DATA |	\
++					I2C_FUNC_SMBUS_BLOCK_DATA |	\
++					I2C_FUNC_SMBUS_I2C_BLOCK)
+ 
+ #define DW_IC_CON_MASTER		0x1
+ #define DW_IC_CON_SPEED_STD		0x2
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 8ffe2da..300802e7 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -71,13 +71,6 @@ struct dw_pci_controller {
+ 				DW_IC_CON_SLAVE_DISABLE |	\
+ 				DW_IC_CON_RESTART_EN)
+ 
+-#define DW_DEFAULT_FUNCTIONALITY (I2C_FUNC_I2C |			\
+-					I2C_FUNC_SMBUS_BYTE |		\
+-					I2C_FUNC_SMBUS_BYTE_DATA |	\
+-					I2C_FUNC_SMBUS_WORD_DATA |	\
+-					I2C_FUNC_SMBUS_BLOCK_DATA |	\
+-					I2C_FUNC_SMBUS_I2C_BLOCK)
+-
+ /* Merrifield HCNT/LCNT/SDA hold time */
+ static struct dw_scl_sda_cfg mrfld_config = {
+ 	.ss_hcnt = 0x2f8,
+@@ -250,7 +243,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	}
+ 
+ 	dev->functionality = controller->functionality |
+-				DW_DEFAULT_FUNCTIONALITY;
++				DW_IC_DEFAULT_FUNCTIONALITY;
+ 
+ 	dev->master_cfg = controller->bus_cfg;
+ 	if (controller->scl_sda_cfg) {
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 7429dfa..08153ea 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -219,14 +219,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	if (r)
+ 		return r;
+ 
+-	dev->functionality =
+-		I2C_FUNC_I2C |
+-		I2C_FUNC_10BIT_ADDR |
+-		I2C_FUNC_SMBUS_BYTE |
+-		I2C_FUNC_SMBUS_BYTE_DATA |
+-		I2C_FUNC_SMBUS_WORD_DATA |
+-		I2C_FUNC_SMBUS_BLOCK_DATA |
+-		I2C_FUNC_SMBUS_I2C_BLOCK;
++	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+ 
+ 	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 			  DW_IC_CON_RESTART_EN;
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line: currently at 9.6Mbps down 400kbps up
-according to speedtest.net.
+2.7.3
