@@ -1,756 +1,747 @@
-From: vadimp@mellanox.com
-Subject: [patch v9 1/1] i2c: add master driver for mellanox systems
-Date: Sun, 20 Nov 2016 16:56:14 +0000
-Message-ID: <1479660974-143713-1-git-send-email-vadimp@mellanox.com>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch V5 2/2] i2c: imx: add low power i2c bus driver
+Date: Mon, 21 Nov 2016 15:51:44 +0800
+Message-ID: <1479714704-3014-2-git-send-email-pandy.gao@nxp.com>
+References: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-il-dmz.mellanox.com ([193.47.165.129]:56259 "EHLO
-        mellanox.co.il" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752795AbcKTO5x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 20 Nov 2016 09:57:53 -0500
+Received: from mail-db5eur01on0086.outbound.protection.outlook.com ([104.47.2.86]:20219
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750944AbcKUHxX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Nov 2016 02:53:23 -0500
+In-Reply-To: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
+To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com, wsa-dev@sang-engineering.com
+Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+This patch adds lpi2c bus driver to support new i.MX products
+which use lpi2c instead of the old imx i2c.
 
-Device driver for Mellanox I2C controller logic, implemented in Lattice
-CPLD device.
-Device supports:
- - Master mode
- - One physical bus
- - Polling mode
+The lpi2c can continue operating in stop mode when an appropriate
+clock is available. It is also designed for low CPU overhead with
+DMA offloading of FIFO register accesses.
 
-The Kconfig currently controlling compilation of this code is:
-drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
-
-Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+Reviewed-by: Fugang Duan <B38611@freescale.com>
 Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
 ---
-v8->v9
- Comments pointed out by Wolfram:
-  - fix typo in comment;
-  - use quirk parameters for the message number validation;
-v7->v8
- Comments pointed out by Wolfram:
- - Remove descriptions for two structures, since the members have
-   self-explaining names;
- - Populate the structure i2c_adapter_quirks, so core will make length
-   validation, as a result remove mlxcpld_i2c_invalid_len,
-   and move common length calculation to mlxcpld_i2c_xfer. Consider
-   removing of mlxcpld_i2c_check_msg_params after core quirks is able
-   to handle messages full validation;
- - Use ENXIO error code for NACK;
-v6->v7
- Comments pointed out by Peter:
- - Fix grammar in doc file;
- - Fix description for CMD in doc file;
- - Fix grammar for NUM_DATA, DATAx in doc file;
- - Rename mlxcpld_i2c_curr_transf to mlxcpld_i2c_curr_xfer;
- - Make code in mlxcpld_i2c_lpc_write_buf more readable and
-   mlxcpld_i2c_lpc_read_buf, compact and elegant;
- - Fix multiline comments;
-v5->v6:
- Comments pointed out by Vladimir:
- - Drop the line with module path from the header;
- - In description of mlxcpld_i2c_priv remove lpc_gen_dec_reg asnd dev_id;
- - In mlxcpld_i2c_priv change type of the filed base_addr to u16 for
-   the alignment with in/out and remove unused dev_id;
- - Fix misspelling in comment for mlxcpld_i2c_invalid_len;
- - Remove comment regarding EBUSY return in mlxcpld_i2c_check_busy;
- - Use sizeof of the target storage in allocation in probe routine;
-v4->v5:
- Comments pointed out by Vladimir:
- - Remove "default n" from Kconfig;
- - Fix the comments for timeout and pool time;
- - Optimize error flow in mlxcpld_i2c_probe;
-v3->v4:
- Comments pointed out by Vladimir:
- - Set default to no in Kconfig;
- - Make mlxcpld_i2c_plat_dev static and add empty line before the
-   declaration;
- - In function mlxcpld_i2c_invalid_len remove (msg->len < 0), since len is
-   unsigned;
- - Remove unused symbol mlxcpld_i2c_plat_dev;
- - Remove extra spaces in comments to mlxcpld_i2c_check_msg_params;
- - Remove unnecessary round braces in mlxcpld_i2c_set_transf_data;
- - Remove the assignment of 'i' variable in mlxcpld_i2c_wait_for_tc;
- - Add extra line in mlxcpld_i2c_xfer;
- - Move assignment of the adapter's fields retries and nr inside
-   mlxcpld_i2c_adapter declaration;
-v2->v3:
- Comments pointed out by Vladimir:
- - Use tab symbol as indentation in Kconfig
- - Add the Kconfig section preserving the alphabetical order - added
-   within "Other I2C/SMBus bus drivers" after I2C_ELEKTOR (but after this
-   sections others are not follow alphabetical);
- - Change license to dual;
- - Replace ADRR with ADDR in macros;
- - Remove unused macros: MLXCPLD_LPCI2C_LPF_DFLT,
-   MLXCPLD_LPCI2C_HALF_CYC_100, MLXCPLD_LPCI2C_I2C_HOLD_100,
-   MLXCPLD_LPCI2C_HALF_CYC_REG, MLXCPLD_LPCI2C_I2C_HOLD_REG;
- - Fix checkpatch warnings (**/ and the end of comment);
- - Add empty line before structures mlxcpld_i2c_regs,
-   mlxcpld_i2c_curr_transf, mlxcpld_i2c_priv;
- - Remove unused structure mlxcpld_i2c_regs;
- - Remove from mlxcpld_i2c_priv the next fields:
-   retr_num, poll_time, block_sz, xfer_to; use instead macros
-   respectively: MLXCPLD_I2C_RETR_NUM, MLXCPLD_I2C_POLL_TIME,
-   MLXCPLD_I2C_DATA_REG_SZ, MLXCPLD_I2C_XFER_TO;
- - In mlxcpld_i2c_invalid_len remove unnecessary else;
- - Optimize mlxcpld_i2c_set_transf_data;
- - mlxcpld_i2c_reset - add empty lines after/before mutex
-   lock/unlock;
- - mlxcpld_i2c_wait_for_free - cover case timeout is equal
-   MLXCPLD_I2C_XFER_TO;
- - mlxcpld_i2c_wait_for_tc:
-   - Do not assign err in declaration (also err is removed);
-   - Insert empty line before case MLXCPLD_LPCI2C_ACK_IND;
-   - inside case MLXCPLD_LPCI2C_ACK_IND - avoid unnecessary
-     indentation;
-   - Remove case MLXCPLD_LPCI2C_ERR_IND and remove this macro;
- - Add empty lines in mlxcpld_i2c_xfer before/after mutex_lock/
-   mutex_unlock;
- - In mlxcpld_i2c_probe add emtpy line after platform_set_drvdata;
- - Replace platfrom handle pdev in mlxcpld_i2c_priv with the pointer
-   to the structure device;
- - Place assignment of base_addr near the others;
- - Enclose e-mail with <>;
- Fixes added by Vadim:
- - Change structure description format according to
-   Documentation/kernel-documentation.rst guideline;
- - mlxcpld_i2c_wait_for_tc: return error if status reaches default case;
-v1->v2
- Fixes added by Vadim:
- - Put new record in Makefile in alphabetic order;
- - Remove http://www.mellanox.com from MAINTAINERS record;
----
- Documentation/i2c/busses/i2c-mlxcpld |  47 ++++
- MAINTAINERS                          |   8 +
- drivers/i2c/busses/Kconfig           |  11 +
- drivers/i2c/busses/Makefile          |   1 +
- drivers/i2c/busses/i2c-mlxcpld.c     | 504 +++++++++++++++++++++++++++++++++++
- 5 files changed, 571 insertions(+)
- create mode 100644 Documentation/i2c/busses/i2c-mlxcpld
- create mode 100644 drivers/i2c/busses/i2c-mlxcpld.c
+V2:
+ -stop i2c transfer under the wrong condition
+ -add timeout check in while() domain
 
-diff --git a/Documentation/i2c/busses/i2c-mlxcpld b/Documentation/i2c/busses/i2c-mlxcpld
-new file mode 100644
-index 0000000..4e46c44
---- /dev/null
-+++ b/Documentation/i2c/busses/i2c-mlxcpld
-@@ -0,0 +1,47 @@
-+Driver i2c-mlxcpld
-+
-+Author: Michael Shych <michaelsh@mellanox.com>
-+
-+This is the Mellanox I2C controller logic, implemented in Lattice CPLD
-+device.
-+Device supports:
-+ - Master mode.
-+ - One physical bus.
-+ - Polling mode.
-+
-+This controller is equipped within the next Mellanox systems:
-+"msx6710", "msx6720", "msb7700", "msn2700", "msx1410", "msn2410", "msb7800",
-+"msn2740", "msn2100".
-+
-+The next transaction types are supported:
-+ - Receive Byte/Block.
-+ - Send Byte/Block.
-+ - Read Byte/Block.
-+ - Write Byte/Block.
-+
-+Registers:
-+CTRL		0x1 - control reg.
-+			Resets all the registers.
-+HALF_CYC	0x4 - cycle reg.
-+			Configure the width of I2C SCL half clock cycle (in 4 LPC_CLK
-+			units).
-+I2C_HOLD	0x5 - hold reg.
-+			OE (output enable) is delayed by value set to this register
-+			(in LPC_CLK units)
-+CMD			0x6 - command reg.
-+			Bit 0, 0 = write, 1 = read.
-+			Bits [7:1] - the 7bit Address of the I2C device.
-+			It should be written last as it triggers an I2C transaction.
-+NUM_DATA	0x7 - data size reg.
-+			Number of data bytes to write in read transaction
-+NUM_ADDR	0x8 - address reg.
-+			Number of address bytes to write in read transaction.
-+STATUS		0x9 - status reg.
-+			Bit 0 - transaction is completed.
-+			Bit 4 - ACK/NACK.
-+DATAx		0xa - 0x54  - 68 bytes data buffer regs.
-+			For write transaction address is specified in four first bytes
-+			(DATA1 - DATA4), data starting from DATA4.
-+			For read transactions address is sent in a separate transaction and
-+			specified in the four first bytes (DATA0 - DATA3). Data is read
-+			starting from DATA0.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 411e3b8..26d05f8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7881,6 +7881,14 @@ W:	http://www.mellanox.com
- Q:	http://patchwork.ozlabs.org/project/netdev/list/
- F:	drivers/net/ethernet/mellanox/mlxsw/
- 
-+MELLANOX MLXCPLD I2C DRIVER
-+M:	Vadim Pasternak <vadimp@mellanox.com>
-+M:	Michael Shych <michaelsh@mellanox.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-mlxcpld.c
-+F:	Documentation/i2c/busses/i2c-mlxcpld
-+
- MELLANOX MLXCPLD LED DRIVER
- M:	Vadim Pasternak <vadimp@mellanox.com>
- L:	linux-leds@vger.kernel.org
+V3:
+ -fix typo inside commit message and the driver.
+
+V4:
+As Vladimir Zapolskiy's review, the version do below changes:
+ -split devicetree binding with driver
+ -prepare clk in probe()
+ -replace "1<<n" BIT(n)
+ -remove unnecessary variables
+ -fix typo
+ -use module_platform_driver()
+ -use i2c_add_adapter()
+
+V5:
+ -unprepare clk in lpi2c_imx_remove()
+ -disable clk when lpi2c_imx_config() fails
+ -unprepare clk when i2c_add_adapter() fails
+
+ drivers/i2c/busses/Kconfig         |  10 +
+ drivers/i2c/busses/Makefile        |   1 +
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 649 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 660 insertions(+)
+
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..6399cea 100644
+index d252276..7cff9ec 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -1150,6 +1150,17 @@ config I2C_ELEKTOR
- 	  This support is also available as a module.  If so, the module
- 	  will be called i2c-elektor.
+@@ -597,6 +597,16 @@ config I2C_IMX
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
  
-+config I2C_MLXCPLD
-+	tristate "Mellanox I2C driver"
-+	depends on X86_64
++config I2C_IMX_LPI2C
++	tristate "IMX Low Power I2C interface"
++	depends on ARCH_MXC || COMPILE_TEST
 +	help
-+	  This exposes the Mellanox platform I2C busses to the linux I2C layer
-+	  for X86 based systems.
-+	  Controller is implemented as CPLD logic.
++          Say Y here if you want to use the Low Power IIC bus controller
++          on the Freescale i.MX processors.
 +
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-mlxcpld.
++          This driver can also be built as a module. If so, the module
++          will be called i2c-imx-lpi2c.
 +
- config I2C_PCA_ISA
- 	tristate "PCA9564/PCA9665 on an ISA bus"
- 	depends on ISA
+ config I2C_IOP3XX
+ 	tristate "Intel IOPx3xx and IXP4xx on-chip I2C interface"
+ 	depends on ARCH_IOP32X || ARCH_IOP33X || ARCH_IXP4XX || ARCH_IOP13XX
 diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 29764cc..645bf08 100644
+index 29764cc..05195cd 100644
 --- a/drivers/i2c/busses/Makefile
 +++ b/drivers/i2c/busses/Makefile
-@@ -116,6 +116,7 @@ obj-$(CONFIG_I2C_BCM_KONA)	+= i2c-bcm-kona.o
- obj-$(CONFIG_I2C_BRCMSTB)	+= i2c-brcmstb.o
- obj-$(CONFIG_I2C_CROS_EC_TUNNEL)	+= i2c-cros-ec-tunnel.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
-+obj-$(CONFIG_I2C_MLXCPLD)	+= i2c-mlxcpld.o
- obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
- obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
+@@ -56,6 +56,7 @@ obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
+ obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+ obj-$(CONFIG_I2C_IMG)		+= i2c-img-scb.o
+ obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
++obj-$(CONFIG_I2C_IMX_LPI2C)	+= i2c-imx-lpi2c.o
+ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+ obj-$(CONFIG_I2C_JZ4780)	+= i2c-jz4780.o
+ obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
 new file mode 100644
-index 0000000..d271e6a
+index 0000000..af5d1b6
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -0,0 +1,504 @@
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -0,0 +1,649 @@
 +/*
-+ * Copyright (c) 2016 Mellanox Technologies. All rights reserved.
-+ * Copyright (c) 2016 Michael Shych <michaels@mellanox.com>
++ * This is i.MX low power i2c controller driver.
 + *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
++ * Copyright 2016 Freescale Semiconductor, Inc.
 + *
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the names of the copyright holders nor the names of its
-+ *    contributors may be used to endorse or promote products derived from
-+ *    this software without specific prior written permission.
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
 + *
-+ * Alternatively, this software may be distributed under the terms of the
-+ * GNU General Public License ("GPL") version 2 as published by the Free
-+ * Software Foundation.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
 + *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
 + */
 +
++#include <linux/clk.h>
++#include <linux/completion.h>
 +#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/errno.h>
 +#include <linux/i2c.h>
 +#include <linux/init.h>
++#include <linux/interrupt.h>
 +#include <linux/io.h>
 +#include <linux/kernel.h>
 +#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
 +#include <linux/platform_device.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
 +
-+/* General defines */
-+#define MLXPLAT_CPLD_LPC_I2C_BASE_ADDR	0x2000
-+#define MLXCPLD_I2C_DEVICE_NAME		"i2c_mlxcpld"
-+#define MLXCPLD_I2C_VALID_FLAG		(I2C_M_RECV_LEN | I2C_M_RD)
-+#define MLXCPLD_I2C_BUS_NUM		1
-+#define MLXCPLD_I2C_DATA_REG_SZ		36
-+#define MLXCPLD_I2C_MAX_ADDR_LEN	4
-+#define MLXCPLD_I2C_RETR_NUM		2
-+#define MLXCPLD_I2C_XFER_TO		500000 /* usec */
-+#define MLXCPLD_I2C_POLL_TIME		2000   /* usec */
++#define DRIVER_NAME "imx-lpi2c"
 +
-+/* LPC I2C registers */
-+#define MLXCPLD_LPCI2C_LPF_REG		0x0
-+#define MLXCPLD_LPCI2C_CTRL_REG		0x1
-+#define MLXCPLD_LPCI2C_HALF_CYC_REG	0x4
-+#define MLXCPLD_LPCI2C_I2C_HOLD_REG	0x5
-+#define MLXCPLD_LPCI2C_CMD_REG		0x6
-+#define MLXCPLD_LPCI2C_NUM_DAT_REG	0x7
-+#define MLXCPLD_LPCI2C_NUM_ADDR_REG	0x8
-+#define MLXCPLD_LPCI2C_STATUS_REG	0x9
-+#define MLXCPLD_LPCI2C_DATA_REG		0xa
++#define LPI2C_PARAM	0x04	/* i2c RX/TX FIFO size */
++#define LPI2C_MCR	0x10	/* i2c contrl register */
++#define LPI2C_MSR	0x14	/* i2c status register */
++#define LPI2C_MIER	0x18	/* i2c interrupt enable */
++#define LPI2C_MCFGR0	0x20	/* i2c master configuration */
++#define LPI2C_MCFGR1	0x24	/* i2c master configuration */
++#define LPI2C_MCFGR2	0x28	/* i2c master configuration */
++#define LPI2C_MCFGR3	0x2C	/* i2c master configuration */
++#define LPI2C_MCCR0	0x48	/* i2c master clk configuration */
++#define LPI2C_MCCR1	0x50	/* i2c master clk configuration */
++#define LPI2C_MFCR	0x58	/* i2c master FIFO control */
++#define LPI2C_MFSR	0x5C	/* i2c master FIFO status */
++#define LPI2C_MTDR	0x60	/* i2c master TX data register */
++#define LPI2C_MRDR	0x70	/* i2c master RX data register */
 +
-+/* LPC I2C masks and parametres */
-+#define MLXCPLD_LPCI2C_RST_SEL_MASK	0x1
-+#define MLXCPLD_LPCI2C_TRANS_END	0x1
-+#define MLXCPLD_LPCI2C_STATUS_NACK	0x10
-+#define MLXCPLD_LPCI2C_NO_IND		0
-+#define MLXCPLD_LPCI2C_ACK_IND		1
-+#define MLXCPLD_LPCI2C_NACK_IND		2
++/* i2c command */
++#define TRAN_DATA	0X00
++#define RECV_DATA	0X01
++#define GEN_STOP	0X02
++#define RECV_DISCARD	0X03
++#define GEN_START	0X04
++#define START_NACK	0X05
++#define START_HIGH	0X06
++#define START_HIGH_NACK	0X07
 +
-+struct  mlxcpld_i2c_curr_xfer {
-+	u8 cmd;
-+	u8 addr_width;
-+	u8 data_len;
-+	u8 msg_num;
-+	struct i2c_msg *msg;
++#define MCR_MEN		BIT(0)
++#define MCR_RST		BIT(1)
++#define MCR_DOZEN	BIT(2)
++#define MCR_DBGEN	BIT(3)
++#define MCR_RTF		BIT(8)
++#define MCR_RRF		BIT(9)
++#define MSR_TDF		BIT(0)
++#define MSR_RDF		BIT(1)
++#define MSR_SDF		BIT(9)
++#define MSR_NDF		BIT(10)
++#define MSR_ALF		BIT(11)
++#define MSR_MBF		BIT(24)
++#define MSR_BBF		BIT(25)
++#define MIER_TDIE	BIT(0)
++#define MIER_RDIE	BIT(1)
++#define MIER_SDIE	BIT(9)
++#define MIER_NDIE	BIT(10)
++#define MCFGR1_AUTOSTOP	BIT(8)
++#define MCFGR1_IGNACK	BIT(9)
++#define MRDR_RXEMPTY	BIT(14)
++
++#define I2C_CLK_RATIO	2
++#define CHUNK_DATA	256
++
++#define LPI2C_RX_FIFOSIZE	4
++#define LPI2C_TX_FIFOSIZE	4
++
++#define LPI2C_DEFAULT_RATE	100000
++#define STARDARD_MAX_BITRATE	400000
++#define FAST_MAX_BITRATE	1000000
++#define FAST_PLUS_MAX_BITRATE	3400000
++#define HIGHSPEED_MAX_BITRATE	5000000
++
++enum lpi2c_imx_mode {
++	STANDARD,	/* 100+Kbps */
++	FAST,		/* 400+Kbps */
++	FAST_PLUS,	/* 1.0+Mbps */
++	HS,		/* 3.4+Mbps */
++	ULTRA_FAST,	/* 5.0+Mbps */
 +};
 +
-+struct mlxcpld_i2c_priv {
-+	struct i2c_adapter adap;
-+	u32 base_addr;
-+	struct mutex lock;
-+	struct  mlxcpld_i2c_curr_xfer xfer;
-+	struct device *dev;
++enum lpi2c_imx_pincfg {
++	TWO_PIN_OD,
++	TWO_PIN_OO,
++	TWO_PIN_PP,
++	FOUR_PIN_PP,
 +};
 +
-+static void mlxcpld_i2c_lpc_write_buf(u8 *data, u8 len, u32 addr)
-+{
-+	int i;
++struct lpi2c_imx_struct {
++	struct i2c_adapter	adapter;
++	struct clk		*clk;
++	void __iomem		*base;
++	__u8			*rx_buf;
++	__u8			*tx_buf;
++	struct completion	complete;
++	unsigned int		msglen;
++	unsigned int		delivered;
++	unsigned int		block_data;
++	unsigned int		bitrate;
++	enum lpi2c_imx_mode	mode;
++};
 +
-+	for (i = 0; i < len - len % 4; i += 4)
-+		outl(*(u32 *)(data + i), addr + i);
-+	for (; i < len; ++i)
-+		outb(*(data + i), addr + i);
++static void lpi2c_imx_intctrl(struct lpi2c_imx_struct *lpi2c_imx,
++			      unsigned int enable)
++{
++	writel(enable, lpi2c_imx->base + LPI2C_MIER);
 +}
 +
-+static void mlxcpld_i2c_lpc_read_buf(u8 *data, u8 len, u32 addr)
++static int lpi2c_imx_bus_busy(struct lpi2c_imx_struct *lpi2c_imx)
 +{
-+	int i;
++	unsigned long orig_jiffies = jiffies;
++	unsigned int temp;
 +
-+	for (i = 0; i < len - len % 4; i += 4)
-+		*(u32 *)(data + i) = inl(addr + i);
-+	for (; i < len; ++i)
-+		*(data + i) = inb(addr + i);
-+}
++	while (1) {
++		temp = readl(lpi2c_imx->base + LPI2C_MSR);
 +
-+static void mlxcpld_i2c_read_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				  u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		*(data) = inb(addr);
-+		break;
-+	case 2:
-+		*((u16 *)data) = inw(addr);
-+		break;
-+	case 3:
-+		*((u16 *)data) = inw(addr);
-+		*(data + 2) = inb(addr + 2);
-+		break;
-+	case 4:
-+		*((u32 *)data) = inl(addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_read_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+static void mlxcpld_i2c_write_comm(struct mlxcpld_i2c_priv *priv, u8 offs,
-+				   u8 *data, u8 datalen)
-+{
-+	u32 addr = priv->base_addr + offs;
-+
-+	switch (datalen) {
-+	case 1:
-+		outb(*(data), addr);
-+		break;
-+	case 2:
-+		outw(*((u16 *)data), addr);
-+		break;
-+	case 3:
-+		outw(*((u16 *)data), addr);
-+		outb(*(data + 2), addr + 2);
-+		break;
-+	case 4:
-+		outl(*((u32 *)data), addr);
-+		break;
-+	default:
-+		mlxcpld_i2c_lpc_write_buf(data, datalen, addr);
-+		break;
-+	}
-+}
-+
-+/*
-+ * Check validity of received i2c messages parameters.
-+ * Returns 0 if OK, other - in case of invalid parameters.
-+ */
-+static int mlxcpld_i2c_check_msg_params(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num)
-+{
-+	int i;
-+
-+	if (!num) {
-+		dev_err(priv->dev, "Incorrect 0 num of messages\n");
-+		return -EINVAL;
-+	}
-+
-+	if (unlikely(msgs[0].addr > 0x7f)) {
-+		dev_err(priv->dev, "Invalid address 0x%03x\n",
-+			msgs[0].addr);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < num; ++i) {
-+		if (unlikely(!msgs[i].buf)) {
-+			dev_err(priv->dev, "Invalid buf in msg[%d]\n",
-+				i);
-+			return -EINVAL;
++		/* check for arbitration lost, clear if set */
++		if (temp & MSR_ALF) {
++			writel(temp, lpi2c_imx->base + LPI2C_MSR);
++			return -EAGAIN;
 +		}
-+		if (unlikely(msgs[0].addr != msgs[i].addr)) {
-+			dev_err(priv->dev, "Invalid addr in msg[%d]\n",
-+				i);
-+			return -EINVAL;
++
++		if (temp & (MSR_BBF | MSR_MBF))
++			break;
++
++		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
++			dev_dbg(&lpi2c_imx->adapter.dev, "bus not work\n");
++			return -ETIMEDOUT;
 +		}
++		schedule();
 +	}
 +
 +	return 0;
 +}
 +
-+/*
-+ * Check if transfer is completed and status of operation.
-+ * Returns 0 - transfer completed (both ACK or NACK),
-+ * negative - transfer isn't finished.
-+ */
-+static int mlxcpld_i2c_check_status(struct mlxcpld_i2c_priv *priv, int *status)
++static void lpi2c_imx_set_mode(struct lpi2c_imx_struct *lpi2c_imx)
 +{
-+	u8 val;
++	unsigned int bitrate = lpi2c_imx->bitrate;
++	enum lpi2c_imx_mode mode;
 +
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
++	if (bitrate < STARDARD_MAX_BITRATE)
++		mode = STANDARD;
++	else if (bitrate < FAST_MAX_BITRATE)
++		mode = FAST;
++	else if (bitrate < FAST_PLUS_MAX_BITRATE)
++		mode = FAST_PLUS;
++	else if (bitrate < HIGHSPEED_MAX_BITRATE)
++		mode = HS;
++	else
++		mode = ULTRA_FAST;
 +
-+	if (val & MLXCPLD_LPCI2C_TRANS_END) {
-+		if (val & MLXCPLD_LPCI2C_STATUS_NACK)
-+			/*
-+			 * The slave is unable to accept the data. No such
-+			 * slave, command not understood, or unable to accept
-+			 * any more data.
-+			 */
-+			*status = MLXCPLD_LPCI2C_NACK_IND;
-+		else
-+			*status = MLXCPLD_LPCI2C_ACK_IND;
-+		return 0;
-+	}
-+	*status = MLXCPLD_LPCI2C_NO_IND;
-+
-+	return -EIO;
++	lpi2c_imx->mode = mode;
 +}
 +
-+static void mlxcpld_i2c_set_transf_data(struct mlxcpld_i2c_priv *priv,
-+					struct i2c_msg *msgs, int num,
-+					u8 comm_len)
++static int lpi2c_imx_start(struct lpi2c_imx_struct *lpi2c_imx,
++			   struct i2c_msg *msgs)
 +{
-+	priv->xfer.msg = msgs;
-+	priv->xfer.msg_num = num;
++	unsigned int temp;
++	u8 read;
 +
-+	/*
-+	 * All upper layers currently are never use transfer with more than
-+	 * 2 messages. Actually, it's also not so relevant in Mellanox systems
-+	 * because of HW limitation. Max size of transfer is not more than 32
-+	 * bytes in the current x86 LPCI2C bridge.
-+	 */
-+	priv->xfer.cmd = msgs[num - 1].flags & I2C_M_RD;
++	temp = readl(lpi2c_imx->base + LPI2C_MCR);
++	temp |= MCR_RRF | MCR_RTF;
++	writel(temp, lpi2c_imx->base + LPI2C_MCR);
++	writel(0x7f00, lpi2c_imx->base + LPI2C_MSR);
 +
-+	if (priv->xfer.cmd == I2C_M_RD && comm_len != msgs[0].len) {
-+		priv->xfer.addr_width = msgs[0].len;
-+		priv->xfer.data_len = comm_len - priv->xfer.addr_width;
-+	} else {
-+		priv->xfer.addr_width = 0;
-+		priv->xfer.data_len = comm_len;
-+	}
++	read = msgs->flags & I2C_M_RD;
++	temp = (msgs->addr << 1 | read) | (GEN_START << 8);
++	writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++
++	return lpi2c_imx_bus_busy(lpi2c_imx);
 +}
 +
-+/* Reset CPLD LPCI2C block */
-+static void mlxcpld_i2c_reset(struct mlxcpld_i2c_priv *priv)
++static void lpi2c_imx_stop(struct lpi2c_imx_struct *lpi2c_imx)
 +{
-+	u8 val;
++	unsigned long orig_jiffies = jiffies;
++	unsigned int temp;
 +
-+	mutex_lock(&priv->lock);
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+	val &= ~MLXCPLD_LPCI2C_RST_SEL_MASK;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CTRL_REG, &val, 1);
-+
-+	mutex_unlock(&priv->lock);
-+}
-+
-+/* Make sure the CPLD is ready to start transmitting. */
-+static int mlxcpld_i2c_check_busy(struct mlxcpld_i2c_priv *priv)
-+{
-+	u8 val;
-+
-+	mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_STATUS_REG, &val, 1);
-+
-+	if (val & MLXCPLD_LPCI2C_TRANS_END)
-+		return 0;
-+
-+	return -EIO;
-+}
-+
-+static int mlxcpld_i2c_wait_for_free(struct mlxcpld_i2c_priv *priv)
-+{
-+	int timeout = 0;
++	writel(GEN_STOP << 8, lpi2c_imx->base + LPI2C_MTDR);
 +
 +	do {
-+		if (!mlxcpld_i2c_check_busy(priv))
++		temp = readl(lpi2c_imx->base + LPI2C_MSR);
++		if (temp & MSR_SDF)
 +			break;
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (timeout <= MLXCPLD_I2C_XFER_TO);
 +
-+	if (timeout > MLXCPLD_I2C_XFER_TO)
-+		return -ETIMEDOUT;
++		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
++			dev_dbg(&lpi2c_imx->adapter.dev, "stop timeout\n");
++			break;
++		}
++		schedule();
++
++	} while (1);
++}
++
++/* CLKLO = I2C_CLK_RATIO * CLKHI, SETHOLD = CLKHI, DATAVD = CLKHI/2 */
++static int lpi2c_imx_config(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	u8 prescale, filt, sethold, clkhi, clklo, datavd;
++	unsigned int clk_rate, clk_cycle;
++	enum lpi2c_imx_pincfg pincfg;
++	unsigned int temp;
++
++	lpi2c_imx_set_mode(lpi2c_imx);
++
++	clk_rate = clk_get_rate(lpi2c_imx->clk);
++	if (lpi2c_imx->mode == HS || lpi2c_imx->mode == ULTRA_FAST)
++		filt = 0;
++	else
++		filt = 2;
++
++	for (prescale = 0; prescale <= 7; prescale++) {
++		clk_cycle = clk_rate / ((1 << prescale) * lpi2c_imx->bitrate)
++			    - 3 - (filt >> 1);
++		clkhi = (clk_cycle + I2C_CLK_RATIO) / (I2C_CLK_RATIO + 1);
++		clklo = clk_cycle - clkhi;
++		if (clklo < 64)
++			break;
++	}
++
++	if (prescale > 7)
++		return -EINVAL;
++
++	/* set MCFGR1: PINCFG, PRESCALE, IGNACK */
++	if (lpi2c_imx->mode == ULTRA_FAST)
++		pincfg = TWO_PIN_OO;
++	else
++		pincfg = TWO_PIN_OD;
++	temp = prescale | pincfg << 24;
++
++	if (lpi2c_imx->mode == ULTRA_FAST)
++		temp |= MCFGR1_IGNACK;
++
++	writel(temp, lpi2c_imx->base + LPI2C_MCFGR1);
++
++	/* set MCFGR2: FILTSDA, FILTSCL */
++	temp = (filt << 16) | (filt << 24);
++	writel(temp, lpi2c_imx->base + LPI2C_MCFGR2);
++
++	/* set MCCR: DATAVD, SETHOLD, CLKHI, CLKLO */
++	sethold = clkhi;
++	datavd = clkhi >> 1;
++	temp = datavd << 24 | sethold << 16 | clkhi << 8 | clklo;
++
++	if (lpi2c_imx->mode == HS)
++		writel(temp, lpi2c_imx->base + LPI2C_MCCR1);
++	else
++		writel(temp, lpi2c_imx->base + LPI2C_MCCR0);
 +
 +	return 0;
 +}
 +
-+/*
-+ * Wait for master transfer to complete.
-+ * It puts current process to sleep until we get interrupt or timeout expires.
-+ * Returns the number of transferred or read bytes or error (<0).
-+ */
-+static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
++static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
 +{
-+	int status, i, timeout = 0;
-+	u8 datalen;
++	unsigned int temp;
++	int ret;
++
++	ret = clk_enable(lpi2c_imx->clk);
++	if (ret)
++		return ret;
++
++	temp = MCR_RST;
++	writel(temp, lpi2c_imx->base + LPI2C_MCR);
++	writel(0, lpi2c_imx->base + LPI2C_MCR);
++
++	ret = lpi2c_imx_config(lpi2c_imx);
++	if (ret)
++		goto clk_disable;
++
++	temp = readl(lpi2c_imx->base + LPI2C_MCR);
++	temp |= MCR_MEN;
++	writel(temp, lpi2c_imx->base + LPI2C_MCR);
++
++	return 0;
++
++clk_disable:
++	clk_disable(lpi2c_imx->clk);
++
++	return ret;
++}
++
++static int lpi2c_imx_master_disable(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	u32 temp;
++
++	temp = readl(lpi2c_imx->base + LPI2C_MCR);
++	temp &= ~MCR_MEN;
++	writel(temp, lpi2c_imx->base + LPI2C_MCR);
++
++	clk_disable(lpi2c_imx->clk);
++
++	return 0;
++}
++
++static int lpi2c_imx_msg_complete(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	unsigned long timeout;
++
++	timeout = wait_for_completion_timeout(&lpi2c_imx->complete, HZ);
++
++	return timeout ? 0 : -ETIMEDOUT;
++}
++
++static int lpi2c_imx_txfifo_empty(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	unsigned long orig_jiffies = jiffies;
++	u32 txcnt;
 +
 +	do {
-+		usleep_range(MLXCPLD_I2C_POLL_TIME / 2, MLXCPLD_I2C_POLL_TIME);
-+		if (!mlxcpld_i2c_check_status(priv, &status))
-+			break;
-+		timeout += MLXCPLD_I2C_POLL_TIME;
-+	} while (status == 0 && timeout < MLXCPLD_I2C_XFER_TO);
++		txcnt = readl(lpi2c_imx->base + LPI2C_MFSR) & 0xff;
 +
-+	switch (status) {
-+	case MLXCPLD_LPCI2C_NO_IND:
-+		return -ETIMEDOUT;
-+
-+	case MLXCPLD_LPCI2C_ACK_IND:
-+		if (priv->xfer.cmd != I2C_M_RD)
-+			return (priv->xfer.addr_width + priv->xfer.data_len);
-+
-+		if (priv->xfer.msg_num == 1)
-+			i = 0;
-+		else
-+			i = 1;
-+
-+		if (!priv->xfer.msg[i].buf)
-+			return -EINVAL;
-+
-+		/*
-+		 * Actual read data len will be always the same as
-+		 * requested len. 0xff (line pull-up) will be returned
-+		 * if slave has no data to return. Thus don't read
-+		 * MLXCPLD_LPCI2C_NUM_DAT_REG reg from CPLD.
-+		 */
-+		datalen = priv->xfer.data_len;
-+
-+		mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_DATA_REG,
-+				      priv->xfer.msg[i].buf, datalen);
-+
-+		return datalen;
-+
-+	case MLXCPLD_LPCI2C_NACK_IND:
-+		return -ENXIO;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static void mlxcpld_i2c_xfer_msg(struct mlxcpld_i2c_priv *priv)
-+{
-+	int i, len = 0;
-+	u8 cmd;
-+
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
-+			       &priv->xfer.data_len, 1);
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_NUM_ADDR_REG,
-+			       &priv->xfer.addr_width, 1);
-+
-+	for (i = 0; i < priv->xfer.msg_num; i++) {
-+		if ((priv->xfer.msg[i].flags & I2C_M_RD) != I2C_M_RD) {
-+			/* Don't write to CPLD buffer in read transaction */
-+			mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_DATA_REG +
-+					       len, priv->xfer.msg[i].buf,
-+					       priv->xfer.msg[i].len);
-+			len += priv->xfer.msg[i].len;
-+		}
-+	}
-+
-+	/*
-+	 * Set target slave address with command for master transfer.
-+	 * It should be latest executed function before CPLD transaction.
-+	 */
-+	cmd = (priv->xfer.msg[0].addr << 1) | priv->xfer.cmd;
-+	mlxcpld_i2c_write_comm(priv, MLXCPLD_LPCI2C_CMD_REG, &cmd, 1);
-+}
-+
-+/*
-+ * Generic lpc-i2c transfer.
-+ * Returns the number of processed messages or error (<0).
-+ */
-+static int mlxcpld_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			    int num)
-+{
-+	struct mlxcpld_i2c_priv *priv = i2c_get_adapdata(adap);
-+	u8 comm_len = 0;
-+	int i, err;
-+
-+	err = mlxcpld_i2c_check_msg_params(priv, msgs, num);
-+	if (err) {
-+		dev_err(priv->dev, "Incorrect message\n");
-+		return err;
-+	}
-+
-+	for (i = 0; i < num; ++i)
-+		comm_len += msgs[i].len;
-+
-+	/* Check bus state */
-+	if (mlxcpld_i2c_wait_for_free(priv)) {
-+		dev_err(priv->dev, "LPCI2C bridge is busy\n");
-+
-+		/*
-+		 * Usually it means something serious has happened.
-+		 * We can not have unfinished previous transfer
-+		 * so it doesn't make any sense to try to stop it.
-+		 * Probably we were not able to recover from the
-+		 * previous error.
-+		 * The only reasonable thing - is soft reset.
-+		 */
-+		mlxcpld_i2c_reset(priv);
-+		if (mlxcpld_i2c_check_busy(priv)) {
-+			dev_err(priv->dev, "LPCI2C bridge is busy after reset\n");
++		if (readl(lpi2c_imx->base + LPI2C_MSR) & MSR_NDF) {
++			dev_dbg(&lpi2c_imx->adapter.dev, "NDF detected\n");
 +			return -EIO;
 +		}
-+	}
 +
-+	mlxcpld_i2c_set_transf_data(priv, msgs, num, comm_len);
++		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
++			dev_dbg(&lpi2c_imx->adapter.dev, "txfifo empty timeout\n");
++			return -ETIMEDOUT;
++		}
++		schedule();
 +
-+	mutex_lock(&priv->lock);
-+
-+	/* Do real transfer. Can't fail */
-+	mlxcpld_i2c_xfer_msg(priv);
-+
-+	/* Wait for transaction complete */
-+	err = mlxcpld_i2c_wait_for_tc(priv);
-+
-+	mutex_unlock(&priv->lock);
-+
-+	return err < 0 ? err : num;
-+}
-+
-+static u32 mlxcpld_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
-+}
-+
-+static const struct i2c_algorithm mlxcpld_i2c_algo = {
-+	.master_xfer	= mlxcpld_i2c_xfer,
-+	.functionality	= mlxcpld_i2c_func
-+};
-+
-+static struct i2c_adapter_quirks mlxcpld_i2c_quirks = {
-+	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
-+	.max_read_len = MLXCPLD_I2C_DATA_REG_SZ - MLXCPLD_I2C_MAX_ADDR_LEN,
-+	.max_write_len = MLXCPLD_I2C_DATA_REG_SZ,
-+	.max_comb_1st_msg_len = 4,
-+};
-+
-+static struct i2c_adapter mlxcpld_i2c_adapter = {
-+	.owner          = THIS_MODULE,
-+	.name           = "i2c-mlxcpld",
-+	.class          = I2C_CLASS_HWMON | I2C_CLASS_SPD,
-+	.algo           = &mlxcpld_i2c_algo,
-+	.quirks		= &mlxcpld_i2c_quirks,
-+	.retries	= MLXCPLD_I2C_RETR_NUM,
-+	.nr		= MLXCPLD_I2C_BUS_NUM,
-+};
-+
-+static int mlxcpld_i2c_probe(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv;
-+	int err;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	mutex_init(&priv->lock);
-+	platform_set_drvdata(pdev, priv);
-+
-+	priv->dev = &pdev->dev;
-+
-+	/* Register with i2c layer */
-+	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-+	priv->adap = mlxcpld_i2c_adapter;
-+	priv->adap.dev.parent = &pdev->dev;
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
-+	i2c_set_adapdata(&priv->adap, priv);
-+
-+	err = i2c_add_numbered_adapter(&priv->adap);
-+	if (err)
-+		mutex_destroy(&priv->lock);
-+
-+	return err;
-+}
-+
-+static int mlxcpld_i2c_remove(struct platform_device *pdev)
-+{
-+	struct mlxcpld_i2c_priv *priv = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&priv->adap);
-+	mutex_destroy(&priv->lock);
++	} while (txcnt);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver mlxcpld_i2c_driver = {
-+	.probe		= mlxcpld_i2c_probe,
-+	.remove		= mlxcpld_i2c_remove,
++static void lpi2c_imx_set_tx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	writel(LPI2C_TX_FIFOSIZE >> 1, lpi2c_imx->base + LPI2C_MFCR);
++}
++
++static void lpi2c_imx_set_rx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	unsigned int temp, remaining;
++
++	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
++
++	if (remaining > (LPI2C_RX_FIFOSIZE >> 1))
++		temp = LPI2C_RX_FIFOSIZE >> 1;
++	else
++		temp = 0;
++
++	writel(temp << 16, lpi2c_imx->base + LPI2C_MFCR);
++}
++
++static void lpi2c_imx_write_txfifo(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	unsigned int data, txcnt;
++
++	txcnt = readl(lpi2c_imx->base + LPI2C_MFSR) & 0xff;
++
++	while (txcnt < LPI2C_TX_FIFOSIZE) {
++		if (lpi2c_imx->delivered == lpi2c_imx->msglen)
++			break;
++
++		data = lpi2c_imx->tx_buf[lpi2c_imx->delivered++];
++		writel(data, lpi2c_imx->base + LPI2C_MTDR);
++		txcnt++;
++	}
++
++	if (lpi2c_imx->delivered < lpi2c_imx->msglen)
++		lpi2c_imx_intctrl(lpi2c_imx, MIER_TDIE | MIER_NDIE);
++	else
++		complete(&lpi2c_imx->complete);
++}
++
++static void lpi2c_imx_read_rxfifo(struct lpi2c_imx_struct *lpi2c_imx)
++{
++	unsigned int blocklen, remaining;
++	unsigned int temp, data;
++
++	do {
++		data = readl(lpi2c_imx->base + LPI2C_MRDR);
++		if (data & MRDR_RXEMPTY)
++			break;
++
++		lpi2c_imx->rx_buf[lpi2c_imx->delivered++] = data & 0xff;
++	} while (1);
++
++	/*
++	 * First byte is the length of remaining packet in the SMBus block
++	 * data read. Add it to msgs->len.
++	 */
++	if (lpi2c_imx->block_data) {
++		blocklen = lpi2c_imx->rx_buf[0];
++		lpi2c_imx->msglen += blocklen;
++	}
++
++	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
++
++	if (!remaining) {
++		complete(&lpi2c_imx->complete);
++		return;
++	}
++
++	/* not finished, still waiting for rx data */
++	lpi2c_imx_set_rx_watermark(lpi2c_imx);
++
++	/* multiple receive commands */
++	if (lpi2c_imx->block_data) {
++		lpi2c_imx->block_data = 0;
++		temp = remaining;
++		temp |= (RECV_DATA << 8);
++		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++	} else if (!(lpi2c_imx->delivered & 0xff)) {
++		temp = (remaining > CHUNK_DATA ? CHUNK_DATA : remaining) - 1;
++		temp |= (RECV_DATA << 8);
++		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++	}
++
++	lpi2c_imx_intctrl(lpi2c_imx, MIER_RDIE);
++}
++
++static void lpi2c_imx_write(struct lpi2c_imx_struct *lpi2c_imx,
++			    struct i2c_msg *msgs)
++{
++	lpi2c_imx->tx_buf = msgs->buf;
++	lpi2c_imx_set_tx_watermark(lpi2c_imx);
++	lpi2c_imx_write_txfifo(lpi2c_imx);
++}
++
++static void lpi2c_imx_read(struct lpi2c_imx_struct *lpi2c_imx,
++			   struct i2c_msg *msgs)
++{
++	unsigned int temp;
++
++	lpi2c_imx->rx_buf = msgs->buf;
++	lpi2c_imx->block_data = msgs->flags & I2C_M_RECV_LEN;
++
++	lpi2c_imx_set_rx_watermark(lpi2c_imx);
++	temp = msgs->len > CHUNK_DATA ? CHUNK_DATA - 1 : msgs->len - 1;
++	temp |= (RECV_DATA << 8);
++	writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++
++	lpi2c_imx_intctrl(lpi2c_imx, MIER_RDIE | MIER_NDIE);
++}
++
++static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
++			  struct i2c_msg *msgs, int num)
++{
++	struct lpi2c_imx_struct *lpi2c_imx = i2c_get_adapdata(adapter);
++	unsigned int temp;
++	int i, result;
++
++	result = lpi2c_imx_master_enable(lpi2c_imx);
++	if (result)
++		return result;
++
++	for (i = 0; i < num; i++) {
++		result = lpi2c_imx_start(lpi2c_imx, &msgs[i]);
++		if (result)
++			goto disable;
++
++		/* quick smbus */
++		if (num == 1 && msgs[0].len == 0)
++			goto stop;
++
++		lpi2c_imx->delivered = 0;
++		lpi2c_imx->msglen = msgs[i].len;
++		init_completion(&lpi2c_imx->complete);
++
++		if (msgs[i].flags & I2C_M_RD)
++			lpi2c_imx_read(lpi2c_imx, &msgs[i]);
++		else
++			lpi2c_imx_write(lpi2c_imx, &msgs[i]);
++
++		result = lpi2c_imx_msg_complete(lpi2c_imx);
++		if (result)
++			goto stop;
++
++		if (!(msgs[i].flags & I2C_M_RD)) {
++			result = lpi2c_imx_txfifo_empty(lpi2c_imx);
++			if (result)
++				goto stop;
++		}
++	}
++
++stop:
++	lpi2c_imx_stop(lpi2c_imx);
++
++	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++	if ((temp & MSR_NDF) && !result)
++		result = -EIO;
++
++disable:
++	lpi2c_imx_master_disable(lpi2c_imx);
++
++	dev_dbg(&lpi2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
++		(result < 0) ? "error" : "success msg",
++		(result < 0) ? result : num);
++
++	return (result < 0) ? result : num;
++}
++
++static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
++{
++	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
++	unsigned int temp;
++
++	lpi2c_imx_intctrl(lpi2c_imx, 0);
++	temp = readl(lpi2c_imx->base + LPI2C_MSR);
++
++	if (temp & MSR_RDF) {
++		lpi2c_imx_read_rxfifo(lpi2c_imx);
++		return IRQ_HANDLED;
++	}
++
++	if (temp & MSR_TDF) {
++		lpi2c_imx_write_txfifo(lpi2c_imx);
++		return IRQ_HANDLED;
++	}
++
++	complete(&lpi2c_imx->complete);
++
++	return IRQ_HANDLED;
++}
++
++static u32 lpi2c_imx_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++		I2C_FUNC_SMBUS_READ_BLOCK_DATA;
++}
++
++static struct i2c_algorithm lpi2c_imx_algo = {
++	.master_xfer	= lpi2c_imx_xfer,
++	.functionality	= lpi2c_imx_func,
++};
++
++static const struct of_device_id lpi2c_imx_of_match[] = {
++	{ .compatible = "fsl,imx7ulp-lpi2c" },
++	{ .compatible = "fsl,imx8dv-lpi2c" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, lpi2c_imx_of_match);
++
++static int lpi2c_imx_probe(struct platform_device *pdev)
++{
++	struct lpi2c_imx_struct *lpi2c_imx;
++	struct resource *res;
++	int irq, ret;
++
++	lpi2c_imx = devm_kzalloc(&pdev->dev, sizeof(*lpi2c_imx), GFP_KERNEL);
++	if (!lpi2c_imx)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	lpi2c_imx->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(lpi2c_imx->base))
++		return PTR_ERR(lpi2c_imx->base);
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(&pdev->dev, "can't get irq number\n");
++		return irq;
++	}
++
++	lpi2c_imx->adapter.owner	= THIS_MODULE;
++	lpi2c_imx->adapter.algo		= &lpi2c_imx_algo;
++	lpi2c_imx->adapter.dev.parent	= &pdev->dev;
++	lpi2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
++	strlcpy(lpi2c_imx->adapter.name, pdev->name,
++		sizeof(lpi2c_imx->adapter.name));
++
++	lpi2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(lpi2c_imx->clk)) {
++		dev_err(&pdev->dev, "can't get I2C peripheral clock\n");
++		return PTR_ERR(lpi2c_imx->clk);
++	}
++
++	ret = of_property_read_u32(pdev->dev.of_node,
++				   "clock-frequency", &lpi2c_imx->bitrate);
++	if (ret)
++		lpi2c_imx->bitrate = LPI2C_DEFAULT_RATE;
++
++	ret = devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr, 0,
++			       pdev->name, lpi2c_imx);
++	if (ret) {
++		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
++		return ret;
++	}
++
++	i2c_set_adapdata(&lpi2c_imx->adapter, lpi2c_imx);
++	platform_set_drvdata(pdev, lpi2c_imx);
++
++	ret = clk_prepare(lpi2c_imx->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "clk prepare failed %d\n", ret);
++		return ret;
++	}
++
++	ret = i2c_add_adapter(&lpi2c_imx->adapter);
++	if (ret)
++		goto clk_unprepare;
++
++	dev_info(&lpi2c_imx->adapter.dev, "LPI2C adapter registered\n");
++
++	return 0;
++
++clk_unprepare:
++	clk_unprepare(lpi2c_imx->clk);
++
++	return ret;
++}
++
++static int lpi2c_imx_remove(struct platform_device *pdev)
++{
++	struct lpi2c_imx_struct *lpi2c_imx = platform_get_drvdata(pdev);
++
++	i2c_del_adapter(&lpi2c_imx->adapter);
++
++	clk_unprepare(lpi2c_imx->clk);
++
++	return 0;
++}
++
++static struct platform_driver lpi2c_imx_driver = {
++	.probe = lpi2c_imx_probe,
++	.remove = lpi2c_imx_remove,
 +	.driver = {
-+		.name = MLXCPLD_I2C_DEVICE_NAME,
++		.name = DRIVER_NAME,
++		.of_match_table = lpi2c_imx_of_match,
 +	},
 +};
 +
-+module_platform_driver(mlxcpld_i2c_driver);
++module_platform_driver(lpi2c_imx_driver);
 +
-+MODULE_AUTHOR("Michael Shych <michaels@mellanox.com>");
-+MODULE_DESCRIPTION("Mellanox I2C-CPLD controller driver");
-+MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_ALIAS("platform:i2c-mlxcpld");
++MODULE_AUTHOR("Gao Pan <pandy.gao@nxp.com>");
++MODULE_DESCRIPTION("I2C adapter driver for LPI2C bus");
++MODULE_LICENSE("GPL v2");
 -- 
-2.1.4
+1.9.1
