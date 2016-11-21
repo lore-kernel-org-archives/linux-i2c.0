@@ -1,747 +1,109 @@
-From: Gao Pan <pandy.gao@nxp.com>
-Subject: [Patch V5 2/2] i2c: imx: add low power i2c bus driver
-Date: Mon, 21 Nov 2016 15:51:44 +0800
-Message-ID: <1479714704-3014-2-git-send-email-pandy.gao@nxp.com>
-References: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [BUG] i2c-designware silently fails on long transfers
+Date: Mon, 21 Nov 2016 12:29:01 +0200
+Message-ID: <20161121102901.GF1446@lahna.fi.intel.com>
+References: <20161118193542.GO1041@n2100.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0086.outbound.protection.outlook.com ([104.47.2.86]:20219
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750944AbcKUHxX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Nov 2016 02:53:23 -0500
-In-Reply-To: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
+Received: from mga07.intel.com ([134.134.136.100]:27891 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753623AbcKUKbT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Nov 2016 05:31:19 -0500
+Content-Disposition: inline
+In-Reply-To: <20161118193542.GO1041@n2100.armlinux.org.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com, wsa-dev@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-This patch adds lpi2c bus driver to support new i.MX products
-which use lpi2c instead of the old imx i2c.
+On Fri, Nov 18, 2016 at 07:35:42PM +0000, Russell King - ARM Linux wrote:
+> With reference to this commit:
+> 
+> commit d39f77b06a712fcba6185a20bb209e357923d980
+> Author: Andrew Jackson <Andrew.Jackson@arm.com>
+> Date:   Fri Nov 7 12:10:44 2014 +0000
+> 
+>     i2c: designware: prevent early stop on TX FIFO empty
+> 
+>     If the Designware core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN
+>     set to zero, allowing the TX FIFO to become empty causes a STOP
+>     condition to be generated on the I2C bus. If the transmit FIFO
+>     threshold is set too high, an erroneous STOP condition can be
+>     generated on long transfers - particularly where the interrupt
+>     latency is extended.
+> 
+>     Signed-off-by: Andrew Jackson <Andrew.Jackson@arm.com>
+>     Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+>     Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>     Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> 
+> The TDA998x driver issues long I2C transfers to read the EDID from the
+> device - and userspace can also issue large transfers too.  However,
+> if a DW core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN set as
+> zero, the above commit doesn't seem to solve the problem.  During
+> boot, with the patch below, I see:
+> 
+> [    1.736549] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x10
+> [    1.736564] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x510
+> [    1.736608] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
+> [    1.736799] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x514
+> [    1.736819] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x510
+> ...
+> [    1.737986] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
+> [    1.738010] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x514
+> [    1.738034] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
+> [    1.738039] random: fast init done
+> [    1.740120] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x714
+> [    1.740231] i2c_dw_xfer: ffffffc97657b770:1 -> ffffffc97657b770:1 (0:0) [0 0 3 0] 8 [tx:ffffffc976682380:47] [rx:ffffffc9766823c9:55]
+> [    1.740249] [drm:drm_edid_block_valid] *ERROR* EDID checksum is invalid, remainder is 93
+> [    1.746979] Raw EDID:
+> [    1.747934]          00 ff ff ff ff ff ff 00 34 a9 96 a2 01 01 01 01
+> [    1.752342]          00 17 01 03 80 80 48 78 0a da ff a3 58 4a a2 29
+> [    1.756748]          17 49 4b 21 08 00 31 40 45 40 61 40 81 80 01 01
+> [    1.761153]          01 01 01 01 01 01 02 3a 80 d0 72 38 2d 40 10 2c
+> [    1.765555]          45 80 ba 88 21 00 00 1e 02 00 d0 4e 30 09 12 54
+> [    1.769958]          01 08 02 00 23 36 01 40 01 05 00 80 a1 4c 4b 49
+> [    1.774361]          22 00 00 40 03 00 28 00 23 01 20 00 01 88 00 01
+> [    1.778762]          08 00 00 40 00 02 03 04 0a 00 80 00 02 00 00 40
+> 
+> The significant thing is the "i2c_dw_xfer" line, where I add a print of
+> the current state.  Here, we can see that the transfer is mid-way, but
+> a stop condition has been generated by the hardware, leaving 55 bytes
+> to be received.
+> 
+> Unfortunately, the i2c-designware driver ignores this, and believes that
+> the transfer completed both fully and successfully, but returns bogus
+> data to userspace or the kernel driver.  That's really _bad_ behaviour
+> by the driver - it should at least return an error.
 
-The lpi2c can continue operating in stop mode when an appropriate
-clock is available. It is also designed for low CPU overhead with
-DMA offloading of FIFO register accesses.
+Totally agree.
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
-Reviewed-by: Fugang Duan <B38611@freescale.com>
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
----
-V2:
- -stop i2c transfer under the wrong condition
- -add timeout check in while() domain
+> This problem is _soo_ bad that on my Juno, I can't run Xorg (it hits
+> this every time we try to read the EDID) nor can I boot with the TV
+> connected (it hits this every boot as well.)
+> 
+> I'd go as far as to say that the i2c-designware hardware, when
+> configured with this option set to zero, is fundamentally broken for OS
+> which do not provide any guarantee for interrupt latency, such as Linux.
+> 
+> The commit above tries to mitigate this by reducing the Tx FIFO
+> threshold, so the interrupt is raised sooner, but that's clearly not
+> enough for reliable operation.
+> 
+> Another mitigation would be to lower the I2C bus frequency on Juno from
+> 400kHz to 100kHz, so that there's 4x longer IRQ latency possible.
+> However, even that isn't going to be reliable - even going to 100kHz
+> isn't going to allow the above case to be solved - the interrupt is
+> delayed by around 2ms, and it takes about 1.4ms to send/receive 16 bytes
+> at 100kHz.  (9 * 16 / (100*10^3)).
+> 
+> So, I think all hope is lost for i2c-designware on Juno to cope with
+> reading the EDID from TDA998x reliably.
 
-V3:
- -fix typo inside commit message and the driver.
+:-(
 
-V4:
-As Vladimir Zapolskiy's review, the version do below changes:
- -split devicetree binding with driver
- -prepare clk in probe()
- -replace "1<<n" BIT(n)
- -remove unnecessary variables
- -fix typo
- -use module_platform_driver()
- -use i2c_add_adapter()
-
-V5:
- -unprepare clk in lpi2c_imx_remove()
- -disable clk when lpi2c_imx_config() fails
- -unprepare clk when i2c_add_adapter() fails
-
- drivers/i2c/busses/Kconfig         |  10 +
- drivers/i2c/busses/Makefile        |   1 +
- drivers/i2c/busses/i2c-imx-lpi2c.c | 649 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 660 insertions(+)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..7cff9ec 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -597,6 +597,16 @@ config I2C_IMX
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-imx.
- 
-+config I2C_IMX_LPI2C
-+	tristate "IMX Low Power I2C interface"
-+	depends on ARCH_MXC || COMPILE_TEST
-+	help
-+          Say Y here if you want to use the Low Power IIC bus controller
-+          on the Freescale i.MX processors.
-+
-+          This driver can also be built as a module. If so, the module
-+          will be called i2c-imx-lpi2c.
-+
- config I2C_IOP3XX
- 	tristate "Intel IOPx3xx and IXP4xx on-chip I2C interface"
- 	depends on ARCH_IOP32X || ARCH_IOP33X || ARCH_IXP4XX || ARCH_IOP13XX
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 29764cc..05195cd 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
- obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
- obj-$(CONFIG_I2C_IMG)		+= i2c-img-scb.o
- obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
-+obj-$(CONFIG_I2C_IMX_LPI2C)	+= i2c-imx-lpi2c.o
- obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
- obj-$(CONFIG_I2C_JZ4780)	+= i2c-jz4780.o
- obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-new file mode 100644
-index 0000000..af5d1b6
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -0,0 +1,649 @@
-+/*
-+ * This is i.MX low power i2c controller driver.
-+ *
-+ * Copyright 2016 Freescale Semiconductor, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version 2
-+ * of the License, or (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/completion.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+
-+#define DRIVER_NAME "imx-lpi2c"
-+
-+#define LPI2C_PARAM	0x04	/* i2c RX/TX FIFO size */
-+#define LPI2C_MCR	0x10	/* i2c contrl register */
-+#define LPI2C_MSR	0x14	/* i2c status register */
-+#define LPI2C_MIER	0x18	/* i2c interrupt enable */
-+#define LPI2C_MCFGR0	0x20	/* i2c master configuration */
-+#define LPI2C_MCFGR1	0x24	/* i2c master configuration */
-+#define LPI2C_MCFGR2	0x28	/* i2c master configuration */
-+#define LPI2C_MCFGR3	0x2C	/* i2c master configuration */
-+#define LPI2C_MCCR0	0x48	/* i2c master clk configuration */
-+#define LPI2C_MCCR1	0x50	/* i2c master clk configuration */
-+#define LPI2C_MFCR	0x58	/* i2c master FIFO control */
-+#define LPI2C_MFSR	0x5C	/* i2c master FIFO status */
-+#define LPI2C_MTDR	0x60	/* i2c master TX data register */
-+#define LPI2C_MRDR	0x70	/* i2c master RX data register */
-+
-+/* i2c command */
-+#define TRAN_DATA	0X00
-+#define RECV_DATA	0X01
-+#define GEN_STOP	0X02
-+#define RECV_DISCARD	0X03
-+#define GEN_START	0X04
-+#define START_NACK	0X05
-+#define START_HIGH	0X06
-+#define START_HIGH_NACK	0X07
-+
-+#define MCR_MEN		BIT(0)
-+#define MCR_RST		BIT(1)
-+#define MCR_DOZEN	BIT(2)
-+#define MCR_DBGEN	BIT(3)
-+#define MCR_RTF		BIT(8)
-+#define MCR_RRF		BIT(9)
-+#define MSR_TDF		BIT(0)
-+#define MSR_RDF		BIT(1)
-+#define MSR_SDF		BIT(9)
-+#define MSR_NDF		BIT(10)
-+#define MSR_ALF		BIT(11)
-+#define MSR_MBF		BIT(24)
-+#define MSR_BBF		BIT(25)
-+#define MIER_TDIE	BIT(0)
-+#define MIER_RDIE	BIT(1)
-+#define MIER_SDIE	BIT(9)
-+#define MIER_NDIE	BIT(10)
-+#define MCFGR1_AUTOSTOP	BIT(8)
-+#define MCFGR1_IGNACK	BIT(9)
-+#define MRDR_RXEMPTY	BIT(14)
-+
-+#define I2C_CLK_RATIO	2
-+#define CHUNK_DATA	256
-+
-+#define LPI2C_RX_FIFOSIZE	4
-+#define LPI2C_TX_FIFOSIZE	4
-+
-+#define LPI2C_DEFAULT_RATE	100000
-+#define STARDARD_MAX_BITRATE	400000
-+#define FAST_MAX_BITRATE	1000000
-+#define FAST_PLUS_MAX_BITRATE	3400000
-+#define HIGHSPEED_MAX_BITRATE	5000000
-+
-+enum lpi2c_imx_mode {
-+	STANDARD,	/* 100+Kbps */
-+	FAST,		/* 400+Kbps */
-+	FAST_PLUS,	/* 1.0+Mbps */
-+	HS,		/* 3.4+Mbps */
-+	ULTRA_FAST,	/* 5.0+Mbps */
-+};
-+
-+enum lpi2c_imx_pincfg {
-+	TWO_PIN_OD,
-+	TWO_PIN_OO,
-+	TWO_PIN_PP,
-+	FOUR_PIN_PP,
-+};
-+
-+struct lpi2c_imx_struct {
-+	struct i2c_adapter	adapter;
-+	struct clk		*clk;
-+	void __iomem		*base;
-+	__u8			*rx_buf;
-+	__u8			*tx_buf;
-+	struct completion	complete;
-+	unsigned int		msglen;
-+	unsigned int		delivered;
-+	unsigned int		block_data;
-+	unsigned int		bitrate;
-+	enum lpi2c_imx_mode	mode;
-+};
-+
-+static void lpi2c_imx_intctrl(struct lpi2c_imx_struct *lpi2c_imx,
-+			      unsigned int enable)
-+{
-+	writel(enable, lpi2c_imx->base + LPI2C_MIER);
-+}
-+
-+static int lpi2c_imx_bus_busy(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned long orig_jiffies = jiffies;
-+	unsigned int temp;
-+
-+	while (1) {
-+		temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+
-+		/* check for arbitration lost, clear if set */
-+		if (temp & MSR_ALF) {
-+			writel(temp, lpi2c_imx->base + LPI2C_MSR);
-+			return -EAGAIN;
-+		}
-+
-+		if (temp & (MSR_BBF | MSR_MBF))
-+			break;
-+
-+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
-+			dev_dbg(&lpi2c_imx->adapter.dev, "bus not work\n");
-+			return -ETIMEDOUT;
-+		}
-+		schedule();
-+	}
-+
-+	return 0;
-+}
-+
-+static void lpi2c_imx_set_mode(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned int bitrate = lpi2c_imx->bitrate;
-+	enum lpi2c_imx_mode mode;
-+
-+	if (bitrate < STARDARD_MAX_BITRATE)
-+		mode = STANDARD;
-+	else if (bitrate < FAST_MAX_BITRATE)
-+		mode = FAST;
-+	else if (bitrate < FAST_PLUS_MAX_BITRATE)
-+		mode = FAST_PLUS;
-+	else if (bitrate < HIGHSPEED_MAX_BITRATE)
-+		mode = HS;
-+	else
-+		mode = ULTRA_FAST;
-+
-+	lpi2c_imx->mode = mode;
-+}
-+
-+static int lpi2c_imx_start(struct lpi2c_imx_struct *lpi2c_imx,
-+			   struct i2c_msg *msgs)
-+{
-+	unsigned int temp;
-+	u8 read;
-+
-+	temp = readl(lpi2c_imx->base + LPI2C_MCR);
-+	temp |= MCR_RRF | MCR_RTF;
-+	writel(temp, lpi2c_imx->base + LPI2C_MCR);
-+	writel(0x7f00, lpi2c_imx->base + LPI2C_MSR);
-+
-+	read = msgs->flags & I2C_M_RD;
-+	temp = (msgs->addr << 1 | read) | (GEN_START << 8);
-+	writel(temp, lpi2c_imx->base + LPI2C_MTDR);
-+
-+	return lpi2c_imx_bus_busy(lpi2c_imx);
-+}
-+
-+static void lpi2c_imx_stop(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned long orig_jiffies = jiffies;
-+	unsigned int temp;
-+
-+	writel(GEN_STOP << 8, lpi2c_imx->base + LPI2C_MTDR);
-+
-+	do {
-+		temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+		if (temp & MSR_SDF)
-+			break;
-+
-+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
-+			dev_dbg(&lpi2c_imx->adapter.dev, "stop timeout\n");
-+			break;
-+		}
-+		schedule();
-+
-+	} while (1);
-+}
-+
-+/* CLKLO = I2C_CLK_RATIO * CLKHI, SETHOLD = CLKHI, DATAVD = CLKHI/2 */
-+static int lpi2c_imx_config(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	u8 prescale, filt, sethold, clkhi, clklo, datavd;
-+	unsigned int clk_rate, clk_cycle;
-+	enum lpi2c_imx_pincfg pincfg;
-+	unsigned int temp;
-+
-+	lpi2c_imx_set_mode(lpi2c_imx);
-+
-+	clk_rate = clk_get_rate(lpi2c_imx->clk);
-+	if (lpi2c_imx->mode == HS || lpi2c_imx->mode == ULTRA_FAST)
-+		filt = 0;
-+	else
-+		filt = 2;
-+
-+	for (prescale = 0; prescale <= 7; prescale++) {
-+		clk_cycle = clk_rate / ((1 << prescale) * lpi2c_imx->bitrate)
-+			    - 3 - (filt >> 1);
-+		clkhi = (clk_cycle + I2C_CLK_RATIO) / (I2C_CLK_RATIO + 1);
-+		clklo = clk_cycle - clkhi;
-+		if (clklo < 64)
-+			break;
-+	}
-+
-+	if (prescale > 7)
-+		return -EINVAL;
-+
-+	/* set MCFGR1: PINCFG, PRESCALE, IGNACK */
-+	if (lpi2c_imx->mode == ULTRA_FAST)
-+		pincfg = TWO_PIN_OO;
-+	else
-+		pincfg = TWO_PIN_OD;
-+	temp = prescale | pincfg << 24;
-+
-+	if (lpi2c_imx->mode == ULTRA_FAST)
-+		temp |= MCFGR1_IGNACK;
-+
-+	writel(temp, lpi2c_imx->base + LPI2C_MCFGR1);
-+
-+	/* set MCFGR2: FILTSDA, FILTSCL */
-+	temp = (filt << 16) | (filt << 24);
-+	writel(temp, lpi2c_imx->base + LPI2C_MCFGR2);
-+
-+	/* set MCCR: DATAVD, SETHOLD, CLKHI, CLKLO */
-+	sethold = clkhi;
-+	datavd = clkhi >> 1;
-+	temp = datavd << 24 | sethold << 16 | clkhi << 8 | clklo;
-+
-+	if (lpi2c_imx->mode == HS)
-+		writel(temp, lpi2c_imx->base + LPI2C_MCCR1);
-+	else
-+		writel(temp, lpi2c_imx->base + LPI2C_MCCR0);
-+
-+	return 0;
-+}
-+
-+static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned int temp;
-+	int ret;
-+
-+	ret = clk_enable(lpi2c_imx->clk);
-+	if (ret)
-+		return ret;
-+
-+	temp = MCR_RST;
-+	writel(temp, lpi2c_imx->base + LPI2C_MCR);
-+	writel(0, lpi2c_imx->base + LPI2C_MCR);
-+
-+	ret = lpi2c_imx_config(lpi2c_imx);
-+	if (ret)
-+		goto clk_disable;
-+
-+	temp = readl(lpi2c_imx->base + LPI2C_MCR);
-+	temp |= MCR_MEN;
-+	writel(temp, lpi2c_imx->base + LPI2C_MCR);
-+
-+	return 0;
-+
-+clk_disable:
-+	clk_disable(lpi2c_imx->clk);
-+
-+	return ret;
-+}
-+
-+static int lpi2c_imx_master_disable(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	u32 temp;
-+
-+	temp = readl(lpi2c_imx->base + LPI2C_MCR);
-+	temp &= ~MCR_MEN;
-+	writel(temp, lpi2c_imx->base + LPI2C_MCR);
-+
-+	clk_disable(lpi2c_imx->clk);
-+
-+	return 0;
-+}
-+
-+static int lpi2c_imx_msg_complete(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned long timeout;
-+
-+	timeout = wait_for_completion_timeout(&lpi2c_imx->complete, HZ);
-+
-+	return timeout ? 0 : -ETIMEDOUT;
-+}
-+
-+static int lpi2c_imx_txfifo_empty(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned long orig_jiffies = jiffies;
-+	u32 txcnt;
-+
-+	do {
-+		txcnt = readl(lpi2c_imx->base + LPI2C_MFSR) & 0xff;
-+
-+		if (readl(lpi2c_imx->base + LPI2C_MSR) & MSR_NDF) {
-+			dev_dbg(&lpi2c_imx->adapter.dev, "NDF detected\n");
-+			return -EIO;
-+		}
-+
-+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
-+			dev_dbg(&lpi2c_imx->adapter.dev, "txfifo empty timeout\n");
-+			return -ETIMEDOUT;
-+		}
-+		schedule();
-+
-+	} while (txcnt);
-+
-+	return 0;
-+}
-+
-+static void lpi2c_imx_set_tx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	writel(LPI2C_TX_FIFOSIZE >> 1, lpi2c_imx->base + LPI2C_MFCR);
-+}
-+
-+static void lpi2c_imx_set_rx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned int temp, remaining;
-+
-+	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
-+
-+	if (remaining > (LPI2C_RX_FIFOSIZE >> 1))
-+		temp = LPI2C_RX_FIFOSIZE >> 1;
-+	else
-+		temp = 0;
-+
-+	writel(temp << 16, lpi2c_imx->base + LPI2C_MFCR);
-+}
-+
-+static void lpi2c_imx_write_txfifo(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned int data, txcnt;
-+
-+	txcnt = readl(lpi2c_imx->base + LPI2C_MFSR) & 0xff;
-+
-+	while (txcnt < LPI2C_TX_FIFOSIZE) {
-+		if (lpi2c_imx->delivered == lpi2c_imx->msglen)
-+			break;
-+
-+		data = lpi2c_imx->tx_buf[lpi2c_imx->delivered++];
-+		writel(data, lpi2c_imx->base + LPI2C_MTDR);
-+		txcnt++;
-+	}
-+
-+	if (lpi2c_imx->delivered < lpi2c_imx->msglen)
-+		lpi2c_imx_intctrl(lpi2c_imx, MIER_TDIE | MIER_NDIE);
-+	else
-+		complete(&lpi2c_imx->complete);
-+}
-+
-+static void lpi2c_imx_read_rxfifo(struct lpi2c_imx_struct *lpi2c_imx)
-+{
-+	unsigned int blocklen, remaining;
-+	unsigned int temp, data;
-+
-+	do {
-+		data = readl(lpi2c_imx->base + LPI2C_MRDR);
-+		if (data & MRDR_RXEMPTY)
-+			break;
-+
-+		lpi2c_imx->rx_buf[lpi2c_imx->delivered++] = data & 0xff;
-+	} while (1);
-+
-+	/*
-+	 * First byte is the length of remaining packet in the SMBus block
-+	 * data read. Add it to msgs->len.
-+	 */
-+	if (lpi2c_imx->block_data) {
-+		blocklen = lpi2c_imx->rx_buf[0];
-+		lpi2c_imx->msglen += blocklen;
-+	}
-+
-+	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
-+
-+	if (!remaining) {
-+		complete(&lpi2c_imx->complete);
-+		return;
-+	}
-+
-+	/* not finished, still waiting for rx data */
-+	lpi2c_imx_set_rx_watermark(lpi2c_imx);
-+
-+	/* multiple receive commands */
-+	if (lpi2c_imx->block_data) {
-+		lpi2c_imx->block_data = 0;
-+		temp = remaining;
-+		temp |= (RECV_DATA << 8);
-+		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
-+	} else if (!(lpi2c_imx->delivered & 0xff)) {
-+		temp = (remaining > CHUNK_DATA ? CHUNK_DATA : remaining) - 1;
-+		temp |= (RECV_DATA << 8);
-+		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
-+	}
-+
-+	lpi2c_imx_intctrl(lpi2c_imx, MIER_RDIE);
-+}
-+
-+static void lpi2c_imx_write(struct lpi2c_imx_struct *lpi2c_imx,
-+			    struct i2c_msg *msgs)
-+{
-+	lpi2c_imx->tx_buf = msgs->buf;
-+	lpi2c_imx_set_tx_watermark(lpi2c_imx);
-+	lpi2c_imx_write_txfifo(lpi2c_imx);
-+}
-+
-+static void lpi2c_imx_read(struct lpi2c_imx_struct *lpi2c_imx,
-+			   struct i2c_msg *msgs)
-+{
-+	unsigned int temp;
-+
-+	lpi2c_imx->rx_buf = msgs->buf;
-+	lpi2c_imx->block_data = msgs->flags & I2C_M_RECV_LEN;
-+
-+	lpi2c_imx_set_rx_watermark(lpi2c_imx);
-+	temp = msgs->len > CHUNK_DATA ? CHUNK_DATA - 1 : msgs->len - 1;
-+	temp |= (RECV_DATA << 8);
-+	writel(temp, lpi2c_imx->base + LPI2C_MTDR);
-+
-+	lpi2c_imx_intctrl(lpi2c_imx, MIER_RDIE | MIER_NDIE);
-+}
-+
-+static int lpi2c_imx_xfer(struct i2c_adapter *adapter,
-+			  struct i2c_msg *msgs, int num)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx = i2c_get_adapdata(adapter);
-+	unsigned int temp;
-+	int i, result;
-+
-+	result = lpi2c_imx_master_enable(lpi2c_imx);
-+	if (result)
-+		return result;
-+
-+	for (i = 0; i < num; i++) {
-+		result = lpi2c_imx_start(lpi2c_imx, &msgs[i]);
-+		if (result)
-+			goto disable;
-+
-+		/* quick smbus */
-+		if (num == 1 && msgs[0].len == 0)
-+			goto stop;
-+
-+		lpi2c_imx->delivered = 0;
-+		lpi2c_imx->msglen = msgs[i].len;
-+		init_completion(&lpi2c_imx->complete);
-+
-+		if (msgs[i].flags & I2C_M_RD)
-+			lpi2c_imx_read(lpi2c_imx, &msgs[i]);
-+		else
-+			lpi2c_imx_write(lpi2c_imx, &msgs[i]);
-+
-+		result = lpi2c_imx_msg_complete(lpi2c_imx);
-+		if (result)
-+			goto stop;
-+
-+		if (!(msgs[i].flags & I2C_M_RD)) {
-+			result = lpi2c_imx_txfifo_empty(lpi2c_imx);
-+			if (result)
-+				goto stop;
-+		}
-+	}
-+
-+stop:
-+	lpi2c_imx_stop(lpi2c_imx);
-+
-+	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+	if ((temp & MSR_NDF) && !result)
-+		result = -EIO;
-+
-+disable:
-+	lpi2c_imx_master_disable(lpi2c_imx);
-+
-+	dev_dbg(&lpi2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
-+		(result < 0) ? "error" : "success msg",
-+		(result < 0) ? result : num);
-+
-+	return (result < 0) ? result : num;
-+}
-+
-+static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
-+	unsigned int temp;
-+
-+	lpi2c_imx_intctrl(lpi2c_imx, 0);
-+	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-+
-+	if (temp & MSR_RDF) {
-+		lpi2c_imx_read_rxfifo(lpi2c_imx);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (temp & MSR_TDF) {
-+		lpi2c_imx_write_txfifo(lpi2c_imx);
-+		return IRQ_HANDLED;
-+	}
-+
-+	complete(&lpi2c_imx->complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static u32 lpi2c_imx_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-+		I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-+}
-+
-+static struct i2c_algorithm lpi2c_imx_algo = {
-+	.master_xfer	= lpi2c_imx_xfer,
-+	.functionality	= lpi2c_imx_func,
-+};
-+
-+static const struct of_device_id lpi2c_imx_of_match[] = {
-+	{ .compatible = "fsl,imx7ulp-lpi2c" },
-+	{ .compatible = "fsl,imx8dv-lpi2c" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, lpi2c_imx_of_match);
-+
-+static int lpi2c_imx_probe(struct platform_device *pdev)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx;
-+	struct resource *res;
-+	int irq, ret;
-+
-+	lpi2c_imx = devm_kzalloc(&pdev->dev, sizeof(*lpi2c_imx), GFP_KERNEL);
-+	if (!lpi2c_imx)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	lpi2c_imx->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(lpi2c_imx->base))
-+		return PTR_ERR(lpi2c_imx->base);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "can't get irq number\n");
-+		return irq;
-+	}
-+
-+	lpi2c_imx->adapter.owner	= THIS_MODULE;
-+	lpi2c_imx->adapter.algo		= &lpi2c_imx_algo;
-+	lpi2c_imx->adapter.dev.parent	= &pdev->dev;
-+	lpi2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
-+	strlcpy(lpi2c_imx->adapter.name, pdev->name,
-+		sizeof(lpi2c_imx->adapter.name));
-+
-+	lpi2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(lpi2c_imx->clk)) {
-+		dev_err(&pdev->dev, "can't get I2C peripheral clock\n");
-+		return PTR_ERR(lpi2c_imx->clk);
-+	}
-+
-+	ret = of_property_read_u32(pdev->dev.of_node,
-+				   "clock-frequency", &lpi2c_imx->bitrate);
-+	if (ret)
-+		lpi2c_imx->bitrate = LPI2C_DEFAULT_RATE;
-+
-+	ret = devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr, 0,
-+			       pdev->name, lpi2c_imx);
-+	if (ret) {
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		return ret;
-+	}
-+
-+	i2c_set_adapdata(&lpi2c_imx->adapter, lpi2c_imx);
-+	platform_set_drvdata(pdev, lpi2c_imx);
-+
-+	ret = clk_prepare(lpi2c_imx->clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "clk prepare failed %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = i2c_add_adapter(&lpi2c_imx->adapter);
-+	if (ret)
-+		goto clk_unprepare;
-+
-+	dev_info(&lpi2c_imx->adapter.dev, "LPI2C adapter registered\n");
-+
-+	return 0;
-+
-+clk_unprepare:
-+	clk_unprepare(lpi2c_imx->clk);
-+
-+	return ret;
-+}
-+
-+static int lpi2c_imx_remove(struct platform_device *pdev)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&lpi2c_imx->adapter);
-+
-+	clk_unprepare(lpi2c_imx->clk);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver lpi2c_imx_driver = {
-+	.probe = lpi2c_imx_probe,
-+	.remove = lpi2c_imx_remove,
-+	.driver = {
-+		.name = DRIVER_NAME,
-+		.of_match_table = lpi2c_imx_of_match,
-+	},
-+};
-+
-+module_platform_driver(lpi2c_imx_driver);
-+
-+MODULE_AUTHOR("Gao Pan <pandy.gao@nxp.com>");
-+MODULE_DESCRIPTION("I2C adapter driver for LPI2C bus");
-+MODULE_LICENSE("GPL v2");
--- 
-1.9.1
+I wonder if we can get it work more reliably by using DMA (provided that
+there are DMA channels available for I2C in Juno)? That would allow the
+hardware to perform longer reads without relying on how fast the
+interrupt handler is able to empty the Rx FIFO.
