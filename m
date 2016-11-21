@@ -1,109 +1,28 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [BUG] i2c-designware silently fails on long transfers
-Date: Mon, 21 Nov 2016 12:29:01 +0200
-Message-ID: <20161121102901.GF1446@lahna.fi.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: report short transfers
+Date: Mon, 21 Nov 2016 12:32:00 +0200
+Message-ID: <20161121103200.GG1446@lahna.fi.intel.com>
 References: <20161118193542.GO1041@n2100.armlinux.org.uk>
+ <E1c7p12-0000R0-S8@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:27891 "EHLO mga07.intel.com"
+Received: from mga04.intel.com ([192.55.52.120]:10590 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753623AbcKUKbT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Nov 2016 05:31:19 -0500
+        id S1752452AbcKUKg0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 21 Nov 2016 05:36:26 -0500
 Content-Disposition: inline
-In-Reply-To: <20161118193542.GO1041@n2100.armlinux.org.uk>
+In-Reply-To: <E1c7p12-0000R0-S8@rmk-PC.armlinux.org.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
+To: Russell King <rmk+kernel@armlinux.org.uk>
 Cc: Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Nov 18, 2016 at 07:35:42PM +0000, Russell King - ARM Linux wrote:
-> With reference to this commit:
+On Fri, Nov 18, 2016 at 07:40:04PM +0000, Russell King wrote:
+> Rather than reporting success for a short transfer due to interrupt
+> latency, report an error both to the caller, as well as to the kernel
+> log.
 > 
-> commit d39f77b06a712fcba6185a20bb209e357923d980
-> Author: Andrew Jackson <Andrew.Jackson@arm.com>
-> Date:   Fri Nov 7 12:10:44 2014 +0000
-> 
->     i2c: designware: prevent early stop on TX FIFO empty
-> 
->     If the Designware core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN
->     set to zero, allowing the TX FIFO to become empty causes a STOP
->     condition to be generated on the I2C bus. If the transmit FIFO
->     threshold is set too high, an erroneous STOP condition can be
->     generated on long transfers - particularly where the interrupt
->     latency is extended.
-> 
->     Signed-off-by: Andrew Jackson <Andrew.Jackson@arm.com>
->     Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
->     Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
->     Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> 
-> The TDA998x driver issues long I2C transfers to read the EDID from the
-> device - and userspace can also issue large transfers too.  However,
-> if a DW core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN set as
-> zero, the above commit doesn't seem to solve the problem.  During
-> boot, with the patch below, I see:
-> 
-> [    1.736549] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x10
-> [    1.736564] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x510
-> [    1.736608] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
-> [    1.736799] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x514
-> [    1.736819] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x510
-> ...
-> [    1.737986] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
-> [    1.738010] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x514
-> [    1.738034] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x504
-> [    1.738039] random: fast init done
-> [    1.740120] i2c_designware 7ffa0000.i2c: i2c_dw_isr: enabled=0x1 stat=0x714
-> [    1.740231] i2c_dw_xfer: ffffffc97657b770:1 -> ffffffc97657b770:1 (0:0) [0 0 3 0] 8 [tx:ffffffc976682380:47] [rx:ffffffc9766823c9:55]
-> [    1.740249] [drm:drm_edid_block_valid] *ERROR* EDID checksum is invalid, remainder is 93
-> [    1.746979] Raw EDID:
-> [    1.747934]          00 ff ff ff ff ff ff 00 34 a9 96 a2 01 01 01 01
-> [    1.752342]          00 17 01 03 80 80 48 78 0a da ff a3 58 4a a2 29
-> [    1.756748]          17 49 4b 21 08 00 31 40 45 40 61 40 81 80 01 01
-> [    1.761153]          01 01 01 01 01 01 02 3a 80 d0 72 38 2d 40 10 2c
-> [    1.765555]          45 80 ba 88 21 00 00 1e 02 00 d0 4e 30 09 12 54
-> [    1.769958]          01 08 02 00 23 36 01 40 01 05 00 80 a1 4c 4b 49
-> [    1.774361]          22 00 00 40 03 00 28 00 23 01 20 00 01 88 00 01
-> [    1.778762]          08 00 00 40 00 02 03 04 0a 00 80 00 02 00 00 40
-> 
-> The significant thing is the "i2c_dw_xfer" line, where I add a print of
-> the current state.  Here, we can see that the transfer is mid-way, but
-> a stop condition has been generated by the hardware, leaving 55 bytes
-> to be received.
-> 
-> Unfortunately, the i2c-designware driver ignores this, and believes that
-> the transfer completed both fully and successfully, but returns bogus
-> data to userspace or the kernel driver.  That's really _bad_ behaviour
-> by the driver - it should at least return an error.
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-Totally agree.
-
-> This problem is _soo_ bad that on my Juno, I can't run Xorg (it hits
-> this every time we try to read the EDID) nor can I boot with the TV
-> connected (it hits this every boot as well.)
-> 
-> I'd go as far as to say that the i2c-designware hardware, when
-> configured with this option set to zero, is fundamentally broken for OS
-> which do not provide any guarantee for interrupt latency, such as Linux.
-> 
-> The commit above tries to mitigate this by reducing the Tx FIFO
-> threshold, so the interrupt is raised sooner, but that's clearly not
-> enough for reliable operation.
-> 
-> Another mitigation would be to lower the I2C bus frequency on Juno from
-> 400kHz to 100kHz, so that there's 4x longer IRQ latency possible.
-> However, even that isn't going to be reliable - even going to 100kHz
-> isn't going to allow the above case to be solved - the interrupt is
-> delayed by around 2ms, and it takes about 1.4ms to send/receive 16 bytes
-> at 100kHz.  (9 * 16 / (100*10^3)).
-> 
-> So, I think all hope is lost for i2c-designware on Juno to cope with
-> reading the EDID from TDA998x reliably.
-
-:-(
-
-I wonder if we can get it work more reliably by using DMA (provided that
-there are DMA channels available for I2C in Juno)? That would allow the
-hardware to perform longer reads without relying on how fast the
-interrupt handler is able to empty the Rx FIFO.
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
