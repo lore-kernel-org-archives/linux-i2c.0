@@ -1,140 +1,207 @@
-From: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v5 1/3] i2c: pxa: Add support for the I2C units found in Armada 3700
-Date: Mon, 21 Nov 2016 14:32:45 +0100
-Message-ID: <20161121133247.29889-2-romain.perier@free-electrons.com>
-References: <20161121133247.29889-1-romain.perier@free-electrons.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161121133247.29889-1-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin Wojtas <mw>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v3 1/7] dt-bindings: document devicetree bindings for mux-controllers and mux-gpio
+Date: Mon, 21 Nov 2016 14:17:09 +0100
+Message-ID: <1479734235-18837-2-git-send-email-peda@axentia.se>
+References: <1479734235-18837-1-git-send-email-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1479734235-18837-1-git-send-email-peda@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The Armada 3700 has two I2C controllers that is compliant with the I2C
-Bus Specificiation 2.1, supports multi-master and different bus speed:
-Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
-High speed mode (up to 3.4 Mhz).
-
-This IP block has a lot of similarity with the PXA, except some register
-offsets and bitfield. This commits adds a basic support for this I2C
-unit.
-
-Signed-off-by: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
+ .../devicetree/bindings/misc/mux-controller.txt    | 76 +++++++++++++++++++++
+ .../devicetree/bindings/misc/mux-gpio.txt          | 78 ++++++++++++++++++++++
+ MAINTAINERS                                        |  5 ++
+ 3 files changed, 159 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/misc/mux-controller.txt
+ create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
 
-Changes in v5:
- - Don't define registers for armada-3700, we can re-use the ones
-   for PXA3XX.
- - Define registers mask when OF is not used, in probe_pdata. 
-
-Changes in v4:
- - Replaced the type of hs_mask and fm_mask by u32, instead of
-   unsigned int, As writel() take an u32 as first argument...
-
-Changes in v3:
- - Replaced the type of hs_mask and fm_mask by unsigned int,
-   instead of unsigned long.
-
- drivers/i2c/busses/Kconfig   |  2 +-
- drivers/i2c/busses/i2c-pxa.c | 24 ++++++++++++++++++++++--
- 2 files changed, 23 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..2f56a26 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -763,7 +763,7 @@ config I2C_PUV3
+diff --git a/Documentation/devicetree/bindings/misc/mux-controller.txt b/Documentation/devicetree/bindings/misc/mux-controller.txt
+new file mode 100644
+index 000000000000..6946b5428546
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/mux-controller.txt
+@@ -0,0 +1,76 @@
++Common multiplexer controller bindings
++
++A mux controller will have one, or several, child devices that uses (or
++consumes) a mux controller. A mux controller can possibly control several
++parallel multiplexers. The node for a mux controller will have one child
++node for each multiplexer controller consumer.
++
++A mux controller provides a number of states to its consumers, and the
++state space is a simple zero-based enumeration. I.e. 0-1 for a 2-way
++multiplexer, 0-7 for an 8-way multiplexer, etc.
++
++Example:
++
++	/*
++	 * Two consumers (one for an ADC line and one for an i2c bus) of
++	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
++	 */
++	mux {
++		compatible = "mux-gpio";
++
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++
++		adc {
++			compatible = "iio-mux";
++			io-channels = <&adc 0>;
++			io-channel-names = "parent";
++
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			sync-1@0 {
++				reg = <0>;
++			};
++
++			in@1 {
++				reg = <1>;
++			};
++
++			out@2 {
++				reg = <2>;
++			};
++
++			sync-2@3 {
++				reg = <3>;
++			};
++		};
++
++		i2c-mux {
++			compatible = "i2c-mux-simple,mux-locked";
++			i2c-parent = <&i2c1>;
++
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			i2c@0 {
++				reg = <0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				ssd1307: oled@3c {
++					/* ... */
++				};
++			};
++
++			i2c@3 {
++				reg = <3>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				pca9555: pca9555@20 {
++					/* ... */
++				};
++			};
++		};
++	};
+diff --git a/Documentation/devicetree/bindings/misc/mux-gpio.txt b/Documentation/devicetree/bindings/misc/mux-gpio.txt
+new file mode 100644
+index 000000000000..23b87913f4b3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/mux-gpio.txt
+@@ -0,0 +1,78 @@
++GPIO-based multiplexer controller bindings
++
++Define what GPIO pins are used to control a multiplexer. Or several
++multiplexers, if the same pins control more than one multiplexer.
++
++Required properties:
++- compatible : "mux-gpio"
++- mux-gpios : list of gpios used to control the multiplexer, least
++	      significant bit first.
++* Standard mux-controller bindings as decribed in mux-controller.txt
++
++Optional properties:
++- idle-state : if present, the state the mux will have when idle.
++
++The multiplexer state is defined as the number represented by the
++multiplexer GPIO pins, where the first pin is the least significant
++bit. And active pin is a binary 1, an inactive pin is a binary 0.
++
++Example:
++	mux {
++		compatible = "mux-gpio";
++
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++
++		adc {
++			compatible = "iio-mux";
++			io-channels = <&adc 0>;
++			io-channel-names = "parent";
++
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			sync-1@0 {
++				reg = <0>;
++			};
++
++			in@1 {
++				reg = <1>;
++			};
++
++			out@2 {
++				reg = <2>;
++			};
++
++			sync-2@3 {
++				reg = <3>;
++			};
++		};
++
++		i2c-mux {
++			compatible = "i2c-mux-simple,mux-locked";
++			i2c-parent = <&i2c1>;
++
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			i2c@0 {
++				reg = <0>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				ssd1307: oled@3c {
++					/* ... */
++				};
++			};
++
++			i2c@3 {
++				reg = <3>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				pca9555: pca9555@20 {
++					/* ... */
++				};
++			};
++		};
++	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ad9b965e5e44..7d797f087822 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8244,6 +8244,11 @@ S:	Orphan
+ F:	drivers/mmc/host/mmc_spi.c
+ F:	include/linux/spi/mmc_spi.h
  
- config I2C_PXA
- 	tristate "Intel PXA2XX I2C adapter"
--	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI && OF)
-+	depends on ARCH_PXA || ARCH_MMP || ARCH_MVEBU || (X86_32 && PCI && OF)
- 	help
- 	  If you have devices in the PXA I2C bus, say yes to this option.
- 	  This driver can also be built as a module.  If so, the module
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index e28b825..374d17c 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -98,6 +98,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
- 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
- 	{ "ce4100-i2c",		REGS_CE4100 },
- 	{ "pxa910-i2c",		REGS_PXA910 },
-+	{ "armada-3700-i2c",	REGS_PXA3XX  },
- 	{ },
- };
- MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
-@@ -122,7 +123,9 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
- #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
- #define ICR_UR		(1 << 14)	   /* unit reset */
- #define ICR_FM		(1 << 15)	   /* fast mode */
-+#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
- #define ICR_HS		(1 << 16)	   /* High Speed mode */
-+#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
- #define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
- 
- #define ISR_RWM		(1 << 0)	   /* read/write mode */
-@@ -193,6 +196,8 @@ struct pxa_i2c {
- 	unsigned char		master_code;
- 	unsigned long		rate;
- 	bool			highmode_enter;
-+	u32			fm_mask;
-+	u32			hs_mask;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -503,8 +508,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 		writel(i2c->slave_addr, _ISAR(i2c));
- 
- 	/* set control register values */
--	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
--	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
-+	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
-+	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
- 
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-@@ -1137,6 +1142,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
- 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
- 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
- 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
-+	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_PXA3XX },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
-@@ -1158,6 +1164,13 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 		i2c->use_pio = 1;
- 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
- 		i2c->fast_mode = 1;
-+	if (of_device_is_compatible(np, "marvell,armada-3700-i2c")) {
-+		i2c->fm_mask = ICR_BUSMODE_FM;
-+		i2c->hs_mask = ICR_BUSMODE_HS;
-+	} else {
-+		i2c->fm_mask = ICR_FM;
-+		i2c->hs_mask = ICR_HS;
-+	}
- 
- 	*i2c_types = (enum pxa_i2c_types)(of_id->data);
- 
-@@ -1181,6 +1194,13 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
- 			i2c->master_code = 0xe;
- 		i2c->rate = plat->rate;
- 	}
-+	if (!strcmp(id->name, "armada-3700-i2c")) {
-+		i2c->fm_mask = ICR_BUSMODE_FM;
-+		i2c->hs_mask = ICR_BUSMODE_HS;
-+	} else {
-+		i2c->fm_mask = ICR_FM;
-+		i2c->hs_mask = ICR_HS;
-+	}
- 	return 0;
- }
- 
++MULTIPLEXER SUBSYSTEM
++M:	Peter Rosin <peda@axentia.se>
++S:	Maintained
++F:	Documentation/devicetree/bindings/misc/mux-*
++
+ MULTISOUND SOUND DRIVER
+ M:	Andrew Veliath <andrewtv@usa.net>
+ S:	Maintained
 -- 
-2.9.3
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.1.4
