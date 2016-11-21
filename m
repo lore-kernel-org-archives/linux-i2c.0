@@ -1,59 +1,134 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [BUG] i2c-designware silently fails on long transfers
-Date: Mon, 21 Nov 2016 12:11:37 +0000
-Message-ID: <272dcf6f-ffa5-4ddd-7597-d9a18d210e7a@arm.com>
-References: <20161118193542.GO1041@n2100.armlinux.org.uk>
- <20161121102901.GF1446@lahna.fi.intel.com>
- <20161121104329.GB1041@n2100.armlinux.org.uk>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v3 3/7] iio: inkern: api for manipulating ext_info of iio channels
+Date: Mon, 21 Nov 2016 14:17:11 +0100
+Message-ID: <1479734235-18837-4-git-send-email-peda@axentia.se>
+References: <1479734235-18837-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:58374 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754382AbcKUMLk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Nov 2016 07:11:40 -0500
-In-Reply-To: <20161121104329.GB1041@n2100.armlinux.org.uk>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1479734235-18837-1-git-send-email-peda@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-arm-kernel@lists.infradead.org
 
-On 21/11/16 10:43, Russell King - ARM Linux wrote:
-> On Mon, Nov 21, 2016 at 12:29:01PM +0200, Mika Westerberg wrote:
->> On Fri, Nov 18, 2016 at 07:35:42PM +0000, Russell King - ARM Linux wrote:
->>> Another mitigation would be to lower the I2C bus frequency on Juno from
->>> 400kHz to 100kHz, so that there's 4x longer IRQ latency possible.
->>> However, even that isn't going to be reliable - even going to 100kHz
->>> isn't going to allow the above case to be solved - the interrupt is
->>> delayed by around 2ms, and it takes about 1.4ms to send/receive 16 bytes
->>> at 100kHz.  (9 * 16 / (100*10^3)).
->>>
->>> So, I think all hope is lost for i2c-designware on Juno to cope with
->>> reading the EDID from TDA998x reliably.
->>
->> :-(
->>
->> I wonder if we can get it work more reliably by using DMA (provided that
->> there are DMA channels available for I2C in Juno)? That would allow the
->> hardware to perform longer reads without relying on how fast the
->> interrupt handler is able to empty the Rx FIFO.
-> 
-> It would need to DMA to the Tx FIFO to keep it filled - it triggers the
-> stop condition when the Tx FIFO empties.  From what I can see in the
-> driver, the Tx FIFO not only takes the data but also a "command" to tell
-> the hardware what to do.
-> 
-> The Rx FIFO would also need DMA to avoid it overflowing due to high
-> interrupt latency.
-> 
-> I don't know what state DMA is in on the Juno, or even whether it has
-> DMA - it has a PL330 DMA controller, but I see nothing in the DT files
-> making use of it.
+Extend the inkern api with functions for reading and writing ext_info
+of iio channels.
 
-There's no DMA request wired up for I2C, unfortunately - only for the
-UARTs, I2S, FPFGA tile and trace unit. I recall Liviu did have a patch
-to lower the I2C clock as the mitigation you mention, which I thought
-had made it into mainline, but apparently not.
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/iio/inkern.c         | 55 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++++
+ 2 files changed, 92 insertions(+)
 
-Robin.
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index c4757e6367e7..efe418282cc3 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -746,3 +746,58 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(iio_write_channel_raw);
++
++int iio_get_channel_ext_info_count(struct iio_channel *chan)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++	unsigned int i = 0;
++
++	if (!chan->channel->ext_info)
++		return i;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
++		++i;
++
++	return i;
++}
++EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
++
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	if (!chan->channel->ext_info)
++		return -EINVAL;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (strcmp(attr, ext_info->name))
++			continue;
++
++		return ext_info->read(chan->indio_dev, ext_info->private,
++				      chan->channel, buf);
++	}
++
++	return -EINVAL;
++}
++EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
++
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	if (!chan->channel->ext_info)
++		return -EINVAL;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (strcmp(attr, ext_info->name))
++			continue;
++
++		return ext_info->write(chan->indio_dev, ext_info->private,
++				       chan->channel, buf, len);
++	}
++
++	return -EINVAL;
++}
++EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
+diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
+index 9edccfba1ffb..1e908ccb11f0 100644
+--- a/include/linux/iio/consumer.h
++++ b/include/linux/iio/consumer.h
+@@ -271,4 +271,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
+ int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
+ 	int *processed, unsigned int scale);
+ 
++/**
++ * iio_get_channel_ext_info_count() - get number of ext_info attributes
++ *				      connected to the channel.
++ * @chan:		The channel being queried
++ *
++ * Returns the number of ext_info attributes
++ */
++int iio_get_channel_ext_info_count(struct iio_channel *chan);
++
++/**
++ * iio_read_channel_ext_info() - read ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		Where to store the attribute value. Assumed to hold
++ *			at least PAGE_SIZE bytes.
++ *
++ * Returns the number of bytes written to buf (perhaps w/o zero termination;
++ * it need not even be a string), or an error code.
++ */
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf);
++
++/**
++ * iio_write_channel_ext_info() - write ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		The new attribute value. Strings needs to be zero-
++ *			terminated, but the terminator should not be included
++ *			in the below len.
++ * @len:		The size of the new attribute value.
++ *
++ * Returns the number of accepted bytes, which should be the same as len.
++ * An error code can also be returned.
++ */
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len);
++
+ #endif
+-- 
+2.1.4
