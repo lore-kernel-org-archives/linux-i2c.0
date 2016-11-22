@@ -1,82 +1,55 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: i2c-mux-gpio: update mux with gpiod_set_array_value_cansleep
-Date: Tue, 22 Nov 2016 17:45:22 +0100
-Message-ID: <1479833122-8421-1-git-send-email-peda@axentia.se>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH v3 0/7] mux controller abstraction and iio/i2c muxes
+Date: Tue, 22 Nov 2016 21:58:12 +0100
+Message-ID: <b132143c-259b-6ed2-58c5-b223cc2e72df@metafoo.de>
+References: <1479734235-18837-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0106.outbound.protection.outlook.com ([104.47.2.106]:55918
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932814AbcKVTSZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 22 Nov 2016 14:18:25 -0500
+Received: from www381.your-server.de ([78.46.137.84]:35474 "EHLO
+        www381.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756789AbcKVU6X (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Nov 2016 15:58:23 -0500
+In-Reply-To: <1479734235-18837-1-git-send-email-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 
-If the gpio controller supports it and the gpio lines are concentrated
-to one gpio chip, the mux controller pins will get updated simultaneously.
+On 11/21/2016 02:17 PM, Peter Rosin wrote:
+[...]
+> I have a piece of hardware that is using the same 3 GPIO pins
+> to control four 8-way muxes. Three of them control ADC lines
+> to an ADS1015 chip with an iio driver, and the last one
+> controls the SDA line of an i2c bus. We have some deployed
+> code to handle this, but you do not want to see it or ever
+> hear about it. I'm not sure why I even mention it. Anyway,
+> the situation has nagged me to no end for quite some time.
+> 
+> So, after first getting more intimate with the i2c muxing code
+> and later discovering the drivers/iio/inkern.c file and
+> writing a couple of drivers making use of it, I came up with
+> what I think is an acceptable solution; add a generic mux
+> controller driver (and subsystem) that is shared between all
+> instances, and combine that with an iio mux driver and a new
+> generic i2c mux driver. The new i2c mux I called "simple"
+> since it is only hooking the i2c muxing and the new mux
+> controller (much like the alsa simple card driver does for ASoC).
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+While abstracting this properly is all nice and good and the way it should
+be done, but it also adds a lot of complexity and the devicetree adds a lot
+of restrictions on what can actually be represented.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 74a41b9228e3..bedbc88dbecb 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -23,15 +23,18 @@ struct gpiomux {
- 	unsigned gpio_base;
- 	struct mutex locked_lock;
- 	int locked;
-+	struct gpio_desc **gpios;
- };
- 
- static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
- {
-+	int values[mux->data.n_gpios];
- 	int i;
- 
- 	for (i = 0; i < mux->data.n_gpios; i++)
--		gpio_set_value_cansleep(mux->gpio_base + mux->data.gpios[i],
--					val & (1 << i));
-+		values[i] = (val >> i) & 1;
-+
-+	gpiod_set_array_value_cansleep(mux->data.n_gpios, mux->gpios, values);
- }
- 
- static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
-@@ -241,12 +244,14 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	if (!parent)
- 		return -EPROBE_DEFER;
- 
--	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values, 0, 0,
-+	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
-+			     mux->data.n_values * sizeof(*mux->gpios), 0,
- 			     i2c_mux_gpio_select, NULL);
- 	if (!muxc) {
- 		ret = -ENOMEM;
- 		goto alloc_failed;
- 	}
-+	mux->gpios = muxc->priv;
- 	muxc->priv = mux;
- 
- 	platform_set_drvdata(pdev, muxc);
-@@ -284,10 +289,12 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 			goto err_request_gpio;
- 		}
- 
-+		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
-+		mux->gpios[i] = gpio_desc;
-+
- 		if (!muxc->mux_locked)
- 			continue;
- 
--		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
- 		gpio_dev = &gpio_desc->gdev->dev;
- 		muxc->mux_locked = i2c_root_adapter(gpio_dev) == root;
- 	}
--- 
-2.1.4
+There is a certain point where the fabric on a PCB becomes so complex that
+it deserves to be a device on its own (like the audio fabric drivers).
+Especially when the hardware is built with a certain application in mind and
+the driver is supposed to impose policy which reflects this application. The
+latter can often not properly be described with the primitives the
+devicetree can offer.
+
+And I think your setup is very borderline what can be done in a declarative
+way only and it adds a lot of complexity over a more imperative solution in
+form of a driver. I think it is worth investigating about having a driver
+that is specific to your fabric and handles the interdependencies of the
+discrete components.
