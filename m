@@ -1,52 +1,61 @@
-From: Gao Pan <pandy.gao@nxp.com>
-Subject: [Patch V5 1/2] i2c: imx: add devicetree binding for lpi2c
-Date: Mon, 21 Nov 2016 15:51:43 +0800
-Message-ID: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Zhangfei Gao <zhangfei.gao@linaro.org>
+Subject: [PATCH] i2c: designware: add reset interface
+Date: Tue, 22 Nov 2016 12:41:40 +0800
+Message-ID: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0071.outbound.protection.outlook.com ([104.47.2.71]:45315
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753954AbcKUTcL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 21 Nov 2016 14:32:11 -0500
+Received: from mail-pf0-f175.google.com ([209.85.192.175]:33983 "EHLO
+        mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754871AbcKVEmZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Nov 2016 23:42:25 -0500
+Received: by mail-pf0-f175.google.com with SMTP id c4so1825423pfb.1
+        for <linux-i2c@vger.kernel.org>; Mon, 21 Nov 2016 20:42:25 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com, wsa-dev@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Zhangfei Gao <zhangfei.gao@linaro.org>
 
-Add a binding document for lpi2c driver
+Some platforms like hi3660 need do reset first to allow accessing registers
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
 ---
- .../devicetree/bindings/i2c/i2c-imx-lpi2c.txt        | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/i2c/busses/i2c-designware-core.h    | 1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-new file mode 100644
-index 0000000..70c054a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt
-@@ -0,0 +1,20 @@
-+* Freescale Low Power Inter IC (LPI2C) for i.MX
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 0d44d2a..94b14fa 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -80,6 +80,7 @@ struct dw_i2c_dev {
+ 	void __iomem		*base;
+ 	struct completion	cmd_complete;
+ 	struct clk		*clk;
++	struct reset_control	*rst;
+ 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+ 	struct dw_pci_controller *controller;
+ 	int			cmd_err;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0b42a12..fd80e58 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -38,6 +38,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/property.h>
+ #include <linux/io.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ #include <linux/platform_data/i2c-designware.h>
+@@ -176,6 +177,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	dev->irq = irq;
+ 	platform_set_drvdata(pdev, dev);
+ 
++	dev->rst = devm_reset_control_get(&pdev->dev, NULL);
++	if (!IS_ERR(dev->rst))
++		reset_control_reset(dev->rst);
 +
-+Required properties:
-+- compatible :
-+  - "fsl,imx7ulp-lpi2c" for LPI2C compatible with the one integrated on i.MX7ULP soc
-+  - "fsl,imx8dv-lpi2c" for LPI2C compatible with the one integrated on i.MX8DV soc
-+- reg : address and length of the lpi2c master registers
-+- interrupt-parent : core interrupt controller
-+- interrupts : lpi2c interrupt
-+- clocks : lpi2c clock specifier
-+
-+Examples:
-+
-+lpi2c7: lpi2c7@40A50000 {
-+	compatible = "fsl,imx8dv-lpi2c";
-+	reg = <0x40A50000 0x10000>;
-+	interrupt-parent = <&intc>;
-+	interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&clks IMX7ULP_CLK_LPI2C7>;
-+};
+ 	/* fast mode by default because of legacy reasons */
+ 	dev->clk_freq = 400000;
+ 
 -- 
-1.9.1
+2.7.4
