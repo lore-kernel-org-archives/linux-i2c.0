@@ -1,91 +1,32 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2] i2c: i2c-mux-gpio: update mux with gpiod_set_array_value_cansleep
-Date: Wed, 23 Nov 2016 14:33:55 +0100
-Message-ID: <1479908035-18284-1-git-send-email-peda@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: report short transfers
+Date: Wed, 23 Nov 2016 16:13:31 +0200
+Message-ID: <a42061c7-22fd-d897-ffb3-946812c0761f@linux.intel.com>
+References: <20161118193542.GO1041@n2100.armlinux.org.uk>
+ <E1c7p12-0000R0-S8@rmk-PC.armlinux.org.uk>
+ <20161121103200.GG1446@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0118.outbound.protection.outlook.com ([104.47.2.118]:8350
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S936613AbcKWNul (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Nov 2016 08:50:41 -0500
+Received: from mga05.intel.com ([192.55.52.43]:62373 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S938699AbcKWONg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Nov 2016 09:13:36 -0500
+In-Reply-To: <20161121103200.GG1446@lahna.fi.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-If the gpio controller supports it and the gpio lines are concentrated
-to one gpio chip, the mux controller pins will get updated simultaneously.
-
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
-Sorry about any confusion with v1, it had another unrelated patch
-underneath that made it hard to apply it. I had forgot about that
-one...
-
-Anyway, this version should be better. Sorry again.
-
-Cheers,
-Peter
-
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index e5cf26eefa97..62d033a7adf2 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -21,15 +21,18 @@
- struct gpiomux {
- 	struct i2c_mux_gpio_platform_data data;
- 	unsigned gpio_base;
-+	struct gpio_desc **gpios;
- };
- 
- static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
- {
-+	int values[mux->data.n_gpios];
- 	int i;
- 
- 	for (i = 0; i < mux->data.n_gpios; i++)
--		gpio_set_value_cansleep(mux->gpio_base + mux->data.gpios[i],
--					val & (1 << i));
-+		values[i] = (val >> i) & 1;
-+
-+	gpiod_set_array_value_cansleep(mux->data.n_gpios, mux->gpios, values);
- }
- 
- static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
-@@ -176,12 +179,14 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	if (!parent)
- 		return -EPROBE_DEFER;
- 
--	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values, 0, 0,
-+	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
-+			     mux->data.n_values * sizeof(*mux->gpios), 0,
- 			     i2c_mux_gpio_select, NULL);
- 	if (!muxc) {
- 		ret = -ENOMEM;
- 		goto alloc_failed;
- 	}
-+	mux->gpios = muxc->priv;
- 	muxc->priv = mux;
- 
- 	platform_set_drvdata(pdev, muxc);
-@@ -219,10 +224,12 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 			goto err_request_gpio;
- 		}
- 
-+		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
-+		mux->gpios[i] = gpio_desc;
-+
- 		if (!muxc->mux_locked)
- 			continue;
- 
--		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
- 		gpio_dev = &gpio_desc->gdev->dev;
- 		muxc->mux_locked = i2c_root_adapter(gpio_dev) == root;
- 	}
--- 
-2.1.4
+On 21.11.2016 12:32, Mika Westerberg wrote:
+> On Fri, Nov 18, 2016 at 07:40:04PM +0000, Russell King wrote:
+>> Rather than reporting success for a short transfer due to interrupt
+>> latency, report an error both to the caller, as well as to the kernel
+>> log.
+>>
+>> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
