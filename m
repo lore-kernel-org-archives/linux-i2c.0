@@ -1,39 +1,76 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 1/1] i2c: designware: Consolidate default functionality
- bits
-Date: Wed, 23 Nov 2016 16:16:31 +0200
-Message-ID: <67a95b37-73e3-7105-d9d1-7bc60c8b6fcc@linux.intel.com>
-References: <1479725000-22513-1-git-send-email-alexander.stein@systec-electronic.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH v3 3/5] i2c: designware: Add slave definitions
+Date: Wed, 23 Nov 2016 14:36:28 +0000
+Message-ID: <0e79e7db-acda-d6df-8c00-47b31ae9b7bd@synopsys.com>
+References: <cover.1479410047.git.lolivei@synopsys.com>
+ <f1bf9ca52e47cdd79b8f0d5e0c159a8727857269.1479410047.git.lolivei@synopsys.com>
+ <1479472552.22212.23.camel@linux.intel.com>
+ <20161118170155.chrdpguohgl6vo5f@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:34450 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S936601AbcKWOQj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Nov 2016 09:16:39 -0500
-In-Reply-To: <1479725000-22513-1-git-send-email-alexander.stein@systec-electronic.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161118170155.chrdpguohgl6vo5f@rob-hp-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
 
-On 21.11.2016 12:43, Alexander Stein wrote:
-> Use a common place for default functionality bits for both platform
-> and pci driver.
->
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> ---
-> This patch requires commit c3ae106050b9 ("i2c: designware: Implement support
-> for SMBus block read and write") which is included in current i2c/for-next
-> branch.
-> BTW: Do merrifield and medfield actually not support 10bit addressing?
->
-Andy, do you know?
+OK, I will create a "mode" string property in the devicetree that can be
+"master" or "slave".
 
->  drivers/i2c/busses/i2c-designware-core.h    | 8 ++++++++
->  drivers/i2c/busses/i2c-designware-pcidrv.c  | 9 +--------
->  drivers/i2c/busses/i2c-designware-platdrv.c | 9 +--------
->  3 files changed, 10 insertions(+), 16 deletions(-)
+
+Thank you all,
+
+Luis
+
+On 18-Nov-16 17:01, Rob Herring wrote:
+> On Fri, Nov 18, 2016 at 02:35:52PM +0200, Andy Shevchenko wrote:
+>> On Fri, 2016-11-18 at 11:19 +0000, Luis Oliveira wrote:
+>>>  - Add slave defintitions to i2c-designware-core
+>>>  - Changes in Kconfig to auto-enable I2C_SLAVE when compiling the
+>>> modules
+>>>  - Add compatible string to designware-core.txt explaining the
+>>> devicetree bindings
+>>>
+>>
+>>> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+>>> @@ -2,7 +2,9 @@
+>>>  
+>>>  Required properties :
+>>>  
+>>> - - compatible : should be "snps,designware-i2c"
+>>> + - compatible : should be:
+>>> +   - "snps,designware-i2c" to setup the hardware block as I2C master.
+>>> +   - "snps,designware-i2c-slave" to setup the hardware block as I2C
+>>> slave.
+>> Not sure about this one.
+>>
+>> Compatible string is more generic than list of modes. Basically you have
+>> to add a property which selects mode.
+> Yes, agreed. And come up with a common property.
 >
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> DT people's ACK is a must for this change.
+>>
+>>
+>> --- a/drivers/i2c/busses/Kconfig
+>>> +++ b/drivers/i2c/busses/Kconfig
+>>> @@ -470,6 +470,7 @@ config I2C_DESIGNWARE_CORE
+>>>  config I2C_DESIGNWARE_PLATFORM
+>>>  	tristate "Synopsys DesignWare Platform"
+>>>  	select I2C_DESIGNWARE_CORE
+>>> +	select I2C_SLAVE
+>>>
+>> Common rule, generic dependencies usually go first
+>>
+>> 	select I2C_SLAVE
+>>  	select I2C_DESIGNWARE_CORE
+>>
+>> -- 
+>> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> Intel Finland Oy
+
+-- 
+Best regards,
+Luis
