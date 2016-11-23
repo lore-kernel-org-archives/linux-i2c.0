@@ -1,49 +1,36 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/1] i2c: designware: Consolidate default functionality
- bits
-Date: Wed, 23 Nov 2016 18:12:35 +0200
-Message-ID: <1479917555.20074.7.camel@linux.intel.com>
-References: <1479725000-22513-1-git-send-email-alexander.stein@systec-electronic.com>
-         <67a95b37-73e3-7105-d9d1-7bc60c8b6fcc@linux.intel.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v4 1/2] i2c: aspeed: added driver for Aspeed I2C
+Date: Wed, 23 Nov 2016 15:52:42 -0800
+Message-ID: <CAFd5g459KtB1YemK31nyoNV7VrqDGtpuGd9q=i-Ha9-CJ8VstA@mail.gmail.com>
+References: <1478311099-6771-1-git-send-email-brendanhiggins@google.com>
+ <1478311099-6771-2-git-send-email-brendanhiggins@google.com> <28078e6d-f5e4-da59-e226-baa9a60a4b19@kaod.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:7175 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753022AbcKWQMj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Nov 2016 11:12:39 -0500
-In-Reply-To: <67a95b37-73e3-7105-d9d1-7bc60c8b6fcc@linux.intel.com>
+Received: from mail-qt0-f176.google.com ([209.85.216.176]:34583 "EHLO
+        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933813AbcKWXwu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Nov 2016 18:52:50 -0500
+Received: by mail-qt0-f176.google.com with SMTP id n6so26393432qtd.1
+        for <linux-i2c@vger.kernel.org>; Wed, 23 Nov 2016 15:52:43 -0800 (PST)
+In-Reply-To: <28078e6d-f5e4-da59-e226-baa9a60a4b19@kaod.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Alexander Stein <alexander.stein@systec-electronic.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+To: =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-i2c@vger.kernel.org
 
-On Wed, 2016-11-23 at 16:16 +0200, Jarkko Nikula wrote:
-> On 21.11.2016 12:43, Alexander Stein wrote:
-> > Use a common place for default functionality bits for both platform
-> > and pci driver.
-> > 
-> > Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.co
-> > m>
-> > ---
-> > This patch requires commit c3ae106050b9 ("i2c: designware: Implement
-> > support
-> > for SMBus block read and write") which is included in current
-> > i2c/for-next
-> > branch.
-> > BTW: Do merrifield and medfield actually not support 10bit
-> > addressing?
-> > 
-> 
-> Andy, do you know?
+> is it safe to start a new transaction when in a interrupt handler ?
 
-Merrifield TRM: "Both 7-bit and 10-bit addressing modes are supported."
-Same in Medfield TRM.
+Yep, i2c_transfer and most of the other functions in the i2c API that
+wrap the implementations already lock for you.
 
-So, feel free to use this reference to apply a corresponding change. I
-will Ack it.
+> Why do you multiply by * msg->len ?
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+I thought it might make sense to make timeout proportional to message
+length, so their would be a timeout per byte, like what the hardware
+already does. I guess we should just leave that up to the user to
+determine on their own?
+
+> use devm_kzalloc() may be ?
+
+Whoops, good catch. Will update in next version.
