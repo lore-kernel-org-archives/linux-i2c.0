@@ -1,111 +1,123 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH V2] i2c: mux: pca954x: Add ACPI support for pca954x
-Date: Wed, 23 Nov 2016 10:08:34 +0100
-Message-ID: <401a3b3b-2680-8688-b21a-38cdb14471d5@axentia.se>
-References: <1479891177-23048-1-git-send-email-tnhuynh@apm.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v3 0/7] mux controller abstraction and iio/i2c muxes
+Date: Wed, 23 Nov 2016 12:47:35 +0100
+Message-ID: <3870654b-8cf5-30cb-74cd-c5fb1559adba@axentia.se>
+References: <1479734235-18837-1-git-send-email-peda@axentia.se>
+ <b132143c-259b-6ed2-58c5-b223cc2e72df@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1479891177-23048-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: tnhuynh@apm.com, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <b132143c-259b-6ed2-58c5-b223cc2e72df-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2016-11-23 09:52, tnhuynh@apm.com wrote:
-> From: Tin Huynh <tnhuynh@apm.com>
+On 2016-11-22 21:58, Lars-Peter Clausen wrote:
+> On 11/21/2016 02:17 PM, Peter Rosin wrote:
+> [...]
+>> I have a piece of hardware that is using the same 3 GPIO pins
+>> to control four 8-way muxes. Three of them control ADC lines
+>> to an ADS1015 chip with an iio driver, and the last one
+>> controls the SDA line of an i2c bus. We have some deployed
+>> code to handle this, but you do not want to see it or ever
+>> hear about it. I'm not sure why I even mention it. Anyway,
+>> the situation has nagged me to no end for quite some time.
+>>
+>> So, after first getting more intimate with the i2c muxing code
+>> and later discovering the drivers/iio/inkern.c file and
+>> writing a couple of drivers making use of it, I came up with
+>> what I think is an acceptable solution; add a generic mux
+>> controller driver (and subsystem) that is shared between all
+>> instances, and combine that with an iio mux driver and a new
+>> generic i2c mux driver. The new i2c mux I called "simple"
+>> since it is only hooking the i2c muxing and the new mux
+>> controller (much like the alsa simple card driver does for ASoC).
 > 
-> This patch enables ACPI support for mux-pca954x driver.
+> While abstracting this properly is all nice and good and the way it should
+> be done, but it also adds a lot of complexity and the devicetree adds a lot
+> of restrictions on what can actually be represented.
+
+This is a characterization without any specifics. But is the
+characterization true? You have two complaints, complexity
+and restrictions with bindings.
+
+> There is a certain point where the fabric on a PCB becomes so complex that
+> it deserves to be a device on its own (like the audio fabric drivers).
+> Especially when the hardware is built with a certain application in mind and
+> the driver is supposed to impose policy which reflects this application. The
+> latter can often not properly be described with the primitives the
+> devicetree can offer.
 > 
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
-> 
-> Change from v1 :
->  -Don't shadow id variable.
->  -Include sorted header.
->  -Redefine acpi_device_id.
->  -Add CONFIG_ACPI.
+> And I think your setup is very borderline what can be done in a declarative
+> way only and it adds a lot of complexity over a more imperative solution in
+> form of a driver. I think it is worth investigating about having a driver
+> that is specific to your fabric and handles the interdependencies of the
+> discrete components.
 
-Please put these extra comment that do not belong in the changelog
-below the following three dashes. Then git will ignore these comments
-automatically, which simplifies applying the patch.
+So, there are three "new" concepts:
 
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c |   29 ++++++++++++++++++++++++++++-
->  1 files changed, 28 insertions(+), 1 deletions(-)
+1. Sticking a mux in front of an AD-converter. That's not all that
+novel, nor complex. Quite the opposite, I'd say. In fact, I find it
+a bit amazing that there is no in-kernel support for it.
 
-The customary position for extra comments is here, below the diffstat.
+2. Reusing the same GPIO-pins to drive different muxes. There are
+obviously chips that work this way (as Jonathan pointed out) and
+these will at some point get used in Linux devices. I guess they
+already are used, but that people handle them in userspace. Or
+something? If this is complex, which I question, it will still need
+support at some point. At least that's what I believe.
 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 1091346..1ad67cb 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -35,6 +35,7 @@
->   * warranty of any kind, whether express or implied.
->   */
->  
-> +#include <linux/acpi.h>
->  #include <linux/device.h>
->  #include <linux/gpio/consumer.h>
->  #include <linux/i2c.h>
-> @@ -120,6 +121,21 @@ struct pca954x {
->  };
->  MODULE_DEVICE_TABLE(i2c, pca954x_id);
->  
-> +#ifdef CONFIG_ACPI
-> +static const struct acpi_device_id pca954x_acpi_ids[] = {
-> +	{ .id = "PCA9540", .driver_data = pca_9540 },
-> +	{ .id = "PCA9542", .driver_data = pca_9540 },
-> +	{ .id = "PCA9543", .driver_data = pca_9543 },
-> +	{ .id = "PCA9544", .driver_data = pca_9544 },
-> +	{ .id = "PCA9545", .driver_data = pca_9545 },
-> +	{ .id = "PCA9546", .driver_data = pca_9545 },
-> +	{ .id = "PCA9547", .driver_data = pca_9547 },
-> +	{ .id = "PCA9548", .driver_data = pca_9548 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(acpi, pca954x_acpi_ids);
-> +#endif
-> +
->  #ifdef CONFIG_OF
->  static const struct of_device_id pca954x_of_match[] = {
->  	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
-> @@ -245,8 +261,18 @@ static int pca954x_probe(struct i2c_client *client,
->  	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
->  	if (match)
->  		data->chip = of_device_get_match_data(&client->dev);
-> -	else
-> +	else if (id)
->  		data->chip = &chips[id->driver_data];
-> +#ifdef CONFIG_ACPI
+3. Using the same GPIO pins to mux things handled by different
+subsystems. Right, this is a bit crazy, and I'd rather not have this
+requirement, but this HW is what it is so I'll need to handle it in
+some way. It is also what stops me from falling back to a userspace
+solution, which is probably connected to why #1 and #2 is not supported
+by the kernel; everybody probably does muxing in userspace. Which is
+not necessarily a good idea, nor how it's supposed to be done...
 
-No, this #ifdef is not desired. If ACPI is not configured, acpi_match_device
-will return NULL unconditionally and the compiler should compile the whole
-else branch to be an unconditional "return -ENODEV;" and skip the dead code
-at the end of the block. This is better than leaving data->chip as NULL and
-oops later. It is also less cluttery to not have this extra #ifdef.
+So, the only thing that's out of the ordinary (as I see it), is #3.
+The question that then needs an answer is how the in-kernel solution
+for #1 and #2 would look if we do not consider #3.
+
+And I claim that the desired solution to #1 and #2 is pretty close
+to my proposal.
+
+A. You do not want mux-controller drivers in every subsystem that
+needs them.
+
+B. You do not want every mux-consumer to know the specifics of how to
+operate every kind of mux; there are muxes that are not controlled
+with GPIO pins...
+
+C. When you implement muxing in a subsystem, there will in some cases
+be a need to handle parallel muxing, where there is a need to share
+mux-controllers.
+
+It just feels right to separate out the mux-controller and refer to
+it from where a mux is needed. It solves #1 and #2. And, of course,
+as a bonus #3 is also solved. But my bias is obvious.
+
+And that leads us to the restrictions with the bindings. And the same
+thing happens; the solution for #2 also solves #3.
+
+So how do you refer to a mux-controller from where it's needed? My
+first proposal used a dt phandle, for the second round I put them in
+the parent node. It would be super if it was possible for the mux-
+consumer to create the mux-controller device from the same dt
+node that is already bound to the mux-consumer. The problem is that
+the mux-consumer should not hard-code which mux-controller device it
+should create. The best I can think of is some kind of 'mux-compatible'
+attribute, that works like the standard 'compatible' attribute. That
+would simplify the bindings for the normal case (#1) where the mux-
+controller isn't shared (#2 and #3). Maybe it's possible to fix this
+issue somehow? I simply don't know?
 
 Cheers,
 Peter
 
-> +	else {
-> +		const struct acpi_device_id *acpi_id;
-> +
-> +		acpi_id = acpi_match_device(pca954x_acpi_ids, &client->dev);
-> +		if (!acpi_id)
-> +			return -ENODEV;
-> +		data->chip = &chips[acpi_id->driver_data];
-> +	}
-> +#endif
->  
->  	data->last_chan = 0;		   /* force the first selection */
->  
-> @@ -321,6 +347,7 @@ static int pca954x_resume(struct device *dev)
->  		.name	= "pca954x",
->  		.pm	= &pca954x_pm,
->  		.of_match_table = of_match_ptr(pca954x_of_match),
-> +		.acpi_match_table = ACPI_PTR(pca954x_acpi_ids),
->  	},
->  	.probe		= pca954x_probe,
->  	.remove		= pca954x_remove,
-> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
