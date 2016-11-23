@@ -1,55 +1,89 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH v3 0/7] mux controller abstraction and iio/i2c muxes
-Date: Tue, 22 Nov 2016 21:58:12 +0100
-Message-ID: <b132143c-259b-6ed2-58c5-b223cc2e72df@metafoo.de>
-References: <1479734235-18837-1-git-send-email-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www381.your-server.de ([78.46.137.84]:35474 "EHLO
-        www381.your-server.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756789AbcKVU6X (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Nov 2016 15:58:23 -0500
-In-Reply-To: <1479734235-18837-1-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+From: tnhuynh@apm.com
+Subject: [PATCH V2] i2c: mux: pca954x: Add ACPI support for pca954x
+Date: Wed, 23 Nov 2016 15:52:57 +0700
+Message-ID: <1479891177-23048-1-git-send-email-tnhuynh@apm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 
-On 11/21/2016 02:17 PM, Peter Rosin wrote:
-[...]
-> I have a piece of hardware that is using the same 3 GPIO pins
-> to control four 8-way muxes. Three of them control ADC lines
-> to an ADS1015 chip with an iio driver, and the last one
-> controls the SDA line of an i2c bus. We have some deployed
-> code to handle this, but you do not want to see it or ever
-> hear about it. I'm not sure why I even mention it. Anyway,
-> the situation has nagged me to no end for quite some time.
-> 
-> So, after first getting more intimate with the i2c muxing code
-> and later discovering the drivers/iio/inkern.c file and
-> writing a couple of drivers making use of it, I came up with
-> what I think is an acceptable solution; add a generic mux
-> controller driver (and subsystem) that is shared between all
-> instances, and combine that with an iio mux driver and a new
-> generic i2c mux driver. The new i2c mux I called "simple"
-> since it is only hooking the i2c muxing and the new mux
-> controller (much like the alsa simple card driver does for ASoC).
+From: Tin Huynh <tnhuynh@apm.com>
 
-While abstracting this properly is all nice and good and the way it should
-be done, but it also adds a lot of complexity and the devicetree adds a lot
-of restrictions on what can actually be represented.
+This patch enables ACPI support for mux-pca954x driver.
 
-There is a certain point where the fabric on a PCB becomes so complex that
-it deserves to be a device on its own (like the audio fabric drivers).
-Especially when the hardware is built with a certain application in mind and
-the driver is supposed to impose policy which reflects this application. The
-latter can often not properly be described with the primitives the
-devicetree can offer.
+Signed-off-by: Tin Huynh <tnhuynh@apm.com>
 
-And I think your setup is very borderline what can be done in a declarative
-way only and it adds a lot of complexity over a more imperative solution in
-form of a driver. I think it is worth investigating about having a driver
-that is specific to your fabric and handles the interdependencies of the
-discrete components.
+Change from v1 :
+ -Don't shadow id variable.
+ -Include sorted header.
+ -Redefine acpi_device_id.
+ -Add CONFIG_ACPI.
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c |   29 ++++++++++++++++++++++++++++-
+ 1 files changed, 28 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 1091346..1ad67cb 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -35,6 +35,7 @@
+  * warranty of any kind, whether express or implied.
+  */
+ 
++#include <linux/acpi.h>
+ #include <linux/device.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+@@ -120,6 +121,21 @@ struct pca954x {
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id pca954x_acpi_ids[] = {
++	{ .id = "PCA9540", .driver_data = pca_9540 },
++	{ .id = "PCA9542", .driver_data = pca_9540 },
++	{ .id = "PCA9543", .driver_data = pca_9543 },
++	{ .id = "PCA9544", .driver_data = pca_9544 },
++	{ .id = "PCA9545", .driver_data = pca_9545 },
++	{ .id = "PCA9546", .driver_data = pca_9545 },
++	{ .id = "PCA9547", .driver_data = pca_9547 },
++	{ .id = "PCA9548", .driver_data = pca_9548 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, pca954x_acpi_ids);
++#endif
++
+ #ifdef CONFIG_OF
+ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+@@ -245,8 +261,18 @@ static int pca954x_probe(struct i2c_client *client,
+ 	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
+ 	if (match)
+ 		data->chip = of_device_get_match_data(&client->dev);
+-	else
++	else if (id)
+ 		data->chip = &chips[id->driver_data];
++#ifdef CONFIG_ACPI
++	else {
++		const struct acpi_device_id *acpi_id;
++
++		acpi_id = acpi_match_device(pca954x_acpi_ids, &client->dev);
++		if (!acpi_id)
++			return -ENODEV;
++		data->chip = &chips[acpi_id->driver_data];
++	}
++#endif
+ 
+ 	data->last_chan = 0;		   /* force the first selection */
+ 
+@@ -321,6 +347,7 @@ static int pca954x_resume(struct device *dev)
+ 		.name	= "pca954x",
+ 		.pm	= &pca954x_pm,
+ 		.of_match_table = of_match_ptr(pca954x_of_match),
++		.acpi_match_table = ACPI_PTR(pca954x_acpi_ids),
+ 	},
+ 	.probe		= pca954x_probe,
+ 	.remove		= pca954x_remove,
+-- 
+1.7.1
