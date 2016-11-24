@@ -1,64 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5 6/6] i2c: use an IRQ to report Host Notify events, not
- alert
-Date: Thu, 24 Nov 2016 16:10:18 +0100
-Message-ID: <20161124151018.GS2119@mail.corp.redhat.com>
-References: <1476360640-12901-1-git-send-email-benjamin.tissoires@redhat.com>
- <1476360640-12901-7-git-send-email-benjamin.tissoires@redhat.com>
- <20161107002034.GB1442@katana>
- <20161121105248.GH2119@mail.corp.redhat.com>
- <20161122114922.GA3993@katana>
- <20161124150608.GE4271@katana>
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: Re: [PATCH 1/2] i2c: designware: report short transfers
+Date: Thu, 24 Nov 2016 16:18:39 +0100
+Message-ID: <20161124151839.GG4271@katana>
+References: <20161118193542.GO1041@n2100.armlinux.org.uk>
+ <E1c7p12-0000R0-S8@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tvOENZuN7d6HfOWU"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:58430 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965876AbcKXPSm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 24 Nov 2016 10:18:42 -0500
 Content-Disposition: inline
-In-Reply-To: <20161124150608.GE4271@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
+In-Reply-To: <E1c7p12-0000R0-S8@rmk-PC.armlinux.org.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Andrew Jackson <Andrew.Jackson@arm.com>, Liviu Dudau <Liviu.Dudau@arm.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Nov 24 2016 or thereabouts, Wolfram Sang wrote:
-> On Tue, Nov 22, 2016 at 12:49:22PM +0100, Wolfram Sang wrote:
-> > On Mon, Nov 21, 2016 at 11:52:48AM +0100, Benjamin Tissoires wrote:
-> > > Hi Wolfram,
-> > > 
-> > > On Nov 07 2016 or thereabouts, Wolfram Sang wrote:
-> > > > On Thu, Oct 13, 2016 at 02:10:40PM +0200, Benjamin Tissoires wrote:
-> > > > > The current SMBus Host Notify implementation relies on .alert() to
-> > > > > relay its notifications. However, the use cases where SMBus Host
-> > > > > Notify is needed currently is to signal data ready on touchpads.
-> > > > > 
-> > > > > This is closer to an IRQ than a custom API through .alert().
-> > > > > Given that the 2 touchpad manufacturers (Synaptics and Elan) that
-> > > > > use SMBus Host Notify don't put any data in the SMBus payload, the
-> > > > > concept actually matches one to one.
-> > > > 
-> > > > I see the advantages. The only question I have: What if we encounter
-> > > > devices in the future which do put data in the payload? Can this
-> > > > mechanism be extended to handle that?
-> > > 
-> > > I guess I haven't convinced you with my answer. Is there anything I can
-> > > do to get this series in v4.10 or do you prefer waiting for v4.11?
-> > 
-> > I consider this v4.10 material. I was thinking a little about how to not
-> > lose data with consecutive interrupts but then -EBUSY came along.
-> > Nonetheless, it looks to me like the proper path to follow...
-> 
-> Applied to for-next, thanks!
 
-Thanks!
+--tvOENZuN7d6HfOWU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Fixed the following checkpatch warning for you:
-> 
-> WARNING: struct irq_domain_ops should normally be const
-> #250: FILE: drivers/i2c/i2c-core.c:1838:
-> +static struct irq_domain_ops i2c_host_notify_irq_ops = {
-> 
+On Fri, Nov 18, 2016 at 07:40:04PM +0000, Russell King wrote:
+> Rather than reporting success for a short transfer due to interrupt
+> latency, report an error both to the caller, as well as to the kernel
+> log.
+>=20
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-Thanks again :)
+Applied to for-current, thanks!
 
-Cheers,
-Benjamin
+
+--tvOENZuN7d6HfOWU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYNwTOAAoJEBQN5MwUoCm2/AUQAJCPhPt/9KPAiIo7/Vtfzhaa
+KtQHzwgfEX+qA+zvx+gR1Z6PiEn7K9exbw8hy6+HG/qNwJjZXbvHenEB0p3I51Q+
+R6+KDEu5ON+gEN1tKlUns2ei9g8C3+LqVKYso+gDuNRLcrBflKom1SNAqqupjUNR
+fLb+q0jHbur0i+oZmikdE/BvQIcil0jX59ILznEhBu7GBeSsFLs/RdgbWpNV89rn
+FQnlpVU3Mp9nWfGUtCEg5RzrEQ2ZRLTVNVkzKQV+hxIVWfTHVDkywJ+qKJBRatCw
+81Hj65gV3KEsXJNnwFr7pJJBzTeFHTfN1kIRSDZ0C+gzY6tIKuzzKOGm6ZXS1Wd2
+DgEqWqFg/gQIspHM/ddHiKqQqE9lbwXEGCdimIxvzLWhhbz+jwuSUtoqBknztVKb
+FDdugSBTjMbdxmSu3qG+lEsLLIgh5sGvA95N2/uABbGNJLl4NYhP0fZ87XU4gFym
+rn/O4sHTRZW+pdgqBdawQ/HBCNPybAIA3zLlGeR/xyxZ5wvbmyBFVNEEcx4+C7og
+zYFzAbdIdG/zwQHSTupFhoYhyqFfQSS1LNNiLXTaloYjDvo0Wazt6H5bnqWQiIi2
+vqIs0hyVYh0ukzeBsJhrrwF8RBtGbbz+hbanPBgzTqvDwpvMjtVQJ1YCNwO+6SKl
+w5gYCgr6v88f03DwhX7N
+=CUKN
+-----END PGP SIGNATURE-----
+
+--tvOENZuN7d6HfOWU--
