@@ -1,238 +1,250 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v4 1/7] dt-bindings: document devicetree bindings for mux-controllers and mux-gpio
-Date: Thu, 24 Nov 2016 16:18:01 +0100
-Message-ID: <1480000687-5630-2-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v4 7/7] i2c: i2c-mux-simple: new driver
+Date: Thu, 24 Nov 2016 16:18:07 +0100
+Message-ID: <1480000687-5630-8-git-send-email-peda@axentia.se>
 References: <1480000687-5630-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1480000687-5630-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480000687-5630-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- .../devicetree/bindings/misc/mux-controller.txt    | 106 +++++++++++++++++++++
- .../devicetree/bindings/misc/mux-gpio.txt          |  78 +++++++++++++++
- MAINTAINERS                                        |   5 +
- 3 files changed, 189 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/misc/mux-controller.txt
- create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
+This is a generic simple i2c mux that uses the generic multiplexer
+subsystem to do the muxing.
 
-diff --git a/Documentation/devicetree/bindings/misc/mux-controller.txt b/Documentation/devicetree/bindings/misc/mux-controller.txt
-new file mode 100644
-index 000000000000..8e0733f60a37
---- /dev/null
-+++ b/Documentation/devicetree/bindings/misc/mux-controller.txt
-@@ -0,0 +1,106 @@
-+Common multiplexer controller bindings
-+
-+A mux controller will have one, or several, consumer devices that uses the
-+mux controller. Thus, a mux controller can possibly control several
-+parallel multiplexers. If there are several consumer devices, the node for
-+a mux controller will have one child node for each consumer of the multiplexer
-+controller. If there is only one consumer of the mux controller, the mux
-+controller node can be the child (with node name 'mux-controller') of the
-+consumer node.
-+
-+A mux controller provides a number of states to its consumers, and the
-+state space is a simple zero-based enumeration. I.e. 0-1 for a 2-way
-+multiplexer, 0-7 for an 8-way multiplexer, etc.
-+
-+Example:
-+
-+	/*
-+	 * One consumer of a 2-way multiplexer controller by one GPIO-line,
-+	 * with the multiplexer controller as a child node.
-+	 */
-+	adc-mux {
-+		compatible = "iio-mux";
-+		io-channels = <&adc 0>;
-+		io-channel-names = "parent";
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		mux-controller {
-+			compatible = "mux-gpio";
-+
-+			mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>;
-+		};
-+
-+		sync-1@0 {
-+			reg = <0>;
-+		};
-+
-+		in@1 {
-+			reg = <1>;
-+		};
-+	};
-+
-+	/*
-+	 * Two consumers (one for an ADC line and one for an i2c bus) of
-+	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
-+	 */
-+	mux {
-+		compatible = "mux-gpio";
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+
-+		adc-mux {
-+			compatible = "iio-mux";
-+			io-channels = <&adc 0>;
-+			io-channel-names = "parent";
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			sync-1@0 {
-+				reg = <0>;
-+			};
-+
-+			in@1 {
-+				reg = <1>;
-+			};
-+
-+			out@2 {
-+				reg = <2>;
-+			};
-+
-+			sync-2@3 {
-+				reg = <3>;
-+			};
-+		};
-+
-+		i2c-mux {
-+			compatible = "i2c-mux-simple,mux-locked";
-+			i2c-parent = <&i2c1>;
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			i2c@0 {
-+				reg = <0>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				ssd1307: oled@3c {
-+					/* ... */
-+				};
-+			};
-+
-+			i2c@3 {
-+				reg = <3>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				pca9555: pca9555@20 {
-+					/* ... */
-+				};
-+			};
-+		};
-+	};
-diff --git a/Documentation/devicetree/bindings/misc/mux-gpio.txt b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-new file mode 100644
-index 000000000000..23b87913f4b3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-@@ -0,0 +1,78 @@
-+GPIO-based multiplexer controller bindings
-+
-+Define what GPIO pins are used to control a multiplexer. Or several
-+multiplexers, if the same pins control more than one multiplexer.
-+
-+Required properties:
-+- compatible : "mux-gpio"
-+- mux-gpios : list of gpios used to control the multiplexer, least
-+	      significant bit first.
-+* Standard mux-controller bindings as decribed in mux-controller.txt
-+
-+Optional properties:
-+- idle-state : if present, the state the mux will have when idle.
-+
-+The multiplexer state is defined as the number represented by the
-+multiplexer GPIO pins, where the first pin is the least significant
-+bit. And active pin is a binary 1, an inactive pin is a binary 0.
-+
-+Example:
-+	mux {
-+		compatible = "mux-gpio";
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+
-+		adc {
-+			compatible = "iio-mux";
-+			io-channels = <&adc 0>;
-+			io-channel-names = "parent";
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			sync-1@0 {
-+				reg = <0>;
-+			};
-+
-+			in@1 {
-+				reg = <1>;
-+			};
-+
-+			out@2 {
-+				reg = <2>;
-+			};
-+
-+			sync-2@3 {
-+				reg = <3>;
-+			};
-+		};
-+
-+		i2c-mux {
-+			compatible = "i2c-mux-simple,mux-locked";
-+			i2c-parent = <&i2c1>;
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			i2c@0 {
-+				reg = <0>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				ssd1307: oled@3c {
-+					/* ... */
-+				};
-+			};
-+
-+			i2c@3 {
-+				reg = <3>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				pca9555: pca9555@20 {
-+					/* ... */
-+				};
-+			};
-+		};
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4ebcd8df29d2..35869ed0a50e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8402,6 +8402,11 @@ S:	Orphan
- F:	drivers/mmc/host/mmc_spi.c
- F:	include/linux/spi/mmc_spi.h
+The user can select if the mux is to be mux-locked and parent-locked
+as described in Documentation/i2c/i2c-topology.
+
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+---
+ drivers/i2c/muxes/Kconfig          |  13 +++
+ drivers/i2c/muxes/Makefile         |   1 +
+ drivers/i2c/muxes/i2c-mux-simple.c | 179 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 193 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
+
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 10b3d17ae3ea..565921e09a96 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -73,6 +73,19 @@ config I2C_MUX_REG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-reg.
  
-+MULTIPLEXER SUBSYSTEM
-+M:	Peter Rosin <peda@axentia.se>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/misc/mux-*
++config I2C_MUX_SIMPLE
++	tristate "Simple I2C multiplexer"
++	select MULTIPLEXER
++	depends on OF
++	help
++	  If you say yes to this option, support will be included for a
++	  simple generic I2C multiplexer. This driver provides access to
++	  I2C busses connected through a MUX, which is controlled
++	  by a generic MUX controller.
 +
- MULTISOUND SOUND DRIVER
- M:	Andrew Veliath <andrewtv@usa.net>
- S:	Maintained
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-mux-simple.
++
+ config I2C_DEMUX_PINCTRL
+ 	tristate "pinctrl-based I2C demultiplexer"
+ 	depends on PINCTRL && OF
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 9948fa45037f..6821d95c92a3 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -11,5 +11,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+ obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
+ obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
++obj-$(CONFIG_I2C_MUX_SIMPLE)	+= i2c-mux-simple.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/i2c-mux-simple.c b/drivers/i2c/muxes/i2c-mux-simple.c
+new file mode 100644
+index 000000000000..461d9c21b7db
+--- /dev/null
++++ b/drivers/i2c/muxes/i2c-mux-simple.c
+@@ -0,0 +1,179 @@
++/*
++ * Generic simple I2C multiplexer
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++
++struct mux {
++	struct mux_control *control;
++
++	bool do_not_deselect;
++};
++
++static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct mux *mux = i2c_mux_priv(muxc);
++	int ret;
++
++	ret = mux_control_select(mux->control, chan);
++	mux->do_not_deselect = ret < 0;
++
++	return ret;
++}
++
++static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct mux *mux = i2c_mux_priv(muxc);
++
++	if (mux->do_not_deselect)
++		return 0;
++
++	return mux_control_deselect(mux->control);
++}
++
++static struct i2c_adapter *mux_parent_adapter(struct device *dev)
++{
++	struct device_node *np = dev->of_node;
++	struct device_node *parent_np;
++	struct i2c_adapter *parent;
++
++	parent_np = of_parse_phandle(np, "i2c-parent", 0);
++	if (!parent_np) {
++		dev_err(dev, "Cannot parse i2c-parent\n");
++		return ERR_PTR(-ENODEV);
++	}
++	parent = of_find_i2c_adapter_by_node(parent_np);
++	of_node_put(parent_np);
++	if (!parent)
++		return ERR_PTR(-EPROBE_DEFER);
++
++	return parent;
++}
++
++static const struct of_device_id i2c_mux_of_match[] = {
++	{ .compatible = "i2c-mux-simple,parent-locked",
++	  .data = (void *)0, },
++	{ .compatible = "i2c-mux-simple,mux-locked",
++	  .data = (void *)1, },
++	{},
++};
++MODULE_DEVICE_TABLE(of, i2c_mux_of_match);
++
++static int i2c_mux_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
++	struct device_node *child;
++	const struct of_device_id *match;
++	struct i2c_mux_core *muxc;
++	struct mux *mux;
++	struct i2c_adapter *parent;
++	int children;
++	int ret;
++
++	if (!np)
++		return -ENODEV;
++
++	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
++	if (!mux)
++		return -ENOMEM;
++
++	mux->control = devm_mux_control_get(dev);
++	if (IS_ERR(mux->control)) {
++		if (PTR_ERR(mux->control) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get control-mux\n");
++		return PTR_ERR(mux->control);
++	}
++
++	parent = mux_parent_adapter(dev);
++	if (IS_ERR(parent)) {
++		if (PTR_ERR(parent) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get i2c-parent adapter\n");
++		return PTR_ERR(parent);
++	}
++
++	children = of_get_child_count(np);
++
++	muxc = i2c_mux_alloc(parent, dev, children, 0, 0,
++			     i2c_mux_select, i2c_mux_deselect);
++	if (!muxc) {
++		ret = -ENOMEM;
++		goto err_parent;
++	}
++	muxc->priv = mux;
++
++	platform_set_drvdata(pdev, muxc);
++
++	match = of_match_device(of_match_ptr(i2c_mux_of_match), dev);
++	if (match)
++		muxc->mux_locked = !!of_device_get_match_data(dev);
++
++	for_each_child_of_node(np, child) {
++		u32 chan;
++
++		ret = of_property_read_u32(child, "reg", &chan);
++		if (ret < 0) {
++			dev_err(dev, "no reg property for node '%s'\n",
++				child->name);
++			goto err_children;
++		}
++
++		if (chan >= mux->control->states) {
++			dev_err(dev, "invalid reg %u\n", chan);
++			ret = -EINVAL;
++			goto err_children;
++		}
++
++		ret = i2c_mux_add_adapter(muxc, 0, chan, 0);
++		if (ret)
++			goto err_children;
++	}
++
++	dev_info(dev, "%d-port mux on %s adapter\n", children, parent->name);
++
++	return 0;
++
++err_children:
++	i2c_mux_del_adapters(muxc);
++err_parent:
++	i2c_put_adapter(parent);
++
++	return ret;
++}
++
++static int i2c_mux_remove(struct platform_device *pdev)
++{
++	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
++
++	i2c_mux_del_adapters(muxc);
++	i2c_put_adapter(muxc->parent);
++
++	return 0;
++}
++
++static struct platform_driver i2c_mux_driver = {
++	.probe	= i2c_mux_probe,
++	.remove	= i2c_mux_remove,
++	.driver	= {
++		.name	= "i2c-mux-simple",
++		.of_match_table = i2c_mux_of_match,
++	},
++};
++module_platform_driver(i2c_mux_driver);
++
++MODULE_DESCRIPTION("Simple I2C multiplexer driver");
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>");
++MODULE_LICENSE("GPL v2");
 -- 
 2.1.4
-
