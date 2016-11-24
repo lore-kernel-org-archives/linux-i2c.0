@@ -1,250 +1,60 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: [PATCH v4 7/7] i2c: i2c-mux-simple: new driver
-Date: Thu, 24 Nov 2016 16:18:07 +0100
-Message-ID: <1480000687-5630-8-git-send-email-peda@axentia.se>
-References: <1480000687-5630-1-git-send-email-peda@axentia.se>
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: Re: [PATCH v2] i2c: i2c-mux-gpio: update mux with
+ gpiod_set_array_value_cansleep
+Date: Thu, 24 Nov 2016 20:52:30 +0100
+Message-ID: <20161124195230.GA1666@katana>
+References: <1479908035-18284-1-git-send-email-peda@axentia.se>
+ <20161124151420.GF4271@katana>
+ <46be889f-a558-0174-f638-c685b23c8ed9@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480000687-5630-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:39464 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S941134AbcKXTwe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 24 Nov 2016 14:52:34 -0500
+Content-Disposition: inline
+In-Reply-To: <46be889f-a558-0174-f638-c685b23c8ed9@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-This is a generic simple i2c mux that uses the generic multiplexer
-subsystem to do the muxing.
 
-The user can select if the mux is to be mux-locked and parent-locked
-as described in Documentation/i2c/i2c-topology.
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
----
- drivers/i2c/muxes/Kconfig          |  13 +++
- drivers/i2c/muxes/Makefile         |   1 +
- drivers/i2c/muxes/i2c-mux-simple.c | 179 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 193 insertions(+)
- create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 10b3d17ae3ea..565921e09a96 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -73,6 +73,19 @@ config I2C_MUX_REG
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-reg.
- 
-+config I2C_MUX_SIMPLE
-+	tristate "Simple I2C multiplexer"
-+	select MULTIPLEXER
-+	depends on OF
-+	help
-+	  If you say yes to this option, support will be included for a
-+	  simple generic I2C multiplexer. This driver provides access to
-+	  I2C busses connected through a MUX, which is controlled
-+	  by a generic MUX controller.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-simple.
-+
- config I2C_DEMUX_PINCTRL
- 	tristate "pinctrl-based I2C demultiplexer"
- 	depends on PINCTRL && OF
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 9948fa45037f..6821d95c92a3 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -11,5 +11,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
- obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-+obj-$(CONFIG_I2C_MUX_SIMPLE)	+= i2c-mux-simple.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/muxes/i2c-mux-simple.c b/drivers/i2c/muxes/i2c-mux-simple.c
-new file mode 100644
-index 000000000000..461d9c21b7db
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-simple.c
-@@ -0,0 +1,179 @@
-+/*
-+ * Generic simple I2C multiplexer
-+ *
-+ * Copyright (C) 2016 Axentia Technologies AB
-+ *
-+ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/module.h>
-+#include <linux/mux.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+
-+struct mux {
-+	struct mux_control *control;
-+
-+	bool do_not_deselect;
-+};
-+
-+static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct mux *mux = i2c_mux_priv(muxc);
-+	int ret;
-+
-+	ret = mux_control_select(mux->control, chan);
-+	mux->do_not_deselect = ret < 0;
-+
-+	return ret;
-+}
-+
-+static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct mux *mux = i2c_mux_priv(muxc);
-+
-+	if (mux->do_not_deselect)
-+		return 0;
-+
-+	return mux_control_deselect(mux->control);
-+}
-+
-+static struct i2c_adapter *mux_parent_adapter(struct device *dev)
-+{
-+	struct device_node *np = dev->of_node;
-+	struct device_node *parent_np;
-+	struct i2c_adapter *parent;
-+
-+	parent_np = of_parse_phandle(np, "i2c-parent", 0);
-+	if (!parent_np) {
-+		dev_err(dev, "Cannot parse i2c-parent\n");
-+		return ERR_PTR(-ENODEV);
-+	}
-+	parent = of_find_i2c_adapter_by_node(parent_np);
-+	of_node_put(parent_np);
-+	if (!parent)
-+		return ERR_PTR(-EPROBE_DEFER);
-+
-+	return parent;
-+}
-+
-+static const struct of_device_id i2c_mux_of_match[] = {
-+	{ .compatible = "i2c-mux-simple,parent-locked",
-+	  .data = (void *)0, },
-+	{ .compatible = "i2c-mux-simple,mux-locked",
-+	  .data = (void *)1, },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, i2c_mux_of_match);
-+
-+static int i2c_mux_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct device_node *child;
-+	const struct of_device_id *match;
-+	struct i2c_mux_core *muxc;
-+	struct mux *mux;
-+	struct i2c_adapter *parent;
-+	int children;
-+	int ret;
-+
-+	if (!np)
-+		return -ENODEV;
-+
-+	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
-+	if (!mux)
-+		return -ENOMEM;
-+
-+	mux->control = devm_mux_control_get(dev);
-+	if (IS_ERR(mux->control)) {
-+		if (PTR_ERR(mux->control) != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get control-mux\n");
-+		return PTR_ERR(mux->control);
-+	}
-+
-+	parent = mux_parent_adapter(dev);
-+	if (IS_ERR(parent)) {
-+		if (PTR_ERR(parent) != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get i2c-parent adapter\n");
-+		return PTR_ERR(parent);
-+	}
-+
-+	children = of_get_child_count(np);
-+
-+	muxc = i2c_mux_alloc(parent, dev, children, 0, 0,
-+			     i2c_mux_select, i2c_mux_deselect);
-+	if (!muxc) {
-+		ret = -ENOMEM;
-+		goto err_parent;
-+	}
-+	muxc->priv = mux;
-+
-+	platform_set_drvdata(pdev, muxc);
-+
-+	match = of_match_device(of_match_ptr(i2c_mux_of_match), dev);
-+	if (match)
-+		muxc->mux_locked = !!of_device_get_match_data(dev);
-+
-+	for_each_child_of_node(np, child) {
-+		u32 chan;
-+
-+		ret = of_property_read_u32(child, "reg", &chan);
-+		if (ret < 0) {
-+			dev_err(dev, "no reg property for node '%s'\n",
-+				child->name);
-+			goto err_children;
-+		}
-+
-+		if (chan >= mux->control->states) {
-+			dev_err(dev, "invalid reg %u\n", chan);
-+			ret = -EINVAL;
-+			goto err_children;
-+		}
-+
-+		ret = i2c_mux_add_adapter(muxc, 0, chan, 0);
-+		if (ret)
-+			goto err_children;
-+	}
-+
-+	dev_info(dev, "%d-port mux on %s adapter\n", children, parent->name);
-+
-+	return 0;
-+
-+err_children:
-+	i2c_mux_del_adapters(muxc);
-+err_parent:
-+	i2c_put_adapter(parent);
-+
-+	return ret;
-+}
-+
-+static int i2c_mux_remove(struct platform_device *pdev)
-+{
-+	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
-+
-+	i2c_mux_del_adapters(muxc);
-+	i2c_put_adapter(muxc->parent);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver i2c_mux_driver = {
-+	.probe	= i2c_mux_probe,
-+	.remove	= i2c_mux_remove,
-+	.driver	= {
-+		.name	= "i2c-mux-simple",
-+		.of_match_table = i2c_mux_of_match,
-+	},
-+};
-+module_platform_driver(i2c_mux_driver);
-+
-+MODULE_DESCRIPTION("Simple I2C multiplexer driver");
-+MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+> Yes, I never liked that include, but I don't know how to get
+> from struct gpio_desc * to the relevant struct device *
+> without it...
+
+Looks to me like we should ask the GPIO maintainers if they are willing
+to export this value? I am probably not as good as you in explaining the
+details why, though...
+
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYN0T+AAoJEBQN5MwUoCm2WPoQAKbMGZEziYpp/bQnLEALFcU6
+WpHTmQxJo5SQ/gQMmUbMtpUhFqVDpn5IBZ/gjgKUZxR0zOV+QGtlOsgg/X7ooHfw
+ed4D2lX7xOa8QIe5qaF4ohASFogqg/4JW2iwYYgAvETz3w19I2Yht2Zdd3Y7FlDh
+z1Ti3XvHeTqyyUdIbkS9AsxqZAqdOWnZuBi1IdzWm+OINQ7zNtMfTJUHvGRLWPjQ
+WqpVOjq86ZM89N0DHj262uAdAuTIy0OSUECEU9qalzNkwxR0MHSaCg0SbbY5QA/w
+CBvAMAvbJpd7XygUqoJ1mwAff27bIyjqnzsz4GzQX7qix1akyiyNdyeOqZONM5XB
+LP4yd03zOZ/wOlzeSFoPG0qgewVYE2D28N0rhiI2li7971m+/D/St7nH+OQWpa52
+7Opt3kEnL7ngjXydB4SMnuLUOMslFxjPAC3JLwfqgguWeaIlIcCka+JxHkGH1m8w
+U4jIIzNTvPC/G2W/HIXb6cY2tDjCFFIn+f4j7uCdQT0LfD3mnEeDg0CgDEVeKr8t
+nhvvDI7mGQOeX35x60DSO/8sRsav3T3n/F+KcJqSWjNDewGAgUxJCaYa4w5o9fG3
+rx1cRr9T7ai38TYy876vbFDTXe1up/nuE+B3nZSnG4rnTLlGw/fApaVcZhWUxVqk
+bwpSMJSZKzvkuwD/Qhc5
+=f8My
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--
