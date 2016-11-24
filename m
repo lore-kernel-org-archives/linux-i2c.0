@@ -1,69 +1,84 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [patch v9 1/1] i2c: add master driver for mellanox systems
-Date: Thu, 24 Nov 2016 15:52:02 +0100
-Message-ID: <20161124145201.GD4271@katana>
-References: <1479660974-143713-1-git-send-email-vadimp@mellanox.com>
+Subject: Re: [PATCH v5 6/6] i2c: use an IRQ to report Host Notify events, not
+ alert
+Date: Thu, 24 Nov 2016 16:06:08 +0100
+Message-ID: <20161124150608.GE4271@katana>
+References: <1476360640-12901-1-git-send-email-benjamin.tissoires@redhat.com>
+ <1476360640-12901-7-git-send-email-benjamin.tissoires@redhat.com>
+ <20161107002034.GB1442@katana>
+ <20161121105248.GH2119@mail.corp.redhat.com>
+ <20161122114922.GA3993@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:47920 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965569AbcKXOwF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 24 Nov 2016 09:52:05 -0500
+        protocol="application/pgp-signature"; boundary="qOrJKOH36bD5yhNe"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1479660974-143713-1-git-send-email-vadimp@mellanox.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20161122114922.GA3993@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
 List-Id: linux-i2c@vger.kernel.org
-To: vadimp@mellanox.com
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jiri@resnulli.us, Michael Shych <michaelsh@mellanox.com>
 
 
---7DO5AaGCk89r4vaK
+--qOrJKOH36bD5yhNe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Nov 20, 2016 at 04:56:14PM +0000, vadimp@mellanox.com wrote:
-> From: Vadim Pasternak <vadimp@mellanox.com>
+On Tue, Nov 22, 2016 at 12:49:22PM +0100, Wolfram Sang wrote:
+> On Mon, Nov 21, 2016 at 11:52:48AM +0100, Benjamin Tissoires wrote:
+> > Hi Wolfram,
+> >=20
+> > On Nov 07 2016 or thereabouts, Wolfram Sang wrote:
+> > > On Thu, Oct 13, 2016 at 02:10:40PM +0200, Benjamin Tissoires wrote:
+> > > > The current SMBus Host Notify implementation relies on .alert() to
+> > > > relay its notifications. However, the use cases where SMBus Host
+> > > > Notify is needed currently is to signal data ready on touchpads.
+> > > >=20
+> > > > This is closer to an IRQ than a custom API through .alert().
+> > > > Given that the 2 touchpad manufacturers (Synaptics and Elan) that
+> > > > use SMBus Host Notify don't put any data in the SMBus payload, the
+> > > > concept actually matches one to one.
+> > >=20
+> > > I see the advantages. The only question I have: What if we encounter
+> > > devices in the future which do put data in the payload? Can this
+> > > mechanism be extended to handle that?
+> >=20
+> > I guess I haven't convinced you with my answer. Is there anything I can
+> > do to get this series in v4.10 or do you prefer waiting for v4.11?
 >=20
-> Device driver for Mellanox I2C controller logic, implemented in Lattice
-> CPLD device.
-> Device supports:
->  - Master mode
->  - One physical bus
->  - Polling mode
->=20
-> The Kconfig currently controlling compilation of this code is:
-> drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
->=20
-> Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-> Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-> Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-> Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+> I consider this v4.10 material. I was thinking a little about how to not
+> lose data with consecutive interrupts but then -EBUSY came along.
+> Nonetheless, it looks to me like the proper path to follow...
 
 Applied to for-next, thanks!
 
+Fixed the following checkpatch warning for you:
 
---7DO5AaGCk89r4vaK
+WARNING: struct irq_domain_ops should normally be const
+#250: FILE: drivers/i2c/i2c-core.c:1838:
++static struct irq_domain_ops i2c_host_notify_irq_ops =3D {
+
+
+--qOrJKOH36bD5yhNe
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYNv6RAAoJEBQN5MwUoCm2dDUP/iCCBQOY4FSgIbMYJxoc+bWo
-3H+0MwfeSy32Bh0RnexHFueunMeVqAfLDOGU1oA7WWusOv5rqBjYdj3f3rc6HiEt
-T811P5pd4hJqOIX6V6bOsCswXM7i7H5Ek4RotiIuFkaMpX03VE6og8dlQpyfyBvg
-hPyz+FdSStiKNsqHx7x36cSky0qMbpVnOq4Ljcyu1fOPzvmiilemjmyaq3cfXD6m
-kn1QIx9qroYZrjW0adOyYGMI71tanG1W6P5Zct0wrjoTBMS14xrmLIbTJ4g+UeyO
-xfnfaHGYUKAiT5CW5Ma20Rt9lHMFKtLwOwX5hNkrhsDHRZcDk/t+yDLrbhiqoQmn
-0uH5nsfvWCbpX5U4458SKSV0OTDfP0eoUm6bM2CmyRKIeyhKGWQrknLVmmID9oWo
-0Bd07Qc3H2zbTsDYfVLdKWNXUuQRV2ZIbdIAG++jXDwVCWLplw7mhOFsvuz5Drk/
-0201B2GjOUxFHz8PVh/s8MowA4nY66ztjI0eCkxdCVNa5rGIy228JQTBowNc590C
-x77VjGQIBS4lG6KaSZ6wwFI/d/nKDoukhpm4gVz97Pszm4OcOHBY1RJsE4VaaOqi
-Ql0WHezJuEv5wpOyySi/jCzyjsuuiPCkLC01iw/zy9tQr6a6ekoBxDou4fubBF+x
-W+InPN4Q6IBrW4qXXXM5
-=fadl
+iQIcBAEBAgAGBQJYNwHfAAoJEBQN5MwUoCm2MWwQALPoR9M/8bCbHoa5Y/9rNWyG
+SGMpl3yXmsQpbaho82jMO5cNrdjJD+57KT7xpHygz1MpLm/k2p4fDA6NgZ0KnMEX
+Kr0s1CB+A8pTGd7bxu6V95jzqldCpkMS4QtGp5Y7YQyyGVFids8VVRDQ+S2TpyjJ
+O3EpCrNFz2rCjCuT0HGfA5vfDI/FmySH+E2UMYbpFpg7zsyA4q59vKdL8rDadFDH
+1kwTj7CysnCGFBumHN42SIYJk6XVQ/fKn+hTHLfTgGplV9jF0/bQGlRP0/+bjfzP
+9Neq3xzW6UomrFBxoJVy8eBNnyfR7F9tXhST2IE3igqA8h/bjKSbu4fhLX5yKQN6
+LjI6edXP6m0z+0Y+hkx3n4ro+vIIjoVSsrVKyz4syQNle3Eq0WMbgRYtvvDlAZzH
+A/QwK2YxgFGRoui4KVnM6HtVTGDysDJs213kDvlmfJbJBUb/xsR9uKqdAMawZfVM
+ClwdE1xwfYiMtB20kH3mV0Z9pNvpZKthkr2sezZrSWqd678YOzBJSNRkMFcy9ERF
+TIczQNPZZG5ht+Ds+mKGrr4/XDGR2J1TUBRkP+uH8914iRE1nU488QgLU+GMyOKJ
+Han+xaHoubbh5AE/8oY2wIa66IKs4H3omCiYAyZd2TJcxfxMSJNZFYBu3ODxsglw
+V+3Oah8e46FEnE04CWN9
+=B0+j
 -----END PGP SIGNATURE-----
 
---7DO5AaGCk89r4vaK--
+--qOrJKOH36bD5yhNe--
