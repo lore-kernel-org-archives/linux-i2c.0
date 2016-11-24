@@ -1,56 +1,95 @@
-From: Vadim Pasternak <vadimp@mellanox.com>
-Subject: RE: [patch v9 1/1] i2c: add master driver for mellanox systems
-Date: Thu, 24 Nov 2016 14:55:35 +0000
-Message-ID: <AM5PR0501MB2097CA728A63D56B51261BA7A2B60@AM5PR0501MB2097.eurprd05.prod.outlook.com>
-References: <1479660974-143713-1-git-send-email-vadimp@mellanox.com>
- <20161124145201.GD4271@katana>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v3] i2c: i2c-mux-gpio: update mux with gpiod_set_array_value_cansleep
+Date: Thu, 24 Nov 2016 19:19:28 +0100
+Message-ID: <1480011568-13254-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0059.outbound.protection.outlook.com ([104.47.2.59]:17180
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1755615AbcKXUbi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 24 Nov 2016 15:31:38 -0500
-In-Reply-To: <20161124145201.GD4271@katana>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jiri@resnulli.us" <jiri@resnulli.us>, Michael Shych <michaelsh@mellanox.com>
 
+If the gpio controller supports it and the gpio lines are concentrated
+to one gpio chip, the mux controller pins will get updated simultaneously.
 
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/i2c/muxes/i2c-mux-gpio.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-dev@sang-engineering.com]
-> Sent: Thursday, November 24, 2016 4:52 PM
-> To: Vadim Pasternak <vadimp@mellanox.com>
-> Cc: wsa@the-dreams.de; linux-i2c@vger.kernel.org; linux-
-> kernel@vger.kernel.org; jiri@resnulli.us; Michael Shych
-> <michaelsh@mellanox.com>
-> Subject: Re: [patch v9 1/1] i2c: add master driver for mellanox systems
->=20
-> On Sun, Nov 20, 2016 at 04:56:14PM +0000, vadimp@mellanox.com wrote:
-> > From: Vadim Pasternak <vadimp@mellanox.com>
-> >
-> > Device driver for Mellanox I2C controller logic, implemented in
-> > Lattice CPLD device.
-> > Device supports:
-> >  - Master mode
-> >  - One physical bus
-> >  - Polling mode
-> >
-> > The Kconfig currently controlling compilation of this code is:
-> > drivers/i2c/busses/Kconfig:config I2C_MLXCPLD
-> >
-> > Signed-off-by: Michael Shych <michaelsh@mellanox.com>
-> > Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-> > Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-> > Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
->=20
-> Applied to for-next, thanks!
+Hi!
 
-Thank you very,
+v2 -> v3 changes
+- preallocate temporary storage for the values array needed by the
+  gpiod_set_array_value_cansleep call, killing a warning about variable
+  length arrays reported by Wolfram.
+- allocate a correctly sized array for gpios (number of pins, not
+  number of channels).
 
-Vadim.
+v1 -> v2 changes
+- rebase onto something without interference from other patches
+
+Cheers,
+Peter
+
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index e5cf26eefa97..655684d621a4 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -21,6 +21,8 @@
+ struct gpiomux {
+ 	struct i2c_mux_gpio_platform_data data;
+ 	unsigned gpio_base;
++	struct gpio_desc **gpios;
++	int *values;
+ };
+ 
+ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
+@@ -28,8 +30,10 @@ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
+ 	int i;
+ 
+ 	for (i = 0; i < mux->data.n_gpios; i++)
+-		gpio_set_value_cansleep(mux->gpio_base + mux->data.gpios[i],
+-					val & (1 << i));
++		mux->values[i] = (val >> i) & 1;
++
++	gpiod_set_array_value_cansleep(mux->data.n_gpios,
++				       mux->gpios, mux->values);
+ }
+ 
+ static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
+@@ -176,12 +180,16 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 	if (!parent)
+ 		return -EPROBE_DEFER;
+ 
+-	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values, 0, 0,
++	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
++			     mux->data.n_gpios * sizeof(*mux->gpios) +
++			     mux->data.n_gpios * sizeof(*mux->values), 0,
+ 			     i2c_mux_gpio_select, NULL);
+ 	if (!muxc) {
+ 		ret = -ENOMEM;
+ 		goto alloc_failed;
+ 	}
++	mux->gpios = muxc->priv;
++	mux->values = (int *)(mux->gpios + mux->data.n_gpios);
+ 	muxc->priv = mux;
+ 
+ 	platform_set_drvdata(pdev, muxc);
+@@ -219,10 +227,12 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 			goto err_request_gpio;
+ 		}
+ 
++		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
++		mux->gpios[i] = gpio_desc;
++
+ 		if (!muxc->mux_locked)
+ 			continue;
+ 
+-		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
+ 		gpio_dev = &gpio_desc->gdev->dev;
+ 		muxc->mux_locked = i2c_root_adapter(gpio_dev) == root;
+ 	}
+-- 
+2.1.4
