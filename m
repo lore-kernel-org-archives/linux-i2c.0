@@ -1,78 +1,98 @@
-From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [PATCH v2] i2c: i2c-mux-gpio: update mux with
- gpiod_set_array_value_cansleep
-Date: Thu, 24 Nov 2016 16:14:21 +0100
-Message-ID: <20161124151420.GF4271@katana>
-References: <1479908035-18284-1-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v4 4/7] dt-bindings: iio: iio-mux: document iio-mux bindings
+Date: Thu, 24 Nov 2016 16:18:04 +0100
+Message-ID: <1480000687-5630-5-git-send-email-peda@axentia.se>
+References: <1480000687-5630-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="tmoQ0UElFV5VgXgH"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1479908035-18284-1-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480000687-5630-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+---
+ .../bindings/iio/multiplexer/iio-mux.txt           | 47 ++++++++++++++++++++++
+ MAINTAINERS                                        |  6 +++
+ 2 files changed, 53 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
 
---tmoQ0UElFV5VgXgH
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+diff --git a/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+new file mode 100644
+index 000000000000..f5eccdfbed40
+--- /dev/null
++++ b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+@@ -0,0 +1,47 @@
++IIO multiplexer bindings
++
++If a multiplexer is used to select which hardware signal is fed to
++e.g. an ADC channel, these bindings describe that situation.
++
++Required properties:
++- compatible : "iio-mux"
++- io-channels : Channel node of the parent channel that has multiplexed
++		input.
++- io-channel-names : Should be "parent".
++- #address-cells = <1>;
++- #size-cells = <0>;
++
++Required properties for iio-mux child nodes:
++- reg : The multiplexer state as described in ../misc/mux-controller.txt
++
++For each iio-mux child, an iio channel will be created whose number will
++match the mux controller state.
++
++Example:
++	adc-mux {
++		compatible = "iio-mux";
++		io-channels = <&adc 0>;
++		io-channel-names = "parent";
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		mux-controller {
++			compatible = "mux-gpio";
++
++			mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++				    <&pioA 1 GPIO_ACTIVE_HIGH>;
++		};
++
++		sync@0 {
++			reg = <0>;
++		};
++
++		in@1 {
++			reg = <1>;
++		};
++
++		system-regulator@2 {
++			reg = <2>;
++		};
++	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9635c9708a13..7f02f58dfc37 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6233,6 +6233,12 @@ F:	Documentation/ABI/testing/sysfs-bus-iio-adc-envelope-detector
+ F:	Documentation/devicetree/bindings/iio/adc/envelope-detector.txt
+ F:	drivers/iio/adc/envelope-detector.c
+ 
++IIO MULTIPLEXER
++M:	Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++L:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
++
+ IIO SUBSYSTEM AND DRIVERS
+ M:	Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+ R:	Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
+-- 
+2.1.4
 
-Hi Peter,
-
-> +	int values[mux->data.n_gpios];
-
-Hmm, my code checkers complain about this line:
-
-  CHECK   drivers/i2c/muxes/i2c-mux-gpio.c
-    SPARSE
-drivers/i2c/muxes/i2c-mux-gpio.c:29:29: warning: Variable length array is u=
-sed.
-    SMATCH
-drivers/i2c/muxes/i2c-mux-gpio.c:29:29: warning: Variable length array is u=
-sed.
-
-Worth to fix it?
-
-BTW (unrelated to your patch), the compiler complains about:
-
-In file included from drivers/i2c/muxes/i2c-mux-gpio.c:18:0:
-drivers/i2c/muxes/../../gpio/gpiolib.h:88:27: warning: =E2=80=98gpio_suffix=
-es=E2=80=99 defined but not used [-Wunused-const-variable=3D]
- static const char * const gpio_suffixes[] =3D { "gpios", "gpio" };
-
-which pointed out this line to me:
-
- 18 #include "../../gpio/gpiolib.h"
-
-which is probably worth fixing, too?
-
-Thanks,
-
-   Wolfram
-
---tmoQ0UElFV5VgXgH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYNwPMAAoJEBQN5MwUoCm2tvAP/3bBr3GCQoa7uHWv5WRAn717
-XkRurCr1AU5ZpOF83IsvOag9mj76LChysIfKhNXwf29euZdZc6yURm/QjUQf8P/t
-p/1l+LN6SdiPn2sBeCdNpTUH3Ug3XfzwT+ChoYNWY6/g7t8UoL/AZotqBgErb0ps
-wemlZjI2usw7JLE0dwqR22gEkizp+lubIzwASnKNMdAvnFqdbT031a6kgfwMQ7ZA
-r4W+2b9vZLWZWMSsqiVXDrZy0x+585XZzl2mB6ZuiKBVCd/92/llDQNwbe8/JEHC
-LFZFmeFD1sbFR5kpO+p0GKUVW0G/Zwduj45Ie96V/xS8ZiIVjCp3z14WToZjKn7m
-iPQBiXNvFbfRopEwVzUrOTWSvwfWaXwbNfLM2KmNEEV6BsFHsr3q/RNjxnID4PCw
-ZaEUNCOT45GUh59H5XdacUU3ruF8lIZYVB/AMtHHli4hPPViBqpLzoNkecjwuSan
-OVYpvpZW88pJtRZZwHkHcS+M6+NOJMhl7TBX8KCDx1HBbbmEgjR68ayEWnvWBrrN
-yPpzahpJcOtP95GCHDsTHGAI1gv2qsnNKPdzoIKJK0DteEU1oLlLWXMOnoJydzqZ
-VtB88OqiGBEuZSpZXMtgM9g4WmliApdWjKNtQPp1B95XQz01HeQvWpDXrv7j9ffh
-aWZqqRUooGGtSK91Luva
-=3UCg
------END PGP SIGNATURE-----
-
---tmoQ0UElFV5VgXgH--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
