@@ -1,95 +1,61 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v3] i2c: i2c-mux-gpio: update mux with gpiod_set_array_value_cansleep
-Date: Thu, 24 Nov 2016 19:19:28 +0100
-Message-ID: <1480011568-13254-1-git-send-email-peda@axentia.se>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: Getting at gpio- and pinctrl-devices as a consumer
+Date: Fri, 25 Nov 2016 00:29:40 +0100
+Message-ID: <CACRpkdb0cdvxgnuOBNfdY+idVcTXMwzKRYfCsFpiRx2qaVrt=w@mail.gmail.com>
+References: <1479908035-18284-1-git-send-email-peda@axentia.se>
+ <20161124151420.GF4271@katana> <46be889f-a558-0174-f638-c685b23c8ed9@axentia.se>
+ <20161124195230.GA1666@katana> <b481ed92-c9d2-b4da-b484-6d8bec6038f0@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <b481ed92-c9d2-b4da-b484-6d8bec6038f0@axentia.se>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa-dev@sang-engineering.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If the gpio controller supports it and the gpio lines are concentrated
-to one gpio chip, the mux controller pins will get updated simultaneously.
+On Thu, Nov 24, 2016 at 10:35 PM, Peter Rosin <peda@axentia.se> wrote:
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+> The background is that the gpio- and pinctrl-based i2c-mux drivers
+> need to know if the device that is used to control the mux of the
+> i2c-bus is also sitting on that very same i2c-bus. If it is, the
+> locking has to be different and a bit more relaxed. This relaxed
+> mode cannot be used always, as that would change the mux behavior
+> in an unacceptable way for stuff expecting the (traditional)
+> stricter locking. See Documentation/i2c/i2c-topology for more
+> details if you need it.
+>
+> To check this, the i2c mux drivers dig out the device connected to
+> each gpio-pin (or pinctrl-state) and walks up the device tree to see
+> if the root i2c adapter that is muxed is in the loop.
+>
+> When I wrote this code, I could not find a clean way to go from a
+> struct gpio_desc * to the relevant device, short of doing
+>
+>         #include "../../gpio/gpiolib.h"
+>
+>         gpio_dev = &gpio_desc->gdev->dev;
+>
+> And similarly for pinctrl:
+>
+>         #include "../../pinctrl/core.h"
+>
+>         struct pinctrl_setting *setting;
+>         pinctrl_dev = setting->pctldev->dev;
+>
+> I'm not very proud of that, and wonder if there is a better way
+> to get at the needed struct device? If not, then perhaps there
+> should be?
 
-Hi!
+Surely if I can be convinced that we need helpers for this
+in GPIO and/or pin control we can add them.
 
-v2 -> v3 changes
-- preallocate temporary storage for the values array needed by the
-  gpiod_set_array_value_cansleep call, killing a warning about variable
-  length arrays reported by Wolfram.
-- allocate a correctly sized array for gpios (number of pins, not
-  number of channels).
+They just need to be named something reasonable and
+be generally useful for other situations of similar nature.
 
-v1 -> v2 changes
-- rebase onto something without interference from other patches
+struct device *gpiod_get_backing_device(struct gpio_desc *d);
 
-Cheers,
-Peter
+Is simple but is it really what you want?
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index e5cf26eefa97..655684d621a4 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -21,6 +21,8 @@
- struct gpiomux {
- 	struct i2c_mux_gpio_platform_data data;
- 	unsigned gpio_base;
-+	struct gpio_desc **gpios;
-+	int *values;
- };
- 
- static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
-@@ -28,8 +30,10 @@ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
- 	int i;
- 
- 	for (i = 0; i < mux->data.n_gpios; i++)
--		gpio_set_value_cansleep(mux->gpio_base + mux->data.gpios[i],
--					val & (1 << i));
-+		mux->values[i] = (val >> i) & 1;
-+
-+	gpiod_set_array_value_cansleep(mux->data.n_gpios,
-+				       mux->gpios, mux->values);
- }
- 
- static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
-@@ -176,12 +180,16 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	if (!parent)
- 		return -EPROBE_DEFER;
- 
--	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values, 0, 0,
-+	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
-+			     mux->data.n_gpios * sizeof(*mux->gpios) +
-+			     mux->data.n_gpios * sizeof(*mux->values), 0,
- 			     i2c_mux_gpio_select, NULL);
- 	if (!muxc) {
- 		ret = -ENOMEM;
- 		goto alloc_failed;
- 	}
-+	mux->gpios = muxc->priv;
-+	mux->values = (int *)(mux->gpios + mux->data.n_gpios);
- 	muxc->priv = mux;
- 
- 	platform_set_drvdata(pdev, muxc);
-@@ -219,10 +227,12 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 			goto err_request_gpio;
- 		}
- 
-+		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
-+		mux->gpios[i] = gpio_desc;
-+
- 		if (!muxc->mux_locked)
- 			continue;
- 
--		gpio_desc = gpio_to_desc(gpio_base + mux->data.gpios[i]);
- 		gpio_dev = &gpio_desc->gdev->dev;
- 		muxc->mux_locked = i2c_root_adapter(gpio_dev) == root;
- 	}
--- 
-2.1.4
+Yours,
+Linus Walleij
