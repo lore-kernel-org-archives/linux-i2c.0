@@ -1,41 +1,83 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v4 0/7] mux controller abstraction and iio/i2c muxes
-Date: Sat, 26 Nov 2016 19:38:09 +0100
-Message-ID: <8e4c6895-c06f-3412-26ea-dfb02d52d328@axentia.se>
-References: <1480000687-5630-1-git-send-email-peda@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.9
+Date: Sat, 26 Nov 2016 23:12:30 +0100
+Message-ID: <20161126221221.GA2119@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480000687-5630-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:38587 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751724AbcKZWMe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 26 Nov 2016 17:12:34 -0500
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2016-11-24 16:18, Peter Rosin wrote:
-> v3 -> v4 changes
-> - added support for having the mux-controller in a child node of a
->   mux-consumer if it is a sole consumer, to hopefully even further satisfy
->   the complaint from Rob (and later Lars-Peter) about dt complexity.
-> - the above came at the cost of some rather horrible refcounting code,
->   please review and suggest how it should be done...
-> 
-> v2 -> v3 changes
-> - have the mux-controller in the parent node of any mux-controller consumer,
->   to hopefully satisfy complaint from Rob about dt complexity.
 
-I did some further tests and both of these attempts to support fancier
-devicetree bindings have severe problems. I will remove them for v5 and
-go back to having a phandle reference to the mux-controller from the
-consumer (unless I get some revelation of course and just get it). I'm
-simply not yet understanding the driver model well enough to pull this
-off at the moment...
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Cheers,
-Peter
+Linus,
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+here is a revert and two bugfixes for the I2C designware driver. Please
+pull.
+
+Please note that we are still hunting down a regression for the
+i2c-octeon driver. While there is a fix pending, we have unclear
+feedback from the testers currently. An rc8 would be quite helpful
+for this case.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 9c763584b7c8911106bb77af7e648bef09af9d80:
+
+  Linux 4.9-rc6 (2016-11-20 13:52:19 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 89119f08354b628548118cacd686a7700372ad19:
+
+  Revert "i2c: designware: do not disable adapter after transfer" (2016-11-25 23:23:25 +0100)
+
+----------------------------------------------------------------
+Jarkko Nikula (1):
+      Revert "i2c: designware: do not disable adapter after transfer"
+
+Russell King (2):
+      i2c: designware: report short transfers
+      i2c: designware: fix rx fifo depth tracking
+
+ drivers/i2c/busses/i2c-designware-core.c | 64 +++++++++++++-------------------
+ 1 file changed, 25 insertions(+), 39 deletions(-)
+
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYOgjFAAoJEBQN5MwUoCm2ZVcP/RPKpY3hhpI8mcxpWnAI/VWA
+uZ2nAkQwK0Ez4cHgf7RSZCD1TUrw98bTVBk+Sm9TsBaKLG0wRL4TITVSdcfdQoOQ
+9hIZnWMIWlw8/pIxkVKnXtg+S6lW/slSk/yFh528VRzbZWim+Glk0P0DpZXdNfX0
+VUAMoc4g5i90wg5laMTRckuaq4ydVnpKllvX6UAOfJVPuZ6rcj2Vs+tRwlCjQM0N
+gUG0hTAhzbLqBucNVc3GxJLMK143Azf71ogvWPY/5+fwuEDzrlsI8pcZjbiY/N2w
+QE4L4e1h8EhZvXy1HIete2pCWGX2XzD5VxjmiA7ycaqxUUrGpOQD0JGJWAGSEyjL
+OyZPzq4EUM/hx7ZOqCSg9tqznZGXq3Iz/W/GxyRiUTIwm2FF6JaVUJ9eaj6gEJHd
+Q9V0jO7n5KZYAr0OclgXvcZhX2Yz1DnfxLNjXp+j71x9CMN9jGiwG52VhjuwfJ8R
+jK1gx3qG2isYik9n7v7BqEpk1TO0vLhhnP32A3wJ9aLDxETyZPPuz8lhVhBT9N8Y
+gIPRohUe1iKYNKVtss6z1KZrNw8Ad3gxmrLjzyXoGGmvqiWgv/Z2s/8knKbRDUPx
+5XlISYagLMwM0xdmKer6vr/Ov9YmPZ3pRfC3uNsRgJPIGm42aAWWuBnrPi1fk9u3
+ozvLiIcbBTM05QVuLzeK
+=Eeey
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--
