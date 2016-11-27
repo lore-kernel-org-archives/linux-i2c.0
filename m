@@ -1,155 +1,161 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [RFC PATCH v2 5/7] iio: multiplexer: new iio category and iio-mux
- driver
-Date: Sun, 27 Nov 2016 11:42:41 +0000
-Message-ID: <0426b13d-2f7e-9c58-fca7-8dc150221d6f@kernel.org>
-References: <1479419289-17553-1-git-send-email-peda@axentia.se>
- <1479419289-17553-6-git-send-email-peda@axentia.se>
- <e462780e-305b-2cb9-1acd-c66dee312fac@kernel.org>
- <365eb334-d27a-e91b-7ca7-9e10c7ede9a6@axentia.se>
+Subject: Re: [PATCH v3 0/7] mux controller abstraction and iio/i2c muxes
+Date: Sun, 27 Nov 2016 12:00:19 +0000
+Message-ID: <d287dc3b-3605-d85d-1aa6-40f3bdcdc72c@kernel.org>
+References: <1479734235-18837-1-git-send-email-peda@axentia.se>
+ <b132143c-259b-6ed2-58c5-b223cc2e72df@metafoo.de>
+ <3870654b-8cf5-30cb-74cd-c5fb1559adba@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:41383 "EHLO
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:41489 "EHLO
         saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753600AbcK0Lmq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2016 06:42:46 -0500
-In-Reply-To: <365eb334-d27a-e91b-7ca7-9e10c7ede9a6@axentia.se>
+        with ESMTP id S1753806AbcK0MAZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Nov 2016 07:00:25 -0500
+In-Reply-To: <3870654b-8cf5-30cb-74cd-c5fb1559adba@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Lars-Peter Clausen <lars@metafoo.de>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 
-On 19/11/16 22:08, Peter Rosin wrote:
-> On 2016-11-19 16:49, Jonathan Cameron wrote:
->> On 17/11/16 21:48, Peter Rosin wrote:
->>> When a multiplexer changes how an iio device behaves (for example
->>> by feeding different signals to an ADC), this driver can be used
->>> create one virtual iio channel for each multiplexer state.
+On 23/11/16 11:47, Peter Rosin wrote:
+> On 2016-11-22 21:58, Lars-Peter Clausen wrote:
+>> On 11/21/2016 02:17 PM, Peter Rosin wrote:
+>> [...]
+>>> I have a piece of hardware that is using the same 3 GPIO pins
+>>> to control four 8-way muxes. Three of them control ADC lines
+>>> to an ADS1015 chip with an iio driver, and the last one
+>>> controls the SDA line of an i2c bus. We have some deployed
+>>> code to handle this, but you do not want to see it or ever
+>>> hear about it. I'm not sure why I even mention it. Anyway,
+>>> the situation has nagged me to no end for quite some time.
 >>>
->>> Depends on the generic multiplexer driver.
->> I'm not really following what all the ext info stuff in here is about.
->> Could you add a little more description of that?
+>>> So, after first getting more intimate with the i2c muxing code
+>>> and later discovering the drivers/iio/inkern.c file and
+>>> writing a couple of drivers making use of it, I came up with
+>>> what I think is an acceptable solution; add a generic mux
+>>> controller driver (and subsystem) that is shared between all
+>>> instances, and combine that with an iio mux driver and a new
+>>> generic i2c mux driver. The new i2c mux I called "simple"
+>>> since it is only hooking the i2c muxing and the new mux
+>>> controller (much like the alsa simple card driver does for ASoC).
+>>
+>> While abstracting this properly is all nice and good and the way it should
+>> be done, but it also adds a lot of complexity and the devicetree adds a lot
+>> of restrictions on what can actually be represented.
 > 
-> Certainly. I have two needs for this series. The first one is simple
-> when it comes to the iio part and complex because the mux is shared
-> between three 8-way muxes on three of the inputs to an ADS-1015 ADC.
-> The forth ADC line to the ADS-1015 is not muxed. Those three muxes
-> are of course GPIO-controlled and share GPIO pins. And the GPIO
-> pins also control an i2c bus that is muxed 8-ways as well. There are
-> eight (possible) batteries, and we monitor voltage/current/temp with
-> the 3 muxed ADC lines, and 8 chargers sit on i2c behind the i2c mux.
-> I guess it felt natural for the HW designer to select battery with
-> the GPIO lines, but that do not fit too well with the code as it
-> is without this series...
+> This is a characterization without any specifics. But is the
+> characterization true? You have two complaints, complexity
+> and restrictions with bindings.
 > 
-> For this first need, the iio mux does not need ext_info.
+>> There is a certain point where the fabric on a PCB becomes so complex that
+>> it deserves to be a device on its own (like the audio fabric drivers).
+>> Especially when the hardware is built with a certain application in mind and
+>> the driver is supposed to impose policy which reflects this application. The
+>> latter can often not properly be described with the primitives the
+>> devicetree can offer.
+>>
+>> And I think your setup is very borderline what can be done in a declarative
+>> way only and it adds a lot of complexity over a more imperative solution in
+>> form of a driver. I think it is worth investigating about having a driver
+>> that is specific to your fabric and handles the interdependencies of the
+>> discrete components.
 > 
-> The second need is simple in the mux part but worse in the iio
-> department. It's another 8-way mux that simply muxes an ADC line,
-> so that is simple. However, the ADC line is the envelope detector
-> that just got added to linux-next, and it has two ext_info
-> attributes that needs to be set differently for different mux
-> states. Two of the states need "invert" to be false, the rest need
-> "invert" to be true. And it is also preferable to have different
-> values for "compare_interval" for different mux states since the
-> signals on the diffrent mux states have the different frequency
-> characteristics.
+> So, there are three "new" concepts:
 > 
-> True, I could have the ext-info attributes go straight through
-> the mux, and just start by writing values to "invert"
-> and "compare_interval", and only then read a sample. But then I
-> would need to lock out other users during the duration of this
-> transaction. I believe that the best place to put that lock is
-> in the iio mux (when it locks its control-mux) and not leave it
-> to userspace to solve this in some brittle cooperative manner.
+> 1. Sticking a mux in front of an AD-converter. That's not all that
+> novel, nor complex. Quite the opposite, I'd say. In fact, I find it
+> a bit amazing that there is no in-kernel support for it.
+As ever first person who needs it and has the skills to write it gets to do it ;)
+Congratulations Peter ;)
 > 
->> Perhaps an example of how it is used and what the resulting interface
->> looks like?
+> 2. Reusing the same GPIO-pins to drive different muxes. There are
+> obviously chips that work this way (as Jonathan pointed out) and
+> these will at some point get used in Linux devices. I guess they
+> already are used, but that people handle them in userspace. Or
+> something? If this is complex, which I question, it will still need
+> support at some point. At least that's what I believe.
 > 
-> The resulting interface is just a copy of the (ext_info) interface
-> exposed by the parent channel (with a cache that is rewritten to
-> the parent on every iio mux state change). I have plans to add code
-> to not rewrite ext_info attributes that have never been changed in
-> any mux state.
+> 3. Using the same GPIO pins to mux things handled by different
+> subsystems. Right, this is a bit crazy, and I'd rather not have this
+> requirement, but this HW is what it is so I'll need to handle it in
+> some way. It is also what stops me from falling back to a userspace
+> solution, which is probably connected to why #1 and #2 is not supported
+> by the kernel; everybody probably does muxing in userspace. Which is
+> not necessarily a good idea, nor how it's supposed to be done...
 > 
-> Below I have an example file listing.
+> So, the only thing that's out of the ordinary (as I see it), is #3.
+> The question that then needs an answer is how the in-kernel solution
+> for #1 and #2 would look if we do not consider #3.
 > 
-> device0 is a dpot (mcp4561).
-> device1 is a dac  (dpot-dac, wrapping the above dpot).
-> device2 is an adc (envelope-detector, wrapping the above dac)
-> device3 is a mux  (iio-mux, wrapping the above adc)
+> And I claim that the desired solution to #1 and #2 is pretty close
+> to my proposal.
 > 
-> The 8-way iio-mux have no signals attached on mux states 0 and 1, which
-> is why the first channel for device 3 is in_altvoltage2.
+> A. You do not want mux-controller drivers in every subsystem that
+> needs them.
+Agreed.
 > 
-> Ultimately, I would like some knob to hide devices 0, 1 and 2 from
-> userspace. They need/should only be visible to in-kernel users. Or
-> is there such a knob already?
+> B. You do not want every mux-consumer to know the specifics of how to
+> operate every kind of mux; there are muxes that are not controlled
+> with GPIO pins...
 > 
-There isn't and this feeds into what Lars was suggesting with a fabric
-driver.  The complexity of the description in device tree is getting really
-very nasty indeed, perhaps we are better off allowing for complex cases
-to have a driver that directly hooks into all the relevant elements and
-can do magic channel remapping etc.
+> C. When you implement muxing in a subsystem, there will in some cases
+> be a need to handle parallel muxing, where there is a need to share
+> mux-controllers.
+> 
+> It just feels right to separate out the mux-controller and refer to
+> it from where a mux is needed. It solves #1 and #2. And, of course,
+> as a bonus #3 is also solved. But my bias is obvious.
+> 
+> And that leads us to the restrictions with the bindings. And the same
+> thing happens; the solution for #2 also solves #3.
+> 
+> So how do you refer to a mux-controller from where it's needed? My
+> first proposal used a dt phandle, for the second round I put them in
+> the parent node. It would be super if it was possible for the mux-
+> consumer to create the mux-controller device from the same dt
+> node that is already bound to the mux-consumer. The problem is that
+> the mux-consumer should not hard-code which mux-controller device it
+> should create. The best I can think of is some kind of 'mux-compatible'
+> attribute, that works like the standard 'compatible' attribute. That
+> would simplify the bindings for the normal case (#1) where the mux-
+> controller isn't shared (#2 and #3). Maybe it's possible to fix this
+> issue somehow? I simply don't know?
+As Lars stated, it's marginal.  The question is not at what point do we
+'have to' bother with a fabric driver, but rather at what point does it
+make a our lives easier.
 
-That could then register the 3 muxes and acquire all the chanenls required
-to build a single many channel device that hides all the complexity from userspace.
+Take you nastiest mux case described earlier.
+The ideal would be to represent the ADC and 3 muxes as (approximately) a
+single ADC to userspace that just happens to have somewhere near 23 inputs.
 
-I've considered working out how to do an IIO multiplexer before in software which would
-allow us to make 'fake' devices that wrap multiple physical devices.  In the general
-case it has always felt to complex as we'd want it to handle triggered and buffered
-data flows.  That brings all sorts of nasty data alignment problems with it as there
-is no guarantee the devices are producing aligned data at all.
+To do that in device tree we need to describe
 
-In the specific case though a driver can bundle up everything it needs to create
-a pseudo device (for triggered flows we'd probably need a little magic to hold off the
-trigger but that's not hard).  With sysfs only access it would be simple to do but
-hard to describe.  Hence bringing us back to fabric drivers.
+1 The adc
+2 The three muxes
+3 The software representation to pull all of these back into a single device.
 
-Thanks for the description. Good to understand what you are trying to handle.
+That last part to my mind trips the balance to the point where a fabric driver
+would make sense.  It's not complex.  Just a few lines of code tying all the
+elements together without ending up with a fairly fiendish setup to describe in
+device tree.
+
+Also just wait until we have muxes stacked on muxes, with cross overs occuring.
+Some of the ASoC parts can actually have effective loops if you try all the mux
+combinations.
+
+So question is do we have a 'simple case description' in device tree or force
+fabric drivers everywhere?  I think I'm in favour of the simple case - which handles
+one of your two uses nicely.  The second one to do the the recombining of channels after
+the muxes, ends up looking to me like it needs a fabric driver.
+
+Note we are only talking about bindings vs code based description here. I agree
+entirely with the concept of a generic mux subsystem.
 
 Jonathan
+
+> 
 > Cheers,
 > Peter
-> 
-> $ ls /sys/bus/iio/devices/iio\:device*
-> /sys/bus/iio/devices/iio:device0:
-> dev                           out_resistance_raw_available
-> name                          out_resistance_scale
-> of_node                       power
-> out_resistance0_raw           subsystem
-> out_resistance1_raw           uevent
-> 
-> /sys/bus/iio/devices/iio:device1:
-> dev                         out_voltage0_scale
-> name                        power
-> of_node                     subsystem
-> out_voltage0_raw            uevent
-> out_voltage0_raw_available
-> 
-> /sys/bus/iio/devices/iio:device2:
-> dev                              name
-> in_altvoltage0_compare_interval  of_node
-> in_altvoltage0_invert            power
-> in_altvoltage0_raw               subsystem
-> in_altvoltage0_scale             uevent
-> 
-> /sys/bus/iio/devices/iio:device3:
-> dev                              in_altvoltage5_raw
-> in_altvoltage2_compare_interval  in_altvoltage5_scale
-> in_altvoltage2_invert            in_altvoltage6_compare_interval
-> in_altvoltage2_raw               in_altvoltage6_invert
-> in_altvoltage2_scale             in_altvoltage6_raw
-> in_altvoltage3_compare_interval  in_altvoltage6_scale
-> in_altvoltage3_invert            in_altvoltage7_compare_interval
-> in_altvoltage3_raw               in_altvoltage7_invert
-> in_altvoltage3_scale             in_altvoltage7_raw
-> in_altvoltage4_compare_interval  in_altvoltage7_scale
-> in_altvoltage4_invert            name
-> in_altvoltage4_raw               of_node
-> in_altvoltage4_scale             power
-> in_altvoltage5_compare_interval  subsystem
-> in_altvoltage5_invert            uevent
 > 
