@@ -1,528 +1,164 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v5 5/9] iio: multiplexer: new iio category and iio-mux driver
-Date: Tue, 29 Nov 2016 11:10:41 +0100
-Message-ID: <1480414245-14034-6-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v5 7/9] i2c: i2c-mux-simple: new driver
+Date: Tue, 29 Nov 2016 11:10:43 +0100
+Message-ID: <1480414245-14034-8-git-send-email-peda@axentia.se>
 References: <1480414245-14034-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1480414245-14034-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480414245-14034-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When a multiplexer changes how an iio device behaves (for example
-by feeding different signals to an ADC), this driver can be used
-to create one virtual iio channel for each multiplexer state.
+This is a generic simple i2c mux that uses the generic multiplexer
+subsystem to do the muxing.
 
-Depends on the generic multiplexer subsystem.
+The user can select if the mux is to be mux-locked and parent-locked
+as described in Documentation/i2c/i2c-topology.
 
-Cache any ext_info values from the parent iio channel, creating a private
-copy of the ext_info attributes for each multiplexer state/channel.
-
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
 ---
- MAINTAINERS                       |   1 +
- drivers/iio/Kconfig               |   1 +
- drivers/iio/Makefile              |   1 +
- drivers/iio/multiplexer/Kconfig   |  18 ++
- drivers/iio/multiplexer/Makefile  |   6 +
- drivers/iio/multiplexer/iio-mux.c | 457 ++++++++++++++++++++++++++++++++++++++
- 6 files changed, 484 insertions(+)
- create mode 100644 drivers/iio/multiplexer/Kconfig
- create mode 100644 drivers/iio/multiplexer/Makefile
- create mode 100644 drivers/iio/multiplexer/iio-mux.c
+ drivers/i2c/muxes/Kconfig          |  13 +++
+ drivers/i2c/muxes/Makefile         |   1 +
+ drivers/i2c/muxes/i2c-mux-simple.c | 179 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 193 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 77045ae15865..16490fbd1721 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6239,6 +6239,7 @@ M:	Peter Rosin <peda@axentia.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
-+F:	drivers/iio/multiplexer/iio-mux.c
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 10b3d17ae3ea..565921e09a96 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -73,6 +73,19 @@ config I2C_MUX_REG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-reg.
  
- IIO SUBSYSTEM AND DRIVERS
- M:	Jonathan Cameron <jic23@kernel.org>
-diff --git a/drivers/iio/Kconfig b/drivers/iio/Kconfig
-index a918270d6f54..b3c8c6ef0dff 100644
---- a/drivers/iio/Kconfig
-+++ b/drivers/iio/Kconfig
-@@ -83,6 +83,7 @@ source "drivers/iio/humidity/Kconfig"
- source "drivers/iio/imu/Kconfig"
- source "drivers/iio/light/Kconfig"
- source "drivers/iio/magnetometer/Kconfig"
-+source "drivers/iio/multiplexer/Kconfig"
- source "drivers/iio/orientation/Kconfig"
- if IIO_TRIGGER
-    source "drivers/iio/trigger/Kconfig"
-diff --git a/drivers/iio/Makefile b/drivers/iio/Makefile
-index 33fa4026f92c..93c769cd99bf 100644
---- a/drivers/iio/Makefile
-+++ b/drivers/iio/Makefile
-@@ -28,6 +28,7 @@ obj-y += humidity/
- obj-y += imu/
- obj-y += light/
- obj-y += magnetometer/
-+obj-y += multiplexer/
- obj-y += orientation/
- obj-y += potentiometer/
- obj-y += potentiostat/
-diff --git a/drivers/iio/multiplexer/Kconfig b/drivers/iio/multiplexer/Kconfig
-new file mode 100644
-index 000000000000..70a044510686
---- /dev/null
-+++ b/drivers/iio/multiplexer/Kconfig
-@@ -0,0 +1,18 @@
-+#
-+# Multiplexer drivers
-+#
-+# When adding new entries keep the list in alphabetical order
-+
-+menu "Multiplexers"
-+
-+config IIO_MUX
-+	tristate "IIO multiplexer driver"
++config I2C_MUX_SIMPLE
++	tristate "Simple I2C multiplexer"
 +	select MULTIPLEXER
 +	depends on OF
 +	help
-+	  Say yes here to build support for the IIO multiplexer.
++	  If you say yes to this option, support will be included for a
++	  simple generic I2C multiplexer. This driver provides access to
++	  I2C busses connected through a MUX, which is controlled
++	  by a generic MUX controller.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called iio-mux.
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-mux-simple.
 +
-+endmenu
-diff --git a/drivers/iio/multiplexer/Makefile b/drivers/iio/multiplexer/Makefile
+ config I2C_DEMUX_PINCTRL
+ 	tristate "pinctrl-based I2C demultiplexer"
+ 	depends on PINCTRL && OF
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 9948fa45037f..6821d95c92a3 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -11,5 +11,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+ obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
+ obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
++obj-$(CONFIG_I2C_MUX_SIMPLE)	+= i2c-mux-simple.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/i2c-mux-simple.c b/drivers/i2c/muxes/i2c-mux-simple.c
 new file mode 100644
-index 000000000000..68be3c4abd07
+index 000000000000..4a03493e1ad7
 --- /dev/null
-+++ b/drivers/iio/multiplexer/Makefile
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for industrial I/O multiplexer drivers
-+#
-+
-+# When adding new entries keep the list in alphabetical order
-+obj-$(CONFIG_IIO_MUX) += iio-mux.o
-diff --git a/drivers/iio/multiplexer/iio-mux.c b/drivers/iio/multiplexer/iio-mux.c
-new file mode 100644
-index 000000000000..3ea4acdb45e2
---- /dev/null
-+++ b/drivers/iio/multiplexer/iio-mux.c
-@@ -0,0 +1,457 @@
++++ b/drivers/i2c/muxes/i2c-mux-simple.c
+@@ -0,0 +1,179 @@
 +/*
-+ * IIO multiplexer driver
++ * Generic simple I2C multiplexer
 + *
 + * Copyright (C) 2016 Axentia Technologies AB
 + *
-+ * Author: Peter Rosin <peda@axentia.se>
++ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
 +
-+#include <linux/err.h>
-+#include <linux/iio/consumer.h>
-+#include <linux/iio/iio.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
 +#include <linux/module.h>
-+#include <linux/mutex.h>
 +#include <linux/mux.h>
-+#include <linux/of.h>
++#include <linux/of_device.h>
 +#include <linux/platform_device.h>
 +
-+struct mux_ext_info_cache {
-+	char *data;
-+	size_t size;
-+};
-+
-+struct mux_child {
-+	struct mux_ext_info_cache *ext_info_cache;
-+};
-+
 +struct mux {
-+	int cached_state;
 +	struct mux_control *control;
-+	struct iio_channel *parent;
-+	struct iio_dev *indio_dev;
-+	struct iio_chan_spec *chan;
-+	struct iio_chan_spec_ext_info *ext_info;
-+	struct mux_child *child;
++
++	bool do_not_deselect;
 +};
 +
-+static int iio_mux_select(struct mux *mux, int idx)
++static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
 +{
-+	struct mux_child *child = &mux->child[idx];
-+	struct iio_chan_spec const *chan = &mux->chan[idx];
++	struct mux *mux = i2c_mux_priv(muxc);
 +	int ret;
-+	int i;
 +
-+	ret = mux_control_select(mux->control, chan->channel);
-+	if (ret < 0) {
-+		mux->cached_state = -1;
-+		return ret;
-+	}
++	ret = mux_control_select(mux->control, chan);
++	mux->do_not_deselect = ret < 0;
 +
-+	if (mux->cached_state == chan->channel)
++	return ret;
++}
++
++static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct mux *mux = i2c_mux_priv(muxc);
++
++	if (mux->do_not_deselect)
 +		return 0;
 +
-+	if (chan->ext_info) {
-+		for (i = 0; chan->ext_info[i].name; ++i) {
-+			const char *attr = chan->ext_info[i].name;
-+			struct mux_ext_info_cache *cache;
-+
-+			cache = &child->ext_info_cache[i];
-+
-+			if (cache->size < 0)
-+				continue;
-+
-+			ret = iio_write_channel_ext_info(mux->parent, attr,
-+							 cache->data,
-+							 cache->size);
-+
-+			if (ret < 0) {
-+				mux_control_deselect(mux->control);
-+				mux->cached_state = -1;
-+				return ret;
-+			}
-+		}
-+	}
-+	mux->cached_state = chan->channel;
-+
-+	return 0;
++	return mux_control_deselect(mux->control);
 +}
 +
-+static void iio_mux_deselect(struct mux *mux)
++static struct i2c_adapter *mux_parent_adapter(struct device *dev)
 +{
-+	mux_control_deselect(mux->control);
-+}
++	struct device_node *np = dev->of_node;
++	struct device_node *parent_np;
++	struct i2c_adapter *parent;
 +
-+static int mux_read_raw(struct iio_dev *indio_dev,
-+			struct iio_chan_spec const *chan,
-+			int *val, int *val2, long mask)
-+{
-+	struct mux *mux = iio_priv(indio_dev);
-+	int idx = chan - mux->chan;
-+	int ret;
-+
-+	ret = iio_mux_select(mux, idx);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_RAW:
-+		ret = iio_read_channel_raw(mux->parent, val);
-+		break;
-+
-+	case IIO_CHAN_INFO_SCALE:
-+		ret = iio_read_channel_scale(mux->parent, val, val2);
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
++	parent_np = of_parse_phandle(np, "i2c-parent", 0);
++	if (!parent_np) {
++		dev_err(dev, "Cannot parse i2c-parent\n");
++		return ERR_PTR(-ENODEV);
 +	}
++	parent = of_find_i2c_adapter_by_node(parent_np);
++	of_node_put(parent_np);
++	if (!parent)
++		return ERR_PTR(-EPROBE_DEFER);
 +
-+	iio_mux_deselect(mux);
-+
-+	return ret;
++	return parent;
 +}
 +
-+static int mux_read_avail(struct iio_dev *indio_dev,
-+			  struct iio_chan_spec const *chan,
-+			  const int **vals, int *type, int *length,
-+			  long mask)
-+{
-+	struct mux *mux = iio_priv(indio_dev);
-+	int idx = chan - mux->chan;
-+	int ret;
-+
-+	ret = iio_mux_select(mux, idx);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_RAW:
-+		*type = IIO_VAL_INT;
-+		ret = iio_read_avail_channel_raw(mux->parent, vals, length);
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+	}
-+
-+	iio_mux_deselect(mux);
-+
-+	return ret;
-+}
-+
-+static int mux_write_raw(struct iio_dev *indio_dev,
-+			 struct iio_chan_spec const *chan,
-+			 int val, int val2, long mask)
-+{
-+	struct mux *mux = iio_priv(indio_dev);
-+	int idx = chan - mux->chan;
-+	int ret;
-+
-+	ret = iio_mux_select(mux, idx);
-+	if (ret < 0)
-+		return ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_RAW:
-+		ret = iio_write_channel_raw(mux->parent, val);
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+	}
-+
-+	iio_mux_deselect(mux);
-+
-+	return ret;
-+}
-+
-+static const struct iio_info mux_info = {
-+	.read_raw = mux_read_raw,
-+	.read_avail = mux_read_avail,
-+	.write_raw = mux_write_raw,
-+	.driver_module = THIS_MODULE,
++static const struct of_device_id i2c_mux_of_match[] = {
++	{ .compatible = "i2c-mux-simple,parent-locked",
++	  .data = (void *)0, },
++	{ .compatible = "i2c-mux-simple,mux-locked",
++	  .data = (void *)1, },
++	{},
 +};
++MODULE_DEVICE_TABLE(of, i2c_mux_of_match);
 +
-+static ssize_t mux_read_ext_info(struct iio_dev *indio_dev, uintptr_t private,
-+				 struct iio_chan_spec const *chan, char *buf)
-+{
-+	struct mux *mux = iio_priv(indio_dev);
-+	int idx = chan - mux->chan;
-+	ssize_t ret;
-+
-+	ret = iio_mux_select(mux, idx);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = iio_read_channel_ext_info(mux->parent,
-+					mux->ext_info[private].name,
-+					buf);
-+
-+	iio_mux_deselect(mux);
-+
-+	return ret;
-+}
-+
-+static ssize_t mux_write_ext_info(struct iio_dev *indio_dev, uintptr_t private,
-+				  struct iio_chan_spec const *chan,
-+				  const char *buf, size_t len)
-+{
-+	struct device *dev = indio_dev->dev.parent;
-+	struct mux *mux = iio_priv(indio_dev);
-+	int idx = chan - mux->chan;
-+	char *new;
-+	ssize_t ret;
-+
-+	ret = iio_mux_select(mux, idx);
-+	if (ret < 0)
-+		return ret;
-+
-+	new = devm_kmemdup(dev, buf, len + 1, GFP_KERNEL);
-+	if (!new) {
-+		iio_mux_deselect(mux);
-+		return -ENOMEM;
-+	}
-+
-+	new[len] = 0;
-+
-+	ret = iio_write_channel_ext_info(mux->parent,
-+					 mux->ext_info[private].name,
-+					 buf, len);
-+	if (ret < 0) {
-+		iio_mux_deselect(mux);
-+		devm_kfree(dev, new);
-+		return ret;
-+	}
-+
-+	devm_kfree(dev, mux->child[idx].ext_info_cache[private].data);
-+	mux->child[idx].ext_info_cache[private].data = new;
-+	mux->child[idx].ext_info_cache[private].size = len;
-+
-+	iio_mux_deselect(mux);
-+
-+	return ret;
-+}
-+
-+static int mux_configure_channel(struct device *dev, struct mux *mux,
-+				 struct device_node *child_np, int idx)
-+{
-+	struct mux_child *child = &mux->child[idx];
-+	struct iio_chan_spec *chan = &mux->chan[idx];
-+	struct iio_chan_spec const *pchan = mux->parent->channel;
-+	u32 state;
-+	char *page = NULL;
-+	int num_ext_info;
-+	int i;
-+	int ret;
-+
-+	chan->indexed = 1;
-+	chan->output = pchan->output;
-+	chan->datasheet_name = child_np->name;
-+	chan->ext_info = mux->ext_info;
-+
-+	ret = iio_get_channel_type(mux->parent, &chan->type);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to get parent channel type\n");
-+		return ret;
-+	}
-+
-+	if (iio_channel_has_info(pchan, IIO_CHAN_INFO_RAW))
-+		chan->info_mask_separate |= BIT(IIO_CHAN_INFO_RAW);
-+	if (iio_channel_has_info(pchan, IIO_CHAN_INFO_SCALE))
-+		chan->info_mask_separate |= BIT(IIO_CHAN_INFO_SCALE);
-+
-+	if (iio_channel_has_available(pchan, IIO_CHAN_INFO_RAW))
-+		chan->info_mask_separate_available |= BIT(IIO_CHAN_INFO_RAW);
-+
-+	ret = of_property_read_u32(child_np, "reg", &state);
-+	if (ret < 0) {
-+		dev_err(dev, "no reg property for node '%s'\n", child_np->name);
-+		return ret;
-+	}
-+
-+	if (state >= mux->control->states) {
-+		dev_err(dev, "invalid reg %u\n", state);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < idx; ++i) {
-+		if (mux->chan[i].channel == state) {
-+			dev_err(dev, "double use of reg %u\n", state);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	chan->channel = state;
-+
-+	num_ext_info = iio_get_channel_ext_info_count(mux->parent);
-+	if (num_ext_info) {
-+		page = devm_kzalloc(dev, PAGE_SIZE, GFP_KERNEL);
-+		if (!page)
-+			return -ENOMEM;
-+	}
-+	child->ext_info_cache = devm_kzalloc(dev,
-+					     sizeof(*child->ext_info_cache) *
-+					     num_ext_info, GFP_KERNEL);
-+	for (i = 0; i < num_ext_info; ++i) {
-+		child->ext_info_cache[i].size = -1;
-+
-+		if (!pchan->ext_info[i].write)
-+			continue;
-+		if (!pchan->ext_info[i].read)
-+			continue;
-+
-+		ret = iio_read_channel_ext_info(mux->parent,
-+						mux->ext_info[i].name,
-+						page);
-+		if (ret < 0) {
-+			dev_err(dev, "failed to get ext_info '%s'\n",
-+				pchan->ext_info[i].name);
-+			return ret;
-+		}
-+		if (ret >= PAGE_SIZE) {
-+			dev_err(dev, "too large ext_info '%s'\n",
-+				pchan->ext_info[i].name);
-+			return -EINVAL;
-+		}
-+
-+		child->ext_info_cache[i].data = devm_kmemdup(dev, page, ret + 1,
-+							     GFP_KERNEL);
-+		child->ext_info_cache[i].data[ret] = 0;
-+		child->ext_info_cache[i].size = ret;
-+	}
-+
-+	if (page)
-+		devm_kfree(dev, page);
-+
-+	return 0;
-+}
-+
-+static int mux_probe(struct platform_device *pdev)
++static int i2c_mux_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
-+	struct device_node *np = pdev->dev.of_node;
-+	struct device_node *child_np;
-+	struct iio_dev *indio_dev;
-+	struct iio_channel *parent;
++	struct device_node *np = dev->of_node;
++	struct device_node *child;
++	const struct of_device_id *match;
++	struct i2c_mux_core *muxc;
 +	struct mux *mux;
-+	int sizeof_ext_info;
++	struct i2c_adapter *parent;
 +	int children;
-+	int sizeof_priv;
-+	int i;
 +	int ret;
 +
 +	if (!np)
 +		return -ENODEV;
 +
-+	parent = devm_iio_channel_get(dev, "parent");
-+	if (IS_ERR(parent)) {
-+		if (PTR_ERR(parent) != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get parent channel\n");
-+		return PTR_ERR(parent);
-+	}
-+
-+	sizeof_ext_info = iio_get_channel_ext_info_count(parent);
-+	if (sizeof_ext_info) {
-+		sizeof_ext_info += 1; /* one extra entry for the sentinel */
-+		sizeof_ext_info *= sizeof(*mux->ext_info);
-+	}
-+
-+	children = 0;
-+	for_each_child_of_node(np, child_np) {
-+		if (of_get_property(child_np, "reg", NULL))
-+			children++;
-+	}
-+	if (children <= 0) {
-+		dev_err(dev, "not even a single child\n");
-+		return -EINVAL;
-+	}
-+
-+	sizeof_priv = sizeof(*mux);
-+	sizeof_priv += sizeof(*mux->child) * children;
-+	sizeof_priv += sizeof(*mux->chan) * children;
-+	sizeof_priv += sizeof_ext_info;
-+
-+	indio_dev = devm_iio_device_alloc(dev, sizeof_priv);
-+	if (!indio_dev)
++	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
++	if (!mux)
 +		return -ENOMEM;
-+
-+	mux = iio_priv(indio_dev);
-+	mux->child = (struct mux_child *)(mux + 1);
-+	mux->chan = (struct iio_chan_spec *)(mux->child + children);
-+
-+	platform_set_drvdata(pdev, indio_dev);
-+
-+	mux->parent = parent;
-+	mux->cached_state = -1;
-+
-+	indio_dev->name = dev_name(dev);
-+	indio_dev->dev.parent = dev;
-+	indio_dev->info = &mux_info;
-+	indio_dev->modes = INDIO_DIRECT_MODE;
-+	indio_dev->channels = mux->chan;
-+	indio_dev->num_channels = children;
-+	if (sizeof_ext_info) {
-+		mux->ext_info = devm_kmemdup(dev,
-+					     parent->channel->ext_info,
-+					     sizeof_ext_info, GFP_KERNEL);
-+		if (!mux->ext_info)
-+			return -ENOMEM;
-+
-+		for (i = 0; mux->ext_info[i].name; ++i) {
-+			if (parent->channel->ext_info[i].read)
-+				mux->ext_info[i].read = mux_read_ext_info;
-+			if (parent->channel->ext_info[i].write)
-+				mux->ext_info[i].write = mux_write_ext_info;
-+			mux->ext_info[i].private = i;
-+		}
-+	}
 +
 +	mux->control = devm_mux_control_get(dev, NULL);
 +	if (IS_ERR(mux->control)) {
@@ -531,44 +167,89 @@ index 000000000000..3ea4acdb45e2
 +		return PTR_ERR(mux->control);
 +	}
 +
-+	i = 0;
-+	for_each_child_of_node(np, child_np) {
-+		if (!of_get_property(child_np, "reg", NULL))
-+			continue;
-+
-+		ret = mux_configure_channel(dev, mux, child_np, i);
-+		if (ret < 0)
-+			return ret;
-+		i++;
++	parent = mux_parent_adapter(dev);
++	if (IS_ERR(parent)) {
++		if (PTR_ERR(parent) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get i2c-parent adapter\n");
++		return PTR_ERR(parent);
 +	}
 +
-+	ret = devm_iio_device_register(dev, indio_dev);
-+	if (ret) {
-+		dev_err(dev, "failed to register iio device\n");
-+		return ret;
++	children = of_get_child_count(np);
++
++	muxc = i2c_mux_alloc(parent, dev, children, 0, 0,
++			     i2c_mux_select, i2c_mux_deselect);
++	if (!muxc) {
++		ret = -ENOMEM;
++		goto err_parent;
 +	}
++	muxc->priv = mux;
++
++	platform_set_drvdata(pdev, muxc);
++
++	match = of_match_device(of_match_ptr(i2c_mux_of_match), dev);
++	if (match)
++		muxc->mux_locked = !!of_device_get_match_data(dev);
++
++	for_each_child_of_node(np, child) {
++		u32 chan;
++
++		ret = of_property_read_u32(child, "reg", &chan);
++		if (ret < 0) {
++			dev_err(dev, "no reg property for node '%s'\n",
++				child->name);
++			goto err_children;
++		}
++
++		if (chan >= mux->control->states) {
++			dev_err(dev, "invalid reg %u\n", chan);
++			ret = -EINVAL;
++			goto err_children;
++		}
++
++		ret = i2c_mux_add_adapter(muxc, 0, chan, 0);
++		if (ret)
++			goto err_children;
++	}
++
++	dev_info(dev, "%d-port mux on %s adapter\n", children, parent->name);
++
++	return 0;
++
++err_children:
++	i2c_mux_del_adapters(muxc);
++err_parent:
++	i2c_put_adapter(parent);
++
++	return ret;
++}
++
++static int i2c_mux_remove(struct platform_device *pdev)
++{
++	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
++
++	i2c_mux_del_adapters(muxc);
++	i2c_put_adapter(muxc->parent);
 +
 +	return 0;
 +}
 +
-+static const struct of_device_id mux_match[] = {
-+	{ .compatible = "iio-mux" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mux_match);
-+
-+static struct platform_driver mux_driver = {
-+	.probe = mux_probe,
-+	.driver = {
-+		.name = "iio-mux",
-+		.of_match_table = mux_match,
++static struct platform_driver i2c_mux_driver = {
++	.probe	= i2c_mux_probe,
++	.remove	= i2c_mux_remove,
++	.driver	= {
++		.name	= "i2c-mux-simple",
++		.of_match_table = i2c_mux_of_match,
 +	},
 +};
-+module_platform_driver(mux_driver);
++module_platform_driver(i2c_mux_driver);
 +
-+MODULE_DESCRIPTION("IIO multiplexer driver");
-+MODULE_AUTHOR("Peter Rosin <peda@axentia.se>");
++MODULE_DESCRIPTION("Simple I2C multiplexer driver");
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>");
 +MODULE_LICENSE("GPL v2");
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
