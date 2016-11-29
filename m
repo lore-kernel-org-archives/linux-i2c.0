@@ -1,36 +1,83 @@
-From: Tin Huynh <tnhuynh@apm.com>
-Subject: Re: [PATCH V5] i2c: mux: pca954x: Add ACPI support for pca954x
-Date: Tue, 29 Nov 2016 22:12:41 +0700
-Message-ID: <CANQ9TuC64k8Ub_Pn01aJkQqL6kKrcXaJp35bPJR6c5WScUHj9A@mail.gmail.com>
-References: <1480414363-16318-1-git-send-email-tnhuynh@apm.com> <d1576b0e-75e7-a8e7-b752-301d125ea765@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v5 4/9] dt-bindings: iio: iio-mux: document iio-mux
+ bindings
+Date: Tue, 29 Nov 2016 16:56:37 +0100
+Message-ID: <b00ae997-4466-29b8-b484-3a0970e65386@axentia.se>
+References: <1480414245-14034-1-git-send-email-peda@axentia.se>
+ <1480414245-14034-5-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <d1576b0e-75e7-a8e7-b752-301d125ea765@axentia.se>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches <patches@apm.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr30106.outbound.protection.outlook.com ([40.107.3.106]:54648
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1757483AbcK2P4q (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 29 Nov 2016 10:56:46 -0500
+In-Reply-To: <1480414245-14034-5-git-send-email-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 
-On Tue, Nov 29, 2016 at 5:15 PM, Peter Rosin <peda@axentia.se> wrote:
-> On 2016-11-29 11:12, Tin Huynh wrote:
->> This patch enables ACPI support for mux-pca954x driver.
->
-> Looks good, thanks!
->
->> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
->
-> Acked-by: Peter Rosin <peda@axentia.se>
->
-> Cheers,
-> Peter
->
-Added Mika
-However , in http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/gpio/gpio-pca953x.c?id=f32517bf1ae0a2de72b3f27200233bd3ad65bfeb
- log , i didn't see the CONFIG_ACPI and CONFIG_PTR.
-I have been acked with the same patch to support for i2c-leds (
-without CONFIG_ACPI)
-About logic , if we don't enable CONFIG_ACPI , acpi_match_table will
-be NULL . So , the probe functions will be not called
-and nothing happens.
-I though we should use V3 (https://lkml.org/lkml/2016/11/28/893)
+On 2016-11-29 11:10, Peter Rosin wrote:
+> +Example:
+> +	mux: mux-controller {
+> +		compatible = "mux-gpio";
+> +		#mux-control-cells = <0>;
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "iio-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		mux-controls = <&mux>;
+> +
+> +		sync@0 {
+> +			reg = <0>;
+> +		};
+> +
+> +		in@1 {
+> +			reg = <1>;
+> +		};
+> +
+> +		system-regulator@2 {
+> +			reg = <2>;
+> +		};
+> +	};
+
+Hmmm, a more compact binding would be to just use an array of strings
+instead of a list of children for the mux channels, and use the array
+index as channel number, like so:
+
+	adc-mux {
+		compatible = "iio-mux";
+		io-channels = <&adc 0>;
+		io-channel-names = "parent";
+
+		mux-controls = <&mux>;
+
+		channels = "sync", "in", "system-regulator";
+	};
+
+If you need to skip a low-number channel, you'd just put an empty string
+for that channel. If you need to skip channels at the end, just stop
+short.
+
+Can anyone think of any reason to add anything to the channel nodes
+that makes the string-array ineffective? If so, or if that comes up
+later, it could be optional and in that case you could look for the
+channels property first and then, if not present, iterate over child
+nodes.
+
+Opinions? I like it, it's a lot more compact...
+
+Cheers,
+Peter
