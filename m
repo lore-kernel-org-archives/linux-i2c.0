@@ -1,218 +1,59 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v5 1/9] dt-bindings: document devicetree bindings for mux-controllers and mux-gpio
-Date: Tue, 29 Nov 2016 11:10:37 +0100
-Message-ID: <1480414245-14034-2-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v5 8/9] dt-bindings: mux-adg792a: document devicetree bindings for ADG792A/G mux
+Date: Tue, 29 Nov 2016 11:10:44 +0100
+Message-ID: <1480414245-14034-9-git-send-email-peda@axentia.se>
 References: <1480414245-14034-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1480414245-14034-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480414245-14034-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- .../devicetree/bindings/misc/mux-controller.txt    | 153 +++++++++++++++++++++
- .../devicetree/bindings/misc/mux-gpio.txt          |  85 ++++++++++++
- MAINTAINERS                                        |   5 +
- 3 files changed, 243 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/misc/mux-controller.txt
- create mode 100644 Documentation/devicetree/bindings/misc/mux-gpio.txt
+Analog Devices ADG792A/G is a triple 4:1 mux.
 
-diff --git a/Documentation/devicetree/bindings/misc/mux-controller.txt b/Documentation/devicetree/bindings/misc/mux-controller.txt
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+---
+ .../devicetree/bindings/misc/mux-adg792a.txt       | 82 ++++++++++++++++++++++
+ 1 file changed, 82 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/misc/mux-adg792a.txt
+
+diff --git a/Documentation/devicetree/bindings/misc/mux-adg792a.txt b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
 new file mode 100644
-index 000000000000..7957b8bd1278
+index 000000000000..8d5c9de09832
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/misc/mux-controller.txt
-@@ -0,0 +1,153 @@
-+Common multiplexer controller bindings
-+======================================
-+
-+A multiplexer (or mux) controller will have one, or several, consumer devices
-+that uses the mux controller. Thus, a mux controller can possibly control
-+several parallel multiplexers, presumably there will be at least one
-+multiplexer needed by each consumer..
-+
-+A mux controller provides a number of states to its consumers, and the state
-+space is a simple zero-based enumeration. I.e. 0-1 for a 2-way multiplexer,
-+0-7 for an 8-way multiplexer, etc.
-+
-+
-+Consumers
-+---------
-+
-+Mux controller consumers should specify a list of mux controllers that they
-+want to use with a property containing a 'mux-ctrl-list':
-+
-+	mux-ctrl-list ::= <single-mux-ctrl> [mux-ctrl-list]
-+	single-mux-ctrl ::= <mux-ctrl-phandle> [mux-ctrl-specifier]
-+	mux-ctrl-phandle : phandle to mux controller node
-+	mux-ctrl-specifier : array of #mux-control-cells specifying the
-+			     given mux controller (controller specific)
-+
-+Mux controller properties should be named "mux-controls". The exact meaning of
-+each mux controller property must be documented in the device tree binding for
-+each consumer. An optional property "mux-control-names" may contain a list of
-+strings to label each of the mux controllers listed in the "mux-controls"
-+property.
-+
-+Drivers for devices that use more than a single mux controller can use the
-+"mux-control-names" property to map the name of the mux controller requested by
-+the mux_control_get() call to an index into the list given by the
-+"mux-controls" property.
-+
-+mux-ctrl-specifier typically encodes the chip-relative mux controller number.
-+If the mux controller chip only provides a single mux controller, the
-+mux-ctrl-specifier can typically be left out.
-+
-+Example:
-+
-+	/* One consumer of a 2-way mux controller (one GPIO-line) */
-+	mux: mux-controller {
-+		compatible = "mux-gpio";
-+		#mux-control-cells = <0>;
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>;
-+	};
-+
-+	adc-mux {
-+		compatible = "iio-mux";
-+		io-channels = <&adc 0>;
-+		io-channel-names = "parent";
-+		mux-controls = <&mux>;
-+		mux-control-names = "adc";
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		sync-1@0 {
-+			reg = <0>;
-+		};
-+
-+		in@1 {
-+			reg = <1>;
-+		};
-+	};
-+
-+Note that in the example above, specifying the "mux-control-names" is redundant
-+because there is only one mux controller in the list.
-+
-+	/*
-+	 * Two consumers (one for an ADC line and one for an i2c bus) of
-+	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
-+	 */
-+	mux: mux-controller {
-+		compatible = "mux-gpio";
-+		#mux-control-cells = <0>;
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+	};
-+
-+	adc-mux {
-+		compatible = "iio-mux";
-+		io-channels = <&adc 0>;
-+		io-channel-names = "parent";
-+		mux-controls = <&mux>;
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		sync-1@0 {
-+			reg = <0>;
-+		};
-+
-+		in@1 {
-+			reg = <1>;
-+		};
-+
-+		out@2 {
-+			reg = <2>;
-+		};
-+
-+		sync-2@3 {
-+			reg = <3>;
-+		};
-+	};
-+
-+	i2c-mux {
-+		compatible = "i2c-mux-simple,mux-locked";
-+		i2c-parent = <&i2c1>;
-+		mux-controls = <&mux>;
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		i2c@0 {
-+			reg = <0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			ssd1307: oled@3c {
-+				/* ... */
-+			};
-+		};
-+
-+		i2c@3 {
-+			reg = <3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			pca9555: pca9555@20 {
-+				/* ... */
-+			};
-+		};
-+	};
-+
-+
-+Mux controller nodes
-+--------------------
-+
-+Mux controller nodes must specify the number of cells used for the
-+specifier using the '#mux-control-cells' property.
-+
-+An example mux controller might look like this:
-+
-+	mux: adg792a@50 {
-+		compatible = "adi,adg792a";
-+		reg = <0x50>;
-+		#mux-control-cells = <1>;
-+	};
-diff --git a/Documentation/devicetree/bindings/misc/mux-gpio.txt b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-new file mode 100644
-index 000000000000..6736f8215593
---- /dev/null
-+++ b/Documentation/devicetree/bindings/misc/mux-gpio.txt
-@@ -0,0 +1,85 @@
-+GPIO-based multiplexer controller bindings
-+
-+Define what GPIO pins are used to control a multiplexer. Or several
-+multiplexers, if the same pins control more than one multiplexer.
++++ b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
+@@ -0,0 +1,82 @@
++Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
 +
 +Required properties:
-+- compatible : "mux-gpio"
-+- mux-gpios : list of gpios used to control the multiplexer, least
-+	      significant bit first.
-+- #mux-control-cells : <0>
++- compatible : "adi,adg792a" or "adi,adg792g"
++- #mux-control-cells : <0> if parallel, or <1> if not.
 +* Standard mux-controller bindings as decribed in mux-controller.txt
 +
 +Optional properties:
-+- idle-state : if present, the state the mux will have when idle.
++- adi,parallel : if present, the three muxes are bound together with a single
++  mux controller, controlling all three muxes in parallel.
++- adi,idle-state : if present, array of states the three mux controllers will
++  have when idle (or, if parallel, a single idle-state).
 +
-+The multiplexer state is defined as the number represented by the
-+multiplexer GPIO pins, where the first pin is the least significant
-+bit. An active pin is a binary 1, an inactive pin is a binary 0.
++Mux controller states 0 through 3 correspond to signals A through D in the
++datasheet. Mux controller states 4 and 5 are only available as possible idle
++states. State 4 represents that nothing is connected, and state 5 represents
++that the mux controller keeps the mux in its previously selected state during
++the idle period. State 5 is the default idle state.
 +
 +Example:
 +
-+	mux: mux-controller {
-+		compatible = "mux-gpio";
-+		#mux-control-cells = <0>;
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++	/* three independent mux controllers (of which one is used) */
++	&i2c0 {
++		mux: adg792a@50 {
++			compatible = "adi,adg792a";
++			reg = <0x50>;
++			#mux-control-cells = <1>;
++		};
 +	};
 +
 +	adc-mux {
@@ -220,7 +61,7 @@ index 000000000000..6736f8215593
 +		io-channels = <&adc 0>;
 +		io-channel-names = "parent";
 +
-+		mux-controls = <&mux>;
++		mux-controls = <&mux 1>;
 +
 +		#address-cells = <1>;
 +		#size-cells = <0>;
@@ -229,64 +70,48 @@ index 000000000000..6736f8215593
 +			reg = <0>;
 +		};
 +
-+		in@1 {
-+			reg = <1>;
-+		};
-+
-+		out@2 {
++		in@2 {
 +			reg = <2>;
-+		};
-+
-+		sync-2@3 {
-+			reg = <3>;
 +		};
 +	};
 +
-+	i2c-mux {
-+		compatible = "i2c-mux-simple,mux-locked";
-+		i2c-parent = <&i2c1>;
 +
-+		mux-controls = <&mux>;
++	/*
++	 * Three parallel muxes with one mux controller, useful e.g. if
++	 * the adc is differential, thus needing two signals to be muxed
++	 * simultaneously for correct operation.
++	 */
++	&i2c0 {
++		pmux: adg792a@50 {
++			compatible = "adi,adg792a";
++			reg = <0x50>;
++			#mux-control-cells = <0>;
++			adi,parallel;
++		};
++	};
++
++	diff-adc-mux {
++		compatible = "iio-mux";
++		io-channels = <&adc 0>;
++		io-channel-names = "parent";
++
++		mux-controls = <&pmux>;
 +
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +
-+		i2c@0 {
++		sync-1@0 {
 +			reg = <0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			ssd1307: oled@3c {
-+				/* ... */
-+			};
 +		};
 +
-+		i2c@3 {
-+			reg = <3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			pca9555: pca9555@20 {
-+				/* ... */
-+			};
++		in@2 {
++			reg = <2>;
 +		};
 +	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d8eb3843dbd4..3d4d0efc2b64 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8403,6 +8403,11 @@ S:	Orphan
- F:	drivers/mmc/host/mmc_spi.c
- F:	include/linux/spi/mmc_spi.h
- 
-+MULTIPLEXER SUBSYSTEM
-+M:	Peter Rosin <peda@axentia.se>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/misc/mux-*
-+
- MULTISOUND SOUND DRIVER
- M:	Andrew Veliath <andrewtv@usa.net>
- S:	Maintained
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
