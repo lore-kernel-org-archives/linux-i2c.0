@@ -1,799 +1,574 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: [PATCH v5 2/9] misc: minimal mux subsystem and gpio-based mux controller
-Date: Tue, 29 Nov 2016 11:10:38 +0100
-Message-ID: <1480414245-14034-3-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v5 5/9] iio: multiplexer: new iio category and iio-mux driver
+Date: Tue, 29 Nov 2016 11:10:41 +0100
+Message-ID: <1480414245-14034-6-git-send-email-peda@axentia.se>
 References: <1480414245-14034-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480414245-14034-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1480414245-14034-1-git-send-email-peda@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add a new minimalistic subsystem that handles multiplexer controllers.
-When multiplexers are used in various places in the kernel, and the
-same multiplexer controller can be used for several independent things,
-there should be one place to implement support for said multiplexer
-controller.
+When a multiplexer changes how an iio device behaves (for example
+by feeding different signals to an ADC), this driver can be used
+to create one virtual iio channel for each multiplexer state.
 
-A single multiplexer controller can also be used to control several
-parallel multiplexers, that are in turn used by different subsystems
-in the kernel, leading to a need to coordinate multiplexer accesses.
-The multiplexer subsystem handles this coordination.
+Depends on the generic multiplexer subsystem.
 
-This new mux controller subsystem initially comes with a single backend
-driver that controls gpio based multiplexers. Even though not needed by
-this initial driver, the mux controller subsystem is prepared to handle
-chips with multiple (independent) mux controllers.
+Cache any ext_info values from the parent iio channel, creating a private
+copy of the ext_info attributes for each multiplexer state/channel.
 
-Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- Documentation/driver-model/devres.txt |   6 +-
- MAINTAINERS                           |   2 +
- drivers/misc/Kconfig                  |  30 ++++
- drivers/misc/Makefile                 |   2 +
- drivers/misc/mux-core.c               | 311 ++++++++++++++++++++++++++++++++++
- drivers/misc/mux-gpio.c               | 138 +++++++++++++++
- include/linux/mux.h                   | 197 +++++++++++++++++++++
- 7 files changed, 685 insertions(+), 1 deletion(-)
- create mode 100644 drivers/misc/mux-core.c
- create mode 100644 drivers/misc/mux-gpio.c
- create mode 100644 include/linux/mux.h
+ MAINTAINERS                       |   1 +
+ drivers/iio/Kconfig               |   1 +
+ drivers/iio/Makefile              |   1 +
+ drivers/iio/multiplexer/Kconfig   |  18 ++
+ drivers/iio/multiplexer/Makefile  |   6 +
+ drivers/iio/multiplexer/iio-mux.c | 457 ++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 484 insertions(+)
+ create mode 100644 drivers/iio/multiplexer/Kconfig
+ create mode 100644 drivers/iio/multiplexer/Makefile
+ create mode 100644 drivers/iio/multiplexer/iio-mux.c
 
-diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-index ca9d1eb46bc0..d64ede85b61b 100644
---- a/Documentation/driver-model/devres.txt
-+++ b/Documentation/driver-model/devres.txt
-@@ -330,7 +330,11 @@ MEM
-   devm_kzalloc()
- 
- MFD
-- devm_mfd_add_devices()
-+  devm_mfd_add_devices()
-+
-+MUX
-+  devm_mux_control_get()
-+  devm_mux_control_put()
- 
- PER-CPU MEM
-   devm_alloc_percpu()
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 3d4d0efc2b64..dc7498682752 100644
+index 77045ae15865..16490fbd1721 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -8407,6 +8407,8 @@ MULTIPLEXER SUBSYSTEM
- M:	Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+@@ -6239,6 +6239,7 @@ M:	Peter Rosin <peda@axentia.se>
+ L:	linux-iio@vger.kernel.org
  S:	Maintained
- F:	Documentation/devicetree/bindings/misc/mux-*
-+F:	include/linux/mux.h
-+F:	drivers/misc/mux-*
+ F:	Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
++F:	drivers/iio/multiplexer/iio-mux.c
  
- MULTISOUND SOUND DRIVER
- M:	Andrew Veliath <andrewtv-Jdbf3xiKgS8@public.gmane.org>
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 64971baf11fa..2ce675e410c5 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -766,6 +766,36 @@ config PANEL_BOOT_MESSAGE
- 	  An empty message will only clear the display at driver init time. Any other
- 	  printf()-formatted message is valid with newline and escape codes.
- 
-+menuconfig MULTIPLEXER
-+	bool "Multiplexer subsystem"
-+	help
-+	  Multiplexer controller subsystem. Multiplexers are used in a
-+	  variety of settings, and this subsystem abstracts their use
-+	  so that the rest of the kernel sees a common interface. When
-+	  multiple parallel multiplexers are controlled by one single
-+	  multiplexer controller, this subsystem also coordinates the
-+	  multiplexer accesses.
-+
-+	  If unsure, say no.
-+
-+if MULTIPLEXER
-+
-+config MUX_GPIO
-+	tristate "GPIO-controlled Multiplexer"
-+	depends on OF && GPIOLIB
-+	help
-+	  GPIO-controlled Multiplexer controller.
-+
-+	  The driver builds a single multiplexer controller using a number
-+	  of gpio pins. For N pins, there will be 2^N possible multiplexer
-+	  states. The GPIO pins can be connected (by the hardware) to several
-+	  multiplexers, which in that case will be operated in parallel.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called mux-gpio.
-+
-+endif
-+
- source "drivers/misc/c2port/Kconfig"
- source "drivers/misc/eeprom/Kconfig"
- source "drivers/misc/cb710/Kconfig"
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 31983366090a..0befa2bba762 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -53,6 +53,8 @@ obj-$(CONFIG_ECHO)		+= echo/
- obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
- obj-$(CONFIG_CXL_BASE)		+= cxl/
- obj-$(CONFIG_PANEL)             += panel.o
-+obj-$(CONFIG_MULTIPLEXER)      	+= mux-core.o
-+obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
- 
- lkdtm-$(CONFIG_LKDTM)		+= lkdtm_core.o
- lkdtm-$(CONFIG_LKDTM)		+= lkdtm_bugs.o
-diff --git a/drivers/misc/mux-core.c b/drivers/misc/mux-core.c
+ IIO SUBSYSTEM AND DRIVERS
+ M:	Jonathan Cameron <jic23@kernel.org>
+diff --git a/drivers/iio/Kconfig b/drivers/iio/Kconfig
+index a918270d6f54..b3c8c6ef0dff 100644
+--- a/drivers/iio/Kconfig
++++ b/drivers/iio/Kconfig
+@@ -83,6 +83,7 @@ source "drivers/iio/humidity/Kconfig"
+ source "drivers/iio/imu/Kconfig"
+ source "drivers/iio/light/Kconfig"
+ source "drivers/iio/magnetometer/Kconfig"
++source "drivers/iio/multiplexer/Kconfig"
+ source "drivers/iio/orientation/Kconfig"
+ if IIO_TRIGGER
+    source "drivers/iio/trigger/Kconfig"
+diff --git a/drivers/iio/Makefile b/drivers/iio/Makefile
+index 33fa4026f92c..93c769cd99bf 100644
+--- a/drivers/iio/Makefile
++++ b/drivers/iio/Makefile
+@@ -28,6 +28,7 @@ obj-y += humidity/
+ obj-y += imu/
+ obj-y += light/
+ obj-y += magnetometer/
++obj-y += multiplexer/
+ obj-y += orientation/
+ obj-y += potentiometer/
+ obj-y += potentiostat/
+diff --git a/drivers/iio/multiplexer/Kconfig b/drivers/iio/multiplexer/Kconfig
 new file mode 100644
-index 000000000000..cccaa7261a6e
+index 000000000000..70a044510686
 --- /dev/null
-+++ b/drivers/misc/mux-core.c
-@@ -0,0 +1,311 @@
++++ b/drivers/iio/multiplexer/Kconfig
+@@ -0,0 +1,18 @@
++#
++# Multiplexer drivers
++#
++# When adding new entries keep the list in alphabetical order
++
++menu "Multiplexers"
++
++config IIO_MUX
++	tristate "IIO multiplexer driver"
++	select MULTIPLEXER
++	depends on OF
++	help
++	  Say yes here to build support for the IIO multiplexer.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called iio-mux.
++
++endmenu
+diff --git a/drivers/iio/multiplexer/Makefile b/drivers/iio/multiplexer/Makefile
+new file mode 100644
+index 000000000000..68be3c4abd07
+--- /dev/null
++++ b/drivers/iio/multiplexer/Makefile
+@@ -0,0 +1,6 @@
++#
++# Makefile for industrial I/O multiplexer drivers
++#
++
++# When adding new entries keep the list in alphabetical order
++obj-$(CONFIG_IIO_MUX) += iio-mux.o
+diff --git a/drivers/iio/multiplexer/iio-mux.c b/drivers/iio/multiplexer/iio-mux.c
+new file mode 100644
+index 000000000000..3ea4acdb45e2
+--- /dev/null
++++ b/drivers/iio/multiplexer/iio-mux.c
+@@ -0,0 +1,457 @@
 +/*
-+ * Multiplexer subsystem
++ * IIO multiplexer driver
 + *
 + * Copyright (C) 2016 Axentia Technologies AB
 + *
-+ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++ * Author: Peter Rosin <peda@axentia.se>
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + */
 +
-+#define pr_fmt(fmt) "mux-core: " fmt
-+
-+#include <linux/device.h>
 +#include <linux/err.h>
-+#include <linux/idr.h>
++#include <linux/iio/consumer.h>
++#include <linux/iio/iio.h>
 +#include <linux/module.h>
++#include <linux/mutex.h>
 +#include <linux/mux.h>
 +#include <linux/of.h>
-+#include <linux/of_platform.h>
-+#include <linux/slab.h>
++#include <linux/platform_device.h>
 +
-+static struct class mux_class = {
-+	.name = "mux",
-+	.owner = THIS_MODULE,
++struct mux_ext_info_cache {
++	char *data;
++	size_t size;
 +};
 +
-+static int __init mux_init(void)
-+{
-+	return class_register(&mux_class);
-+}
-+
-+static DEFINE_IDA(mux_ida);
-+
-+static void mux_chip_release(struct device *dev)
-+{
-+	struct mux_chip *mux_chip = to_mux_chip(dev);
-+
-+	ida_simple_remove(&mux_ida, mux_chip->id);
-+	kfree(mux_chip);
-+}
-+
-+static struct device_type mux_type = {
-+	.name = "mux-chip",
-+	.release = mux_chip_release,
++struct mux_child {
++	struct mux_ext_info_cache *ext_info_cache;
 +};
 +
-+struct mux_chip *mux_chip_alloc(struct device *dev,
-+				unsigned int controllers, size_t sizeof_priv)
++struct mux {
++	int cached_state;
++	struct mux_control *control;
++	struct iio_channel *parent;
++	struct iio_dev *indio_dev;
++	struct iio_chan_spec *chan;
++	struct iio_chan_spec_ext_info *ext_info;
++	struct mux_child *child;
++};
++
++static int iio_mux_select(struct mux *mux, int idx)
 +{
-+	struct mux_chip *mux_chip;
++	struct mux_child *child = &mux->child[idx];
++	struct iio_chan_spec const *chan = &mux->chan[idx];
++	int ret;
 +	int i;
 +
-+	if (!dev || !controllers)
-+		return NULL;
-+
-+	mux_chip = kzalloc(sizeof(*mux_chip) +
-+			   controllers * sizeof(*mux_chip->mux) +
-+			   sizeof_priv, GFP_KERNEL);
-+	if (!mux_chip)
-+		return NULL;
-+
-+	mux_chip->mux = (struct mux_control *)(mux_chip + 1);
-+	mux_chip->dev.class = &mux_class;
-+	mux_chip->dev.type = &mux_type;
-+	mux_chip->dev.parent = dev;
-+	mux_chip->dev.of_node = dev->of_node;
-+	dev_set_drvdata(&mux_chip->dev, mux_chip);
-+
-+	mux_chip->id = ida_simple_get(&mux_ida, 0, 0, GFP_KERNEL);
-+	if (mux_chip->id < 0) {
-+		pr_err("muxchipX failed to get a device id\n");
-+		kfree(mux_chip);
-+		return NULL;
-+	}
-+	dev_set_name(&mux_chip->dev, "muxchip%d", mux_chip->id);
-+
-+	mux_chip->controllers = controllers;
-+	for (i = 0; i < controllers; ++i) {
-+		struct mux_control *mux = &mux_chip->mux[i];
-+
-+		mux->chip = mux_chip;
-+		init_rwsem(&mux->lock);
-+		mux->cached_state = -1;
-+		mux->idle_state = -1;
-+	}
-+
-+	device_initialize(&mux_chip->dev);
-+
-+	return mux_chip;
-+}
-+EXPORT_SYMBOL_GPL(mux_chip_alloc);
-+
-+static int mux_control_set(struct mux_control *mux, int state)
-+{
-+	int ret = mux->chip->ops->set(mux, state);
-+
-+	mux->cached_state = ret < 0 ? -1 : state;
-+
-+	return ret;
-+}
-+
-+int mux_chip_register(struct mux_chip *mux_chip)
-+{
-+	int i;
-+	int ret;
-+
-+	for (i = 0; i < mux_chip->controllers; ++i) {
-+		struct mux_control *mux = &mux_chip->mux[i];
-+
-+		if (mux->idle_state == mux->cached_state)
-+			continue;
-+
-+		ret = mux_control_set(mux, mux->idle_state);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	return device_add(&mux_chip->dev);
-+}
-+EXPORT_SYMBOL_GPL(mux_chip_register);
-+
-+void mux_chip_unregister(struct mux_chip *mux_chip)
-+{
-+	device_del(&mux_chip->dev);
-+}
-+EXPORT_SYMBOL_GPL(mux_chip_unregister);
-+
-+void mux_chip_free(struct mux_chip *mux_chip)
-+{
-+	if (!mux_chip)
-+		return;
-+	put_device(&mux_chip->dev);
-+}
-+EXPORT_SYMBOL_GPL(mux_chip_free);
-+
-+int mux_control_select(struct mux_control *mux, int state)
-+{
-+	int ret;
-+
-+	if (down_read_trylock(&mux->lock)) {
-+		if (mux->cached_state == state)
-+			return 0;
-+
-+		/* Sigh, the mux needs updating... */
-+		up_read(&mux->lock);
-+	}
-+
-+	/* ...or it's just contended. */
-+	down_write(&mux->lock);
-+
-+	if (mux->cached_state == state) {
-+		/*
-+		 * Hmmm, someone else changed the mux to my liking.
-+		 * That makes me wonder how long I waited for nothing?
-+		 */
-+		downgrade_write(&mux->lock);
-+		return 0;
-+	}
-+
-+	ret = mux_control_set(mux, state);
++	ret = mux_control_select(mux->control, chan->channel);
 +	if (ret < 0) {
-+		if (mux->idle_state != -1)
-+			mux_control_set(mux, mux->idle_state);
-+
-+		up_write(&mux->lock);
++		mux->cached_state = -1;
 +		return ret;
 +	}
 +
-+	downgrade_write(&mux->lock);
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(mux_control_select);
-+
-+int mux_control_deselect(struct mux_control *mux)
-+{
-+	int ret = 0;
-+
-+	if (mux->idle_state != -1 && mux->cached_state != mux->idle_state)
-+		ret = mux_control_set(mux, mux->idle_state);
-+
-+	up_read(&mux->lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(mux_control_deselect);
-+
-+static int of_dev_node_match(struct device *dev, const void *data)
-+{
-+	return dev->of_node == data;
-+}
-+
-+static struct mux_chip *of_find_mux_chip_by_node(struct device_node *np)
-+{
-+	struct device *dev;
-+
-+	dev = class_find_device(&mux_class, NULL, np, of_dev_node_match);
-+
-+	return dev ? to_mux_chip(dev) : NULL;
-+}
-+
-+struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
-+{
-+	struct device_node *np = dev->of_node;
-+	struct of_phandle_args args;
-+	struct mux_chip *mux_chip;
-+	unsigned int controller;
-+	int index = 0;
-+	int ret;
-+
-+	if (mux_name) {
-+		index = of_property_match_string(np, "mux-control-names",
-+						 mux_name);
-+		if (index < 0)
-+			return ERR_PTR(index);
-+	}
-+
-+	ret = of_parse_phandle_with_args(np,
-+					 "mux-controls", "#mux-control-cells",
-+					 index, &args);
-+	if (ret) {
-+		dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
-+			np->full_name, mux_name ?: "", index);
-+		return ERR_PTR(ret);
-+	}
-+
-+	mux_chip = of_find_mux_chip_by_node(args.np);
-+	of_node_put(args.np);
-+	if (!mux_chip)
-+		return ERR_PTR(-EPROBE_DEFER);
-+
-+	if (args.args_count > 1 ||
-+	    (!args.args_count && (mux_chip->controllers > 1))) {
-+		dev_err(dev, "%s: wrong #mux-control-cells for %s\n",
-+			np->full_name, args.np->full_name);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	controller = 0;
-+	if (args.args_count)
-+		controller = args.args[0];
-+
-+	if (controller >= mux_chip->controllers)
-+		return ERR_PTR(-EINVAL);
-+
-+	get_device(&mux_chip->dev);
-+	return &mux_chip->mux[controller];
-+}
-+EXPORT_SYMBOL_GPL(mux_control_get);
-+
-+void mux_control_put(struct mux_control *mux)
-+{
-+	put_device(&mux->chip->dev);
-+}
-+EXPORT_SYMBOL_GPL(mux_control_put);
-+
-+static void devm_mux_control_release(struct device *dev, void *res)
-+{
-+	struct mux_control *mux = *(struct mux_control **)res;
-+
-+	mux_control_put(mux);
-+}
-+
-+struct mux_control *devm_mux_control_get(struct device *dev,
-+					 const char *mux_name)
-+{
-+	struct mux_control **ptr, *mux;
-+
-+	ptr = devres_alloc(devm_mux_control_release, sizeof(*ptr), GFP_KERNEL);
-+	if (!ptr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	mux = mux_control_get(dev, mux_name);
-+	if (IS_ERR(mux)) {
-+		devres_free(ptr);
-+		return mux;
-+	}
-+
-+	*ptr = mux;
-+	devres_add(dev, ptr);
-+
-+	return mux;
-+}
-+EXPORT_SYMBOL_GPL(devm_mux_control_get);
-+
-+static int devm_mux_control_match(struct device *dev, void *res, void *data)
-+{
-+	struct mux_control **r = res;
-+
-+	if (!r || !*r) {
-+		WARN_ON(!r || !*r);
++	if (mux->cached_state == chan->channel)
 +		return 0;
++
++	if (chan->ext_info) {
++		for (i = 0; chan->ext_info[i].name; ++i) {
++			const char *attr = chan->ext_info[i].name;
++			struct mux_ext_info_cache *cache;
++
++			cache = &child->ext_info_cache[i];
++
++			if (cache->size < 0)
++				continue;
++
++			ret = iio_write_channel_ext_info(mux->parent, attr,
++							 cache->data,
++							 cache->size);
++
++			if (ret < 0) {
++				mux_control_deselect(mux->control);
++				mux->cached_state = -1;
++				return ret;
++			}
++		}
 +	}
-+
-+	return *r == data;
-+}
-+
-+void devm_mux_control_put(struct device *dev, struct mux_control *mux)
-+{
-+	WARN_ON(devres_release(dev, devm_mux_control_release,
-+			       devm_mux_control_match, mux));
-+}
-+EXPORT_SYMBOL_GPL(devm_mux_control_put);
-+
-+subsys_initcall(mux_init);
-+
-+MODULE_DESCRIPTION("Multiplexer subsystem");
-+MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/misc/mux-gpio.c b/drivers/misc/mux-gpio.c
-new file mode 100644
-index 000000000000..b50d6b871895
---- /dev/null
-+++ b/drivers/misc/mux-gpio.c
-@@ -0,0 +1,138 @@
-+/*
-+ * GPIO-controlled multiplexer driver
-+ *
-+ * Copyright (C) 2016 Axentia Technologies AB
-+ *
-+ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/err.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/module.h>
-+#include <linux/mux.h>
-+#include <linux/of.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+
-+struct mux_gpio {
-+	struct gpio_descs *gpios;
-+	int *val;
-+};
-+
-+static int mux_gpio_set(struct mux_control *mux, int state)
-+{
-+	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
-+	int i;
-+
-+	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
-+		mux_gpio->val[i] = (state >> i) & 1;
-+
-+	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
-+				       mux_gpio->gpios->desc,
-+				       mux_gpio->val);
++	mux->cached_state = chan->channel;
 +
 +	return 0;
 +}
 +
-+static const struct mux_control_ops mux_gpio_ops = {
-+	.set = mux_gpio_set,
++static void iio_mux_deselect(struct mux *mux)
++{
++	mux_control_deselect(mux->control);
++}
++
++static int mux_read_raw(struct iio_dev *indio_dev,
++			struct iio_chan_spec const *chan,
++			int *val, int *val2, long mask)
++{
++	struct mux *mux = iio_priv(indio_dev);
++	int idx = chan - mux->chan;
++	int ret;
++
++	ret = iio_mux_select(mux, idx);
++	if (ret < 0)
++		return ret;
++
++	switch (mask) {
++	case IIO_CHAN_INFO_RAW:
++		ret = iio_read_channel_raw(mux->parent, val);
++		break;
++
++	case IIO_CHAN_INFO_SCALE:
++		ret = iio_read_channel_scale(mux->parent, val, val2);
++		break;
++
++	default:
++		ret = -EINVAL;
++	}
++
++	iio_mux_deselect(mux);
++
++	return ret;
++}
++
++static int mux_read_avail(struct iio_dev *indio_dev,
++			  struct iio_chan_spec const *chan,
++			  const int **vals, int *type, int *length,
++			  long mask)
++{
++	struct mux *mux = iio_priv(indio_dev);
++	int idx = chan - mux->chan;
++	int ret;
++
++	ret = iio_mux_select(mux, idx);
++	if (ret < 0)
++		return ret;
++
++	switch (mask) {
++	case IIO_CHAN_INFO_RAW:
++		*type = IIO_VAL_INT;
++		ret = iio_read_avail_channel_raw(mux->parent, vals, length);
++		break;
++
++	default:
++		ret = -EINVAL;
++	}
++
++	iio_mux_deselect(mux);
++
++	return ret;
++}
++
++static int mux_write_raw(struct iio_dev *indio_dev,
++			 struct iio_chan_spec const *chan,
++			 int val, int val2, long mask)
++{
++	struct mux *mux = iio_priv(indio_dev);
++	int idx = chan - mux->chan;
++	int ret;
++
++	ret = iio_mux_select(mux, idx);
++	if (ret < 0)
++		return ret;
++
++	switch (mask) {
++	case IIO_CHAN_INFO_RAW:
++		ret = iio_write_channel_raw(mux->parent, val);
++		break;
++
++	default:
++		ret = -EINVAL;
++	}
++
++	iio_mux_deselect(mux);
++
++	return ret;
++}
++
++static const struct iio_info mux_info = {
++	.read_raw = mux_read_raw,
++	.read_avail = mux_read_avail,
++	.write_raw = mux_write_raw,
++	.driver_module = THIS_MODULE,
 +};
 +
-+static const struct of_device_id mux_gpio_dt_ids[] = {
-+	{ .compatible = "mux-gpio", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
++static ssize_t mux_read_ext_info(struct iio_dev *indio_dev, uintptr_t private,
++				 struct iio_chan_spec const *chan, char *buf)
++{
++	struct mux *mux = iio_priv(indio_dev);
++	int idx = chan - mux->chan;
++	ssize_t ret;
 +
-+static int mux_gpio_probe(struct platform_device *pdev)
++	ret = iio_mux_select(mux, idx);
++	if (ret < 0)
++		return ret;
++
++	ret = iio_read_channel_ext_info(mux->parent,
++					mux->ext_info[private].name,
++					buf);
++
++	iio_mux_deselect(mux);
++
++	return ret;
++}
++
++static ssize_t mux_write_ext_info(struct iio_dev *indio_dev, uintptr_t private,
++				  struct iio_chan_spec const *chan,
++				  const char *buf, size_t len)
++{
++	struct device *dev = indio_dev->dev.parent;
++	struct mux *mux = iio_priv(indio_dev);
++	int idx = chan - mux->chan;
++	char *new;
++	ssize_t ret;
++
++	ret = iio_mux_select(mux, idx);
++	if (ret < 0)
++		return ret;
++
++	new = devm_kmemdup(dev, buf, len + 1, GFP_KERNEL);
++	if (!new) {
++		iio_mux_deselect(mux);
++		return -ENOMEM;
++	}
++
++	new[len] = 0;
++
++	ret = iio_write_channel_ext_info(mux->parent,
++					 mux->ext_info[private].name,
++					 buf, len);
++	if (ret < 0) {
++		iio_mux_deselect(mux);
++		devm_kfree(dev, new);
++		return ret;
++	}
++
++	devm_kfree(dev, mux->child[idx].ext_info_cache[private].data);
++	mux->child[idx].ext_info_cache[private].data = new;
++	mux->child[idx].ext_info_cache[private].size = len;
++
++	iio_mux_deselect(mux);
++
++	return ret;
++}
++
++static int mux_configure_channel(struct device *dev, struct mux *mux,
++				 struct device_node *child_np, int idx)
++{
++	struct mux_child *child = &mux->child[idx];
++	struct iio_chan_spec *chan = &mux->chan[idx];
++	struct iio_chan_spec const *pchan = mux->parent->channel;
++	u32 state;
++	char *page = NULL;
++	int num_ext_info;
++	int i;
++	int ret;
++
++	chan->indexed = 1;
++	chan->output = pchan->output;
++	chan->datasheet_name = child_np->name;
++	chan->ext_info = mux->ext_info;
++
++	ret = iio_get_channel_type(mux->parent, &chan->type);
++	if (ret < 0) {
++		dev_err(dev, "failed to get parent channel type\n");
++		return ret;
++	}
++
++	if (iio_channel_has_info(pchan, IIO_CHAN_INFO_RAW))
++		chan->info_mask_separate |= BIT(IIO_CHAN_INFO_RAW);
++	if (iio_channel_has_info(pchan, IIO_CHAN_INFO_SCALE))
++		chan->info_mask_separate |= BIT(IIO_CHAN_INFO_SCALE);
++
++	if (iio_channel_has_available(pchan, IIO_CHAN_INFO_RAW))
++		chan->info_mask_separate_available |= BIT(IIO_CHAN_INFO_RAW);
++
++	ret = of_property_read_u32(child_np, "reg", &state);
++	if (ret < 0) {
++		dev_err(dev, "no reg property for node '%s'\n", child_np->name);
++		return ret;
++	}
++
++	if (state >= mux->control->states) {
++		dev_err(dev, "invalid reg %u\n", state);
++		return -EINVAL;
++	}
++
++	for (i = 0; i < idx; ++i) {
++		if (mux->chan[i].channel == state) {
++			dev_err(dev, "double use of reg %u\n", state);
++			return -EINVAL;
++		}
++	}
++
++	chan->channel = state;
++
++	num_ext_info = iio_get_channel_ext_info_count(mux->parent);
++	if (num_ext_info) {
++		page = devm_kzalloc(dev, PAGE_SIZE, GFP_KERNEL);
++		if (!page)
++			return -ENOMEM;
++	}
++	child->ext_info_cache = devm_kzalloc(dev,
++					     sizeof(*child->ext_info_cache) *
++					     num_ext_info, GFP_KERNEL);
++	for (i = 0; i < num_ext_info; ++i) {
++		child->ext_info_cache[i].size = -1;
++
++		if (!pchan->ext_info[i].write)
++			continue;
++		if (!pchan->ext_info[i].read)
++			continue;
++
++		ret = iio_read_channel_ext_info(mux->parent,
++						mux->ext_info[i].name,
++						page);
++		if (ret < 0) {
++			dev_err(dev, "failed to get ext_info '%s'\n",
++				pchan->ext_info[i].name);
++			return ret;
++		}
++		if (ret >= PAGE_SIZE) {
++			dev_err(dev, "too large ext_info '%s'\n",
++				pchan->ext_info[i].name);
++			return -EINVAL;
++		}
++
++		child->ext_info_cache[i].data = devm_kmemdup(dev, page, ret + 1,
++							     GFP_KERNEL);
++		child->ext_info_cache[i].data[ret] = 0;
++		child->ext_info_cache[i].size = ret;
++	}
++
++	if (page)
++		devm_kfree(dev, page);
++
++	return 0;
++}
++
++static int mux_probe(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
 +	struct device_node *np = pdev->dev.of_node;
-+	struct mux_chip *mux_chip;
-+	struct mux_gpio *mux_gpio;
-+	int pins;
-+	u32 idle_state;
++	struct device_node *child_np;
++	struct iio_dev *indio_dev;
++	struct iio_channel *parent;
++	struct mux *mux;
++	int sizeof_ext_info;
++	int children;
++	int sizeof_priv;
++	int i;
 +	int ret;
 +
 +	if (!np)
 +		return -ENODEV;
 +
-+	pins = gpiod_count(dev, "mux");
-+	if (pins < 0)
-+		return pins;
++	parent = devm_iio_channel_get(dev, "parent");
++	if (IS_ERR(parent)) {
++		if (PTR_ERR(parent) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get parent channel\n");
++		return PTR_ERR(parent);
++	}
 +
-+	mux_chip = mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
-+				  pins * sizeof(*mux_gpio->val));
-+	if (!mux_chip)
++	sizeof_ext_info = iio_get_channel_ext_info_count(parent);
++	if (sizeof_ext_info) {
++		sizeof_ext_info += 1; /* one extra entry for the sentinel */
++		sizeof_ext_info *= sizeof(*mux->ext_info);
++	}
++
++	children = 0;
++	for_each_child_of_node(np, child_np) {
++		if (of_get_property(child_np, "reg", NULL))
++			children++;
++	}
++	if (children <= 0) {
++		dev_err(dev, "not even a single child\n");
++		return -EINVAL;
++	}
++
++	sizeof_priv = sizeof(*mux);
++	sizeof_priv += sizeof(*mux->child) * children;
++	sizeof_priv += sizeof(*mux->chan) * children;
++	sizeof_priv += sizeof_ext_info;
++
++	indio_dev = devm_iio_device_alloc(dev, sizeof_priv);
++	if (!indio_dev)
 +		return -ENOMEM;
 +
-+	mux_gpio = mux_chip_priv(mux_chip);
-+	mux_gpio->val = (int *)(mux_gpio + 1);
-+	mux_chip->ops = &mux_gpio_ops;
++	mux = iio_priv(indio_dev);
++	mux->child = (struct mux_child *)(mux + 1);
++	mux->chan = (struct iio_chan_spec *)(mux->child + children);
 +
-+	platform_set_drvdata(pdev, mux_chip);
++	platform_set_drvdata(pdev, indio_dev);
 +
-+	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
-+	if (IS_ERR(mux_gpio->gpios)) {
-+		ret = PTR_ERR(mux_gpio->gpios);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get gpios\n");
-+		goto free_mux_chip;
-+	}
-+	WARN_ON(pins != mux_gpio->gpios->ndescs);
-+	mux_chip->mux->states = 1 << pins;
++	mux->parent = parent;
++	mux->cached_state = -1;
 +
-+	ret = of_property_read_u32(np, "idle-state", &idle_state);
-+	if (ret >= 0) {
-+		if (idle_state >= mux_chip->mux->states) {
-+			dev_err(dev, "invalid idle-state %u\n", idle_state);
-+			ret = -EINVAL;
-+			goto free_mux_chip;
++	indio_dev->name = dev_name(dev);
++	indio_dev->dev.parent = dev;
++	indio_dev->info = &mux_info;
++	indio_dev->modes = INDIO_DIRECT_MODE;
++	indio_dev->channels = mux->chan;
++	indio_dev->num_channels = children;
++	if (sizeof_ext_info) {
++		mux->ext_info = devm_kmemdup(dev,
++					     parent->channel->ext_info,
++					     sizeof_ext_info, GFP_KERNEL);
++		if (!mux->ext_info)
++			return -ENOMEM;
++
++		for (i = 0; mux->ext_info[i].name; ++i) {
++			if (parent->channel->ext_info[i].read)
++				mux->ext_info[i].read = mux_read_ext_info;
++			if (parent->channel->ext_info[i].write)
++				mux->ext_info[i].write = mux_write_ext_info;
++			mux->ext_info[i].private = i;
 +		}
-+
-+		mux_chip->mux->idle_state = idle_state;
 +	}
 +
-+	ret = mux_chip_register(mux_chip);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to register mux-chip\n");
-+		goto free_mux_chip;
++	mux->control = devm_mux_control_get(dev, NULL);
++	if (IS_ERR(mux->control)) {
++		if (PTR_ERR(mux->control) != -EPROBE_DEFER)
++			dev_err(dev, "failed to get control-mux\n");
++		return PTR_ERR(mux->control);
 +	}
 +
-+	dev_info(dev, "%u-way mux-controller registered\n",
-+		 mux_chip->mux->states);
++	i = 0;
++	for_each_child_of_node(np, child_np) {
++		if (!of_get_property(child_np, "reg", NULL))
++			continue;
++
++		ret = mux_configure_channel(dev, mux, child_np, i);
++		if (ret < 0)
++			return ret;
++		i++;
++	}
++
++	ret = devm_iio_device_register(dev, indio_dev);
++	if (ret) {
++		dev_err(dev, "failed to register iio device\n");
++		return ret;
++	}
 +
 +	return 0;
-+
-+free_mux_chip:
-+	mux_chip_free(mux_chip);
-+	return ret;
 +}
 +
-+static int mux_gpio_remove(struct platform_device *pdev)
-+{
-+	struct mux_chip *mux_chip = to_mux_chip(&pdev->dev);
++static const struct of_device_id mux_match[] = {
++	{ .compatible = "iio-mux" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, mux_match);
 +
-+	mux_chip_unregister(mux_chip);
-+	mux_chip_free(mux_chip);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mux_gpio_driver = {
++static struct platform_driver mux_driver = {
++	.probe = mux_probe,
 +	.driver = {
-+		.name = "mux-gpio",
-+		.of_match_table	= of_match_ptr(mux_gpio_dt_ids),
++		.name = "iio-mux",
++		.of_match_table = mux_match,
 +	},
-+	.probe = mux_gpio_probe,
-+	.remove = mux_gpio_remove,
 +};
-+module_platform_driver(mux_gpio_driver);
++module_platform_driver(mux_driver);
 +
-+MODULE_DESCRIPTION("GPIO-controlled multiplexer driver");
-+MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
++MODULE_DESCRIPTION("IIO multiplexer driver");
++MODULE_AUTHOR("Peter Rosin <peda@axentia.se>");
 +MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mux.h b/include/linux/mux.h
-new file mode 100644
-index 000000000000..d52a651660ff
---- /dev/null
-+++ b/include/linux/mux.h
-@@ -0,0 +1,197 @@
-+/*
-+ * mux.h - definitions for the multiplexer interface
-+ *
-+ * Copyright (C) 2016 Axentia Technologies AB
-+ *
-+ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#ifndef _LINUX_MUX_H
-+#define _LINUX_MUX_H
-+
-+#include <linux/device.h>
-+#include <linux/rwsem.h>
-+
-+struct mux_chip;
-+struct mux_control;
-+struct platform_device;
-+
-+struct mux_control_ops {
-+	int (*set)(struct mux_control *mux, int state);
-+};
-+
-+/**
-+ * struct mux_control - Represents a mux controller.
-+ * @lock:		Protects the mux controller state.
-+ * @chip:		The mux chip that is handling this mux controller.
-+ * @states:		The number of mux controller states.
-+ * @cached_state:	The current mux controller state, or -1 if none.
-+ * @idle_state:		The mux controller state to use when inactive, or -1
-+ *			for none.
-+ */
-+struct mux_control {
-+	struct rw_semaphore lock; /* protects the state of the mux */
-+
-+	struct mux_chip *chip;
-+
-+	unsigned int states;
-+	int cached_state;
-+	int idle_state;
-+};
-+
-+/**
-+ * struct mux_chip -	Represents a chip holding mux controllers.
-+ * @controllers:	Number of mux controllers handled by the chip.
-+ * @mux:		Array of mux controllers that is handled.
-+ * @dev:		Device structure.
-+ * @id:			Used to identify the device internally.
-+ * @ops:		Mux controller operations.
-+ */
-+struct mux_chip {
-+	unsigned int controllers;
-+	struct mux_control *mux;
-+	struct device dev;
-+	int id;
-+
-+	const struct mux_control_ops *ops;
-+};
-+
-+#define to_mux_chip(x) container_of((x), struct mux_chip, dev)
-+
-+/**
-+ * mux_chip_priv() - Get the extra memory reserved by mux_chip_alloc().
-+ * @mux_chip: The mux-chip to get the private memory from.
-+ *
-+ * Return: Pointer to the private memory reserved by the allocator.
-+ */
-+static inline void *mux_chip_priv(struct mux_chip *mux_chip)
-+{
-+	return mux_chip + 1;
-+}
-+
-+/**
-+ * mux_chip_alloc() - Allocate a mux-chip.
-+ * @dev: The parent device implementing the mux interface.
-+ * @controllers: The number of mux controllers to allocate for this chip.
-+ * @sizeof_priv: Size of extra memory area for private use by the caller.
-+ *
-+ * Return: A pointer to the new mux-chip, NULL on failure.
-+ */
-+struct mux_chip *mux_chip_alloc(struct device *dev,
-+				unsigned int controllers, size_t sizeof_priv);
-+
-+/**
-+ * mux_chip_register() - Register a mux-chip, thus readying the controllers
-+ *			 for use.
-+ * @mux_chip: The mux-chip to register.
-+ *
-+ * Do not retry registration of the same mux-chip on failure. You should
-+ * instead put it away with mux_chip_free() and allocate a new one, if you
-+ * for some reason would like to retry registration.
-+ *
-+ * Return: Zero on success or a negative errno on error.
-+ */
-+int mux_chip_register(struct mux_chip *mux_chip);
-+
-+/**
-+ * mux_chip_unregister() - Take the mux-chip off-line.
-+ * @mux_chip: The mux-chip to unregister.
-+ *
-+ * mux_chip_unregister() reverses the effects of mux_chip_register().
-+ * But not completely, you should not try to call mux_chip_register()
-+ * on a mux-chip that has been registered before.
-+ */
-+void mux_chip_unregister(struct mux_chip *mux_chip);
-+
-+/**
-+ * mux_chip_free() - Free the mux-chip for good.
-+ * @mux_chip: The mux-chip to free.
-+ *
-+ * mux_chip_free() reverses the effects of mux_chip_alloc().
-+ */
-+void mux_chip_free(struct mux_chip *mux_chip);
-+
-+/**
-+ * mux_control_select() - Select the given multiplexer state.
-+ * @mux: The mux-control to request a change of state from.
-+ * @state: The new requested state.
-+ *
-+ * Make sure to call mux_control_deselect() when the operation is complete and
-+ * the mux-control is free for others to use, but do not call
-+ * mux_control_deselect() if mux_control_select() fails.
-+ *
-+ * Return: 0 if the requested state was already active, or 1 it the
-+ * mux-control state was changed to the requested state. Or a negavive
-+ * errno on error.
-+ *
-+ * Note that the difference in return value of zero or one is of
-+ * questionable value; especially if the mux-control has several independent
-+ * consumers, which is something the consumers should perhaps not be making
-+ * assumptions about.
-+ */
-+int mux_control_select(struct mux_control *mux, int state);
-+
-+/**
-+ * mux_control_deselect() - Deselect the previously selected multiplexer state.
-+ * @mux: The mux-control to deselect.
-+ *
-+ * Return: 0 on success and a negative errno on error. An error can only
-+ * occur if the mux has an idle state. Note that even if an error occurs, the
-+ * mux-control is unlocked for others to access.
-+ */
-+int mux_control_deselect(struct mux_control *mux);
-+
-+/**
-+ * mux_control_get_index() - Get the index of the given mux controller
-+ * @mux: The mux-control to the the index for.
-+ *
-+ * Return: The index of the mux controller within the mux chip the mux
-+ * controller is a part of.
-+ */
-+static inline unsigned int mux_control_get_index(struct mux_control *mux)
-+{
-+	return mux - mux->chip->mux;
-+}
-+
-+/**
-+ * mux_control_get() - Get the mux-control for a device.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * Return: A pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *mux_control_get(struct device *dev, const char *mux_name);
-+
-+/**
-+ * mux_control_put() - Put away the mux-control for good.
-+ * @mux: The mux-control to put away.
-+ *
-+ * mux_control_put() reverses the effects of mux_control_get().
-+ */
-+void mux_control_put(struct mux_control *mux);
-+
-+/**
-+ * devm_mux_control_get() - Get the mux-control for a device, with resource
-+ *			    management.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * Return: Pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *devm_mux_control_get(struct device *dev,
-+					 const char *mux_name);
-+
-+/**
-+ * devm_mux_control_put() - Resource-managed version mux_control_put().
-+ * @dev: The device that originally got the mux-control.
-+ * @mux: The mux-control to put away.
-+ *
-+ * Note that you do not normally need to call this function.
-+ */
-+void devm_mux_control_put(struct device *dev, struct mux_control *mux);
-+
-+#endif /* _LINUX_MUX_H */
 -- 
 2.1.4
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
