@@ -1,38 +1,90 @@
-From: Tin Huynh <tnhuynh@apm.com>
-Subject: [PATCH V1] i2c: designware: fix wrong tx/rx fifo for ACPI
-Date: Tue, 29 Nov 2016 10:32:07 +0700
-Message-ID: <1480390327-24562-1-git-send-email-tnhuynh@apm.com>
+From: tnhuynh@apm.com
+Subject: [PATCH V3] i2c: mux: pca954x: Add ACPI support for pca954x
+Date: Tue, 29 Nov 2016 10:46:29 +0700
+Message-ID: <1480391189-1775-1-git-send-email-tnhuynh@apm.com>
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI always sets txfifo and rxfifo to 32. This configuration will
-cause problem if the IP core supports a fifo size of 16 bytes only.
-Set the default value to 0 so the driver will get these parameters 
-from IP core.
+From: Tin Huynh <tnhuynh@apm.com>
+
+This patch enables ACPI support for mux-pca954x driver.
 
 Signed-off-by: Tin Huynh <tnhuynh@apm.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0b42a12..c88a4b8 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -97,8 +97,8 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	const struct acpi_device_id *id;
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c |   25 ++++++++++++++++++++++++-
+ 1 files changed, 24 insertions(+), 1 deletions(-)
+
+Change from V2:
+ -Remove CONFIG_ACPI.
+
+Change from V1:
+ -Don't shadow id variable.
+ -Include sorted header.
+ -Redefine acpi_device_id.
+ -Add CONFIG_ACPI.
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 1091346..f80191e 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -35,6 +35,7 @@
+  * warranty of any kind, whether express or implied.
+  */
  
- 	dev->adapter.nr = -1;
--	dev->tx_fifo_depth = 32;
--	dev->rx_fifo_depth = 32;
-+	dev->tx_fifo_depth = 0;
-+	dev->rx_fifo_depth = 0;
++#include <linux/acpi.h>
+ #include <linux/device.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+@@ -120,6 +121,19 @@ struct pca954x {
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
  
- 	/*
- 	 * Try to get SDA hold time and *CNT values from an ACPI method if
++static const struct acpi_device_id pca954x_acpi_ids[] = {
++	{ .id = "PCA9540", .driver_data = pca_9540 },
++	{ .id = "PCA9542", .driver_data = pca_9540 },
++	{ .id = "PCA9543", .driver_data = pca_9543 },
++	{ .id = "PCA9544", .driver_data = pca_9544 },
++	{ .id = "PCA9545", .driver_data = pca_9545 },
++	{ .id = "PCA9546", .driver_data = pca_9545 },
++	{ .id = "PCA9547", .driver_data = pca_9547 },
++	{ .id = "PCA9548", .driver_data = pca_9548 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, pca954x_acpi_ids);
++
+ #ifdef CONFIG_OF
+ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+@@ -245,8 +259,16 @@ static int pca954x_probe(struct i2c_client *client,
+ 	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
+ 	if (match)
+ 		data->chip = of_device_get_match_data(&client->dev);
+-	else
++	else if (id)
+ 		data->chip = &chips[id->driver_data];
++	else {
++		const struct acpi_device_id *acpi_id;
++
++		acpi_id = acpi_match_device(pca954x_acpi_ids, &client->dev);
++		if (!acpi_id)
++			return -ENODEV;
++		data->chip = &chips[acpi_id->driver_data];
++	}
+ 
+ 	data->last_chan = 0;		   /* force the first selection */
+ 
+@@ -321,6 +343,7 @@ static int pca954x_resume(struct device *dev)
+ 		.name	= "pca954x",
+ 		.pm	= &pca954x_pm,
+ 		.of_match_table = of_match_ptr(pca954x_of_match),
++		.acpi_match_table = ACPI_PTR(pca954x_acpi_ids),
+ 	},
+ 	.probe		= pca954x_probe,
+ 	.remove		= pca954x_remove,
 -- 
 1.7.1
 
