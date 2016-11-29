@@ -1,94 +1,83 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [Patch V5 2/2] i2c: imx: add low power i2c bus driver
-Date: Tue, 29 Nov 2016 22:35:12 +0100
-Message-ID: <20161129213512.GB15594@katana>
-References: <1479714704-3014-1-git-send-email-pandy.gao@nxp.com>
- <1479714704-3014-2-git-send-email-pandy.gao@nxp.com>
+Subject: Re: [v6,1/2] i2c: qup: add ACPI support
+Date: Tue, 29 Nov 2016 22:46:00 +0100
+Message-ID: <20161129214600.GA23045@katana>
+References: <1476203277-6893-2-git-send-email-austinwc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:47998 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751537AbcK2VfP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Nov 2016 16:35:15 -0500
-Content-Disposition: inline
-In-Reply-To: <1479714704-3014-2-git-send-email-pandy.gao@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============4420749512298508697=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1476203277-6893-2-git-send-email-austinwc@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Austin Christ <austinwc@codeaurora.org>
+Cc: wsa@the-dreams.de, linux-arm-msm@vger.kernel.org, timur@codeaurora.org, linux-kernel@vger.kernel.org, rruigrok@codeaurora.org, nkaje@codeaurora.org, linux-i2c@vger.kernel.org, sricharan@codeaurora.org, linux-arm-kernel@lists.infradead.org, cov@codeaurora.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>
-Cc: wsa@the-dreams.de, u.kleine-koenig@pengutronix.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com, linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
 
---TakKZr9L6Hm6aLOc
+--===============4420749512298508697==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+
+
+--PNTmBPCT7hxwcZjr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Oct 11, 2016 at 10:27:56AM -0600, Austin Christ wrote:
+> From: Naveen Kaje <nkaje@codeaurora.org>
+>=20
+> Add support to get the device parameters from ACPI. Assume
+> that the clocks are managed by firmware.
+>=20
+> Signed-off-by: Naveen Kaje <nkaje@codeaurora.org>
+> Signed-off-by: Austin Christ <austinwc@codeaurora.org>
+> Reviewed-by: Sricharan R <sricharan@codeaurora.org>
+
+Applied to for-next, thanks!
 
 
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version 2
-> + * of the License, or (at your option) any later version.
-
-Here you say GPL v2 or later, while at the end you declare GPL V2 only.
-This needs to be made consistent.
-
-> +static irqreturn_t lpi2c_imx_isr(int irq, void *dev_id)
-> +{
-> +	struct lpi2c_imx_struct *lpi2c_imx = dev_id;
-> +	unsigned int temp;
-> +
-> +	lpi2c_imx_intctrl(lpi2c_imx, 0);
-> +	temp = readl(lpi2c_imx->base + LPI2C_MSR);
-> +
-> +	if (temp & MSR_RDF) {
-> +		lpi2c_imx_read_rxfifo(lpi2c_imx);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	if (temp & MSR_TDF) {
-> +		lpi2c_imx_write_txfifo(lpi2c_imx);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	complete(&lpi2c_imx->complete);
-> +
-> +	return IRQ_HANDLED;
-> +}
-
-Minor nit: Why can't you have one single exit point (e.g. only one
-'return IRQ_HANDLED') here?
-
-> +MODULE_LICENSE("GPL v2");
-
-Here is GPL v2 only...
-
-Rest looks good. Thanks Vladimir for the reviews!
-
-Thanks,
-
-   Wolfram
-
-
---TakKZr9L6Hm6aLOc
+--PNTmBPCT7hxwcZjr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYPfSQAAoJEBQN5MwUoCm2nCEP/R4EGx1pv5TIp5ITL8HXhv+6
-+iwr2k9u1eH+TCB/uEdj+Pd/MKxhrHYdFvw8Ce+RhUTfzIsO4JHK9JPMeJbFY0hr
-lrWuVxRebAz4ApJ5q81B4As2cozNrdXkDMvzYjJZtEZzDz/jhzNltVNuKLst9PQq
-CrD0LoCnhD9/XKfGE/v3VnLjySYgT6SPhpSUugoEAfKYYMXF0+6FrLnwC5Rs7PpB
-J/oKO4h8As8EBulYFBBCraHB83wsA+eQvlAYeSn8QyWSkWlhi2zhCcWq9EYHDXr5
-upuXZBEkr3/xaTU/10vvjAlD7jCjgUDyS0J0BPRJA52Y9ctaTXvp4aIxTmEErNW1
-1QZ/QPoVlm/aKrXR5Pro8b91cXcD1es/B06JikiMb1llrDmTVsb1P3jR8tiDhDkf
-qUuibznOqkekN/qHWval7LxtD4VBcHF/bAtZzc1S1Y7Xmm3l82FzcyhqOZdoW2q6
-EBhBn30V15ccx6Y4MdtsUkwQKt03nktnxLwCQdtS+qqQttYhb3cM7gs3oEueMj07
-lKe7LUdzPuILjjb/jAvHssxZrUjY1h6XuMJDfbwbIpcuvqgevT3rB/J1I0u9FiNH
-WsErUDNrUNd0w9DUVVxYkRjBtMcY2xlYefr0ou7U2pozNYEbZF4gpl+WX4hKvF6X
-nUgCLncOSPJYS0PPq3OE
-=5N+D
+iQIcBAEBAgAGBQJYPfcXAAoJEBQN5MwUoCm2kosP/A3AQBuh17mhQzhHgULhmjD/
+C/5cx0QaEVxMyu8edUWcfNS2aeIPgMLX+wHeG44sIbj7kJHN3V3wgL2INzonVjHj
+yl1Ba0Fo2DUvFOqZfeRoHYiLmxVXbA7HO3TSwhnZ1NlJvFk+PIKC3m2PGI8mvY3h
+j2e+XUNijZGJk6QwDn6AJNualiDEli8lieAjmM9WofW1B54Y5tGlzeQS5fLlM0zc
+HgxpQCqXDk/HCSXPnifQOC/nBZoQmql9FwNFbe0SOfLZxGn8T+3YiwjBwi/bh4y1
+xyii1vB0Ywem+T91//lEVR04o26lrf3H/wa6bDDV+f+hISVwy1e9S1uqszMZGskl
+WIwqebRWbl5Vdx6WB+dnQ6cyjJh1JaAmac2s+mXFwGftdCXlbT9StZ96ZK8DFeZ7
+CW7Ony/RUMdCZGk6BTLNjDQoqtYoglv2bbpIySk3vSQUREE4X+q5cRIPk8Y3aiLF
+jvdKjLpG3EBagvrtMypFyXkAC8RzG7HR2wUeP1w+Uidkb9ScLcsOKBhvv62hrHa5
+uw5fwcWnHY5efPzTkOeCwGY7t4gS7SbtZ06HLT1qhLA8aFyfK/WT3KDFI/0IxpKv
+MdgCIKcSS29cgTIPLSoQvVKizxriZNsKViIfKS9I5jYGEHrs+mWvWinvdsDGpOUW
+ihIDjNlmsCvCxhWbI4fT
+=YDej
 -----END PGP SIGNATURE-----
 
---TakKZr9L6Hm6aLOc--
+--PNTmBPCT7hxwcZjr--
+
+
+--===============4420749512298508697==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============4420749512298508697==--
