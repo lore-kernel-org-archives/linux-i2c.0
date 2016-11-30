@@ -1,35 +1,45 @@
-From: Romain Perier <romain.perier@free-electrons.com>
-Subject: [PATCH v6 0/4] Add basic support for the I2C units of the Armada 3700
-Date: Wed, 30 Nov 2016 15:00:13 +0100
-Message-ID: <20161130140017.26307-1-romain.perier@free-electrons.com>
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
+Date: Wed, 30 Nov 2016 15:06:46 +0100
+Message-ID: <1480514806.2258.68.camel@pengutronix.de>
+References: <20161130115005.11508-1-l.stach@pengutronix.de>
+         <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:57640 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756796AbcK3OA3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Nov 2016 09:00:29 -0500
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:60483 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753639AbcK3OGs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Nov 2016 09:06:48 -0500
+In-Reply-To: <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, linux-arm-kernel@lists.infradead.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw>
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de
 
-This series add basic support for the I2C bus interface units present
-in the Armada 3700 to the pxa-i2c driver. It also add the definitions of
-the device nodes to the devicetree at the SoC level and for its official
-development board: the Armada 3720 DB.
+Am Mittwoch, den 30.11.2016, 15:54 +0200 schrieb Vladimir Zapolskiy:
+> Hello Lucas,
+> 
+> On 11/30/2016 01:50 PM, Lucas Stach wrote:
+> > DDC buses are manually managed by their consumers to communicate
+> > with the display. There is no need to try to populate OF childs.
+> > 
+> > This gets rid of the device create failed warning caused by the
+> > core trying to populate a DDC bus below a OF device, which has
+> > other childs nodes, that aren't i2c devices.
+> 
+> what kind of devices on a DDC bus represended by children nodes
+> do you reference here?
 
-Romain Perier (4):
-  i2c: pxa: Add definition of fast and high speed modes via the regs
-    layout
-  i2c: pxa: Add support for the I2C units found in Armada 3700
-  arm64: dts: marvell: Add I2C definitions for the Armada 3700
-  dt-bindings: i2c: pxa: Update the documentation for the Armada 3700
+None. The device registering the DDC i2c adapter might have an of_node.
+The children of this device are not i2c devices, but for example port
+nodes for the of_graph binding.
 
- Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  1 +
- arch/arm64/boot/dts/marvell/armada-3720-db.dts    |  4 ++++
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi      | 18 ++++++++++++++++
- drivers/i2c/busses/Kconfig                        |  2 +-
- drivers/i2c/busses/i2c-pxa.c                      | 26 +++++++++++++++++++++--
- 5 files changed, 48 insertions(+), 3 deletions(-)
+The same issue can be worked around if we make it explicit by placing an
+"i2c-bus" subnode with no children into the parent device OF node. But
+as the OF probing of devices on a DDC bus just doesn't make sense I
+figured it would be good to just skip all this.
 
--- 
-2.9.3
+Regards,
+Lucas
