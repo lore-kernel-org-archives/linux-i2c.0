@@ -1,48 +1,65 @@
-From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v6 1/4] i2c: pxa: Add definition of fast and high speed
- modes via the regs layout
-Date: Wed, 30 Nov 2016 16:49:38 +0100
-Message-ID: <20161130164938.32ba768f@free-electrons.com>
-References: <20161130140017.26307-1-romain.perier@free-electrons.com>
-        <20161130140017.26307-2-romain.perier@free-electrons.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 1/1] i2c: designware-pcidrv: Add 10bit address feature
+ to medfield/merrifield
+Date: Wed, 30 Nov 2016 18:11:45 +0200
+Message-ID: <1480522305.21899.54.camel@linux.intel.com>
+References: <1480517310-28401-1-git-send-email-alexander.stein@systec-electronic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161130140017.26307-2-romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Romain Perier <romain.perier-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Omri Itach <omrii-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yahuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Hanna Hawa <hannah-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Neta Zur Hershkovits <neta-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Igal Liberman <igall-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Marcin
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:7279 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758181AbcK3QLs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 30 Nov 2016 11:11:48 -0500
+In-Reply-To: <1480517310-28401-1-git-send-email-alexander.stein@systec-electronic.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexander Stein <alexander.stein@systec-electronic.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-Hello,
+On Wed, 2016-11-30 at 15:48 +0100, Alexander Stein wrote:
+> Both Merrifield TRM and Medfiel TRM state:
 
-On Wed, 30 Nov 2016 15:00:14 +0100, Romain Perier wrote:
+Typo here, should be Medfield
 
->  #ifdef CONFIG_I2C_PXA_SLAVE
->  	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-> @@ -1234,6 +1238,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
->  	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
->  	i2c->reg_isr = i2c->reg_base + pxa_reg_layout[i2c_type].isr;
-> +	i2c->fm_mask = pxa_reg_layout[i2c_type].fm ? pxa_reg_layout[i2c_type].fm : ICR_FM;
-> +	i2c->hs_mask = pxa_reg_layout[i2c_type].hs ? pxa_reg_layout[i2c_type].hs : ICR_HS;
+> "Both 7-bit and 10-bit addressing modes are supported."
 
-These lines are too long according to checkpatch. What about using what
-Wolfram originally suggested, i.e:
+Other that that
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-	i2c->fm_mask = pxa_reg_layout[i2c_type].fm ?: ICR_FM;
+> 
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-pcidrv.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> index 300802e7..d6423cf 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -141,6 +141,7 @@ static struct dw_pci_controller
+> dw_pci_controllers[] = {
+>  		.bus_cfg   = INTEL_MID_STD_CFG |
+> DW_IC_CON_SPEED_FAST,
+>  		.tx_fifo_depth = 32,
+>  		.rx_fifo_depth = 32,
+> +		.functionality = I2C_FUNC_10BIT_ADDR,
+>  		.clk_khz      = 25000,
+>  		.setup = mfld_setup,
+>  	},
+> @@ -149,6 +150,7 @@ static struct dw_pci_controller
+> dw_pci_controllers[] = {
+>  		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
+>  		.tx_fifo_depth = 64,
+>  		.rx_fifo_depth = 64,
+> +		.functionality = I2C_FUNC_10BIT_ADDR,
+>  		.scl_sda_cfg = &mrfld_config,
+>  		.setup = mrfld_setup,
+>  	},
 
-which does exactly the same, but fits within 80 characters ?
-
-Thanks,
-
-Thomas
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
