@@ -1,59 +1,66 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 30 Nov 2016 18:07:41 +0100
-Message-ID: <CAOAejn2UDbsLRLmthOitTtkWOcN97WYhg93r9nyxQdBzGGegcg@mail.gmail.com>
-References: <1466439771-2741-1-git-send-email-cedric.madianga@gmail.com>
- <1466439771-2741-3-git-send-email-cedric.madianga@gmail.com>
- <20160722070219.GB1605@katana> <CAOAejn0BZNH82kY_7UR1EjV7M1G+9jGihGb4-uCs9=XiPHUYxQ@mail.gmail.com>
- <20161130162353.GC1441@katana>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
+Date: Wed, 30 Nov 2016 22:18:58 +0200
+Message-ID: <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
+References: <20161130115005.11508-1-l.stach@pengutronix.de>
+ <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
+ <1480514806.2258.68.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161130162353.GC1441@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-dev-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:33097 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754166AbcK3UTC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 30 Nov 2016 15:19:02 -0500
+In-Reply-To: <1480514806.2258.68.camel@pengutronix.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lucas Stach <l.stach@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de
 
-Hi,
+On 11/30/2016 04:06 PM, Lucas Stach wrote:
+> Am Mittwoch, den 30.11.2016, 15:54 +0200 schrieb Vladimir Zapolskiy:
+>> Hello Lucas,
+>>
+>> On 11/30/2016 01:50 PM, Lucas Stach wrote:
+>>> DDC buses are manually managed by their consumers to communicate
+>>> with the display. There is no need to try to populate OF childs.
+>>>
+>>> This gets rid of the device create failed warning caused by the
+>>> core trying to populate a DDC bus below a OF device, which has
+>>> other childs nodes, that aren't i2c devices.
+>>
+>> what kind of devices on a DDC bus represended by children nodes
+>> do you reference here?
+> 
+> None. The device registering the DDC i2c adapter might have an of_node.
+> The children of this device are not i2c devices, but for example port
+> nodes for the of_graph binding.
 
+Port node shall not be a child of any DDC bus device node, otherwise it
+contradicts to the hierarchy of hardware blocks. It is a common practice
+to describe port nodes and DDC bus adapter as siblings (devices which
+share the same display controller / encoder device). Do I miss something?
 
-2016-11-30 17:23 GMT+01:00 Wolfram Sang <wsa-dev-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>:
-> Hi,
->
->> I was too busy in another project but now I am ready to complete the
->> upstream of the STM32F4 I2C driver.
->
-> Nice.
->
->> >> +static void stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
->> >> +{
->> >> +     u32 clk_rate, cr2, freq;
->> >> +
->> >> +     cr2 = readl_relaxed(i2c_dev->base + STM32F4_I2C_CR2);
->> >> +     cr2 &= ~STM32F4_I2C_CR2_FREQ_MASK;
->> >> +
->> >> +     clk_rate = clk_get_rate(i2c_dev->clk);
->> >> +     freq = clk_rate / MHZ_TO_HZ;
->> >> +
->> >> +     if (freq > STM32F4_I2C_MAX_FREQ)
->> >> +             freq = STM32F4_I2C_MAX_FREQ;
->> >> +     if (freq < STM32F4_I2C_MIN_FREQ)
->> >> +             freq = STM32F4_I2C_MIN_FREQ;
->> >
->> > clamp() to enforce the range?
->> Sorry but what do you mean by "clamp()" ?
->
-> The kernel has a clamp() function which would fit this purpose, I think.
-Ok I got it. I will fix it in the V4.
-Thanks
+> The same issue can be worked around if we make it explicit by placing an
+> "i2c-bus" subnode with no children into the parent device OF node. But
+> as the OF probing of devices on a DDC bus just doesn't make sense I
+> figured it would be good to just skip all this.
+> 
 
->
-> Regards,
->
->    Wolfram
->
+Right, as a micro optimization the change makes sense (*), but the second
+paragraph in the commit message is questionable.
+
+In my opinion it makes sense to include the change, and the warning
+you mention in the commit message needs its own attention as an indicator
+of potentially wrongly chosen representation of the device hierarchy.
+
+(*) experimentally I successfully performed test communications with
+AT24 connected to DW HDMI DDC lines on i.MX6Q, so I can imagine exotic
+boards, where DDC bus operates as an extra I2C bus. I'm unaware of any
+such real cases, but if they exist your commit breaks them.
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+With best wishes,
+Vladimir
