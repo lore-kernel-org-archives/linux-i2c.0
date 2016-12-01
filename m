@@ -1,115 +1,79 @@
 From: Romain Perier <romain.perier@free-electrons.com>
-Subject: [PATCH v7 2/4] i2c: pxa: Add support for the I2C units found in Armada 3700
-Date: Thu,  1 Dec 2016 12:04:38 +0100
-Message-ID: <20161201110440.27530-3-romain.perier@free-electrons.com>
+Subject: [PATCH v7 1/4] i2c: pxa: Add definition of fast and high speed modes via the regs layout
+Date: Thu,  1 Dec 2016 12:04:37 +0100
+Message-ID: <20161201110440.27530-2-romain.perier@free-electrons.com>
 References: <20161201110440.27530-1-romain.perier@free-electrons.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:55424 "EHLO
+Received: from mail.free-electrons.com ([62.4.15.54]:55410 "EHLO
         mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755559AbcLALEp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Dec 2016 06:04:45 -0500
+        with ESMTP id S1755255AbcLALEo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Dec 2016 06:04:44 -0500
 In-Reply-To: <20161201110440.27530-1-romain.perier@free-electrons.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, linux-arm-kernel@lists.infradead.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw>
 
-The Armada 3700 has two I2C controllers that is compliant with the I2C
-Bus Specificiation 2.1, supports multi-master and different bus speed:
-Standard mode (up to 100 KHz), Fast mode (up to 400 KHz),
-High speed mode (up to 3.4 Mhz).
+So far, the bit masks for the fast and high speed mode were statically
+defined. Some IP blocks might use different bits for these modes.
 
-This IP block has a lot of similarity with the PXA, except some register
-offsets and bitfield. This commits adds a basic support for this I2C
-unit.
+This commit introduces new fields in order to enable the definition of
+different bit masks for these features. If these fields are undefined,
+ICR_FM and ICR_HS are selected to preserve backward compatibility with
+other IPs.
 
 Signed-off-by: Romain Perier <romain.perier@free-electrons.com>
-Tested-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
 
-Changes in v6:
- - Revert back A3700_REGS, as asked by Wolfram and define fm_mask
-   and hs_mask in the register layout. I moved the generic code
-   for fm_mask and hs_mask to a seperated commit (1/4)
+Changes in v7:
+ - Fixed line over 80 characters for fm_mask and hs_mask in the probe
+   function.
 
-Changes in v5:
- - Don't define registers for armada-3700, we can re-use the ones
-   for PXA3XX.
- - Define registers mask when OF is not used, in probe_pdata. 
+ drivers/i2c/busses/i2c-pxa.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-Changes in v4:
- - Replaced the type of hs_mask and fm_mask by u32, instead of
-   unsigned int, As writel() take an u32 as first argument...
-
-Changes in v3:
- - Replaced the type of hs_mask and fm_mask by unsigned int,
-   instead of unsigned long.
-
- drivers/i2c/busses/Kconfig   |  2 +-
- drivers/i2c/busses/i2c-pxa.c | 15 +++++++++++++++
- 2 files changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276..2f56a26 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -763,7 +763,7 @@ config I2C_PUV3
- 
- config I2C_PXA
- 	tristate "Intel PXA2XX I2C adapter"
--	depends on ARCH_PXA || ARCH_MMP || (X86_32 && PCI && OF)
-+	depends on ARCH_PXA || ARCH_MMP || ARCH_MVEBU || (X86_32 && PCI && OF)
- 	help
- 	  If you have devices in the PXA I2C bus, say yes to this option.
- 	  This driver can also be built as a module.  If so, the module
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index b4ac235..6cf333e 100644
+index e28b825..b4ac235 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -57,8 +57,12 @@ enum pxa_i2c_types {
- 	REGS_PXA3XX,
- 	REGS_CE4100,
- 	REGS_PXA910,
-+	REGS_A3700,
+@@ -48,6 +48,8 @@ struct pxa_reg_layout {
+ 	u32 isar;
+ 	u32 ilcr;
+ 	u32 iwcr;
++	u32 fm;
++	u32 hs;
  };
  
-+#define ICR_BUSMODE_FM	(1 << 16)	   /* shifted fast mode for armada-3700 */
-+#define ICR_BUSMODE_HS	(1 << 17)	   /* shifted high speed mode for armada-3700 */
+ enum pxa_i2c_types {
+@@ -193,6 +195,8 @@ struct pxa_i2c {
+ 	unsigned char		master_code;
+ 	unsigned long		rate;
+ 	bool			highmode_enter;
++	u32			fm_mask;
++	u32			hs_mask;
+ };
+ 
+ #define _IBMR(i2c)	((i2c)->reg_ibmr)
+@@ -503,8 +507,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 		writel(i2c->slave_addr, _ISAR(i2c));
+ 
+ 	/* set control register values */
+-	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+-	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
++	writel(I2C_ICR_INIT | (i2c->fast_mode ? i2c->fm_mask : 0), _ICR(i2c));
++	writel(readl(_ICR(i2c)) | (i2c->high_mode ? i2c->hs_mask : 0), _ICR(i2c));
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+@@ -1234,6 +1238,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
+ 	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
+ 	i2c->reg_isr = i2c->reg_base + pxa_reg_layout[i2c_type].isr;
++	i2c->fm_mask = pxa_reg_layout[i2c_type].fm ? : ICR_FM;
++	i2c->hs_mask = pxa_reg_layout[i2c_type].hs ? : ICR_HS;
 +
- /*
-  * I2C registers definitions
-  */
-@@ -93,6 +97,15 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
- 		.ilcr = 0x28,
- 		.iwcr = 0x30,
- 	},
-+	[REGS_A3700] = {
-+		.ibmr =	0x00,
-+		.idbr =	0x04,
-+		.icr =	0x08,
-+		.isr =	0x0c,
-+		.isar =	0x10,
-+		.fm = ICR_BUSMODE_FM,
-+		.hs = ICR_BUSMODE_HS,
-+	},
- };
+ 	if (i2c_type != REGS_CE4100)
+ 		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
  
- static const struct platform_device_id i2c_pxa_id_table[] = {
-@@ -100,6 +113,7 @@ static const struct platform_device_id i2c_pxa_id_table[] = {
- 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
- 	{ "ce4100-i2c",		REGS_CE4100 },
- 	{ "pxa910-i2c",		REGS_PXA910 },
-+	{ "armada-3700-i2c",	REGS_A3700  },
- 	{ },
- };
- MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
-@@ -1141,6 +1155,7 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
- 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
- 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
- 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
-+	{ .compatible = "marvell,armada-3700-i2c", .data = (void *)REGS_A3700 },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
 -- 
 2.9.3
