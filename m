@@ -1,59 +1,56 @@
 From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: Re: [PATCH v2 1/1] i2c: designware-pcidrv: Add 10bit address feature
- to medfield/merrifield
-Date: Thu, 1 Dec 2016 23:39:07 +0100
-Message-ID: <20161201223907.GE19261@katana>
-References: <1480523655-10461-1-git-send-email-alexander.stein@systec-electronic.com>
+Subject: Re: [Patch V6 1/2] i2c: imx: add devicetree binding for lpi2c
+Date: Thu, 1 Dec 2016 23:45:01 +0100
+Message-ID: <20161201224501.GF19261@katana>
+References: <1480473647-24514-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="jKBxcB1XkHIR0Eqt"
+        protocol="application/pgp-signature"; boundary="HCdXmnRlPgeNBad2"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:41752 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:46270 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750898AbcLAWjJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Dec 2016 17:39:09 -0500
+        id S1751510AbcLAWvq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 1 Dec 2016 17:51:46 -0500
 Content-Disposition: inline
-In-Reply-To: <1480523655-10461-1-git-send-email-alexander.stein@systec-electronic.com>
+In-Reply-To: <1480473647-24514-1-git-send-email-pandy.gao@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Gao Pan <pandy.gao@nxp.com>
+Cc: wsa@the-dreams.de, cmo@melexis.com, robh@kernel.org, vz@mleia.com, linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
 
---jKBxcB1XkHIR0Eqt
+--HCdXmnRlPgeNBad2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 30, 2016 at 05:34:15PM +0100, Alexander Stein wrote:
-> Both Merrifield TRM and Medfield TRM state:
-> "Both 7-bit and 10-bit addressing modes are supported."
+On Wed, Nov 30, 2016 at 10:40:46AM +0800, Gao Pan wrote:
+> Add a binding document for lpi2c driver
 >=20
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 
 Applied to for-next, thanks!
 
 
---jKBxcB1XkHIR0Eqt
+--HCdXmnRlPgeNBad2
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYQKaLAAoJEBQN5MwUoCm2Ue4P/iLRAQCQvDlpKxmruxTXFIxJ
-z69yRlegYhveAsAde3PoRtAxKYLOJGvvWeAVDOtZDnuWw2XuYEtiXDkzTK2H2UOm
-O+bsfyrlamyAVuU5uS2k8gEA+ojnbqsQeuDEj3cLngurC9YCmH0mBMFKLKsb9Fov
-fPpEEzICY0n8uKGbqaoF4odt/RbTbO7j73iEh7FgUwDALsmq5XL2uqkgl7pBwkb1
-5h74yO43v5koh0BBAFLWA0k9KJ+L/NsZAv2LdpU5yMDKEh3fDMbozaaHibxaUH88
-+55ZRDnqZTprN3z/GkSszx0eYTwF0P+QJkl4U/iU/NClZZ5IGPGw/eYydgxyvEHR
-1FcUJghm/5LHgmt1zTlat9XpwIyxaUb7wxDyAGaBn34mslRtnb+wAqueEyGi/+hT
-bXCnRJ7aVuwPoOXPFtOT6Hm09Xk7ebNlLIN46UI7BcPPQR3WuTTKlnHPn3nATnaj
-WJnde5n3mDrzVQWt0YDIO8pAMoELcj6M0azIUh4M4Nj9Oy3BC/PDUSd3rhMLauI5
-4qNRNoH4ZkGZowBC+4mB4fmIYSASA6T6NIhUsbEAv9w8VCbBqOF5W8V7gNB1o9Il
-Wxh7Mc9AZlkYYkpYXwSZsVmNLFUrN2OCxfq3zFINg0ATEEBHLm18dINWiVCDMDfc
-7kClkFma6/araYDBsFJ4
-=0qIz
+iQIcBAEBAgAGBQJYQKftAAoJEBQN5MwUoCm24BoP/1HeY8tBroOXkNsAUI2vfvx/
+SQtsVMcQUG9m3pTi1IjyCL8dQfjYtN0k3HikbI7KivTRMVAVCMJ17gFbdtyzzmqp
+xVmbezcGUPt0sgkLiKzEOtBNoWC/gMsm/fk/2m8kINyZJW4FO4hswRjOW14G2YpG
+zTskmdHvJ5AR0Xld2A1P2BXQhFTZactEGBfCmiwEXRwJ7sxDfR/ORtecBt05O1fU
+BMuzlUTwZBYDz+JlpPghHvtpPg9F//rKV+3dKslVh8iGZZKOZ8a82LulSV0H0wFl
+PKENMTgd4u+3W/EC6o/SgJSYSwVoj1y+JvFnFWgdotIb6KV6ZlxbLEFpxJT6ocbS
+N8rA8F+zsdHY/MyyUU0gRdVGWAvV9ke3IGagU3cnKwmflR+TarDh1t7mklRMrDNT
+x8QXNza7al7OSJ0IeI4fJr5aM2SY11SxNvZ4VFY1lBLosqTU5SQrMBlESqvgyt5Z
+7AF9m+d5T+CvH/UPv9g5nu6YyB7QE5D8+aN3DswxUSKmGat39rQBDlyuCPs9hFaU
+UUXhyJZ9bYQnsAResU6mnIAV5uRciZwmpa11o1fwLqRzc4vIq1RfBC4G7clYDKY4
+eT0YFrEV9mtoeW6E6AmglPLM1rMnetG5D7HNbDeeCghhB1cxrmHvmfSCseb03TSs
+1z6LerjzFcbvoMYAkekA
+=GGnj
 -----END PGP SIGNATURE-----
 
---jKBxcB1XkHIR0Eqt--
+--HCdXmnRlPgeNBad2--
