@@ -1,131 +1,82 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH/RFC v2 i2c/for-next] i2c: rcar: Add per-Generation
- fallback bindings
-Date: Thu, 1 Dec 2016 17:29:18 +0100
-Message-ID: <20161201162917.GB2389@verge.net.au>
-References: <1480606863-4418-1-git-send-email-horms+renesas@verge.net.au>
- <CAMuHMdXr5stBRDtD0AE=1Af3PUiA=e5pP_X1onfbfO5ri=fPrw@mail.gmail.com>
+From: Wolfram Sang <wsa-dev@sang-engineering.com>
+Subject: Re: [PATCH v7 4/4] dt-bindings: i2c: pxa: Update the documentation
+ for the Armada 3700
+Date: Thu, 1 Dec 2016 23:31:59 +0100
+Message-ID: <20161201223159.GA19261@katana>
+References: <20161201110440.27530-1-romain.perier@free-electrons.com>
+ <20161201110440.27530-5-romain.perier@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXr5stBRDtD0AE=1Af3PUiA=e5pP_X1onfbfO5ri=fPrw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-Renesas <linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/mixed; boundary="===============4539124504073817309=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20161201110440.27530-5-romain.perier@free-electrons.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Romain Perier <romain.perier@free-electrons.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Hanna Hawa <hannah@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, linux-i2c@vger.kernel.org, Yahuda Yitschak <yehuday@marvell.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, devicetree@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Omri Itach <omrii@marvell.com>, Rob Herring <robh+dt@kernel.org>, Gregory Clement <gregory.clement@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Igal Liberman <igall@marvell.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Shadi Ammouri <shadi@marvell.com>, Kumar Gala <galak@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 01, 2016 at 04:55:13PM +0100, Geert Uytterhoeven wrote:
-> Hi Simon,
-> 
-> On Thu, Dec 1, 2016 at 4:41 PM, Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org> wrote:
-> > In the case of Renesas R-Car hardware we know that there are generations of
-> > SoCs, e.g. Gen 2 and Gen 3. But beyond that its not clear what the
-> > relationship between IP blocks might be. For example, I believe that
-> > r8a7790 is older than r8a7791 but that doesn't imply that the latter is a
-> > descendant of the former or vice versa.
-> >
-> > We can, however, by examining the documentation and behaviour of the
-> > hardware at run-time observe that the current driver implementation appears
-> > to be compatible with the IP blocks on SoCs within a given generation.
-> >
-> > For the above reasons and convenience when enabling new SoCs a
-> > per-generation fallback compatibility string scheme being adopted for
-> > drivers for Renesas SoCs.
-> >
-> > Also deprecate renesas,i2c-rcar. It seems poorly named as it is only
-> > compatible with R-Car Gen 1. It also appears unused in mainline.
-> >
-> > Signed-off-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-> > ---
-> > Include accidently omitted i2c-rcar.c portion of patch
-> > ---
-> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 32 ++++++++++++++--------
-> >  drivers/i2c/busses/i2c-rcar.c                      |  5 +++-
-> >  2 files changed, 24 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> > index 239632a0d709..8c679b17c4c6 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> > @@ -1,17 +1,25 @@
-> >  I2C for R-Car platforms
-> >
-> >  Required properties:
-> > -- compatible: Must be one of
-> > -       "renesas,i2c-rcar"
-> > -       "renesas,i2c-r8a7778"
-> > -       "renesas,i2c-r8a7779"
-> > -       "renesas,i2c-r8a7790"
-> > -       "renesas,i2c-r8a7791"
-> > -       "renesas,i2c-r8a7792"
-> > -       "renesas,i2c-r8a7793"
-> > -       "renesas,i2c-r8a7794"
-> > -       "renesas,i2c-r8a7795"
-> > -       "renesas,i2c-r8a7796"
-> > +- compatible:
-> > +       "renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
-> > +       "renesas,i2c-r8a7779" if the device is a part of a R8A7797 SoC.
-> > +       "renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
-> > +       "renesas,i2c-r8a7791" if the device is a part of a R8A7791 SoC.
-> > +       "renesas,i2c-r8a7792" if the device is a part of a R8A7792 SoC.
-> > +       "renesas,i2c-r8a7793" if the device is a part of a R8A7793 SoC.
-> > +       "renesas,i2c-r8a7794" if the device is a part of a R8A7794 SoC.
-> > +       "renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
-> > +       "renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
-> > +       "renesas,i2c-rcar-gen1" for a generic R-Car Gen1 compatible device.
-> > +       "renesas,i2c-rcar-gen2" for a generic R-Car Gen2 compatible device.
-> > +       "renesas,i2c-rcar-gen3" for a generic R-Car Gen3 compatible device.
-> 
-> "renesas,rcar-gen1-i2c" etc.
-> 
-> > +       "renesas,i2c-rcar" (deprecated)
-> > +
-> > +       When compatible with the generic version, nodes must list the
-> > +       SoC-specific version corresponding to the platform first followed
-> > +       by the generic version.
-> > +
-> >  - reg: physical base address of the controller and length of memory mapped
-> >    region.
-> >  - interrupts: interrupt specifier.
-> > @@ -33,7 +41,7 @@ Examples :
-> >  i2c0: i2c@e6508000 {
-> >         #address-cells = <1>;
-> >         #size-cells = <0>;
-> > -       compatible = "renesas,i2c-r8a7791";
-> > +       compatible = "renesas,i2c-r8a7791", "renesas,i2c-rcar-gen2";
-> 
-> "renesas,rcar-gen2-i2c"
-> 
-> >         reg = <0 0xe6508000 0 0x40>;
-> >         interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
-> >         clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
-> > diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> > index 726615e54f2a..622def6b43e2 100644
-> > --- a/drivers/i2c/busses/i2c-rcar.c
-> > +++ b/drivers/i2c/busses/i2c-rcar.c
-> > @@ -793,7 +793,6 @@ static const struct i2c_algorithm rcar_i2c_algo = {
-> >  };
-> >
-> >  static const struct of_device_id rcar_i2c_dt_ids[] = {
-> > -       { .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
-> >         { .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
-> >         { .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
-> >         { .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
-> > @@ -803,6 +802,10 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
-> >         { .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
-> >         { .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
-> >         { .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
-> > +       { .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },    // Deprecated
-> > +       { .compatible = "renesas,rcar-gen1-i2c", .data = (void *)I2C_RCAR_GEN1 },
-> > +       { .compatible = "renesas,rcar-gen2-i2c", .data = (void *)I2C_RCAR_GEN2 },
-> > +       { .compatible = "renesas,rcar-gen3-i2c", .data = (void *)I2C_RCAR_GEN3 },
-> 
-> The driver does it right ;-)
 
-Sorry, I switched things around at some point but it looks
-like I only did half the job.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--===============4539124504073817309==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+
+
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Dec 01, 2016 at 12:04:40PM +0100, Romain Perier wrote:
+> This commit documents the compatible string to have the compatibility for
+> the I2C unit found in the Armada 3700.
+>=20
+> Signed-off-by: Romain Perier <romain.perier@free-electrons.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+
+Applied to for-next, thanks!
+
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYQKTfAAoJEBQN5MwUoCm2VIAP/0TfEdriiLZY3+4iJh23ZQC0
+osz0w6FkRGR/B9zDRlZrydqGQ3Zdbx2Di5PHXO0NKfy37S3ido14bwmP6aKi8UP5
+/O2T6tbtZsGcWTBED7QWka0rm/yNcOzA6FVcGHuO881i55FfJRspPYgh0nS6NAa+
+bl7q0+UBVUjhGtPdr6KM9FRQegNgLwynpmPSMyQ7K0j/Ijw5Bf097q95EFcUZ/RF
+TmFRwtxaZpSt5wXq52jUC1IUU9oDNYdximSrPgmP9RC371XE2K/QMVbUbUlf6cup
+GzYjeF9TPbJGNDz5AGDhpyEhmP3PzK+xyIZ/R+te6qlNEgiLvWVPJEgp+sHWazBV
+A35hrCJ6fI2lWsnYzATvvOk7G0nIy6BVejiILrNM5Y8lc5Xa0tccyry5QbpjcTC1
+nQnLSSK3XwIpGyYpUcY/SuaM8KoGw5ttVgQUrYc5y81F7CcmHzOArWDjb2591P4c
+Wg8EKU3+P2Ge+JOobq7npzmj4HG7+1Rhx9qhjelOhc82PAjucxAUJjuYDYIqDfJf
+WamRbAmAtq6pddkFtK4GB8d7T8fbqk+GjVJVWf2edKhNQKYMkueBWCwpbeVUFG2N
+seUPOnlVcQIMzqPP+tsQ2re/bymOlujnOJGQ0Cjptx2fThmC+TtIa/HcxoyP7tO9
+F1RSvLp3ixXsXfS/OHY0
+=LjdQ
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
+
+
+--===============4539124504073817309==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============4539124504073817309==--
