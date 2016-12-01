@@ -1,79 +1,35 @@
-From: Lucas Stach <l.stach@pengutronix.de>
-Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
-Date: Thu, 01 Dec 2016 11:07:12 +0100
-Message-ID: <1480586832.17003.28.camel@pengutronix.de>
-References: <20161130115005.11508-1-l.stach@pengutronix.de>
-         <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
-         <1480514806.2258.68.camel@pengutronix.de>
-         <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Romain Perier <romain.perier@free-electrons.com>
+Subject: [PATCH v7 0/4] Add basic support for the I2C units of the Armada 3700
+Date: Thu,  1 Dec 2016 12:04:36 +0100
+Message-ID: <20161201110440.27530-1-romain.perier@free-electrons.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:35885 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1755335AbcLAKHP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Dec 2016 05:07:15 -0500
-In-Reply-To: <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:55407 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751758AbcLALEo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Dec 2016 06:04:44 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Kumar Gala <galak@codeaurora.org>, linux-arm-kernel@lists.infradead.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Omri Itach <omrii@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yahuda Yitschak <yehuday@marvell.com>, Hanna Hawa <hannah@marvell.com>, Neta Zur Hershkovits <neta@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw>
 
-Am Mittwoch, den 30.11.2016, 22:18 +0200 schrieb Vladimir Zapolskiy:
-> On 11/30/2016 04:06 PM, Lucas Stach wrote:
-> > Am Mittwoch, den 30.11.2016, 15:54 +0200 schrieb Vladimir Zapolskiy:
-> >> Hello Lucas,
-> >>
-> >> On 11/30/2016 01:50 PM, Lucas Stach wrote:
-> >>> DDC buses are manually managed by their consumers to communicate
-> >>> with the display. There is no need to try to populate OF childs.
-> >>>
-> >>> This gets rid of the device create failed warning caused by the
-> >>> core trying to populate a DDC bus below a OF device, which has
-> >>> other childs nodes, that aren't i2c devices.
-> >>
-> >> what kind of devices on a DDC bus represended by children nodes
-> >> do you reference here?
-> > 
-> > None. The device registering the DDC i2c adapter might have an of_node.
-> > The children of this device are not i2c devices, but for example port
-> > nodes for the of_graph binding.
-> 
-> Port node shall not be a child of any DDC bus device node, otherwise it
-> contradicts to the hierarchy of hardware blocks. It is a common practice
-> to describe port nodes and DDC bus adapter as siblings (devices which
-> share the same display controller / encoder device). Do I miss something?
-> 
-> > The same issue can be worked around if we make it explicit by placing an
-> > "i2c-bus" subnode with no children into the parent device OF node. But
-> > as the OF probing of devices on a DDC bus just doesn't make sense I
-> > figured it would be good to just skip all this.
-> > 
-> 
-> Right, as a micro optimization the change makes sense (*), but the second
-> paragraph in the commit message is questionable.
-> 
-> In my opinion it makes sense to include the change, and the warning
-> you mention in the commit message needs its own attention as an indicator
-> of potentially wrongly chosen representation of the device hierarchy.
-> 
-Okay to get away from the purely theoretical speaking here: the issue
-this patch fixes is seen with the tc358767 parallel-to-eDP bridge.
-(Documentation/devicetree/bindings/display/bridge/toshiba,tc358767.txt)
+This series add basic support for the I2C bus interface units present
+in the Armada 3700 to the pxa-i2c driver. It also add the definitions of
+the device nodes to the devicetree at the SoC level and for its official
+development board: the Armada 3720 DB.
 
-The bridge itself is represented in the DT, so it has a OF node. It then
-goes on to register the i2c over DP AUX channel i2c adapter with its own
-device node, which is what all consumers of the i2c_add_adapter() API so
-AFAICS.
-The i2c adapter has no own representation in the DT, as it's a pure
-software construct, after all it's just an emulated i2c bus over DP,
-there are no physical i2c wires.
+Romain Perier (4):
+  i2c: pxa: Add definition of fast and high speed modes via the regs
+    layout
+  i2c: pxa: Add support for the I2C units found in Armada 3700
+  arm64: dts: marvell: Add I2C definitions for the Armada 3700
+  dt-bindings: i2c: pxa: Update the documentation for the Armada 3700
 
-The i2c adapter then tries to populate the bridges children as if they
-were i2c devices, which is clearly wrong. We could fix this by creating
-an own device for the i2c adapter, but that's not how things are handled
-today and would require changes to all consumers of this API.
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  1 +
+ arch/arm64/boot/dts/marvell/armada-3720-db.dts    |  4 ++++
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi      | 18 ++++++++++++++++
+ drivers/i2c/busses/Kconfig                        |  2 +-
+ drivers/i2c/busses/i2c-pxa.c                      | 26 +++++++++++++++++++++--
+ 5 files changed, 48 insertions(+), 3 deletions(-)
 
-Regards,
-Lucas
+-- 
+2.9.3
