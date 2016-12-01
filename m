@@ -1,67 +1,131 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 09/39] Annotate hardware config module parameters in
- drivers/i2c/
-Date: Thu, 01 Dec 2016 17:06:44 +0100
-Message-ID: <1480608404.21573.68.camel@chaos.suse>
-References: <1480600052.21573.60.camel@chaos.suse>
-         <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
-         <148059544784.31612.17605303556663485588.stgit@warthog.procyon.org.uk>
-         <23573.1480601572@warthog.procyon.org.uk>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH/RFC v2 i2c/for-next] i2c: rcar: Add per-Generation
+ fallback bindings
+Date: Thu, 1 Dec 2016 17:29:18 +0100
+Message-ID: <20161201162917.GB2389@verge.net.au>
+References: <1480606863-4418-1-git-send-email-horms+renesas@verge.net.au>
+ <CAMuHMdXr5stBRDtD0AE=1Af3PUiA=e5pP_X1onfbfO5ri=fPrw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-security-module-owner@vger.kernel.org>
-In-Reply-To: <23573.1480601572@warthog.procyon.org.uk>
-Sender: owner-linux-security-module@vger.kernel.org
-To: David Howells <dhowells@redhat.com>
-Cc: minyard@acm.org, linux-kernel@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk, Wolfram Sang <wsa@the-dreams.de>, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdXr5stBRDtD0AE=1Af3PUiA=e5pP_X1onfbfO5ri=fPrw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-Renesas <linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On jeu., 2016-12-01 at 14:12 +0000, David Howells wrote:
-> Jean Delvare <jdelvare@suse.de> wrote:
+On Thu, Dec 01, 2016 at 04:55:13PM +0100, Geert Uytterhoeven wrote:
+> Hi Simon,
 > 
-> > > Note that we do still need to do the module initialisation because some
-> > > drivers have viable defaults set in case parameters aren't specified and
-> > > some drivers support automatic configuration (e.g. PNP or PCI) in addition
-> > > to manually coded parameters.
-> > 
-> > Initializing the driver when you are not able to honor the user request
-> > looks wrong to me. I don't see how some drivers having sane defaults
-> > justifies that. Using the defaults when no parameters are passed is one
-> > thing (good), still using the defaults when parameters are passed is
-> > another (bad), and you should be able to differentiate between these two
-> > cases.
+> On Thu, Dec 1, 2016 at 4:41 PM, Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org> wrote:
+> > In the case of Renesas R-Car hardware we know that there are generations of
+> > SoCs, e.g. Gen 2 and Gen 3. But beyond that its not clear what the
+> > relationship between IP blocks might be. For example, I believe that
+> > r8a7790 is older than r8a7791 but that doesn't imply that the latter is a
+> > descendant of the former or vice versa.
+> >
+> > We can, however, by examining the documentation and behaviour of the
+> > hardware at run-time observe that the current driver implementation appears
+> > to be compatible with the IP blocks on SoCs within a given generation.
+> >
+> > For the above reasons and convenience when enabling new SoCs a
+> > per-generation fallback compatibility string scheme being adopted for
+> > drivers for Renesas SoCs.
+> >
+> > Also deprecate renesas,i2c-rcar. It seems poorly named as it is only
+> > compatible with R-Car Gen 1. It also appears unused in mainline.
+> >
+> > Signed-off-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+> > ---
+> > Include accidently omitted i2c-rcar.c portion of patch
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 32 ++++++++++++++--------
+> >  drivers/i2c/busses/i2c-rcar.c                      |  5 +++-
+> >  2 files changed, 24 insertions(+), 13 deletions(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > index 239632a0d709..8c679b17c4c6 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > @@ -1,17 +1,25 @@
+> >  I2C for R-Car platforms
+> >
+> >  Required properties:
+> > -- compatible: Must be one of
+> > -       "renesas,i2c-rcar"
+> > -       "renesas,i2c-r8a7778"
+> > -       "renesas,i2c-r8a7779"
+> > -       "renesas,i2c-r8a7790"
+> > -       "renesas,i2c-r8a7791"
+> > -       "renesas,i2c-r8a7792"
+> > -       "renesas,i2c-r8a7793"
+> > -       "renesas,i2c-r8a7794"
+> > -       "renesas,i2c-r8a7795"
+> > -       "renesas,i2c-r8a7796"
+> > +- compatible:
+> > +       "renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
+> > +       "renesas,i2c-r8a7779" if the device is a part of a R8A7797 SoC.
+> > +       "renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
+> > +       "renesas,i2c-r8a7791" if the device is a part of a R8A7791 SoC.
+> > +       "renesas,i2c-r8a7792" if the device is a part of a R8A7792 SoC.
+> > +       "renesas,i2c-r8a7793" if the device is a part of a R8A7793 SoC.
+> > +       "renesas,i2c-r8a7794" if the device is a part of a R8A7794 SoC.
+> > +       "renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
+> > +       "renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
+> > +       "renesas,i2c-rcar-gen1" for a generic R-Car Gen1 compatible device.
+> > +       "renesas,i2c-rcar-gen2" for a generic R-Car Gen2 compatible device.
+> > +       "renesas,i2c-rcar-gen3" for a generic R-Car Gen3 compatible device.
 > 
-> Corey Minyard argues the other way:
+> "renesas,rcar-gen1-i2c" etc.
 > 
-> 	This would prevent any IPMI interface from working if any address was
-> 	given on the kernel command line. I'm not sure what the best policy
-> 	is, but that sounds like a possible DOS to me.
+> > +       "renesas,i2c-rcar" (deprecated)
+> > +
+> > +       When compatible with the generic version, nodes must list the
+> > +       SoC-specific version corresponding to the platform first followed
+> > +       by the generic version.
+> > +
+> >  - reg: physical base address of the controller and length of memory mapped
+> >    region.
+> >  - interrupts: interrupt specifier.
+> > @@ -33,7 +41,7 @@ Examples :
+> >  i2c0: i2c@e6508000 {
+> >         #address-cells = <1>;
+> >         #size-cells = <0>;
+> > -       compatible = "renesas,i2c-r8a7791";
+> > +       compatible = "renesas,i2c-r8a7791", "renesas,i2c-rcar-gen2";
 > 
-> Your preference allows someone to prevent a driver from initialising - which
-> could also be bad.  The problem is that I don't think there's any way to do
-> both.
-
-I'm not sure what is your threat model, but I'm afraid that if the
-attacker can change the kernel command line, he/she has so many ways to
-screw up the machine, that removing one won't make a difference.
-
->> (...)
-> > And maybe the following ones, but I'm not sure if forcibly enabling a
-> > device is part of what you need to prevent:
-> > 
-> > i2c-piix4.c:module_param (force, int, 0);
-> > i2c-sis630.c:module_param(force, bool, 0);
-> > i2c-viapro.c:module_param(force, bool, 0);
+> "renesas,rcar-gen2-i2c"
 > 
-> I don't know either.  One could argue it *should* be locked down because its
-> need appears to reflect a BIOS bug.
+> >         reg = <0 0xe6508000 0 0x40>;
+> >         interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
+> >         clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
+> > diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> > index 726615e54f2a..622def6b43e2 100644
+> > --- a/drivers/i2c/busses/i2c-rcar.c
+> > +++ b/drivers/i2c/busses/i2c-rcar.c
+> > @@ -793,7 +793,6 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+> >  };
+> >
+> >  static const struct of_device_id rcar_i2c_dt_ids[] = {
+> > -       { .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
+> >         { .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+> >         { .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+> >         { .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+> > @@ -803,6 +802,10 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+> >         { .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
+> >         { .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+> >         { .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
+> > +       { .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },    // Deprecated
+> > +       { .compatible = "renesas,rcar-gen1-i2c", .data = (void *)I2C_RCAR_GEN1 },
+> > +       { .compatible = "renesas,rcar-gen2-i2c", .data = (void *)I2C_RCAR_GEN2 },
+> > +       { .compatible = "renesas,rcar-gen3-i2c", .data = (void *)I2C_RCAR_GEN3 },
+> 
+> The driver does it right ;-)
 
-Indeed. OTOH if you remove all kernel code that is there solely due to
-BIOS bugs, then you can rename Secure Boot to No Boot. Well that's
-certainly one way to be secure ;-)
-
--- 
-Jean Delvare
-SUSE L3 Support
-
+Sorry, I switched things around at some point but it looks
+like I only did half the job.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
