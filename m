@@ -1,109 +1,117 @@
-From: Gao Pan <pandy.gao@nxp.com>
-Subject: [Patch V1] i2c: fsl-lpi2c: read lpi2c fifo size in probe()
-Date: Fri, 2 Dec 2016 11:38:16 +0800
-Message-ID: <1480649896-5222-1-git-send-email-pandy.gao@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0046.outbound.protection.outlook.com ([104.47.2.46]:45136
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752102AbcLBDjr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Dec 2016 22:39:47 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH v3 i2c/for-next] i2c: rcar: Add per-Generation fallback bindings
+Date: Fri,  2 Dec 2016 09:10:27 +0100
+Message-ID: <1480666227-7622-1-git-send-email-horms+renesas@verge.net.au>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, wsa-dev@sang-engineering.com, cmo@melexis.com, robh@kernel.org, vz@mleia.com
-Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com, fugang.duan@nxp.com
 
-The lpi2c fifo size is a read only parameter resides Parameter
-Register. It's better to read lpi2c tx/rx fifo size in probe()
-other than just define a macro for it.
+In the case of Renesas R-Car hardware we know that there are generations of
+SoCs, e.g. Gen 2 and Gen 3. But beyond that its not clear what the
+relationship between IP blocks might be. For example, I believe that
+r8a7790 is older than r8a7791 but that doesn't imply that the latter is a
+descendant of the former or vice versa.
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+We can, however, by examining the documentation and behaviour of the
+hardware at run-time observe that the current driver implementation appears
+to be compatible with the IP blocks on SoCs within a given generation.
+
+For the above reasons and convenience when enabling new SoCs a
+per-generation fallback compatibility string scheme being adopted for
+drivers for Renesas SoCs.
+
+Also:
+* Deprecate renesas,i2c-rcar. It seems poorly named as it is only
+  compatible with R-Car Gen 1. It also appears unused in mainline.
+* Add some text to describe per-SoC bindings
+
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 ---
- drivers/i2c/busses/i2c-imx-lpi2c.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+v3
+* Consistently use renesas,<family>-<module> for new compat strings
+* Drop RFC designation
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 9794ff6..c62b7cd 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -83,9 +83,6 @@
- #define I2C_CLK_RATIO	2
- #define CHUNK_DATA	256
+v2
+* Include accidently omitted i2c-rcar.c portion of patch
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 32 ++++++++++++++--------
+ drivers/i2c/busses/i2c-rcar.c                      |  5 +++-
+ 2 files changed, 24 insertions(+), 13 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 239632a0d709..50c378ccb8e7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -1,17 +1,25 @@
+ I2C for R-Car platforms
  
--#define LPI2C_RX_FIFOSIZE	4
--#define LPI2C_TX_FIFOSIZE	4
--
- #define LPI2C_DEFAULT_RATE	100000
- #define STARDARD_MAX_BITRATE	400000
- #define FAST_MAX_BITRATE	1000000
-@@ -118,6 +115,8 @@ struct lpi2c_imx_struct {
- 	unsigned int		delivered;
- 	unsigned int		block_data;
- 	unsigned int		bitrate;
-+	unsigned int		txfifosize;
-+	unsigned int		rxfifosize;
- 	enum lpi2c_imx_mode	mode;
+ Required properties:
+-- compatible: Must be one of
+-	"renesas,i2c-rcar"
+-	"renesas,i2c-r8a7778"
+-	"renesas,i2c-r8a7779"
+-	"renesas,i2c-r8a7790"
+-	"renesas,i2c-r8a7791"
+-	"renesas,i2c-r8a7792"
+-	"renesas,i2c-r8a7793"
+-	"renesas,i2c-r8a7794"
+-	"renesas,i2c-r8a7795"
+-	"renesas,i2c-r8a7796"
++- compatible:
++	"renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
++	"renesas,i2c-r8a7779" if the device is a part of a R8A7797 SoC.
++	"renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
++	"renesas,i2c-r8a7791" if the device is a part of a R8A7791 SoC.
++	"renesas,i2c-r8a7792" if the device is a part of a R8A7792 SoC.
++	"renesas,i2c-r8a7793" if the device is a part of a R8A7793 SoC.
++	"renesas,i2c-r8a7794" if the device is a part of a R8A7794 SoC.
++	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
++	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
++	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
++	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 compatible device.
++	"renesas,rcar-gen3-i2c" for a generic R-Car Gen3 compatible device.
++	"renesas,i2c-rcar" (deprecated)
++
++	When compatible with the generic version, nodes must list the
++	SoC-specific version corresponding to the platform first followed
++	by the generic version.
++
+ - reg: physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: interrupt specifier.
+@@ -33,7 +41,7 @@ Examples :
+ i2c0: i2c@e6508000 {
+ 	#address-cells = <1>;
+ 	#size-cells = <0>;
+-	compatible = "renesas,i2c-r8a7791";
++	compatible = "renesas,i2c-r8a7791", "renesas,rcar-gen2-i2c";
+ 	reg = <0 0xe6508000 0 0x40>;
+ 	interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
+ 	clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 726615e54f2a..622def6b43e2 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -793,7 +793,6 @@ static const struct i2c_algorithm rcar_i2c_algo = {
  };
  
-@@ -346,7 +345,7 @@ static int lpi2c_imx_txfifo_empty(struct lpi2c_imx_struct *lpi2c_imx)
- 
- static void lpi2c_imx_set_tx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
- {
--	writel(LPI2C_TX_FIFOSIZE >> 1, lpi2c_imx->base + LPI2C_MFCR);
-+	writel(lpi2c_imx->txfifosize >> 1, lpi2c_imx->base + LPI2C_MFCR);
- }
- 
- static void lpi2c_imx_set_rx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
-@@ -355,8 +354,8 @@ static void lpi2c_imx_set_rx_watermark(struct lpi2c_imx_struct *lpi2c_imx)
- 
- 	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
- 
--	if (remaining > (LPI2C_RX_FIFOSIZE >> 1))
--		temp = LPI2C_RX_FIFOSIZE >> 1;
-+	if (remaining > (lpi2c_imx->rxfifosize >> 1))
-+		temp = lpi2c_imx->rxfifosize >> 1;
- 	else
- 		temp = 0;
- 
-@@ -369,7 +368,7 @@ static void lpi2c_imx_write_txfifo(struct lpi2c_imx_struct *lpi2c_imx)
- 
- 	txcnt = readl(lpi2c_imx->base + LPI2C_MFSR) & 0xff;
- 
--	while (txcnt < LPI2C_TX_FIFOSIZE) {
-+	while (txcnt < lpi2c_imx->txfifosize) {
- 		if (lpi2c_imx->delivered == lpi2c_imx->msglen)
- 			break;
- 
-@@ -554,6 +553,7 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- {
- 	struct lpi2c_imx_struct *lpi2c_imx;
- 	struct resource *res;
-+	unsigned int temp;
- 	int irq, ret;
- 
- 	lpi2c_imx = devm_kzalloc(&pdev->dev, sizeof(*lpi2c_imx), GFP_KERNEL);
-@@ -599,12 +599,18 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&lpi2c_imx->adapter, lpi2c_imx);
- 	platform_set_drvdata(pdev, lpi2c_imx);
- 
--	ret = clk_prepare(lpi2c_imx->clk);
-+	ret = clk_prepare_enable(lpi2c_imx->clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "clk prepare failed %d\n", ret);
-+		dev_err(&pdev->dev, "clk enable failed %d\n", ret);
- 		return ret;
- 	}
- 
-+	temp = readl(lpi2c_imx->base + LPI2C_PARAM);
-+	lpi2c_imx->txfifosize = 1 << (temp & 0x0f);
-+	lpi2c_imx->rxfifosize = 1 << ((temp >> 8) & 0x0f);
-+
-+	clk_disable(lpi2c_imx->clk);
-+
- 	ret = i2c_add_adapter(&lpi2c_imx->adapter);
- 	if (ret)
- 		goto clk_unprepare;
+ static const struct of_device_id rcar_i2c_dt_ids[] = {
+-	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+@@ -803,6 +802,10 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+ 	{ .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
++	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },	// Deprecated
++	{ .compatible = "renesas,rcar-gen1-i2c", .data = (void *)I2C_RCAR_GEN1 },
++	{ .compatible = "renesas,rcar-gen2-i2c", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,rcar-gen3-i2c", .data = (void *)I2C_RCAR_GEN3 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
 -- 
-1.9.1
+2.7.0.rc3.207.g0ac5344
