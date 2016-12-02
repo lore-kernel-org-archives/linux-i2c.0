@@ -1,76 +1,120 @@
-From: Wolfram Sang <wsa-dev@sang-engineering.com>
-Subject: [PULL REQUEST] i2c for 4.9
-Date: Fri, 2 Dec 2016 14:21:49 +0100
-Message-ID: <20161202132144.GA6009@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:54946 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752273AbcLBNVx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 2 Dec 2016 08:21:53 -0500
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+From: Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH v4 i2c/for-next] i2c: rcar: Add per-Generation fallback bindings
+Date: Fri,  2 Dec 2016 15:25:36 +0100
+Message-ID: <1480688736-7175-1-git-send-email-horms+renesas@verge.net.au>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jan Glauber <jan.glauber@caviumnetworks.com>
 
+In the case of Renesas R-Car hardware we know that there are generations of
+SoCs, e.g. Gen 2 and Gen 3. But beyond that it's not clear what the
+relationship between IP blocks might be. For example, I believe that
+r8a7790 is older than r8a7791 but that doesn't imply that the latter is a
+descendant of the former or vice versa.
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We can, however, by examining the documentation and behaviour of the
+hardware at run-time observe that the current driver implementation appears
+to be compatible with the IP blocks on SoCs within a given generation.
 
-Linus,
+For the above reasons and convenience when enabling new SoCs a
+per-generation fallback compatibility string scheme is being adopted for
+drivers for Renesas SoCs.
 
-here is the revert for the regression of the i2c-octeon driver I
-mentioned last time. I wished for a bit more feedback, but all people
-working actively on it are in need of this patch, so here it goes.
+Also:
+* Deprecate renesas,i2c-rcar. It seems poorly named as it is only
+  compatible with R-Car Gen 1. It also appears unused in mainline.
+* Add some text to describe per-SoC bindings
 
-Please pull,
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+---
+v4
+* Correct grammar in changelog
 
-   Wolfram
+v3
+* Consistently use renesas,<family>-<module> for new compat strings
+* Drop RFC designation
 
+v2
+* Include accidently omitted i2c-rcar.c portion of patch
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 32 ++++++++++++++--------
+ drivers/i2c/busses/i2c-rcar.c                      |  5 +++-
+ 2 files changed, 24 insertions(+), 13 deletions(-)
 
-The following changes since commit e5517c2a5a49ed5e99047008629f1cd60246ea0e:
-
-  Linux 4.9-rc7 (2016-11-27 13:08:04 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to dfa2ccc30e6556bd526f54f0e16fc9e5af4293cb:
-
-  Revert "i2c: octeon: thunderx: Limit register access retries" (2016-11-29 20:04:21 +0100)
-
-----------------------------------------------------------------
-Jan Glauber (1):
-      Revert "i2c: octeon: thunderx: Limit register access retries"
-
- drivers/i2c/busses/i2c-octeon-core.c |  4 +---
- drivers/i2c/busses/i2c-octeon-core.h | 27 +++++++++++----------------
- 2 files changed, 12 insertions(+), 19 deletions(-)
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYQXVnAAoJEBQN5MwUoCm2OqgP/1nXs50VFHQe2yCh6lHCkBd7
-ThUpXA4pAVPMbz7DmqXb4bC4nyVfYIrSlGO7BJUWlfpji7ZcSj59hwHzEXOCSNdy
-5r4r2Y2mDR0acnVuk4l+0Ks5TEPdEZ0AvAfiUWMHl1qY24H7x+rDIEclbNFvmMhd
-Meom5BAzF9l7jBolz48OPYR5JGY3xxyMycxe8aR5UglrSRdAlcHz2l+ae9Svl1Xy
-hgAUcnL0xvln7a7dZDVPLKDADX1wU2xwWMMsmX5JqV9jy2//sNGYgUqv6L/e0KKv
-tWZn8d61b8u+cdnnbASNOkshqsKL7nSv8yOeoUasy62ARwsbJbHgXbqn8DXZfL2e
-/5Jdh6v4WUuakPYlMJU1CJRqFD9JEYSkmQgcWGi1696CTB8sXFpeZ5Q+exy4uzDJ
-Bin5hhSptW+ys7Klp7cFHU0TpbDBhHH3DGwKA4OJSCNlqoaCEnqIHQSpEbxaCqSd
-2wqY5BVoqpJulVt9plI4i0YET97MlW5JkUZEZPpA4owNab8q+oiFxAXx0xwxUktv
-QRnyYwtVUOMf2Y8ma/Q/emcdm0lXjfak3rln8etWG9tFn6UFnGDDYFM657A70Tpc
-t/W+rt/3jZJ23yyeK0NgmvSiRsDj9Jl8OfnyakyUCmmz6T90LJdlU0AbanDCGOEi
-Yv0KzuAx4fqKVVTXCvQf
-=l8HO
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 239632a0d709..50c378ccb8e7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -1,17 +1,25 @@
+ I2C for R-Car platforms
+ 
+ Required properties:
+-- compatible: Must be one of
+-	"renesas,i2c-rcar"
+-	"renesas,i2c-r8a7778"
+-	"renesas,i2c-r8a7779"
+-	"renesas,i2c-r8a7790"
+-	"renesas,i2c-r8a7791"
+-	"renesas,i2c-r8a7792"
+-	"renesas,i2c-r8a7793"
+-	"renesas,i2c-r8a7794"
+-	"renesas,i2c-r8a7795"
+-	"renesas,i2c-r8a7796"
++- compatible:
++	"renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
++	"renesas,i2c-r8a7779" if the device is a part of a R8A7797 SoC.
++	"renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
++	"renesas,i2c-r8a7791" if the device is a part of a R8A7791 SoC.
++	"renesas,i2c-r8a7792" if the device is a part of a R8A7792 SoC.
++	"renesas,i2c-r8a7793" if the device is a part of a R8A7793 SoC.
++	"renesas,i2c-r8a7794" if the device is a part of a R8A7794 SoC.
++	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
++	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
++	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
++	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 compatible device.
++	"renesas,rcar-gen3-i2c" for a generic R-Car Gen3 compatible device.
++	"renesas,i2c-rcar" (deprecated)
++
++	When compatible with the generic version, nodes must list the
++	SoC-specific version corresponding to the platform first followed
++	by the generic version.
++
+ - reg: physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: interrupt specifier.
+@@ -33,7 +41,7 @@ Examples :
+ i2c0: i2c@e6508000 {
+ 	#address-cells = <1>;
+ 	#size-cells = <0>;
+-	compatible = "renesas,i2c-r8a7791";
++	compatible = "renesas,i2c-r8a7791", "renesas,rcar-gen2-i2c";
+ 	reg = <0 0xe6508000 0 0x40>;
+ 	interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
+ 	clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 726615e54f2a..622def6b43e2 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -793,7 +793,6 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+ };
+ 
+ static const struct of_device_id rcar_i2c_dt_ids[] = {
+-	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+@@ -803,6 +802,10 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,i2c-r8a7795", .data = (void *)I2C_RCAR_GEN3 },
+ 	{ .compatible = "renesas,i2c-r8a7796", .data = (void *)I2C_RCAR_GEN3 },
++	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },	// Deprecated
++	{ .compatible = "renesas,rcar-gen1-i2c", .data = (void *)I2C_RCAR_GEN1 },
++	{ .compatible = "renesas,rcar-gen2-i2c", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,rcar-gen3-i2c", .data = (void *)I2C_RCAR_GEN3 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+-- 
+2.7.0.rc3.207.g0ac5344
