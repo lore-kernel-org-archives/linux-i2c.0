@@ -1,69 +1,48 @@
-From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
-Date: Mon, 05 Dec 2016 11:54:00 +0100
-Message-ID: <1737869.ycGphUXI8X@phil>
-References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
+From: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 09/39] Annotate hardware config module parameters in
+ drivers/i2c/
+Date: Mon, 5 Dec 2016 21:09:51 +0000
+Message-ID: <20161205210951.79e54ba5@lxorguk.ukuu.org.uk>
+References: <1480600052.21573.60.camel@chaos.suse>
+        <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
+        <148059544784.31612.17605303556663485588.stgit@warthog.procyon.org.uk>
+        <23573.1480601572@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480924979-13450-1-git-send-email-david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lxorguk.ukuu.org.uk ([81.2.110.251]:39174 "EHLO
+        lxorguk.ukuu.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751328AbcLEVKX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Dec 2016 16:10:23 -0500
+In-Reply-To: <23573.1480601572@warthog.procyon.org.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: David Howells <dhowells@redhat.com>
+Cc: Jean Delvare <jdelvare@suse.de>, minyard@acm.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hi David,
-
-Am Montag, 5. Dezember 2016, 16:02:59 CET schrieb David Wu:
-> During suspend there may still be some i2c access happening.
-> And if we don't keep i2c irq ON, there may be i2c access timeout if
-> i2c is in irq mode of operation.
-
-can you describe the issue you're trying to fix a bit more please?
-
-I.e. I'd think the i2c-core does suspend i2c-client devices first, so that
-these should be able to finish up their ongoing transfers and not start any
-new ones instead?
-
-Your irq can still happen slightly after the system started going to actually
-sleep, so to me it looks like you just widened the window where irqs can be
-handled. Especially as your irq could also just simply stem from the start
-state, so you cannot even be sure if your transaction actually is finished.
-
-So to me it looks like the i2c-connected device driver should be fixed instead?
-
-In the past I solved this for example in the zforce_ts driver [0] to
-prevent i2c transfers from happening during suspend.
-
-
-Heiko
-
-[0] https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/input/touchscreen/zforce_ts.c
-
-
+O> > > Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>  
+> > 
+> > I know this is only a Suggested-by and not a Signed-off-by, but still I
+> > believe the Developer's Certificate of Origin applies, and it says:
+> > "using your real name (sorry, no pseudonyms or anonymous
+> > contributions.)"  
 > 
-> Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-rk3x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index df22066..67af32a 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -1261,7 +1261,7 @@ static int rk3x_i2c_probe(struct platform_device
-> *pdev) }
-> 
->  	ret = devm_request_irq(&pdev->dev, irq, rk3x_i2c_irq,
-> -			       0, dev_name(&pdev->dev), i2c);
-> +			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "cannot request IRQ\n");
->  		return ret;
+> I asked him what he prefers - but no response.
 
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I didn't see that question but "Alan Cox" is probably saner - the
+thousand gnomes is an old Linus joke 8)
+ 
+> > i2c-piix4.c:module_param (force, int, 0);
+> > i2c-sis630.c:module_param(force, bool, 0);
+> > i2c-viapro.c:module_param(force, bool, 0);  
+> 
+> I don't know either.  One could argue it *should* be locked down because its
+> need appears to reflect a BIOS bug.
+
+And none of those should show up in that usage form on a box new enough
+to have EFI secure boot. Those that do have i2c busses will report them
+via ACPI by that period.
+
+Alan
