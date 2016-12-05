@@ -1,153 +1,45 @@
-From: "'Tin Huynh' via rtc-linux" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Subject: Re: [PATCH V1] rtc: ds1307: Add ACPI support
-Date: Mon, 5 Dec 2016 14:48:56 +0700
-Message-ID: <CANQ9TuAsLAJQxiW4cHkAJod3LaDsDsFB22Pk1+oQYDRSGooYWw@mail.gmail.com>
-References: <1480474651-13984-1-git-send-email-tnhuynh@apm.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
+Date: Mon,  5 Dec 2016 16:02:59 +0800
+Message-ID: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBCKZ7AUOVICRB2NXSTBAKGQEEYVZG5Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1480474651-13984-1-git-send-email-tnhuynh-qTEPVZfXA3Y@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Loc Ho <lho-qTEPVZfXA3Y@public.gmane.org>, Thang Nguyen <tqnguyen-qTEPVZfXA3Y@public.gmane.org>, Phong Vo <pvo-qTEPVZfXA3Y@public.gmane.org>, patches <patches-qTEPVZfXA3Y@public.gmane.org>, Tin Huynh <tnhuynh-qTEPVZfXA3Y@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 30, 2016 at 9:57 AM, Tin Huynh <tnhuynh-qTEPVZfXA3Y@public.gmane.org> wrote:
->
-> This patch enables ACPI support for rtc-ds1307 driver.
->
-> Signed-off-by: Tin Huynh <tnhuynh-qTEPVZfXA3Y@public.gmane.org>
-> ---
->  drivers/rtc/rtc-ds1307.c |   51 ++++++++++++++++++++++++++++++++++++++-------
->  1 files changed, 43 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-> index 4e31036..2a1a4d3 100644
-> --- a/drivers/rtc/rtc-ds1307.c
-> +++ b/drivers/rtc/rtc-ds1307.c
-> @@ -11,6 +11,7 @@
->   * published by the Free Software Foundation.
->   */
->
-> +#include <linux/acpi.h>
->  #include <linux/bcd.h>
->  #include <linux/i2c.h>
->  #include <linux/init.h>
-> @@ -191,6 +192,26 @@ static u8 do_trickle_setup_ds1339(struct i2c_client *,
->  };
->  MODULE_DEVICE_TABLE(i2c, ds1307_id);
->
-> +#ifdef CONFIG_ACPI
-> +static const struct acpi_device_id ds1307_acpi_ids[] = {
-> +       { .id = "DS1307", .driver_data = ds_1307 },
-> +       { .id = "DS1337", .driver_data = ds_1337 },
-> +       { .id = "DS1338", .driver_data = ds_1338 },
-> +       { .id = "DS1339", .driver_data = ds_1339 },
-> +       { .id = "DS1388", .driver_data = ds_1388 },
-> +       { .id = "DS1340", .driver_data = ds_1340 },
-> +       { .id = "DS3231", .driver_data = ds_3231 },
-> +       { .id = "M41T00", .driver_data = m41t00 },
-> +       { .id = "MCP7940X", .driver_data = mcp794xx },
-> +       { .id = "MCP7941X", .driver_data = mcp794xx },
-> +       { .id = "PT7C4338", .driver_data = ds_1307 },
-> +       { .id = "RX8025", .driver_data = rx_8025 },
-> +       { .id = "ISL12057", .driver_data = ds_1337 },
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(acpi, ds1307_acpi_ids);
-> +#endif
-> +
->  /*----------------------------------------------------------------------*/
->
->  #define BLOCK_DATA_MAX_TRIES 10
-> @@ -874,7 +895,7 @@ static u8 do_trickle_setup_ds1339(struct i2c_client *client,
->         return setup;
->  }
->
-> -static void ds1307_trickle_of_init(struct i2c_client *client,
-> +static void ds1307_trickle_init(struct i2c_client *client,
->                                    struct chip_desc *chip)
->  {
->         uint32_t ohms = 0;
-> @@ -882,9 +903,10 @@ static void ds1307_trickle_of_init(struct i2c_client *client,
->
->         if (!chip->do_trickle_setup)
->                 goto out;
-> -       if (of_property_read_u32(client->dev.of_node, "trickle-resistor-ohms" , &ohms))
-> +       if (device_property_read_u32(&client->dev, "trickle-resistor-ohms",
-> +                                       &ohms))
->                 goto out;
-> -       if (of_property_read_bool(client->dev.of_node, "trickle-diode-disable"))
-> +       if (device_property_read_bool(&client->dev, "trickle-diode-disable"))
->                 diode = false;
->         chip->trickle_charger_setup = chip->do_trickle_setup(client,
->                                                              ohms, diode);
-> @@ -1268,7 +1290,7 @@ static int ds1307_probe(struct i2c_client *client,
->         struct ds1307           *ds1307;
->         int                     err = -ENODEV;
->         int                     tmp, wday;
-> -       struct chip_desc        *chip = &chips[id->driver_data];
-> +       struct chip_desc        *chip;
->         struct i2c_adapter      *adapter = to_i2c_adapter(client->dev.parent);
->         bool                    want_irq = false;
->         bool                    ds1307_can_wakeup_device = false;
-> @@ -1297,11 +1319,23 @@ static int ds1307_probe(struct i2c_client *client,
->         i2c_set_clientdata(client, ds1307);
->
->         ds1307->client  = client;
-> -       ds1307->type    = id->driver_data;
-> +       if (id) {
-> +               chip = &chips[id->driver_data];
-> +               ds1307->type = id->driver_data;
-> +       } else {
-> +               const struct acpi_device_id *acpi_id;
-> +
-> +               acpi_id = acpi_match_device(ACPI_PTR(ds1307_acpi_ids),
-> +                                               &client->dev);
-> +               if (!acpi_id)
-> +                       return -ENODEV;
-> +               chip = &chips[acpi_id->driver_data];
-> +               ds1307->type = acpi_id->driver_data;
-> +       }
->
-> -       if (!pdata && client->dev.of_node)
-> -               ds1307_trickle_of_init(client, chip);
-> -       else if (pdata && pdata->trickle_charger_setup)
-> +       if (!pdata)
-> +               ds1307_trickle_init(client, chip);
-> +       else if (pdata->trickle_charger_setup)
->                 chip->trickle_charger_setup = pdata->trickle_charger_setup;
->
->         if (chip->trickle_charger_setup && chip->trickle_charger_reg) {
-> @@ -1678,6 +1712,7 @@ static int ds1307_remove(struct i2c_client *client)
->  static struct i2c_driver ds1307_driver = {
->         .driver = {
->                 .name   = "rtc-ds1307",
-> +               .acpi_match_table = ACPI_PTR(ds1307_acpi_ids),
->         },
->         .probe          = ds1307_probe,
->         .remove         = ds1307_remove,
-> --
-> 1.7.1
->
+During suspend there may still be some i2c access happening.
+And if we don't keep i2c irq ON, there may be i2c access timeout if
+i2c is in irq mode of operation.
 
-Hi ,
-Any update for this patch ?
-Thank you ,
-Tin
+Signed-off-by: David Wu <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-rk3x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index df22066..67af32a 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -1261,7 +1261,7 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, irq, rk3x_i2c_irq,
+-			       0, dev_name(&pdev->dev), i2c);
++			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "cannot request IRQ\n");
+ 		return ret;
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+1.9.1
