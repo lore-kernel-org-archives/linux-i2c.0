@@ -1,41 +1,78 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 2/2] i2c: aspeed: added documentation for Aspeed I2C
- driver
-Date: Mon, 5 Dec 2016 16:28:26 -0600
-Message-ID: <20161205222826.brehi3nbcg3exwum@rob-hp-laptop>
-References: <1480467618-7497-1-git-send-email-brendanhiggins@google.com>
- <1480467618-7497-3-git-send-email-brendanhiggins@google.com>
+Subject: Re: [PATCH v6 4/9] dt-bindings: iio: iio-mux: document iio-mux
+ bindings
+Date: Mon, 5 Dec 2016 17:26:24 -0600
+Message-ID: <20161205232624.5wjvmchd6jxd24ir@rob-hp-laptop>
+References: <1480493823-21462-1-git-send-email-peda@axentia.se>
+ <1480493823-21462-5-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:34004 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751563AbcLEW2a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Dec 2016 17:28:30 -0500
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1480467618-7497-3-git-send-email-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1480493823-21462-5-git-send-email-peda@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: wsa@the-dreams.de, vz@mleia.com, clg@kaod.org, mouse@mayc.ru, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, joel@jms.id.au, openbmc@lists.ozlabs.org
 
-On Tue, Nov 29, 2016 at 05:00:18PM -0800, Brendan Higgins wrote:
-> Added device tree binding documentation for Aspeed I2C controller and
-> busses.
-> 
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+On Wed, Nov 30, 2016 at 09:16:58AM +0100, Peter Rosin wrote:
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 > ---
-> Changes for v2:
->   - None
-> Changes for v3:
->   - Removed reference to "bus" device tree param
-> Changes for v4:
->   - None
-> Changes for v5:
->   - None
-> ---
->  .../devicetree/bindings/i2c/i2c-aspeed.txt         | 61 ++++++++++++++++++++++
->  1 file changed, 61 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>  .../bindings/iio/multiplexer/iio-mux.txt           | 40 ++++++++++++++++++++++
+>  MAINTAINERS                                        |  6 ++++
+>  2 files changed, 46 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
 
-Acked-by: Rob Herring <robh@kernel.org>
+I'm still not convinced about this binding, but don't really have more 
+comments ATM. Sending 6 versions in 2 weeks or so doesn't really help 
+either.
+
+> diff --git a/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+> new file mode 100644
+> index 000000000000..8080cf790d82
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+> @@ -0,0 +1,40 @@
+> +IIO multiplexer bindings
+> +
+> +If a multiplexer is used to select which hardware signal is fed to
+> +e.g. an ADC channel, these bindings describe that situation.
+> +
+> +Required properties:
+> +- compatible : "iio-mux"
+
+This is a Linuxism. perhaps "adc-mux".
+
+> +- io-channels : Channel node of the parent channel that has multiplexed
+> +		input.
+> +- io-channel-names : Should be "parent".
+> +- #address-cells = <1>;
+> +- #size-cells = <0>;
+> +- mux-controls : Mux controller node to use for operating the mux
+> +- channels : List of strings, labeling the mux controller states.
+> +
+> +The multiplexer state as described in ../misc/mux-controller.txt
+> +
+> +For each non-empty string in the channels property, an iio channel will
+> +be created. The number of this iio channel is the same as the index into
+> +the list of strings in the channels property, and also matches the mux
+> +controller state.
+> +
+> +Example:
+> +	mux: mux-controller {
+> +		compatible = "mux-gpio";
+> +		#mux-control-cells = <0>;
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "iio-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		mux-controls = <&mux>;
+> +
+> +		channels = "sync", "in", system-regulator";
+> +	};
