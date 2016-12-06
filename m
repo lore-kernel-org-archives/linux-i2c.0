@@ -1,85 +1,123 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
-Date: Tue, 6 Dec 2016 08:31:41 -0800
-Message-ID: <CAD=FV=VgGy5hA4+7nvLs4NPNRuopak+bTW34S6X6S_vWgtnkjg@mail.gmail.com>
-References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
- <1737869.ycGphUXI8X@phil> <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC v2 2/2] i2c: Pass i2c_device_id to probe func when using DT
+ ids through ACPI
+Date: Tue, 6 Dec 2016 09:00:36 -0800
+Message-ID: <20161206170036.GA12356@dtor-ws>
+References: <8a69cdff155793e8e687d527d9ace97f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "David.Wu" <david.wu@rock-chips.com>
-Cc: Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <8a69cdff155793e8e687d527d9ace97f@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Phong Vo <pvo@apm.com>
+Cc: mika.westerberg@linux.intel.com, leonard.crestez@intel.com, wsa+renesas@sang-engineering.com, rafael.j.wysocki@intel.com, len.brown@intel.com, irina.tirdea@intel.com, octavian.purdila@intel.com, daniel.baluta@intel.com, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Tin Huynh <tnhuynh@apm.com>, Loc Ho <lho@apm.com>, patches@apm.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Tue, Nov 01, 2016 at 01:14:16PM +0700, Phong Vo wrote:
+> >From: Mika Westerberg <mika.westerberg@linux.intel.com>
+> >Subject: Re: [RFC v2 2/2] i2c: Pass i2c_device_id to probe func when
+> using DT ids through ACPI
+> >Date: Monday 13th June 2016 09:26:55 UTC (5 months ago)
+> >
+> >On Fri, Jun 10, 2016 at 06:57:36PM +0300, Crestez Dan Leonard wrote:
+> >> On 06/10/2016 09:32 AM, Mika Westerberg wrote:
+> >> > On Thu, Jun 09, 2016 at 04:06:03PM +0300, Crestez Dan Leonard wrote:
+> >> >> When devices are instatiated through devicetree the i2c_client->name
+> is
+> >> >> set to the compatible string with company name stripped out. This is
+> >> >> then matched to the i2c_device_id table to pass the device_id to the
+> >> >> probe function. This id parameter is used by some device drivers to
+> >> >> differentiate between model numbers.
+> >> >>
+> >> >> When using ACPI this id parameter is NULL and the driver usually
+> needs
+> >> >> to do ACPI-specific differentiation.
+> >> >>
+> >> >> This patch attempts to find a valid i2c_device_id when using ACPI
+> with
+> >> >> DT-like compatible strings.
+> >> >
+> >> > So I don't really understand why it would be good idea to pass
+> >> > i2c_device_id for devices which are matched against their ACPI/DT
+> >> > tables. Apparently DT is already doing that so maybe there is some
+> >> > reason.
+> >> >
+> >> > Anyway, why not fill in the device name when it is first enumerated
+> >> > if it uses DT compatible property? Just like DT does.
+> >> >
+> >> This automatic matching of i2c_device_id works for devicetree because
+> >> of_i2c_register_device sets i2c_board_info.type to the compatible
+> string
+> >> with the vendor prefix removed. For I2C devices described via ACPI the
+> >> i2c_board_info.type string is set to the ACPI device name. This ends up
+> >> something like "PRP0001:00".
+> >>
+> >> This could be changed in acpi_i2c_get_info to use the of_compatible
+> >> string from DSD if present. Is that what you mean? That would work and
+> >> it would be cleaner than my patch. Something like this:
+> >>
+> >> diff --git drivers/i2c/i2c-core.c drivers/i2c/i2c-core.c
+> >> index 1e0ef9b..ba2fe7f 100644
+> >> --- drivers/i2c/i2c-core.c
+> >> +++ drivers/i2c/i2c-core.c
+> >> @@ -181,7 +181,24 @@ static int acpi_i2c_get_info(struct acpi_device
+> >*adev,
+> >>
+> >>         acpi_dev_free_resource_list(&resource_list);
+> >>
+> >> -       strlcpy(info->type, dev_name(&adev->dev), sizeof(info->type));
+> >> +       /*
+> >> +        * If we have a DT id set info.type to the first compatible
+> >> string with
+> >> +        * the vendor prefix stripped. This is similar to
+> >of_modalias_node
+> >> +        */
+> >> +       if (adev->data.of_compatible) {
+> >> +               const union acpi_object *obj;
+> >> +               const char *str, *chr;
+> >> +
+> >> +               obj = adev->data.of_compatible;
+> >> +               if (obj->type == ACPI_TYPE_PACKAGE)
+> >> +                       obj = obj->package.elements;
+> >> +               str = obj->string.pointer;
+> >> +               chr = strchr(str, ',');
+> >> +               if (chr)
+> >> +                       str = chr + 1;
+> >> +               strlcpy(info->type, str, sizeof(info->type));
+> >> +       } else
+> >> +               strlcpy(info->type, dev_name(&adev->dev),
+> >> sizeof(info->type));
+> >>
+> >>         return 0;
+> >>  }>
+> >
+> >Yes, that's what I mean.
+> >
+> >> The biggest concern is that this would change the i2c device name
+> >> between kernel versions. Is that acceptable?
+> >
+> >I don't think that is a problem since I still have not seen a single
+> >system using ACPI _DSD so I would not expect anything to break.
+> >
+> >However, I'm still not convinced it is good idea to return i2c_device_id
+> >from a completely different table if we match using ACPI/DT table.
+> 
+> All,
+> 
+> Is there a conclusion on this? We have been tackling the same issue and
+> incidentally arrived at a
+> similar solution as like Lenard proposed  in the patch above.
 
-On Tue, Dec 6, 2016 at 12:12 AM, David.Wu <david.wu@rock-chips.com> wrote:
-> Hi Heiko,
->
-> =E5=9C=A8 2016/12/5 18:54, Heiko Stuebner =E5=86=99=E9=81=93:
->>
->> Hi David,
->>
->> Am Montag, 5. Dezember 2016, 16:02:59 CET schrieb David Wu:
->>>
->>> During suspend there may still be some i2c access happening.
->>> And if we don't keep i2c irq ON, there may be i2c access timeout if
->>> i2c is in irq mode of operation.
->>
->>
->> can you describe the issue you're trying to fix a bit more please?
->
->
-> Sometimes we could see the i2c timeout errors during suspend/resume, whic=
-h
-> makes the duration of suspend/resume too longer.
->
-> [  484.171541] CPU4: Booted secondary processor [410fd082]
-> [  485.172777] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
-> [  486.172760] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
-> [  487.172759] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
-> [  487.172840] cpu cpu4: _set_opp_voltage: failed to set voltage (800000
-> 800000 800000 mV): -110
-> [  487.172874] cpu cpu4: failed to set volt 800000
->
->>
->> I.e. I'd think the i2c-core does suspend i2c-client devices first, so th=
-at
->> these should be able to finish up their ongoing transfers and not start
->> any
->> new ones instead?
->>
->> Your irq can still happen slightly after the system started going to
->> actually
->> sleep, so to me it looks like you just widened the window where irqs can
->> be
->> handled. Especially as your irq could also just simply stem from the sta=
-rt
->> state, so you cannot even be sure if your transaction actually is
->> finished.
->
->
-> Okay, you are right. I want to give it a double insurance at first, but i=
-t
-> may hide the unhappend issue.
->
->>
->> So to me it looks like the i2c-connected device driver should be fixed
->> instead?
->
->
-> I tell them to fix it in rk808 driver.
+FWIW I agree with Mika (I think?) and I do not like that we mangle OF
+data. This causes issues with module loading (where every OF ID has to
+be stripped and added to the legacy table), and so forth. Drivers can
+either use of_device_get_match_data() to get "real" OF id, or maybe we
+could temporarily transform of_device_id into i2c_device_id in i2c bus
+code and pass it to probe(), and do the same with ACPI match data.
 
-To me it seems like perhaps cpufreq should not be changing frequencies
-until it is resumed properly.  Presumably if all the ordering is done
-right then cpufreq should be resumed _after_ the i2c regulator so you
-should be OK.  ...or am I somehow confused about that?
+Thanks.
 
-Also note that previous i2c busses I worked with simply returned -EIO
-in the case where they were called when suspended.  See
-"i2c-exynos5.c" and "i2c-s3c2410.c".
-
--Doug
+-- 
+Dmitry
