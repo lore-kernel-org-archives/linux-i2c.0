@@ -1,73 +1,143 @@
-From: "David.Wu" <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
-Date: Tue, 6 Dec 2016 16:12:02 +0800
-Message-ID: <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
-References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
- <1737869.ycGphUXI8X@phil>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v6 4/9] dt-bindings: iio: iio-mux: document iio-mux
+ bindings
+Date: Tue, 6 Dec 2016 10:18:53 +0100
+Message-ID: <ea58cfe1-88ed-f215-59df-e9ffba485eaa@axentia.se>
+References: <1480493823-21462-1-git-send-email-peda@axentia.se>
+ <1480493823-21462-5-git-send-email-peda@axentia.se>
+ <20161205232624.5wjvmchd6jxd24ir@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1737869.ycGphUXI8X@phil>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161205232624.5wjvmchd6jxd24ir@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgSGVpa28sCgrlnKggMjAxNi8xMi81IDE4OjU0LCBIZWlrbyBTdHVlYm5lciDlhpnpgZM6Cj4g
-SGkgRGF2aWQsCj4KPiBBbSBNb250YWcsIDUuIERlemVtYmVyIDIwMTYsIDE2OjAyOjU5IENFVCBz
-Y2hyaWViIERhdmlkIFd1Ogo+PiBEdXJpbmcgc3VzcGVuZCB0aGVyZSBtYXkgc3RpbGwgYmUgc29t
-ZSBpMmMgYWNjZXNzIGhhcHBlbmluZy4KPj4gQW5kIGlmIHdlIGRvbid0IGtlZXAgaTJjIGlycSBP
-TiwgdGhlcmUgbWF5IGJlIGkyYyBhY2Nlc3MgdGltZW91dCBpZgo+PiBpMmMgaXMgaW4gaXJxIG1v
-ZGUgb2Ygb3BlcmF0aW9uLgo+Cj4gY2FuIHlvdSBkZXNjcmliZSB0aGUgaXNzdWUgeW91J3JlIHRy
-eWluZyB0byBmaXggYSBiaXQgbW9yZSBwbGVhc2U/CgpTb21ldGltZXMgd2UgY291bGQgc2VlIHRo
-ZSBpMmMgdGltZW91dCBlcnJvcnMgZHVyaW5nIHN1c3BlbmQvcmVzdW1lLCAKd2hpY2ggbWFrZXMg
-dGhlIGR1cmF0aW9uIG9mIHN1c3BlbmQvcmVzdW1lIHRvbyBsb25nZXIuCgpbICA0ODQuMTcxNTQx
-XSBDUFU0OiBCb290ZWQgc2Vjb25kYXJ5IHByb2Nlc3NvciBbNDEwZmQwODJdClsgIDQ4NS4xNzI3
-NzddIHJrM3gtaTJjIGZmM2MwMDAwLmkyYzogdGltZW91dCwgaXBkOiAweDEwLCBzdGF0ZTogMQpb
-ICA0ODYuMTcyNzYwXSByazN4LWkyYyBmZjNjMDAwMC5pMmM6IHRpbWVvdXQsIGlwZDogMHgxMCwg
-c3RhdGU6IDEKWyAgNDg3LjE3Mjc1OV0gcmszeC1pMmMgZmYzYzAwMDAuaTJjOiB0aW1lb3V0LCBp
-cGQ6IDB4MTAsIHN0YXRlOiAxClsgIDQ4Ny4xNzI4NDBdIGNwdSBjcHU0OiBfc2V0X29wcF92b2x0
-YWdlOiBmYWlsZWQgdG8gc2V0IHZvbHRhZ2UgKDgwMDAwMCAKODAwMDAwIDgwMDAwMCBtVik6IC0x
-MTAKWyAgNDg3LjE3Mjg3NF0gY3B1IGNwdTQ6IGZhaWxlZCB0byBzZXQgdm9sdCA4MDAwMDAKCj4K
-PiBJLmUuIEknZCB0aGluayB0aGUgaTJjLWNvcmUgZG9lcyBzdXNwZW5kIGkyYy1jbGllbnQgZGV2
-aWNlcyBmaXJzdCwgc28gdGhhdAo+IHRoZXNlIHNob3VsZCBiZSBhYmxlIHRvIGZpbmlzaCB1cCB0
-aGVpciBvbmdvaW5nIHRyYW5zZmVycyBhbmQgbm90IHN0YXJ0IGFueQo+IG5ldyBvbmVzIGluc3Rl
-YWQ/Cj4KPiBZb3VyIGlycSBjYW4gc3RpbGwgaGFwcGVuIHNsaWdodGx5IGFmdGVyIHRoZSBzeXN0
-ZW0gc3RhcnRlZCBnb2luZyB0byBhY3R1YWxseQo+IHNsZWVwLCBzbyB0byBtZSBpdCBsb29rcyBs
-aWtlIHlvdSBqdXN0IHdpZGVuZWQgdGhlIHdpbmRvdyB3aGVyZSBpcnFzIGNhbiBiZQo+IGhhbmRs
-ZWQuIEVzcGVjaWFsbHkgYXMgeW91ciBpcnEgY291bGQgYWxzbyBqdXN0IHNpbXBseSBzdGVtIGZy
-b20gdGhlIHN0YXJ0Cj4gc3RhdGUsIHNvIHlvdSBjYW5ub3QgZXZlbiBiZSBzdXJlIGlmIHlvdXIg
-dHJhbnNhY3Rpb24gYWN0dWFsbHkgaXMgZmluaXNoZWQuCgpPa2F5LCB5b3UgYXJlIHJpZ2h0LiBJ
-IHdhbnQgdG8gZ2l2ZSBpdCBhIGRvdWJsZSBpbnN1cmFuY2UgYXQgZmlyc3QsIGJ1dCAKaXQgbWF5
-IGhpZGUgdGhlIHVuaGFwcGVuZCBpc3N1ZS4KCj4KPiBTbyB0byBtZSBpdCBsb29rcyBsaWtlIHRo
-ZSBpMmMtY29ubmVjdGVkIGRldmljZSBkcml2ZXIgc2hvdWxkIGJlIGZpeGVkIGluc3RlYWQ/CgpJ
-IHRlbGwgdGhlbSB0byBmaXggaXQgaW4gcms4MDggZHJpdmVyLgoKPgo+IEluIHRoZSBwYXN0IEkg
-c29sdmVkIHRoaXMgZm9yIGV4YW1wbGUgaW4gdGhlIHpmb3JjZV90cyBkcml2ZXIgWzBdIHRvCj4g
-cHJldmVudCBpMmMgdHJhbnNmZXJzIGZyb20gaGFwcGVuaW5nIGR1cmluZyBzdXNwZW5kLgo+Cj4K
-PiBIZWlrbwo+Cj4gWzBdIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvY2dpdC9saW51eC9rZXJuZWwv
-Z2l0L3RvcnZhbGRzL2xpbnV4LmdpdC90cmVlL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vemZv
-cmNlX3RzLmMKPgo+Cj4+Cj4+IFNpZ25lZC1vZmYtYnk6IERhdmlkIFd1IDxkYXZpZC53dUByb2Nr
-LWNoaXBzLmNvbT4KPj4gLS0tCj4+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXJrM3guYyB8IDIg
-Ky0KPj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+Pgo+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMgYi9kcml2ZXJzL2ky
-Yy9idXNzZXMvaTJjLXJrM3guYwo+PiBpbmRleCBkZjIyMDY2Li42N2FmMzJhIDEwMDY0NAo+PiAt
-LS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXJrM3guYwo+PiArKysgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLXJrM3guYwo+PiBAQCAtMTI2MSw3ICsxMjYxLDcgQEAgc3RhdGljIGludCByazN4
-X2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlCj4+ICpwZGV2KSB9Cj4+Cj4+ICAJcmV0
-ID0gZGV2bV9yZXF1ZXN0X2lycSgmcGRldi0+ZGV2LCBpcnEsIHJrM3hfaTJjX2lycSwKPj4gLQkJ
-CSAgICAgICAwLCBkZXZfbmFtZSgmcGRldi0+ZGV2KSwgaTJjKTsKPj4gKwkJCSAgICAgICBJUlFG
-X05PX1NVU1BFTkQsIGRldl9uYW1lKCZwZGV2LT5kZXYpLCBpMmMpOwo+PiAgCWlmIChyZXQgPCAw
-KSB7Cj4+ICAJCWRldl9lcnIoJnBkZXYtPmRldiwgImNhbm5vdCByZXF1ZXN0IElSUVxuIik7Cj4+
-ICAJCXJldHVybiByZXQ7Cj4KPgo+Cj4KPgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fCkxpbnV4LXJvY2tjaGlwIG1haWxpbmcgbGlzdApMaW51eC1yb2Nr
-Y2hpcEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
-YW4vbGlzdGluZm8vbGludXgtcm9ja2NoaXAK
+On 2016-12-06 00:26, Rob Herring wrote:
+> On Wed, Nov 30, 2016 at 09:16:58AM +0100, Peter Rosin wrote:
+>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>> ---
+>>  .../bindings/iio/multiplexer/iio-mux.txt           | 40 ++++++++++++++++++++++
+>>  MAINTAINERS                                        |  6 ++++
+>>  2 files changed, 46 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+> 
+> I'm still not convinced about this binding, but don't really have more 
+> comments ATM. Sending 6 versions in 2 weeks or so doesn't really help 
+> either.
+
+Sorry about the noise, I'll try to be more careful going forward. On
+the flip side, I haven't touched the code since v6.
+
+I don't see how bindings that are as flexible as the current (and
+original) phandle link between the mux consumer and the mux controller
+would look, and at the same time be simpler to understand. You need
+to be able to refer to a mux controller from several mux consumers, and
+you need to support several mux controllers in one node (the ADG792A
+case). And, AFAICT, the complex case wasn't really the problem, it was
+that it is overly complex to describe the simple case of one mux
+consumer and one mux controller. But in your comment for v2 [1] you
+said that I was working around limitations with shared GPIO pins. But
+solving that in the GPIO subsystem would not solve all that the
+phandle approach is solving, since you would not have support for
+ADG792A (or other non-GPIO controlled muxes). So, I think listing
+the gpio pins inside the mux consumer node is a non-starter, the mux
+controller has to live in its own node with its own compatible.
+
+Would you be happier if I managed to marry the phandle approach with
+the option of having the mux controller as a child node of the mux
+consumer for the simple case?
+
+I added an example at the end of this message (the same as the first
+example in v4 [2], at least in principle) for easy comparison between
+the phandle and the controller-in-child-node approaches. I can't say
+that I personally find the difference all that significant, and do not
+think it is worth it. As I see it, the "simple option" would just muddy
+the waters...
+
+[1] http://marc.info/?l=linux-kernel&m=147948334204795&w=2
+[2] http://marc.info/?l=linux-kernel&m=148001364904240&w=2
+
+>> diff --git a/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>> new file mode 100644
+>> index 000000000000..8080cf790d82
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>> @@ -0,0 +1,40 @@
+>> +IIO multiplexer bindings
+>> +
+>> +If a multiplexer is used to select which hardware signal is fed to
+>> +e.g. an ADC channel, these bindings describe that situation.
+>> +
+>> +Required properties:
+>> +- compatible : "iio-mux"
+> 
+> This is a Linuxism. perhaps "adc-mux".
+
+No, that's not general enough, it could just as well be used to mux a
+temperature sensor. Or whatever. Hmmm, given that "iio-mux" is bad, perhaps
+"io-channel-mux" is better? That matches the io-channels property used to
+refer to the parent channel.
+
+>> +- io-channels : Channel node of the parent channel that has multiplexed
+>> +		input.
+>> +- io-channel-names : Should be "parent".
+>> +- #address-cells = <1>;
+>> +- #size-cells = <0>;
+>> +- mux-controls : Mux controller node to use for operating the mux
+>> +- channels : List of strings, labeling the mux controller states.
+>> +
+>> +The multiplexer state as described in ../misc/mux-controller.txt
+>> +
+>> +For each non-empty string in the channels property, an iio channel will
+>> +be created. The number of this iio channel is the same as the index into
+>> +the list of strings in the channels property, and also matches the mux
+>> +controller state.
+>> +
+>> +Example:
+>> +	mux: mux-controller {
+>> +		compatible = "mux-gpio";
+>> +		#mux-control-cells = <0>;
+>> +
+>> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+>> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+>> +	};
+>> +
+>> +	adc-mux {
+>> +		compatible = "iio-mux";
+>> +		io-channels = <&adc 0>;
+>> +		io-channel-names = "parent";
+>> +
+>> +		mux-controls = <&mux>;
+>> +
+>> +		channels = "sync", "in", system-regulator";
+>> +	};
+
+Describing the same as above, but with the mux controller as a child
+node.
+
+	adc-mux {
+		compatible = "iio-mux";
+		io-channels = <&adc 0>;
+		io-channel-names = "parent";
+
+		channels = "sync", "in", system-regulator";
+
+		mux-controller {
+			compatible = "mux-gpio";
+
+			mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+				    <&pioA 1 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+Cheers,
+Peter
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
