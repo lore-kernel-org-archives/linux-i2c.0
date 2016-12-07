@@ -1,7 +1,7 @@
 From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v4 3/5] i2c: designware: Add slave definitions
-Date: Wed,  7 Dec 2016 17:55:50 +0000
-Message-ID: <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
+Subject: [PATCH v4 1/5] i2c: designware: Refactoring of the i2c-designware
+Date: Wed,  7 Dec 2016 17:55:48 +0000
+Message-ID: <486c43e4c57116fa955ab99cea7f484ee8a2bdf3.1481131072.git.lolivei@synopsys.com>
 References: <cover.1481131072.git.lolivei@synopsys.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1481131072.git.lolivei@synopsys.com>
@@ -12,176 +12,197 @@ To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@l
 Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-- Add slave definitions to i2c-designware-core
-- Changes in Kconfig to auto-enable I2C_SLAVE when compiling the modules
-- Add mode property to designware-core.txt that enable the "slave" selection:
-  - "mode" is an optional property that could be "slave" or "master"
-  - if "mode" is not set the block is considered master by default
+- Factor out all _master() part of code from i2c-designware-core
+  and i2c-designware-platdrv to separate functions.
+- Standardize all code related with MASTER modes.
 
 Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
 ---
 Changes V3->V4: (Andy Shevchenko)
-- created a common property for modes 
-- placed the generic dependency first
+- I have to take off DW_IC_INTR_TX_EMPTY from DW_IC_INTR_DEFAULT_MASK
+  because is not common to both operating modes 
+- Comments were changed to be specific to "master"
 
- .../devicetree/bindings/i2c/i2c-designware.txt     |  4 ++++
- drivers/i2c/busses/Kconfig                         |  1 +
- drivers/i2c/busses/i2c-designware-common.c         |  6 +++++
- drivers/i2c/busses/i2c-designware-core.h           | 26 ++++++++++++++++++++++
- 4 files changed, 37 insertions(+)
+ drivers/i2c/busses/i2c-designware-core.c    | 57 +++++++++++++++++++----------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 35 +++++++++++-------
+ 2 files changed, 59 insertions(+), 33 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index fee26dc3e858..8ed2b532cd54 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -20,6 +20,9 @@ Optional properties :
-  - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
-    This value which is by default 300ns is used to compute the tHIGH period.
- 
-+ - mode : should be either:
-+           - "master" to setup the hardware block as a I2C master
-+           - "slave" to setup the hardware block as a I2C slave
- Example :
- 
- 	i2c@f0000 {
-@@ -42,4 +45,5 @@ Example :
- 		i2c-sda-hold-time-ns = <300>;
- 		i2c-sda-falling-time-ns = <300>;
- 		i2c-scl-falling-time-ns = <300>;
-+		mode = "slave";
- 	};
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 8e43914023df..0c917b1a4778 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -469,6 +469,7 @@ config I2C_DESIGNWARE_CORE
- 
- config I2C_DESIGNWARE_PLATFORM
- 	tristate "Synopsys DesignWare Platform"
-+	select I2C_SLAVE
- 	select I2C_DESIGNWARE_CORE
- 	depends on (ACPI && COMMON_CLK) || !ACPI
- 	help
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 6afd2ff5d73f..41b38d8b8732 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -55,6 +55,12 @@ static char *abort_sources[] = {
- 		"trying to use disabled adapter",
- 	[ARB_LOST] =
- 		"lost arbitration",
-+	[ABRT_SLAVE_FLUSH_TXFIFO] =
-+		"read command so flush old data in the TX FIFO",
-+	[ABRT_SLAVE_ARBLOST] =
-+		"slave lost the bus while transmitting data to a remote master",
-+	[ABRT_SLAVE_RD_INTX] =
-+		"slave request for data to be transmitted and",
- };
- 
- u32 dw_readl(struct dw_i2c_dev *dev, int offset)
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 8bba7a37c3ce..b7dcd134e208 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -36,15 +36,20 @@
- #define DW_IC_CON_SPEED_FAST		0x4
- #define DW_IC_CON_SPEED_HIGH		0x6
- #define DW_IC_CON_SPEED_MASK		0x6
-+#define DW_IC_CON_10BITADDR_SLAVE		0x8
- #define DW_IC_CON_10BITADDR_MASTER	0x10
- #define DW_IC_CON_RESTART_EN		0x20
- #define DW_IC_CON_SLAVE_DISABLE		0x40
-+#define DW_IC_CON_STOP_DET_IFADDRESSED		0x80
-+#define DW_IC_CON_TX_EMPTY_CTRL		0x100
-+#define DW_IC_CON_RX_FIFO_FULL_HLD_CTRL		0x200
- 
- /*
-  * Registers offset
-  */
- #define DW_IC_CON		0x0
- #define DW_IC_TAR		0x4
-+#define DW_IC_SAR		0x8
- #define DW_IC_DATA_CMD		0x10
- #define DW_IC_SS_SCL_HCNT	0x14
- #define DW_IC_SS_SCL_LCNT	0x18
-@@ -75,6 +80,7 @@
- #define DW_IC_SDA_HOLD		0x7c
- #define DW_IC_TX_ABRT_SOURCE	0x80
- #define DW_IC_ENABLE_STATUS	0x9c
-+#define DW_IC_CLR_RESTART_DET	0xa8
- #define DW_IC_COMP_PARAM_1	0xf4
- #define DW_IC_COMP_VERSION	0xf8
- #define DW_IC_SDA_HOLD_MIN_VERS	0x3131312A
-@@ -93,15 +99,22 @@
- #define DW_IC_INTR_STOP_DET	0x200
- #define DW_IC_INTR_START_DET	0x400
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 6d81c56184d3..a51addfde565 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -87,10 +87,12 @@
  #define DW_IC_INTR_GEN_CALL	0x800
-+#define DW_IC_INTR_RESTART_DET	0x1000
  
  #define DW_IC_INTR_DEFAULT_MASK		(DW_IC_INTR_RX_FULL | \
+-					 DW_IC_INTR_TX_EMPTY | \
  					 DW_IC_INTR_TX_ABRT | \
  					 DW_IC_INTR_STOP_DET)
- #define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
- 					 DW_IC_INTR_TX_EMPTY)
-+#define DW_IC_INTR_SLAVE_MASK		(DW_IC_INTR_DEFAULT_MASK | \
-+					 DW_IC_INTR_RX_DONE | \
-+					 DW_IC_INTR_RX_UNDER | \
-+					 DW_IC_INTR_RD_REQ)
+ 
++#define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
++					 DW_IC_INTR_TX_EMPTY)
 +
- #define DW_IC_STATUS_ACTIVITY		0x1
- #define DW_IC_STATUS_TFE		BIT(2)
- #define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
-+#define DW_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
+ #define DW_IC_STATUS_ACTIVITY	0x1
  
  #define DW_IC_SDA_HOLD_RX_SHIFT		16
- #define DW_IC_SDA_HOLD_RX_MASK		GENMASK(23, DW_IC_SDA_HOLD_RX_SHIFT)
-@@ -139,6 +152,9 @@
- #define ABRT_10B_RD_NORSTRT	10
- #define ABRT_MASTER_DIS		11
- #define ARB_LOST		12
-+#define ABRT_SLAVE_FLUSH_TXFIFO	13
-+#define ABRT_SLAVE_ARBLOST	14
-+#define ABRT_SLAVE_RD_INTX	15
+@@ -202,6 +204,16 @@ static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
+ 	}
+ }
  
- #define DW_IC_TX_ABRT_7B_ADDR_NOACK	(1UL << ABRT_7B_ADDR_NOACK)
- #define DW_IC_TX_ABRT_10ADDR1_NOACK	(1UL << ABRT_10ADDR1_NOACK)
-@@ -151,6 +167,9 @@
- #define DW_IC_TX_ABRT_10B_RD_NORSTRT	(1UL << ABRT_10B_RD_NORSTRT)
- #define DW_IC_TX_ABRT_MASTER_DIS	(1UL << ABRT_MASTER_DIS)
- #define DW_IC_TX_ARB_LOST		(1UL << ARB_LOST)
-+#define DW_IC_RX_ABRT_SLAVE_RD_INTX	(1UL << ABRT_SLAVE_RD_INTX)
-+#define DW_IC_RX_ABRT_SLAVE_ARBLOST	(1UL << ABRT_SLAVE_ARBLOST)
-+#define DW_IC_RX_ABRT_SLAVE_FLUSH_TXFIFO	(1UL << ABRT_SLAVE_FLUSH_TXFIFO)
++static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
++{
++	/* Configure Tx/Rx FIFO threshold levels */
++	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
++	dw_writel(dev, 0, DW_IC_RX_TL);
++
++	/* configure the i2c master */
++	dw_writel(dev, dev->master_cfg, DW_IC_CON);
++}
++
+ static u32
+ i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
+ {
+@@ -318,10 +330,10 @@ static void i2c_dw_release_lock(struct dw_i2c_dev *dev)
+ }
  
- #define DW_IC_TX_ABRT_NOACK		(DW_IC_TX_ABRT_7B_ADDR_NOACK | \
- 					 DW_IC_TX_ABRT_10ADDR1_NOACK | \
-@@ -206,6 +225,7 @@ struct dw_i2c_dev {
- 	void __iomem		*base;
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
-+	struct i2c_client		*slave;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
- 	struct dw_pci_controller *controller;
- 	int			cmd_err;
-@@ -225,6 +245,7 @@ struct dw_i2c_dev {
- 	struct i2c_adapter	adapter;
- 	u32			functionality;
- 	u32			master_cfg;
-+	u32			slave_cfg;
- 	unsigned int		tx_fifo_depth;
- 	unsigned int		rx_fifo_depth;
- 	int			rx_outstanding;
-@@ -268,6 +289,11 @@ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
- extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
- extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
- extern int i2c_dw_probe(struct dw_i2c_dev *dev);
-+extern int i2c_dw_init_slave(struct dw_i2c_dev *dev);
-+extern void i2c_dw_disable_slave(struct dw_i2c_dev *dev);
-+extern void i2c_dw_disable_int_slave(struct dw_i2c_dev *dev);
-+extern u32 i2c_dw_read_comp_param_slave(struct dw_i2c_dev *dev);
-+extern int i2c_dw_probe_slave(struct dw_i2c_dev *dev);
+ /**
+- * i2c_dw_init() - initialize the designware i2c master hardware
++ * i2c_dw_init() - initialize the designware i2c hardware
+  * @dev: device private data
+  *
+- * This functions configures and enables the I2C master.
++ * This functions configures and enables the I2C.
+  * This function is called during I2C init function, and in case of timeout at
+  * run time.
+  */
+@@ -440,12 +452,9 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 			"Hardware too old to adjust SDA hold time.\n");
+ 	}
  
- #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
- extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
+-	/* Configure Tx/Rx FIFO threshold levels */
+-	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
+-	dw_writel(dev, 0, DW_IC_RX_TL);
+-
+-	/* configure the i2c master */
+-	dw_writel(dev, dev->master_cfg , DW_IC_CON);
++	if ((dev->master_cfg & DW_IC_CON_MASTER) &&
++		 (dev->master_cfg & DW_IC_CON_SLAVE_DISABLE))
++		i2c_dw_configure_fifo_master(dev);
+ 
+ 	i2c_dw_release_lock(dev);
+ 
+@@ -513,7 +522,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 
+ 	/* Clear and enable interrupts */
+ 	dw_readl(dev, DW_IC_CLR_INTR);
+-	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
++	dw_writel(dev, DW_IC_INTR_MASTER_MASK, DW_IC_INTR_MASK);
+ }
+ 
+ /*
+@@ -533,7 +542,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 	u8 *buf = dev->tx_buf;
+ 	bool need_restart = false;
+ 
+-	intr_mask = DW_IC_INTR_DEFAULT_MASK;
++	intr_mask = DW_IC_INTR_MASTER_MASK;
+ 
+ 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
+ 		u32 flags = msgs[dev->msg_write_idx].flags;
+@@ -886,16 +895,9 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+  * Interrupt service routine. This gets called whenever an I2C interrupt
+  * occurs.
+  */
+-static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
++int i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
+ {
+-	struct dw_i2c_dev *dev = dev_id;
+-	u32 stat, enabled;
+-
+-	enabled = dw_readl(dev, DW_IC_ENABLE);
+-	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
+-	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__, enabled, stat);
+-	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
+-		return IRQ_NONE;
++	u32 stat;
+ 
+ 	stat = i2c_dw_read_clear_intrbits(dev);
+ 
+@@ -932,7 +934,22 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 		i2c_dw_disable_int(dev);
+ 		dw_writel(dev, stat, DW_IC_INTR_MASK);
+ 	}
++	return 0;
++}
++
++static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
++{
++	struct dw_i2c_dev *dev = dev_id;
++	u32 stat, enabled, mode;
++
++	enabled = dw_readl(dev, DW_IC_ENABLE);
++	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
++	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__, enabled, stat);
++	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
++		return IRQ_NONE;
+ 
++	i2c_dw_irq_handler_master(dev);
++	complete(&dev->cmd_complete);
+ 	return IRQ_HANDLED;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 08153ea4d848..e55b5544c733 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -138,6 +138,27 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+ }
+ #endif
+ 
++static void i2c_dw_configure_master(struct platform_device *pdev)
++{
++	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++
++	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
++			  DW_IC_CON_RESTART_EN;
++
++	dev_info(&pdev->dev, "I am registed as a I2C Master!\n");
++
++	switch (dev->clk_freq) {
++	case 100000:
++		dev->master_cfg |= DW_IC_CON_SPEED_STD;
++		break;
++	case 3400000:
++		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
++		break;
++	default:
++		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
++	}
++}
++
+ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+ {
+ 	if (IS_ERR(i_dev->clk))
+@@ -221,19 +242,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 
+ 	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+ 
+-	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+-			  DW_IC_CON_RESTART_EN;
+-
+-	switch (dev->clk_freq) {
+-	case 100000:
+-		dev->master_cfg |= DW_IC_CON_SPEED_STD;
+-		break;
+-	case 3400000:
+-		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
+-		break;
+-	default:
+-		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
+-	}
++	i2c_dw_configure_master(pdev);
+ 
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (!i2c_dw_plat_prepare_clk(dev, true)) {
 -- 
 2.11.0
