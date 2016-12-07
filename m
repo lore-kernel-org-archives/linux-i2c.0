@@ -1,30 +1,45 @@
-From: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: [PATCH 0/2] i2c: sh_mobile: fallback enhancements
-Date: Wed,  7 Dec 2016 11:31:27 +0100
-Message-ID: <1481106689-22312-1-git-send-email-horms+renesas@verge.net.au>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+From: Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH 1/2] i2c: sh_mobile: List rmobile fallback compatibility last
+Date: Wed,  7 Dec 2016 11:39:36 +0100
+Message-ID: <1481107176-32409-1-git-send-email-horms+renesas@verge.net.au>
+References: <1481106689-22312-1-git-send-email-horms+renesas@verge.net.au>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1481106689-22312-1-git-send-email-horms+renesas@verge.net.au>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Improve readability by listing the rmobile fallback compatibility string
+after the more-specific compatibility strings they provide a fallback for.
 
-this short series aims to improve the fallback compatibility strings
-for the i2c-sh_mobile driver.
+This does not effect run-time behaviour as it is the order in the DTB that
+determines which compatibility string is used.
 
-Simon Horman (2):
-  i2c: sh_mobile: List rmobile fallback compatibility last
-  i2c: sh_mobile: Add per-Generation fallback bindings
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 17 ++++++++++++++---
- drivers/i2c/busses/i2c-sh_mobile.c                      |  4 +++-
- 2 files changed, 17 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 192f36f00e4d..6335ad35902d 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -827,7 +827,6 @@ static const struct sh_mobile_dt_config r8a7740_dt_config = {
+ };
+ 
+ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+-	{ .compatible = "renesas,rmobile-iic", .data = &default_dt_config },
+ 	{ .compatible = "renesas,iic-r8a73a4", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-r8a7740", .data = &r8a7740_dt_config },
+ 	{ .compatible = "renesas,iic-r8a7790", .data = &fast_clock_dt_config },
+@@ -837,6 +836,7 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,iic-r8a7794", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-r8a7795", .data = &fast_clock_dt_config },
+ 	{ .compatible = "renesas,iic-sh73a0", .data = &fast_clock_dt_config },
++	{ .compatible = "renesas,rmobile-iic", .data = &default_dt_config },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
 -- 
 2.7.0.rc3.207.g0ac5344
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
