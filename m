@@ -1,32 +1,87 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [Patch V1] i2c: fsl-lpi2c: read lpi2c fifo size in probe()
-Date: Wed, 7 Dec 2016 03:01:20 +0200
-Message-ID: <c7263019-05be-946a-986a-dd138a0b6aec@mleia.com>
-References: <1480649896-5222-1-git-send-email-pandy.gao@nxp.com>
+From: "David.Wu" <david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
+Date: Wed, 7 Dec 2016 11:37:48 +0800
+Message-ID: <a6694d7d-6fca-e5ef-7bbd-9956562132a2@rock-chips.com>
+References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
+ <1737869.ycGphUXI8X@phil>
+ <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
+ <CAD=FV=VgGy5hA4+7nvLs4NPNRuopak+bTW34S6X6S_vWgtnkjg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:48794 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751527AbcLGBBX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 6 Dec 2016 20:01:23 -0500
-In-Reply-To: <1480649896-5222-1-git-send-email-pandy.gao@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <CAD=FV=VgGy5hA4+7nvLs4NPNRuopak+bTW34S6X6S_vWgtnkjg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, wsa-dev@sang-engineering.com, cmo@melexis.com, robh@kernel.org
-Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
-On 12/02/2016 05:38 AM, Gao Pan wrote:
-> The lpi2c fifo size is a read only parameter resides Parameter
-> Register. It's better to read lpi2c tx/rx fifo size in probe()
-> other than just define a macro for it.
-> 
-> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
-> ---
-
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
-
---
-With best wishes,
-Vladimir
+SGkgRG91ZywKCuWcqCAyMDE2LzEyLzcgMDozMSwgRG91ZyBBbmRlcnNvbiDlhpnpgZM6Cj4gSGks
+Cj4KPiBPbiBUdWUsIERlYyA2LCAyMDE2IGF0IDEyOjEyIEFNLCBEYXZpZC5XdSA8ZGF2aWQud3VA
+cm9jay1jaGlwcy5jb20+IHdyb3RlOgo+PiBIaSBIZWlrbywKPj4KPj4g5ZyoIDIwMTYvMTIvNSAx
+ODo1NCwgSGVpa28gU3R1ZWJuZXIg5YaZ6YGTOgo+Pj4KPj4+IEhpIERhdmlkLAo+Pj4KPj4+IEFt
+IE1vbnRhZywgNS4gRGV6ZW1iZXIgMjAxNiwgMTY6MDI6NTkgQ0VUIHNjaHJpZWIgRGF2aWQgV3U6
+Cj4+Pj4KPj4+PiBEdXJpbmcgc3VzcGVuZCB0aGVyZSBtYXkgc3RpbGwgYmUgc29tZSBpMmMgYWNj
+ZXNzIGhhcHBlbmluZy4KPj4+PiBBbmQgaWYgd2UgZG9uJ3Qga2VlcCBpMmMgaXJxIE9OLCB0aGVy
+ZSBtYXkgYmUgaTJjIGFjY2VzcyB0aW1lb3V0IGlmCj4+Pj4gaTJjIGlzIGluIGlycSBtb2RlIG9m
+IG9wZXJhdGlvbi4KPj4+Cj4+Pgo+Pj4gY2FuIHlvdSBkZXNjcmliZSB0aGUgaXNzdWUgeW91J3Jl
+IHRyeWluZyB0byBmaXggYSBiaXQgbW9yZSBwbGVhc2U/Cj4+Cj4+Cj4+IFNvbWV0aW1lcyB3ZSBj
+b3VsZCBzZWUgdGhlIGkyYyB0aW1lb3V0IGVycm9ycyBkdXJpbmcgc3VzcGVuZC9yZXN1bWUsIHdo
+aWNoCj4+IG1ha2VzIHRoZSBkdXJhdGlvbiBvZiBzdXNwZW5kL3Jlc3VtZSB0b28gbG9uZ2VyLgo+
+Pgo+PiBbICA0ODQuMTcxNTQxXSBDUFU0OiBCb290ZWQgc2Vjb25kYXJ5IHByb2Nlc3NvciBbNDEw
+ZmQwODJdCj4+IFsgIDQ4NS4xNzI3NzddIHJrM3gtaTJjIGZmM2MwMDAwLmkyYzogdGltZW91dCwg
+aXBkOiAweDEwLCBzdGF0ZTogMQo+PiBbICA0ODYuMTcyNzYwXSByazN4LWkyYyBmZjNjMDAwMC5p
+MmM6IHRpbWVvdXQsIGlwZDogMHgxMCwgc3RhdGU6IDEKPj4gWyAgNDg3LjE3Mjc1OV0gcmszeC1p
+MmMgZmYzYzAwMDAuaTJjOiB0aW1lb3V0LCBpcGQ6IDB4MTAsIHN0YXRlOiAxCj4+IFsgIDQ4Ny4x
+NzI4NDBdIGNwdSBjcHU0OiBfc2V0X29wcF92b2x0YWdlOiBmYWlsZWQgdG8gc2V0IHZvbHRhZ2Ug
+KDgwMDAwMAo+PiA4MDAwMDAgODAwMDAwIG1WKTogLTExMAo+PiBbICA0ODcuMTcyODc0XSBjcHUg
+Y3B1NDogZmFpbGVkIHRvIHNldCB2b2x0IDgwMDAwMAo+Pgo+Pj4KPj4+IEkuZS4gSSdkIHRoaW5r
+IHRoZSBpMmMtY29yZSBkb2VzIHN1c3BlbmQgaTJjLWNsaWVudCBkZXZpY2VzIGZpcnN0LCBzbyB0
+aGF0Cj4+PiB0aGVzZSBzaG91bGQgYmUgYWJsZSB0byBmaW5pc2ggdXAgdGhlaXIgb25nb2luZyB0
+cmFuc2ZlcnMgYW5kIG5vdCBzdGFydAo+Pj4gYW55Cj4+PiBuZXcgb25lcyBpbnN0ZWFkPwo+Pj4K
+Pj4+IFlvdXIgaXJxIGNhbiBzdGlsbCBoYXBwZW4gc2xpZ2h0bHkgYWZ0ZXIgdGhlIHN5c3RlbSBz
+dGFydGVkIGdvaW5nIHRvCj4+PiBhY3R1YWxseQo+Pj4gc2xlZXAsIHNvIHRvIG1lIGl0IGxvb2tz
+IGxpa2UgeW91IGp1c3Qgd2lkZW5lZCB0aGUgd2luZG93IHdoZXJlIGlycXMgY2FuCj4+PiBiZQo+
+Pj4gaGFuZGxlZC4gRXNwZWNpYWxseSBhcyB5b3VyIGlycSBjb3VsZCBhbHNvIGp1c3Qgc2ltcGx5
+IHN0ZW0gZnJvbSB0aGUgc3RhcnQKPj4+IHN0YXRlLCBzbyB5b3UgY2Fubm90IGV2ZW4gYmUgc3Vy
+ZSBpZiB5b3VyIHRyYW5zYWN0aW9uIGFjdHVhbGx5IGlzCj4+PiBmaW5pc2hlZC4KPj4KPj4KPj4g
+T2theSwgeW91IGFyZSByaWdodC4gSSB3YW50IHRvIGdpdmUgaXQgYSBkb3VibGUgaW5zdXJhbmNl
+IGF0IGZpcnN0LCBidXQgaXQKPj4gbWF5IGhpZGUgdGhlIHVuaGFwcGVuZCBpc3N1ZS4KPj4KPj4+
+Cj4+PiBTbyB0byBtZSBpdCBsb29rcyBsaWtlIHRoZSBpMmMtY29ubmVjdGVkIGRldmljZSBkcml2
+ZXIgc2hvdWxkIGJlIGZpeGVkCj4+PiBpbnN0ZWFkPwo+Pgo+Pgo+PiBJIHRlbGwgdGhlbSB0byBm
+aXggaXQgaW4gcms4MDggZHJpdmVyLgo+Cj4gVG8gbWUgaXQgc2VlbXMgbGlrZSBwZXJoYXBzIGNw
+dWZyZXEgc2hvdWxkIG5vdCBiZSBjaGFuZ2luZyBmcmVxdWVuY2llcwo+IHVudGlsIGl0IGlzIHJl
+c3VtZWQgcHJvcGVybHkuICBQcmVzdW1hYmx5IGlmIGFsbCB0aGUgb3JkZXJpbmcgaXMgZG9uZQo+
+IHJpZ2h0IHRoZW4gY3B1ZnJlcSBzaG91bGQgYmUgcmVzdW1lZCBfYWZ0ZXJfIHRoZSBpMmMgcmVn
+dWxhdG9yIHNvIHlvdQo+IHNob3VsZCBiZSBPSy4gIC4uLm9yIGFtIEkgc29tZWhvdyBjb25mdXNl
+ZCBhYm91dCB0aGF0PwoKeWVz77yMdGhlIGNwdWZyZXEgYW5kIHJlZ3VsYXRvciBzaG91bGQgc3Rh
+cnQgaTJjIGpvYiBhZnRlciB0aGV5IHJlc3VtZSAKcHJvcGVybHkuCgo+Cj4gQWxzbyBub3RlIHRo
+YXQgcHJldmlvdXMgaTJjIGJ1c3NlcyBJIHdvcmtlZCB3aXRoIHNpbXBseSByZXR1cm5lZCAtRUlP
+Cj4gaW4gdGhlIGNhc2Ugd2hlcmUgdGhleSB3ZXJlIGNhbGxlZCB3aGVuIHN1c3BlbmRlZC4gIFNl
+ZQo+ICJpMmMtZXh5bm9zNS5jIiBhbmQgImkyYy1zM2MyNDEwLmMiLgoKSW4gImkyYy1leHlub3M1
+LmMiLCBpdCBzZWVtcyB0aGF0IHVzaW5nIHRoZSAiaTJjLT5zdXNwZW5kZWQiIHRvIHByb3RlY3Qg
+CmkyYyB0cmFuc2ZlciB3b3JrcyBtb3N0IG9mIHRoZSB0aW1lLiBPZiBjb3Vyc2UgaXQgY291bGQg
+cHJldmVudCB0aGUgbmV4dCAKbmV3IGkyYyB0cmFuc2ZlciB0byBzdGFydC4gQnV0IGluIG9uZSBj
+YXNlLCBpZiB0aGUgY3VycmVudCBpMmMgam9iIHdhcyAKbm90IGZpbmlzaGVkIHVudGlsIHRoZSBp
+MmMgaXJxIHdhcyBkaXNhYmxlZCBieSBzeXN0ZW0gc3VzcGVuZCwgdGhlIGkyYyAKdGltZW91dCBl
+cnJvciB3b3VsZCBhbHNvIGhhcHBlbiwgYXMgdGhlIGN1cnJlbnQgaTJjIGpvYiBtYXkgaGF2ZSBh
+IGxhcmdlIApkYXRhIHRvIHRyYW5zZmVyIGFuZCBpdCBsYXN0cyBmcm9tIGEgbG9uZyB0aW1lLgoK
+U28gaXMgaXQgbmVjZXNzYXJ5IHRvIGFkZCBhIG11dGV4IGxvY2sgdG8gd2FpdCB0aGUgY3VycmVu
+dCBqb2IgdG8gYmUgCmZpbmlzaGVkIGJlZm9yZSB0aGUgImkyYy0+c3VzcGVuZGVkIiBpcyBjaGFu
+Z2VkIGluIGkyY19zdXNwZW5kX25vaXJxKCk/CgpIb3dldmVyLCB0aGUgaTJjX3N1c3BlbmRfbm9p
+cnEoKSBpcyBjYWxsZWQgYWZ0ZXIgc3VzcGVuZF9kZXZpY2VfaXJxcygpIAppbiBzeXN0ZW0gc3Vz
+cGVuZCwgaXQgbWVhbnMgdGhhdCB0aGUgaTJjIHRpbWVvdXQgZXJyb3JzIGNvdWxkIGhhcHBlbiAK
+ZHVyaW5nIHRoZSB0aW1lIGJldHdlZW4gc3VzcGVuZF9kZXZpY2VfaXJxcygpIGFuZCBpMmNfc3Vz
+cGVuZF9ub2lycSgpLCAKaWYgdGhlcmUgd2VyZSBpMmMgdHJhbnNmZXJzIHN0YXJ0ZWQuCgo+Cj4g
+LURvdWcKPgo+Cj4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpMaW51eC1yb2NrY2hpcCBtYWlsaW5nIGxpc3QKTGludXgtcm9ja2NoaXBAbGlzdHMuaW5m
+cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
+bnV4LXJvY2tjaGlwCg==
