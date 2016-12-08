@@ -1,145 +1,201 @@
-From: "David.Wu" <david.wu@rock-chips.com>
-Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
-Date: Thu, 8 Dec 2016 23:50:15 +0800
-Message-ID: <f6fe8a66-05d2-91c9-ddfe-b90b929ac8a1@rock-chips.com>
-References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
- <1737869.ycGphUXI8X@phil>
- <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
- <CAD=FV=VgGy5hA4+7nvLs4NPNRuopak+bTW34S6X6S_vWgtnkjg@mail.gmail.com>
- <a6694d7d-6fca-e5ef-7bbd-9956562132a2@rock-chips.com>
- <e34bab0d-b4b1-ff0d-3a27-c3701b8206c1@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e34bab0d-b4b1-ff0d-3a27-c3701b8206c1@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>, Doug Anderson <dianders@chromium.org>
-Cc: Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] misc: eeprom: implement compatible DT probing
+Date: Thu,  8 Dec 2016 18:47:59 +0100
+Message-ID: <1481219279-6982-1-git-send-email-linus.walleij@linaro.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Grygorii, Doug and Heiko,
+The compatible string for an EEPROM in the device tree is currently
+completely ignored by the kernel, simply stated it will not make the
+corresponding AT24 EEPROM driver probe properly. It is instead still
+relying on the DT node name to be set to one of the I2C device IDs
+which works due to a side effect in the I2C DT parsing code.
 
-Thanks for your replies.
-I will do 2 steps:
+Fix this up by making the DT probe mechanism a bit more elaborate:
+actually match on the compatible strings defined in the device
+tree bindings in Documentation/devicetree/bindings/eeprom/eeprom.txt:
+map these to the corresponding I2C IDs by name and look up the
+magic flags from the I2C ID before proceeding, also make the DT
+compatible string take precedence.
 
-1. Add "suspended" flag in suspend_noirq()/resume_noirq() callback to 
-prevent new i2c started, and use i2c_lock_adapter() to wait for current 
-i2c transfer finished.
+Keep the second DT parsing callback that sets up per-chip flags as
+this needs to happen after mangling the magic flags passed from the
+I2C ID table.
 
-2. IRQF_NO_SUSPEND added could make i2c work well during the time 
-between suspend_device_irqs() and i2c_suspend_noirq() callback. In the 
-other side, it is the the time between resume_device_irqs() and 
-i2c_resume_noirq() callback.
+All vendor compatible strings listed in the binding document are
+added to the driver.
 
-If any i2c client try to access I2C after suspend_noirq() or before 
-resume_noirq() callback, print the warning, and they should fix it, not 
-to start i2c access and the moment.
+After this it is possible to name the device tree node for the EEPROM
+whatever you actually like to call it, and the probing will be done
+from the compatible string.
 
-在 2016/12/8 0:27, Grygorii Strashko 写道:
->
->
-> On 12/06/2016 09:37 PM, David.Wu wrote:
->> Hi Doug,
->>
->> 在 2016/12/7 0:31, Doug Anderson 写道:
->>> Hi,
->>>
->>> On Tue, Dec 6, 2016 at 12:12 AM, David.Wu <david.wu@rock-chips.com>
->>> wrote:
->>>> Hi Heiko,
->>>>
->>>> 在 2016/12/5 18:54, Heiko Stuebner 写道:
->>>>>
->>>>> Hi David,
->>>>>
->>>>> Am Montag, 5. Dezember 2016, 16:02:59 CET schrieb David Wu:
->>>>>>
->>>>>> During suspend there may still be some i2c access happening.
->>>>>> And if we don't keep i2c irq ON, there may be i2c access timeout if
->>>>>> i2c is in irq mode of operation.
->>>>>
->>>>>
->>>>> can you describe the issue you're trying to fix a bit more please?
->>>>
->>>>
->>>> Sometimes we could see the i2c timeout errors during suspend/resume,
->>>> which
->>>> makes the duration of suspend/resume too longer.
->>>>
->>>> [  484.171541] CPU4: Booted secondary processor [410fd082]
->>>> [  485.172777] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
->>>> [  486.172760] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
->>>> [  487.172759] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
->>>> [  487.172840] cpu cpu4: _set_opp_voltage: failed to set voltage (800000
->>>> 800000 800000 mV): -110
->>>> [  487.172874] cpu cpu4: failed to set volt 800000
->>>>
->>>>>
->>>>> I.e. I'd think the i2c-core does suspend i2c-client devices first,
->>>>> so that
->>>>> these should be able to finish up their ongoing transfers and not start
->>>>> any
->>>>> new ones instead?
->>>>>
->>>>> Your irq can still happen slightly after the system started going to
->>>>> actually
->>>>> sleep, so to me it looks like you just widened the window where irqs
->>>>> can
->>>>> be
->>>>> handled. Especially as your irq could also just simply stem from the
->>>>> start
->>>>> state, so you cannot even be sure if your transaction actually is
->>>>> finished.
->>>>
->>>>
->>>> Okay, you are right. I want to give it a double insurance at first,
->>>> but it
->>>> may hide the unhappend issue.
->>>>
->>>>>
->>>>> So to me it looks like the i2c-connected device driver should be fixed
->>>>> instead?
->>>>
->>>>
->>>> I tell them to fix it in rk808 driver.
->>>
->>> To me it seems like perhaps cpufreq should not be changing frequencies
->>> until it is resumed properly.  Presumably if all the ordering is done
->>> right then cpufreq should be resumed _after_ the i2c regulator so you
->>> should be OK.  ...or am I somehow confused about that?
->>
->> yes，the cpufreq and regulator should start i2c job after they resume
->> properly.
->>
->>>
->>> Also note that previous i2c busses I worked with simply returned -EIO
->>> in the case where they were called when suspended.  See
->>> "i2c-exynos5.c" and "i2c-s3c2410.c".
->>
->> In "i2c-exynos5.c", it seems that using the "i2c->suspended" to protect
->> i2c transfer works most of the time. Of course it could prevent the next
->> new i2c transfer to start. But in one case, if the current i2c job was
->> not finished until the i2c irq was disabled by system suspend, the i2c
->> timeout error would also happen, as the current i2c job may have a large
->> data to transfer and it lasts from a long time.
->
-> And this means you have bug in some of I2C client drivers which do not stop
-> their activities during suspend properly (most usual case - driver uses work
-> and this work still active during suspend and can run on one CPU while suspend
-> runs on another).
->
-> At the moment .suspend_noirq() callback is called there should be no active
-> I2C transactions in general.
->
->>
->> So is it necessary to add a mutex lock to wait the current job to be
->> finished before the "i2c->suspended" is changed in i2c_suspend_noirq()?
->>
->
-> You need to catch and fix all driver who will try to access I2C after your
-> I2C bus driver passes suspend_noirq stage. Smth, like [1], uses i2c_lock_adapter().
->
->
-> [1] https://git.ti.com/android-sdk/kernel-omap/commit/125ef8f7016e7b205886f93862288a45a312b1d8
->
+Before this patch, the following device tree node does not probe,
+which might be considered a bug:
+
+eeprom@52 {
+	compatible = "atmel,at24c128";
+	reg = <0x52>;
+	pagesize = <64>;
+};
+
+After this patch, the driver probes fine from this node.
+
+As checkpatch is complaining about the vendor "catalyst" not
+existing in the vendor prefixes, despite being mentioned in the
+EEPROM DT binding document, we add this as part of this patch so
+that checkpatch is happy.
+
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ .../devicetree/bindings/vendor-prefixes.txt        |  1 +
+ drivers/misc/eeprom/at24.c                         | 82 ++++++++++++++++++----
+ 2 files changed, 68 insertions(+), 15 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index f0a48ea78659..40bdf9aa590c 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -47,6 +47,7 @@ brcm	Broadcom Corporation
+ buffalo	Buffalo, Inc.
+ calxeda	Calxeda
+ capella	Capella Microsystems, Inc
++catalyst	Catalyst Semiconductor Inc.
+ cavium	Cavium, Inc.
+ cdns	Cadence Design Systems Inc.
+ ceva	Ceva, Inc.
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 051b14766ef9..246b15539d45 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -20,6 +20,7 @@
+ #include <linux/bitops.h>
+ #include <linux/jiffies.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/nvmem-provider.h>
+@@ -563,23 +564,70 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ }
+ 
+ #ifdef CONFIG_OF
+-static void at24_get_ofdata(struct i2c_client *client,
+-			    struct at24_platform_data *chip)
++static void at24_get_of_magic(struct device *dev,
++			      kernel_ulong_t *magic)
+ {
+-	const __be32 *val;
+-	struct device_node *node = client->dev.of_node;
+-
+-	if (node) {
+-		if (of_get_property(node, "read-only", NULL))
+-			chip->flags |= AT24_FLAG_READONLY;
+-		val = of_get_property(node, "pagesize", NULL);
+-		if (val)
+-			chip->page_size = be32_to_cpup(val);
++	const char *name;
++	const struct i2c_device_id *id;
++	int i;
++
++	name = of_device_get_match_data(dev);
++	if (!name)
++		return;
++
++	for (i = 0; i < ARRAY_SIZE(at24_ids); i++) {
++		id = &at24_ids[i];
++		if (!strcmp(id->name, name)) {
++			*magic = id->driver_data;
++			break;
++		}
+ 	}
++	if (i == ARRAY_SIZE(at24_ids))
++		return;
++
++	dev_dbg(dev, "DT match for %s -> %s\n", name, id->name);
++}
++
++static void at24_get_of_chipdata(struct device_node *np,
++				 struct at24_platform_data *chip)
++{
++	u32 val;
++	int ret;
++
++	if (of_property_read_bool(np, "read-only"))
++		chip->flags |= AT24_FLAG_READONLY;
++
++	ret = of_property_read_u32(np, "pagesize", &val);
++	if (!ret)
++		chip->page_size = val;
+ }
++
++static const struct of_device_id at24_of_match[] = {
++	{ .compatible = "atmel,at24c00", .data = "24c00" },
++	{ .compatible = "atmel,at24c01", .data = "24c01" },
++	{ .compatible = "atmel,at24c02", .data = "24c02" },
++	{ .compatible = "atmel,at24c04", .data = "24c04" },
++	{ .compatible = "atmel,at24c08", .data = "24c08" },
++	{ .compatible = "atmel,at24c16", .data = "24c16" },
++	{ .compatible = "atmel,at24c32", .data = "24c32" },
++	{ .compatible = "atmel,at24c64", .data = "24c64" },
++	{ .compatible = "atmel,at24c128", .data = "24c128" },
++	{ .compatible = "atmel,at24c256", .data = "24c256" },
++	{ .compatible = "atmel,at24c512", .data = "24c512" },
++	{ .compatible = "atmel,at24c1024", .data = "24c1024" },
++	{ .compatible = "catalyst,24c32", .data = "24c32" },
++	{ .compatible = "ramtron,24c64", .data = "24c64" },
++	{ .compatible = "renesas,r1ex24002", .data = "24c02" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, at24_of_match);
++
+ #else
+-static void at24_get_ofdata(struct i2c_client *client,
+-			    struct at24_platform_data *chip)
++static void at24_get_of_magic(struct device *dev,
++			      kernel_ulong_t *magic)
++{ }
++static void at24_get_of_chipdata(struct device_node *np,
++				 struct at24_platform_data *chip)
+ { }
+ #endif /* CONFIG_OF */
+ 
+@@ -598,7 +646,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+ 	} else {
+-		if (id) {
++		if (client->dev.of_node) {
++			/* Get chipdata if OF is present */
++			at24_get_of_magic(&client->dev, &magic);
++		} else if (id) {
+ 			magic = id->driver_data;
+ 		} else {
+ 			const struct acpi_device_id *aid;
+@@ -621,7 +672,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		chip.page_size = 1;
+ 
+ 		/* update chipdata if OF is present */
+-		at24_get_ofdata(client, &chip);
++		at24_get_of_chipdata(client->dev.of_node, &chip);
+ 
+ 		chip.setup = NULL;
+ 		chip.context = NULL;
+@@ -822,6 +873,7 @@ static struct i2c_driver at24_driver = {
+ 	.driver = {
+ 		.name = "at24",
+ 		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
++		.of_match_table = of_match_ptr(at24_of_match),
+ 	},
+ 	.probe = at24_probe,
+ 	.remove = at24_remove,
+-- 
+2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
