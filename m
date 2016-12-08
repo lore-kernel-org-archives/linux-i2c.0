@@ -1,121 +1,145 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v5 2/5] i2c: Add STM32F4 I2C driver
-Date: Thu, 8 Dec 2016 20:18:38 +0800
-Message-ID: <201612082011.VNNsRbpL%fengguang.wu@intel.com>
-References: <1481185563-8735-3-git-send-email-cedric.madianga@gmail.com>
+From: "David.Wu" <david.wu@rock-chips.com>
+Subject: Re: [PATCH] i2c: rk3x: keep i2c irq ON in suspend
+Date: Thu, 8 Dec 2016 23:50:15 +0800
+Message-ID: <f6fe8a66-05d2-91c9-ddfe-b90b929ac8a1@rock-chips.com>
+References: <1480924979-13450-1-git-send-email-david.wu@rock-chips.com>
+ <1737869.ycGphUXI8X@phil>
+ <1d570232-af87-467e-e6f4-5b514d583a02@rock-chips.com>
+ <CAD=FV=VgGy5hA4+7nvLs4NPNRuopak+bTW34S6X6S_vWgtnkjg@mail.gmail.com>
+ <a6694d7d-6fca-e5ef-7bbd-9956562132a2@rock-chips.com>
+ <e34bab0d-b4b1-ff0d-3a27-c3701b8206c1@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:8422 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751665AbcLHMS5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 8 Dec 2016 07:18:57 -0500
-Content-Disposition: inline
-In-Reply-To: <1481185563-8735-3-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <e34bab0d-b4b1-ff0d-3a27-c3701b8206c1@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>, Doug Anderson <dianders@chromium.org>
+Cc: Heiko Stuebner <heiko@sntech.de>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-Cc: kbuild-all@01.org, wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 
-Hi M'boumba,
+Hi Grygorii, Doug and Heiko,
 
-[auto build test WARNING on wsa/i2c/for-next]
-[also build test WARNING on v4.9-rc8 next-20161208]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Thanks for your replies.
+I will do 2 steps:
 
-url:    https://github.com/0day-ci/linux/commits/M-boumba-Cedric-Madianga/Add-support-for-the-STM32F4-I2C/20161208-173240
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-reproduce:
-        # apt-get install sparse
-        make ARCH=x86_64 allmodconfig
-        make C=1 CF=-D__CHECK_ENDIAN__
+1. Add "suspended" flag in suspend_noirq()/resume_noirq() callback to 
+prevent new i2c started, and use i2c_lock_adapter() to wait for current 
+i2c transfer finished.
 
+2. IRQF_NO_SUSPEND added could make i2c work well during the time 
+between suspend_device_irqs() and i2c_suspend_noirq() callback. In the 
+other side, it is the the time between resume_device_irqs() and 
+i2c_resume_noirq() callback.
 
-sparse warnings: (new ones prefixed by >>)
+If any i2c client try to access I2C after suspend_noirq() or before 
+resume_noirq() callback, print the warning, and they should fix it, not 
+to start i2c access and the moment.
 
-   include/linux/compiler.h:253:8: sparse: attribute 'no_sanitize_address': unknown attribute
->> drivers/i2c/busses/i2c-stm32f4.c:201:16: sparse: incompatible types in comparison expression (different signedness)
->> drivers/i2c/busses/i2c-stm32f4.c:201:16: sparse: incompatible types in comparison expression (different signedness)
->> drivers/i2c/busses/i2c-stm32f4.c:201:16: sparse: incompatible types in comparison expression (different signedness)
-   In file included from include/linux/clk.h:16:0,
-                    from drivers/i2c/busses/i2c-stm32f4.c:12:
-   drivers/i2c/busses/i2c-stm32f4.c: In function 'stm32f4_i2c_set_periph_clk_freq':
-   include/linux/kernel.h:749:16: warning: comparison of distinct pointer types lacks a cast
-     (void) (&max1 == &max2);   \
-                   ^
-   include/linux/kernel.h:737:2: note: in definition of macro '__min'
-     t1 min1 = (x);     \
-     ^~
-   include/linux/kernel.h:778:28: note: in expansion of macro 'min'
-    #define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-                               ^~~
-   include/linux/kernel.h:752:2: note: in expansion of macro '__max'
-     __max(typeof(x), typeof(y),   \
-     ^~~~~
-   include/linux/kernel.h:778:45: note: in expansion of macro 'max'
-    #define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-                                                ^~~
-   drivers/i2c/busses/i2c-stm32f4.c:201:9: note: in expansion of macro 'clamp'
-     freq = clamp(freq, STM32F4_I2C_MIN_FREQ, STM32F4_I2C_MAX_FREQ);
-            ^~~~~
-   include/linux/kernel.h:749:16: warning: comparison of distinct pointer types lacks a cast
-     (void) (&max1 == &max2);   \
-                   ^
-   include/linux/kernel.h:737:13: note: in definition of macro '__min'
-     t1 min1 = (x);     \
-                ^
-   include/linux/kernel.h:778:28: note: in expansion of macro 'min'
-    #define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-                               ^~~
-   include/linux/kernel.h:752:2: note: in expansion of macro '__max'
-     __max(typeof(x), typeof(y),   \
-     ^~~~~
-   include/linux/kernel.h:778:45: note: in expansion of macro 'max'
-    #define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-                                                ^~~
-   drivers/i2c/busses/i2c-stm32f4.c:201:9: note: in expansion of macro 'clamp'
-     freq = clamp(freq, STM32F4_I2C_MIN_FREQ, STM32F4_I2C_MAX_FREQ);
-            ^~~~~
-   include/linux/kernel.h:739:16: warning: comparison of distinct pointer types lacks a cast
-     (void) (&min1 == &min2);   \
-                   ^
-   include/linux/kernel.h:742:2: note: in expansion of macro '__min'
-     __min(typeof(x), typeof(y),   \
-     ^~~~~
-   include/linux/kernel.h:778:28: note: in expansion of macro 'min'
-    #define clamp(val, lo, hi) min((typeof(val))max(val, lo), hi)
-                               ^~~
-   drivers/i2c/busses/i2c-stm32f4.c:201:9: note: in expansion of macro 'clamp'
-     freq = clamp(freq, STM32F4_I2C_MIN_FREQ, STM32F4_I2C_MAX_FREQ);
-            ^~~~~
-
-vim +201 drivers/i2c/busses/i2c-stm32f4.c
-
-   185	
-   186	static void stm32f4_i2c_disable_it(struct stm32f4_i2c_dev *i2c_dev)
-   187	{
-   188		void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
-   189	
-   190		stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_IRQ_MASK);
-   191	}
-   192	
-   193	static void stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
-   194	{
-   195		u32 clk_rate, cr2, freq;
-   196	
-   197		cr2 = readl_relaxed(i2c_dev->base + STM32F4_I2C_CR2);
-   198		cr2 &= ~STM32F4_I2C_CR2_FREQ_MASK;
-   199		clk_rate = clk_get_rate(i2c_dev->clk);
-   200		freq = clk_rate / MHZ_TO_HZ;
- > 201		freq = clamp(freq, STM32F4_I2C_MIN_FREQ, STM32F4_I2C_MAX_FREQ);
-   202		cr2 |= STM32F4_I2C_CR2_FREQ(freq);
-   203		writel_relaxed(cr2, i2c_dev->base + STM32F4_I2C_CR2);
-   204	}
-   205	
-   206	static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
-   207	{
-   208		u32 trise, freq, cr2, val;
-   209	
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+在 2016/12/8 0:27, Grygorii Strashko 写道:
+>
+>
+> On 12/06/2016 09:37 PM, David.Wu wrote:
+>> Hi Doug,
+>>
+>> 在 2016/12/7 0:31, Doug Anderson 写道:
+>>> Hi,
+>>>
+>>> On Tue, Dec 6, 2016 at 12:12 AM, David.Wu <david.wu@rock-chips.com>
+>>> wrote:
+>>>> Hi Heiko,
+>>>>
+>>>> 在 2016/12/5 18:54, Heiko Stuebner 写道:
+>>>>>
+>>>>> Hi David,
+>>>>>
+>>>>> Am Montag, 5. Dezember 2016, 16:02:59 CET schrieb David Wu:
+>>>>>>
+>>>>>> During suspend there may still be some i2c access happening.
+>>>>>> And if we don't keep i2c irq ON, there may be i2c access timeout if
+>>>>>> i2c is in irq mode of operation.
+>>>>>
+>>>>>
+>>>>> can you describe the issue you're trying to fix a bit more please?
+>>>>
+>>>>
+>>>> Sometimes we could see the i2c timeout errors during suspend/resume,
+>>>> which
+>>>> makes the duration of suspend/resume too longer.
+>>>>
+>>>> [  484.171541] CPU4: Booted secondary processor [410fd082]
+>>>> [  485.172777] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
+>>>> [  486.172760] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
+>>>> [  487.172759] rk3x-i2c ff3c0000.i2c: timeout, ipd: 0x10, state: 1
+>>>> [  487.172840] cpu cpu4: _set_opp_voltage: failed to set voltage (800000
+>>>> 800000 800000 mV): -110
+>>>> [  487.172874] cpu cpu4: failed to set volt 800000
+>>>>
+>>>>>
+>>>>> I.e. I'd think the i2c-core does suspend i2c-client devices first,
+>>>>> so that
+>>>>> these should be able to finish up their ongoing transfers and not start
+>>>>> any
+>>>>> new ones instead?
+>>>>>
+>>>>> Your irq can still happen slightly after the system started going to
+>>>>> actually
+>>>>> sleep, so to me it looks like you just widened the window where irqs
+>>>>> can
+>>>>> be
+>>>>> handled. Especially as your irq could also just simply stem from the
+>>>>> start
+>>>>> state, so you cannot even be sure if your transaction actually is
+>>>>> finished.
+>>>>
+>>>>
+>>>> Okay, you are right. I want to give it a double insurance at first,
+>>>> but it
+>>>> may hide the unhappend issue.
+>>>>
+>>>>>
+>>>>> So to me it looks like the i2c-connected device driver should be fixed
+>>>>> instead?
+>>>>
+>>>>
+>>>> I tell them to fix it in rk808 driver.
+>>>
+>>> To me it seems like perhaps cpufreq should not be changing frequencies
+>>> until it is resumed properly.  Presumably if all the ordering is done
+>>> right then cpufreq should be resumed _after_ the i2c regulator so you
+>>> should be OK.  ...or am I somehow confused about that?
+>>
+>> yes，the cpufreq and regulator should start i2c job after they resume
+>> properly.
+>>
+>>>
+>>> Also note that previous i2c busses I worked with simply returned -EIO
+>>> in the case where they were called when suspended.  See
+>>> "i2c-exynos5.c" and "i2c-s3c2410.c".
+>>
+>> In "i2c-exynos5.c", it seems that using the "i2c->suspended" to protect
+>> i2c transfer works most of the time. Of course it could prevent the next
+>> new i2c transfer to start. But in one case, if the current i2c job was
+>> not finished until the i2c irq was disabled by system suspend, the i2c
+>> timeout error would also happen, as the current i2c job may have a large
+>> data to transfer and it lasts from a long time.
+>
+> And this means you have bug in some of I2C client drivers which do not stop
+> their activities during suspend properly (most usual case - driver uses work
+> and this work still active during suspend and can run on one CPU while suspend
+> runs on another).
+>
+> At the moment .suspend_noirq() callback is called there should be no active
+> I2C transactions in general.
+>
+>>
+>> So is it necessary to add a mutex lock to wait the current job to be
+>> finished before the "i2c->suspended" is changed in i2c_suspend_noirq()?
+>>
+>
+> You need to catch and fix all driver who will try to access I2C after your
+> I2C bus driver passes suspend_noirq stage. Smth, like [1], uses i2c_lock_adapter().
+>
+>
+> [1] https://git.ti.com/android-sdk/kernel-omap/commit/125ef8f7016e7b205886f93862288a45a312b1d8
+>
