@@ -1,105 +1,96 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH 3/4] i2c: octeon: thunderx: Limit register access retries
-Date: Fri,  9 Dec 2016 10:31:57 +0100
-Message-ID: <20161209093158.3161-4-jglauber@cavium.com>
-References: <20161209093158.3161-1-jglauber@cavium.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/2] i2c: designware-baytrail: Pass dw_i2c_dev into helper functions
+Date: Fri,  9 Dec 2016 12:01:53 +0100
+Message-ID: <20161209110154.7157-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:32999 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933210AbcLIJca (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Dec 2016 04:32:30 -0500
-Received: by mail-wm0-f67.google.com with SMTP id u144so2764168wmu.0
-        for <linux-i2c@vger.kernel.org>; Fri, 09 Dec 2016 01:32:29 -0800 (PST)
-In-Reply-To: <20161209093158.3161-1-jglauber@cavium.com>
+Received: from mx1.redhat.com ([209.132.183.28]:43344 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932245AbcLILCD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 9 Dec 2016 06:02:03 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: Paul Burton <paul.burton@imgtec.com>, "Steven J . Hill" <Steven.Hill@cavium.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>, Jan Glauber <jglauber@cavium.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Do not infinitely retry register readq and writeq operations
-in order to not lock up the CPU in case the TWSI gets stuck.
+Pass dw_i2c_dev into the helper functions, this is a preparation patch
+for adding cherrytrail support.
 
-Return -EIO in case of a failed data read. For all other
-cases just return so subsequent operations will fail
-and trigger the recovery.
-
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Takashi Iwai <tiwai@suse.de>
 ---
- drivers/i2c/busses/i2c-octeon-core.c |  4 +++-
- drivers/i2c/busses/i2c-octeon-core.h | 21 ++++++++++++++++-----
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index 3d10f1a..1d8775799 100644
---- a/drivers/i2c/busses/i2c-octeon-core.c
-+++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -342,7 +342,9 @@ static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
- 		if (result)
- 			return result;
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 1590ad0..a3f581c 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -28,14 +28,14 @@
  
--		data[i] = octeon_i2c_data_read(i2c);
-+		data[i] = octeon_i2c_data_read(i2c, &result);
-+		if (result)
-+			return result;
- 		if (recv_len && i == 0) {
- 			if (data[i] > I2C_SMBUS_BLOCK_MAX + 1)
- 				return -EPROTO;
-diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
-index 87151ea..e160f83 100644
---- a/drivers/i2c/busses/i2c-octeon-core.h
-+++ b/drivers/i2c/busses/i2c-octeon-core.h
-@@ -141,11 +141,14 @@ static inline void octeon_i2c_writeq_flush(u64 val, void __iomem *addr)
-  */
- static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8 data)
+ static unsigned long acquired;
+ 
+-static int get_sem(struct device *dev, u32 *sem)
++static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
  {
-+	int tries = 1000;
- 	u64 tmp;
+ 	u32 data;
+ 	int ret;
  
- 	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
- 		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
-+		if (--tries < 0)
-+			return;
- 	} while ((tmp & SW_TWSI_V) != 0);
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
+ 	if (ret) {
+-		dev_err(dev, "iosf failed to read punit semaphore\n");
++		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
+ 		return ret;
+ 	}
+ 
+@@ -44,18 +44,18 @@ static int get_sem(struct device *dev, u32 *sem)
+ 	return 0;
  }
  
-@@ -163,24 +166,32 @@ static inline void octeon_i2c_reg_write(struct octeon_i2c *i2c, u64 eop_reg, u8
-  *
-  * The I2C core registers are accessed indirectly via the SW_TWSI CSR.
-  */
--static inline u8 octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg)
-+static inline int octeon_i2c_reg_read(struct octeon_i2c *i2c, u64 eop_reg,
-+				      int *error)
+-static void reset_semaphore(struct device *dev)
++static void reset_semaphore(struct dw_i2c_dev *dev)
  {
-+	int tries = 1000;
- 	u64 tmp;
+ 	u32 data;
  
- 	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI(i2c));
- 	do {
- 		tmp = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
-+		if (--tries < 0) {
-+			/* signal that the returned data is invalid */
-+			if (error)
-+				*error = -EIO;
-+			return 0;
-+		}
- 	} while ((tmp & SW_TWSI_V) != 0);
+ 	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data)) {
+-		dev_err(dev, "iosf failed to reset punit semaphore during read\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during read\n");
+ 		return;
+ 	}
  
- 	return tmp & 0xFF;
+ 	data &= ~PUNIT_SEMAPHORE_BIT;
+ 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
+-		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
  }
  
- #define octeon_i2c_ctl_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL)
--#define octeon_i2c_data_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_CTL, NULL)
-+#define octeon_i2c_data_read(i2c, error)				\
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_DATA, error)
- #define octeon_i2c_stat_read(i2c)					\
--	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT)
-+	octeon_i2c_reg_read(i2c, SW_TWSI_EOP_TWSI_STAT, NULL)
+ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+@@ -83,7 +83,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	start = jiffies;
+ 	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
+ 	do {
+-		ret = get_sem(dev->dev, &sem);
++		ret = get_sem(dev, &sem);
+ 		if (!ret && sem) {
+ 			acquired = jiffies;
+ 			dev_dbg(dev->dev, "punit semaphore acquired after %ums\n",
+@@ -95,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	} while (time_before(jiffies, end));
  
- /**
-  * octeon_i2c_read_int - read the TWSI_INT register
+ 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &sem);
+ 	if (ret)
+@@ -116,7 +116,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ 	if (!dev->acquire_lock)
+ 		return;
+ 
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
+ 		jiffies_to_msecs(jiffies - acquired));
+ }
 -- 
-2.9.0.rc0.21.g7777322
+2.9.3
