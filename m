@@ -1,109 +1,99 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 1/5] i2c: designware: Rename accessor_flags to flags
-Date: Sat, 10 Dec 2016 23:43:46 +0100
-Message-ID: <20161210224350.10290-1-hdegoede@redhat.com>
+Subject: [PATCH v3 2/5] i2c: designware-baytrail: Pass dw_i2c_dev into helper functions
+Date: Sat, 10 Dec 2016 23:43:47 +0100
+Message-ID: <20161210224350.10290-2-hdegoede@redhat.com>
+References: <20161210224350.10290-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43490 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55116 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752250AbcLJWnz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Dec 2016 17:43:55 -0500
+        id S1752345AbcLJWn5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 10 Dec 2016 17:43:57 -0500
+In-Reply-To: <20161210224350.10290-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Vincent Gerris <vgerris@gmail.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Rename accessor_flags to flags, so that we can use the field for
-other flags too. This is a preparation patch for adding cherrytrail
-support to the punit semaphore code.
+Pass dw_i2c_dev into the helper functions, this is a preparation patch
+for the punit semaphore fixes done in the other patches in this set.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Takashi Iwai <tiwai@suse.de>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c    | 14 +++++++-------
- drivers/i2c/busses/i2c-designware-core.h    |  2 +-
- drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index b403fa5..b6a7989 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -177,13 +177,13 @@ static u32 dw_readl(struct dw_i2c_dev *dev, int offset)
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 1590ad0..a3f581c 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -28,14 +28,14 @@
+ 
+ static unsigned long acquired;
+ 
+-static int get_sem(struct device *dev, u32 *sem)
++static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
  {
- 	u32 value;
+ 	u32 data;
+ 	int ret;
  
--	if (dev->accessor_flags & ACCESS_16BIT)
-+	if (dev->flags & ACCESS_16BIT)
- 		value = readw_relaxed(dev->base + offset) |
- 			(readw_relaxed(dev->base + offset + 2) << 16);
- 	else
- 		value = readl_relaxed(dev->base + offset);
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
+ 	if (ret) {
+-		dev_err(dev, "iosf failed to read punit semaphore\n");
++		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
+ 		return ret;
+ 	}
  
--	if (dev->accessor_flags & ACCESS_SWAP)
-+	if (dev->flags & ACCESS_SWAP)
- 		return swab32(value);
- 	else
- 		return value;
-@@ -191,10 +191,10 @@ static u32 dw_readl(struct dw_i2c_dev *dev, int offset)
- 
- static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- {
--	if (dev->accessor_flags & ACCESS_SWAP)
-+	if (dev->flags & ACCESS_SWAP)
- 		b = swab32(b);
- 
--	if (dev->accessor_flags & ACCESS_16BIT) {
-+	if (dev->flags & ACCESS_16BIT) {
- 		writew_relaxed((u16)b, dev->base + offset);
- 		writew_relaxed((u16)(b >> 16), dev->base + offset + 2);
- 	} else {
-@@ -339,10 +339,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
- 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
- 		/* Configure register endianess access */
--		dev->accessor_flags |= ACCESS_SWAP;
-+		dev->flags |= ACCESS_SWAP;
- 	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
- 		/* Configure register access mode 16bit */
--		dev->accessor_flags |= ACCESS_16BIT;
-+		dev->flags |= ACCESS_16BIT;
- 	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
- 		dev_err(dev->dev, "Unknown Synopsys component type: "
- 			"0x%08x\n", reg);
-@@ -886,7 +886,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- tx_aborted:
- 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
- 		complete(&dev->cmd_complete);
--	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
-+	else if (unlikely(dev->flags & ACCESS_INTR_MASK)) {
- 		/* workaround to trigger pending interrupt */
- 		stat = dw_readl(dev, DW_IC_INTR_MASK);
- 		i2c_dw_disable_int(dev);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 0d44d2a..fb143f5 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -95,7 +95,7 @@ struct dw_i2c_dev {
- 	unsigned int		status;
- 	u32			abort_source;
- 	int			irq;
--	u32			accessor_flags;
-+	u32			flags;
- 	struct i2c_adapter	adapter;
- 	u32			functionality;
- 	u32			master_cfg;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0b42a12..97a2ca1 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -112,7 +112,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 
- 	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
- 	if (id && id->driver_data)
--		dev->accessor_flags |= (u32)id->driver_data;
-+		dev->flags |= (u32)id->driver_data;
- 
+@@ -44,18 +44,18 @@ static int get_sem(struct device *dev, u32 *sem)
  	return 0;
+ }
+ 
+-static void reset_semaphore(struct device *dev)
++static void reset_semaphore(struct dw_i2c_dev *dev)
+ {
+ 	u32 data;
+ 
+ 	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data)) {
+-		dev_err(dev, "iosf failed to reset punit semaphore during read\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during read\n");
+ 		return;
+ 	}
+ 
+ 	data &= ~PUNIT_SEMAPHORE_BIT;
+ 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
+-		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
+ }
+ 
+ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+@@ -83,7 +83,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	start = jiffies;
+ 	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
+ 	do {
+-		ret = get_sem(dev->dev, &sem);
++		ret = get_sem(dev, &sem);
+ 		if (!ret && sem) {
+ 			acquired = jiffies;
+ 			dev_dbg(dev->dev, "punit semaphore acquired after %ums\n",
+@@ -95,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	} while (time_before(jiffies, end));
+ 
+ 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &sem);
+ 	if (ret)
+@@ -116,7 +116,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ 	if (!dev->acquire_lock)
+ 		return;
+ 
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
+ 		jiffies_to_msecs(jiffies - acquired));
  }
 -- 
 2.9.3
