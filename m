@@ -1,99 +1,64 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 2/5] i2c: designware-baytrail: Pass dw_i2c_dev into helper functions
-Date: Sat, 10 Dec 2016 23:43:47 +0100
-Message-ID: <20161210224350.10290-2-hdegoede@redhat.com>
+Subject: [PATCH v3 3/5] i2c: designware-baytrail: Only check iosf_mbi_available() for shared hosts
+Date: Sat, 10 Dec 2016 23:43:48 +0100
+Message-ID: <20161210224350.10290-3-hdegoede@redhat.com>
 References: <20161210224350.10290-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55116 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50212 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752345AbcLJWn5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Dec 2016 17:43:57 -0500
+        id S1752345AbcLJWn7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 10 Dec 2016 17:43:59 -0500
 In-Reply-To: <20161210224350.10290-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Vincent Gerris <vgerris@gmail.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Pass dw_i2c_dev into the helper functions, this is a preparation patch
-for the punit semaphore fixes done in the other patches in this set.
+If (!shared_host) simply return 0, this avoids delaying the probe if
+iosf_mbi_available() returns false when an i2c bus is not using the
+punit semaphore.
+
+Also move the if (!iosf_mbi_available()) check to above the
+dev_info, so that we do not repeat the dev_info on every probe
+until iosf_mbi_available() returns true.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Tested-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-baytrail.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Changes in v2:
+-New patch in v2 of this set
+Changes in v3:
+-Use if (!shared_host) return 0, to simplify the non-shared_host path
+ and to avoid nested ifs
+---
+ drivers/i2c/busses/i2c-designware-baytrail.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 1590ad0..a3f581c 100644
+index a3f581c..cf02222 100644
 --- a/drivers/i2c/busses/i2c-designware-baytrail.c
 +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -28,14 +28,14 @@
+@@ -138,15 +138,16 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+ 	if (ACPI_FAILURE(status))
+ 		return 0;
  
- static unsigned long acquired;
+-	if (shared_host) {
+-		dev_info(dev->dev, "I2C bus managed by PUNIT\n");
+-		dev->acquire_lock = baytrail_i2c_acquire;
+-		dev->release_lock = baytrail_i2c_release;
+-		dev->pm_runtime_disabled = true;
+-	}
++	if (!shared_host)
++		return 0;
  
--static int get_sem(struct device *dev, u32 *sem)
-+static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
- {
- 	u32 data;
- 	int ret;
+ 	if (!iosf_mbi_available())
+ 		return -EPROBE_DEFER;
  
- 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
- 	if (ret) {
--		dev_err(dev, "iosf failed to read punit semaphore\n");
-+		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
- 		return ret;
- 	}
- 
-@@ -44,18 +44,18 @@ static int get_sem(struct device *dev, u32 *sem)
++	dev_info(dev->dev, "I2C bus managed by PUNIT\n");
++	dev->acquire_lock = baytrail_i2c_acquire;
++	dev->release_lock = baytrail_i2c_release;
++	dev->pm_runtime_disabled = true;
++
  	return 0;
- }
- 
--static void reset_semaphore(struct device *dev)
-+static void reset_semaphore(struct dw_i2c_dev *dev)
- {
- 	u32 data;
- 
- 	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data)) {
--		dev_err(dev, "iosf failed to reset punit semaphore during read\n");
-+		dev_err(dev->dev, "iosf failed to reset punit semaphore during read\n");
- 		return;
- 	}
- 
- 	data &= ~PUNIT_SEMAPHORE_BIT;
- 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
--		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
-+		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
- }
- 
- static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
-@@ -83,7 +83,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	start = jiffies;
- 	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
- 	do {
--		ret = get_sem(dev->dev, &sem);
-+		ret = get_sem(dev, &sem);
- 		if (!ret && sem) {
- 			acquired = jiffies;
- 			dev_dbg(dev->dev, "punit semaphore acquired after %ums\n",
-@@ -95,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	} while (time_before(jiffies, end));
- 
- 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
--	reset_semaphore(dev->dev);
-+	reset_semaphore(dev);
- 
- 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &sem);
- 	if (ret)
-@@ -116,7 +116,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
- 	if (!dev->acquire_lock)
- 		return;
- 
--	reset_semaphore(dev->dev);
-+	reset_semaphore(dev);
- 	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
- 		jiffies_to_msecs(jiffies - acquired));
  }
 -- 
 2.9.3
