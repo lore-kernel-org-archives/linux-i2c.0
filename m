@@ -1,254 +1,153 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 5/5] i2c: designware-baytrail: Add support for
- cherrytrail
-Date: Sat, 10 Dec 2016 17:01:48 +0200
-Message-ID: <1481382108.7188.10.camel@linux.intel.com>
-References: <20161210141908.16470-1-hdegoede@redhat.com>
-         <20161210141908.16470-5-hdegoede@redhat.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 4/9] dt-bindings: iio: iio-mux: document iio-mux
+ bindings
+Date: Sat, 10 Dec 2016 18:21:41 +0000
+Message-ID: <d2726499-4034-8d5d-4cff-61da86af5add@kernel.org>
+References: <1480493823-21462-1-git-send-email-peda@axentia.se>
+ <1480493823-21462-5-git-send-email-peda@axentia.se>
+ <20161205232624.5wjvmchd6jxd24ir@rob-hp-laptop>
+ <ea58cfe1-88ed-f215-59df-e9ffba485eaa@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:62097 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752183AbcLJPEx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Dec 2016 10:04:53 -0500
-In-Reply-To: <20161210141908.16470-5-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <ea58cfe1-88ed-f215-59df-e9ffba485eaa-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Vincent Gerris <vgerris@gmail.com>, linux-i2c@vger.kernel.org
 
-On Sat, 2016-12-10 at 15:19 +0100, Hans de Goede wrote:
-> The cherrytrail punit has the pmic i2c bus access semaphore at a
-> different register address.
+On 06/12/16 09:18, Peter Rosin wrote:
+> On 2016-12-06 00:26, Rob Herring wrote:
+>> On Wed, Nov 30, 2016 at 09:16:58AM +0100, Peter Rosin wrote:
+>>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>>> ---
+>>>  .../bindings/iio/multiplexer/iio-mux.txt           | 40 ++++++++++++++++++++++
+>>>  MAINTAINERS                                        |  6 ++++
+>>>  2 files changed, 46 insertions(+)
+>>>  create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>
+>> I'm still not convinced about this binding, but don't really have more 
+>> comments ATM. Sending 6 versions in 2 weeks or so doesn't really help 
+>> either.
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Reviewed-by: Takashi Iwai <tiwai@suse.de>
-> Tested-by: Takashi Iwai <tiwai@suse.de>
-> ---
-> Changes in v2:
-> -Adjust for accessor_flags -> flags rename
-> -Add flags field to struct dw_pci_controller
-> -Add get_sem_addr() helper replacing MODEL_CHERRYTRAIL flag checking
-> in
->  PUNIT_SEMAPHORE macro
-
-Yes! That's exactly what I would like to see.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-P.S. One very minor comment, perhaps make a gap between ACCESS_* and
-MODEL_* flags, like starting MODEL_XXX from 0x10?
-
-> ---
->  drivers/i2c/busses/i2c-designware-baytrail.c | 22 +++++++++++++++++
-> -----
->  drivers/i2c/busses/i2c-designware-core.h     |  1 +
->  drivers/i2c/busses/i2c-designware-pcidrv.c   | 26
-> +++++++++++++++++++-------
->  drivers/i2c/busses/i2c-designware-platdrv.c  |  2 +-
->  4 files changed, 38 insertions(+), 13 deletions(-)
+> Sorry about the noise, I'll try to be more careful going forward. On
+> the flip side, I haven't touched the code since v6.
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
-> b/drivers/i2c/busses/i2c-designware-baytrail.c
-> index 4f10ebb..16cfe16 100644
-> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
-> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-> @@ -24,13 +24,23 @@
->  
->  #define SEMAPHORE_TIMEOUT	100
->  #define PUNIT_SEMAPHORE		0x7
-> +#define PUNIT_SEMAPHORE_CHV	0x10e
->  #define PUNIT_SEMAPHORE_BIT	BIT(0)
->  #define PUNIT_SEMAPHORE_ACQUIRE	BIT(1)
->  
->  static unsigned long acquired;
->  
-> +static u32 get_sem_addr(struct dw_i2c_dev *dev)
-> +{
-> +	if (dev->flags & MODEL_CHERRYTRAIL)
-> +		return PUNIT_SEMAPHORE_CHV;
-> +	else
-> +		return PUNIT_SEMAPHORE;
-> +}
-> +
->  static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
->  {
-> +	u32 addr = get_sem_addr(dev);
->  	u32 data;
->  	int ret;
->  
-> @@ -41,7 +51,7 @@ static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
->  	 */
->  	pm_qos_update_request(&dev->pm_qos, 0);
->  
-> -	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ,
-> PUNIT_SEMAPHORE, &data);
-> +	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr,
-> &data);
->  	if (ret) {
->  		dev_err(dev->dev, "iosf failed to read punit
-> semaphore\n");
->  		return ret;
-> @@ -54,15 +64,16 @@ static int get_sem(struct dw_i2c_dev *dev, u32
-> *sem)
->  
->  static void reset_semaphore(struct dw_i2c_dev *dev)
->  {
-> +	u32 addr = get_sem_addr(dev);
->  	u32 data;
->  
-> -	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ,
-> PUNIT_SEMAPHORE, &data)) {
-> +	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr,
-> &data)) {
->  		dev_err(dev->dev, "iosf failed to reset punit
-> semaphore during read\n");
->  		return;
->  	}
->  
->  	data &= ~PUNIT_SEMAPHORE_BIT;
-> -	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
-> PUNIT_SEMAPHORE, data))
-> +	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, addr,
-> data))
->  		dev_err(dev->dev, "iosf failed to reset punit
-> semaphore during write\n");
->  
->  	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
-> @@ -70,6 +81,7 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
->  
->  static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
->  {
-> +	u32 addr = get_sem_addr(dev);
->  	u32 sem = PUNIT_SEMAPHORE_ACQUIRE;
->  	int ret;
->  	unsigned long start, end;
-> @@ -83,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev
-> *dev)
->  		return 0;
->  
->  	/* host driver writes to side band semaphore register */
-> -	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
-> PUNIT_SEMAPHORE, sem);
-> +	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, addr,
-> sem);
->  	if (ret) {
->  		dev_err(dev->dev, "iosf punit semaphore request
-> failed\n");
->  		return ret;
-> @@ -107,7 +119,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev
-> *dev)
->  	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
->  	reset_semaphore(dev);
->  
-> -	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ,
-> PUNIT_SEMAPHORE, &sem);
-> +	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr,
-> &sem);
->  	if (ret)
->  		dev_err(dev->dev, "iosf failed to read punit
-> semaphore\n");
->  	else
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h
-> b/drivers/i2c/busses/i2c-designware-core.h
-> index 47d284c..735fc63 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -126,6 +126,7 @@ struct dw_i2c_dev {
->  #define ACCESS_SWAP		0x00000001
->  #define ACCESS_16BIT		0x00000002
->  #define ACCESS_INTR_MASK	0x00000004
-> +#define MODEL_CHERRYTRAIL	0x00000008
->  
->  extern int i2c_dw_init(struct dw_i2c_dev *dev);
->  extern void i2c_dw_disable(struct dw_i2c_dev *dev);
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index 96f8230..4e53a9f 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -45,6 +45,7 @@ enum dw_pci_ctl_id_t {
->  	medfield,
->  	merrifield,
->  	baytrail,
-> +	cherrytrail,
->  	haswell,
->  };
->  
-> @@ -63,6 +64,7 @@ struct dw_pci_controller {
->  	u32 rx_fifo_depth;
->  	u32 clk_khz;
->  	u32 functionality;
-> +	u32 flags;
->  	struct dw_scl_sda_cfg *scl_sda_cfg;
->  	int (*setup)(struct pci_dev *pdev, struct dw_pci_controller
-> *c);
->  };
-> @@ -174,6 +176,15 @@ static struct dw_pci_controller
-> dw_pci_controllers[] = {
->  		.functionality = I2C_FUNC_10BIT_ADDR,
->  		.scl_sda_cfg = &hsw_config,
->  	},
-> +	[cherrytrail] = {
-> +		.bus_num = -1,
-> +		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
-> +		.tx_fifo_depth = 32,
-> +		.rx_fifo_depth = 32,
-> +		.functionality = I2C_FUNC_10BIT_ADDR,
-> +		.flags = MODEL_CHERRYTRAIL,
-> +		.scl_sda_cfg = &byt_config,
-> +	},
->  };
->  
->  #ifdef CONFIG_PM
-> @@ -241,6 +252,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
->  	dev->base = pcim_iomap_table(pdev)[0];
->  	dev->dev = &pdev->dev;
->  	dev->irq = pdev->irq;
-> +	dev->flags |= controller->flags;
->  
->  	if (controller->setup) {
->  		r = controller->setup(pdev, controller);
-> @@ -321,13 +333,13 @@ static const struct pci_device_id
-> i2_designware_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0x9c61), haswell },
->  	{ PCI_VDEVICE(INTEL, 0x9c62), haswell },
->  	/* Braswell / Cherrytrail */
-> -	{ PCI_VDEVICE(INTEL, 0x22C1), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C2), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C3), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C4), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C5), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C6), baytrail },
-> -	{ PCI_VDEVICE(INTEL, 0x22C7), baytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C1), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C2), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C3), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C4), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C5), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C6), cherrytrail },
-> +	{ PCI_VDEVICE(INTEL, 0x22C7), cherrytrail },
->  	{ 0,}
->  };
->  MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 6d72929..589f07e 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -123,7 +123,7 @@ static const struct acpi_device_id
-> dw_i2c_acpi_match[] = {
->  	{ "INT3432", 0 },
->  	{ "INT3433", 0 },
->  	{ "80860F41", 0 },
-> -	{ "808622C1", 0 },
-> +	{ "808622C1", MODEL_CHERRYTRAIL },
->  	{ "AMD0010", ACCESS_INTR_MASK },
->  	{ "AMDI0010", ACCESS_INTR_MASK },
->  	{ "AMDI0510", 0 },
+> I don't see how bindings that are as flexible as the current (and
+> original) phandle link between the mux consumer and the mux controller
+> would look, and at the same time be simpler to understand. You need
+> to be able to refer to a mux controller from several mux consumers, and
+> you need to support several mux controllers in one node (the ADG792A
+> case). And, AFAICT, the complex case wasn't really the problem, it was
+> that it is overly complex to describe the simple case of one mux
+> consumer and one mux controller. But in your comment for v2 [1] you
+> said that I was working around limitations with shared GPIO pins. But
+> solving that in the GPIO subsystem would not solve all that the
+> phandle approach is solving, since you would not have support for
+> ADG792A (or other non-GPIO controlled muxes). So, I think listing
+> the gpio pins inside the mux consumer node is a non-starter, the mux
+> controller has to live in its own node with its own compatible.
+> 
+> Would you be happier if I managed to marry the phandle approach with
+> the option of having the mux controller as a child node of the mux
+> consumer for the simple case?
+> 
+> I added an example at the end of this message (the same as the first
+> example in v4 [2], at least in principle) for easy comparison between
+> the phandle and the controller-in-child-node approaches. I can't say
+> that I personally find the difference all that significant, and do not
+> think it is worth it. As I see it, the "simple option" would just muddy
+> the waters...
+> 
+> [1] http://marc.info/?l=linux-kernel&m=147948334204795&w=2
+> [2] http://marc.info/?l=linux-kernel&m=148001364904240&w=2
+> 
+>>> diff --git a/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>> new file mode 100644
+>>> index 000000000000..8080cf790d82
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>> @@ -0,0 +1,40 @@
+>>> +IIO multiplexer bindings
+>>> +
+>>> +If a multiplexer is used to select which hardware signal is fed to
+>>> +e.g. an ADC channel, these bindings describe that situation.
+>>> +
+>>> +Required properties:
+>>> +- compatible : "iio-mux"
+>>
+>> This is a Linuxism. perhaps "adc-mux".
+> 
+> No, that's not general enough, it could just as well be used to mux a
+> temperature sensor. Or whatever. Hmmm, given that "iio-mux" is bad, perhaps
+> "io-channel-mux" is better? That matches the io-channels property used to
+> refer to the parent channel.
+analog-mux maybe? Makes more sense out of context (though with io-channels defined on
+the next line you have plenty of context here ;)
+> 
+>>> +- io-channels : Channel node of the parent channel that has multiplexed
+>>> +		input.
+>>> +- io-channel-names : Should be "parent".
+>>> +- #address-cells = <1>;
+>>> +- #size-cells = <0>;
+>>> +- mux-controls : Mux controller node to use for operating the mux
+>>> +- channels : List of strings, labeling the mux controller states.
+>>> +
+>>> +The multiplexer state as described in ../misc/mux-controller.txt
+>>> +
+>>> +For each non-empty string in the channels property, an iio channel will
+>>> +be created. The number of this iio channel is the same as the index into
+>>> +the list of strings in the channels property, and also matches the mux
+>>> +controller state.
+>>> +
+>>> +Example:
+>>> +	mux: mux-controller {
+>>> +		compatible = "mux-gpio";
+>>> +		#mux-control-cells = <0>;
+>>> +
+>>> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+>>> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+>>> +	};
+>>> +
+>>> +	adc-mux {
+>>> +		compatible = "iio-mux";
+>>> +		io-channels = <&adc 0>;
+>>> +		io-channel-names = "parent";
+>>> +
+>>> +		mux-controls = <&mux>;
+>>> +
+>>> +		channels = "sync", "in", system-regulator";
+>>> +	};
+> 
+> Describing the same as above, but with the mux controller as a child
+> node.
+> 
+> 	adc-mux {
+> 		compatible = "iio-mux";
+> 		io-channels = <&adc 0>;
+> 		io-channel-names = "parent";
+> 
+> 		channels = "sync", "in", system-regulator";
+> 
+> 		mux-controller {
+> 			compatible = "mux-gpio";
+> 
+> 			mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> 				    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> 		};
+> 	};
+> 
+> Cheers,
+> Peter
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
