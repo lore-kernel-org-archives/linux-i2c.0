@@ -1,58 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: cadence: Allow Cadence I2C to be selected for
- Cadence Xtensa CPUs
-Date: Sun, 11 Dec 2016 22:57:15 +0100
-Message-ID: <20161211215715.GD2552@katana>
-References: <1481190478-16718-1-git-send-email-jank@cadence.com>
+Subject: Re: [PATCH 1/4] i2c: octeon: thunderx: TWSI software reset in
+ recovery
+Date: Sun, 11 Dec 2016 23:01:26 +0100
+Message-ID: <20161211220126.GE2552@katana>
+References: <20161209093158.3161-1-jglauber@cavium.com>
+ <20161209093158.3161-2-jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Q0rSlbzrZN6k9QnT"
+        protocol="application/pgp-signature"; boundary="//IivP0gvsAy3Can"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:52358 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:54642 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753881AbcLKV5R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 11 Dec 2016 16:57:17 -0500
+        id S1753870AbcLKWB3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Dec 2016 17:01:29 -0500
 Content-Disposition: inline
-In-Reply-To: <1481190478-16718-1-git-send-email-jank@cadence.com>
+In-Reply-To: <20161209093158.3161-2-jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kotas <jank@cadence.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, Paul Burton <paul.burton@imgtec.com>, "Steven J . Hill" <Steven.Hill@cavium.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>
 
 
---Q0rSlbzrZN6k9QnT
+--//IivP0gvsAy3Can
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 08, 2016 at 09:47:58AM +0000, Jan Kotas wrote:
-> This patch allows Cadence I2C controller to be selected in systems using =
-Cadence Xtensa processors.
+On Fri, Dec 09, 2016 at 10:31:55AM +0100, Jan Glauber wrote:
+> I've seen i2c recovery reporting long loops of:
 >=20
-> Signed-off-by: Jan Kotas <jank@cadence.com>
+> [ 1035.887818] i2c i2c-4: SCL is stuck low, exit recovery
+> [ 1037.999748] i2c i2c-4: SCL is stuck low, exit recovery
+> [ 1040.111694] i2c i2c-4: SCL is stuck low, exit recovery
+> ...
+>=20
+> Add a TWSI software reset which clears the status and
+> STA,STP,IFLG in SW_TWSI_EOP_TWSI_CTL.
+>=20
+> With this the recovery works fine and above message is not seen.
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
 Applied to for-next, thanks!
 
 
---Q0rSlbzrZN6k9QnT
+--//IivP0gvsAy3Can
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYTcu7AAoJEBQN5MwUoCm2R24QAJxqsha2vhVjITxniNu/PmQC
-b2sCnc2PY6SZNar27SI8DZeYClIwFHJId9kS0/A+wiYmTo24vAW8n3b4aDoFwwuz
-jBrDmZhkSKlBeyAgaMkWFkVszkrY421Uh2fhymfFAtiku+2NkKtpROSRJj1AgVck
-ArohD4/o8IpPo26Xj02SP319H4FoBwvf0HU05AAVJ/p59HNtm/KKZEuNU7nqwqM1
-v2XtwkpqpdJSsfCgEtYSgnKjR+HdlVoPkmXpN0iamunpom244B+HsjH2VaG+ogiC
-KlLOj53MxL5IXTI21JE0ZhFu+syLmDVGZ/tf44CIl6/bHjIl+PJqJ2bubhQxWUxp
-Aom480ESvVFFke1tZaWNWDzilPBoPR5gvtcLIM8/OL3f8S6ILJIN0wzwRvB2e+Ja
-kvNmyANPPmVphDGFHEMPw0yY9GMMcMsK3R/39Em8jWRpBVEp0J5IRyR71/jJPM41
-Kmy6MCP2yxfsx9pbhWDVzSZodfKXxqyGNiQ5G7UCtbc2zn0Ar4t/H6y9nUWhUakD
-okJKrRp+tXmgERVrQ+51jttj5MV3l1wivWGoI94cgutJ9wlVBR9+F626yGZd63aw
-ucqeMS6N+xDr8QEVbnOUxRCfXQxbzWoFIZ4wXE/cwDHUJqeWCAWQrAfYVrS5KevG
-HgW4DDnaMymgAH1ONx+w
-=mC35
+iQIcBAEBAgAGBQJYTcy2AAoJEBQN5MwUoCm2xQYP/R93T74Td5W0v2coTzSpZQlK
+hlrkJ8XDlfA8lZFpzRXZRnUNtLVzP2JK5QzvdrD1HCv2OoQofMHnUkEEEz4INJCb
+4U1aUz7mOSEXA3fFiaI7+Iodd4+8erBO5F/dSnP+n3L3ZdIj7+8GljXXsVubFPge
+/eNGA+bsP27ME8pNVNsHj4exrrzSuOs2GeELSdJ1RjwhL7st5bVLptYA0kpkjOqU
+d4L3HQZR2mRhxNzCOuEtiP1385asvgpP3C5pPxs6gQdSbRTD7Nf92IPUK5hd7hEz
+PZT6bjviYvJmfjjisfF1LhE8JUDHL7HZ3L9D5Ixm9ifGQhiP0Gn5B/nmBm/in+Rp
+aOMHlxgEQRz932iic7UnTu1NnuqmliN+hs+wQIt0BNLGNs518K3N8peOdNF491n3
+ySCVE2cItqEZK4YSIjkmkSzbnnQjOcE0z0NaSWGNmMq51EXtIlKFf9wYL01cwTOU
+A0wx4F2a9vWln1dfYwJfmoc0NdcWGsAolvSPN3f/NdPu2KFhD/8siPP4sS2ugSRO
+DAEnbsMRlurfxKOcXkaTi3E7oOWx5bWPW5gwidQRR6p8rimNxOfRCwwUBFquCT8q
+QzCamI46EANOwhoOtPTr89rGRWzu5F5P8urddreuP3+Upjx0ChoTayEpXGo32DIg
+HHuqJ/yYiRW0OJvCFvuF
+=0L5Q
 -----END PGP SIGNATURE-----
 
---Q0rSlbzrZN6k9QnT--
+--//IivP0gvsAy3Can--
