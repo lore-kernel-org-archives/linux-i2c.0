@@ -1,68 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] i2c: octeon: thunderx: TWSI software reset in
- recovery
-Date: Sun, 11 Dec 2016 23:01:26 +0100
-Message-ID: <20161211220126.GE2552@katana>
+Subject: Re: [PATCH 2/4] i2c: octeon: thunderx: Remove double-check after
+ interrupt
+Date: Sun, 11 Dec 2016 23:01:32 +0100
+Message-ID: <20161211220132.GF2552@katana>
 References: <20161209093158.3161-1-jglauber@cavium.com>
- <20161209093158.3161-2-jglauber@cavium.com>
+ <20161209093158.3161-3-jglauber@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="//IivP0gvsAy3Can"
+        protocol="application/pgp-signature"; boundary="CXFpZVxO6m2Ol4tQ"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:54642 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:54744 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753870AbcLKWB3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 11 Dec 2016 17:01:29 -0500
+        id S1753870AbcLKWBe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Dec 2016 17:01:34 -0500
 Content-Disposition: inline
-In-Reply-To: <20161209093158.3161-2-jglauber@cavium.com>
+In-Reply-To: <20161209093158.3161-3-jglauber@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jan Glauber <jglauber@cavium.com>
 Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, Paul Burton <paul.burton@imgtec.com>, "Steven J . Hill" <Steven.Hill@cavium.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>
 
 
---//IivP0gvsAy3Can
+--CXFpZVxO6m2Ol4tQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 09, 2016 at 10:31:55AM +0100, Jan Glauber wrote:
-> I've seen i2c recovery reporting long loops of:
->=20
-> [ 1035.887818] i2c i2c-4: SCL is stuck low, exit recovery
-> [ 1037.999748] i2c i2c-4: SCL is stuck low, exit recovery
-> [ 1040.111694] i2c i2c-4: SCL is stuck low, exit recovery
-> ...
->=20
-> Add a TWSI software reset which clears the status and
-> STA,STP,IFLG in SW_TWSI_EOP_TWSI_CTL.
->=20
-> With this the recovery works fine and above message is not seen.
+On Fri, Dec 09, 2016 at 10:31:56AM +0100, Jan Glauber wrote:
+> Commit 1bb1ff3e7c74 ("i2c: octeon: Improve performance if interrupt is
+> early") added a double-check around the wait_event_timeout() condition.
+> The performance problem that this commit tried to work-around
+> could not be reproduced. It also makes the wait condition more
+> complicated then it should be. Therefore remove the double-check.
 >=20
 > Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
 Applied to for-next, thanks!
 
 
---//IivP0gvsAy3Can
+--CXFpZVxO6m2Ol4tQ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYTcy2AAoJEBQN5MwUoCm2xQYP/R93T74Td5W0v2coTzSpZQlK
-hlrkJ8XDlfA8lZFpzRXZRnUNtLVzP2JK5QzvdrD1HCv2OoQofMHnUkEEEz4INJCb
-4U1aUz7mOSEXA3fFiaI7+Iodd4+8erBO5F/dSnP+n3L3ZdIj7+8GljXXsVubFPge
-/eNGA+bsP27ME8pNVNsHj4exrrzSuOs2GeELSdJ1RjwhL7st5bVLptYA0kpkjOqU
-d4L3HQZR2mRhxNzCOuEtiP1385asvgpP3C5pPxs6gQdSbRTD7Nf92IPUK5hd7hEz
-PZT6bjviYvJmfjjisfF1LhE8JUDHL7HZ3L9D5Ixm9ifGQhiP0Gn5B/nmBm/in+Rp
-aOMHlxgEQRz932iic7UnTu1NnuqmliN+hs+wQIt0BNLGNs518K3N8peOdNF491n3
-ySCVE2cItqEZK4YSIjkmkSzbnnQjOcE0z0NaSWGNmMq51EXtIlKFf9wYL01cwTOU
-A0wx4F2a9vWln1dfYwJfmoc0NdcWGsAolvSPN3f/NdPu2KFhD/8siPP4sS2ugSRO
-DAEnbsMRlurfxKOcXkaTi3E7oOWx5bWPW5gwidQRR6p8rimNxOfRCwwUBFquCT8q
-QzCamI46EANOwhoOtPTr89rGRWzu5F5P8urddreuP3+Upjx0ChoTayEpXGo32DIg
-HHuqJ/yYiRW0OJvCFvuF
-=0L5Q
+iQIcBAEBAgAGBQJYTcy8AAoJEBQN5MwUoCm2/dAQAIO4CplDJgFNF9AFcaUl62Dh
+fAm/qdFpOv95EWdBhbmRioZu4lq8PetkBhe5H6NIlZy4/4VuKy/jvw74KqlPVYQv
+hmK5mSaXfny8PNqMPTQ9wNDdB0NCDIYJw/Ib9+7iXVamwSarNIJ4vZARP3aR1NjF
+wxOrsaQ1hSApn018EbfkqoDlIlsfeLCK8CwnV9/fG6BadAW17cJdcKbL9kvSg5E0
+A1Ea5Qw7MR4bHux7CKRc+85evmMR7mLvGggD938tA8fQmpDQlPwQyMccjtaC0zKe
+GlMn4KdBqFi/TtAgOMnPGY84jIoFiBBM2KC9Pxh/gqm8hSHbtxm2qA4lk8mx9v7s
+WsD1Wh9QpSzznb/b2nitF9vlgUFsytio1uPFHlPp9PWX9gWm31rEUdTXhqnFMj5e
+p15O64Neb7EELjd8S+r+oEKB2SITIz9uu4F3Jt8S57AMVjHZUVzNbEB6unGuPvWr
+dsWtwV1O2usG5Rpz538NAyOpOHRJ0tNCceIhLKzetxMe4Tu35tOCan5EL6zb0G3b
+FmrH6TnmJAI9zGqtAthB2oXERNua8FNEul2mdOWhijIojCxDderEqlcGd6aurr4j
+TykT9C7T3Bl4fTt0npyhYJG0lzg9AWqSGJvzkx9FWXPDTWJLh4IRL3V5A42GyFoq
+raBnVFDBYKrvpUlRW5Wi
+=3fcZ
 -----END PGP SIGNATURE-----
 
---//IivP0gvsAy3Can--
+--CXFpZVxO6m2Ol4tQ--
