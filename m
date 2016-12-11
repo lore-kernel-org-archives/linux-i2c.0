@@ -1,58 +1,83 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V1] i2c: fsl-lpi2c: read lpi2c fifo size in probe()
-Date: Sun, 11 Dec 2016 23:07:09 +0100
-Message-ID: <20161211220709.GI2552@katana>
-References: <1480649896-5222-1-git-send-email-pandy.gao@nxp.com>
+Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
+Date: Sun, 11 Dec 2016 23:16:22 +0100
+Message-ID: <20161211221622.GJ2552@katana>
+References: <20161130115005.11508-1-l.stach@pengutronix.de>
+ <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
+ <1480514806.2258.68.camel@pengutronix.de>
+ <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
+ <1480586832.17003.28.camel@pengutronix.de>
+ <f50333f5-906b-fe9a-3e5b-e74522472d06@mleia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="v2/QI0iRXglpx0hK"
+        protocol="application/pgp-signature"; boundary="JsihDCElWRmQcbOr"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:57582 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:36108 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753911AbcLKWHM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 11 Dec 2016 17:07:12 -0500
+        id S1753872AbcLKWQZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Dec 2016 17:16:25 -0500
 Content-Disposition: inline
-In-Reply-To: <1480649896-5222-1-git-send-email-pandy.gao@nxp.com>
+In-Reply-To: <f50333f5-906b-fe9a-3e5b-e74522472d06@mleia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>
-Cc: wsa-dev@sang-engineering.com, cmo@melexis.com, robh@kernel.org, vz@mleia.com, linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
+To: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de
 
 
---v2/QI0iRXglpx0hK
+--JsihDCElWRmQcbOr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 02, 2016 at 11:38:16AM +0800, Gao Pan wrote:
-> The lpi2c fifo size is a read only parameter resides Parameter
-> Register. It's better to read lpi2c tx/rx fifo size in probe()
-> other than just define a macro for it.
+Lucas,
+
+> Shallow review of DTS files and dpaux drivers let me say that the change
+> below has no regressions (the change is untested):
 >=20
-> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+> diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_hel=
+per.c
+> index 3e6fe82..f91ade1 100644
+> --- a/drivers/gpu/drm/drm_dp_helper.c
+> +++ b/drivers/gpu/drm/drm_dp_helper.c
+> @@ -1020,7 +1020,6 @@ int drm_dp_aux_register(struct drm_dp_aux *aux)
+>  	aux->ddc.class =3D I2C_CLASS_DDC;
+>  	aux->ddc.owner =3D THIS_MODULE;
+>  	aux->ddc.dev.parent =3D aux->dev;
+> -	aux->ddc.dev.of_node =3D aux->dev->of_node;
+> =20
+>  	strlcpy(aux->ddc.name, aux->name ? aux->name : dev_name(aux->dev),
+>  		sizeof(aux->ddc.name));
 
-Applied to for-next, thanks!
+Is this an acceptable approach? It makes sense to me from an I2C PoV.
+
+I have to say that I second Vladimir's arguments. There shouldn't be any
+other I2C devices on DDC, but surely there is somebody somewhere hacking
+this bus to do something.
+
+Regards,
+
+   Wolfram
 
 
---v2/QI0iRXglpx0hK
+--JsihDCElWRmQcbOr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYTc4NAAoJEBQN5MwUoCm2d7IQAKHBfFeC397yHH9hFmI4GW+R
-NddTrlTai+UpjmBxpXBJQbQlamPqURC5LMoOuGJWWUyOEpjYqQaQIxYtfSUhyqcQ
-GecvPM0ScP4NVX3mm7IrfGShB0P57D/ExJdEA1mnHIcYgRKPbNoVK2tzL9b1QXJY
-iycKf4JYaWCzeR6tHsONoDNxZr1zBw82d5StjDI2E5QTONgrEr+RJ19xx1ha3do8
-dUfzIsDE1zNCDyNAbGFS5ox4NcUQf0wLcVJUNtsXnD9U190I2j498sxP07v+eQRB
-wzSPjz2d1jw1n3pM1t3E/gYsNgNxyCREB3wE0/MO+65ySFCHM03brn+8BOvOjywW
-lOVD+iNvsAMDhEDiW9EInKT94xwPrOYyqpC7DDxfT1J54nyuMLLPRNpb6gwZitDf
-u2yWI7+bjrfSMMYtaomv990YoDIESh6OzU+OQcLcxyRB/iyAOWQvZOqQ6LH1lDSJ
-Lo5Ktk7odUxr1g5W5HYGXYg1msXzRHzTyRiEXinJ3nJZn9AE/FZY6PAXq53n/tLs
-7R2u1KkDDDVYE7lbjHRSQfgGTqpKVXdEL9ozOiUXzA0fC7CrZwFaEmWPLrDBYUED
-xJAypj9IjFO4xZpxa5RiN4w7FyEITH4uLmzxjzKRPu6ed2SnWdTJa3gkJbq474GM
-eA/+xLb5/MinjIstStIh
-=J7b5
+iQIcBAEBAgAGBQJYTdA2AAoJEBQN5MwUoCm2AXoP/2lBFRTj+exoqkYVIOZi11my
+19KWbEggAkypFinQp4t3WyMbgSwblluVCjRafZ6Z3+uVUaOW2V/YkALOdPsKZ5mh
+7IWDyarKyCFfy6NGUPR/r8GutjG13np/mPQortagWg2HlfG0ytf6qvcnHKztdOHm
+DpDud3VpI2DBS5VkiNDLoEbEJVRecUwVeUHOHLSt9UaBdyMCcdK4M6mjJaAVtX3S
+/2E+p75UM0XP51fQl5LA15lEcBE4hA4N9rBQS/eibr7f4uGIrhgdWB3KiqERdfC3
+JGPMaKAcf0faE6XahvtL2Lm4U39DBa2807M4HqjTqCtwZHAfVU3qd3/x6n9wYdFP
+MSnmDi/c17gnUP1wxtoomZqa7Own81W+UPswE2K9ScARh6Mr+Hu7D7u0+Ew4gDwX
++0zxuHW3MmsyoZwZt9ilqj+z3A7ICCRanJ+w2QcN44X0RpgYaKuYCO8WULtwHKSZ
+wmU3xs75KIeAWqQ6oJD+PyIWkvURcDAXcDLI5dY7/j5kBZv7ahhxukKnTBKCLU7w
+ETw0RPflJhCqnakEgLQuoTDYmksgC6Aa43lc9TkqobOLQCIbK68qPRDspxCV58ic
+szlzbRFT5UxZgi3zGT7BGE9VwLapzi5ESxe0RbeKMuPCGfANVcvg5XKW0rkUL9Al
+8EKyn34n00H7S87uM5zp
+=pRgv
 -----END PGP SIGNATURE-----
 
---v2/QI0iRXglpx0hK--
+--JsihDCElWRmQcbOr--
