@@ -1,83 +1,73 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
-Date: Sun, 11 Dec 2016 23:16:22 +0100
-Message-ID: <20161211221622.GJ2552@katana>
-References: <20161130115005.11508-1-l.stach@pengutronix.de>
- <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
- <1480514806.2258.68.camel@pengutronix.de>
- <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
- <1480586832.17003.28.camel@pengutronix.de>
- <f50333f5-906b-fe9a-3e5b-e74522472d06@mleia.com>
+Subject: Re: [PATCH v5 1/2] i2c: aspeed: added driver for Aspeed I2C
+Date: Sun, 11 Dec 2016 23:26:22 +0100
+Message-ID: <20161211222622.GK2552@katana>
+References: <1480467618-7497-1-git-send-email-brendanhiggins@google.com>
+ <1480467618-7497-2-git-send-email-brendanhiggins@google.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="JsihDCElWRmQcbOr"
+        protocol="application/pgp-signature"; boundary="5mZBmBd1ZkdwT1ny"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:36108 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:39714 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753872AbcLKWQZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 11 Dec 2016 17:16:25 -0500
+        id S1753896AbcLKW0Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 11 Dec 2016 17:26:25 -0500
 Content-Disposition: inline
-In-Reply-To: <f50333f5-906b-fe9a-3e5b-e74522472d06@mleia.com>
+In-Reply-To: <1480467618-7497-2-git-send-email-brendanhiggins@google.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: vz@mleia.com, clg@kaod.org, mouse@mayc.ru, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, joel@jms.id.au, openbmc@lists.ozlabs.org
 
 
---JsihDCElWRmQcbOr
+--5mZBmBd1ZkdwT1ny
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Lucas,
-
-> Shallow review of DTS files and dpaux drivers let me say that the change
-> below has no regressions (the change is untested):
+On Tue, Nov 29, 2016 at 05:00:17PM -0800, Brendan Higgins wrote:
+> Added initial master and slave support for Aspeed I2C controller.
+> Supports fourteen busses present in ast24xx and ast25xx BMC SoCs by
+> Aspeed.
 >=20
-> diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_hel=
-per.c
-> index 3e6fe82..f91ade1 100644
-> --- a/drivers/gpu/drm/drm_dp_helper.c
-> +++ b/drivers/gpu/drm/drm_dp_helper.c
-> @@ -1020,7 +1020,6 @@ int drm_dp_aux_register(struct drm_dp_aux *aux)
->  	aux->ddc.class =3D I2C_CLASS_DDC;
->  	aux->ddc.owner =3D THIS_MODULE;
->  	aux->ddc.dev.parent =3D aux->dev;
-> -	aux->ddc.dev.of_node =3D aux->dev->of_node;
-> =20
->  	strlcpy(aux->ddc.name, aux->name ? aux->name : dev_name(aux->dev),
->  		sizeof(aux->ddc.name));
+> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 
-Is this an acceptable approach? It makes sense to me from an I2C PoV.
+BTW first the bindings patch please, then the driver.
 
-I have to say that I second Vladimir's arguments. There shouldn't be any
-other I2C devices on DDC, but surely there is somebody somewhere hacking
-this bus to do something.
+And one seperate question I just stumbled over:
+
+> +	/* Switch from master mode to slave mode. */
+> +	func_ctrl_reg_val =3D aspeed_i2c_read(bus, ASPEED_I2C_FUN_CTRL_REG);
+> +	func_ctrl_reg_val &=3D ~ASPEED_I2CD_MASTER_EN;
+> +	func_ctrl_reg_val |=3D ASPEED_I2CD_SLAVE_EN;
+> +	aspeed_i2c_write(bus, func_ctrl_reg_val, ASPEED_I2C_FUN_CTRL_REG);
+
+Can't the hardware work both as master and slave on the same bus?
 
 Regards,
 
    Wolfram
 
 
---JsihDCElWRmQcbOr
+--5mZBmBd1ZkdwT1ny
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYTdA2AAoJEBQN5MwUoCm2AXoP/2lBFRTj+exoqkYVIOZi11my
-19KWbEggAkypFinQp4t3WyMbgSwblluVCjRafZ6Z3+uVUaOW2V/YkALOdPsKZ5mh
-7IWDyarKyCFfy6NGUPR/r8GutjG13np/mPQortagWg2HlfG0ytf6qvcnHKztdOHm
-DpDud3VpI2DBS5VkiNDLoEbEJVRecUwVeUHOHLSt9UaBdyMCcdK4M6mjJaAVtX3S
-/2E+p75UM0XP51fQl5LA15lEcBE4hA4N9rBQS/eibr7f4uGIrhgdWB3KiqERdfC3
-JGPMaKAcf0faE6XahvtL2Lm4U39DBa2807M4HqjTqCtwZHAfVU3qd3/x6n9wYdFP
-MSnmDi/c17gnUP1wxtoomZqa7Own81W+UPswE2K9ScARh6Mr+Hu7D7u0+Ew4gDwX
-+0zxuHW3MmsyoZwZt9ilqj+z3A7ICCRanJ+w2QcN44X0RpgYaKuYCO8WULtwHKSZ
-wmU3xs75KIeAWqQ6oJD+PyIWkvURcDAXcDLI5dY7/j5kBZv7ahhxukKnTBKCLU7w
-ETw0RPflJhCqnakEgLQuoTDYmksgC6Aa43lc9TkqobOLQCIbK68qPRDspxCV58ic
-szlzbRFT5UxZgi3zGT7BGE9VwLapzi5ESxe0RbeKMuPCGfANVcvg5XKW0rkUL9Al
-8EKyn34n00H7S87uM5zp
-=pRgv
+iQIcBAEBAgAGBQJYTdKOAAoJEBQN5MwUoCm2vxgP/0Gnbf5Ja3LHi7pwd67PYfmA
+nMxNGHtRwi/zdW6Mfk45fIhTXFV+7rz6UH36/XlNjE0C7vEBQxXVf1Wg6r66l8Yl
+gz9n7sl0HThldTvkyZqmMFZiyG+jjOYU2/GHqgpon8D2i/zagKYiG+f3ygMtlVEI
+6u1Wu0tvSzTmbSRNaJskR6bU+rKiJELopAzxsa05kceQPOqnSKjpcdcT1T8i896C
+67felp6ALKf0oECZ2IXr9rKlqFB+qErmqHYlSwhQLgF0uGJvENNgDXI+FQ4+Sex2
+WihGydD0epjJVeOq1/3YfawjOYIKTmiR93rOdSGWXElamhK3agW9XMMyDF3QiJqq
+mzVNVKP2/4Vy0ITHaNVFDv5mMON2J/9j1qXu2IIMYHn1ALHhHsULS7l4WHoGB2AW
+XZWflaZVh7K1ZaFyOLAV36ajOCNWO7mU8Ow8xFfLnGqPVkZA/RXqLyIO31Tbhh9Z
+PliBgX0tHtI3vsx2/GcP17+3NuxFc1q5al5P72I8rxRXuElxa2wQ/Sznh4ZnLK60
+l6XnqSAYvTZ42JJY8+mC7ycHvu3m3ys378dTB+uWoVUyi/V910HBY+K9viGPzd8c
+jUGIbIFghdRUaA/NliXyZfpq9y4ke1u0BryZYPBth5GElM1Denw2DtZnSkLbDo3B
+FyIkHK/1FWj2ZpFzk5Eb
+=Vm0m
 -----END PGP SIGNATURE-----
 
---JsihDCElWRmQcbOr--
+--5mZBmBd1ZkdwT1ny--
