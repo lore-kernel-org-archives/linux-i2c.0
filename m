@@ -1,170 +1,34 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 4/5] i2c: designware-baytrail: Disallow the CPU to enter C6 or C7 while holding the punit semaphore
-Date: Mon, 12 Dec 2016 22:56:11 +0100
-Message-ID: <20161212215612.9262-4-hdegoede@redhat.com>
-References: <20161212215612.9262-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41816 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752409AbcLLV4Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Dec 2016 16:56:24 -0500
-In-Reply-To: <20161212215612.9262-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 3/5] i2c: designware: Add slave definitions
+Date: Mon, 12 Dec 2016 17:15:56 -0600
+Message-ID: <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA@mail.gmail.com>
+References: <cover.1481131072.git.lolivei@synopsys.com> <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
+ <20161212170214.4cydp256jsp7srar@rob-hp-laptop> <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luis de Oliveira <Luis.Oliveira@synopsys.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ramiro.Oliveira@synopsys.com" <Ramiro.Oliveira@synopsys.com>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "CARLOS.PALMINHA@synopsys.com" <CARLOS.PALMINHA@synopsys.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>
 
-On my cherrytrail tablet with axp288 pmic, just doing a bunch of repeated
-reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet in
-1 - 3 runs guaranteed.
+On Mon, Dec 12, 2016 at 12:35 PM, Luis de Oliveira
+<Luis.Oliveira@synopsys.com> wrote:
+> Hi all,
 
-This seems to be causes by the cpu trying to enter C6 or C7 while we hold
-the punit bus semaphore, at which point everything just hangs.
+Please don't top post.
 
-Avoid this by disallowing the CPU to enter C6 or C7 before acquiring the
-punit bus semaphore.
+>
+> The slave address could be set by the I2C slave backend so I can't use it to setup the controller.
+> A boolean property was my initial approach then Andy and Wolfram Sang suggested the use of compatible strings and later It was suggested to use a property to select mode but I can do it again if it's the best way.
+> Can you please tell me where should it be documented?
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109051
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Takashi Iwai <tiwai@suse.de>
----
-Changes in v2:
--New patch in v2 of this set
-Changes in v3:
--Change commit message and comment in the code from "force the CPU to C1"
- to "Disallow the CPU to enter C6 or C7", as the CPU may still be in either
- C0 or C1 with the request pm_qos
-Changes in v4:
--Rename i2c_dw_eval_lock_support to i2c_dw_probe_lock_support so that we can
- add a matching i2c_dw_remove_lock_support cleanup function
--Move qm_pos removal to new i2c_dw_remove_lock_support function
--Move pm_qos_add_request to the end of i2c_dw_probe_lock_support
----
- drivers/i2c/busses/i2c-designware-baytrail.c | 21 ++++++++++++++++++++-
- drivers/i2c/busses/i2c-designware-core.h     |  9 +++++++--
- drivers/i2c/busses/i2c-designware-platdrv.c  |  4 +++-
- 3 files changed, 30 insertions(+), 4 deletions(-)
+bindings/i2c/i2c.txt.
 
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index cf02222..95d7013 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -16,6 +16,7 @@
- #include <linux/acpi.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/pm_qos.h>
- 
- #include <asm/iosf_mbi.h>
- 
-@@ -33,6 +34,13 @@ static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
- 	u32 data;
- 	int ret;
- 
-+	/*
-+	 * Disallow the CPU to enter C6 or C7 state, entering these states
-+	 * requires the punit to talk to the pmic and if this happens while
-+	 * we're holding the semaphore, the SoC hangs.
-+	 */
-+	pm_qos_update_request(&dev->pm_qos, 0);
-+
- 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
- 	if (ret) {
- 		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
-@@ -56,6 +64,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
- 	data &= ~PUNIT_SEMAPHORE_BIT;
- 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
- 		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
-+
-+	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
- }
- 
- static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
-@@ -121,7 +131,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
- 		jiffies_to_msecs(jiffies - acquired));
- }
- 
--int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
-+int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- {
- 	acpi_status status;
- 	unsigned long long shared_host = 0;
-@@ -149,5 +159,14 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
- 	dev->release_lock = baytrail_i2c_release;
- 	dev->pm_runtime_disabled = true;
- 
-+	pm_qos_add_request(&dev->pm_qos, PM_QOS_CPU_DMA_LATENCY,
-+			   PM_QOS_DEFAULT_VALUE);
-+
- 	return 0;
- }
-+
-+void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
-+{
-+	if (dev->acquire_lock)
-+		pm_qos_remove_request(&dev->pm_qos);
-+}
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index fb143f5..871970e 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -22,6 +22,7 @@
-  *
-  */
- 
-+#include <linux/pm_qos.h>
- 
- #define DW_IC_CON_MASTER		0x1
- #define DW_IC_CON_SPEED_STD		0x2
-@@ -67,6 +68,7 @@
-  * @fp_lcnt: fast plus LCNT value
-  * @hs_hcnt: high speed HCNT value
-  * @hs_lcnt: high speed LCNT value
-+ * @pm_qos: pm_qos_request used while holding a hardware lock on the bus
-  * @acquire_lock: function to acquire a hardware lock on the bus
-  * @release_lock: function to release a hardware lock on the bus
-  * @pm_runtime_disabled: true if pm runtime is disabled
-@@ -114,6 +116,7 @@ struct dw_i2c_dev {
- 	u16			fp_lcnt;
- 	u16			hs_hcnt;
- 	u16			hs_lcnt;
-+	struct pm_qos_request	pm_qos;
- 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
- 	void			(*release_lock)(struct dw_i2c_dev *dev);
- 	bool			pm_runtime_disabled;
-@@ -131,7 +134,9 @@ extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
- extern int i2c_dw_probe(struct dw_i2c_dev *dev);
- 
- #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
--extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
-+extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
-+extern void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev);
- #else
--static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) { return 0; }
-+static inline int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev) { return 0; }
-+static inline void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev) {}
- #endif
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 97a2ca1..b0a64a2 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -210,7 +210,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	r = i2c_dw_eval_lock_support(dev);
-+	r = i2c_dw_probe_lock_support(dev);
- 	if (r)
- 		return r;
- 
-@@ -291,6 +291,8 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	if (!dev->pm_runtime_disabled)
- 		pm_runtime_disable(&pdev->dev);
- 
-+	i2c_dw_remove_lock_support(dev);
-+
- 	return 0;
- }
- 
--- 
-2.9.3
+Actually, looking at this some more, we already have a way to describe
+the controller being a slave device with the I2C_OWN_SLAVE_ADDRESS
+flag in the reg property. We should just need a helper to read reg
+property of each child and check for the bit set.
+
+Rob
