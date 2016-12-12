@@ -1,46 +1,63 @@
 From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH v6 0/5] Add support for the STM32F4 I2C
-Date: Mon, 12 Dec 2016 17:15:37 +0100
-Message-ID: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34241 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752728AbcLLQP6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Dec 2016 11:15:58 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v6 1/5] dt-bindings: Document the STM32 I2C bindings
+Date: Mon, 12 Dec 2016 17:15:38 +0100
+Message-ID: <1481559342-6106-2-git-send-email-cedric.madianga@gmail.com>
+References: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+List-Id: linux-i2c@vger.kernel.org
 
-This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
-It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
-speed.
+This patch adds documentation of device tree bindings for the STM32 I2C
+controller.
 
-Changes since v5:
-- Change commit header from "ARM: dts:" to "ARM: dts: stm32:" (Alex)
-- Change commit header from "ARM: configs:" to "ARM: configs: stm32:" (Alex)
-- Fix warnings due to variable set but unused (Wolfram)
-- Remove double space in Kconfig (Wolfram)
-- Fix warning due to bad type parameter when using clamp() function
-  (build-bot)
-
-M'boumba Cedric Madianga (5):
-  dt-bindings: Document the STM32 I2C bindings
-  i2c: Add STM32F4 I2C driver
-  ARM: dts: stm32: Add I2C1 support for STM32F429 SoC
-  ARM: dts: stm32: Add I2C1 support for STM32429 eval board
-  ARM: configs: stm32: Add I2C support for STM32 defconfig
-
- .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
- arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
- arch/arm/boot/dts/stm32f429.dtsi                   |  23 +
- arch/arm/configs/stm32_defconfig                   |   3 +
- drivers/i2c/busses/Kconfig                         |  10 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-stm32f4.c                   | 849 +++++++++++++++++++++
- 7 files changed, 925 insertions(+)
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/i2c/i2c-stm32.txt          | 33 ++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
- create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+new file mode 100644
+index 0000000..78eaf7b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+@@ -0,0 +1,33 @@
++* I2C controller embedded in STMicroelectronics STM32 I2C platform
++
++Required properties :
++- compatible : Must be "st,stm32f4-i2c"
++- reg : Offset and length of the register set for the device
++- interrupts : Must contain the interrupt id for I2C event and then the
++  interrupt id for I2C error.
++- resets: Must contain the phandle to the reset controller.
++- clocks: Must contain the input clock of the I2C instance.
++- A pinctrl state named "default" must be defined to set pins in mode of
++  operation for I2C transfer
++- #address-cells = <1>;
++- #size-cells = <0>;
++
++Optional properties :
++- clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
++  the default 100 kHz frequency will be used. As only Normal and Fast modes
++  are supported, possible values are 100000 and 400000.
++
++Example :
++
++	i2c@40005400 {
++		compatible = "st,stm32f4-i2c";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x40005400 0x400>;
++		interrupts = <31>,
++			     <32>;
++		resets = <&rcc 277>;
++		clocks = <&rcc 0 149>;
++		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
++		pinctrl-names = "default";
++	};
 -- 
 1.9.1
