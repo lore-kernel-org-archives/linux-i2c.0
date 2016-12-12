@@ -1,36 +1,42 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v3 3/5] i2c: designware-baytrail: Only check
- iosf_mbi_available() for shared hosts
-Date: Mon, 12 Dec 2016 16:03:08 +0200
-Message-ID: <8197b9db-b43f-8ef0-9c9f-e02a9d2fba5e@linux.intel.com>
-References: <20161210224350.10290-1-hdegoede@redhat.com>
- <20161210224350.10290-3-hdegoede@redhat.com>
- <1481537990.7188.15.camel@linux.intel.com>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 3/4] i2c: octeon: thunderx: Limit register access retries
+Date: Mon, 12 Dec 2016 17:07:11 +0100
+Message-ID: <20161212160711.GA2766@hardcore>
+References: <20161209093158.3161-1-jglauber@cavium.com>
+ <20161209093158.3161-4-jglauber@cavium.com>
+ <20161211220148.GG2552@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:6363 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752320AbcLLODM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Dec 2016 09:03:12 -0500
-In-Reply-To: <1481537990.7188.15.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+In-Reply-To: <20161211220148.GG2552@katana>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, Paul Burton <paul.burton@imgtec.com>, "Steven J . Hill" <Steven.Hill@cavium.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Vincent Gerris <vgerris@gmail.com>, linux-i2c@vger.kernel.org
 
-On 12.12.2016 12:19, Andy Shevchenko wrote:
-> On Sat, 2016-12-10 at 23:43 +0100, Hans de Goede wrote:
->> If (!shared_host) simply return 0, this avoids delaying the probe if
->> iosf_mbi_available() returns false when an i2c bus is not using the
->> punit semaphore.
->>
->> Also move the if (!iosf_mbi_available()) check to above the
->> dev_info, so that we do not repeat the dev_info on every probe
->> until iosf_mbi_available() returns true.
->>
->
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+On Sun, Dec 11, 2016 at 11:01:48PM +0100, Wolfram Sang wrote:
+> On Fri, Dec 09, 2016 at 10:31:57AM +0100, Jan Glauber wrote:
+> > Do not infinitely retry register readq and writeq operations
+> > in order to not lock up the CPU in case the TWSI gets stuck.
+> > 
+> > Return -EIO in case of a failed data read. For all other
+> > cases just return so subsequent operations will fail
+> > and trigger the recovery.
+> > 
+> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
+> 
+> I can't apply this one?
+> 
+
+Strange. Applies for me on top of 4.9 and also next-20161212.
+I can also apply if back from the mail. Is the mail messed up on your
+side?
