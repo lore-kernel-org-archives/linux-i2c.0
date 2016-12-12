@@ -1,42 +1,46 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 3/4] i2c: octeon: thunderx: Limit register access retries
-Date: Mon, 12 Dec 2016 17:07:11 +0100
-Message-ID: <20161212160711.GA2766@hardcore>
-References: <20161209093158.3161-1-jglauber@cavium.com>
- <20161209093158.3161-4-jglauber@cavium.com>
- <20161211220148.GG2552@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20161211220148.GG2552@katana>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, Paul Burton <paul.burton@imgtec.com>, "Steven J . Hill" <Steven.Hill@cavium.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, David Daney <david.daney@cavium.com>
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH v6 0/5] Add support for the STM32F4 I2C
+Date: Mon, 12 Dec 2016 17:15:37 +0100
+Message-ID: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:34241 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752728AbcLLQP6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Dec 2016 11:15:58 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 
-On Sun, Dec 11, 2016 at 11:01:48PM +0100, Wolfram Sang wrote:
-> On Fri, Dec 09, 2016 at 10:31:57AM +0100, Jan Glauber wrote:
-> > Do not infinitely retry register readq and writeq operations
-> > in order to not lock up the CPU in case the TWSI gets stuck.
-> > 
-> > Return -EIO in case of a failed data read. For all other
-> > cases just return so subsequent operations will fail
-> > and trigger the recovery.
-> > 
-> > Signed-off-by: Jan Glauber <jglauber@cavium.com>
-> 
-> I can't apply this one?
-> 
+This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
+speed.
 
-Strange. Applies for me on top of 4.9 and also next-20161212.
-I can also apply if back from the mail. Is the mail messed up on your
-side?
+Changes since v5:
+- Change commit header from "ARM: dts:" to "ARM: dts: stm32:" (Alex)
+- Change commit header from "ARM: configs:" to "ARM: configs: stm32:" (Alex)
+- Fix warnings due to variable set but unused (Wolfram)
+- Remove double space in Kconfig (Wolfram)
+- Fix warning due to bad type parameter when using clamp() function
+  (build-bot)
+
+M'boumba Cedric Madianga (5):
+  dt-bindings: Document the STM32 I2C bindings
+  i2c: Add STM32F4 I2C driver
+  ARM: dts: stm32: Add I2C1 support for STM32F429 SoC
+  ARM: dts: stm32: Add I2C1 support for STM32429 eval board
+  ARM: configs: stm32: Add I2C support for STM32 defconfig
+
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  23 +
+ arch/arm/configs/stm32_defconfig                   |   3 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32f4.c                   | 849 +++++++++++++++++++++
+ 7 files changed, 925 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+ create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
+
+-- 
+1.9.1
