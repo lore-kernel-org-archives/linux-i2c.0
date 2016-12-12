@@ -1,216 +1,170 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 5/5] i2c: designware-baytrail: Add support for cherrytrail
-Date: Mon, 12 Dec 2016 22:56:12 +0100
-Message-ID: <20161212215612.9262-5-hdegoede@redhat.com>
+Subject: [PATCH v4 4/5] i2c: designware-baytrail: Disallow the CPU to enter C6 or C7 while holding the punit semaphore
+Date: Mon, 12 Dec 2016 22:56:11 +0100
+Message-ID: <20161212215612.9262-4-hdegoede@redhat.com>
 References: <20161212215612.9262-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35238 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41816 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752214AbcLLV41 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Dec 2016 16:56:27 -0500
+        id S1752409AbcLLV4Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 12 Dec 2016 16:56:24 -0500
 In-Reply-To: <20161212215612.9262-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>
 
-The cherrytrail punit has the pmic i2c bus access semaphore at a
-different register address.
+On my cherrytrail tablet with axp288 pmic, just doing a bunch of repeated
+reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet in
+1 - 3 runs guaranteed.
 
+This seems to be causes by the cpu trying to enter C6 or C7 while we hold
+the punit bus semaphore, at which point everything just hangs.
+
+Avoid this by disallowing the CPU to enter C6 or C7 before acquiring the
+punit bus semaphore.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109051
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
 Tested-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
 Changes in v2:
--Adjust for accessor_flags -> flags rename
--Add flags field to struct dw_pci_controller
--Add get_sem_addr() helper replacing MODEL_CHERRYTRAIL flag checking in
- PUNIT_SEMAPHORE macro
+-New patch in v2 of this set
 Changes in v3:
--Add a gap between ACCESS_* and MODEL_* flags as reserved space for
- future ACCESS_* flags
+-Change commit message and comment in the code from "force the CPU to C1"
+ to "Disallow the CPU to enter C6 or C7", as the CPU may still be in either
+ C0 or C1 with the request pm_qos
 Changes in v4:
--s/CHV/CHT/
+-Rename i2c_dw_eval_lock_support to i2c_dw_probe_lock_support so that we can
+ add a matching i2c_dw_remove_lock_support cleanup function
+-Move qm_pos removal to new i2c_dw_remove_lock_support function
+-Move pm_qos_add_request to the end of i2c_dw_probe_lock_support
 ---
- drivers/i2c/busses/i2c-designware-baytrail.c | 22 +++++++++++++++++-----
- drivers/i2c/busses/i2c-designware-core.h     |  2 ++
- drivers/i2c/busses/i2c-designware-pcidrv.c   | 26 +++++++++++++++++++-------
- drivers/i2c/busses/i2c-designware-platdrv.c  |  2 +-
- 4 files changed, 39 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c | 21 ++++++++++++++++++++-
+ drivers/i2c/busses/i2c-designware-core.h     |  9 +++++++--
+ drivers/i2c/busses/i2c-designware-platdrv.c  |  4 +++-
+ 3 files changed, 30 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 95d7013..9481411 100644
+index cf02222..95d7013 100644
 --- a/drivers/i2c/busses/i2c-designware-baytrail.c
 +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -24,13 +24,23 @@
+@@ -16,6 +16,7 @@
+ #include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
++#include <linux/pm_qos.h>
  
- #define SEMAPHORE_TIMEOUT	100
- #define PUNIT_SEMAPHORE		0x7
-+#define PUNIT_SEMAPHORE_CHT	0x10e
- #define PUNIT_SEMAPHORE_BIT	BIT(0)
- #define PUNIT_SEMAPHORE_ACQUIRE	BIT(1)
+ #include <asm/iosf_mbi.h>
  
- static unsigned long acquired;
- 
-+static u32 get_sem_addr(struct dw_i2c_dev *dev)
-+{
-+	if (dev->flags & MODEL_CHERRYTRAIL)
-+		return PUNIT_SEMAPHORE_CHT;
-+	else
-+		return PUNIT_SEMAPHORE;
-+}
-+
- static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
- {
-+	u32 addr = get_sem_addr(dev);
+@@ -33,6 +34,13 @@ static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
  	u32 data;
  	int ret;
  
-@@ -41,7 +51,7 @@ static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
- 	 */
- 	pm_qos_update_request(&dev->pm_qos, 0);
- 
--	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
-+	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr, &data);
++	/*
++	 * Disallow the CPU to enter C6 or C7 state, entering these states
++	 * requires the punit to talk to the pmic and if this happens while
++	 * we're holding the semaphore, the SoC hangs.
++	 */
++	pm_qos_update_request(&dev->pm_qos, 0);
++
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
  	if (ret) {
  		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
- 		return ret;
-@@ -54,15 +64,16 @@ static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
- 
- static void reset_semaphore(struct dw_i2c_dev *dev)
- {
-+	u32 addr = get_sem_addr(dev);
- 	u32 data;
- 
--	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data)) {
-+	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr, &data)) {
- 		dev_err(dev->dev, "iosf failed to reset punit semaphore during read\n");
- 		return;
- 	}
- 
+@@ -56,6 +64,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
  	data &= ~PUNIT_SEMAPHORE_BIT;
--	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
-+	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, addr, data))
+ 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
  		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
- 
- 	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
-@@ -70,6 +81,7 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
++
++	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
+ }
  
  static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+@@ -121,7 +131,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ 		jiffies_to_msecs(jiffies - acquired));
+ }
+ 
+-int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
++int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
  {
-+	u32 addr = get_sem_addr(dev);
- 	u32 sem = PUNIT_SEMAPHORE_ACQUIRE;
- 	int ret;
- 	unsigned long start, end;
-@@ -83,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 		return 0;
+ 	acpi_status status;
+ 	unsigned long long shared_host = 0;
+@@ -149,5 +159,14 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+ 	dev->release_lock = baytrail_i2c_release;
+ 	dev->pm_runtime_disabled = true;
  
- 	/* host driver writes to side band semaphore register */
--	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, sem);
-+	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, addr, sem);
- 	if (ret) {
- 		dev_err(dev->dev, "iosf punit semaphore request failed\n");
- 		return ret;
-@@ -107,7 +119,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
- 	reset_semaphore(dev);
- 
--	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &sem);
-+	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, addr, &sem);
- 	if (ret)
- 		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
- 	else
++	pm_qos_add_request(&dev->pm_qos, PM_QOS_CPU_DMA_LATENCY,
++			   PM_QOS_DEFAULT_VALUE);
++
+ 	return 0;
+ }
++
++void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
++{
++	if (dev->acquire_lock)
++		pm_qos_remove_request(&dev->pm_qos);
++}
 diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 871970e..cd4a874 100644
+index fb143f5..871970e 100644
 --- a/drivers/i2c/busses/i2c-designware-core.h
 +++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -127,6 +127,8 @@ struct dw_i2c_dev {
- #define ACCESS_16BIT		0x00000002
- #define ACCESS_INTR_MASK	0x00000004
+@@ -22,6 +22,7 @@
+  *
+  */
  
-+#define MODEL_CHERRYTRAIL	0x00000100
-+
- extern int i2c_dw_init(struct dw_i2c_dev *dev);
- extern void i2c_dw_disable(struct dw_i2c_dev *dev);
- extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 96f8230..4e53a9f 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -45,6 +45,7 @@ enum dw_pci_ctl_id_t {
- 	medfield,
- 	merrifield,
- 	baytrail,
-+	cherrytrail,
- 	haswell,
- };
++#include <linux/pm_qos.h>
  
-@@ -63,6 +64,7 @@ struct dw_pci_controller {
- 	u32 rx_fifo_depth;
- 	u32 clk_khz;
- 	u32 functionality;
-+	u32 flags;
- 	struct dw_scl_sda_cfg *scl_sda_cfg;
- 	int (*setup)(struct pci_dev *pdev, struct dw_pci_controller *c);
- };
-@@ -174,6 +176,15 @@ static struct dw_pci_controller dw_pci_controllers[] = {
- 		.functionality = I2C_FUNC_10BIT_ADDR,
- 		.scl_sda_cfg = &hsw_config,
- 	},
-+	[cherrytrail] = {
-+		.bus_num = -1,
-+		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
-+		.tx_fifo_depth = 32,
-+		.rx_fifo_depth = 32,
-+		.functionality = I2C_FUNC_10BIT_ADDR,
-+		.flags = MODEL_CHERRYTRAIL,
-+		.scl_sda_cfg = &byt_config,
-+	},
- };
+ #define DW_IC_CON_MASTER		0x1
+ #define DW_IC_CON_SPEED_STD		0x2
+@@ -67,6 +68,7 @@
+  * @fp_lcnt: fast plus LCNT value
+  * @hs_hcnt: high speed HCNT value
+  * @hs_lcnt: high speed LCNT value
++ * @pm_qos: pm_qos_request used while holding a hardware lock on the bus
+  * @acquire_lock: function to acquire a hardware lock on the bus
+  * @release_lock: function to release a hardware lock on the bus
+  * @pm_runtime_disabled: true if pm runtime is disabled
+@@ -114,6 +116,7 @@ struct dw_i2c_dev {
+ 	u16			fp_lcnt;
+ 	u16			hs_hcnt;
+ 	u16			hs_lcnt;
++	struct pm_qos_request	pm_qos;
+ 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+ 	void			(*release_lock)(struct dw_i2c_dev *dev);
+ 	bool			pm_runtime_disabled;
+@@ -131,7 +134,9 @@ extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
+ extern int i2c_dw_probe(struct dw_i2c_dev *dev);
  
- #ifdef CONFIG_PM
-@@ -241,6 +252,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	dev->base = pcim_iomap_table(pdev)[0];
- 	dev->dev = &pdev->dev;
- 	dev->irq = pdev->irq;
-+	dev->flags |= controller->flags;
- 
- 	if (controller->setup) {
- 		r = controller->setup(pdev, controller);
-@@ -321,13 +333,13 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x9c61), haswell },
- 	{ PCI_VDEVICE(INTEL, 0x9c62), haswell },
- 	/* Braswell / Cherrytrail */
--	{ PCI_VDEVICE(INTEL, 0x22C1), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C2), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C3), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C4), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C5), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C6), baytrail },
--	{ PCI_VDEVICE(INTEL, 0x22C7), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C1), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C2), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C3), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C4), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C5), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C6), cherrytrail },
-+	{ PCI_VDEVICE(INTEL, 0x22C7), cherrytrail },
- 	{ 0,}
- };
- MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
+ #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+-extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
++extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
++extern void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev);
+ #else
+-static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) { return 0; }
++static inline int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev) { return 0; }
++static inline void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev) {}
+ #endif
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index b0a64a2..985c4de 100644
+index 97a2ca1..b0a64a2 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -123,7 +123,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT3432", 0 },
- 	{ "INT3433", 0 },
- 	{ "80860F41", 0 },
--	{ "808622C1", 0 },
-+	{ "808622C1", MODEL_CHERRYTRAIL },
- 	{ "AMD0010", ACCESS_INTR_MASK },
- 	{ "AMDI0010", ACCESS_INTR_MASK },
- 	{ "AMDI0510", 0 },
+@@ -210,7 +210,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	r = i2c_dw_eval_lock_support(dev);
++	r = i2c_dw_probe_lock_support(dev);
+ 	if (r)
+ 		return r;
+ 
+@@ -291,6 +291,8 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 	if (!dev->pm_runtime_disabled)
+ 		pm_runtime_disable(&pdev->dev);
+ 
++	i2c_dw_remove_lock_support(dev);
++
+ 	return 0;
+ }
+ 
 -- 
 2.9.3
