@@ -1,73 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 1/2] i2c: aspeed: added driver for Aspeed I2C
-Date: Sun, 11 Dec 2016 23:26:22 +0100
-Message-ID: <20161211222622.GK2552@katana>
-References: <1480467618-7497-1-git-send-email-brendanhiggins@google.com>
- <1480467618-7497-2-git-send-email-brendanhiggins@google.com>
+From: "M'boumba Cedric Madianga" <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 2/5] i2c: Add STM32F4 I2C driver
+Date: Mon, 12 Dec 2016 09:34:29 +0100
+Message-ID: <CAOAejn0gH3t8NGLUELfB3nv-UM=Gtr04JtLqrm=SiYfPVbYv-g@mail.gmail.com>
+References: <1481185563-8735-1-git-send-email-cedric.madianga@gmail.com>
+ <1481185563-8735-3-git-send-email-cedric.madianga@gmail.com> <20161211214232.GA2552@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="5mZBmBd1ZkdwT1ny"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:39714 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753896AbcLKW0Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 11 Dec 2016 17:26:25 -0500
-Content-Disposition: inline
-In-Reply-To: <1480467618-7497-2-git-send-email-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: vz@mleia.com, clg@kaod.org, mouse@mayc.ru, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, joel@jms.id.au, openbmc@lists.ozlabs.org
-
-
---5mZBmBd1ZkdwT1ny
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161211214232.GA2552@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 29, 2016 at 05:00:17PM -0800, Brendan Higgins wrote:
-> Added initial master and slave support for Aspeed I2C controller.
-> Supports fourteen busses present in ast24xx and ast25xx BMC SoCs by
-> Aspeed.
->=20
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Hi Wolfram,
 
-BTW first the bindings patch please, then the driver.
+Thanks for your comments.
+I will fix all of them + build errors reported by build-bot in the V6.
 
-And one seperate question I just stumbled over:
+Best regards,
 
-> +	/* Switch from master mode to slave mode. */
-> +	func_ctrl_reg_val =3D aspeed_i2c_read(bus, ASPEED_I2C_FUN_CTRL_REG);
-> +	func_ctrl_reg_val &=3D ~ASPEED_I2CD_MASTER_EN;
-> +	func_ctrl_reg_val |=3D ASPEED_I2CD_SLAVE_EN;
-> +	aspeed_i2c_write(bus, func_ctrl_reg_val, ASPEED_I2C_FUN_CTRL_REG);
+Cedric Madianga
 
-Can't the hardware work both as master and slave on the same bus?
-
-Regards,
-
-   Wolfram
-
-
---5mZBmBd1ZkdwT1ny
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYTdKOAAoJEBQN5MwUoCm2vxgP/0Gnbf5Ja3LHi7pwd67PYfmA
-nMxNGHtRwi/zdW6Mfk45fIhTXFV+7rz6UH36/XlNjE0C7vEBQxXVf1Wg6r66l8Yl
-gz9n7sl0HThldTvkyZqmMFZiyG+jjOYU2/GHqgpon8D2i/zagKYiG+f3ygMtlVEI
-6u1Wu0tvSzTmbSRNaJskR6bU+rKiJELopAzxsa05kceQPOqnSKjpcdcT1T8i896C
-67felp6ALKf0oECZ2IXr9rKlqFB+qErmqHYlSwhQLgF0uGJvENNgDXI+FQ4+Sex2
-WihGydD0epjJVeOq1/3YfawjOYIKTmiR93rOdSGWXElamhK3agW9XMMyDF3QiJqq
-mzVNVKP2/4Vy0ITHaNVFDv5mMON2J/9j1qXu2IIMYHn1ALHhHsULS7l4WHoGB2AW
-XZWflaZVh7K1ZaFyOLAV36ajOCNWO7mU8Ow8xFfLnGqPVkZA/RXqLyIO31Tbhh9Z
-PliBgX0tHtI3vsx2/GcP17+3NuxFc1q5al5P72I8rxRXuElxa2wQ/Sznh4ZnLK60
-l6XnqSAYvTZ42JJY8+mC7ycHvu3m3ys378dTB+uWoVUyi/V910HBY+K9viGPzd8c
-jUGIbIFghdRUaA/NliXyZfpq9y4ke1u0BryZYPBth5GElM1Denw2DtZnSkLbDo3B
-FyIkHK/1FWj2ZpFzk5Eb
-=Vm0m
------END PGP SIGNATURE-----
-
---5mZBmBd1ZkdwT1ny--
+2016-12-11 22:42 GMT+01:00 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+> Hi,
+>
+>> +config I2C_STM32F4
+>> +     tristate "STMicroelectronics STM32F4 I2C support"
+>> +     depends on ARCH_STM32  || COMPILE_TEST
+>
+> Double space.
+>
+>> +#define STM32F4_I2C_MIN_FREQ         2
+>> +#define STM32F4_I2C_MAX_FREQ         42
+>
+> Those two must be unsigned to fix the build error (e.g. 2U) reported by
+> build-bot.
+>
+> Also, I get the following build warnings:
+>
+>   CC      drivers/i2c/busses/i2c-stm32f4.o
+> drivers/i2c/busses/i2c-stm32f4.c: In function =E2=80=98stm32f4_i2c_handle=
+_rx_addr=E2=80=99:
+> drivers/i2c/busses/i2c-stm32f4.c:445:6: warning: variable =E2=80=98sr2=E2=
+=80=99 set but not used [-Wunused-but-set-variable]
+>   u32 sr2;
+>       ^~~
+> drivers/i2c/busses/i2c-stm32f4.c: In function =E2=80=98stm32f4_i2c_isr_ev=
+ent=E2=80=99:
+> drivers/i2c/busses/i2c-stm32f4.c:496:41: warning: variable =E2=80=98sr2=
+=E2=80=99 set but not used [-Wunused-but-set-variable]
+>   u32 real_status, possible_status, ien, sr2;
+>
+> I assume those are reads to clear the register, so we really don't need
+> to save the value in a variable.
+>
+> Rest is looking good.
+>
+> Thanks,
+>
+>    Wolfram
+>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
