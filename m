@@ -1,68 +1,76 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 2/5] i2c: Add STM32F4 I2C driver
-Date: Mon, 12 Dec 2016 09:34:29 +0100
-Message-ID: <CAOAejn0gH3t8NGLUELfB3nv-UM=Gtr04JtLqrm=SiYfPVbYv-g@mail.gmail.com>
-References: <1481185563-8735-1-git-send-email-cedric.madianga@gmail.com>
- <1481185563-8735-3-git-send-email-cedric.madianga@gmail.com> <20161211214232.GA2552@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161211214232.GA2552@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Tin Huynh <tnhuynh@apm.com>
+Subject: [PATCH V3] i2c: designware: fix wrong tx/rx fifo for ACPI
+Date: Mon, 12 Dec 2016 15:36:50 +0700
+Message-ID: <1481531810-31695-1-git-send-email-tnhuynh@apm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+ACPI always sets txfifo and rxfifo to 32. This configuration will
+cause problem if the IP core supports a fifo size of less than 32.
+The driver should read the fifo size from the IP and select the 
+smaller one of the two.
 
-Thanks for your comments.
-I will fix all of them + build errors reported by build-bot in the V6.
+Signed-off-by: Tin Huynh <tnhuynh@apm.com>
 
-Best regards,
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c |   26 ++++++++++++++++++++------
+ 1 files changed, 20 insertions(+), 6 deletions(-)
 
-Cedric Madianga
+Change from V2:
+ -Add a helper function to set fifo size.
 
-2016-12-11 22:42 GMT+01:00 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
-> Hi,
->
->> +config I2C_STM32F4
->> +     tristate "STMicroelectronics STM32F4 I2C support"
->> +     depends on ARCH_STM32  || COMPILE_TEST
->
-> Double space.
->
->> +#define STM32F4_I2C_MIN_FREQ         2
->> +#define STM32F4_I2C_MAX_FREQ         42
->
-> Those two must be unsigned to fix the build error (e.g. 2U) reported by
-> build-bot.
->
-> Also, I get the following build warnings:
->
->   CC      drivers/i2c/busses/i2c-stm32f4.o
-> drivers/i2c/busses/i2c-stm32f4.c: In function =E2=80=98stm32f4_i2c_handle=
-_rx_addr=E2=80=99:
-> drivers/i2c/busses/i2c-stm32f4.c:445:6: warning: variable =E2=80=98sr2=E2=
-=80=99 set but not used [-Wunused-but-set-variable]
->   u32 sr2;
->       ^~~
-> drivers/i2c/busses/i2c-stm32f4.c: In function =E2=80=98stm32f4_i2c_isr_ev=
-ent=E2=80=99:
-> drivers/i2c/busses/i2c-stm32f4.c:496:41: warning: variable =E2=80=98sr2=
-=E2=80=99 set but not used [-Wunused-but-set-variable]
->   u32 real_status, possible_status, ien, sr2;
->
-> I assume those are reads to clear the register, so we really don't need
-> to save the value in a variable.
->
-> Rest is looking good.
->
-> Thanks,
->
->    Wolfram
->
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Change from V1:
+ -Revert the default 32 for fifo, read parameter from IP core
+ and pick the smaller one of the two.
+ -Correct the title to describe new approach.
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0b42a12..665f491 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -150,6 +150,24 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+ 	return 0;
+ }
+ 
++static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev)
++{
++	u32 param1, tx_fifo_depth, rx_fifo_depth;
++
++	param1 = i2c_dw_read_comp_param(dev);
++	tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
++	rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
++	if (!dev->tx_fifo_depth) {
++		dev->tx_fifo_depth = tx_fifo_depth;
++		dev->rx_fifo_depth = rx_fifo_depth;
++	} else if (tx_fifo_depth) {
++		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
++				tx_fifo_depth);
++		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
++				rx_fifo_depth);
++	}
++}
++
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+@@ -246,13 +264,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 				1000000);
+ 	}
+ 
+-	if (!dev->tx_fifo_depth) {
+-		u32 param1 = i2c_dw_read_comp_param(dev);
+-
+-		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+-		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
++	if (!dev->tx_fifo_depth)
+ 		dev->adapter.nr = pdev->id;
+-	}
++	dw_i2c_set_fifo_size(dev);
+ 
+ 	adap = &dev->adapter;
+ 	adap->owner = THIS_MODULE;
+-- 
+1.7.1
