@@ -1,119 +1,35 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 Subject: Re: [PATCH V3] i2c: designware: fix wrong tx/rx fifo for ACPI
-Date: Mon, 12 Dec 2016 21:02:53 +0200
-Message-ID: <1481569373.7188.48.camel@linux.intel.com>
+Date: Mon, 12 Dec 2016 21:21:13 +0200
+Message-ID: <20161212192113.GA1460@lahna.fi.intel.com>
 References: <1481531810-31695-1-git-send-email-tnhuynh@apm.com>
+ <1481569373.7188.48.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1481531810-31695-1-git-send-email-tnhuynh@apm.com>
+Content-Disposition: inline
+In-Reply-To: <1481569373.7188.48.camel@linux.intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Tin Huynh <tnhuynh@apm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Tin Huynh <tnhuynh@apm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks for an update! My comments below.
-
-On Mon, 2016-12-12 at 15:36 +0700, Tin Huynh wrote:
-> ACPI always sets txfifo and rxfifo to 32. This configuration will
-> cause problem if the IP core supports a fifo size of less than 32.
-> The driver should read the fifo size from the IP and select the 
-> smaller one of the two.
-
-I would use FIFO in capital to be consistent with what you refer to
-(apparently not a variable name), so
-
-Tx FIFO, Rx FIFO, FIFO, and so on.
-
-
+On Mon, Dec 12, 2016 at 09:02:53PM +0200, Andy Shevchenko wrote:
+> > +	tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+> > +	rx_fifo_depth = ((param1 >> 8)��& 0xff) + 1;
+> > +	if (!dev->tx_fifo_depth) {
+> > +		dev->tx_fifo_depth = tx_fifo_depth;
+> > +		dev->rx_fifo_depth = rx_fifo_depth;
+> > +	} else if (tx_fifo_depth) {
+> > +		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
+> > +				tx_fifo_depth);
+> > +		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
+> > +				rx_fifo_depth);
+> > +	}
 > 
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
-> 
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c |   26
-> ++++++++++++++++++++------
->  1 files changed, 20 insertions(+), 6 deletions(-)
-> 
-> Change from V2:
->  -Add a helper function to set fifo size.
-> 
-> Change from V1:
->  -Revert the default 32 for fifo, read parameter from IP core
->  and pick the smaller one of the two.
->  -Correct the title to describe new approach.
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0b42a12..665f491 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -150,6 +150,24 @@ static int i2c_dw_plat_prepare_clk(struct
-> dw_i2c_dev *i_dev, bool prepare)
->  	return 0;
->  }
->  
-> +static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev)
-> +{
-> +	u32 param1, tx_fifo_depth, rx_fifo_depth;
-> +
-> +	param1 = i2c_dw_read_comp_param(dev);
+> So, let's clarify here:
+> Is it possible to have an IP without parameter block enabled? I mean to
+> read something arbitrary (or zeroes, or all-ones) from param1.
 
-You name it as param1 because you read *_PARAM1? For me it's not clear
-from the name of helper function.
-
-u32 param would work otherwise.
-
-> +	tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> +	rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-> +	if (!dev->tx_fifo_depth) {
-> +		dev->tx_fifo_depth = tx_fifo_depth;
-> +		dev->rx_fifo_depth = rx_fifo_depth;
-> +	} else if (tx_fifo_depth) {
-> +		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
-> +				tx_fifo_depth);
-> +		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
-> +				rx_fifo_depth);
-> +	}
-
-So, let's clarify here:
-Is it possible to have an IP without parameter block enabled? I mean to
-read something arbitrary (or zeroes, or all-ones) from param1.
-
-If not, just remove second condition at all.
-
-> +}
-> +
->  static int dw_i2c_plat_probe(struct platform_device *pdev)
->  {
->  	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev-
-> >dev);
-> @@ -246,13 +264,9 @@ static int dw_i2c_plat_probe(struct
-> platform_device *pdev)
->  				1000000);
->  	}
->  
-> -	if (!dev->tx_fifo_depth) {
-> -		u32 param1 = i2c_dw_read_comp_param(dev);
-> -
-> -		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> -		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-> 
-
-> +	if (!dev->tx_fifo_depth)
->  		dev->adapter.nr = pdev->id;
-
-Now you spread condition to two locations and it's hard to remember
-ordering without looking closer to the code.
-
-That's why I suggested to pass an ID parameter in the first place.
-
-> -	}
-> +	dw_i2c_set_fifo_size(dev);
->  
->  	adap = &dev->adapter;
->  	adap->owner = THIS_MODULE;
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Yes and it is Intel IP. Haswell IIRC and it returned zeroes.
