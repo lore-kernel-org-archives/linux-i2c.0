@@ -1,64 +1,78 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/5] i2c: designware: Add slave definitions
-Date: Tue, 13 Dec 2016 08:11:49 -0600
-Message-ID: <CAL_Jsq+DDx460jcLj34_X9MdtCqyc4izwc=3ThnFri+NjBaGUA@mail.gmail.com>
-References: <cover.1481131072.git.lolivei@synopsys.com> <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
- <20161212170214.4cydp256jsp7srar@rob-hp-laptop> <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
- <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA@mail.gmail.com> <BCF0D4927F9C694C9AEA8827D4A9C7C897CEDB@de02wembxa.internal.synopsys.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v4 5/5] i2c: designware: Cleaning comments and formatation
+Date: Tue, 13 Dec 2016 17:08:06 +0200
+Message-ID: <b83be13e-483d-2d0c-d80d-ff752cc8bf04@linux.intel.com>
+References: <cover.1481131072.git.lolivei@synopsys.com>
+ <02856fdb6ce3230a4ac1ba0958938ad51e763205.1481131072.git.lolivei@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BCF0D4927F9C694C9AEA8827D4A9C7C897CEDB@de02wembxa.internal.synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis de Oliveira <Luis.Oliveira@synopsys.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ramiro.Oliveira@synopsys.com" <Ramiro.Oliveira@synopsys.com>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "CARLOS.PALMINHA@synopsys.com" <CARLOS.PALMINHA@synopsys.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:52801 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932346AbcLMPIN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 13 Dec 2016 10:08:13 -0500
+In-Reply-To: <02856fdb6ce3230a4ac1ba0958938ad51e763205.1481131072.git.lolivei@synopsys.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-Again, please don't top post. And your line wrapping is messed up.
-IOW, you can't use Outlook.
+On 12/07/2016 07:55 PM, Luis Oliveira wrote:
+> - Missspelling, comment formatation and fix a string of
+>   the existing code
+>
+> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+> ---
+> Changes V3->V4: (Andy Shevchenko)
+> - created a commit message
+>
+>  drivers/i2c/busses/i2c-designware-common.c |  2 +-
+>  drivers/i2c/busses/i2c-designware-slave.c  | 10 ++++++----
+>  2 files changed, 7 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+> index 41b38d8b8732..838ef662d2c8 100644
+> --- a/drivers/i2c/busses/i2c-designware-common.c
+> +++ b/drivers/i2c/busses/i2c-designware-common.c
+> @@ -42,7 +42,7 @@ static char *abort_sources[] = {
+>  	[ABRT_TXDATA_NOACK] =
+>  		"data not acknowledged",
+>  	[ABRT_GCALL_NOACK] =
+> -		"no acknowledgement for a general call",
+> +		"no acknowledgment for a general call",
 
-On Tue, Dec 13, 2016 at 4:50 AM, Luis de Oliveira
-<Luis.Oliveira@synopsys.com> wrote:
-> The controller for i2c-designware cannot be slave/master at the same time and it has to be enabled knowing beforehand if we want it to be slave or master by something outside of the controller itself.
->
-> I as looking and I see the use of this I2C_OWN_SLAVE_ADDRESS with the "linux,slave-24c02" slave interface  but I am not seeing how it will help me identify a selected i2c-designware block as a "slave" device before instantiation. I'm sorry if I'm not understanding properly.
-> I use the "linux,slave-24c02" to instantiate the i2c-designware as a slave with an address so I can do write/read operations, it is how I tested it.
+I'm not a native speaker but are both acknowledgement and acknowledgment 
+ok? I.e. is there need to change?
 
-Something like this:
+> diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+> index 1c7f82bb2513..442bc5ce6d47 100644
+> --- a/drivers/i2c/busses/i2c-designware-slave.c
+> +++ b/drivers/i2c/busses/i2c-designware-slave.c
+> @@ -70,8 +70,8 @@ int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+>  		/* Configure register access mode 16bit */
+>  		dev->accessor_flags |= ACCESS_16BIT;
+>  	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
+> -		dev_err(dev->dev, "Unknown Synopsys component type: "
+> -			"0x%08x\n", reg);
+> +		dev_err(dev->dev,
+> +		 "Unknown Synopsys component type: 0x%08x\n", reg);
+>  		i2c_dw_release_lock(dev);
+>  		return -ENODEV;
+>  	}
+> @@ -181,8 +181,10 @@ int i2c_dw_reg_slave(struct i2c_client *slave)
+>  		return -EBUSY;
+>  	if (slave->flags & I2C_CLIENT_TEN)
+>  		return -EAFNOSUPPORT;
+> -		/* set slave address in the IC_SAR register,
+> -		* the address to which the DW_apb_i2c responds */
+> +		/*
+> +		 * set slave address in the IC_SAR register,
+> +		 * the address to which the DW_apb_i2c responds
+> +		 */
 
-of_for_each_child_node(child) {
-  of_property_read_u32(child, "reg", &reg);
-  if (reg & I2C_OWN_SLAVE_ADDRESS))
-    im_a_slave = true;
-}
+These two should be done already in the patch 4/5 since it introduced 
+the lines that you are changing here.
 
-...rather than testing "mode" is equal to "slave".
-
-Rob
-
->
-> Luis
->
-> -----Original Message-----
-> From: Rob Herring [mailto:robh@kernel.org]
-> Sent: Monday, December 12, 2016 23:16
-> To: Luis de Oliveira <Luis.Oliveira@synopsys.com>
-> Cc: wsa@the-dreams.de; mark.rutland@arm.com; jarkko.nikula@linux.intel.com; andriy.shevchenko@linux.intel.com; mika.westerberg@linux.intel.com; linux-i2c@vger.kernel.org; devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Ramiro.Oliveira@synopsys.com; Joao.Pinto@synopsys.com; CARLOS.PALMINHA@synopsys.com
-> Subject: Re: [PATCH v4 3/5] i2c: designware: Add slave definitions
->
-> On Mon, Dec 12, 2016 at 12:35 PM, Luis de Oliveira <Luis.Oliveira@synopsys.com> wrote:
->> Hi all,
->
-> Please don't top post.
->
->>
->> The slave address could be set by the I2C slave backend so I can't use it to setup the controller.
->> A boolean property was my initial approach then Andy and Wolfram Sang suggested the use of compatible strings and later It was suggested to use a property to select mode but I can do it again if it's the best way.
->> Can you please tell me where should it be documented?
->
-> bindings/i2c/i2c.txt.
->
-> Actually, looking at this some more, we already have a way to describe the controller being a slave device with the I2C_OWN_SLAVE_ADDRESS flag in the reg property. We should just need a helper to read reg property of each child and check for the bit set.
->
-> Rob
+-- 
+Jarkko
