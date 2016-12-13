@@ -1,42 +1,81 @@
-From: Alexandre Torgue <alexandre.torgue@st.com>
-Subject: Re: [PATCH v6 4/5] ARM: dts: stm32: Add I2C1 support for STM32429
- eval board
-Date: Tue, 13 Dec 2016 11:02:28 +0100
-Message-ID: <a5a701ed-4073-87f6-3ff5-923445f97014@st.com>
-References: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
- <1481559342-6106-5-git-send-email-cedric.madianga@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1481559342-6106-5-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>, wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+From: Tin Huynh <tnhuynh@apm.com>
+Subject: [PATCH V4] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
+Date: Tue, 13 Dec 2016 17:03:34 +0700
+Message-ID: <1481623414-19220-1-git-send-email-tnhuynh@apm.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Cedric,
+ACPI always sets Tx/Rx FIFO to 32. This configuration will
+cause problem if the IP core supports a FIFO size of less than 32.
+The driver should read the FIFO size from the IP and select the smaller
+one of the two.
 
-On 12/12/2016 05:15 PM, M'boumba Cedric Madianga wrote:
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Signed-off-by: Tin Huynh <tnhuynh@apm.com>
 
-Can you please add a commit message.
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c |   27 ++++++++++++++++++++-------
+ 1 files changed, 20 insertions(+), 7 deletions(-)
 
-> ---
->  arch/arm/boot/dts/stm32429i-eval.dts | 6 ++++++
->  1 file changed, 6 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
-> index afb90bc..74e0045 100644
-> --- a/arch/arm/boot/dts/stm32429i-eval.dts
-> +++ b/arch/arm/boot/dts/stm32429i-eval.dts
-> @@ -141,3 +141,9 @@
->  	pinctrl-names = "default";
->  	status = "okay";
->  };
-> +
-> +&i2c1 {
-> +	pinctrl-0 = <&i2c1_pins_b>;
-> +	pinctrl-names = "default";
-> +	status = "okay";
-> +};
->
+Change from V3:
+ -Use uppercase of FIFO instead of lowercase.
+ -Fix the problem  when IP core return 0 of FIFO.
+
+Change from V2:
+ -Add a helper function to set FIFO size.
+
+Change from V1:
+ -Revert the default 32 for FIFO, read parameter from IP core
+ and pick the smaller one of the two.
+ -Correct the title to describe new approach.
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0b42a12..24032d6 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -150,6 +150,25 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+ 	return 0;
+ }
+ 
++static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev, int id)
++{
++	u32 param, tx_fifo_depth, rx_fifo_depth;
++
++	param = i2c_dw_read_comp_param(dev);
++	tx_fifo_depth = ((param >> 16) & 0xff) + 1;
++	rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
++	if (!dev->tx_fifo_depth) {
++		dev->tx_fifo_depth = tx_fifo_depth;
++		dev->rx_fifo_depth = rx_fifo_depth;
++		dev->adapter.nr = id;
++	} else if (tx_fifo_depth > 1) {
++		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
++				tx_fifo_depth);
++		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
++				rx_fifo_depth);
++	}
++}
++
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+@@ -246,13 +265,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 				1000000);
+ 	}
+ 
+-	if (!dev->tx_fifo_depth) {
+-		u32 param1 = i2c_dw_read_comp_param(dev);
+-
+-		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+-		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
+-		dev->adapter.nr = pdev->id;
+-	}
++	dw_i2c_set_fifo_size(dev, pdev->id);
+ 
+ 	adap = &dev->adapter;
+ 	adap->owner = THIS_MODULE;
+-- 
+1.7.1
+
