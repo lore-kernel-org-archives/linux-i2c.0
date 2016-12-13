@@ -1,117 +1,244 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH V4] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
-Date: Tue, 13 Dec 2016 13:25:37 +0200
-Message-ID: <1481628337.7188.63.camel@linux.intel.com>
-References: <1481623414-19220-1-git-send-email-tnhuynh@apm.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v4 4/5] i2c: designware-baytrail: Disallow the CPU to
+ enter C6 or C7 while holding the punit semaphore
+Date: Tue, 13 Dec 2016 13:21:45 +0100
+Message-ID: <63a1993a-7df8-db09-01e7-7b82ddcc85b0@redhat.com>
+References: <20161212215612.9262-1-hdegoede@redhat.com>
+ <20161212215612.9262-4-hdegoede@redhat.com>
+ <1481622976.7188.60.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1481623414-19220-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Tin Huynh <tnhuynh@apm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43156 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753242AbcLMMVu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 13 Dec 2016 07:21:50 -0500
+In-Reply-To: <1481622976.7188.60.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>
 
-On Tue, 2016-12-13 at 17:03 +0700, Tin Huynh wrote:
-> ACPI always sets Tx/Rx FIFO to 32. This configuration will
-> cause problem if the IP core supports a FIFO size of less than 32.
-> The driver should read the FIFO size from the IP and select the
-> smaller
-> one of the two.
-> 
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
-> 
+Hi,
 
-One comment below, after addressing it
+On 13-12-16 10:56, Andy Shevchenko wrote:
+> On Mon, 2016-12-12 at 22:56 +0100, Hans de Goede wrote:
+>> On my cherrytrail tablet with axp288 pmic, just doing a bunch of
+>> repeated
+>> reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet
+>> in
+>> 1 - 3 runs guaranteed.
+>>
+>> This seems to be causes by the cpu trying to enter C6 or C7 while we
+>> hold
+>> the punit bus semaphore, at which point everything just hangs.
+>>
+>> Avoid this by disallowing the CPU to enter C6 or C7 before acquiring
+>> the
+>> punit bus semaphore.
+>>
+>
+> Just a nitpick for abbreviations: pmic -> PMIC, punit -> P-Unit, but I'm
+> okay with the contents which is more important.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Erm, the rest of the code, including dev_info and dev_err messages
+also uses punit without the - in there, anyways not planning to
+send a v5 for now.
 
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c |   27
-> ++++++++++++++++++++-------
->  1 files changed, 20 insertions(+), 7 deletions(-)
-> 
-> Change from V3:
->  -Use uppercase of FIFO instead of lowercase.
->  -Fix the problem  when IP core return 0 of FIFO.
-> 
-> Change from V2:
->  -Add a helper function to set FIFO size.
-> 
-> Change from V1:
->  -Revert the default 32 for FIFO, read parameter from IP core
->  and pick the smaller one of the two.
->  -Correct the title to describe new approach.
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0b42a12..24032d6 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -150,6 +150,25 @@ static int i2c_dw_plat_prepare_clk(struct
-> dw_i2c_dev *i_dev, bool prepare)
->  	return 0;
->  }
->  
-> +static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev, int id)
-> +{
-> +	u32 param, tx_fifo_depth, rx_fifo_depth;
-> +
-> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-        /*               
-         * Try to detect the FIFO depth if not
-set by interface driver,
-         * the depth could be from 2 to 256 from
-HW spec.
-         */     
+Thank you.
 
-> +	param = i2c_dw_read_comp_param(dev);
-> +	tx_fifo_depth = ((param >> 16) & 0xff) + 1;
-> +	rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
-> +	if (!dev->tx_fifo_depth) {
-> +		dev->tx_fifo_depth = tx_fifo_depth;
-> +		dev->rx_fifo_depth = rx_fifo_depth;
-> +		dev->adapter.nr = id;
-> +	} else if (tx_fifo_depth > 1) {
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109051
+>
+> What would be good is to have comments / tags from Len and Ville.
 
-This makes sense now, though I would add a comment here and use >= 2 to
-reflect datasheet.
+About this patch vs bug bko109051, yesterday I've spend time reading
+that entire bug. It seems it is a combination of at least 3 bugs
+combined, 2 i915 related with commits which seem to trigger
+the problem (2 different groups of users with a different problem
+it seems) which causes a hang every few hours. And one other
+bug where the system freezes in minutes, that one sounds like
+what I was seeing without this patch (but may well be yet
+another issue).
 
-		/*
-                 * Choose minimum values between HW and interface
-                 * driver provided.
-		 */
+As for the 2 i915 bugs, there have been git bisects for both of
+them, it would be good if someone could take a look at these, just
+search for bisect in that huge bug.
 
-> +		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
-> +				tx_fifo_depth);
-> +		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
-> +				rx_fifo_depth);
-> +	}
-> +}
-> +
->  static int dw_i2c_plat_probe(struct platform_device *pdev)
->  {
->  	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev-
-> >dev);
-> @@ -246,13 +265,7 @@ static int dw_i2c_plat_probe(struct
-> platform_device *pdev)
->  				1000000);
->  	}
->  
-> -	if (!dev->tx_fifo_depth) {
-> -		u32 param1 = i2c_dw_read_comp_param(dev);
-> -
-> -		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> -		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-> -		dev->adapter.nr = pdev->id;
-> -	}
-> +	dw_i2c_set_fifo_size(dev, pdev->id);
->  
->  	adap = &dev->adapter;
->  	adap->owner = THIS_MODULE;
+Regards,
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Hans
+
+
+
+
+>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Tested-by: Takashi Iwai <tiwai@suse.de>
+>> ---
+>> Changes in v2:
+>> -New patch in v2 of this set
+>> Changes in v3:
+>> -Change commit message and comment in the code from "force the CPU to
+>> C1"
+>>  to "Disallow the CPU to enter C6 or C7", as the CPU may still be in
+>> either
+>>  C0 or C1 with the request pm_qos
+>> Changes in v4:
+>> -Rename i2c_dw_eval_lock_support to i2c_dw_probe_lock_support so that
+>> we can
+>>  add a matching i2c_dw_remove_lock_support cleanup function
+>> -Move qm_pos removal to new i2c_dw_remove_lock_support function
+>> -Move pm_qos_add_request to the end of i2c_dw_probe_lock_support
+>> ---
+>>  drivers/i2c/busses/i2c-designware-baytrail.c | 21
+>> ++++++++++++++++++++-
+>>  drivers/i2c/busses/i2c-designware-core.h     |  9 +++++++--
+>>  drivers/i2c/busses/i2c-designware-platdrv.c  |  4 +++-
+>>  3 files changed, 30 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> b/drivers/i2c/busses/i2c-designware-baytrail.c
+>> index cf02222..95d7013 100644
+>> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+>> @@ -16,6 +16,7 @@
+>>  #include <linux/acpi.h>
+>>  #include <linux/i2c.h>
+>>  #include <linux/interrupt.h>
+>> +#include <linux/pm_qos.h>
+>>
+>>  #include <asm/iosf_mbi.h>
+>>
+>> @@ -33,6 +34,13 @@ static int get_sem(struct dw_i2c_dev *dev, u32
+>> *sem)
+>>  	u32 data;
+>>  	int ret;
+>>
+>> +	/*
+>> +	 * Disallow the CPU to enter C6 or C7 state, entering these
+>> states
+>> +	 * requires the punit to talk to the pmic and if this happens
+>> while
+>> +	 * we're holding the semaphore, the SoC hangs.
+>> +	 */
+>> +	pm_qos_update_request(&dev->pm_qos, 0);
+>> +
+>>  	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ,
+>> PUNIT_SEMAPHORE, &data);
+>>  	if (ret) {
+>>  		dev_err(dev->dev, "iosf failed to read punit
+>> semaphore\n");
+>> @@ -56,6 +64,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
+>>  	data &= ~PUNIT_SEMAPHORE_BIT;
+>>  	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
+>> PUNIT_SEMAPHORE, data))
+>>  		dev_err(dev->dev, "iosf failed to reset punit
+>> semaphore during write\n");
+>> +
+>> +	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
+>>  }
+>>
+>>  static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+>> @@ -121,7 +131,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev
+>> *dev)
+>>  		jiffies_to_msecs(jiffies - acquired));
+>>  }
+>>
+>> -int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+>> +int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+>>  {
+>>  	acpi_status status;
+>>  	unsigned long long shared_host = 0;
+>> @@ -149,5 +159,14 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev
+>> *dev)
+>>  	dev->release_lock = baytrail_i2c_release;
+>>  	dev->pm_runtime_disabled = true;
+>>
+>> +	pm_qos_add_request(&dev->pm_qos, PM_QOS_CPU_DMA_LATENCY,
+>> +			   PM_QOS_DEFAULT_VALUE);
+>> +
+>>  	return 0;
+>>  }
+>> +
+>> +void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
+>> +{
+>> +	if (dev->acquire_lock)
+>> +		pm_qos_remove_request(&dev->pm_qos);
+>> +}
+>> diff --git a/drivers/i2c/busses/i2c-designware-core.h
+>> b/drivers/i2c/busses/i2c-designware-core.h
+>> index fb143f5..871970e 100644
+>> --- a/drivers/i2c/busses/i2c-designware-core.h
+>> +++ b/drivers/i2c/busses/i2c-designware-core.h
+>> @@ -22,6 +22,7 @@
+>>   *
+>>   */
+>>
+>> +#include <linux/pm_qos.h>
+>>
+>>  #define DW_IC_CON_MASTER		0x1
+>>  #define DW_IC_CON_SPEED_STD		0x2
+>> @@ -67,6 +68,7 @@
+>>   * @fp_lcnt: fast plus LCNT value
+>>   * @hs_hcnt: high speed HCNT value
+>>   * @hs_lcnt: high speed LCNT value
+>> + * @pm_qos: pm_qos_request used while holding a hardware lock on the
+>> bus
+>>   * @acquire_lock: function to acquire a hardware lock on the bus
+>>   * @release_lock: function to release a hardware lock on the bus
+>>   * @pm_runtime_disabled: true if pm runtime is disabled
+>> @@ -114,6 +116,7 @@ struct dw_i2c_dev {
+>>  	u16			fp_lcnt;
+>>  	u16			hs_hcnt;
+>>  	u16			hs_lcnt;
+>> +	struct pm_qos_request	pm_qos;
+>>  	int			(*acquire_lock)(struct dw_i2c_dev
+>> *dev);
+>>  	void			(*release_lock)(struct dw_i2c_dev
+>> *dev);
+>>  	bool			pm_runtime_disabled;
+>> @@ -131,7 +134,9 @@ extern u32 i2c_dw_read_comp_param(struct
+>> dw_i2c_dev *dev);
+>>  extern int i2c_dw_probe(struct dw_i2c_dev *dev);
+>>
+>>  #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+>> -extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
+>> +extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
+>> +extern void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev);
+>>  #else
+>> -static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) {
+>> return 0; }
+>> +static inline int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev) {
+>> return 0; }
+>> +static inline void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
+>> {}
+>>  #endif
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index 97a2ca1..b0a64a2 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -210,7 +210,7 @@ static int dw_i2c_plat_probe(struct
+>> platform_device *pdev)
+>>  		return -EINVAL;
+>>  	}
+>>
+>> -	r = i2c_dw_eval_lock_support(dev);
+>> +	r = i2c_dw_probe_lock_support(dev);
+>>  	if (r)
+>>  		return r;
+>>
+>> @@ -291,6 +291,8 @@ static int dw_i2c_plat_remove(struct
+>> platform_device *pdev)
+>>  	if (!dev->pm_runtime_disabled)
+>>  		pm_runtime_disable(&pdev->dev);
+>>
+>> +	i2c_dw_remove_lock_support(dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>
