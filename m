@@ -1,81 +1,49 @@
-From: Tin Huynh <tnhuynh@apm.com>
-Subject: [PATCH V4] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
-Date: Tue, 13 Dec 2016 17:03:34 +0700
-Message-ID: <1481623414-19220-1-git-send-email-tnhuynh@apm.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
+From: Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v6 5/5] ARM: configs: stm32: Add I2C support for STM32
+ defconfig
+Date: Tue, 13 Dec 2016 11:03:11 +0100
+Message-ID: <7a48ebd1-94cc-a0e8-6a6c-25ca76aaeed5@st.com>
+References: <1481559342-6106-1-git-send-email-cedric.madianga@gmail.com>
+ <1481559342-6106-6-git-send-email-cedric.madianga@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1481559342-6106-6-git-send-email-cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, patrice.chotard-qxv4g6HH51o@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI always sets Tx/Rx FIFO to 32. This configuration will
-cause problem if the IP core supports a FIFO size of less than 32.
-The driver should read the FIFO size from the IP and select the smaller
-one of the two.
+Hi Cedric,
 
-Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+On 12/12/2016 05:15 PM, M'boumba Cedric Madianga wrote:
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
----
- drivers/i2c/busses/i2c-designware-platdrv.c |   27 ++++++++++++++++++++-------
- 1 files changed, 20 insertions(+), 7 deletions(-)
+Can you please add a commit message.
 
-Change from V3:
- -Use uppercase of FIFO instead of lowercase.
- -Fix the problem  when IP core return 0 of FIFO.
+Thx in advance
+Alex
 
-Change from V2:
- -Add a helper function to set FIFO size.
-
-Change from V1:
- -Revert the default 32 for FIFO, read parameter from IP core
- and pick the smaller one of the two.
- -Correct the title to describe new approach.
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0b42a12..24032d6 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -150,6 +150,25 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
- 	return 0;
- }
- 
-+static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev, int id)
-+{
-+	u32 param, tx_fifo_depth, rx_fifo_depth;
-+
-+	param = i2c_dw_read_comp_param(dev);
-+	tx_fifo_depth = ((param >> 16) & 0xff) + 1;
-+	rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
-+	if (!dev->tx_fifo_depth) {
-+		dev->tx_fifo_depth = tx_fifo_depth;
-+		dev->rx_fifo_depth = rx_fifo_depth;
-+		dev->adapter.nr = id;
-+	} else if (tx_fifo_depth > 1) {
-+		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
-+				tx_fifo_depth);
-+		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
-+				rx_fifo_depth);
-+	}
-+}
-+
- static int dw_i2c_plat_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
-@@ -246,13 +265,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 				1000000);
- 	}
- 
--	if (!dev->tx_fifo_depth) {
--		u32 param1 = i2c_dw_read_comp_param(dev);
--
--		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
--		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
--		dev->adapter.nr = pdev->id;
--	}
-+	dw_i2c_set_fifo_size(dev, pdev->id);
- 
- 	adap = &dev->adapter;
- 	adap->owner = THIS_MODULE;
--- 
-1.7.1
-
+> ---
+>  arch/arm/configs/stm32_defconfig | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/arch/arm/configs/stm32_defconfig b/arch/arm/configs/stm32_defconfig
+> index e7b56d4..9494eaf 100644
+> --- a/arch/arm/configs/stm32_defconfig
+> +++ b/arch/arm/configs/stm32_defconfig
+> @@ -52,6 +52,9 @@ CONFIG_SERIAL_NONSTANDARD=y
+>  CONFIG_SERIAL_STM32=y
+>  CONFIG_SERIAL_STM32_CONSOLE=y
+>  # CONFIG_HW_RANDOM is not set
+> +CONFIG_I2C=y
+> +CONFIG_I2C_CHARDEV=y
+> +CONFIG_I2C_STM32F4=y
+>  # CONFIG_HWMON is not set
+>  # CONFIG_USB_SUPPORT is not set
+>  CONFIG_NEW_LEDS=y
+>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
