@@ -1,47 +1,59 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH V3] i2c: designware: fix wrong tx/rx fifo for ACPI
-Date: Tue, 13 Dec 2016 12:19:45 +0200
-Message-ID: <20161213101945.GE1460@lahna.fi.intel.com>
-References: <1481531810-31695-1-git-send-email-tnhuynh@apm.com>
- <1481569373.7188.48.camel@linux.intel.com>
- <20161212192113.GA1460@lahna.fi.intel.com>
- <1481571319.1764.32.camel@perches.com>
+From: Luis de Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: RE: [PATCH v4 3/5] i2c: designware: Add slave definitions
+Date: Tue, 13 Dec 2016 10:50:44 +0000
+Message-ID: <BCF0D4927F9C694C9AEA8827D4A9C7C897CEDB@de02wembxa.internal.synopsys.com>
+References: <cover.1481131072.git.lolivei@synopsys.com>
+ <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
+ <20161212170214.4cydp256jsp7srar@rob-hp-laptop>
+ <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
+ <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1481571319.1764.32.camel@perches.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Tin Huynh <tnhuynh@apm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Luis de Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, "Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, "CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 12, 2016 at 11:35:19AM -0800, Joe Perches wrote:
-> On Mon, 2016-12-12 at 21:21 +0200, Mika Westerberg wrote:
-> > On Mon, Dec 12, 2016 at 09:02:53PM +0200, Andy Shevchenko wrote:
-> > > > +	tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> > > > +	rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-> > > > +	if (!dev->tx_fifo_depth) {
-> > > > +		dev->tx_fifo_depth = tx_fifo_depth;
-> > > > +		dev->rx_fifo_depth = rx_fifo_depth;
-> > > > +	} else if (tx_fifo_depth) {
-> > > > +		dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
-> > > > +				tx_fifo_depth);
-> > > > +		dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
-> > > > +				rx_fifo_depth);
-> > > > +	}
-> > > 
-> > > So, let's clarify here:
-> > > Is it possible to have an IP without parameter block enabled? I mean to
-> > > read something arbitrary (or zeroes, or all-ones) from param1.
-> > 
-> > Yes and it is Intel IP. Haswell IIRC and it returned zeroes.
-> 
-> The "+ 1"  in the first set of tx_fifo_depth
-> makes the "else if" check unnecessary.
-
-Good point. I did not notice that change at all.
-
-The designware I2C databook I have here says that 0 is reserved value
-and FIFO sizes start from 2 so the above is wrong either way.
+VGhlIGNvbnRyb2xsZXIgZm9yIGkyYy1kZXNpZ253YXJlIGNhbm5vdCBiZSBzbGF2ZS9tYXN0ZXIg
+YXQgdGhlIHNhbWUgdGltZSBhbmQgaXQgaGFzIHRvIGJlIGVuYWJsZWQga25vd2luZyBiZWZvcmVo
+YW5kIGlmIHdlIHdhbnQgaXQgdG8gYmUgc2xhdmUgb3IgbWFzdGVyIGJ5IHNvbWV0aGluZyBvdXRz
+aWRlIG9mIHRoZSBjb250cm9sbGVyIGl0c2VsZi4NCg0KSSBhcyBsb29raW5nIGFuZCBJIHNlZSB0
+aGUgdXNlIG9mIHRoaXMgSTJDX09XTl9TTEFWRV9BRERSRVNTIHdpdGggdGhlICJsaW51eCxzbGF2
+ZS0yNGMwMiIgc2xhdmUgaW50ZXJmYWNlICBidXQgSSBhbSBub3Qgc2VlaW5nIGhvdyBpdCB3aWxs
+IGhlbHAgbWUgaWRlbnRpZnkgYSBzZWxlY3RlZCBpMmMtZGVzaWdud2FyZSBibG9jayBhcyBhICJz
+bGF2ZSIgZGV2aWNlIGJlZm9yZSBpbnN0YW50aWF0aW9uLiBJJ20gc29ycnkgaWYgSSdtIG5vdCB1
+bmRlcnN0YW5kaW5nIHByb3Blcmx5Lg0KSSB1c2UgdGhlICJsaW51eCxzbGF2ZS0yNGMwMiIgdG8g
+aW5zdGFudGlhdGUgdGhlIGkyYy1kZXNpZ253YXJlIGFzIGEgc2xhdmUgd2l0aCBhbiBhZGRyZXNz
+IHNvIEkgY2FuIGRvIHdyaXRlL3JlYWQgb3BlcmF0aW9ucywgaXQgaXMgaG93IEkgdGVzdGVkIGl0
+LiANCg0KTHVpcw0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogUm9iIEhlcnJp
+bmcgW21haWx0bzpyb2JoQGtlcm5lbC5vcmddIA0KU2VudDogTW9uZGF5LCBEZWNlbWJlciAxMiwg
+MjAxNiAyMzoxNg0KVG86IEx1aXMgZGUgT2xpdmVpcmEgPEx1aXMuT2xpdmVpcmFAc3lub3BzeXMu
+Y29tPg0KQ2M6IHdzYUB0aGUtZHJlYW1zLmRlOyBtYXJrLnJ1dGxhbmRAYXJtLmNvbTsgamFya2tv
+Lm5pa3VsYUBsaW51eC5pbnRlbC5jb207IGFuZHJpeS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNv
+bTsgbWlrYS53ZXN0ZXJiZXJnQGxpbnV4LmludGVsLmNvbTsgbGludXgtaTJjQHZnZXIua2VybmVs
+Lm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
+bC5vcmc7IFJhbWlyby5PbGl2ZWlyYUBzeW5vcHN5cy5jb207IEpvYW8uUGludG9Ac3lub3BzeXMu
+Y29tOyBDQVJMT1MuUEFMTUlOSEFAc3lub3BzeXMuY29tDQpTdWJqZWN0OiBSZTogW1BBVENIIHY0
+IDMvNV0gaTJjOiBkZXNpZ253YXJlOiBBZGQgc2xhdmUgZGVmaW5pdGlvbnMNCg0KT24gTW9uLCBE
+ZWMgMTIsIDIwMTYgYXQgMTI6MzUgUE0sIEx1aXMgZGUgT2xpdmVpcmEgPEx1aXMuT2xpdmVpcmFA
+c3lub3BzeXMuY29tPiB3cm90ZToNCj4gSGkgYWxsLA0KDQpQbGVhc2UgZG9uJ3QgdG9wIHBvc3Qu
+DQoNCj4NCj4gVGhlIHNsYXZlIGFkZHJlc3MgY291bGQgYmUgc2V0IGJ5IHRoZSBJMkMgc2xhdmUg
+YmFja2VuZCBzbyBJIGNhbid0IHVzZSBpdCB0byBzZXR1cCB0aGUgY29udHJvbGxlci4NCj4gQSBi
+b29sZWFuIHByb3BlcnR5IHdhcyBteSBpbml0aWFsIGFwcHJvYWNoIHRoZW4gQW5keSBhbmQgV29s
+ZnJhbSBTYW5nIHN1Z2dlc3RlZCB0aGUgdXNlIG9mIGNvbXBhdGlibGUgc3RyaW5ncyBhbmQgbGF0
+ZXIgSXQgd2FzIHN1Z2dlc3RlZCB0byB1c2UgYSBwcm9wZXJ0eSB0byBzZWxlY3QgbW9kZSBidXQg
+SSBjYW4gZG8gaXQgYWdhaW4gaWYgaXQncyB0aGUgYmVzdCB3YXkuDQo+IENhbiB5b3UgcGxlYXNl
+IHRlbGwgbWUgd2hlcmUgc2hvdWxkIGl0IGJlIGRvY3VtZW50ZWQ/DQoNCmJpbmRpbmdzL2kyYy9p
+MmMudHh0Lg0KDQpBY3R1YWxseSwgbG9va2luZyBhdCB0aGlzIHNvbWUgbW9yZSwgd2UgYWxyZWFk
+eSBoYXZlIGEgd2F5IHRvIGRlc2NyaWJlIHRoZSBjb250cm9sbGVyIGJlaW5nIGEgc2xhdmUgZGV2
+aWNlIHdpdGggdGhlIEkyQ19PV05fU0xBVkVfQUREUkVTUyBmbGFnIGluIHRoZSByZWcgcHJvcGVy
+dHkuIFdlIHNob3VsZCBqdXN0IG5lZWQgYSBoZWxwZXIgdG8gcmVhZCByZWcgcHJvcGVydHkgb2Yg
+ZWFjaCBjaGlsZCBhbmQgY2hlY2sgZm9yIHRoZSBiaXQgc2V0Lg0KDQpSb2INCg==
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
