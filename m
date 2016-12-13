@@ -1,34 +1,19 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/5] i2c: designware: Add slave definitions
-Date: Mon, 12 Dec 2016 17:15:56 -0600
-Message-ID: <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA@mail.gmail.com>
-References: <cover.1481131072.git.lolivei@synopsys.com> <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
- <20161212170214.4cydp256jsp7srar@rob-hp-laptop> <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
+From: bancoleite@sms.goiania.go.gov.br
+Subject: DO YOU NEED A LOAN??
+Date: Tue, 13 Dec 2016 10:57:32 +0530
+Message-ID: <20161213054054.C672F5F6BFB@zmail.goiania.go.gov.br>
+Reply-To: finansbank.muhaberrat@accountant.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis de Oliveira <Luis.Oliveira@synopsys.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ramiro.Oliveira@synopsys.com" <Ramiro.Oliveira@synopsys.com>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "CARLOS.PALMINHA@synopsys.com" <CARLOS.PALMINHA@synopsys.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from correio.goiania.go.gov.br ([200.199.226.131]:42436 "EHLO
+        zmail.goiania.go.gov.br" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S932431AbcLMFfS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Dec 2016 00:35:18 -0500
+Content-Description: Mail message body
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Recipients <bancoleite@sms.goiania.go.gov.br>
 
-On Mon, Dec 12, 2016 at 12:35 PM, Luis de Oliveira
-<Luis.Oliveira@synopsys.com> wrote:
-> Hi all,
-
-Please don't top post.
-
->
-> The slave address could be set by the I2C slave backend so I can't use it to setup the controller.
-> A boolean property was my initial approach then Andy and Wolfram Sang suggested the use of compatible strings and later It was suggested to use a property to select mode but I can do it again if it's the best way.
-> Can you please tell me where should it be documented?
-
-bindings/i2c/i2c.txt.
-
-Actually, looking at this some more, we already have a way to describe
-the controller being a slave device with the I2C_OWN_SLAVE_ADDRESS
-flag in the reg property. We should just need a helper to read reg
-property of each child and check for the bit set.
-
-Rob
+Are you in need of a loan? Apply for more details.
