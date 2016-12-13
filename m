@@ -1,55 +1,48 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v4 4/5] i2c: designware-baytrail: Disallow the CPU to
- enter C6 or C7 while holding the punit semaphore
-Date: Tue, 13 Dec 2016 15:42:54 +0200
-Message-ID: <6dc5a59d-4dc8-cab7-15f5-48e36ebcc337@linux.intel.com>
+Subject: Re: [PATCH v4 5/5] i2c: designware-baytrail: Add support for
+ cherrytrail
+Date: Tue, 13 Dec 2016 15:45:18 +0200
+Message-ID: <0adf44b7-caa5-5feb-13cb-85e37d606cc2@linux.intel.com>
 References: <20161212215612.9262-1-hdegoede@redhat.com>
- <20161212215612.9262-4-hdegoede@redhat.com>
- <1481622976.7188.60.camel@linux.intel.com>
+ <20161212215612.9262-5-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:50080 "EHLO mga14.intel.com"
+Received: from mga06.intel.com ([134.134.136.31]:17795 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933013AbcLMNpJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 13 Dec 2016 08:45:09 -0500
-In-Reply-To: <1481622976.7188.60.camel@linux.intel.com>
+        id S932977AbcLMNpW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 13 Dec 2016 08:45:22 -0500
+In-Reply-To: <20161212215612.9262-5-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>
 
-On 12/13/2016 11:56 AM, Andy Shevchenko wrote:
-> On Mon, 2016-12-12 at 22:56 +0100, Hans de Goede wrote:
->> On my cherrytrail tablet with axp288 pmic, just doing a bunch of
->> repeated
->> reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet
->> in
->> 1 - 3 runs guaranteed.
->>
->> This seems to be causes by the cpu trying to enter C6 or C7 while we
->> hold
->> the punit bus semaphore, at which point everything just hangs.
->>
->> Avoid this by disallowing the CPU to enter C6 or C7 before acquiring
->> the
->> punit bus semaphore.
->>
+On 12/12/2016 11:56 PM, Hans de Goede wrote:
+> The cherrytrail punit has the pmic i2c bus access semaphore at a
+> different register address.
 >
-> Just a nitpick for abbreviations: pmic -> PMIC, punit -> P-Unit, but I'm
-> okay with the contents which is more important.
->
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Reviewed-by: Takashi Iwai <tiwai@suse.de>
+> Tested-by: Takashi Iwai <tiwai@suse.de>
 > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+> Changes in v2:
+> -Adjust for accessor_flags -> flags rename
+> -Add flags field to struct dw_pci_controller
+> -Add get_sem_addr() helper replacing MODEL_CHERRYTRAIL flag checking in
+>  PUNIT_SEMAPHORE macro
+> Changes in v3:
+> -Add a gap between ACCESS_* and MODEL_* flags as reserved space for
+>  future ACCESS_* flags
+> Changes in v4:
+> -s/CHV/CHT/
+> ---
+>  drivers/i2c/busses/i2c-designware-baytrail.c | 22 +++++++++++++++++-----
+>  drivers/i2c/busses/i2c-designware-core.h     |  2 ++
+>  drivers/i2c/busses/i2c-designware-pcidrv.c   | 26 +++++++++++++++++++-------
+>  drivers/i2c/busses/i2c-designware-platdrv.c  |  2 +-
+>  4 files changed, 39 insertions(+), 13 deletions(-)
 >
-No need for v5 from my side either (Andy agreed it later in the thread)
-
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-
->> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109051
->
-> What would be good is to have comments / tags from Len and Ville.
->
-We can have also follow up patch if some other PM QoS acrobatics are 
-required than what's implemented here. Getting real bug fixed is quite 
-big benefit.
