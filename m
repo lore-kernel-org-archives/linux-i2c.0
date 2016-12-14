@@ -1,96 +1,61 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/4] power: supply: axp288_fuel_gauge: Read 12 bit values 2 registers at a time
-Date: Wed, 14 Dec 2016 17:38:52 +0100
-Message-ID: <20161214163853.454-3-hdegoede@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/4] power: supply: axp288_fuel_gauge: Fix
+ fuel_gauge_reg_readb return on error
+Date: Wed, 14 Dec 2016 18:01:32 +0100
+Message-ID: <20161214170131.GA2302@katana>
 References: <20161214163853.454-1-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55526 "EHLO mx1.redhat.com"
+Received: from www.zeus03.de ([194.117.254.33]:59744 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932643AbcLNQjA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 11:39:00 -0500
+        id S1753832AbcLNRIP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Dec 2016 12:08:15 -0500
+Content-Disposition: inline
 In-Reply-To: <20161214163853.454-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Chen-Yu Tsai <wens@csie.org>
-Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Chen-Yu Tsai <wens@csie.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org
 
-In order for the MSB -> LSB latching to work correctly we must read the
-2 8 bit registers of a 12 bit value in one consecutive read.
 
-This fixes voltage_ocv reporting inconsistent values on my tablet.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/power/supply/axp288_fuel_gauge.c | 40 ++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 18 deletions(-)
+On Wed, Dec 14, 2016 at 05:38:50PM +0100, Hans de Goede wrote:
+> If reading the register fails, return the actual error code, instead
+> of the uninitialized val variable;
 
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index 99d6d30..089056c 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -210,6 +210,22 @@ static int fuel_gauge_read_15bit_word(struct axp288_fg_info *info, int reg)
- 	return ret & FG_15BIT_VAL_MASK;
- }
- 
-+static int fuel_gauge_read_12bit_word(struct axp288_fg_info *info, int reg)
-+{
-+	unsigned char buf[2];
-+	int ret;
-+
-+	ret = regmap_bulk_read(info->regmap, reg, buf, 2);
-+	if (ret < 0) {
-+		dev_err(&info->pdev->dev, "Error reading reg 0x%02x err: %d\n",
-+			reg, ret);
-+		return ret;
-+	}
-+
-+	/* 12-bit data values have upper 8 bits in buf[0], lower 4 in buf[1] */
-+	return (buf[0] << 4) | ((buf[1] >> 4) & 0x0f);
-+}
-+
- static int pmic_read_adc_val(const char *name, int *raw_val,
- 		struct axp288_fg_info *info)
- {
-@@ -270,12 +286,9 @@ static int fuel_gauge_debug_show(struct seq_file *s, void *data)
- 	seq_printf(s, "    FG_RDC0[%02x] : %02x\n",
- 		AXP288_FG_RDC0_REG,
- 		fuel_gauge_reg_readb(info, AXP288_FG_RDC0_REG));
--	seq_printf(s, "    FG_OCVH[%02x] : %02x\n",
-+	seq_printf(s, "     FG_OCV[%02x] : %04x\n",
- 		AXP288_FG_OCVH_REG,
--		fuel_gauge_reg_readb(info, AXP288_FG_OCVH_REG));
--	seq_printf(s, "    FG_OCVL[%02x] : %02x\n",
--		AXP288_FG_OCVL_REG,
--		fuel_gauge_reg_readb(info, AXP288_FG_OCVL_REG));
-+		fuel_gauge_read_12bit_word(info, AXP288_FG_OCVH_REG));
- 	seq_printf(s, " FG_DES_CAP[%02x] : %04x\n",
- 		AXP288_FG_DES_CAP1_REG,
- 		fuel_gauge_read_15bit_word(info, AXP288_FG_DES_CAP1_REG));
-@@ -532,21 +545,12 @@ static int fuel_gauge_get_btemp(struct axp288_fg_info *info, int *btemp)
- 
- static int fuel_gauge_get_vocv(struct axp288_fg_info *info, int *vocv)
- {
--	int ret, value;
--
--	/* 12-bit data value, upper 8 in OCVH, lower 4 in OCVL */
--	ret = fuel_gauge_reg_readb(info, AXP288_FG_OCVH_REG);
--	if (ret < 0)
--		goto vocv_read_fail;
--	value = ret << 4;
-+	int ret;
- 
--	ret = fuel_gauge_reg_readb(info, AXP288_FG_OCVL_REG);
--	if (ret < 0)
--		goto vocv_read_fail;
--	value |= (ret & 0xf);
-+	ret = fuel_gauge_read_12bit_word(info, AXP288_FG_OCVH_REG);
-+	if (ret >= 0)
-+		*vocv = VOLTAGE_FROM_ADC(ret);
- 
--	*vocv = VOLTAGE_FROM_ADC(value);
--vocv_read_fail:
- 	return ret;
- }
- 
--- 
-2.9.3
+Please don't CC the linux-i2c list for i2c client drivers unless you
+have specific i2c related questions. It makes focussing on the core
+parts harder.
+
+Thanks,
+
+   Wolfram
+
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYUXrrAAoJEBQN5MwUoCm2WEgP/15bWIyigtUWGkdQXGP3Jbh/
+9wsilztQstY+hQkUz4g7JDJ+jIXxIEpYpKdl/9fXKICCIm7AORktnF/18aosFr0t
+265IGZEkIGfePxm9aXoCbe/7kjfxmShzmy7ARWg5Q9E/ZB8l+MGGE9uDfPuvzItN
+1w0g4M9e1JileiA8yKyjHvJjJADdxc8em8ISeHLmCC+n08hMaxtkaC3OE32h7aOb
+8IoubRLCzMzdn/pGb5vPACbhdxrKpRhXoyWhiEUuCjp0j9nZCRExOsWH3eNdcrI4
+7FNi+Ofq8K5i8usD+oPhw0E6JN27aqkbck2oK0TI6VTmWUa1fyqRaxR0lrW9HRDX
+uKnL0574ZJcdxUaKQ35HOaL0vF9u718SwsxH+EA0mcCtpIn5J8FUAygmwMzbSuPz
+TbgFU3QqsUO4PHyGtw/JI8R7ZPxVoWyaJJNApDL8NBTWEpkOLhjpRkzdSgu3x49O
+GaY/NRMrnRQZidkD2ctqUmbd0ax+nHwoT13wYsNgESmk589G46vP8LMkAHYWPl2i
+DJ9Syv98UFiznUCE86rRk80Ynlj3zqJqI3XM2hO1XOievNOFGlfxTf5fpKpvCUHZ
+0WhBPw9AhcbMsTSbNNvZwSgjBERDqoDQNQ0MnZZhpwRfpTy1N3xlLpFPuTC4l94g
+xnN8sY+MbWxjCcxcRQnR
+=ge4N
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
