@@ -1,62 +1,74 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [[RFC V3] 1/1] i2c: imx: add slave support
-Date: Wed, 14 Dec 2016 14:36:39 +0100
-Message-ID: <20161214133639.GA1476@katana>
-References: <1481695291-11444-1-git-send-email-joshua_frkuska@mentor.com>
- <1481695291-11444-2-git-send-email-joshua_frkuska@mentor.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/5] mfd: axp20x: Use IRQF_TRIGGER_LOW on the axp288
+Date: Wed, 14 Dec 2016 14:52:05 +0100
+Message-ID: <20161214135209.16369-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:49102 "EHLO mail.zeus03.de"
+Received: from mx1.redhat.com ([209.132.183.28]:35028 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753514AbcLNNgr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 08:36:47 -0500
-Content-Disposition: inline
-In-Reply-To: <1481695291-11444-2-git-send-email-joshua_frkuska@mentor.com>
+        id S932356AbcLNNwM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Dec 2016 08:52:12 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joshua Frkuska <joshua_frkuska@mentor.com>
-Cc: linux-i2c@vger.kernel.org, syrchin@dev.rtsoft.ru, peda@axentia.se, vladimir_zapolskiy@mentor.com, Jiada_Wang@mentor.com
+To: Lee Jones <lee.jones@linaro.org>, Chen-Yu Tsai <wens@csie.org>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
+The interrupt line of the entire family of axp2xx pmics is active-low,
+for devicetree enumerated irqs, this is dealt with in the devicetree.
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ACPI irq resources have a flag field for this too, I tried using this
+on my CUBE iwork8 Air tablet, but it does not contain the right data.
 
-On Wed, Dec 14, 2016 at 03:01:31PM +0900, Joshua Frkuska wrote:
-> Add I2C slave provider using the generic slave interface.
-> It also supports master transactions when the slave in the idle mode.
+The dstd shows the irq listed as either ActiveLow or ActiveHigh,
+depending on the OSID variable, which seems to be set by the
+"OS IMAGE ID" in the BIOS/EFI setup screen.
 
-I am confused. In the cover letter you write "Furthermore the state
-machine introduced to handle the slave states does not handle the master
-mode behavior." Yet here you say it supports master transactions? Is the
-sentence from the cover letter outdated?
+Since the acpi-resource info is no good, simply pass in IRQF_TRIGGER_LOW
+on the axp288.
 
-Regards,
+Together with the other axp288 fixes in this series, this fixes the axp288
+irq contineously triggering.
 
-   Wolfram
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/mfd/axp20x.c       | 6 +++---
+ include/linux/mfd/axp20x.h | 1 +
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYUUrnAAoJEBQN5MwUoCm2n/8P/31HigqA92RiPsEqjYM7DrF4
-68U3gxjNjBaY1BFtfkbufoDe6/UJbzIt+B6fQsEacvOqqYfiZ3LQnR84DKK4pTYS
-SSuyNI2IkCiDcGf1ZKld1QxYOWTadW4naa4MvFS5YhDUymz/UF/kFVRa1TFDUbaI
-m2E8Hx9ZUd+gsSXajJjR0X7m3JRReshtNPB+ikctmdDHTRArIMr5WeTEYsEqBpEV
-aGzS3y4q4313XcshPWVk4NgilBpyuPnb/zvSwJrFAMootNU+h4v1DXWekjrHwpYt
-JGkdHmwxY4pKmM/1JO0GfZIg7X6q3SEP67ASMQYVp+Vbc6MhNWchYAfIvyoYBz4j
-q4+oqQ5ozluZ5ukIrNRyg3DTGIeEn3WfDME/IeA4KfeZqShqPmPzIuQgOGoAtdCL
-ogthlI5Q40zKKNhv71iSChaHdhaBK9zoWIFxk5Qk8uKQg3s3Nxr6TNQJTM+/GkWD
-80t4f5zSq42o+oFAprc30tGpQVwSGkAk0fG0Z77iMNhVezFL6IPphDdmhuDhRR37
-NXYrSi9cX9CCtKzUqOSCLg8p9m4YOK4/5Vw79z/FAka0eVhwDU8+VFHWJMNs4HvF
-ZEA2gXFYBWsX3ETG9JMpgH8q76X0vG5rDYNQEZh2aOAjsDLfcWM/rezAu7tshoqv
-uA/sShNz4ai4+Vk6xhr6
-=KTbd
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+index ba130be..3d76941 100644
+--- a/drivers/mfd/axp20x.c
++++ b/drivers/mfd/axp20x.c
+@@ -800,6 +800,7 @@ int axp20x_match_device(struct axp20x_dev *axp20x)
+ 		axp20x->nr_cells = ARRAY_SIZE(axp288_cells);
+ 		axp20x->regmap_cfg = &axp288_regmap_config;
+ 		axp20x->regmap_irq_chip = &axp288_regmap_irq_chip;
++		axp20x->irq_flags = IRQF_TRIGGER_LOW;
+ 		break;
+ 	case AXP806_ID:
+ 		axp20x->nr_cells = ARRAY_SIZE(axp806_cells);
+@@ -829,9 +830,8 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
+ 	int ret;
+ 
+ 	ret = regmap_add_irq_chip(axp20x->regmap, axp20x->irq,
+-				  IRQF_ONESHOT | IRQF_SHARED, -1,
+-				  axp20x->regmap_irq_chip,
+-				  &axp20x->regmap_irqc);
++			  IRQF_ONESHOT | IRQF_SHARED | axp20x->irq_flags,
++			   -1, axp20x->regmap_irq_chip, &axp20x->regmap_irqc);
+ 	if (ret) {
+ 		dev_err(axp20x->dev, "failed to add irq chip: %d\n", ret);
+ 		return ret;
+diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+index fec597f..199cce3 100644
+--- a/include/linux/mfd/axp20x.h
++++ b/include/linux/mfd/axp20x.h
+@@ -517,6 +517,7 @@ enum axp809_irqs {
+ struct axp20x_dev {
+ 	struct device			*dev;
+ 	int				irq;
++	unsigned long			irq_flags;
+ 	struct regmap			*regmap;
+ 	struct regmap_irq_chip_data	*regmap_irqc;
+ 	long				variant;
+-- 
+2.9.3
