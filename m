@@ -1,66 +1,47 @@
 From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH 5/5] mfd: axp20x: Fix axp288 volatile ranges
-Date: Wed, 14 Dec 2016 22:41:28 +0800
-Message-ID: <CAGb2v66Wd06foGn3dxaVrTYZrfhwox0Mc1YB=jM5+Z87UWXMrg@mail.gmail.com>
-References: <20161214135209.16369-1-hdegoede@redhat.com> <20161214135209.16369-5-hdegoede@redhat.com>
+Subject: Re: [PATCH] iio: adc: axp288: Drop bogus AXP288_ADC_TS_PIN_CTRL
+ register modifications
+Date: Wed, 14 Dec 2016 23:00:07 +0800
+Message-ID: <CAGb2v66GwmLHL3HKteyhiWX7e+SAHDS9KFku8iJaQ5B0Lrk98A@mail.gmail.com>
+References: <20161214135525.16477-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:47826 "EHLO
+Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:48448 "EHLO
         smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754899AbcLNOl6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Dec 2016 09:41:58 -0500
-Received: from mail-it0-f47.google.com (mail-it0-f47.google.com [209.85.214.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: b93043)
-        by smtp.csie.ntu.edu.tw (Postfix) with ESMTPSA id 9B47C262B7
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Dec 2016 22:41:50 +0800 (CST)
-Received: by mail-it0-f47.google.com with SMTP id c20so1328139itb.0
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Dec 2016 06:41:50 -0800 (PST)
-In-Reply-To: <20161214135209.16369-5-hdegoede@redhat.com>
+        with ESMTP id S1756263AbcLNPAf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Dec 2016 10:00:35 -0500
+In-Reply-To: <20161214135525.16477-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Chen-Yu Tsai <wens@csie.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+Cc: Jonathan Cameron <jic23@kernel.org>, Chen-Yu Tsai <wens@csie.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Wed, Dec 14, 2016 at 9:52 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> The axp288 pmic has a lot more volatile registers then we were
-> listing in axp288_volatile_ranges, fix this.
+On Wed, Dec 14, 2016 at 9:55 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> For some reason the axp288_adc driver was modifying the
+> AXP288_ADC_TS_PIN_CTRL register, changing bits 0-1 depending on
+> whether the GP_ADC channel or another channel was written.
+>
+> These bits control when a bias current is send to the TS_PIN, the
+> GP_ADC has its own pin and a separate bit in another register to
+> control the bias current.
+>
+> Not only does changing when to enable the TS_PIN bias current
+> (always or only when sampling) when reading the GP_ADC make no sense
+> at all, the code is modifying these bits is writing the entire register,
+> assuming that all the other bits have their default value.
+>
+> So if the firmware has configured a different bias-current for either
+> pin, then that change gets clobbered by the write, likewise if the
+> firmware has set bit 2 to indicate that the battery has no thermal sensor,
+> this will get clobbered by the write.
+>
+> This commit fixes all this, by simply removing all writes to the
+> AXP288_ADC_TS_PIN_CTRL register, they are not needed to read the
+> GP_ADC pin, and can actually be harmful.
 >
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/mfd/axp20x.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-> index a294121..b9c1adf 100644
-> --- a/drivers/mfd/axp20x.c
-> +++ b/drivers/mfd/axp20x.c
-> @@ -117,7 +117,10 @@ static const struct regmap_range axp288_writeable_ranges[] = {
->  };
->
->  static const struct regmap_range axp288_volatile_ranges[] = {
-> +       regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP20X_PWR_OP_MODE),
 
-Actually register 0x02 is volatile as well. Various fields say "write
-1 to clear".
-You might need a new define for it though, as the usage is different.
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 
->         regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
-> +       regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
-> +       regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
-
-Could you also add AXP20X_TIMER_CTRL and 0xa0 ~ 0xa1 (real time
-battery voltage),
-if you're adding defines?
-
-Thanks
-ChenYu
-
->  };
->
->  static const struct regmap_access_table axp288_writeable_table = {
-> --
-> 2.9.3
->
+Note that I do not have hardware to test this.
