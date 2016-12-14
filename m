@@ -1,50 +1,115 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/5] mfd: axp20x: Add missing axp288 irqs
-Date: Wed, 14 Dec 2016 14:52:06 +0100
-Message-ID: <20161214135209.16369-2-hdegoede@redhat.com>
-References: <20161214135209.16369-1-hdegoede@redhat.com>
+Subject: [PATCH] iio: adc: axp288: Drop bogus AXP288_ADC_TS_PIN_CTRL register modifications
+Date: Wed, 14 Dec 2016 14:55:25 +0100
+Message-ID: <20161214135525.16477-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37414 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40580 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932196AbcLNNwO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 08:52:14 -0500
-In-Reply-To: <20161214135209.16369-1-hdegoede@redhat.com>
+        id S1753463AbcLNNza (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Dec 2016 08:55:30 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Chen-Yu Tsai <wens@csie.org>
-Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Jonathan Cameron <jic23@kernel.org>, Chen-Yu Tsai <wens@csie.org>
+Cc: Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-The axp288 has the following irqs 2 times: VBUS_FALL, VBUS_RISE,
-VBUS_OV. On boot / reset the enable flags for both the normal and alt
-version of these irqs is set.
+For some reason the axp288_adc driver was modifying the
+AXP288_ADC_TS_PIN_CTRL register, changing bits 0-1 depending on
+whether the GP_ADC channel or another channel was written.
 
-Since we were only listing the normal version in the axp288 regmap_irq
-struct, we were never disabling the alt versions of these irqs.
+These bits control when a bias current is send to the TS_PIN, the
+GP_ADC has its own pin and a separate bit in another register to
+control the bias current.
 
-Add the alt versions to the axp288 regmap_irq struct, so that these
-get properly disabled.
+Not only does changing when to enable the TS_PIN bias current
+(always or only when sampling) when reading the GP_ADC make no sense
+at all, the code is modifying these bits is writing the entire register,
+assuming that all the other bits have their default value.
 
-Together with the other axp288 fixes in this series, this fixes the axp288
-irq contineously triggering.
+So if the firmware has configured a different bias-current for either
+pin, then that change gets clobbered by the write, likewise if the
+firmware has set bit 2 to indicate that the battery has no thermal sensor,
+this will get clobbered by the write.
+
+This commit fixes all this, by simply removing all writes to the
+AXP288_ADC_TS_PIN_CTRL register, they are not needed to read the
+GP_ADC pin, and can actually be harmful.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/mfd/axp20x.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/adc/axp288_adc.c | 32 +-------------------------------
+ 1 file changed, 1 insertion(+), 31 deletions(-)
 
-diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-index 3d76941..9a81659 100644
---- a/drivers/mfd/axp20x.c
-+++ b/drivers/mfd/axp20x.c
-@@ -405,6 +405,9 @@ static const struct regmap_irq axp288_regmap_irqs[] = {
- 	INIT_REGMAP_IRQ(AXP288, VBUS_FALL,              0, 2),
- 	INIT_REGMAP_IRQ(AXP288, VBUS_RISE,              0, 3),
- 	INIT_REGMAP_IRQ(AXP288, OV,                     0, 4),
-+	INIT_REGMAP_IRQ(AXP288, FALLING_ALT,            0, 5),
-+	INIT_REGMAP_IRQ(AXP288, RISING_ALT,             0, 6),
-+	INIT_REGMAP_IRQ(AXP288, OV_ALT,                 0, 7),
+diff --git a/drivers/iio/adc/axp288_adc.c b/drivers/iio/adc/axp288_adc.c
+index 7fd2494..64799ad 100644
+--- a/drivers/iio/adc/axp288_adc.c
++++ b/drivers/iio/adc/axp288_adc.c
+@@ -28,8 +28,6 @@
+ #include <linux/iio/driver.h>
  
- 	INIT_REGMAP_IRQ(AXP288, DONE,                   1, 2),
- 	INIT_REGMAP_IRQ(AXP288, CHARGING,               1, 3),
+ #define AXP288_ADC_EN_MASK		0xF1
+-#define AXP288_ADC_TS_PIN_GPADC		0xF2
+-#define AXP288_ADC_TS_PIN_ON		0xF3
+ 
+ enum axp288_adc_id {
+ 	AXP288_ADC_TS,
+@@ -123,16 +121,6 @@ static int axp288_adc_read_channel(int *val, unsigned long address,
+ 	return IIO_VAL_INT;
+ }
+ 
+-static int axp288_adc_set_ts(struct regmap *regmap, unsigned int mode,
+-				unsigned long address)
+-{
+-	/* channels other than GPADC do not need to switch TS pin */
+-	if (address != AXP288_GP_ADC_H)
+-		return 0;
+-
+-	return regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL, mode);
+-}
+-
+ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+ 			struct iio_chan_spec const *chan,
+ 			int *val, int *val2, long mask)
+@@ -143,16 +131,7 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+ 	mutex_lock(&indio_dev->mlock);
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+-		if (axp288_adc_set_ts(info->regmap, AXP288_ADC_TS_PIN_GPADC,
+-					chan->address)) {
+-			dev_err(&indio_dev->dev, "GPADC mode\n");
+-			ret = -EINVAL;
+-			break;
+-		}
+ 		ret = axp288_adc_read_channel(val, chan->address, info->regmap);
+-		if (axp288_adc_set_ts(info->regmap, AXP288_ADC_TS_PIN_ON,
+-						chan->address))
+-			dev_err(&indio_dev->dev, "TS pin restore\n");
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -162,15 +141,6 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+ 	return ret;
+ }
+ 
+-static int axp288_adc_set_state(struct regmap *regmap)
+-{
+-	/* ADC should be always enabled for internal FG to function */
+-	if (regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL, AXP288_ADC_TS_PIN_ON))
+-		return -EIO;
+-
+-	return regmap_write(regmap, AXP20X_ADC_EN1, AXP288_ADC_EN_MASK);
+-}
+-
+ static const struct iio_info axp288_adc_iio_info = {
+ 	.read_raw = &axp288_adc_read_raw,
+ 	.driver_module = THIS_MODULE,
+@@ -199,7 +169,7 @@ static int axp288_adc_probe(struct platform_device *pdev)
+ 	 * Set ADC to enabled state at all time, including system suspend.
+ 	 * otherwise internal fuel gauge functionality may be affected.
+ 	 */
+-	ret = axp288_adc_set_state(axp20x->regmap);
++	ret = regmap_write(info->regmap, AXP20X_ADC_EN1, AXP288_ADC_EN_MASK);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "unable to enable ADC device\n");
+ 		return ret;
 -- 
 2.9.3
