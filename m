@@ -1,55 +1,40 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/5] mfd: axp20x: Fix axp288 PEK_DBR and PEK_DBF irqs being swapped
-Date: Wed, 14 Dec 2016 14:52:07 +0100
-Message-ID: <20161214135209.16369-3-hdegoede@redhat.com>
+Subject: [PATCH 4/5] mfd: axp20x: Drop wrong AXP288_PMIC_ADC_EN define
+Date: Wed, 14 Dec 2016 14:52:08 +0100
+Message-ID: <20161214135209.16369-4-hdegoede@redhat.com>
 References: <20161214135209.16369-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44444 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53968 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932356AbcLNNwP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 08:52:15 -0500
+        id S932356AbcLNNwR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Dec 2016 08:52:17 -0500
 In-Reply-To: <20161214135209.16369-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>, Chen-Yu Tsai <wens@csie.org>
 Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-The R in PEK_DBR stands for rising, so it should be mapped to
-AXP288_IRQ_POKP where the last P stands for positive edge.
-
-Likewise PEK_DBF should be mapped to the falling edge, aka the
-_N_egative edge, so it should be mapped to AXP288_IRQ_POKN.
-
-This fixes the inverted powerbutton status reporting by the
-axp20x-pek driver.
+The adc-enable register for the axp288 is 0x82, not 0x84.
+0x82 is already defined as AXP20X_ADC_EN1 and that is what the
+axp288_adc driver is actually using, so simply drop the wrong
+AXP288_PMIC_ADC_EN define.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/mfd/axp20x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/linux/mfd/axp20x.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-index 9a81659..a294121 100644
---- a/drivers/mfd/axp20x.c
-+++ b/drivers/mfd/axp20x.c
-@@ -205,14 +205,14 @@ static struct resource axp22x_pek_resources[] = {
- static struct resource axp288_power_button_resources[] = {
- 	{
- 		.name	= "PEK_DBR",
--		.start	= AXP288_IRQ_POKN,
--		.end	= AXP288_IRQ_POKN,
-+		.start	= AXP288_IRQ_POKP,
-+		.end	= AXP288_IRQ_POKP,
- 		.flags	= IORESOURCE_IRQ,
- 	},
- 	{
- 		.name	= "PEK_DBF",
--		.start	= AXP288_IRQ_POKP,
--		.end	= AXP288_IRQ_POKP,
-+		.start	= AXP288_IRQ_POKN,
-+		.end	= AXP288_IRQ_POKN,
- 		.flags	= IORESOURCE_IRQ,
- 	},
- };
+diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+index 199cce3..fe93e00 100644
+--- a/include/linux/mfd/axp20x.h
++++ b/include/linux/mfd/axp20x.h
+@@ -232,7 +232,6 @@ enum {
+ #define AXP288_PMIC_ADC_H               0x56
+ #define AXP288_PMIC_ADC_L               0x57
+ #define AXP288_ADC_TS_PIN_CTRL          0x84
+-#define AXP288_PMIC_ADC_EN              0x84
+ 
+ /* Fuel Gauge */
+ #define AXP288_FG_RDC1_REG          0xba
 -- 
 2.9.3
