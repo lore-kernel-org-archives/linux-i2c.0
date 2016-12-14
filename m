@@ -1,61 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] power: supply: axp288_fuel_gauge: Fix
- fuel_gauge_reg_readb return on error
-Date: Wed, 14 Dec 2016 18:01:32 +0100
-Message-ID: <20161214170131.GA2302@katana>
-References: <20161214163853.454-1-hdegoede@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: add reset interface
+Date: Wed, 14 Dec 2016 21:00:50 +0200
+Message-ID: <1481742050.9552.5.camel@linux.intel.com>
+References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
+         <20161213203457.GB2889@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:59744 "EHLO mail.zeus03.de"
+Received: from mga11.intel.com ([192.55.52.93]:10790 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753832AbcLNRIP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 12:08:15 -0500
-Content-Disposition: inline
-In-Reply-To: <20161214163853.454-1-hdegoede@redhat.com>
+        id S1754053AbcLNTDy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Dec 2016 14:03:54 -0500
+In-Reply-To: <20161213203457.GB2889@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Chen-Yu Tsai <wens@csie.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Zhangfei Gao <zhangfei.gao@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
+On Tue, 2016-12-13 at 21:34 +0100, Wolfram Sang wrote:
+> On Tue, Nov 22, 2016 at 12:41:40PM +0800, Zhangfei Gao wrote:
+> > Some platforms like hi3660 need do reset first to allow accessing
+> > registers
+> > 
+> > Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
+> 
+> Adding designware maintainers to CC...
+> 
+> > ---
+> >  drivers/i2c/busses/i2c-designware-core.h    | 1 +
+> >  drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++++
+> >  2 files changed, 6 insertions(+)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-designware-core.h
+> > b/drivers/i2c/busses/i2c-designware-core.h
+> > index 0d44d2a..94b14fa 100644
+> > --- a/drivers/i2c/busses/i2c-designware-core.h
+> > +++ b/drivers/i2c/busses/i2c-designware-core.h
+> > @@ -80,6 +80,7 @@ struct dw_i2c_dev {
+> >  	void __iomem		*base;
+> >  	struct completion	cmd_complete;
+> >  	struct clk		*clk;
+> > +	struct reset_control	*rst;
+> >  	u32			(*get_clk_rate_khz) (struct
+> > dw_i2c_dev *dev);
+> >  	struct dw_pci_controller *controller;
+> >  	int			cmd_err;
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index 0b42a12..fd80e58 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -38,6 +38,7 @@
+> >  #include <linux/pm_runtime.h>
+> >  #include <linux/property.h>
+> >  #include <linux/io.h>
+> > +#include <linux/reset.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/acpi.h>
+> >  #include <linux/platform_data/i2c-designware.h>
+> > @@ -176,6 +177,10 @@ static int dw_i2c_plat_probe(struct
+> > platform_device *pdev)
+> >  	dev->irq = irq;
+> >  	platform_set_drvdata(pdev, dev);
+> >  
+> > +	dev->rst = devm_reset_control_get(&pdev->dev, NULL);
+> > +	if (!IS_ERR(dev->rst))
+> > +		reset_control_reset(dev->rst);
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Do we care about EPROBE_DEFER?
 
-On Wed, Dec 14, 2016 at 05:38:50PM +0100, Hans de Goede wrote:
-> If reading the register fails, return the actual error code, instead
-> of the uninitialized val variable;
+Perhaps on error path we need to assert it.
 
-Please don't CC the linux-i2c list for i2c client drivers unless you
-have specific i2c related questions. It makes focussing on the core
-parts harder.
+And I guess it should be devm_reset_control_get_optional().
 
-Thanks,
+> > +
+> >  	/* fast mode by default because of legacy reasons */
+> >  	dev->clk_freq = 400000;
+> >  
+> > -- 
+> > 2.7.4
+> > 
 
-   Wolfram
-
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYUXrrAAoJEBQN5MwUoCm2WEgP/15bWIyigtUWGkdQXGP3Jbh/
-9wsilztQstY+hQkUz4g7JDJ+jIXxIEpYpKdl/9fXKICCIm7AORktnF/18aosFr0t
-265IGZEkIGfePxm9aXoCbe/7kjfxmShzmy7ARWg5Q9E/ZB8l+MGGE9uDfPuvzItN
-1w0g4M9e1JileiA8yKyjHvJjJADdxc8em8ISeHLmCC+n08hMaxtkaC3OE32h7aOb
-8IoubRLCzMzdn/pGb5vPACbhdxrKpRhXoyWhiEUuCjp0j9nZCRExOsWH3eNdcrI4
-7FNi+Ofq8K5i8usD+oPhw0E6JN27aqkbck2oK0TI6VTmWUa1fyqRaxR0lrW9HRDX
-uKnL0574ZJcdxUaKQ35HOaL0vF9u718SwsxH+EA0mcCtpIn5J8FUAygmwMzbSuPz
-TbgFU3QqsUO4PHyGtw/JI8R7ZPxVoWyaJJNApDL8NBTWEpkOLhjpRkzdSgu3x49O
-GaY/NRMrnRQZidkD2ctqUmbd0ax+nHwoT13wYsNgESmk589G46vP8LMkAHYWPl2i
-DJ9Syv98UFiznUCE86rRk80Ynlj3zqJqI3XM2hO1XOievNOFGlfxTf5fpKpvCUHZ
-0WhBPw9AhcbMsTSbNNvZwSgjBERDqoDQNQ0MnZZhpwRfpTy1N3xlLpFPuTC4l94g
-xnN8sY+MbWxjCcxcRQnR
-=ge4N
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
