@@ -1,103 +1,123 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: add reset interface
-Date: Tue, 13 Dec 2016 21:34:57 +0100
-Message-ID: <20161213203457.GB2889@katana>
-References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
+From: Tin Huynh <tnhuynh@apm.com>
+Subject: Re: [PATCH V4] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
+Date: Wed, 14 Dec 2016 10:20:04 +0700
+Message-ID: <CANQ9TuCuxsMKzfQ=14ppo-5kWnWXc=VK08ca7+dJL2xG_tkd_Q@mail.gmail.com>
+References: <1481623414-19220-1-git-send-email-tnhuynh@apm.com> <1481628337.7188.63.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:57876 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S964985AbcLMUfE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 13 Dec 2016 15:35:04 -0500
-Content-Disposition: inline
-In-Reply-To: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1481628337.7188.63.camel@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches <patches@apm.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Zhangfei Gao <zhangfei.gao@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Nov 22, 2016 at 12:41:40PM +0800, Zhangfei Gao wrote:
-> Some platforms like hi3660 need do reset first to allow accessing registe=
-rs
->=20
-> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-
-Adding designware maintainers to CC...
-
-> ---
->  drivers/i2c/busses/i2c-designware-core.h    | 1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++++
->  2 files changed, 6 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busse=
-s/i2c-designware-core.h
-> index 0d44d2a..94b14fa 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -80,6 +80,7 @@ struct dw_i2c_dev {
->  	void __iomem		*base;
->  	struct completion	cmd_complete;
->  	struct clk		*clk;
-> +	struct reset_control	*rst;
->  	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
->  	struct dw_pci_controller *controller;
->  	int			cmd_err;
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
-sses/i2c-designware-platdrv.c
-> index 0b42a12..fd80e58 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -38,6 +38,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/property.h>
->  #include <linux/io.h>
-> +#include <linux/reset.h>
->  #include <linux/slab.h>
->  #include <linux/acpi.h>
->  #include <linux/platform_data/i2c-designware.h>
-> @@ -176,6 +177,10 @@ static int dw_i2c_plat_probe(struct platform_device =
-*pdev)
->  	dev->irq =3D irq;
->  	platform_set_drvdata(pdev, dev);
-> =20
-> +	dev->rst =3D devm_reset_control_get(&pdev->dev, NULL);
-> +	if (!IS_ERR(dev->rst))
-> +		reset_control_reset(dev->rst);
-> +
->  	/* fast mode by default because of legacy reasons */
->  	dev->clk_freq =3D 400000;
-> =20
-> --=20
-> 2.7.4
->=20
-
---WYTEVAkct0FjGQmd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYUFtxAAoJEBQN5MwUoCm2UzcQAKasxTpPzMTl4fDpl4mPNYI/
-WpVmR9xTvd5Ukf8LngwljiVpXYpnBDcxThc1Z2368uAfV/xCR/7y9WW1flwz4eYW
-LszBgr5/+zh7UdglamELzLe2EZphGAqzAoBZ2WOGpNXGJgN7V0VXLPjwSAXkBTih
-prUeLlimZ2OHHpUMd7XvoU1dRP3Gvuu6KN15HzjqHBRK5bK4+hAo0wDiA7e2kkmj
-BRXszp0OO1X9LRZZGg7zvjc9UPjTXJ9dv2LgRjIQMdECzjSYFLUnrMQMdQ8vcEUQ
-kKQuyLZAPpU9bcohM7SrY4B+W52/ELyGX4VsIEmC7I3NeKgLbx30nfc+apRqQJqt
-jMjngC20+0EjkaeTu1xEDsFu6aqPz7k5+NpjD5RPpyoLWcns3WbRjD02ATh6mV/o
-NOyMEzOlkqwIQWbgst5wHCPh2eJ+HaWzxThTlZ2Fmmn08TXXJiqlEEOJMQwSlHrr
-aN92w6jQw8N4j2pWZdmkkERyfam3UcL2ln01j0YEUpP3deahXbrF+R1GT+5TG99W
-69c2xt4r+YQ5HMabQh/bghnNMv6qUXlZNrlUkgOvV63OKY2tjlk63uzhtWNv46SC
-kdO42EjOkLVsOgIz/OMVkvsOiuDU1phiQGzYCfRkXcZZgpsU4eB6SOt2g/iH+Uyd
-vbBIc87oKUMq3i+Mcb5w
-=13iO
------END PGP SIGNATURE-----
-
---WYTEVAkct0FjGQmd--
+On Tue, Dec 13, 2016 at 6:25 PM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Tue, 2016-12-13 at 17:03 +0700, Tin Huynh wrote:
+>> ACPI always sets Tx/Rx FIFO to 32. This configuration will
+>> cause problem if the IP core supports a FIFO size of less than 32.
+>> The driver should read the FIFO size from the IP and select the
+>> smaller
+>> one of the two.
+>>
+>> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+>>
+>
+> One comment below, after addressing it
+>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-platdrv.c |   27
+>> ++++++++++++++++++++-------
+>>  1 files changed, 20 insertions(+), 7 deletions(-)
+>>
+>> Change from V3:
+>>  -Use uppercase of FIFO instead of lowercase.
+>>  -Fix the problem  when IP core return 0 of FIFO.
+>>
+>> Change from V2:
+>>  -Add a helper function to set FIFO size.
+>>
+>> Change from V1:
+>>  -Revert the default 32 for FIFO, read parameter from IP core
+>>  and pick the smaller one of the two.
+>>  -Correct the title to describe new approach.
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index 0b42a12..24032d6 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -150,6 +150,25 @@ static int i2c_dw_plat_prepare_clk(struct
+>> dw_i2c_dev *i_dev, bool prepare)
+>>       return 0;
+>>  }
+>>
+>> +static void dw_i2c_set_fifo_size(struct dw_i2c_dev *dev, int id)
+>> +{
+>> +     u32 param, tx_fifo_depth, rx_fifo_depth;
+>> +
+>>
+>
+>         /*
+>          * Try to detect the FIFO depth if not
+> set by interface driver,
+>          * the depth could be from 2 to 256 from
+> HW spec.
+>          */
+>
+I will add your comment to the driver.
+>> +     param = i2c_dw_read_comp_param(dev);
+>> +     tx_fifo_depth = ((param >> 16) & 0xff) + 1;
+>> +     rx_fifo_depth = ((param >> 8)  & 0xff) + 1;
+>> +     if (!dev->tx_fifo_depth) {
+>> +             dev->tx_fifo_depth = tx_fifo_depth;
+>> +             dev->rx_fifo_depth = rx_fifo_depth;
+>> +             dev->adapter.nr = id;
+>> +     } else if (tx_fifo_depth > 1) {
+>
+> This makes sense now, though I would add a comment here and use >= 2 to
+> reflect datasheet.
+>
+>                 /*
+>                  * Choose minimum values between HW and interface
+>                  * driver provided.
+>                  */
+>
+I will implement as your comment. However , because adding 1 to the
+value , can i use > 2  or >=3 ?
+>> +             dev->tx_fifo_depth = min_t(u32, dev->tx_fifo_depth,
+>> +                             tx_fifo_depth);
+>> +             dev->rx_fifo_depth = min_t(u32, dev->rx_fifo_depth,
+>> +                             rx_fifo_depth);
+>> +     }
+>> +}
+>> +
+>>  static int dw_i2c_plat_probe(struct platform_device *pdev)
+>>  {
+>>       struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev-
+>> >dev);
+>> @@ -246,13 +265,7 @@ static int dw_i2c_plat_probe(struct
+>> platform_device *pdev)
+>>                               1000000);
+>>       }
+>>
+>> -     if (!dev->tx_fifo_depth) {
+>> -             u32 param1 = i2c_dw_read_comp_param(dev);
+>> -
+>> -             dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+>> -             dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
+>> -             dev->adapter.nr = pdev->id;
+>> -     }
+>> +     dw_i2c_set_fifo_size(dev, pdev->id);
+>>
+>>       adap = &dev->adapter;
+>>       adap->owner = THIS_MODULE;
+>
+> --
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
+Thank you and regards,
+Tin
