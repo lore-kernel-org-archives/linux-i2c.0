@@ -1,63 +1,44 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 5/5] mfd: axp20x: Fix axp288 volatile ranges
-Date: Thu, 15 Dec 2016 16:44:16 +0100
-Message-ID: <75ad4f36-72b9-8d24-c037-5f40ff214624@redhat.com>
-References: <20161214135209.16369-1-hdegoede@redhat.com>
- <20161214135209.16369-5-hdegoede@redhat.com>
- <CAGb2v66Wd06foGn3dxaVrTYZrfhwox0Mc1YB=jM5+Z87UWXMrg@mail.gmail.com>
+From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: designware: Cleaning and comment style fixes.
+Date: Thu, 15 Dec 2016 15:53:07 +0000
+Message-ID: <6fc278a6-dc22-37f8-0868-9f4359cfecf8@synopsys.com>
+References: <d7b5a22ce09539c2af343c21ca69675bef6a0a10.1481812563.git.lolivei@synopsys.com>
+ <f11794ec-439b-5fcd-65f4-c14c319cd627@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33466 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932670AbcLOPoU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Dec 2016 10:44:20 -0500
-In-Reply-To: <CAGb2v66Wd06foGn3dxaVrTYZrfhwox0Mc1YB=jM5+Z87UWXMrg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <f11794ec-439b-5fcd-65f4-c14c319cd627-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Lee Jones <lee.jones@linaro.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-Hi,
+On 15-Dec-16 15:17, Peter Rosin wrote:
+> On 2016-12-15 15:38, Luis Oliveira wrote:
+>> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+>> index 26250b425e2f..3cb81fca7738 100644
+>> --- a/drivers/i2c/busses/i2c-designware-core.h
+>> +++ b/drivers/i2c/busses/i2c-designware-core.h
+>> @@ -36,7 +36,7 @@
+>>  #define DW_IC_CON_SPEED_FAST		0x4
+>>  #define DW_IC_CON_SPEED_HIGH		0x6
+>>  #define DW_IC_CON_SPEED_MASK		0x6
+>> -#define DW_IC_CON_10BITADDR_MASTER	0x10
+>> +#define DW_IC_CON_10BITADDR_MASTER		0x10
+> 
+> How is this an improvement?
 
-On 14-12-16 15:41, Chen-Yu Tsai wrote:
-> On Wed, Dec 14, 2016 at 9:52 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->> The axp288 pmic has a lot more volatile registers then we were
->> listing in axp288_volatile_ranges, fix this.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>  drivers/mfd/axp20x.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
->> index a294121..b9c1adf 100644
->> --- a/drivers/mfd/axp20x.c
->> +++ b/drivers/mfd/axp20x.c
->> @@ -117,7 +117,10 @@ static const struct regmap_range axp288_writeable_ranges[] = {
->>  };
->>
->>  static const struct regmap_range axp288_volatile_ranges[] = {
->> +       regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP20X_PWR_OP_MODE),
->
-> Actually register 0x02 is volatile as well. Various fields say "write
-> 1 to clear".
-> You might need a new define for it though, as the usage is different.
->
->>         regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
->> +       regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
->> +       regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
->
-> Could you also add AXP20X_TIMER_CTRL and 0xa0 ~ 0xa1 (real time
-> battery voltage),
-> if you're adding defines?
+It is not, I will fix it.
 
-We also need to add 0xbc "BC Detect Status Register" to be able
-to get the results of the charger detect logic in the axp288.
+Thanks,
+Luis
+> 
+> Cheers,
+> peda
+> 
 
-Self-nak for v2, I will send a v3 later.
-
-Regards,
-
-Hans
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
