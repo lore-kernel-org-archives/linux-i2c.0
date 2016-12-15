@@ -1,87 +1,55 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: add reset interface
-Date: Wed, 14 Dec 2016 21:00:50 +0200
-Message-ID: <1481742050.9552.5.camel@linux.intel.com>
-References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
-         <20161213203457.GB2889@katana>
+From: "Frkuska, Joshua" <joshua_frkuska@mentor.com>
+Subject: Re: [[RFC V3] 1/1] i2c: imx: add slave support
+Date: Thu, 15 Dec 2016 09:42:08 +0900
+Message-ID: <37b90839-1502-07d9-e6e5-593c840ef3b5@mentor.com>
+References: <1481695291-11444-1-git-send-email-joshua_frkuska@mentor.com>
+ <1481695291-11444-2-git-send-email-joshua_frkuska@mentor.com>
+ <20161214133639.GA1476@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:10790 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754053AbcLNTDy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 14 Dec 2016 14:03:54 -0500
-In-Reply-To: <20161213203457.GB2889@katana>
+Received: from relay1.mentorg.com ([192.94.38.131]:47524 "EHLO
+        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753080AbcLOAmS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Dec 2016 19:42:18 -0500
+In-Reply-To: <20161214133639.GA1476@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Zhangfei Gao <zhangfei.gao@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, syrchin@dev.rtsoft.ru, peda@axentia.se, vladimir_zapolskiy@mentor.com, Jiada_Wang@mentor.com
 
-On Tue, 2016-12-13 at 21:34 +0100, Wolfram Sang wrote:
-> On Tue, Nov 22, 2016 at 12:41:40PM +0800, Zhangfei Gao wrote:
-> > Some platforms like hi3660 need do reset first to allow accessing
-> > registers
-> > 
-> > Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-> 
-> Adding designware maintainers to CC...
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-designware-core.h    | 1 +
-> >  drivers/i2c/busses/i2c-designware-platdrv.c | 5 +++++
-> >  2 files changed, 6 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-designware-core.h
-> > b/drivers/i2c/busses/i2c-designware-core.h
-> > index 0d44d2a..94b14fa 100644
-> > --- a/drivers/i2c/busses/i2c-designware-core.h
-> > +++ b/drivers/i2c/busses/i2c-designware-core.h
-> > @@ -80,6 +80,7 @@ struct dw_i2c_dev {
-> >  	void __iomem		*base;
-> >  	struct completion	cmd_complete;
-> >  	struct clk		*clk;
-> > +	struct reset_control	*rst;
-> >  	u32			(*get_clk_rate_khz) (struct
-> > dw_i2c_dev *dev);
-> >  	struct dw_pci_controller *controller;
-> >  	int			cmd_err;
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > index 0b42a12..fd80e58 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -38,6 +38,7 @@
-> >  #include <linux/pm_runtime.h>
-> >  #include <linux/property.h>
-> >  #include <linux/io.h>
-> > +#include <linux/reset.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/acpi.h>
-> >  #include <linux/platform_data/i2c-designware.h>
-> > @@ -176,6 +177,10 @@ static int dw_i2c_plat_probe(struct
-> > platform_device *pdev)
-> >  	dev->irq = irq;
-> >  	platform_set_drvdata(pdev, dev);
-> >  
-> > +	dev->rst = devm_reset_control_get(&pdev->dev, NULL);
-> > +	if (!IS_ERR(dev->rst))
-> > +		reset_control_reset(dev->rst);
+Hello Wolfram,
 
-Do we care about EPROBE_DEFER?
+Please see inline. Thank you
 
-Perhaps on error path we need to assert it.
+On 12/14/2016 10:36 PM, Wolfram Sang wrote:
+> On Wed, Dec 14, 2016 at 03:01:31PM +0900, Joshua Frkuska wrote:
+>> Add I2C slave provider using the generic slave interface.
+>> It also supports master transactions when the slave in the idle mode.
+>
+> I am confused. In the cover letter you write "Furthermore the state
+> machine introduced to handle the slave states does not handle the master
+> mode behavior." Yet here you say it supports master transactions? Is the
+> sentence from the cover letter outdated?
 
-And I guess it should be devm_reset_control_get_optional().
+The cover letter is not outdated but does not elaborate enough. The 
+state machine (slave task) operates when I2C_SLAVE is enabled and a 
+slave device registered. The slave state machine keeps track of the 
+master state but only has two roles relating to master mode. The first 
+is to stop the controller when imx_stop is called. The second is to 
+transition from an idle state to master mode via a START event. This 
+puts the hardware in a possible transition state where the IBB status 
+flag hasn't been set yet. To avoid this, the transition 'SP' 
+intermediate state is created and we wait for the IBB flag to raise or 
+time out after a number of attempts. All other hardware control in 
+master mode is done via the i2c_imx_xfer, i2c_imx_start/stop functions. 
+When I2C_SLAVE is disabled, the above state machine is not active and 
+does serve the STOP event nor does it poll on IBB in this transition 
+period. I hope this answers your questions.
 
-> > +
-> >  	/* fast mode by default because of legacy reasons */
-> >  	dev->clk_freq = 400000;
-> >  
-> > -- 
-> > 2.7.4
-> > 
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+>
+> Regards,
+>
+>    Wolfram
+>
