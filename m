@@ -1,134 +1,108 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Phil Reid <preid@electromag.com.au>
 Subject: Re: [PATCH v2] i2c: designware: add reset interface
-Date: Thu, 15 Dec 2016 14:33:47 +0200
-Message-ID: <1481805227.9552.15.camel@linux.intel.com>
+Date: Thu, 15 Dec 2016 22:11:06 +0800
+Message-ID: <66e86b18-c6d5-4290-5e93-dcae50596da6@electromag.com.au>
 References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
-         <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
+ <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
+ <1481805227.9552.15.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:41526 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751520AbcLOMdv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Dec 2016 07:33:51 -0500
-In-Reply-To: <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1481805227.9552.15.camel@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Zhangfei Gao <zhangfei.gao@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On Thu, 2016-12-15 at 16:59 +0800, Zhangfei Gao wrote:
-> Some platforms like hi3660 need do reset first to allow accessing
-> registers
+On 15/12/2016 20:33, Andy Shevchenko wrote:
+> On Thu, 2016-12-15 at 16:59 +0800, Zhangfei Gao wrote:
+>> Some platforms like hi3660 need do reset first to allow accessing
+>> registers
+>
+> Patch itself looks good, but would be nice to have it tested.
+>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>
+>>
+>> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-core.h    |  1 +
+>>  drivers/i2c/busses/i2c-designware-platdrv.c | 28
+>> ++++++++++++++++++++++++----
+>>  2 files changed, 25 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-core.h
+>> b/drivers/i2c/busses/i2c-designware-core.h
+>> index 0d44d2a..94b14fa 100644
+>> --- a/drivers/i2c/busses/i2c-designware-core.h
+>> +++ b/drivers/i2c/busses/i2c-designware-core.h
+>> @@ -80,6 +80,7 @@ struct dw_i2c_dev {
+>>  	void __iomem		*base;
+>>  	struct completion	cmd_complete;
+>>  	struct clk		*clk;
+>> +	struct reset_control	*rst;
+>>  	u32			(*get_clk_rate_khz) (struct
+>> dw_i2c_dev *dev);
+>>  	struct dw_pci_controller *controller;
+>>  	int			cmd_err;
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index 0b42a12..e9016ae 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -38,6 +38,7 @@
+>>  #include <linux/pm_runtime.h>
+>>  #include <linux/property.h>
+>>  #include <linux/io.h>
+>> +#include <linux/reset.h>
+>>  #include <linux/slab.h>
+>>  #include <linux/acpi.h>
+>>  #include <linux/platform_data/i2c-designware.h>
+>> @@ -176,6 +177,14 @@ static int dw_i2c_plat_probe(struct
+>> platform_device *pdev)
+>>  	dev->irq = irq;
+>>  	platform_set_drvdata(pdev, dev);
+>>
+>> +	dev->rst = devm_reset_control_get_optional(&pdev->dev, NULL);
+>> +	if (IS_ERR(dev->rst)) {
+>> +		if (PTR_ERR(dev->rst) == -EPROBE_DEFER)
+>> +			return -EPROBE_DEFER;
+>> +	} else {
+>> +		reset_control_deassert(dev->rst);
+>> +	}
+>> +
+More for my education. But some drivers seem to handle the error codes a little more explicitly.
+Whats the best approach?
 
-Patch itself looks good, but would be nice to have it tested.
+eg: From usb/dwc2 driver it continues only if ENOENT / ENOTSUPP errors are return
+and ENOMEM / EINVAL etc is a fatal error.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+hsotg->reset = devm_reset_control_get_optional(hsotg->dev, "dwc2");
+if (IS_ERR(hsotg->reset)) {
+         ret = PTR_ERR(hsotg->reset);
+         switch (ret) {
+         case -ENOENT:
+         case -ENOTSUPP:
+                 hsotg->reset = NULL;
+                 break;
+         default:
+                 dev_err(hsotg->dev, "error getting reset control %d\n",
+                         ret);
+                 return ret;
+         }
+}
 
-> 
-> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-> ---
->  drivers/i2c/busses/i2c-designware-core.h    |  1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c | 28
-> ++++++++++++++++++++++++----
->  2 files changed, 25 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h
-> b/drivers/i2c/busses/i2c-designware-core.h
-> index 0d44d2a..94b14fa 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -80,6 +80,7 @@ struct dw_i2c_dev {
->  	void __iomem		*base;
->  	struct completion	cmd_complete;
->  	struct clk		*clk;
-> +	struct reset_control	*rst;
->  	u32			(*get_clk_rate_khz) (struct
-> dw_i2c_dev *dev);
->  	struct dw_pci_controller *controller;
->  	int			cmd_err;
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0b42a12..e9016ae 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -38,6 +38,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/property.h>
->  #include <linux/io.h>
-> +#include <linux/reset.h>
->  #include <linux/slab.h>
->  #include <linux/acpi.h>
->  #include <linux/platform_data/i2c-designware.h>
-> @@ -176,6 +177,14 @@ static int dw_i2c_plat_probe(struct
-> platform_device *pdev)
->  	dev->irq = irq;
->  	platform_set_drvdata(pdev, dev);
->  
-> +	dev->rst = devm_reset_control_get_optional(&pdev->dev, NULL);
-> +	if (IS_ERR(dev->rst)) {
-> +		if (PTR_ERR(dev->rst) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +	} else {
-> +		reset_control_deassert(dev->rst);
-> +	}
-> +
->  	/* fast mode by default because of legacy reasons */
->  	dev->clk_freq = 400000;
->  
-> @@ -207,12 +216,13 @@ static int dw_i2c_plat_probe(struct
-> platform_device *pdev)
->  	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000)
-> {
->  		dev_err(&pdev->dev,
->  			"Only 100kHz, 400kHz, 1MHz and 3.4MHz
-> supported");
-> -		return -EINVAL;
-> +		r = -EINVAL;
-> +		goto exit_reset;
->  	}
->  
->  	r = i2c_dw_eval_lock_support(dev);
->  	if (r)
-> -		return r;
-> +		goto exit_reset;
->  
->  	dev->functionality =
->  		I2C_FUNC_I2C |
-> @@ -270,10 +280,18 @@ static int dw_i2c_plat_probe(struct
-> platform_device *pdev)
->  	}
->  
->  	r = i2c_dw_probe(dev);
-> -	if (r && !dev->pm_runtime_disabled)
-> -		pm_runtime_disable(&pdev->dev);
-> +	if (r)
-> +		goto exit_probe;
->  
->  	return r;
-> +
-> +exit_probe:
-> +	if (!dev->pm_runtime_disabled)
-> +		pm_runtime_disable(&pdev->dev);
-> +exit_reset:
-> +	if (!IS_ERR_OR_NULL(dev->rst))
-> +		reset_control_assert(dev->rst);
-> +	return r;
->  }
->  
->  static int dw_i2c_plat_remove(struct platform_device *pdev)
-> @@ -290,6 +308,8 @@ static int dw_i2c_plat_remove(struct
-> platform_device *pdev)
->  	pm_runtime_put_sync(&pdev->dev);
->  	if (!dev->pm_runtime_disabled)
->  		pm_runtime_disable(&pdev->dev);
-> +	if (!IS_ERR_OR_NULL(dev->rst))
-> +		reset_control_assert(dev->rst);
->  
->  	return 0;
->  }
+if (hsotg->reset)
+         reset_control_deassert(hsotg->reset);
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Regards
+Phil
