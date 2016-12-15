@@ -1,252 +1,60 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v2] i2c: designware: Cleaning and comment style fixes.
-Date: Thu, 15 Dec 2016 14:38:02 +0000
-Message-ID: <d7b5a22ce09539c2af343c21ca69675bef6a0a10.1481812563.git.lolivei@synopsys.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: designware: Cleaning and comment style fixes.
+Date: Thu, 15 Dec 2016 16:56:45 +0200
+Message-ID: <1481813805.9552.31.camel@linux.intel.com>
+References: <d7b5a22ce09539c2af343c21ca69675bef6a0a10.1481812563.git.lolivei@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from us01smtprelay-2.synopsys.com ([198.182.60.111]:35553 "EHLO
-        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755664AbcLOOi4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Dec 2016 09:38:56 -0500
+Received: from mga03.intel.com ([134.134.136.65]:2617 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755599AbcLOO4v (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 15 Dec 2016 09:56:51 -0500
+In-Reply-To: <d7b5a22ce09539c2af343c21ca69675bef6a0a10.1481812563.git.lolivei@synopsys.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-The purpose of this commit is to fix some comments and styling issues in the
-existing code due to the need of reuse this code. What is being made here is:
+On Thu, 2016-12-15 at 14:38 +0000, Luis Oliveira wrote:
+> The purpose of this commit is to fix some comments and styling issues
+> in the
+> existing code due to the need of reuse this code. What is being made
+> here is:
+> 
+> - Sorted the headers files
+> - Corrected some comments style
+> - Reverse tree in the variables declaration
+> - Add/remove empty lines and tabs where needed
+> - Fix of a misspelled word
+> 
 
-- Sorted the headers files
-- Corrected some comments style
-- Reverse tree in the variables declaration
-- Add/remove empty lines and tabs where needed
-- Fix of a misspelled word
+So, I'm okay with the change as long as no-one objecting it. As I
+mentioned earlier it might rise concerns and better if you put the
+answers to the commit message.
 
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
----
-Changes V1->V2: (Andy Shevchenko)
-- Removed all the unneeded dots as suggested
-- I checked and "acknowledgement" and "acknowledgment"" are both correct
+Also, comment below.
 
- drivers/i2c/busses/i2c-designware-core.c    | 36 ++++++++++++++---------------
- drivers/i2c/busses/i2c-designware-core.h    |  2 +-
- drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++-----------
- 3 files changed, 33 insertions(+), 32 deletions(-)
+> @@ -113,10 +113,10 @@
+>  #define TIMEOUT			20 /* ms */
+>  
+>  /*
+> - * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+> + * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+>   *
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 6d81c56184d3..254d82bb6bc3 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -21,17 +21,17 @@
-  * ----------------------------------------------------------------------------
-  *
-  */
-+#include <linux/delay.h>
- #include <linux/export.h>
- #include <linux/errno.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
--#include <linux/pm_runtime.h>
--#include <linux/delay.h>
- #include <linux/module.h>
--#include "i2c-designware-core.h"
-+#include <linux/pm_runtime.h>
- 
-+#include "i2c-designware-core.h"
- /*
-  * Registers offset
-  */
-@@ -98,7 +98,7 @@
- 
- #define DW_IC_ERR_TX_ABRT	0x1
- 
--#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
-+#define DW_IC_TAR_10BITADDR_MASTER		BIT(12)
- 
- #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
- #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
-@@ -113,10 +113,10 @@
- #define TIMEOUT			20 /* ms */
- 
- /*
-- * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
-+ * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
-  *
-- * only expected abort codes are listed here
-- * refer to the datasheet for the full list
-+ * Only expected abort codes are listed here
-+ * refer to the datasheet for the full list.
-  */
- #define ABRT_7B_ADDR_NOACK	0
- #define ABRT_10ADDR1_NOACK	1
-@@ -338,14 +338,14 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 
- 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
- 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
--		/* Configure register endianess access */
-+		/* Configure register endianness access */
- 		dev->accessor_flags |= ACCESS_SWAP;
- 	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
- 		/* Configure register access mode 16bit */
- 		dev->accessor_flags |= ACCESS_16BIT;
- 	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
--		dev_err(dev->dev, "Unknown Synopsys component type: "
--			"0x%08x\n", reg);
-+		dev_err(dev->dev,
-+			"Unknown Synopsys component type: 0x%08x\n", reg);
- 		i2c_dw_release_lock(dev);
- 		return -ENODEV;
- 	}
-@@ -355,7 +355,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	/* Disable the adapter */
- 	__i2c_dw_enable_and_wait(dev, false);
- 
--	/* set standard and fast speed deviders for high/low periods */
-+	/* Set standard and fast speed deviders for high/low periods */
- 
- 	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
- 	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
-@@ -444,7 +444,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
- 	dw_writel(dev, 0, DW_IC_RX_TL);
- 
--	/* configure the i2c master */
-+	/* Configure the I2C master */
- 	dw_writel(dev, dev->master_cfg , DW_IC_CON);
- 
- 	i2c_dw_release_lock(dev);
-@@ -480,7 +480,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	/* Disable the adapter */
- 	__i2c_dw_enable_and_wait(dev, false);
- 
--	/* if the slave address is ten bit address, enable 10BITADDR */
-+	/* If the slave address is ten bit address, enable 10BITADDR */
- 	if (dev->dynamic_tar_update_enabled) {
- 		/*
- 		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
-@@ -505,7 +505,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	 */
- 	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
- 
--	/* enforce disabled interrupts (due to HW issues) */
-+	/* Enforce disabled interrupts (due to HW issues) */
- 	i2c_dw_disable_int(dev);
- 
- 	/* Enable the adapter */
-@@ -539,7 +539,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 		u32 flags = msgs[dev->msg_write_idx].flags;
- 
- 		/*
--		 * if target address has changed, we need to
-+		 * If target address has changed, we need to
- 		 * reprogram the target address in the i2c
- 		 * adapter when we are done with this transfer
- 		 */
-@@ -601,7 +601,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 
- 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
- 
--				/* avoid rx buffer overrun */
-+				/* Avoid rx buffer overrun */
- 				if (dev->rx_outstanding >= dev->rx_fifo_depth)
- 					break;
- 
-@@ -905,7 +905,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 
- 		/*
- 		 * Anytime TX_ABRT is set, the contents of the tx/rx
--		 * buffers are flushed.  Make sure to skip them.
-+		 * buffers are flushed. Make sure to skip them.
- 		 */
- 		dw_writel(dev, 0, DW_IC_INTR_MASK);
- 		goto tx_aborted;
-@@ -927,7 +927,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
- 		complete(&dev->cmd_complete);
- 	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
--		/* workaround to trigger pending interrupt */
-+		/* Workaround to trigger pending interrupt */
- 		stat = dw_readl(dev, DW_IC_INTR_MASK);
- 		i2c_dw_disable_int(dev);
- 		dw_writel(dev, stat, DW_IC_INTR_MASK);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 26250b425e2f..3cb81fca7738 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -36,7 +36,7 @@
- #define DW_IC_CON_SPEED_FAST		0x4
- #define DW_IC_CON_SPEED_HIGH		0x6
- #define DW_IC_CON_SPEED_MASK		0x6
--#define DW_IC_CON_10BITADDR_MASTER	0x10
-+#define DW_IC_CON_10BITADDR_MASTER		0x10
- #define DW_IC_CON_RESTART_EN		0x20
- #define DW_IC_CON_SLAVE_DISABLE		0x40
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 08153ea4d848..886e39753fc2 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -21,26 +21,27 @@
-  * ----------------------------------------------------------------------------
-  *
-  */
--#include <linux/kernel.h>
--#include <linux/module.h>
-+#include <linux/acpi.h>
-+#include <linux/clk-provider.h>
-+#include <linux/clk.h>
- #include <linux/delay.h>
- #include <linux/dmi.h>
--#include <linux/i2c.h>
--#include <linux/clk.h>
--#include <linux/clk-provider.h>
--#include <linux/errno.h>
--#include <linux/sched.h>
- #include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/platform_data/i2c-designware.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/pm_runtime.h>
- #include <linux/property.h>
--#include <linux/io.h>
-+#include <linux/sched.h>
- #include <linux/slab.h>
--#include <linux/acpi.h>
--#include <linux/platform_data/i2c-designware.h>
-+
- #include "i2c-designware-core.h"
- 
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
-@@ -153,11 +154,11 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
- static int dw_i2c_plat_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
--	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
-+	struct dw_i2c_dev *dev;
-+	u32 acpi_speed, ht = 0;
- 	struct resource *mem;
- 	int irq, r;
--	u32 acpi_speed, ht = 0;
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0)
-@@ -354,7 +355,7 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
- #define DW_I2C_DEV_PMOPS NULL
- #endif
- 
--/* work with hotplug and coldplug */
-+/* Work with hotplug and coldplug */
- MODULE_ALIAS("platform:i2c_designware");
- 
- static struct platform_driver dw_i2c_driver = {
+> - * only expected abort codes are listed here
+> - * refer to the datasheet for the full list
+> + * Only expected abort codes are listed here
+> + * refer to the datasheet for the full list.
+
+Feels either comma is missing, or they are two different sentences.
+
+>   */
+>  #define ABRT_7B_ADDR_NOACK	0
+>  #define ABRT_10ADDR1_NOACK	1
+
 -- 
-2.11.0
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
