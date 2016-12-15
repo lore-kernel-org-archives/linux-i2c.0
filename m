@@ -1,118 +1,63 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: designware: add reset interface
-Date: Thu, 15 Dec 2016 17:40:33 +0200
-Message-ID: <9521a8fa-6a99-8cb7-9425-62509e7793a9@linux.intel.com>
-References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
- <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
- <1481805227.9552.15.camel@linux.intel.com>
- <66e86b18-c6d5-4290-5e93-dcae50596da6@electromag.com.au>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 5/5] mfd: axp20x: Fix axp288 volatile ranges
+Date: Thu, 15 Dec 2016 16:44:16 +0100
+Message-ID: <75ad4f36-72b9-8d24-c037-5f40ff214624@redhat.com>
+References: <20161214135209.16369-1-hdegoede@redhat.com>
+ <20161214135209.16369-5-hdegoede@redhat.com>
+ <CAGb2v66Wd06foGn3dxaVrTYZrfhwox0Mc1YB=jM5+Z87UWXMrg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <66e86b18-c6d5-4290-5e93-dcae50596da6@electromag.com.au>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Zhangfei Gao <zhangfei.gao@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, mika.westerberg@linux.intel.com
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33466 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932670AbcLOPoU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 15 Dec 2016 10:44:20 -0500
+In-Reply-To: <CAGb2v66Wd06foGn3dxaVrTYZrfhwox0Mc1YB=jM5+Z87UWXMrg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Lee Jones <lee.jones@linaro.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-On 12/15/2016 04:11 PM, Phil Reid wrote:
-> On 15/12/2016 20:33, Andy Shevchenko wrote:
->> On Thu, 2016-12-15 at 16:59 +0800, Zhangfei Gao wrote:
->>> Some platforms like hi3660 need do reset first to allow accessing
->>> registers
+Hi,
+
+On 14-12-16 15:41, Chen-Yu Tsai wrote:
+> On Wed, Dec 14, 2016 at 9:52 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> The axp288 pmic has a lot more volatile registers then we were
+>> listing in axp288_volatile_ranges, fix this.
 >>
->> Patch itself looks good, but would be nice to have it tested.
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/mfd/axp20x.c | 3 +++
+>>  1 file changed, 3 insertions(+)
 >>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+>> index a294121..b9c1adf 100644
+>> --- a/drivers/mfd/axp20x.c
+>> +++ b/drivers/mfd/axp20x.c
+>> @@ -117,7 +117,10 @@ static const struct regmap_range axp288_writeable_ranges[] = {
+>>  };
 >>
->>>
->>> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
->>> ---
->>>  drivers/i2c/busses/i2c-designware-core.h    |  1 +
->>>  drivers/i2c/busses/i2c-designware-platdrv.c | 28
->>> ++++++++++++++++++++++++----
->>>  2 files changed, 25 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-designware-core.h
->>> b/drivers/i2c/busses/i2c-designware-core.h
->>> index 0d44d2a..94b14fa 100644
->>> --- a/drivers/i2c/busses/i2c-designware-core.h
->>> +++ b/drivers/i2c/busses/i2c-designware-core.h
->>> @@ -80,6 +80,7 @@ struct dw_i2c_dev {
->>>      void __iomem        *base;
->>>      struct completion    cmd_complete;
->>>      struct clk        *clk;
->>> +    struct reset_control    *rst;
->>>      u32            (*get_clk_rate_khz) (struct
->>> dw_i2c_dev *dev);
->>>      struct dw_pci_controller *controller;
->>>      int            cmd_err;
->>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> index 0b42a12..e9016ae 100644
->>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> @@ -38,6 +38,7 @@
->>>  #include <linux/pm_runtime.h>
->>>  #include <linux/property.h>
->>>  #include <linux/io.h>
->>> +#include <linux/reset.h>
->>>  #include <linux/slab.h>
->>>  #include <linux/acpi.h>
->>>  #include <linux/platform_data/i2c-designware.h>
->>> @@ -176,6 +177,14 @@ static int dw_i2c_plat_probe(struct
->>> platform_device *pdev)
->>>      dev->irq = irq;
->>>      platform_set_drvdata(pdev, dev);
->>>
->>> +    dev->rst = devm_reset_control_get_optional(&pdev->dev, NULL);
->>> +    if (IS_ERR(dev->rst)) {
->>> +        if (PTR_ERR(dev->rst) == -EPROBE_DEFER)
->>> +            return -EPROBE_DEFER;
->>> +    } else {
->>> +        reset_control_deassert(dev->rst);
->>> +    }
->>> +
-> More for my education. But some drivers seem to handle the error codes a
-> little more explicitly.
-> Whats the best approach?
+>>  static const struct regmap_range axp288_volatile_ranges[] = {
+>> +       regmap_reg_range(AXP20X_PWR_INPUT_STATUS, AXP20X_PWR_OP_MODE),
 >
-> eg: From usb/dwc2 driver it continues only if ENOENT / ENOTSUPP errors
-> are return
-> and ENOMEM / EINVAL etc is a fatal error.
+> Actually register 0x02 is volatile as well. Various fields say "write
+> 1 to clear".
+> You might need a new define for it though, as the usage is different.
 >
-> hsotg->reset = devm_reset_control_get_optional(hsotg->dev, "dwc2");
-> if (IS_ERR(hsotg->reset)) {
->         ret = PTR_ERR(hsotg->reset);
->         switch (ret) {
->         case -ENOENT:
->         case -ENOTSUPP:
->                 hsotg->reset = NULL;
->                 break;
->         default:
->                 dev_err(hsotg->dev, "error getting reset control %d\n",
->                         ret);
->                 return ret;
->         }
+>>         regmap_reg_range(AXP20X_IRQ1_EN, AXP20X_IPSOUT_V_HIGH_L),
+>> +       regmap_reg_range(AXP22X_GPIO_STATE, AXP22X_GPIO_STATE),
+>> +       regmap_reg_range(AXP20X_FG_RES, AXP288_FG_CC_CAP_REG),
+>
+> Could you also add AXP20X_TIMER_CTRL and 0xa0 ~ 0xa1 (real time
+> battery voltage),
+> if you're adding defines?
 
-This looks a bit extreme. At least we shouldn't spam log on machines 
-that don't need reset control. I kind of think it's good enough to do 
-like the patch does. I.e. handle only EPROBE_DEFER and let all other 
-errors fall through and keep the controller in reset and let the 
-dev->rst carry an error code.
+We also need to add 0xbc "BC Detect Status Register" to be able
+to get the results of the charger detect logic in the axp288.
 
-I guess EINVAL is likely seen by developer only. ENOMEM is so fatal that 
-things are already falling apart somewhere else too and I don't think it 
-needs special handling here.
+Self-nak for v2, I will send a v3 later.
 
--- 
-Jarkko
+Regards,
+
+Hans
