@@ -1,106 +1,242 @@
-From: zhangfei <zhangfei.gao@linaro.org>
-Subject: Re: [PATCH v2] i2c: designware: add reset interface
-Date: Fri, 16 Dec 2016 11:01:29 +0800
-Message-ID: <49a5d8a4-864e-e80e-eee0-57c876d25aaf@linaro.org>
-References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
- <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
- <1481805227.9552.15.camel@linux.intel.com>
- <fda7e3ef-5bc1-9837-b421-4293baa3de34@synopsys.com>
- <fd0afd5f-6ee4-a06f-2d03-444f71662c1b@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v4] i2c: designware: Cleaning and comment style fixes.
+Date: Fri, 16 Dec 2016 09:54:37 +0000
+Message-ID: <928f25ad1fb39ec458758070d100852f7e47f1bb.1481881774.git.lolivei@synopsys.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f45.google.com ([74.125.83.45]:33508 "EHLO
-        mail-pg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751710AbcLPDBj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Dec 2016 22:01:39 -0500
-Received: by mail-pg0-f45.google.com with SMTP id 3so26798823pgd.0
-        for <linux-i2c@vger.kernel.org>; Thu, 15 Dec 2016 19:01:39 -0800 (PST)
-In-Reply-To: <fd0afd5f-6ee4-a06f-2d03-444f71662c1b@linaro.org>
+Received: from smtprelay.synopsys.com ([198.182.60.111]:56235 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1759634AbcLPJ4n (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Dec 2016 04:56:43 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, Philipp Zabel <p.zabel@pengutronix.de>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-Hi, Philipp
+The purpose of this commit is to fix some comments and styling issues in the
+existing code due to the need of reuse this code. What is being made here is:
 
+- Sorted the headers files
+- Corrected some comments style
+- Reverse tree in the variables declaration
+- Add/remove empty lines and tabs where needed
+- Fix of a misspelled word
 
-On 2016年12月16日 10:45, zhangfei wrote:
->
->
-> On 2016年12月15日 23:30, Ramiro Oliveira wrote:
->> Hi Andy and Zhangfei
->>
->> On 12/15/2016 12:33 PM, Andy Shevchenko wrote:
->>> On Thu, 2016-12-15 at 16:59 +0800, Zhangfei Gao wrote:
->>>> Some platforms like hi3660 need do reset first to allow accessing
->>>> registers
->>> Patch itself looks good, but would be nice to have it tested.
->>>
->>> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->>>
->> I tested the patch and it's working for the ARC architecture.
->>
->>>> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
->>>> ---
->>>>   drivers/i2c/busses/i2c-designware-core.h    |  1 +
->>>>   drivers/i2c/busses/i2c-designware-platdrv.c | 28
->>>> ++++++++++++++++++++++++----
->>>>   2 files changed, 25 insertions(+), 4 deletions(-)
->>>>
->>>> diff --git a/drivers/i2c/busses/i2c-designware-core.h
->>>> b/drivers/i2c/busses/i2c-designware-core.h
->>>> index 0d44d2a..94b14fa 100644
->>>> --- a/drivers/i2c/busses/i2c-designware-core.h
->>>> +++ b/drivers/i2c/busses/i2c-designware-core.h
->>>> @@ -80,6 +80,7 @@ struct dw_i2c_dev {
->>>>       void __iomem        *base;
->>>>       struct completion    cmd_complete;
->>>>       struct clk        *clk;
->>>> +    struct reset_control    *rst;
->>>>       u32            (*get_clk_rate_khz) (struct
->>>> dw_i2c_dev *dev);
->>>>       struct dw_pci_controller *controller;
->>>>       int            cmd_err;
->>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> index 0b42a12..e9016ae 100644
->>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> @@ -38,6 +38,7 @@
->>>>   #include <linux/pm_runtime.h>
->>>>   #include <linux/property.h>
->>>>   #include <linux/io.h>
->>>> +#include <linux/reset.h>
->>>>   #include <linux/slab.h>
->>>>   #include <linux/acpi.h>
->>>>   #include <linux/platform_data/i2c-designware.h>
->>>> @@ -176,6 +177,14 @@ static int dw_i2c_plat_probe(struct
->>>> platform_device *pdev)
->>>>       dev->irq = irq;
->>>>       platform_set_drvdata(pdev, dev);
->>>>   +    dev->rst = devm_reset_control_get_optional(&pdev->dev, NULL);
->> devm_reset_control_get_optional() is deprecated as explained in 
->> linux/reset.h,
->> you should use devm_reset_control_get_optional_exclusive() or
->> devm_reset_control_get_optional_shared() instead, as applicable.
->>
->> I submitted a similar patch earlier today and I made the same mistake.
->
-> Thanks Ramiro for the info
-> Will use devm_reset_control_get_optional_exclusive instead.
-> But should the interface be as simple as possible?
->
-> Thanks
-Sorry, a bit confused.
-Is that mean we should not use devm_reset_control_get_optional()
-While driver should decide whether use 
-devm_reset_control_get_optional_exclusive() or
-devm_reset_control_get_optional_shared()
-What if different platform has different requirement?
+The value of this, besides the rules of coding style, is because I
+will use this code after and it will make my future patch a lot bigger and
+complicated to review. The work here won't bring any additional work to
+backported fixes because is just style and reordering.
 
-Looks the difference between _exclusive and _shared is refcount,
-How about handle this inside, and not decided by interface?
+Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+---
+Changes V3->V4: (Peter Rosin)
+- Remove the unnecessary TAB as suggested
 
-Thanks
+ drivers/i2c/busses/i2c-designware-core.c    | 36 ++++++++++++++---------------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++-----------
+ 2 files changed, 32 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 6d81c56184d3..9d724a6a7ec8 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -21,17 +21,17 @@
+  * ----------------------------------------------------------------------------
+  *
+  */
++#include <linux/delay.h>
+ #include <linux/export.h>
+ #include <linux/errno.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+-#include <linux/pm_runtime.h>
+-#include <linux/delay.h>
+ #include <linux/module.h>
+-#include "i2c-designware-core.h"
++#include <linux/pm_runtime.h>
+ 
++#include "i2c-designware-core.h"
+ /*
+  * Registers offset
+  */
+@@ -98,7 +98,7 @@
+ 
+ #define DW_IC_ERR_TX_ABRT	0x1
+ 
+-#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
++#define DW_IC_TAR_10BITADDR_MASTER		BIT(12)
+ 
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
+@@ -113,10 +113,10 @@
+ #define TIMEOUT			20 /* ms */
+ 
+ /*
+- * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
++ * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+  *
+- * only expected abort codes are listed here
+- * refer to the datasheet for the full list
++ * Only expected abort codes are listed here,
++ * refer to the datasheet for the full list.
+  */
+ #define ABRT_7B_ADDR_NOACK	0
+ #define ABRT_10ADDR1_NOACK	1
+@@ -338,14 +338,14 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+ 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+-		/* Configure register endianess access */
++		/* Configure register endianness access */
+ 		dev->accessor_flags |= ACCESS_SWAP;
+ 	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
+ 		/* Configure register access mode 16bit */
+ 		dev->accessor_flags |= ACCESS_16BIT;
+ 	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
+-		dev_err(dev->dev, "Unknown Synopsys component type: "
+-			"0x%08x\n", reg);
++		dev_err(dev->dev,
++			"Unknown Synopsys component type: 0x%08x\n", reg);
+ 		i2c_dw_release_lock(dev);
+ 		return -ENODEV;
+ 	}
+@@ -355,7 +355,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	/* Disable the adapter */
+ 	__i2c_dw_enable_and_wait(dev, false);
+ 
+-	/* set standard and fast speed deviders for high/low periods */
++	/* Set standard and fast speed deviders for high/low periods */
+ 
+ 	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
+ 	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
+@@ -444,7 +444,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
+ 	dw_writel(dev, 0, DW_IC_RX_TL);
+ 
+-	/* configure the i2c master */
++	/* Configure the I2C master */
+ 	dw_writel(dev, dev->master_cfg , DW_IC_CON);
+ 
+ 	i2c_dw_release_lock(dev);
+@@ -480,7 +480,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	/* Disable the adapter */
+ 	__i2c_dw_enable_and_wait(dev, false);
+ 
+-	/* if the slave address is ten bit address, enable 10BITADDR */
++	/* If the slave address is ten bit address, enable 10BITADDR */
+ 	if (dev->dynamic_tar_update_enabled) {
+ 		/*
+ 		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
+@@ -505,7 +505,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	 */
+ 	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
+ 
+-	/* enforce disabled interrupts (due to HW issues) */
++	/* Enforce disabled interrupts (due to HW issues) */
+ 	i2c_dw_disable_int(dev);
+ 
+ 	/* Enable the adapter */
+@@ -539,7 +539,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 		u32 flags = msgs[dev->msg_write_idx].flags;
+ 
+ 		/*
+-		 * if target address has changed, we need to
++		 * If target address has changed, we need to
+ 		 * reprogram the target address in the i2c
+ 		 * adapter when we are done with this transfer
+ 		 */
+@@ -601,7 +601,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 
+ 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+ 
+-				/* avoid rx buffer overrun */
++				/* Avoid rx buffer overrun */
+ 				if (dev->rx_outstanding >= dev->rx_fifo_depth)
+ 					break;
+ 
+@@ -905,7 +905,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 
+ 		/*
+ 		 * Anytime TX_ABRT is set, the contents of the tx/rx
+-		 * buffers are flushed.  Make sure to skip them.
++		 * buffers are flushed. Make sure to skip them.
+ 		 */
+ 		dw_writel(dev, 0, DW_IC_INTR_MASK);
+ 		goto tx_aborted;
+@@ -927,7 +927,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) || dev->msg_err)
+ 		complete(&dev->cmd_complete);
+ 	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
+-		/* workaround to trigger pending interrupt */
++		/* Workaround to trigger pending interrupt */
+ 		stat = dw_readl(dev, DW_IC_INTR_MASK);
+ 		i2c_dw_disable_int(dev);
+ 		dw_writel(dev, stat, DW_IC_INTR_MASK);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 08153ea4d848..886e39753fc2 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -21,26 +21,27 @@
+  * ----------------------------------------------------------------------------
+  *
+  */
+-#include <linux/kernel.h>
+-#include <linux/module.h>
++#include <linux/acpi.h>
++#include <linux/clk-provider.h>
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/dmi.h>
+-#include <linux/i2c.h>
+-#include <linux/clk.h>
+-#include <linux/clk-provider.h>
+-#include <linux/errno.h>
+-#include <linux/sched.h>
+ #include <linux/err.h>
++#include <linux/errno.h>
++#include <linux/i2c.h>
+ #include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/platform_data/i2c-designware.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/property.h>
+-#include <linux/io.h>
++#include <linux/sched.h>
+ #include <linux/slab.h>
+-#include <linux/acpi.h>
+-#include <linux/platform_data/i2c-designware.h>
++
+ #include "i2c-designware-core.h"
+ 
+ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+@@ -153,11 +154,11 @@ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct dw_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
++	struct dw_i2c_dev *dev;
++	u32 acpi_speed, ht = 0;
+ 	struct resource *mem;
+ 	int irq, r;
+-	u32 acpi_speed, ht = 0;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
+@@ -354,7 +355,7 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+ #define DW_I2C_DEV_PMOPS NULL
+ #endif
+ 
+-/* work with hotplug and coldplug */
++/* Work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+ 
+ static struct platform_driver dw_i2c_driver = {
+-- 
+2.11.0
