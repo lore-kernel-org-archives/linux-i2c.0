@@ -1,56 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V5] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
-Date: Sat, 17 Dec 2016 19:38:38 +0100
-Message-ID: <20161217183838.GE27020@katana>
-References: <1481707438-32240-1-git-send-email-tnhuynh@apm.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: mux: mlxcpld: fix i2c mux selection caching
+Date: Sat, 17 Dec 2016 21:34:34 +0100
+Message-ID: <3d7efaaa-ff9a-421f-c0ee-02c6a4870266@axentia.se>
+References: <1482006551-23108-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="gMR3gsNFwZpnI/Ts"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1481707438-32240-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Tin Huynh <tnhuynh@apm.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0091.outbound.protection.outlook.com ([104.47.2.91]:32214
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752410AbcLQUem (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 17 Dec 2016 15:34:42 -0500
+In-Reply-To: <1482006551-23108-1-git-send-email-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
+On 2016-12-17 21:29, Peter Rosin wrote:
+> smbus functions return -ve on error, 0 on success.  However,
+> __i2c_transfer() have a different return signature - -ve on error, or
+> number of buffers transferred (which may be zero or greater.)
+> 
+> The upshot of this is that the sense of the text is reversed when using
 
---gMR3gsNFwZpnI/Ts
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+s/text/test/
 
-On Wed, Dec 14, 2016 at 04:23:58PM +0700, Tin Huynh wrote:
-> ACPI always sets Tx/Rx FIFO to 32. This configuration will
-> cause problem if the IP core supports a FIFO size of less than 32.
-> The driver should read the FIFO size from the IP and select the smaller
-> one of the two.
->=20
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
->=20
+> the mux on a bus supporting the master_xfer method: we cache the value
+> and never retry if we fail to transfer any buffers, but if we succeed,
+> we clear the cached value
 
-Applied to for-current, thanks!
+missing terminating period
 
+> 
+> Fix this by making mlxcpld_mux_reg_write() return a -ve error code for
+> all failure cases, just as was done in commit 7f638c1cb0a1 ("i2c: mux:
+> pca954x: fix i2c mux selection caching")
+> 
+> This also aligns the implementations of these two muxes in this area.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
 
---gMR3gsNFwZpnI/Ts
-Content-Type: application/pgp-signature; name="signature.asc"
+Sorry for the poor proof-reading skills.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYVYYtAAoJEBQN5MwUoCm2a5wP/0x+/TRPv5vUpE3fqz7nV1+r
-ESh5Oy9VtopkcQnqI2KNcdyVHdFH6r5xeNqsTvZ5pZtIHRPtsiwxCttT5ZmYhoT0
-tfx7d3Y6TttLA919z4wGJiV9O316BMjUt9jwa91mdtCruRwkSMO69rEkxqjN081j
-oFszVwI8f7I9oLdl3pRd4/QP5ckUzYzr2yKDRV44BXPQmeKGW30lfTbQZ9cLy3KB
-cp+++DYjnA7FciVcZGqDhC7tdFrpnJw7FPMUppO6PbSKuPoLlK2A+8XEcPkXrKJq
-OPkLUN57yOi/LMmyhw+1vgnba2K9HlAQroL/vAsdUpJ6F6QXWgYUtN+4bq0j7q9P
-YJvZPR89zbsEX+B3R2bZZzJUe1sjZpdvVtj/9+5g92+RArKPKjA5yn5RnHhqm0Oh
-LYxmh9VWOqEOG7UgLG3tKZnr7ovkW0TfhHr4Ai4cNNL/mZjCYk6/ieeZ7tVSyc/l
-6wPMu9nWFyU5U9L1u8+lXdgn1tvfRom2mfL9Rm9JXGSP22DGVxG/LwMSYXMDv/OW
-btZhpzivEISXeyCfr908ZrZf2K3y2Kq8Hlc0Fi7RiSnrAzqwOMYwNfiQtBS0A6lk
-fHTAMHpS/SSo5hW1BA2Yq3kOd/mcQslmHqR8YNpN1da7y0lNOm/4llArIX4+Dlcn
-zR9m7jbyPQKH6JefbW2U
-=SWm2
------END PGP SIGNATURE-----
-
---gMR3gsNFwZpnI/Ts--
+Cheers,
+peda
