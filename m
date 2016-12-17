@@ -1,58 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V1] i2c: xgene: Fix missing code of DTB support
-Date: Sat, 17 Dec 2016 19:36:21 +0100
-Message-ID: <20161217183621.GD27020@katana>
-References: <1481699846-10620-1-git-send-email-tnhuynh@apm.com>
+Subject: Re: [PATCH V5] i2c: designware: fix wrong Tx/Rx FIFO for ACPI
+Date: Sat, 17 Dec 2016 19:38:38 +0100
+Message-ID: <20161217183838.GE27020@katana>
+References: <1481707438-32240-1-git-send-email-tnhuynh@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="xB0nW4MQa6jZONgY"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:53086 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751962AbcLQSgY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 17 Dec 2016 13:36:24 -0500
+        protocol="application/pgp-signature"; boundary="gMR3gsNFwZpnI/Ts"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1481699846-10620-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1481707438-32240-1-git-send-email-tnhuynh@apm.com>
+Sender: linux-acpi-owner@vger.kernel.org
 To: Tin Huynh <tnhuynh@apm.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, Duc Dang <dhdang@apm.com>, Dien Tien Hoang Nguyen <dinguyen@apm.com>, patches@apm.com
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Loc Ho <lho@apm.com>, Thang Nguyen <tqnguyen@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+List-Id: linux-i2c@vger.kernel.org
 
 
---xB0nW4MQa6jZONgY
+--gMR3gsNFwZpnI/Ts
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 14, 2016 at 02:17:26PM +0700, Tin Huynh wrote:
-> In DTB case, i2c-core doesn't create slave device which is installed
-> on i2c-xgene bus because of missing code in this driver.
-> This patch fixes this issue.
+On Wed, Dec 14, 2016 at 04:23:58PM +0700, Tin Huynh wrote:
+> ACPI always sets Tx/Rx FIFO to 32. This configuration will
+> cause problem if the IP core supports a FIFO size of less than 32.
+> The driver should read the FIFO size from the IP and select the smaller
+> one of the two.
 >=20
 > Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+>=20
 
 Applied to for-current, thanks!
 
 
---xB0nW4MQa6jZONgY
+--gMR3gsNFwZpnI/Ts
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYVYWlAAoJEBQN5MwUoCm2JHEP/1NWmQa9JE2n5ERAc7fAHmx8
-c20EmFfCM/HylmkwP5coNFwBPqgbaU13Rc5YPhG8UKAS2kz8B28vAu1ygooIwmlZ
-PDJbqx8A6FTQKxbOhhPrb7Qy5K40LEmmAG+qmDT4Q2AhWJs6Yy3REzK/oc6/JJTd
-1ZsBVTtt9OLbBWbniH+SiK0h4FJSEBnmTjjLgK4Wl/kCK2zoOX8Ftm5gue19Rtjq
-PhgXobd6jPshEmTng0AHgi2C+SMv5Dw3AAWmwYzBIB4CoXBAZLOjp9bFRGgXytyu
-KyUWpEaZSBgKXsL/es8kCAt8mvAQL/Rkoeqb8ZvFkpuJVvCT/b38oCjw2EtenDOP
-6QCCXri7i0M0jOgAwXhaoxp6GyyzcGEAiaSnp5eggBZS29116nLLYE/2q/Lh7diN
-vviUMVnJ7otE5GfcnFeCtIIEdLFHRqwK8o6tYpW9HsErkq1PVjzl/ztCmSZV5YFQ
-nz3UhjvdSwmnaUHdlwDLT8IBhKFqlEq1vUs35jZ8TaYZky5YayzWe++DooBdSPCC
-qnPK7TtuPp0WUjQe7WYEPrwEeTEP/JjK2UCVEJVC6TY8BPNwONbb8YzCVUv8HUF2
-iXxA7k7iUPFuhaXraaVF4da09bllmEPe89Y90E/YI5AI7N3lxFCe+W96qr6Wvjck
-Vatt5+BWTvInYFAzotuT
-=A+zg
+iQIcBAEBAgAGBQJYVYYtAAoJEBQN5MwUoCm2a5wP/0x+/TRPv5vUpE3fqz7nV1+r
+ESh5Oy9VtopkcQnqI2KNcdyVHdFH6r5xeNqsTvZ5pZtIHRPtsiwxCttT5ZmYhoT0
+tfx7d3Y6TttLA919z4wGJiV9O316BMjUt9jwa91mdtCruRwkSMO69rEkxqjN081j
+oFszVwI8f7I9oLdl3pRd4/QP5ckUzYzr2yKDRV44BXPQmeKGW30lfTbQZ9cLy3KB
+cp+++DYjnA7FciVcZGqDhC7tdFrpnJw7FPMUppO6PbSKuPoLlK2A+8XEcPkXrKJq
+OPkLUN57yOi/LMmyhw+1vgnba2K9HlAQroL/vAsdUpJ6F6QXWgYUtN+4bq0j7q9P
+YJvZPR89zbsEX+B3R2bZZzJUe1sjZpdvVtj/9+5g92+RArKPKjA5yn5RnHhqm0Oh
+LYxmh9VWOqEOG7UgLG3tKZnr7ovkW0TfhHr4Ai4cNNL/mZjCYk6/ieeZ7tVSyc/l
+6wPMu9nWFyU5U9L1u8+lXdgn1tvfRom2mfL9Rm9JXGSP22DGVxG/LwMSYXMDv/OW
+btZhpzivEISXeyCfr908ZrZf2K3y2Kq8Hlc0Fi7RiSnrAzqwOMYwNfiQtBS0A6lk
+fHTAMHpS/SSo5hW1BA2Yq3kOd/mcQslmHqR8YNpN1da7y0lNOm/4llArIX4+Dlcn
+zR9m7jbyPQKH6JefbW2U
+=SWm2
 -----END PGP SIGNATURE-----
 
---xB0nW4MQa6jZONgY--
+--gMR3gsNFwZpnI/Ts--
