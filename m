@@ -1,51 +1,62 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: i2c: xiic: Strange clk_prepare_enable() in xiic_i2c_remove()
-Date: Sat, 17 Dec 2016 12:36:19 +0530
-Message-ID: <CAKfKVtE5NC8L6gi642FhKQKvs-Lnmi4eqVkE6-9FQu=FEnno1A@mail.gmail.com>
-References: <1481925285-594-1-git-send-email-khoroshilov@ispras.ru>
+From: Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH] i2c: mux: pca954x: fix i2c mux selection caching
+Date: Sat, 17 Dec 2016 12:10:56 +0000
+Message-ID: <E1cIDpI-0005y4-SW@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f196.google.com ([209.85.216.196]:35647 "EHLO
-        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751732AbcLQHGV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Dec 2016 02:06:21 -0500
-In-Reply-To: <1481925285-594-1-git-send-email-khoroshilov@ispras.ru>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:42660 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752619AbcLQMLC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Dec 2016 07:11:02 -0500
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Shubhrajyoti Datta <shubhraj@xilinx.com>, Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
 
-On Sat, Dec 17, 2016 at 3:24 AM, Alexey Khoroshilov
-<khoroshilov@ispras.ru> wrote:
-> Dear Shubhrajyoti,
->
-> Looking at 36ecbcab84d0 ("i2c: xiic: Implement power management")
-> it is not clear why clk_prepare_enable(i2c->clk) is required in
-> xiic_i2c_remove()?
+smbus functions return -ve on error, 0 on success.  However,
+__i2c_transfer() have a different return signature - -ve on error, or
+number of buffers transferred (which may be zero or greater.)
 
-834         ret = clk_prepare_enable(i2c->clk);
-835         if (ret) {
-836                 dev_err(&pdev->dev, "Unable to enable clock.\n");
-837                 return ret;
-838         }
-839         xiic_deinit(i2c);
-840         clk_disable_unprepare(i2c->clk);
+The upshot of this is that the sense of the test is reversed when using
+the mux on a bus supporting the master_xfer method: we cache the value
+and never retry if we fail to transfer any buffers, but if we succeed,
+we clear the cached value.
 
-so it is enabled and disabled after xiic_deinit.
+Fix this by making pca954x_reg_write() return a negative error code for
+all failure cases.
 
->
-> It is enabled in xiic_i2c_probe() and disabled/enabled in
-> cdns_i2c_runtime_suspend()/cdns_i2c_runtime_resume().
->
-> Could you please clarify the point.
->
-> --
-> Alexey Khoroshilov
-> Linux Verification Center, ISPRAS
-> web: http://linuxtesting.org
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Fixes: 463e8f845cbf ("i2c: mux: pca954x: retry updating the mux selection on failure")
+Acked-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 8bc3d36d2837..9c4ac26c014e 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -151,6 +151,9 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
+ 		buf[0] = val;
+ 		msg.buf = buf;
+ 		ret = __i2c_transfer(adap, &msg, 1);
++
++		if (ret >= 0 && ret != 1)
++			ret = -EREMOTEIO;
+ 	} else {
+ 		union i2c_smbus_data data;
+ 		ret = adap->algo->smbus_xfer(adap, client->addr,
+@@ -179,7 +182,7 @@ static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ 	/* Only select the channel if its different from the last channel */
+ 	if (data->last_chan != regval) {
+ 		ret = pca954x_reg_write(muxc->parent, client, regval);
+-		data->last_chan = ret ? 0 : regval;
++		data->last_chan = ret < 0 ? 0 : regval;
+ 	}
+ 
+ 	return ret;
+-- 
+2.7.4
