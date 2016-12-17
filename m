@@ -1,62 +1,71 @@
-From: Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH] i2c: mux: pca954x: fix i2c mux selection caching
-Date: Sat, 17 Dec 2016 12:10:56 +0000
-Message-ID: <E1cIDpI-0005y4-SW@rmk-PC.armlinux.org.uk>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 2/4] power: supply: axp288_fuel_gauge: Read 15 bit values
+ 2 registers at a time
+Date: Sat, 17 Dec 2016 15:58:04 +0100
+Message-ID: <20161217145804.vusj3ayihnxkmdol@earth>
+References: <20161214163853.454-1-hdegoede@redhat.com>
+ <20161214163853.454-2-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="sjigynujnhkoir5g"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:42660 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752619AbcLQMLC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Dec 2016 07:11:02 -0500
+Received: from mail.kernel.org ([198.145.29.136]:37504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756734AbcLQO6J (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 17 Dec 2016 09:58:09 -0500
 Content-Disposition: inline
+In-Reply-To: <20161214163853.454-2-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org
 
-smbus functions return -ve on error, 0 on success.  However,
-__i2c_transfer() have a different return signature - -ve on error, or
-number of buffers transferred (which may be zero or greater.)
 
-The upshot of this is that the sense of the test is reversed when using
-the mux on a bus supporting the master_xfer method: we cache the value
-and never retry if we fail to transfer any buffers, but if we succeed,
-we clear the cached value.
+--sjigynujnhkoir5g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fix this by making pca954x_reg_write() return a negative error code for
-all failure cases.
+Hi,
 
-Fixes: 463e8f845cbf ("i2c: mux: pca954x: retry updating the mux selection on failure")
-Acked-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On Wed, Dec 14, 2016 at 05:38:51PM +0100, Hans de Goede wrote:
+> In order for the MSB -> LSB latching to work correctly we must read the
+> 2 8 bit registers of a 15 bit value in one consecutive read.
+>=20
+> This fixes charge_full reporting 3498768 on some reads and 3354624 one
+> other reads on my tablet (for the 3354624 value the raw LSB is 0x00).
+>=20
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 8bc3d36d2837..9c4ac26c014e 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -151,6 +151,9 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
- 		buf[0] = val;
- 		msg.buf = buf;
- 		ret = __i2c_transfer(adap, &msg, 1);
-+
-+		if (ret >= 0 && ret != 1)
-+			ret = -EREMOTEIO;
- 	} else {
- 		union i2c_smbus_data data;
- 		ret = adap->algo->smbus_xfer(adap, client->addr,
-@@ -179,7 +182,7 @@ static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
- 	/* Only select the channel if its different from the last channel */
- 	if (data->last_chan != regval) {
- 		ret = pca954x_reg_write(muxc->parent, client, regval);
--		data->last_chan = ret ? 0 : regval;
-+		data->last_chan = ret < 0 ? 0 : regval;
- 	}
- 
- 	return ret;
--- 
-2.7.4
+Thanks for your patch. We are currently in the merge
+window and your patch will appear in linux-next once
+4.10-rc1 has been tagged by Linus Torvalds.
+
+Until then I queued it into this branch:
+
+https://git.kernel.org/cgit/linux/kernel/git/sre/linux-power-supply.git/log=
+/?h=3Dfor-next-next
+
+-- Sebastian
+
+--sjigynujnhkoir5g
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlhVUnwACgkQ2O7X88g7
++pqEQQ/7BwaE1bEcDfpHDRnEZ2s+aB5XMaSYqmJYCr0o4T4KU4GMehaAbgfcMUtf
+eSBTYynp6Mw2rQTtnk/bjf3Y7wJ6NgIyOKuS2A7JheYnIEk05q0R/GSMeipvILuU
+PBqzmqK7M36EC6iyIhab9tQXO2WelltEpDW9e5yrXXLG9O3Cy5lF/AwYIaL+oyQD
+eWmojdHCfW/0jorhStW0tnC62jGbgWMJOk/Q1c8XkL9LJfZRWxqpfR/jN6gxzg4J
+jx9sUXqnNfmPYufZEhh+QsYWhfrziKa9sh1qfHO1QDQcGz1mlUFi8c8ARAxdowFY
+ymMlwHJqtbOyDgRVM5a8mfzFuWHcawVj4OIiv70DBqAC+oGc/KyVMGH/i6ydylSH
+KlBcCFqfyY4P60Q1IcLTQqHJwoSNNodoCtlL6VImxbZni7tt1GYnGjN6lkpvAF8i
+JKUwh90S0osJrreJfqhw/rBTymXqJYdGscZJjlHaFgzgXtP8WqIl9fNPFWFr6E3A
+brSXiHwQQ6wKpT5hU44WnsbS9HFBklerO7BV2++DvRfkOjPZxSgoJVd5ngE8jYQH
+N9ATnhRclXUU1AiXIEg63J96cGyfkZJSbAy7Q8HqJ+k8hcNktHx7XQR3nN88Wdh+
+u/TaQjphEid9FY95ii6D+rt0yv1uOIKlSIz0se1eKx0qPBUE3x8=
+=Gck8
+-----END PGP SIGNATURE-----
+
+--sjigynujnhkoir5g--
