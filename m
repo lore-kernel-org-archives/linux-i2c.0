@@ -1,84 +1,51 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: pca954x: fix i2c mux selection caching
-Date: Sat, 17 Dec 2016 07:50:32 +0100
-Message-ID: <c8201ae8-baad-1cbd-c6ff-feaa5510a977@axentia.se>
-References: <E1cHylf-00071o-KZ@rmk-PC.armlinux.org.uk>
- <251c31e3-141c-8884-d56a-fa539714d1ff@axentia.se>
- <20161216232355.GO14217@n2100.armlinux.org.uk>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: i2c: xiic: Strange clk_prepare_enable() in xiic_i2c_remove()
+Date: Sat, 17 Dec 2016 12:36:19 +0530
+Message-ID: <CAKfKVtE5NC8L6gi642FhKQKvs-Lnmi4eqVkE6-9FQu=FEnno1A@mail.gmail.com>
+References: <1481925285-594-1-git-send-email-khoroshilov@ispras.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20161216232355.GO14217@n2100.armlinux.org.uk>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:35647 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751732AbcLQHGV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 17 Dec 2016 02:06:21 -0500
+In-Reply-To: <1481925285-594-1-git-send-email-khoroshilov@ispras.ru>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Shubhrajyoti Datta <shubhraj@xilinx.com>, Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
-On 2016-12-17 00:23, Russell King - ARM Linux wrote:
-> On Fri, Dec 16, 2016 at 10:20:35PM +0100, Peter Rosin wrote:
->> On 2016-12-16 21:06, Russell King wrote:
->>> smbus functions return -ve on error, 0 on success.  However,
->>> __i2c_transfer() have a different return signature - -ve on error, or
->>> number of buffers transferred (which may be zero or greater.)
->>>
->>> The upshot of this is that the sense of the test is reversed when using
->>> the mux on a bus supporting the master_xfer method: we cache the value
->>> and never retry if we fail to transfer any buffers, but if we succeed,
->>> we clear the cached value.
->>
->> Ouch! Thanks for catching this.
->>
->>> Fix this.
->>
->> But lets fix the corner case of __i2c_transfer returning 0 instead of
->> the expected 1 as well (not sure if that's even possible, but lets close
->> the possibility just in case), so I'd prefer if you could fix
->> pca954x_reg_write() to return 0 iff __i2c_transfer(...) returns 1
->> instead, and -EREMOTEIO on other non-negative return values. Thanks!
-> 
-> So you want something like this instead?
+On Sat, Dec 17, 2016 at 3:24 AM, Alexey Khoroshilov
+<khoroshilov@ispras.ru> wrote:
+> Dear Shubhrajyoti,
+>
+> Looking at 36ecbcab84d0 ("i2c: xiic: Implement power management")
+> it is not clear why clk_prepare_enable(i2c->clk) is required in
+> xiic_i2c_remove()?
 
-Yes, but I was originally thinking that the second hunk was no
-longer needed...
+834         ret = clk_prepare_enable(i2c->clk);
+835         if (ret) {
+836                 dev_err(&pdev->dev, "Unable to enable clock.\n");
+837                 return ret;
+838         }
+839         xiic_deinit(i2c);
+840         clk_disable_unprepare(i2c->clk);
 
-Either way,
-Acked-by: Peter Rosin <peda@axentia.se>
+so it is enabled and disabled after xiic_deinit.
 
-Cheers,
-peda
-
-
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 8bc3d36d2837..9c4ac26c014e 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -151,6 +151,9 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
->  		buf[0] = val;
->  		msg.buf = buf;
->  		ret = __i2c_transfer(adap, &msg, 1);
-> +
-> +		if (ret >= 0 && ret != 1)
-> +			ret = -EREMOTEIO;
->  	} else {
->  		union i2c_smbus_data data;
->  		ret = adap->algo->smbus_xfer(adap, client->addr,
-> @@ -179,7 +182,7 @@ static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
->  	/* Only select the channel if its different from the last channel */
->  	if (data->last_chan != regval) {
->  		ret = pca954x_reg_write(muxc->parent, client, regval);
-> -		data->last_chan = ret ? 0 : regval;
-> +		data->last_chan = ret < 0 ? 0 : regval;
->  	}
->  
->  	return ret;
-> 
-> 
+>
+> It is enabled in xiic_i2c_probe() and disabled/enabled in
+> cdns_i2c_runtime_suspend()/cdns_i2c_runtime_resume().
+>
+> Could you please clarify the point.
+>
+> --
+> Alexey Khoroshilov
+> Linux Verification Center, ISPRAS
+> web: http://linuxtesting.org
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
