@@ -1,58 +1,86 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: interface to trigger a bus recovery sequence
-Date: Mon, 19 Dec 2016 00:14:01 +0100
-Message-ID: <20161218231401.GA1442@katana>
-References: <9d29f4a6-50ae-2400-4a4d-79ba7ed48a53@linaro.org>
+Subject: [PULL REQUEST] i2c for 4.10
+Date: Tue, 20 Dec 2016 09:11:54 +0100
+Message-ID: <20161220081151.GA2170@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:47138 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758213AbcLRXOF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 18 Dec 2016 18:14:05 -0500
+        protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <9d29f4a6-50ae-2400-4a4d-79ba7ed48a53@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jorge Ramirez <jorge.ramirez-ortiz@linaro.org>
-Cc: linux-i2c@vger.kernel.org
 
 
---7AUc2qLy4jB3hD7Z
+--6TrnltStXW4iwmi0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Linus,
 
-> I was looking into the i2c bus recovery sequence and I was wondering why
-> there doesn't seem to be an interface (ioctl/sysfs) that allows a user to
-> trigger a recovery sequence.
+seond pull request from I2C with a set of bugfixes.
 
-I can't think of a reason why this should be possible. The I2C bus
-driver should figure out when things go wrong and do the apropriate
-actions. Also, the I2C specs have a clear definition when to use bus
-recovery.
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
---7AUc2qLy4jB3hD7Z
+The following changes since commit 59331c215daf600a650e281b6e8ef3e1ed1174c2:
+
+  Merge tag 'ceph-for-4.10-rc1' of git://github.com/ceph/ceph-client (2016-12-16 11:23:34 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 649ac63a9ae5e08b7123f2fa98c2bf42f033bdb9:
+
+  i2c: mux: mlxcpld: fix i2c mux selection caching (2016-12-18 08:54:38 +0100)
+
+----------------------------------------------------------------
+Jan Glauber (1):
+      i2c: octeon: thunderx: Limit register access retries
+
+Peter Rosin (1):
+      i2c: mux: mlxcpld: fix i2c mux selection caching
+
+Russell King (1):
+      i2c: mux: pca954x: fix i2c mux selection caching
+
+Tin Huynh (2):
+      i2c: xgene: Fix missing code of DTB support
+      i2c: designware: fix wrong Tx/Rx FIFO for ACPI
+
+ drivers/i2c/busses/i2c-designware-platdrv.c | 31 ++++++++++++++++++++++-------
+ drivers/i2c/busses/i2c-octeon-core.c        |  4 +++-
+ drivers/i2c/busses/i2c-octeon-core.h        | 21 ++++++++++++++-----
+ drivers/i2c/busses/i2c-xgene-slimpro.c      |  1 +
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c         | 24 ++++++++++++----------
+ drivers/i2c/muxes/i2c-mux-pca954x.c         |  5 ++++-
+ 6 files changed, 61 insertions(+), 25 deletions(-)
+
+--6TrnltStXW4iwmi0
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYVxg5AAoJEBQN5MwUoCm2ZdMP/jKrt3WiKoHdkYgRgpP0kScl
-HU8rAH6vmV6JDSjmIcsKvRepE976fOs6NDwPOPfakD/bVAZHTkbVPaX9LWH11kg1
-K5UuCOqFxNWziS1EQYB9DqFEGHbT+dvkBUA3KmEb6KaTCVvsqwu0gbOSjjfO3mBV
-D71sjCZ1ESdTjokN0+qhUCjIAy9G1qMYQK/YY51hIDbIIgLroPkyVAR3xTQ0Z/8E
-NEbEwe4vVinlhzd/JtsVbswGITo7CKxbrLONxZGEaSfx/GAnQpc20sb1POdLv1ZC
-0QdnIqcl6iDKQVNHxjkBYSpUVbgZU/QLlGnSVWp7LeGCtfGCB8QXawtFlpzuNZQV
-tthKdPs95PCFK7pzzpss/GBB9aFShgk22y3Yf6DxkS3SlAsKVrEWBHYullTZ8nKY
-KQVohcdH3oSr2WyxWOQthtWi0xMhxvCrDHAFSQsD15cU8ZcewZ59r/z6URLq/r+0
-acM66zuWx8nX94hSI5zYpNBwSdRvSLQfCTlfUtgE37MksvXgKOFjthigETa91S72
-RFUT9433iSBYBmFAV/fX/f5/AltYSJq4ugNJTWNl/Hz4V46CDlDY1uHDMqaat4ny
-W9v9qzY+DirIW8mfgItsq1bdE5eQsNHhogvOBK63P47TxLZ7IWE6wH0ILJnxoLB3
-vwUEia3xGlYBTVD3lB+s
-=WXEE
+iQIcBAEBAgAGBQJYWOfHAAoJEBQN5MwUoCm25CEP/0bs1qTFIFd+cekzvSIhkFyM
+RYULjybux3lDTjJXYo3CXEUUP8Qt+5lbQDyOrt7oaSYyd3ncXgJiNdkNPPhw/MzU
+3bvsgkuB2b710zCGptIl8F9+H/hqTbEsd21epWIBbIgeBDdNl7FTUNDhRggZtxQL
+ifvTYrkYxHawVT8pxj3+zKJfYAR+TnohBKco98J5FM0H5XVePZsSaPOHWVhRKIOu
+Zij08QTQEu7Ll53WeODdJAKVLD/ysdFjbcJWLXn1accZCLW0D6OrdtK1W02K1+sQ
+9Xi8s35uZm3b4nQqSMQXZmDAtt3rYw1BN/2PRj5Q8CyoHU3zps2+neEDcwSLt4Y7
+2oVIkWrjl9/6Q8id7HJTZ5XpsdSO5S7H+RIJuUz0vMxNrPYatMj1SEA+9+Gh5Yq9
+KLJ5Zny3m/6qNOYwuncHPBhfeUgK8QgQgd/QsZQIv/Gtw1DvYiV4ckVrb0Q6Pw5c
+Fms3hrOzTXoI1diWUhH9DGtqlkthRU5kDHuuU+cN32Fh9IkIhNnC7yPHWaJiTzUv
+jqnYUW/11Wl836c5gQD3IT4eFJjRGV7ChJw0QPWbXFqf0vATCkTEc0QgQG0MqJV4
+OgDT2kL6rAEfPUI5Xj1sF87wKoJGRZovPCe71s1w3cTPjZc2ffee8fS6dl3rQa1z
+dPsscufbcs+ixC/ZffZ2
+=n491
 -----END PGP SIGNATURE-----
 
---7AUc2qLy4jB3hD7Z--
+--6TrnltStXW4iwmi0--
