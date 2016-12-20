@@ -1,70 +1,51 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Joe Perches <joe@perches.com>
 Subject: Re: [PATCH] i2c: uniphier[-f]: fix bool logic calculation
-Date: Wed, 21 Dec 2016 01:20:28 +0900
-Message-ID: <CAK7LNATrR9dSuuUZR98f=uOZqSGqUBnUNZmrUqUZgubHHE+X4A@mail.gmail.com>
+Date: Tue, 20 Dec 2016 09:55:38 -0800
+Message-ID: <1482256538.1984.23.camel@perches.com>
 References: <1476851911-21729-1-git-send-email-yamada.masahiro@socionext.com>
+         <CAK7LNATrR9dSuuUZR98f=uOZqSGqUBnUNZmrUqUZgubHHE+X4A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1476851911-21729-1-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <CAK7LNATrR9dSuuUZR98f=uOZqSGqUBnUNZmrUqUZgubHHE+X4A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-i2c@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi.
+On Wed, 2016-12-21 at 01:20 +0900, Masahiro Yamada wrote:
+> Hi.
+> 
+> I have not got any comment, but does this seem
+> a right thing to do?
 
-I have not got any comment, but does this seem
-a right thing to do?
-
-2016-10-19 13:38 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
 > This code is working, but it should not depend on how "bool" is
 > typedef'ed, or the bit position of I2C_M_RD.
->
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> ---
->
->  drivers/i2c/busses/i2c-uniphier-f.c | 2 +-
->  drivers/i2c/busses/i2c-uniphier.c   | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-> index db9105e..b54448e 100644
-> --- a/drivers/i2c/busses/i2c-uniphier-f.c
-> +++ b/drivers/i2c/busses/i2c-uniphier-f.c
-> @@ -309,7 +309,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
->                                          struct i2c_msg *msg, bool stop)
->  {
->         struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
-> -       bool is_read = msg->flags & I2C_M_RD;
-> +       bool is_read = !!(msg->flags & I2C_M_RD);
->         unsigned long time_left;
->
->         dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
-> diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-> index 56e92af..cc80bb2 100644
-> --- a/drivers/i2c/busses/i2c-uniphier.c
-> +++ b/drivers/i2c/busses/i2c-uniphier.c
-> @@ -177,7 +177,7 @@ static int uniphier_i2c_stop(struct i2c_adapter *adap)
->  static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
->                                         struct i2c_msg *msg, bool stop)
->  {
-> -       bool is_read = msg->flags & I2C_M_RD;
-> +       bool is_read = !!(msg->flags & I2C_M_RD);
->         bool recovery = false;
->         int ret;
->
-> --
-> 1.9.1
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+<shrug>
+
+I think bool can be guaranteed to be _Bool.
+
+So a change not necessary as the original code
+has a c90 guarantee of the same result.
+
+6.3.1.2 Boolean type
+1
+When any scalar value is converted to _Bool, the result is 0 if the value compares equal
+to 0; otherwise, the result is 1.
 
 
-
--- 
-Best Regards
-Masahiro Yamada
+> 2016-10-19 13:38 GMT+09:00 Masahiro Yamada <yamada.masahiro@socionext.com>:
+[]
+> > diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
+[]
+> > @@ -309,7 +309,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+> >                                          struct i2c_msg *msg, bool stop)
+> >  {
+> >         struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
+> > -       bool is_read = msg->flags & I2C_M_RD;
+> > +       bool is_read = !!(msg->flags & I2C_M_RD);
+> >         unsigned long time_left;
+> > 
+> >         dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
