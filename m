@@ -1,35 +1,51 @@
-From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH v7 4/5] ARM: dts: stm32: Add I2C1 support for STM32429 eval board
-Date: Thu, 22 Dec 2016 14:35:03 +0100
-Message-ID: <1482413704-17531-5-git-send-email-cedric.madianga@gmail.com>
-References: <1482413704-17531-1-git-send-email-cedric.madianga@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1482413704-17531-1-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [v1] i2c: busses: i2c-designware-pcidrv:- Handle return NULL
+ error from pcim_iomap_table
+Date: Thu, 22 Dec 2016 16:35:09 +0200
+Message-ID: <1482417309.9552.128.camel@linux.intel.com>
+References: <1482406759-13094-1-git-send-email-arvind.yadav.cs@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:45465 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933162AbcLVOfN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Dec 2016 09:35:13 -0500
+In-Reply-To: <1482406759-13094-1-git-send-email-arvind.yadav.cs@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>, jarkko.nikula@linux.intel.com, wsa@the-dreams.de
+Cc: mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds I2C1 instance support for STM32x9I-Eval board.
+On Thu, 2016-12-22 at 17:09 +0530, Arvind Yadav wrote:
+> Here, If pcim_iomap_table will fail. It will return NULL.
+> Kernel can run into a NULL-pointer dereference.
+> This error check will avoid NULL pointer dereference.
+> 
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> index d6423cf..6a1907d 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -235,6 +235,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+>  	dev->controller = controller;
+>  	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+>  	dev->base = pcim_iomap_table(pdev)[0];
+> +	if (!dev->base) {
+> +		dev_err(&pdev->dev, "I/O map table allocation
+> failed\n");
+> +		return -ENOMEM;
+> +	}
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
----
- arch/arm/boot/dts/stm32429i-eval.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+NAK.
 
-diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
-index afb90bc..74e0045 100644
---- a/arch/arm/boot/dts/stm32429i-eval.dts
-+++ b/arch/arm/boot/dts/stm32429i-eval.dts
-@@ -141,3 +141,9 @@
- 	pinctrl-names = "default";
- 	status = "okay";
- };
-+
-+&i2c1 {
-+	pinctrl-0 = <&i2c1_pins_b>;
-+	pinctrl-names = "default";
-+	status = "okay";
-+};
+
 -- 
-1.9.1
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
