@@ -1,86 +1,69 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v4 3/5] i2c: designware: Add slave definitions
-Date: Thu, 22 Dec 2016 17:29:09 +0200
-Message-ID: <1482420549.9552.134.camel@linux.intel.com>
-References: <cover.1481131072.git.lolivei@synopsys.com>
-         <5173a9456c423025d8f15baafa2499440cbe1b51.1481131072.git.lolivei@synopsys.com>
-         <20161212170214.4cydp256jsp7srar@rob-hp-laptop>
-         <BCF0D4927F9C694C9AEA8827D4A9C7C897CE12@de02wembxa.internal.synopsys.com>
-         <CAL_JsqJwjX1Y=bDD-hKcXqa1aBKjVhXjEZm6j2tMAQszyv-QhA@mail.gmail.com>
-         <BCF0D4927F9C694C9AEA8827D4A9C7C897CEDB@de02wembxa.internal.synopsys.com>
-         <CAL_Jsq+DDx460jcLj34_X9MdtCqyc4izwc=3ThnFri+NjBaGUA@mail.gmail.com>
-         <3ef11852-8dc5-dbb3-7dc3-1ec8f4fc58da@synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3ef11852-8dc5-dbb3-7dc3-1ec8f4fc58da@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>, Rob Herring <robh@kernel.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ramiro.Oliveira@synopsys.com" <Ramiro.Oliveira@synopsys.com>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "CARLOS.PALMINHA@synopsys.com" <CARLOS.PALMINHA@synopsys.com>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: [PATCH] i2c: mv64xxx: add suspend/resume support
+Date: Thu, 22 Dec 2016 16:54:02 +0100
+Message-ID: <1482422042-30201-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:49855 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758658AbcLVPyK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Dec 2016 10:54:10 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Grzegorz Jaszczyk <jaz@semihalf.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 
-On Thu, 2016-12-22 at 14:59 +0000, Luis Oliveira wrote:
-> On 13-Dec-16 14:11, Rob Herring wrote:
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
 
-> > Something like this:
-> > 
-> > of_for_each_child_node(child) {
-> >   of_property_read_u32(child, "reg", &reg);
-> >   if (reg & I2C_OWN_SLAVE_ADDRESS))
-> >     im_a_slave = true;
-> > }
-> > 
-> > ...rather than testing "mode" is equal to "slave".
-> > 
-> > Rob
-> > 
-> 
-> Hi Rob, Andy,
-> 
-> I'm struggling to implement your suggestion @Rob. I checked the
-> tegra124-jetson-tk1.dts that uses that approach but I have some
-> doubts.
-> 
-> My DT is as follows
-> 
-> 	i2c@0x2000 {
->                         compatible = "snps,designware-i2c";
->                         reg = <0x2000 0x100>;
->                         clock-frequency = <400000>;
->                         clocks = <&i2cclk>;
->                         interrupts = <0>;
-> 
-> I could add something like this:
-> 
-> 			eeprom@64 {
-> 				compatible = "linux,slave-24c02";
-> 				reg = <(I2C_OWN_SLAVE_ADDRESS | 0x64)>;
-> 			}
-> 
-> But I think this is different form what I was doing before. I have two
-> questions:
-> 
-> - This way the I2C controller is identified as a slave controller or
-> just the
-> subnode eeprom?
-> - This way looks like my slave address will be fixed
-> 
-> In the previous Patch v3 submission @Andy suggested a property that
-> selects mode
-> that I did and it's working. And you @Rob suggested to do it a common
-> property.
-> It is implemented in the DT like:
-> 
-> 			mode = "slave";
-> 
-> So before I do this changes can you please agree both if you still
-> think this is
-> the best approach?
+This commit implements suspend/resume support in the mv64xxx I2C
+controller driver. There is no need to implement a ->suspend() hook, as
+calling mv64xxx_i2c_hw_init() at ->resume() time is enough.
 
-I'm a bit lost in the discussion (and TBH busy by something else), so I
-would agree on whatever you and Rob make an agreement on.
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Lior Amsalem <alior@marvell.com>
+Tested-by: Lior Amsalem <alior@marvell.com>
+[Thomas: switch to dev_pm_ops, fix build warning when !PM.]
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index b4dec08..a50bd68 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -977,11 +977,32 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int mv64xxx_i2c_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct mv64xxx_i2c_data *drv_data = platform_get_drvdata(pdev);
++
++	mv64xxx_i2c_hw_init(drv_data);
++
++	return 0;
++}
++
++static const struct dev_pm_ops mv64xxx_i2c_pm = {
++	.resume = mv64xxx_i2c_resume,
++};
++
++#define mv64xxx_i2c_pm_ops (&mv64xxx_i2c_pm)
++#else
++#define mv64xxx_i2c_pm_ops NULL
++#endif
++
+ static struct platform_driver mv64xxx_i2c_driver = {
+ 	.probe	= mv64xxx_i2c_probe,
+ 	.remove	= mv64xxx_i2c_remove,
+ 	.driver	= {
+ 		.name	= MV64XXX_I2C_CTLR_NAME,
++		.pm     = mv64xxx_i2c_pm_ops,
+ 		.of_match_table = mv64xxx_i2c_of_match_table,
+ 	},
+ };
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.7.4
