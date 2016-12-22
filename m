@@ -1,69 +1,54 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH] i2c: mv64xxx: add suspend/resume support
-Date: Thu, 22 Dec 2016 16:54:02 +0100
-Message-ID: <1482422042-30201-1-git-send-email-thomas.petazzoni@free-electrons.com>
+From: arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: Re: [v1] i2c: busses: i2c-designware-pcidrv:- Handle return NULL
+ error from pcim_iomap_table
+Date: Thu, 22 Dec 2016 22:41:12 +0530
+Message-ID: <b2999ca1-f4eb-f482-ed53-796b39798ab1@gmail.com>
+References: <1482406759-13094-1-git-send-email-arvind.yadav.cs@gmail.com>
+ <1482417309.9552.128.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:49855 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758658AbcLVPyK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Dec 2016 10:54:10 -0500
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36809 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1762052AbcLVRLS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Dec 2016 12:11:18 -0500
+In-Reply-To: <1482417309.9552.128.camel@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Grzegorz Jaszczyk <jaz@semihalf.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jarkko.nikula@linux.intel.com, wsa@the-dreams.de
+Cc: mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Yes, It will not fail. Sorry for the noise.
 
-This commit implements suspend/resume support in the mv64xxx I2C
-controller driver. There is no need to implement a ->suspend() hook, as
-calling mv64xxx_i2c_hw_init() at ->resume() time is enough.
+Thanks
+-Arvind
 
-Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
-Reviewed-by: Nadav Haklai <nadavh@marvell.com>
-Reviewed-by: Lior Amsalem <alior@marvell.com>
-Tested-by: Lior Amsalem <alior@marvell.com>
-[Thomas: switch to dev_pm_ops, fix build warning when !PM.]
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index b4dec08..a50bd68 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -977,11 +977,32 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
-+static int mv64xxx_i2c_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct mv64xxx_i2c_data *drv_data = platform_get_drvdata(pdev);
-+
-+	mv64xxx_i2c_hw_init(drv_data);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops mv64xxx_i2c_pm = {
-+	.resume = mv64xxx_i2c_resume,
-+};
-+
-+#define mv64xxx_i2c_pm_ops (&mv64xxx_i2c_pm)
-+#else
-+#define mv64xxx_i2c_pm_ops NULL
-+#endif
-+
- static struct platform_driver mv64xxx_i2c_driver = {
- 	.probe	= mv64xxx_i2c_probe,
- 	.remove	= mv64xxx_i2c_remove,
- 	.driver	= {
- 		.name	= MV64XXX_I2C_CTLR_NAME,
-+		.pm     = mv64xxx_i2c_pm_ops,
- 		.of_match_table = mv64xxx_i2c_of_match_table,
- 	},
- };
--- 
-2.7.4
+On Thursday 22 December 2016 08:05 PM, Andy Shevchenko wrote:
+> On Thu, 2016-12-22 at 17:09 +0530, Arvind Yadav wrote:
+>> Here, If pcim_iomap_table will fail. It will return NULL.
+>> Kernel can run into a NULL-pointer dereference.
+>> This error check will avoid NULL pointer dereference.
+>>
+>> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+>> ---
+>>   drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++++
+>>   1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c
+>> b/drivers/i2c/busses/i2c-designware-pcidrv.c
+>> index d6423cf..6a1907d 100644
+>> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+>> @@ -235,6 +235,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+>>   	dev->controller = controller;
+>>   	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+>>   	dev->base = pcim_iomap_table(pdev)[0];
+>> +	if (!dev->base) {
+>> +		dev_err(&pdev->dev, "I/O map table allocation
+>> failed\n");
+>> +		return -ENOMEM;
+>> +	}
+> NAK.
+>
+>
