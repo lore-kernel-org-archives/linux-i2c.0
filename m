@@ -1,67 +1,60 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [v1] i2c: busses: i2c-designware-pcidrv:- Unmap region obtained by pcim_iomap_regions
-Date: Fri, 23 Dec 2016 15:41:33 +0530
-Message-ID: <1482487893-17589-1-git-send-email-arvind.yadav.cs@gmail.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH v2] i2c: designware: add reset interface
+Date: Fri, 23 Dec 2016 11:26:32 +0100
+Message-ID: <1482488792.2394.21.camel@pengutronix.de>
+References: <1479789700-19532-1-git-send-email-zhangfei.gao@linaro.org>
+         <1481792388-13781-1-git-send-email-zhangfei.gao@linaro.org>
+         <1481805227.9552.15.camel@linux.intel.com>
+         <fda7e3ef-5bc1-9837-b421-4293baa3de34@synopsys.com>
+         <fd0afd5f-6ee4-a06f-2d03-444f71662c1b@linaro.org>
+         <49a5d8a4-864e-e80e-eee0-57c876d25aaf@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36222 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754631AbcLWKLp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Dec 2016 05:11:45 -0500
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:60157 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S966126AbcLWK1J (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Dec 2016 05:27:09 -0500
+In-Reply-To: <49a5d8a4-864e-e80e-eee0-57c876d25aaf@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: jarkko.nikula@linux.intel.com, wsa@the-dreams.de, mika.westerberg@linux.intel.com
-Cc: andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: zhangfei <zhangfei.gao@linaro.org>
+Cc: Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Release IO memory mapping, if i2c_dw_pci_probe is not successful.
+Hi Zhangfei,
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+Am Freitag, den 16.12.2016, 11:01 +0800 schrieb zhangfei:
+> Hi, Philipp
+> 
+> On 2016年12月16日 10:45, zhangfei wrote:
+[...]
+> Sorry, a bit confused.
+> Is that mean we should not use devm_reset_control_get_optional()
+> While driver should decide whether use 
+> devm_reset_control_get_optional_exclusive() or
+> devm_reset_control_get_optional_shared()
+> What if different platform has different requirement?
+> 
+> Looks the difference between _exclusive and _shared is refcount,
+> How about handle this inside, and not decided by interface?
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index d6423cf..75e6e27 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -228,8 +228,10 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	}
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
--	if (!dev)
--		return -ENOMEM;
-+	if (!dev) {
-+		r = -ENOMEM;
-+		goto error;
-+	}
- 
- 	dev->clk = NULL;
- 	dev->controller = controller;
-@@ -241,7 +243,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	if (controller->setup) {
- 		r = controller->setup(pdev, controller);
- 		if (r)
--			return r;
-+			goto error;
- 	}
- 
- 	dev->functionality = controller->functionality |
-@@ -270,7 +272,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 
- 	r = i2c_dw_probe(dev);
- 	if (r)
--		return r;
-+		goto error;
- 
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
- 	pm_runtime_use_autosuspend(&pdev->dev);
-@@ -278,6 +280,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	pm_runtime_allow(&pdev->dev);
- 
- 	return 0;
-+error:
-+	pcim_iounmap_regions(pdev, 1 << 0);
- }
- 
- static void i2c_dw_pci_remove(struct pci_dev *pdev)
--- 
-1.7.9.5
+Because there is a significant difference in how the actual reset line
+behaves. The shared resets are clock-like, and should only be used if
+the device needs them to be deasserted to be enabled, but is fine if
+they have been deasserted earlier or if they are not immediately
+asserted after the device is disabled, but some time later.
+For the shared / non-exclusive resets calling reset_control_assert and
+then reset_control_deassert is not guaranteed to do anything at all,
+because another user of the reset line could keep it deasserted.
+
+If the device needs a reset to be issued at a certain point in time on
+the other hand, for example to reset its state machine or registers to a
+known good state, calling assert must guarantee to actually assert the
+reset. This can only be done if the reset is exclusive.
+
+Whether guaranteed asserts (exclusive reset lines) are necessary depends
+on the device, so this decision has to be made in the driver.
+
+regards
+Philipp
