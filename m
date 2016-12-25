@@ -1,113 +1,158 @@
-From: Zhangfei Gao <zhangfei.gao@linaro.org>
-Subject: [PATCH v3] i2c: designware: add reset interface
-Date: Fri, 23 Dec 2016 21:40:51 +0800
-Message-ID: <1482500451-30137-1-git-send-email-zhangfei.gao@linaro.org>
+From: Len Brown <lenb@kernel.org>
+Subject: Re: [PATCH v2 4/5] i2c: designware-baytrail: Force the CPU to C1
+ state while holding the punit semaphore
+Date: Sun, 25 Dec 2016 13:31:20 -0500
+Message-ID: <CAJvTdKnqdhYo1hTp33z-dUCO3H5sROZQtDdSaGiL_EwW3DbbqQ@mail.gmail.com>
+References: <20161210141908.16470-1-hdegoede@redhat.com> <20161210141908.16470-4-hdegoede@redhat.com>
+ <1481381595.7188.6.camel@linux.intel.com> <a1e46965-9cef-1ec0-ddb4-3a527cd71045@redhat.com>
+ <5425712f-550e-cc30-3b52-5bd25eabc5d9@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:33968 "EHLO
-        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755223AbcLWNl0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 23 Dec 2016 08:41:26 -0500
-Received: by mail-pf0-f180.google.com with SMTP id c4so44683225pfb.1
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Dec 2016 05:41:26 -0800 (PST)
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:33759 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932268AbcLYSbV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 25 Dec 2016 13:31:21 -0500
+Received: by mail-qt0-f194.google.com with SMTP id 41so11015749qtn.0
+        for <linux-i2c@vger.kernel.org>; Sun, 25 Dec 2016 10:31:21 -0800 (PST)
+In-Reply-To: <5425712f-550e-cc30-3b52-5bd25eabc5d9@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, p.zabel@pengutronix.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Zhangfei Gao <zhangfei.gao@linaro.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Vincent Gerris <vgerris@gmail.com>, linux-i2c@vger.kernel.org
 
-Some platforms like hi3660 need do reset first to allow accessing registers
+Is there a simple way to run a test to keep deep C-states
+and instead disable part or all of i2c on this platform,
+to see how much stability separating the two will buy us?
 
-Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Ramiro Oliveira <ramiro.oliveira@synopsys.com>
----
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 28 ++++++++++++++++++++++++----
- 2 files changed, 25 insertions(+), 4 deletions(-)
+A lot of people are struggling w/ the stability of this platform,
+and it would be great to make some progress on that.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 0d44d2a..94b14fa 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -80,6 +80,7 @@ struct dw_i2c_dev {
- 	void __iomem		*base;
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
-+	struct reset_control	*rst;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
- 	struct dw_pci_controller *controller;
- 	int			cmd_err;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0b42a12..1fbe66f 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -38,6 +38,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/property.h>
- #include <linux/io.h>
-+#include <linux/reset.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
- #include <linux/platform_data/i2c-designware.h>
-@@ -176,6 +177,14 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
- 
-+	dev->rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
-+	if (IS_ERR(dev->rst)) {
-+		if (PTR_ERR(dev->rst) == -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
-+	} else {
-+		reset_control_deassert(dev->rst);
-+	}
-+
- 	/* fast mode by default because of legacy reasons */
- 	dev->clk_freq = 400000;
- 
-@@ -207,12 +216,13 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000) {
- 		dev_err(&pdev->dev,
- 			"Only 100kHz, 400kHz, 1MHz and 3.4MHz supported");
--		return -EINVAL;
-+		r = -EINVAL;
-+		goto exit_reset;
- 	}
- 
- 	r = i2c_dw_eval_lock_support(dev);
- 	if (r)
--		return r;
-+		goto exit_reset;
- 
- 	dev->functionality =
- 		I2C_FUNC_I2C |
-@@ -270,10 +280,18 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	}
- 
- 	r = i2c_dw_probe(dev);
--	if (r && !dev->pm_runtime_disabled)
--		pm_runtime_disable(&pdev->dev);
-+	if (r)
-+		goto exit_probe;
- 
- 	return r;
-+
-+exit_probe:
-+	if (!dev->pm_runtime_disabled)
-+		pm_runtime_disable(&pdev->dev);
-+exit_reset:
-+	if (!IS_ERR_OR_NULL(dev->rst))
-+		reset_control_assert(dev->rst);
-+	return r;
- }
- 
- static int dw_i2c_plat_remove(struct platform_device *pdev)
-@@ -290,6 +308,8 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	pm_runtime_put_sync(&pdev->dev);
- 	if (!dev->pm_runtime_disabled)
- 		pm_runtime_disable(&pdev->dev);
-+	if (!IS_ERR_OR_NULL(dev->rst))
-+		reset_control_assert(dev->rst);
- 
- 	return 0;
- }
+thanks,
+-Len
+
+
+
+On Sat, Dec 10, 2016 at 2:59 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi,
+>
+>
+> On 10-12-16 20:33, Hans de Goede wrote:
+>>
+>> Hi,
+>>
+>> On 10-12-16 15:53, Andy Shevchenko wrote:
+>>>
+>>> +Cc: Len
+>>> Len, I think you would be interested by this.
+>>>
+>>> Hans, thanks for the change!
+>>
+>>
+>> You're welcome I ended up comparing the code in
+>> i2c-dw_i2c-Ported-punit-locking-patch-from-MCG-kerne.patch from:
+>>
+>>
+>> https://github.com/01org/ProductionKernelQuilts/tree/master/uefi/cht-m1stable/patches
+>>
+>> against the mainline code while I was trying to fix the maddening
+>> problem of the entire SoC hanging more or less as soon
+>> as I tried to use the pmic i2c bus and there I found
+>> some fiddling with pm_qos which let to this patch.
+>>
+>>> Most probably we will anticipate Len's ACK
+>>> on this one.
+>>>
+>>> On Sat, 2016-12-10 at 15:19 +0100, Hans de Goede wrote:
+>>>>
+>>>> On my cherrytrail tablet with axp288 pmic, just doing a bunch of
+>>>> repeated
+>>>> reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet
+>>>> in
+>>>> 1 - 3 runs guaranteed.
+>>>>
+>>>> This seems to be causes by the cpuidle / intel_idle driver trying to
+>>>> change the C-state while we hold the punit bus semaphore, at which
+>>>> point
+>>>> everything just hangs.
+>>>>
+>>>> Avoid this by forcing the CPU to C1 before acquiring the punit bus
+>>>> semaphore.
+>>>
+>>>
+>>> Isn't it C0? C1 as far as I remember is halted state.
+>>
+>>
+>> You're right, I will fix it.
+>
+>
+> Correction, upon closer reading of the docs, we cannot disallow
+> the CPU to enter C1 / force it to either C0 or C1, what we can
+> disallow is for it to enter C6/C7. Which also makes sense wrt
+> this bug, since entering C6/C7 involves turning of the
+> CPU-core power-plane, which requires the punit to access the pmic.
+>
+> So I've changes the text in both the commit msg and the comment
+> to: "Disallow the CPU to enter C6 or C7"
+>
+> I still need to re-test (just to make sure I did not cause
+> any regressions) and then I'll send a v3.
+>
+> Regards,
+>
+> Hans
+>
+>
+>
+>
+>>>> @@ -33,6 +34,13 @@ static int get_sem(struct dw_i2c_dev *dev, u32
+>>>> *sem)
+>>>>      u32 data;
+>>>>      int ret;
+>>>>
+>>>> +    /*
+>>>> +     * Force CPU to C1 state, otherwise if the cpuidle /
+>>>> intel_idle
+>>>> +     * driver tries to change the C state while we're holding the
+>>>> +     * semaphore, the SoC hangs.
+>>>
+>>>
+>>> C0?
+>>>
+>>>> +     */
+>>>> +    pm_qos_update_request(&dev->pm_qos, 0);
+>>>
+>>>
+>>> C1 is when you set 1 here, right?
+>>
+>>
+>> I believe so, yes.
+>>
+>>>
+>>>> platform_device *pdev)
+>>>>      if (!dev->pm_runtime_disabled)
+>>>>          pm_runtime_disable(&pdev->dev);
+>>>
+>>>
+>>>> +    if (dev->acquire_lock)
+>>>> +        pm_qos_remove_request(&dev->pm_qos);
+>>>> +
+>>>
+>>>
+>>> Perhaps you need to do this in -core.c. Otherwise you missed PCI case.
+>>> (Even with PCI enumerated host with ACPI-enabled firmware you may get
+>>> _SEM object present)
+>>
+>>
+>> Currently only i2c-designware-plardrv.c calls i2c_dw_eval_lock_support()
+>> which does the pm_qos_add_request, so I put it here to keep things
+>> balanced.
+>>
+>> Regards,
+>>
+>> Hans
+
+
+
 -- 
-2.7.4
+Len Brown, Intel Open Source Technology Center
