@@ -1,25 +1,117 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on  Dell machines
-Date: Tue, 27 Dec 2016 14:43:49 +0100
-Message-ID: <21e8453f9ebd2955b2c5e499dc51efb0@the-dreams.de>
-References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Pali_Roh=C3=83=C2=A1r?= <pali.rohar@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, valdis.kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, mario_limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, =?UTF-8?Q?Micha=C3=85=E2=80=9A_K=C3=84?= =?UTF-8?Q?=E2=84=A2pie=C3=85=E2=80=9E?= <kernel@kempniu.pl>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
+From: Zhangfei Gao <zhangfei.gao@linaro.org>
+Subject: [PATCH v3 resend] i2c: designware: add reset interface
+Date: Tue, 27 Dec 2016 22:22:40 +0800
+Message-ID: <1482848560-3752-1-git-send-email-zhangfei.gao@linaro.org>
+References: <y>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pg0-f49.google.com ([74.125.83.49]:33008 "EHLO
+        mail-pg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932500AbcL0OXr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Dec 2016 09:23:47 -0500
+Received: by mail-pg0-f49.google.com with SMTP id g1so106465284pgn.0
+        for <linux-i2c@vger.kernel.org>; Tue, 27 Dec 2016 06:23:10 -0800 (PST)
+In-Reply-To: <y>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, p.zabel@pengutronix.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Zhangfei Gao <zhangfei.gao@linaro.org>
 
-> Dell platform team told us that some (DMI whitelisted) Dell Latitude
-> machines have ST microelectronics accelerometer at i2c address 0x29. 
-> That
-> i2c address is not specified in DMI or ACPI, so runtime detection 
-> without
-> whitelist which is below is not possible.
+Some platforms like hi3660 need do reset first to allow accessing registers
 
-I'd think this should rather live somewhere in
-drivers/platform/x86/dell*.c?
+Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Ramiro Oliveira <ramiro.oliveira@synopsys.com>
+---
+rebase to 4.10-rc1
+
+ drivers/i2c/busses/i2c-designware-core.h    |  1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 28 ++++++++++++++++++++++++----
+ 2 files changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 26250b4..302807c 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -88,6 +88,7 @@ struct dw_i2c_dev {
+ 	void __iomem		*base;
+ 	struct completion	cmd_complete;
+ 	struct clk		*clk;
++	struct reset_control	*rst;
+ 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+ 	struct dw_pci_controller *controller;
+ 	int			cmd_err;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 6ce4313..79c4b4e 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -38,6 +38,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/property.h>
+ #include <linux/io.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ #include <linux/platform_data/i2c-designware.h>
+@@ -199,6 +200,14 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	dev->irq = irq;
+ 	platform_set_drvdata(pdev, dev);
+ 
++	dev->rst = devm_reset_control_get_optional_exclusive(&pdev->dev, NULL);
++	if (IS_ERR(dev->rst)) {
++		if (PTR_ERR(dev->rst) == -EPROBE_DEFER)
++			return -EPROBE_DEFER;
++	} else {
++		reset_control_deassert(dev->rst);
++	}
++
+ 	if (pdata) {
+ 		dev->clk_freq = pdata->i2c_scl_freq;
+ 	} else {
+@@ -235,12 +244,13 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000) {
+ 		dev_err(&pdev->dev,
+ 			"Only 100kHz, 400kHz, 1MHz and 3.4MHz supported");
+-		return -EINVAL;
++		r = -EINVAL;
++		goto exit_reset;
+ 	}
+ 
+ 	r = i2c_dw_eval_lock_support(dev);
+ 	if (r)
+-		return r;
++		goto exit_reset;
+ 
+ 	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+ 
+@@ -286,10 +296,18 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	r = i2c_dw_probe(dev);
+-	if (r && !dev->pm_runtime_disabled)
+-		pm_runtime_disable(&pdev->dev);
++	if (r)
++		goto exit_probe;
+ 
+ 	return r;
++
++exit_probe:
++	if (!dev->pm_runtime_disabled)
++		pm_runtime_disable(&pdev->dev);
++exit_reset:
++	if (!IS_ERR_OR_NULL(dev->rst))
++		reset_control_assert(dev->rst);
++	return r;
+ }
+ 
+ static int dw_i2c_plat_remove(struct platform_device *pdev)
+@@ -306,6 +324,8 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	if (!dev->pm_runtime_disabled)
+ 		pm_runtime_disable(&pdev->dev);
++	if (!IS_ERR_OR_NULL(dev->rst))
++		reset_control_assert(dev->rst);
+ 
+ 	return 0;
+ }
+-- 
+2.7.4
