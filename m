@@ -1,33 +1,48 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v3 resend] i2c: designware: add reset interface
-Date: Tue, 27 Dec 2016 16:41:15 +0200
-Message-ID: <2cc1faeb-1a1b-76e2-0b12-9918ac42861d@linux.intel.com>
-References: <y> <1482848560-3752-1-git-send-email-zhangfei.gao@linaro.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on Dell machines
+Date: Wed, 28 Dec 2016 00:15:30 +0200
+Message-ID: <CAHp75VeWBaPNmT0mb+Gs_ZhFEHFx_H-Ro0UQ9u1VvLhNVjCqYQ@mail.gmail.com>
+References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
+ <21e8453f9ebd2955b2c5e499dc51efb0@the-dreams.de> <201612271451.01505@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:38417 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751256AbcL0Onb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 27 Dec 2016 09:43:31 -0500
-In-Reply-To: <1482848560-3752-1-git-send-email-zhangfei.gao@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <201612271451.01505@pali>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, valdis.kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, =?UTF-8?B?TWljaGHDheKAmiBLw4TihKJwaWXDheKAng==?= <kernel@kempniu.pl>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Zhangfei Gao <zhangfei.gao@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, p.zabel@pengutronix.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On 12/27/2016 04:22 PM, Zhangfei Gao wrote:
-> Some platforms like hi3660 need do reset first to allow accessing registers
+On Tue, Dec 27, 2016 at 3:51 PM, Pali Roh=C3=A1r <pali.rohar@gmail.com> wro=
+te:
+> On Tuesday 27 December 2016 14:43:49 Wolfram Sang wrote:
+>> > Dell platform team told us that some (DMI whitelisted) Dell
+>> > Latitude machines have ST microelectronics accelerometer at i2c
+>> > address 0x29. That
+>> > i2c address is not specified in DMI or ACPI, so runtime detection
+>> > without
+>> > whitelist which is below is not possible.
+>>
+>> I'd think this should rather live somewhere in
+>> drivers/platform/x86/dell*.c?
 >
-> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Tested-by: Ramiro Oliveira <ramiro.oliveira@synopsys.com>
-> ---
-> rebase to 4.10-rc1
+> i2c_new_device() with lis3lv02d for i801 i2c bus needs to be called
+> after initializing i2c-i801 bus driver.
 >
->  drivers/i2c/busses/i2c-designware-core.h    |  1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c | 28 ++++++++++++++++++++++++----
->  2 files changed, 25 insertions(+), 4 deletions(-)
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> I have no idea how to do it (properly) outside of i2c-i801.c file.
+
+I doubt we need a single line of code for this. See [1] and perhaps
+create an EFI variable with necessary upgrade device node.
+
+> Same thing is done for Fujitsu machines, see function
+> i801_probe_optional_slaves() in i2c-i801.c file. So I did similar
+> approach for Dell machines.
+
+Perhaps, this also needs to be converted to use EFI variable.
+
+[1] https://lwn.net/Articles/693212/
+
+--=20
+With Best Regards,
+Andy Shevchenko
