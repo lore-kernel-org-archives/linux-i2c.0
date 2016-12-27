@@ -1,157 +1,64 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on Dell machines
-Date: Tue, 27 Dec 2016 13:52:16 +0100
-Message-ID: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
+From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on  Dell machines
+Date: Tue, 27 Dec 2016 14:51:01 +0100
+Message-ID: <201612271451.01505@pali>
+References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com> <21e8453f9ebd2955b2c5e499dc51efb0@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed;
+  boundary="nextPart4513449.6tkDFjm1qK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wj0-f194.google.com ([209.85.210.194]:36449 "EHLO
-        mail-wj0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752381AbcL0Mwk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Dec 2016 07:52:40 -0500
+Received: from mail-wj0-f195.google.com ([209.85.210.195]:34804 "EHLO
+        mail-wj0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932455AbcL0Nv6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 27 Dec 2016 08:51:58 -0500
+In-Reply-To: <21e8453f9ebd2955b2c5e499dc51efb0@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>, Takashi Iwai <tiwai@suse.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, valdis.kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, mario_limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, =?utf-8?q?Micha=C3=85=E2=80=9A_K=C3=84=E2=84=A2pie=C3=85=E2=80=9E?= <kernel@kempniu.pl>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-Dell platform team told us that some (DMI whitelisted) Dell Latitude
-machines have ST microelectronics accelerometer at i2c address 0x29. That
-i2c address is not specified in DMI or ACPI, so runtime detection without
-whitelist which is below is not possible.
+--nextPart4513449.6tkDFjm1qK
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Presence of that ST microelectronics accelerometer is verified by existence
-of SMO88xx ACPI device which represent that accelerometer. Unfortunately
-without i2c address.
+On Tuesday 27 December 2016 14:43:49 Wolfram Sang wrote:
+> > Dell platform team told us that some (DMI whitelisted) Dell
+> > Latitude machines have ST microelectronics accelerometer at i2c
+> > address 0x29. That
+> > i2c address is not specified in DMI or ACPI, so runtime detection
+> > without
+> > whitelist which is below is not possible.
+>=20
+> I'd think this should rather live somewhere in
+> drivers/platform/x86/dell*.c?
 
-This patch registers lis3lv02d device at i2c address 0x29 if is detected.
+i2c_new_device() with lis3lv02d for i801 i2c bus needs to be called=20
+after initializing i2c-i801 bus driver.
 
-Finally commit a7ae81952cda ("i2c: i801: Allow ACPI SystemIO OpRegion to
-conflict with PCI BAR") allowed to use i2c-i801 driver on Dell machines so
-lis3lv02d correctly initialize accelerometer.
+I have no idea how to do it (properly) outside of i2c-i801.c file.
 
-Tested on Dell Latitude E6440.
+Same thing is done for Fujitsu machines, see function=20
+i801_probe_optional_slaves() in i2c-i801.c file. So I did similar=20
+approach for Dell machines.
 
-Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
----
- drivers/i2c/busses/i2c-i801.c |   98 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 98 insertions(+)
+=2D-=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index eb3627f..188cfd4 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1118,6 +1118,101 @@ static void dmi_check_onboard_devices(const struct dmi_header *dm, void *adap)
- 	}
- }
- 
-+static acpi_status check_acpi_smo88xx_device(acpi_handle obj_handle,
-+					     u32 nesting_level,
-+					     void *context,
-+					     void **return_value)
-+{
-+	struct acpi_device_info *info;
-+	acpi_status status;
-+	char *hid;
-+
-+	status = acpi_get_object_info(obj_handle, &info);
-+	if (!ACPI_SUCCESS(status) || !(info->valid & ACPI_VALID_HID))
-+		return AE_OK;
-+
-+	hid = info->hardware_id.string;
-+	if (!hid)
-+		return AE_OK;
-+
-+	if (strlen(hid) < 7)
-+		return AE_OK;
-+
-+	if (memcmp(hid, "SMO88", 5) != 0)
-+		return AE_OK;
-+
-+	*((bool *)return_value) = true;
-+	return AE_CTRL_TERMINATE;
-+}
-+
-+static bool is_dell_system_with_lis3lv02d(void)
-+{
-+	bool found;
-+	acpi_status status;
-+	const char *vendor;
-+
-+	vendor = dmi_get_system_info(DMI_SYS_VENDOR);
-+	if (strcmp(vendor, "Dell Inc.") != 0)
-+		return false;
-+
-+	/*
-+	 * Check if ACPI device SMO88xx exists and if is enabled. That ACPI
-+	 * device represent our ST microelectronics lis3lv02d accelerometer but
-+	 * unfortunately without any other additional information.
-+	 */
-+	found = false;
-+	status = acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL,
-+				  (void **)&found);
-+	if (!ACPI_SUCCESS(status) || !found)
-+		return false;
-+
-+	return true;
-+}
-+
-+/*
-+ * Dell platform team told us that these Latitude devices have
-+ * ST microelectronics accelerometer at i2c address 0x29.
-+ * That i2c address is not specified in DMI or ACPI, so runtime
-+ * detection without whitelist which is below is not possible.
-+ */
-+static const char * const dmi_dell_product_names[] = {
-+	"Latitude E5250",
-+	"Latitude E5450",
-+	"Latitude E5550",
-+	"Latitude E6440",
-+	"Latitude E6440 ATG",
-+	"Latitude E6540",
-+};
-+
-+static void register_dell_lis3lv02d_i2c_device(struct i801_priv *priv)
-+{
-+	struct i2c_board_info info;
-+	const char *product_name;
-+	bool known_i2c_address;
-+	int i;
-+
-+	known_i2c_address = false;
-+	product_name = dmi_get_system_info(DMI_PRODUCT_NAME);
-+	for (i = 0; i < ARRAY_SIZE(dmi_dell_product_names); ++i) {
-+		if (strcmp(product_name, dmi_dell_product_names[i]) == 0) {
-+			known_i2c_address = true;
-+			break;
-+		}
-+	}
-+
-+	if (!known_i2c_address) {
-+		dev_warn(&priv->pci_dev->dev,
-+			 "Accelerometer lis3lv02d i2c device is present "
-+			 "but its i2c address is unknown, skipping ...\n");
-+		return;
-+	}
-+
-+	memset(&info, 0, sizeof(struct i2c_board_info));
-+	info.addr = 0x29;
-+	strlcpy(info.type, "lis3lv02d", I2C_NAME_SIZE);
-+	i2c_new_device(&priv->adapter, &info);
-+}
-+
- /* Register optional slaves */
- static void i801_probe_optional_slaves(struct i801_priv *priv)
- {
-@@ -1136,6 +1231,9 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
- 
- 	if (dmi_name_in_vendors("FUJITSU"))
- 		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
-+
-+	if (is_dell_system_with_lis3lv02d())
-+		register_dell_lis3lv02d_i2c_device(priv);
- }
- #else
- static void __init input_apanel_init(void) {}
--- 
-1.7.9.5
+--nextPart4513449.6tkDFjm1qK
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEABECAAYFAlhiccUACgkQi/DJPQPkQ1KmEQCbB42KxcQuQOvpnxCxoNh/xaJ7
+ZJkAnRSE1y4FzHIL62b7wTMjEO5beu2B
+=3j+0
+-----END PGP SIGNATURE-----
+
+--nextPart4513449.6tkDFjm1qK--
