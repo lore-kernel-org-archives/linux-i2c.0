@@ -1,62 +1,29 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [RFC 3/4] drm/i915: valleyview: Make intel_set_rps
- get FORCEWAKE_MEDIA
-Date: Sun, 1 Jan 2017 21:48:53 +0100
-Message-ID: <556a9c6d-33ba-0047-82df-8bf75e09e208@redhat.com>
-References: <20170101201403.12132-1-hdegoede@redhat.com>
- <20170101201403.12132-4-hdegoede@redhat.com>
- <20170101202400.GG13154@nuc-i3427.alporthouse.com>
+From: "128128stbernelm@htdiocese.org" <prodawez391@gmail.com>
+Subject: =?utf-8?B?0KHQvtCx0LXRgNC10Lwg0LTQu9GPINCS0LDRgSDQsiDQ?=
+        =?utf-8?B?uNC90YLQtdGA0L3QtdGCINCx0LDQt9GDINC00LDQvdC9?=
+        =?utf-8?B?0YvRhSDQutC70LjQtdC90YLQvtCyIEVtYWlsOiBwcm9k?=
+        =?utf-8?B?YXdlejM5MkBnbWFpbC5jb20gU2t5cGU6IHByb2Rhd2V6?=
+        =?utf-8?B?MzkwINGC0LXQuyArNzkxMzkyMzAzMzAgKHdoYXRzYXBw?=
+        =?utf-8?B?XHZpYmVyXHRlbGVncmFtKSDQo9C30L3QsNC50YLQtSDQ?=
+        =?utf-8?B?v9C+0LTRgNC+0LHQvdC10LUh?=
+Date: Wed, 28 Dec 2016 19:20:09 +0300
+Message-ID: <262395C6CD193784585D14A8BC88D1C4__33146.9302684583$1483305042$gmane$org@gmail.com>
+Reply-To: "128128stbernelm@htdiocese.org" <prodawez392@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain;
+        format=flowed;
+        charset="utf-8";
+        reply-type=original
 Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170101202400.GG13154@nuc-i3427.alporthouse.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Chris Wilson <chris@chris-wilson.co.uk>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from [154.127.50.136] ([154.127.50.136]:60664 "EHLO UNKNOWN"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932354AbdAAVKk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 1 Jan 2017 16:10:40 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGksCgpPbiAwMS0wMS0xNyAyMToyNCwgQ2hyaXMgV2lsc29uIHdyb3RlOgo+IE9uIFN1biwgSmFu
-IDAxLCAyMDE3IGF0IDA5OjE0OjAyUE0gKzAxMDAsIEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4+IEFs
-bCBjYWxsZXJzIG9mIHZhbGxleXZpZXdfc2V0X3JwcygpIGdldCBhdCBsZWFzdCBGT1JDRVdBS0Vf
-TUVESUEsIGV4Y2VwdAo+PiBmb3IgaW50ZWxfc2V0X3JwcygpLiBTaW5jZSBpbnRlbF9zZXRfcnBz
-IGNhbiBmb3IgZXhhbXBsZSBiZSBjYWxsZWQgZnJvbQo+PiBzeXNmcyBzdG9yZSBmdW5jdGlvbnMs
-IHRoZXJlIGlzIG5vIGd1YXJhbnRlZSB0aGlzIGlzIGFscmVhZHkgZG9uZSwgc28gYWRkCj4+IGFu
-IGludGVsX3VuY29yZV9mb3JjZXdha2VfZ2V0KEZPUkNFV0FLRV9NRURJQSkgY2FsbCB0byBpbnRl
-bF9zZXRfcnBzLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUBy
-ZWRoYXQuY29tPgo+PiAtLS0KPj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMgfCA5
-ICsrKysrKystLQo+PiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
-bnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMg
-Yi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9wbS5jCj4+IGluZGV4IDRiMTI2MzcuLmNjNGZi
-ZDcgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMKPj4gKysr
-IGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYwo+PiBAQCAtNTA5Niw5ICs1MDk2LDE0
-IEBAIHZvaWQgZ2VuNl9ycHNfYm9vc3Qoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2
-LAo+Pgo+PiAgdm9pZCBpbnRlbF9zZXRfcnBzKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZf
-cHJpdiwgdTggdmFsKQo+PiAgewo+PiAtCWlmIChJU19WQUxMRVlWSUVXKGRldl9wcml2KSB8fCBJ
-U19DSEVSUllWSUVXKGRldl9wcml2KSkKPj4gKwlpZiAoSVNfVkFMTEVZVklFVyhkZXZfcHJpdikg
-fHwgSVNfQ0hFUlJZVklFVyhkZXZfcHJpdikpIHsKPj4gKwkJLyogV2FrZSB1cCB0aGUgbWVkaWEg
-d2VsbCwgYXMgdGhhdCB0YWtlcyBhIGxvdCBsZXNzCj4+ICsJCSAqIHBvd2VyIHRoYW4gdGhlIFJl
-bmRlciB3ZWxsLgo+PiArCQkgKi8KPj4gKwkJaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9nZXQoZGV2
-X3ByaXYsIEZPUkNFV0FLRV9NRURJQSk7Cj4+ICAJCXZhbGxleXZpZXdfc2V0X3JwcyhkZXZfcHJp
-diwgdmFsKTsKPgo+IEJvdGggcG93ZXJ3ZWxscyBhcmUgd29rZW4gZm9yIHJwcy4gKFRha2luZyBv
-bmUgYnV0IG5vdCB0aGUgb3RoZXIgaGFzIG5vCj4gYmVuZWZpdCwgYW5kIHZlcnkgbWlzbGVhZGlu
-Zy4pCgpUaGUgY29tbWVudCBvbiB3aHkgRk9SQ0VXQUtFX01FRElBIGlzIHVzZWQgKyBjb2RlIGlz
-IGNvcHkgcGFzdGVkIGZyb20gdGhlCmV4aXN0aW5nIGNvZGUgaW4gdmx2X3NldF9ycHNfaWRsZSgp
-LgoKID4gVGhlIGZvcmNld2FrZSBpcyBhbHJlYWR5IGhlbGQgYnkgdGhlCj4gbG93ZXIgbGV2ZWwg
-cm91dGluZXMsIHRha2luZyB0aGUgd2FrZWxvY2sgaW4gdGhlIGNhbGxlciBpcyBhbiBvcHRpbWlz
-YXRpb24KPiB0aGF0IGlzIG9ubHkgaW50ZXJlc3RpbmcgaWYgdGhlcmUgaXMgYSBkYW5nZXIgZnJv
-bSB0aGUgZm9yY2V3YWtlIGJlaW5nCj4gZHJvcHBlZCBtaWQtc2VxdWVuY2UgKGR1ZSB0byBwcmVl
-bXB0aW9uIHdoYXRldmVyKS4KCldlJ3JlIGFsc28gYWNjZXNzaW5nIHRoZSBwdW5pdCBpbiB2YWxs
-ZXl2aWV3X3NldF9ycHMoKSBhbmQgSSd2ZSBzZWVuIHNldmVyYWwKcGF0Y2hlcyAoaW4gdGhlIGFu
-ZHJvaWQgeDg2IGtlcm5lbCkgc3VnZ2VzdGluZyB0aGF0IHdlIG5lZWQgdG8gdGFrZSBhIHdha2Vs
-b2NrCndoaWxlIGRvaW5nIHRoaXMuCgpSZWdhcmRzLAoKSGFucwpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVs
-LWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
-bWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+0KHQvtCx0LXRgNC10Lwg0LTQu9GPINCS0LDRgSDQsiDQuNC90YLQtdGA0L3QtdGCINCx0LDQt9GD
+INC00LDQvdC90YvRhSDQutC70LjQtdC90YLQvtCyIEVtYWlsOiBwcm9kYXdlejM5MkBnbWFpbC5j
+b20gU2t5cGU6IHByb2Rhd2V6MzkwINGC0LXQuyArNzkxMzkyMzAzMzAgKHdoYXRzYXBwXHZpYmVy
+XHRlbGVncmFtKSDQo9C30L3QsNC50YLQtSDQv9C+0LTRgNC+0LHQvdC10LUhIA0K
