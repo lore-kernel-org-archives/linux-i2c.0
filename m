@@ -1,88 +1,156 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 2/7] i2c: designware: refactoring of the
- i2c-designware
-Date: Wed, 28 Dec 2016 17:12:48 +0200
-Message-ID: <1482937968.9552.159.camel@linux.intel.com>
+Subject: Re: [PATCH v5 4/7] i2c: designware: introducing I2C_SLAVE
+ definitions
+Date: Wed, 28 Dec 2016 17:17:21 +0200
+Message-ID: <1482938241.9552.160.camel@linux.intel.com>
 References: <cover.1482934380.git.lolivei@synopsys.com>
-         <0dbbce3bb2ffd47d5a78ea49f992b48d7ea2f35d.1482934380.git.lolivei@synopsys.com>
+         <08964037b735ed646a5bd56e29c7922d6172a1dd.1482934380.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:38292 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751458AbcL1PMy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 28 Dec 2016 10:12:54 -0500
-In-Reply-To: <0dbbce3bb2ffd47d5a78ea49f992b48d7ea2f35d.1482934380.git.lolivei@synopsys.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <08964037b735ed646a5bd56e29c7922d6172a1dd.1482934380.git.lolivei@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+List-Id: linux-i2c@vger.kernel.org
 
 On Wed, 2016-12-28 at 14:43 +0000, Luis Oliveira wrote:
-> - Factor out all _master() part of code from i2c-designware-core
->   and i2c-designware-platdrv to separate functions.
-> - Standardize all code related with MASTER mode.
-> - I have to take off DW_IC_INTR_TX_EMPTY from DW_IC_INTR_DEFAULT_MASK
->   because it is master specific.
+> - Definitions were added
 > 
-> The purpose of this is to prepare the controller to have is I2C MASTER
-> flow in a separate driver. To do this first all the
-> functions/definitions related to the MASTER flow were identified.
-
-Thanks for an update.
-Some style related comments below (For the code related is up to you, my
-tag still stands).
-
+> SLAVE related definitions were added to the core of the controller.
 > 
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
 > Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
 > ---
-> Changes V4->V5: (ACK by Andy)
-
-When you get an Ack, or other tag (Reviewed-by, Tested-by, etc), and you
-send new version, include this tag to your commit message (it applies to
-all affected patches in your series).
-
-It would be also good to have some high level changelog in the cover
-letter, from this series I don't see, for example, which base you did
-use (i2c-next? linux-next? v4.9? v4.10-rc1?).
-
-> +       dev_dbg(dev->dev,
-> +               "%s: enabled=%#x stat=%#x\n", __func__, enabled,
-stat);
-
-I hope you can fit format string on the first line. __func__ is
-redundant when you are using debug printing (Dynamic Debug would include
-it if asked for).
-
-> +static void i2c_dw_configure_master(struct platform_device *pdev)
-> +{
-> +	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-
-By the way, does it make sense to pass struct dw_i2c_dev * as a
-parameter of the function?
-
-> +
-> +	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE
-> |
-> +			  DW_IC_CON_RESTART_EN;
-> +
-> +	dev_dbg(&pdev->dev, "I am registed as a I2C Master!\n");
-> +
-> +	switch (dev->clk_freq) {
-> +	case 100000:
-> +		dev->master_cfg |= DW_IC_CON_SPEED_STD;
-> +		break;
-> +	case 3400000:
-> +		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
-> +		break;
-> +	default:
-> +		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
-> +	}
-> +}
-> +
+> Changes V4->V5: (Andy Shevchenko)
+> - This patch just introduces SLAVE definitions (as suggested in V4)
 > 
-
+>  drivers/i2c/busses/i2c-designware-core.h | 27
+> +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h
+> b/drivers/i2c/busses/i2c-designware-core.h
+> index 8bba7a37c3ce..5080f1d2d2ec 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -36,15 +36,20 @@
+>  #define DW_IC_CON_SPEED_FAST		0x4
+>  #define DW_IC_CON_SPEED_HIGH		0x6
+>  #define DW_IC_CON_SPEED_MASK		0x6
+> +#define DW_IC_CON_10BITADDR_SLAVE		0x8
+>  #define DW_IC_CON_10BITADDR_MASTER	0x10
+>  #define DW_IC_CON_RESTART_EN		0x20
+>  #define DW_IC_CON_SLAVE_DISABLE		0x40
+> +#define DW_IC_CON_STOP_DET_IFADDRESSED		0x80
+> +#define DW_IC_CON_TX_EMPTY_CTRL		0x100
+> +#define DW_IC_CON_RX_FIFO_FULL_HLD_CTRL		0x200
+>  
+>  /*
+>   * Registers offset
+>   */
+>  #define DW_IC_CON		0x0
+>  #define DW_IC_TAR		0x4
+> +#define DW_IC_SAR		0x8
+>  #define DW_IC_DATA_CMD		0x10
+>  #define DW_IC_SS_SCL_HCNT	0x14
+>  #define DW_IC_SS_SCL_LCNT	0x18
+> @@ -75,6 +80,7 @@
+>  #define DW_IC_SDA_HOLD		0x7c
+>  #define DW_IC_TX_ABRT_SOURCE	0x80
+>  #define DW_IC_ENABLE_STATUS	0x9c
+> +#define DW_IC_CLR_RESTART_DET	0xa8
+>  #define DW_IC_COMP_PARAM_1	0xf4
+>  #define DW_IC_COMP_VERSION	0xf8
+>  #define DW_IC_SDA_HOLD_MIN_VERS	0x3131312A
+> @@ -93,15 +99,22 @@
+>  #define DW_IC_INTR_STOP_DET	0x200
+>  #define DW_IC_INTR_START_DET	0x400
+>  #define DW_IC_INTR_GEN_CALL	0x800
+> +#define DW_IC_INTR_RESTART_DET	0x1000
+>  
+>  #define DW_IC_INTR_DEFAULT_MASK		(DW_IC_INTR_RX_FULL |
+> \
+>  					 DW_IC_INTR_TX_ABRT | \
+>  					 DW_IC_INTR_STOP_DET)
+>  #define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MAS
+> K | \
+>  					 DW_IC_INTR_TX_EMPTY)
+> +#define DW_IC_INTR_SLAVE_MASK		(DW_IC_INTR_DEFAULT_MASK
+> | \
+> +					 DW_IC_INTR_RX_DONE | \
+> +					 DW_IC_INTR_RX_UNDER | \
+> +					 DW_IC_INTR_RD_REQ)
+> +
+>  #define DW_IC_STATUS_ACTIVITY		0x1
+>  #define DW_IC_STATUS_TFE		BIT(2)
+>  #define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
+> +#define DW_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
+>  
+>  #define DW_IC_SDA_HOLD_RX_SHIFT		16
+>  #define DW_IC_SDA_HOLD_RX_MASK		GENMASK(23,
+> DW_IC_SDA_HOLD_RX_SHIFT)
+> @@ -123,6 +136,12 @@
+>  #define TIMEOUT			20 /* ms */
+>  
+>  /*
+> + * operation modes
+> + */
+> +#define DW_IC_MASTER		0
+> +#define DW_IC_SLAVE		1
+> +
+> +/*
+>   * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+>   *
+>   * only expected abort codes are listed here
+> @@ -139,6 +158,9 @@
+>  #define ABRT_10B_RD_NORSTRT	10
+>  #define ABRT_MASTER_DIS		11
+>  #define ARB_LOST		12
+> +#define ABRT_SLAVE_FLUSH_TXFIFO	13
+> +#define ABRT_SLAVE_ARBLOST	14
+> +#define ABRT_SLAVE_RD_INTX	15
+>  
+>  #define DW_IC_TX_ABRT_7B_ADDR_NOACK	(1UL <<
+> ABRT_7B_ADDR_NOACK)
+>  #define DW_IC_TX_ABRT_10ADDR1_NOACK	(1UL <<
+> ABRT_10ADDR1_NOACK)
+> @@ -151,6 +173,9 @@
+>  #define DW_IC_TX_ABRT_10B_RD_NORSTRT	(1UL <<
+> ABRT_10B_RD_NORSTRT)
+>  #define DW_IC_TX_ABRT_MASTER_DIS	(1UL << ABRT_MASTER_DIS)
+>  #define DW_IC_TX_ARB_LOST		(1UL << ARB_LOST)
+> +#define DW_IC_RX_ABRT_SLAVE_RD_INTX	(1UL <<
+> ABRT_SLAVE_RD_INTX)
+> +#define DW_IC_RX_ABRT_SLAVE_ARBLOST	(1UL <<
+> ABRT_SLAVE_ARBLOST)
+> +#define DW_IC_RX_ABRT_SLAVE_FLUSH_TXFIFO	(1UL <<
+> ABRT_SLAVE_FLUSH_TXFIFO)
+>  
+>  #define DW_IC_TX_ABRT_NOACK		(DW_IC_TX_ABRT_7B_ADDR_NOA
+> CK | \
+>  					 DW_IC_TX_ABRT_10ADDR1_NOACK
+> | \
+> @@ -206,6 +231,7 @@ struct dw_i2c_dev {
+>  	void __iomem		*base;
+>  	struct completion	cmd_complete;
+>  	struct clk		*clk;
+> +	struct i2c_client		*slave;
+>  	u32			(*get_clk_rate_khz) (struct
+> dw_i2c_dev *dev);
+>  	struct dw_pci_controller *controller;
+>  	int			cmd_err;
+> @@ -225,6 +251,7 @@ struct dw_i2c_dev {
+>  	struct i2c_adapter	adapter;
+>  	u32			functionality;
+>  	u32			master_cfg;
+> +	u32			slave_cfg;
+>  	unsigned int		tx_fifo_depth;
+>  	unsigned int		rx_fifo_depth;
+>  	int			rx_outstanding;
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
