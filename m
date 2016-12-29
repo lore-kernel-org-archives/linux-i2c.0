@@ -1,246 +1,52 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v7 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 28 Dec 2016 23:20:42 +0100
-Message-ID: <CAOAejn1ocTSvdPWnZ-+DwMfJj45cXXEDc1+=B5d3zCy2Pw+0-A@mail.gmail.com>
-References: <1482413704-17531-1-git-send-email-cedric.madianga@gmail.com>
- <1482413704-17531-3-git-send-email-cedric.madianga@gmail.com>
- <20161223090019.a3jkhpb3abgjqi55@pengutronix.de> <CAOAejn3sc1F8T_rbSTr6-wBNncNwObeK+c6=_Q0BMahDdHXxQA@mail.gmail.com>
- <20161228212139.adkixdgvmtj2ukjs@pengutronix.de>
+From: Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on Dell machines
+Date: Wed, 28 Dec 2016 23:37:47 -0500
+Message-ID: <134619.1482986267@turing-police.cc.vt.edu>
+References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com> <52345.1482878491@turing-police.cc.vt.edu> <CAHp75Vc4WaGu1mkMvXY3B=YSdd-Pv9YD7gJFxubDWu0Vow8=BQ@mail.gmail.com> <201612281005.22088@pali>
+ <92e01f42db5129122dcf87f26f5e9917@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161228212139.adkixdgvmtj2ukjs@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; boundary="==_Exmh_1482986267_31020P";
+         micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <92e01f42db5129122dcf87f26f5e9917@the-dreams.de>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: =?UTF-8?Q?Pali_Roh=C3=83=C2=A1r?= <pali.rohar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <mario_limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, =?UTF-8?Q?Micha=C3=83=E2=80=A6=C3=A2?= =?UTF-8?Q?=E2=82=AC=C5=A1_K=C3=83=E2=80=9E=C3=A2=E2=80=9E=C2=A2pie=C3=83?= =?UTF-8?Q?=E2=80=A6=C3=A2=E2=82=AC=C5=BE?= <kernel@kempniu.pl>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Uwe,
+--==_Exmh_1482986267_31020P
+Content-Type: text/plain; charset=us-ascii
 
-2016-12-28 22:21 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutron=
-ix.de>:
-> Hello Cedric,
+On Wed, 28 Dec 2016 15:03:02 +0100, Wolfram Sang said:
+> > I have absolutely no idea how to you want to achieve calling that
+> > i2c_new_device() registration
+> > without kernel patches.
 >
-> On Fri, Dec 23, 2016 at 01:41:15PM +0100, M'boumba Cedric Madianga wrote:
->> > I don't understand why DUTY is required to reach 400 kHz. Given a pare=
-nt
->> > freq of 30 MHz, with CCR =3D 25 and DUTY =3D 0 we have:
->> >
->> >         t_high =3D 25 * 33.333 ns =3D 833.333 ns
->> >         t_low =3D 2 * 25 * 33.333 ns =3D 1666.667 ns
->> >
->> > then t_high and t_low satisfy the i2c bus specification
->> > (t_low > 1300 ns, t_high > 600 ns) and we have t_low + t_high =3D 2500=
- ns
->> > =3D 1 / 400 kHz.
->> >
->> > Where is the error?
->> Hum ok you are right. I was a bad interpretation of the datasheet.
->> So now it is clearer. Thanks for that.
->> I will correct and improve my comments in the V8.
->
-> The benefit of DUTY=3D1 is (I think) that you can reach 400 kHz also with
-> lower parent frequencies. And so it't probably sensible to make use of
-> it unconditionally for fast mode.
-Ok I agree.
+> Documentation/i2c/instantiating-devices lists all supported methods.
+> Method 4 is userspace instantiation.
 
->
->> >> + * So, in order to cover both SCL high/low with Duty =3D 1,
->> >> + * CCR =3D 16 * SCL period * I2C CLK frequency
->> >
->> > I don't get that. Actually you need to use low + high, so
->> > CCR =3D parentrate / (25 * 400 kHz), right?
->> With your new inputs above, I think I could use a simpler implementation=
-:
->> CCR =3D scl_high_period * parent_rate
->> with scl_high_period =3D 5 =C2=B5s in standard mode to reach 100khz
->> and scl_high_period =3D 1 =C2=B5s in fast mode to reach 400khz with 1/2 =
-or
->> 16/9 duty cycle.
->> So, I am wondering if I have to let the customer setting the duty
->> cycle in the DT for example with "st,duty=3D0" or "st,duty=3D1" property
->> (0 for 1/2 and 1 for 16/9).
->> Or perhaps the best option it to use a default value. What is your
->> feeling regarding this point ?
->
-> No, don't add a property to the device tree. Just take pencil and paper
-> and think a while about the right algorithm to choose the right register
-> settings.
-Ok thanks
+I'd be totally OK with userspace doing it, except for the question "How good
+will distros be about shipping it"?  I don't have any sense of how good Fedora
+and Ubuntu and so on will be about making sure the userspace part is already
+done for the user.
 
->
->
->> >> +     cr2 =3D readl_relaxed(i2c_dev->base + STM32F4_I2C_CR2);
->> >> +     freq =3D cr2 & STM32F4_I2C_CR2_FREQ_MASK;
->> >> +
->> >> +     if (i2c_dev->speed =3D=3D STM32F4_I2C_SPEED_STANDARD)
->> >> +             trise =3D freq + 1;
->> >> +     else
->> >> +             trise =3D freq * 300 / 1000 + 1;
->> >
->> > if freq is big such that freq * 300 overflows does this result in a
->> > wrong result, or does the compiler optimize correctly?
->> For sure the compiler will never exceeds u32 max value
->
-> If I compile
-> -------->8--------
-> #include <stdio.h>
->
-> void myfunc(unsigned freq)
-> {
->         unsigned trise =3D freq * 300 / 1000 + 1;
->         printf("trise =3D %u", trise);
-> }
->
-> -------->8--------
->
-> for arm with -O3 I get:
->
-> 00000000 <myfunc>:
->    0:   e3a01f4b        mov     r1, #300        ; 0x12c
->    4:   e0010190        mul     r1, r0, r1
->    8:   e59f3010        ldr     r3, [pc, #16]   ; 20 <myfunc+0x20>
->    c:   e59f0010        ldr     r0, [pc, #16]   ; 24 <myfunc+0x24>
->   10:   e0812193        umull   r2, r1, r3, r1
->   14:   e1a01321        lsr     r1, r1, #6
->   18:   e2811001        add     r1, r1, #1
->   1c:   eafffffe        b       0 <printf>
->   20:   10624dd3        .word   0x10624dd3
->   24:   00000000        .word   0x00000000
->
-> The mul instruction at offset 4 writes the least significant 32 bits of
-> 300 * r0 to r1 and so doesn't handle overflow correctly.
-In case of overflow, the parent frequency has to be at least at 1431657 Mhz=
-.
-The STM32F4 SoC will never reach this value for any parent clock.
-So, I think that this point is not really critical and you can
-probably keep these simple lines of code without adding u32 overflow
-checking for big frequency.
+Anybody got evidence one way or another?
 
->
->> > This is still not really understandable.
->> I have already added some comments from datasheet to explain the
->> different cases.
->> I don't see how I could be more understandable as it is clearly the
->> hardware way of working...
->
-> You need to comment the check for the length, something like:
->
->         /*
->          * To end the transfer correctly the foo bit has to be cleared
->          * already on the last but one byte to be transferred.
->          */
->
-OK I will add more comments.
 
-> and bonus points if you can shrink the number of functions that check
-> for this stuff.
-There are only 2 functions to handle this stuff:  handle_read() for
-RXNE event and handle_rx_btf() for BTF event
-I would prefer to keep 2 seperate functions to handle each event
-according to buffer length as I don't have to do the same thing.
-For example:
-- for RXNE event with count =3D 2, I have to disable buffer interrupts
-- for BTF event with msg count =3D 2, I have to .generate stop or
-repeated start and disable all remaining interrupts.
-I think that if I gather this stuff in one function, the code will be
-less understandable.
+--==_Exmh_1482986267_31020P
+Content-Type: application/pgp-signature
 
->
->> > Just do:
->> >
->> >         if (status & STM32F4_I2C_SR1_SB) {
->> >                 ...
->> >         }
->> >
->> >         if (status & ...) {
->> >
->> >         }
->> ok but I would prefer something like that:
->> flag =3D status & possible_status
->> if (flag & STM32F4_I2C_SR1_SB) {
->> ...
->> }
->>
->> if (flag & ...) {
->> }
->
-> Ok, if you really need possible_status.
->
->> > Then it's obvious by reading the code in which order they are handled
->> > without the need to check the definitions. Do you really need to jugle
->> > with possible_status?
->> I think I have to use possible_status as some events could occur
->> whereas the corresponding interrupt is disabled.
->> For example, for a 2 byte-reception, we don't have to take into accout
->> RXNE event so the corresponding interrupt is disabled.
->
-> Is it possible to make it more obvious by doing:
->
->         status =3D read_from_status_register() & read_from_interrupt_enab=
-le_register();
->
-> at a single place?
-Ok I will add these 2 functions in order to only use one status variable.
+-----BEGIN PGP SIGNATURE-----
+Comment: Exmh version 2.5 07/13/2001
 
->
->> >> +     /* Use __fls() to check error bits first */
->> >> +     flag =3D __fls(status & possible_status);
->> >> +
->> >> +     switch (1 << flag) {
->> >> +     case STM32F4_I2C_SR1_BERR:
->> >> +             reg =3D i2c_dev->base + STM32F4_I2C_SR1;
->> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_SR1_BERR);
->> >> +             msg->result =3D -EIO;
->> >> +             break;
->> >> +
->> >> +     case STM32F4_I2C_SR1_ARLO:
->> >> +             reg =3D i2c_dev->base + STM32F4_I2C_SR1;
->> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_SR1_ARLO);
->> >> +             msg->result =3D -EAGAIN;
->> >> +             break;
->> >> +
->> >> +     case STM32F4_I2C_SR1_AF:
->> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
->> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP);
->> >> +             msg->result =3D -EIO;
->> >> +             break;
->> >> +
->> >> +     default:
->> >> +             dev_err(i2c_dev->dev,
->> >> +                     "err it unhandled: status=3D0x%08x)\n", status)=
-;
->> >> +             return IRQ_NONE;
->> >> +     }
->> >
->> > You only check a single irq flag here.
->> Yes only the first error could be reported to the i2c clients via
->> msg->result that's why I don't check all errors.
->> Moreover, as soon as an error occurs, the I2C device is reset.
->
-> The the "first" in the comment for __fls is misleading. Also do:
->
->         if (status & MOST_IMPORTANT_ERROR) {
->                 ...
->         }
->
->         if (status & SECOND_MOST_IMPORTANT_ERROR) {
->                 ...
->         }
->
-> (if you need including possible_status stuff).
-OK
+iQEVAwUBWGSTG40DS38y7CIcAQKRLAgAqGJmxbLH6GkO1RL1peOwb+scTttH0uOG
+gz/J/qvW7ik1tyjQptdmUcnv0FHGS3vN21hoZ7RCXu1TcZr9NXJF4OytXOxQlZ0a
+gHknQSI/aSnxHqSxpYM2E1hIcsj/RLhEpEVYUz0IjrFlBUKRJ/qk9Z1Tkao2s1R7
+dCsiePnTI7pO+qF/kENM+Oo7n1v6GztrncwIm4dFNiHk/5NjfmoOQCsiaL0iR4TF
+CFpda4nw64IVMO+ISFfKFMXBozogYvp24Xk7Wzev0kKQRNfw2/8YTzfgWnZ8Pled
+CwsdsthDaSsVycuOg5gulocWQGxpYztlW8ODz2wx6b3Q9YUVgAZCpA==
+=J/Jn
+-----END PGP SIGNATURE-----
 
->
-> Best regards
-> Uwe
->
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig       =
-     |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  =
-|
-
-Best regards,
-Cedric
+--==_Exmh_1482986267_31020P--
