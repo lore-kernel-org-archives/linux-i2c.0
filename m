@@ -1,61 +1,130 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v7 3/5] ARM: dts: stm32: Add I2C1 support for STM32F429 SoC
-Date: Fri, 30 Dec 2016 15:36:53 +0100
-Message-ID: <CAOAejn2dWj7m2PpbupiUHQMEceUNcLOHE58iLRKutq3i47pdWA@mail.gmail.com>
-References: <1482413704-17531-1-git-send-email-cedric.madianga@gmail.com>
- <1482413704-17531-4-git-send-email-cedric.madianga@gmail.com>
- <20161222191103.vzmfhnrtrzw2ivwa@pengutronix.de> <CAOAejn1zHMFNiGc-wVbbkC1-JFzG3sjnnUJogtCp9EeAkWsV5A@mail.gmail.com>
- <CACRpkdaNyL2iV+risLudW=O55w81-AuEZhMwRu9NLdXpnC2r1w@mail.gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH] iio: adc: axp288: Drop bogus AXP288_ADC_TS_PIN_CTRL
+ register modifications
+Date: Fri, 30 Dec 2016 16:46:03 +0000
+Message-ID: <1f31b2e7-90fa-0fb8-5f6e-a8ee2ddf69f7@kernel.org>
+References: <20161214135525.16477-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdaNyL2iV+risLudW=O55w81-AuEZhMwRu9NLdXpnC2r1w@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:52103 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750720AbcL3QqI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Dec 2016 11:46:08 -0500
+In-Reply-To: <20161214135525.16477-1-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>
+Cc: Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, Jacob Pan <jacob.jun.pan@linux.intel.com>
 
- Hi Linus,
+On 14/12/16 13:55, Hans de Goede wrote:
+> For some reason the axp288_adc driver was modifying the
+> AXP288_ADC_TS_PIN_CTRL register, changing bits 0-1 depending on
+> whether the GP_ADC channel or another channel was written.
+> 
+> These bits control when a bias current is send to the TS_PIN, the
+> GP_ADC has its own pin and a separate bit in another register to
+> control the bias current.
+> 
+> Not only does changing when to enable the TS_PIN bias current
+> (always or only when sampling) when reading the GP_ADC make no sense
+> at all, the code is modifying these bits is writing the entire register,
+> assuming that all the other bits have their default value.
+> 
+> So if the firmware has configured a different bias-current for either
+> pin, then that change gets clobbered by the write, likewise if the
+> firmware has set bit 2 to indicate that the battery has no thermal sensor,
+> this will get clobbered by the write.
+> 
+> This commit fixes all this, by simply removing all writes to the
+> AXP288_ADC_TS_PIN_CTRL register, they are not needed to read the
+> GP_ADC pin, and can actually be harmful.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+I guess you probably have more up to date contact details than I do,
+but seems worth trying to cc Jacob Pan on this to see if we can find
+out what the original reasoning behind this was.  Seems a very odd
+thing to do with no purpose!
 
-2016-12-30 10:07 GMT+01:00 Linus Walleij <linus.walleij@linaro.org>:
-> On Fri, Dec 23, 2016 at 2:09 PM, M'boumba Cedric Madianga
-> <cedric.madianga@gmail.com> wrote:
->> 2016-12-22 20:11 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengut=
-ronix.de>:
->>> On Thu, Dec 22, 2016 at 02:35:02PM +0100, M'boumba Cedric Madianga wrot=
-e:
->>>> @@ -337,6 +350,16 @@
->>>>                                       slew-rate =3D <2>;
->>>>                               };
->>>>                       };
->>>> +
->>>> +                     i2c1_pins_b: i2c1@0 {
->>>> +                             pins1 {
->>>> +                                     pinmux =3D <STM32F429_PB9_FUNC_I=
-2C1_SDA>;
->>>> +                                     drive-open-drain;
->>>> +                             };
->>>> +                             pins2 {
->>>> +                                     pinmux =3D <STM32F429_PB6_FUNC_I=
-2C1_SCL>;
->>>> +                             };
->>>
->>> the second doesn't need the open-drain property? Why?
->>
->> I thought that open-drain was only needed for SDA line.
->> But after double-checking I2C specification, it seems that SDA and SCL
->> lines need open-drain or open-collector to perform the wired-AND
->> function.
->
-> I think I2C SDA/SCL must be open drain by definition.
->
-> It also requires pull-up resistors, I guess you have these mounted on the=
- board
-> so you do not need pull-up from the pin controller?
-Yes, I have 1 pull-up resistor of 1,5K ohm for each line (SDA & SCL)
-on the board
+If Jacob isn't contactable we'll fall back to guessing it was just
+an oddity of driver evolution.
 
->
-> Yours,
-> Linus Walleij
+Jonathan
+> ---
+>  drivers/iio/adc/axp288_adc.c | 32 +-------------------------------
+>  1 file changed, 1 insertion(+), 31 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/axp288_adc.c b/drivers/iio/adc/axp288_adc.c
+> index 7fd2494..64799ad 100644
+> --- a/drivers/iio/adc/axp288_adc.c
+> +++ b/drivers/iio/adc/axp288_adc.c
+> @@ -28,8 +28,6 @@
+>  #include <linux/iio/driver.h>
+>  
+>  #define AXP288_ADC_EN_MASK		0xF1
+> -#define AXP288_ADC_TS_PIN_GPADC		0xF2
+> -#define AXP288_ADC_TS_PIN_ON		0xF3
+>  
+>  enum axp288_adc_id {
+>  	AXP288_ADC_TS,
+> @@ -123,16 +121,6 @@ static int axp288_adc_read_channel(int *val, unsigned long address,
+>  	return IIO_VAL_INT;
+>  }
+>  
+> -static int axp288_adc_set_ts(struct regmap *regmap, unsigned int mode,
+> -				unsigned long address)
+> -{
+> -	/* channels other than GPADC do not need to switch TS pin */
+> -	if (address != AXP288_GP_ADC_H)
+> -		return 0;
+> -
+> -	return regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL, mode);
+> -}
+> -
+>  static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+>  			struct iio_chan_spec const *chan,
+>  			int *val, int *val2, long mask)
+> @@ -143,16 +131,7 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+>  	mutex_lock(&indio_dev->mlock);
+>  	switch (mask) {
+>  	case IIO_CHAN_INFO_RAW:
+> -		if (axp288_adc_set_ts(info->regmap, AXP288_ADC_TS_PIN_GPADC,
+> -					chan->address)) {
+> -			dev_err(&indio_dev->dev, "GPADC mode\n");
+> -			ret = -EINVAL;
+> -			break;
+> -		}
+>  		ret = axp288_adc_read_channel(val, chan->address, info->regmap);
+> -		if (axp288_adc_set_ts(info->regmap, AXP288_ADC_TS_PIN_ON,
+> -						chan->address))
+> -			dev_err(&indio_dev->dev, "TS pin restore\n");
+>  		break;
+>  	default:
+>  		ret = -EINVAL;
+> @@ -162,15 +141,6 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+>  	return ret;
+>  }
+>  
+> -static int axp288_adc_set_state(struct regmap *regmap)
+> -{
+> -	/* ADC should be always enabled for internal FG to function */
+> -	if (regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL, AXP288_ADC_TS_PIN_ON))
+> -		return -EIO;
+> -
+> -	return regmap_write(regmap, AXP20X_ADC_EN1, AXP288_ADC_EN_MASK);
+> -}
+> -
+>  static const struct iio_info axp288_adc_iio_info = {
+>  	.read_raw = &axp288_adc_read_raw,
+>  	.driver_module = THIS_MODULE,
+> @@ -199,7 +169,7 @@ static int axp288_adc_probe(struct platform_device *pdev)
+>  	 * Set ADC to enabled state at all time, including system suspend.
+>  	 * otherwise internal fuel gauge functionality may be affected.
+>  	 */
+> -	ret = axp288_adc_set_state(axp20x->regmap);
+> +	ret = regmap_write(info->regmap, AXP20X_ADC_EN1, AXP288_ADC_EN_MASK);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "unable to enable ADC device\n");
+>  		return ret;
+> 
