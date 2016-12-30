@@ -1,145 +1,148 @@
-From: eajames.ibm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH linux 3/6] hwmon: occ: Add I2C transport implementation for SCOM operations
-Date: Fri, 30 Dec 2016 11:56:05 -0600
-Message-ID: <1483120568-21082-4-git-send-email-eajames.ibm@gmail.com>
-References: <1483120568-21082-1-git-send-email-eajames.ibm@gmail.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483120568-21082-1-git-send-email-eajames.ibm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org
-Cc: jdelvare-IBi9RG/b67k@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] iio: adc: axp288: Drop bogus AXP288_ADC_TS_PIN_CTRL
+ register modifications
+Date: Fri, 30 Dec 2016 10:15:01 -0800
+Message-ID: <20161230101501.06958c0d@jacob-builder>
+References: <20161214135525.16477-1-hdegoede@redhat.com>
+        <1f31b2e7-90fa-0fb8-5f6e-a8ee2ddf69f7@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1f31b2e7-90fa-0fb8-5f6e-a8ee2ddf69f7-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "russianneuromancer @ ya . ru" <russianneuromancer-k+OT61UuxXo@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+On Fri, 30 Dec 2016 16:46:03 +0000
+Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
 
-Add functions to send SCOM operations over I2C bus. The BMC can
-communicate with the Power8 host processor over I2C, but needs to use SCOM
-operations in order to access the OCC register space.
+> On 14/12/16 13:55, Hans de Goede wrote:
+> > For some reason the axp288_adc driver was modifying the
+> > AXP288_ADC_TS_PIN_CTRL register, changing bits 0-1 depending on
+> > whether the GP_ADC channel or another channel was written.
+> > 
+> > These bits control when a bias current is send to the TS_PIN, the
+> > GP_ADC has its own pin and a separate bit in another register to
+> > control the bias current.
+> > 
+It has been a while. Just looked at the datasheet, reg 84h is for ADC
+and TS pin control. IIRC, we had to set the TS bits in order to make
+ADC read to work. What is the other register?
 
-Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Andrew Jeffery <andrew-zrmu5oMJ5Fs@public.gmane.org>
----
- drivers/hwmon/occ/occ_scom_i2c.c | 73 ++++++++++++++++++++++++++++++++++++++++
- drivers/hwmon/occ/occ_scom_i2c.h | 26 ++++++++++++++
- 2 files changed, 99 insertions(+)
- create mode 100644 drivers/hwmon/occ/occ_scom_i2c.c
- create mode 100644 drivers/hwmon/occ/occ_scom_i2c.h
+> > Not only does changing when to enable the TS_PIN bias current
+> > (always or only when sampling) when reading the GP_ADC make no sense
+> > at all, the code is modifying these bits is writing the entire
+> > register, assuming that all the other bits have their default value.
+> > 
+Agreed, it would be better to do read-modify-write and not to
+touch the other bits.
+> > So if the firmware has configured a different bias-current for
+> > either pin, then that change gets clobbered by the write, likewise
+> > if the firmware has set bit 2 to indicate that the battery has no
+> > thermal sensor, this will get clobbered by the write.
+> > 
+> > This commit fixes all this, by simply removing all writes to the
+> > AXP288_ADC_TS_PIN_CTRL register, they are not needed to read the
+> > GP_ADC pin, and can actually be harmful.
+> > 
+> > Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>  
+> I guess you probably have more up to date contact details than I do,
+> but seems worth trying to cc Jacob Pan on this to see if we can find
+> out what the original reasoning behind this was.  Seems a very odd
+> thing to do with no purpose!
+> 
+> If Jacob isn't contactable we'll fall back to guessing it was just
+> an oddity of driver evolution.
+> 
+> Jonathan
+> > ---
+> >  drivers/iio/adc/axp288_adc.c | 32 +-------------------------------
+> >  1 file changed, 1 insertion(+), 31 deletions(-)
+> > 
+> > diff --git a/drivers/iio/adc/axp288_adc.c
+> > b/drivers/iio/adc/axp288_adc.c index 7fd2494..64799ad 100644
+> > --- a/drivers/iio/adc/axp288_adc.c
+> > +++ b/drivers/iio/adc/axp288_adc.c
+> > @@ -28,8 +28,6 @@
+> >  #include <linux/iio/driver.h>
+> >  
+> >  #define AXP288_ADC_EN_MASK		0xF1
+> > -#define AXP288_ADC_TS_PIN_GPADC		0xF2
+> > -#define AXP288_ADC_TS_PIN_ON		0xF3
+> >  
+> >  enum axp288_adc_id {
+> >  	AXP288_ADC_TS,
+> > @@ -123,16 +121,6 @@ static int axp288_adc_read_channel(int *val,
+> > unsigned long address, return IIO_VAL_INT;
+> >  }
+> >  
+> > -static int axp288_adc_set_ts(struct regmap *regmap, unsigned int
+> > mode,
+> > -				unsigned long address)
+> > -{
+> > -	/* channels other than GPADC do not need to switch TS pin
+> > */
+> > -	if (address != AXP288_GP_ADC_H)
+> > -		return 0;
+> > -
+> > -	return regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL, mode);
+> > -}
+> > -
+> >  static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+> >  			struct iio_chan_spec const *chan,
+> >  			int *val, int *val2, long mask)
+> > @@ -143,16 +131,7 @@ static int axp288_adc_read_raw(struct iio_dev
+> > *indio_dev, mutex_lock(&indio_dev->mlock);
+> >  	switch (mask) {
+> >  	case IIO_CHAN_INFO_RAW:
+> > -		if (axp288_adc_set_ts(info->regmap,
+> > AXP288_ADC_TS_PIN_GPADC,
+> > -					chan->address)) {
+> > -			dev_err(&indio_dev->dev, "GPADC mode\n");
+> > -			ret = -EINVAL;
+> > -			break;
+> > -		}
+> >  		ret = axp288_adc_read_channel(val, chan->address,
+> > info->regmap);
+> > -		if (axp288_adc_set_ts(info->regmap,
+> > AXP288_ADC_TS_PIN_ON,
+> > -						chan->address))
+> > -			dev_err(&indio_dev->dev, "TS pin
+> > restore\n"); break;
+> >  	default:
+> >  		ret = -EINVAL;
+> > @@ -162,15 +141,6 @@ static int axp288_adc_read_raw(struct iio_dev
+> > *indio_dev, return ret;
+> >  }
+> >  
+> > -static int axp288_adc_set_state(struct regmap *regmap)
+> > -{
+> > -	/* ADC should be always enabled for internal FG to
+> > function */
+> > -	if (regmap_write(regmap, AXP288_ADC_TS_PIN_CTRL,
+> > AXP288_ADC_TS_PIN_ON))
+> > -		return -EIO;
+> > -
+> > -	return regmap_write(regmap, AXP20X_ADC_EN1,
+> > AXP288_ADC_EN_MASK); -}
+> > -
+> >  static const struct iio_info axp288_adc_iio_info = {
+> >  	.read_raw = &axp288_adc_read_raw,
+> >  	.driver_module = THIS_MODULE,
+> > @@ -199,7 +169,7 @@ static int axp288_adc_probe(struct
+> > platform_device *pdev)
+> >  	 * Set ADC to enabled state at all time, including system
+> > suspend.
+> >  	 * otherwise internal fuel gauge functionality may be
+> > affected. */
+> > -	ret = axp288_adc_set_state(axp20x->regmap);
+> > +	ret = regmap_write(info->regmap, AXP20X_ADC_EN1,
+> > AXP288_ADC_EN_MASK); if (ret) {
+> >  		dev_err(&pdev->dev, "unable to enable ADC
+> > device\n"); return ret;
+> >   
+> 
 
-diff --git a/drivers/hwmon/occ/occ_scom_i2c.c b/drivers/hwmon/occ/occ_scom_i2c.c
-new file mode 100644
-index 0000000..a922f83
---- /dev/null
-+++ b/drivers/hwmon/occ/occ_scom_i2c.c
-@@ -0,0 +1,73 @@
-+/*
-+ * occ_scom_i2c.c - hwmon OCC driver
-+ *
-+ * This file contains the functions for performing SCOM operations over I2C bus
-+ * to access the OCC.
-+ *
-+ * Copyright 2016 IBM Corp.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+
-+#include "scom.h"
-+#include "occ_scom_i2c.h"
-+
-+int occ_i2c_getscom(void *bus, u32 address, u64 *data)
-+{
-+	ssize_t rc;
-+	u64 buf;
-+	struct i2c_client *client = bus;
-+
-+	rc = i2c_master_send(client, (const char *)&address, sizeof(u32));
-+	if (rc < 0)
-+		return rc;
-+	else if (rc != sizeof(u32))
-+		return -EIO;
-+
-+	rc = i2c_master_recv(client, (char *)&buf, sizeof(u64));
-+	if (rc < 0)
-+		return rc;
-+	else if (rc != sizeof(u64))
-+		return -EIO;
-+
-+	*data = be64_to_cpu(buf);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(occ_i2c_getscom);
-+
-+int occ_i2c_putscom(void *bus, u32 address, u32 data0, u32 data1)
-+{
-+	u32 buf[3];
-+	ssize_t rc;
-+	struct i2c_client *client = bus;
-+
-+	buf[0] = address;
-+	buf[1] = data1;
-+	buf[2] = data0;
-+
-+	rc = i2c_master_send(client, (const char *)buf, sizeof(u32) * 3);
-+	if (rc < 0)
-+		return rc;
-+	else if (rc != sizeof(u32) * 3)
-+		return -EIO;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(occ_i2c_putscom);
-+
-+MODULE_AUTHOR("Eddie James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>");
-+MODULE_DESCRIPTION("I2C OCC SCOM transport");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hwmon/occ/occ_scom_i2c.h b/drivers/hwmon/occ/occ_scom_i2c.h
-new file mode 100644
-index 0000000..945739c
---- /dev/null
-+++ b/drivers/hwmon/occ/occ_scom_i2c.h
-@@ -0,0 +1,26 @@
-+/*
-+ * occ_scom_i2c.h - hwmon OCC driver
-+ *
-+ * This file contains function protoypes for peforming SCOM operations over I2C
-+ * bus to access the OCC.
-+ *
-+ * Copyright 2016 IBM Corp.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#ifndef __OCC_SCOM_I2C_H__
-+#define __OCC_SCOM_I2C_H__
-+
-+int occ_i2c_getscom(void *bus, u32 address, u64 *data);
-+int occ_i2c_putscom(void *bus, u32 address, u32 data0, u32 data1);
-+
-+#endif /* __OCC_SCOM_I2C_H__ */
--- 
-1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[Jacob Pan]
