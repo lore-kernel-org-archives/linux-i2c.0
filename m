@@ -1,150 +1,134 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v6 3/9] iio: inkern: api for manipulating ext_info of iio
- channels
-Date: Sat, 31 Dec 2016 15:51:08 +0000
-Message-ID: <ba7536cf-230d-e55c-5873-3a58df0b8d9c@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v6 4/9] dt-bindings: iio: iio-mux: document iio-mux
+ bindings
+Date: Sat, 31 Dec 2016 16:01:24 +0000
+Message-ID: <37bd24d7-ce5f-5dec-6a89-50f92b5039d3@kernel.org>
 References: <1480493823-21462-1-git-send-email-peda@axentia.se>
- <1480493823-21462-4-git-send-email-peda@axentia.se>
+ <1480493823-21462-5-git-send-email-peda@axentia.se>
+ <20161205232624.5wjvmchd6jxd24ir@rob-hp-laptop>
+ <ea58cfe1-88ed-f215-59df-e9ffba485eaa@axentia.se>
+ <d2726499-4034-8d5d-4cff-61da86af5add@kernel.org>
+ <2275a7ff-6a21-dd99-ab7d-b213d7fcd6e5@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480493823-21462-4-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <2275a7ff-6a21-dd99-ab7d-b213d7fcd6e5@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 30/11/16 08:16, Peter Rosin wrote:
-> Extend the inkern api with functions for reading and writing ext_info
-> of iio channels.
+On 12/12/16 12:18, Peter Rosin wrote:
+> On 2016-12-10 19:21, Jonathan Cameron wrote:
+>> On 06/12/16 09:18, Peter Rosin wrote:
+>>> On 2016-12-06 00:26, Rob Herring wrote:
+>>>> On Wed, Nov 30, 2016 at 09:16:58AM +0100, Peter Rosin wrote:
+>>>>> Signed-off-by: Peter Rosin <peda@axentia.se>
+>>>>> ---
+>>>>>  .../bindings/iio/multiplexer/iio-mux.txt           | 40 ++++++++++++++++++++++
+>>>>>  MAINTAINERS                                        |  6 ++++
+>>>>>  2 files changed, 46 insertions(+)
+>>>>>  create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>>>
+>>>> I'm still not convinced about this binding, but don't really have more 
+>>>> comments ATM. Sending 6 versions in 2 weeks or so doesn't really help 
+>>>> either.
+>>>
+>>> Sorry about the noise, I'll try to be more careful going forward. On
+>>> the flip side, I haven't touched the code since v6.
+>>>
+>>> I don't see how bindings that are as flexible as the current (and
+>>> original) phandle link between the mux consumer and the mux controller
+>>> would look, and at the same time be simpler to understand. You need
+>>> to be able to refer to a mux controller from several mux consumers, and
+>>> you need to support several mux controllers in one node (the ADG792A
+>>> case). And, AFAICT, the complex case wasn't really the problem, it was
+>>> that it is overly complex to describe the simple case of one mux
+>>> consumer and one mux controller. But in your comment for v2 [1] you
+>>> said that I was working around limitations with shared GPIO pins. But
+>>> solving that in the GPIO subsystem would not solve all that the
+>>> phandle approach is solving, since you would not have support for
+>>> ADG792A (or other non-GPIO controlled muxes). So, I think listing
+>>> the gpio pins inside the mux consumer node is a non-starter, the mux
+>>> controller has to live in its own node with its own compatible.
+>>>
+>>> Would you be happier if I managed to marry the phandle approach with
+>>> the option of having the mux controller as a child node of the mux
+>>> consumer for the simple case?
+>>>
+>>> I added an example at the end of this message (the same as the first
+>>> example in v4 [2], at least in principle) for easy comparison between
+>>> the phandle and the controller-in-child-node approaches. I can't say
+>>> that I personally find the difference all that significant, and do not
+>>> think it is worth it. As I see it, the "simple option" would just muddy
+>>> the waters...
+>>>
+>>> [1] http://marc.info/?l=linux-kernel&m=147948334204795&w=2
+>>> [2] http://marc.info/?l=linux-kernel&m=148001364904240&w=2
+>>>
+>>>>> diff --git a/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>>>> new file mode 100644
+>>>>> index 000000000000..8080cf790d82
+>>>>> --- /dev/null
+>>>>> +++ b/Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
+>>>>> @@ -0,0 +1,40 @@
+>>>>> +IIO multiplexer bindings
+>>>>> +
+>>>>> +If a multiplexer is used to select which hardware signal is fed to
+>>>>> +e.g. an ADC channel, these bindings describe that situation.
+>>>>> +
+>>>>> +Required properties:
+>>>>> +- compatible : "iio-mux"
+>>>>
+>>>> This is a Linuxism. perhaps "adc-mux".
+>>>
+>>> No, that's not general enough, it could just as well be used to mux a
+>>> temperature sensor. Or whatever. Hmmm, given that "iio-mux" is bad, perhaps
+>>> "io-channel-mux" is better? That matches the io-channels property used to
+>>> refer to the parent channel.
+>> analog-mux maybe? Makes more sense out of context (though with io-channels defined on
+>> the next line you have plenty of context here ;)
 > 
-> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Not that I care all that much about the name, but that doesn't really
+> fit if you take e.g. an IIO_INDEX channel. That sounds entirely non-analog
+> to me, but what do I know? Maybe that example doesn't make sense for some
+> reason, but I can't help but think that there will be some non-analog
+> channel in the future, if there isn't one already.
+> 
+> So, my preference is io-channel-mux, as that matches the previous dt
+> naming for what is muxed. But that's just my opinion, if I'm told that
+> it should be something else, then that's ok.
+io-channel-mux works fine for me. It's some sort of input / output channel
+and we are muxing it ;)
+> 
+> I'm more worried about other aspects, such as how to get reviewers and who
+> is going to take the core mux patches and what tree they are going to be
+> merged into etc. That is, if this series is going anywhere at all or if
+> someone is going to put up a road-block for some reason...
+Whilst it is meeting some resistance, I'm not seeing any absolute blockers
+(people tend to be rather explicit about that).  The binding is still causing
+the most friction I think and it may be that it just needs some more time for
+Rob to mull it over. It's a fiddly thing to describe, so was never going
+to drop straight in!
 
-It may make more sense to take this particular patch separately via
-IIO, but as the churn on this file is fairly low I think it is probably
-going to be easier to take it with the rest of the series if / when that
-heads upstream.
+The core mux patches probably need to go one of a few possible routes.
+
+1. Directly as a pull to linus with a good collection of Acks.
+2. Via Greg KH perhaps as generic driver infrastructure, or Andrew Morton
+as being in the category no one else will take.
+3. Via either me or Wolfram (as a separate immutable branch) on the basis it's
+core stuff but the users currently are IIO and I2C.
+
+In any case, this needs at the very least Acks from Rob, Wolfram and myself.
+Others would be most welcome, Arnd and/or Greg might be persuaded to take
+a look for example...
+
+Happy New Year,
 
 Jonathan
-> ---
->  drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
->  2 files changed, 97 insertions(+)
 > 
-> diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-> index b0f4630a163f..4848b8129e6c 100644
-> --- a/drivers/iio/inkern.c
-> +++ b/drivers/iio/inkern.c
-> @@ -863,3 +863,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
->  	return ret;
->  }
->  EXPORT_SYMBOL_GPL(iio_write_channel_raw);
-> +
-> +unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
-> +{
-> +	const struct iio_chan_spec_ext_info *ext_info;
-> +	unsigned int i = 0;
-> +
-> +	if (!chan->channel->ext_info)
-> +		return i;
-> +
-> +	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
-> +		++i;
-> +
-> +	return i;
-> +}
-> +EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
-> +
-> +static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
-> +						const struct iio_channel *chan,
-> +						const char *attr)
-> +{
-> +	const struct iio_chan_spec_ext_info *ext_info;
-> +
-> +	if (!chan->channel->ext_info)
-> +		return NULL;
-> +
-> +	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
-> +		if (!strcmp(attr, ext_info->name))
-> +			return ext_info;
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
-> +ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-> +				  const char *attr, char *buf)
-> +{
-> +	const struct iio_chan_spec_ext_info *ext_info;
-> +
-> +	ext_info = iio_lookup_ext_info(chan, attr);
-> +	if (!ext_info)
-> +		return -EINVAL;
-> +
-> +	return ext_info->read(chan->indio_dev, ext_info->private,
-> +			      chan->channel, buf);
-> +}
-> +EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
-> +
-> +ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-> +				   const char *buf, size_t len)
-> +{
-> +	const struct iio_chan_spec_ext_info *ext_info;
-> +
-> +	ext_info = iio_lookup_ext_info(chan, attr);
-> +	if (!ext_info)
-> +		return -EINVAL;
-> +
-> +	return ext_info->write(chan->indio_dev, ext_info->private,
-> +			       chan->channel, buf, len);
-> +}
-> +EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
-> diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
-> index 47eeec3218b5..5e347a9805fd 100644
-> --- a/include/linux/iio/consumer.h
-> +++ b/include/linux/iio/consumer.h
-> @@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
->  int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
->  	int *processed, unsigned int scale);
->  
-> +/**
-> + * iio_get_channel_ext_info_count() - get number of ext_info attributes
-> + *				      connected to the channel.
-> + * @chan:		The channel being queried
-> + *
-> + * Returns the number of ext_info attributes
-> + */
-> +unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
-> +
-> +/**
-> + * iio_read_channel_ext_info() - read ext_info attribute from a given channel
-> + * @chan:		The channel being queried.
-> + * @attr:		The ext_info attribute to read.
-> + * @buf:		Where to store the attribute value. Assumed to hold
-> + *			at least PAGE_SIZE bytes.
-> + *
-> + * Returns the number of bytes written to buf (perhaps w/o zero termination;
-> + * it need not even be a string), or an error code.
-> + */
-> +ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-> +				  const char *attr, char *buf);
-> +
-> +/**
-> + * iio_write_channel_ext_info() - write ext_info attribute from a given channel
-> + * @chan:		The channel being queried.
-> + * @attr:		The ext_info attribute to read.
-> + * @buf:		The new attribute value. Strings needs to be zero-
-> + *			terminated, but the terminator should not be included
-> + *			in the below len.
-> + * @len:		The size of the new attribute value.
-> + *
-> + * Returns the number of accepted bytes, which should be the same as len.
-> + * An error code can also be returned.
-> + */
-> +ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-> +				   const char *buf, size_t len);
-> +
->  #endif
+> Cheers,
+> peda
 > 
+
