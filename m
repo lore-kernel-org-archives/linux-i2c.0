@@ -1,678 +1,150 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH linux 2/6] hwmon: occ: Add sysfs interface
-Date: Fri, 30 Dec 2016 11:34:04 -0800
-Message-ID: <20161230193404.GB8516@roeck-us.net>
-References: <1483120568-21082-1-git-send-email-eajames.ibm@gmail.com>
- <1483120568-21082-3-git-send-email-eajames.ibm@gmail.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 3/9] iio: inkern: api for manipulating ext_info of iio
+ channels
+Date: Sat, 31 Dec 2016 15:51:08 +0000
+Message-ID: <ba7536cf-230d-e55c-5873-3a58df0b8d9c@kernel.org>
+References: <1480493823-21462-1-git-send-email-peda@axentia.se>
+ <1480493823-21462-4-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1483120568-21082-3-git-send-email-eajames.ibm@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: eajames.ibm@gmail.com
-Cc: jdelvare@suse.com, corbet@lwn.net, mark.rutland@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, andrew@aj.id.au, joel@jms.id.au, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Edward A. James" <eajames@us.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480493823-21462-4-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 30, 2016 at 11:56:04AM -0600, eajames.ibm@gmail.com wrote:
-> From: "Edward A. James" <eajames@us.ibm.com>
+On 30/11/16 08:16, Peter Rosin wrote:
+> Extend the inkern api with functions for reading and writing ext_info
+> of iio channels.
 > 
-> Add a generic mechanism to expose the sensors provided by the OCC in
-> sysfs.
-> 
-> Signed-off-by: Edward A. James <eajames@us.ibm.com>
-> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-> Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
+It may make more sense to take this particular patch separately via
+IIO, but as the churn on this file is fairly low I think it is probably
+going to be easier to take it with the rest of the series if / when that
+heads upstream.
+
+Jonathan
 > ---
->  Documentation/hwmon/occ       |  48 +++++
->  drivers/hwmon/occ/Makefile    |   2 +-
->  drivers/hwmon/occ/occ_sysfs.c | 492 ++++++++++++++++++++++++++++++++++++++++++
->  drivers/hwmon/occ/occ_sysfs.h |  52 +++++
->  4 files changed, 593 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/hwmon/occ/occ_sysfs.c
->  create mode 100644 drivers/hwmon/occ/occ_sysfs.h
+>  drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
+>  2 files changed, 97 insertions(+)
 > 
-> diff --git a/Documentation/hwmon/occ b/Documentation/hwmon/occ
-> index 79d1642..1ee8689 100644
-> --- a/Documentation/hwmon/occ
-> +++ b/Documentation/hwmon/occ
-> @@ -25,6 +25,54 @@ Currently, all versions of the OCC support four types of sensor data: power,
->  temperature, frequency, and "caps," which indicate limits and thresholds used
->  internally on the OCC.
->  
-> +sysfs Entries
-> +-------------
+> diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+> index b0f4630a163f..4848b8129e6c 100644
+> --- a/drivers/iio/inkern.c
+> +++ b/drivers/iio/inkern.c
+> @@ -863,3 +863,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
+>  	return ret;
+>  }
+>  EXPORT_SYMBOL_GPL(iio_write_channel_raw);
 > +
-> +The OCC driver uses the hwmon sysfs framework to provide data to userspace.
-> +
-> +The driver exports two sysfs files for each frequency, temperature, and power
-> +sensor. These are "input" and "label". The input file contains the value of the
-> +sensor. The label file contains the sensor id. The sensor id is the unique
-> +internal OCC identifier. Sensor ids may be provided by the OCC specification.
-> +The names of these files will be in the following format:
-> +	<sensor type><sensor index>_input
-> +	<sensor type><sensor index>_label
-> +Sensor types will be one of "temp", "freq", or "power". The sensor index is
-> +an index to differentiate different sensor files. For example, a single
-> +temperature sensor will have two sysfs files: temp1_input and temp1_label.
-> +
-> +Caps sensors are exported differently. For each caps sensor, the driver will
-> +export 6 entries:
-> +	curr_powercap - current power cap in watts
-> +	curr_powerreading - current power output in watts
-> +	norm_powercap - power cap without redundant power
-> +	max_powercap - maximum power cap that can be set in watts
-> +	min_powercap - minimum power cap that can be set in watts
-> +	user_powerlimit - power limit specified by the user in watts
-> +In addition, the OCC driver for P9 will export a 7th entry:
-> +	user_powerlimit_source - can be one of two values depending on who set
-> +		the user_powerlimit. 0x1 - out of band from BMC or host. 0x2 -
-> +		in band from other source.
-> +The format for these files is caps<sensor index>_<entry type>. For example,
-> +caps1_curr_powercap.
-> +
-> +The driver also provides a number of sysfs entries through hwmon to better
-> +control the driver and monitor the OCC.
-> +	powercap - read or write the OCC user power limit in watts.
-> +	name - read the name of the driver
-> +	update_interval - read or write the minimum interval for polling the
-> +		OCC.
-> +
-> +The driver also exports a single sysfs file through the communication protocol
-> +device (see BMC - Host Communications). The filename is "online" and represents
-> +the status of the OCC with respect to the driver. The OCC can be in one of two
-> +states: OCC polling enabled or OCC polling disabled. The purpose of this file
-> +is to control the behavior of the driver and it's hwmon sysfs entries, not to
-> +infer any information about the state of the physical OCC. Reading the file
-> +returns either a 0 (polling disabled) or 1 (polling enabled). Writing 1 to the
-> +file enables OCC polling in the driver if communications can be established
-> +with the OCC. Writing a 0 to the driver disables OCC polling.
-> +
->  BMC - Host Communications
->  -------------------------
->  
-> diff --git a/drivers/hwmon/occ/Makefile b/drivers/hwmon/occ/Makefile
-> index 93cb52f..a6881f9 100644
-> --- a/drivers/hwmon/occ/Makefile
-> +++ b/drivers/hwmon/occ/Makefile
-> @@ -1 +1 @@
-> -obj-$(CONFIG_SENSORS_PPC_OCC) += occ.o
-> +obj-$(CONFIG_SENSORS_PPC_OCC) += occ.o occ_sysfs.o
-> diff --git a/drivers/hwmon/occ/occ_sysfs.c b/drivers/hwmon/occ/occ_sysfs.c
-> new file mode 100644
-> index 0000000..b0e063da
-> --- /dev/null
-> +++ b/drivers/hwmon/occ/occ_sysfs.c
-> @@ -0,0 +1,492 @@
-> +/*
-> + * occ_sysfs.c - OCC sysfs interface
-> + *
-> + * This file contains the methods and data structures for implementing the OCC
-> + * hwmon sysfs entries.
-> + *
-> + * Copyright 2016 IBM Corp.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/slab.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/hwmon.h>
-> +#include <linux/hwmon-sysfs.h>
-> +#include <linux/err.h>
-> +#include <linux/mutex.h>
-> +#include <linux/delay.h>
-> +#include <linux/kernel.h>
-> +#include <linux/device.h>
-> +
-> +#include "occ_sysfs.h"
-> +
-> +#define MAX_SENSOR_ATTR_LEN	32
-> +
-> +#define RESP_RETURN_CMD_INVAL	0x13
-> +
-> +struct sensor_attr_data {
-> +	enum sensor_type type;
-> +	u32 hwmon_index;
-> +	u32 attr_id;
-> +	char name[MAX_SENSOR_ATTR_LEN];
-> +	struct device_attribute dev_attr;
-> +};
-> +
-> +static ssize_t show_input(struct device *dev,
-> +			  struct device_attribute *attr, char *buf)
+> +unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
 > +{
-> +	int val;
-> +	struct sensor_attr_data *sdata = container_of(attr,
-> +						      struct sensor_attr_data,
-> +						      dev_attr);
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
+> +	const struct iio_chan_spec_ext_info *ext_info;
+> +	unsigned int i = 0;
 > +
-> +	val = occ_get_sensor_value(driver->occ, sdata->type,
-> +				   sdata->hwmon_index - 1);
-> +	if (sdata->type == TEMP)
-> +		val *= 1000;	/* in millidegree Celsius */
+> +	if (!chan->channel->ext_info)
+> +		return i;
 > +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%d\n", val);
+> +	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
+> +		++i;
+> +
+> +	return i;
 > +}
+> +EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
 > +
-> +/* show_label provides the OCC sensor id. The sensor id will be either a
-> + * 2-byte (for P8) or 4-byte (for P9) value. The sensor id is a way to
-> + * identify what each sensor represents, according to the OCC specification.
-> + */
-> +static ssize_t show_label(struct device *dev,
-> +			  struct device_attribute *attr, char *buf)
+> +static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
+> +						const struct iio_channel *chan,
+> +						const char *attr)
 > +{
-> +	int val;
-> +	struct sensor_attr_data *sdata = container_of(attr,
-> +						      struct sensor_attr_data,
-> +						      dev_attr);
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
+> +	const struct iio_chan_spec_ext_info *ext_info;
 > +
-> +	val = occ_get_sensor_id(driver->occ, sdata->type,
-> +				sdata->hwmon_index - 1);
+> +	if (!chan->channel->ext_info)
+> +		return NULL;
 > +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%d\n", val);
-> +}
-> +
-> +static ssize_t show_caps(struct device *dev,
-> +			 struct device_attribute *attr, char *buf)
-> +{
-> +	int val;
-> +	struct caps_sensor *sensor;
-> +	struct sensor_attr_data *sdata = container_of(attr,
-> +						      struct sensor_attr_data,
-> +						      dev_attr);
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +
-> +	sensor = occ_get_sensor(driver->occ, CAPS);
-> +	if (!sensor) {
-> +		val = -1;
-> +		return snprintf(buf, PAGE_SIZE - 1, "%d\n", val);
+> +	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
+> +		if (!strcmp(attr, ext_info->name))
+> +			return ext_info;
 > +	}
 > +
-> +	val = occ_get_caps_value(driver->occ, sensor, sdata->hwmon_index - 1,
-> +				 sdata->attr_id);
-> +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%d\n", val);
+> +	return NULL;
 > +}
 > +
-> +static ssize_t show_update_interval(struct device *dev,
-> +				    struct device_attribute *attr, char *buf)
+> +ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
+> +				  const char *attr, char *buf)
 > +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
+> +	const struct iio_chan_spec_ext_info *ext_info;
 > +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%lu\n", driver->update_interval);
-> +}
-> +
-> +static ssize_t store_update_interval(struct device *dev,
-> +				     struct device_attribute *attr,
-> +				     const char *buf, size_t count)
-> +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +	unsigned long val;
-> +	int rc;
-> +
-> +	rc = kstrtoul(buf, 10, &val);
-> +	if (rc)
-> +		return rc;
-> +
-> +	driver->update_interval = val;
-> +	occ_set_update_interval(driver->occ, val);
-> +
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR(update_interval, S_IWUSR | S_IRUGO, show_update_interval,
-> +		   store_update_interval);
-> +
-> +static ssize_t show_name(struct device *dev,
-> +			 struct device_attribute *attr, char *buf)
-> +{
-> +	return snprintf(buf, PAGE_SIZE - 1, "occ\n");
-> +}
-> +
-> +static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
-> +
-> +static ssize_t show_user_powercap(struct device *dev,
-> +				  struct device_attribute *attr, char *buf)
-> +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%u\n", driver->user_powercap);
-> +}
-> +
-> +static ssize_t store_user_powercap(struct device *dev,
-> +				   struct device_attribute *attr,
-> +				   const char *buf, size_t count)
-> +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +	u16 val;
-> +	int rc;
-> +
-> +	rc = kstrtou16(buf, 10, &val);
-> +	if (rc)
-> +		return rc;
-> +
-> +	dev_dbg(dev, "set user powercap to: %d\n", val);
-> +	rc = occ_set_user_powercap(driver->occ, val);
-> +	if (rc) {
-> +		dev_err(dev, "set user powercap failed: 0x%x\n", rc);
-> +		if (rc == RESP_RETURN_CMD_INVAL) {
-> +			dev_err(dev, "set invalid powercap value: %d\n", val);
-> +			return -EINVAL;
-> +		}
-> +
-> +		return rc;
-> +	}
-> +
-> +	driver->user_powercap = val;
-> +
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR(user_powercap, S_IWUSR | S_IRUGO, show_user_powercap,
-> +		   store_user_powercap);
-> +
-> +static void deinit_sensor_groups(struct device *dev,
-> +				 struct sensor_group *sensor_groups)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < MAX_OCC_SENSOR_TYPE; i++) {
-> +		if (sensor_groups[i].group.attrs)
-> +			devm_kfree(dev, sensor_groups[i].group.attrs);
-> +		if (sensor_groups[i].sattr)
-> +			devm_kfree(dev, sensor_groups[i].sattr);
-> +		sensor_groups[i].group.attrs = NULL;
-> +		sensor_groups[i].sattr = NULL;
-> +	}
-> +}
-> +
-> +static void sensor_attr_init(struct sensor_attr_data *sdata,
-> +			     char *sensor_group_name,
-> +			     char *attr_name,
-> +			     ssize_t (*show)(struct device *dev,
-> +					     struct device_attribute *attr,
-> +					     char *buf))
-> +{
-> +	sysfs_attr_init(&sdata->dev_attr.attr);
-> +
-> +	snprintf(sdata->name, MAX_SENSOR_ATTR_LEN, "%s%d_%s",
-> +		 sensor_group_name, sdata->hwmon_index, attr_name);
-> +	sdata->dev_attr.attr.name = sdata->name;
-> +	sdata->dev_attr.attr.mode = S_IRUGO;
-> +	sdata->dev_attr.show = show;
-> +}
-> +
-> +static int create_sensor_group(struct occ_sysfs *driver,
-> +			       enum sensor_type type, int sensor_num)
-> +{
-> +	struct device *dev = driver->dev;
-> +	struct sensor_group *sensor_groups = driver->sensor_groups;
-> +	struct sensor_attr_data *sdata;
-> +	int rc, i;
-> +
-> +	/* each sensor has 'label' and 'input' attributes */
-> +	sensor_groups[type].group.attrs =
-> +		devm_kzalloc(dev, sizeof(struct attribute *) *
-> +			     sensor_num * 2 + 1, GFP_KERNEL);
-> +	if (!sensor_groups[type].group.attrs) {
-> +		rc = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	sensor_groups[type].sattr =
-> +		devm_kzalloc(dev, sizeof(struct sensor_attr_data) *
-> +			     sensor_num * 2, GFP_KERNEL);
-> +	if (!sensor_groups[type].sattr) {
-> +		rc = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	for (i = 0; i < sensor_num; i++) {
-> +		sdata = &sensor_groups[type].sattr[i];
-> +		/* hwmon attributes index starts from 1 */
-> +		sdata->hwmon_index = i + 1;
-> +		sdata->type = type;
-> +		sensor_attr_init(sdata, sensor_groups[type].name, "input",
-> +				 show_input);
-> +		sensor_groups[type].group.attrs[i] = &sdata->dev_attr.attr;
-> +
-> +		sdata = &sensor_groups[type].sattr[i + sensor_num];
-> +		sdata->hwmon_index = i + 1;
-> +		sdata->type = type;
-> +		sensor_attr_init(sdata, sensor_groups[type].name, "label",
-> +				 show_label);
-> +		sensor_groups[type].group.attrs[i + sensor_num] =
-> +			&sdata->dev_attr.attr;
-> +	}
-> +
-> +	rc = sysfs_create_group(&dev->kobj, &sensor_groups[type].group);
-> +	if (rc)
-> +		goto err;
-> +
-> +	return 0;
-> +err:
-> +	deinit_sensor_groups(dev, sensor_groups);
-> +	return rc;
-> +}
-> +
-> +static void caps_sensor_attr_init(struct sensor_attr_data *sdata,
-> +				  char *attr_name, uint32_t hwmon_index,
-> +				  uint32_t attr_id)
-> +{
-> +	sdata->type = CAPS;
-> +	sdata->hwmon_index = hwmon_index;
-> +	sdata->attr_id = attr_id;
-> +
-> +	snprintf(sdata->name, MAX_SENSOR_ATTR_LEN, "%s%d_%s",
-> +		 "caps", sdata->hwmon_index, attr_name);
-> +
-> +	sysfs_attr_init(&sdata->dev_attr.attr);
-> +	sdata->dev_attr.attr.name = sdata->name;
-> +	sdata->dev_attr.attr.mode = S_IRUGO;
-> +	sdata->dev_attr.show = show_caps;
-> +}
-> +
-> +static int create_caps_sensor_group(struct occ_sysfs *driver, int sensor_num)
-> +{
-> +	struct device *dev = driver->dev;
-> +	struct sensor_group *sensor_groups = driver->sensor_groups;
-> +	int field_num = driver->num_caps_fields;
-> +	struct sensor_attr_data *sdata;
-> +	int i, j, rc;
-> +
-> +	sensor_groups[CAPS].group.attrs =
-> +		devm_kzalloc(dev, sizeof(struct attribute *) * sensor_num *
-> +			     field_num + 1, GFP_KERNEL);
-> +	if (!sensor_groups[CAPS].group.attrs) {
-> +		rc = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	sensor_groups[CAPS].sattr =
-> +		devm_kzalloc(dev, sizeof(struct sensor_attr_data) *
-> +			     sensor_num * field_num, GFP_KERNEL);
-> +	if (!sensor_groups[CAPS].sattr) {
-> +		rc = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	for (j = 0; j < sensor_num; ++j) {
-> +		for (i = 0; i < field_num; ++i) {
-> +			sdata = &sensor_groups[CAPS].sattr[j * field_num + i];
-> +			caps_sensor_attr_init(sdata,
-> +					      driver->caps_names[i], j + 1, i);
-> +			sensor_groups[CAPS].group.attrs[j * field_num + i] =
-> +				&sdata->dev_attr.attr;
-> +		}
-> +	}
-> +
-> +	rc = sysfs_create_group(&dev->kobj, &sensor_groups[CAPS].group);
-> +	if (rc)
-> +		goto err;
-> +
-> +	return rc;
-> +err:
-> +	deinit_sensor_groups(dev, sensor_groups);
-> +	return rc;
-> +}
-> +
-> +static void occ_remove_hwmon_attrs(struct occ_sysfs *driver)
-> +{
-> +	struct device *dev = driver->dev;
-> +
-> +	device_remove_file(dev, &dev_attr_user_powercap);
-> +	device_remove_file(dev, &dev_attr_update_interval);
-> +	device_remove_file(dev, &dev_attr_name);
-> +}
-> +
-> +static int occ_create_hwmon_attrs(struct occ_sysfs *driver)
-> +{
-> +	int i, rc, id, sensor_num;
-> +	struct device *dev = driver->dev;
-> +	struct sensor_group *sensor_groups = driver->sensor_groups;
-> +	struct occ_blocks *resp = NULL;
-> +
-> +	occ_get_response_blocks(driver->occ, &resp);
-> +
-> +	for (i = 0; i < MAX_OCC_SENSOR_TYPE; ++i)
-> +		resp->sensor_block_id[i] = -1;
-> +
-> +	/* read sensor data from occ */
-> +	rc = occ_update_device(driver->occ);
-> +	if (rc) {
-> +		dev_err(dev, "cannot get occ sensor data: %d\n", rc);
-> +		return rc;
-> +	}
-> +	if (!resp->blocks)
-> +		return -ENOMEM;
-> +
-> +	rc = device_create_file(dev, &dev_attr_name);
-> +	if (rc)
-> +		goto error;
-> +
-> +	rc = device_create_file(dev, &dev_attr_update_interval);
-> +	if (rc)
-> +		goto error;
-> +
-> +	if (resp->sensor_block_id[CAPS] >= 0) {
-> +		/* user powercap: only for master OCC */
-> +		rc = device_create_file(dev, &dev_attr_user_powercap);
-> +		if (rc)
-> +			goto error;
-> +	}
-> +
-> +	sensor_groups[FREQ].name = "freq";
-> +	sensor_groups[TEMP].name = "temp";
-> +	sensor_groups[POWER].name = "power";
-> +	sensor_groups[CAPS].name = "caps";
-> +
-> +	for (i = 0; i < MAX_OCC_SENSOR_TYPE; i++) {
-> +		id = resp->sensor_block_id[i];
-> +		if (id < 0)
-> +			continue;
-> +
-> +		sensor_num = resp->blocks[id].header.sensor_num;
-> +		if (i == CAPS)
-> +			rc = create_caps_sensor_group(driver, sensor_num);
-> +		else
-> +			rc = create_sensor_group(driver, i, sensor_num);
-> +		if (rc)
-> +			goto error;
-> +	}
-> +
-> +	return 0;
-> +
-> +error:
-> +	dev_err(dev, "cannot create hwmon attributes: %d\n", rc);
-> +	occ_remove_hwmon_attrs(driver);
-> +	return rc;
-> +}
-> +
-> +static ssize_t show_occ_online(struct device *dev,
-> +			       struct device_attribute *attr, char *buf)
-> +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +
-> +	return snprintf(buf, PAGE_SIZE - 1, "%u\n", driver->occ_online);
-> +}
-> +
-> +static ssize_t store_occ_online(struct device *dev,
-> +				struct device_attribute *attr,
-> +				const char *buf, size_t count)
-> +{
-> +	struct occ_sysfs *driver = dev_get_drvdata(dev);
-> +	unsigned long val;
-> +	int rc;
-> +
-> +	rc = kstrtoul(buf, 10, &val);
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (val == 1) {
-> +		if (driver->occ_online)
-> +			return count;
-> +
-> +		driver->dev = hwmon_device_register(dev);
-
-hwmon_device_register() is deprecated. Please consider using
-devm_hwmon_device_register_with_info() or at least
-hwmon_device_register_with_info().
-
-Uuh ... and registering a hwmon device based on writing into a sysfs attribute
-is completely out of the question.
-
-Thanks,
-Guenter
-
-> +		if (IS_ERR(driver->dev))
-> +			return PTR_ERR(driver->dev);
-> +
-> +		dev_set_drvdata(driver->dev, driver);
-> +
-> +		rc = occ_create_hwmon_attrs(driver);
-> +		if (rc) {
-> +			hwmon_device_unregister(driver->dev);
-> +			driver->dev = NULL;
-> +			return rc;
-> +		}
-> +	} else if (val == 0) {
-> +		if (!driver->occ_online)
-> +			return count;
-> +
-> +		occ_remove_hwmon_attrs(driver);
-> +		hwmon_device_unregister(driver->dev);
-> +		driver->dev = NULL;
-> +	} else
+> +	ext_info = iio_lookup_ext_info(chan, attr);
+> +	if (!ext_info)
 > +		return -EINVAL;
 > +
-> +	driver->occ_online = val;
-> +	return count;
+> +	return ext_info->read(chan->indio_dev, ext_info->private,
+> +			      chan->channel, buf);
 > +}
+> +EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
 > +
-> +static DEVICE_ATTR(online, S_IWUSR | S_IRUGO, show_occ_online,
-> +		   store_occ_online);
-> +
-> +struct occ_sysfs *occ_sysfs_start(struct device *dev, struct occ *occ,
-> +				  struct occ_sysfs_config *config)
+> +ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
+> +				   const char *buf, size_t len)
 > +{
-> +	struct occ_sysfs *hwmon = devm_kzalloc(dev, sizeof(struct occ_sysfs),
-> +					       GFP_KERNEL);
-> +	int rc;
+> +	const struct iio_chan_spec_ext_info *ext_info;
 > +
-> +	if (!hwmon)
-> +		return ERR_PTR(-ENOMEM);
+> +	ext_info = iio_lookup_ext_info(chan, attr);
+> +	if (!ext_info)
+> +		return -EINVAL;
 > +
-> +	hwmon->occ = occ;
-> +	hwmon->num_caps_fields = config->num_caps_fields;
-> +	hwmon->caps_names = config->caps_names;
-> +
-> +	dev_set_drvdata(dev, hwmon);
-> +
-> +	rc = device_create_file(dev, &dev_attr_online);
-> +	if (rc)
-> +		return ERR_PTR(rc);
-> +
-> +	return hwmon;
+> +	return ext_info->write(chan->indio_dev, ext_info->private,
+> +			       chan->channel, buf, len);
 > +}
-> +EXPORT_SYMBOL(occ_sysfs_start);
-> +
-> +int occ_sysfs_stop(struct device *dev, struct occ_sysfs *driver)
-> +{
-> +	if (driver->dev) {
-> +		occ_remove_hwmon_attrs(driver);
-> +		hwmon_device_unregister(driver->dev);
-> +	}
-> +
-> +	device_remove_file(driver->dev, &dev_attr_online);
-> +
-> +	devm_kfree(dev, driver);
-
-Thw point of using devm_ functions is not to require remove/free functions.
-Something is completely wrong here if you need that call.
-
-Overall, this is architectually completely wrong. One does not register
-or instantiate drivers based on writing into sysfs attributes. Please
-reconsider your approach.
-
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(occ_sysfs_stop);
-> +
-> +MODULE_AUTHOR("Eddie James <eajames@us.ibm.com>");
-> +MODULE_DESCRIPTION("OCC sysfs driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hwmon/occ/occ_sysfs.h b/drivers/hwmon/occ/occ_sysfs.h
-> new file mode 100644
-> index 0000000..2a8044f
-> --- /dev/null
-> +++ b/drivers/hwmon/occ/occ_sysfs.h
-> @@ -0,0 +1,52 @@
-> +/*
-> + * occ_sysfs.h - OCC sysfs interface
+> +EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
+> diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
+> index 47eeec3218b5..5e347a9805fd 100644
+> --- a/include/linux/iio/consumer.h
+> +++ b/include/linux/iio/consumer.h
+> @@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
+>  int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
+>  	int *processed, unsigned int scale);
+>  
+> +/**
+> + * iio_get_channel_ext_info_count() - get number of ext_info attributes
+> + *				      connected to the channel.
+> + * @chan:		The channel being queried
 > + *
-> + * This file contains the data structures and function prototypes for the OCC
-> + * hwmon sysfs entries.
-> + *
-> + * Copyright 2016 IBM Corp.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
+> + * Returns the number of ext_info attributes
 > + */
+> +unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
 > +
-> +#ifndef __OCC_SYSFS_H__
-> +#define __OCC_SYSFS_H__
+> +/**
+> + * iio_read_channel_ext_info() - read ext_info attribute from a given channel
+> + * @chan:		The channel being queried.
+> + * @attr:		The ext_info attribute to read.
+> + * @buf:		Where to store the attribute value. Assumed to hold
+> + *			at least PAGE_SIZE bytes.
+> + *
+> + * Returns the number of bytes written to buf (perhaps w/o zero termination;
+> + * it need not even be a string), or an error code.
+> + */
+> +ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
+> +				  const char *attr, char *buf);
 > +
-> +#include "occ.h"
+> +/**
+> + * iio_write_channel_ext_info() - write ext_info attribute from a given channel
+> + * @chan:		The channel being queried.
+> + * @attr:		The ext_info attribute to read.
+> + * @buf:		The new attribute value. Strings needs to be zero-
+> + *			terminated, but the terminator should not be included
+> + *			in the below len.
+> + * @len:		The size of the new attribute value.
+> + *
+> + * Returns the number of accepted bytes, which should be the same as len.
+> + * An error code can also be returned.
+> + */
+> +ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
+> +				   const char *buf, size_t len);
 > +
-> +struct sensor_group {
-> +	char *name;
-> +	struct sensor_attr_data *sattr;
-> +	struct attribute_group group;
-> +};
-> +
-> +struct occ_sysfs_config {
-> +	unsigned int num_caps_fields;
-> +	char **caps_names;
-> +};
-> +
-> +struct occ_sysfs {
-> +	struct device *dev;
-> +	struct occ *occ;
-> +
-> +	u16 user_powercap;
-> +	bool occ_online;
-> +	struct sensor_group sensor_groups[MAX_OCC_SENSOR_TYPE];
-> +	unsigned long update_interval;
-> +	unsigned int num_caps_fields;
-> +	char **caps_names;
-> +};
-> +
-> +struct occ_sysfs *occ_sysfs_start(struct device *dev, struct occ *occ,
-> +				  struct occ_sysfs_config *config);
-> +int occ_sysfs_stop(struct device *dev, struct occ_sysfs *driver);
-> +
-> +#endif /* __OCC_SYSFS_H__ */
-> -- 
-> 1.9.1
+>  #endif
 > 
