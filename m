@@ -1,256 +1,112 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v6 7/9] i2c: i2c-mux-simple: new driver
-Date: Sun, 1 Jan 2017 10:31:26 +0000
-Message-ID: <5632f73d-2a22-a7c0-8270-83348c4e432a@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v6 8/9] dt-bindings: mux-adg792a: document devicetree
+ bindings for ADG792A/G mux
+Date: Sun, 1 Jan 2017 11:00:30 +0000
+Message-ID: <d4c41153-aebf-be05-a323-1298e8c4ee65@kernel.org>
 References: <1480493823-21462-1-git-send-email-peda@axentia.se>
- <1480493823-21462-8-git-send-email-peda@axentia.se>
+ <1480493823-21462-9-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480493823-21462-8-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1480493823-21462-9-git-send-email-peda@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 30/11/16 08:17, Peter Rosin wrote:
-> This is a generic simple i2c mux that uses the generic multiplexer
-> subsystem to do the muxing.
+> Analog Devices ADG792A/G is a triple 4:1 mux.
 > 
-> The user can select if the mux is to be mux-locked and parent-locked
-> as described in Documentation/i2c/i2c-topology.
-> 
-> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Looks good to me though as I haven't really commented on it I'll give
-an Ack rather than a reviewed by.
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+Few comments inline.  Worth adding anything about the gpio (output pins) to
+the binding at this stage as well?  Would certainly be nice to support
+them.
 
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Jonathan
 > ---
->  drivers/i2c/muxes/Kconfig          |  13 +++
->  drivers/i2c/muxes/Makefile         |   1 +
->  drivers/i2c/muxes/i2c-mux-simple.c | 179 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 193 insertions(+)
->  create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
+>  .../devicetree/bindings/misc/mux-adg792a.txt       | 64 ++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/misc/mux-adg792a.txt
 > 
-> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-> index 10b3d17ae3ea..565921e09a96 100644
-> --- a/drivers/i2c/muxes/Kconfig
-> +++ b/drivers/i2c/muxes/Kconfig
-> @@ -73,6 +73,19 @@ config I2C_MUX_REG
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-mux-reg.
->  
-> +config I2C_MUX_SIMPLE
-> +	tristate "Simple I2C multiplexer"
-> +	select MULTIPLEXER
-> +	depends on OF
-> +	help
-> +	  If you say yes to this option, support will be included for a
-> +	  simple generic I2C multiplexer. This driver provides access to
-> +	  I2C busses connected through a MUX, which is controlled
-> +	  by a generic MUX controller.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-mux-simple.
-> +
->  config I2C_DEMUX_PINCTRL
->  	tristate "pinctrl-based I2C demultiplexer"
->  	depends on PINCTRL && OF
-> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-> index 9948fa45037f..6821d95c92a3 100644
-> --- a/drivers/i2c/muxes/Makefile
-> +++ b/drivers/i2c/muxes/Makefile
-> @@ -11,5 +11,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
->  obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
->  obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
->  obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-> +obj-$(CONFIG_I2C_MUX_SIMPLE)	+= i2c-mux-simple.o
->  
->  ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-> diff --git a/drivers/i2c/muxes/i2c-mux-simple.c b/drivers/i2c/muxes/i2c-mux-simple.c
+> diff --git a/Documentation/devicetree/bindings/misc/mux-adg792a.txt b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
 > new file mode 100644
-> index 000000000000..4a03493e1ad7
+> index 000000000000..4677f9ab1c55
 > --- /dev/null
-> +++ b/drivers/i2c/muxes/i2c-mux-simple.c
-> @@ -0,0 +1,179 @@
-> +/*
-> + * Generic simple I2C multiplexer
-> + *
-> + * Copyright (C) 2016 Axentia Technologies AB
-> + *
-> + * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
+> +++ b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
+> @@ -0,0 +1,64 @@
+> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
 > +
-> +#include <linux/i2c.h>
-> +#include <linux/i2c-mux.h>
-> +#include <linux/module.h>
-> +#include <linux/mux.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
+> +Required properties:
+> +- compatible : "adi,adg792a" or "adi,adg792g"
+> +- #mux-control-cells : <0> if parallel, or <1> if not.
+> +* Standard mux-controller bindings as decribed in mux-controller.txt
 > +
-> +struct mux {
-> +	struct mux_control *control;
+> +Optional properties:
+> +- adi,parallel : if present, the three muxes are bound together with a single
+> +  mux controller, controlling all three muxes in parallel.
+> +- adi,idle-state : if present, array of states the three mux controllers will
+> +  have when idle (or, if parallel, a single idle-state).
+Hmm. These are actually a policy decision.  As only one policy will make
+sense for a given set of hardware probably fine to have it in here I guess.
+Might be worth adding a note to say this though.
 > +
-> +	bool do_not_deselect;
-> +};
+> +Mux controller states 0 through 3 correspond to signals A through D in the
+> +datasheet. Mux controller states 4 and 5 are only available as possible idle
+> +states. State 4 represents that nothing is connected, and state 5 represents
+> +that the mux controller keeps the mux in its previously selected state during
+> +the idle period. State 5 is the default idle state.
+I'm never a great fan of magic numbers.  Can we represent this more cleanly by
+breaking it into multiple properties?
+Optional:
+adi,idle-switch-to-channel : switch to this channel when idle.
+adi,idle-high-impedance : <boolean> the nothing connected state?
+
+If neither present leaves it in previous state?
 > +
-> +static int i2c_mux_select(struct i2c_mux_core *muxc, u32 chan)
-> +{
-> +	struct mux *mux = i2c_mux_priv(muxc);
-> +	int ret;
+> +Example:
 > +
-> +	ret = mux_control_select(mux->control, chan);
-> +	mux->do_not_deselect = ret < 0;
+> +	/* three independent mux controllers (of which one is used) */
+> +	&i2c0 {
+> +		mux: adg792a@50 {
+> +			compatible = "adi,adg792a";
+> +			reg = <0x50>;
+> +			#mux-control-cells = <1>;
+> +		};
+> +	};
 > +
-> +	return ret;
-> +}
+> +	adc-mux {
+> +		compatible = "iio-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
 > +
-> +static int i2c_mux_deselect(struct i2c_mux_core *muxc, u32 chan)
-> +{
-> +	struct mux *mux = i2c_mux_priv(muxc);
+> +		mux-controls = <&mux 1>;
 > +
-> +	if (mux->do_not_deselect)
-> +		return 0;
+> +		channels = "sync-1", "", "out";
+> +	};
 > +
-> +	return mux_control_deselect(mux->control);
-> +}
 > +
-> +static struct i2c_adapter *mux_parent_adapter(struct device *dev)
-> +{
-> +	struct device_node *np = dev->of_node;
-> +	struct device_node *parent_np;
-> +	struct i2c_adapter *parent;
+> +	/*
+> +	 * Three parallel muxes with one mux controller, useful e.g. if
+> +	 * the adc is differential, thus needing two signals to be muxed
+> +	 * simultaneously for correct operation.
+> +	 */
+> +	&i2c0 {
+> +		pmux: adg792a@50 {
+> +			compatible = "adi,adg792a";
+> +			reg = <0x50>;
+> +			#mux-control-cells = <0>;
+> +			adi,parallel;
+> +		};
+> +	};
 > +
-> +	parent_np = of_parse_phandle(np, "i2c-parent", 0);
-> +	if (!parent_np) {
-> +		dev_err(dev, "Cannot parse i2c-parent\n");
-> +		return ERR_PTR(-ENODEV);
-> +	}
-> +	parent = of_find_i2c_adapter_by_node(parent_np);
-> +	of_node_put(parent_np);
-> +	if (!parent)
-> +		return ERR_PTR(-EPROBE_DEFER);
+> +	diff-adc-mux {
+> +		compatible = "iio-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
 > +
-> +	return parent;
-> +}
+> +		mux-controls = <&pmux>;
 > +
-> +static const struct of_device_id i2c_mux_of_match[] = {
-> +	{ .compatible = "i2c-mux-simple,parent-locked",
-> +	  .data = (void *)0, },
-> +	{ .compatible = "i2c-mux-simple,mux-locked",
-> +	  .data = (void *)1, },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, i2c_mux_of_match);
-> +
-> +static int i2c_mux_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *np = dev->of_node;
-> +	struct device_node *child;
-> +	const struct of_device_id *match;
-> +	struct i2c_mux_core *muxc;
-> +	struct mux *mux;
-> +	struct i2c_adapter *parent;
-> +	int children;
-> +	int ret;
-> +
-> +	if (!np)
-> +		return -ENODEV;
-> +
-> +	mux = devm_kzalloc(dev, sizeof(*mux), GFP_KERNEL);
-> +	if (!mux)
-> +		return -ENOMEM;
-> +
-> +	mux->control = devm_mux_control_get(dev, NULL);
-> +	if (IS_ERR(mux->control)) {
-> +		if (PTR_ERR(mux->control) != -EPROBE_DEFER)
-> +			dev_err(dev, "failed to get control-mux\n");
-> +		return PTR_ERR(mux->control);
-> +	}
-> +
-> +	parent = mux_parent_adapter(dev);
-> +	if (IS_ERR(parent)) {
-> +		if (PTR_ERR(parent) != -EPROBE_DEFER)
-> +			dev_err(dev, "failed to get i2c-parent adapter\n");
-> +		return PTR_ERR(parent);
-> +	}
-> +
-> +	children = of_get_child_count(np);
-> +
-> +	muxc = i2c_mux_alloc(parent, dev, children, 0, 0,
-> +			     i2c_mux_select, i2c_mux_deselect);
-> +	if (!muxc) {
-> +		ret = -ENOMEM;
-> +		goto err_parent;
-> +	}
-> +	muxc->priv = mux;
-> +
-> +	platform_set_drvdata(pdev, muxc);
-> +
-> +	match = of_match_device(of_match_ptr(i2c_mux_of_match), dev);
-> +	if (match)
-> +		muxc->mux_locked = !!of_device_get_match_data(dev);
-> +
-> +	for_each_child_of_node(np, child) {
-> +		u32 chan;
-> +
-> +		ret = of_property_read_u32(child, "reg", &chan);
-> +		if (ret < 0) {
-> +			dev_err(dev, "no reg property for node '%s'\n",
-> +				child->name);
-> +			goto err_children;
-> +		}
-> +
-> +		if (chan >= mux->control->states) {
-> +			dev_err(dev, "invalid reg %u\n", chan);
-> +			ret = -EINVAL;
-> +			goto err_children;
-> +		}
-> +
-> +		ret = i2c_mux_add_adapter(muxc, 0, chan, 0);
-> +		if (ret)
-> +			goto err_children;
-> +	}
-> +
-> +	dev_info(dev, "%d-port mux on %s adapter\n", children, parent->name);
-> +
-> +	return 0;
-> +
-> +err_children:
-> +	i2c_mux_del_adapters(muxc);
-> +err_parent:
-> +	i2c_put_adapter(parent);
-> +
-> +	return ret;
-> +}
-> +
-> +static int i2c_mux_remove(struct platform_device *pdev)
-> +{
-> +	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
-> +
-> +	i2c_mux_del_adapters(muxc);
-> +	i2c_put_adapter(muxc->parent);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver i2c_mux_driver = {
-> +	.probe	= i2c_mux_probe,
-> +	.remove	= i2c_mux_remove,
-> +	.driver	= {
-> +		.name	= "i2c-mux-simple",
-> +		.of_match_table = i2c_mux_of_match,
-> +	},
-> +};
-> +module_platform_driver(i2c_mux_driver);
-> +
-> +MODULE_DESCRIPTION("Simple I2C multiplexer driver");
-> +MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>");
-> +MODULE_LICENSE("GPL v2");
+> +		channels = "sync-1", "", "out";
+> +	};
 > 
