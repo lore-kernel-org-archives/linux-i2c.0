@@ -1,65 +1,97 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [RFC 0/4] Coordinate pmic i2c bus and i915 punit accesses
-Date: Sun,  1 Jan 2017 21:13:59 +0100
-Message-ID: <20170101201403.12132-1-hdegoede@redhat.com>
+Subject: [RFC 1/4] x86/platform/intel/iosf_mbi: Add a mutex for punit access
+Date: Sun,  1 Jan 2017 21:14:00 +0100
+Message-ID: <20170101201403.12132-2-hdegoede@redhat.com>
+References: <20170101201403.12132-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34492 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:47500 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932229AbdAAUOH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 1 Jan 2017 15:14:07 -0500
+        id S932229AbdAAUOJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 1 Jan 2017 15:14:09 -0500
+In-Reply-To: <20170101201403.12132-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>
 
-Hi,
+The punit on baytrail / cherrytrail systems is not only accessed through
+the iosf_mbi functions, but also by the i915 code. Add a mutex to protect
+the punit against simultaneous accesses and 2 functions to lock / unlock
+this mutex.
 
-So one user is reporting problems with my patches to get the
-i2c pmic bus (cherrytrail punit semaphore support) + axp288 fuel_gauge /
-charger drivers working in combination with i915:
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ arch/x86/include/asm/iosf_mbi.h    | 19 +++++++++++++++++++
+ arch/x86/platform/intel/iosf_mbi.c | 13 +++++++++++++
+ 2 files changed, 32 insertions(+)
 
-https://bugzilla.kernel.org/show_bug.cgi?id=155241#c37
-
-"My device is a laptop with no USB charging or OTG. So, I'd tried only SDIO _ADR patch, i2c and axp288_fuel_gauge patches. Everything works well for upto 3 mins after boot, then the device freezes. I hadn't tried any drm patches BTW. Here's the log:
-
-[drm:fw_domains_get [i915]] *ERROR* render: timed out waiting for forcewake ack request.
-[drm:fw_domains_get [i915]] *MEDIA* render: timed out waiting for forcewake ack request.
-[drm:fw_domains_get [i915]] *ERROR* render: timed out waiting for forcewake ack request.
-[drm:fw_domains_get [i915]] *MEDIA* render: timed out waiting for forcewake ack request.
-clocksource: timekeeping watchdog on CPU0: Marking clocksource 'tsc' as unstable because the skew is too large:
-clocksource:                       'refined-jiffies' wd_now: 10002ee30 wd_last: 10002edb8 mask: ffffffff
-clocksource:                       'tsc' cs_now: 16ac2c7744a cs_last: 16a8d9bd8f2 mask: ffffffffffffffff
-clocksource: Switched to clocksource refined-jiffies
-usb 1-2: reset high-speed USB device number 2 using xhci_hcd
-i2c_designware 808622C1:06: punit semaphore timed out, resetting
-i2c_designware 808622C1:06: PUNIT SEM: 2
-i2c_designware 808622C1:06: couldn't acquire bus ownership
-axp288_fuel_gauge axp288_fuel_gauge: axp288 reg read err:-110
-axp288_fuel_gauge axp288_fuel_gauge: PWR STAT read failed:-110
-usb 1-2: reset high-speed USB device number 2 using xhci_hcd
-usb 1-2: reset high-speed USB device number 2 using xhci_hcd
-usb 1-2: reset high-speed USB device number 2 using xhci_hcd
-i2c_designware 808622C1:06: punit semaphore timed out, resetting
-i2c_designware 808622C1:06: PUNIT SEM: 0
-i2c_designware 808622C1:06: couldn't acquire bus ownership
-axp288_fuel_gauge axp288_fuel_gauge: IIO channel read error: fffffffb, 0
-power_supply axp288_fuel_gauge: driver failed to report `voltage_now' property: -5
-***SYSTEM FREEZE***
-
-If I blacklist axp288_fuel_gauge, then there were no errors."
-
-This sounds a lot like things go wrong when the i915 driver asks some
-changes from the punit while i2c-designware-baytrail is holding the
-pmic i2c bus semaphore, just like changing C-states while holding
-the semaphore seems to lock up the punit,
-
-So this patch-set is an attempt at fixing that. I'm still waiting for the
-reporter to report back if it actually fixes things, in the mean time
-any input on this issue (or the proposed fix) is welcome.
-
-Note the i2c-designware-baytrail patch applies on top of v5 of my
-i2c-designware series, which I will send out directly after this.
-
-Regards,
-
-Hans
+diff --git a/arch/x86/include/asm/iosf_mbi.h b/arch/x86/include/asm/iosf_mbi.h
+index b41ee16..02963bd 100644
+--- a/arch/x86/include/asm/iosf_mbi.h
++++ b/arch/x86/include/asm/iosf_mbi.h
+@@ -88,6 +88,21 @@ int iosf_mbi_write(u8 port, u8 opcode, u32 offset, u32 mdr);
+  */
+ int iosf_mbi_modify(u8 port, u8 opcode, u32 offset, u32 mdr, u32 mask);
+ 
++/**
++ * iosf_mbi_punit_lock() - Lock the punit mutex
++ *
++ * This function must be called before accessing the punit or the pmic, be it
++ * through iosf_mbi_* or through other means.
++ *
++ * This function locks a mutex, as such it may sleep.
++ */
++void iosf_mbi_punit_lock(void);
++
++/**
++ * iosf_mbi_punit_unlock() - Unlock the punit mutex
++ */
++void iosf_mbi_punit_unlock(void);
++
+ #else /* CONFIG_IOSF_MBI is not enabled */
+ static inline
+ bool iosf_mbi_available(void)
+@@ -115,6 +130,10 @@ int iosf_mbi_modify(u8 port, u8 opcode, u32 offset, u32 mdr, u32 mask)
+ 	WARN(1, "IOSF_MBI driver not available");
+ 	return -EPERM;
+ }
++
++static inline void iosf_mbi_punit_lock(void) {}
++static inline void iosf_mbi_punit_unlock(void) {}
++
+ #endif /* CONFIG_IOSF_MBI */
+ 
+ #endif /* IOSF_MBI_SYMS_H */
+diff --git a/arch/x86/platform/intel/iosf_mbi.c b/arch/x86/platform/intel/iosf_mbi.c
+index edf2c54..75d8135 100644
+--- a/arch/x86/platform/intel/iosf_mbi.c
++++ b/arch/x86/platform/intel/iosf_mbi.c
+@@ -34,6 +34,7 @@
+ 
+ static struct pci_dev *mbi_pdev;
+ static DEFINE_SPINLOCK(iosf_mbi_lock);
++static DEFINE_MUTEX(iosf_mbi_punit_mutex);
+ 
+ static inline u32 iosf_mbi_form_mcr(u8 op, u8 port, u8 offset)
+ {
+@@ -190,6 +191,18 @@ bool iosf_mbi_available(void)
+ }
+ EXPORT_SYMBOL(iosf_mbi_available);
+ 
++void iosf_mbi_punit_lock(void)
++{
++	mutex_lock(&iosf_mbi_punit_mutex);
++}
++EXPORT_SYMBOL(iosf_mbi_punit_lock);
++
++void iosf_mbi_punit_unlock(void)
++{
++	mutex_unlock(&iosf_mbi_punit_mutex);
++}
++EXPORT_SYMBOL(iosf_mbi_punit_unlock);
++
+ #ifdef CONFIG_IOSF_MBI_DEBUG
+ static u32	dbg_mdr;
+ static u32	dbg_mcr;
+-- 
+2.9.3
