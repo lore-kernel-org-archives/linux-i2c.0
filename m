@@ -1,8 +1,8 @@
 From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Subject: Re: [Intel-gfx] [RFC 3/4] drm/i915: valleyview: Make intel_set_rps
+Subject: Re: [RFC 3/4] drm/i915: valleyview: Make intel_set_rps
  get FORCEWAKE_MEDIA
-Date: Mon, 2 Jan 2017 17:02:25 +0200
-Message-ID: <20170102150225.GA31595@intel.com>
+Date: Mon, 2 Jan 2017 17:08:34 +0200
+Message-ID: <20170102150834.GB31595@intel.com>
 References: <20170101201403.12132-1-hdegoede@redhat.com>
  <20170101201403.12132-4-hdegoede@redhat.com>
  <20170101202400.GG13154@nuc-i3427.alporthouse.com>
@@ -12,93 +12,100 @@ References: <20170101201403.12132-1-hdegoede@redhat.com>
  <20170102142158.GE16295@nuc-i3427.alporthouse.com>
  <20170102144005.GZ31595@intel.com>
  <20170102145359.GF16295@nuc-i3427.alporthouse.com>
+ <20170102150225.GA31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:62414 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755504AbdABPCc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 2 Jan 2017 10:02:32 -0500
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20170102145359.GF16295@nuc-i3427.alporthouse.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <20170102150225.GA31595@intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Chris Wilson <chris@chris-wilson.co.uk>, Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 02, 2017 at 02:53:59PM +0000, Chris Wilson wrote:
-> On Mon, Jan 02, 2017 at 04:40:05PM +0200, Ville Syrjälä wrote:
-> > On Mon, Jan 02, 2017 at 02:21:58PM +0000, Chris Wilson wrote:
-> > > On Mon, Jan 02, 2017 at 04:10:49PM +0200, Ville Syrjälä wrote:
-> > > > On Mon, Jan 02, 2017 at 11:37:59AM +0000, Chris Wilson wrote:
-> > > > > On Sun, Jan 01, 2017 at 09:48:53PM +0100, Hans de Goede wrote:
-> > > > > > Hi,
-> > > > > > 
-> > > > > > On 01-01-17 21:24, Chris Wilson wrote:
-> > > > > > >On Sun, Jan 01, 2017 at 09:14:02PM +0100, Hans de Goede wrote:
-> > > > > > >>All callers of valleyview_set_rps() get at least FORCEWAKE_MEDIA, except
-> > > > > > >>for intel_set_rps(). Since intel_set_rps can for example be called from
-> > > > > > >>sysfs store functions, there is no guarantee this is already done, so add
-> > > > > > >>an intel_uncore_forcewake_get(FORCEWAKE_MEDIA) call to intel_set_rps.
-> > > > > > >>
-> > > > > > >>Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > > > > > >>---
-> > > > > > >> drivers/gpu/drm/i915/intel_pm.c | 9 +++++++--
-> > > > > > >> 1 file changed, 7 insertions(+), 2 deletions(-)
-> > > > > > >>
-> > > > > > >>diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-> > > > > > >>index 4b12637..cc4fbd7 100644
-> > > > > > >>--- a/drivers/gpu/drm/i915/intel_pm.c
-> > > > > > >>+++ b/drivers/gpu/drm/i915/intel_pm.c
-> > > > > > >>@@ -5096,9 +5096,14 @@ void gen6_rps_boost(struct drm_i915_private *dev_priv,
-> > > > > > >>
-> > > > > > >> void intel_set_rps(struct drm_i915_private *dev_priv, u8 val)
-> > > > > > >> {
-> > > > > > >>-	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
-> > > > > > >>+	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv)) {
-> > > > > > >>+		/* Wake up the media well, as that takes a lot less
-> > > > > > >>+		 * power than the Render well.
-> > > > > > >>+		 */
-> > > > > > >>+		intel_uncore_forcewake_get(dev_priv, FORCEWAKE_MEDIA);
-> > > > > > >> 		valleyview_set_rps(dev_priv, val);
-> > > > > > >
-> > > > > > >Both powerwells are woken for rps. (Taking one but not the other has no
-> > > > > > >benefit, and very misleading.)
-> > > > > > 
-> > > > > > The comment on why FORCEWAKE_MEDIA is used + code is copy pasted from the
-> > > > > > existing code in vlv_set_rps_idle().
-> > > > > 
-> > > > > It's not correct there either...
-> > > > 
-> > > > Why not? If the render well is in rc6 already we don't want to waste
-> > > > power by waking it. The only reason we have to wake up *something* is
-> > > > so that the gpll frequency actually gets changed.
-> > > 
-> > > If the register write requires the powerwell, the mmio access will take
-> > > the powerwell.
-> > 
-> > The register write doesn't require a power well. It's a sideband access.
-> > The punit will simply not change the GPLL frequency if the GPLL is
-> > currently not running (which will/can happen when all power wells are
-> > asleep). That in itself doesn't sound too back (why change the
-> > frequency if the thing isn't even running, right?). But the real problem
-> > is that the punit will not let the voltage on the rail to drop
-> > either until the new frequency gets programmed into the GPLL. Hence if
-> > the GPU goes idle before we've dropped the GPLL frequency to the
-> > minimum value, we will waste power by having a needlessly high voltage.
-> > 
-> > Originally we tried to avoid this problem via vlv_force_gfx_clock(),
-> > which should just force the GPLL to turn on without powering on
-> > any power wells. But that caused some spurious WARNs or something
-> > IIRC, so we had to come up with another workaround. And since powering
-> > either well is sufficient we chose to use the cheaper media well.
-> 
-> That explains set_idle() (and would be a better comment that the one
-> there). But not set_rps(), since there we don't care if the write is
-> delayed until the GPU is next active.
-
-I don't see any forcewakes in set_rps()
-
--- 
-Ville Syrjälä
-Intel OTC
+T24gTW9uLCBKYW4gMDIsIDIwMTcgYXQgMDU6MDI6MjVQTSArMDIwMCwgVmlsbGUgU3lyasOkbMOk
+IHdyb3RlOgo+IE9uIE1vbiwgSmFuIDAyLCAyMDE3IGF0IDAyOjUzOjU5UE0gKzAwMDAsIENocmlz
+IFdpbHNvbiB3cm90ZToKPiA+IE9uIE1vbiwgSmFuIDAyLCAyMDE3IGF0IDA0OjQwOjA1UE0gKzAy
+MDAsIFZpbGxlIFN5cmrDpGzDpCB3cm90ZToKPiA+ID4gT24gTW9uLCBKYW4gMDIsIDIwMTcgYXQg
+MDI6MjE6NThQTSArMDAwMCwgQ2hyaXMgV2lsc29uIHdyb3RlOgo+ID4gPiA+IE9uIE1vbiwgSmFu
+IDAyLCAyMDE3IGF0IDA0OjEwOjQ5UE0gKzAyMDAsIFZpbGxlIFN5cmrDpGzDpCB3cm90ZToKPiA+
+ID4gPiA+IE9uIE1vbiwgSmFuIDAyLCAyMDE3IGF0IDExOjM3OjU5QU0gKzAwMDAsIENocmlzIFdp
+bHNvbiB3cm90ZToKPiA+ID4gPiA+ID4gT24gU3VuLCBKYW4gMDEsIDIwMTcgYXQgMDk6NDg6NTNQ
+TSArMDEwMCwgSGFucyBkZSBHb2VkZSB3cm90ZToKPiA+ID4gPiA+ID4gPiBIaSwKPiA+ID4gPiA+
+ID4gPiAKPiA+ID4gPiA+ID4gPiBPbiAwMS0wMS0xNyAyMToyNCwgQ2hyaXMgV2lsc29uIHdyb3Rl
+Ogo+ID4gPiA+ID4gPiA+ID5PbiBTdW4sIEphbiAwMSwgMjAxNyBhdCAwOToxNDowMlBNICswMTAw
+LCBIYW5zIGRlIEdvZWRlIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4+QWxsIGNhbGxlcnMgb2YgdmFs
+bGV5dmlld19zZXRfcnBzKCkgZ2V0IGF0IGxlYXN0IEZPUkNFV0FLRV9NRURJQSwgZXhjZXB0Cj4g
+PiA+ID4gPiA+ID4gPj5mb3IgaW50ZWxfc2V0X3JwcygpLiBTaW5jZSBpbnRlbF9zZXRfcnBzIGNh
+biBmb3IgZXhhbXBsZSBiZSBjYWxsZWQgZnJvbQo+ID4gPiA+ID4gPiA+ID4+c3lzZnMgc3RvcmUg
+ZnVuY3Rpb25zLCB0aGVyZSBpcyBubyBndWFyYW50ZWUgdGhpcyBpcyBhbHJlYWR5IGRvbmUsIHNv
+IGFkZAo+ID4gPiA+ID4gPiA+ID4+YW4gaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9nZXQoRk9SQ0VX
+QUtFX01FRElBKSBjYWxsIHRvIGludGVsX3NldF9ycHMuCj4gPiA+ID4gPiA+ID4gPj4KPiA+ID4g
+PiA+ID4gPiA+PlNpZ25lZC1vZmYtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdvZWRlQHJlZGhhdC5j
+b20+Cj4gPiA+ID4gPiA+ID4gPj4tLS0KPiA+ID4gPiA+ID4gPiA+PiBkcml2ZXJzL2dwdS9kcm0v
+aTkxNS9pbnRlbF9wbS5jIHwgOSArKysrKysrLS0KPiA+ID4gPiA+ID4gPiA+PiAxIGZpbGUgY2hh
+bmdlZCwgNyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+ID4gPiA+ID4gPiA+ID4+Cj4g
+PiA+ID4gPiA+ID4gPj5kaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0u
+YyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMKPiA+ID4gPiA+ID4gPiA+PmluZGV4
+IDRiMTI2MzcuLmNjNGZiZDcgMTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPj4tLS0gYS9kcml2ZXJzL2dw
+dS9kcm0vaTkxNS9pbnRlbF9wbS5jCj4gPiA+ID4gPiA+ID4gPj4rKysgYi9kcml2ZXJzL2dwdS9k
+cm0vaTkxNS9pbnRlbF9wbS5jCj4gPiA+ID4gPiA+ID4gPj5AQCAtNTA5Niw5ICs1MDk2LDE0IEBA
+IHZvaWQgZ2VuNl9ycHNfYm9vc3Qoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2LAo+
+ID4gPiA+ID4gPiA+ID4+Cj4gPiA+ID4gPiA+ID4gPj4gdm9pZCBpbnRlbF9zZXRfcnBzKHN0cnVj
+dCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwgdTggdmFsKQo+ID4gPiA+ID4gPiA+ID4+IHsK
+PiA+ID4gPiA+ID4gPiA+Pi0JaWYgKElTX1ZBTExFWVZJRVcoZGV2X3ByaXYpIHx8IElTX0NIRVJS
+WVZJRVcoZGV2X3ByaXYpKQo+ID4gPiA+ID4gPiA+ID4+KwlpZiAoSVNfVkFMTEVZVklFVyhkZXZf
+cHJpdikgfHwgSVNfQ0hFUlJZVklFVyhkZXZfcHJpdikpIHsKPiA+ID4gPiA+ID4gPiA+PisJCS8q
+IFdha2UgdXAgdGhlIG1lZGlhIHdlbGwsIGFzIHRoYXQgdGFrZXMgYSBsb3QgbGVzcwo+ID4gPiA+
+ID4gPiA+ID4+KwkJICogcG93ZXIgdGhhbiB0aGUgUmVuZGVyIHdlbGwuCj4gPiA+ID4gPiA+ID4g
+Pj4rCQkgKi8KPiA+ID4gPiA+ID4gPiA+PisJCWludGVsX3VuY29yZV9mb3JjZXdha2VfZ2V0KGRl
+dl9wcml2LCBGT1JDRVdBS0VfTUVESUEpOwo+ID4gPiA+ID4gPiA+ID4+IAkJdmFsbGV5dmlld19z
+ZXRfcnBzKGRldl9wcml2LCB2YWwpOwo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+Qm90
+aCBwb3dlcndlbGxzIGFyZSB3b2tlbiBmb3IgcnBzLiAoVGFraW5nIG9uZSBidXQgbm90IHRoZSBv
+dGhlciBoYXMgbm8KPiA+ID4gPiA+ID4gPiA+YmVuZWZpdCwgYW5kIHZlcnkgbWlzbGVhZGluZy4p
+Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhlIGNvbW1lbnQgb24gd2h5IEZPUkNFV0FL
+RV9NRURJQSBpcyB1c2VkICsgY29kZSBpcyBjb3B5IHBhc3RlZCBmcm9tIHRoZQo+ID4gPiA+ID4g
+PiA+IGV4aXN0aW5nIGNvZGUgaW4gdmx2X3NldF9ycHNfaWRsZSgpLgo+ID4gPiA+ID4gPiAKPiA+
+ID4gPiA+ID4gSXQncyBub3QgY29ycmVjdCB0aGVyZSBlaXRoZXIuLi4KPiA+ID4gPiA+IAo+ID4g
+PiA+ID4gV2h5IG5vdD8gSWYgdGhlIHJlbmRlciB3ZWxsIGlzIGluIHJjNiBhbHJlYWR5IHdlIGRv
+bid0IHdhbnQgdG8gd2FzdGUKPiA+ID4gPiA+IHBvd2VyIGJ5IHdha2luZyBpdC4gVGhlIG9ubHkg
+cmVhc29uIHdlIGhhdmUgdG8gd2FrZSB1cCAqc29tZXRoaW5nKiBpcwo+ID4gPiA+ID4gc28gdGhh
+dCB0aGUgZ3BsbCBmcmVxdWVuY3kgYWN0dWFsbHkgZ2V0cyBjaGFuZ2VkLgo+ID4gPiA+IAo+ID4g
+PiA+IElmIHRoZSByZWdpc3RlciB3cml0ZSByZXF1aXJlcyB0aGUgcG93ZXJ3ZWxsLCB0aGUgbW1p
+byBhY2Nlc3Mgd2lsbCB0YWtlCj4gPiA+ID4gdGhlIHBvd2Vyd2VsbC4KPiA+ID4gCj4gPiA+IFRo
+ZSByZWdpc3RlciB3cml0ZSBkb2Vzbid0IHJlcXVpcmUgYSBwb3dlciB3ZWxsLiBJdCdzIGEgc2lk
+ZWJhbmQgYWNjZXNzLgo+ID4gPiBUaGUgcHVuaXQgd2lsbCBzaW1wbHkgbm90IGNoYW5nZSB0aGUg
+R1BMTCBmcmVxdWVuY3kgaWYgdGhlIEdQTEwgaXMKPiA+ID4gY3VycmVudGx5IG5vdCBydW5uaW5n
+ICh3aGljaCB3aWxsL2NhbiBoYXBwZW4gd2hlbiBhbGwgcG93ZXIgd2VsbHMgYXJlCj4gPiA+IGFz
+bGVlcCkuIFRoYXQgaW4gaXRzZWxmIGRvZXNuJ3Qgc291bmQgdG9vIGJhY2sgKHdoeSBjaGFuZ2Ug
+dGhlCj4gPiA+IGZyZXF1ZW5jeSBpZiB0aGUgdGhpbmcgaXNuJ3QgZXZlbiBydW5uaW5nLCByaWdo
+dD8pLiBCdXQgdGhlIHJlYWwgcHJvYmxlbQo+ID4gPiBpcyB0aGF0IHRoZSBwdW5pdCB3aWxsIG5v
+dCBsZXQgdGhlIHZvbHRhZ2Ugb24gdGhlIHJhaWwgdG8gZHJvcAo+ID4gPiBlaXRoZXIgdW50aWwg
+dGhlIG5ldyBmcmVxdWVuY3kgZ2V0cyBwcm9ncmFtbWVkIGludG8gdGhlIEdQTEwuIEhlbmNlIGlm
+Cj4gPiA+IHRoZSBHUFUgZ29lcyBpZGxlIGJlZm9yZSB3ZSd2ZSBkcm9wcGVkIHRoZSBHUExMIGZy
+ZXF1ZW5jeSB0byB0aGUKPiA+ID4gbWluaW11bSB2YWx1ZSwgd2Ugd2lsbCB3YXN0ZSBwb3dlciBi
+eSBoYXZpbmcgYSBuZWVkbGVzc2x5IGhpZ2ggdm9sdGFnZS4KPiA+ID4gCj4gPiA+IE9yaWdpbmFs
+bHkgd2UgdHJpZWQgdG8gYXZvaWQgdGhpcyBwcm9ibGVtIHZpYSB2bHZfZm9yY2VfZ2Z4X2Nsb2Nr
+KCksCj4gPiA+IHdoaWNoIHNob3VsZCBqdXN0IGZvcmNlIHRoZSBHUExMIHRvIHR1cm4gb24gd2l0
+aG91dCBwb3dlcmluZyBvbgo+ID4gPiBhbnkgcG93ZXIgd2VsbHMuIEJ1dCB0aGF0IGNhdXNlZCBz
+b21lIHNwdXJpb3VzIFdBUk5zIG9yIHNvbWV0aGluZwo+ID4gPiBJSVJDLCBzbyB3ZSBoYWQgdG8g
+Y29tZSB1cCB3aXRoIGFub3RoZXIgd29ya2Fyb3VuZC4gQW5kIHNpbmNlIHBvd2VyaW5nCj4gPiA+
+IGVpdGhlciB3ZWxsIGlzIHN1ZmZpY2llbnQgd2UgY2hvc2UgdG8gdXNlIHRoZSBjaGVhcGVyIG1l
+ZGlhIHdlbGwuCj4gPiAKPiA+IFRoYXQgZXhwbGFpbnMgc2V0X2lkbGUoKSAoYW5kIHdvdWxkIGJl
+IGEgYmV0dGVyIGNvbW1lbnQgdGhhdCB0aGUgb25lCj4gPiB0aGVyZSkuIEJ1dCBub3Qgc2V0X3Jw
+cygpLCBzaW5jZSB0aGVyZSB3ZSBkb24ndCBjYXJlIGlmIHRoZSB3cml0ZSBpcwo+ID4gZGVsYXll
+ZCB1bnRpbCB0aGUgR1BVIGlzIG5leHQgYWN0aXZlLgo+IAo+IEkgZG9uJ3Qgc2VlIGFueSBmb3Jj
+ZXdha2VzIGluIHNldF9ycHMoKQoKQWgsIGl0IHdhcyB0aGlzIHBhdGNoIHdoaWNoIHdhbnRzIHRv
+IGFkZCB0aGF0LiBBbmQgaW5kZWVkIHRoYXQgZG9lc24ndAptYWtlIHNlbnNlLgoKLS0gClZpbGxl
+IFN5cmrDpGzDpApJbnRlbCBPVEMKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8v
+aW50ZWwtZ2Z4Cg==
