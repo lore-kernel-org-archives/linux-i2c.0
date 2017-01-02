@@ -1,37 +1,71 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v7 2/5] i2c: Add STM32F4 I2C driver
-Date: Mon, 2 Jan 2017 14:31:31 +0100
-Message-ID: <CAOAejn3cxJdXd4i2OQk_fUiZwzUd7-U7Fi-haHUsvWg4xu_uzw@mail.gmail.com>
-References: <1482413704-17531-1-git-send-email-cedric.madianga@gmail.com>
- <1482413704-17531-3-git-send-email-cedric.madianga@gmail.com>
- <20161223090019.a3jkhpb3abgjqi55@pengutronix.de> <CAOAejn3sc1F8T_rbSTr6-wBNncNwObeK+c6=_Q0BMahDdHXxQA@mail.gmail.com>
- <20161228212139.adkixdgvmtj2ukjs@pengutronix.de> <CAOAejn1ocTSvdPWnZ-+DwMfJj45cXXEDc1+=B5d3zCy2Pw+0-A@mail.gmail.com>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Subject: Re: [Intel-gfx] [RFC 3/4] drm/i915: valleyview: Make intel_set_rps
+ get FORCEWAKE_MEDIA
+Date: Mon, 2 Jan 2017 16:10:49 +0200
+Message-ID: <20170102141049.GX31595@intel.com>
+References: <20170101201403.12132-1-hdegoede@redhat.com>
+ <20170101201403.12132-4-hdegoede@redhat.com>
+ <20170101202400.GG13154@nuc-i3427.alporthouse.com>
+ <556a9c6d-33ba-0047-82df-8bf75e09e208@redhat.com>
+ <20170102113759.GC16295@nuc-i3427.alporthouse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34882 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755410AbdABNbd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Jan 2017 08:31:33 -0500
-In-Reply-To: <CAOAejn1ocTSvdPWnZ-+DwMfJj45cXXEDc1+=B5d3zCy2Pw+0-A@mail.gmail.com>
+Received: from mga14.intel.com ([192.55.52.115]:54454 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932615AbdABOKz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 2 Jan 2017 09:10:55 -0500
+Content-Disposition: inline
+In-Reply-To: <20170102113759.GC16295@nuc-i3427.alporthouse.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Chris Wilson <chris@chris-wilson.co.uk>, Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org
 
-Hello Uwe,
+On Mon, Jan 02, 2017 at 11:37:59AM +0000, Chris Wilson wrote:
+> On Sun, Jan 01, 2017 at 09:48:53PM +0100, Hans de Goede wrote:
+> > Hi,
+> > 
+> > On 01-01-17 21:24, Chris Wilson wrote:
+> > >On Sun, Jan 01, 2017 at 09:14:02PM +0100, Hans de Goede wrote:
+> > >>All callers of valleyview_set_rps() get at least FORCEWAKE_MEDIA, except
+> > >>for intel_set_rps(). Since intel_set_rps can for example be called from
+> > >>sysfs store functions, there is no guarantee this is already done, so add
+> > >>an intel_uncore_forcewake_get(FORCEWAKE_MEDIA) call to intel_set_rps.
+> > >>
+> > >>Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > >>---
+> > >> drivers/gpu/drm/i915/intel_pm.c | 9 +++++++--
+> > >> 1 file changed, 7 insertions(+), 2 deletions(-)
+> > >>
+> > >>diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> > >>index 4b12637..cc4fbd7 100644
+> > >>--- a/drivers/gpu/drm/i915/intel_pm.c
+> > >>+++ b/drivers/gpu/drm/i915/intel_pm.c
+> > >>@@ -5096,9 +5096,14 @@ void gen6_rps_boost(struct drm_i915_private *dev_priv,
+> > >>
+> > >> void intel_set_rps(struct drm_i915_private *dev_priv, u8 val)
+> > >> {
+> > >>-	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv))
+> > >>+	if (IS_VALLEYVIEW(dev_priv) || IS_CHERRYVIEW(dev_priv)) {
+> > >>+		/* Wake up the media well, as that takes a lot less
+> > >>+		 * power than the Render well.
+> > >>+		 */
+> > >>+		intel_uncore_forcewake_get(dev_priv, FORCEWAKE_MEDIA);
+> > >> 		valleyview_set_rps(dev_priv, val);
+> > >
+> > >Both powerwells are woken for rps. (Taking one but not the other has no
+> > >benefit, and very misleading.)
+> > 
+> > The comment on why FORCEWAKE_MEDIA is used + code is copy pasted from the
+> > existing code in vlv_set_rps_idle().
+> 
+> It's not correct there either...
 
->> Is it possible to make it more obvious by doing:
->>
->>         status = read_from_status_register() & read_from_interrupt_enable_register();
->>
->> at a single place?
-Contrary to what I said previously I have to keep possible_status
-variable as for one irq enabled we allow several events.
-For example, ITBUFEN allows to generate an irq for RXNE and for TXE events.
-So, using status = read_from_status_register() &
-read_from_interrupt_enable_register(); is not possible.
+Why not? If the render well is in rc6 already we don't want to waste
+power by waking it. The only reason we have to wake up *something* is
+so that the gpll frequency actually gets changed.
 
-Best regards,
-
-Cedric
+-- 
+Ville Syrjälä
+Intel OTC
