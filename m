@@ -1,205 +1,184 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on Dell
- machines
-Date: Tue, 3 Jan 2017 18:58:04 +0000
-Message-ID: <d5743c5f001341cb97327617037df1bb@ausx13mpc120.AMER.DELL.COM>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Tue, 3 Jan 2017 11:48:12 -0800
+Message-ID: <20170103194812.GD16032@dtor-ws>
 References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
- <20170103090641.GH5767@mail.corp.redhat.com> <20170103183843.GA16032@dtor-ws>
+ <20170103090641.GH5767@mail.corp.redhat.com>
+ <20170103183843.GA16032@dtor-ws>
  <201701031950.17389@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <201701031950.17389@pali>
-Content-Language: en-US
 Sender: platform-driver-x86-owner@vger.kernel.org
-To: pali.rohar@gmail.com, dmitry.torokhov@gmail.com
-Cc: benjamin.tissoires@redhat.com, kernel@kempniu.pl, jdelvare@suse.com, wsa@the-dreams.de, stevenhoneyman@gmail.com, Valdis.Kletnieks@vt.edu, jochen@penguin-breeder.org, gabriele.mzt@gmail.com, luto@kernel.org, alex.hung@canonical.com, tiwai@suse.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUGFsaSBSb2jDoXIgW21h
-aWx0bzpwYWxpLnJvaGFyQGdtYWlsLmNvbV0NCj4gU2VudDogVHVlc2RheSwgSmFudWFyeSAzLCAy
-MDE3IDEyOjUwIFBNDQo+IFRvOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFp
-bC5jb20+DQo+IENjOiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3NvaXJlc0ByZWRo
-YXQuY29tPjsgTWljaGHFgiBLxJlwaWXFhA0KPiA8a2VybmVsQGtlbXBuaXUucGw+OyBKZWFuIERl
-bHZhcmUgPGpkZWx2YXJlQHN1c2UuY29tPjsgV29sZnJhbSBTYW5nDQo+IDx3c2FAdGhlLWRyZWFt
-cy5kZT47IFN0ZXZlbiBIb25leW1hbiA8c3RldmVuaG9uZXltYW5AZ21haWwuY29tPjsNCj4gVmFs
-ZGlzLktsZXRuaWVrc0B2dC5lZHU7IEpvY2hlbiBFaXNpbmdlciA8am9jaGVuQHBlbmd1aW4tYnJl
-ZWRlci5vcmc+Ow0KPiBHYWJyaWVsZSBNYXp6b3R0YSA8Z2FicmllbGUubXp0QGdtYWlsLmNvbT47
-IEFuZHkgTHV0b21pcnNraQ0KPiA8bHV0b0BrZXJuZWwub3JnPjsgTGltb25jaWVsbG8sIE1hcmlv
-IDxNYXJpb19MaW1vbmNpZWxsb0BEZWxsLmNvbT47IEFsZXgNCj4gSHVuZyA8YWxleC5odW5nQGNh
-bm9uaWNhbC5jb20+OyBUYWthc2hpIEl3YWkgPHRpd2FpQHN1c2UuZGU+OyBsaW51eC0NCj4gaTJj
-QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgcGxhdGZvcm0t
-ZHJpdmVyLQ0KPiB4ODZAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGky
-YzogaTgwMTogUmVnaXN0ZXIgb3B0aW9uYWwgbGlzM2x2MDJkIGkyYyBkZXZpY2Ugb24gRGVsbA0K
-PiBtYWNoaW5lcw0KPiANCj4gT24gVHVlc2RheSAwMyBKYW51YXJ5IDIwMTcgMTk6Mzg6NDMgRG1p
-dHJ5IFRvcm9raG92IHdyb3RlOg0KPiA+IE9uIFR1ZSwgSmFuIDAzLCAyMDE3IGF0IDEwOjA2OjQx
-QU0gKzAxMDAsIEJlbmphbWluIFRpc3NvaXJlcyB3cm90ZToNCj4gPiA+IE9uIERlYyAyOSAyMDE2
-IG9yIHRoZXJlYWJvdXRzLCBQYWxpIFJvaMOhciB3cm90ZToNCj4gPiA+ID4gT24gVGh1cnNkYXkg
-MjkgRGVjZW1iZXIgMjAxNiAyMjowOTozMiBNaWNoYcWCIEvEmXBpZcWEIHdyb3RlOg0KPiA+ID4g
-PiA+ID4gT24gVGh1cnNkYXkgMjkgRGVjZW1iZXIgMjAxNiAxNDo0NzoxOSBNaWNoYcWCIEvEmXBp
-ZcWEIHdyb3RlOg0KPiA+ID4gPiA+ID4gPiA+IE9uIFRodXJzZGF5IDI5IERlY2VtYmVyIDIwMTYg
-MDk6Mjk6MzYgTWljaGHFgiBLxJlwaWXFhCB3cm90ZToNCj4gPiA+ID4gPiA+ID4gPiA+ID4gRGVs
-bCBwbGF0Zm9ybSB0ZWFtIHRvbGQgdXMgdGhhdCBzb21lIChETUkNCj4gPiA+ID4gPiA+ID4gPiA+
-ID4gd2hpdGVsaXN0ZWQpIERlbGwgTGF0aXR1ZGUgbWFjaGluZXMgaGF2ZSBTVA0KPiA+ID4gPiA+
-ID4gPiA+ID4gPiBtaWNyb2VsZWN0cm9uaWNzIGFjY2VsZXJvbWV0ZXIgYXQgaTJjIGFkZHJlc3Mg
-MHgyOS4NCj4gPiA+ID4gPiA+ID4gPiA+ID4gVGhhdCBpMmMgYWRkcmVzcyBpcyBub3Qgc3BlY2lm
-aWVkIGluIERNSSBvciBBQ1BJLCBzbw0KPiA+ID4gPiA+ID4gPiA+ID4gPiBydW50aW1lIGRldGVj
-dGlvbiB3aXRob3V0IHdoaXRlbGlzdCB3aGljaCBpcyBiZWxvdyBpcw0KPiA+ID4gPiA+ID4gPiA+
-ID4gPiBub3QgcG9zc2libGUuDQo+ID4gPiA+ID4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ID4g
-PiA+IFByZXNlbmNlIG9mIHRoYXQgU1QgbWljcm9lbGVjdHJvbmljcyBhY2NlbGVyb21ldGVyIGlz
-DQo+ID4gPiA+ID4gPiA+ID4gPiA+IHZlcmlmaWVkIGJ5IGV4aXN0ZW5jZSBvZiBTTU84OHh4IEFD
-UEkgZGV2aWNlIHdoaWNoDQo+ID4gPiA+ID4gPiA+ID4gPiA+IHJlcHJlc2VudCB0aGF0IGFjY2Vs
-ZXJvbWV0ZXIuIFVuZm9ydHVuYXRlbHkgd2l0aG91dA0KPiA+ID4gPiA+ID4gPiA+ID4gPiBpMmMg
-YWRkcmVzcy4NCj4gPiA+ID4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ID4gPiBUaGlzIHBhcnQg
-b2YgdGhlIGNvbW1pdCBtZXNzYWdlIHNvdW5kZWQgYSBiaXQgY29uZnVzaW5nDQo+ID4gPiA+ID4g
-PiA+ID4gPiB0byBtZSBhdCBmaXJzdCBiZWNhdXNlIHRoZXJlIGlzIGFscmVhZHkgYW4gQUNQSSBk
-cml2ZXINCj4gPiA+ID4gPiA+ID4gPiA+IHdoaWNoIGhhbmRsZXMgU01PODh4eA0KPiA+ID4gPiA+
-ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gPiA+IGRldmljZXMgKGRlbGwtc21vODgwMCkuICBNeSB1
-bmRlcnN0YW5kaW5nIGlzIHRoYXQ6DQo+ID4gPiA+ID4gPiA+ID4gPiAgICogdGhlIHB1cnBvc2Ug
-b2YgdGhpcyBwYXRjaCBpcyB0byBleHBvc2UgYSByaWNoZXINCj4gPiA+ID4gPiA+ID4gPiA+ICAg
-aW50ZXJmYWNlIChhcw0KPiA+ID4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gPiA+ICAgICBw
-cm92aWRlZCBieSBsaXMzbHYwMmQpIHRvIHRoZXNlIGRldmljZXMgb24gc29tZQ0KPiA+ID4gPiA+
-ID4gPiA+ID4gICAgIG1hY2hpbmVzLA0KPiA+ID4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4g
-PiA+ICAgKiBvbiB3aGl0ZWxpc3RlZCBtYWNoaW5lcywgZGVsbC1zbW84ODAwIGFuZCBsaXMzbHYw
-MmQNCj4gPiA+ID4gPiA+ID4gPiA+ICAgY2FuIHdvcmsNCj4gPiA+ID4gPiA+ID4gPiA+DQo+ID4g
-PiA+ID4gPiA+ID4gPiAgICAgc2ltdWx0YW5lb3VzbHkgKGV2ZW4gdGhvdWdoIGRlbGwtc21vODgw
-MA0KPiA+ID4gPiA+ID4gPiA+ID4gICAgIGVmZmVjdGl2ZWx5IGR1cGxpY2F0ZXMgdGhlIHdvcmsg
-dGhhdCBsaXMzbHYwMmQNCj4gPiA+ID4gPiA+ID4gPiA+ICAgICBkb2VzKS4NCj4gPiA+ID4gPiA+
-ID4gPg0KPiA+ID4gPiA+ID4gPiA+IE5vLiBkZWxsLXNtbzg4MDAgcmVhZHMgZnJvbSBBQ1BJIGly
-cSBudW1iZXIgYW5kIGV4cG9ydHMNCj4gPiA+ID4gPiA+ID4gPiAvZGV2L2ZyZWVmYWxsIGRldmlj
-ZSB3aGljaCBub3RpZnkgdXNlcnNwYWNlIGFib3V0IGZhbGxzLg0KPiA+ID4gPiA+ID4gPiA+IGxp
-czNsdjAyZCBpcyBpMmMgZHJpdmVyIHdoaWNoIGV4cG9ydHMgYXhlcyBvZg0KPiA+ID4gPiA+ID4g
-PiA+IGFjY2VsZXJvbWV0ZXIuIEFkZGl0aW9uYWx5IGxpczNsdjAyZCBjYW4gZXhwb3J0IGFsc28N
-Cj4gPiA+ID4gPiA+ID4gPiAvZGV2L2ZyZWVmYWxsIGlmIHJlZ2lzdGVyZXIgb2YgaTJjIGRldmlj
-ZSBwcm92aWRlcyBpcnENCj4gPiA+ID4gPiA+ID4gPiBudW1iZXIgLS0gd2hpY2ggaXMgbm90IGNh
-c2Ugb2YgdGhpcyBwYXRjaC4NCj4gPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiA+IFNvIGJv
-dGggZHJpdmVycyBhcmUgZG9pbmcgZGlmZmVyZW50IHRoaW5ncyBhbmQgYm90aCBhcmUNCj4gPiA+
-ID4gPiA+ID4gPiB1c2VmdWwuDQo+ID4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gPiBJSVJD
-IGJvdGggZGVsbC1zbW84ODAwIGFuZCBsaXMzbHYwMmQgcmVwcmVzZW50IG9uZSBIVw0KPiA+ID4g
-PiA+ID4gPiA+IGRldmljZSAodGhhdCBTVCBtaWNyb2VsZWN0cm9uaWNzIGFjY2VsZXJvbWV0ZXIp
-IGJ1dCBkdWUgdG8NCj4gPiA+ID4gPiA+ID4gPiBjb21wbGljYXRlZCBIVyBhYnN0cmFjdGlvbiBh
-bmQgbGF5ZXJzIG9uIERlbGwgbGFwdG9wcyBpdA0KPiA+ID4gPiA+ID4gPiA+IGlzIGhhbmRsZWQg
-YnkgdHdvIGRyaXZlcnMsIG9uZSBBQ1BJIGFuZCBvbmUgaTJjLg0KPiA+ID4gPiA+ID4gPiA+DQo+
-ID4gPiA+ID4gPiA+ID4gWWVzLCBpbiBpZGVhbCB3b3JsZCBpcnEgbnVtYmVyIHNob3VsZCBiZSBw
-YXNzZWQgdG8NCj4gPiA+ID4gPiA+ID4gPiBsaXMzbHYwMmQgZHJpdmVyIGFuZCB0aGF0IHdvdWxk
-IGV4cG9ydCB3aG9sZSBkZXZpY2UgKHdpdGgNCj4gPiA+ID4gPiA+ID4gPiAvZGV2L2ZyZWVmYWxs
-IHRvbyksIGJ1dCBkdWUgdG8gSFcgYWJzdHJhY3Rpb24gaXQgaXMgdG9vDQo+ID4gPiA+ID4gPiA+
-ID4gbXVjaCBjb21wbGljYXRlZC4uLg0KPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiBXaHk/
-ICBBRkFJQ1QsIGFsbCB0aGF0IGlzIHJlcXVpcmVkIHRvIHBhc3MgdGhhdCBJUlEgbnVtYmVyDQo+
-ID4gPiA+ID4gPiA+IGFsbCB0aGUgd2F5IGRvd24gdG8gbGlzM2x2MDJkIGlzIHRvIHNldCB0aGUg
-aXJxIGZpZWxkIG9mIHRoZQ0KPiA+ID4gPiA+ID4gPiBzdHJ1Y3QgaTJjX2JvYXJkX2luZm8geW91
-IGFyZSBwYXNzaW5nIHRvIGkyY19uZXdfZGV2aWNlKCkuDQo+ID4gPiA+ID4gPiA+IEFuZCB5b3Ug
-Y2FuIGV4dHJhY3QgdGhhdCBJUlEgbnVtYmVyIGUuZy4gaW4NCj4gPiA+ID4gPiA+ID4gY2hlY2tf
-YWNwaV9zbW84OHh4X2RldmljZSgpLiBIb3dldmVyLCB5b3Ugd291bGQgdGhlbiBuZWVkIHRvDQo+
-ID4gPiA+ID4gPiA+IG1ha2Ugc3VyZSBkZWxsLXNtbzg4MDAgZG9lcyBub3QgYXR0ZW1wdCB0byBy
-ZXF1ZXN0IHRoZSBzYW1lDQo+ID4gPiA+ID4gPiA+IElSUSBvbiB3aGl0ZWxpc3RlZCBtYWNoaW5l
-cy4gIFRoaXMgZ290IG1lIHRoaW5raW5nIGFib3V0IGENCj4gPiA+ID4gPiA+ID4gd2F5IHRvIHNv
-bWVob3cgaW5jb3Jwb3JhdGUgeW91ciBjaGFuZ2VzIGludG8gZGVsbC1zbW84ODAwDQo+ID4gPiA+
-ID4gPiA+IHVzaW5nIFdvbGZyYW0ncyBidXNfbm90aWZpZXIgc3VnZ2VzdGlvbiwgYnV0IEkgZG8g
-bm90IGhhdmUgYQ0KPiA+ID4gPiA+ID4gPiB3b3JraW5nIHNvbHV0aW9uIGZvciBub3cuICBXaGF0
-IGlzIHRlbXB0aW5nIGFib3V0IHRoaXMNCj4gPiA+ID4gPiA+ID4gYXBwcm9hY2ggaXMgdGhhdCB5
-b3Ugd291bGQgbm90IGhhdmUgdG8gc2NhbiB0aGUgQUNQSQ0KPiA+ID4gPiA+ID4gPiBuYW1lc3Bh
-Y2UgaW4gc2VhcmNoIG9mIFNNTzg4eHggZGV2aWNlcywgYmVjYXVzZQ0KPiA+ID4gPiA+ID4gPiBz
-bW84ODAwX2FkZCgpIGlzIGF1dG9tYXRpY2FsbHkgY2FsbGVkIGZvciB0aGVtLg0KPiA+ID4gPiA+
-ID4gPiBIb3dldmVyLCBJIGZlYXIgdGhhdCB0aGUgcmVzdWx0aW5nIHNvbHV0aW9uIG1heSBiZSBt
-b3JlDQo+ID4gPiA+ID4gPiA+IGNvbXBsaWNhdGVkIHRoYW4gdGhlIG9uZSB5b3Ugc3VibWl0dGVk
-Lg0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IFRoZW4gd2UgbmVlZCB0byBkZWFsIHdpdGggbG90
-IG9mIHByb2JsZW1zLiBPcmRlciBvZiBsb2FkaW5nDQo+ID4gPiA+ID4gPiAua28gbW9kdWxlcyBp
-cyB1bmRlZmluZWQuIEJpbmRpbmcgZGV2aWNlcyB0byBkcml2ZXJzDQo+ID4gPiA+ID4gPiByZWdp
-c3RlcmVkIGJ5IC5rbyBtb2R1bGUgaXMgYWxzbyBpbiAicmFuZG9tIiBvcmRlci4gQXQgYW55DQo+
-ID4gPiA+ID4gPiB0aW1lIGFueSBvZiB0aG9zZSAua28gbW9kdWxlIGNhbiBiZSB1bmxvYWRlZCBv
-ciBhdCBsZWFzdA0KPiA+ID4gPiA+ID4gZGV2aWNlIHVuYmluZCAodmlhIHN5c2ZzKSBmcm9tIGRy
-aXZlci4uLiBBbmQgdGhlcmUgY2FuIGJlIHNvbWUNCj4gPiA+ID4gPiA+IHBhdGhvbG9naWNhbCBz
-aXR1YXRpb24gKHRoYW5rcyB0byBhZGRpbmcgQUNQSSBsYXllciBhcyBBbmR5DQo+ID4gPiA+ID4g
-PiBwb2ludGVkKSB0aGF0IHRoZXJlIHdpbGwgYmUgbW9yZSBTTU84OHh4IGRldmljZXMgaW4gQUNQ
-SS4gUGx1cw0KPiA+ID4gPiA+ID4geW91IGNhbiBjb21waWxlIGtlcm5lbCB3aXRoIGFuZCB3aXRo
-b3V0IHRob3NlIG1vZHVsZXMgYW5kIGFsc28NCj4gPiA+ID4gPiA+IHlvdSBjYW4gYmxhY2tsaXN0
-IGxvYWRpbmcgdGhlbSAoc28gY29tcGlsZSB0aW1lIGNoZWNrIGlzIG5vdA0KPiA+ID4gPiA+ID4g
-ZW5vdWdoKS4gQW5kIHN0aWxsIHNvbWUgY29ycmVjdCBtZXNzYWdlIG5vdGlmaWVyIG11c3QgYmUg
-dXNlZC4NCj4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiBJIHRoaW5rIHN1Y2ggc29sdXRpb24gaXMg
-bXVjaCBtdWNoIG1vcmUgY29tcGxpY2F0ZWQsIHRoZXJlIGFyZQ0KPiA+ID4gPiA+ID4gbG90IG9m
-IGNvbWJpbmF0aW9ucyBvZiBrZXJuZWwgY29uZmlndXJhdGlvbiBhbmQgYXZhaWxhYmxlIGRlbGwN
-Cj4gPiA+ID4gPiA+IGRldmljZXMuLi4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IEkgdHJpZWQgYSBm
-ZXcgbW9yZSB0aGluZ3MsIGJ1dCB1bHRpbWF0ZWx5IGZhaWxlZCB0byBmaW5kIGEgbmljZQ0KPiA+
-ID4gPiA+IHdheSB0byBpbXBsZW1lbnQgdGhpcy4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IEFub3Ro
-ZXIgaXNzdWUgcG9wcGVkIHVwLCB0aG91Z2guICBMaW51cycgbWFzdGVyIGJyYW5jaCBjb250YWlu
-cw0KPiA+ID4gPiA+IGEgcmVjZW50IGNvbW1pdCBieSBCZW5qYW1pbiBUaXNzb2lyZXMgKENDJ2Vk
-KSwgNGQ1NTM4ZjU4ODJhDQo+ID4gPiA+ID4gKCJpMmM6IHVzZSBhbiBJUlEgdG8gcmVwb3J0IEhv
-c3QgTm90aWZ5IGV2ZW50cywgbm90IGFsZXJ0IikNCj4gPiA+ID4gPiB3aGljaCBicmVha3MgeW91
-ciBwYXRjaC4gIFRoZSByZWFzb24gZm9yIHRoYXQgaXMgdGhhdCBsaXMzbHYwMmQNCj4gPiA+ID4g
-PiByZWxpZXMgb24gdGhlIGkyYyBjbGllbnQncyBJUlEgYmVpbmcgMCB0byBkZXRlY3QgdGhhdCBp
-dCBzaG91bGQNCj4gPiA+ID4gPiBub3QgY3JlYXRlIC9kZXYvZnJlZWZhbGwuICBCZW5qYW1pbidz
-IHBhdGNoIGNhdXNlcyB0aGUgSG9zdA0KPiA+ID4gPiA+IE5vdGlmeSBJUlEgdG8gYmUgYXNzaWdu
-ZWQgdG8gdGhlIGkyYyBjbGllbnQgeW91ciBwYXRjaCBjcmVhdGVzLA0KPiA+ID4gPiA+IHRodXMg
-Y2F1c2luZyBsaXMzbHYwMmQgdG8gY3JlYXRlIC9kZXYvZnJlZWZhbGwsIHdoaWNoIGluIHR1cm4N
-Cj4gPiA+ID4gPiBjb25mbGljdHMgd2l0aCBkZWxsLXNtbzg4MDAgd2hpY2ggaXMgdHJ5aW5nIHRv
-IGNyZWF0ZQ0KPiA+ID4gPiA+IC9kZXYvZnJlZWZhbGwgaXRzZWxmLg0KPiA+ID4gPg0KPiA+ID4g
-PiBTbyA0ZDU1MzhmNTg4MmEgaXMgYnJlYWtpbmcgbGlzM2x2MDJkIGRyaXZlci4uLg0KPiA+ID4N
-Cj4gPiA+IEFwb2xvZ2llcyBmb3IgdGhhdC4NCj4gPiA+DQo+ID4gPiBJIGNvdWxkIGVhc2lseSBm
-aXggdGhpcyBieSBhZGRpbmcgYSBrZXJuZWwgQVBJIHRvIGtub3cgd2hldGhlciB0aGUNCj4gPiA+
-IHByb3ZpZGVkIGlycSBpcyBmcm9tIEhvc3QgTm90aWZ5IG9yIGlmIGl0IHdhcyBjb21pbmcgZnJv
-bSBhbiBhY3R1YWwNCj4gPiA+IGRlY2xhcmF0aW9uLiBIb3dldmVyLCBJIGhhdmUgbm8gaWRlYSBo
-b3cgbWFueSBvdGhlciBkcml2ZXJzIHdvdWxkDQo+ID4gPiByZXF1aXJlIHRoaXMgKGhvcGVmdWxs
-eSBvbmx5IHRoaXMgb25lKS4NCj4gPiA+DQo+ID4gPiBPbmUgb3RoZXIgc29sdXRpb24gd291bGQg
-YmUgdG8gcmVzZXJ2ZSB0aGUgSG9zdCBOb3RpZnkgSVJRIGFuZCBsZXQNCj4gPiA+IHRoZSBhY3R1
-YWwgZHJpdmVycyB0aGF0IG5lZWQgaXQgdG8gc2V0IGl0LCBidXQgdGhpcyB3YXMgbm90IHRoZSBi
-ZXN0DQo+ID4gPiBzb2x1dGlvbiBhY2NvcmRpbmcgdG8gRG1pdHJpLiBPbiBteSBzaWRlLCBJIGFt
-IG5vdCBlbnRpcmVseSBhZ2FpbnN0DQo+ID4gPiB0aGlzIGdpdmVuIHRoYXQgaXQncyBhIGNoaXAg
-ZmVhdHVyZSwgc28gdGhlIGRyaXZlciBzaG91bGQgYmUgYWJsZSB0bw0KPiA+ID4ga25vdyB0aGF0
-IGl0J3MgYXZhaWxhYmxlLg0KPiA+ID4NCj4gPiA+IERtaXRyaSwgV29sZnJhbSwgSmVhbiwgYW55
-IHByZWZlcmVuY2VzPw0KPiA+DQo+ID4gSSByZWFkIHRoaXM6DQo+ID4NCj4gPiAiSUlSQyBib3Ro
-IGRlbGwtc21vODgwMCBhbmQgbGlzM2x2MDJkIHJlcHJlc2VudCBvbmUgSFcgZGV2aWNlICh0aGF0
-IFNUDQo+ID4gbWljcm9lbGVjdHJvbmljcyBhY2NlbGVyb21ldGVyKSBidXQgZHVlIHRvIGNvbXBs
-aWNhdGVkIEhXIGFic3RyYWN0aW9uDQo+ID4gYW5kIGxheWVycyBvbiBEZWxsIGxhcHRvcHMgaXQg
-aXMgaGFuZGxlZCBieSB0d28gZHJpdmVycywgb25lIEFDUEkgYW5kDQo+ID4gb25lIGkyYy4iDQo+
-ID4NCj4gPiBhbmQgdGhhdCBpcyB0aGUgY29yZSBvZiB0aGUgaXNzdWUuIFlvdSBoYXZlIDIgZHJp
-dmVycyBmaWdodGluZyBvdmVyDQo+ID4gdGhlIHNhbWUgZGV2aWNlLiBGaXggdGhpcyBhbmQgaXQg
-d2lsbCBhbGwgd29yay4NCj4gDQo+IFdpdGggbXkgY3VycmVudCBpbXBsZW1lbnRhdGlvbiAod2hp
-Y2ggSSBzZW50IGluIHRoaXMgcGF0Y2gpLCB0aGV5IGFyZSBub3QNCj4gZmlnaHRpbmcuDQo+IA0K
-PiBkZWxsLXNtbzg4MDAgZXhwb3J0cyAvZGV2L2ZyZWVmYWxsIChhbmQgbm90aGluZyBtb3JlKSBh
-bmQgbGlzM2x2MDJkIG9ubHkNCj4gYWNjZWxlcm9tZXRlciBkZXZpY2UgYXMgbGlzM2x2MDJkIGRy
-aXZlciBkb2VzIG5vdCBnZXQgSVJRIG51bWJlciBpbiBwbGF0Zm9ybQ0KPiBkYXRhLg0KPiANCj4g
-PiBBcyBmYXIgYXMgSSBjYW4gc2VlIGhwX2FjY2VsIGluc3RhbnRpYXRlcyBsaXMzbHYwMmQgYW5k
-IGFjY2Vzc2VzIGl0DQo+ID4gdmlhIEFDUEkgbWV0aG9kcywgY2FuIHRoZSBzYW1lIGJlIGRvbmUg
-Zm9yIERlbGw/DQo+IA0KPiBObywgRGVsbCBkb2VzIG5vdCBoYXZlIGFueSBBQ1BJIG1ldGhvZHMu
-IEFuZCBhcyBJIHdyb3RlIGluIEFDUEkgb3IgRE1JIGlzIGV2ZW4NCj4gbm90IGkyYyBhZGRyZXNz
-IG9mIGRldmljZSwgc28gaXQgbmVlZHMgdG8gYmUgc3BlY2lmaWVkIGluIGNvZGUgaXRzZWxmLg0K
-PiANCj4gUmVhbGx5IHRoZXJlIGlzIG5vIG90aGVyIHdheS4uLiA6LSgNCg0KRGVsbCBkb2Vzbid0
-IGV4cG9ydCB0aGUgZ2VuZXJhbCBwdXJwb3NlIGFjY2VsZXJvbWV0ZXIgDQpkYXRhIHVwIHRvIHRo
-ZSBPUy4NCg0KUGFsaSB3YW50ZWQgaXQgaG93ZXZlciBhbmQgY2FtZSB1cCB3aXRoIGEgd2F5IHRv
-IGFjY2VzcyBpdCB0aG91Z2ggDQpmcm9tIHRoZSBpbmZvcm1hdGlvbiB3ZSBoYXZlIHNoYXJlZC4N
-Cg0KVGhhdCdzIHRoZSByZWFzb24gdGhhdCB0aGVyZSBpcyBubyBBQ1BJIG1ldGhvZCBmb3IgdGhp
-cyBhbmQgaXQgbmVlZHMNCnRvIGJlIHdoaXRlbGlzdGVkIGluIHRoaXMgZHJpdmVyIG9uIHRoZSBw
-bGF0Zm9ybXMgdGhhdCBoYXZlIGl0IHdpcmVkDQp1cCB0aGlzIHdheS4NCg0KDQo+IA0KPiA+ID4g
-PiA+IEFsc28sIGp1c3QgdG8gbWFrZSBzdXJlIHdlIGRvIG5vdCBvdmVydGhpbmsgdGhpcywgSSB1
-bmRlcnN0YW5kDQo+ID4gPiA+ID4gdGhhdCBub3QgZXZlcnkgdW5pdCBvZiB0aGUgbW9kZWxzIGZy
-b20gdGhlIHdoaXRlbGlzdCBoYXMgYW4NCj4gPiA+ID4gPiBhY2NlbGVyb21ldGVyLCBjb3JyZWN0
-PyAgSW4gb3RoZXIgd29yZHMsIGNvdWxkIHdlIHBlcmhhcHMgc2tpcA0KPiA+ID4gPiA+IHRoZSBw
-YXJ0IHdoZXJlIHdlIGFyZSBtYWtpbmcgc3VyZSB0aGUgU01PODh4eCBBQ1BJIGRldmljZSBpcw0K
-PiA+ID4gPiA+IHRoZXJlPw0KPiA+ID4gPg0KPiA+ID4gPiBHb29kIHF1ZXN0aW9uLi4uIEF0IGxl
-YXN0IGZvciBFNjQ0MCBJJ20gZGlkIG5vdCB0aGluZyBpdCB3YXMNCj4gPiA+ID4gcG9zc2libGUg
-dG8gY29uZmlndXJlIG5vdGVib29rIHdpdGhvdXQgIjMgYXhlcyBmcmVlIGZhbGwgc2Vuc29yIi4N
-Cj4gPiA+ID4NCj4gPiA+ID4gQnV0ISBJbiBCSU9TIFNFVFVQIGl0IGlzIHBvc3NpYmxlIHRvIGRp
-c2FibGUgZnJlZSBmYWxsIHNlbnNvci4gSQ0KPiA+ID4gPiB3aWxsIHRyeSB0byBkaXNhYmxlIGl0
-IHRoZXJlIGFuZCB3aWxsIGNoZWNrIHdoYXQgaGFwcGVuLiBNeSBndWVzcw0KPiA+ID4gPiBpcyB0
-aGF0IGl0IHdpbGwgYmUgZGlzYWJsZWQgaW4gQUNQSS4NCj4gPiA+DQo+ID4gPiBKdXN0IGFkZGlu
-ZyBteSAyIGNlbnRzIHJlZ2FyZGluZyB0aGUgd2hpdGVsaXN0IGFuZCBpbnRlcmFjdGlvbg0KPiA+
-ID4gYmV0d2VlbiB0aG9zZSAyIGRyaXZlcnMuIEkgZmluZCB0aGlzIHZlcnkgZnJhZ2lsZSB0byBo
-YXZlIG9ubHkgb25lDQo+ID4gPiBhdmFpbGFibGUgL2Rldi9mcmVlZmFsbCBub2RlIGFuZCB0byBy
-ZWx5IG9uIHRoZSBmYWlybmVzcyBvZiBlYWNoDQo+ID4gPiBkcml2ZXIgdG8gbm90IGJpbmQgb25l
-LiBJdCB3b3VsZCBoYXZlIGJlZW4gbXVjaCBzaW1wbGVyIHRvIGhhdmUNCj4gPiA+IC9kZXYvZnJl
-ZWZhbGxYWCBhbmQgYSBwcm9wZXIgbWlzYyBjbGFzcyBkZXZpY2UgZm9yIGl0LiBUaGlzIHdheSwg
-d2UNCj4gPiA+IGRvbid0IGV2ZW4gbmVlZCB0byBtdXR1YWxseSBleGNsdWRlIHRoZSBkcml2ZXJz
-LiBCdXQgdGhpcyBpcyBhbHJlYWR5DQo+ID4gPiA4IHllYXJzIG9sZCBjb2RlLCBzbyBJIGd1ZXNz
-IHVzZXJzcGFjZSBleHBlY3RzIHRoaXMuLi4NCj4gPiA+ICh3aHkgaXNuJ3QgdGhhdCB1c2luZyB0
-aGUgaW5wdXQgc3Vic3lzdGVtIGF0IGFsbD8pLg0KPiA+DQo+ID4gSSBkbyBub3QgY29uc2lkZXIg
-dGhyb3dpbmcgYSB1bml0IGRvd24gYW4gb3JkaW5hcnkgdXNlciBpbnRlcmFjdGlvbg0KPiA+IDsp
-IFNvIHRoZXJlIGlzIG5vIGlucHV0IGV2ZW50IGNvZGUgZm9yIHRoaXMuDQo+ID4NCj4gPiBVc2Vy
-c3BhY2Ugc2hvdWxkIHJlYWxseSB1c2UgSUlPIGFjY2VsZXJvbWV0ZXIgaW50ZXJmYWNlIGhlcmUu
-IEFuZA0KPiA+IGtlcm5lbCBjb3VsZCBwcm92aWRlIGNvbXBvc2l0ZSBJSU8tPi9kZXYvZnJlZWZh
-bGwgYnJpZGdlLCBsaWtlIHdlDQo+IA0KPiBTdWNoICJnZW5lcmljIiBicmlkZ2UgaXMgcHJvYmFi
-bHkgbm90IHBvc3NpYmxlLCBhcyAvZGV2L2ZyZWVmYWxsIGlzIGNvbm5lY3RlZCB0bw0KPiBzcGVj
-aWZpYyBsaXMzbHYwMmQgSVJRLg0KPiANCj4gPiBkaWQgZm9yIC9kZXYvaW5wdXQvbWljZSB3aGVu
-IGFsbCB1c2Vyc3BhY2Ugd2FudGVkIG9ubHkgUFMvMi4NCj4gPg0KPiA+IFRoYW5rcy4NCj4gDQo+
-IC0tDQo+IFBhbGkgUm9ow6FyDQo+IHBhbGkucm9oYXJAZ21haWwuY29tDQo=
+On Tue, Jan 03, 2017 at 07:50:17PM +0100, Pali Rohár wrote:
+> On Tuesday 03 January 2017 19:38:43 Dmitry Torokhov wrote:
+> > On Tue, Jan 03, 2017 at 10:06:41AM +0100, Benjamin Tissoires wrote:
+> > > On Dec 29 2016 or thereabouts, Pali Rohár wrote:
+> > > > On Thursday 29 December 2016 22:09:32 Michał Kępień wrote:
+> > > > > > On Thursday 29 December 2016 14:47:19 Michał Kępień wrote:
+> > > > > > > > On Thursday 29 December 2016 09:29:36 Michał Kępień wrote:
+> > > > > > > > > > Dell platform team told us that some (DMI
+> > > > > > > > > > whitelisted) Dell Latitude machines have ST
+> > > > > > > > > > microelectronics accelerometer at i2c address 0x29.
+> > > > > > > > > > That i2c address is not specified in DMI or ACPI, so
+> > > > > > > > > > runtime detection without whitelist which is below
+> > > > > > > > > > is not possible.
+> > > > > > > > > > 
+> > > > > > > > > > Presence of that ST microelectronics accelerometer is
+> > > > > > > > > > verified by existence of SMO88xx ACPI device which
+> > > > > > > > > > represent that accelerometer. Unfortunately without
+> > > > > > > > > > i2c address.
+> > > > > > > > > 
+> > > > > > > > > This part of the commit message sounded a bit confusing
+> > > > > > > > > to me at first because there is already an ACPI driver
+> > > > > > > > > which handles SMO88xx
+> > > > > > > > > 
+> > > > > > > > > devices (dell-smo8800).  My understanding is that:
+> > > > > > > > >   * the purpose of this patch is to expose a richer
+> > > > > > > > >   interface (as
+> > > > > > > > >   
+> > > > > > > > >     provided by lis3lv02d) to these devices on some
+> > > > > > > > >     machines,
+> > > > > > > > >   
+> > > > > > > > >   * on whitelisted machines, dell-smo8800 and lis3lv02d
+> > > > > > > > >   can work
+> > > > > > > > >   
+> > > > > > > > >     simultaneously (even though dell-smo8800
+> > > > > > > > >     effectively duplicates the work that lis3lv02d
+> > > > > > > > >     does).
+> > > > > > > > 
+> > > > > > > > No. dell-smo8800 reads from ACPI irq number and exports
+> > > > > > > > /dev/freefall device which notify userspace about falls.
+> > > > > > > > lis3lv02d is i2c driver which exports axes of
+> > > > > > > > accelerometer. Additionaly lis3lv02d can export also
+> > > > > > > > /dev/freefall if registerer of i2c device provides irq
+> > > > > > > > number -- which is not case of this patch.
+> > > > > > > > 
+> > > > > > > > So both drivers are doing different things and both are
+> > > > > > > > useful.
+> > > > > > > > 
+> > > > > > > > IIRC both dell-smo8800 and lis3lv02d represent one HW
+> > > > > > > > device (that ST microelectronics accelerometer) but due
+> > > > > > > > to complicated HW abstraction and layers on Dell laptops
+> > > > > > > > it is handled by two drivers, one ACPI and one i2c.
+> > > > > > > > 
+> > > > > > > > Yes, in ideal world irq number should be passed to
+> > > > > > > > lis3lv02d driver and that would export whole device
+> > > > > > > > (with /dev/freefall too), but due to HW abstraction it
+> > > > > > > > is too much complicated...
+> > > > > > > 
+> > > > > > > Why?  AFAICT, all that is required to pass that IRQ number
+> > > > > > > all the way down to lis3lv02d is to set the irq field of
+> > > > > > > the struct i2c_board_info you are passing to
+> > > > > > > i2c_new_device().  And you can extract that IRQ number
+> > > > > > > e.g. in check_acpi_smo88xx_device(). However, you would
+> > > > > > > then need to make sure dell-smo8800 does not attempt to
+> > > > > > > request the same IRQ on whitelisted machines.  This got me
+> > > > > > > thinking about a way to somehow incorporate your changes
+> > > > > > > into dell-smo8800 using Wolfram's bus_notifier suggestion,
+> > > > > > > but I do not have a working solution for now.  What is
+> > > > > > > tempting about this approach is that you would not have to
+> > > > > > > scan the ACPI namespace in search of SMO88xx devices,
+> > > > > > > because smo8800_add() is automatically called for them. 
+> > > > > > > However, I fear that the resulting solution may be more
+> > > > > > > complicated than the one you submitted.
+> > > > > > 
+> > > > > > Then we need to deal with lot of problems. Order of loading
+> > > > > > .ko modules is undefined. Binding devices to drivers
+> > > > > > registered by .ko module is also in "random" order. At any
+> > > > > > time any of those .ko module can be unloaded or at least
+> > > > > > device unbind (via sysfs) from driver... And there can be
+> > > > > > some pathological situation (thanks to adding ACPI layer as
+> > > > > > Andy pointed) that there will be more SMO88xx devices in
+> > > > > > ACPI. Plus you can compile kernel with and without those
+> > > > > > modules and also you can blacklist loading them (so compile
+> > > > > > time check is not enough). And still some correct message
+> > > > > > notifier must be used.
+> > > > > > 
+> > > > > > I think such solution is much much more complicated, there
+> > > > > > are lot of combinations of kernel configuration and
+> > > > > > available dell devices...
+> > > > > 
+> > > > > I tried a few more things, but ultimately failed to find a nice
+> > > > > way to implement this.
+> > > > > 
+> > > > > Another issue popped up, though.  Linus' master branch contains
+> > > > > a recent commit by Benjamin Tissoires (CC'ed), 4d5538f5882a
+> > > > > ("i2c: use an IRQ to report Host Notify events, not alert")
+> > > > > which breaks your patch.  The reason for that is that
+> > > > > lis3lv02d relies on the i2c client's IRQ being 0 to detect
+> > > > > that it should not create /dev/freefall.  Benjamin's patch
+> > > > > causes the Host Notify IRQ to be assigned to the i2c client
+> > > > > your patch creates, thus causing lis3lv02d to create
+> > > > > /dev/freefall, which in turn conflicts with dell-smo8800 which
+> > > > > is trying to create /dev/freefall itself.
+> > > > 
+> > > > So 4d5538f5882a is breaking lis3lv02d driver...
+> > > 
+> > > Apologies for that.
+> > > 
+> > > I could easily fix this by adding a kernel API to know whether the
+> > > provided irq is from Host Notify or if it was coming from an actual
+> > > declaration. However, I have no idea how many other drivers would
+> > > require this (hopefully only this one).
+> > > 
+> > > One other solution would be to reserve the Host Notify IRQ and let
+> > > the actual drivers that need it to set it, but this was not the
+> > > best solution according to Dmitri. On my side, I am not entirely
+> > > against this given that it's a chip feature, so the driver should
+> > > be able to know that it's available.
+> > > 
+> > > Dmitri, Wolfram, Jean, any preferences?
+> > 
+> > I read this:
+> > 
+> > "IIRC both dell-smo8800 and lis3lv02d represent one HW device (that
+> > ST microelectronics accelerometer) but due to complicated HW
+> > abstraction and layers on Dell laptops it is handled by two drivers,
+> > one ACPI and one i2c."
+> > 
+> > and that is the core of the issue. You have 2 drivers fighting over
+> > the same device. Fix this and it will all work.
+> 
+> With my current implementation (which I sent in this patch), they are 
+> not fighting.
+> 
+> dell-smo8800 exports /dev/freefall (and nothing more) and lis3lv02d only 
+> accelerometer device as lis3lv02d driver does not get IRQ number in 
+> platform data.
+> 
+> > As far as I can see hp_accel instantiates lis3lv02d and accesses it
+> > via ACPI methods, can the same be done for Dell?
+> 
+> No, Dell does not have any ACPI methods. And as I wrote in ACPI or DMI 
+> is even not i2c address of device, so it needs to be specified in code 
+> itself.
+> 
+> Really there is no other way... :-(
+
+Sure there is:
+
+1. dell-smo8800 instantiates I2C device as "dell-smo8800-accel".
+2. dell-smo8800 provides read/write functions for lis3lv02d that simply
+   forward requests to dell-smo8800-accel i2c client.
+3. dell-smo8800 instantiates lis3lv02d instance like hp_accel does.
+
+Alternatively, can lis3lv02d be tasked to create /dev/freefall?
+
+Yet another option: can we add a new flag to i2c_board_info controlling
+whether we want to enable/disable wiring up host notify interrupt?
+Benjamin, is there anything "special" in RMI SMbus ACPI descriptors we
+could use?
+
+Thanks.
+
+-- 
+Dmitry
