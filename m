@@ -1,59 +1,68 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
- Dell machines
-Date: Tue, 3 Jan 2017 10:23:35 +0100
-Message-ID: <20170103092335.GB20337@pali>
-References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
- <201612291517.37474@pali>
- <20161229210932.GA1254@kmp-mobile.hq.kempniu.pl>
- <201612292228.18706@pali>
- <20170103090641.GH5767@mail.corp.redhat.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v7 3/4] arm64: dts: marvell: Add I2C definitions for the
+ Armada 3700
+Date: Tue, 03 Jan 2017 16:20:34 +0100
+Message-ID: <8760lwgofx.fsf@free-electrons.com>
+References: <20161201110440.27530-1-romain.perier@free-electrons.com>
+ <20161201110440.27530-4-romain.perier@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170103090641.GH5767@mail.corp.redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20161201110440.27530-4-romain.perier@free-electrons.com> (Romain
+ Perier's message of "Thu, 1 Dec 2016 12:04:39 +0100")
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Romain Perier <romain.perier@free-electrons.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Yahuda Yitschak <yehuday@marvell.com>, Omri Itach <omrii@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Igal Liberman <igall@marvell.com>, Hanna Hawa <hannah@marvell.com>, Wolfram Sang <wsa@the-dreams.de>, Neta Zur Hershkovits <neta@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Rob Herring <robh+dt@kernel.org>, Andrew Lunn <andrew@lunn.ch>, linux-i2c@vger.kernel.org, Kumar Gala <galak@codeaurora.org>, Shadi Ammouri <shadi@marvell.com>, Marcin Wojtas <mw@semihalf.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 03 January 2017 10:06:41 Benjamin Tissoires wrote:
-> On Dec 29 2016 or thereabouts, Pali Rohár wrote:
-> > On Thursday 29 December 2016 22:09:32 Michał Kępień wrote:
-> > > Also, just to make sure we do not overthink this, I understand that
-> > > not every unit of the models from the whitelist has an
-> > > accelerometer, correct?  In other words, could we perhaps skip the
-> > > part where we are making sure the SMO88xx ACPI device is there?
-> > 
-> > Good question... At least for E6440 I'm did not thing it was possible to 
-> > configure notebook without "3 axes free fall sensor".
-> > 
-> > But! In BIOS SETUP it is possible to disable free fall sensor. I will 
-> > try to disable it there and will check what happen. My guess is that it 
-> > will be disabled in ACPI.
-> 
-> Just adding my 2 cents regarding the whitelist and interaction between
-> those 2 drivers. I find this very fragile to have only one available
-> /dev/freefall node and to rely on the fairness of each driver to not bind
-> one. It would have been much simpler to have /dev/freefallXX and a
-> proper misc class device for it. This way, we don't even need to
-> mutually exclude the drivers. But this is already 8 years old code, so I
-> guess userspace expects this... (why isn't that using the input subsystem
-> at all?).
-> 
-> Cheers,
-> Benjamin.
-> 
-
-I think there is no problem with more /dev/freefall devices. With these
-Dell drivers it should not happen as only one driver can request IRQ
-which is associated with /dev/freefall. And /dev/freefal is registered
-after acquiring IRQ.
-
-But... there are other problems with it as wrote in previous emails.
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+SGkgUm9tYWluLAogCiBPbiBqZXUuLCBkw6ljLiAwMSAyMDE2LCBSb21haW4gUGVyaWVyIDxyb21h
+aW4ucGVyaWVyQGZyZWUtZWxlY3Ryb25zLmNvbT4gd3JvdGU6Cgo+IFRoZSBBcm1hZGEgMzcwMCBo
+YXMgdHdvIGkyYyBidXMgaW50ZXJmYWNlIHVuaXRzLCB0aGlzIGNvbW1pdCBhZGRzIHRoZQo+IGRl
+ZmluaXRpb25zIG9mIHRoZSBjb3JyZXNwb25kaW5nIGRldmljZSBub2Rlcy4gSXQgYWxzbyBlbmFi
+bGVzIHRoZSBub2RlCj4gb24gdGhlIGRldmVsb3BtZW50IGJvYXJkIGZvciB0aGlzIFNvQy4KPgo+
+IFNpZ25lZC1vZmYtYnk6IFJvbWFpbiBQZXJpZXIgPHJvbWFpbi5wZXJpZXJAZnJlZS1lbGVjdHJv
+bnMuY29tPgo+IEFja2VkLWJ5OiBHcmVnb3J5IENMRU1FTlQgPGdyZWdvcnkuY2xlbWVudEBmcmVl
+LWVsZWN0cm9ucy5jb20+CgpBcHBsaWVkIG9uIG12ZWJ1L2R0NjQKClRoYW5rcywKCkdyZWdvcnkK
+Cj4gLS0tCj4gIGFyY2gvYXJtNjQvYm9vdC9kdHMvbWFydmVsbC9hcm1hZGEtMzcyMC1kYi5kdHMg
+fCAgNCArKysrCj4gIGFyY2gvYXJtNjQvYm9vdC9kdHMvbWFydmVsbC9hcm1hZGEtMzd4eC5kdHNp
+ICAgfCAxOCArKysrKysrKysrKysrKysrKysKPiAgMiBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRp
+b25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0cy9tYXJ2ZWxsL2FybWFk
+YS0zNzIwLWRiLmR0cyBiL2FyY2gvYXJtNjQvYm9vdC9kdHMvbWFydmVsbC9hcm1hZGEtMzcyMC1k
+Yi5kdHMKPiBpbmRleCAxMzcyZTlhNi4uMTZkODRhZiAxMDA2NDQKPiAtLS0gYS9hcmNoL2FybTY0
+L2Jvb3QvZHRzL21hcnZlbGwvYXJtYWRhLTM3MjAtZGIuZHRzCj4gKysrIGIvYXJjaC9hcm02NC9i
+b290L2R0cy9tYXJ2ZWxsL2FybWFkYS0zNzIwLWRiLmR0cwo+IEBAIC02Miw2ICs2MiwxMCBAQAo+
+ICAJfTsKPiAgfTsKPiAgCj4gKyZpMmMwIHsKPiArCXN0YXR1cyA9ICJva2F5IjsKPiArfTsKPiAr
+Cj4gIC8qIENPTjMgKi8KPiAgJnNhdGEgewo+ICAJc3RhdHVzID0gIm9rYXkiOwo+IGRpZmYgLS1n
+aXQgYS9hcmNoL2FybTY0L2Jvb3QvZHRzL21hcnZlbGwvYXJtYWRhLTM3eHguZHRzaSBiL2FyY2gv
+YXJtNjQvYm9vdC9kdHMvbWFydmVsbC9hcm1hZGEtMzd4eC5kdHNpCj4gaW5kZXggZTliZDU4Ny4u
+MWIwZmQyMSAxMDA2NDQKPiAtLS0gYS9hcmNoL2FybTY0L2Jvb3QvZHRzL21hcnZlbGwvYXJtYWRh
+LTM3eHguZHRzaQo+ICsrKyBiL2FyY2gvYXJtNjQvYm9vdC9kdHMvbWFydmVsbC9hcm1hZGEtMzd4
+eC5kdHNpCj4gQEAgLTk4LDYgKzk4LDI0IEBACj4gIAkJCS8qIDMyTSBpbnRlcm5hbCByZWdpc3Rl
+ciBAIDB4ZDAwMF8wMDAwICovCj4gIAkJCXJhbmdlcyA9IDwweDAgMHgwIDB4ZDAwMDAwMDAgMHgy
+MDAwMDAwPjsKPiAgCj4gKwkJCWkyYzA6IGkyY0AxMTAwMCB7Cj4gKwkJCQljb21wYXRpYmxlID0g
+Im1hcnZlbGwsYXJtYWRhLTM3MDAtaTJjIjsKPiArCQkJCXJlZyA9IDwweDExMDAwIDB4MjQ+Owo+
+ICsJCQkJY2xvY2tzID0gPCZuYl9wZXJpcGhfY2xrIDEwPjsKPiArCQkJCWludGVycnVwdHMgPSA8
+R0lDX1NQSSAxIElSUV9UWVBFX0xFVkVMX0hJR0g+Owo+ICsJCQkJbXJ2bCxpMmMtZmFzdC1tb2Rl
+Owo+ICsJCQkJc3RhdHVzID0gImRpc2FibGVkIjsKPiArCQkJfTsKPiArCj4gKwkJCWkyYzE6IGky
+Y0AxMTA4MCB7Cj4gKwkJCQljb21wYXRpYmxlID0gIm1hcnZlbGwsYXJtYWRhLTM3MDAtaTJjIjsK
+PiArCQkJCXJlZyA9IDwweDExMDgwIDB4MjQ+Owo+ICsJCQkJY2xvY2tzID0gPCZuYl9wZXJpcGhf
+Y2xrIDk+Owo+ICsJCQkJaW50ZXJydXB0cyA9IDxHSUNfU1BJIDIgSVJRX1RZUEVfTEVWRUxfSElH
+SD47Cj4gKwkJCQltcnZsLGkyYy1mYXN0LW1vZGU7Cj4gKwkJCQlzdGF0dXMgPSAiZGlzYWJsZWQi
+Owo+ICsJCQl9Owo+ICsKPiAgCQkJdWFydDA6IHNlcmlhbEAxMjAwMCB7Cj4gIAkJCQljb21wYXRp
+YmxlID0gIm1hcnZlbGwsYXJtYWRhLTM3MDAtdWFydCI7Cj4gIAkJCQlyZWcgPSA8MHgxMjAwMCAw
+eDQwMD47Cj4gLS0gCj4gMi45LjMKPgoKLS0gCkdyZWdvcnkgQ2xlbWVudCwgRnJlZSBFbGVjdHJv
+bnMKS2VybmVsLCBkcml2ZXJzLCByZWFsLXRpbWUgYW5kIGVtYmVkZGVkIExpbnV4CmRldmVsb3Bt
+ZW50LCBjb25zdWx0aW5nLCB0cmFpbmluZyBhbmQgc3VwcG9ydC4KaHR0cDovL2ZyZWUtZWxlY3Ry
+b25zLmNvbQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+bGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZy
+YWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGlu
+dXgtYXJtLWtlcm5lbAo=
