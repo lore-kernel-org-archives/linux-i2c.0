@@ -1,21 +1,20 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/5] mfd: axp20x: Add missing axp288 irqs
-Date: Tue, 3 Jan 2017 17:54:07 +0000
-Message-ID: <20170103175407.GH27589@dell>
+Subject: Re: [PATCH 1/5] mfd: axp20x: Use IRQF_TRIGGER_LOW on the axp288
+Date: Tue, 3 Jan 2017 17:53:55 +0000
+Message-ID: <20170103175355.GG27589@dell>
 References: <20161214135209.16369-1-hdegoede@redhat.com>
- <20161214135209.16369-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:37011 "EHLO
-        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965064AbdACRu0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Jan 2017 12:50:26 -0500
-Received: by mail-wm0-f51.google.com with SMTP id t79so435854196wmt.0
-        for <linux-i2c@vger.kernel.org>; Tue, 03 Jan 2017 09:50:25 -0800 (PST)
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:33625 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965064AbdACRuN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 3 Jan 2017 12:50:13 -0500
+Received: by mail-wm0-f54.google.com with SMTP id m1so54959882wme.0
+        for <linux-i2c@vger.kernel.org>; Tue, 03 Jan 2017 09:50:13 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20161214135209.16369-2-hdegoede@redhat.com>
+In-Reply-To: <20161214135209.16369-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
@@ -23,40 +22,66 @@ Cc: Chen-Yu Tsai <wens@csie.org>, "russianneuromancer @ ya . ru" <russianneuroma
 
 On Wed, 14 Dec 2016, Hans de Goede wrote:
 
-> The axp288 has the following irqs 2 times: VBUS_FALL, VBUS_RISE,
-> VBUS_OV. On boot / reset the enable flags for both the normal and alt
-> version of these irqs is set.
+> The interrupt line of the entire family of axp2xx pmics is active-low,
+> for devicetree enumerated irqs, this is dealt with in the devicetree.
 > 
-> Since we were only listing the normal version in the axp288 regmap_irq
-> struct, we were never disabling the alt versions of these irqs.
+> ACPI irq resources have a flag field for this too, I tried using this
+> on my CUBE iwork8 Air tablet, but it does not contain the right data.
 > 
-> Add the alt versions to the axp288 regmap_irq struct, so that these
-> get properly disabled.
+> The dstd shows the irq listed as either ActiveLow or ActiveHigh,
+> depending on the OSID variable, which seems to be set by the
+> "OS IMAGE ID" in the BIOS/EFI setup screen.
+> 
+> Since the acpi-resource info is no good, simply pass in IRQF_TRIGGER_LOW
+> on the axp288.
 > 
 > Together with the other axp288 fixes in this series, this fixes the axp288
 > irq contineously triggering.
 > 
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->  drivers/mfd/axp20x.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/mfd/axp20x.c       | 6 +++---
+>  include/linux/mfd/axp20x.h | 1 +
+>  2 files changed, 4 insertions(+), 3 deletions(-)
 
 Applied, thanks.
 
 > diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
-> index 3d76941..9a81659 100644
+> index ba130be..3d76941 100644
 > --- a/drivers/mfd/axp20x.c
 > +++ b/drivers/mfd/axp20x.c
-> @@ -405,6 +405,9 @@ static const struct regmap_irq axp288_regmap_irqs[] = {
->  	INIT_REGMAP_IRQ(AXP288, VBUS_FALL,              0, 2),
->  	INIT_REGMAP_IRQ(AXP288, VBUS_RISE,              0, 3),
->  	INIT_REGMAP_IRQ(AXP288, OV,                     0, 4),
-> +	INIT_REGMAP_IRQ(AXP288, FALLING_ALT,            0, 5),
-> +	INIT_REGMAP_IRQ(AXP288, RISING_ALT,             0, 6),
-> +	INIT_REGMAP_IRQ(AXP288, OV_ALT,                 0, 7),
+> @@ -800,6 +800,7 @@ int axp20x_match_device(struct axp20x_dev *axp20x)
+>  		axp20x->nr_cells = ARRAY_SIZE(axp288_cells);
+>  		axp20x->regmap_cfg = &axp288_regmap_config;
+>  		axp20x->regmap_irq_chip = &axp288_regmap_irq_chip;
+> +		axp20x->irq_flags = IRQF_TRIGGER_LOW;
+>  		break;
+>  	case AXP806_ID:
+>  		axp20x->nr_cells = ARRAY_SIZE(axp806_cells);
+> @@ -829,9 +830,8 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
+>  	int ret;
 >  
->  	INIT_REGMAP_IRQ(AXP288, DONE,                   1, 2),
->  	INIT_REGMAP_IRQ(AXP288, CHARGING,               1, 3),
+>  	ret = regmap_add_irq_chip(axp20x->regmap, axp20x->irq,
+> -				  IRQF_ONESHOT | IRQF_SHARED, -1,
+> -				  axp20x->regmap_irq_chip,
+> -				  &axp20x->regmap_irqc);
+> +			  IRQF_ONESHOT | IRQF_SHARED | axp20x->irq_flags,
+> +			   -1, axp20x->regmap_irq_chip, &axp20x->regmap_irqc);
+>  	if (ret) {
+>  		dev_err(axp20x->dev, "failed to add irq chip: %d\n", ret);
+>  		return ret;
+> diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+> index fec597f..199cce3 100644
+> --- a/include/linux/mfd/axp20x.h
+> +++ b/include/linux/mfd/axp20x.h
+> @@ -517,6 +517,7 @@ enum axp809_irqs {
+>  struct axp20x_dev {
+>  	struct device			*dev;
+>  	int				irq;
+> +	unsigned long			irq_flags;
+>  	struct regmap			*regmap;
+>  	struct regmap_irq_chip_data	*regmap_irqc;
+>  	long				variant;
 
 -- 
 Lee Jones
