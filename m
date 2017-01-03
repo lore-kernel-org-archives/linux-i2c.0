@@ -1,185 +1,157 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v6 8/9] dt-bindings: mux-adg792a: document devicetree
- bindings for ADG792A/G mux
-Date: Tue, 3 Jan 2017 07:44:46 +0100
-Message-ID: <82707c88-ffa5-52fd-5b05-bbfa8f876807@axentia.se>
-References: <1480493823-21462-1-git-send-email-peda@axentia.se>
- <1480493823-21462-9-git-send-email-peda@axentia.se>
- <d4c41153-aebf-be05-a323-1298e8c4ee65@kernel.org>
- <3fa5b6f0-76c1-0ca6-978e-9407a44a2e7e@axentia.se>
- <86bfcc29-df24-d877-915f-d62fc3987c05@kernel.org>
- <cdb3b543-979d-69cc-fb7d-a1d968a75056@axentia.se>
- <90A8A4B3-670B-4409-B7AB-47BF4B2ABDDA@jic23.retrosnub.co.uk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Tue, 3 Jan 2017 10:06:41 +0100
+Message-ID: <20170103090641.GH5767@mail.corp.redhat.com>
+References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
+ <201612291517.37474@pali>
+ <20161229210932.GA1254@kmp-mobile.hq.kempniu.pl>
+ <201612292228.18706@pali>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <90A8A4B3-670B-4409-B7AB-47BF4B2ABDDA-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36824 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752820AbdACJGu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 3 Jan 2017 04:06:50 -0500
+Content-Disposition: inline
+In-Reply-To: <201612292228.18706@pali>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Cc: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 2017-01-02 22:13, Jonathan Cameron wrote:
+On Dec 29 2016 or thereabouts, Pali Rohár wrote:
+> On Thursday 29 December 2016 22:09:32 Michał Kępień wrote:
+> > > On Thursday 29 December 2016 14:47:19 Michał Kępień wrote:
+> > > > > On Thursday 29 December 2016 09:29:36 Michał Kępień wrote:
+> > > > > > > Dell platform team told us that some (DMI whitelisted) Dell
+> > > > > > > Latitude machines have ST microelectronics accelerometer at
+> > > > > > > i2c address 0x29. That i2c address is not specified in DMI
+> > > > > > > or ACPI, so runtime detection without whitelist which is
+> > > > > > > below is not possible.
+> > > > > > > 
+> > > > > > > Presence of that ST microelectronics accelerometer is
+> > > > > > > verified by existence of SMO88xx ACPI device which
+> > > > > > > represent that accelerometer. Unfortunately without i2c
+> > > > > > > address.
+> > > > > > 
+> > > > > > This part of the commit message sounded a bit confusing to me
+> > > > > > at first because there is already an ACPI driver which
+> > > > > > handles SMO88xx
+> > > > > > 
+> > > > > > devices (dell-smo8800).  My understanding is that:
+> > > > > >   * the purpose of this patch is to expose a richer interface
+> > > > > >   (as
+> > > > > >   
+> > > > > >     provided by lis3lv02d) to these devices on some machines,
+> > > > > >   
+> > > > > >   * on whitelisted machines, dell-smo8800 and lis3lv02d can
+> > > > > >   work
+> > > > > >   
+> > > > > >     simultaneously (even though dell-smo8800 effectively
+> > > > > >     duplicates the work that lis3lv02d does).
+> > > > > 
+> > > > > No. dell-smo8800 reads from ACPI irq number and exports
+> > > > > /dev/freefall device which notify userspace about falls.
+> > > > > lis3lv02d is i2c driver which exports axes of accelerometer.
+> > > > > Additionaly lis3lv02d can export also /dev/freefall if
+> > > > > registerer of i2c device provides irq number -- which is not
+> > > > > case of this patch.
+> > > > > 
+> > > > > So both drivers are doing different things and both are useful.
+> > > > > 
+> > > > > IIRC both dell-smo8800 and lis3lv02d represent one HW device
+> > > > > (that ST microelectronics accelerometer) but due to
+> > > > > complicated HW abstraction and layers on Dell laptops it is
+> > > > > handled by two drivers, one ACPI and one i2c.
+> > > > > 
+> > > > > Yes, in ideal world irq number should be passed to lis3lv02d
+> > > > > driver and that would export whole device (with /dev/freefall
+> > > > > too), but due to HW abstraction it is too much complicated...
+> > > > 
+> > > > Why?  AFAICT, all that is required to pass that IRQ number all
+> > > > the way down to lis3lv02d is to set the irq field of the struct
+> > > > i2c_board_info you are passing to i2c_new_device().  And you can
+> > > > extract that IRQ number e.g. in check_acpi_smo88xx_device().
+> > > > However, you would then need to make sure dell-smo8800 does not
+> > > > attempt to request the same IRQ on whitelisted machines.  This
+> > > > got me thinking about a way to somehow incorporate your changes
+> > > > into dell-smo8800 using Wolfram's bus_notifier suggestion, but I
+> > > > do not have a working solution for now.  What is tempting about
+> > > > this approach is that you would not have to scan the ACPI
+> > > > namespace in search of SMO88xx devices, because smo8800_add() is
+> > > > automatically called for them.  However, I fear that the
+> > > > resulting solution may be more complicated than the one you
+> > > > submitted.
+> > > 
+> > > Then we need to deal with lot of problems. Order of loading .ko
+> > > modules is undefined. Binding devices to drivers registered by .ko
+> > > module is also in "random" order. At any time any of those .ko
+> > > module can be unloaded or at least device unbind (via sysfs) from
+> > > driver... And there can be some pathological situation (thanks to
+> > > adding ACPI layer as Andy pointed) that there will be more SMO88xx
+> > > devices in ACPI. Plus you can compile kernel with and without
+> > > those modules and also you can blacklist loading them (so compile
+> > > time check is not enough). And still some correct message notifier
+> > > must be used.
+> > > 
+> > > I think such solution is much much more complicated, there are lot
+> > > of combinations of kernel configuration and available dell
+> > > devices...
+> > 
+> > I tried a few more things, but ultimately failed to find a nice way
+> > to implement this.
+> > 
+> > Another issue popped up, though.  Linus' master branch contains a
+> > recent commit by Benjamin Tissoires (CC'ed), 4d5538f5882a ("i2c: use
+> > an IRQ to report Host Notify events, not alert") which breaks your
+> > patch.  The reason for that is that lis3lv02d relies on the i2c
+> > client's IRQ being 0 to detect that it should not create
+> > /dev/freefall.  Benjamin's patch causes the Host Notify IRQ to be
+> > assigned to the i2c client your patch creates, thus causing
+> > lis3lv02d to create /dev/freefall, which in turn conflicts with
+> > dell-smo8800 which is trying to create /dev/freefall itself.
 > 
+> So 4d5538f5882a is breaking lis3lv02d driver...
+
+Apologies for that.
+
+I could easily fix this by adding a kernel API to know whether the
+provided irq is from Host Notify or if it was coming from an actual
+declaration. However, I have no idea how many other drivers would
+require this (hopefully only this one).
+
+One other solution would be to reserve the Host Notify IRQ and let the
+actual drivers that need it to set it, but this was not the best
+solution according to Dmitri. On my side, I am not entirely against this
+given that it's a chip feature, so the driver should be able to know
+that it's available.
+
+Dmitri, Wolfram, Jean, any preferences?
+
 > 
-> On 2 January 2017 20:47:58 GMT+00:00, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org> wrote:
->> On 2017-01-02 19:05, Jonathan Cameron wrote:
->>> On 02/01/17 16:01, Peter Rosin wrote:
->>>> On 2017-01-01 12:00, Jonathan Cameron wrote:
->>>>> On 30/11/16 08:17, Peter Rosin wrote:
->>>>>> Analog Devices ADG792A/G is a triple 4:1 mux.
->>>>>>
->>>>>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
->>>>> Few comments inline.  Worth adding anything about the gpio (output pins) to
->>>>> the binding at this stage as well?  Would certainly be nice to support
->>>>> them.
->>>>
->>>> I'll add optional properties "gpio-controller;" and "#gpio-cells = <2>;"
->>>> with the usual interpretation in v7 (but no implementation...) Is that
->>>> enough?
->>>>
->>>>> Jonathan
->>>>>> ---
->>>>>>  .../devicetree/bindings/misc/mux-adg792a.txt       | 64 ++++++++++++++++++++++
->>>>>>  1 file changed, 64 insertions(+)
->>>>>>  create mode 100644 Documentation/devicetree/bindings/misc/mux-adg792a.txt
->>>>>>
->>>>>> diff --git a/Documentation/devicetree/bindings/misc/mux-adg792a.txt b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
->>>>>> new file mode 100644
->>>>>> index 000000000000..4677f9ab1c55
->>>>>> --- /dev/null
->>>>>> +++ b/Documentation/devicetree/bindings/misc/mux-adg792a.txt
->>>>>> @@ -0,0 +1,64 @@
->>>>>> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
->>>>>> +
->>>>>> +Required properties:
->>>>>> +- compatible : "adi,adg792a" or "adi,adg792g"
->>>>>> +- #mux-control-cells : <0> if parallel, or <1> if not.
->>>>>> +* Standard mux-controller bindings as decribed in mux-controller.txt
->>>>>> +
->>>>>> +Optional properties:
->>>>>> +- adi,parallel : if present, the three muxes are bound together with a single
->>>>>> +  mux controller, controlling all three muxes in parallel.
->>>>>> +- adi,idle-state : if present, array of states the three mux controllers will
->>>>>> +  have when idle (or, if parallel, a single idle-state).
->>>>> Hmm. These are actually a policy decision.  As only one policy will make
->>>>> sense for a given set of hardware probably fine to have it in here I guess.
->>>>> Might be worth adding a note to say this though.
->>>>
->>>> I don't really know what you want me to add, do you have a suggestion for the
->>>> wording?
->>>>
->>>>>> +
->>>>>> +Mux controller states 0 through 3 correspond to signals A through D in the
->>>>>> +datasheet. Mux controller states 4 and 5 are only available as possible idle
->>>>>> +states. State 4 represents that nothing is connected, and state 5 represents
->>>>>> +that the mux controller keeps the mux in its previously selected state during
->>>>>> +the idle period. State 5 is the default idle state.
->>>>> I'm never a great fan of magic numbers.  Can we represent this more cleanly by
->>>>> breaking it into multiple properties?
->>>>> Optional:
->>>>> adi,idle-switch-to-channel : switch to this channel when idle.
->>>>> adi,idle-high-impedance : <boolean> the nothing connected state?
->>>>>
->>>>> If neither present leaves it in previous state?
->>>>
->>>> It's not that easy. adi,idle-state is an array when there are three single
->>>> pole quadruple throw muxes, so there really needs to be a number for each
->>>> desired idle-behavior. Unless you have a better idea for how to describe
->>>> that?
->>> The above with arrays for each of the two parameters?
->>> Though then you need a priority documented - I'd say high impedance overrides
->>> the channel selection if both are present.
->>
->> How would you specify that the first mux should idle in "state 5", the second
->> should idle in "state 4" and the third in "state 0"? (original state numbering)
->>
->> You'd still need a magic number for the default idle state (state 5) so that
->> you can skip entries in the arrays. Or am I missing something?
-> Ah I had missed state 5. Hmm would need explicit control for that as well. Not nice...
+> > Also, just to make sure we do not overthink this, I understand that
+> > not every unit of the models from the whitelist has an
+> > accelerometer, correct?  In other words, could we perhaps skip the
+> > part where we are making sure the SMO88xx ACPI device is there?
 > 
-> Perhaps 3 state control (magic number but with channel nums separate)
+> Good question... At least for E6440 I'm did not thing it was possible to 
+> configure notebook without "3 axes free fall sensor".
 > 
-> Idle-state array of <switchtostate, currentstate, highimpedance>
-> 
-> Idle-state array of states to switch to if so set?
-> 
-> Slight nicer than a mess of the two things perhaps?
+> But! In BIOS SETUP it is possible to disable free fall sensor. I will 
+> try to disable it there and will check what happen. My guess is that it 
+> will be disabled in ACPI.
 
-Perhaps making adi,idle-state an array of tuples <mux-number state> and
-add adi,idle-high-impedance as an array of mux-numbers, so that my example
-above would come out as:
+Just adding my 2 cents regarding the whitelist and interaction between
+those 2 drivers. I find this very fragile to have only one available
+/dev/freefall node and to rely on the fairness of each driver to not bind
+one. It would have been much simpler to have /dev/freefallXX and a
+proper misc class device for it. This way, we don't even need to
+mutually exclude the drivers. But this is already 8 years old code, so I
+guess userspace expects this... (why isn't that using the input subsystem
+at all?).
 
-	adi,idle-high-impedance = <1>; /* mux 1 idles with high imp */
-	adi,idle-state = <2 0>;  /* mux 2 idles in state 0 (signal A) */
-
-mux 0 is not mentioned and idles in its previously selected state.
-
-
-If you want mux 0 to idle with high impedance:
-
-	adi,idle-high-impedance = <0 1>;
-	adi,idle-state = <2 0>;
-
-If you want mux 0 to idle with signal C:
-
-	adi,idle-high-impedance = <1>;
-	adi,idle-state = <0 3>, <2 0>;
-
->>>>>> +
->>>>>> +Example:
->>>>>> +
->>>>>> +	/* three independent mux controllers (of which one is used) */
->>>>>> +	&i2c0 {
->>>>>> +		mux: adg792a@50 {
->>>>>> +			compatible = "adi,adg792a";
->>>>>> +			reg = <0x50>;
->>>>>> +			#mux-control-cells = <1>;
->>>>>> +		};
->>>>>> +	};
->>>>>> +
->>>>>> +	adc-mux {
->>>>>> +		compatible = "iio-mux";
->>>>>> +		io-channels = <&adc 0>;
->>>>>> +		io-channel-names = "parent";
->>>>>> +
->>>>>> +		mux-controls = <&mux 1>;
->>>>>> +
->>>>>> +		channels = "sync-1", "", "out";
->>>>>> +	};
->>>>>> +
->>>>>> +
->>>>>> +	/*
->>>>>> +	 * Three parallel muxes with one mux controller, useful e.g. if
->>>>>> +	 * the adc is differential, thus needing two signals to be muxed
->>>>>> +	 * simultaneously for correct operation.
->>>>>> +	 */
->>>>>> +	&i2c0 {
->>>>>> +		pmux: adg792a@50 {
->>>>>> +			compatible = "adi,adg792a";
->>>>>> +			reg = <0x50>;
->>>>>> +			#mux-control-cells = <0>;
->>>>>> +			adi,parallel;
->>>>>> +		};
->>>>>> +	};
->>>>>> +
->>>>>> +	diff-adc-mux {
->>>>>> +		compatible = "iio-mux";
->>>>>> +		io-channels = <&adc 0>;
->>>>>> +		io-channel-names = "parent";
->>>>>> +
->>>>>> +		mux-controls = <&pmux>;
->>>>>> +
->>>>>> +		channels = "sync-1", "", "out";
->>>>>> +	};
->>>>>>
->>>>>
->>>>
->>>
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Cheers,
+Benjamin.
