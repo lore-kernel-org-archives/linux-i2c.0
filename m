@@ -1,10 +1,9 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
  Dell machines
-Date: Wed, 4 Jan 2017 13:55:29 -0800
-Message-ID: <20170104215529.GC40341@dtor-ws>
-References: <20170104102118.GD3499@pali>
- <20170104103233.GT5767@mail.corp.redhat.com>
+Date: Wed, 4 Jan 2017 14:03:52 -0800
+Message-ID: <20170104220352.GE40341@dtor-ws>
+References: <20170104103233.GT5767@mail.corp.redhat.com>
  <20170104112223.GE3499@pali>
  <20170104120031.GG3499@pali>
  <20170104130252.GV5767@mail.corp.redhat.com>
@@ -12,214 +11,61 @@ References: <20170104102118.GD3499@pali>
  <20170104173928.GW5767@mail.corp.redhat.com>
  <20170104174619.feke27q3ehwkylfs@ninjato>
  <20170104175456.GA40341@dtor-ws>
- <20170104214906.GA15702@mail.corp.redhat.com>
+ <20170104215546.GA1433@katana>
+ <20170104220030.GD40341@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35711 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751814AbdADWDT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 17:03:19 -0500
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170104214906.GA15702@mail.corp.redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170104220030.GD40341@dtor-ws>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On Wed, Jan 04, 2017 at 10:49:06PM +0100, Benjamin Tissoires wrote:
-> On Jan 04 2017 or thereabouts, Dmitry Torokhov wrote:
-> > On Wed, Jan 04, 2017 at 06:46:19PM +0100, Wolfram Sang wrote:
+On Wed, Jan 04, 2017 at 02:00:30PM -0800, Dmitry Torokhov wrote:
+> On Wed, Jan 04, 2017 at 10:55:47PM +0100, Wolfram Sang wrote:
+> > 
+> > > From e362a0277fd1bd6112f258664d8831d9bc6b78da Mon Sep 17 00:00:00 2001
+> > > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > Date: Wed, 4 Jan 2017 09:33:43 -0800
+> > > Subject: [PATCH] i2c: do not enable fall back to Host Notify by default
 > > > 
-> > > > How about:
-> > > > ---
-> > > > From daa7571bbf337704332c0cfeec9b8fd5aeae596f Mon Sep 17 00:00:00 2001
-> > > > From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > > Date: Wed, 4 Jan 2017 18:26:54 +0100
-> > > > Subject: [PATCH] I2C: add the source of the IRQ in struct i2c_client
-> > > > 
-> > > > With commit 4d5538f5882a ("i2c: use an IRQ to report Host Notify events,
-> > > > not alert"), the IRQ provided in struct i2c_client might be assigned while
-> > > > it has not been explicitly declared by either the platform information
-> > > > or OF or ACPI.
-> > > > Some drivers (lis3lv02d) rely on the fact that the IRQ gets assigned or
-> > > > not to trigger a different behavior (exposing /dev/freefall in this case).
-> > > > 
-> > > > Provide a way for others to know who set the IRQ and so they can behave
-> > > > accordingly.
-> > > > 
-> > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > > ---
-> > > >  drivers/i2c/i2c-core.c |  7 +++++++
-> > > >  include/linux/i2c.h    | 11 +++++++++++
-> > > >  2 files changed, 18 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > > > index cf9e396..226c75d 100644
-> > > > --- a/drivers/i2c/i2c-core.c
-> > > > +++ b/drivers/i2c/i2c-core.c
-> > > > @@ -935,8 +935,12 @@ static int i2c_device_probe(struct device *dev)
-> > > >  			irq = of_irq_get_byname(dev->of_node, "irq");
-> > > >  			if (irq == -EINVAL || irq == -ENODATA)
-> > > >  				irq = of_irq_get(dev->of_node, 0);
-> > > > +			if (irq > 0)
-> > > > +				client->irq_source = I2C_IRQ_SOURCE_OF;
-> > > >  		} else if (ACPI_COMPANION(dev)) {
-> > > >  			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-> > > > +			if (irq > 0)
-> > > > +				client->irq_source = I2C_IRQ_SOURCE_ACPI;
-> > > >  		}
-> > > >  		if (irq == -EPROBE_DEFER)
-> > > >  			return irq;
-> > > > @@ -947,6 +951,8 @@ static int i2c_device_probe(struct device *dev)
-> > > >  		if (irq < 0) {
-> > > >  			dev_dbg(dev, "Using Host Notify IRQ\n");
-> > > >  			irq = i2c_smbus_host_notify_to_irq(client);
-> > > > +			if (irq > 0)
-> > > > +				client->irq_source = I2C_IRQ_SOURCE_HOST_NOTIFY;
-> > > >  		}
-> > > >  		if (irq < 0)
-> > > >  			irq = 0;
-> > > > @@ -1317,6 +1323,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> > > >  	client->flags = info->flags;
-> > > >  	client->addr = info->addr;
-> > > >  	client->irq = info->irq;
-> > > > +	client->irq_source = I2C_IRQ_SOURCE_PLATFORM;
-> > > >  
-> > > >  	strlcpy(client->name, info->type, sizeof(client->name));
-> > > >  
-> > > > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > > > index b2109c5..7d0368d 100644
-> > > > --- a/include/linux/i2c.h
-> > > > +++ b/include/linux/i2c.h
-> > > > @@ -213,6 +213,13 @@ struct i2c_driver {
-> > > >  };
-> > > >  #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
-> > > >  
-> > > > +enum i2c_irq_source {
-> > > > +	I2C_IRQ_SOURCE_PLATFORM,
-> > > > +	I2C_IRQ_SOURCE_OF,
-> > > > +	I2C_IRQ_SOURCE_ACPI,
-> > > > +	I2C_IRQ_SOURCE_HOST_NOTIFY,
-> > > > +};
-> > > > +
-> > > >  /**
-> > > >   * struct i2c_client - represent an I2C slave device
-> > > >   * @flags: I2C_CLIENT_TEN indicates the device uses a ten bit chip address;
-> > > > @@ -227,6 +234,9 @@ struct i2c_driver {
-> > > >   *	userspace_devices list
-> > > >   * @slave_cb: Callback when I2C slave mode of an adapter is used. The adapter
-> > > >   *	calls it to pass on slave events to the slave driver.
-> > > > + * @irq_source: Enum which provides the source of the IRQ. Useful to know
-> > > > + * 	if the IRQ was issued from Host Notify or if it was provided by an other
-> > > > + * 	component.
+> > > Falling back unconditionally to HostNotify as primary client's interrupt
+> > > breaks some drivers which alter their functionality depending on whether
+> > > interrupt is present or not, so let's introduce a board flag telling I2C
+> > > core explicitly if we want wired interrupt or HostNotify-based one:
+> > > I2C_CLIENT_HOST_NOTIFY.
 > > > 
-> > > I'd think some documentation somewhere makes sense why we need to
-> > > distinguish this in some cases?
-> > 
-> > I'd rather drivers be oblivious of the source of interrupt. If they need
-> > to distinguish between them that means that our IRQ abstration failed.
-> > 
+> > > For DT-based systems we introduce "host-notofy" property that we convert
+> > > to I2C_CLIENT_HOST_NOTIFY board flag.
 > > > 
-> > > >   *
-> > > >   * An i2c_client identifies a single device (i.e. chip) connected to an
-> > > >   * i2c bus. The behaviour exposed to Linux is defined by the driver
-> > > > @@ -245,6 +255,7 @@ struct i2c_client {
-> > > >  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> > > >  	i2c_slave_cb_t slave_cb;	/* callback for slave mode	*/
-> > > >  #endif
-> > > > +	enum i2c_irq_source irq_source;	/* which component assigned the irq */
-> > > >  };
-> > > >  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
-> > > > 
-> > > > Dmitry, Wolfram, Jean, would this be acceptable for you?
-> > > 
-> > > Adding something to i2c_driver is not exactly cheap, but from what I
-> > > glimpsed from this thread, this is one of the cleanest solution to this
-> > > problem?
-> > > 
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > 
-> > As Benjamin said, it is really property of device [instance], not
-> > driver. I.e. driver could handle both wired IRQ and HostNotify-based
-> > scheme similarly, it is device (and board) that knows how stuff is
-> > connected.
+> > Yay, this looks better to me. One nit:
 > > 
-> > Maybe we could do something like this (untested):
+> > > +Alternatively, devices supporting SMbus Host Notify, and connected to
+> > > +adapters that support this feature, may use "host-notify" property. I2C
+> > > +core will create a virtual interrupt for Host Notify and assign it as
+> > > +primary interrupt for the slave.
 > > 
-> > 
-> > From e362a0277fd1bd6112f258664d8831d9bc6b78da Mon Sep 17 00:00:00 2001
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Date: Wed, 4 Jan 2017 09:33:43 -0800
-> > Subject: [PATCH] i2c: do not enable fall back to Host Notify by default
-> > 
-> > Falling back unconditionally to HostNotify as primary client's interrupt
-> > breaks some drivers which alter their functionality depending on whether
-> > interrupt is present or not, so let's introduce a board flag telling I2C
-> > core explicitly if we want wired interrupt or HostNotify-based one:
-> > I2C_CLIENT_HOST_NOTIFY.
-> > 
-> > For DT-based systems we introduce "host-notofy" property that we convert
+> > This paragraph sounds Linux-ish while binding docs should be OS
+> > agnostic. Maybe we can shorten the second sentence to "It will be
+> > assigned then as the primary interrupt for the slave."?
 > 
-> typo: s/host-notofy/host-notify/
-> 
-> > to I2C_CLIENT_HOST_NOTIFY board flag.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/i2c.txt |  8 ++++++++
-> >  drivers/i2c/i2c-core.c                        | 17 ++++++++---------
-> >  include/linux/i2c.h                           |  1 +
-> >  3 files changed, 17 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-> > index 5fa691e6f638..cee9d5055fa2 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-> > @@ -62,6 +62,9 @@ wants to support one of the below features, it should adapt the bindings below.
-> >  	"irq" and "wakeup" names are recognized by I2C core, other names are
-> >  	left to individual drivers.
-> >  
-> > +- host-notify
-> > +	device uses SMBus host notify protocol instead of interrupt line.
-> > +
-> >  - multi-master
-> >  	states that there is another master active on this bus. The OS can use
-> >  	this information to adapt power management to keep the arbitration awake
-> > @@ -81,6 +84,11 @@ Binding may contain optional "interrupts" property, describing interrupts
-> >  used by the device. I2C core will assign "irq" interrupt (or the very first
-> >  interrupt if not using interrupt names) as primary interrupt for the slave.
-> >  
-> > +Alternatively, devices supporting SMbus Host Notify, and connected to
-> > +adapters that support this feature, may use "host-notify" property. I2C
-> > +core will create a virtual interrupt for Host Notify and assign it as
-> > +primary interrupt for the slave.
-> > +
-> >  Also, if device is marked as a wakeup source, I2C core will set up "wakeup"
-> >  interrupt for the device. If "wakeup" interrupt name is not present in the
-> >  binding, then primary interrupt will be used as wakeup interrupt.
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index cf9e396d7702..250969fa7670 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -931,7 +931,10 @@ static int i2c_device_probe(struct device *dev)
-> >  	if (!client->irq) {
-> >  		int irq = -ENOENT;
-> >  
-> > -		if (dev->of_node) {
-> > +		if (client->flags & I2C_CLIENT_HOST_HOTIFY) {
-> 
-> typo: s/I2C_CLIENT_HOST_HOTIFY/I2C_CLIENT_HOST_NOTIFY/
-> 
-> With these fixed, the code is:
-> Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> I tested both with and without the I2C_CLIENT_HOST_HOTIFY flag on the
-> Thinkpad T450s, and everything is in order.
-> 
-> Thanks Dmitry for the patch!
+> Heh, I just sent out patch to DT folks. Provided that they are fine with
+> the new property I can either send V2 or you could edit when applying,
+> whatever is easier for you.
 
-Thanks Benjamin. Let me submit the patch "officially" and CC Rob & DT
-folks on binding change.
+That said, both variants are Linux-ish to me: I do not believe that
+"primary slave interrupt" for I2C devices is a generic concept. Is it?
+Do BSD and Windows use it?
+
+Also, it matches the paragraph above that also talks about I2C core.
+
+In any case, it is your decision, I'm just making random noise here.
+
+Thanks.
 
 -- 
 Dmitry
