@@ -1,424 +1,938 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
- Dell machines
-Date: Wed, 4 Jan 2017 13:00:31 +0100
-Message-ID: <20170104120031.GG3499@pali>
-References: <20170103202418.GE16032@dtor-ws>
- <201701032139.13061@pali>
- <20170103205937.GA2289@dtor-ws>
- <20170104081804.GA3499@pali>
- <20170104090522.GN5767@mail.corp.redhat.com>
- <20170104091845.GB3499@pali>
- <20170104101306.GR5767@mail.corp.redhat.com>
- <20170104102118.GD3499@pali>
- <20170104103233.GT5767@mail.corp.redhat.com>
- <20170104112223.GE3499@pali>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v7 03/12] mux: minimal mux subsystem and gpio-based mux controller
+Date: Wed,  4 Jan 2017 13:16:18 +0100
+Message-ID: <1483532187-28494-4-git-send-email-peda@axentia.se>
+References: <1483532187-28494-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170104112223.GE3499@pali>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1483532187-28494-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 04 January 2017 12:22:23 Pali Rohár wrote:
-> On Wednesday 04 January 2017 11:32:33 Benjamin Tissoires wrote:
-> > On Jan 04 2017 or thereabouts, Pali Rohár wrote:
-> > > On Wednesday 04 January 2017 11:13:06 Benjamin Tissoires wrote:
-> > > > On Jan 04 2017 or thereabouts, Pali Rohár wrote:
-> > > > > On Wednesday 04 January 2017 10:05:22 Benjamin Tissoires wrote:
-> > > > > > On Jan 04 2017 or thereabouts, Pali Rohár wrote:
-> > > > > > > On Tuesday 03 January 2017 12:59:37 Dmitry Torokhov wrote:
-> > > > > > > > On Tue, Jan 03, 2017 at 09:39:13PM +0100, Pali Rohár wrote:
-> > > > > > > > > On Tuesday 03 January 2017 21:24:18 Dmitry Torokhov wrote:
-> > > > > > > > > > On Tue, Jan 03, 2017 at 09:05:51PM +0100, Pali Rohár wrote:
-> > > > > > > > > > > On Tuesday 03 January 2017 20:48:12 Dmitry Torokhov wrote:
-> > > > > > > > > > > > On Tue, Jan 03, 2017 at 07:50:17PM +0100, Pali Rohár wrote:
-> > > > > > > > > > > > > On Tuesday 03 January 2017 19:38:43 Dmitry Torokhov wrote:
-> > > > > > > > > > > > > > On Tue, Jan 03, 2017 at 10:06:41AM +0100, Benjamin Tissoires
-> > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > wrote:
-> > > > > > > > > > > > > > > On Dec 29 2016 or thereabouts, Pali Rohár wrote:
-> > > > > > > > > > > > > > > > On Thursday 29 December 2016 22:09:32 Michał Kępień wrote:
-> > > > > > > > > > > > > > > > > > On Thursday 29 December 2016 14:47:19 Michał Kępień
-> > > > > > > > > > > > > > > > > > wrote:
-> > > > > > > > > > > > > > > > > > > > On Thursday 29 December 2016 09:29:36 Michał
-> > > > > > > > > > > > > > > > > > > > Kępień
-> > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > wrote:
-> > > > > > > > > > > > > > > > > > > > > > Dell platform team told us that some (DMI
-> > > > > > > > > > > > > > > > > > > > > > whitelisted) Dell Latitude machines have ST
-> > > > > > > > > > > > > > > > > > > > > > microelectronics accelerometer at i2c address
-> > > > > > > > > > > > > > > > > > > > > > 0x29. That i2c address is not specified in
-> > > > > > > > > > > > > > > > > > > > > > DMI or ACPI, so runtime detection without
-> > > > > > > > > > > > > > > > > > > > > > whitelist which is below is not possible.
-> > > > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > > > Presence of that ST microelectronics
-> > > > > > > > > > > > > > > > > > > > > > accelerometer is verified by existence of
-> > > > > > > > > > > > > > > > > > > > > > SMO88xx ACPI device which represent that
-> > > > > > > > > > > > > > > > > > > > > > accelerometer. Unfortunately without i2c
-> > > > > > > > > > > > > > > > > > > > > > address.
-> > > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > > This part of the commit message sounded a bit
-> > > > > > > > > > > > > > > > > > > > > confusing to me at first because there is
-> > > > > > > > > > > > > > > > > > > > > already an ACPI driver which handles SMO88xx
-> > > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > > devices (dell-smo8800).  My understanding is
-> > > > > > > > > > > > > > > > > > > > > that:
-> > > > > > > > > > > > > > > > > > > > >   * the purpose of this patch is to expose a
-> > > > > > > > > > > > > > > > > > > > >   richer interface (as
-> > > > > > > > > > > > > > > > > > > > >   
-> > > > > > > > > > > > > > > > > > > > >     provided by lis3lv02d) to these devices on
-> > > > > > > > > > > > > > > > > > > > >     some machines,
-> > > > > > > > > > > > > > > > > > > > >   
-> > > > > > > > > > > > > > > > > > > > >   * on whitelisted machines, dell-smo8800 and
-> > > > > > > > > > > > > > > > > > > > >   lis3lv02d can work
-> > > > > > > > > > > > > > > > > > > > >   
-> > > > > > > > > > > > > > > > > > > > >     simultaneously (even though dell-smo8800
-> > > > > > > > > > > > > > > > > > > > >     effectively duplicates the work that
-> > > > > > > > > > > > > > > > > > > > >     lis3lv02d does).
-> > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > No. dell-smo8800 reads from ACPI irq number and
-> > > > > > > > > > > > > > > > > > > > exports /dev/freefall device which notify
-> > > > > > > > > > > > > > > > > > > > userspace about falls. lis3lv02d is i2c driver
-> > > > > > > > > > > > > > > > > > > > which exports axes of accelerometer. Additionaly
-> > > > > > > > > > > > > > > > > > > > lis3lv02d can export also /dev/freefall if
-> > > > > > > > > > > > > > > > > > > > registerer of i2c device provides irq number --
-> > > > > > > > > > > > > > > > > > > > which is not case of this patch.
-> > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > So both drivers are doing different things and
-> > > > > > > > > > > > > > > > > > > > both are useful.
-> > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > IIRC both dell-smo8800 and lis3lv02d represent
-> > > > > > > > > > > > > > > > > > > > one HW device (that ST microelectronics
-> > > > > > > > > > > > > > > > > > > > accelerometer) but due to complicated HW
-> > > > > > > > > > > > > > > > > > > > abstraction and layers on Dell laptops it is
-> > > > > > > > > > > > > > > > > > > > handled by two drivers, one ACPI and one i2c.
-> > > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > > Yes, in ideal world irq number should be passed
-> > > > > > > > > > > > > > > > > > > > to lis3lv02d driver and that would export whole
-> > > > > > > > > > > > > > > > > > > > device (with /dev/freefall too), but due to HW
-> > > > > > > > > > > > > > > > > > > > abstraction it is too much complicated...
-> > > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > > Why?  AFAICT, all that is required to pass that IRQ
-> > > > > > > > > > > > > > > > > > > number all the way down to lis3lv02d is to set the
-> > > > > > > > > > > > > > > > > > > irq field of the struct i2c_board_info you are
-> > > > > > > > > > > > > > > > > > > passing to i2c_new_device().  And you can extract
-> > > > > > > > > > > > > > > > > > > that IRQ number e.g. in
-> > > > > > > > > > > > > > > > > > > check_acpi_smo88xx_device(). However, you would
-> > > > > > > > > > > > > > > > > > > then need to make sure dell-smo8800 does not
-> > > > > > > > > > > > > > > > > > > attempt to request the same IRQ on whitelisted
-> > > > > > > > > > > > > > > > > > > machines.  This got me thinking about a way to
-> > > > > > > > > > > > > > > > > > > somehow incorporate your changes into dell-smo8800
-> > > > > > > > > > > > > > > > > > > using Wolfram's bus_notifier suggestion, but I do
-> > > > > > > > > > > > > > > > > > > not have a working solution for now.  What is
-> > > > > > > > > > > > > > > > > > > tempting about this approach is that you would not
-> > > > > > > > > > > > > > > > > > > have to scan the ACPI namespace in search of
-> > > > > > > > > > > > > > > > > > > SMO88xx devices, because smo8800_add() is
-> > > > > > > > > > > > > > > > > > > automatically called for them. However, I fear that
-> > > > > > > > > > > > > > > > > > > the resulting solution may be more complicated than
-> > > > > > > > > > > > > > > > > > > the one you submitted.
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > Then we need to deal with lot of problems. Order of
-> > > > > > > > > > > > > > > > > > loading .ko modules is undefined. Binding devices to
-> > > > > > > > > > > > > > > > > > drivers registered by .ko module is also in "random"
-> > > > > > > > > > > > > > > > > > order. At any time any of those .ko module can be
-> > > > > > > > > > > > > > > > > > unloaded or at least device unbind (via sysfs) from
-> > > > > > > > > > > > > > > > > > driver... And there can be some pathological
-> > > > > > > > > > > > > > > > > > situation (thanks to adding ACPI layer as Andy
-> > > > > > > > > > > > > > > > > > pointed) that there will be more SMO88xx devices in
-> > > > > > > > > > > > > > > > > > ACPI. Plus you can compile kernel with and without
-> > > > > > > > > > > > > > > > > > those modules and also you can blacklist loading
-> > > > > > > > > > > > > > > > > > them (so compile time check is not enough). And
-> > > > > > > > > > > > > > > > > > still some correct message notifier must be used.
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > I think such solution is much much more complicated,
-> > > > > > > > > > > > > > > > > > there are lot of combinations of kernel configuration
-> > > > > > > > > > > > > > > > > > and available dell devices...
-> > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > I tried a few more things, but ultimately failed to
-> > > > > > > > > > > > > > > > > find a nice way to implement this.
-> > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > Another issue popped up, though.  Linus' master branch
-> > > > > > > > > > > > > > > > > contains a recent commit by Benjamin Tissoires (CC'ed),
-> > > > > > > > > > > > > > > > > 4d5538f5882a ("i2c: use an IRQ to report Host Notify
-> > > > > > > > > > > > > > > > > events, not alert") which breaks your patch.  The
-> > > > > > > > > > > > > > > > > reason for that is that lis3lv02d relies on the i2c
-> > > > > > > > > > > > > > > > > client's IRQ being 0 to detect that it should not
-> > > > > > > > > > > > > > > > > create /dev/freefall.
-> > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > >  Benjamin's patch causes the Host Notify IRQ to be
-> > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > assigned to the i2c client your patch creates, thus
-> > > > > > > > > > > > > > > > > causing lis3lv02d to create /dev/freefall, which in
-> > > > > > > > > > > > > > > > > turn conflicts with dell-smo8800 which is trying to
-> > > > > > > > > > > > > > > > > create /dev/freefall itself.
-> > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > So 4d5538f5882a is breaking lis3lv02d driver...
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > Apologies for that.
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > I could easily fix this by adding a kernel API to know
-> > > > > > > > > > > > > > > whether the provided irq is from Host Notify or if it was
-> > > > > > > > > > > > > > > coming from an actual declaration. However, I have no idea
-> > > > > > > > > > > > > > > how many other drivers would require this (hopefully only
-> > > > > > > > > > > > > > > this one).
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > One other solution would be to reserve the Host Notify IRQ
-> > > > > > > > > > > > > > > and let the actual drivers that need it to set it, but
-> > > > > > > > > > > > > > > this was not the best solution according to Dmitri. On my
-> > > > > > > > > > > > > > > side, I am not entirely against this given that it's a
-> > > > > > > > > > > > > > > chip feature, so the driver should be able to know that
-> > > > > > > > > > > > > > > it's available.
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > Dmitri, Wolfram, Jean, any preferences?
-> > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > I read this:
-> > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > "IIRC both dell-smo8800 and lis3lv02d represent one HW device
-> > > > > > > > > > > > > > (that ST microelectronics accelerometer) but due to
-> > > > > > > > > > > > > > complicated HW abstraction and layers on Dell laptops it is
-> > > > > > > > > > > > > > handled by two drivers, one ACPI and one i2c."
-> > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > and that is the core of the issue. You have 2 drivers
-> > > > > > > > > > > > > > fighting over the same device. Fix this and it will all
-> > > > > > > > > > > > > > work.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > With my current implementation (which I sent in this patch),
-> > > > > > > > > > > > > they are not fighting.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > dell-smo8800 exports /dev/freefall (and nothing more) and
-> > > > > > > > > > > > > lis3lv02d only accelerometer device as lis3lv02d driver does
-> > > > > > > > > > > > > not get IRQ number in platform data.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > > As far as I can see hp_accel instantiates lis3lv02d and
-> > > > > > > > > > > > > > accesses it via ACPI methods, can the same be done for Dell?
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > No, Dell does not have any ACPI methods. And as I wrote in ACPI
-> > > > > > > > > > > > > or DMI is even not i2c address of device, so it needs to be
-> > > > > > > > > > > > > specified in code itself.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > Really there is no other way... :-(
-> > > > > > > > > > > > 
-> > > > > > > > > > > > Sure there is:
-> > > > > > > > > > > > 
-> > > > > > > > > > > > 1. dell-smo8800 instantiates I2C device as "dell-smo8800-accel".
-> > > > > > > > > > > > 2. dell-smo8800 provides read/write functions for lis3lv02d that
-> > > > > > > > > > > > simply forward requests to dell-smo8800-accel i2c client.
-> > > > > > > > > > > > 3. dell-smo8800 instantiates lis3lv02d instance like hp_accel
-> > > > > > > > > > > > does.
-> > > > > > > > > > > 
-> > > > > > > > > > > Sorry, but I do not understand how you mean it... Why to provides
-> > > > > > > > > > > new read/write i2c functions which are already implemented by
-> > > > > > > > > > > i2c-i801 bus and lis3lv02d i2c driver?
-> > > > > > > > > > 
-> > > > > > > > > > Because that would allow you to avoid clashes with i2c creating
-> > > > > > > > > > interrupt mapping for client residing on host-notify-capable
-> > > > > > > > > > controller.
-> > > > > > > > > > 
-> > > > > > > > > > > > Alternatively, can lis3lv02d be tasked to create /dev/freefall?
-> > > > > > > > > > > 
-> > > > > > > > > > > If i2c_board_info contains IRQ then lis3lv02d create /dev/freefall
-> > > > > > > > > > > device.
-> > > > > > > > > > > 
-> > > > > > > > > > > But... what is problem with current implementation? Accelerometer
-> > > > > > > > > > > HW provides two functions:
-> > > > > > > > > > > 
-> > > > > > > > > > > 1) 3 axes reports
-> > > > > > > > > > > 2) Disk freefall detection
-> > > > > > > > > > > 
-> > > > > > > > > > > And 1) is handled by i2c driver lis3lv02d and 2) is by
-> > > > > > > > > > > dell-smo8800. Both functions are independent here.
-> > > > > > > > > > > 
-> > > > > > > > > > > I think you just trying to complicate this situation even more to
-> > > > > > > > > > > be more complicated as currently is.
-> > > > > > > > > > 
-> > > > > > > > > > Because this apparently does not work for you, does it?
-> > > > > > > > > 
-> > > > > > > > > It is working fine. I do not see any problem.
-> > > > > > > > > 
-> > > > > > > > > > In general,
-> > > > > > > > > > if you want the same hardware be handled by 2 different drivers you
-> > > > > > > > > > are going to have bad time.
-> > > > > > > > > 
-> > > > > > > > > Yes, but in this case half of device is ACPI based and other half i2c 
-> > > > > > > > > based. This is problem of ACPI and Dell design.
-> > > > > > > > > 
-> > > > > > > > > > It seems to be that /dev/freefall in dell-smo8800 and lis3lv02d are
-> > > > > > > > > > the same, right?
-> > > > > > > > > 
-> > > > > > > > > Yes. I understand that clean solution is to have one driver which 
-> > > > > > > > > provides everything.
-> > > > > > > > > 
-> > > > > > > > > But because half of data are ACPI and half i2c, you still needs to 
-> > > > > > > > > create two drivers (one ACPI and one i2c). You can put both drivers into 
-> > > > > > > > > one .ko module, but still these will be two drivers due to how ACPI and 
-> > > > > > > > > i2c linux abstractions are different.
-> > > > > > > > > 
-> > > > > > > > > > So, instead of having 2 drivers split the
-> > > > > > > > > > functionality, can you forego registering smo8800 ACPI driver on
-> > > > > > > > > > your whitelisted boxes and instead instantiate full i2c client
-> > > > > > > > > > device with properly assigned both address and IRQ and let lis3lv02d
-> > > > > > > > > > handle it (providing both accelerometer data and /dev/freefall)?
-> > > > > > > > > 
-> > > > > > > > > With Michał we already discussed about it, see emails. Basically you can 
-> > > > > > > > > enable/disable kernel modules at compile time or blacklist at runtime 
-> > > > > > > > > (or even chose what will be compiled into vmlinux and what as external 
-> > > > > > > > > .ko module).
-> > > > > > > > 
-> > > > > > > > This can be solved with a bit of Kconfig/IS_ENABLED() code.
-> > > > > > > > 
-> > > > > > > > > Some distributions blacklist i2c-i801.ko module... And 
-> > > > > > > > 
-> > > > > > > > Any particular reason for that?
-> > > > > > > > 
-> > > > > > > > > there can be also problem with initialization of i2c-i801 driver (fix is 
-> > > > > > > > > in commit a7ae81952cda, but does not have to work at every time!). So 
-> > > > > > > > > that move on whitelisted machines can potentially cause disappearance of 
-> > > > > > > > > /dev/freefall and users will not have hdd protection which is currently 
-> > > > > > > > > working.
-> > > > > > > > 
-> > > > > > > > Well, I gave you 2 possible solutions (roll your own i2c read/write,
-> > > > > > > > forward them to i2c client) or have faith in your implementation and let
-> > > > > > > > lis3lv02d handle it.
-> > > > > > > > 
-> > > > > > > > The 3rd one is to possibly add a flag to disable host notify to IRQ
-> > > > > > > > mapping for given client (if Wolfram/Jean OK with it).
-> > > > > > > > 
-> > > > > > > > Oh, the 4th one: change the irq in lis3lv02d.h to be "int" and change
-> > > > > > > > the check in lis3lv02d.c to be "lis->irq <= 0" and instantiate your
-> > > > > > > > i2c_client with board_info->irq = -1.
-> > > > > > > > 
-> > > > > > > > Pick whichever you prefer.
-> > > > > > > > 
-> > > > > > > > By the way, what do you need accelerometer for on these devices? They
-> > > > > > > > don't appear to be tablets that could use one... 
-> > > > > > > 
-> > > > > > > Ah, you are talking about problem that after 4d5538f5882a lis3lv02d will
-> > > > > > > not work... I thought that discussion is about different mechanism how
-> > > > > > > to implement bus registration notification to smo8800 driver (or
-> > > > > > > different solution to not have registration in i801).
-> > > > > > > 
-> > > > > > 
-> > > > > > Just because I am not sure I got everything right, could you confirm
-> > > > > > that:
-> > > > > > - in the current upstream tree, the dell-smo8800 driver is now broken
-> > > > > >   after 4d5538f5882a (i2c: use an IRQ to report Host Notify events, not
-> > > > > >   alert)
-> > > > > 
-> > > > > No, dell-smo8800 it is working fine. It is fully independent from i2c
-> > > > > and lis3lv02d. It is pure ACPI driver which does not share anything with
-> > > > > i2c.
-> > > > > 
-> > > > > > - this series adds an extra lis3lv02d on some machines and you have
-> > > > > >   problem fighting for the irq (but this is not upstream yet).
-> > > > > 
-> > > > > Yes, this series (not merged yet) adds extra lis3lv02d device but is not
-> > > > > working because of 4d5538f5882a.
-> > > > > 
-> > > > > > The extra lis3lv02d node is added from dell-smo8800
-> > > > > 
-> > > > > No, dell-smo8800 does not add new node in this patch.
-> > > > > 
-> > > > > > If the first point is not correct (by default, dell-smo8800 will not be
-> > > > > > loaded at the same time than lis3lv02d), then it's a design issue with
-> > > > > > the interactions between those 2 drivers.
-> > > > > 
-> > > > > No, there is no interactions between these two drivers (dell-smo8800 and
-> > > > > lis3lv02d). dell-smo8800 is pure ACPI driver and exports just
-> > > > > /dev/freefall device based on IRQ (and nothing more).
-> > > > > 
-> > > > > And lis3lv02d in *current* configuration in this patch exports only
-> > > > > accelerometer input device, not /dev/freefall. It does not use IRQ.
-> > > > > (Just there is problem with 4d5538f5882a which tells lis3lv02d IRQ
-> > > > > number which is not freefall report, therefore lis3lv02d does not work).
-> > > > > 
-> > > > > To make it clear, ST Accelerometer provides two operations:
-> > > > > * report free fall
-> > > > > * report 3 axes
-> > > > > 
-> > > > > Free fall is reported by IRQ, state of 3 axes via i2c bus. Free fall IRQ
-> > > > > is handled by dell-smo8800, state of 3 axes via i2c lis3lv02d driver.
-> > > > > 
-> > > > > lis3lv02d can handle also free fall IRQ is platform i2c data provides
-> > > > > IRQ number for it -- but this is not case in our Dell configuration. But
-> > > > > commit 4d5538f5882a inject some IRQ number to lis3lv02d driver which is
-> > > > > not free fall detection and so is breaking lis3lv02 driver. In our Dell
-> > > > > configuration (by this patch) there should be no IRQ number.
-> > > > > 
-> > > > > It is clear now?
-> > > > 
-> > > > I think I am starting to understand the problem.
-> > > > 
-> > > > Currently (upstream tree), 4d5538f5882a doesn't break anything.
-> > > 
-> > > I cannot prove it... lis3lv02d i2c driver itself uses this IRQ logic
-> > > (missing = no freefall) and there could be already hardware/boards which
-> > > register lis3lv02d i2c device without IRQ number. And definitions could
-> > > be also in device tree and so outside of kernel sources...
-> > > 
-> > > So there can be potentially break. But at least not case of Dell.
-> > > 
-> > > > On the
-> > > > mentioned Dell platforms, the dell-smo8800 gets loaded and provides
-> > > > /dev/freefall. lis3lv02d is not loaded so everything just works.
-> > > 
-> > > Yes.
-> > > 
-> > > > The problem comes from this patch which doesn't set the irq in
-> > > > i2c_board_info and so i2c_core sets the IRQ to Host Notify. I think
-> > > > Dmitri already gave you the solution: set the irq to -1 (or -ENOENT)
-> > > > in i2c_board_info in your patch and only forward it to
-> > > > lis3lv02d_init_device() only if it is positive (valid).
-> > > 
-> > > Now I understood that Dmitri means. For this Dell platforms it is OK,
-> > > but we have a problem for device tree platforms. Normally in device tree
-> > > if device does not support something you just do not specify it. But
-> > > with this approach you need to explicitly specify IRQ to -1 in device
-> > > tree. And I think this is really not a clean solution.
-> > > 
-> 
-> Here I was talking about other platforms/devices (not this Dell one).
-> 
-> > No. DT platforms won't have an issue: they don't change anything, and
-> > there will be a new /dev/freefall misc device for the platforms that
-> 
-> And this is wrong! There should not be any /dev/freefall device
-> connected with signal host notify. /dev/freefall is for hardware which
-> supports free fall hdd detection.
-> 
-> > don't have the irq set *and* if the device is on a Host Notify capable
-> > adapter, currently only i2c-i801.
-> 
-> I understood, but in future more bus drivers could support host notify.
+Add a new minimalistic subsystem that handles multiplexer controllers.
+When multiplexers are used in various places in the kernel, and the
+same multiplexer controller can be used for several independent things,
+there should be one place to implement support for said multiplexer
+controller.
 
-This is really fragile. lis3lv02d will empty IRQ (0) will work on some
-i2c buses and on some not. I would really expect that i2c driver
-(lis3lv02d) will work in same way with any i2c bus driver. And not that
-on i801 will acts differently as on e.g. omap3 i2c bus.
+A single multiplexer controller can also be used to control several
+parallel multiplexers, that are in turn used by different subsystems
+in the kernel, leading to a need to coordinate multiplexer accesses.
+The multiplexer subsystem handles this coordination.
 
-> This is basically incorrect if we use one property for two different
-> things (host notify and hdd free fall).
-> 
-> For me it looks like that we should separate these two things into two
-> IRQ properties. It is really wrong design if one property is used for
-> two different things.
-> 
-> > But given that they are DT and not
-> > ACPI, this won't conflict with dell-smo8800, so there won't be any
-> > errors, just a dangling unused device node.
-> 
-> Yes, for upcoming Dell in this patch (with IRQ -1) it is not a problem.
-> 
-> > This approach is IMO the best if you want to have this in the kernel.
-> > 
-> > Cheers,
-> > Benjamin
-> 
+This new mux controller subsystem initially comes with a single backend
+driver that controls gpio based multiplexers. Even though not needed by
+this initial driver, the mux controller subsystem is prepared to handle
+chips with multiple (independent) mux controllers.
 
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+---
+ Documentation/driver-model/devres.txt |   8 +
+ MAINTAINERS                           |   2 +
+ drivers/Kconfig                       |   2 +
+ drivers/Makefile                      |   1 +
+ drivers/mux/Kconfig                   |  33 +++
+ drivers/mux/Makefile                  |   6 +
+ drivers/mux/mux-core.c                | 398 ++++++++++++++++++++++++++++++++++
+ drivers/mux/mux-gpio.c                | 120 ++++++++++
+ include/linux/mux.h                   | 244 +++++++++++++++++++++
+ 9 files changed, 814 insertions(+)
+ create mode 100644 drivers/mux/Kconfig
+ create mode 100644 drivers/mux/Makefile
+ create mode 100644 drivers/mux/mux-core.c
+ create mode 100644 drivers/mux/mux-gpio.c
+ create mode 100644 include/linux/mux.h
+
+diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
+index dc51fb024190..1e9ae701a587 100644
+--- a/Documentation/driver-model/devres.txt
++++ b/Documentation/driver-model/devres.txt
+@@ -332,6 +332,14 @@ MEM
+ MFD
+   devm_mfd_add_devices()
+ 
++MUX
++  devm_mux_chip_alloc()
++  devm_mux_chip_free()
++  devm_mux_chip_register()
++  devm_mux_chip_unregister()
++  devm_mux_control_get()
++  devm_mux_control_put()
++
+ PER-CPU MEM
+   devm_alloc_percpu()
+   devm_free_percpu()
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 32abef2b6d05..ebe96f3e25a0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8442,6 +8442,8 @@ MULTIPLEXER SUBSYSTEM
+ M:	Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/mux/
++F:	include/linux/mux.h
++F:	drivers/mux/
+ 
+ MULTISOUND SOUND DRIVER
+ M:	Andrew Veliath <andrewtv-Jdbf3xiKgS8@public.gmane.org>
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index e1e2066cecdb..993aeb65affa 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -76,6 +76,8 @@ source "drivers/hwmon/Kconfig"
+ 
+ source "drivers/thermal/Kconfig"
+ 
++source "drivers/mux/Kconfig"
++
+ source "drivers/watchdog/Kconfig"
+ 
+ source "drivers/ssb/Kconfig"
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 060026a02f59..d089baa57965 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -112,6 +112,7 @@ obj-$(CONFIG_W1)		+= w1/
+ obj-y				+= power/
+ obj-$(CONFIG_HWMON)		+= hwmon/
+ obj-$(CONFIG_THERMAL)		+= thermal/
++obj-$(CONFIG_MULTIPLEXER)	+= mux/
+ obj-$(CONFIG_WATCHDOG)		+= watchdog/
+ obj-$(CONFIG_MD)		+= md/
+ obj-$(CONFIG_BT)		+= bluetooth/
+diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
+new file mode 100644
+index 000000000000..de5a35ffe7af
+--- /dev/null
++++ b/drivers/mux/Kconfig
+@@ -0,0 +1,33 @@
++#
++# Multiplexer devices
++#
++
++menuconfig MULTIPLEXER
++	bool "Multiplexer subsystem"
++	help
++	  Multiplexer controller subsystem. Multiplexers are used in a
++	  variety of settings, and this subsystem abstracts their use
++	  so that the rest of the kernel sees a common interface. When
++	  multiple parallel multiplexers are controlled by one single
++	  multiplexer controller, this subsystem also coordinates the
++	  multiplexer accesses.
++
++	  If unsure, say no.
++
++if MULTIPLEXER
++
++config MUX_GPIO
++	tristate "GPIO-controlled Multiplexer"
++	depends on OF && GPIOLIB
++	help
++	  GPIO-controlled Multiplexer controller.
++
++	  The driver builds a single multiplexer controller using a number
++	  of gpio pins. For N pins, there will be 2^N possible multiplexer
++	  states. The GPIO pins can be connected (by the hardware) to several
++	  multiplexers, which in that case will be operated in parallel.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called mux-gpio.
++
++endif
+diff --git a/drivers/mux/Makefile b/drivers/mux/Makefile
+new file mode 100644
+index 000000000000..facc43da3648
+--- /dev/null
++++ b/drivers/mux/Makefile
+@@ -0,0 +1,6 @@
++#
++# Makefile for multiplexer devices.
++#
++
++obj-$(CONFIG_MULTIPLEXER)      	+= mux-core.o
++obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
+diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
+new file mode 100644
+index 000000000000..21da15a264ad
+--- /dev/null
++++ b/drivers/mux/mux-core.c
+@@ -0,0 +1,398 @@
++/*
++ * Multiplexer subsystem
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#define pr_fmt(fmt) "mux-core: " fmt
++
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/idr.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
++#include <linux/slab.h>
++
++static struct class mux_class = {
++	.name = "mux",
++	.owner = THIS_MODULE,
++};
++
++static int __init mux_init(void)
++{
++	return class_register(&mux_class);
++}
++
++static DEFINE_IDA(mux_ida);
++
++static void mux_chip_release(struct device *dev)
++{
++	struct mux_chip *mux_chip = to_mux_chip(dev);
++
++	ida_simple_remove(&mux_ida, mux_chip->id);
++	kfree(mux_chip);
++}
++
++static struct device_type mux_type = {
++	.name = "mux-chip",
++	.release = mux_chip_release,
++};
++
++struct mux_chip *mux_chip_alloc(struct device *dev,
++				unsigned int controllers, size_t sizeof_priv)
++{
++	struct mux_chip *mux_chip;
++	int i;
++
++	if (!dev || !controllers)
++		return NULL;
++
++	mux_chip = kzalloc(sizeof(*mux_chip) +
++			   controllers * sizeof(*mux_chip->mux) +
++			   sizeof_priv, GFP_KERNEL);
++	if (!mux_chip)
++		return NULL;
++
++	mux_chip->mux = (struct mux_control *)(mux_chip + 1);
++	mux_chip->dev.class = &mux_class;
++	mux_chip->dev.type = &mux_type;
++	mux_chip->dev.parent = dev;
++	mux_chip->dev.of_node = dev->of_node;
++	dev_set_drvdata(&mux_chip->dev, mux_chip);
++
++	mux_chip->id = ida_simple_get(&mux_ida, 0, 0, GFP_KERNEL);
++	if (mux_chip->id < 0) {
++		pr_err("muxchipX failed to get a device id\n");
++		kfree(mux_chip);
++		return NULL;
++	}
++	dev_set_name(&mux_chip->dev, "muxchip%d", mux_chip->id);
++
++	mux_chip->controllers = controllers;
++	for (i = 0; i < controllers; ++i) {
++		struct mux_control *mux = &mux_chip->mux[i];
++
++		mux->chip = mux_chip;
++		init_rwsem(&mux->lock);
++		mux->cached_state = -1;
++		mux->idle_state = -1;
++	}
++
++	device_initialize(&mux_chip->dev);
++
++	return mux_chip;
++}
++EXPORT_SYMBOL_GPL(mux_chip_alloc);
++
++static int mux_control_set(struct mux_control *mux, int state)
++{
++	int ret = mux->chip->ops->set(mux, state);
++
++	mux->cached_state = ret < 0 ? -1 : state;
++
++	return ret;
++}
++
++int mux_chip_register(struct mux_chip *mux_chip)
++{
++	int i;
++	int ret;
++
++	for (i = 0; i < mux_chip->controllers; ++i) {
++		struct mux_control *mux = &mux_chip->mux[i];
++
++		if (mux->idle_state == mux->cached_state)
++			continue;
++
++		ret = mux_control_set(mux, mux->idle_state);
++		if (ret < 0)
++			return ret;
++	}
++
++	return device_add(&mux_chip->dev);
++}
++EXPORT_SYMBOL_GPL(mux_chip_register);
++
++void mux_chip_unregister(struct mux_chip *mux_chip)
++{
++	device_del(&mux_chip->dev);
++}
++EXPORT_SYMBOL_GPL(mux_chip_unregister);
++
++void mux_chip_free(struct mux_chip *mux_chip)
++{
++	if (!mux_chip)
++		return;
++
++	put_device(&mux_chip->dev);
++}
++EXPORT_SYMBOL_GPL(mux_chip_free);
++
++static void devm_mux_chip_release(struct device *dev, void *res)
++{
++	struct mux_chip *mux_chip = *(struct mux_chip **)res;
++
++	mux_chip_free(mux_chip);
++}
++
++struct mux_chip *devm_mux_chip_alloc(struct device *dev,
++				     unsigned int controllers,
++				     size_t sizeof_priv)
++{
++	struct mux_chip **ptr, *mux_chip;
++
++	ptr = devres_alloc(devm_mux_chip_release, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return ERR_PTR(-ENOMEM);
++
++	mux_chip = mux_chip_alloc(dev, controllers, sizeof_priv);
++	if (IS_ERR(mux_chip)) {
++		devres_free(ptr);
++		return mux_chip;
++	}
++
++	*ptr = mux_chip;
++	devres_add(dev, ptr);
++
++	return mux_chip;
++}
++EXPORT_SYMBOL_GPL(devm_mux_chip_alloc);
++
++static int devm_mux_chip_match(struct device *dev, void *res, void *data)
++{
++	struct mux_chip **r = res;
++
++	if (!r || !*r) {
++		WARN_ON(!r || !*r);
++		return 0;
++	}
++
++	return *r == data;
++}
++
++void devm_mux_chip_free(struct device *dev, struct mux_chip *mux_chip)
++{
++	WARN_ON(devres_release(dev, devm_mux_chip_release,
++			       devm_mux_chip_match, mux_chip));
++}
++EXPORT_SYMBOL_GPL(devm_mux_chip_free);
++
++static void devm_mux_chip_reg_release(struct device *dev, void *res)
++{
++	struct mux_chip *mux_chip = *(struct mux_chip **)res;
++
++	mux_chip_unregister(mux_chip);
++}
++
++int devm_mux_chip_register(struct device *dev,
++			   struct mux_chip *mux_chip)
++{
++	struct mux_chip **ptr;
++	int res;
++
++	ptr = devres_alloc(devm_mux_chip_reg_release, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return -ENOMEM;
++
++	res = mux_chip_register(mux_chip);
++	if (res) {
++		devres_free(ptr);
++		return res;
++	}
++
++	*ptr = mux_chip;
++	devres_add(dev, ptr);
++
++	return res;
++}
++EXPORT_SYMBOL_GPL(devm_mux_chip_register);
++
++void devm_mux_chip_unregister(struct device *dev, struct mux_chip *mux_chip)
++{
++	WARN_ON(devres_release(dev, devm_mux_chip_reg_release,
++			       devm_mux_chip_match, mux_chip));
++}
++EXPORT_SYMBOL_GPL(devm_mux_chip_unregister);
++
++int mux_control_select(struct mux_control *mux, int state)
++{
++	int ret;
++
++	if (down_read_trylock(&mux->lock)) {
++		if (mux->cached_state == state)
++			return 0;
++
++		/* Sigh, the mux needs updating... */
++		up_read(&mux->lock);
++	}
++
++	/* ...or it's just contended. */
++	down_write(&mux->lock);
++
++	if (mux->cached_state == state) {
++		/*
++		 * Hmmm, someone else changed the mux to my liking.
++		 * That makes me wonder how long I waited for nothing?
++		 */
++		downgrade_write(&mux->lock);
++		return 0;
++	}
++
++	ret = mux_control_set(mux, state);
++	if (ret < 0) {
++		if (mux->idle_state != -1)
++			mux_control_set(mux, mux->idle_state);
++
++		up_write(&mux->lock);
++		return ret;
++	}
++
++	downgrade_write(&mux->lock);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(mux_control_select);
++
++int mux_control_deselect(struct mux_control *mux)
++{
++	int ret = 0;
++
++	if (mux->idle_state != -1 && mux->cached_state != mux->idle_state)
++		ret = mux_control_set(mux, mux->idle_state);
++
++	up_read(&mux->lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(mux_control_deselect);
++
++static int of_dev_node_match(struct device *dev, const void *data)
++{
++	return dev->of_node == data;
++}
++
++static struct mux_chip *of_find_mux_chip_by_node(struct device_node *np)
++{
++	struct device *dev;
++
++	dev = class_find_device(&mux_class, NULL, np, of_dev_node_match);
++
++	return dev ? to_mux_chip(dev) : NULL;
++}
++
++struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
++{
++	struct device_node *np = dev->of_node;
++	struct of_phandle_args args;
++	struct mux_chip *mux_chip;
++	unsigned int controller;
++	int index = 0;
++	int ret;
++
++	if (mux_name) {
++		index = of_property_match_string(np, "mux-control-names",
++						 mux_name);
++		if (index < 0)
++			return ERR_PTR(index);
++	}
++
++	ret = of_parse_phandle_with_args(np,
++					 "mux-controls", "#mux-control-cells",
++					 index, &args);
++	if (ret) {
++		dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
++			np->full_name, mux_name ?: "", index);
++		return ERR_PTR(ret);
++	}
++
++	mux_chip = of_find_mux_chip_by_node(args.np);
++	of_node_put(args.np);
++	if (!mux_chip)
++		return ERR_PTR(-EPROBE_DEFER);
++
++	if (args.args_count > 1 ||
++	    (!args.args_count && (mux_chip->controllers > 1))) {
++		dev_err(dev, "%s: wrong #mux-control-cells for %s\n",
++			np->full_name, args.np->full_name);
++		return ERR_PTR(-EINVAL);
++	}
++
++	controller = 0;
++	if (args.args_count)
++		controller = args.args[0];
++
++	if (controller >= mux_chip->controllers)
++		return ERR_PTR(-EINVAL);
++
++	get_device(&mux_chip->dev);
++	return &mux_chip->mux[controller];
++}
++EXPORT_SYMBOL_GPL(mux_control_get);
++
++void mux_control_put(struct mux_control *mux)
++{
++	put_device(&mux->chip->dev);
++}
++EXPORT_SYMBOL_GPL(mux_control_put);
++
++static void devm_mux_control_release(struct device *dev, void *res)
++{
++	struct mux_control *mux = *(struct mux_control **)res;
++
++	mux_control_put(mux);
++}
++
++struct mux_control *devm_mux_control_get(struct device *dev,
++					 const char *mux_name)
++{
++	struct mux_control **ptr, *mux;
++
++	ptr = devres_alloc(devm_mux_control_release, sizeof(*ptr), GFP_KERNEL);
++	if (!ptr)
++		return ERR_PTR(-ENOMEM);
++
++	mux = mux_control_get(dev, mux_name);
++	if (IS_ERR(mux)) {
++		devres_free(ptr);
++		return mux;
++	}
++
++	*ptr = mux;
++	devres_add(dev, ptr);
++
++	return mux;
++}
++EXPORT_SYMBOL_GPL(devm_mux_control_get);
++
++static int devm_mux_control_match(struct device *dev, void *res, void *data)
++{
++	struct mux_control **r = res;
++
++	if (!r || !*r) {
++		WARN_ON(!r || !*r);
++		return 0;
++	}
++
++	return *r == data;
++}
++
++void devm_mux_control_put(struct device *dev, struct mux_control *mux)
++{
++	WARN_ON(devres_release(dev, devm_mux_control_release,
++			       devm_mux_control_match, mux));
++}
++EXPORT_SYMBOL_GPL(devm_mux_control_put);
++
++subsys_initcall(mux_init);
++
++MODULE_DESCRIPTION("Multiplexer subsystem");
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/mux/mux-gpio.c b/drivers/mux/mux-gpio.c
+new file mode 100644
+index 000000000000..76b52bc63470
+--- /dev/null
++++ b/drivers/mux/mux-gpio.c
+@@ -0,0 +1,120 @@
++/*
++ * GPIO-controlled multiplexer driver
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/err.h>
++#include <linux/gpio/consumer.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++#include <linux/of_platform.h>
++#include <linux/platform_device.h>
++#include <linux/property.h>
++
++struct mux_gpio {
++	struct gpio_descs *gpios;
++	int *val;
++};
++
++static int mux_gpio_set(struct mux_control *mux, int state)
++{
++	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
++	int i;
++
++	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
++		mux_gpio->val[i] = (state >> i) & 1;
++
++	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
++				       mux_gpio->gpios->desc,
++				       mux_gpio->val);
++
++	return 0;
++}
++
++static const struct mux_control_ops mux_gpio_ops = {
++	.set = mux_gpio_set,
++};
++
++static const struct of_device_id mux_gpio_dt_ids[] = {
++	{ .compatible = "mux-gpio", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
++
++static int mux_gpio_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
++	struct mux_chip *mux_chip;
++	struct mux_gpio *mux_gpio;
++	int pins;
++	u32 idle_state;
++	int ret;
++
++	if (!np)
++		return -ENODEV;
++
++	pins = gpiod_count(dev, "mux");
++	if (pins < 0)
++		return pins;
++
++	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
++				       pins * sizeof(*mux_gpio->val));
++	if (!mux_chip)
++		return -ENOMEM;
++
++	mux_gpio = mux_chip_priv(mux_chip);
++	mux_gpio->val = (int *)(mux_gpio + 1);
++	mux_chip->ops = &mux_gpio_ops;
++
++	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
++	if (IS_ERR(mux_gpio->gpios)) {
++		ret = PTR_ERR(mux_gpio->gpios);
++		if (ret != -EPROBE_DEFER)
++			dev_err(dev, "failed to get gpios\n");
++		return ret;
++	}
++	WARN_ON(pins != mux_gpio->gpios->ndescs);
++	mux_chip->mux->states = 1 << pins;
++
++	ret = device_property_read_u32(dev, "idle-state", &idle_state);
++	if (ret >= 0) {
++		if (idle_state >= mux_chip->mux->states) {
++			dev_err(dev, "invalid idle-state %u\n", idle_state);
++			return -EINVAL;
++		}
++
++		mux_chip->mux->idle_state = idle_state;
++	}
++
++	ret = devm_mux_chip_register(dev, mux_chip);
++	if (ret < 0) {
++		dev_err(dev, "failed to register mux-chip\n");
++		return ret;
++	}
++
++	dev_info(dev, "%u-way mux-controller registered\n",
++		 mux_chip->mux->states);
++
++	return 0;
++}
++
++static struct platform_driver mux_gpio_driver = {
++	.driver = {
++		.name = "mux-gpio",
++		.of_match_table	= of_match_ptr(mux_gpio_dt_ids),
++	},
++	.probe = mux_gpio_probe,
++};
++module_platform_driver(mux_gpio_driver);
++
++MODULE_DESCRIPTION("GPIO-controlled multiplexer driver");
++MODULE_AUTHOR("Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mux.h b/include/linux/mux.h
+new file mode 100644
+index 000000000000..3b9439927f11
+--- /dev/null
++++ b/include/linux/mux.h
+@@ -0,0 +1,244 @@
++/*
++ * mux.h - definitions for the multiplexer interface
++ *
++ * Copyright (C) 2016 Axentia Technologies AB
++ *
++ * Author: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _LINUX_MUX_H
++#define _LINUX_MUX_H
++
++#include <linux/device.h>
++#include <linux/rwsem.h>
++
++struct mux_chip;
++struct mux_control;
++struct platform_device;
++
++struct mux_control_ops {
++	int (*set)(struct mux_control *mux, int state);
++};
++
++/**
++ * struct mux_control - Represents a mux controller.
++ * @lock:		Protects the mux controller state.
++ * @chip:		The mux chip that is handling this mux controller.
++ * @states:		The number of mux controller states.
++ * @cached_state:	The current mux controller state, or -1 if none.
++ * @idle_state:		The mux controller state to use when inactive, or -1
++ *			for none.
++ */
++struct mux_control {
++	struct rw_semaphore lock; /* protects the state of the mux */
++
++	struct mux_chip *chip;
++
++	unsigned int states;
++	int cached_state;
++	int idle_state;
++};
++
++/**
++ * struct mux_chip -	Represents a chip holding mux controllers.
++ * @controllers:	Number of mux controllers handled by the chip.
++ * @mux:		Array of mux controllers that is handled.
++ * @dev:		Device structure.
++ * @id:			Used to identify the device internally.
++ * @ops:		Mux controller operations.
++ */
++struct mux_chip {
++	unsigned int controllers;
++	struct mux_control *mux;
++	struct device dev;
++	int id;
++
++	const struct mux_control_ops *ops;
++};
++
++#define to_mux_chip(x) container_of((x), struct mux_chip, dev)
++
++/**
++ * mux_chip_priv() - Get the extra memory reserved by mux_chip_alloc().
++ * @mux_chip: The mux-chip to get the private memory from.
++ *
++ * Return: Pointer to the private memory reserved by the allocator.
++ */
++static inline void *mux_chip_priv(struct mux_chip *mux_chip)
++{
++	return &mux_chip->mux[mux_chip->controllers];
++}
++
++/**
++ * mux_chip_alloc() - Allocate a mux-chip.
++ * @dev: The parent device implementing the mux interface.
++ * @controllers: The number of mux controllers to allocate for this chip.
++ * @sizeof_priv: Size of extra memory area for private use by the caller.
++ *
++ * Return: A pointer to the new mux-chip, NULL on failure.
++ */
++struct mux_chip *mux_chip_alloc(struct device *dev,
++				unsigned int controllers, size_t sizeof_priv);
++
++/**
++ * mux_chip_register() - Register a mux-chip, thus readying the controllers
++ *			 for use.
++ * @mux_chip: The mux-chip to register.
++ *
++ * Do not retry registration of the same mux-chip on failure. You should
++ * instead put it away with mux_chip_free() and allocate a new one, if you
++ * for some reason would like to retry registration.
++ *
++ * Return: Zero on success or a negative errno on error.
++ */
++int mux_chip_register(struct mux_chip *mux_chip);
++
++/**
++ * mux_chip_unregister() - Take the mux-chip off-line.
++ * @mux_chip: The mux-chip to unregister.
++ *
++ * mux_chip_unregister() reverses the effects of mux_chip_register().
++ * But not completely, you should not try to call mux_chip_register()
++ * on a mux-chip that has been registered before.
++ */
++void mux_chip_unregister(struct mux_chip *mux_chip);
++
++/**
++ * mux_chip_free() - Free the mux-chip for good.
++ * @mux_chip: The mux-chip to free.
++ *
++ * mux_chip_free() reverses the effects of mux_chip_alloc().
++ */
++void mux_chip_free(struct mux_chip *mux_chip);
++
++/**
++ * devm_mux_chip_alloc() - Resource-managed version of mux_chip_alloc().
++ * @dev: The parent device implementing the mux interface.
++ * @controllers: The number of mux controllers to allocate for this chip.
++ * @sizeof_priv: Size of extra memory area for private use by the caller.
++ *
++ * See mux_chip_alloc() for more details.
++ *
++ * Return: A pointer to the new mux-chip, NULL on failure.
++ */
++struct mux_chip *devm_mux_chip_alloc(struct device *dev,
++				     unsigned int controllers,
++				     size_t sizeof_priv);
++
++/**
++ * devm_mux_chip_register() - Resource-managed version mux_chip_register().
++ * @dev: The parent device implementing the mux interface.
++ * @mux_chip: The mux-chip to register.
++ *
++ * See mux_chip_register() for more details.
++ *
++ * Return: Zero on success or a negative errno on error.
++ */
++int devm_mux_chip_register(struct device *dev, struct mux_chip *mux_chip);
++
++/**
++ * devm_mux_chip_unregister() - Resource-managed version mux_chip_unregister().
++ * @dev: The device that originally registered the mux-chip.
++ * @mux_chip: The mux-chip to unregister.
++ *
++ * See mux_chip_unregister() for more details.
++ *
++ * Note that you do not normally need to call this function.
++ */
++void devm_mux_chip_unregister(struct device *dev, struct mux_chip *mux_chip);
++
++/**
++ * devm_mux_chip_free() - Resource-managed version mux_chip_free().
++ * @dev: The device that originally got the mux-chip.
++ * @mux_chip: The mux-chip to free.
++ *
++ * See mux_chip_free() for more details.
++ *
++ * Note that you do not normally need to call this function.
++ */
++void devm_mux_chip_free(struct device *dev, struct mux_chip *mux_chip);
++
++/**
++ * mux_control_select() - Select the given multiplexer state.
++ * @mux: The mux-control to request a change of state from.
++ * @state: The new requested state.
++ *
++ * Make sure to call mux_control_deselect() when the operation is complete and
++ * the mux-control is free for others to use, but do not call
++ * mux_control_deselect() if mux_control_select() fails.
++ *
++ * Return: 0 if the requested state was already active, or 1 it the
++ * mux-control state was changed to the requested state. Or a negavive
++ * errno on error.
++ *
++ * Note that the difference in return value of zero or one is of
++ * questionable value; especially if the mux-control has several independent
++ * consumers, which is something the consumers should perhaps not be making
++ * assumptions about.
++ */
++int mux_control_select(struct mux_control *mux, int state);
++
++/**
++ * mux_control_deselect() - Deselect the previously selected multiplexer state.
++ * @mux: The mux-control to deselect.
++ *
++ * Return: 0 on success and a negative errno on error. An error can only
++ * occur if the mux has an idle state. Note that even if an error occurs, the
++ * mux-control is unlocked for others to access.
++ */
++int mux_control_deselect(struct mux_control *mux);
++
++/**
++ * mux_control_get_index() - Get the index of the given mux controller
++ * @mux: The mux-control to the the index for.
++ *
++ * Return: The index of the mux controller within the mux chip the mux
++ * controller is a part of.
++ */
++static inline unsigned int mux_control_get_index(struct mux_control *mux)
++{
++	return mux - mux->chip->mux;
++}
++
++/**
++ * mux_control_get() - Get the mux-control for a device.
++ * @dev: The device that needs a mux-control.
++ * @mux_name: The name identifying the mux-control.
++ *
++ * Return: A pointer to the mux-control, or an ERR_PTR with a negative errno.
++ */
++struct mux_control *mux_control_get(struct device *dev, const char *mux_name);
++
++/**
++ * mux_control_put() - Put away the mux-control for good.
++ * @mux: The mux-control to put away.
++ *
++ * mux_control_put() reverses the effects of mux_control_get().
++ */
++void mux_control_put(struct mux_control *mux);
++
++/**
++ * devm_mux_control_get() - Get the mux-control for a device, with resource
++ *			    management.
++ * @dev: The device that needs a mux-control.
++ * @mux_name: The name identifying the mux-control.
++ *
++ * Return: Pointer to the mux-control, or an ERR_PTR with a negative errno.
++ */
++struct mux_control *devm_mux_control_get(struct device *dev,
++					 const char *mux_name);
++
++/**
++ * devm_mux_control_put() - Resource-managed version mux_control_put().
++ * @dev: The device that originally got the mux-control.
++ * @mux: The mux-control to put away.
++ *
++ * Note that you do not normally need to call this function.
++ */
++void devm_mux_control_put(struct device *dev, struct mux_control *mux);
++
++#endif /* _LINUX_MUX_H */
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+2.1.4
