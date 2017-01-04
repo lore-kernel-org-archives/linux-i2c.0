@@ -1,38 +1,29 @@
-From: Peter Rosin <peda@axentia.se>
+From: Rob Herring <robh@kernel.org>
 Subject: Re: [PATCH 2/5] dt: bindings: i2c-mux-pca954x: Add documentation for
  interrupt controller
-Date: Wed, 4 Jan 2017 15:11:42 +0100
-Message-ID: <64587c91-19e2-f4f7-d959-929a6b3acd1b@axentia.se>
+Date: Wed, 4 Jan 2017 08:45:44 -0600
+Message-ID: <20170104144544.e7isnrg5pynipwng@rob-hp-laptop>
 References: <1483522197-38819-1-git-send-email-preid@electromag.com.au>
  <1483522197-38819-3-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0138.outbound.protection.outlook.com ([104.47.1.138]:21408
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934105AbdADO1x (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 4 Jan 2017 09:27:53 -0500
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:33739 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1031202AbdADOpw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 09:45:52 -0500
+Content-Disposition: inline
 In-Reply-To: <1483522197-38819-3-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: peda@axentia.se, wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-On 2017-01-04 10:29, Phil Reid wrote:
+On Wed, Jan 04, 2017 at 05:29:54PM +0800, Phil Reid wrote:
 > Various muxes can aggregate multiple irq lines and provide a control
 > register to determine the active line. Add bindings for interrupt
 > controller support.
 > 
-
-I'm no irq expert, but looks good (superficially).
-
-With the below nitpick,
-Acked-by: Peter Rosin <peda@axentia.se>
-
-Cheers,
-peda
-
 > Signed-off-by: Phil Reid <preid@electromag.com.au>
 > ---
 >  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 14 +++++++++++++-
@@ -51,9 +42,6 @@ peda
 > +    interrupts for this device.
 > +  - interrupts: Interrupt mapping for IRQ.
 > +  - interrupt-controller: Marks the device node as a interrupt controller.
-
-as an interrupt
-
 > +  - #interrupt-cells : Should be two.
 > +    - first cell is the pin number
 > +    - second cell is used to specify flags.
@@ -69,8 +57,15 @@ as an interrupt
 > +		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
 > +		interrupt-controller;
 > +		#interrupt-cells=<2>;
+
+Needs spaces around the '='. With that,
+
+Acked-by: Rob Herring <robh@kernel.org>
+
 > +
 >  		i2c@2 {
 >  			#address-cells = <1>;
 >  			#size-cells = <0>;
+> -- 
+> 1.8.3.1
 > 
