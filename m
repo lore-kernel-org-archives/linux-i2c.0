@@ -1,9 +1,10 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
  Dell machines
-Date: Wed, 4 Jan 2017 14:00:30 -0800
-Message-ID: <20170104220030.GD40341@dtor-ws>
-References: <20170104102118.GD3499@pali>
+Date: Wed, 4 Jan 2017 22:55:47 +0100
+Message-ID: <20170104215546.GA1433@katana>
+References: <20170104101306.GR5767@mail.corp.redhat.com>
+ <20170104102118.GD3499@pali>
  <20170104103233.GT5767@mail.corp.redhat.com>
  <20170104112223.GE3499@pali>
  <20170104120031.GG3499@pali>
@@ -12,55 +13,71 @@ References: <20170104102118.GD3499@pali>
  <20170104173928.GW5767@mail.corp.redhat.com>
  <20170104174619.feke27q3ehwkylfs@ninjato>
  <20170104175456.GA40341@dtor-ws>
- <20170104215546.GA1433@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:33649 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761572AbdADWAe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 17:00:34 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170104215546.GA1433@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170104175456.GA40341@dtor-ws>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On Wed, Jan 04, 2017 at 10:55:47PM +0100, Wolfram Sang wrote:
-> 
-> > From e362a0277fd1bd6112f258664d8831d9bc6b78da Mon Sep 17 00:00:00 2001
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Date: Wed, 4 Jan 2017 09:33:43 -0800
-> > Subject: [PATCH] i2c: do not enable fall back to Host Notify by default
-> > 
-> > Falling back unconditionally to HostNotify as primary client's interrupt
-> > breaks some drivers which alter their functionality depending on whether
-> > interrupt is present or not, so let's introduce a board flag telling I2C
-> > core explicitly if we want wired interrupt or HostNotify-based one:
-> > I2C_CLIENT_HOST_NOTIFY.
-> > 
-> > For DT-based systems we introduce "host-notofy" property that we convert
-> > to I2C_CLIENT_HOST_NOTIFY board flag.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Yay, this looks better to me. One nit:
-> 
-> > +Alternatively, devices supporting SMbus Host Notify, and connected to
-> > +adapters that support this feature, may use "host-notify" property. I2C
-> > +core will create a virtual interrupt for Host Notify and assign it as
-> > +primary interrupt for the slave.
-> 
-> This paragraph sounds Linux-ish while binding docs should be OS
-> agnostic. Maybe we can shorten the second sentence to "It will be
-> assigned then as the primary interrupt for the slave."?
 
-Heh, I just sent out patch to DT folks. Provided that they are fine with
-the new property I can either send V2 or you could edit when applying,
-whatever is easier for you.
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks.
 
--- 
-Dmitry
+> From e362a0277fd1bd6112f258664d8831d9bc6b78da Mon Sep 17 00:00:00 2001
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Date: Wed, 4 Jan 2017 09:33:43 -0800
+> Subject: [PATCH] i2c: do not enable fall back to Host Notify by default
+>=20
+> Falling back unconditionally to HostNotify as primary client's interrupt
+> breaks some drivers which alter their functionality depending on whether
+> interrupt is present or not, so let's introduce a board flag telling I2C
+> core explicitly if we want wired interrupt or HostNotify-based one:
+> I2C_CLIENT_HOST_NOTIFY.
+>=20
+> For DT-based systems we introduce "host-notofy" property that we convert
+> to I2C_CLIENT_HOST_NOTIFY board flag.
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Yay, this looks better to me. One nit:
+
+> +Alternatively, devices supporting SMbus Host Notify, and connected to
+> +adapters that support this feature, may use "host-notify" property. I2C
+> +core will create a virtual interrupt for Host Notify and assign it as
+> +primary interrupt for the slave.
+
+This paragraph sounds Linux-ish while binding docs should be OS
+agnostic. Maybe we can shorten the second sentence to "It will be
+assigned then as the primary interrupt for the slave."?
+
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYbW9iAAoJEBQN5MwUoCm2XmYP/0gKXGdQuJ4dV7Y7Z0IOl8Ng
+qz4TSJXJvGonODQzTwlxYAbehYH17wr77lXaUFuocsuDRhbU3+UK7Pd3E7uHKswr
+IF2kcknrrXHZjeQCVnydzLDdJhxROQAaQ3G14vYebRip5wg0Vc3CJ/WGZPucK4pl
+H38NAon1g1wkUYjmAyPaaT8yA1lcN7DtfjydLDDLDZUcoy+RcmsUcaps4Ue7ARmp
+UGlWGN5T5MTBUjKhEJRL0h1RE1eQkvtFCVSz5RFzWGQA/kn5pAr/Aljazgw2hY76
+fylbs4gq0Msx/onPKd+F03oNo/b7FDqNjGFFb+gcI8ai8MMT9jXXHstN/CBbsgi/
+EnqMK8UGZixY3/FRU0785Yp43F9gdABq/HTcl43+lBE+e+phQee3L0fe3T9+Pe0A
+6U8pxC5q5waBrMSb6hbMTmv6HN7o0/t1rctUXdI09/kujiNXnyqBIyeWbX16N3MU
+1bWi7Cg4nOjShZE6arRONk/zgaLwAw3g22Q68hVx6bFQYOvNQvCz4vxmlhLEZRkE
+X3iXROFiSKeLM2L86d1La6YIYkre2sriYVVNyTq/OU07addANX4f7tII2uL6qvF+
+4idJ+f+xKcX6Kn2bV5fGHo3BCXwJtg3c8UwDRhTJdP7lKgaaGvklSbHDA4LqEbv9
+xceDTgs5mlYnzPu7S/IA
+=52jW
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--
