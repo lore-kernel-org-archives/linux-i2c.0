@@ -1,58 +1,52 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH 2/5] dt: bindings: i2c-mux-pca954x: Add documentation for interrupt controller
-Date: Wed,  4 Jan 2017 17:29:54 +0800
-Message-ID: <1483522197-38819-3-git-send-email-preid@electromag.com.au>
+Subject: [PATCH 1/5] i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
+Date: Wed,  4 Jan 2017 17:29:53 +0800
+Message-ID: <1483522197-38819-2-git-send-email-preid@electromag.com.au>
 References: <1483522197-38819-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:47747 "EHLO
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:42906 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S965409AbdADNnx (ORCPT
+        with ESMTP id S965378AbdADNnx (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 08:43:53 -0500
 In-Reply-To: <1483522197-38819-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Various muxes can aggregate multiple irq lines and provide a control
-register to determine the active line. Add bindings for interrupt
-controller support.
+The spec for the pca954x was missing. This chip is the same as the pca9540
+except that it has interrupt lines. While the i2c_device_id table mapped
+the pca9542 to the pca9540 definition the compatible table did not. In
+preparation for irq support add the pca9542 definition.
 
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index cf53d5f..9f7c275 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -19,7 +19,14 @@ Optional Properties:
-   - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-     children in idle state. This is necessary for example, if there are several
-     multiplexers on the bus and the devices behind them use same I2C addresses.
--
-+  - interrupt-parent: Phandle for the interrupt controller that services
-+    interrupts for this device.
-+  - interrupts: Interrupt mapping for IRQ.
-+  - interrupt-controller: Marks the device node as a interrupt controller.
-+  - #interrupt-cells : Should be two.
-+    - first cell is the pin number
-+    - second cell is used to specify flags.
-+    See also Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 8bc3d36..981d145 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -83,6 +83,11 @@ struct pca954x {
+ 		.enable = 0x4,
+ 		.muxtype = pca954x_ismux,
+ 	},
++	[pca_9542] = {
++		.nchans = 2,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
+ 	[pca_9543] = {
+ 		.nchans = 2,
+ 		.muxtype = pca954x_isswi,
+@@ -109,7 +114,7 @@ struct pca954x {
  
- Example:
- 
-@@ -29,6 +36,11 @@ Example:
- 		#size-cells = <0>;
- 		reg = <0x74>;
- 
-+		interrupt-parent = <&ipic>;
-+		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+		#interrupt-cells=<2>;
-+
- 		i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9540", pca_9540 },
+-	{ "pca9542", pca_9540 },
++	{ "pca9542", pca_9542 },
+ 	{ "pca9543", pca_9543 },
+ 	{ "pca9544", pca_9544 },
+ 	{ "pca9545", pca_9545 },
 -- 
 1.8.3.1
