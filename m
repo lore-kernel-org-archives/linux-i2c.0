@@ -1,50 +1,88 @@
 From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Subject: [PATCH v2 0/5] i2c: mux: pca954x: Add interrupt controller support
-Date: Thu,  5 Jan 2017 12:10:58 +0800
-Message-ID: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v2 5/5] i2c: mux: pca954x: Add irq_mask_en to delay enabling irqs
+Date: Thu,  5 Jan 2017 12:11:03 +0800
+Message-ID: <1483589463-35380-6-git-send-email-preid@electromag.com.au>
+References: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1483589463-35380-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Various muxes can aggregate multiple interrupts from each i2c bus.
-All of the muxes with interrupt support combine the active low irq lines
-using an internal 'and' function and generate a combined active low
-output. The muxes do provide the ability to read a control register to
-determine which irq is active. By making the mux an irq controller isr
-latenct can potentially be reduced by reading the status register and 
-then only calling the registered isr on that bus segment.
+Unfortunately some hardware device will assert their irq line immediately
+on power on and provide no mechanism to mask the irq. As the i2c muxes
+provide no method to mask irq line this provides a work around by keeping
+the parent irq masked until enough device drivers have loaded to service
+all pending interrupts.
 
-In addition an additional enable mask is added to work around devices
-that assert irq immediately before being setup buy disabling the irq
-from the mux until all devices are registered.
+For example the the ltc1760 assert its SMBALERT irq immediately on power
+on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+device is registered irq are enabled and fire continuously as the second
+device driver has not yet loaded. Setting this parameter to 0x3 while
+delay the irq being enabled until both devices are ready.
 
-Changes from v1:
-- Update for new ACPI table
-- Fix typo in documentation
-- Fix typo in function names
-- Fix typo in irq name
-- Added spaces around '+' / '='
-- Change goto label names
-- Change property name from i2c-mux-irq-mask-en to nxp,irq-mask-enable
-- Change variable name irq_mask_en to irq_mask_enable
-- Add commentt about irq_mask_enable
-- Added Acked-By's
+Acked-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-
-Phil Reid (5):
-  i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
-  dt: bindings: i2c-mux-pca954x: Add documentation for interrupt
-    controller
-  i2c: mux: pca954x: Add interrupt controller support
-  dt: bindings: i2c-mux-pca954x: Add documentation for
-    i2c-mux-irq-mask-en
-  i2c: mux: pca954x: Add irq_mask_en to delay enabling irqs
-
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  17 ++-
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 156 ++++++++++++++++++++-
- 2 files changed, 168 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 84fc767..581a75d 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -75,6 +75,19 @@ struct chip_desc {
+ 	} muxtype;
+ };
+ 
++/*
++ * irq_mask_enable: Provides a mechanism to work around hardware that asserts
++ * their irq immediately on power on. It allows the enabling of the  irq to be
++ * delayed until the corresponding bits in the the irq_mask are set thru
++ * irq_unmask.
++ * For example the the ltc1760 assert its SMBALERT irq immediately on power
++ * on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
++ * device is registered irq are enabled and fire continuously as the second
++ * device driver has not yet loaded. Setting this parameter to 0x3 while
++ * delay the irq being enabled until both devices are ready.
++ * This workaround will not work if two devices share an interrupt on the
++ * same bus segment.
++ */
+ struct pca954x {
+ 	const struct chip_desc *chip;
+ 
+@@ -84,6 +97,7 @@ struct pca954x {
+ 
+ 	struct irq_domain *irq;
+ 	unsigned int irq_mask;
++	unsigned int irq_mask_enable;
+ };
+ 
+ /* Provide specs for the PCA954x types we know about */
+@@ -270,9 +284,12 @@ static void pca954x_irq_unmask(struct irq_data *idata)
+ 	struct pca954x *data = irq_data_get_irq_chip_data(idata);
+ 	unsigned int pos = idata->hwirq;
+ 
+-	if (!data->irq_mask)
++	if (!data->irq_mask_enable && !data->irq_mask)
+ 		enable_irq(data->client->irq);
+ 	data->irq_mask |= BIT(pos);
++	if (data->irq_mask_enable &&
++		(data->irq_mask & data->irq_mask) == data->irq_mask_enable)
++		enable_irq(data->client->irq);
+ }
+ 
+ static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
+@@ -395,6 +412,9 @@ static int pca954x_probe(struct i2c_client *client,
+ 	idle_disconnect_dt = of_node &&
+ 		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
+ 
++	of_property_read_u32(of_node, "nxp,irq-mask-enable",
++			     &data->irq_mask_enable);
++
+ 	ret = pca954x_irq_setup(muxc);
+ 	if (ret)
+ 		goto fail_del_adapters;
 -- 
 1.8.3.1
 
