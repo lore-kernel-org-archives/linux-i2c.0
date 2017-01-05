@@ -1,68 +1,103 @@
-From: Mike Looijmans <mike.looijmans@topic.nl>
-Subject: [PATCH] i2c: i2c-cadence: Don't register the adapter until it's ready
-Date: Thu,  5 Jan 2017 11:47:20 +0100
-Message-ID: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: wsa@the-dreams.de, Mike Looijmans <mike.looijmans@topic.nl>, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, soren.brinkmann@xilinx.com
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: [PATCH] i2c: exynos5: fix arbitration lost handling
+Date: Thu, 05 Jan 2017 13:06:53 +0100
+Message-ID: <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout4.w1.samsung.com ([210.118.77.14]:10124 "EHLO
+        mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1762610AbdAEMHh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Jan 2017 07:07:37 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 
-The driver calls i2c_add_adapter before writing to config registers,
-resulting in dmesg output like this, where devices fail to initialize:
+In case of arbitration lost adequate interrupt sometimes is not signaled. As
+a result transfer timeouts and is not retried, as it should. To avoid such
+cases code is added to check transaction status in case of every interrupt.
 
-cdns-i2c ff030000.i2c: timeout waiting on completion
-pca953x 1-0041: failed reading register
-pca953x: probe of 1-0041 failed with error -110
-at24 1-0050: 512 byte 24c04 EEPROM, writable, 1 bytes/write
-cdns-i2c ff030000.i2c: 100 kHz mmio ff030000 irq 197
-
-The adapter is being used before it completed the "probe". To fix
-this, make "i2c_add_adapter" the last thing it calls in probe.
-It also makes sense to show the adapter initialization before
-the devices on the bus.
-
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
 ---
- drivers/i2c/busses/i2c-cadence.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Hi,
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 6869712..7793bb8 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -962,10 +962,6 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 		goto err_clk_dis;
- 	}
- 
--	ret = i2c_add_adapter(&id->adap);
--	if (ret < 0)
--		goto err_clk_dis;
--
- 	/*
- 	 * Cadence I2C controller has a bug wherein it generates
- 	 * invalid read transaction after HW timeout in master receiver mode.
-@@ -978,6 +974,10 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 	dev_info(&pdev->dev, "%u kHz mmio %08lx irq %d\n",
- 		 id->i2c_clk / 1000, (unsigned long)r_mem->start, id->irq);
- 
-+	ret = i2c_add_adapter(&id->adap);
-+	if (ret < 0)
-+		goto err_clk_dis;
+I am not I2C specialist, this patch is a result of debugging issues
+with SiI8620 MHL driver on TM2 device. I guess the main problem is
+with SiI8620 chip, but exynos5 i2c is also guilty - with i2c-gpio driver
+it works correctly - there is only one arbitration lost at 1st transaction
+(which is properly handled - transfer is repeated succesfully). In case
+of exynos5 there are much more arbitration losts. Lowering bus speed
+decreases frequency of losts but do not eliminate them.
+Any help/hint, what could cause such issues?
+
+I guess increasing adap.retries should also decrease fail probability,
+currently for exynos5 it is set to 3.
+
+Regards
+Andrzej
+---
+ drivers/i2c/busses/i2c-exynos5.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index bea6071..a01c1ae 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -130,12 +130,32 @@
+ /* I2C_TRANS_STATUS register bits */
+ #define HSI2C_MASTER_BUSY			(1u << 17)
+ #define HSI2C_SLAVE_BUSY			(1u << 16)
 +
- 	return 0;
++/* I2C_TRANS_STATUS register bits for Exynos5 variant */
+ #define HSI2C_TIMEOUT_AUTO			(1u << 4)
+ #define HSI2C_NO_DEV				(1u << 3)
+ #define HSI2C_NO_DEV_ACK			(1u << 2)
+ #define HSI2C_TRANS_ABORT			(1u << 1)
+ #define HSI2C_TRANS_DONE			(1u << 0)
  
- err_clk_dis:
++/* I2C_TRANS_STATUS register bits for Exynos7 variant */
++#define HSI2C_MASTER_ST_MASK			0xf
++#define HSI2C_MASTER_ST_IDLE			0x0
++#define HSI2C_MASTER_ST_START			0x1
++#define HSI2C_MASTER_ST_RESTART			0x2
++#define HSI2C_MASTER_ST_STOP			0x3
++#define HSI2C_MASTER_ST_MASTER_ID		0x4
++#define HSI2C_MASTER_ST_ADDR0			0x5
++#define HSI2C_MASTER_ST_ADDR1			0x6
++#define HSI2C_MASTER_ST_ADDR2			0x7
++#define HSI2C_MASTER_ST_ADDR_SR			0x8
++#define HSI2C_MASTER_ST_READ			0x9
++#define HSI2C_MASTER_ST_WRITE			0xa
++#define HSI2C_MASTER_ST_NO_ACK			0xb
++#define HSI2C_MASTER_ST_LOSE			0xc
++#define HSI2C_MASTER_ST_WAIT			0xd
++#define HSI2C_MASTER_ST_WAIT_CMD		0xe
++
+ /* I2C_ADDR register bits */
+ #define HSI2C_SLV_ADDR_SLV(x)			((x & 0x3ff) << 0)
+ #define HSI2C_SLV_ADDR_MAS(x)			((x & 0x3ff) << 10)
+@@ -437,6 +457,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 
+ 	int_status = readl(i2c->regs + HSI2C_INT_STATUS);
+ 	writel(int_status, i2c->regs + HSI2C_INT_STATUS);
++	trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+ 
+ 	/* handle interrupt related to the transfer status */
+ 	if (i2c->variant->hw == HSI2C_EXYNOS7) {
+@@ -460,8 +481,13 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 			i2c->state = -ETIMEDOUT;
+ 			goto stop;
+ 		}
++
++		switch (trans_status & HSI2C_MASTER_ST_MASK) {
++		case HSI2C_MASTER_ST_LOSE:
++			i2c->state = -EAGAIN;
++			goto stop;
++		}
+ 	} else if (int_status & HSI2C_INT_I2C) {
+-		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+ 		if (trans_status & HSI2C_NO_DEV_ACK) {
+ 			dev_dbg(i2c->dev, "No ACK from device\n");
+ 			i2c->state = -ENXIO;
 -- 
-1.9.1
+2.7.4
