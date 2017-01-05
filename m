@@ -1,103 +1,151 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: [PATCH] i2c: exynos5: fix arbitration lost handling
-Date: Thu, 05 Jan 2017 13:06:53 +0100
-Message-ID: <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
-References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH v5 6/7] i2c: designware: enable SLAVE in platform module
+Date: Thu, 5 Jan 2017 12:13:56 +0000
+Message-ID: <9747bb4d-9a52-789d-32e9-ddbef9e129e4@synopsys.com>
+References: <cover.1482934380.git.lolivei@synopsys.com>
+ <ea8b611c3b7c2af8088e2dbc16554af5c8aed368.1482934380.git.lolivei@synopsys.com>
+ <1482939844.9552.165.camel@linux.intel.com>
+ <20e47113-efd7-787c-b2f8-39e9fd8b83d2@synopsys.com>
+ <1482942696.9552.172.camel@linux.intel.com>
+ <c41db9e0-756d-6697-a845-0d5b1efcaedc@synopsys.com>
+ <1482945043.9552.174.camel@linux.intel.com>
+ <b27405b9-b768-34e7-d61a-433100f9856d@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout4.w1.samsung.com ([210.118.77.14]:10124 "EHLO
-        mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1762610AbdAEMHh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Jan 2017 07:07:37 -0500
+Received: from smtprelay2.synopsys.com ([198.182.60.111]:47144 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751521AbdAEMOD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Jan 2017 07:14:03 -0500
+In-Reply-To: <b27405b9-b768-34e7-d61a-433100f9856d@synopsys.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-In case of arbitration lost adequate interrupt sometimes is not signaled. As
-a result transfer timeouts and is not retried, as it should. To avoid such
-cases code is added to check transaction status in case of every interrupt.
+On 28-Dec-16 18:10, Luis Oliveira wrote:
+> On 28-Dec-16 17:10, Andy Shevchenko wrote:
+>> On Wed, 2016-12-28 at 16:41 +0000, Luis Oliveira wrote:
+>>> On 28-Dec-16 16:31, Andy Shevchenko wrote:
+>>>> On Wed, 2016-12-28 at 15:53 +0000, Luis Oliveira wrote:
+>>>>> On 28-Dec-16 15:44, Andy Shevchenko wrote:
+>>>>>> On Wed, 2016-12-28 at 14:43 +0000, Luis Oliveira wrote:
+>>>>>>> - Slave mode selected in platform module (devicetree support
+>>>>>>> only)
+>>>>>>> - Check for ACPI - not supported in SLAVE mode:
+>>>>>>>   - Changed the ifndef style to the use of ACPI_HANDLE that
+>>>>>>> returns
+>>>>>>> NULL
+>>>>>>>     if the device was not enumerated from ACPI namespace.
+>>>>>>
+>>>>>> I'm not sure what is wrong with ACPI?
+>>>>>
+>>>>> I dont have a way to test it. Just that.
+>>>>
+>>>> Okay, can you provide an excerpt to see how it will look like in
+>>>> DTS?
+>>>
+>>> Yes, it looks like this now:
+>>>
+>>> 	i2c@0x2000 {
+>>> 			compatible = "snps,designware-i2c";
+>>> 			#address-cells = <1>;
+>>> 			#size-cells = <0>;
+>>> 			reg = <0x2000 0x100>;
+>>> 			clock-frequency = <400000>;
+>>> 			clocks = <&i2cclk>;
+>>> 			interrupts = <0>;
+>>>
+>>> 			eeprom@64 {
+>>> 				compatible = "linux,slave-24c02";
+>>> 				reg = <0x40000064>;
+>>> 			};
+>>> 	};
+>>
+>> +1 to Carlos' comment.
+> 
+> Agree, I'm on it.
+> 
+>>
+>>>>  
+>>>>>>> -	dev->functionality = I2C_FUNC_10BIT_ADDR |
+>>>>>>> DW_IC_DEFAULT_FUNCTIONALITY;
+>>>>>>> -
+>>>>>>> -	i2c_dw_configure_master(pdev);
+>>>>>>> +	if (ACPI_HANDLE(&pdev->dev) == NULL) {
+>>>>>>
+>>>>>> I don't think you need this at all.
+>>>>>
+>>>>> This is to avoid the use of the "ifdef" style I used before.
+>>>>
+>>>> My point is to drop it completely.
+>>>>
+>>>>>>
+>>>>>>> +		device_for_each_child_node(&pdev->dev, child)
+>>>>>>> {
+>>>>>>
+>>>>>> This is resource agnostic.
+>>>>>>
+>>>>>>> +			fwnode_property_read_u32(child,
+>>>>>>> "reg",
+>>>>>>> &reg);
+>>>>>>
+>>>>>> This is as well.
+>>>>>
+>>>>> Are you suggesting I use of_ functions?
+>>>>
+>>>> Nope. See above.
+>>
+>> So, ACPI has a property to support slave mode for I2CSerialBus() macro.
+>>
+>> I would propose to create a helper function in i2c-core.c which will be
+>> responsible for mode detection
+>>
+>> ... i2c_slave_mode_detect()
+>> {
+>> ...
+>>  if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
+>>   ... (use of_*() here) ...
+>>  } else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev))
+>>   dev_dbg(..., "ACPI slave is not supported yet\n");
+>>   ... to master ...
+>>  } else {
+>>   ... default to master ...
+>>  }
+>> }
+>> EXPORT_...();
+>>
+>> Make it as a separate patch.
+>>
+> 
+> Oh I see, yes it looks good. I will check it. Thanks
+> 
 
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
----
-Hi,
+Hi Andy,
 
-I am not I2C specialist, this patch is a result of debugging issues
-with SiI8620 MHL driver on TM2 device. I guess the main problem is
-with SiI8620 chip, but exynos5 i2c is also guilty - with i2c-gpio driver
-it works correctly - there is only one arbitration lost at 1st transaction
-(which is properly handled - transfer is repeated succesfully). In case
-of exynos5 there are much more arbitration losts. Lowering bus speed
-decreases frequency of losts but do not eliminate them.
-Any help/hint, what could cause such issues?
+I implemented a helper function as you proposed and it looks like this:
 
-I guess increasing adap.retries should also decrease fail probability,
-currently for exynos5 it is set to 3.
+int i2c_slave_mode_detect(struct device *dev)
+{
+	struct device_node *child;
+	u32 reg;
+	
+	if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
+		for_each_child_of_node(dev->of_node, child) {
+			of_property_read_u32(child, "reg", &reg);
+			if (reg & I2C_OWN_SLAVE_ADDRESS)
+				return 1;
+		}
+	} else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev))
+		dev_dbg(dev, "ACPI slave is not supported yet\n");
+	else
+		return 0;
+	return 0;
+}
 
-Regards
-Andrzej
----
- drivers/i2c/busses/i2c-exynos5.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+Before I submit the patch to the i2c-core.c I wonder if I could have some
+comment on the implementation.
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index bea6071..a01c1ae 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -130,12 +130,32 @@
- /* I2C_TRANS_STATUS register bits */
- #define HSI2C_MASTER_BUSY			(1u << 17)
- #define HSI2C_SLAVE_BUSY			(1u << 16)
-+
-+/* I2C_TRANS_STATUS register bits for Exynos5 variant */
- #define HSI2C_TIMEOUT_AUTO			(1u << 4)
- #define HSI2C_NO_DEV				(1u << 3)
- #define HSI2C_NO_DEV_ACK			(1u << 2)
- #define HSI2C_TRANS_ABORT			(1u << 1)
- #define HSI2C_TRANS_DONE			(1u << 0)
- 
-+/* I2C_TRANS_STATUS register bits for Exynos7 variant */
-+#define HSI2C_MASTER_ST_MASK			0xf
-+#define HSI2C_MASTER_ST_IDLE			0x0
-+#define HSI2C_MASTER_ST_START			0x1
-+#define HSI2C_MASTER_ST_RESTART			0x2
-+#define HSI2C_MASTER_ST_STOP			0x3
-+#define HSI2C_MASTER_ST_MASTER_ID		0x4
-+#define HSI2C_MASTER_ST_ADDR0			0x5
-+#define HSI2C_MASTER_ST_ADDR1			0x6
-+#define HSI2C_MASTER_ST_ADDR2			0x7
-+#define HSI2C_MASTER_ST_ADDR_SR			0x8
-+#define HSI2C_MASTER_ST_READ			0x9
-+#define HSI2C_MASTER_ST_WRITE			0xa
-+#define HSI2C_MASTER_ST_NO_ACK			0xb
-+#define HSI2C_MASTER_ST_LOSE			0xc
-+#define HSI2C_MASTER_ST_WAIT			0xd
-+#define HSI2C_MASTER_ST_WAIT_CMD		0xe
-+
- /* I2C_ADDR register bits */
- #define HSI2C_SLV_ADDR_SLV(x)			((x & 0x3ff) << 0)
- #define HSI2C_SLV_ADDR_MAS(x)			((x & 0x3ff) << 10)
-@@ -437,6 +457,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
- 
- 	int_status = readl(i2c->regs + HSI2C_INT_STATUS);
- 	writel(int_status, i2c->regs + HSI2C_INT_STATUS);
-+	trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
- 
- 	/* handle interrupt related to the transfer status */
- 	if (i2c->variant->hw == HSI2C_EXYNOS7) {
-@@ -460,8 +481,13 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
- 			i2c->state = -ETIMEDOUT;
- 			goto stop;
- 		}
-+
-+		switch (trans_status & HSI2C_MASTER_ST_MASK) {
-+		case HSI2C_MASTER_ST_LOSE:
-+			i2c->state = -EAGAIN;
-+			goto stop;
-+		}
- 	} else if (int_status & HSI2C_INT_I2C) {
--		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
- 		if (trans_status & HSI2C_NO_DEV_ACK) {
- 			dev_dbg(i2c->dev, "No ACK from device\n");
- 			i2c->state = -ENXIO;
--- 
-2.7.4
+Thanks,
+Luis
