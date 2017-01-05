@@ -1,60 +1,61 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v2 2/5] dt: bindings: i2c-mux-pca954x: Add documentation for interrupt controller
-Date: Thu,  5 Jan 2017 12:11:00 +0800
-Message-ID: <1483589463-35380-3-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v2 1/5] i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
+Date: Thu,  5 Jan 2017 12:10:59 +0800
+Message-ID: <1483589463-35380-2-git-send-email-preid@electromag.com.au>
 References: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:53563 "EHLO
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:41679 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S937796AbdAEELK (ORCPT
+        with ESMTP id S937799AbdAEELK (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 23:11:10 -0500
 In-Reply-To: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Various muxes can aggregate multiple irq lines and provide a control
-register to determine the active line. Add bindings for interrupt
-controller support.
+The spec for the pca954x was missing. This chip is the same as the pca9540
+except that it has interrupt lines. While the i2c_device_id table mapped
+the pca9542 to the pca9540 definition the compatible table did not. In
+preparation for irq support add the pca9542 definition.
 
-Acked-by: Peter Rosin <peda@axentia.se>
-Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index cf53d5f..aa09704 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -19,7 +19,14 @@ Optional Properties:
-   - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-     children in idle state. This is necessary for example, if there are several
-     multiplexers on the bus and the devices behind them use same I2C addresses.
--
-+  - interrupt-parent: Phandle for the interrupt controller that services
-+    interrupts for this device.
-+  - interrupts: Interrupt mapping for IRQ.
-+  - interrupt-controller: Marks the device node as an interrupt controller.
-+  - #interrupt-cells : Should be two.
-+    - first cell is the pin number
-+    - second cell is used to specify flags.
-+    See also Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index dd18b9c..bbf088e 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -84,6 +84,11 @@ struct pca954x {
+ 		.enable = 0x4,
+ 		.muxtype = pca954x_ismux,
+ 	},
++	[pca_9542] = {
++		.nchans = 2,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
+ 	[pca_9543] = {
+ 		.nchans = 2,
+ 		.muxtype = pca954x_isswi,
+@@ -110,7 +115,7 @@ struct pca954x {
  
- Example:
- 
-@@ -29,6 +36,11 @@ Example:
- 		#size-cells = <0>;
- 		reg = <0x74>;
- 
-+		interrupt-parent = <&ipic>;
-+		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+
- 		i2c@2 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9540", pca_9540 },
+-	{ "pca9542", pca_9540 },
++	{ "pca9542", pca_9542 },
+ 	{ "pca9543", pca_9543 },
+ 	{ "pca9544", pca_9544 },
+ 	{ "pca9545", pca_9545 },
+@@ -124,7 +129,7 @@ struct pca954x {
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id pca954x_acpi_ids[] = {
+ 	{ .id = "PCA9540", .driver_data = pca_9540 },
+-	{ .id = "PCA9542", .driver_data = pca_9540 },
++	{ .id = "PCA9542", .driver_data = pca_9542 },
+ 	{ .id = "PCA9543", .driver_data = pca_9543 },
+ 	{ .id = "PCA9544", .driver_data = pca_9544 },
+ 	{ .id = "PCA9545", .driver_data = pca_9545 },
 -- 
 1.8.3.1
