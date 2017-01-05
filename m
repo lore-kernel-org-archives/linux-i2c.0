@@ -1,151 +1,38 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: Re: [PATCH v5 6/7] i2c: designware: enable SLAVE in platform module
-Date: Thu, 5 Jan 2017 12:13:56 +0000
-Message-ID: <9747bb4d-9a52-789d-32e9-ddbef9e129e4@synopsys.com>
-References: <cover.1482934380.git.lolivei@synopsys.com>
- <ea8b611c3b7c2af8088e2dbc16554af5c8aed368.1482934380.git.lolivei@synopsys.com>
- <1482939844.9552.165.camel@linux.intel.com>
- <20e47113-efd7-787c-b2f8-39e9fd8b83d2@synopsys.com>
- <1482942696.9552.172.camel@linux.intel.com>
- <c41db9e0-756d-6697-a845-0d5b1efcaedc@synopsys.com>
- <1482945043.9552.174.camel@linux.intel.com>
- <b27405b9-b768-34e7-d61a-433100f9856d@synopsys.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v2] i2c: do not enable fall back to Host Notify by default
+Date: Thu, 5 Jan 2017 13:39:00 +0100
+Message-ID: <20170105123900.GE31083@pali>
+References: <20170105045722.GA17958@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtprelay2.synopsys.com ([198.182.60.111]:47144 "EHLO
-        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751521AbdAEMOD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Jan 2017 07:14:03 -0500
-In-Reply-To: <b27405b9-b768-34e7-d61a-433100f9856d@synopsys.com>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33005 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1032048AbdAEMjE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Jan 2017 07:39:04 -0500
+Content-Disposition: inline
+In-Reply-To: <20170105045722.GA17958@dtor-ws>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 28-Dec-16 18:10, Luis Oliveira wrote:
-> On 28-Dec-16 17:10, Andy Shevchenko wrote:
->> On Wed, 2016-12-28 at 16:41 +0000, Luis Oliveira wrote:
->>> On 28-Dec-16 16:31, Andy Shevchenko wrote:
->>>> On Wed, 2016-12-28 at 15:53 +0000, Luis Oliveira wrote:
->>>>> On 28-Dec-16 15:44, Andy Shevchenko wrote:
->>>>>> On Wed, 2016-12-28 at 14:43 +0000, Luis Oliveira wrote:
->>>>>>> - Slave mode selected in platform module (devicetree support
->>>>>>> only)
->>>>>>> - Check for ACPI - not supported in SLAVE mode:
->>>>>>>   - Changed the ifndef style to the use of ACPI_HANDLE that
->>>>>>> returns
->>>>>>> NULL
->>>>>>>     if the device was not enumerated from ACPI namespace.
->>>>>>
->>>>>> I'm not sure what is wrong with ACPI?
->>>>>
->>>>> I dont have a way to test it. Just that.
->>>>
->>>> Okay, can you provide an excerpt to see how it will look like in
->>>> DTS?
->>>
->>> Yes, it looks like this now:
->>>
->>> 	i2c@0x2000 {
->>> 			compatible = "snps,designware-i2c";
->>> 			#address-cells = <1>;
->>> 			#size-cells = <0>;
->>> 			reg = <0x2000 0x100>;
->>> 			clock-frequency = <400000>;
->>> 			clocks = <&i2cclk>;
->>> 			interrupts = <0>;
->>>
->>> 			eeprom@64 {
->>> 				compatible = "linux,slave-24c02";
->>> 				reg = <0x40000064>;
->>> 			};
->>> 	};
->>
->> +1 to Carlos' comment.
+On Wednesday 04 January 2017 20:57:22 Dmitry Torokhov wrote:
+> Falling back unconditionally to HostNotify as primary client's interrupt
+> breaks some drivers which alter their functionality depending on whether
+> interrupt is present or not, so let's introduce a board flag telling I2C
+> core explicitly if we want wired interrupt or HostNotify-based one:
+> I2C_CLIENT_HOST_NOTIFY.
 > 
-> Agree, I'm on it.
+> For DT-based systems we introduce "host-notify" property that we convert
+> to I2C_CLIENT_HOST_NOTIFY board flag.
 > 
->>
->>>>  
->>>>>>> -	dev->functionality = I2C_FUNC_10BIT_ADDR |
->>>>>>> DW_IC_DEFAULT_FUNCTIONALITY;
->>>>>>> -
->>>>>>> -	i2c_dw_configure_master(pdev);
->>>>>>> +	if (ACPI_HANDLE(&pdev->dev) == NULL) {
->>>>>>
->>>>>> I don't think you need this at all.
->>>>>
->>>>> This is to avoid the use of the "ifdef" style I used before.
->>>>
->>>> My point is to drop it completely.
->>>>
->>>>>>
->>>>>>> +		device_for_each_child_node(&pdev->dev, child)
->>>>>>> {
->>>>>>
->>>>>> This is resource agnostic.
->>>>>>
->>>>>>> +			fwnode_property_read_u32(child,
->>>>>>> "reg",
->>>>>>> &reg);
->>>>>>
->>>>>> This is as well.
->>>>>
->>>>> Are you suggesting I use of_ functions?
->>>>
->>>> Nope. See above.
->>
->> So, ACPI has a property to support slave mode for I2CSerialBus() macro.
->>
->> I would propose to create a helper function in i2c-core.c which will be
->> responsible for mode detection
->>
->> ... i2c_slave_mode_detect()
->> {
->> ...
->>  if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
->>   ... (use of_*() here) ...
->>  } else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev))
->>   dev_dbg(..., "ACPI slave is not supported yet\n");
->>   ... to master ...
->>  } else {
->>   ... default to master ...
->>  }
->> }
->> EXPORT_...();
->>
->> Make it as a separate patch.
->>
-> 
-> Oh I see, yes it looks good. I will check it. Thanks
-> 
+> Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Andy,
+Acked-by: Pali Rohár <pali.rohar@gmail.com>
 
-I implemented a helper function as you proposed and it looks like this:
-
-int i2c_slave_mode_detect(struct device *dev)
-{
-	struct device_node *child;
-	u32 reg;
-	
-	if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
-		for_each_child_of_node(dev->of_node, child) {
-			of_property_read_u32(child, "reg", &reg);
-			if (reg & I2C_OWN_SLAVE_ADDRESS)
-				return 1;
-		}
-	} else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev))
-		dev_dbg(dev, "ACPI slave is not supported yet\n");
-	else
-		return 0;
-	return 0;
-}
-
-Before I submit the patch to the i2c-core.c I wonder if I could have some
-comment on the implementation.
-
-Thanks,
-Luis
+-- 
+Pali Rohár
+pali.rohar@gmail.com
