@@ -1,241 +1,76 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v7 05/12] mux: support simplified bindings for single-user
- gpio mux
-Date: Thu, 5 Jan 2017 17:21:39 +0100
-Message-ID: <d89179f5-6ad6-3c40-cdb8-f49cf324e9ee@axentia.se>
-References: <1483532187-28494-1-git-send-email-peda@axentia.se>
- <1483532187-28494-6-git-send-email-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483532187-28494-6-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c: core: helper function to detect slave mode
+Date: Thu,  5 Jan 2017 17:24:14 +0000
+Message-ID: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-01-04 13:16, Peter Rosin wrote:
-> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-> ---
->  drivers/mux/mux-core.c | 81 ++++++++++++++++++++++++++++++++++++++++++++++++--
->  drivers/mux/mux-gpio.c | 56 ++--------------------------------
->  include/linux/mux.h    |  7 +++++
->  3 files changed, 89 insertions(+), 55 deletions(-)
-> 
-> diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
-> index 21da15a264ad..d887ae1c0e55 100644
-> --- a/drivers/mux/mux-core.c
-> +++ b/drivers/mux/mux-core.c
-> @@ -15,6 +15,7 @@
->  #include <linux/device.h>
->  #include <linux/err.h>
->  #include <linux/idr.h>
-> +#include <linux/gpio/consumer.h>
->  #include <linux/module.h>
->  #include <linux/mux.h>
->  #include <linux/of.h>
-> @@ -288,6 +289,63 @@ static struct mux_chip *of_find_mux_chip_by_node(struct device_node *np)
->  	return dev ? to_mux_chip(dev) : NULL;
->  }
->  
-> +#ifdef CONFIG_MUX_GPIO
-> +
-> +static int mux_gpio_set(struct mux_control *mux, int state)
-> +{
-> +	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
-> +	int i;
-> +
-> +	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
-> +		mux_gpio->val[i] = (state >> i) & 1;
-> +
-> +	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
-> +				       mux_gpio->gpios->desc,
-> +				       mux_gpio->val);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct mux_control_ops mux_gpio_ops = {
-> +	.set = mux_gpio_set,
-> +};
-> +
-> +struct mux_chip *mux_gpio_alloc(struct device *dev)
-> +{
-> +	struct mux_chip *mux_chip;
-> +	struct mux_gpio *mux_gpio;
-> +	int pins;
-> +	int ret;
-> +
-> +	pins = gpiod_count(dev, "mux");
-> +	if (pins < 0)
-> +		return ERR_PTR(pins);
-> +
-> +	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
-> +				       pins * sizeof(*mux_gpio->val));
-> +	if (!mux_chip)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	mux_gpio = mux_chip_priv(mux_chip);
-> +	mux_gpio->val = (int *)(mux_gpio + 1);
-> +	mux_chip->ops = &mux_gpio_ops;
-> +
-> +	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
-> +	if (IS_ERR(mux_gpio->gpios)) {
-> +		ret = PTR_ERR(mux_gpio->gpios);
-> +		if (ret != -EPROBE_DEFER)
-> +			dev_err(dev, "failed to get gpios\n");
-> +		return ERR_PTR(ret);
-> +	}
-> +	WARN_ON(pins != mux_gpio->gpios->ndescs);
-> +	mux_chip->mux->states = 1 << pins;
-> +
-> +	return mux_chip;
-> +}
-> +EXPORT_SYMBOL_GPL(mux_gpio_alloc);
-> +
-> +#endif /* CONFIG_MUX_GPIO */
-> +
->  struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
->  {
->  	struct device_node *np = dev->of_node;
-> @@ -307,9 +365,28 @@ struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
->  	ret = of_parse_phandle_with_args(np,
->  					 "mux-controls", "#mux-control-cells",
->  					 index, &args);
-> +
-> +#ifdef CONFIG_MUX_GPIO
-> +	if (ret == -ENOENT && !mux_name && gpiod_count(dev, "mux") > 0) {
-> +		mux_chip = mux_gpio_alloc(dev);
-> +		if (!IS_ERR(mux_chip)) {
-> +			ret = devm_mux_chip_register(dev, mux_chip);
-> +			if (ret < 0) {
-> +				dev_err(dev, "failed to register mux-chip\n");
-> +				return ERR_PTR(ret);
-> +			}
-> +			get_device(&mux_chip->dev);
-> +			return mux_chip->mux;
-> +		}
-> +
-> +		ret = PTR_ERR(mux_chip);
-> +	}
-> +#endif
-> +
->  	if (ret) {
-> -		dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
-> -			np->full_name, mux_name ?: "", index);
-> +		if (ret != -EPROBE_DEFER)
-> +			dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
-> +				np->full_name, mux_name ?: "", index);
->  		return ERR_PTR(ret);
->  	}
->  
-> diff --git a/drivers/mux/mux-gpio.c b/drivers/mux/mux-gpio.c
-> index 76b52bc63470..8a7bfbc0c4bb 100644
-> --- a/drivers/mux/mux-gpio.c
-> +++ b/drivers/mux/mux-gpio.c
-> @@ -11,37 +11,12 @@
->   */
->  
->  #include <linux/err.h>
-> -#include <linux/gpio/consumer.h>
->  #include <linux/module.h>
->  #include <linux/mux.h>
->  #include <linux/of_platform.h>
->  #include <linux/platform_device.h>
->  #include <linux/property.h>
+This function has the purpose of mode detection by checking the
+device nodes for a reg matching with the I2C_OWN_SLAVE_ADDREESS flag.
+Currently only checks using OF functions (ACPI slave not supported yet).
 
-Instead of moving the mux-gpio guts from mux-gpio.c to mux-core.c, I
-will instead make CONFIG_MUX_GPIO a bool option (no module possible)
-and call it from the mux-core. That will be cleaner and less of a
-break of abstractions in my opinion.
+Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+---
+Due to the need of checking if the I2C slave address is our own (in 
+other words: if we are the I2C slave) I created a helper function 
+(proposed to me by @Andy) to enable that check. 
+Currently (because I am not able to test it using ACPI) it only 
+supports devicetree declarations.
 
-Cheers,
-Peter
+ drivers/i2c/i2c-core.c | 19 +++++++++++++++++++
+ include/linux/i2c.h    |  1 +
+ 2 files changed, 20 insertions(+)
 
-> -struct mux_gpio {
-> -	struct gpio_descs *gpios;
-> -	int *val;
-> -};
-> -
-> -static int mux_gpio_set(struct mux_control *mux, int state)
-> -{
-> -	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
-> -	int i;
-> -
-> -	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
-> -		mux_gpio->val[i] = (state >> i) & 1;
-> -
-> -	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
-> -				       mux_gpio->gpios->desc,
-> -				       mux_gpio->val);
-> -
-> -	return 0;
-> -}
-> -
-> -static const struct mux_control_ops mux_gpio_ops = {
-> -	.set = mux_gpio_set,
-> -};
-> -
->  static const struct of_device_id mux_gpio_dt_ids[] = {
->  	{ .compatible = "mux-gpio", },
->  	{ /* sentinel */ }
-> @@ -51,38 +26,13 @@ MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
->  static int mux_gpio_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
-> -	struct device_node *np = dev->of_node;
->  	struct mux_chip *mux_chip;
-> -	struct mux_gpio *mux_gpio;
-> -	int pins;
->  	u32 idle_state;
->  	int ret;
->  
-> -	if (!np)
-> -		return -ENODEV;
-> -
-> -	pins = gpiod_count(dev, "mux");
-> -	if (pins < 0)
-> -		return pins;
-> -
-> -	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
-> -				       pins * sizeof(*mux_gpio->val));
-> -	if (!mux_chip)
-> -		return -ENOMEM;
-> -
-> -	mux_gpio = mux_chip_priv(mux_chip);
-> -	mux_gpio->val = (int *)(mux_gpio + 1);
-> -	mux_chip->ops = &mux_gpio_ops;
-> -
-> -	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
-> -	if (IS_ERR(mux_gpio->gpios)) {
-> -		ret = PTR_ERR(mux_gpio->gpios);
-> -		if (ret != -EPROBE_DEFER)
-> -			dev_err(dev, "failed to get gpios\n");
-> -		return ret;
-> -	}
-> -	WARN_ON(pins != mux_gpio->gpios->ndescs);
-> -	mux_chip->mux->states = 1 << pins;
-> +	mux_chip = mux_gpio_alloc(dev);
-> +	if (IS_ERR(mux_chip))
-> +		return PTR_ERR(mux_chip);
->  
->  	ret = device_property_read_u32(dev, "idle-state", &idle_state);
->  	if (ret >= 0) {
-> diff --git a/include/linux/mux.h b/include/linux/mux.h
-> index 3b9439927f11..3bfee23cfb8c 100644
-> --- a/include/linux/mux.h
-> +++ b/include/linux/mux.h
-> @@ -241,4 +241,11 @@ struct mux_control *devm_mux_control_get(struct device *dev,
->   */
->  void devm_mux_control_put(struct device *dev, struct mux_control *mux);
->  
-> +struct mux_gpio {
-> +	struct gpio_descs *gpios;
-> +	int *val;
-> +};
-> +
-> +struct mux_chip *mux_gpio_alloc(struct device *dev);
-> +
->  #endif /* _LINUX_MUX_H */
-> 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 3de95a29024c..48e705b23c59 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -3691,6 +3691,25 @@ int i2c_slave_unregister(struct i2c_client *client)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(i2c_slave_unregister);
++
++int i2c_slave_mode_detect(struct device *dev)
++{
++	struct device_node *child;
++	u32 reg;
++
++	if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
++		for_each_child_of_node(dev->of_node, child) {
++			of_property_read_u32(child, "reg", &reg);
++			if (reg & I2C_OWN_SLAVE_ADDRESS)
++				return 1;
++		}
++	} else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev)) {
++		dev_dbg(dev, "ACPI slave is not supported yet\n");
++	}
++	return 0;
++}
++EXPORT_SYMBOL_GPL(i2c_slave_mode_detect);
++
+ #endif
+ 
+ MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b2109c522dec..53cf99569af5 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -282,6 +282,7 @@ enum i2c_slave_event {
+ 
+ extern int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb);
+ extern int i2c_slave_unregister(struct i2c_client *client);
++extern int i2c_slave_mode_detect(struct device *dev);
+ 
+ static inline int i2c_slave_event(struct i2c_client *client,
+ 				  enum i2c_slave_event event, u8 *val)
+-- 
+2.11.0
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
