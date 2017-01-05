@@ -1,61 +1,54 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v2 1/5] i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
-Date: Thu,  5 Jan 2017 12:10:59 +0800
-Message-ID: <1483589463-35380-2-git-send-email-preid@electromag.com.au>
-References: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:41679 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S937799AbdAEELK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 23:11:10 -0500
-In-Reply-To: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: [PATCH v2 0/5] i2c: mux: pca954x: Add interrupt controller support
+Date: Thu,  5 Jan 2017 12:10:58 +0800
+Message-ID: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-The spec for the pca954x was missing. This chip is the same as the pca9540
-except that it has interrupt lines. While the i2c_device_id table mapped
-the pca9542 to the pca9540 definition the compatible table did not. In
-preparation for irq support add the pca9542 definition.
+Various muxes can aggregate multiple interrupts from each i2c bus.
+All of the muxes with interrupt support combine the active low irq lines
+using an internal 'and' function and generate a combined active low
+output. The muxes do provide the ability to read a control register to
+determine which irq is active. By making the mux an irq controller isr
+latenct can potentially be reduced by reading the status register and 
+then only calling the registered isr on that bus segment.
 
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+In addition an additional enable mask is added to work around devices
+that assert irq immediately before being setup buy disabling the irq
+from the mux until all devices are registered.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index dd18b9c..bbf088e 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -84,6 +84,11 @@ struct pca954x {
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
- 	},
-+	[pca_9542] = {
-+		.nchans = 2,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
- 	[pca_9543] = {
- 		.nchans = 2,
- 		.muxtype = pca954x_isswi,
-@@ -110,7 +115,7 @@ struct pca954x {
- 
- static const struct i2c_device_id pca954x_id[] = {
- 	{ "pca9540", pca_9540 },
--	{ "pca9542", pca_9540 },
-+	{ "pca9542", pca_9542 },
- 	{ "pca9543", pca_9543 },
- 	{ "pca9544", pca_9544 },
- 	{ "pca9545", pca_9545 },
-@@ -124,7 +129,7 @@ struct pca954x {
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id pca954x_acpi_ids[] = {
- 	{ .id = "PCA9540", .driver_data = pca_9540 },
--	{ .id = "PCA9542", .driver_data = pca_9540 },
-+	{ .id = "PCA9542", .driver_data = pca_9542 },
- 	{ .id = "PCA9543", .driver_data = pca_9543 },
- 	{ .id = "PCA9544", .driver_data = pca_9544 },
- 	{ .id = "PCA9545", .driver_data = pca_9545 },
+Changes from v1:
+- Update for new ACPI table
+- Fix typo in documentation
+- Fix typo in function names
+- Fix typo in irq name
+- Added spaces around '+' / '='
+- Change goto label names
+- Change property name from i2c-mux-irq-mask-en to nxp,irq-mask-enable
+- Change variable name irq_mask_en to irq_mask_enable
+- Add commentt about irq_mask_enable
+- Added Acked-By's
+
+
+Phil Reid (5):
+  i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
+  dt: bindings: i2c-mux-pca954x: Add documentation for interrupt
+    controller
+  i2c: mux: pca954x: Add interrupt controller support
+  dt: bindings: i2c-mux-pca954x: Add documentation for
+    i2c-mux-irq-mask-en
+  i2c: mux: pca954x: Add irq_mask_en to delay enabling irqs
+
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  17 ++-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 156 ++++++++++++++++++++-
+ 2 files changed, 168 insertions(+), 5 deletions(-)
+
 -- 
 1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
