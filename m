@@ -1,92 +1,248 @@
-From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Subject: [PATCH v2 5/5] i2c: mux: pca954x: Add irq_mask_en to delay enabling irqs
-Date: Thu,  5 Jan 2017 12:11:03 +0800
-Message-ID: <1483589463-35380-6-git-send-email-preid@electromag.com.au>
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v2 3/5] i2c: mux: pca954x: Add interrupt controller support
+Date: Thu,  5 Jan 2017 12:11:01 +0800
+Message-ID: <1483589463-35380-4-git-send-email-preid@electromag.com.au>
 References: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483589463-35380-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:53569 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S937798AbdAEELL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Jan 2017 23:11:11 -0500
+In-Reply-To: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Unfortunately some hardware device will assert their irq line immediately
-on power on and provide no mechanism to mask the irq. As the i2c muxes
-provide no method to mask irq line this provides a work around by keeping
-the parent irq masked until enough device drivers have loaded to service
-all pending interrupts.
+Various muxes can aggregate multiple interrupts from each i2c bus.
+All of the muxes with interrupt support combine the active low irq lines
+using an internal 'and' function and generate a combined active low
+output. The muxes do provide the ability to read a control register to
+determine which irq is active. By making the mux an irq controller isr
+latency can potentially be reduced by reading the status register and
+then only calling the registered isr on that bus segment.
 
-For example the the ltc1760 assert its SMBALERT irq immediately on power
-on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
-device is registered irq are enabled and fire continuously as the second
-device driver has not yet loaded. Setting this parameter to 0x3 while
-delay the irq being enabled until both devices are ready.
+As there is no irq masking on the mux irq are disabled until irq_unmask is
+called at least once.
 
-Acked-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 127 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 125 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 84fc767..581a75d 100644
+index bbf088e..84fc767 100644
 --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -75,6 +75,19 @@ struct chip_desc {
- 	} muxtype;
- };
+@@ -41,14 +41,19 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c/pca954x.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/of_irq.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
  
-+/*
-+ * irq_mask_enable: Provides a mechanism to work around hardware that asserts
-+ * their irq immediately on power on. It allows the enabling of the  irq to be
-+ * delayed until the corresponding bits in the the irq_mask are set thru
-+ * irq_unmask.
-+ * For example the the ltc1760 assert its SMBALERT irq immediately on power
-+ * on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
-+ * device is registered irq are enabled and fire continuously as the second
-+ * device driver has not yet loaded. Setting this parameter to 0x3 while
-+ * delay the irq being enabled until both devices are ready.
-+ * This workaround will not work if two devices share an interrupt on the
-+ * same bus segment.
-+ */
- struct pca954x {
- 	const struct chip_desc *chip;
+ #define PCA954X_MAX_NCHANS 8
  
-@@ -84,6 +97,7 @@ struct pca954x {
- 
- 	struct irq_domain *irq;
- 	unsigned int irq_mask;
-+	unsigned int irq_mask_enable;
++#define PCA954X_IRQ_OFFSET 4
++
+ enum pca_type {
+ 	pca_9540,
+ 	pca_9542,
+@@ -63,6 +68,7 @@ enum pca_type {
+ struct chip_desc {
+ 	u8 nchans;
+ 	u8 enable;	/* used for muxes only */
++	u8 has_irq;
+ 	enum muxtype {
+ 		pca954x_ismux = 0,
+ 		pca954x_isswi
+@@ -75,6 +81,9 @@ struct pca954x {
+ 	u8 last_chan;		/* last register value */
+ 	u8 deselect;
+ 	struct i2c_client *client;
++
++	struct irq_domain *irq;
++	unsigned int irq_mask;
  };
  
  /* Provide specs for the PCA954x types we know about */
-@@ -270,9 +284,12 @@ static void pca954x_irq_unmask(struct irq_data *idata)
- 	struct pca954x *data = irq_data_get_irq_chip_data(idata);
- 	unsigned int pos = idata->hwirq;
- 
--	if (!data->irq_mask)
-+	if (!data->irq_mask_enable && !data->irq_mask)
- 		enable_irq(data->client->irq);
- 	data->irq_mask |= BIT(pos);
-+	if (data->irq_mask_enable &&
-+		(data->irq_mask & data->irq_mask) == data->irq_mask_enable)
-+		enable_irq(data->client->irq);
+@@ -87,19 +96,23 @@ struct pca954x {
+ 	[pca_9542] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
+ 	},
+ 	[pca_9543] = {
+ 		.nchans = 2,
++		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
+ 	},
+ 	[pca_9544] = {
+ 		.nchans = 4,
+ 		.enable = 0x4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
+ 	},
+ 	[pca_9545] = {
+ 		.nchans = 4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
+ 	},
+ 	[pca_9547] = {
+@@ -222,6 +235,102 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+ 	return pca954x_reg_write(muxc->parent, client, data->last_chan);
  }
  
- static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
-@@ -395,6 +412,9 @@ static int pca954x_probe(struct i2c_client *client,
++static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
++{
++	struct pca954x *data = dev_id;
++	unsigned int child_irq;
++	int ret, i, handled;
++
++	ret = i2c_smbus_read_byte(data->client);
++	if (ret < 0)
++		return IRQ_NONE;
++
++	for (i = 0; i < data->chip->nchans; i++) {
++		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
++			child_irq = irq_linear_revmap(data->irq, i);
++			handle_nested_irq(child_irq);
++			handled++;
++		}
++	}
++	return handled ? IRQ_HANDLED : IRQ_NONE;
++}
++
++static void pca954x_irq_mask(struct irq_data *idata)
++{
++	struct pca954x *data = irq_data_get_irq_chip_data(idata);
++	unsigned int pos = idata->hwirq;
++
++	data->irq_mask &= ~BIT(pos);
++	if (!data->irq_mask)
++		disable_irq(data->client->irq);
++}
++
++static void pca954x_irq_unmask(struct irq_data *idata)
++{
++	struct pca954x *data = irq_data_get_irq_chip_data(idata);
++	unsigned int pos = idata->hwirq;
++
++	if (!data->irq_mask)
++		enable_irq(data->client->irq);
++	data->irq_mask |= BIT(pos);
++}
++
++static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
++{
++	if ((type & IRQ_TYPE_SENSE_MASK) != IRQ_TYPE_LEVEL_LOW)
++		return -EINVAL;
++	return 0;
++}
++
++static struct irq_chip pca954x_irq_chip = {
++	.name = "i2c-mux-pca954x",
++	.irq_mask = pca954x_irq_mask,
++	.irq_unmask = pca954x_irq_unmask,
++	.irq_set_type = pca954x_irq_set_type,
++};
++
++static int pca954x_irq_setup(struct i2c_mux_core *muxc)
++{
++	struct pca954x *data = i2c_mux_priv(muxc);
++	struct i2c_client *client = data->client;
++	int c, err, irq;
++
++	if (!data->chip->has_irq || client->irq <= 0)
++		return 0;
++
++	data->irq = irq_domain_add_linear(client->dev.of_node,
++					  data->chip->nchans,
++					  &irq_domain_simple_ops, data);
++	if (!data->irq)
++		return -ENODEV;
++
++	for (c = 0; c < data->chip->nchans; c++) {
++		irq = irq_create_mapping(data->irq, c);
++		irq_set_chip_data(irq, data);
++		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
++			handle_simple_irq);
++	}
++
++	err = devm_request_threaded_irq(&client->dev, data->client->irq, NULL,
++					pca954x_irq_handler,
++					IRQF_ONESHOT | IRQF_SHARED,
++					"pca954x", data);
++	if (err)
++		goto err_req_irq;
++
++	disable_irq(data->client->irq);
++
++	return 0;
++err_req_irq:
++	for (c = 0; c < data->chip->nchans; c++) {
++		irq = irq_find_mapping(data->irq, c);
++		irq_dispose_mapping(irq);
++	}
++	irq_domain_remove(data->irq);
++
++	return err;
++}
++
+ /*
+  * I2C init/probing/exit functions
+  */
+@@ -286,6 +395,10 @@ static int pca954x_probe(struct i2c_client *client,
  	idle_disconnect_dt = of_node &&
  		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
  
-+	of_property_read_u32(of_node, "nxp,irq-mask-enable",
-+			     &data->irq_mask_enable);
++	ret = pca954x_irq_setup(muxc);
++	if (ret)
++		goto fail_del_adapters;
 +
- 	ret = pca954x_irq_setup(muxc);
- 	if (ret)
- 		goto fail_del_adapters;
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < data->chip->nchans; num++) {
+ 		bool idle_disconnect_pd = false;
+@@ -311,7 +424,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 			dev_err(&client->dev,
+ 				"failed to register multiplexed adapter"
+ 				" %d as bus %d\n", num, force);
+-			goto virt_reg_failed;
++			goto fail_del_adapters;
+ 		}
+ 	}
+ 
+@@ -322,7 +435,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 	return 0;
+ 
+-virt_reg_failed:
++fail_del_adapters:
+ 	i2c_mux_del_adapters(muxc);
+ 	return ret;
+ }
+@@ -330,6 +443,16 @@ static int pca954x_probe(struct i2c_client *client,
+ static int pca954x_remove(struct i2c_client *client)
+ {
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
++	struct pca954x *data = i2c_mux_priv(muxc);
++	int c, irq;
++
++	if (data->irq) {
++		for (c = 0; c < data->chip->nchans; c++) {
++			irq = irq_find_mapping(data->irq, c);
++			irq_dispose_mapping(irq);
++		}
++		irq_domain_remove(data->irq);
++	}
+ 
+ 	i2c_mux_del_adapters(muxc);
+ 	return 0;
 -- 
 1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
