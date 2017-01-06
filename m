@@ -1,57 +1,60 @@
-From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
 Subject: Re: [PATCH] i2c: core: helper function to detect slave mode
-Date: Fri, 6 Jan 2017 17:12:58 +0000
-Message-ID: <1d8b201c-142b-cf88-6965-55aeaaff4dfa@synopsys.com>
+Date: Fri, 6 Jan 2017 17:15:03 +0000
+Message-ID: <475d9c2a-da11-97d0-d0b6-37ccd4990f18@synopsys.com>
 References: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
- <CAL_JsqK1=R6M=vrW5aqmQtMHUGGws_Hb=VHb9RNcvesjfkCjRA@mail.gmail.com>
+ <CAHp75VdB+pApFgjFOwWYYQFUmxv5k6OYKgB4fstuy=3=2QesBQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL_JsqK1=R6M=vrW5aqmQtMHUGGws_Hb=VHb9RNcvesjfkCjRA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, roliveir <Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtprelay.synopsys.com ([198.182.60.111]:46207 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752570AbdAFRPI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 6 Jan 2017 12:15:08 -0500
+In-Reply-To: <CAHp75VdB+pApFgjFOwWYYQFUmxv5k6OYKgB4fstuy=3=2QesBQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro.Oliveira@synopsys.com, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 
-On 06-Jan-17 16:35, Rob Herring wrote:
-> On Thu, Jan 5, 2017 at 11:24 AM, Luis Oliveira
-> <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
+On 06-Jan-17 16:29, Andy Shevchenko wrote:
+> On Thu, Jan 5, 2017 at 7:24 PM, Luis Oliveira
+> <Luis.Oliveira@synopsys.com> wrote:
 >> This function has the purpose of mode detection by checking the
 >> device nodes for a reg matching with the I2C_OWN_SLAVE_ADDREESS flag.
 >> Currently only checks using OF functions (ACPI slave not supported yet).
->>
->> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
->> ---
->> Due to the need of checking if the I2C slave address is our own (in
->> other words: if we are the I2C slave) I created a helper function
->> (proposed to me by @Andy) to enable that check.
->> Currently (because I am not able to test it using ACPI) it only
->> supports devicetree declarations.
->>
->>  drivers/i2c/i2c-core.c | 19 +++++++++++++++++++
->>  include/linux/i2c.h    |  1 +
->>  2 files changed, 20 insertions(+)
->>
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index 3de95a29024c..48e705b23c59 100644
+> 
+> The code looks good, one important comment below, after addressing it:
+> 
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> 
+> P.S. Btw, we have Suggested-by tag for giving credit for suggestion.
+> Please use it.
+> 
+
+I will do it in the V2, thank you.
+
 >> --- a/drivers/i2c/i2c-core.c
 >> +++ b/drivers/i2c/i2c-core.c
 >> @@ -3691,6 +3691,25 @@ int i2c_slave_unregister(struct i2c_client *client)
->>         return ret;
->>  }
->>  EXPORT_SYMBOL_GPL(i2c_slave_unregister);
->> +
+> 
+> Please, add kernel doc description here, important thing is to explain
+> return codes in Return: section of it.
+> 
 >> +int i2c_slave_mode_detect(struct device *dev)
-> 
-> This can be bool instead. Otherwise, looks good to me.
-> 
-
-Ok great, thank you.
-
 >> +{
+> 
 >> +       struct device_node *child;
 >> +       u32 reg;
+> 
+> I would consider them as private to the OF branch. But it's really
+> minor and up to you (I don't remember if we have such style examples
+> in i2c core code).
+
+I can change that in the V2 too.
+
+> 
 >> +
 >> +       if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
 >> +               for_each_child_of_node(dev->of_node, child) {
@@ -65,28 +68,4 @@ Ok great, thank you.
 >> +       return 0;
 >> +}
 >> +EXPORT_SYMBOL_GPL(i2c_slave_mode_detect);
->> +
->>  #endif
->>
->>  MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index b2109c522dec..53cf99569af5 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -282,6 +282,7 @@ enum i2c_slave_event {
->>
->>  extern int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb);
->>  extern int i2c_slave_unregister(struct i2c_client *client);
->> +extern int i2c_slave_mode_detect(struct device *dev);
->>
->>  static inline int i2c_slave_event(struct i2c_client *client,
->>                                   enum i2c_slave_event event, u8 *val)
->> --
->> 2.11.0
->>
->>
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
