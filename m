@@ -1,68 +1,53 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: helper function to detect slave mode
-Date: Fri, 6 Jan 2017 23:32:12 +0200
-Message-ID: <CAHp75VeCADf9bSHZfFrCFeOwWvyr7hOjEBgUNEDAjTtsD39UFA@mail.gmail.com>
-References: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
- <CAHp75VdB+pApFgjFOwWYYQFUmxv5k6OYKgB4fstuy=3=2QesBQ@mail.gmail.com>
- <475d9c2a-da11-97d0-d0b6-37ccd4990f18@synopsys.com> <CAHp75Vdv3daVnkFmGc7gXWoqcy+CNgyqdtRXkvTJQpjyJX3eDg@mail.gmail.com>
- <c73ee9ab-64a1-0419-314d-21d4575ca7bf@synopsys.com>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [PATCH] i2c: i2c-cadence: Don't register the adapter until it's
+ ready
+Date: Fri, 6 Jan 2017 23:34:24 +0200
+Message-ID: <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
+References: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <c73ee9ab-64a1-0419-314d-21d4575ca7bf-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:49616 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934243AbdAFVe0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 6 Jan 2017 16:34:26 -0500
+In-Reply-To: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, soren.brinkmann@xilinx.com, michal.simek@xilinx.com
 
-On Fri, Jan 6, 2017 at 7:46 PM, Luis Oliveira
-<Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
-> On 06-Jan-17 17:17, Andy Shevchenko wrote:
->> On Fri, Jan 6, 2017 at 7:15 PM, Luis Oliveira
->> <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
->>> On 06-Jan-17 16:29, Andy Shevchenko wrote:
->>>> On Thu, Jan 5, 2017 at 7:24 PM, Luis Oliveira
->>
->>>> Please, add kernel doc description here, important thing is to explain
->>>> return codes in Return: section of it.
->>>>
->>>>> +int i2c_slave_mode_detect(struct device *dev)
->>
->> Just to make sure you didn't miss this one.
->>
->>
-> Yes, I saw it. You were talking of something like this, right?
->
-> /**
->  * i2c_slave_mode_detect - detect operation mode
->  * @dev:  The device owning the bus
->  *
->  * This checks the device nodes for a I2C slave by checking the address
+Hello Mike,
 
-a -> an
+On 01/05/2017 12:47 PM, Mike Looijmans wrote:
+> The driver calls i2c_add_adapter before writing to config registers,
+> resulting in dmesg output like this, where devices fail to initialize:
+> 
+> cdns-i2c ff030000.i2c: timeout waiting on completion
+> pca953x 1-0041: failed reading register
+> pca953x: probe of 1-0041 failed with error -110
+> at24 1-0050: 512 byte 24c04 EEPROM, writable, 1 bytes/write
+> cdns-i2c ff030000.i2c: 100 kHz mmio ff030000 irq 197
+> 
+> The adapter is being used before it completed the "probe". To fix
+> this, make "i2c_add_adapter" the last thing it calls in probe.
+> It also makes sense to show the adapter initialization before
+> the devices on the bus.
 
->  * used.
->  *
+commonly "it also" in a commit message means a change, which should be done
+separately, and this is the case here as well.
 
->  * Returns true if a I2C slave is detected, otherwise returns false.
+Because the adapter registration i2c_add_adapter() can fail, information
+about the adapter initialization would be expected only in case of
+successful registration.
 
-It has int type and I would reword this accordingly.
+The information sent to the kernel log buffer here is quite trivial,
+probably dev_info() can be just removed, but in any case it should be
+a separate change.
 
-Something like
+> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
 
- * Return:
- * 1 when an I2C slave is detected, 0 for I2C master mode,
- * and negative error otherwise.
-
-
->  */
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+With best wishes,
+Vladimir
