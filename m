@@ -1,85 +1,68 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [Patch V1] i2c: imx-lpi2c: add VLLS mode support
-Date: Fri, 6 Jan 2017 23:20:25 +0200
-Message-ID: <fee8ed68-7280-175c-c33e-8aafe9f94e7c@mleia.com>
-References: <1483521616-17914-1-git-send-email-pandy.gao@nxp.com>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: core: helper function to detect slave mode
+Date: Fri, 6 Jan 2017 23:32:12 +0200
+Message-ID: <CAHp75VeCADf9bSHZfFrCFeOwWvyr7hOjEBgUNEDAjTtsD39UFA@mail.gmail.com>
+References: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
+ <CAHp75VdB+pApFgjFOwWYYQFUmxv5k6OYKgB4fstuy=3=2QesBQ@mail.gmail.com>
+ <475d9c2a-da11-97d0-d0b6-37ccd4990f18@synopsys.com> <CAHp75Vdv3daVnkFmGc7gXWoqcy+CNgyqdtRXkvTJQpjyJX3eDg@mail.gmail.com>
+ <c73ee9ab-64a1-0419-314d-21d4575ca7bf@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:49572 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750993AbdAFVU1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 6 Jan 2017 16:20:27 -0500
-In-Reply-To: <1483521616-17914-1-git-send-email-pandy.gao@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <c73ee9ab-64a1-0419-314d-21d4575ca7bf-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, wsa-dev@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com, fugang.duan@nxp.com
 
-Hi,
+On Fri, Jan 6, 2017 at 7:46 PM, Luis Oliveira
+<Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
+> On 06-Jan-17 17:17, Andy Shevchenko wrote:
+>> On Fri, Jan 6, 2017 at 7:15 PM, Luis Oliveira
+>> <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
+>>> On 06-Jan-17 16:29, Andy Shevchenko wrote:
+>>>> On Thu, Jan 5, 2017 at 7:24 PM, Luis Oliveira
+>>
+>>>> Please, add kernel doc description here, important thing is to explain
+>>>> return codes in Return: section of it.
+>>>>
+>>>>> +int i2c_slave_mode_detect(struct device *dev)
+>>
+>> Just to make sure you didn't miss this one.
+>>
+>>
+> Yes, I saw it. You were talking of something like this, right?
+>
+> /**
+>  * i2c_slave_mode_detect - detect operation mode
+>  * @dev:  The device owning the bus
+>  *
+>  * This checks the device nodes for a I2C slave by checking the address
 
-On 01/04/2017 11:20 AM, Gao Pan wrote:
-> When system enters VLLS mode, module power is turned off. As a result,
-> all registers are reset to HW default value. After exiting VLLS mode,
-> registers are still in default mode. As a result, the pinctrl settings
-> are incorrect, which will affect the module function.
-> 
-> The patch recovers the pinctrl setting when exit VLLS mode.
-> 
-> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx-lpi2c.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> index c62b7cd..e528c1d1 100644
-> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> @@ -636,12 +636,34 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int lpi2c_imx_suspend(struct device *dev)
-> +{
-> +	pinctrl_pm_select_sleep_state(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static int lpi2c_imx_resume(struct device *dev)
-> +{
-> +	pinctrl_pm_select_default_state(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
-> +#define IMX_LPI2C_PM	(&imx_lpi2c_pm)
-> +#else
-> +#define IMX_LPI2C_PM	NULL
+a -> an
 
-Please drop #else branch and IMX_LPI2C_PM completely.
+>  * used.
+>  *
 
-> +#endif
-> +
->  static struct platform_driver lpi2c_imx_driver = {
->  	.probe = lpi2c_imx_probe,
->  	.remove = lpi2c_imx_remove,
->  	.driver = {
->  		.name = DRIVER_NAME,
->  		.of_match_table = lpi2c_imx_of_match,
-> +		.pm = IMX_LPI2C_PM,
+>  * Returns true if a I2C slave is detected, otherwise returns false.
 
-Here it should be:
+It has int type and I would reword this accordingly.
 
-		.pm = &imx_lpi2c_pm,
+Something like
 
->  	},
->  };
->  
+ * Return:
+ * 1 when an I2C slave is detected, 0 for I2C master mode,
+ * and negative error otherwise.
 
+
+>  */
+
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
 --
-With best wishes,
-Vladimir
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
