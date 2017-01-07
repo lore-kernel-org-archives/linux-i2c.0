@@ -1,81 +1,73 @@
-From: Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: helper function to detect slave mode
-Date: Sat, 7 Jan 2017 03:24:40 +0200
-Message-ID: <3748130b-5321-12eb-ec75-e2637dd9fc54@mleia.com>
-References: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
- <73246c4a-504c-52d7-dde4-970a45dca0bd@mleia.com>
- <CAHp75Ve87TE3y6hg1bMxSFAPVcY3wPifGuvtpXNhBw5-eOnPrg@mail.gmail.com>
- <b5788d1d-c951-0fc3-eed8-88457df1f27e@mleia.com>
- <CAHp75Ve7zNN3m1ngLGi-81mFehKzZG07mh5H2T5+_k-=jJqqNA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Sat, 7 Jan 2017 13:49:31 +0100
+Message-ID: <20170107124930.GA1902@katana>
+References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
+ <201612291000.58489@pali>
+ <20161229134719.GA941@ozzy.nask.waw.pl>
+ <201612291517.37474@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAHp75Ve7zNN3m1ngLGi-81mFehKzZG07mh5H2T5+_k-=jJqqNA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:60140 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933376AbdAGMtf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 7 Jan 2017 07:49:35 -0500
+Content-Disposition: inline
+In-Reply-To: <201612291517.37474@pali>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Cc: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On 01/07/2017 02:19 AM, Andy Shevchenko wrote:
-> On Sat, Jan 7, 2017 at 1:43 AM, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org> wrote:
->> On 01/07/2017 12:45 AM, Andy Shevchenko wrote:
->>> On Fri, Jan 6, 2017 at 11:46 PM, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org> wrote:
->>>>> +     if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
->>>>
->>>> IS_BUILTIN(CONFIG_OF) looks excessive, check for non-NULL dev->of_node
->>>> should be sufficient.
->>>
->>> Sorry, but you missed the point.
->>> This will enable compile time optimization and basically be collapsed to no-op.
->>>
->>
->> Good point, do you plan to add more "IS_BUILTIN(CONFIG_OF)" checks all
->> over the code to reduce the size of the built image?
-> 
-> There is no black and white, don't be silly.
-> 
->>
->>>>> +             }
->>>>> +     } else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev)) {
->>>>> +             dev_dbg(dev, "ACPI slave is not supported yet\n");
->>>>> +     }
->>>>
->>>> If so, then it might be better to drop else-if stub for now.
->>>
->>> Please, don't.
->>>
->>
->> Why do you ask for this stub to be added?
-> 
-> 1. Exactly the reason you asked above. Here is the code which has
-> built differently on different platforms. x86 usually is not using
-> CONFIG_OF, ARM doesn't ACPI (versus ARM64). Check GPIO library for
-> existing examples.
 
->From the context by the stub I mean dev_dbg() in i2c_slave_mode_detect()
-function, I don't see a connection to GPIO library, please clarify.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 2. We might add that support later, but here is again, just no-op.
-> 
-> So, what is your strong argument here against that?
-> 
 
-When the support is ready for ACPI case, you'll remove the added
-dev_dbg(), and I don't see a good point by adding it temporarily.
+> > > > > +	if (!known_i2c_address) {
+> > > > > +		dev_warn(&priv->pci_dev->dev,
+> > > > > +			 "Accelerometer lis3lv02d i2c device is present "
+> > > > > +			 "but its i2c address is unknown, skipping ...\n");
+> > > >=20
+> > > > You are probably well aware of this, but checkpatch prefers
+> > > > keeping long log messages in one line.  I am pointing it out
+> > > > just in case.
+> > >=20
+> > > Yes, but I do not know how to fix it. Splitting message into two
+> > > lines generates warning. Having long line generates warning too.
+> >=20
+> > Weird, checkpatch does not protest on my machine when the log message
+> > is written on a single line...
+>=20
+> I hope that i2c maintainers decide how to format that line.
 
-What is wrong with the approach of adding the ACPI case handling
-branch when it is ready and remove any kind of stubs right now?
+Make it one line saying "accelerometer address unknown"?
 
-On ACPI platforms the function returns 'false' always, will the
-function work correctly (= corresponding to its description) as is?
 
-PS, if it is possible, please give up on arrogance in discussion.
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
 
---
-With best wishes,
-Vladimir
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYcOPaAAoJEBQN5MwUoCm2ZiAQAKAndoV8zE+O3+CefegLmdxO
++72BQ9FUm2DuEf4XCdgpZf6qUcH6rCV6Nquz1rGvk0XvdvYrxapCnVQJk5gBPH2n
+BRS3ZKQN7KR9FJXZBF+3odiyVKXHD1ssrox/b5FTvhD4DjduuMlE1FSY8dwsp4D8
+SkE1ajBoNTA/VMO8A7Xa3k/N1Bv4Dl+hG+zmHtcDriXmZN/CrRq0GuLT0UFdDlTi
+QzU7/hT9y0ALrnPCuJ14xHhTaB4LLu1ST6EI7J0aw0U9z65aRHvwUeMDxvA57tTn
+XfxbAkCHO5gEZ2u7IdS3a51CcXAxeeSeqOZU8virgIkj/sLDzj/dz8gyU3rUxBVK
+EbBxR1GsmuC8jizFeIzGB/xsQcZXXeNPU4nfNso3v1ce92QOlZDvUZ6r2a2uvojS
+Eb0VNTkhp2IsEL9drxpbmxSMyaRbTIq5BzxwxlRFrffedJ5H4BxcoI1DYt31T8Pa
+OoEhsMaUEVVB2xWYgMhaMGcR352JYObl5Fomcp8v9nGh9ODEB18rGG2AKAIhkMcn
+DaB4YZfzPYsUCMg7B8zXpFJlUkv0YhpGcoL2z2H9tR9hZsOkSmyBdNqiw4mSFogR
+/76W/kzXE+mnruULHX8mOTg6LePJ/KeRpYAFIr64TiuOHO1dfPDX5LErqadznHmK
+BKPohh/EPSueEV20BGqg
+=1F1a
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--
