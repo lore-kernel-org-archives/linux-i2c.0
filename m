@@ -1,73 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i801: Register optional lis3lv02d i2c device on
- Dell machines
-Date: Sat, 7 Jan 2017 13:49:31 +0100
-Message-ID: <20170107124930.GA1902@katana>
-References: <1482843136-12838-1-git-send-email-pali.rohar@gmail.com>
- <201612291000.58489@pali>
- <20161229134719.GA941@ozzy.nask.waw.pl>
- <201612291517.37474@pali>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH linux 2/6] hwmon: occ: Add sysfs interface
+Date: Sat, 7 Jan 2017 09:15:57 -0800
+Message-ID: <8b182766-32a0-9eb1-7917-14abf811cef5@roeck-us.net>
+References: <1483120568-21082-1-git-send-email-eajames.ibm@gmail.com>
+ <1483120568-21082-3-git-send-email-eajames.ibm@gmail.com>
+ <20161230193404.GB8516@roeck-us.net>
+ <OFA812992D.D19B1368-ON002580A0.007A2966-862580A0.007A72F0@notes.na.collabserv.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:60140 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933376AbdAGMtf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 7 Jan 2017 07:49:35 -0500
-Content-Disposition: inline
-In-Reply-To: <201612291517.37474@pali>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+In-Reply-To: <OFA812992D.D19B1368-ON002580A0.007A2966-862580A0.007A72F0@notes.na.collabserv.com>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Edward James <eajames@us.ibm.com>
+Cc: andrew@aj.id.au, corbet@lwn.net, devicetree@vger.kernel.org, eajames.ibm@gmail.com, jdelvare@suse.com, joel@jms.id.au, linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
-To: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Cc: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
+On 01/06/2017 02:17 PM, Edward James wrote:
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ ... ]
 
+>> > +}
+>> > +
+>> > +static DEVICE_ATTR(online, S_IWUSR | S_IRUGO, show_occ_online,
+>> > +         store_occ_online);
+>> > +
+>> > +struct occ_sysfs *occ_sysfs_start(struct device *dev, struct occ *occ,
+>> > +              struct occ_sysfs_config *config)
+>> > +{
+>> > +   struct occ_sysfs *hwmon = devm_kzalloc(dev, sizeof(struct occ_sysfs),
+>> > +                      GFP_KERNEL);
+>> > +   int rc;
+>> > +
+>> > +   if (!hwmon)
+>> > +      return ERR_PTR(-ENOMEM);
+>> > +
+>> > +   hwmon->occ = occ;
+>> > +   hwmon->num_caps_fields = config->num_caps_fields;
+>> > +   hwmon->caps_names = config->caps_names;
+>> > +
+>> > +   dev_set_drvdata(dev, hwmon);
+>> > +
+>> > +   rc = device_create_file(dev, &dev_attr_online);
+>> > +   if (rc)
+>> > +      return ERR_PTR(rc);
+>> > +
+>> > +   return hwmon;
+>> > +}
+>> > +EXPORT_SYMBOL(occ_sysfs_start);
+>> > +
+>> > +int occ_sysfs_stop(struct device *dev, struct occ_sysfs *driver)
+>> > +{
+>> > +   if (driver->dev) {
+>> > +      occ_remove_hwmon_attrs(driver);
+>> > +      hwmon_device_unregister(driver->dev);
+>> > +   }
+>> > +
+>> > +   device_remove_file(driver->dev, &dev_attr_online);
+>> > +
+>> > +   devm_kfree(dev, driver);
+>>
+>> Thw point of using devm_ functions is not to require remove/free functions.
+>> Something is completely wrong here if you need that call.
+>>
+>> Overall, this is architectually completely wrong. One does not register
+>> or instantiate drivers based on writing into sysfs attributes. Please
+>> reconsider your approach.
+>
+> We had some trouble designing this driver because the BMC only has
+> access to the OCC once the processor is powered on. This will happen
+> sometime after the BMC boots (this driver runs only on the BMC). With
+> no access to the OCC, we don't know what sensors are present on the
+> system without a large static enumeration. Also any sysfs files created
+> before we have OCC access won't be able to return any data.
+>
+> Instead of the "online" attribute, what do you think about using the
+> "bind"/"unbind" API to probe the device from user space once the system
+> is powered on? All the hwmon registration would take place in the probe
+> function, it would just occur some time after boot.
+>
 
-> > > > > +	if (!known_i2c_address) {
-> > > > > +		dev_warn(&priv->pci_dev->dev,
-> > > > > +			 "Accelerometer lis3lv02d i2c device is present "
-> > > > > +			 "but its i2c address is unknown, skipping ...\n");
-> > > >=20
-> > > > You are probably well aware of this, but checkpatch prefers
-> > > > keeping long log messages in one line.  I am pointing it out
-> > > > just in case.
-> > >=20
-> > > Yes, but I do not know how to fix it. Splitting message into two
-> > > lines generates warning. Having long line generates warning too.
-> >=20
-> > Weird, checkpatch does not protest on my machine when the log message
-> > is written on a single line...
->=20
-> I hope that i2c maintainers decide how to format that line.
+A more common approach would be to have a platform driver. That platform
+driver would need a means to detect if the OCC is up and running, and
+instantiate everything else once it is.
 
-Make it one line saying "accelerometer address unknown"?
+A trigger from user space is problematic because there is no guarantee
+that the OCC is really up (or that it even exists).
 
+An alternative might be to have the hwmon driver poll for the OCC,
+but that would be a bit more difficult and might require a kernel thread
+or maybe asynchronous probing.
 
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature; name="signature.asc"
+Guenter
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYcOPaAAoJEBQN5MwUoCm2ZiAQAKAndoV8zE+O3+CefegLmdxO
-+72BQ9FUm2DuEf4XCdgpZf6qUcH6rCV6Nquz1rGvk0XvdvYrxapCnVQJk5gBPH2n
-BRS3ZKQN7KR9FJXZBF+3odiyVKXHD1ssrox/b5FTvhD4DjduuMlE1FSY8dwsp4D8
-SkE1ajBoNTA/VMO8A7Xa3k/N1Bv4Dl+hG+zmHtcDriXmZN/CrRq0GuLT0UFdDlTi
-QzU7/hT9y0ALrnPCuJ14xHhTaB4LLu1ST6EI7J0aw0U9z65aRHvwUeMDxvA57tTn
-XfxbAkCHO5gEZ2u7IdS3a51CcXAxeeSeqOZU8virgIkj/sLDzj/dz8gyU3rUxBVK
-EbBxR1GsmuC8jizFeIzGB/xsQcZXXeNPU4nfNso3v1ce92QOlZDvUZ6r2a2uvojS
-Eb0VNTkhp2IsEL9drxpbmxSMyaRbTIq5BzxwxlRFrffedJ5H4BxcoI1DYt31T8Pa
-OoEhsMaUEVVB2xWYgMhaMGcR352JYObl5Fomcp8v9nGh9ODEB18rGG2AKAIhkMcn
-DaB4YZfzPYsUCMg7B8zXpFJlUkv0YhpGcoL2z2H9tR9hZsOkSmyBdNqiw4mSFogR
-/76W/kzXE+mnruULHX8mOTg6LePJ/KeRpYAFIr64TiuOHO1dfPDX5LErqadznHmK
-BKPohh/EPSueEV20BGqg
-=1F1a
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
