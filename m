@@ -1,42 +1,52 @@
 From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 01/12] devres: trivial whitespace fix
-Date: Sat, 7 Jan 2017 22:29:31 +0000
-Message-ID: <23cc9f7c-f830-d295-d06f-ed08ad2425af@kernel.org>
-References: <1483532187-28494-1-git-send-email-peda@axentia.se>
- <1483532187-28494-2-git-send-email-peda@axentia.se>
+Subject: Re: [PATCH] iio: adc: axp288: Drop bogus AXP288_ADC_TS_PIN_CTRL
+ register modifications
+Date: Sat, 7 Jan 2017 22:23:47 +0000
+Message-ID: <c86f5ad2-f504-e2a9-32eb-d16d500a09fe@kernel.org>
+References: <20161214135525.16477-1-hdegoede@redhat.com>
+ <1f31b2e7-90fa-0fb8-5f6e-a8ee2ddf69f7@kernel.org>
+ <20161230101501.06958c0d@jacob-builder>
+ <054b52de-40fd-a879-7b8e-2d25fed18840@redhat.com>
+ <20170103102343.735dbdd1@jacob-builder>
+ <221c8f4e-0757-19bb-90db-4e34677734c5@redhat.com>
+ <20170104095517.6f7ee610@jacob-builder>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483532187-28494-2-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170104095517.6f7ee610@jacob-builder>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, "russianneuromancer @ ya . ru" <russianneuromancer-k+OT61UuxXo@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/01/17 12:16, Peter Rosin wrote:
-> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> ---
->  Documentation/driver-model/devres.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On 04/01/17 17:55, Jacob Pan wrote:
+> On Tue, 3 Jan 2017 23:10:57 +0100
+> Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
 > 
-> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-> index ca9d1eb46bc0..dc51fb024190 100644
-> --- a/Documentation/driver-model/devres.txt
-> +++ b/Documentation/driver-model/devres.txt
-> @@ -330,7 +330,7 @@ MEM
->    devm_kzalloc()
->  
->  MFD
-> - devm_mfd_add_devices()
-> +  devm_mfd_add_devices()
->  
->  PER-CPU MEM
->    devm_alloc_percpu()
+>>> It could have been a quirk we had to do on our platforms, I just
+>>> cannot recall the details. Are you testing this on x86 platforms?  
+>>
+>> Yes, I've successfully tested this on 2 different models cherrytrail
+>> tablets.
 > 
+> [Jacob Pan] I am ok with your change. I last tested on baytrail
+> tablets, I don't know if you have one available to verify. That would
+> be ideal.
+> 
+Stable material?  As I read this it is a fairly major fix, but we aren't
+entirely sure there wasn't a reason on some platforms for this 'interesting'
+corner of code?  
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So basically are we sure this won't cause regressions? If so I'll take
+it as a fix and mark for stable.
+
+Thanks,
+
+Jonathan
+> Thanks,
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
