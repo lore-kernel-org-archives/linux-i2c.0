@@ -1,154 +1,140 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6/7] drm/i915: Listen for pmic bus access notifications
-Date: Sun,  8 Jan 2017 14:44:26 +0100
-Message-ID: <20170108134427.8392-7-hdegoede@redhat.com>
+Subject: [PATCH 5/7] drm/i915: Add intel_uncore_suspend / resume functions
+Date: Sun,  8 Jan 2017 14:44:25 +0100
+Message-ID: <20170108134427.8392-6-hdegoede@redhat.com>
 References: <20170108134427.8392-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52828 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33398 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932078AbdAHNos (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Jan 2017 08:44:48 -0500
+        id S932078AbdAHNop (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 8 Jan 2017 08:44:45 -0500
 In-Reply-To: <20170108134427.8392-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-Listen for pmic bus access notifications and get FORCEWAKE_ALL while
-the bus is accessed to avoid needing to do any forcewakes, which need
-pmic bus access, while the pmic bus is busy:
+Rename intel_uncore_early_sanitize to intel_uncore_resume, dropping the
+(always true) restore_forcewake argument and add a new intel_uncore_resume
+function to replace the intel_uncore_forcewake_reset(dev_priv, false)
+calls done from the suspend / runtime_suspend functions and make
+intel_uncore_forcewake_reset private.
 
-This fixes errors like these showing up in dmesg, usually followed
-by a gfx or system freeze:
-
-[drm:fw_domains_get [i915]] *ERROR* render: timed out waiting for forcewake ack request.
-[drm:fw_domains_get [i915]] *MEDIA* render: timed out waiting for forcewake ack request.
-i2c_designware 808622C1:06: punit semaphore timed out, resetting
-i2c_designware 808622C1:06: PUNIT SEM: 2
-i2c_designware 808622C1:06: couldn't acquire bus ownership
-
-Downside of this approach is that it causes wakeups whenever the pmic
-bus is accessed. Unfortunately we cannot simply wait for the pmic bus
-to go idle when we hit a race, as forcewakes may be done from interrupt
-handlers where we cannot sleep to wait for the i2c pmic bus access to
-finish.
-
-Note that the notifications and thus the wakeups will only happen on
-baytrail / cherrytrail devices using pmic-s with a shared i2c bus for
-punit and host pmic access (i2c busses with a _SEM method in their
-APCI node), e.g. an axp288 pmic.
-
-I plan to write some patches for drivers accessing the pmic bus to
-limit their bus accesses to a bare minimum (e.g. cache registers, do not
-update battery level more often then 4 times a minute), to limit the
-amount of wakeups.
+This is a preparation patch for adding pmic bus access notifier support.
 
 BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Tested-by: tagorereddy <tagore.chandan@gmail.com>
 ---
- drivers/gpu/drm/i915/i915_drv.h     |  1 +
- drivers/gpu/drm/i915/intel_uncore.c | 35 +++++++++++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
+ drivers/gpu/drm/i915/i915_drv.c     |  6 +++---
+ drivers/gpu/drm/i915/i915_drv.h     |  6 ++----
+ drivers/gpu/drm/i915/intel_uncore.c | 18 +++++++++++-------
+ 3 files changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 7cd0363..60297de 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -731,6 +731,7 @@ struct intel_uncore {
- 	const struct intel_forcewake_range *fw_domains_table;
- 	unsigned int fw_domains_table_entries;
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 2c020ea..ec61e6e 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -1445,7 +1445,7 @@ static int i915_drm_suspend(struct drm_device *dev)
+ 	opregion_target_state = suspend_to_idle(dev_priv) ? PCI_D1 : PCI_D3cold;
+ 	intel_opregion_notify_adapter(dev_priv, opregion_target_state);
  
-+	struct notifier_block pmic_bus_access_nb;
- 	struct intel_uncore_funcs funcs;
+-	intel_uncore_forcewake_reset(dev_priv, false);
++	intel_uncore_suspend(dev_priv);
+ 	intel_opregion_unregister(dev_priv);
  
- 	unsigned fifo_count;
-diff --git a/drivers/gpu/drm/i915/intel_uncore.c b/drivers/gpu/drm/i915/intel_uncore.c
-index c7fa222..1668de4 100644
---- a/drivers/gpu/drm/i915/intel_uncore.c
-+++ b/drivers/gpu/drm/i915/intel_uncore.c
-@@ -25,6 +25,7 @@
- #include "intel_drv.h"
- #include "i915_vgpu.h"
+ 	intel_fbdev_set_suspend(dev, FBINFO_STATE_SUSPENDED, true);
+@@ -1690,7 +1690,7 @@ static int i915_drm_resume_early(struct drm_device *dev)
+ 		DRM_ERROR("Resume prepare failed: %d, continuing anyway\n",
+ 			  ret);
  
-+#include <asm/iosf_mbi.h>
- #include <linux/pm_runtime.h>
+-	intel_uncore_early_sanitize(dev_priv, true);
++	intel_uncore_resume(dev_priv);
  
- #define FORCEWAKE_ACK_TIMEOUT_MS 50
-@@ -429,12 +430,16 @@ static void __intel_uncore_early_sanitize(struct drm_i915_private *dev_priv,
- 
- void intel_uncore_suspend(struct drm_i915_private *dev_priv)
- {
-+	iosf_mbi_unregister_pmic_bus_access_notifier(
-+		&dev_priv->uncore.pmic_bus_access_nb);
- 	__intel_uncore_forcewake_reset(dev_priv, false);
- }
- 
- void intel_uncore_resume(struct drm_i915_private *dev_priv)
- {
- 	__intel_uncore_early_sanitize(dev_priv, true);
-+	iosf_mbi_register_pmic_bus_access_notifier(
-+		&dev_priv->uncore.pmic_bus_access_nb);
- 	i915_check_and_clear_faults(dev_priv);
- }
- 
-@@ -1390,6 +1395,28 @@ static void intel_uncore_fw_domains_init(struct drm_i915_private *dev_priv)
- 	dev_priv->uncore.fw_domains_table_entries = ARRAY_SIZE((d)); \
- }
- 
-+static int i915_pmic_bus_access_notifier(struct notifier_block *nb,
-+					 unsigned long action, void *data)
-+{
-+	struct drm_i915_private *dev_priv = container_of(nb,
-+			struct drm_i915_private, uncore.pmic_bus_access_nb);
-+
-+	switch (action) {
-+	case MBI_PMIC_BUS_ACCESS_BEGIN:
-+		/*
-+		 * forcewake all to make sure that we don't need to forcewake
-+		 * any power-planes while the pmic bus is busy.
-+		 */
-+		intel_uncore_forcewake_get(dev_priv, FORCEWAKE_ALL);
-+		break;
-+	case MBI_PMIC_BUS_ACCESS_END:
-+		intel_uncore_forcewake_put(dev_priv, FORCEWAKE_ALL);
-+		break;
-+	}
-+
-+	return NOTIFY_OK;
-+}
-+
- void intel_uncore_init(struct drm_i915_private *dev_priv)
- {
- 	i915_check_vgpu(dev_priv);
-@@ -1399,6 +1426,8 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
- 	__intel_uncore_early_sanitize(dev_priv, false);
- 
- 	dev_priv->uncore.unclaimed_mmio_check = 1;
-+	dev_priv->uncore.pmic_bus_access_nb.notifier_call =
-+		i915_pmic_bus_access_notifier;
- 
- 	switch (INTEL_INFO(dev_priv)->gen) {
- 	default:
-@@ -1458,6 +1487,9 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
- 		ASSIGN_READ_MMIO_VFUNCS(vgpu);
+ 	if (IS_BROXTON(dev_priv)) {
+ 		if (!dev_priv->suspended_to_idle)
+@@ -2343,7 +2343,7 @@ static int intel_runtime_suspend(struct device *kdev)
+ 		return ret;
  	}
  
-+	iosf_mbi_register_pmic_bus_access_notifier(
-+		&dev_priv->uncore.pmic_bus_access_nb);
+-	intel_uncore_forcewake_reset(dev_priv, false);
++	intel_uncore_suspend(dev_priv);
+ 
+ 	enable_rpm_wakeref_asserts(dev_priv);
+ 	WARN_ON_ONCE(atomic_read(&dev_priv->pm.wakeref_count));
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 5194686..7cd0363 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -3052,14 +3052,12 @@ int intel_irq_install(struct drm_i915_private *dev_priv);
+ void intel_irq_uninstall(struct drm_i915_private *dev_priv);
+ 
+ extern void intel_uncore_sanitize(struct drm_i915_private *dev_priv);
+-extern void intel_uncore_early_sanitize(struct drm_i915_private *dev_priv,
+-					bool restore_forcewake);
+ extern void intel_uncore_init(struct drm_i915_private *dev_priv);
+ extern bool intel_uncore_unclaimed_mmio(struct drm_i915_private *dev_priv);
+ extern bool intel_uncore_arm_unclaimed_mmio_detection(struct drm_i915_private *dev_priv);
+ extern void intel_uncore_fini(struct drm_i915_private *dev_priv);
+-extern void intel_uncore_forcewake_reset(struct drm_i915_private *dev_priv,
+-					 bool restore);
++extern void intel_uncore_suspend(struct drm_i915_private *dev_priv);
++extern void intel_uncore_resume(struct drm_i915_private *dev_priv);
+ const char *intel_uncore_forcewake_domain_to_str(const enum forcewake_domain_id id);
+ void intel_uncore_forcewake_get(struct drm_i915_private *dev_priv,
+ 				enum forcewake_domains domains);
+diff --git a/drivers/gpu/drm/i915/intel_uncore.c b/drivers/gpu/drm/i915/intel_uncore.c
+index 8fc5f29..c7fa222 100644
+--- a/drivers/gpu/drm/i915/intel_uncore.c
++++ b/drivers/gpu/drm/i915/intel_uncore.c
+@@ -250,7 +250,7 @@ intel_uncore_fw_release_timer(struct hrtimer *timer)
+ 	return HRTIMER_NORESTART;
+ }
+ 
+-void intel_uncore_forcewake_reset(struct drm_i915_private *dev_priv,
++static void __intel_uncore_forcewake_reset(struct drm_i915_private *dev_priv,
+ 				  bool restore)
+ {
+ 	unsigned long irqflags;
+@@ -424,13 +424,17 @@ static void __intel_uncore_early_sanitize(struct drm_i915_private *dev_priv,
+ 	if (IS_BXT_REVID(dev_priv, 0, BXT_REVID_B_LAST))
+ 		info->has_decoupled_mmio = false;
+ 
+-	intel_uncore_forcewake_reset(dev_priv, restore_forcewake);
++	__intel_uncore_forcewake_reset(dev_priv, restore_forcewake);
+ }
+ 
+-void intel_uncore_early_sanitize(struct drm_i915_private *dev_priv,
+-				 bool restore_forcewake)
++void intel_uncore_suspend(struct drm_i915_private *dev_priv)
+ {
+-	__intel_uncore_early_sanitize(dev_priv, restore_forcewake);
++	__intel_uncore_forcewake_reset(dev_priv, false);
++}
 +
++void intel_uncore_resume(struct drm_i915_private *dev_priv)
++{
++	__intel_uncore_early_sanitize(dev_priv, true);
  	i915_check_and_clear_faults(dev_priv);
  }
- #undef ASSIGN_WRITE_MMIO_VFUNCS
-@@ -1465,6 +1497,9 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
  
- void intel_uncore_fini(struct drm_i915_private *dev_priv)
+@@ -1463,7 +1467,7 @@ void intel_uncore_fini(struct drm_i915_private *dev_priv)
  {
-+	iosf_mbi_unregister_pmic_bus_access_notifier(
-+		&dev_priv->uncore.pmic_bus_access_nb);
-+
  	/* Paranoia: make sure we have disabled everything before we exit. */
  	intel_uncore_sanitize(dev_priv);
- 	__intel_uncore_forcewake_reset(dev_priv, false);
+-	intel_uncore_forcewake_reset(dev_priv, false);
++	__intel_uncore_forcewake_reset(dev_priv, false);
+ }
+ 
+ #define GEN_RANGE(l, h) GENMASK((h) - 1, (l) - 1)
+@@ -1679,7 +1683,7 @@ static int gen6_reset_engines(struct drm_i915_private *dev_priv,
+ 
+ 	ret = gen6_hw_domain_reset(dev_priv, hw_mask);
+ 
+-	intel_uncore_forcewake_reset(dev_priv, true);
++	__intel_uncore_forcewake_reset(dev_priv, true);
+ 
+ 	return ret;
+ }
 -- 
 2.9.3
