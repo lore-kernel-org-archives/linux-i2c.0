@@ -1,210 +1,66 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/7] x86/platform/intel/iosf_mbi: Add a pmic bus access
- notifier
-Date: Sun, 08 Jan 2017 17:21:33 +0200
-Message-ID: <1483888893.26691.11.camel@linux.intel.com>
+Subject: Re: [PATCH 4/7] i2c: designware-baytrail: Call
+ pmic_bus_access_notifier_chain
+Date: Sun, 08 Jan 2017 17:23:14 +0200
+Message-ID: <1483888994.26691.13.camel@linux.intel.com>
 References: <20170108134427.8392-1-hdegoede@redhat.com>
-         <20170108134427.8392-3-hdegoede@redhat.com>
+         <20170108134427.8392-5-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:45756 "EHLO mga02.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:53564 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751643AbdAHPWn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Jan 2017 10:22:43 -0500
-In-Reply-To: <20170108134427.8392-3-hdegoede@redhat.com>
+        id S1751691AbdAHPYs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 8 Jan 2017 10:24:48 -0500
+In-Reply-To: <20170108134427.8392-5-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
 Cc: intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
 On Sun, 2017-01-08 at 14:44 +0100, Hans de Goede wrote:
-> Some drivers may need to acquire punit managed resources from
-> interrupt
-> context, where they cannot call iosf_mbi_punit_lock().
-> 
-> This commit adds a notifier chain which allows a driver to get
-> notified
-> (in a process context) before other drivers start accessing the pmic
-> bus,
-> so that the driver can acquire any resources, which it may need during
-> the window the other driver is accessing the pmic, before hand.
+> Call the iosf_mbi pmic_bus_access_notifier_chain on bus acquire /
+> release.
 > 
 
-Same comments as per patch 1.
-
-I'm okay with the patch, but I would hear from other stakeholders that's
-_the_ way we are going.
-
-So, FWIW:
+FWIW:
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 > BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > Tested-by: tagorereddy <tagore.chandan@gmail.com>
 > ---
->  arch/x86/include/asm/iosf_mbi.h    | 54
-> ++++++++++++++++++++++++++++++++++++++
->  arch/x86/platform/intel/iosf_mbi.c | 36 +++++++++++++++++++++++++
->  2 files changed, 90 insertions(+)
+>  drivers/i2c/busses/i2c-designware-baytrail.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> diff --git a/arch/x86/include/asm/iosf_mbi.h
-> b/arch/x86/include/asm/iosf_mbi.h
-> index 91f5d16..b8733bb 100644
-> --- a/arch/x86/include/asm/iosf_mbi.h
-> +++ b/arch/x86/include/asm/iosf_mbi.h
-> @@ -47,6 +47,10 @@
->  #define QRK_MBI_UNIT_MM		0x05
->  #define QRK_MBI_UNIT_SOC	0x31
+> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
+> b/drivers/i2c/busses/i2c-designware-baytrail.c
+> index cf7a2a0..e8cf10a 100644
+> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
+> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+> @@ -63,6 +63,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
 >  
-> +/* Action values for the pmic_bus_access_notifier functions */
-> +#define MBI_PMIC_BUS_ACCESS_BEGIN	1
-> +#define MBI_PMIC_BUS_ACCESS_END		2
-> +
->  #if IS_ENABLED(CONFIG_IOSF_MBI)
+>  	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
 >  
->  bool iosf_mbi_available(void);
-> @@ -115,6 +119,38 @@ void iosf_mbi_punit_lock(void);
->   */
->  void iosf_mbi_punit_unlock(void);
->  
-> +/**
-> + * iosf_mbi_register_pmic_bus_access_notifier - Register pmic bus
-> notifier
-> + *
-> + * This function can be used by drivers which may need to acquire
-> punit
-> + * managed resources from interrupt context, where
-> iosf_mbi_punit_lock()
-> + * can not be used.
-> + *
-> + * This function allows a driver to register a notifier to get
-> notified (in a
-> + * process context) before other drivers start accessing the pmic
-> bus.
-> + *
-> + * This allows the driver to acquire any resources, which it may need
-> during
-> + * the window the other driver is accessing the pmic, before hand.
-> + *
-> + * @nb: notifier_block to register
-> + */
-> +int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block
-> *nb);
-> +
-> +/**
-> + * iosf_mbi_register_pmic_bus_access_notifier - Unregister pmic bus
-> notifier
-> + *
-> + * @nb: notifier_block to unregister
-> + */
-> +int iosf_mbi_unregister_pmic_bus_access_notifier(struct
-> notifier_block *nb);
-> +
-> +/**
-> + * iosf_mbi_call_pmic_bus_access_notifier_chain - Call pmic bus
-> notifier chain
-> + *
-> + * @val: action to pass into listener's notifier_call function
-> + * @v: data pointer to pass into listener's notifier_call function
-> + */
-> +int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val,
-> void *v);
-> +
->  #else /* CONFIG_IOSF_MBI is not enabled */
->  static inline
->  bool iosf_mbi_available(void)
-> @@ -146,6 +182,24 @@ int iosf_mbi_modify(u8 port, u8 opcode, u32
-> offset, u32 mdr, u32 mask)
->  static inline void iosf_mbi_punit_lock(void) {}
->  static inline void iosf_mbi_punit_unlock(void) {}
->  
-> +static inline
-> +int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block
-> *nb)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline
-> +int iosf_mbi_unregister_pmic_bus_access_notifier(struct
-> notifier_block *nb)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline
-> +int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val,
-> void *v)
-> +{
-> +	return 0;
-> +}
-> +
->  #endif /* CONFIG_IOSF_MBI */
->  
->  #endif /* IOSF_MBI_SYMS_H */
-> diff --git a/arch/x86/platform/intel/iosf_mbi.c
-> b/arch/x86/platform/intel/iosf_mbi.c
-> index 75d8135..a995789 100644
-> --- a/arch/x86/platform/intel/iosf_mbi.c
-> +++ b/arch/x86/platform/intel/iosf_mbi.c
-> @@ -35,6 +35,7 @@
->  static struct pci_dev *mbi_pdev;
->  static DEFINE_SPINLOCK(iosf_mbi_lock);
->  static DEFINE_MUTEX(iosf_mbi_punit_mutex);
-> +static BLOCKING_NOTIFIER_HEAD(iosf_mbi_pmic_bus_access_notifier);
->  
->  static inline u32 iosf_mbi_form_mcr(u8 op, u8 port, u8 offset)
->  {
-> @@ -203,6 +204,41 @@ void iosf_mbi_punit_unlock(void)
+> +	iosf_mbi_call_pmic_bus_access_notifier_chain(MBI_PMIC_BUS_ACC
+> ESS_END,
+> +						     NULL);
+>  	iosf_mbi_punit_unlock();
 >  }
->  EXPORT_SYMBOL(iosf_mbi_punit_unlock);
 >  
-> +int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block
-> *nb)
-> +{
-> +	int ret;
-> +
-> +	/* Wait for the bus to go inactive before registering */
-> +	mutex_lock(&iosf_mbi_punit_mutex);
-> +	ret = blocking_notifier_chain_register(
-> +				&iosf_mbi_pmic_bus_access_notifier,
-> nb);
-> +	mutex_unlock(&iosf_mbi_punit_mutex);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(iosf_mbi_register_pmic_bus_access_notifier);
-> +
-> +int iosf_mbi_unregister_pmic_bus_access_notifier(struct
-> notifier_block *nb)
-> +{
-> +	int ret;
-> +
-> +	/* Wait for the bus to go inactive before unregistering */
-> +	mutex_lock(&iosf_mbi_punit_mutex);
-> +	ret = blocking_notifier_chain_unregister(
-> +				&iosf_mbi_pmic_bus_access_notifier,
-> nb);
-> +	mutex_unlock(&iosf_mbi_punit_mutex);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(iosf_mbi_unregister_pmic_bus_access_notifier);
-> +
-> +int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val,
-> void *v)
-> +{
-> +	return blocking_notifier_call_chain(
-> +				&iosf_mbi_pmic_bus_access_notifier,
-> val, v);
-> +}
-> +EXPORT_SYMBOL(iosf_mbi_call_pmic_bus_access_notifier_chain);
-> +
->  #ifdef CONFIG_IOSF_MBI_DEBUG
->  static u32	dbg_mdr;
->  static u32	dbg_mcr;
+> @@ -82,6 +84,8 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev
+> *dev)
+>  		return 0;
+>  
+>  	iosf_mbi_punit_lock();
+> +	iosf_mbi_call_pmic_bus_access_notifier_chain(MBI_PMIC_BUS_ACC
+> ESS_BEGIN,
+> +						     NULL);
+>  
+>  	/*
+>  	 * Disallow the CPU to enter C6 or C7 state, entering these
+> states
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
