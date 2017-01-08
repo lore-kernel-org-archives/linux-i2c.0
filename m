@@ -1,169 +1,146 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 1/7] x86/platform/intel/iosf_mbi: Add a mutex for punit
- access
-Date: Sun, 8 Jan 2017 16:30:48 +0100
-Message-ID: <d6acfed3-f778-fe6a-eda7-3de5e2ce9bb9@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 7/7] drm/i915: Take punit lock when
+ modifying punit settings
+Date: Sun, 08 Jan 2017 17:34:35 +0200
+Message-ID: <1483889675.26691.18.camel@linux.intel.com>
 References: <20170108134427.8392-1-hdegoede@redhat.com>
- <20170108134427.8392-2-hdegoede@redhat.com>
- <1483888594.26691.8.camel@linux.intel.com>
+ <20170108134427.8392-8-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53060 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751691AbdAHPax (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Jan 2017 10:30:53 -0500
-In-Reply-To: <1483888594.26691.8.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170108134427.8392-8-hdegoede@redhat.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
-Cc: intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-Hi,
-
-On 08-01-17 16:16, Andy Shevchenko wrote:
-> On Sun, 2017-01-08 at 14:44 +0100, Hans de Goede wrote:
->> One some systems the punit accesses the pmic to change various
->> voltages
->> through the same bus as other kernel drivers use for e.g. battery
->> monitoring.
->>
->> If a driver sends requests to the punit which require the punit to
->> access
->> the pmic bus while another driver is also accessing the pmic bus
->> various
->> bad things happen.
->>
->> This commit adds a mutex to protect the punit against simultaneous
->> accesses
->> and 2 functions to lock / unlock this mutex.
->>
->> Note on these systems the i2c-bus driver will request a sempahore from
->> the
->> punit for exclusive access to the pmic bus when i2c drivers are
->> accessing
->> it, but this does not appear to be sufficient, we still need to avoid
->> making certain punit requests during the access window to avoid
->> problems.
->
-> I'm fine with the patch, but please spell
-> P-Unit
-> PMIC
-
-In the commit msg and comments, not in code you mean I assume ?
-
-Regards,
-
-Hans
-
-
-
->
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->
->>
->> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> Tested-by: tagorereddy <tagore.chandan@gmail.com>
->> ---
->>  arch/x86/include/asm/iosf_mbi.h    | 31
->> +++++++++++++++++++++++++++++++
->>  arch/x86/platform/intel/iosf_mbi.c | 13 +++++++++++++
->>  2 files changed, 44 insertions(+)
->>
->> diff --git a/arch/x86/include/asm/iosf_mbi.h
->> b/arch/x86/include/asm/iosf_mbi.h
->> index b41ee16..91f5d16 100644
->> --- a/arch/x86/include/asm/iosf_mbi.h
->> +++ b/arch/x86/include/asm/iosf_mbi.h
->> @@ -88,6 +88,33 @@ int iosf_mbi_write(u8 port, u8 opcode, u32 offset,
->> u32 mdr);
->>   */
->>  int iosf_mbi_modify(u8 port, u8 opcode, u32 offset, u32 mdr, u32
->> mask);
->>
->> +/**
->> + * iosf_mbi_punit_lock() - Lock the punit mutex
->> + *
->> + * One some systems the punit accesses the pmic to change various
->> voltages
->> + * through the same bus as other kernel drivers use for e.g. battery
->> monitoring.
->> + *
->> + * If a driver sends requests to the punit which require the punit to
->> access the
->> + * pmic bus while another driver is also accessing the pmic bus
->> various bad
->> + * things happen.
->> + *
->> + * To avoid these problems this function must be called before
->> accessing the
->> + * punit or the pmic, be it through iosf_mbi* functions or through
->> other means.
->> + *
->> + * Note on these systems the i2c-bus driver will request a sempahore
->> from the
->> + * punit for exclusive access to the pmic bus when i2c drivers are
->> accessing it,
->> + * but this does not appear to be sufficient, we still need to avoid
->> making
->> + * certain punit requests during the access window to avoid problems.
->> + *
->> + * This function locks a mutex, as such it may sleep.
->> + */
->> +void iosf_mbi_punit_lock(void);
->> +
->> +/**
->> + * iosf_mbi_punit_unlock() - Unlock the punit mutex
->> + */
->> +void iosf_mbi_punit_unlock(void);
->> +
->>  #else /* CONFIG_IOSF_MBI is not enabled */
->>  static inline
->>  bool iosf_mbi_available(void)
->> @@ -115,6 +142,10 @@ int iosf_mbi_modify(u8 port, u8 opcode, u32
->> offset, u32 mdr, u32 mask)
->>  	WARN(1, "IOSF_MBI driver not available");
->>  	return -EPERM;
->>  }
->> +
->> +static inline void iosf_mbi_punit_lock(void) {}
->> +static inline void iosf_mbi_punit_unlock(void) {}
->> +
->>  #endif /* CONFIG_IOSF_MBI */
->>
->>  #endif /* IOSF_MBI_SYMS_H */
->> diff --git a/arch/x86/platform/intel/iosf_mbi.c
->> b/arch/x86/platform/intel/iosf_mbi.c
->> index edf2c54..75d8135 100644
->> --- a/arch/x86/platform/intel/iosf_mbi.c
->> +++ b/arch/x86/platform/intel/iosf_mbi.c
->> @@ -34,6 +34,7 @@
->>
->>  static struct pci_dev *mbi_pdev;
->>  static DEFINE_SPINLOCK(iosf_mbi_lock);
->> +static DEFINE_MUTEX(iosf_mbi_punit_mutex);
->>
->>  static inline u32 iosf_mbi_form_mcr(u8 op, u8 port, u8 offset)
->>  {
->> @@ -190,6 +191,18 @@ bool iosf_mbi_available(void)
->>  }
->>  EXPORT_SYMBOL(iosf_mbi_available);
->>
->> +void iosf_mbi_punit_lock(void)
->> +{
->> +	mutex_lock(&iosf_mbi_punit_mutex);
->> +}
->> +EXPORT_SYMBOL(iosf_mbi_punit_lock);
->> +
->> +void iosf_mbi_punit_unlock(void)
->> +{
->> +	mutex_unlock(&iosf_mbi_punit_mutex);
->> +}
->> +EXPORT_SYMBOL(iosf_mbi_punit_unlock);
->> +
->>  #ifdef CONFIG_IOSF_MBI_DEBUG
->>  static u32	dbg_mdr;
->>  static u32	dbg_mcr;
->
+T24gU3VuLCAyMDE3LTAxLTA4IGF0IDE0OjQ0ICswMTAwLCBIYW5zIGRlIEdvZWRlIHdyb3RlOgo+
+IE1ha2Ugc3VyZSB0aGUgcHVuaXQgaTJjIGJ1cyBpcyBub3QgaW4gdXNlIHdoZW4gd2Ugc2VuZCBh
+IHJlcXVlc3QgdG8KPiB0aGUgcHVuaXQgYnkgY2FsbGluZyBpb3NmX21iaV9wdW5pdF9sb2NrKCkg
+LyBpb3NmX21iaV9wdW5pdF91bmxvY2soKQo+IGFyb3VuZCBwdW5pdCB3cml0ZSBhY2Nlc3Nlcy4K
+PiAKCkJ1dCBzaG91bGQgbm90IGk5MTUgZHJtIGV2ZW50dWFsbHkgc2hhcmUgdGhlIHNhbWUgaW9z
+Zl9tYmkgZHJpdmVyPwpDdXJyZW50bHkgd2hhdCB5b3UgYXJlIGRvaW5nIHlvdSBjcmVhdGUgbm90
+aWZpZXIgYW5kIGFsbCB0aGF0IG5vdC1iZXN0LQpldmVyIHN0dWZmIGR1ZSB0byBoYXZpbmcgdHdv
+IGFjY2Vzc29ycyB0byBJT1NGIE1CLiBJZiB3ZSBoYXZlIG9ubHkgb25lCmRyaXZlciB3aGljaCBp
+OTE1IHdpbGwgbm90IGlnbm9yZSB5b3UgZG9uJ3QgbmVlZCB0byBjcmVhdGUgc3VjaCB0aGluZ3Mu
+CgpUaGF0J3Mgd2hhdCBJIHdhcyB0cnlpbmcgdG8gaW1wbHkgd2hlbiBjb21tZW50aW5nIG9uZSBv
+ZiB0aGUgcGF0Y2ggaW4KcHJldmlvdXMgc2VyaWVzLgoKCj4gQnVnTGluazogaHR0cHM6Ly9idWd6
+aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD0xNTUyNDEKPiBTaWduZWQtb2ZmLWJ5OiBI
+YW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQuY29tPgo+IFRlc3RlZC1ieTogdGFnb3JlcmVk
+ZHkgPHRhZ29yZS5jaGFuZGFuQGdtYWlsLmNvbT4KPiAtLS0KPiDCoGRyaXZlcnMvZ3B1L2RybS9p
+OTE1L2ludGVsX2Rpc3BsYXkuY8KgwqDCoMKgfCA2ICsrKysrKwo+IMKgZHJpdmVycy9ncHUvZHJt
+L2k5MTUvaW50ZWxfcG0uY8KgwqDCoMKgwqDCoMKgwqDCoHwgOSArKysrKysrKysKPiDCoGRyaXZl
+cnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uYyB8IDkgKysrKysrKysrCj4gwqAzIGZp
+bGVzIGNoYW5nZWQsIDI0IGluc2VydGlvbnMoKykKPiAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9n
+cHUvZHJtL2k5MTUvaW50ZWxfZGlzcGxheS5jCj4gYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRl
+bF9kaXNwbGF5LmMKPiBpbmRleCBmZWM4ZWIzLi5iOGJlNmVhIDEwMDY0NAo+IC0tLSBhL2RyaXZl
+cnMvZ3B1L2RybS9pOTE1L2ludGVsX2Rpc3BsYXkuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9p
+OTE1L2ludGVsX2Rpc3BsYXkuYwo+IEBAIC00Nyw2ICs0Nyw3IEBACj4gwqAjaW5jbHVkZSA8ZHJt
+L2RybV9yZWN0Lmg+Cj4gwqAjaW5jbHVkZSA8bGludXgvZG1hX3JlbWFwcGluZy5oPgo+IMKgI2lu
+Y2x1ZGUgPGxpbnV4L3Jlc2VydmF0aW9uLmg+Cj4gKyNpbmNsdWRlIDxhc20vaW9zZl9tYmkuaD4K
+PiDCoAo+IMKgc3RhdGljIGJvb2wgaXNfbW1pb193b3JrKHN0cnVjdCBpbnRlbF9mbGlwX3dvcmsg
+KndvcmspCj4gwqB7Cj4gQEAgLTY0MjMsNiArNjQyNCw4IEBAIHN0YXRpYyB2b2lkIHZhbGxleXZp
+ZXdfc2V0X2NkY2xrKHN0cnVjdAo+IGRybV9kZXZpY2UgKmRldiwgaW50IGNkY2xrKQo+IMKgCQlj
+bWQgPSAwOwo+IMKgCj4gwqAJbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPiAr
+CWlvc2ZfbWJpX3B1bml0X2xvY2soKTsKPiArCj4gwqAJdmFsID0gdmx2X3B1bml0X3JlYWQoZGV2
+X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKTsKPiDCoAl2YWwgJj0gfkRTUEZSRVFHVUFSX01BU0s7
+Cj4gwqAJdmFsIHw9IChjbWQgPDwgRFNQRlJFUUdVQVJfU0hJRlQpOwo+IEBAIC02NDMyLDYgKzY0
+MzUsNyBAQCBzdGF0aWMgdm9pZCB2YWxsZXl2aWV3X3NldF9jZGNsayhzdHJ1Y3QKPiBkcm1fZGV2
+aWNlICpkZXYsIGludCBjZGNsaykKPiDCoAkJwqDCoMKgwqDCoDUwKSkgewo+IMKgCQlEUk1fRVJS
+T1IoInRpbWVkIG91dCB3YWl0aW5nIGZvciBDRGNsayBjaGFuZ2VcbiIpOwo+IMKgCX0KPiArCWlv
+c2ZfbWJpX3B1bml0X3VubG9jaygpOwo+IMKgCW11dGV4X3VubG9jaygmZGV2X3ByaXYtPnJwcy5o
+d19sb2NrKTsKPiDCoAo+IMKgCW11dGV4X2xvY2soJmRldl9wcml2LT5zYl9sb2NrKTsKPiBAQCAt
+NjQ5OSw2ICs2NTAzLDcgQEAgc3RhdGljIHZvaWQgY2hlcnJ5dmlld19zZXRfY2RjbGsoc3RydWN0
+Cj4gZHJtX2RldmljZSAqZGV2LCBpbnQgY2RjbGspCj4gwqAJY21kID0gRElWX1JPVU5EX0NMT1NF
+U1QoZGV2X3ByaXYtPmhwbGxfZnJlcSA8PCAxLCBjZGNsaykgLSAxOwo+IMKgCj4gwqAJbXV0ZXhf
+bG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPiArCWlvc2ZfbWJpX3B1bml0X2xvY2soKTsK
+PiDCoAl2YWwgPSB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+
+IMKgCXZhbCAmPSB+RFNQRlJFUUdVQVJfTUFTS19DSFY7Cj4gwqAJdmFsIHw9IChjbWQgPDwgRFNQ
+RlJFUUdVQVJfU0hJRlRfQ0hWKTsKPiBAQCAtNjUwOCw2ICs2NTEzLDcgQEAgc3RhdGljIHZvaWQg
+Y2hlcnJ5dmlld19zZXRfY2RjbGsoc3RydWN0Cj4gZHJtX2RldmljZSAqZGV2LCBpbnQgY2RjbGsp
+Cj4gwqAJCcKgwqDCoMKgwqA1MCkpIHsKPiDCoAkJRFJNX0VSUk9SKCJ0aW1lZCBvdXQgd2FpdGlu
+ZyBmb3IgQ0RjbGsgY2hhbmdlXG4iKTsKPiDCoAl9Cj4gKwlpb3NmX21iaV9wdW5pdF91bmxvY2so
+KTsKPiDCoAltdXRleF91bmxvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4gwqAKPiDCoAlp
+bnRlbF91cGRhdGVfY2RjbGsoZGV2X3ByaXYpOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9k
+cm0vaTkxNS9pbnRlbF9wbS5jCj4gYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9wbS5jCj4g
+aW5kZXggNGIxMjYzNy4uMGQ1NWI2MSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkx
+NS9pbnRlbF9wbS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYwo+IEBA
+IC0zMiw2ICszMiw3IEBACj4gwqAjaW5jbHVkZSAiLi4vLi4vLi4vcGxhdGZvcm0veDg2L2ludGVs
+X2lwcy5oIgo+IMKgI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgo+IMKgI2luY2x1ZGUgPGRybS9k
+cm1fYXRvbWljX2hlbHBlci5oPgo+ICsjaW5jbHVkZSA8YXNtL2lvc2ZfbWJpLmg+Cj4gwqAKPiDC
+oC8qKgo+IMKgICogRE9DOiBSQzYKPiBAQCAtMjc2LDYgKzI3Nyw3IEBAIHN0YXRpYyB2b2lkIGNo
+dl9zZXRfbWVtb3J5X2R2ZnMoc3RydWN0Cj4gZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsIGJv
+b2wgZW5hYmxlKQo+IMKgCXUzMiB2YWw7Cj4gwqAKPiDCoAltdXRleF9sb2NrKCZkZXZfcHJpdi0+
+cnBzLmh3X2xvY2spOwo+ICsJaW9zZl9tYmlfcHVuaXRfbG9jaygpOwo+IMKgCj4gwqAJdmFsID0g
+dmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19ERFJfU0VUVVAyKTsKPiDCoAlpZiAo
+ZW5hYmxlKQo+IEBAIC0yOTAsNiArMjkyLDcgQEAgc3RhdGljIHZvaWQgY2h2X3NldF9tZW1vcnlf
+ZHZmcyhzdHJ1Y3QKPiBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwgYm9vbCBlbmFibGUpCj4g
+wqAJCcKgwqDCoMKgwqDCoEZPUkNFX0REUl9GUkVRX1JFUV9BQ0spID09IDAsIDMpKQo+IMKgCQlE
+Uk1fRVJST1IoInRpbWVkIG91dCB3YWl0aW5nIGZvciBQdW5pdCBERFIgRFZGUwo+IHJlcXVlc3Rc
+biIpOwo+IMKgCj4gKwlpb3NmX21iaV9wdW5pdF91bmxvY2soKTsKPiDCoAltdXRleF91bmxvY2so
+JmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4gwqB9Cj4gwqAKPiBAQCAtMjk4LDYgKzMwMSw3IEBA
+IHN0YXRpYyB2b2lkIGNodl9zZXRfbWVtb3J5X3BtNShzdHJ1Y3QKPiBkcm1faTkxNV9wcml2YXRl
+ICpkZXZfcHJpdiwgYm9vbCBlbmFibGUpCj4gwqAJdTMyIHZhbDsKPiDCoAo+IMKgCW11dGV4X2xv
+Y2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4gKwlpb3NmX21iaV9wdW5pdF9sb2NrKCk7Cj4g
+wqAKPiDCoAl2YWwgPSB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEp
+Owo+IMKgCWlmIChlbmFibGUpCj4gQEAgLTMwNiw2ICszMTAsNyBAQCBzdGF0aWMgdm9pZCBjaHZf
+c2V0X21lbW9yeV9wbTUoc3RydWN0Cj4gZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsIGJvb2wg
+ZW5hYmxlKQo+IMKgCQl2YWwgJj0gfkRTUF9NQVhGSUZPX1BNNV9FTkFCTEU7Cj4gwqAJdmx2X3B1
+bml0X3dyaXRlKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSwgdmFsKTsKPiDCoAo+ICsJaW9z
+Zl9tYmlfcHVuaXRfdW5sb2NrKCk7Cj4gwqAJbXV0ZXhfdW5sb2NrKCZkZXZfcHJpdi0+cnBzLmh3
+X2xvY2spOwo+IMKgfQo+IMKgCj4gQEAgLTQ1NDYsNiArNDU1MSw3IEBAIHZvaWQgdmx2X3dtX2dl
+dF9od19zdGF0ZShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2KQo+IMKgCj4gwqAJaWYgKElTX0NIRVJS
+WVZJRVcoZGV2X3ByaXYpKSB7Cj4gwqAJCW11dGV4X2xvY2soJmRldl9wcml2LT5ycHMuaHdfbG9j
+ayk7Cj4gKwkJaW9zZl9tYmlfcHVuaXRfbG9jaygpOwo+IMKgCj4gwqAJCXZhbCA9IHZsdl9wdW5p
+dF9yZWFkKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSk7Cj4gwqAJCWlmICh2YWwgJiBEU1Bf
+TUFYRklGT19QTTVfRU5BQkxFKQo+IEBAIC00NTc1LDYgKzQ1ODEsNyBAQCB2b2lkIHZsdl93bV9n
+ZXRfaHdfc3RhdGUoc3RydWN0IGRybV9kZXZpY2UgKmRldikKPiDCoAkJCQl3bS0+bGV2ZWwgPSBW
+TFZfV01fTEVWRUxfRERSX0RWRlM7Cj4gwqAJCX0KPiDCoAo+ICsJCWlvc2ZfbWJpX3B1bml0X3Vu
+bG9jaygpOwo+IMKgCQltdXRleF91bmxvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4gwqAJ
+fQo+IMKgCj4gQEAgLTQ5ODEsNyArNDk4OCw5IEBAIHN0YXRpYyB2b2lkIHZhbGxleXZpZXdfc2V0
+X3JwcyhzdHJ1Y3QKPiBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwgdTggdmFsKQo+IMKgCUk5
+MTVfV1JJVEUoR0VONl9QTUlOVFJNU0ssIGdlbjZfcnBzX3BtX21hc2soZGV2X3ByaXYsIHZhbCkp
+Owo+IMKgCj4gwqAJaWYgKHZhbCAhPSBkZXZfcHJpdi0+cnBzLmN1cl9mcmVxKSB7Cj4gKwkJaW9z
+Zl9tYmlfcHVuaXRfbG9jaygpOwo+IMKgCQl2bHZfcHVuaXRfd3JpdGUoZGV2X3ByaXYsIFBVTklU
+X1JFR19HUFVfRlJFUV9SRVEsCj4gdmFsKTsKPiArCQlpb3NmX21iaV9wdW5pdF91bmxvY2soKTsK
+PiDCoAkJaWYgKCFJU19DSEVSUllWSUVXKGRldl9wcml2KSkKPiDCoAkJCWdlbjZfc2V0X3Jwc190
+aHJlc2hvbGRzKGRldl9wcml2LCB2YWwpOwo+IMKgCX0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9n
+cHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5jCj4gYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9p
+bnRlbF9ydW50aW1lX3BtLmMKPiBpbmRleCBjMGI3ZTk1Li4xNzkyMmFlIDEwMDY0NAo+IC0tLSBh
+L2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uYwo+ICsrKyBiL2RyaXZlcnMv
+Z3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uYwo+IEBAIC0yOCw2ICsyOCw3IEBACj4gwqAK
+PiDCoCNpbmNsdWRlIDxsaW51eC9wbV9ydW50aW1lLmg+Cj4gwqAjaW5jbHVkZSA8bGludXgvdmdh
+YXJiLmg+Cj4gKyNpbmNsdWRlIDxhc20vaW9zZl9tYmkuaD4KPiDCoAo+IMKgI2luY2x1ZGUgImk5
+MTVfZHJ2LmgiCj4gwqAjaW5jbHVkZSAiaW50ZWxfZHJ2LmgiCj4gQEAgLTEwMjcsNiArMTAyOCw4
+IEBAIHN0YXRpYyB2b2lkIHZsdl9zZXRfcG93ZXJfd2VsbChzdHJ1Y3QKPiBkcm1faTkxNV9wcml2
+YXRlICpkZXZfcHJpdiwKPiDCoAlpZiAoQ09ORCkKPiDCoAkJZ290byBvdXQ7Cj4gwqAKPiArCWlv
+c2ZfbWJpX3B1bml0X2xvY2soKTsKPiArCj4gwqAJY3RybCA9IHZsdl9wdW5pdF9yZWFkKGRldl9w
+cml2LCBQVU5JVF9SRUdfUFdSR1RfQ1RSTCk7Cj4gwqAJY3RybCAmPSB+bWFzazsKPiDCoAljdHJs
+IHw9IHN0YXRlOwo+IEBAIC0xMDM3LDYgKzEwNDAsOCBAQCBzdGF0aWMgdm9pZCB2bHZfc2V0X3Bv
+d2VyX3dlbGwoc3RydWN0Cj4gZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4gwqAJCQnCoMKg
+c3RhdGUsCj4gwqAJCQnCoMKgdmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsCj4gUFVOSVRfUkVHX1BX
+UkdUX0NUUkwpKTsKPiDCoAo+ICsJaW9zZl9tYmlfcHVuaXRfdW5sb2NrKCk7Cj4gKwo+IMKgI3Vu
+ZGVmIENPTkQKPiDCoAo+IMKgb3V0Ogo+IEBAIC0xNjQzLDYgKzE2NDgsOCBAQCBzdGF0aWMgdm9p
+ZCBjaHZfc2V0X3BpcGVfcG93ZXJfd2VsbChzdHJ1Y3QKPiBkcm1faTkxNV9wcml2YXRlICpkZXZf
+cHJpdiwKPiDCoAlpZiAoQ09ORCkKPiDCoAkJZ290byBvdXQ7Cj4gwqAKPiArCWlvc2ZfbWJpX3B1
+bml0X2xvY2soKTsKPiArCj4gwqAJY3RybCA9IHZsdl9wdW5pdF9yZWFkKGRldl9wcml2LCBQVU5J
+VF9SRUdfRFNQRlJFUSk7Cj4gwqAJY3RybCAmPSB+RFBfU1NDX01BU0socGlwZSk7Cj4gwqAJY3Ry
+bCB8PSBlbmFibGUgPyBEUF9TU0NfUFdSX09OKHBpcGUpIDogRFBfU1NDX1BXUl9HQVRFKHBpcGUp
+Owo+IEBAIC0xNjUzLDYgKzE2NjAsOCBAQCBzdGF0aWMgdm9pZCBjaHZfc2V0X3BpcGVfcG93ZXJf
+d2VsbChzdHJ1Y3QKPiBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwKPiDCoAkJCcKgwqBzdGF0
+ZSwKPiDCoAkJCcKgwqB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwKPiBQVU5JVF9SRUdfRFNQRlJF
+USkpOwo+IMKgCj4gKwlpb3NmX21iaV9wdW5pdF91bmxvY2soKTsKPiArCj4gwqAjdW5kZWYgQ09O
+RAo+IMKgCj4gwqBvdXQ6CgotLSAKQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0Bs
+aW51eC5pbnRlbC5jb20+CkludGVsIEZpbmxhbmQgT3kKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhA
+bGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxt
+YW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
