@@ -1,64 +1,63 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/7] x86/platform/intel/iosf_mbi: Add a mutex for punit
- access
-Date: Sun, 08 Jan 2017 17:35:54 +0200
-Message-ID: <1483889754.26691.20.camel@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 3/7] i2c: designware-baytrail: Take punit lock on bus
+ acquire
+Date: Sun, 8 Jan 2017 16:39:31 +0100
+Message-ID: <3af5dbb5-a36d-6190-f188-71cfdabe6b69@redhat.com>
 References: <20170108134427.8392-1-hdegoede@redhat.com>
-         <20170108134427.8392-2-hdegoede@redhat.com>
-         <1483888594.26691.8.camel@linux.intel.com>
-         <d6acfed3-f778-fe6a-eda7-3de5e2ce9bb9@redhat.com>
+ <20170108134427.8392-4-hdegoede@redhat.com>
+ <1483889239.26691.16.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:50570 "EHLO mga14.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37532 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752386AbdAHPjO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Jan 2017 10:39:14 -0500
-In-Reply-To: <d6acfed3-f778-fe6a-eda7-3de5e2ce9bb9@redhat.com>
+        id S1752386AbdAHPjf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 8 Jan 2017 10:39:35 -0500
+In-Reply-To: <1483889239.26691.16.camel@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
 Cc: intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-On Sun, 2017-01-08 at 16:30 +0100, Hans de Goede wrote:
-> Hi,
-> 
-> On 08-01-17 16:16, Andy Shevchenko wrote:
-> > On Sun, 2017-01-08 at 14:44 +0100, Hans de Goede wrote:
-> > > One some systems the punit accesses the pmic to change various
-> > > voltages
-> > > through the same bus as other kernel drivers use for e.g. battery
-> > > monitoring.
-> > > 
-> > > If a driver sends requests to the punit which require the punit to
-> > > access
-> > > the pmic bus while another driver is also accessing the pmic bus
-> > > various
-> > > bad things happen.
-> > > 
-> > > This commit adds a mutex to protect the punit against simultaneous
-> > > accesses
-> > > and 2 functions to lock / unlock this mutex.
-> > > 
-> > > Note on these systems the i2c-bus driver will request a sempahore
-> > > from
-> > > the
-> > > punit for exclusive access to the pmic bus when i2c drivers are
-> > > accessing
-> > > it, but this does not appear to be sufficient, we still need to
-> > > avoid
-> > > making certain punit requests during the access window to avoid
-> > > problems.
-> > 
-> > I'm fine with the patch, but please spell
-> > P-Unit
-> > PMIC
-> 
-> In the commit msg and comments, not in code you mean I assume ?
+Hi,
 
-Correct.
+On 08-01-17 16:27, Andy Shevchenko wrote:
+> On Sun, 2017-01-08 at 14:44 +0100, Hans de Goede wrote:
+>> Take the punit lock to stop others from accessing the punit while the
+>> pmic i2c bus is in use. This is necessary because accessing the punit
+>> from the kernel may result in the punit trying to access the pmic i2c
+>> bus, which results in a hang when it happens while we own the pmic i2c
+>> bus semaphore.
+>>
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Tested-by: tagorereddy <tagore.chandan@gmail.com>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-baytrail.c | 4 ++++
+>>  1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> b/drivers/i2c/busses/i2c-designware-baytrail.c
+>> index 3effc9a..cf7a2a0 100644
+>> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+>>
+>
+>> @@ -62,6 +62,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
+>
+>> +	iosf_mbi_punit_unlock();
+>
+>> @@ -79,6 +81,8 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev
+>> +	iosf_mbi_punit_lock();
+>
+> For me it looks a bit asymmetrical.
+>
+> Can we use acquire()/release()?
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Sure I can change things to use acquire()/release() instead. I will
+change this for v2.
+
+Regards,
+
+Hans
