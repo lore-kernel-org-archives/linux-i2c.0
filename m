@@ -1,249 +1,119 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v7 05/12] mux: support simplified bindings for single-user
- gpio mux
-Date: Sun, 8 Jan 2017 10:28:22 +0000
-Message-ID: <9652928a-5d54-5fa4-48ad-6df57bc8513c@kernel.org>
+Subject: Re: [PATCH v7 11/12] dt-bindings: mux-adg792a: document devicetree
+ bindings for ADG792A/G mux
+Date: Sun, 8 Jan 2017 10:31:21 +0000
+Message-ID: <05bcf023-f05e-5cdf-d812-f1e7f3bdd909@kernel.org>
 References: <1483532187-28494-1-git-send-email-peda@axentia.se>
- <1483532187-28494-6-git-send-email-peda@axentia.se>
- <d89179f5-6ad6-3c40-cdb8-f49cf324e9ee@axentia.se>
+ <1483532187-28494-12-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d89179f5-6ad6-3c40-cdb8-f49cf324e9ee@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:43276 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1162797AbdAHKbY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 8 Jan 2017 05:31:24 -0500
+In-Reply-To: <1483532187-28494-12-git-send-email-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
-On 05/01/17 16:21, Peter Rosin wrote:
-> On 2017-01-04 13:16, Peter Rosin wrote:
->> Signed-off-by: Peter Rosin <peda@axentia.se>
->> ---
->>  drivers/mux/mux-core.c | 81 ++++++++++++++++++++++++++++++++++++++++++++++++--
->>  drivers/mux/mux-gpio.c | 56 ++--------------------------------
->>  include/linux/mux.h    |  7 +++++
->>  3 files changed, 89 insertions(+), 55 deletions(-)
->>
->> diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
->> index 21da15a264ad..d887ae1c0e55 100644
->> --- a/drivers/mux/mux-core.c
->> +++ b/drivers/mux/mux-core.c
->> @@ -15,6 +15,7 @@
->>  #include <linux/device.h>
->>  #include <linux/err.h>
->>  #include <linux/idr.h>
->> +#include <linux/gpio/consumer.h>
->>  #include <linux/module.h>
->>  #include <linux/mux.h>
->>  #include <linux/of.h>
->> @@ -288,6 +289,63 @@ static struct mux_chip *of_find_mux_chip_by_node(struct device_node *np)
->>  	return dev ? to_mux_chip(dev) : NULL;
->>  }
->>  
->> +#ifdef CONFIG_MUX_GPIO
->> +
->> +static int mux_gpio_set(struct mux_control *mux, int state)
->> +{
->> +	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
->> +	int i;
->> +
->> +	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
->> +		mux_gpio->val[i] = (state >> i) & 1;
->> +
->> +	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
->> +				       mux_gpio->gpios->desc,
->> +				       mux_gpio->val);
->> +
->> +	return 0;
->> +}
->> +
->> +static const struct mux_control_ops mux_gpio_ops = {
->> +	.set = mux_gpio_set,
->> +};
->> +
->> +struct mux_chip *mux_gpio_alloc(struct device *dev)
->> +{
->> +	struct mux_chip *mux_chip;
->> +	struct mux_gpio *mux_gpio;
->> +	int pins;
->> +	int ret;
->> +
->> +	pins = gpiod_count(dev, "mux");
->> +	if (pins < 0)
->> +		return ERR_PTR(pins);
->> +
->> +	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
->> +				       pins * sizeof(*mux_gpio->val));
->> +	if (!mux_chip)
->> +		return ERR_PTR(-ENOMEM);
->> +
->> +	mux_gpio = mux_chip_priv(mux_chip);
->> +	mux_gpio->val = (int *)(mux_gpio + 1);
->> +	mux_chip->ops = &mux_gpio_ops;
->> +
->> +	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
->> +	if (IS_ERR(mux_gpio->gpios)) {
->> +		ret = PTR_ERR(mux_gpio->gpios);
->> +		if (ret != -EPROBE_DEFER)
->> +			dev_err(dev, "failed to get gpios\n");
->> +		return ERR_PTR(ret);
->> +	}
->> +	WARN_ON(pins != mux_gpio->gpios->ndescs);
->> +	mux_chip->mux->states = 1 << pins;
->> +
->> +	return mux_chip;
->> +}
->> +EXPORT_SYMBOL_GPL(mux_gpio_alloc);
->> +
->> +#endif /* CONFIG_MUX_GPIO */
->> +
->>  struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
->>  {
->>  	struct device_node *np = dev->of_node;
->> @@ -307,9 +365,28 @@ struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
->>  	ret = of_parse_phandle_with_args(np,
->>  					 "mux-controls", "#mux-control-cells",
->>  					 index, &args);
->> +
->> +#ifdef CONFIG_MUX_GPIO
->> +	if (ret == -ENOENT && !mux_name && gpiod_count(dev, "mux") > 0) {
->> +		mux_chip = mux_gpio_alloc(dev);
->> +		if (!IS_ERR(mux_chip)) {
->> +			ret = devm_mux_chip_register(dev, mux_chip);
->> +			if (ret < 0) {
->> +				dev_err(dev, "failed to register mux-chip\n");
->> +				return ERR_PTR(ret);
->> +			}
->> +			get_device(&mux_chip->dev);
->> +			return mux_chip->mux;
->> +		}
->> +
->> +		ret = PTR_ERR(mux_chip);
->> +	}
->> +#endif
->> +
->>  	if (ret) {
->> -		dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
->> -			np->full_name, mux_name ?: "", index);
->> +		if (ret != -EPROBE_DEFER)
->> +			dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
->> +				np->full_name, mux_name ?: "", index);
->>  		return ERR_PTR(ret);
->>  	}
->>  
->> diff --git a/drivers/mux/mux-gpio.c b/drivers/mux/mux-gpio.c
->> index 76b52bc63470..8a7bfbc0c4bb 100644
->> --- a/drivers/mux/mux-gpio.c
->> +++ b/drivers/mux/mux-gpio.c
->> @@ -11,37 +11,12 @@
->>   */
->>  
->>  #include <linux/err.h>
->> -#include <linux/gpio/consumer.h>
->>  #include <linux/module.h>
->>  #include <linux/mux.h>
->>  #include <linux/of_platform.h>
->>  #include <linux/platform_device.h>
->>  #include <linux/property.h>
+On 04/01/17 12:16, Peter Rosin wrote:
+> Analog Devices ADG792A/G is a triple 4:1 mux.
 > 
-> Instead of moving the mux-gpio guts from mux-gpio.c to mux-core.c, I
-> will instead make CONFIG_MUX_GPIO a bool option (no module possible)
-> and call it from the mux-core. That will be cleaner and less of a
-> break of abstractions in my opinion.
-Hmm. I wonder if the balance is right here or whether we should just not have the
-simplified binding at all as it breaks the assumption that all muxes are of the
-same level...
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+I think this is about as neat as we can make it.
 
-I like the binding, but it is causing significant complexity in here.
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+> ---
+>  .../devicetree/bindings/mux/mux-adg792a.txt        | 79 ++++++++++++++++++++++
+>  1 file changed, 79 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mux/mux-adg792a.txt
 > 
-> Cheers,
-> Peter
-> 
->> -struct mux_gpio {
->> -	struct gpio_descs *gpios;
->> -	int *val;
->> -};
->> -
->> -static int mux_gpio_set(struct mux_control *mux, int state)
->> -{
->> -	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
->> -	int i;
->> -
->> -	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
->> -		mux_gpio->val[i] = (state >> i) & 1;
->> -
->> -	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
->> -				       mux_gpio->gpios->desc,
->> -				       mux_gpio->val);
->> -
->> -	return 0;
->> -}
->> -
->> -static const struct mux_control_ops mux_gpio_ops = {
->> -	.set = mux_gpio_set,
->> -};
->> -
->>  static const struct of_device_id mux_gpio_dt_ids[] = {
->>  	{ .compatible = "mux-gpio", },
->>  	{ /* sentinel */ }
->> @@ -51,38 +26,13 @@ MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
->>  static int mux_gpio_probe(struct platform_device *pdev)
->>  {
->>  	struct device *dev = &pdev->dev;
->> -	struct device_node *np = dev->of_node;
->>  	struct mux_chip *mux_chip;
->> -	struct mux_gpio *mux_gpio;
->> -	int pins;
->>  	u32 idle_state;
->>  	int ret;
->>  
->> -	if (!np)
->> -		return -ENODEV;
->> -
->> -	pins = gpiod_count(dev, "mux");
->> -	if (pins < 0)
->> -		return pins;
->> -
->> -	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
->> -				       pins * sizeof(*mux_gpio->val));
->> -	if (!mux_chip)
->> -		return -ENOMEM;
->> -
->> -	mux_gpio = mux_chip_priv(mux_chip);
->> -	mux_gpio->val = (int *)(mux_gpio + 1);
->> -	mux_chip->ops = &mux_gpio_ops;
->> -
->> -	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
->> -	if (IS_ERR(mux_gpio->gpios)) {
->> -		ret = PTR_ERR(mux_gpio->gpios);
->> -		if (ret != -EPROBE_DEFER)
->> -			dev_err(dev, "failed to get gpios\n");
->> -		return ret;
->> -	}
->> -	WARN_ON(pins != mux_gpio->gpios->ndescs);
->> -	mux_chip->mux->states = 1 << pins;
->> +	mux_chip = mux_gpio_alloc(dev);
->> +	if (IS_ERR(mux_chip))
->> +		return PTR_ERR(mux_chip);
->>  
->>  	ret = device_property_read_u32(dev, "idle-state", &idle_state);
->>  	if (ret >= 0) {
->> diff --git a/include/linux/mux.h b/include/linux/mux.h
->> index 3b9439927f11..3bfee23cfb8c 100644
->> --- a/include/linux/mux.h
->> +++ b/include/linux/mux.h
->> @@ -241,4 +241,11 @@ struct mux_control *devm_mux_control_get(struct device *dev,
->>   */
->>  void devm_mux_control_put(struct device *dev, struct mux_control *mux);
->>  
->> +struct mux_gpio {
->> +	struct gpio_descs *gpios;
->> +	int *val;
->> +};
->> +
->> +struct mux_chip *mux_gpio_alloc(struct device *dev);
->> +
->>  #endif /* _LINUX_MUX_H */
->>
+> diff --git a/Documentation/devicetree/bindings/mux/mux-adg792a.txt b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
+> new file mode 100644
+> index 000000000000..0b26dd11f070
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
+> @@ -0,0 +1,79 @@
+> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
+> +
+> +Required properties:
+> +- compatible : "adi,adg792a" or "adi,adg792g"
+> +- #mux-control-cells : <0> if parallel, or <1> if not.
+> +* Standard mux-controller bindings as decribed in mux-controller.txt
+> +
+> +Optional properties for ADG792G:
+> +- gpio-controller : if present, #gpio-cells below is required.
+> +- #gpio-cells : should be <2>
+> +			  - First cell is the GPO line number, i.e. 0 or 1
+> +			  - Second cell is used to specify active high (0)
+> +			    or active low (1)
+> +
+> +Optional properties:
+> +- adi,parallel : if present, the three muxes are bound together with a single
+> +  mux controller, controlling all three muxes in parallel.
+> +- adi,idle-state : if present, array of 2-tuples with mux controller number
+> +  and state that mux controllers will have when idle. States 0 through 3
+> +  correspond to signals A through D in the datasheet.
+> +- adi,idle-high-impedance : if present, array of mux controller numbers that
+> +  should be in the disconnected high-impedance state when idle.
+> +
+> +Mux controller states 0 through 3 correspond to signals A through D in the
+> +datasheet. If a mux controller is mentioned in neither adi,idle-state nor
+> +adi,idle-high-impedance it is left in its previously selected state when idle.
+> +
+> +Example:
+> +
+> +	/*
+> +	 * Three independent mux controllers (of which one is used).
+> +	 * Mux 0 is disconnected when idle, mux 1 idles with signal C
+> +	 * and mux 2 idles with signal A.
+> +	 */
+> +	&i2c0 {
+> +		mux: adg792a@50 {
+> +			compatible = "adi,adg792a";
+> +			reg = <0x50>;
+> +			#mux-control-cells = <1>;
+> +
+> +			adi,idle-high-impedance = <0>;
+> +			adi,idle-state = <1 2>, <2 0>;
+> +		};
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "io-channel-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		mux-controls = <&mux 1>;
+> +
+> +		channels = "sync-1", "", "out";
+> +	};
+> +
+> +
+> +	/*
+> +	 * Three parallel muxes with one mux controller, useful e.g. if
+> +	 * the adc is differential, thus needing two signals to be muxed
+> +	 * simultaneously for correct operation.
+> +	 */
+> +	&i2c0 {
+> +		pmux: adg792a@50 {
+> +			compatible = "adi,adg792a";
+> +			reg = <0x50>;
+> +			#mux-control-cells = <0>;
+> +			adi,parallel;
+> +		};
+> +	};
+> +
+> +	diff-adc-mux {
+> +		compatible = "io-channel-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		mux-controls = <&pmux>;
+> +
+> +		channels = "sync-1", "", "out";
+> +	};
 > 
