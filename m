@@ -1,194 +1,159 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 7/7] drm/i915: Take punit lock when modifying punit settings
-Date: Sun,  8 Jan 2017 14:44:27 +0100
-Message-ID: <20170108134427.8392-8-hdegoede@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 1/7] x86/platform/intel/iosf_mbi: Add a mutex for punit
+ access
+Date: Sun, 08 Jan 2017 17:16:34 +0200
+Message-ID: <1483888594.26691.8.camel@linux.intel.com>
 References: <20170108134427.8392-1-hdegoede@redhat.com>
+         <20170108134427.8392-2-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33422 "EHLO mx1.redhat.com"
+Received: from mga02.intel.com ([134.134.136.20]:45756 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932078AbdAHNov (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Jan 2017 08:44:51 -0500
-In-Reply-To: <20170108134427.8392-1-hdegoede@redhat.com>
+        id S1751691AbdAHPWj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 8 Jan 2017 10:22:39 -0500
+In-Reply-To: <20170108134427.8392-2-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+Cc: intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-Make sure the punit i2c bus is not in use when we send a request to
-the punit by calling iosf_mbi_punit_lock() / iosf_mbi_punit_unlock()
-around punit write accesses.
+On Sun, 2017-01-08 at 14:44 +0100, Hans de Goede wrote:
+> One some systems the punit accesses the pmic to change various
+> voltages
+> through the same bus as other kernel drivers use for e.g. battery
+> monitoring.
+> 
+> If a driver sends requests to the punit which require the punit to
+> access
+> the pmic bus while another driver is also accessing the pmic bus
+> various
+> bad things happen.
+> 
+> This commit adds a mutex to protect the punit against simultaneous
+> accesses
+> and 2 functions to lock / unlock this mutex.
+> 
+> Note on these systems the i2c-bus driver will request a sempahore from
+> the
+> punit for exclusive access to the pmic bus when i2c drivers are
+> accessing
+> it, but this does not appear to be sufficient, we still need to avoid
+> making certain punit requests during the access window to avoid
+> problems.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: tagorereddy <tagore.chandan@gmail.com>
----
- drivers/gpu/drm/i915/intel_display.c    | 6 ++++++
- drivers/gpu/drm/i915/intel_pm.c         | 9 +++++++++
- drivers/gpu/drm/i915/intel_runtime_pm.c | 9 +++++++++
- 3 files changed, 24 insertions(+)
+I'm fine with the patch, but please spell
+P-Unit
+PMIC
 
-diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-index fec8eb3..b8be6ea 100644
---- a/drivers/gpu/drm/i915/intel_display.c
-+++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -47,6 +47,7 @@
- #include <drm/drm_rect.h>
- #include <linux/dma_remapping.h>
- #include <linux/reservation.h>
-+#include <asm/iosf_mbi.h>
- 
- static bool is_mmio_work(struct intel_flip_work *work)
- {
-@@ -6423,6 +6424,8 @@ static void valleyview_set_cdclk(struct drm_device *dev, int cdclk)
- 		cmd = 0;
- 
- 	mutex_lock(&dev_priv->rps.hw_lock);
-+	iosf_mbi_punit_lock();
-+
- 	val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
- 	val &= ~DSPFREQGUAR_MASK;
- 	val |= (cmd << DSPFREQGUAR_SHIFT);
-@@ -6432,6 +6435,7 @@ static void valleyview_set_cdclk(struct drm_device *dev, int cdclk)
- 		     50)) {
- 		DRM_ERROR("timed out waiting for CDclk change\n");
- 	}
-+	iosf_mbi_punit_unlock();
- 	mutex_unlock(&dev_priv->rps.hw_lock);
- 
- 	mutex_lock(&dev_priv->sb_lock);
-@@ -6499,6 +6503,7 @@ static void cherryview_set_cdclk(struct drm_device *dev, int cdclk)
- 	cmd = DIV_ROUND_CLOSEST(dev_priv->hpll_freq << 1, cdclk) - 1;
- 
- 	mutex_lock(&dev_priv->rps.hw_lock);
-+	iosf_mbi_punit_lock();
- 	val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
- 	val &= ~DSPFREQGUAR_MASK_CHV;
- 	val |= (cmd << DSPFREQGUAR_SHIFT_CHV);
-@@ -6508,6 +6513,7 @@ static void cherryview_set_cdclk(struct drm_device *dev, int cdclk)
- 		     50)) {
- 		DRM_ERROR("timed out waiting for CDclk change\n");
- 	}
-+	iosf_mbi_punit_unlock();
- 	mutex_unlock(&dev_priv->rps.hw_lock);
- 
- 	intel_update_cdclk(dev_priv);
-diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-index 4b12637..0d55b61 100644
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -32,6 +32,7 @@
- #include "../../../platform/x86/intel_ips.h"
- #include <linux/module.h>
- #include <drm/drm_atomic_helper.h>
-+#include <asm/iosf_mbi.h>
- 
- /**
-  * DOC: RC6
-@@ -276,6 +277,7 @@ static void chv_set_memory_dvfs(struct drm_i915_private *dev_priv, bool enable)
- 	u32 val;
- 
- 	mutex_lock(&dev_priv->rps.hw_lock);
-+	iosf_mbi_punit_lock();
- 
- 	val = vlv_punit_read(dev_priv, PUNIT_REG_DDR_SETUP2);
- 	if (enable)
-@@ -290,6 +292,7 @@ static void chv_set_memory_dvfs(struct drm_i915_private *dev_priv, bool enable)
- 		      FORCE_DDR_FREQ_REQ_ACK) == 0, 3))
- 		DRM_ERROR("timed out waiting for Punit DDR DVFS request\n");
- 
-+	iosf_mbi_punit_unlock();
- 	mutex_unlock(&dev_priv->rps.hw_lock);
- }
- 
-@@ -298,6 +301,7 @@ static void chv_set_memory_pm5(struct drm_i915_private *dev_priv, bool enable)
- 	u32 val;
- 
- 	mutex_lock(&dev_priv->rps.hw_lock);
-+	iosf_mbi_punit_lock();
- 
- 	val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
- 	if (enable)
-@@ -306,6 +310,7 @@ static void chv_set_memory_pm5(struct drm_i915_private *dev_priv, bool enable)
- 		val &= ~DSP_MAXFIFO_PM5_ENABLE;
- 	vlv_punit_write(dev_priv, PUNIT_REG_DSPFREQ, val);
- 
-+	iosf_mbi_punit_unlock();
- 	mutex_unlock(&dev_priv->rps.hw_lock);
- }
- 
-@@ -4546,6 +4551,7 @@ void vlv_wm_get_hw_state(struct drm_device *dev)
- 
- 	if (IS_CHERRYVIEW(dev_priv)) {
- 		mutex_lock(&dev_priv->rps.hw_lock);
-+		iosf_mbi_punit_lock();
- 
- 		val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
- 		if (val & DSP_MAXFIFO_PM5_ENABLE)
-@@ -4575,6 +4581,7 @@ void vlv_wm_get_hw_state(struct drm_device *dev)
- 				wm->level = VLV_WM_LEVEL_DDR_DVFS;
- 		}
- 
-+		iosf_mbi_punit_unlock();
- 		mutex_unlock(&dev_priv->rps.hw_lock);
- 	}
- 
-@@ -4981,7 +4988,9 @@ static void valleyview_set_rps(struct drm_i915_private *dev_priv, u8 val)
- 	I915_WRITE(GEN6_PMINTRMSK, gen6_rps_pm_mask(dev_priv, val));
- 
- 	if (val != dev_priv->rps.cur_freq) {
-+		iosf_mbi_punit_lock();
- 		vlv_punit_write(dev_priv, PUNIT_REG_GPU_FREQ_REQ, val);
-+		iosf_mbi_punit_unlock();
- 		if (!IS_CHERRYVIEW(dev_priv))
- 			gen6_set_rps_thresholds(dev_priv, val);
- 	}
-diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.c b/drivers/gpu/drm/i915/intel_runtime_pm.c
-index c0b7e95..17922ae 100644
---- a/drivers/gpu/drm/i915/intel_runtime_pm.c
-+++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
-@@ -28,6 +28,7 @@
- 
- #include <linux/pm_runtime.h>
- #include <linux/vgaarb.h>
-+#include <asm/iosf_mbi.h>
- 
- #include "i915_drv.h"
- #include "intel_drv.h"
-@@ -1027,6 +1028,8 @@ static void vlv_set_power_well(struct drm_i915_private *dev_priv,
- 	if (COND)
- 		goto out;
- 
-+	iosf_mbi_punit_lock();
-+
- 	ctrl = vlv_punit_read(dev_priv, PUNIT_REG_PWRGT_CTRL);
- 	ctrl &= ~mask;
- 	ctrl |= state;
-@@ -1037,6 +1040,8 @@ static void vlv_set_power_well(struct drm_i915_private *dev_priv,
- 			  state,
- 			  vlv_punit_read(dev_priv, PUNIT_REG_PWRGT_CTRL));
- 
-+	iosf_mbi_punit_unlock();
-+
- #undef COND
- 
- out:
-@@ -1643,6 +1648,8 @@ static void chv_set_pipe_power_well(struct drm_i915_private *dev_priv,
- 	if (COND)
- 		goto out;
- 
-+	iosf_mbi_punit_lock();
-+
- 	ctrl = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
- 	ctrl &= ~DP_SSC_MASK(pipe);
- 	ctrl |= enable ? DP_SSC_PWR_ON(pipe) : DP_SSC_PWR_GATE(pipe);
-@@ -1653,6 +1660,8 @@ static void chv_set_pipe_power_well(struct drm_i915_private *dev_priv,
- 			  state,
- 			  vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ));
- 
-+	iosf_mbi_punit_unlock();
-+
- #undef COND
- 
- out:
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> 
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Tested-by: tagorereddy <tagore.chandan@gmail.com>
+> ---
+>  arch/x86/include/asm/iosf_mbi.h    | 31
+> +++++++++++++++++++++++++++++++
+>  arch/x86/platform/intel/iosf_mbi.c | 13 +++++++++++++
+>  2 files changed, 44 insertions(+)
+> 
+> diff --git a/arch/x86/include/asm/iosf_mbi.h
+> b/arch/x86/include/asm/iosf_mbi.h
+> index b41ee16..91f5d16 100644
+> --- a/arch/x86/include/asm/iosf_mbi.h
+> +++ b/arch/x86/include/asm/iosf_mbi.h
+> @@ -88,6 +88,33 @@ int iosf_mbi_write(u8 port, u8 opcode, u32 offset,
+> u32 mdr);
+>   */
+>  int iosf_mbi_modify(u8 port, u8 opcode, u32 offset, u32 mdr, u32
+> mask);
+>  
+> +/**
+> + * iosf_mbi_punit_lock() - Lock the punit mutex
+> + *
+> + * One some systems the punit accesses the pmic to change various
+> voltages
+> + * through the same bus as other kernel drivers use for e.g. battery
+> monitoring.
+> + *
+> + * If a driver sends requests to the punit which require the punit to
+> access the
+> + * pmic bus while another driver is also accessing the pmic bus
+> various bad
+> + * things happen.
+> + *
+> + * To avoid these problems this function must be called before
+> accessing the
+> + * punit or the pmic, be it through iosf_mbi* functions or through
+> other means.
+> + *
+> + * Note on these systems the i2c-bus driver will request a sempahore
+> from the
+> + * punit for exclusive access to the pmic bus when i2c drivers are
+> accessing it,
+> + * but this does not appear to be sufficient, we still need to avoid
+> making
+> + * certain punit requests during the access window to avoid problems.
+> + *
+> + * This function locks a mutex, as such it may sleep.
+> + */
+> +void iosf_mbi_punit_lock(void);
+> +
+> +/**
+> + * iosf_mbi_punit_unlock() - Unlock the punit mutex
+> + */
+> +void iosf_mbi_punit_unlock(void);
+> +
+>  #else /* CONFIG_IOSF_MBI is not enabled */
+>  static inline
+>  bool iosf_mbi_available(void)
+> @@ -115,6 +142,10 @@ int iosf_mbi_modify(u8 port, u8 opcode, u32
+> offset, u32 mdr, u32 mask)
+>  	WARN(1, "IOSF_MBI driver not available");
+>  	return -EPERM;
+>  }
+> +
+> +static inline void iosf_mbi_punit_lock(void) {}
+> +static inline void iosf_mbi_punit_unlock(void) {}
+> +
+>  #endif /* CONFIG_IOSF_MBI */
+>  
+>  #endif /* IOSF_MBI_SYMS_H */
+> diff --git a/arch/x86/platform/intel/iosf_mbi.c
+> b/arch/x86/platform/intel/iosf_mbi.c
+> index edf2c54..75d8135 100644
+> --- a/arch/x86/platform/intel/iosf_mbi.c
+> +++ b/arch/x86/platform/intel/iosf_mbi.c
+> @@ -34,6 +34,7 @@
+>  
+>  static struct pci_dev *mbi_pdev;
+>  static DEFINE_SPINLOCK(iosf_mbi_lock);
+> +static DEFINE_MUTEX(iosf_mbi_punit_mutex);
+>  
+>  static inline u32 iosf_mbi_form_mcr(u8 op, u8 port, u8 offset)
+>  {
+> @@ -190,6 +191,18 @@ bool iosf_mbi_available(void)
+>  }
+>  EXPORT_SYMBOL(iosf_mbi_available);
+>  
+> +void iosf_mbi_punit_lock(void)
+> +{
+> +	mutex_lock(&iosf_mbi_punit_mutex);
+> +}
+> +EXPORT_SYMBOL(iosf_mbi_punit_lock);
+> +
+> +void iosf_mbi_punit_unlock(void)
+> +{
+> +	mutex_unlock(&iosf_mbi_punit_mutex);
+> +}
+> +EXPORT_SYMBOL(iosf_mbi_punit_unlock);
+> +
+>  #ifdef CONFIG_IOSF_MBI_DEBUG
+>  static u32	dbg_mdr;
+>  static u32	dbg_mcr;
+
 -- 
-2.9.3
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
