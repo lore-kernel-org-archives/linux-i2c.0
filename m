@@ -1,110 +1,73 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 5/5] i2c: mux: pca954x: Add irq_mask_en to delay
- enabling irqs
-Date: Mon, 9 Jan 2017 08:54:08 +0100
-Message-ID: <c5b2eeef-4501-e866-4bb3-f02ada7d4604@axentia.se>
+Subject: Re: [PATCH v2 1/5] i2c: mux: pca954x: Add missing pca9542 definition
+ to chip_desc
+Date: Mon, 9 Jan 2017 08:55:13 +0100
+Message-ID: <f59d78b8-1d05-8751-2714-1bc90e8ad43f@axentia.se>
 References: <1483589463-35380-1-git-send-email-preid@electromag.com.au>
- <1483589463-35380-6-git-send-email-preid@electromag.com.au>
+ <1483589463-35380-2-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0107.outbound.protection.outlook.com ([104.47.1.107]:45549
+Received: from mail-ve1eur01on0134.outbound.protection.outlook.com ([104.47.1.134]:46144
         "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750868AbdAIHyS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 9 Jan 2017 02:54:18 -0500
-In-Reply-To: <1483589463-35380-6-git-send-email-preid@electromag.com.au>
+        id S1752942AbdAIHzU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 9 Jan 2017 02:55:20 -0500
+In-Reply-To: <1483589463-35380-2-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Phil Reid <preid@electromag.com.au>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-On 2017-01-05 05:11, Phil Reid wrote:
-> Unfortunately some hardware device will assert their irq line immediately
-> on power on and provide no mechanism to mask the irq. As the i2c muxes
-> provide no method to mask irq line this provides a work around by keeping
-> the parent irq masked until enough device drivers have loaded to service
-> all pending interrupts.
+On 2017-01-05 05:10, Phil Reid wrote:
+> The spec for the pca954x was missing. This chip is the same as the pca9540
+> except that it has interrupt lines. While the i2c_device_id table mapped
+> the pca9542 to the pca9540 definition the compatible table did not. In
+> preparation for irq support add the pca9542 definition.
 > 
-> For example the the ltc1760 assert its SMBALERT irq immediately on power
-> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
-> device is registered irq are enabled and fire continuously as the second
-> device driver has not yet loaded. Setting this parameter to 0x3 while
-> delay the irq being enabled until both devices are ready.
-> 
-> Acked-by: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
 
-Ooops, too soon apparently, but the below nitpicks are not that important.
-Maybe Wolfram can fix it up instead of you sending a new version?
+Acked-by: Peter Rosin <peda@axentia.se>
 
 Cheers,
 peda
 
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
 > ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 22 +++++++++++++++++++++-
->  1 file changed, 21 insertions(+), 1 deletion(-)
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 84fc767..581a75d 100644
+> index dd18b9c..bbf088e 100644
 > --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 > +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -75,6 +75,19 @@ struct chip_desc {
->  	} muxtype;
->  };
+> @@ -84,6 +84,11 @@ struct pca954x {
+>  		.enable = 0x4,
+>  		.muxtype = pca954x_ismux,
+>  	},
+> +	[pca_9542] = {
+> +		.nchans = 2,
+> +		.enable = 0x4,
+> +		.muxtype = pca954x_ismux,
+> +	},
+>  	[pca_9543] = {
+>  		.nchans = 2,
+>  		.muxtype = pca954x_isswi,
+> @@ -110,7 +115,7 @@ struct pca954x {
 >  
-> +/*
-> + * irq_mask_enable: Provides a mechanism to work around hardware that asserts
-> + * their irq immediately on power on. It allows the enabling of the  irq to be
-
-double space: "the  irq"
-
-> + * delayed until the corresponding bits in the the irq_mask are set thru
-> + * irq_unmask.
-> + * For example the the ltc1760 assert its SMBALERT irq immediately on power
-
-"the the"
-
-> + * on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
-> + * device is registered irq are enabled and fire continuously as the second
-> + * device driver has not yet loaded. Setting this parameter to 0x3 while
-> + * delay the irq being enabled until both devices are ready.
-> + * This workaround will not work if two devices share an interrupt on the
-> + * same bus segment.
-> + */
->  struct pca954x {
->  	const struct chip_desc *chip;
->  
-> @@ -84,6 +97,7 @@ struct pca954x {
->  
->  	struct irq_domain *irq;
->  	unsigned int irq_mask;
-> +	unsigned int irq_mask_enable;
->  };
->  
->  /* Provide specs for the PCA954x types we know about */
-> @@ -270,9 +284,12 @@ static void pca954x_irq_unmask(struct irq_data *idata)
->  	struct pca954x *data = irq_data_get_irq_chip_data(idata);
->  	unsigned int pos = idata->hwirq;
->  
-> -	if (!data->irq_mask)
-> +	if (!data->irq_mask_enable && !data->irq_mask)
->  		enable_irq(data->client->irq);
->  	data->irq_mask |= BIT(pos);
-> +	if (data->irq_mask_enable &&
-> +		(data->irq_mask & data->irq_mask) == data->irq_mask_enable)
-> +		enable_irq(data->client->irq);
->  }
->  
->  static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
-> @@ -395,6 +412,9 @@ static int pca954x_probe(struct i2c_client *client,
->  	idle_disconnect_dt = of_node &&
->  		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
->  
-> +	of_property_read_u32(of_node, "nxp,irq-mask-enable",
-> +			     &data->irq_mask_enable);
-> +
->  	ret = pca954x_irq_setup(muxc);
->  	if (ret)
->  		goto fail_del_adapters;
+>  static const struct i2c_device_id pca954x_id[] = {
+>  	{ "pca9540", pca_9540 },
+> -	{ "pca9542", pca_9540 },
+> +	{ "pca9542", pca_9542 },
+>  	{ "pca9543", pca_9543 },
+>  	{ "pca9544", pca_9544 },
+>  	{ "pca9545", pca_9545 },
+> @@ -124,7 +129,7 @@ struct pca954x {
+>  #ifdef CONFIG_ACPI
+>  static const struct acpi_device_id pca954x_acpi_ids[] = {
+>  	{ .id = "PCA9540", .driver_data = pca_9540 },
+> -	{ .id = "PCA9542", .driver_data = pca_9540 },
+> +	{ .id = "PCA9542", .driver_data = pca_9542 },
+>  	{ .id = "PCA9543", .driver_data = pca_9543 },
+>  	{ .id = "PCA9544", .driver_data = pca_9544 },
+>  	{ .id = "PCA9545", .driver_data = pca_9545 },
 > 
