@@ -1,40 +1,42 @@
-From: Vlad Tsyrklevich <vlad@tsyrklevich.net>
-Subject: [PATCH] drivers/i2c/i2c-dev: Fix kernel memory disclosure
-Date: Mon,  9 Jan 2017 22:53:36 +0700
-Message-ID: <1483977216-7623-1-git-send-email-vlad@tsyrklevich.net>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:36843 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1760669AbdAIPyB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Jan 2017 10:54:01 -0500
-Received: by mail-pg0-f66.google.com with SMTP id 75so13799082pgf.3
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Jan 2017 07:54:01 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] i2c: do not enable fall back to Host Notify by default
+Date: Mon, 9 Jan 2017 11:56:17 -0600
+Message-ID: <20170109175617.ovwrfmkyafvc7uiy@rob-hp-laptop>
+References: <20170105045722.GA17958@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170105045722.GA17958@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, Vlad Tsyrklevich <vlad@tsyrklevich.net>
 
-i2c_smbus_xfer() does not always fill an entire block, allowing
-kernel stack memory disclosure through the temp variable. Clear
-it before it's read to.
+On Wed, Jan 04, 2017 at 08:57:22PM -0800, Dmitry Torokhov wrote:
+> Falling back unconditionally to HostNotify as primary client's interrupt
+> breaks some drivers which alter their functionality depending on whether
+> interrupt is present or not, so let's introduce a board flag telling I2C
+> core explicitly if we want wired interrupt or HostNotify-based one:
+> I2C_CLIENT_HOST_NOTIFY.
+> 
+> For DT-based systems we introduce "host-notify" property that we convert
+> to I2C_CLIENT_HOST_NOTIFY board flag.
+> 
+> Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+> 
+> v1->v2:
+> 
+> - of_read_property_bool -> of_property_read_bool
+> - did not change binding wording to avoit mentioning I2C core because we
+>   use the same wording (mentioning I2C core) for wired interrupts
+> 
+>  Documentation/devicetree/bindings/i2c/i2c.txt |  8 ++++++++
 
-Signed-off-by: Vlad Tsyrklevich <vlad@tsyrklevich.net>
----
- drivers/i2c/i2c-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Acked-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 66f323f..6f638bb 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -331,7 +331,7 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_client *client,
- 		unsigned long arg)
- {
- 	struct i2c_smbus_ioctl_data data_arg;
--	union i2c_smbus_data temp;
-+	union i2c_smbus_data temp = {};
- 	int datasize, res;
- 
- 	if (copy_from_user(&data_arg,
--- 
-2.7.0
+>  drivers/i2c/i2c-core.c                        | 17 ++++++++---------
+>  include/linux/i2c.h                           |  1 +
+>  3 files changed, 17 insertions(+), 9 deletions(-)
