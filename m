@@ -1,42 +1,41 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2] i2c: do not enable fall back to Host Notify by default
-Date: Mon, 9 Jan 2017 11:56:17 -0600
-Message-ID: <20170109175617.ovwrfmkyafvc7uiy@rob-hp-laptop>
-References: <20170105045722.GA17958@dtor-ws>
+Subject: Re: [PATCH v3 4/5] dt: bindings: i2c-mux-pca954x: Add documentation
+ for i2c-mux-irq-mask-en
+Date: Mon, 9 Jan 2017 23:36:08 -0600
+Message-ID: <20170110053608.xhoe4xmtmcycaayn@rob-hp-laptop>
+References: <1483952576-5308-1-git-send-email-preid@electromag.com.au>
+ <1483952576-5308-5-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34321 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1033249AbdAJFgM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Jan 2017 00:36:12 -0500
 Content-Disposition: inline
-In-Reply-To: <20170105045722.GA17958@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Jean Delvare <jdelvare@suse.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1483952576-5308-5-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: peda@axentia.se, wsa@the-dreams.de, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Jan 04, 2017 at 08:57:22PM -0800, Dmitry Torokhov wrote:
-> Falling back unconditionally to HostNotify as primary client's interrupt
-> breaks some drivers which alter their functionality depending on whether
-> interrupt is present or not, so let's introduce a board flag telling I2C
-> core explicitly if we want wired interrupt or HostNotify-based one:
-> I2C_CLIENT_HOST_NOTIFY.
+On Mon, Jan 09, 2017 at 05:02:55PM +0800, Phil Reid wrote:
+> Unfortunately some hardware device will assert their irq line immediately
+> on power on and provide no mechanism to mask the irq. As the i2c muxes
+> provide no method to mask irq line this provides a work around by keeping
+> the parent irq masked until enough device drivers have loaded to service
+> all pending interrupts.
 > 
-> For DT-based systems we introduce "host-notify" property that we convert
-> to I2C_CLIENT_HOST_NOTIFY board flag.
+> For example the the ltc1760 assert its SMBALERT irq immediately on power
+> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+> device is registered irq are enabled and fire continuously as the second
+> device driver has not yet loaded. Setting this parameter to 0x3 while
+> delay the irq being enabled until both devices are ready.
 > 
-> Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Acked-by: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
 > ---
-> 
-> v1->v2:
-> 
-> - of_read_property_bool -> of_property_read_bool
-> - did not change binding wording to avoit mentioning I2C core because we
->   use the same wording (mentioning I2C core) for wired interrupts
-> 
->  Documentation/devicetree/bindings/i2c/i2c.txt |  8 ++++++++
+>  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 3 +++
+>  1 file changed, 3 insertions(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
-
->  drivers/i2c/i2c-core.c                        | 17 ++++++++---------
->  include/linux/i2c.h                           |  1 +
->  3 files changed, 17 insertions(+), 9 deletions(-)
