@@ -1,75 +1,51 @@
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCH] i2c: piix4: Avoid race conditions with IMC
-Date: Tue, 10 Jan 2017 13:16:00 +0100
-Message-ID: <20170110121600.30649-1-ricardo.ribalda@gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v5 5/6] i2c: designware-baytrail: Fix race when resetting
+ the semaphore
+Date: Tue, 10 Jan 2017 15:16:22 +0200
+Message-ID: <d07aa4d4-77b5-89c8-948c-046d5d9763f2@linux.intel.com>
+References: <20170101201521.12364-1-hdegoede@redhat.com>
+ <20170101201521.12364-5-hdegoede@redhat.com>
+ <1483349801.9552.187.camel@linux.intel.com>
+ <d8525a7d-2363-3065-bc3d-22c7a0553d75@redhat.com>
+ <1483351617.9552.192.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:33789 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761015AbdAJMQG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 10 Jan 2017 07:16:06 -0500
+Received: from mga11.intel.com ([192.55.52.93]:25520 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1161115AbdAJNQ0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 10 Jan 2017 08:16:26 -0500
+In-Reply-To: <1483351617.9552.192.camel@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org, intel-gfx <intel-gfx@lists.freedesktop.org>
 
-On AMD's SB800 and upwards, the SMBus is shared with the Integrated
-Micro Controller (IMC).
-
-The platform provides a hardware semaphore to avoid race conditions
-among them. (Check page 288 of the SB800-Series Southbridges Register
-Reference Guide http://support.amd.com/TechDocs/45482.pdf)
-
-Without this patch, many access to the SMBus end with an invalid
-transaction or even with the bus stalled.
-
-Credit-to: Alexandre Desnoyers <alex@qtec.com>
-Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
----
- drivers/i2c/busses/i2c-piix4.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index f0563f7ce01b..0286cfee6d36 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -585,9 +585,28 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 		 u8 command, int size, union i2c_smbus_data *data)
- {
- 	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
-+	unsigned short piix4_smba = adapdata->smba;
- 	u8 smba_en_lo;
- 	u8 port;
- 	int retval;
-+	int timeout = 0;
-+	int smbslvcnt;
-+
-+	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
-+	smbslvcnt  = inb_p(SMBSLVCNT);
-+	while (++timeout < MAX_TIMEOUT) {
-+		outb_p(smbslvcnt | 0x10, SMBSLVCNT);
-+
-+		/* Check the semaphore status */
-+		smbslvcnt  = inb_p(SMBSLVCNT);
-+		if (smbslvcnt & 0x10)
-+			break;
-+
-+		usleep_range(1000, 2000);
-+	}
-+	/* SMBus is still owned by the IMC, we give up */
-+	if (timeout == MAX_TIMEOUT)
-+		return -EBUSY;
- 
- 	mutex_lock(&piix4_mutex_sb800);
- 
-@@ -606,6 +625,9 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 
- 	mutex_unlock(&piix4_mutex_sb800);
- 
-+	/* Release the semaphore */
-+	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
-+
- 	return retval;
- }
- 
--- 
-2.11.0
+On 01/02/2017 12:06 PM, Andy Shevchenko wrote:
+> On Mon, 2017-01-02 at 10:55 +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 02-01-17 10:36, Andy Shevchenko wrote:
+>>> On Sun, 2017-01-01 at 21:15 +0100, Hans de Goede wrote:
+>>>> Use iosf_mbi_modify instead of iosf_mbi_read + iosf_mbi_write so
+>>>> that
+>>>> we keep the iosf_mbi_lock locked during the read-modify-write done
+>>>> to
+>>>> reset the semaphore.
+>>>>
+>>>
+>>> While patch itself looks good to me, I think it reduces a
+>>> probability to
+>>>  race and doesn't eliminate an issue completely.
+>>
+>> All accesses through this register are done through the
+>> iosf_mbi_ helpers, and the modify helper holds the
+>> iosf_mbi_lock during the entire read-modify-wrtie cycle,
+>> so I don't see how there can still be any issue left.
+>
+> Ah, seems you are right.
+>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
