@@ -1,104 +1,74 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2] i2c: piix4: Avoid race conditions with IMC
-Date: Wed, 11 Jan 2017 18:39:43 +0200
-Message-ID: <CAHp75VeV2TfgfaYni7oS4ax4H87euJa9ReWX+vYjZ4b5nYRsMg@mail.gmail.com>
-References: <20170111091144.6881-1-ricardo.ribalda@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: eajames.ibm@gmail.com
+Subject: [PATCH linux v2 0/6] drivers: hwmon: Add On-Chip Controller driver
+Date: Wed, 11 Jan 2017 12:10:31 -0600
+Message-ID: <1484158237-10014-1-git-send-email-eajames.ibm@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:33589 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757569AbdAKQjo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Jan 2017 11:39:44 -0500
-In-Reply-To: <20170111091144.6881-1-ricardo.ribalda@gmail.com>
+Received: from mail-it0-f66.google.com ([209.85.214.66]:36750 "EHLO
+        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936916AbdAKSKq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Jan 2017 13:10:46 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux@roeck-us.net
+Cc: devicetree@vger.kernel.org, jdelvare@suse.com, corbet@lwn.net, linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, andrew@aj.id.au, joel@jms.id.au, benh@kernel.crashing.org, "Edward A. James" <eajames@us.ibm.com>
 
-On Wed, Jan 11, 2017 at 11:11 AM, Ricardo Ribalda Delgado
-<ricardo.ribalda@gmail.com> wrote:
-> On AMD's SB800 and upwards, the SMBus is shared with the Integrated
-> Micro Controller (IMC).
->
-> The platform provides a hardware semaphore to avoid race conditions
-> among them. (Check page 288 of the SB800-Series Southbridges Register
-> Reference Guide http://support.amd.com/TechDocs/45482.pdf)
->
-> Without this patch, many access to the SMBus end with an invalid
-> transaction or even with the bus stalled.
->
+From: "Edward A. James" <eajames@us.ibm.com>
 
-After addressing below comment
-FWIW: Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>:
+This patchset adds a hwmon driver to support the OCC (On-Chip Controller)
+on the IBM POWER8 and POWER9 processors, from a BMC (Baseboard Management
+Controller). The OCC is an embedded processor that provides real time
+power and thermal monitoring.
 
-> Credit-to: Alexandre Desnoyers <alex@qtec.com>
+The driver provides an interface on a BMC to poll OCC sensor data, set
+user power caps, and perform some basic OCC error handling. It interfaces
+with userspace through hwmon.
 
-It would be nice to put in plain test what you tell in the discussion
-here instead of non-standard (see submitting-patches.rst) tag.
+The driver is currently functional only for the OCC on POWER8 chips.
+Communicating with the POWER9 OCC requries FSI support.
 
-> Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-> ---
->
-> v2: Suggestions by Andy Shevchenko <andy.shevchenko@gmail.com>:
->  -Rename timeout to retries
->  -Use do {} while(--retries) pattern
->  -Group new variables
->
->
->  drivers/i2c/busses/i2c-piix4.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index f0563f7ce01b..81d06be0a72d 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -585,10 +585,29 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->                  u8 command, int size, union i2c_smbus_data *data)
->  {
->         struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
-> +       unsigned short piix4_smba = adapdata->smba;
-> +       int retries = MAX_TIMEOUT;
-> +       int smbslvcnt;
->         u8 smba_en_lo;
->         u8 port;
->         int retval;
->
-> +       /* Request the SMBUS semaphore, avoid conflicts with the IMC */
-> +       smbslvcnt  = inb_p(SMBSLVCNT);
-> +       do {
-> +               outb_p(smbslvcnt | 0x10, SMBSLVCNT);
-> +
-> +               /* Check the semaphore status */
-> +               smbslvcnt  = inb_p(SMBSLVCNT);
-> +               if (smbslvcnt & 0x10)
-> +                       break;
-> +
-> +               usleep_range(1000, 2000);
-> +       } while (--retries);
-> +       /* SMBus is still owned by the IMC, we give up */
-> +       if (!retries)
-> +               return -EBUSY;
-> +
->         mutex_lock(&piix4_mutex_sb800);
->
->         outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
-> @@ -606,6 +625,9 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->
->         mutex_unlock(&piix4_mutex_sb800);
->
-> +       /* Release the semaphore */
-> +       outb_p(smbslvcnt | 0x20, SMBSLVCNT);
-> +
->         return retval;
->  }
->
-> --
-> 2.11.0
->
+Edward A. James (6):
+  hwmon: Add core On-Chip Controller support for POWER CPUs
+  hwmon: occ: Add sysfs interface
+  hwmon: occ: Add I2C transport implementation for SCOM operations
+  hwmon: occ: Add callbacks for parsing P8 OCC datastructures
+  hwmon: occ: Add hwmon implementation for the P8 OCC
+  hwmon: occ: Add callbacks for parsing P9 OCC datastructures
 
-
+ Documentation/devicetree/bindings/hwmon/occ.txt |  13 +
+ Documentation/hwmon/occ                         | 114 +++++
+ drivers/hwmon/Kconfig                           |   2 +
+ drivers/hwmon/Makefile                          |   1 +
+ drivers/hwmon/occ/Kconfig                       |  29 ++
+ drivers/hwmon/occ/Makefile                      |   2 +
+ drivers/hwmon/occ/occ.c                         | 533 ++++++++++++++++++++++++
+ drivers/hwmon/occ/occ.h                         |  83 ++++
+ drivers/hwmon/occ/occ_p8.c                      | 254 +++++++++++
+ drivers/hwmon/occ/occ_p8.h                      |  31 ++
+ drivers/hwmon/occ/occ_p9.c                      | 314 ++++++++++++++
+ drivers/hwmon/occ/occ_p9.h                      |  31 ++
+ drivers/hwmon/occ/occ_scom_i2c.c                |  73 ++++
+ drivers/hwmon/occ/occ_scom_i2c.h                |  26 ++
+ drivers/hwmon/occ/occ_sysfs.c                   | 274 ++++++++++++
+ drivers/hwmon/occ/occ_sysfs.h                   |  44 ++
+ drivers/hwmon/occ/p8_occ_i2c.c                  | 123 ++++++
+ drivers/hwmon/occ/scom.h                        |  47 +++
+ 18 files changed, 1994 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/hwmon/occ.txt
+ create mode 100644 Documentation/hwmon/occ
+ create mode 100644 drivers/hwmon/occ/Kconfig
+ create mode 100644 drivers/hwmon/occ/Makefile
+ create mode 100644 drivers/hwmon/occ/occ.c
+ create mode 100644 drivers/hwmon/occ/occ.h
+ create mode 100644 drivers/hwmon/occ/occ_p8.c
+ create mode 100644 drivers/hwmon/occ/occ_p8.h
+ create mode 100644 drivers/hwmon/occ/occ_p9.c
+ create mode 100644 drivers/hwmon/occ/occ_p9.h
+ create mode 100644 drivers/hwmon/occ/occ_scom_i2c.c
+ create mode 100644 drivers/hwmon/occ/occ_scom_i2c.h
+ create mode 100644 drivers/hwmon/occ/occ_sysfs.c
+ create mode 100644 drivers/hwmon/occ/occ_sysfs.h
+ create mode 100644 drivers/hwmon/occ/p8_occ_i2c.c
+ create mode 100644 drivers/hwmon/occ/scom.h
 
 -- 
-With Best Regards,
-Andy Shevchenko
+1.9.1
