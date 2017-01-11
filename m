@@ -1,7 +1,7 @@
 From: eajames.ibm@gmail.com
-Subject: [PATCH linux v2 6/6] hwmon: occ: Add callbacks for parsing P9 OCC datastructures
-Date: Wed, 11 Jan 2017 12:10:37 -0600
-Message-ID: <1484158237-10014-7-git-send-email-eajames.ibm@gmail.com>
+Subject: [PATCH linux v2 2/6] hwmon: occ: Add sysfs interface
+Date: Wed, 11 Jan 2017 12:10:33 -0600
+Message-ID: <1484158237-10014-3-git-send-email-eajames.ibm@gmail.com>
 References: <1484158237-10014-1-git-send-email-eajames.ibm@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484158237-10014-1-git-send-email-eajames.ibm@gmail.com>
@@ -12,45 +12,111 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "Edward A. James" <eajames@us.ibm.com>
 
-Add functions to parse the data structures that are specific to the OCC on
-the POWER9 processor. These are the sensor data structures, including
-temperature, frequency, power, and "caps."
+Add a generic mechanism to expose the sensors provided by the OCC in
+sysfs.
 
 Signed-off-by: Edward A. James <eajames@us.ibm.com>
 Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
 ---
- Documentation/hwmon/occ    |   3 +
- drivers/hwmon/occ/occ_p9.c | 314 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/hwmon/occ/occ_p9.h |  31 +++++
- 3 files changed, 348 insertions(+)
- create mode 100644 drivers/hwmon/occ/occ_p9.c
- create mode 100644 drivers/hwmon/occ/occ_p9.h
+ Documentation/hwmon/occ       |  62 ++++++++++
+ drivers/hwmon/occ/Makefile    |   2 +-
+ drivers/hwmon/occ/occ_sysfs.c | 274 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/hwmon/occ/occ_sysfs.h |  44 +++++++
+ 4 files changed, 381 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/hwmon/occ/occ_sysfs.c
+ create mode 100644 drivers/hwmon/occ/occ_sysfs.h
 
 diff --git a/Documentation/hwmon/occ b/Documentation/hwmon/occ
-index 143951e..6cea853 100644
+index 79d1642..d0bdf06 100644
 --- a/Documentation/hwmon/occ
 +++ b/Documentation/hwmon/occ
-@@ -34,6 +34,9 @@ number of data structures, such as command format, response headers, and the
- like, are also defined in this specification, and are common to both POWER8 and
- POWER9 OCCs.
+@@ -25,6 +25,68 @@ Currently, all versions of the OCC support four types of sensor data: power,
+ temperature, frequency, and "caps," which indicate limits and thresholds used
+ internally on the OCC.
  
-+There is currently no public P9 OCC specification, and the data structures
-+defined in the POWER9 OCC driver are subject to change.
++sysfs Entries
++-------------
 +
- sysfs Entries
- -------------
++The OCC driver uses the hwmon sysfs framework to provide data to userspace.
++
++The driver exports a number of sysfs files for each type of sensor. The
++sensor-specific files vary depending on the processor type, though many of the
++attributes are common for both the POWER8 and POWER9.
++
++The hwmon interface cannot define every type of sensor that may be used.
++Therefore, the frequency sensor on the OCC uses the "input" type sensor defined
++by the hwmon interface, rather than defining a new type of custom sensor.
++
++Below are detailed the names and meaning of each sensor file for both types of
++processors. All sensors are read-only unless otherwise specified. <x> indicates
++the hwmon index. sensor id indicates the unique internal OCC identifer. Please
++see the POWER OCC specification for details on all these sensor values.
++
++frequency:
++	all processors:
++		in<x>_input - frequency value
++		in<x>_label - sensor id
++temperature:
++	POWER8:
++		temp<x>_input - temperature value
++		temp<x>_label - sensor id
++	POWER9 (in addition to above):
++		temp<x>_type - FRU type
++
++power:
++	POWER8:
++		power<x>_input - power value
++		power<x>_label - sensor id
++		power<x>_average - accumulator
++		power<x>_average_interval - update tag (number of samples in
++			accumulator)
++	POWER9:
++		power<x>_input - power value
++		power<x>_label - sensor id
++		power<x>_average_min - accumulator[0]
++		power<x>_average_max - accumulator[1] (64 bits total)
++		power<x>_average_interval - update tag
++		power<x>_reset_history - (function_id | (apss_channel << 8)
++
++caps:
++	POWER8:
++		power<x>_cap - current powercap
++		power<x>_cap_max - max powercap
++		power<x>_cap_min - min powercap
++		power<x>_max - normal powercap
++		power<x>_alarm - user powercap, r/w
++	POWER9:
++		power<x>_cap_alarm - user powercap source
++
++The driver also provides two sysfs entries through hwmon to better
++control the driver and monitor the master OCC. Though there may be multiple
++OCCs present on the system, these two files are only present for the "master"
++OCC.
++	name - read the name of the driver
++	update_interval - read or write the minimum interval for polling the
++		OCC.
++
+ BMC - Host Communications
+ -------------------------
  
-diff --git a/drivers/hwmon/occ/occ_p9.c b/drivers/hwmon/occ/occ_p9.c
+diff --git a/drivers/hwmon/occ/Makefile b/drivers/hwmon/occ/Makefile
+index 93cb52f..a6881f9 100644
+--- a/drivers/hwmon/occ/Makefile
++++ b/drivers/hwmon/occ/Makefile
+@@ -1 +1 @@
+-obj-$(CONFIG_SENSORS_PPC_OCC) += occ.o
++obj-$(CONFIG_SENSORS_PPC_OCC) += occ.o occ_sysfs.o
+diff --git a/drivers/hwmon/occ/occ_sysfs.c b/drivers/hwmon/occ/occ_sysfs.c
 new file mode 100644
-index 0000000..8b351a0
+index 0000000..e846b0c
 --- /dev/null
-+++ b/drivers/hwmon/occ/occ_p9.c
-@@ -0,0 +1,314 @@
++++ b/drivers/hwmon/occ/occ_sysfs.c
+@@ -0,0 +1,274 @@
 +/*
-+ * occ_p9.c - OCC hwmon driver
++ * occ_sysfs.c - OCC sysfs interface
 + *
-+ * This file contains the Power9-specific methods and data structures for
-+ * the OCC hwmon driver.
++ * This file contains the methods and data structures for implementing the OCC
++ * hwmon sysfs entries.
 + *
 + * Copyright 2016 IBM Corp.
 + *
@@ -61,315 +127,276 @@ index 0000000..8b351a0
 + *
 + * This program is distributed in the hope that it will be useful,
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 + * GNU General Public License for more details.
 + */
 +
 +#include <linux/module.h>
 +#include <linux/init.h>
 +#include <linux/slab.h>
-+#include <linux/i2c.h>
++#include <linux/jiffies.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
 +#include <linux/err.h>
-+#include <linux/of.h>
++#include <linux/mutex.h>
++#include <linux/delay.h>
 +#include <linux/kernel.h>
 +#include <linux/device.h>
-+#include <asm/unaligned.h>
 +
 +#include "occ.h"
-+#include "occ_p9.h"
++#include "occ_sysfs.h"
 +
-+/* P9 OCC sensor data format */
-+struct p9_temp_sensor {
-+	u32 sensor_id;
-+	u8 fru_type;
-+	u8 value;
-+};
++#define RESP_RETURN_CMD_INVAL	0x13
 +
-+struct p9_freq_sensor {
-+	u32 sensor_id;
-+	u16 value;
-+};
-+
-+struct p9_power_sensor {
-+	u32 sensor_id;
-+	u8 function_id;
-+	u8 apss_channel;
-+	u16 reserved;
-+	u32 update_tag;
-+	u64 accumulator;
-+	u16 value;
-+};
-+
-+struct p9_caps_sensor {
-+	u16 curr_powercap;
-+	u16 curr_powerreading;
-+	u16 norm_powercap;
-+	u16 max_powercap;
-+	u16 min_powercap;
-+	u16 user_powerlimit;
-+	u8 user_powerlimit_source;
-+};
-+
-+static const u32 p9_sensor_hwmon_configs[MAX_OCC_SENSOR_TYPE] = {
-+	HWMON_I_INPUT | HWMON_I_LABEL,	/* freq: value | label */
-+	/* temp: value | label | fru_type */
-+	HWMON_T_INPUT | HWMON_T_LABEL | HWMON_T_TYPE,
-+	/* power: value | label | accum[0] | accum[1] | update_tag |
-+	 *	 (function_id | (apss_channel << 8))
-+	 */
-+	HWMON_P_INPUT | HWMON_P_LABEL | HWMON_P_AVERAGE_MIN |
-+		HWMON_P_AVERAGE_MAX | HWMON_P_AVERAGE_INTERVAL |
-+		HWMON_P_RESET_HISTORY,
-+	/* caps: curr | max | min | norm | user | source */
-+	HWMON_P_CAP | HWMON_P_CAP_MAX | HWMON_P_CAP_MIN | HWMON_P_MAX |
-+		HWMON_P_ALARM | HWMON_P_CAP_ALARM,
-+};
-+
-+void p9_parse_sensor(u8 *data, void *sensor, int sensor_type, int off,
-+		     int snum)
-+{
-+	switch (sensor_type) {
-+	case FREQ:
-+	{
-+		struct p9_freq_sensor *fs =
-+			&(((struct p9_freq_sensor *)sensor)[snum]);
-+
-+		fs->sensor_id = be32_to_cpu(get_unaligned((u32 *)&data[off]));
-+		fs->value = be16_to_cpu(get_unaligned((u16 *)&data[off + 4]));
-+	}
-+		break;
-+	case TEMP:
-+	{
-+		struct p9_temp_sensor *ts =
-+			&(((struct p9_temp_sensor *)sensor)[snum]);
-+
-+		ts->sensor_id = be32_to_cpu(get_unaligned((u32 *)&data[off]));
-+		fs->fru_type = data[off + 4];
-+		fs->value = data[off + 5];
-+	}
-+		break;
-+	case POWER:
-+	{
-+		struct p9_power_sensor *ps =
-+			&(((struct p9_power_sensor *)sensor)[snum]);
-+
-+		ps->sensor_id = be32_to_cpu(get_unaligned((u32 *)&data[off]));
-+		ps->function_id = data[off + 4];
-+		ps->apss_channel = data[off + 5];
-+		ps->update_tag =
-+			be32_to_cpu(get_unaligned((u32 *)&data[off + 8]));
-+		ps->accumulator =
-+			be64_to_cpu(get_unaligned((u64 *)&data[off + 12]));
-+		ps->value = be16_to_cpu(get_unaligned((u16 *)&data[off + 20]));
-+	}
-+		break;
-+	case CAPS:
-+	{
-+		struct p9_caps_sensor *cs =
-+			&(((struct p9_caps_sensor *)sensor)[snum]);
-+
-+		cs->curr_powercap =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off]));
-+		cs->curr_powerreading =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off + 2]));
-+		cs->norm_powercap =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off + 4]));
-+		cs->max_powercap =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off + 6]));
-+		cs->min_powercap =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off + 8]));
-+		cs->user_powerlimit =
-+			be16_to_cpu(get_unaligned((u16 *)&data[off + 10]));
-+		cs->user_powerlimit_source = data[off + 12];
-+	}
-+		break;
-+	};
-+}
-+
-+void *p9_alloc_sensor(int sensor_type, int num_sensors)
-+{
-+	switch (sensor_type) {
-+	case FREQ:
-+		return kcalloc(num_sensors, sizeof(struct p9_freq_sensor),
-+			       GFP_KERNEL);
-+	case TEMP:
-+		return kcalloc(num_sensors, sizeof(struct p9_temp_sensor),
-+			       GFP_KERNEL);
-+	case POWER:
-+		return kcalloc(num_sensors, sizeof(struct p9_power_sensor),
-+			       GFP_KERNEL);
-+	case CAPS:
-+		return kcalloc(num_sensors, sizeof(struct p9_caps_sensor),
-+			       GFP_KERNEL);
-+	default:
-+		return NULL;
-+	}
-+}
-+
-+int p9_get_sensor(struct occ *driver, int sensor_type, int sensor_num,
-+		  u32 hwmon, long *val)
++static int occ_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
++			  u32 attr, int channel, long *val)
 +{
 +	int rc = 0;
-+	void *sensor;
++	struct occ_sysfs *driver = dev_get_drvdata(dev);
++	struct occ *occ = driver->occ;
 +
-+	if (sensor_type == POWER) {
-+		if (hwmon == hwmon_power_cap || hwmon == hwmon_power_cap_max ||
-+		    hwmon == hwmon_power_cap_min || hwmon == hwmon_power_max ||
-+		    hwmon == hwmon_power_alarm ||
-+		    hwmon == hwmon_power_cap_alarm)
-+			sensor_type = CAPS;
-+	}
-+
-+	sensor = occ_get_sensor(driver, sensor_type);
-+	if (!sensor)
-+		return -ENODEV;
-+
-+	switch (sensor_type) {
-+	case FREQ:
-+	{
-+		struct p9_freq_sensor *fs =
-+			&(((struct p9_freq_sensor *)sensor)[snum]);
-+
-+		switch (hwmon) {
-+		case hwmon_in_input:
-+			*val = fs->value;
-+			break;
-+		case hwmon_in_label:
-+			*val = fs->sensor_id;
-+			break;
-+		default:
-+			rc = -EOPNOTSUPP;
-+		}
-+	}
++	switch (type) {
++	case hwmon_in:
++		rc = occ_get_sensor_value(occ, FREQ, channel, attr, val);
 +		break;
-+	case TEMP:
-+	{
-+		struct p9_temp_sensor *ts =
-+			&(((struct p9_temp_sensor *)sensor)[snum]);
-+
-+		switch (hwmon) {
-+		case hwmon_temp_input:
-+			*val = ts->value;
-+			break;
-+		case hwmon_temp_type:
-+			*val = ts->fru_type;
-+			break;
-+		case hwmon_temp_label:
-+			*val = ts->sensor_id;
-+			break;
-+		default:
-+			rc = -EOPNOTSUPP;
-+		}
-+	}
++	case hwmon_temp:
++		rc = occ_get_sensor_value(occ, TEMP, channel, attr, val);
 +		break;
-+	case POWER:
-+	{
-+		struct p9_power_sensor *ps =
-+			&(((struct p9_power_sensor *)sensor)[snum]);
-+
-+		switch (hwmon) {
-+		case hwmon_power_input:
-+			*val = ps->value;
-+			break;
-+		case hwmon_power_label:
-+			*val = ps->sensor_id;
-+			break;
-+		case hwmon_power_average_min:
-+			*val = ((u32 *)(&ps->accumulator))[0];
-+			break;
-+		case hwmon_power_average_max:
-+			*val = ((u32 *)(&ps->accumulator))[1];
-+			break;
-+		case hwmon_power_average_interval:
-+			*val = ps->update_tag;
-+			break;
-+		case hwmon_power_reset_history:
-+			*val = ps->function_id | (ps->apss_channel << 8);
-+			break;
-+		default:
-+			rc = -EOPNOTSUPP;
-+		}
-+	}
-+		break;
-+	case CAPS:
-+	{
-+		struct p9_caps_sensor *cs =
-+			&(((struct p9_caps_sensor *)sensor)[snum]);
-+
-+		switch (hwmon) {
-+		case hwmon_power_cap:
-+			*val = cs->curr_powercap;
-+			break;
-+		case hwmon_power_cap_max:
-+			*val = cs->max_powercap;
-+			break;
-+		case hwmon_power_cap_min:
-+			*val = cs->min_powercap;
-+			break;
-+		case hwmon_power_max:
-+			*val = cs->norm_powercap;
-+			break;
-+		case hwmon_power_alarm:
-+			*val = cs->user_powerlimit;
-+			break;
-+		case hwmon_power_cap_alarm:
-+			*val = cs->user_powerlimit_source;
-+			break;
-+		default:
-+			rc = -EOPNOTSUPP;
-+		}
-+	}
++	case hwmon_power:
++		rc = occ_get_sensor_value(occ, POWER, channel, attr, val);
 +		break;
 +	default:
-+		rc = -EINVAL;
++		rc = -EOPNOTSUPP;
 +	}
 +
 +	return rc;
 +}
 +
-+static const struct occ_ops p9_ops = {
-+	.parse_sensor = p9_parse_sensor,
-+	.alloc_sensor = p9_alloc_sensor,
-+	.get_sensor = p9_get_sensor,
++static int occ_hwmon_read_string(struct device *dev,
++				 enum hwmon_sensor_types type, u32 attr,
++				 int channel, char **str)
++{
++	int rc;
++	unsigned long val = 0;
++
++	if (!((type == hwmon_in && attr == hwmon_in_label) ||
++	    (type == hwmon_temp && attr == hwmon_temp_label) ||
++	    (type == hwmon_power && attr == hwmon_power_label)))
++		return -EOPNOTSUPP;
++
++	rc = occ_hwmon_read(dev, type, attr, channel, &val);
++	if (rc < 0)
++		return rc;
++
++	rc = snprintf(*str, PAGE_SIZE - 1, "%ld", val);
++	if (rc > 0)
++		rc = 0;
++
++	return rc;
++}
++
++static int occ_hwmon_write(struct device *dev, enum hwmon_sensor_types type,
++			   u32 attr, int channel, long val)
++{
++	int rc = 0;
++	struct occ_sysfs *driver = dev_get_drvdata(dev);
++
++	if (type == hwmon_chip && attr == hwmon_chip_update_interval) {
++		occ_set_update_interval(driver->occ, val);
++		return 0;
++	} else if (type == hwmon_power && attr == hwmon_power_alarm) {
++		rc = occ_set_user_powercap(driver->occ, val);
++		if (rc) {
++			if (rc == RESP_RETURN_CMD_INVAL) {
++				dev_err(dev,
++					"set invalid powercap value: %ld\n",
++					val);
++				return -EINVAL;
++			}
++
++			dev_err(dev, "set user powercap failed: 0x:%x\n", rc);
++			return rc;
++		}
++
++		driver->user_powercap = val;
++
++		return rc;
++	}
++
++	return -EOPNOTSUPP;
++}
++
++static umode_t occ_is_visible(const void *data, enum hwmon_sensor_types type,
++			      u32 attr, int channel)
++{
++	const struct occ_sysfs *driver = data;
++
++	switch (type) {
++	case hwmon_chip:
++		if (attr == hwmon_chip_update_interval)
++			return S_IRUGO | S_IWUSR;
++		break;
++	case hwmon_in:
++		if (BIT(attr) & driver->sensor_hwmon_configs[0])
++			return S_IRUGO;
++		break;
++	case hwmon_temp:
++		if (BIT(attr) & driver->sensor_hwmon_configs[1])
++			return S_IRUGO;
++		break;
++	case hwmon_power:
++		/* user power limit */
++		if (attr == hwmon_power_alarm)
++			return S_IRUGO | S_IWUSR;
++		else if ((BIT(attr) & driver->sensor_hwmon_configs[2]) ||
++			 (BIT(attr) & driver->sensor_hwmon_configs[3]))
++			return S_IRUGO;
++		break;
++	default:
++		return 0;
++	}
++
++	return 0;
++}
++
++static const struct hwmon_ops occ_hwmon_ops = {
++	.is_visible = occ_is_visible,
++	.read = occ_hwmon_read,
++	.read_string = occ_hwmon_read_string,
++	.write = occ_hwmon_write,
 +};
 +
-+static const struct occ_config p9_config = {
-+	.command_addr = 0xFFFBE000,
-+	.response_addr = 0xFFFBF000,
++static const u32 occ_chip_config[] = {
++	HWMON_C_UPDATE_INTERVAL,
++	0
 +};
 +
-+const u32 *p9_get_sensor_hwmon_configs()
-+{
-+	return p9_sensor_hwmon_configs;
-+}
-+EXPORT_SYMBOL(p9_get_sensor_hwmon_configs);
++static const struct hwmon_channel_info occ_chip = {
++	.type = hwmon_chip,
++	.config = occ_chip_config
++};
 +
-+struct occ *p9_occ_start(struct device *dev, void *bus,
-+			 struct occ_bus_ops *bus_ops)
-+{
-+	return occ_start(dev, bus, bus_ops, &p9_ops, &p9_config);
-+}
-+EXPORT_SYMBOL(p9_occ_start);
++static const enum hwmon_sensor_types occ_sensor_types[MAX_OCC_SENSOR_TYPE] = {
++	hwmon_in,
++	hwmon_temp,
++	hwmon_power,
++	hwmon_power
++};
 +
-+int p9_occ_stop(struct occ *occ)
++struct occ_sysfs *occ_sysfs_start(struct device *dev, struct occ *occ,
++				  const u32 *sensor_hwmon_configs,
++				  const char *name)
 +{
-+	return occ_stop(occ);
++	bool master_occ = false;
++	int rc, i, j, sensor_num, index = 0, id;
++	char *brk;
++	struct occ_blocks *resp = NULL;
++	u32 *sensor_config;
++	struct occ_sysfs *hwmon = devm_kzalloc(dev, sizeof(struct occ_sysfs),
++					       GFP_KERNEL);
++	if (!hwmon)
++		return ERR_PTR(-ENOMEM);
++
++	/* need space for null-termination and occ chip */
++	hwmon->occ_sensors =
++		devm_kzalloc(dev, sizeof(struct hwmon_channel_info *) *
++			     (MAX_OCC_SENSOR_TYPE + 2), GFP_KERNEL);
++	if (!hwmon->occ_sensors)
++		return ERR_PTR(-ENOMEM);
++
++	hwmon->occ = occ;
++	hwmon->sensor_hwmon_configs = (u32 *)sensor_hwmon_configs;
++	hwmon->occ_info.ops = &occ_hwmon_ops;
++	hwmon->occ_info.info =
++		(const struct hwmon_channel_info **)hwmon->occ_sensors;
++
++	dev_set_drvdata(dev, hwmon);
++
++	occ_get_response_blocks(occ, &resp);
++
++	for (i = 0; i < MAX_OCC_SENSOR_TYPE; ++i)
++		resp->sensor_block_id[i] = -1;
++
++	/* read sensor data from occ */
++	rc = occ_update_device(occ);
++	if (rc) {
++		dev_err(dev, "cannot get occ sensor data: %d\n", rc);
++		return ERR_PTR(rc);
++	}
++	if (!resp->blocks)
++		return ERR_PTR(-ENOMEM);
++
++	master_occ = resp->sensor_block_id[CAPS] >= 0;
++
++	for (i = 0; i < MAX_OCC_SENSOR_TYPE; i++) {
++		id = resp->sensor_block_id[i];
++		if (id < 0)
++			continue;
++
++		sensor_num = resp->blocks[id].header.sensor_num;
++		/* need null-termination */
++		sensor_config = devm_kzalloc(dev,
++					     sizeof(u32) * (sensor_num + 1),
++					     GFP_KERNEL);
++		if (!sensor_config)
++			return ERR_PTR(-ENOMEM);
++
++		for (j = 0; j < sensor_num; j++)
++			sensor_config[j] = sensor_hwmon_configs[i];
++
++		hwmon->occ_sensors[index] =
++			devm_kzalloc(dev, sizeof(struct hwmon_channel_info),
++				     GFP_KERNEL);
++		if (!hwmon->occ_sensors[index])
++			return ERR_PTR(-ENOMEM);
++
++		hwmon->occ_sensors[index]->type = occ_sensor_types[i];
++		hwmon->occ_sensors[index]->config = sensor_config;
++		index++;
++	}
++
++	/* only need one of these for any number of occs */
++	if (master_occ)
++		hwmon->occ_sensors[index] =
++			(struct hwmon_channel_info *)&occ_chip;
++
++	/* search for bad chars */
++	strncpy(hwmon->hwmon_name, name, OCC_HWMON_NAME_LENGTH);
++	brk = strpbrk(hwmon->hwmon_name, "-* \t\n");
++	while (brk) {
++		*brk = '_';
++		brk = strpbrk(brk,  "-* \t\n");
++	}
++
++	hwmon->dev = devm_hwmon_device_register_with_info(dev,
++							  hwmon->hwmon_name,
++							  hwmon,
++							  &hwmon->occ_info,
++							  NULL);
++	if (IS_ERR(hwmon->dev)) {
++		dev_err(dev, "cannot register hwmon device %s: %ld\n",
++			hwmon->hwmon_name, PTR_ERR(hwmon->dev));
++		return ERR_PTR(PTR_ERR(hwmon->dev));
++	}
++
++	return hwmon;
 +}
-+EXPORT_SYMBOL(p9_occ_stop);
++EXPORT_SYMBOL(occ_sysfs_start);
 +
 +MODULE_AUTHOR("Eddie James <eajames@us.ibm.com>");
-+MODULE_DESCRIPTION("P9 OCC sensors");
++MODULE_DESCRIPTION("OCC sysfs driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/hwmon/occ/occ_p9.h b/drivers/hwmon/occ/occ_p9.h
+diff --git a/drivers/hwmon/occ/occ_sysfs.h b/drivers/hwmon/occ/occ_sysfs.h
 new file mode 100644
-index 0000000..b1c01d6
+index 0000000..7de92e7
 --- /dev/null
-+++ b/drivers/hwmon/occ/occ_p9.h
-@@ -0,0 +1,31 @@
++++ b/drivers/hwmon/occ/occ_sysfs.h
+@@ -0,0 +1,44 @@
 +/*
-+ * occ_p9.h - OCC hwmon driver
++ * occ_sysfs.h - OCC sysfs interface
 + *
-+ * This file contains Power9-specific function prototypes
++ * This file contains the data structures and function prototypes for the OCC
++ * hwmon sysfs entries.
 + *
 + * Copyright 2016 IBM Corp.
 + *
@@ -380,22 +407,34 @@ index 0000000..b1c01d6
 + *
 + * This program is distributed in the hope that it will be useful,
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 + * GNU General Public License for more details.
 + */
 +
-+#ifndef __OCC_P9_H__
-+#define __OCC_P9_H__
++#ifndef __OCC_SYSFS_H__
++#define __OCC_SYSFS_H__
 +
-+#include "scom.h"
++#include <linux/hwmon.h>
 +
++struct occ;
 +struct device;
 +
-+const u32 *p9_get_sensor_hwmon_configs(void);
-+struct occ *p9_occ_start(struct device *dev, void *bus,
-+			 struct occ_bus_ops *bus_ops);
-+int p9_occ_stop(struct occ *occ);
++#define OCC_HWMON_NAME_LENGTH	32
 +
-+#endif /* __OCC_P9_H__ */
++struct occ_sysfs {
++	struct device *dev;
++	struct occ *occ;
++
++	char hwmon_name[OCC_HWMON_NAME_LENGTH + 1];
++	u32 *sensor_hwmon_configs;
++	struct hwmon_channel_info **occ_sensors;
++	struct hwmon_chip_info occ_info;
++	u16 user_powercap;
++};
++
++struct occ_sysfs *occ_sysfs_start(struct device *dev, struct occ *occ,
++				  const u32 *sensor_hwmon_configs,
++				  const char *name);
++#endif /* __OCC_SYSFS_H__ */
 -- 
 1.9.1
