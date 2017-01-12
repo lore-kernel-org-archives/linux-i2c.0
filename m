@@ -1,72 +1,556 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Avoid race conditions with IMC
-Date: Thu, 12 Jan 2017 11:00:46 +0100
-Message-ID: <20170112100046.GB1477@katana>
-References: <20170110121600.30649-1-ricardo.ribalda@gmail.com>
- <CAHp75VdnoW84sQh-vf57NSC6_tXGqvb_36KCPpi-XFbktWiKfw@mail.gmail.com>
- <20170112104006.4dfed9b7@endymion>
+From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
+Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
+Date: Thu, 12 Jan 2017 12:23:12 +0100
+Message-ID: <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
+References: <1483607246-14771-1-git-send-email-cedric.madianga@gmail.com>
+ <1483607246-14771-3-git-send-email-cedric.madianga@gmail.com>
+ <20170111082208.vzu7xgpd4eakyldl@pengutronix.de> <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
+ <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="jq0ap7NbKX2Kqbes"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:36926 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750920AbdALKAt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 12 Jan 2017 05:00:49 -0500
-Content-Disposition: inline
-In-Reply-To: <20170112104006.4dfed9b7@endymion>
+Received: from mail-wj0-f193.google.com ([209.85.210.193]:34473 "EHLO
+        mail-wj0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751098AbdALLXR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Jan 2017 06:23:17 -0500
+In-Reply-To: <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
+2017-01-11 16:39 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutron=
+ix.de>:
+> On Wed, Jan 11, 2017 at 02:58:44PM +0100, M'boumba Cedric Madianga wrote:
+>> Hi Uwe,
+>>
+>> 2017-01-11 9:22 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutr=
+onix.de>:
+>> > Hello Cedric,
+>> >
+>> > On Thu, Jan 05, 2017 at 10:07:23AM +0100, M'boumba Cedric Madianga wro=
+te:
+>> >> +/*
+>> >> + * In standard mode:
+>> >> + * SCL period =3D SCL high period =3D SCL low period =3D CCR * I2C p=
+arent clk period
+>> >> + *
+>> >> + * In fast mode:
+>> >> + * If Duty =3D 0; SCL high period =3D 1  * CCR * I2C parent clk peri=
+od
+>                                          ^^
+>> >> + *           SCL low period  =3D 2  * CCR * I2C parent clk period
+>                                       ^^
+>> >> + * If Duty =3D 1; SCL high period =3D 9  * CCR * I2C parent clk peri=
+od
+>                                          ^^
+>> >> + *           SCL low period  =3D 16 * CCR * I2C parent clk period
+>
+>> > s/  \*/ */ several times
+>>
+>> Sorry but I don't see where is the issue as the style for multi-line
+>> comments seems ok.
+>> Could you please clarify that point if possible ? Thanks in advance
+>
+> There are several places with double spaces before * marked above.
 
---jq0ap7NbKX2Kqbes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok I see thanks.
 
+>
+>> >> + * In order to reach 400 kHz with lower I2C parent clk frequencies w=
+e always set
+>> >> + * Duty =3D 1
+>> >> + *
+>> >> + * For both modes, we have CCR =3D SCL period * I2C parent clk frequ=
+ency
+>> >> + * with scl_period =3D 5 microseconds in Standard mode and scl_perio=
+d =3D 1
+>> > s/mode/Mode/
+>>
+>> ok thanks
+>>
+>> >
+>> >> + * microsecond in Fast Mode in order to satisfy scl_high and scl_low=
+ periods
+>> >> + * constraints defined by i2c bus specification
+>> >
+>> > I don't understand scl_period =3D 1 =C2=B5s for Fast Mode. For a bus f=
+reqency
+>> > of 400 kHz we need low + high =3D 2.5 =C2=B5s. Is there a factor 10 mi=
+ssing
+>> > somewhere?
+>>
+>> As CCR =3D SCL_period * I2C parent clk frequency with minimal freq =3D
+>> 2Mhz and SCL_period =3D 1 we have:
+>> CCR =3D 1 * 2Mhz =3D 2.
+>> But to compute, scl_low and scl_high in Fast mode, we have to do the
+>> following thing as Duty=3D1:
+>> scl_high =3D 9 * CCR * I2C parent clk period
+>> scl_low =3D 16 * CCR * I2C parent clk period
+>> In our example:
+>> scl_high =3D 9 * 2 * 0,0000005 =3D 0,000009 sec =3D 9 =C2=B5s
+>> scl_low =3D 16 * 2 * 0.0000005 =3D 0,000016 sec =3D 16 =C2=B5s
+>> So low + high =3D 27 =C2=B5s > 2,5 =C2=B5s
+>
+> For me 9 =C2=B5s + 16 =C2=B5s is 25 =C2=B5s, resulting in 40 kHz. That's =
+why I wondered
+> if there is a factor 10 missing somewhere.
 
-> > > +       unsigned short piix4_smba =3D adapdata->smba;
-> > >         u8 smba_en_lo;
-> > >         u8 port;
-> > >         int retval;
-> > > +       int timeout =3D 0;
-> > > +       int smbslvcnt;
-> >=20
-> > Keep them just after your another added variable.
->=20
-> FWIW, I don't think this makes sense as a general rule. I'd rather have
-> the variables in an order which makes sense (for human readers or for
-> stack size optimization - unless gcc does it for us?), rather than
-> always adding at the same place. Is there a rationale for doing that? I
-> don't think shrinking the patch size is good enough a reason.
+Hum ok. I am going to double-check what is wrong because when I check
+with the scope I always reach 400Khz for SCL.
+I will let you know.
+>
+>> >> + */
+>> >> +static struct stm32f4_i2c_timings i2c_timings[] =3D {
+>> >> [...]
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_hw_config() - Prepare I2C block
+>> >> + * @i2c_dev: Controller's private data
+>> >> + */
+>> >> +static int stm32f4_i2c_hw_config(struct stm32f4_i2c_dev *i2c_dev)
+>> >> +{
+>> >> +     void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +     int ret =3D 0;
+>> >> +
+>> >> +     /* Disable I2C */
+>> >> +     stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_PE);
+>> >> +
+>> >> +     ret =3D stm32f4_i2c_set_periph_clk_freq(i2c_dev);
+>> >> +     if (ret)
+>> >> +             return ret;
+>> >> +
+>> >> +     stm32f4_i2c_set_rise_time(i2c_dev);
+>> >> +
+>> >> +     stm32f4_i2c_set_speed_mode(i2c_dev);
+>> >> +
+>> >> +     stm32f4_i2c_set_filter(i2c_dev);
+>> >> +
+>> >> +     /* Enable I2C */
+>> >> +     stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_PE);
+>> >
+>> > This function is called after a hw reset, so there should be no need t=
+o
+>> > use clr_bits and set_bits because the value read from hw should be
+>> > known.
+>>
+>> ok thanks
+>>
+>> >
+>> >> +     return ret;
+>> >
+>> > return 0;
+>>
+>> ok thanks
+>>
+>> >
+>> >> +}
+>> >> +
+>> >> +static int stm32f4_i2c_wait_free_bus(struct stm32f4_i2c_dev *i2c_dev=
+)
+>> >> +{
+>> >> +     u32 status;
+>> >> +     int ret;
+>> >> +
+>> >> +     ret =3D readl_relaxed_poll_timeout(i2c_dev->base + STM32F4_I2C_=
+SR2,
+>> >> +                                      status,
+>> >> +                                      !(status & STM32F4_I2C_SR2_BUS=
+Y),
+>> >> +                                      10, 1000);
+>> >> +     if (ret) {
+>> >> +             dev_dbg(i2c_dev->dev, "bus not free\n");
+>> >> +             ret =3D -EBUSY;
+>> >> +     }
+>> >> +
+>> >> +     return ret;
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_write_ byte() - Write a byte in the data register
+>> >> + * @i2c_dev: Controller's private data
+>> >> + * @byte: Data to write in the register
+>> >> + */
+>> >> +static void stm32f4_i2c_write_byte(struct stm32f4_i2c_dev *i2c_dev, =
+u8 byte)
+>> >> +{
+>> >> +     writel_relaxed(byte, i2c_dev->base + STM32F4_I2C_DR);
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_write_msg() - Fill the data register in write mode
+>> >> + * @i2c_dev: Controller's private data
+>> >> + *
+>> >> + * This function fills the data register with I2C transfer buffer
+>> >> + */
+>> >> +static void stm32f4_i2c_write_msg(struct stm32f4_i2c_dev *i2c_dev)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +
+>> >> +     stm32f4_i2c_write_byte(i2c_dev, *msg->buf++);
+>> >> +     msg->count--;
+>> >> +}
+>> >> +
+>> >> +static void stm32f4_i2c_read_msg(struct stm32f4_i2c_dev *i2c_dev)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     u32 rbuf;
+>> >> +
+>> >> +     rbuf =3D readl_relaxed(i2c_dev->base + STM32F4_I2C_DR);
+>> >> +     *msg->buf++ =3D rbuf & 0xff;
+>> >
+>> > This is unnecessary. buf has an 8 bit wide type so
+>> >
+>> >         *msg->buf++ =3D rbuf;
+>> >
+>> > has the same effect. (ISTR this is something I already pointed out
+>> > earlier?)
+>>
+>> Yes you are right.
+>>
+>> >
+>> >> +     msg->count--;
+>> >> +}
+>> >> +
+>> >> +static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_d=
+ev)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR2;
+>> >> +
+>> >> +     stm32f4_i2c_disable_irq(i2c_dev);
+>> >> +
+>> >> +     reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +     if (msg->stop)
+>> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP);
+>> >> +     else
+>> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_START);
+>> >> +
+>> >> +     complete(&i2c_dev->complete);
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_handle_write() - Handle FIFO empty interrupt in case =
+of write
+>> >> + * @i2c_dev: Controller's private data
+>> >> + */
+>> >> +static void stm32f4_i2c_handle_write(struct stm32f4_i2c_dev *i2c_dev=
+)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR2;
+>> >> +
+>> >> +     if (msg->count) {
+>> >> +             stm32f4_i2c_write_msg(i2c_dev);
+>> >> +             if (!msg->count) {
+>> >> +                     /* Disable buffer interrupts for RXNE/TXE event=
+s */
+>> >> +                     stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUF=
+EN);
+>> >> +             }
+>> >> +     } else {
+>> >> +             stm32f4_i2c_terminate_xfer(i2c_dev);
+>> >
+>> > Is stm32f4_i2c_terminate_xfer also called when arbitration is lost? If
+>> > yes, is it then right to set STM32F4_I2C_CR1_STOP or
+>> > STM32F4_I2C_CR1_START?
+>>
+>> If arbitration is lost, stm32f4_i2c_terminate_xfer() is not called.
+>> In that case, we return -EAGAIN and i2c-core will retry by calling
+>> stm32f4_i2c_xfer()
+>>
+>> >
+>> >> +     }
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_handle_read() - Handle FIFO empty interrupt in case o=
+f read
+>> >> + * @i2c_dev: Controller's private data
+>> >> + */
+>> >> +static void stm32f4_i2c_handle_read(struct stm32f4_i2c_dev *i2c_dev)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR2;
+>> >> +
+>> >> +     switch (msg->count) {
+>> >> +     case 1:
+>> >> +             stm32f4_i2c_disable_irq(i2c_dev);
+>> >> +             stm32f4_i2c_read_msg(i2c_dev);
+>> >> +             complete(&i2c_dev->complete);
+>> >> +             break;
+>> >> +     /*
+>> >> +      * For 2 or 3-byte reception, we do not have to read the data r=
+egister
+>> >> +      * when RXNE occurs as we have to wait for byte transferred fin=
+ished
+>> >
+>> > it's hard to understand because if you don't know the hardware the
+>> > meaning of RXNE is unknown.
+>>
+>> Ok I will replace RXNE by RX not empty in that comment
+>>
+>> >
+>> >> +      * event before reading data. So, here we just disable buffer
+>> >> +      * interrupt in order to avoid another system preemption due to=
+ RXNE
+>> >> +      * event
+>> >> +      */
+>> >> +     case 2:
+>> >> +     case 3:
+>> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
+>> >> +             break;
+>> >> +     /* For N byte reception with N > 3 we directly read data regist=
+er */
+>> >> +     default:
+>> >> +             stm32f4_i2c_read_msg(i2c_dev);
+>> >> +     }
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_handle_rx_btf() - Handle byte transfer finished inter=
+rupt
+>> >> + * in case of read
+>> >> + * @i2c_dev: Controller's private data
+>> >> + */
+>> >> +static void stm32f4_i2c_handle_rx_btf(struct stm32f4_i2c_dev *i2c_de=
+v)
+>> >> +{
+>> >
+>> > btf is a hw-related name. Maybe better use _done which is easier to
+>> > understand?
+>>
+>> OK
+>>
+>> >
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     void __iomem *reg;
+>> >> +     u32 mask;
+>> >> +     int i;
+>> >> +
+>> >> +     switch (msg->count) {
+>> >> +     case 2:
+>> >> +             /*
+>> >> +              * In order to correctly send the Stop or Repeated Star=
+t
+>> >> +              * condition on the I2C bus, the STOP/START bit has to =
+be set
+>> >> +              * before reading the last two bytes.
+>> >> +              * After that, we could read the last two bytes, disabl=
+e
+>> >> +              * remaining interrupts and notify the end of xfer to t=
+he
+>> >> +              * client
+>> >
+>> > This is surprising. I didn't recheck the manual, but that looks very
+>> > uncomfortable.
+>>
+>> I agree but this exactly the hardware way of working described in the
+>> reference manual.
+>
+> IMHO that's a hw bug. This makes it for example impossible to implement
+> SMBus block transfers (I think).
 
-Not really. Some say "Reorder to save bytes", some say "reorder to
-utilize cache lines most". Unless I get some numbers showing the desired
-effect, I go for "most readable" approach which is subjective, of
-course. I'd be totally fine with the above.
+This is not correct.
+Setting STOP/START bit does not mean the the pulse will be sent right now.
+Here we have just to prepare the hardware for the 2 next pulse but the
+STOP/START/ACK pulse will be generated at the right time as required
+by I2C specification.
+So SMBus block transfer will be possible.
 
+>
+>> > How does this work, when I only want to read a single
+>> > byte? Same problem for ACK below.
+>>
+>> For a single reception, we enable NACK and STOP or Repeatead START
+>> bits during address match.
+>> The NACK and STOP/START pulses are sent as soon as the data is
+>> received in the shift register.
+>> Please note that in that case, we don't have to wait BTF event to read t=
+he data.
+>> Data is read as soon as RXNE event occurs.
+>>
+>> >
+>> >> +              */
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +             if (msg->stop)
+>> >> +                     stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP)=
+;
+>> >> +             else
+>> >> +                     stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_START=
+);
+>> >> +
+>> >> +             for (i =3D 2; i > 0; i--)
+>> >> +                     stm32f4_i2c_read_msg(i2c_dev);
+>> >> +
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR2;
+>> >> +             mask =3D STM32F4_I2C_CR2_ITEVTEN | STM32F4_I2C_CR2_ITER=
+REN;
+>> >> +             stm32f4_i2c_clr_bits(reg, mask);
+>> >> +
+>> >> +             complete(&i2c_dev->complete);
+>> >> +             break;
+>> >> +     case 3:
+>> >> +             /*
+>> >> +              * In order to correctly send the ACK on the I2C bus fo=
+r the
+>> >> +              * last two bytes, we have to set ACK bit before readin=
+g the
+>> >> +              * third last data byte
+>> >> +              */
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
+>> >> +             stm32f4_i2c_read_msg(i2c_dev);
+>> >> +             break;
+>> >> +     default:
+>> >> +             stm32f4_i2c_read_msg(i2c_dev);
+>> >> +     }
+>> >> +}
+>> >> +
+>> >> +/**
+>> >> + * stm32f4_i2c_handle_rx_addr() - Handle address matched interrupt i=
+n case of
+>> >> + * master receiver
+>> >> + * @i2c_dev: Controller's private data
+>> >> + */
+>> >> +static void stm32f4_i2c_handle_rx_addr(struct stm32f4_i2c_dev *i2c_d=
+ev)
+>> >> +{
+>> >> +     struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+>> >> +     void __iomem *reg;
+>> >> +
+>> >> +     switch (msg->count) {
+>> >> +     case 0:
+>> >> +             stm32f4_i2c_terminate_xfer(i2c_dev);
+>> >> +             /* Clear ADDR flag */
+>> >> +             readl_relaxed(i2c_dev->base + STM32F4_I2C_SR2);
+>> >> +             break;
+>> >> +     case 1:
+>> >> +             /*
+>> >> +              * Single byte reception:
+>> >
+>> > This also happens for the last byte of a 5 byte transfer, right?
+>>
+>> For a 5 byte transfer the behavior is different:
+>> We have to read data from DR (data register)  as soon as the RXNE (RX
+>> not empty) event occurs for data1, data2 and data3 (until N-2 data for
+>> a more generic case)
+>> The ACK is automatically sent as soon as the data is received in the
+>> shift register as the I2C controller was configured to do that during
+>> adress match phase.
+>>
+>> For data3 (N-2 data), we wait for BTF (Byte Transfer finished) event
+>> in order to set NACK before reading DR.
+>> This event occurs when a new data has been received in shift register
+>> (in our case data4 or N-1 data) but the prevoius data in DR (in our
+>> case data3 or N-2 data) has not been read yet.
+>> In that way, the NACK pulse will be correctly generated after the last
+>> received data byte.
+>>
+>> For data4 and data5, we wait for BTF event (data4 or N-1 data in DR
+>> and data5 or N data in shift register), set STOP or repeated Start in
+>> order to correctly sent the right pulse after the last received data
+>> byte and run 2 consecutives read of DR.
+>
+> So "Single byte reception" above is wrong, as this case is also used for
+> longer transfers and should be updated accordingly.
 
---jq0ap7NbKX2Kqbes
-Content-Type: application/pgp-signature; name="signature.asc"
+I don't think so.
+stm32f4_i2c_handle_rx_addr() is called once during adress match phase.
+It is used to configure the I2C controller according to the number of
+data to be received as it has to be done in a different way according
+to the number of data to received:
+- single byte reception
+- 2-byte reception
+- N-byte reception
+Then, as soon as, the controller is correctly configured, for each
+byte to be received, we use stm32f4_i2c_handle_read() or
+stm32f4_i2c_handle_rx_done().
+stm32f4_i2c_handle_read() is used to read  data for a single byte
+reception or until N-2 data for N-byte reception
+stm32f4_i2c_handle_rx_done() is used to read data for a 2-byte
+reception, or  data N-2, N-1 and N for a N-byte reception.
+So, single-reception and longer transfer have been clearly managed in
+a different way.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+>
+>> >> +              * Enable NACK, clear ADDR flag and generate STOP or Re=
+pSTART
+>> >> +              */
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
+>> >> +             readl_relaxed(i2c_dev->base + STM32F4_I2C_SR2);
+>> >> +             if (msg->stop)
+>> >> +                     stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_STOP)=
+;
+>> >> +             else
+>> >> +                     stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_START=
+);
+>> >> +             break;
+>> >> +     case 2:
+>> >> +             /*
+>> >> +              * 2-byte reception:
+>> >> +              * Enable NACK and set POS
+>> >
+>> > What is POS?
+>> POS is used to define the position of the (N)ACK pulse
+>> 0: ACK is generated when the current is being received in the shift regi=
+ster
+>> 1: ACK is generated when the next byte which will be received in the
+>> shift register (used for 2-byte reception)
+>
+> Can you please put this into the comment. "POS" isn't much helpful
+> there.
 
-iQIcBAEBAgAGBQJYd1POAAoJEBQN5MwUoCm2UPYP/1it/l2pgLFjM/1IfAJLLW26
-WwSXW3ivT2FSQ5uilPEEtertz00SFyZffQg5tsPbAspHA24XO/LEJRezXQC88Yiy
-MikHcv6VJ2u3erCdz4ob8x4z6KiEddpKnAt4q3aohSvmfnJadI3EE9W51Of6b09G
-0aRGAzcS8LBWe6C+hYWdM2/u1aZESTjUqTe5D1lDyyKcKTi47KfdO4OC2pq/rwgZ
-LRPfLwtrC95fgcsBNxUESzYtV6Kq5Ap4okOIzPAJBj3V3A40/6/a0Nf9rzHIvZFO
-Bt0y6q3lGEQRR55cyHvgfpLbxRnAjVfSh51Gi2vzlPpr3R/fzRrk5RqNwSWW+5fk
-pFQ/aENo8W8sotCCoYZ47xAO0XjhExWKbx6kEy3EuShKJKaRN4wO1gIKCVBRRoBl
-PBfhY6TZSlv9Sbn0o38L4ZuRVE32h2JeSJuJ3mQ7i0Uwxup6Szzi2oo27X3lAJHa
-ih/+Trf//sLSScYjEIwhdDL11wPXbxYo+fm4BL+StiUMMNfZOg4Yc+OtN+S2h3lR
-syBUOoGqn1+S4H5eHEDxAsrtpqvyVUHcznU4dhu1Bteev7cPvHlqKaWy+dyC6Wci
-mlbHtrH3KNDUcWZ7RjcwXkEAP/ulAonpu7f3EYfmxylfUBwR5hbz3eFOJQ6jIDiD
-dDVqE00Z0DSp7i8svIYm
-=4RVB
------END PGP SIGNATURE-----
+Ok I will add a comment for that.
 
---jq0ap7NbKX2Kqbes--
+>
+>>
+>> >
+>> >> +              */
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
+>> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_POS);
+>> >
+>> > You could get rid of this, when caching the value of CR1. Would save t=
+wo
+>> > register reads here. This doesn't work for all registers, but it shoul=
+d
+>> > be possible to apply for most of them, maybe enough to get rid of the
+>> > clr_bits and set_bits function.
+>> >
+>> >> +             readl_relaxed(i2c_dev->base + STM32F4_I2C_SR2);
+>> >> +             break;
+>> >> +
+>> >> +     default:
+>> >> +             /* N-byte reception: Enable ACK */
+>> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
+>> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_ACK);
+>> >
+>> > Do you need to set ACK for each byte transferred?
+>> I need to do that in order to be SMBus compatible and the ACK/NACK
+>> seems to be used by default in Documentation/i2c/i2c-protocol file.
+>
+> Yeah, protocol wise you need to ack each byte. I just wondered if you
+> need to set the hardware bit for each byte or if it is retained in
+> hardware until unset by a register write.
+
+ACK bit is set in  stm32f4_i2c_handle_rx_addr().
+As explained above, this function is called once during address match phase=
+.
+So, this bit is set only once just before receiving the first data byte.
+
+>
+> Best regards
+> Uwe
+>
+> --
+> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig       =
+     |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  =
+|
+
+Best regards,
+
+Cedric
