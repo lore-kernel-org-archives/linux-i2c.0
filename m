@@ -1,65 +1,72 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
 Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
-Date: Thu, 12 Jan 2017 12:25:31 +0100
-Message-ID: <CAOAejn1OfcHpj7s4VOrv3wHEBGuShXzJcu3OEgwi8k3_HAjqvQ@mail.gmail.com>
+Date: Thu, 12 Jan 2017 13:03:09 +0100
+Message-ID: <20170112120309.fmrt2lwz3vklqmti@pengutronix.de>
 References: <1483607246-14771-1-git-send-email-cedric.madianga@gmail.com>
  <1483607246-14771-3-git-send-email-cedric.madianga@gmail.com>
- <20170111082208.vzu7xgpd4eakyldl@pengutronix.de> <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
- <CAOAejn2cDzPgqvWZf7ASvtST+aDeaAebf=1aMWA9Zd8CDg4pmA@mail.gmail.com> <20170111154200.xcxdlnnakyttumzw@pengutronix.de>
+ <20170111082208.vzu7xgpd4eakyldl@pengutronix.de>
+ <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
+ <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
+ <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170111154200.xcxdlnnakyttumzw@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+Hello Cedric,
 
-2017-01-11 16:42 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutron=
-ix.de>:
-> Hello Cedric,
->
-> On Wed, Jan 11, 2017 at 03:20:41PM +0100, M'boumba Cedric Madianga wrote:
->> >
->> >> +              */
->> >> +             reg =3D i2c_dev->base + STM32F4_I2C_CR1;
->> >> +             stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
->> >> +             stm32f4_i2c_set_bits(reg, STM32F4_I2C_CR1_POS);
->> >
->> > You could get rid of this, when caching the value of CR1. Would save t=
-wo
->> > register reads here. This doesn't work for all registers, but it shoul=
-d
->> > be possible to apply for most of them, maybe enough to get rid of the
->> > clr_bits and set_bits function.
->>
->> I agree at many places I could save registers read by not using
->> clr_bits and set_bits function when the registers in question has been
->> already read.
->> But it is not enough to get rid of the clr_bits and set_bits function.
->> For example when calling stm32f4_i2c_terminate_xfer(), the CR1
->> register is never read before so set_bits function is useful.
->
-> I didn't double check the manual, but I would expect that CR1 isn't
-> modified by hardware. So you can cache the result in the driver data
-> structure and do the necessary modifications with that one.
+On Thu, Jan 12, 2017 at 12:23:12PM +0100, M'boumba Cedric Madianga wrote:
+> 2017-01-11 16:39 GMT+01:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengutroni=
+x.de>:
+> > On Wed, Jan 11, 2017 at 02:58:44PM +0100, M'boumba Cedric Madianga wrot=
+e:
+> >> 2017-01-11 9:22 GMT+01:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengutro=
+nix.de>:
+> >> > This is surprising. I didn't recheck the manual, but that looks very
+> >> > uncomfortable.
+> >>
+> >> I agree but this exactly the hardware way of working described in the
+> >> reference manual.
+> >
+> > IMHO that's a hw bug. This makes it for example impossible to implement
+> > SMBus block transfers (I think).
+> =
 
-CR1 is modified by hardware to clear some bits set by software during
-the communication.
+> This is not correct.
+> Setting STOP/START bit does not mean the the pulse will be sent right now.
+> Here we have just to prepare the hardware for the 2 next pulse but the
+> STOP/START/ACK pulse will be generated at the right time as required
+> by I2C specification.
+> So SMBus block transfer will be possible.
 
->
-> Best regards
-> Uwe
->
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig       =
-     |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  =
-|
+A block transfer consists of a byte that specifies the count of bytes
+yet to come. So the device sends for example:
 
-Best regards,
+	0x01 0xab
 
-Cedric
+So when you read the 1 in the first byte it's already too late to set
+STOP to get it after the 2nd byte.
+
+Not sure I got all the required details right, though.
+
+Best regards
+Uwe
+
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
