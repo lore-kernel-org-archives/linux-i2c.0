@@ -1,89 +1,66 @@
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Subject: [PATCH v3] i2c: piix4: Avoid race conditions with IMC
-Date: Thu, 12 Jan 2017 20:49:46 +0100
-Message-ID: <20170112194946.13925-1-ricardo.ribalda@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: piix4: Avoid race conditions with IMC
+Date: Thu, 12 Jan 2017 21:27:01 +0100
+Message-ID: <20170112202701.GA1527@katana>
+References: <20170111091144.6881-1-ricardo.ribalda@gmail.com>
+ <CAHp75VeV2TfgfaYni7oS4ax4H87euJa9ReWX+vYjZ4b5nYRsMg@mail.gmail.com>
+ <20170112192908.zvi7puq72rnfcj6j@ninjato>
+ <CAHp75VfiwtAY6=9-Pz-NNzcYaJaHmxAB3vacMB=XMwb5wFLBkg@mail.gmail.com>
+ <20170112195424.mprdpyjscnj6vq6j@ninjato>
+ <CAPybu_36pu5SDhcxnqmFwviQ4NiEH9cAx0mr7bUF6_oaGfL_Mg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:35854 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751098AbdALUQE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Jan 2017 15:16:04 -0500
-Received: by mail-lf0-f67.google.com with SMTP id h65so3349447lfi.3
-        for <linux-i2c@vger.kernel.org>; Thu, 12 Jan 2017 12:16:03 -0800 (PST)
+Received: from www.zeus03.de ([194.117.254.33]:59256 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750834AbdALU1E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 12 Jan 2017 15:27:04 -0500
+Content-Disposition: inline
+In-Reply-To: <CAPybu_36pu5SDhcxnqmFwviQ4NiEH9cAx0mr7bUF6_oaGfL_Mg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel
+To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-From: Ricardo Ribalda <ricardo.ribalda@gmail.com>
 
-On AMD's SB800 and upwards, the SMBus is shared with the Integrated
-Micro Controller (IMC).
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The platform provides a hardware semaphore to avoid race conditions
-among them. (Check page 288 of the SB800-Series Southbridges Register
-Reference Guide http://support.amd.com/TechDocs/45482.pdf)
 
-Without this patch, many access to the SMBus end with an invalid
-transaction or even with the bus stalled.
+> I still believe that we miss a Credit-to: or Co-author: tag ;). Most
 
-Reported-by: Alexandre Desnoyers <alex@qtec.com>
-Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
-v3: Suggestions by Andy Shevchenko <andy.shevchenko@gmail.com> and
-Wolfram Sang <wsa@the-dreams.de>:
- -Use Reported-by instead of Credit-to
+Co-author is just a second signed-off (in my book at least).
 
-v2: Suggestions by Andy Shevchenko <andy.shevchenko@gmail.com>:
- -Rename timeout to retries
- -Use do {} while(--retries) pattern
- -Group new variables
+> times we do not give enough credit to the hardware engineers.
 
- drivers/i2c/busses/i2c-piix4.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+True. Yet again, I'd favor simply multiple SoB here.
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index c2268cdf38e8..e34d82e79b98 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -585,10 +585,29 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 		 u8 command, int size, union i2c_smbus_data *data)
- {
- 	struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(adap);
-+	unsigned short piix4_smba = adapdata->smba;
-+	int retries = MAX_TIMEOUT;
-+	int smbslvcnt;
- 	u8 smba_en_lo;
- 	u8 port;
- 	int retval;
- 
-+	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
-+	smbslvcnt  = inb_p(SMBSLVCNT);
-+	do {
-+		outb_p(smbslvcnt | 0x10, SMBSLVCNT);
-+
-+		/* Check the semaphore status */
-+		smbslvcnt  = inb_p(SMBSLVCNT);
-+		if (smbslvcnt & 0x10)
-+			break;
-+
-+		usleep_range(1000, 2000);
-+	} while (--retries);
-+	/* SMBus is still owned by the IMC, we give up */
-+	if (!retries)
-+		return -EBUSY;
-+
- 	mutex_lock(&piix4_mutex_sb800);
- 
- 	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
-@@ -606,6 +625,9 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 
- 	mutex_unlock(&piix4_mutex_sb800);
- 
-+	/* Release the semaphore */
-+	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
-+
- 	return retval;
- }
- 
--- 
-2.11.0
+> Thanks all of you for your fast review!
+
+You are welcome!
+
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYd+aUAAoJEBQN5MwUoCm2RsQP/jlWiAmyPPDK2I+Xs4BxCH73
+pjG+ut5V0O+3+a1q+dqoGycbT324991O6iyZdEev1rQiubr/29GGUbufte0p0P9s
+7b8LU+FsQ2sajwJ0/g2MJffD8n6yHiCEIqjRpPGEtm4KWh2K3ey9nTL463jJCO//
+Z6KkUWAfMaK66aH9E4bd8aCyekgHlEeLveABiMTqhE4u4EYczn4/t5nSWtdDtNtE
+XLXOTpSJcSi56nfo0UufxW0UiS5b/NjMeyGqULxLfEkHraNzN1ibjVWQdXI5ahMt
+yMz4pGbMIoMmLN3BAGvltca+Ps8p2Q5drxLI0kNvrBCJPQUXuIgT7ZqpDr7+Ku2p
+j4YueeQZSuWqOXQwjEaSyzDfn7IIRCmQHdfUvdaObOydcLLZvFioeMRjqGjeV+G6
+ILzCbNOMxAJYyb6f/9KbGsGzxp6w26BBSFr2PgnxbkDdJReCedUW+KOVWFRegIFk
+r/eJvnKpR1RQoswKshejRIiwIupMCKSkfkGy2tD/xHkLCa+WeoZFMFLvj3j3Wy8v
+su8YV6ZaRqzgAV1tI/AZDl3J7uCWR0hI6DDtaPBdBpoaKYpZGdxviSKLcGfgjrN3
+xRMCDdlitYiQAA+CDFB8FNSPT1vTmr+bwqUFDNEy+eXviTlFck8WmiZh4/vE90E0
+N4UKRrd8UNCfBjaT5i01
+=4gQp
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--
