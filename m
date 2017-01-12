@@ -1,72 +1,73 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
-Date: Thu, 12 Jan 2017 17:17:47 +0100
-Message-ID: <CAOAejn1MWjW5h+EvCtt3aLPAQfndro6PhLTZTRs95VTOfRBJxQ@mail.gmail.com>
-References: <1483607246-14771-1-git-send-email-cedric.madianga@gmail.com>
- <1483607246-14771-3-git-send-email-cedric.madianga@gmail.com>
- <20170111082208.vzu7xgpd4eakyldl@pengutronix.de> <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
- <20170111153940.dtxzvtdici3r7l54@pengutronix.de> <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: core: helper function to detect slave mode
+Date: Thu, 12 Jan 2017 19:01:22 +0200
+Message-ID: <1484240482.2133.92.camel@linux.intel.com>
+References: <f4ec62119145bc70c938800c91eb396d30457304.1483636071.git.lolivei@synopsys.com>
+         <73246c4a-504c-52d7-dde4-970a45dca0bd@mleia.com>
+         <CAHp75Ve87TE3y6hg1bMxSFAPVcY3wPifGuvtpXNhBw5-eOnPrg@mail.gmail.com>
+         <b5788d1d-c951-0fc3-eed8-88457df1f27e@mleia.com>
+         <CAHp75Ve7zNN3m1ngLGi-81mFehKzZG07mh5H2T5+_k-=jJqqNA@mail.gmail.com>
+         <3748130b-5321-12eb-ec75-e2637dd9fc54@mleia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:36121 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750829AbdALQRu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Jan 2017 11:17:50 -0500
-In-Reply-To: <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3748130b-5321-12eb-ec75-e2637dd9fc54@mleia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Luis Oliveira <Luis.Oliveira@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro.Oliveira@synopsys.com, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
->>> > I don't understand scl_period =3D 1 =C2=B5s for Fast Mode. For a bus =
-freqency
->>> > of 400 kHz we need low + high =3D 2.5 =C2=B5s. Is there a factor 10 m=
-issing
->>> > somewhere?
->>>
->>> As CCR =3D SCL_period * I2C parent clk frequency with minimal freq =3D
->>> 2Mhz and SCL_period =3D 1 we have:
->>> CCR =3D 1 * 2Mhz =3D 2.
->>> But to compute, scl_low and scl_high in Fast mode, we have to do the
->>> following thing as Duty=3D1:
->>> scl_high =3D 9 * CCR * I2C parent clk period
->>> scl_low =3D 16 * CCR * I2C parent clk period
->>> In our example:
->>> scl_high =3D 9 * 2 * 0,0000005 =3D 0,000009 sec =3D 9 =C2=B5s
->>> scl_low =3D 16 * 2 * 0.0000005 =3D 0,000016 sec =3D 16 =C2=B5s
->>> So low + high =3D 27 =C2=B5s > 2,5 =C2=B5s
->>
->> For me 9 =C2=B5s + 16 =C2=B5s is 25 =C2=B5s, resulting in 40 kHz. That's=
- why I wondered
->> if there is a factor 10 missing somewhere.
->
-> Hum ok. I am going to double-check what is wrong because when I check
-> with the scope I always reach 400Khz for SCL.
-> I will let you know.
+On Sat, 2017-01-07 at 03:24 +0200, Vladimir Zapolskiy wrote:
+> On 01/07/2017 02:19 AM, Andy Shevchenko wrote:
+> > On Sat, Jan 7, 2017 at 1:43 AM, Vladimir Zapolskiy <vz@mleia.com>
+> > wrote:
+> > > On 01/07/2017 12:45 AM, Andy Shevchenko wrote:
 
-There is one point I miss here that is described in the reference manual:
-To reach the 400 kHz maximum I=C2=B2C fast mode clock, the I2C parent rate
-must be a multiple of 10 MHz.
-So, contrary to what we said in a previous thread, 400 kHz could not
-be reached with low frequencies.
-In that way, we could compute CCR with duty =3D 0 by default.
-So, I find another formula very close to the first one I pushed in the
-first version:
+> > > > +             }
+> > > > > > +     } else if (IS_BUILTIN(CONFIG_ACPI) &&
+> > > > > > ACPI_HANDLE(dev)) {
+> > > > > > +             dev_dbg(dev, "ACPI slave is not supported
+> > > > > > yet\n");
+> > > > > > +     }
+> > > > > 
+> > > > > If so, then it might be better to drop else-if stub for now.
+> > > > 
+> > > > Please, don't.
+> > > > 
+> > > 
+> > > Why do you ask for this stub to be added?
+> > 
+> > 1. Exactly the reason you asked above. Here is the code which has
+> > built differently on different platforms. x86 usually is not using
+> > CONFIG_OF, ARM doesn't ACPI (versus ARM64). Check GPIO library for
+> > existing examples.
+> 
+> From the context by the stub I mean dev_dbg() in
+> i2c_slave_mode_detect()
+> function, I don't see a connection to GPIO library, please clarify.
 
-In fast mode, we compute CCR with duty =3D 0:
-t_scl_high =3D CCR * I2C parent clk period
-t_scl_low =3D 2 *CCR * I2C parent clk period
-So, CCR =3D I2C parent rate / 400 kHz / 3
+I agree that is not good proof for using IS_ENABLED/IS_BUILTIN macro.
 
-For example with parent rate =3D 40 MHz:
-CCR =3D 40000000 / 400000 / 3 =3D 33.333333333 =3D 33
-t_scl_high =3D 33 * (1 / 2000000) =3D 825 ns > 600 ns
-t_scl_low =3D 2 * 16 * (1 / 2000000) =3D 1650 ns > 1300 ns
+> > 2. We might add that support later, but here is again, just no-op.
+> > 
+> > So, what is your strong argument here against that?
+> 
+> When the support is ready for ACPI case, you'll remove the added
+> dev_dbg(), and I don't see a good point by adding it temporarily.
 
-It seems ok now.
+It would remind me to look at it at some point.
 
-Best regards,
+> What is wrong with the approach of adding the ACPI case handling
+> branch when it is ready and remove any kind of stubs right now?
 
-Cedric
+I will not object. Here is maintainer, let him speak.
+
+> On ACPI platforms the function returns 'false' always, will the
+> function work correctly (= corresponding to its description) as is?
+
+Yes.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
