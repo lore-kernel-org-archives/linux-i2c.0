@@ -1,70 +1,54 @@
-From: Mike Looijmans <mike.looijmans@topic.nl>
-Subject: Re: [PATCH] i2c: i2c-cadence: Don't register the adapter until it's
- ready
-Date: Fri, 13 Jan 2017 07:40:17 +0100
-Message-ID: <469bf72b-70e6-24d2-99b1-79b6f0a635bb@topic.nl>
-References: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
- <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
+Date: Fri, 13 Jan 2017 08:26:50 +0100
+Message-ID: <20170113072650.orx6vl2orqfakcuk@pengutronix.de>
+References: <20170111082208.vzu7xgpd4eakyldl@pengutronix.de>
+ <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
+ <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
+ <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
+ <20170112120309.fmrt2lwz3vklqmti@pengutronix.de>
+ <CAOAejn289GLOSP-nPJnO_VpXLpyhTsF1bWQ7Ns9OfgPQCa8YTw@mail.gmail.com>
+ <20170112174902.j52foglkdouyz36n@pengutronix.de>
+ <CAOAejn3tPi0fjy+t-UhMTvAq7LfdKJJdbcLw2su1-YAGDZMxew@mail.gmail.com>
+ <20170112211004.z3wylc7vrubulc3x@pengutronix.de>
+ <CAOAejn1HAU5spQeXmYPH4XH0L5bGuoFgguozwMp=uLKcXDEPEw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Vladimir Zapolskiy <vz@mleia.com>, linux-i2c@vger.kernel.org
-Cc: soren.brinkmann@xilinx.com, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:36833 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751142AbdAMH10 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Jan 2017 02:27:26 -0500
+Content-Disposition: inline
+In-Reply-To: <CAOAejn1HAU5spQeXmYPH4XH0L5bGuoFgguozwMp=uLKcXDEPEw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-77u/T24gMDYtMDEtMTcgMjI6MzQsIFZsYWRpbWlyIFphcG9sc2tpeSB3cm90ZToKPiBIZWxsbyBN
-aWtlLAo+Cj4gT24gMDEvMDUvMjAxNyAxMjo0NyBQTSwgTWlrZSBMb29pam1hbnMgd3JvdGU6Cj4+
-IFRoZSBkcml2ZXIgY2FsbHMgaTJjX2FkZF9hZGFwdGVyIGJlZm9yZSB3cml0aW5nIHRvIGNvbmZp
-ZyByZWdpc3RlcnMsCj4+IHJlc3VsdGluZyBpbiBkbWVzZyBvdXRwdXQgbGlrZSB0aGlzLCB3aGVy
-ZSBkZXZpY2VzIGZhaWwgdG8gaW5pdGlhbGl6ZToKPj4KPj4gY2Rucy1pMmMgZmYwMzAwMDAuaTJj
-OiB0aW1lb3V0IHdhaXRpbmcgb24gY29tcGxldGlvbgo+PiBwY2E5NTN4IDEtMDA0MTogZmFpbGVk
-IHJlYWRpbmcgcmVnaXN0ZXIKPj4gcGNhOTUzeDogcHJvYmUgb2YgMS0wMDQxIGZhaWxlZCB3aXRo
-IGVycm9yIC0xMTAKPj4gYXQyNCAxLTAwNTA6IDUxMiBieXRlIDI0YzA0IEVFUFJPTSwgd3JpdGFi
-bGUsIDEgYnl0ZXMvd3JpdGUKPj4gY2Rucy1pMmMgZmYwMzAwMDAuaTJjOiAxMDAga0h6IG1taW8g
-ZmYwMzAwMDAgaXJxIDE5Nwo+Pgo+PiBUaGUgYWRhcHRlciBpcyBiZWluZyB1c2VkIGJlZm9yZSBp
-dCBjb21wbGV0ZWQgdGhlICJwcm9iZSIuIFRvIGZpeAo+PiB0aGlzLCBtYWtlICJpMmNfYWRkX2Fk
-YXB0ZXIiIHRoZSBsYXN0IHRoaW5nIGl0IGNhbGxzIGluIHByb2JlLgo+PiBJdCBhbHNvIG1ha2Vz
-IHNlbnNlIHRvIHNob3cgdGhlIGFkYXB0ZXIgaW5pdGlhbGl6YXRpb24gYmVmb3JlCj4+IHRoZSBk
-ZXZpY2VzIG9uIHRoZSBidXMuCj4KPiBjb21tb25seSAiaXQgYWxzbyIgaW4gYSBjb21taXQgbWVz
-c2FnZSBtZWFucyBhIGNoYW5nZSwgd2hpY2ggc2hvdWxkIGJlIGRvbmUKPiBzZXBhcmF0ZWx5LCBh
-bmQgdGhpcyBpcyB0aGUgY2FzZSBoZXJlIGFzIHdlbGwuCj4KPiBCZWNhdXNlIHRoZSBhZGFwdGVy
-IHJlZ2lzdHJhdGlvbiBpMmNfYWRkX2FkYXB0ZXIoKSBjYW4gZmFpbCwgaW5mb3JtYXRpb24KPiBh
-Ym91dCB0aGUgYWRhcHRlciBpbml0aWFsaXphdGlvbiB3b3VsZCBiZSBleHBlY3RlZCBvbmx5IGlu
-IGNhc2Ugb2YKPiBzdWNjZXNzZnVsIHJlZ2lzdHJhdGlvbi4KCkkgd291bGQgYXJndWUgdGhhdCB0
-aGUgImluZm8iIG1lc3NhZ2UgbWVhbnMgInRoZSBJMkMgYWRhcHRlciBpcyByZWFkeSBmb3IgCnRy
-YW5zYWN0aW9uIG5vdywgYW5kIHdlJ2xsIHN0YXJ0IGluaXRpYWxpemluZyBkZXZpY2VzIG9uIHRo
-ZSBidXMiLiBUaGF0IGlzIHRoZSAKY2FzZSBiZWZvcmUgaXQgY2FsbHMgaTJjX2FkZF9hZGFwdGVy
-KCkuCgpXaGVuIGkyY19hZGRfYWRhcHRlcigpIHJ1bnMsIGl0IHdpbGwgc3RhcnQgcHJvYmluZyBk
-ZXZpY2VzIG9uIHRoZSBidXMuIFRoaXMgCnlpZWxkcyB2ZXJ5IGNvbmZ1c2luZyBvdXRwdXQsIGFz
-IGl0IHdpbGwgb3V0cHV0IHRoaW5ncyBpbiBhIHJldmVyc2VkIG9yZGVyOgoKLSBkZXZpY2UgWCBv
-biBJMkMgYnVzCi0gZGV2aWNlIFkgb24gSTJDIGJ1cwotIGNkbnMtaTJjIGZmMDMwMDAwLmkyYzog
-MTAwIGtIeiBtbWlvIGZmMDMwMDAwIGlycSAxOTcKClRoaXMgaXMgZXNwZWNpYWxseSBjb25mdXNp
-bmcgaWYgdGhlcmUgYXJlIG11bHRpcGxlIEkyQyBhZGFwdGVycyB3aXRoIG11eGVzIApiZWhpbmQg
-dGhlbSwgdGhlIG9yZGVyIHRoZW4gYmVjb21lcyBsaWtlIHRoaXM6CgotIERldmljZSBYIG9uIGJ1
-cyAwCi0gTXV4IEEgb24gYnVzIDAgcmVnaXN0ZXJpbmcgYnVzIDIsIDMgYW5kIDQKLSBJMkMgY29u
-dHJvbGxlciBmb3IgYnVzIDAKLSBEZXZpY2UgWSBvbiBidXMgMQotIEkyQyBjb250cm9sbGVyIGZv
-ciBidXMgMQotIERldmljZSBaIG9uIGJ1cyAyCi0gZXRjLi4KCj4gVGhlIGluZm9ybWF0aW9uIHNl
-bnQgdG8gdGhlIGtlcm5lbCBsb2cgYnVmZmVyIGhlcmUgaXMgcXVpdGUgdHJpdmlhbCwKPiBwcm9i
-YWJseSBkZXZfaW5mbygpIGNhbiBiZSBqdXN0IHJlbW92ZWQsIGJ1dCBpbiBhbnkgY2FzZSBpdCBz
-aG91bGQgYmUKPiBhIHNlcGFyYXRlIGNoYW5nZS4KCkZpbmUgd2l0aCBtZSB0b28uCgo+Cj4+IFNp
-Z25lZC1vZmYtYnk6IE1pa2UgTG9vaWptYW5zIDxtaWtlLmxvb2lqbWFuc0B0b3BpYy5ubD4KPgo+
-IC0tCj4gV2l0aCBiZXN0IHdpc2hlcywKPiBWbGFkaW1pcgo+CgoKCktpbmQgcmVnYXJkcywKCk1p
-a2UgTG9vaWptYW5zClN5c3RlbSBFeHBlcnQKClRPUElDIFByb2R1Y3RzCk1hdGVyaWFhbHdlZyA0
-LCBOTC01NjgxIFJKIEJlc3QKUG9zdGJ1cyA0NDAsIE5MLTU2ODAgQUsgQmVzdApUZWxlZm9vbjog
-KzMxICgwKSA0OTkgMzMgNjkgNzkKRS1tYWlsOiBtaWtlLmxvb2lqbWFuc0B0b3BpY3Byb2R1Y3Rz
-LmNvbQpXZWJzaXRlOiB3d3cudG9waWNwcm9kdWN0cy5jb20KClBsZWFzZSBjb25zaWRlciB0aGUg
-ZW52aXJvbm1lbnQgYmVmb3JlIHByaW50aW5nIHRoaXMgZS1tYWlsCgoKCgoKCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFp
-bGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlz
-dHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Hello,
+
+On Thu, Jan 12, 2017 at 10:28:20PM +0100, M'boumba Cedric Madianga wrote:
+> Please see below a quote from datasheet that clearly described how to handle
+> For 2-byte reception:
+> ● Wait until ADDR = 1 (SCL stretched low until the ADDR flag is cleared)
+> ● Set ACK low, set POS high
+> ● Clear ADDR flag
+> ● Wait until BTF = 1 (Data 1 in DR, Data2 in shift register, SCL
+> stretched low until a data1 is read)
+> ● Set STOP high
+> ● Read data 1 and 2
+
+The problem is that you only know that you have a 2 byte transfer after
+you read the first byte (and it's a 1). (But note that this is
+irrelevant for the patch as the driver doesn't claim to support this
+kind of transfer.)
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
