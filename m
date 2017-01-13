@@ -1,54 +1,70 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v3 3/5] i2c: mux: pca954x: Add interrupt controller
- support
-Date: Fri, 13 Jan 2017 08:17:35 +0800
-Message-ID: <3d57b586-eab7-11a5-10b4-aaf0ed5baa6e@electromag.com.au>
-References: <1483952576-5308-1-git-send-email-preid@electromag.com.au>
- <1483952576-5308-4-git-send-email-preid@electromag.com.au>
- <20170112191514.dpusqnbqahayx6j3@ninjato>
+From: Mike Looijmans <mike.looijmans@topic.nl>
+Subject: Re: [PATCH] i2c: i2c-cadence: Don't register the adapter until it's
+ ready
+Date: Fri, 13 Jan 2017 07:40:17 +0100
+Message-ID: <469bf72b-70e6-24d2-99b1-79b6f0a635bb@topic.nl>
+References: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
+ <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:55344 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750781AbdAMAST (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Jan 2017 19:18:19 -0500
-In-Reply-To: <20170112191514.dpusqnbqahayx6j3@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Vladimir Zapolskiy <vz@mleia.com>, linux-i2c@vger.kernel.org
+Cc: soren.brinkmann@xilinx.com, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-On 13/01/2017 03:15, Wolfram Sang wrote:
-> On Mon, Jan 09, 2017 at 05:02:54PM +0800, Phil Reid wrote:
->> Various muxes can aggregate multiple interrupts from each i2c bus.
->> All of the muxes with interrupt support combine the active low irq lines
->> using an internal 'and' function and generate a combined active low
->> output. The muxes do provide the ability to read a control register to
->> determine which irq is active. By making the mux an irq controller isr
->> latency can potentially be reduced by reading the status register and
->> then only calling the registered isr on that bus segment.
->>
->> As there is no irq masking on the mux irq are disabled until irq_unmask is
->> called at least once.
->>
->> Signed-off-by: Phil Reid <preid@electromag.com.au>
->
-> Is the ack from Peda here forgotten or still missing?
->
-> @peda: Once you are happy, do you want to take these patches via your
-> shiny new mux-tree or do you prefer if I pick them?
->
-G'day Wolfram,
-
-I think he was hoping someone else would have a look at it based on this
-feedback.
-
-On 2017-01-04 15:13, Peter Rosin wrote:
-> Irqs are not my strong point, I would prefer if someone else also had
-> a look. And there are some comments below...
-
--- 
-Regards
-Phil Reid
+77u/T24gMDYtMDEtMTcgMjI6MzQsIFZsYWRpbWlyIFphcG9sc2tpeSB3cm90ZToKPiBIZWxsbyBN
+aWtlLAo+Cj4gT24gMDEvMDUvMjAxNyAxMjo0NyBQTSwgTWlrZSBMb29pam1hbnMgd3JvdGU6Cj4+
+IFRoZSBkcml2ZXIgY2FsbHMgaTJjX2FkZF9hZGFwdGVyIGJlZm9yZSB3cml0aW5nIHRvIGNvbmZp
+ZyByZWdpc3RlcnMsCj4+IHJlc3VsdGluZyBpbiBkbWVzZyBvdXRwdXQgbGlrZSB0aGlzLCB3aGVy
+ZSBkZXZpY2VzIGZhaWwgdG8gaW5pdGlhbGl6ZToKPj4KPj4gY2Rucy1pMmMgZmYwMzAwMDAuaTJj
+OiB0aW1lb3V0IHdhaXRpbmcgb24gY29tcGxldGlvbgo+PiBwY2E5NTN4IDEtMDA0MTogZmFpbGVk
+IHJlYWRpbmcgcmVnaXN0ZXIKPj4gcGNhOTUzeDogcHJvYmUgb2YgMS0wMDQxIGZhaWxlZCB3aXRo
+IGVycm9yIC0xMTAKPj4gYXQyNCAxLTAwNTA6IDUxMiBieXRlIDI0YzA0IEVFUFJPTSwgd3JpdGFi
+bGUsIDEgYnl0ZXMvd3JpdGUKPj4gY2Rucy1pMmMgZmYwMzAwMDAuaTJjOiAxMDAga0h6IG1taW8g
+ZmYwMzAwMDAgaXJxIDE5Nwo+Pgo+PiBUaGUgYWRhcHRlciBpcyBiZWluZyB1c2VkIGJlZm9yZSBp
+dCBjb21wbGV0ZWQgdGhlICJwcm9iZSIuIFRvIGZpeAo+PiB0aGlzLCBtYWtlICJpMmNfYWRkX2Fk
+YXB0ZXIiIHRoZSBsYXN0IHRoaW5nIGl0IGNhbGxzIGluIHByb2JlLgo+PiBJdCBhbHNvIG1ha2Vz
+IHNlbnNlIHRvIHNob3cgdGhlIGFkYXB0ZXIgaW5pdGlhbGl6YXRpb24gYmVmb3JlCj4+IHRoZSBk
+ZXZpY2VzIG9uIHRoZSBidXMuCj4KPiBjb21tb25seSAiaXQgYWxzbyIgaW4gYSBjb21taXQgbWVz
+c2FnZSBtZWFucyBhIGNoYW5nZSwgd2hpY2ggc2hvdWxkIGJlIGRvbmUKPiBzZXBhcmF0ZWx5LCBh
+bmQgdGhpcyBpcyB0aGUgY2FzZSBoZXJlIGFzIHdlbGwuCj4KPiBCZWNhdXNlIHRoZSBhZGFwdGVy
+IHJlZ2lzdHJhdGlvbiBpMmNfYWRkX2FkYXB0ZXIoKSBjYW4gZmFpbCwgaW5mb3JtYXRpb24KPiBh
+Ym91dCB0aGUgYWRhcHRlciBpbml0aWFsaXphdGlvbiB3b3VsZCBiZSBleHBlY3RlZCBvbmx5IGlu
+IGNhc2Ugb2YKPiBzdWNjZXNzZnVsIHJlZ2lzdHJhdGlvbi4KCkkgd291bGQgYXJndWUgdGhhdCB0
+aGUgImluZm8iIG1lc3NhZ2UgbWVhbnMgInRoZSBJMkMgYWRhcHRlciBpcyByZWFkeSBmb3IgCnRy
+YW5zYWN0aW9uIG5vdywgYW5kIHdlJ2xsIHN0YXJ0IGluaXRpYWxpemluZyBkZXZpY2VzIG9uIHRo
+ZSBidXMiLiBUaGF0IGlzIHRoZSAKY2FzZSBiZWZvcmUgaXQgY2FsbHMgaTJjX2FkZF9hZGFwdGVy
+KCkuCgpXaGVuIGkyY19hZGRfYWRhcHRlcigpIHJ1bnMsIGl0IHdpbGwgc3RhcnQgcHJvYmluZyBk
+ZXZpY2VzIG9uIHRoZSBidXMuIFRoaXMgCnlpZWxkcyB2ZXJ5IGNvbmZ1c2luZyBvdXRwdXQsIGFz
+IGl0IHdpbGwgb3V0cHV0IHRoaW5ncyBpbiBhIHJldmVyc2VkIG9yZGVyOgoKLSBkZXZpY2UgWCBv
+biBJMkMgYnVzCi0gZGV2aWNlIFkgb24gSTJDIGJ1cwotIGNkbnMtaTJjIGZmMDMwMDAwLmkyYzog
+MTAwIGtIeiBtbWlvIGZmMDMwMDAwIGlycSAxOTcKClRoaXMgaXMgZXNwZWNpYWxseSBjb25mdXNp
+bmcgaWYgdGhlcmUgYXJlIG11bHRpcGxlIEkyQyBhZGFwdGVycyB3aXRoIG11eGVzIApiZWhpbmQg
+dGhlbSwgdGhlIG9yZGVyIHRoZW4gYmVjb21lcyBsaWtlIHRoaXM6CgotIERldmljZSBYIG9uIGJ1
+cyAwCi0gTXV4IEEgb24gYnVzIDAgcmVnaXN0ZXJpbmcgYnVzIDIsIDMgYW5kIDQKLSBJMkMgY29u
+dHJvbGxlciBmb3IgYnVzIDAKLSBEZXZpY2UgWSBvbiBidXMgMQotIEkyQyBjb250cm9sbGVyIGZv
+ciBidXMgMQotIERldmljZSBaIG9uIGJ1cyAyCi0gZXRjLi4KCj4gVGhlIGluZm9ybWF0aW9uIHNl
+bnQgdG8gdGhlIGtlcm5lbCBsb2cgYnVmZmVyIGhlcmUgaXMgcXVpdGUgdHJpdmlhbCwKPiBwcm9i
+YWJseSBkZXZfaW5mbygpIGNhbiBiZSBqdXN0IHJlbW92ZWQsIGJ1dCBpbiBhbnkgY2FzZSBpdCBz
+aG91bGQgYmUKPiBhIHNlcGFyYXRlIGNoYW5nZS4KCkZpbmUgd2l0aCBtZSB0b28uCgo+Cj4+IFNp
+Z25lZC1vZmYtYnk6IE1pa2UgTG9vaWptYW5zIDxtaWtlLmxvb2lqbWFuc0B0b3BpYy5ubD4KPgo+
+IC0tCj4gV2l0aCBiZXN0IHdpc2hlcywKPiBWbGFkaW1pcgo+CgoKCktpbmQgcmVnYXJkcywKCk1p
+a2UgTG9vaWptYW5zClN5c3RlbSBFeHBlcnQKClRPUElDIFByb2R1Y3RzCk1hdGVyaWFhbHdlZyA0
+LCBOTC01NjgxIFJKIEJlc3QKUG9zdGJ1cyA0NDAsIE5MLTU2ODAgQUsgQmVzdApUZWxlZm9vbjog
+KzMxICgwKSA0OTkgMzMgNjkgNzkKRS1tYWlsOiBtaWtlLmxvb2lqbWFuc0B0b3BpY3Byb2R1Y3Rz
+LmNvbQpXZWJzaXRlOiB3d3cudG9waWNwcm9kdWN0cy5jb20KClBsZWFzZSBjb25zaWRlciB0aGUg
+ZW52aXJvbm1lbnQgYmVmb3JlIHByaW50aW5nIHRoaXMgZS1tYWlsCgoKCgoKCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFp
+bGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlz
+dHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
