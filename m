@@ -1,56 +1,43 @@
-From: Lucas Stach <l.stach@pengutronix.de>
-Subject: Re: [PATCH] i2c: core: don't try to OF populate DDC i2c buses
-Date: Fri, 13 Jan 2017 11:14:46 +0100
-Message-ID: <1484302486.30810.26.camel@pengutronix.de>
-References: <20161130115005.11508-1-l.stach@pengutronix.de>
-         <d31d7cd0-4b00-4db0-2a51-cf3e553e6df8@mleia.com>
-         <1480514806.2258.68.camel@pengutronix.de>
-         <f259bd4b-788c-0bc2-25b8-7e0a735af859@mleia.com>
-         <1480586832.17003.28.camel@pengutronix.de>
-         <f50333f5-906b-fe9a-3e5b-e74522472d06@mleia.com>
-         <20161211221622.GJ2552@katana>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [RFC 1/4] x86/platform/intel/iosf_mbi: Add a mutex
+ for punit access
+Date: Fri, 13 Jan 2017 12:34:54 +0200
+Message-ID: <3e46500b-8e22-6aa1-8142-97bcbd5d5571@linux.intel.com>
+References: <20170101201403.12132-1-hdegoede@redhat.com>
+ <20170101201403.12132-2-hdegoede@redhat.com>
+ <20170102141242.GY31595@intel.com>
+ <2ecf7b65-98aa-696b-f399-1f2d15d0ea65@redhat.com>
+ <20170113092644.GD31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:46907 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751363AbdAMKbG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Jan 2017 05:31:06 -0500
-In-Reply-To: <20161211221622.GJ2552@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170113092644.GD31595@intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Len Brown <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, patchwork-lst@pengutronix.de, linux-i2c@vger.kernel.org, kernel@pengutronix.de
 
-Am Sonntag, den 11.12.2016, 23:16 +0100 schrieb Wolfram Sang:
-> Lucas,
-> 
-> > Shallow review of DTS files and dpaux drivers let me say that the change
-> > below has no regressions (the change is untested):
-> > 
-> > diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
-> > index 3e6fe82..f91ade1 100644
-> > --- a/drivers/gpu/drm/drm_dp_helper.c
-> > +++ b/drivers/gpu/drm/drm_dp_helper.c
-> > @@ -1020,7 +1020,6 @@ int drm_dp_aux_register(struct drm_dp_aux *aux)
-> >  	aux->ddc.class = I2C_CLASS_DDC;
-> >  	aux->ddc.owner = THIS_MODULE;
-> >  	aux->ddc.dev.parent = aux->dev;
-> > -	aux->ddc.dev.of_node = aux->dev->of_node;
-> >  
-> >  	strlcpy(aux->ddc.name, aux->name ? aux->name : dev_name(aux->dev),
-> >  		sizeof(aux->ddc.name));
-> 
-> Is this an acceptable approach? It makes sense to me from an I2C PoV.
-> 
-> I have to say that I second Vladimir's arguments. There shouldn't be any
-> other I2C devices on DDC, but surely there is somebody somewhere hacking
-> this bus to do something.
-
-Yes, I've convinced myself that this is the better way.
-
-Please drop this patch.
-
-Regards,
-Lucas
+T24gMDEvMTMvMjAxNyAxMToyNiBBTSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+IEl0IGFsc28g
+ZmVlbHMgcXVpdGUgaGFuZCB3YXZ5IHNpbmNlIHRoZSBwdW5pdCBjb3VsZCBkbyB3aGF0ZXZlciBh
+dAo+IGFueSB0aW1lIEFGQUlLLiBFZy4gaWYgdGhlcmUncyBzb21lIHRoZXJtYWwgZXZlbnQgb3Ig
+c29tZXRoaW5nIHRoZQo+IHB1bml0IG1pZ2h0IGtpY2sgaW50byBhY3Rpb24uIFNvIHRyeWluZyB0
+byBwcm90ZWN0IHRoaXMgZnJvbSB0aGUgT1MKPiBzaWRlIG1pZ2h0IG5vdCBiZSBhYmxlIHRvIGF2
+b2lkIHRoZXNlIHByb2JsZW1zIGVudGlyZWx5LiBJdCBmZWVscyBsaWtlCj4gdGhlcmUgcmVhbGx5
+IHNob3VsZCBiZSBzb21lIGtpbmQgb2Ygc2hhcmVkIGhhcmR3YXJlL2Zpcm13YXJlIG11dGV4Cj4g
+d2l0aCB0aGUgcHVuaXQgdG8gYXJiaXRyYXRlIGFjY2VzcyB0byB0aGUgaTJjIGJ1cy4KPgpUaGVy
+ZSBpcyBhbiBIVyBzZW1hcGhvcmUgZm9yIEkyQyBhY2Nlc3MuIEl0IGlzIGltcGxlbWVudGVkIGlu
+IApkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtYmF5dHJhaWwuYyBhbmQgYW5vdGhl
+ciBzZXQgZnJvbSBIYW5zIAppcyBhZGRpbmcgc3VwcG9ydCBmb3IgQ2hlcnJ5dHJhaWwgaW50byBp
+dC4KCi0tIApKYXJra28KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwt
+Z2Z4Cg==
