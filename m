@@ -1,65 +1,72 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
-Date: Fri, 13 Jan 2017 09:29:03 +0100
-Message-ID: <20170113082903.GA1446@katana>
-References: <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
- <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
- <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
- <20170112120309.fmrt2lwz3vklqmti@pengutronix.de>
- <CAOAejn289GLOSP-nPJnO_VpXLpyhTsF1bWQ7Ns9OfgPQCa8YTw@mail.gmail.com>
- <20170112174902.j52foglkdouyz36n@pengutronix.de>
- <CAOAejn3tPi0fjy+t-UhMTvAq7LfdKJJdbcLw2su1-YAGDZMxew@mail.gmail.com>
- <20170112211004.z3wylc7vrubulc3x@pengutronix.de>
- <CAOAejn1HAU5spQeXmYPH4XH0L5bGuoFgguozwMp=uLKcXDEPEw@mail.gmail.com>
- <20170113072650.orx6vl2orqfakcuk@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i2c-cadence: Don't register the adapter until it's
+ ready
+Date: Fri, 13 Jan 2017 09:37:27 +0100
+Message-ID: <20170113083727.GB1446@katana>
+References: <1483613240-32501-1-git-send-email-mike.looijmans@topic.nl>
+ <428e8fc8-8b23-8e2c-763e-d977aaa98691@mleia.com>
+ <469bf72b-70e6-24d2-99b1-79b6f0a635bb@topic.nl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="U+BazGySraz5kW0T"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170113072650.orx6vl2orqfakcuk-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <469bf72b-70e6-24d2-99b1-79b6f0a635bb@topic.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, soren.brinkmann@xilinx.com, michal.simek@xilinx.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---/9DWx/yDrRhgMJTb
+--U+BazGySraz5kW0T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> (But note that this is irrelevant for the patch as the driver doesn't
-> claim to support this kind of transfer.)
+> I would argue that the "info" message means "the I2C adapter is ready for
+> transaction now, and we'll start initializing devices on the bus". That is
+> the case before it calls i2c_add_adapter().
 
-Yes, I wanted to mention that, too.
+I know what you mean, but i2c_add_adapter does more, and it can fail
+because the adapter is *not* ready to transfer. Seeing the success
+message before is also confusing.
 
-I'd think the series is good to go in?
+> When i2c_add_adapter() runs, it will start probing devices on the bus. Th=
+is
+> yields very confusing output, as it will output things in a reversed orde=
+r:
+>=20
+> - device X on I2C bus
+> - device Y on I2C bus
+> - cdns-i2c ff030000.i2c: 100 kHz mmio ff030000 irq 197
+
+I agree. That being said, somewhen I started working on moving such
+messages into the core to save string space and have consistent output.
+Then, we can print at the proper time.
+
+So, until then, we should be consistent with the other driver, I'd say.
 
 
---/9DWx/yDrRhgMJTb
+--U+BazGySraz5kW0T
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYeI/PAAoJEBQN5MwUoCm2bVsQAIbzqUM2p/ozk3KTiSifrM0z
-/m0hxQjaXEN4FW71iFacZnmpdS8dQI+o56OyDpgc887LjQP0pjGUdSEsIKumsqZp
-zfpdBOMv05MR4kXFijtMEhpboOlmq8Nz4xjrtio4xXAGceqqhLfPIrANJvFPLFE+
-oSU//hcr4RPLBT5z19wtO0bTp72T8x/mWpxlIU7U+TRnjhtPE3K0bkvqoDmRJgIm
-dAcrubLdRzLxcAHQGSv4UJzXqf6npSwyjvfo9I7xvthceSmSJd9yVVuBELR4+IKO
-IZtoCKxk4rPFAkTrvw75LzAWmcZMmJOl3Sh/S/VrdpqsQ4bwTizxIkb6KQgU/wS0
-CQu+7Oq4nKnc6MeG8wt8nJ063RgM8JZQVEOs6Si8LJkvdTnz9BACXdRi5ijzVevj
-19yRNtm3jnhbmQpyYkO3OtGqwhrPK/bSFzayeTCJlLRUDGqYX4tVRsfBDFhygGLq
-lS9IP46q+jopMtJOUv5jHqEV1GmD6aJ25qmMNftV1I/ReSMDeiZ7kbaL0HjLTKHO
-FzlmGLAD5wesqCffjJK4hMsnz5asBz+54h3+p+x0Yg6ozO5h+e28Ox2Skfs+O6Lb
-I35B3p/6GmuW7Vsd0FZzJ4/eWaaA9cG+v1Q4uPxKxBO1mzniRp97jrhGYc7nCmVA
-95DjuLiqoqYshhU3yH+O
-=CPaC
+iQIbBAEBAgAGBQJYeJHHAAoJEBQN5MwUoCm2QfcP+PkCcUAnOjzw5hs5Jw1Y7ztu
+zgtFgADle3izUh9Ch/rSQ7ayQyyqB1JtIpYSdU5UzYztaaJ1Ehsp8gYiGcftJJYx
+0K15t6AaIPActPwpGuwPwkY9ESY8LG2rKvWICosWAoMg1KJeKlHJJTHwr4Vtbn4l
+c+0qQF2Zi1RqU6A6ljyb0ik7PclAAzMLH9mQZwdaYvosFSSmipjvLUWA48fPVk99
+yi8v51pUIjg0RFDPkZ4Dd1XNrnL+CS0RDwPu3g4uU52oHij2mPxcTFX1+rQgglb3
+PkcQf0HAV5883Vh+rHrm+53pGAoD6d2fAJiHwuh+ogsFQjbs0umArASaJ2s4EoXm
+GQwNV4lrAoIOIgVGvIlpZSTSvZ1nFd6ZgyAyujoMG9XUMdActSQBcNFsdmSG2ijC
+BjOE2oU/UoAV+mn2UlB4Q4lTU19GPsupZk5ldui7RgIKJwxQF2JFMTCXas+7rjCY
+m2sH3rLQeoLoUk6/6ZpH1RSV7ueP2yXfk0N9UnKpsPEYzlOHXHAtCclbeyl+tsSl
+Te5c+iciwZZ9vWSBC+KBaWansRKPV1Lj2svFGSNZu5DCSj1CffO96JeYXeAQyT4r
+IFv91cgCewdKcf9IJwCLQwVxWZe9SL/YAwQ/uwIt3dgOwceATymkbA+w1FSd/+Yh
+D28JWodv4CvAXf7528o=
+=VUyY
 -----END PGP SIGNATURE-----
 
---/9DWx/yDrRhgMJTb--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--U+BazGySraz5kW0T--
