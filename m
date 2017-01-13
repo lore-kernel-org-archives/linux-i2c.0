@@ -1,10 +1,8 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH v8 2/5] i2c: Add STM32F4 I2C driver
-Date: Fri, 13 Jan 2017 08:26:50 +0100
-Message-ID: <20170113072650.orx6vl2orqfakcuk@pengutronix.de>
-References: <20170111082208.vzu7xgpd4eakyldl@pengutronix.de>
- <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
+Date: Fri, 13 Jan 2017 09:29:03 +0100
+Message-ID: <20170113082903.GA1446@katana>
+References: <CAOAejn2eOy2sn1VkE979ne23Sj9L6+kaQDNpL1EUKb2m=6sGXw@mail.gmail.com>
  <20170111153940.dtxzvtdici3r7l54@pengutronix.de>
  <CAOAejn2pW20VPP_yGtvJ_ufvj6Xj1poBiiA2WqkALiaLyyONug@mail.gmail.com>
  <20170112120309.fmrt2lwz3vklqmti@pengutronix.de>
@@ -13,42 +11,55 @@ References: <20170111082208.vzu7xgpd4eakyldl@pengutronix.de>
  <CAOAejn3tPi0fjy+t-UhMTvAq7LfdKJJdbcLw2su1-YAGDZMxew@mail.gmail.com>
  <20170112211004.z3wylc7vrubulc3x@pengutronix.de>
  <CAOAejn1HAU5spQeXmYPH4XH0L5bGuoFgguozwMp=uLKcXDEPEw@mail.gmail.com>
+ <20170113072650.orx6vl2orqfakcuk@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:36833 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751142AbdAMH10 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Jan 2017 02:27:26 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOAejn1HAU5spQeXmYPH4XH0L5bGuoFgguozwMp=uLKcXDEPEw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170113072650.orx6vl2orqfakcuk-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Hello,
 
-On Thu, Jan 12, 2017 at 10:28:20PM +0100, M'boumba Cedric Madianga wrote:
-> Please see below a quote from datasheet that clearly described how to handle
-> For 2-byte reception:
-> ● Wait until ADDR = 1 (SCL stretched low until the ADDR flag is cleared)
-> ● Set ACK low, set POS high
-> ● Clear ADDR flag
-> ● Wait until BTF = 1 (Data 1 in DR, Data2 in shift register, SCL
-> stretched low until a data1 is read)
-> ● Set STOP high
-> ● Read data 1 and 2
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The problem is that you only know that you have a 2 byte transfer after
-you read the first byte (and it's a 1). (But note that this is
-irrelevant for the patch as the driver doesn't claim to support this
-kind of transfer.)
 
-Best regards
-Uwe
+> (But note that this is irrelevant for the patch as the driver doesn't
+> claim to support this kind of transfer.)
 
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Yes, I wanted to mention that, too.
+
+I'd think the series is good to go in?
+
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYeI/PAAoJEBQN5MwUoCm2bVsQAIbzqUM2p/ozk3KTiSifrM0z
+/m0hxQjaXEN4FW71iFacZnmpdS8dQI+o56OyDpgc887LjQP0pjGUdSEsIKumsqZp
+zfpdBOMv05MR4kXFijtMEhpboOlmq8Nz4xjrtio4xXAGceqqhLfPIrANJvFPLFE+
+oSU//hcr4RPLBT5z19wtO0bTp72T8x/mWpxlIU7U+TRnjhtPE3K0bkvqoDmRJgIm
+dAcrubLdRzLxcAHQGSv4UJzXqf6npSwyjvfo9I7xvthceSmSJd9yVVuBELR4+IKO
+IZtoCKxk4rPFAkTrvw75LzAWmcZMmJOl3Sh/S/VrdpqsQ4bwTizxIkb6KQgU/wS0
+CQu+7Oq4nKnc6MeG8wt8nJ063RgM8JZQVEOs6Si8LJkvdTnz9BACXdRi5ijzVevj
+19yRNtm3jnhbmQpyYkO3OtGqwhrPK/bSFzayeTCJlLRUDGqYX4tVRsfBDFhygGLq
+lS9IP46q+jopMtJOUv5jHqEV1GmD6aJ25qmMNftV1I/ReSMDeiZ7kbaL0HjLTKHO
+FzlmGLAD5wesqCffjJK4hMsnz5asBz+54h3+p+x0Yg6ozO5h+e28Ox2Skfs+O6Lb
+I35B3p/6GmuW7Vsd0FZzJ4/eWaaA9cG+v1Q4uPxKxBO1mzniRp97jrhGYc7nCmVA
+95DjuLiqoqYshhU3yH+O
+=CPaC
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
