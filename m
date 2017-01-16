@@ -1,87 +1,57 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH linux v2 0/6] drivers: hwmon: Add On-Chip Controller
- driver
-Date: Sun, 15 Jan 2017 10:35:10 -0800
-Message-ID: <ee855470-25fd-b29b-b9fc-5e4dae110cd3@roeck-us.net>
-References: <1484158237-10014-1-git-send-email-eajames.ibm@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v4 4/5] dt: bindings: i2c-mux-pca954x: Add documentation for i2c-mux-irq-mask-en
+Date: Mon, 16 Jan 2017 11:11:14 +0800
+Message-ID: <1484536275-75995-5-git-send-email-preid@electromag.com.au>
+References: <1484536275-75995-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49941 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751200AbdAOSfN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 15 Jan 2017 13:35:13 -0500
-In-Reply-To: <1484158237-10014-1-git-send-email-eajames.ibm@gmail.com>
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:33840 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751479AbdAPDLY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 15 Jan 2017 22:11:24 -0500
+In-Reply-To: <1484536275-75995-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: eajames.ibm@gmail.com
-Cc: devicetree@vger.kernel.org, jdelvare@suse.com, corbet@lwn.net, linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, wsa@the-dreams.de, andrew@aj.id.au, joel@jms.id.au, benh@kernel.crashing.org, "Edward A. James" <eajames@us.ibm.com>
+To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-On 01/11/2017 10:10 AM, eajames.ibm@gmail.com wrote:
-> From: "Edward A. James" <eajames@us.ibm.com>
->
-> This patchset adds a hwmon driver to support the OCC (On-Chip Controller)
-> on the IBM POWER8 and POWER9 processors, from a BMC (Baseboard Management
-> Controller). The OCC is an embedded processor that provides real time
-> power and thermal monitoring.
->
-> The driver provides an interface on a BMC to poll OCC sensor data, set
-> user power caps, and perform some basic OCC error handling. It interfaces
-> with userspace through hwmon.
->
-> The driver is currently functional only for the OCC on POWER8 chips.
-> Communicating with the POWER9 OCC requries FSI support.
->
+Unfortunately some hardware device will assert their irq line immediately
+on power on and provide no mechanism to mask the irq. As the i2c muxes
+provide no method to mask irq line this provides a work around by keeping
+the parent irq masked until enough device drivers have loaded to service
+all pending interrupts.
 
-Overall looks pretty good. There is the 0day hiccup (was that solved ?) and
-a few comments I made separately. It might make sense to add someone from IBM
-as maintainer.
+For example the the ltc1760 assert its SMBALERT irq immediately on power
+on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+device is registered irq are enabled and fire continuously as the second
+device driver has not yet loaded. Setting this parameter to 0x3 while
+delay the irq being enabled until both devices are ready.
 
-Thanks,
-Guenter
+Acked-by: Peter Rosin <peda@axentia.se>
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> Edward A. James (6):
->   hwmon: Add core On-Chip Controller support for POWER CPUs
->   hwmon: occ: Add sysfs interface
->   hwmon: occ: Add I2C transport implementation for SCOM operations
->   hwmon: occ: Add callbacks for parsing P8 OCC datastructures
->   hwmon: occ: Add hwmon implementation for the P8 OCC
->   hwmon: occ: Add callbacks for parsing P9 OCC datastructures
->
->  Documentation/devicetree/bindings/hwmon/occ.txt |  13 +
->  Documentation/hwmon/occ                         | 114 +++++
->  drivers/hwmon/Kconfig                           |   2 +
->  drivers/hwmon/Makefile                          |   1 +
->  drivers/hwmon/occ/Kconfig                       |  29 ++
->  drivers/hwmon/occ/Makefile                      |   2 +
->  drivers/hwmon/occ/occ.c                         | 533 ++++++++++++++++++++++++
->  drivers/hwmon/occ/occ.h                         |  83 ++++
->  drivers/hwmon/occ/occ_p8.c                      | 254 +++++++++++
->  drivers/hwmon/occ/occ_p8.h                      |  31 ++
->  drivers/hwmon/occ/occ_p9.c                      | 314 ++++++++++++++
->  drivers/hwmon/occ/occ_p9.h                      |  31 ++
->  drivers/hwmon/occ/occ_scom_i2c.c                |  73 ++++
->  drivers/hwmon/occ/occ_scom_i2c.h                |  26 ++
->  drivers/hwmon/occ/occ_sysfs.c                   | 274 ++++++++++++
->  drivers/hwmon/occ/occ_sysfs.h                   |  44 ++
->  drivers/hwmon/occ/p8_occ_i2c.c                  | 123 ++++++
->  drivers/hwmon/occ/scom.h                        |  47 +++
->  18 files changed, 1994 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/hwmon/occ.txt
->  create mode 100644 Documentation/hwmon/occ
->  create mode 100644 drivers/hwmon/occ/Kconfig
->  create mode 100644 drivers/hwmon/occ/Makefile
->  create mode 100644 drivers/hwmon/occ/occ.c
->  create mode 100644 drivers/hwmon/occ/occ.h
->  create mode 100644 drivers/hwmon/occ/occ_p8.c
->  create mode 100644 drivers/hwmon/occ/occ_p8.h
->  create mode 100644 drivers/hwmon/occ/occ_p9.c
->  create mode 100644 drivers/hwmon/occ/occ_p9.h
->  create mode 100644 drivers/hwmon/occ/occ_scom_i2c.c
->  create mode 100644 drivers/hwmon/occ/occ_scom_i2c.h
->  create mode 100644 drivers/hwmon/occ/occ_sysfs.c
->  create mode 100644 drivers/hwmon/occ/occ_sysfs.h
->  create mode 100644 drivers/hwmon/occ/p8_occ_i2c.c
->  create mode 100644 drivers/hwmon/occ/scom.h
->
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index aa09704..6de1e8e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -19,6 +19,8 @@ Optional Properties:
+   - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
+     children in idle state. This is necessary for example, if there are several
+     multiplexers on the bus and the devices behind them use same I2C addresses.
++  - nxp,irq-mask-enable: BitMask; Defines a mask for which irq lines need to be
++    unmasked before the parent irq line in enabled.
+   - interrupt-parent: Phandle for the interrupt controller that services
+     interrupts for this device.
+   - interrupts: Interrupt mapping for IRQ.
+@@ -36,6 +38,7 @@ Example:
+ 		#size-cells = <0>;
+ 		reg = <0x74>;
+ 
++		nxp,irq-mask-enable = <0x3>;
+ 		interrupt-parent = <&ipic>;
+ 		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
+ 		interrupt-controller;
+-- 
+1.8.3.1
