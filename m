@@ -1,44 +1,53 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [Patch V3] i2c: imx-lpi2c: add VLLS mode support
-Date: Tue, 17 Jan 2017 23:04:50 +0200
-Message-ID: <008db20d-9353-4af5-b97c-fa3550f31e20@mleia.com>
-References: <1484648455-5454-1-git-send-email-pandy.gao@nxp.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] i2c: busses: constify dev_pm_ops structures
+Date: Tue, 17 Jan 2017 15:23:49 -0800
+Message-ID: <20170117232349.GY7403@atomide.com>
+References: <1484474381-1064-1-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:51388 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751166AbdAQVFQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Jan 2017 16:05:16 -0500
-In-Reply-To: <1484648455-5454-1-git-send-email-pandy.gao@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1484474381-1064-1-git-send-email-bhumirks@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, wsa@the-dreams.de, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, wsa-dev@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com
 
-On 01/17/2017 12:20 PM, Gao Pan wrote:
-> When system enters VLLS mode, module power is turned off. As a result,
-> all registers are reset to HW default value. After exiting VLLS mode,
-> registers are still in default mode. As a result, the pinctrl settings
-> are incorrect, which will affect the module function.
+* Bhumika Goyal <bhumirks@gmail.com> [170115 02:00]:
+> Declare dev_pm_ops structures as const as they are only stored in the pm
+> field of a device_driver structure. This field is of type const, so
+> dev_pm_ops structures having similar properties can be declared const
+> too.
 > 
-> The patch recovers the pinctrl setting when exit VLLS mode.
+> File size before: drivers/i2c/busses/i2c-omap.o
+>    text	   data	    bss	    dec	    hex	filename
+>    6814	    584	      0	   7398	   1ce6	drivers/i2c/busses/i2c-omap.o
 > 
-> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+> File size after: drivers/i2c/busses/i2c-omap.o
+>    text	   data	    bss	    dec	    hex	filename
+>    7006	    392	      0	   7398	   1ce6	drivers/i2c/busses/i2c-omap.o
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+
+Acked-by: Tony Lindgren <tony@atomide.com>
+
 > ---
-> V2:
->  -drop "#else branch" and IMX_LPI2C_PM completely
->  -pm = &imx_lpi2c_pm
+>  drivers/i2c/busses/i2c-omap.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> V3:
->  -remove unnecessary #ifdef
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index c7da0c4..1ebb5e9 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1504,7 +1504,7 @@ static int omap_i2c_runtime_resume(struct device *dev)
+>  	return 0;
+>  }
+>  
+> -static struct dev_pm_ops omap_i2c_pm_ops = {
+> +static const struct dev_pm_ops omap_i2c_pm_ops = {
+>  	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
+>  			   omap_i2c_runtime_resume, NULL)
+>  };
+> -- 
+> 1.9.1
 > 
-
-The change looks good, thank you for updates.
-
-Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
-
---
-With best wishes,
-Vladimir
