@@ -1,70 +1,128 @@
-From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Subject: [PATCH v5 0/5]  i2c: mux: pca954x: Add interrupt controller support
-Date: Tue, 17 Jan 2017 16:00:24 +0800
-Message-ID: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v5 5/5] i2c: mux: pca954x: Add irq-mask-enable to delay enabling irqs
+Date: Tue, 17 Jan 2017 16:00:29 +0800
+Message-ID: <1484640029-22870-6-git-send-email-preid@electromag.com.au>
+References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:51869 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750949AbdAQIAj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2017 03:00:39 -0500
+In-Reply-To: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Various muxes can aggregate multiple interrupts from each i2c bus.
-All of the muxes with interrupt support combine the active low irq lines
-using an internal 'and' function and generate a combined active low
-output. The muxes do provide the ability to read a control register to
-determine which irq is active. By making the mux an irq controller isr
-latenct can potentially be reduced by reading the status register and 
-then only calling the registered isr on that bus segment.
+Unfortunately some hardware device will assert their irq line immediately
+on power on and provide no mechanism to mask the irq. As the i2c muxes
+provide no method to mask irq line this provides a work around by keeping
+the parent irq masked until enough device drivers have loaded to service
+all pending interrupts.
 
-In addition an additional enable mask is added to work around devices
-that assert irq immediately before being setup by disabling the irq
-from the mux until all devices are registered.
+For example the the ltc1760 assert its SMBALERT irq immediately on power
+on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+device is registered irq are enabled and fire continuously as the second
+device driver has not yet loaded. Setting this parameter to <1 1> will
+delay the irq being enabled until both devices are ready.
 
-Changes from v4:
-- p4: Change definition of irq_mask_enable to an array.
-- p4: Removed acks due to change requested by Peter
-- p5: Parse array of enables. Currently only supports 1 chip
-      But dt specification will allow expansion to handle
-      multple irq consume chips to be registered on a bus segment
-- p5: Fix up logic related to enabling and disable irq's.
-      Use a flag to indicate when irq has been enabled.
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
-Changes from v3:
-- p3: Add spin lock to irq mask / unmask.
-- p4: Add Rob's ack.
-
-Changes from v2:
-- p1: Added Acked-by
-- p5: fixup 2 typos
-
-Changes from v1:
-- Update for new ACPI table
-- Fix typo in documentation
-- Fix typo in function names
-- Fix typo in irq name
-- Added spaces around '+' / '='
-- Change goto label names
-- Change property name from i2c-mux-irq-mask-en to nxp,irq-mask-enable
-- Change variable name irq_mask_en to irq_mask_enable
-- Add commentt about irq_mask_enable
-- Added Acked-By's
-
-Phil Reid (5):
-  i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
-  dt: bindings: i2c-mux-pca954x: Add documentation for interrupt
-    controller
-  i2c: mux: pca954x: Add interrupt controller support
-  dt: bindings: i2c-mux-pca954x: Add documentation for
-    nxp,irq-mask-enable
-  i2c: mux: pca954x: Add irq-mask-enable to delay enabling irqs
-
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  17 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 177 ++++++++++++++++++++-
- 2 files changed, 189 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index f55da88..012b2ef 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -76,6 +76,19 @@ struct chip_desc {
+ 	} muxtype;
+ };
+ 
++/*
++ * irq_mask_enable: Provides a mechanism to work around hardware that asserts
++ * their irq immediately on power on. It allows the enabling of the irq to be
++ * delayed until the corresponding bits in the the irq_mask are set thru
++ * irq_unmask.
++ * For example the ltc1760 assert its SMBALERT irq immediately on power on.
++ * With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
++ * device is registered irq are enabled and fire continuously as the second
++ * device driver has not yet loaded. Setting this parameter to 0x3 while
++ * delay the irq being enabled until both devices are ready.
++ * This workaround will not work if two devices share an interrupt on the
++ * same bus segment.
++ */
+ struct pca954x {
+ 	const struct chip_desc *chip;
+ 
+@@ -84,7 +97,9 @@ struct pca954x {
+ 	struct i2c_client *client;
+ 
+ 	struct irq_domain *irq;
++	unsigned int irq_mask_enable;
+ 	unsigned int irq_mask;
++	bool irq_enabled;
+ 	spinlock_t lock;
+ };
+ 
+@@ -266,8 +281,10 @@ static void pca954x_irq_mask(struct irq_data *idata)
+ 	spin_lock_irqsave(&data->lock, flags);
+ 
+ 	data->irq_mask &= ~BIT(pos);
+-	if (!data->irq_mask)
++	if (data->irq_enabled && !data->irq_mask) {
+ 		disable_irq(data->client->irq);
++		data->irq_enabled = false;
++	}
+ 
+ 	spin_unlock_irqrestore(&data->lock, flags);
+ }
+@@ -275,14 +292,18 @@ static void pca954x_irq_mask(struct irq_data *idata)
+ static void pca954x_irq_unmask(struct irq_data *idata)
+ {
+ 	struct pca954x *data = irq_data_get_irq_chip_data(idata);
++	unsigned int mask_enable = data->irq_mask_enable;
+ 	unsigned int pos = idata->hwirq;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&data->lock, flags);
+ 
+-	if (!data->irq_mask)
+-		enable_irq(data->client->irq);
+ 	data->irq_mask |= BIT(pos);
++	if (!data->irq_enabled
++	    && (data->irq_mask & mask_enable) == mask_enable) {
++		enable_irq(data->client->irq);
++		data->irq_enabled = true;
++	}
+ 
+ 	spin_unlock_irqrestore(&data->lock, flags);
+ }
+@@ -305,6 +326,7 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+ {
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 	struct i2c_client *client = data->client;
++	u32 irq_mask_enable[PCA954X_MAX_NCHANS] = { 0 };
+ 	int c, err, irq;
+ 
+ 	if (!data->chip->has_irq || client->irq <= 0)
+@@ -312,6 +334,9 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+ 
+ 	spin_lock_init(&data->lock);
+ 
++	of_property_read_u32_array(client->dev.of_node, "nxp,irq-mask-enable",
++		irq_mask_enable, data->chip->nchans);
++
+ 	data->irq = irq_domain_add_linear(client->dev.of_node,
+ 					  data->chip->nchans,
+ 					  &irq_domain_simple_ops, data);
+@@ -319,6 +344,8 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+ 		return -ENODEV;
+ 
+ 	for (c = 0; c < data->chip->nchans; c++) {
++		data->irq_mask_enable |= irq_mask_enable[c] ? BIT(c) : 0;
++		WARN_ON(irq_mask_enable[c] > 1);
+ 		irq = irq_create_mapping(data->irq, c);
+ 		irq_set_chip_data(irq, data);
+ 		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
 -- 
 1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
