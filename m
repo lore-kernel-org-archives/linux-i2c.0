@@ -1,83 +1,42 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v3] i2c: core: helper function to detect slave mode
-Date: Tue, 17 Jan 2017 14:33:00 +0000
-Message-ID: <58edd25a0fbe50b6d5abef14b7e46c63a1e06830.1484663257.git.lolivei@synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH v9 0/5] Add support for the STM32F4 I2C
+Date: Tue, 17 Jan 2017 16:26:56 +0100
+Message-ID: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, vz@mleia.com
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, u.kleine-koenig@pengutronix.de
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This function has the purpose of mode detection by checking the
-device nodes for a reg matching with the I2C_OWN_SLAVE_ADDREESS flag.
-Currently only checks using OF functions (ACPI slave not supported yet).
+This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
+speed.
 
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
-Changes V2->V3: (@Vladimir)
-- Bug Fix: «of_node_put(child)» added.
+Changes since v8:
+- Rework I2C Clock Control Register computation (Uwe)
+- Save register accesses as often as possible (Uwe)
+- Don't use mask before saving rx buffer (Uwe)
+- Add more comments to explain hardware way of working (Uwe)
+- Rename stm32f4_i2c_handle_rx_btf function by stm32f4_i2c_handle_rx_done (Uwe)
+- Set/Clear Ack position bit during address match phase
 
- drivers/i2c/i2c-core.c | 30 ++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  1 +
- 2 files changed, 31 insertions(+)
+M'boumba Cedric Madianga (5):
+  dt-bindings: Document the STM32 I2C bindings
+  i2c: Add STM32F4 I2C driver
+  ARM: dts: stm32: Add I2C1 support for STM32F429 SoC
+  ARM: dts: stm32: Add I2C1 support for STM32429 eval board
+  ARM: configs: stm32: Add I2C support for STM32 defconfig
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 583e95042a21..30aa7b50b5bc 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -3690,6 +3690,36 @@ int i2c_slave_unregister(struct i2c_client *client)
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(i2c_slave_unregister);
-+
-+/**
-+ * i2c_slave_mode_detect - detect operation mode
-+ * @dev:  The device owning the bus
-+ *
-+ * This checks the device nodes for an I2C slave by checking the address
-+ * used.
-+ *
-+ * Returns true if an I2C slave is detected, otherwise returns false.
-+ */
-+bool i2c_slave_mode_detect(struct device *dev)
-+{
-+	if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
-+		struct device_node *child;
-+		u32 reg;
-+
-+		for_each_child_of_node(dev->of_node, child) {
-+			of_property_read_u32(child, "reg", &reg);
-+			if (reg & I2C_OWN_SLAVE_ADDRESS) {
-+				of_node_put(child);
-+				return true;
-+			}
-+		}
-+	} else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev)) {
-+		dev_dbg(dev, "ACPI slave is not supported yet\n");
-+	}
-+	return false;
-+}
-+EXPORT_SYMBOL_GPL(i2c_slave_mode_detect);
-+
- #endif
- 
- MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 4b45ec46161f..2e72e157826c 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -282,6 +282,7 @@ enum i2c_slave_event {
- 
- extern int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb);
- extern int i2c_slave_unregister(struct i2c_client *client);
-+extern bool i2c_slave_mode_detect(struct device *dev);
- 
- static inline int i2c_slave_event(struct i2c_client *client,
- 				  enum i2c_slave_event event, u8 *val)
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  23 +
+ arch/arm/configs/stm32_defconfig                   |   3 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32f4.c                   | 883 +++++++++++++++++++++
+ 7 files changed, 959 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+ create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
+
 -- 
-2.11.0
+1.9.1
