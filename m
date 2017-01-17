@@ -1,65 +1,74 @@
-From: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] iio: distance: srf08: add IIO driver for us ranger
-Date: Tue, 17 Jan 2017 11:28:01 +0100
-Message-ID: <20170117102801.GB7823@andreas>
-References: <20170110184815.GA15532@andreas>
- <4099feac-959c-2b5b-a21a-3b111098af39@kernel.org>
- <20170114174856.GA2351@andreas>
- <d05cce62-4362-b249-f49f-58eed2316ddb@kernel.org>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch V3] i2c: imx-lpi2c: add VLLS mode support
+Date: Tue, 17 Jan 2017 18:20:55 +0800
+Message-ID: <1484648455-5454-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <d05cce62-4362-b249-f49f-58eed2316ddb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr10053.outbound.protection.outlook.com ([40.107.1.53]:57408
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751017AbdAQKiu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 17 Jan 2017 05:38:50 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, wsa-dev@sang-engineering.com, vz@mleia.com
+Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com
 
-Hi Jonathan,
+When system enters VLLS mode, module power is turned off. As a result,
+all registers are reset to HW default value. After exiting VLLS mode,
+registers are still in default mode. As a result, the pinctrl settings
+are incorrect, which will affect the module function.
 
-[...]
+The patch recovers the pinctrl setting when exit VLLS mode.
 
-> >> For the range, it's an interesting one.  Again the term range could
-> >> mean too many things within the wider ABI. We need to make it more
-> >> specific.
-> >>
-> >> Actually reading the datasheet, I think this is fundamentally about the
-> >> maximum sampling frequency rather than directly about the range.
-> >> The only reason you'd reduce the range is to speed that up. It doesn't
-> >> improve the resolution, the device simply answers quicker.
-> >>
-> >> So I'd support this as sampling_frequency.  You could then use
-> >> the the iio_info_mask_*_available and relevant callback to provide
-> >> info on what it then restricts the possible output values to
-> >> (rather than controlling it directly).
-> >>
-> > 
-> > By changing the range one cannot influence the sampling frequency directly. I
-> > have seen on the oszilloscope that the telegrams arrive almost at the same time
-> > with different settings of range and the same gain.
-> > 
-> > Only if the gain is also adjusted the sensor works faster and a higher frequency
-> > can be used. But the gain is also used to adjust the sensitivity of the sensor. 
-> That's rather weird and not what the datasheet suggests. Ah well.
-> > 
-> > What about calling it "sensor_domain" or "sensor_max_range"?
-> hmm. Not sure - propose that with appropriate Docs and we can think more on it.
-> > 
-> > 
+Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+---
+V2:
+ -drop "#else branch" and IMX_LPI2C_PM completely
+ -pm = &imx_lpi2c_pm
 
-I made a mistake in the earlier mentioned measurement which i have to correct:
+V3:
+ -remove unnecessary #ifdef
 
-The telegrams arrive faster with a smaller range and the same gain. 
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-But we cannot use the sensor at a higher frequency if we are not adjusting the
-gain of the sensor as well. This is because of echos of the former cycle which
-are still around. And this setting of the gain depends on the surrounding where
-the sensor is used. So in the driver we cannot estimate it.
-
-Therefore i'll send out the next version with the attribute name
-"sensor_max_range" together with documentation as proposal.
-
-Andreas
-
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index c62b7cd..5a85c49 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -636,12 +636,31 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int lpi2c_imx_suspend(struct device *dev)
++{
++	pinctrl_pm_select_sleep_state(dev);
++
++	return 0;
++}
++
++static int lpi2c_imx_resume(struct device *dev)
++{
++	pinctrl_pm_select_default_state(dev);
++
++	return 0;
++}
++#endif
++
++static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
++
+ static struct platform_driver lpi2c_imx_driver = {
+ 	.probe = lpi2c_imx_probe,
+ 	.remove = lpi2c_imx_remove,
+ 	.driver = {
+ 		.name = DRIVER_NAME,
+ 		.of_match_table = lpi2c_imx_of_match,
++		.pm = &imx_lpi2c_pm,
+ 	},
+ };
+ 
 -- 
+1.9.1
