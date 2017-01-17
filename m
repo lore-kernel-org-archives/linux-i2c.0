@@ -1,62 +1,67 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v5 1/5] i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
-Date: Tue, 17 Jan 2017 16:00:25 +0800
-Message-ID: <1484640029-22870-2-git-send-email-preid@electromag.com.au>
-References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:34171 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750984AbdAQIAj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2017 03:00:39 -0500
-In-Reply-To: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: Re: [PATCH v4 5/5] i2c: mux: pca954x: Add irq_mask_en to delay
+ enabling irqs
+Date: Tue, 17 Jan 2017 16:07:26 +0800
+Message-ID: <d9c4e6fb-88f5-f6b1-bbcb-291997f0d591@electromag.com.au>
+References: <1484536275-75995-1-git-send-email-preid@electromag.com.au>
+ <1484536275-75995-6-git-send-email-preid@electromag.com.au>
+ <b2e0ba39-2a1b-9c67-082d-d7d043ecc220@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <b2e0ba39-2a1b-9c67-082d-d7d043ecc220-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-The spec for the pca954x was missing. This chip is the same as the pca9540
-except that it has interrupt lines. While the i2c_device_id table mapped
-the pca9542 to the pca9540 definition the compatible table did not. In
-preparation for irq support add the pca9542 definition.
+On 16/01/2017 20:08, Peter Rosin wrote:
 
-Acked-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+>> @@ -280,9 +294,12 @@ static void pca954x_irq_unmask(struct irq_data *idata)
+>>
+>>  	spin_lock_irqsave(&data->lock, flags);
+>>
+>> -	if (!data->irq_mask)
+>> +	if (!data->irq_mask_enable && !data->irq_mask)
+>>  		enable_irq(data->client->irq);
+>>  	data->irq_mask |= BIT(pos);
+>> +	if (data->irq_mask_enable &&
+>> +		(data->irq_mask & data->irq_mask) == data->irq_mask_enable)
+>
+> Hmm, I see that some apparently incompetent person :-) already acked this,
+> but the (data->irq_mask & data->irq_mask) part doesn't make sense at all.
+>
+>> +		enable_irq(data->client->irq);
+>>
+>
+> Hmm2, if you have a problematic device (like the ltc1760) on mux segment 0
+> and sane devices on other segments I'd be inclined to specify irq-mask-enable
+> as 0x1. But then this is possible:
+>
+> 1. ltc1760 registers its irq
+> 2. enable_irq(data->client->irq) is called because irq_mask_enable is "fulfilled"
+> 3. a sane irq register an irq on some other segment
+> 4. enable_irq(...) is called again (which the code appears to try to avoid)
+>
+> As I read the code, there will be problems with specifying irq-mask-enable
+> whenever there are more than one irq-client on a mux segment.
+>
+> So, I'm removing my ack until the above is resolved...
+>
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index dd18b9c..bbf088e 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -84,6 +84,11 @@ struct pca954x {
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
- 	},
-+	[pca_9542] = {
-+		.nchans = 2,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
- 	[pca_9543] = {
- 		.nchans = 2,
- 		.muxtype = pca954x_isswi,
-@@ -110,7 +115,7 @@ struct pca954x {
- 
- static const struct i2c_device_id pca954x_id[] = {
- 	{ "pca9540", pca_9540 },
--	{ "pca9542", pca_9540 },
-+	{ "pca9542", pca_9542 },
- 	{ "pca9543", pca_9543 },
- 	{ "pca9544", pca_9544 },
- 	{ "pca9545", pca_9545 },
-@@ -124,7 +129,7 @@ struct pca954x {
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id pca954x_acpi_ids[] = {
- 	{ .id = "PCA9540", .driver_data = pca_9540 },
--	{ .id = "PCA9542", .driver_data = pca_9540 },
-+	{ .id = "PCA9542", .driver_data = pca_9542 },
- 	{ .id = "PCA9543", .driver_data = pca_9543 },
- 	{ .id = "PCA9544", .driver_data = pca_9544 },
- 	{ .id = "PCA9545", .driver_data = pca_9545 },
+G'day Peter,
+
+Yes that is obviously wrong.
+I think I've got it right this time in v5.
+Also implemented your suggest on the array for the dt binding.
+But stuck with the bitfield implementation for the moment.
+Hopefully that's ok.
+
 -- 
-1.8.3.1
+Regards
+Phil Reid
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
