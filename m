@@ -1,73 +1,90 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v5 4/5] dt: bindings: i2c-mux-pca954x: Add documentation
- for nxp,irq-mask-enable
-Date: Tue, 17 Jan 2017 09:57:24 +0100
-Message-ID: <9190ec70-eda4-5e44-a85a-211945c30eeb@axentia.se>
-References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
- <1484640029-22870-5-git-send-email-preid@electromag.com.au>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [Patch V2] i2c: imx-lpi2c: add VLLS mode support
+Date: Tue, 17 Jan 2017 11:10:25 +0200
+Message-ID: <848799b4-a364-3791-0727-414f82308e25@mleia.com>
+References: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1484640029-22870-5-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mleia.com ([178.79.152.223]:48592 "EHLO mail.mleia.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751137AbdAQJKg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 17 Jan 2017 04:10:36 -0500
+In-Reply-To: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, wsa-dev@sang-engineering.com
+Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com
 
-On 2017-01-17 09:00, Phil Reid wrote:
-> Unfortunately some hardware device will assert their irq line immediately
-> on power on and provide no mechanism to mask the irq. As the i2c muxes
-> provide no method to mask irq line this provides a work around by keeping
-> the parent irq masked until enough device drivers have loaded to service
-> all pending interrupts.
+Hello Pandy,
+
+On 01/17/2017 09:09 AM, Gao Pan wrote:
+> When system enters VLLS mode, module power is turned off. As a result,
+> all registers are reset to HW default value. After exiting VLLS mode,
+> registers are still in default mode. As a result, the pinctrl settings
+> are incorrect, which will affect the module function.
 > 
-> For example the the ltc1760 assert its SMBALERT irq immediately on power
-> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
-> device is registered irq are enabled and fire continuously as the second
-> device driver has not yet loaded. Setting this parameter to <1 1> will
-> delay the irq being enabled until both devices are ready.
-
-Hang on, does this suggestion I made make any sense at all? Maybe it does,
-but does the pca954x driver even get notified of any but the first irq client
-that unmasks interrupts on a mux segment? How can it count the number of
-active irq clients if not?
-
-I'm truly sorry for the trouble I'm causing by not just saying how it should
-be done from the start, but I feel like I've been thrown in at the deep end
-when it comes to interrupt controllers...
-
-Cheers,
-peda
-
-> Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+> The patch recovers the pinctrl setting when exit VLLS mode.
+> 
+> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 3 +++
->  1 file changed, 3 insertions(+)
+> V2:
+>  -drop "#else branch" and IMX_LPI2C_PM completely
+>  -pm = &imx_lpi2c_pm
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> index aa09704..ac71be6 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> @@ -19,6 +19,8 @@ Optional Properties:
->    - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
->      children in idle state. This is necessary for example, if there are several
->      multiplexers on the bus and the devices behind them use same I2C addresses.
-> +  - nxp,irq-mask-enable: array; Defines the minimum number of chips that must
-> +    register an irq for each channel before the parent irq line in enabled.
->    - interrupt-parent: Phandle for the interrupt controller that services
->      interrupts for this device.
->    - interrupts: Interrupt mapping for IRQ.
-> @@ -36,6 +38,7 @@ Example:
->  		#size-cells = <0>;
->  		reg = <0x74>;
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> index c62b7cd..dbde95d 100644
+> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
+> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> @@ -636,12 +636,33 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
 >  
-> +		nxp,irq-mask-enable = <0 0 0 0 1 0 0 0>;
->  		interrupt-parent = <&ipic>;
->  		interrupts = <17 IRQ_TYPE_LEVEL_LOW>;
->  		interrupt-controller;
+> +#ifdef CONFIG_PM_SLEEP
+> +static int lpi2c_imx_suspend(struct device *dev)
+> +{
+> +	pinctrl_pm_select_sleep_state(dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int lpi2c_imx_resume(struct device *dev)
+> +{
+> +	pinctrl_pm_select_default_state(dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
+> +#endif
+
+in case if I didn't manage to explain what is desirable, please change
+the order of two lines above, you may find that commonly SIMPLE_DEV_PM_OPS()
+macro is used outside #ifdef CONFIG_PM_SLEEP, due to the feature that
+CONFIG_PM_SLEEP token is incorporated into SIMPLE_DEV_PM_OPS() internals.
+
+> +
+>  static struct platform_driver lpi2c_imx_driver = {
+>  	.probe = lpi2c_imx_probe,
+>  	.remove = lpi2c_imx_remove,
+>  	.driver = {
+>  		.name = DRIVER_NAME,
+>  		.of_match_table = lpi2c_imx_of_match,
+> +#ifdef CONFIG_PM_SLEEP
+> +		.pm = &imx_lpi2c_pm,
+> +#endif
+
+Then this #ifdef won't be needed here.
+
+>  	},
+>  };
+>  
 > 
 
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+With best wishes,
+Vladimir
