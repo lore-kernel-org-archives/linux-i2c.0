@@ -1,46 +1,73 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
-Date: Tue, 17 Jan 2017 15:47:24 +0900
-Message-ID: <20170117064724.cxn57q3yis3dynvz@gangnam.samsung>
-References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
- <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+From: Gao Pan <pandy.gao@nxp.com>
+Subject: [Patch V2] i2c: imx-lpi2c: add VLLS mode support
+Date: Tue, 17 Jan 2017 15:09:27 +0800
+Message-ID: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:56251 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750884AbdAQG6d (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2017 01:58:33 -0500
-Content-disposition: inline
-In-reply-to: <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+Received: from mail-ve1eur01on0068.outbound.protection.outlook.com ([104.47.1.68]:58439
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750888AbdAQHLR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 17 Jan 2017 02:11:17 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
+To: wsa@the-dreams.de, wsa-dev@sang-engineering.com, vz@mleia.com
+Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com
 
-Hi Andrzej,
+When system enters VLLS mode, module power is turned off. As a result,
+all registers are reset to HW default value. After exiting VLLS mode,
+registers are still in default mode. As a result, the pinctrl settings
+are incorrect, which will affect the module function.
 
-On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
-> In case of arbitration lost adequate interrupt sometimes is not signaled. As
-> a result transfer timeouts and is not retried, as it should. To avoid such
-> cases code is added to check transaction status in case of every interrupt.
-> 
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-> ---
-> Hi,
-> 
-> I am not I2C specialist, this patch is a result of debugging issues
-> with SiI8620 MHL driver on TM2 device. I guess the main problem is
-> with SiI8620 chip, but exynos5 i2c is also guilty - with i2c-gpio driver
-> it works correctly - there is only one arbitration lost at 1st transaction
-> (which is properly handled - transfer is repeated succesfully). In case
-> of exynos5 there are much more arbitration losts. Lowering bus speed
-> decreases frequency of losts but do not eliminate them.
-> Any help/hint, what could cause such issues?
+The patch recovers the pinctrl setting when exit VLLS mode.
 
-I'm having the same issue on TM2 and your patch fixes it. I'm
-not sure, though, that's the right fix.
+Signed-off-by: Gao Pan <pandy.gao@nxp.com>
+---
+V2:
+ -drop "#else branch" and IMX_LPI2C_PM completely
+ -pm = &imx_lpi2c_pm
 
-In any case I will look into it.
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Andi
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index c62b7cd..dbde95d 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -636,12 +636,33 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int lpi2c_imx_suspend(struct device *dev)
++{
++	pinctrl_pm_select_sleep_state(dev);
++
++	return 0;
++}
++
++static int lpi2c_imx_resume(struct device *dev)
++{
++	pinctrl_pm_select_default_state(dev);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
++#endif
++
+ static struct platform_driver lpi2c_imx_driver = {
+ 	.probe = lpi2c_imx_probe,
+ 	.remove = lpi2c_imx_remove,
+ 	.driver = {
+ 		.name = DRIVER_NAME,
+ 		.of_match_table = lpi2c_imx_of_match,
++#ifdef CONFIG_PM_SLEEP
++		.pm = &imx_lpi2c_pm,
++#endif
+ 	},
+ };
+ 
+-- 
+1.9.1
