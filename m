@@ -1,69 +1,83 @@
-From: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Subject: [PATCH v3 3/3] iio: distance: srf08: add driver ABI documentation
-Date: Tue, 17 Jan 2017 14:50:06 +0100
-Message-ID: <20170117135006.GA22903@andreas>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v3] i2c: core: helper function to detect slave mode
+Date: Tue, 17 Jan 2017 14:33:00 +0000
+Message-ID: <58edd25a0fbe50b6d5abef14b7e46c63a1e06830.1484663257.git.lolivei@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ak-n176/SwNRljddJNmlsFzeA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, vz@mleia.com
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-Add sysfs-bus-iio-distance-srf08 for individual attributes of the driver,
-especially:
- - sensitivity which the device documentation calls gain for amplifying the
-   signal
- - max_range for limiting the maximum distance for expected echos and
-   therefore limiting the time waiting for telegrams
+This function has the purpose of mode detection by checking the
+device nodes for a reg matching with the I2C_OWN_SLAVE_ADDREESS flag.
+Currently only checks using OF functions (ACPI slave not supported yet).
 
-Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- .../ABI/testing/sysfs-bus-iio-distance-srf08       | 27 ++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
+Changes V2->V3: (@Vladimir)
+- Bug Fix: «of_node_put(child)» added.
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08 b/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
-new file mode 100644
-index 000000000000..e96c28064748
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
-@@ -0,0 +1,27 @@
-+What		/sys/bus/iio/devices/iio:deviceX/in_distance_raw
-+Date:		January 2017
-+KernelVersion:	4.11
-+Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-+Description:
-+		Get the current distance in meters between the sensor and
-+		the first object recognized
+ drivers/i2c/i2c-core.c | 30 ++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  1 +
+ 2 files changed, 31 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 583e95042a21..30aa7b50b5bc 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -3690,6 +3690,36 @@ int i2c_slave_unregister(struct i2c_client *client)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(i2c_slave_unregister);
 +
-+What		/sys/bus/iio/devices/iio:deviceX/sensor_sensitivity
-+Date:		January 2017
-+KernelVersion:	4.11
-+Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-+Description:
-+		Show or set the gain boost of the amp, from 0-31 range.
-+		default 31
++/**
++ * i2c_slave_mode_detect - detect operation mode
++ * @dev:  The device owning the bus
++ *
++ * This checks the device nodes for an I2C slave by checking the address
++ * used.
++ *
++ * Returns true if an I2C slave is detected, otherwise returns false.
++ */
++bool i2c_slave_mode_detect(struct device *dev)
++{
++	if (IS_BUILTIN(CONFIG_OF) && dev->of_node) {
++		struct device_node *child;
++		u32 reg;
 +
-+What		/sys/bus/iio/devices/iio:deviceX/sensor_max_range
-+Date:		January 2017
-+KernelVersion:	4.11
-+Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-+Description:
-+		Show or set the maximum range between the sensor and the
-+		first object echoed in millimeters.
-+		This setting limits the time the driver is waiting for a
-+		echo.
-+		Can be set between 43 and 11008 in a grid of 43 mm.
-+		default 6020
++		for_each_child_of_node(dev->of_node, child) {
++			of_property_read_u32(child, "reg", &reg);
++			if (reg & I2C_OWN_SLAVE_ADDRESS) {
++				of_node_put(child);
++				return true;
++			}
++		}
++	} else if (IS_BUILTIN(CONFIG_ACPI) && ACPI_HANDLE(dev)) {
++		dev_dbg(dev, "ACPI slave is not supported yet\n");
++	}
++	return false;
++}
++EXPORT_SYMBOL_GPL(i2c_slave_mode_detect);
++
+ #endif
+ 
+ MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 4b45ec46161f..2e72e157826c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -282,6 +282,7 @@ enum i2c_slave_event {
+ 
+ extern int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb);
+ extern int i2c_slave_unregister(struct i2c_client *client);
++extern bool i2c_slave_mode_detect(struct device *dev);
+ 
+ static inline int i2c_slave_event(struct i2c_client *client,
+ 				  enum i2c_slave_event event, u8 *val)
 -- 
-2.1.4
-
-
--- 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.11.0
