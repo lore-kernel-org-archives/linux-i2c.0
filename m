@@ -1,90 +1,75 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [Patch V2] i2c: imx-lpi2c: add VLLS mode support
-Date: Tue, 17 Jan 2017 11:10:25 +0200
-Message-ID: <848799b4-a364-3791-0727-414f82308e25@mleia.com>
-References: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v5 4/5] dt: bindings: i2c-mux-pca954x: Add documentation
+ for nxp,irq-mask-enable
+Date: Tue, 17 Jan 2017 17:28:23 +0800
+Message-ID: <aeab2bbe-e243-98f6-b07f-76e4dda62fd6@electromag.com.au>
+References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+ <1484640029-22870-5-git-send-email-preid@electromag.com.au>
+ <9190ec70-eda4-5e44-a85a-211945c30eeb@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mleia.com ([178.79.152.223]:48592 "EHLO mail.mleia.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751137AbdAQJKg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Jan 2017 04:10:36 -0500
-In-Reply-To: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:53177 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751221AbdAQJfq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2017 04:35:46 -0500
+In-Reply-To: <9190ec70-eda4-5e44-a85a-211945c30eeb@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gao Pan <pandy.gao@nxp.com>, wsa@the-dreams.de, wsa-dev@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, frank.li@nxp.com
+To: Peter Rosin <peda@axentia.se>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Hello Pandy,
+On 17/01/2017 16:57, Peter Rosin wrote:
+> On 2017-01-17 09:00, Phil Reid wrote:
+>> Unfortunately some hardware device will assert their irq line immediately
+>> on power on and provide no mechanism to mask the irq. As the i2c muxes
+>> provide no method to mask irq line this provides a work around by keeping
+>> the parent irq masked until enough device drivers have loaded to service
+>> all pending interrupts.
+>>
+>> For example the the ltc1760 assert its SMBALERT irq immediately on power
+>> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+>> device is registered irq are enabled and fire continuously as the second
+>> device driver has not yet loaded. Setting this parameter to <1 1> will
+>> delay the irq being enabled until both devices are ready.
+>
+G'day Peter,
 
-On 01/17/2017 09:09 AM, Gao Pan wrote:
-> When system enters VLLS mode, module power is turned off. As a result,
-> all registers are reset to HW default value. After exiting VLLS mode,
-> registers are still in default mode. As a result, the pinctrl settings
-> are incorrect, which will affect the module function.
-> 
-> The patch recovers the pinctrl setting when exit VLLS mode.
-> 
-> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
-> ---
-> V2:
->  -drop "#else branch" and IMX_LPI2C_PM completely
->  -pm = &imx_lpi2c_pm
-> 
->  drivers/i2c/busses/i2c-imx-lpi2c.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> index c62b7cd..dbde95d 100644
-> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> @@ -636,12 +636,33 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int lpi2c_imx_suspend(struct device *dev)
-> +{
-> +	pinctrl_pm_select_sleep_state(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static int lpi2c_imx_resume(struct device *dev)
-> +{
-> +	pinctrl_pm_select_default_state(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
-> +#endif
 
-in case if I didn't manage to explain what is desirable, please change
-the order of two lines above, you may find that commonly SIMPLE_DEV_PM_OPS()
-macro is used outside #ifdef CONFIG_PM_SLEEP, due to the feature that
-CONFIG_PM_SLEEP token is incorporated into SIMPLE_DEV_PM_OPS() internals.
+> Hang on, does this suggestion I made make any sense at all? Maybe it does,
+> but does the pca954x driver even get notified of any but the first irq client
+> that unmasks interrupts on a mux segment? How can it count the number of
+> active irq clients if not?
 
-> +
->  static struct platform_driver lpi2c_imx_driver = {
->  	.probe = lpi2c_imx_probe,
->  	.remove = lpi2c_imx_remove,
->  	.driver = {
->  		.name = DRIVER_NAME,
->  		.of_match_table = lpi2c_imx_of_match,
-> +#ifdef CONFIG_PM_SLEEP
-> +		.pm = &imx_lpi2c_pm,
-> +#endif
+Good question.
 
-Then this #ifdef won't be needed here.
+So what I did to test is setup my 2 ltc1760s to use the same irq on the pca954x.
+Using the latest patch series.
 
->  	},
->  };
->  
-> 
+Adding a log message into the irq_unmask function got the following.
+	dev_err(&data->client->dev, "irq_unmask %d %x %d", pos, data->irq_mask, data->irq_enabled);
 
---
-With best wishes,
-Vladimir
+dmesg | grep irq_unmask
+[    4.392098] pca954x 4-0070: irq_unmask 0 1 1
+
+
+But Looks like both got registered ok to the same irq.
+cat /proc/interrupts
+161:          0          0  i2c-mux-pca954x   0 Level     15-000a, 16-000a
+
+So from this testing, it doesn't look like it gets called multiple times.
+So back to the bitmask for the dt do you think.
+I think the interrupt enablelogic is correct now.
+
+>
+> I'm truly sorry for the trouble I'm causing by not just saying how it should
+> be done from the start, but I feel like I've been thrown in at the deep end
+> when it comes to interrupt controllers...
+
+No problem. I'm learning a couple things as we go.
+Should help me out on other drivers :)
+
+
+-- 
+Regards
+Phil Reid
