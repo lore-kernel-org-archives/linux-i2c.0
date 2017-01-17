@@ -1,73 +1,70 @@
-From: Gao Pan <pandy.gao@nxp.com>
-Subject: [Patch V2] i2c: imx-lpi2c: add VLLS mode support
-Date: Tue, 17 Jan 2017 15:09:27 +0800
-Message-ID: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0068.outbound.protection.outlook.com ([104.47.1.68]:58439
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750888AbdAQHLR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Jan 2017 02:11:17 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: [PATCH v5 0/5]  i2c: mux: pca954x: Add interrupt controller support
+Date: Tue, 17 Jan 2017 16:00:24 +0800
+Message-ID: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, wsa-dev@sang-engineering.com, vz@mleia.com
-Cc: linux-i2c@vger.kernel.org, pandy.gao@nxp.com, frank.li@nxp.com
 
-When system enters VLLS mode, module power is turned off. As a result,
-all registers are reset to HW default value. After exiting VLLS mode,
-registers are still in default mode. As a result, the pinctrl settings
-are incorrect, which will affect the module function.
+Various muxes can aggregate multiple interrupts from each i2c bus.
+All of the muxes with interrupt support combine the active low irq lines
+using an internal 'and' function and generate a combined active low
+output. The muxes do provide the ability to read a control register to
+determine which irq is active. By making the mux an irq controller isr
+latenct can potentially be reduced by reading the status register and 
+then only calling the registered isr on that bus segment.
 
-The patch recovers the pinctrl setting when exit VLLS mode.
+In addition an additional enable mask is added to work around devices
+that assert irq immediately before being setup by disabling the irq
+from the mux until all devices are registered.
 
-Signed-off-by: Gao Pan <pandy.gao@nxp.com>
----
-V2:
- -drop "#else branch" and IMX_LPI2C_PM completely
- -pm = &imx_lpi2c_pm
+Changes from v4:
+- p4: Change definition of irq_mask_enable to an array.
+- p4: Removed acks due to change requested by Peter
+- p5: Parse array of enables. Currently only supports 1 chip
+      But dt specification will allow expansion to handle
+      multple irq consume chips to be registered on a bus segment
+- p5: Fix up logic related to enabling and disable irq's.
+      Use a flag to indicate when irq has been enabled.
 
- drivers/i2c/busses/i2c-imx-lpi2c.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Changes from v3:
+- p3: Add spin lock to irq mask / unmask.
+- p4: Add Rob's ack.
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index c62b7cd..dbde95d 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -636,12 +636,33 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int lpi2c_imx_suspend(struct device *dev)
-+{
-+	pinctrl_pm_select_sleep_state(dev);
-+
-+	return 0;
-+}
-+
-+static int lpi2c_imx_resume(struct device *dev)
-+{
-+	pinctrl_pm_select_default_state(dev);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
-+#endif
-+
- static struct platform_driver lpi2c_imx_driver = {
- 	.probe = lpi2c_imx_probe,
- 	.remove = lpi2c_imx_remove,
- 	.driver = {
- 		.name = DRIVER_NAME,
- 		.of_match_table = lpi2c_imx_of_match,
-+#ifdef CONFIG_PM_SLEEP
-+		.pm = &imx_lpi2c_pm,
-+#endif
- 	},
- };
- 
+Changes from v2:
+- p1: Added Acked-by
+- p5: fixup 2 typos
+
+Changes from v1:
+- Update for new ACPI table
+- Fix typo in documentation
+- Fix typo in function names
+- Fix typo in irq name
+- Added spaces around '+' / '='
+- Change goto label names
+- Change property name from i2c-mux-irq-mask-en to nxp,irq-mask-enable
+- Change variable name irq_mask_en to irq_mask_enable
+- Add commentt about irq_mask_enable
+- Added Acked-By's
+
+Phil Reid (5):
+  i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
+  dt: bindings: i2c-mux-pca954x: Add documentation for interrupt
+    controller
+  i2c: mux: pca954x: Add interrupt controller support
+  dt: bindings: i2c-mux-pca954x: Add documentation for
+    nxp,irq-mask-enable
+  i2c: mux: pca954x: Add irq-mask-enable to delay enabling irqs
+
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  17 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 177 ++++++++++++++++++++-
+ 2 files changed, 189 insertions(+), 5 deletions(-)
+
 -- 
-1.9.1
+1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
