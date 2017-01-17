@@ -1,65 +1,46 @@
-From: Pandy Gao <pandy.gao@nxp.com>
-Subject: RE: [Patch V1] i2c: imx-lpi2c: add VLLS mode support
-Date: Tue, 17 Jan 2017 06:11:07 +0000
-Message-ID: <AM4PR0401MB22731E80C1A0C2B7E21BF0DBF67C0@AM4PR0401MB2273.eurprd04.prod.outlook.com>
-References: <1483521616-17914-1-git-send-email-pandy.gao@nxp.com>
- <fee8ed68-7280-175c-c33e-8aafe9f94e7c@mleia.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
+Date: Tue, 17 Jan 2017 15:47:24 +0900
+Message-ID: <20170117064724.cxn57q3yis3dynvz@gangnam.samsung>
+References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+ <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0055.outbound.protection.outlook.com ([104.47.2.55]:15824
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750820AbdAQGLL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Jan 2017 01:11:11 -0500
-In-Reply-To: <fee8ed68-7280-175c-c33e-8aafe9f94e7c@mleia.com>
-Content-Language: en-US
+Received: from mailout4.samsung.com ([203.254.224.34]:56251 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750884AbdAQG6d (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Jan 2017 01:58:33 -0500
+Content-disposition: inline
+In-reply-to: <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wsa-dev@sang-engineering.com" <wsa-dev@sang-engineering.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>, Andy Duan <fugang.duan@nxp.com>
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 
-IEZyb206IFZsYWRpbWlyIFphcG9sc2tpeSA8bWFpbHRvOnZ6QG1sZWlhLmNvbT4gIFNlbnQ6IFNh
-dHVyZGF5LCBKYW51YXJ5IDA3LCAyMDE3IDU6MjAgQU0NCj4gVG86IFBhbmR5IEdhbyA8cGFuZHku
-Z2FvQG54cC5jb20+OyB3c2FAdGhlLWRyZWFtcy5kZTsgd3NhLQ0KPiBkZXZAc2FuZy1lbmdpbmVl
-cmluZy5jb20NCj4gQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IEZyYW5rIExpIDxmcmFu
-ay5saUBueHAuY29tPjsgQW5keSBEdWFuDQo+IDxmdWdhbmcuZHVhbkBueHAuY29tPg0KPiBTdWJq
-ZWN0OiBSZTogW1BhdGNoIFYxXSBpMmM6IGlteC1scGkyYzogYWRkIFZMTFMgbW9kZSBzdXBwb3J0
-DQo+IA0KPiBIaSwNCj4gDQo+IE9uIDAxLzA0LzIwMTcgMTE6MjAgQU0sIEdhbyBQYW4gd3JvdGU6
-DQo+ID4gV2hlbiBzeXN0ZW0gZW50ZXJzIFZMTFMgbW9kZSwgbW9kdWxlIHBvd2VyIGlzIHR1cm5l
-ZCBvZmYuIEFzIGENCj4gcmVzdWx0LA0KPiA+IGFsbCByZWdpc3RlcnMgYXJlIHJlc2V0IHRvIEhX
-IGRlZmF1bHQgdmFsdWUuIEFmdGVyIGV4aXRpbmcgVkxMUyBtb2RlLA0KPiA+IHJlZ2lzdGVycyBh
-cmUgc3RpbGwgaW4gZGVmYXVsdCBtb2RlLiBBcyBhIHJlc3VsdCwgdGhlIHBpbmN0cmwgc2V0dGlu
-Z3MNCj4gPiBhcmUgaW5jb3JyZWN0LCB3aGljaCB3aWxsIGFmZmVjdCB0aGUgbW9kdWxlIGZ1bmN0
-aW9uLg0KPiA+DQo+ID4gVGhlIHBhdGNoIHJlY292ZXJzIHRoZSBwaW5jdHJsIHNldHRpbmcgd2hl
-biBleGl0IFZMTFMgbW9kZS4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEdhbyBQYW4gPHBhbmR5
-Lmdhb0BueHAuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC1s
-cGkyYy5jIHwgMjIgKysrKysrKysrKysrKysrKysrKysrKw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwg
-MjIgaW5zZXJ0aW9ucygrKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nl
-cy9pMmMtaW14LWxwaTJjLmMNCj4gPiBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LWxwaTJj
-LmMNCj4gPiBpbmRleCBjNjJiN2NkLi5lNTI4YzFkMSAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLWlteC1scGkyYy5jDQo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1pbXgtbHBpMmMuYw0KPiA+IEBAIC02MzYsMTIgKzYzNiwzNCBAQCBzdGF0aWMgaW50IGxw
-aTJjX2lteF9yZW1vdmUoc3RydWN0DQo+IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gPiAgCXJl
-dHVybiAwOw0KPiA+ICB9DQo+ID4NCj4gPiArI2lmZGVmIENPTkZJR19QTV9TTEVFUA0KPiA+ICtz
-dGF0aWMgaW50IGxwaTJjX2lteF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikgew0KPiA+ICsJ
-cGluY3RybF9wbV9zZWxlY3Rfc2xlZXBfc3RhdGUoZGV2KTsNCj4gPiArDQo+ID4gKwlyZXR1cm4g
-MDsNCj4gPiArfQ0KPiA+ICsNCj4gPiArc3RhdGljIGludCBscGkyY19pbXhfcmVzdW1lKHN0cnVj
-dCBkZXZpY2UgKmRldikgew0KPiA+ICsJcGluY3RybF9wbV9zZWxlY3RfZGVmYXVsdF9zdGF0ZShk
-ZXYpOw0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMg
-U0lNUExFX0RFVl9QTV9PUFMoaW14X2xwaTJjX3BtLCBscGkyY19pbXhfc3VzcGVuZCwNCj4gbHBp
-MmNfaW14X3Jlc3VtZSk7DQo+ID4gKyNkZWZpbmUgSU1YX0xQSTJDX1BNCSgmaW14X2xwaTJjX3Bt
-KQ0KPiA+ICsjZWxzZQ0KPiA+ICsjZGVmaW5lIElNWF9MUEkyQ19QTQlOVUxMDQo+IA0KPiBQbGVh
-c2UgZHJvcCAjZWxzZSBicmFuY2ggYW5kIElNWF9MUEkyQ19QTSBjb21wbGV0ZWx5Lg0KDQpUaGFu
-a3MsICB3aWxsIGNoYW5nZSBpdCBpbiBuZXh0IHZlcnNpb24uIA0KDQo+ID4gKyNlbmRpZg0KPiA+
-ICsNCj4gPiAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgbHBpMmNfaW14X2RyaXZlciA9
-IHsNCj4gPiAgCS5wcm9iZSA9IGxwaTJjX2lteF9wcm9iZSwNCj4gPiAgCS5yZW1vdmUgPSBscGky
-Y19pbXhfcmVtb3ZlLA0KPiA+ICAJLmRyaXZlciA9IHsNCj4gPiAgCQkubmFtZSA9IERSSVZFUl9O
-QU1FLA0KPiA+ICAJCS5vZl9tYXRjaF90YWJsZSA9IGxwaTJjX2lteF9vZl9tYXRjaCwNCj4gPiAr
-CQkucG0gPSBJTVhfTFBJMkNfUE0sDQo+IA0KPiBIZXJlIGl0IHNob3VsZCBiZToNCj4gDQo+IAkJ
-LnBtID0gJmlteF9scGkyY19wbSwNCg0KVGhhbmtzLCB3aWxsIGNoYW5nZSBpdCBpbiBuZXh0IHZl
-cnNpb24uICBBcyB0aGUgYWJvdmUgIiNlbHNlIGJyYW5jaCIgaXMgcmVtb3ZlZCwgdGhlIGZvbGxv
-d2luZyBjb25kaXRpb24gaXMgbmVjZXNzYXJ5Lg0KI2lmZGVmIENPTkZJR19QTV9TTEVFUA0KICAg
-ICAgICAgICAgICAgIC5wbSA9ICZpbXhfbHBpMmNfcG0sDQojZW5kaWYNCg0KQmVzdCBSZWdhcmRz
-DQpQYW5keQ0K
+Hi Andrzej,
+
+On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
+> In case of arbitration lost adequate interrupt sometimes is not signaled. As
+> a result transfer timeouts and is not retried, as it should. To avoid such
+> cases code is added to check transaction status in case of every interrupt.
+> 
+> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> ---
+> Hi,
+> 
+> I am not I2C specialist, this patch is a result of debugging issues
+> with SiI8620 MHL driver on TM2 device. I guess the main problem is
+> with SiI8620 chip, but exynos5 i2c is also guilty - with i2c-gpio driver
+> it works correctly - there is only one arbitration lost at 1st transaction
+> (which is properly handled - transfer is repeated succesfully). In case
+> of exynos5 there are much more arbitration losts. Lowering bus speed
+> decreases frequency of losts but do not eliminate them.
+> Any help/hint, what could cause such issues?
+
+I'm having the same issue on TM2 and your patch fixes it. I'm
+not sure, though, that's the right fix.
+
+In any case I will look into it.
+
+Andi
