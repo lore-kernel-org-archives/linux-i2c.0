@@ -1,83 +1,66 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v5 4/5] dt: bindings: i2c-mux-pca954x: Add documentation
- for nxp,irq-mask-enable
-Date: Tue, 17 Jan 2017 10:43:37 +0100
-Message-ID: <96f3cc0e-9c73-4af4-f072-5a1aeceb67af@axentia.se>
-References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
- <1484640029-22870-5-git-send-email-preid@electromag.com.au>
- <9190ec70-eda4-5e44-a85a-211945c30eeb@axentia.se>
- <aeab2bbe-e243-98f6-b07f-76e4dda62fd6@electromag.com.au>
+From: Pandy Gao <pandy.gao@nxp.com>
+Subject: RE: [Patch V2] i2c: imx-lpi2c: add VLLS mode support
+Date: Tue, 17 Jan 2017 10:14:25 +0000
+Message-ID: <AM4PR0401MB22733347F4C621833D78AAF7F67C0@AM4PR0401MB2273.eurprd04.prod.outlook.com>
+References: <1484636967-23599-1-git-send-email-pandy.gao@nxp.com>
+ <848799b4-a364-3791-0727-414f82308e25@mleia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <aeab2bbe-e243-98f6-b07f-76e4dda62fd6-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr00061.outbound.protection.outlook.com ([40.107.0.61]:13428
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750747AbdAQKO3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 17 Jan 2017 05:14:29 -0500
+In-Reply-To: <848799b4-a364-3791-0727-414f82308e25@mleia.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "wsa-dev@sang-engineering.com" <wsa-dev@sang-engineering.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Frank Li <frank.li@nxp.com>
 
-On 2017-01-17 10:28, Phil Reid wrote:
-> On 17/01/2017 16:57, Peter Rosin wrote:
->> On 2017-01-17 09:00, Phil Reid wrote:
->>> Unfortunately some hardware device will assert their irq line immediately
->>> on power on and provide no mechanism to mask the irq. As the i2c muxes
->>> provide no method to mask irq line this provides a work around by keeping
->>> the parent irq masked until enough device drivers have loaded to service
->>> all pending interrupts.
->>>
->>> For example the the ltc1760 assert its SMBALERT irq immediately on power
->>> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
->>> device is registered irq are enabled and fire continuously as the second
->>> device driver has not yet loaded. Setting this parameter to <1 1> will
->>> delay the irq being enabled until both devices are ready.
->>
-> G'day Peter,
-> 
-> 
->> Hang on, does this suggestion I made make any sense at all? Maybe it does,
->> but does the pca954x driver even get notified of any but the first irq client
->> that unmasks interrupts on a mux segment? How can it count the number of
->> active irq clients if not?
-> 
-> Good question.
-> 
-> So what I did to test is setup my 2 ltc1760s to use the same irq on the pca954x.
-> Using the latest patch series.
-> 
-> Adding a log message into the irq_unmask function got the following.
-> 	dev_err(&data->client->dev, "irq_unmask %d %x %d", pos, data->irq_mask, data->irq_enabled);
-> 
-> dmesg | grep irq_unmask
-> [    4.392098] pca954x 4-0070: irq_unmask 0 1 1
-> 
-> 
-> But Looks like both got registered ok to the same irq.
-> cat /proc/interrupts
-> 161:          0          0  i2c-mux-pca954x   0 Level     15-000a, 16-000a
-> 
-> So from this testing, it doesn't look like it gets called multiple times.
-
-As I suspected, thanks for verifying!
-
-> So back to the bitmask for the dt do you think.
-
-Looking at kernel/irq/chip.c:irq_enable (and struct irq_chip docs), I get the
-feeling that if you provide the irq_enable operation (and maybe irq_disable too?),
-that might get us more info?
-
-> I think the interrupt enablelogic is correct now.
-> 
->>
->> I'm truly sorry for the trouble I'm causing by not just saying how it should
->> be done from the start, but I feel like I've been thrown in at the deep end
->> when it comes to interrupt controllers...
-> 
-> No problem. I'm learning a couple things as we go.
-> Should help me out on other drivers :)
-
-Yes, I'm also picking up a few bits here and there...
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+IEZyb206IFZsYWRpbWlyIFphcG9sc2tpeSA8bWFpbHRvOnZ6QG1sZWlhLmNvbT4gIFNlbnQ6IFR1
+ZXNkYXksIEphbnVhcnkgMTcsIDIwMTcgNToxMCBQTQ0KPiBUbzogUGFuZHkgR2FvIDxwYW5keS5n
+YW9AbnhwLmNvbT47IHdzYUB0aGUtZHJlYW1zLmRlOyB3c2EtDQo+IGRldkBzYW5nLWVuZ2luZWVy
+aW5nLmNvbQ0KPiBDYzogbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgRnJhbmsgTGkgPGZyYW5r
+LmxpQG54cC5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUGF0Y2ggVjJdIGkyYzogaW14LWxwaTJjOiBh
+ZGQgVkxMUyBtb2RlIHN1cHBvcnQNCj4gDQo+IEhlbGxvIFBhbmR5LA0KPiANCj4gT24gMDEvMTcv
+MjAxNyAwOTowOSBBTSwgR2FvIFBhbiB3cm90ZToNCj4gPiBXaGVuIHN5c3RlbSBlbnRlcnMgVkxM
+UyBtb2RlLCBtb2R1bGUgcG93ZXIgaXMgdHVybmVkIG9mZi4gQXMgYQ0KPiByZXN1bHQsDQo+ID4g
+YWxsIHJlZ2lzdGVycyBhcmUgcmVzZXQgdG8gSFcgZGVmYXVsdCB2YWx1ZS4gQWZ0ZXIgZXhpdGlu
+ZyBWTExTIG1vZGUsDQo+ID4gcmVnaXN0ZXJzIGFyZSBzdGlsbCBpbiBkZWZhdWx0IG1vZGUuIEFz
+IGEgcmVzdWx0LCB0aGUgcGluY3RybCBzZXR0aW5ncw0KPiA+IGFyZSBpbmNvcnJlY3QsIHdoaWNo
+IHdpbGwgYWZmZWN0IHRoZSBtb2R1bGUgZnVuY3Rpb24uDQo+ID4NCj4gPiBUaGUgcGF0Y2ggcmVj
+b3ZlcnMgdGhlIHBpbmN0cmwgc2V0dGluZyB3aGVuIGV4aXQgVkxMUyBtb2RlLg0KPiA+DQo+ID4g
+U2lnbmVkLW9mZi1ieTogR2FvIFBhbiA8cGFuZHkuZ2FvQG54cC5jb20+DQo+ID4gLS0tDQo+ID4g
+VjI6DQo+ID4gIC1kcm9wICIjZWxzZSBicmFuY2giIGFuZCBJTVhfTFBJMkNfUE0gY29tcGxldGVs
+eSAgLXBtID0NCj4gJmlteF9scGkyY19wbQ0KPiA+DQo+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtaW14LWxwaTJjLmMgfCAyMSArKysrKysrKysrKysrKysrKysrKysNCj4gPiAgMSBmaWxlIGNo
+YW5nZWQsIDIxIGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2ky
+Yy9idXNzZXMvaTJjLWlteC1scGkyYy5jDQo+ID4gYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlt
+eC1scGkyYy5jDQo+ID4gaW5kZXggYzYyYjdjZC4uZGJkZTk1ZCAxMDA2NDQNCj4gPiAtLS0gYS9k
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC1scGkyYy5jDQo+ID4gKysrIGIvZHJpdmVycy9pMmMv
+YnVzc2VzL2kyYy1pbXgtbHBpMmMuYw0KPiA+IEBAIC02MzYsMTIgKzYzNiwzMyBAQCBzdGF0aWMg
+aW50IGxwaTJjX2lteF9yZW1vdmUoc3RydWN0DQo+IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4g
+PiAgCXJldHVybiAwOw0KPiA+ICB9DQo+ID4NCj4gPiArI2lmZGVmIENPTkZJR19QTV9TTEVFUA0K
+PiA+ICtzdGF0aWMgaW50IGxwaTJjX2lteF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikgew0K
+PiA+ICsJcGluY3RybF9wbV9zZWxlY3Rfc2xlZXBfc3RhdGUoZGV2KTsNCj4gPiArDQo+ID4gKwly
+ZXR1cm4gMDsNCj4gPiArfQ0KPiA+ICsNCj4gPiArc3RhdGljIGludCBscGkyY19pbXhfcmVzdW1l
+KHN0cnVjdCBkZXZpY2UgKmRldikgew0KPiA+ICsJcGluY3RybF9wbV9zZWxlY3RfZGVmYXVsdF9z
+dGF0ZShkZXYpOw0KPiA+ICsNCj4gPiArCXJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtz
+dGF0aWMgU0lNUExFX0RFVl9QTV9PUFMoaW14X2xwaTJjX3BtLCBscGkyY19pbXhfc3VzcGVuZCwN
+Cj4gPiArbHBpMmNfaW14X3Jlc3VtZSk7ICNlbmRpZg0KPiANCj4gaW4gY2FzZSBpZiBJIGRpZG4n
+dCBtYW5hZ2UgdG8gZXhwbGFpbiB3aGF0IGlzIGRlc2lyYWJsZSwgcGxlYXNlIGNoYW5nZQ0KPiB0
+aGUgb3JkZXIgb2YgdHdvIGxpbmVzIGFib3ZlLCB5b3UgbWF5IGZpbmQgdGhhdCBjb21tb25seQ0K
+PiBTSU1QTEVfREVWX1BNX09QUygpIG1hY3JvIGlzIHVzZWQgb3V0c2lkZSAjaWZkZWYgQ09ORklH
+X1BNX1NMRUVQLA0KPiBkdWUgdG8gdGhlIGZlYXR1cmUgdGhhdCBDT05GSUdfUE1fU0xFRVAgdG9r
+ZW4gaXMgaW5jb3Jwb3JhdGVkIGludG8NCj4gU0lNUExFX0RFVl9QTV9PUFMoKSBpbnRlcm5hbHMu
+DQo+IA0KPiA+ICsNCj4gPiAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgbHBpMmNfaW14
+X2RyaXZlciA9IHsNCj4gPiAgCS5wcm9iZSA9IGxwaTJjX2lteF9wcm9iZSwNCj4gPiAgCS5yZW1v
+dmUgPSBscGkyY19pbXhfcmVtb3ZlLA0KPiA+ICAJLmRyaXZlciA9IHsNCj4gPiAgCQkubmFtZSA9
+IERSSVZFUl9OQU1FLA0KPiA+ICAJCS5vZl9tYXRjaF90YWJsZSA9IGxwaTJjX2lteF9vZl9tYXRj
+aCwNCj4gPiArI2lmZGVmIENPTkZJR19QTV9TTEVFUA0KPiA+ICsJCS5wbSA9ICZpbXhfbHBpMmNf
+cG0sDQo+ID4gKyNlbmRpZg0KPiANCj4gVGhlbiB0aGlzICNpZmRlZiB3b24ndCBiZSBuZWVkZWQg
+aGVyZS4NCg0KWWVzLCB5b3UgYXJlIHJpZ2h0LiBXaWxsIGNoYW5nZSBpdCBpbiBuZXh0IHZlcnNp
+b24uIFRoYW5rcw0KDQpCZXN0IFJlZ2FyZHMNCkdhbyBQYW4NCg==
