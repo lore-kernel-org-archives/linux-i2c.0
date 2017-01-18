@@ -1,17 +1,17 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
 Subject: Re: [PATCH v9 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 18 Jan 2017 19:42:37 +0100
-Message-ID: <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
+Date: Wed, 18 Jan 2017 21:55:39 +0100
+Message-ID: <CAOAejn2LobTMfvsvmW8cCiToFHuM6n26s5QPLLXxLzb-WKkhQw@mail.gmail.com>
 References: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
  <1484666821-20551-3-git-send-email-cedric.madianga@gmail.com>
  <20170117193752.e6hju25w74bb4i4z@pengutronix.de>
  <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
+ <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
+In-Reply-To: <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,161 +21,52 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Cedric,
-
-On Wed, Jan 18, 2017 at 04:21:17PM +0100, M'boumba Cedric Madianga wrote:
-> >> +      * In standard mode, the maximum allowed SCL rise time is 1000 n=
-s.
-> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is e=
-qual to
-> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits must =
-be
-> >> +      * programmed with 09h.(1000 ns / 125 ns =3D 8 + 1)
-> >
-> >         * programmed with 0x9.
-> > (1000 ns / 125 ns =3D 8)
-> >
-> >> +      * So, for I2C standard mode TRISE =3D FREQ[5:0] + 1
-> >> +      *
-> >> +      * In fast mode, the maximum allowed SCL rise time is 300 ns.
-> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is e=
-qual to
-> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits must =
-be
-> >> +      * programmed with 03h.(300 ns / 125 ns =3D 2 + 1)
-> >
-> > as above s/03h/0x3/;
-> =
-
-> ok
-> =
-
-> > s/.(/. (/;
-> ok
-> =
-
-> > s/+ 1//;
-> This formula is use to understand how we find the result 0x3
-> So, 0x3 =3D> 300 ns / 125ns =3D 2 + 1
-
-Yeah, I understood that, but writing 300 ns / 125ns =3D 2 + 1 is
-irritating at best.
-
-> >> +      * So, for I2C fast mode TRISE =3D FREQ[5:0] * 300 / 1000 + 1
-> >> +      */
-> >> +     if (i2c_dev->speed =3D=3D STM32F4_I2C_SPEED_STANDARD)
-> >> +             trise =3D freq + 1;
-> >> +     else
-> >> +             trise =3D freq * 300 / 1000 + 1;
-> >
-> > I'd use
-> >
-> >         * 3 / 10
-> >
-> > without downside and lesser chance to overflow.
-> =
-
-> There is no chance of overflow as the max freq value allowed is 46
-
-ok
-
-> >> +             /*
-> >> +              * In fast mode, we compute CCR with duty =3D 0 as with =
-low
-> >> +              * frequencies we are not able to reach 400 kHz.
-> >> +              * In that case:
-> >> +              * t_scl_high =3D CCR * I2C parent clk period
-> >> +              * t_scl_low =3D 2 * CCR * I2C parent clk period
-> >> +              * So, CCR =3D I2C parent rate / (400 kHz * 3)
-> >> +              *
-> >> +              * For example with parent rate =3D 6 MHz:
-> >> +              * CCR =3D 6000000 / (400000 * 3) =3D 5
-> >> +              * t_scl_high =3D 5 * (1 / 6000000) =3D 833 ns > 600 ns
-> >> +              * t_scl_low =3D 2 * 5 * (1 / 6000000) =3D 1667 ns > 130=
-0 ns
-> >> +              * t_scl_high + t_scl_low =3D 2500 ns so 400 kHz is reac=
-hed
-> >> +              */
-> >
-> > Huh, that's surprising. So you don't use DUTY any more. I found two
-> > hints in the manual that contradict here:
-> =
-
-> Yes with the above formula we could use duty =3D 0 by default
-> =
-
-> >
-> >         f_{PCLK1} must be at least 2 MHz to achieve Sm mode I2C frequen=
-cies
-> =
-
-> STM32F4_I2C_MIN_STANDARD_FREQ =3D 2
-> =
-
-> >         It must be at least 4 MHz to achieve Fm mode I2C frequencies.
-> =
-
-> STM32F4_I2C_MIN_FAST_FREQ =3D 6
-> =
-
-> > It must be a multiple of 10MHz to reach the 400 kHz maximum I2C Fm mode=
- clock.
-> =
-
-> If we use this rule only 3 values are allowed 10 Mhz, 20 Mhz, 30 Mhz and =
-40 Mhz.
-> It is very restrictive.
-> So I don't take it into account in order to have more frequencies even
-> if 400 Khz is not reached.
-> Indeed, in many cases we are very close to 400 Khz.
-> For example, the default I2C parent clock in my board is 45 Mhz
-> I reach 395 kHz in theory and 390 kHz by testing.
-> I am in Fast mode but not with the max freq but very close.
-
-fine
-
-> > and
-> >
-> >         [...]
-> >         If DUTY =3D 1: (to reach 400 kHz)
-> >
-> > Strange.
-> >
-> >> +             val =3D DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
-> >
-> > the manual reads:
-> >
-> >         The minimum allowed value is 0x04, except in FAST DUTY mode
-> >         where the minimum allowed value is 0x01
-> >
-> > You don't check for that, right?
-> =
-
-> As the minimum freq value is 6 Mhz in fast mode the minimum CCR is 5
-> as described in the comment.
-> So I don't need to check that again as it is already done by checking
-> parent frequency.
-
-That would then go into a comment.
-
-> > CCR is 11 bits wide. A comment confirming that this cannot overflow
-> > would be nice.
-> =
-
-> Again there is no chance of overflow thanks to parent frequency check
-
-Right, this time I saw this myself, so I requested a comment stating
-this fact.
- =
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+MjAxNy0wMS0xOCAxOTo0MiBHTVQrMDE6MDAgVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtv
+ZW5pZ0BwZW5ndXRyb25peC5kZT46Cj4gSGVsbG8gQ2VkcmljLAo+Cj4gT24gV2VkLCBKYW4gMTgs
+IDIwMTcgYXQgMDQ6MjE6MTdQTSArMDEwMCwgTSdib3VtYmEgQ2VkcmljIE1hZGlhbmdhIHdyb3Rl
+Ogo+PiA+PiArICAgICAgKiBJbiBzdGFuZGFyZCBtb2RlLCB0aGUgbWF4aW11bSBhbGxvd2VkIFND
+TCByaXNlIHRpbWUgaXMgMTAwMCBucy4KPj4gPj4gKyAgICAgICogSWYsIGluIHRoZSBJMkNfQ1Iy
+IHJlZ2lzdGVyLCB0aGUgdmFsdWUgb2YgRlJFUVs1OjBdIGJpdHMgaXMgZXF1YWwgdG8KPj4gPj4g
+KyAgICAgICogMHgwOCBzbyBwZXJpb2QgPSAxMjUgbnMgdGhlcmVmb3JlIHRoZSBUUklTRVs1OjBd
+IGJpdHMgbXVzdCBiZQo+PiA+PiArICAgICAgKiBwcm9ncmFtbWVkIHdpdGggMDloLigxMDAwIG5z
+IC8gMTI1IG5zID0gOCArIDEpCj4+ID4KPj4gPiAgICAgICAgICogcHJvZ3JhbW1lZCB3aXRoIDB4
+OS4KPj4gPiAoMTAwMCBucyAvIDEyNSBucyA9IDgpCj4+ID4KPj4gPj4gKyAgICAgICogU28sIGZv
+ciBJMkMgc3RhbmRhcmQgbW9kZSBUUklTRSA9IEZSRVFbNTowXSArIDEKPj4gPj4gKyAgICAgICoK
+Pj4gPj4gKyAgICAgICogSW4gZmFzdCBtb2RlLCB0aGUgbWF4aW11bSBhbGxvd2VkIFNDTCByaXNl
+IHRpbWUgaXMgMzAwIG5zLgo+PiA+PiArICAgICAgKiBJZiwgaW4gdGhlIEkyQ19DUjIgcmVnaXN0
+ZXIsIHRoZSB2YWx1ZSBvZiBGUkVRWzU6MF0gYml0cyBpcyBlcXVhbCB0bwo+PiA+PiArICAgICAg
+KiAweDA4IHNvIHBlcmlvZCA9IDEyNSBucyB0aGVyZWZvcmUgdGhlIFRSSVNFWzU6MF0gYml0cyBt
+dXN0IGJlCj4+ID4+ICsgICAgICAqIHByb2dyYW1tZWQgd2l0aCAwM2guKDMwMCBucyAvIDEyNSBu
+cyA9IDIgKyAxKQo+PiA+Cj4+ID4gYXMgYWJvdmUgcy8wM2gvMHgzLzsKPj4KPj4gb2sKPj4KPj4g
+PiBzLy4oLy4gKC87Cj4+IG9rCj4+Cj4+ID4gcy8rIDEvLzsKPj4gVGhpcyBmb3JtdWxhIGlzIHVz
+ZSB0byB1bmRlcnN0YW5kIGhvdyB3ZSBmaW5kIHRoZSByZXN1bHQgMHgzCj4+IFNvLCAweDMgPT4g
+MzAwIG5zIC8gMTI1bnMgPSAyICsgMQo+Cj4gWWVhaCwgSSB1bmRlcnN0b29kIHRoYXQsIGJ1dCB3
+cml0aW5nIDMwMCBucyAvIDEyNW5zID0gMiArIDEgaXMKPiBpcnJpdGF0aW5nIGF0IGJlc3QuCgpP
+ay4gSSB3aWxsIHdyaXRlIDB4MyAoMzAwIG5zIC8gMTI1IG5zICsgMSkgYW5kIDB4OSAoMTAwMCBu
+cyAvIDEyNSBucyArIDEpCgo+PiA+ICAgICAgICAgWy4uLl0KPj4gPiAgICAgICAgIElmIERVVFkg
+PSAxOiAodG8gcmVhY2ggNDAwIGtIeikKPj4gPgo+PiA+IFN0cmFuZ2UuCj4+ID4KPj4gPj4gKyAg
+ICAgICAgICAgICB2YWwgPSBESVZfUk9VTkRfVVAoaTJjX2Rldi0+cGFyZW50X3JhdGUsIDQwMDAw
+MCAqIDMpOwo+PiA+Cj4+ID4gdGhlIG1hbnVhbCByZWFkczoKPj4gPgo+PiA+ICAgICAgICAgVGhl
+IG1pbmltdW0gYWxsb3dlZCB2YWx1ZSBpcyAweDA0LCBleGNlcHQgaW4gRkFTVCBEVVRZIG1vZGUK
+Pj4gPiAgICAgICAgIHdoZXJlIHRoZSBtaW5pbXVtIGFsbG93ZWQgdmFsdWUgaXMgMHgwMQo+PiA+
+Cj4+ID4gWW91IGRvbid0IGNoZWNrIGZvciB0aGF0LCByaWdodD8KPj4KPj4gQXMgdGhlIG1pbmlt
+dW0gZnJlcSB2YWx1ZSBpcyA2IE1oeiBpbiBmYXN0IG1vZGUgdGhlIG1pbmltdW0gQ0NSIGlzIDUK
+Pj4gYXMgZGVzY3JpYmVkIGluIHRoZSBjb21tZW50Lgo+PiBTbyBJIGRvbid0IG5lZWQgdG8gY2hl
+Y2sgdGhhdCBhZ2FpbiBhcyBpdCBpcyBhbHJlYWR5IGRvbmUgYnkgY2hlY2tpbmcKPj4gcGFyZW50
+IGZyZXF1ZW5jeS4KPgo+IFRoYXQgd291bGQgdGhlbiBnbyBpbnRvIGEgY29tbWVudC4KCklzIGl0
+IHJlYWxseSBuZWVkZWQgPwpBZGRpbmcgc29tZSBjb21tZW50cyB0byBleHBsYWluIGltcGxlbWVu
+dGF0aW9uIGNob2ljZXMgb3IgIGhhcmR3YXJlCndheSBvZiB3b3JraW5nIGlzIGNsZWFybHkgdXNl
+ZnVsLgpCdXQgZm9yIHRoaXMga2luZCBvZiB0aGluZywgSSBhbSByZWFsbHkgc3VycHJpc2VkLi4u
+Cgo+Cj4+ID4gQ0NSIGlzIDExIGJpdHMgd2lkZS4gQSBjb21tZW50IGNvbmZpcm1pbmcgdGhhdCB0
+aGlzIGNhbm5vdCBvdmVyZmxvdwo+PiA+IHdvdWxkIGJlIG5pY2UuCj4+Cj4+IEFnYWluIHRoZXJl
+IGlzIG5vIGNoYW5jZSBvZiBvdmVyZmxvdyB0aGFua3MgdG8gcGFyZW50IGZyZXF1ZW5jeSBjaGVj
+awo+Cj4gUmlnaHQsIHRoaXMgdGltZSBJIHNhdyB0aGlzIG15c2VsZiwgc28gSSByZXF1ZXN0ZWQg
+YSBjb21tZW50IHN0YXRpbmcKPiB0aGlzIGZhY3QuCgpkaXR0bwoKQmVzdCByZWdhcmRzLApDZWRy
+aWMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
+LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFk
+Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFy
+bS1rZXJuZWwK
