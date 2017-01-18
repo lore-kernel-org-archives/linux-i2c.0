@@ -1,169 +1,74 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v8 12/12] mux: support simplified bindings for single-user gpio mux
-Date: Wed, 18 Jan 2017 16:57:15 +0100
-Message-ID: <1484755035-25927-13-git-send-email-peda@axentia.se>
+Subject: [PATCH v8 10/12] mux: adg792a: add mux controller driver for ADG792A/G
+Date: Wed, 18 Jan 2017 16:57:13 +0100
+Message-ID: <1484755035-25927-11-git-send-email-peda@axentia.se>
 References: <1484755035-25927-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0092.outbound.protection.outlook.com ([104.47.2.92]:7097
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753038AbdARQDp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 18 Jan 2017 11:03:45 -0500
 In-Reply-To: <1484755035-25927-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
-Allow bindings for a GPIO controlled mux to be specified in the
-mux consumer node.
+Analog Devices ADG792A/G is a triple 4:1 mux.
 
+Reviewed-by: Jonathan Cameron <jic23@kernel.org>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/mux/Kconfig    |  5 +----
- drivers/mux/mux-core.c | 23 +++++++++++++++++++++--
- drivers/mux/mux-gpio.c | 28 +++++++++++++++++++++-------
- drivers/mux/mux-gpio.h | 13 +++++++++++++
- 4 files changed, 56 insertions(+), 13 deletions(-)
- create mode 100644 drivers/mux/mux-gpio.h
+ drivers/mux/Kconfig       |  12 ++++
+ drivers/mux/Makefile      |   1 +
+ drivers/mux/mux-adg792a.c | 167 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 180 insertions(+)
+ create mode 100644 drivers/mux/mux-adg792a.c
 
 diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
-index d13fcf98958e..cd161c228537 100644
+index 57e6f4e5fda9..d13fcf98958e 100644
 --- a/drivers/mux/Kconfig
 +++ b/drivers/mux/Kconfig
-@@ -29,7 +29,7 @@ config MUX_ADG792A
- 	  be called mux-adg792a.
+@@ -16,6 +16,18 @@ menuconfig MULTIPLEXER
  
+ if MULTIPLEXER
+ 
++config MUX_ADG792A
++	tristate "Analog Devices ADG792A/ADG792G Multiplexers"
++	depends on I2C
++	help
++	  ADG792A and ADG792G Wide Bandwidth Triple 4:1 Multiplexers
++
++	  The driver supports both operating the three multiplexers in
++	  parallel and operating them independently.
++
++	  To compile the driver as a module, choose M here: the module will
++	  be called mux-adg792a.
++
  config MUX_GPIO
--	tristate "GPIO-controlled Multiplexer"
-+	bool "GPIO-controlled Multiplexer"
+ 	tristate "GPIO-controlled Multiplexer"
  	depends on OF && GPIOLIB
- 	help
- 	  GPIO-controlled Multiplexer controller.
-@@ -39,7 +39,4 @@ config MUX_GPIO
- 	  states. The GPIO pins can be connected (by the hardware) to several
- 	  multiplexers, which in that case will be operated in parallel.
+diff --git a/drivers/mux/Makefile b/drivers/mux/Makefile
+index facc43da3648..fddbb073fc77 100644
+--- a/drivers/mux/Makefile
++++ b/drivers/mux/Makefile
+@@ -3,4 +3,5 @@
+ #
  
--	  To compile the driver as a module, choose M here: the module will
--	  be called mux-gpio.
--
- endif
-diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
-index 16a61253d164..0caafd6f5a77 100644
---- a/drivers/mux/mux-core.c
-+++ b/drivers/mux/mux-core.c
-@@ -21,6 +21,8 @@
- #include <linux/of_platform.h>
- #include <linux/slab.h>
- 
-+#include "mux-gpio.h"
-+
- static struct class mux_class = {
- 	.name = "mux",
- 	.owner = THIS_MODULE,
-@@ -314,9 +316,26 @@ struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
- 	ret = of_parse_phandle_with_args(np,
- 					 "mux-controls", "#mux-control-cells",
- 					 index, &args);
-+
-+#ifdef CONFIG_MUX_GPIO
-+	if (ret == -ENOENT && !mux_name) {
-+		mux_chip = mux_gpio_alloc(dev);
-+		if (!IS_ERR(mux_chip)) {
-+			ret = devm_mux_chip_register(dev, mux_chip);
-+			if (ret < 0)
-+				return ERR_PTR(ret);
-+			get_device(&mux_chip->dev);
-+			return mux_chip->mux;
-+		}
-+
-+		ret = PTR_ERR(mux_chip);
-+	}
-+#endif
-+
- 	if (ret) {
--		dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
--			np->full_name, mux_name ?: "", index);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(dev, "%s: failed to get mux-control %s(%i)\n",
-+				np->full_name, mux_name ?: "", index);
- 		return ERR_PTR(ret);
- 	}
- 
-diff --git a/drivers/mux/mux-gpio.c b/drivers/mux/mux-gpio.c
-index 48ca4d6b4fc7..2ab8735e3415 100644
---- a/drivers/mux/mux-gpio.c
-+++ b/drivers/mux/mux-gpio.c
-@@ -18,6 +18,8 @@
- #include <linux/platform_device.h>
- #include <linux/property.h>
- 
-+#include "mux-gpio.h"
-+
- struct mux_gpio {
- 	struct gpio_descs *gpios;
- 	int *val;
-@@ -48,24 +50,21 @@ static const struct of_device_id mux_gpio_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
- 
--static int mux_gpio_probe(struct platform_device *pdev)
-+struct mux_chip *mux_gpio_alloc(struct device *dev)
- {
--	struct device *dev = &pdev->dev;
--	struct device_node *np = dev->of_node;
- 	struct mux_chip *mux_chip;
- 	struct mux_gpio *mux_gpio;
- 	int pins;
--	u32 idle_state;
- 	int ret;
- 
- 	pins = gpiod_count(dev, "mux");
- 	if (pins < 0)
--		return pins;
-+		return ERR_PTR(pins);
- 
- 	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
- 				       pins * sizeof(*mux_gpio->val));
- 	if (!mux_chip)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	mux_gpio = mux_chip_priv(mux_chip);
- 	mux_gpio->val = (int *)(mux_gpio + 1);
-@@ -76,11 +75,26 @@ static int mux_gpio_probe(struct platform_device *pdev)
- 		ret = PTR_ERR(mux_gpio->gpios);
- 		if (ret != -EPROBE_DEFER)
- 			dev_err(dev, "failed to get gpios\n");
--		return ret;
-+		return ERR_PTR(ret);
- 	}
- 	WARN_ON(pins != mux_gpio->gpios->ndescs);
- 	mux_chip->mux->states = 1 << pins;
- 
-+	return mux_chip;
-+}
-+EXPORT_SYMBOL_GPL(mux_gpio_alloc);
-+
-+static int mux_gpio_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct mux_chip *mux_chip;
-+	u32 idle_state;
-+	int ret;
-+
-+	mux_chip = mux_gpio_alloc(dev);
-+	if (IS_ERR(mux_chip))
-+		return PTR_ERR(mux_chip);
-+
- 	ret = device_property_read_u32(dev, "idle-state", &idle_state);
- 	if (ret >= 0) {
- 		if (idle_state >= mux_chip->mux->states) {
-diff --git a/drivers/mux/mux-gpio.h b/drivers/mux/mux-gpio.h
+ obj-$(CONFIG_MULTIPLEXER)      	+= mux-core.o
++obj-$(CONFIG_MUX_ADG792A)	+= mux-adg792a.o
+ obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
+diff --git a/drivers/mux/mux-adg792a.c b/drivers/mux/mux-adg792a.c
 new file mode 100644
-index 000000000000..fe3e8d0173aa
+index 000000000000..6a4c4c9f585b
 --- /dev/null
-+++ b/drivers/mux/mux-gpio.h
-@@ -0,0 +1,13 @@
++++ b/drivers/mux/mux-adg792a.c
+@@ -0,0 +1,167 @@
 +/*
-+ * GPIO-controlled multiplexer driver interface
++ * Multiplexer driver for Analog Devices ADG792A/G Triple 4:1 mux
 + *
 + * Copyright (C) 2017 Axentia Technologies AB
 + *
@@ -174,7 +79,160 @@ index 000000000000..fe3e8d0173aa
 + * published by the Free Software Foundation.
 + */
 +
-+struct mux_chip *mux_gpio_alloc(struct device *dev);
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/module.h>
++#include <linux/mux.h>
++
++#define ADG792A_LDSW		BIT(0)
++#define ADG792A_RESET		BIT(1)
++#define ADG792A_DISABLE(mux)	(0x50 | (mux))
++#define ADG792A_DISABLE_ALL	(0x5f)
++#define ADG792A_MUX(mux, state)	(0xc0 | (((mux) + 1) << 2) | (state))
++#define ADG792A_MUX_ALL(state)	(0xc0 | (state))
++
++#define ADG792A_DISABLE_STATE	(4)
++
++static int adg792a_set(struct mux_control *mux, int state)
++{
++	struct i2c_client *i2c = to_i2c_client(mux->chip->dev.parent);
++	u8 cmd;
++
++	if (mux->chip->controllers == 1) {
++		/* parallel mux controller operation */
++		if (state == ADG792A_DISABLE_STATE)
++			cmd = ADG792A_DISABLE_ALL;
++		else
++			cmd = ADG792A_MUX_ALL(state);
++	} else {
++		unsigned int controller = mux_control_get_index(mux);
++
++		if (state == ADG792A_DISABLE_STATE)
++			cmd = ADG792A_DISABLE(controller);
++		else
++			cmd = ADG792A_MUX(controller, state);
++	}
++
++	return i2c_smbus_write_byte_data(i2c, cmd, ADG792A_LDSW);
++}
++
++static const struct mux_control_ops adg792a_ops = {
++	.set = adg792a_set,
++};
++
++static int adg792a_probe(struct i2c_client *i2c,
++			 const struct i2c_device_id *id)
++{
++	struct device *dev = &i2c->dev;
++	struct mux_chip *mux_chip;
++	bool parallel;
++	int count;
++	int ret;
++	int i;
++
++	parallel = of_property_read_bool(i2c->dev.of_node, "adi,parallel");
++
++	mux_chip = devm_mux_chip_alloc(dev, parallel ? 1 : 3, 0);
++	if (!mux_chip)
++		return -ENOMEM;
++
++	mux_chip->ops = &adg792a_ops;
++
++	ret = i2c_smbus_write_byte_data(i2c, ADG792A_DISABLE_ALL,
++					ADG792A_RESET | ADG792A_LDSW);
++	if (ret < 0)
++		return ret;
++
++	for (i = 0; i < mux_chip->controllers; ++i) {
++		struct mux_control *mux = &mux_chip->mux[i];
++
++		mux->states = 4;
++	}
++
++	count = of_property_count_u32_elems(dev->of_node, "adi,idle-state");
++	for (i = 0; i < count; i += 2) {
++		u32 index;
++		u32 idle_state;
++
++		ret = of_property_read_u32_index(dev->of_node,
++						 "adi,idle-state", i,
++						 &index);
++		if (ret < 0)
++			return ret;
++		if (index >= mux_chip->controllers) {
++			dev_err(dev, "invalid mux %u\n", index);
++			return -EINVAL;
++		}
++
++		ret = of_property_read_u32_index(dev->of_node,
++						 "adi,idle-state", i + 1,
++						 &idle_state);
++		if (ret < 0)
++			return ret;
++		if (idle_state >= ADG792A_DISABLE_STATE) {
++			dev_err(dev, "invalid idle-state %u for mux %u\n",
++				idle_state, index);
++			return -EINVAL;
++		}
++		mux_chip->mux[index].idle_state = idle_state;
++	}
++
++	count = of_property_count_u32_elems(dev->of_node,
++					    "adi,idle-high-impedance");
++	for (i = 0; i < count; ++i) {
++		u32 index;
++
++		ret = of_property_read_u32_index(dev->of_node,
++						 "adi,idle-high-impedance", i,
++						 &index);
++		if (ret < 0)
++			return ret;
++		if (index >= mux_chip->controllers) {
++			dev_err(dev, "invalid mux %u\n", index);
++			return -EINVAL;
++		}
++
++		mux_chip->mux[index].idle_state = ADG792A_DISABLE_STATE;
++	}
++
++	ret = devm_mux_chip_register(dev, mux_chip);
++	if (ret < 0)
++		return ret;
++
++	if (parallel)
++		dev_info(dev, "triple pole quadruple throw mux registered\n");
++	else
++		dev_info(dev, "3x single pole quadruple throw muxes registered\n");
++
++	return 0;
++}
++
++static const struct i2c_device_id adg792a_id[] = {
++	{ .name = "adg792a", },
++	{ .name = "adg792g", },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, adg792a_id);
++
++static const struct of_device_id adg792a_of_match[] = {
++	{ .compatible = "adi,adg792a", },
++	{ .compatible = "adi,adg792g", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, adg792a_of_match);
++
++static struct i2c_driver adg792a_driver = {
++	.driver		= {
++		.name		= "adg792a",
++		.of_match_table = of_match_ptr(adg792a_of_match),
++	},
++	.probe		= adg792a_probe,
++	.id_table	= adg792a_id,
++};
++module_i2c_driver(adg792a_driver);
++
++MODULE_DESCRIPTION("Analog Devices ADG792A/G Triple 4:1 mux driver");
++MODULE_AUTHOR("Peter Rosin <peda@axentia.se");
++MODULE_LICENSE("GPL v2");
 -- 
 2.1.4
-
