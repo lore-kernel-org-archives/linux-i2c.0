@@ -1,140 +1,181 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v8 04/12] iio: inkern: api for manipulating ext_info of iio channels
-Date: Wed, 18 Jan 2017 16:57:07 +0100
-Message-ID: <1484755035-25927-5-git-send-email-peda@axentia.se>
-References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v9 2/5] i2c: Add STM32F4 I2C driver
+Date: Wed, 18 Jan 2017 19:42:37 +0100
+Message-ID: <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
+References: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
+ <1484666821-20551-3-git-send-email-cedric.madianga@gmail.com>
+ <20170117193752.e6hju25w74bb4i4z@pengutronix.de>
+ <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1484755035-25927-1-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Extend the inkern api with functions for reading and writing ext_info
-of iio channels.
+Hello Cedric,
 
-Acked-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+On Wed, Jan 18, 2017 at 04:21:17PM +0100, M'boumba Cedric Madianga wrote:
+> >> +      * In standard mode, the maximum allowed SCL rise time is 1000 n=
+s.
+> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is e=
+qual to
+> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits must =
+be
+> >> +      * programmed with 09h.(1000 ns / 125 ns =3D 8 + 1)
+> >
+> >         * programmed with 0x9.
+> > (1000 ns / 125 ns =3D 8)
+> >
+> >> +      * So, for I2C standard mode TRISE =3D FREQ[5:0] + 1
+> >> +      *
+> >> +      * In fast mode, the maximum allowed SCL rise time is 300 ns.
+> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is e=
+qual to
+> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits must =
+be
+> >> +      * programmed with 03h.(300 ns / 125 ns =3D 2 + 1)
+> >
+> > as above s/03h/0x3/;
+> =
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index b0f4630a163f..4848b8129e6c 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -863,3 +863,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(iio_write_channel_raw);
-+
-+unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
-+	unsigned int i = 0;
-+
-+	if (!chan->channel->ext_info)
-+		return i;
-+
-+	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
-+		++i;
-+
-+	return i;
-+}
-+EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
-+
-+static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
-+						const struct iio_channel *chan,
-+						const char *attr)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
-+
-+	if (!chan->channel->ext_info)
-+		return NULL;
-+
-+	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
-+		if (!strcmp(attr, ext_info->name))
-+			return ext_info;
-+	}
-+
-+	return NULL;
-+}
-+
-+ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-+				  const char *attr, char *buf)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
-+
-+	ext_info = iio_lookup_ext_info(chan, attr);
-+	if (!ext_info)
-+		return -EINVAL;
-+
-+	return ext_info->read(chan->indio_dev, ext_info->private,
-+			      chan->channel, buf);
-+}
-+EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
-+
-+ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-+				   const char *buf, size_t len)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
-+
-+	ext_info = iio_lookup_ext_info(chan, attr);
-+	if (!ext_info)
-+		return -EINVAL;
-+
-+	return ext_info->write(chan->indio_dev, ext_info->private,
-+			       chan->channel, buf, len);
-+}
-+EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
-diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
-index 47eeec3218b5..5e347a9805fd 100644
---- a/include/linux/iio/consumer.h
-+++ b/include/linux/iio/consumer.h
-@@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
- int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
- 	int *processed, unsigned int scale);
- 
-+/**
-+ * iio_get_channel_ext_info_count() - get number of ext_info attributes
-+ *				      connected to the channel.
-+ * @chan:		The channel being queried
-+ *
-+ * Returns the number of ext_info attributes
-+ */
-+unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
-+
-+/**
-+ * iio_read_channel_ext_info() - read ext_info attribute from a given channel
-+ * @chan:		The channel being queried.
-+ * @attr:		The ext_info attribute to read.
-+ * @buf:		Where to store the attribute value. Assumed to hold
-+ *			at least PAGE_SIZE bytes.
-+ *
-+ * Returns the number of bytes written to buf (perhaps w/o zero termination;
-+ * it need not even be a string), or an error code.
-+ */
-+ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-+				  const char *attr, char *buf);
-+
-+/**
-+ * iio_write_channel_ext_info() - write ext_info attribute from a given channel
-+ * @chan:		The channel being queried.
-+ * @attr:		The ext_info attribute to read.
-+ * @buf:		The new attribute value. Strings needs to be zero-
-+ *			terminated, but the terminator should not be included
-+ *			in the below len.
-+ * @len:		The size of the new attribute value.
-+ *
-+ * Returns the number of accepted bytes, which should be the same as len.
-+ * An error code can also be returned.
-+ */
-+ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-+				   const char *buf, size_t len);
-+
- #endif
--- 
-2.1.4
+> ok
+> =
+
+> > s/.(/. (/;
+> ok
+> =
+
+> > s/+ 1//;
+> This formula is use to understand how we find the result 0x3
+> So, 0x3 =3D> 300 ns / 125ns =3D 2 + 1
+
+Yeah, I understood that, but writing 300 ns / 125ns =3D 2 + 1 is
+irritating at best.
+
+> >> +      * So, for I2C fast mode TRISE =3D FREQ[5:0] * 300 / 1000 + 1
+> >> +      */
+> >> +     if (i2c_dev->speed =3D=3D STM32F4_I2C_SPEED_STANDARD)
+> >> +             trise =3D freq + 1;
+> >> +     else
+> >> +             trise =3D freq * 300 / 1000 + 1;
+> >
+> > I'd use
+> >
+> >         * 3 / 10
+> >
+> > without downside and lesser chance to overflow.
+> =
+
+> There is no chance of overflow as the max freq value allowed is 46
+
+ok
+
+> >> +             /*
+> >> +              * In fast mode, we compute CCR with duty =3D 0 as with =
+low
+> >> +              * frequencies we are not able to reach 400 kHz.
+> >> +              * In that case:
+> >> +              * t_scl_high =3D CCR * I2C parent clk period
+> >> +              * t_scl_low =3D 2 * CCR * I2C parent clk period
+> >> +              * So, CCR =3D I2C parent rate / (400 kHz * 3)
+> >> +              *
+> >> +              * For example with parent rate =3D 6 MHz:
+> >> +              * CCR =3D 6000000 / (400000 * 3) =3D 5
+> >> +              * t_scl_high =3D 5 * (1 / 6000000) =3D 833 ns > 600 ns
+> >> +              * t_scl_low =3D 2 * 5 * (1 / 6000000) =3D 1667 ns > 130=
+0 ns
+> >> +              * t_scl_high + t_scl_low =3D 2500 ns so 400 kHz is reac=
+hed
+> >> +              */
+> >
+> > Huh, that's surprising. So you don't use DUTY any more. I found two
+> > hints in the manual that contradict here:
+> =
+
+> Yes with the above formula we could use duty =3D 0 by default
+> =
+
+> >
+> >         f_{PCLK1} must be at least 2 MHz to achieve Sm mode I2C frequen=
+cies
+> =
+
+> STM32F4_I2C_MIN_STANDARD_FREQ =3D 2
+> =
+
+> >         It must be at least 4 MHz to achieve Fm mode I2C frequencies.
+> =
+
+> STM32F4_I2C_MIN_FAST_FREQ =3D 6
+> =
+
+> > It must be a multiple of 10MHz to reach the 400 kHz maximum I2C Fm mode=
+ clock.
+> =
+
+> If we use this rule only 3 values are allowed 10 Mhz, 20 Mhz, 30 Mhz and =
+40 Mhz.
+> It is very restrictive.
+> So I don't take it into account in order to have more frequencies even
+> if 400 Khz is not reached.
+> Indeed, in many cases we are very close to 400 Khz.
+> For example, the default I2C parent clock in my board is 45 Mhz
+> I reach 395 kHz in theory and 390 kHz by testing.
+> I am in Fast mode but not with the max freq but very close.
+
+fine
+
+> > and
+> >
+> >         [...]
+> >         If DUTY =3D 1: (to reach 400 kHz)
+> >
+> > Strange.
+> >
+> >> +             val =3D DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
+> >
+> > the manual reads:
+> >
+> >         The minimum allowed value is 0x04, except in FAST DUTY mode
+> >         where the minimum allowed value is 0x01
+> >
+> > You don't check for that, right?
+> =
+
+> As the minimum freq value is 6 Mhz in fast mode the minimum CCR is 5
+> as described in the comment.
+> So I don't need to check that again as it is already done by checking
+> parent frequency.
+
+That would then go into a comment.
+
+> > CCR is 11 bits wide. A comment confirming that this cannot overflow
+> > would be nice.
+> =
+
+> Again there is no chance of overflow thanks to parent frequency check
+
+Right, this time I saw this myself, so I requested a comment stating
+this fact.
+ =
+
+Best regards
+Uwe
+
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
