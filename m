@@ -1,237 +1,257 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v8 00/12] mux controller abstraction and iio/i2c muxes
-Date: Wed, 18 Jan 2017 16:57:03 +0100
-Message-ID: <1484755035-25927-1-git-send-email-peda@axentia.se>
+Subject: [PATCH v8 02/12] dt-bindings: document devicetree bindings for mux-controllers and mux-gpio
+Date: Wed, 18 Jan 2017 16:57:05 +0100
+Message-ID: <1484755035-25927-3-git-send-email-peda@axentia.se>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0110.outbound.protection.outlook.com ([104.47.1.110]:24512
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752135AbdARQP3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 18 Jan 2017 11:15:29 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1484755035-25927-1-git-send-email-peda@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Allow specifying that a single multiplexer controller can be used to control
+several parallel multiplexers, thus enabling sharing of the multiplexer
+controller by different consumers.
 
-v7 -> v8 changes
-- cleanup the implementation of the simplified gpio bindings, but still...
-- ...reorder patches so that they appear last in the series (patches 11
-  and 12 were patches 4 and 5 in v7) since Jonathan convinced me that
-  they were perhaps not such a good idea after all. But I still wanted
-  to show the last version I had and I'm still a bit undecided...
-- added some words to the remaining otherwise empty commit messages
-- added various acks/reviews from Jonathan and Wolfram.
-- move mux last in drivers/Kconfig and drivers/Makefile
-- bump copyright years
-- centralize error reporting of common operatinons to the mux core
-- add WARN_ON for faulty usage of mux_chip_register
-- simplify code for other WARN_ON call sites
+Add a binding for a first mux controller in the form of a GPIO based mux
+controlled.
 
-v6 -> v7 changes
-- move from drivers/misc/mux-* to drivers/mux/
-  [I will remove Cc:s to Arnd and Greg for v8, when/if that happens]
-- add managed versions of mux_chip_alloc and mux_chip_register
-- use the above in mux-gpio.c and mux-adg792a.c
-- also use them to support a simplified binding of a gpio mux for the common
-  case where there is a single consumer (and no specific idle requirements)
-- new binding for describing idle behaviour of mux-adg792a
-- add bindings for the gpo-pins on the mux-adg792g
-- use device_property_read_u32 instead of of_property_read_u32 in mux-gpio.c
-- rename iio mux compatible to io-channel-mux (was iio-mux)
-- remove linuxism in the bindings (it was mentioning a function name)
-- add missing quote in the example in the io-channel-mux binding
-- factor out preparatory cleanup of devres docs to its own patch
-- add blank line in mux_chip_free
-- use SIMPLE_{PARENT,MUX}_LOCKED instead of magic numbers {0,1} in
-  i2c-mux-simple.c
-- add some acks and a reviewed-by from Jonathan
-
-v5 -> v6 changes
-- fix stupidity in mux_chip_priv, mux_gpio_remove and adg792a_remove.
-- change the devicetree bindings for the iio-mux to use a list of strings
-  (channels property) instead of a list children.
-
-v4 -> v5 changes
-- remove support for fancier dt layouts and go back to the phandle
-  approach from v2 and before, killing the horrible non-working
-  refcounting crap from v4 and avoiding a bunch of life-time issues
-  in v3.
-- introduce the concept of a mux-chip, that can hold one or more
-  mux-controllers (inspired by the pwm subsystem).
-- add dt #mux-control-cells property needed to get to the desired
-  mux controller if a mux chip provides more than one.
-- take away the option to build the mux-core as a module.
-- if the mux controller has an idle state, make sure the mux controller
-  is set up in the idle state initially (when it should be idle).
-- do not use a variable length array on the stack in mux_gpio_set to
-  temporarily store the gpio state, preallocate space instead.
-- fix resource leak on one failure path in mux_gpio_probe.
-- driver for Analog Devices ADG792A/G, literally the first mux chip
-  I found on the Internet with an i2c interface (that was not a
-  dedicated i2c multiplexer like PCA9547) which I used to verify
-  that the abstractions in the mux core are up to the task. Untested,
-  just proof of concept that at least looks pretty and compiles...
-- various touch-ups.
-
-v3 -> v4 changes
-- rebased onto next-20161122 (depends on recent _available iio changes).
-- added support for having the mux-controller in a child node of a
-  mux-consumer if it is a sole consumer, to hopefully even further satisfy
-  the complaint from Rob (and later Lars-Peter) about dt complexity.
-- the above came at the cost of some rather horrible refcounting code,
-  please review and suggest how it should be done...
-- changed to register a device class instead of a bus.
-- pass in the parent device into mux_control_alloc and require less
-  work from mux-control drivers.
-- changed device names from mux:control%d to mux%d
-- move kernel-doc from mux-core.c to mux.h (and add some bits).
-- give the gpio driver a chance to update all mux pins at once.
-- factor out iio ext_info lookup into new helper function. /Lars-Peter
-- use an unsigned type for the iio ext_info count. /Lars-Peter
-- unified "brag strings" in the file headers.
-
-v2 -> v3 changes
-- have the mux-controller in the parent node of any mux-controller consumer,
-  to hopefully satisfy complaint from Rob about dt complexity.
-- improve commit message of the mux subsystem commit, making it more
-  general, as requested by Jonathan.
-- remove priv member from struct mux_control and calculate it on the
-  fly. /Jonathan
-- make the function comments in mux-core.c kernel doc. /Jonathan
-- add devm_mux_control_* to Documentation/driver.model/devres.txt. /Jonathan
-- add common dt bindings for mux-controllers, refer to them from the
-  mux-gpio bindings. /Rob
-- clarify how the gpio pins map to the mux state. /Rob
-- separate CONFIG_ variables for the mux core and the mux gpio driver.
-- improve Kconfig help texts.
-- make CONFIG_MUX_GPIO depend on CONFIG_GPIOLIB.
-- keep track of the number of mux states in the mux core.
-- since the iio channel number is used as mux state, it was possible
-  to drop the state member from the mux_child struct.
-- cleanup dt bindings for i2c-mux-simple, it had some of copy-paste
-  problems from ots origin (i2c-mux-gpio).
-- select the mux control subsystem in config for the i2c-mux-simple driver.
-- add entries to MAINTAINERS and my sign-off, I'm now satisfied and know
-  nothing in this to be ashamed of.
-
-v1 -> v2 changes
-- fixup export of mux_control_put reported by kbuild
-- drop devicetree iio-ext-info property as noted by Lars-Peter,
-  and replace the functionality by exposing all ext_info
-  attributes of the parent channel for each of the muxed
-  channels. A cache on top of that and each muxed channel
-  gets its own view of the ext_info of the parent channel.
-- implement idle-state for muxes
-- clear out the cache on failure in order to force a mux
-  update on the following use
-- cleanup the probe of i2c-mux-simple driver
-- fix a bug in the i2c-mux-simple driver, where failure in
-  the selection of the mux caused a deadlock when the mux
-  was later unconditionally deselected.
-
-I have a piece of hardware that is using the same 3 GPIO pins
-to control four 8-way muxes. Three of them control ADC lines
-to an ADS1015 chip with an iio driver, and the last one
-controls the SDA line of an i2c bus. We have some deployed
-code to handle this, but you do not want to see it or ever
-hear about it. I'm not sure why I even mention it. Anyway,
-the situation has nagged me to no end for quite some time.
-
-So, after first getting more intimate with the i2c muxing code
-and later discovering the drivers/iio/inkern.c file and
-writing a couple of drivers making use of it, I came up with
-what I think is an acceptable solution; add a generic mux
-controller driver (and subsystem) that is shared between all
-instances, and combine that with an iio mux driver and a new
-generic i2c mux driver. The new i2c mux I called "simple"
-since it is only hooking the i2c muxing and the new mux
-controller (much like the alsa simple card driver does for ASoC).
-
-One thing that I would like to do, but don't see a solution
-for, is to move the mux control code that is present in
-various drivers in drivers/i2c/muxes to this new minimalistic
-muxing subsystem, thus converting all present i2c muxes (but
-perhaps not gates and arbitrators) to be i2c-mux-simple muxes.
-
-I'm using an rwsem to lock a mux, but that isn't really a
-perfect fit. Is there a better locking primitive that I don't
-know about that fits better? I had a mutex at one point, but
-that didn't allow any concurrent accesses at all. At least
-the rwsem allows concurrent access as long as all users
-agree on the mux state, but I suspect that the rwsem will
-degrade to the mutex situation pretty quickly if there is
-any contention.
-
-Also, the "mux" name feels a bit ambitious, there are many muxes
-in the world, and this tiny bit of code is probably not good
-enough to be a nice fit for all...
-
-Cheers,
-peda
-
-Peter Rosin (12):
-  devres: trivial whitespace fix
-  dt-bindings: document devicetree bindings for mux-controllers and
-    mux-gpio
-  mux: minimal mux subsystem and gpio-based mux controller
-  iio: inkern: api for manipulating ext_info of iio channels
-  dt-bindings: iio: io-channel-mux: document io-channel-mux bindings
-  iio: multiplexer: new iio category and iio-mux driver
-  dt-bindings: i2c: i2c-mux-simple: document i2c-mux-simple bindings
-  i2c: i2c-mux-simple: new driver
-  dt-bindings: mux-adg792a: document devicetree bindings for ADG792A/G
-    mux
-  mux: adg792a: add mux controller driver for ADG792A/G
-  dt-bindings: simplified bindings for single-user gpio mux
-  mux: support simplified bindings for single-user gpio mux
-
- .../devicetree/bindings/i2c/i2c-mux-simple.txt     |  81 ++++
- .../bindings/iio/multiplexer/io-channel-mux.txt    |  39 ++
- .../devicetree/bindings/mux/mux-adg792a.txt        |  79 ++++
- .../devicetree/bindings/mux/mux-controller.txt     | 153 +++++++
- Documentation/devicetree/bindings/mux/mux-gpio.txt |  68 +++
- Documentation/driver-model/devres.txt              |  10 +-
- MAINTAINERS                                        |  14 +
- drivers/Kconfig                                    |   2 +
- drivers/Makefile                                   |   1 +
- drivers/i2c/muxes/Kconfig                          |  13 +
- drivers/i2c/muxes/Makefile                         |   1 +
- drivers/i2c/muxes/i2c-mux-simple.c                 | 182 ++++++++
- drivers/iio/Kconfig                                |   1 +
- drivers/iio/Makefile                               |   1 +
- drivers/iio/inkern.c                               |  60 +++
- drivers/iio/multiplexer/Kconfig                    |  18 +
- drivers/iio/multiplexer/Makefile                   |   6 +
- drivers/iio/multiplexer/iio-mux.c                  | 456 +++++++++++++++++++++
- drivers/mux/Kconfig                                |  42 ++
- drivers/mux/Makefile                               |   7 +
- drivers/mux/mux-adg792a.c                          | 167 ++++++++
- drivers/mux/mux-core.c                             | 425 +++++++++++++++++++
- drivers/mux/mux-gpio.c                             | 129 ++++++
- drivers/mux/mux-gpio.h                             |  13 +
- include/linux/iio/consumer.h                       |  37 ++
- include/linux/mux.h                                | 244 +++++++++++
- 26 files changed, 2248 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
- create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
- create mode 100644 Documentation/devicetree/bindings/mux/mux-adg792a.txt
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ .../devicetree/bindings/mux/mux-controller.txt     | 127 +++++++++++++++++++++
+ Documentation/devicetree/bindings/mux/mux-gpio.txt |  68 +++++++++++
+ MAINTAINERS                                        |   5 +
+ 3 files changed, 200 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/mux/mux-controller.txt
  create mode 100644 Documentation/devicetree/bindings/mux/mux-gpio.txt
- create mode 100644 drivers/i2c/muxes/i2c-mux-simple.c
- create mode 100644 drivers/iio/multiplexer/Kconfig
- create mode 100644 drivers/iio/multiplexer/Makefile
- create mode 100644 drivers/iio/multiplexer/iio-mux.c
- create mode 100644 drivers/mux/Kconfig
- create mode 100644 drivers/mux/Makefile
- create mode 100644 drivers/mux/mux-adg792a.c
- create mode 100644 drivers/mux/mux-core.c
- create mode 100644 drivers/mux/mux-gpio.c
- create mode 100644 drivers/mux/mux-gpio.h
- create mode 100644 include/linux/mux.h
 
+diff --git a/Documentation/devicetree/bindings/mux/mux-controller.txt b/Documentation/devicetree/bindings/mux/mux-controller.txt
+new file mode 100644
+index 000000000000..42b2177e5ae1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mux/mux-controller.txt
+@@ -0,0 +1,127 @@
++Common multiplexer controller bindings
++======================================
++
++A multiplexer (or mux) controller will have one, or several, consumer devices
++that uses the mux controller. Thus, a mux controller can possibly control
++several parallel multiplexers. Presumably there will be at least one
++multiplexer needed by each consumer, but a single mux controller can of course
++control several multiplexers for a single consumer.
++
++A mux controller provides a number of states to its consumers, and the state
++space is a simple zero-based enumeration. I.e. 0-1 for a 2-way multiplexer,
++0-7 for an 8-way multiplexer, etc.
++
++
++Consumers
++---------
++
++Mux controller consumers should specify a list of mux controllers that they
++want to use with a property containing a 'mux-ctrl-list':
++
++	mux-ctrl-list ::= <single-mux-ctrl> [mux-ctrl-list]
++	single-mux-ctrl ::= <mux-ctrl-phandle> [mux-ctrl-specifier]
++	mux-ctrl-phandle : phandle to mux controller node
++	mux-ctrl-specifier : array of #mux-control-cells specifying the
++			     given mux controller (controller specific)
++
++Mux controller properties should be named "mux-controls". The exact meaning of
++each mux controller property must be documented in the device tree binding for
++each consumer. An optional property "mux-control-names" may contain a list of
++strings to label each of the mux controllers listed in the "mux-controls"
++property.
++
++Drivers for devices that use more than a single mux controller can use the
++"mux-control-names" property to map the name of the requested mux controller
++to an index into the list given by the "mux-controls" property.
++
++mux-ctrl-specifier typically encodes the chip-relative mux controller number.
++If the mux controller chip only provides a single mux controller, the
++mux-ctrl-specifier can typically be left out.
++
++Example:
++
++	/* One consumer of a 2-way mux controller (one GPIO-line) */
++	mux: mux-controller {
++		compatible = "mux-gpio";
++		#mux-control-cells = <0>;
++
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>;
++	};
++
++	adc-mux {
++		compatible = "io-channel-mux";
++		io-channels = <&adc 0>;
++		io-channel-names = "parent";
++		mux-controls = <&mux>;
++		mux-control-names = "adc";
++
++		channels = "sync", "in";
++	};
++
++Note that in the example above, specifying the "mux-control-names" is redundant
++because there is only one mux controller in the list.
++
++	/*
++	 * Two consumers (one for an ADC line and one for an i2c bus) of
++	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
++	 */
++	mux: mux-controller {
++		compatible = "mux-gpio";
++		#mux-control-cells = <0>;
++
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++	};
++
++	adc-mux {
++		compatible = "io-channel-mux";
++		io-channels = <&adc 0>;
++		io-channel-names = "parent";
++		mux-controls = <&mux>;
++
++		channels = "sync-1", "in", "out", "sync-2";
++	};
++
++	i2c-mux {
++		compatible = "i2c-mux-simple,mux-locked";
++		i2c-parent = <&i2c1>;
++		mux-controls = <&mux>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			ssd1307: oled@3c {
++				/* ... */
++			};
++		};
++
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			pca9555: pca9555@20 {
++				/* ... */
++			};
++		};
++	};
++
++
++Mux controller nodes
++--------------------
++
++Mux controller nodes must specify the number of cells used for the
++specifier using the '#mux-control-cells' property.
++
++An example mux controller might look like this:
++
++	mux: adg792a@50 {
++		compatible = "adi,adg792a";
++		reg = <0x50>;
++		#mux-control-cells = <1>;
++	};
+diff --git a/Documentation/devicetree/bindings/mux/mux-gpio.txt b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+new file mode 100644
+index 000000000000..8f6bda6f9d78
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+@@ -0,0 +1,68 @@
++GPIO-based multiplexer controller bindings
++
++Define what GPIO pins are used to control a multiplexer. Or several
++multiplexers, if the same pins control more than one multiplexer.
++
++Required properties:
++- compatible : "mux-gpio"
++- mux-gpios : list of gpios used to control the multiplexer, least
++	      significant bit first.
++- #mux-control-cells : <0>
++* Standard mux-controller bindings as decribed in mux-controller.txt
++
++Optional properties:
++- idle-state : if present, the state the mux will have when idle.
++
++The multiplexer state is defined as the number represented by the
++multiplexer GPIO pins, where the first pin is the least significant
++bit. An active pin is a binary 1, an inactive pin is a binary 0.
++
++Example:
++
++	mux: mux-controller {
++		compatible = "mux-gpio";
++		#mux-control-cells = <0>;
++
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++	};
++
++	adc-mux {
++		compatible = "io-channel-mux";
++		io-channels = <&adc 0>;
++		io-channel-names = "parent";
++
++		mux-controls = <&mux>;
++
++		channels = "sync-1", "in", "out", "sync-2";
++	};
++
++	i2c-mux {
++		compatible = "i2c-mux-simple,mux-locked";
++		i2c-parent = <&i2c1>;
++
++		mux-controls = <&mux>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			ssd1307: oled@3c {
++				/* ... */
++			};
++		};
++
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			pca9555: pca9555@20 {
++				/* ... */
++			};
++		};
++	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 40de344ba0e6..be57f5b8f2c2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8469,6 +8469,11 @@ S:	Orphan
+ F:	drivers/mmc/host/mmc_spi.c
+ F:	include/linux/spi/mmc_spi.h
+ 
++MULTIPLEXER SUBSYSTEM
++M:	Peter Rosin <peda@axentia.se>
++S:	Maintained
++F:	Documentation/devicetree/bindings/mux/
++
+ MULTISOUND SOUND DRIVER
+ M:	Andrew Veliath <andrewtv@usa.net>
+ S:	Maintained
 -- 
 2.1.4
+
