@@ -1,135 +1,274 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v9 2/5] i2c: Add STM32F4 I2C driver
-Date: Thu, 19 Jan 2017 09:02:58 +0100
-Message-ID: <20170119080258.fovhfy2v6rrtgwgp@pengutronix.de>
-References: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
- <1484666821-20551-3-git-send-email-cedric.madianga@gmail.com>
- <20170117193752.e6hju25w74bb4i4z@pengutronix.de>
- <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
- <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
- <CAOAejn2LobTMfvsvmW8cCiToFHuM6n26s5QPLLXxLzb-WKkhQw@mail.gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v5 3/5] i2c: mux: pca954x: Add interrupt controller
+ support
+Date: Thu, 19 Jan 2017 09:27:42 +0100
+Message-ID: <9bb95d83-a92f-1a3f-8f4f-f26ec6cb570e@axentia.se>
+References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+ <1484640029-22870-4-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:34569 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751222AbdASIFk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Jan 2017 03:05:40 -0500
-Content-Disposition: inline
-In-Reply-To: <CAOAejn2LobTMfvsvmW8cCiToFHuM6n26s5QPLLXxLzb-WKkhQw@mail.gmail.com>
+Received: from mail-db5eur01on0127.outbound.protection.outlook.com ([104.47.2.127]:63259
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750907AbdASI1u (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 19 Jan 2017 03:27:50 -0500
+In-Reply-To: <1484640029-22870-4-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-Hello Cedric,
-
-On Wed, Jan 18, 2017 at 09:55:39PM +0100, M'boumba Cedric Madianga wrote:
-> 2017-01-18 19:42 GMT+01:00 Uwe Kleine-König <u.kleine-koenig@pengutronix.de>:
-> > Hello Cedric,
-> >
-> > On Wed, Jan 18, 2017 at 04:21:17PM +0100, M'boumba Cedric Madianga wrote:
-> >> >> +      * In standard mode, the maximum allowed SCL rise time is 1000 ns.
-> >> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is equal to
-> >> >> +      * 0x08 so period = 125 ns therefore the TRISE[5:0] bits must be
-> >> >> +      * programmed with 09h.(1000 ns / 125 ns = 8 + 1)
-> >> >
-> >> >         * programmed with 0x9.
-> >> > (1000 ns / 125 ns = 8)
-> >> >
-> >> >> +      * So, for I2C standard mode TRISE = FREQ[5:0] + 1
-> >> >> +      *
-> >> >> +      * In fast mode, the maximum allowed SCL rise time is 300 ns.
-> >> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits is equal to
-> >> >> +      * 0x08 so period = 125 ns therefore the TRISE[5:0] bits must be
-> >> >> +      * programmed with 03h.(300 ns / 125 ns = 2 + 1)
-> >> >
-> >> > as above s/03h/0x3/;
-> >>
-> >> ok
-> >>
-> >> > s/.(/. (/;
-> >> ok
-> >>
-> >> > s/+ 1//;
-> >> This formula is use to understand how we find the result 0x3
-> >> So, 0x3 => 300 ns / 125ns = 2 + 1
-> >
-> > Yeah, I understood that, but writing 300 ns / 125ns = 2 + 1 is
-> > irritating at best.
+On 2017-01-17 09:00, Phil Reid wrote:
+> Various muxes can aggregate multiple interrupts from each i2c bus.
+> All of the muxes with interrupt support combine the active low irq lines
+> using an internal 'and' function and generate a combined active low
+> output. The muxes do provide the ability to read a control register to
+> determine which irq is active. By making the mux an irq controller isr
+> latency can potentially be reduced by reading the status register and
+> then only calling the registered isr on that bus segment.
 > 
-> Ok. I will write 0x3 (300 ns / 125 ns + 1) and 0x9 (1000 ns / 125 ns + 1)
+> As there is no irq masking on the mux irq are disabled until irq_unmask is
+> called at least once.
 > 
-> >> >         [...]
-> >> >         If DUTY = 1: (to reach 400 kHz)
-> >> >
-> >> > Strange.
-> >> >
-> >> >> +             val = DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
-> >> >
-> >> > the manual reads:
-> >> >
-> >> >         The minimum allowed value is 0x04, except in FAST DUTY mode
-> >> >         where the minimum allowed value is 0x01
-> >> >
-> >> > You don't check for that, right?
-> >>
-> >> As the minimum freq value is 6 Mhz in fast mode the minimum CCR is 5
-> >> as described in the comment.
-> >> So I don't need to check that again as it is already done by checking
-> >> parent frequency.
-> >
-> > That would then go into a comment.
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
+
+Acked-by: Peter Rosin <peda@axentia.se>
+
+Cheers,
+peda
+
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 141 +++++++++++++++++++++++++++++++++++-
+>  1 file changed, 139 insertions(+), 2 deletions(-)
 > 
-> Is it really needed ?
-> Adding some comments to explain implementation choices or  hardware
-> way of working is clearly useful.
-> But for this kind of thing, I am really surprised...
-
-TL;DR: It's not needed, but it probably helps.
-
-Consider someone sees a breakage in your driver in five years. By then
-you either have other interests or at least forgot 95 % of the thoughts
-you had when implementing the driver.
-
-So when I see:
-
-	val = DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
-	ccr |= STM32F4_I2C_CCR_CCR(val);
-	writel_relaxed(ccr, i2c_dev->base + STM32F4_I2C_CCR);                                                                                                       
-
-after seeing that the bus freq is wrong the obvious thoughts are:
-
- - Does this use the right algorithm?
- - Does this calculation result in values that are usable by the
-   hardware?
-
-That you thought about this today doesn't mean it's still right in five
-years. During that time a new hardware variant is available with a
-higher parent freq. Or there is a new errata available for the SoC.
-
-So to help answer the questions above it helps if you add today the
-formulas from the manual and a quick reason for why val fits into the
-respective bits in the CCR register. That comment might be wrong until
-then, too, but that only means you should make it easy to verify.
-Something like:
-
-	/* 
-	 * Function bla_blub made sure that parent_rate is not higher
-	 * than 23 * pi MHz. As a result val is at most 13.2 bits wide
-	 * and so fits into the CCR bits.
-	 */
-
-This gives you in five years time the opportunity to quickly check
-bla_blub if this is still true, add a printk for parent_rate to check
-this, or quickly identify the bug in the code or the mismatch to the
-manual.
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index bbf088e..f55da88 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -41,14 +41,20 @@
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-mux.h>
+>  #include <linux/i2c/pca954x.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/irq.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/of_irq.h>
+>  #include <linux/pm.h>
+>  #include <linux/slab.h>
+> +#include <linux/spinlock.h>
+>  
+>  #define PCA954X_MAX_NCHANS 8
+>  
+> +#define PCA954X_IRQ_OFFSET 4
+> +
+>  enum pca_type {
+>  	pca_9540,
+>  	pca_9542,
+> @@ -63,6 +69,7 @@ enum pca_type {
+>  struct chip_desc {
+>  	u8 nchans;
+>  	u8 enable;	/* used for muxes only */
+> +	u8 has_irq;
+>  	enum muxtype {
+>  		pca954x_ismux = 0,
+>  		pca954x_isswi
+> @@ -75,6 +82,10 @@ struct pca954x {
+>  	u8 last_chan;		/* last register value */
+>  	u8 deselect;
+>  	struct i2c_client *client;
+> +
+> +	struct irq_domain *irq;
+> +	unsigned int irq_mask;
+> +	spinlock_t lock;
+>  };
+>  
+>  /* Provide specs for the PCA954x types we know about */
+> @@ -87,19 +98,23 @@ struct pca954x {
+>  	[pca_9542] = {
+>  		.nchans = 2,
+>  		.enable = 0x4,
+> +		.has_irq = 1,
+>  		.muxtype = pca954x_ismux,
+>  	},
+>  	[pca_9543] = {
+>  		.nchans = 2,
+> +		.has_irq = 1,
+>  		.muxtype = pca954x_isswi,
+>  	},
+>  	[pca_9544] = {
+>  		.nchans = 4,
+>  		.enable = 0x4,
+> +		.has_irq = 1,
+>  		.muxtype = pca954x_ismux,
+>  	},
+>  	[pca_9545] = {
+>  		.nchans = 4,
+> +		.has_irq = 1,
+>  		.muxtype = pca954x_isswi,
+>  	},
+>  	[pca_9547] = {
+> @@ -222,6 +237,114 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+>  	return pca954x_reg_write(muxc->parent, client, data->last_chan);
+>  }
+>  
+> +static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
+> +{
+> +	struct pca954x *data = dev_id;
+> +	unsigned int child_irq;
+> +	int ret, i, handled;
+> +
+> +	ret = i2c_smbus_read_byte(data->client);
+> +	if (ret < 0)
+> +		return IRQ_NONE;
+> +
+> +	for (i = 0; i < data->chip->nchans; i++) {
+> +		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
+> +			child_irq = irq_linear_revmap(data->irq, i);
+> +			handle_nested_irq(child_irq);
+> +			handled++;
+> +		}
+> +	}
+> +	return handled ? IRQ_HANDLED : IRQ_NONE;
+> +}
+> +
+> +static void pca954x_irq_mask(struct irq_data *idata)
+> +{
+> +	struct pca954x *data = irq_data_get_irq_chip_data(idata);
+> +	unsigned int pos = idata->hwirq;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&data->lock, flags);
+> +
+> +	data->irq_mask &= ~BIT(pos);
+> +	if (!data->irq_mask)
+> +		disable_irq(data->client->irq);
+> +
+> +	spin_unlock_irqrestore(&data->lock, flags);
+> +}
+> +
+> +static void pca954x_irq_unmask(struct irq_data *idata)
+> +{
+> +	struct pca954x *data = irq_data_get_irq_chip_data(idata);
+> +	unsigned int pos = idata->hwirq;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&data->lock, flags);
+> +
+> +	if (!data->irq_mask)
+> +		enable_irq(data->client->irq);
+> +	data->irq_mask |= BIT(pos);
+> +
+> +	spin_unlock_irqrestore(&data->lock, flags);
+> +}
+> +
+> +static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
+> +{
+> +	if ((type & IRQ_TYPE_SENSE_MASK) != IRQ_TYPE_LEVEL_LOW)
+> +		return -EINVAL;
+> +	return 0;
+> +}
+> +
+> +static struct irq_chip pca954x_irq_chip = {
+> +	.name = "i2c-mux-pca954x",
+> +	.irq_mask = pca954x_irq_mask,
+> +	.irq_unmask = pca954x_irq_unmask,
+> +	.irq_set_type = pca954x_irq_set_type,
+> +};
+> +
+> +static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+> +{
+> +	struct pca954x *data = i2c_mux_priv(muxc);
+> +	struct i2c_client *client = data->client;
+> +	int c, err, irq;
+> +
+> +	if (!data->chip->has_irq || client->irq <= 0)
+> +		return 0;
+> +
+> +	spin_lock_init(&data->lock);
+> +
+> +	data->irq = irq_domain_add_linear(client->dev.of_node,
+> +					  data->chip->nchans,
+> +					  &irq_domain_simple_ops, data);
+> +	if (!data->irq)
+> +		return -ENODEV;
+> +
+> +	for (c = 0; c < data->chip->nchans; c++) {
+> +		irq = irq_create_mapping(data->irq, c);
+> +		irq_set_chip_data(irq, data);
+> +		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
+> +			handle_simple_irq);
+> +	}
+> +
+> +	err = devm_request_threaded_irq(&client->dev, data->client->irq, NULL,
+> +					pca954x_irq_handler,
+> +					IRQF_ONESHOT | IRQF_SHARED,
+> +					"pca954x", data);
+> +	if (err)
+> +		goto err_req_irq;
+> +
+> +	disable_irq(data->client->irq);
+> +
+> +	return 0;
+> +err_req_irq:
+> +	for (c = 0; c < data->chip->nchans; c++) {
+> +		irq = irq_find_mapping(data->irq, c);
+> +		irq_dispose_mapping(irq);
+> +	}
+> +	irq_domain_remove(data->irq);
+> +
+> +	return err;
+> +}
+> +
+>  /*
+>   * I2C init/probing/exit functions
+>   */
+> @@ -286,6 +409,10 @@ static int pca954x_probe(struct i2c_client *client,
+>  	idle_disconnect_dt = of_node &&
+>  		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
+>  
+> +	ret = pca954x_irq_setup(muxc);
+> +	if (ret)
+> +		goto fail_del_adapters;
+> +
+>  	/* Now create an adapter for each channel */
+>  	for (num = 0; num < data->chip->nchans; num++) {
+>  		bool idle_disconnect_pd = false;
+> @@ -311,7 +438,7 @@ static int pca954x_probe(struct i2c_client *client,
+>  			dev_err(&client->dev,
+>  				"failed to register multiplexed adapter"
+>  				" %d as bus %d\n", num, force);
+> -			goto virt_reg_failed;
+> +			goto fail_del_adapters;
+>  		}
+>  	}
+>  
+> @@ -322,7 +449,7 @@ static int pca954x_probe(struct i2c_client *client,
+>  
+>  	return 0;
+>  
+> -virt_reg_failed:
+> +fail_del_adapters:
+>  	i2c_mux_del_adapters(muxc);
+>  	return ret;
+>  }
+> @@ -330,6 +457,16 @@ static int pca954x_probe(struct i2c_client *client,
+>  static int pca954x_remove(struct i2c_client *client)
+>  {
+>  	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+> +	struct pca954x *data = i2c_mux_priv(muxc);
+> +	int c, irq;
+> +
+> +	if (data->irq) {
+> +		for (c = 0; c < data->chip->nchans; c++) {
+> +			irq = irq_find_mapping(data->irq, c);
+> +			irq_dispose_mapping(irq);
+> +		}
+> +		irq_domain_remove(data->irq);
+> +	}
+>  
+>  	i2c_mux_del_adapters(muxc);
+>  	return 0;
+> 
