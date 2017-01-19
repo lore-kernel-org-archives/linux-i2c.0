@@ -1,148 +1,156 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v9 2/5] i2c: Add STM32F4 I2C driver
-Date: Thu, 19 Jan 2017 09:29:53 +0100
-Message-ID: <CAOAejn1HdZACqBLfw9r-yXZeSatz=mYDBGc9fdQ2puPVhsOp1w@mail.gmail.com>
-References: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
- <1484666821-20551-3-git-send-email-cedric.madianga@gmail.com>
- <20170117193752.e6hju25w74bb4i4z@pengutronix.de> <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
- <20170118184237.tvhlsksdcw2ckwan@pengutronix.de> <CAOAejn2LobTMfvsvmW8cCiToFHuM6n26s5QPLLXxLzb-WKkhQw@mail.gmail.com>
- <20170119080258.fovhfy2v6rrtgwgp@pengutronix.de>
+From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Subject: [PATCH v10 0/5] Add support for the STM32F4 I2C
+Date: Thu, 19 Jan 2017 14:25:11 +0100
+Message-ID: <1484832316-5594-1-git-send-email-cedric.madianga@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170119080258.fovhfy2v6rrtgwgp-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, u.kleine-koenig@pengutronix.de
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ok fine
+This patchset adds support for the I2C controller embedded in STM32F4xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode and Fast-mode bus
+speed.
 
-2017-01-19 9:02 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutroni=
-x.de>:
-> Hello Cedric,
->
-> On Wed, Jan 18, 2017 at 09:55:39PM +0100, M'boumba Cedric Madianga wrote:
->> 2017-01-18 19:42 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengut=
-ronix.de>:
->> > Hello Cedric,
->> >
->> > On Wed, Jan 18, 2017 at 04:21:17PM +0100, M'boumba Cedric Madianga wro=
-te:
->> >> >> +      * In standard mode, the maximum allowed SCL rise time is 10=
-00 ns.
->> >> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits =
-is equal to
->> >> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits m=
-ust be
->> >> >> +      * programmed with 09h.(1000 ns / 125 ns =3D 8 + 1)
->> >> >
->> >> >         * programmed with 0x9.
->> >> > (1000 ns / 125 ns =3D 8)
->> >> >
->> >> >> +      * So, for I2C standard mode TRISE =3D FREQ[5:0] + 1
->> >> >> +      *
->> >> >> +      * In fast mode, the maximum allowed SCL rise time is 300 ns=
-.
->> >> >> +      * If, in the I2C_CR2 register, the value of FREQ[5:0] bits =
-is equal to
->> >> >> +      * 0x08 so period =3D 125 ns therefore the TRISE[5:0] bits m=
-ust be
->> >> >> +      * programmed with 03h.(300 ns / 125 ns =3D 2 + 1)
->> >> >
->> >> > as above s/03h/0x3/;
->> >>
->> >> ok
->> >>
->> >> > s/.(/. (/;
->> >> ok
->> >>
->> >> > s/+ 1//;
->> >> This formula is use to understand how we find the result 0x3
->> >> So, 0x3 =3D> 300 ns / 125ns =3D 2 + 1
->> >
->> > Yeah, I understood that, but writing 300 ns / 125ns =3D 2 + 1 is
->> > irritating at best.
->>
->> Ok. I will write 0x3 (300 ns / 125 ns + 1) and 0x9 (1000 ns / 125 ns + 1=
-)
->>
->> >> >         [...]
->> >> >         If DUTY =3D 1: (to reach 400 kHz)
->> >> >
->> >> > Strange.
->> >> >
->> >> >> +             val =3D DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * =
-3);
->> >> >
->> >> > the manual reads:
->> >> >
->> >> >         The minimum allowed value is 0x04, except in FAST DUTY mode
->> >> >         where the minimum allowed value is 0x01
->> >> >
->> >> > You don't check for that, right?
->> >>
->> >> As the minimum freq value is 6 Mhz in fast mode the minimum CCR is 5
->> >> as described in the comment.
->> >> So I don't need to check that again as it is already done by checking
->> >> parent frequency.
->> >
->> > That would then go into a comment.
->>
->> Is it really needed ?
->> Adding some comments to explain implementation choices or  hardware
->> way of working is clearly useful.
->> But for this kind of thing, I am really surprised...
->
-> TL;DR: It's not needed, but it probably helps.
->
-> Consider someone sees a breakage in your driver in five years. By then
-> you either have other interests or at least forgot 95 % of the thoughts
-> you had when implementing the driver.
->
-> So when I see:
->
->         val =3D DIV_ROUND_UP(i2c_dev->parent_rate, 400000 * 3);
->         ccr |=3D STM32F4_I2C_CCR_CCR(val);
->         writel_relaxed(ccr, i2c_dev->base + STM32F4_I2C_CCR);
->
-> after seeing that the bus freq is wrong the obvious thoughts are:
->
->  - Does this use the right algorithm?
->  - Does this calculation result in values that are usable by the
->    hardware?
->
-> That you thought about this today doesn't mean it's still right in five
-> years. During that time a new hardware variant is available with a
-> higher parent freq. Or there is a new errata available for the SoC.
->
-> So to help answer the questions above it helps if you add today the
-> formulas from the manual and a quick reason for why val fits into the
-> respective bits in the CCR register. That comment might be wrong until
-> then, too, but that only means you should make it easy to verify.
-> Something like:
->
->         /*
->          * Function bla_blub made sure that parent_rate is not higher
->          * than 23 * pi MHz. As a result val is at most 13.2 bits wide
->          * and so fits into the CCR bits.
->          */
->
-> This gives you in five years time the opportunity to quickly check
-> bla_blub if this is still true, add a printk for parent_rate to check
-> this, or quickly identify the bug in the code or the mismatch to the
-> manual.
->
-> Best regards
-> Uwe
->
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig       =
-     |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  =
-|
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes since v9:
+- Fix minor typo in some comments
+- Add some comments to explain how the driver check TRISE and CCR value have
+  no chance of overflow
+
+Changes since v8:
+- Rework I2C Clock Control Register computation (Uwe)
+- Save register accesses as often as possible (Uwe)
+- Don't use mask before saving rx buffer (Uwe)
+- Add more comments to explain hardware way of working (Uwe)
+- Rename stm32f4_i2c_handle_rx_btf function by stm32f4_i2c_handle_rx_done (Uwe)
+- Set/Clear Ack position bit during address match phase
+
+Changes since v7:
+- Remove unneeded parenthesis in some macro definitions (Uwe)
+- Fix some typo (s/KhzkHZ, s/PEC/POC) (Uwe)
+- Fix alignment issues in some structures declaration (Uwe)
+- Clarify comments to argue i2c_timing values chosen (Uwe)
+- Raise an error if parent clk rate is out of scope during I2C hw config (Uwe)
+- Use dev_dbg instead of dev_err message when I2C bus is busy  (Uwe)
+- Add more comments about stuff done by stm32f4_i2c_handle_rx_btf() (Uwe)
+- Simplify stm32f4_i2c_isr_error() routine implementation by removing possible
+  status checking (Uwe)
+- Rework stm32f4_i2c_isr_error() routine by removing the loop to check which
+  status occured  (Uwe)
+- Add open-drain property for SCL pins  (Uwe)
+- Rework unneeded mul_ccr field from i2c_timing structure
+- Remove min_ccr field from i2c_timing structure as default scl_period is chosen
+  to have a correct minimal ccr value
+- Execute hw_config once during probe
+- Remove soft_reset after an I2C error as all errors are now handled and
+  hw_config is done once during probe
+- Generate STOP by software when Acknowledge failure occurs
+- Set the max speed mode for I2C pins
+- Add bias-disable property for I2C pins
+- Use intrinsic limitation of APB bus to set I2C max input clk
+
+Changes since v6:
+- Add commit message for the patches in defconfig, .dtsi and .dts files (Alex)
+- Order I2C instance base address in .dtsi file (Alex)
+- Add commit message for the patch in stm32429i-eval.dts  (Alex)
+- Add link to the STM32F4 Soc ref manual where I2C device is described (Uwe)
+- Use more usal way to define constants with several lines (Uwe)
+- Remove rate variable from stm32f4_i2c_timings as it is not used (Uwe)
+- Remove irq variable from stm32f4_i2c_dev struct are they are only needed
+  during probe (Uwe)
+- Add comment from datasheet to explain stm32f4_i2c_timings values (Uwe)
+- Rework i2c soft_reset implementation (Uwe)
+- Replace "it" by "irq" as it is a more usual abbreviation for interrupt (Uwe)
+- Add comment from datasheet to explain periph clk freq calculation (Uwe)
+- Use DIV_ROUND_UP instead of plain division when required (Uwe)
+- Add comment from datasheet to explain timing rise calculation (Uwe)
+- Rework timing rise calculation by using shorter computation (Uwe)
+- Remove (u8) cast when reading I2C data register (Uwe)
+- Rework isr_event routine to handle several events during one call of the
+  routine (Uwe)
+- Precise which type of irq is failed when a irq request error occurs (Uwe)
+- Use devm_request_irq() instead of devm_request_threaded_irq() to avoid
+  spurious evt irq when clearing status registers in threaded context
+
+Changes since v5:
+- Change commit header from "ARM: dts:" to "ARM: dts: stm32:" (Alex)
+- Change commit header from "ARM: configs:" to "ARM: configs: stm32:" (Alex)
+- Fix warnings due to variable set but unused (Wolfram)
+- Remove double space in Kconfig (Wolfram)
+- Fix warning due to bad type parameter when using clamp() function
+  (build-bot)
+
+Changes since v4:
+- Use clamp() function to use a value in a given range as it was missed in V4
+
+Changes since v3 after Wolfram's review:
+- Add COMPILE_TEST flag in Kconfig
+- Use correct driver name in Kconfig i.e i2c-stm32f4 instead of i2c-st
+- Use more comprehensible name stm32f4_i2c_msg for client specific data
+- Don't store reset control node as just needed in probe
+- Use clamp() function to test value between 2 ranges
+- Use new "i2c_8bit_addr_from_msg() function to build I2C address
+- Don't write error messages for timeout
+- Remove error message when i2c_add_adapter() fails as it is already handled by
+  the i2c core driver
+
+Changes since v2:
+- remove interrupt configuration management from DT
+- remove FIFO configuration management from DT except threshold as it is very
+  hard to handle it in the driver due to many possible combinations according
+  to burst and bus width
+- update DMA client message in DT documentation file
+- specify the order to be used to set per-channel DMA interrupts in the DT
+- remove unused enumerations for channel and request ids
+- keep as soon as possible 80 lines char for more readability
+- replace unsigned int by u32
+- return error if burst is not supported in stm32_dma_get_burst()
+- return error if bus_width is not supported in stm32_dma_get_width()
+- add FIFO configuration management inside the driver except for threshold
+- add interrupt configuration management inside the driver
+- rework stm32_dma_chan_irq() to handle error interrupt in one way
+- rework stm32_dma_set_xfer_param() to be easier to read
+- update stm32_dma_tx_status() to always return status from dma_cookie_status()
+- disable clk if we don't manage to stop the DMA channel during channel
+  resources allocation
+- set driver as built-in as DMA will be required by other built-in driver
+
+Changes since v1:
+- use compatible st,stm32f4-i2c instead of st,i2c-stm32f4 (Rob)
+- fix typo s/enmpty/empty (Maxime)
+- use one function to handle TX fifo empty and byte xfer finished IT (Maxime)
+- set duty cycle in timing struct in Fast mode
+- Rework clock management (call prepare/unprepare at probe and remove, call
+  clk_enable/clk_disable for each I2C transfer)
+
+M'boumba Cedric Madianga (5):
+  dt-bindings: Document the STM32 I2C bindings
+  i2c: Add STM32F4 I2C driver
+  ARM: dts: stm32: Add I2C1 support for STM32F429 SoC
+  ARM: dts: stm32: Add I2C1 support for STM32429 eval board
+  ARM: configs: stm32: Add I2C support for STM32 defconfig
+
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  33 +
+ arch/arm/boot/dts/stm32429i-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f429.dtsi                   |  23 +
+ arch/arm/configs/stm32_defconfig                   |   3 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32f4.c                   | 897 +++++++++++++++++++++
+ 7 files changed, 973 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+ create mode 100644 drivers/i2c/busses/i2c-stm32f4.c
+
+-- 
+1.9.1
