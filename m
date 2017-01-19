@@ -1,45 +1,85 @@
-From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 3/3] spi: acpi: Initialize modalias from of_compatible
-Date: Tue, 31 Jan 2017 22:18:30 +0100
-Message-ID: <CAJZ5v0iaD9WtGubF5G9NpXNNKWWhn-CNvawWpT37qkguzXi_HA@mail.gmail.com>
-References: <cover.1468409668.git.leonard.crestez@intel.com>
- <1485187737-22414-1-git-send-email-dan@emutex.com> <1485187737-22414-4-git-send-email-dan@emutex.com>
- <CAJZ5v0hAoOQN+d4iBSgSkkYHBOy-Pt9HLrKG4SjcQUB6Ya1bgA@mail.gmail.com> <20170131201736.cmiyq2obzrhgdsck@sirena.org.uk>
+From: Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+Subject: nested I2C muxes
+Date: Thu, 19 Jan 2017 19:03:26 +0100
+Message-ID: <595ed81b-546b-a60f-1bf1-b21f14c15b3c@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170131201736.cmiyq2obzrhgdsck-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dan O'Donovan <dan-M3NBUjLqch7QT0dZR+AlfA@public.gmane.org>, ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Rafael J . Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-spi <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Crestez Dan Leonard <leonard.crestez-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr50042.outbound.protection.outlook.com ([40.107.5.42]:43712
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751622AbdASSVm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 19 Jan 2017 13:21:42 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-On Tue, Jan 31, 2017 at 9:17 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> On Mon, Jan 30, 2017 at 10:41:33AM +0100, Rafael J. Wysocki wrote:
->> On Mon, Jan 23, 2017 at 5:08 PM, Dan O'Donovan <dan-M3NBUjLqch7QT0dZR+AlfA@public.gmane.org> wrote:
->
->> Mark, any objections here?
->
-> I've not looked yet, please allow a reasonable time for review
+Hi,
 
-Sure, no problem at all.
+I haven't found any information regarding support for nested i2c muxes.
+Is the below device tree supported by the current driver ?
 
-> (there still seemed to be ongoing discussion at the ACPI level).
+&i2c0 {
+        status =3D "okay";
+        clock-frequency =3D <400000>;
+        pinctrl-names =3D "default";
+        pinctrl-0 =3D <&pinctrl_i2c0_default>;
 
-Honestly, I'm not sure what you mean.
+        i2cswitch@74 {
+                compatible =3D "nxp,pca9548";
+                #address-cells =3D <1>;
+                #size-cells =3D <0>;
+                reg =3D <0x74>;
 
-The first patch in the series (which is the ACPI level here) does not
-seem to be controversial at all and the i2c one has been acked
-already.
+                i2c@0 {
+                        #address-cells =3D <1>;
+                        #size-cells =3D <0>;
+                        reg =3D <0>;
+                        si570: clock-generator@5d {
+                                #clock-cells =3D <0>;
+                                compatible =3D "silabs,si570";
+                                temperature-stability =3D <50>;
+                                reg =3D <0x5d>;
+                                factory-fout =3D <156250000>;
+                                clock-frequency =3D <148500000>;
+                        };
+                };
 
-> I continue to be concerned about the amount of duplication and special casing that the
-> various firmware paths seem to entail.
+                i2c@2 {
+                        #address-cells =3D <1>;
+                        #size-cells =3D <0>;
+                        reg =3D <5>;
+                        i2cswitch_hpc@74 {
+                                         compatible =3D "nxp,pca9548";
+                                         #address-cells =3D <1>;
+                                         #size-cells =3D <0>;
+                                         reg =3D <0x74>;
+                                         hpc_caribou_sources_enable@76  {=
 
-Well, this particular change is relatively straightforward and one can
-argue that it fixes a bug.  It does address a problem for sure.
+                                                                      =20
+compatible=3D "nxp,pca9539";
+                                                                      =20
+#address-cells =3D <1>;
+                                                                      =20
+#size-cells =3D <0>;
+                                                                      =20
+reg =3D <0x76>;
+                                         };
+                        };
 
-Thanks,
-Rafael
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+                };
+
+        };
+
+};
+
+With such tree I am getting error
+
+[2.173385] i2c i2c-2: of_i2c: invalid addr=3D0 on
+/amba/i2c@e0004000/i2cswitch@74/i2c@2/i2cswitch_hpc@74
+
+
+Regards,
+
+Adrian Fiergolski
