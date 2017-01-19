@@ -1,72 +1,222 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH v9 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 18 Jan 2017 21:55:39 +0100
-Message-ID: <CAOAejn2LobTMfvsvmW8cCiToFHuM6n26s5QPLLXxLzb-WKkhQw@mail.gmail.com>
-References: <1484666821-20551-1-git-send-email-cedric.madianga@gmail.com>
- <1484666821-20551-3-git-send-email-cedric.madianga@gmail.com>
- <20170117193752.e6hju25w74bb4i4z@pengutronix.de>
- <CAOAejn0ea2j_oUijOdHgiL3JU4TM0HZoL+-ggzjpPL2eA7tDCw@mail.gmail.com>
- <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v5 5/5] i2c: mux: pca954x: Add irq-mask-enable to delay
+ enabling irqs
+Date: Thu, 19 Jan 2017 15:48:02 +0800
+Message-ID: <61c38233-abf2-df31-6f7c-c4214f4103aa@electromag.com.au>
+References: <1484640029-22870-1-git-send-email-preid@electromag.com.au>
+ <1484640029-22870-6-git-send-email-preid@electromag.com.au>
+ <312e32e9-a828-d692-895b-4042729e5417@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170118184237.tvhlsksdcw2ckwan@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Patrice Chotard <patrice.chotard@st.com>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:58364 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750770AbdASHsH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 19 Jan 2017 02:48:07 -0500
+In-Reply-To: <312e32e9-a828-d692-895b-4042729e5417@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-MjAxNy0wMS0xOCAxOTo0MiBHTVQrMDE6MDAgVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtv
-ZW5pZ0BwZW5ndXRyb25peC5kZT46Cj4gSGVsbG8gQ2VkcmljLAo+Cj4gT24gV2VkLCBKYW4gMTgs
-IDIwMTcgYXQgMDQ6MjE6MTdQTSArMDEwMCwgTSdib3VtYmEgQ2VkcmljIE1hZGlhbmdhIHdyb3Rl
-Ogo+PiA+PiArICAgICAgKiBJbiBzdGFuZGFyZCBtb2RlLCB0aGUgbWF4aW11bSBhbGxvd2VkIFND
-TCByaXNlIHRpbWUgaXMgMTAwMCBucy4KPj4gPj4gKyAgICAgICogSWYsIGluIHRoZSBJMkNfQ1Iy
-IHJlZ2lzdGVyLCB0aGUgdmFsdWUgb2YgRlJFUVs1OjBdIGJpdHMgaXMgZXF1YWwgdG8KPj4gPj4g
-KyAgICAgICogMHgwOCBzbyBwZXJpb2QgPSAxMjUgbnMgdGhlcmVmb3JlIHRoZSBUUklTRVs1OjBd
-IGJpdHMgbXVzdCBiZQo+PiA+PiArICAgICAgKiBwcm9ncmFtbWVkIHdpdGggMDloLigxMDAwIG5z
-IC8gMTI1IG5zID0gOCArIDEpCj4+ID4KPj4gPiAgICAgICAgICogcHJvZ3JhbW1lZCB3aXRoIDB4
-OS4KPj4gPiAoMTAwMCBucyAvIDEyNSBucyA9IDgpCj4+ID4KPj4gPj4gKyAgICAgICogU28sIGZv
-ciBJMkMgc3RhbmRhcmQgbW9kZSBUUklTRSA9IEZSRVFbNTowXSArIDEKPj4gPj4gKyAgICAgICoK
-Pj4gPj4gKyAgICAgICogSW4gZmFzdCBtb2RlLCB0aGUgbWF4aW11bSBhbGxvd2VkIFNDTCByaXNl
-IHRpbWUgaXMgMzAwIG5zLgo+PiA+PiArICAgICAgKiBJZiwgaW4gdGhlIEkyQ19DUjIgcmVnaXN0
-ZXIsIHRoZSB2YWx1ZSBvZiBGUkVRWzU6MF0gYml0cyBpcyBlcXVhbCB0bwo+PiA+PiArICAgICAg
-KiAweDA4IHNvIHBlcmlvZCA9IDEyNSBucyB0aGVyZWZvcmUgdGhlIFRSSVNFWzU6MF0gYml0cyBt
-dXN0IGJlCj4+ID4+ICsgICAgICAqIHByb2dyYW1tZWQgd2l0aCAwM2guKDMwMCBucyAvIDEyNSBu
-cyA9IDIgKyAxKQo+PiA+Cj4+ID4gYXMgYWJvdmUgcy8wM2gvMHgzLzsKPj4KPj4gb2sKPj4KPj4g
-PiBzLy4oLy4gKC87Cj4+IG9rCj4+Cj4+ID4gcy8rIDEvLzsKPj4gVGhpcyBmb3JtdWxhIGlzIHVz
-ZSB0byB1bmRlcnN0YW5kIGhvdyB3ZSBmaW5kIHRoZSByZXN1bHQgMHgzCj4+IFNvLCAweDMgPT4g
-MzAwIG5zIC8gMTI1bnMgPSAyICsgMQo+Cj4gWWVhaCwgSSB1bmRlcnN0b29kIHRoYXQsIGJ1dCB3
-cml0aW5nIDMwMCBucyAvIDEyNW5zID0gMiArIDEgaXMKPiBpcnJpdGF0aW5nIGF0IGJlc3QuCgpP
-ay4gSSB3aWxsIHdyaXRlIDB4MyAoMzAwIG5zIC8gMTI1IG5zICsgMSkgYW5kIDB4OSAoMTAwMCBu
-cyAvIDEyNSBucyArIDEpCgo+PiA+ICAgICAgICAgWy4uLl0KPj4gPiAgICAgICAgIElmIERVVFkg
-PSAxOiAodG8gcmVhY2ggNDAwIGtIeikKPj4gPgo+PiA+IFN0cmFuZ2UuCj4+ID4KPj4gPj4gKyAg
-ICAgICAgICAgICB2YWwgPSBESVZfUk9VTkRfVVAoaTJjX2Rldi0+cGFyZW50X3JhdGUsIDQwMDAw
-MCAqIDMpOwo+PiA+Cj4+ID4gdGhlIG1hbnVhbCByZWFkczoKPj4gPgo+PiA+ICAgICAgICAgVGhl
-IG1pbmltdW0gYWxsb3dlZCB2YWx1ZSBpcyAweDA0LCBleGNlcHQgaW4gRkFTVCBEVVRZIG1vZGUK
-Pj4gPiAgICAgICAgIHdoZXJlIHRoZSBtaW5pbXVtIGFsbG93ZWQgdmFsdWUgaXMgMHgwMQo+PiA+
-Cj4+ID4gWW91IGRvbid0IGNoZWNrIGZvciB0aGF0LCByaWdodD8KPj4KPj4gQXMgdGhlIG1pbmlt
-dW0gZnJlcSB2YWx1ZSBpcyA2IE1oeiBpbiBmYXN0IG1vZGUgdGhlIG1pbmltdW0gQ0NSIGlzIDUK
-Pj4gYXMgZGVzY3JpYmVkIGluIHRoZSBjb21tZW50Lgo+PiBTbyBJIGRvbid0IG5lZWQgdG8gY2hl
-Y2sgdGhhdCBhZ2FpbiBhcyBpdCBpcyBhbHJlYWR5IGRvbmUgYnkgY2hlY2tpbmcKPj4gcGFyZW50
-IGZyZXF1ZW5jeS4KPgo+IFRoYXQgd291bGQgdGhlbiBnbyBpbnRvIGEgY29tbWVudC4KCklzIGl0
-IHJlYWxseSBuZWVkZWQgPwpBZGRpbmcgc29tZSBjb21tZW50cyB0byBleHBsYWluIGltcGxlbWVu
-dGF0aW9uIGNob2ljZXMgb3IgIGhhcmR3YXJlCndheSBvZiB3b3JraW5nIGlzIGNsZWFybHkgdXNl
-ZnVsLgpCdXQgZm9yIHRoaXMga2luZCBvZiB0aGluZywgSSBhbSByZWFsbHkgc3VycHJpc2VkLi4u
-Cgo+Cj4+ID4gQ0NSIGlzIDExIGJpdHMgd2lkZS4gQSBjb21tZW50IGNvbmZpcm1pbmcgdGhhdCB0
-aGlzIGNhbm5vdCBvdmVyZmxvdwo+PiA+IHdvdWxkIGJlIG5pY2UuCj4+Cj4+IEFnYWluIHRoZXJl
-IGlzIG5vIGNoYW5jZSBvZiBvdmVyZmxvdyB0aGFua3MgdG8gcGFyZW50IGZyZXF1ZW5jeSBjaGVj
-awo+Cj4gUmlnaHQsIHRoaXMgdGltZSBJIHNhdyB0aGlzIG15c2VsZiwgc28gSSByZXF1ZXN0ZWQg
-YSBjb21tZW50IHN0YXRpbmcKPiB0aGlzIGZhY3QuCgpkaXR0bwoKQmVzdCByZWdhcmRzLApDZWRy
-aWMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
-LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFk
-Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFy
-bS1rZXJuZWwK
+On 18/01/2017 20:19, Peter Rosin wrote:
+> On 2017-01-17 09:00, Phil Reid wrote:
+>> Unfortunately some hardware device will assert their irq line immediately
+>> on power on and provide no mechanism to mask the irq. As the i2c muxes
+>> provide no method to mask irq line this provides a work around by keeping
+>> the parent irq masked until enough device drivers have loaded to service
+>> all pending interrupts.
+>>
+>> For example the the ltc1760 assert its SMBALERT irq immediately on power
+>> on. With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+>> device is registered irq are enabled and fire continuously as the second
+>> device driver has not yet loaded. Setting this parameter to <1 1> will
+>> delay the irq being enabled until both devices are ready.
+>>
+>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>> ---
+>>  drivers/i2c/muxes/i2c-mux-pca954x.c | 33 ++++++++++++++++++++++++++++++---
+>>  1 file changed, 30 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> index f55da88..012b2ef 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> @@ -76,6 +76,19 @@ struct chip_desc {
+>>  	} muxtype;
+>>  };
+>>
+>> +/*
+>> + * irq_mask_enable: Provides a mechanism to work around hardware that asserts
+>> + * their irq immediately on power on. It allows the enabling of the irq to be
+>> + * delayed until the corresponding bits in the the irq_mask are set thru
+>> + * irq_unmask.
+>> + * For example the ltc1760 assert its SMBALERT irq immediately on power on.
+>> + * With two ltc1760 attached to bus 0 & 1 on a pca954x mux when the first
+>> + * device is registered irq are enabled and fire continuously as the second
+>> + * device driver has not yet loaded. Setting this parameter to 0x3 while
+>> + * delay the irq being enabled until both devices are ready.
+>> + * This workaround will not work if two devices share an interrupt on the
+>> + * same bus segment.
+>
+> It will also not work if something shares the interrupt with the pca954x mux,
+> on the parent side of the mux, so to speak. Then that other driver may
+> potentially enable the irq "behind the back" of the pca954x driver.
+>
+>> + */
+>>  struct pca954x {
+>>  	const struct chip_desc *chip;
+>>
+>> @@ -84,7 +97,9 @@ struct pca954x {
+>>  	struct i2c_client *client;
+>>
+>>  	struct irq_domain *irq;
+>> +	unsigned int irq_mask_enable;
+>>  	unsigned int irq_mask;
+>> +	bool irq_enabled;
+>>  	spinlock_t lock;
+>>  };
+>>
+>> @@ -266,8 +281,10 @@ static void pca954x_irq_mask(struct irq_data *idata)
+>>  	spin_lock_irqsave(&data->lock, flags);
+>>
+>>  	data->irq_mask &= ~BIT(pos);
+>> -	if (!data->irq_mask)
+>> +	if (data->irq_enabled && !data->irq_mask) {
+>>  		disable_irq(data->client->irq);
+>> +		data->irq_enabled = false;
+>> +	}
+>
+> When irq_mask_enable is non-zero, I think the parent irq should be masked
+> when the first irq from the set in irq_mask_enable is masked. For symmetry.
+>
+> Like so (untested):
+>
+> 	if (data->irq_enabled) {
+> 		if (!data->irq_mask ||
+> 			(data->irq_mask & mask_enable) != mask_enable) {
+> 			disable_irq(data->client->irq);
+> 			data->irq_enabled = false;
+> 		}
+> 	}
+Yeap this make sense.
+
+>
+> Hmm, this whole thing is fiddly and while it solves your problem it doesn't
+> allow for solving the more general problem when there are "problematic"
+> devices mixed with other devices. At least, I don't see it. And the
+> limitations we are walking into with tracking number of enables etc suggests
+> that we are attacking this at the wrong level. Maybe you should try to work
+> around the hw limitations not in the pca954x driver, but in the irq core?
+
+I'm looking at the option of getting the hardware changed to not route
+the irq for my chips thru the i2c mux. Fortunately the hardware is going thru a
+revision for some other changes. Messing with the irq core sounds dangerous
+with my level of knowledge.
+
+The other way I think I can tackle it after reading the datasheet for the ltc1760 is that
+it'll deassert it's irq (smbalert) line when the host sends a ARA request on the bus segment.
+
+There's a driver in the kernel for this already, but it's not DT enable and doesn't
+handle multiple bus segments. I'll have a look at that as well.
+Pretty sure it would need the mux to become an irq parent as per patch 1-3 of this series.
+This would be so the system can figure out which segment to do the poll on.
+But p4-5 could be dropped which is where we're stuck I think.
+
+Looking at this approach it shouldn't matter if the ltc1760 driver has registered yet or not.
+This approach possibly has a lot more generic appeal I think.
+
+Thoughts on just submitting p1-3 for now while I figure out the SMB alert approach?
+
+>
+> I.e. have the irq core check, for each irq, for a property that specifies
+> the depth at which each irq should be unmasked. This new property should
+> probably be located in the interrupt-controller node? Then the code can
+> unmask interrupts when the depth hits this mark, instead of always unmasking
+> the interrupt when the depth changes from zero to one. You are then adding
+> the workaround at a level where there is enough information to fix the
+> more general problem. I think?
+>
+> But, once again, I'm no irq expert and would desperately like a second
+> opinion on this stuff...
+>
+>>
+>>  	spin_unlock_irqrestore(&data->lock, flags);
+>>  }
+>> @@ -275,14 +292,18 @@ static void pca954x_irq_mask(struct irq_data *idata)
+>>  static void pca954x_irq_unmask(struct irq_data *idata)
+>>  {
+>>  	struct pca954x *data = irq_data_get_irq_chip_data(idata);
+>> +	unsigned int mask_enable = data->irq_mask_enable;
+>>  	unsigned int pos = idata->hwirq;
+>>  	unsigned long flags;
+>>
+>>  	spin_lock_irqsave(&data->lock, flags);
+>>
+>> -	if (!data->irq_mask)
+>> -		enable_irq(data->client->irq);
+>>  	data->irq_mask |= BIT(pos);
+>> +	if (!data->irq_enabled
+>> +	    && (data->irq_mask & mask_enable) == mask_enable) {
+>
+> I think the coding standard says that the && should be at the end of the
+> first line. Didn't checkpatch complain?
+
+No it didn't complain. and I wasn't sure which way to do this.
+So I had a look at some other code in the i2c folders (which is not definitive I know).
+regexp "^\s*&&" showed some hits with this style.
+Name	Line	Text	Path
+drivers\i2c\busses\i2c-ali1535.c  294	    && (timeout++ < MAX_TIMEOUT));	
+drivers\i2c\busses\i2c-ali15x3.c  301	    && (timeout++ < MAX_TIMEOUT));	
+drivers\i2c\busses\i2c-ismt.c     408	      && (size != I2C_SMBUS_I2C_BLOCK_DATA))	
+drivers\i2c\busses\i2c-mv64xxx.c  258	      && (drv_data->byte_posn != 0))) {	
+...
+
+
+
+>
+> Cheers,
+> peda
+>
+>> +		enable_irq(data->client->irq);
+>> +		data->irq_enabled = true;
+>> +	}
+>>
+>>  	spin_unlock_irqrestore(&data->lock, flags);
+>>  }
+>> @@ -305,6 +326,7 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+>>  {
+>>  	struct pca954x *data = i2c_mux_priv(muxc);
+>>  	struct i2c_client *client = data->client;
+>> +	u32 irq_mask_enable[PCA954X_MAX_NCHANS] = { 0 };
+>>  	int c, err, irq;
+>>
+>>  	if (!data->chip->has_irq || client->irq <= 0)
+>> @@ -312,6 +334,9 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+>>
+>>  	spin_lock_init(&data->lock);
+>>
+>> +	of_property_read_u32_array(client->dev.of_node, "nxp,irq-mask-enable",
+>> +		irq_mask_enable, data->chip->nchans);
+>> +
+>>  	data->irq = irq_domain_add_linear(client->dev.of_node,
+>>  					  data->chip->nchans,
+>>  					  &irq_domain_simple_ops, data);
+>> @@ -319,6 +344,8 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
+>>  		return -ENODEV;
+>>
+>>  	for (c = 0; c < data->chip->nchans; c++) {
+>> +		data->irq_mask_enable |= irq_mask_enable[c] ? BIT(c) : 0;
+>> +		WARN_ON(irq_mask_enable[c] > 1);
+>>  		irq = irq_create_mapping(data->irq, c);
+>>  		irq_set_chip_data(irq, data);
+>>  		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
+>>
+>
+>
+>
+
+
+-- 
+Regards
+Phil Reid
