@@ -1,23 +1,24 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/2] i2c: mux: pca954x: Export OF device ID table as
- module aliases
-Date: Sat, 21 Jan 2017 16:56:42 +0100
-Message-ID: <fb601d79-515b-ccd1-1c07-c68adcb4ed70@axentia.se>
+Subject: Re: [PATCH 2/2] i2c: pca9541: Export OF device ID table as module
+ aliases
+Date: Sat, 21 Jan 2017 16:56:21 +0100
+Message-ID: <41c2e7eb-5250-d8c6-5803-cab447a2ebd4@axentia.se>
 References: <1484574895-952-1-git-send-email-javier@osg.samsung.com>
+ <1484574895-952-2-git-send-email-javier@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0096.outbound.protection.outlook.com ([104.47.2.96]:18653
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+Received: from mail-he1eur01on0139.outbound.protection.outlook.com ([104.47.0.139]:37408
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750876AbdAUP5e (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 21 Jan 2017 10:57:34 -0500
-In-Reply-To: <1484574895-952-1-git-send-email-javier@osg.samsung.com>
+        id S1750893AbdAUQNA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 21 Jan 2017 11:13:00 -0500
+In-Reply-To: <1484574895-952-2-git-send-email-javier@osg.samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Javier Martinez Canillas <javier@osg.samsung.com>, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>
 
 On 2017-01-16 14:54, Javier Martinez Canillas wrote:
 > The I2C core always reports a MODALIAS of the form i2c:<foo> even if the
@@ -31,19 +32,19 @@ Acked-by: Peter Rosin <peda@axentia.se>
 
 > ---
 > 
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 1 +
+>  drivers/i2c/muxes/i2c-mux-pca9541.c | 1 +
 >  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index dd18b9ccb1f4..a0232e079545 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -148,6 +148,7 @@ static const struct of_device_id pca954x_of_match[] = {
->  	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index 4ea7e691afc7..77840f7845a1 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -90,6 +90,7 @@ static const struct of_device_id pca9541_of_match[] = {
+>  	{ .compatible = "nxp,pca9541" },
 >  	{}
 >  };
-> +MODULE_DEVICE_TABLE(of, pca954x_of_match);
+> +MODULE_DEVICE_TABLE(of, pca9541_of_match);
 >  #endif
 >  
->  /* Write to mux register. Don't use i2c_transfer()/i2c_smbus_xfer()
+>  /*
 > 
