@@ -1,74 +1,54 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH v1 3/3] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Mon, 23 Jan 2017 10:50:09 +0800
-Message-ID: <20170123025008.GB5662@dragon>
-References: <1484901827-16369-1-git-send-email-baoyou.xie@linaro.org>
- <1484901827-16369-3-git-send-email-baoyou.xie@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1484901827-16369-3-git-send-email-baoyou.xie@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Baoyou Xie <baoyou.xie@linaro.org>
-Cc: jun.nie@linaro.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
+From: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 1/3] dt: bindings: add documentation for zx2967 family i2c controller
+Date: Mon, 23 Jan 2017 13:03:24 +0800
+Message-ID: <1485147806-17792-1-git-send-email-baoyou.xie@linaro.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 20, 2017 at 04:43:47PM +0800, Baoyou Xie wrote:
-> +static int zx2967_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct resource *res;
-> +	struct zx2967_i2c_info *zx_i2c = NULL;
-> +	struct clk *clk;
-> +	void __iomem *reg_base;
-> +	int ret = 0;
-> +
-> +	zx_i2c = devm_kzalloc(&pdev->dev, sizeof(*zx_i2c), GFP_KERNEL);
-> +	if (!zx_i2c)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "missing io resource\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	reg_base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(reg_base))
-> +		return PTR_ERR(reg_base);
-> +
-> +	clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(clk)) {
-> +		dev_err(&pdev->dev, "missing controller clock");
-> +		return PTR_ERR(clk);
-> +	}
-> +
-> +	ret = clk_prepare_enable(clk);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
-> +		return ret;
-> +	}
-> +
-> +	of_property_read_u32(pdev->dev.of_node,
-> +			"clock-frequency", &zx_i2c->clk_freq);
-> +	zx_i2c->reg_base = reg_base;
-> +	zx_i2c->clk = clk;
-> +	zx_i2c->irq = platform_get_irq(pdev, 0);
-> +	zx_i2c->id = pdev->id;
-> +	zx_i2c->dev = &pdev->dev;
-> +
-> +	zx_i2c->pin_scl = devm_pinctrl_get_select(&pdev->dev, "scl");
-> +	if (IS_ERR(zx_i2c->pin_scl))
-> +		dev_info(&pdev->dev, "scl pin is not specified in dts\n");
-> +
-> +	zx_i2c->pin_sda = devm_pinctrl_get_select(&pdev->dev, "sda");
-> +	if (IS_ERR(zx_i2c->pin_sda))
-> +		dev_info(&pdev->dev, "sda pin is not specified in dts\n");
+This patch adds dt-binding documentation for zx2967 family
+i2c controller.
 
-I don't understand why this is necessary.  For most cases, we only need
-to specify needed pins in property 'pinctrl-0' and 'default' in
-'pinctrl-names', and pinctrl/driver core will just set up the pins for
-the device.
+Signed-off-by: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-zx2967.txt         | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
 
-Shawn
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+new file mode 100644
+index 0000000..cb806d1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+@@ -0,0 +1,22 @@
++ZTE zx2967 I2C controller
++
++Required properties:
++ - compatible: must be "zte,zx296718-i2c"
++ - reg: physical address and length of the device registers
++ - interrupts: a single interrupt specifier
++ - clocks: clock for the device
++ - #address-cells: should be <1>
++ - #size-cells: should be <0>
++ - clock-frequency: the desired I2C bus clock frequency.
++
++Examples:
++
++	i2c@112000 {
++		compatible = "zte,zx296718-i2c";
++		reg = <0x00112000 0x1000>;
++		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&osc24m>;
++		#address-cells = <1>
++		#size-cells = <0>;
++		clock-frequency = <1600000>;
++	};
+-- 
+2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
