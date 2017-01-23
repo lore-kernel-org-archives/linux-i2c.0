@@ -1,119 +1,74 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 3/3] iio: distance: srf08: add driver ABI documentation
-Date: Sun, 22 Jan 2017 22:11:36 +0000
-Message-ID: <3022f9cf-31d0-b49d-7fad-338f5786f8c3@kernel.org>
-References: <20170117135006.GA22903@andreas>
- <2e87aeed-a611-e160-c245-f5b16f2ef304@kernel.org>
- <20170122204110.GA1840@andreas>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v1 3/3] i2c: zx2967: add i2c controller driver for ZTE's
+ zx2967 family
+Date: Mon, 23 Jan 2017 10:50:09 +0800
+Message-ID: <20170123025008.GB5662@dragon>
+References: <1484901827-16369-1-git-send-email-baoyou.xie@linaro.org>
+ <1484901827-16369-3-git-send-email-baoyou.xie@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170122204110.GA1840@andreas>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Cc: knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1484901827-16369-3-git-send-email-baoyou.xie@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Baoyou Xie <baoyou.xie@linaro.org>
+Cc: jun.nie@linaro.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
 List-Id: linux-i2c@vger.kernel.org
 
-On 22/01/17 20:41, Andreas Klinger wrote:
-> Hi Jonathan,
-> 
-> see question below.
-> 
-> Andreas
-> 
-> 
-> Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> schrieb am Sun, 22. Jan 13:41:
->> On 17/01/17 13:50, Andreas Klinger wrote:
->>> Add sysfs-bus-iio-distance-srf08 for individual attributes of the driver,
->>> especially:
->>>  - sensitivity which the device documentation calls gain for amplifying the
->>>    signal
->>>  - max_range for limiting the maximum distance for expected echos and
->>>    therefore limiting the time waiting for telegrams
->>>
->>> Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
->>> ---
->>>  .../ABI/testing/sysfs-bus-iio-distance-srf08       | 27 ++++++++++++++++++++++
->>>  1 file changed, 27 insertions(+)
->>>  create mode 100644 Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
->>>
->>> diff --git a/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08 b/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
->>> new file mode 100644
->>> index 000000000000..e96c28064748
->>> --- /dev/null
->>> +++ b/Documentation/ABI/testing/sysfs-bus-iio-distance-srf08
->>> @@ -0,0 +1,27 @@
->>> +What		/sys/bus/iio/devices/iio:deviceX/in_distance_raw
->>> +Date:		January 2017
->>> +KernelVersion:	4.11
->>> +Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>> +Description:
->>> +		Get the current distance in meters between the sensor and
->>> +		the first object recognized
->> Generally no need to document what are effectively standard elements.
->> Just leads to the possibility of disagreements in the docs! 
->> Still no harm here really.
->>> +
->>> +What		/sys/bus/iio/devices/iio:deviceX/sensor_sensitivity
->>> +Date:		January 2017
->>> +KernelVersion:	4.11
->>> +Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>> +Description:
->>> +		Show or set the gain boost of the amp, from 0-31 range.
->>> +		default 31
->>> +
->>> +What		/sys/bus/iio/devices/iio:deviceX/sensor_max_range
->>> +Date:		January 2017
->>> +KernelVersion:	4.11
->>> +Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>> +Description:
->>> +		Show or set the maximum range between the sensor and the
->>> +		first object echoed in millimeters.
->>> +		This setting limits the time the driver is waiting for a
->>> +		echo.
->>> +		Can be set between 43 and 11008 in a grid of 43 mm.
->>> +		default 6020
->> This needs to be in the same units as the range - so m.
-> 
-> Just to clarify:
-> There should be a floating point number be passed to the driver and being parsed
-> there, e. g.:
-> 0.043 or 6.020
-> right?
-That's fine.  Just use the core functions that are already in place for this in
-your own parsing. iio_str_to_fixpoint should do the job for you.
+On Fri, Jan 20, 2017 at 04:43:47PM +0800, Baoyou Xie wrote:
+> +static int zx2967_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct resource *res;
+> +	struct zx2967_i2c_info *zx_i2c = NULL;
+> +	struct clk *clk;
+> +	void __iomem *reg_base;
+> +	int ret = 0;
+> +
+> +	zx_i2c = devm_kzalloc(&pdev->dev, sizeof(*zx_i2c), GFP_KERNEL);
+> +	if (!zx_i2c)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "missing io resource\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	reg_base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(reg_base))
+> +		return PTR_ERR(reg_base);
+> +
+> +	clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(clk)) {
+> +		dev_err(&pdev->dev, "missing controller clock");
+> +		return PTR_ERR(clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(clk);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
+> +		return ret;
+> +	}
+> +
+> +	of_property_read_u32(pdev->dev.of_node,
+> +			"clock-frequency", &zx_i2c->clk_freq);
+> +	zx_i2c->reg_base = reg_base;
+> +	zx_i2c->clk = clk;
+> +	zx_i2c->irq = platform_get_irq(pdev, 0);
+> +	zx_i2c->id = pdev->id;
+> +	zx_i2c->dev = &pdev->dev;
+> +
+> +	zx_i2c->pin_scl = devm_pinctrl_get_select(&pdev->dev, "scl");
+> +	if (IS_ERR(zx_i2c->pin_scl))
+> +		dev_info(&pdev->dev, "scl pin is not specified in dts\n");
+> +
+> +	zx_i2c->pin_sda = devm_pinctrl_get_select(&pdev->dev, "sda");
+> +	if (IS_ERR(zx_i2c->pin_sda))
+> +		dev_info(&pdev->dev, "sda pin is not specified in dts\n");
 
-It may seem fiddly but however carefully we pick a base unit we never allow enough
-range to represent everything that turns up in the future.  Hence the trickery with
-'fixed point' values where we can redefine the two parts.
-> 
-> Or should this number be passed using the scale attribute like the raw value
-> does? So that the scale is used by both the value itself and the attribute.
-Interesting point. I'm trying to think of an equivalent where the unit is shared like
-this.  The event attributes (thresholds) do use scale, but they aren't really
-the same thing...
+I don't understand why this is necessary.  For most cases, we only need
+to specify needed pins in property 'pinctrl-0' and 'default' in
+'pinctrl-names', and pinctrl/driver core will just set up the pins for
+the device.
 
-I think if we wanted to do that we'd need to call it something that made it clear.
-More than possible that we'll get a colour sensor down the line with a max range or
-something silly like that (focusing optics perhaps?) - so may not always be obvious.
-
-Could stick a _raw on the end of it.
-
-Anyone else reading this and have any thoughts?
-
-Jonathan
-
-> 
->> I'm not 100% sure this is the best ABI we can do for this. However, supporting
->> this as a legacy abi if we come up with something more general will be a very
->> small burden, so lets not stall the driver on this!
->>
->> Jonathan
->>>
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Shawn
