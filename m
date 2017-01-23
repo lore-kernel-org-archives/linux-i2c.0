@@ -1,31 +1,96 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] dt: bindings: add documentation for zx2967 family
- i2c controller
-Date: Mon, 23 Jan 2017 14:52:17 -0600
-Message-ID: <20170123205217.345pfkr7i675drvc@rob-hp-laptop>
-References: <1485147806-17792-1-git-send-email-baoyou.xie@linaro.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 01/13] x86/platform/intel/iosf_mbi: Add a
+	mutex for P-Unit access
+Date: Mon, 23 Jan 2017 22:09:46 +0100
+Message-ID: <20170123210958.18410-2-hdegoede@redhat.com>
+References: <20170123210958.18410-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1485147806-17792-1-git-send-email-baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170123210958.18410-1-hdegoede@redhat.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
+Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 23, 2017 at 01:03:24PM +0800, Baoyou Xie wrote:
-> This patch adds dt-binding documentation for zx2967 family
-> i2c controller.
-> 
-> Signed-off-by: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-zx2967.txt         | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
-
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T25lIHNvbWUgc3lzdGVtcyB0aGUgUC1Vbml0IGFjY2Vzc2VzIHRoZSBQTUlDIHRvIGNoYW5nZSB2
+YXJpb3VzIHZvbHRhZ2VzCnRocm91Z2ggdGhlIHNhbWUgYnVzIGFzIG90aGVyIGtlcm5lbCBkcml2
+ZXJzIHVzZSBmb3IgZS5nLiBiYXR0ZXJ5Cm1vbml0b3JpbmcuCgpJZiBhIGRyaXZlciBzZW5kcyBy
+ZXF1ZXN0cyB0byB0aGUgUC1Vbml0IHdoaWNoIHJlcXVpcmUgdGhlIFAtVW5pdCB0byBhY2Nlc3MK
+dGhlIFBNSUMgYnVzIHdoaWxlIGFub3RoZXIgZHJpdmVyIGlzIGFsc28gYWNjZXNzaW5nIHRoZSBQ
+TUlDIGJ1cyB2YXJpb3VzCmJhZCB0aGluZ3MgaGFwcGVuLgoKVGhpcyBjb21taXQgYWRkcyBhIG11
+dGV4IHRvIHByb3RlY3QgdGhlIFAtVW5pdCBhZ2FpbnN0IHNpbXVsdGFuZW91cwphY2Nlc3NlcyBh
+bmQgMiBmdW5jdGlvbnMgdG8gbG9jayAvIHVubG9jayB0aGlzIG11dGV4LgoKTm90ZSBvbiB0aGVz
+ZSBzeXN0ZW1zIHRoZSBpMmMtYnVzIGRyaXZlciB3aWxsIHJlcXVlc3QgYSBzZW1wYWhvcmUgZnJv
+bSB0aGUKUC1Vbml0IGZvciBleGNsdXNpdmUgYWNjZXNzIHRvIHRoZSBQTUlDIGJ1cyB3aGVuIGky
+YyBkcml2ZXJzIGFyZSBhY2Nlc3NpbmcKaXQsIGJ1dCB0aGlzIGRvZXMgbm90IGFwcGVhciB0byBi
+ZSBzdWZmaWNpZW50LCB3ZSBzdGlsbCBuZWVkIHRvIGF2b2lkCm1ha2luZyBjZXJ0YWluIFAtVW5p
+dCByZXF1ZXN0cyBkdXJpbmcgdGhlIGFjY2VzcyB3aW5kb3cgdG8gYXZvaWQgcHJvYmxlbXMuCgpC
+dWdMaW5rOiBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE1NTI0
+MQpTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQuY29tPgpUZXN0
+ZWQtYnk6IHRhZ29yZXJlZGR5IDx0YWdvcmUuY2hhbmRhbkBnbWFpbC5jb20+ClJldmlld2VkLWJ5
+OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KLS0t
+CkNoYW5nZXMgaW4gdjI6Ci1SZW5hbWUgaW9zZl9tYmlfcHVuaXRfbG9jay9fdW5sb2NrIHRvIF9h
+Y3F1aXJlL19yZWxlYXNlIHJlbmFtZQotU3BlbGxpbmc6IFAtVW5pdCwgUE1JQwotLS0KIGFyY2gv
+eDg2L2luY2x1ZGUvYXNtL2lvc2ZfbWJpLmggICAgfCAzMSArKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrCiBhcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC9pb3NmX21iaS5jIHwgMTMgKysrKysr
+KysrKysrKwogMiBmaWxlcyBjaGFuZ2VkLCA0NCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEv
+YXJjaC94ODYvaW5jbHVkZS9hc20vaW9zZl9tYmkuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2lv
+c2ZfbWJpLmgKaW5kZXggYjQxZWUxNi4uZjYxMTlkMCAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5j
+bHVkZS9hc20vaW9zZl9tYmkuaAorKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5o
+CkBAIC04OCw2ICs4OCwzMyBAQCBpbnQgaW9zZl9tYmlfd3JpdGUodTggcG9ydCwgdTggb3Bjb2Rl
+LCB1MzIgb2Zmc2V0LCB1MzIgbWRyKTsKICAqLwogaW50IGlvc2ZfbWJpX21vZGlmeSh1OCBwb3J0
+LCB1OCBvcGNvZGUsIHUzMiBvZmZzZXQsIHUzMiBtZHIsIHUzMiBtYXNrKTsKIAorLyoqCisgKiBp
+b3NmX21iaV9wdW5pdF9hY3F1aXJlKCkgLSBBY3F1aXJlIGFjY2VzcyB0byB0aGUgUC1Vbml0Cisg
+KgorICogT25lIHNvbWUgc3lzdGVtcyB0aGUgUC1Vbml0IGFjY2Vzc2VzIHRoZSBQTUlDIHRvIGNo
+YW5nZSB2YXJpb3VzIHZvbHRhZ2VzCisgKiB0aHJvdWdoIHRoZSBzYW1lIGJ1cyBhcyBvdGhlciBr
+ZXJuZWwgZHJpdmVycyB1c2UgZm9yIGUuZy4gYmF0dGVyeSBtb25pdG9yaW5nLgorICoKKyAqIElm
+IGEgZHJpdmVyIHNlbmRzIHJlcXVlc3RzIHRvIHRoZSBQLVVuaXQgd2hpY2ggcmVxdWlyZSB0aGUg
+UC1Vbml0IHRvIGFjY2VzcworICogdGhlIFBNSUMgYnVzIHdoaWxlIGFub3RoZXIgZHJpdmVyIGlz
+IGFsc28gYWNjZXNzaW5nIHRoZSBQTUlDIGJ1cyB2YXJpb3VzIGJhZAorICogdGhpbmdzIGhhcHBl
+bi4KKyAqCisgKiBUbyBhdm9pZCB0aGVzZSBwcm9ibGVtcyB0aGlzIGZ1bmN0aW9uIG11c3QgYmUg
+Y2FsbGVkIGJlZm9yZSBhY2Nlc3NpbmcgdGhlCisgKiBQLVVuaXQgb3IgdGhlIFBNSUMsIGJlIGl0
+IHRocm91Z2ggaW9zZl9tYmkqIGZ1bmN0aW9ucyBvciB0aHJvdWdoIG90aGVyIG1lYW5zLgorICoK
+KyAqIE5vdGUgb24gdGhlc2Ugc3lzdGVtcyB0aGUgaTJjLWJ1cyBkcml2ZXIgd2lsbCByZXF1ZXN0
+IGEgc2VtcGFob3JlIGZyb20gdGhlCisgKiBQLVVuaXQgZm9yIGV4Y2x1c2l2ZSBhY2Nlc3MgdG8g
+dGhlIFBNSUMgYnVzIHdoZW4gaTJjIGRyaXZlcnMgYXJlIGFjY2Vzc2luZworICogaXQsIGJ1dCB0
+aGlzIGRvZXMgbm90IGFwcGVhciB0byBiZSBzdWZmaWNpZW50LCB3ZSBzdGlsbCBuZWVkIHRvIGF2
+b2lkIG1ha2luZworICogY2VydGFpbiBQLVVuaXQgcmVxdWVzdHMgZHVyaW5nIHRoZSBhY2Nlc3Mg
+d2luZG93IHRvIGF2b2lkIHByb2JsZW1zLgorICoKKyAqIFRoaXMgZnVuY3Rpb24gbG9ja3MgYSBt
+dXRleCwgYXMgc3VjaCBpdCBtYXkgc2xlZXAuCisgKi8KK3ZvaWQgaW9zZl9tYmlfcHVuaXRfYWNx
+dWlyZSh2b2lkKTsKKworLyoqCisgKiBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCkgLSBSZWxlYXNl
+IGFjY2VzcyB0byB0aGUgUC1Vbml0CisgKi8KK3ZvaWQgaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSh2
+b2lkKTsKKwogI2Vsc2UgLyogQ09ORklHX0lPU0ZfTUJJIGlzIG5vdCBlbmFibGVkICovCiBzdGF0
+aWMgaW5saW5lCiBib29sIGlvc2ZfbWJpX2F2YWlsYWJsZSh2b2lkKQpAQCAtMTE1LDYgKzE0Miwx
+MCBAQCBpbnQgaW9zZl9tYmlfbW9kaWZ5KHU4IHBvcnQsIHU4IG9wY29kZSwgdTMyIG9mZnNldCwg
+dTMyIG1kciwgdTMyIG1hc2spCiAJV0FSTigxLCAiSU9TRl9NQkkgZHJpdmVyIG5vdCBhdmFpbGFi
+bGUiKTsKIAlyZXR1cm4gLUVQRVJNOwogfQorCitzdGF0aWMgaW5saW5lIHZvaWQgaW9zZl9tYmlf
+cHVuaXRfYWNxdWlyZSh2b2lkKSB7fQorc3RhdGljIGlubGluZSB2b2lkIGlvc2ZfbWJpX3B1bml0
+X3JlbGVhc2Uodm9pZCkge30KKwogI2VuZGlmIC8qIENPTkZJR19JT1NGX01CSSAqLwogCiAjZW5k
+aWYgLyogSU9TRl9NQklfU1lNU19IICovCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9wbGF0Zm9ybS9p
+bnRlbC9pb3NmX21iaS5jIGIvYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmkuYwppbmRl
+eCBlZGYyYzU0Li5lZDI0ZmE5ZiAxMDA2NDQKLS0tIGEvYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwv
+aW9zZl9tYmkuYworKysgYi9hcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC9pb3NmX21iaS5jCkBAIC0z
+NCw2ICszNCw3IEBACiAKIHN0YXRpYyBzdHJ1Y3QgcGNpX2RldiAqbWJpX3BkZXY7CiBzdGF0aWMg
+REVGSU5FX1NQSU5MT0NLKGlvc2ZfbWJpX2xvY2spOworc3RhdGljIERFRklORV9NVVRFWChpb3Nm
+X21iaV9wdW5pdF9tdXRleCk7CiAKIHN0YXRpYyBpbmxpbmUgdTMyIGlvc2ZfbWJpX2Zvcm1fbWNy
+KHU4IG9wLCB1OCBwb3J0LCB1OCBvZmZzZXQpCiB7CkBAIC0xOTAsNiArMTkxLDE4IEBAIGJvb2wg
+aW9zZl9tYmlfYXZhaWxhYmxlKHZvaWQpCiB9CiBFWFBPUlRfU1lNQk9MKGlvc2ZfbWJpX2F2YWls
+YWJsZSk7CiAKK3ZvaWQgaW9zZl9tYmlfcHVuaXRfYWNxdWlyZSh2b2lkKQoreworCW11dGV4X2xv
+Y2soJmlvc2ZfbWJpX3B1bml0X211dGV4KTsKK30KK0VYUE9SVF9TWU1CT0woaW9zZl9tYmlfcHVu
+aXRfYWNxdWlyZSk7CisKK3ZvaWQgaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSh2b2lkKQoreworCW11
+dGV4X3VubG9jaygmaW9zZl9tYmlfcHVuaXRfbXV0ZXgpOworfQorRVhQT1JUX1NZTUJPTChpb3Nm
+X21iaV9wdW5pdF9yZWxlYXNlKTsKKwogI2lmZGVmIENPTkZJR19JT1NGX01CSV9ERUJVRwogc3Rh
+dGljIHUzMglkYmdfbWRyOwogc3RhdGljIHUzMglkYmdfbWNyOwotLSAKMi45LjMKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5n
+IGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVk
+ZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=
