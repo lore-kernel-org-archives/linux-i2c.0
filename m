@@ -1,85 +1,40 @@
-From: Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
-Subject: nested I2C muxes
-Date: Thu, 19 Jan 2017 19:03:26 +0100
-Message-ID: <595ed81b-546b-a60f-1bf1-b21f14c15b3c@cern.ch>
+From: Joyes Dadi <"YD."@biscuit.ocn.ne.jp>
+Subject: Urgent Please,,
+Date: Mon, 23 Jan 2017 23:07:49 +0900 (JST)
+Message-ID: <1028184183.25784289.1485180469689.JavaMail.root__360.634437720542$1496095465$gmane$org@biscuit.ocn.ne.jp>
+Reply-To: Joyes Dadi <joyesdadi767@citromail.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr50042.outbound.protection.outlook.com ([40.107.5.42]:43712
-        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751622AbdASSVm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 19 Jan 2017 13:21:42 -0500
+Received: from mbkd0331.ocn.ad.jp ([153.149.236.32]:32863 "EHLO
+        mbkd0331.ocn.ad.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751220AbdAWOUz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Jan 2017 09:20:55 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
-Hi,
+Good Day Dear,
 
-I haven't found any information regarding support for nested i2c muxes.
-Is the below device tree supported by the current driver ?
+My name is Ms. Joyes Dadi, I am glad you are reading this letter and I hope
+we will start our communication and I know that this message will look strange,
+surprising and probably unbelievable to you, but it is the reality. I want to
+make a donation of money to you.
 
-&i2c0 {
-        status =3D "okay";
-        clock-frequency =3D <400000>;
-        pinctrl-names =3D "default";
-        pinctrl-0 =3D <&pinctrl_i2c0_default>;
+I contact you by the will of God. I am a firm German woman specialized in
+mining gold and diamonds in Africa. But now, I'm very sick of a cancer. My
+husband died in an accident two years ago with our two children and now I have
+cancer of the esophagus that damaged almost all the cells in my system/agencies
+and I'll die soon according to my doctor.
 
-        i2cswitch@74 {
-                compatible =3D "nxp,pca9548";
-                #address-cells =3D <1>;
-                #size-cells =3D <0>;
-                reg =3D <0x74>;
+My most concern now is, we grew up in the orphanage and were married in
+orphanage. If I die this deposited fund will soon be left alone in the hand of
+the bank, and I do want to it that  way. Please, if you can be reliable and
+sincere to accept my humble proposal; I have (10.5Millions Euro) in a fixed
+deposit account; I will order the Bank to transfer the money into your account
+in your country immediately, and then you will take the fund to  your country
+and invest it to the orphanage homes Please, answer as quickly as possible.
 
-                i2c@0 {
-                        #address-cells =3D <1>;
-                        #size-cells =3D <0>;
-                        reg =3D <0>;
-                        si570: clock-generator@5d {
-                                #clock-cells =3D <0>;
-                                compatible =3D "silabs,si570";
-                                temperature-stability =3D <50>;
-                                reg =3D <0x5d>;
-                                factory-fout =3D <156250000>;
-                                clock-frequency =3D <148500000>;
-                        };
-                };
-
-                i2c@2 {
-                        #address-cells =3D <1>;
-                        #size-cells =3D <0>;
-                        reg =3D <5>;
-                        i2cswitch_hpc@74 {
-                                         compatible =3D "nxp,pca9548";
-                                         #address-cells =3D <1>;
-                                         #size-cells =3D <0>;
-                                         reg =3D <0x74>;
-                                         hpc_caribou_sources_enable@76  {=
-
-                                                                      =20
-compatible=3D "nxp,pca9539";
-                                                                      =20
-#address-cells =3D <1>;
-                                                                      =20
-#size-cells =3D <0>;
-                                                                      =20
-reg =3D <0x76>;
-                                         };
-                        };
-
-                };
-
-        };
-
-};
-
-With such tree I am getting error
-
-[2.173385] i2c i2c-2: of_i2c: invalid addr=3D0 on
-/amba/i2c@e0004000/i2cswitch@74/i2c@2/i2cswitch_hpc@74
-
-
-Regards,
-
-Adrian Fiergolski
+God bless you.
+Ms. Joyes Dadi
+Email: joyesdadi767@citromail.hu
