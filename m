@@ -1,77 +1,70 @@
-From: Darren Stevens <darren@stevens-zone.net>
-Subject: [PATCH] i2c/pasemi: Remove hardcoded bus numbers on smbus
-Date: Tue, 24 Jan 2017 12:51:16 +0000 (GMT)
-Message-ID: <497b0eb4324.3a9cb4bf@auth.smtp.1and1.co.uk>
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Subject: Re: [PATCH 1/2] Documentation: devicetree: Add i2c binding for
+ mediatek MT2701 Soc Platform
+Date: Tue, 24 Jan 2017 16:03:16 +0100
+Message-ID: <1735f06b-4e3c-bc22-eb9c-3e61e714d0b9@gmail.com>
+References: <1484719658-11901-1-git-send-email-jun.gao@mediatek.com>
+ <1484719658-11901-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="--=_BOUNDARY.6d4cd53077b1d5af.97"
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Pat Wall <pjwall@mac.com>, "R.T.Dickinson" <rtd@a-eon.com>, linuxppc-dev@lists.ozlabs.org, Christian Zigotzky <chzigotzky@xenosoft.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33802 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750866AbdAXPD2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Jan 2017 10:03:28 -0500
+In-Reply-To: <1484719658-11901-2-git-send-email-jun.gao@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, erin.lo@mediatek.com
 
-Warning: This is a message in MIME format. Your mail reader does
-not support MIME. Some parts of this message will be readable as
-plain text. To see the rest, you will need to upgrade your mail
-reader. Following are some URLs where you can find MIME-capable
-mail programs for common platforms:
 
-  AmigaOS...........: http://yam.ch/
-  Unix/MacOS/Windows: http://www.mozilla.com/thunderbird/
 
-General information about MIME can be found at:
-http://en.wikipedia.org/wiki/MIME
+On 01/18/2017 07:07 AM, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
+>
+> This add i2c DT binding to i2c-mt6577.txt for MT2701.
+>
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> ---
+>  .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>  b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> index 0ce6fa3..ef22ecf 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with
+>  I2C devices.
+>
+>  Required properties:
+>    - compatible: value should be either of the following.
+> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> +	"mediatek,mt2701-i2c", for i2c compatible with mt2701 i2c.
+> +	"mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> +	"mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> +	"mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> +	"mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> +	"mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+>    - reg: physical base address of the controller and dma base, length of
+>  memory
+>      mapped region.
+>    - interrupts: interrupt number to the cpu.
+>
 
-----=_BOUNDARY.6d4cd53077b1d5af.97
-Content-Type: text/plain
+Actually what you need for mt2701 is what you put into the dts file:
+compatible = "mediatek,mt2701-i2c", "mediatek,mt6577-i2c";
 
-The pasemi smbus controller uses PCI_FUNC(dev->devfn) to define which
-number bus to attach to, however this fails when something else is 
-probed first, for example an ATI Radeon graphics card will claim 9 or
-10 busses, including the ones the pasemi wants.
-Patch the driver to call i2c_add_adapter rather than
-i2c_add_numbered_adapter.
+"mediatek,mt2701-i2c" alone is not supported in the driver.
 
-Signed-off-by: Darren Stevens <darren@stevens-zone.net>
+While at it would you mind to fix the bindings description for the other 
+SoCs as well?
 
----
-
-----=_BOUNDARY.6d4cd53077b1d5af.97
-Content-Type: text/plain;
-	name="i2c.patch"
-Content-Disposition: attachment;
-	filename="i2c.patch";
-	size=826
-
-diff --git a/drivers/i2c/busses/i2c-pasemi.c b/drivers/i2c/busses/i2c-pasemi.c
-index df1dbc9..05847fd 100644
---- a/drivers/i2c/busses/i2c-pasemi.c
-+++ b/drivers/i2c/busses/i2c-pasemi.c
-@@ -365,7 +365,6 @@ static int pasemi_smb_probe(struct pci_dev *dev,
- 	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	smbus->adapter.algo = &smbus_algorithm;
- 	smbus->adapter.algo_data = smbus;
--	smbus->adapter.nr = PCI_FUNC(dev->devfn);
- 
- 	/* set up the sysfs linkage to our parent device */
- 	smbus->adapter.dev.parent = &dev->dev;
-@@ -373,7 +372,7 @@ static int pasemi_smb_probe(struct pci_dev *dev,
- 	reg_write(smbus, REG_CTL, (CTL_MTR | CTL_MRR |
- 		  (CLK_100K_DIV & CTL_CLK_M)));
- 
--	error = i2c_add_numbered_adapter(&smbus->adapter);
-+	error = i2c_add_adapter(&smbus->adapter);
- 	if (error)
- 		goto out_release_region;
- 
-
-----=_BOUNDARY.6d4cd53077b1d5af.97--
+Thanks,
+Matthias
