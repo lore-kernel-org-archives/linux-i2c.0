@@ -1,26 +1,46 @@
-From: Evgeniy Polyakov <zbr@ioremap.net>
-Subject: Re: [PATCH] i2c: w1: Add devicetree match for DS2482
-Date: Tue, 24 Jan 2017 05:12:29 +0300
-Message-ID: <779351485223949@web15g.yandex.ru>
-References: <CAExLzncPfvBekS82roFp8D4ceZ_Dknr2KhNYUwSBihL+NiQFAg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from forward3m.cmail.yandex.net ([5.255.216.21]:45218 "EHLO
-        forward3m.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750714AbdAXCUH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Jan 2017 21:20:07 -0500
-In-Reply-To: <CAExLzncPfvBekS82roFp8D4ceZ_Dknr2KhNYUwSBihL+NiQFAg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Stephen Boyd <stephen.boyd@linaro.org>
+Subject: [PATCH] i2c: Fix error print when address is invalid
+Date: Mon, 23 Jan 2017 18:24:24 -0800
+Message-ID: <20170124022424.18212-1-stephen.boyd@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Colin Godsey <crgodsey@gmail.com>, Ben Gardner <bgardner@wabtec.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Colin
+When the address is invalid, we print out the address that's
+in info.addr, but that member of info hasn't been assigned yet.
+It's assigned in the line after we check the address. This causes
+the print to show something like
 
-22.01.2017, 20:55, "Colin Godsey" <crgodsey@gmail.com>:
-> Adds the OF devicetree match for the DS2482 I2C-1wire master and adds a listing to the I2C trivial devicetree bindings doc. Based on a proposed patch by Hector Palacios.
+     i2c i2c-1: of_i2c: invalid addr=0 on ...
 
-Looks good to me.
-Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
+when we want something like
+
+     i2c i2c-1: of_i2c: invalid addr=0xaf on ...
+
+Just pass addr here, and update the print format to indicate hex
+as well.
+
+Signed-off-by: Stephen Boyd <stephen.boyd@linaro.org>
+---
+ drivers/i2c/i2c-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index cf9e396d7702..9fec1c232d68 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1707,8 +1707,8 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
+ 	}
+ 
+ 	if (i2c_check_addr_validity(addr, info.flags)) {
+-		dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
+-			info.addr, node->full_name);
++		dev_err(&adap->dev, "of_i2c: invalid addr=%#x on %s\n",
++			addr, node->full_name);
+ 		return ERR_PTR(-EINVAL);
+ 	}
+ 
+-- 
+2.10.0.297.gf6727b0
