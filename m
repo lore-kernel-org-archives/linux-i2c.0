@@ -1,72 +1,110 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 06/13] i2c: designware-baytrail: Disallow the CPU to
- enter C6 or C7 while holding the punit semaphore
-Date: Tue, 24 Jan 2017 17:48:49 +0100
-Message-ID: <c6f21367-c346-d607-4e53-b83ddd07d5fc@redhat.com>
-References: <20170123210958.18410-1-hdegoede@redhat.com>
- <20170123210958.18410-7-hdegoede@redhat.com>
- <1485251504.2133.296.camel@linux.intel.com>
+From: John Stultz <john.stultz@linaro.org>
+Subject: Issue with i2c-designware-platdrv's suspend/runtime-suspend handling
+Date: Tue, 24 Jan 2017 14:03:29 -0800
+Message-ID: <CALAqxLU7-77hEwUFNNdsvnRnrPPu+-eZfkDMHxeTT3MLMiKhfA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43568 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750707AbdAXQsy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 24 Jan 2017 11:48:54 -0500
-In-Reply-To: <1485251504.2133.296.camel@linux.intel.com>
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:35985 "EHLO
+        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750902AbdAXWDa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Jan 2017 17:03:30 -0500
+Received: by mail-oi0-f49.google.com with SMTP id u143so106786359oif.3
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Jan 2017 14:03:30 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, zhangfei <zhangfei.gao@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Amit Pundir <amit.pundir@linaro.org>
 
-Hi,
+I noticed that with my hikey board, on resume from suspend I'm getting
+the following WARNING:
 
-On 01/24/2017 10:51 AM, Andy Shevchenko wrote:
-> On Mon, 2017-01-23 at 22:09 +0100, Hans de Goede wrote:
->> On my cherrytrail tablet with axp288 pmic, just doing a bunch of
->> repeated
->> reads from the pmic, e.g. "i2cdump -y 14 0x34" would lookup the tablet
->> in
->> 1 - 3 runs guaranteed.
->>
->> This seems to be causes by the cpu trying to enter C6 or C7 while we
->> hold
->> the punit bus semaphore, at which point everything just hangs.
->>
->> Avoid this by disallowing the CPU to enter C6 or C7 before acquiring
->> the
->> punit bus semaphore.
->
->
->> Changes in v5:
->> -Update the pm_qos for a latency of 0 *before* requesting the
->> semaphore,
->>  instead of doing it while waiting for the request to be acked
->
-> So, that's why you put to reset_semaphore() instead of
-> baytrail_i2c_release(), right?
+[   54.334054] ------------[ cut here ]------------
+[   54.334077] WARNING: CPU: 0 PID: 2217 at drivers/clk/clk.c:594
+clk_core_disable+0x20/0x78
+[   54.334080]
+[   54.334090] CPU: 0 PID: 2217 Comm: system_server Not tainted
+4.9.0-00046-gee9ec2c #2067
+[   54.334094] Hardware name: HiKey Development Board (DT)
+[   54.334099] task: ffffffc074863200 task.stack: ffffffc061d1c000
+[   54.334105] PC is at clk_core_disable+0x20/0x78
+[   54.334111] LR is at clk_core_disable_lock+0x20/0x38
+[   54.334116] pc : [<ffffff80084ab728>] lr : [<ffffff80084ab848>]
+pstate: 800001c5
+[   54.334119] sp : ffffffc061d1faf0
+[   54.334128] x29: ffffffc061d1faf0 x28: 0000000000000000
+[   54.334136] x27: 0000000000000002 x26: ffffff8008d47000
+[   54.334143] x25: ffffff8008596000 x24: ffffff8008d15498
+[   54.334151] x23: ffffff8008db9000 x22: ffffffc075074870
+[   54.334158] x21: 0000000000000002 x20: ffffffc005f09500
+[   54.334165] x19: 0000000000000140 x18: 0000000000000001
+[   54.334172] x17: 0000000000000000 x16: 0000000000000000
+[   54.334180] x15: ffffffc005f43dc0 x14: 0000000000010000
+[   54.334187] x13: ffffff8008d906f8 x12: ffffff8008d15790
+[   54.334196] x11: ffffff8008d15000 x10: ffffff8008d8d000
+[   54.334204] x9 : 0000000000000000 x8 : ffffffc077f26218
+[   54.334212] x7 : 0000000000000000 x6 : 0000000000000000
+[   54.334220] x5 : ffffffc077f2b090 x4 : ffffffc061d1fa80
+[   54.334228] x3 : ffffff80084ab62c x2 : ffffff80084ab62c
+[   54.334236] x1 : 0000000000000000 x0 : ffffffc005f09500
+[   54.334239]
+[   54.334243] ---[ end trace 6474a624fb2fd658 ]---
+[   54.334248] Call trace:
+[   54.334254] Exception stack(0xffffffc061d1f920 to 0xffffffc061d1fa50)
+[   54.334262] f920: 0000000000000140 0000008000000000
+ffffffc061d1faf0 ffffff80084ab728
+[   54.334269] f940: ffffff8008ccc090 ffffffc074863200
+0000000000000000 6f6674616c703d4d
+[   54.334276] f960: ffffffc061d1f970 ffffff8008087990
+ffffffc061d1f9b0 ffffff8008450c6c
+[   54.334283] f980: ffffff8008cc8000 ffffffc061d1fa90
+ffffff8008ccc090 ffffffc074863200
+[   54.334290] f9a0: ffffff8008db6170 ffffffc061d1fa08
+ffffffc061d1f9c0 ffffff8008087990
+[   54.334297] f9c0: ffffffc005f09500 0000000000000000
+ffffff80084ab62c ffffff80084ab62c
+[   54.334303] f9e0: ffffffc061d1fa80 ffffffc077f2b090
+0000000000000000 0000000000000000
+[   54.334310] fa00: ffffffc077f26218 0000000000000000
+ffffff8008d8d000 ffffff8008d15000
+[   54.334317] fa20: ffffff8008d15790 ffffff8008d906f8
+0000000000010000 ffffffc005f43dc0
+[   54.334322] fa40: 0000000000000000 0000000000000000
+[   54.334328] [<ffffff80084ab728>] clk_core_disable+0x20/0x78
+[   54.334336] [<ffffff80084ad26c>] clk_disable+0x1c/0x30
+[   54.334349] [<ffffff80086d926c>] i2c_dw_plat_prepare_clk.isra.0+0x44/0x80
+[   54.334356] [<ffffff80086d930c>] dw_i2c_plat_suspend+0x24/0x38
+[   54.334367] [<ffffff800858ad54>] platform_pm_suspend+0x24/0x58
+[   54.334377] [<ffffff8008595558>] dpm_run_callback.isra.7+0x20/0x68
+[   54.334385] [<ffffff8008595fb4>] __device_suspend+0x10c/0x298
+[   54.334393] [<ffffff8008597154>] dpm_suspend+0x10c/0x228
+[   54.334401] [<ffffff8008597540>] dpm_suspend_start+0x68/0x78
+[   54.334412] [<ffffff80080fa058>] suspend_devices_and_enter+0xb8/0x458
+[   54.334419] [<ffffff80080fa5e4>] pm_suspend+0x1ec/0x248
+[   54.334426] [<ffffff80080f924c>] state_store+0x94/0xa8
+[   54.334434] [<ffffff80084366dc>] kobj_attr_store+0x14/0x28
+[   54.334444] [<ffffff8008249a28>] sysfs_kf_write+0x48/0x58
+[   54.334451] [<ffffff8008248d20>] kernfs_fop_write+0xb0/0x1d8
+[   54.334461] [<ffffff80081cd714>] __vfs_write+0x1c/0x100
+[   54.334469] [<ffffff80081cd9a0>] vfs_write+0xa0/0x1b8
+[   54.334477] [<ffffff80081cdb9c>] SyS_write+0x44/0xa0
+[   54.334485] [<ffffff8008082ef0>] el0_svc_naked+0x24/0x28
 
-That is why the goto out gets introduced, baytrail_i2c_release()
-and reset_semaphore() are functionally equivalent,
-baytrail_i2c_release() does a bunch of argument error checking
-and then calls reset_semaphore().
 
-Regards,
+Doing some further debugging, it seems the problem is that the device
+is being runtime suspended, and then at suspend time, we're calling
+the same logic, calling i2c_dw_plat_prepare_clk, which causes the clk
+count warning.
 
-Hans
+Removing the runtime pm ops:
+-       SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
++//     SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
 
+seems to avoid the warning, but clearly isn't ideal. :)
 
-> I perhaps missed your answer to my comment about that.
->
->>> @@ -56,6 +57,8 @@ static void reset_semaphore(struct dw_i2c_dev
->>> *dev)
->>  	data &= ~PUNIT_SEMAPHORE_BIT;
->>  	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
->> PUNIT_SEMAPHORE, data))
->>  		dev_err(dev->dev, "iosf failed to reset punit
->> semaphore during write\n");
->> +
->> +	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
->>  }
->
+Should there be some logic keep track of the suspend state for the
+dw_i2c_dev device so we don't try to suspend (or resume) it twice?  Or
+is there something else I'm missing to keep this from happening?
+
+thanks
+-john
