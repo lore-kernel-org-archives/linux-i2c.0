@@ -1,110 +1,263 @@
-From: John Stultz <john.stultz@linaro.org>
-Subject: Issue with i2c-designware-platdrv's suspend/runtime-suspend handling
-Date: Tue, 24 Jan 2017 14:03:29 -0800
-Message-ID: <CALAqxLU7-77hEwUFNNdsvnRnrPPu+-eZfkDMHxeTT3MLMiKhfA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v6 3/3] i2c: mux: pca954x: Add interrupt controller support
+Date: Wed, 25 Jan 2017 09:31:08 +0800
+Message-ID: <1485307868-5408-4-git-send-email-preid@electromag.com.au>
+References: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:35985 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750902AbdAXWDa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Jan 2017 17:03:30 -0500
-Received: by mail-oi0-f49.google.com with SMTP id u143so106786359oif.3
-        for <linux-i2c@vger.kernel.org>; Tue, 24 Jan 2017 14:03:30 -0800 (PST)
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:54974 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751134AbdAYBbY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Jan 2017 20:31:24 -0500
+In-Reply-To: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, zhangfei <zhangfei.gao@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Amit Pundir <amit.pundir@linaro.org>
+To: peda@axentia.se, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-I noticed that with my hikey board, on resume from suspend I'm getting
-the following WARNING:
+Various muxes can aggregate multiple interrupts from each i2c bus.
+All of the muxes with interrupt support combine the active low irq lines
+using an internal 'and' function and generate a combined active low
+output. The muxes do provide the ability to read a control register to
+determine which irq is active. By making the mux an irq controller isr
+latency can potentially be reduced by reading the status register and
+then only calling the registered isr on that bus segment.
 
-[   54.334054] ------------[ cut here ]------------
-[   54.334077] WARNING: CPU: 0 PID: 2217 at drivers/clk/clk.c:594
-clk_core_disable+0x20/0x78
-[   54.334080]
-[   54.334090] CPU: 0 PID: 2217 Comm: system_server Not tainted
-4.9.0-00046-gee9ec2c #2067
-[   54.334094] Hardware name: HiKey Development Board (DT)
-[   54.334099] task: ffffffc074863200 task.stack: ffffffc061d1c000
-[   54.334105] PC is at clk_core_disable+0x20/0x78
-[   54.334111] LR is at clk_core_disable_lock+0x20/0x38
-[   54.334116] pc : [<ffffff80084ab728>] lr : [<ffffff80084ab848>]
-pstate: 800001c5
-[   54.334119] sp : ffffffc061d1faf0
-[   54.334128] x29: ffffffc061d1faf0 x28: 0000000000000000
-[   54.334136] x27: 0000000000000002 x26: ffffff8008d47000
-[   54.334143] x25: ffffff8008596000 x24: ffffff8008d15498
-[   54.334151] x23: ffffff8008db9000 x22: ffffffc075074870
-[   54.334158] x21: 0000000000000002 x20: ffffffc005f09500
-[   54.334165] x19: 0000000000000140 x18: 0000000000000001
-[   54.334172] x17: 0000000000000000 x16: 0000000000000000
-[   54.334180] x15: ffffffc005f43dc0 x14: 0000000000010000
-[   54.334187] x13: ffffff8008d906f8 x12: ffffff8008d15790
-[   54.334196] x11: ffffff8008d15000 x10: ffffff8008d8d000
-[   54.334204] x9 : 0000000000000000 x8 : ffffffc077f26218
-[   54.334212] x7 : 0000000000000000 x6 : 0000000000000000
-[   54.334220] x5 : ffffffc077f2b090 x4 : ffffffc061d1fa80
-[   54.334228] x3 : ffffff80084ab62c x2 : ffffff80084ab62c
-[   54.334236] x1 : 0000000000000000 x0 : ffffffc005f09500
-[   54.334239]
-[   54.334243] ---[ end trace 6474a624fb2fd658 ]---
-[   54.334248] Call trace:
-[   54.334254] Exception stack(0xffffffc061d1f920 to 0xffffffc061d1fa50)
-[   54.334262] f920: 0000000000000140 0000008000000000
-ffffffc061d1faf0 ffffff80084ab728
-[   54.334269] f940: ffffff8008ccc090 ffffffc074863200
-0000000000000000 6f6674616c703d4d
-[   54.334276] f960: ffffffc061d1f970 ffffff8008087990
-ffffffc061d1f9b0 ffffff8008450c6c
-[   54.334283] f980: ffffff8008cc8000 ffffffc061d1fa90
-ffffff8008ccc090 ffffffc074863200
-[   54.334290] f9a0: ffffff8008db6170 ffffffc061d1fa08
-ffffffc061d1f9c0 ffffff8008087990
-[   54.334297] f9c0: ffffffc005f09500 0000000000000000
-ffffff80084ab62c ffffff80084ab62c
-[   54.334303] f9e0: ffffffc061d1fa80 ffffffc077f2b090
-0000000000000000 0000000000000000
-[   54.334310] fa00: ffffffc077f26218 0000000000000000
-ffffff8008d8d000 ffffff8008d15000
-[   54.334317] fa20: ffffff8008d15790 ffffff8008d906f8
-0000000000010000 ffffffc005f43dc0
-[   54.334322] fa40: 0000000000000000 0000000000000000
-[   54.334328] [<ffffff80084ab728>] clk_core_disable+0x20/0x78
-[   54.334336] [<ffffff80084ad26c>] clk_disable+0x1c/0x30
-[   54.334349] [<ffffff80086d926c>] i2c_dw_plat_prepare_clk.isra.0+0x44/0x80
-[   54.334356] [<ffffff80086d930c>] dw_i2c_plat_suspend+0x24/0x38
-[   54.334367] [<ffffff800858ad54>] platform_pm_suspend+0x24/0x58
-[   54.334377] [<ffffff8008595558>] dpm_run_callback.isra.7+0x20/0x68
-[   54.334385] [<ffffff8008595fb4>] __device_suspend+0x10c/0x298
-[   54.334393] [<ffffff8008597154>] dpm_suspend+0x10c/0x228
-[   54.334401] [<ffffff8008597540>] dpm_suspend_start+0x68/0x78
-[   54.334412] [<ffffff80080fa058>] suspend_devices_and_enter+0xb8/0x458
-[   54.334419] [<ffffff80080fa5e4>] pm_suspend+0x1ec/0x248
-[   54.334426] [<ffffff80080f924c>] state_store+0x94/0xa8
-[   54.334434] [<ffffff80084366dc>] kobj_attr_store+0x14/0x28
-[   54.334444] [<ffffff8008249a28>] sysfs_kf_write+0x48/0x58
-[   54.334451] [<ffffff8008248d20>] kernfs_fop_write+0xb0/0x1d8
-[   54.334461] [<ffffff80081cd714>] __vfs_write+0x1c/0x100
-[   54.334469] [<ffffff80081cd9a0>] vfs_write+0xa0/0x1b8
-[   54.334477] [<ffffff80081cdb9c>] SyS_write+0x44/0xa0
-[   54.334485] [<ffffff8008082ef0>] el0_svc_naked+0x24/0x28
+As there is no irq masking on the mux irq are disabled until irq_unmask is
+called at least once.
 
+Acked-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 141 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 139 insertions(+), 2 deletions(-)
 
-Doing some further debugging, it seems the problem is that the device
-is being runtime suspended, and then at suspend time, we're calling
-the same logic, calling i2c_dw_plat_prepare_clk, which causes the clk
-count warning.
-
-Removing the runtime pm ops:
--       SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
-+//     SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
-
-seems to avoid the warning, but clearly isn't ideal. :)
-
-Should there be some logic keep track of the suspend state for the
-dw_i2c_dev device so we don't try to suspend (or resume) it twice?  Or
-is there something else I'm missing to keep this from happening?
-
-thanks
--john
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index bbf088e..f55da88 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -41,14 +41,20 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c/pca954x.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/of_irq.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
++#include <linux/spinlock.h>
+ 
+ #define PCA954X_MAX_NCHANS 8
+ 
++#define PCA954X_IRQ_OFFSET 4
++
+ enum pca_type {
+ 	pca_9540,
+ 	pca_9542,
+@@ -63,6 +69,7 @@ enum pca_type {
+ struct chip_desc {
+ 	u8 nchans;
+ 	u8 enable;	/* used for muxes only */
++	u8 has_irq;
+ 	enum muxtype {
+ 		pca954x_ismux = 0,
+ 		pca954x_isswi
+@@ -75,6 +82,10 @@ struct pca954x {
+ 	u8 last_chan;		/* last register value */
+ 	u8 deselect;
+ 	struct i2c_client *client;
++
++	struct irq_domain *irq;
++	unsigned int irq_mask;
++	spinlock_t lock;
+ };
+ 
+ /* Provide specs for the PCA954x types we know about */
+@@ -87,19 +98,23 @@ struct pca954x {
+ 	[pca_9542] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
+ 	},
+ 	[pca_9543] = {
+ 		.nchans = 2,
++		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
+ 	},
+ 	[pca_9544] = {
+ 		.nchans = 4,
+ 		.enable = 0x4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
+ 	},
+ 	[pca_9545] = {
+ 		.nchans = 4,
++		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
+ 	},
+ 	[pca_9547] = {
+@@ -222,6 +237,114 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+ 	return pca954x_reg_write(muxc->parent, client, data->last_chan);
+ }
+ 
++static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
++{
++	struct pca954x *data = dev_id;
++	unsigned int child_irq;
++	int ret, i, handled;
++
++	ret = i2c_smbus_read_byte(data->client);
++	if (ret < 0)
++		return IRQ_NONE;
++
++	for (i = 0; i < data->chip->nchans; i++) {
++		if (ret & BIT(PCA954X_IRQ_OFFSET + i)) {
++			child_irq = irq_linear_revmap(data->irq, i);
++			handle_nested_irq(child_irq);
++			handled++;
++		}
++	}
++	return handled ? IRQ_HANDLED : IRQ_NONE;
++}
++
++static void pca954x_irq_mask(struct irq_data *idata)
++{
++	struct pca954x *data = irq_data_get_irq_chip_data(idata);
++	unsigned int pos = idata->hwirq;
++	unsigned long flags;
++
++	spin_lock_irqsave(&data->lock, flags);
++
++	data->irq_mask &= ~BIT(pos);
++	if (!data->irq_mask)
++		disable_irq(data->client->irq);
++
++	spin_unlock_irqrestore(&data->lock, flags);
++}
++
++static void pca954x_irq_unmask(struct irq_data *idata)
++{
++	struct pca954x *data = irq_data_get_irq_chip_data(idata);
++	unsigned int pos = idata->hwirq;
++	unsigned long flags;
++
++	spin_lock_irqsave(&data->lock, flags);
++
++	if (!data->irq_mask)
++		enable_irq(data->client->irq);
++	data->irq_mask |= BIT(pos);
++
++	spin_unlock_irqrestore(&data->lock, flags);
++}
++
++static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
++{
++	if ((type & IRQ_TYPE_SENSE_MASK) != IRQ_TYPE_LEVEL_LOW)
++		return -EINVAL;
++	return 0;
++}
++
++static struct irq_chip pca954x_irq_chip = {
++	.name = "i2c-mux-pca954x",
++	.irq_mask = pca954x_irq_mask,
++	.irq_unmask = pca954x_irq_unmask,
++	.irq_set_type = pca954x_irq_set_type,
++};
++
++static int pca954x_irq_setup(struct i2c_mux_core *muxc)
++{
++	struct pca954x *data = i2c_mux_priv(muxc);
++	struct i2c_client *client = data->client;
++	int c, err, irq;
++
++	if (!data->chip->has_irq || client->irq <= 0)
++		return 0;
++
++	spin_lock_init(&data->lock);
++
++	data->irq = irq_domain_add_linear(client->dev.of_node,
++					  data->chip->nchans,
++					  &irq_domain_simple_ops, data);
++	if (!data->irq)
++		return -ENODEV;
++
++	for (c = 0; c < data->chip->nchans; c++) {
++		irq = irq_create_mapping(data->irq, c);
++		irq_set_chip_data(irq, data);
++		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
++			handle_simple_irq);
++	}
++
++	err = devm_request_threaded_irq(&client->dev, data->client->irq, NULL,
++					pca954x_irq_handler,
++					IRQF_ONESHOT | IRQF_SHARED,
++					"pca954x", data);
++	if (err)
++		goto err_req_irq;
++
++	disable_irq(data->client->irq);
++
++	return 0;
++err_req_irq:
++	for (c = 0; c < data->chip->nchans; c++) {
++		irq = irq_find_mapping(data->irq, c);
++		irq_dispose_mapping(irq);
++	}
++	irq_domain_remove(data->irq);
++
++	return err;
++}
++
+ /*
+  * I2C init/probing/exit functions
+  */
+@@ -286,6 +409,10 @@ static int pca954x_probe(struct i2c_client *client,
+ 	idle_disconnect_dt = of_node &&
+ 		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
+ 
++	ret = pca954x_irq_setup(muxc);
++	if (ret)
++		goto fail_del_adapters;
++
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < data->chip->nchans; num++) {
+ 		bool idle_disconnect_pd = false;
+@@ -311,7 +438,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 			dev_err(&client->dev,
+ 				"failed to register multiplexed adapter"
+ 				" %d as bus %d\n", num, force);
+-			goto virt_reg_failed;
++			goto fail_del_adapters;
+ 		}
+ 	}
+ 
+@@ -322,7 +449,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 	return 0;
+ 
+-virt_reg_failed:
++fail_del_adapters:
+ 	i2c_mux_del_adapters(muxc);
+ 	return ret;
+ }
+@@ -330,6 +457,16 @@ static int pca954x_probe(struct i2c_client *client,
+ static int pca954x_remove(struct i2c_client *client)
+ {
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
++	struct pca954x *data = i2c_mux_priv(muxc);
++	int c, irq;
++
++	if (data->irq) {
++		for (c = 0; c < data->chip->nchans; c++) {
++			irq = irq_find_mapping(data->irq, c);
++			irq_dispose_mapping(irq);
++		}
++		irq_domain_remove(data->irq);
++	}
+ 
+ 	i2c_mux_del_adapters(muxc);
+ 	return 0;
+-- 
+1.8.3.1
