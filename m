@@ -1,67 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: busses: constify dev_pm_ops structures
-Date: Wed, 25 Jan 2017 22:03:49 +0100
-Message-ID: <20170125210348.ebwozos3puo6c4if@ninjato>
-References: <1484474381-1064-1-git-send-email-bhumirks@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v10 2/5] i2c: Add STM32F4 I2C driver
+Date: Wed, 25 Jan 2017 22:03:32 +0100
+Message-ID: <20170125210332.nnou2yavyztulual@pengutronix.de>
+References: <1484832316-5594-1-git-send-email-cedric.madianga@gmail.com>
+ <1484832316-5594-3-git-send-email-cedric.madianga@gmail.com>
+ <20170125202505.4acldm2wla3sqfsp@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bazjjmtkiv4nr3il"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:39066 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1751177AbdAYVEB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 25 Jan 2017 16:04:01 -0500
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:36955 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750930AbdAYVFz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2017 16:05:55 -0500
 Content-Disposition: inline
-In-Reply-To: <1484474381-1064-1-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <20170125202505.4acldm2wla3sqfsp@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
+Hello Wolfram,
 
---bazjjmtkiv4nr3il
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jan 25, 2017 at 09:25:05PM +0100, Wolfram Sang wrote:
+> On Thu, Jan 19, 2017 at 02:25:13PM +0100, M'boumba Cedric Madianga wrote:
+> > This patch adds support for the STM32F4 I2C controller.
+> > 
+> > Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> 
+> Applied to for-next with Uwe's ack (which looked more like a review to
+> me, but well...), thanks to all involved for keeping at it!
 
-On Sun, Jan 15, 2017 at 03:29:41PM +0530, Bhumika Goyal wrote:
-> Declare dev_pm_ops structures as const as they are only stored in the pm
-> field of a device_driver structure. This field is of type const, so
-> dev_pm_ops structures having similar properties can be declared const
-> too.
->=20
-> File size before: drivers/i2c/busses/i2c-omap.o
->    text	   data	    bss	    dec	    hex	filename
->    6814	    584	      0	   7398	   1ce6	drivers/i2c/busses/i2c-omap.o
->=20
-> File size after: drivers/i2c/busses/i2c-omap.o
->    text	   data	    bss	    dec	    hex	filename
->    7006	    392	      0	   7398	   1ce6	drivers/i2c/busses/i2c-omap.o
->=20
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+I thought about calling it a review, but as I didn't look in detail over
+the last version, I degraded it to an ack on purpose.
 
-Applied to for-next, thanks! I dropped the file size table from the
-commit message, though. For me, it is clear enough without it.
+Best regards
+Uwe
 
-
---bazjjmtkiv4nr3il
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJErQACgkQFA3kzBSg
-Kba7cQ/+PCEphAlBWZFNWUQiIy9cb0PyHPt1FQ0z+aTRVfMYqimeSuQEM9yrx6sE
-GMzteUphey2wWrvbKbFierdarz6Y+Ey3rRRmhFSnJa+U/chrdg2gSgHCDxUJy5vO
-pvCW1I4vr2YELc4DpmUhIdh2/RYij4wPY4P1ONbnwVH2cQFUSYx+f1OXSDeVY7Ay
-gFv+2pZz8wOhp2y0lsBtpjNFUAUpoptoFVCK8udlAXDBKM+Ir/5kgvKX7F5g4Kil
-2sh55zk/caWHCnUS6XzGdwF+eo7rGtrRFHeJ8i16w4LrBQUCZTPlKR8y36I3vKqq
-2hLXbftlikyRoQaXRk21lEMg7JhD5kloXiDVXS98kCH9L/rpC6IHWgtsg39uWrqd
-yEaxwZ+6vm+fKG1wkqA3tu8VtM7nNFQq+CMPr9/tYqiZfiG8Fd+sVvJud1KAWspo
-WVs1YlZVn/1KjyySXA95+vdHJJr76DfwlsRaAAo6d7TtI8U5ummOpCMqmBoP0G7J
-uQ7FuGwmiMTUeqEyGA+zKR/KijeP0NCP4gmQJ0scTCwmQ5xE0si7KaxYiEUiDvlz
-o2WQchhNvKQcrBz7e+yYyP33RsWUNweyyjzpJUtu251ZphyfgCpz8e9BiK3oHw6A
-rcxtHNTsO9R3wawAWC2mOpg+Ms8VJiG/Eijn47hHxWzmNtJ/rlw=
-=vvs8
------END PGP SIGNATURE-----
-
---bazjjmtkiv4nr3il--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
