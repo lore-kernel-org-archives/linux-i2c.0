@@ -1,71 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
-Date: Wed, 25 Jan 2017 21:57:15 +0100
-Message-ID: <20170125205715.xaaphsyb7hwowurq@ninjato>
-References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
- <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
- <20170125205554.m7vmhs4tq6bzti52@ninjato>
+Subject: Re: [PATCH v3] i2c: core: helper function to detect slave mode
+Date: Wed, 25 Jan 2017 22:01:19 +0100
+Message-ID: <20170125210118.z5o6y6aurwic4zxc@ninjato>
+References: <58edd25a0fbe50b6d5abef14b7e46c63a1e06830.1484663257.git.lolivei@synopsys.com>
+ <20170125204537.i66nykln4fkxqryy@ninjato>
+ <1485377409.2133.339.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4cqzfwdul5dnhlb6"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:38998 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1751898AbdAYU5S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 25 Jan 2017 15:57:18 -0500
+        protocol="application/pgp-signature"; boundary="7lg3yfzqk67hb6bp"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170125205554.m7vmhs4tq6bzti52@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1485377409.2133.339.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Luis Oliveira <Luis.Oliveira@synopsys.com>, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, vz@mleia.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 
 
---4cqzfwdul5dnhlb6
+--7lg3yfzqk67hb6bp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 25, 2017 at 09:55:54PM +0100, Wolfram Sang wrote:
-> On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
-> > In case of arbitration lost adequate interrupt sometimes is not signale=
-d. As
-> > a result transfer timeouts and is not retried, as it should. To avoid s=
-uch
-> > cases code is added to check transaction status in case of every interr=
-upt.
+On Wed, Jan 25, 2017 at 10:50:09PM +0200, Andy Shevchenko wrote:
+> On Wed, 2017-01-25 at 21:45 +0100, Wolfram Sang wrote:
+> > > + * i2c_slave_mode_detect - detect operation mode
 > >=20
-> > Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> > I'd rather name it 'i2c_detect_slave_mode'
 >=20
-> Looks good to me, but I'd like some review from one of the Samsung
-> people?
+> When I proposed that I kept in ming `git grep -n i2c_slave`.
 
-Ooops, you are from Samsung as well :) Still, I'd like one more ack or
-review from someone with the HW.
+"i2c.*slave"? :)
 
-Thanks,
-
-   Wolfram
+I think having the verb first makes function names more comprehensible.
+i2c-core is not super consistent with that, but I'd say more follow this
+than not.
 
 
---4cqzfwdul5dnhlb6
+--7lg3yfzqk67hb6bp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJESsACgkQFA3kzBSg
-KbYE+g/+KGe1Z7iFAkXlu4f+WN6A9/3ejRk0hTNyifn1p6fjPSKuF08D/gqWLUea
-r4S5jcEwQ9IEeHevgO9n0dcbg+0zutxde76YzozQWg2rR2jGb97pMN6lSHgAUW2V
-5/VGBmKlTbD7mUMSkJjRm62MkWml1RQnKfPRke9pjhVN+AnJhpJXeViFka7BoHZ/
-VJsUwDbFEop3oXVnGsQcnoPBuiH1zSeysmvgzwwNSCYB2EKYrrxCim3h1epaWRZv
-7K4Re0uY5/7HcJJUTheCaY+Bfo1y3wydcbGH6qwxlKpGzufbNRQ1b4cgV26bK2a1
-VsMq14rZmQKtdlhzXi1zTkGbpToudpIIt/TIk+3Xz7JcoRJ4JmWr7LN2ImJx5Y9h
-bZi2voQaS8V+4Z0SwC29mDlffQJh80v0fQFEVWCF/JWROx9PZTt8k0pH/CP9I4Q5
-vppEViof5kDkV8gSTlpa9342laSZviz5iY/G8qOpTU1CTr/H9m6VpxZcYW/1xEFF
-oh6PcxqEGSAschMnV+CSYooWkYZdDuU+7vtpfLSQNbhON6p5VpqqmFF2mfznSdci
-Uy4oa6hIdcM/XAQojF475lJUljcQx0gLsoatfaBxErlqMy6tHkFF9geOvloLh5rF
-CwfQcTYx5Lm3L++9gFwTSWuXoLUXZe+UxgxXXQyGPt0LOIXnb90=
-=vhDR
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJEh4ACgkQFA3kzBSg
+Kbbebw/+Mu+G9r2i++6Zp3sOfyKLWZugw2oULMVMVqAKX8TF+GQvrbHz5jMcUvPz
+Lhp0zhK81QxaQ/yXsSCDU1CoupVVixWW1yLIfZBe03aFhuZ0lUaJnmEsHgSkutRN
+cnk8x6AH585JelsPz7HxaGI/O+4SMcrLj8XaUCtQBjyrq6/7AfFYEtTJUPWtEshP
+ef9OBZbZMEzD9oEm8VH0qJ0fwUQk5jc33KT0/aF+sgrxgtXYC7gDyhiQ0S0QX75K
+X/fEv6rl9kqKSc1D1kqJMe8Pgn0GOJ60PWpR3sSuVyhwVIHKL2rQegbEvIdHVqsm
+QHlHh+/Lbou+GkwUmrZHtU2UXBcGcm9MXFZQF+lwj6Pl9Y10K//I2nl6KORo4+8y
+zhYmT+aJqlJ13Ind/CrWmAYtUtXSKczLtnl0zwoTxFQfjfPE/IT0gFVRRIHZVsek
+G01kUf46D/eyQkEP23RDv7diGfJBP/PpDSTy69XVFqRKDLkz1KD58hVZN2rf/q6s
+6ztxLMkumKkDROYn9ZphQnQtQJQAbsrsr2wncl06Bmw6he60jY506LhD6T8h/iLc
+IG+Wn5uiIxH7L1N2ifKVQgWpl/2EEYSZZHaYonXrPVCenBEr3Xv6d14fABzVOFUA
+3tWejSgfnzMGKraFRsYWN9n6qz4s3ylhB+Lewi01k+nJmk3JKp0=
+=pQl7
 -----END PGP SIGNATURE-----
 
---4cqzfwdul5dnhlb6--
+--7lg3yfzqk67hb6bp--
