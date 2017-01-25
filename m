@@ -1,42 +1,44 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3] i2c: core: helper function to detect slave mode
-Date: Wed, 25 Jan 2017 23:29:39 +0200
-Message-ID: <CAHp75VfaG96BgwM2S6Mw3Uv=DcLrV1id7nyMzrk9xSreT_ZAEw@mail.gmail.com>
-References: <58edd25a0fbe50b6d5abef14b7e46c63a1e06830.1484663257.git.lolivei@synopsys.com>
- <20170125204537.i66nykln4fkxqryy@ninjato> <1485377409.2133.339.camel@linux.intel.com>
- <20170125210118.z5o6y6aurwic4zxc@ninjato>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
+Date: Thu, 26 Jan 2017 07:48:48 +0900
+Message-ID: <20170125224848.34lxht4xnuvhxrqd@gangnam.samsung>
+References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+ <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+ <20170125205554.m7vmhs4tq6bzti52@ninjato>
+ <20170125205715.xaaphsyb7hwowurq@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:36465 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752021AbdAYV3q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2017 16:29:46 -0500
-In-Reply-To: <20170125210118.z5o6y6aurwic4zxc@ninjato>
+Received: from mailout4.samsung.com ([203.254.224.34]:33025 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752293AbdAYWsv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2017 17:48:51 -0500
+Content-disposition: inline
+In-reply-to: <20170125205715.xaaphsyb7hwowurq@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vladimir Zapolskiy <vz@mleia.com>, Ramiro.Oliveira@synopsys.com, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
+Cc: Andrzej Hajda <a.hajda@samsung.com>, linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 
-On Wed, Jan 25, 2017 at 11:01 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Jan 25, 2017 at 10:50:09PM +0200, Andy Shevchenko wrote:
->> On Wed, 2017-01-25 at 21:45 +0100, Wolfram Sang wrote:
->> > > + * i2c_slave_mode_detect - detect operation mode
->> >
->> > I'd rather name it 'i2c_detect_slave_mode'
->>
->> When I proposed that I kept in ming `git grep -n i2c_slave`.
->
-> "i2c.*slave"? :)
+Hi,
 
-'i2c[a-z_]\+slave'
+> > > In case of arbitration lost adequate interrupt sometimes is not signaled. As
+> > > a result transfer timeouts and is not retried, as it should. To avoid such
+> > > cases code is added to check transaction status in case of every interrupt.
+> > > 
+> > > Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> > 
+> > Looks good to me, but I'd like some review from one of the Samsung
+> > people?
+> 
+> Ooops, you are from Samsung as well :) Still, I'd like one more ack or
+> review from someone with the HW.
 
-> I think having the verb first makes function names more comprehensible.
-> i2c-core is not super consistent with that, but I'd say more follow this
-> than not.
+I am using this patch already:
 
-I'm okay with either.
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Tested-by: Andi Shyti <andi.shyti@samsung.com>
 
--- 
-With Best Regards,
-Andy Shevchenko
+Shouldn't we cc for the stable Kernel?
+
+Andi
