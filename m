@@ -1,64 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mv64xxx: add suspend/resume support
-Date: Wed, 25 Jan 2017 21:50:44 +0100
-Message-ID: <20170125205043.ze3m3wrjovajbps4@ninjato>
-References: <1482422042-30201-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Subject: Re: [Patch V3] i2c: imx-lpi2c: add VLLS mode support
+Date: Wed, 25 Jan 2017 21:53:06 +0100
+Message-ID: <20170125205305.w2ohn46ouzrxutkm@ninjato>
+References: <1484648455-5454-1-git-send-email-pandy.gao@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zaga3iclg3zwx6rj"
+        protocol="application/pgp-signature"; boundary="kfhj7rqdhcnmhwpj"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:38912 "EHLO pokefinder.org"
+Received: from sauhun.de ([89.238.76.85]:38946 "EHLO pokefinder.org"
         rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1752257AbdAYUup (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 25 Jan 2017 15:50:45 -0500
+        id S1750919AbdAYUxI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 25 Jan 2017 15:53:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1482422042-30201-1-git-send-email-thomas.petazzoni@free-electrons.com>
+In-Reply-To: <1484648455-5454-1-git-send-email-pandy.gao@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Grzegorz Jaszczyk <jaz@semihalf.com>
+To: Gao Pan <pandy.gao@nxp.com>
+Cc: wsa-dev@sang-engineering.com, vz@mleia.com, linux-i2c@vger.kernel.org, frank.li@nxp.com
 
 
---zaga3iclg3zwx6rj
+--kfhj7rqdhcnmhwpj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 22, 2016 at 04:54:02PM +0100, Thomas Petazzoni wrote:
-> From: Grzegorz Jaszczyk <jaz@semihalf.com>
+On Tue, Jan 17, 2017 at 06:20:55PM +0800, Gao Pan wrote:
+> When system enters VLLS mode, module power is turned off. As a result,
+> all registers are reset to HW default value. After exiting VLLS mode,
+> registers are still in default mode. As a result, the pinctrl settings
+> are incorrect, which will affect the module function.
 >=20
-> This commit implements suspend/resume support in the mv64xxx I2C
-> controller driver. There is no need to implement a ->suspend() hook, as
-> calling mv64xxx_i2c_hw_init() at ->resume() time is enough.
+> The patch recovers the pinctrl setting when exit VLLS mode.
 >=20
-> Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
-> Reviewed-by: Nadav Haklai <nadavh@marvell.com>
-> Reviewed-by: Lior Amsalem <alior@marvell.com>
-> Tested-by: Lior Amsalem <alior@marvell.com>
-> [Thomas: switch to dev_pm_ops, fix build warning when !PM.]
-> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+> Signed-off-by: Gao Pan <pandy.gao@nxp.com>
 
 Applied to for-next, thanks!
 
 
---zaga3iclg3zwx6rj
+--kfhj7rqdhcnmhwpj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJD6MACgkQFA3kzBSg
-KbYHsA/+LS8m9YxUb/j4Eu2WfCd6rbKiAcGuu8wcBg1mtTrxL5bYFCfTjBDpt3AG
-8jprVVc8s4YAeHP/fnU4gYjYoMFKdooVRp7tfunsgl5mAlG55utetSIqdXrW7jbC
-nhcUMtTnRNc4REeqJxlPBuqgPWWTRB5d2qa1JUNIbK8A/bsALM/Z5a2lZTPc5KJm
-welzosVWc6D9Ezw630y+uyWroEzyZRtEIuU0wd4IjjBQ7SkmYhhGfFXPZLoM5T7A
-U3BLAIuBz8FiN40Nm2Xn4EC7GzFKQlcbN9zhAeH+Y81+we2s/v4zSxYrmkJZsFNi
-P5TZ4Lz/3IsGTIQli2qH4xqYGcbfAGXlwedbqj/ibw2hI50DbXDIyYpQLPwGoB8F
-nP5X9qYYP7VudcIWT2z5+VnnR/lxlY6+JADxN8n7TBKKqXlnZxL8iwBMLeuZ1lmA
-H86oa9MzNKppMXZGyO6k6V6DTWgFVd6fxGbxW784qPPZrh15UmmgYUSRAlyaonlE
-Tgg/O1TRVE+aNmVn7cR0U6Oyu18sk5lmzFKhO1J+sSnEKzzzUKhucu+HjEe+UVEK
-rkkkh3LTgImM9P0zXgO/KiRqhUeUyAahi6d+ehb4LownNdkTa8qOMvApK01nxQuz
-CXqxY3Zy6eG9bzESxRDDrp3Xz5FkF9IoBaUMLyNADh4MdDiqNro=
-=GEZf
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJEDEACgkQFA3kzBSg
+KbZEMQ//WHTQOsTiwSzvaxpeTI0wyZTj6BF+LbTWL6Vw3J/sa5p4kR+vAuxTtjQr
+oexqacUVXdAnj6oDMhYpX5vfgQZu0vjkqq09w2BMwieji/a4q0ZeAVDf88m2Wsqn
+yULoBC0RiXRagIDYrZl0TqbW3ewxzN/f8u8I/OBPoXqew2ZP339blqsCDmF4pHcT
+7Xd/pICn0KjtQgGbH5R2+aZV27Ez1/tj4pvkEOW8+G7h1hg6ciyICTzUGAwBZ70y
+hOcSoeY/PSCWgkdsiRPzIOQA/B8gioPwi9CufMUJhjbk8Zu08g/5wsfigMzhkB9Z
+0IJbaKh5VyicWWYPATqPWmJ+IBFe3I/27Lwm373k5s+hhI1ADS2r48p398A+5N5Z
+rV3jgevS1p9jeA7NjYHMF8qPbSy4ekSIdgD2ra7qckGQ1o8kkh2S8MBcgkEmUTVV
+lZOtJ7jz5UYJWcSpB6EnX/YDktLKDlKE1bzadY0SbCpJzFfb71leJiHg9/T8G6oU
+rUaHgEOxZWVZYa9pZV2oNGysx4IZJTxgKqJhUBxxLpTS7AtE45u/Y6y7Bj0JasAT
+ZpVTnXb5OcpVO3kqqg++epeVgoOq577HOiq9RY4IeCPSkd7Qp30UeElMeTX+aLVJ
+2M5AoTw1pMQHNOVA3pd2GdUTRj0brUP6l+52UUCjoOdPRNvDk5o=
+=z6C9
 -----END PGP SIGNATURE-----
 
---zaga3iclg3zwx6rj--
+--kfhj7rqdhcnmhwpj--
