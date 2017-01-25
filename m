@@ -1,43 +1,55 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v10 2/5] i2c: Add STM32F4 I2C driver
-Date: Wed, 25 Jan 2017 22:03:32 +0100
-Message-ID: <20170125210332.nnou2yavyztulual@pengutronix.de>
-References: <1484832316-5594-1-git-send-email-cedric.madianga@gmail.com>
- <1484832316-5594-3-git-send-email-cedric.madianga@gmail.com>
- <20170125202505.4acldm2wla3sqfsp@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: i2c-cadence: Initialize configuration before
+ probing devices
+Date: Wed, 25 Jan 2017 22:09:19 +0100
+Message-ID: <20170125210919.x2fwb4lbfuqzyw5p@ninjato>
+References: <1484578178-3165-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:36955 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750930AbdAYVFz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 25 Jan 2017 16:05:55 -0500
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="zlzzjlf6tvm52kik"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170125202505.4acldm2wla3sqfsp@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1484578178-3165-1-git-send-email-mike.looijmans@topic.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, soren.brinkmann@xilinx.com, michal.simek@xilinx.com
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Hello Wolfram,
 
-On Wed, Jan 25, 2017 at 09:25:05PM +0100, Wolfram Sang wrote:
-> On Thu, Jan 19, 2017 at 02:25:13PM +0100, M'boumba Cedric Madianga wrote:
-> > This patch adds support for the STM32F4 I2C controller.
-> > 
-> > Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-> 
-> Applied to for-next with Uwe's ack (which looked more like a review to
-> me, but well...), thanks to all involved for keeping at it!
+--zlzzjlf6tvm52kik
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I thought about calling it a review, but as I didn't look in detail over
-the last version, I degraded it to an ack on purpose.
+On Mon, Jan 16, 2017 at 03:49:38PM +0100, Mike Looijmans wrote:
+> The cadence I2C driver calls cdns_i2c_writereg(..) to setup a workaround
+> in the controller, but did so after calling i2c_add_adapter() which starts
+> probing devices on the bus. Change the order so that the configuration is
+> completely finished before using the adapter.
+>=20
+> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
 
-Best regards
-Uwe
+Applied to for-current, thanks!
 
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--zlzzjlf6tvm52kik
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliJE/4ACgkQFA3kzBSg
+KbaZTA//WsBy0OpadyNk9ARdmR+44HZ3VD9Mj62+qtBfMrj+dzvDV0qMktAnzlpk
+U/ZvheE/CrgAYL1tcThcWtPWF+cv1vneuNvzs79tB5DnJWTGKE8XO2wMNbkjWycB
+Um/q4J3//f1dzKR4WJIMDulpyxBM9Tz+7q0m3n1Ih77Mk2Nrh9EZFAWW9oUr36NI
+KwhE5El6K79tLkPb4XMhUxwNgOGN0vuZ84E8OI4rnMli1RECaHx2/bUugoNC2t0k
+5sqOqpCjbH1ukP636lQJ0Ddz9uSpSvX2GMbs9ktrk0P3pnxq9u6O240wydGRPDhs
+QYnIla0L15x1GgbT0necDAAUV7i8Q2W83VkG9o5uwW3vK3OXqW3B+2ciad3Oxox4
+LrFepQP7ccd0NtYSglx2/zA4EclWZyT4mRZxpnL88WwZtMvIXdS8ezR6r4HRY14W
+CwCxMfH+xA2ygsih5AHrhiSCg4PuiACCVDEpe5LmxeRQt0Bi4FO5Y+uMBEma9lFO
+qtvZi9+3SvHh1i7k76hwFpNVUdEQ8u+P8aW4WAtWTXAKlnmqXTmSg7/cDBi/CHXn
+ofYkg/hCTcVp+FkdH/BjWXXn6VwyjGztDCmuTrb69B4XfMrvvyv9H5noBaulDIFt
+6Ev8zqxNL3SK9zgAEIELE1/4fOsB3MKJWbI83KPZeJJKkOaI2Nc=
+=Cd0w
+-----END PGP SIGNATURE-----
+
+--zlzzjlf6tvm52kik--
