@@ -1,33 +1,39 @@
-From: Simon Horman <horms+renesas@verge.net.au>
-Subject: [PATCH i2c/for-next] i2c: sh_mobile: document support for r8a7796 (R-Car M3-W)
-Date: Thu, 26 Jan 2017 09:47:31 +0100
-Message-ID: <1485420451-11752-1-git-send-email-horms+renesas@verge.net.au>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH i2c/for-next] i2c: sh_mobile: document support for r8a7796
+ (R-Car M3-W)
+Date: Thu, 26 Jan 2017 10:04:12 +0100
+Message-ID: <CAMuHMdV-WGVf+fk3AT-x3zMVf+==g_myuGBSvKmOxi8CqBUHJQ@mail.gmail.com>
+References: <1485420451-11752-1-git-send-email-horms+renesas@verge.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f65.google.com ([209.85.214.65]:33319 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751394AbdAZJEO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 26 Jan 2017 04:04:14 -0500
+In-Reply-To: <1485420451-11752-1-git-send-email-horms+renesas@verge.net.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 
-Explicitly list per-SoC binding for r8a7796. No driver change
-is required as the initialisation sequence is currently the same
-as for the R-Car Gen3 fallback binding.
+On Thu, Jan 26, 2017 at 9:47 AM, Simon Horman
+<horms+renesas@verge.net.au> wrote:
+> Explicitly list per-SoC binding for r8a7796. No driver change
+> is required as the initialisation sequence is currently the same
+> as for the R-Car Gen3 fallback binding.
+>
+> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
----
- Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 1 +
- 1 file changed, 1 insertion(+)
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-index 7716acc55dec..ae9c2a735f39 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-@@ -10,6 +10,7 @@ Required properties:
- 			- "renesas,iic-r8a7793" (R-Car M2-N)
- 			- "renesas,iic-r8a7794" (R-Car E2)
- 			- "renesas,iic-r8a7795" (R-Car H3)
-+			- "renesas,iic-r8a7796" (R-Car M3-W)
- 			- "renesas,iic-sh73a0" (SH-Mobile AG5)
- 			- "renesas,rcar-gen2-iic" (generic R-Car Gen2 compatible device)
- 			- "renesas,rcar-gen3-iic" (generic R-Car Gen3 compatible device)
--- 
-2.7.0.rc3.207.g0ac5344
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
