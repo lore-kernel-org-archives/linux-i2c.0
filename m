@@ -1,303 +1,218 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH] i2c: busses: constify i2c_algorithm structures
-Date: Fri, 27 Jan 2017 23:36:17 +0530
-Message-ID: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v8 02/12] dt-bindings: document devicetree bindings for
+ mux-controllers and mux-gpio
+Date: Fri, 27 Jan 2017 19:57:20 +0100
+Message-ID: <14d9b8c9-849d-07bc-1b4d-a337a8c6db70@axentia.se>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+ <1484755035-25927-3-git-send-email-peda@axentia.se>
+ <20170127174919.b7yliip6e7zofrbn@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: julia.lawall@lip6.fr, ludovic.desroches@atmel.com, wsa@the-dreams.de, sonic.zhang@analog.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, jdelvare@suse.com, patrice.chotard@st.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, kernel@stlinux.com
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170127174919.b7yliip6e7zofrbn@rob-hp-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Declare i2c_algorithm structures as const as they are only stored in the
-algo field of an i2c_adapter structure. This field is of type const, so
-i2c_algorithm structures having this property can be made const too.
-Done using Coccinelle:
+On 2017-01-27 18:49, Rob Herring wrote:
+> On Wed, Jan 18, 2017 at 04:57:05PM +0100, Peter Rosin wrote:
+>> Allow specifying that a single multiplexer controller can be used to control
+>> several parallel multiplexers, thus enabling sharing of the multiplexer
+>> controller by different consumers.
+>>
+>> Add a binding for a first mux controller in the form of a GPIO based mux
+>> controlled.
+>>
+>> Acked-by: Jonathan Cameron <jic23@kernel.org>
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
+>> ---
+>>  .../devicetree/bindings/mux/mux-controller.txt     | 127 +++++++++++++++++++++
+>>  Documentation/devicetree/bindings/mux/mux-gpio.txt |  68 +++++++++++
+>>  MAINTAINERS                                        |   5 +
+>>  3 files changed, 200 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/mux/mux-controller.txt
+>>  create mode 100644 Documentation/devicetree/bindings/mux/mux-gpio.txt
+> 
+> A few nits. With those fixed:
+> 
+> Acked-by: Rob Herring <robh@kernel.org>
+> 
+>>
+>> diff --git a/Documentation/devicetree/bindings/mux/mux-controller.txt b/Documentation/devicetree/bindings/mux/mux-controller.txt
+>> new file mode 100644
+>> index 000000000000..42b2177e5ae1
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mux/mux-controller.txt
+>> @@ -0,0 +1,127 @@
+>> +Common multiplexer controller bindings
+>> +======================================
+>> +
+>> +A multiplexer (or mux) controller will have one, or several, consumer devices
+>> +that uses the mux controller. Thus, a mux controller can possibly control
+>> +several parallel multiplexers. Presumably there will be at least one
+>> +multiplexer needed by each consumer, but a single mux controller can of course
+>> +control several multiplexers for a single consumer.
+>> +
+>> +A mux controller provides a number of states to its consumers, and the state
+>> +space is a simple zero-based enumeration. I.e. 0-1 for a 2-way multiplexer,
+>> +0-7 for an 8-way multiplexer, etc.
+>> +
+>> +
+>> +Consumers
+>> +---------
+>> +
+>> +Mux controller consumers should specify a list of mux controllers that they
+>> +want to use with a property containing a 'mux-ctrl-list':
+>> +
+>> +	mux-ctrl-list ::= <single-mux-ctrl> [mux-ctrl-list]
+>> +	single-mux-ctrl ::= <mux-ctrl-phandle> [mux-ctrl-specifier]
+>> +	mux-ctrl-phandle : phandle to mux controller node
+>> +	mux-ctrl-specifier : array of #mux-control-cells specifying the
+>> +			     given mux controller (controller specific)
+>> +
+>> +Mux controller properties should be named "mux-controls". The exact meaning of
+>> +each mux controller property must be documented in the device tree binding for
+>> +each consumer. An optional property "mux-control-names" may contain a list of
+>> +strings to label each of the mux controllers listed in the "mux-controls"
+>> +property.
+>> +
+>> +Drivers for devices that use more than a single mux controller can use the
+>> +"mux-control-names" property to map the name of the requested mux controller
+>> +to an index into the list given by the "mux-controls" property.
+>> +
+>> +mux-ctrl-specifier typically encodes the chip-relative mux controller number.
+>> +If the mux controller chip only provides a single mux controller, the
+>> +mux-ctrl-specifier can typically be left out.
+>> +
+>> +Example:
+>> +
+>> +	/* One consumer of a 2-way mux controller (one GPIO-line) */
+>> +	mux: mux-controller {
+>> +		compatible = "mux-gpio";
+>> +		#mux-control-cells = <0>;
+>> +
+>> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>;
+>> +	};
+>> +
+>> +	adc-mux {
+>> +		compatible = "io-channel-mux";
+>> +		io-channels = <&adc 0>;
+>> +		io-channel-names = "parent";
+>> +		mux-controls = <&mux>;
+>> +		mux-control-names = "adc";
+>> +
+>> +		channels = "sync", "in";
+>> +	};
+>> +
+>> +Note that in the example above, specifying the "mux-control-names" is redundant
+>> +because there is only one mux controller in the list.
+>> +
+>> +	/*
+>> +	 * Two consumers (one for an ADC line and one for an i2c bus) of
+>> +	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
+>> +	 */
+>> +	mux: mux-controller {
+>> +		compatible = "mux-gpio";
+>> +		#mux-control-cells = <0>;
+>> +
+>> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+>> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+>> +	};
+>> +
+>> +	adc-mux {
+>> +		compatible = "io-channel-mux";
+>> +		io-channels = <&adc 0>;
+>> +		io-channel-names = "parent";
+>> +		mux-controls = <&mux>;
+>> +
+>> +		channels = "sync-1", "in", "out", "sync-2";
+>> +	};
+>> +
+>> +	i2c-mux {
+>> +		compatible = "i2c-mux-simple,mux-locked";
+>> +		i2c-parent = <&i2c1>;
+>> +		mux-controls = <&mux>;
+>> +
+>> +		#address-cells = <1>;
+>> +		#size-cells = <0>;
+>> +
+>> +		i2c@0 {
+>> +			reg = <0>;
+>> +			#address-cells = <1>;
+>> +			#size-cells = <0>;
+>> +
+>> +			ssd1307: oled@3c {
+>> +				/* ... */
+>> +			};
+>> +		};
+>> +
+>> +		i2c@3 {
+>> +			reg = <3>;
+>> +			#address-cells = <1>;
+>> +			#size-cells = <0>;
+>> +
+>> +			pca9555: pca9555@20 {
+>> +				/* ... */
+>> +			};
+>> +		};
+>> +	};
+>> +
+>> +
+>> +Mux controller nodes
+>> +--------------------
+>> +
+>> +Mux controller nodes must specify the number of cells used for the
+>> +specifier using the '#mux-control-cells' property.
+>> +
+>> +An example mux controller might look like this:
+>> +
+>> +	mux: adg792a@50 {
+> 
+> mux-controller@50
 
-@r disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct i2c_algorithm i@p={...};
+Right, adding that to my queue.
 
-@ok@
-identifier r.i,x;
-position p;
-struct i2c_adapter adapter;
-struct xlr_i2c_private  priv;
-@@
-(
-adapter.algo=&i@p;
-|
-priv.adap.algo=&i@p;
-)
+>> +		compatible = "adi,adg792a";
+>> +		reg = <0x50>;
+>> +		#mux-control-cells = <1>;
+>> +	};
+>> diff --git a/Documentation/devicetree/bindings/mux/mux-gpio.txt b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+>> new file mode 100644
+>> index 000000000000..8f6bda6f9d78
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+>> @@ -0,0 +1,68 @@
+>> +GPIO-based multiplexer controller bindings
+>> +
+>> +Define what GPIO pins are used to control a multiplexer. Or several
+>> +multiplexers, if the same pins control more than one multiplexer.
+>> +
+>> +Required properties:
+>> +- compatible : "mux-gpio"
+> 
+> Just to be consistent with other gpio compatibles: gpio-mux
 
-@bad@
-position p!={r.p,ok.p};
-identifier r.i;
-@@
-i@p
+Sure, I'll also rename mux-gpio.txt to gpio-mux.txt and mux-adg792a.txt
+to adi,adg792a.txt so that the file names match the compatible string.
 
-@depends on !bad disable optional_qualifier@
-identifier r.i;
-@@
-+const
-struct i2c_algorithm i;
+>> +- mux-gpios : list of gpios used to control the multiplexer, least
+>> +	      significant bit first.
+>> +- #mux-control-cells : <0>
+>> +* Standard mux-controller bindings as decribed in mux-controller.txt
+>> +
+>> +Optional properties:
+>> +- idle-state : if present, the state the mux will have when idle.
+> 
+> Why is this gpio specific. Can be a common controller property?
 
-File size details before and after patching.
-First line of every .o file shows the file size before patching
-and second line shows the size after patching.
+The binding isn't appropriate for e.g. adg792a and it will not be
+appropriate for any mux chip with more than one mux controller. But
+sure, there could be a generic binding for all chips with a single
+mux controller...
 
-   text	   data	    bss	    dec	    hex	filename
+So, do you still think idle-state should be a generic binding?
 
-   9138	   1328	      8	  10474	   28ea	drivers/i2c/busses/i2c-at91.o
-   9178	   1280	      8	  10466	   28e2	drivers/i2c/busses/i2c-at91.o
-
-   7555	    657	      8	   8220	   201c i2c/busses/i2c-designware-core.o
-   7619	    617	      8	   8244	   2034 i2c/busses/i2c-designware-core.o
-
-   7240	   2240	    120	   9600	   2580	drivers/i2c/busses/i2c-eg20t.o
-   7304	   2176	    120	   9600	   2580	drivers/i2c/busses/i2c-eg20t.o
-
-   2399	    248	      8	   2655	    a5f	drivers/i2c/busses/i2c-emev2.o
-   2455	    192	      8	   2655	    a5f	drivers/i2c/busses/i2c-emev2.o
-
-   3766	    688	      8	   4462	   116e i2c/busses/i2c-imx-lpi2c.o
-   3814	    632	      8	   4454	   1166 i2c/busses/i2c-imx-lpi2c.o
-
-  11793	   4280	     16	  16089	   3ed9	drivers/i2c/busses/i2c-imx.o
-  11857	   4216	     16	  16089	   3ed9	drivers/i2c/busses/i2c-imx.o
-
-   4046	    656	      8	   4710	   1266	drivers/i2c/busses/i2c-nforce2.o
-   4110	    592	      8	   4710	   1266	drivers/i2c/busses/i2c-nforce2.o
-
-   1397	    464	      0	   1861	    745 i2c/busses/i2c-robotfuzz-osif.o
-   1437	    408	      0	   1845	    735 i2c/busses/i2c-robotfuzz-osif.o
-
-   9622	   1216	     16	  10854	   2a66 i2c/busses/i2c-sh_mobile.o
-   9662	   1160	     16	  10838	   2a56 i2c/busses/i2c-sh_mobile.o
-
-   4936	    576	      8	   5520	   1590	drivers/i2c/busses/i2c-st.o
-   5000	    512	      8	   5520	   1590	drivers/i2c/busses/i2c-st.o
-
-   3404	    248	      8	   3660	    e4c i2c/busses/i2c-xgene-slimpro.o
-   3460	    192	      8	   3660	    e4c i2c/busses/i2c-xgene-slimpro.o
-
-   2741	    600	      8	   3349	    d15	drivers/i2c/busses/i2c-xlp9xx.o
-   2797	    544	      8	   3349	    d15	drivers/i2c/busses/i2c-xlp9xx.o
-
-   2643	    248	      8	   2899	    b53	drivers/i2c/busses/i2c-xlr.o
-   2707	    192	      8	   2907	    b5b	drivers/i2c/busses/i2c-xlr.o
-
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
----
- drivers/i2c/busses/i2c-at91.c            | 2 +-
- drivers/i2c/busses/i2c-bfin-twi.c        | 2 +-
- drivers/i2c/busses/i2c-designware-core.c | 2 +-
- drivers/i2c/busses/i2c-eg20t.c           | 2 +-
- drivers/i2c/busses/i2c-emev2.c           | 2 +-
- drivers/i2c/busses/i2c-imx-lpi2c.c       | 2 +-
- drivers/i2c/busses/i2c-imx.c             | 2 +-
- drivers/i2c/busses/i2c-nforce2.c         | 2 +-
- drivers/i2c/busses/i2c-robotfuzz-osif.c  | 2 +-
- drivers/i2c/busses/i2c-sh_mobile.c       | 2 +-
- drivers/i2c/busses/i2c-st.c              | 2 +-
- drivers/i2c/busses/i2c-xgene-slimpro.c   | 2 +-
- drivers/i2c/busses/i2c-xlp9xx.c          | 2 +-
- drivers/i2c/busses/i2c-xlr.c             | 2 +-
- 14 files changed, 14 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 0b86c61..e4fcb0c 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -820,7 +820,7 @@ static u32 at91_twi_func(struct i2c_adapter *adapter)
- 		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
- }
- 
--static struct i2c_algorithm at91_twi_algorithm = {
-+static const struct i2c_algorithm at91_twi_algorithm = {
- 	.master_xfer	= at91_twi_xfer,
- 	.functionality	= at91_twi_func,
- };
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 29d00c4..9fe942b 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -563,7 +563,7 @@ static u32 bfin_twi_functionality(struct i2c_adapter *adap)
- 	       I2C_FUNC_I2C | I2C_FUNC_SMBUS_I2C_BLOCK;
- }
- 
--static struct i2c_algorithm bfin_twi_algorithm = {
-+static const struct i2c_algorithm bfin_twi_algorithm = {
- 	.master_xfer   = bfin_twi_master_xfer,
- 	.smbus_xfer    = bfin_twi_smbus_xfer,
- 	.functionality = bfin_twi_functionality,
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 6d81c56..a62c14c 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -822,7 +822,7 @@ static u32 i2c_dw_func(struct i2c_adapter *adap)
- 	return dev->functionality;
- }
- 
--static struct i2c_algorithm i2c_dw_algo = {
-+static const struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
- 	.functionality	= i2c_dw_func,
- };
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 5ce71ce..bdeab01 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -715,7 +715,7 @@ static u32 pch_i2c_func(struct i2c_adapter *adap)
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
- }
- 
--static struct i2c_algorithm pch_algorithm = {
-+static const struct i2c_algorithm pch_algorithm = {
- 	.master_xfer = pch_i2c_xfer,
- 	.functionality = pch_i2c_func
- };
-diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 96bb4e7..3129127 100644
---- a/drivers/i2c/busses/i2c-emev2.c
-+++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -347,7 +347,7 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
- 	return 0;
- }
- 
--static struct i2c_algorithm em_i2c_algo = {
-+static const struct i2c_algorithm em_i2c_algo = {
- 	.master_xfer = em_i2c_xfer,
- 	.functionality = em_i2c_func,
- 	.reg_slave      = em_i2c_reg_slave,
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index c62b7cd..934f548 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -537,7 +537,7 @@ static u32 lpi2c_imx_func(struct i2c_adapter *adapter)
- 		I2C_FUNC_SMBUS_READ_BLOCK_DATA;
- }
- 
--static struct i2c_algorithm lpi2c_imx_algo = {
-+static const struct i2c_algorithm lpi2c_imx_algo = {
- 	.master_xfer	= lpi2c_imx_xfer,
- 	.functionality	= lpi2c_imx_func,
- };
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 47fc1f1..95ed171 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1037,7 +1037,7 @@ static u32 i2c_imx_func(struct i2c_adapter *adapter)
- 		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
- }
- 
--static struct i2c_algorithm i2c_imx_algo = {
-+static const struct i2c_algorithm i2c_imx_algo = {
- 	.master_xfer	= i2c_imx_xfer,
- 	.functionality	= i2c_imx_func,
- };
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-index 374b35e..3241bb9 100644
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -296,7 +296,7 @@ static u32 nforce2_func(struct i2c_adapter *adapter)
- 		I2C_FUNC_SMBUS_BLOCK_DATA : 0);
- }
- 
--static struct i2c_algorithm smbus_algorithm = {
-+static const struct i2c_algorithm smbus_algorithm = {
- 	.smbus_xfer	= nforce2_access,
- 	.functionality	= nforce2_func,
- };
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index 89d8b41..9c0f52b 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -117,7 +117,7 @@ static u32 osif_func(struct i2c_adapter *adapter)
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- }
- 
--static struct i2c_algorithm osif_algorithm = {
-+static const struct i2c_algorithm osif_algorithm = {
- 	.master_xfer	= osif_xfer,
- 	.functionality	= osif_func,
- };
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 3d9ebe6..3d75593 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -781,7 +781,7 @@ static u32 sh_mobile_i2c_func(struct i2c_adapter *adapter)
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
--static struct i2c_algorithm sh_mobile_i2c_algorithm = {
-+static const struct i2c_algorithm sh_mobile_i2c_algorithm = {
- 	.functionality	= sh_mobile_i2c_func,
- 	.master_xfer	= sh_mobile_i2c_xfer,
- };
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 1371547..1eb9fa8 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -776,7 +776,7 @@ static u32 st_i2c_func(struct i2c_adapter *adap)
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- }
- 
--static struct i2c_algorithm st_i2c_algo = {
-+static const struct i2c_algorithm st_i2c_algo = {
- 	.master_xfer = st_i2c_xfer,
- 	.functionality = st_i2c_func,
- };
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index 0ab1e55..dbe7e44 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -372,7 +372,7 @@ static u32 xgene_slimpro_i2c_func(struct i2c_adapter *adapter)
- 		I2C_FUNC_SMBUS_I2C_BLOCK;
- }
- 
--static struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
-+static const struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
- 	.smbus_xfer = xgene_slimpro_i2c_xfer,
- 	.functionality = xgene_slimpro_i2c_func,
- };
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index 84a8b2e..66b464d 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -334,7 +334,7 @@ static u32 xlp9xx_i2c_functionality(struct i2c_adapter *adapter)
- 		I2C_FUNC_10BIT_ADDR;
- }
- 
--static struct i2c_algorithm xlp9xx_i2c_algo = {
-+static const struct i2c_algorithm xlp9xx_i2c_algo = {
- 	.master_xfer = xlp9xx_i2c_xfer,
- 	.functionality = xlp9xx_i2c_functionality,
- };
-diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
-index ad17d88..484bfa1 100644
---- a/drivers/i2c/busses/i2c-xlr.c
-+++ b/drivers/i2c/busses/i2c-xlr.c
-@@ -335,7 +335,7 @@ static u32 xlr_func(struct i2c_adapter *adap)
- 	return (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK) | I2C_FUNC_I2C;
- }
- 
--static struct i2c_algorithm xlr_i2c_algo = {
-+static const struct i2c_algorithm xlr_i2c_algo = {
- 	.master_xfer	= xlr_i2c_xfer,
- 	.functionality	= xlr_func,
- };
--- 
-1.9.1
+Cheers,
+peda
