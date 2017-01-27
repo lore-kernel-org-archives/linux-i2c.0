@@ -1,39 +1,91 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2 10/13] i2c: designware-baytrail: Call
- pmic_bus_access_notifier_chain
-Date: Fri, 27 Jan 2017 13:35:19 +0200
-Message-ID: <64668e0e-fbf3-e9ab-5c4b-546d9742a217@linux.intel.com>
-References: <20170123210958.18410-1-hdegoede@redhat.com>
- <20170123210958.18410-11-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170123210958.18410-11-hdegoede@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Dan O'Donovan <dan@emutex.com>
+Subject: [PATCH v4 1/3] ACPI / bus: Export acpi_of_modalias equiv of of_modalias_node
+Date: Fri, 27 Jan 2017 13:30:13 +0000
+Message-ID: <1485523815-9629-2-git-send-email-dan@emutex.com>
+References: <1485187737-22414-1-git-send-email-dan@emutex.com>
+ <1485523815-9629-1-git-send-email-dan@emutex.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1485523815-9629-1-git-send-email-dan@emutex.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-acpi@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>
+Cc: Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, Dan O'Donovan <dan@emutex.com>, Crestez Dan Leonard <leonard.crestez@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDEvMjMvMjAxNyAxMTowOSBQTSwgSGFucyBkZSBHb2VkZSB3cm90ZToKPiBDYWxsIHRoZSBp
-b3NmX21iaSBwbWljX2J1c19hY2Nlc3Nfbm90aWZpZXJfY2hhaW4gb24gYnVzIGFjcXVpcmUgLyBy
-ZWxlYXNlLgo+Cj4gQnVnTGluazogaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVn
-LmNnaT9pZD0xNTUyNDEKPiBTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUBy
-ZWRoYXQuY29tPgo+IFRlc3RlZC1ieTogdGFnb3JlcmVkZHkgPHRhZ29yZS5jaGFuZGFuQGdtYWls
-LmNvbT4KPiBSZXZpZXdlZC1ieTogQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0Bs
-aW51eC5pbnRlbC5jb20+Cj4gQWNrZWQtYnk6IFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMu
-ZGU+Cj4gLS0tCj4gQ2hhbmdlcyBpbiB2MjoKPiAtU3BlbGxpbmc6IFAtVW5pdCwgUE1JQwo+IC0t
-LQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtYmF5dHJhaWwuYyB8IDQgKysr
-Kwo+ICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspCj4KCkFja2VkLWJ5OiBKYXJra28g
-TmlrdWxhIDxqYXJra28ubmlrdWxhQGxpbnV4LmludGVsLmNvbT4KX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRl
-bC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-L21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+From: Crestez Dan Leonard <leonard.crestez@intel.com>
+
+When using devicetree stuff like i2c_client.name or spi_device.modalias
+is initialized to the first DT compatible id with the vendor prefix
+stripped. Since some drivers rely on this try to replicate it when using
+ACPI with DT ids.
+
+Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+Signed-off-by: Dan O'Donovan <dan@emutex.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/acpi/bus.c      | 35 +++++++++++++++++++++++++++++++++++
+ include/acpi/acpi_bus.h |  1 +
+ 2 files changed, 36 insertions(+)
+
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 95855cb..8b9657f 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -677,6 +677,41 @@ static bool acpi_of_match_device(struct acpi_device *adev,
+ 	return false;
+ }
+ 
++/**
++ * acpi_of_modalias - Like of_modalias_node for ACPI with DT ids
++ * @adev:	ACPI device object to match.
++ * @outstr:	Pointer to buffer for result
++ * @outlen:	Length of outstr value
++ *
++ * This is a counterpart of of_modalias_node() for struct acpi_device
++ * objects. If there is a compatible string for @adev, copy it to the
++ * @outstr location with the vendor prefix stripped.
++ *
++ * Returns 0 on success or negative errno on failure.
++ */
++int acpi_of_modalias(struct acpi_device *adev, char *outstr, size_t outlen)
++{
++	const union acpi_object *of_compatible;
++	const union acpi_object *obj;
++	const char *str, *chr;
++
++	of_compatible = adev->data.of_compatible;
++	if (!of_compatible)
++		return -ENODEV;
++
++	if (of_compatible->type == ACPI_TYPE_PACKAGE)
++		obj = of_compatible->package.elements;
++	else /* Must be ACPI_TYPE_STRING. */
++		obj = of_compatible;
++
++	str = obj->string.pointer;
++	chr = strchr(str, ',');
++	strlcpy(outstr, chr ? chr + 1 : str, outlen);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(acpi_of_modalias);
++
+ static bool __acpi_match_device_cls(const struct acpi_device_id *id,
+ 				    struct acpi_hardware_id *hwid)
+ {
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 4242c31..351b4a4 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -522,6 +522,7 @@ void acpi_bus_trim(struct acpi_device *start);
+ acpi_status acpi_bus_get_ejd(acpi_handle handle, acpi_handle * ejd);
+ int acpi_match_device_ids(struct acpi_device *device,
+ 			  const struct acpi_device_id *ids);
++int acpi_of_modalias(struct acpi_device *adev, char *outstr, size_t outlen);
+ int acpi_create_dir(struct acpi_device *);
+ void acpi_remove_dir(struct acpi_device *);
+ 
+-- 
+2.7.4
