@@ -1,69 +1,279 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v8 12/12] mux: support simplified bindings for
- single-user gpio mux
-Date: Fri, 27 Jan 2017 09:52:02 -0600
-Message-ID: <20170127155202.z2ufbq5bdtclk5oo@rob-hp-laptop>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v8 02/12] dt-bindings: document devicetree bindings for
+ mux-controllers and mux-gpio
+Date: Fri, 27 Jan 2017 11:49:19 -0600
+Message-ID: <20170127174919.b7yliip6e7zofrbn@rob-hp-laptop>
 References: <1484755035-25927-1-git-send-email-peda@axentia.se>
- <1484755035-25927-13-git-send-email-peda@axentia.se>
- <33b29f7e-3e48-b85d-ccf9-93b1d67ac634@kernel.org>
- <d32f335f-56f2-38c1-e4d9-4629926dbe21@axentia.se>
+ <1484755035-25927-3-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <d32f335f-56f2-38c1-e4d9-4629926dbe21@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+In-Reply-To: <1484755035-25927-3-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 23, 2017 at 11:24:18AM +0100, Peter Rosin wrote:
-> On 2017-01-22 14:30, Jonathan Cameron wrote:
-> > On 18/01/17 15:57, Peter Rosin wrote:
-> >> Allow bindings for a GPIO controlled mux to be specified in the
-> >> mux consumer node.
-> >>
-> >> Signed-off-by: Peter Rosin <peda@axentia.se>
-> > Code is good as far as I am concerned. Only question is whether this
+On Wed, Jan 18, 2017 at 04:57:05PM +0100, Peter Rosin wrote:
+> Allow specifying that a single multiplexer controller can be used to control
+> several parallel multiplexers, thus enabling sharing of the multiplexer
+> controller by different consumers.
 > 
-> Hmmm, now that I think some more about it, the code supporting the
-> simplified binding (patch 12/12) is a bit fishy in one respect.
+> Add a binding for a first mux controller in the form of a GPIO based mux
+> controlled.
 > 
-> A driver that calls mux_control_get and gets a mux_control that happens
-> to be backed by an implicit mux chip (i.e. using the simplified binding)
-> will not be able to reverse the resource allocation with less than a
-> complete destruction of itself. Now, this is likely not a problem in
-> most cases, but I bet it will creep up at the most inopportune time. And
-> your remark that I'm the one that has to maintain this makes me dislike
-> this concept...
+> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+> ---
+>  .../devicetree/bindings/mux/mux-controller.txt     | 127 +++++++++++++++++++++
+>  Documentation/devicetree/bindings/mux/mux-gpio.txt |  68 +++++++++++
+>  MAINTAINERS                                        |   5 +
+>  3 files changed, 200 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mux/mux-controller.txt
+>  create mode 100644 Documentation/devicetree/bindings/mux/mux-gpio.txt
+
+A few nits. With those fixed:
+
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
 > 
-> I.e. mux_control_put *should* reverse mux_control_get, but this simply
-> does not happen for the implicit mux chips, as implicit mux chips are
-> not put away until the owning device is put away.
+> diff --git a/Documentation/devicetree/bindings/mux/mux-controller.txt b/Documentation/devicetree/bindings/mux/mux-controller.txt
+> new file mode 100644
+> index 000000000000..42b2177e5ae1
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mux/mux-controller.txt
+> @@ -0,0 +1,127 @@
+> +Common multiplexer controller bindings
+> +======================================
+> +
+> +A multiplexer (or mux) controller will have one, or several, consumer devices
+> +that uses the mux controller. Thus, a mux controller can possibly control
+> +several parallel multiplexers. Presumably there will be at least one
+> +multiplexer needed by each consumer, but a single mux controller can of course
+> +control several multiplexers for a single consumer.
+> +
+> +A mux controller provides a number of states to its consumers, and the state
+> +space is a simple zero-based enumeration. I.e. 0-1 for a 2-way multiplexer,
+> +0-7 for an 8-way multiplexer, etc.
+> +
+> +
+> +Consumers
+> +---------
+> +
+> +Mux controller consumers should specify a list of mux controllers that they
+> +want to use with a property containing a 'mux-ctrl-list':
+> +
+> +	mux-ctrl-list ::= <single-mux-ctrl> [mux-ctrl-list]
+> +	single-mux-ctrl ::= <mux-ctrl-phandle> [mux-ctrl-specifier]
+> +	mux-ctrl-phandle : phandle to mux controller node
+> +	mux-ctrl-specifier : array of #mux-control-cells specifying the
+> +			     given mux controller (controller specific)
+> +
+> +Mux controller properties should be named "mux-controls". The exact meaning of
+> +each mux controller property must be documented in the device tree binding for
+> +each consumer. An optional property "mux-control-names" may contain a list of
+> +strings to label each of the mux controllers listed in the "mux-controls"
+> +property.
+> +
+> +Drivers for devices that use more than a single mux controller can use the
+> +"mux-control-names" property to map the name of the requested mux controller
+> +to an index into the list given by the "mux-controls" property.
+> +
+> +mux-ctrl-specifier typically encodes the chip-relative mux controller number.
+> +If the mux controller chip only provides a single mux controller, the
+> +mux-ctrl-specifier can typically be left out.
+> +
+> +Example:
+> +
+> +	/* One consumer of a 2-way mux controller (one GPIO-line) */
+> +	mux: mux-controller {
+> +		compatible = "mux-gpio";
+> +		#mux-control-cells = <0>;
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "io-channel-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +		mux-controls = <&mux>;
+> +		mux-control-names = "adc";
+> +
+> +		channels = "sync", "in";
+> +	};
+> +
+> +Note that in the example above, specifying the "mux-control-names" is redundant
+> +because there is only one mux controller in the list.
+> +
+> +	/*
+> +	 * Two consumers (one for an ADC line and one for an i2c bus) of
+> +	 * parallel 4-way multiplexers controlled by the same two GPIO-lines.
+> +	 */
+> +	mux: mux-controller {
+> +		compatible = "mux-gpio";
+> +		#mux-control-cells = <0>;
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "io-channel-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +		mux-controls = <&mux>;
+> +
+> +		channels = "sync-1", "in", "out", "sync-2";
+> +	};
+> +
+> +	i2c-mux {
+> +		compatible = "i2c-mux-simple,mux-locked";
+> +		i2c-parent = <&i2c1>;
+> +		mux-controls = <&mux>;
+> +
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		i2c@0 {
+> +			reg = <0>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			ssd1307: oled@3c {
+> +				/* ... */
+> +			};
+> +		};
+> +
+> +		i2c@3 {
+> +			reg = <3>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			pca9555: pca9555@20 {
+> +				/* ... */
+> +			};
+> +		};
+> +	};
+> +
+> +
+> +Mux controller nodes
+> +--------------------
+> +
+> +Mux controller nodes must specify the number of cells used for the
+> +specifier using the '#mux-control-cells' property.
+> +
+> +An example mux controller might look like this:
+> +
+> +	mux: adg792a@50 {
 
-I think this is because you aren't creating a device in this case. Nodes 
-in DT are not the only way to create devices. Drivers can create a child 
-device when they find mux-gpios property.
+mux-controller@50
 
-> Every time I have tried to come up with a way to implement the simplified
-> bindings I seem to hit one of these subtleties.
+> +		compatible = "adi,adg792a";
+> +		reg = <0x50>;
+> +		#mux-control-cells = <1>;
+> +	};
+> diff --git a/Documentation/devicetree/bindings/mux/mux-gpio.txt b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+> new file mode 100644
+> index 000000000000..8f6bda6f9d78
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mux/mux-gpio.txt
+> @@ -0,0 +1,68 @@
+> +GPIO-based multiplexer controller bindings
+> +
+> +Define what GPIO pins are used to control a multiplexer. Or several
+> +multiplexers, if the same pins control more than one multiplexer.
+> +
+> +Required properties:
+> +- compatible : "mux-gpio"
+
+Just to be consistent with other gpio compatibles: gpio-mux
+
+> +- mux-gpios : list of gpios used to control the multiplexer, least
+> +	      significant bit first.
+> +- #mux-control-cells : <0>
+> +* Standard mux-controller bindings as decribed in mux-controller.txt
+> +
+> +Optional properties:
+> +- idle-state : if present, the state the mux will have when idle.
+
+Why is this gpio specific. Can be a common controller property?
+
+> +
+> +The multiplexer state is defined as the number represented by the
+> +multiplexer GPIO pins, where the first pin is the least significant
+> +bit. An active pin is a binary 1, an inactive pin is a binary 0.
+> +
+> +Example:
+> +
+> +	mux: mux-controller {
+> +		compatible = "mux-gpio";
+> +		#mux-control-cells = <0>;
+> +
+> +		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
+> +			    <&pioA 1 GPIO_ACTIVE_HIGH>;
+> +	};
+> +
+> +	adc-mux {
+> +		compatible = "io-channel-mux";
+> +		io-channels = <&adc 0>;
+> +		io-channel-names = "parent";
+> +
+> +		mux-controls = <&mux>;
+> +
+> +		channels = "sync-1", "in", "out", "sync-2";
+> +	};
+> +
+> +	i2c-mux {
+> +		compatible = "i2c-mux-simple,mux-locked";
+> +		i2c-parent = <&i2c1>;
+> +
+> +		mux-controls = <&mux>;
+> +
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		i2c@0 {
+> +			reg = <0>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			ssd1307: oled@3c {
+> +				/* ... */
+> +			};
+> +		};
+> +
+> +		i2c@3 {
+> +			reg = <3>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			pca9555: pca9555@20 {
+> +				/* ... */
+> +			};
+> +		};
+> +	};
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 40de344ba0e6..be57f5b8f2c2 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -8469,6 +8469,11 @@ S:	Orphan
+>  F:	drivers/mmc/host/mmc_spi.c
+>  F:	include/linux/spi/mmc_spi.h
+>  
+> +MULTIPLEXER SUBSYSTEM
+> +M:	Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+> +S:	Maintained
+> +F:	Documentation/devicetree/bindings/mux/
+> +
+>  MULTISOUND SOUND DRIVER
+>  M:	Andrew Veliath <andrewtv-Jdbf3xiKgS8@public.gmane.org>
+>  S:	Maintained
+> -- 
+> 2.1.4
 > 
-> > is worth the hassle given the normal bindings don't give that high
-> > a burden in complexity!
-
-I was going to change my mind here, but we already have "mux-gpios" as a 
-binding at least for i2c-gpio-mux. So really the question is do we want 
-to support that here?
-
-> I am missing an ack from Rob though.
-> 
-> > I don't really care either way:)
-> 
-> But Rob seems to care, this series just has to find a way to get out of
-> his too-much-churn-will-look-at-it-later list. I sadly don't know how to
-> pull that trick...
-
-By complaining that I'm putting it off... :) I guess I'm okay with this 
-series in general. I will reply on the specific patches today.
-
-Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
