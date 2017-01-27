@@ -1,71 +1,69 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] dt-bindings: Add Tegra186 BPMP I2C binding
-Date: Fri, 27 Jan 2017 17:09:00 +0100
-Message-ID: <20170127160900.GB1928@katana>
-References: <20170127083939.20393-1-thierry.reding@gmail.com>
- <20170127083939.20393-2-thierry.reding@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v8 12/12] mux: support simplified bindings for
+ single-user gpio mux
+Date: Fri, 27 Jan 2017 09:52:02 -0600
+Message-ID: <20170127155202.z2ufbq5bdtclk5oo@rob-hp-laptop>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+ <1484755035-25927-13-git-send-email-peda@axentia.se>
+ <33b29f7e-3e48-b85d-ccf9-93b1d67ac634@kernel.org>
+ <d32f335f-56f2-38c1-e4d9-4629926dbe21@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:50734 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754781AbdA0QQT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 27 Jan 2017 11:16:19 -0500
-Content-Disposition: inline
-In-Reply-To: <20170127083939.20393-2-thierry.reding@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
-
-
---Pd0ReVV5GZGQvF3a
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <d32f335f-56f2-38c1-e4d9-4629926dbe21@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jan 23, 2017 at 11:24:18AM +0100, Peter Rosin wrote:
+> On 2017-01-22 14:30, Jonathan Cameron wrote:
+> > On 18/01/17 15:57, Peter Rosin wrote:
+> >> Allow bindings for a GPIO controlled mux to be specified in the
+> >> mux consumer node.
+> >>
+> >> Signed-off-by: Peter Rosin <peda@axentia.se>
+> > Code is good as far as I am concerned. Only question is whether this
+> 
+> Hmmm, now that I think some more about it, the code supporting the
+> simplified binding (patch 12/12) is a bit fishy in one respect.
+> 
+> A driver that calls mux_control_get and gets a mux_control that happens
+> to be backed by an implicit mux chip (i.e. using the simplified binding)
+> will not be able to reverse the resource allocation with less than a
+> complete destruction of itself. Now, this is likely not a problem in
+> most cases, but I bet it will creep up at the most inopportune time. And
+> your remark that I'm the one that has to maintain this makes me dislike
+> this concept...
+> 
+> I.e. mux_control_put *should* reverse mux_control_get, but this simply
+> does not happen for the implicit mux chips, as implicit mux chips are
+> not put away until the owning device is put away.
 
-> +- nvidia,bpmp-bus-id:
-> +    Single-cell integer.
-> +    Indicates the I2C bus number this DT node represent, as defined by the
-> +    BPMP firmware.
+I think this is because you aren't creating a device in this case. Nodes 
+in DT are not the only way to create devices. Drivers can create a child 
+device when they find mux-gpios property.
 
-I'd like to get an ack from Rob for this one if vendor-specific bindings
-are still the way to go to encode firmware data. I simply don't know.
+> Every time I have tried to come up with a way to implement the simplified
+> bindings I seem to hit one of these subtleties.
+> 
+> > is worth the hassle given the normal bindings don't give that high
+> > a burden in complexity!
 
-> +
-> +Example:
-> +
-> +bpmp {
-> +	...
-> +
-> +	i2c {
-> +		compatible = "nvidia,tegra186-bpmp-i2c";
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		nvidia,bpmp-bus-id = <5>;
-> +	};
-> +};
+I was going to change my mind here, but we already have "mux-gpios" as a 
+binding at least for i2c-gpio-mux. So really the question is do we want 
+to support that here?
 
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature; name="signature.asc"
+> I am missing an ack from Rob though.
+> 
+> > I don't really care either way:)
+> 
+> But Rob seems to care, this series just has to find a way to get out of
+> his too-much-churn-will-look-at-it-later list. I sadly don't know how to
+> pull that trick...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+By complaining that I'm putting it off... :) I guess I'm okay with this 
+series in general. I will reply on the specific patches today.
 
-iQIcBAEBAgAGBQJYi3CcAAoJEBQN5MwUoCm2/J4P/RYUoteX9mwn3CA0x+M0m2VR
-21MPx4oZRoqhIsdr0bsQlsv6AnJ6LyOpEuTzn3OPhj9tbMfHLBltVT0v2UQrBREr
-qzG3+rBYNvNvrTZmId6sMP1gmR4q7jYfhS7hlgGFo4ZkNgz2AC++bT062GHc9WG8
-Kun43+EDxjLDMR5H1feRXopwdyBBuvFKvPFIJCyMPmStYQ4WVbLw9vrgPZXBsJUi
-n3OuIuTn83izeiNXV+Q/JzytH56WuueinUtDtGwVKYXzVyO3CuLZeZpLqvPEDsOc
-TWGubJLPJ9/NnWSN9LJqXPxi3yC+YTJ587Y1hylmYraQMA0gGiTsCir9XhMQBGe5
-mO81fmFTPYz9EiUDSLVXjboBJVg5TOHhZN/XWLCFl2v8/WIgm/QLkoeI1W+TP4+I
-rEwBDX1g3LCczl8PTgME1a1nBwA99g1i1izTKuX8X0LVUAv9LMM+LwdffoFZpaj+
-fquojKsDU+IP1ldPrZr8bv9S3U96oqkXKsu6y8PpB1fuYzosAz62a1MzVD5FYu7c
-SMHXPzmikZ7GZgVmUb+BQ+IVKYKQ0A+O43Gv3PLvEPl8tIaZexWzla8onCSe64dp
-tH9Hmx5IoX7cBDzIz9FjwBmQFQrzuwCO61Hip4wpxT+OLGDh2LTwSG1cmdZNPyps
-HxMYB/QclL7doOqsUTFT
-=rmO/
------END PGP SIGNATURE-----
-
---Pd0ReVV5GZGQvF3a--
+Rob
