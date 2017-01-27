@@ -1,50 +1,43 @@
-From: Dan O'Donovan <dan@emutex.com>
-Subject: Re: [PATCH v3 3/3] spi: acpi: Initialize modalias from of_compatible
-Date: Fri, 27 Jan 2017 10:35:32 +0000
-Message-ID: <1114c19b-5398-799e-8302-ff87adf9d8a3@emutex.com>
-References: <cover.1468409668.git.leonard.crestez@intel.com>
- <1485187737-22414-1-git-send-email-dan@emutex.com>
- <1485187737-22414-4-git-send-email-dan@emutex.com>
- <CAHp75Vf0NaEFnxWPt9NAa5-jWMM091Y+Tg8D=Du0uECDVoWW4Q@mail.gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 09/13] i2c: designware-baytrail: Acquire
+ P-Unit access on bus acquire
+Date: Fri, 27 Jan 2017 13:29:30 +0200
+Message-ID: <c2721a62-a428-39bf-3f5c-0d25866f425c@linux.intel.com>
+References: <20170123210958.18410-1-hdegoede@redhat.com>
+ <20170123210958.18410-10-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bert.emutex.com ([91.103.1.109]:57822 "EHLO bert.emutex.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932425AbdA0KiU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 27 Jan 2017 05:38:20 -0500
-In-Reply-To: <CAHp75Vf0NaEFnxWPt9NAa5-jWMM091Y+Tg8D=Du0uECDVoWW4Q@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170123210958.18410-10-hdegoede@redhat.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
+Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi <linux-spi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Crestez Dan Leonard <leonard.crestez@intel.com>
 
-On 01/23/2017 05:11 PM, Andy Shevchenko wrote:
-> On Mon, Jan 23, 2017 at 6:08 PM, Dan O'Donovan <dan@emutex.com> wrote:
->> From: Crestez Dan Leonard <leonard.crestez@intel.com>
->>
->> When using devicetree spi_device.modalias is set to the compatible
->> string with the vendor prefix removed. For SPI devices described via
->> ACPI the spi_device.modalias string is initialized by acpi_device_hid.
->> When using ACPI and DT ids this string ends up something like "PRP0001".
->>
->> Change acpi_register_spi_device to use the of_compatible property if
->> present. This makes it easier to instantiate spi drivers through ACPI
->> with DT ids.
->> +       /*
->> +        * Populate modalias from compatible property if available,
->> +        * otherwise use native ACPI information
->> +        */
->> +       if ((!adev->data.of_compatible) ||
->> +           acpi_of_modalias(adev, spi->modalias, sizeof(spi->modalias)))
-> Same comment as in patch 2.
-Thanks for the feedback, Andy.  The check on of_compatible is redundant,
-because its repeated in acpi_of_modalias(), so I'll remove it here (and
-in patch 2) to reduce this to one line.  v4 on the way.
->> +               strlcpy(spi->modalias, acpi_device_hid(adev),
->> +                       sizeof(spi->modalias));
-> Could this be one line?
-I couldn't see a way to reduce this to one line without exceeding 80
-chars or adding another line somewhere else, so I'll leave this one as
-it is if that's ok.
+T24gMDEvMjMvMjAxNyAxMTowOSBQTSwgSGFucyBkZSBHb2VkZSB3cm90ZToKPiBBY3F1aXJlIFAt
+VW5pdCBhY2Nlc3MgdG8gc3RvcCBvdGhlcnMgZnJvbSBhY2Nlc3NpbmcgdGhlIFAtVW5pdCB3aGls
+ZSB0aGUKPiBQTUlDIGkyYyBidXMgaXMgaW4gdXNlLiBUaGlzIGlzIG5lY2Vzc2FyeSBiZWNhdXNl
+IGFjY2Vzc2luZyB0aGUgUC1Vbml0Cj4gZnJvbSB0aGUga2VybmVsIG1heSByZXN1bHQgaW4gdGhl
+IFAtVW5pdCB0cnlpbmcgdG8gYWNjZXNzIHRoZSBQTUlDIGkyYwo+IGJ1cywgd2hpY2ggcmVzdWx0
+cyBpbiBhIGhhbmcgd2hlbiBpdCBoYXBwZW5zIHdoaWxlIHdlIG93biB0aGUgUE1JQyBpMmMKPiBi
+dXMgc2VtYXBob3JlLgo+Cj4gQnVnTGluazogaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3No
+b3dfYnVnLmNnaT9pZD0xNTUyNDEKPiBTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVn
+b2VkZUByZWRoYXQuY29tPgo+IFRlc3RlZC1ieTogdGFnb3JlcmVkZHkgPHRhZ29yZS5jaGFuZGFu
+QGdtYWlsLmNvbT4KPiBBY2tlZC1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4K
+PiAtLS0KPiBDaGFuZ2VzIGluIHYyOgo+IC1TcGVsbGluZzogUC1Vbml0LCBQTUlDCj4gLUFkanVz
+dCBmb3IgaW9zZl9tYmlfcHVuaXRfbG9jay9fdW5sb2NrIHRvIF9hY3F1aXJlL19yZWxlYXNlIHJl
+bmFtZQo+IC0tLQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtYmF5dHJhaWwu
+YyB8IDQgKysrKwo+ICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspCj4KCkFja2VkLWJ5
+OiBKYXJra28gTmlrdWxhIDxqYXJra28ubmlrdWxhQGxpbnV4LmludGVsLmNvbT4KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcg
+bGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
