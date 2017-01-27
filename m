@@ -1,129 +1,134 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v8 09/12] dt-bindings: mux-adg792a: document devicetree
- bindings for ADG792A/G mux
-Date: Fri, 27 Jan 2017 13:50:54 -0600
-Message-ID: <20170127195054.wupmfkiw6kaoc7jx@rob-hp-laptop>
-References: <1484755035-25927-1-git-send-email-peda@axentia.se>
- <1484755035-25927-10-git-send-email-peda@axentia.se>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: Add Tegra186 BPMP I2C binding
+Date: Fri, 27 Jan 2017 23:19:00 +0100
+Message-ID: <20170127221857.GA15715@mithrandir.ba.sec>
+References: <20170127083939.20393-1-thierry.reding@gmail.com>
+ <20170127083939.20393-2-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1484755035-25927-10-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+In-Reply-To: <20170127083939.20393-2-thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 18, 2017 at 04:57:12PM +0100, Peter Rosin wrote:
-> Analog Devices ADG792A/G is a triple 4:1 mux.
-> 
-> Acked-by: Jonathan Cameron <jic23@kernel.org>
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jan 27, 2017 at 09:39:38AM +0100, Thierry Reding wrote:
+> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>=20
+> In Tegra186, the BPMP (Boot and Power Management Processor) owns certain
+> HW devices, such as the I2C controller for the power management I2C bus.
+> Software running on other CPUs must perform IPC to the BPMP in order to
+> execute transactions on that I2C bus. This binding describes an I2C bus
+> that is accessed in such a fashion.
+>=20
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Reviewed-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Tom Warren <twarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Acked-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 > ---
->  .../devicetree/bindings/mux/mux-adg792a.txt        | 79 ++++++++++++++++++++++
->  1 file changed, 79 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mux/mux-adg792a.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/mux/mux-adg792a.txt b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
+>  .../bindings/i2c/nvidia,tegra186-bpmp-i2c.txt      | 42 ++++++++++++++++=
+++++++
+>  1 file changed, 42 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/nvidia,tegra186=
+-bpmp-i2c.txt
+
+Rob, sorry for not Cc'ing you earlier on this, but I had thought this
+binding had already been reviewed and acked since it is merged in
+U-Boot.
+
+Wolfram was concerned in particular about the nvidia,bpmp-bus-id
+property below.
+
+Can you give this a quick look, please?
+
+Thanks,
+Thierry
+
+> diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra186-bpmp-i=
+2c.txt b/Documentation/devicetree/bindings/i2c/nvidia,tegra186-bpmp-i2c.txt
 > new file mode 100644
-> index 000000000000..0b26dd11f070
+> index 000000000000..ab240e10debc
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
-> @@ -0,0 +1,79 @@
-> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
+> +++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra186-bpmp-i2c.txt
+> @@ -0,0 +1,42 @@
+> +NVIDIA Tegra186 BPMP I2C controller
+> +
+> +In Tegra186, the BPMP (Boot and Power Management Processor) owns certain=
+ HW
+> +devices, such as the I2C controller for the power management I2C bus. So=
+ftware
+> +running on other CPUs must perform IPC to the BPMP in order to execute
+> +transactions on that I2C bus. This binding describes an I2C bus that is
+> +accessed in such a fashion.
+> +
+> +The BPMP I2C node must be located directly inside the main BPMP node. See
+> +../firmware/nvidia,tegra186-bpmp.txt for details of the BPMP binding.
+> +
+> +This node represents an I2C controller. See ../i2c/i2c.txt for details o=
+f the
+> +core I2C binding.
 > +
 > +Required properties:
-> +- compatible : "adi,adg792a" or "adi,adg792g"
-> +- #mux-control-cells : <0> if parallel, or <1> if not.
-> +* Standard mux-controller bindings as decribed in mux-controller.txt
-> +
-> +Optional properties for ADG792G:
-> +- gpio-controller : if present, #gpio-cells below is required.
-> +- #gpio-cells : should be <2>
-> +			  - First cell is the GPO line number, i.e. 0 or 1
-> +			  - Second cell is used to specify active high (0)
-> +			    or active low (1)
-> +
-> +Optional properties:
-> +- adi,parallel : if present, the three muxes are bound together with a single
-> +  mux controller, controlling all three muxes in parallel.
-
-Can't this be implied by #mux-control-cells == 0?
-
-> +- adi,idle-state : if present, array of 2-tuples with mux controller number
-> +  and state that mux controllers will have when idle. States 0 through 3
-> +  correspond to signals A through D in the datasheet.
-> +- adi,idle-high-impedance : if present, array of mux controller numbers that
-> +  should be in the disconnected high-impedance state when idle.
-
-Perhaps combine these 2 to a common idle-state with the index being the 
-mux controller number and a value of -1 (or 4) being hi-Z.
-
-> +
-> +Mux controller states 0 through 3 correspond to signals A through D in the
-> +datasheet. If a mux controller is mentioned in neither adi,idle-state nor
-> +adi,idle-high-impedance it is left in its previously selected state when idle.
+> +- compatible:
+> +    Array of strings.
+> +    One of:
+> +    - "nvidia,tegra186-bpmp-i2c".
+> +- #address-cells: Address cells for I2C device address.
+> +    Single-cell integer.
+> +    Must be <1>.
+> +- #size-cells:
+> +    Single-cell integer.
+> +    Must be <0>.
+> +- nvidia,bpmp-bus-id:
+> +    Single-cell integer.
+> +    Indicates the I2C bus number this DT node represent, as defined by t=
+he
+> +    BPMP firmware.
 > +
 > +Example:
 > +
-> +	/*
-> +	 * Three independent mux controllers (of which one is used).
-> +	 * Mux 0 is disconnected when idle, mux 1 idles with signal C
-> +	 * and mux 2 idles with signal A.
-> +	 */
-> +	&i2c0 {
-> +		mux: adg792a@50 {
+> +bpmp {
+> +	...
+> +
+> +	i2c {
+> +		compatible =3D "nvidia,tegra186-bpmp-i2c";
+> +		#address-cells =3D <1>;
+> +		#size-cells =3D <0>;
+> +		nvidia,bpmp-bus-id =3D <5>;
+> +	};
+> +};
+> --=20
+> 2.11.0
+>=20
 
-mux-controller@50
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +			compatible = "adi,adg792a";
-> +			reg = <0x50>;
-> +			#mux-control-cells = <1>;
-> +
-> +			adi,idle-high-impedance = <0>;
-> +			adi,idle-state = <1 2>, <2 0>;
-> +		};
-> +	};
-> +
-> +	adc-mux {
-> +		compatible = "io-channel-mux";
-> +		io-channels = <&adc 0>;
-> +		io-channel-names = "parent";
-> +
-> +		mux-controls = <&mux 1>;
-> +
-> +		channels = "sync-1", "", "out";
-> +	};
-> +
-> +
-> +	/*
-> +	 * Three parallel muxes with one mux controller, useful e.g. if
-> +	 * the adc is differential, thus needing two signals to be muxed
-> +	 * simultaneously for correct operation.
-> +	 */
-> +	&i2c0 {
-> +		pmux: adg792a@50 {
-> +			compatible = "adi,adg792a";
-> +			reg = <0x50>;
-> +			#mux-control-cells = <0>;
-> +			adi,parallel;
-> +		};
-> +	};
-> +
-> +	diff-adc-mux {
-> +		compatible = "io-channel-mux";
-> +		io-channels = <&adc 0>;
-> +		io-channel-names = "parent";
-> +
-> +		mux-controls = <&pmux>;
-> +
-> +		channels = "sync-1", "", "out";
-> +	};
-> -- 
-> 2.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliLx0wACgkQ3SOs138+
+s6G0Bw/9E8GqIREjVZfgq+iDCkPht5blmvAhpzDPc9p9A7FAUwxH+hqvGhlOIGEp
+tq05wd5G0ZejvN2RUaSmA2wNVR43E6qHKCLd+Joyj06ujCJ6bf48xbgmyduF4JjQ
+GqX78VLxlrza+m1pGcNL/dNYWjf8JqLersuC9eqeVvPqFyEaCDMbEpzrmBoZ8+Wm
+7LDSl4wJF7f0WJ+GQyyT7C8kI3vZ4FILCQ7eL/acIrl6KX/J1kAplxnUCkC5IcZJ
+FDq+wx28EI6EKKZvyk6zxEOZ5REW+k+tpjMFk3wlkqzRP3zNRzrxxAZVpkdfb5Y8
+RkC9ZALNTwdG0HBP85N3XrgbA5SrlDG91qec8sAwmCU9i1JGcyf/wSS20J73X/Rm
+qyTVZGwUvwYREtJB9pVOz5IUE11hp6/Qn3PtAUOjpQZJLDGk7zpiP5HtzPRMUhJA
+Nvwr42Tt83N3AEbuWd4oklBPqe8gTgl+1z8bLI6g+tEKnIGo+ABSy7J7kCqnqGEc
+1JbiXkFCnMDy/q+MAVx/m3vYT3UX+HngxpF/fN3FoD0u65B3XwHqu23lLxquf/go
+WYYuEiw/N+mpSDGFB0S3dn/tbHdAZBlUq7h16I7Jja43n5VLFytNoWX9WuQZyJpg
+zYK5p/+atmbIQHU12NMc/ORrvLC0KkG328urKvmQ+K+k2gSx8R8=
+=Emx/
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--
