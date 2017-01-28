@@ -1,84 +1,113 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.10
-Date: Sat, 28 Jan 2017 22:55:56 +0100
-Message-ID: <20170128215552.b2rufdbmi6bnuzxj@ninjato>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v8 07/12] dt-bindings: i2c: i2c-mux-simple: document
+ i2c-mux-simple bindings
+Date: Sat, 28 Jan 2017 23:42:25 +0100
+Message-ID: <835415bf-77af-6131-d018-d0bc7d8233b0@axentia.se>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+ <1484755035-25927-8-git-send-email-peda@axentia.se>
+ <20170127193917.6xuunrkjkqh4f2v7@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="23l32zkf7zfoss3j"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60419 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1752114AbdA1Vz6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 28 Jan 2017 16:55:58 -0500
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170127193917.6xuunrkjkqh4f2v7@rob-hp-laptop>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On 2017-01-27 20:39, Rob Herring wrote:
+> On Wed, Jan 18, 2017 at 04:57:10PM +0100, Peter Rosin wrote:
+>> Describe how a generic multiplexer controller is used to mux an i2c bus.
+>>
+>> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>> ---
+>>  .../devicetree/bindings/i2c/i2c-mux-simple.txt     | 81 ++++++++++++++++++++++
+>>  1 file changed, 81 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>> new file mode 100644
+>> index 000000000000..253d5027843b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>> @@ -0,0 +1,81 @@
+>> +Simple I2C Bus Mux
+>> +
+>> +This binding describes an I2C bus multiplexer that uses a mux controller
+>> +from the mux subsystem to route the I2C signals.
+>> +
+>> +                                  .-----.  .-----.
+>> +                                  | dev |  | dev |
+>> +    .------------.                '-----'  '-----'
+>> +    | SoC        |                   |        |
+>> +    |            |          .--------+--------'
+>> +    |   .------. |  .------+    child bus A, on MUX value set to 0
+>> +    |   | I2C  |-|--| Mux  |
+>> +    |   '------' |  '--+---+    child bus B, on MUX value set to 1
+>> +    |   .------. |     |    '----------+--------+--------.
+>> +    |   | MUX- | |     |               |        |        |
+>> +    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
+>> +    |   '------' |                  | dev |  | dev |  | dev |
+>> +    '------------'                  '-----'  '-----'  '-----'
+>> +
+>> +Required properties:
+>> +- compatible: i2c-mux-simple,mux-locked or i2c-mux-simple,parent-locked
+> 
+> Not a fan of using "simple" nor the ','. Perhaps lock type should be 
+> separate property.
 
---23l32zkf7zfoss3j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+How about just i2c-mux for the compatible? Because i2c-mux-mux (which
+follows the naming of previous i2c muxes) looks really stupid. Or
+perhaps i2c-mux-generic?
 
-Linus,
+I'm also happy to have the lock type as a separate property. One lock
+type, e.g. parent-locked, could be the default and adding a 'mux-locked'
+property could change that. Would that be ok?
 
-here are two I2C driver bugfixes. The "VLLS mode support" patch should
-have been entitled "reconfigure pinctrl after suspend" to make the
-bugfix more clear. Sorry, I missed that, yet didn't want to rebase.
+Or should it be a requirement that one of 'mux-locked'/'parent-locked'
+is always present?
 
-Please pull,
+> I'm not sure I get the mux vs. parent locked fully. How do I determine 
+> what type I have? We already have bindings for several types of i2c 
+> muxes. How does the locking annotation fit into those?
 
-   Wolfram
+We have briefly discussed this before [1] in the context of i2c-mux-gpio
+and i2c-mux-pinctrl, when I added the mux-locked/parent-locked distinction
+to the i2c-mux infrastructure (it wasn't named mux-locked/parent-locked
+way back then though). There is more detail on what the difference is
+between the two in Documentation/i2c/i2c-topology.
 
+Side note regarding your remark "use an I2C controlled mux instead"; it
+appears that I'm not alone [2] with this kind of requirement...
 
-The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d36:
+[1] https://lkml.org/lkml/2016/1/6/437
+[2] http://marc.info/?t=147877959100002&r=1&w=2
 
-  Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
+But, now that I have pondered on this for a year or so, I firmly
+believe it was a mistake to have the code in i2c-mux-gpio and
+i2c-mux-pinctrl automatically try to deduce if the mux should be
+mux-locked or parent-locked. It might be easy to make that call
+in some trivial cases, but it is not difficult to dream up
+scenarios where it would be extremely hard for the code to get
+this decision right. It's just fragile. But now we have code in
+those two muxes that has unwanted tentacles into the guts of the
+gpio and pinctrl subsystems. Hopefully those unwanted tentacles
+can be replaced with something based on device links? However, it
+is still not hard to come up with scenarios that will require
+manual intervention in order to select the right kind of i2c mux
+locking. So, I fear that we have inadequate code trying to make a
+decision automatically, and that we at some point down the line
+will have some impossible case needing a binding that trumps the
+heuristic. Why have a heuristic at all in that case? In short, it
+should have been a binding from the start, methinks.
 
-are available in the git repository at:
+That was a long rant regarding i2c-mux-gpio and i2c-mux-pinctrl.
+I obviously think it is bad to have this new i2c mux go in the
+same direction as those two drivers. I.e. I think a binding that
+specifies the desired locking is preferable to any attempted
+heuristic.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to e13fe92bb58cf9b8f709ec18267ffc9e6ffeb016:
-
-  i2c: imx-lpi2c: add VLLS mode support (2017-01-26 00:24:23 +0100)
-
-----------------------------------------------------------------
-Gao Pan (1):
-      i2c: imx-lpi2c: add VLLS mode support
-
-Mike Looijmans (1):
-      i2c: i2c-cadence: Initialize configuration before probing devices
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Vladimir Zapolskiy (1):
-      (Rev.) i2c: imx-lpi2c: add VLLS mode support
-
- drivers/i2c/busses/i2c-cadence.c   |  8 ++++----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 20 ++++++++++++++++++++
- 2 files changed, 24 insertions(+), 4 deletions(-)
-
---23l32zkf7zfoss3j
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliNE2MACgkQFA3kzBSg
-KbaZmA//XRb1rfqgDv4AnQh5d9H8JyvxdtnqikN7n5zauxhbUqGs+nSW5w9JVRVm
-9LsADCYx1d9CSbyrM81Q9TS7x7BhUShT4gJKeFo3eHhj5WHkOgmZ3gBwC7Lw4lG2
-L8JzwenRiDaS8X49bto8RAxiUiYJM4DDBUMivtlpVbINmUaxsvurpmxM2oUnVF+h
-Ecs4j1AaA5A6jbFmeaLb8ACuazJjEEw2XaLU0rRWTd3J6XWmeUFejkpQNYFluxsR
-QcPwqJ4FjDMSk4dWe1PGinl0J08eBG+Nbjvg97hAc/4JMv+9m0StedqnmSToMI1/
-P0c2+rh26GF0lYGHivfpHfFYPbf2E8hUnLKKWGKYEallEbJNpuzzoDGzrvEQm/lu
-tx5wtXMzxtPx8DzdXReoiV5oWeGsRi5fjIO2oyvZxu4zkpXX9zt4qZM5CIOhk8nC
-WKWPbQa/KZ6ifwC19sDB8rjMZGsH3xLXRlpDoYCaXYrNa56/jqsgi4TnKvTce2Xj
-PX4YH+AYGfV8nFdSWaCJKI6bw5gdqbBBntsyigk6FfCMseY65/WM9IdxVTCndAoa
-Nxv02k+vkxEIkIxyTP4xsTV3IUd+s1UbwdCgjSzfl/kA6fevfqU7TTQcxtdldQQz
-pTFRur1pcKRenEhuV4xSD1PAQIYUtEa1jpOLOlatoInumJYSLnk=
-=GqKh
------END PGP SIGNATURE-----
-
---23l32zkf7zfoss3j--
+Cheers,
+peda
