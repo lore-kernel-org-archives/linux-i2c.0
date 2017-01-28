@@ -1,161 +1,136 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v8 09/12] dt-bindings: mux-adg792a: document devicetree
- bindings for ADG792A/G mux
-Date: Sat, 28 Jan 2017 11:40:46 +0000
-Message-ID: <e53a2157-9a9e-2a84-02af-d4f0a92e7bea@kernel.org>
-References: <1484755035-25927-1-git-send-email-peda@axentia.se>
- <1484755035-25927-10-git-send-email-peda@axentia.se>
- <20170127195054.wupmfkiw6kaoc7jx@rob-hp-laptop>
- <383638ef-1bb2-224f-0fd0-4818395a2306@axentia.se>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 11/13] drm/i915: Add intel_uncore_suspend / resume
+ functions
+Date: Sat, 28 Jan 2017 17:05:16 +0100
+Message-ID: <a639244f-a6eb-7765-02bd-0e42c50333b0@redhat.com>
+References: <20170123210958.18410-1-hdegoede@redhat.com>
+ <20170123210958.18410-12-hdegoede@redhat.com>
+ <20170127134516.GR31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:45047 "EHLO
-        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750891AbdA1Lkt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Jan 2017 06:40:49 -0500
-In-Reply-To: <383638ef-1bb2-224f-0fd0-4818395a2306@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170127134516.GR31595@intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
 
-On 27/01/17 22:09, Peter Rosin wrote:
-> On 2017-01-27 20:50, Rob Herring wrote:
->> On Wed, Jan 18, 2017 at 04:57:12PM +0100, Peter Rosin wrote:
->>> Analog Devices ADG792A/G is a triple 4:1 mux.
->>>
->>> Acked-by: Jonathan Cameron <jic23@kernel.org>
->>> Signed-off-by: Peter Rosin <peda@axentia.se>
->>> ---
->>>  .../devicetree/bindings/mux/mux-adg792a.txt        | 79 ++++++++++++++++++++++
->>>  1 file changed, 79 insertions(+)
->>>  create mode 100644 Documentation/devicetree/bindings/mux/mux-adg792a.txt
->>>
->>> diff --git a/Documentation/devicetree/bindings/mux/mux-adg792a.txt b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
->>> new file mode 100644
->>> index 000000000000..0b26dd11f070
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
->>> @@ -0,0 +1,79 @@
->>> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
->>> +
->>> +Required properties:
->>> +- compatible : "adi,adg792a" or "adi,adg792g"
->>> +- #mux-control-cells : <0> if parallel, or <1> if not.
->>> +* Standard mux-controller bindings as decribed in mux-controller.txt
->>> +
->>> +Optional properties for ADG792G:
->>> +- gpio-controller : if present, #gpio-cells below is required.
->>> +- #gpio-cells : should be <2>
->>> +			  - First cell is the GPO line number, i.e. 0 or 1
->>> +			  - Second cell is used to specify active high (0)
->>> +			    or active low (1)
->>> +
->>> +Optional properties:
->>> +- adi,parallel : if present, the three muxes are bound together with a single
->>> +  mux controller, controlling all three muxes in parallel.
->>
->> Can't this be implied by #mux-control-cells == 0?
-> 
-> Right, good point! I'll drop adi,parallel.
-> 
->>> +- adi,idle-state : if present, array of 2-tuples with mux controller number
->>> +  and state that mux controllers will have when idle. States 0 through 3
->>> +  correspond to signals A through D in the datasheet.
->>> +- adi,idle-high-impedance : if present, array of mux controller numbers that
->>> +  should be in the disconnected high-impedance state when idle.
->>
->> Perhaps combine these 2 to a common idle-state with the index being the 
->> mux controller number and a value of -1 (or 4) being hi-Z.
-> 
-> At one point [1] I had a straight array for the mux controllers with state 4
-> being hi-Z and state 5 being the default "leave mux as-is on release", but
-> Jonathan didn't like magic numbers. Can you please read the follow-ups to the
-> referenced mail for some background, and then pick out the most suitable color
-> for me to paint with? :-)
-Hohum.  Given it can be cleanly represented as two properties rather than a single
-property with a single magic value alongside the obvious ones I asked Peter
-to split it.
-
-Not all that fussed though as I don't have to maintain this ;)
-*ducks*
-
-Jonathan
-> 
-> [1] https://lkml.org/lkml/2016/11/30/110
-> 
->>> +
->>> +Mux controller states 0 through 3 correspond to signals A through D in the
->>> +datasheet. If a mux controller is mentioned in neither adi,idle-state nor
->>> +adi,idle-high-impedance it is left in its previously selected state when idle.
->>> +
->>> +Example:
->>> +
->>> +	/*
->>> +	 * Three independent mux controllers (of which one is used).
->>> +	 * Mux 0 is disconnected when idle, mux 1 idles with signal C
->>> +	 * and mux 2 idles with signal A.
->>> +	 */
->>> +	&i2c0 {
->>> +		mux: adg792a@50 {
->>
->> mux-controller@50
-> 
-> Yep. Hmm, where have I seen that before? :-)
-> 
-> Cheers,
-> peda
-> 
->>> +			compatible = "adi,adg792a";
->>> +			reg = <0x50>;
->>> +			#mux-control-cells = <1>;
->>> +
->>> +			adi,idle-high-impedance = <0>;
->>> +			adi,idle-state = <1 2>, <2 0>;
->>> +		};
->>> +	};
->>> +
->>> +	adc-mux {
->>> +		compatible = "io-channel-mux";
->>> +		io-channels = <&adc 0>;
->>> +		io-channel-names = "parent";
->>> +
->>> +		mux-controls = <&mux 1>;
->>> +
->>> +		channels = "sync-1", "", "out";
->>> +	};
->>> +
->>> +
->>> +	/*
->>> +	 * Three parallel muxes with one mux controller, useful e.g. if
->>> +	 * the adc is differential, thus needing two signals to be muxed
->>> +	 * simultaneously for correct operation.
->>> +	 */
->>> +	&i2c0 {
->>> +		pmux: adg792a@50 {
->>> +			compatible = "adi,adg792a";
->>> +			reg = <0x50>;
->>> +			#mux-control-cells = <0>;
->>> +			adi,parallel;
->>> +		};
->>> +	};
->>> +
->>> +	diff-adc-mux {
->>> +		compatible = "io-channel-mux";
->>> +		io-channels = <&adc 0>;
->>> +		io-channel-names = "parent";
->>> +
->>> +		mux-controls = <&pmux>;
->>> +
->>> +		channels = "sync-1", "", "out";
->>> +	};
->>> -- 
->>> 2.1.4
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe devicetree" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+SGksCgpPbiAwMS8yNy8yMDE3IDAyOjQ1IFBNLCBWaWxsZSBTeXJqw6Rsw6Qgd3JvdGU6Cj4gT24g
+TW9uLCBKYW4gMjMsIDIwMTcgYXQgMTA6MDk6NTZQTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3cm90
+ZToKPj4gUmVuYW1lIGludGVsX3VuY29yZV9lYXJseV9zYW5pdGl6ZSB0byBpbnRlbF91bmNvcmVf
+cmVzdW1lLCBkcm9wcGluZyB0aGUKPj4gKGFsd2F5cyB0cnVlKSByZXN0b3JlX2ZvcmNld2FrZSBh
+cmd1bWVudCBhbmQgYWRkIGEgbmV3IGludGVsX3VuY29yZV9yZXN1bWUKPj4gZnVuY3Rpb24gdG8g
+cmVwbGFjZSB0aGUgaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwgZmFsc2Up
+Cj4+IGNhbGxzIGRvbmUgZnJvbSB0aGUgc3VzcGVuZCAvIHJ1bnRpbWVfc3VzcGVuZCBmdW5jdGlv
+bnMgYW5kIG1ha2UKPj4gaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldCBwcml2YXRlLgo+Pgo+
+PiBUaGlzIGlzIGEgcHJlcGFyYXRpb24gcGF0Y2ggZm9yIGFkZGluZyBQTUlDIGJ1cyBhY2Nlc3Mg
+bm90aWZpZXIgc3VwcG9ydC4KPj4KPj4gQnVnTGluazogaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwu
+b3JnL3Nob3dfYnVnLmNnaT9pZD0xNTUyNDEKPj4gU2lnbmVkLW9mZi1ieTogSGFucyBkZSBHb2Vk
+ZSA8aGRlZ29lZGVAcmVkaGF0LmNvbT4KPj4gVGVzdGVkLWJ5OiB0YWdvcmVyZWRkeSA8dGFnb3Jl
+LmNoYW5kYW5AZ21haWwuY29tPgo+PiAtLS0KPj4gQ2hhbmdlcyBpbiB2MjoKPj4gLVNwZWxsaW5n
+OiBQLVVuaXQsIFBNSUMKPj4gLS0tCj4+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5j
+ICAgICB8ICA2ICsrKy0tLQo+PiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9kcnYuaCAgICAg
+fCAgNiArKy0tLS0KPj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5jIHwgMTgg
+KysrKysrKysrKystLS0tLS0tCj4+ICAzIGZpbGVzIGNoYW5nZWQsIDE2IGluc2VydGlvbnMoKyks
+IDE0IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUv
+aTkxNV9kcnYuYyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2LmMKPj4gaW5kZXggYWVm
+YWI5YS4uNWE2MmQ3YSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9k
+cnYuYwo+PiArKysgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5jCj4+IEBAIC0xNDQ1
+LDcgKzE0NDUsNyBAQCBzdGF0aWMgaW50IGk5MTVfZHJtX3N1c3BlbmQoc3RydWN0IGRybV9kZXZp
+Y2UgKmRldikKPj4gIAlvcHJlZ2lvbl90YXJnZXRfc3RhdGUgPSBzdXNwZW5kX3RvX2lkbGUoZGV2
+X3ByaXYpID8gUENJX0QxIDogUENJX0QzY29sZDsKPj4gIAlpbnRlbF9vcHJlZ2lvbl9ub3RpZnlf
+YWRhcHRlcihkZXZfcHJpdiwgb3ByZWdpb25fdGFyZ2V0X3N0YXRlKTsKPj4KPj4gLQlpbnRlbF91
+bmNvcmVfZm9yY2V3YWtlX3Jlc2V0KGRldl9wcml2LCBmYWxzZSk7Cj4+ICsJaW50ZWxfdW5jb3Jl
+X3N1c3BlbmQoZGV2X3ByaXYpOwo+PiAgCWludGVsX29wcmVnaW9uX3VucmVnaXN0ZXIoZGV2X3By
+aXYpOwo+Pgo+PiAgCWludGVsX2ZiZGV2X3NldF9zdXNwZW5kKGRldiwgRkJJTkZPX1NUQVRFX1NV
+U1BFTkRFRCwgdHJ1ZSk7Cj4+IEBAIC0xNjkwLDcgKzE2OTAsNyBAQCBzdGF0aWMgaW50IGk5MTVf
+ZHJtX3Jlc3VtZV9lYXJseShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2KQo+PiAgCQlEUk1fRVJST1Io
+IlJlc3VtZSBwcmVwYXJlIGZhaWxlZDogJWQsIGNvbnRpbnVpbmcgYW55d2F5XG4iLAo+PiAgCQkJ
+ICByZXQpOwo+Pgo+PiAtCWludGVsX3VuY29yZV9lYXJseV9zYW5pdGl6ZShkZXZfcHJpdiwgdHJ1
+ZSk7Cj4+ICsJaW50ZWxfdW5jb3JlX3Jlc3VtZShkZXZfcHJpdik7Cj4+Cj4+ICAJaWYgKElTX0dF
+TjlfTFAoZGV2X3ByaXYpKSB7Cj4+ICAJCWlmICghZGV2X3ByaXYtPnN1c3BlbmRlZF90b19pZGxl
+KQo+PiBAQCAtMjM0NCw3ICsyMzQ0LDcgQEAgc3RhdGljIGludCBpbnRlbF9ydW50aW1lX3N1c3Bl
+bmQoc3RydWN0IGRldmljZSAqa2RldikKPj4gIAkJcmV0dXJuIHJldDsKPj4gIAl9Cj4+Cj4+IC0J
+aW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwgZmFsc2UpOwo+PiArCWludGVs
+X3VuY29yZV9zdXNwZW5kKGRldl9wcml2KTsKPgo+IERvaW5nIG9uZSBmcm9tIGVhcmx5X3Jlc3Vt
+ZSBhbmQgdGhlIG90aGVyIGZyb20gdGhlIG5vcm1hbCBzdXNwZW5kIG1ha2VzCj4gbXkgYnJhaW4g
+aHVydCBhIGxpdHRsZS4KCkFjaywgbm90ZSB0aGF0IHRoaXMgcGF0Y2ggZG9lcyBub3QgaW50cm9k
+dWNlIHRoaXMsIGl0IGp1c3QgcmVuYW1lcyB0aGluZ3MKYSBiaXQsIHRoZSBzZXF1ZW5jZSBvZiB0
+aGluZ3MgaXMgbm90IGNoYW5nZWQuCgo+IElmIHdlIGRvIHRoYXQgSSB0aGluayB3ZSBzaG91bGQg
+YXQgbGVhc3QgbmFtZQo+IHRoZSBmdW5jdGlvbnMgYXBwcm9wcmlhdGVseS4KCk9rLCBzbyB5b3Ug
+d2FudCBtZSB0byByZW5hbWUgaW50ZWxfdW5jb3JlX3Jlc3VtZSB0byBpbnRlbF91bmNvcmVfcmVz
+dW1lX2Vhcmx5CkkgYXNzdW1lID8KCj4+Cj4+ICAJZW5hYmxlX3JwbV93YWtlcmVmX2Fzc2VydHMo
+ZGV2X3ByaXYpOwo+PiAgCVdBUk5fT05fT05DRShhdG9taWNfcmVhZCgmZGV2X3ByaXYtPnBtLndh
+a2VyZWZfY291bnQpKTsKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVf
+ZHJ2LmggYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5oCj4+IGluZGV4IGU5YjRlY2Uu
+LmM3MTczMjkgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2LmgK
+Pj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9kcnYuaAo+PiBAQCAtMjk3NiwxNCAr
+Mjk3NiwxMiBAQCBpbnQgaW50ZWxfaXJxX2luc3RhbGwoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUg
+KmRldl9wcml2KTsKPj4gIHZvaWQgaW50ZWxfaXJxX3VuaW5zdGFsbChzdHJ1Y3QgZHJtX2k5MTVf
+cHJpdmF0ZSAqZGV2X3ByaXYpOwo+Pgo+PiAgZXh0ZXJuIHZvaWQgaW50ZWxfdW5jb3JlX3Nhbml0
+aXplKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdik7Cj4+IC1leHRlcm4gdm9pZCBp
+bnRlbF91bmNvcmVfZWFybHlfc2FuaXRpemUoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9w
+cml2LAo+PiAtCQkJCQlib29sIHJlc3RvcmVfZm9yY2V3YWtlKTsKPj4gIGV4dGVybiB2b2lkIGlu
+dGVsX3VuY29yZV9pbml0KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdik7Cj4+ICBl
+eHRlcm4gYm9vbCBpbnRlbF91bmNvcmVfdW5jbGFpbWVkX21taW8oc3RydWN0IGRybV9pOTE1X3By
+aXZhdGUgKmRldl9wcml2KTsKPj4gIGV4dGVybiBib29sIGludGVsX3VuY29yZV9hcm1fdW5jbGFp
+bWVkX21taW9fZGV0ZWN0aW9uKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdik7Cj4+
+ICBleHRlcm4gdm9pZCBpbnRlbF91bmNvcmVfZmluaShzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAq
+ZGV2X3ByaXYpOwo+PiAtZXh0ZXJuIHZvaWQgaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChz
+dHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4+IC0JCQkJCSBib29sIHJlc3RvcmUp
+Owo+PiArZXh0ZXJuIHZvaWQgaW50ZWxfdW5jb3JlX3N1c3BlbmQoc3RydWN0IGRybV9pOTE1X3By
+aXZhdGUgKmRldl9wcml2KTsKPj4gK2V4dGVybiB2b2lkIGludGVsX3VuY29yZV9yZXN1bWUoc3Ry
+dWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KTsKPj4gIGNvbnN0IGNoYXIgKmludGVsX3Vu
+Y29yZV9mb3JjZXdha2VfZG9tYWluX3RvX3N0cihjb25zdCBlbnVtIGZvcmNld2FrZV9kb21haW5f
+aWQgaWQpOwo+PiAgdm9pZCBpbnRlbF91bmNvcmVfZm9yY2V3YWtlX2dldChzdHJ1Y3QgZHJtX2k5
+MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4+ICAJCQkJZW51bSBmb3JjZXdha2VfZG9tYWlucyBkb21h
+aW5zKTsKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5j
+IGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKPj4gaW5kZXggYWJlMDg4OC4u
+Mzc2NzMwNyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3Jl
+LmMKPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKPj4gQEAgLTI1
+MCw3ICsyNTAsNyBAQCBpbnRlbF91bmNvcmVfZndfcmVsZWFzZV90aW1lcihzdHJ1Y3QgaHJ0aW1l
+ciAqdGltZXIpCj4+ICAJcmV0dXJuIEhSVElNRVJfTk9SRVNUQVJUOwo+PiAgfQo+Pgo+PiAtdm9p
+ZCBpbnRlbF91bmNvcmVfZm9yY2V3YWtlX3Jlc2V0KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpk
+ZXZfcHJpdiwKPj4gK3N0YXRpYyB2b2lkIF9faW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChz
+dHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4+ICAJCQkJICBib29sIHJlc3RvcmUp
+Cj4KPiBNYXliZSBsZWF2ZSBvdXQgdGhpcyByZW5hbWUgdG8ga2VlcCB0aGUgZGlmZiBhIGxpdHRs
+ZSBlYXNpZXIgdG8gcGFyc2UuCgpBY2sgd2lsbCBkbyBmb3IgdjMuCgo+Cj4+ICB7Cj4+ICAJdW5z
+aWduZWQgbG9uZyBpcnFmbGFnczsKPj4gQEAgLTQyNCwxMyArNDI0LDE3IEBAIHN0YXRpYyB2b2lk
+IF9faW50ZWxfdW5jb3JlX2Vhcmx5X3Nhbml0aXplKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpk
+ZXZfcHJpdiwKPj4gIAlpZiAoSVNfQlhUX1JFVklEKGRldl9wcml2LCAwLCBCWFRfUkVWSURfQl9M
+QVNUKSkKPj4gIAkJaW5mby0+aGFzX2RlY291cGxlZF9tbWlvID0gZmFsc2U7Cj4+Cj4+IC0JaW50
+ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwgcmVzdG9yZV9mb3JjZXdha2UpOwo+
+PiArCV9faW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwgcmVzdG9yZV9mb3Jj
+ZXdha2UpOwo+PiAgfQo+Pgo+PiAtdm9pZCBpbnRlbF91bmNvcmVfZWFybHlfc2FuaXRpemUoc3Ry
+dWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2LAo+PiAtCQkJCSBib29sIHJlc3RvcmVfZm9y
+Y2V3YWtlKQo+PiArdm9pZCBpbnRlbF91bmNvcmVfc3VzcGVuZChzdHJ1Y3QgZHJtX2k5MTVfcHJp
+dmF0ZSAqZGV2X3ByaXYpCj4+ICB7Cj4+IC0JX19pbnRlbF91bmNvcmVfZWFybHlfc2FuaXRpemUo
+ZGV2X3ByaXYsIHJlc3RvcmVfZm9yY2V3YWtlKTsKPj4gKwlfX2ludGVsX3VuY29yZV9mb3JjZXdh
+a2VfcmVzZXQoZGV2X3ByaXYsIGZhbHNlKTsKPj4gK30KPj4gKwo+PiArdm9pZCBpbnRlbF91bmNv
+cmVfcmVzdW1lKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdikKPj4gK3sKPj4gKwlf
+X2ludGVsX3VuY29yZV9lYXJseV9zYW5pdGl6ZShkZXZfcHJpdiwgdHJ1ZSk7Cj4+ICAJaTkxNV9j
+aGVja19hbmRfY2xlYXJfZmF1bHRzKGRldl9wcml2KTsKPj4gIH0KPj4KPj4gQEAgLTE0NjMsNyAr
+MTQ2Nyw3IEBAIHZvaWQgaW50ZWxfdW5jb3JlX2Zpbmkoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUg
+KmRldl9wcml2KQo+PiAgewo+PiAgCS8qIFBhcmFub2lhOiBtYWtlIHN1cmUgd2UgaGF2ZSBkaXNh
+YmxlZCBldmVyeXRoaW5nIGJlZm9yZSB3ZSBleGl0LiAqLwo+PiAgCWludGVsX3VuY29yZV9zYW5p
+dGl6ZShkZXZfcHJpdik7Cj4+IC0JaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJp
+diwgZmFsc2UpOwo+PiArCV9faW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwg
+ZmFsc2UpOwo+PiAgfQo+Pgo+PiAgI2RlZmluZSBHRU5fUkFOR0UobCwgaCkgR0VOTUFTSygoaCkg
+LSAxLCAobCkgLSAxKQo+PiBAQCAtMTY3OSw3ICsxNjgzLDcgQEAgc3RhdGljIGludCBnZW42X3Jl
+c2V0X2VuZ2luZXMoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2LAo+Pgo+PiAgCXJl
+dCA9IGdlbjZfaHdfZG9tYWluX3Jlc2V0KGRldl9wcml2LCBod19tYXNrKTsKPj4KPj4gLQlpbnRl
+bF91bmNvcmVfZm9yY2V3YWtlX3Jlc2V0KGRldl9wcml2LCB0cnVlKTsKPj4gKwlfX2ludGVsX3Vu
+Y29yZV9mb3JjZXdha2VfcmVzZXQoZGV2X3ByaXYsIHRydWUpOwo+Pgo+PiAgCXJldHVybiByZXQ7
+Cj4+ICB9Cj4+IC0tCj4+IDIuOS4zCj4KClJlZ2FyZHMsCgpIYW5zCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJp
+LWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
