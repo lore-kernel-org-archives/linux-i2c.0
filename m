@@ -1,164 +1,505 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 13/13] drm/i915: Acquire P-Unit access
- when modifying P-Unit settings
-Date: Sat, 28 Jan 2017 17:25:56 +0100
-Message-ID: <64a4aef7-837f-059c-9be5-4a76602488be@redhat.com>
-References: <20170123210958.18410-1-hdegoede@redhat.com>
- <20170123210958.18410-14-hdegoede@redhat.com>
- <20170127135147.GS31595@intel.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v4 2/3] iio: distance: srf08: add IIO driver for us ranger
+Date: Sat, 28 Jan 2017 16:39:20 +0000
+Message-ID: <462d1e69-c385-6cf2-d942-c0d77d2f90fb@kernel.org>
+References: <20170125190719.GA9274@andreas>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170127135147.GS31595@intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:46435 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751518AbdA1Qjh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Jan 2017 11:39:37 -0500
+In-Reply-To: <20170125190719.GA9274@andreas>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andreas Klinger <ak@it-klinger.de>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, ktsai@capellamicro.com, wsa@the-dreams.de, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, trivial@kernel.org, mranostay@gmail.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 
-SGksCgpPbiAwMS8yNy8yMDE3IDAyOjUxIFBNLCBWaWxsZSBTeXJqw6Rsw6Qgd3JvdGU6Cj4gT24g
-TW9uLCBKYW4gMjMsIDIwMTcgYXQgMTA6MDk6NThQTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3cm90
-ZToKPj4gTWFrZSBzdXJlIHRoZSBQLVVuaXQgb3IgdGhlIFBNSUMgaTJjIGJ1cyBpcyBub3QgaW4g
-dXNlIHdoZW4gd2Ugc2VuZCBhCj4+IHJlcXVlc3QgdG8gdGhlIFAtVW5pdCBieSBjYWxsaW5nIGlv
-c2ZfbWJpX3B1bml0X2FjcXVpcmUoKSAvIF9yZWxlYXNlKCkKPj4gYXJvdW5kIFAtVW5pdCB3cml0
-ZSBhY2Nlc3Nlcy4KPgo+IENhbid0IHdlIGp1c3Qgc3R1ZmYgdGhlIGNhbGxzIGludG8gdGhlIGFj
-dHVhbCBwdW5pdCB3cml0ZSBmdW5jdGlvbgo+IHJhdGhlciB0aGFuIHNwcmlua2xpbmcgdGhlbSBh
-bGwgb3ZlciB0aGUgcGxhY2U/CgpwdW5pdCBhY2Nlc3MgaXMgYWNxdWlyZWQgYWNyb3NzIHNlY3Rp
-b25zIGxpa2UgdGhpczoKCiAgICAgICAgIGlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKCiAgICAg
-ICAgIHZhbCA9IHZsdl9wdW5pdF9yZWFkKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSk7CiAg
-ICAgICAgIHZhbCAmPSB+RFNQRlJFUUdVQVJfTUFTSzsKICAgICAgICAgdmFsIHw9IChjbWQgPDwg
-RFNQRlJFUUdVQVJfU0hJRlQpOwogICAgICAgICB2bHZfcHVuaXRfd3JpdGUoZGV2X3ByaXYsIFBV
-TklUX1JFR19EU1BGUkVRLCB2YWwpOwogICAgICAgICBpZiAod2FpdF9mb3IoKHZsdl9wdW5pdF9y
-ZWFkKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSkgJgogICAgICAgICAgICAgICAgICAgICAg
-IERTUEZSRVFTVEFUX01BU0spID09IChjbWQgPDwgRFNQRlJFUVNUQVRfU0hJRlQpLAogICAgICAg
-ICAgICAgICAgICAgICAgNTApKSB7CiAgICAgICAgICAgICAgICAgRFJNX0VSUk9SKCJ0aW1lZCBv
-dXQgd2FpdGluZyBmb3IgQ0RjbGsgY2hhbmdlXG4iKTsKICAgICAgICAgfQogICAgICAgICBpb3Nm
-X21iaV9wdW5pdF9yZWxlYXNlKCk7CgpXaGVyZSB3ZSB3YW50IHRvIHdhaXQgZm9yIHRoZSByZXF1
-ZXN0ZWQgY2hhbmdlIHRvIGhhdmUgdGFrZW4KZWZmZWN0IGJlZm9yZSByZWxlYXNpbmcgdGhlIHB1
-bml0LgoKPgo+ICsgYSBjb21tZW50IHdvdWxkIGJlIG5pY2Ugd2h5IGl0J3MgdGhlcmUuCgpJIHdp
-bGwgYWRkIGNvbW1lbnRzIHRvIHRoZSBhY3F1aXJlIGNhbGxzLgoKPiBEbyB3ZSBuZWVkIGEga2Nv
-bmZpZyBzZWxlY3QvZGVwZW5kcyBvbiB0aGUgaW9zZl9tYmkgdGhpbmc/IE9yIHNvbWUKPiBpZmRl
-ZnM/CgpObywgdGhlIGlvc2ZfbWJpIGhlYWRlciBkZWZpbmVzIGVtcHR5IGlubGluZSB2ZXJzaW9u
-cyBvZgppb3NmX21iaV9wdW5pdF9hY3F1aXJlIC8gX3JlbGVhc2UgaWYgSU9TRl9NQkkgaXMgZGlz
-YWJsZWQsCnRoaXMgZG9lcyBtZWFuIHRoYXQgaW9zZl9tYmkgbXVzdCBiZSBidWlsdGluIGlmIHRo
-ZSBpOTE1CmRyaXZlciBpcy4gSSdsbCBhZGQ6CgoJZGVwZW5kcyBvbiBEUk1fSTkxNT1JT1NGX01C
-SSB8fCBJT1NGX01CST15CgpUbyB0aGUgaTkxNSBLY29uZmlnIHRvIGVuZm9yY2UgdGhpcy4KClJl
-Z2FyZHMsCgpIYW5zCgoKPgo+Pgo+PiBCdWdMaW5rOiBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5v
-cmcvc2hvd19idWcuY2dpP2lkPTE1NTI0MQo+PiBTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRl
-IDxoZGVnb2VkZUByZWRoYXQuY29tPgo+PiBUZXN0ZWQtYnk6IHRhZ29yZXJlZGR5IDx0YWdvcmUu
-Y2hhbmRhbkBnbWFpbC5jb20+Cj4+IC0tLQo+PiBDaGFuZ2VzIGluIHYyOgo+PiAtU3BlbGxpbmc6
-IFAtVW5pdCwgUE1JQwo+PiAtQWRqdXN0IGZvciBpb3NmX21iaV9wdW5pdF9sb2NrL191bmxvY2sg
-dG8gX2FjcXVpcmUvX3JlbGVhc2UgcmVuYW1lCj4+IC0tLQo+PiAgZHJpdmVycy9ncHUvZHJtL2k5
-MTUvaW50ZWxfZGlzcGxheS5jICAgIHwgNiArKysrKysKPj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
-L2ludGVsX3BtLmMgICAgICAgICB8IDkgKysrKysrKysrCj4+ICBkcml2ZXJzL2dwdS9kcm0vaTkx
-NS9pbnRlbF9ydW50aW1lX3BtLmMgfCA5ICsrKysrKysrKwo+PiAgMyBmaWxlcyBjaGFuZ2VkLCAy
-NCBpbnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9p
-bnRlbF9kaXNwbGF5LmMgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9kaXNwbGF5LmMKPj4g
-aW5kZXggNTYwNDcwMS4uMTNlNTE1MiAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5
-MTUvaW50ZWxfZGlzcGxheS5jCj4+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX2Rp
-c3BsYXkuYwo+PiBAQCAtNDcsNiArNDcsNyBAQAo+PiAgI2luY2x1ZGUgPGRybS9kcm1fcmVjdC5o
-Pgo+PiAgI2luY2x1ZGUgPGxpbnV4L2RtYV9yZW1hcHBpbmcuaD4KPj4gICNpbmNsdWRlIDxsaW51
-eC9yZXNlcnZhdGlvbi5oPgo+PiArI2luY2x1ZGUgPGFzbS9pb3NmX21iaS5oPgo+Pgo+PiAgc3Rh
-dGljIGJvb2wgaXNfbW1pb193b3JrKHN0cnVjdCBpbnRlbF9mbGlwX3dvcmsgKndvcmspCj4+ICB7
-Cj4+IEBAIC02NDIxLDYgKzY0MjIsOCBAQCBzdGF0aWMgdm9pZCB2YWxsZXl2aWV3X3NldF9jZGNs
-ayhzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBpbnQgY2RjbGspCj4+ICAJCWNtZCA9IDA7Cj4+Cj4+
-ICAJbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPj4gKwlpb3NmX21iaV9wdW5p
-dF9hY3F1aXJlKCk7Cj4+ICsKPj4gIAl2YWwgPSB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVO
-SVRfUkVHX0RTUEZSRVEpOwo+PiAgCXZhbCAmPSB+RFNQRlJFUUdVQVJfTUFTSzsKPj4gIAl2YWwg
-fD0gKGNtZCA8PCBEU1BGUkVRR1VBUl9TSElGVCk7Cj4+IEBAIC02NDMwLDYgKzY0MzMsNyBAQCBz
-dGF0aWMgdm9pZCB2YWxsZXl2aWV3X3NldF9jZGNsayhzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBp
-bnQgY2RjbGspCj4+ICAJCSAgICAgNTApKSB7Cj4+ICAJCURSTV9FUlJPUigidGltZWQgb3V0IHdh
-aXRpbmcgZm9yIENEY2xrIGNoYW5nZVxuIik7Cj4+ICAJfQo+PiArCWlvc2ZfbWJpX3B1bml0X3Jl
-bGVhc2UoKTsKPj4gIAltdXRleF91bmxvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4+Cj4+
-ICAJbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnNiX2xvY2spOwo+PiBAQCAtNjQ5Nyw2ICs2NTAxLDcg
-QEAgc3RhdGljIHZvaWQgY2hlcnJ5dmlld19zZXRfY2RjbGsoc3RydWN0IGRybV9kZXZpY2UgKmRl
-diwgaW50IGNkY2xrKQo+PiAgCWNtZCA9IERJVl9ST1VORF9DTE9TRVNUKGRldl9wcml2LT5ocGxs
-X2ZyZXEgPDwgMSwgY2RjbGspIC0gMTsKPj4KPj4gIAltdXRleF9sb2NrKCZkZXZfcHJpdi0+cnBz
-Lmh3X2xvY2spOwo+PiArCWlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKPj4gIAl2YWwgPSB2bHZf
-cHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+PiAgCXZhbCAmPSB+RFNQ
-RlJFUUdVQVJfTUFTS19DSFY7Cj4+ICAJdmFsIHw9IChjbWQgPDwgRFNQRlJFUUdVQVJfU0hJRlRf
-Q0hWKTsKPj4gQEAgLTY1MDYsNiArNjUxMSw3IEBAIHN0YXRpYyB2b2lkIGNoZXJyeXZpZXdfc2V0
-X2NkY2xrKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIGludCBjZGNsaykKPj4gIAkJICAgICA1MCkp
-IHsKPj4gIAkJRFJNX0VSUk9SKCJ0aW1lZCBvdXQgd2FpdGluZyBmb3IgQ0RjbGsgY2hhbmdlXG4i
-KTsKPj4gIAl9Cj4+ICsJaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSgpOwo+PiAgCW11dGV4X3VubG9j
-aygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPj4KPj4gIAlpbnRlbF91cGRhdGVfY2RjbGsoZGV2
-X3ByaXYpOwo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYyBi
-L2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMKPj4gaW5kZXggMjQ5NjIzZC4uYWRmZjg0
-YSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYwo+PiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9wbS5jCj4+IEBAIC0zMiw2ICszMiw3IEBACj4+
-ICAjaW5jbHVkZSAiLi4vLi4vLi4vcGxhdGZvcm0veDg2L2ludGVsX2lwcy5oIgo+PiAgI2luY2x1
-ZGUgPGxpbnV4L21vZHVsZS5oPgo+PiAgI2luY2x1ZGUgPGRybS9kcm1fYXRvbWljX2hlbHBlci5o
-Pgo+PiArI2luY2x1ZGUgPGFzbS9pb3NmX21iaS5oPgo+Pgo+PiAgLyoqCj4+ICAgKiBET0M6IFJD
-Ngo+PiBAQCAtMjc2LDYgKzI3Nyw3IEBAIHN0YXRpYyB2b2lkIGNodl9zZXRfbWVtb3J5X2R2ZnMo
-c3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2LCBib29sIGVuYWJsZSkKPj4gIAl1MzIg
-dmFsOwo+Pgo+PiAgCW11dGV4X2xvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4+ICsJaW9z
-Zl9tYmlfcHVuaXRfYWNxdWlyZSgpOwo+Pgo+PiAgCXZhbCA9IHZsdl9wdW5pdF9yZWFkKGRldl9w
-cml2LCBQVU5JVF9SRUdfRERSX1NFVFVQMik7Cj4+ICAJaWYgKGVuYWJsZSkKPj4gQEAgLTI5MCw2
-ICsyOTIsNyBAQCBzdGF0aWMgdm9pZCBjaHZfc2V0X21lbW9yeV9kdmZzKHN0cnVjdCBkcm1faTkx
-NV9wcml2YXRlICpkZXZfcHJpdiwgYm9vbCBlbmFibGUpCj4+ICAJCSAgICAgIEZPUkNFX0REUl9G
-UkVRX1JFUV9BQ0spID09IDAsIDMpKQo+PiAgCQlEUk1fRVJST1IoInRpbWVkIG91dCB3YWl0aW5n
-IGZvciBQdW5pdCBERFIgRFZGUyByZXF1ZXN0XG4iKTsKPj4KPj4gKwlpb3NmX21iaV9wdW5pdF9y
-ZWxlYXNlKCk7Cj4+ICAJbXV0ZXhfdW5sb2NrKCZkZXZfcHJpdi0+cnBzLmh3X2xvY2spOwo+PiAg
-fQo+Pgo+PiBAQCAtMjk4LDYgKzMwMSw3IEBAIHN0YXRpYyB2b2lkIGNodl9zZXRfbWVtb3J5X3Bt
-NShzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsIGJvb2wgZW5hYmxlKQo+PiAgCXUz
-MiB2YWw7Cj4+Cj4+ICAJbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPj4gKwlp
-b3NmX21iaV9wdW5pdF9hY3F1aXJlKCk7Cj4+Cj4+ICAJdmFsID0gdmx2X3B1bml0X3JlYWQoZGV2
-X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKTsKPj4gIAlpZiAoZW5hYmxlKQo+PiBAQCAtMzA2LDYg
-KzMxMCw3IEBAIHN0YXRpYyB2b2lkIGNodl9zZXRfbWVtb3J5X3BtNShzdHJ1Y3QgZHJtX2k5MTVf
-cHJpdmF0ZSAqZGV2X3ByaXYsIGJvb2wgZW5hYmxlKQo+PiAgCQl2YWwgJj0gfkRTUF9NQVhGSUZP
-X1BNNV9FTkFCTEU7Cj4+ICAJdmx2X3B1bml0X3dyaXRlKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQ
-RlJFUSwgdmFsKTsKPj4KPj4gKwlpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCk7Cj4+ICAJbXV0ZXhf
-dW5sb2NrKCZkZXZfcHJpdi0+cnBzLmh3X2xvY2spOwo+PiAgfQo+Pgo+PiBAQCAtNDU1Myw2ICs0
-NTU4LDcgQEAgdm9pZCB2bHZfd21fZ2V0X2h3X3N0YXRlKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYp
-Cj4+Cj4+ICAJaWYgKElTX0NIRVJSWVZJRVcoZGV2X3ByaXYpKSB7Cj4+ICAJCW11dGV4X2xvY2so
-JmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4+ICsJCWlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsK
-Pj4KPj4gIAkJdmFsID0gdmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVR
-KTsKPj4gIAkJaWYgKHZhbCAmIERTUF9NQVhGSUZPX1BNNV9FTkFCTEUpCj4+IEBAIC00NTgyLDYg
-KzQ1ODgsNyBAQCB2b2lkIHZsdl93bV9nZXRfaHdfc3RhdGUoc3RydWN0IGRybV9kZXZpY2UgKmRl
-dikKPj4gIAkJCQl3bS0+bGV2ZWwgPSBWTFZfV01fTEVWRUxfRERSX0RWRlM7Cj4+ICAJCX0KPj4K
-Pj4gKwkJaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSgpOwo+PiAgCQltdXRleF91bmxvY2soJmRldl9w
-cml2LT5ycHMuaHdfbG9jayk7Cj4+ICAJfQo+Pgo+PiBAQCAtNDk4OCw3ICs0OTk1LDkgQEAgc3Rh
-dGljIHZvaWQgdmFsbGV5dmlld19zZXRfcnBzKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZf
-cHJpdiwgdTggdmFsKQo+PiAgCUk5MTVfV1JJVEUoR0VONl9QTUlOVFJNU0ssIGdlbjZfcnBzX3Bt
-X21hc2soZGV2X3ByaXYsIHZhbCkpOwo+Pgo+PiAgCWlmICh2YWwgIT0gZGV2X3ByaXYtPnJwcy5j
-dXJfZnJlcSkgewo+PiArCQlpb3NmX21iaV9wdW5pdF9hY3F1aXJlKCk7Cj4+ICAJCXZsdl9wdW5p
-dF93cml0ZShkZXZfcHJpdiwgUFVOSVRfUkVHX0dQVV9GUkVRX1JFUSwgdmFsKTsKPj4gKwkJaW9z
-Zl9tYmlfcHVuaXRfcmVsZWFzZSgpOwo+PiAgCQlpZiAoIUlTX0NIRVJSWVZJRVcoZGV2X3ByaXYp
-KQo+PiAgCQkJZ2VuNl9zZXRfcnBzX3RocmVzaG9sZHMoZGV2X3ByaXYsIHZhbCk7Cj4+ICAJfQo+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5jIGIv
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5jCj4+IGluZGV4IGMwYjdlOTUu
-LmU2NmJjYzggMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRp
-bWVfcG0uYwo+PiArKysgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9ydW50aW1lX3BtLmMK
-Pj4gQEAgLTI4LDYgKzI4LDcgQEAKPj4KPj4gICNpbmNsdWRlIDxsaW51eC9wbV9ydW50aW1lLmg+
-Cj4+ICAjaW5jbHVkZSA8bGludXgvdmdhYXJiLmg+Cj4+ICsjaW5jbHVkZSA8YXNtL2lvc2ZfbWJp
-Lmg+Cj4+Cj4+ICAjaW5jbHVkZSAiaTkxNV9kcnYuaCIKPj4gICNpbmNsdWRlICJpbnRlbF9kcnYu
-aCIKPj4gQEAgLTEwMjcsNiArMTAyOCw4IEBAIHN0YXRpYyB2b2lkIHZsdl9zZXRfcG93ZXJfd2Vs
-bChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4+ICAJaWYgKENPTkQpCj4+ICAJ
-CWdvdG8gb3V0Owo+Pgo+PiArCWlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKPj4gKwo+PiAgCWN0
-cmwgPSB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX1BXUkdUX0NUUkwpOwo+PiAg
-CWN0cmwgJj0gfm1hc2s7Cj4+ICAJY3RybCB8PSBzdGF0ZTsKPj4gQEAgLTEwMzcsNiArMTA0MCw4
-IEBAIHN0YXRpYyB2b2lkIHZsdl9zZXRfcG93ZXJfd2VsbChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0
-ZSAqZGV2X3ByaXYsCj4+ICAJCQkgIHN0YXRlLAo+PiAgCQkJICB2bHZfcHVuaXRfcmVhZChkZXZf
-cHJpdiwgUFVOSVRfUkVHX1BXUkdUX0NUUkwpKTsKPj4KPj4gKwlpb3NmX21iaV9wdW5pdF9yZWxl
-YXNlKCk7Cj4+ICsKPj4gICN1bmRlZiBDT05ECj4+Cj4+ICBvdXQ6Cj4+IEBAIC0xNjQzLDYgKzE2
-NDgsOCBAQCBzdGF0aWMgdm9pZCBjaHZfc2V0X3BpcGVfcG93ZXJfd2VsbChzdHJ1Y3QgZHJtX2k5
-MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4+ICAJaWYgKENPTkQpCj4+ICAJCWdvdG8gb3V0Owo+Pgo+
-PiArCWlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKPj4gKwo+PiAgCWN0cmwgPSB2bHZfcHVuaXRf
-cmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+PiAgCWN0cmwgJj0gfkRQX1NTQ19N
-QVNLKHBpcGUpOwo+PiAgCWN0cmwgfD0gZW5hYmxlID8gRFBfU1NDX1BXUl9PTihwaXBlKSA6IERQ
-X1NTQ19QV1JfR0FURShwaXBlKTsKPj4gQEAgLTE2NTMsNiArMTY2MCw4IEBAIHN0YXRpYyB2b2lk
-IGNodl9zZXRfcGlwZV9wb3dlcl93ZWxsKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJp
-diwKPj4gIAkJCSAgc3RhdGUsCj4+ICAJCQkgIHZsdl9wdW5pdF9yZWFkKGRldl9wcml2LCBQVU5J
-VF9SRUdfRFNQRlJFUSkpOwo+Pgo+PiArCWlvc2ZfbWJpX3B1bml0X3JlbGVhc2UoKTsKPj4gKwo+
-PiAgI3VuZGVmIENPTkQKPj4KPj4gIG91dDoKPj4gLS0KPj4gMi45LjMKPgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0
-CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3Rv
-cC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+On 25/01/17 19:07, Andreas Klinger wrote:
+> This is the IIO driver for devantech srf08 ultrasonic ranger which can be
+> used to measure the distances to an object.
+> 
+> The sensor supports I2C with some registers.
+> 
+> Supported Features include:
+>  - read the distance in ranging mode in centimeters
+>  - output of the driver is directly the read value
+>  - together with the scale the driver delivers the distance in meters
+>  - only the first echo of the nearest object is delivered
+>  - set sensitivity as analog value in the range of 0-31  means setting
+>    gain register on device
+>  - set range registers; userspace enters max. range in millimeters in
+>    43 mm steps
+> 
+> Features not supported by this driver:
+>  - ranging mode in inches or in microseconds
+>  - ANN mode
+>  - change I2C address through this driver
+>  - light sensor
+> 
+> The driver was added in the directory "proximity" of the iio subsystem and
+> the menu in den config is now called "Proximity and distance sensors"
+> 
+> Signed-off-by: Andreas Klinger <ak@it-klinger.de>
+Applied to the togreg bbranch of iio.git and pushed out as testing for the
+autobuilders to play with it.
+
+I'm not 100% sure we won't ever come up with better ABI for a the custom
+bits but it won't be hard to support what we have here indefinitely so
+it should be no problem to support any new ABI as well!
+
+Thanks for your hard work on this.  A nice bit of kit to have support for.
+
+Jonathan
+> ---
+>  drivers/iio/proximity/Kconfig  |  13 +-
+>  drivers/iio/proximity/Makefile |   1 +
+>  drivers/iio/proximity/srf08.c  | 398 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 411 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/iio/proximity/srf08.c
+> 
+> diff --git a/drivers/iio/proximity/Kconfig b/drivers/iio/proximity/Kconfig
+> index ef4c73db5b53..ab96cb7a0054 100644
+> --- a/drivers/iio/proximity/Kconfig
+> +++ b/drivers/iio/proximity/Kconfig
+> @@ -18,7 +18,7 @@ config AS3935
+>  
+>  endmenu
+>  
+> -menu "Proximity sensors"
+> +menu "Proximity and distance sensors"
+>  
+>  config LIDAR_LITE_V2
+>  	tristate "PulsedLight LIDAR sensor"
+> @@ -45,4 +45,15 @@ config SX9500
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called sx9500.
+>  
+> +config SRF08
+> +	tristate "Devantech SRF08 ultrasonic ranger sensor"
+> +	depends on I2C
+> +	help
+> +	  Say Y here to build a driver for Devantech SRF08 ultrasonic
+> +	  ranger sensor. This driver can be used to measure the distance
+> +	  of objects.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called srf08.
+> +
+>  endmenu
+> diff --git a/drivers/iio/proximity/Makefile b/drivers/iio/proximity/Makefile
+> index 9aadd9a8ee99..e914c2a5dd49 100644
+> --- a/drivers/iio/proximity/Makefile
+> +++ b/drivers/iio/proximity/Makefile
+> @@ -5,4 +5,5 @@
+>  # When adding new entries keep the list in alphabetical order
+>  obj-$(CONFIG_AS3935)		+= as3935.o
+>  obj-$(CONFIG_LIDAR_LITE_V2)	+= pulsedlight-lidar-lite-v2.o
+> +obj-$(CONFIG_SRF08)		+= srf08.o
+>  obj-$(CONFIG_SX9500)		+= sx9500.o
+> diff --git a/drivers/iio/proximity/srf08.c b/drivers/iio/proximity/srf08.c
+> new file mode 100644
+> index 000000000000..49316cbf7c60
+> --- /dev/null
+> +++ b/drivers/iio/proximity/srf08.c
+> @@ -0,0 +1,398 @@
+> +/*
+> + * srf08.c - Support for Devantech SRF08 ultrasonic ranger
+> + *
+> + * Copyright (c) 2016 Andreas Klinger <ak@it-klinger.de>
+> + *
+> + * This file is subject to the terms and conditions of version 2 of
+> + * the GNU General Public License.  See the file COPYING in the main
+> + * directory of this archive for more details.
+> + *
+> + * For details about the device see:
+> + * http://www.robot-electronics.co.uk/htm/srf08tech.html
+> + */
+> +
+> +#include <linux/err.h>
+> +#include <linux/i2c.h>
+> +#include <linux/delay.h>
+> +#include <linux/module.h>
+> +#include <linux/bitops.h>
+> +#include <linux/iio/iio.h>
+> +#include <linux/iio/sysfs.h>
+> +
+> +/* registers of SRF08 device */
+> +#define SRF08_WRITE_COMMAND	0x00	/* Command Register */
+> +#define SRF08_WRITE_MAX_GAIN	0x01	/* Max Gain Register: 0 .. 31 */
+> +#define SRF08_WRITE_RANGE	0x02	/* Range Register: 0 .. 255 */
+> +#define SRF08_READ_SW_REVISION	0x00	/* Software Revision */
+> +#define SRF08_READ_LIGHT	0x01	/* Light Sensor during last echo */
+> +#define SRF08_READ_ECHO_1_HIGH	0x02	/* Range of first echo received */
+> +#define SRF08_READ_ECHO_1_LOW	0x03	/* Range of first echo received */
+> +
+> +#define SRF08_CMD_RANGING_CM	0x51	/* Ranging Mode - Result in cm */
+> +
+> +#define SRF08_DEFAULT_GAIN	1025	/* default analogue value of Gain */
+> +#define SRF08_DEFAULT_RANGE	6020	/* default value of Range in mm */
+> +
+> +struct srf08_data {
+> +	struct i2c_client	*client;
+> +	int			sensitivity;		/* Gain */
+> +	int			range_mm;		/* max. Range in mm */
+> +	struct mutex		lock;
+> +};
+> +
+> +/*
+> + * in the documentation one can read about the "Gain" of the device
+> + * which is used here for amplifying the signal and filtering out unwanted
+> + * ones.
+> + * But with ADC's this term is already used differently and that's why it
+> + * is called "Sensitivity" here.
+> + */
+> +static const int srf08_sensitivity[] = {
+> +	 94,  97, 100, 103, 107, 110, 114, 118,
+> +	123, 128, 133, 139, 145, 152, 159, 168,
+> +	177, 187, 199, 212, 227, 245, 265, 288,
+> +	317, 352, 395, 450, 524, 626, 777, 1025 };
+> +
+> +static int srf08_read_ranging(struct srf08_data *data)
+> +{
+> +	struct i2c_client *client = data->client;
+> +	int ret, i;
+> +	int waittime;
+> +
+> +	mutex_lock(&data->lock);
+> +
+> +	ret = i2c_smbus_write_byte_data(data->client,
+> +			SRF08_WRITE_COMMAND, SRF08_CMD_RANGING_CM);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "write command - err: %d\n", ret);
+> +		mutex_unlock(&data->lock);
+> +		return ret;
+> +	}
+> +
+> +	/*
+> +	 * we read here until a correct version number shows up as
+> +	 * suggested by the documentation
+> +	 *
+> +	 * with an ultrasonic speed of 343 m/s and a roundtrip of it
+> +	 * sleep the expected duration and try to read from the device
+> +	 * if nothing useful is read try it in a shorter grid
+> +	 *
+> +	 * polling for not more than 20 ms should be enough
+> +	 */
+> +	waittime = 1 + data->range_mm / 172;
+> +	msleep(waittime);
+> +	for (i = 0; i < 4; i++) {
+> +		ret = i2c_smbus_read_byte_data(data->client,
+> +						SRF08_READ_SW_REVISION);
+> +
+> +		/* check if a valid version number is read */
+> +		if (ret < 255 && ret > 0)
+> +			break;
+> +		msleep(5);
+> +	}
+> +
+> +	if (ret >= 255 || ret <= 0) {
+> +		dev_err(&client->dev, "device not ready\n");
+> +		mutex_unlock(&data->lock);
+> +		return -EIO;
+> +	}
+> +
+> +	ret = i2c_smbus_read_word_swapped(data->client,
+> +						SRF08_READ_ECHO_1_HIGH);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "cannot read distance: ret=%d\n", ret);
+> +		mutex_unlock(&data->lock);
+> +		return ret;
+> +	}
+> +
+> +	mutex_unlock(&data->lock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int srf08_read_raw(struct iio_dev *indio_dev,
+> +			    struct iio_chan_spec const *channel, int *val,
+> +			    int *val2, long mask)
+> +{
+> +	struct srf08_data *data = iio_priv(indio_dev);
+> +	int ret;
+> +
+> +	if (channel->type != IIO_DISTANCE)
+> +		return -EINVAL;
+> +
+> +	switch (mask) {
+> +	case IIO_CHAN_INFO_RAW:
+> +		ret = srf08_read_ranging(data);
+> +		if (ret < 0)
+> +			return ret;
+> +		*val = ret;
+> +		return IIO_VAL_INT;
+> +	case IIO_CHAN_INFO_SCALE:
+> +		/* 1 LSB is 1 cm */
+> +		*val = 0;
+> +		*val2 = 10000;
+> +		return IIO_VAL_INT_PLUS_MICRO;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +}
+> +
+> +static ssize_t srf08_show_range_mm_available(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	return sprintf(buf, "[0.043 0.043 11.008]\n");
+> +}
+> +
+> +static IIO_DEVICE_ATTR(sensor_max_range_available, S_IRUGO,
+> +				srf08_show_range_mm_available, NULL, 0);
+> +
+> +static ssize_t srf08_show_range_mm(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+> +	struct srf08_data *data = iio_priv(indio_dev);
+> +
+> +	return sprintf(buf, "%d.%03d\n", data->range_mm / 1000,
+> +						data->range_mm % 1000);
+> +}
+> +
+> +/*
+> + * set the range of the sensor to an even multiple of 43 mm
+> + * which corresponds to 1 LSB in the register
+> + *
+> + * register value    corresponding range
+> + *         0x00             43 mm
+> + *         0x01             86 mm
+> + *         0x02            129 mm
+> + *         ...
+> + *         0xFF          11008 mm
+> + */
+> +static ssize_t srf08_write_range_mm(struct srf08_data *data, unsigned int val)
+> +{
+> +	int ret;
+> +	struct i2c_client *client = data->client;
+> +	unsigned int mod;
+> +	u8 regval;
+> +
+> +	ret = val / 43 - 1;
+> +	mod = val % 43;
+> +
+> +	if (mod || (ret < 0) || (ret > 255))
+> +		return -EINVAL;
+> +
+> +	regval = ret;
+> +
+> +	mutex_lock(&data->lock);
+> +
+> +	ret = i2c_smbus_write_byte_data(client, SRF08_WRITE_RANGE, regval);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "write_range - err: %d\n", ret);
+> +		mutex_unlock(&data->lock);
+> +		return ret;
+> +	}
+> +
+> +	data->range_mm = val;
+> +
+> +	mutex_unlock(&data->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t srf08_store_range_mm(struct device *dev,
+> +					struct device_attribute *attr,
+> +					const char *buf, size_t len)
+> +{
+> +	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+> +	struct srf08_data *data = iio_priv(indio_dev);
+> +	int ret;
+> +	int integer, fract;
+> +
+> +	ret = iio_str_to_fixpoint(buf, 100, &integer, &fract);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = srf08_write_range_mm(data, integer * 1000 + fract);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return len;
+> +}
+> +
+> +static IIO_DEVICE_ATTR(sensor_max_range, S_IRUGO | S_IWUSR,
+> +			srf08_show_range_mm, srf08_store_range_mm, 0);
+> +
+> +static ssize_t srf08_show_sensitivity_available(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	int i, len = 0;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(srf08_sensitivity); i++)
+> +		len += sprintf(buf + len, "%d ", srf08_sensitivity[i]);
+> +
+> +	len += sprintf(buf + len, "\n");
+> +
+> +	return len;
+> +}
+> +
+> +static IIO_DEVICE_ATTR(sensor_sensitivity_available, S_IRUGO,
+> +				srf08_show_sensitivity_available, NULL, 0);
+> +
+> +static ssize_t srf08_show_sensitivity(struct device *dev,
+> +				struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+> +	struct srf08_data *data = iio_priv(indio_dev);
+> +	int len;
+> +
+> +	len = sprintf(buf, "%d\n", data->sensitivity);
+> +
+> +	return len;
+> +}
+> +
+> +static ssize_t srf08_write_sensitivity(struct srf08_data *data,
+> +							unsigned int val)
+> +{
+> +	struct i2c_client *client = data->client;
+> +	int ret, i;
+> +	u8 regval;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(srf08_sensitivity); i++)
+> +		if (val == srf08_sensitivity[i]) {
+> +			regval = i;
+> +			break;
+> +		}
+> +
+> +	if (i >= ARRAY_SIZE(srf08_sensitivity))
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&data->lock);
+> +
+> +	ret = i2c_smbus_write_byte_data(client,
+> +						SRF08_WRITE_MAX_GAIN, regval);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "write_sensitivity - err: %d\n", ret);
+> +		mutex_unlock(&data->lock);
+> +		return ret;
+> +	}
+> +
+> +	data->sensitivity = val;
+> +
+> +	mutex_unlock(&data->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t srf08_store_sensitivity(struct device *dev,
+> +						struct device_attribute *attr,
+> +						const char *buf, size_t len)
+> +{
+> +	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+> +	struct srf08_data *data = iio_priv(indio_dev);
+> +	int ret;
+> +	unsigned int val;
+> +
+> +	ret = kstrtouint(buf, 10, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = srf08_write_sensitivity(data, val);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return len;
+> +}
+> +
+> +static IIO_DEVICE_ATTR(sensor_sensitivity, S_IRUGO | S_IWUSR,
+> +			srf08_show_sensitivity, srf08_store_sensitivity, 0);
+> +
+> +static struct attribute *srf08_attributes[] = {
+> +	&iio_dev_attr_sensor_max_range.dev_attr.attr,
+> +	&iio_dev_attr_sensor_max_range_available.dev_attr.attr,
+> +	&iio_dev_attr_sensor_sensitivity.dev_attr.attr,
+> +	&iio_dev_attr_sensor_sensitivity_available.dev_attr.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group srf08_attribute_group = {
+> +	.attrs = srf08_attributes,
+> +};
+> +
+> +static const struct iio_chan_spec srf08_channels[] = {
+> +	{
+> +		.type = IIO_DISTANCE,
+> +		.info_mask_separate =
+> +				BIT(IIO_CHAN_INFO_RAW) |
+> +				BIT(IIO_CHAN_INFO_SCALE),
+> +	},
+> +};
+> +
+> +static const struct iio_info srf08_info = {
+> +	.read_raw = srf08_read_raw,
+> +	.attrs = &srf08_attribute_group,
+> +	.driver_module = THIS_MODULE,
+> +};
+> +
+> +static int srf08_probe(struct i2c_client *client,
+> +					 const struct i2c_device_id *id)
+> +{
+> +	struct iio_dev *indio_dev;
+> +	struct srf08_data *data;
+> +	int ret;
+> +
+> +	if (!i2c_check_functionality(client->adapter,
+> +					I2C_FUNC_SMBUS_READ_BYTE_DATA |
+> +					I2C_FUNC_SMBUS_WRITE_BYTE_DATA |
+> +					I2C_FUNC_SMBUS_READ_WORD_DATA))
+> +		return -ENODEV;
+> +
+> +	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
+> +	if (!indio_dev)
+> +		return -ENOMEM;
+> +
+> +	data = iio_priv(indio_dev);
+> +	i2c_set_clientdata(client, indio_dev);
+> +	data->client = client;
+> +
+> +	indio_dev->name = "srf08";
+> +	indio_dev->dev.parent = &client->dev;
+> +	indio_dev->modes = INDIO_DIRECT_MODE;
+> +	indio_dev->info = &srf08_info;
+> +	indio_dev->channels = srf08_channels;
+> +	indio_dev->num_channels = ARRAY_SIZE(srf08_channels);
+> +
+> +	mutex_init(&data->lock);
+> +
+> +	/*
+> +	 * set default values of device here
+> +	 * these register values cannot be read from the hardware
+> +	 * therefore set driver specific default values
+> +	 */
+> +	ret = srf08_write_range_mm(data, SRF08_DEFAULT_RANGE);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = srf08_write_sensitivity(data, SRF08_DEFAULT_GAIN);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return devm_iio_device_register(&client->dev, indio_dev);
+> +}
+> +
+> +static const struct i2c_device_id srf08_id[] = {
+> +	{ "srf08", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, srf08_id);
+> +
+> +static struct i2c_driver srf08_driver = {
+> +	.driver = {
+> +		.name	= "srf08",
+> +	},
+> +	.probe = srf08_probe,
+> +	.id_table = srf08_id,
+> +};
+> +module_i2c_driver(srf08_driver);
+> +
+> +MODULE_AUTHOR("Andreas Klinger <ak@it-klinger.de>");
+> +MODULE_DESCRIPTION("Devantech SRF08 ultrasonic ranger driver");
+> +MODULE_LICENSE("GPL");
+> 
