@@ -1,68 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [v3] i2c: i2c-cros-ec-tunnel: Reduce logging noise
-Date: Sat, 28 Jan 2017 22:18:29 +0100
-Message-ID: <20170128211829.ojuqhllgqjmkgkui@ninjato>
-References: <1469572441-25026-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH i2c/for-next] i2c: sh_mobile: document support for
+ r8a7796 (R-Car M3-W)
+Date: Sat, 28 Jan 2017 22:23:19 +0100
+Message-ID: <20170128212318.7ipb4xv4ofmwai2f@ninjato>
+References: <1485420451-11752-1-git-send-email-horms+renesas@verge.net.au>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3ckcqt5zx34l7v2d"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:60166 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1752145AbdA1VUK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 28 Jan 2017 16:20:10 -0500
+        protocol="application/pgp-signature"; boundary="3g2zjtxmzjpehypd"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1469572441-25026-1-git-send-email-linux@roeck-us.net>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1485420451-11752-1-git-send-email-horms+renesas@verge.net.au>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---3ckcqt5zx34l7v2d
+--3g2zjtxmzjpehypd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 26, 2016 at 03:34:01PM -0700, Guenter Roeck wrote:
-> If an i2c access through i2c-cros-ec-tunnel returns an error, the followi=
-ng
-> log message is seen on the console.
+On Thu, Jan 26, 2017 at 09:47:31AM +0100, Simon Horman wrote:
+> Explicitly list per-SoC binding for r8a7796. No driver change
+> is required as the initialisation sequence is currently the same
+> as for the R-Car Gen3 fallback binding.
 >=20
-> cros-ec-i2c-tunnel ff200000.spi:ec@0:i2c-tunnel:
-> 			Error parsing EC i2c message -121
->=20
-> This can happen a lot if, for example, the i2c-detect command is executed.
->=20
-> Since it is perfectly normal for an i2c controller to report an error,
-> drop the message. Also, report -ENXIO instead of -EREMOTEIO if the access
-> error is due to NAK from the device, and return -EIO instead of -EREMOTEIO
-> for other errors, as suggested in Documentation/i2c/fault-codes.
->=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+> Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 
 Applied to for-next, thanks!
 
 
---3ckcqt5zx34l7v2d
+--3g2zjtxmzjpehypd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliNCqUACgkQFA3kzBSg
-KbZ60g//XRfQGkWC9UU/IRZpp7zlW29+I3f6ohMyP9ttTmnmq0moze8lPOTxgC19
-41BHs+t1LfdpqCMGoyGeE2ymgBtqh9yPzaUooddRVYf0IIMH43AChnIe4cXzDBpS
-U+u9G8HPzL/1oP34jkKWv5cz050pDjUqj0sr2+EZcTk8cW7SlYUJrSVSXy5GJUzd
-7O/Y2rIK65kLCjqOmQZCkvgnd2nU08y82iWIoi4TmR5EwlXaeYDVpyCTImTqyo7k
-zSltka23sG+iiGVVaO2J9SmAPHpKWpHHzT7kksU1rwG8JTCQC8vysVa9Xx9nyqyI
-4oWZxYo2nRY0bS4qn5tcqhg4lmcyv7Gr5/8/z8KoyejNUK5iZDY/aMqpYoGHivcv
-Dm4vxmIBk05Rn90N3G4pUFET51Z+fPb8gIdfHOEVtdDXE+5tPdh6HM4Qb2MqMNQQ
-MMpGV8PplnkKqeS2Pf2rUl128GFfcfdU5NMGCTwIUv+RoubO6kQ1HkFhhA3OualD
-j7/0kZLwuYV8p4Ax8nCJYckzNFKp4Li0j2Q5d0oecVWDsSFnocWC2JWo+RkdXXgb
-9kEjglITBgAIvFuKzZnAShJnm/VzQwWSBmLrChf26mL/OGVoNdHA1W3v3pk/qnhZ
-pgv5CaVgQ+QAxvAR7AwjcqJDdu6hfTzk6F8eVZLa+N4SvVOfvs0=
-=wel8
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliNC8YACgkQFA3kzBSg
+KbZ3NA/9F7q3u0kaWLKUpkavgSaM9Naus1GFQcHqq4Hm5+M14bjWK6tgQeihhgBp
+ewEhvP2zyHIFQ3C9AlfdFpT7+oGPqWAr+ZNQMbFm2G9rLg5ZHIAepnbOrb98FnIO
+LY6gh2n6LTOIVIcFadD5IlfFqXoJuUxXfobjLLkLJbkZSpdHwniStfmo4qBTlvlA
+i7qRGKqBs8hbuKiVDMEJjiDDaL9ytzyVwXjioEYV/5gIi80JqnTANFITK2W+s86j
+VYfvwQ2xcjaB7x4iH1Q786nTwt3vZLlTvB1/M0MTr2dYBqyr4417COmVdV2W9zY1
+/pC23Gq7Pry4G52fqfTo8kWGJc/zhdGt2n1Hx6Z85Je0jlMMO8RXVKxgHgJRVaFz
+il+F1G4jNaFEzwAgnVPAs0JzpnLy4lAfAW+PhfqoxJOEgbnLrvsZUVQlnqnynbLj
+u6KQhN4JHi2evVQGIOUs/cjRTmCA39713NuhxKBYnvPSOlfse3smWmIpoK/mfNOb
+UZjQ5Z4kLyBFyGkSVWhRKdWhYn+an5v7NyzFSD4d0d6YP4OwpXDwIWjQVX2pRUaH
+FGMyvvEd0OUH+8A+WzbgT8LOGSkmgD0mIBtcRYpn/70sjIsh3RcrEe7zOhX8jTvv
+H7ubYXqUDugHIFgGa0pVUpTFdcnhQ6806vY+HL7VyUYaFhyFZr0=
+=B1lr
 -----END PGP SIGNATURE-----
 
---3ckcqt5zx34l7v2d--
+--3g2zjtxmzjpehypd--
