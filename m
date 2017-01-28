@@ -1,146 +1,49 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v8 09/12] dt-bindings: mux-adg792a: document devicetree
- bindings for ADG792A/G mux
-Date: Fri, 27 Jan 2017 23:09:53 +0100
-Message-ID: <383638ef-1bb2-224f-0fd0-4818395a2306@axentia.se>
-References: <1484755035-25927-1-git-send-email-peda@axentia.se>
- <1484755035-25927-10-git-send-email-peda@axentia.se>
- <20170127195054.wupmfkiw6kaoc7jx@rob-hp-laptop>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: Add Tegra186 BPMP I2C binding
+Date: Fri, 27 Jan 2017 22:42:27 -0700
+Message-ID: <8841854b-d058-1a8d-3e40-955bf3546cef@wwwdotorg.org>
+References: <20170127083939.20393-1-thierry.reding@gmail.com>
+ <20170127083939.20393-2-thierry.reding@gmail.com>
+ <20170127221857.GA15715@mithrandir.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170127195054.wupmfkiw6kaoc7jx@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([70.85.31.133]:45390 "EHLO
+        avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750789AbdA1GHl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 28 Jan 2017 01:07:41 -0500
+In-Reply-To: <20170127221857.GA15715@mithrandir.ba.sec>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Alexandre Courbot <gnurou@gmail.com>, Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 
-On 2017-01-27 20:50, Rob Herring wrote:
-> On Wed, Jan 18, 2017 at 04:57:12PM +0100, Peter Rosin wrote:
->> Analog Devices ADG792A/G is a triple 4:1 mux.
+On 01/27/2017 03:19 PM, Thierry Reding wrote:
+> On Fri, Jan 27, 2017 at 09:39:38AM +0100, Thierry Reding wrote:
+>> From: Stephen Warren <swarren@nvidia.com>
 >>
->> Acked-by: Jonathan Cameron <jic23@kernel.org>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
+>> In Tegra186, the BPMP (Boot and Power Management Processor) owns certain
+>> HW devices, such as the I2C controller for the power management I2C bus.
+>> Software running on other CPUs must perform IPC to the BPMP in order to
+>> execute transactions on that I2C bus. This binding describes an I2C bus
+>> that is accessed in such a fashion.
+>>
+>> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+>> Reviewed-by: Simon Glass <sjg@chromium.org>
+>> Signed-off-by: Tom Warren <twarren@nvidia.com>
+>> Acked-by: Jon Hunter <jonathanh@nvidia.com>
+>> Signed-off-by: Thierry Reding <treding@nvidia.com>
 >> ---
->>  .../devicetree/bindings/mux/mux-adg792a.txt        | 79 ++++++++++++++++++++++
->>  1 file changed, 79 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/mux/mux-adg792a.txt
->>
->> diff --git a/Documentation/devicetree/bindings/mux/mux-adg792a.txt b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
->> new file mode 100644
->> index 000000000000..0b26dd11f070
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/mux/mux-adg792a.txt
->> @@ -0,0 +1,79 @@
->> +Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
->> +
->> +Required properties:
->> +- compatible : "adi,adg792a" or "adi,adg792g"
->> +- #mux-control-cells : <0> if parallel, or <1> if not.
->> +* Standard mux-controller bindings as decribed in mux-controller.txt
->> +
->> +Optional properties for ADG792G:
->> +- gpio-controller : if present, #gpio-cells below is required.
->> +- #gpio-cells : should be <2>
->> +			  - First cell is the GPO line number, i.e. 0 or 1
->> +			  - Second cell is used to specify active high (0)
->> +			    or active low (1)
->> +
->> +Optional properties:
->> +- adi,parallel : if present, the three muxes are bound together with a single
->> +  mux controller, controlling all three muxes in parallel.
-> 
-> Can't this be implied by #mux-control-cells == 0?
+>>  .../bindings/i2c/nvidia,tegra186-bpmp-i2c.txt      | 42 ++++++++++++++++++++++
+>>  1 file changed, 42 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/i2c/nvidia,tegra186-bpmp-i2c.txt
+>
+> Rob, sorry for not Cc'ing you earlier on this, but I had thought this
+> binding had already been reviewed and acked since it is merged in
+> U-Boot.
 
-Right, good point! I'll drop adi,parallel.
-
->> +- adi,idle-state : if present, array of 2-tuples with mux controller number
->> +  and state that mux controllers will have when idle. States 0 through 3
->> +  correspond to signals A through D in the datasheet.
->> +- adi,idle-high-impedance : if present, array of mux controller numbers that
->> +  should be in the disconnected high-impedance state when idle.
-> 
-> Perhaps combine these 2 to a common idle-state with the index being the 
-> mux controller number and a value of -1 (or 4) being hi-Z.
-
-At one point [1] I had a straight array for the mux controllers with state 4
-being hi-Z and state 5 being the default "leave mux as-is on release", but
-Jonathan didn't like magic numbers. Can you please read the follow-ups to the
-referenced mail for some background, and then pick out the most suitable color
-for me to paint with? :-)
-
-[1] https://lkml.org/lkml/2016/11/30/110
-
->> +
->> +Mux controller states 0 through 3 correspond to signals A through D in the
->> +datasheet. If a mux controller is mentioned in neither adi,idle-state nor
->> +adi,idle-high-impedance it is left in its previously selected state when idle.
->> +
->> +Example:
->> +
->> +	/*
->> +	 * Three independent mux controllers (of which one is used).
->> +	 * Mux 0 is disconnected when idle, mux 1 idles with signal C
->> +	 * and mux 2 idles with signal A.
->> +	 */
->> +	&i2c0 {
->> +		mux: adg792a@50 {
-> 
-> mux-controller@50
-
-Yep. Hmm, where have I seen that before? :-)
-
-Cheers,
-peda
-
->> +			compatible = "adi,adg792a";
->> +			reg = <0x50>;
->> +			#mux-control-cells = <1>;
->> +
->> +			adi,idle-high-impedance = <0>;
->> +			adi,idle-state = <1 2>, <2 0>;
->> +		};
->> +	};
->> +
->> +	adc-mux {
->> +		compatible = "io-channel-mux";
->> +		io-channels = <&adc 0>;
->> +		io-channel-names = "parent";
->> +
->> +		mux-controls = <&mux 1>;
->> +
->> +		channels = "sync-1", "", "out";
->> +	};
->> +
->> +
->> +	/*
->> +	 * Three parallel muxes with one mux controller, useful e.g. if
->> +	 * the adc is differential, thus needing two signals to be muxed
->> +	 * simultaneously for correct operation.
->> +	 */
->> +	&i2c0 {
->> +		pmux: adg792a@50 {
->> +			compatible = "adi,adg792a";
->> +			reg = <0x50>;
->> +			#mux-control-cells = <0>;
->> +			adi,parallel;
->> +		};
->> +	};
->> +
->> +	diff-adc-mux {
->> +		compatible = "io-channel-mux";
->> +		io-channels = <&adc 0>;
->> +		io-channel-names = "parent";
->> +
->> +		mux-controls = <&pmux>;
->> +
->> +		channels = "sync-1", "", "out";
->> +	};
->> -- 
->> 2.1.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe devicetree" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'm pretty sure all the DT binding patches for Tegra186 that I submitted 
+were ack'd by Rob. They were certainly all posted to relevant Linux 
+lists and discussed and ack'd by someone before I pushed them into 
+U-Boot. Probably 2nd quarter last year, or maybe 3rd.
