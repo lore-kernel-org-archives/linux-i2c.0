@@ -1,141 +1,132 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 13/13] drm/i915: Acquire P-Unit access when modifying
- P-Unit settings
-Date: Mon, 30 Jan 2017 17:33:50 +0100
-Message-ID: <1b738c44-6f83-254c-9140-b3dbb587c6d6@redhat.com>
-References: <20170123210958.18410-1-hdegoede@redhat.com>
- <20170123210958.18410-14-hdegoede@redhat.com>
- <20170127135147.GS31595@intel.com>
- <64a4aef7-837f-059c-9be5-4a76602488be@redhat.com>
- <2eea197f-2485-5f93-1691-42a9a2e11267@redhat.com>
- <20170130131041.GM31595@intel.com>
- <f3585fe1-9bc3-08a0-f747-ee0336f97965@redhat.com>
- <20170130151144.GP31595@intel.com>
- <dd41cb48-dfa1-e3d9-7850-7886f029944e@redhat.com>
- <20170130153805.GQ31595@intel.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v8 07/12] dt-bindings: i2c: i2c-mux-simple: document
+ i2c-mux-simple bindings
+Date: Mon, 30 Jan 2017 11:20:34 -0600
+Message-ID: <CAL_JsqLVrzm4BEv3kpOGRoaRq+cqvSm+A6weZfU8H8i9dc=tcA@mail.gmail.com>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+ <1484755035-25927-8-git-send-email-peda@axentia.se> <20170127193917.6xuunrkjkqh4f2v7@rob-hp-laptop>
+ <835415bf-77af-6131-d018-d0bc7d8233b0@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170130153805.GQ31595@intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <835415bf-77af-6131-d018-d0bc7d8233b0-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksCgpPbiAzMC0wMS0xNyAxNjozOCwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+IE9uIE1vbiwg
-SmFuIDMwLCAyMDE3IGF0IDA0OjI3OjU4UE0gKzAxMDAsIEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4+
-IEhpLAo+Pgo+PiBPbiAzMC0wMS0xNyAxNjoxMSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+Pj4g
-T24gTW9uLCBKYW4gMzAsIDIwMTcgYXQgMDQ6MDI6MTlQTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3
-cm90ZToKPj4+PiBIaSwKPj4+Pgo+Pj4+IE9uIDMwLTAxLTE3IDE0OjEwLCBWaWxsZSBTeXJqw6Rs
-w6Qgd3JvdGU6Cj4+Pj4+IE9uIFNhdCwgSmFuIDI4LCAyMDE3IGF0IDA2OjE4OjQ1UE0gKzAxMDAs
-IEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4+Pj4+PiBIaSwKPj4+Pj4+Cj4+Pj4+PiBPbiAwMS8yOC8y
-MDE3IDA1OjI1IFBNLCBIYW5zIGRlIEdvZWRlIHdyb3RlOgo+Pj4+Pj4+IEhpLAo+Pj4+Pj4+Cj4+
-Pj4+Pj4gT24gMDEvMjcvMjAxNyAwMjo1MSBQTSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+Pj4+
-Pj4+PiBPbiBNb24sIEphbiAyMywgMjAxNyBhdCAxMDowOTo1OFBNICswMTAwLCBIYW5zIGRlIEdv
-ZWRlIHdyb3RlOgo+Pj4+Pj4+Pj4gTWFrZSBzdXJlIHRoZSBQLVVuaXQgb3IgdGhlIFBNSUMgaTJj
-IGJ1cyBpcyBub3QgaW4gdXNlIHdoZW4gd2Ugc2VuZCBhCj4+Pj4+Pj4+PiByZXF1ZXN0IHRvIHRo
-ZSBQLVVuaXQgYnkgY2FsbGluZyBpb3NmX21iaV9wdW5pdF9hY3F1aXJlKCkgLyBfcmVsZWFzZSgp
-Cj4+Pj4+Pj4+PiBhcm91bmQgUC1Vbml0IHdyaXRlIGFjY2Vzc2VzLgo+Pj4+Pj4+Pgo+Pj4+Pj4+
-PiBDYW4ndCB3ZSBqdXN0IHN0dWZmIHRoZSBjYWxscyBpbnRvIHRoZSBhY3R1YWwgcHVuaXQgd3Jp
-dGUgZnVuY3Rpb24KPj4+Pj4+Pj4gcmF0aGVyIHRoYW4gc3ByaW5rbGluZyB0aGVtIGFsbCBvdmVy
-IHRoZSBwbGFjZT8KPj4+Pj4+Pgo+Pj4+Pj4+IHB1bml0IGFjY2VzcyBpcyBhY3F1aXJlZCBhY3Jv
-c3Mgc2VjdGlvbnMgbGlrZSB0aGlzOgo+Pj4+Pj4+Cj4+Pj4+Pj4gICAgICAgICBpb3NmX21iaV9w
-dW5pdF9hY3F1aXJlKCk7Cj4+Pj4+Pj4KPj4+Pj4+PiAgICAgICAgIHZhbCA9IHZsdl9wdW5pdF9y
-ZWFkKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSk7Cj4+Pj4+Pj4gICAgICAgICB2YWwgJj0g
-fkRTUEZSRVFHVUFSX01BU0s7Cj4+Pj4+Pj4gICAgICAgICB2YWwgfD0gKGNtZCA8PCBEU1BGUkVR
-R1VBUl9TSElGVCk7Cj4+Pj4+Pj4gICAgICAgICB2bHZfcHVuaXRfd3JpdGUoZGV2X3ByaXYsIFBV
-TklUX1JFR19EU1BGUkVRLCB2YWwpOwo+Pj4+Pj4+ICAgICAgICAgaWYgKHdhaXRfZm9yKCh2bHZf
-cHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpICYKPj4+Pj4+PiAgICAgICAg
-ICAgICAgICAgICAgICAgRFNQRlJFUVNUQVRfTUFTSykgPT0gKGNtZCA8PCBEU1BGUkVRU1RBVF9T
-SElGVCksCj4+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgNTApKSB7Cj4+Pj4+Pj4gICAgICAg
-ICAgICAgICAgIERSTV9FUlJPUigidGltZWQgb3V0IHdhaXRpbmcgZm9yIENEY2xrIGNoYW5nZVxu
-Iik7Cj4+Pj4+Pj4gICAgICAgICB9Cj4+Pj4+Pj4gICAgICAgICBpb3NmX21iaV9wdW5pdF9yZWxl
-YXNlKCk7Cj4+Pj4+Pj4KPj4+Pj4+PiBXaGVyZSB3ZSB3YW50IHRvIHdhaXQgZm9yIHRoZSByZXF1
-ZXN0ZWQgY2hhbmdlIHRvIGhhdmUgdGFrZW4KPj4+Pj4+PiBlZmZlY3QgYmVmb3JlIHJlbGVhc2lu
-ZyB0aGUgcHVuaXQuCj4+Pj4+Cj4+Pj4+IEhtbS4gVGhhdCdzIHNvbWV3aGF0IHVuZm9ydHVuYXRl
-LiBJdCBhbHNvIGhpZ2hsaWdodHMgYSBwcm9ibGVtIHdpdGggdGhlCj4+Pj4+IHBhdGNoIHdydC4g
-UlBTLiBXZSBkb24ndCB3YWl0IGZvciB0aGUgR1BVIHRvIGFjdHVhbGx5IGNoYW5nZSBmcmVxdWVu
-Y2llcwo+Pj4+PiBpbiBzZXRfcnBzKCkgYmVjYXVzZSB0aGF0IHdvdWxkIHNsb3cgdGhpbmdzIGRv
-d24gdG9vIG11Y2guIFNvIEkgaGF2ZSB0bwo+Pj4+PiB3b25kZXIgaG93IG11Y2ggbHVjayBpcyBu
-ZWVkZWQgdG8gbWFrZSB0aGlzIHdvcmthcm91bmQgcmVhbGx5IGVmZmVjdGl2ZS4KPj4+Pgo+Pj4+
-IFNvIHRoZSBoaXN0b3J5IG9mIHRoaXMgcGF0Y2gtc2V0IGlzIHRoYXQgSSB3cm90ZSB0aGlzIHBh
-dGNoIGJlZm9yZQo+Pj4+IHdyaXRpbmcgdGhlIHBhdGNoIHRvIGdldCBGT1JDRVdBS0VfQUxMIGJl
-Zm9yZSB0aGUgcG1pYyBidXMgYmVjb21lcwo+Pj4+IGFjdGl2ZSAocGF0Y2ggMTIvMTMpLiBTaW5j
-ZSBhIGxvdCBvZiB0ZXN0aW5nIHdhcyBkb25lIHdpdGggdGhpcwo+Pj4+IHBhdGNoIGluY2x1ZGVk
-IGluIHRoZSBwYXRjaC1zZXQgYW5kIHNpbmNlIGl0IHNlZW1lZCBhIGdvb2QgaWRlYQo+Pj4+IHJl
-Z2FyZGxlc3MgKGdpdmVuIG15IGV4cGVyaWVuY2Ugd2l0aCBhY2Nlc3NpbmcgdGhlIHB1bml0IHZz
-Cj4+Pj4gcG1pYyBidXMgYWNjZXNzZXMpIEkgZGVjaWRlZCB0byBsZWF2ZSBpdCBpbi4KPj4+Pgo+
-Pj4+IFBvc3NpYmx5IGp1c3QgdGhlIHBhdGNoIHRvIGdldCBGT1JDRVdBS0VfQUxMIGlzIGVub3Vn
-aCwgdGhhdCBvbmUKPj4+PiBhY3R1YWxseSBmaXhlZCB0aGluZ3MgZm9yIG1lLiBUaGF0IGlzIGFs
-c28gd2h5IEkgbWFkZSB0aGlzIHRoZQo+Pj4+IGxhc3QgcGF0Y2ggaW4gdGhlIHNldC4gSSBhc2tl
-ZCB0YWdvcmVyZWRkeSB0byB0ZXN0IGhpcyBzeXN0ZW0KPj4+PiB3aXRob3V0IHRoaXMgcGF0Y2gs
-IGJ1dCBoZSBkaWQgbm90IGdldCBhcm91bmQgdG8gdGhhdC4KPj4+Pgo+Pj4+IEFmdGVyIGFsbCB3
-ZSBkbyB0ZWxsIHRoZSBwdW5pdCB0byBub3QgdG91Y2ggdGhlIGJ1cyBieSBhY3F1aXJpbmcKPj4+
-PiB0aGUgcG1pYyBidXMgc2VtYXBob3JlIGZyb20gaTJjLWRlc2lnd2FyZS1iYXl0cmFpbC5jLCBz
-byBtYXliZQo+Pj4+IGZvciBSUFMgZnJlcSBjaGFuZ2VzIGl0IGhvbm9ycyB0aGF0IGFuZCBwcm9w
-ZXJseSB3YWl0cy4gTWF5YmUgaXQKPj4+PiBob25vcnMgdGhhdCBmb3IgYWxsIHB1bml0IHJlcXVl
-c3RzIGk5MTUgZG9lcyBhbmQgdGhlIG9ubHkgcmVhbAo+Pj4+IHByb2JsZW0gaXMgdGhlIGZvcmNl
-d2FrZSBzdHVmZiA/Cj4+Pj4KPj4+PiBJIGNhbiB0cnkgdG8gZHJvcCB0aGlzIHBhdGNoIGZyb20g
-bXkgcXVldWUgYW5kIHJ1biB3aXRob3V0IGl0Cj4+Pj4gZm9yIGEgd2hpbGUgYW5kIHNlZSBpZiB0
-aGluZ3MgZG9uJ3QgcmVncmVzcy4gQW5kIGFsc28gYXNrCj4+Pj4gdGFnb3JlcmVkZHkgYWdhaW4g
-dG8gdGVzdCBoaXMgc3lzdGVtIHRoYXQgd2F5Lgo+Pj4+Cj4+Pj4gRG9lcyB0aGF0IChkcm9wcGlu
-ZyB0aGlzIHBhdGNoIGZvciBub3cpIHNvdW5kIGxpa2UgYSBnb29kIGlkZWE/Cj4+Pgo+Pj4gTW9y
-ZSB0ZXN0IHJlc3VsdHMgY291bGRuJ3QgaHVydCBhdCBsZWFzdC4gSXQgYWxzbyBtYWtlcyBtZSB3
-b25kZXIgaWYKPj4+IGp1c3QgYnVtcGluZyB0aGUgdGltZW91dHMgdG8gc29tZSByaWRpY3Vsb3Vz
-bHkgaGlnaCB2YWx1ZSB3b3VsZCBmaXgKPj4+IHRoZSBwcm9ibGVtIGFzIHdlbGwuCj4+Cj4+IEkn
-dmUgYWxyZWFkeSB0cmllZCBidW1waW5nIHRoZSBmb3JjZXdha2UgdGltZW91dCBmcm9tIDUwIHRv
-IDI1MG1zLAo+PiBiZWZvcmUgd3JpdGluZyB0aGUgcGF0Y2ggdG8ganVzdCBnZXQgZm9yY2V3YWtl
-X2FsbCBiZWZvcmUgdGhlIHBtaWMKPj4gYnVzIGFjY2VzcyBiZWdpbnMsIHRoYXQgZG9lcyBub3Qg
-Zml4IHRoaW5ncywKPgo+IEFuZCB5b3UgYnVtcGVkIHRoZSBpMmMgbXV0ZXggdGltZW91dCBhcyB3
-ZWxsPyBPciBkb2VzIHRoYXQgZmFpbCBzb21laG93Cj4gZ3JhY2VmdWxseSBpZiBpdCBjYW4ndCBn
-ZXQgdGhlIG11dGV4PwoKSXQgd2lsbCBmYWlsIHRoZSBpMmMgdHJhbnNmZXIgd2l0aCAtRVRJTUVP
-VVQsIHdoaWNoIHdpbGwgbWFrZSB0aGUgZHJpdmVyCnJlcG9ydCBhbiBlcnJvciBpbnN0ZWFkIG9m
-IGUuZy4gdGhlIGJhdHRlcnkgbGV2ZWwsIGJ1dCBpdCBzaG91bGQgbm90CmFmZmVjdCB0aGUgZm9y
-Y2V3YWtlIGNhbGxzIGFuZCB0aG9zZSBzdGlsbCBmYWlsZWQgd2l0aCB0aGUgbGFyZ2UKdGltZW91
-dC4gU28geWVzIGJhc2ljYWxseSB0aGUgaTJjIG11dGV4IGZhaWxzIGdyYWNlZnVsbHkuCgo+Cj4+
-IGFuZCBzaW5jZSB3ZSBidXN5IHdhaXQKPj4gZm9yIHRoaXMgdGltZW91dCBmcm9tIG5vbi1zbGVl
-cGluZyBjb250ZXh0IDI1MG1zIGFscmVhZHkgaXMgd2F5IHRvbwo+PiBoaWdoLgo+Cj4gU3VyZSwg
-YnV0IEknbSBqdXN0IHRyeWluZyB0byB1bmRlcnN0YW5kIGlmIHRoZSBwcm9ibGVtIGlzIHNpbXBs
-eSBjYXVzZWQKPiBieSBwcm9jZWVkaW5nIHdpdGggc29tZSBoYXJkd2FyZSBhY2Nlc3Mgd2l0aG91
-dCBnZXR0aW5nIHRoZSBpMmMgbXV0ZXguCgpVbmRlcnN0b29kLgoKPj4+Pj4+Pj4gKyBhIGNvbW1l
-bnQgd291bGQgYmUgbmljZSB3aHkgaXQncyB0aGVyZS4KPj4+Pj4+Pgo+Pj4+Pj4+IEkgd2lsbCBh
-ZGQgY29tbWVudHMgdG8gdGhlIGFjcXVpcmUgY2FsbHMuCj4+Pj4+Pj4KPj4+Pj4+Pj4gRG8gd2Ug
-bmVlZCBhIGtjb25maWcgc2VsZWN0L2RlcGVuZHMgb24gdGhlIGlvc2ZfbWJpIHRoaW5nPyBPciBz
-b21lCj4+Pj4+Pj4+IGlmZGVmcz8KPj4+Pj4+Pgo+Pj4+Pj4+IE5vLCB0aGUgaW9zZl9tYmkgaGVh
-ZGVyIGRlZmluZXMgZW1wdHkgaW5saW5lIHZlcnNpb25zIG9mCj4+Pj4+Pj4gaW9zZl9tYmlfcHVu
-aXRfYWNxdWlyZSAvIF9yZWxlYXNlIGlmIElPU0ZfTUJJIGlzIGRpc2FibGVkLAo+Pj4+Pj4+IHRo
-aXMgZG9lcyBtZWFuIHRoYXQgaW9zZl9tYmkgbXVzdCBiZSBidWlsdGluIGlmIHRoZSBpOTE1Cj4+
-Pj4+Pj4gZHJpdmVyIGlzLiBJJ2xsIGFkZDoKPj4+Pj4+Pgo+Pj4+Pj4+ICAgICBkZXBlbmRzIG9u
-IERSTV9JOTE1PUlPU0ZfTUJJIHx8IElPU0ZfTUJJPXkKPj4+Pj4+Pgo+Pj4+Pj4+IFRvIHRoZSBp
-OTE1IEtjb25maWcgdG8gZW5mb3JjZSB0aGlzLgo+Pj4+Pj4KPj4+Pj4+IEhtbSwgb2sgc28gdGhh
-dCBkb2VzIG5vdCB3b3JrIChsb25nIGN5Y2xpYyBkZXBlbmRlbmN5IHRocm91Z2ggdGhlCj4+Pj4+
-PiBzZWxlY3Rpb24gb2YgQUNQSV9WSURFTykuCj4+Pj4+Pgo+Pj4+Pj4gU28gSSd2ZSBub3cgYWRk
-ZWQgdGhpcyBpbnN0ZWFkOgo+Pj4+Pj4KPj4+Pj4+IAkjIGlvc2ZfbWJpIG5lZWRzIHRvIGJlIGJ1
-aWx0aW4gaWYgd2UgYXJlIGJ1aWx0aW4KPj4+Pj4+IAlzZWxlY3QgSU9TRl9NQkkgaWYgRFJNX0k5
-MTU9eQo+Pj4+Pgo+Pj4+PiBUaGF0J3MgcHJvYmFibHkgbm90IGdvaW5nIHRvIGhlbHAgYW55b25l
-IHNpbmNlIGk5MTUgaXMgdXN1YWxseSBhIG1vZHVsZS4KPj4+Pgo+Pj4+IFJpZ2h0LCB0aGF0IGlz
-IGZpbmUsIHRoZW4gZWl0aGVyIHRoZSBJT1NGX01CSSBzeW1ib2xzIGFyZSBhdmFpbGFibGUsCj4+
-Pj4gb3IgSU9TRl9NQkkgaXMgZGlzYWJsZWQgYW5kIHdlIGdldCB0aGUgaW5saW5lIG5vcHMgZnJv
-bSB0aGUgaGVhZGVyLgo+Pj4+Cj4+Pj4gVGhlIHByb2JsZW0gc2NlbmFyaW8gaXMgRFJNX0k5MTU9
-eSBhbmQgSU9TRl9NQkk9bSwgd2hpY2ggaXMgbm90IHZlcnkKPj4+PiByZWFsaXN0aWMgSU1ITywg
-YnV0IHdpbGwgZ2V0IHRyaWdnZXJlZCBieSB0aGUgcmFuZG9tLWNvbmZpZyB0ZXN0aW5nCj4+Pj4g
-c2V2ZXJhbCBjb250cmlidXRvcnMgZG8gYW5kIGxlYWQgdG8gYW4gdW5yZXNvbHZlZCBzeW1ib2wg
-ZXJyb3IgdGhlcmUuCj4+Pgo+Pj4gV2VsbCwgZnJvbSB0aGUgdXNlciBQT1YgYW55dGhpbmcgd2l0
-aCBJT1NGX01CST09biBjYW4gYmUgYSBwcm9ibGVtLgo+Pj4gU28gSSdtIG5vdCBzdXJlIGlmIHdl
-IHNob3VsZCBhbGxvdyB0aGF0Lgo+Pgo+PiBTbyB5b3UncmUgc3VnZ2VzdGluZyB3ZSBqdXN0IGFk
-ZCBhbiB1bmNvbmRpdGlvbmFsICJzZWxlY3QgSU9TRl9NQkkiCj4+IHRvIHRoZSBpOTE1IEtjb25m
-aWcgZW50cnk/Cj4KPiBZZWFoLCB0aGF0IHNob3VsZCBhdCBsZWFzdCBjdXQgZG93biB0aGUgbnVt
-YmVyIG9mIHBlb3BsZSBhY2NpZGVudGFsbHkKPiBtaXNjb25maWd1cmluZyB0aGVpciBrZXJuZWxz
-IGFuZCBoaXR0aW5nIHRoaXMgcHJvYmxlbSBpbiB0aGUgZnV0dXJlLgoKT2suCgpSZWdhcmRzLAoK
-SGFucwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJp
-LWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
-Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Sat, Jan 28, 2017 at 4:42 PM, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org> wrote:
+> On 2017-01-27 20:39, Rob Herring wrote:
+>> On Wed, Jan 18, 2017 at 04:57:10PM +0100, Peter Rosin wrote:
+>>> Describe how a generic multiplexer controller is used to mux an i2c bus.
+>>>
+>>> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>>> ---
+>>>  .../devicetree/bindings/i2c/i2c-mux-simple.txt     | 81 ++++++++++++++++++++++
+>>>  1 file changed, 81 insertions(+)
+>>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>> new file mode 100644
+>>> index 000000000000..253d5027843b
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>> @@ -0,0 +1,81 @@
+>>> +Simple I2C Bus Mux
+>>> +
+>>> +This binding describes an I2C bus multiplexer that uses a mux controller
+>>> +from the mux subsystem to route the I2C signals.
+>>> +
+>>> +                                  .-----.  .-----.
+>>> +                                  | dev |  | dev |
+>>> +    .------------.                '-----'  '-----'
+>>> +    | SoC        |                   |        |
+>>> +    |            |          .--------+--------'
+>>> +    |   .------. |  .------+    child bus A, on MUX value set to 0
+>>> +    |   | I2C  |-|--| Mux  |
+>>> +    |   '------' |  '--+---+    child bus B, on MUX value set to 1
+>>> +    |   .------. |     |    '----------+--------+--------.
+>>> +    |   | MUX- | |     |               |        |        |
+>>> +    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
+>>> +    |   '------' |                  | dev |  | dev |  | dev |
+>>> +    '------------'                  '-----'  '-----'  '-----'
+>>> +
+>>> +Required properties:
+>>> +- compatible: i2c-mux-simple,mux-locked or i2c-mux-simple,parent-locked
+>>
+>> Not a fan of using "simple" nor the ','. Perhaps lock type should be
+>> separate property.
+>
+> How about just i2c-mux for the compatible? Because i2c-mux-mux (which
+> follows the naming of previous i2c muxes) looks really stupid. Or
+> perhaps i2c-mux-generic?
+
+I like "generic" only slightly more than "simple". :)
+
+If the mux is gpio controlled, then it should still be called
+i2c-gpio-mux. Let's not invent brand new bindings when current ones
+are easily extended. We already have pretty generic names here, let's
+not make them more generic.
+
+>
+> I'm also happy to have the lock type as a separate property. One lock
+> type, e.g. parent-locked, could be the default and adding a 'mux-locked'
+> property could change that. Would that be ok?
+
+I prefer this. Then existing bindings can use it.
+
+> Or should it be a requirement that one of 'mux-locked'/'parent-locked'
+> is always present?
+
+I would make it boolean and make not present be the more common case.
+Not present could also mean determined via other means as you have
+today with existing bindings. Maybe then you need both properties.
+
+>> I'm not sure I get the mux vs. parent locked fully. How do I determine
+>> what type I have? We already have bindings for several types of i2c
+>> muxes. How does the locking annotation fit into those?
+>
+> We have briefly discussed this before [1] in the context of i2c-mux-gpio
+> and i2c-mux-pinctrl, when I added the mux-locked/parent-locked distinction
+> to the i2c-mux infrastructure (it wasn't named mux-locked/parent-locked
+> way back then though). There is more detail on what the difference is
+> between the two in Documentation/i2c/i2c-topology.
+>
+> Side note regarding your remark "use an I2C controlled mux instead"; it
+> appears that I'm not alone [2] with this kind of requirement...
+>
+> [1] https://lkml.org/lkml/2016/1/6/437
+> [2] http://marc.info/?t=147877959100002&r=1&w=2
+>
+> But, now that I have pondered on this for a year or so, I firmly
+> believe it was a mistake to have the code in i2c-mux-gpio and
+> i2c-mux-pinctrl automatically try to deduce if the mux should be
+> mux-locked or parent-locked. It might be easy to make that call
+> in some trivial cases, but it is not difficult to dream up
+> scenarios where it would be extremely hard for the code to get
+> this decision right. It's just fragile. But now we have code in
+> those two muxes that has unwanted tentacles into the guts of the
+> gpio and pinctrl subsystems. Hopefully those unwanted tentacles
+> can be replaced with something based on device links? However, it
+> is still not hard to come up with scenarios that will require
+> manual intervention in order to select the right kind of i2c mux
+> locking. So, I fear that we have inadequate code trying to make a
+> decision automatically, and that we at some point down the line
+> will have some impossible case needing a binding that trumps the
+> heuristic. Why have a heuristic at all in that case? In short, it
+> should have been a binding from the start, methinks.
+>
+> That was a long rant regarding i2c-mux-gpio and i2c-mux-pinctrl.
+> I obviously think it is bad to have this new i2c mux go in the
+> same direction as those two drivers. I.e. I think a binding that
+> specifies the desired locking is preferable to any attempted
+> heuristic.
+
+Having a separate, common property(ies) for these would solve this then.
+
+Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
