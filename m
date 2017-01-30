@@ -1,39 +1,65 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: busses: constify i2c_algorithm structures
-Date: Sun, 29 Jan 2017 11:28:16 +0100
-Message-ID: <20170129102816.274ogzwmtltofrdu@pengutronix.de>
-References: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Subject: Re: [PATCH] i2c: piix4: Fix request_region size
+Date: Mon, 30 Jan 2017 02:11:47 +0100
+Message-ID: <CAPybu_3prZYuGcHKx-ppm9_viKVm-VzgR6ou=O7vPiA0ocX16g@mail.gmail.com>
+References: <20170127145930.13055-1-ricardo.ribalda@gmail.com>
+ <1485592582.4916.1.camel@suse.de> <20170128110021.GA1604@katana> <20170128121346.1e530c1c@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: jdelvare@suse.com, andriy.shevchenko@linux.intel.com, kernel@stlinux.com, wsa@the-dreams.de, patrice.chotard@st.com, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr, ludovic.desroches@atmel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, sonic.zhang@analog.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35092 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750839AbdA3BMK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 29 Jan 2017 20:12:10 -0500
+In-Reply-To: <20170128121346.1e530c1c@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Hello,
+Hi Jean and Wolfram
 
-On Fri, Jan 27, 2017 at 11:36:17PM +0530, Bhumika Goyal wrote:
->  drivers/i2c/busses/i2c-imx.c             | 2 +-
 
-Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de> for
-i2c-imx.c
 
-Thanks
-Uwe
+On Sat, Jan 28, 2017 at 12:13 PM, Jean Delvare <jdelvare@suse.de> wrote:
+> Hi Wolfram,
+>
+> On Sat, 28 Jan 2017 12:00:21 +0100, Wolfram Sang wrote:
+>>
+>> > >  /* count for request_region */
+>> > > -#define SMBIOSIZE        8
+>> > > +#define SMBIOSIZE        9
+>> >
+>> > Are you certain that all supported devices have this extra register?
+>>
+>> Isn't it better to have a potentially unused register mapped than a
+>> potentially used register unmapped
 
--- =
+We have been  "lucky" that it is a ioport and not a mmap region,
+otherwise we would have seen a nice oops :).
 
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+>
+> My concern is that the region request could fail due to a conflict with
+> another device, if the physical I/O region is only 8 and we try to
+> request 9.
+
+I do not think that this is the case, if you check the top of the file
+you can see how there are many other definitions for registers. I
+expect that SMBIOSIZE=8 is just the original author being
+conservative.
+
+Of course I cannot say that there is one platform where one extra
+ioport can cause a conflict, but I believe that we must request all
+the ports that we will use.
+
+
+Regards!
+>
+> --
+> Jean Delvare
+> SUSE L3 Support
+
+
+
+-- 
+Ricardo Ribalda
