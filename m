@@ -1,198 +1,312 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Subject: Re: [PATCH v2 13/13] drm/i915: Acquire P-Unit access
- when modifying P-Unit settings
-Date: Mon, 30 Jan 2017 15:10:41 +0200
-Message-ID: <20170130131041.GM31595@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 13/13] drm/i915: Acquire P-Unit access when modifying
+ P-Unit settings
+Date: Mon, 30 Jan 2017 16:02:19 +0100
+Message-ID: <f3585fe1-9bc3-08a0-f747-ee0336f97965@redhat.com>
 References: <20170123210958.18410-1-hdegoede@redhat.com>
  <20170123210958.18410-14-hdegoede@redhat.com>
  <20170127135147.GS31595@intel.com>
  <64a4aef7-837f-059c-9be5-4a76602488be@redhat.com>
  <2eea197f-2485-5f93-1691-42a9a2e11267@redhat.com>
+ <20170130131041.GM31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <2eea197f-2485-5f93-1691-42a9a2e11267@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54446 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932155AbdA3PCZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Jan 2017 10:02:25 -0500
+In-Reply-To: <20170130131041.GM31595@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-T24gU2F0LCBKYW4gMjgsIDIwMTcgYXQgMDY6MTg6NDVQTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3
-cm90ZToKPiBIaSwKPiAKPiBPbiAwMS8yOC8yMDE3IDA1OjI1IFBNLCBIYW5zIGRlIEdvZWRlIHdy
-b3RlOgo+ID4gSGksCj4gPgo+ID4gT24gMDEvMjcvMjAxNyAwMjo1MSBQTSwgVmlsbGUgU3lyasOk
-bMOkIHdyb3RlOgo+ID4+IE9uIE1vbiwgSmFuIDIzLCAyMDE3IGF0IDEwOjA5OjU4UE0gKzAxMDAs
-IEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4gPj4+IE1ha2Ugc3VyZSB0aGUgUC1Vbml0IG9yIHRoZSBQ
-TUlDIGkyYyBidXMgaXMgbm90IGluIHVzZSB3aGVuIHdlIHNlbmQgYQo+ID4+PiByZXF1ZXN0IHRv
-IHRoZSBQLVVuaXQgYnkgY2FsbGluZyBpb3NmX21iaV9wdW5pdF9hY3F1aXJlKCkgLyBfcmVsZWFz
-ZSgpCj4gPj4+IGFyb3VuZCBQLVVuaXQgd3JpdGUgYWNjZXNzZXMuCj4gPj4KPiA+PiBDYW4ndCB3
-ZSBqdXN0IHN0dWZmIHRoZSBjYWxscyBpbnRvIHRoZSBhY3R1YWwgcHVuaXQgd3JpdGUgZnVuY3Rp
-b24KPiA+PiByYXRoZXIgdGhhbiBzcHJpbmtsaW5nIHRoZW0gYWxsIG92ZXIgdGhlIHBsYWNlPwo+
-ID4KPiA+IHB1bml0IGFjY2VzcyBpcyBhY3F1aXJlZCBhY3Jvc3Mgc2VjdGlvbnMgbGlrZSB0aGlz
-Ogo+ID4KPiA+ICAgICAgICAgaW9zZl9tYmlfcHVuaXRfYWNxdWlyZSgpOwo+ID4KPiA+ICAgICAg
-ICAgdmFsID0gdmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKTsKPiA+
-ICAgICAgICAgdmFsICY9IH5EU1BGUkVRR1VBUl9NQVNLOwo+ID4gICAgICAgICB2YWwgfD0gKGNt
-ZCA8PCBEU1BGUkVRR1VBUl9TSElGVCk7Cj4gPiAgICAgICAgIHZsdl9wdW5pdF93cml0ZShkZXZf
-cHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEsIHZhbCk7Cj4gPiAgICAgICAgIGlmICh3YWl0X2Zvcigo
-dmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKSAmCj4gPiAgICAgICAg
-ICAgICAgICAgICAgICAgRFNQRlJFUVNUQVRfTUFTSykgPT0gKGNtZCA8PCBEU1BGUkVRU1RBVF9T
-SElGVCksCj4gPiAgICAgICAgICAgICAgICAgICAgICA1MCkpIHsKPiA+ICAgICAgICAgICAgICAg
-ICBEUk1fRVJST1IoInRpbWVkIG91dCB3YWl0aW5nIGZvciBDRGNsayBjaGFuZ2VcbiIpOwo+ID4g
-ICAgICAgICB9Cj4gPiAgICAgICAgIGlvc2ZfbWJpX3B1bml0X3JlbGVhc2UoKTsKPiA+Cj4gPiBX
-aGVyZSB3ZSB3YW50IHRvIHdhaXQgZm9yIHRoZSByZXF1ZXN0ZWQgY2hhbmdlIHRvIGhhdmUgdGFr
-ZW4KPiA+IGVmZmVjdCBiZWZvcmUgcmVsZWFzaW5nIHRoZSBwdW5pdC4KCkhtbS4gVGhhdCdzIHNv
-bWV3aGF0IHVuZm9ydHVuYXRlLiBJdCBhbHNvIGhpZ2hsaWdodHMgYSBwcm9ibGVtIHdpdGggdGhl
-CnBhdGNoIHdydC4gUlBTLiBXZSBkb24ndCB3YWl0IGZvciB0aGUgR1BVIHRvIGFjdHVhbGx5IGNo
-YW5nZSBmcmVxdWVuY2llcwppbiBzZXRfcnBzKCkgYmVjYXVzZSB0aGF0IHdvdWxkIHNsb3cgdGhp
-bmdzIGRvd24gdG9vIG11Y2guIFNvIEkgaGF2ZSB0bwp3b25kZXIgaG93IG11Y2ggbHVjayBpcyBu
-ZWVkZWQgdG8gbWFrZSB0aGlzIHdvcmthcm91bmQgcmVhbGx5IGVmZmVjdGl2ZS4KCj4gPgo+ID4+
-Cj4gPj4gKyBhIGNvbW1lbnQgd291bGQgYmUgbmljZSB3aHkgaXQncyB0aGVyZS4KPiA+Cj4gPiBJ
-IHdpbGwgYWRkIGNvbW1lbnRzIHRvIHRoZSBhY3F1aXJlIGNhbGxzLgo+ID4KPiA+PiBEbyB3ZSBu
-ZWVkIGEga2NvbmZpZyBzZWxlY3QvZGVwZW5kcyBvbiB0aGUgaW9zZl9tYmkgdGhpbmc/IE9yIHNv
-bWUKPiA+PiBpZmRlZnM/Cj4gPgo+ID4gTm8sIHRoZSBpb3NmX21iaSBoZWFkZXIgZGVmaW5lcyBl
-bXB0eSBpbmxpbmUgdmVyc2lvbnMgb2YKPiA+IGlvc2ZfbWJpX3B1bml0X2FjcXVpcmUgLyBfcmVs
-ZWFzZSBpZiBJT1NGX01CSSBpcyBkaXNhYmxlZCwKPiA+IHRoaXMgZG9lcyBtZWFuIHRoYXQgaW9z
-Zl9tYmkgbXVzdCBiZSBidWlsdGluIGlmIHRoZSBpOTE1Cj4gPiBkcml2ZXIgaXMuIEknbGwgYWRk
-Ogo+ID4KPiA+ICAgICBkZXBlbmRzIG9uIERSTV9JOTE1PUlPU0ZfTUJJIHx8IElPU0ZfTUJJPXkK
-PiA+Cj4gPiBUbyB0aGUgaTkxNSBLY29uZmlnIHRvIGVuZm9yY2UgdGhpcy4KPiAKPiBIbW0sIG9r
-IHNvIHRoYXQgZG9lcyBub3Qgd29yayAobG9uZyBjeWNsaWMgZGVwZW5kZW5jeSB0aHJvdWdoIHRo
-ZQo+IHNlbGVjdGlvbiBvZiBBQ1BJX1ZJREVPKS4KPiAKPiBTbyBJJ3ZlIG5vdyBhZGRlZCB0aGlz
-IGluc3RlYWQ6Cj4gCj4gCSMgaW9zZl9tYmkgbmVlZHMgdG8gYmUgYnVpbHRpbiBpZiB3ZSBhcmUg
-YnVpbHRpbgo+IAlzZWxlY3QgSU9TRl9NQkkgaWYgRFJNX0k5MTU9eQoKVGhhdCdzIHByb2JhYmx5
-IG5vdCBnb2luZyB0byBoZWxwIGFueW9uZSBzaW5jZSBpOTE1IGlzIHVzdWFsbHkgYSBtb2R1bGUu
-Cgo+IAo+IFJlZ2FyZHMsCj4gCj4gSGFucwo+IAo+IAo+ID4+PiBCdWdMaW5rOiBodHRwczovL2J1
-Z3ppbGxhLmtlcm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE1NTI0MQo+ID4+PiBTaWduZWQtb2Zm
-LWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQuY29tPgo+ID4+PiBUZXN0ZWQtYnk6
-IHRhZ29yZXJlZGR5IDx0YWdvcmUuY2hhbmRhbkBnbWFpbC5jb20+Cj4gPj4+IC0tLQo+ID4+PiBD
-aGFuZ2VzIGluIHYyOgo+ID4+PiAtU3BlbGxpbmc6IFAtVW5pdCwgUE1JQwo+ID4+PiAtQWRqdXN0
-IGZvciBpb3NmX21iaV9wdW5pdF9sb2NrL191bmxvY2sgdG8gX2FjcXVpcmUvX3JlbGVhc2UgcmVu
-YW1lCj4gPj4+IC0tLQo+ID4+PiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfZGlzcGxheS5j
-ICAgIHwgNiArKysrKysKPiA+Pj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3BtLmMgICAg
-ICAgICB8IDkgKysrKysrKysrCj4gPj4+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9ydW50
-aW1lX3BtLmMgfCA5ICsrKysrKysrKwo+ID4+PiAgMyBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRp
-b25zKCspCj4gPj4+Cj4gPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRl
-bF9kaXNwbGF5LmMgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9kaXNwbGF5LmMKPiA+Pj4g
-aW5kZXggNTYwNDcwMS4uMTNlNTE1MiAxMDA2NDQKPiA+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJt
-L2k5MTUvaW50ZWxfZGlzcGxheS5jCj4gPj4+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2lu
-dGVsX2Rpc3BsYXkuYwo+ID4+PiBAQCAtNDcsNiArNDcsNyBAQAo+ID4+PiAgI2luY2x1ZGUgPGRy
-bS9kcm1fcmVjdC5oPgo+ID4+PiAgI2luY2x1ZGUgPGxpbnV4L2RtYV9yZW1hcHBpbmcuaD4KPiA+
-Pj4gICNpbmNsdWRlIDxsaW51eC9yZXNlcnZhdGlvbi5oPgo+ID4+PiArI2luY2x1ZGUgPGFzbS9p
-b3NmX21iaS5oPgo+ID4+Pgo+ID4+PiAgc3RhdGljIGJvb2wgaXNfbW1pb193b3JrKHN0cnVjdCBp
-bnRlbF9mbGlwX3dvcmsgKndvcmspCj4gPj4+ICB7Cj4gPj4+IEBAIC02NDIxLDYgKzY0MjIsOCBA
-QCBzdGF0aWMgdm9pZCB2YWxsZXl2aWV3X3NldF9jZGNsayhzdHJ1Y3QgZHJtX2RldmljZSAqZGV2
-LCBpbnQgY2RjbGspCj4gPj4+ICAgICAgICAgIGNtZCA9IDA7Cj4gPj4+Cj4gPj4+ICAgICAgbXV0
-ZXhfbG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2NrKTsKPiA+Pj4gKyAgICBpb3NmX21iaV9wdW5p
-dF9hY3F1aXJlKCk7Cj4gPj4+ICsKPiA+Pj4gICAgICB2YWwgPSB2bHZfcHVuaXRfcmVhZChkZXZf
-cHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+ID4+PiAgICAgIHZhbCAmPSB+RFNQRlJFUUdVQVJf
-TUFTSzsKPiA+Pj4gICAgICB2YWwgfD0gKGNtZCA8PCBEU1BGUkVRR1VBUl9TSElGVCk7Cj4gPj4+
-IEBAIC02NDMwLDYgKzY0MzMsNyBAQCBzdGF0aWMgdm9pZCB2YWxsZXl2aWV3X3NldF9jZGNsayhz
-dHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBpbnQgY2RjbGspCj4gPj4+ICAgICAgICAgICAgICAgNTAp
-KSB7Cj4gPj4+ICAgICAgICAgIERSTV9FUlJPUigidGltZWQgb3V0IHdhaXRpbmcgZm9yIENEY2xr
-IGNoYW5nZVxuIik7Cj4gPj4+ICAgICAgfQo+ID4+PiArICAgIGlvc2ZfbWJpX3B1bml0X3JlbGVh
-c2UoKTsKPiA+Pj4gICAgICBtdXRleF91bmxvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4g
-Pj4+Cj4gPj4+ICAgICAgbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnNiX2xvY2spOwo+ID4+PiBAQCAt
-NjQ5Nyw2ICs2NTAxLDcgQEAgc3RhdGljIHZvaWQgY2hlcnJ5dmlld19zZXRfY2RjbGsoc3RydWN0
-IGRybV9kZXZpY2UgKmRldiwgaW50IGNkY2xrKQo+ID4+PiAgICAgIGNtZCA9IERJVl9ST1VORF9D
-TE9TRVNUKGRldl9wcml2LT5ocGxsX2ZyZXEgPDwgMSwgY2RjbGspIC0gMTsKPiA+Pj4KPiA+Pj4g
-ICAgICBtdXRleF9sb2NrKCZkZXZfcHJpdi0+cnBzLmh3X2xvY2spOwo+ID4+PiArICAgIGlvc2Zf
-bWJpX3B1bml0X2FjcXVpcmUoKTsKPiA+Pj4gICAgICB2YWwgPSB2bHZfcHVuaXRfcmVhZChkZXZf
-cHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+ID4+PiAgICAgIHZhbCAmPSB+RFNQRlJFUUdVQVJf
-TUFTS19DSFY7Cj4gPj4+ICAgICAgdmFsIHw9IChjbWQgPDwgRFNQRlJFUUdVQVJfU0hJRlRfQ0hW
-KTsKPiA+Pj4gQEAgLTY1MDYsNiArNjUxMSw3IEBAIHN0YXRpYyB2b2lkIGNoZXJyeXZpZXdfc2V0
-X2NkY2xrKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIGludCBjZGNsaykKPiA+Pj4gICAgICAgICAg
-ICAgICA1MCkpIHsKPiA+Pj4gICAgICAgICAgRFJNX0VSUk9SKCJ0aW1lZCBvdXQgd2FpdGluZyBm
-b3IgQ0RjbGsgY2hhbmdlXG4iKTsKPiA+Pj4gICAgICB9Cj4gPj4+ICsgICAgaW9zZl9tYmlfcHVu
-aXRfcmVsZWFzZSgpOwo+ID4+PiAgICAgIG11dGV4X3VubG9jaygmZGV2X3ByaXYtPnJwcy5od19s
-b2NrKTsKPiA+Pj4KPiA+Pj4gICAgICBpbnRlbF91cGRhdGVfY2RjbGsoZGV2X3ByaXYpOwo+ID4+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYyBiL2RyaXZlcnMv
-Z3B1L2RybS9pOTE1L2ludGVsX3BtLmMKPiA+Pj4gaW5kZXggMjQ5NjIzZC4uYWRmZjg0YSAxMDA2
-NDQKPiA+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcG0uYwo+ID4+PiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9wbS5jCj4gPj4+IEBAIC0zMiw2ICszMiw3IEBA
-Cj4gPj4+ICAjaW5jbHVkZSAiLi4vLi4vLi4vcGxhdGZvcm0veDg2L2ludGVsX2lwcy5oIgo+ID4+
-PiAgI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgo+ID4+PiAgI2luY2x1ZGUgPGRybS9kcm1fYXRv
-bWljX2hlbHBlci5oPgo+ID4+PiArI2luY2x1ZGUgPGFzbS9pb3NmX21iaS5oPgo+ID4+Pgo+ID4+
-PiAgLyoqCj4gPj4+ICAgKiBET0M6IFJDNgo+ID4+PiBAQCAtMjc2LDYgKzI3Nyw3IEBAIHN0YXRp
-YyB2b2lkIGNodl9zZXRfbWVtb3J5X2R2ZnMoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9w
-cml2LCBib29sIGVuYWJsZSkKPiA+Pj4gICAgICB1MzIgdmFsOwo+ID4+Pgo+ID4+PiAgICAgIG11
-dGV4X2xvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7Cj4gPj4+ICsgICAgaW9zZl9tYmlfcHVu
-aXRfYWNxdWlyZSgpOwo+ID4+Pgo+ID4+PiAgICAgIHZhbCA9IHZsdl9wdW5pdF9yZWFkKGRldl9w
-cml2LCBQVU5JVF9SRUdfRERSX1NFVFVQMik7Cj4gPj4+ICAgICAgaWYgKGVuYWJsZSkKPiA+Pj4g
-QEAgLTI5MCw2ICsyOTIsNyBAQCBzdGF0aWMgdm9pZCBjaHZfc2V0X21lbW9yeV9kdmZzKHN0cnVj
-dCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwgYm9vbCBlbmFibGUpCj4gPj4+ICAgICAgICAg
-ICAgICAgIEZPUkNFX0REUl9GUkVRX1JFUV9BQ0spID09IDAsIDMpKQo+ID4+PiAgICAgICAgICBE
-Uk1fRVJST1IoInRpbWVkIG91dCB3YWl0aW5nIGZvciBQdW5pdCBERFIgRFZGUyByZXF1ZXN0XG4i
-KTsKPiA+Pj4KPiA+Pj4gKyAgICBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCk7Cj4gPj4+ICAgICAg
-bXV0ZXhfdW5sb2NrKCZkZXZfcHJpdi0+cnBzLmh3X2xvY2spOwo+ID4+PiAgfQo+ID4+Pgo+ID4+
-PiBAQCAtMjk4LDYgKzMwMSw3IEBAIHN0YXRpYyB2b2lkIGNodl9zZXRfbWVtb3J5X3BtNShzdHJ1
-Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsIGJvb2wgZW5hYmxlKQo+ID4+PiAgICAgIHUz
-MiB2YWw7Cj4gPj4+Cj4gPj4+ICAgICAgbXV0ZXhfbG9jaygmZGV2X3ByaXYtPnJwcy5od19sb2Nr
-KTsKPiA+Pj4gKyAgICBpb3NmX21iaV9wdW5pdF9hY3F1aXJlKCk7Cj4gPj4+Cj4gPj4+ICAgICAg
-dmFsID0gdmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKTsKPiA+Pj4g
-ICAgICBpZiAoZW5hYmxlKQo+ID4+PiBAQCAtMzA2LDYgKzMxMCw3IEBAIHN0YXRpYyB2b2lkIGNo
-dl9zZXRfbWVtb3J5X3BtNShzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsIGJvb2wg
-ZW5hYmxlKQo+ID4+PiAgICAgICAgICB2YWwgJj0gfkRTUF9NQVhGSUZPX1BNNV9FTkFCTEU7Cj4g
-Pj4+ICAgICAgdmx2X3B1bml0X3dyaXRlKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSwgdmFs
-KTsKPiA+Pj4KPiA+Pj4gKyAgICBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCk7Cj4gPj4+ICAgICAg
-bXV0ZXhfdW5sb2NrKCZkZXZfcHJpdi0+cnBzLmh3X2xvY2spOwo+ID4+PiAgfQo+ID4+Pgo+ID4+
-PiBAQCAtNDU1Myw2ICs0NTU4LDcgQEAgdm9pZCB2bHZfd21fZ2V0X2h3X3N0YXRlKHN0cnVjdCBk
-cm1fZGV2aWNlICpkZXYpCj4gPj4+Cj4gPj4+ICAgICAgaWYgKElTX0NIRVJSWVZJRVcoZGV2X3By
-aXYpKSB7Cj4gPj4+ICAgICAgICAgIG11dGV4X2xvY2soJmRldl9wcml2LT5ycHMuaHdfbG9jayk7
-Cj4gPj4+ICsgICAgICAgIGlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKPiA+Pj4KPiA+Pj4gICAg
-ICAgICAgdmFsID0gdmx2X3B1bml0X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKTsK
-PiA+Pj4gICAgICAgICAgaWYgKHZhbCAmIERTUF9NQVhGSUZPX1BNNV9FTkFCTEUpCj4gPj4+IEBA
-IC00NTgyLDYgKzQ1ODgsNyBAQCB2b2lkIHZsdl93bV9nZXRfaHdfc3RhdGUoc3RydWN0IGRybV9k
-ZXZpY2UgKmRldikKPiA+Pj4gICAgICAgICAgICAgICAgICB3bS0+bGV2ZWwgPSBWTFZfV01fTEVW
-RUxfRERSX0RWRlM7Cj4gPj4+ICAgICAgICAgIH0KPiA+Pj4KPiA+Pj4gKyAgICAgICAgaW9zZl9t
-YmlfcHVuaXRfcmVsZWFzZSgpOwo+ID4+PiAgICAgICAgICBtdXRleF91bmxvY2soJmRldl9wcml2
-LT5ycHMuaHdfbG9jayk7Cj4gPj4+ICAgICAgfQo+ID4+Pgo+ID4+PiBAQCAtNDk4OCw3ICs0OTk1
-LDkgQEAgc3RhdGljIHZvaWQgdmFsbGV5dmlld19zZXRfcnBzKHN0cnVjdCBkcm1faTkxNV9wcml2
-YXRlICpkZXZfcHJpdiwgdTggdmFsKQo+ID4+PiAgICAgIEk5MTVfV1JJVEUoR0VONl9QTUlOVFJN
-U0ssIGdlbjZfcnBzX3BtX21hc2soZGV2X3ByaXYsIHZhbCkpOwo+ID4+Pgo+ID4+PiAgICAgIGlm
-ICh2YWwgIT0gZGV2X3ByaXYtPnJwcy5jdXJfZnJlcSkgewo+ID4+PiArICAgICAgICBpb3NmX21i
-aV9wdW5pdF9hY3F1aXJlKCk7Cj4gPj4+ICAgICAgICAgIHZsdl9wdW5pdF93cml0ZShkZXZfcHJp
-diwgUFVOSVRfUkVHX0dQVV9GUkVRX1JFUSwgdmFsKTsKPiA+Pj4gKyAgICAgICAgaW9zZl9tYmlf
-cHVuaXRfcmVsZWFzZSgpOwo+ID4+PiAgICAgICAgICBpZiAoIUlTX0NIRVJSWVZJRVcoZGV2X3By
-aXYpKQo+ID4+PiAgICAgICAgICAgICAgZ2VuNl9zZXRfcnBzX3RocmVzaG9sZHMoZGV2X3ByaXYs
-IHZhbCk7Cj4gPj4+ICAgICAgfQo+ID4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5
-MTUvaW50ZWxfcnVudGltZV9wbS5jIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGlt
-ZV9wbS5jCj4gPj4+IGluZGV4IGMwYjdlOTUuLmU2NmJjYzggMTAwNjQ0Cj4gPj4+IC0tLSBhL2Ry
-aXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uYwo+ID4+PiArKysgYi9kcml2ZXJz
-L2dwdS9kcm0vaTkxNS9pbnRlbF9ydW50aW1lX3BtLmMKPiA+Pj4gQEAgLTI4LDYgKzI4LDcgQEAK
-PiA+Pj4KPiA+Pj4gICNpbmNsdWRlIDxsaW51eC9wbV9ydW50aW1lLmg+Cj4gPj4+ICAjaW5jbHVk
-ZSA8bGludXgvdmdhYXJiLmg+Cj4gPj4+ICsjaW5jbHVkZSA8YXNtL2lvc2ZfbWJpLmg+Cj4gPj4+
-Cj4gPj4+ICAjaW5jbHVkZSAiaTkxNV9kcnYuaCIKPiA+Pj4gICNpbmNsdWRlICJpbnRlbF9kcnYu
-aCIKPiA+Pj4gQEAgLTEwMjcsNiArMTAyOCw4IEBAIHN0YXRpYyB2b2lkIHZsdl9zZXRfcG93ZXJf
-d2VsbChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYsCj4gPj4+ICAgICAgaWYgKENP
-TkQpCj4gPj4+ICAgICAgICAgIGdvdG8gb3V0Owo+ID4+Pgo+ID4+PiArICAgIGlvc2ZfbWJpX3B1
-bml0X2FjcXVpcmUoKTsKPiA+Pj4gKwo+ID4+PiAgICAgIGN0cmwgPSB2bHZfcHVuaXRfcmVhZChk
-ZXZfcHJpdiwgUFVOSVRfUkVHX1BXUkdUX0NUUkwpOwo+ID4+PiAgICAgIGN0cmwgJj0gfm1hc2s7
-Cj4gPj4+ICAgICAgY3RybCB8PSBzdGF0ZTsKPiA+Pj4gQEAgLTEwMzcsNiArMTA0MCw4IEBAIHN0
-YXRpYyB2b2lkIHZsdl9zZXRfcG93ZXJfd2VsbChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2
-X3ByaXYsCj4gPj4+ICAgICAgICAgICAgICAgIHN0YXRlLAo+ID4+PiAgICAgICAgICAgICAgICB2
-bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX1BXUkdUX0NUUkwpKTsKPiA+Pj4KPiA+
-Pj4gKyAgICBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCk7Cj4gPj4+ICsKPiA+Pj4gICN1bmRlZiBD
-T05ECj4gPj4+Cj4gPj4+ICBvdXQ6Cj4gPj4+IEBAIC0xNjQzLDYgKzE2NDgsOCBAQCBzdGF0aWMg
-dm9pZCBjaHZfc2V0X3BpcGVfcG93ZXJfd2VsbChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2
-X3ByaXYsCj4gPj4+ICAgICAgaWYgKENPTkQpCj4gPj4+ICAgICAgICAgIGdvdG8gb3V0Owo+ID4+
-Pgo+ID4+PiArICAgIGlvc2ZfbWJpX3B1bml0X2FjcXVpcmUoKTsKPiA+Pj4gKwo+ID4+PiAgICAg
-IGN0cmwgPSB2bHZfcHVuaXRfcmVhZChkZXZfcHJpdiwgUFVOSVRfUkVHX0RTUEZSRVEpOwo+ID4+
-PiAgICAgIGN0cmwgJj0gfkRQX1NTQ19NQVNLKHBpcGUpOwo+ID4+PiAgICAgIGN0cmwgfD0gZW5h
-YmxlID8gRFBfU1NDX1BXUl9PTihwaXBlKSA6IERQX1NTQ19QV1JfR0FURShwaXBlKTsKPiA+Pj4g
-QEAgLTE2NTMsNiArMTY2MCw4IEBAIHN0YXRpYyB2b2lkIGNodl9zZXRfcGlwZV9wb3dlcl93ZWxs
-KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiwKPiA+Pj4gICAgICAgICAgICAgICAg
-c3RhdGUsCj4gPj4+ICAgICAgICAgICAgICAgIHZsdl9wdW5pdF9yZWFkKGRldl9wcml2LCBQVU5J
-VF9SRUdfRFNQRlJFUSkpOwo+ID4+Pgo+ID4+PiArICAgIGlvc2ZfbWJpX3B1bml0X3JlbGVhc2Uo
-KTsKPiA+Pj4gKwo+ID4+PiAgI3VuZGVmIENPTkQKPiA+Pj4KPiA+Pj4gIG91dDoKPiA+Pj4gLS0K
-PiA+Pj4gMi45LjMKPiA+PgoKLS0gClZpbGxlIFN5cmrDpGzDpApJbnRlbCBPVEMKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcg
-bGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
-c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+Hi,
+
+On 30-01-17 14:10, Ville Syrjälä wrote:
+> On Sat, Jan 28, 2017 at 06:18:45PM +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 01/28/2017 05:25 PM, Hans de Goede wrote:
+>>> Hi,
+>>>
+>>> On 01/27/2017 02:51 PM, Ville Syrjälä wrote:
+>>>> On Mon, Jan 23, 2017 at 10:09:58PM +0100, Hans de Goede wrote:
+>>>>> Make sure the P-Unit or the PMIC i2c bus is not in use when we send a
+>>>>> request to the P-Unit by calling iosf_mbi_punit_acquire() / _release()
+>>>>> around P-Unit write accesses.
+>>>>
+>>>> Can't we just stuff the calls into the actual punit write function
+>>>> rather than sprinkling them all over the place?
+>>>
+>>> punit access is acquired across sections like this:
+>>>
+>>>         iosf_mbi_punit_acquire();
+>>>
+>>>         val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>         val &= ~DSPFREQGUAR_MASK;
+>>>         val |= (cmd << DSPFREQGUAR_SHIFT);
+>>>         vlv_punit_write(dev_priv, PUNIT_REG_DSPFREQ, val);
+>>>         if (wait_for((vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ) &
+>>>                       DSPFREQSTAT_MASK) == (cmd << DSPFREQSTAT_SHIFT),
+>>>                      50)) {
+>>>                 DRM_ERROR("timed out waiting for CDclk change\n");
+>>>         }
+>>>         iosf_mbi_punit_release();
+>>>
+>>> Where we want to wait for the requested change to have taken
+>>> effect before releasing the punit.
+>
+> Hmm. That's somewhat unfortunate. It also highlights a problem with the
+> patch wrt. RPS. We don't wait for the GPU to actually change frequencies
+> in set_rps() because that would slow things down too much. So I have to
+> wonder how much luck is needed to make this workaround really effective.
+
+So the history of this patch-set is that I wrote this patch before
+writing the patch to get FORCEWAKE_ALL before the pmic bus becomes
+active (patch 12/13). Since a lot of testing was done with this
+patch included in the patch-set and since it seemed a good idea
+regardless (given my experience with accessing the punit vs
+pmic bus accesses) I decided to leave it in.
+
+Possibly just the patch to get FORCEWAKE_ALL is enough, that one
+actually fixed things for me. That is also why I made this the
+last patch in the set. I asked tagorereddy to test his system
+without this patch, but he did not get around to that.
+
+After all we do tell the punit to not touch the bus by acquiring
+the pmic bus semaphore from i2c-desigware-baytrail.c, so maybe
+for RPS freq changes it honors that and properly waits. Maybe it
+honors that for all punit requests i915 does and the only real
+problem is the forcewake stuff ?
+
+I can try to drop this patch from my queue and run without it
+for a while and see if things don't regress. And also ask
+tagorereddy again to test his system that way.
+
+Does that (dropping this patch for now) sound like a good idea?
+
+>>>> + a comment would be nice why it's there.
+>>>
+>>> I will add comments to the acquire calls.
+>>>
+>>>> Do we need a kconfig select/depends on the iosf_mbi thing? Or some
+>>>> ifdefs?
+>>>
+>>> No, the iosf_mbi header defines empty inline versions of
+>>> iosf_mbi_punit_acquire / _release if IOSF_MBI is disabled,
+>>> this does mean that iosf_mbi must be builtin if the i915
+>>> driver is. I'll add:
+>>>
+>>>     depends on DRM_I915=IOSF_MBI || IOSF_MBI=y
+>>>
+>>> To the i915 Kconfig to enforce this.
+>>
+>> Hmm, ok so that does not work (long cyclic dependency through the
+>> selection of ACPI_VIDEO).
+>>
+>> So I've now added this instead:
+>>
+>> 	# iosf_mbi needs to be builtin if we are builtin
+>> 	select IOSF_MBI if DRM_I915=y
+>
+> That's probably not going to help anyone since i915 is usually a module.
+
+Right, that is fine, then either the IOSF_MBI symbols are available,
+or IOSF_MBI is disabled and we get the inline nops from the header.
+
+The problem scenario is DRM_I915=y and IOSF_MBI=m, which is not very
+realistic IMHO, but will get triggered by the random-config testing
+several contributors do and lead to an unresolved symbol error there.
+
+Hmm, thinking about this, this hunk actually belongs in 12/13 as that
+is the first patch to use iosf_mbi functions.
+
+Regards,
+
+Hans
+
+
+
+>>>>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
+>>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>>> Tested-by: tagorereddy <tagore.chandan@gmail.com>
+>>>>> ---
+>>>>> Changes in v2:
+>>>>> -Spelling: P-Unit, PMIC
+>>>>> -Adjust for iosf_mbi_punit_lock/_unlock to _acquire/_release rename
+>>>>> ---
+>>>>>  drivers/gpu/drm/i915/intel_display.c    | 6 ++++++
+>>>>>  drivers/gpu/drm/i915/intel_pm.c         | 9 +++++++++
+>>>>>  drivers/gpu/drm/i915/intel_runtime_pm.c | 9 +++++++++
+>>>>>  3 files changed, 24 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+>>>>> index 5604701..13e5152 100644
+>>>>> --- a/drivers/gpu/drm/i915/intel_display.c
+>>>>> +++ b/drivers/gpu/drm/i915/intel_display.c
+>>>>> @@ -47,6 +47,7 @@
+>>>>>  #include <drm/drm_rect.h>
+>>>>>  #include <linux/dma_remapping.h>
+>>>>>  #include <linux/reservation.h>
+>>>>> +#include <asm/iosf_mbi.h>
+>>>>>
+>>>>>  static bool is_mmio_work(struct intel_flip_work *work)
+>>>>>  {
+>>>>> @@ -6421,6 +6422,8 @@ static void valleyview_set_cdclk(struct drm_device *dev, int cdclk)
+>>>>>          cmd = 0;
+>>>>>
+>>>>>      mutex_lock(&dev_priv->rps.hw_lock);
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>> +
+>>>>>      val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>>>      val &= ~DSPFREQGUAR_MASK;
+>>>>>      val |= (cmd << DSPFREQGUAR_SHIFT);
+>>>>> @@ -6430,6 +6433,7 @@ static void valleyview_set_cdclk(struct drm_device *dev, int cdclk)
+>>>>>               50)) {
+>>>>>          DRM_ERROR("timed out waiting for CDclk change\n");
+>>>>>      }
+>>>>> +    iosf_mbi_punit_release();
+>>>>>      mutex_unlock(&dev_priv->rps.hw_lock);
+>>>>>
+>>>>>      mutex_lock(&dev_priv->sb_lock);
+>>>>> @@ -6497,6 +6501,7 @@ static void cherryview_set_cdclk(struct drm_device *dev, int cdclk)
+>>>>>      cmd = DIV_ROUND_CLOSEST(dev_priv->hpll_freq << 1, cdclk) - 1;
+>>>>>
+>>>>>      mutex_lock(&dev_priv->rps.hw_lock);
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>>      val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>>>      val &= ~DSPFREQGUAR_MASK_CHV;
+>>>>>      val |= (cmd << DSPFREQGUAR_SHIFT_CHV);
+>>>>> @@ -6506,6 +6511,7 @@ static void cherryview_set_cdclk(struct drm_device *dev, int cdclk)
+>>>>>               50)) {
+>>>>>          DRM_ERROR("timed out waiting for CDclk change\n");
+>>>>>      }
+>>>>> +    iosf_mbi_punit_release();
+>>>>>      mutex_unlock(&dev_priv->rps.hw_lock);
+>>>>>
+>>>>>      intel_update_cdclk(dev_priv);
+>>>>> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+>>>>> index 249623d..adff84a 100644
+>>>>> --- a/drivers/gpu/drm/i915/intel_pm.c
+>>>>> +++ b/drivers/gpu/drm/i915/intel_pm.c
+>>>>> @@ -32,6 +32,7 @@
+>>>>>  #include "../../../platform/x86/intel_ips.h"
+>>>>>  #include <linux/module.h>
+>>>>>  #include <drm/drm_atomic_helper.h>
+>>>>> +#include <asm/iosf_mbi.h>
+>>>>>
+>>>>>  /**
+>>>>>   * DOC: RC6
+>>>>> @@ -276,6 +277,7 @@ static void chv_set_memory_dvfs(struct drm_i915_private *dev_priv, bool enable)
+>>>>>      u32 val;
+>>>>>
+>>>>>      mutex_lock(&dev_priv->rps.hw_lock);
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>>
+>>>>>      val = vlv_punit_read(dev_priv, PUNIT_REG_DDR_SETUP2);
+>>>>>      if (enable)
+>>>>> @@ -290,6 +292,7 @@ static void chv_set_memory_dvfs(struct drm_i915_private *dev_priv, bool enable)
+>>>>>                FORCE_DDR_FREQ_REQ_ACK) == 0, 3))
+>>>>>          DRM_ERROR("timed out waiting for Punit DDR DVFS request\n");
+>>>>>
+>>>>> +    iosf_mbi_punit_release();
+>>>>>      mutex_unlock(&dev_priv->rps.hw_lock);
+>>>>>  }
+>>>>>
+>>>>> @@ -298,6 +301,7 @@ static void chv_set_memory_pm5(struct drm_i915_private *dev_priv, bool enable)
+>>>>>      u32 val;
+>>>>>
+>>>>>      mutex_lock(&dev_priv->rps.hw_lock);
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>>
+>>>>>      val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>>>      if (enable)
+>>>>> @@ -306,6 +310,7 @@ static void chv_set_memory_pm5(struct drm_i915_private *dev_priv, bool enable)
+>>>>>          val &= ~DSP_MAXFIFO_PM5_ENABLE;
+>>>>>      vlv_punit_write(dev_priv, PUNIT_REG_DSPFREQ, val);
+>>>>>
+>>>>> +    iosf_mbi_punit_release();
+>>>>>      mutex_unlock(&dev_priv->rps.hw_lock);
+>>>>>  }
+>>>>>
+>>>>> @@ -4553,6 +4558,7 @@ void vlv_wm_get_hw_state(struct drm_device *dev)
+>>>>>
+>>>>>      if (IS_CHERRYVIEW(dev_priv)) {
+>>>>>          mutex_lock(&dev_priv->rps.hw_lock);
+>>>>> +        iosf_mbi_punit_acquire();
+>>>>>
+>>>>>          val = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>>>          if (val & DSP_MAXFIFO_PM5_ENABLE)
+>>>>> @@ -4582,6 +4588,7 @@ void vlv_wm_get_hw_state(struct drm_device *dev)
+>>>>>                  wm->level = VLV_WM_LEVEL_DDR_DVFS;
+>>>>>          }
+>>>>>
+>>>>> +        iosf_mbi_punit_release();
+>>>>>          mutex_unlock(&dev_priv->rps.hw_lock);
+>>>>>      }
+>>>>>
+>>>>> @@ -4988,7 +4995,9 @@ static void valleyview_set_rps(struct drm_i915_private *dev_priv, u8 val)
+>>>>>      I915_WRITE(GEN6_PMINTRMSK, gen6_rps_pm_mask(dev_priv, val));
+>>>>>
+>>>>>      if (val != dev_priv->rps.cur_freq) {
+>>>>> +        iosf_mbi_punit_acquire();
+>>>>>          vlv_punit_write(dev_priv, PUNIT_REG_GPU_FREQ_REQ, val);
+>>>>> +        iosf_mbi_punit_release();
+>>>>>          if (!IS_CHERRYVIEW(dev_priv))
+>>>>>              gen6_set_rps_thresholds(dev_priv, val);
+>>>>>      }
+>>>>> diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.c b/drivers/gpu/drm/i915/intel_runtime_pm.c
+>>>>> index c0b7e95..e66bcc8 100644
+>>>>> --- a/drivers/gpu/drm/i915/intel_runtime_pm.c
+>>>>> +++ b/drivers/gpu/drm/i915/intel_runtime_pm.c
+>>>>> @@ -28,6 +28,7 @@
+>>>>>
+>>>>>  #include <linux/pm_runtime.h>
+>>>>>  #include <linux/vgaarb.h>
+>>>>> +#include <asm/iosf_mbi.h>
+>>>>>
+>>>>>  #include "i915_drv.h"
+>>>>>  #include "intel_drv.h"
+>>>>> @@ -1027,6 +1028,8 @@ static void vlv_set_power_well(struct drm_i915_private *dev_priv,
+>>>>>      if (COND)
+>>>>>          goto out;
+>>>>>
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>> +
+>>>>>      ctrl = vlv_punit_read(dev_priv, PUNIT_REG_PWRGT_CTRL);
+>>>>>      ctrl &= ~mask;
+>>>>>      ctrl |= state;
+>>>>> @@ -1037,6 +1040,8 @@ static void vlv_set_power_well(struct drm_i915_private *dev_priv,
+>>>>>                state,
+>>>>>                vlv_punit_read(dev_priv, PUNIT_REG_PWRGT_CTRL));
+>>>>>
+>>>>> +    iosf_mbi_punit_release();
+>>>>> +
+>>>>>  #undef COND
+>>>>>
+>>>>>  out:
+>>>>> @@ -1643,6 +1648,8 @@ static void chv_set_pipe_power_well(struct drm_i915_private *dev_priv,
+>>>>>      if (COND)
+>>>>>          goto out;
+>>>>>
+>>>>> +    iosf_mbi_punit_acquire();
+>>>>> +
+>>>>>      ctrl = vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ);
+>>>>>      ctrl &= ~DP_SSC_MASK(pipe);
+>>>>>      ctrl |= enable ? DP_SSC_PWR_ON(pipe) : DP_SSC_PWR_GATE(pipe);
+>>>>> @@ -1653,6 +1660,8 @@ static void chv_set_pipe_power_well(struct drm_i915_private *dev_priv,
+>>>>>                state,
+>>>>>                vlv_punit_read(dev_priv, PUNIT_REG_DSPFREQ));
+>>>>>
+>>>>> +    iosf_mbi_punit_release();
+>>>>> +
+>>>>>  #undef COND
+>>>>>
+>>>>>  out:
+>>>>> --
+>>>>> 2.9.3
+>>>>
+>
