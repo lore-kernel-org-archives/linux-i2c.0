@@ -1,91 +1,66 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH] I2c: busses - Fix possible NULL derefrence.
-Date: Mon, 30 Jan 2017 09:54:55 +0100
-Message-ID: <20170130085455.GP3585@ulmo.ba.sec>
-References: <CGME20170130050324epcas3p28c9adcffd7bc40e1733cdeef1e5240d5@epcas3p2.samsung.com>
- <1485752587-30107-1-git-send-email-shailendra.v@samsung.com>
- <20170130071217.GG3585@ulmo.ba.sec>
- <20170130080715.wuvx7ro3kuneolnu@pengutronix.de>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v3 3/3] spi: acpi: Initialize modalias from of_compatible
+Date: Mon, 30 Jan 2017 10:41:33 +0100
+Message-ID: <CAJZ5v0hAoOQN+d4iBSgSkkYHBOy-Pt9HLrKG4SjcQUB6Ya1bgA@mail.gmail.com>
+References: <cover.1468409668.git.leonard.crestez@intel.com>
+ <1485187737-22414-1-git-send-email-dan@emutex.com> <1485187737-22414-4-git-send-email-dan@emutex.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dJyWBSYfjLochwFK"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34926 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752411AbdA3Iy7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Jan 2017 03:54:59 -0500
-Content-Disposition: inline
-In-Reply-To: <20170130080715.wuvx7ro3kuneolnu@pengutronix.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1485187737-22414-4-git-send-email-dan@emutex.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan O'Donovan <dan@emutex.com>, Mark Brown <broonie@kernel.org>
+Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi <linux-spi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Crestez Dan Leonard <leonard.crestez@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Shailendra Verma <shailendra.v@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, p.shailesh@samsung.com, ashish.kalra@samsung.com, Shailendra Verma <shailendra.capricorn@gmail.com>
 
+On Mon, Jan 23, 2017 at 5:08 PM, Dan O'Donovan <dan@emutex.com> wrote:
+> From: Crestez Dan Leonard <leonard.crestez@intel.com>
+>
+> When using devicetree spi_device.modalias is set to the compatible
+> string with the vendor prefix removed. For SPI devices described via
+> ACPI the spi_device.modalias string is initialized by acpi_device_hid.
+> When using ACPI and DT ids this string ends up something like "PRP0001".
+>
+> Change acpi_register_spi_device to use the of_compatible property if
+> present. This makes it easier to instantiate spi drivers through ACPI
+> with DT ids.
+>
+> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+> Signed-off-by: Dan O'Donovan <dan@emutex.com>
+> ---
+>  drivers/spi/spi.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> index 656dd3e..4b562e8 100644
+> --- a/drivers/spi/spi.c
+> +++ b/drivers/spi/spi.c
+> @@ -1722,13 +1722,21 @@ static acpi_status acpi_register_spi_device(struct spi_master *master,
+>                 return AE_OK;
+>         }
+>
+> +       /*
+> +        * Populate modalias from compatible property if available,
+> +        * otherwise use native ACPI information
+> +        */
+> +       if ((!adev->data.of_compatible) ||
+> +           acpi_of_modalias(adev, spi->modalias, sizeof(spi->modalias)))
+> +               strlcpy(spi->modalias, acpi_device_hid(adev),
+> +                       sizeof(spi->modalias));
+> +
+>         if (spi->irq < 0)
+>                 spi->irq = acpi_dev_gpio_irq_get(adev, 0);
+>
+>         acpi_device_set_enumerated(adev);
+>
+>         adev->power.flags.ignore_parent = true;
+> -       strlcpy(spi->modalias, acpi_device_hid(adev), sizeof(spi->modalias));
+>         if (spi_add_device(spi)) {
+>                 adev->power.flags.ignore_parent = false;
+>                 dev_err(&master->dev, "failed to add SPI device %s from ACPI\n",
+> --
 
---dJyWBSYfjLochwFK
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Mark, any objections here?
 
-On Mon, Jan 30, 2017 at 09:07:15AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> Hello,
->=20
-> On Mon, Jan 30, 2017 at 08:12:17AM +0100, Thierry Reding wrote:
-> > On Mon, Jan 30, 2017 at 10:33:07AM +0530, Shailendra Verma wrote:
-> > > of_device_get_match_data could return NULL, and so can cause
-> > > a NULL pointer dereference later.
-> > >=20
-> > > Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
-> > > ---
-> > >  drivers/i2c/busses/i2c-tegra.c |    4 ++++
-> > >  1 file changed, 4 insertions(+)
-> >=20
-> > This will never happen. Any match in the OF table that would cause the
-> > ->probe() to occur has a valid .data pointer associated with it.
->=20
-> Theoretically you could (I think) bind that driver to a node with
->=20
-> 	compatible =3D "tegra-i2c";
-
-That's not a valid compatible string and I don't think this could end up
-anywhere that would make the driver bind. Even if it did I think it'd be
-good to crash rather than error out to make it very obvious that you've
-made a mistake that needs to be immediately fixed.
-
-If you error out it's much more likely that people won't notice.
-
-> Anyhow, even if today there was no possibility this could happen, that's
-> something that might easily be changed by a future change. So I doubt
-> "this will never happen" stays true for sure and being defensive is a
-> good idea.
-
-Let's revisit this again *if* this ever becomes a real issue. There's no
-use in adding dead code to the kernel to handle hypothetical use-cases.
-
-> And even a BUG would be better than a silent NULL pointer dereference.
-
-I've never encountered a NULL pointer dereference that was silent. =3D)
-
-Thierry
-
---dJyWBSYfjLochwFK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliO/18ACgkQ3SOs138+
-s6HXMxAAqz7MJd4AIxJ/nI1TX3VVwbO/I0lG1pOmGPfQG2/zmHu56XPAtuMUP6Y+
-Tq3x6Zikc57SwBSntPQIa8oS/cO4yOrvFxs5e5mQjo/0cRmv6REAXbThlauvGMHK
-f+KwfwuvFVn9Bs7VgKeq85Stdzr3ip5S+IXpaugMgfkanRrUF92wiWFnFtKQhT+u
-6m6PzVSgIi4xkBn9P0/RFrtRuNRpO34kRT4so+ViDHX/ioPCF40OOngRZszb6QPF
-X41FGTlS6zmgc0iuxG5rLMtbk7Uc8enGhPgh8EaHoi5p/yLXPQGHAdDn2kv2YknP
-RNVIFC2kcZmUe7yG44GyKczNjU4RVZYJvKqCuFkIV9Yyowr334b4iJUQ/w3piVNG
-WRuvcELxHGKBvZi0LjcYrYB35HWAQYi6dm3DTVp1FLwuvkcX8LmEkZM5ZMTNQuNF
-4r9WJjxGvKe/ABkVGpDQJHRleMZ0ZsmUPcj4Lwp6inIIfV0PKVI3U3eMU7IZbZMz
-Yw5QLf5bjZ+RroPQ7iATtG0795NDqU8oTSnN1orAtTZoD3EFgha+n0Ql553LzotG
-5gkIHOn7Sspl1AVkhtHu+d2nz5/JDOyraAw8q0vB3yXnmLun7s5k00j+RYT3WX3D
-GoLIw9vZDzWWHRLSJBjjdtc3cMu8LrAKHvBmHXsvPvC/giX71EA=
-=i6IU
------END PGP SIGNATURE-----
-
---dJyWBSYfjLochwFK--
+Thanks,
+Rafael
