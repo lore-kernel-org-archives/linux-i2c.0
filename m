@@ -1,40 +1,59 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: busses: constify i2c_algorithm structures
-Date: Mon, 30 Jan 2017 13:15:54 +0200
-Message-ID: <2babe118-e7fa-c579-d00f-16ddcb466b69@linux.intel.com>
-References: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] I2c: busses - Fix possible NULL derefrence.
+Date: Mon, 30 Jan 2017 12:15:53 +0100
+Message-ID: <20170130111553.cbwxu23lzd46qtt7@pengutronix.de>
+References: <CGME20170130050324epcas3p28c9adcffd7bc40e1733cdeef1e5240d5@epcas3p2.samsung.com>
+ <1485752587-30107-1-git-send-email-shailendra.v@samsung.com>
+ <20170130071217.GG3585@ulmo.ba.sec>
+ <20170130080715.wuvx7ro3kuneolnu@pengutronix.de>
+ <20170130085455.GP3585@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:17447 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751408AbdA3LQT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Jan 2017 06:16:19 -0500
-In-Reply-To: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:46159 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751206AbdA3LQU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Jan 2017 06:16:20 -0500
+Content-Disposition: inline
+In-Reply-To: <20170130085455.GP3585@ulmo.ba.sec>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, ludovic.desroches@atmel.com, wsa@the-dreams.de, sonic.zhang@analog.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, jdelvare@suse.com, patrice.chotard@st.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, kernel@stlinux.com
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Shailendra Verma <shailendra.v@samsung.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, p.shailesh@samsung.com, ashish.kalra@samsung.com, Shailendra Verma <shailendra.capricorn@gmail.com>
 
-On 01/27/2017 08:06 PM, Bhumika Goyal wrote:
-> Declare i2c_algorithm structures as const as they are only stored in the
-> algo field of an i2c_adapter structure. This field is of type const, so
-> i2c_algorithm structures having this property can be made const too.
-> Done using Coccinelle:
->
-...
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 6d81c56..a62c14c 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -822,7 +822,7 @@ static u32 i2c_dw_func(struct i2c_adapter *adap)
->  	return dev->functionality;
->  }
->
-> -static struct i2c_algorithm i2c_dw_algo = {
-> +static const struct i2c_algorithm i2c_dw_algo = {
->  	.master_xfer	= i2c_dw_xfer,
->  	.functionality	= i2c_dw_func,
->  };
+On Mon, Jan 30, 2017 at 09:54:55AM +0100, Thierry Reding wrote:
+> On Mon, Jan 30, 2017 at 09:07:15AM +0100, Uwe Kleine-König wrote:
+> > Hello,
+> > 
+> > On Mon, Jan 30, 2017 at 08:12:17AM +0100, Thierry Reding wrote:
+> > > On Mon, Jan 30, 2017 at 10:33:07AM +0530, Shailendra Verma wrote:
+> > > > of_device_get_match_data could return NULL, and so can cause
+> > > > a NULL pointer dereference later.
+> > > > 
+> > > > Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
+> > > > ---
+> > > >  drivers/i2c/busses/i2c-tegra.c |    4 ++++
+> > > >  1 file changed, 4 insertions(+)
+> > > 
+> > > This will never happen. Any match in the OF table that would cause the
+> > > ->probe() to occur has a valid .data pointer associated with it.
+> > 
+> > Theoretically you could (I think) bind that driver to a node with
+> > 
+> > 	compatible = "tegra-i2c";
+> 
+> That's not a valid compatible string and I don't think this could end up
+> anywhere that would make the driver bind. Even if it did I think it'd be
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Look at platform_match() in drivers/base/platform.c. If
+of_driver_match_device fails it might still match based on
+strcmp(pdev->name, drv->name).
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
