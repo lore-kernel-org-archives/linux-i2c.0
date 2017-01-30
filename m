@@ -1,132 +1,87 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 07/12] dt-bindings: i2c: i2c-mux-simple: document
- i2c-mux-simple bindings
-Date: Mon, 30 Jan 2017 11:20:34 -0600
-Message-ID: <CAL_JsqLVrzm4BEv3kpOGRoaRq+cqvSm+A6weZfU8H8i9dc=tcA@mail.gmail.com>
-References: <1484755035-25927-1-git-send-email-peda@axentia.se>
- <1484755035-25927-8-git-send-email-peda@axentia.se> <20170127193917.6xuunrkjkqh4f2v7@rob-hp-laptop>
- <835415bf-77af-6131-d018-d0bc7d8233b0@axentia.se>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] i2c: at91: ensure state is restored after suspending
+Date: Mon, 30 Jan 2017 18:25:33 +0100
+Message-ID: <20170130172533.31995-1-alexandre.belloni@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <835415bf-77af-6131-d018-d0bc7d8233b0-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ludovic Desroches <ludovic.desroches@atmel.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jan 28, 2017 at 4:42 PM, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org> wrote:
-> On 2017-01-27 20:39, Rob Herring wrote:
->> On Wed, Jan 18, 2017 at 04:57:10PM +0100, Peter Rosin wrote:
->>> Describe how a generic multiplexer controller is used to mux an i2c bus.
->>>
->>> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
->>> ---
->>>  .../devicetree/bindings/i2c/i2c-mux-simple.txt     | 81 ++++++++++++++++++++++
->>>  1 file changed, 81 insertions(+)
->>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
->>> new file mode 100644
->>> index 000000000000..253d5027843b
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
->>> @@ -0,0 +1,81 @@
->>> +Simple I2C Bus Mux
->>> +
->>> +This binding describes an I2C bus multiplexer that uses a mux controller
->>> +from the mux subsystem to route the I2C signals.
->>> +
->>> +                                  .-----.  .-----.
->>> +                                  | dev |  | dev |
->>> +    .------------.                '-----'  '-----'
->>> +    | SoC        |                   |        |
->>> +    |            |          .--------+--------'
->>> +    |   .------. |  .------+    child bus A, on MUX value set to 0
->>> +    |   | I2C  |-|--| Mux  |
->>> +    |   '------' |  '--+---+    child bus B, on MUX value set to 1
->>> +    |   .------. |     |    '----------+--------+--------.
->>> +    |   | MUX- | |     |               |        |        |
->>> +    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
->>> +    |   '------' |                  | dev |  | dev |  | dev |
->>> +    '------------'                  '-----'  '-----'  '-----'
->>> +
->>> +Required properties:
->>> +- compatible: i2c-mux-simple,mux-locked or i2c-mux-simple,parent-locked
->>
->> Not a fan of using "simple" nor the ','. Perhaps lock type should be
->> separate property.
->
-> How about just i2c-mux for the compatible? Because i2c-mux-mux (which
-> follows the naming of previous i2c muxes) looks really stupid. Or
-> perhaps i2c-mux-generic?
+When going to suspend, the I2C registers may be lost because the power to
+VDDcore is cut. Save them and restore them when resuming.
 
-I like "generic" only slightly more than "simple". :)
+Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-If the mux is gpio controlled, then it should still be called
-i2c-gpio-mux. Let's not invent brand new bindings when current ones
-are easily extended. We already have pretty generic names here, let's
-not make them more generic.
-
->
-> I'm also happy to have the lock type as a separate property. One lock
-> type, e.g. parent-locked, could be the default and adding a 'mux-locked'
-> property could change that. Would that be ok?
-
-I prefer this. Then existing bindings can use it.
-
-> Or should it be a requirement that one of 'mux-locked'/'parent-locked'
-> is always present?
-
-I would make it boolean and make not present be the more common case.
-Not present could also mean determined via other means as you have
-today with existing bindings. Maybe then you need both properties.
-
->> I'm not sure I get the mux vs. parent locked fully. How do I determine
->> what type I have? We already have bindings for several types of i2c
->> muxes. How does the locking annotation fit into those?
->
-> We have briefly discussed this before [1] in the context of i2c-mux-gpio
-> and i2c-mux-pinctrl, when I added the mux-locked/parent-locked distinction
-> to the i2c-mux infrastructure (it wasn't named mux-locked/parent-locked
-> way back then though). There is more detail on what the difference is
-> between the two in Documentation/i2c/i2c-topology.
->
-> Side note regarding your remark "use an I2C controlled mux instead"; it
-> appears that I'm not alone [2] with this kind of requirement...
->
-> [1] https://lkml.org/lkml/2016/1/6/437
-> [2] http://marc.info/?t=147877959100002&r=1&w=2
->
-> But, now that I have pondered on this for a year or so, I firmly
-> believe it was a mistake to have the code in i2c-mux-gpio and
-> i2c-mux-pinctrl automatically try to deduce if the mux should be
-> mux-locked or parent-locked. It might be easy to make that call
-> in some trivial cases, but it is not difficult to dream up
-> scenarios where it would be extremely hard for the code to get
-> this decision right. It's just fragile. But now we have code in
-> those two muxes that has unwanted tentacles into the guts of the
-> gpio and pinctrl subsystems. Hopefully those unwanted tentacles
-> can be replaced with something based on device links? However, it
-> is still not hard to come up with scenarios that will require
-> manual intervention in order to select the right kind of i2c mux
-> locking. So, I fear that we have inadequate code trying to make a
-> decision automatically, and that we at some point down the line
-> will have some impossible case needing a binding that trumps the
-> heuristic. Why have a heuristic at all in that case? In short, it
-> should have been a binding from the start, methinks.
->
-> That was a long rant regarding i2c-mux-gpio and i2c-mux-pinctrl.
-> I obviously think it is bad to have this new i2c mux go in the
-> same direction as those two drivers. I.e. I think a binding that
-> specifies the desired locking is preferable to any attempted
-> heuristic.
-
-Having a separate, common property(ies) for these would solve this then.
-
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 0b86c6173e07..633bdd899952 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -140,6 +140,12 @@ struct at91_twi_dev {
+ 	unsigned transfer_status;
+ 	struct i2c_adapter adapter;
+ 	unsigned twi_cwgr_reg;
++	struct {
++		u32 mmr;
++		u32 imr;
++		u32 fmr;
++		u32 fimr;
++	} cache;
+ 	struct at91_twi_pdata *pdata;
+ 	bool use_dma;
+ 	bool use_alt_cmd;
+@@ -1172,6 +1178,15 @@ static int at91_twi_runtime_resume(struct device *dev)
+ 
+ static int at91_twi_suspend_noirq(struct device *dev)
+ {
++	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
++
++	twi_dev->cache.mmr = at91_twi_read(twi_dev, AT91_TWI_MMR);
++	twi_dev->cache.imr = at91_twi_read(twi_dev, AT91_TWI_IMR);
++	if (twi_dev->fifo_size) {
++		twi_dev->cache.fmr = at91_twi_read(twi_dev, AT91_TWI_FMR);
++		twi_dev->cache.fimr = at91_twi_read(twi_dev, AT91_TWI_FIMR);
++	}
++
+ 	if (!pm_runtime_status_suspended(dev))
+ 		at91_twi_runtime_suspend(dev);
+ 
+@@ -1180,6 +1195,7 @@ static int at91_twi_suspend_noirq(struct device *dev)
+ 
+ static int at91_twi_resume_noirq(struct device *dev)
+ {
++	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
+ 	int ret;
+ 
+ 	if (!pm_runtime_status_suspended(dev)) {
+@@ -1191,6 +1207,14 @@ static int at91_twi_resume_noirq(struct device *dev)
+ 	pm_runtime_mark_last_busy(dev);
+ 	pm_request_autosuspend(dev);
+ 
++	at91_init_twi_bus(twi_dev);
++	at91_twi_write(twi_dev, AT91_TWI_MMR, twi_dev->cache.mmr);
++	at91_twi_write(twi_dev, AT91_TWI_IER, twi_dev->cache.imr);
++	if (twi_dev->fifo_size) {
++		at91_twi_write(twi_dev, AT91_TWI_FMR, twi_dev->cache.fmr);
++		at91_twi_write(twi_dev, AT91_TWI_FIER, twi_dev->cache.fimr);
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.11.0
