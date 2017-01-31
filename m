@@ -1,61 +1,50 @@
-From: Niklas =?iso-8859-1?Q?S=F6derlund?=
-        <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCH v4 00/14] ARM: dts: r8a779x: use demuxer for I2C
-Date: Tue, 31 Jan 2017 16:42:12 +0100
-Message-ID: <20170131154212.GF6017@bigcity.dyn.berto.se>
-References: <20161106202032.5227-1-wsa+renesas@sang-engineering.com>
- <20161109084406.GA22213@verge.net.au>
- <20161110153016.GJ26304@bigcity.dyn.berto.se>
- <20170104102550.GA1452@katana>
- <20170109093420.GG29854@bigcity.dyn.berto.se>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v3 3/3] spi: acpi: Initialize modalias from of_compatible
+Date: Tue, 31 Jan 2017 20:17:36 +0000
+Message-ID: <20170131201736.cmiyq2obzrhgdsck@sirena.org.uk>
+References: <cover.1468409668.git.leonard.crestez@intel.com>
+ <1485187737-22414-1-git-send-email-dan@emutex.com>
+ <1485187737-22414-4-git-send-email-dan@emutex.com>
+ <CAJZ5v0hAoOQN+d4iBSgSkkYHBOy-Pt9HLrKG4SjcQUB6Ya1bgA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f53.google.com ([209.85.215.53]:36553 "EHLO
-        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751209AbdAaPmV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Jan 2017 10:42:21 -0500
-Received: by mail-lf0-f53.google.com with SMTP id z134so213449510lff.3
-        for <linux-i2c@vger.kernel.org>; Tue, 31 Jan 2017 07:42:15 -0800 (PST)
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="uqhxt2ivtecyaxbk"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170109093420.GG29854@bigcity.dyn.berto.se>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CAJZ5v0hAoOQN+d4iBSgSkkYHBOy-Pt9HLrKG4SjcQUB6Ya1bgA@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Dan O'Donovan <dan@emutex.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi <linux-spi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Crestez Dan Leonard <leonard.crestez@intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On 2017-01-09 10:34:20 +0100, Niklas Söderlund wrote:
-> On 2017-01-04 11:25:50 +0100, Wolfram Sang wrote:
-> > Bump...
-> > 
-> > > Yes, this is a bug in the rcar-vin driver which is addressed in the Gen3 
-> > > patches. However I'm not sure those patches will make it to v4.10, not 
-> > > much review from the V4L2 side yet (Geert and Sergei have had a few 
-> > > comments so there will at lest be one more iteration).
-> > 
-> > Seems your predictions were correct. I still get:
-> > 
-> > * OOPS with renesas/dt-for-v4.11 and these patches on top
-> > * no OOPS with renesas-drivers/master and these patches on top
-> > 
-> > So, it seems to me that we still should wait with the HDMI related
-> > patches of this series until the rcar-vin-gen3 branch is in -next.
-> > D'accord everyone?
-> 
-> I'm fine with waiting. But as I hinted in my previous email the review 
-> on the rcar-vin-gen3 branch is slow, that is nothing have happened in 
-> that thread since last we spoke of this...
-> 
-> If this is blocking or other create other issue for you please let me 
-> know and I will do my best to extract the fix and post it separately 
-> from Gen3 enablement.
+--uqhxt2ivtecyaxbk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I have now posted a broken out series for rcar-vin which solves this 
-issue. Let's hope we can resolve this blocker with that series.
+On Mon, Jan 30, 2017 at 10:41:33AM +0100, Rafael J. Wysocki wrote:
+> On Mon, Jan 23, 2017 at 5:08 PM, Dan O'Donovan <dan@emutex.com> wrote:
 
--- 
-Regards,
-Niklas Söderlund
+> Mark, any objections here?
+
+I've not looked yet, please allow a reasonable time for review (there
+still seemed to be ongoing discussion at the ACPI level).  I continue to
+be concerned about the amount of duplication and special casing that the
+various firmware paths seem to entail.
+
+--uqhxt2ivtecyaxbk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAliQ8N8ACgkQJNaLcl1U
+h9Ae4gf+ODDmrMgXV0WdYVGzvVZy6F5RxZfi+DMinN1EPlWkN15P8SdpTtTK0ybg
+QNOhnn5VEF716LK+AIGnhiAehYCd9MX9nd5NxqbrI2eZpYYHBK6P1eUxtyzJp1Et
+QmcgCz/T63d0I9s2gSPIKnsQxwjRA2db6uiU8xy2DLAMZUcEJZgtOZxPoDvViZ/B
+/1/uNP/lfaOUEWO759N36dNYSROzX0JW3k66aB/xzGzGSU7Pd/tiuF+pnrjjoalV
+n+jYNzdzrfiTH6ZYDqzt4SSG1xu6f3cIYSx8r3ZYYmZBhMrRmVHP5x9c4Ya7WXHQ
+4YfuKff++dPCUBiVvcCGaMPFEzL2bA==
+=mvD9
+-----END PGP SIGNATURE-----
+
+--uqhxt2ivtecyaxbk--
