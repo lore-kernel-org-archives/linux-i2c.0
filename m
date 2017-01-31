@@ -1,178 +1,180 @@
-From: Stephen Boyd <stephen.boyd@linaro.org>
-Subject: [RFC/PATCH 4/4] dtc: Add /expansion/ support
-Date: Mon, 30 Jan 2017 16:02:59 -0800
-Message-ID: <20170131000259.28576-5-stephen.boyd@linaro.org>
-References: <20170131000259.28576-1-stephen.boyd@linaro.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:34547 "EHLO
-        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754638AbdAaAEC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Jan 2017 19:04:02 -0500
-Received: by mail-pf0-f178.google.com with SMTP id e4so95133989pfg.1
-        for <linux-i2c@vger.kernel.org>; Mon, 30 Jan 2017 16:03:07 -0800 (PST)
-In-Reply-To: <20170131000259.28576-1-stephen.boyd@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v8 07/12] dt-bindings: i2c: i2c-mux-simple: document
+ i2c-mux-simple bindings
+Date: Tue, 31 Jan 2017 08:36:48 +0100
+Message-ID: <cdc958c3-2496-be52-6407-bf9aefdfa965@axentia.se>
+References: <1484755035-25927-1-git-send-email-peda@axentia.se>
+ <1484755035-25927-8-git-send-email-peda@axentia.se>
+ <20170127193917.6xuunrkjkqh4f2v7@rob-hp-laptop>
+ <835415bf-77af-6131-d018-d0bc7d8233b0@axentia.se>
+ <CAL_JsqLVrzm4BEv3kpOGRoaRq+cqvSm+A6weZfU8H8i9dc=tcA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqLVrzm4BEv3kpOGRoaRq+cqvSm+A6weZfU8H8i9dc=tcA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: devicetree-compiler@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Rutland <mark.rutland@arm.com>, mporter@konsulko.com, Koen Kooi <koen@dominion.thruhere.net>, Guenter Roeck <linux@roeck-us.net>, marex@denx.de, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-There's typically a standard pinout for expansion boards on
-platforms like raspberry pi, 96boards, C.H.I.P, etc. Introduce a
-new syntax to describe these types of expansion boards in
-devicetree.
+On 2017-01-30 18:20, Rob Herring wrote:
+> On Sat, Jan 28, 2017 at 4:42 PM, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org> wrote:
+>> On 2017-01-27 20:39, Rob Herring wrote:
+>>> On Wed, Jan 18, 2017 at 04:57:10PM +0100, Peter Rosin wrote:
+>>>> Describe how a generic multiplexer controller is used to mux an i2c bus.
+>>>>
+>>>> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>>>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>>>> ---
+>>>>  .../devicetree/bindings/i2c/i2c-mux-simple.txt     | 81 ++++++++++++++++++++++
+>>>>  1 file changed, 81 insertions(+)
+>>>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>>> new file mode 100644
+>>>> index 000000000000..253d5027843b
+>>>> --- /dev/null
+>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-simple.txt
+>>>> @@ -0,0 +1,81 @@
+>>>> +Simple I2C Bus Mux
+>>>> +
+>>>> +This binding describes an I2C bus multiplexer that uses a mux controller
+>>>> +from the mux subsystem to route the I2C signals.
+>>>> +
+>>>> +                                  .-----.  .-----.
+>>>> +                                  | dev |  | dev |
+>>>> +    .------------.                '-----'  '-----'
+>>>> +    | SoC        |                   |        |
+>>>> +    |            |          .--------+--------'
+>>>> +    |   .------. |  .------+    child bus A, on MUX value set to 0
+>>>> +    |   | I2C  |-|--| Mux  |
+>>>> +    |   '------' |  '--+---+    child bus B, on MUX value set to 1
+>>>> +    |   .------. |     |    '----------+--------+--------.
+>>>> +    |   | MUX- | |     |               |        |        |
+>>>> +    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
+>>>> +    |   '------' |                  | dev |  | dev |  | dev |
+>>>> +    '------------'                  '-----'  '-----'  '-----'
+>>>> +
+>>>> +Required properties:
+>>>> +- compatible: i2c-mux-simple,mux-locked or i2c-mux-simple,parent-locked
+>>>
+>>> Not a fan of using "simple" nor the ','. Perhaps lock type should be
+>>> separate property.
+>>
+>> How about just i2c-mux for the compatible? Because i2c-mux-mux (which
+>> follows the naming of previous i2c muxes) looks really stupid. Or
+>> perhaps i2c-mux-generic?
+> 
+> I like "generic" only slightly more than "simple". :)
+> 
+> If the mux is gpio controlled, then it should still be called
+> i2c-gpio-mux. Let's not invent brand new bindings when current ones
+> are easily extended. We already have pretty generic names here, let's
+> not make them more generic.
 
-In general, the resulting dtb format is very similar to the
-/plugin/ style of overlays, except the 'target' property in the
-fragment node is replaced with a 'target-alias' property that
-contains a string instead of a phandle.
+Ahh, but the whole point of this new driver is that it does not know
+if the mux is gpio controlled, if it is controlled by an adg792 chip
+or whatever might appear down the line. So, I think i2c-mux-gpio (and
+i2c-gpio-mux) is actively wrong.
 
-	fragment@0 {
-		target-alias = "i2c_1";
-	};
+This new driver is in fact an i2c-mux driver that (in this aspect) is more
+generic than any of the existing i2c-mux drivers, hence my suggestion.
 
-instead of
+If you see this new driver as something that is superseding the existing
+i2c-mux-gpio driver, I'm sad to inform you that the code is not simply
+not there. i2c-mux-gpio has acpi support and users may provide platform
+data from code. The existing i2c-mux-gpio driver also has the below
+mentioned locking heuristic. Adding all those things to the new driver
+would make it big and unwieldy and having even more unwanted tentacles
+into other subsystems. And why should it be only i2c-mux-gpio that is
+merged into this new i2c-mux driver? Why not implement a mux-pinctrl
+driver for the new mux subsustem and then merge i2c-mux-pinctrl as well?
+I say no, that way lies madness.
 
-	fragment@0 {
-		target = <&i2c_1>;
-	};
+>>
+>> I'm also happy to have the lock type as a separate property. One lock
+>> type, e.g. parent-locked, could be the default and adding a 'mux-locked'
+>> property could change that. Would that be ok?
+> 
+> I prefer this. Then existing bindings can use it.
+> 
+>> Or should it be a requirement that one of 'mux-locked'/'parent-locked'
+>> is always present?
+> 
+> I would make it boolean and make not present be the more common case.
+> Not present could also mean determined via other means as you have
+> today with existing bindings. Maybe then you need both properties.
 
-Signed-off-by: Stephen Boyd <stephen.boyd@linaro.org>
----
- checks.c     |  2 +-
- dtc-lexer.l  |  6 ++++++
- dtc-parser.y |  5 +++++
- dtc.c        |  3 +--
- dtc.h        |  1 +
- livetree.c   | 22 +++++++++++++++-------
- 6 files changed, 29 insertions(+), 10 deletions(-)
+Ok. Lets define that every type of i2c-mux have a default locking.
+If no property is found that overrides this default, a heuristic may
+be applied that is only allowed to very defensively use non-default
+locking (like the current heuristics in i2c-mux-gpio/i2c-mux-pinctrl
+attempt to do, they only adjust the locking for impossible cases that
+would invariably lead to a deadlock with the default locking). Then,
+there should never exist a need to enforce the default locking with
+a property.
 
-diff --git a/checks.c b/checks.c
-index 3d18e45374c8..44101def69d5 100644
---- a/checks.c
-+++ b/checks.c
-@@ -487,7 +487,7 @@ static void fixup_phandle_references(struct check *c, struct dt_info *dti,
- 
- 			refnode = get_node_by_ref(dt, m->ref);
- 			if (! refnode) {
--				if (!(dti->dtsflags & DTSF_PLUGIN))
-+				if (!(dti->dtsflags & (DTSF_PLUGIN | DTSF_EXPANSION)))
- 					FAIL(c, "Reference to non-existent node or "
- 							"label \"%s\"\n", m->ref);
- 				else /* mark the entry as unresolved */
-diff --git a/dtc-lexer.l b/dtc-lexer.l
-index c600603044f3..c5683e0197ec 100644
---- a/dtc-lexer.l
-+++ b/dtc-lexer.l
-@@ -126,6 +126,12 @@ static void lexical_error(const char *fmt, ...);
- 			return DT_PLUGIN;
- 		}
- 
-+<*>"/expansion/"	{
-+			DPRINT("Keyword: /expansion/\n");
-+			return DT_EXPANSION;
-+		}
-+
-+
- <*>"/memreserve/"	{
- 			DPRINT("Keyword: /memreserve/\n");
- 			BEGIN_DEFAULT();
-diff --git a/dtc-parser.y b/dtc-parser.y
-index 3d2ce372c286..28de8f6c1b61 100644
---- a/dtc-parser.y
-+++ b/dtc-parser.y
-@@ -60,6 +60,7 @@ extern bool treesource_error;
- 
- %token DT_V1
- %token DT_PLUGIN
-+%token DT_EXPANSION
- %token DT_MEMRESERVE
- %token DT_LSHIFT DT_RSHIFT DT_LE DT_GE DT_EQ DT_NE DT_AND DT_OR
- %token DT_BITS
-@@ -127,6 +128,10 @@ header:
- 		{
- 			$$ = DTSF_V1 | DTSF_PLUGIN;
- 		}
-+	| DT_V1 ';' DT_EXPANSION ';'
-+		{
-+			$$ = DTSF_V1 | DTSF_EXPANSION;
-+		}
- 	;
- 
- headers:
-diff --git a/dtc.c b/dtc.c
-index d52d6c77a8cd..8f0b47b53d8c 100644
---- a/dtc.c
-+++ b/dtc.c
-@@ -334,9 +334,8 @@ int main(int argc, char *argv[])
- 	process_checks(force, dti);
- 
- 	/* on a plugin, generate by default */
--	if (dti->dtsflags & DTSF_PLUGIN) {
-+	if (dti->dtsflags & (DTSF_PLUGIN | DTSF_EXPANSION))
- 		generate_fixups = 1;
--	}
- 
- 	if (auto_label_aliases)
- 		generate_label_tree(dti, "aliases", false);
-diff --git a/dtc.h b/dtc.h
-index be75aac1f185..f751757d63f6 100644
---- a/dtc.h
-+++ b/dtc.h
-@@ -264,6 +264,7 @@ struct dt_info {
- /* DTS version flags definitions */
- #define DTSF_V1		0x0001	/* /dts-v1/ */
- #define DTSF_PLUGIN	0x0002	/* /plugin/ */
-+#define DTSF_EXPANSION	0x0004	/* /expansion/ */
- 
- struct dt_info *build_dt_info(unsigned int dtsflags,
- 			      struct reserve_info *reservelist,
-diff --git a/livetree.c b/livetree.c
-index 798a87ed587e..f8abb875be8e 100644
---- a/livetree.c
-+++ b/livetree.c
-@@ -331,7 +331,8 @@ struct overlay *chain_overlay(struct overlay *first, struct overlay *list)
- 	return first;
- }
- 
--static void add_fragment(struct node *base, struct overlay *overlay)
-+static void add_fragment(struct node *base, struct overlay *overlay,
-+			 bool expansion)
- {
- 	static unsigned int next_fragment = 0;
- 	struct node *node;
-@@ -343,11 +344,18 @@ static void add_fragment(struct node *base, struct overlay *overlay)
- 		die("Deletions not supported at runtime for %s\n",
- 		    overlay->target);
- 
--	/* Insert a target = <&phandle> property */
--	d = data_add_marker(d, REF_PHANDLE, overlay->target);
--	d = data_append_integer(d, 0xffffffff, 32);
-+	if (expansion) {
-+		/* Insert a target-alias = "<target>" property */
-+		p = build_property("target-alias",
-+				   data_copy_mem(overlay->target,
-+					   strlen(overlay->target) + 1));
-+	} else {
-+		/* Insert a target = <&phandle> property */
-+		d = data_add_marker(d, REF_PHANDLE, overlay->target);
-+		d = data_append_integer(d, 0xffffffff, 32);
- 
--	p = build_property("target", d);
-+		p = build_property("target", d);
-+	}
- 
- 	xasprintf(&name, "fragment@%u", next_fragment++);
- 	name_node(overlay->dt, "__overlay__");
-@@ -363,8 +371,8 @@ void apply_overlay(struct node *base, struct overlay *overlay,
- 	struct node *target = get_node_by_ref(base, overlay->target);
- 
- 	if (!target) {
--		if (dtsflags & DTSF_PLUGIN) {
--			add_fragment(base, overlay);
-+		if (dtsflags & (DTSF_PLUGIN | DTSF_EXPANSION)) {
-+			add_fragment(base, overlay, dtsflags & DTSF_EXPANSION);
- 			return;
- 		} else
- 			die("Couldn't find label or path %s for overlay\n",
--- 
-2.10.0.297.gf6727b0
+And given that no current i2c-mux that is mux-locked by default even
+have the ability to be parent-locked, there is (currently) no need
+for more than a bool 'mux-locked' property.
+
+>>> I'm not sure I get the mux vs. parent locked fully. How do I determine
+>>> what type I have? We already have bindings for several types of i2c
+>>> muxes. How does the locking annotation fit into those?
+>>
+>> We have briefly discussed this before [1] in the context of i2c-mux-gpio
+>> and i2c-mux-pinctrl, when I added the mux-locked/parent-locked distinction
+>> to the i2c-mux infrastructure (it wasn't named mux-locked/parent-locked
+>> way back then though). There is more detail on what the difference is
+>> between the two in Documentation/i2c/i2c-topology.
+>>
+>> Side note regarding your remark "use an I2C controlled mux instead"; it
+>> appears that I'm not alone [2] with this kind of requirement...
+>>
+>> [1] https://lkml.org/lkml/2016/1/6/437
+>> [2] http://marc.info/?t=147877959100002&r=1&w=2
+>>
+>> But, now that I have pondered on this for a year or so, I firmly
+>> believe it was a mistake to have the code in i2c-mux-gpio and
+>> i2c-mux-pinctrl automatically try to deduce if the mux should be
+>> mux-locked or parent-locked. It might be easy to make that call
+>> in some trivial cases, but it is not difficult to dream up
+>> scenarios where it would be extremely hard for the code to get
+>> this decision right. It's just fragile. But now we have code in
+>> those two muxes that has unwanted tentacles into the guts of the
+>> gpio and pinctrl subsystems. Hopefully those unwanted tentacles
+>> can be replaced with something based on device links? However, it
+>> is still not hard to come up with scenarios that will require
+>> manual intervention in order to select the right kind of i2c mux
+>> locking. So, I fear that we have inadequate code trying to make a
+>> decision automatically, and that we at some point down the line
+>> will have some impossible case needing a binding that trumps the
+>> heuristic. Why have a heuristic at all in that case? In short, it
+>> should have been a binding from the start, methinks.
+>>
+>> That was a long rant regarding i2c-mux-gpio and i2c-mux-pinctrl.
+>> I obviously think it is bad to have this new i2c mux go in the
+>> same direction as those two drivers. I.e. I think a binding that
+>> specifies the desired locking is preferable to any attempted
+>> heuristic.
+> 
+> Having a separate, common property(ies) for these would solve this then.
+
+Yep, the plan is now to make this new i2c-mux parent-locked by default
+and then look for an optional mux-locked property, thus eliminating the
+comma and the suffix in the compatible string, leaving only whatever is
+eventually picked from 'i2c-mux-simple', 'i2c-mux', 'i2c-mux-generic' and
+'i2c-mux-whatever'.
+
+Do I need to re-document the mux-locked/parent-locked difference? I.e.,
+is it enough to refer to Documentation/i2c/i2c-topology, or does the
+Documentation/devicetree subdir need to self-contained?
+
+Cheers,
+peda
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
