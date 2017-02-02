@@ -1,66 +1,118 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] dt-bindings: move trivial devices out of i2c subdir
-Date: Wed, 1 Feb 2017 19:35:40 +0100
-Message-ID: <20170201183539.GB2557@tetsubishi>
-References: <20170126225544.5431-1-wsa@the-dreams.de>
- <20170126225544.5431-3-wsa@the-dreams.de>
- <20170201135045.yass267eakmlpyru@rob-hp-laptop>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v4 1/3] ACPI / bus: Export acpi_of_modalias equiv of of_modalias_node
+Date: Thu, 02 Feb 2017 12:41:26 +0100
+Message-ID: <2538517.VnXrn8zi1x@aspire.rjw.lan>
+References: <1485187737-22414-1-git-send-email-dan@emutex.com> <1485523815-9629-1-git-send-email-dan@emutex.com> <1485523815-9629-2-git-send-email-dan@emutex.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170201135045.yass267eakmlpyru@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:51907 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751019AbdBBLqJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Feb 2017 06:46:09 -0500
+In-Reply-To: <1485523815-9629-2-git-send-email-dan@emutex.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Dan O'Donovan <dan@emutex.com>
+Cc: linux-acpi@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Friday, January 27, 2017 01:30:13 PM Dan O'Donovan wrote:
+> From: Crestez Dan Leonard <leonard.crestez@intel.com>
+> 
+> When using devicetree stuff like i2c_client.name or spi_device.modalias
+> is initialized to the first DT compatible id with the vendor prefix
+> stripped. Since some drivers rely on this try to replicate it when using
+> ACPI with DT ids.
+> 
+> Signed-off-by: Crestez Dan Leonard <leonard.crestez@intel.com>
+> Signed-off-by: Dan O'Donovan <dan@emutex.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
---JYK4vJDZwFMowpUq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+First off, the original author of the patch doesn't seem to be reachable under
+the Intel address any more, so his S-o-b is meaningless and it shouldn't be
+there.  In such cases you can send the patch as From: you and give a credit
+to the original author in the changelog.
 
+Second, as Mark said ->
 
-> >  .../bindings/{i2c/trivial-devices.txt =3D> i2c-trivial-devices.txt}   =
-      | 0
-> >  1 file changed, 0 insertions(+), 0 deletions(-)
-> >  rename Documentation/devicetree/bindings/{i2c/trivial-devices.txt =3D>=
- i2c-trivial-devices.txt} (100%)
->=20
-> Just keep the same name. We can use it for SPI too at least.
+> ---
+>  drivers/acpi/bus.c      | 35 +++++++++++++++++++++++++++++++++++
+>  include/acpi/acpi_bus.h |  1 +
+>  2 files changed, 36 insertions(+)
+> 
+> diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+> index 95855cb..8b9657f 100644
+> --- a/drivers/acpi/bus.c
+> +++ b/drivers/acpi/bus.c
+> @@ -677,6 +677,41 @@ static bool acpi_of_match_device(struct acpi_device *adev,
+>  	return false;
+>  }
+>  
+> +/**
+> + * acpi_of_modalias - Like of_modalias_node for ACPI with DT ids
+> + * @adev:	ACPI device object to match.
+> + * @outstr:	Pointer to buffer for result
+> + * @outlen:	Length of outstr value
+> + *
+> + * This is a counterpart of of_modalias_node() for struct acpi_device
+> + * objects. If there is a compatible string for @adev, copy it to the
+> + * @outstr location with the vendor prefix stripped.
+> + *
+> + * Returns 0 on success or negative errno on failure.
+> + */
+> +int acpi_of_modalias(struct acpi_device *adev, char *outstr, size_t outlen)
 
-OK, will resend with your requested changes.
+-> this could be a bool function and you could provide something like
+acpi_set_modalias() doing the entire
 
-Thanks!
+if (!acpi_of_modalias(adev, outstr, outlen))
+               strlcpy(outstr, dev_name(&adev->dev), outlen);
 
-   Wolfram
+thing, so that its users don't have to duplicate this conditional.
 
+And then acpi_of_modalias() could be static and the only thing to export
+would be acpi_set_modalias().
 
---JYK4vJDZwFMowpUq
-Content-Type: application/pgp-signature; name="signature.asc"
+> +{
+> +	const union acpi_object *of_compatible;
+> +	const union acpi_object *obj;
+> +	const char *str, *chr;
+> +
+> +	of_compatible = adev->data.of_compatible;
+> +	if (!of_compatible)
+> +		return -ENODEV;
+> +
+> +	if (of_compatible->type == ACPI_TYPE_PACKAGE)
+> +		obj = of_compatible->package.elements;
+> +	else /* Must be ACPI_TYPE_STRING. */
+> +		obj = of_compatible;
+> +
+> +	str = obj->string.pointer;
+> +	chr = strchr(str, ',');
+> +	strlcpy(outstr, chr ? chr + 1 : str, outlen);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_of_modalias);
+> +
+>  static bool __acpi_match_device_cls(const struct acpi_device_id *id,
+>  				    struct acpi_hardware_id *hwid)
+>  {
+> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+> index 4242c31..351b4a4 100644
+> --- a/include/acpi/acpi_bus.h
+> +++ b/include/acpi/acpi_bus.h
+> @@ -522,6 +522,7 @@ void acpi_bus_trim(struct acpi_device *start);
+>  acpi_status acpi_bus_get_ejd(acpi_handle handle, acpi_handle * ejd);
+>  int acpi_match_device_ids(struct acpi_device *device,
+>  			  const struct acpi_device_id *ids);
+> +int acpi_of_modalias(struct acpi_device *adev, char *outstr, size_t outlen);
+>  int acpi_create_dir(struct acpi_device *);
+>  void acpi_remove_dir(struct acpi_device *);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYkip7AAoJEBQN5MwUoCm2xpEQAJhuWxjvVpeTZ3qD7x2yJHxf
-inC11ivoN8d32ku5A+a8YU+3h2JL9Q9lC8E5LOW3hkhcFLNyV4V6E8ce8/i+ddZL
-0bZrakBaZTJhYJAQo84zE8hUzOb8NkRPFraw+snD5w/xlFMRLM8vdoKB6u8YOP90
-iJ6L3KoxDntihOkvSqhbPz7ftbG3fahCwNJ8yyKp+zOQ1K0wl0X2SpJ6/eJrPufd
-4e4x9heLmL+V0Hg/KjI3haWanmDkaA9CCo8OlrKabQjeagaV/GO5wDXiP7w3mnrR
-/Ipvv7SaFnDbPu8UgQJXkaUY/OxrBDlj1msXhWgC2OlAfeE0we45valKBrMsj9dp
-BEmHf20fu2n7F56sZy0b99nzxbBt/Rx145svwb1wEAPzSliqhHEs35eD2Rxd+l1x
-2pShmoJB9hfynzff9TkvjaNiz01n9OMV+imuZ5MyodCqYYAqGQ0D2S4xDkYMJQPe
-gAv1xjZOCJBfWAmU0XKEhPjUMX8OTr6+caEZbqgr8Qs3N40/8+tkfRu0MtEcveFU
-oerKItidJ56IILXAh8kD6iDrXZDDXSsmD9Mla8kJkO5kXl1YC9ZKTX+Sw2HqFhEU
-xYXdGNXhHd6hd/fLV+tF48lw3N9jYmHffatfHVumasBwuLPw4p3weFXrUCr8d1i1
-dFr3SRKzstcOp3Dvrn6f
-=OL7s
------END PGP SIGNATURE-----
-
---JYK4vJDZwFMowpUq--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Rafael
