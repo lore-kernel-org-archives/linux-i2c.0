@@ -1,110 +1,54 @@
-From: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 3/3] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Sat, 4 Feb 2017 15:15:47 +0800
-Message-ID: <20170204071545.GC3407@dragon>
-References: <1485435631-32642-1-git-send-email-baoyou.xie@linaro.org>
- <1485435631-32642-3-git-send-email-baoyou.xie@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1485435631-32642-3-git-send-email-baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
+From: Dan O'Donovan <dan@emutex.com>
+Subject: [PATCH v5 3/3] spi: acpi: Initialize modalias from of_compatible
+Date: Sat,  4 Feb 2017 08:00:28 +0000
+Message-ID: <1486195228-10929-4-git-send-email-dan@emutex.com>
+References: <1485523815-9629-1-git-send-email-dan@emutex.com>
+ <1486195228-10929-1-git-send-email-dan@emutex.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1486195228-10929-1-git-send-email-dan@emutex.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-acpi@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>
+Cc: Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, Dan O'Donovan <dan@emutex.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Only a couple of comments below.  Otherwise, the patch looks fine to me.
+When using devicetree spi_device.modalias is set to the compatible
+string with the vendor prefix removed. For SPI devices described via
+ACPI the spi_device.modalias string is initialized by acpi_device_hid.
+When using ACPI and DT ids this string ends up something like "PRP0001".
 
-On Thu, Jan 26, 2017 at 09:00:31PM +0800, Baoyou Xie wrote:
+Change acpi_register_spi_device to use the of_compatible property if
+present. This makes it easier to instantiate spi drivers through ACPI
+with DT ids.
 
-<snip>
+Signed-off-by: Dan O'Donovan <dan@emutex.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/spi/spi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> +static int zx2967_i2c_flush_fifos(struct zx2967_i2c_info *zx_i2c)
-> +{
-> +	u32 val;
-> +	u32 offset;
-> +
-> +	if (zx_i2c->msg_rd) {
-> +		offset = REG_RDCONF;
-> +		val = I2C_RFIFO_RESET;
-> +	} else {
-> +		offset = REG_WRCONF;
-> +		val = I2C_WFIFO_RESET;
-> +	}
-> +
-> +	val |= zx2967_i2c_readl(zx_i2c, offset);
-> +	zx2967_i2c_writel(zx_i2c, val, offset);
-> +
-> +	return 0;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 656dd3e..d9afc32 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1722,13 +1722,15 @@ static acpi_status acpi_register_spi_device(struct spi_master *master,
+ 		return AE_OK;
+ 	}
+ 
++	acpi_set_modalias(adev, acpi_device_hid(adev),
++			  spi->modalias, sizeof(spi->modalias));
++
+ 	if (spi->irq < 0)
+ 		spi->irq = acpi_dev_gpio_irq_get(adev, 0);
+ 
+ 	acpi_device_set_enumerated(adev);
+ 
+ 	adev->power.flags.ignore_parent = true;
+-	strlcpy(spi->modalias, acpi_device_hid(adev), sizeof(spi->modalias));
+ 	if (spi_add_device(spi)) {
+ 		adev->power.flags.ignore_parent = false;
+ 		dev_err(&master->dev, "failed to add SPI device %s from ACPI\n",
+-- 
+2.7.4
 
-Since the function will never return other values than 0, should we
-simply define the return type as void?
-
-> +}
-
-<snip>
-
-> +static int zx2967_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct zx2967_i2c_info *zx_i2c;
-> +	void __iomem *reg_base;
-> +	struct resource *res;
-> +	struct clk *clk;
-> +	int ret;
-> +
-> +	zx_i2c = devm_kzalloc(&pdev->dev, sizeof(*zx_i2c), GFP_KERNEL);
-> +	if (!zx_i2c)
-> +		return -ENOMEM;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	reg_base = devm_ioremap_resource(&pdev->dev, res);
-> +	if (IS_ERR(reg_base))
-> +		return PTR_ERR(reg_base);
-> +
-> +	clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(clk)) {
-> +		dev_err(&pdev->dev, "missing controller clock");
-> +		return PTR_ERR(clk);
-> +	}
-> +
-> +	ret = clk_prepare_enable(clk);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = platform_get_irq(pdev, 0);
-> +	if (ret < 0)
-> +		return ret;
-> +	zx_i2c->irq = ret;
-> +
-> +	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
-> +				       &zx_i2c->clk_freq);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "missing clock-frequency");
-> +		return ret;
-> +	}
-> +
-> +	zx_i2c->reg_base = reg_base;
-> +	zx_i2c->clk = clk;
-> +	zx_i2c->dev = &pdev->dev;
-> +
-> +	zx_i2c->pin_ctrl = devm_pinctrl_get_select_default(&pdev->dev);
-> +	if (IS_ERR(zx_i2c->pin_ctrl)) {
-> +		if (PTR_ERR(zx_i2c->pin_ctrl) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +		dev_info(&pdev->dev, "no pinctrl handle\n");
-> +	}
-
-You do not need this boilerplate code for request "default" pin state,
-since device core will automatically issue the call.  See section "Pin
-control requests from drivers" in Documentation/pinctrl.txt for more
-info.
-
-Shawn
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
