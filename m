@@ -1,118 +1,110 @@
-From: Hrvoje T <hrvooje@jankovci.net>
-Subject: Re: SMBus not found
-Date: Sat, 4 Feb 2017 02:55:02 +0100
-Message-ID: <CANE=DpWWeKNRGhCQciS4aqi9+FXLOmZJabZiuO8FbNq8YP65mw@mail.gmail.com>
-References: <CANE=DpU===GBGNY0+QJCKuw295kkYSEPN-oeaT7cG6DRcNdjiA@mail.gmail.com>
- <1486119208.4299.11.camel@suse.de> <CANE=DpWovf4BO31Dqzj72hN=8etRLwFbyrDMZMzqzFNFtRe2cg@mail.gmail.com>
+From: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 3/3] i2c: zx2967: add i2c controller driver for ZTE's
+ zx2967 family
+Date: Sat, 4 Feb 2017 15:15:47 +0800
+Message-ID: <20170204071545.GC3407@dragon>
+References: <1485435631-32642-1-git-send-email-baoyou.xie@linaro.org>
+ <1485435631-32642-3-git-send-email-baoyou.xie@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f170.google.com ([209.85.213.170]:34689 "EHLO
-        mail-yb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753240AbdBDBzD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Feb 2017 20:55:03 -0500
-Received: by mail-yb0-f170.google.com with SMTP id j82so11334180ybg.1
-        for <linux-i2c@vger.kernel.org>; Fri, 03 Feb 2017 17:55:03 -0800 (PST)
-In-Reply-To: <CANE=DpWovf4BO31Dqzj72hN=8etRLwFbyrDMZMzqzFNFtRe2cg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1485435631-32642-3-git-send-email-baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Only a couple of comments below.  Otherwise, the patch looks fine to me.
 
-thank you for a quick reply.
+On Thu, Jan 26, 2017 at 09:00:31PM +0800, Baoyou Xie wrote:
 
-My hardware is HP Probook 6470b laptop, kernel 4.8.0-37-generic,
-lm-sensors version 1:3.4.0-3. I did
+<snip>
 
-# modprobe i2c-dev
-# i2cdetect -l
+> +static int zx2967_i2c_flush_fifos(struct zx2967_i2c_info *zx_i2c)
+> +{
+> +	u32 val;
+> +	u32 offset;
+> +
+> +	if (zx_i2c->msg_rd) {
+> +		offset = REG_RDCONF;
+> +		val = I2C_RFIFO_RESET;
+> +	} else {
+> +		offset = REG_WRCONF;
+> +		val = I2C_WFIFO_RESET;
+> +	}
+> +
+> +	val |= zx2967_i2c_readl(zx_i2c, offset);
+> +	zx2967_i2c_writel(zx_i2c, val, offset);
+> +
+> +	return 0;
 
-and got this:
+Since the function will never return other values than 0, should we
+simply define the return type as void?
 
-i2c-3   i2c     i915 gmbus dpc       I2C adapter
-i2c-1   i2c     i915 gmbus vga       I2C adapter
-i2c-8   i2c     DPDDC-D              I2C adapter
-i2c-6   i2c     DPDDC-B              I2C adapter
-i2c-4   i2c     i915 gmbus dpb       I2C adapter
-i2c-2   i2c     i915 gmbus panel     I2C adapter
-i2c-0   i2c     i915 gmbus ssc       I2C adapter
-i2c-7   i2c     DPDDC-C              I2C adapter
-i2c-5   i2c     i915 gmbus dpd       I2C adapter
+> +}
 
+<snip>
 
-I would like to find out CAS latency times of my RAM memory modules
-without opening the laptop. I guess those are on DIMM slots. dmidecode
--t memory gives:
+> +static int zx2967_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct zx2967_i2c_info *zx_i2c;
+> +	void __iomem *reg_base;
+> +	struct resource *res;
+> +	struct clk *clk;
+> +	int ret;
+> +
+> +	zx_i2c = devm_kzalloc(&pdev->dev, sizeof(*zx_i2c), GFP_KERNEL);
+> +	if (!zx_i2c)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	reg_base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(reg_base))
+> +		return PTR_ERR(reg_base);
+> +
+> +	clk = devm_clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(clk)) {
+> +		dev_err(&pdev->dev, "missing controller clock");
+> +		return PTR_ERR(clk);
+> +	}
+> +
+> +	ret = clk_prepare_enable(clk);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = platform_get_irq(pdev, 0);
+> +	if (ret < 0)
+> +		return ret;
+> +	zx_i2c->irq = ret;
+> +
+> +	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+> +				       &zx_i2c->clk_freq);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "missing clock-frequency");
+> +		return ret;
+> +	}
+> +
+> +	zx_i2c->reg_base = reg_base;
+> +	zx_i2c->clk = clk;
+> +	zx_i2c->dev = &pdev->dev;
+> +
+> +	zx_i2c->pin_ctrl = devm_pinctrl_get_select_default(&pdev->dev);
+> +	if (IS_ERR(zx_i2c->pin_ctrl)) {
+> +		if (PTR_ERR(zx_i2c->pin_ctrl) == -EPROBE_DEFER)
+> +			return -EPROBE_DEFER;
+> +		dev_info(&pdev->dev, "no pinctrl handle\n");
+> +	}
 
-Handle 0x0008, DMI type 17, 34 bytes
-Memory Device
-       Array Handle: 0x0005
-       Error Information Handle: Not Provided
-       Total Width: 64 bits
-       Data Width: 64 bits
-       Size: 4096 MB
-       Form Factor: SODIMM
-       Set: None
-       Locator: Bottom-Slot 2(under)
-       Bank Locator: BANK 2
-       Type: DDR3
-       Type Detail: Synchronous
-       Speed: 1600 MHz
-       Manufacturer: Ramaxel
-       Serial Number: 44BBE80E
-       Asset Tag: 9876543210
-       Part Number: RMT3160ED58E9W1600
-       Rank: Unknown
-       Configured Clock Speed: Unknown
+You do not need this boilerplate code for request "default" pin state,
+since device core will automatically issue the call.  See section "Pin
+control requests from drivers" in Documentation/pinctrl.txt for more
+info.
 
-
-and lspci:
-
-00:00.0 Host bridge: Intel Corporation 3rd Gen Core processor DRAM
-Controller (rev 09)
-00:02.0 VGA compatible controller: Intel Corporation 3rd Gen Core
-processor Graphics Controller (rev 09)
-00:14.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
-Family USB xHCI Host Controller (rev 04)
-00:16.0 Communication controller: Intel Corporation 7 Series/C210
-Series Chipset Family MEI Controller #1 (rev 04)
-00:19.0 Ethernet controller: Intel Corporation 82579V Gigabit Network
-Connection (rev 04)
-00:1a.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
-Family USB Enhanced Host Controller #2 (rev 04)
-00:1b.0 Audio device: Intel Corporation 7 Series/C210 Series Chipset
-Family High Definition Audio Controller (rev 04)
-00:1c.0 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
-Family PCI Express Root Port 1 (rev c4)
-00:1c.1 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
-Family PCI Express Root Port 2 (rev c4)
-00:1c.2 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
-Family PCI Express Root Port 3 (rev c4)
-00:1c.3 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
-Family PCI Express Root Port 4 (rev c4)
-00:1d.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
-Family USB Enhanced Host Controller #1 (rev 04)
-00:1f.0 ISA bridge: Intel Corporation HM76 Express Chipset LPC
-Controller (rev 04)
-00:1f.2 SATA controller: Intel Corporation 7 Series Chipset Family
-6-port SATA Controller [AHCI mode] (rev 04)
-23:00.0 FireWire (IEEE 1394): JMicron Technology Corp. IEEE 1394 Host
-Controller (rev 30)
-23:00.1 System peripheral: JMicron Technology Corp. SD/MMC Host
-Controller (rev 30)
-23:00.2 SD Host controller: JMicron Technology Corp. Standard SD Host
-Controller (rev 30)
-24:00.0 Network controller: Broadcom Limited BCM43228 802.11a/b/g/n
-
-
-I know I could find out latency times on the manufacturer's web page,
-but I would like to know is it possible via i2c? I'm noob in Linux and
-bad at english, sorry for my mistakes and thanks for your help in
-advance.
-
-BR
-Hrvoje
-
-*trying without html from gmail one more time
+Shawn
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
