@@ -1,84 +1,118 @@
-From: John Stultz <john.stultz@linaro.org>
-Subject: [PATCH] i2c: designwear: Fix clk warning on suspend/resume
-Date: Fri,  3 Feb 2017 15:01:33 -0800
-Message-ID: <1486162893-12313-1-git-send-email-john.stultz@linaro.org>
+From: Hrvoje T <hrvooje@jankovci.net>
+Subject: Re: SMBus not found
+Date: Sat, 4 Feb 2017 02:55:02 +0100
+Message-ID: <CANE=DpWWeKNRGhCQciS4aqi9+FXLOmZJabZiuO8FbNq8YP65mw@mail.gmail.com>
+References: <CANE=DpU===GBGNY0+QJCKuw295kkYSEPN-oeaT7cG6DRcNdjiA@mail.gmail.com>
+ <1486119208.4299.11.camel@suse.de> <CANE=DpWovf4BO31Dqzj72hN=8etRLwFbyrDMZMzqzFNFtRe2cg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f52.google.com ([74.125.83.52]:33006 "EHLO
-        mail-pg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752855AbdBCXBh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Feb 2017 18:01:37 -0500
-Received: by mail-pg0-f52.google.com with SMTP id 204so10183321pge.0
-        for <linux-i2c@vger.kernel.org>; Fri, 03 Feb 2017 15:01:37 -0800 (PST)
+Received: from mail-yb0-f170.google.com ([209.85.213.170]:34689 "EHLO
+        mail-yb0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753240AbdBDBzD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Feb 2017 20:55:03 -0500
+Received: by mail-yb0-f170.google.com with SMTP id j82so11334180ybg.1
+        for <linux-i2c@vger.kernel.org>; Fri, 03 Feb 2017 17:55:03 -0800 (PST)
+In-Reply-To: <CANE=DpWovf4BO31Dqzj72hN=8etRLwFbyrDMZMzqzFNFtRe2cg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: John Stultz <john.stultz@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-
-On my HiKey board, I'm seeing clk warnings on suspend/resume, which
-seem to be caused by runtime pm suspending the device, then the same
-suspend hook being called again on suspend time.
-
-Thus this patch adds suspend state tracking to avoid runtime pm and
-suspend causing double suspend calls on i2c-designware-platdrv.
-
-Feedback would be greatly appreciated!
-
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+To: Jean Delvare <jdelvare@suse.de>
 Cc: linux-i2c@vger.kernel.org
-Signed-off-by: John Stultz <john.stultz@linaro.org>
----
- drivers/i2c/busses/i2c-designware-core.h    | 1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 9 +++++++++
- 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 26250b4..386cacb 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -126,6 +126,7 @@ struct dw_i2c_dev {
- 	void			(*release_lock)(struct dw_i2c_dev *dev);
- 	bool			pm_runtime_disabled;
- 	bool			dynamic_tar_update_enabled;
-+	bool			suspended;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 6ce4313..54084fe 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -340,8 +340,12 @@ static int dw_i2c_plat_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	if (i_dev->suspended)
-+		return 0;
-+
- 	i2c_dw_disable(i_dev);
- 	i2c_dw_plat_prepare_clk(i_dev, false);
-+	i_dev->suspended = true;
- 
- 	return 0;
- }
-@@ -351,11 +355,16 @@ static int dw_i2c_plat_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	if (!i_dev->suspended)
-+		return 0;
-+
- 	i2c_dw_plat_prepare_clk(i_dev, true);
- 
- 	if (!i_dev->pm_runtime_disabled)
- 		i2c_dw_init(i_dev);
- 
-+	i_dev->suspended = false;
-+
- 	return 0;
- }
- 
--- 
-2.7.4
+Hi Jean,
+
+thank you for a quick reply.
+
+My hardware is HP Probook 6470b laptop, kernel 4.8.0-37-generic,
+lm-sensors version 1:3.4.0-3. I did
+
+# modprobe i2c-dev
+# i2cdetect -l
+
+and got this:
+
+i2c-3   i2c     i915 gmbus dpc       I2C adapter
+i2c-1   i2c     i915 gmbus vga       I2C adapter
+i2c-8   i2c     DPDDC-D              I2C adapter
+i2c-6   i2c     DPDDC-B              I2C adapter
+i2c-4   i2c     i915 gmbus dpb       I2C adapter
+i2c-2   i2c     i915 gmbus panel     I2C adapter
+i2c-0   i2c     i915 gmbus ssc       I2C adapter
+i2c-7   i2c     DPDDC-C              I2C adapter
+i2c-5   i2c     i915 gmbus dpd       I2C adapter
+
+
+I would like to find out CAS latency times of my RAM memory modules
+without opening the laptop. I guess those are on DIMM slots. dmidecode
+-t memory gives:
+
+Handle 0x0008, DMI type 17, 34 bytes
+Memory Device
+       Array Handle: 0x0005
+       Error Information Handle: Not Provided
+       Total Width: 64 bits
+       Data Width: 64 bits
+       Size: 4096 MB
+       Form Factor: SODIMM
+       Set: None
+       Locator: Bottom-Slot 2(under)
+       Bank Locator: BANK 2
+       Type: DDR3
+       Type Detail: Synchronous
+       Speed: 1600 MHz
+       Manufacturer: Ramaxel
+       Serial Number: 44BBE80E
+       Asset Tag: 9876543210
+       Part Number: RMT3160ED58E9W1600
+       Rank: Unknown
+       Configured Clock Speed: Unknown
+
+
+and lspci:
+
+00:00.0 Host bridge: Intel Corporation 3rd Gen Core processor DRAM
+Controller (rev 09)
+00:02.0 VGA compatible controller: Intel Corporation 3rd Gen Core
+processor Graphics Controller (rev 09)
+00:14.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
+Family USB xHCI Host Controller (rev 04)
+00:16.0 Communication controller: Intel Corporation 7 Series/C210
+Series Chipset Family MEI Controller #1 (rev 04)
+00:19.0 Ethernet controller: Intel Corporation 82579V Gigabit Network
+Connection (rev 04)
+00:1a.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
+Family USB Enhanced Host Controller #2 (rev 04)
+00:1b.0 Audio device: Intel Corporation 7 Series/C210 Series Chipset
+Family High Definition Audio Controller (rev 04)
+00:1c.0 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
+Family PCI Express Root Port 1 (rev c4)
+00:1c.1 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
+Family PCI Express Root Port 2 (rev c4)
+00:1c.2 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
+Family PCI Express Root Port 3 (rev c4)
+00:1c.3 PCI bridge: Intel Corporation 7 Series/C210 Series Chipset
+Family PCI Express Root Port 4 (rev c4)
+00:1d.0 USB controller: Intel Corporation 7 Series/C210 Series Chipset
+Family USB Enhanced Host Controller #1 (rev 04)
+00:1f.0 ISA bridge: Intel Corporation HM76 Express Chipset LPC
+Controller (rev 04)
+00:1f.2 SATA controller: Intel Corporation 7 Series Chipset Family
+6-port SATA Controller [AHCI mode] (rev 04)
+23:00.0 FireWire (IEEE 1394): JMicron Technology Corp. IEEE 1394 Host
+Controller (rev 30)
+23:00.1 System peripheral: JMicron Technology Corp. SD/MMC Host
+Controller (rev 30)
+23:00.2 SD Host controller: JMicron Technology Corp. Standard SD Host
+Controller (rev 30)
+24:00.0 Network controller: Broadcom Limited BCM43228 802.11a/b/g/n
+
+
+I know I could find out latency times on the manufacturer's web page,
+but I would like to know is it possible via i2c? I'm noob in Linux and
+bad at english, sorry for my mistakes and thanks for your help in
+advance.
+
+BR
+Hrvoje
+
+*trying without html from gmail one more time
