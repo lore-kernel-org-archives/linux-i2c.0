@@ -1,54 +1,50 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v5 3/3] spi: acpi: Initialize modalias from of_compatible
-Date: Sat, 4 Feb 2017 11:16:40 +0100
-Message-ID: <20170204101638.qmhdvzwmnmmnrpa7@sirena.org.uk>
-References: <1485523815-9629-1-git-send-email-dan@emutex.com>
- <1486195228-10929-1-git-send-email-dan@emutex.com>
- <1486195228-10929-4-git-send-email-dan@emutex.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="55e4jgix7p4jdrej"
+From: Dan O'Donovan <dan@emutex.com>
+Subject: [PATCH v6 2/3] i2c: acpi: Initialize info.type from of_compatible
+Date: Sun,  5 Feb 2017 16:30:13 +0000
+Message-ID: <1486312214-20770-3-git-send-email-dan@emutex.com>
+References: <1486195228-10929-1-git-send-email-dan@emutex.com>
+ <1486312214-20770-1-git-send-email-dan@emutex.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:35092 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753818AbdBDKRD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Feb 2017 05:17:03 -0500
-Content-Disposition: inline
-In-Reply-To: <1486195228-10929-4-git-send-email-dan@emutex.com>
+Received: from bert.emutex.com ([91.103.1.109]:58286 "EHLO bert.emutex.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751416AbdBEQag (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 5 Feb 2017 11:30:36 -0500
+In-Reply-To: <1486312214-20770-1-git-send-email-dan@emutex.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dan O'Donovan <dan@emutex.com>
-Cc: linux-acpi@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-acpi@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Jarkko Nikula <jarkko.nikula@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>
+Cc: Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, Dan O'Donovan <dan@emutex.com>
 
+When using devicetree i2c_board_info.type is set to the compatible
+string with the vendor prefix removed. For I2C devices described via
+ACPI the i2c_board_info.type string is set to the ACPI device name. When
+using ACPI and DT ids this string ends up something like "PRP0001:00".
 
---55e4jgix7p4jdrej
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If the of_compatible property is present try to use that instead. This
+makes it easier to instantiate i2c drivers through ACPI with DT ids.
 
-On Sat, Feb 04, 2017 at 08:00:28AM +0000, Dan O'Donovan wrote:
+Signed-off-by: Dan O'Donovan <dan@emutex.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/i2c-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> +	acpi_set_modalias(adev, acpi_device_hid(adev),
-> +			  spi->modalias, sizeof(spi->modalias));
-> +
-
-The formatting here is really weird (why isn't the third argument on the
-line above?) but otherwise
-
-Acked-by: Mark Brown <broonie@kernel.org>
-
---55e4jgix7p4jdrej
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAliVqgUACgkQJNaLcl1U
-h9DV0wf8CKLaM+Nj0zKzfVMoXk/3rXmwuouaBRHT5CwYcNhLHVzvzS9M/WVhJrij
-dT0M5Kl+1l55TFZ68RSc5MXzuAs4xovJ6ZttaFDrPlpJq0Q/wLWW4QdnjlG0AOLZ
-g49kYtyeyYo/p4GKFza2Qq9IfjjGK9LcqLZQlVTWdHLIx8ajV7fGvGQ8OAqyWP5h
-XQzsJFLWCBqBJomx+UoJDRLmoNxeypRB4CG5BDKfvVfjG26l6OAIh235k8j81fSK
-iFc8SllmrYGf3x37xDpw6lz3eP7KbdxEZ3XWyewIJAT2ZpjihPeD4kIFJCzbYB7+
-0LU0+pkF/4jg1aGaar+T0ad2SivZGw==
-=MzXW
------END PGP SIGNATURE-----
-
---55e4jgix7p4jdrej--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 583e950..1e52395 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -221,7 +221,8 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
+-	strlcpy(info->type, dev_name(&adev->dev), sizeof(info->type));
++	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
++			  sizeof(info->type));
+ 
+ 	return 0;
+ }
+-- 
+2.7.4
