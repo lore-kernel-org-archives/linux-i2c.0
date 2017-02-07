@@ -1,39 +1,103 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2] dt-bindings: move trivial devices out of i2c subdir
-Date: Tue, 7 Feb 2017 09:46:36 -0600
-Message-ID: <CAL_Jsq+JT1JWEgOB8MeEhHUGB-guYmUCeCCXFU-aP9YXpbiUCA@mail.gmail.com>
-References: <20170126225544.5431-1-wsa@the-dreams.de> <20170126225544.5431-3-wsa@the-dreams.de>
- <20170201135045.yass267eakmlpyru@rob-hp-laptop> <20170201183539.GB2557@tetsubishi>
- <20170207110847.iwikyplurumqi6qq@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH] i2c: i2c-mux-gpio: rename i2c-gpio-mux to i2c-mux-gpio
+Date: Tue, 7 Feb 2017 22:41:55 +0100
+Message-ID: <1486503715-9224-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170207110847.iwikyplurumqi6qq@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0136.outbound.protection.outlook.com ([104.47.2.136]:4448
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932176AbdBGV5a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 7 Feb 2017 16:57:30 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 
-On Tue, Feb 7, 2017 at 5:08 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Wed, Feb 01, 2017 at 07:35:40PM +0100, Wolfram Sang wrote:
->>
->> > >  .../bindings/{i2c/trivial-devices.txt => i2c-trivial-devices.txt}         | 0
->> > >  1 file changed, 0 insertions(+), 0 deletions(-)
->> > >  rename Documentation/devicetree/bindings/{i2c/trivial-devices.txt => i2c-trivial-devices.txt} (100%)
->> >
->> > Just keep the same name. We can use it for SPI too at least.
->>
->> OK, will resend with your requested changes.
->
-> Thinking about it some more:
->
-> Shall I resend now or won't it be easier if I resend at the end of the
-> next merge window to reduce merge conflicts?
+The rename did the wrong thing for this documentation file all those
+years ago. Fix that as well as the neglected rename of the platform
+data structure.
 
-Yes, that sounds good.
+Fixes: e7065e20d9a6 ("i2c: Rename last mux driver to standard pattern")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ Documentation/i2c/muxes/i2c-mux-gpio | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/i2c/muxes/i2c-mux-gpio b/Documentation/i2c/muxes/i2c-mux-gpio
+index d4d91a53fc39..7a8d7d261632 100644
+--- a/Documentation/i2c/muxes/i2c-mux-gpio
++++ b/Documentation/i2c/muxes/i2c-mux-gpio
+@@ -1,11 +1,11 @@
+-Kernel driver i2c-gpio-mux
++Kernel driver i2c-mux-gpio
+ 
+ Author: Peter Korsgaard <peter.korsgaard@barco.com>
+ 
+ Description
+ -----------
+ 
+-i2c-gpio-mux is an i2c mux driver providing access to I2C bus segments
++i2c-mux-gpio is an i2c mux driver providing access to I2C bus segments
+ from a master I2C bus and a hardware MUX controlled through GPIO pins.
+ 
+ E.G.:
+@@ -26,16 +26,16 @@ according to the settings of the GPIO pins 1..N.
+ Usage
+ -----
+ 
+-i2c-gpio-mux uses the platform bus, so you need to provide a struct
++i2c-mux-gpio uses the platform bus, so you need to provide a struct
+ platform_device with the platform_data pointing to a struct
+-gpio_i2cmux_platform_data with the I2C adapter number of the master
++i2c_mux_gpio_platform_data with the I2C adapter number of the master
+ bus, the number of bus segments to create and the GPIO pins used
+-to control it. See include/linux/i2c-gpio-mux.h for details.
++to control it. See include/linux/i2c-mux-gpio.h for details.
+ 
+ E.G. something like this for a MUX providing 4 bus segments
+ controlled through 3 GPIO pins:
+ 
+-#include <linux/i2c-gpio-mux.h>
++#include <linux/i2c-mux-gpio.h>
+ #include <linux/platform_device.h>
+ 
+ static const unsigned myboard_gpiomux_gpios[] = {
+@@ -46,7 +46,7 @@ static const unsigned myboard_gpiomux_values[] = {
+ 	0, 1, 2, 3
+ };
+ 
+-static struct gpio_i2cmux_platform_data myboard_i2cmux_data = {
++static struct i2c_mux_gpio_platform_data myboard_i2cmux_data = {
+ 	.parent		= 1,
+ 	.base_nr	= 2, /* optional */
+ 	.values		= myboard_gpiomux_values,
+@@ -57,7 +57,7 @@ static struct gpio_i2cmux_platform_data myboard_i2cmux_data = {
+ };
+ 
+ static struct platform_device myboard_i2cmux = {
+-	.name		= "i2c-gpio-mux",
++	.name		= "i2c-mux-gpio",
+ 	.id		= 0,
+ 	.dev		= {
+ 		.platform_data	= &myboard_i2cmux_data,
+@@ -66,14 +66,14 @@ static struct platform_device myboard_i2cmux = {
+ 
+ If you don't know the absolute GPIO pin numbers at registration time,
+ you can instead provide a chip name (.chip_name) and relative GPIO pin
+-numbers, and the i2c-gpio-mux driver will do the work for you,
++numbers, and the i2c-mux-gpio driver will do the work for you,
+ including deferred probing if the GPIO chip isn't immediately
+ available.
+ 
+ Device Registration
+ -------------------
+ 
+-When registering your i2c-gpio-mux device, you should pass the number
++When registering your i2c-mux-gpio device, you should pass the number
+ of any GPIO pin it uses as the device ID. This guarantees that every
+ instance has a different ID.
+ 
+-- 
+2.1.4
