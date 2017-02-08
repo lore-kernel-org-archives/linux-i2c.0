@@ -1,749 +1,255 @@
-From: Baoyou Xie <baoyou.xie@linaro.org>
-Subject: [PATCH v5 3/3] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Wed,  8 Feb 2017 17:16:12 +0800
-Message-ID: <1486545372-5184-2-git-send-email-baoyou.xie@linaro.org>
-References: <1486545372-5184-1-git-send-email-baoyou.xie@linaro.org>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v9 00/10] mux controller abstraction and iio/i2c muxes
+Date: Wed, 8 Feb 2017 16:41:47 +0100
+Message-ID: <1486568517-6997-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1486545372-5184-1-git-send-email-baoyou.xie@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: shawnguo@kernel.org, andy.shevchenko@gmail.com, jun.nie@linaro.org, baoyou.xie@linaro.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: devicetree@vger.kernel.org, xie.baoyou@zte.com.cn, linux-kernel@vger.kernel.org, chen.chaokai@zte.com.cn, linux-i2c@vger.kernel.org, wang.qiang01@zte.com.cn, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds i2c controller driver for ZTE's zx2967 family.
+Hi!
 
-Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-Reviewed-by: Shawn Guo <shawnguo@kernel.org>
----
- drivers/i2c/busses/Kconfig      |   9 +
- drivers/i2c/busses/Makefile     |   1 +
- drivers/i2c/busses/i2c-zx2967.c | 676 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 686 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-zx2967.c
+v8 -> v9 changes
+- dropped the suffix from the compatible string of the i2c-mux-simple
+  binding (was ,mux-locked or ,parent-locked) and add an optional
+  mux-locked property instead to change the desired locking behavior
+  from the default parent-locked
+- add description of the difference between mux-locked and parent-locked
+- renamed i2c-mux-simple to i2c-mux (bindings for this general purpose
+  i2c mux are in i2c-mux-gpmux.txt since i2c-mux.txt is already occupied
+  by the common i2c-mux bindings)
+- changed compatible from mux-gpio to gpio-mux
+- changed bindings for idle-state back to a single array, but add defines
+  for as-is and hi-Z thus avoiding magic numbers
+- make use of the above defines in the code as well
+- make idle-state a common mux property described in mux-controller.txt
+  instead of repeating the info in individual mux controller bindings
+- drop the adi,parallel property from the adg792 bindings and piggy-back
+  on the #mux-control-cells property
+- refrain from using the compatible string as node name
+- dropped the simplified bindings for single-user gpio mux
+- added acks on patches 2/10 and 5/10 from Rob
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index e4a603e..d983e36 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1246,4 +1246,13 @@ config I2C_OPAL
- 	  This driver can also be built as a module. If so, the module will be
- 	  called as i2c-opal.
- 
-+config I2C_ZX2967
-+	tristate "ZTE zx2967 I2C support"
-+	depends on ARCH_ZX
-+	default y
-+	help
-+	  Selecting this option will add ZX2967 I2C driver.
-+	  This driver can also be built as a module. If so, the module will be
-+	  called i2c-zx2967.
-+
- endmenu
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index beb4809..16b2901 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -101,6 +101,7 @@ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
- obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
-+obj-$(CONFIG_I2C_ZX2967)	+= i2c-zx2967.o
- 
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
-diff --git a/drivers/i2c/busses/i2c-zx2967.c b/drivers/i2c/busses/i2c-zx2967.c
-new file mode 100644
-index 0000000..0cf04b7
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-zx2967.c
-@@ -0,0 +1,676 @@
-+/*
-+ * ZTE's zx2967 family i2c bus controller driver
-+ *
-+ * Copyright (C) 2017 ZTE Ltd.
-+ *
-+ * Author: Baoyou Xie <baoyou.xie@linaro.org>
-+ *
-+ * License terms: GNU General Public License (GPL) version 2
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+#define REG_CMD				0x04
-+#define REG_DEVADDR_H			0x0C
-+#define REG_DEVADDR_L			0x10
-+#define REG_CLK_DIV_FS			0x14
-+#define REG_CLK_DIV_HS			0x18
-+#define REG_WRCONF			0x1C
-+#define REG_RDCONF			0x20
-+#define REG_DATA			0x24
-+#define REG_STAT			0x28
-+
-+#define I2C_STOP			0
-+#define I2C_MASTER			BIT(0)
-+#define I2C_ADDR_MODE_TEN		BIT(1)
-+#define I2C_IRQ_MSK_ENABLE		BIT(3)
-+#define I2C_RW_READ			BIT(4)
-+#define I2C_CMB_RW_EN			BIT(5)
-+#define I2C_START			BIT(6)
-+
-+#define I2C_TENBIT_SHIFT		7
-+#define I2C_TENBIT_MASK			GENMASK(2, 0)
-+
-+#define I2C_WFIFO_RESET			BIT(7)
-+#define I2C_RFIFO_RESET			BIT(7)
-+
-+#define I2C_IRQ_ACK_CLEAR		BIT(7)
-+#define I2C_INT_MASK			GENMASK(6, 0)
-+
-+#define I2C_TRANS_DONE			BIT(0)
-+#define I2C_ERROR_DEVICE		BIT(1)
-+#define I2C_ERROR_DATA			BIT(2)
-+#define I2C_ERROR_MASK			GENMASK(2, 1)
-+
-+#define I2C_SR_BUSY			BIT(6)
-+
-+#define I2C_SR_EDEVICE			BIT(1)
-+#define I2C_SR_EDATA			BIT(2)
-+
-+#define I2C_FIFO_MAX			16
-+
-+#define I2C_TIMEOUT			msecs_to_jiffies(1000)
-+
-+#define DEV(i2c)			(&i2c->adap.dev)
-+
-+struct zx2967_i2c_info {
-+	spinlock_t		lock;
-+	struct i2c_adapter	adap;
-+	struct clk		*clk;
-+	struct completion	complete;
-+	u32			clk_freq;
-+	void __iomem		*reg_base;
-+	size_t			residue;
-+	int			irq;
-+	int			msg_rd;
-+	u8			*buf;
-+	u8			access_cnt;
-+	bool			is_suspended;
-+};
-+
-+static void zx2967_i2c_writel(struct zx2967_i2c_info *zx_i2c,
-+			      u32 val, unsigned long reg)
-+{
-+	writel_relaxed(val, zx_i2c->reg_base + reg);
-+}
-+
-+static u32 zx2967_i2c_readl(struct zx2967_i2c_info *zx_i2c, unsigned long reg)
-+{
-+	return readl_relaxed(zx_i2c->reg_base + reg);
-+}
-+
-+static void zx2967_i2c_writesb(struct zx2967_i2c_info *zx_i2c,
-+			       void *data, unsigned long reg, int len)
-+{
-+	writesb(zx_i2c->reg_base + reg, data, len);
-+}
-+
-+static void zx2967_i2c_readsb(struct zx2967_i2c_info *zx_i2c,
-+			      void *data, unsigned long reg, int len)
-+{
-+	readsb(zx_i2c->reg_base + reg, data, len);
-+}
-+
-+static void zx2967_i2c_start_ctrl(struct zx2967_i2c_info *zx_i2c)
-+{
-+	u32 status;
-+	u32 ctl;
-+
-+	status = zx2967_i2c_readl(zx_i2c, REG_STAT);
-+	status |= I2C_IRQ_ACK_CLEAR;
-+	zx2967_i2c_writel(zx_i2c, status, REG_STAT);
-+
-+	ctl = zx2967_i2c_readl(zx_i2c, REG_CMD);
-+	if (zx_i2c->msg_rd)
-+		ctl |= I2C_RW_READ;
-+	else
-+		ctl &= ~I2C_RW_READ;
-+	ctl &= ~I2C_CMB_RW_EN;
-+	ctl |= I2C_START;
-+	zx2967_i2c_writel(zx_i2c, ctl, REG_CMD);
-+}
-+
-+static void zx2967_i2c_flush_fifos(struct zx2967_i2c_info *zx_i2c)
-+{
-+	u32 offset;
-+	u32 val;
-+
-+	if (zx_i2c->msg_rd) {
-+		offset = REG_RDCONF;
-+		val = I2C_RFIFO_RESET;
-+	} else {
-+		offset = REG_WRCONF;
-+		val = I2C_WFIFO_RESET;
-+	}
-+
-+	val |= zx2967_i2c_readl(zx_i2c, offset);
-+	zx2967_i2c_writel(zx_i2c, val, offset);
-+}
-+
-+static int zx2967_i2c_empty_rx_fifo(struct zx2967_i2c_info *zx_i2c, u32 size)
-+{
-+	u8 val[I2C_FIFO_MAX] = {0};
-+	int i;
-+
-+	if (size > I2C_FIFO_MAX) {
-+		dev_err(DEV(zx_i2c), "fifo size %d over the max value %d\n",
-+			size, I2C_FIFO_MAX);
-+		return -EINVAL;
-+	}
-+
-+	zx2967_i2c_readsb(zx_i2c, val, REG_DATA, size);
-+	for (i = 0; i < size; i++) {
-+		*zx_i2c->buf++ = val[i];
-+		zx_i2c->residue--;
-+		if (zx_i2c->residue <= 0)
-+			break;
-+	}
-+
-+	barrier();
-+
-+	return 0;
-+}
-+
-+static int zx2967_i2c_fill_tx_fifo(struct zx2967_i2c_info *zx_i2c)
-+{
-+	size_t residue = zx_i2c->residue;
-+	u8 *buf = zx_i2c->buf;
-+
-+	if (residue == 0) {
-+		dev_err(DEV(zx_i2c), "residue is %d\n", (int)residue);
-+		return -EINVAL;
-+	}
-+
-+	if (residue <= I2C_FIFO_MAX) {
-+		zx2967_i2c_writesb(zx_i2c, buf, REG_DATA, residue);
-+
-+		/* Again update before writing to FIFO to make sure isr sees. */
-+		zx_i2c->residue = 0;
-+		zx_i2c->buf = NULL;
-+	} else {
-+		zx2967_i2c_writesb(zx_i2c, buf, REG_DATA, I2C_FIFO_MAX);
-+		zx_i2c->residue -= I2C_FIFO_MAX;
-+		zx_i2c->buf += I2C_FIFO_MAX;
-+	}
-+
-+	barrier();
-+
-+	return 0;
-+}
-+
-+static int zx2967_i2c_reset_hardware(struct zx2967_i2c_info *zx_i2c)
-+{
-+	u32 val;
-+	u32 clk_div;
-+	u32 status;
-+
-+	val = I2C_MASTER | I2C_IRQ_MSK_ENABLE;
-+	zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+
-+	clk_div = clk_get_rate(zx_i2c->clk) / zx_i2c->clk_freq - 1;
-+	zx2967_i2c_writel(zx_i2c, clk_div, REG_CLK_DIV_FS);
-+	zx2967_i2c_writel(zx_i2c, clk_div, REG_CLK_DIV_HS);
-+
-+	zx2967_i2c_writel(zx_i2c, I2C_FIFO_MAX - 1, REG_WRCONF);
-+	zx2967_i2c_writel(zx_i2c, I2C_FIFO_MAX - 1, REG_RDCONF);
-+	zx2967_i2c_writel(zx_i2c, 1, REG_RDCONF);
-+
-+	zx2967_i2c_flush_fifos(zx_i2c);
-+
-+	status = zx2967_i2c_readl(zx_i2c, REG_STAT);
-+	if (status & I2C_SR_BUSY)
-+		return -EBUSY;
-+	if (status & (I2C_SR_EDEVICE | I2C_SR_EDATA))
-+		return -EIO;
-+
-+	enable_irq(zx_i2c->irq);
-+
-+	return 0;
-+}
-+
-+static void zx2967_i2c_isr_clr(struct zx2967_i2c_info *zx_i2c)
-+{
-+	u32 status;
-+
-+	status = zx2967_i2c_readl(zx_i2c, REG_STAT);
-+	status |= I2C_IRQ_ACK_CLEAR;
-+	zx2967_i2c_writel(zx_i2c, status, REG_STAT);
-+}
-+
-+static irqreturn_t zx2967_i2c_isr(int irq, void *dev_id)
-+{
-+	u32 status;
-+	struct zx2967_i2c_info *zx_i2c = (struct zx2967_i2c_info *)dev_id;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&zx_i2c->lock, flags);
-+
-+	status = zx2967_i2c_readl(zx_i2c, REG_STAT) & I2C_INT_MASK;
-+	zx2967_i2c_isr_clr(zx_i2c);
-+
-+	if (status & I2C_ERROR_MASK) {
-+		spin_unlock_irqrestore(&zx_i2c->lock, flags);
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (status & I2C_TRANS_DONE)
-+		complete(&zx_i2c->complete);
-+
-+	spin_unlock_irqrestore(&zx_i2c->lock, flags);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void zx2967_enable_tenbit(struct zx2967_i2c_info *zx_i2c, __u16 addr)
-+{
-+	u16 val = (addr >> I2C_TENBIT_SHIFT) & I2C_TENBIT_MASK;
-+
-+	if (val) {
-+		zx2967_i2c_writel(zx_i2c, val, REG_DEVADDR_H);
-+		val = (zx2967_i2c_readl(zx_i2c, REG_CMD)) | I2C_ADDR_MODE_TEN;
-+		zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+	}
-+}
-+
-+static int
-+zx2967_i2c_xfer_read_bytes(struct zx2967_i2c_info *zx_i2c, u32 bytes)
-+{
-+	unsigned long time_left;
-+
-+	reinit_completion(&zx_i2c->complete);
-+	zx2967_i2c_writel(zx_i2c, bytes - 1, REG_RDCONF);
-+	zx2967_i2c_start_ctrl(zx_i2c);
-+
-+	time_left = wait_for_completion_timeout(&zx_i2c->complete,
-+				I2C_TIMEOUT);
-+	if (time_left == 0) {
-+		dev_err(DEV(zx_i2c), "read i2c transfer timed out\n");
-+		disable_irq(zx_i2c->irq);
-+		zx2967_i2c_reset_hardware(zx_i2c);
-+		return -EIO;
-+	}
-+
-+	return zx2967_i2c_empty_rx_fifo(zx_i2c, bytes);
-+}
-+
-+static int zx2967_i2c_xfer_read(struct zx2967_i2c_info *zx_i2c)
-+{
-+	int ret;
-+	int i;
-+
-+	for (i = 0; i < zx_i2c->access_cnt; i++) {
-+		ret = zx2967_i2c_xfer_read_bytes(zx_i2c, I2C_FIFO_MAX);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	if (zx_i2c->residue > 0) {
-+		ret = zx2967_i2c_xfer_read_bytes(zx_i2c, I2C_FIFO_MAX);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	zx_i2c->residue = 0;
-+	zx_i2c->access_cnt = 0;
-+	return 0;
-+}
-+
-+static int
-+zx2967_i2c_xfer_write_bytes(struct zx2967_i2c_info *zx_i2c, u32 bytes)
-+{
-+	unsigned long time_left;
-+	int ret;
-+
-+	reinit_completion(&zx_i2c->complete);
-+
-+	ret = zx2967_i2c_fill_tx_fifo(zx_i2c);
-+	if (ret)
-+		return ret;
-+
-+	zx2967_i2c_start_ctrl(zx_i2c);
-+
-+	time_left = wait_for_completion_timeout(&zx_i2c->complete,
-+				I2C_TIMEOUT);
-+	if (time_left == 0) {
-+		dev_err(DEV(zx_i2c), "write i2c transfer timed out\n");
-+		disable_irq(zx_i2c->irq);
-+		zx2967_i2c_reset_hardware(zx_i2c);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int zx2967_i2c_xfer_write(struct zx2967_i2c_info *zx_i2c)
-+{
-+	int ret;
-+	int i;
-+
-+	for (i = 0; i < zx_i2c->access_cnt; i++) {
-+		ret = zx2967_i2c_xfer_write_bytes(zx_i2c, I2C_FIFO_MAX);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	if (zx_i2c->residue > 0) {
-+		ret = zx2967_i2c_xfer_write_bytes(zx_i2c, I2C_FIFO_MAX);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	zx_i2c->residue = 0;
-+	zx_i2c->access_cnt = 0;
-+	return 0;
-+}
-+
-+static int zx2967_i2c_xfer_msg(struct zx2967_i2c_info *zx_i2c,
-+			       struct i2c_msg *msg)
-+{
-+	if (msg->len == 0)
-+		return -EINVAL;
-+
-+	zx2967_i2c_flush_fifos(zx_i2c);
-+
-+	zx_i2c->buf = msg->buf;
-+	zx_i2c->residue = msg->len;
-+	zx_i2c->access_cnt = msg->len / I2C_FIFO_MAX;
-+	zx_i2c->msg_rd = (msg->flags & I2C_M_RD);
-+
-+	if (zx_i2c->msg_rd)
-+		return zx2967_i2c_xfer_read(zx_i2c);
-+
-+	return zx2967_i2c_xfer_write(zx_i2c);
-+}
-+
-+static int zx2967_i2c_xfer(struct i2c_adapter *adap,
-+			   struct i2c_msg *msgs, int num)
-+{
-+	struct zx2967_i2c_info *zx_i2c = i2c_get_adapdata(adap);
-+	int ret;
-+	int i;
-+
-+	if (zx_i2c->is_suspended)
-+		return -EBUSY;
-+
-+	zx2967_i2c_writel(zx_i2c, (msgs->addr & 0x7f), REG_DEVADDR_L);
-+	zx2967_i2c_writel(zx_i2c, (msgs->addr >> 7) & 0x7, REG_DEVADDR_H);
-+	if (zx2967_i2c_readl(zx_i2c, REG_DEVADDR_H) > 0)
-+		zx2967_enable_tenbit(zx_i2c, msgs->addr);
-+
-+	for (i = 0; i < num; i++) {
-+		ret = zx2967_i2c_xfer_msg(zx_i2c, &msgs[i]);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return num;
-+}
-+
-+static void
-+zx2967_smbus_xfer_prepare(struct zx2967_i2c_info *zx_i2c, u16 addr,
-+			  char read_write, u8 command, int size,
-+			  union i2c_smbus_data *data)
-+{
-+	u32 val;
-+
-+	val = zx2967_i2c_readl(zx_i2c, REG_RDCONF);
-+	val |= I2C_RFIFO_RESET;
-+	zx2967_i2c_writel(zx_i2c, val, REG_RDCONF);
-+	zx2967_i2c_writel(zx_i2c, (addr & 0x7f), REG_DEVADDR_L);
-+
-+	zx2967_enable_tenbit(zx_i2c, addr);
-+	val = zx2967_i2c_readl(zx_i2c, REG_CMD);
-+	val &= ~I2C_RW_READ;
-+	zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+
-+	switch (size) {
-+	case I2C_SMBUS_BYTE:
-+		zx2967_i2c_writel(zx_i2c, command, REG_DATA);
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		zx2967_i2c_writel(zx_i2c, command, REG_DATA);
-+		if (read_write == I2C_SMBUS_WRITE)
-+			zx2967_i2c_writel(zx_i2c, data->byte, REG_DATA);
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		zx2967_i2c_writel(zx_i2c, command, REG_DATA);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			zx2967_i2c_writel(zx_i2c, (data->word >> 8), REG_DATA);
-+			zx2967_i2c_writel(zx_i2c, (data->word & 0xff),
-+					  REG_DATA);
-+		}
-+		break;
-+	}
-+}
-+
-+static int zx2967_smbus_xfer_read(struct zx2967_i2c_info *zx_i2c, int size,
-+				  union i2c_smbus_data *data)
-+{
-+	unsigned long time_left;
-+	u8 buf[2];
-+	u32 val;
-+
-+	reinit_completion(&zx_i2c->complete);
-+
-+	val = zx2967_i2c_readl(zx_i2c, REG_CMD);
-+	val |= I2C_CMB_RW_EN;
-+	zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+
-+	val = zx2967_i2c_readl(zx_i2c, REG_CMD);
-+	val |= I2C_START;
-+	zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+
-+	time_left = wait_for_completion_timeout(&zx_i2c->complete,
-+						I2C_TIMEOUT);
-+	if (time_left == 0) {
-+		dev_err(DEV(zx_i2c), "i2c read transfer timed out\n");
-+		disable_irq(zx_i2c->irq);
-+		zx2967_i2c_reset_hardware(zx_i2c);
-+		return -EIO;
-+	}
-+
-+	switch (size) {
-+	case I2C_SMBUS_BYTE:
-+	case I2C_SMBUS_BYTE_DATA:
-+		val = zx2967_i2c_readl(zx_i2c, REG_DATA);
-+		data->byte = val;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+	case I2C_SMBUS_PROC_CALL:
-+		buf[0] = zx2967_i2c_readl(zx_i2c, REG_DATA);
-+		buf[1] = zx2967_i2c_readl(zx_i2c, REG_DATA);
-+		data->word = (buf[0] << 8) | buf[1];
-+		break;
-+	default:
-+		dev_warn(DEV(zx_i2c), "Unsupported transaction %d\n", size);
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return 0;
-+}
-+
-+static int zx2967_smbus_xfer_write(struct zx2967_i2c_info *zx_i2c)
-+{
-+	unsigned long time_left;
-+	u32 val;
-+
-+	reinit_completion(&zx_i2c->complete);
-+	val = zx2967_i2c_readl(zx_i2c, REG_CMD);
-+	val |= I2C_START;
-+	zx2967_i2c_writel(zx_i2c, val, REG_CMD);
-+
-+	time_left = wait_for_completion_timeout(&zx_i2c->complete,
-+						I2C_TIMEOUT);
-+	if (time_left == 0) {
-+		dev_err(DEV(zx_i2c), "i2c write transfer timed out\n");
-+		disable_irq(zx_i2c->irq);
-+		zx2967_i2c_reset_hardware(zx_i2c);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int zx2967_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-+			     unsigned short flags, char read_write,
-+			     u8 command, int size, union i2c_smbus_data *data)
-+{
-+	struct zx2967_i2c_info *zx_i2c = i2c_get_adapdata(adap);
-+
-+	if (size == I2C_SMBUS_QUICK)
-+		read_write = I2C_SMBUS_WRITE;
-+
-+	switch (size) {
-+	case I2C_SMBUS_QUICK:
-+	case I2C_SMBUS_BYTE:
-+	case I2C_SMBUS_BYTE_DATA:
-+	case I2C_SMBUS_WORD_DATA:
-+		zx2967_smbus_xfer_prepare(zx_i2c, addr, read_write,
-+					  command, size, data);
-+		break;
-+	default:
-+		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
-+		return -EOPNOTSUPP;
-+	}
-+
-+	if (read_write == I2C_SMBUS_READ)
-+		return zx2967_smbus_xfer_read(zx_i2c, size, data);
-+
-+	return zx2967_smbus_xfer_write(zx_i2c);
-+}
-+
-+#define ZX2967_I2C_FUNCS (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |	\
-+		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |	\
-+		I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_PROC_CALL |	\
-+		I2C_FUNC_I2C | I2C_FUNC_SMBUS_I2C_BLOCK)
-+
-+static u32 zx2967_i2c_func(struct i2c_adapter *adap)
-+{
-+	return ZX2967_I2C_FUNCS;
-+}
-+
-+static int __maybe_unused zx2967_i2c_suspend(struct device *dev)
-+{
-+	struct zx2967_i2c_info *zx_i2c = dev_get_drvdata(dev);
-+
-+	zx_i2c->is_suspended = true;
-+	clk_disable_unprepare(zx_i2c->clk);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused zx2967_i2c_resume(struct device *dev)
-+{
-+	struct zx2967_i2c_info *zx_i2c = dev_get_drvdata(dev);
-+
-+	zx_i2c->is_suspended = false;
-+	clk_prepare_enable(zx_i2c->clk);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(zx2967_i2c_dev_pm_ops,
-+			 zx2967_i2c_suspend, zx2967_i2c_resume);
-+
-+static const struct i2c_algorithm zx2967_i2c_algo = {
-+	.master_xfer = zx2967_i2c_xfer,
-+	.smbus_xfer = zx2967_smbus_xfer,
-+	.functionality = zx2967_i2c_func,
-+};
-+
-+static const struct of_device_id zx2967_i2c_of_match[] = {
-+	{ .compatible = "zte,zx296718-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, zx2967_i2c_of_match);
-+
-+static int zx2967_i2c_probe(struct platform_device *pdev)
-+{
-+	struct zx2967_i2c_info *zx_i2c;
-+	void __iomem *reg_base;
-+	struct resource *res;
-+	struct clk *clk;
-+	int ret;
-+
-+	zx_i2c = devm_kzalloc(&pdev->dev, sizeof(*zx_i2c), GFP_KERNEL);
-+	if (!zx_i2c)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	reg_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(reg_base))
-+		return PTR_ERR(reg_base);
-+
-+	clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(clk)) {
-+		dev_err(&pdev->dev, "missing controller clock");
-+		return PTR_ERR(clk);
-+	}
-+
-+	ret = clk_prepare_enable(clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to enable i2c_clk\n");
-+		return ret;
-+	}
-+
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		return ret;
-+	zx_i2c->irq = ret;
-+
-+	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
-+				       &zx_i2c->clk_freq);
-+	if (ret) {
-+		dev_err(&pdev->dev, "missing clock-frequency");
-+		return ret;
-+	}
-+
-+	zx_i2c->reg_base = reg_base;
-+	zx_i2c->clk = clk;
-+
-+	spin_lock_init(&zx_i2c->lock);
-+	init_completion(&zx_i2c->complete);
-+	platform_set_drvdata(pdev, zx_i2c);
-+
-+	ret = zx2967_i2c_reset_hardware(zx_i2c);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to initialize i2c controller\n");
-+		goto err_clk_unprepare;
-+	}
-+
-+	ret = devm_request_irq(&pdev->dev, zx_i2c->irq,
-+			zx2967_i2c_isr, 0, dev_name(&pdev->dev), zx_i2c);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to request irq %i\n", zx_i2c->irq);
-+		goto err_clk_unprepare;
-+	}
-+
-+	i2c_set_adapdata(&zx_i2c->adap, zx_i2c);
-+	strlcpy(zx_i2c->adap.name, "zx2967 i2c adapter",
-+		sizeof(zx_i2c->adap.name));
-+	zx_i2c->adap.algo = &zx2967_i2c_algo;
-+	zx_i2c->adap.nr = pdev->id;
-+	zx_i2c->adap.dev.parent = &pdev->dev;
-+	zx_i2c->adap.dev.of_node = pdev->dev.of_node;
-+
-+	ret = i2c_add_numbered_adapter(&zx_i2c->adap);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to add zx2967 i2c adapter\n");
-+		goto err_clk_unprepare;
-+	}
-+
-+	return 0;
-+err_clk_unprepare:
-+	clk_disable_unprepare(zx_i2c->clk);
-+	return ret;
-+}
-+
-+static int zx2967_i2c_remove(struct platform_device *pdev)
-+{
-+	struct zx2967_i2c_info *zx_i2c = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&zx_i2c->adap);
-+	clk_disable_unprepare(zx_i2c->clk);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver zx2967_i2c_driver = {
-+	.probe	= zx2967_i2c_probe,
-+	.remove	= zx2967_i2c_remove,
-+	.driver	= {
-+		.name  = "zx2967_i2c",
-+		.of_match_table = zx2967_i2c_of_match,
-+		.pm = &zx2967_i2c_dev_pm_ops,
-+	},
-+};
-+module_platform_driver(zx2967_i2c_driver);
-+
-+MODULE_AUTHOR("Baoyou Xie <baoyou.xie@linaro.org>");
-+MODULE_DESCRIPTION("ZTE zx2967 I2C Bus Controller driver");
-+MODULE_LICENSE("GPL v2");
+v7 -> v8 changes
+- cleanup the implementation of the simplified gpio bindings, but still...
+- ...reorder patches so that they appear last in the series (patches 11
+  and 12 were patches 4 and 5 in v7) since Jonathan convinced me that
+  they were perhaps not such a good idea after all. But I still wanted
+  to show the last version I had and I'm still a bit undecided...
+- added some words to the remaining otherwise empty commit messages
+- added various acks/reviews from Jonathan and Wolfram.
+- move mux last in drivers/Kconfig and drivers/Makefile
+- bump copyright years
+- centralize error reporting of common operatinons to the mux core
+- add WARN_ON for faulty usage of mux_chip_register
+- simplify code for other WARN_ON call sites
+
+v6 -> v7 changes
+- move from drivers/misc/mux-* to drivers/mux/
+  [I will remove Cc:s to Arnd and Greg for v8, when/if that happens]
+- add managed versions of mux_chip_alloc and mux_chip_register
+- use the above in mux-gpio.c and mux-adg792a.c
+- also use them to support a simplified binding of a gpio mux for the common
+  case where there is a single consumer (and no specific idle requirements)
+- new binding for describing idle behaviour of mux-adg792a
+- add bindings for the gpo-pins on the mux-adg792g
+- use device_property_read_u32 instead of of_property_read_u32 in mux-gpio.c
+- rename iio mux compatible to io-channel-mux (was iio-mux)
+- remove linuxism in the bindings (it was mentioning a function name)
+- add missing quote in the example in the io-channel-mux binding
+- factor out preparatory cleanup of devres docs to its own patch
+- add blank line in mux_chip_free
+- use SIMPLE_{PARENT,MUX}_LOCKED instead of magic numbers {0,1} in
+  i2c-mux-simple.c
+- add some acks and a reviewed-by from Jonathan
+
+v5 -> v6 changes
+- fix stupidity in mux_chip_priv, mux_gpio_remove and adg792a_remove.
+- change the devicetree bindings for the iio-mux to use a list of strings
+  (channels property) instead of a list children.
+
+v4 -> v5 changes
+- remove support for fancier dt layouts and go back to the phandle
+  approach from v2 and before, killing the horrible non-working
+  refcounting crap from v4 and avoiding a bunch of life-time issues
+  in v3.
+- introduce the concept of a mux-chip, that can hold one or more
+  mux-controllers (inspired by the pwm subsystem).
+- add dt #mux-control-cells property needed to get to the desired
+  mux controller if a mux chip provides more than one.
+- take away the option to build the mux-core as a module.
+- if the mux controller has an idle state, make sure the mux controller
+  is set up in the idle state initially (when it should be idle).
+- do not use a variable length array on the stack in mux_gpio_set to
+  temporarily store the gpio state, preallocate space instead.
+- fix resource leak on one failure path in mux_gpio_probe.
+- driver for Analog Devices ADG792A/G, literally the first mux chip
+  I found on the Internet with an i2c interface (that was not a
+  dedicated i2c multiplexer like PCA9547) which I used to verify
+  that the abstractions in the mux core are up to the task. Untested,
+  just proof of concept that at least looks pretty and compiles...
+- various touch-ups.
+
+v3 -> v4 changes
+- rebased onto next-20161122 (depends on recent _available iio changes).
+- added support for having the mux-controller in a child node of a
+  mux-consumer if it is a sole consumer, to hopefully even further satisfy
+  the complaint from Rob (and later Lars-Peter) about dt complexity.
+- the above came at the cost of some rather horrible refcounting code,
+  please review and suggest how it should be done...
+- changed to register a device class instead of a bus.
+- pass in the parent device into mux_control_alloc and require less
+  work from mux-control drivers.
+- changed device names from mux:control%d to mux%d
+- move kernel-doc from mux-core.c to mux.h (and add some bits).
+- give the gpio driver a chance to update all mux pins at once.
+- factor out iio ext_info lookup into new helper function. /Lars-Peter
+- use an unsigned type for the iio ext_info count. /Lars-Peter
+- unified "brag strings" in the file headers.
+
+v2 -> v3 changes
+- have the mux-controller in the parent node of any mux-controller consumer,
+  to hopefully satisfy complaint from Rob about dt complexity.
+- improve commit message of the mux subsystem commit, making it more
+  general, as requested by Jonathan.
+- remove priv member from struct mux_control and calculate it on the
+  fly. /Jonathan
+- make the function comments in mux-core.c kernel doc. /Jonathan
+- add devm_mux_control_* to Documentation/driver.model/devres.txt. /Jonathan
+- add common dt bindings for mux-controllers, refer to them from the
+  mux-gpio bindings. /Rob
+- clarify how the gpio pins map to the mux state. /Rob
+- separate CONFIG_ variables for the mux core and the mux gpio driver.
+- improve Kconfig help texts.
+- make CONFIG_MUX_GPIO depend on CONFIG_GPIOLIB.
+- keep track of the number of mux states in the mux core.
+- since the iio channel number is used as mux state, it was possible
+  to drop the state member from the mux_child struct.
+- cleanup dt bindings for i2c-mux-simple, it had some of copy-paste
+  problems from ots origin (i2c-mux-gpio).
+- select the mux control subsystem in config for the i2c-mux-simple driver.
+- add entries to MAINTAINERS and my sign-off, I'm now satisfied and know
+  nothing in this to be ashamed of.
+
+v1 -> v2 changes
+- fixup export of mux_control_put reported by kbuild
+- drop devicetree iio-ext-info property as noted by Lars-Peter,
+  and replace the functionality by exposing all ext_info
+  attributes of the parent channel for each of the muxed
+  channels. A cache on top of that and each muxed channel
+  gets its own view of the ext_info of the parent channel.
+- implement idle-state for muxes
+- clear out the cache on failure in order to force a mux
+  update on the following use
+- cleanup the probe of i2c-mux-simple driver
+- fix a bug in the i2c-mux-simple driver, where failure in
+  the selection of the mux caused a deadlock when the mux
+  was later unconditionally deselected.
+
+I have a piece of hardware that is using the same 3 GPIO pins
+to control four 8-way muxes. Three of them control ADC lines
+to an ADS1015 chip with an iio driver, and the last one
+controls the SDA line of an i2c bus. We have some deployed
+code to handle this, but you do not want to see it or ever
+hear about it. I'm not sure why I even mention it. Anyway,
+the situation has nagged me to no end for quite some time.
+
+So, after first getting more intimate with the i2c muxing code
+and later discovering the drivers/iio/inkern.c file and
+writing a couple of drivers making use of it, I came up with
+what I think is an acceptable solution; add a generic mux
+controller driver (and subsystem) that is shared between all
+instances, and combine that with an iio mux driver and a new
+general purpose i2c mux driver that is only hooking the i2c
+muxing and the new mux controller.
+
+One thing that I would like to do, but don't see a solution
+for, is to move the mux control code that is present in
+various drivers in drivers/i2c/muxes to this new minimalistic
+muxing subsystem, thus converting all present i2c muxes (but
+perhaps not gates and arbitrators).
+
+I'm using an rwsem to lock a mux, but that isn't really a
+perfect fit. Is there a better locking primitive that I don't
+know about that fits better? I had a mutex at one point, but
+that didn't allow any concurrent accesses at all. At least
+the rwsem allows concurrent access as long as all users
+agree on the mux state, but I suspect that the rwsem will
+degrade to the mutex situation pretty quickly if there is
+any contention.
+
+Also, the "mux" name feels a bit ambitious, there are many muxes
+in the world, and this tiny bit of code is probably not good
+enough to be a nice fit for all...
+
+Cheers,
+peda
+
+Peter Rosin (10):
+  devres: trivial whitespace fix
+  dt-bindings: document devicetree bindings for mux-controllers and
+    gpio-mux
+  mux: minimal mux subsystem and gpio-based mux controller
+  iio: inkern: api for manipulating ext_info of iio channels
+  dt-bindings: iio: io-channel-mux: document io-channel-mux bindings
+  iio: multiplexer: new iio category and iio-mux driver
+  dt-bindings: i2c: i2c-mux: document general purpose i2c-mux bindings
+  i2c: i2c-mux-gpmux: new driver
+  dt-bindings: mux-adg792a: document devicetree bindings for ADG792A/G
+    mux
+  mux: adg792a: add mux controller driver for ADG792A/G
+
+ .../devicetree/bindings/i2c/i2c-mux-gpmux.txt      |  99 +++++
+ .../bindings/iio/multiplexer/io-channel-mux.txt    |  39 ++
+ .../devicetree/bindings/mux/adi,adg792a.txt        |  75 ++++
+ Documentation/devicetree/bindings/mux/gpio-mux.txt |  69 ++++
+ .../devicetree/bindings/mux/mux-controller.txt     | 157 +++++++
+ Documentation/driver-model/devres.txt              |  10 +-
+ MAINTAINERS                                        |  15 +
+ drivers/Kconfig                                    |   2 +
+ drivers/Makefile                                   |   1 +
+ drivers/i2c/muxes/Kconfig                          |  13 +
+ drivers/i2c/muxes/Makefile                         |   1 +
+ drivers/i2c/muxes/i2c-mux-gpmux.c                  | 173 ++++++++
+ drivers/iio/Kconfig                                |   1 +
+ drivers/iio/Makefile                               |   1 +
+ drivers/iio/inkern.c                               |  60 +++
+ drivers/iio/multiplexer/Kconfig                    |  18 +
+ drivers/iio/multiplexer/Makefile                   |   6 +
+ drivers/iio/multiplexer/iio-mux.c                  | 456 +++++++++++++++++++++
+ drivers/mux/Kconfig                                |  45 ++
+ drivers/mux/Makefile                               |   7 +
+ drivers/mux/mux-adg792a.c                          | 140 +++++++
+ drivers/mux/mux-core.c                             | 414 +++++++++++++++++++
+ drivers/mux/mux-gpio.c                             | 114 ++++++
+ include/dt-bindings/mux/mux.h                      |  16 +
+ include/linux/iio/consumer.h                       |  37 ++
+ include/linux/mux.h                                | 248 +++++++++++
+ 26 files changed, 2216 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
+ create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
+ create mode 100644 Documentation/devicetree/bindings/mux/adi,adg792a.txt
+ create mode 100644 Documentation/devicetree/bindings/mux/gpio-mux.txt
+ create mode 100644 Documentation/devicetree/bindings/mux/mux-controller.txt
+ create mode 100644 drivers/i2c/muxes/i2c-mux-gpmux.c
+ create mode 100644 drivers/iio/multiplexer/Kconfig
+ create mode 100644 drivers/iio/multiplexer/Makefile
+ create mode 100644 drivers/iio/multiplexer/iio-mux.c
+ create mode 100644 drivers/mux/Kconfig
+ create mode 100644 drivers/mux/Makefile
+ create mode 100644 drivers/mux/mux-adg792a.c
+ create mode 100644 drivers/mux/mux-core.c
+ create mode 100644 drivers/mux/mux-gpio.c
+ create mode 100644 include/dt-bindings/mux/mux.h
+ create mode 100644 include/linux/mux.h
+
 -- 
-2.7.4
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
