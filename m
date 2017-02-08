@@ -1,103 +1,114 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: i2c-mux-gpio: rename i2c-gpio-mux to i2c-mux-gpio
-Date: Tue, 7 Feb 2017 22:41:55 +0100
-Message-ID: <1486503715-9224-1-git-send-email-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH] i2c: riic: correctly finish transfers
+Date: Tue,  7 Feb 2017 21:41:22 -0500
+Message-ID: <20170208024122.13116-1-chris.brandt@renesas.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0136.outbound.protection.outlook.com ([104.47.2.136]:4448
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932176AbdBGV5a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 7 Feb 2017 16:57:30 -0500
+Received: from relmlor3.renesas.com ([210.160.252.173]:64630 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751189AbdBHCmh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 7 Feb 2017 21:42:37 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Korsgaard <peter.korsgaard@barco.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Chris Brandt <chris.brandt@renesas.com>
 
-The rename did the wrong thing for this documentation file all those
-years ago. Fix that as well as the neglected rename of the platform
-data structure.
+This fixes the condition where the controller has not fully completed its
+final transfer and leaves the bus and controller in a undesirable state.
 
-Fixes: e7065e20d9a6 ("i2c: Rename last mux driver to standard pattern")
-Signed-off-by: Peter Rosin <peda@axentia.se>
+At the end of the last transmitted byte, the existing driver would just
+signal for a STOP condition to be transmitted then immediately signal
+completion. However, the full STOP procedure might not have fully taken
+place by the time the runtime PM shuts off the peripheral clock, leaving
+the bus in a suspended state.
+
+Alternatively, the STOP condition on the bus may have completed, but when
+the next transaction is requested by the upper layer, not all the
+necessary register cleanup was finished from the last transfer which made
+the driver return BUS BUSY when it really wasn't.
+
+This patch now makes all transmit and receive transactions wait for the
+STOP condition to fully complete before signaling a completed transaction.
+With this new method, runtime PM no longer seems to be an issue.
+
+Fixes: 310c18a41450 ("i2c: riic: add driver")
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 ---
- Documentation/i2c/muxes/i2c-mux-gpio | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-riic.c | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/i2c/muxes/i2c-mux-gpio b/Documentation/i2c/muxes/i2c-mux-gpio
-index d4d91a53fc39..7a8d7d261632 100644
---- a/Documentation/i2c/muxes/i2c-mux-gpio
-+++ b/Documentation/i2c/muxes/i2c-mux-gpio
-@@ -1,11 +1,11 @@
--Kernel driver i2c-gpio-mux
-+Kernel driver i2c-mux-gpio
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index 6263ea8..8f11d34 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -80,6 +80,7 @@
+ #define ICIER_TEIE	0x40
+ #define ICIER_RIE	0x20
+ #define ICIER_NAKIE	0x10
++#define ICIER_SPIE	0x08
  
- Author: Peter Korsgaard <peter.korsgaard@barco.com>
+ #define ICSR2_NACKF	0x10
  
- Description
- -----------
+@@ -216,11 +217,10 @@ static irqreturn_t riic_tend_isr(int irq, void *data)
+ 		return IRQ_NONE;
+ 	}
  
--i2c-gpio-mux is an i2c mux driver providing access to I2C bus segments
-+i2c-mux-gpio is an i2c mux driver providing access to I2C bus segments
- from a master I2C bus and a hardware MUX controlled through GPIO pins.
+-	if (riic->is_last || riic->err)
++	if (riic->is_last || riic->err) {
++		riic_clear_set_bit(riic, 0, ICIER_SPIE, RIIC_ICIER);
+ 		writeb(ICCR2_SP, riic->base + RIIC_ICCR2);
+-
+-	writeb(0, riic->base + RIIC_ICIER);
+-	complete(&riic->msg_done);
++	}
  
- E.G.:
-@@ -26,16 +26,16 @@ according to the settings of the GPIO pins 1..N.
- Usage
- -----
+ 	return IRQ_HANDLED;
+ }
+@@ -240,13 +240,13 @@ static irqreturn_t riic_rdrf_isr(int irq, void *data)
  
--i2c-gpio-mux uses the platform bus, so you need to provide a struct
-+i2c-mux-gpio uses the platform bus, so you need to provide a struct
- platform_device with the platform_data pointing to a struct
--gpio_i2cmux_platform_data with the I2C adapter number of the master
-+i2c_mux_gpio_platform_data with the I2C adapter number of the master
- bus, the number of bus segments to create and the GPIO pins used
--to control it. See include/linux/i2c-gpio-mux.h for details.
-+to control it. See include/linux/i2c-mux-gpio.h for details.
+ 	if (riic->bytes_left == 1) {
+ 		/* STOP must come before we set ACKBT! */
+-		if (riic->is_last)
++		if (riic->is_last) {
++			riic_clear_set_bit(riic, 0, ICIER_SPIE, RIIC_ICIER);
+ 			writeb(ICCR2_SP, riic->base + RIIC_ICCR2);
++		}
  
- E.G. something like this for a MUX providing 4 bus segments
- controlled through 3 GPIO pins:
+ 		riic_clear_set_bit(riic, 0, ICMR3_ACKBT, RIIC_ICMR3);
  
--#include <linux/i2c-gpio-mux.h>
-+#include <linux/i2c-mux-gpio.h>
- #include <linux/platform_device.h>
+-		writeb(0, riic->base + RIIC_ICIER);
+-		complete(&riic->msg_done);
+ 	} else {
+ 		riic_clear_set_bit(riic, ICMR3_ACKBT, 0, RIIC_ICMR3);
+ 	}
+@@ -259,6 +259,21 @@ static irqreturn_t riic_rdrf_isr(int irq, void *data)
+ 	return IRQ_HANDLED;
+ }
  
- static const unsigned myboard_gpiomux_gpios[] = {
-@@ -46,7 +46,7 @@ static const unsigned myboard_gpiomux_values[] = {
- 	0, 1, 2, 3
++static irqreturn_t riic_stop_isr(int irq, void *data)
++{
++	struct riic_dev *riic = data;
++
++	/* read back registers to confirm writes have fully propagated */
++	writeb(0, riic->base + RIIC_ICSR2);
++	readb(riic->base + RIIC_ICSR2);
++	writeb(0, riic->base + RIIC_ICIER);
++	readb(riic->base + RIIC_ICIER);
++
++	complete(&riic->msg_done);
++
++	return IRQ_HANDLED;
++}
++
+ static u32 riic_func(struct i2c_adapter *adap)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+@@ -326,6 +341,7 @@ static struct riic_irq_desc riic_irqs[] = {
+ 	{ .res_num = 0, .isr = riic_tend_isr, .name = "riic-tend" },
+ 	{ .res_num = 1, .isr = riic_rdrf_isr, .name = "riic-rdrf" },
+ 	{ .res_num = 2, .isr = riic_tdre_isr, .name = "riic-tdre" },
++	{ .res_num = 3, .isr = riic_stop_isr, .name = "riic-stop" },
+ 	{ .res_num = 5, .isr = riic_tend_isr, .name = "riic-nack" },
  };
- 
--static struct gpio_i2cmux_platform_data myboard_i2cmux_data = {
-+static struct i2c_mux_gpio_platform_data myboard_i2cmux_data = {
- 	.parent		= 1,
- 	.base_nr	= 2, /* optional */
- 	.values		= myboard_gpiomux_values,
-@@ -57,7 +57,7 @@ static struct gpio_i2cmux_platform_data myboard_i2cmux_data = {
- };
- 
- static struct platform_device myboard_i2cmux = {
--	.name		= "i2c-gpio-mux",
-+	.name		= "i2c-mux-gpio",
- 	.id		= 0,
- 	.dev		= {
- 		.platform_data	= &myboard_i2cmux_data,
-@@ -66,14 +66,14 @@ static struct platform_device myboard_i2cmux = {
- 
- If you don't know the absolute GPIO pin numbers at registration time,
- you can instead provide a chip name (.chip_name) and relative GPIO pin
--numbers, and the i2c-gpio-mux driver will do the work for you,
-+numbers, and the i2c-mux-gpio driver will do the work for you,
- including deferred probing if the GPIO chip isn't immediately
- available.
- 
- Device Registration
- -------------------
- 
--When registering your i2c-gpio-mux device, you should pass the number
-+When registering your i2c-mux-gpio device, you should pass the number
- of any GPIO pin it uses as the device ID. This guarantees that every
- instance has a different ID.
  
 -- 
-2.1.4
+2.10.1
