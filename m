@@ -1,114 +1,52 @@
-From: Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH] i2c: riic: correctly finish transfers
-Date: Tue,  7 Feb 2017 21:41:22 -0500
-Message-ID: <20170208024122.13116-1-chris.brandt@renesas.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:64630 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751189AbdBHCmh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 7 Feb 2017 21:42:37 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Baoyou Xie <baoyou.xie@linaro.org>
+Subject: [PATCH v5 1/3] dt: bindings: add documentation for zx2967 family i2c controller
+Date: Wed,  8 Feb 2017 17:11:05 +0800
+Message-ID: <1486545067-4688-1-git-send-email-baoyou.xie@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: shawnguo@kernel.org, andy.shevchenko@gmail.com, jun.nie@linaro.org, baoyou.xie@linaro.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Chris Brandt <chris.brandt@renesas.com>
 
-This fixes the condition where the controller has not fully completed its
-final transfer and leaves the bus and controller in a undesirable state.
+This patch adds dt-binding documentation for zx2967 family
+i2c controller.
 
-At the end of the last transmitted byte, the existing driver would just
-signal for a STOP condition to be transmitted then immediately signal
-completion. However, the full STOP procedure might not have fully taken
-place by the time the runtime PM shuts off the peripheral clock, leaving
-the bus in a suspended state.
-
-Alternatively, the STOP condition on the bus may have completed, but when
-the next transaction is requested by the upper layer, not all the
-necessary register cleanup was finished from the last transfer which made
-the driver return BUS BUSY when it really wasn't.
-
-This patch now makes all transmit and receive transactions wait for the
-STOP condition to fully complete before signaling a completed transaction.
-With this new method, runtime PM no longer seems to be an issue.
-
-Fixes: 310c18a41450 ("i2c: riic: add driver")
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/i2c/busses/i2c-riic.c | 30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/i2c/i2c-zx2967.txt         | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
 
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index 6263ea8..8f11d34 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -80,6 +80,7 @@
- #define ICIER_TEIE	0x40
- #define ICIER_RIE	0x20
- #define ICIER_NAKIE	0x10
-+#define ICIER_SPIE	0x08
- 
- #define ICSR2_NACKF	0x10
- 
-@@ -216,11 +217,10 @@ static irqreturn_t riic_tend_isr(int irq, void *data)
- 		return IRQ_NONE;
- 	}
- 
--	if (riic->is_last || riic->err)
-+	if (riic->is_last || riic->err) {
-+		riic_clear_set_bit(riic, 0, ICIER_SPIE, RIIC_ICIER);
- 		writeb(ICCR2_SP, riic->base + RIIC_ICCR2);
--
--	writeb(0, riic->base + RIIC_ICIER);
--	complete(&riic->msg_done);
-+	}
- 
- 	return IRQ_HANDLED;
- }
-@@ -240,13 +240,13 @@ static irqreturn_t riic_rdrf_isr(int irq, void *data)
- 
- 	if (riic->bytes_left == 1) {
- 		/* STOP must come before we set ACKBT! */
--		if (riic->is_last)
-+		if (riic->is_last) {
-+			riic_clear_set_bit(riic, 0, ICIER_SPIE, RIIC_ICIER);
- 			writeb(ICCR2_SP, riic->base + RIIC_ICCR2);
-+		}
- 
- 		riic_clear_set_bit(riic, 0, ICMR3_ACKBT, RIIC_ICMR3);
- 
--		writeb(0, riic->base + RIIC_ICIER);
--		complete(&riic->msg_done);
- 	} else {
- 		riic_clear_set_bit(riic, ICMR3_ACKBT, 0, RIIC_ICMR3);
- 	}
-@@ -259,6 +259,21 @@ static irqreturn_t riic_rdrf_isr(int irq, void *data)
- 	return IRQ_HANDLED;
- }
- 
-+static irqreturn_t riic_stop_isr(int irq, void *data)
-+{
-+	struct riic_dev *riic = data;
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+new file mode 100644
+index 0000000..a528374
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+@@ -0,0 +1,24 @@
++ZTE zx2967 I2C controller
 +
-+	/* read back registers to confirm writes have fully propagated */
-+	writeb(0, riic->base + RIIC_ICSR2);
-+	readb(riic->base + RIIC_ICSR2);
-+	writeb(0, riic->base + RIIC_ICIER);
-+	readb(riic->base + RIIC_ICIER);
++Required properties:
++ - compatible: must be "zte,zx296718-i2c"
++ - reg: physical address and length of the device registers
++ - interrupts: a single interrupt specifier
++ - clocks: clock for the device
++ - #address-cells: should be <1>
++ - #size-cells: should be <0>
++ - clock-frequency: the desired I2C bus clock frequency.
 +
-+	complete(&riic->msg_done);
++Examples:
 +
-+	return IRQ_HANDLED;
-+}
-+
- static u32 riic_func(struct i2c_adapter *adap)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-@@ -326,6 +341,7 @@ static struct riic_irq_desc riic_irqs[] = {
- 	{ .res_num = 0, .isr = riic_tend_isr, .name = "riic-tend" },
- 	{ .res_num = 1, .isr = riic_rdrf_isr, .name = "riic-rdrf" },
- 	{ .res_num = 2, .isr = riic_tdre_isr, .name = "riic-tdre" },
-+	{ .res_num = 3, .isr = riic_stop_isr, .name = "riic-stop" },
- 	{ .res_num = 5, .isr = riic_tend_isr, .name = "riic-nack" },
- };
- 
++	i2c@112000 {
++		compatible = "zte,zx296718-i2c";
++		reg = <0x00112000 0x1000>;
++		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&osc24m>;
++		#address-cells = <1>
++		#size-cells = <0>;
++		clock-frequency = <1600000>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&i2c_global_pin>;
++	};
 -- 
-2.10.1
+2.7.4
