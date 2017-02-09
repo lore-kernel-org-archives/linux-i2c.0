@@ -1,121 +1,54 @@
-From: Ben Gardner <gardner.ben@gmail.com>
-Subject: Re: [PATCH] eeprom/at24: use device_property_*() functions instead of of_get_property()
-Date: Thu, 9 Feb 2017 09:27:29 -0600
-Message-ID: <CAE7DoPYfvdDJS=Q80P5-+Lf2L2j9sy9TcQ3eoh4CoAxtvs_yQg@mail.gmail.com>
-References: <1486583636-8940-1-git-send-email-gardner.ben@gmail.com> <CAHp75Vd4iwOUaJFzS_AnDGSbmKPSg=f+9VAb6AZdkv51zpbbQA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i2c-mux-gpio: rename i2c-gpio-mux to i2c-mux-gpio
+Date: Thu, 9 Feb 2017 17:02:25 +0100
+Message-ID: <20170209160225.h4r7yv5scafzo6ca@ninjato>
+References: <1486503715-9224-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ujnmw7egskjrweay"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vd4iwOUaJFzS_AnDGSbmKPSg=f+9VAb6AZdkv51zpbbQA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1486503715-9224-1-git-send-email-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
 
-Thanks for taking the time to look at this.
+--ujnmw7egskjrweay
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 8, 2017 at 6:07 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
->
-> On Wed, Feb 8, 2017 at 9:53 PM, Ben Gardner <gardner.ben@gmail.com> wrote:
-> > Allow the at24 driver to get configuration information from both OF and
-> > ACPI by using the more generic device_property functions.
-> > This change was inspired by the at25.c driver.
-> >
+On Tue, Feb 07, 2017 at 10:41:55PM +0100, Peter Rosin wrote:
+> The rename did the wrong thing for this documentation file all those
+> years ago. Fix that as well as the neglected rename of the platform
+> data structure.
+>=20
+> Fixes: e7065e20d9a6 ("i2c: Rename last mux driver to standard pattern")
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-(snip)
+Applied to for-next, thanks!
 
-> Few comments, after addressing them
->
-> FWIW:
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
->
 
-(snip)
+--ujnmw7egskjrweay
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> >
-> > -#ifdef CONFIG_OF
-> > -static void at24_get_ofdata(struct i2c_client *client,
-> > +static void at24_fw_to_chip(struct device *dev,
-> >                             struct at24_platform_data *chip)
->
-> "fw" here is ambiguous a bit.
-> Would at24_get_pdata() work for you?
+-----BEGIN PGP SIGNATURE-----
 
-That name also works for me.
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlickpEACgkQFA3kzBSg
+KbaQ5A//WNPoFNWQ08cBqFL39P5b3oql7/u+N52vpbnu2XXZ6B1RgUwofjM9ap/4
+TzqJrgB/jo2hL3JjgAcrCrq3IGbnbxp0rdqyQKyiaj2SowzT6UiFONP/xibBhILy
+IdyLwFLf5xgmLK5jCet96DUGKt/kCT7dLZlWrD5SSGZRzQmZ6rOYXM1sXhMGBse7
+ycIAWCmvyLjU7bRSVyLHeyY6wA4fF1AecJY24mqs1hKfgUJDvK2z2/6uCAskkV+Q
+qwQxj4vjUhnR7h0OOJob8JI0QUVhr+Y495UazKKV3db/uN7T+31dy1+qOkF4tqcN
+wYHM8DOAUmB7SIvvWpGD+jXZ+Wc6gXNy+IOX1IFfHUvbGHw0mDc69dfUxTD/uFD2
+/x+pvJ2/u+V9/f2HVxYKk4/0kfpmC131Xe00hRyCs4ojVK3CkkjO5Vk5s+L2GKx4
+M4k+betm657G/vO3HhXaNCIWNuU5q5pvTKDDRKDZ+a8prHA0UW5eYaFF1fmZucdc
+TUPkH2sgoThssSBKtf22aEaXGfE1QpxtcXgA3lFU0QzA+0Vt4Oc4J2m25VvDTzk5
+bghu4Ok0JKZgqVrBgis0Y1fGOrPi5vIeIzg1XwwlN+WhTxnv+M+j0QJLeVTAPEj7
+PUuz5wBHeC3xG4TcSZLKV+Iqu7jJG9dWiHmas970p9kIeGYO4oo=
+=SSpD
+-----END PGP SIGNATURE-----
 
-> >  {
-> > -       const __be32 *val;
-> > -       struct device_node *node = client->dev.of_node;
-> > -
-> > -       if (node) {
-> > -               if (of_get_property(node, "read-only", NULL))
-> > -                       chip->flags |= AT24_FLAG_READONLY;
-> > -               val = of_get_property(node, "pagesize", NULL);
-> > -               if (val)
-> > -                       chip->page_size = be32_to_cpup(val);
-> > -       }
-> > +       u32 val;
-> > +
-> > +       if (device_property_present(dev, "read-only"))
-> > +               chip->flags |= AT24_FLAG_READONLY;
-> > +
->
-> > +       if (device_property_read_u32(dev, "pagesize", &val) == 0)
->
-> I would use default from probe here.
->
-> int ret;
->
-> ...
->
-> ret = ..._u32(..., &val);
-> if (ret) {
-> /* ...long comment from ->probe()... */
->    chip->page_size = 1;
-> } else
->    chip->page_size = val;
-
-That sounds reasonable.
-
-> > +               chip->page_size = val;
-> >  }
-> > -#else
-> > -static void at24_get_ofdata(struct i2c_client *client,
-> > -                           struct at24_platform_data *chip)
-> > -{ }
-> > -#endif /* CONFIG_OF */
-> >
-> >  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> >  {
-> > @@ -621,7 +611,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> >                 chip.page_size = 1;
-> >
->
-> >                 /* update chipdata if OF is present */
->
-> This is now redundant.
-
-Yeah, that comment doesn't seem all that useful.
-
-> > -               at24_get_ofdata(client, &chip);
-> > +               at24_fw_to_chip(&client->dev, &chip);
-> >
-> >                 chip.setup = NULL;
-> >                 chip.context = NULL;
-> > --
-> > 2.7.4
-> >
->
->
->
-> --
-> With Best Regards,
-> Andy Shevchenko
-
-I'll send an update.
-
-Thanks,
-Ben
+--ujnmw7egskjrweay--
