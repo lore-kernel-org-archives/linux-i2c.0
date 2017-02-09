@@ -1,12 +1,14 @@
 From: Baoyou Xie <baoyou.xie@linaro.org>
-Subject: [PATCH v6 1/3] dt: bindings: add documentation for zx2967 family i2c
- controller
-Date: Thu,  9 Feb 2017 17:32:31 +0800
-Message-ID: <1486632753-17363-1-git-send-email-baoyou.xie@linaro.org>
+Subject: [PATCH v6 2/3] MAINTAINERS: add zx2967 i2c controller driver to ARM
+ ZTE architecture
+Date: Thu,  9 Feb 2017 17:32:32 +0800
+Message-ID: <1486632753-17363-2-git-send-email-baoyou.xie@linaro.org>
+References: <1486632753-17363-1-git-send-email-baoyou.xie@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1486632753-17363-1-git-send-email-baoyou.xie@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,45 +22,29 @@ To: shawnguo@kernel.org, andy.shevchenko@gmail.com, jun.nie@linaro.org, baoyou.x
 Cc: devicetree@vger.kernel.org, xie.baoyou@zte.com.cn, linux-kernel@vger.kernel.org, chen.chaokai@zte.com.cn, linux-i2c@vger.kernel.org, wang.qiang01@zte.com.cn, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds dt-binding documentation for zx2967 family
-i2c controller.
+Add the zx2967 i2c controller driver as maintained by ARM ZTE
+architecture maintainers, as they're parts of the core IP.
 
 Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- .../devicetree/bindings/i2c/i2c-zx2967.txt         | 24 ++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
-new file mode 100644
-index 0000000..a528374
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
-@@ -0,0 +1,24 @@
-+ZTE zx2967 I2C controller
-+
-+Required properties:
-+ - compatible: must be "zte,zx296718-i2c"
-+ - reg: physical address and length of the device registers
-+ - interrupts: a single interrupt specifier
-+ - clocks: clock for the device
-+ - #address-cells: should be <1>
-+ - #size-cells: should be <0>
-+ - clock-frequency: the desired I2C bus clock frequency.
-+
-+Examples:
-+
-+	i2c@112000 {
-+		compatible = "zte,zx296718-i2c";
-+		reg = <0x00112000 0x1000>;
-+		interrupts = <GIC_SPI 112 IRQ_TYPE_LEVEL_HIGH>;
-+		clocks = <&osc24m>;
-+		#address-cells = <1>
-+		#size-cells = <0>;
-+		clock-frequency = <1600000>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c_global_pin>;
-+	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e63063b..313fab5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1987,9 +1987,11 @@ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
+ F:	arch/arm/mach-zx/
+ F:	drivers/clk/zte/
++F:	drivers/i2c/busses/i2c-zx2967.c
+ F:	drivers/soc/zte/
+ F:	Documentation/devicetree/bindings/arm/zte.txt
+ F:	Documentation/devicetree/bindings/clock/zx296702-clk.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+ F:	Documentation/devicetree/bindings/soc/zte/
+ F:	include/dt-bindings/soc/zx*.h
+ 
 -- 
 2.7.4
