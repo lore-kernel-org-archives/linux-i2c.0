@@ -1,68 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Request the SMBUS semaphore inside the mutex
-Date: Thu, 9 Feb 2017 20:56:33 +0100
-Message-ID: <20170209195633.GA1431@katana>
-References: <20170202191516.4476-1-ricardo.ribalda@gmail.com>
- <20170203161739.7264f85b@endymion>
- <20170209160926.fmxmnjb7oqf27pww@ninjato>
- <20170209183139.1a63f1fd@endymion>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Fix regression when dynamic TAR update
+ is disabled
+Date: Thu, 09 Feb 2017 22:07:38 +0200
+Message-ID: <1486670858.2133.436.camel@linux.intel.com>
+References: <1486669851-25632-1-git-send-email-Nehal-Bakulchandra.Shah@amd.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:46028 "EHLO mail.zeus03.de"
+Received: from mga11.intel.com ([192.55.52.93]:9118 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932131AbdBIT4i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 9 Feb 2017 14:56:38 -0500
-Content-Disposition: inline
-In-Reply-To: <20170209183139.1a63f1fd@endymion>
+        id S1752379AbdBIUUB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Feb 2017 15:20:01 -0500
+In-Reply-To: <1486669851-25632-1-git-send-email-Nehal-Bakulchandra.Shah@amd.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel
+To: Shah Nehal-Bakulchandra <Nehal-Bakulchandra.Shah@amd.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
+Cc: lucas.demarchi@intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Shyam-sundar.S-k@amd.com, Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
+On Fri, 2017-02-10 at 01:20 +0530, Shah Nehal-Bakulchandra wrote:
+> The following commit causes a regression when dynamic TAR update is
+> disabled:
+> 
+>      commit 63d0f0a6952a1a02bc4f116b7da7c7887e46efa3 ("i2c:
+> designware:
+>      detect when dynamic tar update is possible")
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please, leave just 12 characters, it still enough.
 
+> In such case, the DW_IC_CON_10BITADDR_MASTER is R/W, and is changed
+> by the logic that's trying to detect  dynamic TAR update.The original
+> value of DW_IC_CON_10BITADDR_MASTER bit should be restored.
+> 
 
-> I use Signed-off-by for drivers I maintain, and Reviewed-by for the
-> rest.
++ Fixes tag?
 
-I see. I never noticed so far :)
+> Signed-off-by: Shah Nehal-Bakulchandra <Nehal-
+> bakulchandra.Shah@amd.com>
+> Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-core.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c
+> b/drivers/i2c/busses/i2c-designware-core.c
+> index 6d81c56..0c57166 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -987,6 +987,11 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	    (reg & DW_IC_CON_10BITADDR_MASTER)) {
+>  		dev->dynamic_tar_update_enabled = true;
+>  		dev_dbg(dev->dev, "Dynamic TAR update enabled");
+> +	} else {
+> +		/* If test is failed then restore the original value
+> */
 
-> But I can use whatever you prefer if that's a problem, I don't really
-> care.
+> +		dev->dynamic_tar_update_enabled = false;
 
-Patchwork collects Rev-by tags from threads and shows the number of tags
-in a list. This is helpful for me because I want to process already
-reviewed patches earlier.
+It's default.
 
-So, Rev-by would in deed be much appreciated for a better workflow.
+> +		dev_dbg(dev->dev, "Dynamic TAR update disable restore
+> the value");
 
-Thanks!
+I think this is useless. Either you have enabled message, or have
+nothing.
 
+> +		dw_writel(dev, reg, DW_IC_CON);
+>  	}
+>  
+>  	i2c_dw_release_lock(dev);
 
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYnMlxAAoJEBQN5MwUoCm2SmwP/10vvycX9SVrU+kHRfl+KOMg
-ShITtLQEmegRPxTlnjWo9e52M3xkoGg9BPx1NhQh+0h/tUpidSwCueTAvh5+cRqm
-XjYvNO1OdwvzehdCAMEBq1yghFjOC2qu/R80e5p3RJc1Qj8nGVhJ1bwIkuNuI65r
-9PITHf38MpVDXMrGm4CbgUj+IPjLsyVtDZGIaJcUXjifyYuKjXKK8DU2SLS850Du
-DR46GAIiyWPEkqXKqoIiWi51b6n3Lrg0ZHBvNd1K81KECuVhR+yYpH+x87SpT9Ts
-iJHwJJnVSdtZ3idxjiZSHPTGzzk4Po3jybMLZoZZRuOOQxeR3KXLhJtbBgflnPFt
-l6OfeJOUP0/OSjzpBh8c2D73cmiPBx+9c2BgbORWhkgvtXF531F86YOcc1cgOreq
-8AlWF1LRYNiit6raHCZZRA5v3VMcJ2eFbF0QBg0bpEDDgo0ci/yBYHLGAk6lOIIG
-2MhrjMmXtUBzWkw9DcSegk+IeqHEFzn1IxX0i48xnd4gBymGkRuDXOHUGU7KbxyO
-Eg+EZGCTUpYbEPj5Jqp6E9e17YAeJYxM49lPpBdCjEpev9aAea52JZwwOKcVelXJ
-6Vv5ZbLkg4+JG5HtSxTlrfu7uVwmZHUsqDLnXGFCS9+vX3HD2Mw0f1cSntgYksi2
-yN0pyti3NGHETXRryR4/
-=NVdz
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
