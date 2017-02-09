@@ -1,120 +1,79 @@
-From: Ben Gardner <gardner.ben@gmail.com>
-Subject: [PATCH v2] eeprom/at24: use device_property_*() functions instead of of_get_property()
-Date: Thu,  9 Feb 2017 09:33:53 -0600
-Message-ID: <1486654433-20148-1-git-send-email-gardner.ben@gmail.com>
-References: <1486583636-8940-1-git-send-email-gardner.ben@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1486583636-8940-1-git-send-email-gardner.ben@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>, Ben Gardner <gardner.ben@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: busses: constify i2c_algorithm structures
+Date: Thu, 9 Feb 2017 17:08:13 +0100
+Message-ID: <20170209160813.b77an7ywhx4gnxjc@ninjato>
+References: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============8911124393499140533=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1485540377-13686-1-git-send-email-bhumirks@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: jdelvare@suse.com, andriy.shevchenko@linux.intel.com, kernel@stlinux.com, patrice.chotard@st.com, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, julia.lawall@lip6.fr, ludovic.desroches@atmel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, sonic.zhang@analog.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Allow the at24 driver to get configuration information from both OF and
-ACPI by using the more generic device_property functions.
-This change was inspired by the at25.c driver.
 
-I have a custom board with a ST M24C02 EEPROM attached to an I2C bus.
-With the following ACPI construct, this patch instantiates a working
-instance of the driver.
+--===============8911124393499140533==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="2bfrcdvqknmhxvv7"
+Content-Disposition: inline
 
-Device (EEP0) {
- Name (_HID, "PRP0001")
- Name (_DSD, Package () {
-  ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-  Package () {
-   Package () {"compatible", Package () {"st,24c02"}},
-   Package () {"size", 256},
-   Package () {"pagesize", 16},
-  },
- })
- Name (_CRS, ResourceTemplate () {
-  I2cSerialBus (
-   0x0057, ControllerInitiated, 400000,
-   AddressingMode7Bit, "\\_SB.PCI0.I2C3", 0x00,
-   ResourceConsumer,,)
- })
-}
 
-Note: Matching the driver to the I2C device requires another patch.
- http://www.spinics.net/lists/linux-acpi/msg71914.html
+--2bfrcdvqknmhxvv7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
----
- drivers/misc/eeprom/at24.c | 43 +++++++++++++++++--------------------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
+On Fri, Jan 27, 2017 at 11:36:17PM +0530, Bhumika Goyal wrote:
+> Declare i2c_algorithm structures as const as they are only stored in the
+> algo field of an i2c_adapter structure. This field is of type const, so
+> i2c_algorithm structures having this property can be made const too.
+>=20
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 051b147..81099f3 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -19,7 +19,6 @@
- #include <linux/log2.h>
- #include <linux/bitops.h>
- #include <linux/jiffies.h>
--#include <linux/of.h>
- #include <linux/acpi.h>
- #include <linux/i2c.h>
- #include <linux/nvmem-provider.h>
-@@ -562,26 +561,25 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	return 0;
- }
- 
--#ifdef CONFIG_OF
--static void at24_get_ofdata(struct i2c_client *client,
--			    struct at24_platform_data *chip)
-+static void at24_get_pdata(struct device *dev,
-+			   struct at24_platform_data *chip)
- {
--	const __be32 *val;
--	struct device_node *node = client->dev.of_node;
--
--	if (node) {
--		if (of_get_property(node, "read-only", NULL))
--			chip->flags |= AT24_FLAG_READONLY;
--		val = of_get_property(node, "pagesize", NULL);
--		if (val)
--			chip->page_size = be32_to_cpup(val);
-+	u32 val;
-+
-+	if (device_property_present(dev, "read-only"))
-+		chip->flags |= AT24_FLAG_READONLY;
-+
-+	if (device_property_read_u32(dev, "pagesize", &val) == 0) {
-+		chip->page_size = val;
-+	} else {
-+		/*
-+		 * This is slow, but we can't know all eeproms, so we better
-+		 * play safe. Specifying custom eeprom-types via platform_data
-+		 * is recommended anyhow.
-+		 */
-+		chip.page_size = 1;
- 	}
- }
--#else
--static void at24_get_ofdata(struct i2c_client *client,
--			    struct at24_platform_data *chip)
--{ }
--#endif /* CONFIG_OF */
- 
- static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
-@@ -613,15 +611,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
- 		magic >>= AT24_SIZE_BYTELEN;
- 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
--		/*
--		 * This is slow, but we can't know all eeproms, so we better
--		 * play safe. Specifying custom eeprom-types via platform_data
--		 * is recommended anyhow.
--		 */
--		chip.page_size = 1;
- 
--		/* update chipdata if OF is present */
--		at24_get_ofdata(client, &chip);
-+		at24_get_pdata(&client->dev, &chip);
- 
- 		chip.setup = NULL;
- 		chip.context = NULL;
--- 
-2.7.4
+Applied to for-next with a shortened commit message, thanks!
+
+
+--2bfrcdvqknmhxvv7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlick+0ACgkQFA3kzBSg
+KbZdIQ/5AXrZgALIEqIpBuw4RWzVdBSWQBwwcGcFLq785dr2BrdNRdyIrWoCg5xT
+F1T2WFcFKN7UG8yWssRSz6QtEBsfRljIwnctORP8emtDiMxzL99fuRD6ulQvLt1Y
+Pi0VDjz5JP495l2qI7p8symnftda8qlnPLVSaDVHQrEezfCDTmeEVKox+rfXSOVS
+sqqlUmtX9mzpX6ySNdDWWghm3MvTWW8qVUBE/zn6suK633VslpYir7FTs0JZ3xO/
+4TRC+z7mKTjHqt6erXlJ8nklVgL7ii9+JTBRTWVvJ+DAy5CVBRiJf9r3TNWC6lKo
+HCtq5ZR6VxCSZp82Ds5EceNuu8K6Rah1YIGAS0TwRZWe7tkx1SRPv7Rtgnze08i4
+5hF5x9cLcCEgnkC63lZkVw9HqR6BdHdYeLK7JbU5LPmdjnaUdRIzSwv/UG0jFzz4
+NHavTok/1NzTIKx6C0FsS3tCvh5xx0ThSznx7ayEj+JrX6JsTMu1+EH5Id2qSDjy
+G6Sb0wE8VkfPLcEYt1SXvSEV5q86jKB6cHDZkIObPjidh2WIQvV5luPo/f9VIevP
+x/eC2761gIsOIX4hngCG+kE6f1HKQNCtjLR4xb+Wz7Y7StcUo+fLlSC2p+vJIaUj
+d1yFOQdT8ndCCPPsNiiVT6sGjsolhP6p9hQRuvj7vvmK4v/UvWU=
+=giab
+-----END PGP SIGNATURE-----
+
+--2bfrcdvqknmhxvv7--
+
+
+--===============8911124393499140533==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============8911124393499140533==--
