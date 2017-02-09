@@ -1,86 +1,68 @@
-From: Ben Gardner <gardner.ben@gmail.com>
-Subject: Re: [PATCH v2] eeprom/at24: use device_property_*() functions instead
- of of_get_property()
-Date: Thu, 9 Feb 2017 11:03:01 -0600
-Message-ID: <CAE7DoPa1taAOWOO+g=A=QJ5wTy+GicjyL6GgdiTYQ94QWaX1Ug@mail.gmail.com>
-References: <1486583636-8940-1-git-send-email-gardner.ben@gmail.com>
- <1486654433-20148-1-git-send-email-gardner.ben@gmail.com> <CAHp75VfM6orvq-_XOkPfzGjGZZyOERhAjhXbx5m9Fm1Rh=Biig@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: piix4: Request the SMBUS semaphore inside the mutex
+Date: Thu, 9 Feb 2017 20:56:33 +0100
+Message-ID: <20170209195633.GA1431@katana>
+References: <20170202191516.4476-1-ricardo.ribalda@gmail.com>
+ <20170203161739.7264f85b@endymion>
+ <20170209160926.fmxmnjb7oqf27pww@ninjato>
+ <20170209183139.1a63f1fd@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VfM6orvq-_XOkPfzGjGZZyOERhAjhXbx5m9Fm1Rh=Biig@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:46028 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932131AbdBIT4i (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Feb 2017 14:56:38 -0500
+Content-Disposition: inline
+In-Reply-To: <20170209183139.1a63f1fd@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel
 
-> Still couple of comments.
->
->> @@ -19,7 +19,6 @@
->>  #include <linux/log2.h>
->>  #include <linux/bitops.h>
->>  #include <linux/jiffies.h>
->
->> -#include <linux/of.h>
->
-> I suppose
-> + #include <linux/property.h>
-> ?
 
-It looks like <linux/property.h> is included via <linux/acpi.h>
-outside of any "#ifdef CONFIG_ACPI" check.
-But Documentation/process/submit-checklist.rst indicates:
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1) If you use a facility then #include the file that defines/declares
-   that facility.  Don't depend on other header files pulling in ones
-   that you use.
 
-So, I'll add it.
-As an aside, a quick scan of the drivers/ folder shows that fewer than
-half of the files that use functions from that header actually include
-it.
+> I use Signed-off-by for drivers I maintain, and Reviewed-by for the
+> rest.
 
->> +static void at24_get_pdata(struct device *dev,
->> +                          struct at24_platform_data *chip)
->
-> Now it fits one line.
-Sure does. Exactly 80 columns.
+I see. I never noticed so far :)
 
->> +       u32 val;
->> +
->> +       if (device_property_present(dev, "read-only"))
->> +               chip->flags |= AT24_FLAG_READONLY;
->> +
->> +       if (device_property_read_u32(dev, "pagesize", &val) == 0) {
->
-> ' == 0' looks awkward.
->
-> And I think
->
-> ret = x();
-> if (ret)
-> ...
-> else
-> ...
->
-> pattern would look slightly better.
+> But I can use whatever you prefer if that's a problem, I don't really
+> care.
 
-There are 51 C files that use a temporary variable as you suggest with
-"device_property_read" functions.
-There are 7 C files that use the "if (!device_property_read" style.
-It looks like at25.c was the only one that uses the '== 0' construct.
-Guess I picked the wrong one to copy.
-So, sure, I'll change that.
+Patchwork collects Rev-by tags from threads and shows the number of tags
+in a list. This is helpful for me because I want to process already
+reviewed patches earlier.
 
->> +               chip->page_size = val;
->> +       } else {
->> +               /*
->> +                * This is slow, but we can't know all eeproms, so we better
->> +                * play safe. Specifying custom eeprom-types via platform_data
->> +                * is recommended anyhow.
->> +                */
->> +               chip.page_size = 1;
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+So, Rev-by would in deed be much appreciated for a better workflow.
+
+Thanks!
+
+
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYnMlxAAoJEBQN5MwUoCm2SmwP/10vvycX9SVrU+kHRfl+KOMg
+ShITtLQEmegRPxTlnjWo9e52M3xkoGg9BPx1NhQh+0h/tUpidSwCueTAvh5+cRqm
+XjYvNO1OdwvzehdCAMEBq1yghFjOC2qu/R80e5p3RJc1Qj8nGVhJ1bwIkuNuI65r
+9PITHf38MpVDXMrGm4CbgUj+IPjLsyVtDZGIaJcUXjifyYuKjXKK8DU2SLS850Du
+DR46GAIiyWPEkqXKqoIiWi51b6n3Lrg0ZHBvNd1K81KECuVhR+yYpH+x87SpT9Ts
+iJHwJJnVSdtZ3idxjiZSHPTGzzk4Po3jybMLZoZZRuOOQxeR3KXLhJtbBgflnPFt
+l6OfeJOUP0/OSjzpBh8c2D73cmiPBx+9c2BgbORWhkgvtXF531F86YOcc1cgOreq
+8AlWF1LRYNiit6raHCZZRA5v3VMcJ2eFbF0QBg0bpEDDgo0ci/yBYHLGAk6lOIIG
+2MhrjMmXtUBzWkw9DcSegk+IeqHEFzn1IxX0i48xnd4gBymGkRuDXOHUGU7KbxyO
+Eg+EZGCTUpYbEPj5Jqp6E9e17YAeJYxM49lPpBdCjEpev9aAea52JZwwOKcVelXJ
+6Vv5ZbLkg4+JG5HtSxTlrfu7uVwmZHUsqDLnXGFCS9+vX3HD2Mw0f1cSntgYksi2
+yN0pyti3NGHETXRryR4/
+=NVdz
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
