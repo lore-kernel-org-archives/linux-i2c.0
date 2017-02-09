@@ -1,67 +1,111 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
-Date: Thu, 9 Feb 2017 17:27:36 +0100
-Message-ID: <20170209162736.nfyfd5dpjkjq65w7@ninjato>
-References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
- <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+Subject: Re: [RESEND PATCH 1/2] Documentation: devicetree: Add i2c binding
+ for mediatek MT2701 Soc Platform
+Date: Thu, 9 Feb 2017 17:35:32 +0100
+Message-ID: <20170209163532.ulv33rz4jzwrn4zf@ninjato>
+References: <1484732461-13594-1-git-send-email-jun.gao@mediatek.com>
+ <1484732461-13594-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="hhrdxy2zlc3n2zmi"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5466852371063574705=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1484732461-13594-2-git-send-email-jun.gao@mediatek.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---hhrdxy2zlc3n2zmi
+--===============5466852371063574705==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pytdljq32yyrxvld"
+Content-Disposition: inline
+
+
+--pytdljq32yyrxvld
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
-> In case of arbitration lost adequate interrupt sometimes is not signaled.=
- As
-> a result transfer timeouts and is not retried, as it should. To avoid such
-> cases code is added to check transaction status in case of every interrup=
-t.
+On Wed, Jan 18, 2017 at 05:41:00PM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 >=20
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> This add i2c DT binding to i2c-mt6577.txt for MT2701.
+>=20
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 > ---
+>  .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Docum=
+entation/devicetree/bindings/i2c/i2c-mt6577.txt
+> index 0ce6fa3..ef22ecf 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with=
+ I2C devices.
+> =20
+>  Required properties:
+>    - compatible: value should be either of the following.
+> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> +	"mediatek,mt2701-i2c", for i2c compatible with mt2701 i2c.
+> +	"mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> +	"mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> +	"mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> +	"mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> +	"mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+>    - reg: physical base address of the controller and dma base, length of=
+ memory
+>      mapped region.
+>    - interrupts: interrupt number to the cpu.
 
-> +
-> +		switch (trans_status & HSI2C_MASTER_ST_MASK) {
-> +		case HSI2C_MASTER_ST_LOSE:
-> +			i2c->state =3D -EAGAIN;
-> +			goto stop;
-> +		}
-
-Why not using if() instead of switch() as in the rest of the driver?
-
-And there is arbitration lost checking already with int_status &
-HSI2C_INT_TRANS_ABORT. Any guess why it doesn't trigger?
+Are there no driver changes needed? It currently lists only 3 of the
+above. If so, that would be nice to be mentioned in the commit message.
 
 
---hhrdxy2zlc3n2zmi
+--pytdljq32yyrxvld
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlicmHQACgkQFA3kzBSg
-KbaDRg/+J990Pm2kGlvCqAsO9axyl+mWrgSBtbi720pZhqEzkaGEjw5TpIHlW+SZ
-7p8VskscILQ+QvXCRbb4xY7+SzafAZsUmrfJz+c6WM8XIZ4JN3Gli712CoRmolVU
-+fgUIqIpmsPwKyIXzFaQvDzrOoSgOtrgraTlxJcwZ+zyaevwMEaySGAU/f7IhB8o
-4HK6EeVfxbdz/lfIZkHIY56cvJjaHwJvVt4CxypaeC9EZ7VKth/WpyX0x+Drg+C2
-vpZqQqs/YmXfihYqcdnBjC4pGgUjgKLz0VbBCppoHeOQSg3R+0cxK8RZY2PCcJvI
-sTHi+6c7l24CTK96LknIiXT2DSrA2Tztb+lm+Q2nlnV/48KTBUJjzTkHnTRihv1b
-ka4se9Ug+FCy6e7FOIFuBH3I25QvYersGcdmRiYrTS53CN1Fn/4HF7S/mRsqjTPq
-uVskxQbGBPEUoebhyyfWELJqMCMWvtndsGn0wDSMP+nDJ/SqiQl0kYA5VgduN1L/
-MZb0o+VJ857Z8mJTtWBn8iAb0Rdxg/XmiM8EuEpIi/RLaUt70DvxQXbATehBEGDc
-R8FIaRQoGZcXIeqpO3cxfCU+zyIWHrp5K2EyczQ5D7D0g7/a8FhDJ7FP0O/PEA5W
-4OHjjehFVHOoJuyQ7BJgJN5oF45ReUtP4N+a6soui6ZggicHXRs=
-=egU6
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlicmlQACgkQFA3kzBSg
+KbaskA/+LYSblw3MpmBpTuxIu5vFnn+DPkT3yVkBpB56P+8UvniRoYlBUPqey8yP
+aaA5aBiY52vLsEL/AniO5iqRnPfVp3bWaLm0yaxt6sOhjZnElQMg+9VOGbZkaG7J
+YC+9i1q+wH4q9HXTeF7j5sx148ZsM27kExkQbL7Y7NaGKgDULIxgwC6Xh6iR4SVw
+uqqdIy7pP6+ZPFu7cyS91n/9WjePHb4abh8WtQVRYBy9DI9LVOem+FsssKrI/pc6
+E3NBfJIZrnqe+7XVF9ZXwDNqleF7v+TOrvwDKUn5OXdcVcJmzvf0epU9KOazdUL+
+140dzEGyXN9Gp+1//di83aEJh57cCu+Pum/pWRWeQKfPY/oMJPADOeit0R/E8dut
+ECu9Gv1bsev4RjL81b9mZ297TTStEFQ2oJfsmA8e9mvETclrR5TMfIYLM2CQRXDb
+4PsSP8pE/3dFji5QF6jLwjwaoaQnlMPSXbKkmcQsmh4GvLdcEWahHVUEyE6WosxK
+RLv55Yo+HMkCJcmX3HFzcynd/g0n1ckGP0CFUgxmcCoXtTFJwCtrVU3gn4EEJ4ZQ
+ow4dhBvEQg+ff4EGwmdlpaYogPEUgc0KrgYqziSHUXK5fPDgYbi+jsLGFzKDsZeu
+UYbw/GDuwQvHxoW5jT1OXw2xYuQHZem+eUauHjuQWV1o1IdYWto=
+=A757
 -----END PGP SIGNATURE-----
 
---hhrdxy2zlc3n2zmi--
+--pytdljq32yyrxvld--
+
+
+--===============5466852371063574705==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5466852371063574705==--
