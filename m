@@ -1,53 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Fix request_region size
-Date: Thu, 9 Feb 2017 17:14:04 +0100
-Message-ID: <20170209161404.vzqzvxddsxnet5tz@ninjato>
-References: <20170127145930.13055-1-ricardo.ribalda@gmail.com>
+Subject: Re: [PATCH] i2c: piix4: Request the SMBUS semaphore inside the mutex
+Date: Thu, 9 Feb 2017 17:13:52 +0100
+Message-ID: <20170209161351.gckg3l6ooypifou4@ninjato>
+References: <20170202191516.4476-1-ricardo.ribalda@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pkd644r6n2qhassa"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="tlytu7k5og7lk7wg"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:45379 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752376AbdBIQOK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Feb 2017 11:14:10 -0500
 Content-Disposition: inline
-In-Reply-To: <20170127145930.13055-1-ricardo.ribalda@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170202191516.4476-1-ricardo.ribalda@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel
 
 
---pkd644r6n2qhassa
+--tlytu7k5og7lk7wg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 27, 2017 at 03:59:30PM +0100, Ricardo Ribalda Delgado wrote:
-> Since '701dc207bf55 ("i2c: piix4: Avoid race conditions with IMC")' we
-> are using the SMBSLVCNT register at offset 0x8. We need to request it.
+On Thu, Feb 02, 2017 at 08:15:16PM +0100, Ricardo Ribalda Delgado wrote:
+> SMBSLVCNT must be protected with the piix4_mutex_sb800 in order to avoid
+> multiple buses accessing to the semaphore at the same time.
 >=20
-> Fixes: 701dc207bf55 ("i2c: piix4: Avoid race conditions with IMC")
+> Reported-by: Jean Delvare <jdelvare@suse.de>
 > Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-Applied to for-current, thanks!
+Applied to for-current and added the same fixes tag as the patch to the
+resource size, thanks!
 
 
---pkd644r6n2qhassa
+--tlytu7k5og7lk7wg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliclUwACgkQFA3kzBSg
-Kbb61Q/9FBdaBPqtIO4XyTBdAqkV8XcZTI1Z5cC03yT148Ek8qY8t5RcFVrb9aIY
-D11bj4GYC+tsiwlhDoekWKGzf5zfeIAn2a+FAWlOXUoKn5sZPmDiDR7VjZvU/0ON
-2QmlGhX4gBjX++7+l0YJCc3zCohedFqC6KmF31yl/B3WVP4Qvk4jmIvWsnOyYRKa
-f3EipROnfW74JXR0p02956XvcFr9PrCFXsiy8Shl6ts8gGpX/De3/TglPXjfAO1k
-HFjFYnoNdbCvTo0DJnFfS9b5Go+GG8PX/6+kblW1Nh/JW0N2ZaXuILbVTW3vEcqh
-KrOiNUBR58mDfU6HNQMNHDLJEBqievZCdUdGF8fpgyMUCPFA+SztU66fG65uVytW
-czr5xNpdXpdVNc/9yVnVKNckA2WSKstomGfl0UhZMyfdI81HzAqhr9V+ntllSEAc
-OJmHXG1804ntjmPy5uqOuNpxRk8AEdofTIfBXPAUarRaypLYSmHJG0GjfBh5qtdb
-Gdv9m6iBVnKJB0XMZkiVUdA+YERVSbJ2i97em7ICZnQLQUguw7Cij6cALUf9m3hk
-J74OVRdIG5aNQxriZs4+dONCPxZcIl16A7AN0CTaPsL4cRj5pFbWNS0fJ1rv9ZuJ
-lhP3iKI77JRl982zuW63cClCYpEl0CpwKLqzWgygUdwVA0h1EUc=
-=lFX3
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliclT8ACgkQFA3kzBSg
+KbZz2g//QwAoIRPUfJtAQCKh7mzauKjDjn7Sy6z+RCiKq5Ljga6HQKGLWHOkuD0n
+EiDxxDbaVR71Loc8aJsTt9xZIG8yOn+idCUvfJegS/OaxU8FzrHhdS7lFZqAWacH
+eQ7aDH1/E6+K2DCXQcrRg79RDn7a6LJm82z3v1ugn0/L4GSycHW0UDCpcdCUVgmb
+yNKkDCEnD3O9ILfoEo3n34HlMcuVatkuEX+WbRfwTEWi1wagWEta7dPAbEP2OX1F
+pEHcExI5ET6/Oh3yw4QXFrsvrYL4wKGMbte6E+u8ryP25FkePEvyaGsSh+nVeSo7
+L8iT8xHY7izY0ov+b0ZK7q4q+Kx4mvee7RZvECoC1cCYcY9UWshTMmWFNUO9U80D
+rHRnqwf3PsAe0adW3MSOlJUd3b/OnOGbCLA8QlhCjsOjOP6vMefCqEKN5WuRQXY0
+97Te4j3lWaGcHb8LioCOEbEGbNB6kDBE+6WewKrab3FO0lGR212W2zS5sSoJDDk/
+qG85kvXFLy5UWtbcn23juE99qw5Lcysfv2HB+qJAvIMo2ArqfXJNyNLD0gFN8NLp
+YpW4vUpEBwVzIpxj7g7VapyMyURedoz5dKXCc7ZID8EZFl2H0b3kiWgRMkh8cw5O
+B9dMMDYcP9RMOxnGup8BlxxGFT3L4knLLbdBrdUUXl07aE9W5CU=
+=MZ/t
 -----END PGP SIGNATURE-----
 
---pkd644r6n2qhassa--
+--tlytu7k5og7lk7wg--
