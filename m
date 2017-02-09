@@ -1,57 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Request the SMBUS semaphore inside the mutex
-Date: Thu, 9 Feb 2017 17:09:26 +0100
-Message-ID: <20170209160926.fmxmnjb7oqf27pww@ninjato>
-References: <20170202191516.4476-1-ricardo.ribalda@gmail.com>
- <20170203161739.7264f85b@endymion>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2] eeprom/at24: use device_property_*() functions instead
+ of of_get_property()
+Date: Thu, 9 Feb 2017 18:20:31 +0200
+Message-ID: <CAHp75VfM6orvq-_XOkPfzGjGZZyOERhAjhXbx5m9Fm1Rh=Biig@mail.gmail.com>
+References: <1486583636-8940-1-git-send-email-gardner.ben@gmail.com> <1486654433-20148-1-git-send-email-gardner.ben@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="x6wbq47qzmz4x36l"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:45399 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753276AbdBIQUS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 9 Feb 2017 11:20:18 -0500
-Content-Disposition: inline
-In-Reply-To: <20170203161739.7264f85b@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1486654433-20148-1-git-send-email-gardner.ben@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ben Gardner <gardner.ben@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel
 
+On Thu, Feb 9, 2017 at 5:33 PM, Ben Gardner <gardner.ben@gmail.com> wrote:
+> Allow the at24 driver to get configuration information from both OF and
+> ACPI by using the more generic device_property functions.
+> This change was inspired by the at25.c driver.
+>
+> I have a custom board with a ST M24C02 EEPROM attached to an I2C bus.
+> With the following ACPI construct, this patch instantiates a working
+> instance of the driver.
+>
+> Device (EEP0) {
+>  Name (_HID, "PRP0001")
+>  Name (_DSD, Package () {
+>   ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>   Package () {
+>    Package () {"compatible", Package () {"st,24c02"}},
+>    Package () {"size", 256},
+>    Package () {"pagesize", 16},
+>   },
+>  })
+>  Name (_CRS, ResourceTemplate () {
+>   I2cSerialBus (
+>    0x0057, ControllerInitiated, 400000,
+>    AddressingMode7Bit, "\\_SB.PCI0.I2C3", 0x00,
+>    ResourceConsumer,,)
+>  })
+> }
+>
+> Note: Matching the driver to the I2C device requires another patch.
+>  http://www.spinics.net/lists/linux-acpi/msg71914.html
+>
 
---x6wbq47qzmz4x36l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Still couple of comments.
 
-Jean,
+> @@ -19,7 +19,6 @@
+>  #include <linux/log2.h>
+>  #include <linux/bitops.h>
+>  #include <linux/jiffies.h>
 
-> Thanks for the quick fix.
->=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> -#include <linux/of.h>
 
-I wonder: why do you use Signed-off instead of Reviewed-by recently?
+I suppose
++ #include <linux/property.h>
+?
 
+> +static void at24_get_pdata(struct device *dev,
+> +                          struct at24_platform_data *chip)
 
---x6wbq47qzmz4x36l
-Content-Type: application/pgp-signature; name="signature.asc"
+Now it fits one line.
 
------BEGIN PGP SIGNATURE-----
+> +       u32 val;
+> +
+> +       if (device_property_present(dev, "read-only"))
+> +               chip->flags |= AT24_FLAG_READONLY;
+> +
+> +       if (device_property_read_u32(dev, "pagesize", &val) == 0) {
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliclDYACgkQFA3kzBSg
-KbYzNg/8Dg/fRLsSAeEYFX8zNm0H3jipnL8t/mOfwcPsiC0+kavrWKP7HHNAip6i
-oz1ROYzbrN58PGrln5v0+7Ml3QmpswTKyQ2TWpkiZ4e5vWjCBdYoQrW8M50bBX22
-vPSI0q0GQNqS2k+LWCcVwfT/uFJPORS6CZt9hsETiVgLFw9A5ZgAHqQEvxfgXAGN
-E+m0kokf5kGvfHenvYXF0QrQ4BBhxvvTiXsDJi2yQJFrccIu45JMZmQOnVFQAXGz
-iwN3WAJuAzF5VfyK+MU3WQJOph+/kHTszJEBz4GKYrD7Cipg6ssBKh7URjBPrS+L
-hKAKO0hYWgF4r+uwHqYjCascxKSiQ3rICa3Pkf9OWgmo6sw2OCn+KKfw6SVrW5Ho
-1uxR27vUq11jHss4Lp3hKMacbQ2aO6jlYVkqaqFL7z9q4EYJAG3Q9BkU6Sb5INZ9
-geccn+Ivl7yhq/LiDQ7B9lQGLIJW6U7uE2Nrx/tJ55cWFNBM20vjS8S8vK4cD6Kl
-BoCzGGAK3Bm5x7SYXQens5JpT1CfaQ6FCWaOMzwqDasZIljBp+Yw15IRkbZRxDXW
-FOvYnRVx1KNSqpyCMd6k6ePkbvESq6oZVO2KUWPag9JpmFpsxDeV4e0EltuT6TnM
-diXzmAE5o/BQ7Fa5fzZPGVkh9Pe1h0tszVITtwTW2c3xUPGHUvs=
-=Cx6q
------END PGP SIGNATURE-----
+' == 0' looks awkward.
 
---x6wbq47qzmz4x36l--
+And I think
+
+ret = x();
+if (ret)
+...
+else
+...
+
+pattern would look slightly better.
+
+> +               chip->page_size = val;
+> +       } else {
+> +               /*
+> +                * This is slow, but we can't know all eeproms, so we better
+> +                * play safe. Specifying custom eeprom-types via platform_data
+> +                * is recommended anyhow.
+> +                */
+> +               chip.page_size = 1;
+
+-- 
+With Best Regards,
+Andy Shevchenko
