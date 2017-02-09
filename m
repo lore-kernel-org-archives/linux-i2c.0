@@ -1,54 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] I2c: busses - Fix possible NULL derefrence.
-Date: Thu, 9 Feb 2017 17:37:53 +0100
-Message-ID: <20170209163753.66iuzdn65ygvgjg7@ninjato>
-References: <CGME20170130050324epcas3p28c9adcffd7bc40e1733cdeef1e5240d5@epcas3p2.samsung.com>
- <1485752587-30107-1-git-send-email-shailendra.v@samsung.com>
+Subject: Re: [PATCH v2] i2c: i801: Add support for Intel Gemini Lake
+Date: Thu, 9 Feb 2017 17:40:21 +0100
+Message-ID: <20170209164021.dyksunrzxs5ehkz3@ninjato>
+References: <20170201162059.81911-1-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qaabbh466jnrp7o7"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="4lntjcsgv3yaqo44"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:45477 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752663AbdBIQlB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Feb 2017 11:41:01 -0500
 Content-Disposition: inline
-In-Reply-To: <1485752587-30107-1-git-send-email-shailendra.v@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shailendra Verma <shailendra.v@samsung.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, p.shailesh@samsung.com, ashish.kalra@samsung.com, Shailendra Verma <shailendra.capricorn@gmail.com>
+In-Reply-To: <20170201162059.81911-1-mika.westerberg@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
 
---qaabbh466jnrp7o7
+--4lntjcsgv3yaqo44
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 30, 2017 at 10:33:07AM +0530, Shailendra Verma wrote:
-> of_device_get_match_data could return NULL, and so can cause
-> a NULL pointer dereference later.
+On Wed, Feb 01, 2017 at 07:20:59PM +0300, Mika Westerberg wrote:
+> Intel Gemini Lake has the same SMBus host controller than Intel Broxton.
 >=20
-> Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
 
-I don't mind either way, but since Thierry is the maintainer of this
-driver, I respect his preference.
+Applied to for-next, thanks!
 
 
---qaabbh466jnrp7o7
+--4lntjcsgv3yaqo44
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlicmuAACgkQFA3kzBSg
-KbYexw/+PvIlR6wBI8PYosq+0hKje99FH2o1k06pufhOsqv1WNwX8P7BF9/zT374
-joSkGEns3LkPdX2sP+R8pSxOTcNLT4e7IjDwvwOyg9bjXvX2c34YUT4l8XUg8Vif
-cggtCajivCWgGUVt73IfhJgVht7Mr1F+4q5ZGIIs0J127bmXf1VRrkbSIcRrh0C1
-F9YB5hCgIMtHUBMvnq0HulOWaZppacH5ExcogomjCSvy9KfyK9WIF/fs5jZ2duVQ
-xc2NChPyKsPc6VXNpzU2bcrKgcrqN4J/LzfCpgZbG97HdJx8TDxfCWPgYKLW80+6
-mmQlOyKJe70SuR0U9mzm/9ThM2V4jF+kUd8636rPGLDV8a5wwyl2eyXN2F1F/l3X
-8OM3Pk2GnwdivJvzWgu+GdWj1Pg5p2ZguBDotv74twVU62URpo1rreMYtQKMtyn1
-dv2xeXZPsdwHmE6JxXw0igiPfU7es8WgANyDBLg2W+4VVtiWN6zeyhqqVfMPd9f3
-sW7WcuxB3w6RHT8dea0BHLMQYf27XFUmRWP8jR6h1fZcj1/9hEQieKYytBBHv2Zj
-qUmWO/8lAhd9FV0CO62oTItdCNf+eqIb6bCUOhPaM8QkeKZQVbzi8f4iye5hnSl7
-LjLcARaZ5o9bmnszN06plFQzmpHznAxbHV/fagqGwAYSv9/yha4=
-=N09y
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlicm3QACgkQFA3kzBSg
+KbaSaQ/+NlTUWu6DM/QcJ7QjJjgnrDkzTL4ToNz4lKGsb/hurv8TLRVIKmYqyxYo
+7TqRm9Kc8x+BwyBZi4l30EzmAufVXtApo++iMNk2LTrAtwvK5VIr2Y3kT/G/9YwU
+5TjpDM4DX04pe1SuoIW5hdAlTVu2BWUcmOnr6zqmX1YRSyizhTutllOJBTynrcMg
+0SVkkO6lYiouiURrsVnWRIu+na6fgnqxxY75PoPnJbbxejqpqxLKTJweUpx62HMK
+EduJHIp8QXyI0nOHhTRw86PsHj3ZUvTOILubbG8REytqBg/e5fgwTFpKfyyaFBH2
++nt9ysk8iq56XUQZKIys3x8NFHUAgpaG6T58hJoZPD4T8nMuPPkjouUVGZoMmVB/
+tXk2751/Mr7lv2tUWTPWLfUHlEVUZ2nV1j/Fo/jflS4wf8uupjrJWVTAHaXnM/j1
+aLjINBABuio1X6C3el7MQC4vZ0/lTIU8l45JLrbIn9WjnvbgL0CWhlOydvOJfOH8
+mOiDGb0DjWcWMgpVJiq2fF2And7T9fCobQeOCFs/dNYrPZ8Qgqpa0590BFiIkANf
+lV2dNyLJ8vXjEyirexnyq3qbvvFYp1VOQ0ICOrl26m3v45A5B3rdUTh00rbQQk2q
+v0EtXh8AzXIOcjwOYvv2+5QB6+akOrqq39R6iLRwUnVcxU4xS48=
+=AvX7
 -----END PGP SIGNATURE-----
 
---qaabbh466jnrp7o7--
+--4lntjcsgv3yaqo44--
