@@ -1,39 +1,58 @@
-From: "De Marchi, Lucas" <lucas.demarchi@intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix regression when dynamic TAR update
- is disabled
-Date: Thu, 9 Feb 2017 21:34:10 +0000
-Message-ID: <1486676048.14478.4.camel@intel.com>
-References: <1486669851-25632-1-git-send-email-Nehal-Bakulchandra.Shah@amd.com>
-         <1486670858.2133.436.camel@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4] eeprom/at24: use device_property_*() functions
+ instead of of_get_property()
+Date: Thu, 9 Feb 2017 20:58:59 +0100
+Message-ID: <20170209195859.GB1431@katana>
+References: <CAE7DoPan8Y_-F-Fj22xYkKBeCTPPD60MvEAv+hjSzU+H5DHovg@mail.gmail.com>
+ <1486661768-21456-1-git-send-email-gardner.ben@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1486670858.2133.436.camel@linux.intel.com>
-Content-Language: en-US
-Content-ID: <64CE917AA3457243BB34F49A488CF2B1@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "Nehal-Bakulchandra.Shah@amd.com" <Nehal-Bakulchandra.Shah@amd.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Shyam-sundar.S-k@amd.com" <Shyam-sundar.S-k@amd.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:50164 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753303AbdBIVpn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Feb 2017 16:45:43 -0500
+Content-Disposition: inline
+In-Reply-To: <1486661768-21456-1-git-send-email-gardner.ben@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ben Gardner <gardner.ben@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 
-T24gVGh1LCAyMDE3LTAyLTA5IGF0IDIyOjA3ICswMjAwLCBBbmR5IFNoZXZjaGVua28gd3JvdGU6
-DQo+IE9uIEZyaSwgMjAxNy0wMi0xMCBhdCAwMToyMCArMDUzMCwgU2hhaCBOZWhhbC1CYWt1bGNo
-YW5kcmEgd3JvdGU6DQo+ID4gVGhlIGZvbGxvd2luZyBjb21taXQgY2F1c2VzIGEgcmVncmVzc2lv
-biB3aGVuIGR5bmFtaWMgVEFSIHVwZGF0ZSBpcw0KPiA+IGRpc2FibGVkOg0KPiA+IA0KPiA+IMKg
-wqDCoMKgwqBjb21taXQgNjNkMGYwYTY5NTJhMWEwMmJjNGYxMTZiN2RhN2M3ODg3ZTQ2ZWZhMyAo
-ImkyYzoNCj4gPiBkZXNpZ253YXJlOg0KPiA+IMKgwqDCoMKgwqBkZXRlY3Qgd2hlbiBkeW5hbWlj
-IHRhciB1cGRhdGUgaXMgcG9zc2libGUiKQ0KPiANCj4gUGxlYXNlLCBsZWF2ZSBqdXN0IDEyIGNo
-YXJhY3RlcnMsIGl0IHN0aWxsIGVub3VnaC4NCj4gDQo+ID4gSW4gc3VjaCBjYXNlLCB0aGUgRFdf
-SUNfQ09OXzEwQklUQUREUl9NQVNURVIgaXMgUi9XLCBhbmQgaXMgY2hhbmdlZA0KPiA+IGJ5IHRo
-ZSBsb2dpYyB0aGF0J3MgdHJ5aW5nIHRvIGRldGVjdMKgwqBkeW5hbWljIFRBUiB1cGRhdGUuVGhl
-IG9yaWdpbmFsDQo+ID4gdmFsdWUgb2YgRFdfSUNfQ09OXzEwQklUQUREUl9NQVNURVIgYml0IHNo
-b3VsZCBiZSByZXN0b3JlZC4NCg0KDQpZb3UgYXJlIHJpZ2h0LCB0aGFua3MgZm9yIHRoZSBmaXgu
-ICBUaGlzIG1heSBhbHNvIGV4cGxhaW5zIHdoeQ0KMDMxN2U2YyAoaTJjOiBkZXNpZ253YXJlOiBk
-byBub3QgZGlzYWJsZSBhZGFwdGVyIGFmdGVyIHRyYW5zZmVyKSBjYXVzZWQgcHJvYmxlbXMNCmFu
-ZCBlbmRlZCB1cCBiZWluZyByZXZlcnRlZC4gIENvdWxkIHlvdSB0cnkgdGhhdCBvbiB5b3VyIGhh
-cmR3YXJlPw0KDQpUaGUgZHluYW1pYyB0YXIgdXBkYXRlIGRldGVjdGlvbiB3YXMgb25seSBkb25l
-IGFzIHByZXBhcmF0aW9uIHdvcmsgdG8gYWxsb3cgbm90DQpkaXNhYmxpbmcgdGhlIGFkYXB0ZXIs
-IHdoaWNoIGlzIHJldmVydGVkLiAgV2UgbWF5IGFsc28ganVzdCByZXZlcnQgdGhpcyBjb21taXQN
-Cmluc3RlYWQgb2YgZml4aW5nIHRoZSBsb2dpYy4NCg0KDQp0aGFua3MNCkx1Y2FzIERlIE1hcmNo
-aQ==
+
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> Note: Matching the driver to the I2C device requires another patch.
+>  http://www.spinics.net/lists/linux-acpi/msg71914.html
+
+Do I get it right? With the patch applied we won't have a regression but
+the new feature will only be available when the above series is
+upstream? So, it is a "weak" dependency?
+
+
+--oLBj+sq0vYjzfsbl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYnMoDAAoJEBQN5MwUoCm2We0QAIKaDEGZiAH1MlXpkru9Ov2U
+3ivvBc96Oojn62m1h8XA7D9dowdU2kyEq/Y37sgxflujqo9MoYK40FTPxZ6FwjK6
+uqmW4XS05fW3Qnl+DR8CMp1ntKSAmJUxhdmIgCArnISOBKaGerRzZw9fuSq+sB9q
+ZJULjMqraFAXY7eF0G73lceiroyVWfhR1lK0CztM8cuqRM4+mp3GKzciScH1KXOG
+tcBz3t0Grx7Az09VQrd7eaEagwGmydE/K7oj6nx0vMpejH/l4UCqvlFYlHDX9GUR
+p9/147ZPwTNItRJgZw2HMCkveZ6Id3CqxNeWlVtiWwfkNzjoZ2cvM9sjSZOZZPvK
+JsgYB22tQoOWlEc87DkKBD/BKKmY5x5zwYscaus/CJlay3dzID6eQiupmPP1betn
+W+wLZKuoLkT2iyjBYZMNcXFJaoUiPSj6Pm0kF2AHhdAOeA9l2E7X3bVMmgbYiJ8V
+9yylyJHCWvMX3TekaiUssjIUn6MWPVY3vt+TbYSinwFcL/jCjPmlVWkXvw/polJF
+otqQ+6FVGTXvGTnNDuwm0+RLp3wNK4XfTDU8vUCk3S9T3j+pFswYimKCVb88yEQN
+TkP2MHKz4aS8V9X+nS7hyM9ChJJ0ccMA7kcJhrAHvsZLUwdQeYlCQyXH8So4jyH7
+VnlWX2RahX1Lg5E/dGAB
+=n/WR
+-----END PGP SIGNATURE-----
+
+--oLBj+sq0vYjzfsbl--
