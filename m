@@ -1,70 +1,128 @@
-From: chin.yew.tan@intel.com
-Subject: [PATCH] i2c: designware: Get selected speed mode sda-hold-time via ACPI
-Date: Fri, 10 Feb 2017 19:28:38 +0800
-Message-ID: <1486726118-19447-2-git-send-email-chin.yew.tan@intel.com>
-References: <1486726118-19447-1-git-send-email-chin.yew.tan@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 0/3] i2c: mux: pca954x: Add interrupt controller
+ support
+Date: Fri, 10 Feb 2017 13:52:07 +0100
+Message-ID: <20170210125205.c2gzgi65x4bi3eys@ninjato>
+References: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
+ <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="fbsxif2ils32yryv"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:45368 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752988AbdBJL2u (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 06:28:50 -0500
-In-Reply-To: <1486726118-19447-1-git-send-email-chin.yew.tan@intel.com>
+Received: from sauhun.de ([89.238.76.85]:47341 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751430AbdBJNqT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Feb 2017 08:46:19 -0500
+Content-Disposition: inline
+In-Reply-To: <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com
-Cc: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Phil Reid <preid@electromag.com.au>, linux-i2c@vger.kernel.org
 
-From: Tan Chin Yew <chin.yew.tan@intel.com>
 
-Sda-hold-time is an important parameter for tuning i2c to meet the
-electrical specification especially for high speed. I2C with incorrect
-sda-hold-time may cause lost arbitration error. Now, the driver is able to
-get sda-hold-time for all the speed supported.
+--fbsxif2ils32yryv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Tan Chin Yew <chin.yew.tan@intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+Hi Peter,
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 6ce4313..aa33088 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -101,15 +101,28 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	dev->rx_fifo_depth = 32;
- 
- 	/*
--	 * Try to get SDA hold time and *CNT values from an ACPI method if
--	 * it exists for both supported speed modes.
-+	 * Try to get SDA hold time and *CNT values from an ACPI method for
-+	 * selected speed modes.
- 	 */
--	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt, NULL);
--	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
-+	switch (dev->clk_freq) {
-+	case 100000:
-+		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt,
- 			   &dev->sda_hold_time);
--	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev->fp_lcnt, NULL);
--	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev->hs_lcnt, NULL);
--
-+		break;
-+	case 1000000:
-+		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev->fp_lcnt,
-+			   &dev->sda_hold_time);
-+		break;
-+	case 3400000:
-+		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev->hs_lcnt,
-+			   &dev->sda_hold_time);
-+		break;
-+	default:
-+		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
-+			   &dev->sda_hold_time);
-+		break;
-+	}
-+
- 	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
- 	if (id && id->driver_data)
- 		dev->accessor_flags |= (u32)id->driver_data;
--- 
-1.9.1
+> initializer for the 'handled' variable. I amended the previously
+> posted fixup and was just about to send you the pull request when
+> you started to add patches to i2c/for-next.
+
+Oh, sorry! I wasn't sure if we agreed that you send pull-requests for
+v4.11 already or starting with v4.12. And since there seems to be no rc8
+for 4.11 I decided to start pulling in.
+
+> probably not happen (anytime soon). I'm going to short out the wait
+> and just send a reworked pull request. See below.
+
+Perfect!
+
+> A few thing to take away from this. Phil didn't post the series to
+> LKML, and the kbuild bots didn't find the series until I added it to
+> my i2c-mux tree. Fengguang indicated that the kbuild bot will now
+> (or soon) start to track the i2c list, which might be good to know.
+
+Well, I asked Fengguang to remove the i2c list from that feature a
+while ago. People send out RFCs, debug patches, etc... and for all those
+build bot reports are just noise IMO.
+
+Build testing plus sparse+smatch testing for the patches when I apply
+them to my tree and then having my branches additionally checked by
+build bot works well for me. I will happily share my super-simple
+'ninja-check' script with you which runs various code checkers when
+compiling. It is basically adding "W=3D1 C=3D1 CHECK=3D'ninja-check'" to the
+kernel build command-line.
+
+I hope you are open for this workflow. But we can discuss, of course.
+
+> submission. So, from now on I think I'm just going to change my
+> acks to some message saying that the patch(es) have been added
+> to i2c-mux/for-next (in case the submission is clear-cut i2c-mux
+> and not at all about i2c-the-rest). If I just ack a submission I'll
+> expect you to pick it up. Ok?
+
+Perfect!
+
+> The question then becomes at approximately which point you'll need
+> a pull request? Or should you perhaps be pulling in my tree
+> on a more continuous level so that everything i2c-related is
+> available in one tree (i.e. your tree)?
+
+I prefer pull requests a little bit. Then, I get a consistent state
+approved by you and already checked by build bot. BTW is your tree in
+linux-next as well?
+
+> sign-off when you pull? It's not a big thing, but all things being
+> equal, I'd prefer the commits to stay as-is...
+
+Sure thing. It might have been done automatically, will check and fix my
+scripts...
+
+>=20
+> Cheers,
+> peda
+>=20
+> The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d=
+36:
+>=20
+>   Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
+>=20
+> are available in the git repository at:
+>=20
+>   https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
+>=20
+> for you to fetch changes up to f2114795f721bd5028284ddf84b150798a9b7a73:
+>=20
+>   i2c: mux: pca954x: Add interrupt controller support (2017-02-10 08:23:5=
+1 +0100)
+
+And pulled! Thank you for the work!
+
+   Wolfram
+
+
+--fbsxif2ils32yryv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlidt2YACgkQFA3kzBSg
+KbZH6g/9FKYcxWUOFYiCnUxxGwUVTtLgTt6cLrysQV3qzOByi3uokUhjNosuBpmM
+/kwIYNUN05x+DyBl3u2fkGdOlptxbb2QWFoynJJmHdrOhbL/3A9TzcHssPVUQodf
+Je9skpiWr6sD8zkCiJ3YxcWwkfqZj39dAuMXIJ0MnrRgqO3g+tvn/C9N9ljf40gm
+xCdxZWfO6WQT2SwyNlHVNSHBhGT2zz4CpENRRC8JtGlY3gBKv9kBjRNR8LlZVVet
+frrdSkSBbFwfiHljA4rkASx/ONnTlJ76V+IItmOsZiEisNELb5RQHsyFnL3Mgt9C
+9+U4vrjICg7Lgn1Z8hZCQ9nblcwWBmk+kFD9KjfCrEKxVO/fjKV1Fh5zEwRv5rCr
+S1xutKh3sXBc0klw709MHg1yPBUtITC/TaDowJrfbvE1XC7PXRM2btWeE4BSD3F+
+YUVU5508md+iKLjv6W2yF8uOVadZqV1Qxve7vaMWxOTt8EQNkykBbwO/3JJteK/F
+xLKy3QUVfo+HNE28HUwTp5kY4e45ovp0Ipgv8O7oAIwV42s+DN2z5+txAYs8alSR
+/PYkXLF9Dg+siZZgsBGwaTQ4mSK0g0LFojgACuCAEJlMYD7QeOj3hVaH1Owa7HD5
+H/mKsP6b0Xzzyne2RW+VEj1n9DEXFNMRh3SZ6ofugimYwCu6Ke8=
+=IxwS
+-----END PGP SIGNATURE-----
+
+--fbsxif2ils32yryv--
