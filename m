@@ -1,130 +1,266 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 12/12] drm/i915: Listen for PMIC bus access
-	notifications
-Date: Fri, 10 Feb 2017 11:28:02 +0100
-Message-ID: <20170210102802.20898-13-hdegoede@redhat.com>
-References: <20170210102802.20898-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170210102802.20898-1-hdegoede@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>
+Subject: [RFC PATCH] i2c:mux: Driver for PCA9641 I2C Master Arbiter
+Date: Fri, 10 Feb 2017 02:43:38 -0800
+Message-ID: <1486723418-13311-1-git-send-email-vidya@cumulusnetworks.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f169.google.com ([209.85.192.169]:34343 "EHLO
+        mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752379AbdBJKno (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Feb 2017 05:43:44 -0500
+Received: by mail-pf0-f169.google.com with SMTP id e4so8642945pfg.1
+        for <linux-i2c@vger.kernel.org>; Fri, 10 Feb 2017 02:43:43 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.de, linux@roeck-us.net, wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, vidya.chowdary@gmail.com
 
-TGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucyBhbmQgZ2V0IEZPUkNFV0FL
-RV9BTEwgd2hpbGUKdGhlIGJ1cyBpcyBhY2Nlc3NlZCB0byBhdm9pZCBuZWVkaW5nIHRvIGRvIGFu
-eSBmb3JjZXdha2VzLCB3aGljaCBuZWVkClBNSUMgYnVzIGFjY2Vzcywgd2hpbGUgdGhlIFBNSUMg
-YnVzIGlzIGJ1c3k6CgpUaGlzIGZpeGVzIGVycm9ycyBsaWtlIHRoZXNlIHNob3dpbmcgdXAgaW4g
-ZG1lc2csIHVzdWFsbHkgZm9sbG93ZWQKYnkgYSBnZnggb3Igc3lzdGVtIGZyZWV6ZToKCltkcm06
-ZndfZG9tYWluc19nZXQgW2k5MTVdXSAqRVJST1IqIHJlbmRlcjogdGltZWQgb3V0IHdhaXRpbmcg
-Zm9yIGZvcmNld2FrZSBhY2sgcmVxdWVzdC4KW2RybTpmd19kb21haW5zX2dldCBbaTkxNV1dICpN
-RURJQSogcmVuZGVyOiB0aW1lZCBvdXQgd2FpdGluZyBmb3IgZm9yY2V3YWtlIGFjayByZXF1ZXN0
-LgppMmNfZGVzaWdud2FyZSA4MDg2MjJDMTowNjogcHVuaXQgc2VtYXBob3JlIHRpbWVkIG91dCwg
-cmVzZXR0aW5nCmkyY19kZXNpZ253YXJlIDgwODYyMkMxOjA2OiBQVU5JVCBTRU06IDIKaTJjX2Rl
-c2lnbndhcmUgODA4NjIyQzE6MDY6IGNvdWxkbid0IGFjcXVpcmUgYnVzIG93bmVyc2hpcAoKRG93
-bnNpZGUgb2YgdGhpcyBhcHByb2FjaCBpcyB0aGF0IGl0IGNhdXNlcyB3YWtldXBzIHdoZW5ldmVy
-IHRoZSBQTUlDCmJ1cyBpcyBhY2Nlc3NlZC4gVW5mb3J0dW5hdGVseSB3ZSBjYW5ub3Qgc2ltcGx5
-IHdhaXQgZm9yIHRoZSBQTUlDIGJ1cwp0byBnbyBpZGxlIHdoZW4gd2UgaGl0IGEgcmFjZSwgYXMg
-Zm9yY2V3YWtlcyBtYXkgYmUgZG9uZSBmcm9tIGludGVycnVwdApoYW5kbGVycyB3aGVyZSB3ZSBj
-YW5ub3Qgc2xlZXAgdG8gd2FpdCBmb3IgdGhlIGkyYyBQTUlDIGJ1cyBhY2Nlc3MgdG8KZmluaXNo
-LgoKTm90ZSB0aGF0IHRoZSBub3RpZmljYXRpb25zIGFuZCB0aHVzIHRoZSB3YWtldXBzIHdpbGwg
-b25seSBoYXBwZW4gb24KYmF5dHJhaWwgLyBjaGVycnl0cmFpbCBkZXZpY2VzIHVzaW5nIFBNSUNz
-IHdpdGggYSBzaGFyZWQgaTJjIGJ1cyBmb3IKUC1Vbml0IGFuZCBob3N0IFBNSUMgYWNjZXNzIChp
-MmMgYnVzc2VzIHdpdGggYSBfU0VNIG1ldGhvZCBpbiB0aGVpcgpBUENJIG5vZGUpLCBlLmcuIGFu
-IGF4cDI4OCBQTUlDLgoKSSBwbGFuIHRvIHdyaXRlIHNvbWUgcGF0Y2hlcyBmb3IgZHJpdmVycyBh
-Y2Nlc3NpbmcgdGhlIFBNSUMgYnVzIHRvCmxpbWl0IHRoZWlyIGJ1cyBhY2Nlc3NlcyB0byBhIGJh
-cmUgbWluaW11bSAoZS5nLiBjYWNoZSByZWdpc3RlcnMsIGRvIG5vdAp1cGRhdGUgYmF0dGVyeSBs
-ZXZlbCBtb3JlIG9mdGVuIHRoZW4gNCB0aW1lcyBhIG1pbnV0ZSksIHRvIGxpbWl0IHRoZQphbW91
-bnQgb2Ygd2FrZXVwcy4KCkJ1Z0xpbms6IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93
-X2J1Zy5jZ2k/aWQ9MTU1MjQxClNpZ25lZC1vZmYtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdvZWRl
-QHJlZGhhdC5jb20+ClRlc3RlZC1ieTogdGFnb3JlcmVkZHkgPHRhZ29yZS5jaGFuZGFuQGdtYWls
-LmNvbT4KLS0tCkNoYW5nZXMgaW4gdjI6Ci1TcGVsbGluZzogUC1Vbml0LCBQTUlDCkNoYW5nZXMg
-aW4gdjM6Ci1JbXByb3ZlIGNvbW1lbnQgZXhwbGFpbmluZyB3aHkgd2UgY2FsbCBpbnRlbF91bmNv
-cmVfZm9yY2V3YWtlX2dldChBTEwpIG9uCiBNQklfUE1JQ19CVVNfQUNDRVNTX0JFR0lOIG5vdGlm
-aWNhdGlvbgotLS0KIGRyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcgICAgICAgIHwgIDEgKwog
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9kcnYuaCAgICAgfCAgMSArCiBkcml2ZXJzL2dwdS9k
-cm0vaTkxNS9pbnRlbF91bmNvcmUuYyB8IDM5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysKIDMgZmlsZXMgY2hhbmdlZCwgNDEgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9LY29u
-ZmlnCmluZGV4IDFhZTBiYjkuLmE1Y2Q1ZGEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9p
-OTE1L0tjb25maWcKKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvS2NvbmZpZwpAQCAtMjAsNiAr
-MjAsNyBAQCBjb25maWcgRFJNX0k5MTUKIAlzZWxlY3QgQUNQSV9WSURFTyBpZiBBQ1BJCiAJc2Vs
-ZWN0IEFDUElfQlVUVE9OIGlmIEFDUEkKIAlzZWxlY3QgU1lOQ19GSUxFCisJc2VsZWN0IElPU0Zf
-TUJJCiAJaGVscAogCSAgQ2hvb3NlIHRoaXMgb3B0aW9uIGlmIHlvdSBoYXZlIGEgc3lzdGVtIHRo
-YXQgaGFzICJJbnRlbCBHcmFwaGljcwogCSAgTWVkaWEgQWNjZWxlcmF0b3IiIG9yICJIRCBHcmFw
-aGljcyIgaW50ZWdyYXRlZCBncmFwaGljcywKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9p
-OTE1L2k5MTVfZHJ2LmggYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5oCmluZGV4IDk5
-ODIzOWYuLjRlNDA1ZDAgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2
-LmgKKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9kcnYuaApAQCAtNzI1LDYgKzcyNSw3
-IEBAIHN0cnVjdCBpbnRlbF91bmNvcmUgewogCWNvbnN0IHN0cnVjdCBpbnRlbF9mb3JjZXdha2Vf
-cmFuZ2UgKmZ3X2RvbWFpbnNfdGFibGU7CiAJdW5zaWduZWQgaW50IGZ3X2RvbWFpbnNfdGFibGVf
-ZW50cmllczsKIAorCXN0cnVjdCBub3RpZmllcl9ibG9jayBwbWljX2J1c19hY2Nlc3NfbmI7CiAJ
-c3RydWN0IGludGVsX3VuY29yZV9mdW5jcyBmdW5jczsKIAogCXVuc2lnbmVkIGZpZm9fY291bnQ7
-CmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF91bmNvcmUuYyBiL2RyaXZl
-cnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5jCmluZGV4IGI2ZDcyNmIuLjFiZTNjZGMgMTAw
-NjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5jCisrKyBiL2RyaXZl
-cnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5jCkBAIC0yNSw2ICsyNSw3IEBACiAjaW5jbHVk
-ZSAiaW50ZWxfZHJ2LmgiCiAjaW5jbHVkZSAiaTkxNV92Z3B1LmgiCiAKKyNpbmNsdWRlIDxhc20v
-aW9zZl9tYmkuaD4KICNpbmNsdWRlIDxsaW51eC9wbV9ydW50aW1lLmg+CiAKICNkZWZpbmUgRk9S
-Q0VXQUtFX0FDS19USU1FT1VUX01TIDUwCkBAIC00MzYsMTIgKzQzNywxNiBAQCBzdGF0aWMgdm9p
-ZCBfX2ludGVsX3VuY29yZV9lYXJseV9zYW5pdGl6ZShzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAq
-ZGV2X3ByaXYsCiAKIHZvaWQgaW50ZWxfdW5jb3JlX3N1c3BlbmQoc3RydWN0IGRybV9pOTE1X3By
-aXZhdGUgKmRldl9wcml2KQogeworCWlvc2ZfbWJpX3VucmVnaXN0ZXJfcG1pY19idXNfYWNjZXNz
-X25vdGlmaWVyKAorCQkmZGV2X3ByaXYtPnVuY29yZS5wbWljX2J1c19hY2Nlc3NfbmIpOwogCWlu
-dGVsX3VuY29yZV9mb3JjZXdha2VfcmVzZXQoZGV2X3ByaXYsIGZhbHNlKTsKIH0KIAogdm9pZCBp
-bnRlbF91bmNvcmVfcmVzdW1lX2Vhcmx5KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJp
-dikKIHsKIAlfX2ludGVsX3VuY29yZV9lYXJseV9zYW5pdGl6ZShkZXZfcHJpdiwgdHJ1ZSk7CisJ
-aW9zZl9tYmlfcmVnaXN0ZXJfcG1pY19idXNfYWNjZXNzX25vdGlmaWVyKAorCQkmZGV2X3ByaXYt
-PnVuY29yZS5wbWljX2J1c19hY2Nlc3NfbmIpOwogCWk5MTVfY2hlY2tfYW5kX2NsZWFyX2ZhdWx0
-cyhkZXZfcHJpdik7CiB9CiAKQEAgLTEzMjksNiArMTMzNCwzMiBAQCBzdGF0aWMgdm9pZCBpbnRl
-bF91bmNvcmVfZndfZG9tYWluc19pbml0KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJp
-dikKIAlkZXZfcHJpdi0+dW5jb3JlLmZ3X2RvbWFpbnNfdGFibGVfZW50cmllcyA9IEFSUkFZX1NJ
-WkUoKGQpKTsgXAogfQogCitzdGF0aWMgaW50IGk5MTVfcG1pY19idXNfYWNjZXNzX25vdGlmaWVy
-KHN0cnVjdCBub3RpZmllcl9ibG9jayAqbmIsCisJCQkJCSB1bnNpZ25lZCBsb25nIGFjdGlvbiwg
-dm9pZCAqZGF0YSkKK3sKKwlzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYgPSBjb250
-YWluZXJfb2YobmIsCisJCQlzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSwgdW5jb3JlLnBtaWNfYnVz
-X2FjY2Vzc19uYik7CisKKwlzd2l0Y2ggKGFjdGlvbikgeworCWNhc2UgTUJJX1BNSUNfQlVTX0FD
-Q0VTU19CRUdJTjoKKwkJLyoKKwkJICogZm9yY2V3YWtlIGFsbCBub3cgdG8gbWFrZSBzdXJlIHRo
-YXQgd2UgZG9uJ3QgbmVlZCB0byBkbyBhCisJCSAqIGZvcmNld2FrZSBsYXRlciB3aGljaCBvbiBz
-eXN0ZW1zIHdoZXJlIHRoaXMgbm90aWZpZXIgZ2V0cworCQkgKiBjYWxsZWQgcmVxdWlyZXMgdGhl
-IHB1bml0IHRvIGFjY2VzcyB0byB0aGUgc2hhcmVkIHBtaWMgaTJjCisJCSAqIGJ1cywgd2hpY2gg
-d2lsbCBiZSBidXN5IGFmdGVyIHRoaXMgbm90aWZpY2F0aW9uLCBsZWFkaW5nIHRvOgorCQkgKiAi
-cmVuZGVyOiB0aW1lZCBvdXQgd2FpdGluZyBmb3IgZm9yY2V3YWtlIGFjayByZXF1ZXN0LiIKKwkJ
-ICogZXJyb3JzLgorCQkgKi8KKwkJaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9nZXQoZGV2X3ByaXYs
-IEZPUkNFV0FLRV9BTEwpOworCQlicmVhazsKKwljYXNlIE1CSV9QTUlDX0JVU19BQ0NFU1NfRU5E
-OgorCQlpbnRlbF91bmNvcmVfZm9yY2V3YWtlX3B1dChkZXZfcHJpdiwgRk9SQ0VXQUtFX0FMTCk7
-CisJCWJyZWFrOworCX0KKworCXJldHVybiBOT1RJRllfT0s7Cit9CisKIHZvaWQgaW50ZWxfdW5j
-b3JlX2luaXQoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQogewogCWk5MTVfY2hl
-Y2tfdmdwdShkZXZfcHJpdik7CkBAIC0xMzM4LDYgKzEzNjksOCBAQCB2b2lkIGludGVsX3VuY29y
-ZV9pbml0KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdikKIAlfX2ludGVsX3VuY29y
-ZV9lYXJseV9zYW5pdGl6ZShkZXZfcHJpdiwgZmFsc2UpOwogCiAJZGV2X3ByaXYtPnVuY29yZS51
-bmNsYWltZWRfbW1pb19jaGVjayA9IDE7CisJZGV2X3ByaXYtPnVuY29yZS5wbWljX2J1c19hY2Nl
-c3NfbmIubm90aWZpZXJfY2FsbCA9CisJCWk5MTVfcG1pY19idXNfYWNjZXNzX25vdGlmaWVyOwog
-CiAJc3dpdGNoIChJTlRFTF9JTkZPKGRldl9wcml2KS0+Z2VuKSB7CiAJZGVmYXVsdDoKQEAgLTEz
-OTIsNiArMTQyNSw5IEBAIHZvaWQgaW50ZWxfdW5jb3JlX2luaXQoc3RydWN0IGRybV9pOTE1X3By
-aXZhdGUgKmRldl9wcml2KQogCWlmIChJTlRFTF9HRU4oZGV2X3ByaXYpID49IDgpCiAJCWludGVs
-X3NoYWRvd190YWJsZV9jaGVjaygpOwogCisJaW9zZl9tYmlfcmVnaXN0ZXJfcG1pY19idXNfYWNj
-ZXNzX25vdGlmaWVyKAorCQkmZGV2X3ByaXYtPnVuY29yZS5wbWljX2J1c19hY2Nlc3NfbmIpOwor
-CiAJaTkxNV9jaGVja19hbmRfY2xlYXJfZmF1bHRzKGRldl9wcml2KTsKIH0KICN1bmRlZiBBU1NJ
-R05fV1JJVEVfTU1JT19WRlVOQ1MKQEAgLTEzOTksNiArMTQzNSw5IEBAIHZvaWQgaW50ZWxfdW5j
-b3JlX2luaXQoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQogCiB2b2lkIGludGVs
-X3VuY29yZV9maW5pKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdikKIHsKKwlpb3Nm
-X21iaV91bnJlZ2lzdGVyX3BtaWNfYnVzX2FjY2Vzc19ub3RpZmllcigKKwkJJmRldl9wcml2LT51
-bmNvcmUucG1pY19idXNfYWNjZXNzX25iKTsKKwogCS8qIFBhcmFub2lhOiBtYWtlIHN1cmUgd2Ug
-aGF2ZSBkaXNhYmxlZCBldmVyeXRoaW5nIGJlZm9yZSB3ZSBleGl0LiAqLwogCWludGVsX3VuY29y
-ZV9zYW5pdGl6ZShkZXZfcHJpdik7CiAJaW50ZWxfdW5jb3JlX2ZvcmNld2FrZV9yZXNldChkZXZf
-cHJpdiwgZmFsc2UpOwotLSAKMi45LjMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZy
-ZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2ludGVsLWdmeAo=
+From: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>
+
+This patch adds support for PCA9641, an I2C Bus Master Arbiter.
+NXP PCA9641 arbiter is modeled as single channel I2C Multiplexer
+to be able to utilize the I2C multiplexer framework similar to
+PCA9541.
+
+Enhancing PCA9541 driver to support PCA9641 i2c master arbiter
+http://www.nxp.com/documents/data_sheet/PCA9641.pdf
+
+Signed-off-by: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>
+Signed-off-by: Luffy<Luffy.Cheng@quantatw.com>
+---
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 157 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 152 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 77840f7..89d8518 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -59,6 +59,36 @@
+ #define PCA9541_ISTAT_MYTEST	(1 << 6)
+ #define PCA9541_ISTAT_NMYTEST	(1 << 7)
+ 
++#define PCA9641_ID		0
++#define PCA9641_ID_MAGIC	0x38
++#define PCA9641_CONTROL		0x01
++#define PCA9641_STATUS		0x02
++
++#define PCA9641_CONTROL		0x01
++#define PCA9641_CTL_LOCK_REQ		(1 << 0)
++#define PCA9641_CTL_LOCK_GRANT		(1 << 1)
++#define PCA9641_CTL_BUS_CONNECT		(1 << 2)
++#define PCA9641_CTL_BUS_INIT		(1 << 3)
++#define PCA9641_CTL_SMBUS_SWRST		(1 << 4)
++#define PCA9641_CTL_IDLE_TIMER_DIS	(1 << 5)
++#define PCA9641_CTL_SMBUS_DIS		(1 << 6)
++#define PCA9641_CTL_PRIORITY		(1 << 7)
++
++#define PCA9641_STATUS		0x02
++#define PCA9641_STS_OTHER_LOCK		(1 << 0)
++#define PCA9641_STS_BUS_INIT_FAIL	(1 << 1)
++#define PCA9641_STS_BUS_HUNG		(1 << 2)
++#define PCA9641_STS_MBOX_EMPTY		(1 << 3)
++#define PCA9641_STS_MBOX_FULL		(1 << 4)
++#define PCA9641_STS_TEST_INT		(1 << 5)
++#define PCA9641_STS_SCL_IO		(1 << 6)
++#define PCA9641_STS_SDA_IO		(1 << 7)
++
++#define PCA9641_RES_TIME       0x03
++
++#define other_lock(x)  ((x) & PCA9641_STS_OTHER_LOCK)
++#define lock_grant(x)  ((x) & PCA9641_CTL_LOCK_GRANT)
++
+ #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+ #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+ #define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
+@@ -73,13 +103,20 @@
+ #define SELECT_DELAY_LONG	1000
+ 
+ struct pca9541 {
++	int device_type;
+ 	struct i2c_client *client;
+ 	unsigned long select_timeout;
+ 	unsigned long arb_timeout;
+ };
+ 
++enum pca9x41 {
++	PCA9541 = 0,
++	PCA9641
++};
++
+ static const struct i2c_device_id pca9541_id[] = {
+-	{"pca9541", 0},
++	{"pca9541", PCA9541},
++	{"pca9641", PCA9641},
+ 	{}
+ };
+ 
+@@ -178,12 +215,17 @@ static int pca9541_reg_read(struct i2c_client *client, u8 command)
+ /* Release bus. Also reset NTESTON and BUSINIT if it was set. */
+ static void pca9541_release_bus(struct i2c_client *client)
+ {
++	struct pca9541 *data = i2c_get_clientdata(client);
+ 	int reg;
+ 
+-	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+-	if (reg >= 0 && !busoff(reg) && mybus(reg))
+-		pca9541_reg_write(client, PCA9541_CONTROL,
+-				  (reg & PCA9541_CTL_NBUSON) >> 1);
++	if (data->device_type == PCA9541) {
++		reg = pca9541_reg_read(client, PCA9541_CONTROL);
++		if (reg >= 0 && !busoff(reg) && mybus(reg))
++			pca9541_reg_write(client, PCA9541_CONTROL,
++				(reg & PCA9541_CTL_NBUSON) >> 1);
++	} else
++		pca9541_reg_write(client, PCA9641_CONTROL, 0);
++
+ }
+ 
+ /*
+@@ -294,6 +336,90 @@ static int pca9541_arbitrate(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++/*
++ * Channel arbitration
++ *
++ * Return values:
++ *  <0: error
++ *  0 : bus not acquired
++ *  1 : bus acquired
++ */
++static int pca9641_arbitrate(struct i2c_client *client)
++{
++	struct pca9541 *data = i2c_get_clientdata(client);
++	int reg_ctl, reg_sts;
++
++	reg_ctl = pca9541_reg_read(client, PCA9641_CONTROL);
++	if (reg_ctl < 0)
++		return reg_ctl;
++
++	reg_sts = pca9541_reg_read(client, PCA9641_STATUS);
++	if (!other_lock(reg_sts) && !lock_grant(reg_ctl)) {
++		/*
++		 * Bus is off. Request ownership or turn it on unless
++		 * other master requested ownership.
++		 */
++		/* FIXME: bus reserve time (1-255) for without interrupt */
++		/*  Lock forever
++		 * pca9541_reg_write(client, PCA9641_RES_TIME, 0);
++		 */
++		reg_ctl |= PCA9641_CTL_LOCK_REQ;
++		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
++
++		/* FIXME: If need Wait for lock grant */
++		udelay(100);
++
++		reg_ctl = pca9541_reg_read(client, PCA9641_CONTROL);
++
++		if (lock_grant(reg_ctl)) {
++			/*
++			 * Other master did not request ownership,
++			 * or arbitration timeout expired. Take the bus.
++			 */
++			reg_ctl |= PCA9641_CTL_BUS_CONNECT;
++			pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
++			data->select_timeout = SELECT_DELAY_SHORT;
++
++			return 1;
++		} else {
++			/*
++			 * Other master requested ownership.
++			 * Set extra long timeout to give it time to acquire it.
++			 */
++			data->select_timeout = SELECT_DELAY_LONG * 2;
++		}
++	} else if (lock_grant(reg_ctl)) {
++		/*
++		 * Bus is on, and we own it. We are done with acquisition.
++		 */
++		reg_ctl |= PCA9641_CTL_BUS_CONNECT;
++		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
++
++		return 1;
++	} else if (other_lock(reg_sts)) {
++		/*
++		 * Other master owns the bus.
++		 * If arbitration timeout has expired, force ownership.
++		 * Otherwise request it.
++		 */
++		data->select_timeout = SELECT_DELAY_LONG;
++		reg_ctl |= PCA9641_CTL_LOCK_REQ;
++		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
++
++		/*
++		 * if (time_is_before_eq_jiffies(data->arb_timeout)) {
++		 * TODO:Time is up, take the bus and reset it.
++		 *
++		 *} else {
++		 * TODO: Request bus ownership if needed
++		 *
++		 *}
++		 */
++	}
++
++	return 0;
++}
++
+ static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ {
+ 	struct pca9541 *data = i2c_mux_priv(muxc);
+@@ -306,6 +432,11 @@ static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ 		/* force bus ownership after this time */
+ 
+ 	do {
++		if (data->device_type == PCA9541)
++			ret = pca9541_arbitrate(client);
++		else
++			ret = pca9641_arbitrate(client);
++
+ 		ret = pca9541_arbitrate(client);
+ 		if (ret)
+ 			return ret < 0 ? ret : 0;
+@@ -328,6 +459,17 @@ static int pca9541_release_chan(struct i2c_mux_core *muxc, u32 chan)
+ 	return 0;
+ }
+ 
++static int pca9641_detect_id(struct i2c_client *client)
++{
++	int reg;
++
++	reg = pca9541_reg_read(client, PCA9641_ID);
++	if (reg == PCA9641_ID_MAGIC)
++		return 1;
++	else
++		return 0;
++}
++
+ /*
+  * I2C init/probing/exit functions
+  */
+@@ -335,6 +477,7 @@ static int pca9541_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adap = client->adapter;
++	kernel_ulong_t device_id = id->driver_data;
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct i2c_mux_core *muxc;
+ 	struct pca9541 *data;
+@@ -344,6 +487,9 @@ static int pca9541_probe(struct i2c_client *client,
+ 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
+ 		return -ENODEV;
+ 
++	if (device_id == PCA9641 && !pca9641_detect_id(client))
++		return ret;
++
+ 	/*
+ 	 * I2C accesses are unprotected here.
+ 	 * We have to lock the adapter before releasing the bus.
+@@ -366,6 +512,7 @@ static int pca9541_probe(struct i2c_client *client,
+ 	data = i2c_mux_priv(muxc);
+ 	data->client = client;
+ 
++	data->device_type = device_id;
+ 	i2c_set_clientdata(client, muxc);
+ 
+ 	ret = i2c_mux_add_adapter(muxc, force, 0, 0);
+-- 
+2.1.4
