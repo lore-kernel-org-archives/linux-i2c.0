@@ -1,12 +1,12 @@
 From: chin.yew.tan@intel.com
 Subject: [PATCH] Set sda-hold-time based on ACPI *CNT value
-Date: Fri, 10 Feb 2017 19:15:35 +0800
-Message-ID: <1486725336-19405-1-git-send-email-chin.yew.tan@intel.com>
+Date: Fri, 10 Feb 2017 19:28:37 +0800
+Message-ID: <1486726118-19447-1-git-send-email-chin.yew.tan@intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:41244 "EHLO mga01.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:43888 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752468AbdBJLQf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 06:16:35 -0500
+        id S1752985AbdBJL2q (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Feb 2017 06:28:46 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com
