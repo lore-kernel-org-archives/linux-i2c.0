@@ -1,98 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: Add Tegra BPMP I2C proxy driver
-Date: Fri, 10 Feb 2017 17:37:15 +0100
-Message-ID: <20170210163715.mmukrlbgfjyyi7qp@ninjato>
-References: <20170127083939.20393-1-thierry.reding@gmail.com>
- <20170127083939.20393-3-thierry.reding@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v6 0/3] i2c: mux: pca954x: Add interrupt controller
+ support
+Date: Fri, 10 Feb 2017 22:46:15 +0100
+Message-ID: <3632e933-6bc9-4d40-f489-1af958f0fd4b@axentia.se>
+References: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
+ <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
+ <20170210125205.c2gzgi65x4bi3eys@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="v6zxsqbvpjpconfy"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47666 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751454AbdBJQht (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 11:37:49 -0500
-Content-Disposition: inline
-In-Reply-To: <20170127083939.20393-3-thierry.reding@gmail.com>
+Received: from mail-ve1eur01on0108.outbound.protection.outlook.com ([104.47.1.108]:33664
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750874AbdBJVqW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Feb 2017 16:46:22 -0500
+In-Reply-To: <20170210125205.c2gzgi65x4bi3eys@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
+On 2017-02-10 13:52, Wolfram Sang wrote:
+> Hi Peter,
+> 
+>> initializer for the 'handled' variable. I amended the previously
+>> posted fixup and was just about to send you the pull request when
+>> you started to add patches to i2c/for-next.
+> 
+> Oh, sorry! I wasn't sure if we agreed that you send pull-requests for
+> v4.11 already or starting with v4.12. And since there seems to be no rc8
+> for 4.11 I decided to start pulling in.
 
---v6zxsqbvpjpconfy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+FWIW, I think you did the right thing, and it was me that should have
+been clearer from the start. No big thing, just a few patches.
 
-Hi there,
+> Build testing plus sparse+smatch testing for the patches when I apply
+> them to my tree and then having my branches additionally checked by
+> build bot works well for me. I will happily share my super-simple
+> 'ninja-check' script with you which runs various code checkers when
+> compiling. It is basically adding "W=1 C=1 CHECK='ninja-check'" to the
+> kernel build command-line.
+> 
+> I hope you are open for this workflow. But we can discuss, of course.
 
-> +static int tegra_bpmp_i2c_msg_len_check(struct i2c_msg *msgs, unsigned int num)
-> +{
-> +	size_t tx_len = 0, rx_len = 0;
-> +	unsigned int i;
-> +
-> +	for (i = 0; i < num; i++)
-> +		if (!(msgs[i].flags & I2C_M_RD))
-> +			tx_len += SERIALI2C_HDR_SIZE + msgs[i].len;
-> +
-> +	if (tx_len > TEGRA_I2C_IPC_MAX_IN_BUF_SIZE)
-> +		return -EINVAL;
-> +
-> +	for (i = 0; i < num; i++)
-> +		if ((msgs[i].flags & I2C_M_RD))
-> +			rx_len += msgs[i].len;
+No trouble at all, and I'll certainly have a look at the script, so
+please send it my way. Thanks!
 
-You could have done with iterating over all msgs only once, but no need
-to fix. I think I'll update the i2c core quirks feature to support your
-case and rework that incrementally.
+>> The question then becomes at approximately which point you'll need
+>> a pull request? Or should you perhaps be pulling in my tree
+>> on a more continuous level so that everything i2c-related is
+>> available in one tree (i.e. your tree)?
+> 
+> I prefer pull requests a little bit. Then, I get a consistent state
+> approved by you and already checked by build bot. BTW is your tree in
+> linux-next as well?
 
-> +	/* TODO: move this somewhere else */
-> +	memset(&request, 0, sizeof(request));
-> +	memset(&response, 0, sizeof(response));
+Nope, it's not, but I intend to fix that for the next round. Ok, I think
+we have a sane plan, people should be testing linux-next anyway...
 
-So? :)
-
-> +	i2c->adapter.class = I2C_CLASS_HWMON;
-
-Do you really need that?
-
-> +	err = i2c_add_adapter(&i2c->adapter);
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "failed to add I2C adapter: %d\n", err);
-
-No error message here, the core will do that.
-
-> +static int __init tegra_bpmp_i2c_init_driver(void)
-> +{
-> +	return platform_driver_register(&tegra_bpmp_i2c_driver);
-> +}
-> +subsys_initcall(tegra_bpmp_i2c_init_driver);
-
-Have you tried if subsys_initcall is really really necessary?
-
-Thanks,
-
-   Wolfram
-
-
---v6zxsqbvpjpconfy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlid7DUACgkQFA3kzBSg
-KbavMw/8CAE/h0iZri4pSzkNJRinzV92X1g3rIwnyh1Ay9vJrhvtmdptvmIilZ8n
-9Hrbu5HmdIWjUdLEccmoyCVdzRxG9c4ollbWgf9pHza+PGiuBNXAX4dK0TeeQsHq
-n29Y/76Pm8/CmUp4Z9Gh3SLU1rtRAOX/JdipKsXhujgGexiWUJXh8pqeVr9qufMo
-spXQX65GldMhldOHfFzP+DRyH2ho+OyZnkIkbMkajGY9qMww191qSDQbGN7fy2pE
-HENryHOKEnxIe+V+sYjviwRx93QBzK88dg7s7XFSzvmROwZfsGugy1f+fvJrx/B2
-nGs+BfX/6cxTLcoHphjNaeaRkHEsjr9V1Zkvu96XSfdAgOiBP/iqOexrHLCUxsg9
-f0luXBRsW9EOnR+7C6MklNFNfSsTA80nkRySlRISWeBCXZ5IPPZ/KgTV7fxO0PbE
-YS2l5U/Q5ol+YO032KAYRwGk7/ghbe1ZdBoFRxRs56nziFU566EomBVd7UQKDFW4
-j20XdY6bwwJxDusFiUZ7vlA0932tok9dQet0oRt9d/VyaV4E4cXkYcwFXVwjFIvi
-toyy5ZXdDdlmVJTd1KKsQ9raW6NnmWCn7oo86f+H2PKfMXUpEQ7uXKp+3x4eCBph
-T3H5XpPgS4e4HJVMut1xrmtjIu4BTFpBj6HQMte3LHN7JsOkBKE=
-=Xw4M
------END PGP SIGNATURE-----
-
---v6zxsqbvpjpconfy--
+Cheers,
+Peter
