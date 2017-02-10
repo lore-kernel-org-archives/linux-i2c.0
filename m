@@ -1,139 +1,96 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v6 0/3] i2c: mux: pca954x: Add interrupt controller
- support
-Date: Fri, 10 Feb 2017 09:02:00 +0100
-Message-ID: <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
-References: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 13/13] drm/i915: Acquire P-Unit access
+ when modifying P-Unit settings
+Date: Fri, 10 Feb 2017 11:19:52 +0100
+Message-ID: <7a1a651c-a568-7d6a-5c29-db2783c73a66@redhat.com>
+References: <20170123210958.18410-1-hdegoede@redhat.com>
+ <20170123210958.18410-14-hdegoede@redhat.com>
+ <20170127135147.GS31595@intel.com>
+ <64a4aef7-837f-059c-9be5-4a76602488be@redhat.com>
+ <2eea197f-2485-5f93-1691-42a9a2e11267@redhat.com>
+ <20170130131041.GM31595@intel.com>
+ <f3585fe1-9bc3-08a0-f747-ee0336f97965@redhat.com>
+ <20170130151144.GP31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0096.outbound.protection.outlook.com ([104.47.2.96]:12256
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751767AbdBJICn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 03:02:43 -0500
-In-Reply-To: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170130151144.GP31595@intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Phil Reid <preid@electromag.com.au>, linux-i2c@vger.kernel.org
 
-Hi Wolfram!
-
-I had prepared a branch for you to pull but then the kbuild
-bot finally found this series and complained about the missing
-initializer for the 'handled' variable. I amended the previously
-posted fixup and was just about to send you the pull request when
-you started to add patches to i2c/for-next. What is now left of what
-I originally had in i2c-mux/for-next is this series. However, since
-I told Phil that I amended the fixup I do not think he will resend
-and I think you might therefore be waiting for a resend which will
-probably not happen (anytime soon). I'm going to short out the wait
-and just send a reworked pull request. See below.
-
-A few thing to take away from this. Phil didn't post the series to
-LKML, and the kbuild bots didn't find the series until I added it to
-my i2c-mux tree. Fengguang indicated that the kbuild bot will now
-(or soon) start to track the i2c list, which might be good to know.
-
-I also think we need to come up with something that prevents us from
-doing work twice. I think the main problem is at my end, for not
-being clear enough about my intentions with an i2c-mux related
-submission. So, from now on I think I'm just going to change my
-acks to some message saying that the patch(es) have been added
-to i2c-mux/for-next (in case the submission is clear-cut i2c-mux
-and not at all about i2c-the-rest). If I just ack a submission I'll
-expect you to pick it up. Ok?
-
-The question then becomes at approximately which point you'll need
-a pull request? Or should you perhaps be pulling in my tree
-on a more continuous level so that everything i2c-related is
-available in one tree (i.e. your tree)?
-
-One thing that happened last time you pulled from the i2c-mux tree
-was that you added your sign-offs, and that makes the i2c-mux tree
-into a kind of 2nd rate tree that is not useful for much more than
-feeding patches upstream. I have to force-push after each of your
-pulls. I think (at least some) other 2nd level maintainers do not
-"suffer" from this fate? Anyway, do you really need to add that
-sign-off when you pull? It's not a big thing, but all things being
-equal, I'd prefer the commits to stay as-is...
-
-Cheers,
-peda
-
-The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d36:
-
-  Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
-
-are available in the git repository at:
-
-  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
-
-for you to fetch changes up to f2114795f721bd5028284ddf84b150798a9b7a73:
-
-  i2c: mux: pca954x: Add interrupt controller support (2017-02-10 08:23:51 +0100)
-
-----------------------------------------------------------------
-Phil Reid (3):
-      i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
-      dt: bindings: i2c-mux-pca954x: Add documentation for interrupt controller
-      i2c: mux: pca954x: Add interrupt controller support
-
- Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt |  14 +++++-
- drivers/i2c/muxes/i2c-mux-pca954x.c                       | 150 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 159 insertions(+), 5 deletions(-)
-
-
-On 2017-01-25 02:31, Phil Reid wrote:
-> Various muxes can aggregate multiple interrupts from each i2c bus.
-> All of the muxes with interrupt support combine the active low irq lines
-> using an internal 'and' function and generate a combined active low
-> output. The muxes do provide the ability to read a control register to
-> determine which irq is active. By making the mux an irq controller isr
-> latenct can potentially be reduced by reading the status register and 
-> then only calling the registered isr on that bus segment.
-> 
-> Changes from v5:
-> - p3 Added Peter's Ack.
-> - Drop p4/5
-> 
-> Changes from v4:
-> - p4: Change definition of irq_mask_enable to an array.
-> - p4: Removed acks due to change requested by Peter
-> - p5: Parse array of enables. Currently only supports 1 chip
->       But dt specification will allow expansion to handle
->       multple irq consume chips to be registered on a bus segment
-> - p5: Fix up logic related to enabling and disable irq's.
->       Use a flag to indicate when irq has been enabled.
-> 
-> Changes from v3:
-> - p3: Add spin lock to irq mask / unmask.
-> - p4: Add Rob's ack.
-> 
-> Changes from v2:
-> - p1: Added Acked-by
-> - p5: fixup 2 typos
-> 
-> Changes from v1:
-> - Update for new ACPI table
-> - Fix typo in documentation
-> - Fix typo in function names
-> - Fix typo in irq name
-> - Added spaces around '+' / '='
-> - Change goto label names
-> - Change property name from i2c-mux-irq-mask-en to nxp,irq-mask-enable
-> - Change variable name irq_mask_en to irq_mask_enable
-> - Add commentt about irq_mask_enable
-> - Added Acked-By's
-> Phil Reid (3):
->   i2c: mux: pca954x: Add missing pca9542 definition to chip_desc
->   dt: bindings: i2c-mux-pca954x: Add documentation for interrupt
->     controller
->   i2c: mux: pca954x: Add interrupt controller support
-> 
->  .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  14 +-
->  drivers/i2c/muxes/i2c-mux-pca954x.c                | 150 ++++++++++++++++++++-
->  2 files changed, 159 insertions(+), 5 deletions(-)
-> 
+SGksCgpPbiAzMC0wMS0xNyAxNjoxMSwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+IE9uIE1vbiwg
+SmFuIDMwLCAyMDE3IGF0IDA0OjAyOjE5UE0gKzAxMDAsIEhhbnMgZGUgR29lZGUgd3JvdGU6Cj4+
+IEhpLAo+Pgo+PiBPbiAzMC0wMS0xNyAxNDoxMCwgVmlsbGUgU3lyasOkbMOkIHdyb3RlOgo+Pj4g
+T24gU2F0LCBKYW4gMjgsIDIwMTcgYXQgMDY6MTg6NDVQTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3
+cm90ZToKPj4+PiBIaSwKPj4+Pgo+Pj4+IE9uIDAxLzI4LzIwMTcgMDU6MjUgUE0sIEhhbnMgZGUg
+R29lZGUgd3JvdGU6Cj4+Pj4+IEhpLAo+Pj4+Pgo+Pj4+PiBPbiAwMS8yNy8yMDE3IDAyOjUxIFBN
+LCBWaWxsZSBTeXJqw6Rsw6Qgd3JvdGU6Cj4+Pj4+PiBPbiBNb24sIEphbiAyMywgMjAxNyBhdCAx
+MDowOTo1OFBNICswMTAwLCBIYW5zIGRlIEdvZWRlIHdyb3RlOgo+Pj4+Pj4+IE1ha2Ugc3VyZSB0
+aGUgUC1Vbml0IG9yIHRoZSBQTUlDIGkyYyBidXMgaXMgbm90IGluIHVzZSB3aGVuIHdlIHNlbmQg
+YQo+Pj4+Pj4+IHJlcXVlc3QgdG8gdGhlIFAtVW5pdCBieSBjYWxsaW5nIGlvc2ZfbWJpX3B1bml0
+X2FjcXVpcmUoKSAvIF9yZWxlYXNlKCkKPj4+Pj4+PiBhcm91bmQgUC1Vbml0IHdyaXRlIGFjY2Vz
+c2VzLgo+Pj4+Pj4KPj4+Pj4+IENhbid0IHdlIGp1c3Qgc3R1ZmYgdGhlIGNhbGxzIGludG8gdGhl
+IGFjdHVhbCBwdW5pdCB3cml0ZSBmdW5jdGlvbgo+Pj4+Pj4gcmF0aGVyIHRoYW4gc3ByaW5rbGlu
+ZyB0aGVtIGFsbCBvdmVyIHRoZSBwbGFjZT8KPj4+Pj4KPj4+Pj4gcHVuaXQgYWNjZXNzIGlzIGFj
+cXVpcmVkIGFjcm9zcyBzZWN0aW9ucyBsaWtlIHRoaXM6Cj4+Pj4+Cj4+Pj4+ICAgICAgICAgaW9z
+Zl9tYmlfcHVuaXRfYWNxdWlyZSgpOwo+Pj4+Pgo+Pj4+PiAgICAgICAgIHZhbCA9IHZsdl9wdW5p
+dF9yZWFkKGRldl9wcml2LCBQVU5JVF9SRUdfRFNQRlJFUSk7Cj4+Pj4+ICAgICAgICAgdmFsICY9
+IH5EU1BGUkVRR1VBUl9NQVNLOwo+Pj4+PiAgICAgICAgIHZhbCB8PSAoY21kIDw8IERTUEZSRVFH
+VUFSX1NISUZUKTsKPj4+Pj4gICAgICAgICB2bHZfcHVuaXRfd3JpdGUoZGV2X3ByaXYsIFBVTklU
+X1JFR19EU1BGUkVRLCB2YWwpOwo+Pj4+PiAgICAgICAgIGlmICh3YWl0X2Zvcigodmx2X3B1bml0
+X3JlYWQoZGV2X3ByaXYsIFBVTklUX1JFR19EU1BGUkVRKSAmCj4+Pj4+ICAgICAgICAgICAgICAg
+ICAgICAgICBEU1BGUkVRU1RBVF9NQVNLKSA9PSAoY21kIDw8IERTUEZSRVFTVEFUX1NISUZUKSwK
+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgNTApKSB7Cj4+Pj4+ICAgICAgICAgICAgICAgICBE
+Uk1fRVJST1IoInRpbWVkIG91dCB3YWl0aW5nIGZvciBDRGNsayBjaGFuZ2VcbiIpOwo+Pj4+PiAg
+ICAgICAgIH0KPj4+Pj4gICAgICAgICBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCk7Cj4+Pj4+Cj4+
+Pj4+IFdoZXJlIHdlIHdhbnQgdG8gd2FpdCBmb3IgdGhlIHJlcXVlc3RlZCBjaGFuZ2UgdG8gaGF2
+ZSB0YWtlbgo+Pj4+PiBlZmZlY3QgYmVmb3JlIHJlbGVhc2luZyB0aGUgcHVuaXQuCj4+Pgo+Pj4g
+SG1tLiBUaGF0J3Mgc29tZXdoYXQgdW5mb3J0dW5hdGUuIEl0IGFsc28gaGlnaGxpZ2h0cyBhIHBy
+b2JsZW0gd2l0aCB0aGUKPj4+IHBhdGNoIHdydC4gUlBTLiBXZSBkb24ndCB3YWl0IGZvciB0aGUg
+R1BVIHRvIGFjdHVhbGx5IGNoYW5nZSBmcmVxdWVuY2llcwo+Pj4gaW4gc2V0X3JwcygpIGJlY2F1
+c2UgdGhhdCB3b3VsZCBzbG93IHRoaW5ncyBkb3duIHRvbyBtdWNoLiBTbyBJIGhhdmUgdG8KPj4+
+IHdvbmRlciBob3cgbXVjaCBsdWNrIGlzIG5lZWRlZCB0byBtYWtlIHRoaXMgd29ya2Fyb3VuZCBy
+ZWFsbHkgZWZmZWN0aXZlLgo+Pgo+PiBTbyB0aGUgaGlzdG9yeSBvZiB0aGlzIHBhdGNoLXNldCBp
+cyB0aGF0IEkgd3JvdGUgdGhpcyBwYXRjaCBiZWZvcmUKPj4gd3JpdGluZyB0aGUgcGF0Y2ggdG8g
+Z2V0IEZPUkNFV0FLRV9BTEwgYmVmb3JlIHRoZSBwbWljIGJ1cyBiZWNvbWVzCj4+IGFjdGl2ZSAo
+cGF0Y2ggMTIvMTMpLiBTaW5jZSBhIGxvdCBvZiB0ZXN0aW5nIHdhcyBkb25lIHdpdGggdGhpcwo+
+PiBwYXRjaCBpbmNsdWRlZCBpbiB0aGUgcGF0Y2gtc2V0IGFuZCBzaW5jZSBpdCBzZWVtZWQgYSBn
+b29kIGlkZWEKPj4gcmVnYXJkbGVzcyAoZ2l2ZW4gbXkgZXhwZXJpZW5jZSB3aXRoIGFjY2Vzc2lu
+ZyB0aGUgcHVuaXQgdnMKPj4gcG1pYyBidXMgYWNjZXNzZXMpIEkgZGVjaWRlZCB0byBsZWF2ZSBp
+dCBpbi4KPj4KPj4gUG9zc2libHkganVzdCB0aGUgcGF0Y2ggdG8gZ2V0IEZPUkNFV0FLRV9BTEwg
+aXMgZW5vdWdoLCB0aGF0IG9uZQo+PiBhY3R1YWxseSBmaXhlZCB0aGluZ3MgZm9yIG1lLiBUaGF0
+IGlzIGFsc28gd2h5IEkgbWFkZSB0aGlzIHRoZQo+PiBsYXN0IHBhdGNoIGluIHRoZSBzZXQuIEkg
+YXNrZWQgdGFnb3JlcmVkZHkgdG8gdGVzdCBoaXMgc3lzdGVtCj4+IHdpdGhvdXQgdGhpcyBwYXRj
+aCwgYnV0IGhlIGRpZCBub3QgZ2V0IGFyb3VuZCB0byB0aGF0Lgo+Pgo+PiBBZnRlciBhbGwgd2Ug
+ZG8gdGVsbCB0aGUgcHVuaXQgdG8gbm90IHRvdWNoIHRoZSBidXMgYnkgYWNxdWlyaW5nCj4+IHRo
+ZSBwbWljIGJ1cyBzZW1hcGhvcmUgZnJvbSBpMmMtZGVzaWd3YXJlLWJheXRyYWlsLmMsIHNvIG1h
+eWJlCj4+IGZvciBSUFMgZnJlcSBjaGFuZ2VzIGl0IGhvbm9ycyB0aGF0IGFuZCBwcm9wZXJseSB3
+YWl0cy4gTWF5YmUgaXQKPj4gaG9ub3JzIHRoYXQgZm9yIGFsbCBwdW5pdCByZXF1ZXN0cyBpOTE1
+IGRvZXMgYW5kIHRoZSBvbmx5IHJlYWwKPj4gcHJvYmxlbSBpcyB0aGUgZm9yY2V3YWtlIHN0dWZm
+ID8KPj4KPj4gSSBjYW4gdHJ5IHRvIGRyb3AgdGhpcyBwYXRjaCBmcm9tIG15IHF1ZXVlIGFuZCBy
+dW4gd2l0aG91dCBpdAo+PiBmb3IgYSB3aGlsZSBhbmQgc2VlIGlmIHRoaW5ncyBkb24ndCByZWdy
+ZXNzLiBBbmQgYWxzbyBhc2sKPj4gdGFnb3JlcmVkZHkgYWdhaW4gdG8gdGVzdCBoaXMgc3lzdGVt
+IHRoYXQgd2F5Lgo+Pgo+PiBEb2VzIHRoYXQgKGRyb3BwaW5nIHRoaXMgcGF0Y2ggZm9yIG5vdykg
+c291bmQgbGlrZSBhIGdvb2QgaWRlYT8KPgo+IE1vcmUgdGVzdCByZXN1bHRzIGNvdWxkbid0IGh1
+cnQgYXQgbGVhc3QuCgpPaywgSSd2ZSBkb25lIGEgd2hvbGUgYnVuY2ggb2Ygc3VzcGVuZCArIHJl
+c3VtZSBjeWNsZXMgb24gbXkgY2h0CnRhYmxldCB3aXRoIHRoaXMgcGF0Y2ggZHJvcHBlZCBhbmQg
+dGhpbmdzIHN0aWxsIHdvcmsgZmluZQood2hlcmUgYXMgd2l0aG91dCB0aGUgZmlyc3QgMTIgcGF0
+Y2hlcyBvZiB0aGlzIHBhdGNoLXNldCB0aGF0CiAgd2FzIGEgZ3VhcmVudGVlZCB3YXkgdG8gZ2V0
+IGEgZm9yY2V3YWtlIHRpbWVvdXQgZm9sbG93ZWQgYnkKICBhIGxvY2t1cCkuCgpTbyBpdCBpbmRl
+ZWQgc2VlbXMgdGhpcyB0ZXN0IGlzIG5vdCBuZWNlc3NhcnkuIEknbGwgc2VuZCBhIHYzCndpdGgg
+dGhhdCBwYXRjaCBkcm9wcGVkLCBhcyB3ZWxsIGFzIHlvdXIgY29tbWVudHMgZm9yCnBhdGNoZXMg
+MTEgYW5kIDEyIGJlaW5nIGFkZHJlc3NlZC4KClJlZ2FyZHMsCgpIYW5zCgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0
+CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3Rv
+cC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
