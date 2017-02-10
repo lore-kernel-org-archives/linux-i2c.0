@@ -1,150 +1,96 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 00/12] coordinate cht i2c-pmic and i915-punit accesses
-Date: Fri, 10 Feb 2017 11:27:50 +0100
-Message-ID: <20170210102802.20898-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53806 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751233AbdBJK2H (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 05:28:07 -0500
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v3 01/12] x86/platform/intel/iosf_mbi: Add a mutex for P-Unit
+ access
+Date: Fri, 10 Feb 2017 11:27:51 +0100
+Message-ID: <20170210102802.20898-2-hdegoede@redhat.com>
+References: <20170210102802.20898-1-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170210102802.20898-1-hdegoede@redhat.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Hi All,
-
-Here is v3 of my cht i2c-pmic and i915-punit access coordination
-patchset. New in this version is the dropping of the punit_acquire /
-_release calls around punit accesses in the i915 driver, these seem
-to be unnecessary in this case acquiring the pmic-bus semaphore in
-the punit seems to be enough. We do definitely need the forcewake stuff
-done by "drm/i915: Listen for PMIC bus access notifications", without
-that cht devices which have a pmic which makes the kernel share the bus
-with the punit see forcewake timeouts followed by a lockup.
-
-Also new in this version is some renames + extra comments in patch 11 and 12
-as reqested by Ville.
-
-This patch-set includes 6 i2c patches, these patches are ready for merging,
-they have Wolfram's (the i2c maintainer's) ack. The problem is the 6th i2c
-patch which fixes the punit semaphore support in i2c-designware-baytrail.c,
-which fixes the i2c-designware not binding to the pmic (axp288) i2c bus.
-But with this fixed we actually start triggering the coordination problems
-the rest of this patch-set addresses.
-
-So the plan (again with Wolfram's ack) is for all these patches
-including the i2c-designware ones to go upstream through the drm-intel
-tree, to avoid an intermediate state were things don't work.
-
-As for the how and why of this patchset, let me copy and paste the
-cover letter of v1 of this set which is still mostly valid:
-
-### being v1 cover letter ###
-
-This series fixes an issue where the following messages are shown in dmesg:
-[drm:fw_domains_get [i915]] *ERROR* render: timed out waiting for forcewake ack request.
-[drm:fw_domains_get [i915]] *MEDIA* render: timed out waiting for forcewake ack request.
-i2c_designware 808622C1:06: punit semaphore timed out, resetting
-i2c_designware 808622C1:06: PUNIT SEM: 2
-i2c_designware 808622C1:06: couldn't acquire bus ownership
-
-Usually followed by a gfx or system freeze, this is happening both on my
-cherrytrail tablet as well as being seen by an user commenting on:
-https://bugzilla.kernel.org/show_bug.cgi?id=155241
-
-This problem is triggered by my patch series to fix the punit i2c bus
-semaphore code in drivers/i2c/busses/designware-baytrail.c .
-
-Which actually allows i2c access to pmic-s wich need bus-access arbritration
-for the first time on cherrytrail, combined with patches from me to actually
-make the axp288_fuel_gauge driver load, which leads to regular pmic i2c
-accesses (when userspace checks the battery level).
-
-The fix / workaround
-====================
-
-Testing has shown that just taking the punit i2c bus semaphore on
-i2c accesses to a shared pmic i2c bus is not enough to avoid problem,
-e.g. besides this series to coordinate i915 access, we also need:
-https://patchwork.ozlabs.org/patch/710070/
-
-This series introduces 2 mechanisms to coordinate direct pmic accesses
-vs punit requests which lead to pmic accesses. The first mechanism is
-a simple mutex, which works well for the direct punit accesses the i915
-code does. However testing has shown this is not enough, we also need
-to avoid doing a forcewake when a driver is directly accessing the pmic
-i2c bus, otherwise we get the timeout errors quoted above, the fact
-that after the forcewake errors the designware-baytrail.c code also
-fails to acquire the lock, suggests that doing forcewakes during the
-access window causes the i2c bus to get stuck (or the punit to get
-confused).
-
-The deal with the forcewake issue a notifier is introduced which allows
-drivers to get notified before any pmic i2c transfer begins (and after
-it ends). This is used in the i915 driver to do a
-forcewake_get(FORCEWAKE_ALL) before the access begins avoiding needing to
-it while the access is in progress.
-
-Testing has shown that this avoids the problem for both me and the user,
-where as before it could be reproduced at will.
-
-The implementation of the fix
-=============================
-
-I've decided to put the mutex and the notifier in the iosf_mbi code,
-as that is somewhat of a common middle ground between the i915 driver and
-the designware-baytrail.c code, with the latter already depending on the
-iosf_mbi code. I'm open for moving them if someone has a suggestion for a
-better place to put them.
-
-If iosf_mbi support is not enabled then all the functions used will become
-static inline NOPs and nothing changes on the i915 side.
-
-If the code is enabled and runs on a system which does not need pmic i2c
-bus arbritration, then the mutex lock / unlock calls added to the i915 code
-will still be made, but there won't be any contention, so other then the
-overhead of the lock / unlock there will not be any delays. These calls are
-not made in any hot paths.
-
-The biggest downside IMHO is that taking FORCEWAKE_ALL before each bus
-access will cause extra GPU wakeups, and thus powerdrain. I plan to make
-the impact of this minimal by modifying any drivers (axp288 code, with
-which I'm quite familiar by now) to limit their i2c accesses to a bare
-minimum. Specifically I plan to e.g. cache the battery level and wait
-at least 15 seconds (max 4 times a minute) before getting a fresh reading
-even if userspace asks for it more often, combined with some mechanism
-to only do 1 access-begin and 1 access-end notification for i2c accesses
-in quick succession.
-
-Alternatives
-============
-
-It would be tempting to say that this is not worth the trouble and we
-should just disallow direct i2c accesses to the pmic bus. Unfortunately
-that will cause some major issues on affected devices:
--No battery monitoring
--No "AC" plugged in monitoring
--If booted with a normal USB-A -> micro-USB cable, or no cable, plugged
- in and then the user replaces the cable with an otg USB-host cable /
- adapter, the id-pin shorting will enable a 5v boost convertor, but we
- need to disable the pmic's USB-Vbus path otherwise it will start drawing
- current from the boost convertor, leading to aprox 300mA of extra
- battery drain, this is done by the axp288_charger driver, which needs
- direct i2c access to the pmic bus
-
-Way forward
-===========
-
-I realize the workaround this patch-set adds is not the prettiest code
-ever seen, but I see no otherway to get things like battery monitoring
-and proper OTG support working on affected devices without breaking
-drm/i915 support. So I would like to see this merged in some form, I'm
-happy to make any kind of requested changes; and/or to try alternative
-fixes.
-
-### end v1 cover letter ###
-
-Regards,
-
-Hans
+T25lIHNvbWUgc3lzdGVtcyB0aGUgUC1Vbml0IGFjY2Vzc2VzIHRoZSBQTUlDIHRvIGNoYW5nZSB2
+YXJpb3VzIHZvbHRhZ2VzCnRocm91Z2ggdGhlIHNhbWUgYnVzIGFzIG90aGVyIGtlcm5lbCBkcml2
+ZXJzIHVzZSBmb3IgZS5nLiBiYXR0ZXJ5Cm1vbml0b3JpbmcuCgpJZiBhIGRyaXZlciBzZW5kcyBy
+ZXF1ZXN0cyB0byB0aGUgUC1Vbml0IHdoaWNoIHJlcXVpcmUgdGhlIFAtVW5pdCB0byBhY2Nlc3MK
+dGhlIFBNSUMgYnVzIHdoaWxlIGFub3RoZXIgZHJpdmVyIGlzIGFsc28gYWNjZXNzaW5nIHRoZSBQ
+TUlDIGJ1cyB2YXJpb3VzCmJhZCB0aGluZ3MgaGFwcGVuLgoKVGhpcyBjb21taXQgYWRkcyBhIG11
+dGV4IHRvIHByb3RlY3QgdGhlIFAtVW5pdCBhZ2FpbnN0IHNpbXVsdGFuZW91cwphY2Nlc3NlcyBh
+bmQgMiBmdW5jdGlvbnMgdG8gbG9jayAvIHVubG9jayB0aGlzIG11dGV4LgoKTm90ZSBvbiB0aGVz
+ZSBzeXN0ZW1zIHRoZSBpMmMtYnVzIGRyaXZlciB3aWxsIHJlcXVlc3QgYSBzZW1wYWhvcmUgZnJv
+bSB0aGUKUC1Vbml0IGZvciBleGNsdXNpdmUgYWNjZXNzIHRvIHRoZSBQTUlDIGJ1cyB3aGVuIGky
+YyBkcml2ZXJzIGFyZSBhY2Nlc3NpbmcKaXQsIGJ1dCB0aGlzIGRvZXMgbm90IGFwcGVhciB0byBi
+ZSBzdWZmaWNpZW50LCB3ZSBzdGlsbCBuZWVkIHRvIGF2b2lkCm1ha2luZyBjZXJ0YWluIFAtVW5p
+dCByZXF1ZXN0cyBkdXJpbmcgdGhlIGFjY2VzcyB3aW5kb3cgdG8gYXZvaWQgcHJvYmxlbXMuCgpC
+dWdMaW5rOiBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcvc2hvd19idWcuY2dpP2lkPTE1NTI0
+MQpTaWduZWQtb2ZmLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQuY29tPgpUZXN0
+ZWQtYnk6IHRhZ29yZXJlZGR5IDx0YWdvcmUuY2hhbmRhbkBnbWFpbC5jb20+ClJldmlld2VkLWJ5
+OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KLS0t
+CkNoYW5nZXMgaW4gdjI6Ci1SZW5hbWUgaW9zZl9tYmlfcHVuaXRfbG9jay9fdW5sb2NrIHRvIF9h
+Y3F1aXJlL19yZWxlYXNlIHJlbmFtZQotU3BlbGxpbmc6IFAtVW5pdCwgUE1JQwotLS0KIGFyY2gv
+eDg2L2luY2x1ZGUvYXNtL2lvc2ZfbWJpLmggICAgfCAzMSArKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrCiBhcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC9pb3NmX21iaS5jIHwgMTMgKysrKysr
+KysrKysrKwogMiBmaWxlcyBjaGFuZ2VkLCA0NCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEv
+YXJjaC94ODYvaW5jbHVkZS9hc20vaW9zZl9tYmkuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2lv
+c2ZfbWJpLmgKaW5kZXggYjQxZWUxNi4uZjYxMTlkMCAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5j
+bHVkZS9hc20vaW9zZl9tYmkuaAorKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5o
+CkBAIC04OCw2ICs4OCwzMyBAQCBpbnQgaW9zZl9tYmlfd3JpdGUodTggcG9ydCwgdTggb3Bjb2Rl
+LCB1MzIgb2Zmc2V0LCB1MzIgbWRyKTsKICAqLwogaW50IGlvc2ZfbWJpX21vZGlmeSh1OCBwb3J0
+LCB1OCBvcGNvZGUsIHUzMiBvZmZzZXQsIHUzMiBtZHIsIHUzMiBtYXNrKTsKIAorLyoqCisgKiBp
+b3NmX21iaV9wdW5pdF9hY3F1aXJlKCkgLSBBY3F1aXJlIGFjY2VzcyB0byB0aGUgUC1Vbml0Cisg
+KgorICogT25lIHNvbWUgc3lzdGVtcyB0aGUgUC1Vbml0IGFjY2Vzc2VzIHRoZSBQTUlDIHRvIGNo
+YW5nZSB2YXJpb3VzIHZvbHRhZ2VzCisgKiB0aHJvdWdoIHRoZSBzYW1lIGJ1cyBhcyBvdGhlciBr
+ZXJuZWwgZHJpdmVycyB1c2UgZm9yIGUuZy4gYmF0dGVyeSBtb25pdG9yaW5nLgorICoKKyAqIElm
+IGEgZHJpdmVyIHNlbmRzIHJlcXVlc3RzIHRvIHRoZSBQLVVuaXQgd2hpY2ggcmVxdWlyZSB0aGUg
+UC1Vbml0IHRvIGFjY2VzcworICogdGhlIFBNSUMgYnVzIHdoaWxlIGFub3RoZXIgZHJpdmVyIGlz
+IGFsc28gYWNjZXNzaW5nIHRoZSBQTUlDIGJ1cyB2YXJpb3VzIGJhZAorICogdGhpbmdzIGhhcHBl
+bi4KKyAqCisgKiBUbyBhdm9pZCB0aGVzZSBwcm9ibGVtcyB0aGlzIGZ1bmN0aW9uIG11c3QgYmUg
+Y2FsbGVkIGJlZm9yZSBhY2Nlc3NpbmcgdGhlCisgKiBQLVVuaXQgb3IgdGhlIFBNSUMsIGJlIGl0
+IHRocm91Z2ggaW9zZl9tYmkqIGZ1bmN0aW9ucyBvciB0aHJvdWdoIG90aGVyIG1lYW5zLgorICoK
+KyAqIE5vdGUgb24gdGhlc2Ugc3lzdGVtcyB0aGUgaTJjLWJ1cyBkcml2ZXIgd2lsbCByZXF1ZXN0
+IGEgc2VtcGFob3JlIGZyb20gdGhlCisgKiBQLVVuaXQgZm9yIGV4Y2x1c2l2ZSBhY2Nlc3MgdG8g
+dGhlIFBNSUMgYnVzIHdoZW4gaTJjIGRyaXZlcnMgYXJlIGFjY2Vzc2luZworICogaXQsIGJ1dCB0
+aGlzIGRvZXMgbm90IGFwcGVhciB0byBiZSBzdWZmaWNpZW50LCB3ZSBzdGlsbCBuZWVkIHRvIGF2
+b2lkIG1ha2luZworICogY2VydGFpbiBQLVVuaXQgcmVxdWVzdHMgZHVyaW5nIHRoZSBhY2Nlc3Mg
+d2luZG93IHRvIGF2b2lkIHByb2JsZW1zLgorICoKKyAqIFRoaXMgZnVuY3Rpb24gbG9ja3MgYSBt
+dXRleCwgYXMgc3VjaCBpdCBtYXkgc2xlZXAuCisgKi8KK3ZvaWQgaW9zZl9tYmlfcHVuaXRfYWNx
+dWlyZSh2b2lkKTsKKworLyoqCisgKiBpb3NmX21iaV9wdW5pdF9yZWxlYXNlKCkgLSBSZWxlYXNl
+IGFjY2VzcyB0byB0aGUgUC1Vbml0CisgKi8KK3ZvaWQgaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSh2
+b2lkKTsKKwogI2Vsc2UgLyogQ09ORklHX0lPU0ZfTUJJIGlzIG5vdCBlbmFibGVkICovCiBzdGF0
+aWMgaW5saW5lCiBib29sIGlvc2ZfbWJpX2F2YWlsYWJsZSh2b2lkKQpAQCAtMTE1LDYgKzE0Miwx
+MCBAQCBpbnQgaW9zZl9tYmlfbW9kaWZ5KHU4IHBvcnQsIHU4IG9wY29kZSwgdTMyIG9mZnNldCwg
+dTMyIG1kciwgdTMyIG1hc2spCiAJV0FSTigxLCAiSU9TRl9NQkkgZHJpdmVyIG5vdCBhdmFpbGFi
+bGUiKTsKIAlyZXR1cm4gLUVQRVJNOwogfQorCitzdGF0aWMgaW5saW5lIHZvaWQgaW9zZl9tYmlf
+cHVuaXRfYWNxdWlyZSh2b2lkKSB7fQorc3RhdGljIGlubGluZSB2b2lkIGlvc2ZfbWJpX3B1bml0
+X3JlbGVhc2Uodm9pZCkge30KKwogI2VuZGlmIC8qIENPTkZJR19JT1NGX01CSSAqLwogCiAjZW5k
+aWYgLyogSU9TRl9NQklfU1lNU19IICovCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9wbGF0Zm9ybS9p
+bnRlbC9pb3NmX21iaS5jIGIvYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmkuYwppbmRl
+eCBlZGYyYzU0Li5lZDI0ZmE5ZiAxMDA2NDQKLS0tIGEvYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwv
+aW9zZl9tYmkuYworKysgYi9hcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC9pb3NmX21iaS5jCkBAIC0z
+NCw2ICszNCw3IEBACiAKIHN0YXRpYyBzdHJ1Y3QgcGNpX2RldiAqbWJpX3BkZXY7CiBzdGF0aWMg
+REVGSU5FX1NQSU5MT0NLKGlvc2ZfbWJpX2xvY2spOworc3RhdGljIERFRklORV9NVVRFWChpb3Nm
+X21iaV9wdW5pdF9tdXRleCk7CiAKIHN0YXRpYyBpbmxpbmUgdTMyIGlvc2ZfbWJpX2Zvcm1fbWNy
+KHU4IG9wLCB1OCBwb3J0LCB1OCBvZmZzZXQpCiB7CkBAIC0xOTAsNiArMTkxLDE4IEBAIGJvb2wg
+aW9zZl9tYmlfYXZhaWxhYmxlKHZvaWQpCiB9CiBFWFBPUlRfU1lNQk9MKGlvc2ZfbWJpX2F2YWls
+YWJsZSk7CiAKK3ZvaWQgaW9zZl9tYmlfcHVuaXRfYWNxdWlyZSh2b2lkKQoreworCW11dGV4X2xv
+Y2soJmlvc2ZfbWJpX3B1bml0X211dGV4KTsKK30KK0VYUE9SVF9TWU1CT0woaW9zZl9tYmlfcHVu
+aXRfYWNxdWlyZSk7CisKK3ZvaWQgaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSh2b2lkKQoreworCW11
+dGV4X3VubG9jaygmaW9zZl9tYmlfcHVuaXRfbXV0ZXgpOworfQorRVhQT1JUX1NZTUJPTChpb3Nm
+X21iaV9wdW5pdF9yZWxlYXNlKTsKKwogI2lmZGVmIENPTkZJR19JT1NGX01CSV9ERUJVRwogc3Rh
+dGljIHUzMglkYmdfbWRyOwogc3RhdGljIHUzMglkYmdfbWNyOwotLSAKMi45LjMKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5n
+IGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVk
+ZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
