@@ -1,128 +1,315 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 0/3] i2c: mux: pca954x: Add interrupt controller
- support
-Date: Fri, 10 Feb 2017 13:52:07 +0100
-Message-ID: <20170210125205.c2gzgi65x4bi3eys@ninjato>
-References: <1485307868-5408-1-git-send-email-preid@electromag.com.au>
- <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RFC PATCH] i2c:mux: Driver for PCA9641 I2C Master Arbiter
+Date: Fri, 10 Feb 2017 14:17:14 +0100
+Message-ID: <02470eb8-c145-7d4d-c291-971de2deac24@axentia.se>
+References: <1486723418-13311-1-git-send-email-vidya@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fbsxif2ils32yryv"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47341 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751430AbdBJNqT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Feb 2017 08:46:19 -0500
-Content-Disposition: inline
-In-Reply-To: <8a11d374-a9f9-0e58-d01f-1cc72827c5e9@axentia.se>
+Received: from mail-eopbgr20102.outbound.protection.outlook.com ([40.107.2.102]:62005
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751370AbdBJNvz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Feb 2017 08:51:55 -0500
+In-Reply-To: <1486723418-13311-1-git-send-email-vidya@cumulusnetworks.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Phil Reid <preid@electromag.com.au>, linux-i2c@vger.kernel.org
+To: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>, jdelvare@suse.de, linux@roeck-us.net, wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: roopa@cumulusnetworks.com, vidya.chowdary@gmail.com
 
+On 2017-02-10 11:43, Vidya Sagar Ravipati wrote:
+> From: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>
+> 
+> This patch adds support for PCA9641, an I2C Bus Master Arbiter.
+> NXP PCA9641 arbiter is modeled as single channel I2C Multiplexer
+> to be able to utilize the I2C multiplexer framework similar to
+> PCA9541.
+> 
+> Enhancing PCA9541 driver to support PCA9641 i2c master arbiter
+> http://www.nxp.com/documents/data_sheet/PCA9641.pdf
+> 
+> Signed-off-by: Vidya Sagar Ravipati <vidya@cumulusnetworks.com>
+> Signed-off-by: Luffy<Luffy.Cheng@quantatw.com>
 
---fbsxif2ils32yryv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Missing a space after Luffy, and why isn't it Luffy Cheng <...> or
+something like that? And your sign-off should probably be last.
 
-Hi Peter,
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca9541.c | 157 ++++++++++++++++++++++++++++++++++--
+>  1 file changed, 152 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index 77840f7..89d8518 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -59,6 +59,36 @@
+>  #define PCA9541_ISTAT_MYTEST	(1 << 6)
+>  #define PCA9541_ISTAT_NMYTEST	(1 << 7)
+>  
+> +#define PCA9641_ID		0
+> +#define PCA9641_ID_MAGIC	0x38
+> +#define PCA9641_CONTROL		0x01
+> +#define PCA9641_STATUS		0x02
+> +
+> +#define PCA9641_CONTROL		0x01
 
-> initializer for the 'handled' variable. I amended the previously
-> posted fixup and was just about to send you the pull request when
-> you started to add patches to i2c/for-next.
+You're redefining PCA9641_CONTROL here, please don't.
 
-Oh, sorry! I wasn't sure if we agreed that you send pull-requests for
-v4.11 already or starting with v4.12. And since there seems to be no rc8
-for 4.11 I decided to start pulling in.
+> +#define PCA9641_CTL_LOCK_REQ		(1 << 0)
 
-> probably not happen (anytime soon). I'm going to short out the wait
-> and just send a reworked pull request. See below.
+BIT(0)
 
-Perfect!
+> +#define PCA9641_CTL_LOCK_GRANT		(1 << 1)
 
-> A few thing to take away from this. Phil didn't post the series to
-> LKML, and the kbuild bots didn't find the series until I added it to
-> my i2c-mux tree. Fengguang indicated that the kbuild bot will now
-> (or soon) start to track the i2c list, which might be good to know.
+BIT(1), etc
 
-Well, I asked Fengguang to remove the i2c list from that feature a
-while ago. People send out RFCs, debug patches, etc... and for all those
-build bot reports are just noise IMO.
+> +#define PCA9641_CTL_BUS_CONNECT		(1 << 2)
+> +#define PCA9641_CTL_BUS_INIT		(1 << 3)
+> +#define PCA9641_CTL_SMBUS_SWRST		(1 << 4)
+> +#define PCA9641_CTL_IDLE_TIMER_DIS	(1 << 5)
+> +#define PCA9641_CTL_SMBUS_DIS		(1 << 6)
+> +#define PCA9641_CTL_PRIORITY		(1 << 7)
+> +
+> +#define PCA9641_STATUS		0x02
 
-Build testing plus sparse+smatch testing for the patches when I apply
-them to my tree and then having my branches additionally checked by
-build bot works well for me. I will happily share my super-simple
-'ninja-check' script with you which runs various code checkers when
-compiling. It is basically adding "W=3D1 C=3D1 CHECK=3D'ninja-check'" to the
-kernel build command-line.
+You're redefining PCA9641_STATUS here, please don't.
 
-I hope you are open for this workflow. But we can discuss, of course.
+> +#define PCA9641_STS_OTHER_LOCK		(1 << 0)
+> +#define PCA9641_STS_BUS_INIT_FAIL	(1 << 1)
+> +#define PCA9641_STS_BUS_HUNG		(1 << 2)
+> +#define PCA9641_STS_MBOX_EMPTY		(1 << 3)
+> +#define PCA9641_STS_MBOX_FULL		(1 << 4)
+> +#define PCA9641_STS_TEST_INT		(1 << 5)
+> +#define PCA9641_STS_SCL_IO		(1 << 6)
+> +#define PCA9641_STS_SDA_IO		(1 << 7)
+> +
+> +#define PCA9641_RES_TIME       0x03
+> +
+> +#define other_lock(x)  ((x) & PCA9641_STS_OTHER_LOCK)
+> +#define lock_grant(x)  ((x) & PCA9641_CTL_LOCK_GRANT)
+> +
+>  #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+>  #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+>  #define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
+> @@ -73,13 +103,20 @@
+>  #define SELECT_DELAY_LONG	1000
+>  
+>  struct pca9541 {
+> +	int device_type;
+>  	struct i2c_client *client;
+>  	unsigned long select_timeout;
+>  	unsigned long arb_timeout;
+>  };
+>  
+> +enum pca9x41 {
+> +	PCA9541 = 0,
+> +	PCA9641
+> +};
+> +
+>  static const struct i2c_device_id pca9541_id[] = {
+> -	{"pca9541", 0},
+> +	{"pca9541", PCA9541},
+> +	{"pca9641", PCA9641},
+>  	{}
+>  };
+>  
+> @@ -178,12 +215,17 @@ static int pca9541_reg_read(struct i2c_client *client, u8 command)
+>  /* Release bus. Also reset NTESTON and BUSINIT if it was set. */
+>  static void pca9541_release_bus(struct i2c_client *client)
+>  {
+> +	struct pca9541 *data = i2c_get_clientdata(client);
+>  	int reg;
+>  
+> -	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+> -	if (reg >= 0 && !busoff(reg) && mybus(reg))
+> -		pca9541_reg_write(client, PCA9541_CONTROL,
+> -				  (reg & PCA9541_CTL_NBUSON) >> 1);
+> +	if (data->device_type == PCA9541) {
+> +		reg = pca9541_reg_read(client, PCA9541_CONTROL);
+> +		if (reg >= 0 && !busoff(reg) && mybus(reg))
+> +			pca9541_reg_write(client, PCA9541_CONTROL,
+> +				(reg & PCA9541_CTL_NBUSON) >> 1);
+> +	} else
+> +		pca9541_reg_write(client, PCA9641_CONTROL, 0);
+> +
+>  }
+>  
+>  /*
+> @@ -294,6 +336,90 @@ static int pca9541_arbitrate(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * Channel arbitration
+> + *
+> + * Return values:
+> + *  <0: error
+> + *  0 : bus not acquired
+> + *  1 : bus acquired
+> + */
+> +static int pca9641_arbitrate(struct i2c_client *client)
+> +{
+> +	struct pca9541 *data = i2c_get_clientdata(client);
+> +	int reg_ctl, reg_sts;
+> +
+> +	reg_ctl = pca9541_reg_read(client, PCA9641_CONTROL);
+> +	if (reg_ctl < 0)
+> +		return reg_ctl;
+> +
+> +	reg_sts = pca9541_reg_read(client, PCA9641_STATUS);
+> +	if (!other_lock(reg_sts) && !lock_grant(reg_ctl)) {
 
-> submission. So, from now on I think I'm just going to change my
-> acks to some message saying that the patch(es) have been added
-> to i2c-mux/for-next (in case the submission is clear-cut i2c-mux
-> and not at all about i2c-the-rest). If I just ack a submission I'll
-> expect you to pick it up. Ok?
+I would reorder the checks as:
 
-Perfect!
+	if (lock_grant(reg_ctl)) {
+		...
+	} else if (other_lock(reg_ctl)) {
+		...
+	} else {
+		...
+	}
 
-> The question then becomes at approximately which point you'll need
-> a pull request? Or should you perhaps be pulling in my tree
-> on a more continuous level so that everything i2c-related is
-> available in one tree (i.e. your tree)?
+> +		/*
+> +		 * Bus is off. Request ownership or turn it on unless
+> +		 * other master requested ownership.
+> +		 */
+> +		/* FIXME: bus reserve time (1-255) for without interrupt */
+> +		/*  Lock forever
+> +		 * pca9541_reg_write(client, PCA9641_RES_TIME, 0);
+> +		 */
 
-I prefer pull requests a little bit. Then, I get a consistent state
-approved by you and already checked by build bot. BTW is your tree in
-linux-next as well?
+Why is the above three separate comments?
 
-> sign-off when you pull? It's not a big thing, but all things being
-> equal, I'd prefer the commits to stay as-is...
+> +		reg_ctl |= PCA9641_CTL_LOCK_REQ;
+> +		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
+> +
+> +		/* FIXME: If need Wait for lock grant */
 
-Sure thing. It might have been done automatically, will check and fix my
-scripts...
+Sorry, I fail to parse this comment.
 
->=20
-> Cheers,
-> peda
->=20
-> The following changes since commit 7a308bb3016f57e5be11a677d15b821536419d=
-36:
->=20
->   Linux 4.10-rc5 (2017-01-22 12:54:15 -0800)
->=20
-> are available in the git repository at:
->=20
->   https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
->=20
-> for you to fetch changes up to f2114795f721bd5028284ddf84b150798a9b7a73:
->=20
->   i2c: mux: pca954x: Add interrupt controller support (2017-02-10 08:23:5=
-1 +0100)
+> +		udelay(100);
+> +
+> +		reg_ctl = pca9541_reg_read(client, PCA9641_CONTROL);
+> +
+> +		if (lock_grant(reg_ctl)) {
+> +			/*
+> +			 * Other master did not request ownership,
+> +			 * or arbitration timeout expired. Take the bus.
+> +			 */
+> +			reg_ctl |= PCA9641_CTL_BUS_CONNECT;
+> +			pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
+> +			data->select_timeout = SELECT_DELAY_SHORT;
+> +
+> +			return 1;
+> +		} else {
+> +			/*
+> +			 * Other master requested ownership.
+> +			 * Set extra long timeout to give it time to acquire it.
+> +			 */
+> +			data->select_timeout = SELECT_DELAY_LONG * 2;
+> +		}
+> +	} else if (lock_grant(reg_ctl)) {
+> +		/*
+> +		 * Bus is on, and we own it. We are done with acquisition.
+> +		 */
+> +		reg_ctl |= PCA9641_CTL_BUS_CONNECT;
+> +		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
+> +
+> +		return 1;
+> +	} else if (other_lock(reg_sts)) {
+> +		/*
+> +		 * Other master owns the bus.
+> +		 * If arbitration timeout has expired, force ownership.
+> +		 * Otherwise request it.
+> +		 */
+> +		data->select_timeout = SELECT_DELAY_LONG;
+> +		reg_ctl |= PCA9641_CTL_LOCK_REQ;
+> +		pca9541_reg_write(client, PCA9641_CONTROL, reg_ctl);
+> +
+> +		/*
+> +		 * if (time_is_before_eq_jiffies(data->arb_timeout)) {
+> +		 * TODO:Time is up, take the bus and reset it.
+> +		 *
+> +		 *} else {
+> +		 * TODO: Request bus ownership if needed
+> +		 *
+> +		 *}
+> +		 */
 
-And pulled! Thank you for the work!
+Looks like you didn't finish this part? Why not?
 
-   Wolfram
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
+>  {
+>  	struct pca9541 *data = i2c_mux_priv(muxc);
+> @@ -306,6 +432,11 @@ static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
+>  		/* force bus ownership after this time */
+>  
+>  	do {
+> +		if (data->device_type == PCA9541)
+> +			ret = pca9541_arbitrate(client);
+> +		else
+> +			ret = pca9641_arbitrate(client);
+> +
+>  		ret = pca9541_arbitrate(client);
 
+I think you meant to remove this line.
 
---fbsxif2ils32yryv
-Content-Type: application/pgp-signature; name="signature.asc"
+>  		if (ret)
+>  			return ret < 0 ? ret : 0;
+> @@ -328,6 +459,17 @@ static int pca9541_release_chan(struct i2c_mux_core *muxc, u32 chan)
+>  	return 0;
+>  }
+>  
+> +static int pca9641_detect_id(struct i2c_client *client)
+> +{
+> +	int reg;
+> +
+> +	reg = pca9541_reg_read(client, PCA9641_ID);
+> +	if (reg == PCA9641_ID_MAGIC)
+> +		return 1;
+> +	else
+> +		return 0;
+> +}
+> +
+>  /*
+>   * I2C init/probing/exit functions
+>   */
+> @@ -335,6 +477,7 @@ static int pca9541_probe(struct i2c_client *client,
+>  			 const struct i2c_device_id *id)
+>  {
+>  	struct i2c_adapter *adap = client->adapter;
+> +	kernel_ulong_t device_id = id->driver_data;
+>  	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+>  	struct i2c_mux_core *muxc;
+>  	struct pca9541 *data;
+> @@ -344,6 +487,9 @@ static int pca9541_probe(struct i2c_client *client,
+>  	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
+>  		return -ENODEV;
+>  
+> +	if (device_id == PCA9641 && !pca9641_detect_id(client))
+> +		return ret;
 
------BEGIN PGP SIGNATURE-----
+ret is just wrong here.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlidt2YACgkQFA3kzBSg
-KbZH6g/9FKYcxWUOFYiCnUxxGwUVTtLgTt6cLrysQV3qzOByi3uokUhjNosuBpmM
-/kwIYNUN05x+DyBl3u2fkGdOlptxbb2QWFoynJJmHdrOhbL/3A9TzcHssPVUQodf
-Je9skpiWr6sD8zkCiJ3YxcWwkfqZj39dAuMXIJ0MnrRgqO3g+tvn/C9N9ljf40gm
-xCdxZWfO6WQT2SwyNlHVNSHBhGT2zz4CpENRRC8JtGlY3gBKv9kBjRNR8LlZVVet
-frrdSkSBbFwfiHljA4rkASx/ONnTlJ76V+IItmOsZiEisNELb5RQHsyFnL3Mgt9C
-9+U4vrjICg7Lgn1Z8hZCQ9nblcwWBmk+kFD9KjfCrEKxVO/fjKV1Fh5zEwRv5rCr
-S1xutKh3sXBc0klw709MHg1yPBUtITC/TaDowJrfbvE1XC7PXRM2btWeE4BSD3F+
-YUVU5508md+iKLjv6W2yF8uOVadZqV1Qxve7vaMWxOTt8EQNkykBbwO/3JJteK/F
-xLKy3QUVfo+HNE28HUwTp5kY4e45ovp0Ipgv8O7oAIwV42s+DN2z5+txAYs8alSR
-/PYkXLF9Dg+siZZgsBGwaTQ4mSK0g0LFojgACuCAEJlMYD7QeOj3hVaH1Owa7HD5
-H/mKsP6b0Xzzyne2RW+VEj1n9DEXFNMRh3SZ6ofugimYwCu6Ke8=
-=IxwS
------END PGP SIGNATURE-----
+Cheers,
+peda
 
---fbsxif2ils32yryv--
+> +
+>  	/*
+>  	 * I2C accesses are unprotected here.
+>  	 * We have to lock the adapter before releasing the bus.
+> @@ -366,6 +512,7 @@ static int pca9541_probe(struct i2c_client *client,
+>  	data = i2c_mux_priv(muxc);
+>  	data->client = client;
+>  
+> +	data->device_type = device_id;
+>  	i2c_set_clientdata(client, muxc);
+>  
+>  	ret = i2c_mux_add_adapter(muxc, force, 0, 0);
+> 
