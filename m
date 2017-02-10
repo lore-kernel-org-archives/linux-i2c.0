@@ -1,89 +1,84 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4] eeprom/at24: use device_property_*() functions
- instead of of_get_property()
-Date: Fri, 10 Feb 2017 16:34:17 +0100
-Message-ID: <20170210153416.lrjyq5i2p7axyxfj@ninjato>
-References: <CAE7DoPan8Y_-F-Fj22xYkKBeCTPPD60MvEAv+hjSzU+H5DHovg@mail.gmail.com>
- <1486661768-21456-1-git-send-email-gardner.ben@gmail.com>
+Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
+Date: Fri, 10 Feb 2017 16:49:27 +0100
+Message-ID: <20170210154927.wypbqfnfkt52wvnc@ninjato>
+References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+ <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+ <20170209162736.nfyfd5dpjkjq65w7@ninjato>
+ <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="55n7qfu7t242novf"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="bklvqca5xfslezzy"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1486661768-21456-1-git-send-email-gardner.ben@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Gardner <gardner.ben@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
+In-Reply-To: <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---55n7qfu7t242novf
+--bklvqca5xfslezzy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 09, 2017 at 11:36:08AM -0600, Ben Gardner wrote:
-> Allow the at24 driver to get configuration information from both OF and
-> ACPI by using the more generic device_property functions.
-> This change was inspired by the at25.c driver.
+On Fri, Feb 10, 2017 at 08:39:58AM +0100, Andrzej Hajda wrote:
+> On 09.02.2017 17:27, Wolfram Sang wrote:
+> > On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
+> >> In case of arbitration lost adequate interrupt sometimes is not signal=
+ed. As
+> >> a result transfer timeouts and is not retried, as it should. To avoid =
+such
+> >> cases code is added to check transaction status in case of every inter=
+rupt.
+> >>
+> >> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> >> ---
+> >> +
+> >> +		switch (trans_status & HSI2C_MASTER_ST_MASK) {
+> >> +		case HSI2C_MASTER_ST_LOSE:
+> >> +			i2c->state =3D -EAGAIN;
+> >> +			goto stop;
+> >> +		}
+> > Why not using if() instead of switch() as in the rest of the driver?
 >=20
-> I have a custom board with a ST M24C02 EEPROM attached to an I2C bus.
-> With the following ACPI construct, this patch instantiates a working
-> instance of the driver.
->=20
-> Device (EEP0) {
->  Name (_HID, "PRP0001")
->  Name (_DSD, Package () {
->   ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->   Package () {
->    Package () {"compatible", Package () {"st,24c02"}},
->    Package () {"pagesize", 16},
->   },
->  })
->  Name (_CRS, ResourceTemplate () {
->   I2cSerialBus (
->    0x0057, ControllerInitiated, 400000,
->    AddressingMode7Bit, "\\_SB.PCI0.I2C3", 0x00,
->    ResourceConsumer,,)
->  })
-> }
->=20
-> Note: Matching the driver to the I2C device requires another patch.
->  http://www.spinics.net/lists/linux-acpi/msg71914.html
+> Following reasons (not serious ones):
 
-This should have been below the "---" because dependencies are not
-relevant in the git history.
+I see. It is probably a taste thing, but a switch() with just one case
+in it looks like something has been forgotten :) We can change it back
+to switch() if ever more states need to be added.
 
->=20
-> Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
+Given that I am not super strict with the 80 char limit anyhow and it
+will miss the limit by a few chars only, I'd prefer the if statement
+actually.
 
-Please send new patches not in-reply-to old patches, seperate threads
-are easier to find IMHO.
+Other than this, I am OK with applying the patch for 4.11. Can you
+resend with the above change?
 
-Other than that:
+Thanks,
 
-Applied to for-next, thanks!
+   Wolfram
 
 
-
---55n7qfu7t242novf
+--bklvqca5xfslezzy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlid3XUACgkQFA3kzBSg
-KbbcDA//TCHkhSAqA5xAxzQUnGXWe72UcGz/opJCyg0hVMzub10XjwG684MBxkfx
-Pk2HmaZPyA90lEMIRnJU7qDrkr5oYBHe2fwKG4MDHj73sD/M+EKDkq2PeBIC5cPX
-6MBLbv5p3zPOdxIUojfPtekVSl4R8wsME3b2srDYvDWrwKIe5bAxLiELAHLGql1m
-2NVjrcX0qOZG2GeUKQcJC9pG1W5x6Hs8IkQlEwfwErEOg86AqyT6iX+OuZH9Morl
-nYzLCgaaV6yTPsuQrEanrDDxBPqPanQNuRCRSmLda2JtidYtWT+xXyaUaPrW7aG1
-tYi8vX6MDZTXHSj9G6e5AXiKGG0K7UW9YNgqVU41GcqyoJa/b0oF6ucXHmjhAnly
-wSZ7BIZRjba7bzmX4ZbvUW0JfWAfrgHCpKgXw6JOHaVozgSuUiJzQN4bB+uyrsKP
-58Pp2zLz0TXxcEbtqzytuyASEvjfDg+407F3SIARziHHCdtnNERe6VoD6hOU6U4W
-WOc5rHLPKrGhEVnaMY5cWrKnOeyicz2cRDOnsSujNChq5PWaPRZFaA/IgOCNoUko
-ZgBKrGMZE9XIqNXt4bPvuIa7lnAEsBIGXYfcfONWOF1gl/18jvRpz+V9IWCwXhFI
-aX8fx9HvfHZkwlDZ+ZsDisnnka6f+hos7I1qdWDnqA+OjG1P/Oo=
-=FLAs
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlid4QYACgkQFA3kzBSg
+KbZRSg//RG4On9zu0kpyrlNo7oPf5weg3sHmUKuMVeIVbLxWuXEO0UAArqAkygjO
+T+tZ+2RMSYyqKHC7xe3cpCBt01CyNQLF/PLAPqu/TjOf0ssCI8qFjKuRrbmshqUQ
+PQp4IOOi+lFGyDgwA6grMGSz3sJ4LYE1dzZQg7U8eVOrhFVNUQHrSmf6/y5c540+
++umuGynqBZo9QmW9mU+QAx1LPG+3zSshKfg5dclOiwmXoQWQkUOecRtJeg+b0rbh
+ptnGePEI+79q4Sr6fdoaabhNpKiPE4PWbWCFGewy3p5R7t2j4jxZsb/8goNW39ZD
+MA0+JkasAOU6IVxhsJOKZTPAy4db6w7cKmTs0xun/GYYq5pNlvhs7xyW33JqINVR
+Tajr2VL48I9XR6usUlfS1V1gkbmJwlFpzmKay84tvuSHeGFvfgOEAi2qADLTzZR3
+qXJ/Gkrom0DkrD0cZ/u6SAZxiIN6V5D0UZIcU9fBCfmVjyAEYdxL2GgIWDnh3Qws
+OqeGzTbhNMQa2cC3wS9/51qENprWKUbks4Fiu5CmbmycW+31/r5CwjG1/TklZWXN
+VcwzogXSpd3cfYr5VJ16S9eCQWIlDffZiZjVlHad9RYjPLuNl/IdpoVjqnyDVuwC
+CZL2HjyvHeqmjwf9OxxWhD85TbG1P1MIDLIHitI4Sqw6oZCAR44=
+=7JyP
 -----END PGP SIGNATURE-----
 
---55n7qfu7t242novf--
+--bklvqca5xfslezzy--
