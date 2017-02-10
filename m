@@ -1,38 +1,91 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix regression when dynamic TAR update
- is disabled
-Date: Fri, 10 Feb 2017 12:48:57 +0200
-Message-ID: <d1db459e-59a4-72d8-e21c-bb44545f10e6@linux.intel.com>
-References: <1486669851-25632-1-git-send-email-Nehal-Bakulchandra.Shah@amd.com>
- <1486670858.2133.436.camel@linux.intel.com>
- <1486676048.14478.4.camel@intel.com>
- <110f9081-ddba-82c2-6ba3-f92bc36d0bc3@amd.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
+Date: Fri, 10 Feb 2017 12:01:22 +0100
+Message-ID: <ed0b9f20-98e2-69bc-3491-ce5534532fe4@samsung.com>
+References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
+ <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
+ <20170209162736.nfyfd5dpjkjq65w7@ninjato>
+ <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <110f9081-ddba-82c2-6ba3-f92bc36d0bc3@amd.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>, "De Marchi, Lucas" <lucas.demarchi@intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "Nehal-Bakulchandra.Shah@amd.com" <Nehal-Bakulchandra.Shah@amd.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Shyam-sundar.S-k@amd.com" <Shyam-sundar.S-k@amd.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10.02.2017 08:38, Suravee Suthikulpanit wrote:
-> At this points, my understanding is there are probably two options here:
+On 10.02.2017 08:39, Andrzej Hajda wrote:
+> On 09.02.2017 17:27, Wolfram Sang wrote:
+>> On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
+>>> In case of arbitration lost adequate interrupt sometimes is not signaled. As
+>>> a result transfer timeouts and is not retried, as it should. To avoid such
+>>> cases code is added to check transaction status in case of every interrupt.
+>>>
+>>> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+>>> ---
+>>> +
+>>> +		switch (trans_status & HSI2C_MASTER_ST_MASK) {
+>>> +		case HSI2C_MASTER_ST_LOSE:
+>>> +			i2c->state = -EAGAIN;
+>>> +			goto stop;
+>>> +		}
+>> Why not using if() instead of switch() as in the rest of the driver?
+> Following reasons (not serious ones):
+> 1. With if() the line should be split anyway to keep 80 chars per line
+> limit, and the result looks less readable, so no gain:
+>         if ((trans_status & HSI2C_MASTER_ST_MASK) ==
+>              HSI2C_MASTER_ST_LOSE) {
+>             i2c->state = -EAGAIN;
+>             goto stop;
+>         }
+> 2. It is ready to handle other status values as well, without repeating
+> long if() clause, in fact during tests I have added more values, but
+> finally they went out.
+> 3. In the rest of the functions if() is used because code tests if some
+> bits are set, here we test if some bit field have specific value,
+> slightly different thing.
 >
-> 1) Keep the commit 63d0f0a6952a (i2c: designware: detect when dynamic
-> tar update
->    is possible) and apply V2 of this patch in 4.10. We might need to
-> back-port the change
->    to v4.9 stable as well.
+> Of course I can change to if() if you prefer it.
 >
-> 2) Revert the 63d0f0a6952a (i2c: designware: detect when dynamic tar
-> update is possible) in 4.10,
->    and also in v4.9 stable as well.
->
-I'm fine with both options. Maybe revert as commit 0317e6c0f1dc ("i2c: 
-designware: do not disable adapter after transfer") was also reverted 
-and this revert doesn't seem to cause conflicts.
+>> And there is arbitration lost checking already with int_status &
+>> HSI2C_INT_TRANS_ABORT. Any guess why it doesn't trigger?
+>>
+> Nope. This patch is just a result of comparing register values during
+> good and bad transfer.
+> I have looked for similar issues over the net, but without ultimate
+> answer, some hints are that master can check status of SDA line too early.
+> Anyway it works correctly with gpio bit-banging driver, it suggests
+> there could be something wrong in hsi2c logic.
 
--- 
-Jarkko
+I have just found in spec of newer version of the chip configuration bit
+NO_ARB_FASTSDA. Citation:
+> This bit deactivates the modified logic of the
+> abnormal operation when the SCL is falling. Then,
+> other I2C device quickly lowers the SDA line, and
+> SDA has fallen before the first PCLK period
+> elapses.
+> 0 = Skip the master arbitration checking during the
+> first PCLK period after SCL falls
+> 1 = Restore original logic
+
+I have no hardware with newer chip to really test if this solves the
+issue, but I suppose it could, the only problem is that this bit is not
+present in current chip version, Exynos5433.
+
+Regards
+Andrzej
+
+
+>
+> Regards
+> Andrzej
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
