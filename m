@@ -1,84 +1,98 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: fix arbitration lost handling
-Date: Fri, 10 Feb 2017 16:49:27 +0100
-Message-ID: <20170210154927.wypbqfnfkt52wvnc@ninjato>
-References: <CGME20170105120727eucas1p2b9452792b7d13d551974305b478a26e2@eucas1p2.samsung.com>
- <1483618013-10721-1-git-send-email-a.hajda@samsung.com>
- <20170209162736.nfyfd5dpjkjq65w7@ninjato>
- <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
+Subject: Re: [PATCH v2 2/2] i2c: Add Tegra BPMP I2C proxy driver
+Date: Fri, 10 Feb 2017 17:37:15 +0100
+Message-ID: <20170210163715.mmukrlbgfjyyi7qp@ninjato>
+References: <20170127083939.20393-1-thierry.reding@gmail.com>
+ <20170127083939.20393-3-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bklvqca5xfslezzy"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="v6zxsqbvpjpconfy"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:47666 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751454AbdBJQht (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Feb 2017 11:37:49 -0500
 Content-Disposition: inline
-In-Reply-To: <1b67bbf6-dd31-c473-8284-dba9a0ffe440@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: linux-i2c@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-samsung-soc@vger.kernel.org
+In-Reply-To: <20170127083939.20393-3-thierry.reding@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Alexandre Courbot <gnurou@gmail.com>, Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 
 
---bklvqca5xfslezzy
+--v6zxsqbvpjpconfy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 10, 2017 at 08:39:58AM +0100, Andrzej Hajda wrote:
-> On 09.02.2017 17:27, Wolfram Sang wrote:
-> > On Thu, Jan 05, 2017 at 01:06:53PM +0100, Andrzej Hajda wrote:
-> >> In case of arbitration lost adequate interrupt sometimes is not signal=
-ed. As
-> >> a result transfer timeouts and is not retried, as it should. To avoid =
-such
-> >> cases code is added to check transaction status in case of every inter=
-rupt.
-> >>
-> >> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-> >> ---
-> >> +
-> >> +		switch (trans_status & HSI2C_MASTER_ST_MASK) {
-> >> +		case HSI2C_MASTER_ST_LOSE:
-> >> +			i2c->state =3D -EAGAIN;
-> >> +			goto stop;
-> >> +		}
-> > Why not using if() instead of switch() as in the rest of the driver?
->=20
-> Following reasons (not serious ones):
+Hi there,
 
-I see. It is probably a taste thing, but a switch() with just one case
-in it looks like something has been forgotten :) We can change it back
-to switch() if ever more states need to be added.
+> +static int tegra_bpmp_i2c_msg_len_check(struct i2c_msg *msgs, unsigned int num)
+> +{
+> +	size_t tx_len = 0, rx_len = 0;
+> +	unsigned int i;
+> +
+> +	for (i = 0; i < num; i++)
+> +		if (!(msgs[i].flags & I2C_M_RD))
+> +			tx_len += SERIALI2C_HDR_SIZE + msgs[i].len;
+> +
+> +	if (tx_len > TEGRA_I2C_IPC_MAX_IN_BUF_SIZE)
+> +		return -EINVAL;
+> +
+> +	for (i = 0; i < num; i++)
+> +		if ((msgs[i].flags & I2C_M_RD))
+> +			rx_len += msgs[i].len;
 
-Given that I am not super strict with the 80 char limit anyhow and it
-will miss the limit by a few chars only, I'd prefer the if statement
-actually.
+You could have done with iterating over all msgs only once, but no need
+to fix. I think I'll update the i2c core quirks feature to support your
+case and rework that incrementally.
 
-Other than this, I am OK with applying the patch for 4.11. Can you
-resend with the above change?
+> +	/* TODO: move this somewhere else */
+> +	memset(&request, 0, sizeof(request));
+> +	memset(&response, 0, sizeof(response));
+
+So? :)
+
+> +	i2c->adapter.class = I2C_CLASS_HWMON;
+
+Do you really need that?
+
+> +	err = i2c_add_adapter(&i2c->adapter);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "failed to add I2C adapter: %d\n", err);
+
+No error message here, the core will do that.
+
+> +static int __init tegra_bpmp_i2c_init_driver(void)
+> +{
+> +	return platform_driver_register(&tegra_bpmp_i2c_driver);
+> +}
+> +subsys_initcall(tegra_bpmp_i2c_init_driver);
+
+Have you tried if subsys_initcall is really really necessary?
 
 Thanks,
 
    Wolfram
 
 
---bklvqca5xfslezzy
+--v6zxsqbvpjpconfy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlid4QYACgkQFA3kzBSg
-KbZRSg//RG4On9zu0kpyrlNo7oPf5weg3sHmUKuMVeIVbLxWuXEO0UAArqAkygjO
-T+tZ+2RMSYyqKHC7xe3cpCBt01CyNQLF/PLAPqu/TjOf0ssCI8qFjKuRrbmshqUQ
-PQp4IOOi+lFGyDgwA6grMGSz3sJ4LYE1dzZQg7U8eVOrhFVNUQHrSmf6/y5c540+
-+umuGynqBZo9QmW9mU+QAx1LPG+3zSshKfg5dclOiwmXoQWQkUOecRtJeg+b0rbh
-ptnGePEI+79q4Sr6fdoaabhNpKiPE4PWbWCFGewy3p5R7t2j4jxZsb/8goNW39ZD
-MA0+JkasAOU6IVxhsJOKZTPAy4db6w7cKmTs0xun/GYYq5pNlvhs7xyW33JqINVR
-Tajr2VL48I9XR6usUlfS1V1gkbmJwlFpzmKay84tvuSHeGFvfgOEAi2qADLTzZR3
-qXJ/Gkrom0DkrD0cZ/u6SAZxiIN6V5D0UZIcU9fBCfmVjyAEYdxL2GgIWDnh3Qws
-OqeGzTbhNMQa2cC3wS9/51qENprWKUbks4Fiu5CmbmycW+31/r5CwjG1/TklZWXN
-VcwzogXSpd3cfYr5VJ16S9eCQWIlDffZiZjVlHad9RYjPLuNl/IdpoVjqnyDVuwC
-CZL2HjyvHeqmjwf9OxxWhD85TbG1P1MIDLIHitI4Sqw6oZCAR44=
-=7JyP
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlid7DUACgkQFA3kzBSg
+KbavMw/8CAE/h0iZri4pSzkNJRinzV92X1g3rIwnyh1Ay9vJrhvtmdptvmIilZ8n
+9Hrbu5HmdIWjUdLEccmoyCVdzRxG9c4ollbWgf9pHza+PGiuBNXAX4dK0TeeQsHq
+n29Y/76Pm8/CmUp4Z9Gh3SLU1rtRAOX/JdipKsXhujgGexiWUJXh8pqeVr9qufMo
+spXQX65GldMhldOHfFzP+DRyH2ho+OyZnkIkbMkajGY9qMww191qSDQbGN7fy2pE
+HENryHOKEnxIe+V+sYjviwRx93QBzK88dg7s7XFSzvmROwZfsGugy1f+fvJrx/B2
+nGs+BfX/6cxTLcoHphjNaeaRkHEsjr9V1Zkvu96XSfdAgOiBP/iqOexrHLCUxsg9
+f0luXBRsW9EOnR+7C6MklNFNfSsTA80nkRySlRISWeBCXZ5IPPZ/KgTV7fxO0PbE
+YS2l5U/Q5ol+YO032KAYRwGk7/ghbe1ZdBoFRxRs56nziFU566EomBVd7UQKDFW4
+j20XdY6bwwJxDusFiUZ7vlA0932tok9dQet0oRt9d/VyaV4E4cXkYcwFXVwjFIvi
+toyy5ZXdDdlmVJTd1KKsQ9raW6NnmWCn7oo86f+H2PKfMXUpEQ7uXKp+3x4eCBph
+T3H5XpPgS4e4HJVMut1xrmtjIu4BTFpBj6HQMte3LHN7JsOkBKE=
+=Xw4M
 -----END PGP SIGNATURE-----
 
---bklvqca5xfslezzy--
+--v6zxsqbvpjpconfy--
