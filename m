@@ -1,76 +1,131 @@
-From: "Tan, Chin Yew" <chin.yew.tan@intel.com>
-Subject: RE: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
- via ACPI
-Date: Mon, 13 Feb 2017 08:41:38 +0000
-Message-ID: <1E48613D81AD0745B344B23C7C5E26B0010043FF@PGSMSX103.gar.corp.intel.com>
-References: <1486726118-19447-1-git-send-email-chin.yew.tan@intel.com>
-         <1486726118-19447-2-git-send-email-chin.yew.tan@intel.com>
- <1486729916.2133.444.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH] Revert "i2c: designware: detect when dynamic tar update is possible"
+Date: Mon, 13 Feb 2017 11:18:19 +0200
+Message-ID: <20170213091819.4370-1-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:10345 "EHLO mga01.intel.com"
+Received: from mga05.intel.com ([192.55.52.43]:23805 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751920AbdBMIlm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Feb 2017 03:41:42 -0500
-In-Reply-To: <1486729916.2133.444.camel@linux.intel.com>
-Content-Language: en-US
+        id S1751666AbdBMJVl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Feb 2017 04:21:41 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Shah Nehal-Bakulchandra <Nehal-bakulchandra.Shah@amd.com>, Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Lucas De Marchi <lucas.demarchi@intel.com>, "# v4 . 9+" <stable@vger.kernel.org>
 
-DQo+IE9uIEZyaSwgMjAxNy0wMi0xMCBhdCAxOToyOCArMDgwMCwgY2hpbi55ZXcudGFuQGludGVs
-LmNvbSB3cm90ZToNCj4gPiBGcm9tOiBUYW4gQ2hpbiBZZXcgPGNoaW4ueWV3LnRhbkBpbnRlbC5j
-b20+DQo+ID4NCj4gPiBTZGEtaG9sZC10aW1lIGlzIGFuIGltcG9ydGFudCBwYXJhbWV0ZXIgZm9y
-IHR1bmluZyBpMmMgdG8gbWVldCB0aGUNCj4gPiBlbGVjdHJpY2FsIHNwZWNpZmljYXRpb24gZXNw
-ZWNpYWxseSBmb3IgaGlnaCBzcGVlZC4gSTJDIHdpdGggaW5jb3JyZWN0DQo+ID4gc2RhLWhvbGQt
-dGltZSBtYXkgY2F1c2UgbG9zdCBhcmJpdHJhdGlvbiBlcnJvci4gTm93LCB0aGUgZHJpdmVyIGlz
-DQo+ID4gYWJsZSB0byBnZXQgc2RhLWhvbGQtdGltZSBmb3IgYWxsIHRoZSBzcGVlZCBzdXBwb3J0
-ZWQuDQo+ID4NCj4gDQo+IFJldmlld2VkLWJ5OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2
-Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4NCj4gDQo+IENvdXBsZSBvZiBuaXRwaWNrcyBiZWxvdy4N
-Cj4gDQo+ID4gU2lnbmVkLW9mZi1ieTogVGFuIENoaW4gWWV3IDxjaGluLnlldy50YW5AaW50ZWwu
-Y29tPg0KPiA+IC0tLQ0KPiA+IMKgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBs
-YXRkcnYuYyB8IDI3DQo+ID4gKysrKysrKysrKysrKysrKysrKystLS0tLS0tDQo+ID4gwqAxIGZp
-bGUgY2hhbmdlZCwgMjAgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRydi5jDQo+
-ID4gYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRydi5jDQo+ID4gaW5k
-ZXggNmNlNDMxMy4uYWEzMzA4OCAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWRlc2lnbndhcmUtcGxhdGRydi5jDQo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1kZXNpZ253YXJlLXBsYXRkcnYuYw0KPiA+IEBAIC0xMDEsMTUgKzEwMSwyOCBAQCBzdGF0aWMg
-aW50IGR3X2kyY19hY3BpX2NvbmZpZ3VyZShzdHJ1Y3QNCj4gPiBwbGF0Zm9ybV9kZXZpY2UgKnBk
-ZXYpDQo+ID4gwqAJZGV2LT5yeF9maWZvX2RlcHRoID0gMzI7DQo+ID4NCj4gPiDCoAkvKg0KPiA+
-IC0JwqAqIFRyeSB0byBnZXQgU0RBIGhvbGQgdGltZSBhbmQgKkNOVCB2YWx1ZXMgZnJvbSBhbiBB
-Q1BJDQo+ID4gbWV0aG9kIGlmDQo+ID4gLQnCoCogaXQgZXhpc3RzIGZvciBib3RoIHN1cHBvcnRl
-ZCBzcGVlZCBtb2Rlcy4NCj4gPiArCcKgKiBUcnkgdG8gZ2V0IFNEQSBob2xkIHRpbWUgYW5kICpD
-TlQgdmFsdWVzIGZyb20gYW4gQUNQSQ0KPiA+IG1ldGhvZCBmb3INCj4gPiArCcKgKiBzZWxlY3Rl
-ZCBzcGVlZCBtb2Rlcy4NCj4gPiDCoAnCoCovDQo+ID4gLQlkd19pMmNfYWNwaV9wYXJhbXMocGRl
-diwgIlNTQ04iLCAmZGV2LT5zc19oY250LCAmZGV2LQ0KPiA+ID5zc19sY250LCBOVUxMKTsNCj4g
-PiAtCWR3X2kyY19hY3BpX3BhcmFtcyhwZGV2LCAiRk1DTiIsICZkZXYtPmZzX2hjbnQsICZkZXYt
-DQo+ID4gPmZzX2xjbnQsDQo+ID4gKwlzd2l0Y2ggKGRldi0+Y2xrX2ZyZXEpIHsNCj4gPiArCWNh
-c2UgMTAwMDAwOg0KPiA+ICsJCWR3X2kyY19hY3BpX3BhcmFtcyhwZGV2LCAiU1NDTiIsICZkZXYt
-PnNzX2hjbnQsICZkZXYtDQo+ID4gPnNzX2xjbnQsDQo+IA0KPiA+IMKgCQkJwqDCoMKgJmRldi0+
-c2RhX2hvbGRfdGltZSk7DQo+IA0KPiBUaGlzIGluZGVudGF0aW9uIHNob3VsZCBnbyBpbiBhIHdh
-eSB0aGF0ICYgY2hhcmFjdGVyIGluIHRoZSBzYW1lIGNvbHVtbiBhcyBwDQo+IChpbiAicChzIiBj
-b250ZXh0IGFib3ZlKS4NCkkgd2lsbCByZWFsaWduIHRoZSBjb2RlIGFjY29yZGluZyB0byBzdWdn
-ZXN0aW9uLg0KDQo+IA0KPiA+IC0JZHdfaTJjX2FjcGlfcGFyYW1zKHBkZXYsICJGUENOIiwgJmRl
-di0+ZnBfaGNudCwgJmRldi0NCj4gPiA+ZnBfbGNudCwgTlVMTCk7DQo+ID4gLQlkd19pMmNfYWNw
-aV9wYXJhbXMocGRldiwgIkhTQ04iLCAmZGV2LT5oc19oY250LCAmZGV2LQ0KPiA+ID5oc19sY250
-LCBOVUxMKTsNCj4gPiAtDQo+ID4gKwkJYnJlYWs7DQo+ID4gKwljYXNlIDEwMDAwMDA6DQo+ID4g
-KwkJZHdfaTJjX2FjcGlfcGFyYW1zKHBkZXYsICJGUENOIiwgJmRldi0+ZnBfaGNudCwgJmRldi0N
-Cj4gPiA+ZnBfbGNudCwNCj4gPiArCQkJwqDCoMKgJmRldi0+c2RhX2hvbGRfdGltZSk7DQo+ID4g
-KwkJYnJlYWs7DQo+ID4gKwljYXNlIDM0MDAwMDA6DQo+ID4gKwkJZHdfaTJjX2FjcGlfcGFyYW1z
-KHBkZXYsICJIU0NOIiwgJmRldi0+aHNfaGNudCwgJmRldi0NCj4gPiA+aHNfbGNudCwNCj4gPiAr
-CQkJwqDCoMKgJmRldi0+c2RhX2hvbGRfdGltZSk7DQo+ID4gKwkJYnJlYWs7DQo+IA0KPiBDYW4g
-d2UgcHJlcGVuZCBkZWZhdWx0IHdpdGgNCj4gDQo+IGNhc2UgNDAwMDAwOg0KPiANCj4gaGVyZT8N
-Cj4gDQpZZXMsIHlvdSBhcmUgcmlnaHQsIGl0IGlzIGJlc3Qgbm90IHRvIGxvYWQgc2V0dGluZ3Mg
-Zm9yIHNwZWVkIG1vZGUgdGhhdCBpcyANCm5vdCBzdXBwb3J0ZWQuDQoNCj4gPiArCWRlZmF1bHQ6
-DQo+IA0KPiANCj4gPiArCQlkd19pMmNfYWNwaV9wYXJhbXMocGRldiwgIkZNQ04iLCAmZGV2LT5m
-c19oY250LCAmZGV2LQ0KPiA+ID5mc19sY250LA0KPiA+ICsJCQnCoMKgwqAmZGV2LT5zZGFfaG9s
-ZF90aW1lKTsNCj4gPiArCQlicmVhazsNCj4gPiArCX0NCj4gPiArDQo+ID4gwqAJaWQgPSBhY3Bp
-X21hdGNoX2RldmljZShwZGV2LT5kZXYuZHJpdmVyLT5hY3BpX21hdGNoX3RhYmxlLA0KPiA+ICZw
-ZGV2LT5kZXYpOw0KPiA+IMKgCWlmIChpZCAmJiBpZC0+ZHJpdmVyX2RhdGEpDQo+ID4gwqAJCWRl
-di0+YWNjZXNzb3JfZmxhZ3MgfD0gKHUzMilpZC0+ZHJpdmVyX2RhdGE7DQo+IA0KPiAtLQ0KPiBB
-bmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4NCj4gSW50
-ZWwgRmlubGFuZCBPeQ0K
+This reverts commit 63d0f0a6952a1a02bc4f116b7da7c7887e46efa3.
+
+It caused a regression on platforms where I2C controller is synthesized
+with dynamic TAR update disabled. Detection code is testing is bit
+DW_IC_CON_10BITADDR_MASTER in register DW_IC_CON read-only but fails to
+restore original value in case bit is read-write.
+
+Instead of fixing this we revert the commit since it was preparation for
+the commit 0317e6c0f1dc ("i2c: designware: do not disable adapter after
+transfer") which was also reverted.
+
+Reported-by: Shah Nehal-Bakulchandra <Nehal-bakulchandra.Shah@amd.com>
+Reported-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: <stable@vger.kernel.org> # v4.9+
+Fixes: 63d0f0a6952a ("i2c: designware: detect when dynamic tar update is possible")
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-core.c | 45 ++++++++------------------------
+ drivers/i2c/busses/i2c-designware-core.h |  1 -
+ 2 files changed, 11 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 6d81c56184d3..e9db857c6226 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -475,30 +475,28 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_msg *msgs = dev->msgs;
+-	u32 ic_tar = 0;
++	u32 ic_con, ic_tar = 0;
+ 
+ 	/* Disable the adapter */
+ 	__i2c_dw_enable_and_wait(dev, false);
+ 
+ 	/* if the slave address is ten bit address, enable 10BITADDR */
+-	if (dev->dynamic_tar_update_enabled) {
++	ic_con = dw_readl(dev, DW_IC_CON);
++	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
++		ic_con |= DW_IC_CON_10BITADDR_MASTER;
+ 		/*
+ 		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
+-		 * mode has to be enabled via bit 12 of IC_TAR register,
+-		 * otherwise bit 4 of IC_CON is used.
++		 * mode has to be enabled via bit 12 of IC_TAR register.
++		 * We set it always as I2C_DYNAMIC_TAR_UPDATE can't be
++		 * detected from registers.
+ 		 */
+-		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
+-			ic_tar = DW_IC_TAR_10BITADDR_MASTER;
++		ic_tar = DW_IC_TAR_10BITADDR_MASTER;
+ 	} else {
+-		u32 ic_con = dw_readl(dev, DW_IC_CON);
+-
+-		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
+-			ic_con |= DW_IC_CON_10BITADDR_MASTER;
+-		else
+-			ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
+-		dw_writel(dev, ic_con, DW_IC_CON);
++		ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
+ 	}
+ 
++	dw_writel(dev, ic_con, DW_IC_CON);
++
+ 	/*
+ 	 * Set the slave (target) address and enable 10-bit addressing mode
+ 	 * if applicable.
+@@ -963,7 +961,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_adapter *adap = &dev->adapter;
+ 	int r;
+-	u32 reg;
+ 
+ 	init_completion(&dev->cmd_complete);
+ 
+@@ -971,26 +968,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ 	if (r)
+ 		return r;
+ 
+-	r = i2c_dw_acquire_lock(dev);
+-	if (r)
+-		return r;
+-
+-	/*
+-	 * Test if dynamic TAR update is enabled in this controller by writing
+-	 * to IC_10BITADDR_MASTER field in IC_CON: when it is enabled this
+-	 * field is read-only so it should not succeed
+-	 */
+-	reg = dw_readl(dev, DW_IC_CON);
+-	dw_writel(dev, reg ^ DW_IC_CON_10BITADDR_MASTER, DW_IC_CON);
+-
+-	if ((dw_readl(dev, DW_IC_CON) & DW_IC_CON_10BITADDR_MASTER) ==
+-	    (reg & DW_IC_CON_10BITADDR_MASTER)) {
+-		dev->dynamic_tar_update_enabled = true;
+-		dev_dbg(dev->dev, "Dynamic TAR update enabled");
+-	}
+-
+-	i2c_dw_release_lock(dev);
+-
+ 	snprintf(adap->name, sizeof(adap->name),
+ 		 "Synopsys DesignWare I2C adapter");
+ 	adap->retries = 3;
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 26250b425e2f..c1db3a5a340f 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -125,7 +125,6 @@ struct dw_i2c_dev {
+ 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+ 	void			(*release_lock)(struct dw_i2c_dev *dev);
+ 	bool			pm_runtime_disabled;
+-	bool			dynamic_tar_update_enabled;
+ };
+ 
+ #define ACCESS_SWAP		0x00000001
+-- 
+2.11.0
