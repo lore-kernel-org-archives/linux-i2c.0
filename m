@@ -1,65 +1,96 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 3/3] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Tue, 14 Feb 2017 11:29:39 +0200
-Message-ID: <CAHp75VcwAym_ujHfyEJKypsvQftCY5JytDy922xqMM9yKz1GfQ@mail.gmail.com>
-References: <1486632753-17363-1-git-send-email-baoyou.xie@linaro.org>
- <1486632753-17363-3-git-send-email-baoyou.xie@linaro.org> <8322ae7c-a74d-c6a3-9cdb-4cd5584f37d4@linaro.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
+ via ACPI
+Date: Tue, 14 Feb 2017 12:05:06 +0200
+Message-ID: <1487066706.2133.465.camel@linux.intel.com>
+References: <1487051641-31927-1-git-send-email-chin.yew.tan@intel.com>
+         <1487051641-31927-2-git-send-email-chin.yew.tan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8322ae7c-a74d-c6a3-9cdb-4cd5584f37d4-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jun Nie <jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:54891 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751921AbdBNKGm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 14 Feb 2017 05:06:42 -0500
+In-Reply-To: <1487051641-31927-2-git-send-email-chin.yew.tan@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: chin.yew.tan@intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
+Cc: linux-i2c@vger.kernel.org
 
-On Tue, Feb 14, 2017 at 6:05 AM, Jun Nie <jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 2017=E5=B9=B402=E6=9C=8809=E6=97=A5 17:32, Baoyou Xie wrote:
->>
+On Tue, 2017-02-14 at 13:54 +0800, chin.yew.tan@intel.com wrote:
+> From: Tan Chin Yew <chin.yew.tan@intel.com>
+> 
+> Sda-hold-time is an important parameter for tuning i2c to meet the
+> electrical specification especially for high speed. I2C with incorrect
+> sda-hold-time may cause lost arbitration error. Now, the driver is
+> able to
+> get sda-hold-time for all the speed supported.
+> 
 
-First of all, please, Jun, remove tons of lines of over quoting when
-answering to emails with one line question. Respect others time.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-See below.
+> Signed-off-by: Tan Chin Yew <chin.yew.tan@intel.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 28
+> +++++++++++++++++++++-------
+>  1 file changed, 21 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6ce4313..00c880a 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -101,14 +101,28 @@ static int dw_i2c_acpi_configure(struct
+> platform_device *pdev)
+>  	dev->rx_fifo_depth = 32;
+>  
+>  	/*
+> -	 * Try to get SDA hold time and *CNT values from an ACPI
+> method if
+> -	 * it exists for both supported speed modes.
+> +	 * Try to get SDA hold time and *CNT values from an ACPI
+> method for
+> +	 * selected speed modes.
+>  	 */
+> -	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
+> >ss_lcnt, NULL);
+> -	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
+> >fs_lcnt,
+> -			   &dev->sda_hold_time);
+> -	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
+> >fp_lcnt, NULL);
+> -	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
+> >hs_lcnt, NULL);
+> +	switch (dev->clk_freq) {
+> +	case 100000:
+> +		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
+> >ss_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 1000000:
+> +		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
+> >fp_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 3400000:
+> +		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
+> >hs_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 400000:
+> +	default:
+> +		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
+> >fs_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	}
+>  
+>  	id = acpi_match_device(pdev->dev.driver->acpi_match_table,
+> &pdev->dev);
+>  	if (id && id->driver_data)
 
->> +static irqreturn_t zx2967_i2c_isr(int irq, void *dev_id)
->> +{
->> +       u32 status;
->> +       struct zx2967_i2c_info *zx_i2c =3D (struct zx2967_i2c_info *)dev=
-_id;
->> +       unsigned long flags;
->> +
->> +       spin_lock_irqsave(&zx_i2c->lock, flags);
->
->
-> Is this spin lock really necessary?
-
-If you protect IO and one CPU is in interrupt while another in some
-other function you need to have a spin lock.
-
->> +
->> +       status =3D zx2967_i2c_readl(zx_i2c, REG_STAT) & I2C_INT_MASK;
->> +       zx2967_i2c_isr_clr(zx_i2c);
->> +
->> +       if (status & I2C_ERROR_MASK) {
->> +               spin_unlock_irqrestore(&zx_i2c->lock, flags);
->> +               return IRQ_HANDLED;
->> +       }
->> +
->> +       if (status & I2C_TRANS_DONE)
->> +               complete(&zx_i2c->complete);
->> +
->> +       spin_unlock_irqrestore(&zx_i2c->lock, flags);
->> +
->> +       return IRQ_HANDLED;
->> +}
-
---=20
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
