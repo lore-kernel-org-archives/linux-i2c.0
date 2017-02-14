@@ -1,96 +1,62 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
- via ACPI
-Date: Tue, 14 Feb 2017 12:05:06 +0200
-Message-ID: <1487066706.2133.465.camel@linux.intel.com>
-References: <1487051641-31927-1-git-send-email-chin.yew.tan@intel.com>
-         <1487051641-31927-2-git-send-email-chin.yew.tan@intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: designwear: Fix clk warning on suspend/resume
+Date: Tue, 14 Feb 2017 17:30:14 +0200
+Message-ID: <e0c3968e-cff1-5cc7-9c42-1c3858e76077@linux.intel.com>
+References: <1487045142-1434-1-git-send-email-john.stultz@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:54891 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751921AbdBNKGm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 14 Feb 2017 05:06:42 -0500
-In-Reply-To: <1487051641-31927-2-git-send-email-chin.yew.tan@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1487045142-1434-1-git-send-email-john.stultz@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: chin.yew.tan@intel.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
-Cc: linux-i2c@vger.kernel.org
 
-On Tue, 2017-02-14 at 13:54 +0800, chin.yew.tan@intel.com wrote:
-> From: Tan Chin Yew <chin.yew.tan@intel.com>
-> 
-> Sda-hold-time is an important parameter for tuning i2c to meet the
-> electrical specification especially for high speed. I2C with incorrect
-> sda-hold-time may cause lost arbitration error. Now, the driver is
-> able to
-> get sda-hold-time for all the speed supported.
-> 
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> Signed-off-by: Tan Chin Yew <chin.yew.tan@intel.com>
+On 14.02.2017 06:05, John Stultz wrote:
+> On my HiKey board, I'm seeing clk warnings on suspend/resume,
+> which seem to be caused by runtime pm suspending the device,
+> then the same suspend hook being called again on suspend time.
+>
+> This patch fixes this by setting the SYSTEM_SLEEP_PM_OPS to
+> using pm_runtime_force_suspend and  pm_runtime_force_resume.
+>
+> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Suggested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: John Stultz <john.stultz@linaro.org>
 > ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 28
-> +++++++++++++++++++++-------
->  1 file changed, 21 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 6ce4313..00c880a 100644
+> v2: Switch to suggested fix by Jarkko.
+>
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6ce4313..09f27ec 100644
 > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -101,14 +101,28 @@ static int dw_i2c_acpi_configure(struct
-> platform_device *pdev)
->  	dev->rx_fifo_depth = 32;
->  
->  	/*
-> -	 * Try to get SDA hold time and *CNT values from an ACPI
-> method if
-> -	 * it exists for both supported speed modes.
-> +	 * Try to get SDA hold time and *CNT values from an ACPI
-> method for
-> +	 * selected speed modes.
->  	 */
-> -	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
-> >ss_lcnt, NULL);
-> -	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
-> >fs_lcnt,
-> -			   &dev->sda_hold_time);
-> -	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
-> >fp_lcnt, NULL);
-> -	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
-> >hs_lcnt, NULL);
-> +	switch (dev->clk_freq) {
-> +	case 100000:
-> +		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
-> >ss_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 1000000:
-> +		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
-> >fp_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 3400000:
-> +		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
-> >hs_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 400000:
-> +	default:
-> +		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
-> >fs_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	}
->  
->  	id = acpi_match_device(pdev->dev.driver->acpi_match_table,
-> &pdev->dev);
->  	if (id && id->driver_data)
+> @@ -362,7 +362,7 @@ static int dw_i2c_plat_resume(struct device *dev)
+>  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>  	.prepare = dw_i2c_plat_prepare,
+>  	.complete = dw_i2c_plat_complete,
+> -	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+> +	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+>  	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+>  };
+
+We need to hold this a bit. I've been debugging this on our platforms 
+but haven't figured out yet how to fix a regression it is causing with 
+drivers/acpi/acpi_lpss.c :-(
+
+With this change in i2c-designware-platdrv.c the suspend path in 
+acpi_lpss.c changes. First it saves its the register context in 
+acpi_lpss_runtime_suspend() and powers down. Then the device which is 
+now off will save again the register context (now reads full of 0xff...) 
+in acpi_lpss_suspend_late() and restores wrong context (0xff...) when 
+resuming.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jarkko
