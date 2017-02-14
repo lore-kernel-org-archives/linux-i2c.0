@@ -1,62 +1,76 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: designwear: Fix clk warning on suspend/resume
-Date: Tue, 14 Feb 2017 17:30:14 +0200
-Message-ID: <e0c3968e-cff1-5cc7-9c42-1c3858e76077@linux.intel.com>
-References: <1487045142-1434-1-git-send-email-john.stultz@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] Revert "i2c: designware: detect when dynamic tar update
+ is possible"
+Date: Tue, 14 Feb 2017 22:10:13 +0100
+Message-ID: <20170214211013.cl3hmsmqieemzxyn@ninjato>
+References: <20170213091819.4370-1-jarkko.nikula@linux.intel.com>
+ <1487006561.2767.6.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1487045142-1434-1-git-send-email-john.stultz@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="6rxo6de3etswn23l"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:55977 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752985AbdBNVKS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 14 Feb 2017 16:10:18 -0500
+Content-Disposition: inline
+In-Reply-To: <1487006561.2767.6.camel@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "De Marchi, Lucas" <lucas.demarchi@intel.com>
+Cc: "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "Nehal-bakulchandra.Shah@amd.com" <Nehal-bakulchandra.Shah@amd.com>
 
-On 14.02.2017 06:05, John Stultz wrote:
-> On my HiKey board, I'm seeing clk warnings on suspend/resume,
-> which seem to be caused by runtime pm suspending the device,
-> then the same suspend hook being called again on suspend time.
->
-> This patch fixes this by setting the SYSTEM_SLEEP_PM_OPS to
-> using pm_runtime_force_suspend and  pm_runtime_force_resume.
->
-> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Suggested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Signed-off-by: John Stultz <john.stultz@linaro.org>
-> ---
-> v2: Switch to suggested fix by Jarkko.
->
->  drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 6ce4313..09f27ec 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -362,7 +362,7 @@ static int dw_i2c_plat_resume(struct device *dev)
->  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
->  	.prepare = dw_i2c_plat_prepare,
->  	.complete = dw_i2c_plat_complete,
-> -	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
-> +	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
->  	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
->  };
 
-We need to hold this a bit. I've been debugging this on our platforms 
-but haven't figured out yet how to fix a regression it is causing with 
-drivers/acpi/acpi_lpss.c :-(
+--6rxo6de3etswn23l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With this change in i2c-designware-platdrv.c the suspend path in 
-acpi_lpss.c changes. First it saves its the register context in 
-acpi_lpss_runtime_suspend() and powers down. Then the device which is 
-now off will save again the register context (now reads full of 0xff...) 
-in acpi_lpss_suspend_late() and restores wrong context (0xff...) when 
-resuming.
+On Mon, Feb 13, 2017 at 05:22:42PM +0000, De Marchi, Lucas wrote:
+> On Mon, 2017-02-13 at 11:18 +0200, Jarkko Nikula wrote:
+> > This reverts commit 63d0f0a6952a1a02bc4f116b7da7c7887e46efa3.
+> >=20
+> > It caused a regression on platforms where I2C controller is synthesized
+> > with dynamic TAR update disabled. Detection code is testing is bit
+> > DW_IC_CON_10BITADDR_MASTER in register DW_IC_CON read-only but fails to
+> > restore original value in case bit is read-write.
+> >=20
+> > Instead of fixing this we revert the commit since it was preparation for
+> > the commit 0317e6c0f1dc ("i2c: designware: do not disable adapter after
+> > transfer") which was also reverted.
+> >=20
+> > Reported-by: Shah Nehal-Bakulchandra <Nehal-bakulchandra.Shah@amd.com>
+> > Reported-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+> > Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+> > Cc: <stable@vger.kernel.org> # v4.9+
+> > Fixes: 63d0f0a6952a ("i2c: designware: detect when dynamic tar update i=
+s possible")
+> > Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>=20
+> Acked-By: Lucas De Marchi <lucas.demarchi@intel.com>
 
--- 
-Jarkko
+Why do you base64 encode your mails? E.g. Patchwork can't collect your
+tags this way. Yes, it could be fixed maybe, but still?
+
+
+--6rxo6de3etswn23l
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlijciYACgkQFA3kzBSg
+KbY8vA//T/6H0Qh/3y2yMaLnCzREoS+lEGrJJL/65X3XXdQdSzxqQ511AuprqgwS
+vd2f5i82Nn2d2hquZLOxADMdqL7FoKlftHtTuhoOnixfHP4Y7sOPRdU1+8qVvkcF
+OyXBW133DyEfNV/w47+SUF4DEKfI7mABTZMQDVioVXgQz7RmklPejO5cqAq0RtVD
+vIkfEpz/zQFfrYp41ac3P1nQ2K3hx1c+BXWXlBYG5gEqQqmmIG9nLRK99DEPxONx
+hrkyrRlkGHrMH6gkfa5dCXswFOEdRNh7wnX8s9q1zWzHcJvg6h/0Euz97Tc/+/VG
+P8j4RZFUFdvAdjSm3GB/X3bfo60JC6j947zt71Uay0ByxUlaHsBpaiEazgFnfRJc
+xAHagaG7/bRyA25EfQN0HcQ+XWrOEarQC3LqIMWb3VFV52FXg98gAvDNpsfo9AIr
+VT7Y+HhYy1kKCV6xOaSchzdcwq5BpJd0DeBdf/gYC1vpA1aKEhrYl2xbYatA54MP
+EoCefBUkFzyOSo9Pw+ApGU/q7fxKZFRb7jC5nM3Lk4O/O/MCv//GWNDxuOf2iV4Z
+rCQY6hGitSv46qFKFlLB9Fa2lRmBTEF6DnFlMqVBMRHKHpr+iiiPuF2a5Gd/xX76
+iglIuDOu6ykGGDk1C029W9H6vPaa2uMZ1YzAWfRy02bnzm+ryV4=
+=eRI6
+-----END PGP SIGNATURE-----
+
+--6rxo6de3etswn23l--
