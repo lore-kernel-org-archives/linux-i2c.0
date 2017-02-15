@@ -1,135 +1,61 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v2 2/2] arm: dts: mt2701: Add i2c device node
-Date: Wed, 15 Feb 2017 10:32:56 +0800
-Message-ID: <1487125976-25243-3-git-send-email-jun.gao@mediatek.com>
-References: <1487125976-25243-1-git-send-email-jun.gao@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1487125976-25243-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v6 0/6] i2c: designware: add I2C SLAVE support
+Date: Wed, 15 Feb 2017 12:22:09 +0000
+Message-ID: <cover.1487009294.git.lolivei@synopsys.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+The purpose of this patchset is to enable Linux to be a I2C slave by 
+enabling the slave functionality in the designware I2C controller and at
+the same time it does some cleaning of the existing code.
 
-Add i2c device node for MT2701.
+The patch 1 is for cleaning and commentary fix.
+The patch 2 refactors the original i2c-designware-core and extracts all
+master functions to a i2c-designware-master source file as suggested by
+Andy Shevchenko when I first submited the update. The patch 3 then
+separates the MASTER flow from the common flow.
+The patch 4 introduces the SLAVE necessary definitions to the 
+i2c-designware library and adds a how-to-use example to the designware.txt
+in device tree bindings.
+The patch 5 adds the necessary functions to give the ability to be a SLAVE
+to the controller and for that changes also had to be made in the 
+Makefile and Kconfig.
+The patch 6 enables the SLAVE mode to be detected by the platform module.
 
-Change-Id: Idd33ad9010c43809328814350f9c29284891d171
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
----
- arch/arm/boot/dts/mt2701-evb.dts |   44 ++++++++++++++++++++++++++++++++++++++
- arch/arm/boot/dts/mt2701.dtsi    |   42 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 86 insertions(+)
+The functionality was tested using the hardware independent slave-eeprom
+driver based on top of i2c/for-next. The tree I used can be found here:
 
-diff --git a/arch/arm/boot/dts/mt2701-evb.dts b/arch/arm/boot/dts/mt2701-evb.dts
-index 082ca88..a908e94 100644
---- a/arch/arm/boot/dts/mt2701-evb.dts
-+++ b/arch/arm/boot/dts/mt2701-evb.dts
-@@ -24,6 +24,50 @@
- 	};
- };
- 
-+&i2c0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c0_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c1 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c1_pins_a>;
-+	status = "okay";
-+};
-+
-+&i2c2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2c2_pins_a>;
-+	status = "okay";
-+};
-+
-+&pio {
-+	i2c0_pins_a: i2c0@0 {
-+		pins1 {
-+			pinmux = <MT2701_PIN_75_SDA0__FUNC_SDA0>,
-+				 <MT2701_PIN_76_SCL0__FUNC_SCL0>;
-+			bias-disable;
-+		};
-+	};
-+
-+	i2c1_pins_a: i2c1@0 {
-+		pins1 {
-+			pinmux = <MT2701_PIN_57_SDA1__FUNC_SDA1>,
-+				 <MT2701_PIN_58_SCL1__FUNC_SCL1>;
-+			bias-disable;
-+		};
-+	};
-+
-+	i2c2_pins_a: i2c2@0 {
-+		pins1 {
-+			pinmux = <MT2701_PIN_77_SDA2__FUNC_SDA2>,
-+				 <MT2701_PIN_78_SCL2__FUNC_SCL2>;
-+			bias-disable;
-+		};
-+	};
-+};
-+
- &uart0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/mt2701.dtsi b/arch/arm/boot/dts/mt2701.dtsi
-index bdf8954..0d1539f 100644
---- a/arch/arm/boot/dts/mt2701.dtsi
-+++ b/arch/arm/boot/dts/mt2701.dtsi
-@@ -227,6 +227,48 @@
- 		status = "disabled";
- 	};
- 
-+	i2c0: i2c@11007000 {
-+		compatible = "mediatek,mt2701-i2c",
-+			     "mediatek,mt6577-i2c";
-+		reg = <0 0x11007000 0 0x70>,
-+		      <0 0x11000200 0 0x80>;
-+		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-+		clock-div = <16>;
-+		clocks = <&pericfg CLK_PERI_I2C0>, <&pericfg CLK_PERI_AP_DMA>;
-+		clock-names = "main", "dma";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		status = "disabled";
-+	};
-+
-+	i2c1: i2c@11008000 {
-+		compatible = "mediatek,mt2701-i2c",
-+			     "mediatek,mt6577-i2c";
-+		reg = <0 0x11008000 0 0x70>,
-+		      <0 0x11000280 0 0x80>;
-+		interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_LOW>;
-+		clock-div = <16>;
-+		clocks = <&pericfg CLK_PERI_I2C1>, <&pericfg CLK_PERI_AP_DMA>;
-+		clock-names = "main", "dma";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		status = "disabled";
-+	};
-+
-+	i2c2: i2c@11009000 {
-+		compatible = "mediatek,mt2701-i2c",
-+			     "mediatek,mt6577-i2c";
-+		reg = <0 0x11009000 0 0x70>,
-+		      <0 0x11000300 0 0x80>;
-+		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_LOW>;
-+		clock-div = <16>;
-+		clocks = <&pericfg CLK_PERI_I2C2>, <&pericfg CLK_PERI_AP_DMA>;
-+		clock-names = "main", "dma";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		status = "disabled";
-+	};
-+
- 	mmsys: syscon@14000000 {
- 		compatible = "mediatek,mt2701-mmsys", "syscon";
- 		reg = <0 0x14000000 0 0x1000>;
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
+
+Luis Oliveira (6):
+  i2c: designware: Cleaning and comment style fixes.
+  i2c: designware: refactoring of the i2c-designware
+  i2c: designware: MASTER mode as separated driver
+  i2c: designware: introducing I2C_SLAVE definitions
+  i2c: designware: add SLAVE mode functions
+  i2c: designware: enable SLAVE in platform module
+
+ .../devicetree/bindings/i2c/i2c-designware.txt     |  16 +-
+ drivers/i2c/busses/Kconfig                         |  15 +-
+ drivers/i2c/busses/Makefile                        |   2 +
+ drivers/i2c/busses/i2c-designware-common.c         | 281 ++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           | 180 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 475 +++------------------
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 116 +++--
+ drivers/i2c/busses/i2c-designware-slave.c          | 403 +++++++++++++++++
+ 8 files changed, 1034 insertions(+), 454 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (60%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+
 -- 
-1.7.9.5
+2.11.0
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
