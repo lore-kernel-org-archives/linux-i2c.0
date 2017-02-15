@@ -1,52 +1,135 @@
 From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v2 1/2] Documentation: devicetree: Add i2c binding for mediatek MT2701 Soc Platform
-Date: Wed, 15 Feb 2017 10:32:55 +0800
-Message-ID: <1487125976-25243-2-git-send-email-jun.gao@mediatek.com>
+Subject: [PATCH v2 2/2] arm: dts: mt2701: Add i2c device node
+Date: Wed, 15 Feb 2017 10:32:56 +0800
+Message-ID: <1487125976-25243-3-git-send-email-jun.gao@mediatek.com>
 References: <1487125976-25243-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:46490 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751376AbdBOCdQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Feb 2017 21:33:16 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1487125976-25243-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
 Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+List-Id: linux-i2c@vger.kernel.org
 
 From: Jun Gao <jun.gao@mediatek.com>
 
-Add i2c DT binding to i2c-mt6577.txt for MT2701 and there is no need to modify i2c driver.
+Add i2c device node for MT2701.
 
-Change-Id: I892f866d755aa3865bffd1a80884cd41b6ecc1f1
+Change-Id: Idd33ad9010c43809328814350f9c29284891d171
 Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 ---
- .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/mt2701-evb.dts |   44 ++++++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/mt2701.dtsi    |   42 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 86 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-index 0ce6fa3..ef22ecf 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+diff --git a/arch/arm/boot/dts/mt2701-evb.dts b/arch/arm/boot/dts/mt2701-evb.dts
+index 082ca88..a908e94 100644
+--- a/arch/arm/boot/dts/mt2701-evb.dts
++++ b/arch/arm/boot/dts/mt2701-evb.dts
+@@ -24,6 +24,50 @@
+ 	};
+ };
  
- Required properties:
-   - compatible: value should be either of the following.
--      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
--      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
--      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
--      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
--      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-+	"mediatek,mt2701-i2c", for i2c compatible with mt2701 i2c.
-+	"mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-+	"mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-+	"mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-+	"mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-+	"mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-   - reg: physical base address of the controller and dma base, length of memory
-     mapped region.
-   - interrupts: interrupt number to the cpu.
++&i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c0_pins_a>;
++	status = "okay";
++};
++
++&i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c1_pins_a>;
++	status = "okay";
++};
++
++&i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins_a>;
++	status = "okay";
++};
++
++&pio {
++	i2c0_pins_a: i2c0@0 {
++		pins1 {
++			pinmux = <MT2701_PIN_75_SDA0__FUNC_SDA0>,
++				 <MT2701_PIN_76_SCL0__FUNC_SCL0>;
++			bias-disable;
++		};
++	};
++
++	i2c1_pins_a: i2c1@0 {
++		pins1 {
++			pinmux = <MT2701_PIN_57_SDA1__FUNC_SDA1>,
++				 <MT2701_PIN_58_SCL1__FUNC_SCL1>;
++			bias-disable;
++		};
++	};
++
++	i2c2_pins_a: i2c2@0 {
++		pins1 {
++			pinmux = <MT2701_PIN_77_SDA2__FUNC_SDA2>,
++				 <MT2701_PIN_78_SCL2__FUNC_SCL2>;
++			bias-disable;
++		};
++	};
++};
++
+ &uart0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/mt2701.dtsi b/arch/arm/boot/dts/mt2701.dtsi
+index bdf8954..0d1539f 100644
+--- a/arch/arm/boot/dts/mt2701.dtsi
++++ b/arch/arm/boot/dts/mt2701.dtsi
+@@ -227,6 +227,48 @@
+ 		status = "disabled";
+ 	};
+ 
++	i2c0: i2c@11007000 {
++		compatible = "mediatek,mt2701-i2c",
++			     "mediatek,mt6577-i2c";
++		reg = <0 0x11007000 0 0x70>,
++		      <0 0x11000200 0 0x80>;
++		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
++		clock-div = <16>;
++		clocks = <&pericfg CLK_PERI_I2C0>, <&pericfg CLK_PERI_AP_DMA>;
++		clock-names = "main", "dma";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "disabled";
++	};
++
++	i2c1: i2c@11008000 {
++		compatible = "mediatek,mt2701-i2c",
++			     "mediatek,mt6577-i2c";
++		reg = <0 0x11008000 0 0x70>,
++		      <0 0x11000280 0 0x80>;
++		interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_LOW>;
++		clock-div = <16>;
++		clocks = <&pericfg CLK_PERI_I2C1>, <&pericfg CLK_PERI_AP_DMA>;
++		clock-names = "main", "dma";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "disabled";
++	};
++
++	i2c2: i2c@11009000 {
++		compatible = "mediatek,mt2701-i2c",
++			     "mediatek,mt6577-i2c";
++		reg = <0 0x11009000 0 0x70>,
++		      <0 0x11000300 0 0x80>;
++		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_LOW>;
++		clock-div = <16>;
++		clocks = <&pericfg CLK_PERI_I2C2>, <&pericfg CLK_PERI_AP_DMA>;
++		clock-names = "main", "dma";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "disabled";
++	};
++
+ 	mmsys: syscon@14000000 {
+ 		compatible = "mediatek,mt2701-mmsys", "syscon";
+ 		reg = <0 0x14000000 0 0x1000>;
 -- 
 1.7.9.5
