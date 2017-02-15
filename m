@@ -1,29 +1,28 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v9 07/10] dt-bindings: i2c: i2c-mux: document general
- purpose i2c-mux bindings
-Date: Wed, 15 Feb 2017 16:55:26 -0600
-Message-ID: <20170215225526.rurmorrgd6roesaa@rob-hp-laptop>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v9 09/10] dt-bindings: mux-adg792a: document devicetree
+ bindings for ADG792A/G mux
+Date: Wed, 15 Feb 2017 16:57:02 -0600
+Message-ID: <20170215225702.mzmtubeymegbhdnp@rob-hp-laptop>
 References: <1486568517-6997-1-git-send-email-peda@axentia.se>
- <1486568517-6997-8-git-send-email-peda@axentia.se>
+ <1486568517-6997-10-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1486568517-6997-8-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+In-Reply-To: <1486568517-6997-10-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 08, 2017 at 04:41:54PM +0100, Peter Rosin wrote:
-> Describe how a general purpose multiplexer controller is used to mux an
-> i2c bus.
+On Wed, Feb 08, 2017 at 04:41:56PM +0100, Peter Rosin wrote:
+> Analog Devices ADG792A/G is a triple 4:1 mux.
 > 
-> Acked-by: Jonathan Cameron <jic23@kernel.org>
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
 > ---
->  .../devicetree/bindings/i2c/i2c-mux-gpmux.txt      | 99 ++++++++++++++++++++++
->  1 file changed, 99 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
+>  .../devicetree/bindings/mux/adi,adg792a.txt        | 75 ++++++++++++++++++++++
+>  1 file changed, 75 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mux/adi,adg792a.txt
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> 
