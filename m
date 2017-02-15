@@ -1,534 +1,463 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v6 5/6] i2c: designware: add SLAVE mode functions
-Date: Wed, 15 Feb 2017 12:22:14 +0000
-Message-ID: <51aacf9e57879ed224857c214882cc87afa13ed2.1487009294.git.lolivei@synopsys.com>
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v6 1/6] i2c: designware: Cleaning and comment style
+ fixes.
+Date: Wed, 15 Feb 2017 15:12:28 +0200
+Message-ID: <1487164348.2133.485.camel@linux.intel.com>
 References: <cover.1487009294.git.lolivei@synopsys.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1487009294.git.lolivei@synopsys.com>
-In-Reply-To: <cover.1487009294.git.lolivei@synopsys.com>
-References: <cover.1487009294.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+         <8a176efc405d4f13d3fc1b5565d2a2b1c931a018.1487009294.git.lolivei@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <8a176efc405d4f13d3fc1b5565d2a2b1c931a018.1487009294.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-- Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
-- Slave functions added to core library file
-- Slave abort sources added to common source file
-- New driver: i2c-designware-slave added
-- Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
-  when supported by the architecture.
+On Wed, 2017-02-15 at 12:22 +0000, Luis Oliveira wrote:
+> The purpose of this commit is to fix some comments and styling in the
+> existing code due to the need of reuse this code. What is being made
+> here is:
+> 
+> - Sorted the headers files
+> - Corrected some comments style (capital letters, lowcase i2c)
+> - Reverse tree in the variables declaration
+> - Add/remove empty lines and tabs where needed
+> - Fix of misspelled word "endianness" and "transferred"
+> - Replaced the return variable "r" with the more standard "ret"
+> 
+> The value of this, besides the rules of coding style, is because I
+> will use this code after and it will make my future patch a lot bigger
+> and
+> complicated to review. The work here won't bring any additional work
+> to
+> backported fixes because is just style and reordering.
+> 
 
-All the SLAVE flow is added but it is not enabled via platform
-driver.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
----
-V5->V6
-- Enable Slave mode using a different option (kbuild reported an error)
-- Identation fixes needed
-- Changed debug prints to dev_vdbg
-- Fixed slave enumeration
+> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> Acked-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+> V5->v6
+> - Added the replacement of "r" for "ret" return variables, before it
+>   was done in the 7th patch
+> 
+>  drivers/i2c/busses/i2c-designware-core.c    | 86 ++++++++++++++----
+> -----------
+>  drivers/i2c/busses/i2c-designware-core.h    |  2 +-
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 42 +++++++-------
+>  3 files changed, 66 insertions(+), 64 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c
+> b/drivers/i2c/busses/i2c-designware-core.c
+> index a62c14c3b2b7..8cf2a8c54ba9 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -21,17 +21,17 @@
+>   * ------------------------------------------------------------------
+> ----------
+>   *
+>   */
+> +#include <linux/delay.h>
+>  #include <linux/export.h>
+>  #include <linux/errno.h>
+>  #include <linux/err.h>
+>  #include <linux/i2c.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+> -#include <linux/pm_runtime.h>
+> -#include <linux/delay.h>
+>  #include <linux/module.h>
+> -#include "i2c-designware-core.h"
+> +#include <linux/pm_runtime.h>
+>  
+> +#include "i2c-designware-core.h"
+>  /*
+>   * Registers offset
+>   */
+> @@ -98,7 +98,7 @@
+>  
+>  #define DW_IC_ERR_TX_ABRT	0x1
+>  
+> -#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
+> +#define DW_IC_TAR_10BITADDR_MASTER		BIT(12)
+>  
+>  #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
+>  #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
+> @@ -113,10 +113,10 @@
+>  #define TIMEOUT			20 /* ms */
+>  
+>  /*
+> - * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+> + * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
+>   *
+> - * only expected abort codes are listed here
+> - * refer to the datasheet for the full list
+> + * Only expected abort codes are listed here,
+> + * refer to the datasheet for the full list.
+>   */
+>  #define ABRT_7B_ADDR_NOACK	0
+>  #define ABRT_10ADDR1_NOACK	1
+> @@ -318,7 +318,7 @@ static void i2c_dw_release_lock(struct dw_i2c_dev
+> *dev)
+>  }
+>  
+>  /**
+> - * i2c_dw_init() - initialize the designware i2c master hardware
+> + * i2c_dw_init() - Initialize the designware I2C master hardware
+>   * @dev: device private data
+>   *
+>   * This functions configures and enables the I2C master.
+> @@ -338,14 +338,14 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>  
+>  	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+>  	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+> -		/* Configure register endianess access */
+> +		/* Configure register endianness access */
+>  		dev->accessor_flags |= ACCESS_SWAP;
+>  	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
+>  		/* Configure register access mode 16bit */
+>  		dev->accessor_flags |= ACCESS_16BIT;
+>  	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
+> -		dev_err(dev->dev, "Unknown Synopsys component type: "
+> -			"0x%08x\n", reg);
+> +		dev_err(dev->dev,
+> +			"Unknown Synopsys component type: 0x%08x\n",
+> reg);
+>  		i2c_dw_release_lock(dev);
+>  		return -ENODEV;
+>  	}
+> @@ -355,7 +355,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>  	/* Disable the adapter */
+>  	__i2c_dw_enable_and_wait(dev, false);
+>  
+> -	/* set standard and fast speed deviders for high/low periods
+> */
+> +	/* Set standard and fast speed deviders for high/low periods
+> */
+>  
+>  	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
+>  	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
+> @@ -444,7 +444,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>  	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
+>  	dw_writel(dev, 0, DW_IC_RX_TL);
+>  
+> -	/* configure the i2c master */
+> +	/* Configure the I2C master */
+>  	dw_writel(dev, dev->master_cfg , DW_IC_CON);
+>  
+>  	i2c_dw_release_lock(dev);
+> @@ -480,7 +480,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev
+> *dev)
+>  	/* Disable the adapter */
+>  	__i2c_dw_enable_and_wait(dev, false);
+>  
+> -	/* if the slave address is ten bit address, enable 10BITADDR
+> */
+> +	/* If the slave address is ten bit address, enable 10BITADDR
+> */
+>  	if (dev->dynamic_tar_update_enabled) {
+>  		/*
+>  		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit
+> addressing
+> @@ -505,7 +505,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev
+> *dev)
+>  	 */
+>  	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar,
+> DW_IC_TAR);
+>  
+> -	/* enforce disabled interrupts (due to HW issues) */
+> +	/* Enforce disabled interrupts (due to HW issues) */
+>  	i2c_dw_disable_int(dev);
+>  
+>  	/* Enable the adapter */
+> @@ -539,9 +539,9 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>  		u32 flags = msgs[dev->msg_write_idx].flags;
+>  
+>  		/*
+> -		 * if target address has changed, we need to
+> -		 * reprogram the target address in the i2c
+> -		 * adapter when we are done with this transfer
+> +		 * If target address has changed, we need to
+> +		 * reprogram the target address in the I2C
+> +		 * adapter when we are done with this transfer.
+>  		 */
+>  		if (msgs[dev->msg_write_idx].addr != addr) {
+>  			dev_err(dev->dev,
+> @@ -601,7 +601,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>  
+>  			if (msgs[dev->msg_write_idx].flags &
+> I2C_M_RD) {
+>  
+> -				/* avoid rx buffer overrun */
+> +				/* Avoid rx buffer overrun */
+>  				if (dev->rx_outstanding >= dev-
+> >rx_fifo_depth)
+>  					break;
+>  
+> @@ -730,7 +730,7 @@ static int i2c_dw_handle_tx_abort(struct
+> dw_i2c_dev *dev)
+>  }
+>  
+>  /*
+> - * Prepare controller for a transaction and call i2c_dw_xfer_msg
+> + * Prepare controller for a transaction and call i2c_dw_xfer_msg.
+>   */
+>  static int
+>  i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+> @@ -761,10 +761,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct
+> i2c_msg msgs[], int num)
+>  	if (ret < 0)
+>  		goto done;
+>  
+> -	/* start the transfers */
+> +	/* Start the transfers */
+>  	i2c_dw_xfer_init(dev);
+>  
+> -	/* wait for tx to complete */
+> +	/* Wait for tx to complete */
+>  	if (!wait_for_completion_timeout(&dev->cmd_complete, adap-
+> >timeout)) {
+>  		dev_err(dev->dev, "controller timed out\n");
+>  		/* i2c_dw_init implicitly disables the adapter */
+> @@ -788,7 +788,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct
+> i2c_msg msgs[], int num)
+>  		goto done;
+>  	}
+>  
+> -	/* no error */
+> +	/* No error */
+>  	if (likely(!dev->cmd_err && !dev->status)) {
+>  		ret = num;
+>  		goto done;
+> @@ -823,8 +823,8 @@ static u32 i2c_dw_func(struct i2c_adapter *adap)
+>  }
+>  
+>  static const struct i2c_algorithm i2c_dw_algo = {
+> -	.master_xfer	= i2c_dw_xfer,
+> -	.functionality	= i2c_dw_func,
+> +	.master_xfer = i2c_dw_xfer,
+> +	.functionality = i2c_dw_func,
+>  };
+>  
+>  static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+> @@ -905,7 +905,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void
+> *dev_id)
+>  
+>  		/*
+>  		 * Anytime TX_ABRT is set, the contents of the tx/rx
+> -		 * buffers are flushed.  Make sure to skip them.
+> +		 * buffers are flushed. Make sure to skip them.
+>  		 */
+>  		dw_writel(dev, 0, DW_IC_INTR_MASK);
+>  		goto tx_aborted;
+> @@ -927,7 +927,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void
+> *dev_id)
+>  	if ((stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET)) ||
+> dev->msg_err)
+>  		complete(&dev->cmd_complete);
+>  	else if (unlikely(dev->accessor_flags & ACCESS_INTR_MASK)) {
+> -		/* workaround to trigger pending interrupt */
+> +		/* Workaround to trigger pending interrupt */
+>  		stat = dw_readl(dev, DW_IC_INTR_MASK);
+>  		i2c_dw_disable_int(dev);
+>  		dw_writel(dev, stat, DW_IC_INTR_MASK);
+> @@ -962,23 +962,23 @@ EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
+>  int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  {
+>  	struct i2c_adapter *adap = &dev->adapter;
+> -	int r;
+> +	int ret;
+>  	u32 reg;
+>  
+>  	init_completion(&dev->cmd_complete);
+>  
+> -	r = i2c_dw_init(dev);
+> -	if (r)
+> -		return r;
+> +	ret = i2c_dw_init(dev);
+> +	if (ret)
+> +		return ret;
+>  
+> -	r = i2c_dw_acquire_lock(dev);
+> -	if (r)
+> -		return r;
+> +	ret = i2c_dw_acquire_lock(dev);
+> +	if (ret)
+> +		return ret;
+>  
+>  	/*
+>  	 * Test if dynamic TAR update is enabled in this controller
+> by writing
+>  	 * to IC_10BITADDR_MASTER field in IC_CON: when it is enabled
+> this
+> -	 * field is read-only so it should not succeed
+> +	 * field is read-only so it should not succeed.
+>  	 */
+>  	reg = dw_readl(dev, DW_IC_CON);
+>  	dw_writel(dev, reg ^ DW_IC_CON_10BITADDR_MASTER, DW_IC_CON);
+> @@ -999,13 +999,13 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	i2c_set_adapdata(adap, dev);
+>  
+>  	i2c_dw_disable_int(dev);
+> -	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
+> +	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
+>  			     IRQF_SHARED | IRQF_COND_SUSPEND,
+>  			     dev_name(dev->dev), dev);
+> -	if (r) {
+> +	if (ret) {
+>  		dev_err(dev->dev, "failure requesting irq %i: %d\n",
+> -			dev->irq, r);
+> -		return r;
+> +			dev->irq, ret);
+> +		return ret;
+>  	}
+>  
+>  	/*
+> @@ -1015,12 +1015,12 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	 * registered I2C slaves that do I2C transfers in their
+> probe.
+>  	 */
+>  	pm_runtime_get_noresume(dev->dev);
+> -	r = i2c_add_numbered_adapter(adap);
+> -	if (r)
+> -		dev_err(dev->dev, "failure adding adapter: %d\n", r);
+> +	ret = i2c_add_numbered_adapter(adap);
+> +	if (ret)
+> +		dev_err(dev->dev, "failure adding adapter: %d\n",
+> ret);
+>  	pm_runtime_put_noidle(dev->dev);
+>  
+> -	return r;
+> +	return ret;
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_dw_probe);
+>  
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h
+> b/drivers/i2c/busses/i2c-designware-core.h
+> index 26250b425e2f..00bee4da9beb 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -48,7 +48,7 @@
+>   * @cmd_complete: tx completion indicator
+>   * @clk: input reference clock
+>   * @cmd_err: run time hadware error code
+> - * @msgs: points to an array of messages currently being transfered
+> + * @msgs: points to an array of messages currently being transferred
+>   * @msgs_num: the number of elements in msgs
+>   * @msg_write_idx: the element index of the current tx message in the
+> msgs
+>   *	array
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6ce431323125..381f0c1058b4 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -21,26 +21,28 @@
+>   * ------------------------------------------------------------------
+> ----------
+>   *
+>   */
+> -#include <linux/kernel.h>
+> -#include <linux/module.h>
+> +#include <linux/acpi.h>
+> +#include <linux/clk-provider.h>
+> +#include <linux/clk.h>
+>  #include <linux/delay.h>
+>  #include <linux/dmi.h>
+> -#include <linux/i2c.h>
+> -#include <linux/clk.h>
+> -#include <linux/clk-provider.h>
+> -#include <linux/errno.h>
+> -#include <linux/sched.h>
+>  #include <linux/err.h>
+> +#include <linux/errno.h>
+> +#include <linux/i2c.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+>  #include <linux/of.h>
+> +#include <linux/platform_data/i2c-designware.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/property.h>
+> -#include <linux/io.h>
+> +#include <linux/reset.h>
+> +#include <linux/sched.h>
+>  #include <linux/slab.h>
+> -#include <linux/acpi.h>
+> -#include <linux/platform_data/i2c-designware.h>
+> +
+>  #include "i2c-designware-core.h"
+>  
+>  static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+> @@ -176,11 +178,11 @@ static void dw_i2c_set_fifo_size(struct
+> dw_i2c_dev *dev, int id)
+>  static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  {
+>  	struct dw_i2c_platform_data *pdata = dev_get_platdata(&pdev-
+> >dev);
+> -	struct dw_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+> -	struct resource *mem;
+> -	int irq, r;
+> +	struct dw_i2c_dev *dev;
+>  	u32 acpi_speed, ht = 0;
+> +	struct resource *mem;
+> +	int irq, ret;
+>  
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0)
+> @@ -238,9 +240,9 @@ static int dw_i2c_plat_probe(struct
+> platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	r = i2c_dw_eval_lock_support(dev);
+> -	if (r)
+> -		return r;
+> +	ret = i2c_dw_eval_lock_support(dev);
+> +	if (ret)
+> +		return ret;
+>  
+>  	dev->functionality = I2C_FUNC_10BIT_ADDR |
+> DW_IC_DEFAULT_FUNCTIONALITY;
+>  
+> @@ -285,11 +287,11 @@ static int dw_i2c_plat_probe(struct
+> platform_device *pdev)
+>  		pm_runtime_enable(&pdev->dev);
+>  	}
+>  
+> -	r = i2c_dw_probe(dev);
+> -	if (r && !dev->pm_runtime_disabled)
+> +	ret = i2c_dw_probe(dev);
+> +	if (ret && !dev->pm_runtime_disabled)
+>  		pm_runtime_disable(&pdev->dev);
+>  
+> -	return r;
+> +	return ret;
+>  }
+>  
+>  static int dw_i2c_plat_remove(struct platform_device *pdev)
+> @@ -371,7 +373,7 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops =
+> {
+>  #define DW_I2C_DEV_PMOPS NULL
+>  #endif
+>  
+> -/* work with hotplug and coldplug */
+> +/* Work with hotplug and coldplug */
+>  MODULE_ALIAS("platform:i2c_designware");
+>  
+>  static struct platform_driver dw_i2c_driver = {
 
- drivers/i2c/busses/Kconfig                 |  14 +-
- drivers/i2c/busses/Makefile                |   1 +
- drivers/i2c/busses/i2c-designware-common.c |   7 +
- drivers/i2c/busses/i2c-designware-core.h   |   3 +
- drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
- 5 files changed, 427 insertions(+), 1 deletion(-)
- create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index c64221d143ff..b3d37ac9f5f6 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -474,11 +474,23 @@ config I2C_DESIGNWARE_PLATFORM
- 	depends on (ACPI && COMMON_CLK) || !ACPI
- 	help
- 	  If you say yes to this option, support will be included for the
--	  Synopsys DesignWare I2C adapter. Only master mode is supported.
-+	  Synopsys DesignWare I2C adapter.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-designware-platform.
- 
-+config I2C_DESIGNWARE_SLAVE
-+	bool "Synopsys DesignWare Slave"
-+	select I2C_SLAVE
-+	select I2C_SLAVE_EEPROM
-+	depends on I2C_DESIGNWARE_PLATFORM
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  Synopsys DesignWare I2C slave adapter.
-+
-+	  This is not a standalone module, this module compiles together with
-+	  i2c-designware-core.
-+
- config I2C_DESIGNWARE_PCI
- 	tristate "Synopsys DesignWare PCI"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index b7abbe167686..477104e2a58f 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -41,6 +41,7 @@ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
- obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
- obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
- i2c-designware-core-objs := i2c-designware-common.o i2c-designware-master.o
-+i2c-designware-core-$(CONFIG_I2C_DESIGNWARE_SLAVE) += i2c-designware-slave.o
- obj-$(CONFIG_I2C_DESIGNWARE_PLATFORM)	+= i2c-designware-platform.o
- i2c-designware-platform-objs := i2c-designware-platdrv.o
- i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-baytrail.o
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 6357c7c78f6d..24641635aa20 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -56,6 +56,13 @@ static char *abort_sources[] = {
- 		"trying to use disabled adapter",
- 	[ARB_LOST] =
- 		"lost arbitration",
-+	[ABRT_SLAVE_FLUSH_TXFIFO] =
-+		"read command so flush old data in the TX FIFO",
-+	[ABRT_SLAVE_ARBLOST] =
-+		"slave lost the bus while transmitting data to a remote master",
-+	[ABRT_SLAVE_RD_INTX] =
-+		"slave request for data to be transmitted and there is a 1 in "
-+		"bit 8 of IC_DATA_CMD",
- };
- 
- u32 dw_readl(struct dw_i2c_dev *dev, int offset)
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 7e4b2bdc10f0..8097ed01e582 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -278,6 +278,7 @@ struct dw_i2c_dev {
- 	void			(*disable)(struct dw_i2c_dev *dev);
- 	void			(*disable_int)(struct dw_i2c_dev *dev);
- 	int			(*init)(struct dw_i2c_dev *dev);
-+	bool			mode;
- };
- 
- #define ACCESS_SWAP		0x00000001
-@@ -299,9 +300,11 @@ u32 i2c_dw_func(struct i2c_adapter *adap);
- void i2c_dw_disable(struct dw_i2c_dev *dev);
- void i2c_dw_disable_int(struct dw_i2c_dev *dev);
- int i2c_dw_init(struct dw_i2c_dev *dev);
-+int i2c_dw_init_slave(struct dw_i2c_dev *dev);
- 
- extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
- extern int i2c_dw_probe(struct dw_i2c_dev *dev);
-+extern int i2c_dw_probe_slave(struct dw_i2c_dev *dev);
- 
- #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
- extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-new file mode 100644
-index 000000000000..06e50243b5a1
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -0,0 +1,403 @@
-+/*
-+ * Synopsys DesignWare I2C adapter driver (slave only).
-+ *
-+ * Based on the Synopsys DesignWare I2C adapter driver (master).
-+ *
-+ * Copyright (C) 2016 Synopsys Inc.
-+ *
-+ * ----------------------------------------------------------------------------
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ * ----------------------------------------------------------------------------
-+ *
-+ */
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/pm_runtime.h>
-+
-+#include "i2c-designware-core.h"
-+
-+static void i2c_dw_configure_fifo_slave(struct dw_i2c_dev *dev)
-+{
-+	/* Configure Tx/Rx FIFO threshold levels. */
-+	dw_writel(dev, 0, DW_IC_TX_TL);
-+	dw_writel(dev, 0, DW_IC_RX_TL);
-+
-+	/* Configure the I2C slave. */
-+	dw_writel(dev, dev->slave_cfg, DW_IC_CON);
-+	dw_writel(dev, DW_IC_INTR_SLAVE_MASK, DW_IC_INTR_MASK);
-+}
-+
-+/**
-+ * i2c_dw_init_slave() - Initialize the designware i2c slave hardware
-+ * @dev: device private data
-+ *
-+ * This functions configures and enables the I2C.
-+ * This function is called during I2C init function, and in case of timeout at
-+ * run time.
-+ */
-+int i2c_dw_init_slave(struct dw_i2c_dev *dev)
-+{
-+	u32 sda_falling_time, scl_falling_time;
-+	u32 reg, comp_param1;
-+	u32 hcnt, lcnt;
-+	int ret;
-+
-+	ret = i2c_dw_acquire_lock(dev);
-+	if (ret)
-+		return ret;
-+
-+	reg = dw_readl(dev, DW_IC_COMP_TYPE);
-+	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
-+		/* Configure register endianness access. */
-+		dev->accessor_flags |= ACCESS_SWAP;
-+	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
-+		/* Configure register access mode 16bit. */
-+		dev->accessor_flags |= ACCESS_16BIT;
-+	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
-+		dev_err(dev->dev,
-+			"Unknown Synopsys component type: 0x%08x\n", reg);
-+		i2c_dw_release_lock(dev);
-+		return -ENODEV;
-+	}
-+
-+	comp_param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
-+
-+	/* Disable the adapter. */
-+	__i2c_dw_enable_and_wait(dev, false);
-+
-+	/* Set standard and fast speed deviders for high/low periods. */
-+	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
-+	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
-+
-+	/* Set SCL timing parameters for standard-mode. */
-+	if (dev->ss_hcnt && dev->ss_lcnt) {
-+		hcnt = dev->ss_hcnt;
-+		lcnt = dev->ss_lcnt;
-+	} else {
-+		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
-+					4000,	/* tHD;STA = tHIGH = 4.0 us */
-+					sda_falling_time,
-+					0,	/* 0: DW default, 1: Ideal */
-+					0);	/* No offset */
-+		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
-+					4700,	/* tLOW = 4.7 us */
-+					scl_falling_time,
-+					0);	/* No offset */
-+	}
-+	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
-+	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
-+
-+	/* Set SCL timing parameters for fast-mode or fast-mode plus. */
-+	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
-+		hcnt = dev->fp_hcnt;
-+		lcnt = dev->fp_lcnt;
-+	} else if (dev->fs_hcnt && dev->fs_lcnt) {
-+		hcnt = dev->fs_hcnt;
-+		lcnt = dev->fs_lcnt;
-+	} else {
-+		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
-+					600,	/* tHD;STA = tHIGH = 0.6 us */
-+					sda_falling_time,
-+					0,	/* 0: DW default, 1: Ideal */
-+					0);	/* No offset */
-+		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
-+					1300,	/* tLOW = 1.3 us */
-+					scl_falling_time,
-+					0);	/* No offset */
-+	}
-+	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
-+	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
-+
-+	if ((dev->slave_cfg & DW_IC_CON_SPEED_MASK) ==
-+		DW_IC_CON_SPEED_HIGH) {
-+		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
-+			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
-+			dev_err(dev->dev, "High Speed not supported!\n");
-+			dev->slave_cfg &= ~DW_IC_CON_SPEED_MASK;
-+			dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
-+		} else if (dev->hs_hcnt && dev->hs_lcnt) {
-+			hcnt = dev->hs_hcnt;
-+			lcnt = dev->hs_lcnt;
-+			dw_writel(dev, hcnt, DW_IC_HS_SCL_HCNT);
-+			dw_writel(dev, lcnt, DW_IC_HS_SCL_LCNT);
-+			dev_dbg(dev->dev, "HighSpeed-mode HCNT:LCNT = %d:%d\n",
-+				hcnt, lcnt);
-+		}
-+	}
-+
-+	/* Configure SDA Hold Time if required. */
-+	reg = dw_readl(dev, DW_IC_COMP_VERSION);
-+	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
-+		if (!dev->sda_hold_time) {
-+			/* Keep previous hold time setting if no one set it. */
-+			dev->sda_hold_time = dw_readl(dev, DW_IC_SDA_HOLD);
-+		}
-+		/*
-+		 * Workaround for avoiding TX arbitration lost in case I2C
-+		 * slave pulls SDA down "too quickly" after falling egde of
-+		 * SCL by enabling non-zero SDA RX hold. Specification says it
-+		 * extends incoming SDA low to high transition while SCL is
-+		 * high but it apprears to help also above issue.
-+		 */
-+		if (!(dev->sda_hold_time & DW_IC_SDA_HOLD_RX_MASK))
-+			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
-+		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-+	} else {
-+		dev_warn(dev->dev,
-+			"Hardware too old to adjust SDA hold time.\n");
-+	}
-+
-+	i2c_dw_configure_fifo_slave(dev);
-+	i2c_dw_release_lock(dev);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(i2c_dw_init_slave);
-+
-+int i2c_dw_reg_slave(struct i2c_client *slave)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
-+
-+	if (dev->slave)
-+		return -EBUSY;
-+	if (slave->flags & I2C_CLIENT_TEN)
-+		return -EAFNOSUPPORT;
-+	/*
-+	 * Set slave address in the IC_SAR register,
-+	 * the address to which the DW_apb_i2c responds.
-+	 */
-+	__i2c_dw_enable(dev, false);
-+	dw_writel(dev, slave->addr, DW_IC_SAR);
-+	dev->slave = slave;
-+
-+	__i2c_dw_enable(dev, true);
-+
-+	dev->cmd_err = 0;
-+	dev->msg_write_idx = 0;
-+	dev->msg_read_idx = 0;
-+	dev->msg_err = 0;
-+	dev->status = STATUS_IDLE;
-+	dev->abort_source = 0;
-+	dev->rx_outstanding = 0;
-+
-+	return 0;
-+}
-+
-+static int i2c_dw_unreg_slave(struct i2c_client *slave)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
-+
-+	dev->disable_int(dev);
-+	dev->disable(dev);
-+	dev->slave = NULL;
-+
-+	return 0;
-+}
-+
-+static u32 i2c_dw_read_clear_intrbits_slave(struct dw_i2c_dev *dev)
-+{
-+	u32 stat;
-+
-+	/*
-+	 * The IC_INTR_STAT register just indicates "enabled" interrupts.
-+	 * Ths unmasked raw version of interrupt status bits are available
-+	 * in the IC_RAW_INTR_STAT register.
-+	 *
-+	 * That is,
-+	 *   stat = dw_readl(IC_INTR_STAT);
-+	 * equals to,
-+	 *   stat = dw_readl(IC_RAW_INTR_STAT) & dw_readl(IC_INTR_MASK);
-+	 *
-+	 * The raw version might be useful for debugging purposes.
-+	 */
-+	stat = dw_readl(dev, DW_IC_INTR_STAT);
-+
-+	/*
-+	 * Do not use the IC_CLR_INTR register to clear interrupts, or
-+	 * you'll miss some interrupts, triggered during the period from
-+	 * dw_readl(IC_INTR_STAT) to dw_readl(IC_CLR_INTR).
-+	 *
-+	 * Instead, use the separately-prepared IC_CLR_* registers.
-+	 */
-+	if (stat & DW_IC_INTR_TX_ABRT)
-+		dw_readl(dev, DW_IC_CLR_TX_ABRT);
-+	if (stat & DW_IC_INTR_RX_UNDER)
-+		dw_readl(dev, DW_IC_CLR_RX_UNDER);
-+	if (stat & DW_IC_INTR_RX_OVER)
-+		dw_readl(dev, DW_IC_CLR_RX_OVER);
-+	if (stat & DW_IC_INTR_TX_OVER)
-+		dw_readl(dev, DW_IC_CLR_TX_OVER);
-+	if (stat & DW_IC_INTR_RX_DONE)
-+		dw_readl(dev, DW_IC_CLR_RX_DONE);
-+	if (stat & DW_IC_INTR_ACTIVITY)
-+		dw_readl(dev, DW_IC_CLR_ACTIVITY);
-+	if (stat & DW_IC_INTR_STOP_DET)
-+		dw_readl(dev, DW_IC_CLR_STOP_DET);
-+	if (stat & DW_IC_INTR_START_DET)
-+		dw_readl(dev, DW_IC_CLR_START_DET);
-+	if (stat & DW_IC_INTR_GEN_CALL)
-+		dw_readl(dev, DW_IC_CLR_GEN_CALL);
-+
-+	return stat;
-+}
-+
-+/*
-+ * Interrupt service routine. This gets called whenever an I2C slave interrupt
-+ * occurs.
-+ */
-+
-+static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
-+{
-+	u32 raw_stat, stat, enabled;
-+	u8 val, slave_activity;
-+
-+	stat = dw_readl(dev, DW_IC_INTR_STAT);
-+	enabled = dw_readl(dev, DW_IC_ENABLE);
-+	raw_stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
-+	slave_activity = ((dw_readl(dev, DW_IC_STATUS) &
-+		DW_IC_STATUS_SLAVE_ACTIVITY) >> 6);
-+
-+	if (!enabled || !(raw_stat & ~DW_IC_INTR_ACTIVITY))
-+		return 0;
-+
-+	dev_dbg(dev->dev,
-+		"%#x SLAVE_ACTV=%#x : RAW_INTR_STAT=%#x : INTR_STAT=%#x\n",
-+		enabled, slave_activity, raw_stat, stat);
-+
-+	if (stat & DW_IC_INTR_RESTART_DET)
-+		dw_readl(dev, DW_IC_CLR_RESTART_DET);
-+	if (stat & DW_IC_INTR_START_DET)
-+		dw_readl(dev, DW_IC_CLR_START_DET);
-+	if (stat & DW_IC_INTR_ACTIVITY)
-+		dw_readl(dev, DW_IC_CLR_ACTIVITY);
-+	if (stat & DW_IC_INTR_RX_OVER)
-+		dw_readl(dev, DW_IC_CLR_RX_OVER);
-+	if ((stat & DW_IC_INTR_RX_FULL) && (stat & DW_IC_INTR_STOP_DET))
-+		i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_REQUESTED, &val);
-+
-+	if (slave_activity) {
-+		if (stat & DW_IC_INTR_RD_REQ) {
-+			if (stat & DW_IC_INTR_RX_FULL) {
-+				val = dw_readl(dev, DW_IC_DATA_CMD);
-+				if (!i2c_slave_event(dev->slave,
-+				I2C_SLAVE_WRITE_RECEIVED, &val)) {
-+					dev_vdbg(dev->dev, "Byte %X acked!",
-+					val);
-+					}
-+				dw_readl(dev, DW_IC_CLR_RD_REQ);
-+				stat = i2c_dw_read_clear_intrbits_slave(dev);
-+			} else {
-+				dw_readl(dev, DW_IC_CLR_RD_REQ);
-+				dw_readl(dev, DW_IC_CLR_RX_UNDER);
-+				stat = i2c_dw_read_clear_intrbits_slave(dev);
-+			}
-+			if (!i2c_slave_event(dev->slave,
-+					I2C_SLAVE_READ_REQUESTED, &val))
-+				dw_writel(dev, val, DW_IC_DATA_CMD);
-+		}
-+	}
-+
-+	if (stat & DW_IC_INTR_RX_DONE) {
-+		if (!i2c_slave_event(dev->slave, I2C_SLAVE_READ_PROCESSED,
-+			&val))
-+			dw_readl(dev, DW_IC_CLR_RX_DONE);
-+
-+		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
-+		stat = i2c_dw_read_clear_intrbits_slave(dev);
-+		return 1;
-+	}
-+
-+	if (stat & DW_IC_INTR_RX_FULL) {
-+		val = dw_readl(dev, DW_IC_DATA_CMD);
-+		if (!i2c_slave_event(dev->slave, I2C_SLAVE_WRITE_RECEIVED,
-+			&val))
-+			dev_vdbg(dev->dev, "Byte %X acked!", val);
-+	} else {
-+		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
-+		stat = i2c_dw_read_clear_intrbits_slave(dev);
-+	}
-+
-+	if (stat & DW_IC_INTR_TX_OVER)
-+		dw_readl(dev, DW_IC_CLR_TX_OVER);
-+
-+	return 1;
-+}
-+
-+static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
-+{
-+	struct dw_i2c_dev *dev = dev_id;
-+	int ret;
-+
-+	i2c_dw_read_clear_intrbits_slave(dev);
-+	ret = i2c_dw_irq_handler_slave(dev);
-+
-+	if (ret > 0)
-+		complete(&dev->cmd_complete);
-+
-+	return IRQ_RETVAL(ret);
-+}
-+
-+static struct i2c_algorithm i2c_dw_algo = {
-+	.functionality = i2c_dw_func,
-+	.reg_slave = i2c_dw_reg_slave,
-+	.unreg_slave = i2c_dw_unreg_slave,
-+};
-+
-+int i2c_dw_probe_slave(struct dw_i2c_dev *dev)
-+{
-+	struct i2c_adapter *adap = &dev->adapter;
-+	int ret;
-+
-+	init_completion(&dev->cmd_complete);
-+
-+	dev->init = i2c_dw_init_slave;
-+	dev->disable = i2c_dw_disable;
-+	dev->disable_int = i2c_dw_disable_int;
-+
-+	ret = dev->init(dev);
-+	if (ret)
-+		return ret;
-+
-+	snprintf(adap->name, sizeof(adap->name),
-+		"Synopsys DesignWare I2C Slave adapter");
-+	adap->retries = 3;
-+	adap->algo = &i2c_dw_algo;
-+	adap->dev.parent = dev->dev;
-+	i2c_set_adapdata(adap, dev);
-+
-+	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr_slave,
-+			     IRQF_SHARED, dev_name(dev->dev), dev);
-+	if (ret) {
-+		dev_err(dev->dev, "failure requesting irq %i: %d\n",
-+			dev->irq, ret);
-+		return ret;
-+	}
-+
-+	ret = i2c_add_numbered_adapter(adap);
-+	if (ret)
-+		dev_err(dev->dev, "failure adding adapter: %d\n", ret);
-+	pm_runtime_put_noidle(dev->dev);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(i2c_dw_probe_slave);
-+
-+MODULE_AUTHOR("Luis Oliveira <lolivei@synopsys.com>");
-+MODULE_DESCRIPTION("Synopsys DesignWare I2C bus slave adapter");
-+MODULE_LICENSE("GPL v2");
 -- 
-2.11.0
+Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Intel Finland Oy
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
