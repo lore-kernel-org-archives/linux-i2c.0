@@ -1,147 +1,202 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Subject: Re: [PATCH v3 12/12] drm/i915: Listen for PMIC bus access
- notifications
-Date: Thu, 16 Feb 2017 20:44:49 +0200
-Message-ID: <20170216184449.GN31595@intel.com>
-References: <20170210102802.20898-1-hdegoede@redhat.com>
- <20170210102802.20898-13-hdegoede@redhat.com>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH v3 12/12] drm/i915: Listen for PMIC bus access notifications
+Date: Thu, 16 Feb 2017 21:02:10 +0200
+Message-ID: <87inoadknh.fsf@intel.com>
+References: <20170210102802.20898-1-hdegoede@redhat.com> <20170210102802.20898-13-hdegoede@redhat.com> <20170216184449.GN31595@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20170210102802.20898-13-hdegoede@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel@lists.freedesktop.org, "H . Peter Anvin" <hpa@zytor.com>, Daniel Vetter <daniel.vetter@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:2803 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932379AbdBPTCa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 16 Feb 2017 14:02:30 -0500
+In-Reply-To: <20170216184449.GN31595@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel@lists.freedesktop.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-T24gRnJpLCBGZWIgMTAsIDIwMTcgYXQgMTE6Mjg6MDJBTSArMDEwMCwgSGFucyBkZSBHb2VkZSB3
-cm90ZToKPiBMaXN0ZW4gZm9yIFBNSUMgYnVzIGFjY2VzcyBub3RpZmljYXRpb25zIGFuZCBnZXQg
-Rk9SQ0VXQUtFX0FMTCB3aGlsZQo+IHRoZSBidXMgaXMgYWNjZXNzZWQgdG8gYXZvaWQgbmVlZGlu
-ZyB0byBkbyBhbnkgZm9yY2V3YWtlcywgd2hpY2ggbmVlZAo+IFBNSUMgYnVzIGFjY2Vzcywgd2hp
-bGUgdGhlIFBNSUMgYnVzIGlzIGJ1c3k6Cj4gCj4gVGhpcyBmaXhlcyBlcnJvcnMgbGlrZSB0aGVz
-ZSBzaG93aW5nIHVwIGluIGRtZXNnLCB1c3VhbGx5IGZvbGxvd2VkCj4gYnkgYSBnZnggb3Igc3lz
-dGVtIGZyZWV6ZToKPiAKPiBbZHJtOmZ3X2RvbWFpbnNfZ2V0IFtpOTE1XV0gKkVSUk9SKiByZW5k
-ZXI6IHRpbWVkIG91dCB3YWl0aW5nIGZvciBmb3JjZXdha2UgYWNrIHJlcXVlc3QuCj4gW2RybTpm
-d19kb21haW5zX2dldCBbaTkxNV1dICpNRURJQSogcmVuZGVyOiB0aW1lZCBvdXQgd2FpdGluZyBm
-b3IgZm9yY2V3YWtlIGFjayByZXF1ZXN0Lgo+IGkyY19kZXNpZ253YXJlIDgwODYyMkMxOjA2OiBw
-dW5pdCBzZW1hcGhvcmUgdGltZWQgb3V0LCByZXNldHRpbmcKPiBpMmNfZGVzaWdud2FyZSA4MDg2
-MjJDMTowNjogUFVOSVQgU0VNOiAyCj4gaTJjX2Rlc2lnbndhcmUgODA4NjIyQzE6MDY6IGNvdWxk
-bid0IGFjcXVpcmUgYnVzIG93bmVyc2hpcAo+IAo+IERvd25zaWRlIG9mIHRoaXMgYXBwcm9hY2gg
-aXMgdGhhdCBpdCBjYXVzZXMgd2FrZXVwcyB3aGVuZXZlciB0aGUgUE1JQwo+IGJ1cyBpcyBhY2Nl
-c3NlZC4gVW5mb3J0dW5hdGVseSB3ZSBjYW5ub3Qgc2ltcGx5IHdhaXQgZm9yIHRoZSBQTUlDIGJ1
-cwo+IHRvIGdvIGlkbGUgd2hlbiB3ZSBoaXQgYSByYWNlLCBhcyBmb3JjZXdha2VzIG1heSBiZSBk
-b25lIGZyb20gaW50ZXJydXB0Cj4gaGFuZGxlcnMgd2hlcmUgd2UgY2Fubm90IHNsZWVwIHRvIHdh
-aXQgZm9yIHRoZSBpMmMgUE1JQyBidXMgYWNjZXNzIHRvCj4gZmluaXNoLgo+IAo+IE5vdGUgdGhh
-dCB0aGUgbm90aWZpY2F0aW9ucyBhbmQgdGh1cyB0aGUgd2FrZXVwcyB3aWxsIG9ubHkgaGFwcGVu
-IG9uCj4gYmF5dHJhaWwgLyBjaGVycnl0cmFpbCBkZXZpY2VzIHVzaW5nIFBNSUNzIHdpdGggYSBz
-aGFyZWQgaTJjIGJ1cyBmb3IKPiBQLVVuaXQgYW5kIGhvc3QgUE1JQyBhY2Nlc3MgKGkyYyBidXNz
-ZXMgd2l0aCBhIF9TRU0gbWV0aG9kIGluIHRoZWlyCj4gQVBDSSBub2RlKSwgZS5nLiBhbiBheHAy
-ODggUE1JQy4KPiAKPiBJIHBsYW4gdG8gd3JpdGUgc29tZSBwYXRjaGVzIGZvciBkcml2ZXJzIGFj
-Y2Vzc2luZyB0aGUgUE1JQyBidXMgdG8KPiBsaW1pdCB0aGVpciBidXMgYWNjZXNzZXMgdG8gYSBi
-YXJlIG1pbmltdW0gKGUuZy4gY2FjaGUgcmVnaXN0ZXJzLCBkbyBub3QKPiB1cGRhdGUgYmF0dGVy
-eSBsZXZlbCBtb3JlIG9mdGVuIHRoZW4gNCB0aW1lcyBhIG1pbnV0ZSksIHRvIGxpbWl0IHRoZQo+
-IGFtb3VudCBvZiB3YWtldXBzLgo+IAo+IEJ1Z0xpbms6IGh0dHBzOi8vYnVnemlsbGEua2VybmVs
-Lm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTU1MjQxCj4gU2lnbmVkLW9mZi1ieTogSGFucyBkZSBHb2Vk
-ZSA8aGRlZ29lZGVAcmVkaGF0LmNvbT4KPiBUZXN0ZWQtYnk6IHRhZ29yZXJlZGR5IDx0YWdvcmUu
-Y2hhbmRhbkBnbWFpbC5jb20+CgpJIGdhdmUgdGhlIHByZXZpb3VzIHZlcnNpb25zIGEgcXVpY2sg
-d2hpcmwgb24gYSBmZXcgbWFjaGluZXMgaGVyZSwgYnV0CnRoZW0gbm90IGJlaW5nIENSIHZlcnNp
-b25zIEkgZ3Vlc3MgdGhpcyBzdHVmZiBkb2Vzbid0IGtpY2sgaW4gYXQgYWxsLgpBbmQgSSBkb24n
-dCBzZWUgYW55IF9TRU0gc3R1ZmYgaW4gdGhlIERTRFQvU1NEVCwgc28gSSBndWVzcyB0aGF0CmNv
-bmZpcm1zIGl0LiBXaGljaCBpcyBmaW5lIHNpbmNlIEkndmUgbm90IHNlZW0gYW55IHN0YWJpbGl0
-eSBpc3N1ZXMKb24gdGhvc2UgbWFjaGluZXMuIFNvIGF0IGxlYXN0IG5vdGhpbmcgc2VlbWVkIHRv
-IGJyZWFrIDopCgpBbnl3YXlzIHRoZSBjaGFuZ2VzIGxvb2sgYWxsIHJpZ2h0IHRvIG1lLCBzbyBm
-b3IgYm90aCBpOTE1IHBhdGNoZXMKUmV2aWV3ZWQtYnk6IFZpbGxlIFN5cmrDpGzDpCA8dmlsbGUu
-c3lyamFsYUBsaW51eC5pbnRlbC5jb20+Cgo+IC0tLQo+IENoYW5nZXMgaW4gdjI6Cj4gLVNwZWxs
-aW5nOiBQLVVuaXQsIFBNSUMKPiBDaGFuZ2VzIGluIHYzOgo+IC1JbXByb3ZlIGNvbW1lbnQgZXhw
-bGFpbmluZyB3aHkgd2UgY2FsbCBpbnRlbF91bmNvcmVfZm9yY2V3YWtlX2dldChBTEwpIG9uCj4g
-IE1CSV9QTUlDX0JVU19BQ0NFU1NfQkVHSU4gbm90aWZpY2F0aW9uCj4gLS0tCj4gIGRyaXZlcnMv
-Z3B1L2RybS9pOTE1L0tjb25maWcgICAgICAgIHwgIDEgKwo+ICBkcml2ZXJzL2dwdS9kcm0vaTkx
-NS9pOTE1X2Rydi5oICAgICB8ICAxICsKPiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5j
-b3JlLmMgfCAzOSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4gIDMgZmls
-ZXMgY2hhbmdlZCwgNDEgaW5zZXJ0aW9ucygrKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dw
-dS9kcm0vaTkxNS9LY29uZmlnIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvS2NvbmZpZwo+IGluZGV4
-IDFhZTBiYjkuLmE1Y2Q1ZGEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvS2Nv
-bmZpZwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcKPiBAQCAtMjAsNiArMjAs
-NyBAQCBjb25maWcgRFJNX0k5MTUKPiAgCXNlbGVjdCBBQ1BJX1ZJREVPIGlmIEFDUEkKPiAgCXNl
-bGVjdCBBQ1BJX0JVVFRPTiBpZiBBQ1BJCj4gIAlzZWxlY3QgU1lOQ19GSUxFCj4gKwlzZWxlY3Qg
-SU9TRl9NQkkKPiAgCWhlbHAKPiAgCSAgQ2hvb3NlIHRoaXMgb3B0aW9uIGlmIHlvdSBoYXZlIGEg
-c3lzdGVtIHRoYXQgaGFzICJJbnRlbCBHcmFwaGljcwo+ICAJICBNZWRpYSBBY2NlbGVyYXRvciIg
-b3IgIkhEIEdyYXBoaWNzIiBpbnRlZ3JhdGVkIGdyYXBoaWNzLAo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5oIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9k
-cnYuaAo+IGluZGV4IDk5ODIzOWYuLjRlNDA1ZDAgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUv
-ZHJtL2k5MTUvaTkxNV9kcnYuaAo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2
-LmgKPiBAQCAtNzI1LDYgKzcyNSw3IEBAIHN0cnVjdCBpbnRlbF91bmNvcmUgewo+ICAJY29uc3Qg
-c3RydWN0IGludGVsX2ZvcmNld2FrZV9yYW5nZSAqZndfZG9tYWluc190YWJsZTsKPiAgCXVuc2ln
-bmVkIGludCBmd19kb21haW5zX3RhYmxlX2VudHJpZXM7Cj4gIAo+ICsJc3RydWN0IG5vdGlmaWVy
-X2Jsb2NrIHBtaWNfYnVzX2FjY2Vzc19uYjsKPiAgCXN0cnVjdCBpbnRlbF91bmNvcmVfZnVuY3Mg
-ZnVuY3M7Cj4gIAo+ICAJdW5zaWduZWQgZmlmb19jb3VudDsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRl
-bF91bmNvcmUuYwo+IGluZGV4IGI2ZDcyNmIuLjFiZTNjZGMgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
-cy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vaTkx
-NS9pbnRlbF91bmNvcmUuYwo+IEBAIC0yNSw2ICsyNSw3IEBACj4gICNpbmNsdWRlICJpbnRlbF9k
-cnYuaCIKPiAgI2luY2x1ZGUgImk5MTVfdmdwdS5oIgo+ICAKPiArI2luY2x1ZGUgPGFzbS9pb3Nm
-X21iaS5oPgo+ICAjaW5jbHVkZSA8bGludXgvcG1fcnVudGltZS5oPgo+ICAKPiAgI2RlZmluZSBG
-T1JDRVdBS0VfQUNLX1RJTUVPVVRfTVMgNTAKPiBAQCAtNDM2LDEyICs0MzcsMTYgQEAgc3RhdGlj
-IHZvaWQgX19pbnRlbF91bmNvcmVfZWFybHlfc2FuaXRpemUoc3RydWN0IGRybV9pOTE1X3ByaXZh
-dGUgKmRldl9wcml2LAo+ICAKPiAgdm9pZCBpbnRlbF91bmNvcmVfc3VzcGVuZChzdHJ1Y3QgZHJt
-X2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCj4gIHsKPiArCWlvc2ZfbWJpX3VucmVnaXN0ZXJfcG1p
-Y19idXNfYWNjZXNzX25vdGlmaWVyKAo+ICsJCSZkZXZfcHJpdi0+dW5jb3JlLnBtaWNfYnVzX2Fj
-Y2Vzc19uYik7Cj4gIAlpbnRlbF91bmNvcmVfZm9yY2V3YWtlX3Jlc2V0KGRldl9wcml2LCBmYWxz
-ZSk7Cj4gIH0KPiAgCj4gIHZvaWQgaW50ZWxfdW5jb3JlX3Jlc3VtZV9lYXJseShzdHJ1Y3QgZHJt
-X2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCj4gIHsKPiAgCV9faW50ZWxfdW5jb3JlX2Vhcmx5X3Nh
-bml0aXplKGRldl9wcml2LCB0cnVlKTsKPiArCWlvc2ZfbWJpX3JlZ2lzdGVyX3BtaWNfYnVzX2Fj
-Y2Vzc19ub3RpZmllcigKPiArCQkmZGV2X3ByaXYtPnVuY29yZS5wbWljX2J1c19hY2Nlc3NfbmIp
-Owo+ICAJaTkxNV9jaGVja19hbmRfY2xlYXJfZmF1bHRzKGRldl9wcml2KTsKPiAgfQo+ICAKPiBA
-QCAtMTMyOSw2ICsxMzM0LDMyIEBAIHN0YXRpYyB2b2lkIGludGVsX3VuY29yZV9md19kb21haW5z
-X2luaXQoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQo+ICAJZGV2X3ByaXYtPnVu
-Y29yZS5md19kb21haW5zX3RhYmxlX2VudHJpZXMgPSBBUlJBWV9TSVpFKChkKSk7IFwKPiAgfQo+
-ICAKPiArc3RhdGljIGludCBpOTE1X3BtaWNfYnVzX2FjY2Vzc19ub3RpZmllcihzdHJ1Y3Qgbm90
-aWZpZXJfYmxvY2sgKm5iLAo+ICsJCQkJCSB1bnNpZ25lZCBsb25nIGFjdGlvbiwgdm9pZCAqZGF0
-YSkKPiArewo+ICsJc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2ID0gY29udGFpbmVy
-X29mKG5iLAo+ICsJCQlzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSwgdW5jb3JlLnBtaWNfYnVzX2Fj
-Y2Vzc19uYik7Cj4gKwo+ICsJc3dpdGNoIChhY3Rpb24pIHsKPiArCWNhc2UgTUJJX1BNSUNfQlVT
-X0FDQ0VTU19CRUdJTjoKPiArCQkvKgo+ICsJCSAqIGZvcmNld2FrZSBhbGwgbm93IHRvIG1ha2Ug
-c3VyZSB0aGF0IHdlIGRvbid0IG5lZWQgdG8gZG8gYQo+ICsJCSAqIGZvcmNld2FrZSBsYXRlciB3
-aGljaCBvbiBzeXN0ZW1zIHdoZXJlIHRoaXMgbm90aWZpZXIgZ2V0cwo+ICsJCSAqIGNhbGxlZCBy
-ZXF1aXJlcyB0aGUgcHVuaXQgdG8gYWNjZXNzIHRvIHRoZSBzaGFyZWQgcG1pYyBpMmMKPiArCQkg
-KiBidXMsIHdoaWNoIHdpbGwgYmUgYnVzeSBhZnRlciB0aGlzIG5vdGlmaWNhdGlvbiwgbGVhZGlu
-ZyB0bzoKPiArCQkgKiAicmVuZGVyOiB0aW1lZCBvdXQgd2FpdGluZyBmb3IgZm9yY2V3YWtlIGFj
-ayByZXF1ZXN0LiIKPiArCQkgKiBlcnJvcnMuCj4gKwkJICovCj4gKwkJaW50ZWxfdW5jb3JlX2Zv
-cmNld2FrZV9nZXQoZGV2X3ByaXYsIEZPUkNFV0FLRV9BTEwpOwo+ICsJCWJyZWFrOwo+ICsJY2Fz
-ZSBNQklfUE1JQ19CVVNfQUNDRVNTX0VORDoKPiArCQlpbnRlbF91bmNvcmVfZm9yY2V3YWtlX3B1
-dChkZXZfcHJpdiwgRk9SQ0VXQUtFX0FMTCk7Cj4gKwkJYnJlYWs7Cj4gKwl9Cj4gKwo+ICsJcmV0
-dXJuIE5PVElGWV9PSzsKPiArfQo+ICsKPiAgdm9pZCBpbnRlbF91bmNvcmVfaW5pdChzdHJ1Y3Qg
-ZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCj4gIHsKPiAgCWk5MTVfY2hlY2tfdmdwdShkZXZf
-cHJpdik7Cj4gQEAgLTEzMzgsNiArMTM2OSw4IEBAIHZvaWQgaW50ZWxfdW5jb3JlX2luaXQoc3Ry
-dWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQo+ICAJX19pbnRlbF91bmNvcmVfZWFybHlf
-c2FuaXRpemUoZGV2X3ByaXYsIGZhbHNlKTsKPiAgCj4gIAlkZXZfcHJpdi0+dW5jb3JlLnVuY2xh
-aW1lZF9tbWlvX2NoZWNrID0gMTsKPiArCWRldl9wcml2LT51bmNvcmUucG1pY19idXNfYWNjZXNz
-X25iLm5vdGlmaWVyX2NhbGwgPQo+ICsJCWk5MTVfcG1pY19idXNfYWNjZXNzX25vdGlmaWVyOwo+
-ICAKPiAgCXN3aXRjaCAoSU5URUxfSU5GTyhkZXZfcHJpdiktPmdlbikgewo+ICAJZGVmYXVsdDoK
-PiBAQCAtMTM5Miw2ICsxNDI1LDkgQEAgdm9pZCBpbnRlbF91bmNvcmVfaW5pdChzdHJ1Y3QgZHJt
-X2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCj4gIAlpZiAoSU5URUxfR0VOKGRldl9wcml2KSA+PSA4
-KQo+ICAJCWludGVsX3NoYWRvd190YWJsZV9jaGVjaygpOwo+ICAKPiArCWlvc2ZfbWJpX3JlZ2lz
-dGVyX3BtaWNfYnVzX2FjY2Vzc19ub3RpZmllcigKPiArCQkmZGV2X3ByaXYtPnVuY29yZS5wbWlj
-X2J1c19hY2Nlc3NfbmIpOwo+ICsKPiAgCWk5MTVfY2hlY2tfYW5kX2NsZWFyX2ZhdWx0cyhkZXZf
-cHJpdik7Cj4gIH0KPiAgI3VuZGVmIEFTU0lHTl9XUklURV9NTUlPX1ZGVU5DUwo+IEBAIC0xMzk5
-LDYgKzE0MzUsOSBAQCB2b2lkIGludGVsX3VuY29yZV9pbml0KHN0cnVjdCBkcm1faTkxNV9wcml2
-YXRlICpkZXZfcHJpdikKPiAgCj4gIHZvaWQgaW50ZWxfdW5jb3JlX2Zpbmkoc3RydWN0IGRybV9p
-OTE1X3ByaXZhdGUgKmRldl9wcml2KQo+ICB7Cj4gKwlpb3NmX21iaV91bnJlZ2lzdGVyX3BtaWNf
-YnVzX2FjY2Vzc19ub3RpZmllcigKPiArCQkmZGV2X3ByaXYtPnVuY29yZS5wbWljX2J1c19hY2Nl
-c3NfbmIpOwo+ICsKPiAgCS8qIFBhcmFub2lhOiBtYWtlIHN1cmUgd2UgaGF2ZSBkaXNhYmxlZCBl
-dmVyeXRoaW5nIGJlZm9yZSB3ZSBleGl0LiAqLwo+ICAJaW50ZWxfdW5jb3JlX3Nhbml0aXplKGRl
-dl9wcml2KTsKPiAgCWludGVsX3VuY29yZV9mb3JjZXdha2VfcmVzZXQoZGV2X3ByaXYsIGZhbHNl
-KTsKPiAtLSAKPiAyLjkuMwoKLS0gClZpbGxlIFN5cmrDpGzDpApJbnRlbCBPVEMKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
-bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
-c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Thu, 16 Feb 2017, Ville Syrjälä <ville.syrjala@linux.intel.com> wrote:
+> On Fri, Feb 10, 2017 at 11:28:02AM +0100, Hans de Goede wrote:
+>> Listen for PMIC bus access notifications and get FORCEWAKE_ALL while
+>> the bus is accessed to avoid needing to do any forcewakes, which need
+>> PMIC bus access, while the PMIC bus is busy:
+>> 
+>> This fixes errors like these showing up in dmesg, usually followed
+>> by a gfx or system freeze:
+>> 
+>> [drm:fw_domains_get [i915]] *ERROR* render: timed out waiting for forcewake ack request.
+>> [drm:fw_domains_get [i915]] *MEDIA* render: timed out waiting for forcewake ack request.
+>> i2c_designware 808622C1:06: punit semaphore timed out, resetting
+>> i2c_designware 808622C1:06: PUNIT SEM: 2
+>> i2c_designware 808622C1:06: couldn't acquire bus ownership
+>> 
+>> Downside of this approach is that it causes wakeups whenever the PMIC
+>> bus is accessed. Unfortunately we cannot simply wait for the PMIC bus
+>> to go idle when we hit a race, as forcewakes may be done from interrupt
+>> handlers where we cannot sleep to wait for the i2c PMIC bus access to
+>> finish.
+>> 
+>> Note that the notifications and thus the wakeups will only happen on
+>> baytrail / cherrytrail devices using PMICs with a shared i2c bus for
+>> P-Unit and host PMIC access (i2c busses with a _SEM method in their
+>> APCI node), e.g. an axp288 PMIC.
+>> 
+>> I plan to write some patches for drivers accessing the PMIC bus to
+>> limit their bus accesses to a bare minimum (e.g. cache registers, do not
+>> update battery level more often then 4 times a minute), to limit the
+>> amount of wakeups.
+>> 
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Tested-by: tagorereddy <tagore.chandan@gmail.com>
+>
+> I gave the previous versions a quick whirl on a few machines here, but
+> them not being CR versions I guess this stuff doesn't kick in at all.
+> And I don't see any _SEM stuff in the DSDT/SSDT, so I guess that
+> confirms it. Which is fine since I've not seem any stability issues
+> on those machines. So at least nothing seemed to break :)
+>
+> Anyways the changes look all right to me, so for both i915 patches
+> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+
+for merging the i915 patches through some other tree if that makes
+managing the pile easier.
+
+
+>
+>> ---
+>> Changes in v2:
+>> -Spelling: P-Unit, PMIC
+>> Changes in v3:
+>> -Improve comment explaining why we call intel_uncore_forcewake_get(ALL) on
+>>  MBI_PMIC_BUS_ACCESS_BEGIN notification
+>> ---
+>>  drivers/gpu/drm/i915/Kconfig        |  1 +
+>>  drivers/gpu/drm/i915/i915_drv.h     |  1 +
+>>  drivers/gpu/drm/i915/intel_uncore.c | 39 +++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 41 insertions(+)
+>> 
+>> diff --git a/drivers/gpu/drm/i915/Kconfig b/drivers/gpu/drm/i915/Kconfig
+>> index 1ae0bb9..a5cd5da 100644
+>> --- a/drivers/gpu/drm/i915/Kconfig
+>> +++ b/drivers/gpu/drm/i915/Kconfig
+>> @@ -20,6 +20,7 @@ config DRM_I915
+>>  	select ACPI_VIDEO if ACPI
+>>  	select ACPI_BUTTON if ACPI
+>>  	select SYNC_FILE
+>> +	select IOSF_MBI
+>>  	help
+>>  	  Choose this option if you have a system that has "Intel Graphics
+>>  	  Media Accelerator" or "HD Graphics" integrated graphics,
+>> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+>> index 998239f..4e405d0 100644
+>> --- a/drivers/gpu/drm/i915/i915_drv.h
+>> +++ b/drivers/gpu/drm/i915/i915_drv.h
+>> @@ -725,6 +725,7 @@ struct intel_uncore {
+>>  	const struct intel_forcewake_range *fw_domains_table;
+>>  	unsigned int fw_domains_table_entries;
+>>  
+>> +	struct notifier_block pmic_bus_access_nb;
+>>  	struct intel_uncore_funcs funcs;
+>>  
+>>  	unsigned fifo_count;
+>> diff --git a/drivers/gpu/drm/i915/intel_uncore.c b/drivers/gpu/drm/i915/intel_uncore.c
+>> index b6d726b..1be3cdc 100644
+>> --- a/drivers/gpu/drm/i915/intel_uncore.c
+>> +++ b/drivers/gpu/drm/i915/intel_uncore.c
+>> @@ -25,6 +25,7 @@
+>>  #include "intel_drv.h"
+>>  #include "i915_vgpu.h"
+>>  
+>> +#include <asm/iosf_mbi.h>
+>>  #include <linux/pm_runtime.h>
+>>  
+>>  #define FORCEWAKE_ACK_TIMEOUT_MS 50
+>> @@ -436,12 +437,16 @@ static void __intel_uncore_early_sanitize(struct drm_i915_private *dev_priv,
+>>  
+>>  void intel_uncore_suspend(struct drm_i915_private *dev_priv)
+>>  {
+>> +	iosf_mbi_unregister_pmic_bus_access_notifier(
+>> +		&dev_priv->uncore.pmic_bus_access_nb);
+>>  	intel_uncore_forcewake_reset(dev_priv, false);
+>>  }
+>>  
+>>  void intel_uncore_resume_early(struct drm_i915_private *dev_priv)
+>>  {
+>>  	__intel_uncore_early_sanitize(dev_priv, true);
+>> +	iosf_mbi_register_pmic_bus_access_notifier(
+>> +		&dev_priv->uncore.pmic_bus_access_nb);
+>>  	i915_check_and_clear_faults(dev_priv);
+>>  }
+>>  
+>> @@ -1329,6 +1334,32 @@ static void intel_uncore_fw_domains_init(struct drm_i915_private *dev_priv)
+>>  	dev_priv->uncore.fw_domains_table_entries = ARRAY_SIZE((d)); \
+>>  }
+>>  
+>> +static int i915_pmic_bus_access_notifier(struct notifier_block *nb,
+>> +					 unsigned long action, void *data)
+>> +{
+>> +	struct drm_i915_private *dev_priv = container_of(nb,
+>> +			struct drm_i915_private, uncore.pmic_bus_access_nb);
+>> +
+>> +	switch (action) {
+>> +	case MBI_PMIC_BUS_ACCESS_BEGIN:
+>> +		/*
+>> +		 * forcewake all now to make sure that we don't need to do a
+>> +		 * forcewake later which on systems where this notifier gets
+>> +		 * called requires the punit to access to the shared pmic i2c
+>> +		 * bus, which will be busy after this notification, leading to:
+>> +		 * "render: timed out waiting for forcewake ack request."
+>> +		 * errors.
+>> +		 */
+>> +		intel_uncore_forcewake_get(dev_priv, FORCEWAKE_ALL);
+>> +		break;
+>> +	case MBI_PMIC_BUS_ACCESS_END:
+>> +		intel_uncore_forcewake_put(dev_priv, FORCEWAKE_ALL);
+>> +		break;
+>> +	}
+>> +
+>> +	return NOTIFY_OK;
+>> +}
+>> +
+>>  void intel_uncore_init(struct drm_i915_private *dev_priv)
+>>  {
+>>  	i915_check_vgpu(dev_priv);
+>> @@ -1338,6 +1369,8 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
+>>  	__intel_uncore_early_sanitize(dev_priv, false);
+>>  
+>>  	dev_priv->uncore.unclaimed_mmio_check = 1;
+>> +	dev_priv->uncore.pmic_bus_access_nb.notifier_call =
+>> +		i915_pmic_bus_access_notifier;
+>>  
+>>  	switch (INTEL_INFO(dev_priv)->gen) {
+>>  	default:
+>> @@ -1392,6 +1425,9 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
+>>  	if (INTEL_GEN(dev_priv) >= 8)
+>>  		intel_shadow_table_check();
+>>  
+>> +	iosf_mbi_register_pmic_bus_access_notifier(
+>> +		&dev_priv->uncore.pmic_bus_access_nb);
+>> +
+>>  	i915_check_and_clear_faults(dev_priv);
+>>  }
+>>  #undef ASSIGN_WRITE_MMIO_VFUNCS
+>> @@ -1399,6 +1435,9 @@ void intel_uncore_init(struct drm_i915_private *dev_priv)
+>>  
+>>  void intel_uncore_fini(struct drm_i915_private *dev_priv)
+>>  {
+>> +	iosf_mbi_unregister_pmic_bus_access_notifier(
+>> +		&dev_priv->uncore.pmic_bus_access_nb);
+>> +
+>>  	/* Paranoia: make sure we have disabled everything before we exit. */
+>>  	intel_uncore_sanitize(dev_priv);
+>>  	intel_uncore_forcewake_reset(dev_priv, false);
+>> -- 
+>> 2.9.3
+
+-- 
+Jani Nikula, Intel Open Source Technology Center
