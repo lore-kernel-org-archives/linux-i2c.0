@@ -1,55 +1,73 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH v2] i2c: at91: ensure state is restored after suspending
-Date: Fri, 17 Feb 2017 09:24:39 +0100
-Message-ID: <20170217082439.mcfxoccwiwoj5ako@rfolt0960.corp.atmel.com>
-References: <20170216172759.27837-1-alexandre.belloni@free-electrons.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.10
+Date: Fri, 17 Feb 2017 12:19:23 +0100
+Message-ID: <20170217111918.z2fxfj6cbdih3gbz@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dvvlocroyivscspq"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:42686 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932491AbdBQLT2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 17 Feb 2017 06:19:28 -0500
 Content-Disposition: inline
-In-Reply-To: <20170216172759.27837-1-alexandre.belloni@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Ludovic Desroches <ludovic.desroches@atmel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Feb 16, 2017 at 06:27:59PM +0100, Alexandre Belloni wrote:
-> When going to suspend, the I2C registers may be lost because the power to
-> VDDcore is cut. Restore them when resuming.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+--dvvlocroyivscspq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> ---
-> Changes in v2:
->  - don't cache unecessary registers and simply call at91_init_twi_bus()
-> 
-> 
->  drivers/i2c/busses/i2c-at91.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 0b86c6173e07..c925a690cb32 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -1180,6 +1180,7 @@ static int at91_twi_suspend_noirq(struct device *dev)
->  
->  static int at91_twi_resume_noirq(struct device *dev)
->  {
-> +	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
->  	int ret;
->  
->  	if (!pm_runtime_status_suspended(dev)) {
-> @@ -1191,6 +1192,8 @@ static int at91_twi_resume_noirq(struct device *dev)
->  	pm_runtime_mark_last_busy(dev);
->  	pm_request_autosuspend(dev);
->  
-> +	at91_init_twi_bus(twi_dev);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 2.11.0
-> 
+Linus,
+
+I2C has a revert to fix a regression. Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 7089db84e356562f8ba737c29e472cc42d530dbc:
+
+  Linux 4.10-rc8 (2017-02-12 13:03:20 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 12688dc21f71f4dcc9e2b8b5556b0c6cc8df1491:
+
+  Revert "i2c: designware: detect when dynamic tar update is possible" (2017-02-14 22:10:26 +0100)
+
+----------------------------------------------------------------
+Jarkko Nikula (1):
+      Revert "i2c: designware: detect when dynamic tar update is possible"
+
+ drivers/i2c/busses/i2c-designware-core.c | 45 ++++++++------------------------
+ drivers/i2c/busses/i2c-designware-core.h |  1 -
+ 2 files changed, 11 insertions(+), 35 deletions(-)
+
+--dvvlocroyivscspq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlim3DYACgkQFA3kzBSg
+KbYrGg//Ssuoblh2Ov6z9V7lewe8EeWpWM1AznuXOHVJGK6bZn5lIGTsGNBHhKVa
+8p06Z/pZw2GB7SDF29EGmMKOkkzCGytwzf3OMtFSEVZDddTXOHNAcqiYiPQinoAN
++gWEaS0MvynHl9v6SVlPxy4t5IJr5U0Pjx9hRifFlomZqtcILzS9Z9dNGCdg9kwY
+RFuzlZoeYA0khr6B/AJZnEUXhVP0SOuPTTp4++NUa8Bf5n/1GyCtipPsbqt0YlEZ
+WBbrCSj7xWGSKnhuhcX9LskCTExljKJFhdDuFNzfXI5NAMXCl8PfoJliltckD4HA
+AFVK4RSa5SpDX0NsxPAiaomsz8bhhpRPDiJXyiciD2BUaIOLaiQf7YGiSjeRT/jO
+FycWJ3H5VEkTjbalV5RixUg/73aOfn+H/8fMCU2RY2KAscyRm7hfs+DNc81MJFJ7
+GrY3ejMV0J4vOpwgyrQp7FsT9tmyJoGp2O5yiugschEKMjdQVZZk9dXzB8kyUJD5
+r7Z2RmvybYkP3MSoOpHHMmHdsKkU341bnLJ3+dTIBHfgzfiXA/DnDs9GLN3YvOZi
+v1gJ7zf9jIT40+RlMe3f+E0MQqL8SNFC1LrL9T2My9rnCZf60KMs9j3Bey5IfznM
+f6RYizypLIowkIJFgEAluQuxt6KkN+3NstCUSnjuIr8EkAKeYkQ=
+=LUVV
+-----END PGP SIGNATURE-----
+
+--dvvlocroyivscspq--
