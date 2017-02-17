@@ -1,51 +1,55 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: [PATCH RFC 3/3] ARM64: bcm2837-rpi: Fix pwm and i2c pin control
-Date: Thu, 16 Feb 2017 21:20:47 +0000
-Message-ID: <1487280047-29608-4-git-send-email-stefan.wahren@i2se.com>
-References: <1487280047-29608-1-git-send-email-stefan.wahren@i2se.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.10]:50591 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933107AbdBPVVq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Feb 2017 16:21:46 -0500
-In-Reply-To: <1487280047-29608-1-git-send-email-stefan.wahren@i2se.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH v2] i2c: at91: ensure state is restored after suspending
+Date: Fri, 17 Feb 2017 09:24:39 +0100
+Message-ID: <20170217082439.mcfxoccwiwoj5ako@rfolt0960.corp.atmel.com>
+References: <20170216172759.27837-1-alexandre.belloni@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170216172759.27837-1-alexandre.belloni@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Ludovic Desroches <ludovic.desroches@atmel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Eric Anholt <eric@anholt.net>, Wolfram Sang <wsa@the-dreams.de>, Peter Robinson <pbrobinson@gmail.com>
-Cc: Martin Sperl <kernel@martin.sperl.org>, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-rpi-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>
 
-According to the firmware DT blob [1] the RPi 3 uses different
-pins for i2c0 and pwm.
+On Thu, Feb 16, 2017 at 06:27:59PM +0100, Alexandre Belloni wrote:
+> When going to suspend, the I2C registers may be lost because the power to
+> VDDcore is cut. Restore them when resuming.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-[1] - https://github.com/raspberrypi/firmware/blob/master/extra/dt-blob.dts
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-Fixes: 9d56c22a7861 ("ARM: bcm2835: Add devicetree for the Raspberry Pi 3.")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
----
- arch/arm64/boot/dts/broadcom/bcm2837-rpi.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm64/boot/dts/broadcom/bcm2837-rpi.dtsi b/arch/arm64/boot/dts/broadcom/bcm2837-rpi.dtsi
-index 6ddf7df..9f3f3ed 100644
---- a/arch/arm64/boot/dts/broadcom/bcm2837-rpi.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/bcm2837-rpi.dtsi
-@@ -46,7 +46,7 @@
- 
- &i2c0 {
- 	pinctrl-names = "default";
--	pinctrl-0 = <&i2c0_gpio0>;
-+	pinctrl-0 = <&i2c0_gpio44>;
- 	status = "okay";
- 	clock-frequency = <100000>;
- };
-@@ -71,7 +71,7 @@
- 
- &pwm {
- 	pinctrl-names = "default";
--	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
-+	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio41>;
- 	status = "okay";
- };
- 
--- 
-1.7.9.5
+> ---
+> Changes in v2:
+>  - don't cache unecessary registers and simply call at91_init_twi_bus()
+> 
+> 
+>  drivers/i2c/busses/i2c-at91.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 0b86c6173e07..c925a690cb32 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -1180,6 +1180,7 @@ static int at91_twi_suspend_noirq(struct device *dev)
+>  
+>  static int at91_twi_resume_noirq(struct device *dev)
+>  {
+> +	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
+>  	int ret;
+>  
+>  	if (!pm_runtime_status_suspended(dev)) {
+> @@ -1191,6 +1192,8 @@ static int at91_twi_resume_noirq(struct device *dev)
+>  	pm_runtime_mark_last_busy(dev);
+>  	pm_request_autosuspend(dev);
+>  
+> +	at91_init_twi_bus(twi_dev);
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.11.0
+> 
