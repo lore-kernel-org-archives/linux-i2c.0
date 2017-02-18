@@ -1,22 +1,22 @@
 From: James Maki <jamescmaki@revolayer.com>
 Subject: lis3lv02d i2c access on shutdown
-Date: Sat, 18 Feb 2017 11:43:18 -0600
-Message-ID: <e41b962a-70b9-d2ed-359f-06abd1d08405@revolayer.com>
+Date: Sat, 18 Feb 2017 12:02:43 -0600
+Message-ID: <3954427e-9b04-af29-6506-283f71443479@revolayer.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from p3nlsmtpcp01-02.prod.phx3.secureserver.net ([184.168.200.140]:55912
-        "EHLO p3nlsmtpcp01-02.prod.phx3.secureserver.net"
+Received: from p3nlsmtpcp01-04.prod.phx3.secureserver.net ([184.168.200.145]:35110
+        "EHLO p3nlsmtpcp01-04.prod.phx3.secureserver.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753035AbdBRRqd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 18 Feb 2017 12:46:33 -0500
-Received: from 208-107-182-215-dynamic.midco.net ([208.107.182.215]:49390 helo=[192.168.8.8])
+        id S1753640AbdBRSN2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 18 Feb 2017 13:13:28 -0500
+Received: from 208-107-182-215-dynamic.midco.net ([208.107.182.215]:49796 helo=[192.168.8.8])
         by p3plcpnl0870.prod.phx3.secureserver.net with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
         (Exim 4.87)
         (envelope-from <jamescmaki@revolayer.com>)
-        id 1cf94d-0005kV-Vq
-        for linux-i2c@vger.kernel.org; Sat, 18 Feb 2017 10:45:32 -0700
+        id 1cf9NR-0000FK-Cu
+        for linux-i2c@vger.kernel.org; Sat, 18 Feb 2017 11:04:57 -0700
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
