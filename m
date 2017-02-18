@@ -1,27 +1,51 @@
-From: Jun Nie <jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 3/3] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Sat, 18 Feb 2017 17:44:41 +0800
-Message-ID: <CABymUCOxYXGb-K-wMBwwxHY5VmGe+ahnEzH=zierPW3vzocXSA@mail.gmail.com>
-References: <1487224844-10973-1-git-send-email-baoyou.xie@linaro.org> <1487224844-10973-3-git-send-email-baoyou.xie@linaro.org>
+From: James Maki <jamescmaki@revolayer.com>
+Subject: lis3lv02d i2c access on shutdown
+Date: Sat, 18 Feb 2017 11:43:18 -0600
+Message-ID: <e41b962a-70b9-d2ed-359f-06abd1d08405@revolayer.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1487224844-10973-3-git-send-email-baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "xie.baoyou" <xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org>, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from p3nlsmtpcp01-02.prod.phx3.secureserver.net ([184.168.200.140]:55912
+        "EHLO p3nlsmtpcp01-02.prod.phx3.secureserver.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753035AbdBRRqd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 18 Feb 2017 12:46:33 -0500
+Received: from 208-107-182-215-dynamic.midco.net ([208.107.182.215]:49390 helo=[192.168.8.8])
+        by p3plcpnl0870.prod.phx3.secureserver.net with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.87)
+        (envelope-from <jamescmaki@revolayer.com>)
+        id 1cf94d-0005kV-Vq
+        for linux-i2c@vger.kernel.org; Sat, 18 Feb 2017 10:45:32 -0700
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-2017-02-16 14:00 GMT+08:00 Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>:
-> This patch adds i2c controller driver for ZTE's zx2967 family.
->
-> Signed-off-by: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Reviewed-by: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Hi,
 
-Reviewed-by: Jun Nie <jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I have an TI am335x that is using a i2c PMIC with pm_power_off  hook 
+which locks up on shutdown. The pm_power_off hook gets stuck obtaining 
+i2c_lock_adapter(). The holder of the lock is the lis3lv02d 
+accelerometer which never releases it.
+
+I do not think there is an issue in lis3lv02d. I think this is a general 
+issue with i2c since other drivers have the same design. What I don't 
+have is clear understanding of if/when/how i2c_transfer() can be called 
+post kernel_power_off(). Is it possible to call i2c_transfer() at this 
+point. I have tried calling schedule() and msleep() inside of 
+kernel_power_off() after syscore_shutdown(). It looks like interrupts 
+are enabled and I can still schedule at this point. So how is it 
+possible that lis3lv02d is never able to exit the i2c_transfer()? Is 
+there some other lock inside i2c_transfer that it is blocking on?
+
+Is it possible that the process which had the accelerometer open has 
+exited while holding the i2c lock. Is it even possible for a device to 
+shutdown or file to close while holding a lock in the kernel?
+
+I looked at adding a lis3lv02d_i2c_shutdown, but that was too late in 
+the process already and the lis3lv02d was already stuck. Is there a very 
+early place during shutdown that I can kick everyone off the i2c bus? 
+Obviously this might not be the best general solution, but my concern 
+right now is fixing the problem on this particular system first.
+
+-James
