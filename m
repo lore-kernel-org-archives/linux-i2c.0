@@ -1,69 +1,69 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: Add Tegra BPMP I2C proxy driver
-Date: Mon, 20 Feb 2017 19:17:47 +0100
-Message-ID: <20170220181747.lykox7o4ik6d5snu@ninjato>
-References: <20170220165234.29299-1-thierry.reding@gmail.com>
- <20170220165234.29299-2-thierry.reding@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH RFC 1/3] i2c: bcm2835: Avoid possible NULL ptr dereference
+Date: Mon, 20 Feb 2017 19:22:15 +0100
+Message-ID: <20170220182214.izi46a7lbzck7q4r@ninjato>
+References: <1487280047-29608-1-git-send-email-stefan.wahren@i2se.com>
+ <1487280047-29608-2-git-send-email-stefan.wahren@i2se.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yv7t2gkaerqmf5lo"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="s6nbjhsjjtgw43x4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:44782 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751935AbdBTSWR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 20 Feb 2017 13:22:17 -0500
 Content-Disposition: inline
-In-Reply-To: <20170220165234.29299-2-thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1487280047-29608-2-git-send-email-stefan.wahren@i2se.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Eric Anholt <eric@anholt.net>, Peter Robinson <pbrobinson@gmail.com>, Martin Sperl <kernel@martin.sperl.org>, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-rpi-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---yv7t2gkaerqmf5lo
-Content-Type: text/plain; charset=us-ascii
+--s6nbjhsjjtgw43x4
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 20, 2017 at 05:52:34PM +0100, Thierry Reding wrote:
-> From: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+On Thu, Feb 16, 2017 at 09:20:45PM +0000, Stefan Wahren wrote:
+> Since commit e2474541032d ("bcm2835: Fix hang for writing messages
+> larger than 16 bytes") the interrupt handler is prone to a possible
+> NULL pointer dereference. This could happen if an interrupt fires
+> before curr_msg is set by bcm2835_i2c_xfer_msg() and randomly occurs
+> on the RPi 3. Even this is an unexpected behavior the driver must
+> handle that with an error instead of a crash.
 >=20
-> Add Tegra BPMP I2C driver. The BPMP is the boot and power management
-> processor embedded in Tegra SoCs. In newer SoC versions, access to one
-> of the I2C busses goes via the BPMP, requiring a different "proxy" I2C
-> driver that accesses the bus via the real I2C driver embedded in the
-> BPMP firmware.
->=20
-> Signed-off-by: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> CC: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
+> CC: Martin Sperl <kernel@martin.sperl.org>
+> Reported-by: Peter Robinson <pbrobinson@gmail.com>
+> Fixes: e2474541032d ("bcm2835: Fix hang for writing messages larger than =
+16 bytes")
+> Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
 
-Applied to for-next, thanks (will be in for 4.11)!
+Applied to for-next, thanks (will be in 4.11)!
 
-> Changes in v3:
-> - pass struct mrq_i2c_response to deserialization function to make it
->   symmetrical to serialization
-> - use module_platform_driver(), no need for initcall ordering tricks
+Note for patches 2+3: I usually don't take DTS changes via I2C, so this
+likely needs to go via arm-soc or some other bcm tree.
 
-Yay, I really like this one!
 
-> - remove error message on adapter registration failure
-> - remove unneeded I2C adapter class assignment
-> - remove misleading TODO comment
-
---yv7t2gkaerqmf5lo
+--s6nbjhsjjtgw43x4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlirMssACgkQFA3kzBSg
-KbZUnQ//V86AKmzDHahzCOMxmeaTd3FtNyNcNpY4R5la7XT60zqUBiIGkQ2CP3nA
-17gWFDR4F5CfmA/tDMBfeC6tU8M+eLbO+UojqoCOMDdogGDtN3tkVmdvfKwS+3Av
-fCjXOeB2A/nXLrTSCEIvIV3kt4unbH0H2GJscwqzZNsuHRq+i8x0mwEliXG0bEfS
-i8x/htESoO/NDKCmEhl+u6ySCvavpbQJffxOqVTQQgTEaJ8qj8i/4XqcaWBLLBbo
-pdfm7atArxeXAwIv16b/DCSVpKlRLT2ejdKiW3BDmi74kEwjOswvB4PTf5pMC42y
-HRuKCz8flZ9dUvSfOsjsqE1Tf2vwjEDzDNgVY781API7AVsgGVtg/sIBi79LEN28
-KUyoPmpA2gU11DG2XMoOimyOwMYwqHZ5+NmxngJIPK+pvYR1Ffwv7UJf9XAaGbFI
-I7uSQWCDYfyFPLXI4I/abOH+3K8BCFv2ptGgpUQg0HjFMw3oc5MVUzB5l2U3AC02
-URpFKtpVv3SRJ+/qCOBtFZA3oWahOFa2zJmrinlm1/Gt4uj/BXir0vNCl+R8WvMP
-MaI+2hjuHhBYIf98tPiGH37FIdINAW0pavWdwsPwDUJtWxSoRkeVF56w/DU/qIdF
-mhQSYI362bMVPrC4WJRNgFaTMbm4wHHI/YtY55wkKy5/UsoqiTQ=
-=X+g3
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlirM9YACgkQFA3kzBSg
+KbZDvA/9H3SLoBMp4dbfr6Qk7SI6WGdFdsHe+dh6zv7lb9tQ0vLTB4DTaU+5Ijpd
+gSYudVPZJe60RLS4rYRLB8HW1H9Cq4H9XwIlUuLnOHhMcpQmkW37BW1QsRpvoTIc
+TJKTA+XzEsCWTKAda+jXA5WUOENmNbzKx51a9nCe+lStUtqoDGdEDiW7gRiM4kC8
+3PYlqywfgDNeGHrDsyITL2GdjFIDE3y/B6rrdXTYQxotqVSE6D9PNnQAHBeL7QVO
+LOrrMoaBfI6p9cILKGiIVekpL2e8CBK5XL/f8365GApT/1tsrVRsKnmGFnRZOpbd
+xDsvDc9QNmehRf1zgc+BVXfYo83hlU5wQcKorI4l15KtPBvS89XFCZQhf+/H3Nfd
+36SmWVb6UihfJ9YCzZMQQZbzmNoi+GnaEzldkVALgAGBAHQtet30UVVwTie7QZHz
+9oPsJ+LShxeMSVMcXlK0G4zUdusqZkdYvFJAJ+M74HFxygto+X8uEju20uBus+TL
+qu9fVlpYRoiduoKZ62zzCQrvgT2MMI9bZg2XGNoIwlKbqLVm+96gJQnH6Op4BDqZ
+KONXj+ARMuFPn1VKpwB4Sc+CfYBkNe6IGKxv+PS+nPEyhBQDk4P/dvjWWLbNKoYI
+V7XlQ614onjJkTKeXs0RWXfijbXJNrzsHBFRr8DE6BxJ7Ek4YMM=
+=WcBm
 -----END PGP SIGNATURE-----
 
---yv7t2gkaerqmf5lo--
+--s6nbjhsjjtgw43x4--
