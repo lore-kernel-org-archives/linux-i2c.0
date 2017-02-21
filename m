@@ -1,76 +1,131 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH RFC 1/3] i2c: bcm2835: Avoid possible NULL ptr dereference
-Date: Tue, 21 Feb 2017 21:14:03 +0100
-Message-ID: <20170221201403.GA1481@katana>
-References: <1487280047-29608-1-git-send-email-stefan.wahren@i2se.com>
- <1487280047-29608-2-git-send-email-stefan.wahren@i2se.com>
- <20170220182214.izi46a7lbzck7q4r@ninjato>
- <23773cd4-a9a4-5323-4cc2-71d1d617b232@i2se.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v7 3/3] i2c: zx2967: add i2c controller driver for ZTE's
+  zx2967 family
+Date: Tue, 21 Feb 2017 23:23:25 +0100
+Message-ID: <20170221222325.7w2h3w2qp2n2gzte@ninjato>
+References: <1487224844-10973-1-git-send-email-baoyou.xie@linaro.org>
+ <1487224844-10973-3-git-send-email-baoyou.xie@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:45010 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752239AbdBUUOI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Feb 2017 15:14:08 -0500
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bkivfo2o4oz4y7st"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <23773cd4-a9a4-5323-4cc2-71d1d617b232@i2se.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1487224844-10973-3-git-send-email-baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baoyou Xie <baoyou.xie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jun.nie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, xie.baoyou-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, chen.chaokai-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org, wang.qiang01-Th6q7B73Y6EnDS1+zs4M5A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Eric Anholt <eric@anholt.net>, Peter Robinson <pbrobinson@gmail.com>, Martin Sperl <kernel@martin.sperl.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org
 
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=utf-8
+--bkivfo2o4oz4y7st
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> >On Thu, Feb 16, 2017 at 09:20:45PM +0000, Stefan Wahren wrote:
-> >>Since commit e2474541032d ("bcm2835: Fix hang for writing messages
-> >>larger than 16 bytes") the interrupt handler is prone to a possible
-> >>NULL pointer dereference. This could happen if an interrupt fires
-> >>before curr_msg is set by bcm2835_i2c_xfer_msg() and randomly occurs
-> >>on the RPi 3. Even this is an unexpected behavior the driver must
-> >>handle that with an error instead of a crash.
-> >>
-> >>CC: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
-> >>CC: Martin Sperl <kernel@martin.sperl.org>
-> >>Reported-by: Peter Robinson <pbrobinson@gmail.com>
-> >>Fixes: e2474541032d ("bcm2835: Fix hang for writing messages larger tha=
-n 16 bytes")
-> >>Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-> >Applied to for-next, thanks (will be in 4.11)!
-> >
->=20
-> since this patch is too late for 4.10, should i resent with CC to stable =
-in
-> order to get it into the next 4.10 release?
+> +static int
+> +zx2967_i2c_xfer_read_bytes(struct zx2967_i2c_info *zx_i2c, u32 bytes)
+> +{
+> +	unsigned long time_left;
+> +
+> +	reinit_completion(&zx_i2c->complete);
+> +	zx2967_i2c_writel(zx_i2c, bytes - 1, REG_RDCONF);
+> +	zx2967_i2c_start_ctrl(zx_i2c);
+> +
+> +	time_left = wait_for_completion_timeout(&zx_i2c->complete,
+> +				I2C_TIMEOUT);
+> +	if (time_left == 0) {
+> +		dev_err(DEV(zx_i2c), "read i2c transfer timed out\n");
+> +		disable_irq(zx_i2c->irq);
+> +		zx2967_i2c_reset_hardware(zx_i2c);
+> +		return -EIO;
+> +	}
+> +
+> +	return zx2967_i2c_empty_rx_fifo(zx_i2c, bytes);
+> +}
 
-It has the Fixes: tag, that will do.
+Timeouts do happen on an I2C bus (e.g. when an EEPROM is in an erase
+cycle). Or try 'i2cdetect -r'. At least, the dev_err should go. But I
+also wonder if you really need to reset the hardware?
+
+> +static int zx2967_i2c_xfer_read(struct zx2967_i2c_info *zx_i2c)
+> +{
+> +	int ret;
+> +	int i;
+> +
+> +	for (i = 0; i < zx_i2c->access_cnt; i++) {
+> +		ret = zx2967_i2c_xfer_read_bytes(zx_i2c, I2C_FIFO_MAX);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (zx_i2c->residue > 0) {
+> +		ret = zx2967_i2c_xfer_read_bytes(zx_i2c, zx_i2c->residue);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	zx_i2c->residue = 0;
+> +	zx_i2c->access_cnt = 0;
+> +	return 0;
+> +}
+> +
+
+This function...
+
+> +static int zx2967_i2c_xfer_write(struct zx2967_i2c_info *zx_i2c)
+> +{
+> +	int ret;
+> +	int i;
+> +
+> +	for (i = 0; i < zx_i2c->access_cnt; i++) {
+> +		ret = zx2967_i2c_xfer_write_bytes(zx_i2c, I2C_FIFO_MAX);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (zx_i2c->residue > 0) {
+> +		ret = zx2967_i2c_xfer_write_bytes(zx_i2c, zx_i2c->residue);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	zx_i2c->residue = 0;
+> +	zx_i2c->access_cnt = 0;
+> +	return 0;
+> +}
+
+... and this are one example where the read- and write-counterparts are
+very similar. I wonder if we would do better having just one function
+and handle the difference with some if(). Example here: If you'd unify
+zx2967_i2c_xfer_write_bytes() and zx2967_i2c_xfer_read_bytes() into one
+generic function then zx2967_i2c_xfer_write() and zx2967_i2c_xfer_read
+automatically become identical AFAICS. Thoughts?
+
+   Wolfram
 
 
---tThc/1wpZn/ma/RB
+--bkivfo2o4oz4y7st
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iQIcBAEBAgAGBQJYrJ+LAAoJEBQN5MwUoCm2KBUP/1zD0skX/CfkGhAphN29TXEQ
-xHOTfyQWgUtd9aYas/WJw27pQ29Q2m1C3zW8uXIr0hLbATf0ip5qgocJUXvzXjkl
-Io6eEUxZ0tJHQ/WhMACvKu8stvAWTkTZ8B3hH+HbUXz/Xu4qo9ZbNAcqFi+Bt+xb
-RslVR+3QucRrWCrXgyCMBk5hWbOp1Qq00fFkv5mSNxBYRhwyJkfCMIhG+0t3pwvW
-tGW8WiqA+mRwjNyLwC9oV2VBu92OufP4hkQWwXN8aZVh0CgIDLfnHoEdXJ4jh2N5
-mI2V9ECLN7fGvQ2vXLJgUd1Eq/+JAJZLsEVJ3YJINIQ5RkiryQr0NsUU18feGRmE
-JrgFrmovfOz0YBuj2/vZud2C1aLZ8awln8vGkzIy1SNmLsQj5tiWTOZ4hCvkz0ol
-gmlKl72Pg7XmeIIYjPEOWyVuDQRVfxtnXYEj8rB0W8G7KZfQ2E1dcdcQOwIf66Nm
-7jw0n5QajQbzfelaxuMrUeoolZbNGDSrBdBuc04LOL/foxm9LODfyRuMCMvKgSHa
-EM0mCAu9sTGUFyAC6DHh7asnbUV9oNB35dIenu0M4Wo02xI06Gwkln6BTRpEieXv
-g3l0eOSp7J1bNBtH8QXzi3FteVrQn8XDXpPykv4w2xxFe+VyAt6E5elHOKrKaP35
-FnLXPb4/tJD0b/XvS54O
-=ESxE
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlisvc4ACgkQFA3kzBSg
+KbbHdhAAnpPCuthPsVJ7cpwOwEtd7DwEjDakAl7aHUAGnnNpfugvvYjHQqtX1cyI
+U2jURiwoexmBTS/Ka+9c8GjYjz2KKCY+3U7Lhs5FWrAHlvYlxrqHo7KZQqT74U4F
+Vfr0tb3n9QNJUVdiYQuznnDPZmkuljz+FMEhthQTqOlpBXgQpZ7fYinFNo4+Duy5
+jbUscAfzwblvRh1rzNkddQaM+zulziE96N6zJoatyaWPRp7G7tL5IKqb3S761eP1
+AIqGHe6Zax40YHEOWhs1k/YpMoeQyBVi/1i0AQIJsq5+OXHqq0h21d3tZDHW/ezA
+FIwjMbIK3befCOHZowUE2bZthK/KaLdj3aigPZDKYf1FZBUPhMKI7+cTYkaE4vFp
+6U3RBCfIs7mUxXNhA7kD80dmEsVA6PYkfAY1Tej5Jib9cA7891Zlj0GA1Exp6UTL
+pDnC1ruA3ZtbTAAlTa5W2HLqjmab+YzCDQnxU01TbdbMcwwUgC85SoEzGI873LTE
+UHykEi9F1p5TA725369/LeGYCISVQm6htynH5Cvtc0EdLnj1YgGX3kQPueh+9Jvq
+KmTSOt1PdlIUSzndR0YUKvDQRov3ZUrWTXm9LDKlAQRBmLPQrnI4nvWHZ958dQ05
+K4GNCKfyGtsnullvCZoa1wmpiLtPbrJTiL7kzYJYp9wQjeM9cJI=
+=xd+b
 -----END PGP SIGNATURE-----
 
---tThc/1wpZn/ma/RB--
+--bkivfo2o4oz4y7st--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
