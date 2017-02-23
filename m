@@ -1,61 +1,35 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 3/3] i2c: zx2967: add i2c controller driver for ZTE's
-  zx2967 family
-Date: Wed, 22 Feb 2017 17:00:50 +0100
-Message-ID: <20170222160050.GA1479@katana>
-References: <1487755132-7730-1-git-send-email-baoyou.xie@linaro.org>
- <1487755132-7730-3-git-send-email-baoyou.xie@linaro.org>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH v2] i2c: exynos5: fix arbitration lost handling
+Date: Thu, 23 Feb 2017 15:29:52 +0900
+Message-ID: <20170223062952.rkvnp2bkvau47txv@gangnam.samsung>
+References: <CGME20170222110438eucas1p2329ece7afd9e22ba185da64ccf4b2981@eucas1p2.samsung.com>
+ <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:40620 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754771AbdBVQHf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 22 Feb 2017 11:07:35 -0500
-Content-Disposition: inline
-In-Reply-To: <1487755132-7730-3-git-send-email-baoyou.xie@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Baoyou Xie <baoyou.xie@linaro.org>
-Cc: shawnguo@kernel.org, andy.shevchenko@gmail.com, jun.nie@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xie.baoyou@zte.com.cn, chen.chaokai@zte.com.cn, wang.qiang01@zte.com.cn
-
-
---yrj/dFKFPuw6o+aM
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-disposition: inline
+In-reply-to: <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 22, 2017 at 05:18:52PM +0800, Baoyou Xie wrote:
-> This patch adds i2c controller driver for ZTE's zx2967 family.
->=20
-> Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
-> Reviewed-by: Shawn Guo <shawnguo@kernel.org>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Reviewed-by: Jun Nie <jun.nie@linaro.org>
+Hi Andrzej,
 
-Please provide a changelog what you changed since the last version.
+On Wed, Feb 22, 2017 at 12:04:34PM +0100, Andrzej Hajda wrote:
+> In case of arbitration lost adequate interrupt sometimes is not signaled.
+> As a result transfer timeouts and is not retried, as it should. To avoid
+> such cases code is added to check transaction status in case of every
+> interrupt.
+> 
+> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
 
+you forgot:
 
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature; name="signature.asc"
+Tested-by: Andi Shyti <andi.shyti@samsung.com>
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+in any case I tested it again on tm2e with next-20170223.
 
-iQIcBAEBAgAGBQJYrbWyAAoJEBQN5MwUoCm2NcAQAKEVthhtZbQO9k2XtX8hF2DK
-eJAtV3OeE6Gf9oJwvKvcvz/EUt8ARHWzxXFvmVeynOEqUB5jarAl1O3XtCKmuFhc
-TVnghRxfyW3YPP4/X/zAH4/3H6PJUwaAq4pbZTXQUoPeI1nq7wyScv93g5RNlfLA
-HdYb5KyJNEIvHC9/kkl6c+NnXM7ILuNP78GUXwYj+d4NbGulsr2HwYsZIMvtBczy
-LpRBUyhW9tdT+0iDjAYCtC2BZsRwPmzAVfFk40y/hnQKeX9V+Ta0g6n3NJgntj3M
-S3au6BlTJ8wOZPO/pVpb4IqEGVKGJ8cOUcCnO6M1dhNN595Bv1PXvaqXQ+9xxwlQ
-KTue4ljc/Ip1lQM/xxIoYFbchcmznCd0LNvCDhYAShV9BuX5BB9BorA0E/ZYtYnY
-fNJ+QiVyaPnQuQx8wQBWg+Lgmtd412/orbn3BVE+c7NRmMmEqvS5V+zZz5Ae7WQV
-s+Am+7+v+wXiG9uN2ji/tm4vGiSWWYyUmN6EN9iTea8Gq/NXEJrTe5IbhRzOoAGN
-Ek1YkZEi7C9ti/qyvmTXdPSfIYWbobbXk5Xk6Kxp+z0uHlh6v+DHXf8oMfkaDzZY
-nj/Ga7olS88RAyYOAMNJDJ5wXSwoGgyGuVTGHNe/Q/WRoOC7QYtsXLuKm7pW3N9K
-NZDEhbVyCTFg2+gXqcDI
-=kP+H
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+Thanks,
+Andi
