@@ -1,58 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: exynos5: fix arbitration lost handling
-Date: Thu, 23 Feb 2017 13:03:15 +0100
-Message-ID: <20170223120315.htz7gcfmtudmt224@ninjato>
-References: <CGME20170222110438eucas1p2329ece7afd9e22ba185da64ccf4b2981@eucas1p2.samsung.com>
- <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v3 2/2] i2c: Add Tegra BPMP I2C proxy driver
+Date: Thu, 23 Feb 2017 17:18:50 +0100
+Message-ID: <20170223161850.GA15601@ulmo.ba.sec>
+References: <20170220165234.29299-1-thierry.reding@gmail.com>
+ <20170220165234.29299-2-thierry.reding@gmail.com>
+ <20170220181747.lykox7o4ik6d5snu@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="guxdo44meikh2ajj"
+        protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:47103 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751049AbdBWMMy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Feb 2017 07:12:54 -0500
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:34477 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751158AbdBWQSy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Feb 2017 11:18:54 -0500
 Content-Disposition: inline
-In-Reply-To: <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
+In-Reply-To: <20170220181747.lykox7o4ik6d5snu@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Andi Shyti <andi.shyti@samsung.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 
 
---guxdo44meikh2ajj
+--MGYHOYXEY6WxJCY8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 22, 2017 at 12:04:34PM +0100, Andrzej Hajda wrote:
-> In case of arbitration lost adequate interrupt sometimes is not signaled.
-> As a result transfer timeouts and is not retried, as it should. To avoid
-> such cases code is added to check transaction status in case of every
-> interrupt.
+On Mon, Feb 20, 2017 at 07:17:47PM +0100, Wolfram Sang wrote:
+> On Mon, Feb 20, 2017 at 05:52:34PM +0100, Thierry Reding wrote:
+> > From: Shardar Shariff Md <smohammed@nvidia.com>
+> >=20
+> > Add Tegra BPMP I2C driver. The BPMP is the boot and power management
+> > processor embedded in Tegra SoCs. In newer SoC versions, access to one
+> > of the I2C busses goes via the BPMP, requiring a different "proxy" I2C
+> > driver that accesses the bus via the real I2C driver embedded in the
+> > BPMP firmware.
+> >=20
+> > Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+> > Signed-off-by: Thierry Reding <treding@nvidia.com>
 >=20
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> Applied to for-next, thanks (will be in for 4.11)!
 
-Applied to for-next (will be in this merge window), thanks!
+Thanks for fast-tracking this!
 
---guxdo44meikh2ajj
+Thierry
+
+--MGYHOYXEY6WxJCY8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAliuz4MACgkQFA3kzBSg
-KbZ++w/+JYY7F/EO5p9oHCZuexfcREYGDH5RbAVr+CBybokQKY5DHtk6as2yKJDN
-jX4dDRr2OaQ76CirpUdOaK8t5/EWYR6JVplL7mnmJwwUpQCRz3FdRRX+/SLkSMYf
-HBovnbGUjMYahILoF5pLSGkLd6QOdLvMekIXHXrK49+wQSIC0LHTcR849uHO3KNH
-trMejRJ1aNVJUDP3x8udIMKAGOd8niRu62uh8GcsF4TtCSXYdupYDDsaadecHUBd
-SVHJHvHRyNJv8E/sAC27upSAqtPgY+Zmc4U4rbDzGKEjxzroAsvyVMtJbrEyCEj8
-czIahaNxhQiYv/L8T/aR8ruUV45NBlyUOl3GLiCM58W8Vz6q0ph973mPrcVg/zJG
-f83HUBqJ0haWCwFG4XqSuSfkzLbx44uQ5Z1xT3Zbayy12Qp9JP01xs3X3AYO64Nb
-ayOnYTGuR9Pvvbbx7vdfQIfONgtOChXDfSfrQpUQ+QJ5HT6anqZnrqIAbZ6U8iiQ
-aYu+FvNjNS9PAlF3rP9o4ttfjqFxP7tABatjOKHmwGUrhTVCAFlXmJgOu9CMW6xz
-IWvHjXzSlA10ZcWS7ge3PCrfjjoe04ZUj1iUyIkSTbFL3X2AzVGmMM44lR3k1pt2
-/8L6RnrAqzMsB7XB/KDAnroSCu+Xi/H4rvv9qkZzS0mTRWKv8Bg=
-=47aA
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlivC2gACgkQ3SOs138+
+s6EVdg//QawdgVW+mjTkZ0KtT4ad1NVDhAssm2buvUQ0EulQpNkfnwgiICLCJyom
+sZk5spjy+ZkVpg2OjGru6Cgahn9YY0NTvoycjkygBAZXMI1ZlfgE/RhF5dpzL9r8
+hZ9ikr+FLM2Jlw5BRvpJrW5pLk/j02GaKVstGqeYLXrtfGEGmMdRZcphhzUnju5K
+KV6gPTTresWpVGZlq6W/ZMQiWqTMzbykxnfdR731Vh7cGLF1qQp4xA0CyaJedW2t
+fZazlI8CZHROAgg1nAzY8tLtqQ+n9NyEDxL7Te3e7srXi5VRGGBuxNckxtRyGW/G
+e4RjvUWp0a0lK9KqmvyeSfqB6rQw4VszfNbxIlyttScoPhXoXLLwV675WBFds5oE
+4Sq2cQsgugdppyGcmmW1vk9sNOFIS49+vHlTXQmDqoa5XI+XaHuKQZ95XaRMppnx
+zsugQZ2N4Bm64YtEjTTE6wciOgn5XvqewsqbIvGRb2PW6FFywCFCQqBH12K5k8KV
+8Zd75fPg1sz3hOuv3tH/0WcI5uluP57gEpqtPO4zcauGwSAx+a//4memkF5I90Oa
+Q+qEC6CD24gGqYS6AS6NVlav27JUIaJv8W5wuTl7Wgh8gN7aoHV/v2PYf/bSp7HH
+2OjEn8aSDAwnr8ogSaIqnOLw+QvF4hkS6f8IOM4ZT47KeLkIE8A=
+=MxH9
 -----END PGP SIGNATURE-----
 
---guxdo44meikh2ajj--
+--MGYHOYXEY6WxJCY8--
