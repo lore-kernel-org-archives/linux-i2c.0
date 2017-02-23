@@ -1,83 +1,27 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: [PATCH] i2c: exynos5: simplify timings calculation
-Date: Thu, 23 Feb 2017 17:47:26 +0100
-Message-ID: <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
-References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+From: Qin's Yanjun <Qin.Yanjun@null.net>
+Subject: RE:
+Date: Thu, 23 Feb 2017 20:09:29 +0500
+Message-ID: <cf3faff95fb3db02602e6f37c5cd928f__26037.6581842594$1487873458$gmane$org@mail.aknet.kz>
+Reply-To: Qin's Yanjun <Qin.Yanjun@null.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.aknet.kz ([88.151.176.20]:50085 "EHLO aknet.kz"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751352AbdBWSKq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Feb 2017 13:10:46 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Instead of using cryptic loop direct calculation of timings
-can be used.
 
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
----
- drivers/i2c/busses/i2c-exynos5.c | 40 ++++++++++++++--------------------------
- 1 file changed, 14 insertions(+), 26 deletions(-)
+How are you today and your family? I require your attention and honest
+co-operation about some issues which i will really want to discuss with you
+which.  Looking forward to read from you soon.  
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index cbd93ce..04127b8 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -292,9 +292,9 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
- 	unsigned int t_sr_release;
- 	unsigned int t_ftl_cycle;
- 	unsigned int clkin = clk_get_rate(i2c->clk);
--	unsigned int div, utemp0 = 0, utemp1 = 0, clk_cycle;
- 	unsigned int op_clk = (mode == HSI2C_HIGH_SPD) ?
- 				i2c->hs_clock : i2c->fs_clock;
-+	int div, clk_cycle, temp;
- 
- 	/*
- 	 * In case of HSI2C controller in Exynos5 series
-@@ -305,33 +305,21 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
- 	 * FPCLK / FI2C =
- 	 * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + FLT_CYCLE
- 	 *
--	 * utemp0 = (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2)
--	 * utemp1 = (TSCLK_L + TSCLK_H + 2)
-+	 * clk_cycle := TSCLK_L + TSCLK_H
-+	 * temp := (CLK_DIV + 1) * (clk_cycle + 2)
-+	 *
-+	 * Constraints: 4 <= temp, 0 <= CLK_DIV < 256, 2 <= clk_cycle <= 510
-+	 *
- 	 */
- 	t_ftl_cycle = (readl(i2c->regs + HSI2C_CONF) >> 16) & 0x7;
--	utemp0 = (clkin / op_clk) - 8;
--
--	if (i2c->variant->hw == HSI2C_EXYNOS7)
--		utemp0 -= t_ftl_cycle;
--	else
--		utemp0 -= 2 * t_ftl_cycle;
--
--	/* CLK_DIV max is 256 */
--	for (div = 0; div < 256; div++) {
--		utemp1 = utemp0 / (div + 1);
--
--		/*
--		 * SCL_L and SCL_H each has max value of 255
--		 * Hence, For the clk_cycle to the have right value
--		 * utemp1 has to be less then 512 and more than 4.
--		 */
--		if ((utemp1 < 512) && (utemp1 > 4)) {
--			clk_cycle = utemp1 - 2;
--			break;
--		} else if (div == 255) {
--			dev_warn(i2c->dev, "Failed to calculate divisor");
--			return -EINVAL;
--		}
-+	temp = clkin / op_clk - 8 - t_ftl_cycle;
-+	if (i2c->variant->hw != HSI2C_EXYNOS7)
-+		temp -= t_ftl_cycle;
-+	div = temp / 512;
-+	clk_cycle = temp / (div + 1) - 2;
-+	if (temp < 4 || div >= 256 || clk_cycle < 2) {
-+		dev_warn(i2c->dev, "Failed to calculate divisor");
-+		return -EINVAL;
- 	}
- 
- 	t_scl_l = clk_cycle / 2;
--- 
-2.7.4
+Qin's
+
+
+______________________________
+
+Sky Silk, http://aknet.kz
