@@ -1,68 +1,83 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: Add Tegra BPMP I2C proxy driver
-Date: Thu, 23 Feb 2017 17:18:50 +0100
-Message-ID: <20170223161850.GA15601@ulmo.ba.sec>
-References: <20170220165234.29299-1-thierry.reding@gmail.com>
- <20170220165234.29299-2-thierry.reding@gmail.com>
- <20170220181747.lykox7o4ik6d5snu@ninjato>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:34477 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751158AbdBWQSy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Feb 2017 11:18:54 -0500
-Content-Disposition: inline
-In-Reply-To: <20170220181747.lykox7o4ik6d5snu@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: [PATCH] i2c: exynos5: simplify timings calculation
+Date: Thu, 23 Feb 2017 17:47:26 +0100
+Message-ID: <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
+References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 
+Instead of using cryptic loop direct calculation of timings
+can be used.
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+---
+ drivers/i2c/busses/i2c-exynos5.c | 40 ++++++++++++++--------------------------
+ 1 file changed, 14 insertions(+), 26 deletions(-)
 
-On Mon, Feb 20, 2017 at 07:17:47PM +0100, Wolfram Sang wrote:
-> On Mon, Feb 20, 2017 at 05:52:34PM +0100, Thierry Reding wrote:
-> > From: Shardar Shariff Md <smohammed@nvidia.com>
-> >=20
-> > Add Tegra BPMP I2C driver. The BPMP is the boot and power management
-> > processor embedded in Tegra SoCs. In newer SoC versions, access to one
-> > of the I2C busses goes via the BPMP, requiring a different "proxy" I2C
-> > driver that accesses the bus via the real I2C driver embedded in the
-> > BPMP firmware.
-> >=20
-> > Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
-> > Signed-off-by: Thierry Reding <treding@nvidia.com>
->=20
-> Applied to for-next, thanks (will be in for 4.11)!
-
-Thanks for fast-tracking this!
-
-Thierry
-
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlivC2gACgkQ3SOs138+
-s6EVdg//QawdgVW+mjTkZ0KtT4ad1NVDhAssm2buvUQ0EulQpNkfnwgiICLCJyom
-sZk5spjy+ZkVpg2OjGru6Cgahn9YY0NTvoycjkygBAZXMI1ZlfgE/RhF5dpzL9r8
-hZ9ikr+FLM2Jlw5BRvpJrW5pLk/j02GaKVstGqeYLXrtfGEGmMdRZcphhzUnju5K
-KV6gPTTresWpVGZlq6W/ZMQiWqTMzbykxnfdR731Vh7cGLF1qQp4xA0CyaJedW2t
-fZazlI8CZHROAgg1nAzY8tLtqQ+n9NyEDxL7Te3e7srXi5VRGGBuxNckxtRyGW/G
-e4RjvUWp0a0lK9KqmvyeSfqB6rQw4VszfNbxIlyttScoPhXoXLLwV675WBFds5oE
-4Sq2cQsgugdppyGcmmW1vk9sNOFIS49+vHlTXQmDqoa5XI+XaHuKQZ95XaRMppnx
-zsugQZ2N4Bm64YtEjTTE6wciOgn5XvqewsqbIvGRb2PW6FFywCFCQqBH12K5k8KV
-8Zd75fPg1sz3hOuv3tH/0WcI5uluP57gEpqtPO4zcauGwSAx+a//4memkF5I90Oa
-Q+qEC6CD24gGqYS6AS6NVlav27JUIaJv8W5wuTl7Wgh8gN7aoHV/v2PYf/bSp7HH
-2OjEn8aSDAwnr8ogSaIqnOLw+QvF4hkS6f8IOM4ZT47KeLkIE8A=
-=MxH9
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index cbd93ce..04127b8 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -292,9 +292,9 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+ 	unsigned int t_sr_release;
+ 	unsigned int t_ftl_cycle;
+ 	unsigned int clkin = clk_get_rate(i2c->clk);
+-	unsigned int div, utemp0 = 0, utemp1 = 0, clk_cycle;
+ 	unsigned int op_clk = (mode == HSI2C_HIGH_SPD) ?
+ 				i2c->hs_clock : i2c->fs_clock;
++	int div, clk_cycle, temp;
+ 
+ 	/*
+ 	 * In case of HSI2C controller in Exynos5 series
+@@ -305,33 +305,21 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+ 	 * FPCLK / FI2C =
+ 	 * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + FLT_CYCLE
+ 	 *
+-	 * utemp0 = (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2)
+-	 * utemp1 = (TSCLK_L + TSCLK_H + 2)
++	 * clk_cycle := TSCLK_L + TSCLK_H
++	 * temp := (CLK_DIV + 1) * (clk_cycle + 2)
++	 *
++	 * Constraints: 4 <= temp, 0 <= CLK_DIV < 256, 2 <= clk_cycle <= 510
++	 *
+ 	 */
+ 	t_ftl_cycle = (readl(i2c->regs + HSI2C_CONF) >> 16) & 0x7;
+-	utemp0 = (clkin / op_clk) - 8;
+-
+-	if (i2c->variant->hw == HSI2C_EXYNOS7)
+-		utemp0 -= t_ftl_cycle;
+-	else
+-		utemp0 -= 2 * t_ftl_cycle;
+-
+-	/* CLK_DIV max is 256 */
+-	for (div = 0; div < 256; div++) {
+-		utemp1 = utemp0 / (div + 1);
+-
+-		/*
+-		 * SCL_L and SCL_H each has max value of 255
+-		 * Hence, For the clk_cycle to the have right value
+-		 * utemp1 has to be less then 512 and more than 4.
+-		 */
+-		if ((utemp1 < 512) && (utemp1 > 4)) {
+-			clk_cycle = utemp1 - 2;
+-			break;
+-		} else if (div == 255) {
+-			dev_warn(i2c->dev, "Failed to calculate divisor");
+-			return -EINVAL;
+-		}
++	temp = clkin / op_clk - 8 - t_ftl_cycle;
++	if (i2c->variant->hw != HSI2C_EXYNOS7)
++		temp -= t_ftl_cycle;
++	div = temp / 512;
++	clk_cycle = temp / (div + 1) - 2;
++	if (temp < 4 || div >= 256 || clk_cycle < 2) {
++		dev_warn(i2c->dev, "Failed to calculate divisor");
++		return -EINVAL;
+ 	}
+ 
+ 	t_scl_l = clk_cycle / 2;
+-- 
+2.7.4
