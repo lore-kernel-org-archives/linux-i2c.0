@@ -1,51 +1,140 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 10/12] i2c: designware-baytrail: Call
-	pmic_bus_access_notifier_chain
-Date: Fri, 24 Feb 2017 10:29:10 +0100
-Message-ID: <20170224092912.10685-11-hdegoede@redhat.com>
-References: <20170224092912.10685-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170224092912.10685-1-hdegoede@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: [PATCH 1/2] i2c: exynos5: simplify clock frequency handling
+Date: Fri, 24 Feb 2017 12:16:01 +0100
+Message-ID: <1487934962-8703-1-git-send-email-a.hajda@samsung.com>
+References: <CGME20170224111634eucas1p22340b3b86a835e90ce981a9d9d4dc64a@eucas1p2.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout3.w1.samsung.com ([210.118.77.13]:13096 "EHLO
+        mailout3.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751115AbdBXLQj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Feb 2017 06:16:39 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 
-Q2FsbCB0aGUgaW9zZl9tYmkgcG1pY19idXNfYWNjZXNzX25vdGlmaWVyX2NoYWluIG9uIGJ1cyBh
-Y3F1aXJlIC8gcmVsZWFzZS4KCkJ1Z0xpbms6IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9z
-aG93X2J1Zy5jZ2k/aWQ9MTU1MjQxClNpZ25lZC1vZmYtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdv
-ZWRlQHJlZGhhdC5jb20+ClRlc3RlZC1ieTogdGFnb3JlcmVkZHkgPHRhZ29yZS5jaGFuZGFuQGdt
-YWlsLmNvbT4KUmV2aWV3ZWQtYnk6IEFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29A
-bGludXguaW50ZWwuY29tPgpBY2tlZC1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5k
-ZT4KQWNrZWQtYnk6IEphcmtrbyBOaWt1bGEgPGphcmtrby5uaWt1bGFAbGludXguaW50ZWwuY29t
-PgotLS0KQ2hhbmdlcyBpbiB2MjoKLVNwZWxsaW5nOiBQLVVuaXQsIFBNSUMKLS0tCiBkcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtYmF5dHJhaWwuYyB8IDQgKysrKwogMSBmaWxlIGNo
-YW5nZWQsIDQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtZGVzaWdud2FyZS1iYXl0cmFpbC5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253
-YXJlLWJheXRyYWlsLmMKaW5kZXggN2VkZGMzYi4uMTc0OWEwZiAxMDA2NDQKLS0tIGEvZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMKKysrIGIvZHJpdmVycy9pMmMv
-YnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMKQEAgLTYzLDYgKzYzLDggQEAgc3RhdGlj
-IHZvaWQgcmVzZXRfc2VtYXBob3JlKHN0cnVjdCBkd19pMmNfZGV2ICpkZXYpCiAKIAlwbV9xb3Nf
-dXBkYXRlX3JlcXVlc3QoJmRldi0+cG1fcW9zLCBQTV9RT1NfREVGQVVMVF9WQUxVRSk7CiAKKwlp
-b3NmX21iaV9jYWxsX3BtaWNfYnVzX2FjY2Vzc19ub3RpZmllcl9jaGFpbihNQklfUE1JQ19CVVNf
-QUNDRVNTX0VORCwKKwkJCQkJCSAgICAgTlVMTCk7CiAJaW9zZl9tYmlfcHVuaXRfcmVsZWFzZSgp
-OwogfQogCkBAIC04Miw2ICs4NCw4IEBAIHN0YXRpYyBpbnQgYmF5dHJhaWxfaTJjX2FjcXVpcmUo
-c3RydWN0IGR3X2kyY19kZXYgKmRldikKIAkJcmV0dXJuIDA7CiAKIAlpb3NmX21iaV9wdW5pdF9h
-Y3F1aXJlKCk7CisJaW9zZl9tYmlfY2FsbF9wbWljX2J1c19hY2Nlc3Nfbm90aWZpZXJfY2hhaW4o
-TUJJX1BNSUNfQlVTX0FDQ0VTU19CRUdJTiwKKwkJCQkJCSAgICAgTlVMTCk7CiAKIAkvKgogCSAq
-IERpc2FsbG93IHRoZSBDUFUgdG8gZW50ZXIgQzYgb3IgQzcgc3RhdGUsIGVudGVyaW5nIHRoZXNl
-IHN0YXRlcwotLSAKMi45LjMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNr
-dG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2lu
-dGVsLWdmeAo=
+There is no need to keep separate settings for high and fast speed clock.
+
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+---
+ drivers/i2c/busses/i2c-exynos5.c | 45 +++++++++++-----------------------------
+ 1 file changed, 12 insertions(+), 33 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 04127b8..54df9e6 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -168,8 +168,6 @@
+  */
+ #define HSI2C_HS_TX_CLOCK	1000000
+ #define HSI2C_FS_TX_CLOCK	100000
+-#define HSI2C_HIGH_SPD		1
+-#define HSI2C_FAST_SPD		0
+ 
+ #define EXYNOS5_I2C_TIMEOUT (msecs_to_jiffies(1000))
+ 
+@@ -200,15 +198,7 @@ struct exynos5_i2c {
+ 	int			trans_done;
+ 
+ 	/* Controller operating frequency */
+-	unsigned int		fs_clock;
+-	unsigned int		hs_clock;
+-
+-	/*
+-	 * HSI2C Controller can operate in
+-	 * 1. High speed upto 3.4Mbps
+-	 * 2. Fast speed upto 1Mbps
+-	 */
+-	int			speed_mode;
++	unsigned int		op_clock;
+ 
+ 	/* Version of HS-I2C Hardware */
+ 	struct exynos_hsi2c_variant	*variant;
+@@ -279,7 +269,7 @@ static void exynos5_i2c_clr_pend_irq(struct exynos5_i2c *i2c)
+  * Returns 0 on success, -EINVAL if the cycle length cannot
+  * be calculated.
+  */
+-static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
++static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, bool hs_timings)
+ {
+ 	u32 i2c_timing_s1;
+ 	u32 i2c_timing_s2;
+@@ -292,8 +282,9 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+ 	unsigned int t_sr_release;
+ 	unsigned int t_ftl_cycle;
+ 	unsigned int clkin = clk_get_rate(i2c->clk);
+-	unsigned int op_clk = (mode == HSI2C_HIGH_SPD) ?
+-				i2c->hs_clock : i2c->fs_clock;
++	unsigned int op_clk = hs_timings ? i2c->op_clock :
++		(i2c->op_clock >= HSI2C_HS_TX_CLOCK) ? HSI2C_FS_TX_CLOCK :
++		i2c->op_clock;
+ 	int div, clk_cycle, temp;
+ 
+ 	/*
+@@ -344,7 +335,7 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+ 		div, t_sr_release);
+ 	dev_dbg(i2c->dev, "tDATA_HD: %X\n", t_data_hd);
+ 
+-	if (mode == HSI2C_HIGH_SPD) {
++	if (hs_timings) {
+ 		writel(i2c_timing_s1, i2c->regs + HSI2C_TIMING_HS1);
+ 		writel(i2c_timing_s2, i2c->regs + HSI2C_TIMING_HS2);
+ 		writel(i2c_timing_s3, i2c->regs + HSI2C_TIMING_HS3);
+@@ -364,14 +355,14 @@ static int exynos5_hsi2c_clock_setup(struct exynos5_i2c *i2c)
+ 	 * Configure the Fast speed timing values
+ 	 * Even the High Speed mode initially starts with Fast mode
+ 	 */
+-	if (exynos5_i2c_set_timing(i2c, HSI2C_FAST_SPD)) {
++	if (exynos5_i2c_set_timing(i2c, false)) {
+ 		dev_err(i2c->dev, "HSI2C FS Clock set up failed\n");
+ 		return -EINVAL;
+ 	}
+ 
+ 	/* configure the High speed timing values */
+-	if (i2c->speed_mode == HSI2C_HIGH_SPD) {
+-		if (exynos5_i2c_set_timing(i2c, HSI2C_HIGH_SPD)) {
++	if (i2c->op_clock >= HSI2C_HS_TX_CLOCK) {
++		if (exynos5_i2c_set_timing(i2c, true)) {
+ 			dev_err(i2c->dev, "HSI2C HS Clock set up failed\n");
+ 			return -EINVAL;
+ 		}
+@@ -397,7 +388,7 @@ static void exynos5_i2c_init(struct exynos5_i2c *i2c)
+ 					i2c->regs + HSI2C_CTL);
+ 	writel(HSI2C_TRAILING_COUNT, i2c->regs + HSI2C_TRAILIG_CTL);
+ 
+-	if (i2c->speed_mode == HSI2C_HIGH_SPD) {
++	if (i2c->op_clock >= HSI2C_HS_TX_CLOCK) {
+ 		writel(HSI2C_MASTER_ID(MASTER_ID(i2c->adap.nr)),
+ 					i2c->regs + HSI2C_ADDR);
+ 		i2c_conf |= HSI2C_HS_MODE;
+@@ -734,26 +725,14 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct exynos5_i2c *i2c;
+ 	struct resource *mem;
+-	unsigned int op_clock;
+ 	int ret;
+ 
+ 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct exynos5_i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+-	if (of_property_read_u32(np, "clock-frequency", &op_clock)) {
+-		i2c->speed_mode = HSI2C_FAST_SPD;
+-		i2c->fs_clock = HSI2C_FS_TX_CLOCK;
+-	} else {
+-		if (op_clock >= HSI2C_HS_TX_CLOCK) {
+-			i2c->speed_mode = HSI2C_HIGH_SPD;
+-			i2c->fs_clock = HSI2C_FS_TX_CLOCK;
+-			i2c->hs_clock = op_clock;
+-		} else {
+-			i2c->speed_mode = HSI2C_FAST_SPD;
+-			i2c->fs_clock = op_clock;
+-		}
+-	}
++	if (of_property_read_u32(np, "clock-frequency", &i2c->op_clock))
++		i2c->op_clock = HSI2C_FS_TX_CLOCK;
+ 
+ 	strlcpy(i2c->adap.name, "exynos5-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner   = THIS_MODULE;
+-- 
+2.7.4
