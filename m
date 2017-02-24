@@ -1,59 +1,131 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 09/12] i2c: designware-baytrail: Acquire P-Unit access on bus acquire
-Date: Fri, 24 Feb 2017 10:29:09 +0100
-Message-ID: <20170224092912.10685-10-hdegoede@redhat.com>
+Subject: [PATCH v4 12/12] drm/i915: Listen for PMIC bus access
+	notifications
+Date: Fri, 24 Feb 2017 10:29:12 +0100
+Message-ID: <20170224092912.10685-13-hdegoede@redhat.com>
 References: <20170224092912.10685-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34708 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751283AbdBXJ3o (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Feb 2017 04:29:44 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 In-Reply-To: <20170224092912.10685-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Acquire P-Unit access to stop others from accessing the P-Unit while the
-PMIC i2c bus is in use. This is necessary because accessing the P-Unit
-from the kernel may result in the P-Unit trying to access the PMIC i2c
-bus, which results in a hang when it happens while we own the PMIC i2c
-bus semaphore.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: tagorereddy <tagore.chandan@gmail.com>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-Changes in v2:
--Spelling: P-Unit, PMIC
--Adjust for iosf_mbi_punit_lock/_unlock to _acquire/_release rename
----
- drivers/i2c/busses/i2c-designware-baytrail.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 3effc9a..7eddc3b 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -62,6 +62,8 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
- 		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
- 
- 	pm_qos_update_request(&dev->pm_qos, PM_QOS_DEFAULT_VALUE);
-+
-+	iosf_mbi_punit_release();
- }
- 
- static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
-@@ -79,6 +81,8 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	if (!dev->release_lock)
- 		return 0;
- 
-+	iosf_mbi_punit_acquire();
-+
- 	/*
- 	 * Disallow the CPU to enter C6 or C7 state, entering these states
- 	 * requires the punit to talk to the pmic and if this happens while
--- 
-2.9.3
+TGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucyBhbmQgZ2V0IEZPUkNFV0FL
+RV9BTEwgd2hpbGUKdGhlIGJ1cyBpcyBhY2Nlc3NlZCB0byBhdm9pZCBuZWVkaW5nIHRvIGRvIGFu
+eSBmb3JjZXdha2VzLCB3aGljaCBuZWVkClBNSUMgYnVzIGFjY2Vzcywgd2hpbGUgdGhlIFBNSUMg
+YnVzIGlzIGJ1c3k6CgpUaGlzIGZpeGVzIGVycm9ycyBsaWtlIHRoZXNlIHNob3dpbmcgdXAgaW4g
+ZG1lc2csIHVzdWFsbHkgZm9sbG93ZWQKYnkgYSBnZnggb3Igc3lzdGVtIGZyZWV6ZToKCltkcm06
+ZndfZG9tYWluc19nZXQgW2k5MTVdXSAqRVJST1IqIHJlbmRlcjogdGltZWQgb3V0IHdhaXRpbmcg
+Zm9yIGZvcmNld2FrZSBhY2sgcmVxdWVzdC4KW2RybTpmd19kb21haW5zX2dldCBbaTkxNV1dICpN
+RURJQSogcmVuZGVyOiB0aW1lZCBvdXQgd2FpdGluZyBmb3IgZm9yY2V3YWtlIGFjayByZXF1ZXN0
+LgppMmNfZGVzaWdud2FyZSA4MDg2MjJDMTowNjogcHVuaXQgc2VtYXBob3JlIHRpbWVkIG91dCwg
+cmVzZXR0aW5nCmkyY19kZXNpZ253YXJlIDgwODYyMkMxOjA2OiBQVU5JVCBTRU06IDIKaTJjX2Rl
+c2lnbndhcmUgODA4NjIyQzE6MDY6IGNvdWxkbid0IGFjcXVpcmUgYnVzIG93bmVyc2hpcAoKRG93
+bnNpZGUgb2YgdGhpcyBhcHByb2FjaCBpcyB0aGF0IGl0IGNhdXNlcyB3YWtldXBzIHdoZW5ldmVy
+IHRoZSBQTUlDCmJ1cyBpcyBhY2Nlc3NlZC4gVW5mb3J0dW5hdGVseSB3ZSBjYW5ub3Qgc2ltcGx5
+IHdhaXQgZm9yIHRoZSBQTUlDIGJ1cwp0byBnbyBpZGxlIHdoZW4gd2UgaGl0IGEgcmFjZSwgYXMg
+Zm9yY2V3YWtlcyBtYXkgYmUgZG9uZSBmcm9tIGludGVycnVwdApoYW5kbGVycyB3aGVyZSB3ZSBj
+YW5ub3Qgc2xlZXAgdG8gd2FpdCBmb3IgdGhlIGkyYyBQTUlDIGJ1cyBhY2Nlc3MgdG8KZmluaXNo
+LgoKTm90ZSB0aGF0IHRoZSBub3RpZmljYXRpb25zIGFuZCB0aHVzIHRoZSB3YWtldXBzIHdpbGwg
+b25seSBoYXBwZW4gb24KYmF5dHJhaWwgLyBjaGVycnl0cmFpbCBkZXZpY2VzIHVzaW5nIFBNSUNz
+IHdpdGggYSBzaGFyZWQgaTJjIGJ1cyBmb3IKUC1Vbml0IGFuZCBob3N0IFBNSUMgYWNjZXNzIChp
+MmMgYnVzc2VzIHdpdGggYSBfU0VNIG1ldGhvZCBpbiB0aGVpcgpBUENJIG5vZGUpLCBlLmcuIGFu
+IGF4cDI4OCBQTUlDLgoKSSBwbGFuIHRvIHdyaXRlIHNvbWUgcGF0Y2hlcyBmb3IgZHJpdmVycyBh
+Y2Nlc3NpbmcgdGhlIFBNSUMgYnVzIHRvCmxpbWl0IHRoZWlyIGJ1cyBhY2Nlc3NlcyB0byBhIGJh
+cmUgbWluaW11bSAoZS5nLiBjYWNoZSByZWdpc3RlcnMsIGRvIG5vdAp1cGRhdGUgYmF0dGVyeSBs
+ZXZlbCBtb3JlIG9mdGVuIHRoZW4gNCB0aW1lcyBhIG1pbnV0ZSksIHRvIGxpbWl0IHRoZQphbW91
+bnQgb2Ygd2FrZXVwcy4KCkJ1Z0xpbms6IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93
+X2J1Zy5jZ2k/aWQ9MTU1MjQxClNpZ25lZC1vZmYtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdvZWRl
+QHJlZGhhdC5jb20+ClRlc3RlZC1ieTogdGFnb3JlcmVkZHkgPHRhZ29yZS5jaGFuZGFuQGdtYWls
+LmNvbT4KUmV2aWV3ZWQtYnk6IFZpbGxlIFN5cmrDpGzDpCA8dmlsbGUuc3lyamFsYUBsaW51eC5p
+bnRlbC5jb20+CkFja2VkLWJ5OiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAaW50ZWwuY29tPgot
+LS0KQ2hhbmdlcyBpbiB2MjoKLVNwZWxsaW5nOiBQLVVuaXQsIFBNSUMKQ2hhbmdlcyBpbiB2MzoK
+LUltcHJvdmUgY29tbWVudCBleHBsYWluaW5nIHdoeSB3ZSBjYWxsIGludGVsX3VuY29yZV9mb3Jj
+ZXdha2VfZ2V0KEFMTCkgb24KIE1CSV9QTUlDX0JVU19BQ0NFU1NfQkVHSU4gbm90aWZpY2F0aW9u
+Ci0tLQogZHJpdmVycy9ncHUvZHJtL2k5MTUvS2NvbmZpZyAgICAgICAgfCAgMSArCiBkcml2ZXJz
+L2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5oICAgICB8ICAxICsKIGRyaXZlcnMvZ3B1L2RybS9pOTE1
+L2ludGVsX3VuY29yZS5jIHwgMzkgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KwogMyBmaWxlcyBjaGFuZ2VkLCA0MSBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9ncHUvZHJtL2k5MTUvS2NvbmZpZyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcKaW5k
+ZXggMWFlMGJiOS4uYTVjZDVkYSAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvS2Nv
+bmZpZworKysgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9LY29uZmlnCkBAIC0yMCw2ICsyMCw3IEBA
+IGNvbmZpZyBEUk1fSTkxNQogCXNlbGVjdCBBQ1BJX1ZJREVPIGlmIEFDUEkKIAlzZWxlY3QgQUNQ
+SV9CVVRUT04gaWYgQUNQSQogCXNlbGVjdCBTWU5DX0ZJTEUKKwlzZWxlY3QgSU9TRl9NQkkKIAlo
+ZWxwCiAJICBDaG9vc2UgdGhpcyBvcHRpb24gaWYgeW91IGhhdmUgYSBzeXN0ZW0gdGhhdCBoYXMg
+IkludGVsIEdyYXBoaWNzCiAJICBNZWRpYSBBY2NlbGVyYXRvciIgb3IgIkhEIEdyYXBoaWNzIiBp
+bnRlZ3JhdGVkIGdyYXBoaWNzLApkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkx
+NV9kcnYuaCBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2LmgKaW5kZXggY2E2OTlkZS4u
+ZTRhZjliNyAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9kcnYuaAorKysg
+Yi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9pOTE1X2Rydi5oCkBAIC03NDksNiArNzQ5LDcgQEAgc3Ry
+dWN0IGludGVsX3VuY29yZSB7CiAJY29uc3Qgc3RydWN0IGludGVsX2ZvcmNld2FrZV9yYW5nZSAq
+ZndfZG9tYWluc190YWJsZTsKIAl1bnNpZ25lZCBpbnQgZndfZG9tYWluc190YWJsZV9lbnRyaWVz
+OwogCisJc3RydWN0IG5vdGlmaWVyX2Jsb2NrIHBtaWNfYnVzX2FjY2Vzc19uYjsKIAlzdHJ1Y3Qg
+aW50ZWxfdW5jb3JlX2Z1bmNzIGZ1bmNzOwogCiAJdW5zaWduZWQgZmlmb19jb3VudDsKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3VuY29yZS5jIGIvZHJpdmVycy9ncHUv
+ZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKaW5kZXggNjk5YTEwNy4uN2Q5NjVlMiAxMDA2NDQKLS0t
+IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKKysrIGIvZHJpdmVycy9ncHUv
+ZHJtL2k5MTUvaW50ZWxfdW5jb3JlLmMKQEAgLTI1LDYgKzI1LDcgQEAKICNpbmNsdWRlICJpbnRl
+bF9kcnYuaCIKICNpbmNsdWRlICJpOTE1X3ZncHUuaCIKIAorI2luY2x1ZGUgPGFzbS9pb3NmX21i
+aS5oPgogI2luY2x1ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4KIAogI2RlZmluZSBGT1JDRVdBS0Vf
+QUNLX1RJTUVPVVRfTVMgNTAKQEAgLTQzNiwxMiArNDM3LDE2IEBAIHN0YXRpYyB2b2lkIF9faW50
+ZWxfdW5jb3JlX2Vhcmx5X3Nhbml0aXplKHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJp
+diwKIAogdm9pZCBpbnRlbF91bmNvcmVfc3VzcGVuZChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAq
+ZGV2X3ByaXYpCiB7CisJaW9zZl9tYmlfdW5yZWdpc3Rlcl9wbWljX2J1c19hY2Nlc3Nfbm90aWZp
+ZXIoCisJCSZkZXZfcHJpdi0+dW5jb3JlLnBtaWNfYnVzX2FjY2Vzc19uYik7CiAJaW50ZWxfdW5j
+b3JlX2ZvcmNld2FrZV9yZXNldChkZXZfcHJpdiwgZmFsc2UpOwogfQogCiB2b2lkIGludGVsX3Vu
+Y29yZV9yZXN1bWVfZWFybHkoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQogewog
+CV9faW50ZWxfdW5jb3JlX2Vhcmx5X3Nhbml0aXplKGRldl9wcml2LCB0cnVlKTsKKwlpb3NmX21i
+aV9yZWdpc3Rlcl9wbWljX2J1c19hY2Nlc3Nfbm90aWZpZXIoCisJCSZkZXZfcHJpdi0+dW5jb3Jl
+LnBtaWNfYnVzX2FjY2Vzc19uYik7CiAJaTkxNV9jaGVja19hbmRfY2xlYXJfZmF1bHRzKGRldl9w
+cml2KTsKIH0KIApAQCAtMTI4NSw2ICsxMjkwLDMyIEBAIHN0YXRpYyB2b2lkIGludGVsX3VuY29y
+ZV9md19kb21haW5zX2luaXQoc3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQogCWRl
+dl9wcml2LT51bmNvcmUuZndfZG9tYWluc190YWJsZV9lbnRyaWVzID0gQVJSQVlfU0laRSgoZCkp
+OyBcCiB9CiAKK3N0YXRpYyBpbnQgaTkxNV9wbWljX2J1c19hY2Nlc3Nfbm90aWZpZXIoc3RydWN0
+IG5vdGlmaWVyX2Jsb2NrICpuYiwKKwkJCQkJIHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2b2lkICpk
+YXRhKQoreworCXN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdiA9IGNvbnRhaW5lcl9v
+ZihuYiwKKwkJCXN0cnVjdCBkcm1faTkxNV9wcml2YXRlLCB1bmNvcmUucG1pY19idXNfYWNjZXNz
+X25iKTsKKworCXN3aXRjaCAoYWN0aW9uKSB7CisJY2FzZSBNQklfUE1JQ19CVVNfQUNDRVNTX0JF
+R0lOOgorCQkvKgorCQkgKiBmb3JjZXdha2UgYWxsIG5vdyB0byBtYWtlIHN1cmUgdGhhdCB3ZSBk
+b24ndCBuZWVkIHRvIGRvIGEKKwkJICogZm9yY2V3YWtlIGxhdGVyIHdoaWNoIG9uIHN5c3RlbXMg
+d2hlcmUgdGhpcyBub3RpZmllciBnZXRzCisJCSAqIGNhbGxlZCByZXF1aXJlcyB0aGUgcHVuaXQg
+dG8gYWNjZXNzIHRvIHRoZSBzaGFyZWQgcG1pYyBpMmMKKwkJICogYnVzLCB3aGljaCB3aWxsIGJl
+IGJ1c3kgYWZ0ZXIgdGhpcyBub3RpZmljYXRpb24sIGxlYWRpbmcgdG86CisJCSAqICJyZW5kZXI6
+IHRpbWVkIG91dCB3YWl0aW5nIGZvciBmb3JjZXdha2UgYWNrIHJlcXVlc3QuIgorCQkgKiBlcnJv
+cnMuCisJCSAqLworCQlpbnRlbF91bmNvcmVfZm9yY2V3YWtlX2dldChkZXZfcHJpdiwgRk9SQ0VX
+QUtFX0FMTCk7CisJCWJyZWFrOworCWNhc2UgTUJJX1BNSUNfQlVTX0FDQ0VTU19FTkQ6CisJCWlu
+dGVsX3VuY29yZV9mb3JjZXdha2VfcHV0KGRldl9wcml2LCBGT1JDRVdBS0VfQUxMKTsKKwkJYnJl
+YWs7CisJfQorCisJcmV0dXJuIE5PVElGWV9PSzsKK30KKwogdm9pZCBpbnRlbF91bmNvcmVfaW5p
+dChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCiB7CiAJaTkxNV9jaGVja192Z3B1
+KGRldl9wcml2KTsKQEAgLTEyOTQsNiArMTMyNSw4IEBAIHZvaWQgaW50ZWxfdW5jb3JlX2luaXQo
+c3RydWN0IGRybV9pOTE1X3ByaXZhdGUgKmRldl9wcml2KQogCV9faW50ZWxfdW5jb3JlX2Vhcmx5
+X3Nhbml0aXplKGRldl9wcml2LCBmYWxzZSk7CiAKIAlkZXZfcHJpdi0+dW5jb3JlLnVuY2xhaW1l
+ZF9tbWlvX2NoZWNrID0gMTsKKwlkZXZfcHJpdi0+dW5jb3JlLnBtaWNfYnVzX2FjY2Vzc19uYi5u
+b3RpZmllcl9jYWxsID0KKwkJaTkxNV9wbWljX2J1c19hY2Nlc3Nfbm90aWZpZXI7CiAKIAlzd2l0
+Y2ggKElOVEVMX0lORk8oZGV2X3ByaXYpLT5nZW4pIHsKIAlkZWZhdWx0OgpAQCAtMTM0NCw2ICsx
+Mzc3LDkgQEAgdm9pZCBpbnRlbF91bmNvcmVfaW5pdChzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAq
+ZGV2X3ByaXYpCiAJCWJyZWFrOwogCX0KIAorCWlvc2ZfbWJpX3JlZ2lzdGVyX3BtaWNfYnVzX2Fj
+Y2Vzc19ub3RpZmllcigKKwkJJmRldl9wcml2LT51bmNvcmUucG1pY19idXNfYWNjZXNzX25iKTsK
+KwogCWk5MTVfY2hlY2tfYW5kX2NsZWFyX2ZhdWx0cyhkZXZfcHJpdik7CiB9CiAjdW5kZWYgQVNT
+SUdOX1dSSVRFX01NSU9fVkZVTkNTCkBAIC0xMzUxLDYgKzEzODcsOSBAQCB2b2lkIGludGVsX3Vu
+Y29yZV9pbml0KHN0cnVjdCBkcm1faTkxNV9wcml2YXRlICpkZXZfcHJpdikKIAogdm9pZCBpbnRl
+bF91bmNvcmVfZmluaShzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqZGV2X3ByaXYpCiB7CisJaW9z
+Zl9tYmlfdW5yZWdpc3Rlcl9wbWljX2J1c19hY2Nlc3Nfbm90aWZpZXIoCisJCSZkZXZfcHJpdi0+
+dW5jb3JlLnBtaWNfYnVzX2FjY2Vzc19uYik7CisKIAkvKiBQYXJhbm9pYTogbWFrZSBzdXJlIHdl
+IGhhdmUgZGlzYWJsZWQgZXZlcnl0aGluZyBiZWZvcmUgd2UgZXhpdC4gKi8KIAlpbnRlbF91bmNv
+cmVfc2FuaXRpemUoZGV2X3ByaXYpOwogCWludGVsX3VuY29yZV9mb3JjZXdha2VfcmVzZXQoZGV2
+X3ByaXYsIGZhbHNlKTsKLS0gCjIuOS4zCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5m
+cmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0
+aW5mby9pbnRlbC1nZngK
