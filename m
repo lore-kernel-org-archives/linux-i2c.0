@@ -1,183 +1,93 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 02/12] x86/platform/intel/iosf_mbi: Add a PMIC bus access notifier
-Date: Fri, 24 Feb 2017 10:29:02 +0100
-Message-ID: <20170224092912.10685-3-hdegoede@redhat.com>
+Subject: [PATCH v4 03/12] i2c: designware: Rename accessor_flags
+	to flags
+Date: Fri, 24 Feb 2017 10:29:03 +0100
+Message-ID: <20170224092912.10685-4-hdegoede@redhat.com>
 References: <20170224092912.10685-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43578 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751283AbdBXJ3X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Feb 2017 04:29:23 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 In-Reply-To: <20170224092912.10685-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Some drivers may need to acquire P-Unit managed resources from interrupt
-context, where they cannot call iosf_mbi_punit_acquire().
-
-This commit adds a notifier chain which allows a driver to get notified
-(in a process context) before other drivers start accessing the PMIC bus,
-so that the driver can acquire any resources, which it may need during
-the window the other driver is accessing the PMIC, before hand.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=155241
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: tagorereddy <tagore.chandan@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-Changes in v2:
--Spelling: P-Unit, PMIC
--Adjust for iosf_mbi_punit_lock/_unlock to _acquire/_release rename
-Changes in v4:
--Include <linux/notifier.h> from asm/iosf_mbi.h
----
- arch/x86/include/asm/iosf_mbi.h    | 56 ++++++++++++++++++++++++++++++++++++++
- arch/x86/platform/intel/iosf_mbi.c | 36 ++++++++++++++++++++++++
- 2 files changed, 92 insertions(+)
-
-diff --git a/arch/x86/include/asm/iosf_mbi.h b/arch/x86/include/asm/iosf_mbi.h
-index f6119d0..c313cac 100644
---- a/arch/x86/include/asm/iosf_mbi.h
-+++ b/arch/x86/include/asm/iosf_mbi.h
-@@ -5,6 +5,8 @@
- #ifndef IOSF_MBI_SYMS_H
- #define IOSF_MBI_SYMS_H
- 
-+#include <linux/notifier.h>
-+
- #define MBI_MCR_OFFSET		0xD0
- #define MBI_MDR_OFFSET		0xD4
- #define MBI_MCRX_OFFSET		0xD8
-@@ -47,6 +49,10 @@
- #define QRK_MBI_UNIT_MM		0x05
- #define QRK_MBI_UNIT_SOC	0x31
- 
-+/* Action values for the pmic_bus_access_notifier functions */
-+#define MBI_PMIC_BUS_ACCESS_BEGIN	1
-+#define MBI_PMIC_BUS_ACCESS_END		2
-+
- #if IS_ENABLED(CONFIG_IOSF_MBI)
- 
- bool iosf_mbi_available(void);
-@@ -115,6 +121,38 @@ void iosf_mbi_punit_acquire(void);
-  */
- void iosf_mbi_punit_release(void);
- 
-+/**
-+ * iosf_mbi_register_pmic_bus_access_notifier - Register PMIC bus notifier
-+ *
-+ * This function can be used by drivers which may need to acquire P-Unit
-+ * managed resources from interrupt context, where iosf_mbi_punit_acquire()
-+ * can not be used.
-+ *
-+ * This function allows a driver to register a notifier to get notified (in a
-+ * process context) before other drivers start accessing the PMIC bus.
-+ *
-+ * This allows the driver to acquire any resources, which it may need during
-+ * the window the other driver is accessing the PMIC, before hand.
-+ *
-+ * @nb: notifier_block to register
-+ */
-+int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block *nb);
-+
-+/**
-+ * iosf_mbi_register_pmic_bus_access_notifier - Unregister PMIC bus notifier
-+ *
-+ * @nb: notifier_block to unregister
-+ */
-+int iosf_mbi_unregister_pmic_bus_access_notifier(struct notifier_block *nb);
-+
-+/**
-+ * iosf_mbi_call_pmic_bus_access_notifier_chain - Call PMIC bus notifier chain
-+ *
-+ * @val: action to pass into listener's notifier_call function
-+ * @v: data pointer to pass into listener's notifier_call function
-+ */
-+int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val, void *v);
-+
- #else /* CONFIG_IOSF_MBI is not enabled */
- static inline
- bool iosf_mbi_available(void)
-@@ -146,6 +184,24 @@ int iosf_mbi_modify(u8 port, u8 opcode, u32 offset, u32 mdr, u32 mask)
- static inline void iosf_mbi_punit_acquire(void) {}
- static inline void iosf_mbi_punit_release(void) {}
- 
-+static inline
-+int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+
-+static inline
-+int iosf_mbi_unregister_pmic_bus_access_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+
-+static inline
-+int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val, void *v)
-+{
-+	return 0;
-+}
-+
- #endif /* CONFIG_IOSF_MBI */
- 
- #endif /* IOSF_MBI_SYMS_H */
-diff --git a/arch/x86/platform/intel/iosf_mbi.c b/arch/x86/platform/intel/iosf_mbi.c
-index ed24fa9f..a952ac1 100644
---- a/arch/x86/platform/intel/iosf_mbi.c
-+++ b/arch/x86/platform/intel/iosf_mbi.c
-@@ -35,6 +35,7 @@
- static struct pci_dev *mbi_pdev;
- static DEFINE_SPINLOCK(iosf_mbi_lock);
- static DEFINE_MUTEX(iosf_mbi_punit_mutex);
-+static BLOCKING_NOTIFIER_HEAD(iosf_mbi_pmic_bus_access_notifier);
- 
- static inline u32 iosf_mbi_form_mcr(u8 op, u8 port, u8 offset)
- {
-@@ -203,6 +204,41 @@ void iosf_mbi_punit_release(void)
- }
- EXPORT_SYMBOL(iosf_mbi_punit_release);
- 
-+int iosf_mbi_register_pmic_bus_access_notifier(struct notifier_block *nb)
-+{
-+	int ret;
-+
-+	/* Wait for the bus to go inactive before registering */
-+	mutex_lock(&iosf_mbi_punit_mutex);
-+	ret = blocking_notifier_chain_register(
-+				&iosf_mbi_pmic_bus_access_notifier, nb);
-+	mutex_unlock(&iosf_mbi_punit_mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(iosf_mbi_register_pmic_bus_access_notifier);
-+
-+int iosf_mbi_unregister_pmic_bus_access_notifier(struct notifier_block *nb)
-+{
-+	int ret;
-+
-+	/* Wait for the bus to go inactive before unregistering */
-+	mutex_lock(&iosf_mbi_punit_mutex);
-+	ret = blocking_notifier_chain_unregister(
-+				&iosf_mbi_pmic_bus_access_notifier, nb);
-+	mutex_unlock(&iosf_mbi_punit_mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(iosf_mbi_unregister_pmic_bus_access_notifier);
-+
-+int iosf_mbi_call_pmic_bus_access_notifier_chain(unsigned long val, void *v)
-+{
-+	return blocking_notifier_call_chain(
-+				&iosf_mbi_pmic_bus_access_notifier, val, v);
-+}
-+EXPORT_SYMBOL(iosf_mbi_call_pmic_bus_access_notifier_chain);
-+
- #ifdef CONFIG_IOSF_MBI_DEBUG
- static u32	dbg_mdr;
- static u32	dbg_mcr;
--- 
-2.9.3
+UmVuYW1lIGFjY2Vzc29yX2ZsYWdzIHRvIGZsYWdzLCBzbyB0aGF0IHdlIGNhbiB1c2UgdGhlIGZp
+ZWxkIGZvcgpvdGhlciBmbGFncyB0b28uIFRoaXMgaXMgYSBwcmVwYXJhdGlvbiBwYXRjaCBmb3Ig
+YWRkaW5nIGNoZXJyeXRyYWlsCnN1cHBvcnQgdG8gdGhlIHB1bml0IHNlbWFwaG9yZSBjb2RlLgoK
+U2lnbmVkLW9mZi1ieTogSGFucyBkZSBHb2VkZSA8aGRlZ29lZGVAcmVkaGF0LmNvbT4KUmV2aWV3
+ZWQtYnk6IEFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29t
+PgpBY2tlZC1ieTogSmFya2tvIE5pa3VsYSA8amFya2tvLm5pa3VsYUBsaW51eC5pbnRlbC5jb20+
+ClRlc3RlZC1ieTogVGFrYXNoaSBJd2FpIDx0aXdhaUBzdXNlLmRlPgpBY2tlZC1ieTogV29sZnJh
+bSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4KLS0tCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
+c2lnbndhcmUtY29yZS5jICAgIHwgMTQgKysrKysrKy0tLS0tLS0KIGRyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtZGVzaWdud2FyZS1jb3JlLmggICAgfCAgMiArLQogZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1kZXNpZ253YXJlLXBsYXRkcnYuYyB8ICAyICstCiAzIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0
+aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLWRlc2lnbndhcmUtY29yZS5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJl
+LWNvcmUuYwppbmRleCA2ZDgxYzU2Li44YzNiYTQyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+ZGVzaWdud2FyZS1jb3JlLmMKQEAgLTE3NywxMyArMTc3LDEzIEBAIHN0YXRpYyB1MzIgZHdfcmVh
+ZGwoc3RydWN0IGR3X2kyY19kZXYgKmRldiwgaW50IG9mZnNldCkKIHsKIAl1MzIgdmFsdWU7CiAK
+LQlpZiAoZGV2LT5hY2Nlc3Nvcl9mbGFncyAmIEFDQ0VTU18xNkJJVCkKKwlpZiAoZGV2LT5mbGFn
+cyAmIEFDQ0VTU18xNkJJVCkKIAkJdmFsdWUgPSByZWFkd19yZWxheGVkKGRldi0+YmFzZSArIG9m
+ZnNldCkgfAogCQkJKHJlYWR3X3JlbGF4ZWQoZGV2LT5iYXNlICsgb2Zmc2V0ICsgMikgPDwgMTYp
+OwogCWVsc2UKIAkJdmFsdWUgPSByZWFkbF9yZWxheGVkKGRldi0+YmFzZSArIG9mZnNldCk7CiAK
+LQlpZiAoZGV2LT5hY2Nlc3Nvcl9mbGFncyAmIEFDQ0VTU19TV0FQKQorCWlmIChkZXYtPmZsYWdz
+ICYgQUNDRVNTX1NXQVApCiAJCXJldHVybiBzd2FiMzIodmFsdWUpOwogCWVsc2UKIAkJcmV0dXJu
+IHZhbHVlOwpAQCAtMTkxLDEwICsxOTEsMTAgQEAgc3RhdGljIHUzMiBkd19yZWFkbChzdHJ1Y3Qg
+ZHdfaTJjX2RldiAqZGV2LCBpbnQgb2Zmc2V0KQogCiBzdGF0aWMgdm9pZCBkd193cml0ZWwoc3Ry
+dWN0IGR3X2kyY19kZXYgKmRldiwgdTMyIGIsIGludCBvZmZzZXQpCiB7Ci0JaWYgKGRldi0+YWNj
+ZXNzb3JfZmxhZ3MgJiBBQ0NFU1NfU1dBUCkKKwlpZiAoZGV2LT5mbGFncyAmIEFDQ0VTU19TV0FQ
+KQogCQliID0gc3dhYjMyKGIpOwogCi0JaWYgKGRldi0+YWNjZXNzb3JfZmxhZ3MgJiBBQ0NFU1Nf
+MTZCSVQpIHsKKwlpZiAoZGV2LT5mbGFncyAmIEFDQ0VTU18xNkJJVCkgewogCQl3cml0ZXdfcmVs
+YXhlZCgodTE2KWIsIGRldi0+YmFzZSArIG9mZnNldCk7CiAJCXdyaXRld19yZWxheGVkKCh1MTYp
+KGIgPj4gMTYpLCBkZXYtPmJhc2UgKyBvZmZzZXQgKyAyKTsKIAl9IGVsc2UgewpAQCAtMzM5LDEw
+ICszMzksMTAgQEAgaW50IGkyY19kd19pbml0KHN0cnVjdCBkd19pMmNfZGV2ICpkZXYpCiAJcmVn
+ID0gZHdfcmVhZGwoZGV2LCBEV19JQ19DT01QX1RZUEUpOwogCWlmIChyZWcgPT0gX19fY29uc3Rh
+bnRfc3dhYjMyKERXX0lDX0NPTVBfVFlQRV9WQUxVRSkpIHsKIAkJLyogQ29uZmlndXJlIHJlZ2lz
+dGVyIGVuZGlhbmVzcyBhY2Nlc3MgKi8KLQkJZGV2LT5hY2Nlc3Nvcl9mbGFncyB8PSBBQ0NFU1Nf
+U1dBUDsKKwkJZGV2LT5mbGFncyB8PSBBQ0NFU1NfU1dBUDsKIAl9IGVsc2UgaWYgKHJlZyA9PSAo
+RFdfSUNfQ09NUF9UWVBFX1ZBTFVFICYgMHgwMDAwZmZmZikpIHsKIAkJLyogQ29uZmlndXJlIHJl
+Z2lzdGVyIGFjY2VzcyBtb2RlIDE2Yml0ICovCi0JCWRldi0+YWNjZXNzb3JfZmxhZ3MgfD0gQUND
+RVNTXzE2QklUOworCQlkZXYtPmZsYWdzIHw9IEFDQ0VTU18xNkJJVDsKIAl9IGVsc2UgaWYgKHJl
+ZyAhPSBEV19JQ19DT01QX1RZUEVfVkFMVUUpIHsKIAkJZGV2X2VycihkZXYtPmRldiwgIlVua25v
+d24gU3lub3BzeXMgY29tcG9uZW50IHR5cGU6ICIKIAkJCSIweCUwOHhcbiIsIHJlZyk7CkBAIC05
+MjYsNyArOTI2LDcgQEAgc3RhdGljIGlycXJldHVybl90IGkyY19kd19pc3IoaW50IHRoaXNfaXJx
+LCB2b2lkICpkZXZfaWQpCiB0eF9hYm9ydGVkOgogCWlmICgoc3RhdCAmIChEV19JQ19JTlRSX1RY
+X0FCUlQgfCBEV19JQ19JTlRSX1NUT1BfREVUKSkgfHwgZGV2LT5tc2dfZXJyKQogCQljb21wbGV0
+ZSgmZGV2LT5jbWRfY29tcGxldGUpOwotCWVsc2UgaWYgKHVubGlrZWx5KGRldi0+YWNjZXNzb3Jf
+ZmxhZ3MgJiBBQ0NFU1NfSU5UUl9NQVNLKSkgeworCWVsc2UgaWYgKHVubGlrZWx5KGRldi0+Zmxh
+Z3MgJiBBQ0NFU1NfSU5UUl9NQVNLKSkgewogCQkvKiB3b3JrYXJvdW5kIHRvIHRyaWdnZXIgcGVu
+ZGluZyBpbnRlcnJ1cHQgKi8KIAkJc3RhdCA9IGR3X3JlYWRsKGRldiwgRFdfSUNfSU5UUl9NQVNL
+KTsKIAkJaTJjX2R3X2Rpc2FibGVfaW50KGRldik7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
+Z253YXJlLWNvcmUuaAppbmRleCAyNjI1MGI0Li4yYzUwNTcxIDEwMDY0NAotLS0gYS9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtZGVzaWdud2FyZS1jb3JlLmgKQEAgLTEwMyw3ICsxMDMsNyBAQCBzdHJ1Y3QgZHdfaTJj
+X2RldiB7CiAJdW5zaWduZWQgaW50CQlzdGF0dXM7CiAJdTMyCQkJYWJvcnRfc291cmNlOwogCWlu
+dAkJCWlycTsKLQl1MzIJCQlhY2Nlc3Nvcl9mbGFnczsKKwl1MzIJCQlmbGFnczsKIAlzdHJ1Y3Qg
+aTJjX2FkYXB0ZXIJYWRhcHRlcjsKIAl1MzIJCQlmdW5jdGlvbmFsaXR5OwogCXUzMgkJCW1hc3Rl
+cl9jZmc7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxh
+dGRydi5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBsYXRkcnYuYwppbmRl
+eCA2Y2U0MzEzLi4zZWVkZTdiIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
+c2lnbndhcmUtcGxhdGRydi5jCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
+ZS1wbGF0ZHJ2LmMKQEAgLTExMiw3ICsxMTIsNyBAQCBzdGF0aWMgaW50IGR3X2kyY19hY3BpX2Nv
+bmZpZ3VyZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCiAJaWQgPSBhY3BpX21hdGNo
+X2RldmljZShwZGV2LT5kZXYuZHJpdmVyLT5hY3BpX21hdGNoX3RhYmxlLCAmcGRldi0+ZGV2KTsK
+IAlpZiAoaWQgJiYgaWQtPmRyaXZlcl9kYXRhKQotCQlkZXYtPmFjY2Vzc29yX2ZsYWdzIHw9ICh1
+MzIpaWQtPmRyaXZlcl9kYXRhOworCQlkZXYtPmZsYWdzIHw9ICh1MzIpaWQtPmRyaXZlcl9kYXRh
+OwogCiAJcmV0dXJuIDA7CiB9Ci0tIAoyLjkuMwoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
+bGlzdGluZm8vaW50ZWwtZ2Z4Cg==
