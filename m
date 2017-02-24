@@ -1,93 +1,101 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 03/12] i2c: designware: Rename accessor_flags
-	to flags
-Date: Fri, 24 Feb 2017 10:29:03 +0100
-Message-ID: <20170224092912.10685-4-hdegoede@redhat.com>
+Subject: [PATCH v4 04/12] i2c: designware-baytrail: Pass dw_i2c_dev into helper functions
+Date: Fri, 24 Feb 2017 10:29:04 +0100
+Message-ID: <20170224092912.10685-5-hdegoede@redhat.com>
 References: <20170224092912.10685-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40826 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751283AbdBXJ3a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Feb 2017 04:29:30 -0500
 In-Reply-To: <20170224092912.10685-1-hdegoede@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
-Cc: Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Daniel Vetter <daniel.vetter@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-i2c@vger.kernel.org
 
-UmVuYW1lIGFjY2Vzc29yX2ZsYWdzIHRvIGZsYWdzLCBzbyB0aGF0IHdlIGNhbiB1c2UgdGhlIGZp
-ZWxkIGZvcgpvdGhlciBmbGFncyB0b28uIFRoaXMgaXMgYSBwcmVwYXJhdGlvbiBwYXRjaCBmb3Ig
-YWRkaW5nIGNoZXJyeXRyYWlsCnN1cHBvcnQgdG8gdGhlIHB1bml0IHNlbWFwaG9yZSBjb2RlLgoK
-U2lnbmVkLW9mZi1ieTogSGFucyBkZSBHb2VkZSA8aGRlZ29lZGVAcmVkaGF0LmNvbT4KUmV2aWV3
-ZWQtYnk6IEFuZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29t
-PgpBY2tlZC1ieTogSmFya2tvIE5pa3VsYSA8amFya2tvLm5pa3VsYUBsaW51eC5pbnRlbC5jb20+
-ClRlc3RlZC1ieTogVGFrYXNoaSBJd2FpIDx0aXdhaUBzdXNlLmRlPgpBY2tlZC1ieTogV29sZnJh
-bSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4KLS0tCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
-c2lnbndhcmUtY29yZS5jICAgIHwgMTQgKysrKysrKy0tLS0tLS0KIGRyaXZlcnMvaTJjL2J1c3Nl
-cy9pMmMtZGVzaWdud2FyZS1jb3JlLmggICAgfCAgMiArLQogZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1kZXNpZ253YXJlLXBsYXRkcnYuYyB8ICAyICstCiAzIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0
-aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWRlc2lnbndhcmUtY29yZS5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJl
-LWNvcmUuYwppbmRleCA2ZDgxYzU2Li44YzNiYTQyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
-ZGVzaWdud2FyZS1jb3JlLmMKQEAgLTE3NywxMyArMTc3LDEzIEBAIHN0YXRpYyB1MzIgZHdfcmVh
-ZGwoc3RydWN0IGR3X2kyY19kZXYgKmRldiwgaW50IG9mZnNldCkKIHsKIAl1MzIgdmFsdWU7CiAK
-LQlpZiAoZGV2LT5hY2Nlc3Nvcl9mbGFncyAmIEFDQ0VTU18xNkJJVCkKKwlpZiAoZGV2LT5mbGFn
-cyAmIEFDQ0VTU18xNkJJVCkKIAkJdmFsdWUgPSByZWFkd19yZWxheGVkKGRldi0+YmFzZSArIG9m
-ZnNldCkgfAogCQkJKHJlYWR3X3JlbGF4ZWQoZGV2LT5iYXNlICsgb2Zmc2V0ICsgMikgPDwgMTYp
-OwogCWVsc2UKIAkJdmFsdWUgPSByZWFkbF9yZWxheGVkKGRldi0+YmFzZSArIG9mZnNldCk7CiAK
-LQlpZiAoZGV2LT5hY2Nlc3Nvcl9mbGFncyAmIEFDQ0VTU19TV0FQKQorCWlmIChkZXYtPmZsYWdz
-ICYgQUNDRVNTX1NXQVApCiAJCXJldHVybiBzd2FiMzIodmFsdWUpOwogCWVsc2UKIAkJcmV0dXJu
-IHZhbHVlOwpAQCAtMTkxLDEwICsxOTEsMTAgQEAgc3RhdGljIHUzMiBkd19yZWFkbChzdHJ1Y3Qg
-ZHdfaTJjX2RldiAqZGV2LCBpbnQgb2Zmc2V0KQogCiBzdGF0aWMgdm9pZCBkd193cml0ZWwoc3Ry
-dWN0IGR3X2kyY19kZXYgKmRldiwgdTMyIGIsIGludCBvZmZzZXQpCiB7Ci0JaWYgKGRldi0+YWNj
-ZXNzb3JfZmxhZ3MgJiBBQ0NFU1NfU1dBUCkKKwlpZiAoZGV2LT5mbGFncyAmIEFDQ0VTU19TV0FQ
-KQogCQliID0gc3dhYjMyKGIpOwogCi0JaWYgKGRldi0+YWNjZXNzb3JfZmxhZ3MgJiBBQ0NFU1Nf
-MTZCSVQpIHsKKwlpZiAoZGV2LT5mbGFncyAmIEFDQ0VTU18xNkJJVCkgewogCQl3cml0ZXdfcmVs
-YXhlZCgodTE2KWIsIGRldi0+YmFzZSArIG9mZnNldCk7CiAJCXdyaXRld19yZWxheGVkKCh1MTYp
-KGIgPj4gMTYpLCBkZXYtPmJhc2UgKyBvZmZzZXQgKyAyKTsKIAl9IGVsc2UgewpAQCAtMzM5LDEw
-ICszMzksMTAgQEAgaW50IGkyY19kd19pbml0KHN0cnVjdCBkd19pMmNfZGV2ICpkZXYpCiAJcmVn
-ID0gZHdfcmVhZGwoZGV2LCBEV19JQ19DT01QX1RZUEUpOwogCWlmIChyZWcgPT0gX19fY29uc3Rh
-bnRfc3dhYjMyKERXX0lDX0NPTVBfVFlQRV9WQUxVRSkpIHsKIAkJLyogQ29uZmlndXJlIHJlZ2lz
-dGVyIGVuZGlhbmVzcyBhY2Nlc3MgKi8KLQkJZGV2LT5hY2Nlc3Nvcl9mbGFncyB8PSBBQ0NFU1Nf
-U1dBUDsKKwkJZGV2LT5mbGFncyB8PSBBQ0NFU1NfU1dBUDsKIAl9IGVsc2UgaWYgKHJlZyA9PSAo
-RFdfSUNfQ09NUF9UWVBFX1ZBTFVFICYgMHgwMDAwZmZmZikpIHsKIAkJLyogQ29uZmlndXJlIHJl
-Z2lzdGVyIGFjY2VzcyBtb2RlIDE2Yml0ICovCi0JCWRldi0+YWNjZXNzb3JfZmxhZ3MgfD0gQUND
-RVNTXzE2QklUOworCQlkZXYtPmZsYWdzIHw9IEFDQ0VTU18xNkJJVDsKIAl9IGVsc2UgaWYgKHJl
-ZyAhPSBEV19JQ19DT01QX1RZUEVfVkFMVUUpIHsKIAkJZGV2X2VycihkZXYtPmRldiwgIlVua25v
-d24gU3lub3BzeXMgY29tcG9uZW50IHR5cGU6ICIKIAkJCSIweCUwOHhcbiIsIHJlZyk7CkBAIC05
-MjYsNyArOTI2LDcgQEAgc3RhdGljIGlycXJldHVybl90IGkyY19kd19pc3IoaW50IHRoaXNfaXJx
-LCB2b2lkICpkZXZfaWQpCiB0eF9hYm9ydGVkOgogCWlmICgoc3RhdCAmIChEV19JQ19JTlRSX1RY
-X0FCUlQgfCBEV19JQ19JTlRSX1NUT1BfREVUKSkgfHwgZGV2LT5tc2dfZXJyKQogCQljb21wbGV0
-ZSgmZGV2LT5jbWRfY29tcGxldGUpOwotCWVsc2UgaWYgKHVubGlrZWx5KGRldi0+YWNjZXNzb3Jf
-ZmxhZ3MgJiBBQ0NFU1NfSU5UUl9NQVNLKSkgeworCWVsc2UgaWYgKHVubGlrZWx5KGRldi0+Zmxh
-Z3MgJiBBQ0NFU1NfSU5UUl9NQVNLKSkgewogCQkvKiB3b3JrYXJvdW5kIHRvIHRyaWdnZXIgcGVu
-ZGluZyBpbnRlcnJ1cHQgKi8KIAkJc3RhdCA9IGR3X3JlYWRsKGRldiwgRFdfSUNfSU5UUl9NQVNL
-KTsKIAkJaTJjX2R3X2Rpc2FibGVfaW50KGRldik7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
-Z253YXJlLWNvcmUuaAppbmRleCAyNjI1MGI0Li4yYzUwNTcxIDEwMDY0NAotLS0gYS9kcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5oCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nl
-cy9pMmMtZGVzaWdud2FyZS1jb3JlLmgKQEAgLTEwMyw3ICsxMDMsNyBAQCBzdHJ1Y3QgZHdfaTJj
-X2RldiB7CiAJdW5zaWduZWQgaW50CQlzdGF0dXM7CiAJdTMyCQkJYWJvcnRfc291cmNlOwogCWlu
-dAkJCWlycTsKLQl1MzIJCQlhY2Nlc3Nvcl9mbGFnczsKKwl1MzIJCQlmbGFnczsKIAlzdHJ1Y3Qg
-aTJjX2FkYXB0ZXIJYWRhcHRlcjsKIAl1MzIJCQlmdW5jdGlvbmFsaXR5OwogCXUzMgkJCW1hc3Rl
-cl9jZmc7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxh
-dGRydi5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBsYXRkcnYuYwppbmRl
-eCA2Y2U0MzEzLi4zZWVkZTdiIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRl
-c2lnbndhcmUtcGxhdGRydi5jCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
-ZS1wbGF0ZHJ2LmMKQEAgLTExMiw3ICsxMTIsNyBAQCBzdGF0aWMgaW50IGR3X2kyY19hY3BpX2Nv
-bmZpZ3VyZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCiAJaWQgPSBhY3BpX21hdGNo
-X2RldmljZShwZGV2LT5kZXYuZHJpdmVyLT5hY3BpX21hdGNoX3RhYmxlLCAmcGRldi0+ZGV2KTsK
-IAlpZiAoaWQgJiYgaWQtPmRyaXZlcl9kYXRhKQotCQlkZXYtPmFjY2Vzc29yX2ZsYWdzIHw9ICh1
-MzIpaWQtPmRyaXZlcl9kYXRhOworCQlkZXYtPmZsYWdzIHw9ICh1MzIpaWQtPmRyaXZlcl9kYXRh
-OwogCiAJcmV0dXJuIDA7CiB9Ci0tIAoyLjkuMwoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
-bGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+Pass dw_i2c_dev into the helper functions, this is a preparation patch
+for the punit semaphore fixes done in the other patches in this set.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-designware-baytrail.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 1590ad0..a3f581c 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -28,14 +28,14 @@
+ 
+ static unsigned long acquired;
+ 
+-static int get_sem(struct device *dev, u32 *sem)
++static int get_sem(struct dw_i2c_dev *dev, u32 *sem)
+ {
+ 	u32 data;
+ 	int ret;
+ 
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data);
+ 	if (ret) {
+-		dev_err(dev, "iosf failed to read punit semaphore\n");
++		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
+ 		return ret;
+ 	}
+ 
+@@ -44,18 +44,18 @@ static int get_sem(struct device *dev, u32 *sem)
+ 	return 0;
+ }
+ 
+-static void reset_semaphore(struct device *dev)
++static void reset_semaphore(struct dw_i2c_dev *dev)
+ {
+ 	u32 data;
+ 
+ 	if (iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &data)) {
+-		dev_err(dev, "iosf failed to reset punit semaphore during read\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during read\n");
+ 		return;
+ 	}
+ 
+ 	data &= ~PUNIT_SEMAPHORE_BIT;
+ 	if (iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, PUNIT_SEMAPHORE, data))
+-		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
++		dev_err(dev->dev, "iosf failed to reset punit semaphore during write\n");
+ }
+ 
+ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+@@ -83,7 +83,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	start = jiffies;
+ 	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
+ 	do {
+-		ret = get_sem(dev->dev, &sem);
++		ret = get_sem(dev, &sem);
+ 		if (!ret && sem) {
+ 			acquired = jiffies;
+ 			dev_dbg(dev->dev, "punit semaphore acquired after %ums\n",
+@@ -95,7 +95,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	} while (time_before(jiffies, end));
+ 
+ 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 
+ 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, MBI_REG_READ, PUNIT_SEMAPHORE, &sem);
+ 	if (ret)
+@@ -116,7 +116,7 @@ static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ 	if (!dev->acquire_lock)
+ 		return;
+ 
+-	reset_semaphore(dev->dev);
++	reset_semaphore(dev);
+ 	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
+ 		jiffies_to_msecs(jiffies - acquired));
+ }
+-- 
+2.9.3
