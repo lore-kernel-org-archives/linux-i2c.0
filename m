@@ -1,21 +1,23 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
+From: Fengguang Wu <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: [usb] bea5b158ff WARNING: CPU: 0 PID: 25 at
  drivers/usb/core/urb.c:338 usb_submit_urb
-Date: Sun, 26 Feb 2017 17:56:26 +0800
-Message-ID: <20170226095626.tocn7dq3vio4pujz@wfg-t540p.sh.intel.com>
+Date: Sun, 26 Feb 2017 18:19:59 +0800
+Message-ID: <20170226101959.hhtbjj4ee6ujxdr4@wfg-t540p.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6qslpnkjkwgi6h6r"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="6a72z4shu4k64s2y"
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org, Rob Herring <robh@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, LKP <lkp@01.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felipe Balbi <felipe.balbi-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKP <lkp-JC7UmRfGjtg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---6qslpnkjkwgi6h6r
+--6a72z4shu4k64s2y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+
+[Sorry, resend to correct Felipe's email address]
 
 Greetings,
 
@@ -26,23 +28,23 @@ the I2C bug. The attached reproduce-* script may help debug them.
 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git master
 
 commit bea5b158ff0da9c7246ff391f754f5f38e34577a
-Author:     Rob Herring <robh@kernel.org>
+Author:     Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 AuthorDate: Thu Aug 11 10:20:58 2016 -0500
-Commit:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit:     Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 CommitDate: Wed Aug 31 15:13:55 2016 +0200
 
-     driver core: add test of driver remove calls during probe
-     
-     In recent discussions on ksummit-discuss[1], it was suggested to do a
-     sequence of probe, remove, probe for testing driver remove paths. This
-     adds a kconfig option for said test.
-     
-     [1] https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2016-August/003459.html
-     
-     Suggested-by: Arnd Bergmann <arnd@arndb.de>
-     Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-     Signed-off-by: Rob Herring <robh@kernel.org>
-     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+      driver core: add test of driver remove calls during probe
+      
+      In recent discussions on ksummit-discuss[1], it was suggested to do a
+      sequence of probe, remove, probe for testing driver remove paths. This
+      adds a kconfig option for said test.
+      
+      [1] https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2016-August/003459.html
+      
+      Suggested-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+      Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+      Signed-off-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+      Signed-off-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 
 cebf8fd169  driver core: fix race between creating/querying glue dir and its cleanup
 bea5b158ff  driver core: add test of driver remove calls during probe
@@ -136,7 +138,7 @@ git bisect  bad c4f3f22eddc982d247ffe2a6690c3e4a5c46dd09  # 12:01      2-      1
 0-DAY kernel test infrastructure                Open Source Technology Center
 https://lists.01.org/pipermail/lkp                          Intel Corporation
 
---6qslpnkjkwgi6h6r
+--6a72z4shu4k64s2y
 Content-Type: application/gzip
 Content-Disposition: attachment; filename="dmesg-quantal-ivb41-51:20170226034900:i386-randconfig-h1-02252243:4.8.0-rc4-00003-gbea5b15:2.gz"
 Content-Transfer-Encoding: base64
@@ -551,7 +553,7 @@ bZBMl5NFX9H7QK+YdorpzYA2afvZfL67k99ArGwAT+nh7k4Wz4tHnef+YvF47R7g2Xt8L0No
 qOPwsPfcnrk3zNGnr6MxRdTtVF31cxGqdCXMo13fdQKhX2F3Zwj5T277jex2v5Pd3Z23l5cf
 B2cXh+9O+v9XI9CGdgJfzpt/+xeMkL//9fN/vWGO/owYPNNXv/8ZHu/+N4TZE2UNnwEA
 
---6qslpnkjkwgi6h6r
+--6a72z4shu4k64s2y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename="reproduce-quantal-ivb41-51:20170226034900:i386-randconfig-h1-02252243:4.8.0-rc4-00003-gbea5b15:2"
 
@@ -610,7 +612,7 @@ append=(
 
 "${kvm[@]}" -append "${append[*]}"
 
---6qslpnkjkwgi6h6r
+--6a72z4shu4k64s2y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename="config-4.8.0-rc4-00003-gbea5b15"
 
@@ -5044,4 +5046,8 @@ CONFIG_ARCH_HAS_SG_CHAIN=y
 CONFIG_ARCH_HAS_MMIO_FLUSH=y
 CONFIG_STACKDEPOT=y
 
---6qslpnkjkwgi6h6r--
+--6a72z4shu4k64s2y--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
