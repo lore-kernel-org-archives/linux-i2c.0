@@ -1,20 +1,57 @@
-From: Mrs Julie Leach <info@pmf.ni.ac.rs>
-Subject: BENEFIT
-Date: Mon, 27 Feb 2017 10:32:55 +0200
-Message-ID: <20170227083308.353912E3550__23149.4584856138$1488191456$gmane$org@pmf.pmf.ni.ac.rs>
-Reply-To: julieleach913@gmail.com
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Never suspend
+ i2c-busses used for accessing the system PMIC
+Date: Mon, 27 Feb 2017 11:32:45 +0100
+Message-ID: <7b82a53c-04a3-efc4-e906-cd4fd6d39ea4@redhat.com>
+References: <20170227093830.3416-1-hdegoede@redhat.com>
+ <20170227093830.3416-2-hdegoede@redhat.com> <s5hshn03p8i.wl-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from pmf.pmf.ni.ac.rs ([160.99.54.1]:49151 "EHLO pmf.pmf.ni.ac.rs"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751968AbdB0Kat (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 27 Feb 2017 05:30:49 -0500
-Content-Description: Mail message body
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <s5hshn03p8i.wl-tiwai@suse.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, intel-gfx <intel-gfx@lists.freedesktop.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Len Brown <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <info@pmf.ni.ac.rs>
 
-You are a recipient to Mrs Julie Leach Donation of $3 million USD. Contact(=
-julieleach93@gmail.com) for claims.
+SGksCgpPbiAyNy0wMi0xNyAxMToyNSwgVGFrYXNoaSBJd2FpIHdyb3RlOgo+IE9uIE1vbiwgMjcg
+RmViIDIwMTcgMTA6Mzg6MjkgKzAxMDAsCj4gSGFucyBkZSBHb2VkZSB3cm90ZToKPj4KPj4gaW5k
+ZXggYThlNzRjYS4uYTRhYzQ3MyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1kZXNpZ253YXJlLWNvcmUuaAo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2ln
+bndhcmUtY29yZS5oCj4+IEBAIC03OSw3ICs3OSw3IEBACj4+ICAgKiBAcG1fcW9zOiBwbV9xb3Nf
+cmVxdWVzdCB1c2VkIHdoaWxlIGhvbGRpbmcgYSBoYXJkd2FyZSBsb2NrIG9uIHRoZSBidXMKPj4g
+ICAqIEBhY3F1aXJlX2xvY2s6IGZ1bmN0aW9uIHRvIGFjcXVpcmUgYSBoYXJkd2FyZSBsb2NrIG9u
+IHRoZSBidXMKPj4gICAqIEByZWxlYXNlX2xvY2s6IGZ1bmN0aW9uIHRvIHJlbGVhc2UgYSBoYXJk
+d2FyZSBsb2NrIG9uIHRoZSBidXMKPj4gLSAqIEBwbV9ydW50aW1lX2Rpc2FibGVkOiB0cnVlIGlm
+IHBtIHJ1bnRpbWUgaXMgZGlzYWJsZWQKPj4gKyAqIEBwbV9kaXNhYmxlZDogdHJ1ZSBpZiBwb3dl
+ci1tYW5hZ2VtZW50IHNob3VsZCBiZSBkaXNhYmxlZCBmb3IgdGhpcyBpMmMtYnVzCj4+ICAgKgo+
+PiAgICogSENOVCBhbmQgTENOVCBwYXJhbWV0ZXJzIGNhbiBiZSB1c2VkIGlmIHRoZSBwbGF0Zm9y
+bSBrbm93cyBtb3JlIGFjY3VyYXRlCj4+ICAgKiB2YWx1ZXMgdGhhbiB0aGUgb25lIGNvbXB1dGVk
+IGJhc2VkIG9ubHkgb24gdGhlIGlucHV0IGNsb2NrIGZyZXF1ZW5jeS4KPj4gQEAgLTEyNyw3ICsx
+MjcsNyBAQCBzdHJ1Y3QgZHdfaTJjX2RldiB7Cj4+ICAJc3RydWN0IHBtX3Fvc19yZXF1ZXN0CXBt
+X3FvczsKPj4gIAlpbnQJCQkoKmFjcXVpcmVfbG9jaykoc3RydWN0IGR3X2kyY19kZXYgKmRldik7
+Cj4+ICAJdm9pZAkJCSgqcmVsZWFzZV9sb2NrKShzdHJ1Y3QgZHdfaTJjX2RldiAqZGV2KTsKPj4g
+LQlib29sCQkJcG1fcnVudGltZV9kaXNhYmxlZDsKPj4gKwlib29sCQkJcG1fZGlzYWJsZWQ7Cj4+
+ICAJYm9vbAkJCWR5bmFtaWNfdGFyX3VwZGF0ZV9lbmFibGVkOwo+Cj4gSSBjb3VsZG4ndCBmaW5k
+IHRoaXMgZHluYW1pY190YXJfdXBkYXRlX2VuYWJsZWQgZmllbGQgaW4geW91ciBwcmV2aW91cwo+
+IHBhdGNoc2V0LiAgV2hhdCBhbSBJIG1pc3Npbmc/CgpNeSB0ZXN0aW5nIGJyYW5jaCBmb3IgYWxs
+IHRoaXMgc3R1ZmYgaXMgYmFzZWQgb24gaW50ZWwtZHJtLW5leHQtcXVldWVkLCB3aGljaAppcyBz
+dGlsbCBiYXNlZCBvbiA0LjEwLXJjJCwgYW5kIGl0IHNlZW1zIHRoYXQgNC4xMS1yYzEgd2lsbCBo
+YXZlIHRoaXM6CgpodHRwczovL2dpdC5rZXJuZWwub3JnL2NnaXQvbGludXgva2VybmVsL2dpdC90
+b3J2YWxkcy9saW51eC5naXQvY29tbWl0P2lkPTEyNjg4ZGMyMWY3MWY0ZGNjOWUyYjhiNTU1NmIw
+YzZjYzhkZjE0OTEKClJlbW92aW5nIHRoZSBkeW5hbWljX3Rhcl91cGRhdGVfZW5hYmxlZCBtZW1i
+ZXIgZnJvbSB0aGF0IHN0cnVjdC4KCkkgd2lsbCBzZW5kIG91dCBhIG5ldyByZWJhc2VkIHZlcnNp
+b24gd2hlbiA0LjExLXJjMSBnZXRzIG1lcmdlZCBpbgppbnRlbC1kcm0tbmV4dC1xdWV1ZWQuCgpS
+ZWdhcmRzLAoKSGFucwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5v
+cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1n
+ZngK
