@@ -1,61 +1,67 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v9 00/10] mux controller abstraction and iio/i2c muxes
-Date: Tue, 28 Feb 2017 18:18:42 +0100
-Message-ID: <20170228171842.GA11127@kroah.com>
-References: <1486568517-6997-1-git-send-email-peda@axentia.se>
- <6d87465f-b983-3f62-c7cf-41ed4e50170d@axentia.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v2] i2c: copy device properties when using
+ i2c_register_board_info()
+Date: Tue, 28 Feb 2017 11:10:51 -0800
+Message-ID: <20170228191051.GA38277@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6d87465f-b983-3f62-c7cf-41ed4e50170d@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 28, 2017 at 04:17:52PM +0100, Peter Rosin wrote:
-> Hi!
-> 
-> The status of this series [1] is that Rob Herring has acked/reviewed all
-> devicetree changes, so I suppose that's ok. Jonathan Cameron has acked
-> the additions to the iio subsystem and reviewed the new iio driver.
-> Wolfram Sang has acked the i2c-mux driver. That's acks or reviews from
-> the maintainers for all changes to the maintained areas.
-> 
-> What's not covered by the above is the mux subsystem itself. Jonathan
-> has also acked or reviewed those changes, but I get the feeling that
-> more tags are desired? So, please review the core of the mux subsystem
-> and the two drivers! It's small. Really. And much of it is boilerplate
-> devm functions. The relevant patches are:
-> 
->  3/10 "mux: minimal mux subsystem and gpio-based mux controller"
-> 10/10 "mux: adg792a: add mux controller driver for ADG792A/G"
-> 
-> I also wonder how I should proceed next. Jonathan kindly provided some
-> hints. I have created a project on gitlab [2] to track future mux
-> changes and where this series is also available (in the "mux" branch,
-> of course subject to rebases, at least for now). I intend to create a
-> for-next branch that I hope Stephen Rothwell will be happy to add to
-> linux-next at some point after v4.11-rc1. Whomever I will feed future
-> changes to will also pull from that tree. Etc. At least that's my
-> picture of how this is going to work.
-> 
-> The question then becomes to whom I will send pull requests? My guess is
-> that the plausible candidates are Greg K-H, Linus Torvalds and Andrew
-> Morton. Any taker? Are there other candidates? I don't have any particular
-> preference. If I don't hear anything I'll probably just send a pull
-> request to Linus for the next merge window (i.e. targeting 4.12-rc1).
-> 
-> Or am I perhaps getting ahead of myself? Is a new tree overkill? I
-> don't expect it to be exactly busy...
+This will allow marking device property lists as __initdata, the same as
+board info structures themselves.
 
-I pull in lots of semi-random driver subsystems into my char-misc driver
-tree, and I can do that here for you as well if you want me to, to
-forward things on to Linus at the proper times.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-Just let me know.
+v2: avoid copying NULL properties as it simply results in creating an
+empty property set for no good reason.
 
-thanks,
+ drivers/i2c/i2c-boardinfo.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-greg k-h
+diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
+index 6e5fac6a5262..5b8f6c3a6950 100644
+--- a/drivers/i2c/i2c-boardinfo.c
++++ b/drivers/i2c/i2c-boardinfo.c
+@@ -15,6 +15,7 @@
+ #include <linux/export.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
++#include <linux/property.h>
+ #include <linux/rwsem.h>
+ #include <linux/slab.h>
+ 
+@@ -55,6 +56,7 @@ EXPORT_SYMBOL_GPL(__i2c_first_dynamic_bus_num);
+  *
+  * The board info passed can safely be __initdata, but be careful of embedded
+  * pointers (for platform_data, functions, etc) since that won't be copied.
++ * Device properties are deep-copied though.
+  */
+ int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsigned len)
+ {
+@@ -78,6 +80,14 @@ int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsig
+ 
+ 		devinfo->busnum = busnum;
+ 		devinfo->board_info = *info;
++
++		if (info->properties) {
++			devinfo->board_info.properties =
++					property_entries_dup(info->properties);
++			if (IS_ERR(devinfo->board_info.properties))
++				return PTR_ERR(devinfo->board_info.properties);
++		}
++
+ 		list_add_tail(&devinfo->list, &__i2c_board_list);
+ 	}
+ 
+-- 
+2.11.0.483.g087da7b7c-goog
+
+
+-- 
+Dmitry
