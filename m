@@ -1,74 +1,55 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PULL] topic/designware-baytrail for 4.12
-Date: Wed, 1 Mar 2017 11:42:48 +0100
-Message-ID: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [RESEND PATCH v6 0/6] i2c: designware: add I2C SLAVE support
+Date: Wed,  1 Mar 2017 15:59:40 +0000
+Message-ID: <cover.1488383202.git.lolivei@synopsys.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgYWxsLAoKdG9waWMvZGVzaWdud2FyZS1iYXl0cmFpbC0yMDE3LTAzLTAxOgpCYXl0cmFpbCBQ
-TUlDIHZzLiBQTVUgcmFjZSBmaXhlcyBmcm9tIEhhbnMgZGUgR29lZGUKCkkgb3B0ZWQgdG8gcHV0
-IGFsbCB0aGUgcGF0Y2hlcyBmb3IgYWxsIHN1YnN5c3RlbXMgaW50byB0aGUgdG9waWMgYnJhbmNo
-ZXMsCnNvIHRoYXQgaWYgbmVlZGVkLCBlYWNoIHN1YnN5c3RlbSBjYW4gYXBwbHkgcmVmYWN0b3Jp
-bmdzIHRvIHRoZSBlbnRpcmUKdGhpbmcuIFdoaWNoIG1pZ2h0IGJlIG5lZWRlZCBzaW5jZSB3ZSdy
-ZSB2ZXJ5IGVhcmx5IGluIHRoZSA0LjEyIGN5Y2xlLgoKVGhpcyBoYXMgYmFrZWQgZm9yIGEgZmV3
-IGRheXMgaW4gdGhlIGRybS1pbnRlbCBDSSBhbmQgbG9va3MgZ29vZCBhZmFpY3MuCkknbGwgcHVs
-bCB0aGlzIGludG8gZHJtLWludGVsLmdpdCBmb3IgNC4xMiwgZmVlbCBmcmVlIHRvIHB1bGwgaW50
-byBhbnkKb3RoZXIgc3Vic3lzdGVtIHdoZXJlIG5lZWRlZC4KCkNoZWVycywgRGFuaWVsCgoKVGhl
-IGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA2NGE1NzcxOTZkNjZiNDRlMzczODRiYzVj
-NGQ3OGM2MWY1OWQ1YjJhOgoKICBsaWIvS2NvbmZpZzogbWFrZSBQUklNRV9OVU1CRVJTIG5vdCB1
-c2VyIHNlbGVjdGFibGUuICgyMDE3LTAyLTI0IDEyOjExOjIxICsxMDAwKQoKYXJlIGF2YWlsYWJs
-ZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6CgogIGdpdDovL2Fub25naXQuZnJlZWRlc2t0b3Au
-b3JnL2dpdC9kcm0taW50ZWwgdGFncy90b3BpYy9kZXNpZ253YXJlLWJheXRyYWlsLTIwMTctMDMt
-MDEKCmZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBjYTliMTMxYjYzYWFmMjE0MTk3MjVi
-Y2Y5MDQ5Nzg3N2Q2YmY2MjcxOgoKICBkcm0vaTkxNTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nl
-c3Mgbm90aWZpY2F0aW9ucyAoMjAxNy0wMi0yNiAyMToyMzoxMyArMDEwMCkKCi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KQmF5
-dHJhaWwgUE1JQyB2cy4gUE1VIHJhY2UgZml4ZXMgZnJvbSBIYW5zIGRlIEdvZWRlCgotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-CkhhbnMgZGUgR29lZGUgKDEyKToKICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBB
-ZGQgYSBtdXRleCBmb3IgUC1Vbml0IGFjY2VzcwogICAgICB4ODYvcGxhdGZvcm0vaW50ZWwvaW9z
-Zl9tYmk6IEFkZCBhIFBNSUMgYnVzIGFjY2VzcyBub3RpZmllcgogICAgICBpMmM6IGRlc2lnbndh
-cmU6IFJlbmFtZSBhY2Nlc3Nvcl9mbGFncyB0byBmbGFncwogICAgICBpMmM6IGRlc2lnbndhcmUt
-YmF5dHJhaWw6IFBhc3MgZHdfaTJjX2RldiBpbnRvIGhlbHBlciBmdW5jdGlvbnMKICAgICAgaTJj
-OiBkZXNpZ253YXJlLWJheXRyYWlsOiBPbmx5IGNoZWNrIGlvc2ZfbWJpX2F2YWlsYWJsZSgpIGZv
-ciBzaGFyZWQgaG9zdHMKICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBEaXNhbGxvdyB0
-aGUgQ1BVIHRvIGVudGVyIEM2IG9yIEM3IHdoaWxlIGhvbGRpbmcgdGhlIHB1bml0IHNlbWFwaG9y
-ZQogICAgICBpMmM6IGRlc2lnbndhcmUtYmF5dHJhaWw6IEZpeCByYWNlIHdoZW4gcmVzZXR0aW5n
-IHRoZSBzZW1hcGhvcmUKICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBZGQgc3VwcG9y
-dCBmb3IgY2hlcnJ5dHJhaWwKICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBY3F1aXJl
-IFAtVW5pdCBhY2Nlc3Mgb24gYnVzIGFjcXVpcmUKICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRy
-YWlsOiBDYWxsIHBtaWNfYnVzX2FjY2Vzc19ub3RpZmllcl9jaGFpbgogICAgICBkcm0vaTkxNTog
-QWRkIGludGVsX3VuY29yZV9zdXNwZW5kIC8gcmVzdW1lIGZ1bmN0aW9ucwogICAgICBkcm0vaTkx
-NTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucwoKIGFyY2gveDg2L2lu
-Y2x1ZGUvYXNtL2lvc2ZfbWJpLmggICAgICAgICAgICAgIHwgODUgKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKwogYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmkuYyAgICAgICAgICAg
-fCA0OSArKysrKysrKysrKysrKysrCiBkcml2ZXJzL2dwdS9kcm0vaTkxNS9LY29uZmlnICAgICAg
-ICAgICAgICAgICB8ICAxICsKIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2LmMgICAgICAg
-ICAgICAgIHwgIDYgKy0KIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZHJ2LmggICAgICAgICAg
-ICAgIHwgIDcgKy0tCiBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF91bmNvcmUuYyAgICAgICAg
-ICB8IDUzICsrKysrKysrKysrKysrKy0tCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndh
-cmUtYmF5dHJhaWwuYyB8IDgzICsrKysrKysrKysrKysrKysrKystLS0tLS0tLQogZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWNvcmUuYyAgICAgfCAxNCArKy0tLQogZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWNvcmUuaCAgICAgfCAxMyArKysrLQogZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBjaWRydi5jICAgfCAyNiArKysrKystLS0KIGRyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMgIHwgIDggKystCiAxMSBmaWxl
-cyBjaGFuZ2VkLCAyODggaW5zZXJ0aW9ucygrKSwgNTcgZGVsZXRpb25zKC0pCgotLSAKRGFuaWVs
-IFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24KaHR0cDovL2Jsb2cu
-ZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-SW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0
-dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+The purpose of this patchset is to enable Linux to be a I2C slave by 
+enabling the slave functionality in the designware I2C controller and at
+the same time it does some cleaning of the existing code.
+
+The patch 1 is for cleaning and commentary fix.
+The patch 2 refactors the original i2c-designware-core and extracts all
+master functions to a i2c-designware-master source file as suggested by
+Andy Shevchenko when I first submited the update. The patch 3 then
+separates the MASTER flow from the common flow.
+The patch 4 introduces the SLAVE necessary definitions to the 
+i2c-designware library and adds a how-to-use example to the designware.txt
+in device tree bindings.
+The patch 5 adds the necessary functions to give the ability to be a SLAVE
+to the controller and for that changes also had to be made in the 
+Makefile and Kconfig.
+The patch 6 enables the SLAVE mode to be detected by the platform module.
+
+The functionality was tested using the hardware independent slave-eeprom
+driver based on top of i2c/for-next. The tree I used can be found here:
+
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
+
+Luis Oliveira (6):
+  i2c: designware: Cleaning and comment style fixes.
+  i2c: designware: refactoring of the i2c-designware
+  i2c: designware: MASTER mode as separated driver
+  i2c: designware: introducing I2C_SLAVE definitions
+  i2c: designware: add SLAVE mode functions
+  i2c: designware: enable SLAVE in platform module
+
+ .../devicetree/bindings/i2c/i2c-designware.txt     |  16 +-
+ drivers/i2c/busses/Kconfig                         |  15 +-
+ drivers/i2c/busses/Makefile                        |   2 +
+ drivers/i2c/busses/i2c-designware-common.c         | 281 ++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           | 180 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 469 +++------------------
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 116 +++--
+ drivers/i2c/busses/i2c-designware-slave.c          | 403 ++++++++++++++++++
+ 8 files changed, 1031 insertions(+), 451 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (59%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+
+-- 
+2.11.0
