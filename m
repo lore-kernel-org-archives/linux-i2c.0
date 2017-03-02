@@ -1,88 +1,92 @@
-From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [RESEND PATCH v6 5/6] i2c: designware: add SLAVE mode functions
-Date: Thu, 2 Mar 2017 16:33:59 +0200
-Message-ID: <be10879b-a81b-9047-6c67-45916a85ef31@linux.intel.com>
-References: <cover.1488383202.git.lolivei@synopsys.com>
- <07463ebe12af8c88c21c24601cf54b0cd2077e07.1488383202.git.lolivei@synopsys.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PULL] topic/designware-baytrail for 4.12
+Date: Thu, 2 Mar 2017 15:38:38 +0100
+Message-ID: <c123f092-dd12-6564-aad1-113b6bdc6ed4@redhat.com>
+References: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
+ <20170302070020.g6addy6rmj7owxe6@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <07463ebe12af8c88c21c24601cf54b0cd2077e07.1488383202.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170302070020.g6addy6rmj7owxe6@phenom.ffwll.local>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Daniel Vetter <daniel@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/01/17 17:59, Luis Oliveira wrote:
-> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
-> - Slave functions added to core library file
-> - Slave abort sources added to common source file
-> - New driver: i2c-designware-slave added
-> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
->   when supported by the architecture.
->
-> All the SLAVE flow is added but it is not enabled via platform
-> driver.
->
-> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-> ---
-> V5->V6
-> - Enable Slave mode using a different option (kbuild reported an error)
-> - Identation fixes needed
-> - Changed debug prints to dev_vdbg
-> - Fixed slave enumeration
->
->  drivers/i2c/busses/Kconfig                 |  14 +-
->  drivers/i2c/busses/Makefile                |   1 +
->  drivers/i2c/busses/i2c-designware-common.c |   7 +
->  drivers/i2c/busses/i2c-designware-core.h   |   3 +
->  drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
->  5 files changed, 427 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
->
-...
-> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-> index 6357c7c78f6d..24641635aa20 100644
-> --- a/drivers/i2c/busses/i2c-designware-common.c
-> +++ b/drivers/i2c/busses/i2c-designware-common.c
-> @@ -56,6 +56,13 @@ static char *abort_sources[] = {
->  		"trying to use disabled adapter",
->  	[ARB_LOST] =
->  		"lost arbitration",
-> +	[ABRT_SLAVE_FLUSH_TXFIFO] =
-> +		"read command so flush old data in the TX FIFO",
-> +	[ABRT_SLAVE_ARBLOST] =
-> +		"slave lost the bus while transmitting data to a remote master",
-> +	[ABRT_SLAVE_RD_INTX] =
-> +		"slave request for data to be transmitted and there is a 1 in "
-> +		"bit 8 of IC_DATA_CMD",
->  };
-
-I know ABRT_SLAVE_RD_INTX case is from the specification but I would 
-prefer here one-line error text so it will be easier to grep from sources.
-
-I would like it to be also be more understandable. I don't know did I 
-understood it correctly but does it occur when attempting to read 
-controller while transmitting or something like that?
-
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index b620d76ffc8d..6c70945cccea 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -277,6 +277,7 @@ struct dw_i2c_dev {
->  	void			(*disable)(struct dw_i2c_dev *dev);
->  	void			(*disable_int)(struct dw_i2c_dev *dev);
->  	int			(*init)(struct dw_i2c_dev *dev);
-> +	bool			mode;
->  };
->
-
-As I mentioned add here comment for "mode" not in patch 4/6.
-
--- 
-Jarkko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGksCgpPbiAwMi0wMy0xNyAwODowMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPiBPbiBXZWQsIE1h
+ciAwMSwgMjAxNyBhdCAxMTo0Mjo0OEFNICswMTAwLCBEYW5pZWwgVmV0dGVyIHdyb3RlOgo+PiBI
+aSBhbGwsCj4+Cj4+IHRvcGljL2Rlc2lnbndhcmUtYmF5dHJhaWwtMjAxNy0wMy0wMToKPj4gQmF5
+dHJhaWwgUE1JQyB2cy4gUE1VIHJhY2UgZml4ZXMgZnJvbSBIYW5zIGRlIEdvZWRlCj4+Cj4+IEkg
+b3B0ZWQgdG8gcHV0IGFsbCB0aGUgcGF0Y2hlcyBmb3IgYWxsIHN1YnN5c3RlbXMgaW50byB0aGUg
+dG9waWMgYnJhbmNoZXMsCj4+IHNvIHRoYXQgaWYgbmVlZGVkLCBlYWNoIHN1YnN5c3RlbSBjYW4g
+YXBwbHkgcmVmYWN0b3JpbmdzIHRvIHRoZSBlbnRpcmUKPj4gdGhpbmcuIFdoaWNoIG1pZ2h0IGJl
+IG5lZWRlZCBzaW5jZSB3ZSdyZSB2ZXJ5IGVhcmx5IGluIHRoZSA0LjEyIGN5Y2xlLgo+Pgo+PiBU
+aGlzIGhhcyBiYWtlZCBmb3IgYSBmZXcgZGF5cyBpbiB0aGUgZHJtLWludGVsIENJIGFuZCBsb29r
+cyBnb29kIGFmYWljcy4KPj4gSSdsbCBwdWxsIHRoaXMgaW50byBkcm0taW50ZWwuZ2l0IGZvciA0
+LjEyLCBmZWVsIGZyZWUgdG8gcHVsbCBpbnRvIGFueQo+PiBvdGhlciBzdWJzeXN0ZW0gd2hlcmUg
+bmVlZGVkLgo+Cj4gSG9sZCB0aGUgcHJlc3NlcywgMGRheSBmb3VuZCBhIGNvbXBpbGUgd2Fybmlu
+Zy4gTm90IHN1cmUgd2hldGhlciBpdCdzIGEKPiBzcGVjaWFsIGNvbmZpZyBvciB3aHkgSS8wZGF5
+IGRpZG4ndCBzcG90IHRoaXMgaW4gdGhlIGZldyBkYXlzIEkgbGV0IHRoaXMKPiBzb2FrLCBidXQg
+d2VsbC4KPgo+IEhhbnMsIGNhbiB5b3UgcGxzIHByb3ZpZGUgSSBmaXh1cCBwYXRjaD8gSSdsbCBy
+ZXNwaW4gdGhlIHB1bGwgb25jZSBJIGhhdmUKPiB0aGF0LgoKQWxyZWFkeSBkb25lLCBJIGhhZCBh
+bHJlYWR5IG5vdGljZWQgdGhpcyBhbmQgcG9zdGVkIGEgdjQgb2YgdGhlIHNlcmllcyBhCndoaWxl
+IGJhY2suIEl0IGxvb2tzIGxpa2UgeW91IGVuZGVkIHVwIG1lcmdpbmcgdjMuIE5vIHByb2JsZW0g
+dGhlIGZpeCBvZgp0aGlzIGlzc3VlIHdhcyB0aGUgb25seSBuZXcgdGhpbmcgaW4gdjQgb2YgdGhl
+IHNlcmllcy4KCkhlcmUgaXMgdGhlIGZpeGVkIHY0IG9mIHRoZSBwYXRjaCBjYXVzaW5nIHRoaXM6
+Cmh0dHBzOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvNzMxOTk4LwoKUmVnYXJkcywKCkhh
+bnMKCgo+IC1EYW5pZWwKPgo+Pgo+PiBDaGVlcnMsIERhbmllbAo+Pgo+Pgo+PiBUaGUgZm9sbG93
+aW5nIGNoYW5nZXMgc2luY2UgY29tbWl0IDY0YTU3NzE5NmQ2NmI0NGUzNzM4NGJjNWM0ZDc4YzYx
+ZjU5ZDViMmE6Cj4+Cj4+ICAgbGliL0tjb25maWc6IG1ha2UgUFJJTUVfTlVNQkVSUyBub3QgdXNl
+ciBzZWxlY3RhYmxlLiAoMjAxNy0wMi0yNCAxMjoxMToyMSArMTAwMCkKPj4KPj4gYXJlIGF2YWls
+YWJsZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6Cj4+Cj4+ICAgZ2l0Oi8vYW5vbmdpdC5mcmVl
+ZGVza3RvcC5vcmcvZ2l0L2RybS1pbnRlbCB0YWdzL3RvcGljL2Rlc2lnbndhcmUtYmF5dHJhaWwt
+MjAxNy0wMy0wMQo+Pgo+PiBmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gY2E5YjEzMWI2
+M2FhZjIxNDE5NzI1YmNmOTA0OTc4NzdkNmJmNjI3MToKPj4KPj4gICBkcm0vaTkxNTogTGlzdGVu
+IGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucyAoMjAxNy0wMi0yNiAyMToyMzoxMyAr
+MDEwMCkKPj4KPj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLQo+PiBCYXl0cmFpbCBQTUlDIHZzLiBQTVUgcmFjZSBmaXhlcyBm
+cm9tIEhhbnMgZGUgR29lZGUKPj4KPj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+PiBIYW5zIGRlIEdvZWRlICgxMik6Cj4+
+ICAgICAgIHg4Ni9wbGF0Zm9ybS9pbnRlbC9pb3NmX21iaTogQWRkIGEgbXV0ZXggZm9yIFAtVW5p
+dCBhY2Nlc3MKPj4gICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBBZGQgYSBQTUlD
+IGJ1cyBhY2Nlc3Mgbm90aWZpZXIKPj4gICAgICAgaTJjOiBkZXNpZ253YXJlOiBSZW5hbWUgYWNj
+ZXNzb3JfZmxhZ3MgdG8gZmxhZ3MKPj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBQ
+YXNzIGR3X2kyY19kZXYgaW50byBoZWxwZXIgZnVuY3Rpb25zCj4+ICAgICAgIGkyYzogZGVzaWdu
+d2FyZS1iYXl0cmFpbDogT25seSBjaGVjayBpb3NmX21iaV9hdmFpbGFibGUoKSBmb3Igc2hhcmVk
+IGhvc3RzCj4+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogRGlzYWxsb3cgdGhlIENQ
+VSB0byBlbnRlciBDNiBvciBDNyB3aGlsZSBob2xkaW5nIHRoZSBwdW5pdCBzZW1hcGhvcmUKPj4g
+ICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBGaXggcmFjZSB3aGVuIHJlc2V0dGluZyB0
+aGUgc2VtYXBob3JlCj4+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWRkIHN1cHBv
+cnQgZm9yIGNoZXJyeXRyYWlsCj4+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWNx
+dWlyZSBQLVVuaXQgYWNjZXNzIG9uIGJ1cyBhY3F1aXJlCj4+ICAgICAgIGkyYzogZGVzaWdud2Fy
+ZS1iYXl0cmFpbDogQ2FsbCBwbWljX2J1c19hY2Nlc3Nfbm90aWZpZXJfY2hhaW4KPj4gICAgICAg
+ZHJtL2k5MTU6IEFkZCBpbnRlbF91bmNvcmVfc3VzcGVuZCAvIHJlc3VtZSBmdW5jdGlvbnMKPj4g
+ICAgICAgZHJtL2k5MTU6IExpc3RlbiBmb3IgUE1JQyBidXMgYWNjZXNzIG5vdGlmaWNhdGlvbnMK
+Pj4KPj4gIGFyY2gveDg2L2luY2x1ZGUvYXNtL2lvc2ZfbWJpLmggICAgICAgICAgICAgIHwgODUg
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+PiAgYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwv
+aW9zZl9tYmkuYyAgICAgICAgICAgfCA0OSArKysrKysrKysrKysrKysrCj4+ICBkcml2ZXJzL2dw
+dS9kcm0vaTkxNS9LY29uZmlnICAgICAgICAgICAgICAgICB8ICAxICsKPj4gIGRyaXZlcnMvZ3B1
+L2RybS9pOTE1L2k5MTVfZHJ2LmMgICAgICAgICAgICAgIHwgIDYgKy0KPj4gIGRyaXZlcnMvZ3B1
+L2RybS9pOTE1L2k5MTVfZHJ2LmggICAgICAgICAgICAgIHwgIDcgKy0tCj4+ICBkcml2ZXJzL2dw
+dS9kcm0vaTkxNS9pbnRlbF91bmNvcmUuYyAgICAgICAgICB8IDUzICsrKysrKysrKysrKysrKy0t
+Cj4+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtYmF5dHJhaWwuYyB8IDgzICsr
+KysrKysrKysrKysrKysrKystLS0tLS0tLQo+PiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
+Z253YXJlLWNvcmUuYyAgICAgfCAxNCArKy0tLQo+PiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1k
+ZXNpZ253YXJlLWNvcmUuaCAgICAgfCAxMyArKysrLQo+PiAgZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1kZXNpZ253YXJlLXBjaWRydi5jICAgfCAyNiArKysrKystLS0KPj4gIGRyaXZlcnMvaTJjL2J1
+c3Nlcy9pMmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMgIHwgIDggKystCj4+ICAxMSBmaWxlcyBjaGFu
+Z2VkLCAyODggaW5zZXJ0aW9ucygrKSwgNTcgZGVsZXRpb25zKC0pCj4+Cj4+IC0tCj4+IERhbmll
+bCBWZXR0ZXIKPj4gU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9uCj4+IGh0dHA6
+Ly9ibG9nLmZmd2xsLmNoCj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0
+b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50
+ZWwtZ2Z4Cg==
