@@ -1,56 +1,101 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PULL] topic/designware-baytrail for 4.12
-Date: Thu, 2 Mar 2017 16:19:27 +0100
-Message-ID: <b5d5dc89-3db4-3e61-f189-dde2685299f2@redhat.com>
-References: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
- <20170302070020.g6addy6rmj7owxe6@phenom.ffwll.local>
- <c123f092-dd12-6564-aad1-113b6bdc6ed4@redhat.com>
- <CAKMK7uFTyxz8d36g2A700Kpq2zHQfPdw6XMLUSeudW1tEhreDA@mail.gmail.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [RESEND PATCH v6 5/6] i2c: designware: add SLAVE mode functions
+Date: Thu, 2 Mar 2017 15:17:43 +0000
+Message-ID: <d6183e8c-5ff8-32c9-44ff-bef038ee0baa@synopsys.com>
+References: <cover.1488383202.git.lolivei@synopsys.com>
+ <07463ebe12af8c88c21c24601cf54b0cd2077e07.1488383202.git.lolivei@synopsys.com>
+ <be10879b-a81b-9047-6c67-45916a85ef31@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <CAKMK7uFTyxz8d36g2A700Kpq2zHQfPdw6XMLUSeudW1tEhreDA@mail.gmail.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, dri-devel <dri-devel@lists.freedesktop.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtprelay.synopsys.com ([198.182.60.111]:45274 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751141AbdCBPVZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 10:21:25 -0500
+In-Reply-To: <be10879b-a81b-9047-6c67-45916a85ef31@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-SGksCgpPbiAwMi0wMy0xNyAxNTo0NywgRGFuaWVsIFZldHRlciB3cm90ZToKPiBPbiBUaHUsIE1h
-ciAyLCAyMDE3IGF0IDM6MzggUE0sIEhhbnMgZGUgR29lZGUgPGhkZWdvZWRlQHJlZGhhdC5jb20+
-IHdyb3RlOgo+PiBPbiAwMi0wMy0xNyAwODowMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPj4+Cj4+
-PiBPbiBXZWQsIE1hciAwMSwgMjAxNyBhdCAxMTo0Mjo0OEFNICswMTAwLCBEYW5pZWwgVmV0dGVy
-IHdyb3RlOgo+Pj4+Cj4+Pj4gSGkgYWxsLAo+Pj4+Cj4+Pj4gdG9waWMvZGVzaWdud2FyZS1iYXl0
-cmFpbC0yMDE3LTAzLTAxOgo+Pj4+IEJheXRyYWlsIFBNSUMgdnMuIFBNVSByYWNlIGZpeGVzIGZy
-b20gSGFucyBkZSBHb2VkZQo+Pj4+Cj4+Pj4gSSBvcHRlZCB0byBwdXQgYWxsIHRoZSBwYXRjaGVz
-IGZvciBhbGwgc3Vic3lzdGVtcyBpbnRvIHRoZSB0b3BpYwo+Pj4+IGJyYW5jaGVzLAo+Pj4+IHNv
-IHRoYXQgaWYgbmVlZGVkLCBlYWNoIHN1YnN5c3RlbSBjYW4gYXBwbHkgcmVmYWN0b3JpbmdzIHRv
-IHRoZSBlbnRpcmUKPj4+PiB0aGluZy4gV2hpY2ggbWlnaHQgYmUgbmVlZGVkIHNpbmNlIHdlJ3Jl
-IHZlcnkgZWFybHkgaW4gdGhlIDQuMTIgY3ljbGUuCj4+Pj4KPj4+PiBUaGlzIGhhcyBiYWtlZCBm
-b3IgYSBmZXcgZGF5cyBpbiB0aGUgZHJtLWludGVsIENJIGFuZCBsb29rcyBnb29kIGFmYWljcy4K
-Pj4+PiBJJ2xsIHB1bGwgdGhpcyBpbnRvIGRybS1pbnRlbC5naXQgZm9yIDQuMTIsIGZlZWwgZnJl
-ZSB0byBwdWxsIGludG8gYW55Cj4+Pj4gb3RoZXIgc3Vic3lzdGVtIHdoZXJlIG5lZWRlZC4KPj4+
-Cj4+Pgo+Pj4gSG9sZCB0aGUgcHJlc3NlcywgMGRheSBmb3VuZCBhIGNvbXBpbGUgd2FybmluZy4g
-Tm90IHN1cmUgd2hldGhlciBpdCdzIGEKPj4+IHNwZWNpYWwgY29uZmlnIG9yIHdoeSBJLzBkYXkg
-ZGlkbid0IHNwb3QgdGhpcyBpbiB0aGUgZmV3IGRheXMgSSBsZXQgdGhpcwo+Pj4gc29haywgYnV0
-IHdlbGwuCj4+Pgo+Pj4gSGFucywgY2FuIHlvdSBwbHMgcHJvdmlkZSBJIGZpeHVwIHBhdGNoPyBJ
-J2xsIHJlc3BpbiB0aGUgcHVsbCBvbmNlIEkgaGF2ZQo+Pj4gdGhhdC4KPj4KPj4KPj4gQWxyZWFk
-eSBkb25lLCBJIGhhZCBhbHJlYWR5IG5vdGljZWQgdGhpcyBhbmQgcG9zdGVkIGEgdjQgb2YgdGhl
-IHNlcmllcyBhCj4+IHdoaWxlIGJhY2suIEl0IGxvb2tzIGxpa2UgeW91IGVuZGVkIHVwIG1lcmdp
-bmcgdjMuIE5vIHByb2JsZW0gdGhlIGZpeCBvZgo+PiB0aGlzIGlzc3VlIHdhcyB0aGUgb25seSBu
-ZXcgdGhpbmcgaW4gdjQgb2YgdGhlIHNlcmllcy4KPj4KPj4gSGVyZSBpcyB0aGUgZml4ZWQgdjQg
-b2YgdGhlIHBhdGNoIGNhdXNpbmcgdGhpczoKPj4gaHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9y
-Zy9wYXRjaC83MzE5OTgvCj4KPiBPb3BzIDooIEkgdXBkYXRlZCB0b3BpYy9kZXNpZ253YXJlLWJh
-eXRyYWlsLCBjYW4geW91IHBscyBkb3VibGUtY2hlY2sKPiBpdCdzIHRoZSByaWdodCBzdHVmZiBu
-b3c/CgpEb25lLCBsb29rcyBnb29kIG5vdy4KClJlZ2FyZHMsCgpIYW5zCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QK
-SW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9w
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=
+On 02-Mar-17 14:33, Jarkko Nikula wrote:
+> On 03/01/17 17:59, Luis Oliveira wrote:
+>> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+>> - Slave functions added to core library file
+>> - Slave abort sources added to common source file
+>> - New driver: i2c-designware-slave added
+>> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>>   when supported by the architecture.
+>>
+>> All the SLAVE flow is added but it is not enabled via platform
+>> driver.
+>>
+>> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+>> ---
+>> V5->V6
+>> - Enable Slave mode using a different option (kbuild reported an error)
+>> - Identation fixes needed
+>> - Changed debug prints to dev_vdbg
+>> - Fixed slave enumeration
+>>
+>>  drivers/i2c/busses/Kconfig                 |  14 +-
+>>  drivers/i2c/busses/Makefile                |   1 +
+>>  drivers/i2c/busses/i2c-designware-common.c |   7 +
+>>  drivers/i2c/busses/i2c-designware-core.h   |   3 +
+>>  drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
+>>  5 files changed, 427 insertions(+), 1 deletion(-)
+>>  create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+>>
+> ...
+>> diff --git a/drivers/i2c/busses/i2c-designware-common.c
+>> b/drivers/i2c/busses/i2c-designware-common.c
+>> index 6357c7c78f6d..24641635aa20 100644
+>> --- a/drivers/i2c/busses/i2c-designware-common.c
+>> +++ b/drivers/i2c/busses/i2c-designware-common.c
+>> @@ -56,6 +56,13 @@ static char *abort_sources[] = {
+>>          "trying to use disabled adapter",
+>>      [ARB_LOST] =
+>>          "lost arbitration",
+>> +    [ABRT_SLAVE_FLUSH_TXFIFO] =
+>> +        "read command so flush old data in the TX FIFO",
+>> +    [ABRT_SLAVE_ARBLOST] =
+>> +        "slave lost the bus while transmitting data to a remote master",
+>> +    [ABRT_SLAVE_RD_INTX] =
+>> +        "slave request for data to be transmitted and there is a 1 in "
+>> +        "bit 8 of IC_DATA_CMD",
+>>  };
+> 
+> I know ABRT_SLAVE_RD_INTX case is from the specification but I would prefer here
+> one-line error text so it will be easier to grep from sources.
+> 
+> I would like it to be also be more understandable. I don't know did I understood
+> it correctly but does it occur when attempting to read controller while
+> transmitting or something like that?
+
+It happens in the "slave-transmitter" mode, when the processor side responds to
+a request for data to be transmitted and at the same time someone writes 1 to
+the bit 8 of the IC_DATA_CMD. This bit in "slave-transmitter" mode has to be "0"
+to indicate the data is to be transmitted.
+
+In "slave-receiver" mode it has no purpose since writes to this register are not
+required.
+
+> 
+>> diff --git a/drivers/i2c/busses/i2c-designware-core.h
+>> b/drivers/i2c/busses/i2c-designware-core.h
+>> index b620d76ffc8d..6c70945cccea 100644
+>> --- a/drivers/i2c/busses/i2c-designware-core.h
+>> +++ b/drivers/i2c/busses/i2c-designware-core.h
+>> @@ -277,6 +277,7 @@ struct dw_i2c_dev {
+>>      void            (*disable)(struct dw_i2c_dev *dev);
+>>      void            (*disable_int)(struct dw_i2c_dev *dev);
+>>      int            (*init)(struct dw_i2c_dev *dev);
+>> +    bool            mode;
+>>  };
+>>
+> 
+> As I mentioned add here comment for "mode" not in patch 4/6.
+> 
+Ok, I will.
+Thanks.
