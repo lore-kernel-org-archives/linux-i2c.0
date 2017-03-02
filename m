@@ -1,206 +1,86 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [RESEND PATCH v6 2/6] i2c: designware: refactoring of the i2c-designware
-Date: Wed,  1 Mar 2017 15:59:42 +0000
-Message-ID: <6fabfa1a657d6bac108bd91f8ac33295a5086987.1488383202.git.lolivei@synopsys.com>
-References: <cover.1488383202.git.lolivei@synopsys.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtprelay2.synopsys.com ([198.182.60.111]:54271 "EHLO
-        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753016AbdCAQRU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Mar 2017 11:17:20 -0500
-In-Reply-To: <cover.1488383202.git.lolivei@synopsys.com>
-In-Reply-To: <cover.1488383202.git.lolivei@synopsys.com>
-References: <cover.1488383202.git.lolivei@synopsys.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PULL] topic/designware-baytrail for 4.12
+Date: Thu, 2 Mar 2017 08:00:20 +0100
+Message-ID: <20170302070020.g6addy6rmj7owxe6@phenom.ffwll.local>
+References: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-- Factor out all _master() part of code from i2c-designware-core
-  and i2c-designware-platdrv to separate functions.
-- Standardize all code related with MASTER mode.
-- I have to take off DW_IC_INTR_TX_EMPTY from DW_IC_INTR_DEFAULT_MASK
-  because it is master specific.
-
-The purpose of this is to prepare the controller to have is I2C MASTER
-flow in a separate driver. To do this first all the
-functions/definitions related to the MASTER flow were identified.
-
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
-V5->v6
-- Removed the __func__ of dev_dbg prints
-- Fix i2c_dw_configure_master() to accept dw_i2c_dev *
-
- drivers/i2c/busses/i2c-designware-core.c    | 56 +++++++++++++++++------------
- drivers/i2c/busses/i2c-designware-platdrv.c | 31 +++++++++-------
- 2 files changed, 52 insertions(+), 35 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 46937865ef8f..8b1b61f06a3f 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -87,10 +87,10 @@
- #define DW_IC_INTR_GEN_CALL	0x800
- 
- #define DW_IC_INTR_DEFAULT_MASK		(DW_IC_INTR_RX_FULL | \
--					 DW_IC_INTR_TX_EMPTY | \
- 					 DW_IC_INTR_TX_ABRT | \
- 					 DW_IC_INTR_STOP_DET)
--
-+#define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
-+					 DW_IC_INTR_TX_EMPTY)
- #define DW_IC_STATUS_ACTIVITY	0x1
- 
- #define DW_IC_SDA_HOLD_RX_SHIFT		16
-@@ -202,6 +202,16 @@ static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- 	}
- }
- 
-+static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
-+{
-+	/* Configure Tx/Rx FIFO threshold levels */
-+	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
-+	dw_writel(dev, 0, DW_IC_RX_TL);
-+
-+	/* Configure the I2C master */
-+	dw_writel(dev, dev->master_cfg, DW_IC_CON);
-+}
-+
- static u32
- i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- {
-@@ -440,13 +450,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 			"Hardware too old to adjust SDA hold time.\n");
- 	}
- 
--	/* Configure Tx/Rx FIFO threshold levels */
--	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
--	dw_writel(dev, 0, DW_IC_RX_TL);
--
--	/* Configure the I2C master */
--	dw_writel(dev, dev->master_cfg , DW_IC_CON);
--
-+	i2c_dw_configure_fifo_master(dev);
- 	i2c_dw_release_lock(dev);
- 
- 	return 0;
-@@ -511,7 +515,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 
- 	/* Clear and enable interrupts */
- 	dw_readl(dev, DW_IC_CLR_INTR);
--	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
-+	dw_writel(dev, DW_IC_INTR_MASTER_MASK, DW_IC_INTR_MASK);
- }
- 
- /*
-@@ -531,7 +535,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 	u8 *buf = dev->tx_buf;
- 	bool need_restart = false;
- 
--	intr_mask = DW_IC_INTR_DEFAULT_MASK;
-+	intr_mask = DW_IC_INTR_MASTER_MASK;
- 
- 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
- 		u32 flags = msgs[dev->msg_write_idx].flags;
-@@ -881,22 +885,14 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
- }
- 
- /*
-- * Interrupt service routine. This gets called whenever an I2C interrupt
-+ * Interrupt service routine. This gets called whenever an I2C master interrupt
-  * occurs.
-  */
--static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
-+static int i2c_dw_irq_handler_master(struct dw_i2c_dev *dev)
- {
--	struct dw_i2c_dev *dev = dev_id;
--	u32 stat, enabled;
--
--	enabled = dw_readl(dev, DW_IC_ENABLE);
--	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
--	dev_dbg(dev->dev, "%s: enabled=%#x stat=%#x\n", __func__, enabled, stat);
--	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
--		return IRQ_NONE;
-+	u32 stat;
- 
- 	stat = i2c_dw_read_clear_intrbits(dev);
--
- 	if (stat & DW_IC_INTR_TX_ABRT) {
- 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
- 		dev->status = STATUS_IDLE;
-@@ -931,6 +927,22 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 		dw_writel(dev, stat, DW_IC_INTR_MASK);
- 	}
- 
-+	return 0;
-+}
-+
-+static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
-+{
-+	struct dw_i2c_dev *dev = dev_id;
-+	u32 stat, enabled;
-+
-+	enabled = dw_readl(dev, DW_IC_ENABLE);
-+	stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
-+	dev_dbg(dev->dev, "enabled=%#x stat=%#x\n", enabled, stat);
-+	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
-+		return IRQ_NONE;
-+
-+	i2c_dw_irq_handler_master(dev);
-+
- 	return IRQ_HANDLED;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 381f0c1058b4..206dea03b0d0 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -140,6 +140,23 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- }
- #endif
- 
-+static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
-+{
-+	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-+			  DW_IC_CON_RESTART_EN;
-+
-+	switch (dev->clk_freq) {
-+	case 100000:
-+		dev->master_cfg |= DW_IC_CON_SPEED_STD;
-+		break;
-+	case 3400000:
-+		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
-+		break;
-+	default:
-+		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
-+	}
-+}
-+
- static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
- {
- 	if (IS_ERR(i_dev->clk))
-@@ -246,19 +263,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 
- 	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
- 
--	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
--			  DW_IC_CON_RESTART_EN;
--
--	switch (dev->clk_freq) {
--	case 100000:
--		dev->master_cfg |= DW_IC_CON_SPEED_STD;
--		break;
--	case 3400000:
--		dev->master_cfg |= DW_IC_CON_SPEED_HIGH;
--		break;
--	default:
--		dev->master_cfg |= DW_IC_CON_SPEED_FAST;
--	}
-+	i2c_dw_configure_master(dev);
- 
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_plat_prepare_clk(dev, true)) {
--- 
-2.11.0
+T24gV2VkLCBNYXIgMDEsIDIwMTcgYXQgMTE6NDI6NDhBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
+cm90ZToKPiBIaSBhbGwsCj4gCj4gdG9waWMvZGVzaWdud2FyZS1iYXl0cmFpbC0yMDE3LTAzLTAx
+Ogo+IEJheXRyYWlsIFBNSUMgdnMuIFBNVSByYWNlIGZpeGVzIGZyb20gSGFucyBkZSBHb2VkZQo+
+IAo+IEkgb3B0ZWQgdG8gcHV0IGFsbCB0aGUgcGF0Y2hlcyBmb3IgYWxsIHN1YnN5c3RlbXMgaW50
+byB0aGUgdG9waWMgYnJhbmNoZXMsCj4gc28gdGhhdCBpZiBuZWVkZWQsIGVhY2ggc3Vic3lzdGVt
+IGNhbiBhcHBseSByZWZhY3RvcmluZ3MgdG8gdGhlIGVudGlyZQo+IHRoaW5nLiBXaGljaCBtaWdo
+dCBiZSBuZWVkZWQgc2luY2Ugd2UncmUgdmVyeSBlYXJseSBpbiB0aGUgNC4xMiBjeWNsZS4KPiAK
+PiBUaGlzIGhhcyBiYWtlZCBmb3IgYSBmZXcgZGF5cyBpbiB0aGUgZHJtLWludGVsIENJIGFuZCBs
+b29rcyBnb29kIGFmYWljcy4KPiBJJ2xsIHB1bGwgdGhpcyBpbnRvIGRybS1pbnRlbC5naXQgZm9y
+IDQuMTIsIGZlZWwgZnJlZSB0byBwdWxsIGludG8gYW55Cj4gb3RoZXIgc3Vic3lzdGVtIHdoZXJl
+IG5lZWRlZC4KCkhvbGQgdGhlIHByZXNzZXMsIDBkYXkgZm91bmQgYSBjb21waWxlIHdhcm5pbmcu
+IE5vdCBzdXJlIHdoZXRoZXIgaXQncyBhCnNwZWNpYWwgY29uZmlnIG9yIHdoeSBJLzBkYXkgZGlk
+bid0IHNwb3QgdGhpcyBpbiB0aGUgZmV3IGRheXMgSSBsZXQgdGhpcwpzb2FrLCBidXQgd2VsbC4K
+CkhhbnMsIGNhbiB5b3UgcGxzIHByb3ZpZGUgSSBmaXh1cCBwYXRjaD8gSSdsbCByZXNwaW4gdGhl
+IHB1bGwgb25jZSBJIGhhdmUKdGhhdC4KLURhbmllbAoKPiAKPiBDaGVlcnMsIERhbmllbAo+IAo+
+IAo+IFRoZSBmb2xsb3dpbmcgY2hhbmdlcyBzaW5jZSBjb21taXQgNjRhNTc3MTk2ZDY2YjQ0ZTM3
+Mzg0YmM1YzRkNzhjNjFmNTlkNWIyYToKPiAKPiAgIGxpYi9LY29uZmlnOiBtYWtlIFBSSU1FX05V
+TUJFUlMgbm90IHVzZXIgc2VsZWN0YWJsZS4gKDIwMTctMDItMjQgMTI6MTE6MjEgKzEwMDApCj4g
+Cj4gYXJlIGF2YWlsYWJsZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6Cj4gCj4gICBnaXQ6Ly9h
+bm9uZ2l0LmZyZWVkZXNrdG9wLm9yZy9naXQvZHJtLWludGVsIHRhZ3MvdG9waWMvZGVzaWdud2Fy
+ZS1iYXl0cmFpbC0yMDE3LTAzLTAxCj4gCj4gZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRv
+IGNhOWIxMzFiNjNhYWYyMTQxOTcyNWJjZjkwNDk3ODc3ZDZiZjYyNzE6Cj4gCj4gICBkcm0vaTkx
+NTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucyAoMjAxNy0wMi0yNiAy
+MToyMzoxMyArMDEwMCkKPiAKPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gQmF5dHJhaWwgUE1JQyB2cy4gUE1VIHJhY2Ug
+Zml4ZXMgZnJvbSBIYW5zIGRlIEdvZWRlCj4gCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IEhhbnMgZGUgR29lZGUgKDEy
+KToKPiAgICAgICB4ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmk6IEFkZCBhIG11dGV4IGZvciBQ
+LVVuaXQgYWNjZXNzCj4gICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBBZGQgYSBQ
+TUlDIGJ1cyBhY2Nlc3Mgbm90aWZpZXIKPiAgICAgICBpMmM6IGRlc2lnbndhcmU6IFJlbmFtZSBh
+Y2Nlc3Nvcl9mbGFncyB0byBmbGFncwo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDog
+UGFzcyBkd19pMmNfZGV2IGludG8gaGVscGVyIGZ1bmN0aW9ucwo+ICAgICAgIGkyYzogZGVzaWdu
+d2FyZS1iYXl0cmFpbDogT25seSBjaGVjayBpb3NmX21iaV9hdmFpbGFibGUoKSBmb3Igc2hhcmVk
+IGhvc3RzCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBEaXNhbGxvdyB0aGUgQ1BV
+IHRvIGVudGVyIEM2IG9yIEM3IHdoaWxlIGhvbGRpbmcgdGhlIHB1bml0IHNlbWFwaG9yZQo+ICAg
+ICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogRml4IHJhY2Ugd2hlbiByZXNldHRpbmcgdGhl
+IHNlbWFwaG9yZQo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWRkIHN1cHBvcnQg
+Zm9yIGNoZXJyeXRyYWlsCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBY3F1aXJl
+IFAtVW5pdCBhY2Nlc3Mgb24gYnVzIGFjcXVpcmUKPiAgICAgICBpMmM6IGRlc2lnbndhcmUtYmF5
+dHJhaWw6IENhbGwgcG1pY19idXNfYWNjZXNzX25vdGlmaWVyX2NoYWluCj4gICAgICAgZHJtL2k5
+MTU6IEFkZCBpbnRlbF91bmNvcmVfc3VzcGVuZCAvIHJlc3VtZSBmdW5jdGlvbnMKPiAgICAgICBk
+cm0vaTkxNTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucwo+IAo+ICBh
+cmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5oICAgICAgICAgICAgICB8IDg1ICsrKysrKysr
+KysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmku
+YyAgICAgICAgICAgfCA0OSArKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
+L0tjb25maWcgICAgICAgICAgICAgICAgIHwgIDEgKwo+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9p
+OTE1X2Rydi5jICAgICAgICAgICAgICB8ICA2ICstCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5
+MTVfZHJ2LmggICAgICAgICAgICAgIHwgIDcgKy0tCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2lu
+dGVsX3VuY29yZS5jICAgICAgICAgIHwgNTMgKysrKysrKysrKysrKysrLS0KPiAgZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMgfCA4MyArKysrKysrKysrKysrKysr
+KysrLS0tLS0tLS0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWNvcmUuYyAg
+ICAgfCAxNCArKy0tLQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5o
+ICAgICB8IDEzICsrKystCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wY2lk
+cnYuYyAgIHwgMjYgKysrKysrLS0tCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
+ZS1wbGF0ZHJ2LmMgIHwgIDggKystCj4gIDExIGZpbGVzIGNoYW5nZWQsIDI4OCBpbnNlcnRpb25z
+KCspLCA1NyBkZWxldGlvbnMoLSkKPiAKPiAtLSAKPiBEYW5pZWwgVmV0dGVyCj4gU29mdHdhcmUg
+RW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9uCj4gaHR0cDovL2Jsb2cuZmZ3bGwuY2gKCi0tIApE
+YW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8v
+YmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5v
+cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1n
+ZngK
