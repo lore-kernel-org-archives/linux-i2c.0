@@ -1,63 +1,81 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: [PATCH] i2c: thunderx: ACPI support for clock settings
-Date: Thu,  2 Mar 2017 11:34:07 +0100
-Message-ID: <20170302103407.24264-1-jglauber@cavium.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:34020 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750968AbdCBKoN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 05:44:13 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [RESEND PATCH v6 4/6] i2c: designware: introducing I2C_SLAVE
+ definitions
+Date: Thu, 2 Mar 2017 15:46:48 +0200
+Message-ID: <3a84bb00-ab25-e36f-5552-0d4232c60e36@linux.intel.com>
+References: <cover.1488383202.git.lolivei@synopsys.com>
+ <01815bce74cdb525f45d4088648b11dcc48da040.1488383202.git.lolivei@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <01815bce74cdb525f45d4088648b11dcc48da040.1488383202.git.lolivei@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jan Glauber <jglauber@cavium.com>
 
-Add support for reading the system clock and the TWSI clock
-frequency from ACPI DSDT.
+On 03/01/17 17:59, Luis Oliveira wrote:
+> - Definitions were added to core library
+> - A example was added to designware-core.txt Documentation that shows
+>   how the slave can be setup using DTS
+>
+> SLAVE related definitions were added to the core of the controller.
+>
+> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+> ---
+> V5->V6
+> - Included an example of use in the device tree binding document
+> (with the RESEND)
+> - Removed the i2c-designware.txt binding leading 0 to add the Rob
+>   Herring ack.
+>
+>  .../devicetree/bindings/i2c/i2c-designware.txt     | 16 +++++++++-
+>  drivers/i2c/busses/i2c-designware-core.h           | 35 ++++++++++++++++++++--
+>  2 files changed, 48 insertions(+), 3 deletions(-)
+>
+...
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index 35d7264d9e3a..b620d76ffc8d 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -1,5 +1,5 @@
+...
+> @@ -196,7 +221,11 @@
+>   * @acquire_lock: function to acquire a hardware lock on the bus
+>   * @release_lock: function to release a hardware lock on the bus
+>   * @pm_runtime_disabled: true if pm runtime is disabled
+> - *
+> + * @dynamic_tar_update_enabled: true if dynamic TAR update is enabled
+> + * @disable: function to disable the controller
+> + * @disable_int: function to disable all interrupts
+> + * @init: function to initialize the I2C hardware
+> + * @mode: operation mode - I2C slave or I2C master
+>   * HCNT and LCNT parameters can be used if the platform knows more accurate
+>   * values than the one computed based only on the input clock frequency.
+>   * Leave them to be %0 if not used.
+> @@ -206,6 +235,7 @@ struct dw_i2c_dev {
+>  	void __iomem		*base;
+>  	struct completion	cmd_complete;
+>  	struct clk		*clk;
+> +	struct i2c_client		*slave;
+>  	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+>  	struct dw_pci_controller *controller;
+>  	int			cmd_err;
+> @@ -225,6 +255,7 @@ struct dw_i2c_dev {
+>  	struct i2c_adapter	adapter;
+>  	u32			functionality;
+>  	u32			master_cfg;
+> +	u32			slave_cfg;
+>  	unsigned int		tx_fifo_depth;
+>  	unsigned int		rx_fifo_depth;
+>  	int			rx_outstanding;
 
-TWSI clock was already covered by using device_property_read().
+You should add comments for "slave" and "slave_cfg" since they are added 
+here and move comments for other members variables to patches 3/6 and 
+5/6 where they are added.
 
-Signed-off-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index bba5b42..031e59f 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -85,17 +85,23 @@ static void thunder_i2c_clock_enable(struct device *dev, struct octeon_i2c *i2c)
- {
- 	int ret;
- 
--	i2c->clk = clk_get(dev, NULL);
--	if (IS_ERR(i2c->clk)) {
--		i2c->clk = NULL;
--		goto skip;
-+	if (acpi_disabled) {
-+		/* DT */
-+		i2c->clk = clk_get(dev, NULL);
-+		if (IS_ERR(i2c->clk)) {
-+			i2c->clk = NULL;
-+			goto skip;
-+		}
-+
-+		ret = clk_prepare_enable(i2c->clk);
-+		if (ret)
-+			goto skip;
-+		i2c->sys_freq = clk_get_rate(i2c->clk);
-+	} else {
-+		/* ACPI */
-+		device_property_read_u32(dev, "sclk", &i2c->sys_freq);
- 	}
- 
--	ret = clk_prepare_enable(i2c->clk);
--	if (ret)
--		goto skip;
--	i2c->sys_freq = clk_get_rate(i2c->clk);
--
- skip:
- 	if (!i2c->sys_freq)
- 		i2c->sys_freq = SYS_FREQ_DEFAULT;
 -- 
-2.9.0.rc0.21.g7777322
+Jarkko
