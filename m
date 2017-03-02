@@ -1,86 +1,63 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PULL] topic/designware-baytrail for 4.12
-Date: Thu, 2 Mar 2017 08:00:20 +0100
-Message-ID: <20170302070020.g6addy6rmj7owxe6@phenom.ffwll.local>
-References: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20170301104248.i5djd74w2m6tkajf@phenom.ffwll.local>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
+From: Jan Glauber <jglauber@cavium.com>
+Subject: [PATCH] i2c: thunderx: ACPI support for clock settings
+Date: Thu,  2 Mar 2017 11:34:07 +0100
+Message-ID: <20170302103407.24264-1-jglauber@cavium.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:34020 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750968AbdCBKoN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 05:44:13 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jan Glauber <jglauber@cavium.com>
 
-T24gV2VkLCBNYXIgMDEsIDIwMTcgYXQgMTE6NDI6NDhBTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
-cm90ZToKPiBIaSBhbGwsCj4gCj4gdG9waWMvZGVzaWdud2FyZS1iYXl0cmFpbC0yMDE3LTAzLTAx
-Ogo+IEJheXRyYWlsIFBNSUMgdnMuIFBNVSByYWNlIGZpeGVzIGZyb20gSGFucyBkZSBHb2VkZQo+
-IAo+IEkgb3B0ZWQgdG8gcHV0IGFsbCB0aGUgcGF0Y2hlcyBmb3IgYWxsIHN1YnN5c3RlbXMgaW50
-byB0aGUgdG9waWMgYnJhbmNoZXMsCj4gc28gdGhhdCBpZiBuZWVkZWQsIGVhY2ggc3Vic3lzdGVt
-IGNhbiBhcHBseSByZWZhY3RvcmluZ3MgdG8gdGhlIGVudGlyZQo+IHRoaW5nLiBXaGljaCBtaWdo
-dCBiZSBuZWVkZWQgc2luY2Ugd2UncmUgdmVyeSBlYXJseSBpbiB0aGUgNC4xMiBjeWNsZS4KPiAK
-PiBUaGlzIGhhcyBiYWtlZCBmb3IgYSBmZXcgZGF5cyBpbiB0aGUgZHJtLWludGVsIENJIGFuZCBs
-b29rcyBnb29kIGFmYWljcy4KPiBJJ2xsIHB1bGwgdGhpcyBpbnRvIGRybS1pbnRlbC5naXQgZm9y
-IDQuMTIsIGZlZWwgZnJlZSB0byBwdWxsIGludG8gYW55Cj4gb3RoZXIgc3Vic3lzdGVtIHdoZXJl
-IG5lZWRlZC4KCkhvbGQgdGhlIHByZXNzZXMsIDBkYXkgZm91bmQgYSBjb21waWxlIHdhcm5pbmcu
-IE5vdCBzdXJlIHdoZXRoZXIgaXQncyBhCnNwZWNpYWwgY29uZmlnIG9yIHdoeSBJLzBkYXkgZGlk
-bid0IHNwb3QgdGhpcyBpbiB0aGUgZmV3IGRheXMgSSBsZXQgdGhpcwpzb2FrLCBidXQgd2VsbC4K
-CkhhbnMsIGNhbiB5b3UgcGxzIHByb3ZpZGUgSSBmaXh1cCBwYXRjaD8gSSdsbCByZXNwaW4gdGhl
-IHB1bGwgb25jZSBJIGhhdmUKdGhhdC4KLURhbmllbAoKPiAKPiBDaGVlcnMsIERhbmllbAo+IAo+
-IAo+IFRoZSBmb2xsb3dpbmcgY2hhbmdlcyBzaW5jZSBjb21taXQgNjRhNTc3MTk2ZDY2YjQ0ZTM3
-Mzg0YmM1YzRkNzhjNjFmNTlkNWIyYToKPiAKPiAgIGxpYi9LY29uZmlnOiBtYWtlIFBSSU1FX05V
-TUJFUlMgbm90IHVzZXIgc2VsZWN0YWJsZS4gKDIwMTctMDItMjQgMTI6MTE6MjEgKzEwMDApCj4g
-Cj4gYXJlIGF2YWlsYWJsZSBpbiB0aGUgZ2l0IHJlcG9zaXRvcnkgYXQ6Cj4gCj4gICBnaXQ6Ly9h
-bm9uZ2l0LmZyZWVkZXNrdG9wLm9yZy9naXQvZHJtLWludGVsIHRhZ3MvdG9waWMvZGVzaWdud2Fy
-ZS1iYXl0cmFpbC0yMDE3LTAzLTAxCj4gCj4gZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRv
-IGNhOWIxMzFiNjNhYWYyMTQxOTcyNWJjZjkwNDk3ODc3ZDZiZjYyNzE6Cj4gCj4gICBkcm0vaTkx
-NTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucyAoMjAxNy0wMi0yNiAy
-MToyMzoxMyArMDEwMCkKPiAKPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gQmF5dHJhaWwgUE1JQyB2cy4gUE1VIHJhY2Ug
-Zml4ZXMgZnJvbSBIYW5zIGRlIEdvZWRlCj4gCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IEhhbnMgZGUgR29lZGUgKDEy
-KToKPiAgICAgICB4ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmk6IEFkZCBhIG11dGV4IGZvciBQ
-LVVuaXQgYWNjZXNzCj4gICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBBZGQgYSBQ
-TUlDIGJ1cyBhY2Nlc3Mgbm90aWZpZXIKPiAgICAgICBpMmM6IGRlc2lnbndhcmU6IFJlbmFtZSBh
-Y2Nlc3Nvcl9mbGFncyB0byBmbGFncwo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDog
-UGFzcyBkd19pMmNfZGV2IGludG8gaGVscGVyIGZ1bmN0aW9ucwo+ICAgICAgIGkyYzogZGVzaWdu
-d2FyZS1iYXl0cmFpbDogT25seSBjaGVjayBpb3NmX21iaV9hdmFpbGFibGUoKSBmb3Igc2hhcmVk
-IGhvc3RzCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBEaXNhbGxvdyB0aGUgQ1BV
-IHRvIGVudGVyIEM2IG9yIEM3IHdoaWxlIGhvbGRpbmcgdGhlIHB1bml0IHNlbWFwaG9yZQo+ICAg
-ICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogRml4IHJhY2Ugd2hlbiByZXNldHRpbmcgdGhl
-IHNlbWFwaG9yZQo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWRkIHN1cHBvcnQg
-Zm9yIGNoZXJyeXRyYWlsCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBY3F1aXJl
-IFAtVW5pdCBhY2Nlc3Mgb24gYnVzIGFjcXVpcmUKPiAgICAgICBpMmM6IGRlc2lnbndhcmUtYmF5
-dHJhaWw6IENhbGwgcG1pY19idXNfYWNjZXNzX25vdGlmaWVyX2NoYWluCj4gICAgICAgZHJtL2k5
-MTU6IEFkZCBpbnRlbF91bmNvcmVfc3VzcGVuZCAvIHJlc3VtZSBmdW5jdGlvbnMKPiAgICAgICBk
-cm0vaTkxNTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucwo+IAo+ICBh
-cmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5oICAgICAgICAgICAgICB8IDg1ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmku
-YyAgICAgICAgICAgfCA0OSArKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
-L0tjb25maWcgICAgICAgICAgICAgICAgIHwgIDEgKwo+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9p
-OTE1X2Rydi5jICAgICAgICAgICAgICB8ICA2ICstCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2k5
-MTVfZHJ2LmggICAgICAgICAgICAgIHwgIDcgKy0tCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2lu
-dGVsX3VuY29yZS5jICAgICAgICAgIHwgNTMgKysrKysrKysrKysrKysrLS0KPiAgZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMgfCA4MyArKysrKysrKysrKysrKysr
-KysrLS0tLS0tLS0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWNvcmUuYyAg
-ICAgfCAxNCArKy0tLQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5o
-ICAgICB8IDEzICsrKystCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wY2lk
-cnYuYyAgIHwgMjYgKysrKysrLS0tCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
-ZS1wbGF0ZHJ2LmMgIHwgIDggKystCj4gIDExIGZpbGVzIGNoYW5nZWQsIDI4OCBpbnNlcnRpb25z
-KCspLCA1NyBkZWxldGlvbnMoLSkKPiAKPiAtLSAKPiBEYW5pZWwgVmV0dGVyCj4gU29mdHdhcmUg
-RW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9uCj4gaHR0cDovL2Jsb2cuZmZ3bGwuY2gKCi0tIApE
-YW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8v
-YmxvZy5mZndsbC5jaApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5v
-cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1n
-ZngK
+Add support for reading the system clock and the TWSI clock
+frequency from ACPI DSDT.
+
+TWSI clock was already covered by using device_property_read().
+
+Signed-off-by: Jan Glauber <jglauber@cavium.com>
+---
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index bba5b42..031e59f 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -85,17 +85,23 @@ static void thunder_i2c_clock_enable(struct device *dev, struct octeon_i2c *i2c)
+ {
+ 	int ret;
+ 
+-	i2c->clk = clk_get(dev, NULL);
+-	if (IS_ERR(i2c->clk)) {
+-		i2c->clk = NULL;
+-		goto skip;
++	if (acpi_disabled) {
++		/* DT */
++		i2c->clk = clk_get(dev, NULL);
++		if (IS_ERR(i2c->clk)) {
++			i2c->clk = NULL;
++			goto skip;
++		}
++
++		ret = clk_prepare_enable(i2c->clk);
++		if (ret)
++			goto skip;
++		i2c->sys_freq = clk_get_rate(i2c->clk);
++	} else {
++		/* ACPI */
++		device_property_read_u32(dev, "sclk", &i2c->sys_freq);
+ 	}
+ 
+-	ret = clk_prepare_enable(i2c->clk);
+-	if (ret)
+-		goto skip;
+-	i2c->sys_freq = clk_get_rate(i2c->clk);
+-
+ skip:
+ 	if (!i2c->sys_freq)
+ 		i2c->sys_freq = SYS_FREQ_DEFAULT;
+-- 
+2.9.0.rc0.21.g7777322
