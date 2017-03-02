@@ -1,86 +1,88 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [RESEND PATCH v6 3/6] i2c: designware: MASTER mode as separated
- driver
-Date: Thu, 2 Mar 2017 15:41:26 +0200
-Message-ID: <da9fb29b-7920-eb74-9102-65b3f253eb4d@linux.intel.com>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [RESEND PATCH v6 5/6] i2c: designware: add SLAVE mode functions
+Date: Thu, 2 Mar 2017 16:33:59 +0200
+Message-ID: <be10879b-a81b-9047-6c67-45916a85ef31@linux.intel.com>
 References: <cover.1488383202.git.lolivei@synopsys.com>
- <d250a2bebe89ee99bf9d1a86503bebf2ee60c85c.1488383202.git.lolivei@synopsys.com>
+ <07463ebe12af8c88c21c24601cf54b0cd2077e07.1488383202.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d250a2bebe89ee99bf9d1a86503bebf2ee60c85c.1488383202.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <07463ebe12af8c88c21c24601cf54b0cd2077e07.1488383202.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 03/01/17 17:59, Luis Oliveira wrote:
-> - The functions related to I2C master mode of operation were transformed
->   in a single driver.
-> - Common definitions were moved to i2c-designware-core.h
-> - The i2c-designware-core is now only a library file, the functions
->   associated are in a source file called i2c-designware-common and
->   are used by both i2c-designware-master and i2c-designware-slave.
-> - To decrease noise in namespace common i2c_dw_*() functions are
->   now using ops to keep them private.
+> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+> - Slave functions added to core library file
+> - Slave abort sources added to common source file
+> - New driver: i2c-designware-slave added
+> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>   when supported by the architecture.
 >
-> Almost all of the "core" source is now part of the "master" source. The
-> difference is the functions used by both modes and they are in the
-> "common" source file.
+> All the SLAVE flow is added but it is not enabled via platform
+> driver.
 >
-> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
-> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 > ---
 > V5->V6
-> - Now using ops
+> - Enable Slave mode using a different option (kbuild reported an error)
+> - Identation fixes needed
+> - Changed debug prints to dev_vdbg
+> - Fixed slave enumeration
 >
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-designware-common.c         | 274 +++++++++++++++
->  drivers/i2c/busses/i2c-designware-core.h           | 140 +++++++-
->  ...c-designware-core.c => i2c-designware-master.c} | 367 +--------------------
->  drivers/i2c/busses/i2c-designware-platdrv.c        |   6 +-
->  5 files changed, 423 insertions(+), 365 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-designware-common.c
->  rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (64%)
+>  drivers/i2c/busses/Kconfig                 |  14 +-
+>  drivers/i2c/busses/Makefile                |   1 +
+>  drivers/i2c/busses/i2c-designware-common.c |   7 +
+>  drivers/i2c/busses/i2c-designware-core.h   |   3 +
+>  drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
+>  5 files changed, 427 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
 >
 ...
+> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+> index 6357c7c78f6d..24641635aa20 100644
+> --- a/drivers/i2c/busses/i2c-designware-common.c
+> +++ b/drivers/i2c/busses/i2c-designware-common.c
+> @@ -56,6 +56,13 @@ static char *abort_sources[] = {
+>  		"trying to use disabled adapter",
+>  	[ARB_LOST] =
+>  		"lost arbitration",
+> +	[ABRT_SLAVE_FLUSH_TXFIFO] =
+> +		"read command so flush old data in the TX FIFO",
+> +	[ABRT_SLAVE_ARBLOST] =
+> +		"slave lost the bus while transmitting data to a remote master",
+> +	[ABRT_SLAVE_RD_INTX] =
+> +		"slave request for data to be transmitted and there is a 1 in "
+> +		"bit 8 of IC_DATA_CMD",
+>  };
+
+I know ABRT_SLAVE_RD_INTX case is from the specification but I would 
+prefer here one-line error text so it will be easier to grep from sources.
+
+I would like it to be also be more understandable. I don't know did I 
+understood it correctly but does it occur when attempting to read 
+controller while transmitting or something like that?
+
 > diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index 1a010730be43..35d7264d9e3a 100644
+> index b620d76ffc8d..6c70945cccea 100644
 > --- a/drivers/i2c/busses/i2c-designware-core.h
 > +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -40,6 +40,124 @@
-...
->  /**
->   * struct dw_i2c_dev - private i2c-designware data
-> @@ -125,15 +243,31 @@ struct dw_i2c_dev {
->  	int			(*acquire_lock)(struct dw_i2c_dev *dev);
->  	void			(*release_lock)(struct dw_i2c_dev *dev);
->  	bool			pm_runtime_disabled;
-> +	void			(*disable)(struct dw_i2c_dev *dev);
-> +	void			(*disable_int)(struct dw_i2c_dev *dev);
-> +	int			(*init)(struct dw_i2c_dev *dev);
-
-Please move kernel doc comments for these members from patch 4/6 here. 
-Adding new members and comments should go together.
-
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 206dea03b0d0..671bdc0fdb24 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-...
-> @@ -347,7 +347,7 @@ static int dw_i2c_plat_suspend(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+> @@ -277,6 +277,7 @@ struct dw_i2c_dev {
+>  	void			(*disable)(struct dw_i2c_dev *dev);
+>  	void			(*disable_int)(struct dw_i2c_dev *dev);
+>  	int			(*init)(struct dw_i2c_dev *dev);
+> +	bool			mode;
+>  };
 >
-> -	i2c_dw_disable(i_dev);
-> +	dev->disable(i_dev);
->  	i2c_dw_plat_prepare_clk(i_dev, false);
 
-This doesn't compile. Looks like copy-paste from your 
-dw_i2c_plat_remove() change but here you must access through the i_dev.
-
-You need to convert also the i2c-designware-pcidrv.c.
+As I mentioned add here comment for "mode" not in patch 4/6.
 
 -- 
 Jarkko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
