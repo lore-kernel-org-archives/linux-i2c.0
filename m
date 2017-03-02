@@ -1,127 +1,143 @@
-From: Kamal Dasu <kamal.dasu@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 Subject: Re: [PATCH] i2c: brcmstb: Fix START and STOP conditions
-Date: Thu, 2 Mar 2017 13:42:01 -0500
-Message-ID: <CAKekbesZc1HdWGuaW8eH-qB_p8skWKU+SVT9PvGd1S_=AmdQog@mail.gmail.com>
+Date: Thu, 2 Mar 2017 10:48:57 -0800
+Message-ID: <a825350e-a618-a5e8-282b-096d0a187c61@gmail.com>
 References: <20160812055627.34668-1-jaedon.shin@gmail.com>
+ <CAKekbesZc1HdWGuaW8eH-qB_p8skWKU+SVT9PvGd1S_=AmdQog@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f171.google.com ([209.85.161.171]:35371 "EHLO
-        mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751016AbdCBSur (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 13:50:47 -0500
-Received: by mail-yw0-f171.google.com with SMTP id d1so65079768ywd.2
-        for <linux-i2c@vger.kernel.org>; Thu, 02 Mar 2017 10:49:48 -0800 (PST)
-In-Reply-To: <20160812055627.34668-1-jaedon.shin@gmail.com>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:35870 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751016AbdCBS5U (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 13:57:20 -0500
+Received: by mail-qk0-f194.google.com with SMTP id m67so3838161qkf.3
+        for <linux-i2c@vger.kernel.org>; Thu, 02 Mar 2017 10:56:48 -0800 (PST)
+In-Reply-To: <CAKekbesZc1HdWGuaW8eH-qB_p8skWKU+SVT9PvGd1S_=AmdQog@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jaedon Shin <jaedon.shin@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org
+To: Kamal Dasu <kamal.dasu@broadcom.com>, Jaedon Shin <jaedon.shin@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org
 
-Jaedon,
+On 03/02/2017 10:42 AM, Kamal Dasu wrote:
+> Jaedon,
+> 
+> On Fri, Aug 12, 2016 at 1:56 AM, Jaedon Shin <jaedon.shin@gmail.com> wrote:
+>> Fixes always repeated START when process multiple bytes with a message
+>> in combined transactions.
+>>
+>> The BSC has multiple data stroage that send or receive data at once, and
+>> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
+>> is that begin repeated START for all the messages in combined
+>> transaction. If length of a data is over 32bytes, The BSC transmit
+>> repeated START in every 32bytes.
+>>
+> 
+> Can you rephrase the commit message to something  like below ?
+> 
+> The BSC data buffers to send and receive data are each of size 32 bytes
+> or 8 bytes 'xfersz' depending on SoC. The problem observed for all the
+> combined message transfer was if length of data transfer was a multiple of
+> 'xfersz'  a repeated START was being transmitted by BSC driver. Fixed this
+> by appropriately setting START/STOP conditions for such transfers.
+> 
+>> Fixes always repeated START when process multiple bytes with a message
+>> in combined transactions.
+>>
+>> The BSC has multiple data stroage that send or receive data at once, and
+>> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
+>> is that begin repeated START for all the messages in combined
+>> transaction. If length of a data is over 32bytes, The BSC transmit
+>> repeated START in every 32bytes.
+> 
+> The changes looks good to me.
 
-On Fri, Aug 12, 2016 at 1:56 AM, Jaedon Shin <jaedon.shin@gmail.com> wrote:
-> Fixes always repeated START when process multiple bytes with a message
-> in combined transactions.
->
-> The BSC has multiple data stroage that send or receive data at once, and
-> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
-> is that begin repeated START for all the messages in combined
-> transaction. If length of a data is over 32bytes, The BSC transmit
-> repeated START in every 32bytes.
->
+Do you mind adding:
 
-Can you rephrase the commit message to something  like below ?
+Fixes: dd1aa2524bc5 ("i2c: brcmstb: Add Broadcom settop SoC i2c
+controller driver")
 
-The BSC data buffers to send and receive data are each of size 32 bytes
-or 8 bytes 'xfersz' depending on SoC. The problem observed for all the
-combined message transfer was if length of data transfer was a multiple of
-'xfersz'  a repeated START was being transmitted by BSC driver. Fixed this
-by appropriately setting START/STOP conditions for such transfers.
+so this can be backported to -stable tree as well? Thanks!
 
-> Fixes always repeated START when process multiple bytes with a message
-> in combined transactions.
->
-> The BSC has multiple data stroage that send or receive data at once, and
-> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
-> is that begin repeated START for all the messages in combined
-> transaction. If length of a data is over 32bytes, The BSC transmit
-> repeated START in every 32bytes.
+> 
+>> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+>> ---
+>>  drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
+>>  1 file changed, 21 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+>> index 3f5a4d71d3bf..51c5f0bd361d 100644
+>> --- a/drivers/i2c/busses/i2c-brcmstb.c
+>> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+>> @@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>>         u8 *tmp_buf;
+>>         int len = 0;
+>>         int xfersz = brcmstb_i2c_get_xfersz(dev);
+>> +       u32 cond, cond_per_msg;
+>>
+>>         if (dev->is_suspended)
+>>                 return -EBUSY;
+>> @@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>>                         pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
+>>
+>>                 if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
+>> -                       brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
+>> +                       cond = ~COND_START_STOP;
+>>                 else
+>> -                       brcmstb_set_i2c_start_stop(dev,
+>> -                                                  COND_RESTART | COND_NOSTOP);
+>> +                       cond = COND_RESTART | COND_NOSTOP;
+>> +
+>> +               brcmstb_set_i2c_start_stop(dev, cond);
+>>
+>>                 /* Send slave address */
+>>                 if (!(pmsg->flags & I2C_M_NOSTART)) {
+>> @@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>>                         }
+>>                 }
+>>
+>> +               cond_per_msg = cond;
+>> +
+>>                 /* Perform data transfer */
+>>                 while (len) {
+>>                         bytes_to_xfer = min(len, xfersz);
+>>
+>> -                       if (len <= xfersz && i == (num - 1))
+>> -                               brcmstb_set_i2c_start_stop(dev,
+>> -                                                          ~(COND_START_STOP));
+>> +                       if (len <= xfersz) {
+>> +                               if (i == (num - 1))
+>> +                                       cond_per_msg = cond_per_msg &
+>> +                                               ~(COND_RESTART | COND_NOSTOP);
+>> +                               else
+>> +                                       cond_per_msg = cond;
+>> +                       } else {
+>> +                               cond_per_msg = (cond_per_msg & ~COND_RESTART) |
+>> +                                       COND_NOSTOP;
+>> +                       }
+>> +
+>> +                       brcmstb_set_i2c_start_stop(dev, cond_per_msg);
+>>
+>>                         rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
+>>                                                        bytes_to_xfer, pmsg);
+>> @@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>>
+>>                         len -=  bytes_to_xfer;
+>>                         tmp_buf += bytes_to_xfer;
+>> +
+>> +                       cond_per_msg = COND_NOSTART | COND_NOSTOP;
+>>                 }
+>>         }
+>>
+>> --
+>> 2.9.2
+>>
+> 
+> Thanks
+> Kamal
+> 
 
-The changes looks good to me.
 
-> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
->  1 file changed, 21 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-> index 3f5a4d71d3bf..51c5f0bd361d 100644
-> --- a/drivers/i2c/busses/i2c-brcmstb.c
-> +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> @@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->         u8 *tmp_buf;
->         int len = 0;
->         int xfersz = brcmstb_i2c_get_xfersz(dev);
-> +       u32 cond, cond_per_msg;
->
->         if (dev->is_suspended)
->                 return -EBUSY;
-> @@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->                         pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
->
->                 if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
-> -                       brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
-> +                       cond = ~COND_START_STOP;
->                 else
-> -                       brcmstb_set_i2c_start_stop(dev,
-> -                                                  COND_RESTART | COND_NOSTOP);
-> +                       cond = COND_RESTART | COND_NOSTOP;
-> +
-> +               brcmstb_set_i2c_start_stop(dev, cond);
->
->                 /* Send slave address */
->                 if (!(pmsg->flags & I2C_M_NOSTART)) {
-> @@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->                         }
->                 }
->
-> +               cond_per_msg = cond;
-> +
->                 /* Perform data transfer */
->                 while (len) {
->                         bytes_to_xfer = min(len, xfersz);
->
-> -                       if (len <= xfersz && i == (num - 1))
-> -                               brcmstb_set_i2c_start_stop(dev,
-> -                                                          ~(COND_START_STOP));
-> +                       if (len <= xfersz) {
-> +                               if (i == (num - 1))
-> +                                       cond_per_msg = cond_per_msg &
-> +                                               ~(COND_RESTART | COND_NOSTOP);
-> +                               else
-> +                                       cond_per_msg = cond;
-> +                       } else {
-> +                               cond_per_msg = (cond_per_msg & ~COND_RESTART) |
-> +                                       COND_NOSTOP;
-> +                       }
-> +
-> +                       brcmstb_set_i2c_start_stop(dev, cond_per_msg);
->
->                         rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
->                                                        bytes_to_xfer, pmsg);
-> @@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->
->                         len -=  bytes_to_xfer;
->                         tmp_buf += bytes_to_xfer;
-> +
-> +                       cond_per_msg = COND_NOSTART | COND_NOSTOP;
->                 }
->         }
->
-> --
-> 2.9.2
->
-
-Thanks
-Kamal
+-- 
+Florian
