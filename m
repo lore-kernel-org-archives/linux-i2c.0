@@ -1,96 +1,127 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: Re: [RESEND PATCH v6 3/6] i2c: designware: MASTER mode as separated
- driver
-Date: Thu, 2 Mar 2017 15:34:18 +0000
-Message-ID: <113b5d86-970b-ec86-0a38-735573f1eec2@synopsys.com>
-References: <cover.1488383202.git.lolivei@synopsys.com>
- <d250a2bebe89ee99bf9d1a86503bebf2ee60c85c.1488383202.git.lolivei@synopsys.com>
- <da9fb29b-7920-eb74-9102-65b3f253eb4d@linux.intel.com>
+From: Kamal Dasu <kamal.dasu@broadcom.com>
+Subject: Re: [PATCH] i2c: brcmstb: Fix START and STOP conditions
+Date: Thu, 2 Mar 2017 13:42:01 -0500
+Message-ID: <CAKekbesZc1HdWGuaW8eH-qB_p8skWKU+SVT9PvGd1S_=AmdQog@mail.gmail.com>
+References: <20160812055627.34668-1-jaedon.shin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <da9fb29b-7920-eb74-9102-65b3f253eb4d@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-yw0-f171.google.com ([209.85.161.171]:35371 "EHLO
+        mail-yw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751016AbdCBSur (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 13:50:47 -0500
+Received: by mail-yw0-f171.google.com with SMTP id d1so65079768ywd.2
+        for <linux-i2c@vger.kernel.org>; Thu, 02 Mar 2017 10:49:48 -0800 (PST)
+In-Reply-To: <20160812055627.34668-1-jaedon.shin@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jaedon Shin <jaedon.shin@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org
 
-On 02-Mar-17 13:41, Jarkko Nikula wrote:
-> On 03/01/17 17:59, Luis Oliveira wrote:
->> - The functions related to I2C master mode of operation were transformed
->>   in a single driver.
->> - Common definitions were moved to i2c-designware-core.h
->> - The i2c-designware-core is now only a library file, the functions
->>   associated are in a source file called i2c-designware-common and
->>   are used by both i2c-designware-master and i2c-designware-slave.
->> - To decrease noise in namespace common i2c_dw_*() functions are
->>   now using ops to keep them private.
->>
->> Almost all of the "core" source is now part of the "master" source. The
->> difference is the functions used by both modes and they are in the
->> "common" source file.
->>
->> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
->> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> ---
->> V5->V6
->> - Now using ops
->>
->>  drivers/i2c/busses/Makefile                        |   1 +
->>  drivers/i2c/busses/i2c-designware-common.c         | 274 +++++++++++++++
->>  drivers/i2c/busses/i2c-designware-core.h           | 140 +++++++-
->>  ...c-designware-core.c => i2c-designware-master.c} | 367 +--------------------
->>  drivers/i2c/busses/i2c-designware-platdrv.c        |   6 +-
->>  5 files changed, 423 insertions(+), 365 deletions(-)
->>  create mode 100644 drivers/i2c/busses/i2c-designware-common.c
->>  rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c}
->> (64%)
->>
-> ...
->> diff --git a/drivers/i2c/busses/i2c-designware-core.h
->> b/drivers/i2c/busses/i2c-designware-core.h
->> index 1a010730be43..35d7264d9e3a 100644
->> --- a/drivers/i2c/busses/i2c-designware-core.h
->> +++ b/drivers/i2c/busses/i2c-designware-core.h
->> @@ -40,6 +40,124 @@
-> ...
->>  /**
->>   * struct dw_i2c_dev - private i2c-designware data
->> @@ -125,15 +243,31 @@ struct dw_i2c_dev {
->>      int            (*acquire_lock)(struct dw_i2c_dev *dev);
->>      void            (*release_lock)(struct dw_i2c_dev *dev);
->>      bool            pm_runtime_disabled;
->> +    void            (*disable)(struct dw_i2c_dev *dev);
->> +    void            (*disable_int)(struct dw_i2c_dev *dev);
->> +    int            (*init)(struct dw_i2c_dev *dev);
-> 
-> Please move kernel doc comments for these members from patch 4/6 here. Adding
-> new members and comments should go together.
+Jaedon,
 
-I will. Thanks
-> 
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->> b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index 206dea03b0d0..671bdc0fdb24 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> ...
->> @@ -347,7 +347,7 @@ static int dw_i2c_plat_suspend(struct device *dev)
->>      struct platform_device *pdev = to_platform_device(dev);
->>      struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>
->> -    i2c_dw_disable(i_dev);
->> +    dev->disable(i_dev);
->>      i2c_dw_plat_prepare_clk(i_dev, false);
-> 
-> This doesn't compile. Looks like copy-paste from your dw_i2c_plat_remove()
-> change but here you must access through the i_dev.
+On Fri, Aug 12, 2016 at 1:56 AM, Jaedon Shin <jaedon.shin@gmail.com> wrote:
+> Fixes always repeated START when process multiple bytes with a message
+> in combined transactions.
+>
+> The BSC has multiple data stroage that send or receive data at once, and
+> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
+> is that begin repeated START for all the messages in combined
+> transaction. If length of a data is over 32bytes, The BSC transmit
+> repeated START in every 32bytes.
+>
 
-It's true! sorry, I forgot to change the "i_dev". And with the CONFIG_PM not
-defined I didn't get the compile error.
-> 
-> You need to convert also the i2c-designware-pcidrv.c.
+Can you rephrase the commit message to something  like below ?
 
-I will check that
-> 
+The BSC data buffers to send and receive data are each of size 32 bytes
+or 8 bytes 'xfersz' depending on SoC. The problem observed for all the
+combined message transfer was if length of data transfer was a multiple of
+'xfersz'  a repeated START was being transmitted by BSC driver. Fixed this
+by appropriately setting START/STOP conditions for such transfers.
+
+> Fixes always repeated START when process multiple bytes with a message
+> in combined transactions.
+>
+> The BSC has multiple data stroage that send or receive data at once, and
+> it has the RESTART, NOSTART, NOSTOP to the condition flags. The problem
+> is that begin repeated START for all the messages in combined
+> transaction. If length of a data is over 32bytes, The BSC transmit
+> repeated START in every 32bytes.
+
+The changes looks good to me.
+
+> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
+>  1 file changed, 21 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+> index 3f5a4d71d3bf..51c5f0bd361d 100644
+> --- a/drivers/i2c/busses/i2c-brcmstb.c
+> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+> @@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>         u8 *tmp_buf;
+>         int len = 0;
+>         int xfersz = brcmstb_i2c_get_xfersz(dev);
+> +       u32 cond, cond_per_msg;
+>
+>         if (dev->is_suspended)
+>                 return -EBUSY;
+> @@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>                         pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
+>
+>                 if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
+> -                       brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
+> +                       cond = ~COND_START_STOP;
+>                 else
+> -                       brcmstb_set_i2c_start_stop(dev,
+> -                                                  COND_RESTART | COND_NOSTOP);
+> +                       cond = COND_RESTART | COND_NOSTOP;
+> +
+> +               brcmstb_set_i2c_start_stop(dev, cond);
+>
+>                 /* Send slave address */
+>                 if (!(pmsg->flags & I2C_M_NOSTART)) {
+> @@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>                         }
+>                 }
+>
+> +               cond_per_msg = cond;
+> +
+>                 /* Perform data transfer */
+>                 while (len) {
+>                         bytes_to_xfer = min(len, xfersz);
+>
+> -                       if (len <= xfersz && i == (num - 1))
+> -                               brcmstb_set_i2c_start_stop(dev,
+> -                                                          ~(COND_START_STOP));
+> +                       if (len <= xfersz) {
+> +                               if (i == (num - 1))
+> +                                       cond_per_msg = cond_per_msg &
+> +                                               ~(COND_RESTART | COND_NOSTOP);
+> +                               else
+> +                                       cond_per_msg = cond;
+> +                       } else {
+> +                               cond_per_msg = (cond_per_msg & ~COND_RESTART) |
+> +                                       COND_NOSTOP;
+> +                       }
+> +
+> +                       brcmstb_set_i2c_start_stop(dev, cond_per_msg);
+>
+>                         rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
+>                                                        bytes_to_xfer, pmsg);
+> @@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
+>
+>                         len -=  bytes_to_xfer;
+>                         tmp_buf += bytes_to_xfer;
+> +
+> +                       cond_per_msg = COND_NOSTART | COND_NOSTOP;
+>                 }
+>         }
+>
+> --
+> 2.9.2
+>
+
+Thanks
+Kamal
