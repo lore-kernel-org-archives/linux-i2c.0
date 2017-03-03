@@ -1,94 +1,48 @@
-From: Jaedon Shin <jaedon.shin@gmail.com>
-Subject: [v2] i2c: brcmstb: Fix START and STOP conditions
-Date: Fri,  3 Mar 2017 10:55:03 +0900
-Message-ID: <20170303015503.1653-1-jaedon.shin@gmail.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33732 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751200AbdCCCER (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Mar 2017 21:04:17 -0500
-Received: by mail-pf0-f195.google.com with SMTP id e66so2693258pfe.0
-        for <linux-i2c@vger.kernel.org>; Thu, 02 Mar 2017 18:04:07 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Jun Gao <jun.gao@mediatek.com>
+Subject: [PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c binding
+Date: Fri, 3 Mar 2017 10:05:12 +0800
+Message-ID: <1488506713-20767-2-git-send-email-jun.gao@mediatek.com>
+References: <1488506713-20767-1-git-send-email-jun.gao@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1488506713-20767-1-git-send-email-jun.gao@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>
-Cc: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, Jaedon Shin <jaedon.shin@gmail.com>
 
-The BSC data buffers to send and receive data are each of size 32 bytes
-or 8 bytes 'xfersz' depending on SoC. The problem observed for all the
-combined message transfer was if length of data transfer was a multiple
-of 'xfersz' a repeated START was being transmitted by BSC driver. Fixed
-this by appropriately setting START/STOP conditions for such transfers.
+From: Jun Gao <jun.gao@mediatek.com>
 
-Fixes: dd1aa2524bc5 ("i2c: brcmstb: Add Broadcom settop SoC i2c controller driver")
-Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+modify i2c driver.
+
+Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 ---
- drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-index 0652281662a8..78792b4d6437 100644
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 	u8 *tmp_buf;
- 	int len = 0;
- 	int xfersz = brcmstb_i2c_get_xfersz(dev);
-+	u32 cond, cond_per_msg;
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+index 0ce6fa3..27dbbf9 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
  
- 	if (dev->is_suspended)
- 		return -EBUSY;
-@@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 			pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
- 
- 		if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
--			brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
-+			cond = ~COND_START_STOP;
- 		else
--			brcmstb_set_i2c_start_stop(dev,
--						   COND_RESTART | COND_NOSTOP);
-+			cond = COND_RESTART | COND_NOSTOP;
-+
-+		brcmstb_set_i2c_start_stop(dev, cond);
- 
- 		/* Send slave address */
- 		if (!(pmsg->flags & I2C_M_NOSTART)) {
-@@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 			}
- 		}
- 
-+		cond_per_msg = cond;
-+
- 		/* Perform data transfer */
- 		while (len) {
- 			bytes_to_xfer = min(len, xfersz);
- 
--			if (len <= xfersz && i == (num - 1))
--				brcmstb_set_i2c_start_stop(dev,
--							   ~(COND_START_STOP));
-+			if (len <= xfersz) {
-+				if (i == (num - 1))
-+					cond_per_msg = cond_per_msg &
-+						~(COND_RESTART | COND_NOSTOP);
-+				else
-+					cond_per_msg = cond;
-+			} else {
-+				cond_per_msg = (cond_per_msg & ~COND_RESTART) |
-+					COND_NOSTOP;
-+			}
-+
-+			brcmstb_set_i2c_start_stop(dev, cond_per_msg);
- 
- 			rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
- 						       bytes_to_xfer, pmsg);
-@@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
- 
- 			len -=  bytes_to_xfer;
- 			tmp_buf += bytes_to_xfer;
-+
-+			cond_per_msg = COND_NOSTART | COND_NOSTOP;
- 		}
- 	}
- 
+ Required properties:
+   - compatible: value should be either of the following.
+-      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+-      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+-      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+-      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+-      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
++	"mediatek,mt2701-i2c"
++	"mediatek,mt6577-i2c"
++	"mediatek,mt6589-i2c"
++	"mediatek,mt8127-i2c"
++	"mediatek,mt8135-i2c"
++	"mediatek,mt8173-i2c"
+   - reg: physical base address of the controller and dma base, length of memory
+     mapped region.
+   - interrupts: interrupt number to the cpu.
 -- 
-2.12.0
+1.7.9.5
