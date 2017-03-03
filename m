@@ -1,103 +1,44 @@
-From: Kamal Dasu <kdasu.kdev@gmail.com>
-Subject: Re: [v2] i2c: brcmstb: Fix START and STOP conditions
-Date: Thu, 2 Mar 2017 23:32:28 -0500
-Message-ID: <CAC=U0a3NqXcMsE7p1xn2H1_-KQkbvgs0401hZ70v8P25SSkYUg@mail.gmail.com>
-References: <20170303015503.1653-1-jaedon.shin@gmail.com>
+From: Qi Hou <qi.hou@windriver.com>
+Subject: [PATCH] i2c: add missing of_node_put in i2c_mux_del_adapters
+Date: Fri, 3 Mar 2017 15:57:11 +0800
+Message-ID: <1488527831-53733-1-git-send-email-qi.hou@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:36676 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751445AbdCCH1o (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Mar 2017 02:27:44 -0500
-Received: by mail-qk0-f196.google.com with SMTP id n141so1347485qke.3
-        for <linux-i2c@vger.kernel.org>; Thu, 02 Mar 2017 23:27:17 -0800 (PST)
-In-Reply-To: <20170303015503.1653-1-jaedon.shin@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: peda@axentia.se, stable@vger.kernel.org, robh@kernel.org, linux-i2c@vger.kernel.org
+Cc: leif.lindholm@linaro.org, pantelis.antoniou@konsulko.com, grant.likely@linaro.org, bruce.ashfield@windriver.com, paul.gortmaker@windriver.com, xiao.zhang@windriver.com
 List-Id: linux-i2c@vger.kernel.org
-To: Jaedon Shin <jaedon.shin@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org
 
-On Thu, Mar 2, 2017 at 8:55 PM, Jaedon Shin <jaedon.shin@gmail.com> wrote:
-> The BSC data buffers to send and receive data are each of size 32 bytes
-> or 8 bytes 'xfersz' depending on SoC. The problem observed for all the
-> combined message transfer was if length of data transfer was a multiple
-> of 'xfersz' a repeated START was being transmitted by BSC driver. Fixed
-> this by appropriately setting START/STOP conditions for such transfers.
->
-> Fixes: dd1aa2524bc5 ("i2c: brcmstb: Add Broadcom settop SoC i2c controller driver")
-> Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
+Refcount of of_node is increased with of_node_get() in i2c_mux_add_adapter().
+It must be decreased with of_node_put() in i2c_mux_del_adapters().
 
-Acked-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Signe-off-by: Qi Hou <qi.hou@windriver.com>
+Reviewed-by: Zhang Xiao <xiao.zhang@windriver.com>
+Acked-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/i2c/i2c-mux.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> ---
->  drivers/i2c/busses/i2c-brcmstb.c | 27 +++++++++++++++++++++------
->  1 file changed, 21 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-> index 0652281662a8..78792b4d6437 100644
-> --- a/drivers/i2c/busses/i2c-brcmstb.c
-> +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> @@ -465,6 +465,7 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->         u8 *tmp_buf;
->         int len = 0;
->         int xfersz = brcmstb_i2c_get_xfersz(dev);
-> +       u32 cond, cond_per_msg;
->
->         if (dev->is_suspended)
->                 return -EBUSY;
-> @@ -481,10 +482,11 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->                         pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
->
->                 if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
-> -                       brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
-> +                       cond = ~COND_START_STOP;
->                 else
-> -                       brcmstb_set_i2c_start_stop(dev,
-> -                                                  COND_RESTART | COND_NOSTOP);
-> +                       cond = COND_RESTART | COND_NOSTOP;
-> +
-> +               brcmstb_set_i2c_start_stop(dev, cond);
->
->                 /* Send slave address */
->                 if (!(pmsg->flags & I2C_M_NOSTART)) {
-> @@ -497,13 +499,24 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->                         }
->                 }
->
-> +               cond_per_msg = cond;
-> +
->                 /* Perform data transfer */
->                 while (len) {
->                         bytes_to_xfer = min(len, xfersz);
->
-> -                       if (len <= xfersz && i == (num - 1))
-> -                               brcmstb_set_i2c_start_stop(dev,
-> -                                                          ~(COND_START_STOP));
-> +                       if (len <= xfersz) {
-> +                               if (i == (num - 1))
-> +                                       cond_per_msg = cond_per_msg &
-> +                                               ~(COND_RESTART | COND_NOSTOP);
-> +                               else
-> +                                       cond_per_msg = cond;
-> +                       } else {
-> +                               cond_per_msg = (cond_per_msg & ~COND_RESTART) |
-> +                                       COND_NOSTOP;
-> +                       }
-> +
-> +                       brcmstb_set_i2c_start_stop(dev, cond_per_msg);
->
->                         rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
->                                                        bytes_to_xfer, pmsg);
-> @@ -512,6 +525,8 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->
->                         len -=  bytes_to_xfer;
->                         tmp_buf += bytes_to_xfer;
-> +
-> +                       cond_per_msg = COND_NOSTART | COND_NOSTOP;
->                 }
->         }
->
-> --
-> 2.12.0
->
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 83768e8..2178266 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -429,6 +429,7 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
+ 	while (muxc->num_adapters) {
+ 		struct i2c_adapter *adap = muxc->adapter[--muxc->num_adapters];
+ 		struct i2c_mux_priv *priv = adap->algo_data;
++		struct device_node *np = adap->dev.of_node;
+ 
+ 		muxc->adapter[muxc->num_adapters] = NULL;
+ 
+@@ -438,6 +439,7 @@ void i2c_mux_del_adapters(struct i2c_mux_core *muxc)
+ 
+ 		sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
+ 		i2c_del_adapter(adap);
++		of_node_put(np);
+ 		kfree(priv);
+ 	}
+ }
+-- 
+1.9.1
