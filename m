@@ -1,55 +1,68 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v9 00/10] mux controller abstraction and iio/i2c muxes
-Date: Fri, 3 Mar 2017 20:30:29 +0100
-Message-ID: <20170303193029.GA1437@katana>
-References: <1486568517-6997-1-git-send-email-peda@axentia.se>
- <6d87465f-b983-3f62-c7cf-41ed4e50170d@axentia.se>
- <20170228171842.GA11127@kroah.com>
- <569c18b3-b1d8-f2e6-7fc4-897aa7df6775@axentia.se>
- <20170303165247.el4mcsmo4fbnkjir@ninjato>
- <92e37b84-d368-f161-322e-3f9709cb2ccf@axentia.se>
+From: =?UTF-8?Q?=c3=89ric_Piel?= <eric.piel@tremplin-utc.net>
+Subject: Re: lis3lv02d i2c access on shutdown
+Date: Sat, 4 Mar 2017 22:35:53 +0100
+Message-ID: <33dcfc02-67ef-ba6e-30a6-e2cd26aa9f71@tremplin-utc.net>
+References: <647cd755-3554-0719-6811-c64ffae0fc1e@revolayer.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <92e37b84-d368-f161-322e-3f9709cb2ccf-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp2-g21.free.fr ([212.27.42.2]:46899 "EHLO smtp2-g21.free.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752056AbdCDVgE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 4 Mar 2017 16:36:04 -0500
+In-Reply-To: <647cd755-3554-0719-6811-c64ffae0fc1e@revolayer.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: James Maki <jamescmaki@revolayer.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
+On 18-02-17 19:09, James Maki wrote:
+> Hi Eric,
+>
+> I have an TI am335x that is using a i2c PMIC with pm_power_off  hook
+> which locks up on shutdown. The pm_power_off hook gets stuck obtaining
+> i2c_lock_adapter(). The holder of the lock is the lis3lv02d
+> accelerometer which never releases it.
+>
+> I do not think there is an issue in lis3lv02d. I think this is a general
+> issue with i2c since other drivers have the same design. What I don't
+> have is clear understanding of if/when/how i2c_transfer() can be called
+> post kernel_power_off(). Is it possible to call i2c_transfer() at this
+> point. I have tried calling schedule() and msleep() inside of
+> kernel_power_off() after syscore_shutdown(). It looks like interrupts
+> are enabled and I can still schedule at this point. So how is it
+> possible that lis3lv02d is never able to exit the i2c_transfer()? Is
+> there some other lock inside i2c_transfer that it is blocking on?
+>
+> Is it possible that the process which had the accelerometer open has
+> exited while holding the i2c lock. Is it even possible for a device to
+> shutdown or file to close while holding a lock in the kernel?
+>
+> I looked at adding a lis3lv02d_i2c_shutdown, but that was too late in
+> the process already and the lis3lv02d was already stuck. Is there a very
+> early place during shutdown that I can kick everyone off the i2c bus?
+> Obviously this might not be the best general solution, but my concern
+> right now is fixing the problem on this particular system first.
+>
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Dear James,
 
+Unfortunately, I don't know enough about I2C to be able to help you. 
+Honestly, I know pretty much nothing about this subsystem, and all the 
+code dealing with it in the lis3lv02d driver has been contributed by 
+other people.
 
-> And conflicts -- if they show up -- will probably be trivial given the
-> nature of the series. Famous last words...
+The only thing I can say is that indeed it does sound more like an issue 
+happening at the I2C level than in this specific driver. Concerning the 
+lock, if I understand correctly, it shouldn't possible for a process 
+talking to the accelerometer to suddenly be killed, while a kernel lock 
+is held, preventing it to ever be release. That said, in practice, there 
+are sufficiently enough bugs in the kernel for this to be possible ;-)
 
-Heh. I agree, though :)
+So I'd suggest you to contact people who understand well the I2C 
+subsystem. I've CC'd Wolfram, maintainer of the subsystem, and the 
+dedicated mailing-list.
 
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYucRVAAoJEBQN5MwUoCm2pjAP/19x5hNSK1xsDOQM43TVu+cj
-HEvr0ZIWM9R4nylQLawKMFCtmubblXo7FzRgjPePLKrMLLF1DEcpT5K3zrSXlcRp
-oP6ihYrcnNOeBx45vAL1/rK1b6MHQ5kQHlf7kth5Js+EnRNfBRmSLk0F9rLnOumj
-Lw9eBqXw1NNv8slLqV2VjViaaexshS9fkxracZFBSMk0S2DbbfvKl0vbhSO7yhP5
-Y//P5177XdZpagKEjrNsyGXnuIRvy1gmXO5zE7q7GHMz6WGDzTtc/emtEY2QR6hy
-+IXbnHi28pFJjZErxOe/KK1Pj4siwecPa+q23eZdN26ZP5eFKbv4iERdG+yVqj+Y
-/CYj0xdFL5AIvM7nVbrv4sl/7kKelqoi1faYJsYHfu5RC6w3sE8Qe3k3JoHwJkrM
-oo/B3ZxQKsCGm2rfQy3YX9tjUsLP4WTBcgUsKadKKztdRodOAo/36MOwRWtVCBsC
-fnb9hzkbzkK0a4VJHIqey07p1Yz9Qt6mZywylkjHdwjQIEQEVmgAk4ayeBduoi49
-Tu/sEcfxB9KTVoJNRzrIUVz6DXzTg8AfRoFDh0md825bl/i9VJXWWjho4AD3yr9u
-89DrQ1NF5mcMo0RlvtoLqnXuhKhbeLgOO3OX1FSEwcWCQNz4puHxqnxTwwnV3i/J
-d4XteNELpWCKsD+0nzzQ
-=J4zS
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+Best,
+Éric
