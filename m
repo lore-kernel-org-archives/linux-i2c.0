@@ -1,45 +1,37 @@
-From: Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>
-Subject: Re: [PATCH v3 resend] i2c: designware: add reset interface
-Date: Mon, 6 Mar 2017 15:11:48 +0000
-Message-ID: <381cd2c0-499d-884a-3c4e-6fedc422f2e0@synopsys.com>
-References: <y> <1482848560-3752-1-git-send-email-zhangfei.gao@linaro.org>
- <20170112185445.jtryoj65sdvey7bc@ninjato>
+From: James Maki <jamescmaki@revolayer.com>
+Subject: Re: lis3lv02d i2c access on shutdown
+Date: Mon, 6 Mar 2017 09:10:52 -0600
+Message-ID: <41bff51c-9a4c-3e28-a9ed-eea916f87e9d@revolayer.com>
+References: <647cd755-3554-0719-6811-c64ffae0fc1e@revolayer.com>
+ <33dcfc02-67ef-ba6e-30a6-e2cd26aa9f71@tremplin-utc.net>
+ <20170304223222.GA2386@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170112185445.jtryoj65sdvey7bc@ninjato>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Zhangfei Gao <zhangfei.gao@linaro.org>
-Cc: Luis.Oliveira@synopsys.com, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "p.zabel@pengutronix.de" <p.zabel@pengutronix.de>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from p3nlsmtpcp01-02.prod.phx3.secureserver.net ([184.168.200.140]:60574
+        "EHLO p3nlsmtpcp01-02.prod.phx3.secureserver.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932147AbdCFPWj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 6 Mar 2017 10:22:39 -0500
+In-Reply-To: <20170304223222.GA2386@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?Q?=c3=89ric_Piel?= <eric.piel@tremplin-utc.net>
+Cc: linux-i2c@vger.kernel.org
 
-Hi Wolfram
+I think it is the same issue. How would i2c_transfer_noirq work? In my 
+case another task was in the middle of a transaction when it was 
+"stopped". This means not only do you need i2c_transfer_noirq, but also 
+need to flush the bus before calling kernel_shutdown_prepare().
 
-On 1/12/2017 6:54 PM, Wolfram Sang wrote:
-> On Tue, Dec 27, 2016 at 10:22:40PM +0800, Zhangfei Gao wrote:
->> Some platforms like hi3660 need do reset first to allow accessing registers
->>
->> Signed-off-by: Zhangfei Gao <zhangfei.gao@linaro.org>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> Tested-by: Ramiro Oliveira <ramiro.oliveira@synopsys.com>
-> 
-> Applied to for-next, thanks!
-> 
 
-I haven't been able to find this patch anywhere. Do you still have plans to
-apply it to for-next?
-
--- 
-Best Regards
-
-Ramiro Oliveira
-Ramiro.Oliveira@synopsys.com
+On 03/04/2017 04:32 PM, Wolfram Sang wrote:
+>>> issue with i2c since other drivers have the same design. What I don't
+>>> have is clear understanding of if/when/how i2c_transfer() can be called
+>>> post kernel_power_off().
+> Not sure if it is exactly the same issue, but last year we concluded
+> that we probably need an optional i2c_transfer_noirq callback in
+> i2c_adapter to talk to PMICs very late or very early. No work has been
+> done so far, though. I hope I will find time for it this year.
+>
