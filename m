@@ -1,76 +1,106 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH 00/12] i2c: meson: series with improvements
-Date: Wed, 8 Mar 2017 21:49:15 +0100
-Message-ID: <a809a238-11fe-410b-fee8-a941109d49b9@gmail.com>
+Subject: Re: [PATCH 07/12] i2c: meson: improve interrupt handler and detect
+ spurious interrupts
+Date: Wed, 8 Mar 2017 22:02:32 +0100
+Message-ID: <c45aaa91-e903-0d2d-70c4-0fd815c5fb69@gmail.com>
 References: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
- <1488965640.2514.14.camel@baylibre.com>
+ <c772d1d8-eaae-43c2-c206-7c349c134db8@gmail.com>
+ <1488966636.2514.16.camel@baylibre.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:35593 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753294AbdCHVAI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 16:00:08 -0500
-Received: by mail-wm0-f68.google.com with SMTP id z63so8013576wmg.2
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 12:58:31 -0800 (PST)
-In-Reply-To: <1488965640.2514.14.camel@baylibre.com>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:34181 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754394AbdCHVCo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 16:02:44 -0500
+Received: by mail-wr0-f196.google.com with SMTP id u48so5667739wrc.1
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 13:02:43 -0800 (PST)
+In-Reply-To: <1488966636.2514.16.camel@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jerome Brunet <jbrunet@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Am 08.03.2017 um 10:34 schrieb Jerome Brunet:
-> On Wed, 2017-03-08 at 07:41 +0100, Heiner Kallweit wrote:
->> This patch series includes several improvements for the i2c-meson
->> driver.
-> 
-> Heiner, Could give us a some details about how you tested this series (platform,
-> board, i2c devices, exemple of transfers, etc ...). The more details you give,
-> the easiest it is to be confident about the patches.
-> 
-Sure. System is Odroid C2 and I test with a DS3231-based RTC module connected
-to I2C-A (driver rtc-ds1307). Bus speed is set to 400 kHz.
-
-That's the debug messages (with the patch series applied) from the interrupt
-handler when booting the system and setting the system clock from RTC.
-
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 2, ctrl 07869251
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 2, ctrl 07869051
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 8, ctrl 078698b1
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 7, ctrl 078697a1
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 7, ctrl 078697a1
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 7, ctrl 078697a1
-meson-i2c c1108500.i2c: irq: state 2, pos 0, count 1, ctrl 05869031
-meson-i2c c1108500.i2c: irq: state 1, pos 0, count 1, ctrl 07869141
-
-
-> Personally, I don't have test case representative enough to test this series
-> thoroughly.
-> 
+Am 08.03.2017 um 10:50 schrieb Jerome Brunet:
+> On Wed, 2017-03-08 at 07:47 +0100, Heiner Kallweit wrote:
+>> If state is STATE_IDLE no interrupt should occur. Detect this case and
+>> warn.
+>> In addition move resetting REG_CTRL_START bit to the start of the
+>> interrupt handler and remove a unneeded REG_CTRL_START bit reset
+>> in meson_i2c_xfer_msg.
 >>
->> Heiner Kallweit (12):
->>   i2c: meson: use min instead of min_t where min_t isn't needed
->>   i2c: meson: remove member irq from struct meson_i2c
->>   i2c: meson: use i2c core for DT clock-frequency parsing
->>   i2c: meson: use full 12 bits for clock divider
->>   i2c: meson: set clock divider in probe instead of setting it for each
->> transfer
->>   i2c: meson: remove variable count from meson_i2c_xfer
->>   i2c: meson: improve interrupt handler and detect spurious interrupts
->>   i2c: meson: explicitly ignore messages with length zero
->>   i2c: meson: don't create separate token chain just for the stop command
->>   i2c: meson: remove meson_i2c_write_tokens
->>   i2c: meson: improve and simplify interrupt handler
->>   i2c: meson: use state in meson_i2c_prepare_xfer
->>
->>  drivers/i2c/busses/i2c-meson.c | 157 ++++++++++++++++----------------------
+>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 >> ---
->>  1 file changed, 62 insertions(+), 95 deletions(-)
+>>  drivers/i2c/busses/i2c-meson.c | 16 +++++++++-------
+>>  1 file changed, 9 insertions(+), 7 deletions(-)
 >>
+>> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+>> index 81304840..b3b881f9 100644
+>> --- a/drivers/i2c/busses/i2c-meson.c
+>> +++ b/drivers/i2c/busses/i2c-meson.c
+>> @@ -233,7 +233,15 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+>>  	dev_dbg(i2c->dev, "irq: state %d, pos %d, count %d, ctrl %08x\n",
+>>  		i2c->state, i2c->pos, i2c->count, ctrl);
+>>  
+>> -	if (ctrl & REG_CTRL_ERROR && i2c->state != STATE_IDLE) {
+>> +	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
+>> +
+>> +	if (i2c->state == STATE_IDLE) {
+>> +		dev_notice(i2c->dev, "spurious interrupt detected\n");
+>> +		spin_unlock(&i2c->lock);
+>> +		return IRQ_NONE;
+>> +	}
+> 
+> Does it really happen ? Did you see any specific issue you'd like to share ?
+> If not, I'm not a big fan of this change.
+> 
+No,it did not happen. It's just that in few parts of the interrupt handler
+we deal with this situation that should never happen.
+And if it would happen on some system, we wouldn't know because it's
+silently ignored.
+
+I'm fine with dropping the error message. Still I would prefer to at least
+return IRQ_NONE instead of IRQ_HANDLED in this potential error case.
+
+It's like other drivers checking in the interrupt handler whether any
+interrupt source is enabled and returning IRQ_NONE if not.
+
+> In any case, if it can be handled gracefully, I'd drop the trace in the
+> interrupt handler.
+> 
+> 
+>> +
+>> +	if (ctrl & REG_CTRL_ERROR) {
+>>  		/*
+>>  		 * The bit is set when the IGNORE_NAK bit is cleared
+>>  		 * and the device didn't respond. In this case, the
+>> @@ -276,15 +284,12 @@ static irqreturn_t meson_i2c_irq(int irqno, void
+>> *dev_id)
+>>  		i2c->state = STATE_IDLE;
+>>  		complete(&i2c->done);
+>>  		break;
+>> -	case STATE_IDLE:
+>> -		break;
+>>  	}
+>>  
+>>  out:
+>>  	if (i2c->state != STATE_IDLE) {
+>>  		/* Restart the processing */
+>>  		meson_i2c_write_tokens(i2c);
+>> -		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
+>>  		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
+>>  				   REG_CTRL_START);
+>>  	}
+>> @@ -344,9 +349,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c,
+>> struct i2c_msg *msg,
+>>  	 */
+>>  	spin_lock_irqsave(&i2c->lock, flags);
+>>  
+>> -	/* Abort any active operation */
+>> -	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
+>> -
+>>  	if (!time_left) {
+>>  		i2c->state = STATE_IDLE;
+>>  		ret = -ETIMEDOUT;
 > 
