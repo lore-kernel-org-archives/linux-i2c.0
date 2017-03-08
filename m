@@ -1,92 +1,99 @@
 From: Jerome Brunet <jbrunet@baylibre.com>
-Subject: Re: [PATCH 07/12] i2c: meson: improve interrupt handler and detect
- spurious interrupts
-Date: Wed, 08 Mar 2017 10:50:36 +0100
-Message-ID: <1488966636.2514.16.camel@baylibre.com>
+Subject: Re: [PATCH 03/12] i2c: meson: use i2c core for DT clock-frequency
+ parsing
+Date: Wed, 08 Mar 2017 10:10:29 +0100
+Message-ID: <1488964229.2514.4.camel@baylibre.com>
 References: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
-         <c772d1d8-eaae-43c2-c206-7c349c134db8@gmail.com>
+         <a8a8f3e8-4568-67a9-25bc-874c6f426243@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f48.google.com ([74.125.82.48]:34551 "EHLO
-        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751291AbdCHKux (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 05:50:53 -0500
-Received: by mail-wm0-f48.google.com with SMTP id 196so29333418wmm.1
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 02:50:52 -0800 (PST)
-In-Reply-To: <c772d1d8-eaae-43c2-c206-7c349c134db8@gmail.com>
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:38402 "EHLO
+        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751840AbdCHMHa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 07:07:30 -0500
+Received: by mail-wm0-f45.google.com with SMTP id t189so28934750wmt.1
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 04:06:56 -0800 (PST)
+In-Reply-To: <a8a8f3e8-4568-67a9-25bc-874c6f426243@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Heiner Kallweit <hkallweit1@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Wed, 2017-03-08 at 07:47 +0100, Heiner Kallweit wrote:
-> If state is STATE_IDLE no interrupt should occur. Detect this case and
-> warn.
-> In addition move resetting REG_CTRL_START bit to the start of the
-> interrupt handler and remove a unneeded REG_CTRL_START bit reset
-> in meson_i2c_xfer_msg.
+On Wed, 2017-03-08 at 07:44 +0100, Heiner Kallweit wrote:
+> We don't have to parse the DT manually to retrieve the bus frequency
+> and we don't have to maintain an own default for the bus frequency.
+> Let the i2c core do this for us.
 > 
 > Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-meson.c | 16 +++++++++-------
->  1 file changed, 9 insertions(+), 7 deletions(-)
+>  drivers/i2c/busses/i2c-meson.c | 13 +++++--------
+>  1 file changed, 5 insertions(+), 8 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-> index 81304840..b3b881f9 100644
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-
+> meson.c
+> index 50059d09..5e243efa 100644
 > --- a/drivers/i2c/busses/i2c-meson.c
 > +++ b/drivers/i2c/busses/i2c-meson.c
-> @@ -233,7 +233,15 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
->  	dev_dbg(i2c->dev, "irq: state %d, pos %d, count %d, ctrl %08x\n",
->  		i2c->state, i2c->pos, i2c->count, ctrl);
+> @@ -38,7 +38,6 @@
+>  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) <<
+> REG_CTRL_CLKDIV_SHIFT)
 >  
-> -	if (ctrl & REG_CTRL_ERROR && i2c->state != STATE_IDLE) {
-> +	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
-> +
-> +	if (i2c->state == STATE_IDLE) {
-> +		dev_notice(i2c->dev, "spurious interrupt detected\n");
-> +		spin_unlock(&i2c->lock);
-> +		return IRQ_NONE;
-> +	}
-
-Does it really happen ? Did you see any specific issue you'd like to share ?
-If not, I'm not a big fan of this change.
-
-In any case, if it can be handled gracefully, I'd drop the trace in the
-interrupt handler.
-
-
-> +
-> +	if (ctrl & REG_CTRL_ERROR) {
->  		/*
->  		 * The bit is set when the IGNORE_NAK bit is cleared
->  		 * and the device didn't respond. In this case, the
-> @@ -276,15 +284,12 @@ static irqreturn_t meson_i2c_irq(int irqno, void
-> *dev_id)
->  		i2c->state = STATE_IDLE;
->  		complete(&i2c->done);
->  		break;
-> -	case STATE_IDLE:
-> -		break;
->  	}
+>  #define I2C_TIMEOUT_MS		500
+> -#define DEFAULT_FREQ		100000
 >  
->  out:
->  	if (i2c->state != STATE_IDLE) {
->  		/* Restart the processing */
->  		meson_i2c_write_tokens(i2c);
-> -		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->  		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
->  				   REG_CTRL_START);
->  	}
-> @@ -344,9 +349,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c,
-> struct i2c_msg *msg,
->  	 */
->  	spin_lock_irqsave(&i2c->lock, flags);
+>  enum {
+>  	TOKEN_END = 0,
+> @@ -73,7 +72,7 @@ enum {
+>   * @error:	Flag set when an error is received
+>   * @lock:	To avoid race conditions between irq handler and
+> xfer code
+>   * @done:	Completion used to wait for transfer termination
+> - * @frequency:	Operating frequency of I2C bus clock
+> + * @timings:	Struct including the bus frequency
+>   * @tokens:	Sequence of tokens to be written to the device
+>   * @num_tokens:	Number of tokens
+>   */
+> @@ -92,7 +91,7 @@ struct meson_i2c {
 >  
-> -	/* Abort any active operation */
-> -	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
-> -
->  	if (!time_left) {
->  		i2c->state = STATE_IDLE;
->  		ret = -ETIMEDOUT;
+>  	spinlock_t		lock;
+>  	struct completion	done;
+> -	unsigned int		frequency;
+> +	struct i2c_timings	timings;
+>  	u32			tokens[2];
+>  	int			num_tokens;
+>  };
+> @@ -136,12 +135,12 @@ static void meson_i2c_set_clk_div(struct
+> meson_i2c *i2c)
+>  	unsigned long clk_rate = clk_get_rate(i2c->clk);
+>  	unsigned int div;
+>  
+> -	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
+> +	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
+>  	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+>  			   div << REG_CTRL_CLKDIV_SHIFT);
+>  
+>  	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n",
+> __func__,
+> -		clk_rate, i2c->frequency, div);
+> +		clk_rate, i2c->timings.bus_freq_hz, div);
+>  }
+>  
+>  static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int
+> len)
+> @@ -396,9 +395,7 @@ static int meson_i2c_probe(struct platform_device
+> *pdev)
+>  	if (!i2c)
+>  		return -ENOMEM;
+>  
+> -	if (of_property_read_u32(pdev->dev.of_node, "clock-
+> frequency",
+> -				 &i2c->frequency))
+> -		i2c->frequency = DEFAULT_FREQ;
+> +	i2c_parse_fw_timings(&pdev->dev, &i2c->timings, true);
+>  
+>  	i2c->dev = &pdev->dev;
+>  	platform_set_drvdata(pdev, i2c);
+
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
