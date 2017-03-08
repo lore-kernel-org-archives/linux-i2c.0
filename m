@@ -1,60 +1,88 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 06/12] i2c: meson: remove variable count from meson_i2c_xfer
-Date: Wed, 8 Mar 2017 07:46:28 +0100
-Message-ID: <95687966-387c-f9ba-ae0a-9b0258f7ad43@gmail.com>
+Subject: [PATCH 03/12] i2c: meson: use i2c core for DT clock-frequency parsing
+Date: Wed, 8 Mar 2017 07:44:15 +0100
+Message-ID: <a8a8f3e8-4568-67a9-25bc-874c6f426243@gmail.com>
 References: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36202 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756715AbdCHGus (ORCPT
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35818 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755431AbdCHGus (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 01:50:48 -0500
-Received: by mail-wm0-f66.google.com with SMTP id v190so4369955wme.3
-        for <linux-i2c@vger.kernel.org>; Tue, 07 Mar 2017 22:50:44 -0800 (PST)
+Received: by mail-wr0-f194.google.com with SMTP id u108so2841959wrb.2
+        for <linux-i2c@vger.kernel.org>; Tue, 07 Mar 2017 22:50:40 -0800 (PST)
 In-Reply-To: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-Variable count has always the same value as i, so we don't need it.
-In addition use &msgs[i] instead of msgs + i to improve readability
-of code a little.
+We don't have to parse the DT manually to retrieve the bus frequency
+and we don't have to maintain an own default for the bus frequency.
+Let the i2c core do this for us.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- drivers/i2c/busses/i2c-meson.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 594fec22..81304840 100644
+index 50059d09..5e243efa 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -364,20 +364,19 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			  int num)
- {
- 	struct meson_i2c *i2c = adap->algo_data;
--	int i, ret = 0, count = 0;
-+	int i, ret = 0;
+@@ -38,7 +38,6 @@
+ #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
  
- 	clk_enable(i2c->clk);
+ #define I2C_TIMEOUT_MS		500
+-#define DEFAULT_FREQ		100000
  
- 	for (i = 0; i < num; i++) {
--		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
-+		ret = meson_i2c_xfer_msg(i2c, &msgs[i], i == num - 1);
- 		if (ret)
- 			break;
--		count++;
- 	}
+ enum {
+ 	TOKEN_END = 0,
+@@ -73,7 +72,7 @@ enum {
+  * @error:	Flag set when an error is received
+  * @lock:	To avoid race conditions between irq handler and xfer code
+  * @done:	Completion used to wait for transfer termination
+- * @frequency:	Operating frequency of I2C bus clock
++ * @timings:	Struct including the bus frequency
+  * @tokens:	Sequence of tokens to be written to the device
+  * @num_tokens:	Number of tokens
+  */
+@@ -92,7 +91,7 @@ struct meson_i2c {
  
- 	clk_disable(i2c->clk);
+ 	spinlock_t		lock;
+ 	struct completion	done;
+-	unsigned int		frequency;
++	struct i2c_timings	timings;
+ 	u32			tokens[2];
+ 	int			num_tokens;
+ };
+@@ -136,12 +135,12 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
+ 	unsigned long clk_rate = clk_get_rate(i2c->clk);
+ 	unsigned int div;
  
--	return ret ? ret : count;
-+	return ret ?: i;
+-	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
++	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+ 			   div << REG_CTRL_CLKDIV_SHIFT);
+ 
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+-		clk_rate, i2c->frequency, div);
++		clk_rate, i2c->timings.bus_freq_hz, div);
  }
  
- static u32 meson_i2c_func(struct i2c_adapter *adap)
+ static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
+@@ -396,9 +395,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+-	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+-				 &i2c->frequency))
+-		i2c->frequency = DEFAULT_FREQ;
++	i2c_parse_fw_timings(&pdev->dev, &i2c->timings, true);
+ 
+ 	i2c->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, i2c);
 -- 
 2.12.0
