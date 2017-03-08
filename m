@@ -1,106 +1,94 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH 07/12] i2c: meson: improve interrupt handler and detect
- spurious interrupts
-Date: Wed, 8 Mar 2017 22:02:32 +0100
-Message-ID: <c45aaa91-e903-0d2d-70c4-0fd815c5fb69@gmail.com>
+Subject: Re: [PATCH 08/12] i2c: meson: explicitly ignore messages with length
+ zero
+Date: Wed, 8 Mar 2017 23:03:46 +0100
+Message-ID: <00a0854d-b0f6-5711-0b6e-25f0f3fe9b4f@gmail.com>
 References: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
- <c772d1d8-eaae-43c2-c206-7c349c134db8@gmail.com>
- <1488966636.2514.16.camel@baylibre.com>
+ <11e16ab1-e3dd-56d0-55c5-1420576a9bb3@gmail.com>
+ <CANe6Qb9nKdLnOcwEwuk8NXEB+fxW2S_kkzP+U+qygYhNqz0Y0w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:34181 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754394AbdCHVCo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 16:02:44 -0500
-Received: by mail-wr0-f196.google.com with SMTP id u48so5667739wrc.1
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 13:02:43 -0800 (PST)
-In-Reply-To: <1488966636.2514.16.camel@baylibre.com>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:33320 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754150AbdCHWF3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Mar 2017 17:05:29 -0500
+Received: by mail-wr0-f195.google.com with SMTP id g10so5802681wrg.0
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 14:03:56 -0800 (PST)
+In-Reply-To: <CANe6Qb9nKdLnOcwEwuk8NXEB+fxW2S_kkzP+U+qygYhNqz0Y0w@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jerome Brunet <jbrunet@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Ben Dooks <bjdooks@googlemail.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-amlogic@lists.infradead.org
 
-Am 08.03.2017 um 10:50 schrieb Jerome Brunet:
-> On Wed, 2017-03-08 at 07:47 +0100, Heiner Kallweit wrote:
->> If state is STATE_IDLE no interrupt should occur. Detect this case and
->> warn.
->> In addition move resetting REG_CTRL_START bit to the start of the
->> interrupt handler and remove a unneeded REG_CTRL_START bit reset
->> in meson_i2c_xfer_msg.
->>
->> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->> ---
->>  drivers/i2c/busses/i2c-meson.c | 16 +++++++++-------
->>  1 file changed, 9 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
->> index 81304840..b3b881f9 100644
->> --- a/drivers/i2c/busses/i2c-meson.c
->> +++ b/drivers/i2c/busses/i2c-meson.c
->> @@ -233,7 +233,15 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
->>  	dev_dbg(i2c->dev, "irq: state %d, pos %d, count %d, ctrl %08x\n",
->>  		i2c->state, i2c->pos, i2c->count, ctrl);
->>  
->> -	if (ctrl & REG_CTRL_ERROR && i2c->state != STATE_IDLE) {
->> +	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->> +
->> +	if (i2c->state == STATE_IDLE) {
->> +		dev_notice(i2c->dev, "spurious interrupt detected\n");
->> +		spin_unlock(&i2c->lock);
->> +		return IRQ_NONE;
->> +	}
+Am 08.03.2017 um 08:53 schrieb Ben Dooks:
+> Probably a bad idea. Zero data could just be an address is there check
 > 
-> Does it really happen ? Did you see any specific issue you'd like to share ?
-> If not, I'm not a big fan of this change.
-> 
-No,it did not happen. It's just that in few parts of the interrupt handler
-we deal with this situation that should never happen.
-And if it would happen on some system, we wouldn't know because it's
-silently ignored.
+Thanks for pointing out.
 
-I'm fine with dropping the error message. Still I would prefer to at least
-return IRQ_NONE instead of IRQ_HANDLED in this potential error case.
-
-It's like other drivers checking in the interrupt handler whether any
-interrupt source is enabled and returning IRQ_NONE if not.
-
-> In any case, if it can be handled gracefully, I'd drop the trace in the
-> interrupt handler.
+> On 8 Mar 2017 06:51, "Heiner Kallweit" <hkallweit1@gmail.com <mailto:hkallweit1@gmail.com>> wrote:
+> 
+>     Explicitely ignore messages with length zero. This also allows to
+>     remove some now unneeded checks during message processing.
+> 
+>     Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com <mailto:hkallweit1@gmail.com>>
+>     ---
+>      drivers/i2c/busses/i2c-meson.c | 20 +++++++++-----------
+>      1 file changed, 9 insertions(+), 11 deletions(-)
+> 
+>     diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+>     index b3b881f9..58414699 100644
+>     --- a/drivers/i2c/busses/i2c-meson.c
+>     +++ b/drivers/i2c/busses/i2c-meson.c
+>     @@ -196,12 +196,10 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
+>             for (i = 0; i < i2c->count - 1; i++)
+>                     meson_i2c_add_token(i2c, TOKEN_DATA);
+> 
+>     -       if (i2c->count) {
+>     -               if (write || i2c->pos + i2c->count < i2c->msg->len)
+>     -                       meson_i2c_add_token(i2c, TOKEN_DATA);
+>     -               else
+>     -                       meson_i2c_add_token(i2c, TOKEN_DATA_LAST);
+>     -       }
+>     +       if (write || i2c->pos + i2c->count < i2c->msg->len)
+>     +               meson_i2c_add_token(i2c, TOKEN_DATA);
+>     +       else
+>     +               meson_i2c_add_token(i2c, TOKEN_DATA_LAST);
+> 
+>             if (write)
+>                     meson_i2c_put_data(i2c, i2c->msg->buf + i2c->pos, i2c->count);
+>     @@ -257,11 +255,8 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+> 
+>             switch (i2c->state) {
+>             case STATE_READ:
+>     -               if (i2c->count > 0) {
+>     -                       meson_i2c_get_data(i2c, i2c->msg->buf + i2c->pos,
+>     -                                          i2c->count);
+>     -                       i2c->pos += i2c->count;
+>     -               }
+>     +               meson_i2c_get_data(i2c, i2c->msg->buf + i2c->pos, i2c->count);
+>     +               i2c->pos += i2c->count;
+> 
+>                     if (i2c->pos >= i2c->msg->len) {
+>                             meson_i2c_stop(i2c);
+>     @@ -371,6 +366,9 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>             clk_enable(i2c->clk);
+> 
+>             for (i = 0; i < num; i++) {
+>     +               /* ignore messages with length 0 */
+>     +               if (!msgs[i].len)
+>     +                       continue;
+>                     ret = meson_i2c_xfer_msg(i2c, &msgs[i], i == num - 1);
+>                     if (ret)
+>                             break;
+>     --
+>     2.12.0
 > 
 > 
->> +
->> +	if (ctrl & REG_CTRL_ERROR) {
->>  		/*
->>  		 * The bit is set when the IGNORE_NAK bit is cleared
->>  		 * and the device didn't respond. In this case, the
->> @@ -276,15 +284,12 @@ static irqreturn_t meson_i2c_irq(int irqno, void
->> *dev_id)
->>  		i2c->state = STATE_IDLE;
->>  		complete(&i2c->done);
->>  		break;
->> -	case STATE_IDLE:
->> -		break;
->>  	}
->>  
->>  out:
->>  	if (i2c->state != STATE_IDLE) {
->>  		/* Restart the processing */
->>  		meson_i2c_write_tokens(i2c);
->> -		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->>  		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
->>  				   REG_CTRL_START);
->>  	}
->> @@ -344,9 +349,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c,
->> struct i2c_msg *msg,
->>  	 */
->>  	spin_lock_irqsave(&i2c->lock, flags);
->>  
->> -	/* Abort any active operation */
->> -	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->> -
->>  	if (!time_left) {
->>  		i2c->state = STATE_IDLE;
->>  		ret = -ETIMEDOUT;
+> 
+>     _______________________________________________
+>     linux-amlogic mailing list
+>     linux-amlogic@lists.infradead.org <mailto:linux-amlogic@lists.infradead.org>
+>     http://lists.infradead.org/mailman/listinfo/linux-amlogic <http://lists.infradead.org/mailman/listinfo/linux-amlogic>
 > 
