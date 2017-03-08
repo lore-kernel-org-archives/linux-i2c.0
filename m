@@ -1,161 +1,70 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 1/2] i2c: designware: Never suspend i2c-busses used for accessing the system PMIC
-Date: Wed,  8 Mar 2017 09:47:12 +0100
-Message-ID: <20170308084713.4815-2-hdegoede@redhat.com>
+Subject: [PATCH v2 2/2] i2c: designware: Disable pm for PMIC i2c-bus even if there is no _SEM method
+Date: Wed,  8 Mar 2017 09:47:13 +0100
+Message-ID: <20170308084713.4815-3-hdegoede@redhat.com>
 References: <20170308084713.4815-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46242 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59118 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751607AbdCHIrU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 8 Mar 2017 03:47:20 -0500
+        id S1751934AbdCHIrV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 8 Mar 2017 03:47:21 -0500
 In-Reply-To: <20170308084713.4815-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 
-Currently we are already setting a pm_runtime_disabled flag and disabling
-runtime-pm for i2c-busses used for accessing the system PMIC on x86.
-But this is not enough, there are ACPI opregions which may want to access
-the PMIC during late-suspend and early-resume, so we need to completely
-disable pm to be safe.
+Cherrytrail devices use the dw i2c-bus with uid 7 to access their PMIC.
+Even if the i2c-bus to the PMIC is not shared with the SoC's P-Unit
+and i2c-designware-baytrail.c thus does not set the pm_disabled flag,
+we still need to disable pm so that ACPI PMIC opregions can access the
+PMIC during late-suspend and early-resume.
 
-This commit renames the flag from pm_runtime_disabled to pm_disabled and
-adds the following new behavior if the flag is set:
+This fixes errors like these blocking suspend:
 
-1) Call dev_pm_syscore_device(dev, true) which disables normal suspend /
-   resume and remove the pm_runtime_disabled check from dw_i2c_plat_resume
-   since that will now never get called. This fixes suspend_late handlers
-   which use ACPI PMIC opregions causing errors like these:
-
-  PM: Suspending system (freeze)
-  PM: suspend of devices complete after 1127.751 msecs
   i2c_designware 808622C1:06: timeout waiting for bus ready
   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
   acpi 80860F14:02: Failed to change power state to D3hot
   PM: late suspend of devices failed
 
-2) Set IRQF_NO_SUSPEND irq flag. This fixes resume_early handlers which
-   handlers which use ACPI PMIC opregions causing errors like these:
-
-  PM: resume from suspend-to-idle
-  i2c_designware 808622C1:06: controller timed out
-  ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
-
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/busses/i2c-designware-baytrail.c |  2 +-
- drivers/i2c/busses/i2c-designware-core.c     | 11 +++++++++--
- drivers/i2c/busses/i2c-designware-core.h     |  4 ++--
- drivers/i2c/busses/i2c-designware-platdrv.c  | 10 ++++------
- 4 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 1749a0f..b8cc226 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -170,7 +170,7 @@ int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 	dev_info(dev->dev, "I2C bus managed by PUNIT\n");
- 	dev->acquire_lock = baytrail_i2c_acquire;
- 	dev->release_lock = baytrail_i2c_release;
--	dev->pm_runtime_disabled = true;
-+	dev->pm_disabled = true;
- 
- 	pm_qos_add_request(&dev->pm_qos, PM_QOS_CPU_DMA_LATENCY,
- 			   PM_QOS_DEFAULT_VALUE);
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 15a5348..c453717 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -960,6 +960,7 @@ EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
- int i2c_dw_probe(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
-+	unsigned long irq_flags;
- 	int r;
- 
- 	init_completion(&dev->cmd_complete);
-@@ -975,9 +976,15 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	adap->dev.parent = dev->dev;
- 	i2c_set_adapdata(adap, dev);
- 
-+	if (dev->pm_disabled) {
-+		dev_pm_syscore_device(dev->dev, true);
-+		irq_flags = IRQF_NO_SUSPEND;
-+	} else {
-+		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
-+	}
-+
- 	i2c_dw_disable_int(dev);
--	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
--			     IRQF_SHARED | IRQF_COND_SUSPEND,
-+	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
- 			     dev_name(dev->dev), dev);
- 	if (r) {
- 		dev_err(dev->dev, "failure requesting irq %i: %d\n",
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 091c249..1e75ba4 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -79,7 +79,7 @@
-  * @pm_qos: pm_qos_request used while holding a hardware lock on the bus
-  * @acquire_lock: function to acquire a hardware lock on the bus
-  * @release_lock: function to release a hardware lock on the bus
-- * @pm_runtime_disabled: true if pm runtime is disabled
-+ * @pm_disabled: true if power-management should be disabled for this i2c-bus
-  *
-  * HCNT and LCNT parameters can be used if the platform knows more accurate
-  * values than the one computed based only on the input clock frequency.
-@@ -127,7 +127,7 @@ struct dw_i2c_dev {
- 	struct pm_qos_request	pm_qos;
- 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
- 	void			(*release_lock)(struct dw_i2c_dev *dev);
--	bool			pm_runtime_disabled;
-+	bool			pm_disabled;
- };
- 
- #define ACCESS_SWAP		0x00000001
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index df0ff7d..8ed96dd 100644
+index 8ed96dd..08d609e 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -276,7 +276,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->dev.of_node = pdev->dev.of_node;
+@@ -94,7 +94,10 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+ 	const struct acpi_device_id *id;
++	struct acpi_device *adev;
++	const char *uid;
  
--	if (dev->pm_runtime_disabled) {
-+	if (dev->pm_disabled) {
- 		pm_runtime_forbid(&pdev->dev);
- 	} else {
- 		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
-@@ -286,7 +286,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	}
+ 	dev->adapter.nr = -1;
+ 	dev->tx_fifo_depth = 32;
+@@ -114,6 +117,18 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	if (id && id->driver_data)
+ 		dev->flags |= (u32)id->driver_data;
  
- 	r = i2c_dw_probe(dev);
--	if (r && !dev->pm_runtime_disabled)
-+	if (r && !dev->pm_disabled)
- 		pm_runtime_disable(&pdev->dev);
- 
- 	return r;
-@@ -304,7 +304,7 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	pm_runtime_put_sync(&pdev->dev);
--	if (!dev->pm_runtime_disabled)
-+	if (!dev->pm_disabled)
- 		pm_runtime_disable(&pdev->dev);
- 
- 	i2c_dw_remove_lock_support(dev);
-@@ -354,9 +354,7 @@ static int dw_i2c_plat_resume(struct device *dev)
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
- 	i2c_dw_plat_prepare_clk(i_dev, true);
--
--	if (!i_dev->pm_runtime_disabled)
--		i2c_dw_init(i_dev);
-+	i2c_dw_init(i_dev);
- 
++	if (acpi_bus_get_device(handle, &adev))
++		return -ENODEV;
++
++	/*
++	 * Cherrytrail I2C7 gets used for the PMIC which gets accessed
++	 * through ACPI opregions during late suspend / early resume
++	 * disable pm for it.
++	 */
++	uid = adev->pnp.unique_id;
++	if ((dev->flags & MODEL_CHERRYTRAIL) && !strcmp(uid, "7"))
++		dev->pm_disabled = true;
++
  	return 0;
  }
+ 
 -- 
 2.9.3
