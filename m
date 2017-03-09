@@ -1,45 +1,60 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH v2] i2c: exynos5: fix arbitration lost handling
-Date: Thu, 9 Mar 2017 11:23:57 -0300
-Message-ID: <496be91a-3908-eea0-a40e-c9c935fb13d7@osg.samsung.com>
-References: <CGME20170222110438eucas1p2329ece7afd9e22ba185da64ccf4b2981@eucas1p2.samsung.com>
- <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
- <2fb11816-85e7-14f6-7b61-5d3eba6096aa@osg.samsung.com>
- <7f287a39-a8a4-1b9d-2d9a-36e849bd726b@samsung.com>
- <20935f7d-a41c-2987-daea-50e4c3aa4ab6@samsung.com>
- <1a9ff664-9321-70db-3a69-8adc0e04dca5@osg.samsung.com>
- <f772cc18-8115-17b4-fc2f-efe28e23db18@samsung.com>
- <804530d2-5ca2-4f15-4de0-006e27794865@osg.samsung.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 1/2] i2c: designware: Never suspend i2c-busses used for
+ accessing the system PMIC
+Date: Thu, 9 Mar 2017 16:24:22 +0200
+Message-ID: <728a5859-c4fe-b22c-0dd2-94c48e131134@linux.intel.com>
+References: <20170308084713.4815-1-hdegoede@redhat.com>
+ <20170308084713.4815-2-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:49252
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1754497AbdCIOYG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 09:24:06 -0500
-In-Reply-To: <804530d2-5ca2-4f15-4de0-006e27794865@osg.samsung.com>
+Received: from mga02.intel.com ([134.134.136.20]:25956 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754816AbdCIOZL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Mar 2017 09:25:11 -0500
+In-Reply-To: <20170308084713.4815-2-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Andi Shyti <andi.shyti@samsung.com>
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 
-Hello Andrzej,
+On 03/08/17 10:47, Hans de Goede wrote:
+> Currently we are already setting a pm_runtime_disabled flag and disabling
+> runtime-pm for i2c-busses used for accessing the system PMIC on x86.
+> But this is not enough, there are ACPI opregions which may want to access
+> the PMIC during late-suspend and early-resume, so we need to completely
+> disable pm to be safe.
+>
+> This commit renames the flag from pm_runtime_disabled to pm_disabled and
+> adds the following new behavior if the flag is set:
+>
+> 1) Call dev_pm_syscore_device(dev, true) which disables normal suspend /
+>    resume and remove the pm_runtime_disabled check from dw_i2c_plat_resume
+>    since that will now never get called. This fixes suspend_late handlers
+>    which use ACPI PMIC opregions causing errors like these:
+>
+>   PM: Suspending system (freeze)
+>   PM: suspend of devices complete after 1127.751 msecs
+>   i2c_designware 808622C1:06: timeout waiting for bus ready
+>   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
+>   acpi 80860F14:02: Failed to change power state to D3hot
+>   PM: late suspend of devices failed
+>
+> 2) Set IRQF_NO_SUSPEND irq flag. This fixes resume_early handlers which
+>    handlers which use ACPI PMIC opregions causing errors like these:
+>
+>   PM: resume from suspend-to-idle
+>   i2c_designware 808622C1:06: controller timed out
+>   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
+>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-baytrail.c |  2 +-
+>  drivers/i2c/busses/i2c-designware-core.c     | 11 +++++++++--
+>  drivers/i2c/busses/i2c-designware-core.h     |  4 ++--
+>  drivers/i2c/busses/i2c-designware-platdrv.c  | 10 ++++------
+>  4 files changed, 16 insertions(+), 11 deletions(-)
+>
 
-On 03/09/2017 10:59 AM, Javier Martinez Canillas wrote:
->>
->> Your initial proposition [0] is the most suitable solution.
->>
-> 
-> Great, I'll add the fixes and your reviewed-by tags and post it as a patch.
-> 
-
-Ups, it seems I forgot to cc you when posting the patch, sorry about that...
-
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1349049.html
-
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Jarkko Nikula <jarkko.nikula@linux.intel.com>
