@@ -1,65 +1,82 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: designware: Never suspend i2c-busses used
- for accessing the system PMIC
-Date: Thu, 9 Mar 2017 15:39:30 +0100
-Message-ID: <20170309143930.qd6unynjgqd27jot@ninjato>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 2/2] i2c: designware: Disable pm for PMIC i2c-bus even
+ if there is no _SEM method
+Date: Thu, 9 Mar 2017 17:00:37 +0200
+Message-ID: <8c2c5e0e-8678-e572-3f7a-3d62853e9b21@linux.intel.com>
 References: <20170308084713.4815-1-hdegoede@redhat.com>
- <20170308084713.4815-2-hdegoede@redhat.com>
- <728a5859-c4fe-b22c-0dd2-94c48e131134@linux.intel.com>
+ <20170308084713.4815-3-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mx2zkraid42c5uv4"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46323 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754803AbdCIOtG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 9 Mar 2017 09:49:06 -0500
-Content-Disposition: inline
-In-Reply-To: <728a5859-c4fe-b22c-0dd2-94c48e131134@linux.intel.com>
+Received: from mga07.intel.com ([134.134.136.100]:15828 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754243AbdCIPBY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Mar 2017 10:01:24 -0500
+In-Reply-To: <20170308084713.4815-3-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, Lan Tianyu <tianyu.lan@intel.com>
 
++ Tianyu
 
---mx2zkraid42c5uv4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 03/08/17 10:47, Hans de Goede wrote:
+> Cherrytrail devices use the dw i2c-bus with uid 7 to access their PMIC.
+> Even if the i2c-bus to the PMIC is not shared with the SoC's P-Unit
+> and i2c-designware-baytrail.c thus does not set the pm_disabled flag,
+> we still need to disable pm so that ACPI PMIC opregions can access the
+> PMIC during late-suspend and early-resume.
+>
+> This fixes errors like these blocking suspend:
+>
+>   i2c_designware 808622C1:06: timeout waiting for bus ready
+>   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
+>   acpi 80860F14:02: Failed to change power state to D3hot
+>   PM: late suspend of devices failed
+>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 8ed96dd..08d609e 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -94,7 +94,10 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+>  static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  {
+>  	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+> +	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+>  	const struct acpi_device_id *id;
+> +	struct acpi_device *adev;
+> +	const char *uid;
+>
+>  	dev->adapter.nr = -1;
+>  	dev->tx_fifo_depth = 32;
+> @@ -114,6 +117,18 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  	if (id && id->driver_data)
+>  		dev->flags |= (u32)id->driver_data;
+>
+> +	if (acpi_bus_get_device(handle, &adev))
+> +		return -ENODEV;
+> +
+> +	/*
+> +	 * Cherrytrail I2C7 gets used for the PMIC which gets accessed
+> +	 * through ACPI opregions during late suspend / early resume
+> +	 * disable pm for it.
+> +	 */
+> +	uid = adev->pnp.unique_id;
+> +	if ((dev->flags & MODEL_CHERRYTRAIL) && !strcmp(uid, "7"))
+> +		dev->pm_disabled = true;
+> +
 
+I'm fine with this but wondering can this be detected any other way than 
+hardcoded bus number.
 
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
-> >  drivers/i2c/busses/i2c-designware-baytrail.c |  2 +-
-> >  drivers/i2c/busses/i2c-designware-core.c     | 11 +++++++++--
-> >  drivers/i2c/busses/i2c-designware-core.h     |  4 ++--
-> >  drivers/i2c/busses/i2c-designware-platdrv.c  | 10 ++++------
-> >  4 files changed, 16 insertions(+), 11 deletions(-)
-> >=20
->=20
-> Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tianyu: You are the author of 5d98e61d337c ("I2C/ACPI: Add i2c ACPI 
+operation region support"). Do you know is there way to see is there a 
+PMIC connected to the bus?
 
-Acked-by ?
-
-
---mx2zkraid42c5uv4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBaR4ACgkQFA3kzBSg
-KbZMFRAAjBJF6nve8Vp5vkipuS0GsFHOXdRLSTsdtZVlj61IluuWWhJM7cADjXUd
-TNGz5W2YjkPSApn1zqIycumsogB1sXQICBGft16QQKY8vVQV0DfXr8qoCBvjeNt3
-IT5G4Gizb6AR7ObKIgjLqSPrZ7LWx6ntYYn5M2oNmbtrP4z0MXfP+tq55c2jDcPE
-YbdnC2JRs9+WNZf8PHCZLnhFXlRNM2gk86r83T7X2dfQD61d54yNnCgS/3kbOAAN
-WPyqbhs80niKiS9mRf2ZfdObpItL6AFrlE87XxWwCAGSYVi4xfq/Ytq4F0V+RuHN
-NC1zcw+GH8CNPKKrBoC7BksvCXt8JhT8mRbMy06R4uzSJJ4EhpOsOVvrhhYwNMje
-k/xLZOfBgyfb6f9eelgmlQDbkz+pjGxnBFa8uAHGkMy7M8TdOQER1ZsHoOrXvlwh
-SQ9xxM6Y/HI23HOyB+YZae4NJvHXyVGXdY+rvy95VsgNHpIIjgPhA8q1fXtfuHJ9
-ER8UwFdRl8Uu0fk9N95uO7hcb7/Aadzi62VhIbXmumW1SbNMLe1WNyLJnc6p0uhm
-nEM6hJo4vb4q1c0yy1r8KzomVU++Bmo32Jl/ltHMsDaS5gHmH4GyAAlSBfQgQIW5
-znswZSSwjmLoLyYJIZMN1+xVKVbV2Je0VaCSrar74o0QrmPN58I=
-=/Ret
------END PGP SIGNATURE-----
-
---mx2zkraid42c5uv4--
+Jarkko Nikula <jarkko.nikula@linux.intel.com>
