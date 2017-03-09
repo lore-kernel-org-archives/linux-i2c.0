@@ -1,70 +1,99 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 04/10] i2c: meson: use full 12 bits for clock divider
-Date: Thu, 9 Mar 2017 07:40:46 +0100
-Message-ID: <a61a6f48-a157-81ec-7f1b-09cb27b22613@gmail.com>
+Subject: [PATCH v2 08/10] i2c: meson: don't create separate token chain just
+ for the stop command
+Date: Thu, 9 Mar 2017 07:56:49 +0100
+Message-ID: <bacf8952-ae96-6605-1334-ff4871233ba6@gmail.com>
 References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:33556 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750724AbdCIHKA (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33624 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750793AbdCIHKA (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 02:10:00 -0500
-Received: by mail-wr0-f194.google.com with SMTP id g10so6742158wrg.0
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:08:44 -0800 (PST)
+Received: by mail-wm0-f68.google.com with SMTP id n11so9406394wma.0
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:09:02 -0800 (PST)
 In-Reply-To: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-The clock divider has 12 bits, splitted into a 10 bit field and a
-2 bit field. The extra 2 bits aren't used currently.
-
-Change this to use the full 12 bits and warn if the requested
-frequency is too low.
+We can directly add the stop token to the token chain including the
+last transfer chunk. This is more efficient than creating a separate
+token chain just for the stop command.
+And it allows us to get rid of state STATE_STOP completely.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Acked-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- added Acked-by
+- rebased
 ---
- drivers/i2c/busses/i2c-meson.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 23 +++++------------------
+ 1 file changed, 5 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 5e243efa..a5764be5 100644
+index 74d433cd..3e6f5e50 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -35,7 +35,9 @@
- #define REG_CTRL_STATUS		BIT(2)
- #define REG_CTRL_ERROR		BIT(3)
- #define REG_CTRL_CLKDIV_SHIFT	12
--#define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
-+#define REG_CTRL_CLKDIV_MASK	GENMASK(21, 12)
-+#define REG_CTRL_CLKDIVEXT_SHIFT 28
-+#define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
+@@ -55,7 +55,6 @@ enum {
+ 	STATE_IDLE,
+ 	STATE_READ,
+ 	STATE_WRITE,
+-	STATE_STOP,
+ };
  
- #define I2C_TIMEOUT_MS		500
+ /**
+@@ -205,19 +204,9 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
  
-@@ -136,8 +138,15 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
- 	unsigned int div;
+ 	if (write)
+ 		meson_i2c_put_data(i2c, i2c->msg->buf + i2c->pos, i2c->count);
+-}
+-
+-static void meson_i2c_stop(struct meson_i2c *i2c)
+-{
+-	dev_dbg(i2c->dev, "%s: last %d\n", __func__, i2c->last);
  
- 	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
-+
-+	/* clock divider has 12 bits */
-+	WARN_ON(div >= (1 << 12));
-+
- 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
--			   div << REG_CTRL_CLKDIV_SHIFT);
-+			   (div & GENMASK(9, 0)) << REG_CTRL_CLKDIV_SHIFT);
-+
-+	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
-+			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
+-	if (i2c->last) {
+-		i2c->state = STATE_STOP;
++	if (i2c->last && i2c->pos + i2c->count >= i2c->msg->len)
+ 		meson_i2c_add_token(i2c, TOKEN_STOP);
+-	} else {
+-		i2c->state = STATE_IDLE;
+-		complete(&i2c->done);
+-	}
+ }
  
- 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
- 		clk_rate, i2c->timings.bus_freq_hz, div);
+ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+@@ -262,7 +251,8 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+ 		}
+ 
+ 		if (i2c->pos >= i2c->msg->len) {
+-			meson_i2c_stop(i2c);
++			i2c->state = STATE_IDLE;
++			complete(&i2c->done);
+ 			break;
+ 		}
+ 
+@@ -272,16 +262,13 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+ 		i2c->pos += i2c->count;
+ 
+ 		if (i2c->pos >= i2c->msg->len) {
+-			meson_i2c_stop(i2c);
++			i2c->state = STATE_IDLE;
++			complete(&i2c->done);
+ 			break;
+ 		}
+ 
+ 		meson_i2c_prepare_xfer(i2c);
+ 		break;
+-	case STATE_STOP:
+-		i2c->state = STATE_IDLE;
+-		complete(&i2c->done);
+-		break;
+ 	}
+ 
+ out:
 -- 
 2.12.0
