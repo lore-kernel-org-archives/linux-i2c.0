@@ -1,84 +1,46 @@
-From: Julia Cartwright <julia@ni.com>
-Subject: [PATCH 12/19] i2c: mux: pca954x: make use of raw_spinlock variants
-Date: Thu, 9 Mar 2017 10:21:59 -0600
-Message-ID: <a5015f6a7ecc2f84e9026c309ca2753c0cb3a1fa.1489015238.git.julia@ni.com>
-References: <cover.1489015238.git.julia@ni.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: do not leave semaphore armed when copying
+ properties fails
+Date: Thu, 9 Mar 2017 09:38:28 -0800
+Message-ID: <20170309173828.GA20077@dtor-ws>
+References: <20170308184102.29334-1-dmitry.torokhov@gmail.com>
+ <20170309144833.3mehuovi3wwqma2m@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1489015238.git.julia@ni.com>
+Content-Disposition: inline
+In-Reply-To: <20170309144833.3mehuovi3wwqma2m@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The pca954x i2c mux driver currently implements an irq_chip for handling
-interrupts; due to how irq_chip handling is done, it's necessary for the
-irq_chip methods to be invoked from hardirq context, even on a a
-real-time kernel.  Because the spinlock_t type becomes a "sleeping"
-spinlock w/ RT kernels, it is not suitable to be used with irq_chips.
+Hi Wolfram,
 
-A quick audit of the operations under the lock reveal that they do only
-minimal, bounded work, and are therefore safe to do under a raw spinlock.
+> On Wed, Mar 08, 2017 at 10:41:01AM -0800, Dmitry Torokhov wrote:
+> > We should not leave i2c_register_board_info() early, without unlocking the
+> > __i2c_board_lock.
+> > 
+> > Fixes: b0c1e95ab44f ("i2c: copy device properties when using ...")
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> So, it seems that patches 1+2 are related. Because I'd like to have
+> patch 2 sitting in for-next for a whole cycle for sure, my plan is to
+> revert the faulty b0c1e95ab44f from for-current and apply the fixed
+> version (b0c1e95ab44f + this patch squashed) to for-next as well.
+> 
+> Is that okay with you?
 
-Signed-off-by: Julia Cartwright <julia@ni.com>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+I am perfectly fine with reverting b0c1e95ab44f from for-current,
+however I wonder if we could have an immutable branch off 4.11-rc2 (or
+-rc1) containing fixed version of patch copying property + patch adding
+resources + patch exporting i2c_client_type (I will CC you on that
+shortly), which we could share between your tree and mine so I can get
+in changes to a few drivers on my side (eeti_ts, atmel, etc).
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index dfc1c0e37c40..15dfc1648716 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -85,7 +85,7 @@ struct pca954x {
- 
- 	struct irq_domain *irq;
- 	unsigned int irq_mask;
--	spinlock_t lock;
-+	raw_spinlock_t lock;
- };
- 
- /* Provide specs for the PCA954x types we know about */
-@@ -264,13 +264,13 @@ static void pca954x_irq_mask(struct irq_data *idata)
- 	unsigned int pos = idata->hwirq;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&data->lock, flags);
-+	raw_spin_lock_irqsave(&data->lock, flags);
- 
- 	data->irq_mask &= ~BIT(pos);
- 	if (!data->irq_mask)
- 		disable_irq(data->client->irq);
- 
--	spin_unlock_irqrestore(&data->lock, flags);
-+	raw_spin_unlock_irqrestore(&data->lock, flags);
- }
- 
- static void pca954x_irq_unmask(struct irq_data *idata)
-@@ -279,13 +279,13 @@ static void pca954x_irq_unmask(struct irq_data *idata)
- 	unsigned int pos = idata->hwirq;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&data->lock, flags);
-+	raw_spin_lock_irqsave(&data->lock, flags);
- 
- 	if (!data->irq_mask)
- 		enable_irq(data->client->irq);
- 	data->irq_mask |= BIT(pos);
- 
--	spin_unlock_irqrestore(&data->lock, flags);
-+	raw_spin_unlock_irqrestore(&data->lock, flags);
- }
- 
- static int pca954x_irq_set_type(struct irq_data *idata, unsigned int type)
-@@ -311,7 +311,7 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
- 	if (!data->chip->has_irq || client->irq <= 0)
- 		return 0;
- 
--	spin_lock_init(&data->lock);
-+	raw_spin_lock_init(&data->lock);
- 
- 	data->irq = irq_domain_add_linear(client->dev.of_node,
- 					  data->chip->nchans,
+If you are OK with this I can prepare said branch.
+
+Thanks!
+
 -- 
-2.11.1
+Dmitry
