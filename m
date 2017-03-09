@@ -1,64 +1,95 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: add missing of_node_put in i2c_mux_del_adapters
-Date: Thu, 9 Mar 2017 16:38:53 +0100
-Message-ID: <20170309153853.xwiihogiub5yxdl4@ninjato>
-References: <1488527831-53733-1-git-send-email-qi.hou@windriver.com>
- <20170309144032.2rsd5qeg2gbhwf6x@ninjato>
+Subject: Re: [PATCH] i2c: exynos5: Avoid transaction timeouts due
+ TRANSFER_DONE_AUTO not set
+Date: Thu, 9 Mar 2017 16:37:48 +0100
+Message-ID: <20170309153748.tayxxf44cru7nlo6@ninjato>
+References: <20170309140533.24618-1-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f3bu7gnjt2ijwpbq"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([89.238.76.85]:46421 "EHLO pokefinder.org"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754648AbdCIPkJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 9 Mar 2017 10:40:09 -0500
-Content-Disposition: inline
-In-Reply-To: <20170309144032.2rsd5qeg2gbhwf6x@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5327461751460324174=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170309140533.24618-1-javier@osg.samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Shuah Khan <shuahkh@osg.samsung.com>, Inki Dae <inki.dae@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Qi Hou <qi.hou@windriver.com>
-Cc: peda@axentia.se, stable@vger.kernel.org, robh@kernel.org, linux-i2c@vger.kernel.org, leif.lindholm@linaro.org, pantelis.antoniou@konsulko.com, grant.likely@linaro.org, bruce.ashfield@windriver.com, paul.gortmaker@windriver.com, xiao.zhang@windriver.com
 
 
---f3bu7gnjt2ijwpbq
+--===============5327461751460324174==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="roax3oy4uiuvtcm5"
+Content-Disposition: inline
+
+
+--roax3oy4uiuvtcm5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 09, 2017 at 03:40:33PM +0100, Wolfram Sang wrote:
-> On Fri, Mar 03, 2017 at 03:57:11PM +0800, Qi Hou wrote:
-> > Refcount of of_node is increased with of_node_get() in i2c_mux_add_adap=
-ter().
-> > It must be decreased with of_node_put() in i2c_mux_del_adapters().
-> >=20
-> > Signe-off-by: Qi Hou <qi.hou@windriver.com>
-> > Reviewed-by: Zhang Xiao <xiao.zhang@windriver.com>
-> > Acked-by: Peter Rosin <peda@axentia.se>
+On Thu, Mar 09, 2017 at 11:05:33AM -0300, Javier Martinez Canillas wrote:
+> After commit 7999eecb7e56 ("i2c: exynos5: fix arbitration lost handling"),
+> some I2C transactions are failing because the TRANSFER_DONE_AUTO field is
+> not set in the I2C_TRANS_STATUS register so the i2c->status value is left
+> to -EINVAL causing the i2c->msg_complete completion to never be signaled.
 >=20
-> Applied to for-current, thanks!
+> For example, when reading the time of an I2C rtc on an Exynos5800 machine:
+>=20
+> $ cat /sys/class/rtc/rtc0/time
+> [   25.924594] exynos5-hsi2c 12e10000.i2c: rx timeout
+> [   65.028365] max77686-rtc max77802-rtc: Fail to read time reg(-22)
+> cat: /sys/class/rtc/rtc0/time: Invalid argument
+>=20
+> The Exynos5422 manual states clearly that most I2C_TRANS_STATUS reg bits
+> (including TRANSFER_DONE_AUTO) are cleared after the register is read. So
+> reading has side effects and should only be done if HSI2C_INT_I2C was set.
+>=20
+> Fixes: 7999eecb7e56 ("i2c: exynos5: fix arbitration lost handling")
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+>=20
 
-For completeness, I reverted this patch and merged the fixed version
-=66rom Peter instead. Thanks Peter for the heads up!
+Applied to for-current, thanks!
 
 
---f3bu7gnjt2ijwpbq
+--roax3oy4uiuvtcm5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBdw0ACgkQFA3kzBSg
-KbY+ZA//fq2kJn0neLFr7791+4vs36pD75yHm86O55NW8dZ3nl+GidYnTjFzQykn
-cAY1mZWvvdCuwB+rswsQHLB0u5BqrumY6jzByWIybGaKarKk9XRdLdjhgoNB+6uv
-j3LaChUDCc109OBD2RaDCVW4+CNyKYDe6Iv5qc5k3zi6vU0217MbZUWWDEBUvhRb
-FseBjVHtTOB8jcAFFRzQp0e5vZSH8s0uL5OxLSMm5ygPAFywGEyHEekJGOMa2upd
-1MsIxhW++xyTD90GHQMCWfhJKK3bOnO++k/OHYz5RGq4fP5FoO6rXJhVGfi2rMRl
-iDVmRTY5580TPJwz6NTBtzWpen3NAnxxXsKY77zKQpdxPRMexRk3HZaYMQXR3fhl
-41KFoOLa6RaO4ykVb8E4sZ1KewTyQGRexWqPSId1jR7ypS7/cydTOKtBxv3lIRWW
-ZJd7l+x/OLTNVlRshbgjd0iQ00GQrcvbkKSOY0GIU4wABV17+0jJdOV8GPbKcbnR
-lAhWId/hz/8iHV5Dy3Yvs3TKyIRiXWqAf6kugm8Etl/2k6h9NJ/XnPqDMr/N5slU
-W7DTIZ5BkESoqZHFcy4U60TNVxXvqADNpZ1uSyJep7i3g6BcFMUuf86OCwHvB3xh
-7fF2vaZ2IIJPt4EBTLTbS8cEZ7htn/Di8L1+63VuhrXWtZ+JbV4=
-=PXR+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBdssACgkQFA3kzBSg
+KbaLmw/+JVgx/lMoPt9MOnWiAy+4Yhw5IKR9PLqpaiSjAB1l9VP1+B6FRsvTMJpc
+zN1aUC++f9jCvS7O6DCYVDMcrk4w+nywvpe3hAVpOoJkY8N2EjhUOFL3MGPC++58
+myT2bf2hLesyt67b3IP0gG1dfzL4iXok5fStHC4i0SxmneuiolTQwW5MJa8Zu17m
+0tVp4espvuv+eAPR6b3uMI3ctEu+Rz8fyZiqhRWQYkUY0qNKISh3soNse3pGUedn
+R5+3+VrGNr2I4AUZ9xWU9GK7fU9fzVmtCDnDUhX7oIjx9ULDRSqnyD4dVQWJwT8J
+9CEJzGAGuYJH5RPrikuTbT19t5ksG12YHvKpL3cIyh68AxM9ksIRI01vUYd6d2Ix
+ptLWhwPj2cdPhKTv5P5b328FIph4t+CiAg7pzP4sFvKZvPAQkt0wrIdLjahHe+Qz
+7jNAUFzTTTP5JFrXuei0JANkM77Jn1oOrPbJZd3lb8FnEpfGYbNYBTPC9bWIv32U
+iSLGeG1SdhZcPyvsMz9yOTCivuUTKzu6l91fz27jXUXlfU4VKyamsTQQNThelIDR
+0/mI1pmcvSRy7kNxvvOz5RiOtitnuno3HC8ESIUxJW8VFz2lggHrTukS2Ed88K4G
+DAioKi7WrxaHh6/iQFzJrQa+gTE8jlSKRfK9PThKlUBRXsULm2w=
+=PFZj
 -----END PGP SIGNATURE-----
 
---f3bu7gnjt2ijwpbq--
+--roax3oy4uiuvtcm5--
+
+
+--===============5327461751460324174==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5327461751460324174==--
