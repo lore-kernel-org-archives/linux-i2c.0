@@ -1,59 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: do not leave semaphore armed when copying
- properties fails
-Date: Thu, 9 Mar 2017 15:48:33 +0100
-Message-ID: <20170309144833.3mehuovi3wwqma2m@ninjato>
-References: <20170308184102.29334-1-dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] i2c: designware: Never suspend i2c-busses used
+ for accessing the system PMIC
+Date: Thu, 9 Mar 2017 15:39:30 +0100
+Message-ID: <20170309143930.qd6unynjgqd27jot@ninjato>
+References: <20170308084713.4815-1-hdegoede@redhat.com>
+ <20170308084713.4815-2-hdegoede@redhat.com>
+ <728a5859-c4fe-b22c-0dd2-94c48e131134@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="upgkq2vyraudbnrk"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="mx2zkraid42c5uv4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:46323 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754803AbdCIOtG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Mar 2017 09:49:06 -0500
 Content-Disposition: inline
-In-Reply-To: <20170308184102.29334-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <728a5859-c4fe-b22c-0dd2-94c48e131134@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 
 
---upgkq2vyraudbnrk
+--mx2zkraid42c5uv4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 08, 2017 at 10:41:01AM -0800, Dmitry Torokhov wrote:
-> We should not leave i2c_register_board_info() early, without unlocking the
-> __i2c_board_lock.
+
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> >  drivers/i2c/busses/i2c-designware-baytrail.c |  2 +-
+> >  drivers/i2c/busses/i2c-designware-core.c     | 11 +++++++++--
+> >  drivers/i2c/busses/i2c-designware-core.h     |  4 ++--
+> >  drivers/i2c/busses/i2c-designware-platdrv.c  | 10 ++++------
+> >  4 files changed, 16 insertions(+), 11 deletions(-)
+> >=20
 >=20
-> Fixes: b0c1e95ab44f ("i2c: copy device properties when using ...")
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-So, it seems that patches 1+2 are related. Because I'd like to have
-patch 2 sitting in for-next for a whole cycle for sure, my plan is to
-revert the faulty b0c1e95ab44f from for-current and apply the fixed
-version (b0c1e95ab44f + this patch squashed) to for-next as well.
-
-Is that okay with you?
+Acked-by ?
 
 
---upgkq2vyraudbnrk
+--mx2zkraid42c5uv4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBa0EACgkQFA3kzBSg
-KbZxMA/+OVVYsJiqmzOZHSMoOBoMQ9IZms3QTQaTMvKQWJ5WyjYOjn1o/74uU5qb
-aytlbxD/FI8nIqkfBrOaEPygnPvZYm8PvRys9uZx6S8zndr/MCLDNTokeAt+O27+
-JZVUVYq/+D4WBcBCW9r2sjQ6drk/NWYSwEgzUzuP9/4+BDyugVehvA6ogAdhLUPM
-UpqYpR4dPCzoXwebEvs9XHQPBG672jrLFBr/eFaHsp9BZmjqEqPOT0pCWclR/GAF
-iot9/Ga43q0MsUxP5ykFoAs0cC1tYs9/qBFieqEDJH5Vo/IKiBjsQwiAPbr1jMQE
-VtzwjQg3R6Q22J9cORtekRfi2/tYF6yRG6brMfgBNbpGp4nSJ/oRpZYLCG1mg8bw
-1PxLLr5IXW5GBbBNYQK+ATZUs7qUSoCxWXJGBSRs/IFhfjbbzwryYUvISvp/07/D
-IPEcKR6Rj1dZ1mx3t9Lh89N+rBvx/mtjppcFiw6+z6N0BMu29Q7iBUDAIf6HaFW8
-8i3NY/KdnXbnurXRtQ7bhgdnaz25mtn3O3QIapWjtployx06wsIZvgT8f2SbLUMd
-P7wSqKmQr5TquvEY/jc7ysY02yESptSwxJtngVrTlcVoPVarfx1mWwQ2Pha8yaPW
-6zfiWN15M6mWQvGaf8pdcSRpbxM03Kb6pLVhNyeidw5/TxWlXfM=
-=vRyB
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBaR4ACgkQFA3kzBSg
+KbZMFRAAjBJF6nve8Vp5vkipuS0GsFHOXdRLSTsdtZVlj61IluuWWhJM7cADjXUd
+TNGz5W2YjkPSApn1zqIycumsogB1sXQICBGft16QQKY8vVQV0DfXr8qoCBvjeNt3
+IT5G4Gizb6AR7ObKIgjLqSPrZ7LWx6ntYYn5M2oNmbtrP4z0MXfP+tq55c2jDcPE
+YbdnC2JRs9+WNZf8PHCZLnhFXlRNM2gk86r83T7X2dfQD61d54yNnCgS/3kbOAAN
+WPyqbhs80niKiS9mRf2ZfdObpItL6AFrlE87XxWwCAGSYVi4xfq/Ytq4F0V+RuHN
+NC1zcw+GH8CNPKKrBoC7BksvCXt8JhT8mRbMy06R4uzSJJ4EhpOsOVvrhhYwNMje
+k/xLZOfBgyfb6f9eelgmlQDbkz+pjGxnBFa8uAHGkMy7M8TdOQER1ZsHoOrXvlwh
+SQ9xxM6Y/HI23HOyB+YZae4NJvHXyVGXdY+rvy95VsgNHpIIjgPhA8q1fXtfuHJ9
+ER8UwFdRl8Uu0fk9N95uO7hcb7/Aadzi62VhIbXmumW1SbNMLe1WNyLJnc6p0uhm
+nEM6hJo4vb4q1c0yy1r8KzomVU++Bmo32Jl/ltHMsDaS5gHmH4GyAAlSBfQgQIW5
+znswZSSwjmLoLyYJIZMN1+xVKVbV2Je0VaCSrar74o0QrmPN58I=
+=/Ret
 -----END PGP SIGNATURE-----
 
---upgkq2vyraudbnrk--
+--mx2zkraid42c5uv4--
