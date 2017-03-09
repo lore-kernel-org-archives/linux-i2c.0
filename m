@@ -1,109 +1,157 @@
-From: Neil Armstrong <narmstrong@baylibre.com>
-Subject: Re: [PATCH v2 03/10] i2c: meson: use i2c core for DT clock-frequency
- parsing
-Date: Thu, 9 Mar 2017 09:26:43 +0100
-Message-ID: <03a32142-8787-b4e2-c895-02709cc5298f@baylibre.com>
-References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
- <1b175225-9cb1-6c7c-3175-dcba8189fefe@gmail.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH v2] i2c: exynos5: fix arbitration lost handling
+Date: Thu, 09 Mar 2017 12:03:03 +0100
+Message-ID: <20935f7d-a41c-2987-daea-50e4c3aa4ab6@samsung.com>
+References: <CGME20170222110438eucas1p2329ece7afd9e22ba185da64ccf4b2981@eucas1p2.samsung.com>
+ <1487761474-11547-1-git-send-email-a.hajda@samsung.com>
+ <2fb11816-85e7-14f6-7b61-5d3eba6096aa@osg.samsung.com>
+ <7f287a39-a8a4-1b9d-2d9a-36e849bd726b@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f177.google.com ([209.85.128.177]:33056 "EHLO
-        mail-wr0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752501AbdCIIeZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 03:34:25 -0500
-Received: by mail-wr0-f177.google.com with SMTP id u48so39867502wrc.0
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Mar 2017 00:34:24 -0800 (PST)
-In-Reply-To: <1b175225-9cb1-6c7c-3175-dcba8189fefe@gmail.com>
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:34040 "EHLO
+        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753029AbdCILDS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 06:03:18 -0500
+In-reply-to: <7f287a39-a8a4-1b9d-2d9a-36e849bd726b@samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
-Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Andi Shyti <andi.shyti@samsung.com>
 
-On 03/09/2017 07:39 AM, Heiner Kallweit wrote:
-> We don't have to parse the DT manually to retrieve the bus frequency
-> and we don't have to maintain an own default for the bus frequency.
-> Let the i2c core do this for us.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-> ---
-> v2:
-> - added Reviewed-by
-> ---
->  drivers/i2c/busses/i2c-meson.c | 13 +++++--------
->  1 file changed, 5 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-> index 50059d09..5e243efa 100644
-> --- a/drivers/i2c/busses/i2c-meson.c
-> +++ b/drivers/i2c/busses/i2c-meson.c
-> @@ -38,7 +38,6 @@
->  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
->  
->  #define I2C_TIMEOUT_MS		500
-> -#define DEFAULT_FREQ		100000
->  
->  enum {
->  	TOKEN_END = 0,
-> @@ -73,7 +72,7 @@ enum {
->   * @error:	Flag set when an error is received
->   * @lock:	To avoid race conditions between irq handler and xfer code
->   * @done:	Completion used to wait for transfer termination
-> - * @frequency:	Operating frequency of I2C bus clock
-> + * @timings:	Struct including the bus frequency
->   * @tokens:	Sequence of tokens to be written to the device
->   * @num_tokens:	Number of tokens
->   */
-> @@ -92,7 +91,7 @@ struct meson_i2c {
->  
->  	spinlock_t		lock;
->  	struct completion	done;
-> -	unsigned int		frequency;
-> +	struct i2c_timings	timings;
->  	u32			tokens[2];
->  	int			num_tokens;
->  };
-> @@ -136,12 +135,12 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
->  	unsigned long clk_rate = clk_get_rate(i2c->clk);
->  	unsigned int div;
->  
-> -	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
-> +	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
->  	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
->  			   div << REG_CTRL_CLKDIV_SHIFT);
->  
->  	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
-> -		clk_rate, i2c->frequency, div);
-> +		clk_rate, i2c->timings.bus_freq_hz, div);
->  }
->  
->  static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
-> @@ -396,9 +395,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
->  	if (!i2c)
->  		return -ENOMEM;
->  
-> -	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> -				 &i2c->frequency))
-> -		i2c->frequency = DEFAULT_FREQ;
-> +	i2c_parse_fw_timings(&pdev->dev, &i2c->timings, true);
->  
->  	i2c->dev = &pdev->dev;
->  	platform_set_drvdata(pdev, i2c);
-> 
+Hi again,
 
-Hi Heiner,
+On 09.03.2017 08:51, Andrzej Hajda wrote:
+> On 08.03.2017 21:05, Javier Martinez Canillas wrote:
+>> Hello Andrzej,
+>>
+>> On 02/22/2017 08:04 AM, Andrzej Hajda wrote:
+>>> In case of arbitration lost adequate interrupt sometimes is not signaled.
+>>> As a result transfer timeouts and is not retried, as it should. To avoid
+>>> such cases code is added to check transaction status in case of every
+>>> interrupt.
+>>>
+>>> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+>>> ---
+>> This patch causes regressions on Exynos5 boards (at least I noticed it in
+>> Exynos5800 Peach Pi board). I see transmission timeouts when accessing I2C
+>> device registers, i.e:
+>>
+>> $ cat /sys/class/rtc/rtc0/time
+>> [   25.924594] exynos5-hsi2c 12e10000.i2c: rx timeout
+>> [   65.028365] max77686-rtc max77802-rtc: Fail to read time reg(-22)
+>> cat: /sys/class/rtc/rtc0/time: Invalid argument
+> Hmm, at 12e10000 Exynos5 has hsi2c_9, and on this bus I have found only
+> infineon,slb9645tt TPM module. At least on mainline kernel.
+> What kernel do you use? Any additional changes to kernel?
+> Do you observe it on mainline kernel?
+>
+> Regarding the issue, how often it happens?
+> Please verify that this is not just coincidence.
+>
+>> Doing a partial revert of $SUBJECT (reading I2C_TRANS_STATUS register when
+>> it was before) "fixes" the problem [0].
+> That look crazy, the only difference for non-Exynos7 variant (which is
+> in Exynos5 boards) is that with your change HSI2C_TRANS_STATUS is read
+> only when HSI2C_INT_I2C happens, am I right?
+> Anyway I have realized that in case of Exynos5 the device HSI2C driver
+> works with is named "Universal Serial Interface" and has slightly
+> different set of registers than HSI2C device present in Exynos52[56]0,
+> but I do not know if it matters.
+>
+> If [0] really fixes the issue I think you can create real patch and send
+> for testing, but it looks very suspicious.
 
-Please update the bindings in Documentation/devicetree/bindings/i2c/i2c-meson.txt
-for these new optional attributes by adding :
+Datasheet for Exynos5260 states clearly that TRANSFER_DONE_AUTO bit is
+cleared automatically after reading TRANS_STATUS register, so reading
+this register has side effect and in case of Exynos5 should be done only
+in 'if (int_status & HSI2C_INT_I2C)' clause. In case of Exynos7 (ie
+Exynos5433 :) ) reading TRANS_STATUS should not have side effects.
+Do you want to prepare fix patch from [0]?
 
----><-----
-Please also refer to i2c.txt in this directory for common i2c
-controller binding usage.
----><-----
+Regards
+Andrzej
 
-With this additional patch :
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-
-Neil
+>
+> Regards
+> Andrzej
+>
+>> I've read the Exynos5800 and Exynos5433 SoC manuals and couldn't figure out
+>> what's causing it. I first thought that the solution was to make I2C core
+>> to retry when the TRANSFER_DONE_AUTO field isn't set [1] but that only makes
+>> the issue less frequent, it still fails. I also tried to increment the retry
+>> count [2] but it also didn't help.
+>>
+>> Any ideas about what could be happening here?
+>>
+>> [0]:
+>> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+>> index cbd93ce0661f..736a82472101 100644
+>> --- a/drivers/i2c/busses/i2c-exynos5.c
+>> +++ b/drivers/i2c/busses/i2c-exynos5.c
+>> @@ -457,7 +457,6 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+>>  
+>>  	int_status = readl(i2c->regs + HSI2C_INT_STATUS);
+>>  	writel(int_status, i2c->regs + HSI2C_INT_STATUS);
+>> -	trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+>>  
+>>  	/* handle interrupt related to the transfer status */
+>>  	if (i2c->variant->hw == HSI2C_EXYNOS7) {
+>> @@ -482,11 +481,13 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+>>  			goto stop;
+>>  		}
+>>  
+>> +		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+>>  		if ((trans_status & HSI2C_MASTER_ST_MASK) == HSI2C_MASTER_ST_LOSE) {
+>>  			i2c->state = -EAGAIN;
+>>  			goto stop;
+>>  		}
+>>  	} else if (int_status & HSI2C_INT_I2C) {
+>> +		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+>>  		if (trans_status & HSI2C_NO_DEV_ACK) {
+>>  			dev_dbg(i2c->dev, "No ACK from device\n");
+>>  			i2c->state = -ENXIO;
+>>
+>> [1]:
+>> >From 3c60d3a0356563b33b739d309a4f64c003d83053 Mon Sep 17 00:00:00 2001
+>> From: Javier Martinez Canillas <javier@osg.samsung.com>
+>> Date: Mon, 6 Mar 2017 19:35:44 -0300
+>> Subject: [PATCH] i2c: exynos5: Make transaction to retry if isn't successfully completed
+>>
+>> After commit 7999eecb7e56 ("i2c: exynos5: fix arbitration lost handling"),
+>> some I2C transactions are failing because the TRANSFER_DONE_AUTO field is
+>> not set in the I2C_TRANS_STATUS register so the i2c->status value is left
+>> to -EINVAL causing the i2c->msg_complete completion to never be signaled.
+>>
+>> For example, when reading the time of an I2C rtc on an Exynos5800 machine:
+>>
+>> $ cat /sys/class/rtc/rtc0/time
+>> [   25.924594] exynos5-hsi2c 12e10000.i2c: rx timeout
+>> [   65.028365] max77686-rtc max77802-rtc: Fail to read time reg(-22)
+>> cat: /sys/class/rtc/rtc0/time: Invalid argument
+>>
+>> To avoid this, set i2c->state to -EAGAIN if TRANSFER_DONE_AUTO is not set to
+>> allow the I2C core to retry if the transaction wasn't successfully completed.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> ---
+>>  drivers/i2c/busses/i2c-exynos5.c | 4 ++++
+>>  1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+>> index cbd93ce0661f..d294fb61520c 100644
+>> --- a/drivers/i2c/busses/i2c-exynos5.c
+>> +++ b/drivers/i2c/busses/i2c-exynos5.c
+>> @@ -506,6 +506,10 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+>>  		} else if (trans_status & HSI2C_TRANS_DONE) {
+>>  			i2c->trans_done = 1;
+>>  			i2c->state = 0;
+>> +		} else {
+>> +			dev_dbg(i2c->dev, "Transaction was not completed\n");
+>> +			i2c->state = -EAGAIN;
+>> +			goto stop;
+>>  		}
+>>  	}
+>>  
+>
