@@ -1,58 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: riic: fix restart condition
-Date: Thu, 9 Mar 2017 15:40:04 +0100
-Message-ID: <20170309144004.oegbdczlluoywtxl@ninjato>
-References: <20170306202051.3158-1-chris.brandt@renesas.com>
+Subject: Re: [PATCH] i2c: meson: fix wrong variable usage in
+ meson_i2c_put_data
+Date: Thu, 9 Mar 2017 15:41:35 +0100
+Message-ID: <20170309144135.axiy6e4bvoffnyrn@ninjato>
+References: <7ecc4542-a6ca-f266-5c34-057b3f5a33bf@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bx723lxykcjcxmzi"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="mojrz7z4tjmxpjri"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([89.238.76.85]:46291 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754704AbdCIOmg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Mar 2017 09:42:36 -0500
 Content-Disposition: inline
-In-Reply-To: <20170306202051.3158-1-chris.brandt@renesas.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Chris Brandt <chris.brandt@renesas.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <7ecc4542-a6ca-f266-5c34-057b3f5a33bf@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Kevin Hilman <khilman@baylibre.com>, linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---bx723lxykcjcxmzi
+--mojrz7z4tjmxpjri
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 06, 2017 at 03:20:51PM -0500, Chris Brandt wrote:
-> While modifying the driver to use the STOP interrupt, the completion of t=
-he
-> intermediate transfers need to wake the driver back up in order to initia=
-te
-> the next transfer (restart condition). Otherwise you get never ending
-> interrupts and only the first transfer sent.
+On Tue, Mar 07, 2017 at 09:06:38PM +0100, Heiner Kallweit wrote:
+> Most likely a copy & paste error.
 >=20
-> Fixes: 71ccea095ea1 ("i2c: riic: correctly finish transfers")
-> Reported-by: Simon Horman <horms@verge.net.au>
-> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 Applied to for-current, thanks!
 
 
---bx723lxykcjcxmzi
+--mojrz7z4tjmxpjri
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBaUQACgkQFA3kzBSg
-KbZtsxAAjHGo35U+37pU2obNM7C8tqKOJ8x8HepOChGgP2xO26N+yNNVHEkbFeVm
-Ayogz4EY0QP5ZJOMuyGj8Ol4YZIDFaF7FKe63gMcgPldktq2+8BHXP/6kLqOdNVu
-9JAjZPc28CkArLDGCLxmtYP/9kq4TKNa+OO94+wFYDCKC6rZKodJvs0x/9xaOLGL
-qRdrP+Iz0glkQwifZJaxVeYXBtdwucw38BLnqFaIrIvC2S3lcbK9iocD9CCPgiKn
-8OHc9dPSmRZ9n4KOHYkAHW9ga69i3bMVkft1UDbmFJOP8ZdtkjO7KprPqmSirmip
-FVQw9/yvwnExguYPhLitnOXo7BNXKzJ5t2/0MOXTKcWtsWf1DRlK15DCOXarLHme
-02bcw/0JTeFqcqsaL4ISB19EZpiyOHDWlFTdAqHJMK7f2TuXQ8CGsFud4gVo/yFQ
-9x8vxKGcNE75zRgCCubTUCqoJf2FuOIYH3SNwczji6U080/mliwtKhWNagD+3kT7
-vBoo1U3Cktf/TLT3W3w7DrMh3zqKyxCQwzzNwj+CfK7X/n0JHjMt00kXuXDSydm9
-bZb9UbR+vAoNp57ZEIGZ2neCOHh6GLzv/fQioSq3alI4RB+JT4/4sfsZSAeloi5W
-yyLLNnbVPaWrAa6+9GiZpT1sVYcnd6b9CaKv5L3Qd23gjHv2ooM=
-=S2IF
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljBaZ8ACgkQFA3kzBSg
+KbbOdBAAtBTJwh0dQv9ZGn8hYaMthHWXI0IAON1/qHZoP7rXHu+ozL63oFgLoPyl
+jo04yQEqXmGUZw0PCb8iLl0XeVtrUUnKdxFHcuUJS4n0Ps42ILZ/ZccLMTzo1LUI
+hXhe04D3kmEsMPCB02TDtJ1sDc57IJQOH7KJXVYXjhgRjyIwuRpFB/dUJR6NhhAA
+sQ5rVKdj7BZxu9SYn482PEQb2JZ3AesVezKNA8LtzewwHGU5aaiGpOJqvZHgPWlX
+dulOmmw6nuQ6hIbWOOO9fcj5LPtWvz5xLNn0YcONQKSarmoSFa5/IECrLma+DODV
+esE5D6T6OMl6nggSWGtdH9Sty0jnyyE6BNVaRgmGRuVjmWO63KyFEtYwF/2lgGXh
+plR+8eF4ohicr8b/JfQOVLgBmDbEvd0lWMihp5gGo9QNru72xd27VAz8EVZ1na7I
+nuPEzCyUaK+BsoTktop2rZpv3hYzwXCdDVs3ukfAx5gAdfDFRkRNjxv15AhxahnW
+epy8Umhu29MvCzyiyfCWfih+VX3Zuw6+guDVNlK/HpyuUXDQjSF+iV9ZEVn2nz6u
+Bi1B63lXZ9vmRlxTn8bg8U8zovwMPfkOU7Yr5sBlHPbXVMJqDWTNNRgz/iJLTOdO
+3DgyFzNwTZaBpBVQusLnKuJVZuVJ6Z+wR7eVIEaToVoCEKZAtFw=
+=nxwa
 -----END PGP SIGNATURE-----
 
---bx723lxykcjcxmzi--
+--mojrz7z4tjmxpjri--
