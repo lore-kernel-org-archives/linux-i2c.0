@@ -1,76 +1,85 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 02/10] i2c: meson: remove member irq from struct meson_i2c
-Date: Thu, 9 Mar 2017 07:37:44 +0100
-Message-ID: <2c5301d4-1e55-06e9-b4b6-d477c818353f@gmail.com>
+Subject: [PATCH v2 09/10] i2c: meson: remove meson_i2c_write_tokens
+Date: Thu, 9 Mar 2017 07:58:04 +0100
+Message-ID: <c7245d6b-892e-949f-c00f-3de32568fd5e@gmail.com>
 References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:33112 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751525AbdCIHKE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 02:10:04 -0500
-Received: by mail-wr0-f195.google.com with SMTP id g10so6745995wrg.0
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:10:03 -0800 (PST)
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35648 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751031AbdCIHKA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 02:10:00 -0500
+Received: by mail-wm0-f67.google.com with SMTP id z63so9406083wmg.2
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:09:28 -0800 (PST)
 In-Reply-To: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-Member irq can be replaced with a local variable in probe
-because it's nowhere else accessed.
+meson_i2c_write_tokens is always called directly after
+meson_i2c_prepare_xfer (and only then). So we can simplify the code by
+removing meson_i2c_write_tokens and moving the two statements of
+meson_i2c_write_tokens to the end of meson_i2c_prepare_xfer. 
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- added Reviewed-by
+- rebased
 ---
- drivers/i2c/busses/i2c-meson.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 40e5da9a..50059d09 100644
+index 3e6f5e50..8f4658de 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -82,7 +82,6 @@ struct meson_i2c {
- 	struct device		*dev;
- 	void __iomem		*regs;
- 	struct clk		*clk;
--	int			irq;
+@@ -123,12 +123,6 @@ static void meson_i2c_add_token(struct meson_i2c *i2c, int token)
+ 	i2c->num_tokens++;
+ }
  
- 	struct i2c_msg		*msg;
- 	int			state;
-@@ -391,7 +390,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 	struct device_node *np = pdev->dev.of_node;
- 	struct meson_i2c *i2c;
- 	struct resource *mem;
--	int ret = 0;
-+	int irq, ret = 0;
+-static void meson_i2c_write_tokens(struct meson_i2c *i2c)
+-{
+-	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
+-	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
+-}
+-
+ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
+ {
+ 	unsigned long clk_rate = clk_get_rate(i2c->clk);
+@@ -207,6 +201,9 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
  
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
- 	if (!i2c)
-@@ -418,14 +417,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(i2c->regs))
- 		return PTR_ERR(i2c->regs);
+ 	if (i2c->last && i2c->pos + i2c->count >= i2c->msg->len)
+ 		meson_i2c_add_token(i2c, TOKEN_STOP);
++
++	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
++	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
+ }
  
--	i2c->irq = platform_get_irq(pdev, 0);
--	if (i2c->irq < 0) {
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "can't find IRQ\n");
--		return i2c->irq;
-+		return irq;
+ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+@@ -272,12 +269,10 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
  	}
  
--	ret = devm_request_irq(&pdev->dev, i2c->irq, meson_i2c_irq,
--			       0, dev_name(&pdev->dev), i2c);
-+	ret = devm_request_irq(&pdev->dev, irq, meson_i2c_irq, 0,
-+			       dev_name(&pdev->dev), i2c);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "can't request IRQ\n");
- 		return ret;
+ out:
+-	if (i2c->state != STATE_IDLE) {
++	if (i2c->state != STATE_IDLE)
+ 		/* Restart the processing */
+-		meson_i2c_write_tokens(i2c);
+ 		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
+ 				   REG_CTRL_START);
+-	}
+ 
+ 	spin_unlock(&i2c->lock);
+ 
+@@ -318,7 +313,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
+ 
+ 	i2c->state = (msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
+ 	meson_i2c_prepare_xfer(i2c);
+-	meson_i2c_write_tokens(i2c);
+ 	reinit_completion(&i2c->done);
+ 
+ 	/* Start the transfer */
 -- 
 2.12.0
