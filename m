@@ -1,113 +1,120 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH 07/12] i2c: meson: improve interrupt handler and detect
- spurious interrupts
-Date: Thu, 9 Mar 2017 21:16:07 +0100
-Message-ID: <583d53b2-3a8e-572f-8ca2-efb8fc29593a@gmail.com>
-References: <d5f0545a-fb4c-b436-20f5-7df9d10605b1@gmail.com>
- <c772d1d8-eaae-43c2-c206-7c349c134db8@gmail.com>
- <1488966636.2514.16.camel@baylibre.com>
- <c45aaa91-e903-0d2d-70c4-0fd815c5fb69@gmail.com>
+Subject: Re: [PATCH v2 03/10] i2c: meson: use i2c core for DT clock-frequency
+ parsing
+Date: Thu, 9 Mar 2017 21:13:56 +0100
+Message-ID: <0fdb72c8-1689-aad7-ff53-66a73a954dce@gmail.com>
+References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
+ <1b175225-9cb1-6c7c-3175-dcba8189fefe@gmail.com>
+ <03a32142-8787-b4e2-c895-02709cc5298f@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33002 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750816AbdCIUQY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 15:16:24 -0500
-Received: by mail-wm0-f65.google.com with SMTP id n11so12691202wma.0
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Mar 2017 12:16:22 -0800 (PST)
-In-Reply-To: <c45aaa91-e903-0d2d-70c4-0fd815c5fb69@gmail.com>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:33869 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750991AbdCIUQ1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 15:16:27 -0500
+Received: by mail-wr0-f195.google.com with SMTP id u48so9283913wrc.1
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Mar 2017 12:16:26 -0800 (PST)
+In-Reply-To: <03a32142-8787-b4e2-c895-02709cc5298f@baylibre.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jerome Brunet <jbrunet@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Neil Armstrong <narmstrong@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Am 08.03.2017 um 22:02 schrieb Heiner Kallweit:
-> Am 08.03.2017 um 10:50 schrieb Jerome Brunet:
->> On Wed, 2017-03-08 at 07:47 +0100, Heiner Kallweit wrote:
->>> If state is STATE_IDLE no interrupt should occur. Detect this case and
->>> warn.
->>> In addition move resetting REG_CTRL_START bit to the start of the
->>> interrupt handler and remove a unneeded REG_CTRL_START bit reset
->>> in meson_i2c_xfer_msg.
->>>
->>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>> ---
->>>  drivers/i2c/busses/i2c-meson.c | 16 +++++++++-------
->>>  1 file changed, 9 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
->>> index 81304840..b3b881f9 100644
->>> --- a/drivers/i2c/busses/i2c-meson.c
->>> +++ b/drivers/i2c/busses/i2c-meson.c
->>> @@ -233,7 +233,15 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
->>>  	dev_dbg(i2c->dev, "irq: state %d, pos %d, count %d, ctrl %08x\n",
->>>  		i2c->state, i2c->pos, i2c->count, ctrl);
->>>  
->>> -	if (ctrl & REG_CTRL_ERROR && i2c->state != STATE_IDLE) {
->>> +	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->>> +
->>> +	if (i2c->state == STATE_IDLE) {
->>> +		dev_notice(i2c->dev, "spurious interrupt detected\n");
->>> +		spin_unlock(&i2c->lock);
->>> +		return IRQ_NONE;
->>> +	}
+Am 09.03.2017 um 09:26 schrieb Neil Armstrong:
+> On 03/09/2017 07:39 AM, Heiner Kallweit wrote:
+>> We don't have to parse the DT manually to retrieve the bus frequency
+>> and we don't have to maintain an own default for the bus frequency.
+>> Let the i2c core do this for us.
 >>
->> Does it really happen ? Did you see any specific issue you'd like to share ?
->> If not, I'm not a big fan of this change.
+>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+>> Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+>> ---
+>> v2:
+>> - added Reviewed-by
+>> ---
+>>  drivers/i2c/busses/i2c-meson.c | 13 +++++--------
+>>  1 file changed, 5 insertions(+), 8 deletions(-)
 >>
-> No,it did not happen. It's just that in few parts of the interrupt handler
-> we deal with this situation that should never happen.
-> And if it would happen on some system, we wouldn't know because it's
-> silently ignored.
+>> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+>> index 50059d09..5e243efa 100644
+>> --- a/drivers/i2c/busses/i2c-meson.c
+>> +++ b/drivers/i2c/busses/i2c-meson.c
+>> @@ -38,7 +38,6 @@
+>>  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
+>>  
+>>  #define I2C_TIMEOUT_MS		500
+>> -#define DEFAULT_FREQ		100000
+>>  
+>>  enum {
+>>  	TOKEN_END = 0,
+>> @@ -73,7 +72,7 @@ enum {
+>>   * @error:	Flag set when an error is received
+>>   * @lock:	To avoid race conditions between irq handler and xfer code
+>>   * @done:	Completion used to wait for transfer termination
+>> - * @frequency:	Operating frequency of I2C bus clock
+>> + * @timings:	Struct including the bus frequency
+>>   * @tokens:	Sequence of tokens to be written to the device
+>>   * @num_tokens:	Number of tokens
+>>   */
+>> @@ -92,7 +91,7 @@ struct meson_i2c {
+>>  
+>>  	spinlock_t		lock;
+>>  	struct completion	done;
+>> -	unsigned int		frequency;
+>> +	struct i2c_timings	timings;
+>>  	u32			tokens[2];
+>>  	int			num_tokens;
+>>  };
+>> @@ -136,12 +135,12 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
+>>  	unsigned long clk_rate = clk_get_rate(i2c->clk);
+>>  	unsigned int div;
+>>  
+>> -	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
+>> +	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
+>>  	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+>>  			   div << REG_CTRL_CLKDIV_SHIFT);
+>>  
+>>  	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+>> -		clk_rate, i2c->frequency, div);
+>> +		clk_rate, i2c->timings.bus_freq_hz, div);
+>>  }
+>>  
+>>  static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
+>> @@ -396,9 +395,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>>  	if (!i2c)
+>>  		return -ENOMEM;
+>>  
+>> -	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+>> -				 &i2c->frequency))
+>> -		i2c->frequency = DEFAULT_FREQ;
+>> +	i2c_parse_fw_timings(&pdev->dev, &i2c->timings, true);
+>>  
+>>  	i2c->dev = &pdev->dev;
+>>  	platform_set_drvdata(pdev, i2c);
+>>
 > 
-> I'm fine with dropping the error message. Still I would prefer to at least
-> return IRQ_NONE instead of IRQ_HANDLED in this potential error case.
+> Hi Heiner,
 > 
-> It's like other drivers checking in the interrupt handler whether any
-> interrupt source is enabled and returning IRQ_NONE if not.
+> Please update the bindings in Documentation/devicetree/bindings/i2c/i2c-meson.txt
+> for these new optional attributes by adding :
 > 
->> In any case, if it can be handled gracefully, I'd drop the trace in the
->> interrupt handler.
->>
->>
->>> +
->>> +	if (ctrl & REG_CTRL_ERROR) {
->>>  		/*
->>>  		 * The bit is set when the IGNORE_NAK bit is cleared
->>>  		 * and the device didn't respond. In this case, the
->>> @@ -276,15 +284,12 @@ static irqreturn_t meson_i2c_irq(int irqno, void
->>> *dev_id)
->>>  		i2c->state = STATE_IDLE;
->>>  		complete(&i2c->done);
->>>  		break;
->>> -	case STATE_IDLE:
->>> -		break;
->>>  	}
->>>  
->>>  out:
->>>  	if (i2c->state != STATE_IDLE) {
->>>  		/* Restart the processing */
->>>  		meson_i2c_write_tokens(i2c);
->>> -		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->>>  		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
->>>  				   REG_CTRL_START);
->>>  	}
->>> @@ -344,9 +349,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c,
->>> struct i2c_msg *msg,
->>>  	 */
->>>  	spin_lock_irqsave(&i2c->lock, flags);
->>>  
->>> -	/* Abort any active operation */
->>> -	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
->>> -
-Just recognized that we need to keep this statement to properly handle
-the timeout case. So I'll make this part of a v3 together with potential
-changes based on further review feedback.
+Hi Neil,
 
->>>  	if (!time_left) {
->>>  		i2c->state = STATE_IDLE;
->>>  		ret = -ETIMEDOUT;
->>
+not sure which new attributes you mean. i2c_parse_fw_timings parses additional
+attributes (apart from bus frequency), that right. But they are not used by
+the driver and therefore effectively aren't supported.
+
+Heiner
+
+> ---><-----
+> Please also refer to i2c.txt in this directory for common i2c
+> controller binding usage.
+> ---><-----
+> 
+> With this additional patch :
+> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+> 
+> Neil
 > 
