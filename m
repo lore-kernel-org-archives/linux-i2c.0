@@ -1,85 +1,70 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 09/10] i2c: meson: remove meson_i2c_write_tokens
-Date: Thu, 9 Mar 2017 07:58:04 +0100
-Message-ID: <c7245d6b-892e-949f-c00f-3de32568fd5e@gmail.com>
+Subject: [PATCH v2 04/10] i2c: meson: use full 12 bits for clock divider
+Date: Thu, 9 Mar 2017 07:40:46 +0100
+Message-ID: <a61a6f48-a157-81ec-7f1b-09cb27b22613@gmail.com>
 References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35648 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751031AbdCIHKA (ORCPT
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:33556 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750724AbdCIHKA (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 02:10:00 -0500
-Received: by mail-wm0-f67.google.com with SMTP id z63so9406083wmg.2
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:09:28 -0800 (PST)
+Received: by mail-wr0-f194.google.com with SMTP id g10so6742158wrg.0
+        for <linux-i2c@vger.kernel.org>; Wed, 08 Mar 2017 23:08:44 -0800 (PST)
 In-Reply-To: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-meson_i2c_write_tokens is always called directly after
-meson_i2c_prepare_xfer (and only then). So we can simplify the code by
-removing meson_i2c_write_tokens and moving the two statements of
-meson_i2c_write_tokens to the end of meson_i2c_prepare_xfer. 
+The clock divider has 12 bits, splitted into a 10 bit field and a
+2 bit field. The extra 2 bits aren't used currently.
+
+Change this to use the full 12 bits and warn if the requested
+frequency is too low.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- rebased
+- added Acked-by
 ---
- drivers/i2c/busses/i2c-meson.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 3e6f5e50..8f4658de 100644
+index 5e243efa..a5764be5 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -123,12 +123,6 @@ static void meson_i2c_add_token(struct meson_i2c *i2c, int token)
- 	i2c->num_tokens++;
- }
+@@ -35,7 +35,9 @@
+ #define REG_CTRL_STATUS		BIT(2)
+ #define REG_CTRL_ERROR		BIT(3)
+ #define REG_CTRL_CLKDIV_SHIFT	12
+-#define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
++#define REG_CTRL_CLKDIV_MASK	GENMASK(21, 12)
++#define REG_CTRL_CLKDIVEXT_SHIFT 28
++#define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
  
--static void meson_i2c_write_tokens(struct meson_i2c *i2c)
--{
--	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
--	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
--}
--
- static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
- {
- 	unsigned long clk_rate = clk_get_rate(i2c->clk);
-@@ -207,6 +201,9 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
+ #define I2C_TIMEOUT_MS		500
  
- 	if (i2c->last && i2c->pos + i2c->count >= i2c->msg->len)
- 		meson_i2c_add_token(i2c, TOKEN_STOP);
+@@ -136,8 +138,15 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
+ 	unsigned int div;
+ 
+ 	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
 +
-+	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
-+	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
- }
++	/* clock divider has 12 bits */
++	WARN_ON(div >= (1 << 12));
++
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+-			   div << REG_CTRL_CLKDIV_SHIFT);
++			   (div & GENMASK(9, 0)) << REG_CTRL_CLKDIV_SHIFT);
++
++	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
++			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
  
- static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
-@@ -272,12 +269,10 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
- 	}
- 
- out:
--	if (i2c->state != STATE_IDLE) {
-+	if (i2c->state != STATE_IDLE)
- 		/* Restart the processing */
--		meson_i2c_write_tokens(i2c);
- 		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
- 				   REG_CTRL_START);
--	}
- 
- 	spin_unlock(&i2c->lock);
- 
-@@ -318,7 +313,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
- 
- 	i2c->state = (msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
- 	meson_i2c_prepare_xfer(i2c);
--	meson_i2c_write_tokens(i2c);
- 	reinit_completion(&i2c->done);
- 
- 	/* Start the transfer */
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+ 		clk_rate, i2c->timings.bus_freq_hz, div);
 -- 
 2.12.0
