@@ -1,120 +1,60 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH v2 03/10] i2c: meson: use i2c core for DT clock-frequency
- parsing
-Date: Thu, 9 Mar 2017 21:13:56 +0100
-Message-ID: <0fdb72c8-1689-aad7-ff53-66a73a954dce@gmail.com>
-References: <f39c9314-4314-3d98-aef2-3bc3c815e63b@gmail.com>
- <1b175225-9cb1-6c7c-3175-dcba8189fefe@gmail.com>
- <03a32142-8787-b4e2-c895-02709cc5298f@baylibre.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: do not leave semaphore armed when copying
+ properties fails
+Date: Fri, 10 Mar 2017 00:16:53 +0100
+Message-ID: <20170309231653.GB4300@tetsubishi>
+References: <20170308184102.29334-1-dmitry.torokhov@gmail.com>
+ <20170309144833.3mehuovi3wwqma2m@ninjato>
+ <20170309173828.GA20077@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:33869 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750991AbdCIUQ1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Mar 2017 15:16:27 -0500
-Received: by mail-wr0-f195.google.com with SMTP id u48so9283913wrc.1
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Mar 2017 12:16:26 -0800 (PST)
-In-Reply-To: <03a32142-8787-b4e2-c895-02709cc5298f@baylibre.com>
+Received: from sauhun.de ([89.238.76.85]:46681 "EHLO pokefinder.org"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750781AbdCIXQ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 9 Mar 2017 18:16:57 -0500
+Content-Disposition: inline
+In-Reply-To: <20170309173828.GA20077@dtor-ws>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Neil Armstrong <narmstrong@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
-Cc: linux-amlogic@lists.infradead.org, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am 09.03.2017 um 09:26 schrieb Neil Armstrong:
-> On 03/09/2017 07:39 AM, Heiner Kallweit wrote:
->> We don't have to parse the DT manually to retrieve the bus frequency
->> and we don't have to maintain an own default for the bus frequency.
->> Let the i2c core do this for us.
->>
->> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->> Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
->> ---
->> v2:
->> - added Reviewed-by
->> ---
->>  drivers/i2c/busses/i2c-meson.c | 13 +++++--------
->>  1 file changed, 5 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
->> index 50059d09..5e243efa 100644
->> --- a/drivers/i2c/busses/i2c-meson.c
->> +++ b/drivers/i2c/busses/i2c-meson.c
->> @@ -38,7 +38,6 @@
->>  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
->>  
->>  #define I2C_TIMEOUT_MS		500
->> -#define DEFAULT_FREQ		100000
->>  
->>  enum {
->>  	TOKEN_END = 0,
->> @@ -73,7 +72,7 @@ enum {
->>   * @error:	Flag set when an error is received
->>   * @lock:	To avoid race conditions between irq handler and xfer code
->>   * @done:	Completion used to wait for transfer termination
->> - * @frequency:	Operating frequency of I2C bus clock
->> + * @timings:	Struct including the bus frequency
->>   * @tokens:	Sequence of tokens to be written to the device
->>   * @num_tokens:	Number of tokens
->>   */
->> @@ -92,7 +91,7 @@ struct meson_i2c {
->>  
->>  	spinlock_t		lock;
->>  	struct completion	done;
->> -	unsigned int		frequency;
->> +	struct i2c_timings	timings;
->>  	u32			tokens[2];
->>  	int			num_tokens;
->>  };
->> @@ -136,12 +135,12 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
->>  	unsigned long clk_rate = clk_get_rate(i2c->clk);
->>  	unsigned int div;
->>  
->> -	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
->> +	div = DIV_ROUND_UP(clk_rate, i2c->timings.bus_freq_hz * 4);
->>  	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
->>  			   div << REG_CTRL_CLKDIV_SHIFT);
->>  
->>  	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
->> -		clk_rate, i2c->frequency, div);
->> +		clk_rate, i2c->timings.bus_freq_hz, div);
->>  }
->>  
->>  static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
->> @@ -396,9 +395,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
->>  	if (!i2c)
->>  		return -ENOMEM;
->>  
->> -	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
->> -				 &i2c->frequency))
->> -		i2c->frequency = DEFAULT_FREQ;
->> +	i2c_parse_fw_timings(&pdev->dev, &i2c->timings, true);
->>  
->>  	i2c->dev = &pdev->dev;
->>  	platform_set_drvdata(pdev, i2c);
->>
-> 
-> Hi Heiner,
-> 
-> Please update the bindings in Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> for these new optional attributes by adding :
-> 
-Hi Neil,
 
-not sure which new attributes you mean. i2c_parse_fw_timings parses additional
-attributes (apart from bus frequency), that right. But they are not used by
-the driver and therefore effectively aren't supported.
+--z6Eq5LdranGa6ru8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Heiner
 
-> ---><-----
-> Please also refer to i2c.txt in this directory for common i2c
-> controller binding usage.
-> ---><-----
-> 
-> With this additional patch :
-> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-> 
-> Neil
-> 
+> I am perfectly fine with reverting b0c1e95ab44f from for-current,
+> however I wonder if we could have an immutable branch off 4.11-rc2 (or
+
+Yes, sure. Please prepare a branch and once I reviewed all patches
+touching i2c core, we can (from my side at least) declare it immutable
+and I will pull it into i2c. I'll try to review the resources patch this
+weekend.
+
+
+--z6Eq5LdranGa6ru8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYweJkAAoJEBQN5MwUoCm2DOUP/3liQgddwTg2jN/O9xILgXwc
+G0pHPtrnJuku5udSK0XJLlZcEW2YSo0HG0MpRIMKR30qqFZ4oe2xeQ+X96oV1IC+
+vEeb97ynKZ9opNPHgTx6S6S+PKKK0bkeq1zeIBKDiMpWN2hrg6PsnleCnogZOV+j
+ELeYXh6g5XXaAl+Ayq3TdZd9K5vbmlXF4+mHaRhqeR1FKk/+vSlMSJ4PHMcbIKIO
+K+RArs+ofEfxbE0B+b89ZPSHdtF2tBWeuIy9CjFoxQF6Wd+zRkrcmwhoBRCOVJvM
+nJc/DRwM5NQjm+iBT5+s2gYe+E9fUzWpf2JbSQcuZYNy3pgynb6PUO14o3iBOQqI
+eK+PkUDcXkEBRHIOnMFmp0lRp5GhRrji5gy9Xx2xvPfeAgAizssd0D+LCyI8s7B4
+KJ9f9sDlXd9aay996LI8H/sdPvTegFV+m620O5ltp9+biZNh/CGYxqV24/J3PHIt
+uu4yuiT9iifsdUmuzT06rDhj6A8k6Kr3lZmk6Jw38TPVL+/K+Oesn1c3zI9bbXHt
+JsXSwZ/Ld5WCrcaBdj69ZggCb37zLDADlubZFlnVkaYTPHzUVgX40KKcpR9X196m
+d6kJUctjdDbltl/IbA7a6Qm8cBEDt3ZL+whJt1KVNWI1CbN/KxPFySBD71kjQHsP
+i4Q7zMG0ggm3rl1C2sn6
+=TwDK
+-----END PGP SIGNATURE-----
+
+--z6Eq5LdranGa6ru8--
