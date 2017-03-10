@@ -1,76 +1,77 @@
-From: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
-Subject: [PATCH] i2c: i2c-scmi: add a MS HID
-Date: Fri, 10 Mar 2017 16:58:35 +0300
-Message-ID: <1489154315-26499-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PULL REQUEST] i2c for 4.11
+Date: Fri, 10 Mar 2017 10:12:44 -0800
+Message-ID: <CA+55aFwjUWLFBwyS9iNKA=43tX5Ki+Xu7L_tKMKEa7buVnscBA@mail.gmail.com>
+References: <20170310123308.4suuobaz2q372tod@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.dev.rtsoft.ru ([213.79.90.226]:44542 "EHLO
-        mail.dev.rtsoft.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933355AbdCJOVK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Mar 2017 09:21:10 -0500
+Received: from mail-it0-f68.google.com ([209.85.214.68]:33732 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933025AbdCJSMq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Mar 2017 13:12:46 -0500
+In-Reply-To: <20170310123308.4suuobaz2q372tod@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: jdelvare@suse.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, Viktor Krasnov <vkrasnov@dev.rtsoft.ru>, Edgar Cherkasov <echerkasov@dev.rtsoft.ru>, Michael Brunner <Michael.Brunner@kontron.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+On Fri, Mar 10, 2017 at 4:33 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+> here are some driver bugfixes from I2C. Unusual this time are the two
+> reverts. One because I accidently picked a patch from the list which I
+> should have pulled from my co-maintainer instead ("missing
+> of_node_put"). And one which I wrongly assumed to be an easy fix but it
+> turned out already that it needs more iterations ("copy device
+> properties").
 
-Description of the problem:
- - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
- - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
-   Interface Specification, version 1.0": "Each device must specify 
-   'SMBUS01' as its _HID and use a unique _UID value";
- - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
-   and implement "SMB0001" HID instead of "SMBUS01";
- - I speculate that they do this because only "SMB0001" is hard coded in
-   Windows SMBus driver produced by Microsoft.
+That first revert looks *entirely* pointless.
 
-This leads to following situation:
- - SMBus works out of box in Windows but not in Linux;
- - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
-   SMBus work in Linux. Moreover the same board vendors complain that
-   tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
-   and produce errors.  So they need to constantly patch the compiler for 
-   each new version of BIOS.
+You added an extra revert, only to pull in the *exact* same patch. WTF?
 
-As it is very unlikely that BIOS vendors implement a correct HID in
-future, I would propose to consider whether it is possible to work around
-the problem by adding MS HID to the Linux i2c-scmi driver.
+Even if you wanted to pull that just to sync with somebody elses tree,
+why do the revert? It would have merged fine. You can literally see in
+the patches that the files had the exact same content, because the
+"index" line ends up being the git ID of the blob.
 
-Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
-Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
-Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
----
- drivers/i2c/busses/i2c-scmi.c | 1 +
- include/acpi/acpi_drivers.h   | 2 ++
- 2 files changed, 3 insertions(+)
+So all I see is "completely and utterly unnecessary mess in the last 24 hours"
 
-diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
-index dfc98df..fb9aee0 100644
---- a/drivers/i2c/busses/i2c-scmi.c
-+++ b/drivers/i2c/busses/i2c-scmi.c
-@@ -51,6 +51,7 @@ struct acpi_smbus_cmi {
- static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
- 	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
- 	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
-+	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
- 	{"", 0}
- };
- MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
-diff --git a/include/acpi/acpi_drivers.h b/include/acpi/acpi_drivers.h
-index 29c6912..d34538b 100644
---- a/include/acpi/acpi_drivers.h
-+++ b/include/acpi/acpi_drivers.h
-@@ -60,6 +60,8 @@
- #define ACPI_DOCK_HID			"LNXDOCK"
- /* Quirk for broken IBM BIOSes */
- #define ACPI_SMBUS_IBM_HID		"SMBUSIBM"
-+/* SMBUS HID definition as supported by Microsoft Windows */
-+#define ACPI_SMBUS_MS_HID		"SMB0001"
- 
- /*
-  * For fixed hardware buttons, we fabricate acpi_devices with HID
--- 
-1.9.3
+Please stop this kind of stupidity. Now I have that unnecessary revert
+with a misleading commit log in my tree, in addition to that stupid
+merge that has no explanation and just reinstates the exact same thing
+you reverted.
+
+And talking about that merge I will repeat this one more time: merges
+are commits too. You had damn well add explanations for what a merge
+merges and why it is done.
+
+Because this doesn't explain anything:
+
+    Merge branch 'i2c-mux/for-current' of
+https://github.com/peda-r/i2c-mux into i2c/for-current
+
+So either look at my merge messages and try to emulate that "what does
+this merge do" model, or just don't do merges.
+
+If you cannot explain a reason for a merge or be bothered to try to
+write a commit message, you shouldn't be doing that merge. It really
+is that simple.
+
+Particularly don't do merges when they turn a single commit into
+*four* commit (original, revert, merge, and alternate) and have bad
+explanations for half of those.
+
+So what you could have done is:
+
+ - don't do the pull at all
+
+ - if you want to do the pull to sync up or something, don't do the
+revert, but instead make the merge message talk about *why* that merge
+was done.
+
+Since the *only* possible reason for that pull seems to have been to
+make some git history match up, it damn well matters what the git
+history is, and these commits should make sense. As it is, the history
+just looks messy with bogus explanations.
+
+                        Linus
