@@ -1,116 +1,37 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 2/2] i2c: designware: Disable pm for PMIC i2c-bus even
- if there is no _SEM method
-Date: Fri, 10 Mar 2017 08:49:21 +0100
-Message-ID: <2a30fc95-262b-78ff-7809-05ece192dd34@redhat.com>
-References: <20170308084713.4815-1-hdegoede@redhat.com>
- <20170308084713.4815-3-hdegoede@redhat.com>
- <8c2c5e0e-8678-e572-3f7a-3d62853e9b21@linux.intel.com>
- <66d1c6fb-9bd0-0594-8136-f9bc44567776@intel.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH v10 01/11] devres: trivial whitespace fix
+Date: Fri, 10 Mar 2017 12:09:55 +0100
+Message-ID: <1489144205-17427-2-git-send-email-peda@axentia.se>
+References: <1489144205-17427-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35620 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750931AbdCJHtl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Mar 2017 02:49:41 -0500
-In-Reply-To: <66d1c6fb-9bd0-0594-8136-f9bc44567776@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1489144205-17427-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 
-Hi,
+Everything else is indented with two spaces, so fix the odd one out.
 
-On 10-03-17 03:33, Lan Tianyu wrote:
-> On 2017年03月09日 23:00, Jarkko Nikula wrote:
->> + Tianyu
->>
->> On 03/08/17 10:47, Hans de Goede wrote:
->>> Cherrytrail devices use the dw i2c-bus with uid 7 to access their PMIC.
->>> Even if the i2c-bus to the PMIC is not shared with the SoC's P-Unit
->>> and i2c-designware-baytrail.c thus does not set the pm_disabled flag,
->>> we still need to disable pm so that ACPI PMIC opregions can access the
->>> PMIC during late-suspend and early-resume.
->>>
->>> This fixes errors like these blocking suspend:
->>>
->>>   i2c_designware 808622C1:06: timeout waiting for bus ready
->>>   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
->>>   acpi 80860F14:02: Failed to change power state to D3hot
->>>   PM: late suspend of devices failed
->>>
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> ---
->>>  drivers/i2c/busses/i2c-designware-platdrv.c | 15 +++++++++++++++
->>>  1 file changed, 15 insertions(+)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> index 8ed96dd..08d609e 100644
->>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> @@ -94,7 +94,10 @@ static void dw_i2c_acpi_params(struct
->>> platform_device *pdev, char method[],
->>>  static int dw_i2c_acpi_configure(struct platform_device *pdev)
->>>  {
->>>      struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
->>> +    acpi_handle handle = ACPI_HANDLE(&pdev->dev);
->>>      const struct acpi_device_id *id;
->>> +    struct acpi_device *adev;
->>> +    const char *uid;
->>>
->>>      dev->adapter.nr = -1;
->>>      dev->tx_fifo_depth = 32;
->>> @@ -114,6 +117,18 @@ static int dw_i2c_acpi_configure(struct
->>> platform_device *pdev)
->>>      if (id && id->driver_data)
->>>          dev->flags |= (u32)id->driver_data;
->>>
->>> +    if (acpi_bus_get_device(handle, &adev))
->>> +        return -ENODEV;
->>> +
->>> +    /*
->>> +     * Cherrytrail I2C7 gets used for the PMIC which gets accessed
->>> +     * through ACPI opregions during late suspend / early resume
->>> +     * disable pm for it.
->>> +     */
->>> +    uid = adev->pnp.unique_id;
->>> +    if ((dev->flags & MODEL_CHERRYTRAIL) && !strcmp(uid, "7"))
->>> +        dev->pm_disabled = true;
->>> +
->>
->> I'm fine with this but wondering can this be detected any other way than
->> hardcoded bus number.
->>
->> Tianyu: You are the author of 5d98e61d337c ("I2C/ACPI: Add i2c ACPI
->> operation region support"). Do you know is there way to see is there a
->> PMIC connected to the bus?
->>
->> Jarkko Nikula <jarkko.nikula@linux.intel.com>
- >
-> Hi Jarkko:
->       PMIC device node in ACPI table should have _DEP() method to return
-> devices PMIC depends on.
+Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+---
+ Documentation/driver-model/devres.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hmm, interesting point, but I'm afraid by the time the PMIC driver loads
-(and can make say an i2c_adapter_set_syscore call) it is already too late,
-as we need to request the irq in the i2c-adapter driver with certain
-flags and the i2c-adapter needs to be initialized before we can
-load the pmic driver.
-
-I really think just doing this for bus number 7 is the best solution
-on all cherrytrail devices I've seen the PMIC is always at bus number 7.
-
- > I think the general way to resolve the issue
-> during suspend/resume is to make sure that I2C7 is suspended/resumed
-> later/earlier than PMIC device.
-
-That would also require making sure that the PMIC suspends after any
-devices whose _PS0 / _PS3 methods may need access to PMIC optegions,
-we do not have infrastructure in Linux to do this.
-
-Regards,
-
-Hans
+diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
+index bf34d5b3a733..efb8200819d6 100644
+--- a/Documentation/driver-model/devres.txt
++++ b/Documentation/driver-model/devres.txt
+@@ -335,7 +335,7 @@ MEM
+   devm_kzalloc()
+ 
+ MFD
+- devm_mfd_add_devices()
++  devm_mfd_add_devices()
+ 
+ PER-CPU MEM
+   devm_alloc_percpu()
+-- 
+2.1.4
