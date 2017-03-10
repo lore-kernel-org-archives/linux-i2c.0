@@ -1,115 +1,64 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/3] i2c: core: Add new i2c_acpi_new_device helper function
-Date: Fri, 10 Mar 2017 22:16:06 +0100
-Message-ID: <20170310211607.16998-2-hdegoede@redhat.com>
-References: <20170310211607.16998-1-hdegoede@redhat.com>
+Subject: [PATCH 1/3] i2c: core: Allow getting acpi info by index
+Date: Fri, 10 Mar 2017 22:16:05 +0100
+Message-ID: <20170310211607.16998-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34804 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35390 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754391AbdCJVQO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Mar 2017 16:16:14 -0500
-In-Reply-To: <20170310211607.16998-1-hdegoede@redhat.com>
+        id S1754391AbdCJVQN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Mar 2017 16:16:13 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-resource of an acpi_device, but some acpi_devices have multiple
-I2cSerialBus resources and the driver may need access to the others.
-
-This commit adds a new i2c_acpi_new_device function which can be used by
-drivers to create an i2c-client for any (other) I2cSerialBus resource of
-an acpi_device.
-
-Note that the other resources may even be on a different i2c bus, so just
-retrieving the client address is not enough.
+Modify struct i2c_acpi_lookup and i2c_acpi_fill_info() to allow
+using them to get the info from a certain index in the acpi-resource
+list rather then taking the first I2cSerialBus resource.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  5 +++++
- 2 files changed, 53 insertions(+)
+ drivers/i2c/i2c-core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 32b58fb..8ddd55b 100644
+index d2402bb..32b58fb 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -421,6 +421,54 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- static struct notifier_block i2c_acpi_notifier = {
- 	.notifier_call = i2c_acpi_notify,
+@@ -112,6 +112,8 @@ struct i2c_acpi_lookup {
+ 	acpi_handle adapter_handle;
+ 	acpi_handle device_handle;
+ 	acpi_handle search_handle;
++	int n;
++	int index;
+ 	u32 speed;
+ 	u32 min_speed;
  };
-+
-+/**
-+ * i2c_acpi_new_device - Create i2c client for the Nth acpi resource of dev
-+ * @dev:     Device owning the acpi resources to get the client from
-+ * @index:   Index of acpi resource to get 
-+ *
-+ * By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-+ * resource of an acpi_device, but some acpi_devices have multiple
-+ * I2cSerialBus resources and the driver may need access to the others.
-+ * This function can be used by drivers to create an i2c-client for any
-+ * resource of an acpi_device.
-+ *
-+ * Returns a pointer to the new i2c-client, or NULL if the resource or
-+ * adapter were not found.
-+ */
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index)
-+{
-+	struct i2c_acpi_lookup lookup;
-+	struct i2c_board_info info;
-+	struct i2c_adapter *adapter;
-+	struct acpi_device *adev;
-+	LIST_HEAD(resource_list);
-+	int ret;
-+
-+	adev = ACPI_COMPANION(dev);
-+	if (!adev)
-+		return NULL;
-+
-+	memset(&info, 0, sizeof(info));
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.info = &info;
-+	lookup.device_handle = acpi_device_handle(adev);
-+	lookup.index = index;
-+
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_fill_info, &lookup);
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	if (ret < 0 || !info.addr)
-+		return NULL;
-+
-+	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
-+	if (!adapter)
-+		return NULL;
-+
-+	return i2c_new_device(adapter, &info);
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
- extern struct notifier_block i2c_acpi_notifier;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6b18352..369ebfa 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -824,11 +824,16 @@ static inline const struct of_device_id
+@@ -123,6 +125,9 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+ 	struct acpi_resource_i2c_serialbus *sb;
+ 	acpi_status status;
  
- #if IS_ENABLED(CONFIG_ACPI)
- u32 i2c_acpi_find_bus_speed(struct device *dev);
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index);
- #else
- static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
- {
- 	return 0;
- }
-+static inline struct i2c_client *i2c_acpi_new_device(struct device *d, int i)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_ACPI */
++	if (lookup->index != -1 && lookup->n++ != lookup->index)
++		return 1;
++
+ 	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
+ 		return 1;
  
- #endif /* _LINUX_I2C_H */
+@@ -182,6 +187,7 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 
+ 	memset(&lookup, 0, sizeof(lookup));
+ 	lookup.info = info;
++	lookup.index = -1;
+ 
+ 	ret = i2c_acpi_do_lookup(adev, &lookup);
+ 	if (ret)
+@@ -328,6 +334,7 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ 	lookup.search_handle = ACPI_HANDLE(dev);
+ 	lookup.min_speed = UINT_MAX;
+ 	lookup.info = &dummy;
++	lookup.index = -1;
+ 
+ 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+ 				     I2C_ACPI_MAX_SCAN_DEPTH,
 -- 
 2.9.3
