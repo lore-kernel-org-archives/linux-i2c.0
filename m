@@ -1,79 +1,64 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 3/3] i2c: core: Allow drivers to specify index for irq to get from of / acpi
-Date: Sat, 11 Mar 2017 00:57:03 +0100
-Message-ID: <20170310235703.29984-3-hdegoede@redhat.com>
-References: <20170310235703.29984-1-hdegoede@redhat.com>
+Subject: [PATCH v2 1/3] i2c: core: Allow getting acpi info by index
+Date: Sat, 11 Mar 2017 00:57:01 +0100
+Message-ID: <20170310235703.29984-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37948 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50578 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755108AbdCJX5K (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Mar 2017 18:57:10 -0500
-In-Reply-To: <20170310235703.29984-1-hdegoede@redhat.com>
+        id S1755108AbdCJX5I (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Mar 2017 18:57:08 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Some of or acpi declared / enumerated devices may have multiple irq
-resources declared and the driver may want to use a different irq then
-the one with index 0.
-
-This commit adds a new irq_index field to struct i2c_driver and makes
-the i2c-core pass this to of_irq_get / acpi_dev_gpio_irq_get.
-
-This is esp. useful for acpi declared devices where the irq with
-index 0 may be entirely useless and cause i2c_device_probe to fail with
--EPROBE_DEFER.
+Modify struct i2c_acpi_lookup and i2c_acpi_fill_info() to allow
+using them to get the info from a certain index in the acpi-resource
+list rather then taking the first I2cSerialBus resource.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v2:
--Actually also use the irq_index for of interrupts
----
- drivers/i2c/i2c-core.c | 8 ++++++--
- include/linux/i2c.h    | 3 +++
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 8ddd55b..f016278 100644
+index d2402bb..32b58fb 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -984,6 +984,8 @@ static int i2c_device_probe(struct device *dev)
- 	if (!client)
- 		return 0;
- 
-+	driver = to_i2c_driver(dev->driver);
-+
- 	if (!client->irq) {
- 		int irq = -ENOENT;
- 
-@@ -993,9 +995,11 @@ static int i2c_device_probe(struct device *dev)
- 		} else if (dev->of_node) {
- 			irq = of_irq_get_byname(dev->of_node, "irq");
- 			if (irq == -EINVAL || irq == -ENODATA)
--				irq = of_irq_get(dev->of_node, 0);
-+				irq = of_irq_get(dev->of_node,
-+						 driver->irq_index);
- 		} else if (ACPI_COMPANION(dev)) {
--			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-+			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev),
-+						    driver->irq_index);
- 		}
- 		if (irq == -EPROBE_DEFER)
- 			return irq;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 369ebfa..a5ffe29 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -212,6 +212,9 @@ struct i2c_driver {
- 	int (*detect)(struct i2c_client *, struct i2c_board_info *);
- 	const unsigned short *address_list;
- 	struct list_head clients;
-+
-+	/* IRQ index for retreiving irq from ACPI resources */
-+	int irq_index;
+@@ -112,6 +112,8 @@ struct i2c_acpi_lookup {
+ 	acpi_handle adapter_handle;
+ 	acpi_handle device_handle;
+ 	acpi_handle search_handle;
++	int n;
++	int index;
+ 	u32 speed;
+ 	u32 min_speed;
  };
- #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
+@@ -123,6 +125,9 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+ 	struct acpi_resource_i2c_serialbus *sb;
+ 	acpi_status status;
  
++	if (lookup->index != -1 && lookup->n++ != lookup->index)
++		return 1;
++
+ 	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
+ 		return 1;
+ 
+@@ -182,6 +187,7 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 
+ 	memset(&lookup, 0, sizeof(lookup));
+ 	lookup.info = info;
++	lookup.index = -1;
+ 
+ 	ret = i2c_acpi_do_lookup(adev, &lookup);
+ 	if (ret)
+@@ -328,6 +334,7 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ 	lookup.search_handle = ACPI_HANDLE(dev);
+ 	lookup.min_speed = UINT_MAX;
+ 	lookup.info = &dummy;
++	lookup.index = -1;
+ 
+ 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+ 				     I2C_ACPI_MAX_SCAN_DEPTH,
 -- 
 2.9.3
