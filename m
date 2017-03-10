@@ -1,156 +1,129 @@
-From: "Lan, Tianyu" <tianyu.lan@intel.com>
-Subject: Re: [PATCH v2 2/2] i2c: designware: Disable pm for PMIC i2c-bus even
- if there is no _SEM method
-Date: Fri, 10 Mar 2017 19:34:21 +0800
-Message-ID: <93818dd8-01a9-bc37-fc1f-933bd7a69ed4@intel.com>
-References: <20170308084713.4815-1-hdegoede@redhat.com>
- <20170308084713.4815-3-hdegoede@redhat.com>
- <8c2c5e0e-8678-e572-3f7a-3d62853e9b21@linux.intel.com>
- <66d1c6fb-9bd0-0594-8136-f9bc44567776@intel.com>
- <2a30fc95-262b-78ff-7809-05ece192dd34@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.11
+Date: Fri, 10 Mar 2017 13:33:12 +0100
+Message-ID: <20170310123308.4suuobaz2q372tod@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:32739 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933439AbdCJLe0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Mar 2017 06:34:26 -0500
-In-Reply-To: <2a30fc95-262b-78ff-7809-05ece192dd34@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="geviu64vcerpb5fi"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
-
-On 3/10/2017 3:49 PM, Hans de Goede wrote:
-> Hi,
->
-> On 10-03-17 03:33, Lan Tianyu wrote:
->> On 2017年03月09日 23:00, Jarkko Nikula wrote:
->>> + Tianyu
->>>
->>> On 03/08/17 10:47, Hans de Goede wrote:
->>>> Cherrytrail devices use the dw i2c-bus with uid 7 to access their PMIC.
->>>> Even if the i2c-bus to the PMIC is not shared with the SoC's P-Unit
->>>> and i2c-designware-baytrail.c thus does not set the pm_disabled flag,
->>>> we still need to disable pm so that ACPI PMIC opregions can access the
->>>> PMIC during late-suspend and early-resume.
->>>>
->>>> This fixes errors like these blocking suspend:
->>>>
->>>>   i2c_designware 808622C1:06: timeout waiting for bus ready
->>>>   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
->>>>   acpi 80860F14:02: Failed to change power state to D3hot
->>>>   PM: late suspend of devices failed
->>>>
->>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>>> ---
->>>>  drivers/i2c/busses/i2c-designware-platdrv.c | 15 +++++++++++++++
->>>>  1 file changed, 15 insertions(+)
->>>>
->>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> index 8ed96dd..08d609e 100644
->>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>> @@ -94,7 +94,10 @@ static void dw_i2c_acpi_params(struct
->>>> platform_device *pdev, char method[],
->>>>  static int dw_i2c_acpi_configure(struct platform_device *pdev)
->>>>  {
->>>>      struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
->>>> +    acpi_handle handle = ACPI_HANDLE(&pdev->dev);
->>>>      const struct acpi_device_id *id;
->>>> +    struct acpi_device *adev;
->>>> +    const char *uid;
->>>>
->>>>      dev->adapter.nr = -1;
->>>>      dev->tx_fifo_depth = 32;
->>>> @@ -114,6 +117,18 @@ static int dw_i2c_acpi_configure(struct
->>>> platform_device *pdev)
->>>>      if (id && id->driver_data)
->>>>          dev->flags |= (u32)id->driver_data;
->>>>
->>>> +    if (acpi_bus_get_device(handle, &adev))
->>>> +        return -ENODEV;
->>>> +
->>>> +    /*
->>>> +     * Cherrytrail I2C7 gets used for the PMIC which gets accessed
->>>> +     * through ACPI opregions during late suspend / early resume
->>>> +     * disable pm for it.
->>>> +     */
->>>> +    uid = adev->pnp.unique_id;
->>>> +    if ((dev->flags & MODEL_CHERRYTRAIL) && !strcmp(uid, "7"))
->>>> +        dev->pm_disabled = true;
->>>> +
->>>
->>> I'm fine with this but wondering can this be detected any other way than
->>> hardcoded bus number.
->>>
->>> Tianyu: You are the author of 5d98e61d337c ("I2C/ACPI: Add i2c ACPI
->>> operation region support"). Do you know is there way to see is there a
->>> PMIC connected to the bus?
->>>
->>> Jarkko Nikula <jarkko.nikula@linux.intel.com>
->>
->> Hi Jarkko:
->>       PMIC device node in ACPI table should have _DEP() method to return
->> devices PMIC depends on.
->
-> Hmm, interesting point, but I'm afraid by the time the PMIC driver loads
-> (and can make say an i2c_adapter_set_syscore call) it is already too late,
-> as we need to request the irq in the i2c-adapter driver with certain
-> flags and the i2c-adapter needs to be initialized before we can
-> load the pmic driver.
-
-Yes, dep_unmet field in the struct acpi_device is designed for this 
-case. dep_unmet will be zero after all dependent operation region 
-handlers are registered. Please have a look acpi_battery_add() and it 
-checks dep_unmet. If dep_unmet isn't equal to zero, it returns 
--EPROBE_DEFER. Device core will try reprobing the device after a device 
-driver module is loaded. PMIC driver also should check dep_unmet in probe().
 
 
-             Device (PMIC)
-             {
-                 Name (_ADR, Zero)  // _ADR: Address
-                 Name (_HID, "INT33FD")  // _HID: Hardware ID
-                 Name (_CID, "INT33FD")  // _CID: Compatible ID
-                 Name (_DDN, "PMIC GPIO Controller")  // _DDN: DOS 
-Device Name
-                 Name (_HRV, 0x02)  // _HRV: Hardware Revision
-                 Name (_UID, One)  // _UID: Unique ID
-                 Name (_DEP, Package (0x01)  // _DEP: Dependencies
-                 {
-                     I2C7
-                 })
+--geviu64vcerpb5fi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-...
+Linus,
 
->
-> I really think just doing this for bus number 7 is the best solution
-> on all cherrytrail devices I've seen the PMIC is always at bus number 7.
+here are some driver bugfixes from I2C. Unusual this time are the two
+reverts. One because I accidently picked a patch from the list which I
+should have pulled from my co-maintainer instead ("missing
+of_node_put"). And one which I wrongly assumed to be an easy fix but it
+turned out already that it needs more iterations ("copy device
+properties").
 
-This seems a hack way since PMIC also may have different I2C address. 
-This highly depends on vendor design.
+Please pull.
 
->
->> I think the general way to resolve the issue
->> during suspend/resume is to make sure that I2C7 is suspended/resumed
->> later/earlier than PMIC device.
->
-> That would also require making sure that the PMIC suspends after any
-> devices whose _PS0 / _PS3 methods may need access to PMIC optegions,
-> we do not have infrastructure in Linux to do this.
+Thanks,
 
-Actually, suspend/resume sequence affects by the device probing
-sequence. Please have a look at deferred_probe_work_func() and
-device_pm_move_last() which changes the device position in the dpm_list
-during reprobing device.
+   Wolfram
 
 
+The following changes since commit c1ae3cfa0e89fa1a7ecc4c99031f5e9ae99d9201:
 
->
-> Regards,
->
-> Hans
->
+  Linux 4.11-rc1 (2017-03-05 12:59:56 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 806dbb20efde821910b5f747befed794077a9109:
+
+  Revert "i2c: copy device properties when using i2c_register_board_info()" (2017-03-09 16:41:48 +0100)
+
+----------------------------------------------------------------
+Chris Brandt (1):
+      i2c: riic: fix restart condition
+
+Dmitry Torokhov (1):
+      i2c: copy device properties when using i2c_register_board_info()
+
+Heiner Kallweit (1):
+      i2c: meson: fix wrong variable usage in meson_i2c_put_data
+
+Jaedon Shin (1):
+      i2c: brcmstb: Fix START and STOP conditions
+
+Javier Martinez Canillas (1):
+      i2c: exynos5: Avoid transaction timeouts due TRANSFER_DONE_AUTO not set
+
+Qi Hou (2):
+      i2c: add missing of_node_put in i2c_mux_del_adapters
+      i2c: add missing of_node_put in i2c_mux_del_adapters
+
+Wolfram Sang (4):
+      i2c: m65xx: drop superfluous quirk structure
+      Revert "i2c: add missing of_node_put in i2c_mux_del_adapters"
+      Merge branch 'i2c-mux/for-current' of https://github.com/peda-r/i2c-mux into i2c/for-current
+      Revert "i2c: copy device properties when using i2c_register_board_info()"
+
+Zhangfei Gao (1):
+      i2c: designware: add reset interface
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andrzej Hajda (1):
+      (Rev.) i2c: exynos5: Avoid transaction timeouts due TRANSFER_DONE_AUTO not set
+
+Andy Shevchenko (1):
+      (Rev.) i2c: designware: add reset interface
+
+Jun Gao (1):
+      (Test) i2c: m65xx: drop superfluous quirk structure
+
+Ramiro Oliveira (1):
+      (Test) i2c: designware: add reset interface
+
+Simon Horman (1):
+      (Test) i2c: riic: fix restart condition
+
+Zhang Xiao (2):
+      (Rev.) i2c: add missing of_node_put in i2c_mux_del_adapters
+      (Rev.) i2c: add missing of_node_put in i2c_mux_del_adapters
+
+ drivers/i2c/busses/i2c-brcmstb.c            | 27 +++++++++++++++++++++------
+ drivers/i2c/busses/i2c-designware-core.h    |  1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c | 28 ++++++++++++++++++++++++----
+ drivers/i2c/busses/i2c-exynos5.c            |  3 ++-
+ drivers/i2c/busses/i2c-meson.c              |  2 +-
+ drivers/i2c/busses/i2c-mt65xx.c             |  9 ---------
+ drivers/i2c/busses/i2c-riic.c               |  6 +++++-
+ drivers/i2c/i2c-mux.c                       |  2 ++
+ 8 files changed, 56 insertions(+), 22 deletions(-)
+
+--geviu64vcerpb5fi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljCnP8ACgkQFA3kzBSg
+Kba2+w//az4LGe6LoD+NRN945gf3CNwjkGcVks0GlUpLftJlvk+fva9+rxut8lpV
+xbPm3lVsPxEbGbWv2RIXLuDAOfMHGab4LUIXjKq6yhx5XoFTzNsjDaHgqTL7uxub
+5qcpyvzf/C1OWEezwUY4kG9u2IXwWnVelgfnrmiXWIAe0pJN61AGy/hwC5ikDXRv
+bTcv36SrnVu2ti66qx6FVO4p/rjuqgC30KlAnvdImd3iCa55hCB7E83SEYPA6LZ4
++2IiyOuY5bobtnWXIMwqOKOEtSQ1bXotaNyx64/Ae2K9lCEDgiVr+EGxiqk0ZNez
+rqK01oSHg+PUWMaTNfFgI3U0zeiVbFC7eaRSjcnn3pIIxMQus+xAHT8174NAPn6U
+sxpwv6mSKIsWbobOM9+hK6TbMXSWc9jQw9IEM1rjYvFHGuKlRs5D4syHBL8wi7CV
+PfBdg7LiWqM8HV4u+2vKBTvdEPQ/Az2i9vKfFTOyyPz8tw74tg/RV6RnbK3w118l
+t8tSNdBYFKrEIo0kiVw/RT1aEZuLThKf7jTq+xVCkPOJkEbbLxrXFpUXmbJ5m+0D
+0gYFizBOqhXgqgvSCqhnpGE1/XN+V3y4NGtdBcScEJ/dacY9XpNQbcvYrmZ9UiwS
+tqhTbMT6ry6DWYKeHAYwPouai6iEpLA2mtVNFRp+LiqMdVO+774=
+=Zlk4
+-----END PGP SIGNATURE-----
+
+--geviu64vcerpb5fi--
