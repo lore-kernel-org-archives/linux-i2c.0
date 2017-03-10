@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v10 04/11] iio: inkern: api for manipulating ext_info of iio channels
-Date: Fri, 10 Mar 2017 12:09:58 +0100
-Message-ID: <1489144205-17427-5-git-send-email-peda@axentia.se>
+Subject: [PATCH v10 07/11] dt-bindings: i2c: i2c-mux: document general purpose i2c-mux bindings
+Date: Fri, 10 Mar 2017 12:10:01 +0100
+Message-ID: <1489144205-17427-8-git-send-email-peda@axentia.se>
 References: <1489144205-17427-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,129 +12,121 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Extend the inkern api with functions for reading and writing ext_info
-of iio channels.
+Describe how a general purpose multiplexer controller is used to mux an
+i2c bus.
 
 Acked-by: Jonathan Cameron <jic23@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
- 2 files changed, 97 insertions(+)
+ .../devicetree/bindings/i2c/i2c-mux-gpmux.txt      | 99 ++++++++++++++++++++++
+ 1 file changed, 99 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index 7a13535dc3e9..8292ad4435ea 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -869,3 +869,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(iio_write_channel_raw);
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
+new file mode 100644
+index 000000000000..2907dab56298
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
+@@ -0,0 +1,99 @@
++General Purpose I2C Bus Mux
 +
-+unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
-+	unsigned int i = 0;
++This binding describes an I2C bus multiplexer that uses a mux controller
++from the mux subsystem to route the I2C signals.
 +
-+	if (!chan->channel->ext_info)
-+		return i;
++                                  .-----.  .-----.
++                                  | dev |  | dev |
++    .------------.                '-----'  '-----'
++    | SoC        |                   |        |
++    |            |          .--------+--------'
++    |   .------. |  .------+    child bus A, on MUX value set to 0
++    |   | I2C  |-|--| Mux  |
++    |   '------' |  '--+---+    child bus B, on MUX value set to 1
++    |   .------. |     |    '----------+--------+--------.
++    |   | MUX- | |     |               |        |        |
++    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
++    |   '------' |                  | dev |  | dev |  | dev |
++    '------------'                  '-----'  '-----'  '-----'
 +
-+	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
-+		++i;
++Required properties:
++- compatible: i2c-mux
++- i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
++  port is connected to.
++- mux-controls: The phandle of the mux controller to use for operating the
++  mux.
++* Standard I2C mux properties. See i2c-mux.txt in this directory.
++* I2C child bus nodes. See i2c-mux.txt in this directory. The sub-bus number
++  is also the mux-controller state described in ../mux/mux-controller.txt
 +
-+	return i;
-+}
-+EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
++Optional properties:
++- mux-locked: If present, explicitly allow unrelated I2C transactions on the
++  parent I2C adapter at these times:
++   + during setup of the multiplexer
++   + between setup of the multiplexer and the child bus I2C transaction
++   + between the child bus I2C transaction and releasing of the multiplexer
++   + during releasing of the multiplexer
++  However, I2C transactions to devices behind all I2C multiplexers connected
++  to the same parent adapter that this multiplexer is connected to are blocked
++  for the full duration of the complete multiplexed I2C transaction (i.e.
++  including the times covered by the above list).
++  If mux-locked is not present, the multiplexer is assumed to be parent-locked.
++  This means that no unrelated I2C transactions are allowed on the parent I2C
++  adapter for the complete multiplexed I2C transaction.
++  The properties of mux-locked and parent-locked multiplexers are discussed
++  in more detail in Documentation/i2c/i2c-topology.
 +
-+static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
-+						const struct iio_channel *chan,
-+						const char *attr)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
++For each i2c child node, an I2C child bus will be created. They will
++be numbered based on their order in the device tree.
 +
-+	if (!chan->channel->ext_info)
-+		return NULL;
++Whenever an access is made to a device on a child bus, the value set
++in the relevant node's reg property will be set as the state in the
++mux controller.
 +
-+	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
-+		if (!strcmp(attr, ext_info->name))
-+			return ext_info;
-+	}
++Example:
++	mux: mux-controller {
++		compatible = "gpio-mux";
++		#mux-control-cells = <0>;
 +
-+	return NULL;
-+}
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++	};
 +
-+ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-+				  const char *attr, char *buf)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
++	i2c-mux {
++		compatible = "i2c-mux";
++		mux-locked;
++		i2c-parent = <&i2c1>;
 +
-+	ext_info = iio_lookup_ext_info(chan, attr);
-+	if (!ext_info)
-+		return -EINVAL;
++		mux-controls = <&mux>;
 +
-+	return ext_info->read(chan->indio_dev, ext_info->private,
-+			      chan->channel, buf);
-+}
-+EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
++		#address-cells = <1>;
++		#size-cells = <0>;
 +
-+ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-+				   const char *buf, size_t len)
-+{
-+	const struct iio_chan_spec_ext_info *ext_info;
++		i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+	ext_info = iio_lookup_ext_info(chan, attr);
-+	if (!ext_info)
-+		return -EINVAL;
++			ssd1307: oled@3c {
++				compatible = "solomon,ssd1307fb-i2c";
++				reg = <0x3c>;
++				pwms = <&pwm 4 3000>;
++				reset-gpios = <&gpio2 7 1>;
++				reset-active-low;
++			};
++		};
 +
-+	return ext_info->write(chan->indio_dev, ext_info->private,
-+			       chan->channel, buf, len);
-+}
-+EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
-diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
-index 47eeec3218b5..5e347a9805fd 100644
---- a/include/linux/iio/consumer.h
-+++ b/include/linux/iio/consumer.h
-@@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
- int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
- 	int *processed, unsigned int scale);
- 
-+/**
-+ * iio_get_channel_ext_info_count() - get number of ext_info attributes
-+ *				      connected to the channel.
-+ * @chan:		The channel being queried
-+ *
-+ * Returns the number of ext_info attributes
-+ */
-+unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+/**
-+ * iio_read_channel_ext_info() - read ext_info attribute from a given channel
-+ * @chan:		The channel being queried.
-+ * @attr:		The ext_info attribute to read.
-+ * @buf:		Where to store the attribute value. Assumed to hold
-+ *			at least PAGE_SIZE bytes.
-+ *
-+ * Returns the number of bytes written to buf (perhaps w/o zero termination;
-+ * it need not even be a string), or an error code.
-+ */
-+ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
-+				  const char *attr, char *buf);
-+
-+/**
-+ * iio_write_channel_ext_info() - write ext_info attribute from a given channel
-+ * @chan:		The channel being queried.
-+ * @attr:		The ext_info attribute to read.
-+ * @buf:		The new attribute value. Strings needs to be zero-
-+ *			terminated, but the terminator should not be included
-+ *			in the below len.
-+ * @len:		The size of the new attribute value.
-+ *
-+ * Returns the number of accepted bytes, which should be the same as len.
-+ * An error code can also be returned.
-+ */
-+ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
-+				   const char *buf, size_t len);
-+
- #endif
++			pca9555: pca9555@20 {
++				compatible = "nxp,pca9555";
++				gpio-controller;
++				#gpio-cells = <2>;
++				reg = <0x20>;
++			};
++		};
++	};
 -- 
 2.1.4
