@@ -1,115 +1,77 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/3] i2c: core: Add new i2c_acpi_new_device helper function
-Date: Sat, 11 Mar 2017 00:57:02 +0100
-Message-ID: <20170310235703.29984-2-hdegoede@redhat.com>
-References: <20170310235703.29984-1-hdegoede@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PULL REQUEST] i2c for 4.11
+Date: Sat, 11 Mar 2017 16:59:20 +0100
+Message-ID: <20170311155919.GA2553@tetsubishi>
+References: <20170310123308.4suuobaz2q372tod@ninjato>
+ <CA+55aFwjUWLFBwyS9iNKA=43tX5Ki+Xu7L_tKMKEa7buVnscBA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59458 "EHLO mx1.redhat.com"
+Received: from sauhun.de ([88.99.104.3]:46178 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755108AbdCJX5J (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 10 Mar 2017 18:57:09 -0500
-In-Reply-To: <20170310235703.29984-1-hdegoede@redhat.com>
+        id S1753890AbdCKQGP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 11 Mar 2017 11:06:15 -0500
+Content-Disposition: inline
+In-Reply-To: <CA+55aFwjUWLFBwyS9iNKA=43tX5Ki+Xu7L_tKMKEa7buVnscBA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-resource of an acpi_device, but some acpi_devices have multiple
-I2cSerialBus resources and the driver may need access to the others.
 
-This commit adds a new i2c_acpi_new_device function which can be used by
-drivers to create an i2c-client for any (other) I2cSerialBus resource of
-an acpi_device.
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Note that the other resources may even be on a different i2c bus, so just
-retrieving the client address is not enough.
+Linus,
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/i2c/i2c-core.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  5 +++++
- 2 files changed, 53 insertions(+)
+> You added an extra revert, only to pull in the *exact* same patch. WTF?
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 32b58fb..8ddd55b 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -421,6 +421,54 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- static struct notifier_block i2c_acpi_notifier = {
- 	.notifier_call = i2c_acpi_notify,
- };
-+
-+/**
-+ * i2c_acpi_new_device - Create i2c client for the Nth acpi resource of dev
-+ * @dev:     Device owning the acpi resources to get the client from
-+ * @index:   Index of acpi resource to get 
-+ *
-+ * By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-+ * resource of an acpi_device, but some acpi_devices have multiple
-+ * I2cSerialBus resources and the driver may need access to the others.
-+ * This function can be used by drivers to create an i2c-client for any
-+ * resource of an acpi_device.
-+ *
-+ * Returns a pointer to the new i2c-client, or NULL if the resource or
-+ * adapter were not found.
-+ */
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index)
-+{
-+	struct i2c_acpi_lookup lookup;
-+	struct i2c_board_info info;
-+	struct i2c_adapter *adapter;
-+	struct acpi_device *adev;
-+	LIST_HEAD(resource_list);
-+	int ret;
-+
-+	adev = ACPI_COMPANION(dev);
-+	if (!adev)
-+		return NULL;
-+
-+	memset(&info, 0, sizeof(info));
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.info = &info;
-+	lookup.device_handle = acpi_device_handle(adev);
-+	lookup.index = index;
-+
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_fill_info, &lookup);
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	if (ret < 0 || !info.addr)
-+		return NULL;
-+
-+	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
-+	if (!adapter)
-+		return NULL;
-+
-+	return i2c_new_device(adapter, &info);
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
- extern struct notifier_block i2c_acpi_notifier;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6b18352..369ebfa 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -824,11 +824,16 @@ static inline const struct of_device_id
- 
- #if IS_ENABLED(CONFIG_ACPI)
- u32 i2c_acpi_find_bus_speed(struct device *dev);
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index);
- #else
- static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
- {
- 	return 0;
- }
-+static inline struct i2c_client *i2c_acpi_new_device(struct device *d, int i)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_ACPI */
- 
- #endif /* _LINUX_I2C_H */
--- 
-2.9.3
+The patch I reverted had a broken, typoed Signed-off. My rationale was
+to have only a proper one, and not two different ones coming from
+different trees. Looks like I misjudged, sorry.
+
+> Please stop this kind of stupidity. Now I have that unnecessary revert
+> with a misleading commit log in my tree, in addition to that stupid
+> merge that has no explanation and just reinstates the exact same thing
+> you reverted.
+
+I see your point.
+
+> And talking about that merge I will repeat this one more time: merges
+> are commits too. You had damn well add explanations for what a merge
+> merges and why it is done.
+
+Understood. Peter joined as co-maintainer kind of recently, and I guess
+it shows that I didn't have to pass on merges a lot so far. It is not
+that I ignored your preferences for merges (which make total sense to
+me), I just missed to check how to properly do it. Will improve!
+
+Regards,
+
+   Wolfram
+
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJYxB7WAAoJEBQN5MwUoCm2/4AP/iHXJVTYxhQHPBlxQqNVffol
+ODVuyldPP7tPQJUUnNFS4xeX65+f0dBXbHF0uiivqGql6TrGosc2s/YZIM2bAu8J
+24lL8/Y0HmqqUJZOrT0ZRP8UgTtHwHhzYBvyt2ayTA/jtoZo9ObckobaGNYZ5lc1
+/Zxju6MnGrSkaCOWBGwXJFxm8El4+qsoBV0VVA/C1e8yL3i6gop8RBeX10eDlhmh
+0FUNSJrAse9v6USSRNH2vIADi+m6UPNEV0PvyhgmNaY0v2F6SJ+eBvziNCPglyeb
+uNNmKntEvgujeAsR/dct8KF42snMuZX5hDznS/SMCkxWee7VFMyq5huPhlPaGFA5
+w4XWIkINFAwx+QJE1+Jwq8oSfRKxL+86W4+dRVZmYGPinNizHdJFAur1wqSXiRwO
+Uw+0wfhZhroCYO9OoSsbvwQe58nJ1BT7NqCGal9qStJGJjCQ9fIl/VHIoLGAEh/e
+z2GMwD1GNg9aOgTH0n5ej5o1F4iUWSMsuoJFkZ0CbGJCctv/1kj/xtakS5uRzTko
+XU8mPQ9LB9lxbohKcHSjLjLsSvw3bzJPmonSWSTPFR/6tj3SwEpFrbA/3m9wVzj5
+ocJ6eCOuAyG81Uwh//Mw4Psr96fJqvIEdjMYJ+ODImrIIWNi8a0kH1CfBSNc+g5U
+2CawwAtAUh9O9V4jqV2f
+=x8Lv
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--
