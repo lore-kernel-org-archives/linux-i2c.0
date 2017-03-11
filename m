@@ -1,75 +1,78 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 01/10] i2c: meson: use min instead of min_t where min_t
- isn't needed
-Date: Sat, 11 Mar 2017 19:22:46 +0100
-Message-ID: <e569f23d-2245-f4b6-4494-2e06b066242c@gmail.com>
+Subject: [PATCH v3 02/10] i2c: meson: remove member irq from struct meson_i2c
+Date: Sat, 11 Mar 2017 19:22:52 +0100
+Message-ID: <a128c5cd-1d82-21f1-1e49-7a9225c271cb@gmail.com>
 References: <a0ebd65b-712d-2b15-dcc6-3b8a9a619770@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33036 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754943AbdCKSYn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 11 Mar 2017 13:24:43 -0500
-Received: by mail-wm0-f68.google.com with SMTP id n11so3787744wma.0
-        for <linux-i2c@vger.kernel.org>; Sat, 11 Mar 2017 10:24:42 -0800 (PST)
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:34097 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754943AbdCKSYp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 11 Mar 2017 13:24:45 -0500
+Received: by mail-wr0-f193.google.com with SMTP id u48so15309618wrc.1
+        for <linux-i2c@vger.kernel.org>; Sat, 11 Mar 2017 10:24:44 -0800 (PST)
 In-Reply-To: <a0ebd65b-712d-2b15-dcc6-3b8a9a619770@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-Use min instead of min_t where min_t isn't needed.
+Member irq can be replaced with a local variable in probe
+because it's nowhere else accessed.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- no changes
+- added Reviewed-by
 v3:
 - no changes
 ---
- drivers/i2c/busses/i2c-meson.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 73b97c71..40e5da9a 100644
+index 40e5da9a..50059d09 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -156,10 +156,10 @@ static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
- 	dev_dbg(i2c->dev, "%s: data %08x %08x len %d\n", __func__,
- 		rdata0, rdata1, len);
+@@ -82,7 +82,6 @@ struct meson_i2c {
+ 	struct device		*dev;
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+-	int			irq;
  
--	for (i = 0; i < min_t(int, 4, len); i++)
-+	for (i = 0; i < min(4, len); i++)
- 		*buf++ = (rdata0 >> i * 8) & 0xff;
+ 	struct i2c_msg		*msg;
+ 	int			state;
+@@ -391,7 +390,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct meson_i2c *i2c;
+ 	struct resource *mem;
+-	int ret = 0;
++	int irq, ret = 0;
  
--	for (i = 4; i < min_t(int, 8, len); i++)
-+	for (i = 4; i < min(8, len); i++)
- 		*buf++ = (rdata1 >> (i - 4) * 8) & 0xff;
- }
+ 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
+ 	if (!i2c)
+@@ -418,14 +417,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(i2c->regs))
+ 		return PTR_ERR(i2c->regs);
  
-@@ -168,10 +168,10 @@ static void meson_i2c_put_data(struct meson_i2c *i2c, char *buf, int len)
- 	u32 wdata0 = 0, wdata1 = 0;
- 	int i;
+-	i2c->irq = platform_get_irq(pdev, 0);
+-	if (i2c->irq < 0) {
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "can't find IRQ\n");
+-		return i2c->irq;
++		return irq;
+ 	}
  
--	for (i = 0; i < min_t(int, 4, len); i++)
-+	for (i = 0; i < min(4, len); i++)
- 		wdata0 |= *buf++ << (i * 8);
- 
--	for (i = 4; i < min_t(int, 8, len); i++)
-+	for (i = 4; i < min(8, len); i++)
- 		wdata1 |= *buf++ << ((i - 4) * 8);
- 
- 	writel(wdata0, i2c->regs + REG_TOK_WDATA0);
-@@ -186,7 +186,7 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
- 	bool write = !(i2c->msg->flags & I2C_M_RD);
- 	int i;
- 
--	i2c->count = min_t(int, i2c->msg->len - i2c->pos, 8);
-+	i2c->count = min(i2c->msg->len - i2c->pos, 8);
- 
- 	for (i = 0; i < i2c->count - 1; i++)
- 		meson_i2c_add_token(i2c, TOKEN_DATA);
+-	ret = devm_request_irq(&pdev->dev, i2c->irq, meson_i2c_irq,
+-			       0, dev_name(&pdev->dev), i2c);
++	ret = devm_request_irq(&pdev->dev, irq, meson_i2c_irq, 0,
++			       dev_name(&pdev->dev), i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can't request IRQ\n");
+ 		return ret;
 -- 
 2.12.0
