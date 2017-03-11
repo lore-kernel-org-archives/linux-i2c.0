@@ -1,77 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PULL REQUEST] i2c for 4.11
-Date: Sat, 11 Mar 2017 16:59:20 +0100
-Message-ID: <20170311155919.GA2553@tetsubishi>
-References: <20170310123308.4suuobaz2q372tod@ninjato>
- <CA+55aFwjUWLFBwyS9iNKA=43tX5Ki+Xu7L_tKMKEa7buVnscBA@mail.gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v3 00/10] i2c: meson: series with improvements
+Date: Sat, 11 Mar 2017 18:48:02 +0100
+Message-ID: <a0ebd65b-712d-2b15-dcc6-3b8a9a619770@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46178 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753890AbdCKQGP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 11 Mar 2017 11:06:15 -0500
-Content-Disposition: inline
-In-Reply-To: <CA+55aFwjUWLFBwyS9iNKA=43tX5Ki+Xu7L_tKMKEa7buVnscBA@mail.gmail.com>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:32845 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755386AbdCKRsU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 11 Mar 2017 12:48:20 -0500
+Received: by mail-wr0-f195.google.com with SMTP id g10so15199505wrg.0
+        for <linux-i2c@vger.kernel.org>; Sat, 11 Mar 2017 09:48:18 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
+This patch series includes several improvements for the i2c-meson
+driver.
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Changes in v2:
+- removed patches 8 and 12
+- removed one small change in patch 6
+- don't print error message in patch 7
 
-Linus,
+Changes in v3:
+- changed order of patches 3, 4, 5 what makes the patches more simple
+- remove one change from patch 7 to still properly deal with timeouts
 
-> You added an extra revert, only to pull in the *exact* same patch. WTF?
+Heiner Kallweit (12):
+  i2c: meson: use min instead of min_t where min_t isn't needed
+  i2c: meson: remove member irq from struct meson_i2c
+  i2c: meson: set clock divider in probe instead of setting it for each transfer
+  i2c: meson: use i2c core for DT clock-frequency parsing
+  i2c: meson: use full 12 bits for clock divider
+  i2c: meson: remove variable count from meson_i2c_xfer
+  i2c: meson: improve interrupt handler and detect spurious interrupts
+  i2c: meson: don't create separate token chain just for the stop command
+  i2c: meson: remove meson_i2c_write_tokens
+  i2c: meson: improve and simplify interrupt handler
 
-The patch I reverted had a broken, typoed Signed-off. My rationale was
-to have only a proper one, and not two different ones coming from
-different trees. Looks like I misjudged, sorry.
+ drivers/i2c/busses/i2c-meson.c | 132 ++++++++++++++++-------------------------
+ 1 file changed, 50 insertions(+), 82 deletions(-)
 
-> Please stop this kind of stupidity. Now I have that unnecessary revert
-> with a misleading commit log in my tree, in addition to that stupid
-> merge that has no explanation and just reinstates the exact same thing
-> you reverted.
-
-I see your point.
-
-> And talking about that merge I will repeat this one more time: merges
-> are commits too. You had damn well add explanations for what a merge
-> merges and why it is done.
-
-Understood. Peter joined as co-maintainer kind of recently, and I guess
-it shows that I didn't have to pass on merges a lot so far. It is not
-that I ignored your preferences for merges (which make total sense to
-me), I just missed to check how to properly do it. Will improve!
-
-Regards,
-
-   Wolfram
-
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYxB7WAAoJEBQN5MwUoCm2/4AP/iHXJVTYxhQHPBlxQqNVffol
-ODVuyldPP7tPQJUUnNFS4xeX65+f0dBXbHF0uiivqGql6TrGosc2s/YZIM2bAu8J
-24lL8/Y0HmqqUJZOrT0ZRP8UgTtHwHhzYBvyt2ayTA/jtoZo9ObckobaGNYZ5lc1
-/Zxju6MnGrSkaCOWBGwXJFxm8El4+qsoBV0VVA/C1e8yL3i6gop8RBeX10eDlhmh
-0FUNSJrAse9v6USSRNH2vIADi+m6UPNEV0PvyhgmNaY0v2F6SJ+eBvziNCPglyeb
-uNNmKntEvgujeAsR/dct8KF42snMuZX5hDznS/SMCkxWee7VFMyq5huPhlPaGFA5
-w4XWIkINFAwx+QJE1+Jwq8oSfRKxL+86W4+dRVZmYGPinNizHdJFAur1wqSXiRwO
-Uw+0wfhZhroCYO9OoSsbvwQe58nJ1BT7NqCGal9qStJGJjCQ9fIl/VHIoLGAEh/e
-z2GMwD1GNg9aOgTH0n5ej5o1F4iUWSMsuoJFkZ0CbGJCctv/1kj/xtakS5uRzTko
-XU8mPQ9LB9lxbohKcHSjLjLsSvw3bzJPmonSWSTPFR/6tj3SwEpFrbA/3m9wVzj5
-ocJ6eCOuAyG81Uwh//Mw4Psr96fJqvIEdjMYJ+ODImrIIWNi8a0kH1CfBSNc+g5U
-2CawwAtAUh9O9V4jqV2f
-=x8Lv
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--
+-- 
+2.12.0
