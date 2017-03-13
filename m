@@ -1,45 +1,42 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v3] i2c-tools: add new tool 'i2ctransfer'
-Date: Mon, 13 Mar 2017 14:51:49 +0100
-Message-ID: <20170313135149.whr6ga4d52oy4wis@pengutronix.de>
-References: <20170313114135.2327-1-wsa@the-dreams.de>
+From: MikeB <mabnhdev@gmail.com>
+Subject: Re: i2c-mux adapter names not unique
+Date: Mon, 13 Mar 2017 10:00:09 -0400
+Message-ID: <CAAuRgKAYgBjk=FhQfMsGdOB+-4ObUkYgWVb-Uu+0wgM+ORWOug@mail.gmail.com>
+References: <CAAuRgKAVRUKCYdZAH3Atn4d09OmubUZN2trNRQ4aEZkEey6WNg@mail.gmail.com>
+ <0cf3f298-87ab-0dfc-9453-cc46e31d4979@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170313114135.2327-1-wsa@the-dreams.de>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.de>, Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ua0-f193.google.com ([209.85.217.193]:35027 "EHLO
+        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751162AbdCMOAL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Mar 2017 10:00:11 -0400
+Received: by mail-ua0-f193.google.com with SMTP id u30so19782285uau.2
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Mar 2017 07:00:10 -0700 (PDT)
+In-Reply-To: <0cf3f298-87ab-0dfc-9453-cc46e31d4979@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+On Mon, Mar 13, 2017 at 9:34 AM, Peter Rosin <peda@axentia.se> wrote:
+>> Any suggestions on how to modify i2c-mux.c to make these names unique?
+>
+> Why do they have to be unique?
+>
+I am porting OpenSwitch (www.openswitch.net) to a new platform that
+has a topology as above.  OpenSwitch uses i2c adapter names to bind
+i2c adapter devices to internal i2c adapters.  It assumes that
+adapters are given unique names.
 
-On Mon, Mar 13, 2017 at 12:41:35PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> This tool allows to construct and concat multiple I2C messages into one
-> single transfer. Its aim is to test I2C master controllers, and so there
-> is no SMBus fallback.
-> 
-> I've been missing such a tool a number of times now, so I finally got
-> around to writing it myself. As with all I2C tools, it can be dangerous,
-> but it can also be very useful when developing.
-> 
-> It has been tested with various Renesas I2C IP cores as well as Tegra,
-> i.MX and AT91.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Cc: Jean Delvare <jdelvare@suse.de>
-> Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+The presumption based on current i2c-mux behavior was that i2c adapter
+names would be unique.  I knew this would cause problems for
+OpenSwitch sooner or later.  It's sooner for me.
 
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+I've patched my local kernel to add the mux address to the name -
+"i2c-<parent adapter id>-mux-<mux addr> (chan_id <id>)" which does
+result in unique names.  However, my patch only works on topologies
+that use only pca954x muxes.  I'd prefer a patch that could work for
+all topologies.
 
-Thanks
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Regards, Mike
