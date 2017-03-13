@@ -1,70 +1,79 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] Documentation: devicetree: move trivial-devices out of
- I2C realm
-Date: Mon, 13 Mar 2017 08:54:57 +0100
-Message-ID: <20170313075457.GA1431@katana>
-References: <20170306143859.11881-1-wsa@the-dreams.de>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PULL] topic/designware-baytrail for 4.12 [UPDATED]
+Date: Mon, 13 Mar 2017 09:25:26 +0100
+Message-ID: <20170313082526.nnc3q7fva6etgbxs@phenom.ffwll.local>
+References: <20170302155649.bngbuyoqk5nupcbd@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:50230 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750914AbdCMHzB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Mar 2017 03:55:01 -0400
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20170306143859.11881-1-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170302155649.bngbuyoqk5nupcbd@phenom.ffwll.local>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>
-Cc: linux-i2c@vger.kernel.org
 
-
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Mar 06, 2017 at 03:38:59PM +0100, Wolfram Sang wrote:
-> The I2C directory is for I2C master controllers, not for clients. So,
-> move the file describing trivial devices one layer upwards where it
-> fits its generic nature way better.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  Documentation/devicetree/bindings/{i2c =3D> }/trivial-devices.txt | 0
->  1 file changed, 0 insertions(+), 0 deletions(-)
->  rename Documentation/devicetree/bindings/{i2c =3D> }/trivial-devices.txt=
- (100%)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/=
-Documentation/devicetree/bindings/trivial-devices.txt
-> similarity index 100%
-> rename from Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> rename to Documentation/devicetree/bindings/trivial-devices.txt
-
-Rob, shall I take it or do you want?
-
-
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJYxlBRAAoJEBQN5MwUoCm2SeUQAJ2JuA8szz7YN948mpzwz/EX
-7fIs/WeKRR2x1iLKEr/k52ezA6jlK/B7R+vJpC8RwPqwqbaZcy7DHzoXCSrv8edK
-iimALnQGKWu0MicDxJlzCyWfESDf8oFrO/KZXvODhIysTRPzzqbaM7NOGkzgbJp3
-ANJQZ9yQt9gmt83kn3bIQRwwhDW9/Rk8C+z8EgXenYrIXS0/iHCLxQ6VHa+IgobO
-c/iP8Z2hps40toQTL+PcxH7VzLh46TrISEIWrTp3oQT+8TkL49y3Jc+IYXyKQBmh
-Eb6g1r7n3MjyXwgDlTvcVC2KaMw2q60m0jyD256bKk47Hf9RWv2xmaA1KqrbEEdr
-+VvizwvU4OF6L4sjcAWb5dqHQ8uIkOSKVu0VMEL5p8LjcGQDdS5++AgF8dwIBjBY
-IltTLR8z4pMapl7wH5ccHVPt1Yzg2iD08E3kOeUn1wQgLCC5JIwNEDZr7PMCJhZO
-J+eyITJC5SkgjpLl1Se+dwtN42pDXgg08n8up+/oy2oocTc/xR1jLrz0m4EbzgRO
-xSGZun0ceiEDpauYoqs9KXbp8qIp6Tre/P6D0waRtuiHNOULLfiqkZPdaNGds91/
-qXBk0SVL6DYgM/5GToaG/uPNeURwhUkymXmUdITs1jNxi6YkBdMGDGF/0vwSJKLR
-95SkphPSdmH1nSp1pyTF
-=nm/I
------END PGP SIGNATURE-----
-
---W/nzBZO5zC0uMSeA--
+T24gVGh1LCBNYXIgMDIsIDIwMTcgYXQgMDQ6NTY6NDlQTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
+cm90ZToKPiBIaSBEYXZlLAo+IAo+IHRvcGljL2Rlc2lnbndhcmUtYmF5dHJhaWwtMjAxNy0wMy0w
+MjoKPiBCYXl0cmFpbCBQTUlDIHZzLiBQTVUgcmFjZSBmaXhlcyBmcm9tIEhhbnMgZGUgR29lZGUK
+PiAKPiBUaGlzIHRpbWUgdGhlIHJpZ2h0IHZlcnNpb24gKHY0KSwgd2l0aCB0aGUgY29tcGlsZSBm
+aXguCj4gCj4gVXBkYXRlZCBwdWxsIHJlcXVlc3Qgd2l0aCBuZXcgdGFnLCBzYW1lIHN0b3J5IGFz
+IGJlZm9yZQo+IAo+IENoZWVycywgRGFuaWVsCj4gCj4gCj4gVGhlIGZvbGxvd2luZyBjaGFuZ2Vz
+IHNpbmNlIGNvbW1pdCA2NGE1NzcxOTZkNjZiNDRlMzczODRiYzVjNGQ3OGM2MWY1OWQ1YjJhOgo+
+IAo+ICAgbGliL0tjb25maWc6IG1ha2UgUFJJTUVfTlVNQkVSUyBub3QgdXNlciBzZWxlY3RhYmxl
+LiAoMjAxNy0wMi0yNCAxMjoxMToyMSArMTAwMCkKPiAKPiBhcmUgYXZhaWxhYmxlIGluIHRoZSBn
+aXQgcmVwb3NpdG9yeSBhdDoKPiAKPiAgIGdpdDovL2Fub25naXQuZnJlZWRlc2t0b3Aub3JnL2dp
+dC9kcm0taW50ZWwgdGFncy90b3BpYy9kZXNpZ253YXJlLWJheXRyYWlsLTIwMTctMDMtMDIKPiAK
+PiBmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gMjY0ZWMxYTgyMjFjNjBmOWNjZjEzZjU4
+YWM1OTdkYTIxMjM1MTMyZDoKPiAKPiAgIGRybS9pOTE1OiBMaXN0ZW4gZm9yIFBNSUMgYnVzIGFj
+Y2VzcyBub3RpZmljYXRpb25zICgyMDE3LTAzLTAyIDE1OjQ2OjM3ICswMTAwKQoKQXNzdW1pbmcg
+dGhhdCBubyBuZXdzID0gZ29vZCBuZXdzIEkndmUgcHVsbGVkIHRoaXMgaW50byBkcm0taW50ZWwt
+bmV4dC4KLURhbmllbAo+IAo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiBCYXl0cmFpbCBQTUlDIHZzLiBQTVUgcmFjZSBm
+aXhlcyBmcm9tIEhhbnMgZGUgR29lZGUKPiAKPiBUaGlzIHRpbWUgdGhlIHJpZ2h0IHZlcnNpb24g
+KHY0KSwgd2l0aCB0aGUgY29tcGlsZSBmaXguCj4gCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IEhhbnMgZGUgR29lZGUg
+KDEyKToKPiAgICAgICB4ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmk6IEFkZCBhIG11dGV4IGZv
+ciBQLVVuaXQgYWNjZXNzCj4gICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBBZGQg
+YSBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpZXIKPiAgICAgICBpMmM6IGRlc2lnbndhcmU6IFJlbmFt
+ZSBhY2Nlc3Nvcl9mbGFncyB0byBmbGFncwo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFp
+bDogUGFzcyBkd19pMmNfZGV2IGludG8gaGVscGVyIGZ1bmN0aW9ucwo+ICAgICAgIGkyYzogZGVz
+aWdud2FyZS1iYXl0cmFpbDogT25seSBjaGVjayBpb3NmX21iaV9hdmFpbGFibGUoKSBmb3Igc2hh
+cmVkIGhvc3RzCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBEaXNhbGxvdyB0aGUg
+Q1BVIHRvIGVudGVyIEM2IG9yIEM3IHdoaWxlIGhvbGRpbmcgdGhlIHB1bml0IHNlbWFwaG9yZQo+
+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogRml4IHJhY2Ugd2hlbiByZXNldHRpbmcg
+dGhlIHNlbWFwaG9yZQo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWRkIHN1cHBv
+cnQgZm9yIGNoZXJyeXRyYWlsCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBY3F1
+aXJlIFAtVW5pdCBhY2Nlc3Mgb24gYnVzIGFjcXVpcmUKPiAgICAgICBpMmM6IGRlc2lnbndhcmUt
+YmF5dHJhaWw6IENhbGwgcG1pY19idXNfYWNjZXNzX25vdGlmaWVyX2NoYWluCj4gICAgICAgZHJt
+L2k5MTU6IEFkZCBpbnRlbF91bmNvcmVfc3VzcGVuZCAvIHJlc3VtZSBmdW5jdGlvbnMKPiAgICAg
+ICBkcm0vaTkxNTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucwo+IAo+
+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5oICAgICAgICAgICAgICB8IDg3ICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9t
+YmkuYyAgICAgICAgICAgfCA0OSArKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvZ3B1L2RybS9p
+OTE1L0tjb25maWcgICAgICAgICAgICAgICAgIHwgIDEgKwo+ICBkcml2ZXJzL2dwdS9kcm0vaTkx
+NS9pOTE1X2Rydi5jICAgICAgICAgICAgICB8ICA2ICstCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
+L2k5MTVfZHJ2LmggICAgICAgICAgICAgIHwgIDcgKy0tCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
+L2ludGVsX3VuY29yZS5jICAgICAgICAgIHwgNTMgKysrKysrKysrKysrKysrLS0KPiAgZHJpdmVy
+cy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMgfCA4MyArKysrKysrKysrKysr
+KysrKystLS0tLS0tLQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5j
+ICAgICB8IDE0ICsrLS0tCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3Jl
+LmggICAgIHwgMTMgKysrKy0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBj
+aWRydi5jICAgfCAyNiArKysrKystLS0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253
+YXJlLXBsYXRkcnYuYyAgfCAgOCArKy0KPiAgMTEgZmlsZXMgY2hhbmdlZCwgMjkwIGluc2VydGlv
+bnMoKyksIDU3IGRlbGV0aW9ucygtKQo+IAo+IC0tIAo+IERhbmllbCBWZXR0ZXIKPiBTb2Z0d2Fy
+ZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24KPiBodHRwOi8vYmxvZy5mZndsbC5jaAoKLS0g
+CkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9uCmh0dHA6
+Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9w
+Lm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVs
+LWdmeAo=
