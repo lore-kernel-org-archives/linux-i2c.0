@@ -1,119 +1,63 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH v3 04/10] i2c: meson: use i2c core for DT clock-frequency
- parsing
-Date: Mon, 13 Mar 2017 20:03:21 +0100
-Message-ID: <05593a02-9b4d-b937-deea-eef1161a0a10@gmail.com>
-References: <a0ebd65b-712d-2b15-dcc6-3b8a9a619770@gmail.com>
- <27b52215-3cbe-b407-c439-216fdace3745@gmail.com>
- <cd619caf-66b6-5b06-844f-4c8962fe860a@baylibre.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: i2c-mux adapter names not unique
+Date: Mon, 13 Mar 2017 22:01:33 +0100
+Message-ID: <152b649c-76c0-9541-4159-43ad77b14469@axentia.se>
+References: <CAAuRgKAVRUKCYdZAH3Atn4d09OmubUZN2trNRQ4aEZkEey6WNg@mail.gmail.com>
+ <0cf3f298-87ab-0dfc-9453-cc46e31d4979@axentia.se>
+ <CAAuRgKAYgBjk=FhQfMsGdOB+-4ObUkYgWVb-Uu+0wgM+ORWOug@mail.gmail.com>
+ <26e08683-2bdb-4c8e-bd6e-b4887bc26dc3@axentia.se>
+ <CAAuRgKDJBoQ8v6a=nOpcVDYOeycgP+WayRhXG7YNzt0pjXphxA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:33708 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754404AbdCMTDb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Mar 2017 15:03:31 -0400
-Received: by mail-wr0-f194.google.com with SMTP id g10so21260986wrg.0
-        for <linux-i2c@vger.kernel.org>; Mon, 13 Mar 2017 12:03:30 -0700 (PDT)
-In-Reply-To: <cd619caf-66b6-5b06-844f-4c8962fe860a@baylibre.com>
+Received: from mail-eopbgr50114.outbound.protection.outlook.com ([40.107.5.114]:10469
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750902AbdCMVBl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Mar 2017 17:01:41 -0400
+In-Reply-To: <CAAuRgKDJBoQ8v6a=nOpcVDYOeycgP+WayRhXG7YNzt0pjXphxA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Neil Armstrong <narmstrong@baylibre.com>, linux-amlogic@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, Jerome Brunet <jbrunet@baylibre.com>
+To: MikeB <mabnhdev@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-Am 13.03.2017 um 10:01 schrieb Neil Armstrong:
-> On 03/11/2017 07:23 PM, Heiner Kallweit wrote:
->> We don't have to parse the DT manually to retrieve the bus frequency
->> and we don't have to maintain an own default for the bus frequency.
->> Let the i2c core do this for us.
+On 2017-03-13 16:05, MikeB wrote:
+> On Mon, Mar 13, 2017 at 10:48 AM, Peter Rosin <peda@axentia.se> wrote:
 >>
->> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->> Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
->> ---
->> v2:
->> - added Reviewed-by
->> v3:
->> - changed order of patches
->> ---
->>  drivers/i2c/busses/i2c-meson.c | 8 +++-----
->>  1 file changed, 3 insertions(+), 5 deletions(-)
+>> And why not fix the bad assumption in OpenSwitch instead and kill the
+>> generic problem for every kind of adapter? Limiting yourself to a
+>> band-aid for i2c-mux adapters seems short-sighted and not very helpful
+>> for the next victim of this OpenSwitch problem...
 >>
->> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
->> index e597764e..ac0ac82d 100644
->> --- a/drivers/i2c/busses/i2c-meson.c
->> +++ b/drivers/i2c/busses/i2c-meson.c
->> @@ -38,7 +38,6 @@
->>  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
->>  
->>  #define I2C_TIMEOUT_MS		500
->> -#define DEFAULT_FREQ		100000
->>  
->>  enum {
->>  	TOKEN_END = 0,
->> @@ -387,15 +386,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
->>  	struct device_node *np = pdev->dev.of_node;
->>  	struct meson_i2c *i2c;
->>  	struct resource *mem;
->> -	u32 freq;
->> +	struct i2c_timings timings;
->>  	int irq, ret = 0;
->>  
->>  	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
->>  	if (!i2c)
->>  		return -ENOMEM;
->>  
->> -	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
->> -		freq = DEFAULT_FREQ;
->> +	i2c_parse_fw_timings(&pdev->dev, &timings, true);
->>  
->>  	i2c->dev = &pdev->dev;
->>  	platform_set_drvdata(pdev, i2c);
->> @@ -453,7 +451,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
->>  		return ret;
->>  	}
->>  
->> -	meson_i2c_set_clk_div(i2c, freq);
->> +	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
->>  
->>  	return 0;
->>  }
->>
+>> Note that you do not need two muxing levels to get duplicate names like
+>> this, it's enough with two parallel multiplexers on the root adapter. Or,
+>> of course, two AT91 adapters (or similar, i.e. with a fixed name).
 > 
-> Hi Heiner,
+> If I thought that OpenSwitch's expectation of Linux to name unique
+> adapters uniquely, I would push for a change in OpenSwitch.
 > 
-> I'm sorry, but you should *really* update the dt-bindings.
+> I personally think Linux's naming convention is a short-sighted and
+> insufficient which is why I came to Linux first.
 > 
-> The dt bindings are now strictly related to how the driver is implemented, or which
-> attributes are used, but how the device tree node should conform to.
+> I don't want a short-sighted band-aid which is why I asked the
+> original question.
 > 
-> In this particular case, in the recent addition of "standard" i2c attributes for
-> speed and timings, you should refer to this "i2c.txt" file to specify how the node
-> should conform.
-> 
-> And finally, this patch would be correct since the node will be supposed to conform
-> to the correct bindings.
-> 
-I checked the DT documentation of all i2c drivers. Just two include something similar
-to what you request:
+> I'll try elsewhere for a solution...
 
-i2c-rcar.txt
-no remark for property clock-frequency
-i2c-scl-falling-time-ns: see i2c.txt
+That's probably best, since if we do change the adapter naming convention
+to something that is unique and stable across reboots (which presumably is
+what is sought, and BTW probably not a trivial problem) some other person
+is going to suffer a regression when OpenSwitch fails to associate with
+the intended adapter after a kernel update. I.e. the very fact that
+OpenSwitch is already using this interface makes it harder to change. And
+who knows, maybe there are other users that will suffer if naming is
+changed?
 
-nvidia,tegra186-bpmp-i2c.txt
-See ../i2c/i2c.txt for details of the core I2C binding.
+[Note that I know nothing about OpenSwitch, I'm just deducing the above
+from what you have stated previously]
 
-So you request a comment like the one in the tegra driver documentation?
+I'm sorry, but there's not always a simple and convenient answer...
 
-The supported properties as such don't change in the meson driver, only
-clock-freqeuncy is supported as optional parameter.
-The timing properties are parsed by the core call but they are not used by the
-driver, so I don't think we are allowed to mention them in the documentation.
-Else a reader of the documentation may expect that setting such a timing
-parameter actually changes the behavior of the driver.
-
-Heiner
-
-> Neil
-> 
+Cheers,
+peda
