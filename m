@@ -1,79 +1,95 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PULL] topic/designware-baytrail for 4.12 [UPDATED]
-Date: Mon, 13 Mar 2017 09:25:26 +0100
-Message-ID: <20170313082526.nnc3q7fva6etgbxs@phenom.ffwll.local>
-References: <20170302155649.bngbuyoqk5nupcbd@phenom.ffwll.local>
+From: Neil Armstrong <narmstrong@baylibre.com>
+Subject: Re: [PATCH v3 04/10] i2c: meson: use i2c core for DT clock-frequency
+ parsing
+Date: Mon, 13 Mar 2017 10:01:39 +0100
+Message-ID: <cd619caf-66b6-5b06-844f-4c8962fe860a@baylibre.com>
+References: <a0ebd65b-712d-2b15-dcc6-3b8a9a619770@gmail.com>
+ <27b52215-3cbe-b407-c439-216fdace3745@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20170302155649.bngbuyoqk5nupcbd@phenom.ffwll.local>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Hans de Goede <hdegoede@redhat.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f50.google.com ([74.125.82.50]:38776 "EHLO
+        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752916AbdCMJCD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 13 Mar 2017 05:02:03 -0400
+Received: by mail-wm0-f50.google.com with SMTP id t189so34436717wmt.1
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Mar 2017 02:01:56 -0700 (PDT)
+In-Reply-To: <27b52215-3cbe-b407-c439-216fdace3745@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-amlogic@lists.infradead.org, Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-i2c@vger.kernel.org, wsa@the-dreams.de, Jerome Brunet <jbrunet@baylibre.com>
 
-T24gVGh1LCBNYXIgMDIsIDIwMTcgYXQgMDQ6NTY6NDlQTSArMDEwMCwgRGFuaWVsIFZldHRlciB3
-cm90ZToKPiBIaSBEYXZlLAo+IAo+IHRvcGljL2Rlc2lnbndhcmUtYmF5dHJhaWwtMjAxNy0wMy0w
-MjoKPiBCYXl0cmFpbCBQTUlDIHZzLiBQTVUgcmFjZSBmaXhlcyBmcm9tIEhhbnMgZGUgR29lZGUK
-PiAKPiBUaGlzIHRpbWUgdGhlIHJpZ2h0IHZlcnNpb24gKHY0KSwgd2l0aCB0aGUgY29tcGlsZSBm
-aXguCj4gCj4gVXBkYXRlZCBwdWxsIHJlcXVlc3Qgd2l0aCBuZXcgdGFnLCBzYW1lIHN0b3J5IGFz
-IGJlZm9yZQo+IAo+IENoZWVycywgRGFuaWVsCj4gCj4gCj4gVGhlIGZvbGxvd2luZyBjaGFuZ2Vz
-IHNpbmNlIGNvbW1pdCA2NGE1NzcxOTZkNjZiNDRlMzczODRiYzVjNGQ3OGM2MWY1OWQ1YjJhOgo+
-IAo+ICAgbGliL0tjb25maWc6IG1ha2UgUFJJTUVfTlVNQkVSUyBub3QgdXNlciBzZWxlY3RhYmxl
-LiAoMjAxNy0wMi0yNCAxMjoxMToyMSArMTAwMCkKPiAKPiBhcmUgYXZhaWxhYmxlIGluIHRoZSBn
-aXQgcmVwb3NpdG9yeSBhdDoKPiAKPiAgIGdpdDovL2Fub25naXQuZnJlZWRlc2t0b3Aub3JnL2dp
-dC9kcm0taW50ZWwgdGFncy90b3BpYy9kZXNpZ253YXJlLWJheXRyYWlsLTIwMTctMDMtMDIKPiAK
-PiBmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gMjY0ZWMxYTgyMjFjNjBmOWNjZjEzZjU4
-YWM1OTdkYTIxMjM1MTMyZDoKPiAKPiAgIGRybS9pOTE1OiBMaXN0ZW4gZm9yIFBNSUMgYnVzIGFj
-Y2VzcyBub3RpZmljYXRpb25zICgyMDE3LTAzLTAyIDE1OjQ2OjM3ICswMTAwKQoKQXNzdW1pbmcg
-dGhhdCBubyBuZXdzID0gZ29vZCBuZXdzIEkndmUgcHVsbGVkIHRoaXMgaW50byBkcm0taW50ZWwt
-bmV4dC4KLURhbmllbAo+IAo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiBCYXl0cmFpbCBQTUlDIHZzLiBQTVUgcmFjZSBm
-aXhlcyBmcm9tIEhhbnMgZGUgR29lZGUKPiAKPiBUaGlzIHRpbWUgdGhlIHJpZ2h0IHZlcnNpb24g
-KHY0KSwgd2l0aCB0aGUgY29tcGlsZSBmaXguCj4gCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IEhhbnMgZGUgR29lZGUg
-KDEyKToKPiAgICAgICB4ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9tYmk6IEFkZCBhIG11dGV4IGZv
-ciBQLVVuaXQgYWNjZXNzCj4gICAgICAgeDg2L3BsYXRmb3JtL2ludGVsL2lvc2ZfbWJpOiBBZGQg
-YSBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpZXIKPiAgICAgICBpMmM6IGRlc2lnbndhcmU6IFJlbmFt
-ZSBhY2Nlc3Nvcl9mbGFncyB0byBmbGFncwo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFp
-bDogUGFzcyBkd19pMmNfZGV2IGludG8gaGVscGVyIGZ1bmN0aW9ucwo+ICAgICAgIGkyYzogZGVz
-aWdud2FyZS1iYXl0cmFpbDogT25seSBjaGVjayBpb3NmX21iaV9hdmFpbGFibGUoKSBmb3Igc2hh
-cmVkIGhvc3RzCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBEaXNhbGxvdyB0aGUg
-Q1BVIHRvIGVudGVyIEM2IG9yIEM3IHdoaWxlIGhvbGRpbmcgdGhlIHB1bml0IHNlbWFwaG9yZQo+
-ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogRml4IHJhY2Ugd2hlbiByZXNldHRpbmcg
-dGhlIHNlbWFwaG9yZQo+ICAgICAgIGkyYzogZGVzaWdud2FyZS1iYXl0cmFpbDogQWRkIHN1cHBv
-cnQgZm9yIGNoZXJyeXRyYWlsCj4gICAgICAgaTJjOiBkZXNpZ253YXJlLWJheXRyYWlsOiBBY3F1
-aXJlIFAtVW5pdCBhY2Nlc3Mgb24gYnVzIGFjcXVpcmUKPiAgICAgICBpMmM6IGRlc2lnbndhcmUt
-YmF5dHJhaWw6IENhbGwgcG1pY19idXNfYWNjZXNzX25vdGlmaWVyX2NoYWluCj4gICAgICAgZHJt
-L2k5MTU6IEFkZCBpbnRlbF91bmNvcmVfc3VzcGVuZCAvIHJlc3VtZSBmdW5jdGlvbnMKPiAgICAg
-ICBkcm0vaTkxNTogTGlzdGVuIGZvciBQTUlDIGJ1cyBhY2Nlc3Mgbm90aWZpY2F0aW9ucwo+IAo+
-ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9pb3NmX21iaS5oICAgICAgICAgICAgICB8IDg3ICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC94ODYvcGxhdGZvcm0vaW50ZWwvaW9zZl9t
-YmkuYyAgICAgICAgICAgfCA0OSArKysrKysrKysrKysrKysrCj4gIGRyaXZlcnMvZ3B1L2RybS9p
-OTE1L0tjb25maWcgICAgICAgICAgICAgICAgIHwgIDEgKwo+ICBkcml2ZXJzL2dwdS9kcm0vaTkx
-NS9pOTE1X2Rydi5jICAgICAgICAgICAgICB8ICA2ICstCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
-L2k5MTVfZHJ2LmggICAgICAgICAgICAgIHwgIDcgKy0tCj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1
-L2ludGVsX3VuY29yZS5jICAgICAgICAgIHwgNTMgKysrKysrKysrKysrKysrLS0KPiAgZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWJheXRyYWlsLmMgfCA4MyArKysrKysrKysrKysr
-KysrKystLS0tLS0tLQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5j
-ICAgICB8IDE0ICsrLS0tCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3Jl
-LmggICAgIHwgMTMgKysrKy0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBj
-aWRydi5jICAgfCAyNiArKysrKystLS0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253
-YXJlLXBsYXRkcnYuYyAgfCAgOCArKy0KPiAgMTEgZmlsZXMgY2hhbmdlZCwgMjkwIGluc2VydGlv
-bnMoKyksIDU3IGRlbGV0aW9ucygtKQo+IAo+IC0tIAo+IERhbmllbCBWZXR0ZXIKPiBTb2Z0d2Fy
-ZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24KPiBodHRwOi8vYmxvZy5mZndsbC5jaAoKLS0g
-CkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9uCmh0dHA6
-Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9w
-Lm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVs
-LWdmeAo=
+On 03/11/2017 07:23 PM, Heiner Kallweit wrote:
+> We don't have to parse the DT manually to retrieve the bus frequency
+> and we don't have to maintain an own default for the bus frequency.
+> Let the i2c core do this for us.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+> ---
+> v2:
+> - added Reviewed-by
+> v3:
+> - changed order of patches
+> ---
+>  drivers/i2c/busses/i2c-meson.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index e597764e..ac0ac82d 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -38,7 +38,6 @@
+>  #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
+>  
+>  #define I2C_TIMEOUT_MS		500
+> -#define DEFAULT_FREQ		100000
+>  
+>  enum {
+>  	TOKEN_END = 0,
+> @@ -387,15 +386,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  	struct device_node *np = pdev->dev.of_node;
+>  	struct meson_i2c *i2c;
+>  	struct resource *mem;
+> -	u32 freq;
+> +	struct i2c_timings timings;
+>  	int irq, ret = 0;
+>  
+>  	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
+>  	if (!i2c)
+>  		return -ENOMEM;
+>  
+> -	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
+> -		freq = DEFAULT_FREQ;
+> +	i2c_parse_fw_timings(&pdev->dev, &timings, true);
+>  
+>  	i2c->dev = &pdev->dev;
+>  	platform_set_drvdata(pdev, i2c);
+> @@ -453,7 +451,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
+>  
+> -	meson_i2c_set_clk_div(i2c, freq);
+> +	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
+>  
+>  	return 0;
+>  }
+> 
+
+Hi Heiner,
+
+I'm sorry, but you should *really* update the dt-bindings.
+
+The dt bindings are now strictly related to how the driver is implemented, or which
+attributes are used, but how the device tree node should conform to.
+
+In this particular case, in the recent addition of "standard" i2c attributes for
+speed and timings, you should refer to this "i2c.txt" file to specify how the node
+should conform.
+
+And finally, this patch would be correct since the node will be supposed to conform
+to the correct bindings.
+
+Neil
