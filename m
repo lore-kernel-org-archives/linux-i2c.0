@@ -1,126 +1,70 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3] hwmon: ads7828 optional parameters from the device
- tree
-Date: Sun, 12 Mar 2017 10:57:43 -0700
-Message-ID: <14108694-9690-15fc-3087-5dbd1ffd5694@roeck-us.net>
-References: <20170312144739.13276-1-kernel.development@povil.us>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] Documentation: devicetree: move trivial-devices out of
+ I2C realm
+Date: Mon, 13 Mar 2017 08:54:57 +0100
+Message-ID: <20170313075457.GA1431@katana>
+References: <20170306143859.11881-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-In-Reply-To: <20170312144739.13276-1-kernel.development@povil.us>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Sam Povilus <kernel.development@povil.us>, wsa@the-dreams.de, jdelvare@suse.com, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:50230 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750914AbdCMHzB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Mar 2017 03:55:01 -0400
+Content-Disposition: inline
+In-Reply-To: <20170306143859.11881-1-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>
+Cc: linux-i2c@vger.kernel.org
 
-On 03/12/2017 07:47 AM, Sam Povilus wrote:
-> Adding the ability for the ads7828 and ads7830 to use the device tree to
-> get their optional parameters, instead of using platform devices. This
-> allows people using custom boards to also use the ads7828 in a non-default
-> manner.
->
-> Also adding a note to the user if they misconfigure the device's external
-> reference.
->
-> v2: conforming to coding style
-> v3: changing from "_" to "-" for device tree entries
-> Signed-off-by: Sam Povilus <kernel.development@povil.us>
+
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Mar 06, 2017 at 03:38:59PM +0100, Wolfram Sang wrote:
+> The I2C directory is for I2C master controllers, not for clients. So,
+> move the file describing trivial devices one layer upwards where it
+> fits its generic nature way better.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 > ---
->  Documentation/devicetree/bindings/hwmon/ads7828.txt    | 18 ++++++++++++++++++
->  .../devicetree/bindings/i2c/trivial-devices.txt        |  2 --
->  drivers/hwmon/ads7828.c                                | 15 +++++++++++++++
->  3 files changed, 33 insertions(+), 2 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
->
-> diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
-> new file mode 100644
-> index 000000000000..0d37cd3fd31b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
-> @@ -0,0 +1,18 @@
-> +ads7828 properties
-> +
-> +Required properties:
-> +- compatible:
-> +	Should be one of
-> +	       ti,ads7828
-> +	       ti,ads7830
-> +- reg: I2C address
-> +
-> +Optional properties:
-> +
-> +- diff-input
-> +  Set to use the device in differential mode.
+>  Documentation/devicetree/bindings/{i2c =3D> }/trivial-devices.txt | 0
+>  1 file changed, 0 insertions(+), 0 deletions(-)
+>  rename Documentation/devicetree/bindings/{i2c =3D> }/trivial-devices.txt=
+ (100%)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/=
+Documentation/devicetree/bindings/trivial-devices.txt
+> similarity index 100%
+> rename from Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> rename to Documentation/devicetree/bindings/trivial-devices.txt
 
-I'll wait for Rob to comment, but "differential-input" sounds better to me,
-Also, it would have to have a "ti," prefix.
+Rob, shall I take it or do you want?
 
-> +- ext-vref
-> +  Set to enable the external voltage reference on the device.
-> +- vref-mv
-> +  The external reference on the device is set to this as an unsigned integer in
-> +  milivolts. Must use "ext_vref" for this to have any meaning.
 
-ext_vref, though as suggested below I think it would be better to use a standard
-property. Also, it seems to me that ext-vref is really unnecessary; the presence
-of "vref" can imply that the reference voltage is external.
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> index cdd7b48826c3..87648909f6ce 100644
-> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> @@ -163,8 +163,6 @@ st,m41t00		Serial real-time clock (RTC)
->  st,m41t62		Serial real-time clock (RTC) with alarm
->  st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
->  taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
-> -ti,ads7828		8-Channels, 12-bit ADC
-> -ti,ads7830		8-Channels, 8-bit ADC
->  ti,tsc2003		I2C Touch-Screen Controller
->  ti,tmp102		Low Power Digital Temperature Sensor with SMBUS/Two Wire Serial Interface
->  ti,tmp103		Low Power Digital Temperature Sensor with SMBUS/Two Wire Serial Interface
-> diff --git a/drivers/hwmon/ads7828.c b/drivers/hwmon/ads7828.c
-> index ee396ff167d9..d1f7ba5d7a2b 100644
-> --- a/drivers/hwmon/ads7828.c
-> +++ b/drivers/hwmon/ads7828.c
-> @@ -118,6 +118,7 @@ static int ads7828_probe(struct i2c_client *client,
->  	struct ads7828_data *data;
->  	struct device *hwmon_dev;
->  	unsigned int vref_mv = ADS7828_INT_VREF_MV;
-> +	unsigned int vref_mv_tmp;
->  	bool diff_input = false;
->  	bool ext_vref = false;
->  	unsigned int regval;
-> @@ -131,11 +132,25 @@ static int ads7828_probe(struct i2c_client *client,
->  		ext_vref = pdata->ext_vref;
->  		if (ext_vref && pdata->vref_mv)
->  			vref_mv = pdata->vref_mv;
-> +	} else if (dev->of_node) {
-> +		if (of_get_property(dev->of_node, "diff-input", NULL))
-> +			diff_input = true;
-> +		if (of_get_property(dev->of_node, "ext-vref", NULL))
-> +			ext_vref = true;
-> +		if (!of_property_read_u32(dev->of_node, "vref-mv", &vref_mv_tmp)
-> +		   && ext_vref)
-> +			vref_mv = vref_mv_tmp;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Please consider using devm_regulator_get_optional() and thus standard properties.
+iQIcBAEBAgAGBQJYxlBRAAoJEBQN5MwUoCm2SeUQAJ2JuA8szz7YN948mpzwz/EX
+7fIs/WeKRR2x1iLKEr/k52ezA6jlK/B7R+vJpC8RwPqwqbaZcy7DHzoXCSrv8edK
+iimALnQGKWu0MicDxJlzCyWfESDf8oFrO/KZXvODhIysTRPzzqbaM7NOGkzgbJp3
+ANJQZ9yQt9gmt83kn3bIQRwwhDW9/Rk8C+z8EgXenYrIXS0/iHCLxQ6VHa+IgobO
+c/iP8Z2hps40toQTL+PcxH7VzLh46TrISEIWrTp3oQT+8TkL49y3Jc+IYXyKQBmh
+Eb6g1r7n3MjyXwgDlTvcVC2KaMw2q60m0jyD256bKk47Hf9RWv2xmaA1KqrbEEdr
++VvizwvU4OF6L4sjcAWb5dqHQ8uIkOSKVu0VMEL5p8LjcGQDdS5++AgF8dwIBjBY
+IltTLR8z4pMapl7wH5ccHVPt1Yzg2iD08E3kOeUn1wQgLCC5JIwNEDZr7PMCJhZO
+J+eyITJC5SkgjpLl1Se+dwtN42pDXgg08n8up+/oy2oocTc/xR1jLrz0m4EbzgRO
+xSGZun0ceiEDpauYoqs9KXbp8qIp6Tre/P6D0waRtuiHNOULLfiqkZPdaNGds91/
+qXBk0SVL6DYgM/5GToaG/uPNeURwhUkymXmUdITs1jNxi6YkBdMGDGF/0vwSJKLR
+95SkphPSdmH1nSp1pyTF
+=nm/I
+-----END PGP SIGNATURE-----
 
->  	}
->
->  	/* Bound Vref with min/max values */
-> +	vref_mv_tmp = vref_mv;
->  	vref_mv = clamp_val(vref_mv, ADS7828_EXT_VREF_MV_MIN,
->  			    ADS7828_EXT_VREF_MV_MAX);
-> +	if (vref_mv_tmp != vref_mv) {
-> +		pr_info("You used and invalid external vref,"
-> +			" it has been clamped to %u",
-> +			vref_mv);
-> +	}
-
-This is an unrelated change.
-
->
->  	/* ADS7828 uses 12-bit samples, while ADS7830 is 8-bit */
->  	if (id->driver_data == ads7828) {
->
-
+--W/nzBZO5zC0uMSeA--
