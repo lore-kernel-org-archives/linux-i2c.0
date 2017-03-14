@@ -1,113 +1,74 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 04/10] i2c: meson: use i2c core for DT clock-frequency
- parsing
-Date: Tue, 14 Mar 2017 22:51:25 +0100
-Message-ID: <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
+Subject: [PATCH v4 05/10] i2c: meson: use full 12 bits for clock divider
+Date: Tue, 14 Mar 2017 22:51:30 +0100
+Message-ID: <fbc241ed-ec1e-b433-50af-5d0ebca09711@gmail.com>
 References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:35143 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753125AbdCNVyb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:31 -0400
-Received: by mail-wr0-f194.google.com with SMTP id u108so25527218wrb.2
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:29 -0700 (PDT)
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33038 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753136AbdCNVyc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:32 -0400
+Received: by mail-wm0-f66.google.com with SMTP id n11so1946943wma.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:31 -0700 (PDT)
 In-Reply-To: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-We don't have to parse the DT manually to retrieve the bus frequency
-and we don't have to maintain an own default for the bus frequency.
-Let the i2c core do this for us.
+The clock divider has 12 bits, splitted into a 10 bit field and a
+2 bit field. The extra 2 bits aren't used currently.
+
+Change this to use the full 12 bits and warn if the requested
+frequency is too low.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- added Reviewed-by
+- added Acked-by
 v3:
 - changed order of patches
 v4:
-- update DT binding documentation
+- no changes
 ---
- Documentation/devicetree/bindings/i2c/i2c-meson.txt | 17 +++++++++++++++++
- drivers/i2c/busses/i2c-meson.c                      |  8 +++-----
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-index 386357d1..6bc10cdc 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-@@ -8,10 +8,27 @@ Required properties:
-  - #address-cells: should be <1>
-  - #size-cells: should be <0>
- 
-+For details regarding the following core I2C bindings see also i2c.txt.
-+
- Optional properties:
- - clock-frequency: the desired I2C bus clock frequency in Hz; in
-   absence of this property the default value is used (100 kHz).
- 
-+- i2c-scl-falling-time-ns
-+  Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-+  specification.
-+
-+- i2c-scl-internal-delay-ns
-+  Number of nanoseconds the IP core additionally needs to setup SCL.
-+
-+- i2c-scl-rising-time-ns
-+  Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-+  specification.
-+
-+- i2c-sda-falling-time-ns
-+  Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-+  specification.
-+
- Examples:
- 
- 	i2c@c8100500 {
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index e597764e..ac0ac82d 100644
+index ac0ac82d..03f70282 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -38,7 +38,6 @@
- #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
+@@ -35,7 +35,9 @@
+ #define REG_CTRL_STATUS		BIT(2)
+ #define REG_CTRL_ERROR		BIT(3)
+ #define REG_CTRL_CLKDIV_SHIFT	12
+-#define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
++#define REG_CTRL_CLKDIV_MASK	GENMASK(21, 12)
++#define REG_CTRL_CLKDIVEXT_SHIFT 28
++#define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
  
  #define I2C_TIMEOUT_MS		500
--#define DEFAULT_FREQ		100000
  
- enum {
- 	TOKEN_END = 0,
-@@ -387,15 +386,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 	struct device_node *np = pdev->dev.of_node;
- 	struct meson_i2c *i2c;
- 	struct resource *mem;
--	u32 freq;
-+	struct i2c_timings timings;
- 	int irq, ret = 0;
+@@ -134,8 +136,15 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
+ 	unsigned int div;
  
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
+ 	div = DIV_ROUND_UP(clk_rate, freq * 4);
++
++	/* clock divider has 12 bits */
++	WARN_ON(div >= (1 << 12));
++
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+-			   div << REG_CTRL_CLKDIV_SHIFT);
++			   (div & GENMASK(9, 0)) << REG_CTRL_CLKDIV_SHIFT);
++
++	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
++			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
  
--	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
--		freq = DEFAULT_FREQ;
-+	i2c_parse_fw_timings(&pdev->dev, &timings, true);
- 
- 	i2c->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, i2c);
-@@ -453,7 +451,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	meson_i2c_set_clk_div(i2c, freq);
-+	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
- 
- 	return 0;
- }
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+ 		clk_rate, freq, div);
 -- 
 2.12.0
