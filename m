@@ -1,77 +1,113 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 01/10] i2c: meson: use min instead of min_t where min_t
- isn't needed
-Date: Tue, 14 Mar 2017 22:50:49 +0100
-Message-ID: <b11b6843-ed5d-fe2e-0374-5d13815d95ed@gmail.com>
+Subject: [PATCH v4 04/10] i2c: meson: use i2c core for DT clock-frequency
+ parsing
+Date: Tue, 14 Mar 2017 22:51:25 +0100
+Message-ID: <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
 References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:33008 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753114AbdCNVyX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:23 -0400
-Received: by mail-wm0-f67.google.com with SMTP id n11so1946669wma.0
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:21 -0700 (PDT)
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35143 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753125AbdCNVyb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:31 -0400
+Received: by mail-wr0-f194.google.com with SMTP id u108so25527218wrb.2
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:29 -0700 (PDT)
 In-Reply-To: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-Use min instead of min_t where min_t isn't needed.
+We don't have to parse the DT manually to retrieve the bus frequency
+and we don't have to maintain an own default for the bus frequency.
+Let the i2c core do this for us.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
 v2:
-- no changes
+- added Reviewed-by
 v3:
-- no changes
+- changed order of patches
 v4:
-- no changes
+- update DT binding documentation
 ---
- drivers/i2c/busses/i2c-meson.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-meson.txt | 17 +++++++++++++++++
+ drivers/i2c/busses/i2c-meson.c                      |  8 +++-----
+ 2 files changed, 20 insertions(+), 5 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+index 386357d1..6bc10cdc 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+@@ -8,10 +8,27 @@ Required properties:
+  - #address-cells: should be <1>
+  - #size-cells: should be <0>
+ 
++For details regarding the following core I2C bindings see also i2c.txt.
++
+ Optional properties:
+ - clock-frequency: the desired I2C bus clock frequency in Hz; in
+   absence of this property the default value is used (100 kHz).
+ 
++- i2c-scl-falling-time-ns
++  Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
++  specification.
++
++- i2c-scl-internal-delay-ns
++  Number of nanoseconds the IP core additionally needs to setup SCL.
++
++- i2c-scl-rising-time-ns
++  Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
++  specification.
++
++- i2c-sda-falling-time-ns
++  Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
++  specification.
++
+ Examples:
+ 
+ 	i2c@c8100500 {
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 73b97c71..40e5da9a 100644
+index e597764e..ac0ac82d 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -156,10 +156,10 @@ static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
- 	dev_dbg(i2c->dev, "%s: data %08x %08x len %d\n", __func__,
- 		rdata0, rdata1, len);
+@@ -38,7 +38,6 @@
+ #define REG_CTRL_CLKDIV_MASK	((BIT(10) - 1) << REG_CTRL_CLKDIV_SHIFT)
  
--	for (i = 0; i < min_t(int, 4, len); i++)
-+	for (i = 0; i < min(4, len); i++)
- 		*buf++ = (rdata0 >> i * 8) & 0xff;
+ #define I2C_TIMEOUT_MS		500
+-#define DEFAULT_FREQ		100000
  
--	for (i = 4; i < min_t(int, 8, len); i++)
-+	for (i = 4; i < min(8, len); i++)
- 		*buf++ = (rdata1 >> (i - 4) * 8) & 0xff;
+ enum {
+ 	TOKEN_END = 0,
+@@ -387,15 +386,14 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct meson_i2c *i2c;
+ 	struct resource *mem;
+-	u32 freq;
++	struct i2c_timings timings;
+ 	int irq, ret = 0;
+ 
+ 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+-	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
+-		freq = DEFAULT_FREQ;
++	i2c_parse_fw_timings(&pdev->dev, &timings, true);
+ 
+ 	i2c->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, i2c);
+@@ -453,7 +451,7 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	meson_i2c_set_clk_div(i2c, freq);
++	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
+ 
+ 	return 0;
  }
- 
-@@ -168,10 +168,10 @@ static void meson_i2c_put_data(struct meson_i2c *i2c, char *buf, int len)
- 	u32 wdata0 = 0, wdata1 = 0;
- 	int i;
- 
--	for (i = 0; i < min_t(int, 4, len); i++)
-+	for (i = 0; i < min(4, len); i++)
- 		wdata0 |= *buf++ << (i * 8);
- 
--	for (i = 4; i < min_t(int, 8, len); i++)
-+	for (i = 4; i < min(8, len); i++)
- 		wdata1 |= *buf++ << ((i - 4) * 8);
- 
- 	writel(wdata0, i2c->regs + REG_TOK_WDATA0);
-@@ -186,7 +186,7 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
- 	bool write = !(i2c->msg->flags & I2C_M_RD);
- 	int i;
- 
--	i2c->count = min_t(int, i2c->msg->len - i2c->pos, 8);
-+	i2c->count = min(i2c->msg->len - i2c->pos, 8);
- 
- 	for (i = 0; i < i2c->count - 1; i++)
- 		meson_i2c_add_token(i2c, TOKEN_DATA);
 -- 
 2.12.0
