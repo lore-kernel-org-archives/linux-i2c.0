@@ -1,52 +1,65 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 00/10] i2c: meson: series with improvements
-Date: Tue, 14 Mar 2017 22:42:31 +0100
-Message-ID: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
+Subject: [PATCH v4 06/10] i2c: meson: remove variable count from
+ meson_i2c_xfer
+Date: Tue, 14 Mar 2017 22:51:35 +0100
+Message-ID: <126e80e5-f93f-8c18-f283-65eee94b3a82@gmail.com>
+References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36430 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750973AbdCNVmk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:42:40 -0400
-Received: by mail-wr0-f196.google.com with SMTP id l37so25421215wrc.3
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:42:38 -0700 (PDT)
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35514 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753114AbdCNVy2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:28 -0400
+Received: by mail-wm0-f68.google.com with SMTP id z63so1929146wmg.2
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:27 -0700 (PDT)
+In-Reply-To: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-This patch series includes several improvements for the i2c-meson
-driver.
+Variable count has always the same value as i, so we don't need it.
 
-Changes in v2:
-- removed patches 8 and 12
-- removed one small change in patch 6
-- don't print error message in patch 7
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+v2:
+- remove one small change from v1
+v3:
+- no changes
+v4:
+- no changes
+---
+ drivers/i2c/busses/i2c-meson.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Changes in v3:
-- changed order of patches 3, 4, 5 what makes the patches more simple
-- remove one change from patch 7 to still properly deal with timeouts
-
-Changes in v4:
-- update DT binding documentation as part of patch 4
-
-Heiner Kallweit (12):
-  i2c: meson: use min instead of min_t where min_t isn't needed
-  i2c: meson: remove member irq from struct meson_i2c
-  i2c: meson: set clock divider in probe instead of setting it for each transfer
-  i2c: meson: use i2c core for DT clock-frequency parsing
-  i2c: meson: use full 12 bits for clock divider
-  i2c: meson: remove variable count from meson_i2c_xfer
-  i2c: meson: improve interrupt handler and detect spurious interrupts
-  i2c: meson: don't create separate token chain just for the stop command
-  i2c: meson: remove meson_i2c_write_tokens
-  i2c: meson: improve and simplify interrupt handler
-
- Documentation/devicetree/bindings/i2c/i2c-meson.txt |  17 +++++++++++++++++
- drivers/i2c/busses/i2c-meson.c                      | 132 ++++++++++++++++-------------------------
- 2 file changed, 67 insertions(+), 82 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+index 03f70282..3fc1a715 100644
+--- a/drivers/i2c/busses/i2c-meson.c
++++ b/drivers/i2c/busses/i2c-meson.c
+@@ -364,7 +364,7 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			  int num)
+ {
+ 	struct meson_i2c *i2c = adap->algo_data;
+-	int i, ret = 0, count = 0;
++	int i, ret = 0;
+ 
+ 	clk_enable(i2c->clk);
+ 
+@@ -372,12 +372,11 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
+ 		if (ret)
+ 			break;
+-		count++;
+ 	}
+ 
+ 	clk_disable(i2c->clk);
+ 
+-	return ret ? ret : count;
++	return ret ?: i;
+ }
+ 
+ static u32 meson_i2c_func(struct i2c_adapter *adap)
 -- 
 2.12.0
