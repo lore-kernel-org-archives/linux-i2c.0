@@ -1,116 +1,40 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 03/10] i2c: meson: set clock divider in probe instead of
- setting it for each transfer
-Date: Tue, 14 Mar 2017 22:53:29 +0100
-Message-ID: <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
-References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
+Date: Wed, 15 Mar 2017 00:59:58 +0200
+Message-ID: <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
+References: <20170314151638.23132-1-javier@osg.samsung.com> <20170314151638.23132-5-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33116 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753165AbdCNVyg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:36 -0400
-Received: by mail-wr0-f193.google.com with SMTP id g10so25528539wrg.0
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:34 -0700 (PDT)
-In-Reply-To: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:33964 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752450AbdCNXAA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 19:00:00 -0400
+In-Reply-To: <20170314151638.23132-5-javier@osg.samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-The bus frequency won't change, therefore we can set the clock divider
-in probe already and we don't have to set it for each transfer.
+On Tue, Mar 14, 2017 at 5:16 PM, Javier Martinez Canillas
+<javier@osg.samsung.com> wrote:
+> The driver doesn't have a struct of_device_id table but supported devices
+> are registered via Device Trees. This is working on the assumption that a
+> I2C device registered via OF will always match a legacy I2C device ID and
+> that the MODALIAS reported will always be of the form i2c:<device>.
+>
+> But this could change in the future so the correct approach is to have an
+> OF device ID table if the devices are registered via OF.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- no changes
-v3:
-- change order of patches
-v4:
-- no changes
----
- drivers/i2c/busses/i2c-meson.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+I'm bot sure this patch does something useful right now. Can we
+survive without it? I think we may.
 
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 50059d09..e597764e 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -73,7 +73,6 @@ enum {
-  * @error:	Flag set when an error is received
-  * @lock:	To avoid race conditions between irq handler and xfer code
-  * @done:	Completion used to wait for transfer termination
-- * @frequency:	Operating frequency of I2C bus clock
-  * @tokens:	Sequence of tokens to be written to the device
-  * @num_tokens:	Number of tokens
-  */
-@@ -92,7 +91,6 @@ struct meson_i2c {
- 
- 	spinlock_t		lock;
- 	struct completion	done;
--	unsigned int		frequency;
- 	u32			tokens[2];
- 	int			num_tokens;
- };
-@@ -131,17 +129,17 @@ static void meson_i2c_write_tokens(struct meson_i2c *i2c)
- 	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
- }
- 
--static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
-+static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
- {
- 	unsigned long clk_rate = clk_get_rate(i2c->clk);
- 	unsigned int div;
- 
--	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
-+	div = DIV_ROUND_UP(clk_rate, freq * 4);
- 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
- 			   div << REG_CTRL_CLKDIV_SHIFT);
- 
- 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
--		clk_rate, i2c->frequency, div);
-+		clk_rate, freq, div);
- }
- 
- static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
-@@ -361,7 +359,6 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	int i, ret = 0, count = 0;
- 
- 	clk_enable(i2c->clk);
--	meson_i2c_set_clk_div(i2c);
- 
- 	for (i = 0; i < num; i++) {
- 		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
-@@ -390,15 +387,15 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 	struct device_node *np = pdev->dev.of_node;
- 	struct meson_i2c *i2c;
- 	struct resource *mem;
-+	u32 freq;
- 	int irq, ret = 0;
- 
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
--				 &i2c->frequency))
--		i2c->frequency = DEFAULT_FREQ;
-+	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
-+		freq = DEFAULT_FREQ;
- 
- 	i2c->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, i2c);
-@@ -456,6 +453,8 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	meson_i2c_set_clk_div(i2c, freq);
-+
- 	return 0;
- }
- 
+>  drivers/misc/eeprom/at24.c | 189 ++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 188 insertions(+), 1 deletion(-)
+
+It's a huge! It will increase not only driver code base but memory
+footprint for almost no benefit.
+
 -- 
-2.12.0
+With Best Regards,
+Andy Shevchenko
