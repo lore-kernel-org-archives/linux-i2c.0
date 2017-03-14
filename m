@@ -1,165 +1,135 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 1/2] i2c: designware: Never suspend i2c-busses used for accessing the system PMIC
-Date: Mon, 13 Mar 2017 23:25:09 +0100
-Message-ID: <20170313222510.466-1-hdegoede@redhat.com>
+From: Danielle Costantino <danielle.costantino@gmail.com>
+Subject: Re: i2c-mux adapter names not unique
+Date: Mon, 13 Mar 2017 23:46:32 -0700
+Message-ID: <275e8255-0728-add7-f737-70708f423229@gmail.com>
+References: <CAAuRgKAVRUKCYdZAH3Atn4d09OmubUZN2trNRQ4aEZkEey6WNg@mail.gmail.com>
+ <0cf3f298-87ab-0dfc-9453-cc46e31d4979@axentia.se>
+ <CAAuRgKAYgBjk=FhQfMsGdOB+-4ObUkYgWVb-Uu+0wgM+ORWOug@mail.gmail.com>
+ <26e08683-2bdb-4c8e-bd6e-b4887bc26dc3@axentia.se>
+ <CAAuRgKDJBoQ8v6a=nOpcVDYOeycgP+WayRhXG7YNzt0pjXphxA@mail.gmail.com>
+ <152b649c-76c0-9541-4159-43ad77b14469@axentia.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="KXoO9vn03mJ5Twij8d5iQDSVHuJItcqwD"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42170 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751687AbdCMWZO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Mar 2017 18:25:14 -0400
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:36811 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750760AbdCNGqu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 02:46:50 -0400
+Received: by mail-pg0-f67.google.com with SMTP id 25so22390939pgy.3
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Mar 2017 23:46:49 -0700 (PDT)
+In-Reply-To: <152b649c-76c0-9541-4159-43ad77b14469@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, MikeB <mabnhdev@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-Currently we are already setting a pm_runtime_disabled flag and disabling
-runtime-pm for i2c-busses used for accessing the system PMIC on x86.
-But this is not enough, there are ACPI opregions which may want to access
-the PMIC during late-suspend and early-resume, so we need to completely
-disable pm to be safe.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--KXoO9vn03mJ5Twij8d5iQDSVHuJItcqwD
+Content-Type: multipart/mixed; boundary="vIh4lgElofP0nQdR1smOqeX6RBt6uJsk0";
+ protected-headers="v1"
+From: Danielle Costantino <danielle.costantino@gmail.com>
+To: Peter Rosin <peda@axentia.se>, MikeB <mabnhdev@gmail.com>
+Cc: linux-i2c@vger.kernel.org
+Message-ID: <275e8255-0728-add7-f737-70708f423229@gmail.com>
+Subject: Re: i2c-mux adapter names not unique
+References: <CAAuRgKAVRUKCYdZAH3Atn4d09OmubUZN2trNRQ4aEZkEey6WNg@mail.gmail.com>
+ <0cf3f298-87ab-0dfc-9453-cc46e31d4979@axentia.se>
+ <CAAuRgKAYgBjk=FhQfMsGdOB+-4ObUkYgWVb-Uu+0wgM+ORWOug@mail.gmail.com>
+ <26e08683-2bdb-4c8e-bd6e-b4887bc26dc3@axentia.se>
+ <CAAuRgKDJBoQ8v6a=nOpcVDYOeycgP+WayRhXG7YNzt0pjXphxA@mail.gmail.com>
+ <152b649c-76c0-9541-4159-43ad77b14469@axentia.se>
+In-Reply-To: <152b649c-76c0-9541-4159-43ad77b14469@axentia.se>
 
-This commit renames the flag from pm_runtime_disabled to pm_disabled and
-adds the following new behavior if the flag is set:
+--vIh4lgElofP0nQdR1smOqeX6RBt6uJsk0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-1) Call dev_pm_syscore_device(dev, true) which disables normal suspend /
-   resume and remove the pm_runtime_disabled check from dw_i2c_plat_resume
-   since that will now never get called. This fixes suspend_late handlers
-   which use ACPI PMIC opregions causing errors like these:
+Using an adapter id is not a valid and deterministic method for
+identifying a i2c bus. The way you can identify what adapter you need to
+bind to is by identifying the unique parent device that hosts the
+adapter (pci, platform, usb, ....) and identifying a constant parameter
+like bus id/ SN/ bus address, using this as your adapter base and
+traversing the bus tree based on the channel you need to connect to your
+mux. Take a look at the work done with lsi2c and i2cdev.
+https://github.com/costad2/i2cdev
 
-  PM: Suspending system (freeze)
-  PM: suspend of devices complete after 1127.751 msecs
-  i2c_designware 808622C1:06: timeout waiting for bus ready
-  ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
-  acpi 80860F14:02: Failed to change power state to D3hot
-  PM: late suspend of devices failed
+Good luck,
 
-2) Set IRQF_NO_SUSPEND irq flag. This fixes resume_early handlers which
-   handlers which use ACPI PMIC opregions causing errors like these:
+Danielle
 
-  PM: resume from suspend-to-idle
-  i2c_designware 808622C1:06: controller timed out
-  ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-Changes in v2:
--Rebase on v4.11-rc1 to fix conflicts
-Changes in v3:
--Rebase on v4.11-rc2 to fix yet more conflicts
----
- drivers/i2c/busses/i2c-designware-baytrail.c |  2 +-
- drivers/i2c/busses/i2c-designware-core.c     | 11 +++++++++--
- drivers/i2c/busses/i2c-designware-core.h     |  4 ++--
- drivers/i2c/busses/i2c-designware-platdrv.c  | 10 ++++------
- 4 files changed, 16 insertions(+), 11 deletions(-)
+On 03/13/2017 02:01 PM, Peter Rosin wrote:
+> On 2017-03-13 16:05, MikeB wrote:
+>> On Mon, Mar 13, 2017 at 10:48 AM, Peter Rosin <peda@axentia.se> wrote:=
 
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 1749a0f..b8cc226 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -170,7 +170,7 @@ int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 	dev_info(dev->dev, "I2C bus managed by PUNIT\n");
- 	dev->acquire_lock = baytrail_i2c_acquire;
- 	dev->release_lock = baytrail_i2c_release;
--	dev->pm_runtime_disabled = true;
-+	dev->pm_disabled = true;
- 
- 	pm_qos_add_request(&dev->pm_qos, PM_QOS_CPU_DMA_LATENCY,
- 			   PM_QOS_DEFAULT_VALUE);
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 15a5348..c453717 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -960,6 +960,7 @@ EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
- int i2c_dw_probe(struct dw_i2c_dev *dev)
- {
- 	struct i2c_adapter *adap = &dev->adapter;
-+	unsigned long irq_flags;
- 	int r;
- 
- 	init_completion(&dev->cmd_complete);
-@@ -975,9 +976,15 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	adap->dev.parent = dev->dev;
- 	i2c_set_adapdata(adap, dev);
- 
-+	if (dev->pm_disabled) {
-+		dev_pm_syscore_device(dev->dev, true);
-+		irq_flags = IRQF_NO_SUSPEND;
-+	} else {
-+		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
-+	}
-+
- 	i2c_dw_disable_int(dev);
--	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
--			     IRQF_SHARED | IRQF_COND_SUSPEND,
-+	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
- 			     dev_name(dev->dev), dev);
- 	if (r) {
- 		dev_err(dev->dev, "failure requesting irq %i: %d\n",
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 846ea57..a7cf429 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -79,7 +79,7 @@
-  * @pm_qos: pm_qos_request used while holding a hardware lock on the bus
-  * @acquire_lock: function to acquire a hardware lock on the bus
-  * @release_lock: function to release a hardware lock on the bus
-- * @pm_runtime_disabled: true if pm runtime is disabled
-+ * @pm_disabled: true if power-management should be disabled for this i2c-bus
-  *
-  * HCNT and LCNT parameters can be used if the platform knows more accurate
-  * values than the one computed based only on the input clock frequency.
-@@ -128,7 +128,7 @@ struct dw_i2c_dev {
- 	struct pm_qos_request	pm_qos;
- 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
- 	void			(*release_lock)(struct dw_i2c_dev *dev);
--	bool			pm_runtime_disabled;
-+	bool			pm_disabled;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d866509..0b6f6dc 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -286,7 +286,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->dev.of_node = pdev->dev.of_node;
- 
--	if (dev->pm_runtime_disabled) {
-+	if (dev->pm_disabled) {
- 		pm_runtime_forbid(&pdev->dev);
- 	} else {
- 		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
-@@ -302,7 +302,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	return r;
- 
- exit_probe:
--	if (!dev->pm_runtime_disabled)
-+	if (!dev->pm_disabled)
- 		pm_runtime_disable(&pdev->dev);
- exit_reset:
- 	if (!IS_ERR_OR_NULL(dev->rst))
-@@ -322,7 +322,7 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	pm_runtime_put_sync(&pdev->dev);
--	if (!dev->pm_runtime_disabled)
-+	if (!dev->pm_disabled)
- 		pm_runtime_disable(&pdev->dev);
- 	if (!IS_ERR_OR_NULL(dev->rst))
- 		reset_control_assert(dev->rst);
-@@ -374,9 +374,7 @@ static int dw_i2c_plat_resume(struct device *dev)
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
- 	i2c_dw_plat_prepare_clk(i_dev, true);
--
--	if (!i_dev->pm_runtime_disabled)
--		i2c_dw_init(i_dev);
-+	i2c_dw_init(i_dev);
- 
- 	return 0;
- }
--- 
-2.9.3
+>>> And why not fix the bad assumption in OpenSwitch instead and kill the=
+
+>>> generic problem for every kind of adapter? Limiting yourself to a
+>>> band-aid for i2c-mux adapters seems short-sighted and not very helpfu=
+l
+>>> for the next victim of this OpenSwitch problem...
+>>>
+>>> Note that you do not need two muxing levels to get duplicate names li=
+ke
+>>> this, it's enough with two parallel multiplexers on the root adapter.=
+ Or,
+>>> of course, two AT91 adapters (or similar, i.e. with a fixed name).
+>> If I thought that OpenSwitch's expectation of Linux to name unique
+>> adapters uniquely, I would push for a change in OpenSwitch.
+>>
+>> I personally think Linux's naming convention is a short-sighted and
+>> insufficient which is why I came to Linux first.
+>>
+>> I don't want a short-sighted band-aid which is why I asked the
+>> original question.
+>>
+>> I'll try elsewhere for a solution...
+> That's probably best, since if we do change the adapter naming conventi=
+on
+> to something that is unique and stable across reboots (which presumably=
+ is
+> what is sought, and BTW probably not a trivial problem) some other pers=
+on
+> is going to suffer a regression when OpenSwitch fails to associate with=
+
+> the intended adapter after a kernel update. I.e. the very fact that
+> OpenSwitch is already using this interface makes it harder to change. A=
+nd
+> who knows, maybe there are other users that will suffer if naming is
+> changed?
+>
+> [Note that I know nothing about OpenSwitch, I'm just deducing the above=
+
+> from what you have stated previously]
+>
+> I'm sorry, but there's not always a simple and convenient answer...
+>
+> Cheers,
+> peda
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in=
+
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+--vIh4lgElofP0nQdR1smOqeX6RBt6uJsk0--
+
+--KXoO9vn03mJ5Twij8d5iQDSVHuJItcqwD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iF4EAREIAAYFAljHkc8ACgkQydVmv66v7jP5NwEAjxOUW4GYZfNOo/45PJnt+ZNH
+xM/elUPYafG3raswBhwBAMAbCpA8gvjFJbNWERVecI69Brdx9f6kOpwWJkvcsBaV
+=tFr/
+-----END PGP SIGNATURE-----
+
+--KXoO9vn03mJ5Twij8d5iQDSVHuJItcqwD--
