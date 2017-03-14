@@ -1,89 +1,116 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v4 09/10] i2c: meson: remove meson_i2c_write_tokens
-Date: Tue, 14 Mar 2017 22:51:49 +0100
-Message-ID: <49e666dd-9fda-6380-26d7-11f76be47f1f@gmail.com>
+Subject: [PATCH v4 03/10] i2c: meson: set clock divider in probe instead of
+ setting it for each transfer
+Date: Tue, 14 Mar 2017 22:53:29 +0100
+Message-ID: <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
 References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35537 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753150AbdCNVyi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:38 -0400
-Received: by mail-wm0-f65.google.com with SMTP id z63so1929367wmg.2
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:37 -0700 (PDT)
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:33116 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753165AbdCNVyg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 14 Mar 2017 17:54:36 -0400
+Received: by mail-wr0-f193.google.com with SMTP id g10so25528539wrg.0
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Mar 2017 14:54:34 -0700 (PDT)
 In-Reply-To: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-meson_i2c_write_tokens is always called directly after
-meson_i2c_prepare_xfer (and only then). So we can simplify the code by
-removing meson_i2c_write_tokens and moving the two statements of
-meson_i2c_write_tokens to the end of meson_i2c_prepare_xfer. 
+The bus frequency won't change, therefore we can set the clock divider
+in probe already and we don't have to set it for each transfer.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
-- rebased
-v3:
 - no changes
+v3:
+- change order of patches
 v4:
 - no changes
 ---
- drivers/i2c/busses/i2c-meson.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 6c873ed8..23f25efa 100644
+index 50059d09..e597764e 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -123,12 +123,6 @@ static void meson_i2c_add_token(struct meson_i2c *i2c, int token)
- 	i2c->num_tokens++;
+@@ -73,7 +73,6 @@ enum {
+  * @error:	Flag set when an error is received
+  * @lock:	To avoid race conditions between irq handler and xfer code
+  * @done:	Completion used to wait for transfer termination
+- * @frequency:	Operating frequency of I2C bus clock
+  * @tokens:	Sequence of tokens to be written to the device
+  * @num_tokens:	Number of tokens
+  */
+@@ -92,7 +91,6 @@ struct meson_i2c {
+ 
+ 	spinlock_t		lock;
+ 	struct completion	done;
+-	unsigned int		frequency;
+ 	u32			tokens[2];
+ 	int			num_tokens;
+ };
+@@ -131,17 +129,17 @@ static void meson_i2c_write_tokens(struct meson_i2c *i2c)
+ 	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
  }
  
--static void meson_i2c_write_tokens(struct meson_i2c *i2c)
--{
--	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
--	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
--}
--
- static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
+-static void meson_i2c_set_clk_div(struct meson_i2c *i2c)
++static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
  {
  	unsigned long clk_rate = clk_get_rate(i2c->clk);
-@@ -207,6 +201,9 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
+ 	unsigned int div;
  
- 	if (i2c->last && i2c->pos + i2c->count >= i2c->msg->len)
- 		meson_i2c_add_token(i2c, TOKEN_STOP);
-+
-+	writel(i2c->tokens[0], i2c->regs + REG_TOK_LIST0);
-+	writel(i2c->tokens[1], i2c->regs + REG_TOK_LIST1);
+-	div = DIV_ROUND_UP(clk_rate, i2c->frequency * 4);
++	div = DIV_ROUND_UP(clk_rate, freq * 4);
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+ 			   div << REG_CTRL_CLKDIV_SHIFT);
+ 
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+-		clk_rate, i2c->frequency, div);
++		clk_rate, freq, div);
  }
  
- static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
-@@ -272,12 +269,10 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
+ static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
+@@ -361,7 +359,6 @@ static int meson_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	int i, ret = 0, count = 0;
+ 
+ 	clk_enable(i2c->clk);
+-	meson_i2c_set_clk_div(i2c);
+ 
+ 	for (i = 0; i < num; i++) {
+ 		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1);
+@@ -390,15 +387,15 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct meson_i2c *i2c;
+ 	struct resource *mem;
++	u32 freq;
+ 	int irq, ret = 0;
+ 
+ 	i2c = devm_kzalloc(&pdev->dev, sizeof(struct meson_i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+-	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+-				 &i2c->frequency))
+-		i2c->frequency = DEFAULT_FREQ;
++	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency", &freq))
++		freq = DEFAULT_FREQ;
+ 
+ 	i2c->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, i2c);
+@@ -456,6 +453,8 @@ static int meson_i2c_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
- out:
--	if (i2c->state != STATE_IDLE) {
-+	if (i2c->state != STATE_IDLE)
- 		/* Restart the processing */
--		meson_i2c_write_tokens(i2c);
- 		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
- 				   REG_CTRL_START);
--	}
++	meson_i2c_set_clk_div(i2c, freq);
++
+ 	return 0;
+ }
  
- 	spin_unlock(&i2c->lock);
- 
-@@ -318,7 +313,6 @@ static int meson_i2c_xfer_msg(struct meson_i2c *i2c, struct i2c_msg *msg,
- 
- 	i2c->state = (msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
- 	meson_i2c_prepare_xfer(i2c);
--	meson_i2c_write_tokens(i2c);
- 	reinit_completion(&i2c->done);
- 
- 	/* Start the transfer */
 -- 
 2.12.0
