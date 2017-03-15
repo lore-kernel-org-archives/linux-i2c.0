@@ -1,39 +1,57 @@
-From: <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH v1 4/7] dt-bindings: soc: rockchip: grf: add support for rk3328
-Date: Wed, 15 Mar 2017 18:03:54 +0800
-Message-ID: <1489572237-6649-5-git-send-email-cl@rock-chips.com>
-References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1489572237-6649-1-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Linux irq subsys i2c interaction question
+Date: Wed, 15 Mar 2017 11:03:52 +0100 (CET)
+Message-ID: <alpine.DEB.2.20.1703151102520.3554@nanos>
+References: <ff19dd32-2e6a-d4a2-a4f0-f11e1316b7c1@redhat.com> <alpine.DEB.2.20.1703070942430.3584@nanos> <d2e66f4d-c868-c9d3-4c4e-d2ca3e93394e@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <d2e66f4d-c868-c9d3-4c4e-d2ca3e93394e@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Chen Liang <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+On Tue, 7 Mar 2017, Hans de Goede wrote:
+> On 07-03-17 10:18, Thomas Gleixner wrote:
+> > I'm a bit worried about this being hardcoded for that particular use
+> > case. That also means that you cannot use the generic regmap irq handling
+> > stuff and need to have your own irq magic there.
+> 
+> Yeah, although the amount of irqchip code needed is pretty minimal
+> for this (otherwise) simple device.
+> 
+> > Wouldn't it be smarter to
+> > mark that interrupt in some way and have that as a generic option?
+> 
+> Such a generic option is what I was looking for before going this
+> route, so yeah +1 for that. I'm not familiar enough with the
+> irq code to feel comfortable adding that, but if you can provide
+> a patch, I can test it.
+> 
+> > Can you point me at the relevant drivers/patches?
+> 
+> Here is my current wip stuff (I've pushed this to a for-irq-discussion
+> branch so that the commits won't go away when I rebase my wip
+> branch).
+> 
+> mfd patches:
+> https://github.com/jwrdegoede/linux-sunxi/commit/a0b9ee4ba7b8206880415351a53d5fbbd5969ba6
+> https://github.com/jwrdegoede/linux-sunxi/commit/a2bff50785c31239ec699a8b43e827c40089ee1f
+> https://github.com/jwrdegoede/linux-sunxi/commit/708985e8f33471976359c9ff52e2db9964e3ddf4
+> 
+> i2c-adapter patch:
+> https://github.com/jwrdegoede/linux-sunxi/commit/88a671b3543ffd1f5f4251f4028e4a5d67d88fda
+> 
+> Note the mfd driver has its own irqchip using the regmap-irq.c stuff (second
+> commit)
+> and the trouble some irqchip driver is nested from that in the i2c-adapter
+> driver
+> (the last commit).
 
-Signed-off-by: Chen Liang <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
----
- Documentation/devicetree/bindings/soc/rockchip/grf.txt | 1 +
- 1 file changed, 1 insertion(+)
+As this is anyway using it's own interrupt handler and not using the
+generic regmap one, this should be fine.
 
-diff --git a/Documentation/devicetree/bindings/soc/rockchip/grf.txt b/Documentation/devicetree/bindings/soc/rockchip/grf.txt
-index a0685c2..db4da0b 100644
---- a/Documentation/devicetree/bindings/soc/rockchip/grf.txt
-+++ b/Documentation/devicetree/bindings/soc/rockchip/grf.txt
-@@ -18,6 +18,7 @@ Required Properties:
-    - "rockchip,rk3288-grf", "syscon": for rk3288
-    - "rockchip,rk3368-grf", "syscon": for rk3368
-    - "rockchip,rk3399-grf", "syscon": for rk3399
-+   - "rockchip,rk3328-grf", "syscon": for rk3328
- - compatible: PMUGRF should be one of the following:
-    - "rockchip,rk3368-pmugrf", "syscon": for rk3368
-    - "rockchip,rk3399-pmugrf", "syscon": for rk3399
--- 
-1.9.1
+Thanks,
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	tglx
