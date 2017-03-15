@@ -1,68 +1,57 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
-Date: Wed, 15 Mar 2017 07:58:26 -0300
-Message-ID: <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
-References: <20170314151638.23132-1-javier@osg.samsung.com>
- <20170314151638.23132-5-javier@osg.samsung.com>
- <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
- <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
- <20170315075835.GA1438@katana>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v1 0/7] initialize dtsi file and dts file for RK3328 SoCs
+Date: Wed, 15 Mar 2017 12:11:54 +0100
+Message-ID: <2592337.TJConaiLTi@diego>
+References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170315075835.GA1438@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1489572237-6649-1-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, yhx-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, rocky.hao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+Hi Liang,
 
-On 03/15/2017 04:58 AM, Wolfram Sang wrote:
-> 
->> So there isn't an agreement if is better to just rely in the current behavior
->> (and have a superfluous I2C device ID table) or fix the I2C core (and need a
->> OF device ID table).
-> 
-> For at24, the i2c_device_id table is not superfluous! It is used outside
-> the DT world as well.
->
+Am Mittwoch, 15. M=E4rz 2017, 18:03:50 CET schrieb cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org:
+> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> =
 
-Yes, I know. I was trying to explain to Andy what's the problem that I want to
-solve in general, not talking about this particular driver. Sorry if that was
-confusing.
- 
->> Indeed, but these all are compatible strings used by DTS in mainline and so
->> should be in the OF device ID table in order to be matched and the proper
->> modalias reported (once the I2C core is fixed).
-> 
-> I'd think we should fix the DTS files instead to contain a fallback we
-> agree on. Say, we agree on "atmel,at24c01" as a the generic fallback,
-> the DTS should contain:
-> 
-> 	compatible = "<your_vendor>,<your_type>", "atmel,at24c01"
-> 
-> And we shall only keep compatible values in the source file which differ
-> in behaviour fromt the generic case.
->
+> These patchs depend on pinctrl patchs as below:
+> =
 
-Do you know who that's familiar with this device and driver can do this? I've
-been trying to fix all the drivers that are relying on having an I2C ID table
-but whose devices are registered via DT and I've now posted patches for all.
+> https://patchwork.kernel.org/patch/9566427/
+> https://patchwork.kernel.org/patch/9566425/
+> https://patchwork.kernel.org/patch/9566431/
+> =
 
-I wanted to do that so this patch can finally land [0] but to be honest I'm
-about to give up on this... it seems is causing a lot of churn to maintainers
-and many don't see the benefit on having the I2C core to report a proper OF
-modalias, and don't think the current behavior is particularly bad.
+> Chen Liang (7):
+>   include: dt-bindings: Add pin function index definition for rockchip
+>     pinctrl
+>   dt-bindings: iio: rockchip-saradc: add support for rk3328
+>   dt-bindings: i2c: rk3x: add support for rk3328
+>   dt-bindings: soc: rockchip: grf: add support for rk3328
 
-Unfortunately some maintainers do and don't accept patches adding I2C tables
-only to have module autoloading working so I still think it should be fixed.
+both my inbox as well as the linux-rockchip list did only get patches 1-4 i=
+t =
 
-[0]: https://patchwork.kernel.org/patch/6903991/
+seems?
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+>   arm64: dts: rockchip: add core dtsi file for RK3328 SoCs
+>   arm64: dts: rockchip: add dts file for RK3328 evaluation board
+>   dt-bindings: document rockchip rk3328-evb board
+
+So right now I'm missing these next 3. Did something go wrong when sending?
+
+
+Heiko
