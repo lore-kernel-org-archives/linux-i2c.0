@@ -1,65 +1,62 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v2 02/14] i2c: mv64xxx: simplify optional reset handling
-Date: Wed, 15 Mar 2017 12:31:34 +0100
-Message-ID: <20170315113134.13655-1-p.zabel@pengutronix.de>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
+Date: Wed, 15 Mar 2017 08:39:19 -0300
+Message-ID: <1bfce335-7a66-9905-b196-47366bf73d37@osg.samsung.com>
+References: <20170314151638.23132-1-javier@osg.samsung.com>
+ <20170314151638.23132-5-javier@osg.samsung.com>
+ <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
+ <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
+ <20170315075835.GA1438@katana>
+ <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
+ <CAHp75VeU76YZUA45BO6uBrERfCqoZOow=oLvxauy8WY5adGZ+Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAHp75VeU76YZUA45BO6uBrERfCqoZOow=oLvxauy8WY5adGZ+Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-As of commit bb475230b8e5 ("reset: make optional functions really
-optional"), the reset framework API calls use NULL pointers to describe
-optional, non-present reset controls.
+Hello Andy,
 
-This allows to return errors from devm_reset_control_get_optional and to
-call reset_control_(de)assert unconditionally.
+On 03/15/2017 08:21 AM, Andy Shevchenko wrote:
+> On Wed, Mar 15, 2017 at 12:58 PM, Javier Martinez Canillas
+> <javier@osg.samsung.com> wrote:
+>> On 03/15/2017 04:58 AM, Wolfram Sang wrote:
+> 
+>> Unfortunately some maintainers do and don't accept patches adding I2C tables
+>> only to have module autoloading working so I still think it should be fixed.
+> 
+> Wait, how does it work for now?!
+>
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+It only works if you have an I2C device ID table, but that may not be the case
+for DT-only drivers that could only have an OF device ID table. In the latter
+case module autoload won't work.
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index a50bd6891e27b..cf737ec8563b8 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -823,13 +823,10 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 
- 	drv_data->rstc = devm_reset_control_get_optional(dev, NULL);
- 	if (IS_ERR(drv_data->rstc)) {
--		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
--			rc = -EPROBE_DEFER;
--			goto out;
--		}
--	} else {
--		reset_control_deassert(drv_data->rstc);
-+		rc = PTR_ERR(drv_data->rstc);
-+		goto out;
- 	}
-+	reset_control_deassert(drv_data->rstc);
- 
- 	/* Its not yet defined how timeouts will be specified in device tree.
- 	 * So hard code the value to 1 second.
-@@ -951,8 +948,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- exit_free_irq:
- 	free_irq(drv_data->irq, drv_data);
- exit_reset:
--	if (!IS_ERR_OR_NULL(drv_data->rstc))
--		reset_control_assert(drv_data->rstc);
-+	reset_control_assert(drv_data->rstc);
- exit_clk:
- 	/* Not all platforms have a clk */
- 	if (!IS_ERR(drv_data->clk))
-@@ -968,8 +964,7 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 
- 	i2c_del_adapter(&drv_data->adapter);
- 	free_irq(drv_data->irq, drv_data);
--	if (!IS_ERR_OR_NULL(drv_data->rstc))
--		reset_control_assert(drv_data->rstc);
-+	reset_control_assert(drv_data->rstc);
- 	/* Not all platforms have a clk */
- 	if (!IS_ERR(drv_data->clk))
- 		clk_disable_unprepare(drv_data->clk);
+> Sounds for me you are trying to solve non-existing issue.
+>
+
+It's an existing issue. You _must_ have an I2C device ID table if you want to
+autload a device driver which is superfluous for DT-only drivers.
+
+In other words, if you register an I2C device using OF the modalias will be:
+
+$ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+i2c:maxtouch
+
+While the correct thing to report should be:
+
+$ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+of:NtrackpadT<NULL>Catmel,maxtouch
+
+>> [0]: https://patchwork.kernel.org/patch/6903991/
+> 
+
+Best regards,
 -- 
-2.11.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
