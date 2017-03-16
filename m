@@ -1,41 +1,81 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH v1 3/7] dt-bindings: i2c: rk3x: add support for rk3328
-Date: Thu, 16 Mar 2017 09:29:17 +0100
-Message-ID: <1968844.OUeqAadBkl@phil>
-References: <1489572237-6649-1-git-send-email-cl@rock-chips.com> <1489572237-6649-4-git-send-email-cl@rock-chips.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
+Date: Thu, 16 Mar 2017 09:28:16 -0300
+Message-ID: <722860e3-290c-7854-ad4c-14d14dcad3c2@osg.samsung.com>
+References: <20170314151638.23132-1-javier@osg.samsung.com>
+ <20170314151638.23132-5-javier@osg.samsung.com>
+ <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
+ <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
+ <20170315075835.GA1438@katana>
+ <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
+ <CAHp75VeU76YZUA45BO6uBrERfCqoZOow=oLvxauy8WY5adGZ+Q@mail.gmail.com>
+ <1bfce335-7a66-9905-b196-47366bf73d37@osg.samsung.com>
+ <CAHp75Vc1D7EYS0chi6nuZQzsqeLMZJEE6wwNayZhm=AKjuJFWQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1489572237-6649-4-git-send-email-cl@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: cl@rock-chips.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, zhangqing@rock-chips.com, kever.yang@rock-chips.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:53217
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752518AbdCPM20 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2017 08:28:26 -0400
+In-Reply-To: <CAHp75Vc1D7EYS0chi6nuZQzsqeLMZJEE6wwNayZhm=AKjuJFWQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Am Mittwoch, 15. März 2017, 18:03:53 CET schrieb cl@rock-chips.com:
-> From: Chen Liang <cl@rock-chips.com>
-> 
-> The rk3328 i2c is the same as rk3399
-> 
-> Signed-off-by: Chen Liang <cl@rock-chips.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt index bbc5a1e..abfdefd
-> 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
-> @@ -12,6 +12,7 @@ Required properties :
->     - "rockchip,rk3228-i2c": for rk3228
->     - "rockchip,rk3288-i2c": for rk3288
->     - "rockchip,rk3399-i2c": for rk3399
-> +   - "rockchip,rk3328-i2c", "rockchip,rk3399-i2c": for rk3328
->   - interrupts : interrupt number
->   - clocks: See ../clock/clock-bindings.txt
->     - For older hardware (rk3066, rk3188, rk3228, rk3288):
+Hello Andy,
 
-same as before, not sure how people see that, but maybe place rk3328 before 
-rk3399.
+On 03/15/2017 07:43 PM, Andy Shevchenko wrote:
+> On Wed, Mar 15, 2017 at 1:39 PM, Javier Martinez Canillas
+> <javier@osg.samsung.com> wrote:
+>> Hello Andy,
+>>
+>> On 03/15/2017 08:21 AM, Andy Shevchenko wrote:
+>>> On Wed, Mar 15, 2017 at 12:58 PM, Javier Martinez Canillas
+>>> <javier@osg.samsung.com> wrote:
+>>>> On 03/15/2017 04:58 AM, Wolfram Sang wrote:
+>>>
+>>>> Unfortunately some maintainers do and don't accept patches adding I2C tables
+>>>> only to have module autoloading working so I still think it should be fixed.
+>>>
+>>> Wait, how does it work for now?!
+> 
+>> It only works if you have an I2C device ID table, but that may not be the case
+>> for DT-only drivers that could only have an OF device ID table. In the latter
+>> case module autoload won't work.
+> 
+> OK.
+> 
+>>> Sounds for me you are trying to solve non-existing issue.
+> 
+>> It's an existing issue. You _must_ have an I2C device ID table if you want to
+>> autload a device driver which is superfluous for DT-only drivers.
+> 
+> Okay, can you scope only affected drivers then? Looking to spread
+> patches from you over all drivers I dunno they are all affected right
+> now.
+>
+
+That's what I did. I've only posted patches for drivers that have DT support
+but don't have an OF device ID table since module autoload will be broken for
+those if the I2C core is fixed to report a proper OF modalias.
+
+And drivers/misc/eeprom/at24.c is one of those drivers.
+ 
+> P.S. Personally I agree with maintainers who do *not* apply this. Sorry.
+> 
+
+So what's your suggestion to solve the issue then? When I said that some
+maintainers don't want a superfluous device table to be added I was talking
+about I2C device ID table for DT-only drivers, but $SUBJECT is the opposite.
+
+I've the impression that you are nacking $SUBJECT without fully understanding
+what the problem is and how this patch + the patch for I2C core are fixing it.
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
