@@ -1,59 +1,27 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
-Date: Thu, 16 Mar 2017 14:36:46 +0100
-Message-ID: <20170316133645.3nlr75gjhx7io7mv@ninjato>
-References: <20170314151638.23132-1-javier@osg.samsung.com>
- <20170314151638.23132-5-javier@osg.samsung.com>
- <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
- <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
- <20170315075835.GA1438@katana>
- <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
- <20170316130714.n42zkjdei7pm7vgw@ninjato>
- <5da325d0-59d4-92e8-350f-43c25310dabb@osg.samsung.com>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v2 1/6] dt-bindings: iio: rockchip-saradc: add support for rk3328
+Date: Thu, 16 Mar 2017 14:36:41 +0100
+Message-ID: <10877116.XTHsEZHMj3@phil>
+References: <1489670244-13328-1-git-send-email-cl@rock-chips.com> <1489670244-13328-2-git-send-email-cl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="42qvxlqbs47fbjes"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5da325d0-59d4-92e8-350f-43c25310dabb@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:36648 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752383AbdCPNhD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 16 Mar 2017 09:37:03 -0400
+In-Reply-To: <1489670244-13328-2-git-send-email-cl@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: cl@rock-chips.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, zhangqing@rock-chips.com, kever.yang@rock-chips.com
 
+Am Donnerstag, 16. März 2017, 21:17:19 CET schrieb cl@rock-chips.com:
+> From: Liang Chen <cl@rock-chips.com>
+> 
+> The rk3328 saradc is the same as rk3399.
+> 
+> Signed-off-by: Liang Chen <cl@rock-chips.com>
 
---42qvxlqbs47fbjes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Sorry, for not explaining myself correctly. I meant to ask who can do what you
-> suggested before. I'm certainly not familiar with this driver to identify what
-> is the minimum set of compatible strings that can be used as generic fallback.
-
-Well, I am the maintainer of this driver :) But we should definately get
-Rob into the boat if he is OK with updating all DTS files having such an
-EEPROM.
-
-
---42qvxlqbs47fbjes
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljKlO0ACgkQFA3kzBSg
-KbY8ng/+L/ACdmZ5zLNaCs4V8dhS20UIU+2B4leugDXTCsbXkrLBrBUm4Y0fQF4I
-wWSq1ATQI1M3d4JcOna/Im6Pfru8bpoiP3+z9ASRXLk54vDDbLi3mTt+lv18uF+R
-hAN8jFCLNl1LxMWQUmsYD9t7CZF4BaJIxmxHiCwUE72zdUuTkNNxVCAvZN5wyy07
-aCS/qGS5IwkU0AZeVHzeYq8Y3/WcCnSkcbo1vQ6lCrEEW1o+T43AmbIR9B6aWp8w
-m9aIa3QMxy2xeGd4eod9CJ/92QrCEThkkw2p5cGTk9mAa4SorNihKp5TDgF106ad
-DLHK3JJ41zrsOCIli/9oqxvFocTAZ9bebLgv0uAVBiS78hHipzhuUMwi10Ml0PeD
-iIhAO11CNzmz9uynAuIc4O5DO4i0w/RZhY1IsQF/jv4oQDSvdrSIXBeBt5/iLJJQ
-wKq+ZNMrG/H1gX1dagmf+6Rk1+JOuAFXqS5xgJfs4E/faru/tcKfDov4P6DbZARx
-U3b5mXP1ZX6IxV8hnWoW+ReDVoXjDYWp2/FmP0iuDPczUoInZQlpGMQofirNutgE
-VNRsK4qSPRr231xQRryAyxewjFFN9PbAxxRXPsepSBM4Ukt27VUXr+sRE5biBHw+
-SC41dv2bVTuXspsbAhzd1ZDuFIyTTLgJc4EkKzhTfBS8tnsqJQw=
-=xP1e
------END PGP SIGNATURE-----
-
---42qvxlqbs47fbjes--
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
