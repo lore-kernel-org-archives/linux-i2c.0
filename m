@@ -1,81 +1,65 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
-Date: Thu, 16 Mar 2017 09:28:16 -0300
-Message-ID: <722860e3-290c-7854-ad4c-14d14dcad3c2@osg.samsung.com>
+Date: Thu, 16 Mar 2017 14:07:14 +0100
+Message-ID: <20170316130714.n42zkjdei7pm7vgw@ninjato>
 References: <20170314151638.23132-1-javier@osg.samsung.com>
  <20170314151638.23132-5-javier@osg.samsung.com>
  <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
  <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
  <20170315075835.GA1438@katana>
  <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
- <CAHp75VeU76YZUA45BO6uBrERfCqoZOow=oLvxauy8WY5adGZ+Q@mail.gmail.com>
- <1bfce335-7a66-9905-b196-47366bf73d37@osg.samsung.com>
- <CAHp75Vc1D7EYS0chi6nuZQzsqeLMZJEE6wwNayZhm=AKjuJFWQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:53217
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752518AbdCPM20 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Mar 2017 08:28:26 -0400
-In-Reply-To: <CAHp75Vc1D7EYS0chi6nuZQzsqeLMZJEE6wwNayZhm=AKjuJFWQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dktoaxa35hbag4fs"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-Hello Andy,
 
-On 03/15/2017 07:43 PM, Andy Shevchenko wrote:
-> On Wed, Mar 15, 2017 at 1:39 PM, Javier Martinez Canillas
-> <javier@osg.samsung.com> wrote:
->> Hello Andy,
->>
->> On 03/15/2017 08:21 AM, Andy Shevchenko wrote:
->>> On Wed, Mar 15, 2017 at 12:58 PM, Javier Martinez Canillas
->>> <javier@osg.samsung.com> wrote:
->>>> On 03/15/2017 04:58 AM, Wolfram Sang wrote:
->>>
->>>> Unfortunately some maintainers do and don't accept patches adding I2C tables
->>>> only to have module autoloading working so I still think it should be fixed.
->>>
->>> Wait, how does it work for now?!
-> 
->> It only works if you have an I2C device ID table, but that may not be the case
->> for DT-only drivers that could only have an OF device ID table. In the latter
->> case module autoload won't work.
-> 
-> OK.
-> 
->>> Sounds for me you are trying to solve non-existing issue.
-> 
->> It's an existing issue. You _must_ have an I2C device ID table if you want to
->> autload a device driver which is superfluous for DT-only drivers.
-> 
-> Okay, can you scope only affected drivers then? Looking to spread
-> patches from you over all drivers I dunno they are all affected right
-> now.
->
+--dktoaxa35hbag4fs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's what I did. I've only posted patches for drivers that have DT support
-but don't have an OF device ID table since module autoload will be broken for
-those if the I2C core is fixed to report a proper OF modalias.
 
-And drivers/misc/eeprom/at24.c is one of those drivers.
- 
-> P.S. Personally I agree with maintainers who do *not* apply this. Sorry.
-> 
+> > I'd think we should fix the DTS files instead to contain a fallback we
+> > agree on. Say, we agree on "atmel,at24c01" as a the generic fallback,
+> > the DTS should contain:
+> >=20
+> > 	compatible =3D "<your_vendor>,<your_type>", "atmel,at24c01"
+> >=20
+> > And we shall only keep compatible values in the source file which differ
+> > in behaviour fromt the generic case.
+> >
+>=20
+> Do you know who that's familiar with this device and driver can do this? =
+I've
 
-So what's your suggestion to solve the issue then? When I said that some
-maintainers don't want a superfluous device table to be added I was talking
-about I2C device ID table for DT-only drivers, but $SUBJECT is the opposite.
+Sorry, I don't understand your question. What do you mean?
 
-I've the impression that you are nacking $SUBJECT without fully understanding
-what the problem is and how this patch + the patch for I2C core are fixing it.
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+--dktoaxa35hbag4fs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljKjfsACgkQFA3kzBSg
+KbZLHA/+LClGQzDMrCjIciXNOYFeabQNdCVzPsDPjB9sMVg2ijdmhGyWljhCWdkr
+ZCbPMJbiznX+2x95zWk7Gj+vVGRNcpzwQiOS/tVJ93qz8BFikRD0M1MGPgqDSLC+
+qd3PvrsbO9LjJGtE3HyK3e2thMBr2GbPYz38WvUcCxvVWPFb8XZM/FV5KtkuoF50
+Bk//dYnee+gWS5b4TnEY1/7LzV6fdMUMiVPtjtIbMYZzEp3rMrW/sLj8KB7kDIHY
+9Il56XPPkGGcFqeFCg9IC8UBGT43cSXm4Xm4fulaZctPYBcRTa1NBSN364JoBlnm
+lQrRc3/v0qJRw9JQ/1ntDr3himqkrYxyWCEfkOcY0KvAICmF3XLH+GHIfT9Aey5h
+Zc86QLY67ivABIG10VVSOliE9BBtSGNwokmSe9ilGyj2gdi4+64bcffNA2NU3VBj
+e46dVxFjWDSvN7Enzgu3Q+avsUnx7kPAT3V7GZ2LvQVOWaLLuVQoEMQwMbxCgP3i
+ZbinlK8O7uTLoKEJoj3QEMN3iZd+NprguzRqPyu9iO3pjZ7CopuW7vFTkrWEvpmD
+svSCFRKgoo5exWGRak0f2IegJheZ9HFHqfuv4h8l3DekPJUfmVpfMUvaV5Lsm4rY
+1VNOkGHH/uY5Ugf143RVitM8hiPIJ7Nc8Y2Q8TopSfNNG1owmaQ=
+=TZ5h
+-----END PGP SIGNATURE-----
+
+--dktoaxa35hbag4fs--
