@@ -1,49 +1,46 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
-Date: Thu, 16 Mar 2017 10:13:00 -0300
-Message-ID: <5da325d0-59d4-92e8-350f-43c25310dabb@osg.samsung.com>
-References: <20170314151638.23132-1-javier@osg.samsung.com>
- <20170314151638.23132-5-javier@osg.samsung.com>
- <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
- <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
- <20170315075835.GA1438@katana>
- <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
- <20170316130714.n42zkjdei7pm7vgw@ninjato>
+From: <cl@rock-chips.com>
+Subject: [PATCH v2 2/6] dt-bindings: i2c: rk3x: add support for rk3328
+Date: Thu, 16 Mar 2017 21:17:20 +0800
+Message-ID: <1489670244-13328-3-git-send-email-cl@rock-chips.com>
+References: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170316130714.n42zkjdei7pm7vgw@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: heiko@sntech.de
+Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, dianders@chromium.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, Liang Chen <cl@rock-chips.com>, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, zhangqing@rock-chips.com, paweljarosz3691@gmail.com, arnd@arndb.de, yhx@rock-chips.com, knaack.h@gmx.de, robh+dt@kernel.org, matthias.bgg@gmail.com, rocky.hao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com, fabio.estevam@nxp.com, andy.yan@rock-chips.com, akpm@linux-foundation.org, shawnguo@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+From: Liang Chen <cl@rock-chips.com>
 
-On 03/16/2017 10:07 AM, Wolfram Sang wrote:
-> 
->>> I'd think we should fix the DTS files instead to contain a fallback we
->>> agree on. Say, we agree on "atmel,at24c01" as a the generic fallback,
->>> the DTS should contain:
->>>
->>> 	compatible = "<your_vendor>,<your_type>", "atmel,at24c01"
->>>
->>> And we shall only keep compatible values in the source file which differ
->>> in behaviour fromt the generic case.
->>>
->>
->> Do you know who that's familiar with this device and driver can do this? I've
-> 
-> Sorry, I don't understand your question. What do you mean?
-> 
+The rk3328 i2c is the same as rk3399
 
-Sorry, for not explaining myself correctly. I meant to ask who can do what you
-suggested before. I'm certainly not familiar with this driver to identify what
-is the minimum set of compatible strings that can be used as generic fallback.
+Signed-off-by: Liang Chen <cl@rock-chips.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Best regards,
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index bbc5a1e..e18445d 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -11,6 +11,7 @@ Required properties :
+    - "rockchip,rk3188-i2c": for rk3188
+    - "rockchip,rk3228-i2c": for rk3228
+    - "rockchip,rk3288-i2c": for rk3288
++   - "rockchip,rk3328-i2c", "rockchip,rk3399-i2c": for rk3328
+    - "rockchip,rk3399-i2c": for rk3399
+  - interrupts : interrupt number
+  - clocks: See ../clock/clock-bindings.txt
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+1.9.1
