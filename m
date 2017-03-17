@@ -1,66 +1,130 @@
-From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH 4/5] ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
-Date: Fri, 17 Mar 2017 10:58:57 +0100
-Message-ID: <1489744738-21632-5-git-send-email-cedric.madianga@gmail.com>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, pierre-yves.mordret@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 08/15] power: supply: bq24190_charger: Add support for external fuel gauge
+Date: Fri, 17 Mar 2017 10:55:20 +0100
+Message-ID: <20170317095527.10487-9-hdegoede@redhat.com>
+References: <20170317095527.10487-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:41848 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751049AbdCQJ4t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 17 Mar 2017 05:56:49 -0400
+In-Reply-To: <20170317095527.10487-1-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 
-This patch adds I2C1 support for STM32F746 SoC.
+Some platforms with a bq24190_charger have an external fuel gauge which
+makes it possible to reliably report battery (dis)charge state, at
+support for this by adding an optional get_ext_bat_property callback
+to the platform_data and using this if the platform provides it.
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+By convention the callback will return -ENXIO when it is not ready yet,
+or the driver providing it has been unbound from its device. Since it
+returns the same error when unbound it cannot return -EPROBE_DEFER
+as that is not a valid errno.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/arm/boot/dts/stm32f746.dtsi | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/power/supply/bq24190_charger.c | 41 +++++++++++++++++++++++++++++++---
+ include/linux/power/bq24190_charger.h  |  4 ++++
+ 2 files changed, 42 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
-index f321ffe..89d3897 100644
---- a/arch/arm/boot/dts/stm32f746.dtsi
-+++ b/arch/arm/boot/dts/stm32f746.dtsi
-@@ -287,6 +287,29 @@
- 					bias-disable;
- 				};
- 			};
-+
-+			i2c1_pins_b: i2c1@0 {
-+				pins {
-+					pinmux = <STM32F746_PB9_FUNC_I2C1_SDA>,
-+						 <STM32F746_PB6_FUNC_I2C1_SCL>;
-+					bias-disable;
-+					drive-open-drain;
-+					slew-rate = <3>;
-+				};
-+			};
-+		};
-+
-+		i2c1: i2c@40005400 {
-+			compatible = "st,stm32f7-i2c";
-+			reg = <0x40005400 0x400>;
-+			interrupts = <31>,
-+				     <32>;
-+			resets = <&rcc 149>;
-+			clocks = <&rcc 0 405>;
-+			st,i2c-timing = <0x40202537>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
- 		};
+diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
+index 9014dee..9fe69a5 100644
+--- a/drivers/power/supply/bq24190_charger.c
++++ b/drivers/power/supply/bq24190_charger.c
+@@ -1111,7 +1111,10 @@ static int bq24190_battery_get_property(struct power_supply *psy,
+ 		ret = 0;
+ 		break;
+ 	default:
+-		ret = -ENODATA;
++		if (bdi->pdata && bdi->pdata->get_ext_bat_property)
++			ret = bdi->pdata->get_ext_bat_property(psp, val);
++		else
++			ret = -ENODATA;
+ 	}
  
- 		rcc: rcc@40023800 {
+ 	pm_runtime_put_sync(bdi->dev);
+@@ -1168,12 +1171,31 @@ static enum power_supply_property bq24190_battery_properties[] = {
+ 	POWER_SUPPLY_PROP_TECHNOLOGY,
+ 	POWER_SUPPLY_PROP_TEMP_ALERT_MAX,
+ 	POWER_SUPPLY_PROP_SCOPE,
++	/* Begin of extended battery properties */
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_VOLTAGE_AVG,
++	POWER_SUPPLY_PROP_VOLTAGE_OCV,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CURRENT_AVG,
++	POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN,
++	POWER_SUPPLY_PROP_CHARGE_FULL,
++	POWER_SUPPLY_PROP_CHARGE_NOW,
+ };
+ 
+ static const struct power_supply_desc bq24190_battery_desc = {
+ 	.name			= "bq24190-battery",
+ 	.type			= POWER_SUPPLY_TYPE_BATTERY,
+ 	.properties		= bq24190_battery_properties,
++	.num_properties		= 6,
++	.get_property		= bq24190_battery_get_property,
++	.set_property		= bq24190_battery_set_property,
++	.property_is_writeable	= bq24190_battery_property_is_writeable,
++};
++
++static const struct power_supply_desc bq24190_ext_battery_desc = {
++	.name			= "bq24190-battery",
++	.type			= POWER_SUPPLY_TYPE_BATTERY,
++	.properties		= bq24190_battery_properties,
+ 	.num_properties		= ARRAY_SIZE(bq24190_battery_properties),
+ 	.get_property		= bq24190_battery_get_property,
+ 	.set_property		= bq24190_battery_set_property,
+@@ -1336,6 +1358,15 @@ static int bq24190_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
++	if (bdi->pdata && bdi->pdata->get_ext_bat_property) {
++		union power_supply_propval val;
++
++		/* Check external fuel gauge is ready */
++		ret = bdi->pdata->get_ext_bat_property(0, &val);
++		if (ret == -ENXIO)
++			return -EPROBE_DEFER;
++	}
++
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_resume(dev);
+ 
+@@ -1357,8 +1388,12 @@ static int bq24190_probe(struct i2c_client *client,
+ 	}
+ 
+ 	battery_cfg.drv_data = bdi;
+-	bdi->battery = power_supply_register(dev, &bq24190_battery_desc,
+-						&battery_cfg);
++	if (bdi->pdata && bdi->pdata->get_ext_bat_property)
++		bdi->battery = power_supply_register(dev,
++				    &bq24190_ext_battery_desc, &battery_cfg);
++	else
++		bdi->battery = power_supply_register(dev,
++				    &bq24190_battery_desc, &battery_cfg);
+ 	if (IS_ERR(bdi->battery)) {
+ 		dev_err(dev, "Can't register battery\n");
+ 		ret = PTR_ERR(bdi->battery);
+diff --git a/include/linux/power/bq24190_charger.h b/include/linux/power/bq24190_charger.h
+index 8d918cb..02d248b 100644
+--- a/include/linux/power/bq24190_charger.h
++++ b/include/linux/power/bq24190_charger.h
+@@ -9,8 +9,12 @@
+ #ifndef _BQ24190_CHARGER_H_
+ #define _BQ24190_CHARGER_H_
+ 
++#include <linux/power_supply.h>
++
+ struct bq24190_platform_data {
+ 	bool no_register_reset;
++	int (*get_ext_bat_property)(enum power_supply_property prop,
++				    union power_supply_propval *val);
+ };
+ 
+ #endif
 -- 
-1.9.1
+2.9.3
