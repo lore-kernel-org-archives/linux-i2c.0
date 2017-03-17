@@ -1,104 +1,78 @@
-From: =?UTF-8?B?6ZmI5Lqu?= <cl@rock-chips.com>
-Subject: Re: [PATCH v1 6/7] arm64: dts: rockchip: add dts file for RK3328
- evaluation board
-Date: Fri, 17 Mar 2017 10:26:13 +0800
-Message-ID: <58CB4945.9020408@rock-chips.com>
-References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
- <1489628711-31271-1-git-send-email-cl@rock-chips.com>
- <63969127-3fcd-658c-2986-8ded6d93c433@arm.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c-designware: increase timeout of semaphore transfer
+Date: Fri, 17 Mar 2017 08:35:45 +0100
+Message-ID: <df37d77a-c0a2-9c13-f70f-140fcfbb72e7@redhat.com>
+References: <20170316162455.22876-1-oneukum@suse.com>
+ <1489682129.19767.25.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <63969127-3fcd-658c-2986-8ded6d93c433@arm.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Andre Przywara <andre.przywara@arm.com>, heiko@sntech.de
-Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, david.wu@rock-chips.com, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, paweljarosz3691@gmail.com, arnd@arndb.de, yhx@rock-chips.com, zhangqing@rock-chips.com, robh+dt@kernel.org, matthias.bgg@gmail.com, akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org, dianders@chromium.org, knaack.h@gmx.de, fabio.estevam@nxp.com, andy.yan@rock-chips.com, rocky.hao@rock-chips.com, shawnguo@kernel.org, afaerber@suse.de, jic23@kernel.
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53824 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750932AbdCQHft (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 17 Mar 2017 03:35:49 -0400
+In-Reply-To: <1489682129.19767.25.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Oliver Neukum <oneukum@suse.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-CgrlnKggMjAxN+W5tDAz5pyIMTfml6UgMDA6MTgsIEFuZHJlIFByenl3YXJhIOWGmemBkzoKPiBI
-aSBDaGVuLAo+Cj4gT24gMTYvMDMvMTcgMDE6NDUsIGNsQHJvY2stY2hpcHMuY29tIHdyb3RlOgo+
-PiBGcm9tOiBDaGVuIExpYW5nIDxjbEByb2NrLWNoaXBzLmNvbT4KPj4KPj4gVGhpcyBwYXRjaCBh
-ZGQgcmszMzI4LWV2Yi5kdHMgZm9yIFJLMzMyOCBldmFsdWF0aW9uIGJvYXJkLgo+PiBUZXN0ZWQg
-b24gUkszMzI4IGV2Yi4KPj4KPj4gU2lnbmVkLW9mZi1ieTogQ2hlbiBMaWFuZyA8Y2xAcm9jay1j
-aGlwcy5jb20+Cj4+IC0tLQo+PiAgIGFyY2gvYXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvTWFrZWZp
-bGUgICAgICAgfCAgMSArCj4+ICAgYXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9yazMzMjgt
-ZXZiLmR0cyB8IDU3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4+ICAgMiBmaWxlcyBj
-aGFuZ2VkLCA1OCBpbnNlcnRpb25zKCspCj4+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gvYXJt
-NjQvYm9vdC9kdHMvcm9ja2NoaXAvcmszMzI4LWV2Yi5kdHMKPj4KPj4gZGlmZiAtLWdpdCBhL2Fy
-Y2gvYXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvTWFrZWZpbGUgYi9hcmNoL2FybTY0L2Jvb3QvZHRz
-L3JvY2tjaGlwL01ha2VmaWxlCj4+IGluZGV4IDNhODYyODkuLjg1M2ZjN2QgMTAwNjQ0Cj4+IC0t
-LSBhL2FyY2gvYXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvTWFrZWZpbGUKPj4gKysrIGIvYXJjaC9h
-cm02NC9ib290L2R0cy9yb2NrY2hpcC9NYWtlZmlsZQo+PiBAQCAtNCw2ICs0LDcgQEAgZHRiLSQo
-Q09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM2OC1vcmlvbi1yNjgtbWV0YS5kdGIKPj4gICBk
-dGItJChDT05GSUdfQVJDSF9ST0NLQ0hJUCkgKz0gcmszMzY4LXB4NS1ldmIuZHRiCj4+ICAgZHRi
-LSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM2OC1yODguZHRiCj4+ICAgZHRiLSQoQ09O
-RklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM5OS1ldmIuZHRiCj4+ICtkdGItJChDT05GSUdfQVJD
-SF9ST0NLQ0hJUCkgKz0gcmszMzI4LWV2Yi5kdGIKPj4gICAKPj4gICBhbHdheXMJCTo9ICQoZHRi
-LXkpCj4+ICAgc3ViZGlyLXkJOj0gJChkdHMtZGlycykKPj4gZGlmZiAtLWdpdCBhL2FyY2gvYXJt
-NjQvYm9vdC9kdHMvcm9ja2NoaXAvcmszMzI4LWV2Yi5kdHMgYi9hcmNoL2FybTY0L2Jvb3QvZHRz
-L3JvY2tjaGlwL3JrMzMyOC1ldmIuZHRzCj4+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0Cj4+IGluZGV4
-IDAwMDAwMDAuLmNmMjcyMzkKPj4gLS0tIC9kZXYvbnVsbAo+PiArKysgYi9hcmNoL2FybTY0L2Jv
-b3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1ldmIuZHRzCj4+IEBAIC0wLDAgKzEsNTcgQEAKPj4gKy8q
-Cj4+ICsgKiBDb3B5cmlnaHQgKGMpIDIwMTcgRnV6aG91IFJvY2tjaGlwIEVsZWN0cm9uaWNzIENv
-LiwgTHRkCj4+ICsgKgo+PiArICogVGhpcyBmaWxlIGlzIGR1YWwtbGljZW5zZWQ6IHlvdSBjYW4g
-dXNlIGl0IGVpdGhlciB1bmRlciB0aGUgdGVybXMKPj4gKyAqIG9mIHRoZSBHUEwgb3IgdGhlIFgx
-MSBsaWNlbnNlLCBhdCB5b3VyIG9wdGlvbi4gTm90ZSB0aGF0IHRoaXMgZHVhbAo+PiArICogbGlj
-ZW5zaW5nIG9ubHkgYXBwbGllcyB0byB0aGlzIGZpbGUsIGFuZCBub3QgdGhpcyBwcm9qZWN0IGFz
-IGEKPj4gKyAqIHdob2xlLgo+PiArICoKPj4gKyAqICBhKSBUaGlzIGxpYnJhcnkgaXMgZnJlZSBz
-b2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yCj4+ICsgKiAgICAgbW9kaWZ5
-IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMK
-Pj4gKyAqICAgICBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0
-aGVyIHZlcnNpb24gMiBvZiB0aGUKPj4gKyAqICAgICBMaWNlbnNlLCBvciAoYXQgeW91ciBvcHRp
-b24pIGFueSBsYXRlciB2ZXJzaW9uLgo+PiArICoKPj4gKyAqICAgICBUaGlzIGxpYnJhcnkgaXMg
-ZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwKPj4gKyAqICAg
-ICBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJy
-YW50eSBvZgo+PiArICogICAgIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJ
-Q1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKPj4gKyAqICAgICBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
-ZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgo+PiArICoKPj4gKyAqIE9yLCBhbHRlcm5hdGl2ZWx5LAo+
-PiArICoKPj4gKyAqICBiKSBQZXJtaXNzaW9uIGlzIGhlcmVieSBncmFudGVkLCBmcmVlIG9mIGNo
-YXJnZSwgdG8gYW55IHBlcnNvbgo+PiArICogICAgIG9idGFpbmluZyBhIGNvcHkgb2YgdGhpcyBz
-b2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uCj4+ICsgKiAgICAgZmlsZXMgKHRo
-ZSAiU29mdHdhcmUiKSwgdG8gZGVhbCBpbiB0aGUgU29mdHdhcmUgd2l0aG91dAo+PiArICogICAg
-IHJlc3RyaWN0aW9uLCBpbmNsdWRpbmcgd2l0aG91dCBsaW1pdGF0aW9uIHRoZSByaWdodHMgdG8g
-dXNlLAo+PiArICogICAgIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUs
-IHN1YmxpY2Vuc2UsIGFuZC9vcgo+PiArICogICAgIHNlbGwgY29waWVzIG9mIHRoZSBTb2Z0d2Fy
-ZSwgYW5kIHRvIHBlcm1pdCBwZXJzb25zIHRvIHdob20gdGhlCj4+ICsgKiAgICAgU29mdHdhcmUg
-aXMgZnVybmlzaGVkIHRvIGRvIHNvLCBzdWJqZWN0IHRvIHRoZSBmb2xsb3dpbmcKPj4gKyAqICAg
-ICBjb25kaXRpb25zOgo+PiArICoKPj4gKyAqICAgICBUaGUgYWJvdmUgY29weXJpZ2h0IG5vdGlj
-ZSBhbmQgdGhpcyBwZXJtaXNzaW9uIG5vdGljZSBzaGFsbCBiZQo+PiArICogICAgIGluY2x1ZGVk
-IGluIGFsbCBjb3BpZXMgb3Igc3Vic3RhbnRpYWwgcG9ydGlvbnMgb2YgdGhlIFNvZnR3YXJlLgo+
-PiArICoKPj4gKyAqICAgICBUSEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9V
-VCBXQVJSQU5UWSBPRiBBTlkgS0lORCwKPj4gKyAqICAgICBFWFBSRVNTIE9SIElNUExJRUQsIElO
-Q0xVRElORyBCVVQgTk9UIExJTUlURUQgVE8gVEhFIFdBUlJBTlRJRVMKPj4gKyAqICAgICBPRiBN
-RVJDSEFOVEFCSUxJVFksIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFIEFORAo+PiAr
-ICogICAgIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hBTEwgVEhFIEFVVEhPUlMgT1Ig
-Q09QWVJJR0hUCj4+ICsgKiAgICAgSE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFN
-QUdFUyBPUiBPVEhFUiBMSUFCSUxJVFksCj4+ICsgKiAgICAgV0hFVEhFUiBJTiBBTiBBQ1RJT04g
-T0YgQ09OVFJBQ1QsIFRPUlQgT1IgT1RIRVJXSVNFLCBBUklTSU5HCj4+ICsgKiAgICAgRlJPTSwg
-T1VUIE9GIE9SIElOIENPTk5FQ1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRSBPUgo+
-PiArICogICAgIE9USEVSIERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4KPj4gKyAqLwo+PiArCj4+
-ICsvZHRzLXYxLzsKPj4gKyNpbmNsdWRlICJyazMzMjguZHRzaSIKPj4gKwo+PiArLyB7Cj4+ICsJ
-bW9kZWwgPSAiUm9ja2NoaXAgUkszMzI4IEVWQiI7Cj4+ICsJY29tcGF0aWJsZSA9ICJyb2NrY2hp
-cCxyazMzMjgtZXZiIiwgInJvY2tjaGlwLHJrMzMyOCI7Cj4+ICsKPj4gKwljaG9zZW4gewo+PiAr
-CQlzdGRvdXQtcGF0aCA9ICJzZXJpYWwyOjE1MDAwMDBuOCI7Cj4gSXMgdGhhdCByZWFsbHkgMS41
-TUJpdC9zPwpZZXMsIHRoZSBSSzMzMjggRVZCIGJvYXJkIHVzZSAxLjVNQml0L3MgYmF1ZCByYXRl
-Lgo+Cj4+ICsJfTsKPj4gK307Cj4+ICsKPj4gKyZ1YXJ0MiB7Cj4+ICsJc3RhdHVzID0gIm9rYXki
-Owo+PiArfTsKPiBJIGRvbid0IGhhdmUgdGhlIGJvYXJkLCBidXQgd291bGQgZXhwZWN0IHRvIHNl
-ZSBtb3JlIHBlcmlwaGVyYWxzCj4gbWVudGlvbmVkIGluIHRoZSAuZHRzaSBlbmFibGVkIGhlcmUu
-Cj4gRm9yIHN1cmUgdGhlIGJvYXJkIGhhcyBhbiAobWljcm8pU0QgY2FyZCBzbG90LCBwb3NzaWJs
-eSBldmVuIEV0aGVybmV0PwpUaGUgY29kZXMgZm9yIG90aGVyIHBlcmlwaGVyYWxzIGFyZSBub3Qg
-cmVhZHkgbm93IGZvciBuZXcga2VybmVsLCBzbyBpIApwdXNoIGEgYmFzZSBkdHNpLCBhbmQgb3Ro
-ZXIgY29uZmlncmF0aW9uIHdpbGwgYmUgcHVzaGVkIGxhdGVyIGlmIGl0IGlzIG9rLgo+IENoZWVy
-cywKPiBBbmRyZS4KPgoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxp
-c3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0
-aW5mby9saW51eC1hcm0ta2VybmVsCg==
+Hi,
+
+On 16-03-17 17:35, Andy Shevchenko wrote:
+> On Thu, 2017-03-16 at 17:24 +0100, Oliver Neukum wrote:
+>> Our testing shows the semaphore failing to be transferred on
+>> CherryTrail
+>> in about 0.5% of all cases. The existing timeout needs to be
+>> lengthened
+>> to accomodate the worst cases.
+>
+> I think it's just a semi-hiding of real issue.
+
+I would not know what real issue, I've seen the timeout being
+hit sometimes too, it seems that sometimes the punit just is
+busy with other stuff for a while before acking the semaphore
+request, so I think this patch is fine:
+
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+
+Oliver, can you rebase this on top of:
+
+
+https://cgit.freedesktop.org/drm-intel/commit/?h=topic/designware-baytrail
+
+Which is in -next now, please ? I'm sorta surprised you didn't
+use this is a base since your commit msg mentions cherrytrail
+and with that series the semaphore code is broken on
+cherrytrail.
+
+Regards,
+
+Hans
+
+
+
+>
+> Hans?
+>
+>>
+>> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-baytrail.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> b/drivers/i2c/busses/i2c-designware-baytrail.c
+>> index 1590ad0..2d238e3 100644
+>> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
+>> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+>> @@ -21,7 +21,7 @@
+>>
+>>  #include "i2c-designware-core.h"
+>>
+>> -#define SEMAPHORE_TIMEOUT	100
+>> +#define SEMAPHORE_TIMEOUT	500
+>>  #define PUNIT_SEMAPHORE		0x7
+>>  #define PUNIT_SEMAPHORE_BIT	BIT(0)
+>>  #define PUNIT_SEMAPHORE_ACQUIRE	BIT(1)
+>
