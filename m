@@ -1,288 +1,68 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 15/15] i2c-cht-wc: Add Intel Cherry Trail Whiskey Cove
- SMBUS controller driver
-Date: Fri, 17 Mar 2017 20:22:12 +0200
-Message-ID: <1489774932.19767.86.camel@linux.intel.com>
-References: <20170317095527.10487-1-hdegoede@redhat.com>
-         <20170317095527.10487-16-hdegoede@redhat.com>
+From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
+Subject: Re: [PATCH 3/5] i2c: i2c-stm32f7: add driver
+Date: Fri, 17 Mar 2017 23:38:19 +0100
+Message-ID: <CAOAejn00O7n1UAyH7VTbgT076ZxS20TSvzfEfgw8bsA80Qgdyg@mail.gmail.com>
+References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
+ <1489744738-21632-4-git-send-email-cedric.madianga@gmail.com>
+ <6ae90186-0e8d-654b-c9e3-2d1b4daf6198@baylibre.com>
+ <CAOAejn0Hs7QOgcrHM2t3NsFQeD9dyvThDK-8iM1Lvb7Qv4fGGQ@mail.gmail.com>
+ <971895d3-2fe6-ecb6-9dc3-ee71193b34ee@baylibre.com>
+ <CAOAejn0ScANyMEWnBfe0G8xQ5TbR-XYwEdXLkNexqC=AigBNJA@mail.gmail.com>
+ <5539f058-f2a1-ff78-6dd8-aa2119ce8c49@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170317095527.10487-16-hdegoede@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
-Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <5539f058-f2a1-ff78-6dd8-aa2119ce8c49@baylibre.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Russell King <linux@armlinux.org.uk>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2017-03-17 at 10:55 +0100, Hans de Goede wrote:
-> The Intel Cherry Trail Whiskey Cove PMIC has a builtin SMBUS
-> controller
-> for talking to an external PMIC. Add a driver for this.
+Hi Neil,
 
-Looking to all this mess we have with PMICs, perhaps some file under
-Documentation to explain all those dependencies with nice ASCII flow
-charts would be created.
+>> As, I2C rise/fall time have some impacts in I2C timings value, the
+>> question is: it is very relevant to let customer control these
+>> parameters ?
+>
+> Actually, you could specify a different rise time in DT if it's relevant for
+> a specific design, this is why you have the following DT attributes :
+> - i2c-scl-falling-time-ns
+> - i2c-scl-internal-delay-ns
+> - i2c-scl-rising-time-ns
+> - i2c-sda-falling-time-ns
+>
+>> If the answer is NO, I agree with you, it is better to use your
+>> formula and remove this property from DT.
+>> If the answer is YES, I think we should keep ST tool.
+>
+> Note that the ST tool calculations are tied to the clock source frequency, so either
+> you provide a table for all the possible clock source frequencies or calculate dynamically.
+> Having a single parameter for a single frequency is, from my point of view, not acceptable.
+>
+> And, I don't think it's a military secret to have (at least) a simplified algorithm from ST...
+> since you have very detailed explanations in the public manuals !
 
->  drivers/i2c/busses/i2c-cht-wc.c | 338 
+OK. I will do some trials with your algorithm and push it in the V2.
+Thanks
 
-File name: i2c-chtwc.c
+>
+> OK, but I think the I2C and DT maintainers are also involved in these kind of decisions.
+> They should also give their advice.
 
-> +#include <linux/power/cht_wc_fuel_gauge.h>
+I already upstream an I2C driver with this approach: "i2c-stm32f4".
+I don't think that Wolfram or Rob will change the philosophy for this driver.
+Then, I also don't think that the machine code for F0/F1/L0/L4 will be
+pushed in the mainline as it will be completely useless to port a
+linux kernel for this kind of chip.
 
-Perhaps chtwc_fuel_gauge or intel_chtwc_fuel_gauge.h (see previous patch
-for comment regarding naming).
-
-> +#include <linux/slab.h>
-> +
-> +#define CHT_WC_I2C_CTRL			0x5e24
-> +#define CHT_WC_I2C_CTRL_WR		BIT(0)
-> +#define CHT_WC_I2C_CTRL_RD		BIT(1)
-> +#define CHT_WC_I2C_CLIENT_ADDR		0x5e25
-> +#define CHT_WC_I2C_REG_OFFSET		0x5e26
-> +#define CHT_WC_I2C_WRDATA		0x5e27
-> +#define CHT_WC_I2C_RDDATA		0x5e28
-> +
-> +#define CHT_WC_EXTCHGRIRQ		0x6e0a
-> +#define CHT_WC_EXTCHGRIRQ_CLIENT_IRQ	BIT(0)
-> +#define CHT_WC_EXTCHGRIRQ_WRITE_IRQ	BIT(1)
-> +#define CHT_WC_EXTCHGRIRQ_READ_IRQ	BIT(2)
-> +#define CHT_WC_EXTCHGRIRQ_NACK_IRQ	BIT(3)
-> 
-
-> +#define CHT_WC_EXTCHGRIRQ_ADAP_IRQS	((u8)(BIT(1) | BIT(2) |
-> BIT(3)))
-
-_IRQ_MASK ?
-
-GENMASK() ?
-
-> +#define CHT_WC_EXTCHGRIRQ_MSK		0x6e17
-
-> +struct cht_wc_i2c_adap {
-> +	struct i2c_adapter adapter;
-> +	wait_queue_head_t wait;
-> +	struct irq_chip irqchip;
-> +	struct mutex irqchip_lock;
-> +	struct regmap *regmap;
-> +	struct irq_domain *irq_domain;
-> +	struct i2c_client *client;
-> +	int client_irq;
-> +	u8 irq_mask;
-> +	u8 old_irq_mask;
-> +	bool nack;
-> +	bool done;
-> +};
-> +
-> +static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
-> +{
-> +	struct cht_wc_i2c_adap *adap = data;
-> +	int ret, reg;
-> +
-> +	/* Read irqs */
-
-IRQs
-
-> +	ret = regmap_read(adap->regmap, CHT_WC_EXTCHGRIRQ, &reg);
-> +	if (ret) {
-> +		dev_err(&adap->adapter.dev, "Error reading extchgrirq
-> reg\n");
-> +		return IRQ_NONE;
-> +	}
-> +
-> +	reg &= ~adap->irq_mask;
-> +
-> +	/*
-> +	 * Immediately ack irqs, so that if new irqs arrives while
-> we're
-> +	 * handling the previous ones our irq will re-trigger when
-> we're done.
-> +	 */
-> +	ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ, reg);
-> +	if (ret)
-> +		dev_err(&adap->adapter.dev, "Error writing extchgrirq
-> reg\n");
-> +
-> +	/*
-> +	 * Do NOT use handle_nested_irq here, the client irq handler
-> will
-> +	 * likely want to do i2c transfers and the i2c controller
-> uses this
-> +	 * interrupt handler as well, so running the client irq
-> handler from
-> +	 * this thread will cause things to lock up.
-> +	 */
-> +	if (reg & CHT_WC_EXTCHGRIRQ_CLIENT_IRQ) {
-> +		/*
-> +		 * generic_handle_irq expects local irqs to be
-> disabled
-> +		 * as normally it is called from interrupt context.
-> +		 */
-> +		local_irq_disable();
-> +		generic_handle_irq(adap->client_irq);
-> +		local_irq_enable();
-> +	}
-> +
-> +	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQS) {
-
-> +		if (reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ)
-> +			adap->nack = true;
-
-adap->nack = !!(reg & ...);
-
-> +		adap->done = true;
-> +		wake_up(&adap->wait);
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-
-> +static u32 cht_wc_i2c_adap_master_func(struct i2c_adapter *adap)
-> +{
-> +	/* This i2c adapter only supports smbus byte transfers */
-
-smbus -> SMBUS
-
-> +	return I2C_FUNC_SMBUS_BYTE_DATA;
-> +}
-> +
-> +static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16
-> addr,
-> +				      unsigned short flags, char
-> read_write,
-> +				      u8 command, int size,
-> +				      union i2c_smbus_data *data)
-> +{
-> +	struct cht_wc_i2c_adap *adap = i2c_get_adapdata(_adap);
-> +	int ret, reg;
-> +
-
-> +
-> +	/* 3 second timeout, during cable plug the PMIC responds
-> quite slow */
-> +	ret = wait_event_timeout(adap->wait, adap->done, HZ * 3);
-
-3 * HZ
-
-> +	if (ret == 0)
-> +		return -ETIMEDOUT;
-> +	if (adap->nack)
-> +		return -EIO;
-> +
-> +	if (read_write == I2C_SMBUS_READ) {
-> +		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA,
-> &reg);
-> +		if (ret)
-> +			return ret;
-> +
-> +		data->byte = reg;
-> +	}
-> +
-> +	return 0;
-> +}
-
-> +/**** irqchip for the client connected to the extchgr i2c adapter
-> ****/
-
-Useless ?
-
-> +static void cht_wc_i2c_irq_lock(struct irq_data *data)
-> +{
-> +	struct cht_wc_i2c_adap *adap =
-> irq_data_get_irq_chip_data(data);
-> +
-> +	mutex_lock(&adap->irqchip_lock);
-> +}
-> +
-> +static void cht_wc_i2c_irq_sync_unlock(struct irq_data *data)
-> +{
-> +	struct cht_wc_i2c_adap *adap =
-> irq_data_get_irq_chip_data(data);
-> +	int ret;
-> +
-> +	if (adap->irq_mask != adap->old_irq_mask) {
-> +		ret = regmap_write(adap->regmap,
-> CHT_WC_EXTCHGRIRQ_MSK,
-> +				   adap->irq_mask);
-> +		if (ret == 0)
-> +			adap->old_irq_mask = adap->irq_mask;
-> +		else
-> +			dev_err(&adap->adapter.dev, "Error writing
-> extchgrirq_msk\n");
-
-extchgrirq_msk -> EXTCHGRIRQ_MSK ?
-> +	}
-> +
-> +	mutex_unlock(&adap->irqchip_lock);
-> +}
-
-
-> +static const struct bq24190_platform_data bq24190_pdata = {
-> +	.no_register_reset = true,
-> +	.extcon_name = "cht_wcove_pwrsrc",
-> +	.get_ext_bat_property = cht_wc_fg_get_property,
-> +};
-> +
-> +static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev-
-> >dev.parent);
-> +	struct cht_wc_i2c_adap *adap;
-
-> +	struct i2c_board_info board_info = {
-> +		.type = "bq24190",
-> +		.addr = 0x6b,
-> +		.platform_data = (void *)&bq24190_pdata,
-> +	};
-> +	int ret, irq;
-> +
-
-> +	/* Clear and activate i2c-adapter interrupts, disable client
-> irq */
-
-irq -> IRQ
-
-> +
-> +	/* Alloc and register client irq */
-
-Ditto.
-
-> +	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node,
-> 1,
-> +						 &irq_domain_simple_o
-> ps, NULL);
-
-Can you use irq_domain_add_simple()?
-
-And why do we need separate domain for one IRQ line?
-
-> +	if (!adap->irq_domain)
-> +		return -ENOMEM;
-> +
-> +	adap->client_irq = irq_create_mapping(adap->irq_domain, 0);
-> +	if (!adap->client_irq) {
-> +		ret = -ENOMEM;
-> +		goto remove_irq_domain;
-> +	}
-> +
-> +	irq_set_chip_data(adap->client_irq, adap);
-> +	irq_set_chip_and_handler(adap->client_irq, &adap->irqchip,
-> +				 handle_simple_irq);
-> +
-
-> +	board_info.irq = adap->client_irq;
-> +	adap->client = i2c_new_device(&adap->adapter, &board_info);
-> +	if (!adap->client) {
-> +		ret = -ENOMEM;
-> +		goto del_adapter;
-> +	}
-
-I would split this to some other module with board info.
-
-Does it make sense?
-
-By the way, doesn't ACPI have the charger IC node?
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+BR,
+Cedric
