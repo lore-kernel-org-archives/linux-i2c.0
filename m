@@ -1,39 +1,46 @@
 From: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Subject: [PATCH 5/5] ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
-Date: Fri, 17 Mar 2017 10:58:58 +0100
-Message-ID: <1489744738-21632-6-git-send-email-cedric.madianga@gmail.com>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:32955 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751505AbdCQJ7a (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Mar 2017 05:59:30 -0400
-In-Reply-To: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH 0/5] Add support for the STM32F7 I2C
+Date: Fri, 17 Mar 2017 10:58:53 +0100
+Message-ID: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, pierre-yves.mordret@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+List-Id: linux-i2c@vger.kernel.org
 
-This patch adds I2C1 support for STM32F746 eval board
+This patchset adds support for the I2C controller embedded in STM32F7xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode and
+Fast-mode+ bus speed.
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
----
- arch/arm/boot/dts/stm32746g-eval.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+M'boumba Cedric Madianga (5):
+  dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+  i2c: i2c-stm32f4: use generic definition of speed enum
+  i2c: i2c-stm32f7: add driver
+  ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+  ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
 
-diff --git a/arch/arm/boot/dts/stm32746g-eval.dts b/arch/arm/boot/dts/stm32746g-eval.dts
-index aa03fac..19cb82d 100644
---- a/arch/arm/boot/dts/stm32746g-eval.dts
-+++ b/arch/arm/boot/dts/stm32746g-eval.dts
-@@ -94,3 +94,9 @@
- 	pinctrl-names = "default";
- 	status = "okay";
- };
-+
-+&i2c1 {
-+	pinctrl-0 = <&i2c1_pins_b>;
-+	pinctrl-names = "default";
-+	status = "okay";
-+};
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  22 +-
+ arch/arm/boot/dts/stm32746g-eval.dts               |   6 +
+ arch/arm/boot/dts/stm32f746.dtsi                   |  23 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32.h                     |  20 +
+ drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
+ drivers/i2c/busses/i2c-stm32f7.c                   | 562 +++++++++++++++++++++
+ 8 files changed, 648 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.h
+ create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
+
 -- 
 1.9.1
