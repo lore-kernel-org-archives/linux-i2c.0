@@ -1,78 +1,132 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i2c-designware: increase timeout of semaphore transfer
-Date: Fri, 17 Mar 2017 08:35:45 +0100
-Message-ID: <df37d77a-c0a2-9c13-f70f-140fcfbb72e7@redhat.com>
-References: <20170316162455.22876-1-oneukum@suse.com>
- <1489682129.19767.25.camel@linux.intel.com>
+From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v1 6/7] arm64: dts: rockchip: add dts file for RK3328 evaluation board
+Date: Fri, 17 Mar 2017 09:45:52 +0100
+Message-ID: <4559383.EsY2O1vJ7P@phil>
+References: <1489572237-6649-1-git-send-email-cl@rock-chips.com> <63969127-3fcd-658c-2986-8ded6d93c433@arm.com> <58CB4945.9020408@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53824 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750932AbdCQHft (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 17 Mar 2017 03:35:49 -0400
-In-Reply-To: <1489682129.19767.25.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <58CB4945.9020408-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?utf-8?B?6ZmI5Lqu?= <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: Andre Przywara <andre.przywara-5wv7dgnIgG8@public.gmane.org>, mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, yhx-TNX95d0MmH7DzftRWevZcw@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rocky.hao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, david.wu@rock-chips
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Oliver Neukum <oneukum@suse.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-Hi,
+Am Freitag, 17. März 2017, 10:26:13 CET schrieb 陈亮:
+> 在 2017年03月17日 00:18, Andre Przywara 写道:
+> > Hi Chen,
+> > 
+> > On 16/03/17 01:45, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org wrote:
+> >> From: Chen Liang <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> >> 
+> >> This patch add rk3328-evb.dts for RK3328 evaluation board.
+> >> Tested on RK3328 evb.
+> >> 
+> >> Signed-off-by: Chen Liang <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> >> ---
+> >> 
+> >>   arch/arm64/boot/dts/rockchip/Makefile       |  1 +
+> >>   arch/arm64/boot/dts/rockchip/rk3328-evb.dts | 57
+> >>   +++++++++++++++++++++++++++++ 2 files changed, 58 insertions(+)
+> >>   create mode 100644 arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+> >> 
+> >> diff --git a/arch/arm64/boot/dts/rockchip/Makefile
+> >> b/arch/arm64/boot/dts/rockchip/Makefile index 3a86289..853fc7d 100644
+> >> --- a/arch/arm64/boot/dts/rockchip/Makefile
+> >> +++ b/arch/arm64/boot/dts/rockchip/Makefile
+> >> @@ -4,6 +4,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3368-orion-r68-meta.dtb
+> >> 
+> >>   dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3368-px5-evb.dtb
+> >>   dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3368-r88.dtb
+> >>   dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-evb.dtb
+> >> 
+> >> +dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3328-evb.dtb
+> >> 
+> >>   always		:= $(dtb-y)
+> >>   subdir-y	:= $(dts-dirs)
+> >> 
+> >> diff --git a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+> >> b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts new file mode 100644
+> >> index 0000000..cf27239
+> >> --- /dev/null
+> >> +++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+> >> @@ -0,0 +1,57 @@
+> >> +/*
+> >> + * Copyright (c) 2017 Fuzhou Rockchip Electronics Co., Ltd
+> >> + *
+> >> + * This file is dual-licensed: you can use it either under the terms
+> >> + * of the GPL or the X11 license, at your option. Note that this dual
+> >> + * licensing only applies to this file, and not this project as a
+> >> + * whole.
+> >> + *
+> >> + *  a) This library is free software; you can redistribute it and/or
+> >> + *     modify it under the terms of the GNU General Public License as
+> >> + *     published by the Free Software Foundation; either version 2 of
+> >> the
+> >> + *     License, or (at your option) any later version.
+> >> + *
+> >> + *     This library is distributed in the hope that it will be useful,
+> >> + *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+> >> + *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> >> + *     GNU General Public License for more details.
+> >> + *
+> >> + * Or, alternatively,
+> >> + *
+> >> + *  b) Permission is hereby granted, free of charge, to any person
+> >> + *     obtaining a copy of this software and associated documentation
+> >> + *     files (the "Software"), to deal in the Software without
+> >> + *     restriction, including without limitation the rights to use,
+> >> + *     copy, modify, merge, publish, distribute, sublicense, and/or
+> >> + *     sell copies of the Software, and to permit persons to whom the
+> >> + *     Software is furnished to do so, subject to the following
+> >> + *     conditions:
+> >> + *
+> >> + *     The above copyright notice and this permission notice shall be
+> >> + *     included in all copies or substantial portions of the Software.
+> >> + *
+> >> + *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+> >> + *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+> >> + *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+> >> + *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+> >> + *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+> >> + *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+> >> + *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+> >> + *     OTHER DEALINGS IN THE SOFTWARE.
+> >> + */
+> >> +
+> >> +/dts-v1/;
+> >> +#include "rk3328.dtsi"
+> >> +
+> >> +/ {
+> >> +	model = "Rockchip RK3328 EVB";
+> >> +	compatible = "rockchip,rk3328-evb", "rockchip,rk3328";
+> >> +
+> >> +	chosen {
+> >> +		stdout-path = "serial2:1500000n8";
+> > 
+> > Is that really 1.5MBit/s?
+> 
+> Yes, the RK3328 EVB board use 1.5MBit/s baud rate.
+> 
+> >> +	};
+> >> +};
+> >> +
+> >> +&uart2 {
+> >> +	status = "okay";
+> >> +};
+> > 
+> > I don't have the board, but would expect to see more peripherals
+> > mentioned in the .dtsi enabled here.
+> > For sure the board has an (micro)SD card slot, possibly even Ethernet?
+> 
+> The codes for other peripherals are not ready now for new kernel, so i
+> push a base dtsi, and other configration will be pushed later if it is ok.
 
-On 16-03-17 17:35, Andy Shevchenko wrote:
-> On Thu, 2017-03-16 at 17:24 +0100, Oliver Neukum wrote:
->> Our testing shows the semaphore failing to be transferred on
->> CherryTrail
->> in about 0.5% of all cases. The existing timeout needs to be
->> lengthened
->> to accomodate the worst cases.
->
-> I think it's just a semi-hiding of real issue.
+for me that approach is fine in general, but here, you could enable at least 
+the watchdog as well?
 
-I would not know what real issue, I've seen the timeout being
-hit sometimes too, it seems that sometimes the punit just is
-busy with other stuff for a while before acking the semaphore
-request, so I think this patch is fine:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Oliver, can you rebase this on top of:
+But no need to resend just now, I still need to look at the big dtsi.
 
 
-https://cgit.freedesktop.org/drm-intel/commit/?h=topic/designware-baytrail
-
-Which is in -next now, please ? I'm sorta surprised you didn't
-use this is a base since your commit msg mentions cherrytrail
-and with that series the semaphore code is broken on
-cherrytrail.
-
-Regards,
-
-Hans
-
-
-
->
-> Hans?
->
->>
->> Signed-off-by: Oliver Neukum <oneukum@suse.com>
->> ---
->>  drivers/i2c/busses/i2c-designware-baytrail.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c
->> b/drivers/i2c/busses/i2c-designware-baytrail.c
->> index 1590ad0..2d238e3 100644
->> --- a/drivers/i2c/busses/i2c-designware-baytrail.c
->> +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
->> @@ -21,7 +21,7 @@
->>
->>  #include "i2c-designware-core.h"
->>
->> -#define SEMAPHORE_TIMEOUT	100
->> +#define SEMAPHORE_TIMEOUT	500
->>  #define PUNIT_SEMAPHORE		0x7
->>  #define PUNIT_SEMAPHORE_BIT	BIT(0)
->>  #define PUNIT_SEMAPHORE_ACQUIRE	BIT(1)
->
+Heiko
