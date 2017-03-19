@@ -1,68 +1,57 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH 3/5] i2c: i2c-stm32f7: add driver
-Date: Fri, 17 Mar 2017 23:38:19 +0100
-Message-ID: <CAOAejn00O7n1UAyH7VTbgT076ZxS20TSvzfEfgw8bsA80Qgdyg@mail.gmail.com>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
- <1489744738-21632-4-git-send-email-cedric.madianga@gmail.com>
- <6ae90186-0e8d-654b-c9e3-2d1b4daf6198@baylibre.com>
- <CAOAejn0Hs7QOgcrHM2t3NsFQeD9dyvThDK-8iM1Lvb7Qv4fGGQ@mail.gmail.com>
- <971895d3-2fe6-ecb6-9dc3-ee71193b34ee@baylibre.com>
- <CAOAejn0ScANyMEWnBfe0G8xQ5TbR-XYwEdXLkNexqC=AigBNJA@mail.gmail.com>
- <5539f058-f2a1-ff78-6dd8-aa2119ce8c49@baylibre.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v1 2/7] dt-bindings: iio: rockchip-saradc: add support for
+ rk3328
+Date: Sun, 19 Mar 2017 10:34:22 +0000
+Message-ID: <fff0d197-c88e-fd04-0f56-c4fbc982bae4@kernel.org>
+References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
+ <1489572237-6649-3-git-send-email-cl@rock-chips.com>
+ <8664375.8vdE6CQfX9@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <5539f058-f2a1-ff78-6dd8-aa2119ce8c49@baylibre.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Russell King <linux@armlinux.org.uk>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:48310 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751330AbdCSKea (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 19 Mar 2017 06:34:30 -0400
+In-Reply-To: <8664375.8vdE6CQfX9@phil>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiko Stuebner <heiko@sntech.de>, cl@rock-chips.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, zhangqing@rock-chips.com, kever.yang@rock-chips.com, tony.xie@rock-chi
 
-Hi Neil,
+On 16/03/17 08:28, Heiko Stuebner wrote:
+> Am Mittwoch, 15. März 2017, 18:03:52 CET schrieb cl@rock-chips.com:
+>> From: Chen Liang <cl@rock-chips.com>
+>>
+>> The rk3328 saradc is the same as rk3399.
+>>
+>> Signed-off-by: Chen Liang <cl@rock-chips.com>
+>> ---
+>>  Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt
+>> b/Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt index
+>> 205593f..f81bc20 100644
+>> --- a/Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt
+>> +++ b/Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt
+>> @@ -5,6 +5,7 @@ Required properties:
+>>     - "rockchip,saradc": for rk3188, rk3288
+>>     - "rockchip,rk3066-tsadc": for rk3036
+>>     - "rockchip,rk3399-saradc": for rk3399
+>> +   - "rockchip,rk3328-saradc", "rockchip,rk3399-saradc": for rk3328
+> 
+> not sure how iio people see that, but I would suggest keeping the order, so 
+> put rk3328 above rk3399.
+In my case I'm not that fussed either way. Still if this list keeps growing
+I can see it would be better to keep it in numeric order!
 
->> As, I2C rise/fall time have some impacts in I2C timings value, the
->> question is: it is very relevant to let customer control these
->> parameters ?
->
-> Actually, you could specify a different rise time in DT if it's relevant for
-> a specific design, this is why you have the following DT attributes :
-> - i2c-scl-falling-time-ns
-> - i2c-scl-internal-delay-ns
-> - i2c-scl-rising-time-ns
-> - i2c-sda-falling-time-ns
->
->> If the answer is NO, I agree with you, it is better to use your
->> formula and remove this property from DT.
->> If the answer is YES, I think we should keep ST tool.
->
-> Note that the ST tool calculations are tied to the clock source frequency, so either
-> you provide a table for all the possible clock source frequencies or calculate dynamically.
-> Having a single parameter for a single frequency is, from my point of view, not acceptable.
->
-> And, I don't think it's a military secret to have (at least) a simplified algorithm from ST...
-> since you have very detailed explanations in the public manuals !
-
-OK. I will do some trials with your algorithm and push it in the V2.
-Thanks
-
->
-> OK, but I think the I2C and DT maintainers are also involved in these kind of decisions.
-> They should also give their advice.
-
-I already upstream an I2C driver with this approach: "i2c-stm32f4".
-I don't think that Wolfram or Rob will change the philosophy for this driver.
-Then, I also don't think that the machine code for F0/F1/L0/L4 will be
-pushed in the mainline as it will be completely useless to port a
-linux kernel for this kind of chip.
-
-BR,
-Cedric
+Jonathan
+> 
+> Heiko
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
