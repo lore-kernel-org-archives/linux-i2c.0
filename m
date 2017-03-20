@@ -1,511 +1,221 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH 03/15] extcon: cht-wc: Add Intel Cherry Trail Whiskey Cove
- PMIC extcon driver
-Date: Mon, 20 Mar 2017 10:33:55 +0900
-Message-ID: <58CF3183.4090101@samsung.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH 06/15] power: supply: bq24190_charger: Use i2c-core
+ irq-mapping code
+Date: Mon, 20 Mar 2017 05:46:43 +0100
+Message-ID: <20170320044643.keud4saopjscd5jf@earth>
 References: <20170317095527.10487-1-hdegoede@redhat.com>
- <CGME20170317095544epcas5p42dd4115627c9cf9de3911b433024ac93@epcas5p4.samsung.com>
- <20170317095527.10487-4-hdegoede@redhat.com>
+ <20170317095527.10487-7-hdegoede@redhat.com>
+ <1489771454.19767.73.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-reply-to: <20170317095527.10487-4-hdegoede@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>
-Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="sndk4qf6n4zunler"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:37188 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751149AbdCTErE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 20 Mar 2017 00:47:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1489771454.19767.73.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+
+
+--sndk4qf6n4zunler
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On 2017년 03월 17일 18:55, Hans de Goede wrote:
-> Add a driver for charger detection / control on the Intel Cherrytrail
-> Whiskey Cove PMIC.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/extcon/Kconfig         |   7 +
->  drivers/extcon/Makefile        |   1 +
->  drivers/extcon/extcon-cht-wc.c | 356 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 364 insertions(+)
->  create mode 100644 drivers/extcon/extcon-cht-wc.c
-> 
-> diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-> index 96bbae5..4cace6b 100644
-> --- a/drivers/extcon/Kconfig
-> +++ b/drivers/extcon/Kconfig
-> @@ -52,6 +52,13 @@ config EXTCON_INTEL_INT3496
->  	  This ACPI device is typically found on Intel Baytrail or Cherrytrail
->  	  based tablets, or other Baytrail / Cherrytrail devices.
->  
-> +config EXTCON_CHT_WC
+On Fri, Mar 17, 2017 at 07:24:14PM +0200, Andy Shevchenko wrote:
+> On Fri, 2017-03-17 at 10:55 +0100, Hans de Goede wrote:
+> > The i2c-core already maps of irqs before calling the driver's probe
+> > function and there are no in tree users of
+> > bq24190_platform_data->gpio_int.
+> >=20
+> > Remove the redundant custom irq-mapping code and just use client->irq.
+> >=20
+>=20
+> Nice! I did similar clean up to some other driver, so,
+>=20
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>=20
+> P.S. This should be first in the series against bq24190.
 
-Need to reorder it alpabetically as the following Makefile.
+Right.
 
-> +	tristate "Intel Cherrytrail Whiskey Cove PMIC extcon driver"
-> +	depends on INTEL_SOC_PMIC_CHTWC
-> +	help
-> +	  Say Y here to enable extcon support for charger detection / control
-> +	  on the Intel Cherrytrail Whiskey Cove PMIC.
-> +
->  config EXTCON_MAX14577
->  	tristate "Maxim MAX14577/77836 EXTCON Support"
->  	depends on MFD_MAX14577
-> diff --git a/drivers/extcon/Makefile b/drivers/extcon/Makefile
-> index 237ac3f..160f88b 100644
-> --- a/drivers/extcon/Makefile
-> +++ b/drivers/extcon/Makefile
-> @@ -7,6 +7,7 @@ extcon-core-objs		+= extcon.o devres.o
->  obj-$(CONFIG_EXTCON_ADC_JACK)	+= extcon-adc-jack.o
->  obj-$(CONFIG_EXTCON_ARIZONA)	+= extcon-arizona.o
->  obj-$(CONFIG_EXTCON_AXP288)	+= extcon-axp288.o
-> +obj-$(CONFIG_EXTCON_CHT_WC)	+= extcon-cht-wc.o
->  obj-$(CONFIG_EXTCON_GPIO)	+= extcon-gpio.o
->  obj-$(CONFIG_EXTCON_INTEL_INT3496) += extcon-intel-int3496.o
->  obj-$(CONFIG_EXTCON_MAX14577)	+= extcon-max14577.o
-> diff --git a/drivers/extcon/extcon-cht-wc.c b/drivers/extcon/extcon-cht-wc.c
-> new file mode 100644
-> index 0000000..896eee6
-> --- /dev/null
-> +++ b/drivers/extcon/extcon-cht-wc.c
-> @@ -0,0 +1,356 @@
-> +/*
-> + * Extcon charger detection driver for Intel Cherrytrail Whiskey Cove PMIC
-> + * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
-> + *
-> + * Based on various non upstream patches to support the CHT Whiskey Cove PMIC:
+Acked-by: Sebastian Reichel <sre@kernel.org>
 
-Maybe, you don't need to add ':' at the end of line.
+-- Sebastian
 
-> + * Copyright (C) 2013-2015 Intel Corporation. All rights reserved.
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms and conditions of the GNU General Public License,
-> + * version 2, as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
-> + */
-> +
-> +#include <linux/extcon.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mfd/intel_soc_pmic.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/slab.h>
-> +
-> +#define CHT_WC_PWRSRC_IRQ		0x6e03
-> +#define CHT_WC_PWRSRC_IRQ_MASK		0x6e0f
-> +#define CHT_WC_PWRSRC_STS		0x6e1e
-> +#define CHT_WC_PWRSRC_VBUS		BIT(0)
-> +#define CHT_WC_PWRSRC_DC		BIT(1)
-> +#define CHT_WC_PWRSRC_BAT		BIT(2)
-> +#define CHT_WC_PWRSRC_ID_GND		BIT(3)
-> +#define CHT_WC_PWRSRC_ID_FLOAT		BIT(4)
-> +
-> +#define CHT_WC_PHYCTRL			0x5e07
-> +
-> +#define CHT_WC_CHGRCTRL0		0x5e16
-> +
-> +#define CHT_WC_CHGRCTRL0		0x5e16
-> +#define CHT_WC_CHGRCTRL0_CHGRRESET	BIT(0)
-> +#define CHT_WC_CHGRCTRL0_EMRGCHREN	BIT(1)
-> +#define CHT_WC_CHGRCTRL0_EXTCHRDIS	BIT(2)
-> +#define CHT_WC_CHGRCTRL0_SWCONTROL	BIT(3)
-> +#define CHT_WC_CHGRCTRL0_TTLCK_MASK	BIT(4)
-> +#define CHT_WC_CHGRCTRL0_CCSM_OFF_MASK	BIT(5)
-> +#define CHT_WC_CHGRCTRL0_DBPOFF_MASK	BIT(6)
-> +#define CHT_WC_CHGRCTRL0_WDT_NOKICK	BIT(7)
-> +
-> +#define CHT_WC_CHGRCTRL1		0x5e17
-> +
-> +#define CHT_WC_USBSRC			0x5e29
-> +#define CHT_WC_USBSRC_STS_MASK		GENMASK(1, 0)
-> +#define CHT_WC_USBSRC_STS_SUCCESS	2
-> +#define CHT_WC_USBSRC_STS_FAIL		3
-> +#define CHT_WC_USBSRC_TYPE_SHIFT	2
-> +#define CHT_WC_USBSRC_TYPE_MASK		GENMASK(5, 2)
-> +#define CHT_WC_USBSRC_TYPE_NONE		0
-> +#define CHT_WC_USBSRC_TYPE_SDP		1
-> +#define CHT_WC_USBSRC_TYPE_DCP		2
-> +#define CHT_WC_USBSRC_TYPE_CDP		3
-> +#define CHT_WC_USBSRC_TYPE_ACA		4
-> +#define CHT_WC_USBSRC_TYPE_SE1		5
-> +#define CHT_WC_USBSRC_TYPE_MHL		6
-> +#define CHT_WC_USBSRC_TYPE_FLOAT_DP_DN	7
-> +#define CHT_WC_USBSRC_TYPE_OTHER	8
-> +#define CHT_WC_USBSRC_TYPE_DCP_EXTPHY	9
-> +
-> +enum cht_wc_usb_id {
-> +	USB_ID_OTG,
-> +	USB_ID_GND,
-> +	USB_ID_FLOAT,
-> +	USB_RID_A,
-> +	USB_RID_B,
-> +	USB_RID_C,
-> +};
-> +
-> +/* Strings matching the cht_wc_usb_id enum labels */
-> +static const char * const usb_id_str[] = {
-> +	"otg", "gnd", "float", "rid_a", "rid_b", "rid_c" };
-> +
-> +enum cht_wc_mux_select {
-> +	MUX_SEL_PMIC = 0,
-> +	MUX_SEL_SOC,
-> +};
-> +
-> +static const unsigned int cht_wc_extcon_cables[] = {
-> +	EXTCON_USB,
-> +	EXTCON_USB_HOST,
-> +	EXTCON_CHG_USB_SDP,
-> +	EXTCON_CHG_USB_CDP,
-> +	EXTCON_CHG_USB_DCP,
-> +	EXTCON_NONE,
-> +};
-> +
-> +struct cht_wc_extcon_data {
-> +	struct device *dev;
-> +	struct regmap *regmap;
-> +	struct extcon_dev *edev;
-> +	unsigned int previous_cable;
-> +	int usb_id;
-> +};
-> +
-> +static int cht_wc_extcon_get_id(struct cht_wc_extcon_data *ext, int pwrsrc_sts)
-> +{
-> +	if (ext->usb_id)
-> +		return ext->usb_id;
-> +
-> +	if (pwrsrc_sts & CHT_WC_PWRSRC_ID_GND)
-> +		return USB_ID_GND;
-> +	if (pwrsrc_sts & CHT_WC_PWRSRC_ID_FLOAT)
-> +		return USB_ID_FLOAT;
-> +
-> +	/*
-> +	 * Once we have iio support for the gpadc we should read the USBID
-> +	 * gpadc channel here and determine ACA role based on that.
-> +	 */
-> +	return USB_ID_FLOAT;
-> +}
-> +
-> +static int cht_wc_extcon_get_charger(struct cht_wc_extcon_data *ext)
-> +{
-> +	int ret, usbsrc, status, retries = 5;
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> > =A0drivers/power/supply/bq24190_charger.c | 61 ++-----------------------
+> > ---------
+> > =A0include/linux/power/bq24190_charger.h=A0=A0|=A0=A01 -
+> > =A02 files changed, 2 insertions(+), 60 deletions(-)
+> >=20
+> > diff --git a/drivers/power/supply/bq24190_charger.c
+> > b/drivers/power/supply/bq24190_charger.c
+> > index 7bca8d0..9c4b171 100644
+> > --- a/drivers/power/supply/bq24190_charger.c
+> > +++ b/drivers/power/supply/bq24190_charger.c
+> > @@ -154,8 +154,6 @@ struct bq24190_dev_info {
+> > =A0	struct bq24190_platform_data	*pdata;
+> > =A0	char				model_name[I2C_NAME_SIZE]
+> > ;
+> > =A0	kernel_ulong_t			model;
+> > -	unsigned int			gpio_int;
+> > -	unsigned int			irq;
+> > =A0	struct mutex			f_reg_lock;
+> > =A0	u8				f_reg;
+> > =A0	u8				ss_reg;
+> > @@ -1296,56 +1294,11 @@ static int bq24190_hw_init(struct
+> > bq24190_dev_info *bdi)
+> > =A0	return ret;
+> > =A0}
+> > =A0
+> > -#ifdef CONFIG_OF
+> > -static int bq24190_setup_dt(struct bq24190_dev_info *bdi)
+> > -{
+> > -	bdi->irq =3D irq_of_parse_and_map(bdi->dev->of_node, 0);
+> > -	if (bdi->irq <=3D 0)
+> > -		return -1;
+> > -
+> > -	return 0;
+> > -}
+> > -#else
+> > -static int bq24190_setup_dt(struct bq24190_dev_info *bdi)
+> > -{
+> > -	return -1;
+> > -}
+> > -#endif
+> > -
+> > -static int bq24190_setup_pdata(struct bq24190_dev_info *bdi,
+> > -		struct bq24190_platform_data *pdata)
+> > -{
+> > -	int ret;
+> > -
+> > -	if (!gpio_is_valid(pdata->gpio_int))
+> > -		return -1;
+> > -
+> > -	ret =3D gpio_request(pdata->gpio_int, dev_name(bdi->dev));
+> > -	if (ret < 0)
+> > -		return -1;
+> > -
+> > -	ret =3D gpio_direction_input(pdata->gpio_int);
+> > -	if (ret < 0)
+> > -		goto out;
+> > -
+> > -	bdi->irq =3D gpio_to_irq(pdata->gpio_int);
+> > -	if (!bdi->irq)
+> > -		goto out;
+> > -
+> > -	bdi->gpio_int =3D pdata->gpio_int;
+> > -	return 0;
+> > -
+> > -out:
+> > -	gpio_free(pdata->gpio_int);
+> > -	return -1;
+> > -}
+> > -
+> > =A0static int bq24190_probe(struct i2c_client *client,
+> > =A0		const struct i2c_device_id *id)
+> > =A0{
+> > =A0	struct i2c_adapter *adapter =3D to_i2c_adapter(client-
+> > >dev.parent);
+> > =A0	struct device *dev =3D &client->dev;
+> > -	struct bq24190_platform_data *pdata =3D client-
+> > >dev.platform_data;
+> > =A0	struct power_supply_config charger_cfg =3D {}, battery_cfg =3D
+> > {};
+> > =A0	struct bq24190_dev_info *bdi;
+> > =A0	int ret;
+> > @@ -1372,12 +1325,7 @@ static int bq24190_probe(struct i2c_client
+> > *client,
+> > =A0
+> > =A0	i2c_set_clientdata(client, bdi);
+> > =A0
+> > -	if (dev->of_node)
+> > -		ret =3D bq24190_setup_dt(bdi);
+> > -	else
+> > -		ret =3D bq24190_setup_pdata(bdi, pdata);
+> > -
+> > -	if (ret) {
+> > +	if (!client->irq) {
+> > =A0		dev_err(dev, "Can't get irq info\n");
+> > =A0		return -EINVAL;
+> > =A0	}
+> > @@ -1417,7 +1365,7 @@ static int bq24190_probe(struct i2c_client
+> > *client,
+> > =A0		goto out3;
+> > =A0	}
+> > =A0
+> > -	ret =3D devm_request_threaded_irq(dev, bdi->irq, NULL,
+> > +	ret =3D devm_request_threaded_irq(dev, client->irq, NULL,
+> > =A0			bq24190_irq_handler_thread,
+> > =A0			IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> > =A0			"bq24190-charger", bdi);
+> > @@ -1439,8 +1387,6 @@ static int bq24190_probe(struct i2c_client
+> > *client,
+> > =A0
+> > =A0out1:
+> > =A0	pm_runtime_disable(dev);
+> > -	if (bdi->gpio_int)
+> > -		gpio_free(bdi->gpio_int);
+> > =A0	return ret;
+> > =A0}
+> > =A0
+> > @@ -1457,9 +1403,6 @@ static int bq24190_remove(struct i2c_client
+> > *client)
+> > =A0	power_supply_unregister(bdi->charger);
+> > =A0	pm_runtime_disable(bdi->dev);
+> > =A0
+> > -	if (bdi->gpio_int)
+> > -		gpio_free(bdi->gpio_int);
+> > -
+> > =A0	return 0;
+> > =A0}
+> > =A0
+> > diff --git a/include/linux/power/bq24190_charger.h
+> > b/include/linux/power/bq24190_charger.h
+> > index cb49717..8d918cb 100644
+> > --- a/include/linux/power/bq24190_charger.h
+> > +++ b/include/linux/power/bq24190_charger.h
+> > @@ -10,7 +10,6 @@
+> > =A0#define _BQ24190_CHARGER_H_
+> > =A0
+> > =A0struct bq24190_platform_data {
+> > -	unsigned int	gpio_int;	/* GPIO pin that's
+> > connected to INT# */
+> > =A0	bool no_register_reset;
+> > =A0};
+> > =A0
+>=20
+> --=20
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
 
-You have to define the constant for '5' because the name of constant
-definition indicates what is meaning. So, maybe you will use the 'for' loope
-instead of 'do..while'.
+--sndk4qf6n4zunler
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +
-> +	do {
-> +		ret = regmap_read(ext->regmap, CHT_WC_USBSRC, &usbsrc);
-> +		if (ret) {
-> +			dev_err(ext->dev, "Error reading usbsrc: %d\n", ret);
-> +			return ret;
-> +		}
+-----BEGIN PGP SIGNATURE-----
 
-Need to add one blank line.
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAljPXrMACgkQ2O7X88g7
++pr4tA/+POQjDFKfpMEqyFGvSN51CUjvjEktWG0dRokBSyTjAFY+Xny4n4lSl1JS
+IBLthsceQNZMLo+Nnz4zeNFuVNJeuN14F9xl4+P9N8qCve6jLi0/OlAf2bB6T8oK
+/TbzgsDTuZ7k8xYMWcozOJbY27qGmoc3AOgTQtDV5HsZVbICutXSdoawI05UB4Hb
+llLxBVFxjShCNRnbUtyNci5Bn7ltQz9NnNPBQOqAwTy5f5qpPf+7K0Ah8gUsJLnx
+W8qWfdFMUx2UE3dg8Qdlxn0jEeIVQkep5TWeSniG37WUVl3yClefR/LtBmfAceBz
+/RHeVX7lwFztoEnDWo3y3fbDs+PZoruDPjnh6SR8YqXJCOp/zj3swmfcs/Aja7cG
+fuXQO+VAv52t3BQNI8Rfbn9ULkv6wUW7STHi/jw1bDcUoPXclWKiGdOjasfZoeCd
+lQlOIcMi5EtG+V3Pf7W0imCCXHxb0hjflw7GDwtJSXC8PnOOcmd43vgQGRNUF59r
+I7yksKkRVItCy89oc03kLEjs7qUHbcmtEfGOpHKQK3T9OLyGTPBCoU87tY+hAlyv
+8+5B6NpSNROoq72LHjuZba/CHS85J9TaGvTujcb11z0ocDOJNublostPevHkH1B5
+srca0M0c+v9vQssqMpB24NBQKCVj1KkyQUJq0wdSzKW6i6/i4cA=
+=ntJu
+-----END PGP SIGNATURE-----
 
-> +		status = usbsrc & CHT_WC_USBSRC_STS_MASK;
-> +		if (status == CHT_WC_USBSRC_STS_SUCCESS ||
-> +		    status == CHT_WC_USBSRC_STS_FAIL)
-> +			break;
-> +
-> +		msleep(200);
-
-You have to define the constant for '200' because the name of constant
-definition indicates what is meaning.
-
-> +	} while (retries--);
-> +
-> +	if (status != CHT_WC_USBSRC_STS_SUCCESS) {
-> +		if (status == CHT_WC_USBSRC_STS_FAIL)
-> +			dev_warn(ext->dev, "Could not detect charger type\n");
-> +		else
-> +			dev_warn(ext->dev, "Timeout detecting charger type\n");
-> +		return EXTCON_CHG_USB_SDP; /* Save fallback */
-> +	}
-> +
-> +	ret = (usbsrc & CHT_WC_USBSRC_TYPE_MASK) >> CHT_WC_USBSRC_TYPE_SHIFT;
-
-'ret' is not proper indicates the meaning of 'CHT_WC_USBSRC_TYPE'.
-You have to use the more correct local variable such as 'usbsrc_type'.
-
-> +	switch (ret) {
-> +	default:
-> +		dev_warn(ext->dev, "Unhandled charger type %d\n", ret);
-> +		/* Fall through treat as SDP */
-
-Is it right? Why do you located the 'default' on the top in the switch?
-
-> +	case CHT_WC_USBSRC_TYPE_SDP:
-> +	case CHT_WC_USBSRC_TYPE_FLOAT_DP_DN:
-> +	case CHT_WC_USBSRC_TYPE_OTHER:
-> +		return EXTCON_CHG_USB_SDP;
-> +	case CHT_WC_USBSRC_TYPE_CDP:
-> +		return EXTCON_CHG_USB_CDP;
-> +	case CHT_WC_USBSRC_TYPE_DCP:
-> +	case CHT_WC_USBSRC_TYPE_DCP_EXTPHY:
-> +	case CHT_WC_USBSRC_TYPE_MHL: /* MHL2+ delivers upto 2A, treat as DCP */
-> +		return EXTCON_CHG_USB_DCP;
-> +	case CHT_WC_USBSRC_TYPE_ACA:
-> +		return EXTCON_CHG_USB_ACA;
-> +	}
-> +}
-> +
-> +static void cht_wc_extcon_set_phymux(struct cht_wc_extcon_data *ext, u8 state)
-> +{
-> +	int ret;
-> +
-> +	ret = regmap_write(ext->regmap, CHT_WC_PHYCTRL, state);
-> +	if (ret)
-> +		dev_err(ext->dev, "Error writing phyctrl: %d\n", ret);
-
-This function is only called in the cht_wc_extcon_det_event().
-Also, this funciton write only one register. It is too short.
-So, you don't need to add the separate function.
-You better to include this code in the cht_wc_extcon_det_event().
-
-> +}
-> +
-> +static void cht_wc_extcon_det_event(struct cht_wc_extcon_data *ext)
-> +{
-> +	int ret, pwrsrc_sts, id;
-> +	unsigned int cable = EXTCON_NONE;
-> +
-> +	ret = regmap_read(ext->regmap, CHT_WC_PWRSRC_STS, &pwrsrc_sts);
-> +	if (ret) {
-> +		dev_err(ext->dev, "Error reading pwrsrc status: %d\n", ret);
-> +		return;
-> +	}
-> +
-> +	id = cht_wc_extcon_get_id(ext, pwrsrc_sts);
-> +	if (id == USB_ID_GND) {
-> +		/* The 5v boost causes a false VBUS / SDP detect, skip */
-> +		goto charger_det_done;
-> +	}
-> +
-> +	/* Plugged into a host/charger or not connected? */
-> +	if (!(pwrsrc_sts & CHT_WC_PWRSRC_VBUS)) {
-> +		/* Route D+ and D- to PMIC for future charger detection */
-> +		cht_wc_extcon_set_phymux(ext, MUX_SEL_PMIC);
-> +		goto set_state;
-> +	}
-
-The cht_wc_extcon_get_id() and cht_wc_extcon_det_event() use the value
-of CHT_WC_PWRSRC_STS register. So, I think you better to gather the 
-code related to the CHT_WC_PWRSRC_STS for readability.
-- First suggestion, remove the separate the cht_wc_extcon_get_id()
-- Second suggestion, The code from regmap_read() to "!(pwrsrc_sts & CHT_WC_PWRSRC_VBUS)"
-          move into the cht_wc_extcon_get_id().
-
-In my opinion, I recommend that second way.
-
-> +
-> +	ret = cht_wc_extcon_get_charger(ext);
-> +	if (ret >= 0)
-> +		cable = ret;
-> +
-> +charger_det_done:
-> +	/* Route D+ and D- to SoC for the host / gadget controller */
-
-Minor comment.
-You better to use '&' instead of '/' 
-
-> +	cht_wc_extcon_set_phymux(ext, MUX_SEL_SOC);
-> +
-> +set_state:
-> +	extcon_set_state_sync(ext->edev, cable, true);
-> +	extcon_set_state_sync(ext->edev, ext->previous_cable, false);
-> +	extcon_set_state_sync(ext->edev, EXTCON_USB_HOST,
-> +			      id == USB_ID_GND || id == USB_RID_A);
-> +	ext->previous_cable = cable;
-> +}
-> +
-> +static irqreturn_t cht_wc_extcon_isr(int irq, void *data)
-> +{
-> +	struct cht_wc_extcon_data *ext = data;
-> +	int ret, irqs;
-> +
-> +	ret = regmap_read(ext->regmap, CHT_WC_PWRSRC_IRQ, &irqs);
-> +	if (ret)
-> +		dev_err(ext->dev, "Error reading irqs: %d\n", ret);
-> +
-> +	cht_wc_extcon_det_event(ext);
-> +
-> +	ret = regmap_write(ext->regmap, CHT_WC_PWRSRC_IRQ, irqs);
-> +	if (ret)
-> +		dev_err(ext->dev, "Error writing irqs: %d\n", ret);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/* usb_id sysfs attribute for debug / testing purposes */
-> +static ssize_t usb_id_show(struct device *dev, struct device_attribute *attr,
-> +			   char *buf)
-> +{
-> +	struct cht_wc_extcon_data *ext = dev_get_drvdata(dev);
-> +
-> +	return sprintf(buf, "%s\n", usb_id_str[ext->usb_id]);
-> +}
-> +
-> +static ssize_t usb_id_store(struct device *dev, struct device_attribute *attr,
-> +			    const char *buf, size_t n)
-> +{
-> +	struct cht_wc_extcon_data *ext = dev_get_drvdata(dev);
-> +	int i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(usb_id_str); i++) {
-> +		if (sysfs_streq(buf, usb_id_str[i])) {
-> +			dev_info(ext->dev, "New usb_id %s\n", usb_id_str[i]);
-> +			ext->usb_id = i;
-> +			cht_wc_extcon_det_event(ext);
-> +			return n;
-> +		}
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +static DEVICE_ATTR(usb_id, 0644, usb_id_show, usb_id_store);
-
-I think it is not good to add specific sysfs for only this device driver.
-The sysfs entry of framework must include the only common and standard interfarce
-for all extcon device drivers. Because the sysfs entry affects the ABI interface.
-
-So, It is not proper.
-
-> +
-> +static int cht_wc_extcon_probe(struct platform_device *pdev)
-> +{
-> +	struct cht_wc_extcon_data *ext;
-> +	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
-> +	int irq, ret;
-> +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0)
-> +		return irq;
-> +
-> +	ext = devm_kzalloc(&pdev->dev, sizeof(*ext), GFP_KERNEL);
-> +	if (!ext)
-> +		return -ENOMEM;
-> +
-> +	ext->dev = &pdev->dev;
-> +	ext->regmap = pmic->regmap;
-> +	ext->previous_cable = EXTCON_NONE;
-> +
-> +	/* Initialize extcon device */
-> +	ext->edev = devm_extcon_dev_allocate(ext->dev, cht_wc_extcon_cables);
-> +	if (IS_ERR(ext->edev))
-> +		return PTR_ERR(ext->edev);
-> +
-> +	ret = regmap_update_bits(ext->regmap, CHT_WC_CHGRCTRL0,
-> +		 CHT_WC_CHGRCTRL0_SWCONTROL | CHT_WC_CHGRCTRL0_CCSM_OFF_MASK,
-> +		 CHT_WC_CHGRCTRL0_SWCONTROL | CHT_WC_CHGRCTRL0_CCSM_OFF_MASK);
-> +	if (ret) {
-> +		dev_err(ext->dev, "Error enabling sw control\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Register extcon device */
-> +	ret = devm_extcon_dev_register(ext->dev, ext->edev);
-> +	if (ret) {
-> +		dev_err(ext->dev, "Failed to register extcon device\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Route D+ and D- to PMIC for initial charger detection */
-> +	cht_wc_extcon_set_phymux(ext, MUX_SEL_PMIC);
-> +
-> +	/* Get initial state */
-> +	cht_wc_extcon_det_event(ext);
-> +
-> +	ret = devm_request_threaded_irq(ext->dev, irq, NULL, cht_wc_extcon_isr,
-> +					IRQF_ONESHOT, pdev->name, ext);
-> +	if (ret) {
-> +		dev_err(ext->dev, "Failed to request interrupt\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Unmask irqs */
-> +	ret = regmap_write(ext->regmap, CHT_WC_PWRSRC_IRQ_MASK,
-> +			   (int)~(CHT_WC_PWRSRC_VBUS | CHT_WC_PWRSRC_ID_GND |
-> +				  CHT_WC_PWRSRC_ID_FLOAT));
-> +	if (ret) {
-> +		dev_err(ext->dev, "Error writing irq-mask: %d\n", ret);
-
-I prefer to use the consistent error log. In the probe function,
-you use the 'Failed to ...' when error hanppen. So, You better
-to use the consistent format for errr log as following:
-	- "Failed to write the irq-mask: %d\n", ret);
-
-I think it improve the readability of your device driver.
-
-> +		return ret;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, ext);
-> +	device_create_file(ext->dev, &dev_attr_usb_id);
-> +
-> +	return 0;
-
-
-In the probe function, you touch the some register for initialization.
-But, if error happen, the probe function don't restore the register value.
-Is it ok? I think you need to handle the error case.
-
-> +}
-> +
-> +static int cht_wc_extcon_remove(struct platform_device *pdev)
-> +{
-> +	struct cht_wc_extcon_data *ext = platform_get_drvdata(pdev);
-> +
-> +	device_remove_file(ext->dev, &dev_attr_usb_id);
-
-Don't need it.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct platform_device_id cht_wc_extcon_table[] = {
-> +	{ .name = "cht_wcove_pwrsrc" },
-
-You use the 'cht_wc' word instead of 'cht_wcove_pwrsrc'.
-So, To maintain the consistency, you better to use the 'cht-wc' as the name.
-- I prefer to use '-' instead of '_' in the name.
-	.name ="cht-wc"
-
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(platform, cht_wc_extcon_table);
-> +
-> +static struct platform_driver cht_wc_extcon_driver = {
-> +	.probe = cht_wc_extcon_probe,
-> +	.remove = cht_wc_extcon_remove,
-> +	.id_table = cht_wc_extcon_table,
-> +	.driver = {
-> +		.name = "cht_wcove_pwrsrc",
-> +	},
-> +};
-> +module_platform_driver(cht_wc_extcon_driver);
-> +
-> +MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
-> +MODULE_DESCRIPTION("Intel Cherrytrail Whiskey Cove PMIC extcon driver");
-
-Minor comment.
-You better to locate the MODULE_DESCRIPTION at the first line
-and then MODULE_AUTHOR is at second line.
-
-> +MODULE_LICENSE("GPL v2");
-> 
-
-
--- 
-Best Regards,
-Chanwoo Choi
-Samsung Electronics
+--sndk4qf6n4zunler--
