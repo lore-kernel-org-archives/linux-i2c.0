@@ -1,61 +1,56 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 4/4] eeprom: at24: Add OF device ID table
-Date: Mon, 20 Mar 2017 13:45:03 -0300
-Message-ID: <181e4010-98e4-359c-998b-312920a59084@osg.samsung.com>
-References: <20170314151638.23132-1-javier@osg.samsung.com>
- <20170314151638.23132-5-javier@osg.samsung.com>
- <CAHp75Vf5=E37Ccrc2zMo8xOWmA-A_FZL7d57q7Rxk07M-V5mhg@mail.gmail.com>
- <8e233f15-4f91-b495-5270-5a7f982b31be@osg.samsung.com>
- <20170315075835.GA1438@katana>
- <ed3caa80-2b73-752e-a13f-aa5d348abd18@osg.samsung.com>
- <20170316130714.n42zkjdei7pm7vgw@ninjato>
- <5da325d0-59d4-92e8-350f-43c25310dabb@osg.samsung.com>
- <20170316133645.3nlr75gjhx7io7mv@ninjato>
- <b4e993ce-4630-6d89-077b-e2f18fadef02@osg.samsung.com>
- <20170316150549.GA3988@katana>
- <21663b26-8581-b8d6-7bab-7e7b65798a6a@osg.samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: do not leave semaphore armed when copying
+ properties fails
+Date: Mon, 20 Mar 2017 10:06:33 -0700
+Message-ID: <20170320170633.GA23083@dtor-ws>
+References: <20170308184102.29334-1-dmitry.torokhov@gmail.com>
+ <20170309144833.3mehuovi3wwqma2m@ninjato>
+ <20170309173828.GA20077@dtor-ws>
+ <20170309231653.GB4300@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <21663b26-8581-b8d6-7bab-7e7b65798a6a@osg.samsung.com>
+Content-Disposition: inline
+In-Reply-To: <20170309231653.GB4300@tetsubishi>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Kieran Bingham <kieranbingham@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi Wolfram,
 
-On 03/16/2017 12:39 PM, Javier Martinez Canillas wrote:
-> On 03/16/2017 12:05 PM, Wolfram Sang wrote:
-
-[snip]
-
->>
->> Next time, maybe do a wiki page and point people to it? That being said,
->> we should probably create a wiki page on the I2C wiki anyhow.
->> Documenting the current state of affairs. That I would do when I finally
->> get around to brush up I2C wiki.
->>
+On Fri, Mar 10, 2017 at 12:16:53AM +0100, Wolfram Sang wrote:
 > 
-> Agreed, I can help writing such a wiki page if you want. I've already requested for
-> an account at https://i2c.wiki.kernel.org.
+> > I am perfectly fine with reverting b0c1e95ab44f from for-current,
+> > however I wonder if we could have an immutable branch off 4.11-rc2 (or
+> 
+> Yes, sure. Please prepare a branch and once I reviewed all patches
+> touching i2c core, we can (from my side at least) declare it immutable
+> and I will pull it into i2c. I'll try to review the resources patch this
+> weekend.
 > 
 
-FYI, I've added a page to the wiki explaining the current issues with the I2C core
-MODALIAS uevent reporting and OF match:
+Did you have a chance at looking the I2C IRQ resources patch? I prepared
+a branch containing the 3 patches:
 
-https://i2c.wiki.kernel.org/index.php/OF_Modalias
+$ git log --oneline --reverse v4.11-rc3..HEAD
+51f19be7f637 i2c: export i2c_client_type structure
+5b57e4dd278e i2c: copy device properties when using i2c_register_board_info()
+7f4bf035cb84 i2c: allow attaching IRQ resources to i2c_board_info
 
-And also linked to the main page in the work-in-progress section:
+You can find it at:
 
-https://i2c.wiki.kernel.org/index.php/Main_Page#Work_in_progress
+git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+4.11-rc3-i2c-irq-resources
 
-Please feel free to add/remove/change anything that you think is missing or isn't
-correct for you.
+or:
 
-Best regards,
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/?h=4.11-rc3-i2c-irq-resources
+
+If you are happy with the branch I'll add your acked-bys and mark it as
+immutable so we can share it between our trees.
+
+Thanks!
+
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Dmitry
