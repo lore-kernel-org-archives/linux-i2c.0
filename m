@@ -1,52 +1,47 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] i2c: designware-baytrail: fix potential null pointer dereference on dev
-Date: Mon, 20 Mar 2017 11:51:23 +0000
-Message-ID: <20170320115123.31536-1-colin.king@canonical.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 01/15] mfd: Add Cherry Trail Whiskey Cove PMIC driver
+Date: Mon, 20 Mar 2017 14:55:05 +0200
+Message-ID: <1490014505.19767.103.camel@linux.intel.com>
+References: <20170317095527.10487-1-hdegoede@redhat.com>
+         <20170317095527.10487-2-hdegoede@redhat.com>
+         <1489770046.19767.66.camel@linux.intel.com>
+         <20170320104152.lba24r2qilpjr2kk@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170320104152.lba24r2qilpjr2kk@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, Bin Gao <bin.gao@intel.com>, Felipe Balbi <felipe.balbi@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, 2017-03-20 at 10:41 +0000, Lee Jones wrote:
+> On Fri, 17 Mar 2017, Andy Shevchenko wrote:
+> > On Fri, 2017-03-17 at 10:55 +0100, Hans de Goede wrote:
 
-The assignment to addr requires a call to get_sem_addr that dereferences
-dev, however, this dereference occurs before a null pointer check on dev.
-Move this assignment after the null check on dev to avoid a potential null
-pointer dereference.
+> > > +enum {
+> > > +	CHT_WC_PWRSRC_IRQ = 0,
+> > > +	CHT_WC_THRM_IRQ,
+> > > +	CHT_WC_BCU_IRQ,
+> > > +	CHT_WC_ADC_IRQ,
+> > > +	CHT_WC_EXT_CHGR_IRQ,
+> > > +	CHT_WC_GPIO_IRQ,
+> > > +	/* There is no irq 6 */
+> > > +	CHT_WC_CRIT_IRQ = 7,
+> > 
+> > I would prefer explicit over implicit (adding = N to each line), but
+> > this is minor.
+> 
+> No need.  The C standard is clear on what is expected of enums.
 
-Detected by CoverityScan, CID#1419700 ("Dereference before null check")
+I understand that, though I don't like gaps in enums. That's why I
+prefer in such cases pure #define over enum (yes, I understand that enum
+in many cases is better).
 
-Fixes: fd476fa22a1f432 ("i2c: designware-baytrail: Add support for cherrytrail")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/i2c/busses/i2c-designware-baytrail.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+But this all matter of taste. So, I will not insist if it would be left
+as it is now.
 
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 1749a0f5a9fa..2cbb2e9195ca 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -70,7 +70,7 @@ static void reset_semaphore(struct dw_i2c_dev *dev)
- 
- static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- {
--	u32 addr = get_sem_addr(dev);
-+	u32 addr;
- 	u32 sem = PUNIT_SEMAPHORE_ACQUIRE;
- 	int ret;
- 	unsigned long start, end;
-@@ -94,6 +94,8 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	 */
- 	pm_qos_update_request(&dev->pm_qos, 0);
- 
-+	addr = get_sem_addr(dev);
-+
- 	/* host driver writes to side band semaphore register */
- 	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE, addr, sem);
- 	if (ret) {
 -- 
-2.11.0
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
