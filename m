@@ -1,115 +1,523 @@
-From: =?UTF-8?B?6ZmI5Lqu?= <cl@rock-chips.com>
-Subject: Re: [PATCH v1 6/7] arm64: dts: rockchip: add dts file for RK3328
- evaluation board
-Date: Tue, 21 Mar 2017 15:59:50 +0800
-Message-ID: <58D0DD76.8090909@rock-chips.com>
-References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
- <63969127-3fcd-658c-2986-8ded6d93c433@arm.com>
- <58CB4945.9020408@rock-chips.com> <4559383.EsY2O1vJ7P@phil>
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH v2 4/6] arm64: dts: rockchip: add core dtsi file for RK3328 SoCs
+Date: Tue, 21 Mar 2017 09:55:56 +0100
+Message-ID: <14610453.rKm3MBREMz@diego>
+References: <1489670244-13328-1-git-send-email-cl@rock-chips.com> <1489670244-13328-5-git-send-email-cl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <4559383.EsY2O1vJ7P@phil>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Heiko Stuebner <heiko@sntech.de>
-Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, david.wu@rock-chips.com, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, yhx@rock-chips.com, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, paweljarosz3691@gmail.com, arnd@arndb.de, Andre Przywara <andre.przywara@arm.com>, zhangqing@rock-chips.com, robh+dt@kernel.org, matthias.bgg@gmail.com, akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org, dianders@chromium.org, knaack.h@gmx.de, fabio.estevam@nxp.com, andy.yan@rock-chips.com, rocky.hao@rock-chips.com, shawnguo@k
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:50488 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756175AbdCUI4R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 21 Mar 2017 04:56:17 -0400
+In-Reply-To: <1489670244-13328-5-git-send-email-cl@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: cl@rock-chips.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, zhangqing@rock-chips.com, kever.yang@rock-chips.com
 
-SGkgSGVpa2/vvJoKCiAgICAgICAgIElzIHRoZXJlIGFueSBhZHZpY2UgYWJvdXQgdGhlIGJpZyBk
-dHNpPwogICAgICAgICBJIHdvdWxkIGxpa2UgdG8gc2VuZCBuZXh0IHZlcnNpb24gLCB0aGFua3Mu
-CgrlnKggMjAxN+W5tDAz5pyIMTfml6UgMTY6NDUsIEhlaWtvIFN0dWVibmVyIOWGmemBkzoKPiBB
-bSBGcmVpdGFnLCAxNy4gTcOkcnogMjAxNywgMTA6MjY6MTMgQ0VUIHNjaHJpZWIg6ZmI5LquOgo+
-PiDlnKggMjAxN+W5tDAz5pyIMTfml6UgMDA6MTgsIEFuZHJlIFByenl3YXJhIOWGmemBkzoKPj4+
-IEhpIENoZW4sCj4+Pgo+Pj4gT24gMTYvMDMvMTcgMDE6NDUsIGNsQHJvY2stY2hpcHMuY29tIHdy
-b3RlOgo+Pj4+IEZyb206IENoZW4gTGlhbmcgPGNsQHJvY2stY2hpcHMuY29tPgo+Pj4+Cj4+Pj4g
-VGhpcyBwYXRjaCBhZGQgcmszMzI4LWV2Yi5kdHMgZm9yIFJLMzMyOCBldmFsdWF0aW9uIGJvYXJk
-Lgo+Pj4+IFRlc3RlZCBvbiBSSzMzMjggZXZiLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogQ2hl
-biBMaWFuZyA8Y2xAcm9jay1jaGlwcy5jb20+Cj4+Pj4gLS0tCj4+Pj4KPj4+PiAgICBhcmNoL2Fy
-bTY0L2Jvb3QvZHRzL3JvY2tjaGlwL01ha2VmaWxlICAgICAgIHwgIDEgKwo+Pj4+ICAgIGFyY2gv
-YXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvcmszMzI4LWV2Yi5kdHMgfCA1Nwo+Pj4+ICAgICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrIDIgZmlsZXMgY2hhbmdlZCwgNTggaW5zZXJ0aW9ucygr
-KQo+Pj4+ICAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBhcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlw
-L3JrMzMyOC1ldmIuZHRzCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0
-cy9yb2NrY2hpcC9NYWtlZmlsZQo+Pj4+IGIvYXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9N
-YWtlZmlsZSBpbmRleCAzYTg2Mjg5Li44NTNmYzdkIDEwMDY0NAo+Pj4+IC0tLSBhL2FyY2gvYXJt
-NjQvYm9vdC9kdHMvcm9ja2NoaXAvTWFrZWZpbGUKPj4+PiArKysgYi9hcmNoL2FybTY0L2Jvb3Qv
-ZHRzL3JvY2tjaGlwL01ha2VmaWxlCj4+Pj4gQEAgLTQsNiArNCw3IEBAIGR0Yi0kKENPTkZJR19B
-UkNIX1JPQ0tDSElQKSArPSByazMzNjgtb3Jpb24tcjY4LW1ldGEuZHRiCj4+Pj4KPj4+PiAgICBk
-dGItJChDT05GSUdfQVJDSF9ST0NLQ0hJUCkgKz0gcmszMzY4LXB4NS1ldmIuZHRiCj4+Pj4gICAg
-ZHRiLSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM2OC1yODguZHRiCj4+Pj4gICAgZHRi
-LSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM5OS1ldmIuZHRiCj4+Pj4KPj4+PiArZHRi
-LSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzMyOC1ldmIuZHRiCj4+Pj4KPj4+PiAgICBh
-bHdheXMJCTo9ICQoZHRiLXkpCj4+Pj4gICAgc3ViZGlyLXkJOj0gJChkdHMtZGlycykKPj4+Pgo+
-Pj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1ldmIu
-ZHRzCj4+Pj4gYi9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1ldmIuZHRzIG5l
-dyBmaWxlIG1vZGUgMTAwNjQ0Cj4+Pj4gaW5kZXggMDAwMDAwMC4uY2YyNzIzOQo+Pj4+IC0tLSAv
-ZGV2L251bGwKPj4+PiArKysgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1l
-dmIuZHRzCj4+Pj4gQEAgLTAsMCArMSw1NyBAQAo+Pj4+ICsvKgo+Pj4+ICsgKiBDb3B5cmlnaHQg
-KGMpIDIwMTcgRnV6aG91IFJvY2tjaGlwIEVsZWN0cm9uaWNzIENvLiwgTHRkCj4+Pj4gKyAqCj4+
-Pj4gKyAqIFRoaXMgZmlsZSBpcyBkdWFsLWxpY2Vuc2VkOiB5b3UgY2FuIHVzZSBpdCBlaXRoZXIg
-dW5kZXIgdGhlIHRlcm1zCj4+Pj4gKyAqIG9mIHRoZSBHUEwgb3IgdGhlIFgxMSBsaWNlbnNlLCBh
-dCB5b3VyIG9wdGlvbi4gTm90ZSB0aGF0IHRoaXMgZHVhbAo+Pj4+ICsgKiBsaWNlbnNpbmcgb25s
-eSBhcHBsaWVzIHRvIHRoaXMgZmlsZSwgYW5kIG5vdCB0aGlzIHByb2plY3QgYXMgYQo+Pj4+ICsg
-KiB3aG9sZS4KPj4+PiArICoKPj4+PiArICogIGEpIFRoaXMgbGlicmFyeSBpcyBmcmVlIHNvZnR3
-YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IKPj4+PiArICogICAgIG1vZGlmeSBp
-dCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzCj4+
-Pj4gKyAqICAgICBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0
-aGVyIHZlcnNpb24gMiBvZgo+Pj4+IHRoZQo+Pj4+ICsgKiAgICAgTGljZW5zZSwgb3IgKGF0IHlv
-dXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KPj4+PiArICoKPj4+PiArICogICAgIFRoaXMg
-bGlicmFyeSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVs
-LAo+Pj4+ICsgKiAgICAgYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhl
-IGltcGxpZWQgd2FycmFudHkgb2YKPj4+PiArICogICAgIE1FUkNIQU5UQUJJTElUWSBvciBGSVRO
-RVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKPj4+PiArICogICAgIEdOVSBH
-ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCj4+Pj4gKyAqCj4+Pj4gKyAq
-IE9yLCBhbHRlcm5hdGl2ZWx5LAo+Pj4+ICsgKgo+Pj4+ICsgKiAgYikgUGVybWlzc2lvbiBpcyBo
-ZXJlYnkgZ3JhbnRlZCwgZnJlZSBvZiBjaGFyZ2UsIHRvIGFueSBwZXJzb24KPj4+PiArICogICAg
-IG9idGFpbmluZyBhIGNvcHkgb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVu
-dGF0aW9uCj4+Pj4gKyAqICAgICBmaWxlcyAodGhlICJTb2Z0d2FyZSIpLCB0byBkZWFsIGluIHRo
-ZSBTb2Z0d2FyZSB3aXRob3V0Cj4+Pj4gKyAqICAgICByZXN0cmljdGlvbiwgaW5jbHVkaW5nIHdp
-dGhvdXQgbGltaXRhdGlvbiB0aGUgcmlnaHRzIHRvIHVzZSwKPj4+PiArICogICAgIGNvcHksIG1v
-ZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vcgo+Pj4+
-ICsgKiAgICAgc2VsbCBjb3BpZXMgb2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8gcGVybWl0IHBlcnNv
-bnMgdG8gd2hvbSB0aGUKPj4+PiArICogICAgIFNvZnR3YXJlIGlzIGZ1cm5pc2hlZCB0byBkbyBz
-bywgc3ViamVjdCB0byB0aGUgZm9sbG93aW5nCj4+Pj4gKyAqICAgICBjb25kaXRpb25zOgo+Pj4+
-ICsgKgo+Pj4+ICsgKiAgICAgVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVy
-bWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUKPj4+PiArICogICAgIGluY2x1ZGVkIGluIGFsbCBjb3Bp
-ZXMgb3Igc3Vic3RhbnRpYWwgcG9ydGlvbnMgb2YgdGhlIFNvZnR3YXJlLgo+Pj4+ICsgKgo+Pj4+
-ICsgKiAgICAgVEhFIFNPRlRXQVJFIElTIFBST1ZJREVEICJBUyBJUyIsIFdJVEhPVVQgV0FSUkFO
-VFkgT0YgQU5ZIEtJTkQsCj4+Pj4gKyAqICAgICBFWFBSRVNTIE9SIElNUExJRUQsIElOQ0xVRElO
-RyBCVVQgTk9UIExJTUlURUQgVE8gVEhFIFdBUlJBTlRJRVMKPj4+PiArICogICAgIE9GIE1FUkNI
-QU5UQUJJTElUWSwgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5ECj4+Pj4gKyAq
-ICAgICBOT05JTkZSSU5HRU1FTlQuIElOIE5PIEVWRU5UIFNIQUxMIFRIRSBBVVRIT1JTIE9SIENP
-UFlSSUdIVAo+Pj4+ICsgKiAgICAgSE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFN
-QUdFUyBPUiBPVEhFUiBMSUFCSUxJVFksCj4+Pj4gKyAqICAgICBXSEVUSEVSIElOIEFOIEFDVElP
-TiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcKPj4+PiArICogICAgIEZS
-T00sIE9VVCBPRiBPUiBJTiBDT05ORUNUSU9OIFdJVEggVEhFIFNPRlRXQVJFIE9SIFRIRSBVU0Ug
-T1IKPj4+PiArICogICAgIE9USEVSIERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4KPj4+PiArICov
-Cj4+Pj4gKwo+Pj4+ICsvZHRzLXYxLzsKPj4+PiArI2luY2x1ZGUgInJrMzMyOC5kdHNpIgo+Pj4+
-ICsKPj4+PiArLyB7Cj4+Pj4gKwltb2RlbCA9ICJSb2NrY2hpcCBSSzMzMjggRVZCIjsKPj4+PiAr
-CWNvbXBhdGlibGUgPSAicm9ja2NoaXAscmszMzI4LWV2YiIsICJyb2NrY2hpcCxyazMzMjgiOwo+
-Pj4+ICsKPj4+PiArCWNob3NlbiB7Cj4+Pj4gKwkJc3Rkb3V0LXBhdGggPSAic2VyaWFsMjoxNTAw
-MDAwbjgiOwo+Pj4gSXMgdGhhdCByZWFsbHkgMS41TUJpdC9zPwo+PiBZZXMsIHRoZSBSSzMzMjgg
-RVZCIGJvYXJkIHVzZSAxLjVNQml0L3MgYmF1ZCByYXRlLgo+Pgo+Pj4+ICsJfTsKPj4+PiArfTsK
-Pj4+PiArCj4+Pj4gKyZ1YXJ0MiB7Cj4+Pj4gKwlzdGF0dXMgPSAib2theSI7Cj4+Pj4gK307Cj4+
-PiBJIGRvbid0IGhhdmUgdGhlIGJvYXJkLCBidXQgd291bGQgZXhwZWN0IHRvIHNlZSBtb3JlIHBl
-cmlwaGVyYWxzCj4+PiBtZW50aW9uZWQgaW4gdGhlIC5kdHNpIGVuYWJsZWQgaGVyZS4KPj4+IEZv
-ciBzdXJlIHRoZSBib2FyZCBoYXMgYW4gKG1pY3JvKVNEIGNhcmQgc2xvdCwgcG9zc2libHkgZXZl
-biBFdGhlcm5ldD8KPj4gVGhlIGNvZGVzIGZvciBvdGhlciBwZXJpcGhlcmFscyBhcmUgbm90IHJl
-YWR5IG5vdyBmb3IgbmV3IGtlcm5lbCwgc28gaQo+PiBwdXNoIGEgYmFzZSBkdHNpLCBhbmQgb3Ro
-ZXIgY29uZmlncmF0aW9uIHdpbGwgYmUgcHVzaGVkIGxhdGVyIGlmIGl0IGlzIG9rLgo+IGZvciBt
-ZSB0aGF0IGFwcHJvYWNoIGlzIGZpbmUgaW4gZ2VuZXJhbCwgYnV0IGhlcmUsIHlvdSBjb3VsZCBl
-bmFibGUgYXQgbGVhc3QKPiB0aGUgd2F0Y2hkb2cgYXMgd2VsbD8KPgo+IEJ1dCBubyBuZWVkIHRv
-IHJlc2VuZCBqdXN0IG5vdywgSSBzdGlsbCBuZWVkIHRvIGxvb2sgYXQgdGhlIGJpZyBkdHNpLgo+
-Cj4KPiBIZWlrbwo+CgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
-dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2xpbnV4LWFybS1rZXJuZWwK
+Hi,
+
+Am Donnerstag, 16. März 2017, 21:17:22 CET schrieb cl@rock-chips.com:
+> From: Liang Chen <cl@rock-chips.com>
+> 
+> This patch adds core dtsi file for Rockchip RK3328 SoCs.
+> 
+> Signed-off-by: Liang Chen <cl@rock-chips.com>
+> ---
+>  arch/arm64/boot/dts/rockchip/rk3328.dtsi | 1362
+> ++++++++++++++++++++++++++++++ 1 file changed, 1362 insertions(+)
+>  create mode 100644 arch/arm64/boot/dts/rockchip/rk3328.dtsi
+> 
+> diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+> b/arch/arm64/boot/dts/rockchip/rk3328.dtsi new file mode 100644
+> index 0000000..a92955c
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+> @@ -0,0 +1,1362 @@
+> +/*
+> + * Copyright (c) 2017 Fuzhou Rockchip Electronics Co., Ltd
+> + *
+> + * This file is dual-licensed: you can use it either under the terms
+> + * of the GPL or the X11 license, at your option. Note that this dual
+> + * licensing only applies to this file, and not this project as a
+> + * whole.
+> + *
+> + *  a) This library is free software; you can redistribute it and/or
+> + *     modify it under the terms of the GNU General Public License as
+> + *     published by the Free Software Foundation; either version 2 of the
+> + *     License, or (at your option) any later version.
+> + *
+> + *     This library is distributed in the hope that it will be useful,
+> + *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *     GNU General Public License for more details.
+> + *
+> + * Or, alternatively,
+> + *
+> + *  b) Permission is hereby granted, free of charge, to any person
+> + *     obtaining a copy of this software and associated documentation
+> + *     files (the "Software"), to deal in the Software without
+> + *     restriction, including without limitation the rights to use,
+> + *     copy, modify, merge, publish, distribute, sublicense, and/or
+> + *     sell copies of the Software, and to permit persons to whom the
+> + *     Software is furnished to do so, subject to the following
+> + *     conditions:
+> + *
+> + *     The above copyright notice and this permission notice shall be
+> + *     included in all copies or substantial portions of the Software.
+> + *
+> + *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+> + *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+> + *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+> + *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+> + *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+> + *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+> + *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+> + *     OTHER DEALINGS IN THE SOFTWARE.
+> + */
+> +
+> +#include <dt-bindings/clock/rk3328-cru.h>
+> +#include <dt-bindings/gpio/gpio.h>
+> +#include <dt-bindings/interrupt-controller/arm-gic.h>
+> +#include <dt-bindings/interrupt-controller/irq.h>
+> +#include <dt-bindings/pinctrl/rockchip.h>
+> +#include <dt-bindings/soc/rockchip,boot-mode.h>
+> +#include <dt-bindings/power/rk3328-power.h>
+> +
+> +/ {
+> +	compatible = "rockchip,rk3328";
+> +
+> +	interrupt-parent = <&gic>;
+> +	#address-cells = <2>;
+> +	#size-cells = <2>;
+> +
+> +	aliases {
+> +		serial0 = &uart0;
+> +		serial1 = &uart1;
+> +		serial2 = &uart2;
+> +		i2c0 = &i2c0;
+> +		i2c1 = &i2c1;
+> +		i2c2 = &i2c2;
+> +		i2c3 = &i2c3;
+> +	};
+> +
+> +	cpus {
+> +		#address-cells = <2>;
+
+#address-cells = <1>? You most likely don't need the 2 field cpu regs?
+
+> +		#size-cells = <0>;
+> +
+> +		cpu0: cpu@0 {
+> +			device_type = "cpu";
+> +			compatible = "arm,cortex-a53", "arm,armv8";
+> +			reg = <0x0 0x0>;
+> +			enable-method = "psci";
+> +			clocks = <&cru ARMCLK>;
+> +		};
+> +		cpu1: cpu@1 {
+> +			device_type = "cpu";
+> +			compatible = "arm,cortex-a53", "arm,armv8";
+> +			reg = <0x0 0x1>;
+> +			enable-method = "psci";
+> +		};
+> +		cpu2: cpu@2 {
+> +			device_type = "cpu";
+> +			compatible = "arm,cortex-a53", "arm,armv8";
+> +			reg = <0x0 0x2>;
+> +			enable-method = "psci";
+> +		};
+> +		cpu3: cpu@3 {
+> +			device_type = "cpu";
+> +			compatible = "arm,cortex-a53", "arm,armv8";
+> +			reg = <0x0 0x3>;
+> +			enable-method = "psci";
+> +		};
+> +	};
+
+amba block here please
+
+> +
+> +	arm-pmu {
+> +		compatible = "arm,cortex-a53-pmu";
+> +		interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+> +		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
+> +	};
+> +
+> +	psci {
+> +		compatible = "arm,psci-1.0";
+> +		method = "smc";
+> +	};
+> +
+> +	timer {
+> +		compatible = "arm,armv8-timer";
+> +		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | 
+IRQ_TYPE_LEVEL_LOW)>,
+> +			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+> +			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+> +			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
+> +	};
+> +
+> +	xin24m: xin24m {
+> +		compatible = "fixed-clock";
+> +		#clock-cells = <0>;
+> +		clock-frequency = <24000000>;
+> +		clock-output-names = "xin24m";
+> +	};
+> +
+
+[...]
+
+> +	wdt: watchdog@ff1a0000 {
+> +		compatible = "snps,dw-wdt";
+> +		reg = <0x0 0xff1a0000 0x0 0x100>;
+> +		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+> +		status = "disabled";
+> +	};
+> +
+> +	amba {
+
+amba block above arm-pmu please
+
+> +		compatible = "simple-bus";
+> +		#address-cells = <2>;
+> +		#size-cells = <2>;
+> +		ranges;
+> +
+> +		dmac: dmac@ff1f0000 {
+> +			compatible = "arm,pl330", "arm,primecell";
+> +			reg = <0x0 0xff1f0000 0x0 0x4000>;
+> +			interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>,
+> +				     <GIC_SPI 1 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cru ACLK_DMAC>;
+> +			clock-names = "apb_pclk";
+> +			#dma-cells = <1>;
+> +		};
+> +	};
+> +
+> +	saradc: saradc@ff280000 {
+> +		compatible = "rockchip,rk3328-saradc", "rockchip,rk3399-saradc";
+> +		reg = <0x0 0xff280000 0x0 0x100>;
+> +		interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+> +		#io-channel-cells = <1>;
+> +		clocks = <&cru SCLK_SARADC>, <&cru PCLK_SARADC>;
+> +		clock-names = "saradc", "apb_pclk";
+> +		resets = <&cru SRST_SARADC_P>;
+> +		reset-names = "saradc-apb";
+> +		status = "disabled";
+> +	};
+> +
+> +	cru: clock-controller@ff440000 {
+> +		compatible = "rockchip,rk3328-cru", "rockchip,cru", "syscon";
+> +		reg = <0x0 0xff440000 0x0 0x1000>;
+> +		rockchip,grf = <&grf>;
+> +		#clock-cells = <1>;
+> +		#reset-cells = <1>;
+> +		assigned-clocks =
+> +			<&cru DCLK_LCDC>, <&cru SCLK_PDM>,
+> +			<&cru SCLK_RTC32K>, <&cru SCLK_UART0>,
+> +			<&cru SCLK_UART1>, <&cru SCLK_UART2>,
+> +			<&cru ACLK_BUS_PRE>, <&cru ACLK_PERI_PRE>,
+> +			<&cru ACLK_VIO_PRE>, <&cru ACLK_RGA_PRE>,
+> +			<&cru ACLK_VOP_PRE>, <&cru ACLK_RKVDEC_PRE>,
+> +			<&cru ACLK_RKVENC>, <&cru ACLK_VPU_PRE>,
+> +			<&cru SCLK_VDEC_CABAC>, <&cru SCLK_VDEC_CORE>,
+> +			<&cru SCLK_VENC_CORE>, <&cru SCLK_VENC_DSP>,
+> +			<&cru SCLK_SDIO>, <&cru SCLK_TSP>,
+> +			<&cru SCLK_WIFI>, <&cru ARMCLK>,
+> +			<&cru PLL_GPLL>, <&cru PLL_CPLL>,
+> +			<&cru ACLK_BUS_PRE>, <&cru HCLK_BUS_PRE>,
+> +			<&cru PCLK_BUS_PRE>, <&cru ACLK_PERI_PRE>,
+> +			<&cru HCLK_PERI>, <&cru PCLK_PERI>,
+> +			<&cru ACLK_VIO_PRE>, <&cru HCLK_VIO_PRE>,
+> +			<&cru ACLK_RGA_PRE>, <&cru SCLK_RGA>,
+> +			<&cru ACLK_VOP_PRE>, <&cru ACLK_RKVDEC_PRE>,
+> +			<&cru ACLK_RKVENC>, <&cru ACLK_VPU_PRE>,
+> +			<&cru SCLK_VDEC_CABAC>, <&cru SCLK_VDEC_CORE>,
+> +			<&cru SCLK_VENC_CORE>, <&cru SCLK_VENC_DSP>,
+> +			<&cru SCLK_EFUSE>, <&cru PCLK_DDR>,
+> +			<&cru ACLK_GMAC>, <&cru PCLK_GMAC>,
+> +			<&cru SCLK_RTC32K>, <&cru SCLK_USB3OTG_SUSPEND>;
+
+that list is way to long.
+Device-specific clocks should be inited in their respective device nodes.
+
+Aka sdio clocks in the sdio controller node, video encoder/decoder in the 
+encoder/decoder nodes, efuse, gmac etc etc.
+
+Controllers for which you don't have bindings yet, also most likely won't need 
+their clocks to get adjusted just now.
+
+The cru assigned clocks are really only for system-wide shared clocks.
+
+> +		assigned-clock-parents =
+> +			<&cru HDMIPHY>, <&cru PLL_APLL>,
+> +			<&cru PLL_GPLL>, <&xin24m>,
+> +			<&xin24m>, <&xin24m>;
+> +		assigned-clock-rates =
+> +			<0>, <61440000>,
+> +			<0>, <24000000>,
+> +			<24000000>, <24000000>,
+> +			<15000000>, <15000000>,
+> +			<100000000>, <100000000>,
+> +			<100000000>, <100000000>,
+> +			<50000000>, <100000000>,
+> +			<100000000>, <100000000>,
+> +			<50000000>, <50000000>,
+> +			<50000000>, <50000000>,
+> +			<24000000>, <600000000>,
+> +			<491520000>, <1200000000>,
+> +			<150000000>, <75000000>,
+> +			<75000000>, <150000000>,
+> +			<75000000>, <75000000>,
+> +			<300000000>, <100000000>,
+> +			<300000000>, <200000000>,
+> +			<400000000>, <500000000>,
+> +			<200000000>, <300000000>,
+> +			<300000000>, <250000000>,
+> +			<200000000>, <100000000>,
+> +			<24000000>, <100000000>,
+> +			<150000000>, <50000000>,
+> +			<32768>, <32768>;
+> +	};
+> +
+> +	gmac2io: eth@ff540000 {
+
+phandle should be gmac instead?
+Node name, ethernet@ff540000
+
+> +		compatible = "rockchip,rk3328-gmac";
+> +		reg = <0x0 0xff540000 0x0 0x10000>;
+> +		rockchip,grf = <&grf>;
+> +		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+> +		interrupt-names = "macirq";
+> +		clocks = <&cru SCLK_MAC2IO>, <&cru SCLK_MAC2IO_RX>,
+> +			 <&cru SCLK_MAC2IO_TX>, <&cru SCLK_MAC2IO_REF>,
+> +			 <&cru SCLK_MAC2IO_REFOUT>, <&cru ACLK_MAC2IO>,
+> +			 <&cru PCLK_MAC2IO>;
+> +		clock-names = "stmmaceth", "mac_clk_rx",
+> +			      "mac_clk_tx", "clk_mac_ref",
+> +			      "clk_mac_refout", "aclk_mac",
+> +			      "pclk_mac";
+> +		resets = <&cru SRST_GMAC2IO_A>;
+> +		reset-names = "stmmaceth";
+> +		status = "disabled";
+> +	};
+> +
+> +	gic: interrupt-controller@ff811000 {
+> +		compatible = "arm,gic-400";
+> +		#interrupt-cells = <3>;
+> +		#address-cells = <0>;
+> +		interrupt-controller;
+> +		reg = <0x0 0xff811000 0 0x1000>,
+> +		      <0x0 0xff812000 0 0x2000>,
+> +		      <0x0 0xff814000 0 0x2000>,
+> +		      <0x0 0xff816000 0 0x2000>;
+> +		interrupts = <GIC_PPI 9
+> +		      (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+> +	};
+> +
+> +	pinctrl: pinctrl {
+> +		compatible = "rockchip,rk3328-pinctrl";
+> +		rockchip,grf = <&grf>;
+> +		#address-cells = <2>;
+> +		#size-cells = <2>;
+> +		ranges;
+> +
+> +		gpio0: gpio0@ff210000 {
+> +			compatible = "rockchip,gpio-bank";
+> +			reg = <0x0 0xff210000 0x0 0x100>;
+> +			interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cru PCLK_GPIO0>;
+> +
+> +			gpio-controller;
+> +			#gpio-cells = <2>;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells = <2>;
+> +		};
+> +
+> +		gpio1: gpio1@ff220000 {
+> +			compatible = "rockchip,gpio-bank";
+> +			reg = <0x0 0xff220000 0x0 0x100>;
+> +			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cru PCLK_GPIO1>;
+> +
+> +			gpio-controller;
+> +			#gpio-cells = <2>;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells = <2>;
+> +		};
+> +
+> +		gpio2: gpio2@ff230000 {
+> +			compatible = "rockchip,gpio-bank";
+> +			reg = <0x0 0xff230000 0x0 0x100>;
+> +			interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cru PCLK_GPIO2>;
+> +
+> +			gpio-controller;
+> +			#gpio-cells = <2>;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells = <2>;
+> +		};
+> +
+> +		gpio3: gpio3@ff240000 {
+> +			compatible = "rockchip,gpio-bank";
+> +			reg = <0x0 0xff240000 0x0 0x100>;
+> +			interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cru PCLK_GPIO3>;
+> +
+> +			gpio-controller;
+> +			#gpio-cells = <2>;
+> +
+> +			interrupt-controller;
+> +			#interrupt-cells = <2>;
+> +		};
+> +
+> +		pcfg_pull_up: pcfg-pull-up {
+> +			bias-pull-up;
+> +		};
+> +
+> +		pcfg_pull_down: pcfg-pull-down {
+> +			bias-pull-down;
+> +		};
+> +
+> +		pcfg_pull_none: pcfg-pull-none {
+> +			bias-disable;
+> +		};
+> +
+> +		pcfg_pull_none_2ma: pcfg-pull-none-2ma {
+> +			bias-disable;
+> +			drive-strength = <2>;
+> +		};
+> +
+> +		pcfg_pull_up_2ma: pcfg-pull-up-2ma {
+> +			bias-pull-up;
+> +			drive-strength = <2>;
+> +		};
+> +
+> +		pcfg_pull_up_4ma: pcfg-pull-up-4ma {
+> +			bias-pull-up;
+> +			drive-strength = <4>;
+> +		};
+> +
+> +		pcfg_pull_none_4ma: pcfg-pull-none-4ma {
+> +			bias-disable;
+> +			drive-strength = <4>;
+> +		};
+> +
+> +		pcfg_pull_down_4ma: pcfg-pull-down-4ma {
+> +			bias-pull-down;
+> +			drive-strength = <4>;
+> +		};
+> +
+> +		pcfg_pull_none_8ma: pcfg-pull-none-8ma {
+> +			bias-disable;
+> +			drive-strength = <8>;
+> +		};
+> +
+> +		pcfg_pull_up_8ma: pcfg-pull-up-8ma {
+> +			bias-pull-up;
+> +			drive-strength = <8>;
+> +		};
+> +
+> +		pcfg_pull_none_12ma: pcfg-pull-none-12ma {
+> +			bias-disable;
+> +			drive-strength = <12>;
+> +		};
+> +
+> +		pcfg_pull_up_12ma: pcfg-pull-up-12ma {
+> +			bias-pull-up;
+> +			drive-strength = <12>;
+> +		};
+> +
+> +		pcfg_output_high: pcfg-output-high {
+> +			output-high;
+> +		};
+> +
+> +		pcfg_output_low: pcfg-output-low {
+> +			output-low;
+> +		};
+> +
+> +		pcfg_input_high: pcfg-input-high {
+> +			bias-pull-up;
+> +			input-enable;
+> +		};
+> +
+> +		pcfg_input: pcfg-input {
+> +			input-enable;
+> +		};
+> +
+> +		i2c0 {
+> +			i2c0_xfer: i2c0-xfer {
+> +				rockchip,pins =
+> +					<2 RK_PD0 1 &pcfg_pull_none>,
+> +					<2 RK_PD1 1 &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+> +		i2c1 {
+> +			i2c1_xfer: i2c1-xfer {
+> +				rockchip,pins =
+> +					<2 RK_PA4 2 &pcfg_pull_none>,
+> +					<2 RK_PA5 2 &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+> +		i2c2 {
+> +			i2c2_xfer: i2c2-xfer {
+> +				rockchip,pins =
+> +					<2 RK_PB5 1 &pcfg_pull_none>,
+> +					<2 RK_PB6 1 &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+> +		i2c3 {
+> +			i2c3_xfer: i2c3-xfer {
+> +				rockchip,pins =
+> +					<0 RK_PA5 2 &pcfg_pull_none>,
+> +					<0 RK_PA6 2 &pcfg_pull_none>;
+> +			};
+> +			i2c3_gpio: i2c3-gpio {
+> +				rockchip,pins =
+> +					<0 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>,
+> +					<0 RK_PA6 RK_FUNC_GPIO &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+> +		hdmi_i2c {
+> +			hdmii2c_xfer: hdmii2c-xfer {
+> +				rockchip,pins =
+> +					<0 RK_PA5 1 &pcfg_pull_none>,
+> +					<0 RK_PA6 1 &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+> +		tsadc {
+> +			otp_gpio: otp-gpio {
+> +				rockchip,pins =
+> +					<2 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+
+no need to line -break all these single-pin definitions, there are still enough 
+characters below 80 left :-)
+
+Same for all below
+
+> +			};
+> +
+> +			otp_out: otp-out {
+> +				rockchip,pins =
+> +					<2 RK_PB5 1 &pcfg_pull_none>;
+> +			};
+> +		};
+> +
+
+
+Heiko
