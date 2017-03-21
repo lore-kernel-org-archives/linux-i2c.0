@@ -1,82 +1,115 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH 03/15] extcon: cht-wc: Add Intel Cherry Trail Whiskey Cove
- PMIC extcon driver
-Date: Tue, 21 Mar 2017 15:27:18 +0900
-Message-ID: <58D0C7C6.1090008@samsung.com>
-References: <20170317095527.10487-1-hdegoede@redhat.com>
- <CGME20170317095544epcas5p42dd4115627c9cf9de3911b433024ac93@epcas5p4.samsung.com>
- <20170317095527.10487-4-hdegoede@redhat.com> <58CF3183.4090101@samsung.com>
- <1490014841.19767.106.camel@linux.intel.com> <58D0A3E8.6090609@samsung.com>
- <58D0B868.6060602@samsung.com>
+From: =?UTF-8?B?6ZmI5Lqu?= <cl@rock-chips.com>
+Subject: Re: [PATCH v1 6/7] arm64: dts: rockchip: add dts file for RK3328
+ evaluation board
+Date: Tue, 21 Mar 2017 15:59:50 +0800
+Message-ID: <58D0DD76.8090909@rock-chips.com>
+References: <1489572237-6649-1-git-send-email-cl@rock-chips.com>
+ <63969127-3fcd-658c-2986-8ded6d93c433@arm.com>
+ <58CB4945.9020408@rock-chips.com> <4559383.EsY2O1vJ7P@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:35319 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755783AbdCUG1X (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Mar 2017 02:27:23 -0400
-In-reply-to: <58D0B868.6060602@samsung.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <4559383.EsY2O1vJ7P@phil>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Heiko Stuebner <heiko@sntech.de>
+Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, david.wu@rock-chips.com, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, yhx@rock-chips.com, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, paweljarosz3691@gmail.com, arnd@arndb.de, Andre Przywara <andre.przywara@arm.com>, zhangqing@rock-chips.com, robh+dt@kernel.org, matthias.bgg@gmail.com, akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org, dianders@chromium.org, knaack.h@gmx.de, fabio.estevam@nxp.com, andy.yan@rock-chips.com, rocky.hao@rock-chips.com, shawnguo@k
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>
-Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 
-Hi,
-
-I think it again.
-The "cht_wcove_pwrsrc' is ok, if the register use the 'pwrsrc' word
-and using the 'wcove' instead of 'wc'. It is not big matter.
-
-I agree to use the 'cht_wcove_pwrsrc'.
-
-Best Regards,
-Chanwoo Choi
-
-
-On 2017년 03월 21일 14:21, Chanwoo Choi wrote:
-> On 2017년 03월 21일 12:54, Chanwoo Choi wrote:
->> On 2017년 03월 20일 22:00, Andy Shevchenko wrote:
->>> On Mon, 2017-03-20 at 10:33 +0900, Chanwoo Choi wrote:
->>>> On 2017년 03월 17일 18:55, Hans de Goede wrote:
->>>
->>>>> +static const struct platform_device_id cht_wc_extcon_table[] = {
->>>>> +	{ .name = "cht_wcove_pwrsrc" },
->>>>
->>>> You use the 'cht_wc' word instead of 'cht_wcove_pwrsrc'.
->>>> So, To maintain the consistency, you better to use the 'cht-wc' as the
->>>> name.
->>>> - I prefer to use '-' instead of '_' in the name.
->>>> 	.name ="cht-wc"
->>>
->>> I would keep as Hans did for the sake of consistency among all Whiskey
->>> Cove device drivers (and predecessors like Crystal Cove).
->>
->> The 'wcove' short word is not used in this patch.
->> If the author want to use the 'wcove', I recommend that
->> you should use the 'wcove' instead of 'wc' in this patch.
->>
->> And, I think that  'pwrsrc' is not ambiguous.
-> 
-> I'm sorry. I used the wrong word. I mean that 'pwrsrc' is not correct.
-> 
->> Hans might use the 'pwrsrc' as the 'Power Source'.
->> But, this driver is not power source. Instead,
->> this driver supports the detection of external connector.
->>
->> I think 'power source' means the power supply instead of detector.
->>
->>>
->>> I understand your point from extcon subsystem view, but PMICs like
->>> Whiskey Cove are multi-functional devices, and thus naming across them
->>> (same prefix in use to be precise) is better idea.
->>>
->>>>
->>>>> +	{},
->>>>> +};
->>>>> +MODULE_DEVICE_TABLE(platform, cht_wc_extcon_table);
->>>
->>
->>
-> 
-> 
+SGkgSGVpa2/vvJoKCiAgICAgICAgIElzIHRoZXJlIGFueSBhZHZpY2UgYWJvdXQgdGhlIGJpZyBk
+dHNpPwogICAgICAgICBJIHdvdWxkIGxpa2UgdG8gc2VuZCBuZXh0IHZlcnNpb24gLCB0aGFua3Mu
+CgrlnKggMjAxN+W5tDAz5pyIMTfml6UgMTY6NDUsIEhlaWtvIFN0dWVibmVyIOWGmemBkzoKPiBB
+bSBGcmVpdGFnLCAxNy4gTcOkcnogMjAxNywgMTA6MjY6MTMgQ0VUIHNjaHJpZWIg6ZmI5LquOgo+
+PiDlnKggMjAxN+W5tDAz5pyIMTfml6UgMDA6MTgsIEFuZHJlIFByenl3YXJhIOWGmemBkzoKPj4+
+IEhpIENoZW4sCj4+Pgo+Pj4gT24gMTYvMDMvMTcgMDE6NDUsIGNsQHJvY2stY2hpcHMuY29tIHdy
+b3RlOgo+Pj4+IEZyb206IENoZW4gTGlhbmcgPGNsQHJvY2stY2hpcHMuY29tPgo+Pj4+Cj4+Pj4g
+VGhpcyBwYXRjaCBhZGQgcmszMzI4LWV2Yi5kdHMgZm9yIFJLMzMyOCBldmFsdWF0aW9uIGJvYXJk
+Lgo+Pj4+IFRlc3RlZCBvbiBSSzMzMjggZXZiLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogQ2hl
+biBMaWFuZyA8Y2xAcm9jay1jaGlwcy5jb20+Cj4+Pj4gLS0tCj4+Pj4KPj4+PiAgICBhcmNoL2Fy
+bTY0L2Jvb3QvZHRzL3JvY2tjaGlwL01ha2VmaWxlICAgICAgIHwgIDEgKwo+Pj4+ICAgIGFyY2gv
+YXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvcmszMzI4LWV2Yi5kdHMgfCA1Nwo+Pj4+ICAgICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrIDIgZmlsZXMgY2hhbmdlZCwgNTggaW5zZXJ0aW9ucygr
+KQo+Pj4+ICAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBhcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlw
+L3JrMzMyOC1ldmIuZHRzCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0
+cy9yb2NrY2hpcC9NYWtlZmlsZQo+Pj4+IGIvYXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9N
+YWtlZmlsZSBpbmRleCAzYTg2Mjg5Li44NTNmYzdkIDEwMDY0NAo+Pj4+IC0tLSBhL2FyY2gvYXJt
+NjQvYm9vdC9kdHMvcm9ja2NoaXAvTWFrZWZpbGUKPj4+PiArKysgYi9hcmNoL2FybTY0L2Jvb3Qv
+ZHRzL3JvY2tjaGlwL01ha2VmaWxlCj4+Pj4gQEAgLTQsNiArNCw3IEBAIGR0Yi0kKENPTkZJR19B
+UkNIX1JPQ0tDSElQKSArPSByazMzNjgtb3Jpb24tcjY4LW1ldGEuZHRiCj4+Pj4KPj4+PiAgICBk
+dGItJChDT05GSUdfQVJDSF9ST0NLQ0hJUCkgKz0gcmszMzY4LXB4NS1ldmIuZHRiCj4+Pj4gICAg
+ZHRiLSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM2OC1yODguZHRiCj4+Pj4gICAgZHRi
+LSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzM5OS1ldmIuZHRiCj4+Pj4KPj4+PiArZHRi
+LSQoQ09ORklHX0FSQ0hfUk9DS0NISVApICs9IHJrMzMyOC1ldmIuZHRiCj4+Pj4KPj4+PiAgICBh
+bHdheXMJCTo9ICQoZHRiLXkpCj4+Pj4gICAgc3ViZGlyLXkJOj0gJChkdHMtZGlycykKPj4+Pgo+
+Pj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1ldmIu
+ZHRzCj4+Pj4gYi9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1ldmIuZHRzIG5l
+dyBmaWxlIG1vZGUgMTAwNjQ0Cj4+Pj4gaW5kZXggMDAwMDAwMC4uY2YyNzIzOQo+Pj4+IC0tLSAv
+ZGV2L251bGwKPj4+PiArKysgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL3JvY2tjaGlwL3JrMzMyOC1l
+dmIuZHRzCj4+Pj4gQEAgLTAsMCArMSw1NyBAQAo+Pj4+ICsvKgo+Pj4+ICsgKiBDb3B5cmlnaHQg
+KGMpIDIwMTcgRnV6aG91IFJvY2tjaGlwIEVsZWN0cm9uaWNzIENvLiwgTHRkCj4+Pj4gKyAqCj4+
+Pj4gKyAqIFRoaXMgZmlsZSBpcyBkdWFsLWxpY2Vuc2VkOiB5b3UgY2FuIHVzZSBpdCBlaXRoZXIg
+dW5kZXIgdGhlIHRlcm1zCj4+Pj4gKyAqIG9mIHRoZSBHUEwgb3IgdGhlIFgxMSBsaWNlbnNlLCBh
+dCB5b3VyIG9wdGlvbi4gTm90ZSB0aGF0IHRoaXMgZHVhbAo+Pj4+ICsgKiBsaWNlbnNpbmcgb25s
+eSBhcHBsaWVzIHRvIHRoaXMgZmlsZSwgYW5kIG5vdCB0aGlzIHByb2plY3QgYXMgYQo+Pj4+ICsg
+KiB3aG9sZS4KPj4+PiArICoKPj4+PiArICogIGEpIFRoaXMgbGlicmFyeSBpcyBmcmVlIHNvZnR3
+YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IKPj4+PiArICogICAgIG1vZGlmeSBp
+dCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzCj4+
+Pj4gKyAqICAgICBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0
+aGVyIHZlcnNpb24gMiBvZgo+Pj4+IHRoZQo+Pj4+ICsgKiAgICAgTGljZW5zZSwgb3IgKGF0IHlv
+dXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KPj4+PiArICoKPj4+PiArICogICAgIFRoaXMg
+bGlicmFyeSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVs
+LAo+Pj4+ICsgKiAgICAgYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhl
+IGltcGxpZWQgd2FycmFudHkgb2YKPj4+PiArICogICAgIE1FUkNIQU5UQUJJTElUWSBvciBGSVRO
+RVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKPj4+PiArICogICAgIEdOVSBH
+ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCj4+Pj4gKyAqCj4+Pj4gKyAq
+IE9yLCBhbHRlcm5hdGl2ZWx5LAo+Pj4+ICsgKgo+Pj4+ICsgKiAgYikgUGVybWlzc2lvbiBpcyBo
+ZXJlYnkgZ3JhbnRlZCwgZnJlZSBvZiBjaGFyZ2UsIHRvIGFueSBwZXJzb24KPj4+PiArICogICAg
+IG9idGFpbmluZyBhIGNvcHkgb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVu
+dGF0aW9uCj4+Pj4gKyAqICAgICBmaWxlcyAodGhlICJTb2Z0d2FyZSIpLCB0byBkZWFsIGluIHRo
+ZSBTb2Z0d2FyZSB3aXRob3V0Cj4+Pj4gKyAqICAgICByZXN0cmljdGlvbiwgaW5jbHVkaW5nIHdp
+dGhvdXQgbGltaXRhdGlvbiB0aGUgcmlnaHRzIHRvIHVzZSwKPj4+PiArICogICAgIGNvcHksIG1v
+ZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vcgo+Pj4+
+ICsgKiAgICAgc2VsbCBjb3BpZXMgb2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8gcGVybWl0IHBlcnNv
+bnMgdG8gd2hvbSB0aGUKPj4+PiArICogICAgIFNvZnR3YXJlIGlzIGZ1cm5pc2hlZCB0byBkbyBz
+bywgc3ViamVjdCB0byB0aGUgZm9sbG93aW5nCj4+Pj4gKyAqICAgICBjb25kaXRpb25zOgo+Pj4+
+ICsgKgo+Pj4+ICsgKiAgICAgVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVy
+bWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUKPj4+PiArICogICAgIGluY2x1ZGVkIGluIGFsbCBjb3Bp
+ZXMgb3Igc3Vic3RhbnRpYWwgcG9ydGlvbnMgb2YgdGhlIFNvZnR3YXJlLgo+Pj4+ICsgKgo+Pj4+
+ICsgKiAgICAgVEhFIFNPRlRXQVJFIElTIFBST1ZJREVEICJBUyBJUyIsIFdJVEhPVVQgV0FSUkFO
+VFkgT0YgQU5ZIEtJTkQsCj4+Pj4gKyAqICAgICBFWFBSRVNTIE9SIElNUExJRUQsIElOQ0xVRElO
+RyBCVVQgTk9UIExJTUlURUQgVE8gVEhFIFdBUlJBTlRJRVMKPj4+PiArICogICAgIE9GIE1FUkNI
+QU5UQUJJTElUWSwgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5ECj4+Pj4gKyAq
+ICAgICBOT05JTkZSSU5HRU1FTlQuIElOIE5PIEVWRU5UIFNIQUxMIFRIRSBBVVRIT1JTIE9SIENP
+UFlSSUdIVAo+Pj4+ICsgKiAgICAgSE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFN
+QUdFUyBPUiBPVEhFUiBMSUFCSUxJVFksCj4+Pj4gKyAqICAgICBXSEVUSEVSIElOIEFOIEFDVElP
+TiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcKPj4+PiArICogICAgIEZS
+T00sIE9VVCBPRiBPUiBJTiBDT05ORUNUSU9OIFdJVEggVEhFIFNPRlRXQVJFIE9SIFRIRSBVU0Ug
+T1IKPj4+PiArICogICAgIE9USEVSIERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4KPj4+PiArICov
+Cj4+Pj4gKwo+Pj4+ICsvZHRzLXYxLzsKPj4+PiArI2luY2x1ZGUgInJrMzMyOC5kdHNpIgo+Pj4+
+ICsKPj4+PiArLyB7Cj4+Pj4gKwltb2RlbCA9ICJSb2NrY2hpcCBSSzMzMjggRVZCIjsKPj4+PiAr
+CWNvbXBhdGlibGUgPSAicm9ja2NoaXAscmszMzI4LWV2YiIsICJyb2NrY2hpcCxyazMzMjgiOwo+
+Pj4+ICsKPj4+PiArCWNob3NlbiB7Cj4+Pj4gKwkJc3Rkb3V0LXBhdGggPSAic2VyaWFsMjoxNTAw
+MDAwbjgiOwo+Pj4gSXMgdGhhdCByZWFsbHkgMS41TUJpdC9zPwo+PiBZZXMsIHRoZSBSSzMzMjgg
+RVZCIGJvYXJkIHVzZSAxLjVNQml0L3MgYmF1ZCByYXRlLgo+Pgo+Pj4+ICsJfTsKPj4+PiArfTsK
+Pj4+PiArCj4+Pj4gKyZ1YXJ0MiB7Cj4+Pj4gKwlzdGF0dXMgPSAib2theSI7Cj4+Pj4gK307Cj4+
+PiBJIGRvbid0IGhhdmUgdGhlIGJvYXJkLCBidXQgd291bGQgZXhwZWN0IHRvIHNlZSBtb3JlIHBl
+cmlwaGVyYWxzCj4+PiBtZW50aW9uZWQgaW4gdGhlIC5kdHNpIGVuYWJsZWQgaGVyZS4KPj4+IEZv
+ciBzdXJlIHRoZSBib2FyZCBoYXMgYW4gKG1pY3JvKVNEIGNhcmQgc2xvdCwgcG9zc2libHkgZXZl
+biBFdGhlcm5ldD8KPj4gVGhlIGNvZGVzIGZvciBvdGhlciBwZXJpcGhlcmFscyBhcmUgbm90IHJl
+YWR5IG5vdyBmb3IgbmV3IGtlcm5lbCwgc28gaQo+PiBwdXNoIGEgYmFzZSBkdHNpLCBhbmQgb3Ro
+ZXIgY29uZmlncmF0aW9uIHdpbGwgYmUgcHVzaGVkIGxhdGVyIGlmIGl0IGlzIG9rLgo+IGZvciBt
+ZSB0aGF0IGFwcHJvYWNoIGlzIGZpbmUgaW4gZ2VuZXJhbCwgYnV0IGhlcmUsIHlvdSBjb3VsZCBl
+bmFibGUgYXQgbGVhc3QKPiB0aGUgd2F0Y2hkb2cgYXMgd2VsbD8KPgo+IEJ1dCBubyBuZWVkIHRv
+IHJlc2VuZCBqdXN0IG5vdywgSSBzdGlsbCBuZWVkIHRvIGxvb2sgYXQgdGhlIGJpZyBkdHNpLgo+
+Cj4KPiBIZWlrbwo+CgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
+dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL2xpbnV4LWFybS1rZXJuZWwK
