@@ -1,99 +1,131 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 10/15] power: supply: bq24190_charger: Use extcon to
- determine ilimit, 5v boost
-Date: Mon, 20 Mar 2017 23:38:19 +0100
-Message-ID: <b40e333a-1d30-fc79-038e-75c2cc3a98cc@redhat.com>
-References: <20170317095527.10487-1-hdegoede@redhat.com>
- <20170317095527.10487-11-hdegoede@redhat.com>
- <1489772011.19767.75.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47080 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755290AbdCTWiY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 20 Mar 2017 18:38:24 -0400
-In-Reply-To: <1489772011.19767.75.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
+Subject: [PATCH v5] hwmon: ads7828 optional parameters from the device tree
+Date: Mon, 20 Mar 2017 21:24:34 -0600
+Message-ID: <20170321032434.9268-1-kernel.development@povil.us>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
-Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 
-Hi,
+Adding the ability for the ads7828 and ads7830 to use the device tree to
+get their optional parameters, instead of using platform devices. This
+allows people using custom boards to also use the ads7828 in a non-default
+manner.
 
-On 17-03-17 18:33, Andy Shevchenko wrote:
-> On Fri, 2017-03-17 at 10:55 +0100, Hans de Goede wrote:
->> Add support for monitoring an extcon device with SDP/CDP/DCP and HOST
->> cables and adjust ilimit and enable/disable the 5v boost converter
->> accordingly. This is necessary on systems where the PSEL pin is
->> hardwired
->> high and ILIM needs to be set by software based on the detected
->> charger
->> type.
->>
->
->>  config CHARGER_BQ24190
->>  	tristate "TI BQ24190 battery charger driver"
->>  	depends on I2C
->
->> +	depends on EXTCON
->
-> I dunno what is preferred here, but if we would like to keep
-> compatibility with previous configurations "select" should be used over
-> "depends on".
+v2: conforming to coding style
+v3: changing from "_" to "-" for device tree entries
+v4: using regulator subsystem for voltage source, renaming differential
+    input property
+v5: checking for invalid vref values sooner and returning error if they are
+    bad, not warning user.
 
-select really should only be used for hidden options,
-using select in other scenarios leads to all sort of
-problems (hard to debug Kconfig dependency loops).
+Signed-off-by: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
+---
+ .../devicetree/bindings/hwmon/ads7828.txt          | 26 ++++++++++++++++++++++
+ .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
+ drivers/hwmon/ads7828.c                            | 21 +++++++++++++++++
+ 3 files changed, 47 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
 
->
->> +static void bq24190_extcon_work(struct work_struct *work)
->> +{
->> +	struct bq24190_dev_info *bdi =
->> +		container_of(work, struct bq24190_dev_info,
->> extcon_work);
->> +	int ret, iinlim = 0;
->> +
->> +	if (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_SDP) == 1)
->> +		iinlim = 500000;
->> +	else if (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_CDP) ==
->> 1 ||
->> +		 extcon_get_state(bdi->extcon, EXTCON_CHG_USB_ACA) ==
->> 1)
->> +		iinlim = 1500000;
->> +	else if (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_DCP) ==
->> 1)
->> +		iinlim = 2000000;
->> +
->
->> +	if (iinlim) {
->
-> Could be possible to call below unconditionally here (use 0)?
+diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+new file mode 100644
+index 000000000000..5a0c4a7c6144
+--- /dev/null
++++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+@@ -0,0 +1,26 @@
++ads7828 properties
++
++Required properties:
++- compatible: Should be one of
++	       ti,ads7828
++	       ti,ads7830
++- reg: I2C address
++
++Optional properties:
++
++- ti,differential-input
++  Set to use the device in differential mode.
++- vref
++  The external reference on the device is set to this regulators output. If it
++  does not exists the internal reference will be used and output by the ads78xx
++  on the "external vref" pin.
++
++  Example ADS7828 node:
++
++  ads7828: ads@48 {
++  	   comatible = "ti,ads7828";
++	   reg = <0x48>;
++	   vref = <&vref>;
++	   ti,differential-input;
++  };
++
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index cdd7b48826c3..87648909f6ce 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -163,8 +163,6 @@ st,m41t00		Serial real-time clock (RTC)
+ st,m41t62		Serial real-time clock (RTC) with alarm
+ st,m41t80		M41T80 - SERIAL ACCESS RTC WITH ALARMS
+ taos,tsl2550		Ambient Light Sensor with SMBUS/Two Wire Serial Interface
+-ti,ads7828		8-Channels, 12-bit ADC
+-ti,ads7830		8-Channels, 8-bit ADC
+ ti,tsc2003		I2C Touch-Screen Controller
+ ti,tmp102		Low Power Digital Temperature Sensor with SMBUS/Two Wire Serial Interface
+ ti,tmp103		Low Power Digital Temperature Sensor with SMBUS/Two Wire Serial Interface
+diff --git a/drivers/hwmon/ads7828.c b/drivers/hwmon/ads7828.c
+index ee396ff167d9..0be4804a9e59 100644
+--- a/drivers/hwmon/ads7828.c
++++ b/drivers/hwmon/ads7828.c
+@@ -34,6 +34,9 @@
+ #include <linux/platform_data/ads7828.h>
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
++#include <linux/regulator/consumer.h>
++
++#define MV_TO_UV 1000
+ 
+ /* The ADS7828 registers */
+ #define ADS7828_CMD_SD_SE	0x80	/* Single ended inputs */
+@@ -118,9 +121,12 @@ static int ads7828_probe(struct i2c_client *client,
+ 	struct ads7828_data *data;
+ 	struct device *hwmon_dev;
+ 	unsigned int vref_mv = ADS7828_INT_VREF_MV;
++	unsigned int vref_uv;
+ 	bool diff_input = false;
+ 	bool ext_vref = false;
+ 	unsigned int regval;
++	struct regulator *reg;
++
+ 
+ 	data = devm_kzalloc(dev, sizeof(struct ads7828_data), GFP_KERNEL);
+ 	if (!data)
+@@ -131,6 +137,21 @@ static int ads7828_probe(struct i2c_client *client,
+ 		ext_vref = pdata->ext_vref;
+ 		if (ext_vref && pdata->vref_mv)
+ 			vref_mv = pdata->vref_mv;
++	} else if (dev->of_node) {
++		if (of_get_property(dev->of_node, "ti,differential-input",
++				    NULL))
++			diff_input = true;
++		reg = devm_regulator_get_optional(dev, "vref");
++		if (!IS_ERR(reg)) {
++			vref_uv = regulator_get_voltage(reg);
++			if ((vref_uv >= ADS7828_EXT_VREF_MV_MIN * MV_TO_UV) &&
++			    (vref_uv <= ADS7828_EXT_VREF_MV_MAX * MV_TO_UV)) {
++				vref_mv = DIV_ROUND_CLOSEST(vref_uv, MV_TO_UV);
++				ext_vref = true;
++			} else {
++				return  -EINVAL;
++			}
++		}
+ 	}
+ 
+ 	/* Bound Vref with min/max values */
+-- 
+2.11.0
 
-If there is no Vbus setting iinlim is not useful, the charger
-will reset it to a default as soon as Vbus comes up and i2c
-transactions are not free.
-
->
->> +		ret = bq24190_set_field_val(bdi, BQ24190_REG_ISC,
->> +				BQ24190_REG_ISC_IINLIM_MASK,
->> +				BQ24190_REG_ISC_IINLIM_SHIFT,
->> +				bq24190_iinlim_values,
->> +				ARRAY_SIZE(bq24190_iinlim_values),
->> +				iinlim);
->> +		if (ret)
->> +			dev_err(bdi->dev, "Can't set IINLIM: %d\n",
->> ret);
->> +	}
->
-> Perhaps make above as a helper?
->
-> In that case no need for "if (iinlim)" and perhaps switch-case might be
-> used instead of if-else-if (latter is up to you).
-
-I prefer to keep this as is.
-
-Thanks & Regards,
-
-Hans
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
