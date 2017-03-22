@@ -1,17 +1,17 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: [PATCH v7 3/6] i2c: designware: MASTER mode as separated driver
-Date: Wed, 22 Mar 2017 16:47:50 +0200
-Message-ID: <390a6b71-92d4-bafe-224a-f2b2a864cabc@linux.intel.com>
+Date: Wed, 22 Mar 2017 16:38:42 +0200
+Message-ID: <92bee7a2-4320-cff7-ef18-9770d6fe12fe@linux.intel.com>
 References: <cover.1490007620.git.lolivei@synopsys.com>
  <c224fa537fc1daf9f3256ce7c8da12f73f7035a7.1490007620.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c224fa537fc1daf9f3256ce7c8da12f73f7035a7.1490007620.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <c224fa537fc1daf9f3256ce7c8da12f73f7035a7.1490007620.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 03/20/17 13:10, Luis Oliveira wrote:
@@ -30,41 +30,26 @@ On 03/20/17 13:10, Luis Oliveira wrote:
 > difference is the functions used by both modes and they are in the
 > "common" source file.
 >
-> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
-> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> Acked-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > ---
 > v6-v7
 > - Moved kernel doc comments from patch 4/6 to this patch. @Jarkko
 > - Fix Designware I2C PCI driver error when looking for previous extern
 >   functions.
 >
-...
->   * struct dw_i2c_dev - private i2c-designware data
-> @@ -78,7 +196,11 @@
->   * @acquire_lock: function to acquire a hardware lock on the bus
->   * @release_lock: function to release a hardware lock on the bus
->   * @pm_runtime_disabled: true if pm runtime is disabled
-> - *
-> + * @dynamic_tar_update_enabled: true if dynamic TAR update is enabled
-> + * @disable: function to disable the controller
-> + * @disable_int: function to disable all interrupts
-> + * @init: function to initialize the I2C hardware
-> + *
->   * HCNT and LCNT parameters can be used if the platform knows more accurate
->   * values than the one computed based only on the input clock frequency.
->   * Leave them to be %0 if not used.
-> @@ -126,15 +248,31 @@ struct dw_i2c_dev {
->  	int			(*acquire_lock)(struct dw_i2c_dev *dev);
->  	void			(*release_lock)(struct dw_i2c_dev *dev);
->  	bool			pm_runtime_disabled;
-> +	void			(*disable)(struct dw_i2c_dev *dev);
-> +	void			(*disable_int)(struct dw_i2c_dev *dev);
-> +	int			(*init)(struct dw_i2c_dev *dev);
->  };
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-designware-common.c         | 274 +++++++++++++++
+>  drivers/i2c/busses/i2c-designware-core.h           | 146 +++++++-
+>  ...c-designware-core.c => i2c-designware-master.c} | 367 +--------------------
+>  drivers/i2c/busses/i2c-designware-pcidrv.c         |   8 +-
+>  drivers/i2c/busses/i2c-designware-platdrv.c        |   6 +-
+>  6 files changed, 433 insertions(+), 369 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+>  rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (64%)
 >
-I take my ack back. You are adding comment for 
-dynamic_tar_update_enabled which was removed by the 12688dc21f71 
-("Revert "i2c: designware: detect when dynamic tar update is possible"")
-
--- 
-Jarkko
+Acked-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
