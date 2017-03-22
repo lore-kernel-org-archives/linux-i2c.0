@@ -1,16 +1,16 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 12/15] i2c: core: Add new i2c_acpi_new_device helper
- function
-Date: Wed, 22 Mar 2017 16:59:17 +0100
-Message-ID: <5a03b65d-6c33-5a1f-abdc-86608943b798@redhat.com>
+Subject: Re: [PATCH 14/15] power: supply: Add driver for Cherry Trail Whiskey
+ Cove PMIC Fuel Gauge
+Date: Wed, 22 Mar 2017 18:03:36 +0100
+Message-ID: <fadc90e1-204c-fcb6-ed02-d5514ff3e395@redhat.com>
 References: <20170317095527.10487-1-hdegoede@redhat.com>
- <20170317095527.10487-13-hdegoede@redhat.com>
- <1489772231.19767.78.camel@linux.intel.com>
+ <20170317095527.10487-15-hdegoede@redhat.com>
+ <1489773529.19767.84.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1489772231.19767.78.camel@linux.intel.com>
+In-Reply-To: <1489773529.19767.84.camel@linux.intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>
 Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
@@ -18,134 +18,181 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On 17-03-17 18:37, Andy Shevchenko wrote:
+On 17-03-17 18:58, Andy Shevchenko wrote:
 > On Fri, 2017-03-17 at 10:55 +0100, Hans de Goede wrote:
->> By default the i2c subsys creates an i2c-client for the first
->> I2cSerialBus
->> resource of an acpi_device, but some acpi_devices have multiple
->> I2cSerialBus resources and the driver may need access to the others.
->>
->> This commit adds a new i2c_acpi_new_device function which can be used
->> by
->> drivers to create an i2c-client for any (other) I2cSerialBus resource
->> of
->> an acpi_device.
->>
->> Note that the other resources may even be on a different i2c bus, so
->> just
->> retrieving the client address is not enough.
->>
+>> Add a driver for the Cherry Trail Whiskey Cove PMIC Fuel Gauge, note
+>> the Cherry Trail Whiskey Cove PMIC Fuel Gauge block is purely a fuel
+>> gauge
+>> and not a full battery controller. As such it offers a platform_data
+>> callback for extra power_supply properties for the actual external-
+>> charger
+>> ic driver and does not register a power_supply itself.
 >
-> Looks sane to me:
+> ic -> IC
 >
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Can we move to something like built-in device properties for additional
+> properties instead of extending platform data?
 >
-> Nevertheless, one nit, can you update commit message with real excerpt
-> of DSDT?
+>> +config CHT_WC_FUEL_GAUGE
+>
+> I would use similar pattern:
+>
+> FUEL_GAUGE_INTEL_CHTWC (or FUEL_GAUGE_CHTWC, but this might be less
+> obvious about vendor)
 
-Sure, will do for v2.
+Good point, although all the fuel-gauge's seem to use
+BATTERY as prefix, so I've gone with that.
+
+>
+>> --- /dev/null
+>> +++ b/drivers/power/supply/cht_wc_fuel_gauge.c
+>> @@ -0,0 +1,209 @@
+>> +/*
+>> + * Intel CHT Whiskey Cove Fuel Gauge driver
+>
+> CHT -> Cherry Trail
+
+Fixed.
+
+>
+>> + *
+>> + * Cherrytrail Whiskey Cove devices have 2 functional blocks which
+>> interact
+>> + * with the battery.
+>
+> Cherry Trail?
+
+Since after discussion about how to deal with the charger / fuel_gauge
+comment v2 is going to be a stand-alone power_supply driver this
+comment has been dropped.
+
+>
+>> +#define REG_CHARGE_NOW		0x05
+>> +#define REG_VOLTAGE_NOW		0x09
+>> +#define REG_CURRENT_NOW		0x0a
+>> +#define REG_CURRENT_AVG		0x0b
+>> +#define REG_CHARGE_FULL		0x10
+>> +#define REG_CHARGE_DESIGN	0x18
+>> +#define REG_VOLTAGE_AVG		0x19
+>
+>> +#define REG_VOLTAGE_OCV		0x1b /* Only updated during
+>> charging */
+>
+> I think comment makes more sense where actual update is happening in the
+> code.
+>
+>> +
+>> +static int cht_wc_fg_read(struct cht_wc_fg_data *fg, u8 reg,
+>> +			  union power_supply_propval *val, int scale,
+>> +			  int sign_extend)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = i2c_smbus_read_word_data(fg->client, reg);
+>> +	if (ret < 0)
+>> +		return ret;
+>> +
+>> +	if (sign_extend)
+>> +		ret = sign_extend32(ret, 15);
+>
+> Magic?
+
+Nope just simply dealing with i2c_smbus_read_word_data always
+returning 16 bit unsigned data (or a negative error code)
+and some of the registers being 16 bit signed.
+
+>
+>> +
+>> +	val->intval = ret * scale;
+>> +
+>> +	return 0;
+>> +}
+>
+>
+>> +
+>> +int cht_wc_fg_get_property(enum power_supply_property prop,
+>> +			   union power_supply_propval *val)
+>> +{
+>> +	int ret = 0;
+>
+> Sounds like redundant assignment...
+
+No longer redundant in v2.
+
+>
+>> +
+>> +	mutex_lock(&cht_wc_fg_mutex);
+>> +
+>>
+>
+>> +	if (!cht_wc_fg) {
+>> +		ret = -ENXIO;
+>> +		goto out_unlock;
+>> +	}
+>
+> ...otherwise maybe
+>
+> ret = cht_wc_fg ? 0 : -ENXIO;
+> if (ret)
+>  goto ...;
+>
+> ?
+
+With the stand-alone power_supply driver version this ugliness is gone.
+
+>
+>> +	default:
+>> +		ret = -ENODATA;
+>> +	}
+>> +out_unlock:
+>> +	mutex_unlock(&cht_wc_fg_mutex);
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL_GPL(cht_wc_fg_get_property);
+>
+>> +
+>> +static int cht_wc_fg_probe(struct i2c_client *client,
+>> +			const struct i2c_device_id *i2c_id)
+>> +{
+>> +	struct device *dev = &client->dev;
+>> +	struct cht_wc_fg_data *fg;
+>> +	acpi_status status;
+>> +	unsigned long long ptyp;
+>
+>> +	status = acpi_evaluate_integer(ACPI_HANDLE(dev), "PTYP",
+>> NULL, &ptyp);
+>> +	if (ACPI_FAILURE(status)) {
+>> +		dev_err(dev, "Failed to get PTYPE\n");
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	/*
+>> +	 * The same ACPI HID is used with different PMICs check PTYP
+>> to
+>> +	 * ensure that we are dealing with a Whiskey Cove PMIC.
+>> +	 */
+>> +	if (ptyp != CHT_WC_FG_PTYPE)
+>> +		return -ENODEV;
+>
+> Logically I would split this part to be a main driver for device which
+> would use actual driver based on this, though I think it too much churn
+> for no benefit right now.
+
+Ack.
+
+>
+>> +	mutex_lock(&cht_wc_fg_mutex);
+>> +	cht_wc_fg = fg;
+>> +	mutex_unlock(&cht_wc_fg_mutex);
+>
+> It's pity we have no common storage of single possible present device
+> drivers in the kernel. I would use some kind of framework rather then
+> keeping all those global variables with locking. Perhaps radix / RB
+> tree.
+
+With the stand-alone power_supply driver version this ugliness is gone.
 
 Regards,
 
 Hans
 
-
->
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>  drivers/i2c/i2c-core.c | 48
->> ++++++++++++++++++++++++++++++++++++++++++++++++
->>  include/linux/i2c.h    |  5 +++++
->>  2 files changed, 53 insertions(+)
->>
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index 32b58fb..fd45207 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -421,6 +421,54 @@ static int i2c_acpi_notify(struct notifier_block
->> *nb, unsigned long value,
->>  static struct notifier_block i2c_acpi_notifier = {
->>  	.notifier_call = i2c_acpi_notify,
->>  };
->> +
->> +/**
->> + * i2c_acpi_new_device - Create i2c client for the Nth acpi resource
->> of dev
->> + * @dev:     Device owning the acpi resources to get the client from
->> + * @index:   Index of acpi resource to get
->> + *
->> + * By default the i2c subsys creates an i2c-client for the first
->> I2cSerialBus
->> + * resource of an acpi_device, but some acpi_devices have multiple
->> + * I2cSerialBus resources and the driver may need access to the
->> others.
->> + * This function can be used by drivers to create an i2c-client for
->> any
->> + * resource of an acpi_device.
->> + *
->> + * Returns a pointer to the new i2c-client, or NULL if the resource
->> or
->> + * adapter were not found.
->> + */
->> +struct i2c_client *i2c_acpi_new_device(struct device *dev, int index)
->> +{
->> +	struct i2c_acpi_lookup lookup;
->> +	struct i2c_board_info info;
->> +	struct i2c_adapter *adapter;
->> +	struct acpi_device *adev;
->> +	LIST_HEAD(resource_list);
->> +	int ret;
->> +
->> +	adev = ACPI_COMPANION(dev);
->> +	if (!adev)
->> +		return NULL;
->> +
->> +	memset(&info, 0, sizeof(info));
->> +	memset(&lookup, 0, sizeof(lookup));
->> +	lookup.info = &info;
->> +	lookup.device_handle = acpi_device_handle(adev);
->> +	lookup.index = index;
->> +
->> +	ret = acpi_dev_get_resources(adev, &resource_list,
->> +				     i2c_acpi_fill_info, &lookup);
->> +	acpi_dev_free_resource_list(&resource_list);
->> +
->> +	if (ret < 0 || !info.addr)
->> +		return NULL;
->> +
->> +	adapter =
->> i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
->> +	if (!adapter)
->> +		return NULL;
->> +
->> +	return i2c_new_device(adapter, &info);
->> +}
->> +EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
->>  #else /* CONFIG_ACPI */
->>  static inline void i2c_acpi_register_devices(struct i2c_adapter
->> *adap) { }
->>  extern struct notifier_block i2c_acpi_notifier;
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index 6b18352..369ebfa 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -824,11 +824,16 @@ static inline const struct of_device_id
->>
->>  #if IS_ENABLED(CONFIG_ACPI)
->>  u32 i2c_acpi_find_bus_speed(struct device *dev);
->> +struct i2c_client *i2c_acpi_new_device(struct device *dev, int
->> index);
->>  #else
->>  static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
->>  {
->>  	return 0;
->>  }
->> +static inline struct i2c_client *i2c_acpi_new_device(struct device
->> *d, int i)
->> +{
->> +	return NULL;
->> +}
->>  #endif /* CONFIG_ACPI */
->>
->>  #endif /* _LINUX_I2C_H */
->
