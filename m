@@ -1,97 +1,92 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 2/2] i2c: mux: pca954x: Allow enumeration via ACPI
-Date: Tue, 21 Mar 2017 21:13:10 +0200
-Message-ID: <20170321191310.32957-2-andriy.shevchenko@linux.intel.com>
-References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: audio clk warnings during system suspend on Salvator-X
+Date: Wed, 22 Mar 2017 09:43:55 +0100
+Message-ID: <CAMuHMdUYbV-P86S3Jt3E0WJDhaBovFcv5z-yjVx6=otyQyWYxQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:56348 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757267AbdCUTNP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 21 Mar 2017 15:13:15 -0400
-In-Reply-To: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
+Received: from mail-io0-f169.google.com ([209.85.223.169]:34249 "EHLO
+        mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758801AbdCVIoD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Mar 2017 04:44:03 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 
-Newer ACPI specification introduces a special dedicated IDs for the
-devices that would be enumerated using compatible strings.
+Hi Morimoto-san, Wolfram,
 
-Excerpt from possible DSDT as example:
+During the second system suspend (suspend to mem, "deep") on H3 Salvator-X,
+the clk subsystem prints warnings due to enable and prepare count imbalances.
 
-	Device (IMX0) {
-		Name (_HID, "PRP0001")
-		Name (_DDN, "NXP PCA954x compatible I2C muxer")
-		...
-	})
+With some additional debug code, I discovered the issue is caused by the
+CS2000 clock driver failing to resume:
 
-	Name (_DSD, Package () {
-		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-		Package () {
-			Package () {"compatible", "nxp,pca9542"},
-			...
-		}
-	})
+suspend #1:
 
-To allow this we have always to provide OF table.
+    rsnd_adg_clk_control: called by rsnd_suspend
+    rsnd_adg_clk_control: Disable audio_clk_a
+    rsnd_adg_clk_control: Disable clk_multiplier
+    rsnd_adg_clk_control: Disable audio_clk_c
+    rsnd_adg_clk_control: Disable s0d4
 
-While here, remove duplicate call to of_match_device().
+resume #1:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+    dpm_run_callback(): cs2000_resume+0x0/0x20 returns -6
+    PM: Device 2-004f failed to resume early: error -6
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 333a3918b656..e8a86a3b5131 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -140,7 +140,6 @@ static const struct i2c_device_id pca954x_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
- 
--#ifdef CONFIG_OF
- static const struct of_device_id pca954x_of_match[] = {
- 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
- 	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
-@@ -153,7 +152,6 @@ static const struct of_device_id pca954x_of_match[] = {
- 	{}
- };
- MODULE_DEVICE_TABLE(of, pca954x_of_match);
--#endif
- 
- /* Write to mux register. Don't use i2c_transfer()/i2c_smbus_xfer()
-    for this as they will try to lock adapter a second time */
-@@ -344,7 +342,7 @@ static int pca954x_probe(struct i2c_client *client,
- 	int num, force, class;
- 	struct i2c_mux_core *muxc;
- 	struct pca954x *data;
--	const struct of_device_id *match;
-+	const struct chip_desc *chip;
- 	int ret;
- 
- 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
-@@ -374,9 +372,9 @@ static int pca954x_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
--	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
--	if (match)
--		data->chip = of_device_get_match_data(&client->dev);
-+	chip = of_device_get_match_data(&client->dev);
-+	if (chip)
-+		data->chip = chip;
- 	else
- 		data->chip = &chips[id->driver_data];
- 
-@@ -466,7 +464,7 @@ static struct i2c_driver pca954x_driver = {
- 	.driver		= {
- 		.name	= "pca954x",
- 		.pm	= &pca954x_pm,
--		.of_match_table = of_match_ptr(pca954x_of_match),
-+		.of_match_table = pca954x_of_match,
- 	},
- 	.probe		= pca954x_probe,
- 	.remove		= pca954x_remove,
--- 
-2.11.0
+    rsnd_adg_clk_control: called by rsnd_resume
+    rsnd_adg_clk_control: Enable audio_clk_a
+    rsnd_adg_clk_control: Enable clk_multiplier
+    rcar_sound ec500000.sound: can't use clk 1
+    rsnd_adg_clk_control: Enable audio_clk_c
+    rsnd_adg_clk_control: Enable s0d4
+
+
+suspend #2:
+
+    rsnd_adg_clk_control: called by rsnd_suspend
+    rsnd_adg_clk_control: Disable audio_clk_a
+    rsnd_adg_clk_control: Disable clk_multiplier
+    WARNING: CPU: 0 PID: 1943 at drivers/clk/clk.c:594
+clk_core_disable+0x44/0x254
+    [...]
+    WARNING: CPU: 0 PID: 1943 at drivers/clk/clk.c:476
+clk_core_unprepare+0x48/0x36c
+    [...]
+    rsnd_adg_clk_control: Disable audio_clk_c
+    rsnd_adg_clk_control: Disable s0d4
+
+resume #2:
+
+    dpm_run_callback(): cs2000_resume+0x0/0x20 returns -6
+    PM: Device 2-004f failed to resume early: error -6
+
+    rsnd_adg_clk_control: called by rsnd_resume
+    rsnd_adg_clk_control: Enable audio_clk_a
+    rsnd_adg_clk_control: Enable clk_multiplier
+    rcar_sound ec500000.sound: can't use clk 1
+    rsnd_adg_clk_control: Enable audio_clk_c
+    rsnd_adg_clk_control: Enable s0d4
+
+
+The CS2000 driver fails to send an i2c message, probably because the
+rcar-i2c driver lost some register settings during system suspend.  This does
+not happen with s2idle.
+
+I guess this is also the reason for this warning:
+
+    ak4613-codec 2-0010: Unable to sync registers 0x0-0x2. -6
+
+as the ak4613 is connected to the same i2c bus.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
