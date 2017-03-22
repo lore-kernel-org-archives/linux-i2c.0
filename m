@@ -1,92 +1,57 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: audio clk warnings during system suspend on Salvator-X
-Date: Wed, 22 Mar 2017 09:43:55 +0100
-Message-ID: <CAMuHMdUYbV-P86S3Jt3E0WJDhaBovFcv5z-yjVx6=otyQyWYxQ@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5] hwmon: ads7828 optional parameters from the device
+ tree
+Date: Wed, 22 Mar 2017 09:42:40 +0100
+Message-ID: <20170322084240.xspj432z2mpyzykq@ninjato>
+References: <20170321032434.9268-1-kernel.development@povil.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f169.google.com ([209.85.223.169]:34249 "EHLO
-        mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758801AbdCVIoD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Mar 2017 04:44:03 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dy6ultjmxblubufl"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170321032434.9268-1-kernel.development-iezDrKAjiWs@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
+Cc: jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
-
-Hi Morimoto-san, Wolfram,
-
-During the second system suspend (suspend to mem, "deep") on H3 Salvator-X,
-the clk subsystem prints warnings due to enable and prepare count imbalances.
-
-With some additional debug code, I discovered the issue is caused by the
-CS2000 clock driver failing to resume:
-
-suspend #1:
-
-    rsnd_adg_clk_control: called by rsnd_suspend
-    rsnd_adg_clk_control: Disable audio_clk_a
-    rsnd_adg_clk_control: Disable clk_multiplier
-    rsnd_adg_clk_control: Disable audio_clk_c
-    rsnd_adg_clk_control: Disable s0d4
-
-resume #1:
-
-    dpm_run_callback(): cs2000_resume+0x0/0x20 returns -6
-    PM: Device 2-004f failed to resume early: error -6
-
-    rsnd_adg_clk_control: called by rsnd_resume
-    rsnd_adg_clk_control: Enable audio_clk_a
-    rsnd_adg_clk_control: Enable clk_multiplier
-    rcar_sound ec500000.sound: can't use clk 1
-    rsnd_adg_clk_control: Enable audio_clk_c
-    rsnd_adg_clk_control: Enable s0d4
 
 
-suspend #2:
-
-    rsnd_adg_clk_control: called by rsnd_suspend
-    rsnd_adg_clk_control: Disable audio_clk_a
-    rsnd_adg_clk_control: Disable clk_multiplier
-    WARNING: CPU: 0 PID: 1943 at drivers/clk/clk.c:594
-clk_core_disable+0x44/0x254
-    [...]
-    WARNING: CPU: 0 PID: 1943 at drivers/clk/clk.c:476
-clk_core_unprepare+0x48/0x36c
-    [...]
-    rsnd_adg_clk_control: Disable audio_clk_c
-    rsnd_adg_clk_control: Disable s0d4
-
-resume #2:
-
-    dpm_run_callback(): cs2000_resume+0x0/0x20 returns -6
-    PM: Device 2-004f failed to resume early: error -6
-
-    rsnd_adg_clk_control: called by rsnd_resume
-    rsnd_adg_clk_control: Enable audio_clk_a
-    rsnd_adg_clk_control: Enable clk_multiplier
-    rcar_sound ec500000.sound: can't use clk 1
-    rsnd_adg_clk_control: Enable audio_clk_c
-    rsnd_adg_clk_control: Enable s0d4
+--dy6ultjmxblubufl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-The CS2000 driver fails to send an i2c message, probably because the
-rcar-i2c driver lost some register settings during system suspend.  This does
-not happen with s2idle.
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
 
-I guess this is also the reason for this warning:
+This file is about to get moved one directory up:
 
-    ak4613-codec 2-0010: Unable to sync registers 0x0-0x2. -6
+https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git/commit/?h=dt/next&id=b7e252fcddfa573bb1ee275b53bba6cef85671d4
 
-as the ak4613 is connected to the same i2c bus.
+Just so you know already...
 
-Gr{oetje,eeting}s,
 
-                        Geert
+--dy6ultjmxblubufl
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljSOP0ACgkQFA3kzBSg
+KbbxSxAAhg5+fPmq39YmTgmX5EgVtqeRwmodtXLomrCAQ+ss/8Cbfip8WMjMZfCW
+EHqcbrg/QM/oHn8hfSUXRgI9yXSzQRYqz6hnQjLJ+VYbFTM7zBHK67vWdvovlqZp
+bKO/ADgQYa3w35Rw2pBCSul96YfWNEjFBSPGjTHv8KZT0v5pOdj26JEGFoZ81/Wc
+i1494tlcKqcuWTt+KoqlCqhkBtKoPe7aZcwvN6flrY4RIBKrJxE2W/Pl522gxGvM
+THBflYa/EoxpPuIK04ndAELv8MA0ms6UzxG0My5E9y7Pu9qsEKZOgwM7AyujeprQ
++W01C0c4kGcksyl7bUXxqNd+ugKE8irj9I3hzztDQRriBKa7Y2HRYSIJHUilxOGE
+b+2vfBE0t1V8Zjeod1vnIccDOwMrG8Lz1Cw86BnZyS/qPB1DqaLi3L87dyyJ5YZb
+KjG43KcRqG+iddC2RGndEN+3WwuZ1/P6mnOCZRRxy5qhELosKl5E34VgSTw3TLVc
+WJgF3WKXL9Pkfi/0yaLsXItfU2aWWVRnPiJLjaKJhKJ5TYonqjb8r/3woPsadNfV
+NHzxSV64g+A/1+fP+eU4HJItr7LjjP8O4UjrNmbx/dVmxkU0gu9kn1wJIgMMyw0+
+d2GRR3N7PqcqbWlSfCqLv8K9rl0+LJJokqrbx2sFJEb2oINv+cs=
+=npNj
+-----END PGP SIGNATURE-----
+
+--dy6ultjmxblubufl--
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
