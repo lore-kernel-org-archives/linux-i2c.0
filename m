@@ -1,54 +1,136 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/6] dt-bindings: i2c: rk3x: add support for rk3328
-Date: Wed, 22 Mar 2017 10:10:35 +0100
-Message-ID: <20170322091035.agto6vydm7cf3t6y@ninjato>
-References: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
- <1489670244-13328-3-git-send-email-cl@rock-chips.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v1 1/2] Revert "i2c: mux: pca954x: Add ACPI support for
+ pca954x"
+Date: Wed, 22 Mar 2017 11:23:41 +0100
+Message-ID: <01b7c79e-c52f-8e87-59a8-2eb17a72d733@axentia.se>
+References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="r2cx52gnis2tawdv"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1489670244-13328-3-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
-Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang@rock-chip
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Tin Huynh <tnhuynh@apm.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, linux-leds@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 2017-03-21 20:13, Andy Shevchenko wrote:
+> In ACPI world any ID should be carefully chosen and registered
+> officially. The commit bbf9d262a147 seems did a wrong assumption because
+> PCA is the registered PNP ID for "PHILIPS BU ADD ON CARD". I'm pretty
+> sure this prefix has nothing to do with the driver in question.
 
---r2cx52gnis2tawdv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[Cc: leds people, in case they know any details]
 
-On Thu, Mar 16, 2017 at 09:17:20PM +0800, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org wrote:
-> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
->=20
-> The rk3328 i2c is the same as rk3399
->=20
-> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Hmmm, a couple of questions about that "pretty sure"...
 
-Applied to for-next, thanks!
+Philips and NXP are pretty much just different faces of the same coin, IIUC.
+But, what do I know? Also, what about the leds drivers for NXP PCA955x and
+NXP PCA963x? Do they suffer from the same crap? And if not, why is that
+any different?
 
+>From drivers/leds/leds-pca955x.c
 
---r2cx52gnis2tawdv
-Content-Type: application/pgp-signature; name="signature.asc"
+static const struct acpi_device_id pca955x_acpi_ids[] = {
+        { "PCA9550",  pca9550 },
+        { "PCA9551",  pca9551 },
+        { "PCA9552",  pca9552 },
+        { "PCA9553",  pca9553 },
+        { }
+};
+MODULE_DEVICE_TABLE(acpi, pca955x_acpi_ids);
 
------BEGIN PGP SIGNATURE-----
+and from drivers/leds/leds-pca963x.c
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljSP4sACgkQFA3kzBSg
-KbZ73w//eZ3ALH362RYjDxJdV9OZdJhlcBVIQ2DlKGZll7zfsrA7WeNzgtMYU0Jy
-Y/mPPztTAgyBsGRDwDCQQ1wfNjJcVnTQUbkcoreVl1WQDs74Kbi+0zokPjeLYP40
-G7d+2u26XoYjKZxYvq//w5TA98uDpfX6MsULbFuVi0F+P9ghHc6X4glWtTriNnc5
-N+xHS9w68HPUWJ77hK00pcDksbF48JLL1BLa2dN3rP1QQ35kBfRe9wPrEvI5XKw/
-EkHPR1adZJP2F5Vr6xWelaNpX3e7vnM8cWD880B8/9/k4yaT67AAyypyU17pixQr
-4VrXvBXQ6xuMS7UGzJSYEDdhZPP51QrzBqEfXzRB9X79UoGabYFTjE/BG/SNV3fP
-Scc+Ct6lOFbXjyfe0DIFuP9kvAJYCARPXR0CXCVfXD40CA1tGzJt4LER+whaGJuf
-V/zDGpgxlaxy9mqDYPqiSL+epXmhR/jrjVidJtmW5hBtfI7O2/Jt4l2r3QbViary
-zNZ+sJYowKuRyQkO3+ZXaqXoIMxmPh7TuIjUqRsxqQ4UuTYkDwLniTL9S6xRFB8V
-mgfMQA06TGB27hpJz0JCnrKiMx6BDlBGXMJhL9v1nzgicDpzMusC4KdhRZMkktmO
-cK9I1UPeszdFTGMYMxK8tJ0AThs1aX2G6O3AtDxOoxWH20kOFt0=
-=2wNW
------END PGP SIGNATURE-----
+static const struct acpi_device_id pca963x_acpi_ids[] = {
+        { "PCA9632", pca9633 },
+        { "PCA9633", pca9633 },
+        { "PCA9634", pca9634 },
+        { "PCA9635", pca9635 },
+        { }
+};
+MODULE_DEVICE_TABLE(acpi, pca963x_acpi_ids);
 
---r2cx52gnis2tawdv--
+But maybe I'm full of it and these led chips really are part of "PHILIPS
+BU ADD ON CARD", while the muxer chips are not? I doubt it though...
+But again, what do I know?
+
+Cheers,
+peda
+
+> Moreover, newer ACPI specification has a support of _DSD method and
+> special device IDs to allow drivers be enumerated via compatible string.
+> The slight change to support this kind of enumeration will be added in
+> sequential patch against pca954x.c.
+> 
+> Revert the commit bbf9d262a147 for good.
+> 
+> Cc: Tin Huynh <tnhuynh@apm.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 28 +---------------------------
+>  1 file changed, 1 insertion(+), 27 deletions(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index dfc1c0e37c40..333a3918b656 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -35,7 +35,6 @@
+>   * warranty of any kind, whether express or implied.
+>   */
+>  
+> -#include <linux/acpi.h>
+>  #include <linux/device.h>
+>  #include <linux/gpio/consumer.h>
+>  #include <linux/i2c.h>
+> @@ -141,21 +140,6 @@ static const struct i2c_device_id pca954x_id[] = {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, pca954x_id);
+>  
+> -#ifdef CONFIG_ACPI
+> -static const struct acpi_device_id pca954x_acpi_ids[] = {
+> -	{ .id = "PCA9540", .driver_data = pca_9540 },
+> -	{ .id = "PCA9542", .driver_data = pca_9542 },
+> -	{ .id = "PCA9543", .driver_data = pca_9543 },
+> -	{ .id = "PCA9544", .driver_data = pca_9544 },
+> -	{ .id = "PCA9545", .driver_data = pca_9545 },
+> -	{ .id = "PCA9546", .driver_data = pca_9545 },
+> -	{ .id = "PCA9547", .driver_data = pca_9547 },
+> -	{ .id = "PCA9548", .driver_data = pca_9548 },
+> -	{ }
+> -};
+> -MODULE_DEVICE_TABLE(acpi, pca954x_acpi_ids);
+> -#endif
+> -
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id pca954x_of_match[] = {
+>  	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+> @@ -393,17 +377,8 @@ static int pca954x_probe(struct i2c_client *client,
+>  	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
+>  	if (match)
+>  		data->chip = of_device_get_match_data(&client->dev);
+> -	else if (id)
+> +	else
+>  		data->chip = &chips[id->driver_data];
+> -	else {
+> -		const struct acpi_device_id *acpi_id;
+> -
+> -		acpi_id = acpi_match_device(ACPI_PTR(pca954x_acpi_ids),
+> -						&client->dev);
+> -		if (!acpi_id)
+> -			return -ENODEV;
+> -		data->chip = &chips[acpi_id->driver_data];
+> -	}
+>  
+>  	data->last_chan = 0;		   /* force the first selection */
+>  
+> @@ -492,7 +467,6 @@ static struct i2c_driver pca954x_driver = {
+>  		.name	= "pca954x",
+>  		.pm	= &pca954x_pm,
+>  		.of_match_table = of_match_ptr(pca954x_of_match),
+> -		.acpi_match_table = ACPI_PTR(pca954x_acpi_ids),
+>  	},
+>  	.probe		= pca954x_probe,
+>  	.remove		= pca954x_remove,
+> 
