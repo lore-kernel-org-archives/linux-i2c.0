@@ -1,58 +1,75 @@
-From: Sudeep Holla <sudeep.holla@arm.com>
-Subject: Re: [PATCH v2 4/6] arm64: dts: rockchip: add core dtsi file for
- RK3328 SoCs
-Date: Wed, 22 Mar 2017 18:09:42 +0000
-Message-ID: <7240249b-690a-5800-0b46-fb93a49e2af1@arm.com>
-References: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
- <1489670244-13328-5-git-send-email-cl@rock-chips.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5] hwmon: ads7828 optional parameters from the device
+ tree
+Date: Wed, 22 Mar 2017 22:36:33 +0100
+Message-ID: <20170322213632.GA1518@katana>
+References: <20170321032434.9268-1-kernel.development@povil.us>
+ <20170322084240.xspj432z2mpyzykq@ninjato>
+ <20170322130555.wgwrkeju43dvj232@irascible.povil.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.101.70]:47952 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934813AbdCVSJy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 22 Mar 2017 14:09:54 -0400
-In-Reply-To: <1489670244-13328-5-git-send-email-cl@rock-chips.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170322130555.wgwrkeju43dvj232-vsA/HdQuLiGu4arkomUJ35yrNiDsoR7y@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
+Cc: jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: cl@rock-chips.com, heiko@sntech.de
-Cc: Sudeep Holla <sudeep.holla@arm.com>, mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, dianders@chromium.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, zhangqing@rock-chips.com, paweljarosz3691@gmail.com, arnd@arndb.de, yhx@rock-chips.com, knaack.h@gmx.de, robh+dt@kernel.org, matthias.bgg@gmail.com, rocky.hao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com
 
 
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 16/03/17 13:17, cl@rock-chips.com wrote:
-> From: Liang Chen <cl@rock-chips.com>
-> 
-> This patch adds core dtsi file for Rockchip RK3328 SoCs.
-> 
-> Signed-off-by: Liang Chen <cl@rock-chips.com>
-> ---
->  arch/arm64/boot/dts/rockchip/rk3328.dtsi | 1362 ++++++++++++++++++++++++++++++
->  1 file changed, 1362 insertions(+)
->  create mode 100644 arch/arm64/boot/dts/rockchip/rk3328.dtsi
-> 
-> diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-> new file mode 100644
-> index 0000000..a92955c
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+On Wed, Mar 22, 2017 at 07:05:55AM -0600, Sam Povilus wrote:
+> On Wed, Mar 22, 2017 at 09:42:40AM +0100, Wolfram Sang wrote:
+> >=20
+> > >  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
+> >=20
+> > This file is about to get moved one directory up:
+> >=20
+> > https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git/commit/?=
+h=3Ddt/next&id=3Db7e252fcddfa573bb1ee275b53bba6cef85671d4
+> >=20
+> > Just so you know already...
+> >=20
+>=20
+> Thanks! I'm a bit new to this, what's the best way for me to handle
+> this?
 
-[...]
+I mentioned this also for the HWMON maintainers. They will let you know
+their preference and if you need to do something.
 
-> +	cpus {
-> +		#address-cells = <2>;
-> +		#size-cells = <0>;
-> +
-> +		cpu0: cpu@0 {
-> +			device_type = "cpu";
-> +			compatible = "arm,cortex-a53", "arm,armv8";
-> +			reg = <0x0 0x0>;
-> +			enable-method = "psci";
-> +			clocks = <&cru ARMCLK>;
-
-Why "clocks" property is present only for cpu0 ?
-
--- 
 Regards,
-Sudeep
+
+   Wolfram
+
+
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJY0u5gAAoJEBQN5MwUoCm2yDkP/3Af/evqYVdryTRDjaJOr1RZ
+oXTPvZrvE+1UB0lAVH8RYDdtAx+ROUIG+ioay7QYR0kQdQ5xCNk4m3/qZb3JWMqr
+xRltOPz7E32J4ULVjEOvkcYudKbTb8DoMjFiPxTUOEpc5bAtIKyjDwIDYKaLQSIl
+jDZgFnk7i+m80RWXKGEpWHVKFxkKEdxYj2npKv6UrDTg8bc0Fps9iP4hPfM8poS8
+8s1X6zN0vzAwRfbwD/WNWgoo+qFmVMj9hF15TUNrsoUGkJRPyZpJ24euU3BKQKt0
+FL6ttGqOFQ6QhP6aKP7/Gz48uhnpH7xsp4j1/RJh0FSx4Z1Ji9OtciqEEPXq2q58
+L/45OP5VN/UtmWCAOD8dKsAwixOZjn7Jne3qweofp3EEnXrPwwmYzu1pmgb9WYBa
+rCanp5GAj8FeAttUanQFzrLeycF5d1kT6az1c022IJe/nnM/IuvsHLIDQmZ7LaoO
+t7opxv/TB69dAXf1gOm2YP9o5rCzABv593XW0+GcYn4os/qnTPpTXx9b3E2bmZ7h
+Hyhg0tNvtefrHYEzFCufLRiO0/IuGYzMU2c4H2ukz/eYcqO/ASCyLOdU+RD15i10
+yc+birwHnc7byjZZanwh5dsL74XXMaD4NzN133gNwzXIv0w7Y0n0ovfLrvefQBgX
+3ZxctCHiVYLmEHOKQJQL
+=m4I2
+-----END PGP SIGNATURE-----
+
+--W/nzBZO5zC0uMSeA--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
