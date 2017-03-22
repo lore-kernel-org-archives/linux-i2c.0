@@ -1,57 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5] hwmon: ads7828 optional parameters from the device
- tree
-Date: Wed, 22 Mar 2017 09:42:40 +0100
-Message-ID: <20170322084240.xspj432z2mpyzykq@ninjato>
-References: <20170321032434.9268-1-kernel.development@povil.us>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c-designware: increase timeout of semaphore transfer
+Date: Wed, 22 Mar 2017 09:48:19 +0100
+Message-ID: <20170322084819.6dblcq6s3itn5s3q@ninjato>
+References: <20170320133730.23041-1-oneukum@suse.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dy6ultjmxblubufl"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="dzytrrvso43qwvrw"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:34066 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933620AbdCVI4k (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 22 Mar 2017 04:56:40 -0400
 Content-Disposition: inline
-In-Reply-To: <20170321032434.9268-1-kernel.development-iezDrKAjiWs@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sam Povilus <kernel.development-iezDrKAjiWs@public.gmane.org>
-Cc: jdelvare-IBi9RG/b67k@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+In-Reply-To: <20170320133730.23041-1-oneukum@suse.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.com>
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, hdegoede@redhat.com
 
 
---dy6ultjmxblubufl
+--dzytrrvso43qwvrw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Mar 20, 2017 at 02:37:30PM +0100, Oliver Neukum wrote:
+> Our testing shows the semaphore failing to be transferred on CherryTrail
+> in about 0.5% of all cases. The existing timeout needs to be lengthened
+> to accomodate the worst cases.
+>=20
+> V2: Rebased on https://cgit.freedesktop.org/drm-intel/commit/?h=3Dtopic/d=
+esignware-baytrail
+>=20
+> Signed-off-by: Oliver Neukum <oneukum@suse.com>
+
+Fixed this checkpatch issue:
+
+WARNING: 'accomodate' may be misspelled - perhaps 'accommodate'?
+
+and applied to for-next, thanks!
 
 
->  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
-
-This file is about to get moved one directory up:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git/commit/?h=dt/next&id=b7e252fcddfa573bb1ee275b53bba6cef85671d4
-
-Just so you know already...
-
-
---dy6ultjmxblubufl
+--dzytrrvso43qwvrw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljSOP0ACgkQFA3kzBSg
-KbbxSxAAhg5+fPmq39YmTgmX5EgVtqeRwmodtXLomrCAQ+ss/8Cbfip8WMjMZfCW
-EHqcbrg/QM/oHn8hfSUXRgI9yXSzQRYqz6hnQjLJ+VYbFTM7zBHK67vWdvovlqZp
-bKO/ADgQYa3w35Rw2pBCSul96YfWNEjFBSPGjTHv8KZT0v5pOdj26JEGFoZ81/Wc
-i1494tlcKqcuWTt+KoqlCqhkBtKoPe7aZcwvN6flrY4RIBKrJxE2W/Pl522gxGvM
-THBflYa/EoxpPuIK04ndAELv8MA0ms6UzxG0My5E9y7Pu9qsEKZOgwM7AyujeprQ
-+W01C0c4kGcksyl7bUXxqNd+ugKE8irj9I3hzztDQRriBKa7Y2HRYSIJHUilxOGE
-b+2vfBE0t1V8Zjeod1vnIccDOwMrG8Lz1Cw86BnZyS/qPB1DqaLi3L87dyyJ5YZb
-KjG43KcRqG+iddC2RGndEN+3WwuZ1/P6mnOCZRRxy5qhELosKl5E34VgSTw3TLVc
-WJgF3WKXL9Pkfi/0yaLsXItfU2aWWVRnPiJLjaKJhKJ5TYonqjb8r/3woPsadNfV
-NHzxSV64g+A/1+fP+eU4HJItr7LjjP8O4UjrNmbx/dVmxkU0gu9kn1wJIgMMyw0+
-d2GRR3N7PqcqbWlSfCqLv8K9rl0+LJJokqrbx2sFJEb2oINv+cs=
-=npNj
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljSOlMACgkQFA3kzBSg
+KbbfJhAAgFfLLxMgzyWuGkX+Ui8eM1eIX4x4bw7IpPlnxvqTbUKZ7XmxCJiqy9iX
+n6Itvde/TZ8RFS/HxDN6EPNEpVYmqwg/mtT3gu3Oy30hADcXLyJvpsteU84QpxPz
+rMzRCgzmiQKjOvPlNollUb1v0wzt5wTG3kxBxG/iwZHzQ5t/DErofd4lYF0jegTb
+CCs5k2Nw5OqiGc9n6FUbzLphjAvobH7Mg1pexTYQdfaYlnS4QFXmr0HKE6WI9Kx/
+NOySeqmmGvLm5B2KfVovB8bl6WVN7YvJQeqsbYCip3rhpgv9m8ialWixpvLyMjkh
+vUA3H8Pp0z6sFjrQPT/9Xc58fYBLXrnf4KYo+affUjOQvxUJs9vNCHWrbW1ZH5qn
+PH59zic/GHY366A50dcXLQzLHGrlDo87j0XtJtMBY+avmC13ZQHKxfcmrnRupRWX
+dqH/Nea73E30eUYgspVmG3FGhLFdb7vSXfGMM3k4Dg4NZTUksN2FFWYbe98+SUw2
+Rk1F9pwaEtz1FbaqjDQzmc893ojO00zVC93cjka+jX5BRWpBOpIpeF/PWCZw9eaY
+1JWtHj8FOzZiVsiQx7BaeTjhX4kY6AIEWXpGDajoA8iSsI2NbTjtvj5otYeIA0P/
+pCeqDc+sx84KlusZY+FsSNaDtvi2OyaarhWf+aX0/FlBeyY8Xpw=
+=6444
 -----END PGP SIGNATURE-----
 
---dy6ultjmxblubufl--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--dzytrrvso43qwvrw--
