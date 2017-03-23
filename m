@@ -1,72 +1,55 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v1 1/2] Revert "i2c: mux: pca954x: Add ACPI support for
- pca954x"
-Date: Thu, 23 Mar 2017 08:45:58 +0100
-Message-ID: <7d5fba14-d3f1-dfaa-ac7d-5001ccf370a1@axentia.se>
-References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
- <01b7c79e-c52f-8e87-59a8-2eb17a72d733@axentia.se>
- <1490187942.19767.161.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Mike Looijmans <mike.looijmans@topic.nl>
+Subject: [PATCH] i2c: mux: pca954x: Add missing pca9546 definition to chip_desc
+Date: Thu, 23 Mar 2017 10:00:36 +0100
+Message-ID: <1490259636-16859-1-git-send-email-mike.looijmans@topic.nl>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0123.outbound.protection.outlook.com ([104.47.1.123]:9056
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932712AbdCWHqQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Mar 2017 03:46:16 -0400
-In-Reply-To: <1490187942.19767.161.camel@linux.intel.com>
+Received: from atl4mhfb03.myregisteredsite.com ([209.17.115.119]:47282 "EHLO
+        atl4mhfb03.myregisteredsite.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753654AbdCWJHb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Mar 2017 05:07:31 -0400
+Received: from atl4mhob18.registeredsite.com (atl4mhob18.myregisteredsite.com [209.17.115.111])
+        by atl4mhfb03.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id v2N91ZVL031401
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Mar 2017 05:01:35 -0400
+Received: from mailpod.hostingplatform.com ([10.30.71.210])
+        by atl4mhob18.registeredsite.com (8.14.4/8.14.4) with ESMTP id v2N91R0W017960
+        for <linux-i2c@vger.kernel.org>; Thu, 23 Mar 2017 05:01:27 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Tin Huynh <tnhuynh@apm.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, linux-leds@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, peda@axentia.se, wsa@the-dreams.de, Mike Looijmans <mike.looijmans@topic.nl>
 
-On 2017-03-22 14:05, Andy Shevchenko wrote:
-> On Wed, 2017-03-22 at 11:23 +0100, Peter Rosin wrote:
->> On 2017-03-21 20:13, Andy Shevchenko wrote:
->>> In ACPI world any ID should be carefully chosen and registered
->>> officially. The commit bbf9d262a147 seems did a wrong assumption
->>> because
->>> PCA is the registered PNP ID for "PHILIPS BU ADD ON CARD". I'm
->>> pretty
->>> sure this prefix has nothing to do with the driver in question.
->>
->> [Cc: leds people, in case they know any details]
->>
->> Hmmm, a couple of questions about that "pretty sure"...
-> 
-> I didn't neither see the *real* excerpt from DSDT nor hear anything
-> about official IDs from Phillips.
-> 
->> Philips and NXP are pretty much just different faces of the same coin,
->> IIUC.
-> 
-> Good to know.
-> 
-> While I might be mistaken, I would like to remove a confusion until we
-> get an official confirmation either in *real* existing product on the
-> market or letter from Phillips representatives (see above).
+The spec for the pca9546 was missing. This chip is the same as the pca9545
+except that it lacks interrupt lines. While the i2c_device_id table mapped
+the pca9546 to the pca9545 definition the compatible table did not.
 
-Right, I don't disagree with the revert at all. The IDs were
-apparently just grabbed and, as you point out, that is not the ACPI
-way.
+Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-One more question though, the revert (patch 1/2) should probably be
-queued up for current (4.11) and sent to stable as well (4.10 is the
-only version affected), but what about patch 2/2? Is that 4.12
-material or should it too be "rushed"? I feel a bit like I have
-been thrown in at the deep end, and could use some guidance...
-
-*snip*
-
-> Thanks for input to this topic. As I said above I might be mistaken too,
-> though we can't just wilfully invent ACPI IDs without vendors' approvals
-> / confirmations.
-
-Yes, I (now) fully understand that the ACPI namespace is not in our
-hands.
-
-*snip*
-
-Cheers,
-peda
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index dfc1c0e..69c2f5a 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -117,6 +117,10 @@ struct pca954x {
+ 		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
+ 	},
++	[pca_9546] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++	},
+ 	[pca_9547] = {
+ 		.nchans = 8,
+ 		.enable = 0x8,
+@@ -134,7 +138,7 @@ struct pca954x {
+ 	{ "pca9543", pca_9543 },
+ 	{ "pca9544", pca_9544 },
+ 	{ "pca9545", pca_9545 },
+-	{ "pca9546", pca_9545 },
++	{ "pca9546", pca_9546 },
+ 	{ "pca9547", pca_9547 },
+ 	{ "pca9548", pca_9548 },
+ 	{ }
+-- 
+1.9.1
