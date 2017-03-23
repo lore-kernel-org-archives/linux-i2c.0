@@ -1,68 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 04/10] i2c: meson: use i2c core for DT clock-frequency
- parsing
-Date: Thu, 23 Mar 2017 21:33:09 +0100
-Message-ID: <20170323203309.op7jepa4be2mwkop@ninjato>
+Subject: Re: [PATCH v4 05/10] i2c: meson: use full 12 bits for clock divider
+Date: Thu, 23 Mar 2017 21:34:04 +0100
+Message-ID: <20170323203404.nuobb4wtgsepnilu@ninjato>
 References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
- <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
+ <fbc241ed-ec1e-b433-50af-5d0ebca09711@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4nos2t62z74fi5ip"
+        protocol="application/pgp-signature"; boundary="vfph4zscjogtftqg"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40966 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:40974 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751706AbdCWUdM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Mar 2017 16:33:12 -0400
+        id S1752034AbdCWUeG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Mar 2017 16:34:06 -0400
 Content-Disposition: inline
-In-Reply-To: <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
+In-Reply-To: <fbc241ed-ec1e-b433-50af-5d0ebca09711@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
 
---4nos2t62z74fi5ip
+--vfph4zscjogtftqg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> +- i2c-scl-falling-time-ns
-> +  Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-> +  specification.
-> +
-> +- i2c-scl-internal-delay-ns
-> +  Number of nanoseconds the IP core additionally needs to setup SCL.
-> +
-> +- i2c-scl-rising-time-ns
-> +  Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-> +  specification.
-> +
-> +- i2c-sda-falling-time-ns
-> +  Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-> +  specification.
+> +	/* clock divider has 12 bits */
+> +	WARN_ON(div >= (1 << 12));
 
-Those are not used currently. Can the driver be updated to make use of
-them? Otherwise, we might just skip this section.
+Do you insist on WARN_ON? I wonder what it gives over dev_err?
 
 
---4nos2t62z74fi5ip
+--vfph4zscjogtftqg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMQUACgkQFA3kzBSg
-KbYKwQ/+KXhjC+pRWlutSufQXZY0DYKJRh1M+fdvndX2aJ3VG1RCN6gPxBInxdoC
-aAXlKx14OUWVP0zIAylYIjXameVoaXk91wcygZOtdVJdfLDzT7nt6/IK3Y9iVOQn
-+9AmGFQ8t8Z/3+idu8z680RxjpxjiQqEgWWqpb9TUxFugyLvQ+P63mPN6WIoJjoX
-vuQj2Fxz7WAm9BszbuMF0poV1JpTtLwUzgJfZMBrGWLWfn5SXjDknzoc/cVtEx9i
-i6rQrMqtJd7WKDuNYEA3OolFWkQXf3ooM7eQEt1Z3Gjw+nzuoB7So4+FutZdrdjI
-y88qq82VSske2hvvKPsQFsOk0pL3ELuqz/Dot45ze7kgG+SMj3mRtzRBgLxwC4+J
-9QsG96iJKHWb3QZGrNTlxJ6d3CWHs7cMkDZxldiY0DhqjeaNGe6vcZLPTThudREw
-35Z139WryfrSA+ZWQ5J9Acp5GtA5aJYIQhVhE6Tpeq8VjXLHSaM4U7BOPNMetaVB
-o2tefO1keg1MkIQtliOh5VXV3ZQVXYndP8/L+5g+fdkrrWLYChRQuVwIViJcfC/o
-z//Oi/q61i1HDw3O3E4ACvy/W89OpS6hpfB3E3SYESLrcQLeaWEDonZNl+sSasXT
-HiigQkoUFyACBAT5ZoTw/G4M+V6PMZsdsIJwUMFAZRyyMsPVCoE=
-=SmJx
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMTsACgkQFA3kzBSg
+KbafvRAAkIXpVjV5AVFgiT6ZCwQwQqhbnMjFhwUFDasajPNnUh6I9QTFqK27HcCv
+HcDSdx7VppnKbp6PTplbH4ypeATFu2GIIouzhJKzpyaKhQS1WHNYaAz0ic5hWGCx
+OysSn+RA0zeBOuC80G6d+7H3cb3JY3jMZuMELvR0tqvAi4OQOHaVjPxYwDX0iunN
+H/UDTiNCtWq0JoBeq55fy6JtkwAkQ/oz2twAvrf1P2h1dMbKtyYG1xvDeTXBdmrP
+3TssLoixSAcDaM0Zf2NwFzbImnWQtLqfM/0sYo8zWKsDCifJ0QMZm+GpBN9cSl7E
+Q34ltubYNXcgOfwpaTgf+8U6tGS2nu5zGeI4IQnGKSqTSNFlt4LY5UE1nuLFTUBW
+0ewx4HxBffeU6+NVHDIDHvy9+BfvVOWSTmkEAerI9gzroyzdnz/zLw5dTGnN4hWq
+UBCDgB8gA2/Cx209cLF2roSsf7daM+3C3ePzOEyUKzyJWUtVDUP5Q7JsvV2Ziewj
+rNifJxfDMEYEi4kLMtKsAlJjHRHY0Fg+cYk749Gu4+jU4qc0gC3TXwHyMSlbJE/g
+FcntewIDdJeB/zVdiG+iEWkWcQPFPLfrt127+vEwkQ1+koAv/e4prqZ3aNY+THjP
+kQH8NotCCitK+OIvVHGPUmaveiJxZbSQ5goOfgxYFr5ovCDX1pA=
+=b0YK
 -----END PGP SIGNATURE-----
 
---4nos2t62z74fi5ip--
+--vfph4zscjogtftqg--
