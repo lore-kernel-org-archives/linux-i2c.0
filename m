@@ -1,74 +1,40 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v1 1/2] Revert "i2c: mux: pca954x: Add ACPI support for
- pca954x"
-Date: Thu, 23 Mar 2017 12:21:59 +0100
-Message-ID: <e4f3c6fd-3a91-ad9f-ba43-605f850d1524@axentia.se>
-References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
- <01b7c79e-c52f-8e87-59a8-2eb17a72d733@axentia.se>
- <1490187942.19767.161.camel@linux.intel.com>
- <7d5fba14-d3f1-dfaa-ac7d-5001ccf370a1@axentia.se> <20170323100403.GA9307@amd>
+From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2] i2c: tegra-bpmp: Enable Tegra BPMP I2C adapter
+Date: Thu, 23 Mar 2017 11:56:56 +0000
+Message-ID: <1490270216-7234-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20170323100403.GA9307@amd>
-Sender: linux-leds-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Tin Huynh <tnhuynh@apm.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-leds@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-03-23 11:04, Pavel Machek wrote:
-> On Thu 2017-03-23 08:45:58, Peter Rosin wrote:
->> On 2017-03-22 14:05, Andy Shevchenko wrote:
->>> On Wed, 2017-03-22 at 11:23 +0100, Peter Rosin wrote:
->>>> On 2017-03-21 20:13, Andy Shevchenko wrote:
->>>>> In ACPI world any ID should be carefully chosen and registered
->>>>> officially. The commit bbf9d262a147 seems did a wrong assumption
->>>>> because
->>>>> PCA is the registered PNP ID for "PHILIPS BU ADD ON CARD". I'm
->>>>> pretty
->>>>> sure this prefix has nothing to do with the driver in question.
->>>>
->>>> [Cc: leds people, in case they know any details]
->>>>
->>>> Hmmm, a couple of questions about that "pretty sure"...
->>>
->>> I didn't neither see the *real* excerpt from DSDT nor hear anything
->>> about official IDs from Phillips.
->>>
->>>> Philips and NXP are pretty much just different faces of the same coin,
->>>> IIUC.
->>>
->>> Good to know.
->>>
->>> While I might be mistaken, I would like to remove a confusion until we
->>> get an official confirmation either in *real* existing product on the
->>> market or letter from Phillips representatives (see above).
->>
->> Right, I don't disagree with the revert at all. The IDs were
->> apparently just grabbed and, as you point out, that is not the ACPI
->> way.
->>
->> One more question though, the revert (patch 1/2) should probably be
->> queued up for current (4.11) and sent to stable as well (4.10 is the
->> only version affected), but what about patch 2/2? Is that 4.12
-> 
-> Sent to stable? What serious bug it fixes?
+Enable the Tegra BPMP I2C adapter by default if the Tegra BPMP itself
+is enabled. This adapter is used as the I2C interface for the PMIC on
+the Tegra186 Jetson-TX2 platform.
 
-Hi Pavel,
+Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
 
-It obviously fixes the bug that someone might start depending on these
-ACPI IDs when they shouldn't, which potentially stops that someone from
-later complaining when it no longer works. I thought that this was
-probably serious and qualified under "oh, that's not good". Because
-regressions are nasty. Now that I look closer on the stable rules I
-suppose it also disqualifies as it is on the theoretical side.
+Changes since V1:
+- Dropped redundant 'if' condition from 'default' statement.
 
-Also, the general tone from Andy indicates a certain amount of frustration
-with the whole issue, which perhaps has no bearing on the seriousness,
-but what do I know?
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-So, I'm still seeking guidance on how to handle these two patches.
-
-Cheers,
-peda
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 8adc0f1d7ad0..39c0ead2a6df 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -933,6 +933,7 @@ config I2C_TEGRA
+ config I2C_TEGRA_BPMP
+ 	tristate "NVIDIA Tegra BPMP I2C controller"
+ 	depends on TEGRA_BPMP
++	default y
+ 	help
+ 	  If you say yes to this option, support will be included for the I2C
+ 	  controller embedded in NVIDIA Tegra SoCs accessed via the BPMP.
+-- 
+2.7.4
