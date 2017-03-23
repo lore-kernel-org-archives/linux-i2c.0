@@ -1,40 +1,52 @@
-From: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH V2] i2c: tegra-bpmp: Enable Tegra BPMP I2C adapter
-Date: Thu, 23 Mar 2017 11:56:56 +0000
-Message-ID: <1490270216-7234-1-git-send-email-jonathanh@nvidia.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/2] Revert "i2c: mux: pca954x: Add ACPI support for
+ pca954x"
+Date: Thu, 23 Mar 2017 14:16:32 +0200
+Message-ID: <1490271392.19767.186.camel@linux.intel.com>
+References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
+         <01b7c79e-c52f-8e87-59a8-2eb17a72d733@axentia.se>
+         <1490187942.19767.161.camel@linux.intel.com>
+         <7d5fba14-d3f1-dfaa-ac7d-5001ccf370a1@axentia.se>
+         <20170323100403.GA9307@amd>
+         <e4f3c6fd-3a91-ad9f-ba43-605f850d1524@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <e4f3c6fd-3a91-ad9f-ba43-605f850d1524@axentia.se>
+Sender: linux-leds-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Pavel Machek <pavel@ucw.cz>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Tin Huynh <tnhuynh@apm.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-leds@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Enable the Tegra BPMP I2C adapter by default if the Tegra BPMP itself
-is enabled. This adapter is used as the I2C interface for the PMIC on
-the Tegra186 Jetson-TX2 platform.
+On Thu, 2017-03-23 at 12:21 +0100, Peter Rosin wrote:
+> On 2017-03-23 11:04, Pavel Machek wrote:
+> > On Thu 2017-03-23 08:45:58, Peter Rosin wrote:
+> > > On 2017-03-22 14:05, Andy Shevchenko wrote:
+> > > > On Wed, 2017-03-22 at 11:23 +0100, Peter Rosin wrote:
+> > > > > On 2017-03-21 20:13, Andy Shevchenko wrote:
 
-Signed-off-by: Jon Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
+> Also, the general tone from Andy indicates a certain amount of
+> frustration
+> with the whole issue,
 
-Changes since V1:
-- Dropped redundant 'if' condition from 'default' statement.
+I'm sorry for my tone, it begins with amount of abuse case of GPIO for
+ACPI in kernel followed by wilfully invented ACPI IDs in the drivers.
 
- drivers/i2c/busses/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+>  which perhaps has no bearing on the seriousness,
+> but what do I know?
+> 
+> So, I'm still seeking guidance on how to handle these two patches.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 8adc0f1d7ad0..39c0ead2a6df 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -933,6 +933,7 @@ config I2C_TEGRA
- config I2C_TEGRA_BPMP
- 	tristate "NVIDIA Tegra BPMP I2C controller"
- 	depends on TEGRA_BPMP
-+	default y
- 	help
- 	  If you say yes to this option, support will be included for the I2C
- 	  controller embedded in NVIDIA Tegra SoCs accessed via the BPMP.
+I have no strong opinion, but IDs might collide in the future if PCAxxxx
+will be assigned to something else and the patch will go stable@ (yeah,
+OTOH it's quite unlikely).
+
+So, we may postpone any stable@ back porting up to some real issue
+appears. Regarding second one, it's not important at all (could be even
+dropped). Consider it as example how to use _DSD and PRP0001 in ACPI
+case for DT-enabled drivers.
+
 -- 
-2.7.4
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
