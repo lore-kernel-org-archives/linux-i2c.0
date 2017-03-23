@@ -1,60 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 03/10] i2c: meson: set clock divider in probe instead
- of setting it for each transfer
-Date: Thu, 23 Mar 2017 21:31:56 +0100
-Message-ID: <20170323203156.jjsiu7hydebzh66l@ninjato>
+Subject: Re: [PATCH v4 04/10] i2c: meson: use i2c core for DT clock-frequency
+ parsing
+Date: Thu, 23 Mar 2017 21:33:09 +0100
+Message-ID: <20170323203309.op7jepa4be2mwkop@ninjato>
 References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
- <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
+ <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wf2ztin56vkglmzm"
+        protocol="application/pgp-signature"; boundary="4nos2t62z74fi5ip"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40960 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:40966 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755233AbdCWUb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Mar 2017 16:31:59 -0400
+        id S1751706AbdCWUdM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Mar 2017 16:33:12 -0400
 Content-Disposition: inline
-In-Reply-To: <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
+In-Reply-To: <96c1b005-063e-ae22-ded4-fbb0b023f02b@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
 
---wf2ztin56vkglmzm
+--4nos2t62z74fi5ip
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 14, 2017 at 10:53:29PM +0100, Heiner Kallweit wrote:
-> The bus frequency won't change, therefore we can set the clock divider
-> in probe already and we don't have to set it for each transfer.
 
-This is true for some SoCs, but not for all. So, some proof we can
-really do it like this would be nice in the commit message, e.g. "parent
-clock is fixed anyhow" or something.
+> +- i2c-scl-falling-time-ns
+> +  Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
+> +  specification.
+> +
+> +- i2c-scl-internal-delay-ns
+> +  Number of nanoseconds the IP core additionally needs to setup SCL.
+> +
+> +- i2c-scl-rising-time-ns
+> +  Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
+> +  specification.
+> +
+> +- i2c-sda-falling-time-ns
+> +  Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
+> +  specification.
 
->=20
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Those are not used currently. Can the driver be updated to make use of
+them? Otherwise, we might just skip this section.
 
---wf2ztin56vkglmzm
+
+--4nos2t62z74fi5ip
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMLwACgkQFA3kzBSg
-KbYQcQ//To+Yd08GuTZZjaL7VYazS2WH9tZbCZZJPASXIvhI4GXG82bn1/ZQMVDC
-jjJ91UAmtVL/aAB/qmXZKRpVML+JcgKxwWoxpdFIC52KurPtxgIZTOHYy1McsJHK
-5dD1TUTlP1JiKR99bSv5Jq/PFETiyT2XmaoD/paKROZ/8K6LMGHMVi/FGYpdFBtZ
-2wlCjNxMZD0R6j7uKTmLZ7sLNmv8v7uQQj8Bl6bJmdB2jjqr3lioKtiVnYfr2EWZ
-ZO22QjNMRGhtqJM1kgUb6S2gdMoJOg/Pu5fh+xXNuqaTqNYVzLbIaD7PRVCj5/uO
-CjNIf4AJmlsvMaE7ORrr2mtH2z1NKMtYsoZ41Hz9r81WIOS5afMmvmaOS6NXxaVc
-VNK5Goo6RmIAsOvSJqEVVwxObXAAFoPbCijXLId4QaceW4u9en1CnfFEBGCuJW6W
-WWjtJHykZFRQ+lUAVXZZay0xSK5aVyEvQp0WPZI26qNsETksCWwaAm+cz1Qmj23y
-VPJTNvg5JwsNfLQTlauigX4xwgQposENlo4q+1PLRKjaaPUxRsvc6q+gtMKIIwa0
-szGHc+2QZbotgJaQeIglE9RWe+gEV/Zkls4f81Ui4KJAOjzi4FXKCKYX3aHNl5qB
-pUAKoy+wW8qI6zDVp+6p2FKyyc2PARvs2r1iINMWG+Dk34HZWMc=
-=FVHy
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMQUACgkQFA3kzBSg
+KbYKwQ/+KXhjC+pRWlutSufQXZY0DYKJRh1M+fdvndX2aJ3VG1RCN6gPxBInxdoC
+aAXlKx14OUWVP0zIAylYIjXameVoaXk91wcygZOtdVJdfLDzT7nt6/IK3Y9iVOQn
++9AmGFQ8t8Z/3+idu8z680RxjpxjiQqEgWWqpb9TUxFugyLvQ+P63mPN6WIoJjoX
+vuQj2Fxz7WAm9BszbuMF0poV1JpTtLwUzgJfZMBrGWLWfn5SXjDknzoc/cVtEx9i
+i6rQrMqtJd7WKDuNYEA3OolFWkQXf3ooM7eQEt1Z3Gjw+nzuoB7So4+FutZdrdjI
+y88qq82VSske2hvvKPsQFsOk0pL3ELuqz/Dot45ze7kgG+SMj3mRtzRBgLxwC4+J
+9QsG96iJKHWb3QZGrNTlxJ6d3CWHs7cMkDZxldiY0DhqjeaNGe6vcZLPTThudREw
+35Z139WryfrSA+ZWQ5J9Acp5GtA5aJYIQhVhE6Tpeq8VjXLHSaM4U7BOPNMetaVB
+o2tefO1keg1MkIQtliOh5VXV3ZQVXYndP8/L+5g+fdkrrWLYChRQuVwIViJcfC/o
+z//Oi/q61i1HDw3O3E4ACvy/W89OpS6hpfB3E3SYESLrcQLeaWEDonZNl+sSasXT
+HiigQkoUFyACBAT5ZoTw/G4M+V6PMZsdsIJwUMFAZRyyMsPVCoE=
+=SmJx
 -----END PGP SIGNATURE-----
 
---wf2ztin56vkglmzm--
+--4nos2t62z74fi5ip--
