@@ -1,56 +1,60 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/5] i2c: i2c-stm32f7: add driver
-Date: Thu, 23 Mar 2017 21:17:19 +0100
-Message-ID: <20170323201719.i5bqrbxr2bejopky@ninjato>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
- <1489744738-21632-4-git-send-email-cedric.madianga@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 03/10] i2c: meson: set clock divider in probe instead
+ of setting it for each transfer
+Date: Thu, 23 Mar 2017 21:31:56 +0100
+Message-ID: <20170323203156.jjsiu7hydebzh66l@ninjato>
+References: <1a2ecdc8-a326-a7a7-22ec-658fd147daf4@gmail.com>
+ <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rlk3ji35k4juxbht"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="wf2ztin56vkglmzm"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:40960 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755233AbdCWUb7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Mar 2017 16:31:59 -0400
 Content-Disposition: inline
-In-Reply-To: <1489744738-21632-4-git-send-email-cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.torgue-qxv4g6HH51o@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, pierre-yves.mordret-qxv4g6HH51o@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <c85a5f83-0013-001e-6c2d-3fe66c5267aa@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
 
---rlk3ji35k4juxbht
+--wf2ztin56vkglmzm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 17, 2017 at 10:58:56AM +0100, M'boumba Cedric Madianga wrote:
-> This patch adds initial support for the STM32F7 I2C controller.
+On Tue, Mar 14, 2017 at 10:53:29PM +0100, Heiner Kallweit wrote:
+> The bus frequency won't change, therefore we can set the clock divider
+> in probe already and we don't have to set it for each transfer.
+
+This is true for some SoCs, but not for all. So, some proof we can
+really do it like this would be nice in the commit message, e.g. "parent
+clock is fixed anyhow" or something.
+
 >=20
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
-So, the STM32F7 has a new I2C IP core compared to STM32F4?
-
-
---rlk3ji35k4juxbht
+--wf2ztin56vkglmzm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljULU8ACgkQFA3kzBSg
-KbYRMRAAlkxEC9U1Qigu40FaKRzFU+xdR06EdP62KA9kPv/aw3LhwJyZw17cZOkS
-8jFiN/dc+t2KeqRlBPaMxoSfiNc33Ix4eDVR3rQTGkn8vRlL7mwSCwTIWjyK1cda
-HDj1Aab1x099shUXtczLu83CydaFOtXZRMEeH4xaB9J6JwoMLWMEkNGi/6w+P05a
-7l0cVexfevJomL+qYnlo9sSnn5MQY/73q+qzhv8HkuErw8FP9xvbTqwl2/GwRAYl
-40fJX6cn16jRBBE9p+YOD3fQWl52eKw4P6oypru3rQCU3GRlk8/ph4hwvYX6fzwL
-Dj72W2Vn9v3Q2oW15wqTO4pNwBjnh1I8on2itMI1oNdjssh7XAZju9CfwUT3Ts0g
-x4+sjRZ8NNwUysPUYnQiPEBPfeqeTaDwjENs43SkIAOA5zW+VjcBk81U3E/+h6et
-AmEQ9bRUvHkCkAbhCu4tnbx5S7rd+tKS12/5Vz74m/ubtVvgHTvc/6PKyloLdQo8
-ZNAXTNe4LM5VRLPKkvkn2vPT9G3Tfsn2KQNrbf4noh2GTz4H1vCyubhAgnArUmDU
-IY3DIK3Y5ZO2u3uMVvU68K+zozQ7Ctai3riuZZM7xHssE8+SnG/jElzKOJW22mT5
-y/55CbQxROZtGyO2Isi9zSRonu7zj28CpLc3+qjkmLmaMfFJjEk=
-=lKAD
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMLwACgkQFA3kzBSg
+KbYQcQ//To+Yd08GuTZZjaL7VYazS2WH9tZbCZZJPASXIvhI4GXG82bn1/ZQMVDC
+jjJ91UAmtVL/aAB/qmXZKRpVML+JcgKxwWoxpdFIC52KurPtxgIZTOHYy1McsJHK
+5dD1TUTlP1JiKR99bSv5Jq/PFETiyT2XmaoD/paKROZ/8K6LMGHMVi/FGYpdFBtZ
+2wlCjNxMZD0R6j7uKTmLZ7sLNmv8v7uQQj8Bl6bJmdB2jjqr3lioKtiVnYfr2EWZ
+ZO22QjNMRGhtqJM1kgUb6S2gdMoJOg/Pu5fh+xXNuqaTqNYVzLbIaD7PRVCj5/uO
+CjNIf4AJmlsvMaE7ORrr2mtH2z1NKMtYsoZ41Hz9r81WIOS5afMmvmaOS6NXxaVc
+VNK5Goo6RmIAsOvSJqEVVwxObXAAFoPbCijXLId4QaceW4u9en1CnfFEBGCuJW6W
+WWjtJHykZFRQ+lUAVXZZay0xSK5aVyEvQp0WPZI26qNsETksCWwaAm+cz1Qmj23y
+VPJTNvg5JwsNfLQTlauigX4xwgQposENlo4q+1PLRKjaaPUxRsvc6q+gtMKIIwa0
+szGHc+2QZbotgJaQeIglE9RWe+gEV/Zkls4f81Ui4KJAOjzi4FXKCKYX3aHNl5qB
+pUAKoy+wW8qI6zDVp+6p2FKyyc2PARvs2r1iINMWG+Dk34HZWMc=
+=FVHy
 -----END PGP SIGNATURE-----
 
---rlk3ji35k4juxbht--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--wf2ztin56vkglmzm--
