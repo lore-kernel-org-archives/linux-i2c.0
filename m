@@ -1,523 +1,631 @@
-From: <michael.hennerich@analog.com>
-Subject: [PATCH] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch
-Date: Thu, 23 Mar 2017 15:22:58 +0100
-Message-ID: <1490278978-28357-1-git-send-email-michael.hennerich@analog.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 03/15] extcon: cht-wc: Add Intel Cherry Trail Whiskey Cove
+ PMIC extcon driver
+Date: Thu, 23 Mar 2017 16:22:27 +0100
+Message-ID: <cc572bca-c5db-ace1-0a97-dd8d5349fd34@redhat.com>
+References: <20170317095527.10487-1-hdegoede@redhat.com>
+ <CGME20170317095544epcas5p42dd4115627c9cf9de3911b433024ac93@epcas5p4.samsung.com>
+ <20170317095527.10487-4-hdegoede@redhat.com> <58CF3183.4090101@samsung.com>
+ <05ed0b6e-e456-e2c6-c98d-d682d4f357ac@redhat.com>
+ <58D0B736.8030402@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, linus.walleij@linaro.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <58D0B736.8030402@samsung.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Chanwoo Choi <cw00.choi@samsung.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, MyungJoo Ham <myungjoo.ham@samsung.com>
+Cc: linux-acpi@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+Hi,
 
-This patch adds support for the Analog Devices / Linear Technology
-LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
-The LTC4306 optionally provides two general purpose input/output pins
-(GPIOs) that can be configured as logic inputs, opendrain outputs or
-push-pull outputs via the generic GPIOLIB framework.
+On 21-03-17 06:16, Chanwoo Choi wrote:
+> Hi,
+>
+> On 2017년 03월 21일 04:57, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 20-03-17 02:33, Chanwoo Choi wrote:
+>>> Hi,
+>>>
+>>> On 2017년 03월 17일 18:55, Hans de Goede wrote:
+>>>> Add a driver for charger detection / control on the Intel Cherrytrail
+>>>> Whiskey Cove PMIC.
+>>>>
+>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>> ---
+>>>>  drivers/extcon/Kconfig         |   7 +
+>>>>  drivers/extcon/Makefile        |   1 +
+>>>>  drivers/extcon/extcon-cht-wc.c | 356 +++++++++++++++++++++++++++++++++++++++++
+>>>>  3 files changed, 364 insertions(+)
+>>>>  create mode 100644 drivers/extcon/extcon-cht-wc.c
+>>>>
+>>>> diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
+>>>> index 96bbae5..4cace6b 100644
+>>>> --- a/drivers/extcon/Kconfig
+>>>> +++ b/drivers/extcon/Kconfig
+>>>> @@ -52,6 +52,13 @@ config EXTCON_INTEL_INT3496
+>>>>        This ACPI device is typically found on Intel Baytrail or Cherrytrail
+>>>>        based tablets, or other Baytrail / Cherrytrail devices.
+>>>>
+>>>> +config EXTCON_CHT_WC
+>>>
+>>> Need to reorder it alpabetically as the following Makefile.
+>>
+>> The idea is to have the items alphabetically listed in "make menuconfig"
+>> and the name of the menu item starts with Intel:
+>
+> If you want to locate it under the EXTCON_INTEL_INT3496,
+> you should change the filename as following style:
+> - extcon-intel-cht-wc.c
+>
+> I want to locate all entry alphabetically.
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
----
- .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    |  61 ++++
- MAINTAINERS                                        |   8 +
- drivers/i2c/muxes/Kconfig                          |  10 +
- drivers/i2c/muxes/Makefile                         |   1 +
- drivers/i2c/muxes/i2c-mux-ltc4306.c                | 365 +++++++++++++++++++++
- 5 files changed, 445 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
- create mode 100644 drivers/i2c/muxes/i2c-mux-ltc4306.c
+Ok, will fix for v3
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-new file mode 100644
-index 0000000..1e98c6b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-@@ -0,0 +1,61 @@
-+* Linear Technology / Analog Devices I2C bus switch
-+
-+Required Properties:
-+
-+  - compatible: Must contain one of the following.
-+    "lltc,ltc4305", "lltc,ltc4306"
-+  - reg: The I2C address of the device.
-+
-+  The following required properties are defined externally:
-+
-+  - Standard I2C mux properties. See i2c-mux.txt in this directory.
-+  - I2C child bus nodes. See i2c-mux.txt in this directory.
-+
-+Optional Properties:
-+
-+  - enable-gpios: Reference to the GPIO connected to the enable input.
-+  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-+    children in idle state. This is necessary for example, if there are several
-+    multiplexers on the bus and the devices behind them use same I2C addresses.
-+  - gpio-controller: Marks the device node as a GPIO Controller.
-+  - #gpio-cells: Should be two.  The first cell is the pin number and
-+	the second cell is used to specify flags.
-+	See ../gpio/gpio.txt for more information.
-+  - ltc,downstream-accelerators-enable: Enables the rise time accelerators
-+	on the downstream port.
-+  - ltc,upstream-accelerators-enable: Enables the rise time accelerators
-+	on the upstream port.
-+
-+Example:
-+
-+	ltc4306: i2c-mux@4a {
-+		compatible = "lltc,ltc4306";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x4a>;
-+
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+
-+		i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+
-+			eeprom@50 {
-+				compatible = "at,24c02";
-+				reg = <0x50>;
-+			};
-+		};
-+
-+		i2c@1 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <1>;
-+
-+			eeprom@50 {
-+				compatible = "at,24c02";
-+				reg = <0x50>;
-+			};
-+		};
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c776906..9a27a19 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7698,6 +7698,14 @@ S:	Maintained
- F:	Documentation/hwmon/ltc4261
- F:	drivers/hwmon/ltc4261.c
- 
-+LTC4306 I2C MULTIPLEXER DRIVER
-+M:	Michael Hennerich <michael.hennerich@analog.com>
-+W:	http://ez.analog.com/community/linux-device-drivers
-+L:	linux-i2c@vger.kernel.org
-+S:	Supported
-+F:	drivers/i2c/muxes/i2c-mux-ltc4306.c
-+F:	Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-+
- LTP (Linux Test Project)
- M:	Mike Frysinger <vapier@gentoo.org>
- M:	Cyril Hrubis <chrubis@suse.cz>
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 10b3d17..f501b3b 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -30,6 +30,16 @@ config I2C_MUX_GPIO
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-gpio.
- 
-+config I2C_MUX_LTC4306
-+	tristate "LTC LTC4306/5 I2C multiplexer"
-+	select GPIOLIB
-+	help
-+	  If you say yes here you get support for the LTC LTC4306 or LTC4305
-+	  I2C mux/switch devices.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-ltc4306.
-+
- config I2C_MUX_PCA9541
- 	tristate "NXP PCA9541 I2C Master Selector"
- 	help
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 9948fa4..a452d09 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -7,6 +7,7 @@ obj-$(CONFIG_I2C_DEMUX_PINCTRL)		+= i2c-demux-pinctrl.o
- 
- obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
- obj-$(CONFIG_I2C_MUX_MLXCPLD)	+= i2c-mux-mlxcpld.o
-+obj-$(CONFIG_I2C_MUX_LTC4306)	+= i2c-mux-ltc4306.o
- obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
-diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-new file mode 100644
-index 0000000..f0fd4d1
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-@@ -0,0 +1,365 @@
-+/*
-+ * Linear Technology LTC4306 and LTC4305 I2C multiplexer/switch
-+ *
-+ * Copyright (C) 2017 Analog Devices Inc.
-+ *
-+ * Licensed under the GPL-2.
-+ *
-+ * Based on: i2c-mux-pca954x.c
-+ *
-+ * Datasheet: http://cds.linear.com/docs/en/datasheet/4306.pdf
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/slab.h>
-+#include <linux/gpio.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/gpio/consumer.h>
-+
-+#define LTC4306_MAX_NCHANS 4
-+
-+#define LTC_REG_STATUS	0x0
-+#define LTC_REG_CONFIG	0x1
-+#define LTC_REG_MODE	0x2
-+#define LTC_REG_SWITCH	0x3
-+
-+#define LTC_DOWNSTREAM_ACCL_EN BIT(6)
-+#define LTC_UPSTREAM_ACCL_EN BIT(7)
-+
-+#define LTC_GPIO_ALL_INPUT	0xC0
-+
-+enum ltc_type {
-+	ltc_4305,
-+	ltc_4306,
-+};
-+
-+struct chip_desc {
-+	u8 nchans;
-+	u8 num_gpios;
-+};
-+
-+struct ltc4306 {
-+	struct i2c_client *client;
-+	struct gpio_chip gpiochip;
-+	const struct chip_desc *chip;
-+
-+	u8 deselect;
-+	u8 regs[LTC_REG_SWITCH + 1];
-+};
-+
-+/* Provide specs for the PCA954x types we know about */
-+static const struct chip_desc chips[] = {
-+	[ltc_4305] = {
-+		.nchans = 2,
-+	},
-+	[ltc_4306] = {
-+		.nchans = LTC4306_MAX_NCHANS,
-+		.num_gpios = 2,
-+	},
-+};
-+
-+static int ltc4306_gpio_get(struct gpio_chip *chip, unsigned int offset)
-+{
-+	struct ltc4306 *data = gpiochip_get_data(chip);
-+	int ret = 0;
-+
-+	if (gpiochip_line_is_open_drain(chip, offset) ||
-+		(data->regs[LTC_REG_MODE] & BIT(7 - offset))) {
-+		/* Open Drain or Input */
-+		ret = i2c_smbus_read_byte_data(data->client, LTC_REG_CONFIG);
-+		if (ret < 0)
-+			return ret;
-+
-+		return !!(ret & BIT(1 - offset));
-+	} else {
-+		return !!(data->regs[LTC_REG_CONFIG] & BIT(5 - offset));
-+	}
-+}
-+
-+static void ltc4306_gpio_set(struct gpio_chip *chip, unsigned int offset,
-+			     int value)
-+{
-+	struct ltc4306 *data = gpiochip_get_data(chip);
-+
-+	if (value)
-+		data->regs[LTC_REG_CONFIG] |= BIT(5 - offset);
-+	else
-+		data->regs[LTC_REG_CONFIG] &= ~BIT(5 - offset);
-+
-+
-+	i2c_smbus_write_byte_data(data->client, LTC_REG_CONFIG,
-+				 data->regs[LTC_REG_CONFIG]);
-+}
-+
-+static int ltc4306_gpio_direction_input(struct gpio_chip *chip,
-+					unsigned int offset)
-+{
-+	struct ltc4306 *data = gpiochip_get_data(chip);
-+
-+	data->regs[LTC_REG_MODE] |= BIT(7 - offset);
-+
-+	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
-+					 data->regs[LTC_REG_MODE]);
-+}
-+
-+static int ltc4306_gpio_direction_output(struct gpio_chip *chip,
-+					 unsigned int offset, int value)
-+{
-+	struct ltc4306 *data = gpiochip_get_data(chip);
-+
-+	ltc4306_gpio_set(chip, offset, value);
-+	data->regs[LTC_REG_MODE] &= ~BIT(7 - offset);
-+
-+	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
-+					 data->regs[LTC_REG_MODE]);
-+}
-+
-+static int ltc4306_gpio_set_config(struct gpio_chip *chip,
-+				   unsigned int offset, unsigned long config)
-+{
-+	struct ltc4306 *data = gpiochip_get_data(chip);
-+
-+	switch (pinconf_to_config_param(config)) {
-+	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-+		data->regs[LTC_REG_MODE] &= ~BIT(4 - offset);
-+		break;
-+	case PIN_CONFIG_DRIVE_PUSH_PULL:
-+		data->regs[LTC_REG_MODE] |= BIT(4 - offset);
-+		break;
-+	default:
-+		return -ENOTSUPP;
-+	}
-+
-+	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
-+					 data->regs[LTC_REG_MODE]);
-+}
-+
-+static int ltc4306_gpio_init(struct ltc4306 *data)
-+{
-+	if (!data->chip->num_gpios)
-+		return 0;
-+
-+	data->gpiochip.label = dev_name(&data->client->dev);
-+	data->gpiochip.base = -1;
-+	data->gpiochip.ngpio = data->chip->num_gpios;
-+	data->gpiochip.parent = &data->client->dev;
-+	data->gpiochip.can_sleep = true;
-+	data->gpiochip.direction_input = ltc4306_gpio_direction_input;
-+	data->gpiochip.direction_output = ltc4306_gpio_direction_output;
-+	data->gpiochip.get = ltc4306_gpio_get;
-+	data->gpiochip.set = ltc4306_gpio_set;
-+	data->gpiochip.set_config = ltc4306_gpio_set_config;
-+	data->gpiochip.owner = THIS_MODULE;
-+
-+	/* gpiolib assumes all GPIOs default input */
-+	data->regs[LTC_REG_MODE] |= LTC_GPIO_ALL_INPUT;
-+	i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
-+					 data->regs[LTC_REG_MODE]);
-+
-+	return devm_gpiochip_add_data(&data->client->dev,
-+				      &data->gpiochip, data);
-+}
-+
-+/*
-+ * Write to chip register. Don't use i2c_transfer()/i2c_smbus_xfer()
-+ * as they will try to lock the adapter a second time.
-+ */
-+static int ltc4306_reg_write(struct i2c_adapter *adap,
-+			     struct i2c_client *client, u8 reg, u8 val)
-+{
-+	int ret;
-+
-+	if (adap->algo->master_xfer) {
-+		struct i2c_msg msg;
-+		char buf[2];
-+
-+		msg.addr = client->addr;
-+		msg.flags = 0;
-+		msg.len = 2;
-+		buf[0] = reg;
-+		buf[1] = val;
-+		msg.buf = buf;
-+		ret = __i2c_transfer(adap, &msg, 1);
-+	} else {
-+		union i2c_smbus_data data;
-+
-+		data.byte = val;
-+		ret = adap->algo->smbus_xfer(adap, client->addr,
-+					     client->flags,
-+					     I2C_SMBUS_WRITE,
-+					     reg,
-+					     I2C_SMBUS_BYTE_DATA, &data);
-+	}
-+
-+	return ret;
-+}
-+
-+static int ltc4306_select_chan(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct ltc4306 *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
-+	u8 regval;
-+	int ret = 0;
-+
-+	regval = BIT(7 - chan);
-+
-+	/* Only select the channel if its different from the last channel */
-+	if (data->regs[LTC_REG_SWITCH] != regval) {
-+		ret = ltc4306_reg_write(muxc->parent, client,
-+					LTC_REG_SWITCH, regval);
-+		data->regs[LTC_REG_SWITCH] = ret < 0 ? 0 : regval;
-+	}
-+
-+	return ret;
-+}
-+
-+static int ltc4306_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct ltc4306 *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
-+
-+	if (!(data->deselect & BIT(chan)))
-+		return 0;
-+
-+	/* Deselect active channel */
-+	data->regs[LTC_REG_SWITCH] = 0;
-+
-+	return ltc4306_reg_write(muxc->parent, client,
-+				 LTC_REG_SWITCH, data->regs[LTC_REG_SWITCH]);
-+}
-+
-+static const struct i2c_device_id ltc4306_id[] = {
-+	{ "ltc4305", ltc_4305 },
-+	{ "ltc4306", ltc_4306 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ltc4306_id);
-+
-+static const struct of_device_id ltc4306_of_match[] = {
-+	{ .compatible = "lltc,ltc4305", .data = &chips[ltc_4305] },
-+	{ .compatible = "lltc,ltc4306", .data = &chips[ltc_4306] },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ltc4306_of_match);
-+
-+static int ltc4306_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-+	struct device_node *of_node = client->dev.of_node;
-+	bool idle_disconnect_dt = false;
-+	struct gpio_desc *gpio;
-+	struct i2c_mux_core *muxc;
-+	struct ltc4306 *data;
-+	const struct of_device_id *match;
-+	int num, ret;
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -ENODEV;
-+
-+	muxc = i2c_mux_alloc(adap, &client->dev,
-+			     LTC4306_MAX_NCHANS, sizeof(*data), 0,
-+			     ltc4306_select_chan, ltc4306_deselect_mux);
-+	if (!muxc)
-+		return -ENOMEM;
-+	data = i2c_mux_priv(muxc);
-+
-+	i2c_set_clientdata(client, muxc);
-+	data->client = client;
-+
-+	/* Enable the mux if a enable GPIO is specified. */
-+	gpio = devm_gpiod_get_optional(&client->dev, "enable", GPIOD_OUT_HIGH);
-+	if (IS_ERR(gpio))
-+		return PTR_ERR(gpio);
-+
-+	/* Write the mux register at addr to verify
-+	 * that the mux is in fact present. This also
-+	 * initializes the mux to disconnected state.
-+	 */
-+	if (i2c_smbus_write_byte_data(client, LTC_REG_SWITCH, 0) < 0) {
-+		dev_warn(&client->dev, "probe failed\n");
-+		return -ENODEV;
-+	}
-+
-+	match = of_match_device(of_match_ptr(ltc4306_of_match), &client->dev);
-+	if (match)
-+		data->chip = of_device_get_match_data(&client->dev);
-+	else
-+		data->chip = &chips[id->driver_data];
-+
-+	if (of_node) {
-+		idle_disconnect_dt =
-+			of_property_read_bool(of_node,
-+					      "i2c-mux-idle-disconnect");
-+		if (of_property_read_bool(of_node,
-+					  "ltc,downstream-accelerators-enable"))
-+			data->regs[LTC_REG_CONFIG] |= LTC_DOWNSTREAM_ACCL_EN;
-+
-+		if (of_property_read_bool(of_node,
-+					  "ltc,upstream-accelerators-enable"))
-+			data->regs[LTC_REG_CONFIG] |= LTC_UPSTREAM_ACCL_EN;
-+
-+		if (i2c_smbus_write_byte_data(client, LTC_REG_CONFIG,
-+					      data->regs[LTC_REG_CONFIG]) < 0) {
-+			dev_warn(&client->dev, "probe failed\n");
-+			return -ENODEV;
-+		}
-+	}
-+
-+	ret = ltc4306_gpio_init(data);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Now create an adapter for each channel */
-+	for (num = 0; num < data->chip->nchans; num++) {
-+
-+		data->deselect |= idle_disconnect_dt << num;
-+
-+		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
-+		if (ret) {
-+			dev_err(&client->dev,
-+				"failed to register multiplexed adapter %d\n",
-+				num);
-+			goto virt_reg_failed;
-+		}
-+	}
-+
-+	dev_info(&client->dev,
-+		 "registered %d multiplexed busses for I2C switch %s\n",
-+		 num, client->name);
-+
-+	return 0;
-+
-+virt_reg_failed:
-+	i2c_mux_del_adapters(muxc);
-+	return ret;
-+}
-+
-+static int ltc4306_remove(struct i2c_client *client)
-+{
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+
-+	i2c_mux_del_adapters(muxc);
-+	return 0;
-+}
-+
-+static struct i2c_driver ltc4306_driver = {
-+	.driver		= {
-+		.name	= "ltc4306",
-+		.of_match_table = of_match_ptr(ltc4306_of_match),
-+	},
-+	.probe		= ltc4306_probe,
-+	.remove		= ltc4306_remove,
-+	.id_table	= ltc4306_id,
-+};
-+
-+module_i2c_driver(ltc4306_driver);
-+
-+MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
-+MODULE_DESCRIPTION("Linear Technology LTC4306, LTC4305 I2C mux/switch driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.7.4
+>
+>>
+>>>
+>>>> +    tristate "Intel Cherrytrail Whiskey Cove PMIC extcon driver"
+>>>> +    depends on INTEL_SOC_PMIC_CHTWC
+>>>> +    help
+>>>> +      Say Y here to enable extcon support for charger detection / control
+>>>> +      on the Intel Cherrytrail Whiskey Cove PMIC.
+>>>> +
+>>>>  config EXTCON_MAX14577
+>>>>      tristate "Maxim MAX14577/77836 EXTCON Support"
+>>>>      depends on MFD_MAX14577
+>>>> diff --git a/drivers/extcon/Makefile b/drivers/extcon/Makefile
+>>>> index 237ac3f..160f88b 100644
+>>>> --- a/drivers/extcon/Makefile
+>>>> +++ b/drivers/extcon/Makefile
+>>>> @@ -7,6 +7,7 @@ extcon-core-objs        += extcon.o devres.o
+>>>>  obj-$(CONFIG_EXTCON_ADC_JACK)    += extcon-adc-jack.o
+>>>>  obj-$(CONFIG_EXTCON_ARIZONA)    += extcon-arizona.o
+>>>>  obj-$(CONFIG_EXTCON_AXP288)    += extcon-axp288.o
+>>>> +obj-$(CONFIG_EXTCON_CHT_WC)    += extcon-cht-wc.o
+>>>>  obj-$(CONFIG_EXTCON_GPIO)    += extcon-gpio.o
+>>>>  obj-$(CONFIG_EXTCON_INTEL_INT3496) += extcon-intel-int3496.o
+>>>>  obj-$(CONFIG_EXTCON_MAX14577)    += extcon-max14577.o
+>>>> diff --git a/drivers/extcon/extcon-cht-wc.c b/drivers/extcon/extcon-cht-wc.c
+>>>> new file mode 100644
+>>>> index 0000000..896eee6
+>>>> --- /dev/null
+>>>> +++ b/drivers/extcon/extcon-cht-wc.c
+>>>> @@ -0,0 +1,356 @@
+>>>> +/*
+>>>> + * Extcon charger detection driver for Intel Cherrytrail Whiskey Cove PMIC
+>>>> + * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
+>>>> + *
+>>>> + * Based on various non upstream patches to support the CHT Whiskey Cove PMIC:
+>>>
+>>> Maybe, you don't need to add ':' at the end of line.
+>>
+>> Th ':' is there because the following copyright line:
+>>>
+>>>> + * Copyright (C) 2013-2015 Intel Corporation. All rights reserved.
+>>
+>> Comes from those various non upstream patches.
+>>
+>>>> + *
+>>>> + * This program is free software; you can redistribute it and/or modify it
+>>>> + * under the terms and conditions of the GNU General Public License,
+>>>> + * version 2, as published by the Free Software Foundation.
+>>>> + *
+>>>> + * This program is distributed in the hope it will be useful, but WITHOUT
+>>>> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+>>>> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+>>>> + * more details.
+>>>> + */
+>>>> +
+>>>> +#include <linux/extcon.h>
+>>>> +#include <linux/interrupt.h>
+>>>> +#include <linux/kernel.h>
+>>>> +#include <linux/mfd/intel_soc_pmic.h>
+>>>> +#include <linux/module.h>
+>>>> +#include <linux/platform_device.h>
+>>>> +#include <linux/regmap.h>
+>>>> +#include <linux/slab.h>
+>>>> +
+>>>> +#define CHT_WC_PWRSRC_IRQ        0x6e03
+>>>> +#define CHT_WC_PWRSRC_IRQ_MASK        0x6e0f
+>>>> +#define CHT_WC_PWRSRC_STS        0x6e1e
+>>>> +#define CHT_WC_PWRSRC_VBUS        BIT(0)
+>>>> +#define CHT_WC_PWRSRC_DC        BIT(1)
+>>>> +#define CHT_WC_PWRSRC_BAT        BIT(2)
+>>>> +#define CHT_WC_PWRSRC_ID_GND        BIT(3)
+>>>> +#define CHT_WC_PWRSRC_ID_FLOAT        BIT(4)
+>>>> +
+>>>> +#define CHT_WC_PHYCTRL            0x5e07
+>>>> +
+>>>> +#define CHT_WC_CHGRCTRL0        0x5e16
+>>>> +
+>>>> +#define CHT_WC_CHGRCTRL0        0x5e16
+>>>> +#define CHT_WC_CHGRCTRL0_CHGRRESET    BIT(0)
+>>>> +#define CHT_WC_CHGRCTRL0_EMRGCHREN    BIT(1)
+>>>> +#define CHT_WC_CHGRCTRL0_EXTCHRDIS    BIT(2)
+>>>> +#define CHT_WC_CHGRCTRL0_SWCONTROL    BIT(3)
+>>>> +#define CHT_WC_CHGRCTRL0_TTLCK_MASK    BIT(4)
+>>>> +#define CHT_WC_CHGRCTRL0_CCSM_OFF_MASK    BIT(5)
+>>>> +#define CHT_WC_CHGRCTRL0_DBPOFF_MASK    BIT(6)
+>>>> +#define CHT_WC_CHGRCTRL0_WDT_NOKICK    BIT(7)
+>>>> +
+>>>> +#define CHT_WC_CHGRCTRL1        0x5e17
+>>>> +
+>>>> +#define CHT_WC_USBSRC            0x5e29
+>>>> +#define CHT_WC_USBSRC_STS_MASK        GENMASK(1, 0)
+>>>> +#define CHT_WC_USBSRC_STS_SUCCESS    2
+>>>> +#define CHT_WC_USBSRC_STS_FAIL        3
+>>>> +#define CHT_WC_USBSRC_TYPE_SHIFT    2
+>>>> +#define CHT_WC_USBSRC_TYPE_MASK        GENMASK(5, 2)
+>>>> +#define CHT_WC_USBSRC_TYPE_NONE        0
+>>>> +#define CHT_WC_USBSRC_TYPE_SDP        1
+>>>> +#define CHT_WC_USBSRC_TYPE_DCP        2
+>>>> +#define CHT_WC_USBSRC_TYPE_CDP        3
+>>>> +#define CHT_WC_USBSRC_TYPE_ACA        4
+>>>> +#define CHT_WC_USBSRC_TYPE_SE1        5
+>>>> +#define CHT_WC_USBSRC_TYPE_MHL        6
+>>>> +#define CHT_WC_USBSRC_TYPE_FLOAT_DP_DN    7
+>>>> +#define CHT_WC_USBSRC_TYPE_OTHER    8
+>>>> +#define CHT_WC_USBSRC_TYPE_DCP_EXTPHY    9
+>>>> +
+>>>> +enum cht_wc_usb_id {
+>>>> +    USB_ID_OTG,
+>>>> +    USB_ID_GND,
+>>>> +    USB_ID_FLOAT,
+>>>> +    USB_RID_A,
+>>>> +    USB_RID_B,
+>>>> +    USB_RID_C,
+>>>> +};
+>>>> +
+>>>> +/* Strings matching the cht_wc_usb_id enum labels */
+>>>> +static const char * const usb_id_str[] = {
+>>>> +    "otg", "gnd", "float", "rid_a", "rid_b", "rid_c" };
+>>>> +
+>>>> +enum cht_wc_mux_select {
+>>>> +    MUX_SEL_PMIC = 0,
+>>>> +    MUX_SEL_SOC,
+>>>> +};
+>>>> +
+>>>> +static const unsigned int cht_wc_extcon_cables[] = {
+>>>> +    EXTCON_USB,
+>>>> +    EXTCON_USB_HOST,
+>>>> +    EXTCON_CHG_USB_SDP,
+>>>> +    EXTCON_CHG_USB_CDP,
+>>>> +    EXTCON_CHG_USB_DCP,
+>>>> +    EXTCON_NONE,
+>>>> +};
+>>>> +
+>>>> +struct cht_wc_extcon_data {
+>>>> +    struct device *dev;
+>>>> +    struct regmap *regmap;
+>>>> +    struct extcon_dev *edev;
+>>>> +    unsigned int previous_cable;
+>>>> +    int usb_id;
+>>>> +};
+>>>> +
+>>>> +static int cht_wc_extcon_get_id(struct cht_wc_extcon_data *ext, int pwrsrc_sts)
+>>>> +{
+>>>> +    if (ext->usb_id)
+>>>> +        return ext->usb_id;
+>>>> +
+>>>> +    if (pwrsrc_sts & CHT_WC_PWRSRC_ID_GND)
+>>>> +        return USB_ID_GND;
+>>>> +    if (pwrsrc_sts & CHT_WC_PWRSRC_ID_FLOAT)
+>>>> +        return USB_ID_FLOAT;
+>>>> +
+>>>> +    /*
+>>>> +     * Once we have iio support for the gpadc we should read the USBID
+>>>> +     * gpadc channel here and determine ACA role based on that.
+>>>> +     */
+>>>> +    return USB_ID_FLOAT;
+>>>> +}
+>>>> +
+>>>> +static int cht_wc_extcon_get_charger(struct cht_wc_extcon_data *ext)
+>>>> +{
+>>>> +    int ret, usbsrc, status, retries = 5;
+>>>
+>>> You have to define the constant for '5' because the name of constant
+>>> definition indicates what is meaning. So, maybe you will use the 'for' loope
+>>> instead of 'do..while'.
+>>
+>> Right, already fixed as a result of Andy's review.
+>>
+>>>
+>>>> +
+>>>> +    do {
+>>>> +        ret = regmap_read(ext->regmap, CHT_WC_USBSRC, &usbsrc);
+>>>> +        if (ret) {
+>>>> +            dev_err(ext->dev, "Error reading usbsrc: %d\n", ret);
+>>>> +            return ret;
+>>>> +        }
+>>>
+>>> Need to add one blank line.
+>>>
+>>>> +        status = usbsrc & CHT_WC_USBSRC_STS_MASK;
+>>>> +        if (status == CHT_WC_USBSRC_STS_SUCCESS ||
+>>>> +            status == CHT_WC_USBSRC_STS_FAIL)
+>>>> +            break;
+>>>> +
+>>>> +        msleep(200);
+>>>
+>>> You have to define the constant for '200' because the name of constant
+>>> definition indicates what is meaning.
+>>>
+>>>> +    } while (retries--);
+>>>> +
+>>>> +    if (status != CHT_WC_USBSRC_STS_SUCCESS) {
+>>>> +        if (status == CHT_WC_USBSRC_STS_FAIL)
+>>>> +            dev_warn(ext->dev, "Could not detect charger type\n");
+>>>> +        else
+>>>> +            dev_warn(ext->dev, "Timeout detecting charger type\n");
+>>>> +        return EXTCON_CHG_USB_SDP; /* Save fallback */
+>>>> +    }
+>>>> +
+>>>> +    ret = (usbsrc & CHT_WC_USBSRC_TYPE_MASK) >> CHT_WC_USBSRC_TYPE_SHIFT;
+>>>
+>>> 'ret' is not proper indicates the meaning of 'CHT_WC_USBSRC_TYPE'.
+>>> You have to use the more correct local variable such as 'usbsrc_type'.
+>>
+>> Fixed for v2.
+>>>
+>>>> +    switch (ret) {
+>>>> +    default:
+>>>> +        dev_warn(ext->dev, "Unhandled charger type %d\n", ret);
+>>>> +        /* Fall through treat as SDP */
+>>>
+>>> Is it right? Why do you located the 'default' on the top in the switch?
+>>
+>> So that I can use fall-through, there is no rule in C where the default goes.
+>>
+>> The fallthrough is there because assuming SDP (and thus max 500mA current
+>> draw) is always safe.
+>
+> If in the default statement, you treat the unhandled charger type as the SDP,
+> you don't remove the warning message. It makes the confusion.
+>
+> Warning message is 'unhandled charger type'. But, the extcon
+> detects the 'SDP' connector type. It is not reasonable.
+
+Ok, I will change the warning message to say that we are defaulting to
+SDP.
+
+>
+>>
+>>>
+>>>> +    case CHT_WC_USBSRC_TYPE_SDP:
+>>>> +    case CHT_WC_USBSRC_TYPE_FLOAT_DP_DN:
+>>>> +    case CHT_WC_USBSRC_TYPE_OTHER:
+>>>> +        return EXTCON_CHG_USB_SDP;
+>>>> +    case CHT_WC_USBSRC_TYPE_CDP:
+>>>> +        return EXTCON_CHG_USB_CDP;
+>>>> +    case CHT_WC_USBSRC_TYPE_DCP:
+>>>> +    case CHT_WC_USBSRC_TYPE_DCP_EXTPHY:
+>>>> +    case CHT_WC_USBSRC_TYPE_MHL: /* MHL2+ delivers upto 2A, treat as DCP */
+>>>> +        return EXTCON_CHG_USB_DCP;
+>>>> +    case CHT_WC_USBSRC_TYPE_ACA:
+>>>> +        return EXTCON_CHG_USB_ACA;
+>>>> +    }
+>>>> +}
+>>>> +
+>>>> +static void cht_wc_extcon_set_phymux(struct cht_wc_extcon_data *ext, u8 state)
+>>>> +{
+>>>> +    int ret;
+>>>> +
+>>>> +    ret = regmap_write(ext->regmap, CHT_WC_PHYCTRL, state);
+>>>> +    if (ret)
+>>>> +        dev_err(ext->dev, "Error writing phyctrl: %d\n", ret);
+>>>
+>>> This function is only called in the cht_wc_extcon_det_event().
+>>> Also, this funciton write only one register. It is too short.
+>>> So, you don't need to add the separate function.
+>>> You better to include this code in the cht_wc_extcon_det_event().
+>>
+>> This is used multiple times in cht_wc_extcon_det_event() and is
+>> also used in probe() so it saves having to copy and paste the error
+>> check. Also the flow of cht_wc_extcon_det_event() is more readable
+>> this way. If it is more efficient to have this inline the compiler
+>> will auto-inline it.
+>
+> OK. I recognized it was called only on the cht_wc_extcon_det_event().
+> But, it is called on multiple points. It's OK.
+>
+>>
+>>
+>>>
+>>>> +}
+>>>> +
+>>>> +static void cht_wc_extcon_det_event(struct cht_wc_extcon_data *ext)
+>>>> +{
+>>>> +    int ret, pwrsrc_sts, id;
+>>>> +    unsigned int cable = EXTCON_NONE;
+>>>> +
+>>>> +    ret = regmap_read(ext->regmap, CHT_WC_PWRSRC_STS, &pwrsrc_sts);
+>>>> +    if (ret) {
+>>>> +        dev_err(ext->dev, "Error reading pwrsrc status: %d\n", ret);
+>>>> +        return;
+>>>> +    }
+>>>> +
+>>>> +    id = cht_wc_extcon_get_id(ext, pwrsrc_sts);
+>>>> +    if (id == USB_ID_GND) {
+>>>> +        /* The 5v boost causes a false VBUS / SDP detect, skip */
+>>>> +        goto charger_det_done;
+>>>> +    }
+>>>> +
+>>>> +    /* Plugged into a host/charger or not connected? */
+>>>> +    if (!(pwrsrc_sts & CHT_WC_PWRSRC_VBUS)) {
+>>>> +        /* Route D+ and D- to PMIC for future charger detection */
+>>>> +        cht_wc_extcon_set_phymux(ext, MUX_SEL_PMIC);
+>>>> +        goto set_state;
+>>>> +    }
+>>>
+>>> The cht_wc_extcon_get_id() and cht_wc_extcon_det_event() use the value
+>>> of CHT_WC_PWRSRC_STS register. So, I think you better to gather the
+>>> code related to the CHT_WC_PWRSRC_STS for readability.
+>>> - First suggestion, remove the separate the cht_wc_extcon_get_id()
+>>> - Second suggestion, The code from regmap_read() to "!(pwrsrc_sts & CHT_WC_PWRSRC_VBUS)"
+>>>           move into the cht_wc_extcon_get_id().
+>>>
+>>> In my opinion, I recommend that second way.
+>>
+>> These register reads are i2c register reads which are quite costly,
+>> so we really want to do this only once, which is why the code is
+>> as it is.
+>
+> Sure, If you use the my second suggestion, you can read i2c register
+> only one time for all codes as following:
+>
+> 	cht_wc_extcon_get_id(ext)
+> 		// Read the CHT_WC_PWRSRC_STS register through i2c
+> 		// Check the usb_id and pwersrc_sts with CHT_WC_PWRSRC_ID_GND/CHT_WC_PWRSRC_ID_FLOAT.
+> 		// Plugged into a host/charger or not connected?
+>>
+>>>> +
+>>>> +    ret = cht_wc_extcon_get_charger(ext);
+>>>> +    if (ret >= 0)
+>>>> +        cable = ret;
+>>>> +
+>>>> +charger_det_done:
+>>>> +    /* Route D+ and D- to SoC for the host / gadget controller */
+>>>
+>>> Minor comment.
+>>> You better to use '&' instead of '/'
+>>
+>> The data lines get used by either the host OR the gadget controller,
+>> as there is another mux inside the SoC.
+>
+> If '/' means the 'or', you can use the 'or' instead of '/'.
+
+Ok text changed to use or for v3.
+
+>
+>>
+>>>
+>>>> +    cht_wc_extcon_set_phymux(ext, MUX_SEL_SOC);
+>>>> +
+>>>> +set_state:
+>>>> +    extcon_set_state_sync(ext->edev, cable, true);
+>>>> +    extcon_set_state_sync(ext->edev, ext->previous_cable, false);
+>>>> +    extcon_set_state_sync(ext->edev, EXTCON_USB_HOST,
+>>>> +                  id == USB_ID_GND || id == USB_RID_A);
+>>>> +    ext->previous_cable = cable;
+>>>> +}
+>>>> +
+>>>> +static irqreturn_t cht_wc_extcon_isr(int irq, void *data)
+>>>> +{
+>>>> +    struct cht_wc_extcon_data *ext = data;
+>>>> +    int ret, irqs;
+>>>> +
+>>>> +    ret = regmap_read(ext->regmap, CHT_WC_PWRSRC_IRQ, &irqs);
+>>>> +    if (ret)
+>>>> +        dev_err(ext->dev, "Error reading irqs: %d\n", ret);
+>>>> +
+>>>> +    cht_wc_extcon_det_event(ext);
+>>>> +
+>>>> +    ret = regmap_write(ext->regmap, CHT_WC_PWRSRC_IRQ, irqs);
+>>>> +    if (ret)
+>>>> +        dev_err(ext->dev, "Error writing irqs: %d\n", ret);
+>>>> +
+>>>> +    return IRQ_HANDLED;
+>>>> +}
+>>>> +
+>>>> +/* usb_id sysfs attribute for debug / testing purposes */
+>>>> +static ssize_t usb_id_show(struct device *dev, struct device_attribute *attr,
+>>>> +               char *buf)
+>>>> +{
+>>>> +    struct cht_wc_extcon_data *ext = dev_get_drvdata(dev);
+>>>> +
+>>>> +    return sprintf(buf, "%s\n", usb_id_str[ext->usb_id]);
+>>>> +}
+>>>> +
+>>>> +static ssize_t usb_id_store(struct device *dev, struct device_attribute *attr,
+>>>> +                const char *buf, size_t n)
+>>>> +{
+>>>> +    struct cht_wc_extcon_data *ext = dev_get_drvdata(dev);
+>>>> +    int i;
+>>>> +
+>>>> +    for (i = 0; i < ARRAY_SIZE(usb_id_str); i++) {
+>>>> +        if (sysfs_streq(buf, usb_id_str[i])) {
+>>>> +            dev_info(ext->dev, "New usb_id %s\n", usb_id_str[i]);
+>>>> +            ext->usb_id = i;
+>>>> +            cht_wc_extcon_det_event(ext);
+>>>> +            return n;
+>>>> +        }
+>>>> +    }
+>>>> +
+>>>> +    return -EINVAL;
+>>>> +}
+>>>> +
+>>>> +static DEVICE_ATTR(usb_id, 0644, usb_id_show, usb_id_store);
+>>>
+>>> I think it is not good to add specific sysfs for only this device driver.
+>>> The sysfs entry of framework must include the only common and standard interfarce
+>>> for all extcon device drivers. Because the sysfs entry affects the ABI interface.
+>>>
+>>> So, It is not proper.
+>>
+>> Unfortunately these kinda sysfs files are somewhat normal when
+>> dealing with USB-OTG. For example my board does not have the
+>> id-pin hooked up to the connector, so to test host mode
+>> I need to echo "gnd" to the sysfs attr. But also if I actually
+>> want to use host-mode (or anyone else with the same or a similar
+>> board).
+>
+> As I said, I don't want to create the non-standard sysfs interface
+> for only specific device driver.
+>
+> If you want to change the some mode of device driver,
+> we should implement the something in the extcon framework
+> by keeping the standard interface for ABI. I don't want to
+> make such a special case.
+
+Ok, I will drop this part of the driver for now, we can revisit
+this later.
+
+>> See for example also the "mode" sysfs attribute of the musb driver.
+>>
+>> Since the id-pin setting influences multiple other drivers through
+>> extcon the best place for this is in the extcon driver, as that
+>> it the canonical source of the EXTCON_USB_HOST cable value.
+>>
+>>
+>>>
+>>>> +
+>>>> +static int cht_wc_extcon_probe(struct platform_device *pdev)
+>>>> +{
+>>>> +    struct cht_wc_extcon_data *ext;
+>>>> +    struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+>>>> +    int irq, ret;
+>>>> +
+>>>> +    irq = platform_get_irq(pdev, 0);
+>>>> +    if (irq < 0)
+>>>> +        return irq;
+>>>> +
+>>>> +    ext = devm_kzalloc(&pdev->dev, sizeof(*ext), GFP_KERNEL);
+>>>> +    if (!ext)
+>>>> +        return -ENOMEM;
+>>>> +
+>>>> +    ext->dev = &pdev->dev;
+>>>> +    ext->regmap = pmic->regmap;
+>>>> +    ext->previous_cable = EXTCON_NONE;
+>>>> +
+>>>> +    /* Initialize extcon device */
+>>>> +    ext->edev = devm_extcon_dev_allocate(ext->dev, cht_wc_extcon_cables);
+>>>> +    if (IS_ERR(ext->edev))
+>>>> +        return PTR_ERR(ext->edev);
+>>>> +
+>>>> +    ret = regmap_update_bits(ext->regmap, CHT_WC_CHGRCTRL0,
+>>>> +         CHT_WC_CHGRCTRL0_SWCONTROL | CHT_WC_CHGRCTRL0_CCSM_OFF_MASK,
+>>>> +         CHT_WC_CHGRCTRL0_SWCONTROL | CHT_WC_CHGRCTRL0_CCSM_OFF_MASK);
+>>>> +    if (ret) {
+>>>> +        dev_err(ext->dev, "Error enabling sw control\n");
+>>>> +        return ret;
+>>>> +    }
+>>>> +
+>>>> +    /* Register extcon device */
+>>>> +    ret = devm_extcon_dev_register(ext->dev, ext->edev);
+>>>> +    if (ret) {
+>>>> +        dev_err(ext->dev, "Failed to register extcon device\n");
+>>>> +        return ret;
+>>>> +    }
+>>>> +
+>>>> +    /* Route D+ and D- to PMIC for initial charger detection */
+>>>> +    cht_wc_extcon_set_phymux(ext, MUX_SEL_PMIC);
+>>>> +
+>>>> +    /* Get initial state */
+>>>> +    cht_wc_extcon_det_event(ext);
+>>>> +
+>>>> +    ret = devm_request_threaded_irq(ext->dev, irq, NULL, cht_wc_extcon_isr,
+>>>> +                    IRQF_ONESHOT, pdev->name, ext);
+>>>> +    if (ret) {
+>>>> +        dev_err(ext->dev, "Failed to request interrupt\n");
+>>>> +        return ret;
+>>>> +    }
+>>>> +
+>>>> +    /* Unmask irqs */
+>>>> +    ret = regmap_write(ext->regmap, CHT_WC_PWRSRC_IRQ_MASK,
+>>>> +               (int)~(CHT_WC_PWRSRC_VBUS | CHT_WC_PWRSRC_ID_GND |
+>>>> +                  CHT_WC_PWRSRC_ID_FLOAT));
+>>>> +    if (ret) {
+>>>> +        dev_err(ext->dev, "Error writing irq-mask: %d\n", ret);
+>>>
+>>> I prefer to use the consistent error log. In the probe function,
+>>> you use the 'Failed to ...' when error hanppen. So, You better
+>>> to use the consistent format for errr log as following:
+>>>     - "Failed to write the irq-mask: %d\n", ret);
+>>
+>> Fixed for v2.
+>>
+>>>
+>>> I think it improve the readability of your device driver.
+>>>
+>>>> +        return ret;
+>>>> +    }
+>>>> +
+>>>> +    platform_set_drvdata(pdev, ext);
+>>>> +    device_create_file(ext->dev, &dev_attr_usb_id);
+>>>> +
+>>>> +    return 0;
+>>>
+>>>
+>>> In the probe function, you touch the some register for initialization.
+>>> But, if error happen, the probe function don't restore the register value.
+>>> Is it ok? I think you need to handle the error case.
+>>
+>> Fixed for v2.
+>>
+>>>
+>>>> +}
+>>>> +
+>>>> +static int cht_wc_extcon_remove(struct platform_device *pdev)
+>>>> +{
+>>>> +    struct cht_wc_extcon_data *ext = platform_get_drvdata(pdev);
+>>>> +
+>>>> +    device_remove_file(ext->dev, &dev_attr_usb_id);
+>>>
+>>> Don't need it.
+>>>
+>>>> +
+>>>> +    return 0;
+>>>> +}
+>>>> +
+>>>> +static const struct platform_device_id cht_wc_extcon_table[] = {
+>>>> +    { .name = "cht_wcove_pwrsrc" },
+>>>
+>>> You use the 'cht_wc' word instead of 'cht_wcove_pwrsrc'.
+>>> So, To maintain the consistency, you better to use the 'cht-wc' as the name.
+>>> - I prefer to use '-' instead of '_' in the name.
+>>>     .name ="cht-wc"
+>>
+>> Already answered by Andy.
+>
+> I replied again from the Andy's reply.
+>
+>>
+>>>> +    {},
+>>>> +};
+>>>> +MODULE_DEVICE_TABLE(platform, cht_wc_extcon_table);
+>>>> +
+>>>> +static struct platform_driver cht_wc_extcon_driver = {
+>>>> +    .probe = cht_wc_extcon_probe,
+>>>> +    .remove = cht_wc_extcon_remove,
+>>>> +    .id_table = cht_wc_extcon_table,
+>>>> +    .driver = {
+>>>> +        .name = "cht_wcove_pwrsrc",
+>>>> +    },
+>>>> +};
+>>>> +module_platform_driver(cht_wc_extcon_driver);
+>>>> +
+>>>> +MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
+>>>> +MODULE_DESCRIPTION("Intel Cherrytrail Whiskey Cove PMIC extcon driver");
+>>>
+>>> Minor comment.
+>>> You better to locate the MODULE_DESCRIPTION at the first line
+>>> and then MODULE_AUTHOR is at second line.
+>>
+>> Fixed for v2.
+
+Regards,
+
+Hans
