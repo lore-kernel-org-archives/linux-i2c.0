@@ -1,37 +1,60 @@
-From: "M'boumba Cedric Madianga" <cedric.madianga@gmail.com>
-Subject: Re: [PATCH 3/5] i2c: i2c-stm32f7: add driver
-Date: Thu, 23 Mar 2017 21:40:50 +0100
-Message-ID: <CAOAejn383=Zk42nnJoG=qP=uEHpzEwf=5dePx_atyzWGDGBiyA@mail.gmail.com>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
- <1489744738-21632-4-git-send-email-cedric.madianga@gmail.com> <20170323201719.i5bqrbxr2bejopky@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 02/14] i2c: mv64xxx: simplify optional reset handling
+Date: Thu, 23 Mar 2017 21:41:17 +0100
+Message-ID: <20170323204116.doujbvi7t3n2j4ak@ninjato>
+References: <20170315113134.13655-1-p.zabel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ccduzyt36lw7dsmw"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f180.google.com ([209.85.192.180]:33208 "EHLO
-        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751313AbdCWUkw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 23 Mar 2017 16:40:52 -0400
-In-Reply-To: <20170323201719.i5bqrbxr2bejopky@ninjato>
+Received: from sauhun.de ([88.99.104.3]:41004 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752128AbdCWUlZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Mar 2017 16:41:25 -0400
+Content-Disposition: inline
+In-Reply-To: <20170315113134.13655-1-p.zabel@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Linus Walleij <linus.walleij@linaro.org>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Wolfram,
 
-Yes the STM32F7 has a new I2C IP core compared to STM32F4.
-The engine, the machine state are very different.
-I tried few months ago to write a common driver but it was very very
-difficilcut as the 2 IP are not so much things in common.
+--ccduzyt36lw7dsmw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-BR,
-Cedric
+On Wed, Mar 15, 2017 at 12:31:34PM +0100, Philipp Zabel wrote:
+> As of commit bb475230b8e5 ("reset: make optional functions really
+> optional"), the reset framework API calls use NULL pointers to describe
+> optional, non-present reset controls.
+>=20
+> This allows to return errors from devm_reset_control_get_optional and to
+> call reset_control_(de)assert unconditionally.
+>=20
+> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 
-2017-03-23 21:17 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> On Fri, Mar 17, 2017 at 10:58:56AM +0100, M'boumba Cedric Madianga wrote:
->> This patch adds initial support for the STM32F7 I2C controller.
->>
->> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
->
-> So, the STM32F7 has a new I2C IP core compared to STM32F4?
->
+Applied to for-next, thanks!
+
+
+--ccduzyt36lw7dsmw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUMugACgkQFA3kzBSg
+KbbUEQ/+NCvmhy4CRDxRFG0/IALn25SNa72iqfjOP7uBIWc31tQ1VXEdKNTAXdu/
+33E5+vrbTzuP42loib0n5xTDeud4CUcNdmGW0offF5azNrwqn4OVMbqtvdsMV8g1
+t9GrfnGvUL94R0RjB2SlRTmxNbWO+Xdr6mfI65sUSzBP+OaD56FhdjMG01LTLmvu
++DRke1A4JdXFXsqw99UNRbONVc1QszqGo2vsyx52QvzKN7+pbFQzkmWu3OCQUSVh
+62kN+ZWICaSBLNrkvHCB+qpmUHCPp9OO+MWhPh/ThpzD7eMZbFcRe0uHcF0+9U/y
+A6uLaTknivMEq/DJMIXn7BESvSHEPIrjtTN6P0eqiB2sjDq33EN8cNZx6noc6C4F
+91+7iAjwQqXA8WRRmT1PK3wRK1YHheB2Foq24fnLXVmE3hrnY9K8cj/B9k3UfuJ8
+2w0YZ2l54W30Q54F37tpCY9aeMzvIkksYHaBqs6XZCRqh0FM6K+Xw9YOXdJfeMvn
+DNDqZQsnTk7CGpvR8vOPgwk95C1DrwQybNO6Xd2m7lSTjEKPLS6TmtZn5epzsZ4I
+OgRdB2pTAycde4Korw8jFD4dYM7g3fRTeNBBn67hC5kxaXtCrapA3mDjeWpKr/XW
+m8ttEMNa48OB+jc/8XmJHqU1HmT1dP54LjCkGeyYAcwBBgpL6cE=
+=lvNa
+-----END PGP SIGNATURE-----
+
+--ccduzyt36lw7dsmw--
