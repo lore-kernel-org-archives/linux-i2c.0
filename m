@@ -1,103 +1,81 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v2 4/6] arm64: dts: rockchip: add core dtsi file for
- RK3328 SoCs
-Date: Thu, 23 Mar 2017 10:16:32 +0100
-Message-ID: <6316425.XgunHQaK4u@diego>
-References: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
- <14610453.rKm3MBREMz@diego> <58D32D8A.1030506@rock-chips.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v1 1/2] Revert "i2c: mux: pca954x: Add ACPI support for
+ pca954x"
+Date: Thu, 23 Mar 2017 11:04:04 +0100
+Message-ID: <20170323100403.GA9307@amd>
+References: <20170321191310.32957-1-andriy.shevchenko@linux.intel.com>
+ <01b7c79e-c52f-8e87-59a8-2eb17a72d733@axentia.se>
+ <1490187942.19767.161.camel@linux.intel.com>
+ <7d5fba14-d3f1-dfaa-ac7d-5001ccf370a1@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <58D32D8A.1030506@rock-chips.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?utf-8?B?6ZmI5Lqu?= <cl@rock-chips.com>
-Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, dianders@chromium.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, zhangqing@rock-chips.com, paweljarosz3691@gmail.com, arnd@arndb.de, yhx@rock-chips.com, knaack.h@gmx.de, robh+dt@kernel.org, matthias.bgg@gmail.com, rocky.hao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com, fabio.estevam@nxp.com, andy.yan@rock-chips.com, akpm@linux-foundation.org, shawnguo@kernel.org, afaerber@suse.de, jic23@kernel
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <7d5fba14-d3f1-dfaa-ac7d-5001ccf370a1@axentia.se>
+Sender: linux-leds-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Tin Huynh <tnhuynh@apm.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-leds@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-QW0gRG9ubmVyc3RhZywgMjMuIE3DpHJ6IDIwMTcsIDEwOjA2OjAyIENFVCBzY2hyaWViIOmZiOS6
-rjoKPiBIae+8jCBIZWlrbwo+IAo+IOWcqCAyMDE35bm0MDPmnIgyMeaXpSAxNjo1NSwgSGVpa28g
-U3TDvGJuZXIg5YaZ6YGTOgo+ID4gSGksCj4gPiAKPiA+IEFtIERvbm5lcnN0YWcsIDE2LiBNw6Ry
-eiAyMDE3LCAyMToxNzoyMiBDRVQgc2NocmllYiBjbEByb2NrLWNoaXBzLmNvbToKPiA+PiBGcm9t
-OiBMaWFuZyBDaGVuIDxjbEByb2NrLWNoaXBzLmNvbT4KPiA+PiAKPiA+PiBUaGlzIHBhdGNoIGFk
-ZHMgY29yZSBkdHNpIGZpbGUgZm9yIFJvY2tjaGlwIFJLMzMyOCBTb0NzLgo+ID4+IAo+ID4+IFNp
-Z25lZC1vZmYtYnk6IExpYW5nIENoZW4gPGNsQHJvY2stY2hpcHMuY29tPgo+ID4+IC0tLQo+ID4+
-IAo+ID4+ICAgYXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9yazMzMjguZHRzaSB8IDEzNjIK
-PiA+PiAKPiA+PiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysgMSBmaWxlIGNoYW5nZWQs
-IDEzNjIgaW5zZXJ0aW9ucygrKQo+ID4+IAo+ID4+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gv
-YXJtNjQvYm9vdC9kdHMvcm9ja2NoaXAvcmszMzI4LmR0c2kKPiA+PiAKPiA+PiBkaWZmIC0tZ2l0
-IGEvYXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9yazMzMjguZHRzaQo+ID4+IGIvYXJjaC9h
-cm02NC9ib290L2R0cy9yb2NrY2hpcC9yazMzMjguZHRzaSBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+
-ID4+IGluZGV4IDAwMDAwMDAuLmE5Mjk1NWMKPiA+PiAtLS0gL2Rldi9udWxsCj4gPj4gKysrIGIv
-YXJjaC9hcm02NC9ib290L2R0cy9yb2NrY2hpcC9yazMzMjguZHRzaQo+ID4+IEBAIC0wLDAgKzEs
-MTM2MiBAQAo+ID4+ICsvKgo+ID4+ICsgKiBDb3B5cmlnaHQgKGMpIDIwMTcgRnV6aG91IFJvY2tj
-aGlwIEVsZWN0cm9uaWNzIENvLiwgTHRkCj4gPj4gKyAqCj4gPj4gKyAqIFRoaXMgZmlsZSBpcyBk
-dWFsLWxpY2Vuc2VkOiB5b3UgY2FuIHVzZSBpdCBlaXRoZXIgdW5kZXIgdGhlIHRlcm1zCj4gPj4g
-KyAqIG9mIHRoZSBHUEwgb3IgdGhlIFgxMSBsaWNlbnNlLCBhdCB5b3VyIG9wdGlvbi4gTm90ZSB0
-aGF0IHRoaXMgZHVhbAo+ID4+ICsgKiBsaWNlbnNpbmcgb25seSBhcHBsaWVzIHRvIHRoaXMgZmls
-ZSwgYW5kIG5vdCB0aGlzIHByb2plY3QgYXMgYQo+ID4+ICsgKiB3aG9sZS4KPiA+PiArICoKPiA+
-PiArICogIGEpIFRoaXMgbGlicmFyeSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJp
-YnV0ZSBpdCBhbmQvb3IKPiA+PiArICogICAgIG1vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMgb2Yg
-dGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzCj4gPj4gKyAqICAgICBwdWJsaXNoZWQg
-YnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZgo+ID4+
-IHRoZQo+ID4+ICsgKiAgICAgTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIg
-dmVyc2lvbi4KPiA+PiArICoKPiA+PiArICogICAgIFRoaXMgbGlicmFyeSBpcyBkaXN0cmlidXRl
-ZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAo+ID4+ICsgKiAgICAgYnV0IFdJ
-VEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YK
-PiA+PiArICogICAgIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIg
-UFVSUE9TRS4gIFNlZSB0aGUKPiA+PiArICogICAgIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNl
-IGZvciBtb3JlIGRldGFpbHMuCj4gPj4gKyAqCj4gPj4gKyAqIE9yLCBhbHRlcm5hdGl2ZWx5LAo+
-ID4+ICsgKgo+ID4+ICsgKiAgYikgUGVybWlzc2lvbiBpcyBoZXJlYnkgZ3JhbnRlZCwgZnJlZSBv
-ZiBjaGFyZ2UsIHRvIGFueSBwZXJzb24KPiA+PiArICogICAgIG9idGFpbmluZyBhIGNvcHkgb2Yg
-dGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uCj4gPj4gKyAqICAgICBm
-aWxlcyAodGhlICJTb2Z0d2FyZSIpLCB0byBkZWFsIGluIHRoZSBTb2Z0d2FyZSB3aXRob3V0Cj4g
-Pj4gKyAqICAgICByZXN0cmljdGlvbiwgaW5jbHVkaW5nIHdpdGhvdXQgbGltaXRhdGlvbiB0aGUg
-cmlnaHRzIHRvIHVzZSwKPiA+PiArICogICAgIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gs
-IGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vcgo+ID4+ICsgKiAgICAgc2VsbCBjb3BpZXMg
-b2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8gcGVybWl0IHBlcnNvbnMgdG8gd2hvbSB0aGUKPiA+PiAr
-ICogICAgIFNvZnR3YXJlIGlzIGZ1cm5pc2hlZCB0byBkbyBzbywgc3ViamVjdCB0byB0aGUgZm9s
-bG93aW5nCj4gPj4gKyAqICAgICBjb25kaXRpb25zOgo+ID4+ICsgKgo+ID4+ICsgKiAgICAgVGhl
-IGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwg
-YmUKPiA+PiArICogICAgIGluY2x1ZGVkIGluIGFsbCBjb3BpZXMgb3Igc3Vic3RhbnRpYWwgcG9y
-dGlvbnMgb2YgdGhlIFNvZnR3YXJlLgo+ID4+ICsgKgo+ID4+ICsgKiAgICAgVEhFIFNPRlRXQVJF
-IElTIFBST1ZJREVEICJBUyBJUyIsIFdJVEhPVVQgV0FSUkFOVFkgT0YgQU5ZIEtJTkQsCj4gPj4g
-KyAqICAgICBFWFBSRVNTIE9SIElNUExJRUQsIElOQ0xVRElORyBCVVQgTk9UIExJTUlURUQgVE8g
-VEhFIFdBUlJBTlRJRVMKPiA+PiArICogICAgIE9GIE1FUkNIQU5UQUJJTElUWSwgRklUTkVTUyBG
-T1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5ECj4gPj4gKyAqICAgICBOT05JTkZSSU5HRU1FTlQu
-IElOIE5PIEVWRU5UIFNIQUxMIFRIRSBBVVRIT1JTIE9SIENPUFlSSUdIVAo+ID4+ICsgKiAgICAg
-SE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFNQUdFUyBPUiBPVEhFUiBMSUFCSUxJ
-VFksCj4gPj4gKyAqICAgICBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9SVCBP
-UiBPVEhFUldJU0UsIEFSSVNJTkcKPiA+PiArICogICAgIEZST00sIE9VVCBPRiBPUiBJTiBDT05O
-RUNUSU9OIFdJVEggVEhFIFNPRlRXQVJFIE9SIFRIRSBVU0UgT1IKPiA+PiArICogICAgIE9USEVS
-IERFQUxJTkdTIElOIFRIRSBTT0ZUV0FSRS4KPiA+PiArICovCj4gPj4gKwo+ID4+ICsjaW5jbHVk
-ZSA8ZHQtYmluZGluZ3MvY2xvY2svcmszMzI4LWNydS5oPgo+ID4+ICsjaW5jbHVkZSA8ZHQtYmlu
-ZGluZ3MvZ3Bpby9ncGlvLmg+Cj4gPj4gKyNpbmNsdWRlIDxkdC1iaW5kaW5ncy9pbnRlcnJ1cHQt
-Y29udHJvbGxlci9hcm0tZ2ljLmg+Cj4gPj4gKyNpbmNsdWRlIDxkdC1iaW5kaW5ncy9pbnRlcnJ1
-cHQtY29udHJvbGxlci9pcnEuaD4KPiA+PiArI2luY2x1ZGUgPGR0LWJpbmRpbmdzL3BpbmN0cmwv
-cm9ja2NoaXAuaD4KPiA+PiArI2luY2x1ZGUgPGR0LWJpbmRpbmdzL3NvYy9yb2NrY2hpcCxib290
-LW1vZGUuaD4KPiA+PiArI2luY2x1ZGUgPGR0LWJpbmRpbmdzL3Bvd2VyL3JrMzMyOC1wb3dlci5o
-Pgo+ID4+ICsKPiA+PiArLyB7Cj4gPj4gKwljb21wYXRpYmxlID0gInJvY2tjaGlwLHJrMzMyOCI7
-Cj4gPj4gKwo+ID4+ICsJaW50ZXJydXB0LXBhcmVudCA9IDwmZ2ljPjsKPiA+PiArCSNhZGRyZXNz
-LWNlbGxzID0gPDI+Owo+ID4+ICsJI3NpemUtY2VsbHMgPSA8Mj47Cj4gPj4gKwo+ID4+ICsJYWxp
-YXNlcyB7Cj4gPj4gKwkJc2VyaWFsMCA9ICZ1YXJ0MDsKPiA+PiArCQlzZXJpYWwxID0gJnVhcnQx
-Owo+ID4+ICsJCXNlcmlhbDIgPSAmdWFydDI7Cj4gPj4gKwkJaTJjMCA9ICZpMmMwOwo+ID4+ICsJ
-CWkyYzEgPSAmaTJjMTsKPiA+PiArCQlpMmMyID0gJmkyYzI7Cj4gPj4gKwkJaTJjMyA9ICZpMmMz
-Owo+ID4+ICsJfTsKPiA+PiArCj4gPj4gKwljcHVzIHsKPiA+PiArCQkjYWRkcmVzcy1jZWxscyA9
-IDwyPjsKPiA+IAo+ID4gI2FkZHJlc3MtY2VsbHMgPSA8MT4/IFlvdSBtb3N0IGxpa2VseSBkb24n
-dCBuZWVkIHRoZSAyIGZpZWxkIGNwdSByZWdzPwo+IAo+IFRoaXMgaXMgbGlrZWx5IGNvcHkgZnJv
-bSBqdW5vIGJvYXJkIG9mIGFybSwgYW5kIGkgZmluZCB0aGF0ICNhZGRyZXNzLWNlbGxzID0KPiA8
-MT4gaW4gc29tZSAgYm9hcmRzIGFuZCAgI2FkZHJlc3MtY2VsbHMgPSA8Mj4gaW4gdGhlIG90aGVy
-IGJvYXJkcy4gQWxsIG9mCj4gUk9DS0NISVAgU29jcyBzZXQgICNhZGRyZXNzLWNlbGxzID0gPDI+
-LCBzbyB3ZSBzZXQgI2FkZHJlc3MtY2VsbHMgPSA8Mj4gdG8KPiBrZWVwIGNvbXBhdGliaWxpdHk/
-CgpPaywgYXQgbGVhc3Qgd2UncmUgY29uc2lzdGVudCB0aGVuIDotKQoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5n
-IGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5p
-bmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu 2017-03-23 08:45:58, Peter Rosin wrote:
+> On 2017-03-22 14:05, Andy Shevchenko wrote:
+> > On Wed, 2017-03-22 at 11:23 +0100, Peter Rosin wrote:
+> >> On 2017-03-21 20:13, Andy Shevchenko wrote:
+> >>> In ACPI world any ID should be carefully chosen and registered
+> >>> officially. The commit bbf9d262a147 seems did a wrong assumption
+> >>> because
+> >>> PCA is the registered PNP ID for "PHILIPS BU ADD ON CARD". I'm
+> >>> pretty
+> >>> sure this prefix has nothing to do with the driver in question.
+> >>
+> >> [Cc: leds people, in case they know any details]
+> >>
+> >> Hmmm, a couple of questions about that "pretty sure"...
+> >=20
+> > I didn't neither see the *real* excerpt from DSDT nor hear anything
+> > about official IDs from Phillips.
+> >=20
+> >> Philips and NXP are pretty much just different faces of the same coin,
+> >> IIUC.
+> >=20
+> > Good to know.
+> >=20
+> > While I might be mistaken, I would like to remove a confusion until we
+> > get an official confirmation either in *real* existing product on the
+> > market or letter from Phillips representatives (see above).
+>=20
+> Right, I don't disagree with the revert at all. The IDs were
+> apparently just grabbed and, as you point out, that is not the ACPI
+> way.
+>=20
+> One more question though, the revert (patch 1/2) should probably be
+> queued up for current (4.11) and sent to stable as well (4.10 is the
+> only version affected), but what about patch 2/2? Is that 4.12
+
+Sent to stable? What serious bug it fixes?
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAljTnZMACgkQMOfwapXb+vIgRQCgtdtDCcsOUxgYAFSssoli92R5
+CVYAnA8vusPywXEflw8djgGGgLHPNysh
+=p4dD
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
