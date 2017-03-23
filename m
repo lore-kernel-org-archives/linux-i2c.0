@@ -1,83 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/2] i2c: designware: Never suspend i2c-busses used
- for accessing the system PMIC
-Date: Thu, 23 Mar 2017 21:07:18 +0100
-Message-ID: <20170323200718.jh7ytrbpemfwboll@ninjato>
-References: <20170313222510.466-1-hdegoede@redhat.com>
+Subject: Re: [PATCH V2] i2c: tegra-bpmp: Enable Tegra BPMP I2C adapter
+Date: Thu, 23 Mar 2017 21:10:44 +0100
+Message-ID: <20170323201044.cpvt4ewjxvwsmo67@ninjato>
+References: <1490270216-7234-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7biec5v3pxq73pj6"
+        protocol="application/pgp-signature"; boundary="aylkrus223v636r7"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40819 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:40854 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753755AbdCWUHW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Mar 2017 16:07:22 -0400
+        id S933458AbdCWULT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 23 Mar 2017 16:11:19 -0400
 Content-Disposition: inline
-In-Reply-To: <20170313222510.466-1-hdegoede@redhat.com>
+In-Reply-To: <1490270216-7234-1-git-send-email-jonathanh@nvidia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---7biec5v3pxq73pj6
+--aylkrus223v636r7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 13, 2017 at 11:25:09PM +0100, Hans de Goede wrote:
-> Currently we are already setting a pm_runtime_disabled flag and disabling
-> runtime-pm for i2c-busses used for accessing the system PMIC on x86.
-> But this is not enough, there are ACPI opregions which may want to access
-> the PMIC during late-suspend and early-resume, so we need to completely
-> disable pm to be safe.
+On Thu, Mar 23, 2017 at 11:56:56AM +0000, Jon Hunter wrote:
+> Enable the Tegra BPMP I2C adapter by default if the Tegra BPMP itself
+> is enabled. This adapter is used as the I2C interface for the PMIC on
+> the Tegra186 Jetson-TX2 platform.
 >=20
-> This commit renames the flag from pm_runtime_disabled to pm_disabled and
-> adds the following new behavior if the flag is set:
->=20
-> 1) Call dev_pm_syscore_device(dev, true) which disables normal suspend /
->    resume and remove the pm_runtime_disabled check from dw_i2c_plat_resume
->    since that will now never get called. This fixes suspend_late handlers
->    which use ACPI PMIC opregions causing errors like these:
->=20
->   PM: Suspending system (freeze)
->   PM: suspend of devices complete after 1127.751 msecs
->   i2c_designware 808622C1:06: timeout waiting for bus ready
->   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
->   acpi 80860F14:02: Failed to change power state to D3hot
->   PM: late suspend of devices failed
->=20
-> 2) Set IRQF_NO_SUSPEND irq flag. This fixes resume_early handlers which
->    handlers which use ACPI PMIC opregions causing errors like these:
->=20
->   PM: resume from suspend-to-idle
->   i2c_designware 808622C1:06: controller timed out
->   ACPI Exception: AE_ERROR, Returned by Handler for [UserDefinedRegion]
->=20
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> Acked-by: Thierry Reding <treding@nvidia.com>
 
 Applied to for-next, thanks!
 
 
---7biec5v3pxq73pj6
+--aylkrus223v636r7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUKvIACgkQFA3kzBSg
-Kbb9IBAApUjQJ7mAc8fdyocN6PzD4424sL/K4k6qrQoOOe5IG2ABfkPLHXpASDNU
-IqtYG0uRlKVj66OazyfDb9Up3gNzbe9KgY+dDfSm5X2Vl9DblnShZ3cYoAWzMEaU
-pbswy7do+CSTwJ2iefcTDKcbNxt92LKas4oW34e8w8fxEQIWb44pdQolGFtyTxrX
-ndM2o00LRJsyJ7qAMCToidRvYlKH5JHWkQWJYa9/Bx54af3c9/KLVKQ0kKjG+WVG
-tUo8hEpZa9etrozdKsuSHISH/xNY3NgeJCDGgoXTj/+DlA47myBAmXEzCiIORv+A
-Q97YyhcrANKiSFSM7fkcGH9tFQJ2zPpMuNs6Zb54do4kABXiLGaC0si3thQVnS9Q
-PpDwajQgNbOHvRedVMQHpPIxxzKY/AYyJmSrleFjcQX6nsVLPdkZQIInrjNNFWBY
-8PFy7uL+XxLwjFocBUXR3RH4+9FDufoyqTTqSw6kgFAwNMyC3SN1wFI0KVT7LuGG
-eP38Ey85A2oPZ3HUpLD8S8Yiq5Su6rPKWNpc4AuosNKEQAEYHTf5xlV1lF7I6c4f
-ENlNtTRKXucXmwt359ZS48fElqgFdESPl4T8s3lWEr9wSijfj7jUC5q2FHtcwOAp
-yfLlfYaIRaGzq/F9eFMNUbrJJGuvfGcV4DLcWuH0Pn6fhKrBqeM=
-=D8Hd
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUK8QACgkQFA3kzBSg
+Kbba1hAAh/AVrs8B0P7X0oTqkYIiKHQhL0DlTlax8klcUQpLuUjawB4qSU9Gpt9V
+xB9vW/uLnxUb0sSUdHtXrIVKBewdM0ywpwzt8l54z+J2iODpgtJBbX6oRp8f5S+W
++9mFl3wI+rW5mn25I21wncj2LVd20wj49t7pXzimwLF4rJiZAIXAtdOP9rIq6Ai/
+XQYzlDqM3x0geH8YoaPhiLwRUMwoVKO9C3HtAFpUNbMeENDY/UzZsB/PgUZQq2ge
+UdnrmQY5PaFIvKs/d92L+Zf9HHhQ6lLXISPSOJTzV2L8yD28SQiPBT5/i4LMfhzx
+qpRdgQ4jmXpOjcPfhVPKiGwQnoXasrGiaPiMSgKJ647jkK1XVozcLZOKEvV34b77
+xemI6QmYa5+cbUqkvpl9QEOWzEJiOGs0CZW/ybjsMbNbYXZjznsBU4Tj/hQv5+oY
+0X5m/9bdNZ4GgQRZ1TuVdNVQCFoXhTsNmaIJnrGqy0C4Hsm2ePQj1MNtpUnoxeUQ
+yaMZ7nuvCDxSBiZogW926sNVQmhh5pvCgaisBrfs++XF0nhbwjrE4t/67tGj9iji
+HZTNu5kWIvOWFa8Q5Q6bgKpHXAuVwik2kDRyYxdeZeOVNChTJyqE/LTsefI4IKMq
+ZEt2+e4XhdAxLw2owYbfEoHmBqf90rJdGkq8D9LgHI19346Qj3s=
+=wq2Z
 -----END PGP SIGNATURE-----
 
---7biec5v3pxq73pj6--
+--aylkrus223v636r7--
