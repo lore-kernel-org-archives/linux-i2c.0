@@ -1,25 +1,56 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v3 3/6] dt-bindings: soc: rockchip: grf: add support for rk3328
-Date: Fri, 24 Mar 2017 12:20:49 +0100
-Message-ID: <8689563.pvkZKKbbtE@diego>
-References: <1490353287-25122-1-git-send-email-cl@rock-chips.com> <1490353287-25122-4-git-send-email-cl@rock-chips.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: mux: pca954x: Add missing pca9546 definition to
+ chip_desc
+Date: Fri, 24 Mar 2017 12:21:58 +0100
+Message-ID: <6ad1df75-ceef-9b94-6c66-e6ba569221b4@axentia.se>
+References: <1490259636-16859-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1490353287-25122-4-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1490259636-16859-1-git-send-email-mike.looijmans@topic.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
 
-Am Freitag, 24. März 2017, 19:01:24 CET schrieb cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org:
-> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+On 2017-03-23 10:00, Mike Looijmans wrote:
+> The spec for the pca9546 was missing. This chip is the same as the pca9545
+> except that it lacks interrupt lines. While the i2c_device_id table mapped
+> the pca9546 to the pca9545 definition the compatible table did not.
+
+Ouch, good catch, I have committed this to my i2c-mux for-current branch.
+
+Cheers,
+peda
+
+> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-
-when sending future version of patchseries, please _always_ also append 
-already received tags if a patch didn't undergo major changes.
-
-This one already got:
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index dfc1c0e..69c2f5a 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -117,6 +117,10 @@ struct pca954x {
+>  		.has_irq = 1,
+>  		.muxtype = pca954x_isswi,
+>  	},
+> +	[pca_9546] = {
+> +		.nchans = 4,
+> +		.muxtype = pca954x_isswi,
+> +	},
+>  	[pca_9547] = {
+>  		.nchans = 8,
+>  		.enable = 0x8,
+> @@ -134,7 +138,7 @@ struct pca954x {
+>  	{ "pca9543", pca_9543 },
+>  	{ "pca9544", pca_9544 },
+>  	{ "pca9545", pca_9545 },
+> -	{ "pca9546", pca_9545 },
+> +	{ "pca9546", pca_9546 },
+>  	{ "pca9547", pca_9547 },
+>  	{ "pca9548", pca_9548 },
+>  	{ }
+> 
