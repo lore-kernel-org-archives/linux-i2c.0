@@ -1,80 +1,42 @@
 From: Rob Herring <robh@kernel.org>
 Subject: Re: [PATCH v5] hwmon: ads7828 optional parameters from the device
  tree
-Date: Fri, 24 Mar 2017 11:12:58 -0500
-Message-ID: <20170324161258.m5wech6u6g7ezx7d@rob-hp-laptop>
+Date: Fri, 24 Mar 2017 11:10:03 -0500
+Message-ID: <20170324161003.hv2bqpyspjdkx5j4@rob-hp-laptop>
 References: <20170321032434.9268-1-kernel.development@povil.us>
+ <20170322084240.xspj432z2mpyzykq@ninjato>
+ <20170322130555.wgwrkeju43dvj232@irascible.povil.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-hwmon-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:34595 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935710AbdCXQLC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2017 12:11:02 -0400
 Content-Disposition: inline
-In-Reply-To: <20170321032434.9268-1-kernel.development@povil.us>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Sam Povilus <kernel.development@povil.us>
-Cc: wsa@the-dreams.de, jdelvare@suse.com, linux@roeck-us.net, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com
+In-Reply-To: <20170322130555.wgwrkeju43dvj232@irascible.povil.us>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sam Povilus <kernel.development@povil.us>
+Cc: Wolfram Sang <wsa@the-dreams.de>, jdelvare@suse.com, linux@roeck-us.net, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com
 
-On Mon, Mar 20, 2017 at 09:24:34PM -0600, Sam Povilus wrote:
-> Adding the ability for the ads7828 and ads7830 to use the device tree to
-> get their optional parameters, instead of using platform devices. This
-> allows people using custom boards to also use the ads7828 in a non-default
-> manner.
+On Wed, Mar 22, 2017 at 07:05:55AM -0600, Sam Povilus wrote:
+> On Wed, Mar 22, 2017 at 09:42:40AM +0100, Wolfram Sang wrote:
+> > 
+> > >  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
+> > 
+> > This file is about to get moved one directory up:
+> > 
+> > https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git/commit/?h=dt/next&id=b7e252fcddfa573bb1ee275b53bba6cef85671d4
+> > 
+> > Just so you know already...
+> > 
 > 
-> v2: conforming to coding style
-> v3: changing from "_" to "-" for device tree entries
-> v4: using regulator subsystem for voltage source, renaming differential
->     input property
-> v5: checking for invalid vref values sooner and returning error if they are
->     bad, not warning user.
-> 
-> Signed-off-by: Sam Povilus <kernel.development@povil.us>
-> ---
->  .../devicetree/bindings/hwmon/ads7828.txt          | 26 ++++++++++++++++++++++
->  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
->  drivers/hwmon/ads7828.c                            | 21 +++++++++++++++++
->  3 files changed, 47 insertions(+), 2 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
-> new file mode 100644
-> index 000000000000..5a0c4a7c6144
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
-> @@ -0,0 +1,26 @@
-> +ads7828 properties
-> +
-> +Required properties:
-> +- compatible: Should be one of
-> +	       ti,ads7828
-> +	       ti,ads7830
-> +- reg: I2C address
-> +
-> +Optional properties:
-> +
-> +- ti,differential-input
-> +  Set to use the device in differential mode.
-> +- vref
+> Thanks! I'm a bit new to this, what's the best way for me to handle
+> this? Submit against Linus' tree (presumably making a merge nightmare
+> for someone) or rebase my branch off robh's (and presumably risking some
+> other branch's patch conflicting)?
 
-What does this point to?
+Send me a separate patch for just this file and I'll pick it up.
 
-Should be vref-supply?
-
-> +  The external reference on the device is set to this regulators output. If it
-> +  does not exists the internal reference will be used and output by the ads78xx
-> +  on the "external vref" pin.
-> +
-> +  Example ADS7828 node:
-> +
-> +  ads7828: ads@48 {
-
-adc@...
-
-> +  	   comatible = "ti,ads7828";
-> +	   reg = <0x48>;
-> +	   vref = <&vref>;
-
-Add a vref node to the example.
-
-> +	   ti,differential-input;
-> +  };
-> +
+Rob
