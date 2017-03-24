@@ -1,63 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
- via ACPI
-Date: Thu, 23 Mar 2017 22:00:48 +0100
-Message-ID: <20170323210048.c45uiolhdpgqfk5o@ninjato>
-References: <1487051641-31927-1-git-send-email-chin.yew.tan@intel.com>
- <1487051641-31927-2-git-send-email-chin.yew.tan@intel.com>
- <20170323205825.w26jcbv6gz7wu6zg@ninjato>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 1/6] dt-bindings: iio: rockchip-saradc: add support
+ for rk3328
+Date: Thu, 23 Mar 2017 21:13:50 -0500
+Message-ID: <20170324021350.ije6w42ihlpdvi2c@rob-hp-laptop>
+References: <1489670244-13328-1-git-send-email-cl@rock-chips.com>
+ <1489670244-13328-2-git-send-email-cl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="aund36unu4kzkp5d"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:41133 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756113AbdCWVLv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 23 Mar 2017 17:11:51 -0400
-Content-Disposition: inline
-In-Reply-To: <20170323205825.w26jcbv6gz7wu6zg@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: chin.yew.tan@intel.com
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org
-
-
---aund36unu4kzkp5d
 Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1489670244-13328-2-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Mar 16, 2017 at 09:17:19PM +0800, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org wrote:
+> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> 
+> The rk3328 saradc is the same as rk3399.
+> 
+> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/iio/adc/rockchip-saradc.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-> This describes why you change NULL to dev->sda_hold_time. But it doesn't
-> say why you introduce the switch-block instead of populating all fields
-> like it was done before.
->=20
-> Furthermore, since now there is no NULL case for dw_i2c_acpi_params()
-> anymore, we can remove NULL handling in that function, or?
-
-And since designware driver had a few changes meanwhile, can you base
-the next version on top of i2c/for-next?
-
-
-
---aund36unu4kzkp5d
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljUN4AACgkQFA3kzBSg
-KbZK8w/+OL998xLpm8mspbD+Wh/iYkSJjyUkKb65BE/yiOcH0QHXbyinua1FZInw
-y9Zl0+6Mp9IJ0fcADBjvLwIh8+QleXj9gKKNFExjUY3EBEKLsKfdRa8eBt8yPWXj
-1ogJBjqv0Za9wypy+H77QZlKCj/8apuT/6rdxvbhLjhS7+0VIWCo2c5JkLplWyaG
-GbsrgpEm5afT84C7EmP3R6a/Qf0MCX1BnKTRyUbZl5O5vvTP4CEMhMiJblahUZXp
-p+lrxQEt279dVDzaw18bUJ1/mY+AgcPBT3SxuzKxZ7kELFC3IPjAEO0STiNl0pq+
-uozOWjZfUJljoQhfskg2tWQuuSazotVjwPjzIDuonUifnMM80BD/sYENzdtlZ+41
-0bgBHFR5nEZhdUYC5BfZ3EOLBEfxE6qn9/RX9ke0AAyU1rCHbgYcJyLs8dTdDaRx
-e4dy5jivQOQtTnS3KAmnaKdkWpV+AsKA2p7oqSv6lIHFFu0fdYux6X0LP1aeochZ
-WSlYQh3P7YlRZ5NVI+Bs4uAtb4R2KsNk55QHRz0Gs2RbAMsuszz62hdK48Kn9akN
-11zabNy4Zl8uNdwVkElg7vKmaZ7v+d94LMcZuQNLQcAxpQ9XF5T2Hgx30pNyxd1k
-vEJEX7kGBaBXlTauBfOFPKKmKBoYYmq2AGU1TRwTmlfo5KBu49w=
-=aXxU
------END PGP SIGNATURE-----
-
---aund36unu4kzkp5d--
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
