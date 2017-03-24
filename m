@@ -1,40 +1,49 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v3 6/6] dt-bindings: document rockchip rk3328-evb board
-Date: Fri, 24 Mar 2017 12:21:53 +0100
-Message-ID: <5424547.dpJZWSQO2g@diego>
-References: <1490353287-25122-1-git-send-email-cl@rock-chips.com>
- <1490353460-25231-1-git-send-email-cl@rock-chips.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PULL REQUEST] i2c-mux for 4.11
+Date: Fri, 24 Mar 2017 12:31:13 +0100
+Message-ID: <8b90ffb8-e404-2bbf-ba42-5cd244ca3797@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1490353460-25231-1-git-send-email-cl@rock-chips.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: cl@rock-chips.com
-Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-iio@vger.kernel.org, catalin.marinas@arm.com, shawn.lin@rock-chips.com, will.deacon@arm.com, kever.yang@rock-chips.com, dianders@chromium.org, yamada.masahiro@socionext.com, tony.xie@rock-chips.com, linux-i2c@vger.kernel.org, pmeerw@pmeerw.net, lars@metafoo.de, zhengxing@rock-chips.com, khilman@baylibre.com, linux-rockchip@lists.infradead.org, jay.xu@rock-chips.com, wxt@rock-chips.com, huangtao@rock-chips.com, devicetree@vger.kernel.org, zhangqing@rock-chips.com, paweljarosz3691@gmail.com, arnd@arndb.de, yhx@rock-chips.com, knaack.h@gmx.de, robh+dt@kernel.org, matthias.bgg@gmail.com, rocky.hao@rock-chips.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, david.wu@rock-chips.com, fabio.estevam@nxp.com, andy.yan@rock-chips.com, akpm@linux-foundation.org, shawnguo@kernel.org, afaerber@suse.de, jic23@kernel
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr00102.outbound.protection.outlook.com ([40.107.0.102]:51392
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1756100AbdCXLbV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Mar 2017 07:31:21 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Am Freitag, 24. M=E4rz 2017, 19:04:20 CET schrieb cl@rock-chips.com:
-> From: Liang Chen <cl@rock-chips.com>
-> =
+Hi Wolfram,
 
-> Use "rockchip,rk3328-evb" compatible string for Rockchip RK3328
-> evaluation board.
-> =
+Here are some changes for the pca954x driver. It's a revert of the
+un-endorsed ACPI support and a fixup in the handling of PCA9546.
 
-> Signed-off-by: Liang Chen <cl@rock-chips.com>
+Please pull.
 
-when sending future version of patchseries, please _always_ also append =
+Cheers,
+peda
 
-already received tags if a patch didn't undergo major changes.
+The following changes since commit 4495c08e84729385774601b5146d51d9e5849f81:
 
-This one already got:
-Acked-by: Rob Herring <robh@kernel.org>
+  Linux 4.11-rc2 (2017-03-12 14:47:08 -0700)
+
+are available in the git repository at:
+
+  https://github.com/peda-r/i2c-mux.git i2c-mux/for-current
+
+for you to fetch changes up to dbe4d69d252e9e65c6c46826980b77b11a142065:
+
+  i2c: mux: pca954x: Add missing pca9546 definition to chip_desc (2017-03-24 12:22:18 +0100)
+
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      Revert "i2c: mux: pca954x: Add ACPI support for pca954x"
+
+Mike Looijmans (1):
+      i2c: mux: pca954x: Add missing pca9546 definition to chip_desc
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 34 ++++++----------------------------
+ 1 file changed, 6 insertions(+), 28 deletions(-)
