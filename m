@@ -1,80 +1,80 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C
- bindings
-Date: Fri, 24 Mar 2017 08:46:15 -0500
-Message-ID: <20170324134615.o3vpwgmisrpkwswj@rob-hp-laptop>
-References: <1489744738-21632-1-git-send-email-cedric.madianga@gmail.com>
- <1489744738-21632-2-git-send-email-cedric.madianga@gmail.com>
+Subject: Re: [PATCH v5] hwmon: ads7828 optional parameters from the device
+ tree
+Date: Fri, 24 Mar 2017 11:12:58 -0500
+Message-ID: <20170324161258.m5wech6u6g7ezx7d@rob-hp-laptop>
+References: <20170321032434.9268-1-kernel.development@povil.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f196.google.com ([74.125.82.196]:34590 "EHLO
-        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751616AbdCXNqS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2017 09:46:18 -0400
+Return-path: <linux-hwmon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1489744738-21632-2-git-send-email-cedric.madianga@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170321032434.9268-1-kernel.development@povil.us>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Sam Povilus <kernel.development@povil.us>
+Cc: wsa@the-dreams.de, jdelvare@suse.com, linux@roeck-us.net, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, mark.rutland@arm.com
 List-Id: linux-i2c@vger.kernel.org
-To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Cc: wsa@the-dreams.de, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linus.walleij@linaro.org, pierre-yves.mordret@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2017 at 10:58:54AM +0100, M'boumba Cedric Madianga wrote:
-> This patch adds the documentation of device tree bindings for STM32F7 I2C
+On Mon, Mar 20, 2017 at 09:24:34PM -0600, Sam Povilus wrote:
+> Adding the ability for the ads7828 and ads7830 to use the device tree to
+> get their optional parameters, instead of using platform devices. This
+> allows people using custom boards to also use the ads7828 in a non-default
+> manner.
 > 
-> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> v2: conforming to coding style
+> v3: changing from "_" to "-" for device tree entries
+> v4: using regulator subsystem for voltage source, renaming differential
+>     input property
+> v5: checking for invalid vref values sooner and returning error if they are
+>     bad, not warning user.
+> 
+> Signed-off-by: Sam Povilus <kernel.development@povil.us>
 > ---
->  .../devicetree/bindings/i2c/i2c-stm32.txt          | 22 +++++++++++++++++++---
->  1 file changed, 19 insertions(+), 3 deletions(-)
+>  .../devicetree/bindings/hwmon/ads7828.txt          | 26 ++++++++++++++++++++++
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |  2 --
+>  drivers/hwmon/ads7828.c                            | 21 +++++++++++++++++
+>  3 files changed, 47 insertions(+), 2 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> index 78eaf7b..8288724 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> @@ -1,7 +1,9 @@
->  * I2C controller embedded in STMicroelectronics STM32 I2C platform
->  
->  Required properties :
-> -- compatible : Must be "st,stm32f4-i2c"
-> +- compatible : Must be one of the following
-> +  - "st,stm32f4-i2c"
-> +  - "st,stm32f7-i2c"
->  - reg : Offset and length of the register set for the device
->  - interrupts : Must contain the interrupt id for I2C event and then the
->    interrupt id for I2C error.
-> @@ -14,8 +16,22 @@ Required properties :
->  
->  Optional properties :
->  - clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
-> -  the default 100 kHz frequency will be used. As only Normal and Fast modes
-> -  are supported, possible values are 100000 and 400000.
-> +  the default 100 kHz frequency will be used.
-> +  For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
-> +  100000 and 400000.
-> +  For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
-> +  possible values are 100000, 400000 and 1000000.
-> +- st,i2c-timing : A 32-bit I2C timing refister value.
+> diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+> new file mode 100644
+> index 000000000000..5a0c4a7c6144
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+> @@ -0,0 +1,26 @@
+> +ads7828 properties
+> +
+> +Required properties:
+> +- compatible: Should be one of
+> +	       ti,ads7828
+> +	       ti,ads7830
+> +- reg: I2C address
+> +
+> +Optional properties:
+> +
+> +- ti,differential-input
+> +  Set to use the device in differential mode.
+> +- vref
 
-s/refister/register/
+What does this point to?
 
-With that,
+Should be vref-supply?
 
-Acked-by: Rob Herring <robh@kernel.org>
+> +  The external reference on the device is set to this regulators output. If it
+> +  does not exists the internal reference will be used and output by the ads78xx
+> +  on the "external vref" pin.
+> +
+> +  Example ADS7828 node:
+> +
+> +  ads7828: ads@48 {
 
+adc@...
 
-> +  This value is only required for "st,stm32f7-i2c".
-> +  A specific external tool delivered by ST is used to compute the value to be
-> +  set here according to i2C speed frequency, i2c clock source frequency,
-> +  i2c rise time and i2c fall time inputs.
-> +  - bit 31:28: PRESC[3:0]: Timing prescaler
-> +  - bit 27:24: Reserved
-> +  - bit 23:20: SCLDEL[3:0]: Data setup time
-> +  - bit 19:16: SDADEL[3:0]: Data hold time
-> +  - bit 15:8:  SCLH[7:0]: SCL high period
-> +  - bit 7:0:   SCLL[7:0]: SCL low period
->  
->  Example :
->  
-> -- 
-> 1.9.1
-> 
+> +  	   comatible = "ti,ads7828";
+> +	   reg = <0x48>;
+> +	   vref = <&vref>;
+
+Add a vref node to the example.
+
+> +	   ti,differential-input;
+> +  };
+> +
