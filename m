@@ -1,85 +1,58 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i2c-scmi: add a MS HID
-Date: Fri, 24 Mar 2017 10:16:05 +0100
-Message-ID: <20170324101605.7a2c8893@endymion>
-References: <1489154315-26499-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH] i2c: tegra-bpmp: Enable Tegra BPMP I2C adapter
+Date: Fri, 24 Mar 2017 09:30:08 +0000
+Message-ID: <245d5500-5a99-cb76-f72d-16e2ebf3d415@nvidia.com>
+References: <1489580410-9541-1-git-send-email-jonathanh@nvidia.com>
+ <20170320140503.GA28203@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51477 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934874AbdCXJQJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Mar 2017 05:16:09 -0400
-In-Reply-To: <1489154315-26499-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:16169 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751499AbdCXJaO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Mar 2017 05:30:14 -0400
+In-Reply-To: <20170320140503.GA28203@ulmo.ba.sec>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, Edgar Cherkasov <echerkasov@dev.rtsoft.ru>, Michael Brunner <Michael.Brunner@kontron.com>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 10 Mar 2017 16:58:35 +0300, Viktor Krasnov wrote:
-> From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
-> 
-> Description of the problem:
->  - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
->  - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
->    Interface Specification, version 1.0": "Each device must specify 
->    'SMBUS01' as its _HID and use a unique _UID value";
->  - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
->    and implement "SMB0001" HID instead of "SMBUS01";
->  - I speculate that they do this because only "SMB0001" is hard coded in
->    Windows SMBus driver produced by Microsoft.
-> 
-> This leads to following situation:
->  - SMBus works out of box in Windows but not in Linux;
->  - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
->    SMBus work in Linux. Moreover the same board vendors complain that
->    tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
->    and produce errors.  So they need to constantly patch the compiler for 
->    each new version of BIOS.
-> 
-> As it is very unlikely that BIOS vendors implement a correct HID in
-> future, I would propose to consider whether it is possible to work around
-> the problem by adding MS HID to the Linux i2c-scmi driver.
-> 
-> Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
-> Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
-> Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
-> ---
->  drivers/i2c/busses/i2c-scmi.c | 1 +
->  include/acpi/acpi_drivers.h   | 2 ++
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
-> index dfc98df..fb9aee0 100644
-> --- a/drivers/i2c/busses/i2c-scmi.c
-> +++ b/drivers/i2c/busses/i2c-scmi.c
-> @@ -51,6 +51,7 @@ struct acpi_smbus_cmi {
->  static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
->  	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
->  	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
-> +	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
->  	{"", 0}
->  };
->  MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
-> diff --git a/include/acpi/acpi_drivers.h b/include/acpi/acpi_drivers.h
-> index 29c6912..d34538b 100644
-> --- a/include/acpi/acpi_drivers.h
-> +++ b/include/acpi/acpi_drivers.h
-> @@ -60,6 +60,8 @@
->  #define ACPI_DOCK_HID			"LNXDOCK"
->  /* Quirk for broken IBM BIOSes */
->  #define ACPI_SMBUS_IBM_HID		"SMBUSIBM"
-> +/* SMBUS HID definition as supported by Microsoft Windows */
-> +#define ACPI_SMBUS_MS_HID		"SMB0001"
->  
->  /*
->   * For fixed hardware buttons, we fabricate acpi_devices with HID
 
-No objection from me.
+On 20/03/17 14:05, Thierry Reding wrote:
+> * PGP Signed by an unknown key
+> 
+> On Wed, Mar 15, 2017 at 12:20:10PM +0000, Jon Hunter wrote:
+>> Enable the Tegra BPMP I2C adapter by default if the Tegra BPMP itself
+>> is enabled. This adapter is used as the I2C interface for the PMIC on
+>> the Tegra186 Jetson-TX2 platform.
+>>
+>> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+>> ---
+>>  drivers/i2c/busses/Kconfig | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 8adc0f1d7ad0..9e024ae8a067 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -933,6 +933,7 @@ config I2C_TEGRA
+>>  config I2C_TEGRA_BPMP
+>>  	tristate "NVIDIA Tegra BPMP I2C controller"
+>>  	depends on TEGRA_BPMP
+>> +	default y if TEGRA_BPMP
+> 
+> I think "if TEGRA_BPMP" in the line above implies "depends on
+> TEGRA_BPMP", so it's redundant. "default y" should be equivalent. That
+> said, I'm not sure if we really want to always enable this. There could
+> be boards with a BPMP that don't use the I2C controller.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Initially, I had thought about putting a select for this under the
+ARCH_TEGRA_186_SOC in drivers/soc/tegra/Kconfig. We could always do that
+in the future if it turns out the BPMP does not have i2c on newer chips.
+
+Cheers
+Jon
 
 -- 
-Jean Delvare
-SUSE L3 Support
+nvpublic
