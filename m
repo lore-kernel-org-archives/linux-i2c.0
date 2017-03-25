@@ -1,90 +1,79 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v5 07/10] i2c: meson: improve interrupt handler and detect
- spurious interrupts
-Date: Sat, 25 Mar 2017 14:10:08 +0100
-Message-ID: <3248cfbd-a6be-06ac-47be-d7f3e8239996@gmail.com>
+Subject: [PATCH v5 01/10] i2c: meson: use min instead of min_t where min_t
+ isn't needed
+Date: Sat, 25 Mar 2017 13:58:30 +0100
+Message-ID: <acf95b3b-b7a9-9235-7987-93ab918648e6@gmail.com>
 References: <645519b8-93e6-57b1-ae8f-7804c6beb9b1@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:36083 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750718AbdCYNOn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 25 Mar 2017 09:14:43 -0400
-Received: by mail-wm0-f66.google.com with SMTP id x124so2846407wmf.3
-        for <linux-i2c@vger.kernel.org>; Sat, 25 Mar 2017 06:14:41 -0700 (PDT)
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:32971 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750718AbdCYNOe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 25 Mar 2017 09:14:34 -0400
+Received: by mail-wr0-f194.google.com with SMTP id 20so2150744wrx.0
+        for <linux-i2c@vger.kernel.org>; Sat, 25 Mar 2017 06:14:33 -0700 (PDT)
 In-Reply-To: <645519b8-93e6-57b1-ae8f-7804c6beb9b1@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jerome Brunet <jbrunet@baylibre.com>, Kevin Hilman <khilman@baylibre.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-amlogic@lists.infradead.org
 
-If state is STATE_IDLE no interrupt should occur. Return IRQ_NONE
-if such a spurious interrupt is detected.
-Not having to take care of STATE_IDLE later in the interrupt handler
-allows to further simplify the interrupt handler in subsequent
-patches of this series.
-
-In addition move resetting REG_CTRL_START bit to the start of the
-interrupt handler to ensure that the start bit is always reset.
-Currently the start bit is not reset for STATE_STOP because
-i2c->state is set to STATE_IDLE.
+Use min instead of min_t where min_t isn't needed.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
-- don't print an error if spurious interrupt is detected
+- no changes
 v3:
-- don't remove a start bit reset, we need it to properly handle timeouts
-- extend commit message
+- no changes
 v4:
 - no changes
 v5:
 - no changes
 ---
- drivers/i2c/busses/i2c-meson.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-meson.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index f7d3fa32..081d5b0c 100644
+index 73b97c71..40e5da9a 100644
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -231,12 +231,18 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
- 	spin_lock(&i2c->lock);
+@@ -156,10 +156,10 @@ static void meson_i2c_get_data(struct meson_i2c *i2c, char *buf, int len)
+ 	dev_dbg(i2c->dev, "%s: data %08x %08x len %d\n", __func__,
+ 		rdata0, rdata1, len);
  
- 	meson_i2c_reset_tokens(i2c);
-+	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
- 	ctrl = readl(i2c->regs + REG_CTRL);
+-	for (i = 0; i < min_t(int, 4, len); i++)
++	for (i = 0; i < min(4, len); i++)
+ 		*buf++ = (rdata0 >> i * 8) & 0xff;
  
- 	dev_dbg(i2c->dev, "irq: state %d, pos %d, count %d, ctrl %08x\n",
- 		i2c->state, i2c->pos, i2c->count, ctrl);
+-	for (i = 4; i < min_t(int, 8, len); i++)
++	for (i = 4; i < min(8, len); i++)
+ 		*buf++ = (rdata1 >> (i - 4) * 8) & 0xff;
+ }
  
--	if (ctrl & REG_CTRL_ERROR && i2c->state != STATE_IDLE) {
-+	if (i2c->state == STATE_IDLE) {
-+		spin_unlock(&i2c->lock);
-+		return IRQ_NONE;
-+	}
-+
-+	if (ctrl & REG_CTRL_ERROR) {
- 		/*
- 		 * The bit is set when the IGNORE_NAK bit is cleared
- 		 * and the device didn't respond. In this case, the
-@@ -279,15 +285,12 @@ static irqreturn_t meson_i2c_irq(int irqno, void *dev_id)
- 		i2c->state = STATE_IDLE;
- 		complete(&i2c->done);
- 		break;
--	case STATE_IDLE:
--		break;
- 	}
+@@ -168,10 +168,10 @@ static void meson_i2c_put_data(struct meson_i2c *i2c, char *buf, int len)
+ 	u32 wdata0 = 0, wdata1 = 0;
+ 	int i;
  
- out:
- 	if (i2c->state != STATE_IDLE) {
- 		/* Restart the processing */
- 		meson_i2c_write_tokens(i2c);
--		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START, 0);
- 		meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_START,
- 				   REG_CTRL_START);
- 	}
+-	for (i = 0; i < min_t(int, 4, len); i++)
++	for (i = 0; i < min(4, len); i++)
+ 		wdata0 |= *buf++ << (i * 8);
+ 
+-	for (i = 4; i < min_t(int, 8, len); i++)
++	for (i = 4; i < min(8, len); i++)
+ 		wdata1 |= *buf++ << ((i - 4) * 8);
+ 
+ 	writel(wdata0, i2c->regs + REG_TOK_WDATA0);
+@@ -186,7 +186,7 @@ static void meson_i2c_prepare_xfer(struct meson_i2c *i2c)
+ 	bool write = !(i2c->msg->flags & I2C_M_RD);
+ 	int i;
+ 
+-	i2c->count = min_t(int, i2c->msg->len - i2c->pos, 8);
++	i2c->count = min(i2c->msg->len - i2c->pos, 8);
+ 
+ 	for (i = 0; i < i2c->count - 1; i++)
+ 		meson_i2c_add_token(i2c, TOKEN_DATA);
 -- 
 2.12.0
