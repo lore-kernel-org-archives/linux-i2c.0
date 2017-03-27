@@ -1,50 +1,141 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: [PATCH v11 12/12] mux: core: fix error handling in devm_mux_chip_alloc
-Date: Mon, 27 Mar 2017 14:17:49 +0200
-Message-ID: <1490617069-13119-13-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v11 04/12] iio: inkern: api for manipulating ext_info of iio channels
+Date: Mon, 27 Mar 2017 14:17:41 +0200
+Message-ID: <1490617069-13119-5-git-send-email-peda@axentia.se>
 References: <1490617069-13119-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1490617069-13119-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1490617069-13119-1-git-send-email-peda@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The error handling is mixed up. mux_chip_alloc() doesn't return an error
-pointer (just NULL on failure), so check for NULL instead of using IS_ERR.
-devm_mux_chip_alloc is documented to return NULL on failure, so fix that
-as well.
+Extend the inkern api with functions for reading and writing ext_info
+of iio channels.
 
-All users of devm_mux_chip_alloc() are coded according to documentation.
-
-Fixes: d47598cc669b ("mux: minimal mux subsystem and gpio-based mux controller")
-Reported-by: Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/mux/mux-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
+ 2 files changed, 97 insertions(+)
 
-diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
-index 900b88526f97..66a8bccfc3d7 100644
---- a/drivers/mux/mux-core.c
-+++ b/drivers/mux/mux-core.c
-@@ -166,12 +166,12 @@ struct mux_chip *devm_mux_chip_alloc(struct device *dev,
- 
- 	ptr = devres_alloc(devm_mux_chip_release, sizeof(*ptr), GFP_KERNEL);
- 	if (!ptr)
--		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index 7a13535dc3e9..8292ad4435ea 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -869,3 +869,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(iio_write_channel_raw);
++
++unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++	unsigned int i = 0;
++
++	if (!chan->channel->ext_info)
++		return i;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
++		++i;
++
++	return i;
++}
++EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
++
++static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
++						const struct iio_channel *chan,
++						const char *attr)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	if (!chan->channel->ext_info)
 +		return NULL;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (!strcmp(attr, ext_info->name))
++			return ext_info;
++	}
++
++	return NULL;
++}
++
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	ext_info = iio_lookup_ext_info(chan, attr);
++	if (!ext_info)
++		return -EINVAL;
++
++	return ext_info->read(chan->indio_dev, ext_info->private,
++			      chan->channel, buf);
++}
++EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
++
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	ext_info = iio_lookup_ext_info(chan, attr);
++	if (!ext_info)
++		return -EINVAL;
++
++	return ext_info->write(chan->indio_dev, ext_info->private,
++			       chan->channel, buf, len);
++}
++EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
+diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
+index 47eeec3218b5..5e347a9805fd 100644
+--- a/include/linux/iio/consumer.h
++++ b/include/linux/iio/consumer.h
+@@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
+ int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
+ 	int *processed, unsigned int scale);
  
- 	mux_chip = mux_chip_alloc(dev, controllers, sizeof_priv);
--	if (IS_ERR(mux_chip)) {
-+	if (!mux_chip) {
- 		devres_free(ptr);
--		return mux_chip;
-+		return NULL;
- 	}
- 
- 	*ptr = mux_chip;
++/**
++ * iio_get_channel_ext_info_count() - get number of ext_info attributes
++ *				      connected to the channel.
++ * @chan:		The channel being queried
++ *
++ * Returns the number of ext_info attributes
++ */
++unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
++
++/**
++ * iio_read_channel_ext_info() - read ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		Where to store the attribute value. Assumed to hold
++ *			at least PAGE_SIZE bytes.
++ *
++ * Returns the number of bytes written to buf (perhaps w/o zero termination;
++ * it need not even be a string), or an error code.
++ */
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf);
++
++/**
++ * iio_write_channel_ext_info() - write ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		The new attribute value. Strings needs to be zero-
++ *			terminated, but the terminator should not be included
++ *			in the below len.
++ * @len:		The size of the new attribute value.
++ *
++ * Returns the number of accepted bytes, which should be the same as len.
++ * An error code can also be returned.
++ */
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len);
++
+ #endif
 -- 
 2.1.4
+
