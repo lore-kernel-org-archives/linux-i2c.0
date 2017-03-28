@@ -1,170 +1,76 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: [PATCH 1/2] i2c: xgene-slimpro: Use a single function to send command message
-Date: Tue, 28 Mar 2017 13:46:16 -0700
-Message-ID: <1490733977-23760-2-git-send-email-hotran@apm.com>
-References: <1490733977-23760-1-git-send-email-hotran@apm.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f49.google.com ([74.125.83.49]:36656 "EHLO
-        mail-pg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755918AbdC1Uqv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Mar 2017 16:46:51 -0400
-Received: by mail-pg0-f49.google.com with SMTP id g2so82748751pge.3
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Mar 2017 13:46:50 -0700 (PDT)
-In-Reply-To: <1490733977-23760-1-git-send-email-hotran@apm.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller
+ for Aspeed
+Date: Wed, 29 Mar 2017 07:50:16 +1100
+Message-ID: <1490734216.3177.140.camel@kernel.crashing.org>
+References: <20170328051226.21677-1-brendanhiggins@google.com>
+         <20170328051226.21677-3-brendanhiggins@google.com>
+         <49a13bbc-aec3-a349-4323-3c8d2728c62f@arm.com>
+         <1490692375.3177.119.camel@kernel.crashing.org>
+         <91936f1a-0a0d-4091-b981-976503a6f7cd@arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <91936f1a-0a0d-4091-b981-976503a6f7cd-5wv7dgnIgG8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marc Zyngier <marc.zyngier-5wv7dgnIgG8@public.gmane.org>, Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>, Hoan Tran <hotran@apm.com>
 
-This patch refactors the code to use a single message function to
-send command message.
+On Tue, 2017-03-28 at 10:40 +0100, Marc Zyngier wrote:
+> On 28/03/17 10:12, Benjamin Herrenschmidt wrote:
+> > On Tue, 2017-03-28 at 09:32 +0100, Marc Zyngier wrote:
+> > > I'm a bit concerned by this. It means that you can't even mask an
+> > > interrupt. Is that really what you intend to do? Or all that the HW can
+> > > do? If you cannot mask an interrupt, you're at the mercy of a screaming
+> > > device...
+> > 
+> > This is not really an interrupt controller. It's a "summary" register
+> > that reflects the state of the 14 i2c controller interrupts.
+> > 
+> > This approach does have the advantage of providing separate counters in
+> > /proc/interrupts which is rather nice, but it does have overhead. On
+> > those shittly little ARMv9 400Mhz cores it can be significant.
+> 
+> <pedantic>
+> s/ARMv9/ARM9/, as we're still on variations of the ARMv8 architecture ;-)
+> </pedantic>
 
-Signed-off-by: Hoan Tran <hotran@apm.com>
----
- drivers/i2c/busses/i2c-xgene-slimpro.c | 67 +++++++++++++---------------------
- 1 file changed, 26 insertions(+), 41 deletions(-)
+It was a typo, I meant ARM9/ARMv5 :-)
 
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index dbe7e44..96545aa 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -144,49 +144,52 @@ static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
- 	return 0;
- }
+The 2 SOC families we are talking about (Aspeed 24xx and 25xx) are
+based on a ARM926EJ at 400Mhz and an ARM1176JZFS at 800Mhz
+respectively, so cycles do count :-)
  
--static int slimpro_i2c_rd(struct slimpro_i2c_dev *ctx, u32 chip,
--			  u32 addr, u32 addrlen, u32 protocol,
--			  u32 readlen, u32 *data)
-+static int slimpro_i2c_send_msg(struct slimpro_i2c_dev *ctx,
-+				u32 *msg,
-+				u32 *data)
- {
--	u32 msg[3];
- 	int rc;
- 
--	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
--					SLIMPRO_IIC_READ, protocol, addrlen, readlen);
--	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
--	msg[2] = 0;
- 	ctx->resp_msg = data;
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
-+
-+	rc = mbox_send_message(ctx->mbox_chan, msg);
- 	if (rc < 0)
- 		goto err;
- 
- 	rc = start_i2c_msg_xfer(ctx);
-+
- err:
- 	ctx->resp_msg = NULL;
-+
- 	return rc;
- }
- 
-+static int slimpro_i2c_rd(struct slimpro_i2c_dev *ctx, u32 chip,
-+			  u32 addr, u32 addrlen, u32 protocol,
-+			  u32 readlen, u32 *data)
-+{
-+	u32 msg[3];
-+
-+	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
-+					SLIMPRO_IIC_READ, protocol, addrlen, readlen);
-+	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
-+	msg[2] = 0;
-+
-+	return slimpro_i2c_send_msg(ctx, msg, data);
-+}
-+
- static int slimpro_i2c_wr(struct slimpro_i2c_dev *ctx, u32 chip,
- 			  u32 addr, u32 addrlen, u32 protocol, u32 writelen,
- 			  u32 data)
- {
- 	u32 msg[3];
--	int rc;
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
- 					SLIMPRO_IIC_WRITE, protocol, addrlen, writelen);
- 	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = data;
--	ctx->resp_msg = msg;
--
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err;
- 
--	rc = start_i2c_msg_xfer(ctx);
--err:
--	ctx->resp_msg = NULL;
--	return rc;
-+	return slimpro_i2c_send_msg(ctx, msg, msg);
- }
- 
- static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
-@@ -201,8 +204,7 @@ static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
- 	if (dma_mapping_error(ctx->dev, paddr)) {
- 		dev_err(&ctx->adapter.dev, "Error in mapping dma buffer %p\n",
- 			ctx->dma_buffer);
--		rc = -ENOMEM;
--		goto err;
-+		return -ENOMEM;
- 	}
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip, SLIMPRO_IIC_READ,
-@@ -212,21 +214,13 @@ static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
- 		 SLIMPRO_IIC_ENCODE_UPPER_BUFADDR(paddr) |
- 		 SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = (u32)paddr;
--	ctx->resp_msg = msg;
- 
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err_unmap;
--
--	rc = start_i2c_msg_xfer(ctx);
-+	rc = slimpro_i2c_send_msg(ctx, msg, msg);
- 
- 	/* Copy to destination */
- 	memcpy(data, ctx->dma_buffer, readlen);
- 
--err_unmap:
- 	dma_unmap_single(ctx->dev, paddr, readlen, DMA_FROM_DEVICE);
--err:
--	ctx->resp_msg = NULL;
- 	return rc;
- }
- 
-@@ -244,8 +238,7 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
- 	if (dma_mapping_error(ctx->dev, paddr)) {
- 		dev_err(&ctx->adapter.dev, "Error in mapping dma buffer %p\n",
- 			ctx->dma_buffer);
--		rc = -ENOMEM;
--		goto err;
-+		return -ENOMEM;
- 	}
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip, SLIMPRO_IIC_WRITE,
-@@ -254,21 +247,13 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
- 		 SLIMPRO_IIC_ENCODE_UPPER_BUFADDR(paddr) |
- 		 SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = (u32)paddr;
--	ctx->resp_msg = msg;
- 
- 	if (ctx->mbox_client.tx_block)
- 		reinit_completion(&ctx->rd_complete);
- 
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err_unmap;
--
--	rc = start_i2c_msg_xfer(ctx);
-+	rc = slimpro_i2c_send_msg(ctx, msg, msg);
- 
--err_unmap:
- 	dma_unmap_single(ctx->dev, paddr, writelen, DMA_TO_DEVICE);
--err:
--	ctx->resp_msg = NULL;
- 	return rc;
- }
- 
--- 
-1.9.1
+> A 400MHz ARM9 (which is either ARMv4 or ARMv5) is not too bad (hey, we
+> still have a couple of Versatile-ABs here...). Caches are pretty small
+> though.
+
+16K/16K, no L2 :) 
+
+> > I would personally have some kind of trick to register a single
+> > interrupt handler that calls directly the handlers of the respective
+> > i2c busses via a simple indirection for speed, maybe adding my custom
+> > sysfs or debugfs statistics. But that's just me trying to suck the last
+> > cycle out of the bloody thing ;-)
+> 
+> I'd hope the irqdomain itself to be pretty light (the revmap should help
+> here), but of course you're going to do more work. Counters also come at
+> a cost. It'd be interesting to see if Brendan has any overhead data
+> about this.
+
+Thankfully, the HW supports buffered sends/receive or even DMA. The
+current patch doesn't yet support these but they would be a good way to
+alleviate the cost of the interrupts if it becomes a problem.
+
+Cheers,
+Ben.
+
+> Cheers,
+> 
+> 	M.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
