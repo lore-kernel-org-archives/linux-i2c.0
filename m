@@ -1,48 +1,64 @@
-From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v6 0/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Mon, 27 Mar 2017 22:12:21 -0700
-Message-ID: <20170328051226.21677-1-brendanhiggins@google.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: [PATCH v6 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed I2C Interrupt Controller
+Date: Mon, 27 Mar 2017 22:12:22 -0700
+Message-ID: <20170328051226.21677-2-brendanhiggins@google.com>
+References: <20170328051226.21677-1-brendanhiggins@google.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:35799 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753882AbdC1FNE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Mar 2017 01:13:04 -0400
+Received: by mail-pg0-f43.google.com with SMTP id 81so46899430pgh.2
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2017 22:13:03 -0700 (PDT)
+In-Reply-To: <20170328051226.21677-1-brendanhiggins@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, benh@kernel.crashing.org, Brendan Higgins <brendanhiggins@google.com>
 
-Sorry for the delay, I went on a long vacation prior to receiving feedback and
-got back in the middle of a hardware bring up that consumed all of my attention
-for an extended period of time. I will try to plan upstream submissions around
-my other responsibilities better in the future.
+Added device tree binding documentation for Aspeed I2C Interrupt
+Controller.
 
-Addressed comments from:
-  - Vladimir in: https://www.spinics.net/lists/linux-i2c/msg27387.html
-    and: https://www.spinics.net/lists/linux-i2c/msg27386.html
-  - Wolfram in: https://www.spinics.net/lists/linux-i2c/msg27476.html
-    and: https://www.spinics.net/lists/linux-i2c/msg27483.html
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+---
+Added in v6:
+  - Pulled "aspeed_i2c_controller" out into a interrupt controller since that is
+    what it actually does.
+---
+ .../interrupt-controller/aspeed,ast2400-i2c-ic.txt | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
 
-Changes since previous update:
-  - No longer arbitrarily restrict bus to be slave xor master.
-  - Pulled out "struct aspeed_i2c_controller" as a interrupt controller.
-  - Pulled out slave support into its own commit.
-  - Rewrote code that sets clock divider register because the original version
-    set it incorrectly.
-  - Discovered and fixed issue in implementation that caused certain slave
-    devices to misbehave; the cause was that the master IRQ handler would return
-    control to the requesting thread after the last RX or TX command was handled
-    such that the requesting thread would issue either a repeated start or stop.
-    This was incorrect because the time taken to complete the completion was too
-    great. I fixed this by rewriting the master IRQ handler so that it now
-    manages the entire transaction only returning control to the requesting
-    thread once the entire transaction is complete.
-  - Rewrote the aspeed_i2c_master_irq handler because the old method of
-    completing a completion in between restarts was too slow causing devices to
-    misbehave.
-  - Added support for I2C_M_RECV_LEN which I had incorrectly said was supported
-    before.
-  - Addressed other comments from Vladimir.
-
-Changes have been tested on the Aspeed 2500 evaluation board, as before, and now
-on a real platform with an Aspeed 2520.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt b/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
+new file mode 100644
+index 000000000000..033cc82e5684
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
+@@ -0,0 +1,25 @@
++Device tree configuration for the I2C Interrupt Controller on the AST24XX and
++AST25XX SoCs.
++
++Required Properties:
++- #address-cells	: should be 1
++- #size-cells 		: should be 1
++- #interrupt-cells 	: should be 1
++- compatible 		: should be "aspeed,ast2400-i2c-ic"
++			  or "aspeed,ast2500-i2c-ic"
++- reg			: address start and range of controller
++- interrupts		: interrupt number
++- interrupt-controller	: denotes that the controller receives and fires
++			  new interrupts for child busses
++
++Example:
++
++i2c_ic: interrupt-controller@0 {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	#interrupt-cells = <1>;
++	compatible = "aspeed,ast2400-i2c-ic";
++	reg = <0x0 0x40>;
++	interrupts = <12>;
++	interrupt-controller;
++};
+-- 
+2.12.2.564.g063fe858b8-goog
