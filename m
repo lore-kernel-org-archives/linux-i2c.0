@@ -1,154 +1,274 @@
-From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller for Aspeed
-Date: Mon, 27 Mar 2017 22:12:23 -0700
-Message-ID: <20170328051226.21677-3-brendanhiggins@google.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: [PATCH v6 5/5] i2c: aspeed: added slave support for Aspeed I2C driver
+Date: Mon, 27 Mar 2017 22:12:26 -0700
+Message-ID: <20170328051226.21677-6-brendanhiggins@google.com>
 References: <20170328051226.21677-1-brendanhiggins@google.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170328051226.21677-1-brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pg0-f47.google.com ([74.125.83.47]:34883 "EHLO
+        mail-pg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753882AbdC1FNZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Mar 2017 01:13:25 -0400
+Received: by mail-pg0-f47.google.com with SMTP id 81so46905120pgh.2
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Mar 2017 22:13:24 -0700 (PDT)
+In-Reply-To: <20170328051226.21677-1-brendanhiggins@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, benh@kernel.crashing.org, Brendan Higgins <brendanhiggins@google.com>
 
-The Aspeed 24XX/25XX chips share a single hardware interrupt across 14
-separate I2C busses. This adds a dummy irqchip which maps the single
-hardware interrupt to software interrupts for each of the busses.
+Added slave support for Aspeed I2C controller. Supports fourteen busses
+present in AST24XX and AST25XX BMC SoCs by Aspeed.
 
-Signed-off-by: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 ---
 Added in v6:
-  - Pulled "aspeed_i2c_controller" out into a interrupt controller since that is
-    what it actually does.
+  - Pulled slave support out of initial driver commit into its own commit.
+  - No longer arbitrarily restrict bus to be slave xor master.
 ---
- drivers/irqchip/Makefile            |   2 +-
- drivers/irqchip/irq-aspeed-i2c-ic.c | 102 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 103 insertions(+), 1 deletion(-)
- create mode 100644 drivers/irqchip/irq-aspeed-i2c-ic.c
+ drivers/i2c/busses/i2c-aspeed.c | 186 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 186 insertions(+)
 
-diff --git a/drivers/irqchip/Makefile b/drivers/irqchip/Makefile
-index 152bc40b6762..c136c2bd1761 100644
---- a/drivers/irqchip/Makefile
-+++ b/drivers/irqchip/Makefile
-@@ -74,6 +74,6 @@ obj-$(CONFIG_MVEBU_ODMI)		+= irq-mvebu-odmi.o
- obj-$(CONFIG_MVEBU_PIC)			+= irq-mvebu-pic.o
- obj-$(CONFIG_LS_SCFG_MSI)		+= irq-ls-scfg-msi.o
- obj-$(CONFIG_EZNPS_GIC)			+= irq-eznps.o
--obj-$(CONFIG_ARCH_ASPEED)		+= irq-aspeed-vic.o
-+obj-$(CONFIG_ARCH_ASPEED)		+= irq-aspeed-vic.o irq-aspeed-i2c-ic.o
- obj-$(CONFIG_STM32_EXTI) 		+= irq-stm32-exti.o
- obj-$(CONFIG_QCOM_IRQ_COMBINER)		+= qcom-irq-combiner.o
-diff --git a/drivers/irqchip/irq-aspeed-i2c-ic.c b/drivers/irqchip/irq-aspeed-i2c-ic.c
-new file mode 100644
-index 000000000000..59c50b28dec0
---- /dev/null
-+++ b/drivers/irqchip/irq-aspeed-i2c-ic.c
-@@ -0,0 +1,102 @@
-+/*
-+ *  Aspeed 24XX/25XX I2C Interrupt Controller.
-+ *
-+ *  Copyright (C) 2012-2017 ASPEED Technology Inc.
-+ *  Copyright 2017 IBM Corporation
-+ *  Copyright 2017 Google, Inc.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ */
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index 04266acc6c46..a9ee58a2c4e2 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -49,6 +49,7 @@
+ #define ASPEED_I2CD_SDA_DRIVE_1T_EN			BIT(8)
+ #define ASPEED_I2CD_M_SDA_DRIVE_1T_EN			BIT(7)
+ #define ASPEED_I2CD_M_HIGH_SPEED_EN			BIT(6)
++#define ASPEED_I2CD_SLAVE_EN				BIT(1)
+ #define ASPEED_I2CD_MASTER_EN				BIT(0)
+ 
+ /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
+@@ -69,6 +70,7 @@
+  */
+ #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
+ #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
++#define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
+ #define ASPEED_I2CD_INTR_SCL_TIMEOUT			BIT(6)
+ #define ASPEED_I2CD_INTR_ABNORMAL			BIT(5)
+ #define ASPEED_I2CD_INTR_NORMAL_STOP			BIT(4)
+@@ -106,6 +108,9 @@
+ #define ASPEED_I2CD_M_TX_CMD				BIT(1)
+ #define ASPEED_I2CD_M_START_CMD				BIT(0)
+ 
++/* 0x18 : I2CD Slave Device Address Register   */
++#define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
 +
-+#include <linux/irq.h>
-+#include <linux/irqchip.h>
-+#include <linux/irqchip/chained_irq.h>
-+#include <linux/irqdomain.h>
-+#include <linux/of_address.h>
-+#include <linux/of_irq.h>
-+#include <linux/io.h>
-+
-+
-+#define ASPEED_I2C_IC_NUM_BUS 14
-+
-+struct aspeed_i2c_ic {
-+	void __iomem		*base;
-+	int			parent_irq;
-+	struct irq_domain	*irq_domain;
+ enum aspeed_i2c_master_state {
+ 	ASPEED_I2C_MASTER_START,
+ 	ASPEED_I2C_MASTER_TX_FIRST,
+@@ -115,6 +120,15 @@ enum aspeed_i2c_master_state {
+ 	ASPEED_I2C_MASTER_INACTIVE,
+ };
+ 
++enum aspeed_i2c_slave_state {
++	ASPEED_I2C_SLAVE_START,
++	ASPEED_I2C_SLAVE_READ_REQUESTED,
++	ASPEED_I2C_SLAVE_READ_PROCESSED,
++	ASPEED_I2C_SLAVE_WRITE_REQUESTED,
++	ASPEED_I2C_SLAVE_WRITE_RECEIVED,
++	ASPEED_I2C_SLAVE_STOP,
 +};
 +
-+/*
-+ * The aspeed chip provides a single hardware interrupt for all of the I2C
-+ * busses, so we use a dummy interrupt chip to translate this single interrupt
-+ * into multiple interrupts, each associated with a single I2C bus.
-+ */
-+static void aspeed_i2c_ic_irq_handler(struct irq_desc *desc)
+ struct aspeed_i2c_bus {
+ 	struct i2c_adapter		adap;
+ 	struct device			*dev;
+@@ -207,6 +221,110 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
+ 	return ret;
+ }
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
 +{
-+	struct aspeed_i2c_ic *i2c_ic = irq_desc_get_handler_data(desc);
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
-+	unsigned long bit, status;
-+	unsigned int bus_irq;
++	u32 command, irq_status, status_ack = 0;
++	struct i2c_client *slave = bus->slave;
++	bool irq_handled = true;
++	u8 value;
 +
-+	chained_irq_enter(chip, desc);
-+	status = readl(i2c_ic->base);
-+	for_each_set_bit(bit, &status, ASPEED_I2C_IC_NUM_BUS) {
-+		bus_irq = irq_find_mapping(i2c_ic->irq_domain, bit);
-+		generic_handle_irq(bus_irq);
++	spin_lock(&bus->lock);
++	if (!slave) {
++		irq_handled = false;
++		goto out;
 +	}
-+	chained_irq_exit(chip, desc);
-+}
 +
-+/*
-+ * Set simple handler and mark IRQ as valid. Nothing interesting to do here
-+ * since we are using a dummy interrupt chip.
-+ */
-+static int aspeed_i2c_ic_map_irq_domain(struct irq_domain *domain,
-+					unsigned int irq, irq_hw_number_t hwirq)
++	command = aspeed_i2c_read(bus, ASPEED_I2C_CMD_REG);
++	irq_status = aspeed_i2c_read(bus, ASPEED_I2C_INTR_STS_REG);
++
++	/* Slave was requested, restart state machine. */
++	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
++		status_ack |= ASPEED_I2CD_INTR_SLAVE_MATCH;
++		bus->slave_state = ASPEED_I2C_SLAVE_START;
++	}
++
++	/* Slave is not currently active, irq was for someone else. */
++	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
++		irq_handled = false;
++		goto out;
++	}
++
++	dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
++		irq_status, command);
++
++	/* Slave was sent something. */
++	if (irq_status & ASPEED_I2CD_INTR_RX_DONE) {
++		value = aspeed_i2c_read(bus, ASPEED_I2C_BYTE_BUF_REG) >> 8;
++		/* Handle address frame. */
++		if (bus->slave_state == ASPEED_I2C_SLAVE_START) {
++			if (value & 0x1)
++				bus->slave_state =
++						ASPEED_I2C_SLAVE_READ_REQUESTED;
++			else
++				bus->slave_state =
++						ASPEED_I2C_SLAVE_WRITE_REQUESTED;
++		}
++		status_ack |= ASPEED_I2CD_INTR_RX_DONE;
++	}
++
++	/* Slave was asked to stop. */
++	if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
++		status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
++		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
++	}
++	if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
++		status_ack |= ASPEED_I2CD_INTR_TX_NAK;
++		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
++	}
++
++	switch (bus->slave_state) {
++	case ASPEED_I2C_SLAVE_READ_REQUESTED:
++		if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
++			dev_err(bus->dev, "Unexpected ACK on read request.\n");
++		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
++
++		i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
++		aspeed_i2c_write(bus, value, ASPEED_I2C_BYTE_BUF_REG);
++		aspeed_i2c_write(bus, ASPEED_I2CD_S_TX_CMD, ASPEED_I2C_CMD_REG);
++		break;
++	case ASPEED_I2C_SLAVE_READ_PROCESSED:
++		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
++		if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
++			dev_err(bus->dev,
++				"Expected ACK after processed read.\n");
++		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
++		aspeed_i2c_write(bus, value, ASPEED_I2C_BYTE_BUF_REG);
++		aspeed_i2c_write(bus, ASPEED_I2CD_S_TX_CMD, ASPEED_I2C_CMD_REG);
++		break;
++	case ASPEED_I2C_SLAVE_WRITE_REQUESTED:
++		bus->slave_state = ASPEED_I2C_SLAVE_WRITE_RECEIVED;
++		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
++		break;
++	case ASPEED_I2C_SLAVE_WRITE_RECEIVED:
++		i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED, &value);
++		break;
++	case ASPEED_I2C_SLAVE_STOP:
++		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
++		break;
++	default:
++		dev_err(bus->dev, "unhandled slave_state: %d\n",
++			bus->slave_state);
++		break;
++	}
++
++	if (status_ack != irq_status)
++		dev_err(bus->dev,
++			"irq handled != irq. expected %x, but was %x\n",
++			irq_status, status_ack);
++	aspeed_i2c_write(bus, status_ack, ASPEED_I2C_INTR_STS_REG);
++
++out:
++	spin_unlock(&bus->lock);
++	return irq_handled;
++}
++#endif
++
+ static void do_start(struct aspeed_i2c_bus *bus)
+ {
+ 	u32 command = ASPEED_I2CD_M_START_CMD | ASPEED_I2CD_M_TX_CMD;
+@@ -371,6 +489,14 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+ {
+ 	struct aspeed_i2c_bus *bus = dev_id;
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	if (aspeed_i2c_slave_irq(bus)) {
++		dev_dbg(bus->dev, "irq handled by slave.\n");
++		return IRQ_HANDLED;
++	}
++#endif
++
++	dev_dbg(bus->dev, "irq handled by master.\n");
+ 	aspeed_i2c_master_irq(bus);
+ 	return IRQ_HANDLED;
+ }
+@@ -426,9 +552,69 @@ static u32 aspeed_i2c_functionality(struct i2c_adapter *adap)
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++static int aspeed_i2c_reg_slave(struct i2c_client *client)
 +{
-+	irq_set_chip_and_handler(irq, &dummy_irq_chip, handle_simple_irq);
-+	irq_set_chip_data(irq, domain->host_data);
++	u32 addr_reg_val, func_ctrl_reg_val;
++	struct aspeed_i2c_bus *bus;
++	unsigned long flags;
++
++	bus = client->adapter->algo_data;
++	spin_lock_irqsave(&bus->lock, flags);
++	if (bus->slave) {
++		spin_unlock_irqrestore(&bus->lock, flags);
++		return -EINVAL;
++	}
++
++	/* Set slave addr. */
++	addr_reg_val = aspeed_i2c_read(bus, ASPEED_I2C_DEV_ADDR_REG);
++	addr_reg_val &= ~ASPEED_I2CD_DEV_ADDR_MASK;
++	addr_reg_val |= client->addr & ASPEED_I2CD_DEV_ADDR_MASK;
++	aspeed_i2c_write(bus, addr_reg_val, ASPEED_I2C_DEV_ADDR_REG);
++
++	/* Turn on slave mode. */
++	func_ctrl_reg_val = aspeed_i2c_read(bus, ASPEED_I2C_FUN_CTRL_REG);
++	func_ctrl_reg_val |= ASPEED_I2CD_SLAVE_EN;
++	aspeed_i2c_write(bus, func_ctrl_reg_val, ASPEED_I2C_FUN_CTRL_REG);
++
++	bus->slave = client;
++	bus->slave_state = ASPEED_I2C_SLAVE_STOP;
++	spin_unlock_irqrestore(&bus->lock, flags);
 +
 +	return 0;
 +}
 +
-+static const struct irq_domain_ops aspeed_i2c_ic_irq_domain_ops = {
-+	.map = aspeed_i2c_ic_map_irq_domain,
-+};
-+
-+static int __init aspeed_i2c_ic_of_init(struct device_node *node,
-+					struct device_node *parent)
++static int aspeed_i2c_unreg_slave(struct i2c_client *client)
 +{
-+	struct aspeed_i2c_ic *i2c_ic;
++	struct aspeed_i2c_bus *bus = client->adapter->algo_data;
++	u32 func_ctrl_reg_val;
++	unsigned long flags;
 +
-+	i2c_ic = kzalloc(sizeof(*i2c_ic), GFP_KERNEL);
-+	if (!i2c_ic)
-+		return -ENOMEM;
++	spin_lock_irqsave(&bus->lock, flags);
++	if (!bus->slave) {
++		spin_unlock_irqrestore(&bus->lock, flags);
++		return -EINVAL;
++	}
 +
-+	i2c_ic->base = of_iomap(node, 0);
-+	if (IS_ERR(i2c_ic->base))
-+		return PTR_ERR(i2c_ic->base);
++	/* Turn off slave mode. */
++	func_ctrl_reg_val = aspeed_i2c_read(bus, ASPEED_I2C_FUN_CTRL_REG);
++	func_ctrl_reg_val &= ~ASPEED_I2CD_SLAVE_EN;
++	aspeed_i2c_write(bus, func_ctrl_reg_val, ASPEED_I2C_FUN_CTRL_REG);
 +
-+	i2c_ic->parent_irq = irq_of_parse_and_map(node, 0);
-+	if (i2c_ic->parent_irq < 0)
-+		return i2c_ic->parent_irq;
-+
-+	i2c_ic->irq_domain = irq_domain_add_linear(
-+			node, ASPEED_I2C_IC_NUM_BUS,
-+			&aspeed_i2c_ic_irq_domain_ops, NULL);
-+	if (!i2c_ic->irq_domain)
-+		return -ENOMEM;
-+
-+	i2c_ic->irq_domain->name = "ast-i2c-domain";
-+
-+	irq_set_chained_handler_and_data(i2c_ic->parent_irq,
-+					 aspeed_i2c_ic_irq_handler, i2c_ic);
-+
-+	pr_info("i2c controller registered, irq %d\n", i2c_ic->parent_irq);
++	bus->slave = NULL;
++	spin_unlock_irqrestore(&bus->lock, flags);
 +
 +	return 0;
 +}
++#endif
 +
-+IRQCHIP_DECLARE(ast2400_i2c_ic, "aspeed,ast2400-i2c-ic", aspeed_i2c_ic_of_init);
-+IRQCHIP_DECLARE(ast2500_i2c_ic, "aspeed,ast2500-i2c-ic", aspeed_i2c_ic_of_init);
+ static const struct i2c_algorithm aspeed_i2c_algo = {
+ 	.master_xfer	= aspeed_i2c_master_xfer,
+ 	.functionality	= aspeed_i2c_functionality,
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	.reg_slave	= aspeed_i2c_reg_slave,
++	.unreg_slave	= aspeed_i2c_unreg_slave,
++#endif
+ };
+ 
+ static u32 aspeed_i2c_get_clk_reg_val(u32 divisor)
 -- 
 2.12.2.564.g063fe858b8-goog
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
