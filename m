@@ -1,107 +1,61 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
- via ACPI
-Date: Tue, 28 Mar 2017 12:13:46 +0300
-Message-ID: <1490692426.708.26.camel@linux.intel.com>
-References: <1490690882-11623-1-git-send-email-chin.yew.tan@intel.com>
-         <1490690882-11623-2-git-send-email-chin.yew.tan@intel.com>
+From: Marc Zyngier <marc.zyngier-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller for
+ Aspeed
+Date: Tue, 28 Mar 2017 10:40:38 +0100
+Message-ID: <91936f1a-0a0d-4091-b981-976503a6f7cd@arm.com>
+References: <20170328051226.21677-1-brendanhiggins@google.com>
+ <20170328051226.21677-3-brendanhiggins@google.com>
+ <49a13bbc-aec3-a349-4323-3c8d2728c62f@arm.com>
+ <1490692375.3177.119.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:43914 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754855AbdC1JQs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Mar 2017 05:16:48 -0400
-In-Reply-To: <1490690882-11623-2-git-send-email-chin.yew.tan@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1490692375.3177.119.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tan Chin Yew <chin.yew.tan@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2017-03-28 at 16:48 +0800, Tan Chin Yew wrote:
-> Sda-hold-time is an important parameter for tuning i2c to meet the
-> electrical specification especially for high speed. I2C with incorrect
-> sda-hold-time may cause lost arbitration error. Instead of loading all
-> speed mode settings, only selected speed mode settings are loaded.
+On 28/03/17 10:12, Benjamin Herrenschmidt wrote:
+> On Tue, 2017-03-28 at 09:32 +0100, Marc Zyngier wrote:
+>> I'm a bit concerned by this. It means that you can't even mask an
+>> interrupt. Is that really what you intend to do? Or all that the HW can
+>> do? If you cannot mask an interrupt, you're at the mercy of a screaming
+>> device...
 > 
-> Signed-off-by: Tan Chin Yew <chin.yew.tan@intel.com>
-
-
-Looks good to me:
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 31
-> ++++++++++++++++++++---------
->  1 file changed, 22 insertions(+), 9 deletions(-)
+> This is not really an interrupt controller. It's a "summary" register
+> that reflects the state of the 14 i2c controller interrupts.
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
-> b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index a597ba32..5a4eb6b 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -85,8 +85,7 @@ static void dw_i2c_acpi_params(struct
-> platform_device *pdev, char method[],
->  
->  		*hcnt = (u16)objs[0].integer.value;
->  		*lcnt = (u16)objs[1].integer.value;
-> -		if (sda_hold)
-> -			*sda_hold = (u32)objs[2].integer.value;
-> +		*sda_hold = (u32)objs[2].integer.value;
->  	}
->  
->  	kfree(buf.pointer);
-> @@ -105,14 +104,28 @@ static int dw_i2c_acpi_configure(struct
-> platform_device *pdev)
->  	dev->rx_fifo_depth = 32;
->  
->  	/*
-> -	 * Try to get SDA hold time and *CNT values from an ACPI
-> method if
-> -	 * it exists for both supported speed modes.
-> +	 * Try to get SDA hold time and *CNT values from an ACPI
-> method for
-> +	 * selected speed modes.
->  	 */
-> -	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
-> >ss_lcnt, NULL);
-> -	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
-> >fs_lcnt,
-> -			   &dev->sda_hold_time);
-> -	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
-> >fp_lcnt, NULL);
-> -	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
-> >hs_lcnt, NULL);
-> +	switch (dev->clk_freq) {
-> +	case 100000:
-> +		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
-> >ss_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 1000000:
-> +		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
-> >fp_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 3400000:
-> +		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
-> >hs_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	case 400000:
-> +	default:
-> +		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
-> >fs_lcnt,
-> +				   &dev->sda_hold_time);
-> +		break;
-> +	}
->  
->  	id = acpi_match_device(pdev->dev.driver->acpi_match_table,
-> &pdev->dev);
->  	if (id && id->driver_data)
+> This approach does have the advantage of providing separate counters in
+> /proc/interrupts which is rather nice, but it does have overhead. On
+> those shittly little ARMv9 400Mhz cores it can be significant.
 
+<pedantic>
+s/ARMv9/ARM9/, as we're still on variations of the ARMv8 architecture ;-)
+</pedantic>
+
+A 400MHz ARM9 (which is either ARMv4 or ARMv5) is not too bad (hey, we
+still have a couple of Versatile-ABs here...). Caches are pretty small
+though.
+
+> I would personally have some kind of trick to register a single
+> interrupt handler that calls directly the handlers of the respective
+> i2c busses via a simple indirection for speed, maybe adding my custom
+> sysfs or debugfs statistics. But that's just me trying to suck the last
+> cycle out of the bloody thing ;-)
+
+I'd hope the irqdomain itself to be pretty light (the revmap should help
+here), but of course you're going to do more work. Counters also come at
+a cost. It'd be interesting to see if Brendan has any overhead data
+about this.
+
+Cheers,
+
+	M.
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Jazz is not dead. It just smells funny...
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
