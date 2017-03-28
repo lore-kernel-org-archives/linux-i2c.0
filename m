@@ -1,75 +1,39 @@
-From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [RESEND PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c
- binding
-Date: Tue, 28 Mar 2017 17:50:12 +0800
-Message-ID: <1490694612.18582.11.camel@mhfsdcap03>
-References: <1489029185-21447-1-git-send-email-jun.gao@mediatek.com>
-         <1489029185-21447-2-git-send-email-jun.gao@mediatek.com>
-         <20170322090543.sxacnddn2o7stjnq@ninjato>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller
+ for Aspeed
+Date: Tue, 28 Mar 2017 20:12:55 +1100
+Message-ID: <1490692375.3177.119.camel@kernel.crashing.org>
+References: <20170328051226.21677-1-brendanhiggins@google.com>
+         <20170328051226.21677-3-brendanhiggins@google.com>
+         <49a13bbc-aec3-a349-4323-3c8d2728c62f@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170322090543.sxacnddn2o7stjnq@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <49a13bbc-aec3-a349-4323-3c8d2728c62f@arm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Marc Zyngier <marc.zyngier@arm.com>, Brendan Higgins <brendanhiggins@google.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2017-03-22 at 10:05 +0100, Wolfram Sang wrote:
-> On Thu, Mar 09, 2017 at 11:13:04AM +0800, Jun Gao wrote:
-> > From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > 
-> > Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
-> > modify i2c driver.
-> > 
-> > Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> 
-> There is still the issue which Matthias Brugger pointed out on January,
-> 24th: you need to describe the fallback compatibles.
-> 
+On Tue, 2017-03-28 at 09:32 +0100, Marc Zyngier wrote:
+> I'm a bit concerned by this. It means that you can't even mask an
+> interrupt. Is that really what you intend to do? Or all that the HW can
+> do? If you cannot mask an interrupt, you're at the mercy of a screaming
+> device...
 
-IMHO the value under compatible are just inputs which can be accepted.
-It's little strange to add fallback information in binding. Some other
-bindings do not describe so detailedly.
-Is it OK to make binding as minimum standard?
-If we describe it very detailedly, we will have to modify binding if
-there are some changes for mt2701.
+This is not really an interrupt controller. It's a "summary" register
+that reflects the state of the 14 i2c controller interrupts.
 
-Rob, could you give some suggestions?  Thanks!
+This approach does have the advantage of providing separate counters in
+/proc/interrupts which is rather nice, but it does have overhead. On
+those shittly little ARMv9 400Mhz cores it can be significant.
 
-> > ---
-> >  .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
-> >  1 file changed, 6 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > index 0ce6fa3..27dbbf9 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
-> >  
-> >  Required properties:
-> >    - compatible: value should be either of the following.
-> > -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> > -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> > -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> > -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> > -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> > +	"mediatek,mt2701-i2c"
-> > +	"mediatek,mt6577-i2c"
-> > +	"mediatek,mt6589-i2c"
-> > +	"mediatek,mt8127-i2c"
-> > +	"mediatek,mt8135-i2c"
-> > +	"mediatek,mt8173-i2c"
-> >    - reg: physical base address of the controller and dma base, length of memory
-> >      mapped region.
-> >    - interrupts: interrupt number to the cpu.
-> > -- 
-> > 1.7.9.5
-> > 
+I would personally have some kind of trick to register a single
+interrupt handler that calls directly the handlers of the respective
+i2c busses via a simple indirection for speed, maybe adding my custom
+sysfs or debugfs statistics. But that's just me trying to suck the last
+cycle out of the bloody thing ;-)
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Ben.
