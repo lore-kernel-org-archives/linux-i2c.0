@@ -1,47 +1,48 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v11 11/12] iio: multiplexer: fix unsigned check with less
- than zero
-Date: Mon, 27 Mar 2017 16:33:33 +0200
-Message-ID: <20170327143333.GB15708@localhost>
-References: <1490617069-13119-1-git-send-email-peda@axentia.se>
- <1490617069-13119-12-git-send-email-peda@axentia.se>
- <20170327130653.GA15708@localhost>
- <c8195c34-3f96-b848-e01f-83c63a960153@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f42.google.com ([209.85.215.42]:33484 "EHLO
-        mail-lf0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752336AbdC0Odr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Mar 2017 10:33:47 -0400
-Content-Disposition: inline
-In-Reply-To: <c8195c34-3f96-b848-e01f-83c63a960153@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v6 0/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Mon, 27 Mar 2017 22:12:21 -0700
+Message-ID: <20170328051226.21677-1-brendanhiggins@google.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>
 
-On Mon, Mar 27, 2017 at 03:46:47PM +0200, Peter Rosin wrote:
-> On 2017-03-27 15:06, Johan Hovold wrote:
-> > On Mon, Mar 27, 2017 at 02:17:48PM +0200, Peter Rosin wrote:
-> >> Comparing a size_t with less than zero is always false as size_t
-> >> is unsigned. So, change the type of the variable to ssize_t and
-> >> replicate the size check from mux_configure_channel() into
-> >> mux_write_ext_info() thus ensuring that the size will fit in the
-> >> ssize_t variable.
-> >>
-> >> Detected by CoverityScan, CID#1415278 ("Unsigned compared against 0")
-> >>
-> >> Fixes: 1da8e16d2812 ("iio: multiplexer: new iio category and iio-mux driver")
-> > 
-> > You should fold this one and the next patch into the patches that they
-> > fix up instead fixing stuff that's not yet merged incrementally like you
-> > do here (specifically, the SHA id above will have no matching commit).
+Sorry for the delay, I went on a long vacation prior to receiving feedback and
+got back in the middle of a hardware bring up that consumed all of my attention
+for an extended period of time. I will try to plan upstream submissions around
+my other responsibilities better in the future.
 
-> I forgot about that. And similar for the next patch. But how do you
-> propose that I attribute the reporters and CoverityScan?
+Addressed comments from:
+  - Vladimir in: https://www.spinics.net/lists/linux-i2c/msg27387.html
+    and: https://www.spinics.net/lists/linux-i2c/msg27386.html
+  - Wolfram in: https://www.spinics.net/lists/linux-i2c/msg27476.html
+    and: https://www.spinics.net/lists/linux-i2c/msg27483.html
 
-You can mention it in the cover letter and/or commit messages as you
-would for other kinds of review feedback.
+Changes since previous update:
+  - No longer arbitrarily restrict bus to be slave xor master.
+  - Pulled out "struct aspeed_i2c_controller" as a interrupt controller.
+  - Pulled out slave support into its own commit.
+  - Rewrote code that sets clock divider register because the original version
+    set it incorrectly.
+  - Discovered and fixed issue in implementation that caused certain slave
+    devices to misbehave; the cause was that the master IRQ handler would return
+    control to the requesting thread after the last RX or TX command was handled
+    such that the requesting thread would issue either a repeated start or stop.
+    This was incorrect because the time taken to complete the completion was too
+    great. I fixed this by rewriting the master IRQ handler so that it now
+    manages the entire transaction only returning control to the requesting
+    thread once the entire transaction is complete.
+  - Rewrote the aspeed_i2c_master_irq handler because the old method of
+    completing a completion in between restarts was too slow causing devices to
+    misbehave.
+  - Added support for I2C_M_RECV_LEN which I had incorrectly said was supported
+    before.
+  - Addressed other comments from Vladimir.
 
-Johan
+Changes have been tested on the Aspeed 2500 evaluation board, as before, and now
+on a real platform with an Aspeed 2520.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
