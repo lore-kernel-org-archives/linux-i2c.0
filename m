@@ -1,81 +1,107 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Tue, 28 Mar 2017 20:09:28 +1100
-Message-ID: <1490692168.3177.117.camel@kernel.crashing.org>
-References: <20170328051226.21677-1-brendanhiggins@google.com>
-         <20170328051226.21677-5-brendanhiggins@google.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Get selected speed mode sda-hold-time
+ via ACPI
+Date: Tue, 28 Mar 2017 12:13:46 +0300
+Message-ID: <1490692426.708.26.camel@linux.intel.com>
+References: <1490690882-11623-1-git-send-email-chin.yew.tan@intel.com>
+         <1490690882-11623-2-git-send-email-chin.yew.tan@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate.crashing.org ([63.228.1.57]:59430 "EHLO gate.crashing.org"
+Received: from mga07.intel.com ([134.134.136.100]:43914 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754833AbdC1JKe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Mar 2017 05:10:34 -0400
-In-Reply-To: <20170328051226.21677-5-brendanhiggins@google.com>
+        id S1754855AbdC1JQs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Mar 2017 05:16:48 -0400
+In-Reply-To: <1490690882-11623-2-git-send-email-chin.yew.tan@intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+To: Tan Chin Yew <chin.yew.tan@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2017-03-27 at 22:12 -0700, Brendan Higgins wrote:
-> +       /* Set AC Timing */
-> +       if (clk_freq / 1000 > 1000) {
-> +               aspeed_i2c_write(bus, aspeed_i2c_read(bus,
-> +                                                     ASPEED_I2C_FUN_CTRL_REG) |
-> +                               ASPEED_I2CD_M_HIGH_SPEED_EN |
-> +                               ASPEED_I2CD_M_SDA_DRIVE_1T_EN |
+On Tue, 2017-03-28 at 16:48 +0800, Tan Chin Yew wrote:
+> Sda-hold-time is an important parameter for tuning i2c to meet the
+> electrical specification especially for high speed. I2C with incorrect
+> sda-hold-time may cause lost arbitration error. Instead of loading all
+> speed mode settings, only selected speed mode settings are loaded.
+> 
+> Signed-off-by: Tan Chin Yew <chin.yew.tan@intel.com>
 
-s/ASPEED_I2CD_M_SDA_DRIVE_1T_EN/ASPEED_I2CD_M_SCL_DRIVE_1T_EN/
 
-(and in the definition too)
+Looks good to me:
 
-> +                               ASPEED_I2CD_SDA_DRIVE_1T_EN,
-> +                               ASPEED_I2C_FUN_CTRL_REG);
-> +
-> +               aspeed_i2c_write(bus, 0x3, ASPEED_I2C_AC_TIMING_REG2);
-> +               aspeed_i2c_write(bus, aspeed_i2c_get_clk_reg_val(divisor),
-> +                                ASPEED_I2C_AC_TIMING_REG1);
-> +       } else {
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-I don't think that's right. AFAIK ASPEED_I2CD_M_HIGH_SPEED_EN is about
-ignoring the timing register completely and going for full speed which
-is a few Mhz (I forgot how much). At least from my (possibly incorrect)
-reading of the spec and the SDK driver.
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 31
+> ++++++++++++++++++++---------
+>  1 file changed, 22 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index a597ba32..5a4eb6b 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -85,8 +85,7 @@ static void dw_i2c_acpi_params(struct
+> platform_device *pdev, char method[],
+>  
+>  		*hcnt = (u16)objs[0].integer.value;
+>  		*lcnt = (u16)objs[1].integer.value;
+> -		if (sda_hold)
+> -			*sda_hold = (u32)objs[2].integer.value;
+> +		*sda_hold = (u32)objs[2].integer.value;
+>  	}
+>  
+>  	kfree(buf.pointer);
+> @@ -105,14 +104,28 @@ static int dw_i2c_acpi_configure(struct
+> platform_device *pdev)
+>  	dev->rx_fifo_depth = 32;
+>  
+>  	/*
+> -	 * Try to get SDA hold time and *CNT values from an ACPI
+> method if
+> -	 * it exists for both supported speed modes.
+> +	 * Try to get SDA hold time and *CNT values from an ACPI
+> method for
+> +	 * selected speed modes.
+>  	 */
+> -	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
+> >ss_lcnt, NULL);
+> -	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
+> >fs_lcnt,
+> -			   &dev->sda_hold_time);
+> -	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
+> >fp_lcnt, NULL);
+> -	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
+> >hs_lcnt, NULL);
+> +	switch (dev->clk_freq) {
+> +	case 100000:
+> +		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev-
+> >ss_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 1000000:
+> +		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev-
+> >fp_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 3400000:
+> +		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev-
+> >hs_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	case 400000:
+> +	default:
+> +		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev-
+> >fs_lcnt,
+> +				   &dev->sda_hold_time);
+> +		break;
+> +	}
+>  
+>  	id = acpi_match_device(pdev->dev.driver->acpi_match_table,
+> &pdev->dev);
+>  	if (id && id->driver_data)
 
-Or maybe that's what you intend by the above ? Anything above 1Mhz ?
-
-I think there's a blurb somewhere that says that setting that bit makes
-it ignore the timing register completely. The definition is:
-
-<<
-Enable High Speed master mode
-0 : normal speed mode
-1 : high speed mode (3.4Mbps)
-High speed mode can only use buffer mode for transfer. And only master
-mode supports speed switching capability
->>
-
-The spec of the base clock field of the timing register also says
-
-<<
-When switch to High Speed (HS) mode, the divisor will be switch to 0 by
-hardware automatically
->>
-
-Note also that we aren't use buffer mode anyway so this can't work as-
-is, we're using byte mode.
-
-The other interesting question is what is the frequency threshold for
-setting ASPEED_I2CD_M_SCL_DRIVE_1T_EN (and the SDA one) ? 
-
-Those bits are somewhat orthogonal to ASPEED_I2CD_M_HIGH_SPEED_EN. They
-make the device drive the signals for a clock when they go up to "speed
-up" the rising edge more than a normal pull up would do.
-
-If you have some fast devices, it would be interesting to scope the
-signal see from what speed it becomes interesting to set the 1T enable
-bits to speed up rising edges.
-
-Cheers,
-Ben.
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
