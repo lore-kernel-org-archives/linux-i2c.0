@@ -1,43 +1,52 @@
 From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller for Aspeed
-Date: Wed, 29 Mar 2017 13:16:08 -0700
-Message-ID: <CAFd5g4435JY72nk7xHa4KohvaGqK2UYOB4XLD3EajGCbgEzPFQ@mail.gmail.com>
+Subject: Re: [PATCH v6 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed I2C
+ Interrupt Controller
+Date: Wed, 29 Mar 2017 13:51:57 -0700
+Message-ID: <CAFd5g460U4c3rMtKphxnu=OADTfD=oe8Z+JPn-H82zpHKJUqfw@mail.gmail.com>
 References: <20170328051226.21677-1-brendanhiggins@google.com>
- <20170328051226.21677-3-brendanhiggins@google.com> <CACPK8XdYNi2mna=aBbYvMroujLOPbVkPdU-DeYGrevjRBjHodQ@mail.gmail.com>
+ <20170328051226.21677-2-brendanhiggins@google.com> <1490690980.3177.108.camel@kernel.crashing.org>
+ <CAFd5g47Pij6TxkmS6akWoAL0FZ2WLh+FWUrr099RiabWn+pneQ@mail.gmail.com> <1490789505.3177.184.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACPK8XdYNi2mna=aBbYvMroujLOPbVkPdU-DeYGrevjRBjHodQ@mail.gmail.com>
+In-Reply-To: <1490789505.3177.184.camel@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Nit: Make this aspeed-i2c-domain to make this consistent with the
-> other Aspeed drivers in the kernel tree.
+> Regarding the other comment about the "fast mode", my main worry here
+> is that somebody might come up with a 2Mhz capable device, we'll hit
+> your 1Mhz test, enable fast mode, and shoot it with 3.4Mhz which it
+> might not be happy at all about...
 >
-> Could this irq code be embedded in the i2c driver? We took a similar
-> approach for the Aspeed GPIO driver, which has a similar IRQ structure
-> of one hardware IRQ that tells the driver to check status registers
-> for the precise irq source. The upside being all of the i2c code is in
-> the same place in the kernel tree.
+> I think the cut-off for switching to the "fast" mode should basically
+> be the fast speed mode frequency (which isn't clear from the spec but
+> seems to be 3.4Mhz). Otherwise people will end up with higher speeds
+> than what they asked for and that's bad.
 
-In the previous version of the patch, this code was embedded in the
-I2C driver as the "struct aspeed_i2c_controller;" I really did not
-change anything about it other than rename some stuff and change the
-init method to match what irqchip code wants. I pulled it out into a
-separate driver because I was asked to by Vladimir; nevertheless, it
-does turn the I2C driver into a normal platforms driver, which is
-nice. Another benefit: if we put our dummy irqchip code in with the
-other irqchips, it makes it easier for the irqchip people to recognize
-when we are reusing the same patterns; for example, I would not at all
-be surprised if there are other dummy irqchips which have the same
-exact map(...) operation (I looked and did not see anything), but it
-is quite possibly something that other people want to do. If we put
-this stuff in drivers/irqchip, it is more likely that the irqchip
-people would recognize this as a common use case. I do not think
-either of these reasons I provided are particularly compelling, but I
-do not think the reasons to move it out are particularly compelling
-either (unless we decide we do not want make our own irq_domain).
+Ah, but see the documentation only says that high speed mode sets the
+Base Clock divisor to zero; is does not say anything about tCKHigh or
+tCKLow (clk_high and clk_low in my code respectively), which are the
+only parameters which are manipulated for speeds greater than or equal
+to 1.5MHz since:
+
+# I forgot the "APB_freq /" part in the comment on my
+aspeed_i2c_get_clk_reg_val(...)
+# My function still does the computation correctly, I just forgot this
+in the comment.
+SCL_freq = APB_freq / (1 << base_clk) * (clk_high + 1 + clk_low + 1)
+
+so if base_clk = 0, clk_high = 15, clk_low = 15, APB_freq = 50MHz
+
+SCL_freq = APB_freq / (1 << base_clk) * (clk_high + 1 + clk_low + 1)
+                = 50000000 / (1 << 0) * (15 + 1 + 15 + 1)
+                = 50000000 / 32
+                = 1562500Hz
+                = ~1.5MHz
+
+so maybe instead of setting a hard limit like I did, maybe the best
+thing is to just check and see what the base_clk gets set to and if it
+gets set to zero, we turn on high speed mode. What do you think?
 
 Cheers
