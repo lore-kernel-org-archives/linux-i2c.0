@@ -1,44 +1,43 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
- multiplexer/switch
-Date: Wed, 29 Mar 2017 10:58:33 -0500
-Message-ID: <20170329155833.6fop2ihbgy24c5b3@rob-hp-laptop>
-References: <1490278978-28357-1-git-send-email-michael.hennerich@analog.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v6 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller for Aspeed
+Date: Wed, 29 Mar 2017 13:16:08 -0700
+Message-ID: <CAFd5g4435JY72nk7xHa4KohvaGqK2UYOB4XLD3EajGCbgEzPFQ@mail.gmail.com>
+References: <20170328051226.21677-1-brendanhiggins@google.com>
+ <20170328051226.21677-3-brendanhiggins@google.com> <CACPK8XdYNi2mna=aBbYvMroujLOPbVkPdU-DeYGrevjRBjHodQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:34930 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752236AbdC2P6g (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Mar 2017 11:58:36 -0400
-Content-Disposition: inline
-In-Reply-To: <1490278978-28357-1-git-send-email-michael.hennerich@analog.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACPK8XdYNi2mna=aBbYvMroujLOPbVkPdU-DeYGrevjRBjHodQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joel Stanley <joel@jms.id.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
 List-Id: linux-i2c@vger.kernel.org
-To: michael.hennerich@analog.com
-Cc: wsa@the-dreams.de, peda@axentia.se, mark.rutland@arm.com, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Mar 23, 2017 at 03:22:58PM +0100, michael.hennerich@analog.com wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
-> 
-> This patch adds support for the Analog Devices / Linear Technology
-> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
-> The LTC4306 optionally provides two general purpose input/output pins
-> (GPIOs) that can be configured as logic inputs, opendrain outputs or
-> push-pull outputs via the generic GPIOLIB framework.
-> 
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    |  61 ++++
+> Nit: Make this aspeed-i2c-domain to make this consistent with the
+> other Aspeed drivers in the kernel tree.
+>
+> Could this irq code be embedded in the i2c driver? We took a similar
+> approach for the Aspeed GPIO driver, which has a similar IRQ structure
+> of one hardware IRQ that tells the driver to check status registers
+> for the precise irq source. The upside being all of the i2c code is in
+> the same place in the kernel tree.
 
-It's preferred to split bindings to separate patch. In any case,
+In the previous version of the patch, this code was embedded in the
+I2C driver as the "struct aspeed_i2c_controller;" I really did not
+change anything about it other than rename some stuff and change the
+init method to match what irqchip code wants. I pulled it out into a
+separate driver because I was asked to by Vladimir; nevertheless, it
+does turn the I2C driver into a normal platforms driver, which is
+nice. Another benefit: if we put our dummy irqchip code in with the
+other irqchips, it makes it easier for the irqchip people to recognize
+when we are reusing the same patterns; for example, I would not at all
+be surprised if there are other dummy irqchips which have the same
+exact map(...) operation (I looked and did not see anything), but it
+is quite possibly something that other people want to do. If we put
+this stuff in drivers/irqchip, it is more likely that the irqchip
+people would recognize this as a common use case. I do not think
+either of these reasons I provided are particularly compelling, but I
+do not think the reasons to move it out are particularly compelling
+either (unless we decide we do not want make our own irq_domain).
 
-Acked-by: Rob Herring <robh@kernel.org>
-
->  MAINTAINERS                                        |   8 +
->  drivers/i2c/muxes/Kconfig                          |  10 +
->  drivers/i2c/muxes/Makefile                         |   1 +
->  drivers/i2c/muxes/i2c-mux-ltc4306.c                | 365 +++++++++++++++++++++
->  5 files changed, 445 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
->  create mode 100644 drivers/i2c/muxes/i2c-mux-ltc4306.c
+Cheers
