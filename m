@@ -1,69 +1,122 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 0/6] initialize dtsi file and dts file for RK3328 SoCs
-Date: Thu, 30 Mar 2017 17:05:57 +0200
-Message-ID: <20170330150557.znttalrsxpnmccx6@ninjato>
-References: <1490607650-18650-1-git-send-email-cl@rock-chips.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i2c-scmi: add a MS HID
+Date: Thu, 30 Mar 2017 17:52:33 +0200
+Message-ID: <20170330155233.dfnqe7d2xkr32zlo@ninjato>
+References: <1489154315-26499-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+ <20170323204747.w2nxxrpjwypiygwb@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="t3raypotlh7kogkn"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="gnrvw7pdweomcqbh"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1490607650-18650-1-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
-Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang@rock-chip
+In-Reply-To: <20170323204747.w2nxxrpjwypiygwb@ninjato>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, Edgar Cherkasov <echerkasov@dev.rtsoft.ru>, Michael Brunner <Michael.Brunner@kontron.com>, linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---t3raypotlh7kogkn
+--gnrvw7pdweomcqbh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 27, 2017 at 05:40:45PM +0800, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org wrote:
-> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+On Thu, Mar 23, 2017 at 09:47:47PM +0100, Wolfram Sang wrote:
+> On Fri, Mar 10, 2017 at 04:58:35PM +0300, Viktor Krasnov wrote:
 >=20
-> Changes in v4:
->     Remove some assigned-clocks as they should be inited in their
->     respective device nodes.
+> Thanks for the patch!
 >=20
-> Changes in v3:
->     Adjust some descriptions in dtsi.
+> adding linux-acpi to CC. This is more an ACPI question than I2C.
+
+Mika? Andy? Jarkko? Any input on this?
+
 >=20
-> Changes in v2:
->     Remove RK_FUNC_* in dtsi as it dose not help understand things better.
->     Adjust the order of description in dt-bindings.
->=20
-> v1:
-> These patchs depend on pinctrl patchs as below:
+> > From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+> >=20
+> > Description of the problem:
+> >  - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIB=
+M";
+> >  - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
+> >    Interface Specification, version 1.0": "Each device must specify=20
+> >    'SMBUS01' as its _HID and use a unique _UID value";
+> >  - unfortunately, BIOS vendors (like AMI) seem to ignore this requireme=
+nt
+> >    and implement "SMB0001" HID instead of "SMBUS01";
+> >  - I speculate that they do this because only "SMB0001" is hard coded in
+> >    Windows SMBus driver produced by Microsoft.
+> >=20
+> > This leads to following situation:
+> >  - SMBus works out of box in Windows but not in Linux;
+> >  - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
+> >    SMBus work in Linux. Moreover the same board vendors complain that
+> >    tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
+> >    and produce errors.  So they need to constantly patch the compiler f=
+or=20
+> >    each new version of BIOS.
+> >=20
+> > As it is very unlikely that BIOS vendors implement a correct HID in
+> > future, I would propose to consider whether it is possible to work arou=
+nd
+> > the problem by adding MS HID to the Linux i2c-scmi driver.
+> >=20
+> > Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+> > Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
+> > Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+> > ---
+> >  drivers/i2c/busses/i2c-scmi.c | 1 +
+> >  include/acpi/acpi_drivers.h   | 2 ++
+> >  2 files changed, 3 insertions(+)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scm=
+i.c
+> > index dfc98df..fb9aee0 100644
+> > --- a/drivers/i2c/busses/i2c-scmi.c
+> > +++ b/drivers/i2c/busses/i2c-scmi.c
+> > @@ -51,6 +51,7 @@ struct acpi_smbus_cmi {
+> >  static const struct acpi_device_id acpi_smbus_cmi_ids[] =3D {
+> >  	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
+> >  	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
+> > +	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
+> >  	{"", 0}
+> >  };
+> >  MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
+> > diff --git a/include/acpi/acpi_drivers.h b/include/acpi/acpi_drivers.h
+> > index 29c6912..d34538b 100644
+> > --- a/include/acpi/acpi_drivers.h
+> > +++ b/include/acpi/acpi_drivers.h
+> > @@ -60,6 +60,8 @@
+> >  #define ACPI_DOCK_HID			"LNXDOCK"
+> >  /* Quirk for broken IBM BIOSes */
+> >  #define ACPI_SMBUS_IBM_HID		"SMBUSIBM"
+> > +/* SMBUS HID definition as supported by Microsoft Windows */
+> > +#define ACPI_SMBUS_MS_HID		"SMB0001"
+> > =20
+> >  /*
+> >   * For fixed hardware buttons, we fabricate acpi_devices with HID
+> > --=20
+> > 1.9.3
+> >=20
 
-Why didn't you renumber the patches? I and probably others wondered
-where and what patch 2 is and why it could be missing. I recall now that
-I applied it already. Other maintainers don't have that knowledge. Also,
-since I applied your patch, no need for me or the i2c-list to be on CC.
-
-Please no "quick fixes" when sending out patch series. I know it is
-tempting but it usually creates confusion.
 
 
---t3raypotlh7kogkn
+--gnrvw7pdweomcqbh
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljdHtUACgkQFA3kzBSg
-KbbzJw/+NWUSFD9p+NewJsQ4meU2Lruf1wjsyLTvZDtWkdSCSq7EIlrLsOxO6g7E
-4ntxCrdpSsIXszhwLumzCkVtqVPtiXKxSUei3JQFiDmS1fPol6r9ab5p1S+mVakl
-rgK7NCXsYL+BwZtUdZ/VTBnu2xmOETD2IdvvuYLBnSkmARmOEXHPIYszJj0C5DnE
-SJo73LkZ8uLrLhdp8gEDXEm8Iag507OPFr+PuZgKMjHoFruAmIFg4awan0AKskjs
-Re0o46PV1oOybp64+CszmLD8sDJE9c7pvRjzYxLi9hPAY22Dybgnt95jYahHcn+J
-lUrD/M6WuNbKDziecRkbGPWpwRojttLLCfPstCVk+WCEHW+3kAl1LMaWeh6ILw/t
-p0KNc+xaYd9CUs1/0pjc8OWJEQRaudJHNQ5JeHPYcV8M1SuJoE/MSOfrrW589NBM
-nN3qTY0WJWYX5HJoWqXyPR+/sfiWwkhuLopgiGZSYnk7qbl4n/UGjiv8NCYHpifm
-57GIwkn48phYLVWNRMyLwwe/x7+JLrDxM6ItvL6HGkfb3MlQEMyxY0Ooky9xnCV8
-7MjNdIUZdyD6g4BDz7brTV7tbVBoJuozjmO/ha+jBqSfpay4hHs8gfx+U/PafklF
-dZxhEAuYqVjU4oGg/OdZwANj2izeRstKt1AalFrdrAWEoUoxVuk=
-=4ZYN
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljdKb0ACgkQFA3kzBSg
+KbasTRAAqAB//05EKR4ylTU9DIfzr6Gtq7T4/KISf3hCtLp6PBePc1Y2J5ICOC43
+p/kSOwy898nYXCvXZED/hIPtJzYil+56mBhMcUC7X7KBLXhCRRf8p7BrRXRygZGN
+6rGSbLAxMF3hGb4L8JObQA9aGw//b5BjxMpiymcVr+vMr35alHzyJNk03dODjXvQ
+YocAPjlvA/v65xzhlP/XZfH+DSotH4w5ZHhZpfPTGHdEo22wMVEQvJrENRUF3/8r
+SYRyTO7Pmt+LhoBPmk4VtojRfdJtpEzVELP21ojoXb9r6toyGThOdX7d7MCjDUZO
+uS+cO4IhWTba8YZgsNBwRCMyJZP0PNW0EMUquibprhg8gE9pEvRvuH5gBCMuo2hR
+RGtqVBQs322WK+nbDBCq9UhL/IXEp8ClR9av9/TqwU65vV4yzc5vAgqAR54iHD6e
+vf8j3QADH0uX0PcnE8PZq/9nzsTAvHDf+ac4dYyMY63JthlE0Ozol86r9KqsGX6b
+sRGCUxCvdWd+R34K6HuJ+vzHvMKB0YdWgd0FY8ehKle9NNox624ZTxXWM1k8qMG8
+H/ByKtgmDlWRg4pszS+EdKgu6zfHELcdzfyR+fKJ7X+33dr6T39IcZWZapPp+02U
+V/m8DbD+KLd+6Ki6zZbze0Uue+vPLmsgytve88xVIxGdG1f2Fio=
+=UQGP
 -----END PGP SIGNATURE-----
 
---t3raypotlh7kogkn--
+--gnrvw7pdweomcqbh--
