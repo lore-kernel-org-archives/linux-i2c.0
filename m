@@ -1,80 +1,92 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: designware: Do nothing in system suspend/resume when RT suspended
-Date: Thu, 30 Mar 2017 15:04:44 +0300
-Message-ID: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [RESEND][PATCH v2] i2c: designwear: Fix clk warning on
+ suspend/resume
+Date: Thu, 30 Mar 2017 15:39:37 +0300
+Message-ID: <4d9af49e-99a4-1647-bbbb-3f146b991209@linux.intel.com>
+References: <1490844377-32182-1-git-send-email-john.stultz@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:33165 "EHLO mga01.intel.com"
+Received: from mga14.intel.com ([192.55.52.115]:33126 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933077AbdC3MFF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 30 Mar 2017 08:05:05 -0400
+        id S932704AbdC3Mjn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 30 Mar 2017 08:39:43 -0400
+In-Reply-To: <1490844377-32182-1-git-send-email-john.stultz@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-pm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-There is possibility to enter dw_i2c_plat_suspend() callback twice
-during system suspend under certain cases which is causing here warnings
-from clk_core_disable() and clk_core_unprepare() as well as accessing the
-registers that can be power gated.
+Hi
 
-Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
-system suspend") implemented a prepare callback that checks for runtime
-suspended device which allow PM core to set direct_complete flag and
-skip system suspend and resume callbacks.
+On 03/30/2017 06:26 AM, John Stultz wrote:
+> On my HiKey board, I'm seeing clk warnings on suspend/resume,
+> which seem to be caused by runtime pm suspending the device,
+> then the same suspend hook being called again on suspend time.
+>
+> This patch fixes this by setting the SYSTEM_SLEEP_PM_OPS to
+> using pm_runtime_force_suspend and  pm_runtime_force_resume.
+>
+> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Suggested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> ---
+> v2: Switch to suggested fix by Jarkko.
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 79c4b4e..286447c 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -382,7 +382,7 @@ static int dw_i2c_plat_resume(struct device *dev)
+>  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>  	.prepare = dw_i2c_plat_prepare,
+>  	.complete = dw_i2c_plat_complete,
+> -	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+> +	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+>  	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
 
-However it can still happen if nothing resumes the device prior system
-syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
-unsets the direct_complete flag of the parent in __device_suspend() thus
-causing PM code to not skip the system suspend/resume callbacks.
+We cannot do this since it will break our platforms that use the 
+drivers/acpi/acpi_lpss.c power domain. Reason why it fails the 
+pm_runtime_force_suspend() forces acpi_lpss to power down too early 
+before suspend_late state where context is expected to be saved during 
+system suspend.
 
-Avoid this by checking runtime status in suspend and resume callbacks
-and return directly if device is runtime suspended. This affects only
-system suspend/resume since during runtime suspend/resume runtime status
-is suspending (not suspended) or resuming.
+acpi_lpss.c power domain
+.suspend = acpi_subsys_suspend
+-> pm_runtime_resume
+    -> acpi_lpss_runtime_resume
+       -> pm_generic_runtime_resume
+          -> dw_i2c_plat_resume
+-> pm_generic_suspend
+    -> pm_runtime_force_suspend
+       -> goes through __rpm_get_callback which selects domain ops
+          -> acpi_lpss_runtime_suspend (context save + power down)
+             -> pm_generic_runtime_suspend
+                -> dw_i2c_plat_suspend
+...
+.suspend_late = acpi_lpss_suspend_late
+-> acpi_lpss is already power gated here due acpi_lpss_runtime_suspend() 
+done during suspend phase and context save will save just 0xFFs and 
+resume restores wrong context.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-I'm able to trigger system suspend callback while device is runtime
-suspended by removing the pm_runtime_resume() call from
-drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
-slave (ACPI enumerated but doesn't bind due an error in probe function).
-In that case __device_suspend() for that unbound device has NULL suspend
-callback, and thus doesn't cause any runtime resume chain but still unsets
-the parent's direct_complete flag.
-John Stult <john.stultz@linaro.org> has reported he can trigger this on
-HiKey board too.
+I managed to found a use case where I'm able to trigger 
+dw_i2c_plat_suspend() callback twice during suspend. Quite deep dive to 
+PM core, lot of debugging and end result is a trivial patch that just 
+checks is i2c-designware runtime suspended in its suspend/resume 
+callbacks... This feels somewhat boilerplate and I figured also an 
+alternative solution to PM core.
 
-I'm not sure is this the right thing to do. It feels something the PM core
-should do but I'm not sure that either. One alternative could be to resume
-runtime suspended parent in in __device_suspend() right after where
-parent's direct_complete flag is unset.
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+I just sent that patch out and I Cc'ed both you and Rafael so he can 
+comment is this the right thing to do in driver or should it be fixed in 
+the PM core.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index a597ba32de7e..42a9cd09aa64 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	if (pm_runtime_suspended(dev))
-+		return 0;
-+
- 	i2c_dw_disable(i_dev);
- 	i2c_dw_plat_prepare_clk(i_dev, false);
- 
-@@ -388,6 +391,9 @@ static int dw_i2c_plat_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	if (pm_runtime_suspended(dev))
-+		return 0;
-+
- 	i2c_dw_plat_prepare_clk(i_dev, true);
- 	i2c_dw_init(i_dev);
- 
 -- 
-2.11.0
+Jarkko
