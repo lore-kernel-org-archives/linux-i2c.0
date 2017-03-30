@@ -1,41 +1,45 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v6 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed
- I2C Interrupt Controller
-Date: Thu, 30 Mar 2017 08:17:15 +1100
-Message-ID: <1490822235.3177.192.camel@kernel.crashing.org>
-References: <20170328051226.21677-1-brendanhiggins@google.com>
-         <20170328051226.21677-2-brendanhiggins@google.com>
-         <1490690980.3177.108.camel@kernel.crashing.org>
-         <CAFd5g47Pij6TxkmS6akWoAL0FZ2WLh+FWUrr099RiabWn+pneQ@mail.gmail.com>
-         <1490789505.3177.184.camel@kernel.crashing.org>
-         <CAFd5g460U4c3rMtKphxnu=OADTfD=oe8Z+JPn-H82zpHKJUqfw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: John Stultz <john.stultz@linaro.org>
+Subject: [RESEND][PATCH v2] i2c: designwear: Fix clk warning on suspend/resume
+Date: Wed, 29 Mar 2017 20:26:17 -0700
+Message-ID: <1490844377-32182-1-git-send-email-john.stultz@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAFd5g460U4c3rMtKphxnu=OADTfD=oe8Z+JPn-H82zpHKJUqfw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?ISO-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2017-03-29 at 13:51 -0700, Brendan Higgins wrote:
-> so maybe instead of setting a hard limit like I did, maybe the best
-> thing is to just check and see what the base_clk gets set to and if
-> it gets set to zero, we turn on high speed mode. What do you think?
+On my HiKey board, I'm seeing clk warnings on suspend/resume,
+which seem to be caused by runtime pm suspending the device,
+then the same suspend hook being called again on suspend time.
 
-Ah maybe. Did you scope it to see if clock_hi/low do indeed apply in
-high speed mode ?
+This patch fixes this by setting the SYSTEM_SLEEP_PM_OPS to
+using pm_runtime_force_suspend and  pm_runtime_force_resume.
 
-I wonder if that bit does other things.. I would be interesting to
-check. Ohterwise why have the bit rather than just have the driver
-write 0 to the divisor ?
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+Suggested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+---
+v2: Switch to suggested fix by Jarkko.
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The doc for the high speed mode bit says "high speed mode (3.4Mbps)"
-which is why I, maybe incorrectly, assumed it was a fixed frequency.
-
-Anyway, not a huge deal at this point, but something to look into
-at some stage.
-
-Cheers,
-Ben.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 79c4b4e..286447c 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -382,7 +382,7 @@ static int dw_i2c_plat_resume(struct device *dev)
+ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+ 	.prepare = dw_i2c_plat_prepare,
+ 	.complete = dw_i2c_plat_complete,
+-	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
++	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+ };
+ 
+-- 
+2.7.4
