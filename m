@@ -1,45 +1,113 @@
-From: John Stultz <john.stultz@linaro.org>
-Subject: [RESEND][PATCH v2] i2c: designwear: Fix clk warning on suspend/resume
-Date: Wed, 29 Mar 2017 20:26:17 -0700
-Message-ID: <1490844377-32182-1-git-send-email-john.stultz@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: John Stultz <john.stultz@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+From: Sam Povilus <kernel.development@povil.us>
+Subject: [PATCH v6] hwmon: ads7828 optional parameters from the device tree
+Date: Wed, 29 Mar 2017 21:46:37 -0600
+Message-ID: <20170330034637.29708-1-kernel.development@povil.us>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f68.google.com ([209.85.214.68]:33551 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932685AbdC3Dqt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Mar 2017 23:46:49 -0400
+Received: by mail-it0-f68.google.com with SMTP id w11so4424730itb.0
+        for <linux-i2c@vger.kernel.org>; Wed, 29 Mar 2017 20:46:48 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, jdelvare@suse.com, linux@roeck-us.net, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: Sam Povilus <kernel.development@povil.us>
 
-On my HiKey board, I'm seeing clk warnings on suspend/resume,
-which seem to be caused by runtime pm suspending the device,
-then the same suspend hook being called again on suspend time.
+Adding the ability for the ads7828 and ads7830 to use the device tree to
+get their optional parameters, instead of using platform devices. This
+allows people using custom boards to also use the ads7828 in a non-default
+manner.
 
-This patch fixes this by setting the SYSTEM_SLEEP_PM_OPS to
-using pm_runtime_force_suspend and  pm_runtime_force_resume.
+v2: conforming to coding style
+v3: changing from "_" to "-" for device tree entries
+v4: using regulator subsystem for voltage source, renaming differential
+    input property
+v5: checking for invalid vref values sooner and returning error if they are
+    bad, not warning user.
+v6: optimization per Guenter Roeck
 
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Suggested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Sam Povilus <kernel.development@povil.us>
 ---
-v2: Switch to suggested fix by Jarkko.
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/hwmon/ads7828.txt          | 26 ++++++++++++++++++++++
+ drivers/hwmon/ads7828.c                            | 15 +++++++++++++
+ 2 files changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 79c4b4e..286447c 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -382,7 +382,7 @@ static int dw_i2c_plat_resume(struct device *dev)
- static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
- 	.prepare = dw_i2c_plat_prepare,
- 	.complete = dw_i2c_plat_complete,
--	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
-+	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
- 	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
- };
+diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+new file mode 100644
+index 000000000000..a1251b19079d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+@@ -0,0 +1,26 @@
++ads7828 properties
++
++Required properties:
++- compatible: Should be one of
++	       ti,ads7828
++	       ti,ads7830
++- reg: I2C address
++
++Optional properties:
++
++- ti,differential-input
++  Set to use the device in differential mode.
++- vref
++  The external reference on the device is set to this regulators output. If it
++  does not exists the internal reference will be used and output by the ads78xx
++  on the "external vref" pin.
++
++  Example ADS7828 node:
++
++  ads7828: ads@48 {
++  	   comatible = "ti,ads7828";
++	   reg = <0x48>;
++	   vref-supply = <&vref>;
++	   ti,differential-input;
++  };
++
+diff --git a/drivers/hwmon/ads7828.c b/drivers/hwmon/ads7828.c
+index ee396ff167d9..88330a233b1d 100644
+--- a/drivers/hwmon/ads7828.c
++++ b/drivers/hwmon/ads7828.c
+@@ -34,6 +34,7 @@
+ #include <linux/platform_data/ads7828.h>
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
++#include <linux/regulator/consumer.h>
  
+ /* The ADS7828 registers */
+ #define ADS7828_CMD_SD_SE	0x80	/* Single ended inputs */
+@@ -118,9 +119,11 @@ static int ads7828_probe(struct i2c_client *client,
+ 	struct ads7828_data *data;
+ 	struct device *hwmon_dev;
+ 	unsigned int vref_mv = ADS7828_INT_VREF_MV;
++	unsigned int vref_uv;
+ 	bool diff_input = false;
+ 	bool ext_vref = false;
+ 	unsigned int regval;
++	struct regulator *reg;
+ 
+ 	data = devm_kzalloc(dev, sizeof(struct ads7828_data), GFP_KERNEL);
+ 	if (!data)
+@@ -131,6 +134,18 @@ static int ads7828_probe(struct i2c_client *client,
+ 		ext_vref = pdata->ext_vref;
+ 		if (ext_vref && pdata->vref_mv)
+ 			vref_mv = pdata->vref_mv;
++	} else if (dev->of_node) {
++		diff_input = of_property_read_bool(dev->of_node,
++						   "ti,differential-input");
++		reg = devm_regulator_get_optional(dev, "vref");
++		if (!IS_ERR(reg)) {
++			vref_uv = regulator_get_voltage(reg);
++			vref_mv = DIV_ROUND_CLOSEST(vref_uv, 1000);
++			if (vref_mv < ADS7828_EXT_VREF_MV_MIN ||
++			    vref_mv > ADS7828_EXT_VREF_MV_MAX)
++				return -EINVAL;
++			ext_vref = true;
++		}
+ 	}
+ 
+ 	/* Bound Vref with min/max values */
 -- 
-2.7.4
+2.11.0
