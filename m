@@ -1,89 +1,37 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Fri, 31 Mar 2017 05:49:50 -0700
-Message-ID: <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PULL REQUEST] i2c-mux for 4.11
+Date: Fri, 31 Mar 2017 16:30:21 +0200
+Message-ID: <0efb416d-d2ce-affe-ee42-b6e4b0966a2d@axentia.se>
+References: <8b90ffb8-e404-2bbf-ba42-5cd244ca3797@axentia.se>
+ <20170330145600.atxqqsnudsfmnrtl@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:34076 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933317AbdCaMt5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 31 Mar 2017 08:49:57 -0400
-In-Reply-To: <1490944639.2653.182.camel@users.sourceforge.net>
+Received: from mail-eopbgr00131.outbound.protection.outlook.com ([40.107.0.131]:7653
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1755025AbdCaOaj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 31 Mar 2017 10:30:39 -0400
+In-Reply-To: <20170330145600.atxqqsnudsfmnrtl@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Paul Menzel <paulepanter@users.sourceforge.net>, Wolfram Sang <wsa@the-dreams.de>, Zoltan Boszormenyi <zboszor@pr.hu>
-Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Paul,
-
-On 03/31/2017 12:17 AM, Paul Menzel wrote:
-> Dear Wolfram,
->
->
-> Thank you for the reply, which we talked about briefly at the
-> Chemnitzer LinuxTage.
->
->
-> Am Freitag, den 03.03.2017, 11:17 +0100 schrieb Wolfram Sang:
->>> Unfortunately, commit 2fee61d22e (i2c: piix4: Add support for
->>> multiplexed main adapter in SB800) [1] caused a regression. Tim
->>> reported that to the Linux Kernel Bugtracker as bug #170741 last
->>> September [2], but it looks like the affected subsystems don’t use it.
+On 2017-03-30 16:56, Wolfram Sang wrote:
+> On Fri, Mar 24, 2017 at 12:31:13PM +0100, Peter Rosin wrote:
+>> Hi Wolfram,
 >>
->> Jean Delvare pointed out this issue amongst others[1] last year already.
->> Let me quote:
+>> Here are some changes for the pca954x driver. It's a revert of the
+>> un-endorsed ACPI support and a fixup in the handling of PCA9546.
 >>
->> ===
->>
->> 5* The I/O ports used for SMBus configuration and port switching are
->> also needed by a watchdog driver, sp5100_tco. Both drivers request the
->> region, so the first one wins, and the other driver can't be loaded.
->> sp5100_tco was there first, so the changes done to the i2c-piix4 driver
->> recently will cause a regression for some users by preventing them
->> from using the sp5100_tco and i2c-piix4 drivers at the same time. In
->> the long run I guess we will need a helper module to handle this shared
->> resource. Unless IORESOURCE_MUXED can be used for that. Either way,
->> that's more work than I can put into this before kernel v4.5 is
->> released. For the time being, I think we should simply make it
->> non-fatal if the I/O ports can't be requested, and continue without
->> multiplexing (as before.)
->>
->> ===
->>
->> Seems nobody had the resources, so far.
->
-> I still don’t understand, why Jean then not immediately reverted the
-> commit to adhere to the Linux Kernel’s no-regression-policy.
->
->> I don't have the HW and not much experience with non-embedded
->> platforms. I wonder, though, if we really need to convert the drivers
->> to MFD ones, or if we could use the simpler MFD_SYSCON mechanism
->> which helps in exactly such cases for embedded platforms. But I am
->> really lacking details here and am afraid this is probably all the
->> input I can give currently.
->
-> Zoltan stepped up, and uploaded a patch for review to the Kernel.org
-> Bugzilla [2], also attached to this message.
->
+>> Please pull.
+> 
+> Pulled, thanks. Sorry for the delay, I was a little ill and away from
+> computers.
 
-Please don't send patches as attachments.
+No worries, I just hope you feel better!
 
-request_muxed_region() can fail, and literally every other driver
-using it checks for that failure. Please do the same.
-
-The sp5100_tco_dev_name change in the watchdog driver is unnecessary.
-There are some unnecessary { } in the watchdog driver after the patch
-is applied.
-
-Please split the patch into two patches so they can be reviewed and
-applied separately.
-
-Thanks,
-Guenter
+Cheers,
+peda
