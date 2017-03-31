@@ -1,186 +1,306 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Fri, 31 Mar 2017 11:03:42 +1030
-Message-ID: <CACPK8XdUyu7H07=y4PL4zmTc5vJ0bu=UJkza64HgvDiK97noSg@mail.gmail.com>
-References: <20170328051226.21677-1-brendanhiggins@google.com> <20170328051226.21677-5-brendanhiggins@google.com>
+From: Paul Menzel <paulepanter@users.sourceforge.net>
+Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
+ loading of sp5100_tco watchdog driver on AMD SB800 chipset
+Date: Fri, 31 Mar 2017 09:17:19 +0200
+Message-ID: <1490944639.2653.182.camel@users.sourceforge.net>
+References: <1485728348.3220.10.camel@googlemail.com>
+         <1488530782.2457.41.camel@users.sourceforge.net>
+         <20170303101702.GA1669@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
+        boundary="=-uUX1hzt/5CN3rST+tlPs"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f196.google.com ([209.85.213.196]:34585 "EHLO
-        mail-yb0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933345AbdCaAeE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Mar 2017 20:34:04 -0400
-In-Reply-To: <20170328051226.21677-5-brendanhiggins@google.com>
+Received: from mail.gw90.de ([188.40.100.199]:35312 "EHLO mail.gw90.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753154AbdCaHSM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 31 Mar 2017 03:18:12 -0400
+In-Reply-To: <20170303101702.GA1669@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, vz@mleia.com, mouse@mayc.ru, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Zoltan Boszormenyi <zboszor@pr.hu>
+Cc: Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org
 
-On Tue, Mar 28, 2017 at 3:42 PM, Brendan Higgins
-<brendanhiggins@google.com> wrote:
-> Added initial master support for Aspeed I2C controller. Supports
-> fourteen busses present in AST24XX and AST25XX BMC SoCs by Aspeed.
 
-Mention that the driver supports byte at a time access only at this stage.
+--=-uUX1hzt/5CN3rST+tlPs
+Content-Type: multipart/mixed; boundary="=-/tGmDBtxViO0uMK0a9n3"
 
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 
-Looking good. I've given this a spin on ast2500 hardware and it worked for me.
+--=-/tGmDBtxViO0uMK0a9n3
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I've got a bunch of nits below, and one bigger question about weather
-we need internal locking in the driver, or if we can rely on the i2c
-core for our locks.
+Dear Wolfram,
 
-> ---
->  drivers/i2c/busses/Kconfig      |  10 +
->  drivers/i2c/busses/Makefile     |   1 +
->  drivers/i2c/busses/i2c-aspeed.c | 610 ++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 621 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-aspeed.c
->
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 8adc0f1d7ad0..e5ea5641a874 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -326,6 +326,16 @@ config I2C_POWERMAC
->
->  comment "I2C system bus drivers (mostly embedded / system-on-chip)"
->
-> +config I2C_ASPEED
-> +       tristate "Aspeed AST2xxx SoC I2C Controller"
 
-Aspeed I2C Controller
+Thank you for the reply, which we talked about briefly at the
+Chemnitzer LinuxTage.
 
-> +       depends on ARCH_ASPEED
-> +       help
-> +         If you say yes to this option, support will be included for the
-> +         Aspeed AST2xxx SoC I2C controller.
 
-And again.
+Am Freitag, den 03.03.2017, 11:17 +0100 schrieb Wolfram Sang:
+> > Unfortunately, commit 2fee61d22e (i2c: piix4: Add support for
+> > multiplexed main adapter in SB800) [1] caused a regression. Tim
+> > reported that to the Linux Kernel Bugtracker as bug #170741 last
+> > September [2], but it looks like the affected subsystems don=E2=80=99t =
+use it.
+>=20
+> Jean Delvare pointed out this issue amongst others[1] last year already.
+> Let me quote:
+>=20
+> =3D=3D=3D
+>=20
+> 5* The I/O ports used for SMBus configuration and port switching are
+> also needed by a watchdog driver, sp5100_tco. Both drivers request the
+> region, so the first one wins, and the other driver can't be loaded.
+> sp5100_tco was there first, so the changes done to the i2c-piix4 driver
+> recently will cause a regression for some users by preventing them
+> from using the sp5100_tco and i2c-piix4 drivers at the same time. In
+> the long run I guess we will need a helper module to handle this shared
+> resource. Unless IORESOURCE_MUXED can be used for that. Either way,
+> that's more work than I can put into this before kernel v4.5 is
+> released. For the time being, I think we should simply make it
+> non-fatal if the I/O ports can't be requested, and continue without
+> multiplexing (as before.)
+>=20
+> =3D=3D=3D
+>=20
+> Seems nobody had the resources, so far.
 
-> +
-> +         This driver can also be built as a module.  If so, the module
-> +         will be called i2c-aspeed.
-> +
->  config I2C_AT91
->         tristate "Atmel AT91 I2C Two-Wire interface (TWI)"
->         depends on ARCH_AT91
+I still don=E2=80=99t understand, why Jean then not immediately reverted th=
+e
+commit to adhere to the Linux Kernel=E2=80=99s no-regression-policy.
 
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> new file mode 100644
-> index 000000000000..04266acc6c46
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> I don't have the HW and not much=C2=A0experience with non-embedded
+> platforms. I wonder, though, if we really need to convert the drivers
+> to MFD ones, or if we could use the simpler MFD_SYSCON mechanism
+> which helps in exactly such cases for embedded platforms. But I am
+> really lacking details here and am afraid this is probably all the
+> input I can give currently.
 
-> +       spin_unlock_irqrestore(&bus->lock, flags);
-> +
-> +       return ret;
-> +}
-> +
-> +static void do_start(struct aspeed_i2c_bus *bus)
+Zoltan stepped up, and uploaded a patch for review to the Kernel.org
+Bugzilla [2], also attached to this message.
 
-aspeed_i2c_do_start
+Christian, Tim, and Nehal could you please test and review it?
 
-> +{
-> +       u32 command = ASPEED_I2CD_M_START_CMD | ASPEED_I2CD_M_TX_CMD;
-> +       struct i2c_msg *msg = &bus->msgs[bus->msgs_index];
-> +       u8 slave_addr = msg->addr << 1;
-> +
-> +       bus->master_state = ASPEED_I2C_MASTER_START;
-> +       bus->buf_index = 0;
-> +
-> +       if (msg->flags & I2C_M_RD) {
-> +               slave_addr |= 1;
-> +               command |= ASPEED_I2CD_M_RX_CMD;
-> +               /* Need to let the hardware know to NACK after RX. */
-> +               if (msg->len == 1 && !(msg->flags & I2C_M_RECV_LEN))
-> +                       command |= ASPEED_I2CD_M_S_RX_CMD_LAST;
-> +       }
-> +
-> +       aspeed_i2c_write(bus, slave_addr, ASPEED_I2C_BYTE_BUF_REG);
-> +       aspeed_i2c_write(bus, command, ASPEED_I2C_CMD_REG);
-> +}
-> +
-> +static void do_stop(struct aspeed_i2c_bus *bus)
 
-aspeed_i2c_do_stop
+Thanks,
 
-> +{
-> +       bus->master_state = ASPEED_I2C_MASTER_STOP;
-> +       aspeed_i2c_write(bus, ASPEED_I2CD_M_STOP_CMD,
-> +                        ASPEED_I2C_CMD_REG);
-> +}
+Paul
 
-> +static int aspeed_i2c_probe_bus(struct platform_device *pdev)
-> +{
-> +       struct aspeed_i2c_bus *bus;
-> +       struct resource *res;
-> +       int ret;
-> +
-> +       bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
-> +       if (!bus)
-> +               return -ENOMEM;
-> +
-> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       bus->base = devm_ioremap_resource(&pdev->dev, res);
-> +       if (IS_ERR(bus->base)) {
-> +               dev_err(&pdev->dev, "failed to devm_ioremap_resource\n");
 
-devm_ioremap_resource shows an error for you, please drop the dev_err here.
+> [1] http://www.spinics.net/lists/linux-i2c/msg23437.html
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=3D170741
+--=-/tGmDBtxViO0uMK0a9n3
+Content-Disposition: attachment; filename="i2c-piix4-coexist-with-sp5100_tco.patch"
+Content-Type: text/x-patch; name="i2c-piix4-coexist-with-sp5100_tco.patch";
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-> +               return PTR_ERR(bus->base);
-> +       }
-> +
-> +       bus->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
-> +       ret = devm_request_irq(&pdev->dev, bus->irq, aspeed_i2c_bus_irq,
-> +                              IRQF_SHARED, dev_name(&pdev->dev), bus);
+RnJvbTogWm9sdMOhbiBCw7ZzesO2cm3DqW55aSA8emJvc3pvckBwci5odT4KRGF0ZTogVHVlIE1h
+ciAyOCAxNDo1MzowNyAyMDE3ICswMjAwClN1YmplY3Q6IFtQQVRDSF0gd2F0Y2hkb2cvc3A1MTAw
+X3RjbzogQ29leGlzdCB3aXRoIGkyYy1waWl4CgpDdXJyZW50bHksIHRoZSBrZXJuZWwgc2F5cyB0
+aGlzIHdoZW4gaTJjLXBpaXggbG9hZHMgYmVmb3JlIHNwNTEwMF90Y286CgpzcDUxMDBfdGNvOiBT
+UDUxMDAvU0I4MDAgVENPIFdhdGNoRG9nIFRpbWVyIERyaXZlciB2MC4wNQpzcDUxMDBfdGNvOiBQ
+Q0kgVmVuZG9yIElEOiAweDEwMDIsIERldmljZSBJRDogMHg0Mzg1LCBSZXZpc2lvbiBJRDogMHg0
+MgpzcDUxMDBfdGNvOiBJL08gYWRkcmVzcyAweDBjZDYgYWxyZWFkeSBpbiB1c2UKCkJvdGggaTJj
+LXBpaXg0IGFuZCBzcDUxMDBfdGNvIHVzZXMgYSBzdGF0aWMgcmVxdWVzdF9yZWdpb24oKSBjYWxs
+CnNvIGl0IGRlcGVuZHMgb24gdGhlIGxvYWQgb3JkZXIgd2hpY2ggb25lIHdpbnMuCgppMmMtcGlp
+eDQgdXNlcyBhIG11dGV4IHRvIHByb3RlY3QgSS9PIHBvcnQgYWNjZXNzZXMgdG8gdGhlIHBhaXIg
+b2YKSS9PIHBvcnRzLiBSZXBsYWNlIHRoaXMgbXV0ZXggbG9jayAvIHVubG9jayB3aXRoIHJlcXVl
+c3RfbXV4ZWRfcmVnaW9uKCkKYW5kIHJlbGVhc2VfcmVnaW9uKCkgYXJvdW5kIHRoZSBJL08gcG9y
+dCBhY2Nlc3NlcyBpbiBpMmMtcGlpeDQuCgpBZGQgcmVxdWVzdF9tdXhlZF9yZWdpb24oKSAvIHJl
+bGVhc2VfcmVnaW9uKCkgcGFpcnMgYXJvdW5kIHRoZSBJL08KYWNjZXNzZXMgaW4gc3A1MTAwX3Rj
+by4KClRoaXMgd2lsbCBhY3QgYXMgYSBjcm9zcy1kcml2ZXIgbXV0ZXguCgpTaWduZWQtb2ZmLWJ5
+OiBab2x0w6FuIELDtnN6w7ZybcOpbnlpIDx6Ym9zem9yQHByLmh1PgoKZGlmZiAtLWdpdCBhL2Ry
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtcGlpeDQuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcGlp
+eDQuYwppbmRleCBjMjFjYTdiLi4xNmJlZmRkNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvYnVz
+c2VzL2kyYy1waWl4NC5jCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcGlpeDQuYwpAQCAt
+NDAsNyArNDAsNiBAQAogI2luY2x1ZGUgPGxpbnV4L2RtaS5oPgogI2luY2x1ZGUgPGxpbnV4L2Fj
+cGkuaD4KICNpbmNsdWRlIDxsaW51eC9pby5oPgotI2luY2x1ZGUgPGxpbnV4L211dGV4Lmg+CiAK
+IAogLyogUElJWDQgU01CdXMgYWRkcmVzcyBvZmZzZXRzICovCkBAIC0xNDQsMTAgKzE0Myw5IEBA
+IHN0YXRpYyBjb25zdCBzdHJ1Y3QgZG1pX3N5c3RlbV9pZCBwaWl4NF9kbWlfaWJtW10gPSB7CiAK
+IC8qCiAgKiBTQjgwMCBnbG9iYWxzCi0gKiBwaWl4NF9tdXRleF9zYjgwMCBwcm90ZWN0cyBwaWl4
+NF9wb3J0X3NlbF9zYjgwMCBhbmQgdGhlIHBhaXIKLSAqIG9mIEkvTyBwb3J0cyBhdCBTQjgwMF9Q
+SUlYNF9TTUJfSURYLgorICogdGhlIHBhaXIgb2YgSS9PIHBvcnRzIGF0IFNCODAwX1BJSVg0X1NN
+Ql9JRFggYXJlIHByb3RlY3RlZAorICogYnkgcmVxdWVzdF9tdXhlZF9yZWdpb24gLyByZWxlYXNl
+X3JlZ2lvbgogICovCi1zdGF0aWMgREVGSU5FX01VVEVYKHBpaXg0X211dGV4X3NiODAwKTsKIHN0
+YXRpYyB1OCBwaWl4NF9wb3J0X3NlbF9zYjgwMDsKIHN0YXRpYyBjb25zdCBjaGFyICpwaWl4NF9t
+YWluX3BvcnRfbmFtZXNfc2I4MDBbUElJWDRfTUFYX0FEQVBURVJTXSA9IHsKIAkiIHBvcnQgMCIs
+ICIgcG9ydCAyIiwgIiBwb3J0IDMiLCAiIHBvcnQgNCIKQEAgLTE1Nyw4ICsxNTUsNiBAQCBzdGF0
+aWMgY29uc3QgY2hhciAqcGlpeDRfYXV4X3BvcnRfbmFtZV9zYjgwMCA9ICIgcG9ydCAxIjsKIHN0
+cnVjdCBpMmNfcGlpeDRfYWRhcGRhdGEgewogCXVuc2lnbmVkIHNob3J0IHNtYmE7CiAKLQkvKiBT
+QjgwMCAqLwotCWJvb2wgc2I4MDBfbWFpbjsKIAl1OCBwb3J0OwkJLyogUG9ydCBudW1iZXIsIHNo
+aWZ0ZWQgKi8KIH07CiAKQEAgLTI2MSw2ICsyNTcsMTQgQEAgc3RhdGljIGludCBwaWl4NF9zZXR1
+cChzdHJ1Y3QgcGNpX2RldiAqUElJWDRfZGV2LAogCXJldHVybiBwaWl4NF9zbWJhOwogfQogCitz
+dGF0aWMgaW5saW5lIHZvaWQgZW50ZXJfc2I4MDAodm9pZCkgeworCXJlcXVlc3RfbXV4ZWRfcmVn
+aW9uKFNCODAwX1BJSVg0X1NNQl9JRFgsIDIsICJzbWJhX2lkeCIpOworfQorCitzdGF0aWMgaW5s
+aW5lIHZvaWQgbGVhdmVfc2I4MDAodm9pZCkgeworCXJlbGVhc2VfcmVnaW9uKFNCODAwX1BJSVg0
+X1NNQl9JRFgsIDIpOworfQorCiBzdGF0aWMgaW50IHBpaXg0X3NldHVwX3NiODAwKHN0cnVjdCBw
+Y2lfZGV2ICpQSUlYNF9kZXYsCiAJCQkgICAgIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICpp
+ZCwgdTggYXV4KQogewpAQCAtMjg2LDEyICsyOTAsMTIgQEAgc3RhdGljIGludCBwaWl4NF9zZXR1
+cF9zYjgwMChzdHJ1Y3QgcGNpX2RldiAqUElJWDRfZGV2LAogCWVsc2UKIAkJc21iX2VuID0gKGF1
+eCkgPyAweDI4IDogMHgyYzsKIAotCW11dGV4X2xvY2soJnBpaXg0X211dGV4X3NiODAwKTsKKwll
+bnRlcl9zYjgwMCgpOwogCW91dGJfcChzbWJfZW4sIFNCODAwX1BJSVg0X1NNQl9JRFgpOwogCXNt
+YmFfZW5fbG8gPSBpbmJfcChTQjgwMF9QSUlYNF9TTUJfSURYICsgMSk7CiAJb3V0Yl9wKHNtYl9l
+biArIDEsIFNCODAwX1BJSVg0X1NNQl9JRFgpOwogCXNtYmFfZW5faGkgPSBpbmJfcChTQjgwMF9Q
+SUlYNF9TTUJfSURYICsgMSk7Ci0JbXV0ZXhfdW5sb2NrKCZwaWl4NF9tdXRleF9zYjgwMCk7CisJ
+bGVhdmVfc2I4MDAoKTsKIAogCWlmICghc21iX2VuKSB7CiAJCXNtYl9lbl9zdGF0dXMgPSBzbWJh
+X2VuX2xvICYgMHgxMDsKQEAgLTM0OSwxMyArMzUzLDEzIEBAIHN0YXRpYyBpbnQgcGlpeDRfc2V0
+dXBfc2I4MDAoc3RydWN0IHBjaV9kZXYgKlBJSVg0X2RldiwKIAlpZiAoUElJWDRfZGV2LT52ZW5k
+b3IgPT0gUENJX1ZFTkRPUl9JRF9BTUQpIHsKIAkJcGlpeDRfcG9ydF9zZWxfc2I4MDAgPSBTQjgw
+MF9QSUlYNF9QT1JUX0lEWF9BTFQ7CiAJfSBlbHNlIHsKLQkJbXV0ZXhfbG9jaygmcGlpeDRfbXV0
+ZXhfc2I4MDApOworCQllbnRlcl9zYjgwMCgpOwogCQlvdXRiX3AoU0I4MDBfUElJWDRfUE9SVF9J
+RFhfU0VMLCBTQjgwMF9QSUlYNF9TTUJfSURYKTsKIAkJcG9ydF9zZWwgPSBpbmJfcChTQjgwMF9Q
+SUlYNF9TTUJfSURYICsgMSk7CiAJCXBpaXg0X3BvcnRfc2VsX3NiODAwID0gKHBvcnRfc2VsICYg
+MHgwMSkgPwogCQkJCSAgICAgICBTQjgwMF9QSUlYNF9QT1JUX0lEWF9BTFQgOgogCQkJCSAgICAg
+ICBTQjgwMF9QSUlYNF9QT1JUX0lEWDsKLQkJbXV0ZXhfdW5sb2NrKCZwaWl4NF9tdXRleF9zYjgw
+MCk7CisJCWxlYXZlX3NiODAwKCk7CiAJfQogCiAJZGV2X2luZm8oJlBJSVg0X2Rldi0+ZGV2LApA
+QCAtNTkyLDcgKzU5Niw3IEBAIHN0YXRpYyBzMzIgcGlpeDRfYWNjZXNzX3NiODAwKHN0cnVjdCBp
+MmNfYWRhcHRlciAqYWRhcCwgdTE2IGFkZHIsCiAJdTggcG9ydDsKIAlpbnQgcmV0dmFsOwogCi0J
+bXV0ZXhfbG9jaygmcGlpeDRfbXV0ZXhfc2I4MDApOworCWVudGVyX3NiODAwKCk7CiAKIAkvKiBS
+ZXF1ZXN0IHRoZSBTTUJVUyBzZW1hcGhvcmUsIGF2b2lkIGNvbmZsaWN0cyB3aXRoIHRoZSBJTUMg
+Ki8KIAlzbWJzbHZjbnQgID0gaW5iX3AoU01CU0xWQ05UKTsKQEAgLTYwOCw3ICs2MTIsNyBAQCBz
+dGF0aWMgczMyIHBpaXg0X2FjY2Vzc19zYjgwMChzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHUx
+NiBhZGRyLAogCX0gd2hpbGUgKC0tcmV0cmllcyk7CiAJLyogU01CdXMgaXMgc3RpbGwgb3duZWQg
+YnkgdGhlIElNQywgd2UgZ2l2ZSB1cCAqLwogCWlmICghcmV0cmllcykgewotCQltdXRleF91bmxv
+Y2soJnBpaXg0X211dGV4X3NiODAwKTsKKwkJbGVhdmVfc2I4MDAoKTsKIAkJcmV0dXJuIC1FQlVT
+WTsKIAl9CiAKQEAgLTYyOCw3ICs2MzIsNyBAQCBzdGF0aWMgczMyIHBpaXg0X2FjY2Vzc19zYjgw
+MChzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHUxNiBhZGRyLAogCS8qIFJlbGVhc2UgdGhlIHNl
+bWFwaG9yZSAqLwogCW91dGJfcChzbWJzbHZjbnQgfCAweDIwLCBTTUJTTFZDTlQpOwogCi0JbXV0
+ZXhfdW5sb2NrKCZwaWl4NF9tdXRleF9zYjgwMCk7CisJbGVhdmVfc2I4MDAoKTsKIAogCXJldHVy
+biByZXR2YWw7CiB9CkBAIC03MDUsNyArNzA5LDYgQEAgc3RhdGljIGludCBwaWl4NF9hZGRfYWRh
+cHRlcihzdHJ1Y3QgcGNpX2RldiAqZGV2LCB1bnNpZ25lZCBzaG9ydCBzbWJhLAogCX0KIAogCWFk
+YXBkYXRhLT5zbWJhID0gc21iYTsKLQlhZGFwZGF0YS0+c2I4MDBfbWFpbiA9IHNiODAwX21haW47
+CiAJYWRhcGRhdGEtPnBvcnQgPSBwb3J0IDw8IDE7CiAKIAkvKiBzZXQgdXAgdGhlIHN5c2ZzIGxp
+bmthZ2UgdG8gb3VyIHBhcmVudCBkZXZpY2UgKi8KQEAgLTc3MSwxNyArNzc0LDkgQEAgc3RhdGlj
+IGludCBwaWl4NF9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqZGV2LCBjb25zdCBzdHJ1Y3QgcGNpX2Rl
+dmljZV9pZCAqaWQpCiAJICAgIGRldi0+dmVuZG9yID09IFBDSV9WRU5ET1JfSURfQU1EKSB7CiAJ
+CWlzX3NiODAwID0gdHJ1ZTsKIAotCQlpZiAoIXJlcXVlc3RfcmVnaW9uKFNCODAwX1BJSVg0X1NN
+Ql9JRFgsIDIsICJzbWJhX2lkeCIpKSB7Ci0JCQlkZXZfZXJyKCZkZXYtPmRldiwKLQkJCSJTTUJ1
+cyBiYXNlIGFkZHJlc3MgaW5kZXggcmVnaW9uIDB4JXggYWxyZWFkeSBpbiB1c2UhXG4iLAotCQkJ
+U0I4MDBfUElJWDRfU01CX0lEWCk7Ci0JCQlyZXR1cm4gLUVCVVNZOwotCQl9Ci0KIAkJLyogYmFz
+ZSBhZGRyZXNzIGxvY2F0aW9uIGV0YyBjaGFuZ2VkIGluIFNCODAwICovCiAJCXJldHZhbCA9IHBp
+aXg0X3NldHVwX3NiODAwKGRldiwgaWQsIDApOwogCQlpZiAocmV0dmFsIDwgMCkgewotCQkJcmVs
+ZWFzZV9yZWdpb24oU0I4MDBfUElJWDRfU01CX0lEWCwgMik7CiAJCQlyZXR1cm4gcmV0dmFsOwog
+CQl9CiAKQEAgLTc5MSw3ICs3ODYsNiBAQCBzdGF0aWMgaW50IHBpaXg0X3Byb2JlKHN0cnVjdCBw
+Y2lfZGV2ICpkZXYsIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICppZCkKIAkJICovCiAJCXJl
+dHZhbCA9IHBpaXg0X2FkZF9hZGFwdGVyc19zYjgwMChkZXYsIHJldHZhbCk7CiAJCWlmIChyZXR2
+YWwgPCAwKSB7Ci0JCQlyZWxlYXNlX3JlZ2lvbihTQjgwMF9QSUlYNF9TTUJfSURYLCAyKTsKIAkJ
+CXJldHVybiByZXR2YWw7CiAJCX0KIAl9IGVsc2UgewpAQCAtODQxLDExICs4MzUsOCBAQCBzdGF0
+aWMgdm9pZCBwaWl4NF9hZGFwX3JlbW92ZShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCiAKIAlp
+ZiAoYWRhcGRhdGEtPnNtYmEpIHsKIAkJaTJjX2RlbF9hZGFwdGVyKGFkYXApOwotCQlpZiAoYWRh
+cGRhdGEtPnBvcnQgPT0gKDAgPDwgMSkpIHsKKwkJaWYgKGFkYXBkYXRhLT5wb3J0ID09ICgwIDw8
+IDEpKQogCQkJcmVsZWFzZV9yZWdpb24oYWRhcGRhdGEtPnNtYmEsIFNNQklPU0laRSk7Ci0JCQlp
+ZiAoYWRhcGRhdGEtPnNiODAwX21haW4pCi0JCQkJcmVsZWFzZV9yZWdpb24oU0I4MDBfUElJWDRf
+U01CX0lEWCwgMik7Ci0JCX0KIAkJa2ZyZWUoYWRhcGRhdGEpOwogCQlrZnJlZShhZGFwKTsKIAl9
+CmRpZmYgLS1naXQgYS9kcml2ZXJzL3dhdGNoZG9nL3NwNTEwMF90Y28uYyBiL2RyaXZlcnMvd2F0
+Y2hkb2cvc3A1MTAwX3Rjby5jCmluZGV4IDAyODYxOGMuLmZmMzMyYTYgMTAwNjQ0Ci0tLSBhL2Ry
+aXZlcnMvd2F0Y2hkb2cvc3A1MTAwX3Rjby5jCisrKyBiL2RyaXZlcnMvd2F0Y2hkb2cvc3A1MTAw
+X3Rjby5jCkBAIC01Myw2ICs1Myw3IEBAIHN0YXRpYyBERUZJTkVfU1BJTkxPQ0sodGNvX2xvY2sp
+OwkvKiBHdWFyZHMgdGhlIGhhcmR3YXJlICovCiBzdGF0aWMgdW5zaWduZWQgbG9uZyB0aW1lcl9h
+bGl2ZTsKIHN0YXRpYyBjaGFyIHRjb19leHBlY3RfY2xvc2U7CiBzdGF0aWMgc3RydWN0IHBjaV9k
+ZXYgKnNwNTEwMF90Y29fcGNpOworc3RhdGljIGNvbnN0IGNoYXIgKnNwNTEwMF90Y29fZGV2X25h
+bWUgPSBOVUxMOwogCiAvKiB0aGUgd2F0Y2hkb2cgcGxhdGZvcm0gZGV2aWNlICovCiBzdGF0aWMg
+c3RydWN0IHBsYXRmb3JtX2RldmljZSAqc3A1MTAwX3Rjb19wbGF0Zm9ybV9kZXZpY2U7CkBAIC03
+MSw2ICs3MiwyMCBAQCBNT0RVTEVfUEFSTV9ERVNDKG5vd2F5b3V0LCAiV2F0Y2hkb2cgY2Fubm90
+IGJlIHN0b3BwZWQgb25jZSBzdGFydGVkLiIKIAkJIiAoZGVmYXVsdD0iIF9fTU9EVUxFX1NUUklO
+RyhXQVRDSERPR19OT1dBWU9VVCkgIikiKTsKIAogLyoKKyAqIFByb3RlY3QgYWNjZXNzaW5nIHRo
+ZSBwYWlyIG9mIEkvTyBwb3J0cworICogVGhpcyByZWxpZXMgb24gdGhlIGZhY3QgdGhhdCBTQjgw
+MF9JT19QTV9JTkRFWF9SRUcgYW5kCisgKiBTUDUxMDBfSU9fUE1fSU5ERVhfUkVHIGFyZSB0aGUg
+c2FtZSB2YWx1ZS4KKyAqLworc3RhdGljIGlubGluZSB2b2lkIGVudGVyX3NwNTEwMCh2b2lkKSB7
+CisJcmVxdWVzdF9tdXhlZF9yZWdpb24oU1A1MTAwX0lPX1BNX0lOREVYX1JFRywgU1A1MTAwX1BN
+X0lPUE9SVFNfU0laRSwKKwkJCShzcDUxMDBfdGNvX2Rldl9uYW1lID8gc3A1MTAwX3Rjb19kZXZf
+bmFtZSA6ICJzcDUxMDBfdGNvIikgKTsKK30KKworc3RhdGljIGlubGluZSB2b2lkIGxlYXZlX3Nw
+NTEwMCh2b2lkKSB7CisJcmVsZWFzZV9yZWdpb24oU1A1MTAwX0lPX1BNX0lOREVYX1JFRywgU1A1
+MTAwX1BNX0lPUE9SVFNfU0laRSk7Cit9CisKKy8qCiAgKiBTb21lIFRDTyBzcGVjaWZpYyBmdW5j
+dGlvbnMKICAqLwogCkBAIC0xMzgsNiArMTUzLDggQEAgc3RhdGljIHZvaWQgdGNvX3RpbWVyX2Vu
+YWJsZSh2b2lkKQogCiAJaWYgKCF0Y29faGFzX3NwNTEwMF9yZWdfbGF5b3V0KHNwNTEwMF90Y29f
+cGNpKSkgewogCQkvKiBGb3IgU0I4MDAgb3IgbGF0ZXIgKi8KKwkJZW50ZXJfc3A1MTAwKCk7CisK
+IAkJLyogU2V0IHRoZSBXYXRjaGRvZyB0aW1lciByZXNvbHV0aW9uIHRvIDEgc2VjICovCiAJCW91
+dGIoU0I4MDBfUE1fV0FUQ0hET0dfQ09ORklHLCBTQjgwMF9JT19QTV9JTkRFWF9SRUcpOwogCQl2
+YWwgPSBpbmIoU0I4MDBfSU9fUE1fREFUQV9SRUcpOwpAQCAtMTUwLDYgKzE2Nyw4IEBAIHN0YXRp
+YyB2b2lkIHRjb190aW1lcl9lbmFibGUodm9pZCkKIAkJdmFsIHw9IFNCODAwX1BDSV9XQVRDSERP
+R19ERUNPREVfRU47CiAJCXZhbCAmPSB+U0I4MDBfUE1fV0FUQ0hET0dfRElTQUJMRTsKIAkJb3V0
+Yih2YWwsIFNCODAwX0lPX1BNX0RBVEFfUkVHKTsKKworCQlsZWF2ZV9zcDUxMDAoKTsKIAl9IGVs
+c2UgewogCQkvKiBGb3IgU1A1MTAwIG9yIFNCN3gwICovCiAJCS8qIEVuYWJsZSB3YXRjaGRvZyBk
+ZWNvZGUgYml0ICovCkBAIC0xNjQsMTEgKzE4MywxMyBAQCBzdGF0aWMgdm9pZCB0Y29fdGltZXJf
+ZW5hYmxlKHZvaWQpCiAJCQkJICAgICAgIHZhbCk7CiAKIAkJLyogRW5hYmxlIFdhdGNoZG9nIHRp
+bWVyIGFuZCBzZXQgdGhlIHJlc29sdXRpb24gdG8gMSBzZWMgKi8KKwkJZW50ZXJfc3A1MTAwKCk7
+CiAJCW91dGIoU1A1MTAwX1BNX1dBVENIRE9HX0NPTlRST0wsIFNQNTEwMF9JT19QTV9JTkRFWF9S
+RUcpOwogCQl2YWwgPSBpbmIoU1A1MTAwX0lPX1BNX0RBVEFfUkVHKTsKIAkJdmFsIHw9IFNQNTEw
+MF9QTV9XQVRDSERPR19TRUNPTkRfUkVTOwogCQl2YWwgJj0gflNQNTEwMF9QTV9XQVRDSERPR19E
+SVNBQkxFOwogCQlvdXRiKHZhbCwgU1A1MTAwX0lPX1BNX0RBVEFfUkVHKTsKKwkJbGVhdmVfc3A1
+MTAwKCk7CiAJfQogfQogCkBAIC0zMjcsNyArMzQ4LDYgQEAgTU9EVUxFX0RFVklDRV9UQUJMRShw
+Y2ksIHNwNTEwMF90Y29fcGNpX3RibCk7CiBzdGF0aWMgdW5zaWduZWQgY2hhciBzcDUxMDBfdGNv
+X3NldHVwZGV2aWNlKHZvaWQpCiB7CiAJc3RydWN0IHBjaV9kZXYgKmRldiA9IE5VTEw7Ci0JY29u
+c3QgY2hhciAqZGV2X25hbWUgPSBOVUxMOwogCXUzMiB2YWw7CiAJdTMyIGluZGV4X3JlZywgZGF0
+YV9yZWcsIGJhc2VfYWRkcjsKIApAQCAtMzUwLDI3ICszNzAsMjEgQEAgc3RhdGljIHVuc2lnbmVk
+IGNoYXIgc3A1MTAwX3Rjb19zZXR1cGRldmljZSh2b2lkKQogCSAqIERldGVybWluZSB0eXBlIG9m
+IHNvdXRoYnJpZGdlIGNoaXBzZXQuCiAJICovCiAJaWYgKHRjb19oYXNfc3A1MTAwX3JlZ19sYXlv
+dXQoc3A1MTAwX3Rjb19wY2kpKSB7Ci0JCWRldl9uYW1lID0gU1A1MTAwX0RFVk5BTUU7CisJCXNw
+NTEwMF90Y29fZGV2X25hbWUgPSBTUDUxMDBfREVWTkFNRTsKIAkJaW5kZXhfcmVnID0gU1A1MTAw
+X0lPX1BNX0lOREVYX1JFRzsKIAkJZGF0YV9yZWcgPSBTUDUxMDBfSU9fUE1fREFUQV9SRUc7CiAJ
+CWJhc2VfYWRkciA9IFNQNTEwMF9QTV9XQVRDSERPR19CQVNFOwogCX0gZWxzZSB7Ci0JCWRldl9u
+YW1lID0gU0I4MDBfREVWTkFNRTsKKwkJc3A1MTAwX3Rjb19kZXZfbmFtZSA9IFNCODAwX0RFVk5B
+TUU7CiAJCWluZGV4X3JlZyA9IFNCODAwX0lPX1BNX0lOREVYX1JFRzsKIAkJZGF0YV9yZWcgPSBT
+QjgwMF9JT19QTV9EQVRBX1JFRzsKIAkJYmFzZV9hZGRyID0gU0I4MDBfUE1fV0FUQ0hET0dfQkFT
+RTsKIAl9CiAKLQkvKiBSZXF1ZXN0IHRoZSBJTyBwb3J0cyB1c2VkIGJ5IHRoaXMgZHJpdmVyICov
+Ci0JcG1faW9iYXNlID0gU1A1MTAwX0lPX1BNX0lOREVYX1JFRzsKLQlpZiAoIXJlcXVlc3RfcmVn
+aW9uKHBtX2lvYmFzZSwgU1A1MTAwX1BNX0lPUE9SVFNfU0laRSwgZGV2X25hbWUpKSB7Ci0JCXBy
+X2VycigiSS9PIGFkZHJlc3MgMHglMDR4IGFscmVhZHkgaW4gdXNlXG4iLCBwbV9pb2Jhc2UpOwot
+CQlnb3RvIGV4aXQ7Ci0JfQotCiAJLyoKIAkgKiBGaXJzdCwgRmluZCB0aGUgd2F0Y2hkb2cgdGlt
+ZXIgTU1JTyBhZGRyZXNzIGZyb20gaW5kaXJlY3QgSS9PLgogCSAqLworCWVudGVyX3NwNTEwMCgp
+OwogCW91dGIoYmFzZV9hZGRyKzMsIGluZGV4X3JlZyk7CiAJdmFsID0gaW5iKGRhdGFfcmVnKTsK
+IAlvdXRiKGJhc2VfYWRkcisyLCBpbmRleF9yZWcpOwpAQCAtMzgwLDEyICszOTQsMTMgQEAgc3Rh
+dGljIHVuc2lnbmVkIGNoYXIgc3A1MTAwX3Rjb19zZXR1cGRldmljZSh2b2lkKQogCW91dGIoYmFz
+ZV9hZGRyKzAsIGluZGV4X3JlZyk7CiAJLyogTG93IHRocmVlIGJpdHMgb2YgQkFTRSBhcmUgcmVz
+ZXJ2ZWQgKi8KIAl2YWwgPSB2YWwgPDwgOCB8IChpbmIoZGF0YV9yZWcpICYgMHhmOCk7CisJbGVh
+dmVfc3A1MTAwKCk7CiAKIAlwcl9kZWJ1ZygiR290IDB4JTA0eCBmcm9tIGluZGlyZWN0IEkvT1xu
+IiwgdmFsKTsKIAogCS8qIENoZWNrIE1NSU8gYWRkcmVzcyBjb25mbGljdCAqLwogCWlmIChyZXF1
+ZXN0X21lbV9yZWdpb25fZXhjbHVzaXZlKHZhbCwgU1A1MTAwX1dEVF9NRU1fTUFQX1NJWkUsCi0J
+CQkJCQkJCWRldl9uYW1lKSkKKwkJCQkJCQkJc3A1MTAwX3Rjb19kZXZfbmFtZSkpCiAJCWdvdG8g
+c2V0dXBfd2R0OwogCWVsc2UKIAkJcHJfZGVidWcoIk1NSU8gYWRkcmVzcyAweCUwNHggYWxyZWFk
+eSBpbiB1c2VcbiIsIHZhbCk7CkBAIC00MDAsNiArNDE1LDcgQEAgc3RhdGljIHVuc2lnbmVkIGNo
+YXIgc3A1MTAwX3Rjb19zZXR1cGRldmljZSh2b2lkKQogCQkJCSAgICAgIFNQNTEwMF9TQl9SRVNP
+VVJDRV9NTUlPX0JBU0UsICZ2YWwpOwogCX0gZWxzZSB7CiAJCS8qIFJlYWQgU0JSZXNvdXJjZV9N
+TUlPIGZyb20gQWNwaU1taW9FbihQTV9SZWc6IDI0aCkgKi8KKwkJZW50ZXJfc3A1MTAwKCk7CiAJ
+CW91dGIoU0I4MDBfUE1fQUNQSV9NTUlPX0VOKzMsIFNCODAwX0lPX1BNX0lOREVYX1JFRyk7CiAJ
+CXZhbCA9IGluYihTQjgwMF9JT19QTV9EQVRBX1JFRyk7CiAJCW91dGIoU0I4MDBfUE1fQUNQSV9N
+TUlPX0VOKzIsIFNCODAwX0lPX1BNX0lOREVYX1JFRyk7CkBAIC00MDgsNiArNDI0LDcgQEAgc3Rh
+dGljIHVuc2lnbmVkIGNoYXIgc3A1MTAwX3Rjb19zZXR1cGRldmljZSh2b2lkKQogCQl2YWwgPSB2
+YWwgPDwgOCB8IGluYihTQjgwMF9JT19QTV9EQVRBX1JFRyk7CiAJCW91dGIoU0I4MDBfUE1fQUNQ
+SV9NTUlPX0VOKzAsIFNCODAwX0lPX1BNX0lOREVYX1JFRyk7CiAJCXZhbCA9IHZhbCA8PCA4IHwg
+aW5iKFNCODAwX0lPX1BNX0RBVEFfUkVHKTsKKwkJbGVhdmVfc3A1MTAwKCk7CiAJfQogCiAJLyog
+VGhlIFNCUmVzb3VyY2VfTU1JTyBpcyBlbmFibGVkIGFuZCBtYXBwZWQgbWVtb3J5IHNwYWNlPyAq
+LwpAQCAtNDE5LDcgKzQzNiw3IEBAIHN0YXRpYyB1bnNpZ25lZCBjaGFyIHNwNTEwMF90Y29fc2V0
+dXBkZXZpY2Uodm9pZCkKIAkJdmFsICs9IFNCODAwX1BNX1dEVF9NTUlPX09GRlNFVDsKIAkJLyog
+Q2hlY2sgTU1JTyBhZGRyZXNzIGNvbmZsaWN0ICovCiAJCWlmIChyZXF1ZXN0X21lbV9yZWdpb25f
+ZXhjbHVzaXZlKHZhbCwgU1A1MTAwX1dEVF9NRU1fTUFQX1NJWkUsCi0JCQkJCQkJCSAgIGRldl9u
+YW1lKSkgeworCQkJCQkJCQkgICBzcDUxMDBfdGNvX2Rldl9uYW1lKSkgewogCQkJcHJfZGVidWco
+IkdvdCAweCUwNHggZnJvbSBTQlJlc291cmNlX01NSU8gcmVnaXN0ZXJcbiIsCiAJCQkJdmFsKTsK
+IAkJCWdvdG8gc2V0dXBfd2R0OwpAQCAtNDI5LDcgKzQ0Niw3IEBAIHN0YXRpYyB1bnNpZ25lZCBj
+aGFyIHNwNTEwMF90Y29fc2V0dXBkZXZpY2Uodm9pZCkKIAkJcHJfZGVidWcoIlNCUmVzb3VyY2Vf
+TU1JTyBpcyBkaXNhYmxlZCgweCUwNHgpXG4iLCB2YWwpOwogCiAJcHJfbm90aWNlKCJmYWlsZWQg
+dG8gZmluZCBNTUlPIGFkZHJlc3MsIGdpdmluZyB1cC5cbiIpOwotCWdvdG8gIHVucmVnX3JlZ2lv
+bjsKKwlnb3RvICBleGl0OwogCiBzZXR1cF93ZHQ6CiAJdGNvYmFzZV9waHlzID0gdmFsOwpAQCAt
+NDY5LDggKzQ4Niw2IEBAIHN0YXRpYyB1bnNpZ25lZCBjaGFyIHNwNTEwMF90Y29fc2V0dXBkZXZp
+Y2Uodm9pZCkKIAogdW5yZWdfbWVtX3JlZ2lvbjoKIAlyZWxlYXNlX21lbV9yZWdpb24odGNvYmFz
+ZV9waHlzLCBTUDUxMDBfV0RUX01FTV9NQVBfU0laRSk7Ci11bnJlZ19yZWdpb246Ci0JcmVsZWFz
+ZV9yZWdpb24ocG1faW9iYXNlLCBTUDUxMDBfUE1fSU9QT1JUU19TSVpFKTsKIGV4aXQ6CiAJcmV0
+dXJuIDA7CiB9Ck==
 
-Is this requesting an IRQ from your i2c-irq-controller? In which case
-the IRQ won't be shared with any other driver, so you don't need to
-set IRQF_SHARED.
 
-> +       if (ret < 0) {
-> +               dev_err(&pdev->dev, "failed to request interrupt\n");
-> +               return ret;
-> +       }
-> +
-> +       /* Initialize the I2C adapter */
-> +       spin_lock_init(&bus->lock);
+--=-/tGmDBtxViO0uMK0a9n3--
 
-Do we need this lock at all?
+--=-uUX1hzt/5CN3rST+tlPs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
-The i2c core provides locking around operations on the bus. I was
-browsing some of the other bus drivers and they do not have locking
-inside of the driver (eg. i2c-at91.c). I also did a test of an earlier
-version of this driver where I removed the locks, and it performed
-correctly in my testing (http://patchwork.ozlabs.org/patch/731899/).
+-----BEGIN PGP SIGNATURE-----
 
-> +       init_completion(&bus->cmd_complete);
-> +       bus->adap.owner = THIS_MODULE;
-> +       bus->adap.retries = 0;
-> +       bus->adap.timeout = 5 * HZ;
-> +       bus->adap.algo = &aspeed_i2c_algo;
-> +       bus->adap.algo_data = bus;
-> +       bus->adap.dev.parent = &pdev->dev;
-> +       bus->adap.dev.of_node = pdev->dev.of_node;
-> +       snprintf(bus->adap.name, sizeof(bus->adap.name), "Aspeed i2c");
+iF0EABECAB0WIQQ8+w9d414FAVARIpk9fVorbA4dWAUCWN4CgAAKCRA9fVorbA4d
+WIoZAJ0YmYBZ8Q2pWLzClZo0dVh0xxPXpwCggzEkt2wvtIWNzkwia8w49c9el/U=
+=41NA
+-----END PGP SIGNATURE-----
 
-> +static struct platform_driver aspeed_i2c_bus_driver = {
-> +       .probe          = aspeed_i2c_probe_bus,
-> +       .remove         = aspeed_i2c_remove_bus,
-> +       .driver         = {
-> +               .name           = "ast-i2c-bus",
-
-aspeed-i2c-bus please.
-
-> +               .of_match_table = aspeed_i2c_bus_of_table,
-> +       },
-> +};
-> +module_platform_driver(aspeed_i2c_bus_driver);
-> +
-> +MODULE_AUTHOR("Brendan Higgins <brendanhiggins@google.com>");
-> +MODULE_DESCRIPTION("Aspeed I2C Bus Driver");
-> +MODULE_LICENSE("GPL v2");
-> --
-> 2.12.2.564.g063fe858b8-goog
->
+--=-uUX1hzt/5CN3rST+tlPs--
