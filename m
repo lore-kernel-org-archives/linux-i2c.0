@@ -1,167 +1,581 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Fri, 31 Mar 2017 08:05:24 -0700
-Message-ID: <20170331150524.GA31555@roeck-us.net>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
+ multiplexer/switch
+Date: Fri, 31 Mar 2017 17:29:29 +0200
+Message-ID: <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
+References: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+In-Reply-To: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boszormenyi Zoltan <zboszor@pr.hu>
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>, Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org
+To: michael.hennerich@analog.com, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linus.walleij@linaro.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
-> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
-> >Hi Paul,
-> >
-> >On 03/31/2017 12:17 AM, Paul Menzel wrote:
-> >>Dear Wolfram,
-> >>
-> >>
-> >>Thank you for the reply, which we talked about briefly at the
-> >>Chemnitzer LinuxTage.
-> >>
-> >>
-> >>Am Freitag, den 03.03.2017, 11:17 +0100 schrieb Wolfram Sang:
-> >>>>Unfortunately, commit 2fee61d22e (i2c: piix4: Add support for
-> >>>>multiplexed main adapter in SB800) [1] caused a regression. Tim
-> >>>>reported that to the Linux Kernel Bugtracker as bug #170741 last
-> >>>>September [2], but it looks like the affected subsystems don’t use it.
-> >>>
-> >>>Jean Delvare pointed out this issue amongst others[1] last year already.
-> >>>Let me quote:
-> >>>
-> >>>===
-> >>>
-> >>>5* The I/O ports used for SMBus configuration and port switching are
-> >>>also needed by a watchdog driver, sp5100_tco. Both drivers request the
-> >>>region, so the first one wins, and the other driver can't be loaded.
-> >>>sp5100_tco was there first, so the changes done to the i2c-piix4 driver
-> >>>recently will cause a regression for some users by preventing them
-> >>>from using the sp5100_tco and i2c-piix4 drivers at the same time. In
-> >>>the long run I guess we will need a helper module to handle this shared
-> >>>resource. Unless IORESOURCE_MUXED can be used for that. Either way,
-> >>>that's more work than I can put into this before kernel v4.5 is
-> >>>released. For the time being, I think we should simply make it
-> >>>non-fatal if the I/O ports can't be requested, and continue without
-> >>>multiplexing (as before.)
-> >>>
-> >>>===
-> >>>
-> >>>Seems nobody had the resources, so far.
-> >>
-> >>I still don’t understand, why Jean then not immediately reverted the
-> >>commit to adhere to the Linux Kernel’s no-regression-policy.
-> >>
-> >>>I don't have the HW and not much experience with non-embedded
-> >>>platforms. I wonder, though, if we really need to convert the drivers
-> >>>to MFD ones, or if we could use the simpler MFD_SYSCON mechanism
-> >>>which helps in exactly such cases for embedded platforms. But I am
-> >>>really lacking details here and am afraid this is probably all the
-> >>>input I can give currently.
-> >>
-> >>Zoltan stepped up, and uploaded a patch for review to the Kernel.org
-> >>Bugzilla [2], also attached to this message.
-> >>
-> >
-> >Please don't send patches as attachments.
-> >
-> >request_muxed_region() can fail, and literally every other driver
-> >using it checks for that failure. Please do the same.
-> 
-> In what circumstances can request_muxed_region() fail? As far as
-> I can see, only if two drivers use the same I/O port base and the
-> already present region did not use IORESOURCE_MUXED which is
-> not the case here. When request_muxed_region() is used consistently,
-> subsequent requests are put on a wait queue and the first one is
-> woken up when the region is released. So, it's basically a mutex.
-> Am I missing something here?
-> 
+Hi!
 
-Yes. failure to allocate the resource is one. The other is that you are
-making the assumption that all other requesters have IORESOURCE_MUXED set.
-There is no guarantee that this is the case.
+Sorry for my incremental reviewing...
 
-Guenter
+There's a question for the gpio people below that I would like
+to have some confirmation on. Thanks!
 
-> Alternatively, the original "piix4_mutex_sb800" mutex can be moved out
-> to its own file and used by both drivers. This way, request_muxed_region()
-> would not be needed at all among these two drivers.
+On 2017-03-29 12:15, michael.hennerich@analog.com wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
 > 
-> The third option is to remove the request_*region() calls and the mutex
-> completely.
+> This patch adds support for the Analog Devices / Linear Technology
+> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
+> The LTC4306 optionally provides two general purpose input/output pins
+> (GPIOs) that can be configured as logic inputs, opendrain outputs or
+> push-pull outputs via the generic GPIOLIB framework.
 > 
-> After all, drivers/usb/host/pci-quirks.c::usb_amd_quirk_pll() also uses
-> this I/O port pair and this is done without request_*region() or locking.
-> It is for some AMD devices, SB800 included, for which the function
-> accesses the same I/O ports used by both i2c-piix4 and sp5100_tco.
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
 > 
-> /*
->  * The hardware normally enables the A-link power management feature, which
->  * lets the system lower the power consumption in idle states.
->  *
->  * This USB quirk prevents the link going into that lower power state
->  * during isochronous transfers.
->  *
->  * Without this quirk, isochronous stream on OHCI/EHCI/xHCI controllers of
->  * some AMD platforms may stutter or have breaks occasionally.
->  */
-> static void usb_amd_quirk_pll(int disable)
+> ---
 > 
-> This function is hidden behind two wrappers: usb_amd_quirk_pll_disable()
-> and usb_amd_quirk_pll_enable() and these are used from:
+> Changes since v1:
 > 
-> drivers/usb/host/ohci-q.c
-> drivers/usb/host/xhci-ring.c
-> drivers/usb/host/ehci-sched.c
+>  - Sort makefile entries
+>  - Sort driver includes
+>  - Use proper defines
+>  - Miscellaneous coding style fixups
+>  - Rename mux select callback
+>  - Revise i2c-mux-idle-disconnect handling
+>  - Add ENABLE GPIO handling on error and device removal.
+>  - Remove surplus of_match_device call.
+> ---
+>  .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    |  61 ++++
+>  MAINTAINERS                                        |   8 +
+>  drivers/i2c/muxes/Kconfig                          |  10 +
+>  drivers/i2c/muxes/Makefile                         |   1 +
+>  drivers/i2c/muxes/i2c-mux-ltc4306.c                | 367 +++++++++++++++++++++
+>  5 files changed, 447 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+>  create mode 100644 drivers/i2c/muxes/i2c-mux-ltc4306.c
 > 
-> >The sp5100_tco_dev_name change in the watchdog driver is unnecessary.
-> 
-> request_muxed_region() requires a const char * name to be passed.
-> sp5100_tco uses a different DEVNAME for the two device generations.
-> I wanted to preserve this distinction but dev_name is local to
-> sp5100_tco_setupdevice() and it would have been an overkill to call
-> tco_has_sp5100_reg_layout() every time the code executes
-> request_muxed_region().
-> 
-> Are you saying that this distinction is unnecessary, too?
-> I would prefer a single DEVNAME that just contains the driver name.
-> Less code, less confusion.
-> 
-> >There are some unnecessary { } in the watchdog driver after the patch
-> >is applied.
-> 
-> True, there are two places.
-> 
-> >Please split the patch into two patches so they can be reviewed and
-> >applied separately.
-> 
-> Likely I will, but I would like to hear the others' opinion, too.
-> 
-> 1. a single patch with a single goal: protect I/O port access
->    for SB800 across the whole kernel
-> 2. patch series for same goal for the two drivers separately
->    (or three if pci-quirks.c needs to change as well)
-> 
-> and
-> 
-> A) a common mutex across the two (three) drivers in the kernel, or
-> B) request_muxed_region() with retrying in the usual manner if it fails:
-> 
->    #define enter_sb800() \
->       do { \
->       } while (!request_muxed_region(...))
-> 
-> Best regards,
-> Zoltán Böszörményi
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+> new file mode 100644
+> index 0000000..1e98c6b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+> @@ -0,0 +1,61 @@
+> +* Linear Technology / Analog Devices I2C bus switch
+> +
+> +Required Properties:
+> +
+> +  - compatible: Must contain one of the following.
+> +    "lltc,ltc4305", "lltc,ltc4306"
+> +  - reg: The I2C address of the device.
+> +
+> +  The following required properties are defined externally:
+> +
+> +  - Standard I2C mux properties. See i2c-mux.txt in this directory.
+> +  - I2C child bus nodes. See i2c-mux.txt in this directory.
+> +
+> +Optional Properties:
+> +
+> +  - enable-gpios: Reference to the GPIO connected to the enable input.
+> +  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
+> +    children in idle state. This is necessary for example, if there are several
+> +    multiplexers on the bus and the devices behind them use same I2C addresses.
+> +  - gpio-controller: Marks the device node as a GPIO Controller.
+> +  - #gpio-cells: Should be two.  The first cell is the pin number and
+> +	the second cell is used to specify flags.
+> +	See ../gpio/gpio.txt for more information.
+> +  - ltc,downstream-accelerators-enable: Enables the rise time accelerators
+> +	on the downstream port.
+> +  - ltc,upstream-accelerators-enable: Enables the rise time accelerators
+> +	on the upstream port.
+> +
+> +Example:
+> +
+> +	ltc4306: i2c-mux@4a {
+> +		compatible = "lltc,ltc4306";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		reg = <0x4a>;
+> +
+> +		gpio-controller;
+> +		#gpio-cells = <2>;
+> +
+> +		i2c@0 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			reg = <0>;
+> +
+> +			eeprom@50 {
+> +				compatible = "at,24c02";
+> +				reg = <0x50>;
+> +			};
+> +		};
+> +
+> +		i2c@1 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			reg = <1>;
+> +
+> +			eeprom@50 {
+> +				compatible = "at,24c02";
+> +				reg = <0x50>;
+> +			};
+> +		};
+> +	};
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index c776906..9a27a19 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7698,6 +7698,14 @@ S:	Maintained
+>  F:	Documentation/hwmon/ltc4261
+>  F:	drivers/hwmon/ltc4261.c
+>  
+> +LTC4306 I2C MULTIPLEXER DRIVER
+> +M:	Michael Hennerich <michael.hennerich@analog.com>
+> +W:	http://ez.analog.com/community/linux-device-drivers
+> +L:	linux-i2c@vger.kernel.org
+> +S:	Supported
+> +F:	drivers/i2c/muxes/i2c-mux-ltc4306.c
+> +F:	Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+> +
+>  LTP (Linux Test Project)
+>  M:	Mike Frysinger <vapier@gentoo.org>
+>  M:	Cyril Hrubis <chrubis@suse.cz>
+> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+> index 10b3d17..f501b3b 100644
+> --- a/drivers/i2c/muxes/Kconfig
+> +++ b/drivers/i2c/muxes/Kconfig
+> @@ -30,6 +30,16 @@ config I2C_MUX_GPIO
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-mux-gpio.
+>  
+> +config I2C_MUX_LTC4306
+> +	tristate "LTC LTC4306/5 I2C multiplexer"
+> +	select GPIOLIB
+> +	help
+> +	  If you say yes here you get support for the LTC LTC4306 or LTC4305
+> +	  I2C mux/switch devices.
+> +
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called i2c-mux-ltc4306.
+> +
+>  config I2C_MUX_PCA9541
+>  	tristate "NXP PCA9541 I2C Master Selector"
+>  	help
+> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+> index 9948fa4..ff7618c 100644
+> --- a/drivers/i2c/muxes/Makefile
+> +++ b/drivers/i2c/muxes/Makefile
+> @@ -6,6 +6,7 @@ obj-$(CONFIG_I2C_ARB_GPIO_CHALLENGE)	+= i2c-arb-gpio-challenge.o
+>  obj-$(CONFIG_I2C_DEMUX_PINCTRL)		+= i2c-demux-pinctrl.o
+>  
+>  obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
+> +obj-$(CONFIG_I2C_MUX_LTC4306)	+= i2c-mux-ltc4306.o
+>  obj-$(CONFIG_I2C_MUX_MLXCPLD)	+= i2c-mux-mlxcpld.o
+>  obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+>  obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+> new file mode 100644
+> index 0000000..c15a8a4
+> --- /dev/null
+> +++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+> @@ -0,0 +1,367 @@
+> +/*
+> + * Linear Technology LTC4306 and LTC4305 I2C multiplexer/switch
+> + *
+> + * Copyright (C) 2017 Analog Devices Inc.
+> + *
+> + * Licensed under the GPL-2.
+> + *
+> + * Based on: i2c-mux-pca954x.c
+> + *
+> + * Datasheet: http://cds.linear.com/docs/en/datasheet/4306.pdf
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/gpio/driver.h>
+> +#include <linux/i2c-mux.h>
+> +#include <linux/i2c.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/slab.h>
+> +
+> +#define LTC4305_MAX_NCHANS 2
+> +#define LTC4306_MAX_NCHANS 4
+> +
+> +#define LTC_REG_STATUS	0x0
+> +#define LTC_REG_CONFIG	0x1
+> +#define LTC_REG_MODE	0x2
+> +#define LTC_REG_SWITCH	0x3
+> +
+> +#define LTC_DOWNSTREAM_ACCL_EN BIT(6)
+> +#define LTC_UPSTREAM_ACCL_EN BIT(7)
+
+Maybe align the BIT(x) parts with a tab, like you do above...
+
+> +
+> +#define LTC_GPIO_ALL_INPUT	0xC0
+> +
+> +enum ltc_type {
+> +	ltc_4305,
+> +	ltc_4306,
+> +};
+> +
+> +struct chip_desc {
+> +	u8 nchans;
+> +	u8 num_gpios;
+> +};
+> +
+> +struct ltc4306 {
+> +	struct i2c_client *client;
+> +	struct gpio_desc *en_gpio;
+> +	struct gpio_chip gpiochip;
+> +	const struct chip_desc *chip;
+> +	u8 regs[LTC_REG_SWITCH + 1];
+> +};
+> +
+> +/* Provide specs for the PCA954x types we know about */
+> +static const struct chip_desc chips[] = {
+> +	[ltc_4305] = {
+> +		.nchans = LTC4305_MAX_NCHANS,
+> +	},
+> +	[ltc_4306] = {
+> +		.nchans = LTC4306_MAX_NCHANS,
+> +		.num_gpios = 2,
+> +	},
+> +};
+> +
+> +static int ltc4306_gpio_get(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +	struct ltc4306 *data = gpiochip_get_data(chip);
+> +	int ret = 0;
+
+This assignment is not needed.
+
+> +
+> +	if (gpiochip_line_is_open_drain(chip, offset) ||
+> +	    (data->regs[LTC_REG_MODE] & BIT(7 - offset))) {
+
+I wonder about this open-coded register cache. So, gpio people, is there
+a guarantee from gpiolib that only one gpio_chip operation is in flight
+concurrently? Because I don't see any evidence of that. With that in
+mind, I think some locking is needed?
+
+> +		/* Open Drain or Input */
+> +		ret = i2c_smbus_read_byte_data(data->client, LTC_REG_CONFIG);
+> +		if (ret < 0)
+> +			return ret;
+> +
+> +		return !!(ret & BIT(1 - offset));
+> +	} else {
+> +		return !!(data->regs[LTC_REG_CONFIG] & BIT(5 - offset));
+> +	}
+> +}
+> +
+> +static void ltc4306_gpio_set(struct gpio_chip *chip, unsigned int offset,
+> +			     int value)
+> +{
+> +	struct ltc4306 *data = gpiochip_get_data(chip);
+> +
+> +	if (value)
+> +		data->regs[LTC_REG_CONFIG] |= BIT(5 - offset);
+> +	else
+> +		data->regs[LTC_REG_CONFIG] &= ~BIT(5 - offset);
+> +
+> +	i2c_smbus_write_byte_data(data->client, LTC_REG_CONFIG,
+> +				  data->regs[LTC_REG_CONFIG]);
+> +}
+> +
+> +static int ltc4306_gpio_direction_input(struct gpio_chip *chip,
+> +					unsigned int offset)
+> +{
+> +	struct ltc4306 *data = gpiochip_get_data(chip);
+> +
+> +	data->regs[LTC_REG_MODE] |= BIT(7 - offset);
+> +
+> +	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
+> +					 data->regs[LTC_REG_MODE]);
+> +}
+> +
+> +static int ltc4306_gpio_direction_output(struct gpio_chip *chip,
+> +					 unsigned int offset, int value)
+> +{
+> +	struct ltc4306 *data = gpiochip_get_data(chip);
+> +
+> +	ltc4306_gpio_set(chip, offset, value);
+> +	data->regs[LTC_REG_MODE] &= ~BIT(7 - offset);
+> +
+> +	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
+> +					 data->regs[LTC_REG_MODE]);
+> +}
+> +
+> +static int ltc4306_gpio_set_config(struct gpio_chip *chip,
+> +				   unsigned int offset, unsigned long config)
+> +{
+> +	struct ltc4306 *data = gpiochip_get_data(chip);
+> +
+> +	switch (pinconf_to_config_param(config)) {
+> +	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
+> +		data->regs[LTC_REG_MODE] &= ~BIT(4 - offset);
+> +		break;
+> +	case PIN_CONFIG_DRIVE_PUSH_PULL:
+> +		data->regs[LTC_REG_MODE] |= BIT(4 - offset);
+> +		break;
+> +	default:
+> +		return -ENOTSUPP;
+> +	}
+> +
+> +	return i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
+> +					 data->regs[LTC_REG_MODE]);
+> +}
+> +
+> +static int ltc4306_gpio_init(struct ltc4306 *data)
+> +{
+> +	if (!data->chip->num_gpios)
+> +		return 0;
+> +
+> +	data->gpiochip.label = dev_name(&data->client->dev);
+> +	data->gpiochip.base = -1;
+> +	data->gpiochip.ngpio = data->chip->num_gpios;
+> +	data->gpiochip.parent = &data->client->dev;
+> +	data->gpiochip.can_sleep = true;
+> +	data->gpiochip.direction_input = ltc4306_gpio_direction_input;
+> +	data->gpiochip.direction_output = ltc4306_gpio_direction_output;
+> +	data->gpiochip.get = ltc4306_gpio_get;
+> +	data->gpiochip.set = ltc4306_gpio_set;
+> +	data->gpiochip.set_config = ltc4306_gpio_set_config;
+> +	data->gpiochip.owner = THIS_MODULE;
+> +
+> +	/* gpiolib assumes all GPIOs default input */
+> +	data->regs[LTC_REG_MODE] |= LTC_GPIO_ALL_INPUT;
+> +	i2c_smbus_write_byte_data(data->client, LTC_REG_MODE,
+> +				  data->regs[LTC_REG_MODE]);
+> +
+> +	return devm_gpiochip_add_data(&data->client->dev,
+> +				      &data->gpiochip, data);
+> +}
+> +
+> +/*
+> + * Write to chip register. Don't use i2c_transfer()/i2c_smbus_xfer()
+> + * as they will try to lock the adapter a second time.
+> + */
+> +static int ltc4306_reg_write(struct i2c_adapter *adap,
+> +			     struct i2c_client *client, u8 reg, u8 val)
+> +{
+> +	int ret;
+> +
+> +	if (adap->algo->master_xfer) {
+> +		struct i2c_msg msg;
+> +		char buf[2];
+> +
+> +		msg.addr = client->addr;
+> +		msg.flags = 0;
+> +		msg.len = 2;
+> +		buf[0] = reg;
+> +		buf[1] = val;
+> +		msg.buf = buf;
+> +		ret = __i2c_transfer(adap, &msg, 1);
+> +	} else {
+> +		union i2c_smbus_data data;
+> +
+> +		data.byte = val;
+> +		ret = adap->algo->smbus_xfer(adap, client->addr,
+> +					     client->flags,
+> +					     I2C_SMBUS_WRITE,
+> +					     reg,
+> +					     I2C_SMBUS_BYTE_DATA, &data);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int ltc4306_select_mux(struct i2c_mux_core *muxc, u32 chan)
+> +{
+> +	struct ltc4306 *data = i2c_mux_priv(muxc);
+> +	struct i2c_client *client = data->client;
+> +	u8 regval;
+> +	int ret = 0;
+> +
+> +	regval = BIT(7 - chan);
+> +
+> +	/* Only select the channel if its different from the last channel */
+> +	if (data->regs[LTC_REG_SWITCH] != regval) {
+> +		ret = ltc4306_reg_write(muxc->parent, client,
+> +					LTC_REG_SWITCH, regval);
+> +		data->regs[LTC_REG_SWITCH] = ret < 0 ? 0 : regval;
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int ltc4306_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+> +{
+> +	struct ltc4306 *data = i2c_mux_priv(muxc);
+> +	struct i2c_client *client = data->client;
+> +
+> +	/* Deselect all channels */
+> +	data->regs[LTC_REG_SWITCH] = 0;
+> +
+> +	return ltc4306_reg_write(muxc->parent, client,
+> +				 LTC_REG_SWITCH, data->regs[LTC_REG_SWITCH]);
+> +}
+> +
+> +static const struct i2c_device_id ltc4306_id[] = {
+> +	{ "ltc4305", ltc_4305 },
+> +	{ "ltc4306", ltc_4306 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, ltc4306_id);
+> +
+> +static const struct of_device_id ltc4306_of_match[] = {
+> +	{ .compatible = "lltc,ltc4305", .data = &chips[ltc_4305] },
+> +	{ .compatible = "lltc,ltc4306", .data = &chips[ltc_4306] },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, ltc4306_of_match);
+> +
+> +static int ltc4306_probe(struct i2c_client *client,
+> +			 const struct i2c_device_id *id)
+> +{
+> +	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+> +	struct device_node *of_node = client->dev.of_node;
+> +	bool idle_disconnect_dt = false;
+> +	struct i2c_mux_core *muxc;
+> +	struct ltc4306 *data;
+> +	int num, ret;
+> +
+> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
+> +		return -ENODEV;
+> +
+> +	if (of_node) {
+> +		idle_disconnect_dt =
+> +		of_property_read_bool(of_node,
+> +				      "i2c-mux-idle-disconnect");
+
+If you rename the variable "disconnect" or something similar and
+shorter, you can avoid the interesting indentation.
+
+> +	}
+> +
+> +	muxc = i2c_mux_alloc(adap, &client->dev,
+> +			     LTC4306_MAX_NCHANS, sizeof(*data), 0,
+> +			     ltc4306_select_mux, idle_disconnect_dt ?
+> +			     ltc4306_deselect_mux : NULL);
+> +	if (!muxc)
+> +		return -ENOMEM;
+> +	data = i2c_mux_priv(muxc);
+> +
+> +	i2c_set_clientdata(client, muxc);
+> +	data->client = client;
+> +
+> +	/* Enable the mux if an enable GPIO is specified. */
+> +	data->en_gpio = devm_gpiod_get_optional(&client->dev, "enable",
+> +						GPIOD_OUT_HIGH);
+> +	if (IS_ERR(data->en_gpio))
+> +		return PTR_ERR(data->en_gpio);
+> +
+> +	/*
+> +	 * Write the mux register at addr to verify
+> +	 * that the mux is in fact present. This also
+> +	 * initializes the mux to disconnected state.
+> +	 */
+> +	if (i2c_smbus_write_byte_data(client, LTC_REG_SWITCH, 0) < 0) {
+> +		dev_warn(&client->dev, "probe failed\n");
+> +		ret = -ENODEV;
+> +		goto gpio_default;
+> +	}
+> +
+> +	if (of_node) {
+> +		data->chip = of_device_get_match_data(&client->dev);
+> +
+> +		if (of_property_read_bool(of_node,
+> +					  "ltc,downstream-accelerators-enable"))
+> +			data->regs[LTC_REG_CONFIG] |= LTC_DOWNSTREAM_ACCL_EN;
+> +
+> +		if (of_property_read_bool(of_node,
+> +					  "ltc,upstream-accelerators-enable"))
+> +			data->regs[LTC_REG_CONFIG] |= LTC_UPSTREAM_ACCL_EN;
+> +
+> +		if (i2c_smbus_write_byte_data(client, LTC_REG_CONFIG,
+> +					      data->regs[LTC_REG_CONFIG]) < 0) {
+> +			dev_warn(&client->dev, "probe failed\n");
+> +			ret = -ENODEV;
+> +			goto gpio_default;
+> +		}
+> +	} else {
+> +		data->chip = &chips[id->driver_data];
+> +	}
+> +
+> +	ret = ltc4306_gpio_init(data);
+> +	if (ret < 0)
+> +		goto gpio_default;
+> +
+> +	/* Now create an adapter for each channel */
+> +	for (num = 0; num < data->chip->nchans; num++) {
+> +		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
+> +		if (ret) {
+> +			dev_err(&client->dev,
+> +				"failed to register multiplexed adapter %d\n",
+> +				num);
+> +			goto add_adapter_failed;
+> +		}
+> +	}
+> +
+> +	dev_info(&client->dev,
+> +		 "registered %d multiplexed busses for I2C switch %s\n",
+> +		 num, client->name);
+> +
+> +	return 0;
+> +
+> +add_adapter_failed:
+> +	i2c_mux_del_adapters(muxc);
+> +gpio_default:
+> +	gpiod_direction_input(data->en_gpio);
+
+This was actually not what I had in mind when I asked about it in v1, and
+this looks a bit strange. You have no way of knowing if the pin was
+configured as input when probe was called, and I don't see code like this
+all over the place. Maybe it's is ok to not disable the chip over
+suspend/resume, I was just asking because it looked a bit strange to grab
+a pin and then forget about it. Now that I think about it some more, it's
+probably ok to do just that since it is perhaps not possible to make the
+chip draw less power by deasserting enable, but what do I know?
+
+However, it might be a good idea to toggle enable and deliberately reset
+the chip in probe?
+
+Cheers,
+peda
+
+> +	return ret;
+> +}
+> +
+> +static int ltc4306_remove(struct i2c_client *client)
+> +{
+> +	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+> +	struct ltc4306 *data = i2c_mux_priv(muxc);
+> +
+> +	i2c_mux_del_adapters(muxc);
+> +	gpiod_direction_input(data->en_gpio);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct i2c_driver ltc4306_driver = {
+> +	.driver		= {
+> +		.name	= "ltc4306",
+> +		.of_match_table = of_match_ptr(ltc4306_of_match),
+> +	},
+> +	.probe		= ltc4306_probe,
+> +	.remove		= ltc4306_remove,
+> +	.id_table	= ltc4306_id,
+> +};
+> +
+> +module_i2c_driver(ltc4306_driver);
+> +
+> +MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+> +MODULE_DESCRIPTION("Linear Technology LTC4306, LTC4305 I2C mux/switch driver");
+> +MODULE_LICENSE("GPL v2");
 > 
