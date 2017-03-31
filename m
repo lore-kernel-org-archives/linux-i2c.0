@@ -1,74 +1,80 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: PMBus and SMBUS_BLOCK with "extended" lenght
-Date: Fri, 31 Mar 2017 18:33:36 +0200
-Message-ID: <20170331163336.4sy4br3i2o5etcoe@ninjato>
-References: <1490948247.3177.233.camel@kernel.crashing.org>
+Subject: [PULL REQUEST] i2c for 4.11
+Date: Fri, 31 Mar 2017 23:09:53 +0200
+Message-ID: <20170331210948.lxczt2cjjhrkdlam@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zbke3levozltax7w"
+        protocol="application/pgp-signature"; boundary="yt5uvffl4yzv5zcz"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43614 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:44645 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933368AbdCaQdk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 31 Mar 2017 12:33:40 -0400
+        id S1753033AbdCaVJ4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 31 Mar 2017 17:09:56 -0400
 Content-Disposition: inline
-In-Reply-To: <1490948247.3177.233.camel@kernel.crashing.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---zbke3levozltax7w
+--yt5uvffl4yzv5zcz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Linus,
 
-> Did anybody give thoughts to how we could support "smbus" block
-> transfers with a size up to 0xff ? This is an extension of smbus
-> that part of the PMbus protocol spec.
+here are two bugfixes from I2C, specifically the I2C mux section. Thanks
+to peda for collecting them. I hope you are happy now with my merge
+commit message.
 
-For completeness, SMBus Spec V3 (released 2015) increased the allowed
-transfer size to 255 as well.
-
->=20
-> Our current code has a lot of places where I2C_SMBUS_BLOCK_MAX is
-> hard wired. Including down in almost all drivers.
->=20
-> So it would have to be an evolutionary process.
->=20
-> I was thinking a message flag along with a functionality bit
-> maybe ?
-
-I have never really scratched my head about this issue yet and don't
-know of any on-going activity. It is notable, though, that we export
-I2C_SMBUS_BLOCK_MAX to userspace, too.
-
-Regards,
+Thanks,
 
    Wolfram
 
 
---zbke3levozltax7w
+The following changes since commit 97da3854c526d3a6ee05c849c96e48d21527606c:
+
+  Linux 4.11-rc3 (2017-03-19 19:09:39 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 0bf9e1270b56b2376ba3b16d951cd0ed7c573f54:
+
+  Merge branch 'i2c-mux/for-current' of https://github.com/peda-r/i2c-mux into i2c/for-current (2017-03-30 16:53:48 +0200)
+
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      Revert "i2c: mux: pca954x: Add ACPI support for pca954x"
+
+Mike Looijmans (1):
+      i2c: mux: pca954x: Add missing pca9546 definition to chip_desc
+
+Wolfram Sang (1):
+      Merge branch 'i2c-mux/for-current' of https://github.com/peda-r/i2c-mux into i2c/for-current
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 34 ++++++----------------------------
+ 1 file changed, 6 insertions(+), 28 deletions(-)
+
+--yt5uvffl4yzv5zcz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljehN8ACgkQFA3kzBSg
-KbboDQ//dX6QVKSkFfUTUX7f0igIQp2NTFqAiANA9CsYmhFgymwvQqlifhQgdLtq
-q0jx1LLHr6YAmRq883piEUtqwMuHKP7OnNIqWsh86FkZwj/oT/VO9M9XfpTmTjtH
-P4QeIMnVSthiCoOlGMbpJsnduiPJHOwOHpyWxJrLvj60NuWWOhcoPEvR6i7tPrPr
-fcT6UzbQ3/Jk5v4LeZgQfPuHQ/YJdAUpWd1WlK0Vzkbr3u8SDJ++kJjTdhfj4LNq
-f/KghD7qoYHTR0CevzXEEruEH8MYHKQALQj2bAKLN3LqSbKdTGuSZ7xr7BYmK1O+
-f8TORF3k3V4/YfM/Df1xROkfVMOIVggQIIj3yLwc8mbG8Y9UR4s4Nky1Dc94PHcT
-4CEXhWHotapRMBfnRbW/wup1X3SEbOqw113Kldjxp3izuAqWT8hPt+Ss7Itb1id8
-tUneyEJJ/0UU76m1jYRb2/RZVqWmqIftfGq7k19c7Q9AAHjG9CYw9JpTxczxc9ZN
-lkCnqO6y1P2QhS71A0r6aFrYm4Y/4vO/qS6A6EcBmDuF2i476eKrk7nKLp6tkY7E
-abSPUzEHD8JOOYHU9aKt64WxY7vtnUY/Jrv9O4VADvB/kW7l2yAltq50PEVpb+8y
-pN4NVxRdwvFMKwf3Sc6Nd5h9ECgmHaJJS07tbL3VfEoKOSFhTVg=
-=yvvY
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljexZgACgkQFA3kzBSg
+KbbDlQ/+NAvMxX9YjA5w5bQn786s+20Lkj1GRWGgl5ap9CIOjz5Mcd49s/QgQJIv
+1M7bUi2YiHtjl553wHGzICVGXwe9Miy4fwuZQ2iDgrd4mUNAVmyBrAsbjESR9S6g
+Q6XvchKJdudC3FlOfrQavJqRmI0AdoW4uNTFJSgzqNLKY0BhnsigXqgoYgoLUFIS
+/Y1HKGOa6lLv7eajLidy0BGcReZzZZAtGnKIPntnh4zxUfTnOZSeDS0fhQHtiYh5
+iihLm7tKCbk42mB2W5vvYWxzV8mULR3jypUzwiUKnaoJ709HzPTrbhyf0Z1KDCo6
+sRcYho+yzNmYw+sNfXloXPLxwidWviaF8qLndSUsmbQ4qXI0n1XgBeUqgYUO1HDp
+ntxwv4Y7Y5k65DnVEY+aMaG64w1XWXI2SKx+TmxjIRTHbq4edoM9IMR9IJEzK/Iw
+7ffteiNJ1Ds+TQDsI/9StKdZOb+J+jE/vMHDyDnuCItdMDxdykuoYD4SLL6b1l4z
+3ko8T68WJtUCARxkpTlJU1lLehYjbVvuLkqG+SiyL4duwQPNy29EaBsFxcRcREYG
+lMtsvZ1CdShm+rYgrGOnRgehpwSW12uw6bhSoF/ZtwErbEaiagtNWqi2YPkCmpTA
+BxL37NGDnzDKxPIU3gQ4UNt2U0hdRspgiiyRbJPlh6XCNbkulP0=
+=JE1n
 -----END PGP SIGNATURE-----
 
---zbke3levozltax7w--
+--yt5uvffl4yzv5zcz--
