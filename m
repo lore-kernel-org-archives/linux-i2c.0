@@ -1,64 +1,183 @@
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Sat, 1 Apr 2017 18:31:37 +0200
-Message-ID: <dbf21d72-258c-7b6b-6145-8b84c8baad52@pr.hu>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
- <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
- <0b32728a-f545-be43-2870-94688f1f9da5@roeck-us.net>
- <14472f36-3c8d-e77d-4077-bd0db3587281@pr.hu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] i2c: use void pointers for supplying data for reads and
+ writes
+Date: Sat, 1 Apr 2017 10:53:55 -0700
+Message-ID: <20170401175355.GA12265@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:56337 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751724AbdDAQb6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 1 Apr 2017 12:31:58 -0400
-In-Reply-To: <14472f36-3c8d-e77d-4077-bd0db3587281@pr.hu>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33239 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751798AbdDARx7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 1 Apr 2017 13:53:59 -0400
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Paul Menzel <paulepanter@users.sourceforge.net>, Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2017-04-01 18:20 keltezéssel, Boszormenyi Zoltan írta:
-> The best clean alternative would be add new resource handling infrastructure.
-> * Expose the currently static alloc_resource() in kernel/resource.c
->   With this, driver initialization can allocate the resource once
->   for the lifetime of the driver and it it fails,
+There is no need to force users of i2c_master_send()/i2c_master_recv()
+and other i2c read/write bulk data API to cast everything into u* pointers.
+While everything can be considered byte stream, the drivers are usually
+work with more structured data.
 
-(unfinished sentence) then the failure is during driver initialization,
-not during runtime, possibly days or weeks later.
+Let's switch the APIs to accept [const] void pointers to cut amount of
+casting needed.
 
-> * Add a new insert_muxed_region() / __insert_muxed_region() function with
->   different semantics from request_muxed_region() / __request_region():
->   1 Accept a pointer to already allocated resource.
->   2 If the conflicting resource doesn't have IORESOURCE_MUXED set,
->     complain loudly in the syslog but still go into the wait queue.
->     The conflicting resource also has the name which can be printed
->     so the inconsistent resource / region usage can be fixed.
->   We can also just modify the __request_region() semantics, so:
->   1 It accepts a pointer to an allocated resource or NULL.
->     In the second case, the resource is allocated internally and can
->     still fail.
->   2 The above second point. But this may cause an error in code that
->     expects the old semantics.
->
-> The window for request_muxed_region()+release_region() is so short
-> that the requested I/O port range would not show up in /proc/ioports.
->
-> All this would be to fix only 3 drivers in a no-error scenario and only
-> achieving the functionality of a mutex seems to be overkill.
->
-> Another alternative is to revert commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-> that caused the regression in sp5100_tco in the first place.
->
-> Best regards,
-> Zoltán Böszörményi
->
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/i2c/i2c-core.c | 23 ++++++++++++-----------
+ include/linux/i2c.h    | 15 ++++++++-------
+ 2 files changed, 20 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 9ff5ce3d5fba..6efeba42d10b 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -56,6 +56,7 @@
+ #include <linux/property.h>
+ #include <linux/rwsem.h>
+ #include <linux/slab.h>
++#include <asm/unaligned.h>
+ 
+ #include "i2c-core.h"
+ 
+@@ -2817,7 +2818,7 @@ EXPORT_SYMBOL(i2c_transfer);
+  *
+  * Returns negative errno, or else the number of bytes written.
+  */
+-int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
++int i2c_master_send(const struct i2c_client *client, const void *buf, int count)
+ {
+ 	int ret;
+ 	struct i2c_adapter *adap = client->adapter;
+@@ -2826,7 +2827,7 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
+ 	msg.addr = client->addr;
+ 	msg.flags = client->flags & I2C_M_TEN;
+ 	msg.len = count;
+-	msg.buf = (char *)buf;
++	msg.buf = (u8 *)buf; /* cast away const */
+ 
+ 	ret = i2c_transfer(adap, &msg, 1);
+ 
+@@ -2846,7 +2847,7 @@ EXPORT_SYMBOL(i2c_master_send);
+  *
+  * Returns negative errno, or else the number of bytes read.
+  */
+-int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
++int i2c_master_recv(const struct i2c_client *client, void *buf, int count)
+ {
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct i2c_msg msg;
+@@ -3290,7 +3291,7 @@ EXPORT_SYMBOL(i2c_smbus_write_word_data);
+  * mechanism (I2C_M_RECV_LEN) which may not be implemented.
+  */
+ s32 i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
+-			      u8 *values)
++			      void *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -3317,7 +3318,7 @@ EXPORT_SYMBOL(i2c_smbus_read_block_data);
+  * else zero on success.
+  */
+ s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
+-			       u8 length, const u8 *values)
++			       u8 length, const void *values)
+ {
+ 	union i2c_smbus_data data;
+ 
+@@ -3333,7 +3334,7 @@ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+ 
+ /* Returns the number of read bytes */
+ s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+-				  u8 length, u8 *values)
++				  u8 length, void *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -3353,7 +3354,7 @@ s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+ EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
+ 
+ s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client, u8 command,
+-				   u8 length, const u8 *values)
++				   u8 length, const void *values)
+ {
+ 	union i2c_smbus_data data;
+ 
+@@ -3633,7 +3634,8 @@ EXPORT_SYMBOL(i2c_smbus_xfer);
+  * transfer.
+  */
+ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+-					      u8 command, u8 length, u8 *values)
++					      u8 command, u8 length,
++					      void *values)
+ {
+ 	u8 i = 0;
+ 	int status;
+@@ -3652,8 +3654,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 			status = i2c_smbus_read_word_data(client, command + i);
+ 			if (status < 0)
+ 				return status;
+-			values[i] = status & 0xff;
+-			values[i + 1] = status >> 8;
++			put_unaligned_le16(status, values + i);
+ 			i += 2;
+ 		}
+ 	}
+@@ -3662,7 +3663,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 		status = i2c_smbus_read_byte_data(client, command + i);
+ 		if (status < 0)
+ 			return status;
+-		values[i] = status;
++		*((u8 *)values + i) = status;
+ 		i++;
+ 	}
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b4b6583d0e07..d9f9601fce4c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -62,9 +62,9 @@ struct property_entry;
+  * transmit an arbitrary number of messages without interruption.
+  * @count must be be less than 64k since msg.len is u16.
+  */
+-extern int i2c_master_send(const struct i2c_client *client, const char *buf,
++extern int i2c_master_send(const struct i2c_client *client, const void *buf,
+ 			   int count);
+-extern int i2c_master_recv(const struct i2c_client *client, char *buf,
++extern int i2c_master_recv(const struct i2c_client *client, void *buf,
+ 			   int count);
+ 
+ /* Transfer num messages.
+@@ -115,18 +115,19 @@ i2c_smbus_write_word_swapped(const struct i2c_client *client,
+ 
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+-				     u8 command, u8 *values);
++				     u8 command, void *values);
+ extern s32 i2c_smbus_write_block_data(const struct i2c_client *client,
+-				      u8 command, u8 length, const u8 *values);
++				      u8 command, u8 length,
++				      const void *values);
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+-					 u8 command, u8 length, u8 *values);
++					 u8 command, u8 length, void *values);
+ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  u8 command, u8 length,
+-					  const u8 *values);
++					  const void *values);
+ extern s32
+ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+-					  u8 command, u8 length, u8 *values);
++					  u8 command, u8 length, void *values);
+ #endif /* I2C */
+ 
+ enum i2c_alert_protocol {
+-- 
+2.12.2.564.g063fe858b8-goog
+
+
+-- 
+Dmitry
