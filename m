@@ -1,39 +1,58 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v3 3/7] i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
-Date: Sat,  1 Apr 2017 03:18:50 -0400
-Message-ID: <20170401071854.23198-4-javier@osg.samsung.com>
-References: <20170401071854.23198-1-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170401071854.23198-1-javier@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
+        <zboszor@pr.hu>
+Subject: [PATCH 0/3] Fix sp5100_tco watchdog driver regression
+Date: Sat,  1 Apr 2017 12:06:06 +0200
+Message-ID: <20170401100609.9054-1-zboszor@pr.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail7.pr.hu ([87.242.0.7]:39681 "EHLO mail7.pr.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750948AbdDAKHX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 1 Apr 2017 06:07:23 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>
 
-The example contains a device node for a retu-mfd device,
-but its compatible string doesn't have a vendor prefix.
+Three drivers are accessing the same I/O ports (0xcd6 / 0xcd7) on
+AMD SB800 based machines without synchronization or with excluding
+each other out:
+* the USB quirk for isochronous transfers on SB800 (no locking)
+* sp5100_tco (request_region)
+* i2c-piix4 (request_region)
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
----
+Historically, the sp5100_tco watchdog driver used request_region()
+for these I/O ports but an i2c-piix4 improvement for SB800 in
+Linux 4.4-rc4 also added a request_region() call. Because of this
+and the load order of these drivers, this caused a regression and
+the watchdog function became non-functional. The commit that caused
+the regression is:
 
-Changes in v3: None
-Changes in v2: None
+commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+Author: Christian Fetzer <fetzer.ch@gmail.com>
+Date:   Thu Nov 19 20:13:48 2015 +0100
 
- Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    i2c: piix4: Add support for multiplexed main adapter in SB800
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-index 8ce9cd2855b5..32bcb1943f00 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-@@ -21,7 +21,7 @@ i2c@0 {
- 	#size-cells = <0>;
- 
- 	retu-mfd: retu@1 {
--		compatible = "retu-mfd";
-+		compatible = "nokia,retu-mfd";
- 		reg = <0x1>;
- 	};
- };
--- 
-2.9.3
+I was informed by Guenter Roeck <linux@roeck-us.net> that the
+alternative, i.e. using request_muxed_region() can fail, either
+because of a resource allocation failure, which is quite possible
+with long uptimes, or because there are no guarantees that an as yet
+unknown driver would also use request_muxed_region() consistently.
+
+Because of this, a common mutex across these driver was chosen to
+synchronize I/O port accesses and request_region() calls are removed
+from both i2c-piix4 and sp5100_tco to make the code uniform.
+
+This patch series implements this and restores the watchdog function.
+
+Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
+
+ drivers/i2c/busses/i2c-piix4.c | 59 ++++++++++++--------------------------
+ drivers/usb/host/pci-quirks.c  | 14 ++++++---
+ drivers/watchdog/sp5100_tco.c  | 24 +++++++---------
+ drivers/watchdog/sp5100_tco.h  | 10 ++++---
+ include/linux/sb800.h          | 15 ++++++++++
+ 5 files changed, 61 insertions(+), 61 deletions(-)
