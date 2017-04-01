@@ -1,195 +1,54 @@
-From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor@pr.hu>
-Subject: [PATCH 3/3] watchdog: sp5100_tco: Synchronize I/O port accesses
-Date: Sat,  1 Apr 2017 12:06:09 +0200
-Message-ID: <20170401100609.9054-4-zboszor@pr.hu>
-References: <20170401100609.9054-1-zboszor@pr.hu>
+From: Boszormenyi Zoltan <zboszor-v1d7l9VOqKc@public.gmane.org>
+Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
+ loading of sp5100_tco watchdog driver on AMD SB800 chipset
+Date: Sat, 1 Apr 2017 12:13:08 +0200
+Message-ID: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
+References: <1485728348.3220.10.camel@googlemail.com>
+ <1488530782.2457.41.camel@users.sourceforge.net>
+ <20170303101702.GA1669@katana>
+ <1490944639.2653.182.camel@users.sourceforge.net>
+ <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
+ <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+ <20170331150524.GA31555@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:53374 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751376AbdDAKHX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 1 Apr 2017 06:07:23 -0400
-In-Reply-To: <20170401100609.9054-1-zboszor@pr.hu>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170331150524.GA31555-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 853122-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Tim Small <tim-v0yPK6tSSg/10XsdtD+oqA@public.gmane.org>, Nehal Shah <nehal-bakulchandra.shah-5C7GfCeVMHo@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, =?UTF-8?q?B=C3=B6sz=C3=B6rm=C3=A9nyi=20Zolt=C3=A1n?= <zboszor@pr.hu>
 
-From: Böszörményi Zoltán <zboszor@pr.hu>
+2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
+> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
+>> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
+>>> request_muxed_region() can fail, and literally every other driver
+>>> using it checks for that failure. Please do the same.
+>>
+>> In what circumstances can request_muxed_region() fail? As far as
+>> I can see, only if two drivers use the same I/O port base and the
+>> already present region did not use IORESOURCE_MUXED which is
+>> not the case here. When request_muxed_region() is used consistently,
+>> subsequent requests are put on a wait queue and the first one is
+>> woken up when the region is released. So, it's basically a mutex.
+>> Am I missing something here?
+>>
+>
+> Yes. failure to allocate the resource is one.
 
-Use the new header and the mutex from usb/host/pci-quirks.c
+So, a common mutex should be used.
 
-This change will allow accesses to the SB800 I/O port pair
-synchronized with the PCI quirk when isochronous USB transfers
-are performed and with i2c-piix4.
+I have also added synchronization to the USB PCI quirks code and
+have split the patch into three pieces now (USB quirks, i2c-piix4 and
+sp5100_tco) and they were sent to the relevant mailing lists.
 
-At the same time, remove the request_region() call to reserve
-these I/O ports, similarly to i2c-piix4 so the code is now uniform
-across the three individual drivers.
+I don't know which subsystem wants to take it, all 3 patches are
+needed at once.
 
-Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
----
- drivers/watchdog/sp5100_tco.c | 24 +++++++++++-------------
- drivers/watchdog/sp5100_tco.h | 10 ++++++----
- 2 files changed, 17 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 028618c..dc125df 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -48,7 +48,6 @@
- static u32 tcobase_phys;
- static u32 tco_wdt_fired;
- static void __iomem *tcobase;
--static unsigned int pm_iobase;
- static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
- static unsigned long timer_alive;
- static char tco_expect_close;
-@@ -138,6 +137,8 @@ static void tco_timer_enable(void)
- 
- 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* For SB800 or later */
-+		enter_sb800();
-+
- 		/* Set the Watchdog timer resolution to 1 sec */
- 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
-@@ -150,6 +151,8 @@ static void tco_timer_enable(void)
- 		val |= SB800_PCI_WATCHDOG_DECODE_EN;
- 		val &= ~SB800_PM_WATCHDOG_DISABLE;
- 		outb(val, SB800_IO_PM_DATA_REG);
-+
-+		leave_sb800();
- 	} else {
- 		/* For SP5100 or SB7x0 */
- 		/* Enable watchdog decode bit */
-@@ -164,11 +167,13 @@ static void tco_timer_enable(void)
- 				       val);
- 
- 		/* Enable Watchdog timer and set the resolution to 1 sec */
-+		enter_sb800();
- 		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
- 		val = inb(SP5100_IO_PM_DATA_REG);
- 		val |= SP5100_PM_WATCHDOG_SECOND_RES;
- 		val &= ~SP5100_PM_WATCHDOG_DISABLE;
- 		outb(val, SP5100_IO_PM_DATA_REG);
-+		leave_sb800();
- 	}
- }
- 
-@@ -361,16 +366,10 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		base_addr = SB800_PM_WATCHDOG_BASE;
- 	}
- 
--	/* Request the IO ports used by this driver */
--	pm_iobase = SP5100_IO_PM_INDEX_REG;
--	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
--		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
--		goto exit;
--	}
--
- 	/*
- 	 * First, Find the watchdog timer MMIO address from indirect I/O.
- 	 */
-+	enter_sb800();
- 	outb(base_addr+3, index_reg);
- 	val = inb(data_reg);
- 	outb(base_addr+2, index_reg);
-@@ -380,6 +379,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	outb(base_addr+0, index_reg);
- 	/* Low three bits of BASE are reserved */
- 	val = val << 8 | (inb(data_reg) & 0xf8);
-+	leave_sb800();
- 
- 	pr_debug("Got 0x%04x from indirect I/O\n", val);
- 
-@@ -400,6 +400,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
- 	} else {
- 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
-+		enter_sb800();
- 		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
-@@ -408,6 +409,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
-+		leave_sb800();
- 	}
- 
- 	/* The SBResource_MMIO is enabled and mapped memory space? */
-@@ -429,7 +431,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
- 
- 	pr_notice("failed to find MMIO address, giving up.\n");
--	goto  unreg_region;
-+	goto  exit;
- 
- setup_wdt:
- 	tcobase_phys = val;
-@@ -469,8 +471,6 @@ static unsigned char sp5100_tco_setupdevice(void)
- 
- unreg_mem_region:
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--unreg_region:
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- exit:
- 	return 0;
- }
-@@ -517,7 +517,6 @@ static int sp5100_tco_init(struct platform_device *dev)
- exit:
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- 	return ret;
- }
- 
-@@ -531,7 +530,6 @@ static void sp5100_tco_cleanup(void)
- 	misc_deregister(&sp5100_tco_miscdev);
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- }
- 
- static int sp5100_tco_remove(struct platform_device *dev)
-diff --git a/drivers/watchdog/sp5100_tco.h b/drivers/watchdog/sp5100_tco.h
-index 2b28c00..f5d9402 100644
---- a/drivers/watchdog/sp5100_tco.h
-+++ b/drivers/watchdog/sp5100_tco.h
-@@ -6,6 +6,8 @@
-  *	TCO timer driver for sp5100 chipsets
-  */
- 
-+#include <linux/sb800.h>
-+
- /*
-  * Some address definitions for the Watchdog
-  */
-@@ -24,8 +26,8 @@
-  */
- 
- /*  For SP5100/SB7x0 chipset */
--#define SP5100_IO_PM_INDEX_REG		0xCD6
--#define SP5100_IO_PM_DATA_REG		0xCD7
-+#define SP5100_IO_PM_INDEX_REG		SB800_PIIX4_SMB_IDX
-+#define SP5100_IO_PM_DATA_REG		SB800_PIIX4_SMB_DATA
- 
- #define SP5100_SB_RESOURCE_MMIO_BASE	0x9C
- 
-@@ -45,8 +47,8 @@
- 
- 
- /*  For SB8x0(or later) chipset */
--#define SB800_IO_PM_INDEX_REG		0xCD6
--#define SB800_IO_PM_DATA_REG		0xCD7
-+#define SB800_IO_PM_INDEX_REG		SB800_PIIX4_SMB_IDX
-+#define SB800_IO_PM_DATA_REG		SB800_PIIX4_SMB_DATA
- 
- #define SB800_PM_ACPI_MMIO_EN		0x24
- #define SB800_PM_WATCHDOG_CONTROL	0x48
--- 
-2.9.3
+Best regards,
+Zoltán Böszörményi
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
