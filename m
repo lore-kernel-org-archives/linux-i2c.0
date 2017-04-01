@@ -1,79 +1,99 @@
 From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [PATCH 1/3] usb: pci-quirks: Add a header for SB800 I/O ports and
- mutex for locking
-Date: Sat, 1 Apr 2017 17:09:46 +0200
-Message-ID: <6824761e-787b-e92b-6944-281ed73b9947@pr.hu>
-References: <Pine.LNX.4.44L0.1704011039140.6983-100000@netrider.rowland.org>
+Subject: Bug#853122: [Regression] Changes to i2c-piix4.c initialisation prevent loading of sp5100_tco watchdog driver on AMD SB800 chipset
+Date: Sat, 1 Apr 2017 18:20:52 +0200
+Message-ID: <14472f36-3c8d-e77d-4077-bd0db3587281@pr.hu>
+References: <1485728348.3220.10.camel@googlemail.com>
+ <1488530782.2457.41.camel@users.sourceforge.net>
+ <20170303101702.GA1669@katana>
+ <1490944639.2653.182.camel@users.sourceforge.net>
+ <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
+ <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
+ <20170331150524.GA31555@roeck-us.net>
+ <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
+ <0b32728a-f545-be43-2870-94688f1f9da5@roeck-us.net>
+Reply-To: Boszormenyi Zoltan <zboszor@pr.hu>, 853122@bugs.debian.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:43543 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751457AbdDAPJ7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 1 Apr 2017 11:09:59 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1704011039140.6983-100000@netrider.rowland.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <bounce-debian-bugs-dist=glddb-debian-bugs-dist=m.gmane.org@lists.debian.org>
+Resent-To: debian-bugs-dist@lists.debian.org
+Resent-Message-ID: <handler.853122.B853122.149106367527425@bugs.debian.org>
+In-Reply-To: <0b32728a-f545-be43-2870-94688f1f9da5@roeck-us.net>
+List-URL: <https://lists.debian.org/debian-bugs-dist/>
+List-Post: <mailto:debian-bugs-dist@lists.debian.org>
+List-Help: <mailto:debian-bugs-dist-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-bugs-dist-request@lists.debian.org?subject=unsubscribe>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Paul Menzel <paulepanter@users.sourceforge.net>, Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-i2c@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>
-Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2017-04-01 16:40 keltezéssel, Alan Stern írta:
-> On Sat, 1 Apr 2017, Greg KH wrote:
->
->> On Sat, Apr 01, 2017 at 01:02:21PM +0200, Zoltan Boszormenyi wrote:
->>> From: B�sz�rm�nyi Zolt�n <zboszor@pr.hu>
+2017-04-01 15:32 keltezéssel, Guenter Roeck írta:
+> On 04/01/2017 03:13 AM, Boszormenyi Zoltan wrote:
+>> 2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
+>>> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
+>>>> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
+>>>>> request_muxed_region() can fail, and literally every other driver
+>>>>> using it checks for that failure. Please do the same.
+>>>>
+>>>> In what circumstances can request_muxed_region() fail? As far as
+>>>> I can see, only if two drivers use the same I/O port base and the
+>>>> already present region did not use IORESOURCE_MUXED which is
+>>>> not the case here. When request_muxed_region() is used consistently,
+>>>> subsequent requests are put on a wait queue and the first one is
+>>>> woken up when the region is released. So, it's basically a mutex.
+>>>> Am I missing something here?
+>>>>
 >>>
->>> This patch adds:
->>> * a mutex in the USB PCI quirks code for synchronizing access to
->>>   the I/O ports on SB800
->>> * a new header that contains symbols for the index and data I/O ports
->>>   and wrappers for locking and unlocking the mutex.
->>> * locking around the I/O port access for SB800
->>>
->>> Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
->>> ---
+>>> Yes. failure to allocate the resource is one.
+>>
+>> So, a common mutex should be used.
+>>
 >
->>> diff --git a/include/linux/sb800.h b/include/linux/sb800.h
->>> new file mode 100644
->>> index 0000000..5650b7d
->>> --- /dev/null
->>> +++ b/include/linux/sb800.h
->>> @@ -0,0 +1,15 @@
->>> +
->>> +#ifndef SB800_H
->>> +#define SB800_H
->>> +
->>> +#include <linux/mutex.h>
->>> +
->>> +#define SB800_PIIX4_SMB_IDX		0xcd6
->>> +#define SB800_PIIX4_SMB_DATA	0xcd7
->>> +
->>> +extern struct mutex sb800_mutex;
->>> +
->>> +#define enter_sb800()	mutex_lock(&sb800_mutex)
->>> +#define leave_sb800()	mutex_unlock(&sb800_mutex)
+> Just because you don't want to check for errors ?
 >
-> Is include/linux/ the best place for this new header file?  Aren't
-> there other locations more suitable for something that's
-> board-specific?
+> I am not on favor of your new solution. I think it violates layering all over
+> the place, and I dislike the idea of having a global mutex as you propose.
+> I won't shut it down, but I'll let others provide feedback on your new series
+> of patches.
 
-Are there? Which subdirectory is better suited?
+It's not because I don't want to check for errors, it's about avoiding them.
 
-Would it be acceptable to not use a header at all but spell out
-the "extern struct mutex..." in the two other drivers?
+It's not my favourite either but there is a lot of weight in existing code.
 
-Thanks,
+You cannot avoid layering violations if multiple driver subsystems use
+their respective functionality in devices in multiplexed way.
+
+The biggest problem is that quirk functions, including usb_amd_quirk_pll()
+has the "void" return type so there is no way to indicate errors to the
+callers in case of an error.
+
+The best clean alternative would be add new resource handling infrastructure.
+* Expose the currently static alloc_resource() in kernel/resource.c
+   With this, driver initialization can allocate the resource once
+   for the lifetime of the driver and it it fails,
+* Add a new insert_muxed_region() / __insert_muxed_region() function with
+   different semantics from request_muxed_region() / __request_region():
+   1 Accept a pointer to already allocated resource.
+   2 If the conflicting resource doesn't have IORESOURCE_MUXED set,
+     complain loudly in the syslog but still go into the wait queue.
+     The conflicting resource also has the name which can be printed
+     so the inconsistent resource / region usage can be fixed.
+   We can also just modify the __request_region() semantics, so:
+   1 It accepts a pointer to an allocated resource or NULL.
+     In the second case, the resource is allocated internally and can
+     still fail.
+   2 The above second point. But this may cause an error in code that
+     expects the old semantics.
+
+The window for request_muxed_region()+release_region() is so short
+that the requested I/O port range would not show up in /proc/ioports.
+
+All this would be to fix only 3 drivers in a no-error scenario and only
+achieving the functionality of a mutex seems to be overkill.
+
+Another alternative is to revert commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+that caused the regression in sp5100_tco in the first place.
+
+Best regards,
 Zoltán Böszörményi
-
->
-> Alan Stern
->
->> Don't hide the mutex, just spell it out in the code itself.  No need for
->> these defines at all.
->>
->> thanks,
->>
->> greg k-h
->
->
