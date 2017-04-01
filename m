@@ -1,54 +1,61 @@
-From: Boszormenyi Zoltan <zboszor-v1d7l9VOqKc@public.gmane.org>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Sat, 1 Apr 2017 12:13:08 +0200
-Message-ID: <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170331150524.GA31555-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 853122-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Tim Small <tim-v0yPK6tSSg/10XsdtD+oqA@public.gmane.org>, Nehal Shah <nehal-bakulchandra.shah-5C7GfCeVMHo@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Zoltan Boszormenyi <zboszor@pr.hu>
+Subject: [PATCH 0/3, resend] Fix sp5100_tco watchdog driver regression
+Date: Sat,  1 Apr 2017 13:02:20 +0200
+Message-ID: <20170401110223.12056-1-zboszor@pr.hu>
+References: <20170401100609.9054-1-zboszor@pr.hu>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail7.pr.hu ([87.242.0.7]:50878 "EHLO mail7.pr.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751500AbdDALCk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 1 Apr 2017 07:02:40 -0400
+In-Reply-To: <20170401100609.9054-1-zboszor@pr.hu>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Zoltan Boszormenyi <zboszor@pr.hu>
 
-2017-03-31 17:05 keltezéssel, Guenter Roeck írta:
-> On Fri, Mar 31, 2017 at 04:46:02PM +0200, Boszormenyi Zoltan wrote:
->> 2017-03-31 14:49 keltezéssel, Guenter Roeck írta:
->>> request_muxed_region() can fail, and literally every other driver
->>> using it checks for that failure. Please do the same.
->>
->> In what circumstances can request_muxed_region() fail? As far as
->> I can see, only if two drivers use the same I/O port base and the
->> already present region did not use IORESOURCE_MUXED which is
->> not the case here. When request_muxed_region() is used consistently,
->> subsequent requests are put on a wait queue and the first one is
->> woken up when the region is released. So, it's basically a mutex.
->> Am I missing something here?
->>
->
-> Yes. failure to allocate the resource is one.
 
-So, a common mutex should be used.
+My name with Hungarian accented characters from the Signed-off-by line
+is also used in cc: by git send-email but it gets rejected by
+mailer damons. Why only patch 2/3 was rejected is a mystery.
+Resending with my name in 7-bit ASCII.
 
-I have also added synchronization to the USB PCI quirks code and
-have split the patch into three pieces now (USB quirks, i2c-piix4 and
-sp5100_tco) and they were sent to the relevant mailing lists.
+Three drivers are accessing the same I/O ports (0xcd6 / 0xcd7) on
+AMD SB800 based machines without synchronization or with excluding
+each other out:
+* the USB quirk for isochronous transfers on SB800 (no locking)
+* sp5100_tco (request_region)
+* i2c-piix4 (request_region)
 
-I don't know which subsystem wants to take it, all 3 patches are
-needed at once.
+Historically, the sp5100_tco watchdog driver used request_region()
+for these I/O ports but an i2c-piix4 improvement for SB800 in
+Linux 4.4-rc4 also added a request_region() call. Because of this
+and the load order, this cause a regression and the watchdog function
+became non-functional. The commit that caused the regression is:
 
-Best regards,
-Zoltán Böszörményi
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+Author: Christian Fetzer <fetzer.ch@gmail.com>
+Date:   Thu Nov 19 20:13:48 2015 +0100
+
+    i2c: piix4: Add support for multiplexed main adapter in SB800
+
+I was informed by Guenter Roeck <linux@roeck-us.net> that the
+alternative, i.e. using request_muxed_region() can fail, either
+because of a resource allocation failure, which is quite possible
+with long uptimes, or because there are no guarantees that an as yet
+unknown driver would also use request_muxed_region() consistently.
+
+Because of this, a solution using a common mutex was chosen to
+synchronize I/O port accesses and request_region() calls are removed
+from both i2c-piix4 and sp5100_tco to make the code uniform.
+
+This patch series implements this and restores the watchdog function.
+
+Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
+
+ drivers/i2c/busses/i2c-piix4.c | 59 ++++++++++++--------------------------
+ drivers/usb/host/pci-quirks.c  | 14 ++++++---
+ drivers/watchdog/sp5100_tco.c  | 24 +++++++---------
+ drivers/watchdog/sp5100_tco.h  | 10 ++++---
+ include/linux/sb800.h          | 15 ++++++++++
+ 5 files changed, 61 insertions(+), 61 deletions(-)
