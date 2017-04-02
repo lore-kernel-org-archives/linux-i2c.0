@@ -1,51 +1,124 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 1/6] dt-bindings: iio: rockchip-saradc: add support for
- rk3328
-Date: Sun, 2 Apr 2017 09:58:17 +0100
-Message-ID: <3b0bb12e-3f9e-84b8-3d4e-976ace90fe74@kernel.org>
-References: <1490607650-18650-1-git-send-email-cl@rock-chips.com>
- <1490607650-18650-2-git-send-email-cl@rock-chips.com>
- <1940747.DLKBel529v@phil>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v6] hwmon: ads7828 optional parameters from the device
+ tree
+Date: Sun, 2 Apr 2017 04:35:30 -0700
+Message-ID: <8a1bca54-04fd-c066-6c62-e1c0ad037794@roeck-us.net>
+References: <20170330034637.29708-1-kernel.development@povil.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1940747.DLKBel529v@phil>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, tony.xie@rock-chi
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:46608 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750830AbdDBLfd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 2 Apr 2017 07:35:33 -0400
+In-Reply-To: <20170330034637.29708-1-kernel.development@povil.us>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sam Povilus <kernel.development@povil.us>, wsa@the-dreams.de, jdelvare@suse.com, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com
 
-On 27/03/17 14:25, Heiko Stuebner wrote:
-> Hi Jonathan,
-> 
-> Am Montag, 27. März 2017, 17:40:46 CEST schrieb cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org:
->> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
->>
->> The rk3328 saradc is the same as rk3399.
->>
->> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
->> Reviewed-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
->> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> 
-> just for planning purposes, do you plan on picking this up or do you
-> want me to queue it with the rest of the changes (Ack needed).
+On 03/29/2017 08:46 PM, Sam Povilus wrote:
+> Adding the ability for the ads7828 and ads7830 to use the device tree to
+> get their optional parameters, instead of using platform devices. This
+> allows people using custom boards to also use the ads7828 in a non-default
+> manner.
+>
+> v2: conforming to coding style
+> v3: changing from "_" to "-" for device tree entries
+> v4: using regulator subsystem for voltage source, renaming differential
+>     input property
+> v5: checking for invalid vref values sooner and returning error if they are
+>     bad, not warning user.
+> v6: optimization per Guenter Roeck
+>
+> Signed-off-by: Sam Povilus <kernel.development@povil.us>
 
-Applied to the togreg branch of iio.git.  Makes more sense that
-way as we might get some other changes around that file and it
-doesn't make any difference to the rest of the series.
+Applied, after fixing up some whitespace errors in ads7828.txt.
 
-Will probably start it's way upstream this afternoon if I get
-through the rest of my backlog.
+Guenter
 
-Thanks,
+> ---
+>  .../devicetree/bindings/hwmon/ads7828.txt          | 26 ++++++++++++++++++++++
+>  drivers/hwmon/ads7828.c                            | 15 +++++++++++++
+>  2 files changed, 41 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/hwmon/ads7828.txt
+>
+> diff --git a/Documentation/devicetree/bindings/hwmon/ads7828.txt b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+> new file mode 100644
+> index 000000000000..a1251b19079d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/hwmon/ads7828.txt
+> @@ -0,0 +1,26 @@
+> +ads7828 properties
+> +
+> +Required properties:
+> +- compatible: Should be one of
+> +	       ti,ads7828
+> +	       ti,ads7830
+> +- reg: I2C address
+> +
+> +Optional properties:
+> +
+> +- ti,differential-input
+> +  Set to use the device in differential mode.
+> +- vref
 
-Jonathan
-> 
-> Heiko
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+changed to vref-supply
+
+> +  The external reference on the device is set to this regulators output. If it
+> +  does not exists the internal reference will be used and output by the ads78xx
+> +  on the "external vref" pin.
+> +
+> +  Example ADS7828 node:
+> +
+> +  ads7828: ads@48 {
+> +  	   comatible = "ti,ads7828";
+> +	   reg = <0x48>;
+> +	   vref-supply = <&vref>;
+> +	   ti,differential-input;
+> +  };
+> +
+> diff --git a/drivers/hwmon/ads7828.c b/drivers/hwmon/ads7828.c
+> index ee396ff167d9..88330a233b1d 100644
+> --- a/drivers/hwmon/ads7828.c
+> +++ b/drivers/hwmon/ads7828.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/platform_data/ads7828.h>
+>  #include <linux/regmap.h>
+>  #include <linux/slab.h>
+> +#include <linux/regulator/consumer.h>
+>
+>  /* The ADS7828 registers */
+>  #define ADS7828_CMD_SD_SE	0x80	/* Single ended inputs */
+> @@ -118,9 +119,11 @@ static int ads7828_probe(struct i2c_client *client,
+>  	struct ads7828_data *data;
+>  	struct device *hwmon_dev;
+>  	unsigned int vref_mv = ADS7828_INT_VREF_MV;
+> +	unsigned int vref_uv;
+>  	bool diff_input = false;
+>  	bool ext_vref = false;
+>  	unsigned int regval;
+> +	struct regulator *reg;
+>
+>  	data = devm_kzalloc(dev, sizeof(struct ads7828_data), GFP_KERNEL);
+>  	if (!data)
+> @@ -131,6 +134,18 @@ static int ads7828_probe(struct i2c_client *client,
+>  		ext_vref = pdata->ext_vref;
+>  		if (ext_vref && pdata->vref_mv)
+>  			vref_mv = pdata->vref_mv;
+> +	} else if (dev->of_node) {
+> +		diff_input = of_property_read_bool(dev->of_node,
+> +						   "ti,differential-input");
+> +		reg = devm_regulator_get_optional(dev, "vref");
+> +		if (!IS_ERR(reg)) {
+> +			vref_uv = regulator_get_voltage(reg);
+> +			vref_mv = DIV_ROUND_CLOSEST(vref_uv, 1000);
+> +			if (vref_mv < ADS7828_EXT_VREF_MV_MIN ||
+> +			    vref_mv > ADS7828_EXT_VREF_MV_MAX)
+> +				return -EINVAL;
+> +			ext_vref = true;
+> +		}
+>  	}
+>
+>  	/* Bound Vref with min/max values */
+>
