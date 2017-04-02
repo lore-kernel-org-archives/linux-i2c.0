@@ -1,63 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] i2c: make sure i2c_master_send/recv return negative error
- codes
-Date: Sat, 1 Apr 2017 10:54:35 -0700
-Message-ID: <20170401175435.GA12354@dtor-ws>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 1/6] dt-bindings: iio: rockchip-saradc: add support for
+ rk3328
+Date: Sun, 2 Apr 2017 09:58:17 +0100
+Message-ID: <3b0bb12e-3f9e-84b8-3d4e-976ace90fe74@kernel.org>
+References: <1490607650-18650-1-git-send-email-cl@rock-chips.com>
+ <1490607650-18650-2-git-send-email-cl@rock-chips.com>
+ <1940747.DLKBel529v@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:32864 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751798AbdDARyi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 1 Apr 2017 13:54:38 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1940747.DLKBel529v@phil>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, tony.xie@rock-chi
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There is theoretical possibility that i2c_master_send() and
-i2c_master_recv() may return non-negative result on error: we pass
-return values from i2c_xfer() unmodified to the caller, unless we
-transferred exactly 1 message. Let's ensure we always return negative on
-error.
+On 27/03/17 14:25, Heiko Stuebner wrote:
+> Hi Jonathan,
+> 
+> Am Montag, 27. März 2017, 17:40:46 CEST schrieb cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org:
+>> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+>>
+>> The rk3328 saradc is the same as rk3399.
+>>
+>> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+>> Reviewed-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+>> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> 
+> just for planning purposes, do you plan on picking this up or do you
+> want me to queue it with the rest of the changes (Ack needed).
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/i2c/i2c-core.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+Applied to the togreg branch of iio.git.  Makes more sense that
+way as we might get some other changes around that file and it
+doesn't make any difference to the rest of the series.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 6efeba42d10b..34b0482333f4 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2835,7 +2835,10 @@ int i2c_master_send(const struct i2c_client *client, const void *buf, int count)
- 	 * If everything went ok (i.e. 1 msg transmitted), return #bytes
- 	 * transmitted, else error code.
- 	 */
--	return (ret == 1) ? count : ret;
-+	if (likely(ret == 1))
-+		return count;
-+
-+	return ret < 0 ? ret : -EIO;
- }
- EXPORT_SYMBOL(i2c_master_send);
- 
-@@ -2865,7 +2868,10 @@ int i2c_master_recv(const struct i2c_client *client, void *buf, int count)
- 	 * If everything went ok (i.e. 1 msg received), return #bytes received,
- 	 * else error code.
- 	 */
--	return (ret == 1) ? count : ret;
-+	if (likely(ret == 1))
-+		return count;
-+
-+	return ret < 0 ? ret : -EIO;
- }
- EXPORT_SYMBOL(i2c_master_recv);
- 
--- 
-2.12.2.564.g063fe858b8-goog
+Will probably start it's way upstream this afternoon if I get
+through the rest of my backlog.
 
+Thanks,
 
--- 
-Dmitry
+Jonathan
+> 
+> Heiko
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
