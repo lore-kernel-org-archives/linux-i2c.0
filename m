@@ -1,44 +1,94 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 3/9] i2c: mux: gpio: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:32 +0200
-Message-ID: <1491208718-32068-4-git-send-email-peda@axentia.se>
-References: <1491208718-32068-1-git-send-email-peda@axentia.se>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: simplify timings calculation
+Date: Mon, 03 Apr 2017 12:06:22 +0200
+Message-ID: <6338efba-9100-eb1f-779a-8cb8630926b6@samsung.com>
+References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
+ <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0104.outbound.protection.outlook.com ([104.47.0.104]:28716
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752217AbdDCIh3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 04:37:29 -0400
-In-Reply-To: <1491208718-32068-1-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
 
-i2c_mux_add_adapter already logs a message on failure.
+Hi Wolfram,
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Gently ping.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 655684d621a4..1a9973ede443 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -245,10 +245,8 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 		unsigned int class = mux->data.classes ? mux->data.classes[i] : 0;
- 
- 		ret = i2c_mux_add_adapter(muxc, nr, mux->data.values[i], class);
--		if (ret) {
--			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
-+		if (ret)
- 			goto add_adapter_failed;
--		}
- 	}
- 
- 	dev_info(&pdev->dev, "%d port mux on %s adapter\n",
--- 
-2.1.4
+Regards
+Andrzej
+
+On 23.02.2017 17:47, Andrzej Hajda wrote:
+> Instead of using cryptic loop direct calculation of timings
+> can be used.
+>
+> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> ---
+>  drivers/i2c/busses/i2c-exynos5.c | 40 ++++++++++++++--------------------------
+>  1 file changed, 14 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> index cbd93ce..04127b8 100644
+> --- a/drivers/i2c/busses/i2c-exynos5.c
+> +++ b/drivers/i2c/busses/i2c-exynos5.c
+> @@ -292,9 +292,9 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+>  	unsigned int t_sr_release;
+>  	unsigned int t_ftl_cycle;
+>  	unsigned int clkin = clk_get_rate(i2c->clk);
+> -	unsigned int div, utemp0 = 0, utemp1 = 0, clk_cycle;
+>  	unsigned int op_clk = (mode == HSI2C_HIGH_SPD) ?
+>  				i2c->hs_clock : i2c->fs_clock;
+> +	int div, clk_cycle, temp;
+>  
+>  	/*
+>  	 * In case of HSI2C controller in Exynos5 series
+> @@ -305,33 +305,21 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int mode)
+>  	 * FPCLK / FI2C =
+>  	 * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + FLT_CYCLE
+>  	 *
+> -	 * utemp0 = (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2)
+> -	 * utemp1 = (TSCLK_L + TSCLK_H + 2)
+> +	 * clk_cycle := TSCLK_L + TSCLK_H
+> +	 * temp := (CLK_DIV + 1) * (clk_cycle + 2)
+> +	 *
+> +	 * Constraints: 4 <= temp, 0 <= CLK_DIV < 256, 2 <= clk_cycle <= 510
+> +	 *
+>  	 */
+>  	t_ftl_cycle = (readl(i2c->regs + HSI2C_CONF) >> 16) & 0x7;
+> -	utemp0 = (clkin / op_clk) - 8;
+> -
+> -	if (i2c->variant->hw == HSI2C_EXYNOS7)
+> -		utemp0 -= t_ftl_cycle;
+> -	else
+> -		utemp0 -= 2 * t_ftl_cycle;
+> -
+> -	/* CLK_DIV max is 256 */
+> -	for (div = 0; div < 256; div++) {
+> -		utemp1 = utemp0 / (div + 1);
+> -
+> -		/*
+> -		 * SCL_L and SCL_H each has max value of 255
+> -		 * Hence, For the clk_cycle to the have right value
+> -		 * utemp1 has to be less then 512 and more than 4.
+> -		 */
+> -		if ((utemp1 < 512) && (utemp1 > 4)) {
+> -			clk_cycle = utemp1 - 2;
+> -			break;
+> -		} else if (div == 255) {
+> -			dev_warn(i2c->dev, "Failed to calculate divisor");
+> -			return -EINVAL;
+> -		}
+> +	temp = clkin / op_clk - 8 - t_ftl_cycle;
+> +	if (i2c->variant->hw != HSI2C_EXYNOS7)
+> +		temp -= t_ftl_cycle;
+> +	div = temp / 512;
+> +	clk_cycle = temp / (div + 1) - 2;
+> +	if (temp < 4 || div >= 256 || clk_cycle < 2) {
+> +		dev_warn(i2c->dev, "Failed to calculate divisor");
+> +		return -EINVAL;
+>  	}
+>  
+>  	t_scl_l = clk_cycle / 2;
