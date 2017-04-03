@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 8/9] iio: gyro: mpu3050: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:37 +0200
-Message-ID: <1491208718-32068-9-git-send-email-peda@axentia.se>
+Subject: [PATCH 9/9] [media] cx231xx: stop double error reporting
+Date: Mon, 3 Apr 2017 10:38:38 +0200
+Message-ID: <1491208718-32068-10-git-send-email-peda@axentia.se>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,24 +16,34 @@ i2c_mux_add_adapter already logs a message on failure.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/iio/gyro/mpu3050-i2c.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/usb/cx231xx/cx231xx-i2c.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/iio/gyro/mpu3050-i2c.c b/drivers/iio/gyro/mpu3050-i2c.c
-index 06007200bf49..93f08b304a63 100644
---- a/drivers/iio/gyro/mpu3050-i2c.c
-+++ b/drivers/iio/gyro/mpu3050-i2c.c
-@@ -70,9 +70,8 @@ static int mpu3050_i2c_probe(struct i2c_client *client,
- 		dev_err(&client->dev, "failed to allocate I2C mux\n");
- 	else {
- 		mpu3050->i2cmux->priv = mpu3050;
--		ret = i2c_mux_add_adapter(mpu3050->i2cmux, 0, 0, 0);
--		if (ret)
--			dev_err(&client->dev, "failed to add I2C mux\n");
-+		/* Ignore failure, not critical */
-+		i2c_mux_add_adapter(mpu3050->i2cmux, 0, 0, 0);
- 	}
+diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+index 35e9acfe63d3..dff514e147da 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
++++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+@@ -576,17 +576,10 @@ int cx231xx_i2c_mux_create(struct cx231xx *dev)
  
- 	return 0;
+ int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
+ {
+-	int rc;
+-
+-	rc = i2c_mux_add_adapter(dev->muxc,
+-				 0,
+-				 mux_no /* chan_id */,
+-				 0 /* class */);
+-	if (rc)
+-		dev_warn(dev->dev,
+-			 "i2c mux %d register FAILED\n", mux_no);
+-
+-	return rc;
++	return i2c_mux_add_adapter(dev->muxc,
++				   0,
++				   mux_no /* chan_id */,
++				   0 /* class */);
+ }
+ 
+ void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
 -- 
 2.1.4
