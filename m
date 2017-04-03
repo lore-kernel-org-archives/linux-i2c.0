@@ -1,7 +1,7 @@
 From: Zoltan Boszormenyi <zboszor-v1d7l9VOqKc@public.gmane.org>
-Subject: [PATCH 3/3 v2] watchdog: sp5100_tco: Use the common mutex
-Date: Mon,  3 Apr 2017 09:51:33 +0200
-Message-ID: <20170403075133.12343-4-zboszor@pr.hu>
+Subject: [PATCH 2/3 v2] i2c: i2c-piix4: Use the common mutex
+Date: Mon,  3 Apr 2017 09:51:32 +0200
+Message-ID: <20170403075133.12343-3-zboszor@pr.hu>
 References: <<20170401110223.12056-1-zboszor@pr.hu>>
  <20170403075133.12343-1-zboszor@pr.hu>
 Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
@@ -11,159 +11,166 @@ To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29T
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Nehal Shah <nehal-bakulchandra.shah-5C7GfCeVMHo@public.gmane.org>, Tim Small <tim-v0yPK6tSSg/10XsdtD+oqA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Zoltan Boszormenyi <zboszor-v1d7l9VOqKc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use the common mutex from usb/host/pci-quirks.c to synchronize
-accesses to the SB800 I/O port pair (0xcd6 / 0xcd7) with the
-PCI quirk for isochronous USB transfers and with the i2c-piix4
-driver.
+Use the common mutex from driver/usb/host/pci-quirks.c in the
+i2c-piix4 driver to synchronize access to the I/O port pair
+0xcd6 / 0xcd7.
 
 At the same time, remove the request_region() call to reserve
-these I/O ports, similarly to i2c-piix4 so the code is now uniform
-across the three individual drivers.
+these I/O ports, so the sp5100_tco watchdog driver can also
+load. The mutex is enough to protect the I/O port accesses.
+This is an old regression in Linux 4.4-rc4, caused by:
 
 v2: Explicit extern reference for sb800_mutex
 
+commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+Author: Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Date:   Thu Nov 19 20:13:48 2015 +0100
+
+    i2c: piix4: Add support for multiplexed main adapter in SB800
+
 Signed-off-by: Zoltan Boszormenyi <zboszor-v1d7l9VOqKc@public.gmane.org>
 ---
- drivers/watchdog/sp5100_tco.c | 31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c | 43 +++++++++++++-----------------------------
+ 1 file changed, 13 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/watchdog/sp5100_tco.c b/drivers/watchdog/sp5100_tco.c
-index 028618c..4dca9e89 100644
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -36,9 +36,16 @@
- #include <linux/platform_device.h>
- #include <linux/uaccess.h>
- #include <linux/io.h>
-+#include <linux/mutex.h>
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index c21ca7b..6c56e96 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -144,10 +144,10 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
  
- #include "sp5100_tco.h"
- 
-+/*
+ /*
+  * SB800 globals
+- * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+- * of I/O ports at SB800_PIIX4_SMB_IDX.
 + * sb800_mutex in drivers/usb/host/pci-quirks.c protects
-+ * parallel access to the I/O port pair 0xCD6 / 0xCD7.
-+ */
++ * piix4_port_sel_sb800 and the pair of I/O ports at SB800_PIIX4_SMB_IDX.
+  */
+-static DEFINE_MUTEX(piix4_mutex_sb800);
 +extern struct mutex sb800_mutex;
-+
- /* Module and version information */
- #define TCO_VERSION "0.05"
- #define TCO_MODULE_NAME "SP5100 TCO timer"
-@@ -48,7 +55,6 @@
- static u32 tcobase_phys;
- static u32 tco_wdt_fired;
- static void __iomem *tcobase;
--static unsigned int pm_iobase;
- static DEFINE_SPINLOCK(tco_lock);	/* Guards the hardware */
- static unsigned long timer_alive;
- static char tco_expect_close;
-@@ -138,6 +144,8 @@ static void tco_timer_enable(void)
+ static u8 piix4_port_sel_sb800;
+ static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
+ 	" port 0", " port 2", " port 3", " port 4"
+@@ -157,8 +157,6 @@ static const char *piix4_aux_port_name_sb800 = " port 1";
+ struct i2c_piix4_adapdata {
+ 	unsigned short smba;
  
- 	if (!tco_has_sp5100_reg_layout(sp5100_tco_pci)) {
- 		/* For SB800 or later */
-+		mutex_lock(&sb800_mutex);
-+
- 		/* Set the Watchdog timer resolution to 1 sec */
- 		outb(SB800_PM_WATCHDOG_CONFIG, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
-@@ -150,6 +158,8 @@ static void tco_timer_enable(void)
- 		val |= SB800_PCI_WATCHDOG_DECODE_EN;
- 		val &= ~SB800_PM_WATCHDOG_DISABLE;
- 		outb(val, SB800_IO_PM_DATA_REG);
-+
-+		mutex_unlock(&sb800_mutex);
- 	} else {
- 		/* For SP5100 or SB7x0 */
- 		/* Enable watchdog decode bit */
-@@ -164,11 +174,13 @@ static void tco_timer_enable(void)
- 				       val);
+-	/* SB800 */
+-	bool sb800_main;
+ 	u8 port;		/* Port number, shifted */
+ };
  
- 		/* Enable Watchdog timer and set the resolution to 1 sec */
-+		mutex_lock(&sb800_mutex);
- 		outb(SP5100_PM_WATCHDOG_CONTROL, SP5100_IO_PM_INDEX_REG);
- 		val = inb(SP5100_IO_PM_DATA_REG);
- 		val |= SP5100_PM_WATCHDOG_SECOND_RES;
- 		val &= ~SP5100_PM_WATCHDOG_DISABLE;
- 		outb(val, SP5100_IO_PM_DATA_REG);
-+		mutex_unlock(&sb800_mutex);
- 	}
- }
+@@ -286,12 +284,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
  
-@@ -361,16 +373,10 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		base_addr = SB800_PM_WATCHDOG_BASE;
- 	}
- 
--	/* Request the IO ports used by this driver */
--	pm_iobase = SP5100_IO_PM_INDEX_REG;
--	if (!request_region(pm_iobase, SP5100_PM_IOPORTS_SIZE, dev_name)) {
--		pr_err("I/O address 0x%04x already in use\n", pm_iobase);
--		goto exit;
--	}
--
- 	/*
- 	 * First, Find the watchdog timer MMIO address from indirect I/O.
- 	 */
+-	mutex_lock(&piix4_mutex_sb800);
 +	mutex_lock(&sb800_mutex);
- 	outb(base_addr+3, index_reg);
- 	val = inb(data_reg);
- 	outb(base_addr+2, index_reg);
-@@ -380,6 +386,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 	outb(base_addr+0, index_reg);
- 	/* Low three bits of BASE are reserved */
- 	val = val << 8 | (inb(data_reg) & 0xf8);
+ 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+ 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+-	mutex_unlock(&piix4_mutex_sb800);
 +	mutex_unlock(&sb800_mutex);
  
- 	pr_debug("Got 0x%04x from indirect I/O\n", val);
- 
-@@ -400,6 +407,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 				      SP5100_SB_RESOURCE_MMIO_BASE, &val);
+ 	if (!smb_en) {
+ 		smb_en_status = smba_en_lo & 0x10;
+@@ -349,13 +347,13 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+ 		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
  	} else {
- 		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
+-		mutex_lock(&piix4_mutex_sb800);
 +		mutex_lock(&sb800_mutex);
- 		outb(SB800_PM_ACPI_MMIO_EN+3, SB800_IO_PM_INDEX_REG);
- 		val = inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+2, SB800_IO_PM_INDEX_REG);
-@@ -408,6 +416,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
- 		outb(SB800_PM_ACPI_MMIO_EN+0, SB800_IO_PM_INDEX_REG);
- 		val = val << 8 | inb(SB800_IO_PM_DATA_REG);
+ 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+ 		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+ 				       SB800_PIIX4_PORT_IDX_ALT :
+ 				       SB800_PIIX4_PORT_IDX;
+-		mutex_unlock(&piix4_mutex_sb800);
 +		mutex_unlock(&sb800_mutex);
  	}
  
- 	/* The SBResource_MMIO is enabled and mapped memory space? */
-@@ -429,7 +438,7 @@ static unsigned char sp5100_tco_setupdevice(void)
- 		pr_debug("SBResource_MMIO is disabled(0x%04x)\n", val);
+ 	dev_info(&PIIX4_dev->dev,
+@@ -592,7 +590,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	u8 port;
+ 	int retval;
  
- 	pr_notice("failed to find MMIO address, giving up.\n");
--	goto  unreg_region;
-+	goto  exit;
+-	mutex_lock(&piix4_mutex_sb800);
++	mutex_lock(&sb800_mutex);
  
- setup_wdt:
- 	tcobase_phys = val;
-@@ -469,8 +478,6 @@ static unsigned char sp5100_tco_setupdevice(void)
+ 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+ 	smbslvcnt  = inb_p(SMBSLVCNT);
+@@ -608,7 +606,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	} while (--retries);
+ 	/* SMBus is still owned by the IMC, we give up */
+ 	if (!retries) {
+-		mutex_unlock(&piix4_mutex_sb800);
++		mutex_unlock(&sb800_mutex);
+ 		return -EBUSY;
+ 	}
  
- unreg_mem_region:
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--unreg_region:
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- exit:
- 	return 0;
+@@ -628,7 +626,7 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	/* Release the semaphore */
+ 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
+ 
+-	mutex_unlock(&piix4_mutex_sb800);
++	mutex_unlock(&sb800_mutex);
+ 
+ 	return retval;
  }
-@@ -517,7 +524,6 @@ static int sp5100_tco_init(struct platform_device *dev)
- exit:
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- 	return ret;
- }
+@@ -705,7 +703,6 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 	}
  
-@@ -531,7 +537,6 @@ static void sp5100_tco_cleanup(void)
- 	misc_deregister(&sp5100_tco_miscdev);
- 	iounmap(tcobase);
- 	release_mem_region(tcobase_phys, SP5100_WDT_MEM_MAP_SIZE);
--	release_region(pm_iobase, SP5100_PM_IOPORTS_SIZE);
- }
+ 	adapdata->smba = smba;
+-	adapdata->sb800_main = sb800_main;
+ 	adapdata->port = port << 1;
  
- static int sp5100_tco_remove(struct platform_device *dev)
+ 	/* set up the sysfs linkage to our parent device */
+@@ -771,29 +768,18 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	    dev->vendor == PCI_VENDOR_ID_AMD) {
+ 		is_sb800 = true;
+ 
+-		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+-			dev_err(&dev->dev,
+-			"SMBus base address index region 0x%x already in use!\n",
+-			SB800_PIIX4_SMB_IDX);
+-			return -EBUSY;
+-		}
+-
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id, 0);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 
+ 		/*
+ 		 * Try to register multiplexed main SMBus adapter,
+ 		 * give up if we can't
+ 		 */
+ 		retval = piix4_add_adapters_sb800(dev, retval);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 	} else {
+ 		retval = piix4_setup(dev, id);
+ 		if (retval < 0)
+@@ -841,11 +827,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ 
+ 	if (adapdata->smba) {
+ 		i2c_del_adapter(adap);
+-		if (adapdata->port == (0 << 1)) {
++		if (adapdata->port == (0 << 1))
+ 			release_region(adapdata->smba, SMBIOSIZE);
+-			if (adapdata->sb800_main)
+-				release_region(SB800_PIIX4_SMB_IDX, 2);
+-		}
+ 		kfree(adapdata);
+ 		kfree(adap);
+ 	}
 -- 
 2.9.3
 
