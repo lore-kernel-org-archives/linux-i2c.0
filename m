@@ -1,93 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 9/9] [media] cx231xx: stop double error reporting
-Date: Mon, 3 Apr 2017 12:26:46 +0200
-Message-ID: <20170403102646.GA2750@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 0/9] Unify i2c_mux_add_adapter error reporting
+Date: Mon, 3 Apr 2017 12:27:23 +0200
+Message-ID: <20170403102722.GB2750@katana>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
- <1491208718-32068-10-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:48244 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751904AbdDCK0t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 06:26:49 -0400
+        protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1491208718-32068-10-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1491208718-32068-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
 
 
---tThc/1wpZn/ma/RB
+--CUfgB8w4ZwR/yMy5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 03, 2017 at 10:38:38AM +0200, Peter Rosin wrote:
-> i2c_mux_add_adapter already logs a message on failure.
+On Mon, Apr 03, 2017 at 10:38:29AM +0200, Peter Rosin wrote:
+> Hi!
 >=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-> ---
->  drivers/media/usb/cx231xx/cx231xx-i2c.c | 15 ++++-----------
->  1 file changed, 4 insertions(+), 11 deletions(-)
+> Many users of the i2c_mux_add_adapter interface log a message
+> on failure, but the function already logs such a message. One
+> or two of those users actually add more information than already
+> provided by the central failure message.
 >=20
-> diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/=
-cx231xx/cx231xx-i2c.c
-> index 35e9acfe63d3..dff514e147da 100644
-> --- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
-> +++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-> @@ -576,17 +576,10 @@ int cx231xx_i2c_mux_create(struct cx231xx *dev)
-> =20
->  int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
->  {
-> -	int rc;
-> -
-> -	rc =3D i2c_mux_add_adapter(dev->muxc,
-> -				 0,
-> -				 mux_no /* chan_id */,
-> -				 0 /* class */);
-> -	if (rc)
-> -		dev_warn(dev->dev,
-> -			 "i2c mux %d register FAILED\n", mux_no);
-> -
-> -	return rc;
-> +	return i2c_mux_add_adapter(dev->muxc,
-> +				   0,
-> +				   mux_no /* chan_id */,
-> +				   0 /* class */);
+> So, first fix the central error reporting to provide as much
+> information as any current user, and then remove the surplus
+> error reporting at the call sites.
 
-Could be argued that the whole function is obsolete now and the
-c231xx-core can call i2c_mux_add_adapter() directly. But maybe this is a
-seperate patch.
+Yes, I like.
 
->  }
-> =20
->  void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
-> --=20
-> 2.1.4
->=20
+Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
---tThc/1wpZn/ma/RB
+
+--CUfgB8w4ZwR/yMy5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJY4iNlAAoJEBQN5MwUoCm2sbMP/R+uUIWP56gcLxJglfrRrEOT
-vI1ZGJhxSTNKmX8wllynWF+y+cVMH3wh4pR/lX6nvx1SWhAYrvoXWPSJyDWlb5wn
-mckYHav1xCHe3lTEDcyPqH5Er8ffpDjaNxmRZmmmot2jH9ett2LLwCTGdOoMc2xd
-IN9n2hiNiSRZIfHz/kVBcXldeFVMpwdF4XmtwL4VuW8X2sAhiU3aFFypJWCN57xM
-6Nj6MPJcNBlX0catYl22OzAyxQK10vWU+vpGgS5czxOW81dCYRBFHkLXVH40GEme
-mFfhSQEimRggBo5HZlKEHXI8+mUQdXWLueLGJNiLaLbF+gByNHKbkIPQKujqUk0A
-6z4gclhO7KSGGwk4XvziwVNCeYNi6dwmbZJ/TBVGi6anUKIWWO9U5DqM8dGbQQYD
-gbFzLH+ntAp3W2QzQ2/ws0h0tH6K5RLvw/FGmfdKUFYu8S8EUYHGkSvFqXr6zjcB
-p3wlx9t9eDICKhJGqgVaCorU9zAUZUxKFEh3TNpYaK/1M4AHIgAZdAZhqU6SHcty
-eAAHbSukO/POS3nt38FW/17N/0K5hJFqgAgMk0NrgzeboORnJaDUGBprlLB/JydD
-96qIQ2NhVrRj1oBMVSSzlmDYjC7Irp/KZOwybbYrQe3M4qVeCJ5hVzF1Y+pVTeCO
-UOj3YW3tZ9kTvRGBJ0zO
-=gZBA
+iQIcBAEBAgAGBQJY4iOKAAoJEBQN5MwUoCm2wg0P/3JCuM7Z98JlCLi1IsO64z+z
+mR+FRXYt+yHhH+RRNxJyCSD8O4nf/EietPa0WofCtLJ3c2ARZ0CWKqGcn1qngdY6
+sbIW4C0L4Q7xiPp0UblgiUDCMCtCRe+FXEMVyLR6577uTGA4LkK4JoIhjgO4KGTF
+4hwXyzBmQb/jgU4oQ6PrVFy5WqM1Xe4hFUoO0FyAvdNDcbsa4F9Ro7MreZjGXa8I
+fsrATdx+Mlgp4gB9iN5JTKP1dOMmv5a3HeM+KuG6bHuP40Li3RwCZUNlK52S/oDQ
+hvMshqK43PJPlvpq/GperEe8m0N1j6WfeGfPzwmEvhXsmAsYGS2kl8fcplcryG4t
+A+Q0ivfRD2D/x9ElHI9VUnqXi+RrtXJeJd7o9sVKTbQz5xowwIRwHyF9YmA7BE0U
+7PzazArDZBxDLK+jxCBq5NchLSf6E1OETBy+tlE0dk/wwUf84hiF/fXkbAEceNlI
+i2KM27EOilE4Mt4nScUycw92vEZN9h0uVrcvIAjyzle1GxDNe8rVTowf7YFPVRkN
+rVVhJrfdOhB43FBgvPaY5TZXTrFQhcPlgjMLSI8ZurU9CGcLrcEK8EYnUIFDLVuQ
+KX+ybgdJo1/LybV7dWKYB6fd0PqVB7S+7zynXP5l+ukAXRmgCDcwuaziQJgcrmF9
+M+9wQ6P9OnJG+Qd/VBW6
+=/LhN
 -----END PGP SIGNATURE-----
 
---tThc/1wpZn/ma/RB--
+--CUfgB8w4ZwR/yMy5--
