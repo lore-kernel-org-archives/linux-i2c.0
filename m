@@ -1,106 +1,55 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6 3/5] i2c: aspeed: added documentation for Aspeed I2C
- driver
-Date: Mon, 3 Apr 2017 09:24:10 -0500
-Message-ID: <20170403142410.57qqtuvawu3qon2m@rob-hp-laptop>
-References: <20170328051226.21677-1-brendanhiggins@google.com>
- <20170328051226.21677-4-brendanhiggins@google.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
+Subject: Re: [PATCH v10 5/5] ARM: configs: stm32: Add I2C support for STM32
+ defconfig
+Date: Mon, 3 Apr 2017 16:36:00 +0200
+Message-ID: <3b693eb4-b7f4-47bb-808e-17009b353b46@st.com>
+References: <1484832316-5594-1-git-send-email-cedric.madianga@gmail.com>
+ <1484832316-5594-6-git-send-email-cedric.madianga@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:34048 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752962AbdDCOYN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 3 Apr 2017 10:24:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20170328051226.21677-4-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1484832316-5594-6-git-send-email-cedric.madianga@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: M'boumba Cedric Madianga <cedric.madianga@gmail.com>, wsa@the-dreams.de, robh+dt@kernel.org, mcoquelin.stm32@gmail.com, linus.walleij@linaro.org, patrice.chotard@st.com, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, u.kleine-koenig@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, benh@kernel.crashing.org
 
-On Mon, Mar 27, 2017 at 10:12:24PM -0700, Brendan Higgins wrote:
-> Added device tree binding documentation for Aspeed I2C busses.
-> 
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Hi,
+
+On 01/19/2017 02:25 PM, M'boumba Cedric Madianga wrote:
+> This patch adds I2C support for STM32 default configuration
+>
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 > ---
-> Changes for v2:
->   - None
-> Changes for v3:
->   - Removed reference to "bus" device tree param
-> Changes for v4:
->   - None
-> Changes for v5:
->   - None
-> Changes for v6:
->   - Replaced the controller property with and interrupt controller, leaving only
->     the busses in the I2C documentation.
-> ---
->  .../devicetree/bindings/i2c/i2c-aspeed.txt         | 49 ++++++++++++++++++++++
->  1 file changed, 49 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> new file mode 100644
-> index 000000000000..fbcc501706b1
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> @@ -0,0 +1,49 @@
-> +Device tree configuration for the I2C busses on the AST24XX and AST25XX SoCs.
-> +
-> +Required Properties:
-> +- #address-cells	: should be 1
-> +- #size-cells		: should be 0
-> +- reg			: address offset and range of bus
-> +- compatible		: should be "aspeed,ast2400-i2c-bus"
-> +			  or "aspeed,ast2500-i2c-bus"
-> +- clocks		: root clock of bus, should reference the APB
-> +			  clock
-> +- interrupts		: interrupt number
-> +- interrupt-parent	: interrupt controller for bus, should reference a
-> +			  aspeed,ast2400-i2c-ic or aspeed,ast2500-i2c-ic
-> +			  interrupt controller
-> +
-> +Optional Properties:
-> +- clock-frequency	: frequency of the bus clock in Hz
-> +			  defaults to 100 kHz when not specified
-> +
-> +Example:
-> +
-> +i2c {
-> +	compatible = "simple-bus";
-> +	#address-cells = <1>;
-> +	#size-cells = <1>;
-> +	ranges = <0 0x1e78a000 0x1000>;
-> +
-> +	i2c_ic: interrupt-controller@0 {
-> +		#interrupt-cells = <1>;
-> +		compatible = "aspeed,ast2400-i2c-ic";
-> +		reg = <0x0 0x40>;
-> +		interrupts = <12>;
-> +		interrupt-controller;
-> +	};
-> +
-> +	i2c0: i2c-bus@40 {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		#interrupt-cells = <1>;
-> +		reg = <0x40 0x40>;
-> +		compatible = "aspeed,ast2400-i2c-bus";
-> +		bus = <0>;
 
-Not documented and what's it for?
+Applied on stm32-defconfig-for-v4.12
 
-> +		clocks = <&clk_apb>;
-> +		clock-frequency = <100000>;
-> +		status = "disabled";
+Regards
+Alex
 
-Drop status from examples.
-
-> +		interrupts = <0>;
-> +		interrupt-parent = <&i2c_ic>;
-> +	};
-> +};
-> -- 
-> 2.12.2.564.g063fe858b8-goog
-> 
+>  arch/arm/configs/stm32_defconfig | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/arch/arm/configs/stm32_defconfig b/arch/arm/configs/stm32_defconfig
+> index 5a72d69..323d2a3 100644
+> --- a/arch/arm/configs/stm32_defconfig
+> +++ b/arch/arm/configs/stm32_defconfig
+> @@ -47,6 +47,9 @@ CONFIG_SERIAL_NONSTANDARD=y
+>  CONFIG_SERIAL_STM32=y
+>  CONFIG_SERIAL_STM32_CONSOLE=y
+>  # CONFIG_HW_RANDOM is not set
+> +CONFIG_I2C=y
+> +CONFIG_I2C_CHARDEV=y
+> +CONFIG_I2C_STM32F4=y
+>  # CONFIG_HWMON is not set
+>  # CONFIG_USB_SUPPORT is not set
+>  CONFIG_NEW_LEDS=y
+>
