@@ -1,72 +1,30 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH i2c-tools 1/2] i2ctransfer: replace broken "force" handling
-Date: Mon,  3 Apr 2017 19:36:12 +0200
-Message-ID: <20170403173613.2238-1-wsa+renesas@sang-engineering.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 8/9] iio: gyro: mpu3050: stop double error reporting
+Date: Mon, 3 Apr 2017 19:56:02 +0200
+Message-ID: <CACRpkdZMx4EEXqXzT435mE=yHkgCnFbtU0e__C0WD47L2cmjPw@mail.gmail.com>
+References: <1491208718-32068-1-git-send-email-peda@axentia.se> <1491208718-32068-9-git-send-email-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:58877 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752881AbdDCRgW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 13:36:22 -0400
+Received: from mail-it0-f50.google.com ([209.85.214.50]:35230 "EHLO
+        mail-it0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751342AbdDCR4E (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 3 Apr 2017 13:56:04 -0400
+Received: by mail-it0-f50.google.com with SMTP id y18so51245361itc.0
+        for <linux-i2c@vger.kernel.org>; Mon, 03 Apr 2017 10:56:03 -0700 (PDT)
+In-Reply-To: <1491208718-32068-9-git-send-email-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 
-Probably because of a bad rebase, the old and bogus handling (v1) of "force"
-slipped into the latest version of the patch (v3). Apply the better
-version from v2 which does the error handling correct and makes the code
-a lot easier to understand.
+On Mon, Apr 3, 2017 at 10:38 AM, Peter Rosin <peda@axentia.se> wrote:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- tools/i2ctransfer.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+> i2c_mux_add_adapter already logs a message on failure.
+>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index 0f7ddd5..bc027c3 100644
---- a/tools/i2ctransfer.c
-+++ b/tools/i2ctransfer.c
-@@ -199,8 +199,6 @@ int main(int argc, char *argv[])
- 
- 			arg_ptr = end;
- 			if (*arg_ptr) {
--				int whole_range_ok;
--
- 				if (*arg_ptr++ != '@') {
- 					fprintf(stderr, "Error: Unknown seperator after length\n");
- 					goto err_out_with_arg;
-@@ -211,16 +209,22 @@ int main(int argc, char *argv[])
- 				 * the address here.
- 				 */
- 
--				address = parse_i2c_address(arg_ptr);
--				/* With 'force', allow whole address range */
--				whole_range_ok = force && address == -2;
--				if (address < 0 && !whole_range_ok)
--					goto err_out_with_arg;
--
--				/* Ensure address is not busy */
--				if (!force && set_slave_addr(file, address, 0))
--					goto err_out_with_arg;
--
-+				if (!force) {
-+					address = parse_i2c_address(arg_ptr);
-+					if (address < 0)
-+						goto err_out_with_arg;
-+
-+					/* Ensure address is not busy */
-+					if (set_slave_addr(file, address, 0))
-+						goto err_out_with_arg;
-+				} else {
-+					/* 'force' allows whole address range */
-+					address = strtol(arg_ptr, &end, 0);
-+					if (arg_ptr == end || *end || address > 0x7f) {
-+						fprintf(stderr, "Error: Invalid chip address\n");
-+						goto err_out_with_arg;
-+					}
-+				}
- 			} else {
- 				/* Reuse last address if possible */
- 				if (address < 0) {
--- 
-2.11.0
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
