@@ -1,49 +1,53 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 0/9] Unify i2c_mux_add_adapter error reporting
-Date: Mon, 3 Apr 2017 13:27:48 +0200
-Message-ID: <8022ae03-c8cc-181f-ae16-c9e6584f43b2@axentia.se>
-References: <1491208718-32068-1-git-send-email-peda@axentia.se>
- <20170403102722.GB2750@katana>
+Subject: Re: [PATCH v2] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
+ multiplexer/switch
+Date: Mon, 3 Apr 2017 14:03:35 +0200
+Message-ID: <3c61461e-493c-4562-90c9-f30766591de2@axentia.se>
+References: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
+ <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0136.outbound.protection.outlook.com ([104.47.2.136]:64472
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+Received: from mail-ve1eur01on0092.outbound.protection.outlook.com ([104.47.1.92]:10548
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751342AbdDCL15 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 07:27:57 -0400
-In-Reply-To: <20170403102722.GB2750@katana>
+        id S1751808AbdDCMDp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Apr 2017 08:03:45 -0400
+In-Reply-To: <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
+To: michael.hennerich@analog.com, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linus.walleij@linaro.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2017-04-03 12:27, Wolfram Sang wrote:
-> On Mon, Apr 03, 2017 at 10:38:29AM +0200, Peter Rosin wrote:
->> Hi!
->>
->> Many users of the i2c_mux_add_adapter interface log a message
->> on failure, but the function already logs such a message. One
->> or two of those users actually add more information than already
->> provided by the central failure message.
->>
->> So, first fix the central error reporting to provide as much
->> information as any current user, and then remove the surplus
->> error reporting at the call sites.
+On 2017-03-31 17:29, Peter Rosin wrote:
+> Hi!
 > 
-> Yes, I like.
+> Sorry for my incremental reviewing...
 > 
-> Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
 
-Thanks!
+Another incremental...
 
-BTW, the improved error reporting in patch 1/9 is not needed for
-patches 8/9 and 9/9 to make sense, the existing central error
-message is already good enough. So, iio and media maintainers,
-feel free to just grab those two patches. Or, they can go via
-Wolfram and the i2c tree with the rest of the series. Either way
-is fine with me, just let me know.
+> On 2017-03-29 12:15, michael.hennerich@analog.com wrote:
+>> +
+>> +	/* Now create an adapter for each channel */
+>> +	for (num = 0; num < data->chip->nchans; num++) {
+>> +		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
+>> +		if (ret) {
+>> +			dev_err(&client->dev,
+>> +				"failed to register multiplexed adapter %d\n",
+>> +				num);
+
+Just a heads up, I submitted a series to remove a bunch of dev_err calls
+when i2c_mux_add_adapter fails. See https://lkml.org/lkml/2017/4/3/115
+
+You can remove this one as well.
+
+And please use a subject of the form:
+i2c: mux: ltc4306: <message>
 
 Cheers,
 peda
+
+>> +			goto add_adapter_failed;
+>> +		}
