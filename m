@@ -1,59 +1,55 @@
-From: Boszormenyi Zoltan <zboszor@pr.hu>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Mon, 3 Apr 2017 09:59:06 +0200
-Message-ID: <b42d979b-9172-48ba-dba9-a67d9a143bca@pr.hu>
-References: <1485728348.3220.10.camel@googlemail.com>
- <1488530782.2457.41.camel@users.sourceforge.net>
- <20170303101702.GA1669@katana>
- <1490944639.2653.182.camel@users.sourceforge.net>
- <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
- <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
- <20170331150524.GA31555@roeck-us.net>
- <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
- <1491201299.2321.42.camel@users.sourceforge.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 0/9] Unify i2c_mux_add_adapter error reporting
+Date: Mon, 3 Apr 2017 10:38:29 +0200
+Message-ID: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:42624 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751507AbdDCH7X (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 03:59:23 -0400
-In-Reply-To: <1491201299.2321.42.camel@users.sourceforge.net>
+Received: from mail-he1eur01on0096.outbound.protection.outlook.com ([104.47.0.96]:31631
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751993AbdDCIhD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Apr 2017 04:37:03 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Paul Menzel <paulepanter@users.sourceforge.net>, Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 853122@bugs.debian.org, Wim Van Sebroeck <wim@iguana.be>, Tim Small <tim@seoss.co.uk>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Thomas Brandon <tbrandonau@gmail.com>, Eddi De Pieri <eddi@depieri.net>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
 
-Hi,
+Hi!
 
-2017-04-03 08:34 keltezéssel, Paul Menzel írta:
-> Dear Zoltán,
->
->
-> Am Samstag, den 01.04.2017, 12:13 +0200 schrieb Boszormenyi Zoltan:
->
-> […]
->
->> and have split the patch into three pieces now (USB quirks, i2c-piix4
->> and sp5100_tco) and they were sent to the relevant mailing lists.
->
-> Could you please add me to the receiver list of these patches, so that
-> I can test them? Maybe also Christian (the commit author introducing
-> the regression), Tim (bug reporter), and Nehal from AMD?
->
-> If you uploaded them to the Kernel.org Bugtracker, that’d also work for
-> me.
+Many users of the i2c_mux_add_adapter interface log a message
+on failure, but the function already logs such a message. One
+or two of those users actually add more information than already
+provided by the central failure message.
 
-did both.
+So, first fix the central error reporting to provide as much
+information as any current user, and then remove the surplus
+error reporting at the call sites.
 
-Best regards,
-Zoltán Böszörményi
+Cheers,
+peda
 
->
->
-> Thanks,
->
-> Paul
->
+Peter Rosin (9):
+  i2c: mux: provide more info on failure in i2c_mux_add_adapter
+  i2c: arb: gpio-challenge: stop double error reporting
+  i2c: mux: gpio: stop double error reporting
+  i2c: mux: pca9541: stop double error reporting
+  i2c: mux: pca954x: stop double error reporting
+  i2c: mux: pinctrl: stop double error reporting
+  i2c: mux: reg: stop double error reporting
+  iio: gyro: mpu3050: stop double error reporting
+  [media] cx231xx: stop double error reporting
+
+ drivers/i2c/i2c-mux.c                      |  9 ++++++---
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c |  4 +---
+ drivers/i2c/muxes/i2c-mux-gpio.c           |  4 +---
+ drivers/i2c/muxes/i2c-mux-pca9541.c        |  4 +---
+ drivers/i2c/muxes/i2c-mux-pca954x.c        |  7 +------
+ drivers/i2c/muxes/i2c-mux-pinctrl.c        |  4 +---
+ drivers/i2c/muxes/i2c-mux-reg.c            |  4 +---
+ drivers/iio/gyro/mpu3050-i2c.c             |  5 ++---
+ drivers/media/usb/cx231xx/cx231xx-i2c.c    | 15 ++++-----------
+ 9 files changed, 18 insertions(+), 38 deletions(-)
+
+-- 
+2.1.4
