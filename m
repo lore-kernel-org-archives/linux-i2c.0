@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 6/9] i2c: mux: pinctrl: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:35 +0200
-Message-ID: <1491208718-32068-7-git-send-email-peda@axentia.se>
+Subject: [PATCH 8/9] iio: gyro: mpu3050: stop double error reporting
+Date: Mon, 3 Apr 2017 10:38:37 +0200
+Message-ID: <1491208718-32068-9-git-send-email-peda@axentia.se>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,22 +16,22 @@ i2c_mux_add_adapter already logs a message on failure.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pinctrl.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/iio/gyro/mpu3050-i2c.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-index 35bb775e1b74..7c0c264b07bc 100644
---- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-@@ -245,10 +245,8 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 				(mux->pdata->base_bus_num + i) : 0;
- 
- 		ret = i2c_mux_add_adapter(muxc, bus, i, 0);
--		if (ret) {
--			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
-+		if (ret)
- 			goto err_del_adapter;
--		}
+diff --git a/drivers/iio/gyro/mpu3050-i2c.c b/drivers/iio/gyro/mpu3050-i2c.c
+index 06007200bf49..93f08b304a63 100644
+--- a/drivers/iio/gyro/mpu3050-i2c.c
++++ b/drivers/iio/gyro/mpu3050-i2c.c
+@@ -70,9 +70,8 @@ static int mpu3050_i2c_probe(struct i2c_client *client,
+ 		dev_err(&client->dev, "failed to allocate I2C mux\n");
+ 	else {
+ 		mpu3050->i2cmux->priv = mpu3050;
+-		ret = i2c_mux_add_adapter(mpu3050->i2cmux, 0, 0, 0);
+-		if (ret)
+-			dev_err(&client->dev, "failed to add I2C mux\n");
++		/* Ignore failure, not critical */
++		i2c_mux_add_adapter(mpu3050->i2cmux, 0, 0, 0);
  	}
  
  	return 0;
