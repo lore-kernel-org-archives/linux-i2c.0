@@ -1,69 +1,56 @@
-From: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: Re: [Regression] Changes to i2c-piix4.c initialisation prevent
- loading of sp5100_tco watchdog driver on AMD SB800 chipset
-Date: Mon, 03 Apr 2017 08:34:59 +0200
-Message-ID: <1491201299.2321.42.camel@users.sourceforge.net>
-References: <1485728348.3220.10.camel@googlemail.com>
-         <1488530782.2457.41.camel@users.sourceforge.net>
-         <20170303101702.GA1669@katana>
-         <1490944639.2653.182.camel@users.sourceforge.net>
-         <585a27fb-be15-df9f-00a9-bd4c3a654142@roeck-us.net>
-         <d1152062-77c5-f1b7-6be9-d24ee221ada9@pr.hu>
-         <20170331150524.GA31555@roeck-us.net>
-         <efce69fc-3899-43f4-c8ee-12b78a571e5a@pr.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-        boundary="=-65UZwX1dGrqwEkOLVk09"
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <efce69fc-3899-43f4-c8ee-12b78a571e5a-v1d7l9VOqKc@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Zolt=E1n_B=F6sz=F6rm=E9nyi?= <zboszor-v1d7l9VOqKc@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 853122-61a8vm9lEZVf4u+23C9RwQ@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Tim Small <tim-v0yPK6tSSg/10XsdtD+oqA@public.gmane.org>, Nehal Shah <nehal-bakulchandra.shah-5C7GfCeVMHo@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Zoltan Boszormenyi <zboszor@pr.hu>
+Subject: [PATCH 0/3 v2] Fix regression in the sp5100_tco driver
+Date: Mon,  3 Apr 2017 09:51:30 +0200
+Message-ID: <20170403075133.12343-1-zboszor@pr.hu>
+References: <<20170401110223.12056-1-zboszor@pr.hu>>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail7.pr.hu ([87.242.0.7]:41499 "EHLO mail7.pr.hu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751158AbdDCHwE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Apr 2017 03:52:04 -0400
+In-Reply-To: <<20170401110223.12056-1-zboszor@pr.hu>>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>, Guenter Roeck <linux@roeck-us.net>, Zoltan Boszormenyi <zboszor@pr.hu>
 
 
---=-65UZwX1dGrqwEkOLVk09
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Three drivers are accessing the same I/O ports (0xcd6 / 0xcd7) on
+AMD SB800 based machines without synchronization or with excluding
+each other out:
+* the USB quirk for isochronous transfers on SB800 (no locking)
+* sp5100_tco (request_region)
+* i2c-piix4 (request_region)
 
-Dear Zolt=C3=A1n,
+Historically, the sp5100_tco watchdog driver used request_region()
+for these I/O ports but an i2c-piix4 improvement for SB800 in
+Linux 4.4-rc4 also added a request_region() call. Because of this
+and the load order, this cause a regression and the watchdog function
+became non-functional. The commit that caused the regression is:
 
+commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
+Author: Christian Fetzer <fetzer.ch@gmail.com>
+Date:   Thu Nov 19 20:13:48 2015 +0100
 
-Am Samstag, den 01.04.2017, 12:13 +0200 schrieb Boszormenyi Zoltan:
+    i2c: piix4: Add support for multiplexed main adapter in SB800
 
-[=E2=80=A6]
+I was informed by Guenter Roeck <linux@roeck-us.net> that the
+alternative, i.e. using request_muxed_region() can fail, either
+because of a resource allocation failure, which is quite possible
+with long uptimes, or because there are no guarantees that an as yet
+unknown driver would also use request_muxed_region() consistently.
 
-> and=C2=A0have split the patch into three pieces now (USB quirks, i2c-piix=
-4=20
-> and sp5100_tco) and they were sent to the relevant mailing lists.
+Because of this, a solution using a common mutex was chosen to
+synchronize I/O port accesses and request_region() calls are removed
+from both i2c-piix4 and sp5100_tco to make the code uniform.
 
-Could you please add me to the receiver list of these patches, so that
-I can test them? Maybe also Christian (the commit author introducing
-the regression), Tim (bug reporter), and Nehal from AMD?
+This patch series implements this and restores the watchdog function.
 
-If you uploaded them to the Kernel.org Bugtracker, that=E2=80=99d also work=
- for
-me.
+v2: Don't introduce a new header, reference sb800_mutex explicitly
 
+Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
 
-Thanks,
-
-Paul
---=-65UZwX1dGrqwEkOLVk09
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQQ8+w9d414FAVARIpk9fVorbA4dWAUCWOHtFQAKCRA9fVorbA4d
-WOb+AJ9T1znwYSdGilYWI3hXU+uLQUdoOACcDog6LbaDLWGNZkV2tAhnhXkNuEw=
-=Q2Bn
------END PGP SIGNATURE-----
-
---=-65UZwX1dGrqwEkOLVk09--
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/i2c/busses/i2c-piix4.c | 43 +++++++++++++------------------------------
+ drivers/usb/host/pci-quirks.c  |  5 +++++
+ drivers/watchdog/sp5100_tco.c  | 31 ++++++++++++++++++-------------
+ 3 files changed, 36 insertions(+), 43 deletions(-)
