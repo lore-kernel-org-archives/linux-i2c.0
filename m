@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 9/9] [media] cx231xx: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:38 +0200
-Message-ID: <1491208718-32068-10-git-send-email-peda@axentia.se>
+Subject: [PATCH 4/9] i2c: mux: pca9541: stop double error reporting
+Date: Mon, 3 Apr 2017 10:38:33 +0200
+Message-ID: <1491208718-32068-5-git-send-email-peda@axentia.se>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,34 +16,24 @@ i2c_mux_add_adapter already logs a message on failure.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/usb/cx231xx/cx231xx-i2c.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-index 35e9acfe63d3..dff514e147da 100644
---- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
-+++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-@@ -576,17 +576,10 @@ int cx231xx_i2c_mux_create(struct cx231xx *dev)
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 77840f7845a1..9e318c9516c7 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -369,10 +369,8 @@ static int pca9541_probe(struct i2c_client *client,
+ 	i2c_set_clientdata(client, muxc);
  
- int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
- {
--	int rc;
--
--	rc = i2c_mux_add_adapter(dev->muxc,
--				 0,
--				 mux_no /* chan_id */,
--				 0 /* class */);
--	if (rc)
--		dev_warn(dev->dev,
--			 "i2c mux %d register FAILED\n", mux_no);
--
--	return rc;
-+	return i2c_mux_add_adapter(dev->muxc,
-+				   0,
-+				   mux_no /* chan_id */,
-+				   0 /* class */);
- }
+ 	ret = i2c_mux_add_adapter(muxc, force, 0, 0);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to register master selector\n");
++	if (ret)
+ 		return ret;
+-	}
  
- void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
+ 	dev_info(&client->dev, "registered master selector for I2C %s\n",
+ 		 client->name);
 -- 
 2.1.4
