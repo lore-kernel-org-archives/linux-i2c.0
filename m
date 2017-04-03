@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 5/9] i2c: mux: pca954x: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:34 +0200
-Message-ID: <1491208718-32068-6-git-send-email-peda@axentia.se>
+Subject: [PATCH 3/9] i2c: mux: gpio: stop double error reporting
+Date: Mon, 3 Apr 2017 10:38:32 +0200
+Message-ID: <1491208718-32068-4-git-send-email-peda@axentia.se>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,8 +9,8 @@ Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mail-he1eur01on0104.outbound.protection.outlook.com ([104.47.0.104]:28716
         "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752224AbdDCIhe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 04:37:34 -0400
+        id S1752217AbdDCIh3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Apr 2017 04:37:29 -0400
 In-Reply-To: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -21,27 +21,24 @@ i2c_mux_add_adapter already logs a message on failure.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/i2c/muxes/i2c-mux-gpio.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 15dfc1648716..b2a85a2d00f7 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -434,13 +434,8 @@ static int pca954x_probe(struct i2c_client *client,
- 				   idle_disconnect_dt) << num;
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index 655684d621a4..1a9973ede443 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -245,10 +245,8 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 		unsigned int class = mux->data.classes ? mux->data.classes[i] : 0;
  
- 		ret = i2c_mux_add_adapter(muxc, force, num, class);
--
+ 		ret = i2c_mux_add_adapter(muxc, nr, mux->data.values[i], class);
 -		if (ret) {
--			dev_err(&client->dev,
--				"failed to register multiplexed adapter"
--				" %d as bus %d\n", num, force);
+-			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
 +		if (ret)
- 			goto fail_del_adapters;
+ 			goto add_adapter_failed;
 -		}
  	}
  
- 	dev_info(&client->dev,
+ 	dev_info(&pdev->dev, "%d port mux on %s adapter\n",
 -- 
 2.1.4
