@@ -1,56 +1,57 @@
 From: Zoltan Boszormenyi <zboszor@pr.hu>
-Subject: [PATCH 0/3 v2] Fix regression in the sp5100_tco driver
-Date: Mon,  3 Apr 2017 09:51:30 +0200
-Message-ID: <20170403075133.12343-1-zboszor@pr.hu>
+Subject: [PATCH 1/3 v2] usb: pci-quirks: Add a common mutex for the I/O port pair of SB800
+Date: Mon,  3 Apr 2017 09:51:31 +0200
+Message-ID: <20170403075133.12343-2-zboszor@pr.hu>
 References: <<20170401110223.12056-1-zboszor@pr.hu>>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:41499 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751158AbdDCHwE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 03:52:04 -0400
-In-Reply-To: <<20170401110223.12056-1-zboszor@pr.hu>>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+ <20170403075133.12343-1-zboszor@pr.hu>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170403075133.12343-1-zboszor@pr.hu>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>, Guenter Roeck <linux@roeck-us.net>, Zoltan Boszormenyi <zboszor@pr.hu>
+List-Id: linux-i2c@vger.kernel.org
 
+This patch adds a common mutex in the USB PCI quirks code and starts
+using it to synchronize access to the I/O port pair 0xcd6 / 0xcd7 on
+SB800.
 
-Three drivers are accessing the same I/O ports (0xcd6 / 0xcd7) on
-AMD SB800 based machines without synchronization or with excluding
-each other out:
-* the USB quirk for isochronous transfers on SB800 (no locking)
-* sp5100_tco (request_region)
-* i2c-piix4 (request_region)
+These I/O ports are also used by i2c-piix4 and sp5100_tco, the next
+two patches port these drivers to use this common mutex.
 
-Historically, the sp5100_tco watchdog driver used request_region()
-for these I/O ports but an i2c-piix4 improvement for SB800 in
-Linux 4.4-rc4 also added a request_region() call. Because of this
-and the load order, this cause a regression and the watchdog function
-became non-functional. The commit that caused the regression is:
-
-commit 2fee61d22e606fc99ade9079fda15fdee83ec33e
-Author: Christian Fetzer <fetzer.ch@gmail.com>
-Date:   Thu Nov 19 20:13:48 2015 +0100
-
-    i2c: piix4: Add support for multiplexed main adapter in SB800
-
-I was informed by Guenter Roeck <linux@roeck-us.net> that the
-alternative, i.e. using request_muxed_region() can fail, either
-because of a resource allocation failure, which is quite possible
-with long uptimes, or because there are no guarantees that an as yet
-unknown driver would also use request_muxed_region() consistently.
-
-Because of this, a solution using a common mutex was chosen to
-synchronize I/O port accesses and request_region() calls are removed
-from both i2c-piix4 and sp5100_tco to make the code uniform.
-
-This patch series implements this and restores the watchdog function.
-
-v2: Don't introduce a new header, reference sb800_mutex explicitly
+v2: No extra header and no wrapper for mutex_lock() / mutex_unlock()
 
 Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
+---
+ drivers/usb/host/pci-quirks.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
- drivers/i2c/busses/i2c-piix4.c | 43 +++++++++++++------------------------------
- drivers/usb/host/pci-quirks.c  |  5 +++++
- drivers/watchdog/sp5100_tco.c  | 31 ++++++++++++++++++-------------
- 3 files changed, 36 insertions(+), 43 deletions(-)
+diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
+index a9a1e4c..1ef0ada 100644
+--- a/drivers/usb/host/pci-quirks.c
++++ b/drivers/usb/host/pci-quirks.c
+@@ -279,6 +279,9 @@ bool usb_amd_prefetch_quirk(void)
+ }
+ EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
+ 
++DEFINE_MUTEX(sb800_mutex);
++EXPORT_SYMBOL_GPL(sb800_mutex);
++
+ /*
+  * The hardware normally enables the A-link power management feature, which
+  * lets the system lower the power consumption in idle states.
+@@ -314,11 +317,13 @@ static void usb_amd_quirk_pll(int disable)
+ 	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
+ 			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
+ 			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
++		mutex_lock(&sb800_mutex);
+ 		outb_p(AB_REG_BAR_LOW, 0xcd6);
+ 		addr_low = inb_p(0xcd7);
+ 		outb_p(AB_REG_BAR_HIGH, 0xcd6);
+ 		addr_high = inb_p(0xcd7);
+ 		addr = addr_high << 8 | addr_low;
++		mutex_unlock(&sb800_mutex);
+ 
+ 		outl_p(0x30, AB_INDX(addr));
+ 		outl_p(0x40, AB_DATA(addr));
+-- 
+2.9.3
