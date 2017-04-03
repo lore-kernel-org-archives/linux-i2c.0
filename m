@@ -1,53 +1,93 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
- multiplexer/switch
-Date: Mon, 3 Apr 2017 14:03:35 +0200
-Message-ID: <3c61461e-493c-4562-90c9-f30766591de2@axentia.se>
-References: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
- <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
+From: <michael.hennerich@analog.com>
+Subject: [PATCH v3 2/2] dt-bindings:i2c:mux:ltc4306: Add dt-bindings for I2C multiplexer/switch
+Date: Mon, 3 Apr 2017 15:31:37 +0200
+Message-ID: <1491226297-4970-2-git-send-email-michael.hennerich@analog.com>
+References: <1491226297-4970-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0092.outbound.protection.outlook.com ([104.47.1.92]:10548
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751808AbdDCMDp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Apr 2017 08:03:45 -0400
-In-Reply-To: <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1491226297-4970-1-git-send-email-michael.hennerich@analog.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: wsa@the-dreams.de, peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, linus.walleij@linaro.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>
 List-Id: linux-i2c@vger.kernel.org
-To: michael.hennerich@analog.com, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linus.walleij@linaro.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2017-03-31 17:29, Peter Rosin wrote:
-> Hi!
-> 
-> Sorry for my incremental reviewing...
-> 
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Another incremental...
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+ .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    | 61 ++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
 
-> On 2017-03-29 12:15, michael.hennerich@analog.com wrote:
->> +
->> +	/* Now create an adapter for each channel */
->> +	for (num = 0; num < data->chip->nchans; num++) {
->> +		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
->> +		if (ret) {
->> +			dev_err(&client->dev,
->> +				"failed to register multiplexed adapter %d\n",
->> +				num);
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+new file mode 100644
+index 0000000..1e98c6b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+@@ -0,0 +1,61 @@
++* Linear Technology / Analog Devices I2C bus switch
++
++Required Properties:
++
++  - compatible: Must contain one of the following.
++    "lltc,ltc4305", "lltc,ltc4306"
++  - reg: The I2C address of the device.
++
++  The following required properties are defined externally:
++
++  - Standard I2C mux properties. See i2c-mux.txt in this directory.
++  - I2C child bus nodes. See i2c-mux.txt in this directory.
++
++Optional Properties:
++
++  - enable-gpios: Reference to the GPIO connected to the enable input.
++  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
++    children in idle state. This is necessary for example, if there are several
++    multiplexers on the bus and the devices behind them use same I2C addresses.
++  - gpio-controller: Marks the device node as a GPIO Controller.
++  - #gpio-cells: Should be two.  The first cell is the pin number and
++	the second cell is used to specify flags.
++	See ../gpio/gpio.txt for more information.
++  - ltc,downstream-accelerators-enable: Enables the rise time accelerators
++	on the downstream port.
++  - ltc,upstream-accelerators-enable: Enables the rise time accelerators
++	on the upstream port.
++
++Example:
++
++	ltc4306: i2c-mux@4a {
++		compatible = "lltc,ltc4306";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x4a>;
++
++		gpio-controller;
++		#gpio-cells = <2>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++
++			eeprom@50 {
++				compatible = "at,24c02";
++				reg = <0x50>;
++			};
++		};
++
++		i2c@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			eeprom@50 {
++				compatible = "at,24c02";
++				reg = <0x50>;
++			};
++		};
++	};
+-- 
+2.7.4
 
-Just a heads up, I submitted a series to remove a bunch of dev_err calls
-when i2c_mux_add_adapter fails. See https://lkml.org/lkml/2017/4/3/115
-
-You can remove this one as well.
-
-And please use a subject of the form:
-i2c: mux: ltc4306: <message>
-
-Cheers,
-peda
-
->> +			goto add_adapter_failed;
->> +		}
