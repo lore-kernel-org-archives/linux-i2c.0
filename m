@@ -1,39 +1,39 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 4/9] i2c: mux: pca9541: stop double error reporting
-Date: Mon, 3 Apr 2017 10:38:33 +0200
-Message-ID: <1491208718-32068-5-git-send-email-peda@axentia.se>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: [PATCH 7/9] i2c: mux: reg: stop double error reporting
+Date: Mon, 3 Apr 2017 10:38:36 +0200
+Message-ID: <1491208718-32068-8-git-send-email-peda@axentia.se>
 References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1491208718-32068-1-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1491208718-32068-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 i2c_mux_add_adapter already logs a message on failure.
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
 ---
- drivers/i2c/muxes/i2c-mux-pca9541.c | 4 +---
+ drivers/i2c/muxes/i2c-mux-reg.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-index 77840f7845a1..9e318c9516c7 100644
---- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-@@ -369,10 +369,8 @@ static int pca9541_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, muxc);
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index c6a90b4a9c62..406d5059072c 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -222,10 +222,8 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 		class = mux->data.classes ? mux->data.classes[i] : 0;
  
- 	ret = i2c_mux_add_adapter(muxc, force, 0, 0);
--	if (ret) {
--		dev_err(&client->dev, "failed to register master selector\n");
-+	if (ret)
- 		return ret;
--	}
+ 		ret = i2c_mux_add_adapter(muxc, nr, mux->data.values[i], class);
+-		if (ret) {
+-			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
++		if (ret)
+ 			goto add_adapter_failed;
+-		}
+ 	}
  
- 	dev_info(&client->dev, "registered master selector for I2C %s\n",
- 		 client->name);
+ 	dev_dbg(&pdev->dev, "%d port mux on %s adapter\n",
 -- 
 2.1.4
