@@ -1,80 +1,93 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: use core helper to get driver data
-Date: Mon, 03 Apr 2017 12:07:31 +0200
-Message-ID: <01e0c360-81a4-9533-a024-f6ce716c322c@samsung.com>
-References: <CGME20170224133606eucas1p2c3c6afb60b9e39ad501c1ddbdbfc180f@eucas1p2.samsung.com>
- <1487943360-6421-1-git-send-email-a.hajda@samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 9/9] [media] cx231xx: stop double error reporting
+Date: Mon, 3 Apr 2017 12:26:46 +0200
+Message-ID: <20170403102646.GA2750@katana>
+References: <1491208718-32068-1-git-send-email-peda@axentia.se>
+ <1491208718-32068-10-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1487943360-6421-1-git-send-email-a.hajda@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:48244 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751904AbdDCK0t (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Apr 2017 06:26:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1491208718-32068-10-git-send-email-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Hi Wolfram,
-
-Gently ping.
-
-Regards
-Andrzej
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
 
 
-On 24.02.2017 14:36, Andrzej Hajda wrote:
-> Driver core provides of_device_get_match_data which can be used
-> to get driver data instead of custom helper.
->
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Apr 03, 2017 at 10:38:38AM +0200, Peter Rosin wrote:
+> i2c_mux_add_adapter already logs a message on failure.
+>=20
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 > ---
->  drivers/i2c/busses/i2c-exynos5.c | 15 +++------------
->  1 file changed, 3 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index bc2b5db..de3b6af 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -22,6 +22,7 @@
->  #include <linux/slab.h>
->  #include <linux/io.h>
->  #include <linux/of_address.h>
-> +#include <linux/of_device.h>
->  #include <linux/of_irq.h>
->  #include <linux/spinlock.h>
->  
-> @@ -201,7 +202,7 @@ struct exynos5_i2c {
->  	unsigned int		op_clock;
->  
->  	/* Version of HS-I2C Hardware */
-> -	struct exynos_hsi2c_variant	*variant;
-> +	const struct exynos_hsi2c_variant *variant;
->  };
->  
->  /**
-> @@ -247,15 +248,6 @@ static const struct of_device_id exynos5_i2c_match[] = {
->  };
->  MODULE_DEVICE_TABLE(of, exynos5_i2c_match);
->  
-> -static inline struct exynos_hsi2c_variant *exynos5_i2c_get_variant
-> -					(struct platform_device *pdev)
-> -{
-> -	const struct of_device_id *match;
-> -
-> -	match = of_match_node(exynos5_i2c_match, pdev->dev.of_node);
-> -	return (struct exynos_hsi2c_variant *)match->data;
-> -}
-> -
->  static void exynos5_i2c_clr_pend_irq(struct exynos5_i2c *i2c)
+>  drivers/media/usb/cx231xx/cx231xx-i2c.c | 15 ++++-----------
+>  1 file changed, 4 insertions(+), 11 deletions(-)
+>=20
+> diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/=
+cx231xx/cx231xx-i2c.c
+> index 35e9acfe63d3..dff514e147da 100644
+> --- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
+> +++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+> @@ -576,17 +576,10 @@ int cx231xx_i2c_mux_create(struct cx231xx *dev)
+> =20
+>  int cx231xx_i2c_mux_register(struct cx231xx *dev, int mux_no)
 >  {
->  	writel(readl(i2c->regs + HSI2C_INT_STATUS),
-> @@ -773,8 +765,7 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
->  		goto err_clk;
->  	}
->  
-> -	/* Need to check the variant before setting up. */
-> -	i2c->variant = exynos5_i2c_get_variant(pdev);
-> +	i2c->variant = of_device_get_match_data(&pdev->dev);
->  
->  	ret = exynos5_hsi2c_clock_setup(i2c);
->  	if (ret)
+> -	int rc;
+> -
+> -	rc =3D i2c_mux_add_adapter(dev->muxc,
+> -				 0,
+> -				 mux_no /* chan_id */,
+> -				 0 /* class */);
+> -	if (rc)
+> -		dev_warn(dev->dev,
+> -			 "i2c mux %d register FAILED\n", mux_no);
+> -
+> -	return rc;
+> +	return i2c_mux_add_adapter(dev->muxc,
+> +				   0,
+> +				   mux_no /* chan_id */,
+> +				   0 /* class */);
+
+Could be argued that the whole function is obsolete now and the
+c231xx-core can call i2c_mux_add_adapter() directly. But maybe this is a
+seperate patch.
+
+>  }
+> =20
+>  void cx231xx_i2c_mux_unregister(struct cx231xx *dev)
+> --=20
+> 2.1.4
+>=20
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJY4iNlAAoJEBQN5MwUoCm2sbMP/R+uUIWP56gcLxJglfrRrEOT
+vI1ZGJhxSTNKmX8wllynWF+y+cVMH3wh4pR/lX6nvx1SWhAYrvoXWPSJyDWlb5wn
+mckYHav1xCHe3lTEDcyPqH5Er8ffpDjaNxmRZmmmot2jH9ett2LLwCTGdOoMc2xd
+IN9n2hiNiSRZIfHz/kVBcXldeFVMpwdF4XmtwL4VuW8X2sAhiU3aFFypJWCN57xM
+6Nj6MPJcNBlX0catYl22OzAyxQK10vWU+vpGgS5czxOW81dCYRBFHkLXVH40GEme
+mFfhSQEimRggBo5HZlKEHXI8+mUQdXWLueLGJNiLaLbF+gByNHKbkIPQKujqUk0A
+6z4gclhO7KSGGwk4XvziwVNCeYNi6dwmbZJ/TBVGi6anUKIWWO9U5DqM8dGbQQYD
+gbFzLH+ntAp3W2QzQ2/ws0h0tH6K5RLvw/FGmfdKUFYu8S8EUYHGkSvFqXr6zjcB
+p3wlx9t9eDICKhJGqgVaCorU9zAUZUxKFEh3TNpYaK/1M4AHIgAZdAZhqU6SHcty
+eAAHbSukO/POS3nt38FW/17N/0K5hJFqgAgMk0NrgzeboORnJaDUGBprlLB/JydD
+96qIQ2NhVrRj1oBMVSSzlmDYjC7Irp/KZOwybbYrQe3M4qVeCJ5hVzF1Y+pVTeCO
+UOj3YW3tZ9kTvRGBJ0zO
+=gZBA
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
