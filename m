@@ -1,45 +1,92 @@
-From: John Stultz <john.stultz@linaro.org>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Mon, 3 Apr 2017 19:55:10 -0700
-Message-ID: <CALAqxLV7Er9kq-E97zG=U1tLTBqDFyYqC8BdofHNjtU=uo_uvw@mail.gmail.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
+ multiplexer/switch
+Date: Tue, 4 Apr 2017 08:32:22 +0200
+Message-ID: <5a320a13-1d61-a643-fc40-791b4d588d9a@analog.com>
+References: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
+ <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
+ <3c61461e-493c-4562-90c9-f30766591de2@axentia.se>
+ <f871f082-3acd-7a28-25c7-dd77d8286ae6@analog.com>
+ <dcc59f26-6dec-dbf1-22d9-b681daf788a2@axentia.se>
+Reply-To: <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Linux PM list <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <dcc59f26-6dec-dbf1-22d9-b681daf788a2-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 30, 2017 at 5:04 AM, Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
-> There is possibility to enter dw_i2c_plat_suspend() callback twice
-> during system suspend under certain cases which is causing here warnings
-> from clk_core_disable() and clk_core_unprepare() as well as accessing the
-> registers that can be power gated.
+On 03.04.2017 16:20, Peter Rosin wrote:
+> On 2017-04-03 15:36, Michael Hennerich wrote:
+>> On 03.04.2017 14:03, Peter Rosin wrote:
+>>> On 2017-03-31 17:29, Peter Rosin wrote:
+>>>> Hi!
+>>>>
+>>>> Sorry for my incremental reviewing...
+>>>>
+>>>
+>>> Another incremental...
+>>>
+>>>> On 2017-03-29 12:15, michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org wrote:
+>>>>> +
+>>>>> +	/* Now create an adapter for each channel */
+>>>>> +	for (num = 0; num < data->chip->nchans; num++) {
+>>>>> +		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
+>>>>> +		if (ret) {
+>>>>> +			dev_err(&client->dev,
+>>>>> +				"failed to register multiplexed adapter %d\n",
+>>>>> +				num);
+>>>
+>>> Just a heads up, I submitted a series to remove a bunch of dev_err calls
+>>> when i2c_mux_add_adapter fails. See https://lkml.org/lkml/2017/4/3/115
+>>>
+>>> You can remove this one as well.
+>>>
+>>> And please use a subject of the form:
+>>> i2c: mux: ltc4306: <message>
+>> ok - no problem.
 >
-> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
-> system suspend") implemented a prepare callback that checks for runtime
-> suspended device which allow PM core to set direct_complete flag and
-> skip system suspend and resume callbacks.
+> You managed to drop the spaces after the new colons in the subject.
 >
-> However it can still happen if nothing resumes the device prior system
-> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
-> unsets the direct_complete flag of the parent in __device_suspend() thus
-> causing PM code to not skip the system suspend/resume callbacks.
+> And maybe there is a problem, because I don't see any reaction to any of
+> the review comments I made in https://lkml.org/lkml/2017/3/31/525
 >
-> Avoid this by checking runtime status in suspend and resume callbacks
-> and return directly if device is runtime suspended. This affects only
-> system suspend/resume since during runtime suspend/resume runtime status
-> is suspending (not suspended) or resuming.
->
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Was that on purpose? Sure, the gpio "jury" is still out on the bigger
+> question so maybe you're waiting for that, but there were a few nitpicks
+> as well. Anyway, sorry again for failing to compile all comments up front.
 
-This works for me on my HiKey board!
+Hi Peter,
 
-Tested-by: John Stultz <john.stultz@linaro.org>
+sorry - this was not on purpose. I simply missed your second to last 
+incremental review. I fix the subject now finally.
 
-thanks
--john
+Thanks for your patience.
+
+>
+>> I sent out a new patch. Per Rob's request, I split out the dt-bindings
+>> into a separate patch.
+>
+> Thanks. I think(?) it is customary to have the bindings first, and then
+> implement that "specification" in followup patches. No big deal though...
+>
+> Cheers,
+> peda
+>
+>
+
+
+-- 
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
