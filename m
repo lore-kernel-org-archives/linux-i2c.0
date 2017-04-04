@@ -1,179 +1,226 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 2/4] i2c: core: Add new i2c_acpi_new_device helper function
-Date: Wed,  5 Apr 2017 00:03:33 +0200
-Message-ID: <20170404220335.9815-3-hdegoede@redhat.com>
+Subject: [PATCH v5 4/4] platform/x86: Add Intel Cherry Trail ACPI INT33FE device driver
+Date: Wed,  5 Apr 2017 00:03:35 +0200
+Message-ID: <20170404220335.9815-5-hdegoede@redhat.com>
 References: <20170404220335.9815-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59272 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754147AbdDDWDq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 4 Apr 2017 18:03:46 -0400
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 In-Reply-To: <20170404220335.9815-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>
 Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+List-Id: linux-i2c@vger.kernel.org
 
-By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-resource of an acpi_device, but some acpi_devices have multiple
-I2cSerialBus resources and we may want to instantiate i2c-clients for
-the others.
+The INT33FE ACPI device has a CRS table with I2cSerialBusV2 resources for
+3 devices: Maxim MAX17047 Fuel Gauge Controller, FUSB300C USB Type-C
+Controller and PI3USB30532 USB switch.
 
-This commit adds a new i2c_acpi_new_device function which can be used to
-create an i2c-client for any I2cSerialBus resource of an acpi_device.
-
-Note that the other resources may even be on a different i2c bus, so just
-retrieving the client address is not enough.
-
-Here is an example DSDT excerpt from such a device:
-
-Device (WIDR)
-{
-    Name (_HID, "INT33FE" /* XPOWER Battery Device */)
-    Name (_CID, "INT33FE" /* XPOWER Battery Device */)
-    Name (_DDN, "WC PMIC Battery Device")
-<snip>
-    Name (RBUF, ResourceTemplate ()
-    {
-        I2cSerialBusV2 (0x005E, ControllerInitiated, 0x000186A0,
-            AddressingMode7Bit, "\\_SB.PCI0.I2C7",
-            0x00, ResourceConsumer, , Exclusive,
-            )
-        I2cSerialBusV2 (0x0036, ControllerInitiated, 0x000186A0,
-            AddressingMode7Bit, "\\_SB.PCI0.I2C1",
-            0x00, ResourceConsumer, , Exclusive,
-            )
-        I2cSerialBusV2 (0x0022, ControllerInitiated, 0x00061A80,
-            AddressingMode7Bit, "\\_SB.PCI0.I2C1",
-            0x00, ResourceConsumer, , Exclusive,
-            )
-        I2cSerialBusV2 (0x0054, ControllerInitiated, 0x00061A80,
-            AddressingMode7Bit, "\\_SB.PCI0.I2C1",
-            0x00, ResourceConsumer, , Exclusive,
-            )
-        GpioInt (Level, ActiveLow, Exclusive, PullNone, 0x0000,
-            "\\_SB.PCI0.I2C7.PMI5", 0x00, ResourceConsumer, ,
-            )
-            {   // Pin list
-        0x0012
-            }
-        GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone, 0x0000,
-            "\\_SB.GPO1", 0x00, ResourceConsumer, ,
-            )
-            {   // Pin list
-        0x0005
-            }
-        GpioInt (Level, ActiveLow, Exclusive, PullNone, 0x0000,
-            "\\_SB.PCI0.I2C7.PMI5", 0x00, ResourceConsumer, ,
-            )
-            {   // Pin list
-        0x0013
-            }
-    })
-    Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-    {
-        Return (RBUF) /* \_SB_.PCI0.I2C7.WIDR.RBUF */
-    }
-<snip>
-}
+This commit adds a driver for this ACPI device which instantiates
+i2c-clients for these, so that the standard i2c drivers for these chips
+can bind to the them.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-Changes in v2:
--No changes
-Changes in v3:
--Added example DSDT snippet to the commit msg
 Changes in v4:
--Add a board_info argument so that the caller can set type, irq, properties,
- etc.
+-This is a new patch in v4 of this patch-set replacing the
+ cht_wc_fuel_gauge driver which was binding to the INT33FE device before
+ I figured out this is some sort of meta device describing 3 devices
+ and that the fuel-guage really is just a Maxim MAX17047. The
+ cht_wc_fuel_gauge driver will be replaced by a max17047 driver which I
+ will submit seperately
+Changes in v5:
+-Remove not needed (and not upstream) #include <linux/power/acpi.h>
+-Sort variable declarations in upside-down Chistmas tree order
 ---
- drivers/i2c/i2c-core.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  7 +++++++
- 2 files changed, 56 insertions(+)
+ drivers/platform/x86/Kconfig             |  13 +++
+ drivers/platform/x86/Makefile            |   1 +
+ drivers/platform/x86/intel_cht_int33fe.c | 143 +++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+)
+ create mode 100644 drivers/platform/x86/intel_cht_int33fe.c
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index f7faa99..00c4cef 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -421,6 +421,55 @@ static int i2c_acpi_notify(struct notifier_block *nb, unsigned long value,
- static struct notifier_block i2c_acpi_notifier = {
- 	.notifier_call = i2c_acpi_notify,
- };
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 6a5b79c..57f7c1d 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -772,6 +772,19 @@ config ACPI_CMPC
+ 	  keys as input device, backlight device, tablet and accelerometer
+ 	  devices.
+ 
++config INTEL_CHT_INT33FE
++	tristate "Intel Cherry Trail ACPI INT33FE Driver"
++	depends on X86 && ACPI
++	---help---
++	  This driver add support for the INT33FE ACPI device found on
++	  some Intel Cherry Trail devices.
 +
-+/**
-+ * i2c_acpi_new_device - Create i2c-client for the Nth I2cSerialBus resource
-+ * @dev:     Device owning the ACPI resources to get the client from
-+ * @index:   Index of ACPI resource to get
-+ * @info:    describes the I2C device; note this is modified (addr gets set)
-+ * Context: can sleep
++	  The INT33FE ACPI device has a CRS table with I2cSerialBusV2
++	  resources for 3 devices: Maxim MAX17047 Fuel Gauge Controller,
++	  FUSB300C USB Type-C Controller and PI3USB30532 USB switch.
++	  This driver instantiates i2c-clients for these, so that standard
++	  i2c drivers for these chips can bind to the them.
++
+ config INTEL_HID_EVENT
+ 	tristate "INTEL HID Event"
+ 	depends on ACPI
+diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+index 6d4b01a..6731893 100644
+--- a/drivers/platform/x86/Makefile
++++ b/drivers/platform/x86/Makefile
+@@ -44,6 +44,7 @@ obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
+ obj-$(CONFIG_TOSHIBA_BT_RFKILL)	+= toshiba_bluetooth.o
+ obj-$(CONFIG_TOSHIBA_HAPS)	+= toshiba_haps.o
+ obj-$(CONFIG_TOSHIBA_WMI)	+= toshiba-wmi.o
++obj-$(CONFIG_INTEL_CHT_INT33FE)	+= intel_cht_int33fe.o
+ obj-$(CONFIG_INTEL_HID_EVENT)	+= intel-hid.o
+ obj-$(CONFIG_INTEL_VBTN)	+= intel-vbtn.o
+ obj-$(CONFIG_INTEL_SCU_IPC)	+= intel_scu_ipc.o
+diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
+new file mode 100644
+index 0000000..df53657
+--- /dev/null
++++ b/drivers/platform/x86/intel_cht_int33fe.c
+@@ -0,0 +1,143 @@
++/*
++ * Intel Cherry Trail ACPI INT33FE pseudo device driver
 + *
-+ * By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-+ * resource of an acpi_device, but some acpi_devices have multiple I2cSerialBus
-+ * resources, in that case this function can be used to create an i2c-client
-+ * for other I2cSerialBus resources in the Current Resource Settings table.
++ * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
 + *
-+ * Also see i2c_new_device, which this function calls to create the i2c-client.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
-+ * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
++ * Some Intel Cherry Trail based device which ship with Windows 10, have
++ * this weird INT33FE ACPI device with a CRS table with 4 I2cSerialBusV2
++ * resources, for 4 different chips attached to various i2c busses:
++ * 1. The Whiskey Cove pmic, which is also described by the INT34D3 ACPI device
++ * 2. Maxim MAX17047 Fuel Gauge Controller
++ * 3. FUSB300C USB Type-C Controller
++ * 4. PI3USB30532 USB switch
++ *
++ * So this driver is a stub / pseudo driver whose only purpose is to
++ * instantiate i2c-clients for chips 2 - 4, so that standard i2c drivers
++ * for these chips can bind to the them.
 + */
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
-+				       struct i2c_board_info *info)
++
++#include <linux/acpi.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++
++#define EXPECTED_PTYPE		4
++
++struct cht_int33fe_data {
++	struct i2c_client *max17047;
++	struct i2c_client *fusb300c;
++	struct i2c_client *pi3usb30532;
++};
++
++static int cht_int33fe_probe(struct i2c_client *client)
 +{
-+	struct i2c_acpi_lookup lookup;
-+	struct i2c_adapter *adapter;
-+	struct acpi_device *adev;
-+	LIST_HEAD(resource_list);
-+	int ret;
++	struct device *dev = &client->dev;
++	struct i2c_board_info board_info;
++	struct cht_int33fe_data *data;
++	unsigned long long ptyp;
++	acpi_status status;
++	int fusb300c_irq;
 +
-+	adev = ACPI_COMPANION(dev);
-+	if (!adev)
-+		return NULL;
++	status = acpi_evaluate_integer(ACPI_HANDLE(dev), "PTYP", NULL, &ptyp);
++	if (ACPI_FAILURE(status)) {
++		dev_err(dev, "Error getting PTYPE\n");
++		return -ENODEV;
++	}
 +
-+	memset(&lookup, 0, sizeof(lookup));
-+	lookup.info = info;
-+	lookup.device_handle = acpi_device_handle(adev);
-+	lookup.index = index;
++	/*
++	 * The same ACPI HID is used for different configurations check PTYP
++	 * to ensure that we are dealing with the expected config.
++	 */
++	if (ptyp != EXPECTED_PTYPE)
++		return -ENODEV;
 +
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_fill_info, &lookup);
-+	acpi_dev_free_resource_list(&resource_list);
++	/* The FUSB300C uses the irq at index 1 and is the only irq user */
++	fusb300c_irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 1);
++	if (fusb300c_irq < 0) {
++		if (fusb300c_irq != -EPROBE_DEFER)
++			dev_err(dev, "Error getting FUSB300C irq\n");
++		return fusb300c_irq;
++	}
 +
-+	if (ret < 0 || !info->addr)
-+		return NULL;
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
 +
-+	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
-+	if (!adapter)
-+		return NULL;
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "max17047", I2C_NAME_SIZE);
 +
-+	return i2c_new_device(adapter, info);
++	data->max17047 = i2c_acpi_new_device(dev, 1, &board_info);
++	if (!data->max17047)
++		return -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
++
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "fusb300c", I2C_NAME_SIZE);
++	board_info.irq = fusb300c_irq;
++
++	data->fusb300c = i2c_acpi_new_device(dev, 2, &board_info);
++	if (!data->fusb300c)
++		goto out_unregister_max17047;
++
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "pi3usb30532", I2C_NAME_SIZE);
++
++	data->pi3usb30532 = i2c_acpi_new_device(dev, 3, &board_info);
++	if (!data->pi3usb30532)
++		goto out_unregister_fusb300c;
++
++	i2c_set_clientdata(client, data);
++
++	return 0;
++
++out_unregister_fusb300c:
++	i2c_unregister_device(data->fusb300c);
++
++out_unregister_max17047:
++	i2c_unregister_device(data->max17047);
++
++	return -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
 +}
-+EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
- extern struct notifier_block i2c_acpi_notifier;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 6b18352..53fa50f 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -824,11 +824,18 @@ static inline const struct of_device_id
- 
- #if IS_ENABLED(CONFIG_ACPI)
- u32 i2c_acpi_find_bus_speed(struct device *dev);
-+struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
-+				       struct i2c_board_info *info);
- #else
- static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
- {
- 	return 0;
- }
-+static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
-+					int index, struct i2c_board_info *info)
++
++static int cht_int33fe_remove(struct i2c_client *i2c)
 +{
-+	return NULL;
++	struct cht_int33fe_data *data = i2c_get_clientdata(i2c);
++
++	i2c_unregister_device(data->pi3usb30532);
++	i2c_unregister_device(data->fusb300c);
++	i2c_unregister_device(data->max17047);
++
++	return 0;
 +}
- #endif /* CONFIG_ACPI */
- 
- #endif /* _LINUX_I2C_H */
++
++static const struct i2c_device_id cht_int33fe_i2c_id[] = {
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, cht_int33fe_i2c_id);
++
++static const struct acpi_device_id cht_int33fe_acpi_ids[] = {
++	{ "INT33FE", },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, cht_int33fe_acpi_ids);
++
++static struct i2c_driver cht_int33fe_driver = {
++	.driver	= {
++		.name = "Intel Cherry Trail ACPI INT33FE driver",
++		.acpi_match_table = ACPI_PTR(cht_int33fe_acpi_ids),
++	},
++	.probe_new = cht_int33fe_probe,
++	.remove = cht_int33fe_remove,
++	.id_table = cht_int33fe_i2c_id,
++	.disable_i2c_core_irq_mapping = true,
++};
++
++module_i2c_driver(cht_int33fe_driver);
++
++MODULE_DESCRIPTION("Intel Cherry Trail ACPI INT33FE pseudo device driver");
++MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
++MODULE_LICENSE("GPL");
 -- 
 2.9.3
