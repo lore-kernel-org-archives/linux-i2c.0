@@ -1,52 +1,79 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: question about concurrent regmap i2c usage
-Date: Tue, 4 Apr 2017 13:26:54 +0100
-Message-ID: <20170404122654.dfhtvpcnngl3gfco@sirena.org.uk>
-References: <76471664-425b-c386-3ad8-efeabc2eaf7e@analog.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nfmggrusljzsl5r2"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <76471664-425b-c386-3ad8-efeabc2eaf7e@analog.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: linus.walleij@linaro.org, wsa@the-dreams.de, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH v4 0/8] mfd: Add OF device table to I2C drivers that are missing it
+Date: Tue,  4 Apr 2017 11:30:28 -0400
+Message-ID: <20170404153036.6651-1-javier@osg.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:35428
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754485AbdDDPbH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 4 Apr 2017 11:31:07 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, Javier Martinez Canillas <javier@osg.samsung.com>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
+Hello,
 
---nfmggrusljzsl5r2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This series add OF device ID tables to mfd I2C drivers whose devices are
+either used in Device Tree source files or are listed in binding docs as
+a compatible string.
 
-On Tue, Apr 04, 2017 at 10:28:23AM +0200, Michael Hennerich wrote:
+That's done because the plan is to change the I2C core to report proper OF
+modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+a device was registered via DT or using the legacy platform data mechanism.
 
-> A question came up, regarding whether it's recommended to mix regmap_i2c and
-> plain i2c_smbus or direct adapter transfers.
+So these patches will make sure that mfd I2C drivers modules will continue
+to be autoloaded once the I2C core is changed to report proper OF modalias.
 
-> In this specific case for the i2c MUX portion we need to avoid double locks,
-> and therefore use un-locked direct adapter transfers.
+Users didn't have a vendor prefix in the used compatible strings, but since
+there wasn't a DT binding document for these drivers, it can be said that
+were working for mere luck and so this series fixes the users and add a DT
+binding doc for the drivers.
 
-> The same time we also implement a small gpiochip, where we would like to use
-> regmap to avoid some boilerplate code for the register cache.
+Most patches can be applied independently, with the exception of patches
+2 to 4 that should be applied in the same tree to keep bisect-ability.
 
-That should work fine providing nothing tries to change cached registers
-underneath the regmap.  regmap won't be able to tell anything's changed
-otherwise.
+Best regards,
+Javier
 
---nfmggrusljzsl5r2
-Content-Type: application/pgp-signature; name="signature.asc"
+Changes in v4:
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Drop -mfd suffix in compatible string (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
 
------BEGIN PGP SIGNATURE-----
+Changes in v3:
+- Add a vendor prefix to the compatible string (Rob Herring).
+- Add a vendor prefix to the compatible string (Rob Herring).
 
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAljjkQ4ACgkQJNaLcl1U
-h9Blagf+N43SaUCaqbPTaw/fA2XY6eSW6ixMWrS1ExqyuN3VDnfoqh+hhuGi9yUL
-L9/OHHcrODX8+byi4WsMGeCt/7zkLx3eo4S9SpEYoe8zheHOvl8Y1SeqfizBgYBR
-woS+lUqT/ae6yIg95/0zhYfK6PkEaQyU2vU8tx7/ahfyy3GfHTvKSeljcf0H1Zbu
-VhbA0KpSZjFjlDe0fVSzKi4i5UQO2DTC/XEyWtYB6/FAWY56kpWuQdSyf5MTLfFR
-WT8VC07ntp73rQ1zcGYjc22raYvjrTDff6vjn4b6ma3dZienkgJ6WIEYP6F10CPV
-dT86b5fYadl8bdd6Fewc6/5/Fuegag==
-=mLk+
------END PGP SIGNATURE-----
+Changes in v2:
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
 
---nfmggrusljzsl5r2--
+Javier Martinez Canillas (8):
+  dt-bindings: mfd: Add retu/tahvo ASIC chips bindings
+  mfd: retu: Drop -mfd suffix from I2C device ID name
+  mfd: retu: Add OF device ID table
+  ARM: dts: n8x0: Add vendor prefix to retu node
+  i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
+  dt-bindings: mfd: Add TI tps6105x chip bindings
+  mfd: tps6105x: Add OF device ID table
+  ARM: ux500: Add vendor prefix to tps61052 node
+
+ .../devicetree/bindings/i2c/i2c-cbus-gpio.txt       |  4 ++--
+ Documentation/devicetree/bindings/mfd/retu.txt      | 21 +++++++++++++++++++++
+ Documentation/devicetree/bindings/mfd/tps6105x.txt  | 17 +++++++++++++++++
+ arch/arm/boot/dts/omap2420-n8x0-common.dtsi         |  4 ++--
+ arch/arm/boot/dts/ste-hrefprev60.dtsi               |  2 +-
+ arch/arm/mach-omap1/board-nokia770.c                |  4 ++--
+ drivers/mfd/retu-mfd.c                              | 12 ++++++++++--
+ drivers/mfd/tps6105x.c                              |  8 ++++++++
+ 8 files changed, 63 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/retu.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/tps6105x.txt
+
+-- 
+2.9.3
