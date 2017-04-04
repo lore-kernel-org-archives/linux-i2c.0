@@ -1,28 +1,71 @@
-From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v4 5/6] arm64: dts: rockchip: add dts file for RK3328
-Date: Tue, 04 Apr 2017 18:15:09 +0200
-Message-ID: <14347589.zfs04b466a@phil>
-References: <1490607650-18650-1-git-send-email-cl@rock-chips.com> <1490607650-18650-5-git-send-email-cl@rock-chips.com>
+From: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+Subject: [PATCH v2] i2c: i2c-scmi: add a MS HID
+Date: Tue,  4 Apr 2017 19:18:27 +0300
+Message-ID: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1490607650-18650-5-git-send-email-cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, zhengxing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jay.xu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, paweljarosz3691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, david.wu-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shawn.lin-TNX95d0MmH7DzftRWevZcw@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, yamada.masahiro-uWyLwvC0a2jby3iVrkZq2A@public.gmane.org, catalin.marinas-5wv7dgnIgG8@public.gmane.org, will.deacon-5wv7dgnIgG8@public.gmane.org, afaerber-l3A5Bk7waGM@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, fabio.estevam-3arQi8VN3Tc@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: jdelvare@suse.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, echerkasov@dev.rtsoft.ru, Michael.Brunner@kontron.com, Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
 List-Id: linux-i2c@vger.kernel.org
 
-Am Montag, 27. März 2017, 17:40:49 CEST schrieb cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org:
-> From: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> 
-> This patch add rk3328-evb.dts for RK3328 evaluation board.
-> Tested on RK3328 evb.
-> 
-> Signed-off-by: Liang Chen <cl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
 
-applied for 4.12
+Description of the problem:
+ - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
+ - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
+   Interface Specification, version 1.0": "Each device must specify
+   'SMBUS01' as its _HID and use a unique _UID value";
+ - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
+   and implement "SMB0001" HID instead of "SMBUS01";
+ - I speculate that they do this because only "SMB0001" is hard coded in
+   Windows SMBus driver produced by Microsoft.
 
+This leads to following situation:
+ - SMBus works out of box in Windows but not in Linux;
+ - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
+   SMBus work in Linux. Moreover the same board vendors complain that
+   tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
+   and produce errors.  So they need to constantly patch the compiler for
+   each new version of BIOS.
 
-Thanks
-Heiko
+As it is very unlikely that BIOS vendors implement a correct HID in
+future, I would propose to consider whether it is possible to work around
+the problem by adding MS HID to the Linux i2c-scmi driver.
+
+v2: move the definition of the new HID to the driver itself.
+
+Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
+Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+---
+ drivers/i2c/busses/i2c-scmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index dfc98df..f876dd6 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -18,6 +18,9 @@
+ #define ACPI_SMBUS_HC_CLASS		"smbus"
+ #define ACPI_SMBUS_HC_DEVICE_NAME	"cmi"
+ 
++/* SMBUS HID definition as supported by Microsoft Windows */
++#define ACPI_SMBUS_MS_HID		"SMB0001"
++
+ ACPI_MODULE_NAME("smbus_cmi");
+ 
+ struct smbus_methods_t {
+@@ -51,6 +54,7 @@ struct acpi_smbus_cmi {
+ static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
+ 	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
+ 	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
++	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
+ 	{"", 0}
+ };
+ MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
+-- 
+1.9.3
+
