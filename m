@@ -1,47 +1,33 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v4 5/8] i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
-Date: Tue,  4 Apr 2017 11:30:33 -0400
-Message-ID: <20170404153036.6651-6-javier@osg.samsung.com>
-References: <20170404153036.6651-1-javier@osg.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170404153036.6651-1-javier@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v4 3/6] dt-bindings: soc: rockchip: grf: add support for rk3328
+Date: Tue, 04 Apr 2017 17:44:00 +0200
+Message-ID: <3351718.HGWeKm9QaM@phil>
+References: <1490607650-18650-1-git-send-email-cl@rock-chips.com> <1490607650-18650-3-git-send-email-cl@rock-chips.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:55272 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752202AbdDDPoU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 4 Apr 2017 11:44:20 -0400
+In-Reply-To: <1490607650-18650-3-git-send-email-cl@rock-chips.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: cl@rock-chips.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, zhangqing@rock-chips.com, kever.yang@rock-chips.com
 
-The example contains a device node for a retu device, but
-its compatible string doesn't have a vendor prefix.
+Am Montag, 27. März 2017, 17:40:47 CEST schrieb cl@rock-chips.com:
+> From: Liang Chen <cl@rock-chips.com>
+> 
+> Signed-off-by: Liang Chen <cl@rock-chips.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 
-While being there, drop the -mfd suffix since isn't correct.
+applied for 4.12 after rewording the subject and adding a real commit
+message.
 
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Please do not leave the actual commit message empty in future patches.
 
----
 
-Changes in v4:
-- Avoid using MFD in Device Tree (Lee Jones).
-
-Changes in v3: None
-Changes in v2: None
-
- Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-index 8ce9cd2855b5..c143948b2a37 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
-@@ -20,8 +20,8 @@ i2c@0 {
- 	#address-cells = <1>;
- 	#size-cells = <0>;
- 
--	retu-mfd: retu@1 {
--		compatible = "retu-mfd";
-+	retu: retu@1 {
-+		compatible = "nokia,retu";
- 		reg = <0x1>;
- 	};
- };
--- 
-2.9.3
+Thanks
+Heiko
