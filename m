@@ -1,62 +1,45 @@
-From: Elaine Zhang <zhangqing@rock-chips.com>
-Subject: Re: [PATCH v4 4/6] arm64: dts: rockchip: add core dtsi file for RK3328
- SoCs
-Date: Wed, 05 Apr 2017 10:07:41 +0800
-Message-ID: <58E4516D.4000805@rock-chips.com>
-References: <1490607650-18650-1-git-send-email-cl@rock-chips.com> <1490607650-18650-4-git-send-email-cl@rock-chips.com> <6636047.jL6XHNkknt@phil>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: question about concurrent regmap i2c usage
+Date: Wed, 5 Apr 2017 08:31:15 +0200
+Message-ID: <4929e112-9a08-8b9c-f64e-fd2ffaf8b45e@analog.com>
+References: <76471664-425b-c386-3ad8-efeabc2eaf7e@analog.com>
+ <20170404122654.dfhtvpcnngl3gfco@sirena.org.uk>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6636047.jL6XHNkknt@phil>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiko Stuebner <heiko@sntech.de>, cl@rock-chips.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, kever.yang@rock-chips.com, tony.xie@rock-chips.com
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20170404122654.dfhtvpcnngl3gfco@sirena.org.uk>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: linus.walleij@linaro.org, wsa@the-dreams.de, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 04.04.2017 14:26, Mark Brown wrote:
+> On Tue, Apr 04, 2017 at 10:28:23AM +0200, Michael Hennerich wrote:
+>
+>> A question came up, regarding whether it's recommended to mix regmap_i2c and
+>> plain i2c_smbus or direct adapter transfers.
+>
+>> In this specific case for the i2c MUX portion we need to avoid double locks,
+>> and therefore use un-locked direct adapter transfers.
+>
+>> The same time we also implement a small gpiochip, where we would like to use
+>> regmap to avoid some boilerplate code for the register cache.
+>
+> That should work fine providing nothing tries to change cached registers
+> underneath the regmap.  regmap won't be able to tell anything's changed
+> otherwise.
 
+Hi Mark,
 
-On 04/05/2017 12:04 AM, Heiko Stuebner wrote:
-> Am Montag, 27. März 2017, 17:40:48 CEST schrieb cl@rock-chips.com:
->> From: Liang Chen <cl@rock-chips.com>
->>
->> This patch adds core dtsi file for Rockchip RK3328 SoCs.
->>
->> Signed-off-by: Liang Chen <cl@rock-chips.com>
->
-> applied for 4.12, with the following list of changes:
->
-> - reorder some properties to bring them in alphabetical order
-> - dropped the status-disabled from the power-controller
->    power-domain control is a quite essential part of the system, so if
->    boards really want to disable them, they should do it in their board file
->    Having power-domains on all the time, is also our default in all other
->    devicetrees.
-> - removed #dma-cells from spi0 -> this is not a dma controller
-> - reword the cru assigned-clocks comment a bit
-> - fixed sdmmc1_bus4 pins, as indicated by Shawn and after looking up the
->    correct pins in the manual
->
->
-> And a final question, are you sure about SCLK_PDM becoming a child of the
-> APLL in your cru assigned-clocks, as the APLL will vary later on with cpufreq
-> active?
->
-the NPLL will vary later on with cpufreq active.
+Thanks for confirmation!
 
-The NPLL is better than APLL, so NPLL is for clk_core,and apll is for pdm.
+-- 
+Greetings,
+Michael
 
-please see the TRM in CRU:
-1.4 Function Description
-/........./
-To maximize the flexibility, some of clocks can select divider source 
-from 5 PLLs. (Note: It’s
-recommended to use NEW PLL instead of ARM PLL as arm clock source, 
-because NEW PLL is
-near to ARM. And it’s jitter is better than ARM PLL).
-
->
-> Heiko
->
->
->
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
