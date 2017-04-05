@@ -1,65 +1,127 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v4 4/6] arm64: dts: rockchip: add core dtsi file for RK3328 SoCs
-Date: Wed, 05 Apr 2017 12:11:11 +0200
-Message-ID: <4811905.ImQG7774i7@diego>
-References: <1490607650-18650-1-git-send-email-cl@rock-chips.com> <6636047.jL6XHNkknt@phil> <58E4516D.4000805@rock-chips.com>
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c/muxes/i2c-mux-ltc4306: LTC4306 and LTC4305 I2C
+ multiplexer/switch
+Date: Wed, 5 Apr 2017 14:21:17 +0200
+Message-ID: <5d8dc69b-579d-09ee-2ad4-2d7336f9b4e3@analog.com>
+References: <1490782541-7832-1-git-send-email-michael.hennerich@analog.com>
+ <0d4c068f-d909-64be-421d-4500da7ebd4c@axentia.se>
+ <e0027ff7-948e-60f1-a492-72ab4a67605f@analog.com>
+ <b5838bae-8108-1a0e-5234-d14cb5e95e52@axentia.se>
+Reply-To: <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <58E4516D.4000805@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Elaine Zhang <zhangqing@rock-chips.com>
-Cc: cl@rock-chips.com, robh+dt@kernel.org, mark.rutland@arm.com, zhengxing@rock-chips.com, andy.yan@rock-chips.com, jay.xu@rock-chips.com, matthias.bgg@gmail.com, paweljarosz3691@gmail.com, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, wxt@rock-chips.com, david.wu@rock-chips.com, linux-iio@vger.kernel.org, shawn.lin@rock-chips.com, akpm@linux-foundation.org, dianders@chromium.org, yamada.masahiro@socionext.com, catalin.marinas@arm.com, will.deacon@arm.com, afaerber@suse.de, shawnguo@kernel.org, khilman@baylibre.com, arnd@arndb.de, fabio.estevam@nxp.com, kever.yang@rock-chips.com
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <b5838bae-8108-1a0e-5234-d14cb5e95e52-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Elaine,
+On 04.04.2017 11:28, Peter Rosin wrote:
+> *snip* *snip*
+>
+>>>> +static int ltc4306_gpio_get(struct gpio_chip *chip, unsigned int offset)
+>>>> +{
+>>>> +	struct ltc4306 *data = gpiochip_get_data(chip);
+>>>> +	int ret = 0;
+>>>> +
+>>>> +	if (gpiochip_line_is_open_drain(chip, offset) ||
+>>>> +	    (data->regs[LTC_REG_MODE] & BIT(7 - offset))) {
+>>>
+>>> I wonder about this open-coded register cache. So, gpio people, is there
+>>> a guarantee from gpiolib that only one gpio_chip operation is in flight
+>>> concurrently? Because I don't see any evidence of that. With that in
+>>> mind, I think some locking is needed?
+>>
+>> I thought there is a per chip mutex in the gpiolib. But I can't find
+>> anything like this either. Since these two gpios can be used from
+>> different internal or external users. The locking seem to be needed.
+>>
+>> This gets us back to the regmap option. I did a quick grep, and 9 out of
+>> 205 drivers using regmap i2c, also use i2c_smbus... concurrently.
+>>
+>> grep -Rl regmap_init_i2c ./drivers  | xargs grep -l i2c_smbus_ | grep "\.c"
+>>
+>> Mostly to work around non uniform transfer layouts.
+>
+> I see three options.
+>
+> 1. Go with regmap and convert to mux-locked. Then the unlocked i2c-xfer
+> becomes an ordinary i2c-xfer (or smbus, whatever). This will result in
+> the cleanest code.
 
-Am Mittwoch, 5. April 2017, 10:07:41 CEST schrieb Elaine Zhang:
-> On 04/05/2017 12:04 AM, Heiko Stuebner wrote:
-> > Am Montag, 27. MÃ¤rz 2017, 17:40:48 CEST schrieb cl@rock-chips.com:
-> >> From: Liang Chen <cl@rock-chips.com>
-> >> 
-> >> This patch adds core dtsi file for Rockchip RK3328 SoCs.
-> >> 
-> >> Signed-off-by: Liang Chen <cl@rock-chips.com>
-> > 
-> > applied for 4.12, with the following list of changes:
-> > 
-> > - reorder some properties to bring them in alphabetical order
-> > - dropped the status-disabled from the power-controller
-> > 
-> >    power-domain control is a quite essential part of the system, so if
-> >    boards really want to disable them, they should do it in their board
-> >    file
-> >    Having power-domains on all the time, is also our default in all other
-> >    devicetrees.
-> > 
-> > - removed #dma-cells from spi0 -> this is not a dma controller
-> > - reword the cru assigned-clocks comment a bit
-> > - fixed sdmmc1_bus4 pins, as indicated by Shawn and after looking up the
-> > 
-> >    correct pins in the manual
-> > 
-> > And a final question, are you sure about SCLK_PDM becoming a child of the
-> > APLL in your cru assigned-clocks, as the APLL will vary later on with
-> > cpufreq active?
-> 
-> the NPLL will vary later on with cpufreq active.
-> 
-> The NPLL is better than APLL, so NPLL is for clk_core,and apll is for pdm.
-> 
-> please see the TRM in CRU:
-> 1.4 Function Description
-> /........./
-> To maximize the flexibility, some of clocks can select divider source
-> from 5 PLLs. (Note: Itâ€™s
-> recommended to use NEW PLL instead of ARM PLL as arm clock source,
-> because NEW PLL is
-> near to ARM. And itâ€™s jitter is better than ARM PLL).
+ok - you convinced me.
 
-Thanks for the clarification - this way it definitly makes sense.
+>
+> 2. Go with regmap and stay parent-locked. Then hook into the regmap
+> locking as is done in one of the drivers that have worked around similar
+> problems with regmap and parent-locked i2c-mux interactions:
+>
+> drivers/media/dvb-frontends/rtl2830.c
+> drivers/media/dvb-frontends/m88ds3103.c
+>
+> This will probably work, but you'd need to add a number of extra helper
+> functions.
+>
+> 3. Exclude register 3 from regmap and only use regmap for the other
+> registers. This will be a bit ugly and ad-hoc, will need clear comments
+> on what is going on and why it is safe etc. And I want to see it before
+> I accept it. And it might not be my call to begin with, because TBH, it
+> sounds a bit disgusting...
+>
+>> I'll check with Mark Brown on this topic.
+>
+> Ok, might be a good idea...
+>
+>>>> +
+>>>> +add_adapter_failed:
+>>>> +	i2c_mux_del_adapters(muxc);
+>>>> +gpio_default:
+>>>> +	gpiod_direction_input(data->en_gpio);
+>>>
+>>> This was actually not what I had in mind when I asked about it in v1, and
+>>> this looks a bit strange. You have no way of knowing if the pin was
+>>> configured as input when probe was called, and I don't see code like this
+>>> all over the place. Maybe it's is ok to not disable the chip over
+>>> suspend/resume, I was just asking because it looked a bit strange to grab
+>>> a pin and then forget about it. Now that I think about it some more, it's
+>>> probably ok to do just that since it is perhaps not possible to make the
+>>> chip draw less power by deasserting enable, but what do I know?
+>>
+>> GPIOs are assumed by default inputs. So if you want to undo the actions
+>> in probe. The logical consequence is to move them back to inputs, and
+>> let the external PULL-UP or PULL-DOWN on the ENABLE decide what happens.
+>> I would also prefer to leave it enabled, so that the GPIOs can retain
+>
+> My point is that I do not see any probe functions undoing gpio configs.
+> Why bother in this case? Or are other probe functions really doing this?
+> I actually didn't check, but I haven't stumbled over it previously and
+> at least think I would have noticed...
+>
+>> it's last state. Well I think the device draws a bit less power when
+>> disabled. But we don't support runtime PM anyways.
+>
+> It might not be safe to reset the gpio pins over a suspend/resume depending
+> on what they are used for, so it is probably a bad idea to go there. Sorry
+> for bringing the whole issue up and muddying the waters...
 
+I restore the original implementation and also pulse the ENABLE low so 
+we're always doing a clean reset.
 
-Thanks
-Heiko
+I'll send a new patch shortly.
+
+Thanks!
+
+-- 
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
