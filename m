@@ -1,101 +1,79 @@
-From: <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v4 1/2] dt-bindings: i2c: mux: ltc4306: Add dt-bindings for I2C multiplexer/switch
-Date: Wed, 5 Apr 2017 15:07:50 +0200
-Message-ID: <1491397671-14675-1-git-send-email-michael.hennerich@analog.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: i2c-scmi: add a MS HID
+Date: Wed, 5 Apr 2017 14:59:32 +0200
+Message-ID: <20170405145932.3ef689d5@endymion>
+References: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, echerkasov@dev.rtsoft.ru, Michael.Brunner@kontron.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Tue,  4 Apr 2017 19:18:27 +0300, Viktor Krasnov wrote:
+> From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+> 
+> Description of the problem:
+>  - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
+>  - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
+>    Interface Specification, version 1.0": "Each device must specify
+>    'SMBUS01' as its _HID and use a unique _UID value";
+>  - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
+>    and implement "SMB0001" HID instead of "SMBUS01";
+>  - I speculate that they do this because only "SMB0001" is hard coded in
+>    Windows SMBus driver produced by Microsoft.
+> 
+> This leads to following situation:
+>  - SMBus works out of box in Windows but not in Linux;
+>  - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
+>    SMBus work in Linux. Moreover the same board vendors complain that
+>    tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
+>    and produce errors.  So they need to constantly patch the compiler for
+>    each new version of BIOS.
+> 
+> As it is very unlikely that BIOS vendors implement a correct HID in
+> future, I would propose to consider whether it is possible to work around
+> the problem by adding MS HID to the Linux i2c-scmi driver.
+> 
+> v2: move the definition of the new HID to the driver itself.
+> 
+> Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+> Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
+> Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
 
-This patch adds support for the Analog Devices / Linear Technology
-LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
-The LTC4306 optionally provides two general purpose input/output pins
-(GPIOs) that can be configured as logic inputs, opendrain outputs or
-push-pull outputs via the generic GPIOLIB framework.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    | 61 ++++++++++++++++++++++
- 1 file changed, 61 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+> ---
+>  drivers/i2c/busses/i2c-scmi.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+> index dfc98df..f876dd6 100644
+> --- a/drivers/i2c/busses/i2c-scmi.c
+> +++ b/drivers/i2c/busses/i2c-scmi.c
+> @@ -18,6 +18,9 @@
+>  #define ACPI_SMBUS_HC_CLASS		"smbus"
+>  #define ACPI_SMBUS_HC_DEVICE_NAME	"cmi"
+>  
+> +/* SMBUS HID definition as supported by Microsoft Windows */
+> +#define ACPI_SMBUS_MS_HID		"SMB0001"
+> +
+>  ACPI_MODULE_NAME("smbus_cmi");
+>  
+>  struct smbus_methods_t {
+> @@ -51,6 +54,7 @@ struct acpi_smbus_cmi {
+>  static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
+>  	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
+>  	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
+> +	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
+>  	{"", 0}
+>  };
+>  MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-new file mode 100644
-index 0000000..1e98c6b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-@@ -0,0 +1,61 @@
-+* Linear Technology / Analog Devices I2C bus switch
-+
-+Required Properties:
-+
-+  - compatible: Must contain one of the following.
-+    "lltc,ltc4305", "lltc,ltc4306"
-+  - reg: The I2C address of the device.
-+
-+  The following required properties are defined externally:
-+
-+  - Standard I2C mux properties. See i2c-mux.txt in this directory.
-+  - I2C child bus nodes. See i2c-mux.txt in this directory.
-+
-+Optional Properties:
-+
-+  - enable-gpios: Reference to the GPIO connected to the enable input.
-+  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-+    children in idle state. This is necessary for example, if there are several
-+    multiplexers on the bus and the devices behind them use same I2C addresses.
-+  - gpio-controller: Marks the device node as a GPIO Controller.
-+  - #gpio-cells: Should be two.  The first cell is the pin number and
-+	the second cell is used to specify flags.
-+	See ../gpio/gpio.txt for more information.
-+  - ltc,downstream-accelerators-enable: Enables the rise time accelerators
-+	on the downstream port.
-+  - ltc,upstream-accelerators-enable: Enables the rise time accelerators
-+	on the upstream port.
-+
-+Example:
-+
-+	ltc4306: i2c-mux@4a {
-+		compatible = "lltc,ltc4306";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x4a>;
-+
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+
-+		i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+
-+			eeprom@50 {
-+				compatible = "at,24c02";
-+				reg = <0x50>;
-+			};
-+		};
-+
-+		i2c@1 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <1>;
-+
-+			eeprom@50 {
-+				compatible = "at,24c02";
-+				reg = <0x50>;
-+			};
-+		};
-+	};
+
 -- 
-2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jean Delvare
+SUSE L3 Support
