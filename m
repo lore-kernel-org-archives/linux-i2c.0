@@ -1,56 +1,87 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: Re: [PATCH v5 4/4] platform/x86: Add Intel Cherry Trail ACPI INT33FE
- device driver
-Date: Wed, 5 Apr 2017 08:41:46 -0700
-Message-ID: <20170405154146.GD27833@fury>
-References: <20170404220335.9815-1-hdegoede@redhat.com>
- <20170404220335.9815-5-hdegoede@redhat.com>
- <1491400346.24567.5.camel@linux.intel.com>
+From: <dowen@soton.ac.uk>
+Subject: (unknown)
+Date: Wed, 05 Apr 2017 16:53:39 -0000
+Message-ID: <149141121998.21476.17085611815428265606@zaural.ru>
+Reply-To: <dowen@soton.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: application/zip; name="848830461176929.zip"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:32932 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755441AbdDEPlv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Apr 2017 11:41:51 -0400
-Content-Disposition: inline
-In-Reply-To: <1491400346.24567.5.camel@linux.intel.com>
+Received: from ws208.zone31-163-145.zaural.ru ([31.163.145.208]:40763 "HELO
+        zaural.ru" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with SMTP
+        id S1754288AbdDEQxo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 5 Apr 2017 12:53:44 -0400
+Content-Disposition: attachment
+Subject: 
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-On Wed, Apr 05, 2017 at 04:52:26PM +0300, Andy Shevchenko wrote:
-> On Wed, 2017-04-05 at 00:03 +0200, Hans de Goede wrote:
-> > The INT33FE ACPI device has a CRS table with I2cSerialBusV2 resources
-> > for
-> > 3 devices: Maxim MAX17047 Fuel Gauge Controller, FUSB300C USB Type-C
-> > Controller and PI3USB30532 USB switch.
-> > 
-> > This commit adds a driver for this ACPI device which instantiates
-> > i2c-clients for these, so that the standard i2c drivers for these
-> > chips
-> > can bind to the them.
-> > 
-> 
-> Looks like we need something such as MFD for I2C bus clients...
-> 
-> FWIW:
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-Wolfram, will you be making an immutable i2c branch available for us to merge
-into our platform driver x86 for-next branch in order to apply this patch?
-
-Alternatively you could send this in on our behalf, but that complicates any
-fixes between now and rc1 for this new driver. We'd prefer the immutable branch
-and pull this in ourselves.
-
-Either way,
-
-Reviewed-by: Darren Hart (VMware) <dvhart@infradead.org>
-
-Thanks,
-
--- 
-Darren Hart
-VMware Open Source Technology Center
+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
+jA4AAAAA
