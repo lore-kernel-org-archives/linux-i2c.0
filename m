@@ -1,87 +1,169 @@
-From: <dowen@soton.ac.uk>
-Subject: (unknown)
-Date: Wed, 05 Apr 2017 16:53:39 -0000
-Message-ID: <149141121998.21476.17085611815428265606@zaural.ru>
-Reply-To: <dowen@soton.ac.uk>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 09/38] Annotate hardware config module parameters in
+ drivers/i2c/
+Date: Wed, 05 Apr 2017 17:58:03 +0100
+Message-ID: <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
+References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: application/zip; name="848830461176929.zip"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ws208.zone31-163-145.zaural.ru ([31.163.145.208]:40763 "HELO
-        zaural.ru" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with SMTP
-        id S1754288AbdDEQxo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 5 Apr 2017 12:53:44 -0400
-Content-Disposition: attachment
-Subject: 
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: gnomes@lxorguk.ukuu.org.uk, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, gregkh@linuxfoundation.org, dhowells@redhat.com, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
 
-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
-jA4AAAAA
+When the kernel is running in secure boot mode, we lock down the kernel to
+prevent userspace from modifying the running kernel image.  Whilst this
+includes prohibiting access to things like /dev/mem, it must also prevent
+access by means of configuring driver modules in such a way as to cause a
+device to access or modify the kernel image.
+
+To this end, annotate module_param* statements that refer to hardware
+configuration and indicate for future reference what type of parameter they
+specify.  The parameter parser in the core sees this information and can
+skip such parameters with an error message if the kernel is locked down.
+The module initialisation then runs as normal, but just sees whatever the
+default values for those parameters is.
+
+Note that we do still need to do the module initialisation because some
+drivers have viable defaults set in case parameters aren't specified and
+some drivers support automatic configuration (e.g. PNP or PCI) in addition
+to manually coded parameters.
+
+This patch annotates drivers in drivers/i2c/.
+
+Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Wolfram Sang <wsa@the-dreams.de>
+cc: Jean Delvare <jdelvare@suse.com>
+cc: linux-i2c@vger.kernel.org
+---
+
+ drivers/i2c/busses/i2c-ali15x3.c       |    2 +-
+ drivers/i2c/busses/i2c-elektor.c       |    6 +++---
+ drivers/i2c/busses/i2c-parport-light.c |    4 ++--
+ drivers/i2c/busses/i2c-pca-isa.c       |    4 ++--
+ drivers/i2c/busses/i2c-piix4.c         |    2 +-
+ drivers/i2c/busses/i2c-sis5595.c       |    2 +-
+ drivers/i2c/busses/i2c-viapro.c        |    2 +-
+ drivers/i2c/busses/scx200_acb.c        |    2 +-
+ 8 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
+index 45c5c4883022..6e6bf46bcb52 100644
+--- a/drivers/i2c/busses/i2c-ali15x3.c
++++ b/drivers/i2c/busses/i2c-ali15x3.c
+@@ -119,7 +119,7 @@
+ /* If force_addr is set to anything different from 0, we forcibly enable
+    the device at the given address. */
+ static u16 force_addr;
+-module_param(force_addr, ushort, 0);
++module_param_hw(force_addr, ushort, ioport, 0);
+ MODULE_PARM_DESC(force_addr,
+ 		 "Initialize the base address of the i2c controller");
+ 
+diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
+index 8af62fb3fe41..5416003e0605 100644
+--- a/drivers/i2c/busses/i2c-elektor.c
++++ b/drivers/i2c/busses/i2c-elektor.c
+@@ -323,9 +323,9 @@ MODULE_AUTHOR("Hans Berglund <hb@spacetec.no>");
+ MODULE_DESCRIPTION("I2C-Bus adapter routines for PCF8584 ISA bus adapter");
+ MODULE_LICENSE("GPL");
+ 
+-module_param(base, int, 0);
+-module_param(irq, int, 0);
++module_param_hw(base, int, ioport_or_iomem, 0);
++module_param_hw(irq, int, irq, 0);
+ module_param(clock, int, 0);
+ module_param(own, int, 0);
+-module_param(mmapped, int, 0);
++module_param_hw(mmapped, int, other, 0);
+ module_isa_driver(i2c_elektor_driver, 1);
+diff --git a/drivers/i2c/busses/i2c-parport-light.c b/drivers/i2c/busses/i2c-parport-light.c
+index 1bcdd10b68b9..faa8fb8f2b8f 100644
+--- a/drivers/i2c/busses/i2c-parport-light.c
++++ b/drivers/i2c/busses/i2c-parport-light.c
+@@ -38,11 +38,11 @@
+ static struct platform_device *pdev;
+ 
+ static u16 base;
+-module_param(base, ushort, 0);
++module_param_hw(base, ushort, ioport, 0);
+ MODULE_PARM_DESC(base, "Base I/O address");
+ 
+ static int irq;
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ (optional)");
+ 
+ /* ----- Low-level parallel port access ----------------------------------- */
+diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-isa.c
+index ba88f17f636c..946ac646de2a 100644
+--- a/drivers/i2c/busses/i2c-pca-isa.c
++++ b/drivers/i2c/busses/i2c-pca-isa.c
+@@ -197,9 +197,9 @@ MODULE_AUTHOR("Ian Campbell <icampbell@arcom.com>");
+ MODULE_DESCRIPTION("ISA base PCA9564/PCA9665 driver");
+ MODULE_LICENSE("GPL");
+ 
+-module_param(base, ulong, 0);
++module_param_hw(base, ulong, ioport, 0);
+ MODULE_PARM_DESC(base, "I/O base address");
+-module_param(irq, int, 0);
++module_param_hw(irq, int, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ");
+ module_param(clock, int, 0);
+ MODULE_PARM_DESC(clock, "Clock rate in hertz.\n\t\t"
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index c21ca7bf2efe..0ecdb47a23ab 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -106,7 +106,7 @@ MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
+ /* If force_addr is set to anything different from 0, we forcibly enable
+    the PIIX4 at the given address. VERY DANGEROUS! */
+ static int force_addr;
+-module_param (force_addr, int, 0);
++module_param_hw(force_addr, int, ioport, 0);
+ MODULE_PARM_DESC(force_addr,
+ 		 "Forcibly enable the PIIX4 at the given address. "
+ 		 "EXTREMELY DANGEROUS!");
+diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
+index 7d58a40faf2d..d543a9867ba4 100644
+--- a/drivers/i2c/busses/i2c-sis5595.c
++++ b/drivers/i2c/busses/i2c-sis5595.c
+@@ -119,7 +119,7 @@ static int blacklist[] = {
+ /* If force_addr is set to anything different from 0, we forcibly enable
+    the device at the given address. */
+ static u16 force_addr;
+-module_param(force_addr, ushort, 0);
++module_param_hw(force_addr, ushort, ioport, 0);
+ MODULE_PARM_DESC(force_addr, "Initialize the base address of the i2c controller");
+ 
+ static struct pci_driver sis5595_driver;
+diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
+index 0ee2646f3b00..0dc45e12bb1d 100644
+--- a/drivers/i2c/busses/i2c-viapro.c
++++ b/drivers/i2c/busses/i2c-viapro.c
+@@ -94,7 +94,7 @@ MODULE_PARM_DESC(force, "Forcibly enable the SMBus. DANGEROUS!");
+ /* If force_addr is set to anything different from 0, we forcibly enable
+    the VT596 at the given address. VERY DANGEROUS! */
+ static u16 force_addr;
+-module_param(force_addr, ushort, 0);
++module_param_hw(force_addr, ushort, ioport, 0);
+ MODULE_PARM_DESC(force_addr,
+ 		 "Forcibly enable the SMBus at the given address. "
+ 		 "EXTREMELY DANGEROUS!");
+diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
+index 0a7e410b6195..e0923bee8d1f 100644
+--- a/drivers/i2c/busses/scx200_acb.c
++++ b/drivers/i2c/busses/scx200_acb.c
+@@ -42,7 +42,7 @@ MODULE_LICENSE("GPL");
+ 
+ #define MAX_DEVICES 4
+ static int base[MAX_DEVICES] = { 0x820, 0x840 };
+-module_param_array(base, int, NULL, 0);
++module_param_hw_array(base, int, ioport, NULL, 0);
+ MODULE_PARM_DESC(base, "Base addresses for the ACCESS.bus controllers");
+ 
+ #define POLL_TIMEOUT	(HZ/5)
