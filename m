@@ -1,79 +1,113 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] i2c: i2c-scmi: add a MS HID
-Date: Wed, 5 Apr 2017 14:59:32 +0200
-Message-ID: <20170405145932.3ef689d5@endymion>
-References: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 3/4] i2c: core: Allow drivers to disable i2c-core irq
+ mapping
+Date: Wed, 05 Apr 2017 16:31:07 +0300
+Message-ID: <1491399067.24567.3.camel@linux.intel.com>
+References: <20170404220335.9815-1-hdegoede@redhat.com>
+         <20170404220335.9815-4-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, echerkasov@dev.rtsoft.ru, Michael.Brunner@kontron.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:35114 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753722AbdDENbM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 5 Apr 2017 09:31:12 -0400
+In-Reply-To: <20170404220335.9815-4-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Darren Hart <dvhart@infradead.org>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On Tue,  4 Apr 2017 19:18:27 +0300, Viktor Krasnov wrote:
-> From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+On Wed, 2017-04-05 at 00:03 +0200, Hans de Goede wrote:
+> By default the i2c-core will try to get an irq with index 0 on ACPI /
+> of
+> instantiated devices. This is troublesome on some ACPI systems where
+> the
+> irq info at index 0 in the CRS table may contain nonsense and/or point
+> to an irqchip for which there is no Linux driver.
 > 
-> Description of the problem:
->  - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
->  - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
->    Interface Specification, version 1.0": "Each device must specify
->    'SMBUS01' as its _HID and use a unique _UID value";
->  - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
->    and implement "SMB0001" HID instead of "SMBUS01";
->  - I speculate that they do this because only "SMB0001" is hard coded in
->    Windows SMBus driver produced by Microsoft.
+> If this happens then before this commit the driver's probe method
+> would
+> never get called because i2c_device_probe will try to get an irq by
+> calling acpi_dev_gpio_irq_get which will always return -EPROBE in this
+> case, as it waits for a matching irqchip driver to load. Thus causing
+> the driver to not get a chance to bind.
 > 
-> This leads to following situation:
->  - SMBus works out of box in Windows but not in Linux;
->  - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
->    SMBus work in Linux. Moreover the same board vendors complain that
->    tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
->    and produce errors.  So they need to constantly patch the compiler for
->    each new version of BIOS.
-> 
-> As it is very unlikely that BIOS vendors implement a correct HID in
-> future, I would propose to consider whether it is possible to work around
-> the problem by adding MS HID to the Linux i2c-scmi driver.
-> 
-> v2: move the definition of the new HID to the driver itself.
-> 
-> Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
-> Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
-> Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+> This commit adds a new disable_i2c_core_irq_mapping flag to struct
+> i2c_driver which a driver can set to tell the core to skip irq
+> mapping.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+FWIW:
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->  drivers/i2c/busses/i2c-scmi.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> Changes in v2:
+> -Actually also use the irq_index for of interrupts
+> Changes in v3:
+> -Add kernel doc for new i2c_driver irq_index member
+> -Remove duplicate assignment of driver in i2c_device_probe
+> Changes in v4:
+> -Add a disable_i2c_core_irq_mapping flag to i2c_driver instead of
+>  an irq_index member (effectively a rewrite of the patch, dropped
+>  the Reviewed-by-s)
+> ---
+>  drivers/i2c/i2c-core.c | 6 +++---
+>  include/linux/i2c.h    | 3 +++
+>  2 files changed, 6 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
-> index dfc98df..f876dd6 100644
-> --- a/drivers/i2c/busses/i2c-scmi.c
-> +++ b/drivers/i2c/busses/i2c-scmi.c
-> @@ -18,6 +18,9 @@
->  #define ACPI_SMBUS_HC_CLASS		"smbus"
->  #define ACPI_SMBUS_HC_DEVICE_NAME	"cmi"
->  
-> +/* SMBUS HID definition as supported by Microsoft Windows */
-> +#define ACPI_SMBUS_MS_HID		"SMB0001"
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 00c4cef..7a065c4 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -985,7 +985,9 @@ static int i2c_device_probe(struct device *dev)
+>  	if (!client)
+>  		return 0;
+>  
+> -	if (!client->irq) {
+> +	driver = to_i2c_driver(dev->driver);
 > +
->  ACPI_MODULE_NAME("smbus_cmi");
->  
->  struct smbus_methods_t {
-> @@ -51,6 +54,7 @@ struct acpi_smbus_cmi {
->  static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
->  	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
->  	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
-> +	{ACPI_SMBUS_MS_HID, (kernel_ulong_t)&smbus_methods},
->  	{"", 0}
->  };
->  MODULE_DEVICE_TABLE(acpi, acpi_smbus_cmi_ids);
-
+> +	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
+>  		int irq = -ENOENT;
+>  
+>  		if (client->flags & I2C_CLIENT_HOST_NOTIFY) {
+> @@ -1007,8 +1009,6 @@ static int i2c_device_probe(struct device *dev)
+>  		client->irq = irq;
+>  	}
+>  
+> -	driver = to_i2c_driver(dev->driver);
+> -
+>  	/*
+>  	 * An I2C ID table is not mandatory, if and only if, a
+> suitable Device
+>  	 * Tree match table entry is supplied for the probing device.
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 53fa50f..3a57e3d 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -149,6 +149,7 @@ enum i2c_alert_protocol {
+>   * @detect: Callback for device detection
+>   * @address_list: The I2C addresses to probe (for detect)
+>   * @clients: List of detected clients we created (for i2c-core use
+> only)
+> + * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-
+> mapping
+>   *
+>   * The driver.owner field should be set to the module owner of this
+> driver.
+>   * The driver.name field should be set to the name of this driver.
+> @@ -212,6 +213,8 @@ struct i2c_driver {
+>  	int (*detect)(struct i2c_client *, struct i2c_board_info *);
+>  	const unsigned short *address_list;
+>  	struct list_head clients;
+> +
+> +	bool disable_i2c_core_irq_mapping;
+>  };
+>  #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
+>  
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
