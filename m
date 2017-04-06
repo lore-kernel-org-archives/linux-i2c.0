@@ -1,169 +1,234 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/38] Annotate hardware config module parameters in
- drivers/i2c/
-Date: Wed, 05 Apr 2017 17:58:03 +0100
-Message-ID: <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
-References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: gnomes@lxorguk.ukuu.org.uk, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, gregkh@linuxfoundation.org, dhowells@redhat.com, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v6] platform/x86: Add Intel Cherry Trail ACPI INT33FE device driver
+Date: Thu,  6 Apr 2017 09:24:36 +0200
+Message-ID: <20170406072436.12898-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:56256 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932933AbdDFHYk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 6 Apr 2017 03:24:40 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 
-When the kernel is running in secure boot mode, we lock down the kernel to
-prevent userspace from modifying the running kernel image.  Whilst this
-includes prohibiting access to things like /dev/mem, it must also prevent
-access by means of configuring driver modules in such a way as to cause a
-device to access or modify the kernel image.
+The INT33FE ACPI device has a CRS table with I2cSerialBusV2 resources for
+3 devices: Maxim MAX17047 Fuel Gauge Controller, FUSB302 USB Type-C
+Controller and PI3USB30532 USB switch.
 
-To this end, annotate module_param* statements that refer to hardware
-configuration and indicate for future reference what type of parameter they
-specify.  The parameter parser in the core sees this information and can
-skip such parameters with an error message if the kernel is locked down.
-The module initialisation then runs as normal, but just sees whatever the
-default values for those parameters is.
+This commit adds a driver for this ACPI device which instantiates
+i2c-clients for these, so that the standard i2c drivers for these chips
+can bind to the them.
 
-Note that we do still need to do the module initialisation because some
-drivers have viable defaults set in case parameters aren't specified and
-some drivers support automatic configuration (e.g. PNP or PCI) in addition
-to manually coded parameters.
-
-This patch annotates drivers in drivers/i2c/.
-
-Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Wolfram Sang <wsa@the-dreams.de>
-cc: Jean Delvare <jdelvare@suse.com>
-cc: linux-i2c@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Darren Hart (VMware) <dvhart@infradead.org>
 ---
+Changes in v4:
+-This is a new patch in v4 of this patch-set replacing the
+ cht_wc_fuel_gauge driver which was binding to the INT33FE device before
+ I figured out this is some sort of meta device describing 3 devices
+ and that the fuel-guage really is just a Maxim MAX17047. The
+ cht_wc_fuel_gauge driver will be replaced by a max17047 driver which I
+ will submit seperately
+Changes in v5:
+-Remove not needed (and not upstream) #include <linux/power/acpi.h>
+-Sort variable declarations in upside-down Chistmas tree order
+Changes in v6:
+-The i2c device at address 0x22 pointed to by the INT33FE acpi node is
+ actually a FUSB302 not a FUSB300C do s/300c/302/
+-Added Reviewed-by-s from v5 review
+---
+ drivers/platform/x86/Kconfig             |  13 +++
+ drivers/platform/x86/Makefile            |   1 +
+ drivers/platform/x86/intel_cht_int33fe.c | 143 +++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+)
+ create mode 100644 drivers/platform/x86/intel_cht_int33fe.c
 
- drivers/i2c/busses/i2c-ali15x3.c       |    2 +-
- drivers/i2c/busses/i2c-elektor.c       |    6 +++---
- drivers/i2c/busses/i2c-parport-light.c |    4 ++--
- drivers/i2c/busses/i2c-pca-isa.c       |    4 ++--
- drivers/i2c/busses/i2c-piix4.c         |    2 +-
- drivers/i2c/busses/i2c-sis5595.c       |    2 +-
- drivers/i2c/busses/i2c-viapro.c        |    2 +-
- drivers/i2c/busses/scx200_acb.c        |    2 +-
- 8 files changed, 12 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
-index 45c5c4883022..6e6bf46bcb52 100644
---- a/drivers/i2c/busses/i2c-ali15x3.c
-+++ b/drivers/i2c/busses/i2c-ali15x3.c
-@@ -119,7 +119,7 @@
- /* If force_addr is set to anything different from 0, we forcibly enable
-    the device at the given address. */
- static u16 force_addr;
--module_param(force_addr, ushort, 0);
-+module_param_hw(force_addr, ushort, ioport, 0);
- MODULE_PARM_DESC(force_addr,
- 		 "Initialize the base address of the i2c controller");
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 6a5b79c..53afa78 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -772,6 +772,19 @@ config ACPI_CMPC
+ 	  keys as input device, backlight device, tablet and accelerometer
+ 	  devices.
  
-diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
-index 8af62fb3fe41..5416003e0605 100644
---- a/drivers/i2c/busses/i2c-elektor.c
-+++ b/drivers/i2c/busses/i2c-elektor.c
-@@ -323,9 +323,9 @@ MODULE_AUTHOR("Hans Berglund <hb@spacetec.no>");
- MODULE_DESCRIPTION("I2C-Bus adapter routines for PCF8584 ISA bus adapter");
- MODULE_LICENSE("GPL");
- 
--module_param(base, int, 0);
--module_param(irq, int, 0);
-+module_param_hw(base, int, ioport_or_iomem, 0);
-+module_param_hw(irq, int, irq, 0);
- module_param(clock, int, 0);
- module_param(own, int, 0);
--module_param(mmapped, int, 0);
-+module_param_hw(mmapped, int, other, 0);
- module_isa_driver(i2c_elektor_driver, 1);
-diff --git a/drivers/i2c/busses/i2c-parport-light.c b/drivers/i2c/busses/i2c-parport-light.c
-index 1bcdd10b68b9..faa8fb8f2b8f 100644
---- a/drivers/i2c/busses/i2c-parport-light.c
-+++ b/drivers/i2c/busses/i2c-parport-light.c
-@@ -38,11 +38,11 @@
- static struct platform_device *pdev;
- 
- static u16 base;
--module_param(base, ushort, 0);
-+module_param_hw(base, ushort, ioport, 0);
- MODULE_PARM_DESC(base, "Base I/O address");
- 
- static int irq;
--module_param(irq, int, 0);
-+module_param_hw(irq, int, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ (optional)");
- 
- /* ----- Low-level parallel port access ----------------------------------- */
-diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-isa.c
-index ba88f17f636c..946ac646de2a 100644
---- a/drivers/i2c/busses/i2c-pca-isa.c
-+++ b/drivers/i2c/busses/i2c-pca-isa.c
-@@ -197,9 +197,9 @@ MODULE_AUTHOR("Ian Campbell <icampbell@arcom.com>");
- MODULE_DESCRIPTION("ISA base PCA9564/PCA9665 driver");
- MODULE_LICENSE("GPL");
- 
--module_param(base, ulong, 0);
-+module_param_hw(base, ulong, ioport, 0);
- MODULE_PARM_DESC(base, "I/O base address");
--module_param(irq, int, 0);
-+module_param_hw(irq, int, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ");
- module_param(clock, int, 0);
- MODULE_PARM_DESC(clock, "Clock rate in hertz.\n\t\t"
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index c21ca7bf2efe..0ecdb47a23ab 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -106,7 +106,7 @@ MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
- /* If force_addr is set to anything different from 0, we forcibly enable
-    the PIIX4 at the given address. VERY DANGEROUS! */
- static int force_addr;
--module_param (force_addr, int, 0);
-+module_param_hw(force_addr, int, ioport, 0);
- MODULE_PARM_DESC(force_addr,
- 		 "Forcibly enable the PIIX4 at the given address. "
- 		 "EXTREMELY DANGEROUS!");
-diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
-index 7d58a40faf2d..d543a9867ba4 100644
---- a/drivers/i2c/busses/i2c-sis5595.c
-+++ b/drivers/i2c/busses/i2c-sis5595.c
-@@ -119,7 +119,7 @@ static int blacklist[] = {
- /* If force_addr is set to anything different from 0, we forcibly enable
-    the device at the given address. */
- static u16 force_addr;
--module_param(force_addr, ushort, 0);
-+module_param_hw(force_addr, ushort, ioport, 0);
- MODULE_PARM_DESC(force_addr, "Initialize the base address of the i2c controller");
- 
- static struct pci_driver sis5595_driver;
-diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
-index 0ee2646f3b00..0dc45e12bb1d 100644
---- a/drivers/i2c/busses/i2c-viapro.c
-+++ b/drivers/i2c/busses/i2c-viapro.c
-@@ -94,7 +94,7 @@ MODULE_PARM_DESC(force, "Forcibly enable the SMBus. DANGEROUS!");
- /* If force_addr is set to anything different from 0, we forcibly enable
-    the VT596 at the given address. VERY DANGEROUS! */
- static u16 force_addr;
--module_param(force_addr, ushort, 0);
-+module_param_hw(force_addr, ushort, ioport, 0);
- MODULE_PARM_DESC(force_addr,
- 		 "Forcibly enable the SMBus at the given address. "
- 		 "EXTREMELY DANGEROUS!");
-diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
-index 0a7e410b6195..e0923bee8d1f 100644
---- a/drivers/i2c/busses/scx200_acb.c
-+++ b/drivers/i2c/busses/scx200_acb.c
-@@ -42,7 +42,7 @@ MODULE_LICENSE("GPL");
- 
- #define MAX_DEVICES 4
- static int base[MAX_DEVICES] = { 0x820, 0x840 };
--module_param_array(base, int, NULL, 0);
-+module_param_hw_array(base, int, ioport, NULL, 0);
- MODULE_PARM_DESC(base, "Base addresses for the ACCESS.bus controllers");
- 
- #define POLL_TIMEOUT	(HZ/5)
++config INTEL_CHT_INT33FE
++	tristate "Intel Cherry Trail ACPI INT33FE Driver"
++	depends on X86 && ACPI
++	---help---
++	  This driver add support for the INT33FE ACPI device found on
++	  some Intel Cherry Trail devices.
++
++	  The INT33FE ACPI device has a CRS table with I2cSerialBusV2
++	  resources for 3 devices: Maxim MAX17047 Fuel Gauge Controller,
++	  FUSB302 USB Type-C Controller and PI3USB30532 USB switch.
++	  This driver instantiates i2c-clients for these, so that standard
++	  i2c drivers for these chips can bind to the them.
++
+ config INTEL_HID_EVENT
+ 	tristate "INTEL HID Event"
+ 	depends on ACPI
+diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
+index 6d4b01a..6731893 100644
+--- a/drivers/platform/x86/Makefile
++++ b/drivers/platform/x86/Makefile
+@@ -44,6 +44,7 @@ obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
+ obj-$(CONFIG_TOSHIBA_BT_RFKILL)	+= toshiba_bluetooth.o
+ obj-$(CONFIG_TOSHIBA_HAPS)	+= toshiba_haps.o
+ obj-$(CONFIG_TOSHIBA_WMI)	+= toshiba-wmi.o
++obj-$(CONFIG_INTEL_CHT_INT33FE)	+= intel_cht_int33fe.o
+ obj-$(CONFIG_INTEL_HID_EVENT)	+= intel-hid.o
+ obj-$(CONFIG_INTEL_VBTN)	+= intel-vbtn.o
+ obj-$(CONFIG_INTEL_SCU_IPC)	+= intel_scu_ipc.o
+diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
+new file mode 100644
+index 0000000..6a1b2ca
+--- /dev/null
++++ b/drivers/platform/x86/intel_cht_int33fe.c
+@@ -0,0 +1,143 @@
++/*
++ * Intel Cherry Trail ACPI INT33FE pseudo device driver
++ *
++ * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * Some Intel Cherry Trail based device which ship with Windows 10, have
++ * this weird INT33FE ACPI device with a CRS table with 4 I2cSerialBusV2
++ * resources, for 4 different chips attached to various i2c busses:
++ * 1. The Whiskey Cove pmic, which is also described by the INT34D3 ACPI device
++ * 2. Maxim MAX17047 Fuel Gauge Controller
++ * 3. FUSB302 USB Type-C Controller
++ * 4. PI3USB30532 USB switch
++ *
++ * So this driver is a stub / pseudo driver whose only purpose is to
++ * instantiate i2c-clients for chips 2 - 4, so that standard i2c drivers
++ * for these chips can bind to the them.
++ */
++
++#include <linux/acpi.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++
++#define EXPECTED_PTYPE		4
++
++struct cht_int33fe_data {
++	struct i2c_client *max17047;
++	struct i2c_client *fusb302;
++	struct i2c_client *pi3usb30532;
++};
++
++static int cht_int33fe_probe(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	struct i2c_board_info board_info;
++	struct cht_int33fe_data *data;
++	unsigned long long ptyp;
++	acpi_status status;
++	int fusb302_irq;
++
++	status = acpi_evaluate_integer(ACPI_HANDLE(dev), "PTYP", NULL, &ptyp);
++	if (ACPI_FAILURE(status)) {
++		dev_err(dev, "Error getting PTYPE\n");
++		return -ENODEV;
++	}
++
++	/*
++	 * The same ACPI HID is used for different configurations check PTYP
++	 * to ensure that we are dealing with the expected config.
++	 */
++	if (ptyp != EXPECTED_PTYPE)
++		return -ENODEV;
++
++	/* The FUSB302 uses the irq at index 1 and is the only irq user */
++	fusb302_irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 1);
++	if (fusb302_irq < 0) {
++		if (fusb302_irq != -EPROBE_DEFER)
++			dev_err(dev, "Error getting FUSB302 irq\n");
++		return fusb302_irq;
++	}
++
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "max17047", I2C_NAME_SIZE);
++
++	data->max17047 = i2c_acpi_new_device(dev, 1, &board_info);
++	if (!data->max17047)
++		return -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
++
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "fusb302", I2C_NAME_SIZE);
++	board_info.irq = fusb302_irq;
++
++	data->fusb302 = i2c_acpi_new_device(dev, 2, &board_info);
++	if (!data->fusb302)
++		goto out_unregister_max17047;
++
++	memset(&board_info, 0, sizeof(board_info));
++	strlcpy(board_info.type, "pi3usb30532", I2C_NAME_SIZE);
++
++	data->pi3usb30532 = i2c_acpi_new_device(dev, 3, &board_info);
++	if (!data->pi3usb30532)
++		goto out_unregister_fusb302;
++
++	i2c_set_clientdata(client, data);
++
++	return 0;
++
++out_unregister_fusb302:
++	i2c_unregister_device(data->fusb302);
++
++out_unregister_max17047:
++	i2c_unregister_device(data->max17047);
++
++	return -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
++}
++
++static int cht_int33fe_remove(struct i2c_client *i2c)
++{
++	struct cht_int33fe_data *data = i2c_get_clientdata(i2c);
++
++	i2c_unregister_device(data->pi3usb30532);
++	i2c_unregister_device(data->fusb302);
++	i2c_unregister_device(data->max17047);
++
++	return 0;
++}
++
++static const struct i2c_device_id cht_int33fe_i2c_id[] = {
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, cht_int33fe_i2c_id);
++
++static const struct acpi_device_id cht_int33fe_acpi_ids[] = {
++	{ "INT33FE", },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, cht_int33fe_acpi_ids);
++
++static struct i2c_driver cht_int33fe_driver = {
++	.driver	= {
++		.name = "Intel Cherry Trail ACPI INT33FE driver",
++		.acpi_match_table = ACPI_PTR(cht_int33fe_acpi_ids),
++	},
++	.probe_new = cht_int33fe_probe,
++	.remove = cht_int33fe_remove,
++	.id_table = cht_int33fe_i2c_id,
++	.disable_i2c_core_irq_mapping = true,
++};
++
++module_i2c_driver(cht_int33fe_driver);
++
++MODULE_DESCRIPTION("Intel Cherry Trail ACPI INT33FE pseudo device driver");
++MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
++MODULE_LICENSE("GPL");
+-- 
+2.9.3
