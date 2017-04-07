@@ -1,92 +1,172 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v6] platform/x86: Add Intel Cherry Trail ACPI INT33FE
- device driver
-Date: Fri, 7 Apr 2017 08:49:55 +0200
-Message-ID: <66d4f7cc-4f4b-f912-ca8a-50fd248cc405@redhat.com>
-References: <20170406072436.12898-1-hdegoede@redhat.com>
- <1491476636.24567.25.camel@linux.intel.com>
- <8b6df86e-06eb-5be8-ee8c-9af980691fa5@redhat.com>
- <20170406224815.GA13110@fury>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20170406224815.GA13110@fury>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, platform-driver-x86@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
+Subject: [PATCH v6 1/4] ACPU: utils: Add new acpi_dev_present helper
+Date: Fri,  7 Apr 2017 12:40:52 +0200
+Message-ID: <20170407104055.25035-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53970 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932299AbdDGKlA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 7 Apr 2017 06:41:00 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, Lukas Wunner <lukas@wunner.de>
 
-Hi,
+acpi_dev_found just iterates over all ACPI-ids and sees if one matches.
+This means that it will return true for devices which are in the dsdt
+but disabled (their _STA method returns 0).
 
-On 07-04-17 00:48, Darren Hart wrote:
-> On Thu, Apr 06, 2017 at 02:17:11PM +0200, Hans de Goede wrote:
->> Hi,
->>
->> On 06-04-17 13:03, Andy Shevchenko wrote:
->>> On Thu, 2017-04-06 at 09:24 +0200, Hans de Goede wrote:
->>>> The INT33FE ACPI device has a CRS table with I2cSerialBusV2 resources
->>>> for
->>>> 3 devices: Maxim MAX17047 Fuel Gauge Controller, FUSB302 USB Type-C
->>>> Controller and PI3USB30532 USB switch.
->>>>
->>>> This commit adds a driver for this ACPI device which instantiates
->>>> i2c-clients for these, so that the standard i2c drivers for these
->>>> chips
->>>> can bind to the them.
->>>
->>> Given one more thought, if the devices should be present all to make it
->>> work, than you perhaps may use component framework.
->>
->> Actually the fuel-guage is completely independent, the PI3USB30532 USB
->> switch will get set based on extcon cable events from the FUSB302 USB
->> Type-C controller, but otherwise both drivers are independent and the
->> FUSB302 USB Type-C controller pretty much operates stand-alone.
->>
->>> In this case this so called "pseudo" device is not so pseudo, but
->>> "master".
->>
->> I think this is really some Windows weirdness, if I configure the BIOS
->> to boot "Android" the ACPI INT33FE device goes away and instead I
->> get 3 separate ACPI devices for the 3 chips.
->
-> So if this is this case, what is the value in supporting "windows weirdness" if
-> the end user can select "Android" and be presented with 3 separate devices?
+For some drivers it is useful to be able to check if a certain HID
+is not only present in the namespace, but also actually present as in
+acpi_device_is_present() will return true for the device. For example
+because if a certain device is present then the driver will want to use
+an extcon or IIO adc channel provided by that device.
 
-Multiple reasons:
+This commit adds a new acpi_dev_present helper which drivers can use
+to this end.
 
-1) Multi-boot with windows without needing to toggle a BIOS option all the time
-2) Many of these devices only ship with windows, the Android option is there
-from the BIOS template code they used, but is untested, so this may give us
-the 3 separate devices but at the same time break other stuff
-3) On some devices the BIOS tries to autodetect the OS, overriding the BIOS option
-4) On some devices, including the one I'm developing on, but I can "fix" this with
-a BIOS downgrade, this option has been locked to avoid 2.
-5) Users really should not need to touch BIOS settings ever
+Like acpi_dev_found, acpi_dev_present take a HID as argument, but
+it also has 2 extra optional arguments to only check for an ACPI
+device with a specific UID and/or HRV value. This makes it more
+generic and allows it to replace custom code doing similar checks
+in several places.
 
-My main goal for Linux on Bay Trail / Cherrytrail devices is for everything to
-just work independent of the OSID setting and I'm afraid that this is also
-necessary to properly support al variants of hw out there. E.g. My cube iwork8
-air does 3. from the above list, so if I do:
+Arguably acpi_dev_present is what acpi_dev_found should have been, but
+there are too many users to just change acpi_dev_found without the risk
+of breaking something.
 
-touch /boot/efi/EFI/BOOT/BOOTX64.EFI
-reboot
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Switch to using bus_find_device() to avoid "Traversing the namespace
+ over and over"
+-Add optional (may be NULL / -1) uid and hrv arguments, this will
+ allow this new function to replace the custom code for this in
+ drivers/firmware/efi/dev-path-parser.c as well as in
+ sound/soc/intel/common/sst-match-acpi.c and will allow it to be
+ used to implement blacklists to avoid loading the ACPI ac / battery
+ driver on systems which have a PMIC / charger acpi device with a
+ native driver which offers a better (often working vs not working)
+ user experience
+-Dropped Mika's reviewd by as this is almost a total rewrite
+---
+ drivers/acpi/utils.c    | 72 +++++++++++++++++++++++++++++++++++++++++++++++++
+ include/acpi/acpi_bus.h |  1 +
+ include/linux/acpi.h    |  5 ++++
+ 3 files changed, 78 insertions(+)
 
-OSID = 1 (BIOS thinks it is running Windows 8.1 / 10)
-
-And if I then do:
-
-rm /boot/efi/EFI/BOOT/BOOTX64.EFI
-reboot
-
-OSID = 4 (BIOS thinks it is running Android)
-
-Independent of the option I select in the BIOS.
-
-Also I would like to point out that the entire pseudo-driver including
-copyright header is only 144 lines, so it is not like we need a crazy
-amount of code to deal with this.
-
-Regards,
-
-Hans
+diff --git a/drivers/acpi/utils.c b/drivers/acpi/utils.c
+index 22c0995..d879237 100644
+--- a/drivers/acpi/utils.c
++++ b/drivers/acpi/utils.c
+@@ -736,6 +736,78 @@ bool acpi_dev_found(const char *hid)
+ }
+ EXPORT_SYMBOL(acpi_dev_found);
+ 
++struct acpi_dev_present_info {
++	struct acpi_device_id hid[2];
++	const char *uid;
++	int hrv;
++};
++
++static int acpi_dev_present_cb(struct device *dev, void *data)
++{
++	struct acpi_device *adev = to_acpi_device(dev);
++	struct acpi_dev_present_info *match = data;
++	unsigned long long hrv;
++	acpi_status status;
++
++	if (acpi_match_device_ids(adev, match->hid))
++		return 0;
++
++	if (match->uid && adev->pnp.unique_id &&
++	    strcmp(adev->pnp.unique_id, match->uid))
++		return 0;
++
++	if (match->uid && !adev->pnp.unique_id &&
++	    strcmp("0", match->uid))
++		return 0;
++
++	if (match->hrv == -1)
++		return 1;
++
++	status = acpi_evaluate_integer(adev->handle, "_HRV", NULL, &hrv);
++	if (ACPI_FAILURE(status))
++		return 0;
++
++	return hrv == match->hrv;
++}
++
++/**
++ * acpi_dev_present - Detect that a given ACPI device is present
++ * @hid: Hardware ID of the device.
++ * @uid: Unique ID of the device, pass "0" for devices without a _UID,
++ *       pass NULL to not check _UID
++ * @hrv: Hardware Revision of the device, pass -1 to not check _HRV
++ *
++ * Return %true if a matching device was present at the moment of invocation.
++ * Note that if the device is pluggable, it may since have disappeared.
++ *
++ * Note that unlike acpi_dev_found() this function checks the status
++ * of the device so for devices which are present in the dsdt, but
++ * which are disabled (their _STA callback returns 0) this function
++ * will return false.
++ *
++ * For this function to work, acpi_bus_scan() must have been executed
++ * which happens in the subsys_initcall() subsection. Hence, do not
++ * call from a subsys_initcall() or earlier (use acpi_get_devices()
++ * instead). Calling from module_init() is fine (which is synonymous
++ * with device_initcall()).
++ */
++bool acpi_dev_present(const char *hid, const char *uid, int hrv)
++{
++	struct acpi_dev_present_info match;
++	struct device *dev;
++
++	strlcpy(match.hid[0].id, hid, sizeof(match.hid[0].id));
++	match.hid[1].id[0] = 0;
++	match.uid = uid;
++	match.hrv = hrv;
++
++	dev = bus_find_device(&acpi_bus_type, NULL, &match,
++			      acpi_dev_present_cb);
++
++	return dev ? true : false;
++}
++EXPORT_SYMBOL(acpi_dev_present);
++
+ /*
+  * acpi_backlight= handling, this is done here rather then in video_detect.c
+  * because __setup cannot be used in modules.
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index ef0ae8a..64498d5 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -88,6 +88,7 @@ acpi_evaluate_dsm_typed(acpi_handle handle, const u8 *uuid, u64 rev, u64 func,
+ 	}
+ 
+ bool acpi_dev_found(const char *hid);
++bool acpi_dev_present(const char *hid, const char *uid, int hrv);
+ 
+ #ifdef CONFIG_ACPI
+ 
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 9b05886..e5dd0f1 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -611,6 +611,11 @@ static inline bool acpi_dev_found(const char *hid)
+ 	return false;
+ }
+ 
++static inline bool acpi_dev_present(const char *hid, const char *uid, int hrv)
++{
++	return false;
++}
++
+ static inline bool is_acpi_node(struct fwnode_handle *fwnode)
+ {
+ 	return false;
+-- 
+2.9.3
