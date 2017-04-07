@@ -1,7 +1,7 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v6 3/4] ACPI: battery: Add a blacklist with PMIC ACPI HIDs with a native battery driver
-Date: Fri,  7 Apr 2017 12:40:54 +0200
-Message-ID: <20170407104055.25035-3-hdegoede@redhat.com>
+Subject: [PATCH v6 2/4] ACPI: battery: Fix acpi_battery_exit on acpi_battery_init_async errors
+Date: Fri,  7 Apr 2017 12:40:53 +0200
+Message-ID: <20170407104055.25035-2-hdegoede@redhat.com>
 References: <20170407104055.25035-1-hdegoede@redhat.com>
 Return-path: <platform-driver-x86-owner@vger.kernel.org>
 In-Reply-To: <20170407104055.25035-1-hdegoede@redhat.com>
@@ -10,70 +10,48 @@ To: Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Andy S
 Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On some systems we have a native PMIC driver which provides battery
-monitoring, while the ACPI battery driver is broken on these systems
-due to bad DSDTs or because we do not support the proprietary and
-undocumented ACPI opregions these ACPI battery devices rely on
-(e.g. BMOP opregion).
+The acpi_lock_battery_dir() / acpi_bus_register_driver() calls in
+acpi_battery_init_async() may fail. Check that they succeeded before
+undoing them.
 
-This leads to there being 2 battery power_supply-s registed like this:
-
-~$ acpi
-Battery 0: Charging, 84%, 00:49:39 until charged
-Battery 1: Unknown, 0%, rate information unavailable
-
-Even if the ACPI battery where to function fine (which on systems
-where we have a native PMIC driver it often doesn't) we still do not
-want to export the same battery to userspace twice.
-
-This commit adds a blacklist with PMIC ACPI HIDs for which we've a
-native battery driver and makes the ACPI battery driver not register
-itself when a PMIC on this list is present.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=194811
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v2:
--This is a new patch in v2 of this patch-set replacing:
- "ACPI: battery: Add acpi_battery_unregister() function"
- "power: supply: axp288_fuel_gauge: Unregister duplicate ACPI battery supply"
----
- drivers/acpi/battery.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/acpi/battery.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index b35fca4..eacb816 100644
+index 4ef1e46..b35fca4 100644
 --- a/drivers/acpi/battery.c
 +++ b/drivers/acpi/battery.c
-@@ -94,6 +94,12 @@ static const struct acpi_device_id battery_device_ids[] = {
+@@ -67,6 +67,7 @@ MODULE_DESCRIPTION("ACPI Battery Driver");
+ MODULE_LICENSE("GPL");
  
- MODULE_DEVICE_TABLE(acpi, battery_device_ids);
+ static async_cookie_t async_cookie;
++static bool battery_driver_registered;
+ static int battery_bix_broken_package;
+ static int battery_notification_delay_ms;
+ static unsigned int cache_time = 1000;
+@@ -1329,6 +1330,7 @@ static void __init acpi_battery_init_async(void *unused, async_cookie_t cookie)
+ 	if (result < 0)
+ 		acpi_unlock_battery_dir(acpi_battery_dir);
+ #endif
++	battery_driver_registered = (result == 0);
+ }
  
-+/* Lists of PMIC ACPI HIDs with an (often better) native battery driver */
-+static const char * const acpi_battery_blacklist[] = {
-+	"INT33F4", /* X-Powers AXP288 PMIC */
-+	NULL
-+};
-+
- enum {
- 	ACPI_BATTERY_ALARM_PRESENT,
- 	ACPI_BATTERY_XINFO_PRESENT,
-@@ -1316,7 +1322,15 @@ static struct acpi_driver acpi_battery_driver = {
- 
- static void __init acpi_battery_init_async(void *unused, async_cookie_t cookie)
+ static int __init acpi_battery_init(void)
+@@ -1343,9 +1345,11 @@ static int __init acpi_battery_init(void)
+ static void __exit acpi_battery_exit(void)
  {
--	int result;
-+	int i, result;
-+
-+	for (i = 0; acpi_battery_blacklist[i]; i++)
-+		if (acpi_dev_present(acpi_battery_blacklist[i], "1", -1)) {
-+			pr_info("ACPI: %s: found native %s PMIC, not loading\n",
-+				ACPI_BATTERY_DEVICE_NAME,
-+				acpi_battery_blacklist[i]);
-+			return;
-+		}
- 
- 	dmi_check_system(bat_dmi_table);
+ 	async_synchronize_cookie(async_cookie + 1);
+-	acpi_bus_unregister_driver(&acpi_battery_driver);
++	if (battery_driver_registered)
++		acpi_bus_unregister_driver(&acpi_battery_driver);
+ #ifdef CONFIG_ACPI_PROCFS_POWER
+-	acpi_unlock_battery_dir(acpi_battery_dir);
++	if (acpi_battery_dir)
++		acpi_unlock_battery_dir(acpi_battery_dir);
+ #endif
+ }
  
 -- 
 2.9.3
