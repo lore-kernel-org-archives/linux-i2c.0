@@ -1,104 +1,60 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 2/2] i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch
-Date: Mon, 10 Apr 2017 22:04:04 +0200
-Message-ID: <CACRpkdbECyEpD7b4OFxwAo6USnK_DGEbASMdTzOO=FQ9BAzRQA@mail.gmail.com>
-References: <1491397671-14675-1-git-send-email-michael.hennerich@analog.com> <1491397671-14675-2-git-send-email-michael.hennerich@analog.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH 0/9] Unify i2c_mux_add_adapter error reporting
+Date: Tue, 11 Apr 2017 10:08:21 +0200
+Message-ID: <5f70e59b-f832-f123-6901-ab89b45e7d70@axentia.se>
+References: <1491208718-32068-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1491397671-14675-2-git-send-email-michael.hennerich@analog.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1491208718-32068-1-git-send-email-peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 5, 2017 at 3:07 PM,  <michael.hennerich@analog.com> wrote:
+On 2017-04-03 10:38, Peter Rosin wrote:
+> Hi!
+> 
+> Many users of the i2c_mux_add_adapter interface log a message
+> on failure, but the function already logs such a message. One
+> or two of those users actually add more information than already
+> provided by the central failure message.
+> 
+> So, first fix the central error reporting to provide as much
+> information as any current user, and then remove the surplus
+> error reporting at the call sites.
 
-> From: Michael Hennerich <michael.hennerich@analog.com>
->
-> This patch adds support for the Analog Devices / Linear Technology
-> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
-> The LTC4306 optionally provides two general purpose input/output pins
-> (GPIOs) that can be configured as logic inputs, opendrain outputs or
-> push-pull outputs via the generic GPIOLIB framework.
->
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+I have now pushed patches 1-7 to i2c-mux/for-next.
+Jonathan grabbed patch 8 and it's going through the iio tree.
+Still waiting on patch 9 and the media maintainers.
 
-Okay!
+Cheers,
+Peter
 
-> +#include <linux/device.h>
-> +#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/gpio/driver.h>
-
-Why are you including all these?
-Normally a GPIO driver should just include
-<linux/gpio/driver.h>
-
-> +#include <linux/i2c-mux.h>
-> +#include <linux/i2c.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/slab.h>
-
-> +static int ltc4306_gpio_get(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +       struct ltc4306 *data = gpiochip_get_data(chip);
-> +       unsigned int val;
-> +       int ret;
-> +
-> +       ret = regmap_read(data->regmap, LTC_REG_CONFIG, &val);
-> +       if (ret < 0)
-> +               return ret;
-> +
-> +       return (val & BIT(1 - offset));
-
-Do this:
-
-return !!(val & BIT(1 - offset));
-
-So you clamp the return value to [0,1]
-
-> +static int ltc4306_gpio_set_config(struct gpio_chip *chip,
-> +                                  unsigned int offset, unsigned long config)
-> +{
-> +       struct ltc4306 *data = gpiochip_get_data(chip);
-> +       unsigned int val;
-> +
-> +       switch (pinconf_to_config_param(config)) {
-> +       case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-> +               val = 0;
-> +               break;
-> +       case PIN_CONFIG_DRIVE_PUSH_PULL:
-> +               val = BIT(4 - offset);
-> +               break;
-> +       default:
-> +               return -ENOTSUPP;
-> +       }
-> +
-> +       return regmap_update_bits(data->regmap, LTC_REG_MODE,
-> +                                 BIT(4 - offset), val);
-> +}
-
-Nice!
-
-> +       data->gpiochip.label = dev_name(dev);
-> +       data->gpiochip.base = -1;
-> +       data->gpiochip.ngpio = data->chip->num_gpios;
-> +       data->gpiochip.parent = dev;
-> +       data->gpiochip.can_sleep = true;
-> +       data->gpiochip.direction_input = ltc4306_gpio_direction_input;
-> +       data->gpiochip.direction_output = ltc4306_gpio_direction_output;
-> +       data->gpiochip.get = ltc4306_gpio_get;
-> +       data->gpiochip.set = ltc4306_gpio_set;
-> +       data->gpiochip.set_config = ltc4306_gpio_set_config;
-> +       data->gpiochip.owner = THIS_MODULE;
-
-Please implement .get_direction().
-This is very helpful to userspace, have you tested to use tools/gpio/*
-from the kernel? Like lsgpio?
-
-Yours,
-Linus Walleij
+> 
+> Cheers,
+> peda
+> 
+> Peter Rosin (9):
+>   i2c: mux: provide more info on failure in i2c_mux_add_adapter
+>   i2c: arb: gpio-challenge: stop double error reporting
+>   i2c: mux: gpio: stop double error reporting
+>   i2c: mux: pca9541: stop double error reporting
+>   i2c: mux: pca954x: stop double error reporting
+>   i2c: mux: pinctrl: stop double error reporting
+>   i2c: mux: reg: stop double error reporting
+>   iio: gyro: mpu3050: stop double error reporting
+>   [media] cx231xx: stop double error reporting
+> 
+>  drivers/i2c/i2c-mux.c                      |  9 ++++++---
+>  drivers/i2c/muxes/i2c-arb-gpio-challenge.c |  4 +---
+>  drivers/i2c/muxes/i2c-mux-gpio.c           |  4 +---
+>  drivers/i2c/muxes/i2c-mux-pca9541.c        |  4 +---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c        |  7 +------
+>  drivers/i2c/muxes/i2c-mux-pinctrl.c        |  4 +---
+>  drivers/i2c/muxes/i2c-mux-reg.c            |  4 +---
+>  drivers/iio/gyro/mpu3050-i2c.c             |  5 ++---
+>  drivers/media/usb/cx231xx/cx231xx-i2c.c    | 15 ++++-----------
+>  9 files changed, 18 insertions(+), 38 deletions(-)
+> 
