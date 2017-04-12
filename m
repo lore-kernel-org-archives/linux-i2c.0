@@ -1,34 +1,62 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v5 2/2] i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch
-Date: Wed, 12 Apr 2017 10:26:43 +0200
-Message-ID: <CACRpkdbOQtJvwtNRuPWh9VQyupH3kXK9-3Vu7qMemngg6O5j1w@mail.gmail.com>
-References: <1491912976-8396-1-git-send-email-michael.hennerich@analog.com> <1491912976-8396-2-git-send-email-michael.hennerich@analog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1491912976-8396-2-git-send-email-michael.hennerich@analog.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v8 0/6] i2c: designware: add I2C SLAVE support
+Date: Wed, 12 Apr 2017 17:47:50 +0100
+Message-ID: <cover.1492014220.git.lolivei@synopsys.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 11, 2017 at 2:16 PM,  <michael.hennerich@analog.com> wrote:
+The purpose of this patchset is to enable Linux to be a I2C slave by 
+enabling the slave functionality in the designware I2C controller and at
+the same time it does some cleaning of the existing code.
 
-> From: Michael Hennerich <michael.hennerich@analog.com>
->
-> This patch adds support for the Analog Devices / Linear Technology
-> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
-> The LTC4306 optionally provides two general purpose input/output pins
-> (GPIOs) that can be configured as logic inputs, opendrain outputs or
-> push-pull outputs via the generic GPIOLIB framework.
->
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-(...)
-> Changes since v4:
+The patch 1 is for cleaning and commentary fix.
+The patch 2 refactors the original i2c-designware-core and extracts all
+master functions to a i2c-designware-master source file as suggested by
+Andy Shevchenko when I first submited the update. The patch 3 then
+separates the MASTER flow from the common flow.
+The patch 4 introduces the SLAVE necessary definitions to the 
+i2c-designware library and adds a how-to-use example to the designware.txt
+in device tree bindings.
+The patch 5 adds the necessary functions to give the ability to be a SLAVE
+to the controller and for that changes also had to be made in the 
+Makefile and Kconfig.
+The patch 6 enables the SLAVE mode to be detected by the platform module.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+The functionality was tested using the hardware independent slave-eeprom
+driver based on top of i2c/for-next. The tree I used can be found here:
 
-Please go ahead and merge to the i2c tree if you like.
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
 
-Yours,
-Linus Walleij
+Luis Oliveira (6):
+  i2c: designware: Cleaning and comment style fixes.
+  i2c: designware: refactoring of the i2c-designware
+  i2c: designware: MASTER mode as separated driver
+  i2c: designware: introducing I2C_SLAVE definitions
+  i2c: designware: add SLAVE mode functions
+  i2c: designware: enable SLAVE in platform module
+
+ .../devicetree/bindings/i2c/i2c-designware.txt     |  16 +-
+ drivers/i2c/busses/Kconfig                         |  15 +-
+ drivers/i2c/busses/Makefile                        |   2 +
+ drivers/i2c/busses/i2c-designware-common.c         | 280 +++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           | 180 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 465 +++------------------
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |   8 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 117 ++++--
+ drivers/i2c/busses/i2c-designware-slave.c          | 403 ++++++++++++++++++
+ 9 files changed, 1033 insertions(+), 453 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (60%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+
+-- 
+2.11.0
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
