@@ -1,46 +1,107 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v5 2/2] i2c: mux: ltc4306: LTC4306 and LTC4305 I2C
- multiplexer/switch
-Date: Wed, 12 Apr 2017 18:53:20 +0200
-Message-ID: <ef75918a-3e5d-91d2-bc05-546e1e0f0bb4@axentia.se>
-References: <1491912976-8396-1-git-send-email-michael.hennerich@analog.com>
- <1491912976-8396-2-git-send-email-michael.hennerich@analog.com>
- <CACRpkdbOQtJvwtNRuPWh9VQyupH3kXK9-3Vu7qMemngg6O5j1w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbOQtJvwtNRuPWh9VQyupH3kXK9-3Vu7qMemngg6O5j1w@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Michael Hennerich <michael.hennerich@analog.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH v5 0/8] mfd: Add OF device table to I2C drivers that are missing it
+Date: Wed, 12 Apr 2017 14:27:51 -0300
+Message-ID: <20170412172800.23035-1-javier@osg.samsung.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:37004
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751349AbdDLR2N (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 Apr 2017 13:28:13 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, Javier Martinez Canillas <javier@osg.samsung.com>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On 2017-04-12 10:26, Linus Walleij wrote:
-> On Tue, Apr 11, 2017 at 2:16 PM,  <michael.hennerich@analog.com> wrote:
-> 
->> From: Michael Hennerich <michael.hennerich@analog.com>
->>
->> This patch adds support for the Analog Devices / Linear Technology
->> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
->> The LTC4306 optionally provides two general purpose input/output pins
->> (GPIOs) that can be configured as logic inputs, opendrain outputs or
->> push-pull outputs via the generic GPIOLIB framework.
+Hello,
 
-Great, thanks for your contribution Michael! Both patches pushed to the
-for-next branch of the i2c-mux tree.
+This series add OF device ID tables to mfd I2C drivers whose devices are
+either used in Device Tree source files or are listed in binding docs as
+a compatible string.
 
->> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> (...)
->> Changes since v4:
-> 
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> Please go ahead and merge to the i2c tree if you like.
+That's done because the plan is to change the I2C core to report proper OF
+modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+a device was registered via DT or using the legacy platform data mechanism.
 
-Yup, thanks for the review! (But not merged directly to the i2c tree,
-although they will get there eventually...)
+So these patches will make sure that mfd I2C drivers modules will continue
+to be autoloaded once the I2C core is changed to report proper OF modalias.
 
-Cheers,
-peda
+Users didn't have a vendor prefix in the used compatible strings, but since
+there wasn't a DT binding document for these drivers, it can be said that
+were working for mere luck and so this series fixes the users and add a DT
+binding doc for the drivers.
 
+Most patches can be applied independently, with the exception of patches
+2 to 4 that should be applied in the same tree to keep bisect-ability. I
+suggest these to go through the MFD subsystem tree.
+
+Best regards,
+Javier
+
+Changes in v5:
+- Add missing properties for interrupts to DT binding doc (Rob Herring).
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+
+Changes in v4:
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Drop -mfd suffix in compatible string (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
+
+Changes in v3:
+- Add a vendor prefix to the compatible string (Rob Herring).
+- Add a vendor prefix to the compatible string (Rob Herring).
+
+Changes in v2:
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
+
+Javier Martinez Canillas (8):
+  dt-bindings: mfd: Add retu/tahvo ASIC chips bindings
+  mfd: retu: Drop -mfd suffix from I2C device ID name
+  mfd: retu: Add OF device ID table
+  ARM: dts: n8x0: Add vendor prefix to retu node
+  i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
+  dt-bindings: mfd: Add TI tps6105x chip bindings
+  mfd: tps6105x: Add OF device ID table
+  ARM: ux500: Add vendor prefix to tps61052 node
+
+ .../devicetree/bindings/i2c/i2c-cbus-gpio.txt      |  4 ++--
+ Documentation/devicetree/bindings/mfd/retu.txt     | 23 ++++++++++++++++++++++
+ Documentation/devicetree/bindings/mfd/tps6105x.txt | 17 ++++++++++++++++
+ arch/arm/boot/dts/omap2420-n8x0-common.dtsi        |  4 ++--
+ arch/arm/boot/dts/ste-hrefprev60.dtsi              |  2 +-
+ arch/arm/mach-omap1/board-nokia770.c               |  4 ++--
+ drivers/mfd/retu-mfd.c                             | 12 +++++++++--
+ drivers/mfd/tps6105x.c                             |  8 ++++++++
+ 8 files changed, 65 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/retu.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/tps6105x.txt
+
+-- 
+2.9.3
