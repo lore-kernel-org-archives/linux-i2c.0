@@ -1,46 +1,34 @@
-From: thor.thayer@linux.intel.com
-Subject: [PATCH 1/3] MAINTAINERS: Add Altera I2C Controller Driver
-Date: Tue, 11 Apr 2017 11:02:25 -0500
-Message-ID: <1491926547-29510-2-git-send-email-thor.thayer@linux.intel.com>
-References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v5 2/2] i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch
+Date: Wed, 12 Apr 2017 10:26:43 +0200
+Message-ID: <CACRpkdbOQtJvwtNRuPWh9VQyupH3kXK9-3Vu7qMemngg6O5j1w@mail.gmail.com>
+References: <1491912976-8396-1-git-send-email-michael.hennerich@analog.com> <1491912976-8396-2-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=y
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:3079 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752781AbdDKP7k (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 11 Apr 2017 11:59:40 -0400
-In-Reply-To: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1491912976-8396-2-git-send-email-michael.hennerich@analog.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh@kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Thor Thayer <thor.thayer@linux.intel.com>
 
-From: Thor Thayer <thor.thayer@linux.intel.com>
+On Tue, Apr 11, 2017 at 2:16 PM,  <michael.hennerich@analog.com> wrote:
 
-Add maintainer for the Altera I2C Controller Driver.
+> From: Michael Hennerich <michael.hennerich@analog.com>
+>
+> This patch adds support for the Analog Devices / Linear Technology
+> LTC4306 and LTC4305 4/2 Channel I2C Bus Multiplexer/Switches.
+> The LTC4306 optionally provides two general purpose input/output pins
+> (GPIOs) that can be configured as logic inputs, opendrain outputs or
+> push-pull outputs via the generic GPIOLIB framework.
+>
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+(...)
+> Changes since v4:
 
-Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
----
- MAINTAINERS | 5 +++++
- 1 file changed, 5 insertions(+)
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4bfaea4..e654d34 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -636,6 +636,11 @@ ALPS PS/2 TOUCHPAD DRIVER
- R:	Pali Rohár <pali.rohar@gmail.com>
- F:	drivers/input/mouse/alps.*
- 
-+ALTERA I2C CONTROLLER DRIVER
-+M:	Thor Thayer <thor.thayer@linux.intel.com>
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-altera.c
-+
- ALTERA MAILBOX DRIVER
- M:	Ley Foon Tan <lftan@altera.com>
- L:	nios2-dev@lists.rocketboards.org (moderated for non-subscribers)
--- 
-1.9.1
+Please go ahead and merge to the i2c tree if you like.
+
+Yours,
+Linus Walleij
