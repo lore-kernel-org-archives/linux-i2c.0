@@ -1,95 +1,133 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/3] Documentation: dt: i2c: Add Altera I2C Controller
-Date: Thu, 13 Apr 2017 16:22:40 -0500
-Message-ID: <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
-References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
- <1491926547-29510-3-git-send-email-thor.thayer@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1491926547-29510-3-git-send-email-thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH v3 02/21] eeprom: at24: Add OF device ID table
+Date: Thu, 13 Apr 2017 22:04:26 -0300
+Message-ID: <20170414010445.21727-3-javier@osg.samsung.com>
+References: <20170414010445.21727-1-javier@osg.samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170414010445.21727-1-javier@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Javier Martinez Canillas <javier@osg.samsung.com>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 11, 2017 at 11:02:26AM -0500, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org wrote:
-> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> 
-> Add the documentation to support the Altera I2C Controller.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-"dt-bindings: i2c: ..." for the subject.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-> 
-> Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-altera.txt         | 37 ++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-> new file mode 100644
-> index 0000000..a67241c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-> @@ -0,0 +1,37 @@
-> +* Altera I2C Controller
+Suggested-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-This is the only one? For synthesizable logic or a hard block in 
-socfpga?
+---
 
-> +
-> +Required properties :
-> + - compatible : should be "altr,sip-i2c"
+Changes in v3:
+- Fix wrong .data values for "atmel,24c02" and "atmel,24c64" entries.
 
-Seems kind of generic.
+Changes in v2:
+- Only add a single OF device ID entry for each device type (Wolfram Sang).
 
-> + - reg        : Offset and length of the register set for the device
-> + - interrupts : <IRQ> where IRQ is the interrupt number.
-> + - clocks     : phandles to input clocks.
+ drivers/misc/eeprom/at24.c | 65 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 64 insertions(+), 1 deletion(-)
 
-Need to specify how many clocks.
-
-> + - #address-cells = <1>;
-> + - #size-cells = <0>;
-> +
-> +Recommended properties :
-> + - clock-frequency : desired I2C bus clock frequency in Hz.
-> +
-> +Optional properties :
-> + - altr,fifo-size : Size of the RX and TX FIFOs.
-
-in bytes?
-
-Just "fifo-size" is already fairly common, so drop the vendor prefix.
-
-> + - Child nodes conforming to i2c bus binding
-> +
-> +Example :
-> +
-> +	i2c@100080000 {
-> +		compatible = "altr,sip-i2c";
-> +		reg = <0x00000001 0x00080000 0x00000040>;
-> +		interrupt-parent = <&intc>;
-> +		interrupts = <0 43 4>;
-> +		clocks = <&clk_0>;
-> +		clock-frequency = <100000>;
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		altr,fifo-size = <4>;
-> +
-> +		eeprom@51 {
-> +			compatible = "atmel,24c32";
-> +			reg = <0x51>;
-> +			pagesize = <32>;
-> +		};
-> +	};
-> +
-> -- 
-> 1.9.1
-> 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 764ff5df0dbc..6269de1457b9 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/mutex.h>
+@@ -175,6 +176,64 @@ static const struct i2c_device_id at24_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, at24_ids);
+ 
++static const struct of_device_id at24_of_match[] = {
++	{
++		.compatible = "atmel,24c00",
++		.data = (void *)AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR)
++	},
++	{
++		.compatible = "atmel,24c01",
++		.data = (void *)AT24_DEVICE_MAGIC(1024 / 8, 0)
++	},
++	{
++		.compatible = "atmel,24c02",
++		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8, 0)
++	},
++	{
++		.compatible = "at24,spd",
++		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
++				AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
++	},
++	{
++		.compatible = "atmel,24c04",
++		.data = (void *)AT24_DEVICE_MAGIC(4096 / 8, 0)
++	},
++	{
++		.compatible = "atmel,24c08",
++		.data = (void *)AT24_DEVICE_MAGIC(8192 / 8, 0)
++	},
++	{
++		.compatible = "atmel,24c16",
++		.data = (void *)AT24_DEVICE_MAGIC(16384 / 8, 0)
++	},
++	{
++		.compatible = "atmel,24c32",
++		.data = (void *)AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16)
++	},
++	{
++		.compatible = "atmel,24c64",
++		.data = (void *)AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16)
++	},
++	{
++		.compatible = "atmel,24c128",
++		.data = (void *)AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16)
++	},
++	{
++		.compatible = "atmel,24c256",
++		.data = (void *)AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16)
++	},
++	{
++		.compatible = "atmel,24c512",
++		.data = (void *)AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16)
++	},
++	{
++		.compatible = "atmel,24c1024",
++		.data = (void *)AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16)
++	},
++	{ },
++};
++MODULE_DEVICE_TABLE(of, at24_of_match);
++
+ static const struct acpi_device_id at24_acpi_ids[] = {
+ 	{ "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
+ 	{ }
+@@ -598,7 +657,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+ 	} else {
+-		if (id) {
++		if (client->dev.of_node) {
++			magic = (kernel_ulong_t)
++				of_device_get_match_data(&client->dev);
++		} else if (id) {
+ 			magic = id->driver_data;
+ 		} else {
+ 			const struct acpi_device_id *aid;
+@@ -814,6 +876,7 @@ static int at24_remove(struct i2c_client *client)
+ static struct i2c_driver at24_driver = {
+ 	.driver = {
+ 		.name = "at24",
++		.of_match_table = at24_of_match,
+ 		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
+ 	},
+ 	.probe = at24_probe,
+-- 
+2.9.3
