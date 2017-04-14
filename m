@@ -1,44 +1,113 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v5 0/4] i2c-core improvements for acpi devices + ACPI
- INT33FE driver
-Date: Fri, 14 Apr 2017 14:34:16 +0200
-Message-ID: <1a01f3d0-3d14-9f93-e789-cf1f0232becc@redhat.com>
-References: <20170404220335.9815-1-hdegoede@redhat.com>
- <20170413190933.GA9783@fury>
+From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 2/3] Documentation: dt: i2c: Add Altera I2C Controller
+Date: Fri, 14 Apr 2017 08:46:28 -0500
+Message-ID: <7c803e53-5c1b-cd59-6c59-5a32b07edcb8@linux.intel.com>
+References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
+ <1491926547-29510-3-git-send-email-thor.thayer@linux.intel.com>
+ <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
+Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20170413190933.GA9783@fury>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Rob,
 
-On 13-04-17 21:09, Darren Hart wrote:
-> On Wed, Apr 05, 2017 at 12:03:31AM +0200, Hans de Goede wrote:
->> Hi All,
+On 04/13/2017 04:22 PM, Rob Herring wrote:
+> On Tue, Apr 11, 2017 at 11:02:26AM -0500, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org wrote:
+>> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 >>
->> Here is v5 of my patch-set for my i2c-core improvements for acpi
->> devices + the ACPI INT33FE platform driver.
->>
->> New in this version are some minor fixed to the INT33FE driver.
->>
->> The INT33FE driver depends on the i2c-core changes, so if
->> it is ok with Darren / Andy I believe it would be best for
->> this driver to be merged through the i2c subsys tree (with
->> their ack).
+>> Add the documentation to support the Altera I2C Controller.
 >
-> Is there an immutable i2c branch I can merge with these changes in order to add
-> the Cherry Trail driver on top of those?
+> "dt-bindings: i2c: ..." for the subject.
+>
+Got it. Thanks.
 
-The i2c-core patches have been reviewed, but to the best of my
-knowledge they have not been merged yet.
+>>
+>> Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> ---
+>>  .../devicetree/bindings/i2c/i2c-altera.txt         | 37 ++++++++++++++++++++++
+>>  1 file changed, 37 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
+>> new file mode 100644
+>> index 0000000..a67241c
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
+>> @@ -0,0 +1,37 @@
+>> +* Altera I2C Controller
+>
+> This is the only one? For synthesizable logic or a hard block in
+> socfpga?
+>
+This is synthesizable logic in an FPGA.
 
-Wolfram, what is the status of this ?
+>> +
+>> +Required properties :
+>> + - compatible : should be "altr,sip-i2c"
+>
+> Seems kind of generic.
+>
+I'm using sip for soft IP - right now we only offer 1 flavor.
 
-Regards,
+>> + - reg        : Offset and length of the register set for the device
+>> + - interrupts : <IRQ> where IRQ is the interrupt number.
+>> + - clocks     : phandles to input clocks.
+>
+> Need to specify how many clocks.
+>
+OK. There is only 1 so I'll change to singular. phandle to input clock.
 
-Hans
+>> + - #address-cells = <1>;
+>> + - #size-cells = <0>;
+>> +
+>> +Recommended properties :
+>> + - clock-frequency : desired I2C bus clock frequency in Hz.
+>> +
+>> +Optional properties :
+>> + - altr,fifo-size : Size of the RX and TX FIFOs.
+>
+> in bytes?
+>
+> Just "fifo-size" is already fairly common, so drop the vendor prefix.
+>
+Yes, it is in bytes. I'll make the change.
+
+Thanks for reviewing!
+
+>> + - Child nodes conforming to i2c bus binding
+>> +
+>> +Example :
+>> +
+>> +	i2c@100080000 {
+>> +		compatible = "altr,sip-i2c";
+>> +		reg = <0x00000001 0x00080000 0x00000040>;
+>> +		interrupt-parent = <&intc>;
+>> +		interrupts = <0 43 4>;
+>> +		clocks = <&clk_0>;
+>> +		clock-frequency = <100000>;
+>> +		#address-cells = <1>;
+>> +		#size-cells = <0>;
+>> +		altr,fifo-size = <4>;
+>> +
+>> +		eeprom@51 {
+>> +			compatible = "atmel,24c32";
+>> +			reg = <0x51>;
+>> +			pagesize = <32>;
+>> +		};
+>> +	};
+>> +
+>> --
+>> 1.9.1
+>>
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
