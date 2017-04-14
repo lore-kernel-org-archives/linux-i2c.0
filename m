@@ -1,113 +1,44 @@
-From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 2/3] Documentation: dt: i2c: Add Altera I2C Controller
-Date: Fri, 14 Apr 2017 08:46:28 -0500
-Message-ID: <7c803e53-5c1b-cd59-6c59-5a32b07edcb8@linux.intel.com>
-References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
- <1491926547-29510-3-git-send-email-thor.thayer@linux.intel.com>
- <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
-Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: [PATCH] i2c: designware: do not show SDA hold time warning when not needed
+Date: Fri, 14 Apr 2017 22:53:12 +0200
+Message-ID: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:54773 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751369AbdDNUxZ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Apr 2017 16:53:25 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 
-Hi Rob,
+When the I2C controller IP block has a revision too old to be able to
+configure the SDA hold time, the driver currently displays a
+warning. However, it does so unconditionally, even if no SDA hold time
+has been configured through the Device Tree. This causes useless
+warnings when running the system, so only show the warning if a SDA
+hold time was specified.
 
-On 04/13/2017 04:22 PM, Rob Herring wrote:
-> On Tue, Apr 11, 2017 at 11:02:26AM -0500, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org wrote:
->> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->>
->> Add the documentation to support the Altera I2C Controller.
->
-> "dt-bindings: i2c: ..." for the subject.
->
-Got it. Thanks.
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/i2c/busses/i2c-designware-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
->>
->> Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->> ---
->>  .../devicetree/bindings/i2c/i2c-altera.txt         | 37 ++++++++++++++++++++++
->>  1 file changed, 37 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
->> new file mode 100644
->> index 0000000..a67241c
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
->> @@ -0,0 +1,37 @@
->> +* Altera I2C Controller
->
-> This is the only one? For synthesizable logic or a hard block in
-> socfpga?
->
-This is synthesizable logic in an FPGA.
-
->> +
->> +Required properties :
->> + - compatible : should be "altr,sip-i2c"
->
-> Seems kind of generic.
->
-I'm using sip for soft IP - right now we only offer 1 flavor.
-
->> + - reg        : Offset and length of the register set for the device
->> + - interrupts : <IRQ> where IRQ is the interrupt number.
->> + - clocks     : phandles to input clocks.
->
-> Need to specify how many clocks.
->
-OK. There is only 1 so I'll change to singular. phandle to input clock.
-
->> + - #address-cells = <1>;
->> + - #size-cells = <0>;
->> +
->> +Recommended properties :
->> + - clock-frequency : desired I2C bus clock frequency in Hz.
->> +
->> +Optional properties :
->> + - altr,fifo-size : Size of the RX and TX FIFOs.
->
-> in bytes?
->
-> Just "fifo-size" is already fairly common, so drop the vendor prefix.
->
-Yes, it is in bytes. I'll make the change.
-
-Thanks for reviewing!
-
->> + - Child nodes conforming to i2c bus binding
->> +
->> +Example :
->> +
->> +	i2c@100080000 {
->> +		compatible = "altr,sip-i2c";
->> +		reg = <0x00000001 0x00080000 0x00000040>;
->> +		interrupt-parent = <&intc>;
->> +		interrupts = <0 43 4>;
->> +		clocks = <&clk_0>;
->> +		clock-frequency = <100000>;
->> +		#address-cells = <1>;
->> +		#size-cells = <0>;
->> +		altr,fifo-size = <4>;
->> +
->> +		eeprom@51 {
->> +			compatible = "atmel,24c32";
->> +			reg = <0x51>;
->> +			pagesize = <32>;
->> +		};
->> +	};
->> +
->> --
->> 1.9.1
->>
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 7a3faa5..7f9da6e 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -436,8 +436,9 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
+ 		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
+ 	} else {
+-		dev_warn(dev->dev,
+-			"Hardware too old to adjust SDA hold time.\n");
++		if (dev->sda_hold_time)
++			dev_warn(dev->dev,
++				 "Hardware too old to adjust SDA hold time.\n");
+ 	}
+ 
+ 	/* Configure Tx/Rx FIFO threshold levels */
+-- 
+2.7.4
