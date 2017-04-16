@@ -1,44 +1,70 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH] i2c: designware: do not show SDA hold time warning when not needed
-Date: Fri, 14 Apr 2017 22:53:12 +0200
-Message-ID: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: [PULL REQUEST] i2c-mux for v4.12-rc1
+Date: Sun, 16 Apr 2017 08:57:29 +0200
+Message-ID: <b940923b-4213-949d-3d87-79703c202492@lysator.liu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:54773 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751369AbdDNUxZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Apr 2017 16:53:25 -0400
+Received: from mail.lysator.liu.se ([130.236.254.3]:36957 "EHLO
+        mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752403AbdDPHCm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 16 Apr 2017 03:02:42 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+To: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-When the I2C controller IP block has a revision too old to be able to
-configure the SDA hold time, the driver currently displays a
-warning. However, it does so unconditionally, even if no SDA hold time
-has been configured through the Device Tree. This causes useless
-warnings when running the system, so only show the warning if a SDA
-hold time was specified.
+Hi Wolfram,
 
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
- drivers/i2c/busses/i2c-designware-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Here are a new LTC4306/5 driver, a fix needed by the RT kernel and some
+error message cleanup.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 7a3faa5..7f9da6e 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -436,8 +436,9 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
- 		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
- 	} else {
--		dev_warn(dev->dev,
--			"Hardware too old to adjust SDA hold time.\n");
-+		if (dev->sda_hold_time)
-+			dev_warn(dev->dev,
-+				 "Hardware too old to adjust SDA hold time.\n");
- 	}
- 
- 	/* Configure Tx/Rx FIFO threshold levels */
--- 
-2.7.4
+Please pull.
+
+Cheers,
+peda
+
+The following changes since commit 4495c08e84729385774601b5146d51d9e5849f81:
+
+  Linux 4.11-rc2 (2017-03-12 14:47:08 -0700)
+
+are available in the git repository at:
+
+  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
+
+for you to fetch changes up to dbed8a803bd3fb64339a6180adaff2cec46242ce:
+
+  i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch (2017-04-12 17:10:31 +0200)
+
+----------------------------------------------------------------
+Julia Cartwright (1):
+      i2c: mux: pca954x: make use of raw_spinlock variants
+
+Michael Hennerich (2):
+      dt-bindings: i2c: mux: ltc4306: Add dt-bindings for I2C multiplexer/switch
+      i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch
+
+Peter Rosin (7):
+      i2c: mux: provide more info on failure in i2c_mux_add_adapter
+      i2c: arb: gpio-challenge: stop double error reporting
+      i2c: mux: gpio: stop double error reporting
+      i2c: mux: pca9541: stop double error reporting
+      i2c: mux: pca954x: stop double error reporting
+      i2c: mux: pinctrl: stop double error reporting
+      i2c: mux: reg: stop double error reporting
+
+ .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    |  61 ++++
+ MAINTAINERS                                        |   8 +
+ drivers/i2c/i2c-mux.c                              |   9 +-
+ drivers/i2c/muxes/Kconfig                          |  11 +
+ drivers/i2c/muxes/Makefile                         |   1 +
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c         |   4 +-
+ drivers/i2c/muxes/i2c-mux-gpio.c                   |   4 +-
+ drivers/i2c/muxes/i2c-mux-ltc4306.c                | 322 +++++++++++++++++++++
+ drivers/i2c/muxes/i2c-mux-pca9541.c                |   4 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |  19 +-
+ drivers/i2c/muxes/i2c-mux-pinctrl.c                |   4 +-
+ drivers/i2c/muxes/i2c-mux-reg.c                    |   4 +-
+ 12 files changed, 421 insertions(+), 30 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+ create mode 100644 drivers/i2c/muxes/i2c-mux-ltc4306.c
