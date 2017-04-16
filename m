@@ -1,115 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 2/4] i2c: core: Add new i2c_acpi_new_device helper
- function
-Date: Sun, 16 Apr 2017 22:08:24 +0200
-Message-ID: <20170416200824.qbpcqsqplnzixa3z@ninjato>
+Subject: Re: [PATCH v5 3/4] i2c: core: Allow drivers to disable i2c-core irq
+ mapping
+Date: Sun, 16 Apr 2017 22:08:35 +0200
+Message-ID: <20170416200835.og6flptm3p4joa57@ninjato>
 References: <20170404220335.9815-1-hdegoede@redhat.com>
- <20170404220335.9815-3-hdegoede@redhat.com>
+ <20170404220335.9815-4-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rvv3plk6vqs3mm4r"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="lvzbnk32uk6v4r3x"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:57747 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756697AbdDPUIi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 16 Apr 2017 16:08:38 -0400
 Content-Disposition: inline
-In-Reply-To: <20170404220335.9815-3-hdegoede@redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
+In-Reply-To: <20170404220335.9815-4-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 
---rvv3plk6vqs3mm4r
+--lvzbnk32uk6v4r3x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 05, 2017 at 12:03:33AM +0200, Hans de Goede wrote:
-> By default the i2c subsys creates an i2c-client for the first I2cSerialBus
-> resource of an acpi_device, but some acpi_devices have multiple
-> I2cSerialBus resources and we may want to instantiate i2c-clients for
-> the others.
+On Wed, Apr 05, 2017 at 12:03:34AM +0200, Hans de Goede wrote:
+> By default the i2c-core will try to get an irq with index 0 on ACPI / of
+> instantiated devices. This is troublesome on some ACPI systems where the
+> irq info at index 0 in the CRS table may contain nonsense and/or point
+> to an irqchip for which there is no Linux driver.
 >=20
-> This commit adds a new i2c_acpi_new_device function which can be used to
-> create an i2c-client for any I2cSerialBus resource of an acpi_device.
+> If this happens then before this commit the driver's probe method would
+> never get called because i2c_device_probe will try to get an irq by
+> calling acpi_dev_gpio_irq_get which will always return -EPROBE in this
+> case, as it waits for a matching irqchip driver to load. Thus causing
+> the driver to not get a chance to bind.
 >=20
-> Note that the other resources may even be on a different i2c bus, so just
-> retrieving the client address is not enough.
->=20
-> Here is an example DSDT excerpt from such a device:
->=20
-> Device (WIDR)
-> {
->     Name (_HID, "INT33FE" /* XPOWER Battery Device */)
->     Name (_CID, "INT33FE" /* XPOWER Battery Device */)
->     Name (_DDN, "WC PMIC Battery Device")
-> <snip>
->     Name (RBUF, ResourceTemplate ()
->     {
->         I2cSerialBusV2 (0x005E, ControllerInitiated, 0x000186A0,
->             AddressingMode7Bit, "\\_SB.PCI0.I2C7",
->             0x00, ResourceConsumer, , Exclusive,
->             )
->         I2cSerialBusV2 (0x0036, ControllerInitiated, 0x000186A0,
->             AddressingMode7Bit, "\\_SB.PCI0.I2C1",
->             0x00, ResourceConsumer, , Exclusive,
->             )
->         I2cSerialBusV2 (0x0022, ControllerInitiated, 0x00061A80,
->             AddressingMode7Bit, "\\_SB.PCI0.I2C1",
->             0x00, ResourceConsumer, , Exclusive,
->             )
->         I2cSerialBusV2 (0x0054, ControllerInitiated, 0x00061A80,
->             AddressingMode7Bit, "\\_SB.PCI0.I2C1",
->             0x00, ResourceConsumer, , Exclusive,
->             )
->         GpioInt (Level, ActiveLow, Exclusive, PullNone, 0x0000,
->             "\\_SB.PCI0.I2C7.PMI5", 0x00, ResourceConsumer, ,
->             )
->             {   // Pin list
->         0x0012
->             }
->         GpioInt (Edge, ActiveLow, ExclusiveAndWake, PullNone, 0x0000,
->             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
->             )
->             {   // Pin list
->         0x0005
->             }
->         GpioInt (Level, ActiveLow, Exclusive, PullNone, 0x0000,
->             "\\_SB.PCI0.I2C7.PMI5", 0x00, ResourceConsumer, ,
->             )
->             {   // Pin list
->         0x0013
->             }
->     })
->     Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
->     {
->         Return (RBUF) /* \_SB_.PCI0.I2C7.WIDR.RBUF */
->     }
-> <snip>
-> }
+> This commit adds a new disable_i2c_core_irq_mapping flag to struct
+> i2c_driver which a driver can set to tell the core to skip irq mapping.
 >=20
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Applied to for-next, thanks!
 
 
---rvv3plk6vqs3mm4r
+--lvzbnk32uk6v4r3x
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzzzgACgkQFA3kzBSg
-KbZc2g/9HRIG6SjNq2tqFQiv9CAISPZIIv98kTHkPIAhbOQ0NT+vYT8jsj3Pxcpi
-EeNlpBY7EAFbHdM2dZYoso5OnjlxrOFv5VuQuq4d4PIAuiNbFy6CPlkRlc7AlPVx
-IPWpwRdmvJxHJa37iaXC+3tyDBKYb/1P4LsEJJ53kNjU1kiGUEzk4IHJE72sC6aW
-6T5hujD5bOaM2E1lKW1gVcifiBxvvtLZz9oL3Cr7Ez3dvJMsNAEjIKNwm3R4trTW
-KNDEiYcp0PcC6x/g8bqySxMfOf4s9s2nLeSlQtamXz3tiKV8EKC15CdKt8KRnBP5
-8CxSWQXwawJYpbAiDjpfopYdBvNituPY2WBNB9+zI05S4NylujCYWSouNqUxY4kr
-p2fqWJP79HJlyMalpfW6HibTONSrdkE6PQ6HIHPlyBj79XRZwUVafmn162uBL465
-aHOAcHQJnUjy9WMJmdAowVIhmDQY82tPkNHE6XfnC80EkqdFJduN75m8WlC7YZlt
-rNIFfrd9TVE19WoyWV3xgefXwOL1lqfrxK2MCuWvKD1ksMA6Llw1d9WUnMCG7Kk4
-PyilT8Gu303q/mTgENOzBu2F5mFf4KttWC7wNmF/gvsltt6rCedEJyvYKEk3DHOK
-To74mZKhZsQmtTyd+Xve20zIqpWniYYWukuituy9P7AjqLs1xfg=
-=Pfds
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzz0MACgkQFA3kzBSg
+KbZdpw//f9lNkn1+SjN/kt4GYvxCEWqXFv93to72c3dXe2YhBu/ynSVL322t6BL3
+ZPWA66F9PfkqhiOK3FJC01VmXgerJfZgP5/fCbKCS2hXCl20jMwXwM8DoDyALaCB
+6F0jaYt1UCp+D9ilJr5A7w18Naks1PXaG/jg70v8gRJgNb3rrT1CMwbXfiZCVMNT
+k/OkgT1EIqCF+GwcKi+3uxKG8hNxsmOtkG8wBZFbJ6KFmv3NYVWVwwaxNT58dPYk
+qI+/cGDyslYsg/XvN5Q9qNaOUtXJagNg9fjwW7HINAx+7PDzZBUp16G3lg1q5Tbn
+Mwitb4NRu1FPLGMc8WDYpUUUp40SPaZMaTnVrCWjRMslWwFNppMebjcSTmYgRsYF
+PpnO4OlcvGLBvHKlEXz3i3w8/BJilwCea7LFborHpQ9TVjSv/cKhwGOjYBCZa5+k
+5OuveX6Kk30UdcE5/N1Ozs+t6N5fJZZJm7aoXZjBa/9a977k4JCqxruCuSXx/Px9
+Z2qCc3jEZSwJhMnHl4U8XbIZhCgadYbanG1CXfA/tioxhodJbD5hqDJTJnCi/3i9
+LkC+pnnHVDgTwPqULBWW0ZkvSPRhHyubVegFUAdQybt1hPLW8HCgScDiIrIjT+35
+5laHdOr9bmwOhcQ8jhXEpcYXwC+aWJQnUKmsuQyPY2SRD/2TYW8=
+=5eoG
 -----END PGP SIGNATURE-----
 
---rvv3plk6vqs3mm4r--
+--lvzbnk32uk6v4r3x--
