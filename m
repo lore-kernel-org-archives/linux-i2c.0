@@ -1,81 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 4/4] platform/x86: Add Intel Cherry Trail ACPI INT33FE
- device driver
-Date: Sun, 16 Apr 2017 22:08:10 +0200
-Message-ID: <20170416200810.sck2btf7xcznb5xt@ninjato>
+Subject: Re: [PATCH v5 1/4] i2c: core: Allow getting ACPI info by index
+Date: Sun, 16 Apr 2017 22:08:18 +0200
+Message-ID: <20170416200818.5j5uazjw6blkgx25@ninjato>
 References: <20170404220335.9815-1-hdegoede@redhat.com>
- <20170404220335.9815-5-hdegoede@redhat.com>
- <1491400346.24567.5.camel@linux.intel.com>
- <20170405154146.GD27833@fury>
+ <20170404220335.9815-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7fzmkpnhwtqewrqn"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="5tq7fzgm5lrlrbff"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:57732 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756634AbdDPUIU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 16 Apr 2017 16:08:20 -0400
 Content-Disposition: inline
-In-Reply-To: <20170405154146.GD27833@fury>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
+In-Reply-To: <20170404220335.9815-2-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
 
---7fzmkpnhwtqewrqn
+--5tq7fzgm5lrlrbff
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 05, 2017 at 08:41:46AM -0700, Darren Hart wrote:
-> On Wed, Apr 05, 2017 at 04:52:26PM +0300, Andy Shevchenko wrote:
-> > On Wed, 2017-04-05 at 00:03 +0200, Hans de Goede wrote:
-> > > The INT33FE ACPI device has a CRS table with I2cSerialBusV2 resources
-> > > for
-> > > 3 devices: Maxim MAX17047 Fuel Gauge Controller, FUSB300C USB Type-C
-> > > Controller and PI3USB30532 USB switch.
-> > >=20
-> > > This commit adds a driver for this ACPI device which instantiates
-> > > i2c-clients for these, so that the standard i2c drivers for these
-> > > chips
-> > > can bind to the them.
-> > >=20
-> >=20
-> > Looks like we need something such as MFD for I2C bus clients...
-> >=20
-> > FWIW:
-> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Wed, Apr 05, 2017 at 12:03:32AM +0200, Hans de Goede wrote:
+> Modify struct i2c_acpi_lookup and i2c_acpi_fill_info() to allow
+> using them to get the info from a certain index in the ACPI-resource
+> list rather then taking the first I2cSerialBus resource.
 >=20
-> Wolfram, will you be making an immutable i2c branch available for us to m=
-erge
-> into our platform driver x86 for-next branch in order to apply this patch?
->=20
-> Alternatively you could send this in on our behalf, but that complicates =
-any
-> fixes between now and rc1 for this new driver. We'd prefer the immutable =
-branch
-> and pull this in ourselves.
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Fine with me, here it is:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-INT33FE
+Applied to for-next, thanks!
 
 
---7fzmkpnhwtqewrqn
+--5tq7fzgm5lrlrbff
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzzykACgkQFA3kzBSg
-Kbb+pQ/+JbNw4Uu5h9jW6q2bVZyCYB1hc1/PkAQ6lghnmg8qMsmulrltf8gJLvhz
-bqUwxONPVD/OJJ8kAwAC+wv+ugnyE6VrACwsJR7lGlfcAL2sTAM6a1Hw8pllyXEV
-Y8gMDClbW/uQCxzKGzdTKA023XczGnwdbRtQ7IX3YghHWgSxX+gXSWBhTDz58wVh
-wbngHe+Tdku+lwDSYFwt8LZS7/apaZmAlFcUpClE1v0AeR4816CQUEzHszFF/fAG
-ht2X0tLHSK+si9kLBpNnGr9h4s7jrSaHNDLk346vignnFNtj+0EdvAvJLvW452Sw
-8GpjBk7X01uSdRCYGUFmxUxXM9v/oKtwe0UqU3LVV24xMFpLawX2Up0hdnEG3Wjz
-aTERsY/lppDccguvYC4UXsvt7y3McQBqPvBDijbDE5/HKFSfk39hiKrz+nStB7Qz
-VC5TlgE5MeUwnUThvkOI+HUaAEQvtBbBRIEmhtrztrg+cg3t9wHuqTOhfbh4l6Gv
-5Dak4PlW1mX5cosY+jQykZUb4pOVUZy+Cj4Oknc6zrOcioniG8UNrUpjIyofPcvX
-ASKEZbgl8gvlsvV0s9D+iqokJIqeYnegrsSFiVExNTDb7vqYidgjd06hBStQa9Eu
-7aqD9Nc/iAGvPLoMOTrUvzTV5gV7k0TRhqZPLCE+6a6g/Zv9+jA=
-=9FVR
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzzzIACgkQFA3kzBSg
+KbYYpQ/8CPtHZwgBZcNYV3HwoS0pcr3uMs8+celes2NalZ5NEkKmuRPgKM8trs1Y
+epQtxu+fNZwgVYYGstpo+x5l0OL1aEZ8SBvKa5dc3mPbNXreuUobe3HZXtiAqLvT
+biQreDj8EeKUj73MsiyOYGTIrgUwsaUU+YNkfyuqA49tUBMe+e5d1n3CM9q8NVoC
+Aos3l/gk9dQyvP/fV5tCX/qUnPoWeGc0FHY2BZJkoFDJqccWEkdDQaGBMSS1U7Kj
+h7U1xOyQIQRsG718IpJ2Aq8pUmrzDZh2tbIZMk+7UyifNmWcSKGqSj5y4Q01hibc
+HTBFkKCLQ1jz6LEteZFQ2oXz7niU8zMlj2DwrCH2enqGHnZuv8/mZf9RtlbNRpHL
+odZP2cnue1Hnj+226j2uai1y01cMP0NZQx9AtwgXNTiPvbrDl2LbxVmWgZan+tqi
+9A95B4kSrBmOC9/9aBtb5qJABIgsC/PHuZUr08OR3m+O0LvZzxJsRgQR2jExNvRc
++H5YosQYOHOBGqQcxwUKfGYUF0EZQvUjSL0J3/a5X+b4zCYJZw0tn9jg1xGgJi6Q
+6AR0JSGZ71T7OZvgJAI5CwzTaZXLQWwxzagfTvOCrUVMoCAncKrvXIXX4NzgMJmz
+Gv+/givdmuYHIJm667FmXEwNI1rXtXg3HcbWfW4Fq42BWT0DSGg=
+=Gbv1
 -----END PGP SIGNATURE-----
 
---7fzmkpnhwtqewrqn--
+--5tq7fzgm5lrlrbff--
