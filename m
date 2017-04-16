@@ -1,77 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: i2c-scmi: add a MS HID
-Date: Sun, 16 Apr 2017 21:50:13 +0200
-Message-ID: <20170416195013.oldw47c4novlyxwh@ninjato>
-References: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
+Subject: Re: [PATCH] i2c: img-scb: use setup_timer
+Date: Sun, 16 Apr 2017 21:51:49 +0200
+Message-ID: <20170416195148.3x25taazshuj3bhk@ninjato>
+References: <0ff6e139159043e3416b0e5bc89e9aa5399bbb8e.1490601847.git.geliangtang@gmail.com>
+ <0aa459186eb73a97664174c029bc0933c1db5b74.1490602022.git.geliangtang@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3zeaun3kycraaggs"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="qxqzgb4bnx2ldowc"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:57675 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756609AbdDPTvv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 16 Apr 2017 15:51:51 -0400
 Content-Disposition: inline
-In-Reply-To: <1491322707-2991-1-git-send-email-vkrasnov@dev.rtsoft.ru>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, echerkasov@dev.rtsoft.ru, Michael.Brunner@kontron.com
+In-Reply-To: <0aa459186eb73a97664174c029bc0933c1db5b74.1490602022.git.geliangtang@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Geliang Tang <geliangtang@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---3zeaun3kycraaggs
+--qxqzgb4bnx2ldowc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 04, 2017 at 07:18:27PM +0300, Viktor Krasnov wrote:
-> From: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
+On Sun, Apr 09, 2017 at 09:41:31AM +0800, Geliang Tang wrote:
+> Use setup_timer() instead of init_timer() to simplify the code.
 >=20
-> Description of the problem:
->  - i2c-scmi driver contains only two identifiers "SMBUS01" and "SMBUSIBM";
->  - the fist HID (SMBUS01) is clearly defined in "SMBus Control Method
->    Interface Specification, version 1.0": "Each device must specify
->    'SMBUS01' as its _HID and use a unique _UID value";
->  - unfortunately, BIOS vendors (like AMI) seem to ignore this requirement
->    and implement "SMB0001" HID instead of "SMBUS01";
->  - I speculate that they do this because only "SMB0001" is hard coded in
->    Windows SMBus driver produced by Microsoft.
->=20
-> This leads to following situation:
->  - SMBus works out of box in Windows but not in Linux;
->  - board vendors are forced to add correct "SMBUS01" HID to BIOS to make
->    SMBus work in Linux. Moreover the same board vendors complain that
->    tools (3-rd party ASL compiler) do not like the "SMBUS01" identifier
->    and produce errors.  So they need to constantly patch the compiler for
->    each new version of BIOS.
->=20
-> As it is very unlikely that BIOS vendors implement a correct HID in
-> future, I would propose to consider whether it is possible to work around
-> the problem by adding MS HID to the Linux i2c-scmi driver.
->=20
-> v2: move the definition of the new HID to the driver itself.
->=20
-> Signed-off-by: Edgar Cherkasov <echerkasov@dev.rtsoft.ru>
-> Signed-off-by: Michael Brunner <Michael.Brunner@kontron.com>
-> Acked-by: Viktor Krasnov <vkrasnov@dev.rtsoft.ru>
+> Signed-off-by: Geliang Tang <geliangtang@gmail.com>
 
 Applied to for-next, thanks!
 
 
---3zeaun3kycraaggs
+--qxqzgb4bnx2ldowc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzyvUACgkQFA3kzBSg
-KbZdWw/9E6oOZGNOJZiYhYWt27kl3DbZ0IFoklJarjpA6lpHuIa6Zqzhj2I3HR/t
-AM/PclX06YG7xfJo/zzi8Ex5DsRqEmASMWxW5WcmIVgeHMeYEObwS5SPowqTN21o
-F+LuR3VyeMBdqlwm8V1OulLpXI4iXGf0aLpCC6iOpo70tgnDcyhZvw48gVa9B/UE
-A/Ni+vv+aYpcLN4dh0GvxMe5jKg/L9ScDT7M50nK/utMsOEZU4YAYyBkj8GyoA4l
-tdIObD2bLzlcT2jaLyWE3y59rqNlT8BcllPYAJnE1ZUOEUlUBE/Jsltp546MmWUs
-IBezrDIWVjt9Kr4l6B3sm/LZQjjYy8ezt7Uk/njZbmrDfEFPPURhZ/OL6p/8w/P0
-dBf8mPAqTUAGsCs9yqRSv9g6pnzbGr54ovZRc2PaR8I1du3crRke2xZwCIX2tmIw
-b19r5mqQ4XGeM4+1zzk+Q0+1Fb0ymWp2tEWyMUzGwg04AkkMvRtnJfM1dd5AYO4h
-BZKjSmtPb953Ok6MyDHTkwiPZNfJ0qdcz2LE5767ZBZHR8JgIRL/zywtKB+cdQN9
-jtxMPheGJKBiq+iI/sQSdCxEWA/45pCeo4rENKCvzGH6xpVrBscgDZm7y+Y4Q/Qn
-mbWyrpi1/MhCvzEkXRLc+/1YjNR/Te0h3PZYTpQRWNgZZV42AOA=
-=k7Qn
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljzy1QACgkQFA3kzBSg
+KbaIGw//aUbEJ+R6/Lx6O6j+TnMoRrcm0eOO+TJ3DGm4RQ7KhLCYSycU+b5cC5wM
+ZNZWeQ0OwINGpxit36iPDR/7u28w/THFDKK3R61boAYkifMwe9BRhK4FN10TboxJ
+tPABZk8zA44hcInm0Nx3StmXjGIJ21UC0QcA7QUHAcRexmx5zXxrkjh6IwG/p/s8
+P/vclSmQaU1W7MHAZ7xbablyWwOCcGNt/i1h2DVJOzisZ6wfWLHXVnBpU+iY6/B6
+UBefEEuYvU2TqRfAz/v10S5MjZtZG6yoD6n482D24P2LbUKr+2aE8kCO5k3Zkvhu
+UpoyNgL7704GPNXrOt/I482MHCVGxxI7cZ9qUTbKa83zRVqBnPq/d0NfasTOwCsz
+TWeUMM2moRYryROP6EebR99QtI7XwRBfIdbqSS9zOJzBKwz3hqY4I1L4Q4bUs34+
+nsiSC0ZYW18u2CmvdrFIxC4uSlCLJ0epgzZXPwtrc32fnxlhL5wx84iAIfK0PE7X
+OSuoBn862dN/PdQZA7mRLKIqIhMvsBIuMNuzYrXdpe9rB3kuQHMLiC+szPqwF5z8
+tLm4NGUXgfKAiCageopOOV/iXESVOXcdVivfJaT2vD6vhK06wISRFumPKNMXgHEW
+FaHHgq6YHqTkVF9YqbjM4odFiSYfL9NKm6PuaqeooeSYzqEC894=
+=bEAY
 -----END PGP SIGNATURE-----
 
---3zeaun3kycraaggs--
+--qxqzgb4bnx2ldowc--
