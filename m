@@ -1,61 +1,35 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC] i2c: rcar: reinit hardware on resume
-Date: Mon, 17 Apr 2017 20:32:49 +0200
-Message-ID: <20170417183249.19128-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Subject: [PATCHv2 0/3] Add Altera I2C Controller Driver
+Date: Mon, 17 Apr 2017 16:49:00 -0500
+Message-ID: <1492465743-8679-1-git-send-email-thor.thayer@linux.intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On resume, reinit hardware to ensure state machine and clock settings
-are proper. This code assumes:
+From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-* bus clock is a fixed value, so no need to recalculate timings after probe
-* handling RuntimePM is not needed, because register content is kept
-  when disabling the IP core clock
+Add the Altera soft IP I2C Controller driver for use in FPGAs.
 
-Tested with r8a7796 (M3-W) and r8a7790 (H2).
+Thor Thayer (3):
+  MAINTAINERS: Add Altera I2C Controller Driver
+  dt-bindings: i2c: Add Altera I2C Controller
+  i2c: altera: Add Altera I2C Controller driver
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+ .../devicetree/bindings/i2c/i2c-altera.txt         |  38 ++
+ MAINTAINERS                                        |   5 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-altera.c                    | 509 +++++++++++++++++++++
+ 5 files changed, 563 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+ create mode 100644 drivers/i2c/busses/i2c-altera.c
 
-@Geert: do you agree to my assumptions?
-
- drivers/i2c/busses/i2c-rcar.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 26f2ff22e97e55..7010c77df11daa 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -907,10 +907,27 @@ static int rcar_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM_SLEEP
-+static int rcar_i2c_resume(struct device *dev)
-+{
-+	struct rcar_i2c_priv *priv = dev_get_drvdata(dev);
-+
-+	rcar_i2c_init(priv);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(rcar_i2c_pm, NULL, rcar_i2c_resume);
-+#define RCAR_I2C_PM	(&rcar_i2c_pm)
-+#else
-+#define RCAR_I2C_PM	NULL
-+#endif
-+
- static struct platform_driver rcar_i2c_driver = {
- 	.driver	= {
- 		.name	= "i2c-rcar",
- 		.of_match_table = rcar_i2c_dt_ids,
-+		.pm	= RCAR_I2C_PM,
- 	},
- 	.probe		= rcar_i2c_probe,
- 	.remove		= rcar_i2c_remove,
 -- 
-2.11.0
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
