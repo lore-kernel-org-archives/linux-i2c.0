@@ -1,8 +1,11 @@
 From: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Subject: [PATCHv2 2/3] dt-bindings: i2c: Add Altera I2C Controller
-Date: Mon, 17 Apr 2017 16:49:02 -0500
-Message-ID: <1492465743-8679-3-git-send-email-thor.thayer@linux.intel.com>
+Subject: [PATCHv2 1/3] MAINTAINERS: Add Altera I2C Controller Driver
+Date: Mon, 17 Apr 2017 16:49:01 -0500
+Message-ID: <1492465743-8679-2-git-send-email-thor.thayer@linux.intel.com>
 References: <1492465743-8679-1-git-send-email-thor.thayer@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1492465743-8679-1-git-send-email-thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -12,66 +15,31 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Add the documentation to support the Altera synthesizable
-logic I2C Controller.
+Add maintainer for the Altera I2C Controller Driver.
 
 Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
-v2  Change the subject to identify dt-bindings
-    Add synthesizable logic to description.
-    Change compatible string to "altr,softip-i2c"
-    Make description of clock phandle singular since 1 clock.
-    Remove altr, from fifo-size
-    Specify fifo-size is in bytes.
+v2  No change
 ---
- .../devicetree/bindings/i2c/i2c-altera.txt         | 38 ++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+ MAINTAINERS | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-new file mode 100644
-index 0000000..ba25b1ea
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-@@ -0,0 +1,38 @@
-+* Altera I2C Controller
-+* This is Altera's synthesizable logic block I2C Controller.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4bfaea4..e654d34 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -636,6 +636,11 @@ ALPS PS/2 TOUCHPAD DRIVER
+ R:	Pali Rohár <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+ F:	drivers/input/mouse/alps.*
+ 
++ALTERA I2C CONTROLLER DRIVER
++M:	Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
++S:	Maintained
++F:	drivers/i2c/busses/i2c-altera.c
 +
-+Required properties :
-+ - compatible : should be "altr,softip-i2c"
-+ - reg        : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number.
-+ - clocks     : phandle to input clock.
-+ - #address-cells = <1>;
-+ - #size-cells = <0>;
-+
-+Recommended properties :
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+
-+Optional properties :
-+ - fifo-size : Size of the RX and TX FIFOs in bytes.
-+ - Child nodes conforming to i2c bus binding
-+
-+Example :
-+
-+	i2c@100080000 {
-+		compatible = "altr,softip-i2c";
-+		reg = <0x00000001 0x00080000 0x00000040>;
-+		interrupt-parent = <&intc>;
-+		interrupts = <0 43 4>;
-+		clocks = <&clk_0>;
-+		clock-frequency = <100000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		fifo-size = <4>;
-+
-+		eeprom@51 {
-+			compatible = "atmel,24c32";
-+			reg = <0x51>;
-+			pagesize = <32>;
-+		};
-+	};
-+
+ ALTERA MAILBOX DRIVER
+ M:	Ley Foon Tan <lftan-EIB2kfCEclfQT0dZR+AlfA@public.gmane.org>
+ L:	nios2-dev-g9ZBwUv/Ih/yUk5EbOjzuce+I+R0W71w@public.gmane.org (moderated for non-subscribers)
 -- 
 1.9.1
 
