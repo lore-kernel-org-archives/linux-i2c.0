@@ -1,39 +1,61 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: Re: [PATCH 0/2] i2c: xgene-slimpro: Add ACPI support
-Date: Mon, 17 Apr 2017 09:36:33 -0700
-Message-ID: <CAFHUOYxKjG7YKuvWnVd8Sd+06rC4UvgnDe=m1dLw9hgRgtJn0Q@mail.gmail.com>
-References: <1490733977-23760-1-git-send-email-hotran@apm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f169.google.com ([209.85.213.169]:36744 "EHLO
-        mail-yb0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754408AbdDQQgg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Apr 2017 12:36:36 -0400
-Received: by mail-yb0-f169.google.com with SMTP id s22so6971406ybe.3
-        for <linux-i2c@vger.kernel.org>; Mon, 17 Apr 2017 09:36:36 -0700 (PDT)
-In-Reply-To: <1490733977-23760-1-git-send-email-hotran@apm.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC] i2c: rcar: reinit hardware on resume
+Date: Mon, 17 Apr 2017 20:32:49 +0200
+Message-ID: <20170417183249.19128-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>, Hoan Tran <hotran@apm.com>
 
-Hi All,
+On resume, reinit hardware to ensure state machine and clock settings
+are proper. This code assumes:
 
-Do you have any comments on this patch set?
+* bus clock is a fixed value, so no need to recalculate timings after probe
+* handling RuntimePM is not needed, because register content is kept
+  when disabling the IP core clock
 
-Thanks
+Tested with r8a7796 (M3-W) and r8a7790 (H2).
 
-On Tue, Mar 28, 2017 at 1:46 PM, Hoan Tran <hotran@apm.com> wrote:
-> This patch set adds ACPI support by using PCC mailbox communication interface.
->
-> Hoan Tran (2):
->   i2c: xgene-slimpro: Use a single function to send command message
->   i2c: xgene-slimpro: Add ACPI support by using PCC mailbox
->
->  drivers/i2c/busses/i2c-xgene-slimpro.c | 246 +++++++++++++++++++++++++--------
->  1 file changed, 192 insertions(+), 54 deletions(-)
->
-> --
-> 1.9.1
->
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+
+@Geert: do you agree to my assumptions?
+
+ drivers/i2c/busses/i2c-rcar.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 26f2ff22e97e55..7010c77df11daa 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -907,10 +907,27 @@ static int rcar_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int rcar_i2c_resume(struct device *dev)
++{
++	struct rcar_i2c_priv *priv = dev_get_drvdata(dev);
++
++	rcar_i2c_init(priv);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(rcar_i2c_pm, NULL, rcar_i2c_resume);
++#define RCAR_I2C_PM	(&rcar_i2c_pm)
++#else
++#define RCAR_I2C_PM	NULL
++#endif
++
+ static struct platform_driver rcar_i2c_driver = {
+ 	.driver	= {
+ 		.name	= "i2c-rcar",
+ 		.of_match_table = rcar_i2c_dt_ids,
++		.pm	= RCAR_I2C_PM,
+ 	},
+ 	.probe		= rcar_i2c_probe,
+ 	.remove		= rcar_i2c_remove,
+-- 
+2.11.0
