@@ -1,60 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC] i2c: rcar: reinit hardware on resume
-Date: Tue, 18 Apr 2017 09:07:49 +0200
-Message-ID: <20170418070748.GA1431@katana>
-References: <20170417183249.19128-1-wsa+renesas@sang-engineering.com>
- <87y3uyy2sl.wl%kuninori.morimoto.gx@renesas.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: do not show SDA hold time warning when
+ not needed
+Date: Tue, 18 Apr 2017 10:54:47 +0300
+Message-ID: <1492502087.24567.47.camel@linux.intel.com>
+References: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87y3uyy2sl.wl%kuninori.morimoto.gx@renesas.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Thus, just calling rcar_i2c_init() is not enough ?
-
-Yes, where is my brown paper bag...
-
-I noticed this yesterday as well before falling asleep... ;)
-
-> But in my opinion, all register settings should be merged in one please
-> (= transfer function) and call pm_runtime_get/put there only.
-> R-Car I2C is not related, but I2C power domain might be
-> power OFF if SoC has power domain control feature (SH-Mobile has it).
-
-OK, so you want this feture even if R-Car is not affected? No problem,
-just want to make sure. But yes, this is a seperate patch.
-
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJY9btEAAoJEBQN5MwUoCm2AgIP/A+7AgboC4VvRknTvHedQnG4
-vRc8vkiRhKBdm4xVJCTcOsz/1/1jkwLfSNKKrNizomXgZ9jh4umXPTPo4KoMxgOL
-jbr/En+rITap7hjEg7T9fvFKXMp+6zdrQTq3sqV7WdEr9IzbfC6SXrGnBm6ciC5O
-j5bGq3/SnYWlAoKoEznSGkkAh1BOsTFAWRYQ5dSVj/Uy3mkOReIy5Pj/Dm1jS1wg
-0Chv9AQAecPw2KuDCj+qpqOkz3xaEv8cYmJaVoh0bov/z2XL6ycw6aE+bUXrNnxY
-yYFiVjN3VEP/V4nMPRUZBdNDWf5rmqrT6j3D6ibVc7XU4NlXHWnnSJ9zfeV6W9l5
-jSDSKoGaKgdFKOO3oLV2uZ/o8Cimd8hv7B/AudvwYeuniBops3t7x6iksX6fDUwL
-9LYd+bVe9u1ItFs1X67xyavnxxUFvuiXxAT9UPIipn0T3ehEXFSjQrXmwLShznra
-ADQgwB4ckT/19/YzV3DhjAMFaIeveuncA563n4Q8d1bQzMVQpfdcsuhr1M1tfbo4
-hfnY5zgcwnPDgQB1IK8b27zHG9SH5N0Pk6ER5n/6RYlpZDnIOZDidms0qPUGxu4o
-vY6+Pl9qiv3SDARPBvf2jeEcdjMvqhhO1ELHNVhsq+6qh/7bHsgV/w9WwL9VMuq9
-BuCQ+tzK7JECks7+z0vT
-=1tON
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+T24gRnJpLCAyMDE3LTA0LTE0IGF0IDIyOjUzICswMjAwLCBUaG9tYXMgUGV0YXp6b25pIHdyb3Rl
+Ogo+IFdoZW4gdGhlIEkyQyBjb250cm9sbGVyIElQIGJsb2NrIGhhcyBhIHJldmlzaW9uIHRvbyBv
+bGQgdG8gYmUgYWJsZSB0bwo+IGNvbmZpZ3VyZSB0aGUgU0RBIGhvbGQgdGltZSwgdGhlIGRyaXZl
+ciBjdXJyZW50bHkgZGlzcGxheXMgYQo+IHdhcm5pbmcuIEhvd2V2ZXIsIGl0IGRvZXMgc28gdW5j
+b25kaXRpb25hbGx5LCBldmVuIGlmIG5vIFNEQSBob2xkIHRpbWUKPiBoYXMgYmVlbiBjb25maWd1
+cmVkIHRocm91Z2ggdGhlIERldmljZSBUcmVlLiBUaGlzIGNhdXNlcyB1c2VsZXNzCj4gd2Fybmlu
+Z3Mgd2hlbiBydW5uaW5nIHRoZSBzeXN0ZW0sIHNvIG9ubHkgc2hvdyB0aGUgd2FybmluZyBpZiBh
+IFNEQQo+IGhvbGQgdGltZSB3YXMgc3BlY2lmaWVkLgoKQXMgZmFyIGFzIEkgdW5kZXJzdGFuZCB0
+aGUgd2FybmluZyBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8ga2VlcCBpdCBpbgplaXRoZXIgd2F5LCB0
+aG91Z2ggeW91IG1heSBzaGlmdCBpdCB0byBkZWJ1ZyBsZXZlbC4KCldvbGZyYW0sIEphcmtrbywg
+dGhvdWdodHM/Cgo+IAo+IFNpZ25lZC1vZmYtYnk6IFRob21hcyBQZXRhenpvbmkgPHRob21hcy5w
+ZXRhenpvbmlAZnJlZS1lbGVjdHJvbnMuY29tPgo+IC0tLQo+IMKgZHJpdmVycy9pMmMvYnVzc2Vz
+L2kyYy1kZXNpZ253YXJlLWNvcmUuYyB8IDUgKysrLS0KPiDCoDEgZmlsZSBjaGFuZ2VkLCAzIGlu
+c2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMKPiBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+ZGVzaWdud2FyZS1jb3JlLmMKPiBpbmRleCA3YTNmYWE1Li43ZjlkYTZlIDEwMDY0NAo+IC0tLSBh
+L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMKPiArKysgYi9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jCj4gQEAgLTQzNiw4ICs0MzYsOSBAQCBp
+bnQgaTJjX2R3X2luaXQoc3RydWN0IGR3X2kyY19kZXYgKmRldikKPiDCoAkJCWRldi0+c2RhX2hv
+bGRfdGltZSB8PSAxIDw8Cj4gRFdfSUNfU0RBX0hPTERfUlhfU0hJRlQ7Cj4gwqAJCWR3X3dyaXRl
+bChkZXYsIGRldi0+c2RhX2hvbGRfdGltZSwgRFdfSUNfU0RBX0hPTEQpOwo+IMKgCX0gZWxzZSB7
+Cj4gLQkJZGV2X3dhcm4oZGV2LT5kZXYsCj4gLQkJCSJIYXJkd2FyZSB0b28gb2xkIHRvIGFkanVz
+dCBTREEgaG9sZAo+IHRpbWUuXG4iKTsKPiArCQlpZiAoZGV2LT5zZGFfaG9sZF90aW1lKQo+ICsJ
+CQlkZXZfd2FybihkZXYtPmRldiwKPiArCQkJCcKgIkhhcmR3YXJlIHRvbyBvbGQgdG8gYWRqdXN0
+IFNEQSBob2xkCj4gdGltZS5cbiIpOwo+IMKgCX0KPiDCoAo+IMKgCS8qIENvbmZpZ3VyZSBUeC9S
+eCBGSUZPIHRocmVzaG9sZCBsZXZlbHMgKi8KCi0tIApBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5z
+aGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KSW50ZWwgRmlubGFuZCBPeQoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWls
+aW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0
+cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
