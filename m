@@ -1,82 +1,144 @@
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
- controller
-Date: Wed, 19 Apr 2017 15:49:16 +0200
-Message-ID: <1492609756.2970.131.camel@pengutronix.de>
+Subject: Re: [PATCH v13 02/10] dt-bindings: document devicetree bindings for
+ mux-controllers and gpio-mux
+Date: Wed, 19 Apr 2017 18:34:01 +0200
+Message-ID: <1492619641.2970.178.camel@pengutronix.de>
 References: <1492101794-13444-1-git-send-email-peda@axentia.se>
-         <1492101794-13444-4-git-send-email-peda@axentia.se>
-         <1492592817.2970.14.camel@pengutronix.de>
-         <da90526b-7274-c52c-07e8-9f0d75cf1cbf@axentia.se>
+         <1492101794-13444-3-git-send-email-peda@axentia.se>
+         <1492509996.2432.63.camel@pengutronix.de>
+         <17135062-e58a-b50e-ac85-5f0f0b73d958@axentia.se>
+         <1492593449.2970.24.camel@pengutronix.de>
+         <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
+         <1492599958.2970.84.camel@pengutronix.de>
+         <687b26d7-7d80-e8e1-5aa8-a4e8bc070e42@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <da90526b-7274-c52c-07e8-9f0d75cf1cbf@axentia.se>
+In-Reply-To: <687b26d7-7d80-e8e1-5aa8-a4e8bc070e42@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, kernel@pengutronix.de, Paul Gortmaker <paul.gortmaker@windriver.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Colin Ian King <colin.king@canonical.com>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2017-04-19 at 14:00 +0200, Peter Rosin wrote:
-[...]
-> >> +int mux_control_select(struct mux_control *mux, int state)
+On Wed, 2017-04-19 at 13:23 +0200, Peter Rosin wrote:
+> On 2017-04-19 13:05, Philipp Zabel wrote:
+> > On Wed, 2017-04-19 at 12:41 +0200, Peter Rosin wrote:
+> >> On 2017-04-19 11:17, Philipp Zabel wrote:
+> >>> On Tue, 2017-04-18 at 15:36 +0200, Peter Rosin wrote:
+> >>>> If I got things wrong when I skimmed whatever I came across, and if the
+> >>>> mmio register is the only mux control option in the stars, it becomes
+> >>>> less obvious... It's of course still possible to hook into the mux
+> >>>> subsystem, but the benefit is questionable. And you do get the extra
+> >>>> device tree node. You could of course also implement a mux driver
+> >>>> outside of drivers/mux and thus make use of the mux api, but it's tiny
+> >>>> and any benefit is truly small.
+> >>>
+> >>> What I wondered mostly is whether it would be a good idea to move the
+> >>> OF-graph ports into the mux controller node, and let the video capture
+> >>> device be the consumer of the mux.
+> >>> But this wouldn't fit well with the clear split between the mux
+> >>> controller and the actual mux hardware in the mux DT bindings.
+> >>
+> >> I have tried to do something similar. I think. The current
+> >> drivers/i2c/muxes/i2c-mux-gpio.c is a good candidate for the same thing
+> >> IIUC.
+> >>
+> >> That dedicated driver and the general purpose i2c mux driver does pretty
+> >> much the same thing with these two DT snippets:
+> >>
+> >> Dedicated i2c-mux-gpio DT snippet:
+> >>
+> >> 	i2c-mux {
+> >> 		compatible = "i2c-mux-gpio";
+> >> 		i2c-parent = <&i2c1>;
+> >>
+> >> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
+> >>
+> >> 		#address-cells = <1>;
+> >> 		#size-cells = <0>;
+> >>
+> >> 		i2c@1 {
+> >> 			...
+> >> 		};
+> >>
+> >> 		i2c@3 {
+> >> 			...
+> >> 		};
+> >> 	};
+> >>
+> >> General purpose mux DT snippet:
+> >>
+> >> 	mux: mux-controller {
+> >> 		compatible = "gpio-mux";
+> >> 		#mux-control-cells = <0>;
+> >>
+> >> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
+> >> 	};
+> >>
+> >> 	i2c-mux {
+> >> 		compatible = "i2c-mux";
+> >> 		i2c-parent = <&i2c1>;
+> >>
+> >> 		mux-controls = <&mux>;
+> >>
+> >> 		#address-cells = <1>;
+> >> 		#size-cells = <0>;
+> >>
+> >> 		i2c@1 {
+> >> 			...
+> >> 		};
+> >>
+> >> 		i2c@3 {
+> >> 			...
+> >> 		};
+> >> 	};
 > > 
-> > If we let two of these race, ...
->
-> The window for this "race" is positively huge. If there are several
-> mux consumers of a single mux controller, it is self-evident that
-> if one of them grabs the mux for a long time, the others will suffer.
+> > Yes, replace i2c-mux with video-mux and the i2c@x nodes with port@x
+> > nodes, and this is very close to what I am thinking about.
+> > 
+> >> I would love to find a way to cleanly get the mux framework to handle
+> >> the first DT as well, and thus being able to obsolete the dedicated
+> >> i2c-mux-gpio driver. I have not figured out how to accomplish that
+> >> without abusing the driver-model to a point that it's not working.
+> >> Help with that task is dearly appreciated.
+> >>
+> >> What I have stumbled on, I think, is that two drivers needs to be
+> >> instantiated from the same DT node. At the same time, I need the
+> >> mux framework to handle the current out-of-node thing with a
+> >> phandle as well, so that several mux consumers can share a common
+> >> mux controller. My understanding of these matters are apparently not
+> >> deep enough...
+> > 
+> > Not necessarily, if the framework could export a function to create a
+> > gpio/mmio mux_chip on a given device and the gpio-mux and *-mux-gpio
+> > drivers just reuse that.
 > 
-> The design is that the rwsem is reader-locked for the full duration
-> of a select/deselect operation by the mux consumer.
+> I've been up that creek. Why should the gpio mux be special cased?
 
-I was not clear. I meant: I think this can also happen if we let them
-race with the same state target.
+You are right, this does not scale.
 
-> >> +{
-> >> +	int ret;
-> >> +
-> >> +	if (down_read_trylock(&mux->lock)) {
-> >> +		if (mux->cached_state == state)
-> >> +			return 0;
+> That's not clean, the implication is that all mux consumers need
+> to handle the gpio case and have a special compatible for that
+> case etc. Then someone thinks the DT should look equally "clean" for
+> some i2c based mux, and the weeds start piling up. This is exactly
+> what we don't want. We want the mux consumer drivers to be totally
+> agnostic about the fact that they happen to use a gpio mux.
 
-This check makes it clear that a second select call is not intended to
-block if the intended state is already selected. But if the instance we
-will lose the race against has not yet updated cached_state, ...
+If you want to have i2c-mux-gpio and i2c-mux compatibles, and a single
+driver to handle them both, it must at least match both compatibles, so
+it can't be completely agnostic.
 
-> >> +		/* Sigh, the mux needs updating... */
-> >> +		up_read(&mux->lock);
-> >> +	}
-> >> +
-> >> +	/* ...or it's just contended. */
-> >> +	down_write(&mux->lock);
+Why not then have it call
 
-... we are blocking here until the other instance calls up_read. Even
-though in this case (same state target) we would only have to block
-until the other instance calls downgrade_write after the mux control is
-set to the correct state.
+	if (/* compatible == "i2c-mux" */)
+		mux = devm_mux_control_get(dev, NULL);
+	else /* if (compatible == "i2c-mux-gpio/mmio/etc.") */
+		mux = devm_mux_control_create(dev);
 
-Basically there is a small window before down_write with no lock at all,
-where multiple instances can already have decided they must change the
-mux (to the same state). If this happens, they go on to block each other
-unnecessarily.
-
-> > ... then the last to get to down_write will just wait here forever (or
-> > until the first consumer calls mux_control_deselect, which may never
-> > happen)?
-> 
-> It is vital that the mux consumer call _deselect when it is done with
-> the mux. Not doing so will surely starve out any other mux consumers.
-> The whole thing is designed around the fact that mux consumers should
-> deselect the mux as soon as it's no longer needed.
-
-I'd like to use this for video bus multiplexers. Those would not be
-selected for the duration of an i2c transfer, but for the duration of a
-running video capture stream, or for the duration of an enabled display
-path. While I currently have no use case for multiple consumers
-controlling the same mux, this scenario is what shapes my perspective.
-For such long running selections the consumer should have the option to
-return -EBUSY instead of blocking when the lock can't be taken.
+? The mux framework core could hold a list of those <usage>-mux-<type>
+compatibles and dispatch creation of the correct mux (or mux platform
+device, if necessary).
 
 regards
 Philipp
