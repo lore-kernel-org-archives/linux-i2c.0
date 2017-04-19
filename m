@@ -1,62 +1,113 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Wed, 19 Apr 2017 22:24:49 +0200
-Message-ID: <CAJZ5v0ja8_j-1bgN4+iiqrYskVMrrsN9S1mM1JY9pRUzGBRSzw@mail.gmail.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com> <20170419185909.dl5h6xhkd6f72na3@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
+ controller
+Date: Wed, 19 Apr 2017 23:04:30 +0200
+Message-ID: <5945890d-2eea-f287-96ca-c095e8fa7be5@axentia.se>
+References: <1492101794-13444-1-git-send-email-peda@axentia.se>
+ <1492101794-13444-4-git-send-email-peda@axentia.se>
+ <1492592817.2970.14.camel@pengutronix.de>
+ <da90526b-7274-c52c-07e8-9f0d75cf1cbf@axentia.se>
+ <1492609756.2970.131.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f194.google.com ([209.85.161.194]:35886 "EHLO
-        mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935470AbdDSUY4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2017 16:24:56 -0400
-In-Reply-To: <20170419185909.dl5h6xhkd6f72na3@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1492609756.2970.131.camel@pengutronix.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Wed, Apr 19, 2017 at 8:59 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Thu, Mar 30, 2017 at 03:04:44PM +0300, Jarkko Nikula wrote:
->> There is possibility to enter dw_i2c_plat_suspend() callback twice
->> during system suspend under certain cases which is causing here warnings
->> from clk_core_disable() and clk_core_unprepare() as well as accessing the
->> registers that can be power gated.
+On 2017-04-19 15:49, Philipp Zabel wrote:
+> On Wed, 2017-04-19 at 14:00 +0200, Peter Rosin wrote:
+> [...]
+>>>> +int mux_control_select(struct mux_control *mux, int state)
+>>>
+>>> If we let two of these race, ...
 >>
->> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
->> system suspend") implemented a prepare callback that checks for runtime
->> suspended device which allow PM core to set direct_complete flag and
->> skip system suspend and resume callbacks.
+>> The window for this "race" is positively huge. If there are several
+>> mux consumers of a single mux controller, it is self-evident that
+>> if one of them grabs the mux for a long time, the others will suffer.
 >>
->> However it can still happen if nothing resumes the device prior system
->> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
->> unsets the direct_complete flag of the parent in __device_suspend() thus
->> causing PM code to not skip the system suspend/resume callbacks.
->>
->> Avoid this by checking runtime status in suspend and resume callbacks
->> and return directly if device is runtime suspended. This affects only
->> system suspend/resume since during runtime suspend/resume runtime status
->> is suspending (not suspended) or resuming.
->>
->> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
->> ---
->> I'm able to trigger system suspend callback while device is runtime
->> suspended by removing the pm_runtime_resume() call from
->> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
->> slave (ACPI enumerated but doesn't bind due an error in probe function).
->> In that case __device_suspend() for that unbound device has NULL suspend
->> callback, and thus doesn't cause any runtime resume chain but still unsets
->> the parent's direct_complete flag.
->> John Stult <john.stultz@linaro.org> has reported he can trigger this on
->> HiKey board too.
->>
->> I'm not sure is this the right thing to do. It feels something the PM core
->> should do but I'm not sure that either. One alternative could be to resume
->> runtime suspended parent in in __device_suspend() right after where
->> parent's direct_complete flag is unset.
->
-> Because of the last paragraph, I'd like a positive comment or tag from
-> one of the PM people before I apply this one.
+>> The design is that the rwsem is reader-locked for the full duration
+>> of a select/deselect operation by the mux consumer.
+> 
+> I was not clear. I meant: I think this can also happen if we let them
+> race with the same state target.
 
-No, sorry.
+Right, but there is another glaring problem with the v13 implementation
+of select/deselect. If there are three consumers and the first one
+holds the mux while the other two tries to select it to some other
+position, then even if the two "new" consumers agree on the mux state,
+then both of them will end up in the "it's just contended" case and
+then be serialized. So, yes, the select/deselect implementation is not
+perfect. To quote the cover letter:
+
+	I'm using an rwsem to lock a mux, but that isn't really a
+	perfect fit. Is there a better locking primitive that I don't
+	know about that fits better? I had a mutex at one point, but
+	that didn't allow any concurrent accesses at all. At least
+	the rwsem allows concurrent access as long as all users
+	agree on the mux state, but I suspect that the rwsem will
+	degrade to the mutex situation pretty quickly if there is
+	any contention.
+
+But with your discovery that there's a race when two consumers go
+for the same state in a free mux, in addition to the above contention
+problem, I'm about ready to go with Greg's suggestion and just use a
+mutex. I.e. ignore the desire to allow concurrent use. Because it's
+not like the sketchy thing I threw out in the other part of the thread
+solves any of these problems. I can live without the concurrency, and
+I guess I can also live with passing the buck to the poor sod that
+eventually needs it.
+
+>>>> +{
+>>>> +	int ret;
+>>>> +
+>>>> +	if (down_read_trylock(&mux->lock)) {
+>>>> +		if (mux->cached_state == state)
+>>>> +			return 0;
+> 
+> This check makes it clear that a second select call is not intended to
+> block if the intended state is already selected. But if the instance we
+> will lose the race against has not yet updated cached_state, ...
+> 
+>>>> +		/* Sigh, the mux needs updating... */
+>>>> +		up_read(&mux->lock);
+>>>> +	}
+>>>> +
+>>>> +	/* ...or it's just contended. */
+>>>> +	down_write(&mux->lock);
+> 
+> ... we are blocking here until the other instance calls up_read. Even
+> though in this case (same state target) we would only have to block
+> until the other instance calls downgrade_write after the mux control is
+> set to the correct state.
+> 
+> Basically there is a small window before down_write with no lock at all,
+> where multiple instances can already have decided they must change the
+> mux (to the same state). If this happens, they go on to block each other
+> unnecessarily.
+> 
+>>> ... then the last to get to down_write will just wait here forever (or
+>>> until the first consumer calls mux_control_deselect, which may never
+>>> happen)?
+>>
+>> It is vital that the mux consumer call _deselect when it is done with
+>> the mux. Not doing so will surely starve out any other mux consumers.
+>> The whole thing is designed around the fact that mux consumers should
+>> deselect the mux as soon as it's no longer needed.
+> 
+> I'd like to use this for video bus multiplexers. Those would not be
+> selected for the duration of an i2c transfer, but for the duration of a
+> running video capture stream, or for the duration of an enabled display
+> path. While I currently have no use case for multiple consumers
+> controlling the same mux, this scenario is what shapes my perspective.
+> For such long running selections the consumer should have the option to
+> return -EBUSY instead of blocking when the lock can't be taken.
+
+I'll see if I can implement a try variant for the mutex based select I
+will probably end up with in v14...
+
+Cheers,
+peda
