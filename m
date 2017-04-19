@@ -1,61 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware-baytrail: fix potential null pointer
- dereference on dev
-Date: Wed, 19 Apr 2017 21:01:22 +0200
-Message-ID: <20170419190122.qoudvukbgioxoy3l@ninjato>
-References: <20170320115123.31536-1-colin.king@canonical.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH v5 5/8] i2c: i2c-cbus-gpio: Add vendor prefix to retu node
+ in example
+Date: Wed, 19 Apr 2017 15:13:19 -0400
+Message-ID: <fc8fb064-8fda-d42d-036f-522964b72973@osg.samsung.com>
+References: <20170412172800.23035-1-javier@osg.samsung.com>
+ <20170412172800.23035-6-javier@osg.samsung.com>
+ <20170419185113.msqhjm7fzqfeyjlk@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xczzx5lpioxvfs35"
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170320115123.31536-1-colin.king@canonical.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:60859
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S969240AbdDSTN2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2017 15:13:28 -0400
+In-Reply-To: <20170419185113.msqhjm7fzqfeyjlk@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
+Hello Wolfram,
 
---xczzx5lpioxvfs35
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 04/19/2017 02:51 PM, Wolfram Sang wrote:
+> On Wed, Apr 12, 2017 at 02:27:56PM -0300, Javier Martinez Canillas wrote:
+>> The example contains a device node for a retu device, but
+>> its compatible string doesn't have a vendor prefix.
+>>
+>> While being there, drop the -mfd suffix since isn't correct.
+>>
+>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>> Acked-by: Rob Herring <robh@kernel.org>
+>> Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+>> Acked-by: Tony Lindgren <tony@atomide.com>
+> 
+> Wouldn't it be nice if we fix the driver also so it actually matches the
+> below compatible? I can't find such a change in linux-next.
+> 
 
-On Mon, Mar 20, 2017 at 11:51:23AM +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->=20
-> The assignment to addr requires a call to get_sem_addr that dereferences
-> dev, however, this dereference occurs before a null pointer check on dev.
-> Move this assignment after the null check on dev to avoid a potential null
-> pointer dereference.
->=20
-> Detected by CoverityScan, CID#1419700 ("Dereference before null check")
->=20
-> Fixes: fd476fa22a1f432 ("i2c: designware-baytrail: Add support for cherry=
-trail")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+[snip]
 
-Applied to for-next, thanks!
+>>  
+>> -	retu-mfd: retu@1 {
+>> -		compatible = "retu-mfd";
+>> +	retu: retu@1 {
+>> +		compatible = "nokia,retu";
+>>  		reg = <0x1>;
+>>  	};
 
+You mean having a "nokia,retu" entry in a OF table?
 
---xczzx5lpioxvfs35
-Content-Type: application/pgp-signature; name="signature.asc"
+That's done by patch 3/8 in this series:
 
------BEGIN PGP SIGNATURE-----
+http://www.spinics.net/lists/devicetree/msg173145.html
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3tAIACgkQFA3kzBSg
-KbbBnA//dmRxxbvYcLgi3+Wfvb/MRmrvZKnT1w81f0gjnIbWZWcCWab2z/1vJX9Z
-s2i8OVHJpHOYuzY6fqhpwd11GGscUM6lRI7Sh6gFb/vDaEwXMIijoI1bf4pNhLvF
-S/jLEuMToEwEZBxrtOO4HHnqouYwZDnYlPZf6bYGVIFE7V6A6j0Gv6lTqty89Olv
-EOKF5obOZ1SVyN7eNKHJbcW/5CidUcYSxEpnyzxNPb1g7tzbACjO4s5vYPRhVh9T
-XSUyDOu4xll0nD0p3dYCLQolHEsXslZdCq2NBG8juMWA2LZpAAYeqfI9gAGLDhKL
-y1wF2UlJASHAzSA8ivWL99IMk+G29/+FQ3jCkD86JErhspFfVl8tDowDptFaEtGZ
-uvM6ss1YnkGiz5EcSiyDv0QS+9ovgp8/KERVRKTgk7pHCZedHGxseOJaa3ewNTM5
-1ah66SImJt/Bz2o4ReMkY3SYItqZmvYQf2GAC+Z3lwOzYtcCJ0fuA6ngOzk+4ytf
-Xp77N/ua8/amju4ze6/2z2+0dso/T4ZNANtibazGxnr/dcFbV9HzvOl52u8i1uZ9
-LPc5RnPxmcVO8z9C6nx+S392sDx74k8ocp12aBqATVmNVXgz5y0M6ycemVWFu1ZY
-r7mjSGTb0YL2QLBwNATks2aaOcORLtM3H82RMO3dYTpcXAsrVik=
-=OWFp
------END PGP SIGNATURE-----
-
---xczzx5lpioxvfs35--
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
