@@ -1,62 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 5/8] i2c: i2c-cbus-gpio: Add vendor prefix to retu
- node in example
-Date: Wed, 19 Apr 2017 21:41:55 +0200
-Message-ID: <20170419194155.yux5sivesu3sjfba@ninjato>
-References: <20170412172800.23035-1-javier@osg.samsung.com>
- <20170412172800.23035-6-javier@osg.samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: simplify timings calculation
+Date: Wed, 19 Apr 2017 21:42:59 +0200
+Message-ID: <20170419194259.wqx4vnzczlnws3aj@ninjato>
+References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
+ <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
+ <0e74abb3-9706-b5e4-2428-553d33a61ef4@samsung.com>
+ <20170419191719.bzp2nt3l7nxwdzfn@ninjato>
+ <41071a5a-5a13-2bdc-a36c-909f15abadf3@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4v6ysjcjbk4qlcp6"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="3pcm76uxsyazfomo"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170412172800.23035-6-javier@osg.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <41071a5a-5a13-2bdc-a36c-909f15abadf3@osg.samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---4v6ysjcjbk4qlcp6
+--3pcm76uxsyazfomo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 12, 2017 at 02:27:56PM -0300, Javier Martinez Canillas wrote:
-> The example contains a device node for a retu device, but
-> its compatible string doesn't have a vendor prefix.
+On Wed, Apr 19, 2017 at 03:36:39PM -0400, Javier Martinez Canillas wrote:
+> Hello Wolfram,
 >=20
-> While being there, drop the -mfd suffix since isn't correct.
+> On 04/19/2017 03:17 PM, Wolfram Sang wrote:
+> > On Fri, Apr 14, 2017 at 11:24:16AM +0200, Andrzej Hajda wrote:
+> >> Hi Wolfram,
+> >>
+> >> Ping, 7 weeks passed.
+> >=20
+> > Known issue, there are not enough reviewers for I2C for a timely
+> > response. I was hoping for some tags from other users of this hardware,
+> > but that didn't happen. And I don't know this hardware, at all. So, I'll
+> > apply your patches early in the next cycle, and we will see what happens
+> > once they are in -next. Best would be if you could find other people to
+> > donate tags.
+> >
 >=20
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-> Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-> Acked-by: Tony Lindgren <tony@atomide.com>
+> I got a try to this patch on an Exynos5800 Peach Pi Chromebook and all
+> the I2C devices are working properly, so:
 >=20
+> Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
 
-Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
+Cool, can you test his other patches as well?
 
-I assume this goes with the rest of the series and not via my tree.
+http://patchwork.ozlabs.org/project/linux-i2c/list/?submitter=3D47122
 
 
---4v6ysjcjbk4qlcp6
+--3pcm76uxsyazfomo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3vYMACgkQFA3kzBSg
-KbbG4RAArV8NwHy8CPgBCIniHhUOFGZWAAIl8Y076qm5WCP6b2fStsMBV+mZ4kam
-jJoOA9Q8fqRR+Sz03VI/bAr3WUG+ultmYG/ctSfa2/1ZwPFBJIOLTGGJnIlTLDwH
-MC7jvhGo1TPsr9KCUwapSVjBdt3lLXvrobRTfX3Z9Dk5mRVbjUw3dUXq60vUm8Hq
-ZYcYbI0DfNDyqujmekXAxpXA3ThaIge5UDDBPV7bIGQBSTyf3Fd8T+k+rqkymYhV
-K2M+QvX6CbrryM6TxKQQcG9+S5RSv69wQlYK6ozDOgLnuGMN6Jjp8+/Tg62kFH/B
-akiJhv5GJHjyxCg/Roo2/3uidGWhqyyOOQrTQ6Xf4B6lI0zlY70llJ8ruf2r8PiK
-h5QmFuii/QB+mwzCncK5I4YqAgJvarndYAEXGsMyQKl58bZyeuA8rEQPztCu8hf3
-wkzM7x5LReO5ACcF76XO0QitLZuytG6OaVeO2r4aBS9Rrg1B/u2Xe90M630TdWoF
-E/uwsNUsAX3ujpK0h7uXPrn8/0WDy6J8xGL02HjFSkTTu+7lrzjB5RisARHaBoWR
-qIYyB4jAH3d4zYCJZB3sYjGoXaXpKs1P7P1Gt02JYuVmavWUVHj3LBzfUiw3F9vG
-gLYXpoiiG6u0pd7YyP8iQD7GOSqeOcqEJkhwLx6CIZ8mxNst6lM=
-=gj+v
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3vcMACgkQFA3kzBSg
+KbYPbA/8CkOr1DPFT2DBFj6sySsbFqkvkexeeeDzefHZBSq9BKww00/B/r+ABtYc
+eDbRWEKVCVPzaf7UqLQ8w7JZCB674M82dwF0SQIo5z6WWCVqx+ub8ySVZWzxnjJb
+sjcuuow+ZiTPlO6x4kMvMzBXdpwoxjfdp/U30E8tJ0JPdFWtyrZw1mkVMg/XgaGe
+9HAf5vpm9viKg6W7h3StOuE9t7uSnQAWTov1K0oWLCS4XDhqzzkw/JO74UF9GmgT
+DPGE4WfcWrBbhd/LZlzuVZsMj0nCZ30sZ9gIdPJLfyBAY1WU5L4v3hfEVFzihvEm
+4QChNxG4w1W4cPDdly85uI2IdU3emmdVk5AAh5Z1VEohNP4dBv25KnkjPKOyfpB9
+d8P2naOGk9kJToM6cQN67EOUF0rEo304tLOnAgmMWxWfEdNdplarhKQIwjPCdGgJ
+RbtVh/DQ3h1LaFBapq/J47BMNBEPsF5yQ2kwJC9tHCg07z2VLnBTz3Gm8jljckGV
+d3M456OfLPI6ZzEcjxYzCa8mG/VE7qecRMQZXFCUreBMmphDaMclFE3hkSTroOP/
+RzGQvYV/WBEQkh4TXcxodTIOVTYchp0ZSHW7RI3zF0GQAWrZZabTwOSwA4/ZdXmi
+jUZThiOdXOBOg/2fEXubUErXrQjQtjpNS2hVOaAyj8dVxTTVw1U=
+=Ow0V
 -----END PGP SIGNATURE-----
 
---4v6ysjcjbk4qlcp6--
+--3pcm76uxsyazfomo--
