@@ -1,74 +1,99 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: simplify timings calculation
-Date: Wed, 19 Apr 2017 21:42:59 +0200
-Message-ID: <20170419194259.wqx4vnzczlnws3aj@ninjato>
-References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
- <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
- <0e74abb3-9706-b5e4-2428-553d33a61ef4@samsung.com>
- <20170419191719.bzp2nt3l7nxwdzfn@ninjato>
- <41071a5a-5a13-2bdc-a36c-909f15abadf3@osg.samsung.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
+ RT suspended
+Date: Wed, 19 Apr 2017 22:24:19 +0200
+Message-ID: <CAJZ5v0hiGSS+bZWwzz7XgjFr8ckARn9ehaO9q1-76qo4d-76tg@mail.gmail.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3pcm76uxsyazfomo"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <41071a5a-5a13-2bdc-a36c-909f15abadf3@osg.samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Andrzej Hajda <a.hajda@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-yw0-f193.google.com ([209.85.161.193]:36601 "EHLO
+        mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935499AbdDSUYU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2017 16:24:20 -0400
+In-Reply-To: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
+On Thu, Mar 30, 2017 at 2:04 PM, Jarkko Nikula
+<jarkko.nikula@linux.intel.com> wrote:
+> There is possibility to enter dw_i2c_plat_suspend() callback twice
+> during system suspend under certain cases which is causing here warnings
+> from clk_core_disable() and clk_core_unprepare() as well as accessing the
+> registers that can be power gated.
+>
+> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
+> system suspend") implemented a prepare callback that checks for runtime
+> suspended device which allow PM core to set direct_complete flag and
+> skip system suspend and resume callbacks.
+>
+> However it can still happen if nothing resumes the device prior system
+> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
+> unsets the direct_complete flag of the parent in __device_suspend() thus
+> causing PM code to not skip the system suspend/resume callbacks.
+>
+> Avoid this by checking runtime status in suspend and resume callbacks
+> and return directly if device is runtime suspended. This affects only
+> system suspend/resume since during runtime suspend/resume runtime status
+> is suspending (not suspended) or resuming.
+>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> I'm able to trigger system suspend callback while device is runtime
+> suspended by removing the pm_runtime_resume() call from
+> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
+> slave (ACPI enumerated but doesn't bind due an error in probe function).
+> In that case __device_suspend() for that unbound device has NULL suspend
+> callback, and thus doesn't cause any runtime resume chain but still unsets
+> the parent's direct_complete flag.
+> John Stult <john.stultz@linaro.org> has reported he can trigger this on
+> HiKey board too.
+>
+> I'm not sure is this the right thing to do. It feels something the PM core
+> should do but I'm not sure that either. One alternative could be to resume
+> runtime suspended parent in in __device_suspend() right after where
+> parent's direct_complete flag is unset.
 
---3pcm76uxsyazfomo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In that case the core expects that the ->prepare callback for the
+slave will also return 1 (or a positive number in general).
 
-On Wed, Apr 19, 2017 at 03:36:39PM -0400, Javier Martinez Canillas wrote:
-> Hello Wolfram,
->=20
-> On 04/19/2017 03:17 PM, Wolfram Sang wrote:
-> > On Fri, Apr 14, 2017 at 11:24:16AM +0200, Andrzej Hajda wrote:
-> >> Hi Wolfram,
-> >>
-> >> Ping, 7 weeks passed.
-> >=20
-> > Known issue, there are not enough reviewers for I2C for a timely
-> > response. I was hoping for some tags from other users of this hardware,
-> > but that didn't happen. And I don't know this hardware, at all. So, I'll
-> > apply your patches early in the next cycle, and we will see what happens
-> > once they are in -next. Best would be if you could find other people to
-> > donate tags.
-> >
->=20
-> I got a try to this patch on an Exynos5800 Peach Pi Chromebook and all
-> the I2C devices are working properly, so:
->=20
-> Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+If that doesn't happen, then from the core's perspective it is not
+safe to allow the master's system PM callbacks to be skipped and
+that's why direct_complete is unset for it.
 
-Cool, can you test his other patches as well?
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index a597ba32de7e..42a9cd09aa64 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+>
+> +       if (pm_runtime_suspended(dev))
+> +               return 0;
+> +
+>         i2c_dw_disable(i_dev);
+>         i2c_dw_plat_prepare_clk(i_dev, false);
+>
+> @@ -388,6 +391,9 @@ static int dw_i2c_plat_resume(struct device *dev)
+>         struct platform_device *pdev = to_platform_device(dev);
+>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+>
+> +       if (pm_runtime_suspended(dev))
+> +               return 0;
+> +
+>         i2c_dw_plat_prepare_clk(i_dev, true);
+>         i2c_dw_init(i_dev);
+>
+> --
+> 2.11.0
+>
 
-http://patchwork.ozlabs.org/project/linux-i2c/list/?submitter=3D47122
-
-
---3pcm76uxsyazfomo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3vcMACgkQFA3kzBSg
-KbYPbA/8CkOr1DPFT2DBFj6sySsbFqkvkexeeeDzefHZBSq9BKww00/B/r+ABtYc
-eDbRWEKVCVPzaf7UqLQ8w7JZCB674M82dwF0SQIo5z6WWCVqx+ub8ySVZWzxnjJb
-sjcuuow+ZiTPlO6x4kMvMzBXdpwoxjfdp/U30E8tJ0JPdFWtyrZw1mkVMg/XgaGe
-9HAf5vpm9viKg6W7h3StOuE9t7uSnQAWTov1K0oWLCS4XDhqzzkw/JO74UF9GmgT
-DPGE4WfcWrBbhd/LZlzuVZsMj0nCZ30sZ9gIdPJLfyBAY1WU5L4v3hfEVFzihvEm
-4QChNxG4w1W4cPDdly85uI2IdU3emmdVk5AAh5Z1VEohNP4dBv25KnkjPKOyfpB9
-d8P2naOGk9kJToM6cQN67EOUF0rEo304tLOnAgmMWxWfEdNdplarhKQIwjPCdGgJ
-RbtVh/DQ3h1LaFBapq/J47BMNBEPsF5yQ2kwJC9tHCg07z2VLnBTz3Gm8jljckGV
-d3M456OfLPI6ZzEcjxYzCa8mG/VE7qecRMQZXFCUreBMmphDaMclFE3hkSTroOP/
-RzGQvYV/WBEQkh4TXcxodTIOVTYchp0ZSHW7RI3zF0GQAWrZZabTwOSwA4/ZdXmi
-jUZThiOdXOBOg/2fEXubUErXrQjQtjpNS2hVOaAyj8dVxTTVw1U=
-=Ow0V
------END PGP SIGNATURE-----
-
---3pcm76uxsyazfomo--
+Thanks,
+Rafael
