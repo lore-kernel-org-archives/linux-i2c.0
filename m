@@ -1,62 +1,111 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH 0/9] Unify i2c_mux_add_adapter error reporting
-Date: Wed, 19 Apr 2017 07:29:39 -0300
-Message-ID: <20170419072939.3724397f@vento.lan>
-References: <1491208718-32068-1-git-send-email-peda@axentia.se>
-        <20170403102722.GB2750@katana>
-        <8022ae03-c8cc-181f-ae16-c9e6584f43b2@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v13 02/10] dt-bindings: document devicetree bindings for
+ mux-controllers and gpio-mux
+Date: Wed, 19 Apr 2017 12:41:53 +0200
+Message-ID: <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
+References: <1492101794-13444-1-git-send-email-peda@axentia.se>
+ <1492101794-13444-3-git-send-email-peda@axentia.se>
+ <1492509996.2432.63.camel@pengutronix.de>
+ <17135062-e58a-b50e-ac85-5f0f0b73d958@axentia.se>
+ <1492593449.2970.24.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58928
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1762199AbdDSK3s (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2017 06:29:48 -0400
-In-Reply-To: <8022ae03-c8cc-181f-ae16-c9e6584f43b2@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1492593449.2970.24.camel@pengutronix.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, kernel@pengutronix.de, Paul Gortmaker <paul.gortmaker@windriver.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Colin Ian King <colin.king@canonical.com>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linus.walleij@linaro.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-media@vger.kernel.org
 
-Em Mon, 3 Apr 2017 13:27:48 +0200
-Peter Rosin <peda@axentia.se> escreveu:
-
-> On 2017-04-03 12:27, Wolfram Sang wrote:
-> > On Mon, Apr 03, 2017 at 10:38:29AM +0200, Peter Rosin wrote:  
-> >> Hi!
-> >>
-> >> Many users of the i2c_mux_add_adapter interface log a message
-> >> on failure, but the function already logs such a message. One
-> >> or two of those users actually add more information than already
-> >> provided by the central failure message.
-> >>
-> >> So, first fix the central error reporting to provide as much
-> >> information as any current user, and then remove the surplus
-> >> error reporting at the call sites.  
-> > 
-> > Yes, I like.
-> > 
-> > Reviewed-by: Wolfram Sang <wsa@the-dreams.de>  
+On 2017-04-19 11:17, Philipp Zabel wrote:
+> On Tue, 2017-04-18 at 15:36 +0200, Peter Rosin wrote:
+>> If I got things wrong when I skimmed whatever I came across, and if the
+>> mmio register is the only mux control option in the stars, it becomes
+>> less obvious... It's of course still possible to hook into the mux
+>> subsystem, but the benefit is questionable. And you do get the extra
+>> device tree node. You could of course also implement a mux driver
+>> outside of drivers/mux and thus make use of the mux api, but it's tiny
+>> and any benefit is truly small.
 > 
-> Thanks!
-> 
-> BTW, the improved error reporting in patch 1/9 is not needed for
-> patches 8/9 and 9/9 to make sense, the existing central error
-> message is already good enough. So, iio and media maintainers,
-> feel free to just grab those two patches. Or, they can go via
-> Wolfram and the i2c tree with the rest of the series. Either way
-> is fine with me, just let me know.
+> What I wondered mostly is whether it would be a good idea to move the
+> OF-graph ports into the mux controller node, and let the video capture
+> device be the consumer of the mux.
+> But this wouldn't fit well with the clear split between the mux
+> controller and the actual mux hardware in the mux DT bindings.
 
-Feel free to submit via I2C tree, together with the patch series:
+I have tried to do something similar. I think. The current
+drivers/i2c/muxes/i2c-mux-gpio.c is a good candidate for the same thing
+IIUC.
 
-Reviewed-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+That dedicated driver and the general purpose i2c mux driver does pretty
+much the same thing with these two DT snippets:
 
-> 
-> Cheers,
-> peda
+Dedicated i2c-mux-gpio DT snippet:
 
+	i2c-mux {
+		compatible = "i2c-mux-gpio";
+		i2c-parent = <&i2c1>;
 
+		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
 
-Thanks,
-Mauro
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@1 {
+			...
+		};
+
+		i2c@3 {
+			...
+		};
+	};
+
+General purpose mux DT snippet:
+
+	mux: mux-controller {
+		compatible = "gpio-mux";
+		#mux-control-cells = <0>;
+
+		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
+	};
+
+	i2c-mux {
+		compatible = "i2c-mux";
+		i2c-parent = <&i2c1>;
+
+		mux-controls = <&mux>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@1 {
+			...
+		};
+
+		i2c@3 {
+			...
+		};
+	};
+
+I would love to find a way to cleanly get the mux framework to handle
+the first DT as well, and thus being able to obsolete the dedicated
+i2c-mux-gpio driver. I have not figured out how to accomplish that
+without abusing the driver-model to a point that it's not working.
+Help with that task is dearly appreciated.
+
+What I have stumbled on, I think, is that two drivers needs to be
+instantiated from the same DT node. At the same time, I need the
+mux framework to handle the current out-of-node thing with a
+phandle as well, so that several mux consumers can share a common
+mux controller. My understanding of these matters are apparently not
+deep enough...
+
+I think you would like a DT that looks more like the first DT
+snippet but still enjoy the flexibility of the mux framework and w/o
+implementing a (another) full muxing sub-sub-system like the i2c
+sub-system has done. Correct?
+
+Cheers,
+peda
+
