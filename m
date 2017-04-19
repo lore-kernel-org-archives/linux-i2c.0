@@ -1,61 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH i2c-tools-3.1] i2c-tools: add new tool 'i2ctransfer'
-Date: Wed, 19 Apr 2017 20:12:57 +0200
-Message-ID: <20170419181257.bgzi2o4ygwdpquvs@ninjato>
-References: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PULL REQUEST] i2c-mux for v4.12-rc1 #2
+Date: Wed, 19 Apr 2017 20:23:18 +0200
+Message-ID: <20170419182318.olij5ni7ubnq7gjy@ninjato>
+References: <8a8af32d-bac2-c28f-8d97-d5da24f5b079@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="s7v73zfqj4ibczma"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="nyfi4s2vwwaediwr"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:44276 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S938673AbdDSSXU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 19 Apr 2017 14:23:20 -0400
 Content-Disposition: inline
-In-Reply-To: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+In-Reply-To: <8a8af32d-bac2-c28f-8d97-d5da24f5b079@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---s7v73zfqj4ibczma
+--nyfi4s2vwwaediwr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 07, 2017 at 02:44:03PM +0200, Wolfram Sang wrote:
-> This tool allows to construct and concat multiple I2C messages into one
-> single transfer. Its aim is to test I2C master controllers, and so there
-> is no SMBus fallback.
->=20
-> I've been missing such a tool a number of times now, so I finally got
-> around to writing it myself. As with all I2C tools, it can be dangerous,
-> but it can also be very useful when developing.
->=20
-> It has been tested with various Renesas I2C IP cores as well as Tegra,
-> i.MX and AT91.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
+Hi peda,
 
-Pushed to i2c-tools-3.1.
+> Feel free to skip it and I'll get it to you for the next merge window
+> instead...
 
+Thanks, pulled. It is simple enough to be applied late IMO.
 
---s7v73zfqj4ibczma
+   Wolfram
+
+--nyfi4s2vwwaediwr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3qKUACgkQFA3kzBSg
-Kbb9ZA//cNroG+NxB/ldJiEYDEdPLaU9hBjeCvyqyt0vxYiqLDudZi4EtWzF+GHI
-WFXMYPwCBmhD7Bsn6HZDGUzsIK3ea3YfWWYpUbGaBjDXhC4LIMrlnAfn9BNiP6yJ
-BsIamyUiQO186G2ySPx3gy6FMGws13I4H4kB8uWfrH0GJeQ4TsJrgxJTxGuIfgj1
-CM++XG3AyvcJQBLV1HrVyI2SsZs268JhhMDF65bYHq5HT4/Y4kgbtk4x7iggX1nG
-+F4+m1lL36H8e+5Suvnrhcxcuh9bDPsPTtRKzQK+6Dq+hcf+AJ58SgBEIG8PpOCK
-6R+8hoHdgTC2ZhUcb76NRnty+QTITKlHlchBC2pU2ftwV3qmvTadG+e9+8I+l1sy
-p24IcFUVng2rvGrMoD8mSsithfOqtXtVW+LWkQBmJfQI3O/Q15D00N0Wdv7iPnWT
-hSGwgUaAYIg2aGmRRWoDs9cReVovu4vnz2mi6Hj7CmVu3MZ27XTGQeRj9q5ETUxd
-5cLBqp9vbsYXDKqWd71Ll4HUrz0+y2S2XqAgTcrzX9113mAiXONMNnKu0+cOOnLq
-5aGi0AjnzRTzBDJn25pcnZ6aV5cAZhxWR+6a9fdCoi1waVmSoxeyn2T+mdR/xEd0
-mrDQ9mf1AC5mxbfLKIjw+luiSaYVUsGsO7g9eszKx9E38pOt5+U=
-=ypZ1
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3qxYACgkQFA3kzBSg
+KbYvCQ/6ApJjk4liGSQleoOuIkCj4NxJNq+e8rChAKwEH4eKl52cYrZqY1KvqmOt
+lnX6AFJbZou5UxA2v+1f5bOaPMr9e++/xTg0VF6SZEN75aXQU9umyxYYcvkIEs8Q
+SSuNpz34qqWAUYCMEXuJbOULIgcYQe8FMCBnQuZQiZANZKQGJuis4YGUk39/QZyw
+NChefRJjlp9Ex5x2EPLVS4ec22sKUWdgt559D4hgK8w6BtekuRC8Yi4+WQxi/CB2
+cNisse2XOMv5Y37MHMWcMQ7P1s8NFCAUbhy//gCtCQV7/DtWT/WGCbUD83a/+egJ
+mJdNVFtLasE4f2yn+TQSaW6zi8fwBIkt1FddAYxoGQs/0goOBybpbpHCQHeQmy7/
+1ynetTprfXOhnO2DUfox7N0EMXU5sOaTcVpJtaztPWWm8ed6veXNCJ3uUDPjjcQ0
+EoPSS8FhPRx+uvkuJbbKWJJAWSsSwAZ3nO4D4Yq33nxyuTY+PhG0I/Cu9n8Oael8
+t60bkLPIvPQsiVGL/zFNIdnEP13T8LorV3WdTjSbPhuHlrmhnIN5ctDYKIbz8U4Y
+wqt7z1w1/G1m5kdXOaRqJiokpNndkLXcqhrv03xl+gHREnIFeMF44R7J6WZWHRM1
+aS88nRuTrMAkwwAokoCZxc63GMEYLcHCT+Qr2WG2K2c0FIKdRVQ=
+=NLtg
 -----END PGP SIGNATURE-----
 
---s7v73zfqj4ibczma--
+--nyfi4s2vwwaediwr--
