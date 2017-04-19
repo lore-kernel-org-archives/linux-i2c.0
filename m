@@ -1,144 +1,61 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v13 02/10] dt-bindings: document devicetree bindings for
- mux-controllers and gpio-mux
-Date: Wed, 19 Apr 2017 18:34:01 +0200
-Message-ID: <1492619641.2970.178.camel@pengutronix.de>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
-         <1492101794-13444-3-git-send-email-peda@axentia.se>
-         <1492509996.2432.63.camel@pengutronix.de>
-         <17135062-e58a-b50e-ac85-5f0f0b73d958@axentia.se>
-         <1492593449.2970.24.camel@pengutronix.de>
-         <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
-         <1492599958.2970.84.camel@pengutronix.de>
-         <687b26d7-7d80-e8e1-5aa8-a4e8bc070e42@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH i2c-tools-3.1] i2c-tools: add new tool 'i2ctransfer'
+Date: Wed, 19 Apr 2017 20:12:57 +0200
+Message-ID: <20170419181257.bgzi2o4ygwdpquvs@ninjato>
+References: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <687b26d7-7d80-e8e1-5aa8-a4e8bc070e42@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, kernel@pengutronix.de, Paul Gortmaker <paul.gortmaker@windriver.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Colin Ian King <colin.king@canonical.com>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <jic23@kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="s7v73zfqj4ibczma"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2017-04-19 at 13:23 +0200, Peter Rosin wrote:
-> On 2017-04-19 13:05, Philipp Zabel wrote:
-> > On Wed, 2017-04-19 at 12:41 +0200, Peter Rosin wrote:
-> >> On 2017-04-19 11:17, Philipp Zabel wrote:
-> >>> On Tue, 2017-04-18 at 15:36 +0200, Peter Rosin wrote:
-> >>>> If I got things wrong when I skimmed whatever I came across, and if the
-> >>>> mmio register is the only mux control option in the stars, it becomes
-> >>>> less obvious... It's of course still possible to hook into the mux
-> >>>> subsystem, but the benefit is questionable. And you do get the extra
-> >>>> device tree node. You could of course also implement a mux driver
-> >>>> outside of drivers/mux and thus make use of the mux api, but it's tiny
-> >>>> and any benefit is truly small.
-> >>>
-> >>> What I wondered mostly is whether it would be a good idea to move the
-> >>> OF-graph ports into the mux controller node, and let the video capture
-> >>> device be the consumer of the mux.
-> >>> But this wouldn't fit well with the clear split between the mux
-> >>> controller and the actual mux hardware in the mux DT bindings.
-> >>
-> >> I have tried to do something similar. I think. The current
-> >> drivers/i2c/muxes/i2c-mux-gpio.c is a good candidate for the same thing
-> >> IIUC.
-> >>
-> >> That dedicated driver and the general purpose i2c mux driver does pretty
-> >> much the same thing with these two DT snippets:
-> >>
-> >> Dedicated i2c-mux-gpio DT snippet:
-> >>
-> >> 	i2c-mux {
-> >> 		compatible = "i2c-mux-gpio";
-> >> 		i2c-parent = <&i2c1>;
-> >>
-> >> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
-> >>
-> >> 		#address-cells = <1>;
-> >> 		#size-cells = <0>;
-> >>
-> >> 		i2c@1 {
-> >> 			...
-> >> 		};
-> >>
-> >> 		i2c@3 {
-> >> 			...
-> >> 		};
-> >> 	};
-> >>
-> >> General purpose mux DT snippet:
-> >>
-> >> 	mux: mux-controller {
-> >> 		compatible = "gpio-mux";
-> >> 		#mux-control-cells = <0>;
-> >>
-> >> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
-> >> 	};
-> >>
-> >> 	i2c-mux {
-> >> 		compatible = "i2c-mux";
-> >> 		i2c-parent = <&i2c1>;
-> >>
-> >> 		mux-controls = <&mux>;
-> >>
-> >> 		#address-cells = <1>;
-> >> 		#size-cells = <0>;
-> >>
-> >> 		i2c@1 {
-> >> 			...
-> >> 		};
-> >>
-> >> 		i2c@3 {
-> >> 			...
-> >> 		};
-> >> 	};
-> > 
-> > Yes, replace i2c-mux with video-mux and the i2c@x nodes with port@x
-> > nodes, and this is very close to what I am thinking about.
-> > 
-> >> I would love to find a way to cleanly get the mux framework to handle
-> >> the first DT as well, and thus being able to obsolete the dedicated
-> >> i2c-mux-gpio driver. I have not figured out how to accomplish that
-> >> without abusing the driver-model to a point that it's not working.
-> >> Help with that task is dearly appreciated.
-> >>
-> >> What I have stumbled on, I think, is that two drivers needs to be
-> >> instantiated from the same DT node. At the same time, I need the
-> >> mux framework to handle the current out-of-node thing with a
-> >> phandle as well, so that several mux consumers can share a common
-> >> mux controller. My understanding of these matters are apparently not
-> >> deep enough...
-> > 
-> > Not necessarily, if the framework could export a function to create a
-> > gpio/mmio mux_chip on a given device and the gpio-mux and *-mux-gpio
-> > drivers just reuse that.
-> 
-> I've been up that creek. Why should the gpio mux be special cased?
 
-You are right, this does not scale.
+--s7v73zfqj4ibczma
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> That's not clean, the implication is that all mux consumers need
-> to handle the gpio case and have a special compatible for that
-> case etc. Then someone thinks the DT should look equally "clean" for
-> some i2c based mux, and the weeds start piling up. This is exactly
-> what we don't want. We want the mux consumer drivers to be totally
-> agnostic about the fact that they happen to use a gpio mux.
+On Fri, Apr 07, 2017 at 02:44:03PM +0200, Wolfram Sang wrote:
+> This tool allows to construct and concat multiple I2C messages into one
+> single transfer. Its aim is to test I2C master controllers, and so there
+> is no SMBus fallback.
+>=20
+> I've been missing such a tool a number of times now, so I finally got
+> around to writing it myself. As with all I2C tools, it can be dangerous,
+> but it can also be very useful when developing.
+>=20
+> It has been tested with various Renesas I2C IP cores as well as Tegra,
+> i.MX and AT91.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
 
-If you want to have i2c-mux-gpio and i2c-mux compatibles, and a single
-driver to handle them both, it must at least match both compatibles, so
-it can't be completely agnostic.
+Pushed to i2c-tools-3.1.
 
-Why not then have it call
 
-	if (/* compatible == "i2c-mux" */)
-		mux = devm_mux_control_get(dev, NULL);
-	else /* if (compatible == "i2c-mux-gpio/mmio/etc.") */
-		mux = devm_mux_control_create(dev);
+--s7v73zfqj4ibczma
+Content-Type: application/pgp-signature; name="signature.asc"
 
-? The mux framework core could hold a list of those <usage>-mux-<type>
-compatibles and dispatch creation of the correct mux (or mux platform
-device, if necessary).
+-----BEGIN PGP SIGNATURE-----
 
-regards
-Philipp
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3qKUACgkQFA3kzBSg
+Kbb9ZA//cNroG+NxB/ldJiEYDEdPLaU9hBjeCvyqyt0vxYiqLDudZi4EtWzF+GHI
+WFXMYPwCBmhD7Bsn6HZDGUzsIK3ea3YfWWYpUbGaBjDXhC4LIMrlnAfn9BNiP6yJ
+BsIamyUiQO186G2ySPx3gy6FMGws13I4H4kB8uWfrH0GJeQ4TsJrgxJTxGuIfgj1
+CM++XG3AyvcJQBLV1HrVyI2SsZs268JhhMDF65bYHq5HT4/Y4kgbtk4x7iggX1nG
++F4+m1lL36H8e+5Suvnrhcxcuh9bDPsPTtRKzQK+6Dq+hcf+AJ58SgBEIG8PpOCK
+6R+8hoHdgTC2ZhUcb76NRnty+QTITKlHlchBC2pU2ftwV3qmvTadG+e9+8I+l1sy
+p24IcFUVng2rvGrMoD8mSsithfOqtXtVW+LWkQBmJfQI3O/Q15D00N0Wdv7iPnWT
+hSGwgUaAYIg2aGmRRWoDs9cReVovu4vnz2mi6Hj7CmVu3MZ27XTGQeRj9q5ETUxd
+5cLBqp9vbsYXDKqWd71Ll4HUrz0+y2S2XqAgTcrzX9113mAiXONMNnKu0+cOOnLq
+5aGi0AjnzRTzBDJn25pcnZ6aV5cAZhxWR+6a9fdCoi1waVmSoxeyn2T+mdR/xEd0
+mrDQ9mf1AC5mxbfLKIjw+luiSaYVUsGsO7g9eszKx9E38pOt5+U=
+=ypZ1
+-----END PGP SIGNATURE-----
+
+--s7v73zfqj4ibczma--
