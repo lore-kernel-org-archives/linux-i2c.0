@@ -1,61 +1,62 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH v5 5/8] i2c: i2c-cbus-gpio: Add vendor prefix to retu node
- in example
-Date: Wed, 19 Apr 2017 15:13:19 -0400
-Message-ID: <fc8fb064-8fda-d42d-036f-522964b72973@osg.samsung.com>
-References: <20170412172800.23035-1-javier@osg.samsung.com>
- <20170412172800.23035-6-javier@osg.samsung.com>
- <20170419185113.msqhjm7fzqfeyjlk@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: exynos5: simplify timings calculation
+Date: Wed, 19 Apr 2017 21:17:19 +0200
+Message-ID: <20170419191719.bzp2nt3l7nxwdzfn@ninjato>
+References: <CGME20170223164733eucas1p11ad37a2334fe709a062ecc82b5224e1a@eucas1p1.samsung.com>
+ <1487868446-5339-1-git-send-email-a.hajda@samsung.com>
+ <0e74abb3-9706-b5e4-2428-553d33a61ef4@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:60859
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S969240AbdDSTN2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 19 Apr 2017 15:13:28 -0400
-In-Reply-To: <20170419185113.msqhjm7fzqfeyjlk@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bdkaqahf7az3gbhc"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <0e74abb3-9706-b5e4-2428-553d33a61ef4@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
-Hello Wolfram,
 
-On 04/19/2017 02:51 PM, Wolfram Sang wrote:
-> On Wed, Apr 12, 2017 at 02:27:56PM -0300, Javier Martinez Canillas wrote:
->> The example contains a device node for a retu device, but
->> its compatible string doesn't have a vendor prefix.
->>
->> While being there, drop the -mfd suffix since isn't correct.
->>
->> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->> Acked-by: Rob Herring <robh@kernel.org>
->> Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
->> Acked-by: Tony Lindgren <tony@atomide.com>
-> 
-> Wouldn't it be nice if we fix the driver also so it actually matches the
-> below compatible? I can't find such a change in linux-next.
-> 
+--bdkaqahf7az3gbhc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[snip]
+On Fri, Apr 14, 2017 at 11:24:16AM +0200, Andrzej Hajda wrote:
+> Hi Wolfram,
+>=20
+> Ping, 7 weeks passed.
 
->>  
->> -	retu-mfd: retu@1 {
->> -		compatible = "retu-mfd";
->> +	retu: retu@1 {
->> +		compatible = "nokia,retu";
->>  		reg = <0x1>;
->>  	};
+Known issue, there are not enough reviewers for I2C for a timely
+response. I was hoping for some tags from other users of this hardware,
+but that didn't happen. And I don't know this hardware, at all. So, I'll
+apply your patches early in the next cycle, and we will see what happens
+once they are in -next. Best would be if you could find other people to
+donate tags.
 
-You mean having a "nokia,retu" entry in a OF table?
+Thanks,
 
-That's done by patch 3/8 in this series:
+   Wolfram
 
-http://www.spinics.net/lists/devicetree/msg173145.html
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+--bdkaqahf7az3gbhc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3t7sACgkQFA3kzBSg
+KbbSDBAAmifYPqEHrgYGDfN1wSIXvMkxEKmST2ica8fzwDAtd2cLrZvgnRhFdVev
+2jwjX0rot31ftKrRkilAc9CbrgRadtoqP+O90s9w7wu9rdhPf0kftuulvdAslXeO
+RWTFKkXeIQKv540VNTWjtR3Gh41bd4khxU/zpjizceV9fhrRYjiXJct2PiFmNBLx
+Z8HGnKzzlRI3DXuZwi8/FsEkgNpfQ/CWrs+b1gvZ8Y2NEyfs5yNl1MBlVBtelJ29
+ZXr6yS0C+15xWT+HmjAqUNVAbh7v1k39813J/3rHhx5YWzDXeenoKfiem6YsyiUr
+wMbD4pUUYaC/GjPfBRthC5jT+uqXMiTB+qeH5HLl04/gvwZxHYcNNdVLHaF2WYqX
+zHVms7ReKjnjQ2yGwCetMKP1PXT57Tj6M3znVI4CshcdZLxsu65QgugdxswJNZwP
+/yvSaIkOzgOAZkn4dtGJvUHFBl8hqDH92vv6ZcTCPt+UfjSLu27Qm0KkaciAVqoi
+77Ymj2A3WZmQYY6tKLkIFlCpAIAX8p6fosweOR1Ng6dra12MkifOOr+4WVvusGld
+C/XhJk5IdPndzTJlrbDezLwZxTIiFGGKJOy1cbdVBzZPqnacbyzEjpAZKFpMQUTs
+Md0GZUE2xiUCYrRu897psWCqtsJo2HPOxRuzmqyDSj9vLoyYvtU=
+=aB9a
+-----END PGP SIGNATURE-----
+
+--bdkaqahf7az3gbhc--
