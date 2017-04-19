@@ -1,122 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume
- when RT suspended
-Date: Wed, 19 Apr 2017 20:59:10 +0200
-Message-ID: <20170419185909.dl5h6xhkd6f72na3@ninjato>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware-baytrail: fix potential null pointer
+ dereference on dev
+Date: Wed, 19 Apr 2017 21:01:22 +0200
+Message-ID: <20170419190122.qoudvukbgioxoy3l@ninjato>
+References: <20170320115123.31536-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="c5wxliccl7662yww"
-Return-path: <linux-pm-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="xczzx5lpioxvfs35"
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+In-Reply-To: <20170320115123.31536-1-colin.king@canonical.com>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---c5wxliccl7662yww
+--xczzx5lpioxvfs35
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 30, 2017 at 03:04:44PM +0300, Jarkko Nikula wrote:
-> There is possibility to enter dw_i2c_plat_suspend() callback twice
-> during system suspend under certain cases which is causing here warnings
-> from clk_core_disable() and clk_core_unprepare() as well as accessing the
-> registers that can be power gated.
+On Mon, Mar 20, 2017 at 11:51:23AM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
-> system suspend") implemented a prepare callback that checks for runtime
-> suspended device which allow PM core to set direct_complete flag and
-> skip system suspend and resume callbacks.
+> The assignment to addr requires a call to get_sem_addr that dereferences
+> dev, however, this dereference occurs before a null pointer check on dev.
+> Move this assignment after the null check on dev to avoid a potential null
+> pointer dereference.
 >=20
-> However it can still happen if nothing resumes the device prior system
-> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
-> unsets the direct_complete flag of the parent in __device_suspend() thus
-> causing PM code to not skip the system suspend/resume callbacks.
+> Detected by CoverityScan, CID#1419700 ("Dereference before null check")
 >=20
-> Avoid this by checking runtime status in suspend and resume callbacks
-> and return directly if device is runtime suspended. This affects only
-> system suspend/resume since during runtime suspend/resume runtime status
-> is suspending (not suspended) or resuming.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> I'm able to trigger system suspend callback while device is runtime
-> suspended by removing the pm_runtime_resume() call from
-> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
-> slave (ACPI enumerated but doesn't bind due an error in probe function).
-> In that case __device_suspend() for that unbound device has NULL suspend
-> callback, and thus doesn't cause any runtime resume chain but still unsets
-> the parent's direct_complete flag.
-> John Stult <john.stultz@linaro.org> has reported he can trigger this on
-> HiKey board too.
->=20
-> I'm not sure is this the right thing to do. It feels something the PM core
-> should do but I'm not sure that either. One alternative could be to resume
-> runtime suspended parent in in __device_suspend() right after where
-> parent's direct_complete flag is unset.
+> Fixes: fd476fa22a1f432 ("i2c: designware-baytrail: Add support for cherry=
+trail")
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-Because of the last paragraph, I'd like a positive comment or tag from
-one of the PM people before I apply this one.
+Applied to for-next, thanks!
 
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
->  1 file changed, 6 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
-sses/i2c-designware-platdrv.c
-> index a597ba32de7e..42a9cd09aa64 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
->  	struct platform_device *pdev =3D to_platform_device(dev);
->  	struct dw_i2c_dev *i_dev =3D platform_get_drvdata(pdev);
-> =20
-> +	if (pm_runtime_suspended(dev))
-> +		return 0;
-> +
->  	i2c_dw_disable(i_dev);
->  	i2c_dw_plat_prepare_clk(i_dev, false);
-> =20
-> @@ -388,6 +391,9 @@ static int dw_i2c_plat_resume(struct device *dev)
->  	struct platform_device *pdev =3D to_platform_device(dev);
->  	struct dw_i2c_dev *i_dev =3D platform_get_drvdata(pdev);
-> =20
-> +	if (pm_runtime_suspended(dev))
-> +		return 0;
-> +
->  	i2c_dw_plat_prepare_clk(i_dev, true);
->  	i2c_dw_init(i_dev);
-> =20
-> --=20
-> 2.11.0
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---c5wxliccl7662yww
+--xczzx5lpioxvfs35
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3s30ACgkQFA3kzBSg
-KbZP7w//QOFIsFyMdLgXxe/SjuffKpyFFIyQprjCjtKvc7zjTliTzO0qqfDxinlI
-zUennoxYK2ilSWFfUkNfyy/OvGI2dd5CsKhYu0iyzGOygDz8jGCds91IIyGb4mOv
-KiDdnzm+6jjNx6PmGSP26dn0jWyp7Bc84epmLAey7ZuqYZuLwOZxmtzHhh3afYtz
-n6gXthV3YlA/KRJAsgj/LtPZXIQySSRyQPDmM7hWfCBeRC8Xy0zCQ0uRKwZxP33c
-KIeFlbOq66REozlcQ2bh5ot8jyxXAKPX259CEQPKrZDdFgHmsMCsycvVZ+HaiVcd
-8e0gqdLRud6jvQVW4wYN45qSgonU/t4c8dcEbtjVKsfZvfyaoffcv57GQ7kBRhyW
-cUjQoIdGcqQP7lPWDhezJ0+SMppXk+tkzDzjod7USm87EAmd11OVtZOIjkVvPl7e
-70mpGt9ZOJa76JCe2r8k5pIVOCaT+bKBuHDlCLzLWbyolkpy0kmCAYmakuOFqJn3
-XQY2OFXN/StwzI6uxpeKfdaTYGMjZV+yyyIhhq94W8K++MxuTxqLblFqxM5o/PVW
-IXzMejlZu5oeiflQvH9H0VsXcXGw3VTHYXfV3n5aeW9ADCVCFXbnx8nupuXKnRu2
-7cnHeMwTKj+NN7cMbnptgkJZ1AYMrNTTufMvyF/XBjxsT1dhLMw=
-=APeh
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj3tAIACgkQFA3kzBSg
+KbbBnA//dmRxxbvYcLgi3+Wfvb/MRmrvZKnT1w81f0gjnIbWZWcCWab2z/1vJX9Z
+s2i8OVHJpHOYuzY6fqhpwd11GGscUM6lRI7Sh6gFb/vDaEwXMIijoI1bf4pNhLvF
+S/jLEuMToEwEZBxrtOO4HHnqouYwZDnYlPZf6bYGVIFE7V6A6j0Gv6lTqty89Olv
+EOKF5obOZ1SVyN7eNKHJbcW/5CidUcYSxEpnyzxNPb1g7tzbACjO4s5vYPRhVh9T
+XSUyDOu4xll0nD0p3dYCLQolHEsXslZdCq2NBG8juMWA2LZpAAYeqfI9gAGLDhKL
+y1wF2UlJASHAzSA8ivWL99IMk+G29/+FQ3jCkD86JErhspFfVl8tDowDptFaEtGZ
+uvM6ss1YnkGiz5EcSiyDv0QS+9ovgp8/KERVRKTgk7pHCZedHGxseOJaa3ewNTM5
+1ah66SImJt/Bz2o4ReMkY3SYItqZmvYQf2GAC+Z3lwOzYtcCJ0fuA6ngOzk+4ytf
+Xp77N/ua8/amju4ze6/2z2+0dso/T4ZNANtibazGxnr/dcFbV9HzvOl52u8i1uZ9
+LPc5RnPxmcVO8z9C6nx+S392sDx74k8ocp12aBqATVmNVXgz5y0M6ycemVWFu1ZY
+r7mjSGTb0YL2QLBwNATks2aaOcORLtM3H82RMO3dYTpcXAsrVik=
+=OWFp
 -----END PGP SIGNATURE-----
 
---c5wxliccl7662yww--
+--xczzx5lpioxvfs35--
