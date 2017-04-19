@@ -1,59 +1,76 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: PMBus and SMBUS_BLOCK with "extended" lenght
-Date: Wed, 19 Apr 2017 08:54:36 +0200
-Message-ID: <20170419065436.GA1432@katana>
-References: <1490948247.3177.233.camel@kernel.crashing.org>
- <20170331163336.4sy4br3i2o5etcoe@ninjato>
- <1492580427.25766.131.camel@kernel.crashing.org>
+Subject: Re: [PATCH] i2c: rcar: fix resume by always initializing registers
+ before transfer
+Date: Wed, 19 Apr 2017 08:59:28 +0200
+Message-ID: <20170419065928.GC1432@katana>
+References: <20170418183835.13836-1-wsa+renesas@sang-engineering.com>
+ <87o9vtl19p.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+        protocol="application/pgp-signature"; boundary="L6iaP+gRLNZHKoI4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:59524 "EHLO mail.zeus03.de"
+Received: from www.zeus03.de ([194.117.254.33]:33628 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933226AbdDSGyk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 19 Apr 2017 02:54:40 -0400
+        id S932839AbdDSG7a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 19 Apr 2017 02:59:30 -0400
 Content-Disposition: inline
-In-Reply-To: <1492580427.25766.131.camel@kernel.crashing.org>
+In-Reply-To: <87o9vtl19p.wl%kuninori.morimoto.gx@renesas.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>
+To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 
 
---9amGYk9869ThD9tj
+--L6iaP+gRLNZHKoI4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Morimoto-san,
+
+> I understand about I2C slave / multi-master case of pm_runtime_get/put.
+> But in probe case (after rcar_i2c_init() move), we can't do like below ?
+> this is more clear code for me.
+>=20
+> -------------
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index 26f2ff2..db7f4d1 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -855,7 +855,6 @@ static int rcar_i2c_probe(struct platform_device *pde=
+v)
+>  	priv->dma_rx =3D priv->dma_tx =3D ERR_PTR(-EPROBE_DEFER);
+> =20
+>  	pm_runtime_enable(dev);
+> -	pm_runtime_get_sync(dev);
+>  	ret =3D rcar_i2c_clock_calculate(priv, &i2c_t);
+
+rcar_i2c_clock_calculate() uses clk_get_rate, so clk must be active.
+
+Regards,
+
+   Wolfram
 
 
-> Not a huge deal, all this is just a thought, I don't think I have a
-> device to deal with today that will return more on any of my systems (I
-> can double check later). I just noticed that while reading the PMbus
-> spec.
-
-I once stumbled over a TPM device which had a flag to send either 32 or
-255 byte. Can't recall which exactly, though.
-
-
---9amGYk9869ThD9tj
+--L6iaP+gRLNZHKoI4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJY9wmsAAoJEBQN5MwUoCm29dAP/3WJKQQzBJssI0S75KVsXS9+
-NyHCtn497Iv1hwVCJYaUVAgu5LwF6fTX440syCzuykh23Z5Yb7pkaIbHFXGWFtBN
-Hq5OhNviWIjHviR8mBg0ruSBjeulGRuVnqYiQyq4T8XBtaRaXfhbkbAu/kthTiae
-xdnFB4T7fhOIGgbvAQDNmmJG4EbV0J/ZG1lovVIYzRwvL1ZayfLDPsAMZEL3B2zO
-zXg7VKVrR9uLAHo0VUVSZRrvZk3RUIyUwa7juJ2tvblDC/ypq89oe4VT8vTwRUuO
-Z1BQeQlrwXjCOCkNvyc1zoJRTQFhXBf01ogvBrSgQz5dshs/f65q3qbKqFP26zG8
-PpI3zzGVj8JlTxL8dskMyJDs57rrkTE/gmCCnp6vdWbfYJIdYIYbjDdwKhl5+Hht
-pGzfqw99mdykUsbnHqlyo5eLnaLKbkSr3nSMkCDggc+953s0kFacxDVPB8Wsamhf
-mY4cdNyC/tIs9GwIQhlUasB9cch/Hu1LugACWvURYrGdIGDC+87b8TU10FKPnsQ+
-45qYOL40APZMK82R8a1T3tEbzRYPb2v3f32VUHW8YbEpHAekppX+1CSTAUjl15cb
-8QmT0646ej1MzDnOQoUW1NXzKRsE7HdjNUOBHL1cCacnwGFdVO5Ijhuavl6yudF8
-e+qTECT8azfM7UPyyBOb
-=Myga
+iQIcBAEBAgAGBQJY9wrQAAoJEBQN5MwUoCm2racP/iDKAUXBYWEDRXreRKt3gWJC
+L2pZ283ick4TTQGxaDnmW09Ot/E0izh0Lxuo3kelHE9Rt3g16+3rqHDKT+kIESsk
+Jhh2gVEmE2TPdpxIyA3WvCewxbQtysvAz6QZPgpNSo0LQlC9pxg4TbptWGY56BRL
+U1KFJRiN/rEe5dNzppRQhEcEG0ib+HRZNQJi6li7a3chMUXg2OkTQf52f9G0dEJX
+pRrVA6Ok8Yk2l1lXWvufSWyFxAdeSmUGVfL9ArritISpbIebZupYEh3TtTBGd0df
+XdHw9UBwIdpIk4StDMuBfbaN4spe+/kCLIkuEijhUiiCnUvcvxDkpUu6JzHZ1+OO
+wirySlPtzTX7CSOAkHSDO9gVotV/4+mntzjeqr01cip6O0x6tMdUSTPuWwteKuBQ
+VNN/AZxejrqlq8i1W+CyoEviSeJd9OpkqRadgh4mMekJzAxBKWC3u//G1tFsrgBc
+W9iEhulHTpEY6YYKsKnLqQBNcdtjadRqhU03viUtlJgR1isoTLB1nHddEwr0y/l8
+l4kytKXajUQ9T4EnA19haVkAV3qoh/9pQvKJbNgm2kqQ34z7QHtsHjzhYU7hYKgk
+eRdOhxiv/6b9zUd+Ex0Up8jedKelqiyeXXA2cMlXbQpz7ZRiruQpHdKr7LPl4DQk
+BHF1e+gSKY52EcHgAwTR
+=qcpg
 -----END PGP SIGNATURE-----
 
---9amGYk9869ThD9tj--
+--L6iaP+gRLNZHKoI4--
