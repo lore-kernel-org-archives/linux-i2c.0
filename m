@@ -1,121 +1,48 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v13 02/10] dt-bindings: document devicetree bindings for
- mux-controllers and gpio-mux
-Date: Wed, 19 Apr 2017 13:05:58 +0200
-Message-ID: <1492599958.2970.84.camel@pengutronix.de>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
-         <1492101794-13444-3-git-send-email-peda@axentia.se>
-         <1492509996.2432.63.camel@pengutronix.de>
-         <17135062-e58a-b50e-ac85-5f0f0b73d958@axentia.se>
-         <1492593449.2970.24.camel@pengutronix.de>
-         <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PULL REQUEST] i2c-mux for v4.12-rc1 #2
+Date: Wed, 19 Apr 2017 13:06:23 +0200
+Message-ID: <8a8af32d-bac2-c28f-8d97-d5da24f5b079@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, kernel@pengutronix.de, Paul Gortmaker <paul.gortmaker@windriver.com>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Colin Ian King <colin.king@canonical.com>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <jic23@kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr30128.outbound.protection.outlook.com ([40.107.3.128]:57579
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S933747AbdDSLGa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 19 Apr 2017 07:06:30 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Wed, 2017-04-19 at 12:41 +0200, Peter Rosin wrote:
-> On 2017-04-19 11:17, Philipp Zabel wrote:
-> > On Tue, 2017-04-18 at 15:36 +0200, Peter Rosin wrote:
-> >> If I got things wrong when I skimmed whatever I came across, and if the
-> >> mmio register is the only mux control option in the stars, it becomes
-> >> less obvious... It's of course still possible to hook into the mux
-> >> subsystem, but the benefit is questionable. And you do get the extra
-> >> device tree node. You could of course also implement a mux driver
-> >> outside of drivers/mux and thus make use of the mux api, but it's tiny
-> >> and any benefit is truly small.
-> > 
-> > What I wondered mostly is whether it would be a good idea to move the
-> > OF-graph ports into the mux controller node, and let the video capture
-> > device be the consumer of the mux.
-> > But this wouldn't fit well with the clear split between the mux
-> > controller and the actual mux hardware in the mux DT bindings.
-> 
-> I have tried to do something similar. I think. The current
-> drivers/i2c/muxes/i2c-mux-gpio.c is a good candidate for the same thing
-> IIUC.
->
-> That dedicated driver and the general purpose i2c mux driver does pretty
-> much the same thing with these two DT snippets:
-> 
-> Dedicated i2c-mux-gpio DT snippet:
-> 
-> 	i2c-mux {
-> 		compatible = "i2c-mux-gpio";
-> 		i2c-parent = <&i2c1>;
-> 
-> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
-> 
-> 		#address-cells = <1>;
-> 		#size-cells = <0>;
-> 
-> 		i2c@1 {
-> 			...
-> 		};
-> 
-> 		i2c@3 {
-> 			...
-> 		};
-> 	};
-> 
-> General purpose mux DT snippet:
-> 
-> 	mux: mux-controller {
-> 		compatible = "gpio-mux";
-> 		#mux-control-cells = <0>;
-> 
-> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
-> 	};
-> 
-> 	i2c-mux {
-> 		compatible = "i2c-mux";
-> 		i2c-parent = <&i2c1>;
-> 
-> 		mux-controls = <&mux>;
-> 
-> 		#address-cells = <1>;
-> 		#size-cells = <0>;
-> 
-> 		i2c@1 {
-> 			...
-> 		};
-> 
-> 		i2c@3 {
-> 			...
-> 		};
-> 	};
+Hi Wolfram,
 
-Yes, replace i2c-mux with video-mux and the i2c@x nodes with port@x
-nodes, and this is very close to what I am thinking about.
+I thought Mauro would take this patch, but then he just added a tag. So,
+here's a late incremental pull request for v4.12-rc1 with incredibly
+important stuff :-)
 
-> I would love to find a way to cleanly get the mux framework to handle
-> the first DT as well, and thus being able to obsolete the dedicated
-> i2c-mux-gpio driver. I have not figured out how to accomplish that
-> without abusing the driver-model to a point that it's not working.
-> Help with that task is dearly appreciated.
-> 
-> What I have stumbled on, I think, is that two drivers needs to be
-> instantiated from the same DT node. At the same time, I need the
-> mux framework to handle the current out-of-node thing with a
-> phandle as well, so that several mux consumers can share a common
-> mux controller. My understanding of these matters are apparently not
-> deep enough...
+Feel free to skip it and I'll get it to you for the next merge window
+instead...
 
-Not necessarily, if the framework could export a function to create a
-gpio/mmio mux_chip on a given device and the gpio-mux and *-mux-gpio
-drivers just reuse that.
+Cheers,
+peda
 
-> I think you would like a DT that looks more like the first DT
-> snippet but still enjoy the flexibility of the mux framework and w/o
-> implementing a (another) full muxing sub-sub-system like the i2c
-> sub-system has done. Correct?
 
-Correct.
+The following changes since commit dbed8a803bd3fb64339a6180adaff2cec46242ce:
 
-regards
-Philipp
+  i2c: mux: ltc4306: LTC4306 and LTC4305 I2C multiplexer/switch (2017-04-12 17:10:31 +0200)
+
+are available in the git repository at:
+
+  https://github.com/peda-r/i2c-mux.git tags/i2c-mux/for-4.12-2
+
+for you to fetch changes up to f6cfec891622f7bc3fb04170b7d7cb8bfebc82a7:
+
+  [media] cx231xx: stop double error reporting (2017-04-19 12:49:29 +0200)
+
+----------------------------------------------------------------
+Peter Rosin (1):
+      [media] cx231xx: stop double error reporting
+
+ drivers/media/usb/cx231xx/cx231xx-i2c.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
