@@ -1,124 +1,126 @@
 From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v13 02/10] dt-bindings: document devicetree bindings for
- mux-controllers and gpio-mux
-Date: Wed, 19 Apr 2017 13:23:42 +0200
-Message-ID: <687b26d7-7d80-e8e1-5aa8-a4e8bc070e42@axentia.se>
+Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
+ controller
+Date: Wed, 19 Apr 2017 14:00:54 +0200
+Message-ID: <da90526b-7274-c52c-07e8-9f0d75cf1cbf@axentia.se>
 References: <1492101794-13444-1-git-send-email-peda@axentia.se>
- <1492101794-13444-3-git-send-email-peda@axentia.se>
- <1492509996.2432.63.camel@pengutronix.de>
- <17135062-e58a-b50e-ac85-5f0f0b73d958@axentia.se>
- <1492593449.2970.24.camel@pengutronix.de>
- <0cf0254e-0e43-37c3-f14d-eeffa7d7b9ba@axentia.se>
- <1492599958.2970.84.camel@pengutronix.de>
+ <1492101794-13444-4-git-send-email-peda@axentia.se>
+ <1492592817.2970.14.camel@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1492599958.2970.84.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1492592817.2970.14.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-04-19 13:05, Philipp Zabel wrote:
-> On Wed, 2017-04-19 at 12:41 +0200, Peter Rosin wrote:
->> On 2017-04-19 11:17, Philipp Zabel wrote:
->>> On Tue, 2017-04-18 at 15:36 +0200, Peter Rosin wrote:
->>>> If I got things wrong when I skimmed whatever I came across, and if the
->>>> mmio register is the only mux control option in the stars, it becomes
->>>> less obvious... It's of course still possible to hook into the mux
->>>> subsystem, but the benefit is questionable. And you do get the extra
->>>> device tree node. You could of course also implement a mux driver
->>>> outside of drivers/mux and thus make use of the mux api, but it's tiny
->>>> and any benefit is truly small.
->>>
->>> What I wondered mostly is whether it would be a good idea to move the
->>> OF-graph ports into the mux controller node, and let the video capture
->>> device be the consumer of the mux.
->>> But this wouldn't fit well with the clear split between the mux
->>> controller and the actual mux hardware in the mux DT bindings.
+On 2017-04-19 11:06, Philipp Zabel wrote:
+> On Thu, 2017-04-13 at 18:43 +0200, Peter Rosin wrote:
+>> Add a new minimalistic subsystem that handles multiplexer controllers.
+>> When multiplexers are used in various places in the kernel, and the
+>> same multiplexer controller can be used for several independent things,
+>> there should be one place to implement support for said multiplexer
+>> controller.
 >>
->> I have tried to do something similar. I think. The current
->> drivers/i2c/muxes/i2c-mux-gpio.c is a good candidate for the same thing
->> IIUC.
+>> A single multiplexer controller can also be used to control several
+>> parallel multiplexers, that are in turn used by different subsystems
+>> in the kernel, leading to a need to coordinate multiplexer accesses.
+>> The multiplexer subsystem handles this coordination.
 >>
->> That dedicated driver and the general purpose i2c mux driver does pretty
->> much the same thing with these two DT snippets:
+>> This new mux controller subsystem initially comes with a single backend
+>> driver that controls gpio based multiplexers. Even though not needed by
+>> this initial driver, the mux controller subsystem is prepared to handle
+>> chips with multiple (independent) mux controllers.
 >>
->> Dedicated i2c-mux-gpio DT snippet:
->>
->> 	i2c-mux {
->> 		compatible = "i2c-mux-gpio";
->> 		i2c-parent = <&i2c1>;
->>
->> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
->>
->> 		#address-cells = <1>;
->> 		#size-cells = <0>;
->>
->> 		i2c@1 {
->> 			...
->> 		};
->>
->> 		i2c@3 {
->> 			...
->> 		};
->> 	};
->>
->> General purpose mux DT snippet:
->>
->> 	mux: mux-controller {
->> 		compatible = "gpio-mux";
->> 		#mux-control-cells = <0>;
->>
->> 		mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
->> 	};
->>
->> 	i2c-mux {
->> 		compatible = "i2c-mux";
->> 		i2c-parent = <&i2c1>;
->>
->> 		mux-controls = <&mux>;
->>
->> 		#address-cells = <1>;
->> 		#size-cells = <0>;
->>
->> 		i2c@1 {
->> 			...
->> 		};
->>
->> 		i2c@3 {
->> 			...
->> 		};
->> 	};
-> 
-> Yes, replace i2c-mux with video-mux and the i2c@x nodes with port@x
-> nodes, and this is very close to what I am thinking about.
-> 
->> I would love to find a way to cleanly get the mux framework to handle
->> the first DT as well, and thus being able to obsolete the dedicated
->> i2c-mux-gpio driver. I have not figured out how to accomplish that
->> without abusing the driver-model to a point that it's not working.
->> Help with that task is dearly appreciated.
->>
->> What I have stumbled on, I think, is that two drivers needs to be
->> instantiated from the same DT node. At the same time, I need the
->> mux framework to handle the current out-of-node thing with a
->> phandle as well, so that several mux consumers can share a common
->> mux controller. My understanding of these matters are apparently not
->> deep enough...
-> 
-> Not necessarily, if the framework could export a function to create a
-> gpio/mmio mux_chip on a given device and the gpio-mux and *-mux-gpio
-> drivers just reuse that.
+>> Reviewed-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+>> ---
 
-I've been up that creek. Why should the gpio mux be special cased?
-That's not clean, the implication is that all mux consumers need
-to handle the gpio case and have a special compatible for that
-case etc. Then someone thinks the DT should look equally "clean" for
-some i2c based mux, and the weeds start piling up. This is exactly
-what we don't want. We want the mux consumer drivers to be totally
-agnostic about the fact that they happen to use a gpio mux.
+*snip*
+
+>> +int mux_control_select(struct mux_control *mux, int state)
+> 
+> If we let two of these race, ...
+
+The window for this "race" is positively huge. If there are several
+mux consumers of a single mux controller, it is self-evident that
+if one of them grabs the mux for a long time, the others will suffer.
+
+The design is that the rwsem is reader-locked for the full duration
+of a select/deselect operation by the mux consumer.
+
+>> +{
+>> +	int ret;
+>> +
+>> +	if (down_read_trylock(&mux->lock)) {
+>> +		if (mux->cached_state == state)
+>> +			return 0;
+>> +		/* Sigh, the mux needs updating... */
+>> +		up_read(&mux->lock);
+> 
+> ... and both decide the mux needs updating ...
+> 
+>> +	}
+>> +
+>> +	/* ...or it's just contended. */
+>> +	down_write(&mux->lock);
+> 
+> ... then the last to get to down_write will just wait here forever (or
+> until the first consumer calls mux_control_deselect, which may never
+> happen)?
+
+It is vital that the mux consumer call _deselect when it is done with
+the mux. Not doing so will surely starve out any other mux consumers.
+The whole thing is designed around the fact that mux consumers should
+deselect the mux as soon as it's no longer needed.
+
+It's simply not possible to share something as fundamental as a mux
+without some cooperation. It's not like suffering mux consumers can
+go off and use some other mux, and it's also not possible for a
+"competing" mux consumer to just clobber the mux state.
+
+>> +
+>> +	if (mux->cached_state == state) {
+>> +		/*
+>> +		 * Hmmm, someone else changed the mux to my liking.
+>> +		 * That makes me wonder how long I waited for nothing?
+>> +		 */
+>> +		downgrade_write(&mux->lock);
+>> +		return 0;
+>> +	}
+>> +
+>> +	ret = mux_control_set(mux, state);
+>> +	if (ret < 0) {
+>> +		if (mux->idle_state != MUX_IDLE_AS_IS)
+>> +			mux_control_set(mux, mux->idle_state);
+>> +
+>> +		up_write(&mux->lock);
+>> +		return ret;
+>> +	}
+>> +
+>> +	downgrade_write(&mux->lock);
+>> +
+>> +	return 1;
+>> +}
+>> +EXPORT_SYMBOL_GPL(mux_control_select);
+> 
+> I wonder if these should be called mux_control_lock/unlock instead,
+> which would allow for try_lock and lock_timeout variants.
+
+Maybe, I'm not totally against it. Do others care to opine?
+
+But mux_control_try_select and mux_control_select_timeout does not
+look all that bad either. But maybe foo_lock is making it clearer
+that a foo_unlock is needed, if you compared it to foo_select and
+foo_unselect? I'm probably not the best person to make the call,
+as I know all to well what to expect from the functions...
 
 Cheers,
 peda
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
