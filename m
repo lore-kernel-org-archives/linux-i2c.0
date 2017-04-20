@@ -1,86 +1,88 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Thu, 20 Apr 2017 12:33:16 +0200
-Message-ID: <CAJZ5v0jwZeTy=fNdfBOjLCcGec=vQWVs+1sBktecmfG40vaGjA@mail.gmail.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
- <CAJZ5v0hiGSS+bZWwzz7XgjFr8ckARn9ehaO9q1-76qo4d-76tg@mail.gmail.com> <2a548d9c-fb05-977d-c063-3b481a191a41@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: make sure i2c_master_send/recv return negative
+ error codes
+Date: Thu, 20 Apr 2017 12:41:43 +0200
+Message-ID: <20170420124143.606ae032@endymion>
+References: <20170401175435.GA12354@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <2a548d9c-fb05-977d-c063-3b481a191a41@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:35736 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S940574AbdDTKlq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 06:41:46 -0400
+In-Reply-To: <20170401175435.GA12354@dtor-ws>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2017 at 9:25 AM, Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
-> Hi
->
->
-> On 04/19/2017 11:24 PM, Rafael J. Wysocki wrote:
->>
->> On Thu, Mar 30, 2017 at 2:04 PM, Jarkko Nikula
->> <jarkko.nikula@linux.intel.com> wrote:
->>>
->>> There is possibility to enter dw_i2c_plat_suspend() callback twice
->>> during system suspend under certain cases which is causing here warnings
->>> from clk_core_disable() and clk_core_unprepare() as well as accessing the
->>> registers that can be power gated.
->>>
->>> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
->>> system suspend") implemented a prepare callback that checks for runtime
->>> suspended device which allow PM core to set direct_complete flag and
->>> skip system suspend and resume callbacks.
->>>
->>> However it can still happen if nothing resumes the device prior system
->>> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
->>> unsets the direct_complete flag of the parent in __device_suspend() thus
->>> causing PM code to not skip the system suspend/resume callbacks.
->>>
->>> Avoid this by checking runtime status in suspend and resume callbacks
->>> and return directly if device is runtime suspended. This affects only
->>> system suspend/resume since during runtime suspend/resume runtime status
->>> is suspending (not suspended) or resuming.
->>>
->>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
->>> ---
->>> I'm able to trigger system suspend callback while device is runtime
->>> suspended by removing the pm_runtime_resume() call from
->>> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
->>> slave (ACPI enumerated but doesn't bind due an error in probe function).
->>> In that case __device_suspend() for that unbound device has NULL suspend
->>> callback, and thus doesn't cause any runtime resume chain but still
->>> unsets
->>> the parent's direct_complete flag.
->>> John Stult <john.stultz@linaro.org> has reported he can trigger this on
->>> HiKey board too.
->>>
->>> I'm not sure is this the right thing to do. It feels something the PM
->>> core
->>> should do but I'm not sure that either. One alternative could be to
->>> resume
->>> runtime suspended parent in in __device_suspend() right after where
->>> parent's direct_complete flag is unset.
->>
->>
->> In that case the core expects that the ->prepare callback for the
->> slave will also return 1 (or a positive number in general).
->>
->> If that doesn't happen, then from the core's perspective it is not
->> safe to allow the master's system PM callbacks to be skipped and
->> that's why direct_complete is unset for it.
->>
-> So it's then right thing to check runtime PM status in driver as patch does
-> below?
+Hi Dmirty,
 
-If you know for a fact that none of the device's children and none of
-the children thereof and so on and nothing that may depend on the
-device via a device_link, either directly or indirectly, will ever
-need to be resumed during system suspend, then yes, it is.
+On Sat, 1 Apr 2017 10:54:35 -0700, Dmitry Torokhov wrote:
+> There is theoretical possibility that i2c_master_send() and
+> i2c_master_recv() may return non-negative result on error: we pass
+> return values from i2c_xfer() unmodified to the caller, unless we
+> transferred exactly 1 message. Let's ensure we always return negative on
+> error.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/i2c/i2c-core.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 6efeba42d10b..34b0482333f4 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2835,7 +2835,10 @@ int i2c_master_send(const struct i2c_client *client, const void *buf, int count)
+>  	 * If everything went ok (i.e. 1 msg transmitted), return #bytes
+>  	 * transmitted, else error code.
+>  	 */
+> -	return (ret == 1) ? count : ret;
+> +	if (likely(ret == 1))
+> +		return count;
+> +
+> +	return ret < 0 ? ret : -EIO;
+>  }
+>  EXPORT_SYMBOL(i2c_master_send);
+>  
+> @@ -2865,7 +2868,10 @@ int i2c_master_recv(const struct i2c_client *client, void *buf, int count)
+>  	 * If everything went ok (i.e. 1 msg received), return #bytes received,
+>  	 * else error code.
+>  	 */
+> -	return (ret == 1) ? count : ret;
+> +	if (likely(ret == 1))
+> +		return count;
+> +
+> +	return ret < 0 ? ret : -EIO;
+>  }
+>  EXPORT_SYMBOL(i2c_master_recv);
+>  
 
-Otherwise, no, it isn't.
+I'm not convinced.
 
-Thanks,
-Rafael
+Firstly, that would be a device driver bug, and I can't see how
+silently working around it here helps. If a driver is broken, it should be
+fixed. So I would expect a log message.
+
+Secondly, I believe i2c_master_send() and i2c_master_recv() should be
+able to trust the return value of i2c_transfer(), which in turn should
+be able to trust the return value of __i2c_transfer(). If you really
+want to check the value returned by i2c_algo->master_xfer() for
+validity, this should be done in __i2c_transfer(). But then again, I
+find it hard to justify the run-time overhead for working drivers, so
+maybe it should only be done if CONFIG_I2C_DEBUG_BUS is enabled.
+
+-- 
+Jean Delvare
+SUSE L3 Support
+
+-- 
+Jean Delvare
+SUSE L3 Support
+
+-- 
+Jean Delvare
+SUSE L3 Support
