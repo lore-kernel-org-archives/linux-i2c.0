@@ -1,103 +1,127 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Thu, 20 Apr 2017 10:25:12 +0300
-Message-ID: <2a548d9c-fb05-977d-c063-3b481a191a41@linux.intel.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
- <CAJZ5v0hiGSS+bZWwzz7XgjFr8ckARn9ehaO9q1-76qo4d-76tg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c: xgene-slimpro: Add ACPI support by using PCC
+ mailbox
+Date: Thu, 20 Apr 2017 10:05:52 +0200
+Message-ID: <20170420080552.7hymw4gqy4kzecns@ninjato>
+References: <1490733977-23760-1-git-send-email-hotran@apm.com>
+ <1490733977-23760-3-git-send-email-hotran@apm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ooc5deqzjawzas2w"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:25111 "EHLO mga06.intel.com"
+Received: from sauhun.de ([88.99.104.3]:47551 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S936803AbdDTHbv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 20 Apr 2017 03:31:51 -0400
-In-Reply-To: <CAJZ5v0hiGSS+bZWwzz7XgjFr8ckARn9ehaO9q1-76qo4d-76tg@mail.gmail.com>
+        id S941360AbdDTIFz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 04:05:55 -0400
+Content-Disposition: inline
+In-Reply-To: <1490733977-23760-3-git-send-email-hotran@apm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Hoan Tran <hotran@apm.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>
 
-Hi
 
-On 04/19/2017 11:24 PM, Rafael J. Wysocki wrote:
-> On Thu, Mar 30, 2017 at 2:04 PM, Jarkko Nikula
-> <jarkko.nikula@linux.intel.com> wrote:
->> There is possibility to enter dw_i2c_plat_suspend() callback twice
->> during system suspend under certain cases which is causing here warnings
->> from clk_core_disable() and clk_core_unprepare() as well as accessing the
->> registers that can be power gated.
->>
->> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
->> system suspend") implemented a prepare callback that checks for runtime
->> suspended device which allow PM core to set direct_complete flag and
->> skip system suspend and resume callbacks.
->>
->> However it can still happen if nothing resumes the device prior system
->> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
->> unsets the direct_complete flag of the parent in __device_suspend() thus
->> causing PM code to not skip the system suspend/resume callbacks.
->>
->> Avoid this by checking runtime status in suspend and resume callbacks
->> and return directly if device is runtime suspended. This affects only
->> system suspend/resume since during runtime suspend/resume runtime status
->> is suspending (not suspended) or resuming.
->>
->> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
->> ---
->> I'm able to trigger system suspend callback while device is runtime
->> suspended by removing the pm_runtime_resume() call from
->> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
->> slave (ACPI enumerated but doesn't bind due an error in probe function).
->> In that case __device_suspend() for that unbound device has NULL suspend
->> callback, and thus doesn't cause any runtime resume chain but still unsets
->> the parent's direct_complete flag.
->> John Stult <john.stultz@linaro.org> has reported he can trigger this on
->> HiKey board too.
->>
->> I'm not sure is this the right thing to do. It feels something the PM core
->> should do but I'm not sure that either. One alternative could be to resume
->> runtime suspended parent in in __device_suspend() right after where
->> parent's direct_complete flag is unset.
->
-> In that case the core expects that the ->prepare callback for the
-> slave will also return 1 (or a positive number in general).
->
-> If that doesn't happen, then from the core's perspective it is not
-> safe to allow the master's system PM callbacks to be skipped and
-> that's why direct_complete is unset for it.
->
-So it's then right thing to check runtime PM status in driver as patch 
-does below?
+--ooc5deqzjawzas2w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> ---
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
->>  1 file changed, 6 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index a597ba32de7e..42a9cd09aa64 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
->>         struct platform_device *pdev = to_platform_device(dev);
->>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>
->> +       if (pm_runtime_suspended(dev))
->> +               return 0;
->> +
->>         i2c_dw_disable(i_dev);
->>         i2c_dw_plat_prepare_clk(i_dev, false);
->>
->> @@ -388,6 +391,9 @@ static int dw_i2c_plat_resume(struct device *dev)
->>         struct platform_device *pdev = to_platform_device(dev);
->>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>
->> +       if (pm_runtime_suspended(dev))
->> +               return 0;
->> +
->>         i2c_dw_plat_prepare_clk(i_dev, true);
->>         i2c_dw_init(i_dev);
+Hi,
 
--- 
-Jarkko
+have you tested these patches also without PCC? So, we can be sure there
+is no regression?
+
+> diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/=
+i2c-xgene-slimpro.c
+> index 96545aa..a5771c1 100644
+> --- a/drivers/i2c/busses/i2c-xgene-slimpro.c
+> +++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+> @@ -32,6 +32,8 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/version.h>
+> =20
+> +#include <acpi/pcc.h>
+> +
+
+Please keep it sorted alphabetically.
+
+> +#define PCC_CMD_GENERATE_DB_INT		BIT(15)
+> +#define PCC_STS_CMD_COMPLETE		BIT(0)
+> +#define PCC_STS_SCI_DOORBELL		BIT(1)
+> +#define PCC_STS_ERR			BIT(2)
+> +#define PCC_STS_PLAT_NOTIFY		BIT(3)
+
+Please keep it sorted by number.
+
+> +	if (!acpi_disabled) {
+> +		mutex_lock(&ctx->tx_mutex);
+> +		init_completion(&ctx->rd_complete);
+
+reinit_completion?
+
+> +		slimpro_i2c_pcc_tx_prepare(ctx, msg);
+> +	}
+> +
+> +	mutex_init(&ctx->tx_mutex);
+
+Why this mutex, by the way? The i2c-core serializes access to the
+adapter. Maybe I am missing something?
+
+> +		cppc_ss =3D ctx->mbox_chan->con_priv;
+> +		if (!cppc_ss) {
+> +			dev_err(&pdev->dev, "PPC subspace not found\n");
+> +			rc =3D -ENODEV;
+> +			goto mbox_err;
+> +		}
+> +
+> +		if (!ctx->mbox_chan->mbox->txdone_irq) {
+> +			dev_err(&pdev->dev, "PCC IRQ not supported\n");
+> +			rc =3D -ENODEV;
+> +			goto mbox_err;
+> +		}
+> =20
+> +		/*
+> +		 * This is the shared communication region
+> +		 * for the OS and Platform to communicate over.
+> +		 */
+> +		ctx->comm_base_addr =3D cppc_ss->base_address;
+> +		if (ctx->comm_base_addr) {
+> +			ctx->pcc_comm_addr =3D memremap(ctx->comm_base_addr,
+> +						      cppc_ss->length,
+> +						      MEMREMAP_WB);
+> +		} else {
+> +			dev_err(&pdev->dev, "Failed to get PCC comm region\n");
+> +			rc =3D -ENODEV;
+> +			goto mbox_err;
+> +		}
+
+I think it doesn't make sense to print a dev_err and return ENODEV which
+is treated by the driver core as a non-error. It means "not present, but
+OK". You probably want other error codes here.
+
+Regards,
+
+   Wolfram
+
+
+--ooc5deqzjawzas2w
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj4a9wACgkQFA3kzBSg
+KbaTJA//Y5codW96eHYMY3Muvlj5z2L1KX6NtN3lKro6HoDEHLsNN/Vki5cwG+ip
+qtdWkz+iwW6/TL7FJ8enPKObowraXUsOLUIXKghrEKRHVc9xOLCx1PMarKzdMJfl
+QMAdzM4bBATz8mmbAP6hCp9cv8mURFM6c/Kw24Pw3RCDNBKZe6baBsPgjShmQcsG
+arUfGNoakhSTrIFwCJecI9hX/M+n+bUPQBRKJqyLXSFjy/eND1as2E6IoczZI/wr
+xx14iYQi0mfqGVFJP+hiU9wC8rerG/0kAzdIVgmIDpjKGUCz0Oc3FtamMp7wq+VP
+Er2Wya0+ycT2aYn0Z3KgLaNElkZVXSC0mU1VsrqtUbeKOHypNh1qIDwQNT4E9f9l
+DElDxJFisl0K3HnmvGdoroLox3neDFkZRV1yHxKT5Uc+3Ja+xK+vXZiNqYhpVrYx
+MM+2VSWvmDeurWN5TPWmK0bN/UlzFNjLimm3fY+qUZCLhTEWjpBPdsyFw0IOiyvz
+ouNmFstobGmw8JEJeaRIK8obEMC2KpsfdDtw2Fu0HSP4Mz7FniKK4impfQg0VmH3
+dYxYXkXAwfMm2rFfafLlPI5VG1PCgpPeQPXBm4mYtwJhmrpCXwlwe2FvQ5GMWz78
+bJQeY3noVbZGl65FknZ0KGzKvgro76VIdVVXNW5iD+0l5DlUc+4=
+=93cc
+-----END PGP SIGNATURE-----
+
+--ooc5deqzjawzas2w--
