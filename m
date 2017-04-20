@@ -1,54 +1,52 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 09/38] Annotate hardware config module parameters in
- drivers/i2c/
-Date: Thu, 20 Apr 2017 09:31:37 +0200
-Message-ID: <20170420093137.5d28916d@endymion>
-References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
-        <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: rcar: clarify PM handling with more comments
+Date: Thu, 20 Apr 2017 12:04:33 +0200
+Message-ID: <20170420100433.7010-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49667 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S944200AbdDTJxC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 20 Apr 2017 05:53:02 -0400
-In-Reply-To: <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
+Received: from sauhun.de ([88.99.104.3]:48147 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1031105AbdDTKEo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 06:04:44 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk, Wolfram Sang <wsa@the-dreams.de>, gregkh@linuxfoundation.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Wed, 05 Apr 2017 17:58:03 +0100, David Howells wrote:
-> When the kernel is running in secure boot mode, we lock down the kernel to
-> prevent userspace from modifying the running kernel image.  Whilst this
-> includes prohibiting access to things like /dev/mem, it must also prevent
-> access by means of configuring driver modules in such a way as to cause a
-> device to access or modify the kernel image.
-> 
-> To this end, annotate module_param* statements that refer to hardware
-> configuration and indicate for future reference what type of parameter they
-> specify.  The parameter parser in the core sees this information and can
-> skip such parameters with an error message if the kernel is locked down.
-> The module initialisation then runs as normal, but just sees whatever the
-> default values for those parameters is.
-> 
-> Note that we do still need to do the module initialisation because some
-> drivers have viable defaults set in case parameters aren't specified and
-> some drivers support automatic configuration (e.g. PNP or PCI) in addition
-> to manually coded parameters.
-> 
-> This patch annotates drivers in drivers/i2c/.
-> 
-> Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Wolfram Sang <wsa@the-dreams.de>
-> cc: Jean Delvare <jdelvare@suse.com>
-> cc: linux-i2c@vger.kernel.org
-> (...)
+PM handling is correct but might be a bit subtle. Add some comments for
+clarification.
 
-Acked-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 66b84bf51bbfd0..214bf2835d1f95 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -753,6 +753,7 @@ static int rcar_reg_slave(struct i2c_client *slave)
+ 	if (slave->flags & I2C_CLIENT_TEN)
+ 		return -EAFNOSUPPORT;
+ 
++	/* Keep device active for slave address detection logic */
+ 	pm_runtime_get_sync(rcar_i2c_priv_to_dev(priv));
+ 
+ 	priv->slave = slave;
+@@ -856,13 +857,14 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	priv->dma_direction = DMA_NONE;
+ 	priv->dma_rx = priv->dma_tx = ERR_PTR(-EPROBE_DEFER);
+ 
++	/* Activate device for clock calculation */
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_sync(dev);
+ 	ret = rcar_i2c_clock_calculate(priv, &i2c_t);
+ 	if (ret < 0)
+ 		goto out_pm_put;
+ 
+-	/* Don't suspend when multi-master to keep arbitration working */
++	/* Stay always active when multi-master to keep arbitration working */
+ 	if (of_property_read_bool(dev->of_node, "multi-master"))
+ 		priv->flags |= ID_P_PM_BLOCKED;
+ 	else
 -- 
-Jean Delvare
-SUSE L3 Support
+2.11.0
