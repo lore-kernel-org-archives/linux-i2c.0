@@ -1,62 +1,67 @@
-From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v8 4/6] i2c: designware: introducing I2C_SLAVE definitions
-Date: Thu, 20 Apr 2017 15:49:12 +0300
-Message-ID: <fe61a6b8-fd6e-0f90-be31-852b252ddf33@linux.intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v8 5/6] i2c: designware: add SLAVE mode functions
+Date: Thu, 20 Apr 2017 15:50:08 +0300
+Message-ID: <47b60352-183b-0cf6-b8a6-7aea2fd2d111@linux.intel.com>
 References: <cover.1492014220.git.lolivei@synopsys.com>
- <d04556720066de26b6c7f979d0a1ab9bdf36e8fe.1492014220.git.lolivei@synopsys.com>
+ <fd93983d95d31974c917eab15221d675f08a50f6.1492014220.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <d04556720066de26b6c7f979d0a1ab9bdf36e8fe.1492014220.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga05.intel.com ([192.55.52.43]:34585 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S966455AbdDTMuN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 08:50:13 -0400
+In-Reply-To: <fd93983d95d31974c917eab15221d675f08a50f6.1492014220.git.lolivei@synopsys.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
 On 04/12/2017 07:47 PM, Luis Oliveira wrote:
-> - Definitions were added to core library
-> - A example was added to designware-core.txt Documentation that shows
->   how the slave can be setup using DTS
+> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+> - Slave functions added to core library file
+> - Slave abort sources added to common source file
+> - New driver: i2c-designware-slave added
+> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>   when supported by the architecture.
 >
-> SLAVE related definitions were added to the core of the controller.
+> All the SLAVE flow is added but it is not enabled via platform
+> driver.
 >
-> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Acked-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
 > ---
 > v7-v8
 > - no changes
-...
-> +#define DW_IC_RX_ABRT_SLAVE_RD_INTX	(1UL << ABRT_SLAVE_RD_INTX)
-> +#define DW_IC_RX_ABRT_SLAVE_ARBLOST	(1UL << ABRT_SLAVE_ARBLOST)
-> +#define DW_IC_RX_ABRT_SLAVE_FLUSH_TXFIFO	(1UL << ABRT_SLAVE_FLUSH_TXFIFO)
 >
->  #define DW_IC_TX_ABRT_NOACK		(DW_IC_TX_ABRT_7B_ADDR_NOACK | \
->  					 DW_IC_TX_ABRT_10ADDR1_NOACK | \
-> @@ -212,6 +237,7 @@ struct dw_i2c_dev {
->  	struct completion	cmd_complete;
->  	struct clk		*clk;
->  	struct reset_control	*rst;
-> +	struct i2c_client		*slave;
->  	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
->  	struct dw_pci_controller *controller;
->  	int			cmd_err;
-> @@ -231,6 +257,7 @@ struct dw_i2c_dev {
->  	struct i2c_adapter	adapter;
->  	u32			functionality;
->  	u32			master_cfg;
-> +	u32			slave_cfg;
->  	unsigned int		tx_fifo_depth;
->  	unsigned int		rx_fifo_depth;
->  	int			rx_outstanding;
+>  drivers/i2c/busses/Kconfig                 |  14 +-
+>  drivers/i2c/busses/Makefile                |   1 +
+>  drivers/i2c/busses/i2c-designware-common.c |   6 +
+>  drivers/i2c/busses/i2c-designware-core.h   |   2 +
+>  drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
+>  5 files changed, 425 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 144cbadc7c72..84efa57f90b3 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -474,11 +474,23 @@ config I2C_DESIGNWARE_PLATFORM
+>  	depends on (ACPI && COMMON_CLK) || !ACPI
+>  	help
+>  	  If you say yes to this option, support will be included for the
+> -	  Synopsys DesignWare I2C adapter. Only master mode is supported.
+> +	  Synopsys DesignWare I2C adapter.
+>
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-designware-platform.
+>
+> +config I2C_DESIGNWARE_SLAVE
+> +	bool "Synopsys DesignWare Slave"
+> +	select I2C_SLAVE
+> +	select I2C_SLAVE_EEPROM
 
-You forgot to add comments here.
+I didn't notice this before - is there reason to select I2C_SLAVE_EEPROM?
 
 -- 
 Jarkko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
