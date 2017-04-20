@@ -1,44 +1,71 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/3] Documentation: dt: i2c: Add Altera I2C Controller
-Date: Thu, 20 Apr 2017 10:47:05 -0500
-Message-ID: <CAL_JsqLcrFsRDXfVUtnvUT+RWuk-eduJKV9vN94_d9TswEuCdQ@mail.gmail.com>
-References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
- <1491926547-29510-3-git-send-email-thor.thayer@linux.intel.com>
- <20170413212240.uxwh5525baqmgny4@rob-hp-laptop> <7c803e53-5c1b-cd59-6c59-5a32b07edcb8@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 4/4] i2c: octeon: thunderx: Add I2C_CLASS_HWMON
+Date: Thu, 20 Apr 2017 17:55:29 +0200
+Message-ID: <20170420155529.riir2yqhddj4y7lj@ninjato>
+References: <20161209093158.3161-1-jglauber@cavium.com>
+ <20161209093158.3161-5-jglauber@cavium.com>
+ <20161211220434.GH2552@katana>
+ <20170125204923.2mxtlszvco6wxjok@ninjato>
+ <20170420091632.GA8383@hc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7c803e53-5c1b-cd59-6c59-5a32b07edcb8-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="o6zj6kuoaropastm"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:49777 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S946533AbdDTPzd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 11:55:33 -0400
+Content-Disposition: inline
+In-Reply-To: <20170420091632.GA8383@hc>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Glauber <jan.glauber@caviumnetworks.com>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-i2c@vger.kernel.org, Vadim Lomovtsev <Vadim.Lomovtsev@caviumnetworks.com>
 
-On Fri, Apr 14, 2017 at 8:46 AM, Thor Thayer
-<thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> Hi Rob,
->
-> On 04/13/2017 04:22 PM, Rob Herring wrote:
->>
->> On Tue, Apr 11, 2017 at 11:02:26AM -0500, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
->> wrote:
->>>
->>> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-[...]
+--o6zj6kuoaropastm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->>> +Required properties :
->>> + - compatible : should be "altr,sip-i2c"
->>
->>
->> Seems kind of generic.
->>
-> I'm using sip for soft IP - right now we only offer 1 flavor.
+Hi Jan,
 
-There is no versioning or release numbering associated with it?
+> We do want auto-detection, so either this text is wrong or setting
+> I2C_CLASS_HWMON in our i2c adapter is correct. Am I missing
+> something?
 
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I was assuming the pci-driver could ACPI for device instantiation, and
+the platdrv could use DT. Then, the adapter class usage raised my
+eyebrow.
+
+I just saw that the pci-driver does not have ACPI support, yet. So, the
+class could be used. Not sure about the platdrv case? But even then, the
+adapter will probe EVERY hwmon device as soon as its i2c client driver
+loads. Do you really want that? This may cost boot time, has unneeded
+traffic on the bus, etc.
+
+Regards,
+
+   Wolfram
+
+
+--o6zj6kuoaropastm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj42fEACgkQFA3kzBSg
+KbbEWw//S1zB9DwcHiCV9u6+LoUW/FC26oE0hGF+rloHYHRhD0jJJQc8thdYM3+E
+AYQoEjvNip/izr93TRI0VsPioOnCBrM9Xlc4Tg5dQ7nUQnsS3Twczn/Hpy26wzQV
+YXsBO/yDVq2QSKLiCgRnHzBB+p78/drK1pWZXHNJXR1oKwfJ8ZCVMy8ubSagXUFs
+Z2tTSbD4c1gg3Jhd9CQmhCza1oIkpyXpHb4a2mIla/RlIckr8LpzavTLZ261Eci0
+Q+Z06E/JI9rpjIcDZl8lrIfmfOHuOY+DNSyT9hLWAcIx840w8kudOYvoeF5WcCS6
+J2SGS//WqeJoE/c9rfloNfO0kvP7IjPCn4loigTzfNQsJ/BSdkOC2lhApqVPGG2X
+DDILwYJqNeZJn4zpFXWv1jgRPwtVIk+ufOR2O7Gh5kKEpSa6B9epO0owoim/oyyC
+O06Hmc/NIsLzuuWM0c5sAWsyEAAHwz1+bb8xXOnGIdsMCd0APIa98YLuA6HF1APV
+GRowRgWgQBXyWh1A1I6iIjhhLWgrviWvbFy3FSuIy0cvqPtB5EuSwCPQYXOpwqcj
+M2oEffC5yJBOvSj0xsfm1mGi5rmL1qdcijb857J3VmCSC8B7kROa5y9fw7ldoaTU
+qqMttIKxw1B2BqRqGSYajbXWCV+VPL03C5ngZ9oHPw8au2YWGJ4=
+=n0Z6
+-----END PGP SIGNATURE-----
+
+--o6zj6kuoaropastm--
