@@ -1,113 +1,47 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
- controller
-Date: Wed, 19 Apr 2017 23:04:30 +0200
-Message-ID: <5945890d-2eea-f287-96ca-c095e8fa7be5@axentia.se>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
- <1492101794-13444-4-git-send-email-peda@axentia.se>
- <1492592817.2970.14.camel@pengutronix.de>
- <da90526b-7274-c52c-07e8-9f0d75cf1cbf@axentia.se>
- <1492609756.2970.131.camel@pengutronix.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 00/21] eeprom: at24: Add OF device ID table
+Date: Wed, 19 Apr 2017 19:12:42 -0500
+Message-ID: <20170420001242.vl3sga2bd65jlaoi@rob-hp-laptop>
+References: <20170414010445.21727-1-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1492609756.2970.131.camel@pengutronix.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20170414010445.21727-1-javier@osg.samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c@vger.kernel.org, Hongtao Jia <hongtao.jia@nxp.com>, Russell King <linux@armlinux.org.uk>, Mark Jackson <mpfj@newflow.co.uk>, Herbert Xu <herbert@gondor.apana.org.au>, Horia =?utf-8?Q?Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-arm-kernel@lists.infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Jason Cooper <jason@lakedaemon.net>, Sebastian
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-04-19 15:49, Philipp Zabel wrote:
-> On Wed, 2017-04-19 at 14:00 +0200, Peter Rosin wrote:
-> [...]
->>>> +int mux_control_select(struct mux_control *mux, int state)
->>>
->>> If we let two of these race, ...
->>
->> The window for this "race" is positively huge. If there are several
->> mux consumers of a single mux controller, it is self-evident that
->> if one of them grabs the mux for a long time, the others will suffer.
->>
->> The design is that the rwsem is reader-locked for the full duration
->> of a select/deselect operation by the mux consumer.
+On Thu, Apr 13, 2017 at 10:04:24PM -0300, Javier Martinez Canillas wrote:
+> Hello Wolfram,
 > 
-> I was not clear. I meant: I think this can also happen if we let them
-> race with the same state target.
+> This series is a follow-up to patch [0] that added an OF device ID table
+> to the at24 EEPROM driver. As you suggested [1], this version instead of
+> adding entries for every used <vendor,device> tuple, only adds a single
+> entry for each chip type using the "atmel" vendor as a generic fallback.
+> 
+> The first patch adds the OF device ID table for the at24 driver and the
+> next patches adds a generic fallback compatible string to each DTS that
+> defines a compatible I2C EEPROM device node.
+> 
+> Patches can be applied independently since the DTS change without the
+> driver change is a no-op and the OF device table won't be used without
+> the DTS changes.
+> 
+> [0]: https://lkml.org/lkml/2017/3/14/589
 
-Right, but there is another glaring problem with the v13 implementation
-of select/deselect. If there are three consumers and the first one
-holds the mux while the other two tries to select it to some other
-position, then even if the two "new" consumers agree on the mux state,
-then both of them will end up in the "it's just contended" case and
-then be serialized. So, yes, the select/deselect implementation is not
-perfect. To quote the cover letter:
+I don't have this patch in my inbox, but the i2c core will still match 
+on compatibles with no vendor prefix? If not, those need to be added to 
+the match table too.
 
-	I'm using an rwsem to lock a mux, but that isn't really a
-	perfect fit. Is there a better locking primitive that I don't
-	know about that fits better? I had a mutex at one point, but
-	that didn't allow any concurrent accesses at all. At least
-	the rwsem allows concurrent access as long as all users
-	agree on the mux state, but I suspect that the rwsem will
-	degrade to the mutex situation pretty quickly if there is
-	any contention.
-
-But with your discovery that there's a race when two consumers go
-for the same state in a free mux, in addition to the above contention
-problem, I'm about ready to go with Greg's suggestion and just use a
-mutex. I.e. ignore the desire to allow concurrent use. Because it's
-not like the sketchy thing I threw out in the other part of the thread
-solves any of these problems. I can live without the concurrency, and
-I guess I can also live with passing the buck to the poor sod that
-eventually needs it.
-
->>>> +{
->>>> +	int ret;
->>>> +
->>>> +	if (down_read_trylock(&mux->lock)) {
->>>> +		if (mux->cached_state == state)
->>>> +			return 0;
-> 
-> This check makes it clear that a second select call is not intended to
-> block if the intended state is already selected. But if the instance we
-> will lose the race against has not yet updated cached_state, ...
-> 
->>>> +		/* Sigh, the mux needs updating... */
->>>> +		up_read(&mux->lock);
->>>> +	}
->>>> +
->>>> +	/* ...or it's just contended. */
->>>> +	down_write(&mux->lock);
-> 
-> ... we are blocking here until the other instance calls up_read. Even
-> though in this case (same state target) we would only have to block
-> until the other instance calls downgrade_write after the mux control is
-> set to the correct state.
-> 
-> Basically there is a small window before down_write with no lock at all,
-> where multiple instances can already have decided they must change the
-> mux (to the same state). If this happens, they go on to block each other
-> unnecessarily.
-> 
->>> ... then the last to get to down_write will just wait here forever (or
->>> until the first consumer calls mux_control_deselect, which may never
->>> happen)?
->>
->> It is vital that the mux consumer call _deselect when it is done with
->> the mux. Not doing so will surely starve out any other mux consumers.
->> The whole thing is designed around the fact that mux consumers should
->> deselect the mux as soon as it's no longer needed.
-> 
-> I'd like to use this for video bus multiplexers. Those would not be
-> selected for the duration of an i2c transfer, but for the duration of a
-> running video capture stream, or for the duration of an enabled display
-> path. While I currently have no use case for multiple consumers
-> controlling the same mux, this scenario is what shapes my perspective.
-> For such long running selections the consumer should have the option to
-> return -EBUSY instead of blocking when the lock can't be taken.
-
-I'll see if I can implement a try variant for the mutex based select I
-will probably end up with in v14...
-
-Cheers,
-peda
+Rob
