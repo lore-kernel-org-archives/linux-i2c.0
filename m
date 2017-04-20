@@ -1,75 +1,54 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 4/4] i2c: octeon: thunderx: Add I2C_CLASS_HWMON
-Date: Thu, 20 Apr 2017 11:16:32 +0200
-Message-ID: <20170420091632.GA8383@hc>
-References: <20161209093158.3161-1-jglauber@cavium.com>
- <20161209093158.3161-5-jglauber@cavium.com>
- <20161211220434.GH2552@katana>
- <20170125204923.2mxtlszvco6wxjok@ninjato>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 09/38] Annotate hardware config module parameters in
+ drivers/i2c/
+Date: Thu, 20 Apr 2017 09:31:37 +0200
+Message-ID: <20170420093137.5d28916d@endymion>
+References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+        <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn3nam01on0047.outbound.protection.outlook.com ([104.47.33.47]:24928
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+Received: from mx2.suse.de ([195.135.220.15]:49667 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S939843AbdDTJQr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 20 Apr 2017 05:16:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20170125204923.2mxtlszvco6wxjok@ninjato>
+        id S944200AbdDTJxC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 20 Apr 2017 05:53:02 -0400
+In-Reply-To: <149141148368.29162.12692004178864468110.stgit@warthog.procyon.org.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-i2c@vger.kernel.org, Vadim Lomovtsev <Vadim.Lomovtsev@caviumnetworks.com>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk, Wolfram Sang <wsa@the-dreams.de>, gregkh@linuxfoundation.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Wed, Jan 25, 2017 at 09:49:23PM +0100, Wolfram Sang wrote:
-> On Sun, Dec 11, 2016 at 11:04:35PM +0100, Wolfram Sang wrote:
-> > On Fri, Dec 09, 2016 at 10:31:58AM +0100, Jan Glauber wrote:
-> > > It was reported that ipmi_ssif fails to create the
-> > > ipmi device on some systems if the adapter class is not containing
-> > > I2C_CLASS_HWMON. Fix it by setting the class.
-> > > 
-> > > Reported-by: Vadim Lomovtsev <Vadim.Lomovtsev@caviumnetworks.com>
-> > > Signed-off-by: Jan Glauber <jglauber@cavium.com>
-> > 
-> > The intention of adapter classes is to *limit* probing to a certain
-> > class of devices. If a class is needed to *enable* probing, then
-> > something there looks wrong. From the details given, this must be solved
-> > elsewhere I'd say.
+On Wed, 05 Apr 2017 17:58:03 +0100, David Howells wrote:
+> When the kernel is running in secure boot mode, we lock down the kernel to
+> prevent userspace from modifying the running kernel image.  Whilst this
+> includes prohibiting access to things like /dev/mem, it must also prevent
+> access by means of configuring driver modules in such a way as to cause a
+> device to access or modify the kernel image.
 > 
-> Makes sense?
+> To this end, annotate module_param* statements that refer to hardware
+> configuration and indicate for future reference what type of parameter they
+> specify.  The parameter parser in the core sees this information and can
+> skip such parameters with an error message if the kernel is locked down.
+> The module initialisation then runs as normal, but just sees whatever the
+> default values for those parameters is.
 > 
+> Note that we do still need to do the module initialisation because some
+> drivers have viable defaults set in case parameters aren't specified and
+> some drivers support automatic configuration (e.g. PNP or PCI) in addition
+> to manually coded parameters.
+> 
+> This patch annotates drivers in drivers/i2c/.
+> 
+> Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Wolfram Sang <wsa@the-dreams.de>
+> cc: Jean Delvare <jdelvare@suse.com>
+> cc: linux-i2c@vger.kernel.org
+> (...)
 
-Hi Wolfram,
+Acked-by: Jean Delvare <jdelvare@suse.de>
 
-I've looked at this again because apparently auto-detection of BMCs
-(ipmi_ssif driver) is not working anymore.
-
-Debugging it shows that ssif_probe is not called when ipmi_ssif is
-trying to automatically detect BMCs. Adding the i2c device manually
-works fine (ssif_probe called).
-
-Setting the class value in the ThunderX i2c driver to I2C_CLASS_HWMON
-makes the autodection of ipmi_ssif work.
-
-Looking for clues how to solve this (because you mentioned this might be
-the wrong solution) I've stumbled over this:
-
-Documentation/i2c/writing-clients:
-  You simply have to define a detect callback which will attempt to
-  identify supported devices (returning 0 for supported ones and -ENODEV
-  for unsupported ones), a list of addresses to probe, and a device type
-  (or class) so that only I2C buses which may have that type of device
-  connected (and not otherwise enumerated) will be probed.  For example,
-  a driver for a hardware monitoring chip for which auto-detection is
-  needed would set its class to I2C_CLASS_HWMON, and only I2C adapters
-  with a class including I2C_CLASS_HWMON would be probed by this driver.
-  Note that the absence of matching classes does not prevent the use of
-  a device of that type on the given I2C adapter.  All it prevents is
-  auto-detection; explicit instantiation of devices is still possible.
-
-We do want auto-detection, so either this text is wrong or setting
-I2C_CLASS_HWMON in our i2c adapter is correct. Am I missing
-something?
-
-thanks,
-Jan
+-- 
+Jean Delvare
+SUSE L3 Support
