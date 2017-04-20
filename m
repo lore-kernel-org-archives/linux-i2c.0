@@ -1,65 +1,43 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: Re: [PATCH v8 5/6] i2c: designware: add SLAVE mode functions
-Date: Thu, 20 Apr 2017 15:17:08 +0100
-Message-ID: <b523039c-0120-2861-d9a8-4a8288ffe527@synopsys.com>
-References: <cover.1492014220.git.lolivei@synopsys.com>
- <fd93983d95d31974c917eab15221d675f08a50f6.1492014220.git.lolivei@synopsys.com>
- <47b60352-183b-0cf6-b8a6-7aea2fd2d111@linux.intel.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: use core helper to get driver data
+Date: Thu, 20 Apr 2017 10:41:32 -0400
+Message-ID: <92a43b1b-77c9-3acb-5f47-cfbfce01c860@osg.samsung.com>
+References: <CGME20170224133606eucas1p2c3c6afb60b9e39ad501c1ddbdbfc180f@eucas1p2.samsung.com>
+ <1487943360-6421-1-git-send-email-a.hajda@samsung.com>
+ <ec1304b4-ddf1-e1c4-6edd-03384dbb84f2@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <47b60352-183b-0cf6-b8a6-7aea2fd2d111@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:36451
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S946379AbdDTOlk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Apr 2017 10:41:40 -0400
+In-Reply-To: <ec1304b4-ddf1-e1c4-6edd-03384dbb84f2@osg.samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Krzysztof Kozlowski <krzk@kernel.org>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 
-On 20-Apr-17 13:50, Jarkko Nikula wrote:
-> On 04/12/2017 07:47 PM, Luis Oliveira wrote:
->> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
->> - Slave functions added to core library file
->> - Slave abort sources added to common source file
->> - New driver: i2c-designware-slave added
->> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
->>   when supported by the architecture.
+On 03/06/2017 12:32 PM, Javier Martinez Canillas wrote:
+> Hello Andrzej,
+> 
+> On 02/24/2017 10:36 AM, Andrzej Hajda wrote:
+>> Driver core provides of_device_get_match_data which can be used
+>> to get driver data instead of custom helper.
 >>
->> All the SLAVE flow is added but it is not enabled via platform
->> driver.
->>
->> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+>> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
 >> ---
->> v7-v8
->> - no changes
->>
->>  drivers/i2c/busses/Kconfig                 |  14 +-
->>  drivers/i2c/busses/Makefile                |   1 +
->>  drivers/i2c/busses/i2c-designware-common.c |   6 +
->>  drivers/i2c/busses/i2c-designware-core.h   |   2 +
->>  drivers/i2c/busses/i2c-designware-slave.c  | 403 +++++++++++++++++++++++++++++
->>  5 files changed, 425 insertions(+), 1 deletion(-)
->>  create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
->>
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 144cbadc7c72..84efa57f90b3 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -474,11 +474,23 @@ config I2C_DESIGNWARE_PLATFORM
->>      depends on (ACPI && COMMON_CLK) || !ACPI
->>      help
->>        If you say yes to this option, support will be included for the
->> -      Synopsys DesignWare I2C adapter. Only master mode is supported.
->> +      Synopsys DesignWare I2C adapter.
->>
->>        This driver can also be built as a module.  If so, the module
->>        will be called i2c-designware-platform.
->>
->> +config I2C_DESIGNWARE_SLAVE
->> +    bool "Synopsys DesignWare Slave"
->> +    select I2C_SLAVE
->> +    select I2C_SLAVE_EEPROM
 > 
-> I didn't notice this before - is there reason to select I2C_SLAVE_EEPROM?
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 > 
-Yeah, this is in the wrong place. I need it to test it, but it shouldn't be
-here. I will remove it.
+
+I've also tested this patch on an Exynos5800 Peach Pi Chromebook:
+
+Tested-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+Best regards,
+-- 
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America
