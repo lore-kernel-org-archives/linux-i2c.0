@@ -1,65 +1,116 @@
-From: Jan Glauber <jan.glauber@caviumnetworks.com>
-Subject: Re: [PATCH 4/4] i2c: octeon: thunderx: Add I2C_CLASS_HWMON
-Date: Thu, 20 Apr 2017 19:27:28 +0200
-Message-ID: <20170420172728.GA4311@hc>
-References: <20161209093158.3161-1-jglauber@cavium.com>
- <20161209093158.3161-5-jglauber@cavium.com>
- <20161211220434.GH2552@katana>
- <20170125204923.2mxtlszvco6wxjok@ninjato>
- <20170420091632.GA8383@hc>
- <20170420155529.riir2yqhddj4y7lj@ninjato>
+From: Hoan Tran <hotran@apm.com>
+Subject: Re: [PATCH 2/2] i2c: xgene-slimpro: Add ACPI support by using PCC mailbox
+Date: Thu, 20 Apr 2017 13:38:53 -0700
+Message-ID: <CAFHUOYxfivQ6kQwBwyX5X8QESbCFo4E_KM5iFHyjuChtTZq+uQ@mail.gmail.com>
+References: <1490733977-23760-1-git-send-email-hotran@apm.com>
+ <1490733977-23760-3-git-send-email-hotran@apm.com> <20170420080552.7hymw4gqy4kzecns@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2nam01on0042.outbound.protection.outlook.com ([104.47.34.42]:40208
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S941126AbdDTR1o (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 20 Apr 2017 13:27:44 -0400
-Content-Disposition: inline
-In-Reply-To: <20170420155529.riir2yqhddj4y7lj@ninjato>
+Received: from mail-yb0-f176.google.com ([209.85.213.176]:34525 "EHLO
+        mail-yb0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941540AbdDTUiz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 20 Apr 2017 16:38:55 -0400
+Received: by mail-yb0-f176.google.com with SMTP id 11so33572836ybw.1
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Apr 2017 13:38:55 -0700 (PDT)
+In-Reply-To: <20170420080552.7hymw4gqy4kzecns@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-i2c@vger.kernel.org, Vadim Lomovtsev <Vadim.Lomovtsev@caviumnetworks.com>
+Cc: linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>
 
-On Thu, Apr 20, 2017 at 05:55:29PM +0200, Wolfram Sang wrote:
-> Hi Jan,
-> 
-> > We do want auto-detection, so either this text is wrong or setting
-> > I2C_CLASS_HWMON in our i2c adapter is correct. Am I missing
-> > something?
-> 
-> I was assuming the pci-driver could ACPI for device instantiation, and
-> the platdrv could use DT. Then, the adapter class usage raised my
-> eyebrow.
-> 
-> I just saw that the pci-driver does not have ACPI support, yet. So, the
-> class could be used. Not sure about the platdrv case? But even then, the
-> adapter will probe EVERY hwmon device as soon as its i2c client driver
-> loads. Do you really want that? This may cost boot time, has unneeded
-> traffic on the bus, etc.
+Hi Wolfram,
 
-What is missing in the pci-driver for ACPI support? We already use ACPI
-to detect the sclk setting.
+On Thu, Apr 20, 2017 at 1:05 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Hi,
+>
+> have you tested these patches also without PCC? So, we can be sure there
+> is no regression?
 
-The automatic probing is requested by distributions. As we have to support
-both ACPI and DT there I thought of letting ipmi-ssif use the smbios/dmi
-information that is already there and usable regardless of ACPI / DT.
+These patches are tested with/without PCC.
 
-For servers I don't think the probing overhead is an issue, the firmware
-only exposes the BMC device there. On the "embedded" systems I've not
-seen a BMC yet and anyone attempting do minimize boot time can disable
-the automatic probing.
+>
+>> diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
+>> index 96545aa..a5771c1 100644
+>> --- a/drivers/i2c/busses/i2c-xgene-slimpro.c
+>> +++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+>> @@ -32,6 +32,8 @@
+>>  #include <linux/platform_device.h>
+>>  #include <linux/version.h>
+>>
+>> +#include <acpi/pcc.h>
+>> +
+>
+> Please keep it sorted alphabetically.
+>
+>> +#define PCC_CMD_GENERATE_DB_INT              BIT(15)
+>> +#define PCC_STS_CMD_COMPLETE         BIT(0)
+>> +#define PCC_STS_SCI_DOORBELL         BIT(1)
+>> +#define PCC_STS_ERR                  BIT(2)
+>> +#define PCC_STS_PLAT_NOTIFY          BIT(3)
+>
+> Please keep it sorted by number.
+>
+>> +     if (!acpi_disabled) {
+>> +             mutex_lock(&ctx->tx_mutex);
+>> +             init_completion(&ctx->rd_complete);
+>
+> reinit_completion?
 
-So, if you're ok with this I'll re-phrase the commit message and
-re-submit the patch.
+OK,
 
-Gruß,
-Jan
+>
+>> +             slimpro_i2c_pcc_tx_prepare(ctx, msg);
+>> +     }
+>> +
+>> +     mutex_init(&ctx->tx_mutex);
+>
+> Why this mutex, by the way? The i2c-core serializes access to the
+> adapter. Maybe I am missing something?
 
+That's a good point, let me remove this mutex.
+
+>
+>> +             cppc_ss = ctx->mbox_chan->con_priv;
+>> +             if (!cppc_ss) {
+>> +                     dev_err(&pdev->dev, "PPC subspace not found\n");
+>> +                     rc = -ENODEV;
+>> +                     goto mbox_err;
+>> +             }
+>> +
+>> +             if (!ctx->mbox_chan->mbox->txdone_irq) {
+>> +                     dev_err(&pdev->dev, "PCC IRQ not supported\n");
+>> +                     rc = -ENODEV;
+>> +                     goto mbox_err;
+>> +             }
+>>
+>> +             /*
+>> +              * This is the shared communication region
+>> +              * for the OS and Platform to communicate over.
+>> +              */
+>> +             ctx->comm_base_addr = cppc_ss->base_address;
+>> +             if (ctx->comm_base_addr) {
+>> +                     ctx->pcc_comm_addr = memremap(ctx->comm_base_addr,
+>> +                                                   cppc_ss->length,
+>> +                                                   MEMREMAP_WB);
+>> +             } else {
+>> +                     dev_err(&pdev->dev, "Failed to get PCC comm region\n");
+>> +                     rc = -ENODEV;
+>> +                     goto mbox_err;
+>> +             }
+>
+> I think it doesn't make sense to print a dev_err and return ENODEV which
+> is treated by the driver core as a non-error. It means "not present, but
+> OK". You probably want other error codes here.
+
+How about -EINVAL for these -ENODEV error codes? Do you have any suggestion?
+
+Thank for your comments!
+Hoan
+
+
+>
 > Regards,
-> 
+>
 >    Wolfram
-> 
+>
