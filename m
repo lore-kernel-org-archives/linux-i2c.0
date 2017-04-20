@@ -1,88 +1,53 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: make sure i2c_master_send/recv return negative
- error codes
-Date: Thu, 20 Apr 2017 12:41:43 +0200
-Message-ID: <20170420124143.606ae032@endymion>
-References: <20170401175435.GA12354@dtor-ws>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v8 3/6] i2c: designware: MASTER mode as separated driver
+Date: Thu, 20 Apr 2017 15:49:01 +0300
+Message-ID: <3963c4b3-0ca7-8a97-825c-09dde3472554@linux.intel.com>
+References: <cover.1492014220.git.lolivei@synopsys.com>
+ <f4ffddb9cb8206d299700d9de89b11246757e8c0.1492014220.git.lolivei@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35736 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S940574AbdDTKlq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 20 Apr 2017 06:41:46 -0400
-In-Reply-To: <20170401175435.GA12354@dtor-ws>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <f4ffddb9cb8206d299700d9de89b11246757e8c0.1492014220.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmirty,
-
-On Sat, 1 Apr 2017 10:54:35 -0700, Dmitry Torokhov wrote:
-> There is theoretical possibility that i2c_master_send() and
-> i2c_master_recv() may return non-negative result on error: we pass
-> return values from i2c_xfer() unmodified to the caller, unless we
-> transferred exactly 1 message. Let's ensure we always return negative on
-> error.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On 04/12/2017 07:47 PM, Luis Oliveira wrote:
+> - The functions related to I2C master mode of operation were transformed
+>   in a single driver.
+> - Common definitions were moved to i2c-designware-core.h
+> - The i2c-designware-core is now only a library file, the functions
+>   associated are in a source file called i2c-designware-common and
+>   are used by both i2c-designware-master and i2c-designware-slave.
+> - To decrease noise in namespace common i2c_dw_*() functions are
+>   now using ops to keep them private.
+> - Designware PCI driver had to be changed to match the previous ops
+>   functions implementation.
+>
+> Almost all of the "core" source is now part of the "master" source. The
+> difference is the functions used by both modes and they are in the
+> "common" source file.
+>
+> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> Acked-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > ---
->  drivers/i2c/i2c-core.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6efeba42d10b..34b0482333f4 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -2835,7 +2835,10 @@ int i2c_master_send(const struct i2c_client *client, const void *buf, int count)
->  	 * If everything went ok (i.e. 1 msg transmitted), return #bytes
->  	 * transmitted, else error code.
->  	 */
-> -	return (ret == 1) ? count : ret;
-> +	if (likely(ret == 1))
-> +		return count;
-> +
-> +	return ret < 0 ? ret : -EIO;
->  }
->  EXPORT_SYMBOL(i2c_master_send);
->  
-> @@ -2865,7 +2868,10 @@ int i2c_master_recv(const struct i2c_client *client, void *buf, int count)
->  	 * If everything went ok (i.e. 1 msg received), return #bytes received,
->  	 * else error code.
->  	 */
-> -	return (ret == 1) ? count : ret;
-> +	if (likely(ret == 1))
-> +		return count;
-> +
-> +	return ret < 0 ? ret : -EIO;
->  }
->  EXPORT_SYMBOL(i2c_master_recv);
->  
-
-I'm not convinced.
-
-Firstly, that would be a device driver bug, and I can't see how
-silently working around it here helps. If a driver is broken, it should be
-fixed. So I would expect a log message.
-
-Secondly, I believe i2c_master_send() and i2c_master_recv() should be
-able to trust the return value of i2c_transfer(), which in turn should
-be able to trust the return value of __i2c_transfer(). If you really
-want to check the value returned by i2c_algo->master_xfer() for
-validity, this should be done in __i2c_transfer(). But then again, I
-find it hard to justify the run-time overhead for working drivers, so
-maybe it should only be done if CONFIG_I2C_DEBUG_BUS is enabled.
-
--- 
-Jean Delvare
-SUSE L3 Support
-
--- 
-Jean Delvare
-SUSE L3 Support
-
--- 
-Jean Delvare
-SUSE L3 Support
+> v7-v8
+> - removed "@dynamic_tar_update_enabled" comment
+>
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-designware-common.c         | 274 +++++++++++++++
+>  drivers/i2c/busses/i2c-designware-core.h           | 145 +++++++-
+>  ...c-designware-core.c => i2c-designware-master.c} | 367 +--------------------
+>  drivers/i2c/busses/i2c-designware-pcidrv.c         |   8 +-
+>  drivers/i2c/busses/i2c-designware-platdrv.c        |   6 +-
+>  6 files changed, 432 insertions(+), 369 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+>  rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (65%)
+>
+Acked-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
