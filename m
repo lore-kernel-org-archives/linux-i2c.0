@@ -1,58 +1,69 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
- controller
-Date: Fri, 21 Apr 2017 16:23:02 +0200
-Message-ID: <1492784582.2364.10.camel@pengutronix.de>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
-         <1492101794-13444-4-git-send-email-peda@axentia.se>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [PATCH 4/4] i2c: octeon: thunderx: Add I2C_CLASS_HWMON
+Date: Fri, 21 Apr 2017 16:31:46 +0200
+Message-ID: <20170421143146.GA7544@hc>
+References: <20161209093158.3161-1-jglauber@cavium.com>
+ <20161209093158.3161-5-jglauber@cavium.com>
+ <20161211220434.GH2552@katana>
+ <20170125204923.2mxtlszvco6wxjok@ninjato>
+ <20170420091632.GA8383@hc>
+ <20170420155529.riir2yqhddj4y7lj@ninjato>
+ <20170420172728.GA4311@hc>
+ <20170421062940.GA1434@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1492101794-13444-4-git-send-email-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-bn3nam01on0041.outbound.protection.outlook.com ([104.47.33.41]:8000
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1041035AbdDUOcA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 21 Apr 2017 10:32:00 -0400
+Content-Disposition: inline
+In-Reply-To: <20170421062940.GA1434@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-i2c@vger.kernel.org, Vadim Lomovtsev <Vadim.Lomovtsev@caviumnetworks.com>
 
-On Thu, 2017-04-13 at 18:43 +0200, Peter Rosin wrote:
-[...]
-> +int mux_chip_register(struct mux_chip *mux_chip)
-> +{
-> +	int i;
-> +	int ret;
-> +
-> +	for (i = 0; i < mux_chip->controllers; ++i) {
-> +		struct mux_control *mux = &mux_chip->mux[i];
-> +
-> +		if (mux->idle_state == mux->cached_state)
-> +			continue;
+On Fri, Apr 21, 2017 at 08:29:40AM +0200, Wolfram Sang wrote:
+> Hi Jan,
+> 
+> > What is missing in the pci-driver for ACPI support? We already use ACPI
+> > to detect the sclk setting.
+> 
+> I noticed this in the driver:
+> 
+> 134 static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
+> 135                                    struct device_node *node)
+> 136 {
+> 137         /* TODO: ACPI support */
+> 138         if (!acpi_disabled)
+> 139                 return -EOPNOTSUPP;
+> 140 
+> 141         return thunder_i2c_smbus_setup_of(i2c, node);
+> 142 }
+> 
+> And from a glimpse, I assumed this is the place to detect and
+> instantiate client devices.
 
-I think this should be changed to
- 
--               if (mux->idle_state == mux->cached_state)
-+               if (mux->idle_state == mux->cached_state ||
-+                   mux->idle_state == MUX_IDLE_AS_IS)
-                        continue;
+I see. This function is only setting up the optional smbus alert irq
+stuff.
 
-or the following mux_control_set will be called with state ==
-MUX_IDLE_AS_IS. Alternatively, mux_control_set should return when passed
-this value.
+> > So, if you're ok with this I'll re-phrase the commit message and
+> > re-submit the patch.
+> 
+> I'm OK. It is basically your call. I just wanted to make sure you know
+> what it means adding the class to a master driver.
 
-> +		ret = mux_control_set(mux, mux->idle_state);
-> +		if (ret < 0) {
-> +			dev_err(&mux_chip->dev, "unable to set idle state\n");
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	ret = device_add(&mux_chip->dev);
-> +	if (ret < 0)
-> +		dev_err(&mux_chip->dev,
-> +			"device_add failed in mux_chip_register: %d\n", ret);
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(mux_chip_register);
+Understood. I think we should look at fully describing the BMC in ACPI
+and DT, if that is possible we could get rid of the additional probing.
 
-regards
-Philipp
+As we are not there yet I'll post the patch adding the class.
+
+thanks,
+Jan
+
+> Regards,
+> 
+>    Wolfram
+> 
