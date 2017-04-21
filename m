@@ -1,54 +1,32 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH][-next] i2c: tegra: fix spelling mistake: "contoller" ->
- "controller"
-Date: Fri, 21 Apr 2017 14:05:14 +0200
-Message-ID: <20170421120514.fmppfgekujqnko7i@ninjato>
-References: <20170421065653.16403-1-colin.king@canonical.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
+ controller
+Date: Fri, 21 Apr 2017 16:18:38 +0200
+Message-ID: <1492784318.2364.8.camel@pengutronix.de>
+References: <1492101794-13444-1-git-send-email-peda@axentia.se>
+         <1492101794-13444-4-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jmclwk7uzjlooarr"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170421065653.16403-1-colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Colin King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
-Cc: Shardar Shariff Md <smohammed-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1492101794-13444-4-git-send-email-peda@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Peter,
 
---jmclwk7uzjlooarr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2017-04-13 at 18:43 +0200, Peter Rosin wrote:
+[...]
+> +int mux_control_select(struct mux_control *mux, int state)
 
-On Fri, Apr 21, 2017 at 07:56:53AM +0100, Colin King wrote:
-> From: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
->=20
-> trivial fix to spelling mistake in MODULE_DESCRIPTION text
->=20
-> Signed-off-by: Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+state could be unsigned int for the consumer facing API.
 
-Applied to for-next, thanks!
+> +{
+> +	int ret;
 
+And mux_control_select should check that (0 <= state < mux->states).
 
---jmclwk7uzjlooarr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlj59XoACgkQFA3kzBSg
-KbbmDw//V1cq/wWI30H7MEkCrlTwoBegeF8mwP5exOEFKCqoEB/NAJrlOffpOi7C
-qzGFDmyzOdIB7QN01EakETNNgwHuEl5t5jjkcxHt9RzNDXh/nJ30FfOGCoQEMwGM
-mj7cQlLQ19QL4+glp7x6DHwJg6Pkvlkc7pbDUEYiVjy22XQo7gHsAz0pfuKmgaM3
-9Rg/tkqS/N+WTAoOsNaVPCemhdfnwZEOVysx7v4lYi5dk+F++wn3EbaKwjMgdrP1
-e/Vzof1jxGcRKhChW1uFC9R63g56c1FFxea+4oVuYAguiQxv6UYKPSnBW+vxMAYn
-FO7gBq99mLyOLCToMY0KuEGR5UOL7n0FGULH63mq6a0v3ikI3slecnkODCBi6BL0
-nf5jDUDRQYEitjlBIQcp6PIOTtFpfF8tTr4YJhtB6g5/4mjbTS9rsellVZyOSpxi
-2wtKZWxkxgflJ/sIiNLrE4DQGkGw6N54TS3qFZeD2EPkIaZTErrU7ekbroZvDzkp
-QFeGUMGxYXD3UV5RrXZ22X8KOMw3LtOAsZKA55gmDb1uCI6g7oy0Y6IYBJiuAr2D
-F5cniOA5Av7IEEtANjKiys+X/5CLX8rl8e9qfAHwYSFJRA+/Fk69f0C+UfPSstA+
-RMjZM7cboeq6PQHWJAvA6jr3IwptPu8NlPJbac+Rrjvy4wOpd7s=
-=WzjZ
------END PGP SIGNATURE-----
-
---jmclwk7uzjlooarr--
+regards
+Philipp
