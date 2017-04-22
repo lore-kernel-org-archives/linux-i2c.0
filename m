@@ -1,64 +1,58 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
- controller
-Date: Sat, 22 Apr 2017 01:28:28 +0200
-Message-ID: <c41cf9f6-ca9a-a29a-f6a3-c2b1a1d09a60@axentia.se>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
- <1492101794-13444-4-git-send-email-peda@axentia.se>
- <20170418085156.GA4773@kroah.com>
- <bdeecccf-02d6-226b-8516-1d41e3602a7a@axentia.se>
- <20170418114430.GA1496@kroah.com>
- <aacdc359-e46d-7d1a-d959-63d4ecb99fde@axentia.se>
- <0f605429-afa2-2818-96d5-5da0bad122d6@axentia.se>
+From: Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 1/2] ACPI / APD: Add clock frequency for Hisilicon Hip07/08 I2C controller
+Date: Sat, 22 Apr 2017 11:23:43 +0800
+Message-ID: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <0f605429-afa2-2818-96d5-5da0bad122d6@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from szxga03-in.huawei.com ([45.249.212.189]:5452 "EHLO
+        dggrg03-dlp.huawei.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1042437AbdDVD3G (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 21 Apr 2017 23:29:06 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linuxarm@huawei.com, wangkefeng.wang@huawei.com, Hanjun Guo <hanjun.guo@linaro.org>
 
-On 2017-04-20 23:53, Peter Rosin wrote:
-> On 2017-04-18 23:53, Peter Rosin wrote:
->> On 2017-04-18 13:44, Greg Kroah-Hartman wrote:
->>> On Tue, Apr 18, 2017 at 12:59:50PM +0200, Peter Rosin wrote:
->>>> On 2017-04-18 10:51, Greg Kroah-Hartman wrote:
->>>>> On Thu, Apr 13, 2017 at 06:43:07PM +0200, Peter Rosin wrote:
-> 
-> *snip*
-> 
->>>>>> +	if (mux->idle_state != MUX_IDLE_AS_IS &&
->>>>>> +	    mux->idle_state != mux->cached_state)
->>>>>> +		ret = mux_control_set(mux, mux->idle_state);
->>>>>> +
->>>>>> +	up_read(&mux->lock);
->>>>>
->>>>> You require a lock to be held for a "global" function?  Without
->>>>> documentation?  Or even a sparse marking?  That's asking for trouble...
->>>>
->>>> Documentation I can handle, but where should I look to understand how I
->>>> should add sparse markings?
->>>
->>> Run sparse on the code and see what it says :)
->>
->> Will do.
-> 
-> I just did, and even went through the trouble of getting the bleeding
-> edge sparse from the git repo when sparse 0.5.0 came up empty, but it's
-> all silence for me. So, how do I add sparse markings?
+From: Hanjun Guo <hanjun.guo@linaro.org>
 
-I looked some more into this, and the markings I find that seem related
-are __acquire() and __release(). But neither mutex_lock() nor up_read()
-has markings like that, so adding them when using those kinds of locks
-in an imbalanced way seems like a sure way of *getting* sparse messages
-about context imbalance...
+I2C clock frequency of Designware ip for Hisilicon Hip07 is 200M,
+but 250M for Hip08, use two ACPI IDs to differentiate them.
 
-So, either that, or you are talking about __must_check markings?
+Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+---
+ drivers/acpi/acpi_apd.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-I feel like I'm missing something, please advise further.
-
-Cheers,
-peda
-
+diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+index 26696b6..8f57648 100644
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -106,6 +106,16 @@ static int acpi_apd_setup(struct apd_private_data *pdata)
+ 	.setup = acpi_apd_setup,
+ 	.fixed_clk_rate = 133000000,
+ };
++
++static const struct apd_device_desc hip07_i2c_desc = {
++	.setup = acpi_apd_setup,
++	.fixed_clk_rate = 200000000,
++};
++
++static const struct apd_device_desc hip08_i2c_desc = {
++	.setup = acpi_apd_setup,
++	.fixed_clk_rate = 250000000,
++};
+ #endif
+ 
+ #else
+@@ -169,6 +179,8 @@ static int acpi_apd_create_device(struct acpi_device *adev,
+ #ifdef CONFIG_ARM64
+ 	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+ 	{ "BRCM900D", APD_ADDR(vulcan_spi_desc) },
++	{ "HISI0A21", APD_ADDR(hip07_i2c_desc) },
++	{ "HISI0A22", APD_ADDR(hip08_i2c_desc) },
+ #endif
+ 	{ }
+ };
+-- 
+1.7.12.4
