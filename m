@@ -1,66 +1,115 @@
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: Re: [PATCH 1/2] ACPI / APD: Add clock frequency for Hisilicon
- Hip07/08 I2C controller
-Date: Mon, 24 Apr 2017 19:51:28 +0800
-Message-ID: <735385cf-6f64-9321-f8e5-1bffdf0708e1@huawei.com>
-References: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH v14 00/11] mux controller abstraction and iio/i2c muxes
+Date: Mon, 24 Apr 2017 14:38:01 +0200
+Message-ID: <1493037481.2446.32.camel@pengutronix.de>
+References: <1493022995-16917-1-git-send-email-peda@axentia.se>
+         <1493031179.2446.9.camel@pengutronix.de>
+         <2d978956-d247-917d-4150-a6723917a733@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Hanjun Guo <guohanjun@huawei.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linuxarm@huawei.com, Hanjun Guo <hanjun.guo@linaro.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:33059 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1169929AbdDXMiW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2017 08:38:22 -0400
+In-Reply-To: <2d978956-d247-917d-4150-a6723917a733@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
 
+On Mon, 2017-04-24 at 13:37 +0200, Peter Rosin wrote:
+[...]
+> Ok, so the difference is probably that the rwsem locking primitive
+> don't have any lockdep checking hooked up. Because the rwsem was
+> definitely held in the same way in v13 as the mutex is now held in
+> v14, so there's no fundamental difference.
+>
+> So, yes, we can use some kind of refcount scheme to not hold an actual
+> mutex for the duration of the mux select/deselect, but that doesn't
+> really change anything. Userspace is still locking something, and that
+> seems dangerous. How do you make sure that mux_control_deselect is
+> called as it should?
 
+My current video_mux link setup implementation looks like this (it is
+called from userspace via the MEDIA_IOC_SETUP_LINK ioctl):
 
-On 2017/4/22 11:23, Hanjun Guo wrote:
-> From: Hanjun Guo <hanjun.guo@linaro.org>
+----------8<----------
+static int video_mux_link_setup(struct media_entity *entity,
+				const struct media_pad *local,
+				const struct media_pad *remote, u32 flags)
+{
+	struct v4l2_subdev *sd = media_entity_to_v4l2_subdev(entity);
+	struct video_mux *video_mux = v4l2_subdev_to_video_mux(sd);
+	int ret;
+
+	/*
+	 * The mux state is determined by the enabled sink pad link.
+	 * Enabling or disabling the source pad link has no effect.
+	 */
+	if (!is_sink_pad(video_mux, local->index))
+		return 0;
+
+	dev_dbg(sd->dev, "link setup '%s':%d->'%s':%d[%d]", remote->entity->name,
+		remote->index, local->entity->name, local->index,
+		flags & MEDIA_LNK_FL_ENABLED);
+
+	if (flags & MEDIA_LNK_FL_ENABLED) {
+		if (video_mux->active == local->index)
+			return 0;
+
+		if (video_mux->active >= 0)
+			return -EBUSY;
+
+		dev_dbg(sd->dev, "setting %d active\n", local->index);
+		ret = mux_control_try_select(video_mux->mux, local->index);
+		if (ret < 0)
+			return ret;
+		video_mux->active = local->index;
+	} else {
+		if (video_mux->active != local->index)
+			return 0;
+
+		dev_dbg(sd->dev, "going inactive\n");
+		mux_control_deselect(video_mux->mux);
+		video_mux->active = -1;
+	}
+
+	return 0;
+}
+---------->8----------
+
+If a mux state was already selected, this should return -EBUSY, until a
+call to disable the active link deselects the mux.
+
+> What I don't like about abandoning the lock is that there is still a
+> need to support the multi-consumer case and then you need some way
+> of keeping track of waiters. A lock does this, and any attempt to open
+> code that will get messy.
 > 
-> I2C clock frequency of Designware ip for Hisilicon Hip07 is 200M,
-> but 250M for Hip08, use two ACPI IDs to differentiate them.
+> What might be better is to support some kind of exclusive mux, i.e. a
+> mux that only allows one consumer per mux controller. Then the mux core
+> could trust that exclusive consumer to not fuck things up for itself and
+> thus have no lock at all for select/deselect for the exclusive case. Or
+> perhaps keep a refcount (as you suggested) for the exclusive case so
+> that mux_control_try_select still makes sense, because you still want
+> that, right? 
 
-It is valuable to support i2c on hisilicon D0x board, Hip05/06/07 using same clock frequency,
-it should have their own ACPI ID. For both two patches,
+In the case of an exclusive mux without lock, I don't see any need for a
+try_select call.
 
-Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> The question then becomes how to best tell the mux core that you want
+> an exclusive mux. I see two options. Either you declare a mux controller
+> as exclusive up front somehow (in the device tree presumably), or you
+> add a mux_control_get_exclusive call that makes further calls to
+> mux_control_get{,_exclusive} fail with -EBUSY. I think I like the
+> latter better, if that can be made to work...
 
-> 
-> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-> ---
->  drivers/acpi/acpi_apd.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index 26696b6..8f57648 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -106,6 +106,16 @@ static int acpi_apd_setup(struct apd_private_data *pdata)
->  	.setup = acpi_apd_setup,
->  	.fixed_clk_rate = 133000000,
->  };
-> +
-> +static const struct apd_device_desc hip07_i2c_desc = {
-> +	.setup = acpi_apd_setup,
-> +	.fixed_clk_rate = 200000000,
-> +};
-> +
-> +static const struct apd_device_desc hip08_i2c_desc = {
-> +	.setup = acpi_apd_setup,
-> +	.fixed_clk_rate = 250000000,
-> +};
->  #endif
->  
->  #else
-> @@ -169,6 +179,8 @@ static int acpi_apd_create_device(struct acpi_device *adev,
->  #ifdef CONFIG_ARM64
->  	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
->  	{ "BRCM900D", APD_ADDR(vulcan_spi_desc) },
-> +	{ "HISI0A21", APD_ADDR(hip07_i2c_desc) },
-> +	{ "HISI0A22", APD_ADDR(hip08_i2c_desc) },
->  #endif
->  	{ }
->  };
-> 
+There is a precedent for the latter in the reset controller framework
+(reset_control_get_shared and reset_control_get_exclusive variants).
+Since this distinction is a matter of usage, and not a hardware property
+of the mux/reset controller itself, I'd also prefer that.
+
+regards
+Philipp
