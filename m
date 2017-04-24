@@ -1,170 +1,33 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: [PATCH v2 1/2] i2c: xgene-slimpro: Use a single function to send command message
-Date: Mon, 24 Apr 2017 11:00:25 -0700
-Message-ID: <1493056826-16776-2-git-send-email-hotran@apm.com>
-References: <1493056826-16776-1-git-send-email-hotran@apm.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f50.google.com ([74.125.83.50]:33681 "EHLO
-        mail-pg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S972783AbdDXSBL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Apr 2017 14:01:11 -0400
-Received: by mail-pg0-f50.google.com with SMTP id 63so16745649pgh.0
-        for <linux-i2c@vger.kernel.org>; Mon, 24 Apr 2017 11:01:11 -0700 (PDT)
-In-Reply-To: <1493056826-16776-1-git-send-email-hotran@apm.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v7 0/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Mon, 24 Apr 2017 11:18:13 -0700
+Message-ID: <20170424181818.2754-1-brendanhiggins@google.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>, Hoan Tran <hotran@apm.com>
 
-This patch refactors the code to use a single message function to
-send command message.
+Addressed comments from:
+  - Ben in: http://www.spinics.net/lists/devicetree/msg170491.html
+    and: http://www.spinics.net/lists/devicetree/msg171232.html
+  - Rob: http://www.spinics.net/lists/devicetree/msg171593.html
+  - Joel in: http://www.spinics.net/lists/devicetree/msg171204.html
 
-Signed-off-by: Hoan Tran <hotran@apm.com>
----
- drivers/i2c/busses/i2c-xgene-slimpro.c | 67 +++++++++++++---------------------
- 1 file changed, 26 insertions(+), 41 deletions(-)
+Changes since previous update:
+  - Renamed irq domain for consistency
+  - Changed clock-frequency to bus-frequency in device tree
+  - Made some fixes to clock divider code
+  - Added hardware reset function
+  - Marked functions that need to be called with the lock held as "unlocked"
+  - Did a bunch of clean up
 
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index dbe7e44..96545aa 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -144,49 +144,52 @@ static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
- 	return 0;
- }
- 
--static int slimpro_i2c_rd(struct slimpro_i2c_dev *ctx, u32 chip,
--			  u32 addr, u32 addrlen, u32 protocol,
--			  u32 readlen, u32 *data)
-+static int slimpro_i2c_send_msg(struct slimpro_i2c_dev *ctx,
-+				u32 *msg,
-+				u32 *data)
- {
--	u32 msg[3];
- 	int rc;
- 
--	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
--					SLIMPRO_IIC_READ, protocol, addrlen, readlen);
--	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
--	msg[2] = 0;
- 	ctx->resp_msg = data;
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
-+
-+	rc = mbox_send_message(ctx->mbox_chan, msg);
- 	if (rc < 0)
- 		goto err;
- 
- 	rc = start_i2c_msg_xfer(ctx);
-+
- err:
- 	ctx->resp_msg = NULL;
-+
- 	return rc;
- }
- 
-+static int slimpro_i2c_rd(struct slimpro_i2c_dev *ctx, u32 chip,
-+			  u32 addr, u32 addrlen, u32 protocol,
-+			  u32 readlen, u32 *data)
-+{
-+	u32 msg[3];
-+
-+	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
-+					SLIMPRO_IIC_READ, protocol, addrlen, readlen);
-+	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
-+	msg[2] = 0;
-+
-+	return slimpro_i2c_send_msg(ctx, msg, data);
-+}
-+
- static int slimpro_i2c_wr(struct slimpro_i2c_dev *ctx, u32 chip,
- 			  u32 addr, u32 addrlen, u32 protocol, u32 writelen,
- 			  u32 data)
- {
- 	u32 msg[3];
--	int rc;
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
- 					SLIMPRO_IIC_WRITE, protocol, addrlen, writelen);
- 	msg[1] = SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = data;
--	ctx->resp_msg = msg;
--
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err;
- 
--	rc = start_i2c_msg_xfer(ctx);
--err:
--	ctx->resp_msg = NULL;
--	return rc;
-+	return slimpro_i2c_send_msg(ctx, msg, msg);
- }
- 
- static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
-@@ -201,8 +204,7 @@ static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
- 	if (dma_mapping_error(ctx->dev, paddr)) {
- 		dev_err(&ctx->adapter.dev, "Error in mapping dma buffer %p\n",
- 			ctx->dma_buffer);
--		rc = -ENOMEM;
--		goto err;
-+		return -ENOMEM;
- 	}
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip, SLIMPRO_IIC_READ,
-@@ -212,21 +214,13 @@ static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
- 		 SLIMPRO_IIC_ENCODE_UPPER_BUFADDR(paddr) |
- 		 SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = (u32)paddr;
--	ctx->resp_msg = msg;
- 
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err_unmap;
--
--	rc = start_i2c_msg_xfer(ctx);
-+	rc = slimpro_i2c_send_msg(ctx, msg, msg);
- 
- 	/* Copy to destination */
- 	memcpy(data, ctx->dma_buffer, readlen);
- 
--err_unmap:
- 	dma_unmap_single(ctx->dev, paddr, readlen, DMA_FROM_DEVICE);
--err:
--	ctx->resp_msg = NULL;
- 	return rc;
- }
- 
-@@ -244,8 +238,7 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
- 	if (dma_mapping_error(ctx->dev, paddr)) {
- 		dev_err(&ctx->adapter.dev, "Error in mapping dma buffer %p\n",
- 			ctx->dma_buffer);
--		rc = -ENOMEM;
--		goto err;
-+		return -ENOMEM;
- 	}
- 
- 	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip, SLIMPRO_IIC_WRITE,
-@@ -254,21 +247,13 @@ static int slimpro_i2c_blkwr(struct slimpro_i2c_dev *ctx, u32 chip,
- 		 SLIMPRO_IIC_ENCODE_UPPER_BUFADDR(paddr) |
- 		 SLIMPRO_IIC_ENCODE_ADDR(addr);
- 	msg[2] = (u32)paddr;
--	ctx->resp_msg = msg;
- 
- 	if (ctx->mbox_client.tx_block)
- 		reinit_completion(&ctx->rd_complete);
- 
--	rc = mbox_send_message(ctx->mbox_chan, &msg);
--	if (rc < 0)
--		goto err_unmap;
--
--	rc = start_i2c_msg_xfer(ctx);
-+	rc = slimpro_i2c_send_msg(ctx, msg, msg);
- 
--err_unmap:
- 	dma_unmap_single(ctx->dev, paddr, writelen, DMA_TO_DEVICE);
--err:
--	ctx->resp_msg = NULL;
- 	return rc;
- }
- 
--- 
-1.9.1
+Looks like there still might be some more work to do with multi-master support
+and the clock divider stuff, but I will leave that up for others to decide.
+
+As before, tested on Aspeed 2500 evaluation board and a real platform with an
+Aspeed 2520.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
