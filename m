@@ -1,340 +1,107 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v14 00/11] mux controller abstraction and iio/i2c muxes
-Date: Mon, 24 Apr 2017 16:10:46 +0200
-Message-ID: <1493043046.2446.37.camel@pengutronix.de>
-References: <1493022995-16917-1-git-send-email-peda@axentia.se>
-         <1493031179.2446.9.camel@pengutronix.de>
-         <2d978956-d247-917d-4150-a6723917a733@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
+ RT suspended
+Date: Mon, 24 Apr 2017 17:27:34 +0300
+Message-ID: <6493e93c-57e1-c378-7a91-7fc4a9a61acf@linux.intel.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+ <CAJZ5v0hiGSS+bZWwzz7XgjFr8ckARn9ehaO9q1-76qo4d-76tg@mail.gmail.com>
+ <2a548d9c-fb05-977d-c063-3b481a191a41@linux.intel.com>
+ <CAJZ5v0jwZeTy=fNdfBOjLCcGec=vQWVs+1sBktecmfG40vaGjA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2d978956-d247-917d-4150-a6723917a733@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:16250 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1172669AbdDXO3y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Apr 2017 10:29:54 -0400
+In-Reply-To: <CAJZ5v0jwZeTy=fNdfBOjLCcGec=vQWVs+1sBktecmfG40vaGjA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Mon, 2017-04-24 at 13:37 +0200, Peter Rosin wrote:
-> On 2017-04-24 12:52, Philipp Zabel wrote:
-> > On Mon, 2017-04-24 at 10:36 +0200, Peter Rosin wrote:
-> >> Hi!
-> >>
-> >> The big change since v13 is that the mux state is now locked with a mutex
-> >> instead of an rwsem. Other that that, it is mostly restructuring and doc
-> >> changes. There are a few other "real" changes as well, but those changes
-> >> feel kind of minor. I guess what I'm trying to say is that although the
-> >> list of changes for v14 is longish, it's still basically the same as last
-> >> time.
-> > 
-> > I have hooked this up to the video-multiplexer and now I trigger
-> > the lockdep debug_check_no_locks_held error message when selecting the
-> > mux input from userspace:
-> > 
-> > $ media-ctl --links "'imx6-mipi-csi2':1->'ipu1_csi0_mux':0[1]"
-> > [   66.258368] 
-> > [   66.259919] =====================================
-> > [   66.265369] [ BUG: media-ctl/258 still has locks held! ]
-> > [   66.270810] 4.11.0-rc8-20170424-1+ #1305 Not tainted
-> > [   66.275863] -------------------------------------
-> > [   66.282158] 1 lock held by media-ctl/258:
-> > [   66.286464]  #0:  (&mux->lock){+.+.+.}, at: [<8074a6c0>] mux_control_select+0x24/0x50
-> > [   66.294424] 
-> > [   66.294424] stack backtrace:
-> > [   66.298980] CPU: 0 PID: 258 Comm: media-ctl Not tainted 4.11.0-rc8+ #1305
-> > [   66.306771] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> > [   66.313334] Backtrace: 
-> > [   66.315858] [<8010e5a4>] (dump_backtrace) from [<8010e8ac>] (show_stack+0x20/0x24)
-> > [   66.323473]  r7:80e518d0 r6:80e518d0 r5:600d0013 r4:00000000
-> > [   66.329190] [<8010e88c>] (show_stack) from [<80496cf4>] (dump_stack+0xb0/0xdc)
-> > [   66.336470] [<80496c44>] (dump_stack) from [<8017e404>] (debug_check_no_locks_held+0xb8/0xbc)
-> > [   66.345043]  r9:ae8566b8 r8:ad88dc84 r7:ad88df58 r6:ad88dc84 r5:ad88df58 r4:ae856400
-> > [   66.352837] [<8017e34c>] (debug_check_no_locks_held) from [<8012b258>] (do_exit+0x79c/0xcc8)
-> > [   66.361321] [<8012aabc>] (do_exit) from [<8012d25c>] (do_group_exit+0x4c/0xcc)
-> > [   66.368581]  r7:000000f8
-> > [   66.371161] [<8012d210>] (do_group_exit) from [<8012d2fc>] (__wake_up_parent+0x0/0x30)
-> > [   66.379120]  r7:000000f8 r6:76f71798 r5:00000000 r4:00000001
-> > [   66.384837] [<8012d2dc>] (SyS_exit_group) from [<80109380>] (ret_fast_syscall+0x0/0x1c)
-> > 
-> > That correctly warns that the media-ctl process caused the mux->lock to
-> > be locked and still held when the process exited. Do we need a usage
-> > counter based mechanism for muxes that are (indirectly) controlled from
-> > userspace?
-[...]
-> The question then becomes how to best tell the mux core that you want
-> an exclusive mux. I see two options. Either you declare a mux controller
-> as exclusive up front somehow (in the device tree presumably), or you
-> add a mux_control_get_exclusive call that makes further calls to
-> mux_control_get{,_exclusive} fail with -EBUSY. I think I like the
-> latter better, if that can be made to work...
+On 04/20/2017 01:33 PM, Rafael J. Wysocki wrote:
+> On Thu, Apr 20, 2017 at 9:25 AM, Jarkko Nikula
+> <jarkko.nikula@linux.intel.com> wrote:
+>> Hi
+>>
+>>
+>> On 04/19/2017 11:24 PM, Rafael J. Wysocki wrote:
+>>>
+>>> On Thu, Mar 30, 2017 at 2:04 PM, Jarkko Nikula
+>>> <jarkko.nikula@linux.intel.com> wrote:
+>>>>
+>>>> There is possibility to enter dw_i2c_plat_suspend() callback twice
+>>>> during system suspend under certain cases which is causing here warnings
+>>>> from clk_core_disable() and clk_core_unprepare() as well as accessing the
+>>>> registers that can be power gated.
+>>>>
+>>>> Commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming during
+>>>> system suspend") implemented a prepare callback that checks for runtime
+>>>> suspended device which allow PM core to set direct_complete flag and
+>>>> skip system suspend and resume callbacks.
+>>>>
+>>>> However it can still happen if nothing resumes the device prior system
+>>>> syspend (e.g. acpi_subsys_suspend()) and there is a slave device which
+>>>> unsets the direct_complete flag of the parent in __device_suspend() thus
+>>>> causing PM code to not skip the system suspend/resume callbacks.
+>>>>
+>>>> Avoid this by checking runtime status in suspend and resume callbacks
+>>>> and return directly if device is runtime suspended. This affects only
+>>>> system suspend/resume since during runtime suspend/resume runtime status
+>>>> is suspending (not suspended) or resuming.
+>>>>
+>>>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>>>> ---
+>>>> I'm able to trigger system suspend callback while device is runtime
+>>>> suspended by removing the pm_runtime_resume() call from
+>>>> drivers/mfd/intel-lpss.c: resume_lpss_device() and having unbound I2C
+>>>> slave (ACPI enumerated but doesn't bind due an error in probe function).
+>>>> In that case __device_suspend() for that unbound device has NULL suspend
+>>>> callback, and thus doesn't cause any runtime resume chain but still
+>>>> unsets
+>>>> the parent's direct_complete flag.
+>>>> John Stult <john.stultz@linaro.org> has reported he can trigger this on
+>>>> HiKey board too.
+>>>>
+>>>> I'm not sure is this the right thing to do. It feels something the PM
+>>>> core
+>>>> should do but I'm not sure that either. One alternative could be to
+>>>> resume
+>>>> runtime suspended parent in in __device_suspend() right after where
+>>>> parent's direct_complete flag is unset.
+>>>
+>>>
+>>> In that case the core expects that the ->prepare callback for the
+>>> slave will also return 1 (or a positive number in general).
+>>>
+>>> If that doesn't happen, then from the core's perspective it is not
+>>> safe to allow the master's system PM callbacks to be skipped and
+>>> that's why direct_complete is unset for it.
+>>>
+>> So it's then right thing to check runtime PM status in driver as patch does
+>> below?
+>
+> If you know for a fact that none of the device's children and none of
+> the children thereof and so on and nothing that may depend on the
+> device via a device_link, either directly or indirectly, will ever
+> need to be resumed during system suspend, then yes, it is.
+>
+> Otherwise, no, it isn't.
+>
+If you were wondering the pm_runtime_suspended() check in 
+dw_i2c_plat_resume() that too was for skipping double callback by system 
+resume followed by later runtime resume leading to ever increasing clock 
+enable count over repeated system suspend/resume cycles.
 
-How about an atomic use_count on the mux_control, a bool shared that is
-only set by the first consumer, and controls whether selecting locks?
+Anyway, normal case here is we do runtime resume during system suspend 
+from a few places. E.g. ACPI enumerated slave does suspend through 
+acpi_subsys_suspend() chain and for Intel platforms i2c-designware is 
+resumer either from drivers/acpi/acpi_lpss.c or drivers/mfd/intel-lpss.c.
 
-----------8<----------
-diff --git a/drivers/mux/mux-core.c b/drivers/mux/mux-core.c
-index c02fa4dd2d099..1d18bb7f15e07 100644
---- a/drivers/mux/mux-core.c
-+++ b/drivers/mux/mux-core.c
-@@ -372,11 +372,12 @@ int mux_control_select(struct mux_control *mux, unsigned int state)
- {
- 	int ret;
- 
--	mutex_lock(&mux->lock);
-+	if (mux->shared)
-+		mutex_lock(&mux->lock);
- 
- 	ret = __mux_control_select(mux, state);
- 
--	if (ret < 0)
-+	if (ret < 0 && mux->shared)
- 		mutex_unlock(&mux->lock);
- 
- 	return ret;
-@@ -399,12 +400,12 @@ int mux_control_try_select(struct mux_control *mux, unsigned int state)
- {
- 	int ret;
- 
--	if (!mutex_trylock(&mux->lock))
-+	if (mux->shared && !mutex_trylock(&mux->lock))
- 		return -EBUSY;
- 
- 	ret = __mux_control_select(mux, state);
- 
--	if (ret < 0)
-+	if (ret < 0 && mux->shared)
- 		mutex_unlock(&mux->lock);
- 
- 	return ret;
-@@ -427,7 +428,8 @@ int mux_control_deselect(struct mux_control *mux)
- 	    mux->idle_state != mux->cached_state)
- 		ret = mux_control_set(mux, mux->idle_state);
- 
--	mutex_unlock(&mux->lock);
-+	if (mux->shared)
-+		mutex_unlock(&mux->lock);
- 
- 	return ret;
- }
-@@ -447,18 +449,13 @@ static struct mux_chip *of_find_mux_chip_by_node(struct device_node *np)
- 	return dev ? to_mux_chip(dev) : NULL;
- }
- 
--/**
-- * mux_control_get() - Get the mux-control for a device.
-- * @dev: The device that needs a mux-control.
-- * @mux_name: The name identifying the mux-control.
-- *
-- * Return: A pointer to the mux-control, or an ERR_PTR with a negative errno.
-- */
--struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
-+static struct mux_control *__mux_control_get(struct device *dev,
-+					     const char *mux_name, bool shared)
- {
- 	struct device_node *np = dev->of_node;
- 	struct of_phandle_args args;
- 	struct mux_chip *mux_chip;
-+	struct mux_control *mux;
- 	unsigned int controller;
- 	int index = 0;
- 	int ret;
-@@ -505,9 +502,56 @@ struct mux_control *mux_control_get(struct device *dev, const char *mux_name)
- 	}
- 
- 	get_device(&mux_chip->dev);
--	return &mux_chip->mux[controller];
-+
-+	mux = &mux_chip->mux[controller];
-+
-+	ret = atomic_inc_return(&mux->use_count);
-+	if (ret == 1 && shared)
-+		mux->shared = true;
-+	if (ret > 1 && (!shared || !mux->shared)) {
-+		atomic_dec(&mux->use_count);
-+		put_device(&mux_chip->dev);
-+		return ERR_PTR(-EBUSY);
-+	}
-+
-+	return mux;
-+}
-+
-+/**
-+ * mux_control_get_shared() - Get the mux-control for a device.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * The returned mux control is in shared mode and can not be controlled from
-+ * userspace. The mux control lock is taken when the mux is selected and
-+ * released when the mux is deselected.
-+ *
-+ * Return: A pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *mux_control_get_shared(struct device *dev,
-+					   const char *mux_name)
-+{
-+	return __mux_control_get(dev, mux_name, true);
-+}
-+EXPORT_SYMBOL_GPL(mux_control_get_shared);
-+
-+/**
-+ * mux_control_get_exclusive() - Get the mux-control for a device.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * The returned mux control is in exclusive mode and does not lock the mux
-+ * control lock when the mux is selected. The exclusive consumer has to take
-+ * care of locking, if necessary.
-+ *
-+ * Return: A pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *mux_control_get_exclusive(struct device *dev,
-+					      const char *mux_name)
-+{
-+	return __mux_control_get(dev, mux_name, false);
- }
--EXPORT_SYMBOL_GPL(mux_control_get);
-+EXPORT_SYMBOL_GPL(mux_control_get_exclusive);
- 
- /**
-  * mux_control_put() - Put away the mux-control for good.
-@@ -517,6 +561,7 @@ EXPORT_SYMBOL_GPL(mux_control_get);
-  */
- void mux_control_put(struct mux_control *mux)
- {
-+	atomic_dec(&mux->use_count);
- 	put_device(&mux->chip->dev);
- }
- EXPORT_SYMBOL_GPL(mux_control_put);
-@@ -528,16 +573,9 @@ static void devm_mux_control_release(struct device *dev, void *res)
- 	mux_control_put(mux);
- }
- 
--/**
-- * devm_mux_control_get() - Get the mux-control for a device, with resource
-- *			    management.
-- * @dev: The device that needs a mux-control.
-- * @mux_name: The name identifying the mux-control.
-- *
-- * Return: Pointer to the mux-control, or an ERR_PTR with a negative errno.
-- */
--struct mux_control *devm_mux_control_get(struct device *dev,
--					 const char *mux_name)
-+static struct mux_control *__devm_mux_control_get(struct device *dev,
-+						  const char *mux_name,
-+						  bool shared)
- {
- 	struct mux_control **ptr, *mux;
- 
-@@ -545,7 +583,7 @@ struct mux_control *devm_mux_control_get(struct device *dev,
- 	if (!ptr)
- 		return ERR_PTR(-ENOMEM);
- 
--	mux = mux_control_get(dev, mux_name);
-+	mux = __mux_control_get(dev, mux_name, shared);
- 	if (IS_ERR(mux)) {
- 		devres_free(ptr);
- 		return mux;
-@@ -556,7 +594,36 @@ struct mux_control *devm_mux_control_get(struct device *dev,
- 
- 	return mux;
- }
--EXPORT_SYMBOL_GPL(devm_mux_control_get);
-+
-+/**
-+ * devm_mux_control_get_shared() - Get the mux-control for a device, with
-+ *				   resource management.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * Return: Pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *devm_mux_control_get_shared(struct device *dev,
-+						const char *mux_name)
-+{
-+	return __devm_mux_control_get(dev, mux_name, true);
-+}
-+EXPORT_SYMBOL_GPL(devm_mux_control_get_shared);
-+
-+/**
-+ * devm_mux_control_get_exclusive() - Get the mux-control for a device, with
-+ *				      resource management.
-+ * @dev: The device that needs a mux-control.
-+ * @mux_name: The name identifying the mux-control.
-+ *
-+ * Return: Pointer to the mux-control, or an ERR_PTR with a negative errno.
-+ */
-+struct mux_control *devm_mux_control_get_exclusive(struct device *dev,
-+						   const char *mux_name)
-+{
-+	return __devm_mux_control_get(dev, mux_name, false);
-+}
-+EXPORT_SYMBOL_GPL(devm_mux_control_get_exclusive);
- 
- static int devm_mux_control_match(struct device *dev, void *res, void *data)
- {
-diff --git a/include/linux/mux/consumer.h b/include/linux/mux/consumer.h
-index a2a61834bd3ae..26634c3dda124 100644
---- a/include/linux/mux/consumer.h
-+++ b/include/linux/mux/consumer.h
-@@ -23,11 +23,16 @@ int __must_check mux_control_try_select(struct mux_control *mux,
- 					unsigned int state);
- int mux_control_deselect(struct mux_control *mux);
- 
--struct mux_control *mux_control_get(struct device *dev, const char *mux_name);
-+struct mux_control *mux_control_get_exclusive(struct device *dev,
-+					      const char *mux_name);
-+struct mux_control *mux_control_get_shared(struct device *dev,
-+					   const char *mux_name);
- void mux_control_put(struct mux_control *mux);
- 
--struct mux_control *devm_mux_control_get(struct device *dev,
--					 const char *mux_name);
-+struct mux_control *devm_mux_control_get_exclusive(struct device *dev,
-+						   const char *mux_name);
-+struct mux_control *devm_mux_control_get_shared(struct device *dev,
-+						const char *mux_name);
- void devm_mux_control_put(struct device *dev, struct mux_control *mux);
- 
- #endif /* _LINUX_MUX_CONSUMER_H */
-diff --git a/include/linux/mux/driver.h b/include/linux/mux/driver.h
-index 95269f40670a7..0ac5d3db9cd3e 100644
---- a/include/linux/mux/driver.h
-+++ b/include/linux/mux/driver.h
-@@ -31,17 +31,20 @@ struct mux_control_ops {
- 
- /**
-  * struct mux_control -	Represents a mux controller.
-- * @lock:		Protects the mux controller state.
-+ * @lock:		Protects the mux controller state, if shared.
-  * @chip:		The mux chip that is handling this mux controller.
-  * @cached_state:	The current mux controller state, or -1 if none.
-  * @states:		The number of mux controller states.
-  * @idle_state:		The mux controller state to use when inactive, or one
-  *			of MUX_IDLE_AS_IS and MUX_IDLE_DISCONNECT.
-+ * @use_count:		Number of consumers that have requested this mux.
-+ * @shared:		True if the mux control was requested as shared and
-+ *			must therefore be locked.
-  *
-  * Mux drivers may only change @states and @idle_state, and may only do so
-  * between allocation and registration of the mux controller. Specifically,
-- * @cached_state is internal to the mux core and should never be written by
-- * mux drivers.
-+ * @cached_state, @use_count, and @shared are internal to the mux core and
-+ * should never be written by mux drivers.
-  */
- struct mux_control {
- 	struct mutex lock; /* protects the state of the mux */
-@@ -51,6 +54,9 @@ struct mux_control {
- 
- 	unsigned int states;
- 	int idle_state;
-+
-+	atomic_t use_count;
-+	bool shared;
- };
- 
- /**
----------->8----------
+If we are doing expected suspend/resume callback then our runtime_status 
+is other than RPM_SUSPENDED and pm_runtime_suspended() returns false.
 
-regards
-Philipp
+-- 
+Jarkko
