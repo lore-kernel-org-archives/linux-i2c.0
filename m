@@ -1,228 +1,133 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v14 11/11] mux: adg792a: add mux controller driver for ADG792A/G
-Date: Mon, 24 Apr 2017 10:36:35 +0200
-Message-ID: <1493022995-16917-12-git-send-email-peda@axentia.se>
+Subject: [PATCH v14 08/11] dt-bindings: i2c: i2c-mux: document general purpose i2c-mux bindings
+Date: Mon, 24 Apr 2017 10:36:32 +0200
+Message-ID: <1493022995-16917-9-git-send-email-peda@axentia.se>
 References: <1493022995-16917-1-git-send-email-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0126.outbound.protection.outlook.com ([104.47.2.126]:19703
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1166849AbdDXIgO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 24 Apr 2017 04:36:14 -0400
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1493022995-16917-1-git-send-email-peda@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+List-Id: linux-i2c@vger.kernel.org
 
-Analog Devices ADG792A/G is a triple 4:1 mux.
+Describe how a general purpose multiplexer controller is used to mux an
+i2c bus.
 
-Reviewed-by: Jonathan Cameron <jic23@kernel.org>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/mux/Kconfig       |  12 ++++
- drivers/mux/Makefile      |   1 +
- drivers/mux/mux-adg792a.c | 157 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 170 insertions(+)
- create mode 100644 drivers/mux/mux-adg792a.c
+ .../devicetree/bindings/i2c/i2c-mux-gpmux.txt      | 99 ++++++++++++++++++++++
+ 1 file changed, 99 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
 
-diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
-index e580c2d028d2..34b8284d6d29 100644
---- a/drivers/mux/Kconfig
-+++ b/drivers/mux/Kconfig
-@@ -17,6 +17,18 @@ menuconfig MULTIPLEXER
- 
- if MULTIPLEXER
- 
-+config MUX_ADG792A
-+	tristate "Analog Devices ADG792A/ADG792G Multiplexers"
-+	depends on I2C
-+	help
-+	  ADG792A and ADG792G Wide Bandwidth Triple 4:1 Multiplexers
-+
-+	  The driver supports both operating the three multiplexers in
-+	  parallel and operating them independently.
-+
-+	  To compile the driver as a module, choose M here: the module will
-+	  be called mux-adg792a.
-+
- config MUX_GPIO
- 	tristate "GPIO-controlled Multiplexer"
- 	depends on GPIOLIB
-diff --git a/drivers/mux/Makefile b/drivers/mux/Makefile
-index bb16953f6290..b00a7d37d2fb 100644
---- a/drivers/mux/Makefile
-+++ b/drivers/mux/Makefile
-@@ -3,4 +3,5 @@
- #
- 
- obj-$(CONFIG_MULTIPLEXER)	+= mux-core.o
-+obj-$(CONFIG_MUX_ADG792A)	+= mux-adg792a.o
- obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
-diff --git a/drivers/mux/mux-adg792a.c b/drivers/mux/mux-adg792a.c
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
 new file mode 100644
-index 000000000000..12aa221ab90d
+index 000000000000..2907dab56298
 --- /dev/null
-+++ b/drivers/mux/mux-adg792a.c
-@@ -0,0 +1,157 @@
-+/*
-+ * Multiplexer driver for Analog Devices ADG792A/G Triple 4:1 mux
-+ *
-+ * Copyright (C) 2017 Axentia Technologies AB
-+ *
-+ * Author: Peter Rosin <peda@axentia.se>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpmux.txt
+@@ -0,0 +1,99 @@
++General Purpose I2C Bus Mux
 +
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+#include <linux/mux/driver.h>
-+#include <linux/property.h>
++This binding describes an I2C bus multiplexer that uses a mux controller
++from the mux subsystem to route the I2C signals.
 +
-+#define ADG792A_LDSW		BIT(0)
-+#define ADG792A_RESETB		BIT(1)
-+#define ADG792A_DISABLE(mux)	(0x50 | (mux))
-+#define ADG792A_DISABLE_ALL	(0x5f)
-+#define ADG792A_MUX(mux, state)	(0xc0 | (((mux) + 1) << 2) | (state))
-+#define ADG792A_MUX_ALL(state)	(0xc0 | (state))
++                                  .-----.  .-----.
++                                  | dev |  | dev |
++    .------------.                '-----'  '-----'
++    | SoC        |                   |        |
++    |            |          .--------+--------'
++    |   .------. |  .------+    child bus A, on MUX value set to 0
++    |   | I2C  |-|--| Mux  |
++    |   '------' |  '--+---+    child bus B, on MUX value set to 1
++    |   .------. |     |    '----------+--------+--------.
++    |   | MUX- | |     |               |        |        |
++    |   | Ctrl |-|-----+            .-----.  .-----.  .-----.
++    |   '------' |                  | dev |  | dev |  | dev |
++    '------------'                  '-----'  '-----'  '-----'
 +
-+static int adg792a_write_cmd(struct i2c_client *i2c, u8 cmd, int reset)
-+{
-+	u8 data = ADG792A_RESETB | ADG792A_LDSW;
++Required properties:
++- compatible: i2c-mux
++- i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
++  port is connected to.
++- mux-controls: The phandle of the mux controller to use for operating the
++  mux.
++* Standard I2C mux properties. See i2c-mux.txt in this directory.
++* I2C child bus nodes. See i2c-mux.txt in this directory. The sub-bus number
++  is also the mux-controller state described in ../mux/mux-controller.txt
 +
-+	/* ADG792A_RESETB is active low, the chip resets when it is zero. */
-+	if (reset)
-+		data &= ~ADG792A_RESETB;
++Optional properties:
++- mux-locked: If present, explicitly allow unrelated I2C transactions on the
++  parent I2C adapter at these times:
++   + during setup of the multiplexer
++   + between setup of the multiplexer and the child bus I2C transaction
++   + between the child bus I2C transaction and releasing of the multiplexer
++   + during releasing of the multiplexer
++  However, I2C transactions to devices behind all I2C multiplexers connected
++  to the same parent adapter that this multiplexer is connected to are blocked
++  for the full duration of the complete multiplexed I2C transaction (i.e.
++  including the times covered by the above list).
++  If mux-locked is not present, the multiplexer is assumed to be parent-locked.
++  This means that no unrelated I2C transactions are allowed on the parent I2C
++  adapter for the complete multiplexed I2C transaction.
++  The properties of mux-locked and parent-locked multiplexers are discussed
++  in more detail in Documentation/i2c/i2c-topology.
 +
-+	return i2c_smbus_write_byte_data(i2c, cmd, data);
-+}
++For each i2c child node, an I2C child bus will be created. They will
++be numbered based on their order in the device tree.
 +
-+static int adg792a_set(struct mux_control *mux, int state)
-+{
-+	struct i2c_client *i2c = to_i2c_client(mux->chip->dev.parent);
-+	u8 cmd;
++Whenever an access is made to a device on a child bus, the value set
++in the relevant node's reg property will be set as the state in the
++mux controller.
 +
-+	if (mux->chip->controllers == 1) {
-+		/* parallel mux controller operation */
-+		if (state == MUX_IDLE_DISCONNECT)
-+			cmd = ADG792A_DISABLE_ALL;
-+		else
-+			cmd = ADG792A_MUX_ALL(state);
-+	} else {
-+		unsigned int controller = mux_control_get_index(mux);
++Example:
++	mux: mux-controller {
++		compatible = "gpio-mux";
++		#mux-control-cells = <0>;
 +
-+		if (state == MUX_IDLE_DISCONNECT)
-+			cmd = ADG792A_DISABLE(controller);
-+		else
-+			cmd = ADG792A_MUX(controller, state);
-+	}
++		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
++			    <&pioA 1 GPIO_ACTIVE_HIGH>;
++	};
 +
-+	return adg792a_write_cmd(i2c, cmd, 0);
-+}
++	i2c-mux {
++		compatible = "i2c-mux";
++		mux-locked;
++		i2c-parent = <&i2c1>;
 +
-+static const struct mux_control_ops adg792a_ops = {
-+	.set = adg792a_set,
-+};
++		mux-controls = <&mux>;
 +
-+static int adg792a_probe(struct i2c_client *i2c,
-+			 const struct i2c_device_id *id)
-+{
-+	struct device *dev = &i2c->dev;
-+	struct mux_chip *mux_chip;
-+	s32 idle_state[3];
-+	u32 cells;
-+	int ret;
-+	int i;
++		#address-cells = <1>;
++		#size-cells = <0>;
 +
-+	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -ENODEV;
++		i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+	ret = device_property_read_u32(dev, "#mux-control-cells", &cells);
-+	if (ret < 0)
-+		return ret;
-+	if (cells >= 2)
-+		return -EINVAL;
++			ssd1307: oled@3c {
++				compatible = "solomon,ssd1307fb-i2c";
++				reg = <0x3c>;
++				pwms = <&pwm 4 3000>;
++				reset-gpios = <&gpio2 7 1>;
++				reset-active-low;
++			};
++		};
 +
-+	mux_chip = devm_mux_chip_alloc(dev, cells ? 3 : 1, 0);
-+	if (IS_ERR(mux_chip))
-+		return PTR_ERR(mux_chip);
++		i2c@3 {
++			reg = <3>;
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
-+	mux_chip->ops = &adg792a_ops;
-+
-+	ret = adg792a_write_cmd(i2c, ADG792A_DISABLE_ALL, 1);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = device_property_read_u32_array(dev, "idle-state",
-+					     (u32 *)idle_state,
-+					     mux_chip->controllers);
-+	if (ret < 0) {
-+		idle_state[0] = MUX_IDLE_AS_IS;
-+		idle_state[1] = MUX_IDLE_AS_IS;
-+		idle_state[2] = MUX_IDLE_AS_IS;
-+	}
-+
-+	for (i = 0; i < mux_chip->controllers; ++i) {
-+		struct mux_control *mux = &mux_chip->mux[i];
-+
-+		mux->states = 4;
-+
-+		switch (idle_state[i]) {
-+		case MUX_IDLE_DISCONNECT:
-+		case MUX_IDLE_AS_IS:
-+		case 0 ... 4:
-+			mux->idle_state = idle_state[i];
-+			break;
-+		default:
-+			dev_err(dev, "invalid idle-state %d\n", idle_state[i]);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	ret = devm_mux_chip_register(dev, mux_chip);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (cells)
-+		dev_info(dev, "3x single pole quadruple throw muxes registered\n");
-+	else
-+		dev_info(dev, "triple pole quadruple throw mux registered\n");
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id adg792a_id[] = {
-+	{ .name = "adg792a", },
-+	{ .name = "adg792g", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, adg792a_id);
-+
-+static const struct of_device_id adg792a_of_match[] = {
-+	{ .compatible = "adi,adg792a", },
-+	{ .compatible = "adi,adg792g", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, adg792a_of_match);
-+
-+static struct i2c_driver adg792a_driver = {
-+	.driver		= {
-+		.name		= "adg792a",
-+		.of_match_table = of_match_ptr(adg792a_of_match),
-+	},
-+	.probe		= adg792a_probe,
-+	.id_table	= adg792a_id,
-+};
-+module_i2c_driver(adg792a_driver);
-+
-+MODULE_DESCRIPTION("Analog Devices ADG792A/G Triple 4:1 mux driver");
-+MODULE_AUTHOR("Peter Rosin <peda@axentia.se>");
-+MODULE_LICENSE("GPL v2");
++			pca9555: pca9555@20 {
++				compatible = "nxp,pca9555";
++				gpio-controller;
++				#gpio-cells = <2>;
++				reg = <0x20>;
++			};
++		};
++	};
 -- 
 2.1.4
+
