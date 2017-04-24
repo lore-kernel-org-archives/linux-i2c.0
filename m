@@ -1,98 +1,66 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v14 00/11] mux controller abstraction and iio/i2c muxes
-Date: Mon, 24 Apr 2017 13:37:19 +0200
-Message-ID: <2d978956-d247-917d-4150-a6723917a733@axentia.se>
-References: <1493022995-16917-1-git-send-email-peda@axentia.se>
- <1493031179.2446.9.camel@pengutronix.de>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: Re: [PATCH 1/2] ACPI / APD: Add clock frequency for Hisilicon
+ Hip07/08 I2C controller
+Date: Mon, 24 Apr 2017 19:51:28 +0800
+Message-ID: <735385cf-6f64-9321-f8e5-1bffdf0708e1@huawei.com>
+References: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1493031179.2446.9.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Hanjun Guo <guohanjun@huawei.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linuxarm@huawei.com, Hanjun Guo <hanjun.guo@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-04-24 12:52, Philipp Zabel wrote:
-> On Mon, 2017-04-24 at 10:36 +0200, Peter Rosin wrote:
->> Hi!
->>
->> The big change since v13 is that the mux state is now locked with a mutex
->> instead of an rwsem. Other that that, it is mostly restructuring and doc
->> changes. There are a few other "real" changes as well, but those changes
->> feel kind of minor. I guess what I'm trying to say is that although the
->> list of changes for v14 is longish, it's still basically the same as last
->> time.
+
+
+On 2017/4/22 11:23, Hanjun Guo wrote:
+> From: Hanjun Guo <hanjun.guo@linaro.org>
 > 
-> I have hooked this up to the video-multiplexer and now I trigger
-> the lockdep debug_check_no_locks_held error message when selecting the
-> mux input from userspace:
+> I2C clock frequency of Designware ip for Hisilicon Hip07 is 200M,
+> but 250M for Hip08, use two ACPI IDs to differentiate them.
+
+It is valuable to support i2c on hisilicon D0x board, Hip05/06/07 using same clock frequency,
+it should have their own ACPI ID. For both two patches,
+
+Reviewed-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+
 > 
-> $ media-ctl --links "'imx6-mipi-csi2':1->'ipu1_csi0_mux':0[1]"
-> [   66.258368] 
-> [   66.259919] =====================================
-> [   66.265369] [ BUG: media-ctl/258 still has locks held! ]
-> [   66.270810] 4.11.0-rc8-20170424-1+ #1305 Not tainted
-> [   66.275863] -------------------------------------
-> [   66.282158] 1 lock held by media-ctl/258:
-> [   66.286464]  #0:  (&mux->lock){+.+.+.}, at: [<8074a6c0>] mux_control_select+0x24/0x50
-> [   66.294424] 
-> [   66.294424] stack backtrace:
-> [   66.298980] CPU: 0 PID: 258 Comm: media-ctl Not tainted 4.11.0-rc8+ #1305
-> [   66.306771] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-> [   66.313334] Backtrace: 
-> [   66.315858] [<8010e5a4>] (dump_backtrace) from [<8010e8ac>] (show_stack+0x20/0x24)
-> [   66.323473]  r7:80e518d0 r6:80e518d0 r5:600d0013 r4:00000000
-> [   66.329190] [<8010e88c>] (show_stack) from [<80496cf4>] (dump_stack+0xb0/0xdc)
-> [   66.336470] [<80496c44>] (dump_stack) from [<8017e404>] (debug_check_no_locks_held+0xb8/0xbc)
-> [   66.345043]  r9:ae8566b8 r8:ad88dc84 r7:ad88df58 r6:ad88dc84 r5:ad88df58 r4:ae856400
-> [   66.352837] [<8017e34c>] (debug_check_no_locks_held) from [<8012b258>] (do_exit+0x79c/0xcc8)
-> [   66.361321] [<8012aabc>] (do_exit) from [<8012d25c>] (do_group_exit+0x4c/0xcc)
-> [   66.368581]  r7:000000f8
-> [   66.371161] [<8012d210>] (do_group_exit) from [<8012d2fc>] (__wake_up_parent+0x0/0x30)
-> [   66.379120]  r7:000000f8 r6:76f71798 r5:00000000 r4:00000001
-> [   66.384837] [<8012d2dc>] (SyS_exit_group) from [<80109380>] (ret_fast_syscall+0x0/0x1c)
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+> ---
+>  drivers/acpi/acpi_apd.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 > 
-> That correctly warns that the media-ctl process caused the mux->lock to
-> be locked and still held when the process exited. Do we need a usage
-> counter based mechanism for muxes that are (indirectly) controlled from
-> userspace?
-
-Ok, so the difference is probably that the rwsem locking primitive
-don't have any lockdep checking hooked up. Because the rwsem was
-definitely held in the same way in v13 as the mutex is now held in
-v14, so there's no fundamental difference.
-
-So, yes, we can use some kind of refcount scheme to not hold an actual
-mutex for the duration of the mux select/deselect, but that doesn't
-really change anything. Userspace is still locking something, and that
-seems dangerous. How do you make sure that mux_control_deselect is
-called as it should?
-
-What I don't like about abandoning the lock is that there is still a
-need to support the multi-consumer case and then you need some way
-of keeping track of waiters. A lock does this, and any attempt to open
-code that will get messy.
-
-What might be better is to support some kind of exclusive mux, i.e. a
-mux that only allows one consumer per mux controller. Then the mux core
-could trust that exclusive consumer to not fuck things up for itself and
-thus have no lock at all for select/deselect for the exclusive case. Or
-perhaps keep a refcount (as you suggested) for the exclusive case so
-that mux_control_try_select still makes sense, because you still want
-that, right? 
-
-The question then becomes how to best tell the mux core that you want
-an exclusive mux. I see two options. Either you declare a mux controller
-as exclusive up front somehow (in the device tree presumably), or you
-add a mux_control_get_exclusive call that makes further calls to
-mux_control_get{,_exclusive} fail with -EBUSY. I think I like the
-latter better, if that can be made to work...
-
-Cheers,
-peda
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> index 26696b6..8f57648 100644
+> --- a/drivers/acpi/acpi_apd.c
+> +++ b/drivers/acpi/acpi_apd.c
+> @@ -106,6 +106,16 @@ static int acpi_apd_setup(struct apd_private_data *pdata)
+>  	.setup = acpi_apd_setup,
+>  	.fixed_clk_rate = 133000000,
+>  };
+> +
+> +static const struct apd_device_desc hip07_i2c_desc = {
+> +	.setup = acpi_apd_setup,
+> +	.fixed_clk_rate = 200000000,
+> +};
+> +
+> +static const struct apd_device_desc hip08_i2c_desc = {
+> +	.setup = acpi_apd_setup,
+> +	.fixed_clk_rate = 250000000,
+> +};
+>  #endif
+>  
+>  #else
+> @@ -169,6 +179,8 @@ static int acpi_apd_create_device(struct acpi_device *adev,
+>  #ifdef CONFIG_ARM64
+>  	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+>  	{ "BRCM900D", APD_ADDR(vulcan_spi_desc) },
+> +	{ "HISI0A21", APD_ADDR(hip07_i2c_desc) },
+> +	{ "HISI0A22", APD_ADDR(hip08_i2c_desc) },
+>  #endif
+>  	{ }
+>  };
+> 
