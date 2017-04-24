@@ -1,91 +1,45 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v14 06/11] dt-bindings: iio: io-channel-mux: document io-channel-mux bindings
-Date: Mon, 24 Apr 2017 10:36:30 +0200
-Message-ID: <1493022995-16917-7-git-send-email-peda@axentia.se>
-References: <1493022995-16917-1-git-send-email-peda@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c: designware: Add ACPI HID for Hisilicon Hip07/08
+ I2C controller
+Date: Mon, 24 Apr 2017 12:34:40 +0300
+Message-ID: <2cb57c38-e480-06d5-2f5d-1db2a8d75c00@linux.intel.com>
+References: <1492831424-40581-1-git-send-email-guohanjun@huawei.com>
+ <1492831424-40581-2-git-send-email-guohanjun@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1493022995-16917-1-git-send-email-peda@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:28729 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1168031AbdDXJg5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 24 Apr 2017 05:36:57 -0400
+In-Reply-To: <1492831424-40581-2-git-send-email-guohanjun@huawei.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hanjun Guo <guohanjun@huawei.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linuxarm@huawei.com, wangkefeng.wang@huawei.com, Hanjun Guo <hanjun.guo@linaro.org>
 
-Describe how a multiplexer can be used to select which signal is fed to
-an io-channel.
+On 04/22/2017 06:23 AM, Hanjun Guo wrote:
+> From: Hanjun Guo <hanjun.guo@linaro.org>
+>
+> Add ACPI HID HISI02A1 and HISI02A2 for Hisilicon Hip07/08,
+> which have different clock frequency.
+>
+> Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 79c4b4e..90c7c10 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -129,6 +129,8 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  	{ "AMDI0010", ACCESS_INTR_MASK },
+>  	{ "AMDI0510", 0 },
+>  	{ "APMC0D0F", 0 },
+> +	{ "HISI02A1", 0 },
+> +	{ "HISI02A2", 0 },
+>  	{ }
 
-Acked-by: Jonathan Cameron <jic23@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- .../bindings/iio/multiplexer/io-channel-mux.txt    | 39 ++++++++++++++++++++++
- MAINTAINERS                                        |  6 ++++
- 2 files changed, 45 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
-
-diff --git a/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
-new file mode 100644
-index 000000000000..c82794002595
---- /dev/null
-+++ b/Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.txt
-@@ -0,0 +1,39 @@
-+I/O channel multiplexer bindings
-+
-+If a multiplexer is used to select which hardware signal is fed to
-+e.g. an ADC channel, these bindings describe that situation.
-+
-+Required properties:
-+- compatible : "io-channel-mux"
-+- io-channels : Channel node of the parent channel that has multiplexed
-+		input.
-+- io-channel-names : Should be "parent".
-+- #address-cells = <1>;
-+- #size-cells = <0>;
-+- mux-controls : Mux controller node to use for operating the mux
-+- channels : List of strings, labeling the mux controller states.
-+
-+For each non-empty string in the channels property, an io-channel will
-+be created. The number of this io-channel is the same as the index into
-+the list of strings in the channels property, and also matches the mux
-+controller state. The mux controller state is described in
-+../mux/mux-controller.txt
-+
-+Example:
-+	mux: mux-controller {
-+		compatible = "mux-gpio";
-+		#mux-control-cells = <0>;
-+
-+		mux-gpios = <&pioA 0 GPIO_ACTIVE_HIGH>,
-+			    <&pioA 1 GPIO_ACTIVE_HIGH>;
-+	};
-+
-+	adc-mux {
-+		compatible = "io-channel-mux";
-+		io-channels = <&adc 0>;
-+		io-channel-names = "parent";
-+
-+		mux-controls = <&mux>;
-+
-+		channels = "sync", "in", "system-regulator";
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4cfa080878e2..1cde195bba25 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6360,6 +6360,12 @@ F:	Documentation/ABI/testing/sysfs-bus-iio-adc-envelope-detector
- F:	Documentation/devicetree/bindings/iio/adc/envelope-detector.txt
- F:	drivers/iio/adc/envelope-detector.c
- 
-+IIO MULTIPLEXER
-+M:	Peter Rosin <peda@axentia.se>
-+L:	linux-iio@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/iio/multiplexer/iio-mux.txt
-+
- IIO SUBSYSTEM AND DRIVERS
- M:	Jonathan Cameron <jic23@kernel.org>
- R:	Hartmut Knaack <knaack.h@gmx.de>
--- 
-2.1.4
-
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
