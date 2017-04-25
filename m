@@ -1,281 +1,476 @@
-From: Ryan Chen <ryan_chen@aspeedtech.com>
-Subject: RE: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Tue, 25 Apr 2017 08:50:42 +0000
-Message-ID: <7d991733d3ea4591b74baf93300f0224@TWMBX01.aspeed.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Tue, 25 Apr 2017 19:34:35 +1000
+Message-ID: <1493112875.25766.268.camel@kernel.crashing.org>
 References: <20170328051226.21677-1-brendanhiggins@google.com>
- <20170328051226.21677-5-brendanhiggins@google.com>
- <1490945610.3177.229.camel@kernel.crashing.org>
- <CAFd5g45DQZz99y59AY-4465qnM+tRv6+bDdGQqS6VYHEfRfjDg@mail.gmail.com>
- <1493086747.25766.264.camel@kernel.crashing.org>
- <CAFd5g44ioW0PdFVOhY-ep8TXBNg6qC7E5yjOVf3MEdY9bPgEDA@mail.gmail.com>
+         <20170328051226.21677-5-brendanhiggins@google.com>
+         <1490945610.3177.229.camel@kernel.crashing.org>
+         <CAFd5g45DQZz99y59AY-4465qnM+tRv6+bDdGQqS6VYHEfRfjDg@mail.gmail.com>
+         <1493086747.25766.264.camel@kernel.crashing.org>
+         <CAFd5g44ioW0PdFVOhY-ep8TXBNg6qC7E5yjOVf3MEdY9bPgEDA@mail.gmail.com>
+         <7d991733d3ea4591b74baf93300f0224@TWMBX01.aspeed.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from twspam01.aspeedtech.com ([211.20.114.71]:29710 "EHLO
-        twspam01.aspeedtech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1177305AbdDYJZH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 25 Apr 2017 05:25:07 -0400
-Received: from twspam01.aspeedtech.com (localhost [127.0.0.2])
-        by twspam01.aspeedtech.com with ESMTP id v3P8oHj3099089
-        for <linux-i2c@vger.kernel.org>; Tue, 25 Apr 2017 16:50:17 +0800 (CST)
-        (envelope-from ryan_chen@aspeedtech.com)
-In-Reply-To: <CAFd5g44ioW0PdFVOhY-ep8TXBNg6qC7E5yjOVf3MEdY9bPgEDA@mail.gmail.com>
-Content-Language: zh-TW
+Received: from gate.crashing.org ([63.228.1.57]:33055 "EHLO gate.crashing.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1428670AbdDYJgS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 25 Apr 2017 05:36:18 -0400
+In-Reply-To: <7d991733d3ea4591b74baf93300f0224@TWMBX01.aspeed.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?utf-8?B?Q8OpZHJpYyBMZSBHb2F0ZXI=?= <clg@kaod.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
+To: Ryan Chen <ryan_chen@aspeedtech.com>, Brendan Higgins <brendanhiggins@google.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?ISO-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
 
-SGVsbG8gQWxsLA0KCQlBU1BFRURfSTJDRF9NX1NEQV9EUklWRV8xVF9FTiwgQVNQRUVEX0kyQ0Rf
-U0RBX0RSSVZFXzFUX0VOIGlzIHNwZWNpZmljIGZvciBzb21lIGNhc2UgdXNhZ2UuIA0KCQlGb3Ig
-ZXhhbXBsZSwgaWYgaTJjIGJ1cyBpcyB1c2Ugb24gImhpZ2ggc3BlZWQiIGFuZCAic2luZ2xlIHNs
-YXZlIGFuZCBtYXN0ZXIiIGFuZCBpMmMgYnVzIGlzIHRvbyBsb25nLiBJdCBuZWVkIGRyaXZlIFNE
-QSBvciBTQ0wgbGVzcyBsdW5hY3kuIEl0IHdvdWxkIGVuYWJsZSBpdC4gDQoJCU90aGVyd2lzZSwg
-ZG9u4oCZdCBlbmFibGUgaXQuIGVzcGVjaWFsbHkgaW4gbXVsdGktbWFzdGVyLiBJdCBjYW7igJl0
-IGJlIGVuYWJsZS4gDQoNCgkJICANCgkNCg0KQmVzdCBSZWdhcmRzLA0KUnlhbg0KDQrkv6HpqYrn
-p5HmioDogqHku73mnInpmZDlhazlj7gNCkFTUEVFRCBUZWNobm9sb2d5IEluYy4NCjJGLE5vLjE1
-LEluZHVzdHJ5IEVhc3QgUm9hZCA0LixIc2luY2h1IFNjaWVuY2UgUGFyaywgSHNpbmNodSBDaXR5
-IDMwMDc3LCBUYWl3YW4NClRlbDogODg2LTMtNTc4LTk1NjjCoCAjODU3DQpGYXg6IDg4Ni0zLTU3
-OC05NTg2DQoqKioqKioqKioqKioqIEVtYWlsIENvbmZpZGVudGlhbGl0eSBOb3RpY2UgKioqKioq
-KioqKioqKioqKioqKioNCkRJU0NMQUlNRVI6DQpUaGlzIG1lc3NhZ2UgKGFuZCBhbnkgYXR0YWNo
-bWVudHMpIG1heSBjb250YWluIGxlZ2FsbHkgcHJpdmlsZWdlZCBhbmQvb3Igb3RoZXIgY29uZmlk
-ZW50aWFsIGluZm9ybWF0aW9uLiBJZiB5b3UgaGF2ZSByZWNlaXZlZCBpdCBpbiBlcnJvciwgcGxl
-YXNlIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHJlcGx5IGUtbWFpbCBhbmQgaW1tZWRpYXRlbHkgZGVs
-ZXRlIHRoZSBlLW1haWwgYW5kIGFueSBhdHRhY2htZW50cyB3aXRob3V0IGNvcHlpbmcgb3IgZGlz
-Y2xvc2luZyB0aGUgY29udGVudHMuIFRoYW5rIHlvdS4NCg0KDQotLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KRnJvbTogQnJlbmRhbiBIaWdnaW5zIFttYWlsdG86YnJlbmRhbmhpZ2dpbnNAZ29v
-Z2xlLmNvbV0gDQpTZW50OiBUdWVzZGF5LCBBcHJpbCAyNSwgMjAxNyA0OjMyIFBNDQpUbzogQmVu
-amFtaW4gSGVycmVuc2NobWlkdCA8YmVuaEBrZXJuZWwuY3Jhc2hpbmcub3JnPg0KQ2M6IFdvbGZy
-YW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+OyBSb2IgSGVycmluZyA8cm9iaCtkdEBrZXJuZWwu
-b3JnPjsgTWFyayBSdXRsYW5kIDxtYXJrLnJ1dGxhbmRAYXJtLmNvbT47IFRob21hcyBHbGVpeG5l
-ciA8dGdseEBsaW51dHJvbml4LmRlPjsgSmFzb24gQ29vcGVyIDxqYXNvbkBsYWtlZGFlbW9uLm5l
-dD47IE1hcmMgWnluZ2llciA8bWFyYy56eW5naWVyQGFybS5jb20+OyBKb2VsIFN0YW5sZXkgPGpv
-ZWxAam1zLmlkLmF1PjsgVmxhZGltaXIgWmFwb2xza2l5IDx2ekBtbGVpYS5jb20+OyBLYWNoYWxv
-diBBbnRvbiA8bW91c2VAbWF5Yy5ydT47IEPDqWRyaWMgTGUgR29hdGVyIDxjbGdAa2FvZC5vcmc+
-OyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZzsg
-TGludXggS2VybmVsIE1haWxpbmcgTGlzdCA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz47
-IE9wZW5CTUMgTWFpbGxpc3QgPG9wZW5ibWNAbGlzdHMub3psYWJzLm9yZz47IFJ5YW4gQ2hlbiA8
-cnlhbl9jaGVuQGFzcGVlZHRlY2guY29tPg0KU3ViamVjdDogUmU6IFtQQVRDSCB2NiA0LzVdIGky
-YzogYXNwZWVkOiBhZGRlZCBkcml2ZXIgZm9yIEFzcGVlZCBJMkMNCg0KQWRkaW5nIFJ5YW4uDQoN
-Ck9uIE1vbiwgQXByIDI0LCAyMDE3IGF0IDc6MTkgUE0sIEJlbmphbWluIEhlcnJlbnNjaG1pZHQg
-PGJlbmhAa2VybmVsLmNyYXNoaW5nLm9yZz4gd3JvdGU6DQo+IE9uIE1vbiwgMjAxNy0wNC0yNCBh
-dCAxMTo1NiAtMDcwMCwgQnJlbmRhbiBIaWdnaW5zIHdyb3RlOg0KPj4gPiA+ICtzdHJ1Y3QgYXNw
-ZWVkX2kyY19idXMgew0KPj4gPiA+ICsgICAgIHN0cnVjdCBpMmNfYWRhcHRlciAgICAgICAgICAg
-ICAgYWRhcDsNCj4+ID4gPiArICAgICBzdHJ1Y3QgZGV2aWNlICAgICAgICAgICAgICAgICAgICpk
-ZXY7DQo+PiA+ID4gKyAgICAgdm9pZCBfX2lvbWVtICAgICAgICAgICAgICAgICAgICAqYmFzZTsN
-Cj4+ID4gPiArICAgICAvKiBTeW5jaHJvbml6ZXMgSS9PIG1lbSBhY2Nlc3MgdG8gYmFzZS4gKi8N
-Cj4+ID4gPiArICAgICBzcGlubG9ja190ICAgICAgICAgICAgICAgICAgICAgIGxvY2s7DQo+PiA+
-DQo+PiA+IEkgYW0gbm90IGVudGlyZWx5IGNvbnZpbmNlZCB3ZSBuZWVkIHRoYXQgbG9jay4gVGhl
-IGkyYyBjb3JlIHdpbGwgDQo+PiA+IHRha2UgYSBtdXRleCBwcm90ZWN0aW5nIGFsbCBvcGVyYXRp
-b25zIG9uIHRoZSBidXMuIFNvIHdlIG9ubHkgbmVlZCANCj4+ID4gdG8gc3luY2hyb25pemUgYmV0
-d2VlbiBvdXIgInhmZXIiIGNvZGUgYW5kIG91ciBpbnRlcnJ1cHQgaGFuZGxlci4NCj4+DQo+PiBZ
-b3UgYXJlIHJpZ2h0IGlmIGJvdGggaGF2aW5nIHNsYXZlIGFuZCBtYXN0ZXIgYWN0aXZlIGF0IHRo
-ZSBzYW1lIHRpbWUgDQo+PiB3YXMgbm90IHBvc3NpYmxlOyBob3dldmVyLCBpdCBpcy4NCj4NCj4g
-UmlnaHQsIEkgc29tZXdoYXQgZm9yZ290IGFib3V0IHRoZSBzbGF2ZSBjYXNlLg0KPg0KPiAgIC4u
-Lg0KPg0KPj4gPiBTb21lIG9mIHRob3NlIGVycm9yIHN0YXRlcyBwcm9iYWJseSBhbHNvIHdhcnJh
-bnQgYSByZXNldCBvZiB0aGUgDQo+PiA+IGNvbnRyb2xsZXIsIEkgdGhpbmsgYXNwZWVkIGRvZXMg
-dGhhdCBpbiB0aGUgU0RLLg0KPj4NCj4+IEZvciB0aW1lb3V0IGFuZCBjbWRfZXJyLCBJIGRvIG5v
-dCBzZWUgYW55IGFyZ3VtZW50IGFnYWluc3QgaXQ7IGl0IA0KPj4gc291bmRzIGxpa2Ugd2UgYXJl
-IGluIGEgdmVyeSBtZXNzZWQgdXAsIHZlcnkgdW5rbm93biBzdGF0ZSwgc28gZnVsbCANCj4+IHJl
-c2V0IGlzIHByb2JhYmx5IHRoZSBiZXN0IGxhc3QgcmVzb3J0Lg0KPg0KPiBZdXAuDQo+DQo+PiBG
-b3IgU0RBIHN0YXlpbmcgcHVsbGVkIGRvd24sIEkNCj4+IHRoaW5rIHdlIGNhbiBzYXkgd2l0aCBy
-ZWFzb25hYmxlIGNvbmZpZGVuY2UgdGhhdCBzb21lIGRldmljZSBvbiBvdXIgDQo+PiBidXMgaXMg
-YmVoYXZpbmcgdmVyeSBiYWRseSBhbmQgSSBhbSBub3QgY29udmluY2VkIHRoYXQgcmVzZXR0aW5n
-IHRoZSANCj4+IGNvbnRyb2xsZXIgaXMgbGlrZWx5IHRvIGRvIGFueXRoaW5nIHRvIGhlbHA7DQo+
-DQo+IFJpZ2h0LiBIYW1tZXJpbmcgd2l0aCBTVE9QcyBhbmQgcHJheSAuLi4NCg0KSSB0aGluayBz
-ZW5kaW5nIHJlY292ZXJ5IG1vZGUgc2VuZHMgc3RvcHMgYXMgYSBwYXJ0IG9mIHRoZSByZWNvdmVy
-eSBhbGdvcml0aG0gaXQgZXhlY3V0ZXMuDQoNCj4NCj4+ICB0aGF0IGJlaW5nIHNhaWQsIEkgcmVh
-bGx5DQo+PiBkbyBub3QgaGF2ZSBhbnkgZ29vZCBpZGVhcyB0byBhZGRyZXNzIHRoYXQuIFNvIG1h
-eWJlIHByYXlpbmcgYW5kIA0KPj4gcmVzZXR0aW5nIHRoZSBjb250cm9sbGVyIGlzICp0aGUgbW9z
-dCByZWFzb25hYmxlIHRoaW5nIHRvIGRvLiogSSANCj4+IHdvdWxkIGxpa2UgdG8ga25vdyB3aGF0
-IHlvdSB0aGluayB3ZSBzaG91bGQgZG8gaW4gdGhhdCBjYXNlLg0KPg0KPiBXZWxsLCB0aGVyZSdz
-IGEgKHNtYWxsID8pIGNoYW5jZSB0aGF0IGl0J3MgYSBjb250cm9sbGVyIGJ1ZyBhc3NlcnRpbmcg
-DQo+IHRoZSBsaW5lIHNvIC4uLiBidXQgdGhlcmUncyBsaXR0bGUgd2UgY2FuIGRvIGlmIG5vdC4N
-Cg0KVHJ1ZS4NCg0KPg0KPj4gV2hpbGUgSSB3YXMgdGhpbmtpbmcgYWJvdXQgdGhpcyBJIGFsc28g
-cmVhbGl6ZWQgdGhhdCB0aGUgU0RBIGxpbmUgDQo+PiBjaGVjayBhZnRlciByZWNvdmVyeSBoYXBw
-ZW5zIGluIHRoZSBlbHNlIGJyYW5jaCwgYnV0IFNDTCBsaW5lIGNoZWNrIA0KPj4gZG9lcyBub3Qg
-aGFwcGVuIGFmdGVyIHdlIGF0dGVtcHQgdG8gU1RPUCBpZiBTQ0wgaXMgaHVuZy4gSWYgd2UgZGVj
-aWRlIA0KPj4gdG8gbWFrZSBzcGVjaWFsIG5vdGUgU0RBIGJlaW5nIGh1bmcgYnkgYSBkZXZpY2Ug
-dGhhdCB3b24ndCBsZXQgZ28sIHdlIA0KPj4gbWlnaHQgd2FudCB0byBtYWtlIGEgc3BlY2lhbCBu
-b3RlIHRoYXQgU0NMIGlzIGh1bmcgYnkgYSBkZXZpY2UgdGhhdCANCj4+IHdvbid0IGxldCBnby4g
-SnVzdCBhIHRob3VnaHQuDQo+DQo+IE1heWJlLiBPciBqdXN0ICJ1bnJlY292ZXJhYmxlIGVycm9y
-Ii4uLiBob3BlZnVsbHkgdGhlc2UgZG9uJ3QgaGFwcGVuIA0KPiB0b28gb2Z0ZW4gLi4uIFdlIGhh
-ZCBjYXNlcyBvZiBhIFRQTSBtaXNiZWhhdmluZyBsaWtlIHRoYXQuDQoNClllYWgsIGRlZmluaXRl
-bHkgc2hvdWxkIHByaW50IHNvbWV0aGluZyBvdXQuDQoNCj4NCj4+ID4gPiArb3V0Og0KPj4NCj4+
-IC4uLg0KPj4gPiBXaGF0IGFib3V0IEkyQ19NX05PU1RBUlQgPw0KPj4gPg0KPj4gPiBOb3QgdGhh
-dCBJJ3ZlIGV2ZXIgc2VlbiBpdCB1c2VkLi4uIDstKQ0KPj4NCj4+IFJpZ2h0IG5vdyBJIGFtIG5v
-dCBkb2luZyBhbnkgb2YgdGhlIHByb3RvY29sIG1hbmdsaW5nIG9wdGlvbnMsIGJ1dCBJIA0KPj4g
-Y2FuIGFkZCB0aGVtIGluIGlmIHlvdSB0aGluayBpdCBpcyBpbXBvcnRhbnQgZm9yIGluaXRpYWwg
-c3VwcG9ydC4NCj4NCj4gTm8sIG5vdCBpbXBvcnRhbnQsIHdlIGNhbiBhZGQgdGhhdCBsYXRlciBp
-ZiBpdCBldmVyIGJlY29tZXMgdXNlZnVsLg0KPg0KPiAgLi4uDQo+DQo+PiA+IEluIGdlbmVyYWws
-IHlvdSBhbHdheXMgQUNLIGFsbCBpbnRlcnJ1cHRzIGZpcnN0LiBUaGVuIHlvdSBoYW5kbGUgDQo+
-PiA+IHRoZSBiaXRzIHlvdSBoYXZlIGhhcnZlc3RlZC4NCj4+ID4NCj4+DQo+PiBUaGUgZG9jdW1l
-bnRhdGlvbiBzYXlzIHRvIEFDSyB0aGUgaW50ZXJydXB0IGFmdGVyIGhhbmRsaW5nIGluIHRoZSBS
-WA0KPj4gY2FzZToNCj4+DQo+PiA8PDwNCj4+IFMvVyBuZWVkcyB0byBjbGVhciB0aGlzIHN0YXR1
-cyBiaXQgdG8gYWxsb3cgbmV4dCBkYXRhIHJlY2VpdmluZy4NCj4+ID4gPiA+DQo+Pg0KPj4gSSB3
-aWxsIGRvdWJsZSBjaGVjayB3aXRoIFJ5YW4gdG8gbWFrZSBzdXJlIFRYIHdvcmtzIHRoZSBzYW1l
-IHdheS4NCj4+DQo+PiA+ID4gKyAgICAgaWYgKGlycV9zdGF0dXMgJiBBU1BFRURfSTJDRF9JTlRS
-X0VSUk9SIHx8DQo+PiA+ID4gKyAgICAgICAgICghYnVzLT5tc2dzICYmIGJ1cy0+bWFzdGVyX3N0
-YXRlICE9DQo+PiA+ID4gQVNQRUVEX0kyQ19NQVNURVJfU1RPUCkpIHsNCj4+DQo+PiAuLi4NCj4+
-ID4NCj4+ID4gSSB3b3VsZCBzZXQgbWFzdGVyX3N0YXRlIHRvICJSRUNPVkVSWSIgKG5ldyBzdGF0
-ZSA/KSBhbmQgZW5zdXJlIA0KPj4gPiB0aG9zZSB0aGluZ3MgYXJlIGNhdWdodCBpZiB0aGV5IGhh
-cHBlbiBvdXRzaWRlIG9mIGEgcmVjb3ZlcnkuDQo+DQo+IEkgcmVwbGllZCBwcml2YXRlbHkgLi4u
-IGFzIGxvbmcgYXMgd2UgYWNrIGJlZm9yZSB3ZSBzdGFydCBhIG5ldyANCj4gY29tbWFuZCB3ZSBz
-aG91bGQgYmUgb2sgYnV0IHdlIHNob3VsZG4ndCBhY2sgYWZ0ZXIuDQo+DQo+IFlvdXIgbGF0ZXN0
-IHBhdGNoIHN0aWxsIGRvZXMgdGhhdC4gSXQgd2lsbCBkbyB0aGluZ3MgbGlrZSBzdGFydCBhIFNU
-T1AgDQo+IGNvbW1hbmQgKnRoZW4qIGFjayB0aGUgc3RhdHVzIGJpdHMuIEknbSBwcmV0dHkgc3Vy
-ZSB0aGF0J3MgYm9ndXMuDQo+DQo+IFRoYXQgd2F5IGl0J3MgYSBsb3Qgc2ltcGxlciB0byBzaW1w
-bHkgbW92ZSB0aGUNCj4NCj4gICAgICAgICB3cml0ZWwoaXJxX3N0YXR1cywgYnVzLT5iYXNlICsg
-QVNQRUVEX0kyQ19JTlRSX1NUU19SRUcpOw0KPg0KPiBUbyBlaXRoZXIgcmlnaHQgYWZ0ZXIgdGhl
-IHJlYWRsIG9mIHRoZSBzdGF0dXMgcmVnIGF0IHRoZSBiZWdpbm5pbmcgb2YgDQo+IGFzcGVlZF9p
-MmNfbWFzdGVyX2lycSgpLg0KPg0KPiBJIHdvdWxkIGJlIHZlcnkgc3VycHJpc2VkIGlmIHRoYXQg
-ZGlkbid0IHdvcmsgcHJvcGVybHkgYW5kIHdhc24ndCBtdWNoIA0KPiBzYWZlciB0aGFuIHdoYXQg
-eW91IGFyZSBjdXJyZW50bHkgZG9pbmcuDQoNCkkgdGhpbmsgSSB0cmllZCB5b3VyIHdheSBhbmQg
-aXQgd29ya2VkLiBJbiBhbnljYXNlLCBSeWFuIHdpbGwgYmUgYWJsZSB0byBjbGFyaWZ5IGZvciB1
-cy4NCg0KPg0KPj4gTGV0IG1lIGtub3cgaWYgeW91IHN0aWxsIHRoaW5rIHdlIG5lZWQgYSAiUkVD
-T1ZFUlkiIHN0YXRlLg0KPg0KPiBUaGUgd2F5IHlvdSBqdXN0IHN3aXRjaCB0byBzdG9wIHN0YXRl
-IGFuZCBzdG9yZSB0aGUgZXJyb3IgZm9yIGxhdGVyIA0KPiBzaG91bGQgd29yayBJIHRoaW5rLg0K
-Pg0KPj4gPg0KPj4gPiA+ICsgICAgIGlmIChidXMtPm1hc3Rlcl9zdGF0ZSA9PSBBU1BFRURfSTJD
-X01BU1RFUl9TVEFSVCkgew0KPj4NCj4+IC4uLg0KPj4gPg0KPj4gPiA+ICsgICAgICAgICAgICAg
-ICAgICAgICBkZXZfZGJnKGJ1cy0+ZGV2LA0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICJubyBzbGF2ZSBwcmVzZW50IGF0ICUwMngiLCBtc2ctDQo+PiA+ID4gPmFkZHIpOw0K
-Pj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBzdGF0dXNfYWNrIHw9IEFTUEVFRF9JMkNEX0lO
-VFJfVFhfTkFLOw0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBidXMtPmNtZF9lcnIgPSAt
-RUlPOw0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICBkb19zdG9wKGJ1cyk7DQo+PiA+ID4g
-KyAgICAgICAgICAgICAgICAgICAgIGdvdG8gb3V0X25vX2NvbXBsZXRlOw0KPj4gPiA+ICsgICAg
-ICAgICAgICAgfSBlbHNlIHsNCj4+ID4gPiArICAgICAgICAgICAgICAgICAgICAgc3RhdHVzX2Fj
-ayB8PSBBU1BFRURfSTJDRF9JTlRSX1RYX0FDSzsNCj4+ID4gPiArICAgICAgICAgICAgICAgICAg
-ICAgaWYgKG1zZy0+ZmxhZ3MgJiBJMkNfTV9SRCkNCj4+ID4gPiArICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBidXMtPm1hc3Rlcl9zdGF0ZSA9DQo+PiA+ID4gQVNQRUVEX0kyQ19NQVNURVJf
-Ulg7DQo+PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgIGVsc2UNCj4+ID4gPiArICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBidXMtPm1hc3Rlcl9zdGF0ZSA9DQo+PiA+ID4gQVNQRUVEX0ky
-Q19NQVNURVJfVFhfRklSU1Q7DQo+PiA+DQo+PiA+IFdoYXQgYWJvdXQgdGhlIFNNQlVTX1FVSUNL
-IGNhc2UgPyAoMC1sZW4gdHJhbnNmZXIpLiBEbyB3ZSBuZWVkIHRvIA0KPj4gPiBoYW5kbGUgdGhp
-cyBoZXJlID8gQSBxdWljayBsb29rIGF0IHRoZSBUWF9GSVJTVCBjYXNlIG1ha2VzIG1lIHRoaW5r
-IA0KPj4gPiB3ZSBhcmUgb2sgdGhlcmUgYnV0IEknbSBub3Qgc3VyZSBhYm91dCB0aGUgUlggY2Fz
-ZS4NCj4+DQo+PiBJIGRpZCBub3QgdGhpbmsgdGhhdCB0aGVyZSBpcyBhbiBTTUJVU19RVUlDSyBS
-WC4gQ291bGQgeW91IHBvaW50IG1lIA0KPj4gdG8gYW4gZXhhbXBsZT8NCj4NCj4gTm90IHNvIG11
-Y2ggYW4gUlgsIGl0J3MgbW9yZSBsaWtlIHlvdSBhcmUgc2VuZGluZyBhIDEtYml0IGRhdGEgaW4g
-dGhlIA0KPiBwbGFjZSBvZiB0aGUgUmQvV3IgYml0LiBTbyB5b3UgaGF2ZSBhIHJlYWQgd2l0aCBh
-IGxlbmdodCBvZiAwLCBJIGRvbid0IA0KPiB0aGluayBpbiB0aGF0IGNhc2UgeW91IHNob3VsZCBz
-ZXQgQVNQRUVEX0kyQ0RfTV9SWF9DTUQgaW4gDQo+IF9fYXNwZWVkX2kyY19kb19zdGFydA0KDQpG
-b3JnZXQgd2hhdCBJIHNhaWQsIEkgd2FzIGp1c3Qgbm90IHRoaW5raW5nIGFib3V0IHRoZSBmYWN0
-IHRoYXQgU01CdXMgZW11bGF0aW9uIGNhdXNlcyB0aGUgZGF0YSBiaXQgdG8gYmUgZW5jb2RlZCBh
-cyB0aGUgUi9XIGZsYWcuIEkgc2VlIHdoYXQgeW91IGFyZSBzYXlpbmc7IHlvdSBhcmUgY29ycmVj
-dC4NCg0KPg0KPj4gPiBJJ20gbm90IHN1cmUgdGhlIFJYIGNhc2UgaXMgdGlnaHQgYWxzby4gV2hh
-dCBjb21wbGV0aW9uIGRvZXMgdGhlIEhXIA0KPj4gPiBnaXZlIHlvdSBmb3IgdGhlIGFkZHJlc3Mg
-Y3ljbGUgPyBXb24ndCB5b3UgZ2V0IHRoYXQgYmVmb3JlIGl0IGhhcyANCj4+ID4gcmVjZWl2ZWQg
-dGhlIGZpcnN0IGNoYXJhY3RlciA/IElFLiBZb3UgZmFsbCB0aHJvdWdoIHRvIHRoZSByZWFkIA0K
-Pj4gPiBjYXNlIG9mIHRoZSBzdGF0ZSBtYWNoaW5lIHdpdGggdGhlIHJlYWQgcG90ZW50aWFsbHkg
-bm90IGNvbXBsZXRlIA0KPj4gPiB5ZXQgbm8gPw0KPj4NCj4+IC4uLg0KPj4gPiA+ICsgICAgIGNh
-c2UgQVNQRUVEX0kyQ19NQVNURVJfUlg6DQo+PiA+ID4gKyAgICAgICAgICAgICBpZiAoIShpcnFf
-c3RhdHVzICYgQVNQRUVEX0kyQ0RfSU5UUl9SWF9ET05FKSkgew0KPj4gPiA+ICsgICAgICAgICAg
-ICAgICAgICAgICBkZXZfZXJyKGJ1cy0+ZGV2LCAibWFzdGVyIGZhaWxlZCB0byBSWCIpOw0KPj4g
-PiA+ICsgICAgICAgICAgICAgICAgICAgICBnb3RvIG91dF9jb21wbGV0ZTsNCj4+ID4gPiArICAg
-ICAgICAgICAgIH0NCj4+ID4NCj4+ID4gU2VlIG15IGNvbW1lbnQgYWJvdmUgZm9yIGEgYm9nIHN0
-YW5kYXJkIGkyY19yZWFkLiBBcmVuJ3QgeW91IA0KPj4gPiBnZXR0aW5nIHRoZSBjb21wbGV0aW9u
-IGZvciB0aGUgYWRkcmVzcyBiZWZvcmUgdGhlIHJlYWQgaXMgZXZlbiANCj4+ID4gc3RhcnRlZCA/
-DQo+Pg0KPj4gSW4gcHJhY3RpY2Ugbm8sIGJ1dCBpdCBpcyBwcm9iYWJseSBiZXN0IHRvIGJlIHNh
-ZmUgOi0pDQo+DQo+IFl1cCA6KQ0KPj4gPg0KPj4gPiA+ICsgICAgICAgICAgICAgc3RhdHVzX2Fj
-ayB8PSBBU1BFRURfSTJDRF9JTlRSX1JYX0RPTkU7DQo+PiA+ID4gKw0KPj4gPiA+ICsgICAgICAg
-ICAgICAgcmVjdl9ieXRlID0gYXNwZWVkX2kyY19yZWFkKGJ1cywNCj4+ID4gPiBBU1BFRURfSTJD
-X0JZVEVfQlVGX1JFRykgPj4gODsNCj4+ID4gPiArICAgICAgICAgICAgIG1zZy0+YnVmW2J1cy0+
-YnVmX2luZGV4KytdID0gcmVjdl9ieXRlOw0KPj4gPiA+ICsNCj4+ID4gPiArICAgICAgICAgICAg
-IGlmIChtc2ctPmZsYWdzICYgSTJDX01fUkVDVl9MRU4gJiYNCj4+ID4gPiArICAgICAgICAgICAg
-ICAgICByZWN2X2J5dGUgPD0gSTJDX1NNQlVTX0JMT0NLX01BWCkgew0KPj4gPiA+ICsgICAgICAg
-ICAgICAgICAgICAgICBtc2ctPmxlbiA9IHJlY3ZfYnl0ZSArDQo+PiA+ID4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAoKG1zZy0+ZmxhZ3MgJg0KPj4gPiA+IEkyQ19DTElF
-TlRfUEVDKSA/IDIgOiAxKTsNCj4+DQo+PiAuLi4NCj4+ID4gPiArICAgICByZXR1cm4gKChjbGtf
-aGlnaCA8PCBBU1BFRURfSTJDRF9USU1FX1NDTF9ISUdIX1NISUZUKQ0KPj4gPiA+ICsgICAgICAg
-ICAgICAgJiBBU1BFRURfSTJDRF9USU1FX1NDTF9ISUdIX01BU0spDQo+PiA+ID4gKyAgICAgICAg
-ICAgICAgICAgICAgIHwgKChjbGtfbG93IDw8DQo+PiA+ID4gQVNQRUVEX0kyQ0RfVElNRV9TQ0xf
-TE9XX1NISUZUKQ0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAmIEFTUEVFRF9JMkNE
-X1RJTUVfU0NMX0xPV19NQVNLKQ0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICB8IChiYXNl
-X2NsayAmDQo+PiA+ID4gQVNQRUVEX0kyQ0RfVElNRV9CQVNFX0RJVklTT1JfTUFTSyk7DQo+PiA+
-ID4gK30NCj4+ID4NCj4+ID4gQXMgSSB0aGluayBJIG1lbnRpb25lZCBlYXJsaWVyLCB0aGUgQVNU
-MjUwMCBoYXMgYSBzbGlnaHRseSANCj4+ID4gZGlmZmVyZW50IHJlZ2lzdGVyIGxheW91dCB3aGlj
-aCBzdXBwb3J0IGxhcmdlciB2YWx1ZXMgZm9yIGhpZ2ggYW5kIA0KPj4gPiBsb3csIHRodXMgYWxs
-b3dpbmcgYSBmaW5lciBncmFudWxhcml0eS4NCj4+DQo+PiBJIGFtIGRldmVsb3BpbmcgYWdhaW5z
-dCB0aGUgMjUwMC4NCj4NCj4gWWVzIGJ1dCB3ZSdkIGxpa2UgdGhlIGRyaXZlciB0byB3b3JrIHdp
-dGggYm90aCA6LSkNCg0KUmlnaHQsIEkgdGhvdWdodCB5b3Ugd2VyZSBtYWtpbmcgYW4gYXNzZXJ0
-aW9uIGFib3V0IHRoZSAyNTAwLCBpZiB5b3UgYXJlIG1ha2luZyBhbiBhc3NlcnRpb24gYWJvdXQg
-dGhlIDI0MDAsIEkgZG8gbm90IGtub3cgYW5kIGRvIG5vdCBoYXZlIG9uZSBoYW5keS4NCg0KPg0K
-Pj4gPiBCVFcuIEluIGNhc2UgeW91IGhhdmVuJ3QsIEkgd291bGQgc3VnZ2VzdCB5b3UgY29weS9w
-YXN0ZSB0aGUgYWJvdmUgDQo+PiA+IGluIGEgdXNlcnNwYWNlIGFwcCBhbmQgcnVuIGl0IGZvciBh
-bGwgZnJlcXVlbmN5IGRpdmlzb3JzIGFuZCBzZWUgaWYgDQo+PiA+IHlvdXIgcmVzdWx0cyBtYXRj
-aCB0aGUgYXNwZWVkIHRhYmxlIDopDQo+Pg0KPj4gR29vZCBjYWxsLg0KPg0KPiBJZiB5b3UgZW5k
-IHVwIGRvaW5nIHRoYXQsIGNhbiB5b3Ugc2hvb3QgaXQgbXkgd2F5ID8gSSBjYW4gdGFrZSBjYXJl
-IG9mIA0KPiBtYWtpbmcgc3VyZSBpdCdzIGFsbCBnb29kIGZvciB0aGUgMjQwMC4NCg0KV2lsbCBk
-by4NCg0KPg0KPj4gPiA+ICtzdGF0aWMgaW50IGFzcGVlZF9pMmNfaW5pdF9jbGsoc3RydWN0IGFz
-cGVlZF9pMmNfYnVzICpidXMsDQo+PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICBz
-dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KSB7DQo+PiA+ID4gKyAgICAgdTMyIGNsa19mcmVx
-LCBkaXZpc29yOw0KPj4gPiA+ICsgICAgIHN0cnVjdCBjbGsgKnBjbGs7DQo+PiA+ID4gKyAgICAg
-aW50IHJldDsNCj4+ID4gPiArDQo+PiA+ID4gKyAgICAgcGNsayA9IGRldm1fY2xrX2dldCgmcGRl
-di0+ZGV2LCBOVUxMKTsNCj4+ID4gPiArICAgICBpZiAoSVNfRVJSKHBjbGspKSB7DQo+PiA+ID4g
-KyAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5kZXYsICJjbGtfZ2V0IGZhaWxlZFxuIik7DQo+
-PiA+ID4gKyAgICAgICAgICAgICByZXR1cm4gUFRSX0VSUihwY2xrKTsNCj4+ID4gPiArICAgICB9
-DQo+PiA+ID4gKyAgICAgcmV0ID0gb2ZfcHJvcGVydHlfcmVhZF91MzIocGRldi0+ZGV2Lm9mX25v
-ZGUsDQo+PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgImNsb2NrLWZyZXF1
-ZW5jeSIsICZjbGtfZnJlcSk7DQo+PiA+DQo+PiA+IFNlZSBteSBwcmV2aW91cyBjb21tZW50IGFi
-b3V0IGNhbGxpbmcgdGhhdCAnYnVzLWZyZXF1ZW5jeScgcmF0aGVyIA0KPj4gPiB0aGFuICdjbG9j
-ay1mcmVxdWVuY3knLg0KPj4gPg0KPj4gPiA+ICsgICAgIGlmIChyZXQgPCAwKSB7DQo+PiA+ID4g
-KyAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5kZXYsDQo+PiA+ID4gKyAgICAgICAgICAgICAg
-ICAgICAgICJDb3VsZCBub3QgcmVhZCBjbG9jay1mcmVxdWVuY3kNCj4+ID4gPiBwcm9wZXJ0eVxu
-Iik7DQo+PiA+ID4gKyAgICAgICAgICAgICBjbGtfZnJlcSA9IDEwMDAwMDsNCj4+ID4gPiArICAg
-ICB9DQo+PiA+ID4gKyAgICAgZGl2aXNvciA9IGNsa19nZXRfcmF0ZShwY2xrKSAvIGNsa19mcmVx
-Ow0KPj4gPiA+ICsgICAgIC8qIFdlIGp1c3QgbmVlZCB0aGUgY2xvY2sgcmF0ZSwgd2UgZG9uJ3Qg
-YWN0dWFsbHkgdXNlIHRoZQ0KPj4gPiA+IGNsayBvYmplY3QuICovDQo+PiA+ID4gKyAgICAgZGV2
-bV9jbGtfcHV0KCZwZGV2LT5kZXYsIHBjbGspOw0KPj4gPiA+ICsNCj4+ID4gPiArICAgICAvKiBT
-ZXQgQUMgVGltaW5nICovDQo+PiA+ID4gKyAgICAgaWYgKGNsa19mcmVxIC8gMTAwMCA+IDEwMDAp
-IHsNCj4+ID4gPiArICAgICAgICAgICAgIGFzcGVlZF9pMmNfd3JpdGUoYnVzLCBhc3BlZWRfaTJj
-X3JlYWQoYnVzLA0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBBU1BFRURfSTJDX0ZVDQo+PiA+ID4gTl9DVFJMX1JFRykgfA0KPj4gPiA+
-ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFTUEVFRF9JMkNEX01fSElHSF9TUEVFRF9F
-TiB8DQo+PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQVNQRUVEX0kyQ0RfTV9T
-REFfRFJJVkVfMVRfRU4gfA0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEFT
-UEVFRF9JMkNEX1NEQV9EUklWRV8xVF9FTiwNCj4+ID4gPiArICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBBU1BFRURfSTJDX0ZVTl9DVFJMX1JFRyk7DQo+PiA+ID4gKw0KPj4gPiA+ICsgICAg
-ICAgICAgICAgYXNwZWVkX2kyY193cml0ZShidXMsIDB4MywNCj4+ID4gPiBBU1BFRURfSTJDX0FD
-X1RJTUlOR19SRUcyKTsNCj4+ID4gPiArICAgICAgICAgICAgIGFzcGVlZF9pMmNfd3JpdGUoYnVz
-LA0KPj4gPiA+IGFzcGVlZF9pMmNfZ2V0X2Nsa19yZWdfdmFsKGRpdmlzb3IpLA0KPj4gPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1BFRURfSTJDX0FDX1RJTUlOR19SRUcxKTsN
-Cj4+ID4NCj4+ID4gSSBhbHJlYWR5IGRpc2N1c3NlZCBieSBkb3VidHMgYWJvdXQgdGhlIGFib3Zl
-LiBJIGNhbiB0cnkgdG8gc2NvcGUgDQo+PiA+IGl0IHdpdGggdGhlIEVWQiBpZiB5b3UgZG9uJ3Qg
-Z2V0IHRvIGl0LiBGb3Igbm93IEknZCByYXRoZXIgdGFrZSB0aGUgDQo+PiA+IGNvZGUgb3V0Lg0K
-Pj4gPg0KPj4gPiBXZSBzaG91bGQgYXNrIGFzcGVlZCBmcm9tIHdoYXQgZnJlcXVlbmN5IHRoZSAi
-MVQiIHN0dWZmIGlzIHVzZWZ1bC4NCj4+DQo+PiBXaWxsIGRvLCBJIHdpbGwgdHJ5IHRvIHJvcGUg
-UnlhbiBpbiBvbiB0aGUgbmV4dCByZXZpZXc7IGl0IHdpbGwgYmUgDQo+PiBnb29kIGZvciBoaW0g
-dG8gZ2V0IHVzZWQgdG8gd29ya2luZyB3aXRoIHVwc3RyZWFtIGFueXdheS4NCj4NCj4gWXVwLiBI
-b3dldmVyLCBmb3IgdGhlIHNha2Ugb2YgZ2V0dGluZyBzb21ldGhpbmcgdXBzdHJlYW0gKGFuZCBp
-biANCj4gT3BlbkJNQyA0LjEwIGtlcm5lbCkgYXNhcCwgSSB3b3VsZCBzdWdnZXN0IGp1c3QgZHJv
-cHBpbmcgc3VwcG9ydCBmb3IgDQo+IHRob3NlIGZhc3Qgc3BlZWRzIGZvciBub3csIHdlIGNhbiBh
-ZGQgdGhlbSBiYWNrIGxhdGVyLg0KDQpBbHJpZ2h0LCB0aGF0J3MgZmluZS4gU3RpbGwsIFJ5YW4s
-IGNvdWxkIHlvdSBwcm92aWRlIHNvbWUgY29udGV4dCBvbiB0aGlzPw0KDQo+DQo+PiA+DQo+PiA+
-ID4gKyAgICAgfSBlbHNlIHsNCj4+ID4gPiArICAgICAgICAgICAgIGFzcGVlZF9pMmNfd3JpdGUo
-YnVzLA0KPj4gPiA+IGFzcGVlZF9pMmNfZ2V0X2Nsa19yZWdfdmFsKGRpdmlzb3IpLA0KPj4gPiA+
-ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1BFRURfSTJDX0FDX1RJTUlOR19SRUcx
-KTsNCj4+ID4gPiArICAgICAgICAgICAgIGFzcGVlZF9pMmNfd3JpdGUoYnVzLCBBU1BFRURfTk9f
-VElNRU9VVF9DVFJMLA0KPj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBU1BF
-RURfSTJDX0FDX1RJTUlOR19SRUcyKTsNCj4+ID4gPiArICAgICB9DQo+Pg0KPj4gLi4uDQo+PiA+
-ID4gKyAgICAgc3Bpbl9sb2NrX2luaXQoJmJ1cy0+bG9jayk7DQo+PiA+ID4gKyAgICAgaW5pdF9j
-b21wbGV0aW9uKCZidXMtPmNtZF9jb21wbGV0ZSk7DQo+PiA+ID4gKyAgICAgYnVzLT5hZGFwLm93
-bmVyID0gVEhJU19NT0RVTEU7DQo+PiA+ID4gKyAgICAgYnVzLT5hZGFwLnJldHJpZXMgPSAwOw0K
-Pj4gPiA+ICsgICAgIGJ1cy0+YWRhcC50aW1lb3V0ID0gNSAqIEhaOw0KPj4gPiA+ICsgICAgIGJ1
-cy0+YWRhcC5hbGdvID0gJmFzcGVlZF9pMmNfYWxnbzsNCj4+ID4gPiArICAgICBidXMtPmFkYXAu
-YWxnb19kYXRhID0gYnVzOw0KPj4gPiA+ICsgICAgIGJ1cy0+YWRhcC5kZXYucGFyZW50ID0gJnBk
-ZXYtPmRldjsNCj4+ID4gPiArICAgICBidXMtPmFkYXAuZGV2Lm9mX25vZGUgPSBwZGV2LT5kZXYu
-b2Zfbm9kZTsNCj4+ID4gPiArICAgICBzbnByaW50ZihidXMtPmFkYXAubmFtZSwgc2l6ZW9mKGJ1
-cy0+YWRhcC5uYW1lKSwgIkFzcGVlZA0KPj4gPiA+IGkyYyIpOw0KPj4gPg0KPj4gPiBBbm90aGVy
-IHRyaXZpYWwgb25lLCBzaG91bGQgd2UgcHV0IHNvbWUga2luZCBvZiBidXMgbnVtYmVyIGluIHRo
-YXQgDQo+PiA+IHN0cmluZyA/DQo+Pg0KPj4gV2hvb3BzLCBsb29rcyBsaWtlIEkgbWlzc2VkIHRo
-aXMgb25lOyBJIHdpbGwgZ2V0IHRvIGl0IGluIHRoZSBuZXh0IA0KPj4gcmV2aXNpb24uDQo+DQo+
-IE9rLiBJIG5vdGljZWQgeW91IG1pc3NlZCB0aGF0IGluIHY3LCBzbyBJIGFzc3VtZSB5b3UgbWVh
-biB2OCA6LSkNCg0KWWVwLCBJIHdpbGwgZ2V0IGl0IGluIHY4Lg0KDQo+DQo+PiA+DQo+PiA+ID4g
-KyAgICAgYnVzLT5kZXYgPSAmcGRldi0+ZGV2Ow0KPj4gPiA+ICsNCj4+ID4gPiArICAgICAvKiBy
-ZXNldCBkZXZpY2U6IGRpc2FibGUgbWFzdGVyICYgc2xhdmUgZnVuY3Rpb25zICovDQo+PiA+ID4g
-KyAgICAgYXNwZWVkX2kyY193cml0ZShidXMsIDAsIEFTUEVFRF9JMkNfRlVOX0NUUkxfUkVHKTsN
-Cj4+DQo+PiAuLi4NCj4+IC0tDQo+PiBUbyB1bnN1YnNjcmliZSBmcm9tIHRoaXMgbGlzdDogc2Vu
-ZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgZGV2aWNldHJlZSINCj4+IGluDQo+PiB0aGUgYm9keSBv
-ZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9tbyAN
-Cj4+IGluZm8gYXQgIGh0dHA6Ly92Z2VyLmtlcm5lbC5vcmcvbWFqb3Jkb21vLWluZm8uaHRtbA0K
+On Tue, 2017-04-25 at 08:50 +0000, Ryan Chen wrote:
+> Hello All,
+> 		ASPEED_I2CD_M_SDA_DRIVE_1T_EN,
+> ASPEED_I2CD_SDA_DRIVE_1T_EN is specific for some case usage. 
+> 		For example, if i2c bus is use on "high speed" and
+> "single slave and master" and i2c bus is too long. It need drive SDA
+> or SCL less lunacy. It would enable it. 
+> 		Otherwise, don’t enable it. especially in multi-master. 
+> It can’t be enable. 
+
+That smells like a specific enough use case that we should probably
+cover with a device-tree property, something like an empty
+"sda-extra-drive" property (empty properties are typically used
+for booleans, their presence means "true").
+
+Thanks Ryan. Can you shed some light on the meaning of the high-speed
+bit as well please ? Does it force to a specific speed (ignoring the
+divisor) or we can still play with the clock high/low counts ?
+
+Cheers,
+Ben.
+
+> 		  
+> 	
+> 
+> Best Regards,
+> Ryan
+> 
+> 信驊科技股份有限公司
+> ASPEED Technology Inc.
+> 2F,No.15,Industry East Road 4.,Hsinchu Science Park, Hsinchu City
+> 30077, Taiwan
+> Tel: 886-3-578-9568  #857
+> Fax: 886-3-578-9586
+> ************* Email Confidentiality Notice ********************
+> DISCLAIMER:
+> This message (and any attachments) may contain legally privileged
+> and/or other confidential information. If you have received it in
+> error, please notify the sender by reply e-mail and immediately
+> delete the e-mail and any attachments without copying or disclosing
+> the contents. Thank you.
+> 
+> 
+> -----Original Message-----
+> From: Brendan Higgins [mailto:brendanhiggins@google.com] 
+> Sent: Tuesday, April 25, 2017 4:32 PM
+> To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Wolfram Sang <wsa@the-dreams.de>; Rob Herring <robh+dt@kernel.org
+> >; Mark Rutland <mark.rutland@arm.com>; Thomas Gleixner <tglx@linutro
+> nix.de>; Jason Cooper <jason@lakedaemon.net>; Marc Zyngier <marc.zyng
+> ier@arm.com>; Joel Stanley <joel@jms.id.au>; Vladimir Zapolskiy <vz@m
+> leia.com>; Kachalov Anton <mouse@mayc.ru>; Cédric Le Goater <clg@kaod
+> .org>; linux-i2c@vger.kernel.org; devicetree@vger.kernel.org; Linux
+> Kernel Mailing List <linux-kernel@vger.kernel.org>; OpenBMC Maillist
+> <openbmc@lists.ozlabs.org>; Ryan Chen <ryan_chen@aspeedtech.com>
+> Subject: Re: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
+> 
+> Adding Ryan.
+> 
+> On Mon, Apr 24, 2017 at 7:19 PM, Benjamin Herrenschmidt <benh@kernel.
+> crashing.org> wrote:
+> > On Mon, 2017-04-24 at 11:56 -0700, Brendan Higgins wrote:
+> > > > > +struct aspeed_i2c_bus {
+> > > > > +     struct i2c_adapter              adap;
+> > > > > +     struct device                   *dev;
+> > > > > +     void __iomem                    *base;
+> > > > > +     /* Synchronizes I/O mem access to base. */
+> > > > > +     spinlock_t                      lock;
+> > > > 
+> > > > I am not entirely convinced we need that lock. The i2c core
+> > > > will 
+> > > > take a mutex protecting all operations on the bus. So we only
+> > > > need 
+> > > > to synchronize between our "xfer" code and our interrupt
+> > > > handler.
+> > > 
+> > > You are right if both having slave and master active at the same
+> > > time 
+> > > was not possible; however, it is.
+> > 
+> > Right, I somewhat forgot about the slave case.
+> > 
+> >   ...
+> > 
+> > > > Some of those error states probably also warrant a reset of
+> > > > the 
+> > > > controller, I think aspeed does that in the SDK.
+> > > 
+> > > For timeout and cmd_err, I do not see any argument against it;
+> > > it 
+> > > sounds like we are in a very messed up, very unknown state, so
+> > > full 
+> > > reset is probably the best last resort.
+> > 
+> > Yup.
+> > 
+> > > For SDA staying pulled down, I
+> > > think we can say with reasonable confidence that some device on
+> > > our 
+> > > bus is behaving very badly and I am not convinced that resetting
+> > > the 
+> > > controller is likely to do anything to help;
+> > 
+> > Right. Hammering with STOPs and pray ...
+> 
+> I think sending recovery mode sends stops as a part of the recovery
+> algorithm it executes.
+> 
+> > 
+> > >  that being said, I really
+> > > do not have any good ideas to address that. So maybe praying and 
+> > > resetting the controller is *the most reasonable thing to do.* I 
+> > > would like to know what you think we should do in that case.
+> > 
+> > Well, there's a (small ?) chance that it's a controller bug
+> > asserting 
+> > the line so ... but there's little we can do if not.
+> 
+> True.
+> 
+> > 
+> > > While I was thinking about this I also realized that the SDA
+> > > line 
+> > > check after recovery happens in the else branch, but SCL line
+> > > check 
+> > > does not happen after we attempt to STOP if SCL is hung. If we
+> > > decide 
+> > > to make special note SDA being hung by a device that won't let
+> > > go, we 
+> > > might want to make a special note that SCL is hung by a device
+> > > that 
+> > > won't let go. Just a thought.
+> > 
+> > Maybe. Or just "unrecoverable error"... hopefully these don't
+> > happen 
+> > too often ... We had cases of a TPM misbehaving like that.
+> 
+> Yeah, definitely should print something out.
+> 
+> > 
+> > > > > +out:
+> > > 
+> > > ...
+> > > > What about I2C_M_NOSTART ?
+> > > > 
+> > > > Not that I've ever seen it used... ;-)
+> > > 
+> > > Right now I am not doing any of the protocol mangling options,
+> > > but I 
+> > > can add them in if you think it is important for initial support.
+> > 
+> > No, not important, we can add that later if it ever becomes useful.
+> > 
+> >  ...
+> > 
+> > > > In general, you always ACK all interrupts first. Then you
+> > > > handle 
+> > > > the bits you have harvested.
+> > > > 
+> > > 
+> > > The documentation says to ACK the interrupt after handling in the
+> > > RX
+> > > case:
+> > > 
+> > > <<<
+> > > S/W needs to clear this status bit to allow next data receiving.
+> > > > > > 
+> > > 
+> > > I will double check with Ryan to make sure TX works the same way.
+> > > 
+> > > > > +     if (irq_status & ASPEED_I2CD_INTR_ERROR ||
+> > > > > +         (!bus->msgs && bus->master_state !=
+> > > > > ASPEED_I2C_MASTER_STOP)) {
+> > > 
+> > > ...
+> > > > 
+> > > > I would set master_state to "RECOVERY" (new state ?) and
+> > > > ensure 
+> > > > those things are caught if they happen outside of a recovery.
+> > 
+> > I replied privately ... as long as we ack before we start a new 
+> > command we should be ok but we shouldn't ack after.
+> > 
+> > Your latest patch still does that. It will do things like start a
+> > STOP 
+> > command *then* ack the status bits. I'm pretty sure that's bogus.
+> > 
+> > That way it's a lot simpler to simply move the
+> > 
+> >         writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
+> > 
+> > To either right after the readl of the status reg at the beginning
+> > of 
+> > aspeed_i2c_master_irq().
+> > 
+> > I would be very surprised if that didn't work properly and wasn't
+> > much 
+> > safer than what you are currently doing.
+> 
+> I think I tried your way and it worked. In anycase, Ryan will be able
+> to clarify for us.
+> 
+> > 
+> > > Let me know if you still think we need a "RECOVERY" state.
+> > 
+> > The way you just switch to stop state and store the error for
+> > later 
+> > should work I think.
+> > 
+> > > > 
+> > > > > +     if (bus->master_state == ASPEED_I2C_MASTER_START) {
+> > > 
+> > > ...
+> > > > 
+> > > > > +                     dev_dbg(bus->dev,
+> > > > > +                             "no slave present at %02x",
+> > > > > msg-
+> > > > > > addr);
+> > > > > 
+> > > > > +                     status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+> > > > > +                     bus->cmd_err = -EIO;
+> > > > > +                     do_stop(bus);
+> > > > > +                     goto out_no_complete;
+> > > > > +             } else {
+> > > > > +                     status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+> > > > > +                     if (msg->flags & I2C_M_RD)
+> > > > > +                             bus->master_state =
+> > > > > ASPEED_I2C_MASTER_RX;
+> > > > > +                     else
+> > > > > +                             bus->master_state =
+> > > > > ASPEED_I2C_MASTER_TX_FIRST;
+> > > > 
+> > > > What about the SMBUS_QUICK case ? (0-len transfer). Do we need
+> > > > to 
+> > > > handle this here ? A quick look at the TX_FIRST case makes me
+> > > > think 
+> > > > we are ok there but I'm not sure about the RX case.
+> > > 
+> > > I did not think that there is an SMBUS_QUICK RX. Could you point
+> > > me 
+> > > to an example?
+> > 
+> > Not so much an RX, it's more like you are sending a 1-bit data in
+> > the 
+> > place of the Rd/Wr bit. So you have a read with a lenght of 0, I
+> > don't 
+> > think in that case you should set ASPEED_I2CD_M_RX_CMD in 
+> > __aspeed_i2c_do_start
+> 
+> Forget what I said, I was just not thinking about the fact that SMBus
+> emulation causes the data bit to be encoded as the R/W flag. I see
+> what you are saying; you are correct.
+> 
+> > 
+> > > > I'm not sure the RX case is tight also. What completion does
+> > > > the HW 
+> > > > give you for the address cycle ? Won't you get that before it
+> > > > has 
+> > > > received the first character ? IE. You fall through to the
+> > > > read 
+> > > > case of the state machine with the read potentially not
+> > > > complete 
+> > > > yet no ?
+> > > 
+> > > ...
+> > > > > +     case ASPEED_I2C_MASTER_RX:
+> > > > > +             if (!(irq_status & ASPEED_I2CD_INTR_RX_DONE)) {
+> > > > > +                     dev_err(bus->dev, "master failed to
+> > > > > RX");
+> > > > > +                     goto out_complete;
+> > > > > +             }
+> > > > 
+> > > > See my comment above for a bog standard i2c_read. Aren't you 
+> > > > getting the completion for the address before the read is even 
+> > > > started ?
+> > > 
+> > > In practice no, but it is probably best to be safe :-)
+> > 
+> > Yup :)
+> > > > 
+> > > > > +             status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+> > > > > +
+> > > > > +             recv_byte = aspeed_i2c_read(bus,
+> > > > > ASPEED_I2C_BYTE_BUF_REG) >> 8;
+> > > > > +             msg->buf[bus->buf_index++] = recv_byte;
+> > > > > +
+> > > > > +             if (msg->flags & I2C_M_RECV_LEN &&
+> > > > > +                 recv_byte <= I2C_SMBUS_BLOCK_MAX) {
+> > > > > +                     msg->len = recv_byte +
+> > > > > +                                     ((msg->flags &
+> > > > > I2C_CLIENT_PEC) ? 2 : 1);
+> > > 
+> > > ...
+> > > > > +     return ((clk_high << ASPEED_I2CD_TIME_SCL_HIGH_SHIFT)
+> > > > > +             & ASPEED_I2CD_TIME_SCL_HIGH_MASK)
+> > > > > +                     | ((clk_low <<
+> > > > > ASPEED_I2CD_TIME_SCL_LOW_SHIFT)
+> > > > > +                        & ASPEED_I2CD_TIME_SCL_LOW_MASK)
+> > > > > +                     | (base_clk &
+> > > > > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
+> > > > > +}
+> > > > 
+> > > > As I think I mentioned earlier, the AST2500 has a slightly 
+> > > > different register layout which support larger values for high
+> > > > and 
+> > > > low, thus allowing a finer granularity.
+> > > 
+> > > I am developing against the 2500.
+> > 
+> > Yes but we'd like the driver to work with both :-)
+> 
+> Right, I thought you were making an assertion about the 2500, if you
+> are making an assertion about the 2400, I do not know and do not have
+> one handy.
+> 
+> > 
+> > > > BTW. In case you haven't, I would suggest you copy/paste the
+> > > > above 
+> > > > in a userspace app and run it for all frequency divisors and
+> > > > see if 
+> > > > your results match the aspeed table :)
+> > > 
+> > > Good call.
+> > 
+> > If you end up doing that, can you shoot it my way ? I can take care
+> > of 
+> > making sure it's all good for the 2400.
+> 
+> Will do.
+> 
+> > 
+> > > > > +static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus,
+> > > > > +                            struct platform_device *pdev) {
+> > > > > +     u32 clk_freq, divisor;
+> > > > > +     struct clk *pclk;
+> > > > > +     int ret;
+> > > > > +
+> > > > > +     pclk = devm_clk_get(&pdev->dev, NULL);
+> > > > > +     if (IS_ERR(pclk)) {
+> > > > > +             dev_err(&pdev->dev, "clk_get failed\n");
+> > > > > +             return PTR_ERR(pclk);
+> > > > > +     }
+> > > > > +     ret = of_property_read_u32(pdev->dev.of_node,
+> > > > > +                                "clock-frequency",
+> > > > > &clk_freq);
+> > > > 
+> > > > See my previous comment about calling that 'bus-frequency'
+> > > > rather 
+> > > > than 'clock-frequency'.
+> > > > 
+> > > > > +     if (ret < 0) {
+> > > > > +             dev_err(&pdev->dev,
+> > > > > +                     "Could not read clock-frequency
+> > > > > property\n");
+> > > > > +             clk_freq = 100000;
+> > > > > +     }
+> > > > > +     divisor = clk_get_rate(pclk) / clk_freq;
+> > > > > +     /* We just need the clock rate, we don't actually use
+> > > > > the
+> > > > > clk object. */
+> > > > > +     devm_clk_put(&pdev->dev, pclk);
+> > > > > +
+> > > > > +     /* Set AC Timing */
+> > > > > +     if (clk_freq / 1000 > 1000) {
+> > > > > +             aspeed_i2c_write(bus, aspeed_i2c_read(bus,
+> > > > > +                                                   ASPEED_I2
+> > > > > C_FU
+> > > > > N_CTRL_REG) |
+> > > > > +                             ASPEED_I2CD_M_HIGH_SPEED_EN |
+> > > > > +                             ASPEED_I2CD_M_SDA_DRIVE_1T_EN |
+> > > > > +                             ASPEED_I2CD_SDA_DRIVE_1T_EN,
+> > > > > +                             ASPEED_I2C_FUN_CTRL_REG);
+> > > > > +
+> > > > > +             aspeed_i2c_write(bus, 0x3,
+> > > > > ASPEED_I2C_AC_TIMING_REG2);
+> > > > > +             aspeed_i2c_write(bus,
+> > > > > aspeed_i2c_get_clk_reg_val(divisor),
+> > > > > +                              ASPEED_I2C_AC_TIMING_REG1);
+> > > > 
+> > > > I already discussed by doubts about the above. I can try to
+> > > > scope 
+> > > > it with the EVB if you don't get to it. For now I'd rather take
+> > > > the 
+> > > > code out.
+> > > > 
+> > > > We should ask aspeed from what frequency the "1T" stuff is
+> > > > useful.
+> > > 
+> > > Will do, I will try to rope Ryan in on the next review; it will
+> > > be 
+> > > good for him to get used to working with upstream anyway.
+> > 
+> > Yup. However, for the sake of getting something upstream (and in 
+> > OpenBMC 4.10 kernel) asap, I would suggest just dropping support
+> > for 
+> > those fast speeds for now, we can add them back later.
+> 
+> Alright, that's fine. Still, Ryan, could you provide some context on
+> this?
+> 
+> > 
+> > > > 
+> > > > > +     } else {
+> > > > > +             aspeed_i2c_write(bus,
+> > > > > aspeed_i2c_get_clk_reg_val(divisor),
+> > > > > +                              ASPEED_I2C_AC_TIMING_REG1);
+> > > > > +             aspeed_i2c_write(bus, ASPEED_NO_TIMEOUT_CTRL,
+> > > > > +                              ASPEED_I2C_AC_TIMING_REG2);
+> > > > > +     }
+> > > 
+> > > ...
+> > > > > +     spin_lock_init(&bus->lock);
+> > > > > +     init_completion(&bus->cmd_complete);
+> > > > > +     bus->adap.owner = THIS_MODULE;
+> > > > > +     bus->adap.retries = 0;
+> > > > > +     bus->adap.timeout = 5 * HZ;
+> > > > > +     bus->adap.algo = &aspeed_i2c_algo;
+> > > > > +     bus->adap.algo_data = bus;
+> > > > > +     bus->adap.dev.parent = &pdev->dev;
+> > > > > +     bus->adap.dev.of_node = pdev->dev.of_node;
+> > > > > +     snprintf(bus->adap.name, sizeof(bus->adap.name),
+> > > > > "Aspeed
+> > > > > i2c");
+> > > > 
+> > > > Another trivial one, should we put some kind of bus number in
+> > > > that 
+> > > > string ?
+> > > 
+> > > Whoops, looks like I missed this one; I will get to it in the
+> > > next 
+> > > revision.
+> > 
+> > Ok. I noticed you missed that in v7, so I assume you mean v8 :-)
+> 
+> Yep, I will get it in v8.
+> 
+> > 
+> > > > 
+> > > > > +     bus->dev = &pdev->dev;
+> > > > > +
+> > > > > +     /* reset device: disable master & slave functions */
+> > > > > +     aspeed_i2c_write(bus, 0, ASPEED_I2C_FUN_CTRL_REG);
+> > > 
+> > > ...
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe
+> > > devicetree"
+> > > in
+> > > the body of a message to majordomo@vger.kernel.org More
+> > > majordomo 
+> > > info at  http://vger.kernel.org/majordomo-info.html
