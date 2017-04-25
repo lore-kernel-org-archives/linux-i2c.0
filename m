@@ -1,63 +1,71 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Tue, 25 Apr 2017 14:04:43 +0200
-Message-ID: <CAPDyKFoLFCfeX-Cwa4ACZ_yYeXh=0ryw4-iPXaO_Vxi9cq-8aQ@mail.gmail.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
- <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
- <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com> <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
- <1493120164.24567.194.camel@linux.intel.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v14 00/11] mux controller abstraction and iio/i2c muxes
+Date: Tue, 25 Apr 2017 16:16:39 +0200
+Message-ID: <f74d5619-8614-d003-3c70-710aee0b550b@axentia.se>
+References: <1493022995-16917-1-git-send-email-peda@axentia.se>
+ <1493031179.2446.9.camel@pengutronix.de>
+ <2d978956-d247-917d-4150-a6723917a733@axentia.se>
+ <1493043046.2446.37.camel@pengutronix.de>
+ <6fb34ea5-edc8-c7aa-1d49-f6ce1d33a2d4@axentia.se>
+ <1493045969.2446.47.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1493120164.24567.194.camel@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1493045969.2446.47.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Colin Ian King <colin.king-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 25 April 2017 at 13:36, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Tue, 2017-04-25 at 13:12 +0200, Ulf Hansson wrote:
->> On 25 April 2017 at 13:08, Jarkko Nikula <jarkko.nikula@linux.intel.co
->> m> wrote:
->> > On 04/25/2017 12:24 PM, Ulf Hansson wrote:
->
->> > > To me, the proper solution is to use the
->> > > pm_runtime_force_suspend|resume() helpers to deal with system
->> > > suspend/resume. However I understand that the behavior of the ACPI
->> > > PM
->> > > domain currently prevents us from doing this. That said, perhaps
->> > > we
->> > > should instead try to make the ACPI PM domain to better
->> > > collaborate
->> > > with drivers using pm_runtime_force_suspend|resume()? I have been
->> > > investigating that and started to cook some patches, although I
->> > > have
->> > > not yet been able to post something. If you think it could make
->> > > sense,
->> > > I can pick it up.
->> > >
->> >
->> > That's a good idea. I didn't think about it at all.
+On 2017-04-24 16:59, Philipp Zabel wrote:
+> On Mon, 2017-04-24 at 16:36 +0200, Peter Rosin wrote:
+> [...]
+>>> How about an atomic use_count on the mux_control, a bool shared that is
+>>> only set by the first consumer, and controls whether selecting locks?
 >>
->> Okay, thanks! I will continue to look into this and try to submit
->> something within a reasonable time frame, keep you posted.
->
-> But please keep in mind that ACPI PM domain for BayTrail / CherryTrail
-> is used by several IPs including most nasty GPDMA case. If something
-> breaks that it would be show stopper.
+>> That has the drawback that it is hard to restore the mux-control in a safe
+>> way so that exclusive consumers are allowed after the last shared consumer
+>> puts the mux away.
+> 
+> True.
+> 
+>> Agreed, it's a corner case, but I had this very similar
+>> patch going through the compiler when I got this mail. Does it work as well
+>> as what you suggested?
+> 
+> Yes, this patch works just as well.
 
-Thanks for pointing this out. I think I have an overall understanding
-of the complexity.
+Right, as expected :-) However, I don't like it much. It divides the mux
+consumers into two camps in a way that makes it difficult to select which
+camp a consumer should be in.
 
-This driver is a cross SoC driver and not only should we expect the
-ACPI PM domain to be used but also the generic PM domain for ARM SoCs.
-To me, this makes it even more interesting and a very good candidate
-to explore the usage of pm_runtime_force_suspend|resume(). :-)
+E.g. consider the iio-mux. The current implementation only supports quick
+accesses that fit the mux_control_get_shared case. But if that mux in the
+future needs to grow continuous buffered accesses, I think there will be
+pressure to switch it over to the exclusive mode. Because that is a lot
+closer to what you are doing with the video-mux. And then what? It will be
+impossible to predict if the end user is going to use buffered accesses or
+not...
 
-Nevertheless, I will rely and appreciate help in testing and of course
-also reviewing.
+So, I think the best approach is to skip the distinction between shared
+and exclusive consumers and instead implement the locking with an ordinary
+semaphore (instead of the old rwsem or the current mutex). Semaphores don't
+have the property that the same task should down/up them (mutexes require
+that for lock/unlock, and is also the reason for the lockdep complaint) and
+thus fits better for long-time use such as yours or the above iio-mux with
+buffered accesses. It should also hopefully be cheaper that an rwsem, and
+not have any downgrade_write calls thus possibly keeping Greg sufficiently
+happy...
 
-Kind regards
-Uffe
+Sure, consumers can still dig themselves into a hole by not calling deselect
+as they should, but at least I think it can be made to work w/o dividing the
+consumers...
+
+Cheers,
+peda
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
