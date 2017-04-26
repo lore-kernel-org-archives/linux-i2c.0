@@ -1,107 +1,36 @@
-From: Ryan Chen <ryan_chen-SAlXDmAnmOAqDJ6do+/SaQ@public.gmane.org>
-Subject: RE: [PATCH v6 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Wed, 26 Apr 2017 00:52:48 +0000
-Message-ID: <667ba18784664804a87d36e82d244148@TWMBX01.aspeed.com>
-References: <20170328051226.21677-1-brendanhiggins@google.com>
- <20170328051226.21677-5-brendanhiggins@google.com>
- <1490945610.3177.229.camel@kernel.crashing.org>
- <CAFd5g45DQZz99y59AY-4465qnM+tRv6+bDdGQqS6VYHEfRfjDg@mail.gmail.com>
- <1493086747.25766.264.camel@kernel.crashing.org>
- <CAFd5g44ioW0PdFVOhY-ep8TXBNg6qC7E5yjOVf3MEdY9bPgEDA@mail.gmail.com>
- <7d991733d3ea4591b74baf93300f0224@TWMBX01.aspeed.com>
- <1493112875.25766.268.camel@kernel.crashing.org>
- <e90ff5914518400ea6902ca40406eb0f@TWMBX01.aspeed.com>
- <CAFd5g45htFgr5oHbB9W_nyyMfm5J7BCKUuP73RxKhNW3LkWtyw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAFd5g45htFgr5oHbB9W_nyyMfm5J7BCKUuP73RxKhNW3LkWtyw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: zh-TW
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Marc Zyngier <marc.zyngier-5wv7dgnIgG8@public.gmane.org>, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>, Kachalov Anton <mouse-Pma6HLj0uuo@public.gmane.org>, =?utf-8?B?Q8OpZHJpYyBMZSBHb2F0ZXI=?= <clg-Bxea+6Xhats@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+From: tnhuynh@apm.com
+Subject: [PATCH V1] i2c: xgene: Add support for I2C_FUNC_I2C functionality
+Date: Wed, 26 Apr 2017 11:41:45 +0700
+Message-ID: <1493181705-18531-1-git-send-email-tnhuynh@apm.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Loc Ho <lho@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com, Tin Huynh <tnhuynh@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-PiBUaGFua3MgUnlhbi4gQ2FuIHlvdSBzaGVkIHNvbWUgbGlnaHQgb24gdGhlIG1lYW5pbmcgb2Yg
-dGhlIGhpZ2gtc3BlZWQgYml0IGFzIHdlbGwgcGxlYXNlID8NCj4NCj4gQWJvdXQgQVNQRUVEX0ky
-Q0RfTV9ISUdIX1NQRUVEX0VOLCBpdCBpcyBzdXBwb3J0IGZvciBJMkMgc3BlY2lmaWNhdGlvbiAi
-SGlnaCBzcGVlZCB0cmFuc2ZlciIuIEFuZCBhbHNvIGRldmljZSBuZWVkIHN1cHBvcnQgaXQuDQo+
-IElmIHlvdSBqdXN0IHNwZWVkIHVwIHRoZSBJMkMgYnVzIGNsb2NrLCB5b3UgZG9u4oCZdCBoYXZl
-IHRvIGVuYWJsZSBBU1BFRURfSTJDRF9NX0hJR0hfU1BFRURfRU4sIGp1c3QgY2hhbmdlIHRoZSBj
-bG9jayBpcyBvay4NCj4NCg0KPkludGVyZXN0aW5nLCBJIHRob3VnaHQgdGhhdCBBU1BFRURfSTJD
-RF9NX1NEQV9EUklWRV8xVF9FTiBhbmQgaXRzIGNvdW50ZXJwYXJ0IHdvdWxkIGJlIHVzZWQgZm9y
-IGZhc3QgbW9kZSBvciBmYXN0IG1vZGUgcGx1cyBhbmQgQVNQRUVEX0kyQ0RfTV9ISUdIX1NQRUVE
-X0VOIHdvdWxkIGJlIHVzZWQgZm9yIGZhc3QgbW9kZSBwbHVzIG9yIGhpZ2ggc3BlZWQgbW9kZSBh
-bmQgdGhhdCB0aGV5IHdvcmsgYnkgZHJpdmluZyB0aGUgU0RBIGFuZCBTQ0wgc2lnbmFscyB0byA+
-aW1wcm92ZSByaXNlIHRpbWVzLiBJdCBtYWRlIHNlbnNlIHRvIG1lIGJlY2F1c2UgdGhlIGxvd2Vz
-dCBTQ0wgeW91IGNhbiBnZXQgd2l0aCBiYXNlIGNsb2NrIHNldCB0byB6ZXJvIGlzIGFib3V0IH4x
-LjVNSHogd2hpY2ggaXMgaW4gYmV0d2VlbiBmYXN0IG1vZGUgcGx1cyAoMU1IeikgYW5kIGhpZ2gg
-c3BlZWQgbW9kZSAoMy40TUh6KS4NCg0KPkJ1dCBmcm9tIHdoYXQgeW91IGFyZSBzYXlpbmcsIEFT
-UEVFRF9JMkNEX01fU0RBX0RSSVZFXzFUX0VOIGFuZCBpdHMgY291bnRlcnBhcnQgYXJlIHRvdGFs
-bHkgb3J0aG9nb25hbCB0byB0aGUgc2VsZWN0ZWQgc3BlZWQgYW5kIEFTUEVFRF9JMkNEX01fSElH
-SF9TUEVFRF9FTiBleGlzdHMgYXMgYSBtYXR0ZXIgb2YgY29udmVuaWVuY2UgdG8gc2V0IGFsbCBv
-ZiB0aGUgZGl2aWRlciByZWdpc3RlcnMgdG8gdGhlaXIgc21hbGxlc3QgcG9zc2libGUgdmFsdWVz
-LiBJcyBteSA+DQo+dW5kZXJzdGFuZGluZyBjb3JyZWN0Pw0KDQoNCkluIEkyYyBzcGVjaWZpY2F0
-aW9uW2h0dHA6Ly93d3cuY3NkLnVvYy5nci9+aHk0MjgvcmVhZGluZy9pMmNfc3BlYy5wZGZdIHRo
-ZXJlIGhhdmUgYSBjaGFwdGVyIGFib3V0IGhpZ2ggc3BlZWQgdHJhbnNmZXIuIEl0IHdpbGwgc3Rh
-cnQgZnJvbSBzcGVjaWZpYyBjb21tYW5kICgwMDAwMVhYWCkgYW5kIGFmdGVyIHRoYXQgY2FuIHRy
-YW5zZmVyIHRvIGhpZ2ggc3BlZWQgbW9kZS4gDQpUaGUgZm9sbG93aW5nIGlzIG91ciBoaWdoIHNw
-ZWVkIG1vZGUgcHJvZ3JhbW1pbmcgZ3VpZGUuIFRoYXQgYWxzbyBoYXZlIGRlc2NyaXB0aW9uIGF0
-IEFTVDI0MDAgZGF0YXNoZWV0LiA0MC43LjEyDQoNCg0KDQo+DQo+IC0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQo+IEZyb206IEJlbmphbWluIEhlcnJlbnNjaG1pZHQgW21haWx0bzpiZW5oQGtl
-cm5lbC5jcmFzaGluZy5vcmddDQo+IFNlbnQ6IFR1ZXNkYXksIEFwcmlsIDI1LCAyMDE3IDU6MzUg
-UE0NCj4gVG86IFJ5YW4gQ2hlbiA8cnlhbl9jaGVuQGFzcGVlZHRlY2guY29tPjsgQnJlbmRhbiBI
-aWdnaW5zIA0KPiA8YnJlbmRhbmhpZ2dpbnNAZ29vZ2xlLmNvbT4NCj4gQ2M6IFdvbGZyYW0gU2Fu
-ZyA8d3NhQHRoZS1kcmVhbXMuZGU+OyBSb2IgSGVycmluZyANCj4gPHJvYmgrZHRAa2VybmVsLm9y
-Zz47IE1hcmsgUnV0bGFuZCA8bWFyay5ydXRsYW5kQGFybS5jb20+OyBUaG9tYXMgDQo+IEdsZWl4
-bmVyIDx0Z2x4QGxpbnV0cm9uaXguZGU+OyBKYXNvbiBDb29wZXIgPGphc29uQGxha2VkYWVtb24u
-bmV0PjsgDQo+IE1hcmMgWnluZ2llciA8bWFyYy56eW5naWVyQGFybS5jb20+OyBKb2VsIFN0YW5s
-ZXkgPGpvZWxAam1zLmlkLmF1PjsgDQo+IFZsYWRpbWlyIFphcG9sc2tpeSA8dnpAbWxlaWEuY29t
-PjsgS2FjaGFsb3YgQW50b24gPG1vdXNlQG1heWMucnU+OyANCj4gQ8OpZHJpYyBMZSBHb2F0ZXIg
-PGNsZ0BrYW9kLm9yZz47IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IA0KPiBkZXZpY2V0cmVl
-QHZnZXIua2VybmVsLm9yZzsgTGludXggS2VybmVsIE1haWxpbmcgTGlzdCANCj4gPGxpbnV4LWtl
-cm5lbEB2Z2VyLmtlcm5lbC5vcmc+OyBPcGVuQk1DIE1haWxsaXN0IA0KPiA8b3BlbmJtY0BsaXN0
-cy5vemxhYnMub3JnPg0KPiBTdWJqZWN0OiBSZTogW1BBVENIIHY2IDQvNV0gaTJjOiBhc3BlZWQ6
-IGFkZGVkIGRyaXZlciBmb3IgQXNwZWVkIEkyQw0KPg0KPiBPbiBUdWUsIDIwMTctMDQtMjUgYXQg
-MDg6NTAgKzAwMDAsIFJ5YW4gQ2hlbiB3cm90ZToNCj4+IEhlbGxvIEFsbCwNCj4+ICAgICAgICAg
-ICAgICAgQVNQRUVEX0kyQ0RfTV9TREFfRFJJVkVfMVRfRU4sIA0KPj4gQVNQRUVEX0kyQ0RfU0RB
-X0RSSVZFXzFUX0VOIGlzIHNwZWNpZmljIGZvciBzb21lIGNhc2UgdXNhZ2UuDQo+PiAgICAgICAg
-ICAgICAgIEZvciBleGFtcGxlLCBpZiBpMmMgYnVzIGlzIHVzZSBvbiAiaGlnaCBzcGVlZCIgYW5k
-IA0KPj4gInNpbmdsZSBzbGF2ZSBhbmQgbWFzdGVyIiBhbmQgaTJjIGJ1cyBpcyB0b28gbG9uZy4g
-SXQgbmVlZCBkcml2ZSBTREEgb3IgU0NMIGxlc3MgbHVuYWN5Lg0KPj4gSXQgd291bGQgZW5hYmxl
-IGl0Lg0KPj4gICAgICAgICAgICAgICBPdGhlcndpc2UsIGRvbuKAmXQgZW5hYmxlIGl0LiBlc3Bl
-Y2lhbGx5IGluIG11bHRpLW1hc3Rlci4NCj4+IEl0IGNhbuKAmXQgYmUgZW5hYmxlLg0KPg0KPiBU
-aGF0IHNtZWxscyBsaWtlIGEgc3BlY2lmaWMgZW5vdWdoIHVzZSBjYXNlIHRoYXQgd2Ugc2hvdWxk
-IHByb2JhYmx5IGNvdmVyIHdpdGggYSBkZXZpY2UtdHJlZSBwcm9wZXJ0eSwgc29tZXRoaW5nIGxp
-a2UgYW4gZW1wdHkgInNkYS1leHRyYS1kcml2ZSIgcHJvcGVydHkgKGVtcHR5IHByb3BlcnRpZXMg
-YXJlIHR5cGljYWxseSB1c2VkIGZvciBib29sZWFucywgdGhlaXIgcHJlc2VuY2UgbWVhbnMgInRy
-dWUiKS4NCj4NCj4gVGhhbmtzIFJ5YW4uIENhbiB5b3Ugc2hlZCBzb21lIGxpZ2h0IG9uIHRoZSBt
-ZWFuaW5nIG9mIHRoZSBoaWdoLXNwZWVkIA0KPiBiaXQgYXMgd2VsbCBwbGVhc2UgPyBEb2VzIGl0
-IGZvcmNlIHRvIGEgc3BlY2lmaWMgc3BlZWQgKGlnbm9yaW5nIHRoZQ0KPiBkaXZpc29yKSBvciB3
-ZSBjYW4gc3RpbGwgcGxheSB3aXRoIHRoZSBjbG9jayBoaWdoL2xvdyBjb3VudHMgPw0KPg0KLi4u
-DQo+PiA+IFlvdXIgbGF0ZXN0IHBhdGNoIHN0aWxsIGRvZXMgdGhhdC4gSXQgd2lsbCBkbyB0aGlu
-Z3MgbGlrZSBzdGFydCBhIA0KPj4gPiBTVE9QIGNvbW1hbmQgKnRoZW4qIGFjayB0aGUgc3RhdHVz
-IGJpdHMuIEknbSBwcmV0dHkgc3VyZSB0aGF0J3MgDQo+PiA+IGJvZ3VzLg0KPj4gPg0KPj4gPiBU
-aGF0IHdheSBpdCdzIGEgbG90IHNpbXBsZXIgdG8gc2ltcGx5IG1vdmUgdGhlDQo+PiA+DQo+PiA+
-ICAgICAgICAgd3JpdGVsKGlycV9zdGF0dXMsIGJ1cy0+YmFzZSArIEFTUEVFRF9JMkNfSU5UUl9T
-VFNfUkVHKTsNCj4+ID4NCj4+ID4gVG8gZWl0aGVyIHJpZ2h0IGFmdGVyIHRoZSByZWFkbCBvZiB0
-aGUgc3RhdHVzIHJlZyBhdCB0aGUgYmVnaW5uaW5nIA0KPj4gPiBvZiBhc3BlZWRfaTJjX21hc3Rl
-cl9pcnEoKS4NCj4+ID4NCj4+ID4gSSB3b3VsZCBiZSB2ZXJ5IHN1cnByaXNlZCBpZiB0aGF0IGRp
-ZG4ndCB3b3JrIHByb3Blcmx5IGFuZCB3YXNuJ3QgDQo+PiA+IG11Y2ggc2FmZXIgdGhhbiB3aGF0
-IHlvdSBhcmUgY3VycmVudGx5IGRvaW5nLg0KPj4NCj4+IEkgdGhpbmsgSSB0cmllZCB5b3VyIHdh
-eSBhbmQgaXQgd29ya2VkLiBJbiBhbnljYXNlLCBSeWFuIHdpbGwgYmUgYWJsZSANCj4+IHRvIGNs
-YXJpZnkgZm9yIHVzLg0KDQpBZnRlciB0aGlua2luZyBhYm91dCB0aGlzIG1vcmUsIEkgdGhpbmsg
-QmVuIGlzIHJpZ2h0LiBJdCB3b3VsZCBiZSB1bnVzdWFsIGZvciBzdWNoIGEgY29tbW9uIGNvbnZl
-bnRpb24gdG8gYmUgYnJva2VuIGFuZCBldmVuIGlmIGl0IGlzLCBJIGRvIG5vdCBzZWUgaG93IGEg
-Y29tbWFuZCBjb3VsZCB0YWtlIGVmZmVjdCB1bnRpbCBpdCBpcyBhY3R1YWxseSBpc3N1ZWQuIE5l
-dmVydGhlbGVzcywgaXQgd291bGQgbWFrZSBtZSBmZWVsIGJldHRlciBpZiB5b3UsIFJ5YW4sIGNv
-dWxkIGNvbW1lbnQgb24gdGhpcy4NCg0KPj4NCj4+ID4NCj4+ID4gPiBMZXQgbWUga25vdyBpZiB5
-b3Ugc3RpbGwgdGhpbmsgd2UgbmVlZCBhICJSRUNPVkVSWSIgc3RhdGUuDQo+PiA+DQouLi4NCkkg
-ZmVlbCBwcmV0dHkgZ29vZCBhYm91dCB0aGlzOyBpdCBkb2VzIG5vdCBsb29rIGxpa2UgdGhlcmUg
-d2lsbCBiZSBhIGxvdCBvZiBjaGFuZ2VzIGdvaW5nIGludG8gdjg7IGhvcGVmdWxseSwgdGhhdCB2
-ZXJzaW9uIHdpbGwgYmUgZ29vZCBlbm91Z2ggdG8gZ2V0IG1lcmdlZC4NCg==
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+From: Tin Huynh <tnhuynh@apm.com>
+
+Certain I2C slave drivers, such as the pca95xx, require
+only I2C operations instead of SMBus extensions.
+This patch adds I2C_FUNC_I2C functionally to support those drivers.
+---
+ drivers/i2c/busses/i2c-xgene-slimpro.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
+index dbe7e44..439357c 100644
+--- a/drivers/i2c/busses/i2c-xgene-slimpro.c
++++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+@@ -365,7 +365,8 @@ static int xgene_slimpro_i2c_xfer(struct i2c_adapter *adap, u16 addr,
+ */
+ static u32 xgene_slimpro_i2c_func(struct i2c_adapter *adapter)
+ {
+-	return I2C_FUNC_SMBUS_BYTE |
++	return I2C_FUNC_I2C |
++		I2C_FUNC_SMBUS_BYTE |
+ 		I2C_FUNC_SMBUS_BYTE_DATA |
+ 		I2C_FUNC_SMBUS_WORD_DATA |
+ 		I2C_FUNC_SMBUS_BLOCK_DATA |
+-- 
+1.7.1
+
