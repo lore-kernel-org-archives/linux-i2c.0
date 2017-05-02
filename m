@@ -1,67 +1,102 @@
-From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: Re: [PATCH v5 7/9] power: Adds support for Smart Battery System
- Manager
-Date: Tue, 2 May 2017 09:12:39 +0200
-Message-ID: <20170502071239.jsiorsvyzw65f3p7@earth>
-References: <1493628599-30552-1-git-send-email-preid@electromag.com.au>
- <1493628599-30552-8-git-send-email-preid@electromag.com.au>
- <20170501134136.u2tebw77xcirvaqx@earth>
- <bf4cf813-609c-1d92-2329-35e9176d0d28@electromag.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7dblfcvgetpmf3fc"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <bf4cf813-609c-1d92-2329-35e9176d0d28-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Karl-Heinz Schneider <karl-heinz-X5L7DgJ4l23oE99TX8zNy7NAH6kLmebB@public.gmane.org>
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v6 6/8] Documentation: Add sbs-manager device tree node documentation
+Date: Tue,  2 May 2017 17:12:24 +0800
+Message-ID: <1493716346-58517-7-git-send-email-preid@electromag.com.au>
+References: <1493716346-58517-1-git-send-email-preid@electromag.com.au>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:33495 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751606AbdEBJMo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 May 2017 05:12:44 -0400
+In-Reply-To: <1493716346-58517-1-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, peda@axentia.se, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, benjamin.tissoires@redhat.com
+Cc: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
 
+From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
 
---7dblfcvgetpmf3fc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch adds device tree documentation for the sbs-manager
 
-Hi Phil,
+Reviewed-by: Phil Reid <preid@electromag.com.au>
+Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ .../bindings/power/supply/sbs,sbs-manager.txt      | 66 ++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
 
-On Tue, May 02, 2017 at 10:20:22AM +0800, Phil Reid wrote:
-> In regards the le to cpu conversion. grepping the supply folder
-> finds a couple of other suspicious cases.
->=20
-> sbs-battery & the bq24735-cahrger do similar things.
->=20
-> thoughts on if they need to be corrected?
-
-Yes, those drivers look incorrect. I guess nobody noticed, since
-most people use little endian machines nowadays (so le16_to_cpu and
-cpu_to_le16 do nothing).
-
--- Sebastian
-
---7dblfcvgetpmf3fc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlkIMWUACgkQ2O7X88g7
-+prlXw//TyRPzCOkwzk9i2R/xX9FNJRTiNuqZSjb/nOy3r/zS0ZCJUxTE364Z4Zt
-s+6516y0wtas4PT6AWaBDU6k0AuUeQMZtJwZ+ze/MCgm5CIm4bDvcFVTkJxRmBQB
-zbySnVGoHdTeMBeWbh5P7GDyz0V8h2xYLzfE+tLy+Q5lkZV/w8DPVoURpZXC+J4c
-1PG3/M/Y35rWDT597P0HKtHOedBs9W0mikF2VUV5Z8SBhrMqdoHLew2v3IZu0XUe
-6wDAko/AhUZ7YF+HjX3QPgYLnwfj32ihvaZ3MieHbCwTkjdW1129mg9dRuyLuk9q
-v55wLqpeOEj4ngrpbI4c1VZXeGCQiAF3yACYmdbCl2EZNQZU+ld4kuyE7EbvaxmV
-9bS/GYPsbaQmzIqBK8MJPY0GCzXCSBloQ3yqKTwUpDDWKXCfJwuMjUGsR3BnVU5e
-xSh6bOLU6niWuPqtPeEA79vbosB3fDRKQzwlo5+c+vLrJDNwxZ/7w0l/gr9Ajhzp
-pFBbXTIKKJV3IunhV2Ew7Gea4vxlJ1pZhVELW/4HDtT8n01LzS7h9+SFNJjlGqIT
-K2Hf7NWhAlUUeZQkRXixP9bq0kx7bzJenmofJsmGS60ZL5yoFff35HpuUCMX/zK6
-XvGiVN3mpZOaUM82IWItVVIv4T7NSQCJi68pfyFkW6i6Jl3as9I=
-=gT7i
------END PGP SIGNATURE-----
-
---7dblfcvgetpmf3fc--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
+new file mode 100644
+index 0000000..389016c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
+@@ -0,0 +1,66 @@
++Binding for sbs-manager
++
++Required properties:
++- compatible: "<vendor>,<part-number>", "sbs,sbs-charger" as fallback. The part
++  number compatible string might be used in order to take care of vendor
++  specific registers.
++- reg: integer, i2c address of the device. Should be <0xa>.
++Optional properties:
++- gpio-controller: Marks the port as GPIO controller.
++  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
++- #gpio-cells: Should be <2>. The first cell is the pin number, the second cell
++  is used to specify optional parameters:
++  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
++
++From OS view the device is basically an i2c-mux used to communicate with up to
++four smart battery devices at address 0xb. The driver actually implements this
++behaviour. So standard i2c-mux nodes can be used to register up to four slave
++batteries. Channels will be numerated starting from 1 to 4.
++
++Example:
++
++batman@0a {
++    compatible = "lltc,ltc1760", "sbs,sbs-manager";
++    reg = <0x0a>;
++    #address-cells = <1>;
++    #size-cells = <0>;
++
++    gpio-controller;
++    #gpio-cells = <2>;
++
++    i2c@1 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        reg = <1>;
++
++        battery@0b {
++            compatible = "ti,bq2060", "sbs,sbs-battery";
++            reg = <0x0b>;
++            sbs,battery-detect-gpios = <&batman 1 1>;
++        };
++    };
++
++    i2c@2 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        reg = <2>;
++
++        battery@0b {
++            compatible = "ti,bq2060", "sbs,sbs-battery";
++            reg = <0x0b>;
++            sbs,battery-detect-gpios = <&batman 2 1>;
++        };
++    };
++
++    i2c@3 {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        reg = <3>;
++
++        battery@0b {
++            compatible = "ti,bq2060", "sbs,sbs-battery";
++            reg = <0x0b>;
++            sbs,battery-detect-gpios = <&batman 3 1>;
++        };
++    };
++};
+-- 
+1.8.3.1
