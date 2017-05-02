@@ -1,290 +1,502 @@
-From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: Re: [PATCH v5 9/9] power: supply: sbs-manager: Add alert callback
- and battery change notification
-Date: Mon, 1 May 2017 15:50:33 +0200
-Message-ID: <20170501135033.vwx6ibwxj2hfyhtl@earth>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v5 7/9] power: Adds support for Smart Battery System
+ Manager
+Date: Tue, 2 May 2017 10:20:22 +0800
+Message-ID: <bf4cf813-609c-1d92-2329-35e9176d0d28@electromag.com.au>
 References: <1493628599-30552-1-git-send-email-preid@electromag.com.au>
- <1493628599-30552-10-git-send-email-preid@electromag.com.au>
+ <1493628599-30552-8-git-send-email-preid@electromag.com.au>
+ <20170501134136.u2tebw77xcirvaqx@earth>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gsxw4z3epynttkgo"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1493628599-30552-10-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:35702 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750823AbdEBCU2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 1 May 2017 22:20:28 -0400
+In-Reply-To: <20170501134136.u2tebw77xcirvaqx@earth>
+Content-Language: en-AU
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+
+G'day Sebastian,
+
+Thanks for the feedback. Next version coming soon.
+In regards the le to cpu conversion.
+grepping the supply folder finds a couple of other suspicious cases.
+
+sbs-battery & the bq24735-cahrger do similar things.
+
+thoughts on if they need to be corrected?
 
 
---gsxw4z3epynttkgo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On 1/05/2017 21:41, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Mon, May 01, 2017 at 04:49:57PM +0800, Phil Reid wrote:
+>> From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+>>
+>> This patch adds support for Smart Battery System Manager.
+>> A SBSM is a device listening at I2C/SMBus address 0x0a and is capable of
+>> communicating up to four I2C smart battery devices. All smart battery
+>> devices are listening at address 0x0b, so the SBSM muliplexes between
+>> them. The driver makes use of the I2C-Mux framework to allow smart
+>> batteries to be bound via device tree, i.e. the sbs-battery driver.
+>>
+>> Via sysfs interface the online state and charge type are presented. If
+>> the driver is bound as ltc1760 (an implementation of a Dual Smart Battery
+>> System Manager) the charge type can also be changed from trickle to fast.
+>>
+>> Tested-by: Phil Reid <preid@electromag.com.au>
+>> Reviewed-by: Phil Reid <preid@electromag.com.au>
+>> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>> ---
+>>   drivers/power/supply/Kconfig       |  13 ++
+>>   drivers/power/supply/Makefile      |   1 +
+>>   drivers/power/supply/sbs-manager.c | 325 +++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 339 insertions(+)
+>>   create mode 100644 drivers/power/supply/sbs-manager.c
+>>
+>> diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+>> index da54ac8..8aa5324 100644
+>> --- a/drivers/power/supply/Kconfig
+>> +++ b/drivers/power/supply/Kconfig
+>> @@ -533,4 +533,17 @@ config AXP20X_POWER
+>>   	  This driver provides support for the power supply features of
+>>   	  AXP20x PMIC.
+>>   
+>> +config MANAGER_SBS
+>> +	tristate "Smart Battery System Manager"
+>> +	depends on I2C && I2C_MUX
+>> +	help
+>> +	  Say Y here to include support for Smart Battery System Manager
+>> +	  ICs. The driver reports online and charging status via sysfs.
+>> +	  It presents itself also as I2C mux which allows to bind
+>> +	  smart battery driver to its ports.
+>> +	  Supported is for example LTC1760.
+>> +
+>> +	  This driver can also be built as a module. If so, the module will be
+>> +	  called sbs-manager.
+>> +
+> 
+> Let's move add this directly next to CHARGER_SBS.
+> 
+>>   endif # POWER_SUPPLY
+>> diff --git a/drivers/power/supply/Makefile b/drivers/power/supply/Makefile
+>> index 3789a2c..4f53c98 100644
+>> --- a/drivers/power/supply/Makefile
+>> +++ b/drivers/power/supply/Makefile
+>> @@ -74,3 +74,4 @@ obj-$(CONFIG_CHARGER_TPS65090)	+= tps65090-charger.o
+>>   obj-$(CONFIG_CHARGER_TPS65217)	+= tps65217_charger.o
+>>   obj-$(CONFIG_AXP288_FUEL_GAUGE) += axp288_fuel_gauge.o
+>>   obj-$(CONFIG_AXP288_CHARGER)	+= axp288_charger.o
+>> +obj-$(CONFIG_MANAGER_SBS)	+= sbs-manager.o
+> 
+> same here.
+> 
+>> diff --git a/drivers/power/supply/sbs-manager.c b/drivers/power/supply/sbs-manager.c
+>> new file mode 100644
+>> index 0000000..adf9e41
+>> --- /dev/null
+>> +++ b/drivers/power/supply/sbs-manager.c
+>> @@ -0,0 +1,325 @@
+>> +/*
+>> + * Driver for SBS compliant Smart Battery System Managers
+>> + *
+>> + * The device communicates via i2c at address 0x0a and multiplexes access to up
+>> + * to four smart batteries at address 0x0b.
+>> + *
+>> + * Via sysfs interface the online state and charge type are presented.
+>> + *
+>> + * Datasheet SBSM:    http://sbs-forum.org/specs/sbsm100b.pdf
+>> + * Datasheet LTC1760: http://cds.linear.com/docs/en/datasheet/1760fb.pdf
+>> + *
+>> + * Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/i2c-mux.h>
+>> +#include <linux/power_supply.h>
+>> +
+>> +#define SBSM_MAX_BATS  4
+>> +#define SBSM_RETRY_CNT 3
+>> +
+>> +/* registers addresses */
+>> +#define SBSM_CMD_BATSYSSTATE     0x01
+>> +#define SBSM_CMD_BATSYSSTATECONT 0x02
+>> +#define SBSM_CMD_BATSYSINFO      0x04
+>> +#define SBSM_CMD_LTC             0x3c
+>> +
+>> +struct sbsm_data {
+>> +	struct i2c_client *client;
+>> +	struct i2c_mux_core *muxc;
+>> +
+>> +	struct power_supply *psy;
+>> +
+>> +	int cur_chan;         /* currently selected channel */
+> 
+> u8?
+> 
+>> +	bool is_ltc1760;      /* special capabilities */
+>> +};
+>> +
+>> +static enum power_supply_property sbsm_props[] = {
+>> +	POWER_SUPPLY_PROP_ONLINE,
+>> +	POWER_SUPPLY_PROP_CHARGE_TYPE,
+>> +};
+>> +
+>> +static int sbsm_read_word(struct i2c_client *client, u8 address)
+>> +{
+>> +	int reg, retries = SBSM_RETRY_CNT;
+>> +
+>> +	while (retries > 0) {
+>> +		reg = i2c_smbus_read_word_data(client, address);
+>> +		if (reg >= 0)
+>> +			break;
+>> +		--retries;
+>> +	}
+> 
+> for (retries = SBSM_RETRY_CNT; retries > 0; retries--)
+> 
+>> +
+>> +	if (reg < 0) {
+>> +		dev_err(&client->dev, "failed to read register %i\n",
+>> +			(int)address);
+> 
+> dev_err(&client->dev, "failed to read register 0x%02x\n", address);
+> 
+>> +		return reg;
+>> +	}
+>> +
+>> +	return le16_to_cpu(reg);
+> 
+> This is already done by i2c_smbus_read_word_data() and doing it
+> again will result in incorrect values on big endian architectures.
+> 
+>> +}
+>> +
+>> +static int sbsm_write_word(struct i2c_client *client, u8 address, u16 word)
+>> +{
+>> +	int ret, retries = SBSM_RETRY_CNT;
+>> +
+>> +	word = cpu_to_le16(word);
+> 
+> Same as for read_word: This is already done by the i2c-core.
+> 
+>> +	while (retries > 0) {
+>> +		ret = i2c_smbus_write_word_data(client, address, word);
+>> +		if (ret >= 0)
+>> +			break;
+>> +		--retries;
+>> +	}
+> 
+> for (retries = SBSM_RETRY_CNT; retries > 0; retries--)
+> 
+>> +	if (ret < 0)
+>> +		dev_err(&client->dev, "failed to write to register %i\n",
+>> +			(int)address);
+> 
+> dev_err(&client->dev, "failed to read register 0x%02x\n", address);
+> 
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static int sbsm_get_property(struct power_supply *psy,
+>> +			     enum power_supply_property psp,
+>> +			     union power_supply_propval *val)
+>> +{
+>> +	struct sbsm_data *data = power_supply_get_drvdata(psy);
+>> +	int regval = 0;
+>> +
+>> +	switch (psp) {
+>> +	case POWER_SUPPLY_PROP_ONLINE:
+>> +		regval = sbsm_read_word(data->client, SBSM_CMD_BATSYSSTATECONT);
+>> +		if (regval < 0)
+>> +			return regval;
+>> +		val->intval = !!(regval & 0x1);
+>> +		break;
+>> +
+>> +	case POWER_SUPPLY_PROP_CHARGE_TYPE:
+>> +		regval = sbsm_read_word(data->client, SBSM_CMD_BATSYSSTATE);
+>> +		if (regval < 0)
+>> +			return regval;
+>> +
+>> +		if ((regval & 0x00f0) == 0) {
+>> +			val->intval = POWER_SUPPLY_CHARGE_TYPE_NONE;
+>> +			return 0;
+>> +		}
+>> +		val->intval = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
+>> +
+>> +		if (data->is_ltc1760) {
+>> +			/* charge mode fast if turbo is active */
+>> +			regval = sbsm_read_word(data->client, SBSM_CMD_LTC);
+>> +			if (regval < 0)
+>> +				return regval;
+>> +			else if (regval & 0x80)
+>> +				val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
+>> +		}
+>> +		break;
+>> +
+>> +	default:
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int sbsm_prop_is_writeable(struct power_supply *psy,
+>> +				  enum power_supply_property psp)
+>> +{
+>> +	struct sbsm_data *data = power_supply_get_drvdata(psy);
+>> +
+>> +	return (psp == POWER_SUPPLY_PROP_CHARGE_TYPE) && data->is_ltc1760;
+>> +}
+>> +
+>> +static int sbsm_set_property(struct power_supply *psy,
+>> +			     enum power_supply_property psp,
+>> +			     const union power_supply_propval *val)
+>> +{
+>> +	struct sbsm_data *data = power_supply_get_drvdata(psy);
+>> +	int ret = -EINVAL;
+>> +
+>> +	switch (psp) {
+>> +	case POWER_SUPPLY_PROP_CHARGE_TYPE:
+>> +		/* write 1 to TURBO if type fast is given */
+>> +		if (data->is_ltc1760) {
+>> +			u16 regval = val->intval ==
+>> +			POWER_SUPPLY_CHARGE_TYPE_FAST ? (0x1 << 7) : 0;
+>> +			ret = sbsm_write_word(data->client, SBSM_CMD_LTC,
+>> +					      regval);
+>> +		}
+> 
+> That's not nicely indented. Try doing it this way to
+> reduce indention:
+> 
+> if (data->is_ltc1760)
+>      break;
+> u16 regval = ...
+> 
+>> +		break;
+>> +
+>> +	default:
+>> +		break;
+>> +	}
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +/*
+>> + * Switch to battery
+>> + * Parameter chan is directly the content of SMB_BAT* nibble
+>> + */
+>> +static int sbsm_select(struct i2c_mux_core *muxc, u32 chan)
+>> +{
+>> +	struct sbsm_data *data = i2c_mux_priv(muxc);
+>> +	int ret = 0;
+>> +	u16 reg;
+>> +
+>> +	if (data->cur_chan == chan)
+>> +		return ret;
+>> +
+>> +	/* chan goes from 1 ... 4 */
+>> +	reg = 1 << (11 + chan);
+>> +	ret = sbsm_write_word(data->client, SBSM_CMD_BATSYSSTATE, reg);
+>> +	if (ret)
+>> +		dev_err(&data->client->dev, "Failed to select channel %i\n",
+>> +			chan);
+> 
+> Add
+> 
+> struct device *dev = &data->client->dev;
+> 
+> at the beginning of the function and use it here to avoid line
+> break.
+> 
+>> +	else
+>> +		data->cur_chan = chan;
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +#if defined(CONFIG_OF)
+>> +
+>> +#include <linux/of_device.h>
+> 
+> Move include to top of file. You can include it unconditionally.
+> 
+>> +static const struct of_device_id sbsm_dt_ids[] = {
+>> +	{ .compatible = "sbs,sbs-manager" },
+>> +	{ .compatible = "lltc,ltc1760" },
+>> +	{ }
+>> +};
+>> +MODULE_DEVICE_TABLE(of, sbsm_dt_ids);
+> 
+> This can go next to the other MODULE_DEVICE_TABLE.
+> 
+>> +#endif
+>> +
+>> +static const struct power_supply_desc sbsm_default_psy_desc = {
+>> +	.type = POWER_SUPPLY_TYPE_MAINS,
+>> +	.properties = sbsm_props,
+>> +	.num_properties = ARRAY_SIZE(sbsm_props),
+>> +	.get_property = &sbsm_get_property,
+>> +	.set_property = &sbsm_set_property,
+>> +	.property_is_writeable = &sbsm_prop_is_writeable,
+>> +};
+>> +
+>> +static int sbsm_probe(struct i2c_client *client,
+>> +		      const struct i2c_device_id *id)
+>> +{
+>> +	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+>> +	struct sbsm_data *data;
+>> +	struct device *dev = &client->dev;
+>> +	struct power_supply_desc *psy_desc;
+>> +	struct power_supply_config psy_cfg = {};
+>> +	int ret = 0, i, supported_bats;
+>> +
+>> +	/* Device listens only at address 0x0a */
+>> +	if (client->addr != 0x0a)
+>> +		return -ENODEV;
+> 
+> I guess EINVAL makes more sense?
+> 
+>> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WORD_DATA))
+>> +		return -EPFNOSUPPORT;
+>> +
+>> +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+>> +	if (!data)
+>> +		return -ENOMEM;
+>> +
+>> +	i2c_set_clientdata(client, data);
+>> +
+>> +	data->client = client;
+>> +	data->is_ltc1760 = !!strstr(id->name, "ltc1760");
+>> +
+>> +	ret  = sbsm_read_word(client, SBSM_CMD_BATSYSINFO);
+>> +	if (ret < 0)
+>> +		return ret;
+>> +	supported_bats = le16_to_cpu(ret) & 0xf;
+> 
+> How often do you want to convert endianess? :)
+> Drop this.
+> 
+>> +	data->muxc = i2c_mux_alloc(adapter, dev, SBSM_MAX_BATS, 0,
+>> +				   I2C_MUX_LOCKED, &sbsm_select, NULL);
+>> +	if (!data->muxc) {
+>> +		dev_err(dev, "failed to alloc i2c mux\n");
+>> +		ret = -ENOMEM;
+>> +		goto err_mux_alloc;
+>> +	}
+>> +	data->muxc->priv = data;
+>> +
+>> +	/* register muxed i2c channels. One for each supported battery */
+>> +	for (i = 0; i < SBSM_MAX_BATS; ++i) {
+>> +		if ((1 << i) & supported_bats) {
+> 
+> This can be written more readable as
+> 
+> if (supported_bats & BIT(i))
+> 
+>> +			ret = i2c_mux_add_adapter(data->muxc, 0, i + 1, 0);
+>> +			if (ret) {
+>> +				dev_err(dev,
+>> +					"failed to register i2c mux channel %d\n",
+>> +					i + 1);
+>> +				goto err_mux_register;
+>> +			}
+>> +		}
+>> +	}
+>> +
+>> +	psy_desc = devm_kmemdup(dev, &sbsm_default_psy_desc,
+>> +				sizeof(struct power_supply_desc),
+>> +				GFP_KERNEL);
+>> +	if (!psy_desc) {
+>> +		ret = -ENOMEM;
+>> +		goto err_psy;
+>> +	}
+>> +
+>> +	psy_desc->name = devm_kasprintf(dev, GFP_KERNEL, "sbsm-%s",
+>> +					dev_name(&client->dev));
+>> +	if (!psy_desc->name) {
+>> +		ret = -ENOMEM;
+>> +		goto err_psy;
+>> +	}
+>> +
+>> +	psy_cfg.drv_data = data;
+> 
+> Please add:
+> 
+> psy_cfg->of_node = dev->of_node;
+> 
+>> +	data->psy = devm_power_supply_register(dev, psy_desc, &psy_cfg);
+>> +	if (IS_ERR(data->psy)) {
+>> +		ret = PTR_ERR(data->psy);
+>> +		dev_err(dev, "failed to register power supply %s\n",
+>> +			psy_desc->name);
+>> +		goto err_psy;
+>> +	}
+>> +
+>> +	dev_info(dev, "sbsm registered\n");
+>> +	return 0;
+>> +
+>> +err_psy:
+>> +err_mux_register:
+>> +	i2c_mux_del_adapters(data->muxc);
+>> +
+>> +err_mux_alloc:
+>> +	return ret;
+>> +}
+>> +
+>> +static int sbsm_remove(struct i2c_client *client)
+>> +{
+>> +	struct sbsm_data *data = i2c_get_clientdata(client);
+>> +
+>> +	i2c_mux_del_adapters(data->muxc);
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct i2c_device_id sbsm_ids[] = {
+>> +	{ "sbs-manager", 0 },
+>> +	{ "ltc1760",     0 },
+>> +	{ }
+>> +};
+>> +MODULE_DEVICE_TABLE(i2c, sbsm_ids);
+>> +
+>> +static struct i2c_driver sbsm_driver = {
+>> +	.driver = {
+>> +		.name = "sbsm",
+>> +		.owner = THIS_MODULE,
+> 
+> Please drop .owner assignment. It will be done by i2c-core.
+> But you should add the following:
+> 
+> .of_match_table = of_match_ptr(sbsm_dt_ids),
+> 
+>> +	},
+>> +	.probe		= sbsm_probe,
+>> +	.remove		= sbsm_remove,
+>> +	.id_table	= sbsm_ids
+>> +};
+>> +module_i2c_driver(sbsm_driver);
+>> +
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_AUTHOR("Karl-Heinz Schneider <karl-heinz@schneider-inet.de>");
+>> +MODULE_DESCRIPTION("SBSM Smart Battery System Manager");
+> 
+> -- Sebastian
+> 
 
-On Mon, May 01, 2017 at 04:49:59PM +0800, Phil Reid wrote:
-> This adds smb alert support via the smbus_alert driver to generate
-> power_supply_changed notifications when either external power is
-> removed / applied or a battery inserted / removed.
-> Use the i2c alert callback to notify the attached battery driver that a
-> change has occurred.
->
-> Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-> ---
->  drivers/power/supply/Kconfig       |   1 +
->  drivers/power/supply/sbs-manager.c | 129 +++++++++++++++++++++++++++++++=
-+++++-
->  2 files changed, 127 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-> index 8aa5324..a25359c 100644
-> --- a/drivers/power/supply/Kconfig
-> +++ b/drivers/power/supply/Kconfig
-> @@ -536,6 +536,7 @@ config AXP20X_POWER
->  config MANAGER_SBS
->  	tristate "Smart Battery System Manager"
->  	depends on I2C && I2C_MUX
-> +	select I2C_SMBUS
 
-I guess we also need to depend on GPIO stuff?
-
->  	help
->  	  Say Y here to include support for Smart Battery System Manager
->  	  ICs. The driver reports online and charging status via sysfs.
-> diff --git a/drivers/power/supply/sbs-manager.c b/drivers/power/supply/sb=
-s-manager.c
-> index adf9e41..d7f7a92 100644
-> --- a/drivers/power/supply/sbs-manager.c
-> +++ b/drivers/power/supply/sbs-manager.c
-> @@ -19,6 +19,7 @@
->  #include <linux/module.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-mux.h>
-> +#include <linux/gpio.h>
->  #include <linux/power_supply.h>
-> =20
->  #define SBSM_MAX_BATS  4
-> @@ -30,14 +31,22 @@
->  #define SBSM_CMD_BATSYSINFO      0x04
->  #define SBSM_CMD_LTC             0x3c
-> =20
-> +#define SBSM_BIT_AC_PRESENT      BIT(0)
-> +
->  struct sbsm_data {
->  	struct i2c_client *client;
->  	struct i2c_mux_core *muxc;
-> =20
->  	struct power_supply *psy;
-> =20
-> +	struct gpio_chip chip;
-> +
->  	int cur_chan;         /* currently selected channel */
->  	bool is_ltc1760;      /* special capabilities */
-> +
-> +	unsigned int supported_bats;
-> +	unsigned int last_state;
-> +	unsigned int last_state_cont;
->  };
-> =20
->  static enum power_supply_property sbsm_props[] =3D {
-> @@ -184,6 +193,116 @@ static int sbsm_select(struct i2c_mux_core *muxc, u=
-32 chan)
->  	return ret;
->  }
-> =20
-> +static int sbsm_gpio_get_value(struct gpio_chip *gc, unsigned off)
-> +{
-> +	struct sbsm_data *data =3D gpiochip_get_data(gc);
-> +	int ret;
-> +
-> +	ret =3D sbsm_read_word(data->client, SBSM_CMD_BATSYSSTATE);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return ret & BIT(off);
-> +}
-> +
-> +/*
-> + * This needs to be defined or the GPIO lib fails to register the pin.
-> + * But the 'gpio' is always an input.
-> + */
-> +static int sbsm_gpio_direction_input(struct gpio_chip *gc, unsigned off)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int sbsm_do_alert(struct device *dev, void *d)
-> +{
-> +	struct i2c_client *client =3D i2c_verify_client(dev);
-> +	struct i2c_driver *driver;
-> +
-> +	if (!client || client->addr !=3D 0x0b)
-> +		return 0;
-> +
-> +	device_lock(dev);
-> +	if (client->dev.driver) {
-> +		driver =3D to_i2c_driver(client->dev.driver);
-> +		if (driver->alert)
-> +			driver->alert(client, I2C_PROTOCOL_SMBUS_ALERT, 0);
-> +		else
-> +			dev_warn(&client->dev, "no driver alert()!\n");
-> +	} else
-> +		dev_dbg(&client->dev, "alert with no driver\n");
-> +	device_unlock(dev);
-> +
-> +	return -EBUSY;
-> +}
-> +
-> +static void sbsm_alert(struct i2c_client *client, enum i2c_alert_protoco=
-l prot,
-> +		       unsigned int d)
-> +{
-> +	struct sbsm_data *sbsm =3D i2c_get_clientdata(client);
-> +
-> +	int ret, i, irq_bat =3D 0;
-> +
-> +	ret =3D sbsm_read_word(sbsm->client, SBSM_CMD_BATSYSSTATE);
-> +	if (ret >=3D 0)
-> +		irq_bat =3D ret ^ sbsm->last_state;
-> +	sbsm->last_state =3D ret;
-> +
-> +	ret =3D sbsm_read_word(sbsm->client, SBSM_CMD_BATSYSSTATECONT);
-> +	if ((ret >=3D 0) &&
-> +	    ((ret ^ sbsm->last_state_cont) & SBSM_BIT_AC_PRESENT)) {
-> +		irq_bat |=3D sbsm->supported_bats;
-> +		power_supply_changed(sbsm->psy);
-> +	}
-> +	sbsm->last_state_cont =3D ret;
-> +
-> +	for (i =3D 0; i < SBSM_MAX_BATS; i++) {
-> +		if (irq_bat & BIT(i)) {
-> +			device_for_each_child(&sbsm->muxc->adapter[i]->dev,
-> +					      NULL, sbsm_do_alert);
-> +		}
-> +	}
-> +}
-> +
-> +static int sbsm_gpio_setup(struct sbsm_data *data)
-> +{
-> +	struct gpio_chip *gc =3D &data->chip;
-> +	struct i2c_client *client =3D data->client;
-> +	struct device *dev =3D &client->dev;
-> +	struct device_node *of_node =3D client->dev.of_node;
-> +	int ret;
-> +
-> +	if (!of_get_property(of_node, "gpio-controller", NULL))
-> +		return 0;
-
-#include <linux/property.h>
-
-if (!device_property_present(dev, "gpio-controller"))
-    return 0;
-
-(and remove of_node from this function)
-
-> +	ret  =3D sbsm_read_word(client, SBSM_CMD_BATSYSSTATE);
-> +	if (ret < 0)
-> +		return ret;
-> +	data->last_state =3D ret;
-> +
-> +	ret  =3D sbsm_read_word(client, SBSM_CMD_BATSYSSTATECONT);
-> +	if (ret < 0)
-> +		return ret;
-> +	data->last_state_cont =3D ret;
-> +
-> +	gc->get =3D sbsm_gpio_get_value;
-> +	gc->direction_input  =3D sbsm_gpio_direction_input;
-> +	gc->can_sleep =3D true;
-> +	gc->base =3D -1;
-> +	gc->ngpio =3D SBSM_MAX_BATS;
-> +	gc->label =3D client->name;
-> +	gc->parent =3D dev;
-> +	gc->owner =3D THIS_MODULE;
-> +
-> +	ret =3D devm_gpiochip_add_data(dev, gc, data);
-> +	if (ret) {
-> +		dev_err(dev, "devm_gpiochip_add_data failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return ret;
-> +}
-> +
->  #if defined(CONFIG_OF)
-> =20
->  #include <linux/of_device.h>
-> @@ -214,7 +333,7 @@ static int sbsm_probe(struct i2c_client *client,
->  	struct device *dev =3D &client->dev;
->  	struct power_supply_desc *psy_desc;
->  	struct power_supply_config psy_cfg =3D {};
-> -	int ret =3D 0, i, supported_bats;
-> +	int ret =3D 0, i;
-> =20
->  	/* Device listens only at address 0x0a */
->  	if (client->addr !=3D 0x0a)
-> @@ -235,7 +354,7 @@ static int sbsm_probe(struct i2c_client *client,
->  	ret  =3D sbsm_read_word(client, SBSM_CMD_BATSYSINFO);
->  	if (ret < 0)
->  		return ret;
-> -	supported_bats =3D le16_to_cpu(ret) & 0xf;
-> +	data->supported_bats =3D le16_to_cpu(ret) & 0xf;
-> =20
->  	data->muxc =3D i2c_mux_alloc(adapter, dev, SBSM_MAX_BATS, 0,
->  				   I2C_MUX_LOCKED, &sbsm_select, NULL);
-> @@ -248,7 +367,7 @@ static int sbsm_probe(struct i2c_client *client,
-> =20
->  	/* register muxed i2c channels. One for each supported battery */
->  	for (i =3D 0; i < SBSM_MAX_BATS; ++i) {
-> -		if ((1 << i) & supported_bats) {
-> +		if ((1 << i) & data->supported_bats) {
->  			ret =3D i2c_mux_add_adapter(data->muxc, 0, i + 1, 0);
->  			if (ret) {
->  				dev_err(dev,
-> @@ -273,6 +392,9 @@ static int sbsm_probe(struct i2c_client *client,
->  		ret =3D -ENOMEM;
->  		goto err_psy;
->  	}
-> +	ret =3D sbsm_gpio_setup(data);
-> +	if (ret < 0)
-> +		goto err_psy;
-> =20
->  	psy_cfg.drv_data =3D data;
->  	data->psy =3D devm_power_supply_register(dev, psy_desc, &psy_cfg);
-> @@ -316,6 +438,7 @@ static int sbsm_remove(struct i2c_client *client)
->  	},
->  	.probe		=3D sbsm_probe,
->  	.remove		=3D sbsm_remove,
-> +	.alert		=3D sbsm_alert,
->  	.id_table	=3D sbsm_ids
->  };
->  module_i2c_driver(sbsm_driver);
-
--- Sebastian
-
---gsxw4z3epynttkgo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlkHPSkACgkQ2O7X88g7
-+ppM6w//aLpAcKL5m7+HwVVUv6ohdombqYjQNhLMCENILPsXFPQ56mlJ5+cNzgJH
-GVV1QwmKeAFZyBzNITujWghmuryclp6zaMCC2HULt01wAsV+rrqZf1W29i3Tnl/X
-yq+m0FtsfrcG5/XKDTw8YCQWeFUGku82dC2FhxvYj1VCNdnmmecv5wmjnFy6LbTa
-HYKQxtYS/nl0lK75EVNKLa3DJ7+OUO8DtHTaNn4i7pPUOk+xv8vXybkVGS6IOP+u
-MdqVREWL9UVEo5op4Kl3pblZi5d1pn0KNdMBDR33YNXA5QT+JXtQFzho00UszqLv
-ZQijZmat+iHFE+35NTpN439BucBcLwsJd78dI8PdPXXNNBWyITaapfZ6Tp4wnnYH
-kOZJfZmVGn05qzkto/H357E+dgIrKJASGEI2JmJ6c643I3uMpLJwhj9NDHPNKjgQ
-oqk6B+2e1nvZFcTJvj9F7Abd8KWmJPuYiKXrHNPCXZOs/IivQDWGwKLaZGfJx6lb
-fCjCVYFwxgYmxbmC5KuyrEvK4C9KVQpk9BHIP/Ej8Z5lF1SeM0W1Iv/Lqp0DUTV/
-6uGf66bAN3yrBvGpuVh7UhiAh02F/tLJHDc6CFhTXuPEkTDcbd316dhx9IXhwxq8
-NIvfylaSpj3f23jdas27ggn+dXjW2FkhqFFFJ7eGWdC8m1U9C+Y=
-=4SF3
------END PGP SIGNATURE-----
-
---gsxw4z3epynttkgo--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Regards
+Phil Reid
