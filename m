@@ -1,97 +1,164 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: Re: RFC: i2c designware gpio recovery
-Date: Wed, 3 May 2017 09:30:50 +0800
-Message-ID: <610c93db-c272-1055-fc82-b749110996b4@electromag.com.au>
-References: <2259005.m0altzP21Z@dabox> <2269277.HqpbCE3B5H@dabox>
- <25752a11-3b13-762f-5916-66893d223988@electromag.com.au>
- <1658050.mjbUFfzRWa@virgo>
+Subject: Re: [PATCH v6 3/8] i2c: i2c-smbus: add of_i2c_setup_smbus_alert
+Date: Wed, 3 May 2017 16:31:07 +0800
+Message-ID: <941fa093-5cdd-c3f3-1447-b564b5181961@electromag.com.au>
+References: <1493716346-58517-1-git-send-email-preid@electromag.com.au>
+ <1493716346-58517-4-git-send-email-preid@electromag.com.au>
+ <20170502102013.GB2382@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1658050.mjbUFfzRWa@virgo>
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20170502102013.GB2382@mail.corp.redhat.com>
 Content-Language: en-AU
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Sander <tim@krieglstein.org>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-pm-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-G'day Tim,
+G'day Benjamin,
 
-On 1/05/2017 21:31, Tim Sander wrote:
-> Good Day Phil
+On 2/05/2017 18:20, Benjamin Tissoires wrote:
+> Hi Phil,
 > 
-> Am Montag, 1. Mai 2017, 09:57:35 CEST schrieb Phil Reid:
->>> So i took a look into the device tree file socfpga.dtsi and found that the
->>> reset lines where not defined (although available in the corresponding
->>> reset manager). Is there a reason for this? Other components are
->>> connected.
+> On May 02 2017 or thereabouts, Phil Reid wrote:
+>> This commit adds of_i2c_setup_smbus_alert which allows the smbalert
+>> driver to be attached to an i2c adapter via the device tree.
 >>
->> There's a few thing like that where the bootloader has been expected to
->> setup the resets etc.
-> Yes, but if the resets are not connected in the device tree, the linux drivers
-> are not going to use them?
-Yes, so they should be added. I don't think we should assume the bootloader sets things up.
-But that doesn't seem to have been the assumption with the Alter SOC's.
-
-> 
->>> However with the patch below my previously sent patch works!
->>>
->>> If there is interest in would cleanup the patch and send it in for
->>> mainlining. I think the most unacceptable part would be this line:
->>> +       ret = gpio_request_one(bri->scl_gpio, //GPIOF_OPEN_DRAIN |
->>> My gpio drivers refuse to work as output as they have no open drain mode.
->>> So i wonder how to get this solved in a clean manner.
+>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>> ---
+>>   Documentation/devicetree/bindings/i2c/i2c.txt |  4 +--
+>>   drivers/i2c/i2c-smbus.c                       | 35 +++++++++++++++++++++++++++
+>>   include/linux/i2c-smbus.h                     |  9 +++++++
+>>   3 files changed, 46 insertions(+), 2 deletions(-)
 >>
->> I thought the gpio system would emulate open drain by switching the pin
->> between an input and output driven low in this case. How are you
->> configuring the GPIO's in the FPGA?
-> I don't switch to GPIO mode. As the I2C logic is only pulling active low, i only do
-> a wired and with the gpio (implemented in the fpga) port output on the output
-> enable line for the SCL output.  SDA is only an additional input for the second in
-> fpga gpio port.
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+>> index cee9d50..1126398 100644
+>> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+>> @@ -59,8 +59,8 @@ wants to support one of the below features, it should adapt the bindings below.
+>>   	interrupts used by the device.
+>>   
+>>   - interrupt-names
+>> -	"irq" and "wakeup" names are recognized by I2C core, other names are
+>> -	left to individual drivers.
+>> +	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
+>> +	other names are	left to individual drivers.
+>>   
+>>   - host-notify
+>>   	device uses SMBus host notify protocol instead of interrupt line.
+>> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+>> index df0e2fa..a8f8439 100644
+>> --- a/drivers/i2c/i2c-smbus.c
+>> +++ b/drivers/i2c/i2c-smbus.c
+>> @@ -21,6 +21,7 @@
+>>   #include <linux/interrupt.h>
+>>   #include <linux/kernel.h>
+>>   #include <linux/module.h>
+>> +#include <linux/of_irq.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/workqueue.h>
+>>   
+>> @@ -238,6 +239,40 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+>>   }
+>>   EXPORT_SYMBOL_GPL(i2c_setup_smbus_alert);
+>>   
+>> +int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
+>> +{
+>> +	struct i2c_client *client;
+>> +	struct i2c_smbus_alert_setup *setup;
+>> +	struct i2c_board_info info = {
+>> +		I2C_BOARD_INFO("smbus_alert", 0x0c),
+>> +	};
 > 
-> A picture should make it a clearer:
-> 
-> gpio scl--\
-> i2c   scl --&---i2c mode output pin (configured as fpga loan)
-> 
-> In my case the original i2c pins where occupied by some other logic conflicting
-> so the i2c pins had to be shifted to some other pins using fpga logic. So it was
-> just a matter of adding a two port gpio port.
-I think I understand. What soft core gpio controller are you using?
+> Shouldn't you use i2c_setup_smbus_alert() instead of manually recreating
+> the board_info?
+Yes looks like that could be cleaned up I think.
+Look at i2c_new_device also it looks like client needs to be kept around and
+i2c_unregister_device. I was assuming the apdater would clean it up.
+But I'm not sure that's the case when looking again. That makes the change
+more invasive into the adpater. would need to add an i2c_client ptr to the
+i2c_adapter struct. Thoughts?
+
+> Also i2c_setup_smbus_alert() mentions that the level trigger has to be
+> explicitely mentioned, and I can't find if this is the case in your
+> patch.
+I'm not too sure how this wrks with the device tree / OF stuff.
+But initally I had the device tree irq type set incorrectly and things
+didn't work. Fixing that up and everything flow thru to the request irq
+and was set for the correct mode. So I guessed there was some "magic" in
+the core irq code somewhere.
+I actually think the thread irq handler should be able to handle everything
+and the work queue should disappear. Pretty sure the irq core handles disabling
+level interrupts will the threaded handler services things now. But I don't
+quite understand how the original code was handle edge vs level trigger irq's.
+Not having access to test that I was reluctant to change the hard irq.
+Any suggestions helpful...
 
 > 
->> Given a couple of days I can test this on some flack i2c hardware I have
->> with a Cyclone-V SOC. I'm interested in the functionality as well.
-> Sounds good. If you need some further input how i have configured the fpga
-> drop me a line.
+>> +	int irq;
+>> +
+>> +	if (!adap->dev.of_node)
+>> +		return 0;
+>> +
+>> +	irq = of_irq_get_byname(adap->dev.of_node, "smbus_alert");
+>> +	if (irq == -EINVAL || irq == -ENODATA)
+>> +		return 0;
+>> +	else if (irq < 0)
+>> +		return irq;
+>> +
+>> +	setup = devm_kzalloc(&adap->dev, sizeof(struct i2c_smbus_alert_setup),
+>> +		GFP_KERNEL);
 > 
->> For i2c that are connected to the dedicated HPS pins it should be possible
->> to reconfigure the pin mux controller (see system manager) in the HPS to
->> avoid the need to go thru the fpga to get direct control. The docs say this
->> is "unsupport" but I've done some test and it does seem to work.
-> As far as i know the internal jtag chain is only used in the bootloader and there
-> is no linux driver? But it shouldn't be a too big problem to port it to linux.
-> 
-> What i am unsure about is the fact that the internal jtag chain which controls the
-> pinmuxing might wreak havoc on other pin states if you reconfigure it?
+> Problem is i2c-core doesn't use devres at all for now. So the code is
+> correct here as it won't segfault but mixing both devres and non-devres
+> is error prone.
+Ok I look at how to avoid the devm alloc.
 
-Have a look at the Cyclone V handbook "pin mux control Group REgister Descriptions"
- From what I can see the chain is used to configure IO standards and drive strength.
-But not the actual muxes
 > 
->> I'm guess
->> the no support is in a similar vain to the emac ptp FPGA interface couldn't
->> be used when the HPS pin where used. But that got changed when the user's
->> proved otherwise. There's just no pin ctrl driver yet to manage it.
-> I am interested in this ptp solution too. Is there anything on the way to mainline?
+>> +	if (!setup)
+>> +		return -ENOMEM;
+>> +
+>> +	setup->irq = irq;
+>> +	info.platform_data = setup;
+>> +
+>> +	client = i2c_new_device(adap, &info);
+>> +	if (!client)
+>> +		return -ENODEV;
+>> +
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(of_i2c_setup_smbus_alert);
+>> +
+>>   /**
+>>    * i2c_handle_smbus_alert - Handle an SMBus alert
+>>    * @ara: the ARA client on the relevant adapter
+>> diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+>> index a138502..4732d09 100644
+>> --- a/include/linux/i2c-smbus.h
+>> +++ b/include/linux/i2c-smbus.h
+>> @@ -50,4 +50,13 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+>>   					 struct i2c_smbus_alert_setup *setup);
+>>   int i2c_handle_smbus_alert(struct i2c_client *ara);
+>>   
+>> +#if IS_ENABLED(CONFIG_I2C_SMBUS)
+>> +int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
+>> +#else
+>> +static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
+>> +{
+>> +	return 0;
+>> +}
+>> +#endif
+>> +
+>>   #endif /* _LINUX_I2C_SMBUS_H */
+>> -- 
+>> 1.8.3.1
+> 
+> Cheers,
+> Benjamin
+> 
 > 
 
-This was working the last time I tried it. I submitted a couple of minor patches for it a while ago.
-My hardware has a DSA switch attached to the ethernet port and so far I haven't figured out how to
-enable ptp when using the virtual lan ports on the DSA. But it worked fine when directly connected to
-a phy.
 
 -- 
 Regards
