@@ -1,57 +1,58 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
- controller
-Date: Fri, 5 May 2017 15:19:48 +0200
-Message-ID: <a159179b-6e2f-ca92-20ce-898009773900@axentia.se>
-References: <1492101794-13444-1-git-send-email-peda@axentia.se>
- <1492101794-13444-4-git-send-email-peda@axentia.se>
- <20170418085156.GA4773@kroah.com>
- <bdeecccf-02d6-226b-8516-1d41e3602a7a@axentia.se>
+From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 2/3] Documentation: dt: i2c: Add Altera I2C Controller
+Date: Fri, 5 May 2017 09:55:32 -0500
+Message-ID: <48fd6b40-31e5-d260-2c98-53204bdbe5cb@linux.intel.com>
+References: <1491926547-29510-1-git-send-email-thor.thayer@linux.intel.com>
+ <1491926547-29510-3-git-send-email-thor.thayer@linux.intel.com>
+ <20170413212240.uxwh5525baqmgny4@rob-hp-laptop>
+ <7c803e53-5c1b-cd59-6c59-5a32b07edcb8@linux.intel.com>
+ <CAL_JsqLcrFsRDXfVUtnvUT+RWuk-eduJKV9vN94_d9TswEuCdQ@mail.gmail.com>
+Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <bdeecccf-02d6-226b-8516-1d41e3602a7a@axentia.se>
-Sender: linux-doc-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqLcrFsRDXfVUtnvUT+RWuk-eduJKV9vN94_d9TswEuCdQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2017-04-18 12:59, Peter Rosin wrote:
-> On 2017-04-18 10:51, Greg Kroah-Hartman wrote:
->> On Thu, Apr 13, 2017 at 06:43:07PM +0200, Peter Rosin wrote:
->>> +/**
->>> + * devm_mux_chip_unregister() - Resource-managed version mux_chip_unregister().
->>> + * @dev: The device that originally registered the mux-chip.
->>> + * @mux_chip: The mux-chip to unregister.
->>> + *
->>> + * See mux_chip_unregister() for more details.
->>> + *
->>> + * Note that you do not normally need to call this function.
+On 04/20/2017 10:47 AM, Rob Herring wrote:
+> On Fri, Apr 14, 2017 at 8:46 AM, Thor Thayer
+> <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+>> Hi Rob,
 >>
->> Odd, then why is it exported???
-> 
-> You normally don't call the devm_foo_{free,release,unregister,etc} functions.
-> The intention is of course that the resourse cleans up automatically. But there
-> are no cases where the manual clean up is not available, at least not that I can
-> find?
+>> On 04/13/2017 04:22 PM, Rob Herring wrote:
+>>>
+>>> On Tue, Apr 11, 2017 at 11:02:26AM -0500, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+>>> wrote:
+>>>>
+>>>> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
+> [...]
+>
+>>>> +Required properties :
+>>>> + - compatible : should be "altr,sip-i2c"
+>>>
+>>>
+>>> Seems kind of generic.
+>>>
+>> I'm using sip for soft IP - right now we only offer 1 flavor.
+>
+> There is no versioning or release numbering associated with it?
+>
+> Rob
+>
+Hi Rob,
 
-I had a second look and there are of course plenty of examples of missing clean up
-versions for devm function. I simply hadn't looked very hard at all.
+No. After double checking with the soft IP owners, there isn't any 
+versioning or release number for this.
 
-So, for v15 I intend to remove all of devm_mux_chip_unregister, devm_mux_chip_free
-and devm_mux_control_put. They are all just sitting there with no callers. And the
-mux-mmio/video-mux drivers by Philipp Zabel that build on top of this series don't
-need them either. Besides, easy to resurrect if needed...
+Thanks,
 
-I will do v15 with the above, the change from mutex to semaphore for locking the
-mux controller state [1] and a few small documentation improvements. That will be
-rebased onto v4.12-rc1 and sent in 10 days or so, or whenever v4.12-rc1 is out.
-
-Meanwhile, what I currently intend for v15 but based on v4.11 is available from
-https://gitlab.com/peda-linux/mux.git in the "mux" branch.
-
-Cheers,
-peda
-
-[1] https://lkml.org/lkml/2017/4/25/411
+Thor
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
