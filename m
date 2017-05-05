@@ -1,109 +1,57 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv2] i2c: i2c-tiny-usb: fix buffer not being DMA capable
-Date: Fri,  5 May 2017 11:06:50 +0200
-Message-ID: <20170505090650.28412-1-sebastian.reichel@collabora.co.uk>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Till Harbaum <till@harbaum.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Greg KH <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, stable@vger.kernel.org
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v13 03/10] mux: minimal mux subsystem and gpio-based mux
+ controller
+Date: Fri, 5 May 2017 15:19:48 +0200
+Message-ID: <a159179b-6e2f-ca92-20ce-898009773900@axentia.se>
+References: <1492101794-13444-1-git-send-email-peda@axentia.se>
+ <1492101794-13444-4-git-send-email-peda@axentia.se>
+ <20170418085156.GA4773@kroah.com>
+ <bdeecccf-02d6-226b-8516-1d41e3602a7a@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <bdeecccf-02d6-226b-8516-1d41e3602a7a@axentia.se>
+Sender: linux-doc-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-Since v4.9 i2c-tiny-usb generates the below call trace
-and longer works, since it can't communicate with the
-USB device. The reason is, that since v4.9 the USB
-stack checks, that the buffer it should transfer is DMA
-capable. This was a requirement since v2.2 days, but it
-usually worked nevertheless.
+On 2017-04-18 12:59, Peter Rosin wrote:
+> On 2017-04-18 10:51, Greg Kroah-Hartman wrote:
+>> On Thu, Apr 13, 2017 at 06:43:07PM +0200, Peter Rosin wrote:
+>>> +/**
+>>> + * devm_mux_chip_unregister() - Resource-managed version mux_chip_unregister().
+>>> + * @dev: The device that originally registered the mux-chip.
+>>> + * @mux_chip: The mux-chip to unregister.
+>>> + *
+>>> + * See mux_chip_unregister() for more details.
+>>> + *
+>>> + * Note that you do not normally need to call this function.
+>>
+>> Odd, then why is it exported???
+> 
+> You normally don't call the devm_foo_{free,release,unregister,etc} functions.
+> The intention is of course that the resourse cleans up automatically. But there
+> are no cases where the manual clean up is not available, at least not that I can
+> find?
 
-[   17.504959] ------------[ cut here ]------------
-[   17.505488] WARNING: CPU: 0 PID: 93 at drivers/usb/core/hcd.c:1587 usb_hcd_map_urb_for_dma+0x37c/0x570
-[   17.506545] transfer buffer not dma capable
-[   17.507022] Modules linked in:
-[   17.507370] CPU: 0 PID: 93 Comm: i2cdetect Not tainted 4.11.0-rc8+ #10
-[   17.508103] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[   17.509039] Call Trace:
-[   17.509320]  ? dump_stack+0x5c/0x78
-[   17.509714]  ? __warn+0xbe/0xe0
-[   17.510073]  ? warn_slowpath_fmt+0x5a/0x80
-[   17.510532]  ? nommu_map_sg+0xb0/0xb0
-[   17.510949]  ? usb_hcd_map_urb_for_dma+0x37c/0x570
-[   17.511482]  ? usb_hcd_submit_urb+0x336/0xab0
-[   17.511976]  ? wait_for_completion_timeout+0x12f/0x1a0
-[   17.512549]  ? wait_for_completion_timeout+0x65/0x1a0
-[   17.513125]  ? usb_start_wait_urb+0x65/0x160
-[   17.513604]  ? usb_control_msg+0xdc/0x130
-[   17.514061]  ? usb_xfer+0xa4/0x2a0
-[   17.514445]  ? __i2c_transfer+0x108/0x3c0
-[   17.514899]  ? i2c_transfer+0x57/0xb0
-[   17.515310]  ? i2c_smbus_xfer_emulated+0x12f/0x590
-[   17.515851]  ? _raw_spin_unlock_irqrestore+0x11/0x20
-[   17.516408]  ? i2c_smbus_xfer+0x125/0x330
-[   17.516876]  ? i2c_smbus_xfer+0x125/0x330
-[   17.517329]  ? i2cdev_ioctl_smbus+0x1c1/0x2b0
-[   17.517824]  ? i2cdev_ioctl+0x75/0x1c0
-[   17.518248]  ? do_vfs_ioctl+0x9f/0x600
-[   17.518671]  ? vfs_write+0x144/0x190
-[   17.519078]  ? SyS_ioctl+0x74/0x80
-[   17.519463]  ? entry_SYSCALL_64_fastpath+0x1e/0xad
-[   17.519959] ---[ end trace d047c04982f5ac50 ]---
+I had a second look and there are of course plenty of examples of missing clean up
+versions for devm function. I simply hadn't looked very hard at all.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
----
-Changes since PATCHv1:
- - update patch description, drop # v4.9+ from stable cc
- - add missing checks for kmemdup/kmalloc
----
- drivers/i2c/busses/i2c-tiny-usb.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+So, for v15 I intend to remove all of devm_mux_chip_unregister, devm_mux_chip_free
+and devm_mux_control_put. They are all just sitting there with no callers. And the
+mux-mmio/video-mux drivers by Philipp Zabel that build on top of this series don't
+need them either. Besides, easy to resurrect if needed...
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 0ed77eeff31e..a2e3dd715380 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -178,22 +178,39 @@ static int usb_read(struct i2c_adapter *adapter, int cmd,
- 		    int value, int index, void *data, int len)
- {
- 	struct i2c_tiny_usb *dev = (struct i2c_tiny_usb *)adapter->algo_data;
-+	void *dmadata = kmalloc(len, GFP_KERNEL);
-+	int ret;
-+
-+	if (!dmadata)
-+		return -ENOMEM;
- 
- 	/* do control transfer */
--	return usb_control_msg(dev->usb_dev, usb_rcvctrlpipe(dev->usb_dev, 0),
-+	ret = usb_control_msg(dev->usb_dev, usb_rcvctrlpipe(dev->usb_dev, 0),
- 			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE |
--			       USB_DIR_IN, value, index, data, len, 2000);
-+			       USB_DIR_IN, value, index, dmadata, len, 2000);
-+
-+	memcpy(data, dmadata, len);
-+	kfree(dmadata);
-+	return ret;
- }
- 
- static int usb_write(struct i2c_adapter *adapter, int cmd,
- 		     int value, int index, void *data, int len)
- {
- 	struct i2c_tiny_usb *dev = (struct i2c_tiny_usb *)adapter->algo_data;
-+	void *dmadata = kmemdup(data, len, GFP_KERNEL);
-+	int ret;
-+
-+	if (!dmadata)
-+		return -ENOMEM;
- 
- 	/* do control transfer */
--	return usb_control_msg(dev->usb_dev, usb_sndctrlpipe(dev->usb_dev, 0),
-+	ret = usb_control_msg(dev->usb_dev, usb_sndctrlpipe(dev->usb_dev, 0),
- 			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
--			       value, index, data, len, 2000);
-+			       value, index, dmadata, len, 2000);
-+
-+	kfree(dmadata);
-+	return ret;
- }
- 
- static void i2c_tiny_usb_free(struct i2c_tiny_usb *dev)
--- 
-2.11.0
+I will do v15 with the above, the change from mutex to semaphore for locking the
+mux controller state [1] and a few small documentation improvements. That will be
+rebased onto v4.12-rc1 and sent in 10 days or so, or whenever v4.12-rc1 is out.
+
+Meanwhile, what I currently intend for v15 but based on v4.11 is available from
+https://gitlab.com/peda-linux/mux.git in the "mux" branch.
+
+Cheers,
+peda
+
+[1] https://lkml.org/lkml/2017/4/25/411
