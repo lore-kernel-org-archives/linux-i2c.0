@@ -1,96 +1,41 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6 6/8] Documentation: Add sbs-manager device tree node
- documentation
-Date: Mon, 8 May 2017 10:26:43 -0500
-Message-ID: <20170508152643.cv42nvkcsf3skmy2@rob-hp-laptop>
-References: <1493716346-58517-1-git-send-email-preid@electromag.com.au>
- <1493716346-58517-7-git-send-email-preid@electromag.com.au>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v9 6/6] i2c: designware: enable SLAVE in platform module
+Date: Mon, 08 May 2017 19:40:18 +0300
+Message-ID: <1494261618.30052.67.camel@linux.intel.com>
+References: <cover.1493893241.git.lolivei@synopsys.com>
+         <dc32ce6a3988a28e6bd08d4ec2797f0a544ae4ad.1493893241.git.lolivei@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1493716346-58517-7-git-send-email-preid@electromag.com.au>
-Sender: linux-pm-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, sre@kernel.org, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, benjamin.tissoires@redhat.com, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <dc32ce6a3988a28e6bd08d4ec2797f0a544ae4ad.1493893241.git.lolivei@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 02, 2017 at 05:12:24PM +0800, Phil Reid wrote:
-> From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> 
-> This patch adds device tree documentation for the sbs-manager
-> 
-> Reviewed-by: Phil Reid <preid@electromag.com.au>
-> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  .../bindings/power/supply/sbs,sbs-manager.txt      | 66 ++++++++++++++++++++++
->  1 file changed, 66 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> new file mode 100644
-> index 0000000..389016c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
-> @@ -0,0 +1,66 @@
-> +Binding for sbs-manager
-> +
-> +Required properties:
-> +- compatible: "<vendor>,<part-number>", "sbs,sbs-charger" as fallback. The part
-> +  number compatible string might be used in order to take care of vendor
-> +  specific registers.
-> +- reg: integer, i2c address of the device. Should be <0xa>.
-> +Optional properties:
-> +- gpio-controller: Marks the port as GPIO controller.
-> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
-> +- #gpio-cells: Should be <2>. The first cell is the pin number, the second cell
-> +  is used to specify optional parameters:
-> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
-> +
-> +From OS view the device is basically an i2c-mux used to communicate with up to
-> +four smart battery devices at address 0xb. The driver actually implements this
-> +behaviour. So standard i2c-mux nodes can be used to register up to four slave
-> +batteries. Channels will be numerated starting from 1 to 4.
-> +
-> +Example:
-> +
-> +batman@0a {
+On Mon, 2017-05-08 at 11:37 +0100, Luis Oliveira wrote:
+> - Slave mode selected in platform module if the support is detected in
+>   the DT.
 
-Drop the leading 0.
+>  config I2C_DESIGNWARE_PLATFORM
+>  	tristate "Synopsys DesignWare Platform"
+>  	select I2C_DESIGNWARE_CORE
+> +	select I2C_DESIGNWARE_SLAVE
+>  	depends on (ACPI && COMMON_CLK) || !ACPI
+>  	help
+>  	  If you say yes to this option, support will be included for
+> the
 
-> +    compatible = "lltc,ltc1760", "sbs,sbs-manager";
-> +    reg = <0x0a>;
-> +    #address-cells = <1>;
-> +    #size-cells = <0>;
-> +
-> +    gpio-controller;
-> +    #gpio-cells = <2>;
-> +
-> +    i2c@1 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <1>;
-> +
-> +        battery@0b {
+> @@ -483,6 +484,7 @@ config I2C_DESIGNWARE_SLAVE
+>  	bool "Synopsys DesignWare Slave"
+>  	select I2C_SLAVE
+>  	depends on I2C_DESIGNWARE_PLATFORM
+> +	default y
 
-Drop the leading 0.
+Can you elaborate why this line is needed?
 
-> +            compatible = "ti,bq2060", "sbs,sbs-battery";
-> +            reg = <0x0b>;
-> +            sbs,battery-detect-gpios = <&batman 1 1>;
-> +        };
-> +    };
-> +
-> +    i2c@2 {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +        reg = <2>;
-> +
-> +        battery@0b {
 
-And here...
-
-With that,
-
-Acked-by: Rob Herring <robh@kernel.org>
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
