@@ -1,78 +1,52 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
- mode sda-hold-time via ACPI
-Date: Tue, 09 May 2017 19:20:48 +0300
-Message-ID: <1494346848.30052.84.camel@linux.intel.com>
-References: <20170509140720.GA21122@red-moon>
-         <1494341651.30052.82.camel@linux.intel.com>
-         <20170509155253.GA21475@red-moon>
+From: Scott Wood <oss@buserror.net>
+Subject: Re: i2c-mpc: Correct I2C reset procedure
+Date: Tue, 9 May 2017 15:54:47 -0500
+Message-ID: <20170509205447.ww7436pixxl2sxt6@home.buserror.net>
+References: <20170509120351.28273-1-joakim.tjernlund@infinera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20170509155253.GA21475@red-moon>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, wsa@the-dreams.de, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, ken.xue@amd.com, jeff.wu@amd.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from host.buserror.net ([209.198.135.123]:56839 "EHLO
+        host.buserror.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750987AbdEIUy4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 9 May 2017 16:54:56 -0400
+Content-Disposition: inline
+In-Reply-To: <20170509120351.28273-1-joakim.tjernlund@infinera.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Tue, 2017-05-09 at 16:52 +0100, Lorenzo Pieralisi wrote:
-> [+ Ken, Jeff]
+On Tue, May 09, 2017 at 02:03:51PM +0200, Joakim Tjernlund wrote:
+> Current I2C reset procedure is broken in two ways:
+> 1) It only generate 1 START instead of 9 STARTs and STOP.
+> 2) It leaves the bus Busy so every I2C xfer after the first
+>    fixup calls the reset routine again, for every xfer there after.
 > 
-> On Tue, May 09, 2017 at 05:54:11PM +0300, Andy Shevchenko wrote:
-> > On Tue, 2017-05-09 at 15:07 +0100, Lorenzo Pieralisi wrote:
-> > > Hi guys,
-> > > 
-> > > as a heads-up, with today mainline (commit 2868b2513aa7) I get the
-> > > following splat on AMD Seattle, reverting the $SUBJECT commit
-> > > "solves"
-> > > the problem.
-> > > 
-> > > My I2C knowledge is a bit limited but I am not sure I understand
-> > > why
-> > > we should be reading eg ss_hcnt/ss_lcnt depending on the dev-
-> > > >clk_freq
-> > > but then i2c_dw_init() _always_ requires those values to be set
-> > > for
-> > > a given device. Again, I have no insights into I2C inner workings
-> > > so apologies for the silly assumption/question.
-> > > 
-> > > Please have a look into this, thanks.
-> > 
-> > Since there is no clock defined you got a warning.
+> This fixes both errors. Add an iobarrier_rw() when writing the
+> I2C control register as well to make sure the register reaches the
+> controller in time.
 > 
-> IIUC there has never been a clock defined for this platform, that's
-> the problem. The warning appeared because the commit in $SUBJECT
-> prevents reading the ss_hcnt and ss_lcnt values from ACPI methods
-> that are there in ACPI tables (SSCN and FMCN), because it carries
-> out the SSCN FMCN look-up depending on the dev->clk_freq value.
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> ---
 > 
-> Before $SUBJECT commit the values were read unconditionally from SSCN
-> and FMCN ACPI methods IIUC, again, I am no I2C expert so it is more
-> a question than anything else.
+>  Not sure where to sent this as there is no maintainer so adding
+>  Scott Wood as well.
 > 
-> dev->clk_freq is set to 400000 by default because FW does not the
-> contain (ie never contained) "clock-frequency" property and
-> acpi_speed can't be ascertained through I2C resources, that's how
-> I read what's happening.
+>  drivers/i2c/busses/i2c-mpc.c | 24 ++++++++++++++++--------
+>  1 file changed, 16 insertions(+), 8 deletions(-)
 > 
-> > It means either ID is not added to drivers/acpi/acpi_apd.c or
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index 8393140..09b826d 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -86,6 +86,7 @@ struct mpc_i2c_data {
+>  static inline void writeccr(struct mpc_i2c *i2c, u32 x)
+>  {
+>  	writeb(x, i2c->base + MPC_I2C_CR);
+> +	iobarrier_rw();
+>  }
 
-Just one question, did you look at all into above driver?
-I suppose it missed ID and properties for the device.
+Why are the barriers in the I/O accessors insufficient?
 
-> > platform has wrong values and thus 
-> > dw_i2c_no_acpi_params should be expanded.
-> > 
-> > I have no such platform, so I can't tell which one is the right fix.
-> > But it's not a revert by my opinion.
-> 
-> It was working before the commit in $SUBJECT was applied, AMD chaps
-> may be able to chime in hopefully to clarify, whether that's a revert
-> or not we shall see but with a given FW the kernel behaviour changed,
-> it may affect other platforms too if their FW was not upgraded
-> accordingly that's why I reported it.
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+-Scott
