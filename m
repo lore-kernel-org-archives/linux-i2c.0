@@ -1,40 +1,85 @@
-From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH v7 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Tue, 09 May 2017 09:15:07 +0200
-Message-ID: <1494314107.25766.442.camel@kernel.crashing.org>
-References: <20170424181818.2754-1-brendanhiggins@google.com>
-         <20170424181818.2754-5-brendanhiggins@google.com>
-         <CAFd5g47VGa=wqeyg5tFjB5xD=YsTuP27hLN3-ZM62MJD8dCP_Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAFd5g47VGa=wqeyg5tFjB5xD=YsTuP27hLN3-ZM62MJD8dCP_Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Marc Zyngier <marc.zyngier-5wv7dgnIgG8@public.gmane.org>, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>, Kachalov Anton <mouse-Pma6HLj0uuo@public.gmane.org>, =?ISO-8859-1?Q?C=E9dric?= Le Goater <clg-Bxea+6Xhats@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Ryan Chen <ryan_chen-SAlXDmAnmOAqDJ6do+/SaQ@public.gmane.org>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Subject: [PATCH] i2c-mpc: Correct I2C reset procedure
+Date: Tue,  9 May 2017 14:03:51 +0200
+Message-ID: <20170509120351.28273-1-joakim.tjernlund@infinera.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.transmode.se ([31.15.61.139]:50178 "EHLO smtp.transmode.se"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752016AbdEIMMM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 9 May 2017 08:12:12 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Scott Wood <scottwood@freescale.com>
+Cc: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-On Mon, 2017-05-08 at 16:28 -0700, Brendan Higgins wrote:
-> 
-> I am curious what everyone thinks about this. It seemed that, earlier
-> on, people did not like me disabling multi-master mode, but I think
-> that it would make bus recovery not work as well. Given that, I think
-> it makes the most sense to provide a device tree option either to
-> enable multi-master support or disable it. Thoughts?
+Current I2C reset procedure is broken in two ways:
+1) It only generate 1 START instead of 9 STARTs and STOP.
+2) It leaves the bus Busy so every I2C xfer after the first
+   fixup calls the reset routine again, for every xfer there after.
 
-I think we probably want to keep it enabled yes. Another reason is that
-SMBus notifications are in effect a type of multi-master (well slave
-really), and we should really add support for them even when the slave
-is not enabled.
+This fixes both errors. Add an iobarrier_rw() when writing the
+I2C control register as well to make sure the register reaches the
+controller in time.
 
-We are hitting some PMbus devices that apparently can't be prevented
-from sending those and that's causing issues.
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+---
 
-Cheers,
-Ben.
+ Not sure where to sent this as there is no maintainer so adding
+ Scott Wood as well.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/i2c/busses/i2c-mpc.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 8393140..09b826d 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -86,6 +86,7 @@ struct mpc_i2c_data {
+ static inline void writeccr(struct mpc_i2c *i2c, u32 x)
+ {
+ 	writeb(x, i2c->base + MPC_I2C_CR);
++	iobarrier_rw();
+ }
+ 
+ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+@@ -104,23 +105,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+  * the bus, because it wants to send ACK.
+  * Following sequence of enabling/disabling and sending start/stop generates
+- * the 9 pulses, so it's all OK.
++ * the 9 pulses, each with a START then ending with STOP, so it's all OK.
+  */
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
+-
+-	if (delay_val < 2)
+-		delay_val = 2;
++	unsigned long flags;
+ 
+ 	for (k = 9; k; k--) {
+ 		writeccr(i2c, 0);
+-		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
++		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
++		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
++		readb(i2c->base + MPC_I2C_DR); /* init xfer */
++		udelay(15); /* let it hit the bus */
++		local_irq_save(flags); /* should not be delayed further */
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+ 		readb(i2c->base + MPC_I2C_DR);
+-		writeccr(i2c, CCR_MEN);
+-		udelay(delay_val << 1);
++		if (k != 1)
++			udelay(5);
++		local_irq_restore(flags);
+ 	}
++	writeccr(i2c, CCR_MEN); /* Initiate STOP */
++	readb(i2c->base + MPC_I2C_DR);
++	udelay(15); /* Let STOP propagate */
++	writeccr(i2c, 0);
+ }
+ 
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+-- 
+2.10.2
