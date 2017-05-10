@@ -1,80 +1,96 @@
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
- mode sda-hold-time via ACPI
-Date: Wed, 10 May 2017 10:24:50 +0100
-Message-ID: <20170510092450.GA26012@red-moon>
-References: <20170509140720.GA21122@red-moon>
- <1494341651.30052.82.camel@linux.intel.com>
- <20170509155253.GA21475@red-moon>
- <1494346848.30052.84.camel@linux.intel.com>
+From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RESEND PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c
+ binding
+Date: Wed, 10 May 2017 12:35:42 +0200
+Message-ID: <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
+References: <1489029185-21447-1-git-send-email-jun.gao@mediatek.com>
+ <1489029185-21447-2-git-send-email-jun.gao@mediatek.com>
+ <20170322090543.sxacnddn2o7stjnq@ninjato>
+ <1490694612.18582.11.camel@mhfsdcap03> <20170328192258.GA4525@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1494346848.30052.84.camel@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, wsa@the-dreams.de, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, ken.xue@amd.com, jeff.wu@amd.com
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170328192258.GA4525@katana>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 09, 2017 at 07:20:48PM +0300, Andy Shevchenko wrote:
-> On Tue, 2017-05-09 at 16:52 +0100, Lorenzo Pieralisi wrote:
-> > [+ Ken, Jeff]
-> > 
-> > On Tue, May 09, 2017 at 05:54:11PM +0300, Andy Shevchenko wrote:
-> > > On Tue, 2017-05-09 at 15:07 +0100, Lorenzo Pieralisi wrote:
-> > > > Hi guys,
-> > > > 
-> > > > as a heads-up, with today mainline (commit 2868b2513aa7) I get the
-> > > > following splat on AMD Seattle, reverting the $SUBJECT commit
-> > > > "solves"
-> > > > the problem.
-> > > > 
-> > > > My I2C knowledge is a bit limited but I am not sure I understand
-> > > > why
-> > > > we should be reading eg ss_hcnt/ss_lcnt depending on the dev-
-> > > > >clk_freq
-> > > > but then i2c_dw_init() _always_ requires those values to be set
-> > > > for
-> > > > a given device. Again, I have no insights into I2C inner workings
-> > > > so apologies for the silly assumption/question.
-> > > > 
-> > > > Please have a look into this, thanks.
-> > > 
-> > > Since there is no clock defined you got a warning.
-> > 
-> > IIUC there has never been a clock defined for this platform, that's
-> > the problem. The warning appeared because the commit in $SUBJECT
-> > prevents reading the ss_hcnt and ss_lcnt values from ACPI methods
-> > that are there in ACPI tables (SSCN and FMCN), because it carries
-> > out the SSCN FMCN look-up depending on the dev->clk_freq value.
-> > 
-> > Before $SUBJECT commit the values were read unconditionally from SSCN
-> > and FMCN ACPI methods IIUC, again, I am no I2C expert so it is more
-> > a question than anything else.
-> > 
-> > dev->clk_freq is set to 400000 by default because FW does not the
-> > contain (ie never contained) "clock-frequency" property and
-> > acpi_speed can't be ascertained through I2C resources, that's how
-> > I read what's happening.
-> > 
-> > > It means either ID is not added to drivers/acpi/acpi_apd.c or
+
+
+On 28/03/17 21:22, Wolfram Sang wrote:
+> On Tue, Mar 28, 2017 at 05:50:12PM +0800, Jun Gao wrote:
+>> On Wed, 2017-03-22 at 10:05 +0100, Wolfram Sang wrote:
+>>> On Thu, Mar 09, 2017 at 11:13:04AM +0800, Jun Gao wrote:
+>>>> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+>>>>
+>>>> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+>>>> modify i2c driver.
+>>>>
+>>>> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+>>>
+>>> There is still the issue which Matthias Brugger pointed out on January,
+>>> 24th: you need to describe the fallback compatibles.
+>>>
+>>
+>> IMHO the value under compatible are just inputs which can be accepted.
+>> It's little strange to add fallback information in binding. Some other
+>> bindings do not describe so detailedly.
+>> Is it OK to make binding as minimum standard?
+>> If we describe it very detailedly, we will have to modify binding if
+>> there are some changes for mt2701.
 > 
-> Just one question, did you look at all into above driver?
-> I suppose it missed ID and properties for the device.
+> My reading of the below is that I could simply use "mediatek,mt2701-i2c"
+> as compatible and things will work. But it won't, we don't have that in
+> the driver IIRC. So, we need a fallback for that to work.
+> 
+>> Rob, could you give some suggestions?  Thanks!
+> 
+> Would be welcome, yes. I lost track what the preferred solution is.
+> 
 
-I looked into it yes. I have also looked at ACPI tables and they
-contain the SSCN and FMCN methods and AFAIK the set-up was working
-fine before the commit in $SUBJECT - AMD guys - please correct me
-if I am wrong, I found this thread which explains things a bit:
+We will need to define the fallback binding for each SoC.
+As example take the rockchip mmc:
+http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.txt
 
-http://lists.infradead.org/pipermail/linux-arm-kernel/2015-December/395983.html
+Regards,
+Matthias
 
-If we have to patch drivers/acpi/acpi_apd.c to restore the previous
-behaviour that's fine by me but this is a regression nonetheless unless
-someone explains to me why the current firmware set-up (with SSCN and
-FMCN) is unreliable/deprecated, it is not clear to me at all and it
-may affect other platforms too.
-
-Thanks,
-Lorenzo
+>>
+>>>> ---
+>>>>   .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
+>>>>   1 file changed, 6 insertions(+), 5 deletions(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> index 0ce6fa3..27dbbf9 100644
+>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+>>>>   
+>>>>   Required properties:
+>>>>     - compatible: value should be either of the following.
+>>>> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+>>>> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+>>>> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+>>>> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+>>>> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+>>>> +	"mediatek,mt2701-i2c"
+>>>> +	"mediatek,mt6577-i2c"
+>>>> +	"mediatek,mt6589-i2c"
+>>>> +	"mediatek,mt8127-i2c"
+>>>> +	"mediatek,mt8135-i2c"
+>>>> +	"mediatek,mt8173-i2c"
+>>>>     - reg: physical base address of the controller and dma base, length of memory
+>>>>       mapped region.
+>>>>     - interrupts: interrupt number to the cpu.
+>>>> -- 
+>>>> 1.7.9.5
+>>>>
+>>
+>>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
