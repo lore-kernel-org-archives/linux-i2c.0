@@ -1,157 +1,80 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: RFC: i2c designware gpio recovery
-Date: Wed, 10 May 2017 15:12:14 +0800
-Message-ID: <4a84d6b1-2bba-6f01-8286-49661ef45576@electromag.com.au>
-References: <2259005.m0altzP21Z@dabox> <1658050.mjbUFfzRWa@virgo>
- <610c93db-c272-1055-fc82-b749110996b4@electromag.com.au>
- <1966782.aCEMFj2YWU@virgo>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
+ mode sda-hold-time via ACPI
+Date: Wed, 10 May 2017 10:24:50 +0100
+Message-ID: <20170510092450.GA26012@red-moon>
+References: <20170509140720.GA21122@red-moon>
+ <1494341651.30052.82.camel@linux.intel.com>
+ <20170509155253.GA21475@red-moon>
+ <1494346848.30052.84.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:50756 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751551AbdEJHMU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 May 2017 03:12:20 -0400
-In-Reply-To: <1966782.aCEMFj2YWU@virgo>
-Content-Language: en-AU
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1494346848.30052.84.camel@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, wsa@the-dreams.de, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, ken.xue@amd.com, jeff.wu@amd.com
 List-Id: linux-i2c@vger.kernel.org
-To: Tim Sander <tim@krieglstein.org>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-G'day Tim,
-
-Sorry for the delay in looking at this.
-My device is currently running a 4.9 kernel and I had to backport the cahnges to the driver
-to get things running with your patch.
-
-In general the code works and the bus recovers now.
-I've been using the i2c gpio bus driver because the dw wouldn't do recovery.
-But this looks alot nicer.
-
-
-On 4/05/2017 03:04, Tim Sander wrote:
->>>>> So i took a look into the device tree file socfpga.dtsi and found that
->>>>> the
->>>>> reset lines where not defined (although available in the corresponding
->>>>> reset manager). Is there a reason for this? Other components are
->>>>> connected.
->>>>
->>>> There's a few thing like that where the bootloader has been expected to
->>>> setup the resets etc.
->>>
->>> Yes, but if the resets are not connected in the device tree, the linux
->>> drivers are not going to use them?
->>
->> Yes, so they should be added. I don't think we should assume the bootloader
->> sets things up. But that doesn't seem to have been the assumption with the
->> Alter SOC's.
-> I will prepare a patch for this.
+On Tue, May 09, 2017 at 07:20:48PM +0300, Andy Shevchenko wrote:
+> On Tue, 2017-05-09 at 16:52 +0100, Lorenzo Pieralisi wrote:
+> > [+ Ken, Jeff]
+> > 
+> > On Tue, May 09, 2017 at 05:54:11PM +0300, Andy Shevchenko wrote:
+> > > On Tue, 2017-05-09 at 15:07 +0100, Lorenzo Pieralisi wrote:
+> > > > Hi guys,
+> > > > 
+> > > > as a heads-up, with today mainline (commit 2868b2513aa7) I get the
+> > > > following splat on AMD Seattle, reverting the $SUBJECT commit
+> > > > "solves"
+> > > > the problem.
+> > > > 
+> > > > My I2C knowledge is a bit limited but I am not sure I understand
+> > > > why
+> > > > we should be reading eg ss_hcnt/ss_lcnt depending on the dev-
+> > > > >clk_freq
+> > > > but then i2c_dw_init() _always_ requires those values to be set
+> > > > for
+> > > > a given device. Again, I have no insights into I2C inner workings
+> > > > so apologies for the silly assumption/question.
+> > > > 
+> > > > Please have a look into this, thanks.
+> > > 
+> > > Since there is no clock defined you got a warning.
+> > 
+> > IIUC there has never been a clock defined for this platform, that's
+> > the problem. The warning appeared because the commit in $SUBJECT
+> > prevents reading the ss_hcnt and ss_lcnt values from ACPI methods
+> > that are there in ACPI tables (SSCN and FMCN), because it carries
+> > out the SSCN FMCN look-up depending on the dev->clk_freq value.
+> > 
+> > Before $SUBJECT commit the values were read unconditionally from SSCN
+> > and FMCN ACPI methods IIUC, again, I am no I2C expert so it is more
+> > a question than anything else.
+> > 
+> > dev->clk_freq is set to 400000 by default because FW does not the
+> > contain (ie never contained) "clock-frequency" property and
+> > acpi_speed can't be ascertained through I2C resources, that's how
+> > I read what's happening.
+> > 
+> > > It means either ID is not added to drivers/acpi/acpi_apd.c or
 > 
->>>>> However with the patch below my previously sent patch works!
->>>>>
->>>>> If there is interest in would cleanup the patch and send it in for
->>>>> mainlining. I think the most unacceptable part would be this line:
->>>>> +       ret = gpio_request_one(bri->scl_gpio, //GPIOF_OPEN_DRAIN |
->>>>> My gpio drivers refuse to work as output as they have no open drain
->>>>> mode.
->>>>> So i wonder how to get this solved in a clean manner.
->>>>
->>>> I thought the gpio system would emulate open drain by switching the pin
->>>> between an input and output driven low in this case. How are you
->>>> configuring the GPIO's in the FPGA?
->>>
->>> I don't switch to GPIO mode. As the I2C logic is only pulling active low,
->>> i only do a wired and with the gpio (implemented in the fpga) port output
->>> on the output enable line for the SCL output.  SDA is only an additional
->>> input for the second in fpga gpio port.
->>>
->>> A picture should make it a clearer:
->>>
->>> gpio scl--\
->>> i2c   scl --&---i2c mode output pin (configured as fpga loan)
->>>
->>> In my case the original i2c pins where occupied by some other logic
->>> conflicting so the i2c pins had to be shifted to some other pins using
->>> fpga logic. So it was just a matter of adding a two port gpio port.
->>
->> I think I understand. What soft core gpio controller are you using?
-> I am using the standard altera fpga gpios.
-> 
+> Just one question, did you look at all into above driver?
+> I suppose it missed ID and properties for the device.
 
+I looked into it yes. I have also looked at ACPI tables and they
+contain the SSCN and FMCN methods and AFAIK the set-up was working
+fine before the commit in $SUBJECT - AMD guys - please correct me
+if I am wrong, I found this thread which explains things a bit:
 
-I dug into things a little and found the following init function works without requiring modification to the core.
-The GPIO config (open drain or not etc) can be put in the device tree.
+http://lists.infradead.org/pipermail/linux-arm-kernel/2015-December/395983.html
 
-static int i2c_dw_get_scl(struct i2c_adapter *adap)
-{
-	struct platform_device *pdev = to_platform_device(&adap->dev);
-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-	return gpiod_get_value_cansleep(dev->gpio_scl);
-}
+If we have to patch drivers/acpi/acpi_apd.c to restore the previous
+behaviour that's fine by me but this is a regression nonetheless unless
+someone explains to me why the current firmware set-up (with SSCN and
+FMCN) is unreliable/deprecated, it is not clear to me at all and it
+may affect other platforms too.
 
-static void i2c_dw_set_scl(struct i2c_adapter *adap, int val)
-{
-	struct platform_device *pdev = to_platform_device(&adap->dev);
-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-	gpiod_set_value_cansleep(dev->gpio_scl, val);
-}
-
-static int i2c_dw_get_sda(struct i2c_adapter *adap)
-{
-	struct platform_device *pdev = to_platform_device(&adap->dev);
-	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-	return gpiod_get_value_cansleep(dev->gpio_sda);
-}
-
-static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev, struct i2c_adapter *adap)
-{
-	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-
-	dev->gpio_scl = devm_gpiod_get_optional(dev->dev, "scl", GPIOD_OUT_HIGH);
-	if (IS_ERR_OR_NULL(dev->gpio_scl))
-		return PTR_ERR(dev->gpio_scl);
-
-	dev->gpio_sda = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
-	if (IS_ERR_OR_NULL(dev->gpio_sda))
-		return PTR_ERR(dev->gpio_sda);
-
-	rinfo->scl_gpio	= desc_to_gpio(dev->gpio_scl);
-	rinfo->sda_gpio = desc_to_gpio(dev->gpio_sda);
-	rinfo->set_scl  = i2c_dw_set_scl;
-	rinfo->get_scl  = i2c_dw_get_scl;
-	rinfo->get_sda  = i2c_dw_get_sda;
-
-	rinfo->recover_bus = i2c_generic_scl_recovery;
-	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
-	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
-	adap->bus_recovery_info = rinfo;
-
-	dev_info(dev->dev,
-		"adapter: %s running with gpio recovery mode! scl:%i sda:%i \n",
-		adap->name, rinfo->scl_gpio, rinfo->sda_gpio);
-
-	return 0;
-};
-
-A small modification to the i2c-core could be done in i2c_init_recovery to allow:
-	rinfo->recover_bus == i2c_generic_scl_recovery
-when scl_gpio is also set and fallback to using the core set / get scl / sda calls
-Which would remove the need for the above i2c_dw_* functions.
-I wouldn't think that would cause any problems.
-
-
-
--- 
-Regards
-Phil Reid
-
-ElectroMagnetic Imaging Technology Pty Ltd
-Development of Geophysical Instrumentation & Software
-www.electromag.com.au
-
-3 The Avenue, Midland WA 6056, AUSTRALIA
-Ph: +61 8 9250 8100
-Fax: +61 8 9250 7100
-Email: preid@electromag.com.au
+Thanks,
+Lorenzo
