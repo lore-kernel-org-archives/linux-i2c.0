@@ -1,51 +1,73 @@
-From: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-Subject: Re: [PATCH] i2c-mpc: Correct I2C reset procedure
-Date: Thu, 11 May 2017 11:42:16 +0000
-Message-ID: <1494502934.5113.62.camel@infinera.com>
-References: <20170509120351.28273-1-joakim.tjernlund@infinera.com>
-         <20170511112828.nwdmd7kqx3zciyaa@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Subject: [PATCHv2] i2c-mpc: Correct I2C reset procedure
+Date: Thu, 11 May 2017 14:20:33 +0200
+Message-ID: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2nam01on0040.outbound.protection.outlook.com ([104.47.34.40]:40078
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754846AbdEKLmV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 11 May 2017 07:42:21 -0400
-In-Reply-To: <20170511112828.nwdmd7kqx3zciyaa@ninjato>
-Content-Language: en-US
-Content-ID: <6E1FD7C3B8807543A21B0CF53AE43D23@infinera.com>
+Received: from smtp.transmode.se ([31.15.61.139]:50486 "EHLO smtp.transmode.se"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755489AbdEKMUn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 11 May 2017 08:20:43 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "scottwood@freescale.com" <scottwood@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Scott Wood <oss@buserror.net>
+Cc: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-On Thu, 2017-05-11 at 13:28 +0200, Wolfram Sang wrote:
-> On Tue, May 09, 2017 at 02:03:51PM +0200, Joakim Tjernlund wrote:
-> > Current I2C reset procedure is broken in two ways:
-> > 1) It only generate 1 START instead of 9 STARTs and STOP.
-> > 2) It leaves the bus Busy so every I2C xfer after the first
-> >    fixup calls the reset routine again, for every xfer there after.
-> >=20
-> > This fixes both errors. Add an iobarrier_rw() when writing the
-> > I2C control register as well to make sure the register reaches the
-> > controller in time.
-> >=20
-> > Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
->=20
-> BTW can this driver be converted to make use of the bus_recovery
-> infrastructure?
->=20
+Current I2C reset procedure is broken in two ways:
+1) It only generate 1 START instead of 9 STARTs and STOP.
+2) It leaves the bus Busy so every I2C xfer after the first
+   fixup calls the reset routine again, for every xfer there after.
 
-Maybe, I not familiar with this infrastructure. I did take a look at i2c_ge=
-neric_recovery()
-though and I do not agree with that impl.
+This fixes both errors.
 
-The 9 clk's fixup does not cover the the case when an I2C device is stuck w=
-rite.
-To fix stuck in both cases(read or write) you need to generate 9 clk's with=
- a
-START in each clk, then a STOP to release the bus.
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+---
 
- Jocke  =
+ v2 -  Remove io barrier call.
+ drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 8393140..6b5e6ce4 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -104,23 +104,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+  * the bus, because it wants to send ACK.
+  * Following sequence of enabling/disabling and sending start/stop generates
+- * the 9 pulses, so it's all OK.
++ * the 9 pulses, each with a START then ending with STOP, so it's all OK.
+  */
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
+-
+-	if (delay_val < 2)
+-		delay_val = 2;
++	unsigned long flags;
+ 
+ 	for (k = 9; k; k--) {
+ 		writeccr(i2c, 0);
+-		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
++		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
++		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
++		readb(i2c->base + MPC_I2C_DR); /* init xfer */
++		udelay(15); /* let it hit the bus */
++		local_irq_save(flags); /* should not be delayed further */
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+ 		readb(i2c->base + MPC_I2C_DR);
+-		writeccr(i2c, CCR_MEN);
+-		udelay(delay_val << 1);
++		if (k != 1)
++			udelay(5);
++		local_irq_restore(flags);
+ 	}
++	writeccr(i2c, CCR_MEN); /* Initiate STOP */
++	readb(i2c->base + MPC_I2C_DR);
++	udelay(15); /* Let STOP propagate */
++	writeccr(i2c, 0);
+ }
+ 
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+-- 
+2.10.2
