@@ -1,13 +1,13 @@
 From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v15 04/13] mux: gpio: add mux controller driver for gpio based multiplexers
-Date: Sun, 14 May 2017 21:51:07 +0200
-Message-ID: <1494791476-14599-5-git-send-email-peda@lysator.liu.se>
+Subject: [PATCH v15 05/13] iio: inkern: api for manipulating ext_info of iio channels
+Date: Sun, 14 May 2017 21:51:08 +0200
+Message-ID: <1494791476-14599-6-git-send-email-peda@lysator.liu.se>
 References: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:33926 "EHLO
+Received: from mail.lysator.liu.se ([130.236.254.3]:48639 "EHLO
         mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759594AbdENTtA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 May 2017 15:49:00 -0400
+        with ESMTP id S1759594AbdENTtF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 May 2017 15:49:05 -0400
 In-Reply-To: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -16,174 +16,129 @@ Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring
 
 From: Peter Rosin <peda@axentia.se>
 
-The driver builds a single multiplexer controller using a number
-of gpio pins. For N pins, there will be 2^N possible multiplexer
-states. The GPIO pins can be connected (by the hardware) to several
-multiplexers, which in that case will be operated in parallel.
+Extend the inkern api with functions for reading and writing ext_info
+of iio channels.
 
-Reviewed-by: Jonathan Cameron <jic23@kernel.org>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/mux/Kconfig    |  18 ++++++++
- drivers/mux/Makefile   |   1 +
- drivers/mux/mux-gpio.c | 114 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 133 insertions(+)
- create mode 100644 drivers/mux/mux-gpio.c
+ drivers/iio/inkern.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/iio/consumer.h | 37 +++++++++++++++++++++++++++
+ 2 files changed, 97 insertions(+)
 
-diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
-index 23ab2cde83b1..738670aaecb7 100644
---- a/drivers/mux/Kconfig
-+++ b/drivers/mux/Kconfig
-@@ -14,3 +14,21 @@ menuconfig MULTIPLEXER
+diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+index 7a13535dc3e9..8292ad4435ea 100644
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -869,3 +869,63 @@ int iio_write_channel_raw(struct iio_channel *chan, int val)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(iio_write_channel_raw);
++
++unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++	unsigned int i = 0;
++
++	if (!chan->channel->ext_info)
++		return i;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ext_info++)
++		++i;
++
++	return i;
++}
++EXPORT_SYMBOL_GPL(iio_get_channel_ext_info_count);
++
++static const struct iio_chan_spec_ext_info *iio_lookup_ext_info(
++						const struct iio_channel *chan,
++						const char *attr)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	if (!chan->channel->ext_info)
++		return NULL;
++
++	for (ext_info = chan->channel->ext_info; ext_info->name; ++ext_info) {
++		if (!strcmp(attr, ext_info->name))
++			return ext_info;
++	}
++
++	return NULL;
++}
++
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	ext_info = iio_lookup_ext_info(chan, attr);
++	if (!ext_info)
++		return -EINVAL;
++
++	return ext_info->read(chan->indio_dev, ext_info->private,
++			      chan->channel, buf);
++}
++EXPORT_SYMBOL_GPL(iio_read_channel_ext_info);
++
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len)
++{
++	const struct iio_chan_spec_ext_info *ext_info;
++
++	ext_info = iio_lookup_ext_info(chan, attr);
++	if (!ext_info)
++		return -EINVAL;
++
++	return ext_info->write(chan->indio_dev, ext_info->private,
++			       chan->channel, buf, len);
++}
++EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
+diff --git a/include/linux/iio/consumer.h b/include/linux/iio/consumer.h
+index 47eeec3218b5..5e347a9805fd 100644
+--- a/include/linux/iio/consumer.h
++++ b/include/linux/iio/consumer.h
+@@ -312,4 +312,41 @@ int iio_read_channel_scale(struct iio_channel *chan, int *val,
+ int iio_convert_raw_to_processed(struct iio_channel *chan, int raw,
+ 	int *processed, unsigned int scale);
  
- 	  To compile the subsystem as a module, choose M here: the module will
- 	  be called mux-core.
-+
-+if MULTIPLEXER
-+
-+config MUX_GPIO
-+	tristate "GPIO-controlled Multiplexer"
-+	depends on GPIOLIB || COMPILE_TEST
-+	help
-+	  GPIO-controlled Multiplexer controller.
-+
-+	  The driver builds a single multiplexer controller using a number
-+	  of gpio pins. For N pins, there will be 2^N possible multiplexer
-+	  states. The GPIO pins can be connected (by the hardware) to several
-+	  multiplexers, which in that case will be operated in parallel.
-+
-+	  To compile the driver as a module, choose M here: the module will
-+	  be called mux-gpio.
-+
-+endif
-diff --git a/drivers/mux/Makefile b/drivers/mux/Makefile
-index 09f0299e109d..bb16953f6290 100644
---- a/drivers/mux/Makefile
-+++ b/drivers/mux/Makefile
-@@ -3,3 +3,4 @@
- #
- 
- obj-$(CONFIG_MULTIPLEXER)	+= mux-core.o
-+obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
-diff --git a/drivers/mux/mux-gpio.c b/drivers/mux/mux-gpio.c
-new file mode 100644
-index 000000000000..468bf1709606
---- /dev/null
-+++ b/drivers/mux/mux-gpio.c
-@@ -0,0 +1,114 @@
-+/*
-+ * GPIO-controlled multiplexer driver
++/**
++ * iio_get_channel_ext_info_count() - get number of ext_info attributes
++ *				      connected to the channel.
++ * @chan:		The channel being queried
 + *
-+ * Copyright (C) 2017 Axentia Technologies AB
-+ *
-+ * Author: Peter Rosin <peda@axentia.se>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * Returns the number of ext_info attributes
 + */
++unsigned int iio_get_channel_ext_info_count(struct iio_channel *chan);
 +
-+#include <linux/err.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/module.h>
-+#include <linux/mux/driver.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
++/**
++ * iio_read_channel_ext_info() - read ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		Where to store the attribute value. Assumed to hold
++ *			at least PAGE_SIZE bytes.
++ *
++ * Returns the number of bytes written to buf (perhaps w/o zero termination;
++ * it need not even be a string), or an error code.
++ */
++ssize_t iio_read_channel_ext_info(struct iio_channel *chan,
++				  const char *attr, char *buf);
 +
-+struct mux_gpio {
-+	struct gpio_descs *gpios;
-+	int *val;
-+};
++/**
++ * iio_write_channel_ext_info() - write ext_info attribute from a given channel
++ * @chan:		The channel being queried.
++ * @attr:		The ext_info attribute to read.
++ * @buf:		The new attribute value. Strings needs to be zero-
++ *			terminated, but the terminator should not be included
++ *			in the below len.
++ * @len:		The size of the new attribute value.
++ *
++ * Returns the number of accepted bytes, which should be the same as len.
++ * An error code can also be returned.
++ */
++ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
++				   const char *buf, size_t len);
 +
-+static int mux_gpio_set(struct mux_control *mux, int state)
-+{
-+	struct mux_gpio *mux_gpio = mux_chip_priv(mux->chip);
-+	int i;
-+
-+	for (i = 0; i < mux_gpio->gpios->ndescs; i++)
-+		mux_gpio->val[i] = (state >> i) & 1;
-+
-+	gpiod_set_array_value_cansleep(mux_gpio->gpios->ndescs,
-+				       mux_gpio->gpios->desc,
-+				       mux_gpio->val);
-+
-+	return 0;
-+}
-+
-+static const struct mux_control_ops mux_gpio_ops = {
-+	.set = mux_gpio_set,
-+};
-+
-+static const struct of_device_id mux_gpio_dt_ids[] = {
-+	{ .compatible = "gpio-mux", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mux_gpio_dt_ids);
-+
-+static int mux_gpio_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct mux_chip *mux_chip;
-+	struct mux_gpio *mux_gpio;
-+	int pins;
-+	s32 idle_state;
-+	int ret;
-+
-+	pins = gpiod_count(dev, "mux");
-+	if (pins < 0)
-+		return pins;
-+
-+	mux_chip = devm_mux_chip_alloc(dev, 1, sizeof(*mux_gpio) +
-+				       pins * sizeof(*mux_gpio->val));
-+	if (IS_ERR(mux_chip))
-+		return PTR_ERR(mux_chip);
-+
-+	mux_gpio = mux_chip_priv(mux_chip);
-+	mux_gpio->val = (int *)(mux_gpio + 1);
-+	mux_chip->ops = &mux_gpio_ops;
-+
-+	mux_gpio->gpios = devm_gpiod_get_array(dev, "mux", GPIOD_OUT_LOW);
-+	if (IS_ERR(mux_gpio->gpios)) {
-+		ret = PTR_ERR(mux_gpio->gpios);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(dev, "failed to get gpios\n");
-+		return ret;
-+	}
-+	WARN_ON(pins != mux_gpio->gpios->ndescs);
-+	mux_chip->mux->states = 1 << pins;
-+
-+	ret = device_property_read_u32(dev, "idle-state", (u32 *)&idle_state);
-+	if (ret >= 0 && idle_state != MUX_IDLE_AS_IS) {
-+		if (idle_state < 0 || idle_state >= mux_chip->mux->states) {
-+			dev_err(dev, "invalid idle-state %u\n", idle_state);
-+			return -EINVAL;
-+		}
-+
-+		mux_chip->mux->idle_state = idle_state;
-+	}
-+
-+	ret = devm_mux_chip_register(dev, mux_chip);
-+	if (ret < 0)
-+		return ret;
-+
-+	dev_info(dev, "%u-way mux-controller registered\n",
-+		 mux_chip->mux->states);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mux_gpio_driver = {
-+	.driver = {
-+		.name = "gpio-mux",
-+		.of_match_table	= of_match_ptr(mux_gpio_dt_ids),
-+	},
-+	.probe = mux_gpio_probe,
-+};
-+module_platform_driver(mux_gpio_driver);
-+
-+MODULE_DESCRIPTION("GPIO-controlled multiplexer driver");
-+MODULE_AUTHOR("Peter Rosin <peda@axentia.se>");
-+MODULE_LICENSE("GPL v2");
+ #endif
 -- 
 2.1.4
