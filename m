@@ -1,210 +1,104 @@
-From: Peter Rosin <peda@lysator.liu.se>
-Subject: [PATCH v15 13/13] mux: mmio-based syscon mux controller
-Date: Sun, 14 May 2017 21:51:16 +0200
-Message-ID: <1494791476-14599-14-git-send-email-peda@lysator.liu.se>
-References: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
+From: Leon Romanovsky <leon@leon.nu>
+Subject: Re: [PATCH] i2c: mux: only print failure message on error
+Date: Mon, 15 May 2017 07:53:22 +0300
+Message-ID: <20170515045322.GX3616@mtr-leonro.local>
+References: <1494780073-13713-1-git-send-email-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="HqPpMaT+a6TeY/Q4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.lysator.liu.se ([130.236.254.3]:59710 "EHLO
-        mail.lysator.liu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759118AbdENTty (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 14 May 2017 15:49:54 -0400
-In-Reply-To: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:32810 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751005AbdEOEx0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 May 2017 00:53:26 -0400
+Received: by mail-wr0-f196.google.com with SMTP id w50so13433072wrc.0
+        for <linux-i2c@vger.kernel.org>; Sun, 14 May 2017 21:53:25 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1494780073-13713-1-git-send-email-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
 
-This adds a driver for mmio-based syscon multiplexers controlled by
-bitfields in a syscon register range.
+--HqPpMaT+a6TeY/Q4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/mux/Kconfig    |  13 +++++
- drivers/mux/Makefile   |   1 +
- drivers/mux/mux-mmio.c | 141 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 155 insertions(+)
- create mode 100644 drivers/mux/mux-mmio.c
+On Sun, May 14, 2017 at 06:41:13PM +0200, Peter Rosin wrote:
+> As is, a failure message is printed unconditionally, which is confusing.
+> And noisy.
+>
+> Fixes: 8d4d159f25a7 ("i2c: mux: provide more info on failure in i2c_mux_add_adapter")
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>  drivers/i2c/i2c-mux.c | 24 ++++++++++++++----------
+>  1 file changed, 14 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> index 26f7237558ba..ccf2ce1836c8 100644
+> --- a/drivers/i2c/i2c-mux.c
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -395,18 +395,22 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+>  	if (force_nr) {
+>  		priv->adap.nr = force_nr;
+>  		ret = i2c_add_numbered_adapter(&priv->adap);
+> -		dev_err(&parent->dev,
+> -			"failed to add mux-adapter %u as bus %u (error=%d)\n",
+> -			chan_id, force_nr, ret);
+> +		if (ret < 0) {
+> +			dev_err(&parent->dev,
+> +				"failed to add mux-adapter %u as bus %u (error=%d)\n",
+> +				chan_id, force_nr, ret);
+> +			kfree(priv);
+> +			return ret;
+> +		}
+>  	} else {
+>  		ret = i2c_add_adapter(&priv->adap);
+> -		dev_err(&parent->dev,
+> -			"failed to add mux-adapter %u (error=%d)\n",
+> -			chan_id, ret);
+> -	}
+> -	if (ret < 0) {
+> -		kfree(priv);
+> -		return ret;
+> +		if (ret < 0) {
+> +			dev_err(&parent->dev,
+> +				"failed to add mux-adapter %u (error=%d)\n",
+> +				chan_id, ret);
+> +			kfree(priv);
+> +			return ret;
 
-diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
-index c4d050645605..e8f1df74644c 100644
---- a/drivers/mux/Kconfig
-+++ b/drivers/mux/Kconfig
-@@ -43,4 +43,17 @@ config MUX_GPIO
- 	  To compile the driver as a module, choose M here: the module will
- 	  be called mux-gpio.
- 
-+config MUX_MMIO
-+	tristate "MMIO register bitfield-controlled Multiplexer"
-+	depends on (OF && MFD_SYSCON) || COMPILE_TEST
-+	help
-+	  MMIO register bitfield-controlled Multiplexer controller.
-+
-+	  The driver builds multiplexer controllers for bitfields in a syscon
-+	  register. For N bit wide bitfields, there will be 2^N possible
-+	  multiplexer states.
-+
-+	  To compile the driver as a module, choose M here: the module will
-+	  be called mux-mmio.
-+
- endif
-diff --git a/drivers/mux/Makefile b/drivers/mux/Makefile
-index b00a7d37d2fb..6bac5b0fea13 100644
---- a/drivers/mux/Makefile
-+++ b/drivers/mux/Makefile
-@@ -5,3 +5,4 @@
- obj-$(CONFIG_MULTIPLEXER)	+= mux-core.o
- obj-$(CONFIG_MUX_ADG792A)	+= mux-adg792a.o
- obj-$(CONFIG_MUX_GPIO)		+= mux-gpio.o
-+obj-$(CONFIG_MUX_MMIO)		+= mux-mmio.o
-diff --git a/drivers/mux/mux-mmio.c b/drivers/mux/mux-mmio.c
-new file mode 100644
-index 000000000000..37c1de359a70
---- /dev/null
-+++ b/drivers/mux/mux-mmio.c
-@@ -0,0 +1,141 @@
-+/*
-+ * MMIO register bitfield-controlled multiplexer driver
-+ *
-+ * Copyright (C) 2017 Pengutronix, Philipp Zabel <kernel@pengutronix.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/err.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/module.h>
-+#include <linux/mux/driver.h>
-+#include <linux/of_platform.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+
-+static int mux_mmio_set(struct mux_control *mux, int state)
-+{
-+	struct regmap_field **fields = mux_chip_priv(mux->chip);
-+
-+	return regmap_field_write(fields[mux_control_get_index(mux)], state);
-+}
-+
-+static const struct mux_control_ops mux_mmio_ops = {
-+	.set = mux_mmio_set,
-+};
-+
-+static const struct of_device_id mux_mmio_dt_ids[] = {
-+	{ .compatible = "mmio-mux", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mux_mmio_dt_ids);
-+
-+static int mux_mmio_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct regmap_field **fields;
-+	struct mux_chip *mux_chip;
-+	struct regmap *regmap;
-+	int num_fields;
-+	int ret;
-+	int i;
-+
-+	regmap = syscon_node_to_regmap(np->parent);
-+	if (IS_ERR(regmap)) {
-+		ret = PTR_ERR(regmap);
-+		dev_err(dev, "failed to get regmap: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = of_property_count_u32_elems(np, "mux-reg-masks");
-+	if (ret == 0 || ret % 2)
-+		ret = -EINVAL;
-+	if (ret < 0) {
-+		dev_err(dev, "mux-reg-masks property missing or invalid: %d\n",
-+			ret);
-+		return ret;
-+	}
-+	num_fields = ret / 2;
-+
-+	mux_chip = devm_mux_chip_alloc(dev, num_fields, num_fields *
-+				       sizeof(*fields));
-+	if (IS_ERR(mux_chip))
-+		return PTR_ERR(mux_chip);
-+
-+	fields = mux_chip_priv(mux_chip);
-+
-+	for (i = 0; i < num_fields; i++) {
-+		struct mux_control *mux = &mux_chip->mux[i];
-+		struct reg_field field;
-+		s32 idle_state = MUX_IDLE_AS_IS;
-+		u32 reg, mask;
-+		int bits;
-+
-+		ret = of_property_read_u32_index(np, "mux-reg-masks",
-+						 2 * i, &reg);
-+		if (!ret)
-+			ret = of_property_read_u32_index(np, "mux-reg-masks",
-+							 2 * i + 1, &mask);
-+		if (ret < 0) {
-+			dev_err(dev, "bitfield %d: failed to read mux-reg-masks property: %d\n",
-+				i, ret);
-+			return ret;
-+		}
-+
-+		field.reg = reg;
-+		field.msb = fls(mask) - 1;
-+		field.lsb = ffs(mask) - 1;
-+
-+		if (mask != GENMASK(field.msb, field.lsb)) {
-+			dev_err(dev, "bitfield %d: invalid mask 0x%x\n",
-+				i, mask);
-+			return -EINVAL;
-+		}
-+
-+		fields[i] = devm_regmap_field_alloc(dev, regmap, field);
-+		if (IS_ERR(fields[i])) {
-+			ret = PTR_ERR(fields[i]);
-+			dev_err(dev, "bitfield %d: failed allocate: %d\n",
-+				i, ret);
-+			return ret;
-+		}
-+
-+		bits = 1 + field.msb - field.lsb;
-+		mux->states = 1 << bits;
-+
-+		of_property_read_u32_index(np, "idle-states", i,
-+					   (u32 *)&idle_state);
-+		if (idle_state != MUX_IDLE_AS_IS) {
-+			if (idle_state < 0 || idle_state >= mux->states) {
-+				dev_err(dev, "bitfield: %d: out of range idle state %d\n",
-+					i, idle_state);
-+				return -EINVAL;
-+			}
-+
-+			mux->idle_state = idle_state;
-+		}
-+	}
-+
-+	mux_chip->ops = &mux_mmio_ops;
-+
-+	return devm_mux_chip_register(dev, mux_chip);
-+}
-+
-+static struct platform_driver mux_mmio_driver = {
-+	.driver = {
-+		.name = "mmio-mux",
-+		.of_match_table	= of_match_ptr(mux_mmio_dt_ids),
-+	},
-+	.probe = mux_mmio_probe,
-+};
-+module_platform_driver(mux_mmio_driver);
-+
-+MODULE_DESCRIPTION("MMIO register bitfield-controlled multiplexer driver");
-+MODULE_AUTHOR("Philipp Zabel <p.zabel@pengutronix.de>");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+It is better to add goto label, this will give one place for kfree->return code.
+
+Thanks
+
+> +		}
+>  	}
+>
+>  	WARN(sysfs_create_link(&priv->adap.dev.kobj, &muxc->dev->kobj,
+> --
+> 2.1.4
+>
+
+--HqPpMaT+a6TeY/Q4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEkhr/r4Op1/04yqaB5GN7iDZyWKcFAlkZNEIACgkQ5GN7iDZy
+WKdeXhAAox/X5jcW5bZw5vj29i0pRuCkXjv7/5ZK6bF6JZWnSaCF4wEzQU4nfLAU
+pPJdl0chSRR+A36GLC6jhLgF2h4SnpWCw9ztDtp3owkSFsTGGi1Uf1qhrpKmjk/x
+x09MyKLHfPefO7WZIU70OFEHN2eeR340dVpNrgbRzIJj0lE3QyFLjJ6BEBLqrA5l
+kXv3OVDsSBiGpQd5jM2GqqnuIV4bmtOAwRJXAKf65Dw/PQPoonhzTVR0X5uBmKw8
+G0x4aHs/ndIgWTwRJ+/0HU7ag+1OjOEvH/echH/RPkd7P5xFe57DGR3LlyLs+PDH
+R57YwwC2INgM5rcMmusEHaKYkArbYYnnFXJtbzaDpfKVURi4r+MvR8BGbss5fXAO
+fyn0az4eUSUaxVMT6gTPZe3WYcToUjwQoSeYjpfC2yn3arZM9niwZOKU+YvJzfz/
+Zy3lxT0XhzFwowoEkifvKpAkeORS8hJIKw/vCrz7NReWzjUeYKWd2FYaUr8YNTiS
+lr2cGTNNnMb0KJwlZDgEKJnP6CYUH+9sS4ohgkK1Ab6nWlDhTkbKUc/LJqLkYTOW
+98X1it77+WTrVyIJWqJ/yrsPIWRFNdJUKRzco/T0AFtk8bVVChFi8FxhG8cCSviN
+6DOOkNVhHcfHWtDQ2aB4j+nd4A9v3XTPzHQccTh8kw6yympE2HM=
+=xPLV
+-----END PGP SIGNATURE-----
+
+--HqPpMaT+a6TeY/Q4--
