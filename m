@@ -1,56 +1,85 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: [PATCH 1/2] i2c: mv64xxx: use platform_get_irq() instead of irq_of_parse_and_map()
-Date: Tue, 16 May 2017 14:07:24 +0200
-Message-ID: <1494936445-27331-1-git-send-email-thomas.petazzoni@free-electrons.com>
+From: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
+Date: Tue, 16 May 2017 15:13:33 +0000
+Message-ID: <1494947612.7509.24.camel@infinera.com>
+References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:44682 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752210AbdEPMHa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 May 2017 08:07:30 -0400
+Received: from mail-bn3nam01on0054.outbound.protection.outlook.com ([104.47.33.54]:39072
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751974AbdEPPNj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 16 May 2017 11:13:39 -0400
+In-Reply-To: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
+Content-Language: en-US
+Content-ID: <D535F25443C21941B4931C90467BDCFB@infinera.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory Clement <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>, "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-There is no reason to use platform_get_irq() for non-DT probing and
-irq_of_parse_and_map() for DT probing. Indeed, platform_get_irq()
-works fine for both.
+On Thu, 2017-05-11 at 14:20 +0200, Joakim Tjernlund wrote:
+> Current I2C reset procedure is broken in two ways:
+> 1) It only generate 1 START instead of 9 STARTs and STOP.
+> 2) It leaves the bus Busy so every I2C xfer after the first
+>    fixup calls the reset routine again, for every xfer there after.
+>=20
+> This fixes both errors.
 
-In addition, using platform_get_irq() properly returns -EPROBE_DEFER
-when the interrupt controller is not yet available.
+Ping?
 
-Therefore, this commit moves the code filling drv_data->irq outside of
-the non-DT vs. DT condition, and simply uses platform_get_irq().
-
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index a50bd68..f0a4d15 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -819,7 +819,6 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		rc = -EINVAL;
- 		goto out;
- 	}
--	drv_data->irq = irq_of_parse_and_map(np, 0);
- 
- 	drv_data->rstc = devm_reset_control_get_optional(dev, NULL);
- 	if (IS_ERR(drv_data->rstc)) {
-@@ -905,10 +904,11 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 	if (!IS_ERR(drv_data->clk))
- 		clk_prepare_enable(drv_data->clk);
- 
-+	drv_data->irq = platform_get_irq(pd, 0);
-+
- 	if (pdata) {
- 		drv_data->freq_m = pdata->freq_m;
- 		drv_data->freq_n = pdata->freq_n;
--		drv_data->irq = platform_get_irq(pd, 0);
- 		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
- 		drv_data->offload_enabled = false;
- 		memcpy(&drv_data->reg_offsets, &mv64xxx_i2c_regs_mv64xxx, sizeof(drv_data->reg_offsets));
--- 
-2.7.4
+>=20
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> ---
+>=20
+>  v2 -  Remove io barrier call.
+>  drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+>  1 file changed, 15 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index 8393140..6b5e6ce4 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -104,23 +104,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_i=
+d)
+>  /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+>   * the bus, because it wants to send ACK.
+>   * Following sequence of enabling/disabling and sending start/stop gener=
+ates
+> - * the 9 pulses, so it's all OK.
+> + * the 9 pulses, each with a START then ending with STOP, so it's all OK=
+.
+>   */
+>  static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+>  {
+>  	int k;
+> -	u32 delay_val =3D 1000000 / i2c->real_clk + 1;
+> -
+> -	if (delay_val < 2)
+> -		delay_val =3D 2;
+> +	unsigned long flags;
+> =20
+>  	for (k =3D 9; k; k--) {
+>  		writeccr(i2c, 0);
+> -		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+> +		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
+> +		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
+> +		readb(i2c->base + MPC_I2C_DR); /* init xfer */
+> +		udelay(15); /* let it hit the bus */
+> +		local_irq_save(flags); /* should not be delayed further */
+> +		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+>  		readb(i2c->base + MPC_I2C_DR);
+> -		writeccr(i2c, CCR_MEN);
+> -		udelay(delay_val << 1);
+> +		if (k !=3D 1)
+> +			udelay(5);
+> +		local_irq_restore(flags);
+>  	}
+> +	writeccr(i2c, CCR_MEN); /* Initiate STOP */
+> +	readb(i2c->base + MPC_I2C_DR);
+> +	udelay(15); /* Let STOP propagate */
+> +	writeccr(i2c, 0);
+>  }
+> =20
+>  static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
