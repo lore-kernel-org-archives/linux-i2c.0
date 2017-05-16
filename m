@@ -1,63 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V1] i2c: xgene: Add support for I2C_FUNC_I2C functionality
-Date: Tue, 16 May 2017 23:40:21 +0200
-Message-ID: <20170516214021.ydrdksvosghyxbvr@ninjato>
-References: <1493181705-18531-1-git-send-email-tnhuynh@apm.com>
- <20170516213908.losif4flmht44rur@ninjato>
+Subject: Re: [PATCH V1] i2c: xgene: Set ACPI_COMPANION_I2C
+Date: Tue, 16 May 2017 23:40:43 +0200
+Message-ID: <20170516214043.rycazedisujdbmmm@ninjato>
+References: <1493200131-30171-1-git-send-email-tnhuynh@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qhz266pkapq4z2qb"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:36020 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751043AbdEPVkX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 16 May 2017 17:40:23 -0400
+        protocol="application/pgp-signature"; boundary="f4rp5nkqlypkct2t"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170516213908.losif4flmht44rur@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1493200131-30171-1-git-send-email-tnhuynh@apm.com>
+Sender: linux-acpi-owner@vger.kernel.org
 To: tnhuynh@apm.com
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Phong Vo <pvo@apm.com>, patches@apm.com
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Phong Vo <pvo@apm.com>, Thang Nguyen <tqnguyen@apm.com>, patches@apm.com
+List-Id: linux-i2c@vger.kernel.org
 
 
---qhz266pkapq4z2qb
+--f4rp5nkqlypkct2t
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 16, 2017 at 11:39:08PM +0200, Wolfram Sang wrote:
-> On Wed, Apr 26, 2017 at 11:41:45AM +0700, tnhuynh@apm.com wrote:
-> > From: Tin Huynh <tnhuynh@apm.com>
-> >=20
-> > Certain I2C slave drivers, such as the pca95xx, require
-> > only I2C operations instead of SMBus extensions.
-> > This patch adds I2C_FUNC_I2C functionally to support those drivers.
+On Wed, Apr 26, 2017 at 04:48:51PM +0700, tnhuynh@apm.com wrote:
+> From: Tin Huynh <tnhuynh@apm.com>
 >=20
-> Again, no Signed-off. I can't apply it without one. lso, please add your
-> full name to the mail header.
+> With ACPI, i2c-core requires ACPI companion to be set in order for it
+> to create slave device.
+> This patch sets the ACPI companion accordingly.
 
-Wrong mail, should have been replied to the other patch, sorry!
+Again, no Signed-off. I can't apply it without one. lso, please add your
+full name to the mail header.
 
 
-
---qhz266pkapq4z2qb
+--f4rp5nkqlypkct2t
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkbccUACgkQFA3kzBSg
-KbbMMA/6A6DoWaC7cgAH0+Nu6Gf/oXqv39ngXgIIq3ig1ytcue4Iysb8S8LtiAnr
-BQAw4pQhPDvqpA9tdDvEFr0kyy3KGHsgOorOaKF14wrZjVfjjBqUKO45RLGX+Ci6
-k3Nmh98mbbpkDuQmLLwFJAbwYPZyFY26Bmd5WfBB9woaE1S2XpP4FO7RocccliLN
-thtMKxFbnr/uSDWidxPo2XJiiPNvsSu+a9YFi5AvOho1hAryjNf91OgvkPbUpZ1f
-uu1Uz+aInDfYggUeyqjR8216zwOT/3Lh1uT2/2i5SSl90CqyNCo7UeTGk60oBf2o
-z4e2HDeuijumlfWZV92LJVdWs1XeUrD0ULxPKhxkl/wrkQg5iFMDQrA8Ws6x11CN
-UkC4uasvyiIf9GQK8y5whRV3+zNbQTnXtlmprBF6PWFOQWUnos1sNbsxc9p/8DNS
-MY4lZyofKw/RIP/uWf3lhhgnzQOlOk+5o3DkbJBRZ72hhH17lv7hnn59BA7sORdI
-0HDdgvittlwWgf3kCq0QVYV3Lwa02XRtgyihl2mSK+2u2qWynP8qgViFP4/5mRXr
-k354kV3NZcf96J+ZdrboL0mDgv2nKFKtUiiyyTt+ShCEY5Br4VSQrKvbCpdpcuW1
-x/wBk78cRGvcsPZktGZIGkSESTe5DziIir7T8Sqjv/mn4L2VD1o=
-=+mKM
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkbcdsACgkQFA3kzBSg
+KbaVZg/5ARR1kbvGlVjqUkMY921Athy6A6c1/08urmZWDupbG8+ePLTe4sNSiwD9
+3DjVJ8NI8gO7XSlqWJ0h5b6KliWxyWTeTwF6gBpv2CcfgV1sNr70SwSIpFa43Vy2
+LH18C9QhEtLg1MZycI51yHOw81n3D+Jeot0d0pV9PsinWVFYIhasIPj1nmgCWamD
+c8FC/bTUL5ir1RRvPZrOk/4KaCd2u+1T13Mc+dhBbW6TegULxAgR6deII6LQuFJb
+LrnKyyZMGkUl48lyxiCFSLotLoUFHi2mJGs07v2P1XnhTvMG1glDIsWTZ2KxM+ep
+YfWuBFXi6pnQcV5DbeIcAGXUGCSQyyzlP4v8WRVShEWfpls3xXsyaL19f1/dKk4T
+4oC8DpYIFKKISPlfWmpuAHCuFFj37qct8fD+lw4rCbC8Qt5WB+fboM1caI61A7+B
+s1xlihbtWu/lJhPx5J4abdmmigRdTGPy8J23QDxCxTDrAQfu8qd5KjfGFryMftWz
+5pOaPLJ2sCj4ZRnilgOGkZ+jVlSEAd5GFfT8cTjVVPu1IlnzaqSnpw6Dl3s7rgVb
+VGqlf+UMwXlHEnw61fs1M2Agu/5tAoAb/f19E1Cx9RDaBdRWVELhsjj/OJMoz9O4
+4FrSd5M4jJ9qS+QVAnwVKpAlEWeQO9hLuAAVK6c8Nirjc6d9dkU=
+=DWf4
 -----END PGP SIGNATURE-----
 
---qhz266pkapq4z2qb--
+--f4rp5nkqlypkct2t--
