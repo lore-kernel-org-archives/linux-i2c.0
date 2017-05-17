@@ -1,32 +1,50 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v15 04/13] mux: gpio: add mux controller driver for gpio
- based multiplexers
-Date: Wed, 17 May 2017 11:38:48 +0200
-Message-ID: <1495013928.3030.44.camel@pengutronix.de>
-References: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
-         <1494791476-14599-5-git-send-email-peda@lysator.liu.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: How my i2c device bring up?
+Date: Wed, 17 May 2017 14:55:41 +0300
+Message-ID: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1494791476-14599-5-git-send-email-peda@lysator.liu.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
+Content-Type: text/plain; charset=big5; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw>
+Sender: linux-acpi-owner@vger.kernel.org
+To: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 2017-05-14 at 21:51 +0200, Peter Rosin wrote:
-> From: Peter Rosin <peda@axentia.se>
-> 
-> The driver builds a single multiplexer controller using a number
-> of gpio pins. For N pins, there will be 2^N possible multiplexer
-> states. The GPIO pins can be connected (by the hardware) to several
-> multiplexers, which in that case will be operated in parallel.
-> 
-> Reviewed-by: Jonathan Cameron <jic23@kernel.org>
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+Hi
 
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
+>
+> I have tried to install three versions of Chromium OS(R58-9334, R59-9351,
+> R60-9554) respectively,
+> all of them runs kernel v4.4 and all of them can see nothing for my device
+> by ¡§ls /sys/bus/i2c/devices¡¨.
+> The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
+> I guess the underlying drivers(I2C bus, ACPI DSDT table) could be failed to
+> recognize my I2C device.
+>
+Is this Intel Skylake ix-6xxx based laptop?
 
-regards
-Philipp
+My guess is that based on your finding that i2c touchscreen works in 
+Ubuntu that Chromium kernel may not have needed drivers enabled.
+
+If you have access to kernel config of Chromium image could you check 
+does it have these MFD_INTEL_LPSS configurations on? I have them as 
+built-in but should work when built as modules too.
+
+CONFIG_MFD_INTEL_LPSS=y
+CONFIG_MFD_INTEL_LPSS_ACPI=y
+CONFIG_MFD_INTEL_LPSS_PCI=y
+
+I suppose these I2C_DESIGNWARE options are already on since I know there 
+are Intel Baytrail based Chromebooks out there.
+
+CONFIG_I2C_DESIGNWARE_CORE=m
+CONFIG_I2C_DESIGNWARE_PLATFORM=m
+CONFIG_I2C_DESIGNWARE_PCI=m
+CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
+
+-- 
+Jarkko
