@@ -1,14 +1,15 @@
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v15 03/13] mux: minimal mux subsystem
-Date: Wed, 17 May 2017 11:38:39 +0200
-Message-ID: <1495013919.3030.43.camel@pengutronix.de>
+Subject: Re: [PATCH v15 04/13] mux: gpio: add mux controller driver for gpio
+ based multiplexers
+Date: Wed, 17 May 2017 11:38:48 +0200
+Message-ID: <1495013928.3030.44.camel@pengutronix.de>
 References: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
-         <1494791476-14599-4-git-send-email-peda@lysator.liu.se>
+         <1494791476-14599-5-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1494791476-14599-4-git-send-email-peda@lysator.liu.se>
+In-Reply-To: <1494791476-14599-5-git-send-email-peda@lysator.liu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@lysator.liu.se>
 Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, kernel@pengutronix.de
@@ -17,30 +18,15 @@ List-Id: linux-i2c@vger.kernel.org
 On Sun, 2017-05-14 at 21:51 +0200, Peter Rosin wrote:
 > From: Peter Rosin <peda@axentia.se>
 > 
-> Add a new minimalistic subsystem that handles multiplexer controllers.
-> When multiplexers are used in various places in the kernel, and the
-> same multiplexer controller can be used for several independent things,
-> there should be one place to implement support for said multiplexer
-> controller.
-> 
-> A single multiplexer controller can also be used to control several
-> parallel multiplexers, that are in turn used by different subsystems
-> in the kernel, leading to a need to coordinate multiplexer accesses.
-> The multiplexer subsystem handles this coordination.
-> 
-> Thanks go out to Lars-Peter Clausen, Jonathan Cameron, Rob Herring,
-> Wolfram Sang, Paul Gortmaker, Dan Carpenter, Colin Ian King, Greg
-> Kroah-Hartman and last but certainly not least to Philipp Zabel for
-> helpful comments, reviews, patches and general encouragement!
+> The driver builds a single multiplexer controller using a number
+> of gpio pins. For N pins, there will be 2^N possible multiplexer
+> states. The GPIO pins can be connected (by the hardware) to several
+> multiplexers, which in that case will be operated in parallel.
 > 
 > Reviewed-by: Jonathan Cameron <jic23@kernel.org>
 > Signed-off-by: Peter Rosin <peda@axentia.se>
 
 Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
-(using video-mux [1] on i.MX6)
-
-[1] https://patchwork.kernel.org/patch/9712131/
 
 regards
 Philipp
