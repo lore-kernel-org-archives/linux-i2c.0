@@ -1,54 +1,89 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V2] i2c: xgene: Set ACPI_COMPANION_I2C
-Date: Wed, 17 May 2017 09:20:17 +0200
-Message-ID: <20170517072017.vo5m3duzbqoe33on@ninjato>
-References: <1494995134-4124-1-git-send-email-tnhuynh@apm.com>
+Subject: [PULL REQUEST] i2c for 4.12
+Date: Wed, 17 May 2017 09:27:09 +0200
+Message-ID: <20170517072703.7max6bezbmhuau6f@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6ocq6e6urfbq4gup"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="jcduitnuw26nky6m"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:37296 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751319AbdEQH1L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 17 May 2017 03:27:11 -0400
 Content-Disposition: inline
-In-Reply-To: <1494995134-4124-1-git-send-email-tnhuynh@apm.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Tin Huynh <tnhuynh@apm.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Phong Vo <pvo@apm.com>, Thang Nguyen <tqnguyen@apm.com>, patches@apm.com
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>
 
 
---6ocq6e6urfbq4gup
+--jcduitnuw26nky6m
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 17, 2017 at 11:25:34AM +0700, Tin Huynh wrote:
-> With ACPI, i2c-core requires ACPI companion to be set in order for it
-> to create slave device.
-> This patch sets the ACPI companion accordingly.
->=20
-> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
->=20
+Linus,
 
-Perfect! Applied to for-current, thanks!
+here are some bugfixes from I2C, especially removing a wrongly displayed
+error message for all i2c muxes.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
---6ocq6e6urfbq4gup
+The following changes since commit 2ea659a9ef488125eb46da6eb571de5eae5c43f6:
+
+  Linux 4.12-rc1 (2017-05-13 13:19:49 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 83345d51a49a4b3f3b4a08a5db644dae438b0189:
+
+  i2c: xgene: Set ACPI_COMPANION_I2C (2017-05-17 09:21:06 +0200)
+
+----------------------------------------------------------------
+Peter Rosin (3):
+      i2c: mux: reg: put away the parent i2c adapter on probe failure
+      i2c: mux: reg: rename label to indicate what it does
+      i2c: mux: only print failure message on error
+
+Thomas Petazzoni (1):
+      i2c: mv64xxx: don't override deferred probing when getting irq
+
+Tin Huynh (1):
+      i2c: xgene: Set ACPI_COMPANION_I2C
+
+Wolfram Sang (1):
+      Merge branch 'i2c-mux/for-current' of https://github.com/peda-r/i2c-mux into i2c/for-current
+
+ drivers/i2c/busses/i2c-mv64xxx.c       |  6 +++---
+ drivers/i2c/busses/i2c-xgene-slimpro.c |  1 +
+ drivers/i2c/i2c-mux.c                  | 26 ++++++++++++++++----------
+ drivers/i2c/muxes/i2c-mux-reg.c        | 21 ++++++++++++++-------
+ 4 files changed, 34 insertions(+), 20 deletions(-)
+
+--jcduitnuw26nky6m
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkb+a0ACgkQFA3kzBSg
-Kba+Fg/+MUbjU/gNoELdzUt1rtuCM1FLNggrU0jElS3IccrqK7hicgYaWsqgVWsj
-UJQ7Wi0AiarCsZDypXQ5/Um3i40n/K3OYueaBhFDntKtTZW5xZFJ+uYoK0MgRFYx
-tvfrb7qN96T9aIvTDIXDW0Ozc/k1R5IslCr8ah2QdVuNmXPaijTyu58O5j7htDmG
-y9FRP5M40Qac4BoKlrrxZob5UenGcN2wpZdEmnCpgcruZRYcRV8ROefE2Zr7l+qk
-0GZy7jDPYry3LBykDYXQQlq3/51h1mdOjE3hxlfzJEfY35mInK//NwipXHobt5Pa
-a1COFgOHuly4Or5F6jagM6B4/xJpenz5cqZMY9Czcu/tnreJPV5os5fyFSij8JT1
-zOvG9ZKYPI9KlMukdr+RiG9PXzDobsFFx63/pDrW/ksRFwrL9auhvyt9ubMHBTXA
-bDBt4hbvuDg0GYRSH3++rw7ENp1O8spYH8g7XSaNYi0mgU0DDbXR2O02K67cXcbl
-i/95QclVKnGQWrtzV10IFHVeUfzjWG61ZM3w6xDWBz4Eq24LVCoNsmBflUgldHiC
-RbpPiUdc49J0vGzWLPdhX/xnCbRdaWYHGwiru98rLiQjSk/PLZUGT2tcF+isdmtr
-iBCE8DRtyiPwwAyfjIkkTajvrjwf8Fc+T42MBiR5pj7qIUPQ7n0=
-=SjHm
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkb+0cACgkQFA3kzBSg
+KbbgphAAsY6kDChTdFzm/J+MzwSXaZCNM/7/cBY9+1CZLWb8IW/oJMGwsW46rXdd
+ibTjqkSepaq+WfJjWO8nJbpn21+QnFND8Ve+Z73G54MZUU7QnznJ4Z7Rntb+2SMu
+lQCiVvRXH6au8txqNrMyHjg5mVQjPB5aX2jK9OXLugQbnz0/s2G3oi02J2ZxJ+jV
+7ECqWatXIg0lK8TMhFW8Nc13lieJMpOxoGMVpYhzDLTHaJV5TPnqhIABbHn+nuAg
+Hvldt5C5p5YWZ/ji3JnOVm/Set2xpTLBKHDLalvOCv4B2rfeUEwNM59dWnUz3FxG
+DshNObk8e5YxGcPN94DeN/7VplPR6KSLWMpFFFCxoxdulJKugmbh8xC+pjzT+LJ5
+OO+QKh45E6rAYLSodjUPbS7e+/6ayz1Guvt7b/S2O/MLkFlx3ozJnP/sCohVVMBX
+nHDoQTTaptRz6Tiv1FwGoEdOyI2qTfxp4IOC0EMW2fDb4qWQhdNSO12GcbOAzUXt
+mWfP5+NiHF3m0NQ9xVLyLaM9eu7E/juteQqobz1jTQuPlFhr0AEueOy1/g07AaEM
+XrPHb34+zyQ9e8entH7MmDGhRtrYlnb6QlMayOyjbO8o2HpTIWZjBoqq4esd4V25
+6GPVIbvPfElZxXMh6RvchpMODv9qNXo0rf4Gm+IbbPrZU1r25O8=
+=el1l
 -----END PGP SIGNATURE-----
 
---6ocq6e6urfbq4gup--
+--jcduitnuw26nky6m--
