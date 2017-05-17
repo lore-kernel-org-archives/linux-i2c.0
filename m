@@ -1,50 +1,54 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix false warning from i2c_dw_clk_rate()
-Date: Wed, 17 May 2017 09:12:11 +0300
-Message-ID: <7f48d8e6-4e24-a463-1d65-85b63d90f844@linux.intel.com>
-References: <20170511124949.26650-1-jarkko.nikula@linux.intel.com>
- <1494511249.6967.11.camel@linux.intel.com>
- <20170516212914.bjc77ogqbklm4udi@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V2] i2c: xgene: Set ACPI_COMPANION_I2C
+Date: Wed, 17 May 2017 09:20:17 +0200
+Message-ID: <20170517072017.vo5m3duzbqoe33on@ninjato>
+References: <1494995134-4124-1-git-send-email-tnhuynh@apm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:31743 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751386AbdEQGMP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 May 2017 02:12:15 -0400
-In-Reply-To: <20170516212914.bjc77ogqbklm4udi@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="6ocq6e6urfbq4gup"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1494995134-4124-1-git-send-email-tnhuynh@apm.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Tin Huynh <tnhuynh@apm.com>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Phong Vo <pvo@apm.com>, Thang Nguyen <tqnguyen@apm.com>, patches@apm.com
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-On 05/17/2017 12:29 AM, Wolfram Sang wrote:
->
->>> +	switch (dev->master_cfg & DW_IC_CON_SPEED_MASK) {
->>> +	case DW_IC_CON_SPEED_STD:
->>> +		i2c_dw_set_timings_sm(dev);
->>> +		break;
->>> +	case DW_IC_CON_SPEED_FAST:
->>> +		i2c_dw_set_timings_fm(dev);
->>> +		break;
->>> +	case DW_IC_CON_SPEED_HIGH:
->>> +		i2c_dw_set_timings_hsm(dev);
->>> +		break;
->>>  	}
->>
->> I would put same suffixes to the helper functions, i.e.
->> _sm -> _std
->> _fm -> _fast
->> _hsm-> _high
->
-> BTW is this a bugfix? I tend to think, yes.
->
-Maybe in grey area but not enough for linux-stable I think. Unless log 
-spamming qualifies as a regression.
 
-Lorenzo: does my patch fix the issue for you? I was waiting your comment 
-before sending version 2 addressing Andy's comment.
+--6ocq6e6urfbq4gup
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jarkko
+On Wed, May 17, 2017 at 11:25:34AM +0700, Tin Huynh wrote:
+> With ACPI, i2c-core requires ACPI companion to be set in order for it
+> to create slave device.
+> This patch sets the ACPI companion accordingly.
+>=20
+> Signed-off-by: Tin Huynh <tnhuynh@apm.com>
+>=20
+
+Perfect! Applied to for-current, thanks!
+
+
+--6ocq6e6urfbq4gup
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkb+a0ACgkQFA3kzBSg
+Kba+Fg/+MUbjU/gNoELdzUt1rtuCM1FLNggrU0jElS3IccrqK7hicgYaWsqgVWsj
+UJQ7Wi0AiarCsZDypXQ5/Um3i40n/K3OYueaBhFDntKtTZW5xZFJ+uYoK0MgRFYx
+tvfrb7qN96T9aIvTDIXDW0Ozc/k1R5IslCr8ah2QdVuNmXPaijTyu58O5j7htDmG
+y9FRP5M40Qac4BoKlrrxZob5UenGcN2wpZdEmnCpgcruZRYcRV8ROefE2Zr7l+qk
+0GZy7jDPYry3LBykDYXQQlq3/51h1mdOjE3hxlfzJEfY35mInK//NwipXHobt5Pa
+a1COFgOHuly4Or5F6jagM6B4/xJpenz5cqZMY9Czcu/tnreJPV5os5fyFSij8JT1
+zOvG9ZKYPI9KlMukdr+RiG9PXzDobsFFx63/pDrW/ksRFwrL9auhvyt9ubMHBTXA
+bDBt4hbvuDg0GYRSH3++rw7ENp1O8spYH8g7XSaNYi0mgU0DDbXR2O02K67cXcbl
+i/95QclVKnGQWrtzV10IFHVeUfzjWG61ZM3w6xDWBz4Eq24LVCoNsmBflUgldHiC
+RbpPiUdc49J0vGzWLPdhX/xnCbRdaWYHGwiru98rLiQjSk/PLZUGT2tcF+isdmtr
+iBCE8DRtyiPwwAyfjIkkTajvrjwf8Fc+T42MBiR5pj7qIUPQ7n0=
+=SjHm
+-----END PGP SIGNATURE-----
+
+--6ocq6e6urfbq4gup--
