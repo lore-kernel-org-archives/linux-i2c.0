@@ -1,109 +1,39 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
- mode sda-hold-time via ACPI
-Date: Thu, 18 May 2017 14:44:25 +0100
-Message-ID: <CAKv+Gu-=4YXovPTjWWOkN4BTFQt9qYyU781s1Qwx1vvrAMZsyQ@mail.gmail.com>
-References: <20170509140720.GA21122@red-moon> <1494341651.30052.82.camel@linux.intel.com>
- <20170509155253.GA21475@red-moon> <1494346848.30052.84.camel@linux.intel.com>
- <20170510092450.GA26012@red-moon> <1105edd1-8649-66f2-8df8-79aeae61af3a@linux.intel.com>
- <CAKv+Gu-DPNUy=ODRqqVrvO-b04FxkEg8bz=dHzwspU5FqBRnNg@mail.gmail.com> <25ff2580-d461-87f2-f61d-2ede10ea4c01@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <25ff2580-d461-87f2-f61d-2ede10ea4c01@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-i2c@vger.kernel.org, ken.xue@amd.com, jeff.wu@amd.com
+From: Michael Thalmeier <michael.thalmeier@hale.at>
+Subject: [PATCH] i2c: mxs: dont print error on NAK
+Date: Thu, 18 May 2017 16:14:50 +0200
+Message-ID: <20170518141450.30938-1-michael.thalmeier@hale.at>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gw.hale.at ([89.26.116.210]:45732 "EHLO gw.hale.at"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755323AbdEROXm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 18 May 2017 10:23:42 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Marek Vasut <marex@denx.de>, michael@thalmeier.at
 
-On 18 May 2017 at 14:05, Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
-> On 05/18/2017 03:24 PM, Ard Biesheuvel wrote:
->>
->> On 10 May 2017 at 14:55, Jarkko Nikula <jarkko.nikula@linux.intel.com>
->> wrote:
->>>
->>> On 05/10/2017 12:24 PM, Lorenzo Pieralisi wrote:
->>>>
->>>>
->>>> On Tue, May 09, 2017 at 07:20:48PM +0300, Andy Shevchenko wrote:
->>>>>>>
->>>>>>>
->>>>>>> It means either ID is not added to drivers/acpi/acpi_apd.c or
->>>>>
->>>>>
->>>>>
->>>>> Just one question, did you look at all into above driver?
->>>>> I suppose it missed ID and properties for the device.
->>>>
->>>>
->>>>
->>>> I looked into it yes. I have also looked at ACPI tables and they
->>>> contain the SSCN and FMCN methods and AFAIK the set-up was working
->>>> fine before the commit in $SUBJECT - AMD guys - please correct me
->>>> if I am wrong, I found this thread which explains things a bit:
->>>>
->>>>
->>>>
->>>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-December/395983.html
->>>>
->>>> If we have to patch drivers/acpi/acpi_apd.c to restore the previous
->>>> behaviour that's fine by me but this is a regression nonetheless unless
->>>> someone explains to me why the current firmware set-up (with SSCN and
->>>> FMCN) is unreliable/deprecated, it is not clear to me at all and it
->>>> may affect other platforms too.
->>>>
->>> I guess best would be to fix the i2c_dw_init(). Maybe by moving timing
->>> parameters settings out to another function, do setting only for selected
->>> speed and calculate only once in case parameters are not set.
->>>
->>> I don't think timing parameters for standard or fast speeds are not
->>> needed
->>> unless operating at those speeds but have to check that first. At least
->>> that's what we are doing for high speed.
->>>
->>
->> Commit bd698d24b1b57 is broken and should be reverted: the splat on
->> AMD Seattle is the most visible symptom, but the logic change results
->> in DW_IC_SS_SCL_HCNT/DW_IC_SS_SCL_LCNT possibly being set to different
->> values than specified by the ACPI methods. The missing clock splat is
->> only a symptom of this: the driver tries to calculate values from the
->> clock frequency that should have been read from the DSDT.
->>
->> For reference, this is the description we have on the platform in
->> question:
->>
->>             Method (SSCN, 0, NotSerialized)
->>             {
->>                 Return (Package (0x03)
->>                 {
->>                     0x0430,
->>                     0x04E1,
->>                     0x00
->>                 })
->>             }
->>
->>             Method (FMCN, 0, NotSerialized)
->>             {
->>                 Return (Package (0x03)
->>                 {
->>                     0x00DE,
->>                     0x018F,
->>                     0x00
->>                 })
->>             }
->>
->> Whether it hurts to program different standard mode values here is
->> irrelevant. It is simply wrong.
->>
-> I have a fix for this. Could you try does it fix the issue for you?
->
-> http://www.spinics.net/lists/linux-i2c/msg29509.html
->
+When mxs_i2c_pio_wait_xfer_end returns with a return code of -ENXIO, the
+NO_SLAVE_ACK_IRQ bit is set in CTRL1.
+In this case, do not print an error message, because every NAK would
+otherwise generate a new message.
 
-Thanks. But the question is really whether we want to change the
-driver so that the DW_IC_SS_SCL_HCNT/DW_IC_SS_SCL_LCNT registers are
-no longer programmed at all when running at a higher speed. Can you
-guarantee that this will not cause any change in behavior in all
-instances of this hardware that are supported currently, no matter how
-they are synthesized and described to the OS? The previous commit only
-affected the platdrv variety AFAIR
+Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
+---
+ drivers/i2c/busses/i2c-mxs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 5738556..e2dbb9c 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -527,7 +527,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+ 
+ 			/* Wait for the end of the transfer. */
+ 			ret = mxs_i2c_pio_wait_xfer_end(i2c);
+-			if (ret) {
++			if (ret && ret != -ENXIO) {
+ 				dev_err(i2c->dev,
+ 					"PIO: Failed to finish WRITE cmd!\n");
+ 				break;
+-- 
+2.9.2
