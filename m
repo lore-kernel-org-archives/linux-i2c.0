@@ -1,80 +1,83 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
-Subject: RE: How my i2c device bring up?
-Date: Thu, 18 May 2017 19:09:43 +0800
-Message-ID: <03dd01d2cfc7$40a62ec0$c1f28c40$@emc.com.tw>
-References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
+ mode sda-hold-time via ACPI
+Date: Thu, 18 May 2017 13:24:37 +0100
+Message-ID: <CAKv+Gu-DPNUy=ODRqqVrvO-b04FxkEg8bz=dHzwspU5FqBRnNg@mail.gmail.com>
+References: <20170509140720.GA21122@red-moon> <1494341651.30052.82.camel@linux.intel.com>
+ <20170509155253.GA21475@red-moon> <1494346848.30052.84.camel@linux.intel.com>
+ <20170510092450.GA26012@red-moon> <1105edd1-8649-66f2-8df8-79aeae61af3a@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:16906 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932419AbdERLJJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 18 May 2017 07:09:09 -0400
-In-Reply-To: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
-Content-Language: zh-tw
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1105edd1-8649-66f2-8df8-79aeae61af3a@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-i2c@vger.kernel.org, ken.xue@amd.com, jeff.wu@amd.com
 List-Id: linux-i2c@vger.kernel.org
-To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
 
-Hi Jakko,
-	I am not happy because the internet & network are so slow..... :(
-	The kernel of those configurations are still on compile. 
+On 10 May 2017 at 14:55, Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
+> On 05/10/2017 12:24 PM, Lorenzo Pieralisi wrote:
+>>
+>> On Tue, May 09, 2017 at 07:20:48PM +0300, Andy Shevchenko wrote:
+>>>>>
+>>>>> It means either ID is not added to drivers/acpi/acpi_apd.c or
+>>>
+>>>
+>>> Just one question, did you look at all into above driver?
+>>> I suppose it missed ID and properties for the device.
+>>
+>>
+>> I looked into it yes. I have also looked at ACPI tables and they
+>> contain the SSCN and FMCN methods and AFAIK the set-up was working
+>> fine before the commit in $SUBJECT - AMD guys - please correct me
+>> if I am wrong, I found this thread which explains things a bit:
+>>
+>>
+>> http://lists.infradead.org/pipermail/linux-arm-kernel/2015-December/395983.html
+>>
+>> If we have to patch drivers/acpi/acpi_apd.c to restore the previous
+>> behaviour that's fine by me but this is a regression nonetheless unless
+>> someone explains to me why the current firmware set-up (with SSCN and
+>> FMCN) is unreliable/deprecated, it is not clear to me at all and it
+>> may affect other platforms too.
+>>
+> I guess best would be to fix the i2c_dw_init(). Maybe by moving timing
+> parameters settings out to another function, do setting only for selected
+> speed and calculate only once in case parameters are not set.
+>
+> I don't think timing parameters for standard or fast speeds are not needed
+> unless operating at those speeds but have to check that first. At least
+> that's what we are doing for high speed.
+>
 
-	I have checked that my target platform is Intel Baytrail, so good
-luck with me.
-	Thank you !
+Commit bd698d24b1b57 is broken and should be reverted: the splat on
+AMD Seattle is the most visible symptom, but the logic change results
+in DW_IC_SS_SCL_HCNT/DW_IC_SS_SCL_LCNT possibly being set to different
+values than specified by the ACPI methods. The missing clock splat is
+only a symptom of this: the driver tries to calculate values from the
+clock frequency that should have been read from the DSDT.
 
-BR,
-Scott 
+For reference, this is the description we have on the platform in question:
 
+            Method (SSCN, 0, NotSerialized)
+            {
+                Return (Package (0x03)
+                {
+                    0x0430,
+                    0x04E1,
+                    0x00
+                })
+            }
 
-> -----Original Message-----
-> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
-> Sent: Wednesday, May 17, 2017 7:56 PM
-> To: ¼B¹ÅÂ@; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org;
-> linux-input@vger.kernel.org
-> Cc: Dmitry Torokhov; benjamin.tissoires@gmail.com;
-> jeff.chuang@emc.com.tw
-> Subject: Re: How my i2c device bring up?
-> 
-> Hi
-> 
-> On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
-> >
-> > I have tried to install three versions of Chromium OS(R58-9334,
-> > R59-9351,
-> > R60-9554) respectively,
-> > all of them runs kernel v4.4 and all of them can see nothing for my
-> > device by ¡§ls /sys/bus/i2c/devices¡¨.
-> > The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
-> > I guess the underlying drivers(I2C bus, ACPI DSDT table) could be
-> > failed to recognize my I2C device.
-> >
-> Is this Intel Skylake ix-6xxx based laptop?
-> 
-> My guess is that based on your finding that i2c touchscreen works in
-Ubuntu
-> that Chromium kernel may not have needed drivers enabled.
-> 
-> If you have access to kernel config of Chromium image could you check does
-it
-> have these MFD_INTEL_LPSS configurations on? I have them as built-in but
-> should work when built as modules too.
-> 
-> CONFIG_MFD_INTEL_LPSS=y
-> CONFIG_MFD_INTEL_LPSS_ACPI=y
-> CONFIG_MFD_INTEL_LPSS_PCI=y
-> 
-> I suppose these I2C_DESIGNWARE options are already on since I know there
-> are Intel Baytrail based Chromebooks out there.
-> 
-> CONFIG_I2C_DESIGNWARE_CORE=m
-> CONFIG_I2C_DESIGNWARE_PLATFORM=m
-> CONFIG_I2C_DESIGNWARE_PCI=m
-> CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
-> 
-> --
-> Jarkko
+            Method (FMCN, 0, NotSerialized)
+            {
+                Return (Package (0x03)
+                {
+                    0x00DE,
+                    0x018F,
+                    0x00
+                })
+            }
+
+Whether it hurts to program different standard mode values here is
+irrelevant. It is simply wrong.
