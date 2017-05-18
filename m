@@ -1,100 +1,96 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: i801: Add support for Intel Cannon Lake
-Date: Thu, 18 May 2017 11:23:06 +0300
-Message-ID: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] i2c: stub: use pr_fmt
+Date: Thu, 18 May 2017 10:39:32 +0200
+Message-ID: <20170518103932.288cee1a@endymion>
+References: <20170516112105.2793-1-wsa+renesas@sang-engineering.com>
+        <20170516112105.2793-2-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:13620 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753906AbdERIXd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 18 May 2017 04:23:33 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33526 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752916AbdERIjg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 18 May 2017 04:39:36 -0400
+In-Reply-To: <20170516112105.2793-2-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-renesas-soc@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+On Tue, 16 May 2017 13:21:05 +0200, Wolfram Sang wrote:
+> Instead of hard coding "i2c-stub:", let's use the pr_fmt mechanism to
+> achieve the same more easily. This makes it easier to stay consistent
+> when adding new messages. Also, remove an unneeded OOM message while we
+> are here.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/i2c-stub.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
+> index 0aa4d646f8fb26..5627b1df391c7e 100644
+> --- a/drivers/i2c/i2c-stub.c
+> +++ b/drivers/i2c/i2c-stub.c
+> @@ -15,7 +15,8 @@
+>      GNU General Public License for more details.
+>  */
+>  
+> -#define DEBUG 1
+> +#define DEBUG
+> +#define pr_fmt(fmt) "i2c-stub: " fmt
+>  
+>  #include <linux/errno.h>
+>  #include <linux/i2c.h>
+> @@ -342,7 +343,7 @@ static int __init i2c_stub_allocate_banks(int i)
+>  	if (!chip->bank_words)
+>  		return -ENOMEM;
+>  
+> -	pr_debug("i2c-stub: Allocated %u banks of %u words each (registers 0x%02x to 0x%02x)\n",
+> +	pr_debug("Allocated %u banks of %u words each (registers 0x%02x to 0x%02x)\n",
+>  		 chip->bank_mask, chip->bank_size, chip->bank_start,
+>  		 chip->bank_end);
+>  
+> @@ -363,28 +364,27 @@ static int __init i2c_stub_init(void)
+>  	int i, ret;
+>  
+>  	if (!chip_addr[0]) {
+> -		pr_err("i2c-stub: Please specify a chip address\n");
+> +		pr_err("Please specify a chip address\n");
+>  		return -ENODEV;
+>  	}
+>  
+>  	for (i = 0; i < MAX_CHIPS && chip_addr[i]; i++) {
+>  		if (chip_addr[i] < 0x03 || chip_addr[i] > 0x77) {
+> -			pr_err("i2c-stub: Invalid chip address 0x%02x\n",
+> +			pr_err("Invalid chip address 0x%02x\n",
+>  			       chip_addr[i]);
+>  			return -EINVAL;
+>  		}
+>  
+> -		pr_info("i2c-stub: Virtual chip at 0x%02x\n", chip_addr[i]);
+> +		pr_info("Virtual chip at 0x%02x\n", chip_addr[i]);
+>  	}
+>  
+>  	/* Allocate memory for all chips at once */
+>  	stub_chips_nr = i;
+>  	stub_chips = kcalloc(stub_chips_nr, sizeof(struct stub_chip),
+>  			     GFP_KERNEL);
+> -	if (!stub_chips) {
+> -		pr_err("i2c-stub: Out of memory\n");
+> +	if (!stub_chips)
+>  		return -ENOMEM;
+> -	}
+> +
+>  	for (i = 0; i < stub_chips_nr; i++) {
+>  		INIT_LIST_HEAD(&stub_chips[i].smbus_blocks);
+>  
 
-Added SMBUS PCI Ids for SMBUS for Cannon Lake PCH.
+Looks good to me.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[jarkko.nikula@linux.intel.com: Add entries to Documentation and Kconfig.
-Cover Cannon Lake-H too]
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
- Documentation/i2c/busses/i2c-i801 | 2 ++
- drivers/i2c/busses/Kconfig        | 2 ++
- drivers/i2c/busses/i2c-i801.c     | 8 ++++++++
- 3 files changed, 12 insertions(+)
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index 820d9040de16..0500193434cb 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -34,6 +34,8 @@ Supported adapters:
-   * Intel Broxton (SOC)
-   * Intel Lewisburg (PCH)
-   * Intel Gemini Lake (SOC)
-+  * Intel Cannon Lake-H (PCH)
-+  * Intel Cannon Lake-LP (PCH)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 144cbadc7c72..ed7106e48ba4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -129,6 +129,8 @@ config I2C_I801
- 	    Broxton (SOC)
- 	    Lewisburg (PCH)
- 	    Gemini Lake (SOC)
-+	    Cannon Lake-H (PCH)
-+	    Cannon Lake-LP (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 6484fa6dbb84..c9536e17d6ff 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -66,6 +66,8 @@
-  * Lewisburg Supersku (PCH)	0xa223	32	hard	yes	yes	yes
-  * Kaby Lake PCH-H (PCH)	0xa2a3	32	hard	yes	yes	yes
-  * Gemini Lake (SOC)		0x31d4	32	hard	yes	yes	yes
-+ * Cannon Lake-H (PCH)		0xa323	32	hard	yes	yes	yes
-+ * Cannon Lake-LP (PCH)		0x9da3	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -226,10 +228,12 @@
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
- #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
-+#define PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS		0x9da3
- #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS		0xa1a3
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
- #define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
-+#define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
- 
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -1026,6 +1030,8 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS) },
- 	{ 0, }
- };
- 
-@@ -1499,6 +1505,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	switch (dev->device) {
- 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
 -- 
-2.11.0
+Jean Delvare
+SUSE L3 Support
