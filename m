@@ -1,73 +1,44 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
-Subject: RE: How my i2c device bring up?
-Date: Fri, 19 May 2017 14:42:03 +0800
-Message-ID: <040b01d2d06b$06c00010$14400030$@emc.com.tw>
-References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: Regression: bd698d24b1b57: i2c: designware: Get selected speed
+ mode sda-hold-time via ACPI
+Date: Fri, 19 May 2017 10:11:29 +0300
+Message-ID: <2b97458f-245c-b914-bdff-8805b5b7ccbb@linux.intel.com>
+References: <20170509140720.GA21122@red-moon>
+ <1494341651.30052.82.camel@linux.intel.com> <20170509155253.GA21475@red-moon>
+ <1494346848.30052.84.camel@linux.intel.com> <20170510092450.GA26012@red-moon>
+ <1105edd1-8649-66f2-8df8-79aeae61af3a@linux.intel.com>
+ <CAKv+Gu-DPNUy=ODRqqVrvO-b04FxkEg8bz=dHzwspU5FqBRnNg@mail.gmail.com>
+ <25ff2580-d461-87f2-f61d-2ede10ea4c01@linux.intel.com>
+ <CAKv+Gu-=4YXovPTjWWOkN4BTFQt9qYyU781s1Qwx1vvrAMZsyQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
-Content-Language: zh-tw
-Sender: linux-input-owner@vger.kernel.org
-To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAKv+Gu-=4YXovPTjWWOkN4BTFQt9qYyU781s1Qwx1vvrAMZsyQ@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, chin.yew.tan@intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-i2c@vger.kernel.org, ken.xue@amd.com, jeff.wu@amd.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jarkko,
-	After enabled those configurations on, the touch works.
-	Chrome can recognize my touch device, thank you for help.
+On 05/18/2017 04:44 PM, Ard Biesheuvel wrote:
+> On 18 May 2017 at 14:05, Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
+>> I have a fix for this. Could you try does it fix the issue for you?
+>>
+>> http://www.spinics.net/lists/linux-i2c/msg29509.html
+>>
+>
+> Thanks. But the question is really whether we want to change the
+> driver so that the DW_IC_SS_SCL_HCNT/DW_IC_SS_SCL_LCNT registers are
+> no longer programmed at all when running at a higher speed. Can you
+> guarantee that this will not cause any change in behavior in all
+> instances of this hardware that are supported currently, no matter how
+> they are synthesized and described to the OS? The previous commit only
+> affected the platdrv variety AFAIR
+>
+Obviously I cannot guarantee are there any side effects as I don't know 
+the IP. However I forgot one important point: high-speed transfers 
+always starts in fast-mode so those timing parameters too are needed 
+when bus is configured for high-speed. So best is to write all of them.
 
-BR,
-Scott 
-
-
-> -----Original Message-----
-> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
-> Sent: Wednesday, May 17, 2017 7:56 PM
-> To: ¼B¹ÅÂ@; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org;
-> linux-input@vger.kernel.org
-> Cc: Dmitry Torokhov; benjamin.tissoires@gmail.com;
-> jeff.chuang@emc.com.tw
-> Subject: Re: How my i2c device bring up?
-> 
-> Hi
-> 
-> On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
-> >
-> > I have tried to install three versions of Chromium OS(R58-9334,
-> > R59-9351,
-> > R60-9554) respectively,
-> > all of them runs kernel v4.4 and all of them can see nothing for my
-> > device by ¡§ls /sys/bus/i2c/devices¡¨.
-> > The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
-> > I guess the underlying drivers(I2C bus, ACPI DSDT table) could be
-> > failed to recognize my I2C device.
-> >
-> Is this Intel Skylake ix-6xxx based laptop?
-> 
-> My guess is that based on your finding that i2c touchscreen works in
-Ubuntu
-> that Chromium kernel may not have needed drivers enabled.
-> 
-> If you have access to kernel config of Chromium image could you check does
-it
-> have these MFD_INTEL_LPSS configurations on? I have them as built-in but
-> should work when built as modules too.
-> 
-> CONFIG_MFD_INTEL_LPSS=y
-> CONFIG_MFD_INTEL_LPSS_ACPI=y
-> CONFIG_MFD_INTEL_LPSS_PCI=y
-> 
-> I suppose these I2C_DESIGNWARE options are already on since I know there
-> are Intel Baytrail based Chromebooks out there.
-> 
-> CONFIG_I2C_DESIGNWARE_CORE=m
-> CONFIG_I2C_DESIGNWARE_PLATFORM=m
-> CONFIG_I2C_DESIGNWARE_PCI=m
-> CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
-> 
-> --
-> Jarkko
-
+-- 
+Jarkko
