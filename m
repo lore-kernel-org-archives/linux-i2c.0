@@ -1,45 +1,37 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix false warning from i2c_dw_clk_rate()
-Date: Fri, 19 May 2017 10:12:08 +0300
-Message-ID: <2d797489-2728-e346-58f2-520002603071@linux.intel.com>
-References: <20170511124949.26650-1-jarkko.nikula@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC PATCH 1/2] i2c: sh_mobile: remove platform_data
+Date: Fri, 19 May 2017 09:42:43 +0200
+Message-ID: <CAMuHMdV5soEj4w-h19sRDrzRHfn-Zj-t0Dfc3Q7LwyD0UZLyzg@mail.gmail.com>
+References: <20170518211140.12023-1-wsa+renesas@sang-engineering.com> <20170518211140.12023-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:51635 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750805AbdESHOY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 19 May 2017 03:14:24 -0400
-In-Reply-To: <20170511124949.26650-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170518211140.12023-2-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-On 05/11/2017 03:49 PM, Jarkko Nikula wrote:
-> Commit bd698d24b1b5 ("i2c: designware: Get selected speed mode
-> sda-hold-time via ACPI") causes a false warning from i2c_dw_clk_rate()
-> in case platform doesn't provide explicit input clock but provides valid
-> SCL timing parameters via ACPI.
+On Thu, May 18, 2017 at 11:11 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> No platform currently upstream makes use of this platform_data anymore.
+> The ones that did are converted to DT meanwhile. So, remove it. The old
+> platforms likely don't have the 'clks_per_cnt' feature, otherwise it
+> would have been implemented by now. And in the unlikely case they need
+> to setup a different bus speed, we should rather go for a generic i2c
+> platform data just for that.
 >
-> After above commit timing parameters only for the selected speed is get
-> but code in i2c_dw_init() tries to calculate missing parameters using
-> the input clock which leads to a warning when there is no input clock
-> defined.
->
-> Fix this by reordering the code such a way that timing parameters
-> validation/calculation and setting is done for the selected speed only.
-> While at it do the calculation only once during the first call.
->
-> Reported-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-designware-core.c | 148 +++++++++++++++++++------------
->  1 file changed, 89 insertions(+), 59 deletions(-)
->
-NAK to myself. High-speed transfers starts in fast-mode so those timing 
-parameters are have to set. I'll cook another version.
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
--- 
-Jarkko
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
