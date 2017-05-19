@@ -1,83 +1,73 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mxs: dont print error on NAK
-Date: Fri, 19 May 2017 14:44:02 +0200
-Message-ID: <20170519124402.4xkaguxjzgyvbwcl@ninjato>
-References: <20170518141450.30938-1-michael.thalmeier@hale.at>
+Subject: [PULL REQUEST] i2c for 4.12
+Date: Fri, 19 May 2017 22:40:30 +0200
+Message-ID: <20170519204014.jumojwrdw6lfnycw@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tfkmvdxfhk2i6gc4"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="yhn6wjqi2kohiasl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:48077 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756733AbdESUkc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 19 May 2017 16:40:32 -0400
 Content-Disposition: inline
-In-Reply-To: <20170518141450.30938-1-michael.thalmeier@hale.at>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Thalmeier <michael.thalmeier@hale.at>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Marek Vasut <marex@denx.de>, michael@thalmeier.at
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---tfkmvdxfhk2i6gc4
+--yhn6wjqi2kohiasl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 18, 2017 at 04:14:50PM +0200, Michael Thalmeier wrote:
-> When mxs_i2c_pio_wait_xfer_end returns with a return code of -ENXIO, the
-> NO_SLAVE_ACK_IRQ bit is set in CTRL1.
-> In this case, do not print an error message, because every NAK would
-> otherwise generate a new message.
+Linus,
 
-Why not also for the read case?
-
-Also, I think all the error printing for mxs_i2c_pio_wait_xfer_end()
-could go. NAK can happen on the bus as well as timeouts, e.g. EEPROMs
-currently erasing a page. Upper layers ought to handle that.
+here is a regression fix for I2C that would be great to have in rc2
+already. Based on your tree from today. Please pull.
 
 Thanks,
 
    Wolfram
 
->=20
-> Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
-> ---
->  drivers/i2c/busses/i2c-mxs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 5738556..e2dbb9c 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -527,7 +527,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter =
-*adap,
-> =20
->  			/* Wait for the end of the transfer. */
->  			ret =3D mxs_i2c_pio_wait_xfer_end(i2c);
-> -			if (ret) {
-> +			if (ret && ret !=3D -ENXIO) {
->  				dev_err(i2c->dev,
->  					"PIO: Failed to finish WRITE cmd!\n");
->  				break;
-> --=20
-> 2.9.2
->=20
 
---tfkmvdxfhk2i6gc4
+The following changes since commit 8b4822de59d5d9919b9b045183a36c673ce20b73:
+
+  Merge tag 'md/4.12-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/shli/md (2017-05-18 12:04:41 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 9d6408433019bfae15e2d0d5f4498c4ff70b86c0:
+
+  i2c: designware: don't infer timings described by ACPI from clock rate (2017-05-19 14:36:24 +0200)
+
+----------------------------------------------------------------
+Ard Biesheuvel (1):
+      i2c: designware: don't infer timings described by ACPI from clock rate
+
+ drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+--yhn6wjqi2kohiasl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlke6JEACgkQFA3kzBSg
-KbbuXQ/9GQeD+5Aeq9Li0aTiwgsgK6waeQf84SfDINU4IEZenwxc1FUjQ1//LPnG
-MhG6pdYN4apJ2DMQc7gGayLXCT6DO27W9q4RpW6Ewgq/7BQ2I/dXTk+aU1iVQZDu
-vovVmwJ9YPRx4JpdtUK8SNjbe+7mh0xoYp620y1tGboEouoALEIOW8wVPwRtW+lP
-HzKpYO5fiiqEGC0n/EZSYzAdvLAleh+WXHpHzOsv90fHG8C7WsdsfE/ZZbXu3AAk
-C5oH0ijw9sys4CRFSITfgomHZXsybBZz4ybI20tHK12ZFvmY7JbgopPawAyO7fQB
-ZWWobGpN9MgUWtOYWmr8j2Y1JPxEUBu398z5wfUQs4SGOPW18mKSC0YVhDh3jOqm
-C6/hH4hu7j75peqmFdMvhN0KycQgI3C7iVtkGttruNRft8CD+Al6JQO3ZTKlhHCn
-/YaQ94nqAMLJwsPlI53gCNMZLbq1z3ZLuqOLWugE2Zg3vaJ7z9KE6lEtWZJBXl2E
-VyJcjP6L3dBqaK/Y/1Zq1/C4UvcYYkD9QoGEvWuu5YxcbUzRUN1DJQHcxaATWyW1
-6KDPzOzHLF70WC6YBxtCxrM8oQBLmbV3rn/+ORD28SThWc1Km6a+JsPOKXrQq/NL
-gHl166fwvVHKF+XQTjbfJrY10/LHyzjFmWE0t2CAC0AGpR2ippI=
-=Ey2X
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkfWCkACgkQFA3kzBSg
+Kbb27w/7B2xm4uOX/mOfUM0Ofp2GjshZwK35qMsSxrcbYy+0EPZMUZkSVa7G+mCJ
+eLHSAvt9NYlXxOubE+LzwXL3h1KlcqcOr4rroTh5aiQr8ljfT2Mzrz647d/ZhCwP
+g0gURhh7ZB4Rk0eUJ1bQQMJvqLomj6Xmfeh7naxZG2Cisr8xavVvx6F693JBVUt4
+IetcELSunhKLqG18WKD3zI8J7xAeGJIB4Ol/+3AUxoF1AnGUSho+FobtwAM+punF
+QYZpBgx6uPgu4tIpn0lHbg6OVzLIeykl/cWfNF6zJRiJT/65y2FVH6HWudsHBL8M
+KaK3vLIgVwSORkg2t0viA4u18HCH7D/phJq++amRw/r+0zzkNJQdhDLJc7M5Tgl/
+R9gQ2WQugjcdKBB8RUnn9FiK+JYY/39MqyR7CkCG2UYL3s5/IINwZcUdE5yzNRP3
+mrK4XPbB6AoiINgOBZspdbwka+jJ123eEdw0uGSTd56IIqSSOtcMAQnfO3YZk0lm
+lOWpqpnkjhZ77+EMN3J58kCFW90epdrYIc4RBGeQytA5E55WWQl3szsB+OpvCicZ
+SEGPJWdLT5wUnKglOlr7tYVrU5uxmEOJ0WrHxpIpEk6SFMsaV2EOnknTm2ZlySnJ
+ig25AQHLk8CHBzIz//gEwVdLgQAKE80bjefwvm54fNIGQBQMqhM=
+=4Xwj
 -----END PGP SIGNATURE-----
 
---tfkmvdxfhk2i6gc4--
+--yhn6wjqi2kohiasl--
