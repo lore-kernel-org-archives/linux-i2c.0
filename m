@@ -1,85 +1,73 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 1/2] i2c: sh_mobile: remove platform_data
-Date: Thu, 18 May 2017 23:11:39 +0200
-Message-ID: <20170518211140.12023-2-wsa+renesas@sang-engineering.com>
-References: <20170518211140.12023-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170518211140.12023-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
+Subject: RE: How my i2c device bring up?
+Date: Fri, 19 May 2017 14:42:03 +0800
+Message-ID: <040b01d2d06b$06c00010$14400030$@emc.com.tw>
+References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="big5"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+Content-Language: zh-tw
+Sender: linux-input-owner@vger.kernel.org
+To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
 List-Id: linux-i2c@vger.kernel.org
 
-No platform currently upstream makes use of this platform_data anymore.
-The ones that did are converted to DT meanwhile. So, remove it. The old
-platforms likely don't have the 'clks_per_cnt' feature, otherwise it
-would have been implemented by now. And in the unlikely case they need
-to setup a different bus speed, we should rather go for a generic i2c
-platform data just for that.
+Hi Jarkko,
+	After enabled those configurations on, the touch works.
+	Chrome can recognize my touch device, thank you for help.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-sh_mobile.c |  8 --------
- include/linux/i2c/i2c-sh_mobile.h  | 11 -----------
- 2 files changed, 19 deletions(-)
- delete mode 100644 include/linux/i2c/i2c-sh_mobile.h
+BR,
+Scott 
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 3d75593487454c..d5e39eccae9b97 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -24,7 +24,6 @@
- #include <linux/dma-mapping.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
--#include <linux/i2c/i2c-sh_mobile.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-@@ -879,7 +878,6 @@ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, struct sh_mobile
- 
- static int sh_mobile_i2c_probe(struct platform_device *dev)
- {
--	struct i2c_sh_mobile_platform_data *pdata = dev_get_platdata(&dev->dev);
- 	struct sh_mobile_i2c_data *pd;
- 	struct i2c_adapter *adap;
- 	struct resource *res;
-@@ -910,7 +908,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	if (IS_ERR(pd->reg))
- 		return PTR_ERR(pd->reg);
- 
--	/* Use platform data bus speed or STANDARD_MODE */
- 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
- 	pd->bus_speed = ret ? STANDARD_MODE : bus_speed;
- 
-@@ -929,11 +926,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 			if (config->setup)
- 				config->setup(pd);
- 		}
--	} else {
--		if (pdata && pdata->bus_speed)
--			pd->bus_speed = pdata->bus_speed;
--		if (pdata && pdata->clks_per_count)
--			pd->clks_per_count = pdata->clks_per_count;
- 	}
- 
- 	/* The IIC blocks on SH-Mobile ARM processors
-diff --git a/include/linux/i2c/i2c-sh_mobile.h b/include/linux/i2c/i2c-sh_mobile.h
-deleted file mode 100644
-index 06e3089795fbee..00000000000000
---- a/include/linux/i2c/i2c-sh_mobile.h
-+++ /dev/null
-@@ -1,11 +0,0 @@
--#ifndef __I2C_SH_MOBILE_H__
--#define __I2C_SH_MOBILE_H__
--
--#include <linux/platform_device.h>
--
--struct i2c_sh_mobile_platform_data {
--	unsigned long bus_speed;
--	unsigned int clks_per_count;
--};
--
--#endif /* __I2C_SH_MOBILE_H__ */
--- 
-2.11.0
+
+> -----Original Message-----
+> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
+> Sent: Wednesday, May 17, 2017 7:56 PM
+> To: ¼B¹ÅÂ@; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org;
+> linux-input@vger.kernel.org
+> Cc: Dmitry Torokhov; benjamin.tissoires@gmail.com;
+> jeff.chuang@emc.com.tw
+> Subject: Re: How my i2c device bring up?
+> 
+> Hi
+> 
+> On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
+> >
+> > I have tried to install three versions of Chromium OS(R58-9334,
+> > R59-9351,
+> > R60-9554) respectively,
+> > all of them runs kernel v4.4 and all of them can see nothing for my
+> > device by ¡§ls /sys/bus/i2c/devices¡¨.
+> > The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
+> > I guess the underlying drivers(I2C bus, ACPI DSDT table) could be
+> > failed to recognize my I2C device.
+> >
+> Is this Intel Skylake ix-6xxx based laptop?
+> 
+> My guess is that based on your finding that i2c touchscreen works in
+Ubuntu
+> that Chromium kernel may not have needed drivers enabled.
+> 
+> If you have access to kernel config of Chromium image could you check does
+it
+> have these MFD_INTEL_LPSS configurations on? I have them as built-in but
+> should work when built as modules too.
+> 
+> CONFIG_MFD_INTEL_LPSS=y
+> CONFIG_MFD_INTEL_LPSS_ACPI=y
+> CONFIG_MFD_INTEL_LPSS_PCI=y
+> 
+> I suppose these I2C_DESIGNWARE options are already on since I know there
+> are Intel Baytrail based Chromebooks out there.
+> 
+> CONFIG_I2C_DESIGNWARE_CORE=m
+> CONFIG_I2C_DESIGNWARE_PLATFORM=m
+> CONFIG_I2C_DESIGNWARE_PCI=m
+> CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
+> 
+> --
+> Jarkko
+
