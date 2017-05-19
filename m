@@ -1,30 +1,85 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
-Subject: RE: How my i2c device bring up?
-Date: Fri, 19 May 2017 16:38:03 +0800
-Message-ID: <042c01d2d07b$3ac612e0$b05238a0$@emc.com.tw>
-References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com> <040b01d2d06b$06c00010$14400030$@emc.com.tw> <ed46f222-9cbe-92f5-962f-cf38b678476b@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <ed46f222-9cbe-92f5-962f-cf38b678476b@linux.intel.com>
-Content-Language: zh-tw
-Sender: linux-acpi-owner@vger.kernel.org
-To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH] i2c: designware: don't infer timings described by ACPI from clock rate
+Date: Fri, 19 May 2017 09:56:40 +0100
+Message-ID: <20170519085640.15111-1-ard.biesheuvel@linaro.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr0-f172.google.com ([209.85.128.172]:33048 "EHLO
+        mail-wr0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752868AbdESI4v (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 May 2017 04:56:51 -0400
+Received: by mail-wr0-f172.google.com with SMTP id w50so12579207wrc.0
+        for <linux-i2c@vger.kernel.org>; Fri, 19 May 2017 01:56:50 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, lorenzo.pieralisi@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-> >
-> Nice to hear. Looks like those Chromium images don't support platforms
-that
-> require those CONFIG_MFD_INTEL_LPSS options.
-> 
+Commit bd698d24b1b57 ("i2c: designware: Get selected speed mode
+sda-hold-time via ACPI") updated the logic that reads the timing
+parameters for various I2C bus rates from the DSDT, to only read
+the timing parameters for the currently selected mode.
 
-Those configurations are default in 64bits image.
-The image was 32bits in the first place I built which 
-doesn't default set those configurations for Intel Baytrail.
+This causes a WARN_ON() splat on platforms that legally omit the clock
+frequency from the ACPI description, because in the new situation, the
+core I2C designware driver still accesses the fields in the driver
+struct that we no longer populate, and proceeds to calculate them from
+the clock frequency. Since the clock frequency is unspecified, the
+driver complains loudly using a WARN_ON().
 
-Thanks.
-Scott
+So revert back to the old situation, where the struct fields for all
+timings are populated, but retain the new logic which chooses the SDA
+hold time from the timing mode that is currently in use.
 
+Fixes: bd698d24b1b57 ("i2c: designware: Get selected speed mode ...")
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index f2acd4b6bf01..6283b99d2b17 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -96,6 +96,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+ 	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+ 	const struct acpi_device_id *id;
++	u32 ss_ht, fp_ht, hs_ht, fs_ht;
+ 	struct acpi_device *adev;
+ 	const char *uid;
+ 
+@@ -107,23 +108,24 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	 * Try to get SDA hold time and *CNT values from an ACPI method for
+ 	 * selected speed modes.
+ 	 */
++	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt, &ss_ht);
++	dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev->fp_lcnt, &fp_ht);
++	dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev->hs_lcnt, &hs_ht);
++	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt, &fs_ht);
++
+ 	switch (dev->clk_freq) {
+ 	case 100000:
+-		dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt,
+-				   &dev->sda_hold_time);
++		dev->sda_hold_time = ss_ht;
+ 		break;
+ 	case 1000000:
+-		dw_i2c_acpi_params(pdev, "FPCN", &dev->fp_hcnt, &dev->fp_lcnt,
+-				   &dev->sda_hold_time);
++		dev->sda_hold_time = fp_ht;
+ 		break;
+ 	case 3400000:
+-		dw_i2c_acpi_params(pdev, "HSCN", &dev->hs_hcnt, &dev->hs_lcnt,
+-				   &dev->sda_hold_time);
++		dev->sda_hold_time = hs_ht;
+ 		break;
+ 	case 400000:
+ 	default:
+-		dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
+-				   &dev->sda_hold_time);
++		dev->sda_hold_time = fs_ht;
+ 		break;
+ 	}
+ 
+-- 
+2.9.3
