@@ -1,41 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
-Date: Sun, 21 May 2017 22:42:32 +0200
-Message-ID: <20170521204233.6745-2-wsa@the-dreams.de>
-References: <20170521204233.6745-1-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170521204233.6745-1-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 0/3] gpio: move include files out of include/linux/i2c
+Date: Sun, 21 May 2017 23:57:24 +0200
+Message-ID: <20170521215727.1243-1-wsa@the-dreams.de>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, adi-buildroot-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
 List-Id: linux-i2c@vger.kernel.org
 
-include/linux/i2c is not for client devices. Move the header file to a
-more appropriate location.
+It doesn't make sense to use include/linux/i2c for client drivers which may in
+fact rather be hwmon or input or whatever devices. As a result, I want to
+deprecate include/linux/i2c for good. This series moves the include files to a
+better location, largely include/linux/platform_data because that is what most
+of the moved include files contain.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/misc/apds990x.c                         | 2 +-
- include/linux/{i2c => platform_data}/apds990x.h | 0
- 2 files changed, 1 insertion(+), 1 deletion(-)
- rename include/linux/{i2c => platform_data}/apds990x.h (100%)
+I prefer the series to go upstream via the subsystem tree; if you prefer that I
+take it via I2C, just let me know.
 
-diff --git a/drivers/misc/apds990x.c b/drivers/misc/apds990x.c
-index dfb72ecfa60461..c341164edaad01 100644
---- a/drivers/misc/apds990x.c
-+++ b/drivers/misc/apds990x.c
-@@ -32,7 +32,7 @@
- #include <linux/delay.h>
- #include <linux/wait.h>
- #include <linux/slab.h>
--#include <linux/i2c/apds990x.h>
-+#include <linux/platform_data/apds990x.h>
- 
- /* Register map */
- #define APDS990X_ENABLE	 0x00 /* Enable of states and interrupts */
-diff --git a/include/linux/i2c/apds990x.h b/include/linux/platform_data/apds990x.h
-similarity index 100%
-rename from include/linux/i2c/apds990x.h
-rename to include/linux/platform_data/apds990x.h
+No runtime testing because of no HW, but buildbot is happy with this series at
+least. A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
+
+Thanks and kind regards,
+
+   Wolfram
+
+
+Wolfram Sang (3):
+  gpio: max732x: move header file out of I2C realm
+  gpio: pcf857x: move header file out of I2C realm
+  gpio: adp5588: move header file out of I2C realm
+
+ arch/arm/mach-davinci/board-da830-evm.c        | 2 +-
+ arch/arm/mach-davinci/board-dm644x-evm.c       | 2 +-
+ arch/arm/mach-davinci/board-dm646x-evm.c       | 2 +-
+ arch/arm/mach-pxa/balloon3.c                   | 2 +-
+ arch/arm/mach-pxa/littleton.c                  | 2 +-
+ arch/arm/mach-pxa/stargate2.c                  | 2 +-
+ arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
+ arch/mips/ath79/mach-pb44.c                    | 2 +-
+ drivers/gpio/gpio-adp5588.c                    | 2 +-
+ drivers/gpio/gpio-max732x.c                    | 2 +-
+ drivers/gpio/gpio-pcf857x.c                    | 2 +-
+ drivers/input/keyboard/adp5588-keys.c          | 2 +-
+ include/linux/{i2c => platform_data}/adp5588.h | 0
+ include/linux/{i2c => platform_data}/max732x.h | 0
+ include/linux/{i2c => platform_data}/pcf857x.h | 0
+ 15 files changed, 12 insertions(+), 12 deletions(-)
+ rename include/linux/{i2c => platform_data}/adp5588.h (100%)
+ rename include/linux/{i2c => platform_data}/max732x.h (100%)
+ rename include/linux/{i2c => platform_data}/pcf857x.h (100%)
+
 -- 
 2.11.0
+
