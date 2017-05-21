@@ -1,59 +1,45 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/2] video: adp8860: move header file out of I2C realm
-Date: Mon, 22 May 2017 00:09:52 +0200
-Message-ID: <20170521220953.2602-2-wsa@the-dreams.de>
-References: <20170521220953.2602-1-wsa@the-dreams.de>
+Subject: [PATCH 0/1] gpu: move include files out of include/linux/i2c
+Date: Mon, 22 May 2017 00:11:13 +0200
+Message-ID: <20170521221114.2685-1-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55526 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:55540 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753915AbdEUWJ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 21 May 2017 18:09:57 -0400
-In-Reply-To: <20170521220953.2602-1-wsa@the-dreams.de>
+        id S1752665AbdEUWLR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 21 May 2017 18:11:17 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 
-include/linux/i2c is not for client devices. Move the header file to a
-more appropriate location.
+It doesn't make sense to use include/linux/i2c for client drivers which may in
+fact rather be hwmon or input or whatever devices. As a result, I want to
+deprecate include/linux/i2c for good. This series moves the include files to a
+better location, largely include/linux/platform_data because that is what most
+of the moved include files contain. Please let me know if you think another
+location is more suitable.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
- drivers/video/backlight/adp8860_bl.c           | 2 +-
- include/linux/{i2c => platform_data}/adp8860.h | 0
+I prefer the series to go upstream via the subsystem tree; if you prefer that I
+take it via I2C, just let me know.
+
+No runtime testing because of no HW, but buildbot is happy with this series at
+least. A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
+
+Thanks and kind regards,
+
+   Wolfram
+
+
+Wolfram Sang (1):
+  gpu: drm: tc35876x: move header file out of I2C realm
+
+ arch/x86/platform/intel-mid/device_libs/platform_tc35876x.c | 2 +-
+ drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c                  | 2 +-
+ include/linux/{i2c => platform_data}/tc35876x.h             | 0
  3 files changed, 2 insertions(+), 2 deletions(-)
- rename include/linux/{i2c => platform_data}/adp8860.h (100%)
+ rename include/linux/{i2c => platform_data}/tc35876x.h (100%)
 
-diff --git a/arch/blackfin/mach-bf537/boards/stamp.c b/arch/blackfin/mach-bf537/boards/stamp.c
-index 24985e658c19cd..7db90c72bd8ddc 100644
---- a/arch/blackfin/mach-bf537/boards/stamp.c
-+++ b/arch/blackfin/mach-bf537/boards/stamp.c
-@@ -2047,7 +2047,7 @@ static struct adp8870_backlight_platform_data adp8870_pdata = {
- #endif
- 
- #if IS_ENABLED(CONFIG_BACKLIGHT_ADP8860)
--#include <linux/i2c/adp8860.h>
-+#include <linux/platform_data/adp8860.h>
- static struct led_info adp8860_leds[] = {
- 	{
- 		.name = "adp8860-led7",
-diff --git a/drivers/video/backlight/adp8860_bl.c b/drivers/video/backlight/adp8860_bl.c
-index 510e559c060e59..e7315bf14d6015 100644
---- a/drivers/video/backlight/adp8860_bl.c
-+++ b/drivers/video/backlight/adp8860_bl.c
-@@ -18,7 +18,7 @@
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- 
--#include <linux/i2c/adp8860.h>
-+#include <linux/platform_data/adp8860.h>
- #define ADP8860_EXT_FEATURES
- #define ADP8860_USE_LEDS
- 
-diff --git a/include/linux/i2c/adp8860.h b/include/linux/platform_data/adp8860.h
-similarity index 100%
-rename from include/linux/i2c/adp8860.h
-rename to include/linux/platform_data/adp8860.h
 -- 
 2.11.0
