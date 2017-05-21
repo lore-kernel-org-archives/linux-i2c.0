@@ -1,51 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/2] video: move include files out of include/linux/i2c
-Date: Mon, 22 May 2017 00:09:51 +0200
-Message-ID: <20170521220953.2602-1-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55522 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752186AbdEUWJ5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 21 May 2017 18:09:57 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH 2/2] video: adp8870: move header file out of I2C realm
+Date: Mon, 22 May 2017 00:09:53 +0200
+Message-ID: <20170521220953.2602-3-wsa@the-dreams.de>
+References: <20170521220953.2602-1-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170521220953.2602-1-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, adi-buildroot-devel@lists.sourceforge.net, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Steven Miao <realmz6@gmail.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-It doesn't make sense to use include/linux/i2c for client drivers which may in
-fact rather be hwmon or input or whatever devices. As a result, I want to
-deprecate include/linux/i2c for good. This series moves the include files to a
-better location, largely include/linux/platform_data because that is what most
-of the moved include files contain. Note that some files don't seem to have
-upstream users in board code, so they maybe could even be removed? I didn't
-check for that now, but I did it for one i2c master driver recently. So, it may
-be possible.
+include/linux/i2c is not for client devices. Move the header file to a
+more appropriate location.
 
-I prefer the series to go upstream via the subsystem tree; if you prefer that I
-take it via I2C, just let me know.
-
-No runtime testing because of no HW, but buildbot is happy with this series at
-least. A branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
-
-Thanks and kind regards,
-
-   Wolfram
-
-
-Wolfram Sang (2):
-  video: adp8860: move header file out of I2C realm
-  video: adp8870: move header file out of I2C realm
-
- arch/blackfin/mach-bf537/boards/stamp.c        | 4 ++--
- drivers/video/backlight/adp8860_bl.c           | 2 +-
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
  drivers/video/backlight/adp8870_bl.c           | 2 +-
- include/linux/{i2c => platform_data}/adp8860.h | 0
  include/linux/{i2c => platform_data}/adp8870.h | 0
- 5 files changed, 4 insertions(+), 4 deletions(-)
- rename include/linux/{i2c => platform_data}/adp8860.h (100%)
+ 3 files changed, 2 insertions(+), 2 deletions(-)
  rename include/linux/{i2c => platform_data}/adp8870.h (100%)
 
+diff --git a/arch/blackfin/mach-bf537/boards/stamp.c b/arch/blackfin/mach-bf537/boards/stamp.c
+index 7db90c72bd8ddc..7528148dc4925b 100644
+--- a/arch/blackfin/mach-bf537/boards/stamp.c
++++ b/arch/blackfin/mach-bf537/boards/stamp.c
+@@ -1995,7 +1995,7 @@ static struct adp5588_gpio_platform_data adp5588_gpio_data = {
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_BACKLIGHT_ADP8870)
+-#include <linux/i2c/adp8870.h>
++#include <linux/platform_data/adp8870.h>
+ static struct led_info adp8870_leds[] = {
+ 	{
+ 		.name = "adp8870-led7",
+diff --git a/drivers/video/backlight/adp8870_bl.c b/drivers/video/backlight/adp8870_bl.c
+index 21acac90fd773f..058d1def2d1f4b 100644
+--- a/drivers/video/backlight/adp8870_bl.c
++++ b/drivers/video/backlight/adp8870_bl.c
+@@ -18,7 +18,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/slab.h>
+ 
+-#include <linux/i2c/adp8870.h>
++#include <linux/platform_data/adp8870.h>
+ #define ADP8870_EXT_FEATURES
+ #define ADP8870_USE_LEDS
+ 
+diff --git a/include/linux/i2c/adp8870.h b/include/linux/platform_data/adp8870.h
+similarity index 100%
+rename from include/linux/i2c/adp8870.h
+rename to include/linux/platform_data/adp8870.h
 -- 
 2.11.0
