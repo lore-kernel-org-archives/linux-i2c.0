@@ -1,87 +1,51 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/5] hwmon: ads1015: move header file out of I2C realm
-Date: Sun, 21 May 2017 22:34:39 +0200
-Message-ID: <20170521203443.6387-2-wsa@the-dreams.de>
-References: <20170521203443.6387-1-wsa@the-dreams.de>
+Subject: [PATCH 0/2] i2c: move include files out of include/linux/i2c
+Date: Sun, 21 May 2017 22:37:41 +0200
+Message-ID: <20170521203743.6514-1-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55063 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:55098 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752119AbdEUUes (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 21 May 2017 16:34:48 -0400
-In-Reply-To: <20170521203443.6387-1-wsa@the-dreams.de>
+        id S1753915AbdEUUhr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 21 May 2017 16:37:47 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dirk Eibach <eibach@gdsys.de>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Jonathan Corbet <corbet@lwn.net>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-hwmon@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 
-include/linux/i2c is not for client devices. Move the header file to a
-more appropriate location.
+It doesn't make sense to use include/linux/i2c for client drivers which may in
+fact rather be hwmon or input or whatever devices. As a result, I want to
+deprecate include/linux/i2c for good. This series moves the include files to a
+better location, largely include/platform_data because that is what most of the
+moved include files contain. Note that some files don't seem to have upstream
+users in board code, so they maybe could even be removed? I didn't check for
+that now, but I did it for one i2c master driver recently. So, it may be
+possible.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- Documentation/hwmon/ads1015                    | 2 +-
- MAINTAINERS                                    | 2 +-
- drivers/hwmon/ads1015.c                        | 2 +-
- drivers/iio/adc/ti-ads1015.c                   | 2 +-
- include/linux/{i2c => platform_data}/ads1015.h | 0
- 5 files changed, 4 insertions(+), 4 deletions(-)
- rename include/linux/{i2c => platform_data}/ads1015.h (100%)
+And while i2c muxes might be a corner case, I still want to deprecate
+include/linux/i2c for good ;)
 
-diff --git a/Documentation/hwmon/ads1015 b/Documentation/hwmon/ads1015
-index 063b80d857b1f8..02d2a459385f39 100644
---- a/Documentation/hwmon/ads1015
-+++ b/Documentation/hwmon/ads1015
-@@ -40,7 +40,7 @@ By default all inputs are exported.
- Platform Data
- -------------
- 
--In linux/i2c/ads1015.h platform data is defined, channel_data contains
-+In linux/platform_data/ads1015.h platform data is defined, channel_data contains
- configuration data for the used input combinations:
- - pga is the programmable gain amplifier (values are full scale)
-   0: +/- 6.144 V
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9e984645c4b08b..33541336258e77 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -478,7 +478,7 @@ L:	linux-hwmon@vger.kernel.org
- S:	Maintained
- F:	Documentation/hwmon/ads1015
- F:	drivers/hwmon/ads1015.c
--F:	include/linux/i2c/ads1015.h
-+F:	include/linux/platform_data/ads1015.h
- 
- ADT746X FAN DRIVER
- M:	Colin Leroy <colin@colino.net>
-diff --git a/drivers/hwmon/ads1015.c b/drivers/hwmon/ads1015.c
-index 5140c27d16dd03..357b4260716404 100644
---- a/drivers/hwmon/ads1015.c
-+++ b/drivers/hwmon/ads1015.c
-@@ -34,7 +34,7 @@
- #include <linux/of_device.h>
- #include <linux/of.h>
- 
--#include <linux/i2c/ads1015.h>
-+#include <linux/platform_data/ads1015.h>
- 
- /* ADS1015 registers */
- enum {
-diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
-index f76d979fb7e86e..884b8e461b1755 100644
---- a/drivers/iio/adc/ti-ads1015.c
-+++ b/drivers/iio/adc/ti-ads1015.c
-@@ -23,7 +23,7 @@
- #include <linux/mutex.h>
- #include <linux/delay.h>
- 
--#include <linux/i2c/ads1015.h>
-+#include <linux/platform_data/ads1015.h>
- 
- #include <linux/iio/iio.h>
- #include <linux/iio/types.h>
-diff --git a/include/linux/i2c/ads1015.h b/include/linux/platform_data/ads1015.h
-similarity index 100%
-rename from include/linux/i2c/ads1015.h
-rename to include/linux/platform_data/ads1015.h
+No runtime testing because of no HW, but buildbot is happy with this series at
+least. A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
+
+Thanks and kind regards,
+
+   Wolfram
+
+
+Wolfram Sang (2):
+  i2c: mux: pca954x: move header file out of I2C realm
+  i2c: mux: mlxcpld: move header file out of I2C realm
+
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c                | 2 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c                | 2 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 2 +-
+ include/linux/{i2c => platform_data}/pca954x.h     | 0
+ include/linux/{i2c => platform_data/x86}/mlxcpld.h | 0
+ 5 files changed, 3 insertions(+), 3 deletions(-)
+ rename include/linux/{i2c => platform_data}/pca954x.h (100%)
+ rename include/linux/{i2c => platform_data/x86}/mlxcpld.h (100%)
+
 -- 
 2.11.0
