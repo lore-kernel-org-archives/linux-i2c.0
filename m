@@ -1,72 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
-Date: Mon, 22 May 2017 17:56:49 +0200
-Message-ID: <20170522155649.wuf2rcdtywa7e667@ninjato>
-References: <20170521204233.6745-1-wsa@the-dreams.de>
- <20170521204233.6745-2-wsa@the-dreams.de>
- <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v9 5/6] i2c: designware: add SLAVE mode functions
+Date: Mon, 22 May 2017 19:37:54 +0300
+Message-ID: <CAHp75VesAMbxViEDDa7sTkufDKJgnX23y2L=SM968rFSsFtiDQ@mail.gmail.com>
+References: <cover.1493893241.git.lolivei@synopsys.com> <b2accd73182d19927dfb0cd1a57cadf469ae5e9d.1493893241.git.lolivei@synopsys.com>
+ <1494262399.30052.69.camel@linux.intel.com> <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="byuztooyzdux2gzl"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f181.google.com ([209.85.216.181]:36069 "EHLO
+        mail-qt0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934440AbdEVQiA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 12:38:00 -0400
+In-Reply-To: <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 
+On Mon, May 22, 2017 at 5:32 PM, Luis Oliveira
+<Luis.Oliveira@synopsys.com> wrote:
+> On 08-May-17 17:53, Andy Shevchenko wrote:
+>> On Mon, 2017-05-08 at 11:37 +0100, Luis Oliveira wrote:
 
---byuztooyzdux2gzl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>> +            enabled, slave_activity, raw_stat, stat);
+>>> +
+>>
+>>> +    if (slave_activity) {
+>>> +            if (stat & DW_IC_INTR_RD_REQ) {
+>>
+>> Looking into next condition (stat & DW_IC_INTR_RX_DONE) I would
+>> exchange these lines
+>>
+>
+> By order? I don't think I understood your point. Please elaborate a little more.
 
-Hi Arnd,
+if (stat & DW_IC_INTR_RD_REQ) {
+  if (slave_activity) {
 
-> > -#include <linux/i2c/apds990x.h>
-> > +#include <linux/platform_data/apds990x.h>
->=20
-> The new location is clearly better than the old, but I notice that in both
-> patches, there is not a single definition for the platform_data structure
-> in the kernel and both drivers refuse to load when they do not get
-> passed valid platform_data.
+And perhaps refactor function a bit.
 
-Yes, this is true for quite some drivers I am moving around. I think
-there are two reasons: a) the board code never made it upstream
-b) DT conversion happened and platform_data is now cruft. As mentioned
-in the cover-letter, I didn't dive deeper for all the drivers.
-
-> Should we also remove the drivers or move them into staging?
-
-I'd prefer to keep them. If they are needed again, DT conversion is
-likely and easier than restarting from scratch. Guenter Roeck also
-prefers to not unnecessarily annoy people who might have out-of-tree
-board code. So, as long as they are not painful, let's keep them?
-
-Regards,
-
-   Wolfram
-
-
---byuztooyzdux2gzl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkjCkEACgkQFA3kzBSg
-KbYieQ/+JfpNtl0iDvxJ72BMTgPAnJFY30xcluTKQ2CK+4+cicEMKtwEdjqptwgR
-52Ye77b9wUEGvHN5JAKdM6+wYpMl0d59y65cOBXkdp/q5KssUsqof/U6d5FQPVAK
-7cKxRJnYRTcaDONZs7JalemTNqAg3N0hPHH9pRjhOz82tul24M56aE3vcS95i3t+
-c85VjEtp5KOeQC2k24F72dm4k8+8hF9ZzL1v7jVVksMyZbASztlLQnzC1v010EGl
-y85NYOjaAoOTUtb5qrchCFiYVta1OIH/tYPcHgrAfaCWBlCFNeA+pMHq+1Ge93Gu
-U+GAobOj+Qhtj/bMZBJEW2OIV30fZELRjAdEoBjAx42S1XnAtFm4Rxbr3CiqmQ+r
-abfcBZvKIxPCDsliaZUOrdglVv0O0VBDNetp9qP9aK/oYTPN0qB+mV0I+5RHU1mY
-iW38OaO0IOujRc9im4+jdyF59fTi/LcRQNm35MFi55rj//+5q9GyrJdKvIqjdmYF
-eKmhZD/MO/f1ih32xdbxjqJw+CUlYRkeyWt+iXLbpQzqD1Zgvx6N79s6jtcri4uf
-yoddkG0xfSnnvtVWXjlM/C4jmBHa7UePnqhqkZ65bUxbfs+QSC9rOtDzAMBJGcMq
-27qu0MW4wL3BA6EVcHnOY/eP2B1OntPDsujxzCgg0orlN3dM4LQ=
-=gzvP
------END PGP SIGNATURE-----
-
---byuztooyzdux2gzl--
+-- 
+With Best Regards,
+Andy Shevchenko
