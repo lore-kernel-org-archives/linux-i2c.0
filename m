@@ -1,55 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv2] i2c: i2c-tiny-usb: fix buffer not being DMA capable
-Date: Mon, 22 May 2017 10:35:25 +0200
-Message-ID: <20170522083525.ubm2cxj3oueefljl@ninjato>
-References: <20170505090650.28412-1-sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH] i2c: designware: Fix bogus sda_hold_time due to
+ uninitialized vars
+Date: Mon, 22 May 2017 10:36:21 +0200
+Message-ID: <20170522083621.upovyjqo56ywqdrl@ninjato>
+References: <20170519085640.15111-1-ard.biesheuvel@linaro.org>
+ <CAKv+Gu9x_KCdEGBBOw9yaYOcYBcYtxJX-xTX=4kQuWqY=VK0PA@mail.gmail.com>
+ <743ebd23-17ab-03d2-ebd9-66acc9aee417@siemens.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="u45bwgube7ik2vm4"
-Return-path: <stable-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="wnugnsi7xjbpmcgy"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:57215 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750987AbdEVIgX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 22 May 2017 04:36:23 -0400
 Content-Disposition: inline
-In-Reply-To: <20170505090650.28412-1-sebastian.reichel@collabora.co.uk>
-Sender: stable-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Sebastian Reichel <sre@kernel.org>, Till Harbaum <till@harbaum.org>, Greg KH <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <743ebd23-17ab-03d2-ebd9-66acc9aee417@siemens.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
 
---u45bwgube7ik2vm4
+--wnugnsi7xjbpmcgy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 05, 2017 at 11:06:50AM +0200, Sebastian Reichel wrote:
-> Since v4.9 i2c-tiny-usb generates the below call trace
-> and longer works, since it can't communicate with the
-> USB device. The reason is, that since v4.9 the USB
-> stack checks, that the buffer it should transfer is DMA
-> capable. This was a requirement since v2.2 days, but it
-> usually worked nevertheless.
+On Mon, May 22, 2017 at 07:46:55AM +0200, Jan Kiszka wrote:
+> We need to initializes those variables to 0 for platforms that do not
+> provide ACPI parameters. Otherwise, we set sda_hold_time to random
+> values, breaking e.g. Galileo and IOT2000 boards.
 >=20
+> Fixes: 9d6408433019 ("i2c: designware: don't infer timings described by A=
+CPI from clock rate")
+> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
 Applied to for-current, thanks!
 
 
---u45bwgube7ik2vm4
+--wnugnsi7xjbpmcgy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkioskACgkQFA3kzBSg
-KbZi4RAAseKhrVqJGsfe8FCnHf7KSBy7sV5Vj+hFWt6cYg/8SDmSf4Kb/BgdYxsA
-TfeluOZL3gnvxYM8XRlnTBrE+IdYoLq76oX+7wYPfSRPAYXVOO1XbZ6AGkTQyzBI
-wnx/cPJk7creBINjtHYg5Q/0Jvzmt12F3GI8XmBuAXUQyf3brSGayT9TbQ7hVbih
-dDq0KPT2JMXYXtyDv8yzFdLjmSwDXHTl2YnqYK6kM3QMNgVLAMuZEZNQNMTtiUez
-uBghv7ZhYVGlbKtlb25i+Zn3lhf066RuAe+ummof0lnm5w99zwi0LNXspFNwDgSr
-mBOXFiJEM2ftmwmBBLIDBVN4ExDl87E1LiI0eTJqFVstva4QpxkPzpSukPuizfSF
-QK0p5XRbloV/XkJ5fbr0lD+/1VgOzTvxZ1g9G+LIUgJB9t+qtwtLpGtFIwHoKIAh
-EQqyLmGCZTKF9S14JH/zSbzuuO9yNCwtquLJmNGlQzFnvu+RceYuyPEMR7HwfLch
-Vez8ATy0RkuE1mytdZ7oJICXGcBOJjutRiulEnJEdVAXvUi/KFizakTsgfh8cjvc
-W84XwHCZUQtcfJGoUXMX4jALozFcuje++IX7k0f6WI30y3pTZmG2/V7XmbH6xCBi
-0IHjSZv91wb51lFAu4K13exrPPJr2/x1SDL6xFk2pU0NLtIo4oY=
-=+cYa
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkiowUACgkQFA3kzBSg
+KbZ8GQ/7BWw7Brn8F/rLTaqj/n/lwh0nsg10n7u73/BMg3jtY9g9w74fu7goW73y
+/sun+tD7FEtNT/qha5vQnTny2uHt6DcMRrVXY3dykvqnOtLgzcN5YxtvlQjYR7di
+Ya5HpYreNnxInR+kmQg1C1+3tuFWVH+k5QUueFQvGOdKYWRLngiqtcS8Hsk+JRrl
+l5pmF3aGsJkaywY0UdQECc5rYUakl+eQBhUK1lumUZEZ5AriDnWfZjuE9SxwZEEs
+DqnOJYqpouLe/hu4D2yOnITCDqwjmiUKqihoNz8P8iF/rWQfgn2Frgi/537uS/y1
+mFlxfwUxGb7BAheFjj9hfHdjxtvWkgAxFVKVNNWULfhYfTKuohNIU7JMMEnf2ucf
+2SGJ2HYXoOsTTm1V/YG0mL33d6BL8KksT5Pb3ADbFnSsXQk0O29Vym4Sxxa3EIM+
+P18KNaFV9Iocpi9MLIsq4Q+hrXlHJytvSoEGl1fwFudwlkN1rX9kZ859uYQH1C+8
+Ieu4JLfF+Ot5gHuEQMHtwsPB0WA5OD1ApC/axu1RcI5fVI5pNOrXyVkJDIpYp3+N
+wfvI9GlyXZp/Jr2GfwwdBfdLRO1Lm3DIlUfBmfzUXuqZRcNjefR7SD2/fsxA544x
+NWB3o+JGQpZpNzKLmW9f6EHPW3XlW+bnVr8XM6OHaMv6vMg9s4g=
+=nX9B
 -----END PGP SIGNATURE-----
 
---u45bwgube7ik2vm4--
+--wnugnsi7xjbpmcgy--
