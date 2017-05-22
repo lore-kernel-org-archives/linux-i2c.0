@@ -1,48 +1,216 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
-Date: Mon, 22 May 2017 16:29:31 +0200
-Message-ID: <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
-References: <20170521204233.6745-1-wsa@the-dreams.de> <20170521204233.6745-2-wsa@the-dreams.de>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH v9 5/6] i2c: designware: add SLAVE mode functions
+Date: Mon, 22 May 2017 15:32:16 +0100
+Message-ID: <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
+References: <cover.1493893241.git.lolivei@synopsys.com>
+ <b2accd73182d19927dfb0cd1a57cadf469ae5e9d.1493893241.git.lolivei@synopsys.com>
+ <1494262399.30052.69.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:35614 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933917AbdEVO3d (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 10:29:33 -0400
-In-Reply-To: <20170521204233.6745-2-wsa@the-dreams.de>
+Received: from smtprelay.synopsys.com ([198.182.47.9]:35057 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933917AbdEVOcX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 10:32:23 -0400
+In-Reply-To: <1494262399.30052.69.camel@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-On Sun, May 21, 2017 at 10:42 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  drivers/misc/apds990x.c                         | 2 +-
->  include/linux/{i2c => platform_data}/apds990x.h | 0
->  2 files changed, 1 insertion(+), 1 deletion(-)
->  rename include/linux/{i2c => platform_data}/apds990x.h (100%)
->
-> diff --git a/drivers/misc/apds990x.c b/drivers/misc/apds990x.c
-> index dfb72ecfa60461..c341164edaad01 100644
-> --- a/drivers/misc/apds990x.c
-> +++ b/drivers/misc/apds990x.c
-> @@ -32,7 +32,7 @@
->  #include <linux/delay.h>
->  #include <linux/wait.h>
->  #include <linux/slab.h>
-> -#include <linux/i2c/apds990x.h>
-> +#include <linux/platform_data/apds990x.h>
+On 08-May-17 17:53, Andy Shevchenko wrote:
+> On Mon, 2017-05-08 at 11:37 +0100, Luis Oliveira wrote:
+>> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+>> - Slave functions added to core library file
+>> - Slave abort sources added to common source file
+>> - New driver: i2c-designware-slave added
+>> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>>   when supported by the architecture.
+>>
+>> All the SLAVE flow is added but it is not enabled via platform
+>> driver.
+> 
+> My comments below.
+> Overall entire series looks much much better than first version.
+> 
+>> @@ -41,6 +41,7 @@ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+>>  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+>>  obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
+>>  i2c-designware-core-objs := i2c-designware-common.o i2c-designware-
+>> master.o
+> 
+>> +i2c-designware-core-$(CONFIG_I2C_DESIGNWARE_SLAVE) += i2c-designware-
+>> slave.o
+> 
+> What is your intention here?
+> 
+> AFAIUC it should be like
+> 
+> ifneq ($(CONFIG_I2C_DESIGNWARE_SLAVE),n)
+> i2c-designware-core-objs += i2c-designware-slave.o
+> endif
+> 
 
-The new location is clearly better than the old, but I notice that in both
-patches, there is not a single definition for the platform_data structure
-in the kernel and both drivers refuse to load when they do not get
-passed valid platform_data.
+Ok, I will change it in the next patchset.
 
-Should we also remove the drivers or move them into staging?
+>> +/**
+>> + * i2c_dw_init_slave() - Initialize the designware i2c slave hardware
+>> + * @dev: device private data
+>> + *
+>> + * This functions configures and enables the I2C.
+> 
+> functions -> function
+> I2C -> I2C in slave mode
+> 
+Yes.
 
-       Arnd
+>> + * This function is called during I2C init function, and in case of
+>> timeout at
+>> + * run time.
+>> + */
+>> +int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+>> +{
+>> +	u32 sda_falling_time, scl_falling_time;
+>> +	u32 reg, comp_param1;
+>> +	u32 hcnt, lcnt;
+>> +	int ret;
+>> +
+>> +	ret = i2c_dw_acquire_lock(dev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+>> +	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+>> +		/* Configure register endianness access. */
+>> +		dev->flags |= ACCESS_SWAP;
+> 
+>> +	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
+> 
+> GENMASK(15, 0)
+> 
+I think I will leave it as it is. As Jarkko said it has more readability this way.
+
+>> +		/* Configure register access mode 16bit. */
+>> +		dev->flags |= ACCESS_16BIT;
+>> +	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
+>> +		dev_err(dev->dev,
+>> +			"Unknown Synopsys component type: 0x%08x\n",
+>> reg);
+>> +		i2c_dw_release_lock(dev);
+>> +		return -ENODEV;
+>> +	}
+> 
+>> +/*
+>> + * Interrupt service routine. This gets called whenever an I2C slave
+>> interrupt
+>> + * occurs.
+>> + */
+>> +
+>> +static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
+>> +{
+>> +	u32 raw_stat, stat, enabled;
+>> +	u8 val, slave_activity;
+>> +
+>> +	stat = dw_readl(dev, DW_IC_INTR_STAT);
+>> +	enabled = dw_readl(dev, DW_IC_ENABLE);
+>> +	raw_stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
+>> +	slave_activity = ((dw_readl(dev, DW_IC_STATUS) &
+>> +		DW_IC_STATUS_SLAVE_ACTIVITY) >> 6);
+>> +
+>> +	if (!enabled || !(raw_stat & ~DW_IC_INTR_ACTIVITY))
+>> +		return 0;
+>> +
+>> +	dev_dbg(dev->dev,
+>> +		"%#x SLAVE_ACTV=%#x : RAW_INTR_STAT=%#x :
+>> INTR_STAT=%#x\n",
+> 
+> SLAVE_ACTV -> STATUS_SLAVE_ACTIVITY
+
+Ok.
+
+> 
+>> +		enabled, slave_activity, raw_stat, stat);
+>> +
+> 
+>> +	if (slave_activity) {
+>> +		if (stat & DW_IC_INTR_RD_REQ) {
+> 
+> Looking into next condition (stat & DW_IC_INTR_RX_DONE) I would 
+> exchange these lines
+> 
+
+By order? I don't think I understood your point. Please elaborate a little more.
+
+>> +			if (stat & DW_IC_INTR_RX_FULL) {
+>> +				val = dw_readl(dev, DW_IC_DATA_CMD);
+>> +				if (!i2c_slave_event(dev->slave,
+>> +				I2C_SLAVE_WRITE_RECEIVED, &val)) {
+>> +					dev_vdbg(dev->dev, "Byte %X
+>> acked!",
+>> +					val);
+>> +					}
+>> +				dw_readl(dev, DW_IC_CLR_RD_REQ);
+>> +				stat =
+>> i2c_dw_read_clear_intrbits_slave(dev);
+>> +			} else {
+>> +				dw_readl(dev, DW_IC_CLR_RD_REQ);
+>> +				dw_readl(dev, DW_IC_CLR_RX_UNDER);
+>> +				stat =
+>> i2c_dw_read_clear_intrbits_slave(dev);
+>> +			}
+>> +			if (!i2c_slave_event(dev->slave,
+>> +					I2C_SLAVE_READ_REQUESTED,
+>> &val))
+>> +				dw_writel(dev, val, DW_IC_DATA_CMD);
+>> +		}
+>> +	}
+>> +
+>> +	if (stat & DW_IC_INTR_RX_DONE) {
+>> +		if (!i2c_slave_event(dev->slave,
+>> I2C_SLAVE_READ_PROCESSED,
+>> +			&val))
+>> +			dw_readl(dev, DW_IC_CLR_RX_DONE);
+>> +
+>> +		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
+>> +		stat = i2c_dw_read_clear_intrbits_slave(dev);
+>> +		return 1;
+>> +	}
+>> +
+>> +	if (stat & DW_IC_INTR_RX_FULL) {
+>> +		val = dw_readl(dev, DW_IC_DATA_CMD);
+>> +		if (!i2c_slave_event(dev->slave,
+>> I2C_SLAVE_WRITE_RECEIVED,
+>> +			&val))
+>> +			dev_vdbg(dev->dev, "Byte %X acked!", val);
+>> +	} else {
+>> +		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
+>> +		stat = i2c_dw_read_clear_intrbits_slave(dev);
+>> +	}
+>> +
+>> +	if (stat & DW_IC_INTR_TX_OVER)
+>> +		dw_readl(dev, DW_IC_CLR_TX_OVER);
+>> +
+>> +	return 1;
+>> +}
+> 
+>> +static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
+>> +{
+>> +	struct dw_i2c_dev *dev = dev_id;
+>> +	int ret;
+>> +
+>> +	i2c_dw_read_clear_intrbits_slave(dev);
+>> +	ret = i2c_dw_irq_handler_slave(dev);
+> 
+>> +
+> 
+> I would remove this line.
+
+Ok. Thank you.
+> 
+>> +	if (ret > 0)
+>> +		complete(&dev->cmd_complete);
+>> +
+>> +	return IRQ_RETVAL(ret);
+>> +}
+> 
