@@ -1,44 +1,115 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v9 5/6] i2c: designware: add SLAVE mode functions
-Date: Mon, 22 May 2017 19:37:54 +0300
-Message-ID: <CAHp75VesAMbxViEDDa7sTkufDKJgnX23y2L=SM968rFSsFtiDQ@mail.gmail.com>
-References: <cover.1493893241.git.lolivei@synopsys.com> <b2accd73182d19927dfb0cd1a57cadf469ae5e9d.1493893241.git.lolivei@synopsys.com>
- <1494262399.30052.69.camel@linux.intel.com> <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 00/20] eeprom: at24: Add OF device ID table
+Date: Mon, 22 May 2017 11:52:50 -0500
+Message-ID: <CAL_JsqKj_f-jY3wi78QyAAov=a9-ReaT9qU=ytwSp+5RL0eutg@mail.gmail.com>
+References: <20170522140208.24652-1-javier@dowhile0.org>
+ <CAMuHMdXbhkGGFC80-39Axzv=BdEXyBNuPuHCSWW3eXWDB=SQ+w@mail.gmail.com>
+ <CAL_JsqL2P=C+xRyL-BCC=RtFah4BRf8BHSvWNPZ+6r2ioSk_Yw@mail.gmail.com>
+ <CABxcv==xw7UxF1Ey+hDhGb_wzgAcFR9JLm6iuirvYSTTvSxb0A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f181.google.com ([209.85.216.181]:36069 "EHLO
-        mail-qt0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934440AbdEVQiA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 12:38:00 -0400
-In-Reply-To: <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CABxcv==xw7UxF1Ey+hDhGb_wzgAcFR9JLm6iuirvYSTTvSxb0A@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Michal Simek <michal.simek@xilinx.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, Mark Jackson <mpfj@newflow.co.uk>, Jason Cooper <jason@lakedaemon.net>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andy.shevchenko@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Catalin Marinas <catalin.marin>
 List-Id: linux-i2c@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 
-On Mon, May 22, 2017 at 5:32 PM, Luis Oliveira
-<Luis.Oliveira@synopsys.com> wrote:
-> On 08-May-17 17:53, Andy Shevchenko wrote:
->> On Mon, 2017-05-08 at 11:37 +0100, Luis Oliveira wrote:
-
->>> +            enabled, slave_activity, raw_stat, stat);
->>> +
+On Mon, May 22, 2017 at 9:46 AM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
+> Hello Geert and Rob,
+>
+> On Mon, May 22, 2017 at 4:26 PM, Rob Herring <robh@kernel.org> wrote:
+>> On Mon, May 22, 2017 at 9:23 AM, Geert Uytterhoeven
+>> <geert@linux-m68k.org> wrote:
+>>> Hi Javier,
+>>>
+>>> On Mon, May 22, 2017 at 4:01 PM, Javier Martinez Canillas
+>>> <javier@dowhile0.org> wrote:
+>>>> This series is a follow-up to patch [0] that added an OF device ID table
+>>>> to the at24 EEPROM driver. As you suggested [1], this version instead of
+>>>> adding entries for every used <vendor,device> tuple, only adds a single
+>>>> entry for each chip type using the "atmel" vendor as a generic fallback.
+>>>>
+>>>> This is a re-spin that addresses some issues pointed out by Rob Herring.
+>>>>
+>>>> The first patch documents in the DT binding what's the correct vendor to
+>>>> use and what are the ones that are being deprecated. The second one adds
+>>>> the OF device ID table for the at24 driver and the next patches use this
+>>>> vendor in the compatible string to each DTS that defines a compatible I2C
+>>>> EEPROM device node.
+>>>>
+>>>> Patches can be applied independently since the DTS changes without driver
+>>>> changes are no-op and the OF table won't be used without the DTS changes.
+>>>>
+>>>> [0]: https://lkml.org/lkml/2017/3/14/589
+>>>> [1]: https://lkml.org/lkml/2017/3/15/99
+>>>>
+>>>> Best regards,
+>>>> Javier
+>>>>
+>>>> Changes in v4:
+>>>> - Document the manufacturers that have been deprecated (Rob Herring).
+>>>> - Only use the atmel manufacturer in the compatible string instead of
+>>>>   keeping the deprecated ones (Rob Herring).
+>>>
+>>> I think you're referring to this (https://lkml.org/lkml/2017/4/19/1136)?
+>>>
+>>> | > --- a/arch/arm/boot/dts/am335x-baltos.dtsi
+>>> | > +++ b/arch/arm/boot/dts/am335x-baltos.dtsi
+>>> | > @@ -255,7 +255,7 @@
+>>> | >     };
+>>> | >
+>>> | >     at24@50 {
+>>> | > -           compatible = "at24,24c02";
+>>> | > +           compatible = "at24,24c02", "atmel,24c02";
+>>> |
+>>> | I think you can just drop the at24 compatibles. A new kernel doesn't
+>>> | need it. An old kernel ignores the manufacturer. I checked that u-boot
+>>> | only matches on "atmel,*", so okay there. Don't know about the *BSDs. I
+>>> | couldn't find anything.
+>>>
+>>> I think you misunderstood what Rob means.
+>>>
+>>> In the case above it makes sense to drop the first compatible, as "at24" is
+>>> not a manufacturer, but refers to ATMEL's "AT24" line of i2c FLASH ROMs.
+>>>
+>>> However, in cases where a real vendor/part combo is specified, like on
+>>> r8a7791-koelsch.dts:
+>>>
+>>> -               compatible = "renesas,24c02";
+>>> +               compatible = "atmel,24c02";
+>>>
+>>> you do want to keep the real vendor/part combo, i.e.
+>>>
+>>>      compatible = "renesas,24c02", "atmel,24c02";
 >>
->>> +    if (slave_activity) {
->>> +            if (stat & DW_IC_INTR_RD_REQ) {
->>
->> Looking into next condition (stat & DW_IC_INTR_RX_DONE) I would
->> exchange these lines
+>> Yes, Geert is correct.
 >>
 >
-> By order? I don't think I understood your point. Please elaborate a little more.
+> Sorry for misunderstanding your previous comment...
+>
+> How this should be documented in the DT binding? Should I include
+> "renesas" as a valid manufacturer or only list the used
+> <vendor,device> pairs (i.e: "renesas,24c02")?
 
-if (stat & DW_IC_INTR_RD_REQ) {
-  if (slave_activity) {
+However you are handling any of the vendors. I'll have to go look.
 
-And perhaps refactor function a bit.
+> I also wonder why this is really needed if AFAIU "renesas,24c02" is
+> compatible with "atmel,24c02". IOW, the driver doesn't need to
+> differentiate between the two since the devices are the same and will
+> always match using "atmel,24c02".
 
--- 
-With Best Regards,
-Andy Shevchenko
+It is needed, so that when a difference is found, it can be handled
+without updating the DT.
+
+Rob
