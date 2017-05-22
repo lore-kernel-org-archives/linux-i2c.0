@@ -1,34 +1,43 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix bogus sda_hold_time due to
- uninitialized vars
-Date: Mon, 22 May 2017 09:37:13 +0300
-Message-ID: <aad364b9-75ce-553e-28da-a5458b90b332@linux.intel.com>
-References: <20170519085640.15111-1-ard.biesheuvel@linaro.org>
- <CAKv+Gu9x_KCdEGBBOw9yaYOcYBcYtxJX-xTX=4kQuWqY=VK0PA@mail.gmail.com>
- <743ebd23-17ab-03d2-ebd9-66acc9aee417@siemens.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 2/3] mfd: tps65010: move header file out of I2C realm
+Date: Mon, 22 May 2017 09:24:56 +0200
+Message-ID: <20170522072456.GA21253@kroah.com>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-3-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:21711 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750777AbdEVGj0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 22 May 2017 02:39:26 -0400
-In-Reply-To: <743ebd23-17ab-03d2-ebd9-66acc9aee417@siemens.com>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:42208 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751433AbdEVHZH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 03:25:07 -0400
+Content-Disposition: inline
+In-Reply-To: <20170521220212.1404-3-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kiszka <jan.kiszka@siemens.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Lee Jones <lee.jones@linaro.org>, Alan Stern <stern@rowland.harvard.edu>, Felipe Balbi <balbi@kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On 05/22/2017 08:46 AM, Jan Kiszka wrote:
-> We need to initializes those variables to 0 for platforms that do not
-> provide ACPI parameters. Otherwise, we set sda_hold_time to random
-> values, breaking e.g. Galileo and IOT2000 boards.
->
-> Fixes: 9d6408433019 ("i2c: designware: don't infer timings described by ACPI from clock rate")
-> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+On Mon, May 22, 2017 at 12:02:09AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 > ---
->
-> Affects 4.12-rc2.
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>  arch/arm/mach-omap1/board-h2-mmc.c      | 2 +-
+>  arch/arm/mach-omap1/board-h2.c          | 2 +-
+>  arch/arm/mach-omap1/board-h3-mmc.c      | 2 +-
+>  arch/arm/mach-omap1/board-h3.c          | 2 +-
+>  arch/arm/mach-omap1/board-osk.c         | 2 +-
+>  arch/arm/mach-s3c24xx/mach-osiris-dvs.c | 2 +-
+>  arch/arm/mach-s3c24xx/mach-osiris.c     | 2 +-
+>  drivers/mfd/tps65010.c                  | 2 +-
+>  drivers/usb/host/ohci-omap.c            | 2 +-
+>  drivers/usb/phy/phy-isp1301-omap.c      | 2 +-
+>  drivers/video/fbdev/omap/lcd_h3.c       | 2 +-
+>  include/linux/{i2c => mfd}/tps65010.h   | 2 +-
+>  12 files changed, 12 insertions(+), 12 deletions(-)
+>  rename include/linux/{i2c => mfd}/tps65010.h (99%)
+
+
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
