@@ -1,216 +1,110 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: Re: [PATCH v9 5/6] i2c: designware: add SLAVE mode functions
-Date: Mon, 22 May 2017 15:32:16 +0100
-Message-ID: <513c9c43-cf3b-3aa9-b5c2-99932527bf19@synopsys.com>
-References: <cover.1493893241.git.lolivei@synopsys.com>
- <b2accd73182d19927dfb0cd1a57cadf469ae5e9d.1493893241.git.lolivei@synopsys.com>
- <1494262399.30052.69.camel@linux.intel.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH v4 00/20] eeprom: at24: Add OF device ID table
+Date: Mon, 22 May 2017 16:46:09 +0200
+Message-ID: <CABxcv==xw7UxF1Ey+hDhGb_wzgAcFR9JLm6iuirvYSTTvSxb0A@mail.gmail.com>
+References: <20170522140208.24652-1-javier@dowhile0.org>
+ <CAMuHMdXbhkGGFC80-39Axzv=BdEXyBNuPuHCSWW3eXWDB=SQ+w@mail.gmail.com>
+ <CAL_JsqL2P=C+xRyL-BCC=RtFah4BRf8BHSvWNPZ+6r2ioSk_Yw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtprelay.synopsys.com ([198.182.47.9]:35057 "EHLO
-        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933917AbdEVOcX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 10:32:23 -0400
-In-Reply-To: <1494262399.30052.69.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAL_JsqL2P=C+xRyL-BCC=RtFah4BRf8BHSvWNPZ+6r2ioSk_Yw@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Michal Simek <michal.simek@xilinx.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, Mark Jackson <mpfj@newflow.co.uk>, Jason Cooper <jason@lakedaemon.net>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andy.shevchenko@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Catalin Marinas <catalin.marin>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-On 08-May-17 17:53, Andy Shevchenko wrote:
-> On Mon, 2017-05-08 at 11:37 +0100, Luis Oliveira wrote:
->> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
->> - Slave functions added to core library file
->> - Slave abort sources added to common source file
->> - New driver: i2c-designware-slave added
->> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
->>   when supported by the architecture.
+Hello Geert and Rob,
+
+On Mon, May 22, 2017 at 4:26 PM, Rob Herring <robh@kernel.org> wrote:
+> On Mon, May 22, 2017 at 9:23 AM, Geert Uytterhoeven
+> <geert@linux-m68k.org> wrote:
+>> Hi Javier,
 >>
->> All the SLAVE flow is added but it is not enabled via platform
->> driver.
-> 
-> My comments below.
-> Overall entire series looks much much better than first version.
-> 
->> @@ -41,6 +41,7 @@ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
->>  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
->>  obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
->>  i2c-designware-core-objs := i2c-designware-common.o i2c-designware-
->> master.o
-> 
->> +i2c-designware-core-$(CONFIG_I2C_DESIGNWARE_SLAVE) += i2c-designware-
->> slave.o
-> 
-> What is your intention here?
-> 
-> AFAIUC it should be like
-> 
-> ifneq ($(CONFIG_I2C_DESIGNWARE_SLAVE),n)
-> i2c-designware-core-objs += i2c-designware-slave.o
-> endif
-> 
+>> On Mon, May 22, 2017 at 4:01 PM, Javier Martinez Canillas
+>> <javier@dowhile0.org> wrote:
+>>> This series is a follow-up to patch [0] that added an OF device ID table
+>>> to the at24 EEPROM driver. As you suggested [1], this version instead of
+>>> adding entries for every used <vendor,device> tuple, only adds a single
+>>> entry for each chip type using the "atmel" vendor as a generic fallback.
+>>>
+>>> This is a re-spin that addresses some issues pointed out by Rob Herring.
+>>>
+>>> The first patch documents in the DT binding what's the correct vendor to
+>>> use and what are the ones that are being deprecated. The second one adds
+>>> the OF device ID table for the at24 driver and the next patches use this
+>>> vendor in the compatible string to each DTS that defines a compatible I2C
+>>> EEPROM device node.
+>>>
+>>> Patches can be applied independently since the DTS changes without driver
+>>> changes are no-op and the OF table won't be used without the DTS changes.
+>>>
+>>> [0]: https://lkml.org/lkml/2017/3/14/589
+>>> [1]: https://lkml.org/lkml/2017/3/15/99
+>>>
+>>> Best regards,
+>>> Javier
+>>>
+>>> Changes in v4:
+>>> - Document the manufacturers that have been deprecated (Rob Herring).
+>>> - Only use the atmel manufacturer in the compatible string instead of
+>>>   keeping the deprecated ones (Rob Herring).
+>>
+>> I think you're referring to this (https://lkml.org/lkml/2017/4/19/1136)?
+>>
+>> | > --- a/arch/arm/boot/dts/am335x-baltos.dtsi
+>> | > +++ b/arch/arm/boot/dts/am335x-baltos.dtsi
+>> | > @@ -255,7 +255,7 @@
+>> | >     };
+>> | >
+>> | >     at24@50 {
+>> | > -           compatible = "at24,24c02";
+>> | > +           compatible = "at24,24c02", "atmel,24c02";
+>> |
+>> | I think you can just drop the at24 compatibles. A new kernel doesn't
+>> | need it. An old kernel ignores the manufacturer. I checked that u-boot
+>> | only matches on "atmel,*", so okay there. Don't know about the *BSDs. I
+>> | couldn't find anything.
+>>
+>> I think you misunderstood what Rob means.
+>>
+>> In the case above it makes sense to drop the first compatible, as "at24" is
+>> not a manufacturer, but refers to ATMEL's "AT24" line of i2c FLASH ROMs.
+>>
+>> However, in cases where a real vendor/part combo is specified, like on
+>> r8a7791-koelsch.dts:
+>>
+>> -               compatible = "renesas,24c02";
+>> +               compatible = "atmel,24c02";
+>>
+>> you do want to keep the real vendor/part combo, i.e.
+>>
+>>      compatible = "renesas,24c02", "atmel,24c02";
+>
+> Yes, Geert is correct.
+>
 
-Ok, I will change it in the next patchset.
+Sorry for misunderstanding your previous comment...
 
->> +/**
->> + * i2c_dw_init_slave() - Initialize the designware i2c slave hardware
->> + * @dev: device private data
->> + *
->> + * This functions configures and enables the I2C.
-> 
-> functions -> function
-> I2C -> I2C in slave mode
-> 
-Yes.
+How this should be documented in the DT binding? Should I include
+"renesas" as a valid manufacturer or only list the used
+<vendor,device> pairs (i.e: "renesas,24c02")?
 
->> + * This function is called during I2C init function, and in case of
->> timeout at
->> + * run time.
->> + */
->> +int i2c_dw_init_slave(struct dw_i2c_dev *dev)
->> +{
->> +	u32 sda_falling_time, scl_falling_time;
->> +	u32 reg, comp_param1;
->> +	u32 hcnt, lcnt;
->> +	int ret;
->> +
->> +	ret = i2c_dw_acquire_lock(dev);
->> +	if (ret)
->> +		return ret;
->> +
->> +	reg = dw_readl(dev, DW_IC_COMP_TYPE);
->> +	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
->> +		/* Configure register endianness access. */
->> +		dev->flags |= ACCESS_SWAP;
-> 
->> +	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
-> 
-> GENMASK(15, 0)
-> 
-I think I will leave it as it is. As Jarkko said it has more readability this way.
+I also wonder why this is really needed if AFAIU "renesas,24c02" is
+compatible with "atmel,24c02". IOW, the driver doesn't need to
+differentiate between the two since the devices are the same and will
+always match using "atmel,24c02".
 
->> +		/* Configure register access mode 16bit. */
->> +		dev->flags |= ACCESS_16BIT;
->> +	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
->> +		dev_err(dev->dev,
->> +			"Unknown Synopsys component type: 0x%08x\n",
->> reg);
->> +		i2c_dw_release_lock(dev);
->> +		return -ENODEV;
->> +	}
-> 
->> +/*
->> + * Interrupt service routine. This gets called whenever an I2C slave
->> interrupt
->> + * occurs.
->> + */
->> +
->> +static int i2c_dw_irq_handler_slave(struct dw_i2c_dev *dev)
->> +{
->> +	u32 raw_stat, stat, enabled;
->> +	u8 val, slave_activity;
->> +
->> +	stat = dw_readl(dev, DW_IC_INTR_STAT);
->> +	enabled = dw_readl(dev, DW_IC_ENABLE);
->> +	raw_stat = dw_readl(dev, DW_IC_RAW_INTR_STAT);
->> +	slave_activity = ((dw_readl(dev, DW_IC_STATUS) &
->> +		DW_IC_STATUS_SLAVE_ACTIVITY) >> 6);
->> +
->> +	if (!enabled || !(raw_stat & ~DW_IC_INTR_ACTIVITY))
->> +		return 0;
->> +
->> +	dev_dbg(dev->dev,
->> +		"%#x SLAVE_ACTV=%#x : RAW_INTR_STAT=%#x :
->> INTR_STAT=%#x\n",
-> 
-> SLAVE_ACTV -> STATUS_SLAVE_ACTIVITY
+> Rob
 
-Ok.
-
-> 
->> +		enabled, slave_activity, raw_stat, stat);
->> +
-> 
->> +	if (slave_activity) {
->> +		if (stat & DW_IC_INTR_RD_REQ) {
-> 
-> Looking into next condition (stat & DW_IC_INTR_RX_DONE) I would 
-> exchange these lines
-> 
-
-By order? I don't think I understood your point. Please elaborate a little more.
-
->> +			if (stat & DW_IC_INTR_RX_FULL) {
->> +				val = dw_readl(dev, DW_IC_DATA_CMD);
->> +				if (!i2c_slave_event(dev->slave,
->> +				I2C_SLAVE_WRITE_RECEIVED, &val)) {
->> +					dev_vdbg(dev->dev, "Byte %X
->> acked!",
->> +					val);
->> +					}
->> +				dw_readl(dev, DW_IC_CLR_RD_REQ);
->> +				stat =
->> i2c_dw_read_clear_intrbits_slave(dev);
->> +			} else {
->> +				dw_readl(dev, DW_IC_CLR_RD_REQ);
->> +				dw_readl(dev, DW_IC_CLR_RX_UNDER);
->> +				stat =
->> i2c_dw_read_clear_intrbits_slave(dev);
->> +			}
->> +			if (!i2c_slave_event(dev->slave,
->> +					I2C_SLAVE_READ_REQUESTED,
->> &val))
->> +				dw_writel(dev, val, DW_IC_DATA_CMD);
->> +		}
->> +	}
->> +
->> +	if (stat & DW_IC_INTR_RX_DONE) {
->> +		if (!i2c_slave_event(dev->slave,
->> I2C_SLAVE_READ_PROCESSED,
->> +			&val))
->> +			dw_readl(dev, DW_IC_CLR_RX_DONE);
->> +
->> +		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
->> +		stat = i2c_dw_read_clear_intrbits_slave(dev);
->> +		return 1;
->> +	}
->> +
->> +	if (stat & DW_IC_INTR_RX_FULL) {
->> +		val = dw_readl(dev, DW_IC_DATA_CMD);
->> +		if (!i2c_slave_event(dev->slave,
->> I2C_SLAVE_WRITE_RECEIVED,
->> +			&val))
->> +			dev_vdbg(dev->dev, "Byte %X acked!", val);
->> +	} else {
->> +		i2c_slave_event(dev->slave, I2C_SLAVE_STOP, &val);
->> +		stat = i2c_dw_read_clear_intrbits_slave(dev);
->> +	}
->> +
->> +	if (stat & DW_IC_INTR_TX_OVER)
->> +		dw_readl(dev, DW_IC_CLR_TX_OVER);
->> +
->> +	return 1;
->> +}
-> 
->> +static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
->> +{
->> +	struct dw_i2c_dev *dev = dev_id;
->> +	int ret;
->> +
->> +	i2c_dw_read_clear_intrbits_slave(dev);
->> +	ret = i2c_dw_irq_handler_slave(dev);
-> 
->> +
-> 
-> I would remove this line.
-
-Ok. Thank you.
-> 
->> +	if (ret > 0)
->> +		complete(&dev->cmd_complete);
->> +
->> +	return IRQ_RETVAL(ret);
->> +}
-> 
+Best regards,
+Javier
