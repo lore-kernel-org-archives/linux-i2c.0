@@ -1,75 +1,81 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: don't infer timings described by ACPI
- from clock rate
-Date: Mon, 22 May 2017 09:35:24 +0300
-Message-ID: <a254b8bf-cbca-599a-2986-6775fbadb79c@linux.intel.com>
-References: <20170519085640.15111-1-ard.biesheuvel@linaro.org>
- <CAKv+Gu9x_KCdEGBBOw9yaYOcYBcYtxJX-xTX=4kQuWqY=VK0PA@mail.gmail.com>
- <62548890-2541-32b2-2015-74b5ed40f115@siemens.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/5] hwmon: move include files out of include/linux/i2c
+Date: Mon, 22 May 2017 08:37:46 +0200
+Message-ID: <20170522063746.GA1454@katana>
+References: <20170521203443.6387-1-wsa@the-dreams.de>
+ <b876bed9-38dc-233f-053a-4b0d4ad990b2@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:9146 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751030AbdEVGhj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 22 May 2017 02:37:39 -0400
-In-Reply-To: <62548890-2541-32b2-2015-74b5ed40f115@siemens.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <b876bed9-38dc-233f-053a-4b0d4ad990b2@roeck-us.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jan Kiszka <jan.kiszka@siemens.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-On 05/22/2017 08:44 AM, Jan Kiszka wrote:
-> On 2017-05-21 10:09, Ard Biesheuvel wrote:
->> On 19 May 2017 at 09:56, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
->>> Commit bd698d24b1b57 ("i2c: designware: Get selected speed mode
->>> sda-hold-time via ACPI") updated the logic that reads the timing
->>> parameters for various I2C bus rates from the DSDT, to only read
->>> the timing parameters for the currently selected mode.
->>>
->>> This causes a WARN_ON() splat on platforms that legally omit the clock
->>> frequency from the ACPI description, because in the new situation, the
->>> core I2C designware driver still accesses the fields in the driver
->>> struct that we no longer populate, and proceeds to calculate them from
->>> the clock frequency. Since the clock frequency is unspecified, the
->>> driver complains loudly using a WARN_ON().
->>>
->>> So revert back to the old situation, where the struct fields for all
->>> timings are populated, but retain the new logic which chooses the SDA
->>> hold time from the timing mode that is currently in use.
->>>
->>> Fixes: bd698d24b1b57 ("i2c: designware: Get selected speed mode ...")
->>> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->>> ---
->>>  drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++++++++++--------
->>>  1 file changed, 10 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> index f2acd4b6bf01..6283b99d2b17 100644
->>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> @@ -96,6 +96,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
->>>         struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
->>>         acpi_handle handle = ACPI_HANDLE(&pdev->dev);
->>>         const struct acpi_device_id *id;
->>> +       u32 ss_ht, fp_ht, hs_ht, fs_ht;
->>
->> Should these be initialized to zero? I realized that
->> dw_i2c_acpi_params() could fail, resulting in bogus hold time values
->> being returnted, but it is unclear to me how that affects the logic in
->> the core driver.
->
-Oh, indeed, great you found this quickly and we got also report and fix 
-quickly from Jan. In bad case this could have been difficult to bisect.
 
-> I can tell you what happens: this breaks e.g. the Galileo and the
-> IOT2000 boards. Will send a patch to initialize the vars to 0, restoring
-> the previous behavior in the absence to the ACPI parameters. The core is
-> prepared for sda_hold_time == 0.
->
-Yes, i2c-designware-core.c will read the hold time from HW set by 
-bootloader or the reset default when dev->sda_hold_time is zero.
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jarkko
+Hi Guenter,
+
+> > Note that some files don't seem to have upstream
+> > users in board code, so they maybe could even be removed? I didn't chec=
+k for
+>=20
+> While I understand where you are coming from, I am not typically that agg=
+ressive.
+> Such removals force vendors who are not really forthcoming with upstreami=
+ng to
+> deviate even further from upstream. It makes them even less likely to sub=
+mit their
+> code upstream, and it may result in enforcing their belief that upstream =
+doesn't
+> really care about vendors struggling to release boards and systems to the=
+ir
+> customers.
+
+I clearly see your point. I meant more the case where platform_data
+became cruft because platforms moved to DT. I agree this is not so much
+the case for HWMON but it was true for the I2C master driver where I
+could remove the platform data and could save the include file and some
+code. That was just a nice cleanup.
+
+> >I prefer the series to go upstream via the subsystem tree; if you prefer=
+ that I
+> >take it via I2C, just let me know.
+> >
+> Series applied to hwmon-next.
+
+Super, thanks!
+
+Regards,
+
+   Wolfram
+
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkihzUACgkQFA3kzBSg
+Kbbssw/+JuPK0Vq4fgoKu9Br2Gb7W2JiG94K9sK8r17E7w7/B2clgdg3pR+sLt4H
+1N6wBWYqW4ESH4Wh9vzCYJ3PB8UvDVupft0wgTqHXgvHwQg9ktm4xXU4NG7TmpWq
+sLPw879p7oq97vFaI4vXUrJSgwyKFph/ry4Cawga6Ze3jLZQGtcG2MsyCl325ZB4
+nG3FEo/kvrzSjKZZX/LcMZwrux5VJO2jhVESGPRVgaksjPTazVB/qQib3kkLs2AW
+XXv097JS+qDkVpKFKRCbarbYQjevy1YrRZkaYid27eUzRpiJho6kUswI9X16Hr8x
+QE6Hmw3N6x1Im85rXvI8pJT6VkPEJMQ1AJLTgYiYK4PvRkH/PZMYiQPPIxhYFFQ9
+a3j6aDRV8VKtP2kkdC/4l1hlB9mkX4HQzPPQb6ikCbiAApp2XaLOyFqvRLWibh/V
+yPR3DSJqnZEb4Sj6bPWKFIl3bSYect0tJPbj6O3W4UGGNCCnLuAQ69rgBFxddu+0
+HUh2grKkiytRXAC6hc7julq/Awx8INyVpH9GzUgGykU84Ysb1+Au+HpJ7nHzX64D
+JGYQ0ryhlhF2NYpjy8n9KvQ/Z0JWzItbGE6NpuR2M982sQRxKpNYxtV1ZdXhpdMm
+Nxci52OaqbgGiu391KLBpCta4yszf17oLrRLgKeZNHnBhitSf2I=
+=ObKu
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
