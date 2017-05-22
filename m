@@ -1,88 +1,75 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 0/5] hwmon: move include files out of include/linux/i2c
-Date: Sun, 21 May 2017 20:02:07 -0700
-Message-ID: <b876bed9-38dc-233f-053a-4b0d4ad990b2@roeck-us.net>
-References: <20170521203443.6387-1-wsa@the-dreams.de>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH] i2c: designware: don't infer timings described by ACPI
+ from clock rate
+Date: Mon, 22 May 2017 07:44:56 +0200
+Message-ID: <62548890-2541-32b2-2015-74b5ed40f115@siemens.com>
+References: <20170519085640.15111-1-ard.biesheuvel@linaro.org>
+ <CAKv+Gu9x_KCdEGBBOw9yaYOcYBcYtxJX-xTX=4kQuWqY=VK0PA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:41656 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751344AbdEVDCL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 21 May 2017 23:02:11 -0400
-In-Reply-To: <20170521203443.6387-1-wsa@the-dreams.de>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAKv+Gu9x_KCdEGBBOw9yaYOcYBcYtxJX-xTX=4kQuWqY=VK0PA@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-doc@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/21/2017 01:34 PM, Wolfram Sang wrote:
-> It doesn't make sense to use include/linux/i2c for client drivers which may in
-> fact rather be hwmon or input or whatever devices. As a result, I want to
-> deprecate include/linux/i2c for good. This series moves the include files to a
-> better location, largely include/platform_data because that is what most of th > moved include files contain. Note that some files don't seem to have upstream
-> users in board code, so they maybe could even be removed? I didn't check for
+On 2017-05-21 10:09, Ard Biesheuvel wrote:
+> On 19 May 2017 at 09:56, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
+>> Commit bd698d24b1b57 ("i2c: designware: Get selected speed mode
+>> sda-hold-time via ACPI") updated the logic that reads the timing
+>> parameters for various I2C bus rates from the DSDT, to only read
+>> the timing parameters for the currently selected mode.
+>>
+>> This causes a WARN_ON() splat on platforms that legally omit the clock
+>> frequency from the ACPI description, because in the new situation, the
+>> core I2C designware driver still accesses the fields in the driver
+>> struct that we no longer populate, and proceeds to calculate them from
+>> the clock frequency. Since the clock frequency is unspecified, the
+>> driver complains loudly using a WARN_ON().
+>>
+>> So revert back to the old situation, where the struct fields for all
+>> timings are populated, but retain the new logic which chooses the SDA
+>> hold time from the timing mode that is currently in use.
+>>
+>> Fixes: bd698d24b1b57 ("i2c: designware: Get selected speed mode ...")
+>> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++++++++++--------
+>>  1 file changed, 10 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index f2acd4b6bf01..6283b99d2b17 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -96,6 +96,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>>         struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+>>         acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+>>         const struct acpi_device_id *id;
+>> +       u32 ss_ht, fp_ht, hs_ht, fs_ht;
+> 
+> Should these be initialized to zero? I realized that
+> dw_i2c_acpi_params() could fail, resulting in bogus hold time values
+> being returnted, but it is unclear to me how that affects the logic in
+> the core driver.
 
-While I understand where you are coming from, I am not typically that aggressive.
-Such removals force vendors who are not really forthcoming with upstreaming to
-deviate even further from upstream. It makes them even less likely to submit their
-code upstream, and it may result in enforcing their belief that upstream doesn't
-really care about vendors struggling to release boards and systems to their
-customers.
+I can tell you what happens: this breaks e.g. the Galileo and the
+IOT2000 boards. Will send a patch to initialize the vars to 0, restoring
+the previous behavior in the absence to the ACPI parameters. The core is
+prepared for sda_hold_time == 0.
 
-> that now, but I did it for one i2c master driver recently. So, it may be
-> possible. pmbus.h got moved just one layer upwards, see the patch description
-> there.
-> 
-> I prefer the series to go upstream via the subsystem tree; if you prefer that I
-> take it via I2C, just let me know.
-> 
-Series applied to hwmon-next.
+Jan
 
-Thanks,
-Guenter
-
-> No runtime testing because of no HW, but buildbot is happy with this series at
-> least. A branch can be found here:
-> 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
-> 
-> Thanks and kind regards,
-> 
->     Wolfram
-> 
-> 
-> Wolfram Sang (5):
->    hwmon: ads1015: move header file out of I2C realm
->    hwmon: ds620: move header file out of I2C realm
->    hwmon: ltc4245: move header file out of I2C realm
->    hwmon: max6639: move header file out of I2C realm
->    hwmon: pmbus: move header file out of I2C realm
-> 
->   Documentation/hwmon/ads1015                    | 2 +-
->   Documentation/hwmon/ltc4245                    | 2 +-
->   Documentation/hwmon/pmbus-core                 | 2 +-
->   MAINTAINERS                                    | 4 ++--
->   drivers/hwmon/ads1015.c                        | 2 +-
->   drivers/hwmon/ds620.c                          | 2 +-
->   drivers/hwmon/ltc4245.c                        | 2 +-
->   drivers/hwmon/max6639.c                        | 2 +-
->   drivers/hwmon/pmbus/pmbus.c                    | 2 +-
->   drivers/hwmon/pmbus/pmbus_core.c               | 2 +-
->   drivers/hwmon/pmbus/ucd9000.c                  | 2 +-
->   drivers/hwmon/pmbus/ucd9200.c                  | 2 +-
->   drivers/iio/adc/ti-ads1015.c                   | 2 +-
->   include/linux/{i2c => platform_data}/ads1015.h | 0
->   include/linux/{i2c => platform_data}/ds620.h   | 0
->   include/linux/{i2c => platform_data}/ltc4245.h | 0
->   include/linux/{i2c => platform_data}/max6639.h | 0
->   include/linux/{i2c => }/pmbus.h                | 0
->   18 files changed, 14 insertions(+), 14 deletions(-)
->   rename include/linux/{i2c => platform_data}/ads1015.h (100%)
->   rename include/linux/{i2c => platform_data}/ds620.h (100%)
->   rename include/linux/{i2c => platform_data}/ltc4245.h (100%)
->   rename include/linux/{i2c => platform_data}/max6639.h (100%)
->   rename include/linux/{i2c => }/pmbus.h (100%)
-> 
+-- 
+Siemens AG, Corporate Technology, CT RDA ITP SES-DE
+Corporate Competence Center Embedded Linux
