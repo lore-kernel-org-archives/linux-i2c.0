@@ -1,91 +1,48 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 00/20] eeprom: at24: Add OF device ID table
-Date: Mon, 22 May 2017 09:26:08 -0500
-Message-ID: <CAL_JsqL2P=C+xRyL-BCC=RtFah4BRf8BHSvWNPZ+6r2ioSk_Yw@mail.gmail.com>
-References: <20170522140208.24652-1-javier@dowhile0.org>
- <CAMuHMdXbhkGGFC80-39Axzv=BdEXyBNuPuHCSWW3eXWDB=SQ+w@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
+Date: Mon, 22 May 2017 16:29:31 +0200
+Message-ID: <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
+References: <20170521204233.6745-1-wsa@the-dreams.de> <20170521204233.6745-2-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <CAMuHMdXbhkGGFC80-39Axzv=BdEXyBNuPuHCSWW3eXWDB=SQ+w@mail.gmail.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Will Deacon <will.deacon@arm.com>, Michal Simek <michal.simek@xilinx.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, Mark Jackson <mpfj@newflow.co.uk>, Jason Cooper <jason@lakedaemon.net>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Catalin Marinas <catalin.marinas@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:35614 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933917AbdEVO3d (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 10:29:33 -0400
+In-Reply-To: <20170521204233.6745-2-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Mon, May 22, 2017 at 9:23 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> Hi Javier,
+On Sun, May 21, 2017 at 10:42 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
 >
-> On Mon, May 22, 2017 at 4:01 PM, Javier Martinez Canillas
-> <javier@dowhile0.org> wrote:
->> This series is a follow-up to patch [0] that added an OF device ID table
->> to the at24 EEPROM driver. As you suggested [1], this version instead of
->> adding entries for every used <vendor,device> tuple, only adds a single
->> entry for each chip type using the "atmel" vendor as a generic fallback.
->>
->> This is a re-spin that addresses some issues pointed out by Rob Herring.
->>
->> The first patch documents in the DT binding what's the correct vendor to
->> use and what are the ones that are being deprecated. The second one adds
->> the OF device ID table for the at24 driver and the next patches use this
->> vendor in the compatible string to each DTS that defines a compatible I2C
->> EEPROM device node.
->>
->> Patches can be applied independently since the DTS changes without driver
->> changes are no-op and the OF table won't be used without the DTS changes.
->>
->> [0]: https://lkml.org/lkml/2017/3/14/589
->> [1]: https://lkml.org/lkml/2017/3/15/99
->>
->> Best regards,
->> Javier
->>
->> Changes in v4:
->> - Document the manufacturers that have been deprecated (Rob Herring).
->> - Only use the atmel manufacturer in the compatible string instead of
->>   keeping the deprecated ones (Rob Herring).
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  drivers/misc/apds990x.c                         | 2 +-
+>  include/linux/{i2c => platform_data}/apds990x.h | 0
+>  2 files changed, 1 insertion(+), 1 deletion(-)
+>  rename include/linux/{i2c => platform_data}/apds990x.h (100%)
 >
-> I think you're referring to this (https://lkml.org/lkml/2017/4/19/1136)?
->
-> | > --- a/arch/arm/boot/dts/am335x-baltos.dtsi
-> | > +++ b/arch/arm/boot/dts/am335x-baltos.dtsi
-> | > @@ -255,7 +255,7 @@
-> | >     };
-> | >
-> | >     at24@50 {
-> | > -           compatible = "at24,24c02";
-> | > +           compatible = "at24,24c02", "atmel,24c02";
-> |
-> | I think you can just drop the at24 compatibles. A new kernel doesn't
-> | need it. An old kernel ignores the manufacturer. I checked that u-boot
-> | only matches on "atmel,*", so okay there. Don't know about the *BSDs. I
-> | couldn't find anything.
->
-> I think you misunderstood what Rob means.
->
-> In the case above it makes sense to drop the first compatible, as "at24" is
-> not a manufacturer, but refers to ATMEL's "AT24" line of i2c FLASH ROMs.
->
-> However, in cases where a real vendor/part combo is specified, like on
-> r8a7791-koelsch.dts:
->
-> -               compatible = "renesas,24c02";
-> +               compatible = "atmel,24c02";
->
-> you do want to keep the real vendor/part combo, i.e.
->
->      compatible = "renesas,24c02", "atmel,24c02";
+> diff --git a/drivers/misc/apds990x.c b/drivers/misc/apds990x.c
+> index dfb72ecfa60461..c341164edaad01 100644
+> --- a/drivers/misc/apds990x.c
+> +++ b/drivers/misc/apds990x.c
+> @@ -32,7 +32,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/wait.h>
+>  #include <linux/slab.h>
+> -#include <linux/i2c/apds990x.h>
+> +#include <linux/platform_data/apds990x.h>
 
-Yes, Geert is correct.
+The new location is clearly better than the old, but I notice that in both
+patches, there is not a single definition for the platform_data structure
+in the kernel and both drivers refuse to load when they do not get
+passed valid platform_data.
 
-Rob
+Should we also remove the drivers or move them into staging?
+
+       Arnd
