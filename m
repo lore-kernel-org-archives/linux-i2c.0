@@ -1,49 +1,99 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
-Date: Tue, 23 May 2017 00:33:39 +0200
-Message-ID: <CACRpkdZ5CvmNuybrrOexYZ_9Cg1ojjNEybow+1pvUnhR0oX+UQ@mail.gmail.com>
-References: <20170521204233.6745-1-wsa@the-dreams.de> <20170521204233.6745-2-wsa@the-dreams.de>
- <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
- <20170522155649.wuf2rcdtywa7e667@ninjato> <CAK8P3a2xU4R=hq5fjOyZN=+cS1KVfwP9sFuwEB+g2jnTwcE6gw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] mfd: dm355evm_msp: move header file out
+ of I2C realm
+Date: Mon, 22 May 2017 16:36:21 -0700
+Message-ID: <20170522233621.GB12016@dtor-ws>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-2-wsa@the-dreams.de>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f45.google.com ([209.85.214.45]:35937 "EHLO
-        mail-it0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752094AbdEVWdl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 18:33:41 -0400
-Received: by mail-it0-f45.google.com with SMTP id o5so7562471ith.1
-        for <linux-i2c@vger.kernel.org>; Mon, 22 May 2017 15:33:41 -0700 (PDT)
-In-Reply-To: <CAK8P3a2xU4R=hq5fjOyZN=+cS1KVfwP9sFuwEB+g2jnTwcE6gw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <rtc-linux+bncBDP6N55ZUYDRB6HLRXEQKGQELLINS2Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20170521220212.1404-2-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Samu Onkalo <samu.onkalo@intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Mon, May 22, 2017 at 11:49 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Mon, May 22, 2017 at 5:56 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->>
->>> Should we also remove the drivers or move them into staging?
->>
->> I'd prefer to keep them. If they are needed again, DT conversion is
->> likely and easier than restarting from scratch. Guenter Roeck also
->> prefers to not unnecessarily annoy people who might have out-of-tree
->> board code. So, as long as they are not painful, let's keep them?
->
-> The one reason I can think of for removing them is that we don't
-> want ambient light sensor drivers in drivers/misc any more and
-> instead of adding DT probing code would also expect new users to
-> migrate to drivers/iio/light/, which already has drivers for
-> apds9300 and apds9960 but not apds990x, as well as bh1750 and
-> bh1780 but not bh1770.
+On Mon, May 22, 2017 at 12:02:08AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>  drivers/input/misc/dm355evm_keys.c        | 2 +-
 
-This (apds990x) and bh1770 were added by Samu Onkalo
-for Nokia's upstreaming efforts.
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Samu, what are the hardware targets using this? Something that
-has a userspace etc that we can test?
+>  drivers/mfd/dm355evm_msp.c                | 2 +-
+>  drivers/rtc/rtc-dm355evm.c                | 2 +-
+>  include/linux/{i2c => mfd}/dm355evm_msp.h | 0
+>  4 files changed, 3 insertions(+), 3 deletions(-)
+>  rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+> 
+> diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
+> index bab256ef32b9b3..c803db64a3760d 100644
+> --- a/drivers/input/misc/dm355evm_keys.c
+> +++ b/drivers/input/misc/dm355evm_keys.c
+> @@ -15,7 +15,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/interrupt.h>
+>  
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  #include <linux/module.h>
+>  
+>  
+> diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
+> index 86eca614507bd8..2a2756709f22f0 100644
+> --- a/drivers/mfd/dm355evm_msp.c
+> +++ b/drivers/mfd/dm355evm_msp.c
+> @@ -18,7 +18,7 @@
+>  #include <linux/gpio.h>
+>  #include <linux/leds.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  
+>  
+>  /*
+> diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
+> index f225cd873ff6c2..97d8259b94940f 100644
+> --- a/drivers/rtc/rtc-dm355evm.c
+> +++ b/drivers/rtc/rtc-dm355evm.c
+> @@ -13,7 +13,7 @@
+>  #include <linux/rtc.h>
+>  #include <linux/platform_device.h>
+>  
+> -#include <linux/i2c/dm355evm_msp.h>
+> +#include <linux/mfd/dm355evm_msp.h>
+>  #include <linux/module.h>
+>  
+>  
+> diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
+> similarity index 100%
+> rename from include/linux/i2c/dm355evm_msp.h
+> rename to include/linux/mfd/dm355evm_msp.h
+> -- 
+> 2.11.0
+> 
 
-Like Nokia 900 or so?
+-- 
+Dmitry
 
-Yours,
-Linus Walleij
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
