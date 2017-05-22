@@ -1,60 +1,31 @@
-From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/4] dt-bindings: mtk-sysirq: Correct bindings for supported SoCs
-Date: Mon, 22 May 2017 11:40:18 +0200
-Message-ID: <20170522094021.7837-1-matthias.bgg@gmail.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 2/4] dt-bindings: i2c-mt6577: Rename file to reflect bindings
+Date: Mon, 22 May 2017 11:40:19 +0200
+Message-ID: <20170522094021.7837-2-matthias.bgg@gmail.com>
+References: <20170522094021.7837-1-matthias.bgg@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36009 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757641AbdEVJkp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 05:40:45 -0400
+In-Reply-To: <20170522094021.7837-1-matthias.bgg@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com
+Cc: wsa@the-dreams.de, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>
 
-All SoCs supported up to now rely on the fallback binding of mt6577.
-Fix the binding description to reflect this.
+The i2c-mt6577.txt actually holds the bindings for all mediatek supported i2c
+controller. Change the name to i2c.mtk.txt to reflect that.
 
-Signed-off-by: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 ---
- .../interrupt-controller/mediatek,sysirq.txt       | 24 +++++++++++-----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ Documentation/devicetree/bindings/i2c/{i2c-mt6577.txt => i2c-mtk.txt} | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename Documentation/devicetree/bindings/i2c/{i2c-mt6577.txt => i2c-mtk.txt} (100%)
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/mediatek,sysirq.txt b/Documentation/devicetree/bindings/interrupt-controller/mediatek,sysirq.txt
-index a89c03bb1a81..aff3bb2a704b 100644
---- a/Documentation/devicetree/bindings/interrupt-controller/mediatek,sysirq.txt
-+++ b/Documentation/devicetree/bindings/interrupt-controller/mediatek,sysirq.txt
-@@ -4,18 +4,18 @@ Mediatek SOCs sysirq support controllable irq inverter for each GIC SPI
- interrupt.
- 
- Required properties:
--- compatible: should be one of:
--	"mediatek,mt8173-sysirq"
--	"mediatek,mt8135-sysirq"
--	"mediatek,mt8127-sysirq"
--	"mediatek,mt6795-sysirq"
--	"mediatek,mt6755-sysirq"
--	"mediatek,mt6592-sysirq"
--	"mediatek,mt6589-sysirq"
--	"mediatek,mt6582-sysirq"
--	"mediatek,mt6580-sysirq"
--	"mediatek,mt6577-sysirq"
--	"mediatek,mt2701-sysirq"
-+- compatible: should be
-+	"mediatek,mt8173-sysirq", "mediatek,mt6577-sysirq": for MT8173
-+	"mediatek,mt8135-sysirq", "mediatek,mt6577-sysirq": for MT8135
-+	"mediatek,mt8127-sysirq", "mediatek,mt6577-sysirq": for MT8127
-+	"mediatek,mt6795-sysirq", "mediatek,mt6577-sysirq": for MT6795
-+	"mediatek,mt6755-sysirq", "mediatek,mt6577-sysirq": for MT6755
-+	"mediatek,mt6592-sysirq", "mediatek,mt6577-sysirq": for MT6592
-+	"mediatek,mt6589-sysirq", "mediatek,mt6577-sysirq": for MT6589
-+	"mediatek,mt6582-sysirq", "mediatek,mt6577-sysirq": for MT6582
-+	"mediatek,mt6580-sysirq", "mediatek,mt6577-sysirq": for MT6580
-+	"mediatek,mt6577-sysirq": for MT6577
-+	"mediatek,mt2701-sysirq", "mediatek,mt6577-sysirq": for MT2701
- - interrupt-controller : Identifies the node as an interrupt controller
- - #interrupt-cells : Use the same format as specified by GIC in arm,gic.txt.
- - interrupt-parent: phandle of irq parent for sysirq. The parent must
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+similarity index 100%
+rename from Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+rename to Documentation/devicetree/bindings/i2c/i2c-mtk.txt
 -- 
 2.12.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
