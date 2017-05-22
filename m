@@ -1,45 +1,67 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: sysfs - /sys/bus/i2c/devices is empty ?
-Date: Mon, 22 May 2017 20:47:07 +0300
-Message-ID: <CAHp75Vcvw74RjSt1VXPCOVS14P3dCX9HGdm7tPDfHQZdx9255Q@mail.gmail.com>
-References: <E41D83B2B2E8CB42AC13E92B4C3FABD3B89353@TS-GGN-MBX002.ibtechnology.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v4 00/20] eeprom: at24: Add OF device ID table
+Date: Mon, 22 May 2017 21:30:22 +0200
+Message-ID: <CAMuHMdVaY6J04TL=cEBVkCx=qhQuvbprxXt4VCjh_oEedRYnzg@mail.gmail.com>
+References: <20170522140208.24652-1-javier@dowhile0.org>
+ <CAMuHMdXbhkGGFC80-39Axzv=BdEXyBNuPuHCSWW3eXWDB=SQ+w@mail.gmail.com>
+ <CAL_JsqL2P=C+xRyL-BCC=RtFah4BRf8BHSvWNPZ+6r2ioSk_Yw@mail.gmail.com>
+ <CABxcv==xw7UxF1Ey+hDhGb_wzgAcFR9JLm6iuirvYSTTvSxb0A@mail.gmail.com>
+ <CAL_JsqKj_f-jY3wi78QyAAov=a9-ReaT9qU=ytwSp+5RL0eutg@mail.gmail.com>
+ <CABxcv==8R5_tG8-rsp-9UdS_5N7X8QXkd0OFnN63Ct7L2jFvhA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <E41D83B2B2E8CB42AC13E92B4C3FABD3B89353@TS-GGN-MBX002.ibtechnology.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Karthik BalaGuru T <karthik.t@incedoinc.com>
-Cc: "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CABxcv==8R5_tG8-rsp-9UdS_5N7X8QXkd0OFnN63Ct7L2jFvhA@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Michal Simek <michal.simek@xilinx.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, Mark Jackson <mpfj@newflow.co.uk>, Jason Cooper <jason@lakedaemon.net>, Rob Herring <robh@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Catalin Marinas <catalin.marinas@arm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, May 20, 2017 at 11:26 AM, Karthik BalaGuru  T
-<karthik.t@incedoinc.com> wrote:
-> Hi ,
+Hi Javier,
+
+On Mon, May 22, 2017 at 7:15 PM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
+>>> I also wonder why this is really needed if AFAIU "renesas,24c02" is
+>>> compatible with "atmel,24c02". IOW, the driver doesn't need to
+>>> differentiate between the two since the devices are the same and will
+>>> always match using "atmel,24c02".
+>>
+>> It is needed, so that when a difference is found, it can be handled
+>> without updating the DT.
 >
-> The base kernel package(amd64 - 3.16-lts) that I brought up in intel atom=
- processor based board seems to not have the devices listed in /sys/bus/i2c=
-/devices folder of sysfs. Can someone let me know what possible reason coul=
-d be for the emptiness of the /sys/bus/i2c/devices folder ? What is the mis=
-sing piece or step here that should be brought in for getting the devices l=
-isted in /sys/bus/i2c/devices folder?
->
-> Thanks in advance,
-> Karthik Balaguru
-> Disclaimer :
-> This email communication may contain privileged and confidential informat=
-ion and is intended for the use of the addressee only. If you are not an in=
-tended recipient you are requested not to reproduce, copy disseminate or in=
- any manner distribute this email communication as the same is strictly pro=
-hibited. If you have received this email in error, please notify the sender=
- immediately by return e-mail and delete the communication sent in error. E=
-mail communications cannot be guaranteed to be secure & error free and Ince=
-do Inc. is not liable for any errors in the email communication or for the =
-proper, timely and complete transmission thereof.
+> Yes, I understand this. What I tried to ask is if there could really
+> be a difference for the same chip type between different vendors, or
+> is just that people were using other manufacturers in the compatible
+> string as a consequence of the DT binding doc and the I2C core
+> ignoring the vendor prefix.
 
-You have to get rid of disclaimer first.
+The devices from different vendors are not the same. They contain FLASH
+ROM of a specific size, and glue logic to expose an i2c slave
+interface providing
+an AT24-compatible command set.  They should behave similar within
+the limits of the AT24 "spec".  But the actual implementation may be different.
 
+> I don't mind though, I will leave the manufacturers that are different
+> than the atmel variants in the mainline DTS as you and Geert asked.
 
---=20
-With Best Regards,
-Andy Shevchenko
+OK, thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
