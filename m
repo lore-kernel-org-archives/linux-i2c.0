@@ -1,141 +1,50 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [PATCH v5 02/20] eeprom: at24: Add OF device ID table
-Date: Tue, 23 May 2017 15:34:30 +0200
-Message-ID: <20170523133448.4794-3-javier@dowhile0.org>
-References: <20170523133448.4794-1-javier@dowhile0.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34813 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757510AbdEWNfC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 May 2017 09:35:02 -0400
-Received: by mail-wm0-f65.google.com with SMTP id d127so39427454wmf.1
-        for <linux-i2c@vger.kernel.org>; Tue, 23 May 2017 06:35:02 -0700 (PDT)
-In-Reply-To: <20170523133448.4794-1-javier@dowhile0.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] docs: driver-api: i2c: remove some outdated information
+Date: Tue, 23 May 2017 15:46:54 +0200
+Message-ID: <20170523134654.11892-1-wsa@the-dreams.de>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh@kernel.org>, Javier Martinez Canillas <javier@dowhile0.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
+a) Linux can be an I2C slave meanwhile
+b) all drivers except one use the driver model currently
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+Update the documentation.
 
-Suggested-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
-
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
+ Documentation/driver-api/i2c.rst | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Changes in v5: None
-Changes in v4: None
-Changes in v3:
-- Fix wrong .data values for "atmel,24c02" and "atmel,24c64" entries.
-
-Changes in v2:
-- Only add a single OF device ID entry for each device type (Wolfram Sang).
-
- drivers/misc/eeprom/at24.c | 65 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 64 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 764ff5df0dbc..79c5c39be29c 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/mutex.h>
-@@ -175,6 +176,64 @@ static const struct i2c_device_id at24_ids[] = {
- };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
+diff --git a/Documentation/driver-api/i2c.rst b/Documentation/driver-api/i2c.rst
+index f3939f7852bd59..0bf86a445d0135 100644
+--- a/Documentation/driver-api/i2c.rst
++++ b/Documentation/driver-api/i2c.rst
+@@ -13,8 +13,8 @@ I2C is a multi-master bus; open drain signaling is used to arbitrate
+ between masters, as well as to handshake and to synchronize clocks from
+ slower clients.
  
-+static const struct of_device_id at24_of_match[] = {
-+	{
-+		.compatible = "atmel,24c00",
-+		.data = (void *)AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR)
-+	},
-+	{
-+		.compatible = "atmel,24c01",
-+		.data = (void *)AT24_DEVICE_MAGIC(1024 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c02",
-+		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,spd",
-+		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
-+	},
-+	{
-+		.compatible = "atmel,24c04",
-+		.data = (void *)AT24_DEVICE_MAGIC(4096 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c08",
-+		.data = (void *)AT24_DEVICE_MAGIC(8192 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c16",
-+		.data = (void *)AT24_DEVICE_MAGIC(16384 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c32",
-+		.data = (void *)AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c64",
-+		.data = (void *)AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c128",
-+		.data = (void *)AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c256",
-+		.data = (void *)AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c512",
-+		.data = (void *)AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c1024",
-+		.data = (void *)AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, at24_of_match);
-+
- static const struct acpi_device_id at24_acpi_ids[] = {
- 	{ "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
- 	{ }
-@@ -598,7 +657,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
- 	} else {
--		if (id) {
-+		if (client->dev.of_node) {
-+			magic = (kernel_ulong_t)
-+				of_device_get_match_data(&client->dev);
-+		} else if (id) {
- 			magic = id->driver_data;
- 		} else {
- 			const struct acpi_device_id *aid;
-@@ -814,6 +876,7 @@ static int at24_remove(struct i2c_client *client)
- static struct i2c_driver at24_driver = {
- 	.driver = {
- 		.name = "at24",
-+		.of_match_table = at24_of_match,
- 		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
- 	},
- 	.probe = at24_probe,
+-The Linux I2C programming interfaces support only the master side of bus
+-interactions, not the slave side. The programming interface is
++The Linux I2C programming interfaces support the master side of bus
++interactions and the slave side. The programming interface is
+ structured around two kinds of driver, and two kinds of device. An I2C
+ "Adapter Driver" abstracts the controller hardware; it binds to a
+ physical device (perhaps a PCI device or platform_device) and exposes a
+@@ -22,9 +22,8 @@ physical device (perhaps a PCI device or platform_device) and exposes a
+ I2C bus segment it manages. On each I2C bus segment will be I2C devices
+ represented by a :c:type:`struct i2c_client <i2c_client>`.
+ Those devices will be bound to a :c:type:`struct i2c_driver
+-<i2c_driver>`, which should follow the standard Linux driver
+-model. (At this writing, a legacy model is more widely used.) There are
+-functions to perform various I2C protocol operations; at this writing
++<i2c_driver>`, which should follow the standard Linux driver model. There
++are functions to perform various I2C protocol operations; at this writing
+ all such functions are usable only from task context.
+ 
+ The System Management Bus (SMBus) is a sibling protocol. Most SMBus
 -- 
-2.9.3
+2.11.0
+
