@@ -1,103 +1,57 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [RESEND PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c
- binding
-Date: Tue, 23 May 2017 11:34:01 +0800
-Message-ID: <1495510441.930.7.camel@mhfsdcap03>
-References: <1489029185-21447-1-git-send-email-jun.gao@mediatek.com>
-         <1489029185-21447-2-git-send-email-jun.gao@mediatek.com>
-         <20170322090543.sxacnddn2o7stjnq@ninjato>
-         <1490694612.18582.11.camel@mhfsdcap03> <20170328192258.GA4525@katana>
-         <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
+Date: Tue, 23 May 2017 08:23:40 +0200
+Message-ID: <20170523062340.GC1580@katana>
+References: <20170521204233.6745-1-wsa@the-dreams.de>
+ <20170521204233.6745-2-wsa@the-dreams.de>
+ <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
+ <20170522155649.wuf2rcdtywa7e667@ninjato>
+ <CAK8P3a2xU4R=hq5fjOyZN=+cS1KVfwP9sFuwEB+g2jnTwcE6gw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([218.249.47.111]:43334 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752402AbdEWDeH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 23:34:07 -0400
-In-Reply-To: <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a2xU4R=hq5fjOyZN=+cS1KVfwP9sFuwEB+g2jnTwcE6gw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, robh@kernel.org, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, yingjoe.chen@mediatek.com
-
-On Wed, 2017-05-10 at 12:35 +0200, Matthias Brugger wrote:
-> 
-> On 28/03/17 21:22, Wolfram Sang wrote:
-> > On Tue, Mar 28, 2017 at 05:50:12PM +0800, Jun Gao wrote:
-> >> On Wed, 2017-03-22 at 10:05 +0100, Wolfram Sang wrote:
-> >>> On Thu, Mar 09, 2017 at 11:13:04AM +0800, Jun Gao wrote:
-> >>>> From: Jun Gao <jun.gao@mediatek.com>
-> >>>>
-> >>>> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
-> >>>> modify i2c driver.
-> >>>>
-> >>>> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-> >>>
-> >>> There is still the issue which Matthias Brugger pointed out on January,
-> >>> 24th: you need to describe the fallback compatibles.
-> >>>
-> >>
-> >> IMHO the value under compatible are just inputs which can be accepted.
-> >> It's little strange to add fallback information in binding. Some other
-> >> bindings do not describe so detailedly.
-> >> Is it OK to make binding as minimum standard?
-> >> If we describe it very detailedly, we will have to modify binding if
-> >> there are some changes for mt2701.
-> > 
-> > My reading of the below is that I could simply use "mediatek,mt2701-i2c"
-> > as compatible and things will work. But it won't, we don't have that in
-> > the driver IIRC. So, we need a fallback for that to work.
-> > 
-> >> Rob, could you give some suggestions?  Thanks!
-> > 
-> > Would be welcome, yes. I lost track what the preferred solution is.
-> > 
-> 
-> We will need to define the fallback binding for each SoC.
-> As example take the rockchip mmc:
-> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.txt
-> 
-> Regards,
-> Matthias
-> 
-
-Hi Rob,
-
-There is no such requirement for other components.
-Could you give us some suggestions? 
-Thanks!
 
 
-> >>
-> >>>> ---
-> >>>>   .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
-> >>>>   1 file changed, 6 insertions(+), 5 deletions(-)
-> >>>>
-> >>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> >>>> index 0ce6fa3..27dbbf9 100644
-> >>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> >>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> >>>> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
-> >>>>   
-> >>>>   Required properties:
-> >>>>     - compatible: value should be either of the following.
-> >>>> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> >>>> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> >>>> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> >>>> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> >>>> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> >>>> +	"mediatek,mt2701-i2c"
-> >>>> +	"mediatek,mt6577-i2c"
-> >>>> +	"mediatek,mt6589-i2c"
-> >>>> +	"mediatek,mt8127-i2c"
-> >>>> +	"mediatek,mt8135-i2c"
-> >>>> +	"mediatek,mt8173-i2c"
-> >>>>     - reg: physical base address of the controller and dma base, length of memory
-> >>>>       mapped region.
-> >>>>     - interrupts: interrupt number to the cpu.
-> >>>> -- 
-> >>>> 1.7.9.5
-> >>>>
-> >>
-> >>
+--c3bfwLpm8qysLVxt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> The one reason I can think of for removing them is that we don't
+> want ambient light sensor drivers in drivers/misc any more and
+> instead of adding DT probing code would also expect new users to
+> migrate to drivers/iio/light/, which already has drivers for
+> apds9300 and apds9960 but not apds990x, as well as bh1750 and
+> bh1780 but not bh1770.
+
+Yes, I totally agree!
+
+
+--c3bfwLpm8qysLVxt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkj1WwACgkQFA3kzBSg
+KbarwRAAqX4SZbKY1k04tdP8WRdHefFawkh94pnWDmJJLIEgBXNMlz2p6tSFlrU6
+oUJ08rq2DIEHbvYda4beVgxuKiS/UWeWmxhT/9oVm8FiRFmi8SfMHs9B21ut0Tdw
+VAUZEbfgCp4V5ed8da4aziEsFbaTHX6jaY2DnesAopESdJA1EVuayu1Q6003fteF
+94JYhyKQW9S4yYbMrVt8Pm+dqEv+97EjOBO7NcDGPRvYqYW/uQHgX89JHzEg6H+q
+ylAPUWSndAdk+ec+1XMe2ZKygxFAQDC8ZH3AMoAQBMHT0bOak3zEfvzhX8ycdShl
+Hsy0YR+ngxxTw3IgbfR7kFvnLOj362f3H7mi9QhCkos/hEAagv4KKE/vWtFxTqF9
+5pY8sgJDBf/C0g0PSRhsprBZKbW5l7/deRRTYzFEGFEiTvh+YpOkPPT1qimwgHbg
+5GrabcmO7h3D72Hd8cEi6QT6ZwRUu4UxjiNbgzUreERsqP8S8nC468O6zmCo0tpo
+PIti9VdhUCmQ8dRJm7lZe2vE3MA8tKF/4BVjSgfN/qEMLWNb3VMl392Tq3HpA4R0
+4V9E3Z5gl2a8Kjs8SuAm8pnDe9rfHpLML4af2XeWc3qb1ZMK6NqxDoz7f40MkX9Z
+K/dirf2kVY5YIfSzs8C7xcXhjdw5JPpVkTxbP9+v+8ZUgXNsO9U=
+=+Nxb
+-----END PGP SIGNATURE-----
+
+--c3bfwLpm8qysLVxt--
