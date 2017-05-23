@@ -1,89 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] gpio: adp5588: move header file out of I2C realm
-Date: Mon, 22 May 2017 16:40:26 -0700
-Message-ID: <20170522234026.GD12016@dtor-ws>
-References: <20170521215727.1243-1-wsa@the-dreams.de>
- <20170521215727.1243-4-wsa@the-dreams.de>
+From: Jun Gao <jun.gao@mediatek.com>
+Subject: Re: [RESEND PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c
+ binding
+Date: Tue, 23 May 2017 11:34:01 +0800
+Message-ID: <1495510441.930.7.camel@mhfsdcap03>
+References: <1489029185-21447-1-git-send-email-jun.gao@mediatek.com>
+         <1489029185-21447-2-git-send-email-jun.gao@mediatek.com>
+         <20170322090543.sxacnddn2o7stjnq@ninjato>
+         <1490694612.18582.11.camel@mhfsdcap03> <20170328192258.GA4525@katana>
+         <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33992 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752528AbdEVXk3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 19:40:29 -0400
-Content-Disposition: inline
-In-Reply-To: <20170521215727.1243-4-wsa@the-dreams.de>
+Received: from mailgw02.mediatek.com ([218.249.47.111]:43334 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752402AbdEWDeH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 May 2017 23:34:07 -0400
+In-Reply-To: <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, robh@kernel.org, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, yingjoe.chen@mediatek.com
 
-On Sun, May 21, 2017 at 11:57:27PM +0200, Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
+On Wed, 2017-05-10 at 12:35 +0200, Matthias Brugger wrote:
 > 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
+> On 28/03/17 21:22, Wolfram Sang wrote:
+> > On Tue, Mar 28, 2017 at 05:50:12PM +0800, Jun Gao wrote:
+> >> On Wed, 2017-03-22 at 10:05 +0100, Wolfram Sang wrote:
+> >>> On Thu, Mar 09, 2017 at 11:13:04AM +0800, Jun Gao wrote:
+> >>>> From: Jun Gao <jun.gao@mediatek.com>
+> >>>>
+> >>>> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+> >>>> modify i2c driver.
+> >>>>
+> >>>> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> >>>
+> >>> There is still the issue which Matthias Brugger pointed out on January,
+> >>> 24th: you need to describe the fallback compatibles.
+> >>>
+> >>
+> >> IMHO the value under compatible are just inputs which can be accepted.
+> >> It's little strange to add fallback information in binding. Some other
+> >> bindings do not describe so detailedly.
+> >> Is it OK to make binding as minimum standard?
+> >> If we describe it very detailedly, we will have to modify binding if
+> >> there are some changes for mt2701.
+> > 
+> > My reading of the below is that I could simply use "mediatek,mt2701-i2c"
+> > as compatible and things will work. But it won't, we don't have that in
+> > the driver IIRC. So, we need a fallback for that to work.
+> > 
+> >> Rob, could you give some suggestions?  Thanks!
+> > 
+> > Would be welcome, yes. I lost track what the preferred solution is.
+> > 
 > 
-> This driver could also go via the input-tree or my tree. I don't really care
-> and just picked some subsystem :) Let me know if you are okay with that.
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
+> We will need to define the fallback binding for each SoC.
+> As example take the rockchip mmc:
+> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.txt
 > 
->  arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
->  drivers/gpio/gpio-adp5588.c                    | 2 +-
->  drivers/input/keyboard/adp5588-keys.c          | 2 +-
->  include/linux/{i2c => platform_data}/adp5588.h | 0
->  4 files changed, 3 insertions(+), 3 deletions(-)
->  rename include/linux/{i2c => platform_data}/adp5588.h (100%)
-> 
-> diff --git a/arch/blackfin/mach-bf537/boards/stamp.c b/arch/blackfin/mach-bf537/boards/stamp.c
-> index eaec7b4832a29a..24985e658c19cd 100644
-> --- a/arch/blackfin/mach-bf537/boards/stamp.c
-> +++ b/arch/blackfin/mach-bf537/boards/stamp.c
-> @@ -22,7 +22,7 @@
->  #include <linux/usb/isp1362.h>
->  #endif
->  #include <linux/i2c.h>
-> -#include <linux/i2c/adp5588.h>
-> +#include <linux/platform_data/adp5588.h>
->  #include <linux/etherdevice.h>
->  #include <linux/ata_platform.h>
->  #include <linux/irq.h>
-> diff --git a/drivers/gpio/gpio-adp5588.c b/drivers/gpio/gpio-adp5588.c
-> index c0f718b1231727..e717f8dc39667c 100644
-> --- a/drivers/gpio/gpio-adp5588.c
-> +++ b/drivers/gpio/gpio-adp5588.c
-> @@ -16,7 +16,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/irq.h>
->  
-> -#include <linux/i2c/adp5588.h>
-> +#include <linux/platform_data/adp5588.h>
->  
->  #define DRV_NAME	"adp5588-gpio"
->  
-> diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-> index 53fe9a3fb6204d..f9d273c8b30695 100644
-> --- a/drivers/input/keyboard/adp5588-keys.c
-> +++ b/drivers/input/keyboard/adp5588-keys.c
-> @@ -20,7 +20,7 @@
->  #include <linux/gpio.h>
->  #include <linux/slab.h>
->  
-> -#include <linux/i2c/adp5588.h>
-> +#include <linux/platform_data/adp5588.h>
->  
->  /* Key Event Register xy */
->  #define KEY_EV_PRESSED		(1 << 7)
-> diff --git a/include/linux/i2c/adp5588.h b/include/linux/platform_data/adp5588.h
-> similarity index 100%
-> rename from include/linux/i2c/adp5588.h
-> rename to include/linux/platform_data/adp5588.h
-> -- 
-> 2.11.0
+> Regards,
+> Matthias
 > 
 
--- 
-Dmitry
+Hi Rob,
+
+There is no such requirement for other components.
+Could you give us some suggestions? 
+Thanks!
+
+
+> >>
+> >>>> ---
+> >>>>   .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
+> >>>>   1 file changed, 6 insertions(+), 5 deletions(-)
+> >>>>
+> >>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> >>>> index 0ce6fa3..27dbbf9 100644
+> >>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> >>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> >>>> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+> >>>>   
+> >>>>   Required properties:
+> >>>>     - compatible: value should be either of the following.
+> >>>> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> >>>> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> >>>> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> >>>> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> >>>> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> >>>> +	"mediatek,mt2701-i2c"
+> >>>> +	"mediatek,mt6577-i2c"
+> >>>> +	"mediatek,mt6589-i2c"
+> >>>> +	"mediatek,mt8127-i2c"
+> >>>> +	"mediatek,mt8135-i2c"
+> >>>> +	"mediatek,mt8173-i2c"
+> >>>>     - reg: physical base address of the controller and dma base, length of memory
+> >>>>       mapped region.
+> >>>>     - interrupts: interrupt number to the cpu.
+> >>>> -- 
+> >>>> 1.7.9.5
+> >>>>
+> >>
+> >>
