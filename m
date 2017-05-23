@@ -1,69 +1,80 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Tue, 23 May 2017 09:21:43 +0200
-Message-ID: <20170523072143.njhh7mkbm2tt277l@ninjato>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
- <20170523071636.hiws54msfxpg6qkb@dell>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.12
+Date: Tue, 23 May 2017 09:30:49 +0200
+Message-ID: <20170523073041.agajqmfdg6a5bhrj@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="7yzzt65nmxassi3y"
-Return-path: <rtc-linux+bncBDP47C6LHEIIRRUPZECRUBH3JEKCG-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+        protocol="application/pgp-signature"; boundary="hq2r7tvxftomxabb"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:32829 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933273AbdEWHav (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 May 2017 03:30:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20170523071636.hiws54msfxpg6qkb@dell>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Daniel Thompson <daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---7yzzt65nmxassi3y
-Content-Type: text/plain; charset="UTF-8"
+--hq2r7tvxftomxabb
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Linus,
 
-> For my own reference:
->   Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> 
-> I guess this will be going through the MFD tree?
+here is the pull request fixing the i2c-designware regression of rc2.
+Also, a DMA buffer fix for the tiny-usb driver where the USB core now
+loudly complains about the non DMA-capable buffer.
 
-I'd prefer that, yes. Thanks!
+Please pull.
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Thanks,
 
---7yzzt65nmxassi3y
+   Wolfram
+
+
+The following changes since commit 08332893e37af6ae779367e78e444f8f9571511d:
+
+  Linux 4.12-rc2 (2017-05-21 19:30:23 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to e2c824924cdb41528932c550647406ad81336b18:
+
+  i2c: designware: Fix bogus sda_hold_time due to uninitialized vars (2017-05-22 10:35:51 +0200)
+
+----------------------------------------------------------------
+Jan Kiszka (1):
+      i2c: designware: Fix bogus sda_hold_time due to uninitialized vars
+
+Sebastian Reichel (1):
+      i2c: i2c-tiny-usb: fix buffer not being DMA capable
+
+ drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
+ drivers/i2c/busses/i2c-tiny-usb.c           | 25 +++++++++++++++++++++----
+ 2 files changed, 22 insertions(+), 5 deletions(-)
+
+--hq2r7tvxftomxabb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkj4wMACgkQFA3kzBSg
-KbboAA/7BYWjzye3Zd9b4l7Uvdy3BTUglIU4h8PBWztw8snSPIIMd5ShjYZotX7x
-qXKUqi92du010bqAANjftdAl2ej4Dl1OdMm2NuaBlfGIV3bf1s+f+mx6iubHg+gC
-h3KYEBU3fUMc+dypGCd6xsM84DCtOLPcYmu/uaKKmvZLfyNvvsDaTFUOyUp15nup
-y8I9DNOmbirzmQj7sFF+38//j3SWfMO4EWGDBDUuQgT/CNf6DyclYITi1TVuh5Z6
-X4mJqOpMCE+GzPZvDe60b7oMDAJrVyrsyj3SjkgUNMegQwGW0ZFGdmyJf3I43FLx
-RUKeN4o48TPW4LS1rX9hzDIOvTlL6ZUc814/9q84zHly0RP5y4uzyJ8bOuZA2BJa
-O0Yu4Y+QL3OC1qGzktwbsBUHPVLUZZH7oRMY2haS+o+4rzOhiZbH9tZE4v2ALyfX
-8oGKWd2RYn76zG0Su6C5QCA/4ck1t2Wr4CwastYmdKuhyBEAF85uTvwmBoaXJxbp
-bea5aO2y2xBdvgTvSd0XkbMiJpqMFb9gFfoA7SMkIPVmgPHcX9ZqI7QT5nXi5ugy
-ZUfn/VYQUh8TyXZiRrOwJ595KjykkGIyxq2xgGFZR5eJ60N9t7ZEDqv6FBfhoj5V
-elD1t7D2bkdQm0hfSxal45Zedg/OquhGI+ktNbjMKWLBN70owfs=
-=bddv
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkj5SEACgkQFA3kzBSg
+KbZONg/8CIo6Orv2E9xMmjhpNcQ3n9xS9E1027vUsAvR7LXklDVqrnqzNJDKAOXN
+0zBDCDvDE38fe6td/Nh89gFRY0qCSWpPJx7qARwPopPd7dwA7jjQi54PFYkT4OsX
+u5K69Q9WWPY8Mcx2rmKHBrw17G4aEq8nDHUxvcS0id4xacZK1/+UcXZx+PVbjKlb
+22BHvrSQVjcg9s0D6qDsAdc84JQrVTwc5VfxbOAVy+s5NRRFwny0cox9qjl5d5uC
+JFc31eYeQqG6QbmigNzTJL3MzFWvgOXKlbWoQOi33PY9cDgjdrXfXbdU6yskeH7C
+ATuBsohRbiWd8YtPs+6pF/6pwU6rXfLgRoGhiny027gq3USdKBh/fhXjIOAtmuFo
+8OfMlgTzgqnul2nTbU97WQg43s/Im/Y/LhtYd/JUDD6LKyP8djFXJxMkbxTJlR0d
+TcEbQHq+GhS0G09AtD7AqKwq4Ag6kiZsNCLQN/fYTos8CZnHL95J8SQ0/ElJY0+r
+HkIkL6OcSDk8IuDMFBoD45a0QcLknpoFL7wqir42NYA4UVcTUbj2zgmISsxTwK5Z
+9lMzY1ansa+KRWFjFfBnPftr8Xn391mlMgywZhj/UT5mL1mTSLWl9kvnSCYNNQib
+okLdDWX61pD8rq+BrvrsmA4ikQMgjt3A8pi9UD0ALk7tcDMXm+Y=
+=tHte
 -----END PGP SIGNATURE-----
 
---7yzzt65nmxassi3y--
+--hq2r7tvxftomxabb--
