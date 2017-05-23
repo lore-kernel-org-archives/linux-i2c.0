@@ -1,120 +1,69 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [RESEND PATCH v3 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c
- binding
-Date: Tue, 23 May 2017 08:31:53 +0200
-Message-ID: <aa667dcb-2c11-8179-0098-edbc3eeaf093@gmail.com>
-References: <1489029185-21447-1-git-send-email-jun.gao@mediatek.com>
- <1489029185-21447-2-git-send-email-jun.gao@mediatek.com>
- <20170322090543.sxacnddn2o7stjnq@ninjato>
- <1490694612.18582.11.camel@mhfsdcap03> <20170328192258.GA4525@katana>
- <4111ffc2-0a25-0811-fbd3-401649431315@gmail.com>
- <1495510441.930.7.camel@mhfsdcap03>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: struct i2c_mux_pinctrl_platform_data for the i2c-mux-pinctrl
+ driver
+Date: Tue, 23 May 2017 08:49:19 +0200
+Message-ID: <7c06a6f0-e8ef-3abc-3c68-dec7dedbf0ae@axentia.se>
+References: <264eee82-8e0f-7d63-5c2f-e4070bf56c63@axentia.se>
+ <71dc13f9-f723-fb4b-a101-f7be8caacf1c@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:33729 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757553AbdEWGcA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 23 May 2017 02:32:00 -0400
-In-Reply-To: <1495510441.930.7.camel@mhfsdcap03>
+Received: from mail-db5eur01on0097.outbound.protection.outlook.com ([104.47.2.97]:59744
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S933142AbdEWGtf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 May 2017 02:49:35 -0400
+In-Reply-To: <71dc13f9-f723-fb4b-a101-f7be8caacf1c@wwwdotorg.org>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jun Gao <jun.gao@mediatek.com>, robh@kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, yingjoe.chen@mediatek.com
+To: Stephen Warren <swarren@wwwdotorg.org>, Stephen Warren <swarren@nvidia.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-
-
-On 23/05/17 05:34, Jun Gao wrote:
-> On Wed, 2017-05-10 at 12:35 +0200, Matthias Brugger wrote:
+On 2017-05-22 17:51, Stephen Warren wrote:
+> On 05/22/2017 02:24 AM, Peter Rosin wrote:
+>> Hi Stephen,
 >>
->> On 28/03/17 21:22, Wolfram Sang wrote:
->>> On Tue, Mar 28, 2017 at 05:50:12PM +0800, Jun Gao wrote:
->>>> On Wed, 2017-03-22 at 10:05 +0100, Wolfram Sang wrote:
->>>>> On Thu, Mar 09, 2017 at 11:13:04AM +0800, Jun Gao wrote:
->>>>>> From: Jun Gao <jun.gao@mediatek.com>
->>>>>>
->>>>>> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
->>>>>> modify i2c driver.
->>>>>>
->>>>>> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
->>>>>
->>>>> There is still the issue which Matthias Brugger pointed out on January,
->>>>> 24th: you need to describe the fallback compatibles.
->>>>>
->>>>
->>>> IMHO the value under compatible are just inputs which can be accepted.
->>>> It's little strange to add fallback information in binding. Some other
->>>> bindings do not describe so detailedly.
->>>> Is it OK to make binding as minimum standard?
->>>> If we describe it very detailedly, we will have to modify binding if
->>>> there are some changes for mt2701.
->>>
->>> My reading of the below is that I could simply use "mediatek,mt2701-i2c"
->>> as compatible and things will work. But it won't, we don't have that in
->>> the driver IIRC. So, we need a fallback for that to work.
->>>
->>>> Rob, could you give some suggestions?  Thanks!
->>>
->>> Would be welcome, yes. I lost track what the preferred solution is.
->>>
+>> I was looking at the i2c-mux-pinctrl driver and noticed that it has
+>> code to feed it platform data from C code. There has never been any
+>> in-kernel users of this interface and I would like to remove it. I
+>> wonder if you added it way back when just because the i2c-mux-gpio
+>> driver have such an interface or if, to your knowledge, any external
+>> platform exists that depends on this?
 >>
->> We will need to define the fallback binding for each SoC.
->> As example take the rockchip mmc:
->> http://elixir.free-electrons.com/linux/latest/source/Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.txt
->>
->> Regards,
->> Matthias
->>
+>> I.e. I'm talking about removing include/linux/i2c-mux-pinctrl.h and
+>> the code supporting it in the driver, thus only allowing devicetree
+>> as source for the platform data.
 > 
-> Hi Rob,
+> I'm not aware of any in- or out-of-tree users of that structure/feature.
 > 
-> There is no such requirement for other components.
+> I added it because at the time I wrote that driver, it was common place 
+> to support both DT-based and platform-data-based 
+> instantiation/configuration of devices, so I did the same. If you're 
 
-The requirement is that the binding description reflects a compatible 
-the driver is able to consume. Right now if you pass 
-"mediatek,mt2701-i2c" the driver won't recognize this, therefor you need 
-the fallback compatible. Which point isn't clear to you?
+That's what I suspected, thanks for confirming!
 
-Regards,
-Matthias
+> removing pdata-based configuration, it would make sense to do a blanket 
+> removal across the entire I2C subsystem (and other subsystems too) I 
+> suspect, but that's LinusW's call in the end.
 
-> Could you give us some suggestions?
-> Thanks!
-> 
-> 
->>>>
->>>>>> ---
->>>>>>    .../devicetree/bindings/i2c/i2c-mt6577.txt         |   11 ++++++-----
->>>>>>    1 file changed, 6 insertions(+), 5 deletions(-)
->>>>>>
->>>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->>>>>> index 0ce6fa3..27dbbf9 100644
->>>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->>>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->>>>>> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
->>>>>>    
->>>>>>    Required properties:
->>>>>>      - compatible: value should be either of the following.
->>>>>> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
->>>>>> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
->>>>>> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
->>>>>> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
->>>>>> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
->>>>>> +	"mediatek,mt2701-i2c"
->>>>>> +	"mediatek,mt6577-i2c"
->>>>>> +	"mediatek,mt6589-i2c"
->>>>>> +	"mediatek,mt8127-i2c"
->>>>>> +	"mediatek,mt8135-i2c"
->>>>>> +	"mediatek,mt8173-i2c"
->>>>>>      - reg: physical base address of the controller and dma base, length of memory
->>>>>>        mapped region.
->>>>>>      - interrupts: interrupt number to the cpu.
->>>>>> -- 
->>>>>> 1.7.9.5
->>>>>>
->>>>
->>>>
-> 
-> 
+(Wolfram Sang is the I2C maintainer)
+
+Well, a couple of other drivers I looked at still have in-tree users.
+This driver stands out in that it never ever had any in-tree user, and
+I find no traces of any out-of-tree user either. That last bit might
+of course be due to lacking google-fu on my part or that the out-of-
+tree user was never available online in the first place. But it is a
+data point. Also, removing a third or so of the driver and at the same
+time making it easier to follow the code sounds like something I want
+to do.
+
+Embarking on the bigger project is however not something I'm signing
+up for, not that I don't think it would be worthwhile.
+
+I'll send a patch when I have done some further tests with what I
+have cooking...
+
+Cheers,
+peda
