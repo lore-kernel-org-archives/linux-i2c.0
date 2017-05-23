@@ -1,50 +1,93 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] docs: driver-api: i2c: remove some outdated information
-Date: Tue, 23 May 2017 15:46:54 +0200
-Message-ID: <20170523134654.11892-1-wsa@the-dreams.de>
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
+Date: Tue, 23 May 2017 13:47:34 +0000
+Message-ID: <1495547252.17446.60.camel@infinera.com>
+References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
+         <1494947612.7509.24.camel@infinera.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-cys01nam02on0065.outbound.protection.outlook.com ([104.47.37.65]:22560
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1764210AbdEWNri (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 23 May 2017 09:47:38 -0400
+In-Reply-To: <1494947612.7509.24.camel@infinera.com>
+Content-Language: en-US
+Content-ID: <174C4AF15ED38E449855AAD995135D60@infinera.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>, "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-a) Linux can be an I2C slave meanwhile
-b) all drivers except one use the driver model currently
+On Tue, 2017-05-16 at 17:13 +0200, Joakim Tjernlund wrote:
+> On Thu, 2017-05-11 at 14:20 +0200, Joakim Tjernlund wrote:
+> > Current I2C reset procedure is broken in two ways:
+> > 1) It only generate 1 START instead of 9 STARTs and STOP.
+> > 2) It leaves the bus Busy so every I2C xfer after the first
+> >    fixup calls the reset routine again, for every xfer there after.
+> >=20
+> > This fixes both errors.
+>=20
+> Ping?
 
-Update the documentation.
+Ping again, pretty please?
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- Documentation/driver-api/i2c.rst | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/Documentation/driver-api/i2c.rst b/Documentation/driver-api/i2c.rst
-index f3939f7852bd59..0bf86a445d0135 100644
---- a/Documentation/driver-api/i2c.rst
-+++ b/Documentation/driver-api/i2c.rst
-@@ -13,8 +13,8 @@ I2C is a multi-master bus; open drain signaling is used to arbitrate
- between masters, as well as to handshake and to synchronize clocks from
- slower clients.
- 
--The Linux I2C programming interfaces support only the master side of bus
--interactions, not the slave side. The programming interface is
-+The Linux I2C programming interfaces support the master side of bus
-+interactions and the slave side. The programming interface is
- structured around two kinds of driver, and two kinds of device. An I2C
- "Adapter Driver" abstracts the controller hardware; it binds to a
- physical device (perhaps a PCI device or platform_device) and exposes a
-@@ -22,9 +22,8 @@ physical device (perhaps a PCI device or platform_device) and exposes a
- I2C bus segment it manages. On each I2C bus segment will be I2C devices
- represented by a :c:type:`struct i2c_client <i2c_client>`.
- Those devices will be bound to a :c:type:`struct i2c_driver
--<i2c_driver>`, which should follow the standard Linux driver
--model. (At this writing, a legacy model is more widely used.) There are
--functions to perform various I2C protocol operations; at this writing
-+<i2c_driver>`, which should follow the standard Linux driver model. There
-+are functions to perform various I2C protocol operations; at this writing
- all such functions are usable only from task context.
- 
- The System Management Bus (SMBus) is a sibling protocol. Most SMBus
--- 
-2.11.0
-
+>=20
+> >=20
+> > Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> > ---
+> >=20
+> >  v2 -  Remove io barrier call.
+> >  drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+> >  1 file changed, 15 insertions(+), 8 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.=
+c
+> > index 8393140..6b5e6ce4 100644
+> > --- a/drivers/i2c/busses/i2c-mpc.c
+> > +++ b/drivers/i2c/busses/i2c-mpc.c
+> > @@ -104,23 +104,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev=
+_id)
+> >  /* Sometimes 9th clock pulse isn't generated, and slave doesn't releas=
+e
+> >   * the bus, because it wants to send ACK.
+> >   * Following sequence of enabling/disabling and sending start/stop gen=
+erates
+> > - * the 9 pulses, so it's all OK.
+> > + * the 9 pulses, each with a START then ending with STOP, so it's all =
+OK.
+> >   */
+> >  static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+> >  {
+> >  	int k;
+> > -	u32 delay_val =3D 1000000 / i2c->real_clk + 1;
+> > -
+> > -	if (delay_val < 2)
+> > -		delay_val =3D 2;
+> > +	unsigned long flags;
+> > =20
+> >  	for (k =3D 9; k; k--) {
+> >  		writeccr(i2c, 0);
+> > -		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+> > +		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
+> > +		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
+> > +		readb(i2c->base + MPC_I2C_DR); /* init xfer */
+> > +		udelay(15); /* let it hit the bus */
+> > +		local_irq_save(flags); /* should not be delayed further */
+> > +		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+> >  		readb(i2c->base + MPC_I2C_DR);
+> > -		writeccr(i2c, CCR_MEN);
+> > -		udelay(delay_val << 1);
+> > +		if (k !=3D 1)
+> > +			udelay(5);
+> > +		local_irq_restore(flags);
+> >  	}
+> > +	writeccr(i2c, CCR_MEN); /* Initiate STOP */
+> > +	readb(i2c->base + MPC_I2C_DR);
+> > +	udelay(15); /* Let STOP propagate */
+> > +	writeccr(i2c, 0);
+> >  }
+> > =20
+> >  static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing=
+)
