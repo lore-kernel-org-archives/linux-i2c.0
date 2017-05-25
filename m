@@ -1,62 +1,59 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v8 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed I2C Interrupt Controller
-Date: Wed, 24 May 2017 23:49:21 -0700
-Message-ID: <20170525064925.16867-2-brendanhiggins@google.com>
-References: <20170525064925.16867-1-brendanhiggins@google.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170525064925.16867-1-brendanhiggins@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, Brendan Higgins <brendanhiggins@google.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH 2/3] gpio: pcf857x: move header file out of I2C realm
+Date: Thu, 25 May 2017 14:22:04 +0530
+Message-ID: <41555985-34c3-da9c-e4a4-f61d4eb2ec38@ti.com>
+References: <20170521215727.1243-1-wsa@the-dreams.de>
+ <20170521215727.1243-3-wsa@the-dreams.de>
+ <CACRpkdZzrtP0Jr5ZnOJrN9CZQDO1CXgW7Z9jTw1Mt_MkP0Saqw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <CACRpkdZzrtP0Jr5ZnOJrN9CZQDO1CXgW7Z9jTw1Mt_MkP0Saqw@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Jonathan Cameron <jic23@cam.ac.uk>, Ralf Baechle <ralf@linux-mips.org>, Alexandre Courbot <gnurou@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux MIPS <linux-mips@linux-mips.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Added device tree binding documentation for Aspeed I2C Interrupt
-Controller.
+Hi Linus,
 
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
----
-Added in v6:
-  - Pulled "aspeed_i2c_controller" out into a interrupt controller since that is
-    what it actually does.
-Changes for v7:
-  - None
-Changes for v8:
-  - None
----
- .../interrupt-controller/aspeed,ast2400-i2c-ic.txt | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
+On Tuesday 23 May 2017 03:05 PM, Linus Walleij wrote:
+> On Sun, May 21, 2017 at 11:57 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> 
+>> include/linux/i2c is not for client devices. Move the header file to a
+>> more appropriate location.
+>>
+>> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+>> ---
+>>  arch/arm/mach-davinci/board-da830-evm.c        | 2 +-
+>>  arch/arm/mach-davinci/board-dm644x-evm.c       | 2 +-
+>>  arch/arm/mach-davinci/board-dm646x-evm.c       | 2 +-
+>>  arch/arm/mach-pxa/balloon3.c                   | 2 +-
+>>  arch/arm/mach-pxa/stargate2.c                  | 2 +-
+>>  arch/mips/ath79/mach-pb44.c                    | 2 +-
+>>  drivers/gpio/gpio-pcf857x.c                    | 2 +-
+>>  include/linux/{i2c => platform_data}/pcf857x.h | 0
+>>  8 files changed, 7 insertions(+), 7 deletions(-)
+>>  rename include/linux/{i2c => platform_data}/pcf857x.h (100%)
+> 
+> Patch applied.
+> 
+> BTW ARM SoC maintainers be warned, I optimistically assume this will
+> not collide with any ARM SoC work...
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt b/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
-new file mode 100644
-index 000000000000..033cc82e5684
---- /dev/null
-+++ b/Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
-@@ -0,0 +1,25 @@
-+Device tree configuration for the I2C Interrupt Controller on the AST24XX and
-+AST25XX SoCs.
-+
-+Required Properties:
-+- #address-cells	: should be 1
-+- #size-cells 		: should be 1
-+- #interrupt-cells 	: should be 1
-+- compatible 		: should be "aspeed,ast2400-i2c-ic"
-+			  or "aspeed,ast2500-i2c-ic"
-+- reg			: address start and range of controller
-+- interrupts		: interrupt number
-+- interrupt-controller	: denotes that the controller receives and fires
-+			  new interrupts for child busses
-+
-+Example:
-+
-+i2c_ic: interrupt-controller@0 {
-+	#address-cells = <1>;
-+	#size-cells = <1>;
-+	#interrupt-cells = <1>;
-+	compatible = "aspeed,ast2400-i2c-ic";
-+	reg = <0x0 0x40>;
-+	interrupts = <12>;
-+	interrupt-controller;
-+};
--- 
-2.13.0.219.gdb65acc882-goog
+Thanks for the heads-up. The mach-davinci part does not clash with
+anything I have queued. I added this patch to a branch of my tree which
+I merge together but don't sent upstream. So I will know if I end up
+queuing anything which clashes.
+
+Thanks,
+Sekhar
