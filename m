@@ -1,65 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Error using at91-i2c driver in kernel 4.4.x
-Date: Thu, 25 May 2017 01:07:08 +0200
-Message-ID: <20170524230708.GA1456@katana>
-References: <DM5PR05MB2954708999EFB8F1B593BC93BBFE0@DM5PR05MB2954.namprd05.prod.outlook.com>
- <DM5PR05MB29541B7EC525C8438538352ABBFE0@DM5PR05MB2954.namprd05.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:32854 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1161226AbdEXXHL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 May 2017 19:07:11 -0400
-Content-Disposition: inline
-In-Reply-To: <DM5PR05MB29541B7EC525C8438538352ABBFE0@DM5PR05MB2954.namprd05.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v8 0/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Wed, 24 May 2017 23:49:20 -0700
+Message-ID: <20170525064925.16867-1-brendanhiggins@google.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org, mouse-Pma6HLj0uuo@public.gmane.org, clg-Bxea+6Xhats@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bryan Evenson <bevenson@melinkcorp.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ludovic Desroches <ludovic.desroches@atmel.com>
 
+Addressed comments from:
+  - Ben in: http://www.spinics.net/lists/devicetree/msg174576.html
+    and: https://www.spinics.net/lists/kernel/msg2496151.html
+  - Wolfram in: https://www.spinics.net/lists/kernel/msg2504011.html
+  - Cedric in: https://www.spinics.net/lists/kernel/msg2506531.html
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Changes since previous update:
+  - ACK IRQ status bits before doing anything else
+  - Added multi-master device tree property
+  - Do not send STOP commands after interrupt errors
+  - Fix SMBUS_QUICK emulation handling
+  - Removed highspeed clock code (I will do it in a later patch set)
+  - Use the platform_device name for the adapter name
+  - Reset for all failed recoveries
+  - Removed the "__" prefix from all of the non-thread safe functions
 
-> As usual, five minutes after I ask a question I get further.  I tried
-> changing the ioctl to I2C_SLAVE_FORCE, and now I can talk to my
-> EEPROM.  I'm happy it's now working, but I'm concerned about why I now
-> need to force the slave address.  Is this because I now need to set
-> things up differently, or is it a problem with the driver?
-
-=46rom userspace, you cannot access an I2C client which has a kernel
-driver bound to it unless you use I2C_SLAVE_FORCE. And you really should
-not do that because you could confuse the kernel driver.
-
-Your old kernel probably did not bind a driver to the EEPROM, so you
-could access it from userspace.
-
-Since your DT now describes the EEPROM, why don't you simply access the
-'eeprom' file in sysfs?
-
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkmEhgACgkQFA3kzBSg
-KbZJxw/9HG8afSJr4x2QZTnWyMJb0fGSXzH19+DbQPBjkqI6unNf6tEWiM6M6vb/
-tp/Ts+/yn34x2INlWfRdDeCl7Kq578718ernYUKoqviUzsPxNxY74HjMNmGeGiPX
-AepE9IxXT9O8PrHcNLe4s8jhRFkbME5vOI5w6XVT4kIZau/8/rhia0g/9ZLz4fFa
-bAATvWRgk4LBgJjor0bHKBY3MvC1U/Gc7eU9Gxryg+55FZWIqsV8clEa2I4mgKbq
-gsCRaOqo/V2rohs7VOWr/3nTOFYsN8YznHZBi4PhCariKfU73SCtI7QJn+NEbfVi
-Qv+r8GSdeT32syzDvNmFEc2YXMRDh0+D05qz1D5SSsbQCkj9gXYzXmsRFfX5ZkgY
-s8h0H0ZhAxKQEg7y5HEuhUAyVaB4QyeNv32fQPu/jDHvt4XCv+rkE3ssuwHLS4Kz
-Mh6sGVpqXclt89o134OHpA8WTBe3DZrrwo04Lb+vXvF5dqkgF2LJvEpqTr0eXOJL
-S6SDiqqvASBrqLVVNI8RPYKXpHgGXTKGcdkp2JLYwtHasglY2MoPgC9O+w/irtLv
-MfFH5ioBDSrkhfgREx4YpV+lc/JOM0vunawDoTOxJh8y4bNbeEnN/PSx6mNXQ5Im
-akP2TIEeOuPpxt3iObgKlS0qrp+Nab2sgauS5g3WEHDM88eud7Q=
-=dVsP
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+As before, tested on Aspeed 2500 evaluation board and a real platform with an
+Aspeed 2520.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
