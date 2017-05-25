@@ -1,66 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/3] gpio: adp5588: move header file out of I2C realm
-Date: Thu, 25 May 2017 19:09:43 +0200
-Message-ID: <20170525170943.GA3546@katana>
-References: <20170521215727.1243-1-wsa@the-dreams.de>
- <20170521215727.1243-4-wsa@the-dreams.de>
- <20170522234026.GD12016@dtor-ws>
+Subject: Re: [PATCH 1/2] misc: apds990x: move header file out of I2C realm
+Date: Fri, 26 May 2017 01:22:55 +0200
+Message-ID: <20170525232255.GA1526@katana>
+References: <20170521204233.6745-1-wsa@the-dreams.de>
+ <20170521204233.6745-2-wsa@the-dreams.de>
+ <CAK8P3a2CfOPNe5KnSWb=xf_0YTtN6aQRwNthQXEDb9YgOrLMaw@mail.gmail.com>
+ <20170522155649.wuf2rcdtywa7e667@ninjato>
+ <CAK8P3a2xU4R=hq5fjOyZN=+cS1KVfwP9sFuwEB+g2jnTwcE6gw@mail.gmail.com>
+ <CACRpkdZ5CvmNuybrrOexYZ_9Cg1ojjNEybow+1pvUnhR0oX+UQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:43464 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1765714AbdEYRJq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 May 2017 13:09:46 -0400
+        protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170522234026.GD12016@dtor-ws>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CACRpkdZ5CvmNuybrrOexYZ_9Cg1ojjNEybow+1pvUnhR0oX+UQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Samu Onkalo <samu.onkalo@intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
 
 
---7JfCtLOvnd9MIVvH
+--Dxnq1zWXvFF0Q93v
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 22, 2017 at 04:40:26PM -0700, Dmitry Torokhov wrote:
-> On Sun, May 21, 2017 at 11:57:27PM +0200, Wolfram Sang wrote:
-> > include/linux/i2c is not for client devices. Move the header file to a
-> > more appropriate location.
-> >=20
-> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> > ---
-> >=20
-> > This driver could also go via the input-tree or my tree. I don't really=
- care
-> > and just picked some subsystem :) Let me know if you are okay with that.
+
+> > The one reason I can think of for removing them is that we don't
+> > want ambient light sensor drivers in drivers/misc any more and
+> > instead of adding DT probing code would also expect new users to
+> > migrate to drivers/iio/light/, which already has drivers for
+> > apds9300 and apds9960 but not apds990x, as well as bh1750 and
+> > bh1780 but not bh1770.
 >=20
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> This (apds990x) and bh1770 were added by Samu Onkalo
+> for Nokia's upstreaming efforts.
+>=20
+> Samu, what are the hardware targets using this? Something that
+> has a userspace etc that we can test?
+>=20
+> Like Nokia 900 or so?
 
-Linus, will you take it?
+The bh1770 seems to be used on the N950:
+http://elinux.org/N950
+
+I couldn't find a user of the apds990x.
 
 
---7JfCtLOvnd9MIVvH
+--Dxnq1zWXvFF0Q93v
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlknD9IACgkQFA3kzBSg
-KbYimw//RsW4wCCJ0312bmrqaupgxs7BcZhL4rVRiG/UPUzLRDVB/qgLhErKc+82
-V0C6fp9wXTcVNiznG0Nx+BwHzmh2MFzjgDosLQk1pFzn4r1Huf14P/aaanmASDL1
-11hE6u4OHwA82vbJSP2f3Lt56b4t3DGpK9/wmEXZetk0d3bLRTauWVhkcouGeD1j
-pB/5Rxlw6jo2uN5QwaXKRc+GsAdh8oebxc/FQjfUgNFf5IX/bdIC+eev7BTKI80u
-GyqMO58xKDeiUou+WpQxSttDumnpXBxnES6fL8QUfn2Ud27o6atSocue1YOv6reI
-mIEY16DGZmY68bR7Ho93g5e+o7nUcI+p1G0HtOP2bHkzUc1iWa7ds3Oi1VCUv0z3
-TDOOn93/k+YBMF0ho5PhkgUGO7lTh+0xRboMIegt7Re6Scn0K6UgRDcLE+q/ZpVG
-d/i7y9B+/k1HluwA8rsr425PcagVlrUmsDWa/atk5m5t5v/TDG6qdCA93SHdOUWs
-93hxFH0QwPczGuymg/6r9dxuF4s+mUdMGFYXAi1kgbVE+J2GBXIWtd1KsMXAXBbL
-iOVaxKI2szIiEYscUHS3e4gPRgDSP/vFW4U7j9EPP2ONlDV87c2Ecb2WRGgYU54U
-kbSBzkKycyA6n8d3K+uHKs3Yij3rcCpUSMFel82NvhEpi59ic20=
-=bFxc
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlknZ0sACgkQFA3kzBSg
+KbZNqA//frzYrV/8bxjg4Oai86Lykejn/Q3YU4jJpROPJR40ZHbq5IiRpEK9S7lx
+y8AJ6FsYcC7wk55NGc1yRYbd0UNnQd/MHOOxhEmWaKdJCpJ+dj4vCQUlk6ytFX7n
+CYACKaL1pSL8arDDJXEJNzvPJp94Sflic+fias8cB1PMnfzdcfToFGAufT13CacA
+EdPmgbcZ5AYkJ/kcX7b4IOlYNuT7b4t+G/DqcCgaBflQMeE9hEnnM1I787gR1Yof
+2gFKLHZEYIq273pGUhnn2aILwwWnv2S8mEcyFBryT1hX386t1fv5WnPv29HIZ9D5
+RlsKw6do3TLbMF66WIXk/gopasK5Sd8UQDB6UN13H1KThZJxAJ/zD0z1eTf0xHWo
+L/jDfqNgCMH+zTgky4Hgh+qebeZTahJK4nvtExOHuSnQI1rtnivtVRXxezqYDAXV
+OPpfkSWuvG0Mdf4KmWxxLtvIxXK4wAG00JmJz+0GNI9A9FLIXdfzua5gaVcJnHoz
+SgMpXzPkgU5Y//Jy0EES7FY/wCSgPhHVbZfAdw4srlpEmXZdAfCI/gOndqO9azMn
+sAmchvYzWyJdJnfEov9RneeNFKpPV5ykBDIkrsgOgqzdpUmOrvdhm7UoMrV+WSIG
+e7D/Nu/X8ApmFNKD3M3dkPeURCc5/NKZNU6RzyqdNZVXq2t76cs=
+=qGQ+
 -----END PGP SIGNATURE-----
 
---7JfCtLOvnd9MIVvH--
+--Dxnq1zWXvFF0Q93v--
