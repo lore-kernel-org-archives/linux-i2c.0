@@ -1,55 +1,66 @@
-From: Bryan Evenson <bevenson@melinkcorp.com>
-Subject: RE: Error using at91-i2c driver in kernel 4.4.x
-Date: Thu, 25 May 2017 14:23:18 +0000
-Message-ID: <DM5PR05MB295427B6F98489CC339B7257BBFF0@DM5PR05MB2954.namprd05.prod.outlook.com>
-References: <DM5PR05MB2954708999EFB8F1B593BC93BBFE0@DM5PR05MB2954.namprd05.prod.outlook.com>
- <DM5PR05MB29541B7EC525C8438538352ABBFE0@DM5PR05MB2954.namprd05.prod.outlook.com>
- <20170524230708.GA1456@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/3] gpio: adp5588: move header file out of I2C realm
+Date: Thu, 25 May 2017 19:09:43 +0200
+Message-ID: <20170525170943.GA3546@katana>
+References: <20170521215727.1243-1-wsa@the-dreams.de>
+ <20170521215727.1243-4-wsa@the-dreams.de>
+ <20170522234026.GD12016@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0106.outbound.protection.outlook.com ([104.47.37.106]:43680
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S935055AbdEYOXa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 25 May 2017 10:23:30 -0400
-In-Reply-To: <20170524230708.GA1456@katana>
-Content-Language: en-US
+Received: from www.zeus03.de ([194.117.254.33]:43464 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1765714AbdEYRJq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 25 May 2017 13:09:46 -0400
+Content-Disposition: inline
+In-Reply-To: <20170522234026.GD12016@dtor-ws>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ludovic Desroches <ludovic.desroches@atmel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
 
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> Sent: Wednesday, May 24, 2017 7:07 PM
-> To: Bryan Evenson <bevenson@melinkcorp.com>
-> Cc: linux-i2c@vger.kernel.org; Ludovic Desroches
-> <ludovic.desroches@atmel.com>
-> Subject: Re: Error using at91-i2c driver in kernel 4.4.x
->=20
-> > As usual, five minutes after I ask a question I get further.  I tried
-> > changing the ioctl to I2C_SLAVE_FORCE, and now I can talk to my
-> > EEPROM.  I'm happy it's now working, but I'm concerned about why I now
-> > need to force the slave address.  Is this because I now need to set
-> > things up differently, or is it a problem with the driver?
->=20
-> From userspace, you cannot access an I2C client which has a kernel
-> driver bound to it unless you use I2C_SLAVE_FORCE. And you really should
-> not do that because you could confuse the kernel driver.
->=20
-> Your old kernel probably did not bind a driver to the EEPROM, so you
-> could access it from userspace.
->=20
-> Since your DT now describes the EEPROM, why don't you simply access the
-> 'eeprom' file in sysfs?
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I didn't realize that option now existed for me.  I verified that with my o=
-lder kernel the 'eeprom' file doesn't exist in sysfs, but it does with the =
-newer kernel.  I'll leave the old method in place as backup but will defaul=
-t to reading from the eeprom file.
+On Mon, May 22, 2017 at 04:40:26PM -0700, Dmitry Torokhov wrote:
+> On Sun, May 21, 2017 at 11:57:27PM +0200, Wolfram Sang wrote:
+> > include/linux/i2c is not for client devices. Move the header file to a
+> > more appropriate location.
+> >=20
+> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> > ---
+> >=20
+> > This driver could also go via the input-tree or my tree. I don't really=
+ care
+> > and just picked some subsystem :) Let me know if you are okay with that.
+>=20
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Thanks,
-Bryan
+Linus, will you take it?
+
+
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlknD9IACgkQFA3kzBSg
+KbYimw//RsW4wCCJ0312bmrqaupgxs7BcZhL4rVRiG/UPUzLRDVB/qgLhErKc+82
+V0C6fp9wXTcVNiznG0Nx+BwHzmh2MFzjgDosLQk1pFzn4r1Huf14P/aaanmASDL1
+11hE6u4OHwA82vbJSP2f3Lt56b4t3DGpK9/wmEXZetk0d3bLRTauWVhkcouGeD1j
+pB/5Rxlw6jo2uN5QwaXKRc+GsAdh8oebxc/FQjfUgNFf5IX/bdIC+eev7BTKI80u
+GyqMO58xKDeiUou+WpQxSttDumnpXBxnES6fL8QUfn2Ud27o6atSocue1YOv6reI
+mIEY16DGZmY68bR7Ho93g5e+o7nUcI+p1G0HtOP2bHkzUc1iWa7ds3Oi1VCUv0z3
+TDOOn93/k+YBMF0ho5PhkgUGO7lTh+0xRboMIegt7Re6Scn0K6UgRDcLE+q/ZpVG
+d/i7y9B+/k1HluwA8rsr425PcagVlrUmsDWa/atk5m5t5v/TDG6qdCA93SHdOUWs
+93hxFH0QwPczGuymg/6r9dxuF4s+mUdMGFYXAi1kgbVE+J2GBXIWtd1KsMXAXBbL
+iOVaxKI2szIiEYscUHS3e4gPRgDSP/vFW4U7j9EPP2ONlDV87c2Ecb2WRGgYU54U
+kbSBzkKycyA6n8d3K+uHKs3Yij3rcCpUSMFel82NvhEpi59ic20=
+=bFxc
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
