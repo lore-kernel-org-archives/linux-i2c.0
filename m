@@ -1,59 +1,82 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH 2/3] gpio: pcf857x: move header file out of I2C realm
-Date: Thu, 25 May 2017 14:22:04 +0530
-Message-ID: <41555985-34c3-da9c-e4a4-f61d4eb2ec38@ti.com>
-References: <20170521215727.1243-1-wsa@the-dreams.de>
- <20170521215727.1243-3-wsa@the-dreams.de>
- <CACRpkdZzrtP0Jr5ZnOJrN9CZQDO1CXgW7Z9jTw1Mt_MkP0Saqw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <CACRpkdZzrtP0Jr5ZnOJrN9CZQDO1CXgW7Z9jTw1Mt_MkP0Saqw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Jonathan Cameron <jic23@cam.ac.uk>, Ralf Baechle <ralf@linux-mips.org>, Alexandre Courbot <gnurou@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux MIPS <linux-mips@linux-mips.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] i2c: sh_mobile: Handle return value of clk_prepare_enable
+Date: Thu, 25 May 2017 17:07:17 +0530
+Message-ID: <da1fd66f93db7ca0ec718913bfd2d5e28919a5ff.1495711281.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35535 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1764284AbdEYLiz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 25 May 2017 07:38:55 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Linus,
+clk_prepare_enable() can fail here and we must check its return value.
 
-On Tuesday 23 May 2017 03:05 PM, Linus Walleij wrote:
-> On Sun, May 21, 2017 at 11:57 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> 
->> include/linux/i2c is not for client devices. Move the header file to a
->> more appropriate location.
->>
->> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
->> ---
->>  arch/arm/mach-davinci/board-da830-evm.c        | 2 +-
->>  arch/arm/mach-davinci/board-dm644x-evm.c       | 2 +-
->>  arch/arm/mach-davinci/board-dm646x-evm.c       | 2 +-
->>  arch/arm/mach-pxa/balloon3.c                   | 2 +-
->>  arch/arm/mach-pxa/stargate2.c                  | 2 +-
->>  arch/mips/ath79/mach-pb44.c                    | 2 +-
->>  drivers/gpio/gpio-pcf857x.c                    | 2 +-
->>  include/linux/{i2c => platform_data}/pcf857x.h | 0
->>  8 files changed, 7 insertions(+), 7 deletions(-)
->>  rename include/linux/{i2c => platform_data}/pcf857x.h (100%)
-> 
-> Patch applied.
-> 
-> BTW ARM SoC maintainers be warned, I optimistically assume this will
-> not collide with any ARM SoC work...
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-Thanks for the heads-up. The mach-davinci part does not clash with
-anything I have queued. I added this patch to a branch of my tree which
-I merge together but don't sent upstream. So I will know if I end up
-queuing anything which clashes.
-
-Thanks,
-Sekhar
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 3d75593..a845292 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -252,9 +252,15 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 	unsigned long i2c_clk_khz;
+ 	u32 tHIGH, tLOW, tf;
+ 	uint16_t max_val;
++	int ret;
+ 
+ 	/* Get clock rate after clock is enabled */
+-	clk_prepare_enable(pd->clk);
++	ret = clk_prepare_enable(pd->clk);
++	if (ret) {
++		dev_err(pd->dev, "Failed! to enable clock\n");
++		return ret;
++	}
++
+ 	i2c_clk_khz = clk_get_rate(pd->clk) / 1000;
+ 	clk_disable_unprepare(pd->clk);
+ 	i2c_clk_khz /= pd->clks_per_count;
+@@ -299,11 +305,14 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 	return 0;
+ }
+ 
+-static void activate_ch(struct sh_mobile_i2c_data *pd)
++static int activate_ch(struct sh_mobile_i2c_data *pd)
+ {
++	int ret;
+ 	/* Wake up device and enable clock */
+ 	pm_runtime_get_sync(pd->dev);
+-	clk_prepare_enable(pd->clk);
++	ret = clk_prepare_enable(pd->clk);
++	if (ret)
++		return ret;
+ 
+ 	/* Enable channel and configure rx ack */
+ 	iic_set_clr(pd, ICCR, ICCR_ICE, 0);
+@@ -314,6 +323,7 @@ static void activate_ch(struct sh_mobile_i2c_data *pd)
+ 	/* Set the clock */
+ 	iic_wr(pd, ICCL, pd->iccl & 0xff);
+ 	iic_wr(pd, ICCH, pd->icch & 0xff);
++	return 0;
+ }
+ 
+ static void deactivate_ch(struct sh_mobile_i2c_data *pd)
+@@ -732,7 +742,11 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+ 	int i;
+ 	long timeout;
+ 
+-	activate_ch(pd);
++	err = activate_ch(pd);
++	if (err) {
++		dev_err(pd->dev, "Failed! to enable clock\n");
++		return err;
++	}
+ 
+ 	/* Process all messages */
+ 	for (i = 0; i < num; i++) {
+-- 
+1.9.1
