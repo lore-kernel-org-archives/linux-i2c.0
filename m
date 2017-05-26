@@ -1,23 +1,36 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
 Subject: Re: [PATCH 5/8] i2c: break out ACPI support into seperate file
-Date: Fri, 26 May 2017 19:15:56 +0300
-Message-ID: <20170526161556.GB2784@lahna.fi.intel.com>
+Date: Fri, 26 May 2017 20:30:21 +0200
+Message-ID: <20170526183021.4geqtpcyosjijkg6@pengutronix.de>
 References: <20170526082101.4746-1-wsa@the-dreams.de>
  <20170526082101.4746-6-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:34411 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754099AbdEZSaY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 26 May 2017 14:30:24 -0400
 Content-Disposition: inline
 In-Reply-To: <20170526082101.4746-6-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-On Fri, May 26, 2017 at 10:20:56AM +0200, Wolfram Sang wrote:
-> Removes some ifdeffery. Also add the new file to the relevant
-> MAINTAINERS section.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Hello Wolfram,
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+I didn't look at your patch, just noticed
+
+	$Subject ~= s/seperate/separate/
+
+while scanning over my mailbox.
+
+Liebe Grüße aus Freiburg,
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
