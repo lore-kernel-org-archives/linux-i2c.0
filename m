@@ -1,50 +1,29 @@
-From: Jani Nikula <jani.nikula@linux.intel.com>
-Subject: Re: [PATCH 0/8] i2c: refactor core and break out blocks
-Date: Fri, 26 May 2017 14:57:48 +0300
-Message-ID: <8737brn83n.fsf@intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/8] i2c: rename core source file to allow refactorization
+Date: Fri, 26 May 2017 19:12:27 +0300
+Message-ID: <20170526161227.GA2784@lahna.fi.intel.com>
 References: <20170526082101.4746-1-wsa@the-dreams.de>
+ <20170526082101.4746-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170526082101.4746-1-wsa@the-dreams.de>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: linux-i2c@vger.kernel.org
-Cc: linux-doc@vger.kernel.org, intel-gfx@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga01.intel.com ([192.55.52.88]:12692 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S944050AbdEZQMm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 26 May 2017 12:12:42 -0400
+Content-Disposition: inline
+In-Reply-To: <20170526082101.4746-2-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-acpi@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-T24gRnJpLCAyNiBNYXkgMjAxNywgV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4gd3Jv
-dGU6Cj4gWWVzLCBJIHdhbnRlZCB0byBkbyB0aGlzIGZvciB5ZWFycyBub3cuLi4gVGhlIEkyQyBj
-b3JlIGJlY2FtZSBhIGh1Z2UgbW9ub2xpdGhpYwo+IGJsb2IgZ2V0dGluZyBoYXJkZXIgYW5kIGhh
-cmRlciB0byBtYWludGFpbi4gVGhpcyBzZXJpZXMgYnJlYWtzIG91dCBzb21lCj4gZnVuY3Rpb25h
-bCBwYXJ0cyBpbnRvIHNlcGVyYXRlIGZpbGVzLiBUaGlzIG1ha2VzIHRoZSBjb2RlIGVhc2llciB0
-byBoYW5kbGUKPiBiZWNhdXNlIG9mIHRoZSBzbWFsbGVyIGNodW5rcy4gSXQgcmVkdWNlcyBpZmRl
-ZmZlcnkgYmVjYXVzZSB3ZSBjYW4gbm93IGhhbmRsZQo+IGNvbXBpbGF0aW9uIGF0IHRoZSBNYWtl
-ZmlsZSBsZXZlbC4gQW5kIGl0IGhlbHBzIHRvIHNwcmVhZCByZXNwb25zaWJpbGl0eSwgZS5nLgo+
-IHRoZSBBQ1BJIG1haW50YWluZXJzIGRvIG5vdyBoYXZlIGEgZGVkaWNhdGVkIGZpbGUgbGlzdGVk
-IGluIE1BSU5UQUlORVJTLgo+Cj4gVGhpcyBzZXJpZXMgd2FzIHRlc3RlZCB3aXRoIGEgUmVuZXNh
-cyBMYWdlciBib2FyZCAoUi1DYXIgSDIgU29DKS4gSXQgYm9vdGVkCj4gbm9ybWFsbHkgYW5kIGFs
-bCBkZXZpY2UgZHJpdmVycyBmb3IgSTJDIGNsaWVudHMgc2VlbSB0byB3b3JrIG5vcm1hbGx5LiBJ
-IHdpcmVkCj4gdHdvIEkyQyBidXNzZXMgdG9nZXRoZXIgYW5kIHVzZWQgaTJjLXNsYXZlLWVlcHJv
-bSB0byBsZXQgb25lIEkyQyBJUCBjb3JlIHJlYWQKPiBvdXQgZGF0YSBmcm9tIHRoZSBvdGhlci4g
-VGhhdCBhbGwgd29ya2VkIGZpbmUuIEJ1aWxkYm90IGlzIGFsc28gaGFwcHksIGl0IGZvdW5kCj4g
-dHdvIGlzc3VlcyBvZiB0aGUgZmlyc3QgKG5vbiBwdWJsaWMpIGl0ZXJhdGlvbi4gVGhhbmtzIQo+
-Cj4gSSBkaWQgbm90IHRlc3QgQUNQSSBhbmQgaG9wZSBmb3Igc29tZSBhc3Npc3RhbmNlIGhlcmUg
-OikgSSdkIGFsc28gYmUgaGFwcHkgaWYKPiBwZW9wbGUgY291bGQgY2hlY2sgdGhlIGluY2x1ZGVz
-IG9mIHRoZSBuZXdseSBjcmVhdGVkIGZpbGVzLCB0aGVyZSBtaWdodCBiZQo+IG1pc3Npbmcgc29t
-ZS4KCklmIHlvdSBkb24ndCBtaW5kIHNlbmRpbmcgdGhlIHdob2xlIHNlcmllcyB0byB0aGUgaW50
-ZWwtZ2Z4IGxpc3QgKENjJ2QpLApvdXIgQ0kgd2lsbCBydW4gYSBidW5jaCBvZiB0ZXN0cyBvbiBp
-dCwgZXhlcmNpc2luZyBvdXIgdXNlIG9mIHRoZSBJMkMKYWRhcHRlciBpbnRlcmZhY2VzIGZvciBk
-aXNwbGF5IGRhdGEgY2hhbm5lbCBhbmQgSTJDIG92ZXIgRGlzcGxheSBQb3J0Cm5hdGl2ZSBhdXgu
-CgpCUiwKSmFuaS4KCi0tIApKYW5pIE5pa3VsYSwgSW50ZWwgT3BlbiBTb3VyY2UgVGVjaG5vbG9n
-eSBDZW50ZXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-SW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0
-dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+On Fri, May 26, 2017 at 10:20:52AM +0200, Wolfram Sang wrote:
+> The I2C core became quite huge and its monolithic structure makes
+> maintenance hard. So, prepare to break out some functionality into
+> seperate files by renaming the source file. Note that we keep the
+> resulting object name constant to avoid regressions.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
