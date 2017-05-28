@@ -1,53 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/8] i2c: refactor core and break out blocks
-Date: Sat, 27 May 2017 18:32:19 +0200
-Message-ID: <20170527163219.ffagajkuzs3naz3g@ninjato>
-References: <20170526082101.4746-1-wsa@the-dreams.de>
- <8737brn83n.fsf@intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="daqqjeoh356pwimb"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8737brn83n.fsf@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-acpi@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 0/2] Add I2C driver for ZTE ZX2967 family SoCs
+Date: Sun, 28 May 2017 12:59:34 +0800
+Message-ID: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750816AbdE1FAl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 28 May 2017 01:00:41 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Baoyou Xie <xie.baoyou@sanechips.com.cn>, Xin Zhou <zhou.xin8@sanechips.com.cn>, Shawn Guo <shawn.guo@linaro.org>
 
+From: Shawn Guo <shawn.guo@linaro.org>
 
---daqqjeoh356pwimb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Wolfram,
 
+The ZX2967 I2C driver submission had gone through quite a number of
+review iterations [1], and seems close to be accepted.  But for some
+reason, the ball got dropped from there.  I'm here to pick it up and
+hopefully move it forward.
 
-> If you don't mind sending the whole series to the intel-gfx list (Cc'd),
-> our CI will run a bunch of tests on it, exercising our use of the I2C
-> adapter interfaces for display data channel and I2C over Display Port
-> native aux.
+This is basically a resend of the latest posting from Baoyou with
+Wolfram's comments on v7 fully addressed.
 
-Cool, that sounds very helpful! Thanks for the offer, I'll resend the
-series there as RFT.
+Changes since v7:
+ - Rebase and test on v4.12-rc2.
+ - Drop the dev_err() and hardware reset on timeout, which is not really
+   necessary.
+ - Return -ETIMEDOUT instead of -EIO on timeout.
+ - Unify zx2967_i2c_xfer_write_bytes() and zx2967_i2c_xfer_read_bytes()
+   into one function zx2967_i2c_xfer_bytes(), and zx2967_i2c_xfer_write()
+   and zx2967_i2c_xfer_read() into zx2967_i2c_xfer_msg().
 
+Shawn
 
---daqqjeoh356pwimb
-Content-Type: application/pgp-signature; name="signature.asc"
+[1] https://lkml.org/lkml/2017/2/22/101
 
------BEGIN PGP SIGNATURE-----
+Baoyou Xie (2):
+  dt: bindings: add documentation for zx2967 family i2c controller
+  i2c: zx2967: add i2c controller driver for ZTE's zx2967 family
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkpqg4ACgkQFA3kzBSg
-KbYo4Q//eCi/dE8e7gkgEtLsDTqlkP/J399pEEPz16iNqH9tJ8QizZ75XTZbncN1
-Sy0e5PRrM3jgkYI+tB+CTR0NUCkm5qYUWqhXdznXTJRKoSWmVqUf2k6buPm6uYNA
-GWCQOWZz3XbpNoyvzg2ewUbFoJwsep1qfCg4CRr4HnGnlbgzPouzRvQQhubw2uuP
-C3WEMKmTJTnZIlbTZHNO6MGt0CVOwYU8W5kBkpsXlXq6hqEoqSJgnHEJYsOzurYz
-NjLu0uR06BPhNmHv2vBZIZgHX7yugY6NiO5LQY10k3pO4udyhoVwvv3A2eAxJjcX
-Ok1iggjRWLY8DsWePTpHT+TMyteFyfUoWeCZX/WlJ9EfxOgHE0WoEpHQks2WOug+
-Z2QgXVWpes78Akfny/bsexdQx/xr+4RVz71UiVk9pALIeYmcVDweyNJtuW9wVKVq
-P7ZggaoZQR226kbgdd4Sd7XOrqoDdGebYQKT+tu+Fo76ZUUgcLDqAd/3eUsmi/b0
-Ne4VjXG7iOIS0w6WP9WSeehw4ShHG+YwZXy6dG+Z/k9GDzszbkBuhldWAl4UkaAo
-Ljo7yNvxlcgAj5+2FfNIHmy1gRfKil9hMBiC302XKLJgkDS59/mN6fWEf4dQXcjD
-L0sIFQnp/rqiIGYGHbmWIPP+mwo4SoSmiwGWLRfjx3C/wgt01pU=
-=NP+V
------END PGP SIGNATURE-----
+ .../devicetree/bindings/i2c/i2c-zx2967.txt         |  22 +
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-zx2967.c                    | 610 +++++++++++++++++++++
+ 4 files changed, 642 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+ create mode 100644 drivers/i2c/busses/i2c-zx2967.c
 
---daqqjeoh356pwimb--
+-- 
+1.9.1
