@@ -1,37 +1,36 @@
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [PATCH 2/2] video: adp8870: move header file out of I2C realm
-Date: Mon, 29 May 2017 11:23:16 +0200
-Message-ID: <1674548.6H3ihMLElO@amdc3058>
-References: <20170521220953.2602-1-wsa@the-dreams.de>
-        <CGME20170521220958epcas1p30bab0556e81fe48cff9f65b09177dd9c@epcas1p3.samsung.com>
-        <20170521220953.2602-3-wsa@the-dreams.de>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 1/8] i2c: rename core source file to allow refactorization
+Date: Mon, 29 May 2017 12:44:28 +0300
+Message-ID: <3d19c8c4-339e-f24b-2475-5732be144f71@linux.intel.com>
+References: <20170526082101.4746-1-wsa@the-dreams.de>
+ <20170526082101.4746-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20170521220953.2602-3-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga05.intel.com ([192.55.52.43]:17434 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750787AbdE2Joc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 May 2017 05:44:32 -0400
+In-Reply-To: <20170526082101.4746-2-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.de>, linux-acpi@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Monday, May 22, 2017 12:09:53 AM Wolfram Sang wrote:
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On 05/26/2017 11:20 AM, Wolfram Sang wrote:
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -583,7 +583,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>  			 */
+>
+>  			/*
+> -			 * i2c-core.c always sets the buffer length of
+> +			 * i2c-core always sets the buffer length of
+>  			 * I2C_FUNC_SMBUS_BLOCK_DATA to 1. The length will
+>  			 * be adjusted when receiving the first byte.
+>  			 * Thus we can't stop the transaction here.
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+FWIW,
 
-> ---
->  arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
->  drivers/video/backlight/adp8870_bl.c           | 2 +-
->  include/linux/{i2c => platform_data}/adp8870.h | 0
->  3 files changed, 2 insertions(+), 2 deletions(-)
->  rename include/linux/{i2c => platform_data}/adp8870.h (100%)
-
-Best regards,
---
-Bartlomiej Zolnierkiewicz
-Samsung R&D Institute Poland
-Samsung Electronics
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
