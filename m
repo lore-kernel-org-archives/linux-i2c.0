@@ -1,35 +1,64 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/3] gpio: adp5588: move header file out of I2C realm
-Date: Mon, 29 May 2017 13:37:27 +0200
-Message-ID: <CACRpkdbFvN=Xzb3znQLVgjTcAW+stkeNCDLAHrmZWorTWU-kpQ@mail.gmail.com>
-References: <20170521215727.1243-1-wsa@the-dreams.de> <20170521215727.1243-4-wsa@the-dreams.de>
+From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c binding
+Date: Mon, 29 May 2017 17:30:26 +0200
+Message-ID: <1d073e6a-e275-24e1-7954-f1af913bd03b@gmail.com>
+References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
+ <1495784107-6711-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f179.google.com ([209.85.223.179]:34963 "EHLO
-        mail-io0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750893AbdE2Lh2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 May 2017 07:37:28 -0400
-Received: by mail-io0-f179.google.com with SMTP id f102so39563670ioi.2
-        for <linux-i2c@vger.kernel.org>; Mon, 29 May 2017 04:37:28 -0700 (PDT)
-In-Reply-To: <20170521215727.1243-4-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1495784107-6711-2-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Sun, May 21, 2017 at 11:57 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+On 26/05/17 09:35, Jun Gao wrote:
+> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> 
+> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+> modify i2c driver.
+> 
+> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 > ---
->
-> This driver could also go via the input-tree or my tree. I don't really care
-> and just picked some subsystem :) Let me know if you are okay with that.
+>   Documentation/devicetree/bindings/i2c/i2c-mt6577.txt | 11 ++++++-----
+>   1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> index 0ce6fa3..52f2023 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+>   
+>   Required properties:
+>     - compatible: value should be either of the following.
+> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
 
-Patch applied to the GPIO tree with Dmitry's ACK.
+I send a cleanup patch for the file, which fixes all the other SoCs.
+I can fold this one into it, a soon as I got a Signed-off from the DT 
+maintainers.
 
-Yours,
-Linus Walleij
+Reviewed-by: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+> +	"mediatek,mt6577-i2c": for Mediatek MT6577
+> +	"mediatek,mt6589-i2c": for Mediatek MT6589
+> +	"mediatek,mt8127-i2c": for Mediatek MT8127
+> +	"mediatek,mt8135-i2c": for Mediatek MT8135
+> +	"mediatek,mt8173-i2c": for Mediatek MT8173
+>     - reg: physical base address of the controller and dma base, length of memory
+>       mapped region.
+>     - interrupts: interrupt number to the cpu.
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
