@@ -1,69 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
 Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
-Date: Mon, 29 May 2017 23:04:19 +0200
-Message-ID: <20170529210419.GA2527@katana>
+Date: Mon, 29 May 2017 22:03:16 +0000
+Message-ID: <1496095395.17446.111.camel@infinera.com>
 References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
- <1494947612.7509.24.camel@infinera.com>
- <1495547252.17446.60.camel@infinera.com>
+         <1494947612.7509.24.camel@infinera.com>
+         <1495547252.17446.60.camel@infinera.com> <20170529210419.GA2527@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:37852 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750873AbdE2VEW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 May 2017 17:04:22 -0400
-Content-Disposition: inline
-In-Reply-To: <1495547252.17446.60.camel@infinera.com>
+Received: from mail-cys01nam02on0054.outbound.protection.outlook.com ([104.47.37.54]:53408
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751083AbdE2WDW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 May 2017 18:03:22 -0400
+In-Reply-To: <20170529210419.GA2527@katana>
+Content-Language: en-US
+Content-ID: <DF4624E3F9CFD84EA93DA56F2B857AFC@infinera.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>
 Cc: "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, May 23, 2017 at 01:47:34PM +0000, Joakim Tjernlund wrote:
-> On Tue, 2017-05-16 at 17:13 +0200, Joakim Tjernlund wrote:
-> > On Thu, 2017-05-11 at 14:20 +0200, Joakim Tjernlund wrote:
-> > > Current I2C reset procedure is broken in two ways:
-> > > 1) It only generate 1 START instead of 9 STARTs and STOP.
-> > > 2) It leaves the bus Busy so every I2C xfer after the first
-> > >    fixup calls the reset routine again, for every xfer there after.
+On Mon, 2017-05-29 at 23:04 +0200, Wolfram Sang wrote:
+> On Tue, May 23, 2017 at 01:47:34PM +0000, Joakim Tjernlund wrote:
+> > On Tue, 2017-05-16 at 17:13 +0200, Joakim Tjernlund wrote:
+> > > On Thu, 2017-05-11 at 14:20 +0200, Joakim Tjernlund wrote:
+> > > > Current I2C reset procedure is broken in two ways:
+> > > > 1) It only generate 1 START instead of 9 STARTs and STOP.
+> > > > 2) It leaves the bus Busy so every I2C xfer after the first
+> > > >    fixup calls the reset routine again, for every xfer there after.
+> > > >=20
+> > > > This fixes both errors.
 > > >=20
-> > > This fixes both errors.
+> > > Ping?
 > >=20
-> > Ping?
+> > Ping again, pretty please?
 >=20
-> Ping again, pretty please?
+> I am interested in this patch. Especially why you think the generic
+> recovery structure is not suitable and if we maybe need to update that,
 
-I am interested in this patch. Especially why you think the generic
-recovery structure is not suitable and if we maybe need to update that,
-too. But I need time to think into it and that may still need 1-2 weeks.
-I am aiming for 4.12 nonetheless.
+I did my I2C reset analysis many years ago but I found the reason in som ol=
+d code
+I had lying around, just sending 9 clocks will not recover the case when st=
+uck in an
+I2C write sequence. Adding START into the sequence keeps the device in STAR=
+T once it has
+seen at least one START, then the STOP will release the bus in the end.
+
+Other that that I am just not familiar enough with the new recovery structu=
+re.
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature; name="signature.asc"
+> too. But I need time to think into it and that may still need 1-2 weeks.
+> I am aiming for 4.12 nonetheless.
 
------BEGIN PGP SIGNATURE-----
+Thanks, I will probably loose track of this one if it doesn't.
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlksjM4ACgkQFA3kzBSg
-Kbb5KA/9G+ephALgxRSQPVclr/Gzlu5Ojz+sa3RtmbPE6RZRzMnZ4G4p6fUXHRza
-d9MEHUn/rvxyphmKRLxTMUcfmkcdS1wOAM7Vio2h9l/fOjo6l43dFqr3NX2sOoSf
-UTIAJk1wfUFBD0Sj0+OPlkqW/ccOnuxGw4ldzheOaB/yP6kFDHunALR05Rsm+fyl
-naPGQTdw5I+5BZydN8Qa5LsIPn0pxF2C2Du9WT3ig31FxAzWmLKYzCWZTzO9Z4rY
-l7AjVibT1gJ5JWOAxA3tB9g4cJrKWu3/LX9r1xuvfIUTvz4Jscg+E2RZDhv8lrqk
-lr85B3roQKmRLhjqUmBtxkZ6AB1AWxizzsuMu18Gzz78cE9b7rfh6TS6SU5WsN9f
-WD+kzr0FDSw6JjtoAWJLkDVKBilbrICJsybQvP5WVOo1LeLxf/nowJXUPMdbdD6S
-vu3NTUDoqnvB2iz+3eE1ckfJe1iSNwDMWKacBRvJ+s4fsVHhz7LSDlCQ6vDef3yt
-XU5WOPAKM6DL08trOy9ethCtVKagto2CEutnMMjTA2UD83v6d0CMmPUOp96aHJYr
-E8dPWj6EXDqLTrBfiEvunSuxyxfpLG4V+nQpUNret29yJgZgOdHGVEJ0MkV2kNCJ
-62tt/DlVIBT4FBoz33iRRhldRJW2rgIi51OyPmMpXng2kTQoN+Y=
-=qybz
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+ Jocke=
