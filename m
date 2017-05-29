@@ -1,32 +1,41 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/7] i2c: use proper name for the R-Car SoC
-Date: Mon, 29 May 2017 11:13:02 +0200
-Message-ID: <CAMuHMdX+sODOvuw_=9xiN_oMrN6sJYD4yEFKRLhsmtP3gFvS4g@mail.gmail.com>
-References: <20170528093051.11816-1-wsa+renesas@sang-engineering.com> <20170528093051.11816-3-wsa+renesas@sang-engineering.com>
+From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: Re: [PATCH 1/2] video: adp8860: move header file out of I2C realm
+Date: Mon, 29 May 2017 11:22:52 +0200
+Message-ID: <3553710.Yr6b9bAIsl@amdc3058>
+References: <20170521220953.2602-1-wsa@the-dreams.de>
+        <CGME20170521222746epcas2p46ba3b0a4c8e3cb864cfc1b3b385e9af6@epcas2p4.samsung.com>
+        <20170521220953.2602-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170528093051.11816-3-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:17281 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750787AbdE2JW5 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 May 2017 05:22:57 -0400
+In-reply-to: <20170521220953.2602-2-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Sun, May 28, 2017 at 11:30 AM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> It is 'R-Car', not 'RCar'. No code or binding changes, only descriptive text.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Monday, May 22, 2017 12:09:52 AM Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 
-Gr{oetje,eeting}s,
+> ---
+>  arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
+>  drivers/video/backlight/adp8860_bl.c           | 2 +-
+>  include/linux/{i2c => platform_data}/adp8860.h | 0
+>  3 files changed, 2 insertions(+), 2 deletions(-)
+>  rename include/linux/{i2c => platform_data}/adp8860.h (100%)
 
-                        Geert
-
+Best regards,
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Bartlomiej Zolnierkiewicz
+Samsung R&D Institute Poland
+Samsung Electronics
