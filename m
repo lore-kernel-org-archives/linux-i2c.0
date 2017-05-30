@@ -1,47 +1,56 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v8 3/5] i2c: aspeed: added documentation for Aspeed I2C
- driver
-Date: Tue, 30 May 2017 16:37:12 -0500
-Message-ID: <20170530213712.sspigq7xtrdcfabb@rob-hp-laptop>
-References: <20170525064925.16867-1-brendanhiggins@google.com>
- <20170525064925.16867-4-brendanhiggins@google.com>
+Subject: Re: [PATCH v4 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c binding
+Date: Tue, 30 May 2017 16:38:28 -0500
+Message-ID: <20170530213828.pxmexdzfv6u5db6m@rob-hp-laptop>
+References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
+ <1495784107-6711-2-git-send-email-jun.gao@mediatek.com>
+ <1d073e6a-e275-24e1-7954-f1af913bd03b@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:33559 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750902AbdE3VhO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 May 2017 17:37:14 -0400
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:34282 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751007AbdE3Via (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 30 May 2017 17:38:30 -0400
 Content-Disposition: inline
-In-Reply-To: <20170525064925.16867-4-brendanhiggins@google.com>
+In-Reply-To: <1d073e6a-e275-24e1-7954-f1af913bd03b@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+To: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Jun Gao <jun.gao@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 
-On Wed, May 24, 2017 at 11:49:23PM -0700, Brendan Higgins wrote:
-> Added device tree binding documentation for Aspeed I2C busses.
+On Mon, May 29, 2017 at 05:30:26PM +0200, Matthias Brugger wrote:
+g> 
 > 
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-> ---
-> Changes for v2:
->   - None
-> Changes for v3:
->   - Removed reference to "bus" device tree param
-> Changes for v4:
->   - None
-> Changes for v5:
->   - None
-> Changes for v6:
->   - Replaced the controller property with and interrupt controller, leaving only
->     the busses in the I2C documentation.
-> Changes for v7:
->   - Changed clock-frequency to bus-frequency in device tree
-> Changes for v8:
->   - Added multi-master property to device tree
-> ---
->  .../devicetree/bindings/i2c/i2c-aspeed.txt         | 48 ++++++++++++++++++++++
->  1 file changed, 48 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> On 26/05/17 09:35, Jun Gao wrote:
+> > From: Jun Gao <jun.gao@mediatek.com>
+> > 
+> > Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+> > modify i2c driver.
+> > 
+> > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> > ---
+> >   Documentation/devicetree/bindings/i2c/i2c-mt6577.txt | 11 ++++++-----
+> >   1 file changed, 6 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> > index 0ce6fa3..52f2023 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+> >   Required properties:
+> >     - compatible: value should be either of the following.
+> > -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> > -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> > -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> > -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> > -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> > +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
+> 
+> I send a cleanup patch for the file, which fixes all the other SoCs.
+> I can fold this one into it, a soon as I got a Signed-off from the DT
+> maintainers.
 
-Acked-by: Rob Herring <robh@kernel.org>
+I already acked it on the prior versions.
+
+Rob
