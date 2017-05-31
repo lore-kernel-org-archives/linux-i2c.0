@@ -1,60 +1,71 @@
-From: Michael Thalmeier <michael.thalmeier@hale.at>
-Subject: [PATCH] i2c: mxs: change error printing to debug for mxs_i2c_pio_wait_xfer_end
-Date: Wed, 31 May 2017 11:40:03 +0200
-Message-ID: <20170531094003.21997-1-michael.thalmeier@hale.at>
-References: <20170519124402.4xkaguxjzgyvbwcl@ninjato>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gw.hale.at ([89.26.116.210]:34064 "EHLO gw.hale.at"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751063AbdEaJl2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 31 May 2017 05:41:28 -0400
-In-Reply-To: <20170519124402.4xkaguxjzgyvbwcl@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c binding
+Date: Wed, 31 May 2017 14:05:07 +0200
+Message-ID: <ab1e1baf-a30f-97e1-e232-d479eaf52acc@gmail.com>
+References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
+ <1495784107-6711-2-git-send-email-jun.gao@mediatek.com>
+ <1d073e6a-e275-24e1-7954-f1af913bd03b@gmail.com>
+ <20170530213828.pxmexdzfv6u5db6m@rob-hp-laptop>
+ <1496197469.930.17.camel@mhfsdcap03>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1496197469.930.17.camel@mhfsdcap03>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Marek Vasut <marex@denx.de>
 
-Instead of printing errors after mxs_i2c_pio_wait_xfer_end returns with
-an error code just print a debug message.
 
-NAKs and timeouts can occur in this situation normally, so do not treat
-them as errors.
 
-Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
----
- drivers/i2c/busses/i2c-mxs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On 31/05/17 04:24, Jun Gao wrote:
+> On Tue, 2017-05-30 at 16:38 -0500, Rob Herring wrote:
+>> On Mon, May 29, 2017 at 05:30:26PM +0200, Matthias Brugger wrote:
+>> g>
+>>>
+>>> On 26/05/17 09:35, Jun Gao wrote:
+>>>> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+>>>>
+>>>> Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
+>>>> modify i2c driver.
+>>>>
+>>>> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+>>>> ---
+>>>>    Documentation/devicetree/bindings/i2c/i2c-mt6577.txt | 11 ++++++-----
+>>>>    1 file changed, 6 insertions(+), 5 deletions(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> index 0ce6fa3..52f2023 100644
+>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+>>>> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+>>>>    Required properties:
+>>>>      - compatible: value should be either of the following.
+>>>> -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+>>>> -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+>>>> -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+>>>> -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+>>>> -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+>>>> +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
+>>>
+>>> I send a cleanup patch for the file, which fixes all the other SoCs.
+>>> I can fold this one into it, a soon as I got a Signed-off from the DT
+>>> maintainers.
+>>
+>> I already acked it on the prior versions.
+>>
+>> Rob
+> 
+> Hi Matthias,
+> 
+> Which patch should I use now? Or you help to modify dt-binding, I only
+> send dtsi file patch ?  Thanks!
+> 
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 5738556..d4e8f19 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -419,7 +419,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
- 
- 		ret = mxs_i2c_pio_wait_xfer_end(i2c);
- 		if (ret) {
--			dev_err(i2c->dev,
-+			dev_dbg(i2c->dev,
- 				"PIO: Failed to send SELECT command!\n");
- 			goto cleanup;
- 		}
-@@ -431,7 +431,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
- 
- 		ret = mxs_i2c_pio_wait_xfer_end(i2c);
- 		if (ret) {
--			dev_err(i2c->dev,
-+			dev_dbg(i2c->dev,
- 				"PIO: Failed to send READ command!\n");
- 			goto cleanup;
- 		}
-@@ -528,7 +528,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
- 			/* Wait for the end of the transfer. */
- 			ret = mxs_i2c_pio_wait_xfer_end(i2c);
- 			if (ret) {
--				dev_err(i2c->dev,
-+				dev_dbg(i2c->dev,
- 					"PIO: Failed to finish WRITE cmd!\n");
- 				break;
- 			}
--- 
-2.9.2
+Don't worry, I fixed the commit and took both of them.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
