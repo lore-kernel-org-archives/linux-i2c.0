@@ -1,59 +1,46 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [PATCH v4 1/2] dt-bindings: i2c: Add Mediatek MT2701 i2c binding
-Date: Wed, 31 May 2017 10:24:29 +0800
-Message-ID: <1496197469.930.17.camel@mhfsdcap03>
-References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
-         <1495784107-6711-2-git-send-email-jun.gao@mediatek.com>
-         <1d073e6a-e275-24e1-7954-f1af913bd03b@gmail.com>
-         <20170530213828.pxmexdzfv6u5db6m@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170530213828.pxmexdzfv6u5db6m@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>, Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] i2c: at91: Handle return value of clk_prepare_enable
+Date: Wed, 31 May 2017 12:27:44 +0530
+Message-ID: <74b05c5180872e368970562535bc305728da4be8.1496211597.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33853 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751037AbdEaG57 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2017 02:57:59 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: ludovic.desroches@microchip.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2017-05-30 at 16:38 -0500, Rob Herring wrote:
-> On Mon, May 29, 2017 at 05:30:26PM +0200, Matthias Brugger wrote:
-> g> 
-> > 
-> > On 26/05/17 09:35, Jun Gao wrote:
-> > > From: Jun Gao <jun.gao@mediatek.com>
-> > > 
-> > > Add MT2701 i2c binding to i2c-mt6577.txt and there is no need to
-> > > modify i2c driver.
-> > > 
-> > > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-> > > ---
-> > >   Documentation/devicetree/bindings/i2c/i2c-mt6577.txt | 11 ++++++-----
-> > >   1 file changed, 6 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > > index 0ce6fa3..52f2023 100644
-> > > --- a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> > > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
-> > >   Required properties:
-> > >     - compatible: value should be either of the following.
-> > > -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> > > -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> > > -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> > > -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> > > -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> > > +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-> > 
-> > I send a cleanup patch for the file, which fixes all the other SoCs.
-> > I can fold this one into it, a soon as I got a Signed-off from the DT
-> > maintainers.
-> 
-> I already acked it on the prior versions.
-> 
-> Rob
+clk_prepare_enable() can fail here and we must check its return value.
 
-Hi Matthias,
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Which patch should I use now? Or you help to modify dt-binding, I only
-send dtsi file patch ?  Thanks!
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index fabbb9e..2525cd9 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1083,12 +1083,16 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 		dev_err(dev->dev, "no clock defined\n");
+ 		return -ENODEV;
+ 	}
+-	clk_prepare_enable(dev->clk);
++	rc = clk_prepare_enable(dev->clk);
++	if (rc)
++		return rc;
+ 
+ 	if (dev->dev->of_node) {
+ 		rc = at91_twi_configure_dma(dev, phy_addr);
+-		if (rc == -EPROBE_DEFER)
++		if (rc == -EPROBE_DEFER) {
++			clk_disable_unprepare(dev->clk);
+ 			return rc;
++		}
+ 	}
+ 
+ 	if (!of_property_read_u32(pdev->dev.of_node, "atmel,fifo-size",
+-- 
+1.9.1
