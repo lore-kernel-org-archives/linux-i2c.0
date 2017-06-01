@@ -1,151 +1,50 @@
-From: jmondi <jacopo@jmondi.org>
-Subject: Re: [PATCH v2] i2c: i2c-mux: Fix channel parent node assignment
-Date: Thu, 1 Jun 2017 11:19:24 +0900
-Message-ID: <20170601021924.GB13970@w540>
-References: <1496134457-19573-1-git-send-email-jacopo+renesas@jmondi.org>
- <5de6a678-e646-3acb-2346-8a1d76ebbf9d@axentia.se>
- <20170531075126.GC19019@w540>
- <ef5b3b0a-52c7-785f-6faf-47d9b40f89cc@axentia.se>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH v5 00/20] eeprom: at24: Add OF device ID table
+Date: Thu, 1 Jun 2017 10:07:19 +0200
+Message-ID: <CABxcv=kC0Bfxsm73x9AY6OiQCEZOafidMT+kv=qUqpqnaMAMaA@mail.gmail.com>
+References: <20170523133448.4794-1-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:41278 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751015AbdFACTh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 31 May 2017 22:19:37 -0400
-Content-Disposition: inline
-In-Reply-To: <ef5b3b0a-52c7-785f-6faf-47d9b40f89cc@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170523133448.4794-1-javier@dowhile0.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, David Lechner <david@lechnology.com>, Rob Herring <robh@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Javier Martinez Canillas <javier@dowhile0.org>, Jas
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>, laurent.pinchart@ideasonboard.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 
-On Wed, May 31, 2017 at 10:19:07AM +0200, Peter Rosin wrote:
-> On 2017-05-31 09:51, jmondi wrote:
-> > Hi Peter,
-> >
-> > On Tue, May 30, 2017 at 01:04:08PM +0200, Peter Rosin wrote:
-> >> On 2017-05-30 10:54, Jacopo Mondi wrote:
-> >>> I2c-mux channels are created as mux siblings while they should be
-> >>> children of the mux itself. Fix it.
-> >>
-> >> Has this received any testing at all?
-> >>
-> >
-> > Yes, but on our specific use case, that apparently does not makes use of
-> > i2c_parent_is_i2c_adapter()
->
-> Try e.g. adding a client device with some address to the root i2c
-> adapter, and then add another client device with the same address
-> to one of the mux child adapters. Do that with and without your
-> patch. I suspect it will be allowed with your patch even though it
-> shouldn't.
->
+Hello Wolfram,
 
-Oh I see what's you're point here.
-I cannot access the test board and try, but yes I see what you mean.
-
-> >> I think it will break various users of i2c_parent_is_i2c_adapter()
-> >> that expect the current situation that a i2c mux child adapter is
-> >> direct child of the parent i2c adapter. I.e. with no intermediate
-> >> device node.
-> >
-> > Oh, I know see..
-> >
-> > So when walking the devices sitting on an i2c-adapter we should expect to
-> > see mux children adapters as well there. Do you think is there a way to
-> > easily identify them?
+On Tue, May 23, 2017 at 3:34 PM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
 >
-> Well, you can use the method from i2c_parent_is_i2c_adapter() and
-> write a function like so (untested):
+> This series is a follow-up to patch [0] that added an OF device ID table
+> to the at24 EEPROM driver. As you suggested [1], this version instead of
+> adding entries for every used <vendor,device> tuple, only adds a single
+> entry for each chip type using the "atmel" vendor as a generic fallback.
 >
-> struct i2c_adapter *i2c_is_i2c_adapter(struct device *dev)
-> {
-> 	if (dev->type != &i2c_adapter_type)
-> 		return NULL;
+> The first patch documents in the DT binding what's the correct vendor to
+> use and what are the ones that are being deprecated. The second one adds
+> the OF device ID table for the at24 driver and the next patches use this
+> vendor in the compatible string to each DTS that defines a compatible I2C
+> EEPROM device node.
 >
-> 	return to_i2c_adapter(dev);
-> }
+> Patches can be applied independently since the DTS changes without driver
+> changes are no-op and the OF table won't be used without the DTS changes.
 >
-> But why do you need to identify them? What problem are you trying to solve?
+> [0]: https://lkml.org/lkml/2017/3/14/589
+> [1]: https://lkml.org/lkml/2017/3/15/99
 >
 
-I want to be able to walk all children devices of an i2c-adapter,
-not including the mux channel i2c-adapters. I'm sure I can work around it.
-While doing that I stumbled upon this and thought it was wrong.
+Any comments on this series?
 
-> Also, I forgot to mention this in my first reply, but note that the
-> device implementing the i2c-mux need not be a child of the i2c adapter.
-> I.e. in your example, the device I'm talking about is gmsl-deserializer@0.
-> This "MUX" device could be e.g. a platform device situated in some other
-> completely random place in the device tree. Oh well, perhaps not random,
-> but I hope you get what I mean...
-
-Yes, I guess so :)
-
-Please drop this patch then, and thanks for your explanation
-
-Thanks
-   j
-
->
-> Cheers,
-> peda
->
-> > Thanks
-> >    j
-> >>
-> >> Cheers,
-> >> peda
-> >>
-> >>> Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-> >>> Suggested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> >>> ---
-> >>>
-> >>> Hello,
-> >>>    while inspecting child nodes of an i2c adapter it has been noted that
-> >>> child devices of an i2c-mux are listed as children of the i2c adapter itself,
-> >>> and not of the i2c-mux.
-> >>>
-> >>> The hierarchy of devices looked like
-> >>>
-> >>> -- i2c-04
-> >>> --- eeprom@57
-> >>> --- video_receiver@70
-> >>> --- video_receiver@34
-> >>> --- gmsl-deserializer@0		<-- MUX
-> >>> --- gmsl-deserializer@0/i2c@0	<-- MUX CHANNEL
-> >>>
-> >>> It now looks like
-> >>>
-> >>> -- i2c-04
-> >>> --- eeprom@57
-> >>> --- video_receiver@70
-> >>> --- video_receiver@34
-> >>> --- gmsl-deserializer@0
-> >>> ---- gmsl-deserializer@0/i2c@0
-> >>>
-> >>> v1 -> v2:
-> >>> - change commit message as suggested by Geert
-> >>>
-> >>>  drivers/i2c/i2c-mux.c | 2 +-
-> >>>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> >>> index 83768e8..37b7804 100644
-> >>> --- a/drivers/i2c/i2c-mux.c
-> >>> +++ b/drivers/i2c/i2c-mux.c
-> >>> @@ -324,7 +324,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
-> >>>  	priv->adap.owner = THIS_MODULE;
-> >>>  	priv->adap.algo = &priv->algo;
-> >>>  	priv->adap.algo_data = priv;
-> >>> -	priv->adap.dev.parent = &parent->dev;
-> >>> +	priv->adap.dev.parent = muxc->dev;
-> >>>  	priv->adap.retries = parent->retries;
-> >>>  	priv->adap.timeout = parent->timeout;
-> >>>  	priv->adap.quirks = parent->quirks;
-> >>> --
-> >>> 2.7.4
-> >>>
-> >>
->
+Best regards,
+Javier
