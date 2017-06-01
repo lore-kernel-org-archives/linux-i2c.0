@@ -1,50 +1,52 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH v5 00/20] eeprom: at24: Add OF device ID table
-Date: Thu, 1 Jun 2017 10:07:19 +0200
-Message-ID: <CABxcv=kC0Bfxsm73x9AY6OiQCEZOafidMT+kv=qUqpqnaMAMaA@mail.gmail.com>
-References: <20170523133448.4794-1-javier@dowhile0.org>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] i2c: i2c-mux: Fix channel parent node assignment
+Date: Thu, 1 Jun 2017 20:58:20 +0200
+Message-ID: <bd856a68-aa3b-2a51-a6a7-a95e6b3f6c8a@axentia.se>
+References: <1496134457-19573-1-git-send-email-jacopo+renesas@jmondi.org>
+ <5de6a678-e646-3acb-2346-8a1d76ebbf9d@axentia.se>
+ <20170531075126.GC19019@w540>
+ <ef5b3b0a-52c7-785f-6faf-47d9b40f89cc@axentia.se>
+ <20170601021924.GB13970@w540>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170523133448.4794-1-javier@dowhile0.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, Tony Lindgren <tony@atomide.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Masahiro Yamada <yamada.masahiro@socionext.com>, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>, Hongtao Jia <hongtao.jia@nxp.com>, David Lechner <david@lechnology.com>, Rob Herring <robh@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Horia_Geant=C4=83?= <horia.geanta@nxp.com>, Michael Ellerman <mpe@ellerman.id.au>, Magnus Damm <magnus.damm@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Javier Martinez Canillas <javier@dowhile0.org>, Jas
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170601021924.GB13970@w540>
+Content-Language: en-US
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: jmondi <jacopo@jmondi.org>
+Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>, laurent.pinchart@ideasonboard.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+On 2017-06-01 04:19, jmondi wrote:
+>> But why do you need to identify them? What problem are you trying to solve?
+>>
+> I want to be able to walk all children devices of an i2c-adapter,
+> not including the mux channel i2c-adapters. I'm sure I can work around it.
+> While doing that I stumbled upon this and thought it was wrong.
 
-On Tue, May 23, 2017 at 3:34 PM, Javier Martinez Canillas
-<javier@dowhile0.org> wrote:
->
-> This series is a follow-up to patch [0] that added an OF device ID table
-> to the at24 EEPROM driver. As you suggested [1], this version instead of
-> adding entries for every used <vendor,device> tuple, only adds a single
-> entry for each chip type using the "atmel" vendor as a generic fallback.
->
-> The first patch documents in the DT binding what's the correct vendor to
-> use and what are the ones that are being deprecated. The second one adds
-> the OF device ID table for the at24 driver and the next patches use this
-> vendor in the compatible string to each DTS that defines a compatible I2C
-> EEPROM device node.
->
-> Patches can be applied independently since the DTS changes without driver
-> changes are no-op and the OF table won't be used without the DTS changes.
->
-> [0]: https://lkml.org/lkml/2017/3/14/589
-> [1]: https://lkml.org/lkml/2017/3/15/99
->
+Hey, I'm not saying that the current (ab?)use of dev->parent for the
+i2c hierarchy is "right". But fixing things is simply just more involved
+than what you proposed.
 
-Any comments on this series?
+Some random thoughts on this topic:
 
-Best regards,
-Javier
+- I'm not sure it is sane to rearrange the device hierarchy the way the
+  i2c mux code does, and the i2c hierarchy is available by other means
+  as parent in struct i2c_mux_core. The trouble is getting to that struct
+  from outside the owner driver. Maybe make i2c_mux_alloc create a
+  separate device? Then all i2c muxes could store their copy of struct
+  i2c_mux_core in a way that could be easily found by generic code.
+- Is it ok to add children to unsuspecting(?) devices? (I.e. the parent
+  adapter of an i2c mux gets extra children.)
+- I think the current scheme prevents the parent adapter from going away
+  before the mux child adapter during tare-down, which is a good thing,
+  but I think that can be solved with these new device links that I read
+  about?
+- The i2c hierarchy also needs to be visible in sysfs, which it is with
+  the current scheme (but not with your patch) so some kind of new
+  i2c-parent attribute is needed for i2c mux child adapters.
+- Changes in this area feel subtle, and needs testing...
+
+Cheers,
+peda
