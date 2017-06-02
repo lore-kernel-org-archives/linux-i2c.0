@@ -1,73 +1,62 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v8 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Fri, 02 Jun 2017 22:09:46 +1000
-Message-ID: <1496405386.2842.8.camel@kernel.crashing.org>
-References: <20170525064925.16867-1-brendanhiggins@google.com>
-         <20170525064925.16867-5-brendanhiggins@google.com>
-         <1496197001.3354.19.camel@kernel.crashing.org>
-         <CAFd5g45en_S0NYgufoET_Lwgu3Rs=7RafsFJZeCUiYCWyxogag@mail.gmail.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v9 2/5] irqchip/aspeed-i2c-ic: Add I2C IRQ controller for Aspeed
+Date: Fri, 2 Jun 2017 11:29:07 -0700
+Message-ID: <CAFd5g44FJyVHU1fss0zy1OrQVUQKVo27KQCS2GaRi7=JS-Gzmw@mail.gmail.com>
+References: <20170602084603.30811-1-brendanhiggins@google.com>
+ <20170602084603.30811-3-brendanhiggins@google.com> <0db6df3c-013b-1d57-5c69-edfc53ef26c0@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAFd5g45en_S0NYgufoET_Lwgu3Rs=7RafsFJZeCUiYCWyxogag@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?ISO-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f173.google.com ([209.85.216.173]:36268 "EHLO
+        mail-qt0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751149AbdFBS3J (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Jun 2017 14:29:09 -0400
+Received: by mail-qt0-f173.google.com with SMTP id f55so65478805qta.3
+        for <linux-i2c@vger.kernel.org>; Fri, 02 Jun 2017 11:29:09 -0700 (PDT)
+In-Reply-To: <0db6df3c-013b-1d57-5c69-edfc53ef26c0@arm.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ryan Chen <ryan_chen@aspeedtech.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
 
-On Fri, 2017-06-02 at 02:29 -0700, Brendan Higgins wrote:
-> > That way you avoid the above lock which is racy, slave activity could
-> > get in there and trigger an error interrupt clobbering cmd_err for
-> > example no ? Or am I missing something...
-> 
-> The slave handler does not touch these fields, so that should be fine.
-> The only way I can think
-> that we could get in this state is if we had some sort of error
-> interrupt fire after we handled a
-> STOP or previous error; this should not happen, but I think it is
-> better to be safe than sorry.
-> Nevertheless, I do not think it is necessary to do more than what I
-> have already done because
-> it would mean the bus is in a pretty bad state anyway. Maybe I should
-> just drop the locks here.
-> 
-> If you disagree, could you elaborate on what you meant by putting
-> cmd_err in a separate field?
-> Did you just mean having one for xfer and one for everything else (like resets)?
+>> +     i2c_ic->irq_domain = irq_domain_add_linear(
+>> +                     node, ASPEED_I2C_IC_NUM_BUS,
+>> +                     &aspeed_i2c_ic_irq_domain_ops, NULL);
+>
+> nit: can you have at least one argument following the function name?
+> Even if checkpatch shouts out you?
 
-None of that is a big deal and definitely not a blocker for merging,
-you can always "improve" things with a latter patch.
+Makes no difference to me.
 
-I was thinking that the act of "completing" a request could cleaner if
-entirely done from the interrupt code, thus clearing bus->msgs and
-setting a "final" status code to be returned to the caller.
+>
+>> +     if (!i2c_ic->irq_domain)
+>> +             return -ENOMEM;
+>
+> All these error paths are leaking the initial memory allocation.
 
-Now that could be "cmd_err", it's just that today, that is written to
-under various circumstances that may or may not related to a command
-being in progress and this I worry that with the lock dropping, we
-might "lose" the value that actually pertain to the command itself (and
-possibly caused it to fail).
+Whoops, forgot I am not using devm_*.
 
-This is all quite academic however, as you said, if that happens we are
-already probably in a pretty bad shape.
+>
+>> +
+>> +     i2c_ic->irq_domain->name = "aspeed-i2c-domain";
+>> +
+>> +     irq_set_chained_handler_and_data(i2c_ic->parent_irq,
+>> +                                      aspeed_i2c_ic_irq_handler, i2c_ic);
+>> +
+>> +     pr_info("i2c controller registered, irq %d\n", i2c_ic->parent_irq);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +IRQCHIP_DECLARE(ast2400_i2c_ic, "aspeed,ast2400-i2c-ic", aspeed_i2c_ic_of_init);
+>> +IRQCHIP_DECLARE(ast2500_i2c_ic, "aspeed,ast2500-i2c-ic", aspeed_i2c_ic_of_init);
+>>
+>
+> Once you've fixed the trivial bug above, this should be good to go.
+> What's the merging strategy? Can I take the initial two patches, and let
+> someone else deal with the rest? Or do you want the whole series to be
+> kept together?
 
-I suspect the only errors that would happen in "normal" circumstances
-would be loss of arbitration and nacks, which are I think, already
-properly handled, at least from my reading of the code.
-
-Cheers,
-Ben.
-
-> > > +     /* If nothing went wrong, return number of messages transferred. */
-> > > +     if (ret >= 0)
-> > > +             return bus->msgs_index + 1;
-> > > +     else
-> > > +             return ret;
-> > > +}
-> > > +
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I think it makes most sense to keep it together and let Wolfram merge the
+whole thing since the I2C patches won't work without this and I would not
+want to make the merging process unnecessarily complicated.
