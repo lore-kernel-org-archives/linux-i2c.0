@@ -1,47 +1,61 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v9 5/5] i2c: aspeed: added slave support for Aspeed I2C driver
-Date: Fri, 2 Jun 2017 11:37:23 -0700
-Message-ID: <CAFd5g448cSQnGnhNegQ4+u5tZ_n1ndZQVpZexMYS1RBO2bzyZw@mail.gmail.com>
-References: <20170602084603.30811-1-brendanhiggins@google.com>
- <20170602084603.30811-6-brendanhiggins@google.com> <1496405090.2842.5.camel@kernel.crashing.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: do not show SDA hold time warning when
+ not needed
+Date: Fri, 2 Jun 2017 22:15:02 +0200
+Message-ID: <20170602201502.yobk7f7sdp34ez3d@ninjato>
+References: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
+ <1492502087.24567.47.camel@linux.intel.com>
+ <20170418095939.68788787@free-electrons.com>
+ <7b011e1e-8fa3-07c4-6688-5e258fd64dbd@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="md663zgur6szjajk"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f170.google.com ([209.85.216.170]:33212 "EHLO
-        mail-qt0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750918AbdFBShY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Jun 2017 14:37:24 -0400
-Received: by mail-qt0-f170.google.com with SMTP id u12so14622110qth.0
-        for <linux-i2c@vger.kernel.org>; Fri, 02 Jun 2017 11:37:24 -0700 (PDT)
-In-Reply-To: <1496405090.2842.5.camel@kernel.crashing.org>
+Received: from sauhun.de ([88.99.104.3]:43686 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751150AbdFBUPF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 2 Jun 2017 16:15:05 -0400
+Content-Disposition: inline
+In-Reply-To: <7b011e1e-8fa3-07c4-6688-5e258fd64dbd@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, Ryan Chen <ryan_chen@aspeedtech.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Jun 2, 2017 at 5:04 AM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Fri, 2017-06-02 at 01:46 -0700, Brendan Higgins wrote:
->> Added slave support for Aspeed I2C controller. Supports fourteen busses
->> present in AST24XX and AST25XX BMC SoCs by Aspeed.
->
-> (Not an issue for merging)
->
-> Have you looked at a "mode" by which you implement just enough of the
-> slave support to decode smbus notifications ?
->
-> This looks like it could be useful when using pmbus devices, as some of
-> them use smbus notifications fairly often.
->
-> Today only one driver calls i2c_handle_smbus_host_notify() (the Intel
-> one of course).
->
 
-Although I have not thought about the exact thing you are mentioning, I
-want to implement a number of other features for the slave. The thing I am
-most interested in is adding support for smbus alert from the slave side.
-Nevertheless, I wanted to actually get the driver in before I start trying to do
-interesting things. As it is, the slave code satisfies our current purposes and
-I do not know of anyone else who wants this feature at this time.
+--md663zgur6szjajk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers
+
+> hardware that doesn't support SDA hold time. But needless spamming have
+> negative value so this is worth to fix. (I would do this as a single liner
+> by else if ()).
+>=20
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+I agree with Jarkko on everything, including the 'else if' fix.
+
+
+--md663zgur6szjajk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkxx0IACgkQFA3kzBSg
+KbZ91g//Ra9RHkECnk8uMIDlwQQZpQAIbXv2Vt0KlSmdMihDBIrj3FgPiF503Yo/
+7RG+8rqfO4yORU5EkJMaeHfkj2KSeNZGMqg0BoZfuGQ7uf4e5WSmb8i2NjGsBDb9
+zc1bPnLLjv3gf1UR6wYEGME94r60u0Wqwfnq2dJZ9aoDpXVBIPE/MzwoRlSteU1F
+0gcQTtrL15JJx23Znw9T2Hn/Tr0NIZLVL47cKEy7QcxeEzvZi7MBzanqEQXdroTV
+WY3gWoGmqch+e5qjUKP+8PiEjTmHD/K016LKTvgLXxNFnVsPtRH2QRp866C86lmM
+ADzTrYrsdsh+TRjcw/H1bGupnFQ4dKeNaq/wgEUwos7JrbVyPagFlejdXLOI84OK
+dbJvS1Z/qoz9UchEpnx+L561DmZujgDfssfZjNEwHOpY677Hi04cF/cYexarpGBT
+kLzHT71jIiJU+rqYQuW1lVXfSpPhtmQic6Xrmt3GxEtd6ZJob+6S3k/gWeI0gKOX
+I6BjjDVHJreNcuGd1jIGtonJ0LXUCPYz50hHEPO0NOm6sH1E0Y1xCcW1+iVFTqv4
+201wpSHIWSIJOPDZx7H1+8AF6PbSlWKYFHkFVPENmvIBIoQkeCA86gAUA0BVhhkq
+yHE+i6v51BJYA6SxgMbkb4mXht5AF9hEyTh1NE6psvVfyBzazy0=
+=ABdc
+-----END PGP SIGNATURE-----
+
+--md663zgur6szjajk--
