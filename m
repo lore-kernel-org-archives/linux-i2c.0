@@ -1,58 +1,72 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: xgene-slimpro: Use a single function to send
- command message
-Date: Fri, 2 Jun 2017 22:28:06 +0200
-Message-ID: <20170602202806.35tqyusfptpzgbtv@ninjato>
+Subject: Re: [PATCH v2 2/2] i2c: xgene-slimpro: Add ACPI support by using PCC
+ mailbox
+Date: Fri, 2 Jun 2017 22:31:29 +0200
+Message-ID: <20170602203128.uxuy5lgzyopvvpkr@ninjato>
 References: <1493056826-16776-1-git-send-email-hotran@apm.com>
- <1493056826-16776-2-git-send-email-hotran@apm.com>
+ <1493056826-16776-3-git-send-email-hotran@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="h2byy34oxolpq7ok"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43742 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750966AbdFBU2Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 2 Jun 2017 16:28:24 -0400
+        protocol="application/pgp-signature"; boundary="djewz3jmdu4vxxjz"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1493056826-16776-2-git-send-email-hotran@apm.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1493056826-16776-3-git-send-email-hotran@apm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Hoan Tran <hotran@apm.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, Keyur Chudgar <kchudgar@apm.com>
+List-Id: linux-i2c@vger.kernel.org
 
 
---h2byy34oxolpq7ok
+--djewz3jmdu4vxxjz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 24, 2017 at 11:00:25AM -0700, Hoan Tran wrote:
-> This patch refactors the code to use a single message function to
-> send command message.
+On Mon, Apr 24, 2017 at 11:00:26AM -0700, Hoan Tran wrote:
+> This patch adds ACPI support by using PCC mailbox communication
+> interface.
 >=20
 > Signed-off-by: Hoan Tran <hotran@apm.com>
 
-Applied to for-next, thanks!
+Please make use checkpatch:
+
+WARNING: braces {} are not necessary for single statement blocks
+#149: FILE: drivers/i2c/busses/i2c-xgene-slimpro.c:242:
++	if (!acpi_disabled) {
++		mbox_chan_txdone(ctx->mbox_chan, 0);
++	}
+
+Fixed that and applied to for-next, thanks!
+
+BTW is there anyone inside apm.com who is willing to take over maintainersh=
+ip
+for this driver? This person needs to review patches thoroughly, yet it usu=
+ally
+means patches will go in faster.
+
+Regards,
+
+   Wolfram
 
 
---h2byy34oxolpq7ok
+--djewz3jmdu4vxxjz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkxylYACgkQFA3kzBSg
-KbZoow//XHNeji7eMoWo2eD4zIHnVLzH/iI6TudEwZ9PuVcw/pB1MR1yIva6QLe3
-ZhJ+ajq8HaGB8OQteDfAIlwFmi/FuHHab15QfV/u5a4y5c3TC1fSMLKmE0yy02S5
-KJt42d0hZicuREpIaT6RBo6zkCUNcGNk5cYlAd18g14luuqcf/NyAG9mRmQNYj6n
-6rZM0B9MZQSLL1nHcL7ETt0xUtIGBQaAVCGAxHY6ERZYVPDjrXZ/EfI5ebX+oivO
-8Ga/3jnttc6ZOGd2akGJiRUBonpNuohRxj4tlSeaDczG1hg0VzIAuFXllNZf51MY
-wvSHC+ibsZ0IuO2i6VWiw4OiHNYao/wZ6byplsJGdzS5X8SuV9Ok3Vr7Mu752Qjm
-Uf45Jgn0Ksn+/3bpjlR++l6kB93xH2fmI/Pdwt23VOnDRCrj63c9wrEs6NGfmFOS
-Wwl8rWuI6C/VsuBCZl5y1qptu+HMGkqNvXlOBLttGssxj8zJjdL6ICXnmd2aTwzK
-LOrDOQ8Dls5YOw6ZM4ZOHFUkqMstsoYgCkhlFG6JnVBEz8H5UmurLW41qNzUGgSx
-qZ6eJgQJk1uFPZvV8rU8n08tA+l/YiXAPkXLWcNgyT05PuGIH9vFI1NM5WBxbQ+D
-dEePFJaLce/M15vmulCRUyiR6NAQd1vEiUOCcng5WLJHiGSYMQI=
-=Jedv
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkxyyAACgkQFA3kzBSg
+KbbqMA//ftZ7xp+JBlujcp8V/u7R2LIFnqfgEta9PnwowfFA6Zw5eohkziCQfqYg
+ehco87lwgmAAMW0lOW+S/ZkTl9vuhHC9R8JVyD4W0HOxlD2lJhcA+VJ5KWADSDTh
+LFVyzyDDmiyyATNwP0SzfHarBKjKt2w7gJumIEdGIRcv2mFDFtHOHNvJcSJtBJ6f
+2j2p7L7ZODFsafl+MZ4yJtxgBuJ3tVRM7QhZtzdBZM1H/l9E4MQAXsrZHb0ufSrd
+u4kw/yso4lauxgSnDuO4PlmX3PMYcCnGrRyq80JHSHKfuawYR4zkMvayTWsAGWR+
+v38eRxJWO6L5ockaoZx/RWIEwx21bNQkV5wTLukAGN0/gg6J3JTbyR0rs82SVKP8
+Wi1o/4WHT8XMEAk1dQwJ3OQFYFXJRx+6vy4ST2MTrig4zG3dxV5WPnlN1jxPj49y
+1JPJrjXtP+oUVCNBJh+ectucO9HA2PZNU73Pr/2Ec/cb1lApi/YsyLlkha4F+1O9
+0LIwxDU4CQUXrIb+PF7YAba6COpUS5Wwk605rY5lsZSJbnVUVvDz071+ogYMWCOe
+4uDcoPQyohhap25B08e8zA5QUMQREhfG9JGhohTr72YRHFbVz6jIM13EzvZlZB8/
+MLBqTG+0+aXxyXIT4SyZ0oeLFW+M1Qyc1nO9fkWhUB3+vFVGz/w=
+=C/RP
 -----END PGP SIGNATURE-----
 
---h2byy34oxolpq7ok--
+--djewz3jmdu4vxxjz--
