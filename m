@@ -1,61 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mxs: change error printing to debug for
- mxs_i2c_pio_wait_xfer_end
-Date: Fri, 2 Jun 2017 22:58:18 +0200
-Message-ID: <20170602205818.a7c4jf3n267ki35x@ninjato>
-References: <20170519124402.4xkaguxjzgyvbwcl@ninjato>
- <20170531094003.21997-1-michael.thalmeier@hale.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bluzjg3bvwww4cq6"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43879 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751135AbdFBU6Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 2 Jun 2017 16:58:25 -0400
-Content-Disposition: inline
-In-Reply-To: <20170531094003.21997-1-michael.thalmeier@hale.at>
-Sender: linux-i2c-owner@vger.kernel.org
+From: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Subject: [PATCHv3 0/4] Add Altera I2C Controller Driver
+Date: Fri,  2 Jun 2017 18:52:35 -0500
+Message-ID: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Michael Thalmeier <michael.thalmeier@hale.at>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Marek Vasut <marex@denx.de>
 
+From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
---bluzjg3bvwww4cq6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch seris add the Altera I2C Controller driver for use in FPGAs.
 
-On Wed, May 31, 2017 at 11:40:03AM +0200, Michael Thalmeier wrote:
-> Instead of printing errors after mxs_i2c_pio_wait_xfer_end returns with
-> an error code just print a debug message.
->=20
-> NAKs and timeouts can occur in this situation normally, so do not treat
-> them as errors.
->=20
-> Signed-off-by: Michael Thalmeier <michael.thalmeier@hale.at>
+Thor Thayer (4):
+  ARM: dts: socfpga: Add Altera I2C Controller to CycloneV
+  MAINTAINERS: Add Altera I2C Controller Driver
+  dt-bindings: i2c: Add Altera I2C Controller
+  i2c: altera: Add Altera I2C Controller driver
 
-Applied to for-next, thanks!
+ .../devicetree/bindings/i2c/i2c-altera.txt         |  39 ++
+ MAINTAINERS                                        |   5 +
+ arch/arm/boot/dts/socfpga.dtsi                     |  13 +-
+ arch/arm/boot/dts/socfpga_cyclone5_socdk.dts       |  28 +-
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-altera.c                    | 509 +++++++++++++++++++++
+ 7 files changed, 601 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+ create mode 100644 drivers/i2c/busses/i2c-altera.c
 
+-- 
+2.7.4
 
---bluzjg3bvwww4cq6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlkx0WoACgkQFA3kzBSg
-KbbbABAAkMDsv0Q3lF7zZOcnCalv/KFc++Q94KIiQoZ98v9tpBY8GtKEOvw63OSG
-I0O+jcyKSjvilxTJE3YN4k3y7haX+UQjnwVA+EWIbw7wdZgcfQUZ2ktfEa7L5NJ1
-hC3mwre6kk8KrPYxacfi80Q1gDMzmVkOIDeNeeYH+h7L2zs2gKNg01UPXdhZClU1
-YdX9XoWOcVCkz9jnxMRKB0JTQOzisjFDQEuEYJr9mTIRTTDFtyZybJpBweg2czYE
-FfTctR5+DgoXEj+aVw8Kp576BEKXhybtOKWL5jjw2nlilS/yME9Qit0SOSzURSnO
-rEVoFBVBMfJzNHuR5rcB4Sxwe3zmx2wBt6DKVDkRpsIeHYKGtOZV2lwAuNNsKDgr
-PXkgp2k+Jx1F4nkZguTjMoZlf5pT2zomdffEiG2r54kdXyEkabGoAfEyg+Z6LtWW
-1cpQaAamjhnsANizl41IKf7T2LMlVuabLURu8iZ5UogRW/ykmAEDTJRqaMzwIE7F
-DPFYEarXWatq0+g7lmH/7fAJUYNqI5pCAQfnlnLSgvEa0JAW0TJBBSe3kjOND7/K
-VswynhaMwWOiSkZYpy8w8PvO+GbxYHeURl/vRLj54b/svezFffzAmCIVLGCyiESV
-WB0DM4fIFYnwVieyq7xvv94ikJkI5IB08W48VZJmcJXIb00vfo0=
-=zE75
------END PGP SIGNATURE-----
-
---bluzjg3bvwww4cq6--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
