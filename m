@@ -1,51 +1,34 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: Re: [PATCH] i2c: designware: do not show SDA hold time warning when
- not needed
-Date: Sat, 3 Jun 2017 15:18:21 +0200
-Message-ID: <20170603151821.736e6236@free-electrons.com>
-References: <1492203192-28025-1-git-send-email-thomas.petazzoni@free-electrons.com>
-        <1492502087.24567.47.camel@linux.intel.com>
-        <20170418095939.68788787@free-electrons.com>
-        <7b011e1e-8fa3-07c4-6688-5e258fd64dbd@linux.intel.com>
-        <20170602201502.yobk7f7sdp34ez3d@ninjato>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v15 00/13] mux controller abstraction and iio/i2c muxes
+Date: Sat, 3 Jun 2017 19:26:27 +0900
+Message-ID: <20170603102627.GA24274@kroah.com>
+References: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:59959 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751149AbdFCNSf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 3 Jun 2017 09:18:35 -0400
-In-Reply-To: <20170602201502.yobk7f7sdp34ez3d@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1494791476-14599-1-git-send-email-peda@lysator.liu.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-doc@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Colin Ian King <colin.king@canonical.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Philipp Zabel <p.zabel@pengutronix.de>, kernel@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Hello,
-
-On Fri, 2 Jun 2017 22:15:02 +0200, Wolfram Sang wrote:
-> > hardware that doesn't support SDA hold time. But needless spamming have
-> > negative value so this is worth to fix. (I would do this as a single liner
-> > by else if ()).
-> > 
-> > Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>  
+On Sun, May 14, 2017 at 09:51:03PM +0200, Peter Rosin wrote:
+> From: Peter Rosin <peda@axentia.se>
 > 
-> I agree with Jarkko on everything, including the 'else if' fix.
+> Hi Greg,
+> 
+> Philipp found problems in v14 with using a mutex for locking that was
+> the outcome of the review for v13, so I'm now using a semaphore instead
+> of the rwsem that was in v13. That at least got rid of the scary call
+> to downgrade_write. However, I'm still unsure about what you actually
+> meant with your comment about lack of sparse markings [1]. I did add
+> __must_check to the funcs that selects the mux, but I've got this
+> feeling that this is not what you meant?
 
-I am not sure to understand what Jarkko suggested to fix, besides using
-"else if" in one line. Could you be more specific about the changes you
-expect me to do?
+I thought there was a way to mark a function as requiring a lock be held
+when it is being called.  Does sparse not support that anymore?
 
-Andy suggested to turn the warning into a debug message, to which I
-objected, and my understanding was that Jarkko agreed with me that a
-warning message was better, and only made the suggestion of the "else
-if".
+thanks,
 
-Thanks,
-
-Thomas
--- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+greg k-h
