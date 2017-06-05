@@ -1,28 +1,60 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v10 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed
- I2C Interrupt Controller
-Date: Mon, 5 Jun 2017 15:55:47 +0930
-Message-ID: <CACPK8Xcd=ggF0a5hYARtce+14AKMRgFi0LUe8-_a6AUtqx3vKg@mail.gmail.com>
-References: <20170603012952.2192-1-brendanhiggins@google.com> <20170603012952.2192-2-brendanhiggins@google.com>
+From: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Subject: Re: [PATCH 0/1] gpu: move include files out of include/linux/i2c
+Date: Mon, 5 Jun 2017 23:38:08 +0200
+Message-ID: <CAMeQTsYwaCerkPkCN5AwnOhwvNj+vF-ZH33-kzemu2O3VJ4rag@mail.gmail.com>
+References: <20170521221114.2685-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f193.google.com ([209.85.161.193]:34929 "EHLO
-        mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751262AbdFEG0J (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 5 Jun 2017 02:26:09 -0400
-In-Reply-To: <20170603012952.2192-2-brendanhiggins@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170521221114.2685-1-wsa@the-dreams.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, vz@mleia.com, mouse@mayc.ru, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ryan Chen <ryan_chen@aspeedtech.com>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
 
-On Sat, Jun 3, 2017 at 10:59 AM, Brendan Higgins
-<brendanhiggins@google.com> wrote:
-> Added device tree binding documentation for Aspeed I2C Interrupt
-> Controller.
->
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-> Acked-by: Rob Herring <robh@kernel.org>
-
-Acked-by: Joel Stanley <joel@jms.id.au>
+T24gTW9uLCBNYXkgMjIsIDIwMTcgYXQgMTI6MTEgQU0sIFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1k
+cmVhbXMuZGU+IHdyb3RlOgo+IEl0IGRvZXNuJ3QgbWFrZSBzZW5zZSB0byB1c2UgaW5jbHVkZS9s
+aW51eC9pMmMgZm9yIGNsaWVudCBkcml2ZXJzIHdoaWNoIG1heSBpbgo+IGZhY3QgcmF0aGVyIGJl
+IGh3bW9uIG9yIGlucHV0IG9yIHdoYXRldmVyIGRldmljZXMuIEFzIGEgcmVzdWx0LCBJIHdhbnQg
+dG8KPiBkZXByZWNhdGUgaW5jbHVkZS9saW51eC9pMmMgZm9yIGdvb2QuIFRoaXMgc2VyaWVzIG1v
+dmVzIHRoZSBpbmNsdWRlIGZpbGVzIHRvIGEKPiBiZXR0ZXIgbG9jYXRpb24sIGxhcmdlbHkgaW5j
+bHVkZS9saW51eC9wbGF0Zm9ybV9kYXRhIGJlY2F1c2UgdGhhdCBpcyB3aGF0IG1vc3QKPiBvZiB0
+aGUgbW92ZWQgaW5jbHVkZSBmaWxlcyBjb250YWluLiBQbGVhc2UgbGV0IG1lIGtub3cgaWYgeW91
+IHRoaW5rIGFub3RoZXIKPiBsb2NhdGlvbiBpcyBtb3JlIHN1aXRhYmxlLgo+Cj4gSSBwcmVmZXIg
+dGhlIHNlcmllcyB0byBnbyB1cHN0cmVhbSB2aWEgdGhlIHN1YnN5c3RlbSB0cmVlOyBpZiB5b3Ug
+cHJlZmVyIHRoYXQgSQo+IHRha2UgaXQgdmlhIEkyQywganVzdCBsZXQgbWUga25vdy4KCkkgZG9u
+J3QgdGhpbmsgaXQgbWFrZXMgc2Vuc2UgdG8gdGFrZSB0aGlzIHRocm91Z2ggdGhlIGRybS9nbWE1
+MDAgc2luY2UKaXQncyBwbGF0Zm9ybSBkYXRhIGFuZCBkb2VzIG5vdCByZWFsbHkgdG91Y2ggYW55
+IGdtYTUwMCBzcGVjaWZpY3MuCldoYXQgbWFrZXMgc2Vuc2UgZm9yIEkyQy9wbGF0Zm9ybSBpcyBw
+cm9iYWJseSBtb3JlIGltcG9ydGFudCBoZXJlLgoKPgo+IE5vIHJ1bnRpbWUgdGVzdGluZyBiZWNh
+dXNlIG9mIG5vIEhXLCBidXQgYnVpbGRib3QgaXMgaGFwcHkgd2l0aCB0aGlzIHNlcmllcyBhdAo+
+IGxlYXN0LiBBIGJyYW5jaCBjYW4gYmUgZm91bmQgaGVyZToKCk5vdCBzdXJlIGFueWJvZHkgaGF2
+ZSBoYXJkd2FyZSB0byB0ZXN0IG1kZmxkICsgdGMzNTg3NjUuIFBlcmhhcHMgc29tZQpzbWFydHBo
+b25lIGV4aXN0cyBidXQgSSd2ZSBuZXZlciBzZWVuIG9uZS4KCkZXSVcsIGZvciB0aGUgc21hbGwg
+Z21hNTAwIGNoYW5nZSB5b3UgaGF2ZSBteToKCkFja2VkLWJ5OiBQYXRyaWsgSmFrb2Jzc29uIDxw
+YXRyaWsuci5qYWtvYnNzb25AZ21haWwuY29tPgoKQ2hlZXJzCgo+Cj4gZ2l0Oi8vZ2l0Lmtlcm5l
+bC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3dzYS9saW51eC5naXQgaTJjL3BsYXRmb3Jt
+X2RhdGEKPgo+IFRoYW5rcyBhbmQga2luZCByZWdhcmRzLAo+Cj4gICAgV29sZnJhbQo+Cj4KPiBX
+b2xmcmFtIFNhbmcgKDEpOgo+ICAgZ3B1OiBkcm06IHRjMzU4NzZ4OiBtb3ZlIGhlYWRlciBmaWxl
+IG91dCBvZiBJMkMgcmVhbG0KPgo+ICBhcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC1taWQvZGV2aWNl
+X2xpYnMvcGxhdGZvcm1fdGMzNTg3NnguYyB8IDIgKy0KPiAgZHJpdmVycy9ncHUvZHJtL2dtYTUw
+MC90YzM1ODc2eC1kc2ktbHZkcy5jICAgICAgICAgICAgICAgICAgfCAyICstCj4gIGluY2x1ZGUv
+bGludXgve2kyYyA9PiBwbGF0Zm9ybV9kYXRhfS90YzM1ODc2eC5oICAgICAgICAgICAgIHwgMAo+
+ICAzIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiAgcmVu
+YW1lIGluY2x1ZGUvbGludXgve2kyYyA9PiBwbGF0Zm9ybV9kYXRhfS90YzM1ODc2eC5oICgxMDAl
+KQo+Cj4gLS0KPiAyLjExLjAKPgo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+IGRyaS1kZXZlbEBsaXN0cy5m
+cmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
+cC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmkt
+ZGV2ZWwK
