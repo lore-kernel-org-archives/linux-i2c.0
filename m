@@ -1,60 +1,29 @@
-From: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Subject: Re: [PATCH 0/1] gpu: move include files out of include/linux/i2c
-Date: Mon, 5 Jun 2017 23:38:08 +0200
-Message-ID: <CAMeQTsYwaCerkPkCN5AwnOhwvNj+vF-ZH33-kzemu2O3VJ4rag@mail.gmail.com>
-References: <20170521221114.2685-1-wsa@the-dreams.de>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] docs: driver-api: i2c: remove some outdated information
+Date: Mon, 5 Jun 2017 15:59:54 -0600
+Message-ID: <20170605155954.0ee0c306@lwn.net>
+References: <20170523134654.11892-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170521221114.2685-1-wsa@the-dreams.de>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170523134654.11892-1-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gTW9uLCBNYXkgMjIsIDIwMTcgYXQgMTI6MTEgQU0sIFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1k
-cmVhbXMuZGU+IHdyb3RlOgo+IEl0IGRvZXNuJ3QgbWFrZSBzZW5zZSB0byB1c2UgaW5jbHVkZS9s
-aW51eC9pMmMgZm9yIGNsaWVudCBkcml2ZXJzIHdoaWNoIG1heSBpbgo+IGZhY3QgcmF0aGVyIGJl
-IGh3bW9uIG9yIGlucHV0IG9yIHdoYXRldmVyIGRldmljZXMuIEFzIGEgcmVzdWx0LCBJIHdhbnQg
-dG8KPiBkZXByZWNhdGUgaW5jbHVkZS9saW51eC9pMmMgZm9yIGdvb2QuIFRoaXMgc2VyaWVzIG1v
-dmVzIHRoZSBpbmNsdWRlIGZpbGVzIHRvIGEKPiBiZXR0ZXIgbG9jYXRpb24sIGxhcmdlbHkgaW5j
-bHVkZS9saW51eC9wbGF0Zm9ybV9kYXRhIGJlY2F1c2UgdGhhdCBpcyB3aGF0IG1vc3QKPiBvZiB0
-aGUgbW92ZWQgaW5jbHVkZSBmaWxlcyBjb250YWluLiBQbGVhc2UgbGV0IG1lIGtub3cgaWYgeW91
-IHRoaW5rIGFub3RoZXIKPiBsb2NhdGlvbiBpcyBtb3JlIHN1aXRhYmxlLgo+Cj4gSSBwcmVmZXIg
-dGhlIHNlcmllcyB0byBnbyB1cHN0cmVhbSB2aWEgdGhlIHN1YnN5c3RlbSB0cmVlOyBpZiB5b3Ug
-cHJlZmVyIHRoYXQgSQo+IHRha2UgaXQgdmlhIEkyQywganVzdCBsZXQgbWUga25vdy4KCkkgZG9u
-J3QgdGhpbmsgaXQgbWFrZXMgc2Vuc2UgdG8gdGFrZSB0aGlzIHRocm91Z2ggdGhlIGRybS9nbWE1
-MDAgc2luY2UKaXQncyBwbGF0Zm9ybSBkYXRhIGFuZCBkb2VzIG5vdCByZWFsbHkgdG91Y2ggYW55
-IGdtYTUwMCBzcGVjaWZpY3MuCldoYXQgbWFrZXMgc2Vuc2UgZm9yIEkyQy9wbGF0Zm9ybSBpcyBw
-cm9iYWJseSBtb3JlIGltcG9ydGFudCBoZXJlLgoKPgo+IE5vIHJ1bnRpbWUgdGVzdGluZyBiZWNh
-dXNlIG9mIG5vIEhXLCBidXQgYnVpbGRib3QgaXMgaGFwcHkgd2l0aCB0aGlzIHNlcmllcyBhdAo+
-IGxlYXN0LiBBIGJyYW5jaCBjYW4gYmUgZm91bmQgaGVyZToKCk5vdCBzdXJlIGFueWJvZHkgaGF2
-ZSBoYXJkd2FyZSB0byB0ZXN0IG1kZmxkICsgdGMzNTg3NjUuIFBlcmhhcHMgc29tZQpzbWFydHBo
-b25lIGV4aXN0cyBidXQgSSd2ZSBuZXZlciBzZWVuIG9uZS4KCkZXSVcsIGZvciB0aGUgc21hbGwg
-Z21hNTAwIGNoYW5nZSB5b3UgaGF2ZSBteToKCkFja2VkLWJ5OiBQYXRyaWsgSmFrb2Jzc29uIDxw
-YXRyaWsuci5qYWtvYnNzb25AZ21haWwuY29tPgoKQ2hlZXJzCgo+Cj4gZ2l0Oi8vZ2l0Lmtlcm5l
-bC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3dzYS9saW51eC5naXQgaTJjL3BsYXRmb3Jt
-X2RhdGEKPgo+IFRoYW5rcyBhbmQga2luZCByZWdhcmRzLAo+Cj4gICAgV29sZnJhbQo+Cj4KPiBX
-b2xmcmFtIFNhbmcgKDEpOgo+ICAgZ3B1OiBkcm06IHRjMzU4NzZ4OiBtb3ZlIGhlYWRlciBmaWxl
-IG91dCBvZiBJMkMgcmVhbG0KPgo+ICBhcmNoL3g4Ni9wbGF0Zm9ybS9pbnRlbC1taWQvZGV2aWNl
-X2xpYnMvcGxhdGZvcm1fdGMzNTg3NnguYyB8IDIgKy0KPiAgZHJpdmVycy9ncHUvZHJtL2dtYTUw
-MC90YzM1ODc2eC1kc2ktbHZkcy5jICAgICAgICAgICAgICAgICAgfCAyICstCj4gIGluY2x1ZGUv
-bGludXgve2kyYyA9PiBwbGF0Zm9ybV9kYXRhfS90YzM1ODc2eC5oICAgICAgICAgICAgIHwgMAo+
-ICAzIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiAgcmVu
-YW1lIGluY2x1ZGUvbGludXgve2kyYyA9PiBwbGF0Zm9ybV9kYXRhfS90YzM1ODc2eC5oICgxMDAl
-KQo+Cj4gLS0KPiAyLjExLjAKPgo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+IGRyaS1kZXZlbEBsaXN0cy5m
-cmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
-cC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmkt
-ZGV2ZWwK
+On Tue, 23 May 2017 15:46:54 +0200
+Wolfram Sang <wsa@the-dreams.de> wrote:
+
+> a) Linux can be an I2C slave meanwhile
+> b) all drivers except one use the driver model currently
+> 
+> Update the documentation.
+
+I wasn't sure if you wanted me to apply this one or not...I don't see it
+in linux-next, so I've gone ahead and done so.
+
+Thanks,
+
+jon
