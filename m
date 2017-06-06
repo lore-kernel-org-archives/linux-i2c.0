@@ -1,45 +1,58 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC PATCH 2/4] i2c: add docs to clarify DMA handling
-Date: Tue, 6 Jun 2017 17:29:26 +0200
-Message-ID: <CAMuHMdXxRKxk1G5uK5rc5jym2FE=Mroaj5nuFdVCrmU3PPYS4Q@mail.gmail.com>
-References: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
- <20170606092034.1516-3-wsa+renesas@sang-engineering.com> <CAMuHMdVLV91TdpWz=AeCbLM0Occ4byGMZ37wDtBGStR+j9OL2Q@mail.gmail.com>
- <20170606102447.cftuyhtx7zo2fe2g@ninjato> <CAMuHMdWv9hBtYO_Xqwx_A64anC=4d3o_EE7FOSbknPYb-N5X8g@mail.gmail.com>
- <20170606105431.bm7jiclz2k7h7lj2@ninjato> <CAMuHMdVQmFqC3pZh8BcNROnrdqQ+gx+4Mg40Y1AY=WXE9i83wQ@mail.gmail.com>
- <20170606112348.GA3275@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: next build: 113 warnings 0 failures (next/next-20170605)
+Date: Wed, 7 Jun 2017 00:36:22 +0200
+Message-ID: <20170606223621.GA3628@katana>
+References: <59351e18.c490630a.4dca5.e785@mx.google.com>
+ <CAK8P3a1D0r9XAfGN95EkiaXvCmkJq1Em=xggJw87yX7YH7o-vA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:35789 "EHLO
-        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751281AbdFFP32 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 6 Jun 2017 11:29:28 -0400
-In-Reply-To: <20170606112348.GA3275@katana>
+Received: from www.zeus03.de ([194.117.254.33]:48778 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751433AbdFFWgZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 6 Jun 2017 18:36:25 -0400
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a1D0r9XAfGN95EkiaXvCmkJq1Em=xggJw87yX7YH7o-vA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Olof's autobuilder <build@lixom.net>, Olof Johansson <olof@lixom.net>, Kernel Build Reports Mailman List <kernel-build-reports@lists.linaro.org>, Joe Carnuccio <joe.carnuccio@cavium.com>, Himanshu Madhani <himanshu.madhani@cavium.com>, Bart Van Assche <Bart.VanAssche@sandisk.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, qla2xxx-upstream@qlogic.com, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Hi Wolfram,
 
-On Tue, Jun 6, 2017 at 1:23 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->> I have it enabled all the time. So my devices may stop working...
->
-> If you have enabled it all the time, then there won't be a difference
-> from now. Or?
->
-> That also shows how rarely I2C DMA transfers are triggered from within
-> the kernel :)
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-... how rarely i2c DMA transfers from possibly unsafe buffers...
 
-Gr{oetje,eeting}s,
+> >       2 drivers/i2c/i2c-stub.c:18:0: warning: "DEBUG" redefined
+>=20
+> Caused by 6c42778780c4 ("i2c: stub: use pr_fmt"): "#define DEBUG"
+> now conflicts with "ccflags-$(CONFIG_I2C_DEBUG_CORE) :=3D -DDEBUG"
+> in the Makefile.
 
-                        Geert
+I'll fix it tomorrow!
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlk3LmEACgkQFA3kzBSg
+KbYLYBAAp2AylYFmxGreevx1fRKIiDneRMoyjsn2AoeokOgIfwUi6PuvQNOe1hnh
+mQM3hYefNlvJKvrWzfn2aCT+IcjznM3m+rb+w9LmnXyb0BUfB8SWYznctvYjDrnj
+yX1B6PkYZs1BTUzljwGPpoaTzL28FiazQn0joD879afFVLxQGApy32mewYtDo6qG
+/pUCQRfBS6M34ixsDdDW1crP6GHa0O7OAFflOHDy6ayFHIOGmkY1p74vdUVJNVAc
+SAiK8vtj1pSD1vSK1jXrzDEgBBWg+t4RBffSYn1H2VJ6N+oz0ROguVuJp04Ess1F
+7x7DxHsiqA5tuYFxcTEYTC8lhxicVJKtiHSH35MKSkSnE13rAKdIFFux065AMEhy
+Xb2NZ77yK9mnejr/syKl6vQnOQeVermwcU2wykrOSE2vpLTaflWC5p66USETmqxR
+V56EiHFVHsuuTaobGwqw5qRFtiQO++7VcqqM4TYrYXisBERi837CqlTWNgB9uFE/
+7EVOl73Q5AVZWUtljW/uXl9r08JaLJDvEwg2jrNewQ1CLis8+gKhOUOUkZuNLY0C
+S5hrmFXFj7a5AVyeus9Fwndpn/GGXRd6B2r9fxR+gevJCN4ofbYtLo71Go/EDf4s
+r15M8Cn0DlY05fEJyWM4mCg7wYfQqgJTPIuVMXRp4+C/4QDTHW8=
+=AR0e
+-----END PGP SIGNATURE-----
+
+--17pEHd4RhPHOinZp--
