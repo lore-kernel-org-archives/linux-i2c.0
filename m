@@ -1,29 +1,95 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH] docs: driver-api: i2c: remove some outdated information
-Date: Mon, 5 Jun 2017 15:59:54 -0600
-Message-ID: <20170605155954.0ee0c306@lwn.net>
-References: <20170523134654.11892-1-wsa@the-dreams.de>
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+Subject: Re: [PATCHv3 1/4] ARM: dts: socfpga: Add Altera I2C Controller to CycloneV
+Date: Tue, 06 Jun 2017 08:40:53 +0200
+Message-ID: <73vao9vcsq.fsf@pengutronix.de>
+References: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com> <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170523134654.11892-1-wsa@the-dreams.de>
+In-reply-to: <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: thor.thayer@linux.intel.com
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, dinguyen@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 23 May 2017 15:46:54 +0200
-Wolfram Sang <wsa@the-dreams.de> wrote:
 
-> a) Linux can be an I2C slave meanwhile
-> b) all drivers except one use the driver model currently
-> 
-> Update the documentation.
+Hi!
 
-I wasn't sure if you wanted me to apply this one or not...I don't see it
-in linux-next, so I've gone ahead and done so.
+thor.thayer@linux.intel.com writes:
 
-Thanks,
+> From: Thor Thayer <thor.thayer@linux.intel.com>
+>
+> Add the Altera I2C Controller to the CycloneV SoCFPGA device tree.
+>
+> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+> ---
+> v2  Remove altr, from fifo-size.
+>     Rename compatible string to "altr,softip-i2c"
+> v3  Add version to commpatible string "altr,softip-i2c-v1.0"
+> ---
+>  arch/arm/boot/dts/socfpga.dtsi               | 13 ++++++++++---
+>  arch/arm/boot/dts/socfpga_cyclone5_socdk.dts | 28 +++++++++++++++++++++++++++-
+>  2 files changed, 37 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
+> index b2674bd..d69c13d 100644
+> --- a/arch/arm/boot/dts/socfpga.dtsi
+> +++ b/arch/arm/boot/dts/socfpga.dtsi
+> @@ -133,6 +133,13 @@
+>  					#address-cells = <1>;
+>  					#size-cells = <0>;
+>  
+> +					clk_0: clk_0 {
+> +						compatible = "fixed-clock";
+> +						#clock-cells = <0>;
+> +						clock-frequency = <50000000>;
+> +						clock-output-names = "clk_0-clk";
+> +					};
+> +
+>  					osc1: osc1 {
+>  						#clock-cells = <0>;
+>  						compatible = "fixed-clock";
+> @@ -529,11 +536,11 @@
+>  				};
+>  		};
+>  
+> -		fpga_bridge0: fpga_bridge@ff400000 {
+> +		fpga_bridge0: fpga_bridge@ff200000 {
+>  			compatible = "altr,socfpga-lwhps2fpga-bridge";
+> -			reg = <0xff400000 0x100000>;
+> +			reg = <0xff200000 0x00200000>;
+>  			resets = <&rst LWHPS2FPGA_RESET>;
+> -			clocks = <&l4_main_clk>;
+> +			clocks = <&clk_0>;
+>  		};
+>
 
-jon
+Why this change? This looks wrong and unrelated. The LWHPS2FPGA bridge
+is at 0xff400000, so it is correct the way it is or not?
+
+>  		fpga_bridge1: fpga_bridge@ff500000 {
+> diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+> index 155829f..f99576b 100644
+> --- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+> +++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+> @@ -68,6 +68,7 @@
+>  		regulator-min-microvolt = <3300000>;
+>  		regulator-max-microvolt = <3300000>;
+>  	};
+> +
+>  };
+
+???
+
+
+(...)
+
+
+Best regards,
+Steffen
+
+-- 
+Pengutronix e.K.                           | Steffen Trumtrar            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
