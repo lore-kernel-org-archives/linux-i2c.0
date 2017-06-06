@@ -1,63 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 2/4] i2c: add docs to clarify DMA handling
-Date: Tue, 6 Jun 2017 13:23:48 +0200
-Message-ID: <20170606112348.GA3275@katana>
-References: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
- <20170606092034.1516-3-wsa+renesas@sang-engineering.com>
- <CAMuHMdVLV91TdpWz=AeCbLM0Occ4byGMZ37wDtBGStR+j9OL2Q@mail.gmail.com>
- <20170606102447.cftuyhtx7zo2fe2g@ninjato>
- <CAMuHMdWv9hBtYO_Xqwx_A64anC=4d3o_EE7FOSbknPYb-N5X8g@mail.gmail.com>
- <20170606105431.bm7jiclz2k7h7lj2@ninjato>
- <CAMuHMdVQmFqC3pZh8BcNROnrdqQ+gx+4Mg40Y1AY=WXE9i83wQ@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: next build: 113 warnings 0 failures (next/next-20170605)
+Date: Tue, 6 Jun 2017 15:14:07 +0200
+Message-ID: <CAK8P3a1D0r9XAfGN95EkiaXvCmkJq1Em=xggJw87yX7YH7o-vA@mail.gmail.com>
+References: <59351e18.c490630a.4dca5.e785@mx.google.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:32812 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751305AbdFFLXu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 6 Jun 2017 07:23:50 -0400
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVQmFqC3pZh8BcNROnrdqQ+gx+4Mg40Y1AY=WXE9i83wQ@mail.gmail.com>
+Received: from mail-ot0-f193.google.com ([74.125.82.193]:35288 "EHLO
+        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751391AbdFFNOI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 6 Jun 2017 09:14:08 -0400
+In-Reply-To: <59351e18.c490630a.4dca5.e785@mx.google.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Olof's autobuilder <build@lixom.net>
+Cc: Olof Johansson <olof@lixom.net>, Kernel Build Reports Mailman List <kernel-build-reports@lists.linaro.org>, Joe Carnuccio <joe.carnuccio@cavium.com>, Himanshu Madhani <himanshu.madhani@cavium.com>, Bart Van Assche <Bart.VanAssche@sandisk.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, qla2xxx-upstream@qlogic.com, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+On Mon, Jun 5, 2017 at 11:02 AM, Olof's autobuilder <build@lixom.net> wrote:
+> Here are the build results from automated periodic testing.
+>
+> The tree being built was next, found at:
+>
+> http://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git (master branch)
+>
+> Topmost commit:
+>
+> f0090bf Add linux-next specific files for 20170605
+>
+> Build logs (stderr only) can be found at the following link (experimental):
+>
+> http://arm-soc.lixom.net/buildlogs/next/next-20170605/
+> Warnings:
+>
+>       1 drivers/scsi/qla2xxx/qla_init.c:6407:50: warning: format '%lx' expects argument of type 'long unsigned int', but argument 5 has type 'unsigned int' [-Wformat=]
+>       1 drivers/scsi/qla2xxx/qla_init.c:6709:50: warning: format '%lx' expects argument of type 'long unsigned int', but argument 5 has type 'unsigned int' [-Wformat=]
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Caused by b95b9452aacf ("scsi: qla2xxx: Fix crash due to mismatch mumber
+of Q-pair creation for Multi queue"): Need to use %zx instead of %lx for
+printing a size_t
 
+>       2 drivers/i2c/i2c-stub.c:18:0: warning: "DEBUG" redefined
 
-> I have it enabled all the time. So my devices may stop working...
+Caused by 6c42778780c4 ("i2c: stub: use pr_fmt"): "#define DEBUG"
+now conflicts with "ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG"
+in the Makefile.
 
-If you have enabled it all the time, then there won't be a difference
-=66rom now. Or?
+>     109 drivers/usb/dwc2/hw.h:230:0: warning: "GUID" redefined
 
-That also shows how rarely I2C DMA transfers are triggered from within
-the kernel :)
+This was introduced yesterday, but appears to be fixed again already.
 
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlk2kMAACgkQFA3kzBSg
-KbZXXxAApF2z8deEhZL7UiVAwf+4hgTWw3d6ckZaH9aqLfHTqRuQKcbbSsArQnRx
-Ku4CABR2jLeyIA41irssmxgksiuyF4UkguBcUtycx32Ecsj6s9yTbT7lo0acXAyp
-/8mZVRKRQzEWXg/+PBOOPCpWeR6EdXosEaOAemYvQbf53L/9AWb9wXhonpEueaea
-1nRkmRREdOnqOvRojoq695dmGwqmOpk8B+Thu7NNpDpWZjBz1q1PIS/lQAuL+rir
-MdVH9i1cVu6PIKa7lETfFbwyIyhKyXBjeim1sBwelaiMxgLNQSKRJroQsJvmWKaZ
-ro9yGjDVAR2YpUAEUhfDvvM9R/FxIgDwi+okbtr/5uBHicICUXIIayrlihO3KQzr
-mBXIN8srDFKoRtXUP33ZTIw03xiHi6y2lh4nmPi3toVGn7BkfRKTuf+66qKOkH0s
-jsrn1VJ9aRnPlO81Gq8nijVlKSyvHPUMgAl+KZz+qtm1N3K0nr5Xp4uk8XDcBgf1
-YfBDLeFAousNYa4XCVbi8ofe1kUm1QDzPSyIBMQLiTTW1R6yp0RLkzQunwFRqpvU
-19jNIeCUlhuGt41xh2P2Iq8JeSHIm2riZx0YGCZE8E+F3Y8PAMSzHpHhQWh8n39J
-uKMEGGKXl7hY6hG4H/unm7++hrRrUWcDzDQAFowlSXTROKXGw6w=
-=TS1t
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+       Arnd
