@@ -1,95 +1,74 @@
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Subject: Re: [PATCHv3 1/4] ARM: dts: socfpga: Add Altera I2C Controller to CycloneV
-Date: Tue, 06 Jun 2017 08:40:53 +0200
-Message-ID: <73vao9vcsq.fsf@pengutronix.de>
-References: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com> <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: thor.thayer@linux.intel.com
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, dinguyen@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 1/4] i2c: add helper to determine if DMA is favoured
+Date: Tue,  6 Jun 2017 11:20:31 +0200
+Message-ID: <20170606092034.1516-2-wsa+renesas@sang-engineering.com>
+References: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:55289 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751246AbdFFJUr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 6 Jun 2017 05:20:47 -0400
+In-Reply-To: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+We not only check if the buffer is DMA capable. We also require a
+threshold value to see if it makes sense to setup DMA. Since most
+I2C transactions are small, the cost for DMA might be too high.
 
-Hi!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ include/linux/i2c.h | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-thor.thayer@linux.intel.com writes:
-
-> From: Thor Thayer <thor.thayer@linux.intel.com>
->
-> Add the Altera I2C Controller to the CycloneV SoCFPGA device tree.
->
-> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
-> ---
-> v2  Remove altr, from fifo-size.
->     Rename compatible string to "altr,softip-i2c"
-> v3  Add version to commpatible string "altr,softip-i2c-v1.0"
-> ---
->  arch/arm/boot/dts/socfpga.dtsi               | 13 ++++++++++---
->  arch/arm/boot/dts/socfpga_cyclone5_socdk.dts | 28 +++++++++++++++++++++++++++-
->  2 files changed, 37 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
-> index b2674bd..d69c13d 100644
-> --- a/arch/arm/boot/dts/socfpga.dtsi
-> +++ b/arch/arm/boot/dts/socfpga.dtsi
-> @@ -133,6 +133,13 @@
->  					#address-cells = <1>;
->  					#size-cells = <0>;
->  
-> +					clk_0: clk_0 {
-> +						compatible = "fixed-clock";
-> +						#clock-cells = <0>;
-> +						clock-frequency = <50000000>;
-> +						clock-output-names = "clk_0-clk";
-> +					};
-> +
->  					osc1: osc1 {
->  						#clock-cells = <0>;
->  						compatible = "fixed-clock";
-> @@ -529,11 +536,11 @@
->  				};
->  		};
->  
-> -		fpga_bridge0: fpga_bridge@ff400000 {
-> +		fpga_bridge0: fpga_bridge@ff200000 {
->  			compatible = "altr,socfpga-lwhps2fpga-bridge";
-> -			reg = <0xff400000 0x100000>;
-> +			reg = <0xff200000 0x00200000>;
->  			resets = <&rst LWHPS2FPGA_RESET>;
-> -			clocks = <&l4_main_clk>;
-> +			clocks = <&clk_0>;
->  		};
->
-
-Why this change? This looks wrong and unrelated. The LWHPS2FPGA bridge
-is at 0xff400000, so it is correct the way it is or not?
-
->  		fpga_bridge1: fpga_bridge@ff500000 {
-> diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-> index 155829f..f99576b 100644
-> --- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-> +++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-> @@ -68,6 +68,7 @@
->  		regulator-min-microvolt = <3300000>;
->  		regulator-max-microvolt = <3300000>;
->  	};
-> +
->  };
-
-???
-
-
-(...)
-
-
-Best regards,
-Steffen
-
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 72d0ece70ed30d..f0b835ba2ecd10 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -34,6 +34,8 @@
+ #include <linux/irqdomain.h>		/* for Host Notify IRQ */
+ #include <linux/of.h>		/* for struct device_node */
+ #include <linux/swab.h>		/* for swab16 */
++#include <linux/mm.h>
++#include <linux/sched/task_stack.h>
+ #include <uapi/linux/i2c.h>
+ 
+ extern struct bus_type i2c_bus_type;
+@@ -764,6 +766,33 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
+ 	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+ }
+ 
++/**
++ * i2c_check_msg_for_dma() - check if a message is suitable for DMA
++ * @msg: the message to be checked
++ * @dma_threshold: the amount of byte from which using DMA makes sense
++ *
++ * Return: -ERANGE if message is smaller than threshold
++ * 	   -EFAULT if message buffer is not DMA capable
++ * 	   0 if message is suitable for DMA
++ *
++ * Note: This function should only be called from process context! It uses
++ * helper functions which work on the 'current' task.
++ */
++static inline int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int dma_threshold)
++{
++	if (msg->len < dma_threshold)
++		return -ERANGE;
++
++#if !defined(CONFIG_DMA_API_DEBUG)
++	if (!virt_addr_valid(msg->buf) || object_is_on_stack(msg->buf)) {
++		pr_debug("msg buffer to 0x%04x might not be DMA capable\n",
++			 msg->addr);
++		return -EFAULT;
++	}
++#endif
++	return 0;
++}
++
+ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+ /**
+  * module_i2c_driver() - Helper macro for registering a modular I2C driver
 -- 
-Pengutronix e.K.                           | Steffen Trumtrar            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.11.0
