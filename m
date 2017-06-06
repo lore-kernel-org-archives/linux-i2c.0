@@ -1,84 +1,54 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 4/4] i2c: rcar: check for DMA-capable buffers
-Date: Tue,  6 Jun 2017 11:20:34 +0200
-Message-ID: <20170606092034.1516-5-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 2/4] i2c: add docs to clarify DMA handling
+Date: Tue,  6 Jun 2017 11:20:32 +0200
+Message-ID: <20170606092034.1516-3-wsa+renesas@sang-engineering.com>
 References: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55305 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751330AbdFFJUr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 6 Jun 2017 05:20:47 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Handling this is special for this driver. Because the hardware needs to
-initialize the next message in interrupt context, we cannot use the
-i2c_check_msg_for_dma() directly. This helper only works reliably in
-process context. So, we need to check during initial preparation of the
-whole transfer and need to disable DMA completely for the whole transfer
-once a message with a not-DMA-capable buffer is found.
+List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ Documentation/i2c/DMA-considerations | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+ create mode 100644 Documentation/i2c/DMA-considerations
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 8be3e6cb8fe686..38985f1b45cd08 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -111,8 +111,11 @@
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
- /* persistent flags */
-+#define ID_P_NODMA	(1 << 30)
- #define ID_P_PM_BLOCKED	(1 << 31)
--#define ID_P_MASK	ID_P_PM_BLOCKED
-+#define ID_P_MASK	(ID_P_PM_BLOCKED | ID_P_NODMA)
+diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
+new file mode 100644
+index 00000000000000..945ac5cfe55c12
+--- /dev/null
++++ b/Documentation/i2c/DMA-considerations
+@@ -0,0 +1,28 @@
++Linux I2C and DMA
++-----------------
 +
-+#define RCAR_DMA_THRESHOLD 8
- 
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
-@@ -358,8 +361,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
- 	unsigned char *buf;
- 	int len;
- 
--	/* Do not use DMA if it's not available or for messages < 8 bytes */
--	if (IS_ERR(chan) || msg->len < 8)
-+	if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flags & ID_P_NODMA)
- 		return;
- 
- 	if (read) {
-@@ -657,11 +659,15 @@ static void rcar_i2c_request_dma(struct rcar_i2c_priv *priv,
- 				 struct i2c_msg *msg)
- {
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
--	bool read;
-+	bool read = msg->flags & I2C_M_RD;
- 	struct dma_chan *chan;
- 	enum dma_transfer_direction dir;
- 
--	read = msg->flags & I2C_M_RD;
-+	/* we need to check here because we need the 'current' context */
-+	if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD) == -EFAULT) {
-+		dev_dbg(dev, "skipping DMA for this whole transfer\n");
-+		priv->flags |= ID_P_NODMA;
-+	}
- 
- 	chan = read ? priv->dma_rx : priv->dma_tx;
- 	if (PTR_ERR(chan) != -EPROBE_DEFER)
-@@ -740,6 +746,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	if (ret < 0 && ret != -ENXIO)
- 		dev_err(dev, "error %d : %x\n", ret, priv->flags);
- 
-+	priv->flags &= ~ID_P_NODMA;
++Given that I2C is a low-speed bus where largely small messages are transferred,
++it is not considered a prime user of DMA access. At this time of writing, only
++10% of I2C bus master drivers have DMA support implemented. And the vast
++majority of transactions are so small that setting up DMA for it will likely
++add more overhead than a plain PIO transfer.
 +
- 	return ret;
- }
- 
++Therefore, it is *not* mandatory that the buffer of an i2c message is DMA safe.
++It does not seem reasonable to apply additional burdens when the feature is so
++rarely used. However, it is recommended to use a DMA-safe buffer, if your
++message size is likely applicable for DMA (FIXME: > 8 byte?).
++
++To support this, drivers wishing to implement DMA can use a helper function
++checking if the size is suitable for DMA or if the buffer is DMA capable:
++
++	int i2c_check_msg_for_dma(msg, dma_threshold);
++
++Please check its in kernel documentation for details.
++
++It should be further noted that bounce buffer handling is left to be handled on
++driver level because details like alignment requirements are best known on that
++level.
++
++If you plan to use DMA with I2C (or with any other bus, actually) make sure you
++have CONFIG_DMA_API_DEBUG enabled during development. It can help you find
++various issues which can be complex to debug otherwise.
 -- 
 2.11.0
