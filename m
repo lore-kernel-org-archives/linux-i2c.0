@@ -1,12 +1,12 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 1/4] i2c: add helper to determine if DMA is favoured
-Date: Tue,  6 Jun 2017 11:20:31 +0200
-Message-ID: <20170606092034.1516-2-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 4/4] i2c: rcar: check for DMA-capable buffers
+Date: Tue,  6 Jun 2017 11:20:34 +0200
+Message-ID: <20170606092034.1516-5-wsa+renesas@sang-engineering.com>
 References: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55289 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:55305 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751246AbdFFJUr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1751330AbdFFJUr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Tue, 6 Jun 2017 05:20:47 -0400
 In-Reply-To: <20170606092034.1516-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
@@ -14,61 +14,71 @@ List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-We not only check if the buffer is DMA capable. We also require a
-threshold value to see if it makes sense to setup DMA. Since most
-I2C transactions are small, the cost for DMA might be too high.
+Handling this is special for this driver. Because the hardware needs to
+initialize the next message in interrupt context, we cannot use the
+i2c_check_msg_for_dma() directly. This helper only works reliably in
+process context. So, we need to check during initial preparation of the
+whole transfer and need to disable DMA completely for the whole transfer
+once a message with a not-DMA-capable buffer is found.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- include/linux/i2c.h | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/i2c/busses/i2c-rcar.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 72d0ece70ed30d..f0b835ba2ecd10 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -34,6 +34,8 @@
- #include <linux/irqdomain.h>		/* for Host Notify IRQ */
- #include <linux/of.h>		/* for struct device_node */
- #include <linux/swab.h>		/* for swab16 */
-+#include <linux/mm.h>
-+#include <linux/sched/task_stack.h>
- #include <uapi/linux/i2c.h>
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 8be3e6cb8fe686..38985f1b45cd08 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -111,8 +111,11 @@
+ #define ID_ARBLOST	(1 << 3)
+ #define ID_NACK		(1 << 4)
+ /* persistent flags */
++#define ID_P_NODMA	(1 << 30)
+ #define ID_P_PM_BLOCKED	(1 << 31)
+-#define ID_P_MASK	ID_P_PM_BLOCKED
++#define ID_P_MASK	(ID_P_PM_BLOCKED | ID_P_NODMA)
++
++#define RCAR_DMA_THRESHOLD 8
  
- extern struct bus_type i2c_bus_type;
-@@ -764,6 +766,33 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
- 	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+ enum rcar_i2c_type {
+ 	I2C_RCAR_GEN1,
+@@ -358,8 +361,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
+ 	unsigned char *buf;
+ 	int len;
+ 
+-	/* Do not use DMA if it's not available or for messages < 8 bytes */
+-	if (IS_ERR(chan) || msg->len < 8)
++	if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flags & ID_P_NODMA)
+ 		return;
+ 
+ 	if (read) {
+@@ -657,11 +659,15 @@ static void rcar_i2c_request_dma(struct rcar_i2c_priv *priv,
+ 				 struct i2c_msg *msg)
+ {
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
+-	bool read;
++	bool read = msg->flags & I2C_M_RD;
+ 	struct dma_chan *chan;
+ 	enum dma_transfer_direction dir;
+ 
+-	read = msg->flags & I2C_M_RD;
++	/* we need to check here because we need the 'current' context */
++	if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD) == -EFAULT) {
++		dev_dbg(dev, "skipping DMA for this whole transfer\n");
++		priv->flags |= ID_P_NODMA;
++	}
+ 
+ 	chan = read ? priv->dma_rx : priv->dma_tx;
+ 	if (PTR_ERR(chan) != -EPROBE_DEFER)
+@@ -740,6 +746,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	if (ret < 0 && ret != -ENXIO)
+ 		dev_err(dev, "error %d : %x\n", ret, priv->flags);
+ 
++	priv->flags &= ~ID_P_NODMA;
++
+ 	return ret;
  }
  
-+/**
-+ * i2c_check_msg_for_dma() - check if a message is suitable for DMA
-+ * @msg: the message to be checked
-+ * @dma_threshold: the amount of byte from which using DMA makes sense
-+ *
-+ * Return: -ERANGE if message is smaller than threshold
-+ * 	   -EFAULT if message buffer is not DMA capable
-+ * 	   0 if message is suitable for DMA
-+ *
-+ * Note: This function should only be called from process context! It uses
-+ * helper functions which work on the 'current' task.
-+ */
-+static inline int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int dma_threshold)
-+{
-+	if (msg->len < dma_threshold)
-+		return -ERANGE;
-+
-+#if !defined(CONFIG_DMA_API_DEBUG)
-+	if (!virt_addr_valid(msg->buf) || object_is_on_stack(msg->buf)) {
-+		pr_debug("msg buffer to 0x%04x might not be DMA capable\n",
-+			 msg->addr);
-+		return -EFAULT;
-+	}
-+#endif
-+	return 0;
-+}
-+
- int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
- /**
-  * module_i2c_driver() - Helper macro for registering a modular I2C driver
 -- 
 2.11.0
