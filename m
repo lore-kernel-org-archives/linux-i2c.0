@@ -1,54 +1,112 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/4] dt-bindigns: i2c-mtk: Delete bindings
-Date: Wed, 7 Jun 2017 18:15:07 +0200
-Message-ID: <20170607161507.im6bxmiqmivuyjna@ninjato>
-References: <20170522094021.7837-1-matthias.bgg@gmail.com>
- <20170522094021.7837-3-matthias.bgg@gmail.com>
+From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCHv3 1/4] ARM: dts: socfpga: Add Altera I2C Controller to
+ CycloneV
+Date: Wed, 7 Jun 2017 15:45:50 -0500
+Message-ID: <b5b5dd02-9c07-1ecd-086d-ef668f280514@linux.intel.com>
+References: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com>
+ <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
+ <73vao9vcsq.fsf@pengutronix.de>
+Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="b7uijhrqxryac3mi"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170522094021.7837-3-matthias.bgg@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <73vao9vcsq.fsf-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Steffen Trumtrar <s.trumtrar-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Steffen,
 
---b7uijhrqxryac3mi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 06/06/2017 01:40 AM, Steffen Trumtrar wrote:
+> 
+> Hi!
+> 
+> thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org writes:
+> 
+>> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>>
+>> Add the Altera I2C Controller to the CycloneV SoCFPGA device tree.
+>>
+>> Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> ---
+>> v2  Remove altr, from fifo-size.
+>>      Rename compatible string to "altr,softip-i2c"
+>> v3  Add version to commpatible string "altr,softip-i2c-v1.0"
+>> ---
+>>   arch/arm/boot/dts/socfpga.dtsi               | 13 ++++++++++---
+>>   arch/arm/boot/dts/socfpga_cyclone5_socdk.dts | 28 +++++++++++++++++++++++++++-
+>>   2 files changed, 37 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
+>> index b2674bd..d69c13d 100644
+>> --- a/arch/arm/boot/dts/socfpga.dtsi
+>> +++ b/arch/arm/boot/dts/socfpga.dtsi
+>> @@ -133,6 +133,13 @@
+>>   					#address-cells = <1>;
+>>   					#size-cells = <0>;
+>>   
+>> +					clk_0: clk_0 {
+>> +						compatible = "fixed-clock";
+>> +						#clock-cells = <0>;
+>> +						clock-frequency = <50000000>;
+>> +						clock-output-names = "clk_0-clk";
+>> +					};
+>> +
+>>   					osc1: osc1 {
+>>   						#clock-cells = <0>;
+>>   						compatible = "fixed-clock";
+>> @@ -529,11 +536,11 @@
+>>   				};
+>>   		};
+>>   
+>> -		fpga_bridge0: fpga_bridge@ff400000 {
+>> +		fpga_bridge0: fpga_bridge@ff200000 {
+>>   			compatible = "altr,socfpga-lwhps2fpga-bridge";
+>> -			reg = <0xff400000 0x100000>;
+>> +			reg = <0xff200000 0x00200000>;
+>>   			resets = <&rst LWHPS2FPGA_RESET>;
+>> -			clocks = <&l4_main_clk>;
+>> +			clocks = <&clk_0>;
+>>   		};
+>>
+> 
+> Why this change? This looks wrong and unrelated. The LWHPS2FPGA bridge
+> is at 0xff400000, so it is correct the way it is or not?
+> 
+Yes, good point. I was using the LWHPS2FPGA slave bus so I shouldn't 
+change this one. I'll add the slave version.
 
-On Mon, May 22, 2017 at 11:40:20AM +0200, Matthias Brugger wrote:
-> The bindings file list bindings for mt1827 and mt8135 but
-> these bindings are not supported by the driver. Remove the bindings.
-> Also do some minor style changes to the compatible documentation
->=20
-> Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Thanks,
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Thor
+>>   		fpga_bridge1: fpga_bridge@ff500000 {
+>> diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+>> index 155829f..f99576b 100644
+>> --- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+>> +++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+>> @@ -68,6 +68,7 @@
+>>   		regulator-min-microvolt = <3300000>;
+>>   		regulator-max-microvolt = <3300000>;
+>>   	};
+>> +
+>>   };
+> 
+> ???
+> 
+Whoops. I should remove the extra space. Thanks!
 
+> 
+> (...)
+> 
+> 
+> Best regards,
+> Steffen
+> 
 
---b7uijhrqxryac3mi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlk4JosACgkQFA3kzBSg
-KbbBRRAAofpniNUSvgVpg1ZFhPECHf9WIl9sJkY/AMazz3TX7r0oOepven7dF9o4
-hzy8ZFYRetITev476BWIdxQ1jfG1DkVo7GLSkaNPkHdGZSYAMhmRrHWToDf4YN2C
-aGpOfnT9kaAEMx+YH6aw+EsBYA8LQhhgjuYmzSry913zx1cuFVM1hU9/LUcWkMx6
-pz+PzBL4HPNvqo7HXaXgczCM/PQc2NhM2EhxYdxHs8/fqrXo6X5GRo+XJU5Rj95e
-gb41lEYWCKQy/rkGcq0j2id5SF61GcK59DVINor0OW1YZMEQbc7RN9uGCDP8qT4h
-1+JqQOwn4gAuF93ryl76ES5fJY6ye07ThBe4i2QSAOXcVGNflJnOX0xJKNXU4rHU
-aaQbtK/jlo2pSNZHa78brYSFcnG80G3Rru5xr+dYbv7hsbSoCkodw8lCVV5tHSms
-TRyHXWDUMQykeZueLFvAg/E/STfJI/5Q9HyPSuV+ePRRchGUzKU5l8MYEFxdpGg9
-Mz4eTPWJS8v2zoQPyoiSDPPsJAJt0kQlbH2SdrcS3cRZYzAc18WpT2IK1/67JKTV
-iEafbTMqJbwYd89JU4XlPiFX+8CRXBoUDDWokRJh3Lu0Yx7Fs9lrVgZls7InOGEy
-QsnlGo8wOFr7HFfTFUP1vmuFI/MxB8InzXfM77ebuJjlUnd2n14=
-=Vtv6
------END PGP SIGNATURE-----
-
---b7uijhrqxryac3mi--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
