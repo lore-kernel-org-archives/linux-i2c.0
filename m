@@ -1,31 +1,82 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Subject: Re: [PATCH v10 1/5] irqchip/aspeed-i2c-ic: binding docs for Aspeed
- I2C Interrupt Controller
-Date: Wed, 7 Jun 2017 12:31:37 +0100
-Message-ID: <0862f162-646c-a9a3-a79e-313abf86b339@arm.com>
-References: <20170603012952.2192-1-brendanhiggins@google.com>
- <20170603012952.2192-2-brendanhiggins@google.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH 1/2] video: adp8860: move header file out of I2C realm
+Date: Wed, 7 Jun 2017 14:10:51 +0200
+Message-ID: <cf602505-7bf3-8f10-0517-1eee42a5b0c2@analog.com>
+References: <20170521220953.2602-1-wsa@the-dreams.de>
+ <20170521220953.2602-2-wsa@the-dreams.de>
+ <d66d5331-7b9b-9b7d-fb24-b148dcc41673@linaro.org>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170603012952.2192-2-brendanhiggins@google.com>
+In-Reply-To: <d66d5331-7b9b-9b7d-fb24-b148dcc41673@linaro.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org, ryan_chen@aspeedtech.com
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+To: Daniel Thompson <daniel.thompson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Steven Miao <realmz6@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/06/17 02:29, Brendan Higgins wrote:
-> Added device tree binding documentation for Aspeed I2C Interrupt
-> Controller.
+On 07.06.2017 12:57, Daniel Thompson wrote:
+> On 21/05/17 23:09, Wolfram Sang wrote:
+>> include/linux/i2c is not for client devices. Move the header file to a
+>> more appropriate location.
+>>
+>> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 > 
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-> Acked-by: Rob Herring <robh@kernel.org>
+> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-I've queued this (and the next patch) for 4.13.
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
-Thanks,
+> 
+>> ---
+>>   arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
+>>   drivers/video/backlight/adp8860_bl.c           | 2 +-
+>>   include/linux/{i2c => platform_data}/adp8860.h | 0
+>>   3 files changed, 2 insertions(+), 2 deletions(-)
+>>   rename include/linux/{i2c => platform_data}/adp8860.h (100%)
+>>
+>> diff --git a/arch/blackfin/mach-bf537/boards/stamp.c 
+>> b/arch/blackfin/mach-bf537/boards/stamp.c
+>> index 24985e658c19cd..7db90c72bd8ddc 100644
+>> --- a/arch/blackfin/mach-bf537/boards/stamp.c
+>> +++ b/arch/blackfin/mach-bf537/boards/stamp.c
+>> @@ -2047,7 +2047,7 @@ static struct adp8870_backlight_platform_data 
+>> adp8870_pdata = {
+>>   #endif
+>>   #if IS_ENABLED(CONFIG_BACKLIGHT_ADP8860)
+>> -#include <linux/i2c/adp8860.h>
+>> +#include <linux/platform_data/adp8860.h>
+>>   static struct led_info adp8860_leds[] = {
+>>       {
+>>           .name = "adp8860-led7",
+>> diff --git a/drivers/video/backlight/adp8860_bl.c 
+>> b/drivers/video/backlight/adp8860_bl.c
+>> index 510e559c060e59..e7315bf14d6015 100644
+>> --- a/drivers/video/backlight/adp8860_bl.c
+>> +++ b/drivers/video/backlight/adp8860_bl.c
+>> @@ -18,7 +18,7 @@
+>>   #include <linux/slab.h>
+>>   #include <linux/workqueue.h>
+>> -#include <linux/i2c/adp8860.h>
+>> +#include <linux/platform_data/adp8860.h>
+>>   #define ADP8860_EXT_FEATURES
+>>   #define ADP8860_USE_LEDS
+>> diff --git a/include/linux/i2c/adp8860.h 
+>> b/include/linux/platform_data/adp8860.h
+>> similarity index 100%
+>> rename from include/linux/i2c/adp8860.h
+>> rename to include/linux/platform_data/adp8860.h
+>>
+> 
+> 
 
-	M.
+
 -- 
-Jazz is not dead. It just smells funny...
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
