@@ -1,82 +1,59 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH 1/2] video: adp8860: move header file out of I2C realm
-Date: Wed, 7 Jun 2017 14:10:51 +0200
-Message-ID: <cf602505-7bf3-8f10-0517-1eee42a5b0c2@analog.com>
-References: <20170521220953.2602-1-wsa@the-dreams.de>
- <20170521220953.2602-2-wsa@the-dreams.de>
- <d66d5331-7b9b-9b7d-fb24-b148dcc41673@linaro.org>
-Reply-To: <michael.hennerich@analog.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/4] dt-bindings: i2c-mt6577: Rename file to reflect
+ bindings
+Date: Wed, 7 Jun 2017 18:15:02 +0200
+Message-ID: <20170607161502.ztu3hmtjwjw2yqqu@ninjato>
+References: <20170522094021.7837-1-matthias.bgg@gmail.com>
+ <20170522094021.7837-2-matthias.bgg@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d66d5331-7b9b-9b7d-fb24-b148dcc41673@linaro.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Thompson <daniel.thompson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Steven Miao <realmz6@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wmfxvqfxhkposid3"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170522094021.7837-2-matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, marc.zyngier-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07.06.2017 12:57, Daniel Thompson wrote:
-> On 21/05/17 23:09, Wolfram Sang wrote:
->> include/linux/i2c is not for client devices. Move the header file to a
->> more appropriate location.
->>
->> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> 
-> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+--wmfxvqfxhkposid3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
->> ---
->>   arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
->>   drivers/video/backlight/adp8860_bl.c           | 2 +-
->>   include/linux/{i2c => platform_data}/adp8860.h | 0
->>   3 files changed, 2 insertions(+), 2 deletions(-)
->>   rename include/linux/{i2c => platform_data}/adp8860.h (100%)
->>
->> diff --git a/arch/blackfin/mach-bf537/boards/stamp.c 
->> b/arch/blackfin/mach-bf537/boards/stamp.c
->> index 24985e658c19cd..7db90c72bd8ddc 100644
->> --- a/arch/blackfin/mach-bf537/boards/stamp.c
->> +++ b/arch/blackfin/mach-bf537/boards/stamp.c
->> @@ -2047,7 +2047,7 @@ static struct adp8870_backlight_platform_data 
->> adp8870_pdata = {
->>   #endif
->>   #if IS_ENABLED(CONFIG_BACKLIGHT_ADP8860)
->> -#include <linux/i2c/adp8860.h>
->> +#include <linux/platform_data/adp8860.h>
->>   static struct led_info adp8860_leds[] = {
->>       {
->>           .name = "adp8860-led7",
->> diff --git a/drivers/video/backlight/adp8860_bl.c 
->> b/drivers/video/backlight/adp8860_bl.c
->> index 510e559c060e59..e7315bf14d6015 100644
->> --- a/drivers/video/backlight/adp8860_bl.c
->> +++ b/drivers/video/backlight/adp8860_bl.c
->> @@ -18,7 +18,7 @@
->>   #include <linux/slab.h>
->>   #include <linux/workqueue.h>
->> -#include <linux/i2c/adp8860.h>
->> +#include <linux/platform_data/adp8860.h>
->>   #define ADP8860_EXT_FEATURES
->>   #define ADP8860_USE_LEDS
->> diff --git a/include/linux/i2c/adp8860.h 
->> b/include/linux/platform_data/adp8860.h
->> similarity index 100%
->> rename from include/linux/i2c/adp8860.h
->> rename to include/linux/platform_data/adp8860.h
->>
-> 
-> 
+On Mon, May 22, 2017 at 11:40:19AM +0200, Matthias Brugger wrote:
+> The i2c-mt6577.txt actually holds the bindings for all mediatek supported=
+ i2c
+> controller. Change the name to i2c.mtk.txt to reflect that.
+>=20
+> Signed-off-by: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 
--- 
-Greetings,
-Michael
+--wmfxvqfxhkposid3
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlk4JoYACgkQFA3kzBSg
+KbZyuw/+Ol1yGpB8JlmN/HlFLJFVy0gQhGbEI39y78THf2fbqR/cB70BoVcHsT9Y
+3tXidTjIqTGULsBkh61Qcjnj2JwsSr3mWXk2c7MqWAbNF0sDr0BpmAjdNvDzBdPl
+5q7PsBZM2Qq/QxPEcgw8d+pHLsuVE22LdMa3b7giQMu8cXgNpqKW6AtPZhIA/YP9
+1jlG7o4vbb2WTZ8hNh9H9/RazkEWH9vKIrDOtzTa8szTeVZoy97hcjlzzHp4YP69
+zQxVzmBjpckWEhS2uEj4vuNDm239Jp217c4AG7YCY3Ghq4BBzdw88pJ1RkWLenIo
+ZR208QXjcB5pmarA6hvTR2uyL/8Udivjla/PP1S6SGC55yM2aWVeJNC6nZkd1+EQ
+rmWmyL9azjKIvbp8WnFZ+sqo3J0+kR8jZRrXZRzLcbHirrXJEBrgyYB+371PCaxD
+hE4znV1QChCZdS9xDQwjndiLmLZnaDjERLTDvPjvGU+L58ODtCuWy9ZgYJXjvVBR
+TR0RMF7UQLGNrUFpis4kWbIMYkqVd3su9lHM0C4wrwqdJCjsOwq6nVpbq+rnJFYf
+Jom9QUkGPX1iQKn/ivCD6eUDVbvvNnmfleRuqSpZJrT8uGgze0xO/4jr+2uUTj+C
+K5vhDrPCax0YfjRgPlZYeGPQ/9hBMszRX73WAqYrnY6Npm5NmDw=
+=N+FO
+-----END PGP SIGNATURE-----
+
+--wmfxvqfxhkposid3--
 --
-Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
-Sitz der Gesellschaft München, Registergericht München HRB 40368,
-Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
