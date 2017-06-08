@@ -1,112 +1,80 @@
-From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCHv3 1/4] ARM: dts: socfpga: Add Altera I2C Controller to
- CycloneV
-Date: Wed, 7 Jun 2017 15:45:50 -0500
-Message-ID: <b5b5dd02-9c07-1ecd-086d-ef668f280514@linux.intel.com>
-References: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com>
- <1496447559-19782-2-git-send-email-thor.thayer@linux.intel.com>
- <73vao9vcsq.fsf@pengutronix.de>
-Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <73vao9vcsq.fsf-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Steffen Trumtrar <s.trumtrar-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: David Thomson <david.thomson@alliedtelesis.co.nz>
+Subject: [PATCH] i2c: core: Prevent race condition when removing i2c devices
+Date: Thu,  8 Jun 2017 14:43:44 +1200
+Message-ID: <20170608024344.9311-1-david.thomson@alliedtelesis.co.nz>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:54021 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751142AbdFHCoT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 7 Jun 2017 22:44:19 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: wsa@the-dreams.de, David Thomson <david.thomson@alliedtelesis.co.nz>
 
-Hi Steffen,
+There's a race condition that occurs when deleting & closing multiple
+i2c devices, which results in a kernel warning on an incorrect reference
+count:
 
-On 06/06/2017 01:40 AM, Steffen Trumtrar wrote:
-> 
-> Hi!
-> 
-> thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org writes:
-> 
->> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->>
->> Add the Altera I2C Controller to the CycloneV SoCFPGA device tree.
->>
->> Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->> ---
->> v2  Remove altr, from fifo-size.
->>      Rename compatible string to "altr,softip-i2c"
->> v3  Add version to commpatible string "altr,softip-i2c-v1.0"
->> ---
->>   arch/arm/boot/dts/socfpga.dtsi               | 13 ++++++++++---
->>   arch/arm/boot/dts/socfpga_cyclone5_socdk.dts | 28 +++++++++++++++++++++++++++-
->>   2 files changed, 37 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
->> index b2674bd..d69c13d 100644
->> --- a/arch/arm/boot/dts/socfpga.dtsi
->> +++ b/arch/arm/boot/dts/socfpga.dtsi
->> @@ -133,6 +133,13 @@
->>   					#address-cells = <1>;
->>   					#size-cells = <0>;
->>   
->> +					clk_0: clk_0 {
->> +						compatible = "fixed-clock";
->> +						#clock-cells = <0>;
->> +						clock-frequency = <50000000>;
->> +						clock-output-names = "clk_0-clk";
->> +					};
->> +
->>   					osc1: osc1 {
->>   						#clock-cells = <0>;
->>   						compatible = "fixed-clock";
->> @@ -529,11 +536,11 @@
->>   				};
->>   		};
->>   
->> -		fpga_bridge0: fpga_bridge@ff400000 {
->> +		fpga_bridge0: fpga_bridge@ff200000 {
->>   			compatible = "altr,socfpga-lwhps2fpga-bridge";
->> -			reg = <0xff400000 0x100000>;
->> +			reg = <0xff200000 0x00200000>;
->>   			resets = <&rst LWHPS2FPGA_RESET>;
->> -			clocks = <&l4_main_clk>;
->> +			clocks = <&clk_0>;
->>   		};
->>
-> 
-> Why this change? This looks wrong and unrelated. The LWHPS2FPGA bridge
-> is at 0xff400000, so it is correct the way it is or not?
-> 
-Yes, good point. I was using the LWHPS2FPGA slave bus so I shouldn't 
-change this one. I'll add the slave version.
+Call Trace:
+[c00000007e2cfaf0] [c0000000000b84e4] .module_put+0x24/0xb0 (unreliable)
+[c00000007e2cfb70] [c0000000005db830] .i2c_put_adapter+0x30/0x50
+[c00000007e2cfbf0] [c0000000005deb74] .i2cdev_release+0x24/0x60
+[c00000007e2cfc70] [c00000000014015c] .__fput+0xbc/0x290
+[c00000007e2cfd10] [c000000000059b64] .task_work_run+0xf4/0x130
+[c00000007e2cfdb0] [c00000000000a0a4] .do_notify_resume+0x74/0x80
+[c00000007e2cfe30] [c000000000000acc] .ret_from_except_lite+0x78/0x7c
 
-Thanks,
+The race is seen when an i2c adapter is being deleted while
+file descriptor on another i2c adapter is being closed. The following
+shows two threads executing concurrently (the first number is the thread
+id):
 
-Thor
->>   		fpga_bridge1: fpga_bridge@ff500000 {
->> diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
->> index 155829f..f99576b 100644
->> --- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
->> +++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
->> @@ -68,6 +68,7 @@
->>   		regulator-min-microvolt = <3300000>;
->>   		regulator-max-microvolt = <3300000>;
->>   	};
->> +
->>   };
-> 
-> ???
-> 
-Whoops. I should remove the extra space. Thanks!
+4580 i2c_del_mux_adapter adapter i2c-6-mux (chan_id 2)
+4580 i2c_del_adapter adapter i2c-6-mux (chan_id 2)
+4580 i2cdev_detach_adapter adapter i2c-6-mux (chan_id 2)
+2627 i2cdev_release START adapter i2c-6-mux (chan_id 2)
+2627 i2c_put_adapter START adapter i2c-6-mux (chan_id 2) owner (null)
+2627 i2c_adapter_dev_release adapter i2c-6-mux (chan_id 2)
+4580 i2c_del_mux_adapter adapter i2c-6-mux (chan_id 3)
+4580 i2c_del_adapter adapter i2c-6-mux (chan_id 3)
+4580 i2cdev_detach_adapter adapter i2c-6-mux (chan_id 3)
+2627 i2c_put_adapter END adapter i2c-6-mux (chan_id 2) owner c0000000edf66400
+2627 i2cdev_release END adapter i2c-6-mux (chan_id 2)
+2627 i2cdev_release START adapter i2c-6-mux (chan_id 3)
+2627 i2c_put_adapter START adapter i2c-6-mux (chan_id 3) owner (null)
+2627 i2c_adapter_dev_release adapter i2c-6-mux (chan_id 3)
+2627 i2c_put_adapter END adapter i2c-6-mux (chan_id 3) owner (null)
+2627 i2cdev_release END adapter i2c-6-mux (chan_id 3)
 
-> 
-> (...)
-> 
-> 
-> Best regards,
-> Steffen
-> 
+When thread 4580 for chan_id 3 interrupts 2627 doing
+i2c_adapter_dev_release, the 'owner' field for chan_id 2 becomes
+non-null. This causes the code to attempt to decrement the reference for
+this owner, but the current reference count is invalid. I'm not sure how
+the owner is getting set, but adding a lock around the
+put_device/module_put calls resolves the issue.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: David Thomson <david.thomson@alliedtelesis.co.nz>
+---
+ drivers/i2c/i2c-core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 82576aaccc90..8831d9b363a7 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -3151,8 +3151,12 @@ void i2c_put_adapter(struct i2c_adapter *adap)
+ 	if (!adap)
+ 		return;
+ 
++	mutex_lock(&core_lock);
++
+ 	put_device(&adap->dev);
+ 	module_put(adap->owner);
++
++	mutex_unlock(&core_lock);
+ }
+ EXPORT_SYMBOL(i2c_put_adapter);
+ 
+-- 
+2.13.0
