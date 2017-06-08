@@ -1,133 +1,60 @@
-From: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
-Subject: Re: [PATCH] i2c: i2c-imx: Use correct function to write to register
-Date: Thu, 8 Jun 2017 19:07:13 +0200
-Message-ID: <681500CE65202E47A192754B01DAB4671B16747DBA@SDE12.beckipc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v10 0/6] i2c: designware: add I2C SLAVE support
+Date: Thu,  8 Jun 2017 18:36:44 +0100
+Message-ID: <cover.1496942505.git.lolivei@synopsys.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx.beck-ipc.com ([195.243.140.130]:36926 "EHLO mx.beck-ipc.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751123AbdFHRHR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 8 Jun 2017 13:07:17 -0400
-Content-Language: de-DE
+Received: from smtprelay.synopsys.com ([198.182.60.111]:52418 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750788AbdFHRhc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2017 13:37:32 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Lucas Stach <l.stach@pengutronix.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "darius.augulis@teltonika.lt" <darius.augulis@teltonika.lt>
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-Hello Lucas,
+The purpose of this patchset is to enable Linux to be a I2C slave by 
+enabling the slave functionality in the designware I2C controller and at
+the same time it does some cleaning of the existing code.
 
-I am sorry about the HTML.
+The patch 1 is for cleaning and commentary fix.
+The patch 2 refactors the original i2c-designware-core and extracts all
+master functions to a i2c-designware-master source file as suggested by
+Andy Shevchenko when I first submited the update. The patch 3 then
+separates the MASTER flow from the common flow.
+The patch 4 introduces the SLAVE necessary definitions to the 
+i2c-designware library and adds a how-to-use example to the designware.txt
+in device tree bindings.
+The patch 5 adds the necessary functions to give the ability to be a SLAVE
+to the controller and for that changes also had to be made in the 
+Makefile and Kconfig.
+The patch 6 enables the SLAVE mode to be detected by the platform module.
 
-The patch is based on version 4.11.4.
+The functionality was tested using the hardware independent slave-eeprom
+driver based on top of i2c/for-next. The tree I used can be found here:
 
-As far as I can see, the prototype fits:
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
 
-static inline void imx_i2c_write_reg(unsigned int val,
-		                        struct imx_i2c_struct *i2c_imx, unsigned int reg)
+Luis Oliveira (6):
+  i2c: designware: Cleaning and comment style fixes.
+  i2c: designware: refactoring of the i2c-designware
+  i2c: designware: MASTER mode as separated driver
+  i2c: designware: introducing I2C_SLAVE definitions
+  i2c: designware: add SLAVE mode functions
+  i2c: designware: enable SLAVE in platform module
 
-...and...
+ .../devicetree/bindings/i2c/i2c-designware.txt     |  16 +-
+ drivers/i2c/busses/Kconfig                         |  14 +-
+ drivers/i2c/busses/Makefile                        |   4 +
+ drivers/i2c/busses/i2c-designware-common.c         | 280 +++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           | 182 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 465 +++------------------
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |   8 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 117 ++++--
+ drivers/i2c/busses/i2c-designware-slave.c          | 396 ++++++++++++++++++
+ 9 files changed, 1029 insertions(+), 453 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (60%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
 
-static inline unsigned char imx_i2c_read_reg(struct imx_i2c_struct *i2c_imx,
-		                                 unsigned int reg)
-
-Those two functions are also used everywhere else in the driver in the same manner to access the registers.
-
-Regards,
-
-Michail
-
-> Hi Michail,
-> 
-> which kernel is this based on? The change doesn't seem to match the
-> prototype of imx_i2c_read_reg() and imx_i2c_write_reg() of the upstream
-> kernel.
-> 
-> Also please fix your mailer to send patches in plain text instead of
-> HTML.
-> 
-> Regards,
-> Lucas
-> 
-> Am Donnerstag, den 08.06.2017, 18:34 +0200 schrieb Michail Georgios
-> Etairidis:
-> > The i2c-imx driver incorrectly uses readb()/writeb() to read and write
-> > to the appropriate registers when performing a repeated start. The
-> > appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions should be
-> > used instead. Performing a repeated start results to a kernel panic.
-> > 
-> >  
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-imx.c
-> > b/drivers/i2c/busses/i2c-imx.c
-> > 
-> > index 95ed1718..988bb620 100644
-> > 
-> > --- a/drivers/i2c/busses/i2c-imx.c
-> > 
-> > +++ b/drivers/i2c/busses/i2c-imx.c
-> > 
-> > @@ -734,9 +734,9 @@ static int i2c_imx_dma_read(struct imx_i2c_struct
-> > *i2c_imx,
-> > 
-> >                                 * the first read operation, otherwise
-> > the first read cost
-> > 
-> >                                 * one extra clock cycle.
-> > 
-> >                                 */
-> > 
-> > -                              temp = readb(i2c_imx->base +
-> > IMX_I2C_I2CR);
-> > 
-> > +                             temp = imx_i2c_read_reg(i2c_imx->base +
-> > IMX_I2C_I2CR);
-> > 
-> >                                temp |= I2CR_MTX;
-> > 
-> > -                              writeb(temp, i2c_imx->base +
-> > IMX_I2C_I2CR);
-> > 
-> > +                             imx_i2c_write_reg(temp, i2c_imx->base +
-> > IMX_I2C_I2CR);
-> > 
-> >                }
-> > 
-> >                msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx,
-> > IMX_I2C_I2DR);
-> > 
-> > @@ -857,9 +857,9 @@ static int i2c_imx_read(struct imx_i2c_struct
-> > *i2c_imx, struct i2c_msg *msgs, bo
-> > 
-> >                                                                 * the
-> > first read operation, otherwise the first read cost
-> > 
-> >                                                                 * one
-> > extra clock cycle.
-> > 
-> >                                                                 */
-> > 
-> > -                                                              temp =
-> > readb(i2c_imx->base + IMX_I2C_I2CR);
-> > 
-> > +                                                             temp =
-> > imx_i2c_read_reg(i2c_imx->base + IMX_I2C_I2CR);
-> > 
-> >                                                                temp |=
-> > I2CR_MTX;
-> > 
-> > -
-> > writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> > 
-> > +
-> > imx_i2c_write_reg(temp, i2c_imx->base + IMX_I2C_I2CR);
-> > 
-> >                                                }
-> > 
-> >                                } else if (i == (msgs->len - 2)) {
-> > 
-> > 
-> > dev_dbg(&i2c_imx->adapter.dev,
-> > 
-> >
+-- 
+2.13.0
