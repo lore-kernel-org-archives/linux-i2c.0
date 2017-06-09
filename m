@@ -1,44 +1,50 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] i2c: xgene-slimpro: include linux/io.h for memremap
-Date: Fri,  9 Jun 2017 12:29:12 +0200
-Message-ID: <20170609102937.3054567-1-arnd@arndb.de>
+From: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
+Subject: [PATCH] i2c: i2c-imx: Use correct function to write to register
+Date: Fri, 9 Jun 2017 15:28:12 +0200
+Message-ID: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.135]:55715 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751571AbdFIKaD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Jun 2017 06:30:03 -0400
+Received: from mx.beck-ipc.com ([195.243.140.130]:39223 "EHLO mx.beck-ipc.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751637AbdFIN2T (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 9 Jun 2017 09:28:19 -0400
+Content-Language: de-DE
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Hoan Tran <hotran@apm.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Tin Huynh <tnhuynh@apm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "l.stach@pengutronix.de" <l.stach@pengutronix.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>
 
-The newly added support for the pcc mailbox fails to build
-in some configurations:
+The i2c-imx driver incorrectly uses readb()/writeb() to read and write to the appropriate registers when performing a repeated start. The appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions should be used instead. Performing a repeated start results in a kernel panic.
 
-drivers/i2c/busses/i2c-xgene-slimpro.c: In function 'xgene_slimpro_i2c_probe':
-drivers/i2c/busses/i2c-xgene-slimpro.c:516:25: error: implicit declaration of function 'memremap'; did you mean 'memcmp'? [-Werror=implicit-function-declaration]
-drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: error: 'MEMREMAP_WB' undeclared (first use in this function)
-drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: note: each undeclared identifier is reported only once for each function it appears in
+I am resubmitting this patch as the previous one was erroneous. This patch is based on the current upstream kernel code.
 
-This includes the missing header file.
-
-Fixes: df5da47fe722 ("i2c: xgene-slimpro: Add ACPI support by using PCC mailbox")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/i2c/busses/i2c-xgene-slimpro.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index 8e5c8f28bc8b..7e89ba6fcf6f 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -27,6 +27,7 @@
- #include <linux/dma-mapping.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/io.h>
- #include <linux/mailbox_client.h>
- #include <linux/module.h>
- #include <linux/of.h>
--- 
-2.9.0
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 95ed171..54a47b4 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -734,9 +734,9 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+ 		 * the first read operation, otherwise the first read cost
+ 		 * one extra clock cycle.
+ 		 */
+-		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
++		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 		temp |= I2CR_MTX;
+-		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
++		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 	}
+ 	msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+ 
+@@ -857,9 +857,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
+ 				 * the first read operation, otherwise the first read cost
+ 				 * one extra clock cycle.
+ 				 */
+-				temp = readb(i2c_imx->base + IMX_I2C_I2CR);
++				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 				temp |= I2CR_MTX;
+-				writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
++				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 			}
+ 		} else if (i == (msgs->len - 2)) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
