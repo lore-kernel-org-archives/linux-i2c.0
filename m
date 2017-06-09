@@ -1,80 +1,56 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/2] video: adp8860: move header file out of I2C realm
-Date: Fri, 9 Jun 2017 08:49:00 +0100
-Message-ID: <20170609074900.owjczluv7kkoso3f@dell>
-References: <20170521220953.2602-1-wsa@the-dreams.de>
- <20170521220953.2602-2-wsa@the-dreams.de>
- <20170609074345.v5jkajra5qdsn2x7@dell>
+From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v10 1/6] i2c: designware: Cleaning and comment style
+ fixes.
+Date: Fri, 9 Jun 2017 08:57:42 +0100
+Message-ID: <c6048839-9d16-8f71-809b-82b9ab35390b@synopsys.com>
+References: <cover.1496942505.git.lolivei@synopsys.com>
+ <4fb5f66dafc24e3213aaa8fc93fa12fecb6d6aa1.1496942505.git.lolivei@synopsys.com>
+ <5bc3077b-2e4c-eb27-bca1-b7cbfc2dec01@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35036 "EHLO
-        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751651AbdFIHtE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Jun 2017 03:49:04 -0400
-Received: by mail-wm0-f52.google.com with SMTP id x70so90759651wme.0
-        for <linux-i2c@vger.kernel.org>; Fri, 09 Jun 2017 00:49:03 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170609074345.v5jkajra5qdsn2x7@dell>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5bc3077b-2e4c-eb27-bca1-b7cbfc2dec01-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org
 
-On Fri, 09 Jun 2017, Lee Jones wrote:
-
-> On Mon, 22 May 2017, Wolfram Sang wrote:
+On 09-Jun-17 6:12, Peter Rosin wrote:
+> On 2017-06-08 19:36, Luis Oliveira wrote:
+>> complicated to review. The work here won't bring any additional work to
+>> backported fixes because is just style and reordering.
 > 
-> > include/linux/i2c is not for client devices. Move the header file to a
-> > more appropriate location.
-> > 
-> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> > ---
-> >  arch/blackfin/mach-bf537/boards/stamp.c        | 2 +-
-> >  drivers/video/backlight/adp8860_bl.c           | 2 +-
-> >  include/linux/{i2c => platform_data}/adp8860.h | 0
-> >  3 files changed, 2 insertions(+), 2 deletions(-)
-> >  rename include/linux/{i2c => platform_data}/adp8860.h (100%)
+> I challenge that. If there is an old bug that existed before this patch
+> that is fixed in the future after this patch has been applied, it might
+> very well be hard_er_ to backport that fix to a point before this patch
+> has been applied. So, what do you mean?
 > 
-> Applied, thanks.
+Yes, that's true. But it will not be that hard since it's mostly style
+(comments, format, return variables, misspelled words).
+For my humble point of view the code looks better after this patch is applied.
+So if It's more easy to read it should be more easy to fix also if needed.
 
-Scrap that.  I can't actually apply these without Steven's Ack.
+>> @@ -984,12 +984,12 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>>  	}
+>>  
+>>  	i2c_dw_disable_int(dev);
+>> -	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
+>> +	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
+>>  			     dev_name(dev->dev), dev);
+> 
+> Two extra spaces needed to align with the opening bracket.
+> 
+Thank you, you are right.
 
-> > diff --git a/arch/blackfin/mach-bf537/boards/stamp.c b/arch/blackfin/mach-bf537/boards/stamp.c
-> > index 24985e658c19cd..7db90c72bd8ddc 100644
-> > --- a/arch/blackfin/mach-bf537/boards/stamp.c
-> > +++ b/arch/blackfin/mach-bf537/boards/stamp.c
-> > @@ -2047,7 +2047,7 @@ static struct adp8870_backlight_platform_data adp8870_pdata = {
-> >  #endif
-> >  
-> >  #if IS_ENABLED(CONFIG_BACKLIGHT_ADP8860)
-> > -#include <linux/i2c/adp8860.h>
-> > +#include <linux/platform_data/adp8860.h>
-> >  static struct led_info adp8860_leds[] = {
-> >  	{
-> >  		.name = "adp8860-led7",
-> > diff --git a/drivers/video/backlight/adp8860_bl.c b/drivers/video/backlight/adp8860_bl.c
-> > index 510e559c060e59..e7315bf14d6015 100644
-> > --- a/drivers/video/backlight/adp8860_bl.c
-> > +++ b/drivers/video/backlight/adp8860_bl.c
-> > @@ -18,7 +18,7 @@
-> >  #include <linux/slab.h>
-> >  #include <linux/workqueue.h>
-> >  
-> > -#include <linux/i2c/adp8860.h>
-> > +#include <linux/platform_data/adp8860.h>
-> >  #define ADP8860_EXT_FEATURES
-> >  #define ADP8860_USE_LEDS
-> >  
-> > diff --git a/include/linux/i2c/adp8860.h b/include/linux/platform_data/adp8860.h
-> > similarity index 100%
-> > rename from include/linux/i2c/adp8860.h
-> > rename to include/linux/platform_data/adp8860.h
+> Cheers,
+> peda
 > 
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Cheers,
+Luis
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
