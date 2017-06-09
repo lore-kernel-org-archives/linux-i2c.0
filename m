@@ -1,42 +1,44 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCHv3 3/4] dt-bindings: i2c: Add Altera I2C Controller
-Date: Thu, 8 Jun 2017 17:21:50 -0500
-Message-ID: <20170608222150.xxlrzrfhhqqvuovl@rob-hp-laptop>
-References: <1496447559-19782-1-git-send-email-thor.thayer@linux.intel.com>
- <1496447559-19782-4-git-send-email-thor.thayer@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v10 1/6] i2c: designware: Cleaning and comment style
+ fixes.
+Date: Fri, 9 Jun 2017 07:12:30 +0200
+Message-ID: <5bc3077b-2e4c-eb27-bca1-b7cbfc2dec01@axentia.se>
+References: <cover.1496942505.git.lolivei@synopsys.com>
+ <4fb5f66dafc24e3213aaa8fc93fa12fecb6d6aa1.1496942505.git.lolivei@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:33293 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751591AbdFHWVw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Jun 2017 18:21:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1496447559-19782-4-git-send-email-thor.thayer@linux.intel.com>
+Received: from mail-he1eur01on0110.outbound.protection.outlook.com ([104.47.0.110]:35616
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751084AbdFIFMl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 9 Jun 2017 01:12:41 -0400
+In-Reply-To: <4fb5f66dafc24e3213aaa8fc93fa12fecb6d6aa1.1496942505.git.lolivei@synopsys.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: thor.thayer@linux.intel.com
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, dinguyen@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-On Fri, Jun 02, 2017 at 06:52:38PM -0500, thor.thayer@linux.intel.com wrote:
-> From: Thor Thayer <thor.thayer@linux.intel.com>
-> 
-> Add the documentation to support the Altera synthesizable
-> logic I2C Controller in FPGA.
-> 
-> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
-> ---
-> v2  Change the subject to identify dt-bindings
->     Add synthesizable logic to description.
->     Change compatible string to "altr,softip-i2c"
->     Make description of clock phandle singular since 1 clock.
->     Remove altr, from fifo-size
->     Specify fifo-size is in bytes.
-> v3  Add version to compatible string "altr,softip-i2c-v1.0"
->     Add for use in FPGA in description.
-> ---
->  .../devicetree/bindings/i2c/i2c-altera.txt         | 39 ++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+On 2017-06-08 19:36, Luis Oliveira wrote:
+> complicated to review. The work here won't bring any additional work to
+> backported fixes because is just style and reordering.
 
-Acked-by: Rob Herring <robh@kernel.org>
+I challenge that. If there is an old bug that existed before this patch
+that is fixed in the future after this patch has been applied, it might
+very well be hard_er_ to backport that fix to a point before this patch
+has been applied. So, what do you mean?
+
+> @@ -984,12 +984,12 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	}
+>  
+>  	i2c_dw_disable_int(dev);
+> -	r = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
+> +	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
+>  			     dev_name(dev->dev), dev);
+
+Two extra spaces needed to align with the opening bracket.
+
+Cheers,
+peda
