@@ -1,59 +1,46 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: Re: [PATCH] i2c: xgene-slimpro: include linux/io.h for memremap
-Date: Fri, 9 Jun 2017 10:27:38 -0700
-Message-ID: <CAFHUOYyFdK-D4pEeJZJTejxJtAnSuWF8MhLcOiuzFbR2pT++Bw@mail.gmail.com>
-References: <20170609102937.3054567-1-arnd@arndb.de>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH 0/2] Add I2C driver for ZTE ZX2967 family SoCs
+Date: Sat, 10 Jun 2017 22:32:08 +0800
+Message-ID: <20170610143207.GA9839@dragon>
+References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yb0-f172.google.com ([209.85.213.172]:32840 "EHLO
-        mail-yb0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751545AbdFIR1j (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Jun 2017 13:27:39 -0400
-Received: by mail-yb0-f172.google.com with SMTP id 202so17161043ybd.0
-        for <linux-i2c@vger.kernel.org>; Fri, 09 Jun 2017 10:27:39 -0700 (PDT)
-In-Reply-To: <20170609102937.3054567-1-arnd@arndb.de>
+Received: from mail.kernel.org ([198.145.29.99]:46120 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751958AbdFJOcn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 10 Jun 2017 10:32:43 -0400
+Content-Disposition: inline
+In-Reply-To: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Ludovic Desroches <ludovic.desroches@microchip.com>, Tin Huynh <tnhuynh@apm.com>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Shawn Guo <shawn.guo@linaro.org>, Baoyou Xie <xie.baoyou@sanechips.com.cn>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Xin Zhou <zhou.xin8@sanechips.com.cn>
 
-Hi Arnd,
+Hi Wolfram,
 
-On Fri, Jun 9, 2017 at 3:29 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> The newly added support for the pcc mailbox fails to build
-> in some configurations:
->
-> drivers/i2c/busses/i2c-xgene-slimpro.c: In function 'xgene_slimpro_i2c_probe':
-> drivers/i2c/busses/i2c-xgene-slimpro.c:516:25: error: implicit declaration of function 'memremap'; did you mean 'memcmp'? [-Werror=implicit-function-declaration]
-> drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: error: 'MEMREMAP_WB' undeclared (first use in this function)
-> drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: note: each undeclared identifier is reported only once for each function it appears in
->
-> This includes the missing header file.
->
-> Fixes: df5da47fe722 ("i2c: xgene-slimpro: Add ACPI support by using PCC mailbox")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/i2c/busses/i2c-xgene-slimpro.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-> index 8e5c8f28bc8b..7e89ba6fcf6f 100644
-> --- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-> +++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-> @@ -27,6 +27,7 @@
->  #include <linux/dma-mapping.h>
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
-> +#include <linux/io.h>
->  #include <linux/mailbox_client.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
-> --
-> 2.9.0
->
+On Sun, May 28, 2017 at 12:59:34PM +0800, Shawn Guo wrote:
+> From: Shawn Guo <shawn.guo@linaro.org>
+> 
+> Hi Wolfram,
+> 
+> The ZX2967 I2C driver submission had gone through quite a number of
+> review iterations [1], and seems close to be accepted.  But for some
+> reason, the ball got dropped from there.  I'm here to pick it up and
+> hopefully move it forward.
+> 
+> This is basically a resend of the latest posting from Baoyou with
+> Wolfram's comments on v7 fully addressed.
+> 
+> Changes since v7:
+>  - Rebase and test on v4.12-rc2.
+>  - Drop the dev_err() and hardware reset on timeout, which is not really
+>    necessary.
+>  - Return -ETIMEDOUT instead of -EIO on timeout.
+>  - Unify zx2967_i2c_xfer_write_bytes() and zx2967_i2c_xfer_read_bytes()
+>    into one function zx2967_i2c_xfer_bytes(), and zx2967_i2c_xfer_write()
+>    and zx2967_i2c_xfer_read() into zx2967_i2c_xfer_msg().
 
-Reviewed-by: Hoan Tran <hotran@apm.com>
+Any comments on the series?  We hope it can get into v4.13 merge window.
 
-Thanks
-Hoan
+Shawn
