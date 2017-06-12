@@ -1,79 +1,147 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] i2c: ismt: fix wrong device address when unmap the data buffer
-Date: Mon, 12 Jun 2017 13:29:15 +0300
-Message-ID: <CAHp75VeOc8_o9FnpyocujuWcXShAGCxW-PP_Vi1f+o2va7oB=w@mail.gmail.com>
-References: <1497238928-41066-1-git-send-email-liwei.song@windriver.com>
- <CAHp75VewOMddhFDYim1kBF1XpxZGbVA557wTpBg10LYewf2Otg@mail.gmail.com>
- <3d211ade-77e8-0ec7-582b-085686ddd4c1@axentia.se> <CAHp75VeJi6etf5cjh1HfJPSEO6Cj07wvnyRKWzGUMa2EszY4Dg@mail.gmail.com>
- <c1ca8d84-ec5d-b247-0338-f1b7b96999d8@axentia.se>
+From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v4 2/2] arm: dts: Add Mediatek MT2701 i2c device node
+Date: Mon, 12 Jun 2017 19:54:28 +0800
+Message-ID: <1497268468.930.26.camel@mhfsdcap03>
+References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
+         <1495784107-6711-3-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:36644 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751026AbdFLK3Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2017 06:29:16 -0400
-In-Reply-To: <c1ca8d84-ec5d-b247-0338-f1b7b96999d8@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1495784107-6711-3-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Song liwei <liwei.song@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Mon, Jun 12, 2017 at 1:19 PM, Peter Rosin <peda@axentia.se> wrote:
-> On 2017-06-12 11:38, Andy Shevchenko wrote:
->> On Mon, Jun 12, 2017 at 12:28 PM, Peter Rosin <peda@axentia.se> wrote:
->>> On 2017-06-12 11:11, Andy Shevchenko wrote:
->>>> On Mon, Jun 12, 2017 at 6:42 AM, Song liwei <liwei.song@windriver.com> wrote:
->>>>> From: Liwei Song <liwei.song@windriver.com>
->>
->>>>> After finished I2C block read/write, when unmap the data buffer,
->>>>> a wrong device address was pass to dma_unmap_single(),
->>
->>>>> the right
->>>>> device address should be "dev" not "&adap->dev", the relation is
->>>>> *(&adap->dev) == dev.
->>>>
->>>> This is confusing. You are telling that there are two copies of struct
->>>> device here?
->>>
->>> Yes, there are two copies.
->>
->> No, there is not. See below.
->
-> What I meant was that there are the struct device in pci_dev->dev and the
-> struct device in adap->dev. That seems like two copies of struct device
-> to me.
+On Fri, 2017-05-26 at 15:35 +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> 
+> Add MT2701 i2c device node.
+> 
+> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/mt2701-evb.dts | 42 ++++++++++++++++++++++++++++++++++++++++
+>  arch/arm/boot/dts/mt2701.dtsi    | 42 ++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 84 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/mt2701-evb.dts b/arch/arm/boot/dts/mt2701-evb.dts
+> index a483798..3f5a96c 100644
+> --- a/arch/arm/boot/dts/mt2701-evb.dts
+> +++ b/arch/arm/boot/dts/mt2701-evb.dts
+> @@ -28,7 +28,49 @@
+>  	status = "okay";
+>  };
+>  
+> +&i2c0 {
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c0_pins_a>;
+> +	status = "okay";
+> +};
+> +
+> +&i2c1 {
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c1_pins_a>;
+> +	status = "okay";
+> +};
+> +
+> +&i2c2 {
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c2_pins_a>;
+> +	status = "okay";
+> +};
+> +
+>  &pio {
+> +	i2c0_pins_a: i2c0@0 {
+> +		pins1 {
+> +			pinmux = <MT2701_PIN_75_SDA0__FUNC_SDA0>,
+> +				 <MT2701_PIN_76_SCL0__FUNC_SCL0>;
+> +			bias-disable;
+> +		};
+> +	};
+> +
+> +	i2c1_pins_a: i2c1@0 {
+> +		pins1 {
+> +			pinmux = <MT2701_PIN_57_SDA1__FUNC_SDA1>,
+> +				 <MT2701_PIN_58_SCL1__FUNC_SCL1>;
+> +			bias-disable;
+> +		};
+> +	};
+> +
+> +	i2c2_pins_a: i2c2@0 {
+> +		pins1 {
+> +			pinmux = <MT2701_PIN_77_SDA2__FUNC_SDA2>,
+> +				 <MT2701_PIN_78_SCL2__FUNC_SCL2>;
+> +			bias-disable;
+> +		};
+> +	};
+> +
+>  	spi_pins_a: spi0@0 {
+>  		pins_spi {
+>  			pinmux = <MT2701_PIN_53_SPI0_CSN__FUNC_SPI0_CS>,
+> diff --git a/arch/arm/boot/dts/mt2701.dtsi b/arch/arm/boot/dts/mt2701.dtsi
+> index 8037210..1b6157e 100644
+> --- a/arch/arm/boot/dts/mt2701.dtsi
+> +++ b/arch/arm/boot/dts/mt2701.dtsi
+> @@ -286,6 +286,48 @@
+>  		status = "disabled";
+>  	};
+>  
+> +	i2c0: i2c@11007000 {
+> +		compatible = "mediatek,mt2701-i2c",
+> +			     "mediatek,mt6577-i2c";
+> +		reg = <0 0x11007000 0 0x70>,
+> +		      <0 0x11000200 0 0x80>;
+> +		interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
+> +		clock-div = <16>;
+> +		clocks = <&pericfg CLK_PERI_I2C0>, <&pericfg CLK_PERI_AP_DMA>;
+> +		clock-names = "main", "dma";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		status = "disabled";
+> +	};
+> +
+> +	i2c1: i2c@11008000 {
+> +		compatible = "mediatek,mt2701-i2c",
+> +			     "mediatek,mt6577-i2c";
+> +		reg = <0 0x11008000 0 0x70>,
+> +		      <0 0x11000280 0 0x80>;
+> +		interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_LOW>;
+> +		clock-div = <16>;
+> +		clocks = <&pericfg CLK_PERI_I2C1>, <&pericfg CLK_PERI_AP_DMA>;
+> +		clock-names = "main", "dma";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		status = "disabled";
+> +	};
+> +
+> +	i2c2: i2c@11009000 {
+> +		compatible = "mediatek,mt2701-i2c",
+> +			     "mediatek,mt6577-i2c";
+> +		reg = <0 0x11009000 0 0x70>,
+> +		      <0 0x11000300 0 0x80>;
+> +		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_LOW>;
+> +		clock-div = <16>;
+> +		clocks = <&pericfg CLK_PERI_I2C2>, <&pericfg CLK_PERI_AP_DMA>;
+> +		clock-names = "main", "dma";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		status = "disabled";
+> +	};
+> +
+>  	spi0: spi@1100a000 {
+>  		compatible = "mediatek,mt2701-spi";
+>  		#address-cells = <1>;
 
-They are not copies. That's my point.
+Dear Matthias,
 
-> I didn't mean that they are copies in the sense that they have the
-> same content, but in the sense that they are both struct device.
->
-> I guess we can argue ourselves blue over this point.
+Could you take this patch together with 
+[PATCH v4 1/2]dt-bindings: i2c: Add Mediatek MT2701 i2c binding ?
 
-See above.
+Thanks!
 
->> There are two struct devices,
->
-> Hmm, two struct devices, I seem to recall that from somewhere... :-)
 
-Okay, it's possible bad wording from my side.
-
->>                               one is a real PCI device, which
->> represents actual device what *does* DMA.
->> This struct should be used according to DMA API.
-
-> When you put it like that, it's obvious that the patch is correct.
-
-I agreed with this in the first place! See my first reply.
-
->  I had
-> this feeling that little thought had gone into the choice to pick "dev"
-> over "&adap->dev", that's all.
-
-As I said, my concern is the commit message to the change which is
-totally confusing.
-
--- 
-With Best Regards,
-Andy Shevchenko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
