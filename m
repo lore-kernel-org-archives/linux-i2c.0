@@ -1,20 +1,59 @@
-From: "Dave Dawes" <dmoore32@student.savannahstate.edu>
-Subject: I Would love to discuse something with you.
-Date: Mon, 12 Jun 2017 07:51:50 -0700
-Message-ID: <CY1PR0101MB12282EFD2F13D9C98512044883CD0__18723.4211633497$1497279128$gmane$org@CY1PR0101MB1228.prod.exchangelabs.com>
-Reply-To: ddawes231@qq.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+From: Christian Lamparter <chunkeey@googlemail.com>
+Subject: [PATCH] qcom: ipq4019: add second i2c
+Date: Mon, 12 Jun 2017 17:07:46 +0200
+Message-ID: <20170612150746.25297-1-chunkeey@googlemail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-cys01nam02hn0240.outbound.protection.outlook.com ([104.47.37.240]:40873
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752488AbdFLOv6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Jun 2017 10:51:58 -0400
-Content-Description: Mail message body
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:33184 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751974AbdFLPHu (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2017 11:07:50 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <dmoore32@student.savannahstate.edu>
+To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Chris Blake <chrisrblake93@gmail.com>, Matthew McClintock <msm-oss@mcclintock.net>
 
-=20
+This patch adds the second i2c block to the IPQ4019 platform.
+The second i2c has been successfully tested on the
+Cisco Meraki MR33.
+
+Cc: Chris Blake <chrisrblake93@gmail.com>
+Cc: Matthew McClintock <msm-oss@mcclintock.net>
+Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
+---
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index 4b7d97275c62..d8c87faa0124 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -26,6 +26,7 @@
+ 	aliases {
+ 		spi0 = &spi_0;
+ 		i2c0 = &i2c_0;
++		i2c1 = &i2c_1;
+ 	};
+ 
+ 	cpus {
+@@ -164,6 +165,19 @@
+ 			status = "disabled";
+ 		};
+ 
++		i2c_1: i2c@78b8000 {
++			compatible = "qcom,i2c-qup-v2.2.1";
++			reg = <0x78b8000 0x600>;
++			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
++				 <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
++			clock-names = "iface", "core";
++			dmas = <&blsp_dma 11>, <&blsp_dma 10>;
++			dma-names = "rx", "tx";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
+ 
+ 		cryptobam: dma@8e04000 {
+ 			compatible = "qcom,bam-v1.7.0";
+-- 
+2.11.0
