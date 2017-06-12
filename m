@@ -1,46 +1,89 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 0/2] Add I2C driver for ZTE ZX2967 family SoCs
-Date: Sat, 10 Jun 2017 22:32:08 +0800
-Message-ID: <20170610143207.GA9839@dragon>
-References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
+From: Song liwei <liwei.song@windriver.com>
+Subject: [PATCH] i2c: ismt: fix wrong device address when unmap the data buffer
+Date: Sun, 11 Jun 2017 23:42:08 -0400
+Message-ID: <1497238928-41066-1-git-send-email-liwei.song@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46120 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751958AbdFJOcn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 10 Jun 2017 10:32:43 -0400
-Content-Disposition: inline
-In-Reply-To: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
+Received: from mail.windriver.com ([147.11.1.11]:58633 "EHLO
+        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752000AbdFLDnV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2017 23:43:21 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Shawn Guo <shawn.guo@linaro.org>, Baoyou Xie <xie.baoyou@sanechips.com.cn>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Xin Zhou <zhou.xin8@sanechips.com.cn>
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, LiweiSong <liwei.song@windriver.com>
 
-Hi Wolfram,
+From: Liwei Song <liwei.song@windriver.com>
 
-On Sun, May 28, 2017 at 12:59:34PM +0800, Shawn Guo wrote:
-> From: Shawn Guo <shawn.guo@linaro.org>
-> 
-> Hi Wolfram,
-> 
-> The ZX2967 I2C driver submission had gone through quite a number of
-> review iterations [1], and seems close to be accepted.  But for some
-> reason, the ball got dropped from there.  I'm here to pick it up and
-> hopefully move it forward.
-> 
-> This is basically a resend of the latest posting from Baoyou with
-> Wolfram's comments on v7 fully addressed.
-> 
-> Changes since v7:
->  - Rebase and test on v4.12-rc2.
->  - Drop the dev_err() and hardware reset on timeout, which is not really
->    necessary.
->  - Return -ETIMEDOUT instead of -EIO on timeout.
->  - Unify zx2967_i2c_xfer_write_bytes() and zx2967_i2c_xfer_read_bytes()
->    into one function zx2967_i2c_xfer_bytes(), and zx2967_i2c_xfer_write()
->    and zx2967_i2c_xfer_read() into zx2967_i2c_xfer_msg().
+Fix the following calltrace:
 
-Any comments on the series?  We hope it can get into v4.13 merge window.
+kernel BUG at drivers/iommu/intel-iommu.c:3260!
+invalid opcode: 0000 [#5] PREEMPT SMP
+Hardware name: Intel Corp. Harcuvar/Server, BIOS HAVLCRB0.X64.0013.D39.1608311820 08/31/2016
+task: ffff880175389950 ti: ffff880176bec000 task.ti: ffff880176bec000
+RIP: 0010:[<ffffffff8150a83b>]  [<ffffffff8150a83b>] intel_unmap+0x25b/0x260
+RSP: 0018:ffff880176bef5e8  EFLAGS: 00010296
+RAX: 0000000000000024 RBX: ffff8800773c7c88 RCX: 000000000000ce04
+RDX: 0000000080000000 RSI: 0000000000000000 RDI: 0000000000000009
+RBP: ffff880176bef638 R08: 0000000000000010 R09: 0000000000000004
+R10: ffff880175389c78 R11: 0000000000000a4f R12: ffff8800773c7868
+R13: 00000000ffffac88 R14: ffff8800773c7818 R15: 0000000000000001
+FS:  00007fef21258700(0000) GS:ffff88017b5c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000066d6d8 CR3: 000000007118c000 CR4: 00000000003406e0
+Stack:
+ 00000000ffffac88 ffffffff8199867f ffff880176bef5f8 ffff880100000030
+ ffff880176bef668 ffff8800773c7c88 ffff880178288098 ffff8800772c0010
+ ffff8800773c7818 0000000000000001 ffff880176bef648 ffffffff8150a86e
+Call Trace:
+ [<ffffffff8199867f>] ? printk+0x46/0x48
+ [<ffffffff8150a86e>] intel_unmap_page+0xe/0x10
+ [<ffffffffa039d99b>] ismt_access+0x27b/0x8fa [i2c_ismt]
+ [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+ [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+ [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+ [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+ [<ffffffff8143dfd0>] ? pci_bus_read_dev_vendor_id+0xf0/0xf0
+ [<ffffffff8172b36c>] i2c_smbus_xfer+0xec/0x4b0
+ [<ffffffff810aa4d5>] ? vprintk_emit+0x345/0x530
+ [<ffffffffa038936b>] i2cdev_ioctl_smbus+0x12b/0x240 [i2c_dev]
+ [<ffffffff810aa829>] ? vprintk_default+0x29/0x40
+ [<ffffffffa0389b33>] i2cdev_ioctl+0x63/0x1ec [i2c_dev]
+ [<ffffffff811b04c8>] do_vfs_ioctl+0x328/0x5d0
+ [<ffffffff8119d8ec>] ? vfs_write+0x11c/0x190
+ [<ffffffff8109d449>] ? rt_up_read+0x19/0x20
+ [<ffffffff811b07f1>] SyS_ioctl+0x81/0xa0
+ [<ffffffff819a351b>] system_call_fastpath+0x16/0x6e
 
-Shawn
+This happen When run "i2cdetect -y 0" detect SMBus iSMT adapter.
+
+After finished I2C block read/write, when unmap the data buffer,
+a wrong device address was pass to dma_unmap_single(), the right
+device address should be "dev" not "&adap->dev", the relation is
+*(&adap->dev) == dev. When come into Intel IOMMU routine, the wrong
+devices address was operated.
+
+To fix this, give dma_unmap_single() the "dev" parameter, just like
+what dma_map_single() does, then unmap can find the right devices.
+
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+---
+ drivers/i2c/busses/i2c-ismt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 1db3e0d..605d44e 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -585,7 +585,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	/* unmap the data buffer */
+ 	if (dma_size != 0)
+-		dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
++		dma_unmap_single(dev, dma_addr, dma_size, dma_direction);
+ 
+ 	if (unlikely(!time_left)) {
+ 		dev_err(dev, "completion wait timed out\n");
+-- 
+2.7.4
