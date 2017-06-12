@@ -1,89 +1,75 @@
-From: Song liwei <liwei.song@windriver.com>
-Subject: [PATCH] i2c: ismt: fix wrong device address when unmap the data buffer
-Date: Sun, 11 Jun 2017 23:42:08 -0400
-Message-ID: <1497238928-41066-1-git-send-email-liwei.song@windriver.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] i2c: ismt: fix wrong device address when unmap the data buffer
+Date: Mon, 12 Jun 2017 12:11:37 +0300
+Message-ID: <CAHp75VewOMddhFDYim1kBF1XpxZGbVA557wTpBg10LYewf2Otg@mail.gmail.com>
+References: <1497238928-41066-1-git-send-email-liwei.song@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.windriver.com ([147.11.1.11]:58633 "EHLO
-        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752000AbdFLDnV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 11 Jun 2017 23:43:21 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1497238928-41066-1-git-send-email-liwei.song@windriver.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Song liwei <liwei.song@windriver.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, LiweiSong <liwei.song@windriver.com>
 
-From: Liwei Song <liwei.song@windriver.com>
+On Mon, Jun 12, 2017 at 6:42 AM, Song liwei <liwei.song@windriver.com> wrote:
+> From: Liwei Song <liwei.song@windriver.com>
+>
 
-Fix the following calltrace:
+> Fix the following calltrace:
 
-kernel BUG at drivers/iommu/intel-iommu.c:3260!
-invalid opcode: 0000 [#5] PREEMPT SMP
-Hardware name: Intel Corp. Harcuvar/Server, BIOS HAVLCRB0.X64.0013.D39.1608311820 08/31/2016
-task: ffff880175389950 ti: ffff880176bec000 task.ti: ffff880176bec000
-RIP: 0010:[<ffffffff8150a83b>]  [<ffffffff8150a83b>] intel_unmap+0x25b/0x260
-RSP: 0018:ffff880176bef5e8  EFLAGS: 00010296
-RAX: 0000000000000024 RBX: ffff8800773c7c88 RCX: 000000000000ce04
-RDX: 0000000080000000 RSI: 0000000000000000 RDI: 0000000000000009
-RBP: ffff880176bef638 R08: 0000000000000010 R09: 0000000000000004
-R10: ffff880175389c78 R11: 0000000000000a4f R12: ffff8800773c7868
-R13: 00000000ffffac88 R14: ffff8800773c7818 R15: 0000000000000001
-FS:  00007fef21258700(0000) GS:ffff88017b5c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000000066d6d8 CR3: 000000007118c000 CR4: 00000000003406e0
-Stack:
- 00000000ffffac88 ffffffff8199867f ffff880176bef5f8 ffff880100000030
- ffff880176bef668 ffff8800773c7c88 ffff880178288098 ffff8800772c0010
- ffff8800773c7818 0000000000000001 ffff880176bef648 ffffffff8150a86e
-Call Trace:
- [<ffffffff8199867f>] ? printk+0x46/0x48
- [<ffffffff8150a86e>] intel_unmap_page+0xe/0x10
- [<ffffffffa039d99b>] ismt_access+0x27b/0x8fa [i2c_ismt]
- [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
- [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
- [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
- [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
- [<ffffffff8143dfd0>] ? pci_bus_read_dev_vendor_id+0xf0/0xf0
- [<ffffffff8172b36c>] i2c_smbus_xfer+0xec/0x4b0
- [<ffffffff810aa4d5>] ? vprintk_emit+0x345/0x530
- [<ffffffffa038936b>] i2cdev_ioctl_smbus+0x12b/0x240 [i2c_dev]
- [<ffffffff810aa829>] ? vprintk_default+0x29/0x40
- [<ffffffffa0389b33>] i2cdev_ioctl+0x63/0x1ec [i2c_dev]
- [<ffffffff811b04c8>] do_vfs_ioctl+0x328/0x5d0
- [<ffffffff8119d8ec>] ? vfs_write+0x11c/0x190
- [<ffffffff8109d449>] ? rt_up_read+0x19/0x20
- [<ffffffff811b07f1>] SyS_ioctl+0x81/0xa0
- [<ffffffff819a351b>] system_call_fastpath+0x16/0x6e
+No, you don't fix a call trace, you are fixing a bug.
 
-This happen When run "i2cdetect -y 0" detect SMBus iSMT adapter.
+> This happen When run "i2cdetect -y 0" detect SMBus iSMT adapter.
+>
+> After finished I2C block read/write, when unmap the data buffer,
+> a wrong device address was pass to dma_unmap_single(),
 
-After finished I2C block read/write, when unmap the data buffer,
-a wrong device address was pass to dma_unmap_single(), the right
-device address should be "dev" not "&adap->dev", the relation is
-*(&adap->dev) == dev. When come into Intel IOMMU routine, the wrong
-devices address was operated.
 
-To fix this, give dma_unmap_single() the "dev" parameter, just like
-what dma_map_single() does, then unmap can find the right devices.
+> the right
+> device address should be "dev" not "&adap->dev", the relation is
+> *(&adap->dev) == dev.
 
-Signed-off-by: Liwei Song <liwei.song@windriver.com>
----
- drivers/i2c/busses/i2c-ismt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This is confusing. You are telling that there are two copies of struct
+device here?
+Otherwise if one is a pointer to the real struct device, there
+shouldn't be a problem.
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 1db3e0d..605d44e 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -585,7 +585,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 
- 	/* unmap the data buffer */
- 	if (dma_size != 0)
--		dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
-+		dma_unmap_single(dev, dma_addr, dma_size, dma_direction);
- 
- 	if (unlikely(!time_left)) {
- 		dev_err(dev, "completion wait timed out\n");
+>  When come into Intel IOMMU routine, the wrong
+> devices address was operated.
+
+This basically duplicates what you have said previously.
+
+> To fix this, give dma_unmap_single() the "dev" parameter, just like
+> what dma_map_single() does, then unmap can find the right devices.
+
+Fix per se looks good, explanation is confusing.
+
+>
+> Signed-off-by: Liwei Song <liwei.song@windriver.com>
+> ---
+>  drivers/i2c/busses/i2c-ismt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index 1db3e0d..605d44e 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -585,7 +585,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>
+>         /* unmap the data buffer */
+>         if (dma_size != 0)
+> -               dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
+> +               dma_unmap_single(dev, dma_addr, dma_size, dma_direction);
+>
+>         if (unlikely(!time_left)) {
+>                 dev_err(dev, "completion wait timed out\n");
+> --
+> 2.7.4
+>
+
+
+
 -- 
-2.7.4
+With Best Regards,
+Andy Shevchenko
