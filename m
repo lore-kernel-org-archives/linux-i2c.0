@@ -1,135 +1,87 @@
-From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Subject: Re: [PATCH 1/4] i2c: pca-platform: add devicetree awareness
-Date: Tue, 13 Jun 2017 04:38:19 +0000
-Message-ID: <beffb088e82c40ae86cb05eebda33a66@svr-chch-ex1.atlnz.lc>
-References: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
- <20170613015641.29373-2-chris.packham@alliedtelesis.co.nz>
+From: Song liwei <liwei.song@windriver.com>
+Subject: [PATCH V2] i2c: ismt: fix wrong device address when unmap the data buffer
+Date: Tue, 13 Jun 2017 00:59:53 -0400
+Message-ID: <1497329993-197698-1-git-send-email-liwei.song@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:34820 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751903AbdFMEiZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Jun 2017 00:38:25 -0400
-Content-Language: en-US
+Received: from mail.windriver.com ([147.11.1.11]:41865 "EHLO
+        mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751915AbdFMFBD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 13 Jun 2017 01:01:03 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, LiweiSong <liwei.song@windriver.com>
 
-On 13/06/17 13:56, Chris Packham wrote:=0A=
-> Allow devices that use this driver to be registered via a=0A=
-> devicetree.=0A=
-> =0A=
-> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
-> ---=0A=
->   .../devicetree/bindings/i2c/i2c-pca-platform.txt    | 18 ++++++++++++++=
-++++=0A=
->   drivers/i2c/busses/i2c-pca-platform.c               | 21 ++++++++++++++=
-+++++++=0A=
->   2 files changed, 39 insertions(+)=0A=
->   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-pca-platfo=
-rm.txt=0A=
-> =0A=
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt b=
-/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt=0A=
-> new file mode 100644=0A=
-> index 000000000000..47410bda3f37=0A=
-> --- /dev/null=0A=
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt=0A=
-> @@ -0,0 +1,18 @@=0A=
-> +* NXP PCA PCA9564/PCA9665 I2C controller=0A=
-> +=0A=
-> +The PCA9564/PCA9665 serves as an interface between most standard=0A=
-> +parallel-bus microcontrollers/microprocessors and the serial I2C-bus=0A=
-> +and allows the parallel bus system to communicate bi-directionally=0A=
-> +with the I2C-bus.=0A=
-> +=0A=
-> +Required properties :=0A=
-> +=0A=
-> + - reg : Offset and length of the register set for the device=0A=
-> + - compatible : one of "nxp,pca9564" or "nxp,pca9665"=0A=
-> +=0A=
-> +Optional properties=0A=
-> + - interrupts : the interrupt number=0A=
-> + - interrupt-parent : the phandle for the interrupt controller.=0A=
-> +   If an interrupt is not specified polling will be used.=0A=
-> + - gpios : gpio phandle to control device reset.=0A=
-> + - clock-frequency : I2C bus frequency.=0A=
-> \ No newline at end of file=0A=
-> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i=
-2c-pca-platform.c=0A=
-> index 3bd2e7d06e4b..ca63fee400cb 100644=0A=
-> --- a/drivers/i2c/busses/i2c-pca-platform.c=0A=
-> +++ b/drivers/i2c/busses/i2c-pca-platform.c=0A=
-> @@ -23,6 +23,9 @@=0A=
->   #include <linux/i2c-pca-platform.h>=0A=
->   #include <linux/gpio.h>=0A=
->   #include <linux/io.h>=0A=
-> +#include <linux/of.h>=0A=
-> +#include <linux/of_device.h>=0A=
-> +#include <linux/of_gpio.h>=0A=
->   =0A=
->   #include <asm/irq.h>=0A=
->   =0A=
-> @@ -136,12 +139,15 @@ static int i2c_pca_pf_probe(struct platform_device =
-*pdev)=0A=
->   	struct resource *res;=0A=
->   	struct i2c_pca9564_pf_platform_data *platform_data =3D=0A=
->   				dev_get_platdata(&pdev->dev);=0A=
-> +	struct device_node *np =3D pdev->dev.of_node;=0A=
->   	int ret =3D 0;=0A=
->   	int irq;=0A=
->   =0A=
->   	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);=0A=
->   	irq =3D platform_get_irq(pdev, 0);=0A=
->   	/* If irq is 0, we do polling. */=0A=
-> +	if (irq < 0)=0A=
-> +		irq =3D 0;=0A=
->   =0A=
->   	if (res =3D=3D NULL) {=0A=
->   		ret =3D -ENODEV;=0A=
-> @@ -182,6 +188,11 @@ static int i2c_pca_pf_probe(struct platform_device *=
-pdev)=0A=
-=0A=
-=0A=
-I should be setting i2c->adap.dev.of_node somewhere around here so that =0A=
-the child nodes get automatically probed.=0A=
-=0A=
->   		i2c->adap.timeout =3D platform_data->timeout;=0A=
->   		i2c->algo_data.i2c_clock =3D platform_data->i2c_clock_speed;=0A=
->   		i2c->gpio =3D platform_data->gpio;=0A=
-> +	} else if (np) {=0A=
-> +		i2c->adap.timeout =3D HZ;=0A=
-> +		i2c->gpio =3D of_get_gpio(np, 0);=0A=
-> +		of_property_read_u32_index(np, "clock-frequency", 0,=0A=
-> +					   &i2c->algo_data.i2c_clock);=0A=
->   	} else {=0A=
->   		i2c->adap.timeout =3D HZ;=0A=
->   		i2c->algo_data.i2c_clock =3D 59000;=0A=
-> @@ -275,11 +286,21 @@ static int i2c_pca_pf_remove(struct platform_device=
- *pdev)=0A=
->   	return 0;=0A=
->   }=0A=
->   =0A=
-> +#ifdef CONFIG_OF=0A=
-> +static const struct of_device_id i2c_pca_of_match_table[] =3D {=0A=
-> +	{ .compatible =3D "nxp,pca9564" },=0A=
-> +	{ .compatible =3D "nxp,pca9665" },=0A=
-> +	{},=0A=
-> +};=0A=
-> +MODULE_DEVICE_TABLE(of, i2c_pca_of_match_table);=0A=
-> +#endif=0A=
-> +=0A=
->   static struct platform_driver i2c_pca_pf_driver =3D {=0A=
->   	.probe =3D i2c_pca_pf_probe,=0A=
->   	.remove =3D i2c_pca_pf_remove,=0A=
->   	.driver =3D {=0A=
->   		.name =3D "i2c-pca-platform",=0A=
-> +		.of_match_table =3D of_match_ptr(i2c_pca_of_match_table),=0A=
->   	},=0A=
->   };=0A=
->   =0A=
-> =0A=
-=0A=
+From: Liwei Song <liwei.song@windriver.com>
+
+Fix the following kernel bug:
+
+kernel BUG at drivers/iommu/intel-iommu.c:3260!
+invalid opcode: 0000 [#5] PREEMPT SMP
+Hardware name: Intel Corp. Harcuvar/Server, BIOS HAVLCRB0.X64.0013.D39.1608311820 08/31/2016
+task: ffff880175389950 ti: ffff880176bec000 task.ti: ffff880176bec000
+RIP: 0010:[<ffffffff8150a83b>]  [<ffffffff8150a83b>] intel_unmap+0x25b/0x260
+RSP: 0018:ffff880176bef5e8  EFLAGS: 00010296
+RAX: 0000000000000024 RBX: ffff8800773c7c88 RCX: 000000000000ce04
+RDX: 0000000080000000 RSI: 0000000000000000 RDI: 0000000000000009
+RBP: ffff880176bef638 R08: 0000000000000010 R09: 0000000000000004
+R10: ffff880175389c78 R11: 0000000000000a4f R12: ffff8800773c7868
+R13: 00000000ffffac88 R14: ffff8800773c7818 R15: 0000000000000001
+FS:  00007fef21258700(0000) GS:ffff88017b5c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000066d6d8 CR3: 000000007118c000 CR4: 00000000003406e0
+Stack:
+ 00000000ffffac88 ffffffff8199867f ffff880176bef5f8 ffff880100000030
+ ffff880176bef668 ffff8800773c7c88 ffff880178288098 ffff8800772c0010
+ ffff8800773c7818 0000000000000001 ffff880176bef648 ffffffff8150a86e
+Call Trace:
+ [<ffffffff8199867f>] ? printk+0x46/0x48
+ [<ffffffff8150a86e>] intel_unmap_page+0xe/0x10
+ [<ffffffffa039d99b>] ismt_access+0x27b/0x8fa [i2c_ismt]
+ [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+ [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+ [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+ [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+ [<ffffffff8143dfd0>] ? pci_bus_read_dev_vendor_id+0xf0/0xf0
+ [<ffffffff8172b36c>] i2c_smbus_xfer+0xec/0x4b0
+ [<ffffffff810aa4d5>] ? vprintk_emit+0x345/0x530
+ [<ffffffffa038936b>] i2cdev_ioctl_smbus+0x12b/0x240 [i2c_dev]
+ [<ffffffff810aa829>] ? vprintk_default+0x29/0x40
+ [<ffffffffa0389b33>] i2cdev_ioctl+0x63/0x1ec [i2c_dev]
+ [<ffffffff811b04c8>] do_vfs_ioctl+0x328/0x5d0
+ [<ffffffff8119d8ec>] ? vfs_write+0x11c/0x190
+ [<ffffffff8109d449>] ? rt_up_read+0x19/0x20
+ [<ffffffff811b07f1>] SyS_ioctl+0x81/0xa0
+ [<ffffffff819a351b>] system_call_fastpath+0x16/0x6e
+
+This happen When run "i2cdetect -y 0" detect SMBus iSMT adapter.
+
+After finished I2C block read/write, when unmap the data buffer,
+a wrong device address was pass to dma_unmap_single().
+
+To fix this, give dma_unmap_single() the "dev" parameter, just like
+what dma_map_single() does, then unmap can find the right devices.
+
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+---
+ drivers/i2c/busses/i2c-ismt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index f573448..e98e44e 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -584,7 +584,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	/* unmap the data buffer */
+ 	if (dma_size != 0)
+-		dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
++		dma_unmap_single(dev, dma_addr, dma_size, dma_direction);
+ 
+ 	if (unlikely(!time_left)) {
+ 		dev_err(dev, "completion wait timed out\n");
+-- 
+2.7.4
