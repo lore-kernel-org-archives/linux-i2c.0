@@ -1,59 +1,31 @@
-From: Christian Lamparter <chunkeey@googlemail.com>
-Subject: [PATCH] qcom: ipq4019: add second i2c
-Date: Mon, 12 Jun 2017 17:07:46 +0200
-Message-ID: <20170612150746.25297-1-chunkeey@googlemail.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 0/4] i2c: pca-platform: updates
+Date: Tue, 13 Jun 2017 13:56:37 +1200
+Message-ID: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33184 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751974AbdFLPHu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2017 11:07:50 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:34261 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753157AbdFMB4r (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Jun 2017 21:56:47 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Chris Blake <chrisrblake93@gmail.com>, Matthew McClintock <msm-oss@mcclintock.net>
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-This patch adds the second i2c block to the IPQ4019 platform.
-The second i2c has been successfully tested on the
-Cisco Meraki MR33.
+We're using a PCA9564 on an embedded platform to provide an i2c
+controller. This adds devicetree support and I've included some
+cleanups for the driver while I was at it.
 
-Cc: Chris Blake <chrisrblake93@gmail.com>
-Cc: Matthew McClintock <msm-oss@mcclintock.net>
-Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
----
- arch/arm/boot/dts/qcom-ipq4019.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+Chris Packham (4):
+  i2c: pca-platform: add devicetree awareness
+  i2c: pca-platform: use gpio_is_valid
+  i2c: pca-platform: use device managed allocations
+  i2c: pca-platform: use dev_warn/dev_info instead of printk
 
-diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-index 4b7d97275c62..d8c87faa0124 100644
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -26,6 +26,7 @@
- 	aliases {
- 		spi0 = &spi_0;
- 		i2c0 = &i2c_0;
-+		i2c1 = &i2c_1;
- 	};
- 
- 	cpus {
-@@ -164,6 +165,19 @@
- 			status = "disabled";
- 		};
- 
-+		i2c_1: i2c@78b8000 {
-+			compatible = "qcom,i2c-qup-v2.2.1";
-+			reg = <0x78b8000 0x600>;
-+			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
-+				 <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>;
-+			clock-names = "iface", "core";
-+			dmas = <&blsp_dma 11>, <&blsp_dma 10>;
-+			dma-names = "rx", "tx";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
- 
- 		cryptobam: dma@8e04000 {
- 			compatible = "qcom,bam-v1.7.0";
+ .../devicetree/bindings/i2c/i2c-pca-platform.txt   | 18 ++++
+ drivers/i2c/busses/i2c-pca-platform.c              | 96 +++++++++-------------
+ 2 files changed, 56 insertions(+), 58 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt
+
 -- 
-2.11.0
+2.13.0
