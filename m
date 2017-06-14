@@ -1,41 +1,144 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v11 5/6] i2c: designware: add SLAVE mode functions
-Date: Wed, 14 Jun 2017 15:20:13 +0300
-Message-ID: <CAHp75VeHoUrq-PfayNZYGP0f-bbnKQQEN4uMBg6ZASJs46b_PQ@mail.gmail.com>
-References: <cover.1497025304.git.lolivei@synopsys.com> <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei@synopsys.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v11 6/6] i2c: designware: enable SLAVE in platform module
+Date: Wed, 14 Jun 2017 15:21:30 +0300
+Message-ID: <CAHp75Ve-25uf4xXbubP7rrfnTyjwY50TDXnjODyMok2zV6J9CQ@mail.gmail.com>
+References: <cover.1497025304.git.lolivei@synopsys.com> <e7b28fca3e419c3a9177acb99236597197124c0f.1497025304.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro Oliveira <Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <e7b28fca3e419c3a9177acb99236597197124c0f.1497025304.git.lolivei@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
 On Wed, Jun 14, 2017 at 1:43 PM, Luis Oliveira
-<Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
-> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
-> - Slave functions added to core library file
-> - Slave abort sources added to common source file
-> - New driver: i2c-designware-slave added
-> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
->   when supported by the architecture.
+<Luis.Oliveira@synopsys.com> wrote:
+> - Slave mode selected in platform module if the support is detected in
+>   the DT.
 >
-> All the SLAVE flow is added but it is not enabled via platform
-> driver.
+> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
 
-> +       //~ if (stat & DW_IC_INTR_TX_OVER)
-> +               //~ dw_readl(dev, DW_IC_CLR_TX_OVER);
+This one looks fine to me.
 
-If you are going to ignore reviewers' comments you will delay your
-work to be applied.
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Certainly you are about to miss v4.13.
+> ---
+> v10-v11
+> - no changes
+>
+>  drivers/i2c/busses/i2c-designware-core.h    |  2 ++
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 41 +++++++++++++++++++++++++----
+>  2 files changed, 38 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index 64a39a983410..7bfbcc62f6c5 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -228,6 +228,7 @@
+>   * @disable: function to disable the controller
+>   * @disable_int: function to disable all interrupts
+>   * @init: function to initialize the I2C hardware
+> + * @mode: operation mode - DW_IC_MASTER or DW_IC_SLAVE
+>   *
+>   * HCNT and LCNT parameters can be used if the platform knows more accurate
+>   * values than the one computed based only on the input clock frequency.
+> @@ -282,6 +283,7 @@ struct dw_i2c_dev {
+>         void                    (*disable)(struct dw_i2c_dev *dev);
+>         void                    (*disable_int)(struct dw_i2c_dev *dev);
+>         int                     (*init)(struct dw_i2c_dev *dev);
+> +       int                     mode;
+>  };
+>
+>  #define ACCESS_SWAP            0x00000001
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 1f38c807be5f..2ea6d0d25a01 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Synopsys DesignWare I2C adapter driver (master only).
+> + * Synopsys DesignWare I2C adapter driver.
+>   *
+>   * Based on the TI DAVINCI I2C adapter driver.
+>   *
+> @@ -174,9 +174,13 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+>
+>  static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+>  {
+> +       dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+> +
+>         dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+>                           DW_IC_CON_RESTART_EN;
+>
+> +       dev->mode = DW_IC_MASTER;
+> +
+>         switch (dev->clk_freq) {
+>         case 100000:
+>                 dev->master_cfg |= DW_IC_CON_SPEED_STD;
+> @@ -189,6 +193,28 @@ static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+>         }
+>  }
+>
+> +static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
+> +{
+> +       dev->functionality = I2C_FUNC_SLAVE | DW_IC_DEFAULT_FUNCTIONALITY;
+> +
+> +       dev->slave_cfg = DW_IC_CON_RX_FIFO_FULL_HLD_CTRL |
+> +                        DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED |
+> +                        DW_IC_CON_SPEED_FAST;
+> +
+> +       dev->mode = DW_IC_SLAVE;
+> +
+> +       switch (dev->clk_freq) {
+> +       case 100000:
+> +               dev->slave_cfg |= DW_IC_CON_SPEED_STD;
+> +               break;
+> +       case 3400000:
+> +               dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
+> +               break;
+> +       default:
+> +               dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
+> +       }
+> +}
+> +
+>  static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+>  {
+>         if (IS_ERR(i_dev->clk))
+> @@ -302,9 +328,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>         if (ret)
+>                 goto exit_reset;
+>
+> -       dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+> -
+> -       i2c_dw_configure_master(dev);
+> +       if (i2c_detect_slave_mode(&pdev->dev))
+> +               i2c_dw_configure_slave(dev);
+> +       else
+> +               i2c_dw_configure_master(dev);
+>
+>         dev->clk = devm_clk_get(&pdev->dev, NULL);
+>         if (!i2c_dw_plat_prepare_clk(dev, true)) {
+> @@ -333,7 +360,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>                 pm_runtime_enable(&pdev->dev);
+>         }
+>
+> -       ret = i2c_dw_probe(dev);
+> +       if (dev->mode == DW_IC_SLAVE)
+> +               ret = i2c_dw_probe_slave(dev);
+> +       else
+> +               ret = i2c_dw_probe(dev);
+> +
+>         if (ret)
+>                 goto exit_probe;
+>
+> --
+> 2.13.0
+>
+>
+
+
 
 -- 
 With Best Regards,
 Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
