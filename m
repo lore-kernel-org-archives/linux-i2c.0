@@ -1,202 +1,41 @@
-From: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Subject: [PATCH v11 4/6] i2c: designware: introducing I2C_SLAVE definitions
-Date: Wed, 14 Jun 2017 11:43:24 +0100
-Message-ID: <69d5686de9cea026a71c5387cf54187d13d2006d.1497025304.git.lolivei@synopsys.com>
-References: <cover.1497025304.git.lolivei@synopsys.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1497025304.git.lolivei@synopsys.com>
-In-Reply-To: <cover.1497025304.git.lolivei@synopsys.com>
-References: <cover.1497025304.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v11 5/6] i2c: designware: add SLAVE mode functions
+Date: Wed, 14 Jun 2017 15:20:13 +0300
+Message-ID: <CAHp75VeHoUrq-PfayNZYGP0f-bbnKQQEN4uMBg6ZASJs46b_PQ@mail.gmail.com>
+References: <cover.1497025304.git.lolivei@synopsys.com> <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei@synopsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro Oliveira <Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-- Definitions were added to core library
-- A example was added to designware-core.txt Documentation that shows
-  how the slave can be setup using DTS
+On Wed, Jun 14, 2017 at 1:43 PM, Luis Oliveira
+<Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote:
+> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+> - Slave functions added to core library file
+> - Slave abort sources added to common source file
+> - New driver: i2c-designware-slave added
+> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>   when supported by the architecture.
+>
+> All the SLAVE flow is added but it is not enabled via platform
+> driver.
 
-SLAVE related definitions were added to the core of the controller.
+> +       //~ if (stat & DW_IC_INTR_TX_OVER)
+> +               //~ dw_readl(dev, DW_IC_CLR_TX_OVER);
 
-Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-v10-v11
-- no changes
+If you are going to ignore reviewers' comments you will delay your
+work to be applied.
 
- .../devicetree/bindings/i2c/i2c-designware.txt     | 16 ++++++++++-
- drivers/i2c/busses/i2c-designware-core.h           | 33 ++++++++++++++++++++--
- 2 files changed, 46 insertions(+), 3 deletions(-)
+Certainly you are about to miss v4.13.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index fee26dc3e858..fbb0a6d8b964 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -20,7 +20,7 @@ Optional properties :
-  - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
-    This value which is by default 300ns is used to compute the tHIGH period.
- 
--Example :
-+Examples :
- 
- 	i2c@f0000 {
- 		#address-cells = <1>;
-@@ -43,3 +43,17 @@ Example :
- 		i2c-sda-falling-time-ns = <300>;
- 		i2c-scl-falling-time-ns = <300>;
- 	};
-+
-+	i2c@1120000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x2000 0x100>;
-+		clock-frequency = <400000>;
-+		clocks = <&i2cclk>;
-+		interrupts = <0>;
-+
-+		eeprom@64 {
-+			compatible = "linux,slave-24c02";
-+			reg = <0x40000064>;
-+		};
-+	};
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 661cfa869ff7..76807eafda53 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -1,5 +1,5 @@
- /*
-- * Synopsys DesignWare I2C adapter driver (master only).
-+ * Synopsys DesignWare I2C adapter driver.
-  *
-  * Based on the TI DAVINCI I2C adapter driver.
-  *
-@@ -37,15 +37,20 @@
- #define DW_IC_CON_SPEED_FAST		0x4
- #define DW_IC_CON_SPEED_HIGH		0x6
- #define DW_IC_CON_SPEED_MASK		0x6
-+#define DW_IC_CON_10BITADDR_SLAVE		0x8
- #define DW_IC_CON_10BITADDR_MASTER	0x10
- #define DW_IC_CON_RESTART_EN		0x20
- #define DW_IC_CON_SLAVE_DISABLE		0x40
-+#define DW_IC_CON_STOP_DET_IFADDRESSED		0x80
-+#define DW_IC_CON_TX_EMPTY_CTRL		0x100
-+#define DW_IC_CON_RX_FIFO_FULL_HLD_CTRL		0x200
- 
- /*
-  * Registers offset
-  */
- #define DW_IC_CON		0x0
- #define DW_IC_TAR		0x4
-+#define DW_IC_SAR		0x8
- #define DW_IC_DATA_CMD		0x10
- #define DW_IC_SS_SCL_HCNT	0x14
- #define DW_IC_SS_SCL_LCNT	0x18
-@@ -76,6 +81,7 @@
- #define DW_IC_SDA_HOLD		0x7c
- #define DW_IC_TX_ABRT_SOURCE	0x80
- #define DW_IC_ENABLE_STATUS	0x9c
-+#define DW_IC_CLR_RESTART_DET	0xa8
- #define DW_IC_COMP_PARAM_1	0xf4
- #define DW_IC_COMP_VERSION	0xf8
- #define DW_IC_SDA_HOLD_MIN_VERS	0x3131312A
-@@ -94,15 +100,22 @@
- #define DW_IC_INTR_STOP_DET	0x200
- #define DW_IC_INTR_START_DET	0x400
- #define DW_IC_INTR_GEN_CALL	0x800
-+#define DW_IC_INTR_RESTART_DET	0x1000
- 
- #define DW_IC_INTR_DEFAULT_MASK		(DW_IC_INTR_RX_FULL | \
- 					 DW_IC_INTR_TX_ABRT | \
- 					 DW_IC_INTR_STOP_DET)
- #define DW_IC_INTR_MASTER_MASK		(DW_IC_INTR_DEFAULT_MASK | \
- 					 DW_IC_INTR_TX_EMPTY)
-+#define DW_IC_INTR_SLAVE_MASK		(DW_IC_INTR_DEFAULT_MASK | \
-+					 DW_IC_INTR_RX_DONE | \
-+					 DW_IC_INTR_RX_UNDER | \
-+					 DW_IC_INTR_RD_REQ)
-+
- #define DW_IC_STATUS_ACTIVITY		0x1
- #define DW_IC_STATUS_TFE		BIT(2)
- #define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
-+#define DW_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
- 
- #define DW_IC_SDA_HOLD_RX_SHIFT		16
- #define DW_IC_SDA_HOLD_RX_MASK		GENMASK(23, DW_IC_SDA_HOLD_RX_SHIFT)
-@@ -115,7 +128,7 @@
- #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
- 
- /*
-- * Status codes
-+ * status codes
-  */
- #define STATUS_IDLE			0x0
- #define STATUS_WRITE_IN_PROGRESS	0x1
-@@ -124,6 +137,12 @@
- #define TIMEOUT			20 /* ms */
- 
- /*
-+ * operation modes
-+ */
-+#define DW_IC_MASTER		0
-+#define DW_IC_SLAVE		1
-+
-+/*
-  * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
-  *
-  * Only expected abort codes are listed here
-@@ -140,6 +159,9 @@
- #define ABRT_10B_RD_NORSTRT	10
- #define ABRT_MASTER_DIS		11
- #define ARB_LOST		12
-+#define ABRT_SLAVE_FLUSH_TXFIFO	13
-+#define ABRT_SLAVE_ARBLOST	14
-+#define ABRT_SLAVE_RD_INTX	15
- 
- #define DW_IC_TX_ABRT_7B_ADDR_NOACK	(1UL << ABRT_7B_ADDR_NOACK)
- #define DW_IC_TX_ABRT_10ADDR1_NOACK	(1UL << ABRT_10ADDR1_NOACK)
-@@ -152,6 +174,9 @@
- #define DW_IC_TX_ABRT_10B_RD_NORSTRT	(1UL << ABRT_10B_RD_NORSTRT)
- #define DW_IC_TX_ABRT_MASTER_DIS	(1UL << ABRT_MASTER_DIS)
- #define DW_IC_TX_ARB_LOST		(1UL << ARB_LOST)
-+#define DW_IC_RX_ABRT_SLAVE_RD_INTX	(1UL << ABRT_SLAVE_RD_INTX)
-+#define DW_IC_RX_ABRT_SLAVE_ARBLOST	(1UL << ABRT_SLAVE_ARBLOST)
-+#define DW_IC_RX_ABRT_SLAVE_FLUSH_TXFIFO	(1UL << ABRT_SLAVE_FLUSH_TXFIFO)
- 
- #define DW_IC_TX_ABRT_NOACK		(DW_IC_TX_ABRT_7B_ADDR_NOACK | \
- 					 DW_IC_TX_ABRT_10ADDR1_NOACK | \
-@@ -166,6 +191,7 @@
-  * @base: IO registers pointer
-  * @cmd_complete: tx completion indicator
-  * @clk: input reference clock
-+ * @slave: represent an I2C slave device
-  * @cmd_err: run time hadware error code
-  * @msgs: points to an array of messages currently being transferred
-  * @msgs_num: the number of elements in msgs
-@@ -182,6 +208,7 @@
-  * @abort_source: copy of the TX_ABRT_SOURCE register
-  * @irq: interrupt number for the i2c master
-  * @adapter: i2c subsystem adapter node
-+ * @slave_cfg: configuration for the slave device
-  * @tx_fifo_depth: depth of the hardware tx fifo
-  * @rx_fifo_depth: depth of the hardware rx fifo
-  * @rx_outstanding: current master-rx elements in tx fifo
-@@ -212,6 +239,7 @@ struct dw_i2c_dev {
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
- 	struct reset_control	*rst;
-+	struct i2c_client		*slave;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
- 	struct dw_pci_controller *controller;
- 	int			cmd_err;
-@@ -231,6 +259,7 @@ struct dw_i2c_dev {
- 	struct i2c_adapter	adapter;
- 	u32			functionality;
- 	u32			master_cfg;
-+	u32			slave_cfg;
- 	unsigned int		tx_fifo_depth;
- 	unsigned int		rx_fifo_depth;
- 	int			rx_outstanding;
 -- 
-2.13.0
+With Best Regards,
+Andy Shevchenko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
