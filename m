@@ -1,146 +1,60 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [PATCH v4 2/2] arm: dts: Add Mediatek MT2701 i2c device node
-Date: Wed, 14 Jun 2017 17:43:22 +0800
-Message-ID: <1497433402.930.56.camel@mhfsdcap03>
-References: <1495784107-6711-1-git-send-email-jun.gao@mediatek.com>
-         <1495784107-6711-3-git-send-email-jun.gao@mediatek.com>
-         <1497268468.930.26.camel@mhfsdcap03>
-         <dbfcfd5b-8812-8df2-40dc-42e889577c9a@gmail.com>
-         <1497349452.930.36.camel@mhfsdcap03>
-         <ba658a59-7ef9-2340-57fa-3bcefa3f47ed@gmail.com>
-         <1497360189.930.42.camel@mhfsdcap03>
-         <8c0e441c-a3d9-9cfd-dbf9-556ad852a072@gmail.com>
-         <1497402709.930.48.camel@mhfsdcap03>
-         <d63b8cfc-145f-7b2d-b85f-9ff5c18b3e65@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d63b8cfc-145f-7b2d-b85f-9ff5c18b3e65@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v11 0/6] i2c: designware: add I2C SLAVE support
+Date: Wed, 14 Jun 2017 11:43:20 +0100
+Message-ID: <cover.1497025304.git.lolivei@synopsys.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from us01smtprelay-2.synopsys.com ([198.182.60.111]:57541 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751849AbdFNKoE (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Jun 2017 06:44:04 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 
-On Wed, 2017-06-14 at 11:24 +0200, Matthias Brugger wrote:
-> 
-> On 14/06/17 03:11, Jun Gao wrote:
-> > On Tue, 2017-06-13 at 15:45 +0200, Matthias Brugger wrote:
-> >>
-> >> On 13/06/17 15:23, Jun Gao wrote:
-> >>> On Tue, 2017-06-13 at 14:52 +0200, Matthias Brugger wrote:
-> >>>>
-> >>>> On 13/06/17 12:24, Jun Gao wrote:
-> >>>>> On Tue, 2017-06-13 at 11:36 +0200, Matthias Brugger wrote:
-> >>>>>>
-> >>>>>> On 12/06/17 13:54, Jun Gao wrote:
-> >>>>>>> On Fri, 2017-05-26 at 15:35 +0800, Jun Gao wrote:
-> >>>>>>>> From: Jun Gao <jun.gao@mediatek.com>
-> >>>>>>>>
-> >>>>>>>> Add MT2701 i2c device node.
-> >>>>>>>>
-> >>>>>>>> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-> >>>>>>>> ---
-> >>>>>>>>      arch/arm/boot/dts/mt2701-evb.dts | 42 ++++++++++++++++++++++++++++++++++++++++
-> >>>>>>>>      arch/arm/boot/dts/mt2701.dtsi    | 42 ++++++++++++++++++++++++++++++++++++++++
-> >>>>>>>>      2 files changed, 84 insertions(+)
-> >>>>>> [...]
-> >>>>>>>
-> >>>>>>> Dear Matthias,
-> >>>>>>>
-> >>>>>>> Could you take this patch together with
-> >>>>>>> [PATCH v4 1/2]dt-bindings: i2c: Add Mediatek MT2701 i2c binding ?
-> >>>>>>>
-> >>>>>>> Thanks!
-> >>>>>>>
-> >>>>>>
-> >>>>>> They are both included in the pull request I send [1] [2], or do I miss
-> >>>>>> something?
-> >>>>>>
-> >>>>>> Regards,
-> >>>>>> Matthias
-> >>>>>>
-> >>>>>> [1]
-> >>>>>> https://github.com/mbgg/linux-mediatek/commit/729b7f8dbdaff270c53052897ea06486221a49a2
-> >>>>>> [2]
-> >>>>>> https://github.com/mbgg/linux-mediatek/commit/c6c301d3ff7531894257acc4f4a73928a109bda1
-> >>>>>
-> >>>>> Dear Matthias,
-> >>>>>
-> >>>>> Would you mind to use the same style as follows in i2c-mtk.txt of [2]?
-> >>>>>
-> >>>>> "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-> >>>>> "mediatek,mt6577-i2c": for Mediatek MT6577
-> >>>>> "mediatek,mt6589-i2c": for Mediatek MT6589
-> >>>>> "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-> >>>>> "mediatek,mt8173-i2c": for Mediatek MT8173
-> >>>>>
-> >>>>>
-> >>>>> Thanks!
-> >>>>>
-> >>>>
-> >>>> You mean I should fix-up the patch to fit to the new binding
-> >>>> description? Or do you mean it should be MTxxxx instead of mtxxxx?
-> >>>>
-> >>>> Regards,
-> >>>> Matthias
-> >>>
-> >>> Dear Matthias,
-> >>>
-> >>> I mean fix-up the patch to fit to the new binding description. Is it OK?
-> >>>
-> >>
-> >> Then I can't see the difference between what you are asking for and what
-> >> is already pushed to the repository. Please send a patch, that will make
-> >> things clearer.
-> >>
-> >> Regards,
-> >> Matthias
-> > 
-> > Dear Matthias,
-> > 
-> > like this:
-> > 
-> > diff:
-> >   Required properties:
-> >     - compatible: value should be either of the following.
-> > -      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> > -      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> > -      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> > -      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> > -      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> > +       "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek
-> > MT2701
-> > +       "mediatek,mt6577-i2c": for Mediatek MT6577
-> > +       "mediatek,mt6589-i2c": for Mediatek MT6589
-> > +       "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek
-> > MT7623
-> > +       "mediatek,mt8173-i2c": for Mediatek MT8173
-> >     - reg: physical base address of the controller and dma base, length
-> > of memory
-> >       mapped region.
-> >     - interrupts: interrupt number to the cpu.
-> > 
-> 
-> Please look at [2], this is already staged.
-> 
-> [2] 
-> https://github.com/mbgg/linux-mediatek/commit/c6c301d3ff7531894257acc4f4a73928a109bda1
+The purpose of this patchset is to enable Linux to be a I2C slave by 
+enabling the slave functionality in the designware I2C controller and at
+the same time it does some cleaning of the existing code.
 
-Dear Matthias,
+The patch 1 is for cleaning and commentary fix.
+The patch 2 refactors the original i2c-designware-core and extracts all
+master functions to a i2c-designware-master source file as suggested by
+Andy Shevchenko when I first submited the update. The patch 3 then
+separates the MASTER flow from the common flow.
+The patch 4 introduces the SLAVE necessary definitions to the 
+i2c-designware library and adds a how-to-use example to the designware.txt
+in device tree bindings.
+The patch 5 adds the necessary functions to give the ability to be a SLAVE
+to the controller and for that changes also had to be made in the 
+Makefile and Kconfig.
+The patch 6 enables the SLAVE mode to be detected by the platform module.
 
-base on [2]
-diff:
-"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
--  "mediatek,mt6577-i2c": for i2c compatible with mt6577 i2c.
--  "mediatek,mt6589-i2c": for i2c compatible with mt6589 i2c.
--  "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with
-mt7623 i2c.
--  "mediatek,mt8173-i2c": for i2c compatible with mt8173 i2c.
-+  "mediatek,mt6577-i2c": for Mediatek MT6577
-+  "mediatek,mt6589-i2c": for Mediatek MT6589
-+  "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-+  "mediatek,mt8173-i2c": for Mediatek MT8173
+The functionality was tested using the hardware independent slave-eeprom
+driver based on top of i2c/for-next. The tree I used can be found here:
 
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
 
-Thanks!
+Luis Oliveira (6):
+  i2c: designware: Cleaning and comment style fixes.
+  i2c: designware: refactoring of the i2c-designware
+  i2c: designware: MASTER mode as separated driver
+  i2c: designware: introducing I2C_SLAVE definitions
+  i2c: designware: add SLAVE mode functions
+  i2c: designware: enable SLAVE in platform module
+
+ .../devicetree/bindings/i2c/i2c-designware.txt     |  16 +-
+ drivers/i2c/busses/Kconfig                         |  14 +-
+ drivers/i2c/busses/Makefile                        |   4 +
+ drivers/i2c/busses/i2c-designware-common.c         | 281 +++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           | 180 +++++++-
+ ...c-designware-core.c => i2c-designware-master.c} | 467 +++------------------
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |   9 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c        | 117 ++++--
+ drivers/i2c/busses/i2c-designware-slave.c          | 398 ++++++++++++++++++
+ 9 files changed, 1033 insertions(+), 453 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-common.c
+ rename drivers/i2c/busses/{i2c-designware-core.c => i2c-designware-master.c} (60%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
+
+-- 
+2.13.0
