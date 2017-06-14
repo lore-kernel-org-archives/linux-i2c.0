@@ -1,144 +1,48 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v11 6/6] i2c: designware: enable SLAVE in platform module
-Date: Wed, 14 Jun 2017 15:21:30 +0300
-Message-ID: <CAHp75Ve-25uf4xXbubP7rrfnTyjwY50TDXnjODyMok2zV6J9CQ@mail.gmail.com>
-References: <cover.1497025304.git.lolivei@synopsys.com> <e7b28fca3e419c3a9177acb99236597197124c0f.1497025304.git.lolivei@synopsys.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH v11 5/6] i2c: designware: add SLAVE mode functions
+Date: Wed, 14 Jun 2017 14:06:45 +0100
+Message-ID: <6e332d71-1891-21aa-4479-b91a7550f8af@synopsys.com>
+References: <cover.1497025304.git.lolivei@synopsys.com>
+ <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei@synopsys.com>
+ <CAHp75VeHoUrq-PfayNZYGP0f-bbnKQQEN4uMBg6ZASJs46b_PQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e7b28fca3e419c3a9177acb99236597197124c0f.1497025304.git.lolivei@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtprelay4.synopsys.com ([198.182.47.9]:36856 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752243AbdFNNH1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Jun 2017 09:07:27 -0400
+In-Reply-To: <CAHp75VeHoUrq-PfayNZYGP0f-bbnKQQEN4uMBg6ZASJs46b_PQ@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ramiro Oliveira <Ramiro.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>, CARLOS.PALMINHA@synopsys.com
 
-On Wed, Jun 14, 2017 at 1:43 PM, Luis Oliveira
-<Luis.Oliveira@synopsys.com> wrote:
-> - Slave mode selected in platform module if the support is detected in
->   the DT.
->
-> Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+On 14-Jun-17 13:20, Andy Shevchenko wrote:
+> On Wed, Jun 14, 2017 at 1:43 PM, Luis Oliveira
+> <Luis.Oliveira@synopsys.com> wrote:
+>> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+>> - Slave functions added to core library file
+>> - Slave abort sources added to common source file
+>> - New driver: i2c-designware-slave added
+>> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>>   when supported by the architecture.
+>>
+>> All the SLAVE flow is added but it is not enabled via platform
+>> driver.
+> 
+>> +       //~ if (stat & DW_IC_INTR_TX_OVER)
+>> +               //~ dw_readl(dev, DW_IC_CLR_TX_OVER);
+> 
+> If you are going to ignore reviewers' comments you will delay your
+> work to be applied.
+> 
+Im so sorry. I was doing some tests on the irq_handler and used the wrong branch
+to create the patchset.
+Believe me I've looked for mistakes like this but I've read the code so many
+times I don't think I can see the obvious anymore.
 
-This one looks fine to me.
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-> ---
-> v10-v11
-> - no changes
->
->  drivers/i2c/busses/i2c-designware-core.h    |  2 ++
->  drivers/i2c/busses/i2c-designware-platdrv.c | 41 +++++++++++++++++++++++++----
->  2 files changed, 38 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index 64a39a983410..7bfbcc62f6c5 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -228,6 +228,7 @@
->   * @disable: function to disable the controller
->   * @disable_int: function to disable all interrupts
->   * @init: function to initialize the I2C hardware
-> + * @mode: operation mode - DW_IC_MASTER or DW_IC_SLAVE
->   *
->   * HCNT and LCNT parameters can be used if the platform knows more accurate
->   * values than the one computed based only on the input clock frequency.
-> @@ -282,6 +283,7 @@ struct dw_i2c_dev {
->         void                    (*disable)(struct dw_i2c_dev *dev);
->         void                    (*disable_int)(struct dw_i2c_dev *dev);
->         int                     (*init)(struct dw_i2c_dev *dev);
-> +       int                     mode;
->  };
->
->  #define ACCESS_SWAP            0x00000001
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 1f38c807be5f..2ea6d0d25a01 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * Synopsys DesignWare I2C adapter driver (master only).
-> + * Synopsys DesignWare I2C adapter driver.
->   *
->   * Based on the TI DAVINCI I2C adapter driver.
->   *
-> @@ -174,9 +174,13 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
->
->  static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
->  {
-> +       dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
-> +
->         dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
->                           DW_IC_CON_RESTART_EN;
->
-> +       dev->mode = DW_IC_MASTER;
-> +
->         switch (dev->clk_freq) {
->         case 100000:
->                 dev->master_cfg |= DW_IC_CON_SPEED_STD;
-> @@ -189,6 +193,28 @@ static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
->         }
->  }
->
-> +static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
-> +{
-> +       dev->functionality = I2C_FUNC_SLAVE | DW_IC_DEFAULT_FUNCTIONALITY;
-> +
-> +       dev->slave_cfg = DW_IC_CON_RX_FIFO_FULL_HLD_CTRL |
-> +                        DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED |
-> +                        DW_IC_CON_SPEED_FAST;
-> +
-> +       dev->mode = DW_IC_SLAVE;
-> +
-> +       switch (dev->clk_freq) {
-> +       case 100000:
-> +               dev->slave_cfg |= DW_IC_CON_SPEED_STD;
-> +               break;
-> +       case 3400000:
-> +               dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
-> +               break;
-> +       default:
-> +               dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
-> +       }
-> +}
-> +
->  static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
->  {
->         if (IS_ERR(i_dev->clk))
-> @@ -302,9 +328,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->         if (ret)
->                 goto exit_reset;
->
-> -       dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
-> -
-> -       i2c_dw_configure_master(dev);
-> +       if (i2c_detect_slave_mode(&pdev->dev))
-> +               i2c_dw_configure_slave(dev);
-> +       else
-> +               i2c_dw_configure_master(dev);
->
->         dev->clk = devm_clk_get(&pdev->dev, NULL);
->         if (!i2c_dw_plat_prepare_clk(dev, true)) {
-> @@ -333,7 +360,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->                 pm_runtime_enable(&pdev->dev);
->         }
->
-> -       ret = i2c_dw_probe(dev);
-> +       if (dev->mode == DW_IC_SLAVE)
-> +               ret = i2c_dw_probe_slave(dev);
-> +       else
-> +               ret = i2c_dw_probe(dev);
-> +
->         if (ret)
->                 goto exit_probe;
->
-> --
-> 2.13.0
->
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+> Certainly you are about to miss v4.13.
+> 
