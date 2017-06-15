@@ -1,108 +1,54 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [RFC 4/4] ARM: dts: blanche: add SCIF1 and MAX9260 deserializer
-Date: Thu, 15 Jun 2017 08:05:23 -0500
-Message-ID: <CAL_Jsq+87SOcwysfg2OuzihV=+Go5kxAaYCpAXa-M2KiMQdqPA@mail.gmail.com>
-References: <1497451130-7741-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1497451130-7741-5-git-send-email-ulrich.hecht+renesas@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rcar: use correct length when unmapping DMA
+Date: Thu, 15 Jun 2017 15:52:50 +0200
+Message-ID: <20170615135250.jhfbxhcefp66aprp@ninjato>
+References: <20170528075217.1214-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:48932 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751972AbdFONFr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Jun 2017 09:05:47 -0400
-In-Reply-To: <1497451130-7741-5-git-send-email-ulrich.hecht+renesas@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="efnxbmcngpeyhwj5"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170528075217.1214-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>
 List-Id: linux-i2c@vger.kernel.org
-To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Cc: "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Wed, Jun 14, 2017 at 9:38 AM, Ulrich Hecht
-<ulrich.hecht+renesas@gmail.com> wrote:
-> Adds serial port SCIF1 and the MAX9260 deserializers connected to it.
->
-> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-> ---
->  arch/arm/boot/dts/r8a7792-blanche.dts | 45 +++++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/r8a7792-blanche.dts b/arch/arm/boot/dts/r8a7792-blanche.dts
-> index 9b67dca..281484d 100644
-> --- a/arch/arm/boot/dts/r8a7792-blanche.dts
-> +++ b/arch/arm/boot/dts/r8a7792-blanche.dts
-> @@ -21,6 +21,7 @@
->         aliases {
->                 serial0 = &scif0;
->                 serial1 = &scif3;
-> +               serial2 = &scif1;
->         };
->
->         chosen {
-> @@ -202,6 +203,11 @@
->                 function = "scif0";
->         };
->
-> +       scif1_pins: scif1 {
-> +               groups = "scif1_data";
-> +               function = "scif1";
-> +       };
-> +
->         scif3_pins: scif3 {
->                 groups = "scif3_data";
->                 function = "scif3";
-> @@ -246,6 +252,45 @@
->         status = "okay";
->  };
->
-> +&scif1 {
-> +       pinctrl-0 = <&scif1_pins>;
-> +       pinctrl-names = "default";
-> +
-> +       status = "okay";
-> +
-> +       mux-select-gpios = <&gpio5 12 GPIO_ACTIVE_LOW>,
-> +                          <&gpio5 13 GPIO_ACTIVE_LOW>,
-> +                          <&gpio5 14 GPIO_ACTIVE_LOW>,
-> +                          <&gpio5 15 GPIO_ACTIVE_LOW>;
-> +
-> +       #address-cells = <1>;
-> +       #size-cells = <0>;
-> +       gmsl-deserializer@0 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0x8>;
 
-You need to document how muxed serdev devices are represented in
-general. As Peter mentioned, you should use the mux-ctrl binding.
-Maybe this should have a mux node here too. That helps if we ever have
-other child nodes on the UART.
+--efnxbmcngpeyhwj5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The unit address and reg property values should match.
+On Sun, May 28, 2017 at 09:52:17AM +0200, Wolfram Sang wrote:
+> Because we need to transfer some bytes with PIO, the msg length is not
+> the length of the DMA buffer. Use the correct value which we used when
+> doing the mapping.
+>=20
+> Fixes: 73e8b0528346e8 ("i2c: rcar: add DMA support")
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> +       };
-> +       gmsl-deserializer@1 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0x9>;
-> +       };
-> +       gmsl-deserializer@2 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0xa>;
-> +       };
-> +       gmsl-deserializer@3 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0xb>;
-> +       };
-> +       gmsl-deserializer@4 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0x4>;
-> +       };
-> +       gmsl-deserializer@5 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0x5>;
-> +       };
-> +};
-> +
->  &scif3 {
->         pinctrl-0 = <&scif3_pins>;
->         pinctrl-names = "default";
-> --
-> 2.7.4
->
+Applied to for-current, thanks!
+
+
+--efnxbmcngpeyhwj5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllCkS4ACgkQFA3kzBSg
+KbZ/1w/9GCDXusf4wnjBEkQEqmdizG2fRNuI1kLnSySMWQBY28ChTDAgx99WS+Uu
+nHg6g0uDBl9Jg+B8XLzf/t8pi2KKoPBcUX+IYrKDN5JuVPfMhP4ab5GBs33Df9Wp
+UlGmRfXwrUznkB08CYQOvBjSx4A0/UxO0aPlfKBl1Pg1OuwjcQaoyUOE1OKW6zhp
+XHNv+JCYGQJnjE8NDsO/UFlNEove31mzLj1PorkDcY5+2MF3JEKwSfc8q29BTvd6
+fHv/UlUqDB3QnMlBz/9PETFeu9CP5/o44BeTyJWF/Ns9L700TEzmlnjsnQWUw/OT
+IRxr1VZ7QELDTt6jGGlIbJW496VY4TICTmvSV5E3L5lvaz6+DT1D/1x1339EUgLO
+1qJU7/SXWAwyiNeaqhP4V2y0PnnItcvJ9YFSlB5KxDP9xRU9IvzqiONhMD091vOA
+9V80Na8TTMT4jv+l5MhGVY3JxxQm1bz5ccqbPkIfiim51MaaKLqYgkeMpLEr2l4Y
+wb9pi13t9Imn/z5bjL6PkUTxQq4JCbHboALmEZmd2JCi9SoxDBepP5ded63nM+j2
+SddvvXcbsE8Y9lJfgJDqezvW0aXjwcdr80HRgo0paMuIciIg4yXiTy//fEefy0/F
+nELfkagWlNlqWsfZ8aHdTSnp+SgeyLjrOJkKF94LXQhE6nZxXv4=
+=89JM
+-----END PGP SIGNATURE-----
+
+--efnxbmcngpeyhwj5--
