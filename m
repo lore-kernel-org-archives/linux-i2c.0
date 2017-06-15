@@ -1,53 +1,46 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC 2/4] serdev: add GPIO-based multiplexer support
-Date: Thu, 15 Jun 2017 11:34:56 +0200
-Message-ID: <CAMuHMdUe1dvjc54=NwBxP=-3L6zVGzRY3JDPV6ERMT0GxvvQcA@mail.gmail.com>
-References: <1497451130-7741-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1497451130-7741-3-git-send-email-ulrich.hecht+renesas@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: i2c-tools release?
+Date: Thu, 15 Jun 2017 11:47:12 +0200
+Message-ID: <20170615094712.n5vgfjgwrlaho5e2@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <1497451130-7741-3-git-send-email-ulrich.hecht+renesas@gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:57763 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751620AbdFOJvx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2017 05:51:53 -0400
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.84_2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1dLRRQ-0006z5-HD
+        for linux-i2c@vger.kernel.org; Thu, 15 Jun 2017 11:51:52 +0200
+Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.84_2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1dLRRQ-0008L5-9x
+        for linux-i2c@vger.kernel.org; Thu, 15 Jun 2017 11:51:52 +0200
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-i2c@vger.kernel.org, aurel32@debian.org
 
-Hi Ulrich,
+Hello Jean,
 
-On Wed, Jun 14, 2017 at 4:38 PM, Ulrich Hecht
-<ulrich.hecht+renesas@gmail.com> wrote:
-> Adds an interface for slave device multiplexing, and an implementation
-> for GPIO-based multiplexers.
->
-> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+to get i2ctransfer into Debian it would be great to have a i2c-tools
+release that contains it. Also
 
-Thanks for your patch!
+	2b4135907c1a ("decode-dimms: Correctly check for out-of-bounds vendor ID")
 
-> --- /dev/null
-> +++ b/drivers/tty/serdev/mux-gpio.c
+might be worth to "get in".
 
-> +int of_serdev_register_gpio_mux(struct serdev_controller *ctrl)
-> +{
-> +       int i, ngpios;
-> +       struct serdev_mux *mux;
-> +       struct device_node *np = ctrl->dev.of_node;
-> +
-> +       ngpios = of_gpio_named_count(np, "mux-select-gpios");
+Could I lure you to cut a release?
 
-To make if OF-agnostic, you probably want to use gpiod_count() instead...
+Best regards
+Uwe
 
-> +       for (i = 0; i < ngpios; ++i)
-> +               mux->gpios[i] = of_get_named_gpio(np, "mux-select-gpios", i);
-
-... and (devm_)gpiod_get_index().
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
