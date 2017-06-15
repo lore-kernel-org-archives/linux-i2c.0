@@ -1,95 +1,117 @@
-From: Shuah Khan <shuahkhan@gmail.com>
-Subject: Re: [PATCH 4/4] i2c: rcar: check for DMA-capable buffers
-Date: Thu, 15 Jun 2017 12:48:22 -0600
-Message-ID: <CAKocOONjafedew70jMnV9HfNru6mhQV6FXAkoHTL3wzght7+Ww@mail.gmail.com>
-References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com> <20170615183039.22925-5-wsa+renesas@sang-engineering.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170615183039.22925-5-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, shuah@kernel.org
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: [RESEND PATCH v6 0/8] mfd: Add OF device table to I2C drivers that are missing it
+Date: Thu, 15 Jun 2017 20:49:20 +0200
+Message-ID: <20170615184928.12007-1-javier@dowhile0.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:33436 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750727AbdFOStj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2017 14:49:39 -0400
+Received: by mail-wr0-f195.google.com with SMTP id x23so4535518wrb.0
+        for <linux-i2c@vger.kernel.org>; Thu, 15 Jun 2017 11:49:38 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, Javier Martinez Canillas <javier@dowhile0.org>, =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On Thu, Jun 15, 2017 at 12:30 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> Handling this is special for this driver. Because the hardware needs to
-> initialize the next message in interrupt context, we cannot use the
-> i2c_check_msg_for_dma() directly. This helper only works reliably in
-> process context. So, we need to check during initial preparation of the
-> whole transfer and need to disable DMA completely for the whole transfer
-> once a message with a not-DMA-capable buffer is found.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  drivers/i2c/busses/i2c-rcar.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 8be3e6cb8fe686..2b679ba4b75066 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -111,8 +111,11 @@
->  #define ID_ARBLOST     (1 << 3)
->  #define ID_NACK                (1 << 4)
->  /* persistent flags */
-> +#define ID_P_NODMA     (1 << 30)
->  #define ID_P_PM_BLOCKED        (1 << 31)
-> -#define ID_P_MASK      ID_P_PM_BLOCKED
-> +#define ID_P_MASK      (ID_P_PM_BLOCKED | ID_P_NODMA)
-> +
-> +#define RCAR_DMA_THRESHOLD 8
->
->  enum rcar_i2c_type {
->         I2C_RCAR_GEN1,
-> @@ -358,8 +361,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
->         unsigned char *buf;
->         int len;
->
-> -       /* Do not use DMA if it's not available or for messages < 8 bytes */
-> -       if (IS_ERR(chan) || msg->len < 8)
-> +       if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flags & ID_P_NODMA)
+Hello,
 
-Might be more efficient to check for ID_P_NODMA first instead of msg->len.
+This series add OF device ID tables to mfd I2C drivers whose devices are
+either used in Device Tree source files or are listed in binding docs as
+a compatible string.
 
->                 return;
->
->         if (read) {
-> @@ -657,11 +659,15 @@ static void rcar_i2c_request_dma(struct rcar_i2c_priv *priv,
->                                  struct i2c_msg *msg)
->  {
->         struct device *dev = rcar_i2c_priv_to_dev(priv);
-> -       bool read;
-> +       bool read = msg->flags & I2C_M_RD;
->         struct dma_chan *chan;
->         enum dma_transfer_direction dir;
->
-> -       read = msg->flags & I2C_M_RD;
-> +       /* we need to check here because we need the 'current' context */
-> +       if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD, NULL) == -EFAULT) {
-> +               dev_dbg(dev, "skipping DMA for this whole transfer\n");
+That's done because the plan is to change the I2C core to report proper OF
+modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+a device was registered via DT or using the legacy platform data mechanism.
 
-Adding reason for skipping will be helpful.
+So these patches will make sure that mfd I2C drivers modules will continue
+to be autoloaded once the I2C core is changed to report proper OF modalias.
 
-> +               priv->flags |= ID_P_NODMA;
-> +       }
->
->         chan = read ? priv->dma_rx : priv->dma_tx;
->         if (PTR_ERR(chan) != -EPROBE_DEFER)
-> @@ -740,6 +746,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
->         if (ret < 0 && ret != -ENXIO)
->                 dev_err(dev, "error %d : %x\n", ret, priv->flags);
->
-> +       priv->flags &= ~ID_P_NODMA;
-> +
->         return ret;
->  }
->
-> --
-> 2.11.0
->
+Users didn't have a vendor prefix in the used compatible strings, but since
+there wasn't a DT binding document for these drivers, it can be said that
+were working for mere luck and so this series fixes the users and add a DT
+binding doc for the drivers.
 
-thanks,
--- Shuah
+Most patches can be applied independently, with the exception of patches
+2 to 4 that should be applied in the same tree to keep bisect-ability. I
+suggest these to go through the MFD subsystem tree.
+
+Best regards,
+Javier
+
+Changes in v6:
+- Mention CBUS address instead of I2C since that's the bus used (Wolfram Sang).
+- Add a "i2c-cbus-gpio" comptible and use cbus0 for parent node (Wolfram Sang).
+- Add Wolfram Sang's Reviewed-by tag.
+- Add Wolfram Sang's Reviewed-by tag.
+- Add Wolfram Sang's Reviewed-by tag.
+- Add Wolfram Sang's Reviewed-by tag.
+
+Changes in v5:
+- Add missing properties for interrupts to DT binding doc (Rob Herring).
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Tony Lindgren's Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Aaro Koskinen's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+- Add Lee Jones <lee.jones@linaro.org>'s Acked-by tag.
+- Add Rob Herring's Acked-by tag.
+- Add Acked-by: Tony Lindgren <tony@atomide.com>'s Acked-by tag.
+
+Changes in v4:
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Drop -mfd suffix in compatible string (Lee Jones).
+- Avoid using MFD in Device Tree (Lee Jones).
+- Use "dt-bindings: mfd:" prefix in subject line (Rob Herring).
+- Add information about what functions the device serve (Lee Jones).
+
+Changes in v3:
+- Add a vendor prefix to the compatible string (Rob Herring).
+- Add a vendor prefix to the compatible string (Rob Herring).
+
+Changes in v2:
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
+- Don't use of_match_ptr() to avoid build warning when CONFIG_OF is disabled.
+
+Javier Martinez Canillas (8):
+  dt-bindings: mfd: Add retu/tahvo ASIC chips bindings
+  mfd: retu: Drop -mfd suffix from I2C device ID name
+  mfd: retu: Add OF device ID table
+  ARM: dts: n8x0: Add vendor prefix to retu node
+  i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
+  dt-bindings: mfd: Add TI tps6105x chip bindings
+  mfd: tps6105x: Add OF device ID table
+  ARM: ux500: Add vendor prefix to tps61052 node
+
+ .../devicetree/bindings/i2c/i2c-cbus-gpio.txt      |  4 ++--
+ Documentation/devicetree/bindings/mfd/retu.txt     | 25 ++++++++++++++++++++++
+ Documentation/devicetree/bindings/mfd/tps6105x.txt | 17 +++++++++++++++
+ arch/arm/boot/dts/omap2420-n8x0-common.dtsi        |  4 ++--
+ arch/arm/boot/dts/ste-hrefprev60.dtsi              |  2 +-
+ arch/arm/mach-omap1/board-nokia770.c               |  4 ++--
+ drivers/mfd/retu-mfd.c                             | 12 +++++++++--
+ drivers/mfd/tps6105x.c                             |  8 +++++++
+ 8 files changed, 67 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/retu.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/tps6105x.txt
+
+-- 
+2.9.3
