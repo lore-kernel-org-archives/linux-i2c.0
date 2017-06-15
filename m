@@ -1,135 +1,77 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: [RESEND PATCH v5 02/16] eeprom: at24: Add OF device ID table
-Date: Thu, 15 Jun 2017 20:54:04 +0200
-Message-ID: <20170615185418.13980-3-javier@dowhile0.org>
-References: <20170615185418.13980-1-javier@dowhile0.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170615185418.13980-1-javier@dowhile0.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh@kernel.org>, Javier Martinez Canillas <javier@dowhile0.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 4/4] i2c: rcar: check for DMA-capable buffers
+Date: Thu, 15 Jun 2017 21:17:43 +0200
+Message-ID: <20170615191743.xdrvigy4h2gqk2kk@ninjato>
+References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
+ <20170615183039.22925-5-wsa+renesas@sang-engineering.com>
+ <CAKocOONjafedew70jMnV9HfNru6mhQV6FXAkoHTL3wzght7+Ww@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="p4l7glm5z5wyky46"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAKocOONjafedew70jMnV9HfNru6mhQV6FXAkoHTL3wzght7+Ww@mail.gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Shuah Khan <shuahkhan@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, shuah@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver doesn't have a struct of_device_id table but supported devices
-are registered via Device Trees. This is working on the assumption that a
-I2C device registered via OF will always match a legacy I2C device ID and
-that the MODALIAS reported will always be of the form i2c:<device>.
 
-But this could change in the future so the correct approach is to have an
-OF device ID table if the devices are registered via OF.
+--p4l7glm5z5wyky46
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Suggested-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Javier Martinez Canillas <javier@dowhile0.org>
+Hi,
 
----
+> > -       /* Do not use DMA if it's not available or for messages < 8 byt=
+es */
+> > -       if (IS_ERR(chan) || msg->len < 8)
+> > +       if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flag=
+s & ID_P_NODMA)
+>=20
+> Might be more efficient to check for ID_P_NODMA first instead of msg->len.
 
-Changes in v5: None
-Changes in v4: None
-Changes in v3:
-- Fix wrong .data values for "atmel,24c02" and "atmel,24c64" entries.
+I think most of the I2C transfers are smaller (like reading/writing one
+register) than the threshold, so this "should" be more efficient. Plus,
+honestly, I also think this is a micro-optimization which is largely
+depending on the use-case. Can we agree on that?
 
-Changes in v2:
-- Only add a single OF device ID entry for each device type (Wolfram Sang).
+> > -       read =3D msg->flags & I2C_M_RD;
+> > +       /* we need to check here because we need the 'current' context =
+*/
+> > +       if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD, NULL) =3D=3D=
+ -EFAULT) {
+> > +               dev_dbg(dev, "skipping DMA for this whole transfer\n");
+>=20
+> Adding reason for skipping will be helpful.
 
- drivers/misc/eeprom/at24.c | 65 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 64 insertions(+), 1 deletion(-)
+The I2C core helper will immediately print before that the buffer is not
+DMA capable. Do you think this together will do?
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 764ff5df0dbc..79c5c39be29c 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/of_device.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/mutex.h>
-@@ -175,6 +176,64 @@ static const struct i2c_device_id at24_ids[] = {
- };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
- 
-+static const struct of_device_id at24_of_match[] = {
-+	{
-+		.compatible = "atmel,24c00",
-+		.data = (void *)AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR)
-+	},
-+	{
-+		.compatible = "atmel,24c01",
-+		.data = (void *)AT24_DEVICE_MAGIC(1024 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c02",
-+		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,spd",
-+		.data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
-+				AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
-+	},
-+	{
-+		.compatible = "atmel,24c04",
-+		.data = (void *)AT24_DEVICE_MAGIC(4096 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c08",
-+		.data = (void *)AT24_DEVICE_MAGIC(8192 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c16",
-+		.data = (void *)AT24_DEVICE_MAGIC(16384 / 8, 0)
-+	},
-+	{
-+		.compatible = "atmel,24c32",
-+		.data = (void *)AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c64",
-+		.data = (void *)AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c128",
-+		.data = (void *)AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c256",
-+		.data = (void *)AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c512",
-+		.data = (void *)AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{
-+		.compatible = "atmel,24c1024",
-+		.data = (void *)AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16)
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, at24_of_match);
-+
- static const struct acpi_device_id at24_acpi_ids[] = {
- 	{ "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
- 	{ }
-@@ -598,7 +657,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
- 	} else {
--		if (id) {
-+		if (client->dev.of_node) {
-+			magic = (kernel_ulong_t)
-+				of_device_get_match_data(&client->dev);
-+		} else if (id) {
- 			magic = id->driver_data;
- 		} else {
- 			const struct acpi_device_id *aid;
-@@ -814,6 +876,7 @@ static int at24_remove(struct i2c_client *client)
- static struct i2c_driver at24_driver = {
- 	.driver = {
- 		.name = "at24",
-+		.of_match_table = at24_of_match,
- 		.acpi_match_table = ACPI_PTR(at24_acpi_ids),
- 	},
- 	.probe = at24_probe,
--- 
-2.9.3
+Thanks for your input,
+
+   Wolfram
+
+
+--p4l7glm5z5wyky46
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllC3VMACgkQFA3kzBSg
+KbafYhAAmyoo5P2skceqIrlpA8m+aTMIdtM2WpN3UXqE0RSAeIWyfz15gD9rUFCR
+Zv+coqU5Qmuj3sP1XbYcdOjog1npbvrlpvG3qMKKB//T5MJXQCXw0sLBCOCuSOxb
+vKtNQznS+dDcd20RkFmwxAHOcBrsZMNo/osWG9+mF7BC8yxbaYA8CHWm1aRmqaaX
+nhqWl88FAHuN7wqeSULqxMPJyH2sUrd1XmY1Y1NCM2r/uhLXdlnLST3bWs/B1O/U
+ZvqYAgSczZYsX+b9U9gApmxUoHaKf0HT6SHBUwBubZ0TI2oxMVWsdCkQz4rlgii+
+oKwwjnwsw/9s6kdf1uLhbqgkWKJgwnMmPbD7fOnB+Sx4uIRqcQ89XWtKWipfanwQ
++pDCNWmbEPD/FXQLIgcTHI2JQ3+wOBO1wlTaLkhme6pqR8aQcI5AnK/aLMp3zWlC
+ZxESuwO/GNYrtMUXxd3CwYm9s7V8ch6jw8h5YKcKVRxdjsqQ4EOYeMIIpY/qjl9S
+GlmJQkfANEcgIe5ffkaDama+/VplM/lCCbh4eT3sVkRW2EvY7k3fC+xZwl4yCtPS
+r8rT8GdCqU+//4fRwKrPFAwbMN5BEF9sLngIJL0BFk7/qzTSg85tvmWRo6Bhg0Ig
+OW3RE96P9l6lZaFqwPH8st7k3ymKy6WsnaPxmNF4HENxNeLjn1A=
+=NLO4
+-----END PGP SIGNATURE-----
+
+--p4l7glm5z5wyky46--
