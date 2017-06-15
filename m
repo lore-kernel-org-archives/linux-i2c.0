@@ -1,72 +1,38 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 1/4] i2c: add helpers to ease DMA handling
-Date: Thu, 15 Jun 2017 22:31:51 +0200
-Message-ID: <CAMuHMdVe1tBMZO9weMsf2Tj7pQ_AUeVu_X=uKbs+JbziLFQHvQ@mail.gmail.com>
-References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com> <20170615183039.22925-2-wsa+renesas@sang-engineering.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170615183039.22925-2-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: stub: fix build warning regression
+Date: Thu, 15 Jun 2017 23:26:01 +0200
+Message-ID: <20170615212601.5972-1-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:38686 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750814AbdFOV0O (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 15 Jun 2017 17:26:14 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>
 
-Hi Wolfram,
+Commit 6c42778780c40c ("i2c: stub: use pr_fmt") changed the DEBUG
+handling and caused build warnings. Revert back to the original.
 
-On Thu, Jun 15, 2017 at 8:30 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> One helper checks if DMA is suitable and optionally creates a bounce
-> buffer, if not. The other function returns the bounce buffer and makes
-> sure the data is properly copied back to the message.
+Fixes: 6c42778780c40c ("i2c: stub: use pr_fmt")
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/i2c-stub.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -764,6 +767,68 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
->         return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
->  }
->
-> +/**
-> + * i2c_check_msg_for_dma - check if a message is suitable for DMA
-> + * @msg: the message to be checked
-> + * @threshold: the amount of byte from which using DMA makes sense
-> + * @ptr_for_bounce_buf: if not NULL, a bounce buffer will be attached to this
-> + *                     ptr, if needed. The bounce buffer must be freed by the
-> + *                     caller using i2c_release_bounce_buf().
-> + *
-> + * Return: -ERANGE if message is smaller than threshold
-> + *        -EFAULT if message buffer is not DMA capable and no bounce buffer
-> + *                was requested
-> + *        -ENOMEM if a bounce buffer could not be created
-> + *        0 if message is suitable for DMA
-> + *
-> + * Note: This function should only be called from process context! It uses
-> + * helper functions which work on the 'current' task.
-> + */
-> +static inline int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
-> +                                       u8 **ptr_for_bounce_buf)
-
-__must_check?
-
-Isn't this function a bit large to be inlined?
-
-> +/**
-> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
-> + * @msg: the message to be copied back to
-> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
-> + *             May be NULL.
-> + */
-> +static inline void i2c_release_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
-
-This one is smaller.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
+index 8b0900147f96f1..4a9ad91c5ba3ea 100644
+--- a/drivers/i2c/i2c-stub.c
++++ b/drivers/i2c/i2c-stub.c
+@@ -15,7 +15,7 @@
+     GNU General Public License for more details.
+ */
+ 
+-#define DEBUG
++#define DEBUG 1
+ #define pr_fmt(fmt) "i2c-stub: " fmt
+ 
+ #include <linux/errno.h>
+-- 
+2.11.0
