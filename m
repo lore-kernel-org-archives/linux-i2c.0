@@ -1,66 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: xgene-slimpro: include linux/io.h for memremap
-Date: Thu, 15 Jun 2017 15:57:40 +0200
-Message-ID: <20170615135740.fa2g5wbdwx7psn2w@ninjato>
-References: <20170609102937.3054567-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="quiyfmjhm7ora6no"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170609102937.3054567-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Hoan Tran <hotran@apm.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Tin Huynh <tnhuynh@apm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v7 02/10] power: supply: bq24735: remove incorrect le16_to_cpu calls
+Date: Thu, 15 Jun 2017 21:59:30 +0800
+Message-ID: <1497535178-12001-3-git-send-email-preid@electromag.com.au>
+References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:55743 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752424AbdFON7t (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 15 Jun 2017 09:59:49 -0400
+In-Reply-To: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, preid@electromag.com.au, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
+i2c_smbus commands handle the correct byte order for smbus transactions
+internally. This will currently result in incorrect operation on big
+endian systems.
 
---quiyfmjhm7ora6no
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Phil Reid <preid@electromag.com.au>
+---
+ drivers/power/supply/bq24735-charger.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-On Fri, Jun 09, 2017 at 12:29:12PM +0200, Arnd Bergmann wrote:
-> The newly added support for the pcc mailbox fails to build
-> in some configurations:
->=20
-> drivers/i2c/busses/i2c-xgene-slimpro.c: In function 'xgene_slimpro_i2c_pr=
-obe':
-> drivers/i2c/busses/i2c-xgene-slimpro.c:516:25: error: implicit declaratio=
-n of function 'memremap'; did you mean 'memcmp'? [-Werror=3Dimplicit-functi=
-on-declaration]
-> drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: error: 'MEMREMAP_WB' undec=
-lared (first use in this function)
-> drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: note: each undeclared iden=
-tifier is reported only once for each function it appears in
->=20
-> This includes the missing header file.
->=20
-> Fixes: df5da47fe722 ("i2c: xgene-slimpro: Add ACPI support by using PCC m=
-ailbox")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-Applied to for-current, thanks!
-
-
---quiyfmjhm7ora6no
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllCklQACgkQFA3kzBSg
-KbYV5g//Y+2K+zHo0fCzJV9fwf4TocQnXiv+Ga32x0TZpf9wipacS2vldNOx4rZG
-YtaPvpNAuNp/AB5oYxaQKiMW5GUom+iU9lrT94PAR7ngmDjZpburdB4oMviVZIks
-rmbIakQZQ7iW+nZXvJFMhBQLCXgYg+yHGoIzO/AfhsDtNz0B/CK1VbfrlGFKwyIw
-wqk5DqtuBdanWkgimajwAjb6X01Kjtfz+BJDQsojcxktwDs+OcgRIVxQj8nmMOeO
-KtFs7ExYmHdiXJUJmbPPjX72ejozWoPTkC1fFbuw/R1zJum7seh/B2w/RaKp+MbJ
-GqKgG28juMGbEKycMH3RrUQy4C9/up3qAs8+EfcaZQPHPYav1qXJJJbl/KwrJBQt
-e76QqCuuyWv8YZNCfXfg+xzuC8iujOw2+wpgaikIsSVvgCxbE3TipS6uU/yZrm7C
-6CMHDNu291EJvw02uYynf8eSZVtWkHP5ZxfplJ72c6AU+SGZ23aSsqlTIHVpq+3U
-fJSWMnl8OhXOEW7vdGpk07ie1HmbuZZ2Y9vzc+HA3OnTFcJouckY5WWJywaoScwd
-cazdDE3BLbTeTh+iSHSpK4HZv8apgTsa9ymT8zeEc17RgjJhqVUEZRWOfk6CB2w5
-byXRyuzq0HOupFiRfJmxj9oxiKUxTJuseqAkofSWrxgXgjhGxhY=
-=RXcz
------END PGP SIGNATURE-----
-
---quiyfmjhm7ora6no--
+diff --git a/drivers/power/supply/bq24735-charger.c b/drivers/power/supply/bq24735-charger.c
+index eb01453..6931e1d 100644
+--- a/drivers/power/supply/bq24735-charger.c
++++ b/drivers/power/supply/bq24735-charger.c
+@@ -81,14 +81,12 @@ static int bq24735_charger_property_is_writeable(struct power_supply *psy,
+ static inline int bq24735_write_word(struct i2c_client *client, u8 reg,
+ 				     u16 value)
+ {
+-	return i2c_smbus_write_word_data(client, reg, le16_to_cpu(value));
++	return i2c_smbus_write_word_data(client, reg, value);
+ }
+ 
+ static inline int bq24735_read_word(struct i2c_client *client, u8 reg)
+ {
+-	s32 ret = i2c_smbus_read_word_data(client, reg);
+-
+-	return ret < 0 ? ret : le16_to_cpu(ret);
++	return i2c_smbus_read_word_data(client, reg);
+ }
+ 
+ static int bq24735_update_word(struct i2c_client *client, u8 reg,
+-- 
+1.8.3.1
