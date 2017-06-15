@@ -1,64 +1,112 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/4] i2c: add docs to clarify DMA handling
-Date: Thu, 15 Jun 2017 20:30:37 +0200
-Message-ID: <20170615183039.22925-3-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/4] i2c: add helpers to ease DMA handling
+Date: Thu, 15 Jun 2017 20:30:36 +0200
+Message-ID: <20170615183039.22925-2-wsa+renesas@sang-engineering.com>
 References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:38205 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752640AbdFOSa7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 15 Jun 2017 14:30:59 -0400
 In-Reply-To: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>
-List-Id: linux-i2c@vger.kernel.org
+
+One helper checks if DMA is suitable and optionally creates a bounce
+buffer, if not. The other function returns the bounce buffer and makes
+sure the data is properly copied back to the message.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- Documentation/i2c/DMA-considerations | 37 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
- create mode 100644 Documentation/i2c/DMA-considerations
+ include/linux/i2c.h | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
-new file mode 100644
-index 00000000000000..92cdb6835ccf95
---- /dev/null
-+++ b/Documentation/i2c/DMA-considerations
-@@ -0,0 +1,37 @@
-+Linux I2C and DMA
-+-----------------
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 72d0ece70ed30d..7204d38eaff07c 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -33,7 +33,10 @@
+ #include <linux/rtmutex.h>
+ #include <linux/irqdomain.h>		/* for Host Notify IRQ */
+ #include <linux/of.h>		/* for struct device_node */
++#include <linux/slab.h>
+ #include <linux/swab.h>		/* for swab16 */
++#include <linux/mm.h>
++#include <linux/sched/task_stack.h>
+ #include <uapi/linux/i2c.h>
+ 
+ extern struct bus_type i2c_bus_type;
+@@ -764,6 +767,68 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
+ 	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+ }
+ 
++/**
++ * i2c_check_msg_for_dma - check if a message is suitable for DMA
++ * @msg: the message to be checked
++ * @threshold: the amount of byte from which using DMA makes sense
++ * @ptr_for_bounce_buf: if not NULL, a bounce buffer will be attached to this
++ *			ptr, if needed. The bounce buffer must be freed by the
++ *			caller using i2c_release_bounce_buf().
++ *
++ * Return: -ERANGE if message is smaller than threshold
++ *	   -EFAULT if message buffer is not DMA capable and no bounce buffer
++ *		   was requested
++ *	   -ENOMEM if a bounce buffer could not be created
++ *	   0 if message is suitable for DMA
++ *
++ * Note: This function should only be called from process context! It uses
++ * helper functions which work on the 'current' task.
++ */
++static inline int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
++					u8 **ptr_for_bounce_buf)
++{
++	if (ptr_for_bounce_buf)
++		*ptr_for_bounce_buf = NULL;
 +
-+Given that I2C is a low-speed bus where largely small messages are transferred,
-+it is not considered a prime user of DMA access. At this time of writing, only
-+10% of I2C bus master drivers have DMA support implemented. And the vast
-+majority of transactions are so small that setting up DMA for it will likely
-+add more overhead than a plain PIO transfer.
++	if (msg->len < threshold)
++		return -ERANGE;
 +
-+Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
-+It does not seem reasonable to apply additional burdens when the feature is so
-+rarely used. However, it is recommended to use a DMA-safe buffer if your
-+message size is likely applicable for DMA. Most drivers have this threshold
-+around 8 bytes. As of today, this is mostly an educated guess, however.
++	if (!virt_addr_valid(msg->buf) || object_is_on_stack(msg->buf)) {
++		pr_debug("msg buffer to 0x%04x is not DMA safe%s\n", msg->addr,
++			 ptr_for_bounce_buf ? ", trying bounce buffer" : "");
++		if (ptr_for_bounce_buf) {
++			if (msg->flags & I2C_M_RD)
++				*ptr_for_bounce_buf = kzalloc(msg->len, GFP_KERNEL);
++			else
++				*ptr_for_bounce_buf = kmemdup(msg->buf, msg->len,
++							      GFP_KERNEL);
++			if (!*ptr_for_bounce_buf)
++				return -ENOMEM;
++		} else {
++			return -EFAULT;
++		}
++	}
 +
-+To support this scenario, drivers wishing to implement DMA can use helper
-+functions from the I2C core. One checks if a message is DMA capable in terms of
-+size and memory type. It can optionally also create a bounce buffer:
++	return 0;
++}
 +
-+	i2c_check_msg_for_dma(msg, threshold, &bounce_buf);
++/**
++ * i2c_release_bounce_buf - copy data back from bounce buffer and release it
++ * @msg: the message to be copied back to
++ * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
++ *		May be NULL.
++ */
++static inline void i2c_release_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
++{
++	if (!bounce_buf)
++		return;
 +
-+The other one releases the bounce buffer ensuring data is copied back to the
-+message:
++	if (msg->flags & I2C_M_RD)
++		memcpy(msg->buf, bounce_buf, msg->len);
 +
-+	i2c_release_bounce_buf(msg, bounce_buf);
++	kfree(bounce_buf);
++}
 +
-+Please check the in-kernel documentation for details. The i2c-sh_mobile driver
-+can be used as a reference example.
-+
-+The bounce buffer handling from the core is generic and simple. It will always
-+allocate a new buffer. If you want a more sophisticated buffer handling (e.g.
-+reusing pre-allocated buffers), you can skip the generic handling from the core
-+and implement your own.
-+
-+If you plan to use DMA with I2C (or with any other bus, actually) make sure you
-+have CONFIG_DMA_API_DEBUG enabled during development. It can help you find
-+various issues which can be complex to debug otherwise.
+ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+ /**
+  * module_i2c_driver() - Helper macro for registering a modular I2C driver
 -- 
 2.11.0
