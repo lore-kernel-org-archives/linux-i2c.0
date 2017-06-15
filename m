@@ -1,71 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] i2c: document DMA handling and add helpers for it
-Date: Thu, 15 Jun 2017 20:42:06 +0200
-Message-ID: <20170615184206.vwa3eg4upat6ioae@ninjato>
-References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
+From: Shuah Khan <shuahkhan@gmail.com>
+Subject: Re: [PATCH 4/4] i2c: rcar: check for DMA-capable buffers
+Date: Thu, 15 Jun 2017 12:48:22 -0600
+Message-ID: <CAKocOONjafedew70jMnV9HfNru6mhQV6FXAkoHTL3wzght7+Ww@mail.gmail.com>
+References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com> <20170615183039.22925-5-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jmka4wf3er3zxwew"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20170615183039.22925-5-wsa+renesas@sang-engineering.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, shuah@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jun 15, 2017 at 12:30 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> Handling this is special for this driver. Because the hardware needs to
+> initialize the next message in interrupt context, we cannot use the
+> i2c_check_msg_for_dma() directly. This helper only works reliably in
+> process context. So, we need to check during initial preparation of the
+> whole transfer and need to disable DMA completely for the whole transfer
+> once a message with a not-DMA-capable buffer is found.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  drivers/i2c/busses/i2c-rcar.c | 18 +++++++++++++-----
+>  1 file changed, 13 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index 8be3e6cb8fe686..2b679ba4b75066 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -111,8 +111,11 @@
+>  #define ID_ARBLOST     (1 << 3)
+>  #define ID_NACK                (1 << 4)
+>  /* persistent flags */
+> +#define ID_P_NODMA     (1 << 30)
+>  #define ID_P_PM_BLOCKED        (1 << 31)
+> -#define ID_P_MASK      ID_P_PM_BLOCKED
+> +#define ID_P_MASK      (ID_P_PM_BLOCKED | ID_P_NODMA)
+> +
+> +#define RCAR_DMA_THRESHOLD 8
+>
+>  enum rcar_i2c_type {
+>         I2C_RCAR_GEN1,
+> @@ -358,8 +361,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
+>         unsigned char *buf;
+>         int len;
+>
+> -       /* Do not use DMA if it's not available or for messages < 8 bytes */
+> -       if (IS_ERR(chan) || msg->len < 8)
+> +       if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flags & ID_P_NODMA)
 
---jmka4wf3er3zxwew
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Might be more efficient to check for ID_P_NODMA first instead of msg->len.
 
-On Thu, Jun 15, 2017 at 08:30:35PM +0200, Wolfram Sang wrote:
-> So, after revisiting old mail threads and taking part in a similar discus=
-sion
-> on the USB list, here is what I cooked up to document and ease DMA handli=
-ng for
-> I2C within Linux. Please have a look at the documentation introduced in p=
-atch 2
-> for further details.
->=20
-> The branch can be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic=
-/i2c-core-dma
->=20
-> And big kudos to Renesas Electronics for funding this work, thank you ver=
-y much!
+>                 return;
+>
+>         if (read) {
+> @@ -657,11 +659,15 @@ static void rcar_i2c_request_dma(struct rcar_i2c_priv *priv,
+>                                  struct i2c_msg *msg)
+>  {
+>         struct device *dev = rcar_i2c_priv_to_dev(priv);
+> -       bool read;
+> +       bool read = msg->flags & I2C_M_RD;
+>         struct dma_chan *chan;
+>         enum dma_transfer_direction dir;
+>
+> -       read = msg->flags & I2C_M_RD;
+> +       /* we need to check here because we need the 'current' context */
+> +       if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD, NULL) == -EFAULT) {
+> +               dev_dbg(dev, "skipping DMA for this whole transfer\n");
 
-I forgot to write that those patches have been tested with a Renesas Salvat=
-or-X
-board (r8a7796/M3-W) and a Renesas Lager board (r8a7790/H2). A more
-detailed test description can be found here:
+Adding reason for skipping will be helpful.
 
-http://elinux.org/Tests:I2C-core-DMA
+> +               priv->flags |= ID_P_NODMA;
+> +       }
+>
+>         chan = read ? priv->dma_rx : priv->dma_tx;
+>         if (PTR_ERR(chan) != -EPROBE_DEFER)
+> @@ -740,6 +746,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+>         if (ret < 0 && ret != -ENXIO)
+>                 dev_err(dev, "error %d : %x\n", ret, priv->flags);
+>
+> +       priv->flags &= ~ID_P_NODMA;
+> +
+>         return ret;
+>  }
+>
+> --
+> 2.11.0
+>
 
-And sorry for the doubled Signed-offs below the patches. My mistake
-here, there should be only the ones from sang-engineering.com.
-
-
---jmka4wf3er3zxwew
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllC1PoACgkQFA3kzBSg
-KbaPERAAnPNmu0Av+h1EGeZVDT6xo+r1+6Wn1H66fA1faAGcwu5BYt2SmyVCaOV7
-oG6fGswl/AjhPeVDbTLYpDGrGlOPrrUS6JYGbMT0osVJ/aPxL8S4i//ZBbD4/Zr1
-wL0eYYdOY4Yg31QMA5gAeClPEQjNy5QKnZL35/wWTc54VoJbqmTTeCuxhseBarOi
-PErhM32f7lm3iQgDb/6ngF+/SS6q627qWfGFH/wtitUV9NC6s6xkGqh9U5wsHE0Q
-EIY2/zHPZilXbnKAY3F8obIrzzwxbYhyuF+/PM+8WLJB+L//dn95jMlRco/VTx1K
-siAtBfJgenUQl4qO1EpC6jTFVEQtZGOTQ/AdtU/8b7GrjcSelPzQLiXJClylsRxK
-IiXgoq0noOcSiVgtZDkMviPAjAOmtn0yEcYnbd5tzUuHuBseAWaHdVIM0tyuwGmn
-G8u1Tx1bdPUyfqeCYP9Ge+0nxJDbtyTE2ERogXnMt3CP+bec35b3Nj38d/BGQ9oJ
-7YgWljB8InxDKcVxKgte4wfHBv0DeVmpFSz/9SsJzCtBQU6vDy45hO5ZLn+jc3lL
-YZHVYxZaxT1OfAn1DHkyOrsR9vlHd/OQMbOS+Mzh2C91UsD5RoNE5z6hQpi5n5kp
-ojCqCk2pDGOWWZV+VFM9vx77FhUl5fDQf9RXFUkTb1V6O2nJ3rQ=
-=Z/1G
------END PGP SIGNATURE-----
-
---jmka4wf3er3zxwew--
+thanks,
+-- Shuah
