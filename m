@@ -1,52 +1,71 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/4] i2c: document DMA handling and add helpers for it
-Date: Thu, 15 Jun 2017 20:30:35 +0200
-Message-ID: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 3/4] i2c: sh_mobile: use helper to decide if DMA is useful
+Date: Thu, 15 Jun 2017 20:30:38 +0200
+Message-ID: <20170615183039.22925-4-wsa+renesas@sang-engineering.com>
+References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-So, after revisiting old mail threads and taking part in a similar discussion
-on the USB list, here is what I cooked up to document and ease DMA handling for
-I2C within Linux. Please have a look at the documentation introduced in patch 2
-for further details.
+This ensures that we fall back to PIO if the buffer is too small for DMA
+being useful. Otherwise, we use DMA. A bounce buffer might be applied if
+the original message buffer is not DMA safe
 
-The branch can be found here:
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma
-
-And big kudos to Renesas Electronics for funding this work, thank you very much!
-
-Regards,
-
-   Wolfram
-
-Changes since RFC:
-
-* the helper i2c_check_msg_for_dma() can optionally take a pointer and then it
-  will attach a bounce buffer to it in case the message buffer is not DMA safe
-* a second helper was added. i2c_release_bounce_buf() will copy data back to
-  the message buffer and release the bounce buffer
-* the documentation has been extended to match the above
-* no ifdeffery around CONFIG_DMA_API_DEBUG anymore. The I2C core behaviour
-  should not depend on such symbols.
-* the i2c-sh_mobile driver has been updated to use bounce buffers
-
-
-Wolfram Sang (4):
-  i2c: add helpers to ease DMA handling
-  i2c: add docs to clarify DMA handling
-  i2c: sh_mobile: use helper to decide if DMA is useful
-  i2c: rcar: check for DMA-capable buffers
-
- Documentation/i2c/DMA-considerations | 37 ++++++++++++++++++++
- drivers/i2c/busses/i2c-rcar.c        | 18 +++++++---
- drivers/i2c/busses/i2c-sh_mobile.c   |  8 +++--
- include/linux/i2c.h                  | 65 ++++++++++++++++++++++++++++++++++++
- 4 files changed, 121 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/i2c/DMA-considerations
-
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 2e097d97d258bc..4b874e508111e7 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -145,6 +145,7 @@ struct sh_mobile_i2c_data {
+ 	struct dma_chan *dma_rx;
+ 	struct scatterlist sg;
+ 	enum dma_data_direction dma_direction;
++	u8 *bounce_buf;
+ };
+ 
+ struct sh_mobile_dt_config {
+@@ -548,6 +549,8 @@ static void sh_mobile_i2c_dma_callback(void *data)
+ 	pd->pos = pd->msg->len;
+ 	pd->stop_after_dma = true;
+ 
++	i2c_release_bounce_buf(pd->msg, pd->bounce_buf);
++
+ 	iic_set_clr(pd, ICIC, 0, ICIC_TDMAE | ICIC_RDMAE);
+ }
+ 
+@@ -595,6 +598,7 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ 	struct dma_async_tx_descriptor *txdesc;
+ 	dma_addr_t dma_addr;
+ 	dma_cookie_t cookie;
++	u8 *dma_buf = pd->bounce_buf ?: pd->msg->buf;
+ 
+ 	if (PTR_ERR(chan) == -EPROBE_DEFER) {
+ 		if (read)
+@@ -608,7 +612,7 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ 	if (IS_ERR(chan))
+ 		return;
+ 
+-	dma_addr = dma_map_single(chan->device->dev, pd->msg->buf, pd->msg->len, dir);
++	dma_addr = dma_map_single(chan->device->dev, dma_buf, pd->msg->len, dir);
+ 	if (dma_mapping_error(chan->device->dev, dma_addr)) {
+ 		dev_dbg(pd->dev, "dma map failed, using PIO\n");
+ 		return;
+@@ -665,7 +669,7 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
+ 	pd->pos = -1;
+ 	pd->sr = 0;
+ 
+-	if (pd->msg->len > 8)
++	if (i2c_check_msg_for_dma(pd->msg, 8, &pd->bounce_buf) == 0)
+ 		sh_mobile_i2c_xfer_dma(pd);
+ 
+ 	/* Enable all interrupts to begin with */
 -- 
 2.11.0
