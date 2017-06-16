@@ -1,52 +1,87 @@
-From: Peter Korsgaard <peter@korsgaard.com>
-Subject: Re: [PATCH] i2c: ocores: Add missing wake_up() call upon state change to STATE_DONE
-Date: Fri, 16 Jun 2017 15:26:43 +0200
-Message-ID: <871sqkhxm4.fsf@dell.be.48ers.dk>
-References: <20170616092317.584-1-sr@denx.de>
-        <87a858hz71.fsf@dell.be.48ers.dk>
-        <7319c512-4301-8a33-5fc3-62486557a883@denx.de>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
+ RT suspended
+Date: Fri, 16 Jun 2017 15:49:59 +0200
+Message-ID: <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+ <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
+ <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com> <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34731 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752566AbdFPN0q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2017 09:26:46 -0400
-Received: by mail-wm0-f66.google.com with SMTP id 70so5038353wme.1
-        for <linux-i2c@vger.kernel.org>; Fri, 16 Jun 2017 06:26:46 -0700 (PDT)
-In-Reply-To: <7319c512-4301-8a33-5fc3-62486557a883@denx.de> (Stefan Roese's
-        message of "Fri, 16 Jun 2017 15:04:14 +0200")
+Received: from mail-qt0-f179.google.com ([209.85.216.179]:33888 "EHLO
+        mail-qt0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750990AbdFPNuA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 16 Jun 2017 09:50:00 -0400
+Received: by mail-qt0-f179.google.com with SMTP id c10so63881697qtd.1
+        for <linux-i2c@vger.kernel.org>; Fri, 16 Jun 2017 06:50:00 -0700 (PDT)
+In-Reply-To: <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stefan Roese <sr@denx.de>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, John Stultz <john.stultz@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
->>>>> "Stefan" == Stefan Roese <sr@denx.de> writes:
+[...]
 
-Hi,
+>>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>> index a597ba32de7e..42a9cd09aa64 100644
+>>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
+>>>>         struct platform_device *pdev = to_platform_device(dev);
+>>>>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+>>>>
+>>>> +       if (pm_runtime_suspended(dev))
+>>>> +               return 0;
+>>>
+>>>
+>>> This looks weird. I don't find any other drivers that needs this, what
+>>> is so different with this one?
+>>>
+>> There are some drivers that are checking pm_runtime_suspended() or
+>> pm_runtime_status_suspended() in their suspend/resume callbacks and doing
+>> things only when they return false so the problem is not so unique here.
+>>
+>> I didn't try to find are there drivers that are using some own state
+>> variable for the same purpose but I wouldn't surprise if there are.
+>>
+>>> I have been following the development for the i2c-designware driver
+>>> for a while. Some time back I also tried to fix the similar problems
+>>> as you are currently [1] are. Back then, I picked the same approach as
+>>> John Stultz did recently [2].
+>>>
+>>> To summarize my view, I don't understand the justification of using
+>>> the direct_complete feature for i2c-designware. To me, it just add
+>>> complexity to the driver that we really should try to avoid. I think
+>>> we need something else here.
+>>>
+>> Dates back to commit 8503ff166504 ("i2c: designware: Avoid unnecessary
+>> resuming during system suspend") but I agree it's worth to consider.
+>>
+>>> To me, the proper solution is to use the
+>>> pm_runtime_force_suspend|resume() helpers to deal with system
+>>> suspend/resume. However I understand that the behavior of the ACPI PM
+>>> domain currently prevents us from doing this. That said, perhaps we
+>>> should instead try to make the ACPI PM domain to better collaborate
+>>> with drivers using pm_runtime_force_suspend|resume()? I have been
+>>> investigating that and started to cook some patches, although I have
+>>> not yet been able to post something. If you think it could make sense,
+>>> I can pick it up.
+>>>
+>> That's a good idea. I didn't think about it at all.
+>
+> Okay, thanks! I will continue to look into this and try to submit
+> something within a reasonable time frame, keep you posted.
+>
+> Kind regards
+> Uffe
 
- >> It is close to 10 years ago since I last had access to any boards with
- >> the ocores controller, but the logic in ocores_process() indicates that
- >> the controller would generate another interrupt once the stop condition
- >> has been sent:
- >> 
- >> if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
- >> /* stop has been sent */
- >> oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
- >> wake_up(&i2c->wait);
- >> return;
- >> }
- >> 
- >> Do you not see this interrupt?
+Jarkko, Andy,
 
- > No. It took me quite some time last week, to notice this misbehavior
- > in this I2C driver. As the client (Goodix I2C touchscreen) always
- > returned only after more than 1 second from reading one I2C frame.
+I just wanted to mention that I haven't forgot about this, I am doing
+the final changes for the ACPI PM domain at this very moment, however
+I need a couple of more days more before I can post something.
 
-Funky. On what kind of platform / what VHDL source version is this? The
-driver has now existed for more than 10 years and has had contributions
-from a number of people, but this is the first time I hear about this
-missing interrupt.
-
--- 
-Bye, Peter Korsgaard
+Kind regards
+Uffe
