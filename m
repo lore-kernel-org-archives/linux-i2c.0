@@ -1,186 +1,101 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c: add sc18is600 driver
-Date: Sat, 17 Jun 2017 21:13:32 +0300
-Message-ID: <CAHp75VexRjTZ+kbrPvD=RWy+_OBSnKAYj1-TX8aO5QgyOsn7nA@mail.gmail.com>
-References: <20170613154748.7018-1-sre@kernel.org>
+From: Vbook A1 <vbooka1maillist@gmail.com>
+Subject: Silead Touchscreen i2c-MSSL1680 timeout
+Date: Sun, 18 Jun 2017 05:37:23 +0700
+Message-ID: <CAHsAZcCB7YWEQqXL4J5CTAWGk0XOxPNKAU5VXRx5Fisuz=1L0g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170613154748.7018-1-sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 13, 2017 at 6:47 PM, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> This adds an I=C2=B2C master driver for SPI -> I=C2=B2C bus bridge chips.
-> It currently supports NXP's SC18IS600 and SC18IS601, as well as
-> Silicon Labs' CP2120. The driver was only tested on SC18IS600.
-
-> +static void sc18is600_setup_clock_frequency(struct sc18is600dev *dev)
-> +{
-> +       int reg =3D DIV_ROUND_UP(dev->clock_base, dev->i2c_clock_frequenc=
-y);
-> +
-
-> +       if (reg < 5)
-> +               reg =3D 5;
-> +       if (reg > 255)
-> +               reg =3D 255;
-
-clamp_t()
-
-> +
-> +       dev_dbg(&dev->spi->dev, "i2c clock frequency: %08x", reg);
-> +       regmap_write(dev->regmap, SC18IS600_REG_I2C_CLOCK, reg);
-> +}
-
-> +static void sc18is600_setup_timeout(struct sc18is600dev *dev,
-> +                                   bool enable, int timeout_ms)
-> +{
-> +       int timeout =3D DIV_ROUND_UP(timeout_ms * dev->chip->timeout_base=
-, 10000);
-> +       u8 reg;
-> +
-
-> +       if (timeout <=3D 0)
-> +               timeout =3D 1;
-> +       if (timeout > 255)
-> +               timeout =3D 255;
-
-Ditto.
-
-> +
-> +       reg =3D (timeout & 0x7F) << 1;
-> +       reg |=3D (!!enable);
-
-Redundant parens.
-Might be one line.
-
-> +
-> +       dev_dbg(&dev->spi->dev, "i2c timeout: %08x", reg);
-> +       regmap_write(dev->regmap, SC18IS600_REG_I2C_TIMEOUT, reg);
-> +}
+Hello,
 
 
-> +static int sc18is600_xfer(struct i2c_adapter *adapter,
-> +                         struct i2c_msg *msgs, int num)
-> +{
+I could not make Silead MSSL1680 touchscreen work on VOYO VBook A1
+laptop, with all 4.11.* kernels, distro openSUSE 42.2.
+I have not tried kernels 4.12-rc* yet. Default openSUSE 42.2 kernel
+4.4.62 had the same issue (timeout).
 
-> +       if (num =3D=3D 1 && read_operations =3D=3D 1)
-> +               err =3D sc18is600_read(dev, &msgs[0]);
-> +       else if (num =3D=3D 1)
-> +               err =3D sc18is600_write(dev, &msgs[0]);
-> +       else if (num =3D=3D 2 && read_operations =3D=3D 1)
-> +               err =3D sc18is600_read_after_write(dev, &msgs[0], &msgs[1=
-]);
-> +       else if (num =3D=3D 2)
-> +               err =3D sc18is600_write_after_write(dev, &msgs[0], &msgs[=
-1]);
-> +       else
-> +               return -EOPNOTSUPP;
+Upstream kernel module:
 
-It will look better
-if (x =3D=3D 1) {
- if (y)
- else
-} else if (x =3D=3D 2) {
- if (y)
- else
-}
-
-> +       switch (dev->state) {
-> +       case SC18IS600_STAT_OK:
-> +               break;
-> +       case SC18IS600_STAT_NAK_ADDR:
-> +               return -EIO;
-> +       case SC18IS600_STAT_NAK_DATA:
-> +               return -EREMOTEIO;
-> +       case SC18IS600_STAT_SIZE:
-> +               return -EINVAL;
-
-> +       case SC18IS600_STAT_TIMEOUT:
-> +               return -ETIMEDOUT;
-> +       case SC18IS600_STAT_TIMEOUT2:
-> +               return -ETIMEDOUT;
-> +       case SC18IS600_STAT_BLOCKED:
-> +               return -ETIMEDOUT;
-
-You may use
-case X:
-case Y:
- return Z;
-
-> +       default:
-> +       case SC18IS600_STAT_BUSY:
-> +               dev_err(&dev->spi->dev, "device hangup detected, reset!")=
-;
-> +               sc18is600_reset(dev);
-> +               return -EAGAIN;
-> +       }
-
-> +static int sc18is600_probe(struct spi_device *spi)
-> +{
-> +       const struct of_device_id *of_id;
-> +       struct sc18is600dev *dev;
-> +       int err;
-> +
-
-> +       of_id =3D of_match_device(sc18is600_of_match, &spi->dev);
-> +       if (!of_id)
-> +               return -ENODEV;
-
-of_device_get_match_data() ?
+ # modprobe silead
+ # dmesg|tail
+[33452.976963] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
+[33453.294532] i2c_designware i2c_designware.3:
+i2c_dw_handle_tx_abort: lost arbitration
+[33454.312683] i2c_designware i2c_designware.3: controller timed out
+[33454.312709] silead_ts i2c-MSSL1680:00: Firmware load error -110
+[33454.328827] silead_ts: probe of i2c-MSSL1680:00 failed with error -110
 
 
-> +       dev =3D devm_kzalloc(&spi->dev, sizeof(*dev), GFP_KERNEL);
-> +       if (dev =3D=3D NULL)
+gslx680_ts_acpi module from https://github.com/onitake/gslx680-acpi :
 
-if (!dev)
+ # insmod gslx680_ts_acpi.ko
+ # dmesg|tail
+[33483.932869] gslx680 i2c-MSSL1680:00: gsl_ts_probe: got a device
+named MSSL1680:00 at address 0x40, IRQ 50, flags 0x0
+[33483.933095] input: Silead GSLx680 Touchscreen as
+/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/input/input17
+[33485.000691] i2c_designware i2c_designware.3: controller timed out
+[33485.000710] gslx680 i2c-MSSL1680:00: gsl_ts_reset_chip: gsl_ts_write 1 fail!
+[33485.000712] gslx680 i2c-MSSL1680:00: gsl_ts_probe: chip reset failed
+[33485.052822] gslx680: probe of i2c-MSSL1680:00 failed with error -110
 
-...and better to use s600dev or alike to avoid confusion.
 
-> +               return -ENOMEM;
 
-> +       snprintf(dev->adapter.name, sizeof(dev->adapter.name),
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# ls -la
+total 0
+drwxr-xr-x 2 root root    0 Jun 18 05:15 .
+drwxr-xr-x 3 root root    0 Jun 18 05:15 ..
+-rw-r--r-- 1 root root 4096 Jun 18 05:15 async
+-rw-r--r-- 1 root root 4096 Jun 18 05:15 autosuspend_delay_ms
+-rw-r--r-- 1 root root 4096 Jun 18 05:16 control
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_active_kids
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_active_time
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_enabled
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_status
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_suspended_time
+-r--r--r-- 1 root root 4096 Jun 18 05:15 runtime_usage
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# cat control
+auto
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# echo 'enabled' > control
+bash: echo: write error: Invalid argument
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# echo 'manual' > control
+bash: echo: write error: Invalid argument
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# cat runtime_enabled
+disabled
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# echo 'enabled' > runtime_enabled
+bash: runtime_enabled: Permission denied
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# cat runtime_status
+unsupported
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# cat runtime_usage
+0
+/sys/devices/pci0000:00/0000:00:16.3/i2c_designware.3/i2c-10/i2c-MSSL1680:00/power
+# echo 1 > runtime_usage
+bash: runtime_usage: Permission denied
 
-> +                "SC18IS600 at SPI %02d device %02d",
 
-Isn't too much for adapter name?
-I don't remember if it's part of ABI, in that case it's even worse.
+Just in case, link to archive with original Windows firmware file and
+binary firmware file converted from Windows' file:
+https://github.com/onitake/gsl-firmware/files/1081950/firmware.zip
 
-> +                spi->master->bus_num, spi->chip_select);
 
-> +       if (!dev->chip->clock_base) {
-> +               dev->clk =3D devm_clk_get(&spi->dev, "clkin");
-> +               if (IS_ERR(dev->clk)) {
-> +                       err =3D PTR_ERR(dev->clk);
-> +                       dev_err(&spi->dev, "could not acquire vdd: %d\n",=
- err);
+Is there anything I could try with 4.11.* kernels?
+I can not try 4.12-rc* kernels currently because they don't have the
+Secure Boot signature by openSUSE maintainers yet and I did not
+succeed in signing them manually. The BIOS of this laptop requires the
+Secure Boot to be enabled to boot Linux so I can't just disable it to
+run the unsigned kernels.
 
-vdd-> Vdd ?
 
-> +                       return err;
-> +               }
-> +
 
-> +               clk_prepare_enable(dev->clk);
-
-This might fail.
-
-> +               dev->clock_base =3D clk_get_rate(dev->clk) / 4;
-
-Magic.
-
-> +       } else {
-> +               dev->clock_base =3D dev->chip->clock_base;
-> +       }
-
---=20
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards
