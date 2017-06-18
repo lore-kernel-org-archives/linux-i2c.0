@@ -1,79 +1,107 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: xgene-slimpro: include linux/io.h for memremap
-Date: Sun, 18 Jun 2017 15:02:23 +0200
-Message-ID: <20170618130223.p2nysktwi3fqlvj2@ninjato>
-References: <20170609102937.3054567-1-arnd@arndb.de>
- <20170615135740.fa2g5wbdwx7psn2w@ninjato>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH RESEND] i2c: add sc18is600 driver
+Date: Sun, 18 Jun 2017 16:02:28 +0200
+Message-ID: <20170618140228.lmrvlgmp5vwnbblv@earth>
+References: <20170613154748.7018-1-sre@kernel.org>
+ <CAHp75VexRjTZ+kbrPvD=RWy+_OBSnKAYj1-TX8aO5QgyOsn7nA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ipm45dis365u752j"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wgpwq6l365pphdml"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48981 "EHLO pokefinder.org"
+Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752364AbdFRNCZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 18 Jun 2017 09:02:25 -0400
+        id S1752102AbdFROCb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 18 Jun 2017 10:02:31 -0400
 Content-Disposition: inline
-In-Reply-To: <20170615135740.fa2g5wbdwx7psn2w@ninjato>
+In-Reply-To: <CAHp75VexRjTZ+kbrPvD=RWy+_OBSnKAYj1-TX8aO5QgyOsn7nA@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Hoan Tran <hotran@apm.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Tin Huynh <tnhuynh@apm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
---ipm45dis365u752j
-Content-Type: text/plain; charset=us-ascii
+--wgpwq6l365pphdml
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 15, 2017 at 03:57:40PM +0200, Wolfram Sang wrote:
-> On Fri, Jun 09, 2017 at 12:29:12PM +0200, Arnd Bergmann wrote:
-> > The newly added support for the pcc mailbox fails to build
-> > in some configurations:
-> >=20
-> > drivers/i2c/busses/i2c-xgene-slimpro.c: In function 'xgene_slimpro_i2c_=
-probe':
-> > drivers/i2c/busses/i2c-xgene-slimpro.c:516:25: error: implicit declarat=
-ion of function 'memremap'; did you mean 'memcmp'? [-Werror=3Dimplicit-func=
-tion-declaration]
-> > drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: error: 'MEMREMAP_WB' und=
-eclared (first use in this function)
-> > drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: note: each undeclared id=
-entifier is reported only once for each function it appears in
-> >=20
-> > This includes the missing header file.
-> >=20
-> > Fixes: df5da47fe722 ("i2c: xgene-slimpro: Add ACPI support by using PCC=
- mailbox")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Hi Andy,
+
+Thanks for your feedback.
+
+On Sat, Jun 17, 2017 at 09:13:32PM +0300, Andy Shevchenko wrote:
+> On Tue, Jun 13, 2017 at 6:47 PM, Sebastian Reichel <sre@kernel.org> wrote:
+> > This adds an I=B2C master driver for SPI -> I=B2C bus bridge chips.
+> > It currently supports NXP's SC18IS600 and SC18IS601, as well as
+> > Silicon Labs' CP2120. The driver was only tested on SC18IS600.
 >=20
-> Applied to for-current, thanks!
+> > +static void sc18is600_setup_clock_frequency(struct sc18is600dev *dev)
+> > +{
+> > +       int reg =3D DIV_ROUND_UP(dev->clock_base, dev->i2c_clock_freque=
+ncy);
+> > +
+>=20
+> > +       if (reg < 5)
+> > +               reg =3D 5;
+> > +       if (reg > 255)
+> > +               reg =3D 255;
+>=20
+> clamp_t()
 
-Oops, the offending commit is only in for-next. So, reconsidered and
-moved this patch to for-next as well.
+I will use clamp_val()
 
-Regards,
+> [...]
+> lot's of suggestions for improvements.
+> [...]
 
-   Wolfram
+Ack.
 
+> ...and better to use s600dev or alike to avoid confusion.
+>=20
+> > +               return -ENOMEM;
+>=20
+> > +       snprintf(dev->adapter.name, sizeof(dev->adapter.name),
+>=20
+> > +                "SC18IS600 at SPI %02d device %02d",
+>=20
+> Isn't too much for adapter name?
+> I don't remember if it's part of ABI, in that case it's even worse.
 
---ipm45dis365u752j
+Well, it's displayed by "i2cdetect -l". Here are the names from some
+other drivers, which I used as reference:
+
+i2c-tiny-usb at bus %03d device %03d
+i2c-diolan-u2c at bus %03d device %03d
+OSIF at bus %03d device %03d
+SMBus Via Pro adapter at %04x
+SMBus SIS5595 adapter at %04x
+
+> [...]
+> lot's of suggestions for improvements.
+> [...]
+
+Ack.
+
+-- Sebastian
+
+--wgpwq6l365pphdml
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllGed8ACgkQFA3kzBSg
-KbZMkg/+N02fw3h1PkJK+VPRi1DhJ+Z28i3FibbyNq2NLNrQ0piZpn/Lpb7wB6ON
-D0zcI9soNaAp8yTvTIj4FSkGpHepYliz0j5R+J8+ghPk4WhZFTQ/Uqq0hLt3grWM
-8k7NiknCt8m5dlEgHVM2/YTLSZkraNXs+6NaJagzkTjg5bFGaB29R07IdpvRtl+a
-nHUynwhMKuw/KKQctgVssUs2L3Yf08opn61fgfioOdM0D1FvzmMUyt5CLqJDtDcR
-Fq3dlFaKMOtRNpygNJhhlMHRwkL74MdF6QtOxLiJjPAsi3G6gV/xIbQOuTL2OMaC
-59YLK7zC4ZBi78q4EjnLIoVpT/8j4pw3g3dwLI2otdCBZWg1MRKA8SNjMdJH+Vf4
-D9ZD+vrKb4PtbAjqTpxE4SUp8IVmmLn80BCfeFMrDGMg3csXut43CvbjBWkedBbp
-eRVD3h4oLg03yg3og/x5NjBwypW0QfuUSBkxjRn0moo0jtBJeBAxb1q4ZDroQMAI
-oDdcV8cU0Wk0VHLCuNRPmT8SUR9nlfrWRBWP403Oj49k5TwCJCWY+85DNEIzL13D
-pnbEMIXuXDs8EvGo9+caBB4YKbFvyUWuGY83J7HlWY7g7o2y9qurk4dB+Ktuec7+
-9j3wnI8JPVqFCKUh0AqACpiVoEKPXj/4xfr1K0TpkJO+dgdngSU=
-=NPcR
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllGh/EACgkQ2O7X88g7
++prJgRAAnZF4WwDKXjplHgqm3ybfq78f2XOe7EOpvuK4196YIfpjdClGZTdmwHcM
+Cr8g9rgNgAc9SX8P74IAEcXfs7EGGSkbN1rU88stjUaz6ZfWOU69HAn3Wbgvx0X5
+qc+MKfB58L95DZJgKiZ+3ChcwILHuIjRonTjfyfynySrPhfAk+Y54tXLEa0auk3F
+vZdhBV7FS2XPnZ+YDPd0D8XmxqAMb0k59YCyFVwjEqUy4HIUHMUP/YA28KVj6wrP
+y1YloOeCFL+iJvneRb68Nq0tt0qVpfXmxtH4bFzlVjhNKE8JCSFoKZXx144IGHGY
+v12PJu6+F7Jol7lP7J7vGA9X2KhHHk/h/IKxPTvoLFGW5Z6v7lA5GGTLDRXPp2ZN
+uyqO+b4b8f0PIk3UzQ3k9NyJIpqNaAG3s1QxaM/8AXnyZfCxFot/ncOIaCATxcrg
+8ZS0O+bxWftL8uA9e9JTF64226bh5L4g/QG/vfbUWZdaFGnMx2YfMAjs5l77wwel
+GISRbsnJ64QiTC/PnMBkAH1CzpcyZFxhWLZnYqsOdYv51UtPgoa2kuFVwcEPFDJB
+gPDWAvtUS4W2fLObBUmNmKhpTIoaHOAFWRhr3LFAwbGtGMTA3fIXjRWZVr6Aw1Pa
+vQ/c+BMNUDX3/Qwzolp8G9LR8eQO3pXtr9k8eRnYc21pzlfvA1g=
+=8/PG
 -----END PGP SIGNATURE-----
 
---ipm45dis365u752j--
+--wgpwq6l365pphdml--
