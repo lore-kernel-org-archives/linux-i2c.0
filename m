@@ -1,77 +1,79 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.12
-Date: Sun, 18 Jun 2017 14:58:35 +0200
-Message-ID: <20170618125831.2fjzqgk4r6lqqm32@ninjato>
+Subject: Re: [PATCH] i2c: xgene-slimpro: include linux/io.h for memremap
+Date: Sun, 18 Jun 2017 15:02:23 +0200
+Message-ID: <20170618130223.p2nysktwi3fqlvj2@ninjato>
+References: <20170609102937.3054567-1-arnd@arndb.de>
+ <20170615135740.fa2g5wbdwx7psn2w@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="q4aio54krzaz5uvt"
+        protocol="application/pgp-signature"; boundary="ipm45dis365u752j"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48963 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:48981 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751965AbdFRM6h (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 18 Jun 2017 08:58:37 -0400
+        id S1752364AbdFRNCZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 18 Jun 2017 09:02:25 -0400
 Content-Disposition: inline
+In-Reply-To: <20170615135740.fa2g5wbdwx7psn2w@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Hoan Tran <hotran@apm.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Tin Huynh <tnhuynh@apm.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---q4aio54krzaz5uvt
+--ipm45dis365u752j
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Thu, Jun 15, 2017 at 03:57:40PM +0200, Wolfram Sang wrote:
+> On Fri, Jun 09, 2017 at 12:29:12PM +0200, Arnd Bergmann wrote:
+> > The newly added support for the pcc mailbox fails to build
+> > in some configurations:
+> >=20
+> > drivers/i2c/busses/i2c-xgene-slimpro.c: In function 'xgene_slimpro_i2c_=
+probe':
+> > drivers/i2c/busses/i2c-xgene-slimpro.c:516:25: error: implicit declarat=
+ion of function 'memremap'; did you mean 'memcmp'? [-Werror=3Dimplicit-func=
+tion-declaration]
+> > drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: error: 'MEMREMAP_WB' und=
+eclared (first use in this function)
+> > drivers/i2c/busses/i2c-xgene-slimpro.c:518:13: note: each undeclared id=
+entifier is reported only once for each function it appears in
+> >=20
+> > This includes the missing header file.
+> >=20
+> > Fixes: df5da47fe722 ("i2c: xgene-slimpro: Add ACPI support by using PCC=
+ mailbox")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>=20
+> Applied to for-current, thanks!
 
-here is a pull request from I2C containing two driver bugfixes. Sorry
-for the Sunday pull request. I forgot to send it out on Friday.
+Oops, the offending commit is only in for-next. So, reconsidered and
+moved this patch to for-next as well.
 
-Thanks,
+Regards,
 
    Wolfram
 
 
-The following changes since commit 32c1431eea4881a6b17bd7c639315010aeefa452:
-
-  Linux 4.12-rc5 (2017-06-11 16:48:20 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to 17e83549e199d89aace7788a9f11c108671eecf5:
-
-  i2c: ismt: fix wrong device address when unmap the data buffer (2017-06-15 16:07:03 +0200)
-
-----------------------------------------------------------------
-Liwei Song (1):
-      i2c: ismt: fix wrong device address when unmap the data buffer
-
-Wolfram Sang (1):
-      i2c: rcar: use correct length when unmapping DMA
-
- drivers/i2c/busses/i2c-ismt.c | 2 +-
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---q4aio54krzaz5uvt
+--ipm45dis365u752j
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllGePEACgkQFA3kzBSg
-KbaqqhAAjanLHLA0xcT/5Lx+z/PBiX/LpujiIQBtSJRKTRpZbPBFFHEGtVI4VLqO
-SUk3dpXK0MCTvoS7nOmm7aut8HOC5e5GX8WFb1FlVJLLugo79iK5FMqmoWuSCHMW
-XvUQ1A5XwmqV9NIZsyo45VLtlxsx181DyogqlvmPwdk1jcxPuQ4GokJYCQjUXQy5
-L305pmF/uhPupU9KITfZsowSVffDmV6uH7kWExDJj+CsCNlp+lc5pusxya1xa61Z
-3LQ2dKiYpM1leSxAAYpk5bRUZJEvnjEcAhoVcea1qhRSSzjnc4zqSNWc6lPCPtpB
-fPNJBxO48BCzF49DFWM3n6uLWXBbesPR6sh/0zY0OLTrKnlQu/zoSF2MXNF9dwsy
-nFi6VR+wYg5P/+GwhBPInY1DqzgdTQ9igfqFVUyKLU1lShqF73F98rJFIe2wDa4i
-Y9GvpP3SFyWpBpQMm0B5wHDaaBTMi4UZppPShPZQFHsP+vdlQlFSB/sPe0xaUFdf
-AZij7MdIs+fFqavQBO85YjIz48SSVSqQIO2SE+h5l6tTRMQez0bVflG0nqFDIUWE
-ceLs/2Yroyc+U+BTMlz8ijuj47C/UHyDk7lizc+lC7WbokY8uDfP82PvUg4uF/ln
-BZSq806eBSl/DO6d3ZpTKp+A8EIFxMe2IZA0HAqc70vntCoEOII=
-=tYzk
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllGed8ACgkQFA3kzBSg
+KbZMkg/+N02fw3h1PkJK+VPRi1DhJ+Z28i3FibbyNq2NLNrQ0piZpn/Lpb7wB6ON
+D0zcI9soNaAp8yTvTIj4FSkGpHepYliz0j5R+J8+ghPk4WhZFTQ/Uqq0hLt3grWM
+8k7NiknCt8m5dlEgHVM2/YTLSZkraNXs+6NaJagzkTjg5bFGaB29R07IdpvRtl+a
+nHUynwhMKuw/KKQctgVssUs2L3Yf08opn61fgfioOdM0D1FvzmMUyt5CLqJDtDcR
+Fq3dlFaKMOtRNpygNJhhlMHRwkL74MdF6QtOxLiJjPAsi3G6gV/xIbQOuTL2OMaC
+59YLK7zC4ZBi78q4EjnLIoVpT/8j4pw3g3dwLI2otdCBZWg1MRKA8SNjMdJH+Vf4
+D9ZD+vrKb4PtbAjqTpxE4SUp8IVmmLn80BCfeFMrDGMg3csXut43CvbjBWkedBbp
+eRVD3h4oLg03yg3og/x5NjBwypW0QfuUSBkxjRn0moo0jtBJeBAxb1q4ZDroQMAI
+oDdcV8cU0Wk0VHLCuNRPmT8SUR9nlfrWRBWP403Oj49k5TwCJCWY+85DNEIzL13D
+pnbEMIXuXDs8EvGo9+caBB4YKbFvyUWuGY83J7HlWY7g7o2y9qurk4dB+Ktuec7+
+9j3wnI8JPVqFCKUh0AqACpiVoEKPXj/4xfr1K0TpkJO+dgdngSU=
+=NPcR
 -----END PGP SIGNATURE-----
 
---q4aio54krzaz5uvt--
+--ipm45dis365u752j--
