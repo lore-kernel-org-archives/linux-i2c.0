@@ -1,52 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Mon, 19 Jun 2017 16:21:05 +0200
-Message-ID: <20170619142105.kynebk74y7nbvmfx@ninjato>
-References: <20170603012952.2192-1-brendanhiggins@google.com>
- <20170603012952.2192-5-brendanhiggins@google.com>
- <20170619141322.devvmcbjaeq4jnv5@ninjato>
+Subject: Re: [PATCH] i2c: xlp9xx: Enable HWMON class probing for xlp9xx
+Date: Mon, 19 Jun 2017 16:23:12 +0200
+Message-ID: <20170619142312.ednr6dgudhniq5og@ninjato>
+References: <1495712535-30712-1-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f7cbmbwsi4rrz3yo"
+        protocol="application/pgp-signature"; boundary="uhk2sih4h2ca6pv4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53411 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:53430 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750928AbdFSOVI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Jun 2017 10:21:08 -0400
+        id S1750844AbdFSOXO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 10:23:14 -0400
 Content-Disposition: inline
-In-Reply-To: <20170619141322.devvmcbjaeq4jnv5@ninjato>
+In-Reply-To: <1495712535-30712-1-git-send-email-george.cherian@cavium.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org, ryan_chen@aspeedtech.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+To: George Cherian <george.cherian@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---f7cbmbwsi4rrz3yo
+--uhk2sih4h2ca6pv4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, May 25, 2017 at 11:42:15AM +0000, George Cherian wrote:
+> Set I2C_CLASS_HWMON for xlp9xx to enable automatic probing of BMC
+> devices by the ipmi-ssif driver.
+>=20
+> Signed-off-by: George Cherian <george.cherian@cavium.com>
+
+Applied to for-next, thanks!
 
 
-And any chance for a MAINTAINERS entry?
-
-
---f7cbmbwsi4rrz3yo
+--uhk2sih4h2ca6pv4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3dEACgkQFA3kzBSg
-KbYMJRAAjEq4u6f83agNfj1kqSPUQt4/J1i2H8TRrHLkacQSt5vs41n4nFkMJZHq
-og1HnO2UgGlbqRENdJOSnOAHubtenVYk5ZhsMNH36vhGrMIl4Zq7qWIDNcjnmguC
-gk8jMfRSdi/EsPbKGvjDBTh2WUwiz4YKTP/GU1phFCOnuohQC0okkIgVmZS7fIrb
-gIbUUv3bcHzD/uhpBZr/wTWvTsmwNR3mfU9oA05DSGHRiqoVOM5zNOU5AAJtkHCm
-GI5jiBhTh3XJKFI/eoM8zt3TubrNGk6++EjM3KSuUdUzFHtaTbANqKEBoeNunQaj
-tI3UlTT0FqxWyVbZmsKcaDwlu279++DIQnAdXSIBq2QSxLCi1T/OHyty7Cx1FK75
-dVejXCLqyD3W2pCfkzUWw0w70MUzvEC/HKcCi/gMVotinxGUJracogaMt4R6fiRQ
-FeGsUZu/bY7lQKR5SDuq9Rx9J/W7YOpRu8PF9bBVbULXER9p8ru0SGrCvQxuh+lr
-rWOqccbgIqeLxgSuGeOc05NCzjvRQpA2eDXyIC12DrdWH1C3GztbhfcnT9XlysZU
-V3Has8zDCVoL4cMFVTmrT8A0zKcQXOIZWHz/I2LdU+DTTIm9lFMBxZZVcpa1VEkK
-flS+PrHMNYJ4g2CxDMKeZeaUQDWwmCmlQp67CjgN1quG8wzbKTU=
-=dILI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3lAACgkQFA3kzBSg
+Kbayow//eYTqI++GhfUtdnLiwOD13YHpplyviF+rcQGVVKeOH9/BN7nxLCVWQAvj
+qI8Y4hLtwWarwO1NzZ1vWSsHKVddDzTzwqxyjyRc+jTxnJzcmTd55m+jETFT1sbl
+c1DfJYYZk5bOxM2HrIZaJHeQJ/HjLirL06f6dKWNAapnX6o7iFdUm3lqiUvYsqXv
+2KEusNnpTUhhR89mWHzlu+Nh+TFXv89NxMYEDd5iaUrdet9KIxNB61dAMyrbBwyY
+Uise+p5xuQEoI91tt7rrZgLbBuQsQYfPbDbkH4YvehEJ2f53KyEESfF5njN0KAsq
+zXjOsvVjhCmGA5sFhFHdZkTx+Jy5KEgL5/5RHA3nTLH7HuUVR7cexGYLBdlg0B0x
+ww2R8TQMO7CZ+metKuyneciqSvWUf1PRPvSbdA03kFP75VdoBx7GkDk8/bBcL0UW
+USSLJH/zXsSAQmui80P5qOhjBRU7RZU464ORgyjRO28YqiTeHDUd4AYVPv08xQVR
+4CDhygjjc9RdAF2ybWMUGFVuShJOBT1yuKkGJ0Z56ChPhJtWppfKQQcybrrLKWi7
+c4dvMCxxKA8tDHualv/Lu+3DKMr5CfrHNwCHjm/j9gRfC52Zd06D0G/iAiSfr5HE
+mPpKFGkIVmf47CNsatGg0RHTDtN2mXTm96r+T4GigTtwSDBG9GU=
+=SNyw
 -----END PGP SIGNATURE-----
 
---f7cbmbwsi4rrz3yo--
+--uhk2sih4h2ca6pv4--
