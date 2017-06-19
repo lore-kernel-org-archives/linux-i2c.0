@@ -1,64 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-imx: Use correct function to write to register
-Date: Mon, 19 Jun 2017 16:46:01 +0200
-Message-ID: <20170619144601.vhswaa27f5mcxcxs@ninjato>
-References: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
+Subject: Re: [PATCH 0/4] i2c: pca-platform: updates
+Date: Mon, 19 Jun 2017 17:01:19 +0200
+Message-ID: <20170619150119.bu6saf7xvt3tvhtx@ninjato>
+References: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rcjwvwzvgunqvbsb"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53569 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750761AbdFSOqD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Jun 2017 10:46:03 -0400
+        protocol="application/pgp-signature"; boundary="bswz35zs44ktub3m"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
-Cc: "l.stach@pengutronix.de" <l.stach@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>
 
 
---rcjwvwzvgunqvbsb
+--bswz35zs44ktub3m
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jun 09, 2017 at 03:28:12PM +0200, Michail Georgios Etairidis wrote:
+On Tue, Jun 13, 2017 at 01:56:37PM +1200, Chris Packham wrote:
 
-> The i2c-imx driver incorrectly uses readb()/writeb() to read and write
-> to the appropriate registers when performing a repeated start. The
-> appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions should be
-> used instead. Performing a repeated start results in a kernel panic.
+> We're using a PCA9564 on an embedded platform to provide an i2c
+> controller. This adds devicetree support and I've included some
+> cleanups for the driver while I was at it.
 
-On what platform? It has a different regshift, I assume. Anyone from PTX
-or Freescale can confirm?
+Coooool, this was the first driver I ever hacked! Ah, memories :D
 
-> I am resubmitting this patch as the previous one was erroneous. This
-> patch is based on the current upstream kernel code.
+Patches 2-4 look good to me. I agree to your and Rob's comments on patch
+1.
 
-There is no Signed-off-by. I need that. Read
-Documentation/process/submit-checklist.rst if you don't know about it
-yet.
+Thanks,
+
+   Wolfram
 
 
---rcjwvwzvgunqvbsb
+--bswz35zs44ktub3m
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH46UACgkQFA3kzBSg
-KbbidRAAtPwu1GDZB7YC4HK0/mYhmpBSZTgMfjC/24YptDHQeB815iaI156hg0ta
-TVM7oXFPgUKw1LRyZcrdN/g/eG1K3/ZXxNubgs0g0ZuzKqTnT2/12TdAE6xKg8vL
-7hIuG42JkxLcGTkI8wC4ZCaND+EI+lawCcyTHyPScl7xQePP5sV8oGzr+CWeZpso
-CU1Z0BXZThbNBrD4qp08ZJAGcDlSVmP26NnA1s4o8JbT0NieRIdEnzbIZD0N/ftd
-NfBjBFAgk+4cGNrpz3xivbKsZGtpd39xRWEHZ7F+XIhC/AyWsESTz/bkLNr1LTkI
-FLqFLOO/cLzth5CSUjj7Ivns3VDKb4VIu3LQxreYWSaJ9I187ZiGvpI01vTJ0K6W
-pSNvL0BEl3wGqk8pJrZFLAD5OwkYT5DTL0n2b8sLuGUcBRL+53rFf4H0TmLgF1KO
-b+6vXUG3wM9jg96iVo4Sk+6QwVuT6ffV7m5HNcBoUNUI+k+rstFDN1KAhh86sBYf
-XYEYGhMcYa7lRXoZ05gExKJDbG5o2bhwmVBLI1/PS5THJ6u7KA+CvOCLZrUkSXmD
-dCur+Dj00Yt6gi7afyv9VipUebIL8f8tiHFQoYZY0Wca/Nwy02t5ZLDhCJd9Ii9K
-okB3dEHXUeUvRfpSQgDJ/D8zbtZ45uFcelCU8U6uVAqmaKbVanY=
-=PK4/
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH5z8ACgkQFA3kzBSg
+KbZdMw//XzsJm3+CKq+np4cpWwoKbwqejJcSvSL5NTv/XAl3lVW6w4uhY3BXcFoV
+WaqsTMF2/s1i57WUdVrQV/WYB0OZa5wA0d2dYOdhixtnwLivPGk43eF8nobeTwjD
+Z77CVgJCIJk4l0BkZVUSMpTvpNqa6yfLhDUcC8/sjXKvjQR/cxwun+jw4ixyMPyM
+mZjOCAbyG8LJxTgle1tkAy5hfwq6dkY50OLyKWympg84X5+0uSmA2Ybb9PqHBKAB
+rnMlc8ZsyNsD732BWONrl4UCx2pcfC5ovv5YCQJimsEUUX/qTUsfcwvcbAmL7zeS
+0bC1UcWIcC0xl/Vvj2naJEfOsvd7SguikmKQpg+E253rgpZy1hEQ/daYGQWr5Hwf
+oeSpelBp7PR4D5oBTiDTxQfDDjGNmvzQINgdQ5N/9T7Qc4xNNm+NQ9G7FbeGWvyo
+YP/zDcDyd0n16JuP5F/BsaBLxQY38rKmjC0E3dcWZPuZ98YUjzd+oFQyAF0U3JM6
+/3WFkzJkGkn1S+kfb7eifWc84FQ5lMugHf5N2Bc6wniT2Y+96vkqY8mkZYEQZ5Gf
+gHgkeHeHIuDrlChEY6S1tmJZ1YnieXygyTVY4I2B5rul536+rUcv875DulwhaniS
+kPKzY6nCerzbcy51G3AmCFBgOOKMdaXlmyjdMoYDErWz7nKCMUU=
+=/kjz
 -----END PGP SIGNATURE-----
 
---rcjwvwzvgunqvbsb--
+--bswz35zs44ktub3m--
