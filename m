@@ -1,38 +1,36 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] i2c: rcar: document HW incapabilities
-Date: Mon, 19 Jun 2017 23:41:46 +0200
-Message-ID: <20170619214146.4784-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: INFO <mguerrero@huv.gov.co>
+Subject: Re: Reply Urgent
+Date: Mon, 19 Jun 2017 14:39:18 -0500
+Message-ID: <20170619143918.2132176qvnaamicm__13478.3597467051$1497917312$gmane$org@correo.huv.gov.co>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=ISO-8859-1;
+ DelSp="Yes";
+ format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from correo.huv.gov.co ([190.6.160.84]:4695 "EHLO correo.huv.gov.co"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753205AbdFTAIX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 20:08:23 -0400
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add recent findings (IGNORE_NAK) and document in a bit more detail why
-the feature is not possible.
+Hello,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+How are you doing? I have been sent to inform you that, We have an  
+inheritance of a deceased client with your surname. Contact Mr Andrew  
+Bailey Reply Email To: myinfand@gmail.com with your "Full Names" for  
+more info.  Thanks for your understanding.
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 048deee674955c..93c1a54981df08 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -783,7 +783,12 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 
- static u32 rcar_i2c_func(struct i2c_adapter *adap)
- {
--	/* This HW can't do SMBUS_QUICK and NOSTART */
-+	/*
-+	 * This HW can't do:
-+	 * I2C_SMBUS_QUICK (setting FSB during START didn't work)
-+	 * I2C_M_NOSTART (automatically sends address after START)
-+	 * I2C_M_IGNORE_NAK (automatically sends STOP after NAK)
-+	 */
- 	return I2C_FUNC_I2C | I2C_FUNC_SLAVE |
- 		(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
- }
--- 
-2.10.2
+Reply ASAP thank you.
+
+Melissa.
+----------------------------------
+Correo Corporativo Hospital Universitario del Valle E.S.E
+*******************************************************************************
+
+"Estamos re-dimensionandonos para crecer!"
+
+******************************************************************************
