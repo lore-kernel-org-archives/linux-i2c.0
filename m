@@ -1,52 +1,34 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c : busses : emev2 : Handle return value of
- clk_prepare_enable
-Date: Mon, 19 Jun 2017 19:01:44 +0200
-Message-ID: <20170619170144.aecnztmhjkdjzrxe@ninjato>
-References: <302ae3da44202f585419ca80770426f98768b410.1495634283.git.arvind.yadav.cs@gmail.com>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: w1_ds28e17 driver for the DS28E17 Onewire to I2C master bridge
+Date: Mon, 19 Jun 2017 20:43:44 +0200
+Message-ID: <00c6d284-33a6-aae8-688e-801c7c62c48f@gmx.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qj5bb2nd5jxq74ox"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <302ae3da44202f585419ca80770426f98768b410.1495634283.git.arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.15.18]:50520 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754101AbdFSSn5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 14:43:57 -0400
+Received: from [10.0.0.99] ([79.242.232.159]) by mail.gmx.com (mrgmx001
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 0MFcg9-1dbcVI1R7V-00EeFh for
+ <linux-i2c@vger.kernel.org>; Mon, 19 Jun 2017 20:43:45 +0200
+Content-Language: de-DE
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
+Hi,
 
---qj5bb2nd5jxq74ox
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+just a question about my patches for adding a driver for the DS28E17
+Onewire to I2C master bridge to the kernel.
 
-On Wed, May 24, 2017 at 07:31:06PM +0530, Arvind Yadav wrote:
-> clk_prepare_enable() can fail here and we must check its return value.
->=20
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+It's been a year since I submitted the first version and there was no
+further feedback since my latest version from October 2016.
 
-Applied to for-next, thanks!
+Have I missed something or did something wrong? Is there something I
+have to do now to have the patchset accepted?
 
+Kind regards
 
---qj5bb2nd5jxq74ox
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllIA3QACgkQFA3kzBSg
-KbZ3DQ/+Nog8KNpuwbI4NBXyk2aXqq4XePpao2tujZ5TarI+ECmdKdDleAHyxKll
-GrZ8TnvzZo2ITNKGCLZi4NxZaz4OLl34NZcE/NVs4G5jy0IunQroY0bz/ZNMcdJb
-zLkYeOZp/88Bfla+LIsUs7jcFe+VLCqkx11alCqtQNenwGPR8GWCBg4fXOgW8XUi
-753klxH1dsKPb2tMhHK3z+EnzcppsXwLoqEuvf9JWpR/nI5Z7bG6uzcON6CoBDwZ
-cVT/FPBZQ0ca12Jbey3izdSx3yj4UY2pt/VgNqhWO8I9kM9b+xuuhlB5u5VD+KRF
-jV/WxufBATQK/z6LmOSGUnXGumz6L3BCD1d/l0EpnhvrGVDzZiDtbQOwpCNjKnos
-gzdDMqoEVbnpCdQHPmaSxVqKvYcwIGFpOcpjtejf4xz0qQTCFKZLKAqJtU3SnxBS
-4kA5kZMTEhG0KocrOQygoNE5jbxApgd8rZCXJ/OAe7MVyOvdpT8DgLurcu4Hc/yr
-L1RUX8xU+1lNFITtG3nks3IRHHns2HR7PWR8Y+Fh6LYh3McTsCloJCdlwlTy5Q/T
-Qr4zFkaO0chBeJ8VuwWr5u0psnK3LAhgLq822XmR1Tg+GAs1fvSx4otlYvZF2rcT
-xeciCGUBNDjN3RwXdYzsF1xsMYW80kdTUv5bC45o5UX8lRDSjk0=
-=0Z12
------END PGP SIGNATURE-----
-
---qj5bb2nd5jxq74ox--
+	Jan
