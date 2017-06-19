@@ -1,77 +1,57 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: i2c-imx: Use correct function to write to register
-Date: Mon, 19 Jun 2017 20:54:16 +0200
-Message-ID: <20170619185416.owrkfcbvutbhdrmo@pengutronix.de>
-References: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: core: Prevent race condition when removing i2c
+ devices
+Date: Mon, 19 Jun 2017 21:30:06 +0200
+Message-ID: <2e4c5807-3d3c-1ce2-da35-3e37b2e3b08b@axentia.se>
+References: <20170608024344.9311-1-david.thomson@alliedtelesis.co.nz>
+ <20170619143656.zigxk77vegedscjx@ninjato>
+ <24ee1e30-1737-e3ef-a23e-01d41a29d45f@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:37343 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751012AbdFSSyT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Jun 2017 14:54:19 -0400
-Content-Disposition: inline
-In-Reply-To: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
+Received: from mail-eopbgr00102.outbound.protection.outlook.com ([40.107.0.102]:20811
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752910AbdFSTaP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 15:30:15 -0400
+In-Reply-To: <24ee1e30-1737-e3ef-a23e-01d41a29d45f@axentia.se>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
-Cc: lst@pengutronix.de, linux-i2c@vger.kernel.org, kernel@pengutronix.de, Fugang Duan <B38611@freescale.com>, Yuan Yao <yao.yuan@freescale.com>
+To: Wolfram Sang <wsa@the-dreams.de>, David Thomson <david.thomson@alliedtelesis.co.nz>
+Cc: linux-i2c@vger.kernel.org
 
-On Fri, Jun 09, 2017 at 03:28:12PM +0200, Michail Georgios Etairidis wrote:
-> The i2c-imx driver incorrectly uses readb()/writeb() to read and write to the appropriate registers when performing a repeated start. The appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions should be used instead. Performing a repeated start results in a kernel panic.
+On 2017-06-19 18:34, Peter Rosin wrote:
+> It would certainly be nice to know why .owner is clobbered, because I
+> don't see it. But then again, I don't know what sources I should be
+> reading...
 
-please limit lines in the commit to 76 chars.
+BTW, one thing I noticed when reading the current code is that I see this
+at the end of i2c_del_adapter:
 
-> I am resubmitting this patch as the previous one was erroneous. This patch is based on the current upstream kernel code.
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 95ed171..54a47b4 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -734,9 +734,9 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
->  		 * the first read operation, otherwise the first read cost
->  		 * one extra clock cycle.
->  		 */
-> -		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->  		temp |= I2CR_MTX;
-> -		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	/* Clear the device structure in case this adapter is ever going to be
+	   added again */
+	memset(&adap->dev, 0, sizeof(adap->dev));
+}
+EXPORT_SYMBOL(i2c_del_adapter);
 
-These were introduced by commit ce1a78840ff7a authored by Yao Yuan.
 
->  	}
->  	msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->  
-> @@ -857,9 +857,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
->  				 * the first read operation, otherwise the first read cost
->  				 * one extra clock cycle.
->  				 */
-> -				temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-> +				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->  				temp |= I2CR_MTX;
-> -				writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+which is not very compatible with this part of the device_add() docs:
 
-These were introduced by commit 054b62d9f25c9 authored by Fugang Duan.
 
-I added these two people to Cc:, maybe they are still at Freescale/NXP
-and can comment.
+ * Do not call this routine or device_register() more than once for
+ * any device structure.  The driver model core is not designed to work
+ * with devices that get unregistered and then spring back to life.
+ * (Among other things, it's very hard to guarantee that all references
+ * to the previous incarnation of @dev have been dropped.)  Allocate
+ * and register a fresh new struct device instead.
 
-	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
 
-results in
+That, of course, probably have no bearing on the problem/patch in this
+thread...
 
-	readb(i2c_imx->base + (reg << i2c_imx->hwdata->regshift));
+Or maybe struct device reuse is exactly what is going on???
 
-where .regshift is 2 for imx and 0 for vf610. So the patch makes a
-difference on the former platforms only.
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Cheers,
+peda
