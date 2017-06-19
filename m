@@ -1,37 +1,38 @@
-From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Subject: Re: [PATCH 0/4] i2c: pca-platform: updates
-Date: Mon, 19 Jun 2017 20:50:34 +0000
-Message-ID: <a9040dd65fd148fb809eab139cb74846@svr-chch-ex1.atlnz.lc>
-References: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
- <20170619150119.bu6saf7xvt3tvhtx@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:47683 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751761AbdFSUuj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Jun 2017 16:50:39 -0400
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: rcar: document HW incapabilities
+Date: Mon, 19 Jun 2017 23:41:46 +0200
+Message-ID: <20170619214146.4784-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 20/06/17 03:01, Wolfram Sang wrote:=0A=
-> On Tue, Jun 13, 2017 at 01:56:37PM +1200, Chris Packham wrote:=0A=
-> =0A=
->> We're using a PCA9564 on an embedded platform to provide an i2c=0A=
->> controller. This adds devicetree support and I've included some=0A=
->> cleanups for the driver while I was at it.=0A=
-> =0A=
-> Coooool, this was the first driver I ever hacked! Ah, memories :D=0A=
-> =0A=
-> Patches 2-4 look good to me. I agree to your and Rob's comments on patch=
-=0A=
-> 1.=0A=
-> =0A=
-=0A=
-Happy to bring some nostalgia :).=0A=
-=0A=
-I'll post a v2 series later today.=0A=
+Add recent findings (IGNORE_NAK) and document in a bit more detail why
+the feature is not possible.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 048deee674955c..93c1a54981df08 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -783,7 +783,12 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+ 
+ static u32 rcar_i2c_func(struct i2c_adapter *adap)
+ {
+-	/* This HW can't do SMBUS_QUICK and NOSTART */
++	/*
++	 * This HW can't do:
++	 * I2C_SMBUS_QUICK (setting FSB during START didn't work)
++	 * I2C_M_NOSTART (automatically sends address after START)
++	 * I2C_M_IGNORE_NAK (automatically sends STOP after NAK)
++	 */
+ 	return I2C_FUNC_I2C | I2C_FUNC_SLAVE |
+ 		(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+ }
+-- 
+2.10.2
