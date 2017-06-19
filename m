@@ -1,81 +1,37 @@
-From: thor.thayer@linux.intel.com
-Subject: [PATCHv4 2/3] dt-bindings: i2c: Add Altera I2C Controller
-Date: Mon, 19 Jun 2017 15:36:57 -0500
-Message-ID: <1497904618-27010-3-git-send-email-thor.thayer@linux.intel.com>
-References: <1497904618-27010-1-git-send-email-thor.thayer@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1497904618-27010-1-git-send-email-thor.thayer@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, thor.thayer@linux.intel.com
-Cc: davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+Subject: Re: [PATCH 0/4] i2c: pca-platform: updates
+Date: Mon, 19 Jun 2017 20:50:34 +0000
+Message-ID: <a9040dd65fd148fb809eab139cb74846@svr-chch-ex1.atlnz.lc>
+References: <20170613015641.29373-1-chris.packham@alliedtelesis.co.nz>
+ <20170619150119.bu6saf7xvt3tvhtx@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:47683 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751761AbdFSUuj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Jun 2017 16:50:39 -0400
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-From: Thor Thayer <thor.thayer@linux.intel.com>
-
-Add the documentation to support the Altera synthesizable
-logic I2C Controller in FPGA.
-
-Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
-v2  Change the subject to identify dt-bindings
-    Add synthesizable logic to description.
-    Change compatible string to "altr,softip-i2c"
-    Make description of clock phandle singular since 1 clock.
-    Remove altr, from fifo-size
-    Specify fifo-size is in bytes.
-v3  Add version to compatible string "altr,softip-i2c-v1.0"
-    Add for use in FPGA in description.
-v4  No Change - Add Acked-by
----
- .../devicetree/bindings/i2c/i2c-altera.txt         | 39 ++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-new file mode 100644
-index 0000000..767664f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-@@ -0,0 +1,39 @@
-+* Altera I2C Controller
-+* This is Altera's synthesizable logic block I2C Controller for use
-+* in Altera's FPGAs.
-+
-+Required properties :
-+ - compatible : should be "altr,softip-i2c-v1.0"
-+ - reg        : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number.
-+ - clocks     : phandle to input clock.
-+ - #address-cells = <1>;
-+ - #size-cells = <0>;
-+
-+Recommended properties :
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+
-+Optional properties :
-+ - fifo-size : Size of the RX and TX FIFOs in bytes.
-+ - Child nodes conforming to i2c bus binding
-+
-+Example :
-+
-+	i2c@100080000 {
-+		compatible = "altr,softip-i2c-v1.0";
-+		reg = <0x00000001 0x00080000 0x00000040>;
-+		interrupt-parent = <&intc>;
-+		interrupts = <0 43 4>;
-+		clocks = <&clk_0>;
-+		clock-frequency = <100000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		fifo-size = <4>;
-+
-+		eeprom@51 {
-+			compatible = "atmel,24c32";
-+			reg = <0x51>;
-+			pagesize = <32>;
-+		};
-+	};
-+
--- 
-2.7.4
+On 20/06/17 03:01, Wolfram Sang wrote:=0A=
+> On Tue, Jun 13, 2017 at 01:56:37PM +1200, Chris Packham wrote:=0A=
+> =0A=
+>> We're using a PCA9564 on an embedded platform to provide an i2c=0A=
+>> controller. This adds devicetree support and I've included some=0A=
+>> cleanups for the driver while I was at it.=0A=
+> =0A=
+> Coooool, this was the first driver I ever hacked! Ah, memories :D=0A=
+> =0A=
+> Patches 2-4 look good to me. I agree to your and Rob's comments on patch=
+=0A=
+> 1.=0A=
+> =0A=
+=0A=
+Happy to bring some nostalgia :).=0A=
+=0A=
+I'll post a v2 series later today.=0A=
