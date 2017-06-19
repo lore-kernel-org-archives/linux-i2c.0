@@ -1,58 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 5/5] i2c: aspeed: added slave support for Aspeed I2C
- driver
-Date: Mon, 19 Jun 2017 16:14:17 +0200
-Message-ID: <20170619141417.fs7bnc6esz4uksmg@ninjato>
-References: <20170603012952.2192-1-brendanhiggins@google.com>
- <20170603012952.2192-6-brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: i801: Add support for Intel Cannon Lake
+Date: Mon, 19 Jun 2017 16:18:29 +0200
+Message-ID: <20170619141829.4bdfm75bclwwtrfq@ninjato>
+References: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7robew4ddhcjv54q"
+        protocol="application/pgp-signature"; boundary="3ndr37iekt5tjc7f"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53361 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:53384 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750886AbdFSOOT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Jun 2017 10:14:19 -0400
+        id S1750761AbdFSOSb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 10:18:31 -0400
 Content-Disposition: inline
-In-Reply-To: <20170603012952.2192-6-brendanhiggins@google.com>
+In-Reply-To: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org, ryan_chen@aspeedtech.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
 
---7robew4ddhcjv54q
+--3ndr37iekt5tjc7f
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 02, 2017 at 06:29:52PM -0700, Brendan Higgins wrote:
-> Added slave support for Aspeed I2C controller. Supports fourteen busses
-> present in AST24XX and AST25XX BMC SoCs by Aspeed.
+On Thu, May 18, 2017 at 11:23:06AM +0300, Jarkko Nikula wrote:
+> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 >=20
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+> Added SMBUS PCI Ids for SMBUS for Cannon Lake PCH.
+>=20
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> [jarkko.nikula@linux.intel.com: Add entries to Documentation and Kconfig.
+> Cover Cannon Lake-H too]
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Nice, looks good to me!
+Applied to for-next, thanks!
 
 
---7robew4ddhcjv54q
+--3ndr37iekt5tjc7f
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3DkACgkQFA3kzBSg
-KbZt0hAAg4JI+HCvsP78ONTmLQNGuBk4S3XgDjHqqM3hR6neNwfCUsB2fHao4xlL
-bjqlXHKXNUMmiOyy9ybt1TShVwOeowVPDBa84YOZHLzxqfltrmyHrWVu7FlPPejl
-rP6SzHPq1ir+ZxvC6Ez79wdrjSLvxP4B1BR17zm8dP5Z6bY65x2IOQkX/jAu4B0S
-9DFzq9Pi+7pGaRht+JPaxg1OprqWJOa8j+5CZR6h2csckKSai81vsmWXnGbGObHg
-5KXwoQtq5jJyvFpKOF+aQgdeL+pbRbkhH2IIP7z7eah5b5P5RHsvkAObaDP0e5Wn
-1QKccgH47IDFEYfkjLSskAscxHba9oPZwd7OCfr0ESld1ipSbxmUfRCesCVoKCJA
-KDqKEpU49jdIS4XUcU59SGqVwLoh0a2Gyd4zVLFcVBi5XG3Ae3aJKoS7+AMrw5iZ
-oEgZ/pwEIE36R+uvWA9GYzCTxGP44wAaks4KsExAPv+oFzmAHVfQbHx4GSP6ut8a
-664M/sZJ1WNi3pShJLfe/Movn0B7xZsTLbCvU0/YLUPEyEKC/QKKzhtJwjyd7mSG
-aadNkDGQlCiTetXdK6LhW4qnGiEtLAt3apHCCtrwHysuv+tTv3F/g8FG88Ce4+dR
-sqUSEDyjQ4uArDiigKPT/Jwym/DeNYXWiWR2caGj4+ZAG+KDTj4=
-=r9Dm
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3TUACgkQFA3kzBSg
+KbYsmA//Wl2/heyNubSuV7Mbzn7xBuI183Wys9dDZBm1yDt4UnowPGGItUOs7K7B
+rT9KyGpZlsp7EnKeNxxU8E/wT/w+2sU34Q8I8RRuVhYJrIAmRbrklgM001yMTpwf
+ibefE1oFvVgRhWrGdYznSr9Pi9SYzz+mjUYwUiS1Tt4o3VoOgwfDM7gev3/XpW87
+IMCW9DdGMn6jmEc+MtxzhOCCc5cQkwpSF5/z39w+ygby2Nq2Om4W4psafrcmbH4P
+JW8Zety03NKnlI1b20/OTbXmihDREw+jXBqzKia8C/rfG9cjRwT0Mkni6KvK8pVm
+52hc9okafDbG03QmFKFtGhsF146buHOnNw8onXXdukNuaYpbpIT+yA0PSUw8Aa8k
+IOUY19zJbcboppPiMNajKJ9BISIh2dgALmOHuwMGzD/KtX8CRC8xTZ5Hyd4aY11d
+bkcBOpkThRWDeKaGDEA3snleO+QAl2i5FZZxOG5TuVtpiNCBJaqAFjHRnDnO54Ge
+aS5+mdwnTGcO3a4Tenk3HApvGLQS5yQb/P+juY9VJDzUvmPV2CagcJi8PsE6E6VH
+kIPdkTdTS3IOFZgPRi1bPefiOyb/Hry2DqdKWEJ40Cka49Dz4FmbF2cdJxCnV7He
+OB4ezymu+J5dj0s9yZY2Li67PH2OnwDBkEdz0Jh91nWIdlsPrZE=
+=Ks0y
 -----END PGP SIGNATURE-----
 
---7robew4ddhcjv54q--
+--3ndr37iekt5tjc7f--
