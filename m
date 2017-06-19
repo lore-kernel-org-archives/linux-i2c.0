@@ -1,60 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i801: Add support for Intel Cannon Lake
-Date: Mon, 19 Jun 2017 16:18:29 +0200
-Message-ID: <20170619141829.4bdfm75bclwwtrfq@ninjato>
-References: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v10 4/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Mon, 19 Jun 2017 16:21:05 +0200
+Message-ID: <20170619142105.kynebk74y7nbvmfx@ninjato>
+References: <20170603012952.2192-1-brendanhiggins@google.com>
+ <20170603012952.2192-5-brendanhiggins@google.com>
+ <20170619141322.devvmcbjaeq4jnv5@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3ndr37iekt5tjc7f"
+        protocol="application/pgp-signature"; boundary="f7cbmbwsi4rrz3yo"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53384 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:53411 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750761AbdFSOSb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 19 Jun 2017 10:18:31 -0400
+        id S1750928AbdFSOVI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 19 Jun 2017 10:21:08 -0400
 Content-Disposition: inline
-In-Reply-To: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20170619141322.devvmcbjaeq4jnv5@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, tglx@linutronix.de, jason@lakedaemon.net, marc.zyngier@arm.com, joel@jms.id.au, vz@mleia.com, mouse@mayc.ru, clg@kaod.org, benh@kernel.crashing.org, ryan_chen@aspeedtech.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
 
 
---3ndr37iekt5tjc7f
+--f7cbmbwsi4rrz3yo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, May 18, 2017 at 11:23:06AM +0300, Jarkko Nikula wrote:
-> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
->=20
-> Added SMBUS PCI Ids for SMBUS for Cannon Lake PCH.
->=20
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> [jarkko.nikula@linux.intel.com: Add entries to Documentation and Kconfig.
-> Cover Cannon Lake-H too]
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-
-Applied to for-next, thanks!
 
 
---3ndr37iekt5tjc7f
+And any chance for a MAINTAINERS entry?
+
+
+--f7cbmbwsi4rrz3yo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3TUACgkQFA3kzBSg
-KbYsmA//Wl2/heyNubSuV7Mbzn7xBuI183Wys9dDZBm1yDt4UnowPGGItUOs7K7B
-rT9KyGpZlsp7EnKeNxxU8E/wT/w+2sU34Q8I8RRuVhYJrIAmRbrklgM001yMTpwf
-ibefE1oFvVgRhWrGdYznSr9Pi9SYzz+mjUYwUiS1Tt4o3VoOgwfDM7gev3/XpW87
-IMCW9DdGMn6jmEc+MtxzhOCCc5cQkwpSF5/z39w+ygby2Nq2Om4W4psafrcmbH4P
-JW8Zety03NKnlI1b20/OTbXmihDREw+jXBqzKia8C/rfG9cjRwT0Mkni6KvK8pVm
-52hc9okafDbG03QmFKFtGhsF146buHOnNw8onXXdukNuaYpbpIT+yA0PSUw8Aa8k
-IOUY19zJbcboppPiMNajKJ9BISIh2dgALmOHuwMGzD/KtX8CRC8xTZ5Hyd4aY11d
-bkcBOpkThRWDeKaGDEA3snleO+QAl2i5FZZxOG5TuVtpiNCBJaqAFjHRnDnO54Ge
-aS5+mdwnTGcO3a4Tenk3HApvGLQS5yQb/P+juY9VJDzUvmPV2CagcJi8PsE6E6VH
-kIPdkTdTS3IOFZgPRi1bPefiOyb/Hry2DqdKWEJ40Cka49Dz4FmbF2cdJxCnV7He
-OB4ezymu+J5dj0s9yZY2Li67PH2OnwDBkEdz0Jh91nWIdlsPrZE=
-=Ks0y
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllH3dEACgkQFA3kzBSg
+KbYMJRAAjEq4u6f83agNfj1kqSPUQt4/J1i2H8TRrHLkacQSt5vs41n4nFkMJZHq
+og1HnO2UgGlbqRENdJOSnOAHubtenVYk5ZhsMNH36vhGrMIl4Zq7qWIDNcjnmguC
+gk8jMfRSdi/EsPbKGvjDBTh2WUwiz4YKTP/GU1phFCOnuohQC0okkIgVmZS7fIrb
+gIbUUv3bcHzD/uhpBZr/wTWvTsmwNR3mfU9oA05DSGHRiqoVOM5zNOU5AAJtkHCm
+GI5jiBhTh3XJKFI/eoM8zt3TubrNGk6++EjM3KSuUdUzFHtaTbANqKEBoeNunQaj
+tI3UlTT0FqxWyVbZmsKcaDwlu279++DIQnAdXSIBq2QSxLCi1T/OHyty7Cx1FK75
+dVejXCLqyD3W2pCfkzUWw0w70MUzvEC/HKcCi/gMVotinxGUJracogaMt4R6fiRQ
+FeGsUZu/bY7lQKR5SDuq9Rx9J/W7YOpRu8PF9bBVbULXER9p8ru0SGrCvQxuh+lr
+rWOqccbgIqeLxgSuGeOc05NCzjvRQpA2eDXyIC12DrdWH1C3GztbhfcnT9XlysZU
+V3Has8zDCVoL4cMFVTmrT8A0zKcQXOIZWHz/I2LdU+DTTIm9lFMBxZZVcpa1VEkK
+flS+PrHMNYJ4g2CxDMKeZeaUQDWwmCmlQp67CjgN1quG8wzbKTU=
+=dILI
 -----END PGP SIGNATURE-----
 
---3ndr37iekt5tjc7f--
+--f7cbmbwsi4rrz3yo--
