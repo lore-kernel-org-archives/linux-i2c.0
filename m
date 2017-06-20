@@ -1,115 +1,87 @@
-From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v10 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Mon, 19 Jun 2017 21:02:46 -0700
-Message-ID: <CAFd5g471kpgskO1MkBPZgFLbwAqncT_NZy=igVRkYJpxDNRVyg@mail.gmail.com>
-References: <20170603012952.2192-1-brendanhiggins@google.com>
- <20170603012952.2192-5-brendanhiggins@google.com> <20170619141322.devvmcbjaeq4jnv5@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c: zx2967: add i2c controller driver for ZTE's
+ zx2967 family
+Date: Tue, 20 Jun 2017 09:41:26 +0200
+Message-ID: <20170620074126.GA1541@katana>
+References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
+ <1495947576-11037-3-git-send-email-shawnguo@kernel.org>
+ <20170619193130.velebm7p3r5ggaos@ninjato>
+ <20170620025815.GA4818@x250>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170619141322.devvmcbjaeq4jnv5@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Marc Zyngier <marc.zyngier-5wv7dgnIgG8@public.gmane.org>, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, Vladimir Zapolskiy <vz-ChpfBGZJDbMAvxtiuMwx3w@public.gmane.org>, Kachalov Anton <mouse-Pma6HLj0uuo@public.gmane.org>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg-Bxea+6Xhats@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ryan Chen <ryan_chen-SAlXDmAnmOAqDJ6do+/SaQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:39264 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750990AbdFTHl3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 20 Jun 2017 03:41:29 -0400
+Content-Disposition: inline
+In-Reply-To: <20170620025815.GA4818@x250>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Baoyou Xie <xie.baoyou@sanechips.com.cn>, Xin Zhou <zhou.xin8@sanechips.com.cn>, Baoyou Xie <baoyou.xie@linaro.org>
 
-I thought all of the comments made sense and will be addressed in my
-next revision,
-except the following:
 
->> +static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
->> +{
->> +     unsigned long time_left, flags;
->> +     int ret = 0;
->> +     u32 command;
->> +
->> +     spin_lock_irqsave(&bus->lock, flags);
->> +     command = readl(bus->base + ASPEED_I2C_CMD_REG);
->> +
->> +     if (command & ASPEED_I2CD_SDA_LINE_STS) {
->> +             /* Bus is idle: no recovery needed. */
->> +             if (command & ASPEED_I2CD_SCL_LINE_STS)
->> +                     goto out;
->> +             dev_dbg(bus->dev, "bus hung (state %x), attempting recovery\n",
->> +                     command);
->> +
->> +             reinit_completion(&bus->cmd_complete);
->> +             writel(ASPEED_I2CD_M_STOP_CMD, bus->base + ASPEED_I2C_CMD_REG);
->> +             spin_unlock_irqrestore(&bus->lock, flags);
->> +
->> +             time_left = wait_for_completion_timeout(
->> +                             &bus->cmd_complete, bus->adap.timeout);
->> +
->> +             spin_lock_irqsave(&bus->lock, flags);
->> +             if (time_left == 0)
->> +                     goto reset_out;
->> +             else if (bus->cmd_err)
->> +                     goto reset_out;
->> +             /* Recovery failed. */
->> +             else if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
->> +                        ASPEED_I2CD_SCL_LINE_STS))
->> +                     goto reset_out;
->> +     /* Bus error. */
->> +     } else {
->> +             dev_dbg(bus->dev, "bus hung (state %x), attempting recovery\n",
->> +                     command);
->
-> Same dbg message as in the condition? Move it out of the 'if'?
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Message is the same; that's true; however, I only want to print this
-if I am actually doing
-the recovery. There is a case in the first condition where we actually
-don't attempt recovery.
-(See both SDA and SCL high). Nevertheless, now that I am looking at
-this. I think it might
-make sense to make the dbg statements different since I can explain
-what type of recovery
-I am attempting.
+Hi Shawn,
 
->
->> +
->> +             reinit_completion(&bus->cmd_complete);
->> +             writel(ASPEED_I2CD_BUS_RECOVER_CMD,
->> +                    bus->base + ASPEED_I2C_CMD_REG);
->
-> Out of interest: What does the RECOVER_CMD do?
+> Oh, yes, I should have mentioned it in the cover-letter.  Instead of
+> changing MAINTAINERS file in different subsystem patch series, which may
+> introduce merge conflicts, we plan to update it with a separate patch
+> adding all driver entries that lands on mainline, and get it in through
+> arm-soc tree.  Are you okay with that?
 
-According to the documentation, it attempts to create 1 to 8 SCL
-cycles to force any stuck
-device to let go of the SDA line. It then puts the hardware in a sane
-state once it detects
-that the bus has been recovered. I will put a comment to this effect.
+Yup, totally fine! Good approach.
 
->
->> +             spin_unlock_irqrestore(&bus->lock, flags);
->> +
->> +             time_left = wait_for_completion_timeout(
->> +                             &bus->cmd_complete, bus->adap.timeout);
->> +
->> +             spin_lock_irqsave(&bus->lock, flags);
->> +             if (time_left == 0)
->> +                     goto reset_out;
->> +             else if (bus->cmd_err)
->> +                     goto reset_out;
->> +             /* Recovery failed. */
->> +             else if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
->> +                        ASPEED_I2CD_SDA_LINE_STS))
->> +                     goto reset_out;
->> +     }
->> +
->> +out:
->> +     spin_unlock_irqrestore(&bus->lock, flags);
->> +
->> +     return ret;
->> +
->> +reset_out:
->> +     spin_unlock_irqrestore(&bus->lock, flags);
->> +
->> +     return aspeed_i2c_reset(bus);
->> +}
+> > Is this the error handling (NACK, etc)? Then, it got lost now since we
+> > don't reset the hardware anymore after timeouts. But that would have
+> > meant that errors are only detected after the timeout was reached
+> > instead of instantly? If so, no good design. But maybe I misunderstand.
+>=20
+> Hmm, this doesn't make too much sense now, since this reset function is
+> only being called at probe time to ensure the device is in a sane
+> initial state.  There is no data transfer happening at this point at
+> all.  I will drop these error bits checking from here, and add the error
+> handling in irq handler.
 
-Cheers!
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Great, thanks!
+
+> > How was this driver tested BTW?
+>=20
+> The driver is being used to access an Audio codec on the I2C bus.
+
+Nice. Can you also run 'i2cdetect' on the bus to see if we have proper
+NAK handling? AFAICS this should be broken now. And very slow with
+previous versions of the driver.
+
+Thanks,
+
+   Wolfram
+
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllI0aEACgkQFA3kzBSg
+KbaCVw//QD4x82/rT6ZgUcBGy1P7EIl0eRP4PpR3+aVkAJCffpOPWxQoapjllgzR
+V4uSyi9fjYPEg+aaU+DlXNSGjQvT9W8AUoCk4jGslIpiJIH55qNN/mJH/+1RECJF
+Gg/Jq+r/+YU+dwOx/nfOjwKD6ONHpSvxdtUV0vsOFGSE+VJfCqI4yT6+6AeGnHcG
+lx49gNb/r24JmTd0sAfuw8nXqo2ykq1W+Q40znadgli51AvR4NjUT9AKCOxjrdz3
+C9JWLs1+M8NAUa6NQSqpz2XmA24RoMGsag4oEt+TwU1Gztz8cgEhbmLYbYs7IM44
+tRDighUSMR8/68mBilc7wh7C732X6XeVsUwyZVy++WZfeJYA6+zGtVRrHExmWjl/
+VJDF1v5ShL69xGWqls1RxP8OiddNqUbe3pi3ddhAsrGU9V6QhW7j0NSpuz69KBVB
+ImC84nFXgXaVv+IIQYzYPpKY5Q8s1V29SJFpL6gg/ZzKv1Dc/to+IQFKs1ItuDCt
+6s1hz/Lch4pD/QhzuJIeo9p7bLWALbNuMiHJGRUhB29uNivvDaD/ZQzCmV5jKdVn
+6BT7Ih7jQrAMiFls3OQ16V4L4MQN3aI0N0uufCHGqq96WiKSwamiaD7xhSf7kC3v
+TD99jNGvq6sqhiYfaktA54EU7JOQXRICWHON398o23WvBpaAxC8=
+=MmDy
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--
