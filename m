@@ -1,32 +1,47 @@
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v2 0/5] i2c: pca-platform: updates
-Date: Tue, 20 Jun 2017 13:18:32 +1200
-Message-ID: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:48560 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752798AbdFTBSq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 19 Jun 2017 21:18:46 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH v2 1/5] dt-bindings: add bindings for i2c-pca-platform
+Date: Tue, 20 Jun 2017 13:18:33 +1200
+Message-ID: <20170620011837.14010-2-chris.packham@alliedtelesis.co.nz>
+References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Mark Rutland <mark.rutland@arm.com>
+List-Id: linux-i2c@vger.kernel.org
 
-We're using a PCA9564 on an embedded platform to provide an i2c
-controller. This adds devicetree support and I've included some
-cleanups for the driver while I was at it.
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+Changes in v2:
+- Split dt-binding to separate patch, use "reset-gpios" instead of "gpios".
 
-Chris Packham (5):
-  dt-bindings: add bindings for i2c-pca-platform
-  i2c: pca-platform: add devicetree awareness
-  i2c: pca-platform: use gpio_is_valid
-  i2c: pca-platform: use device managed allocations
-  i2c: pca-platform: use dev_warn/dev_info instead of printk
-
- .../devicetree/bindings/i2c/i2c-pca-platform.txt   | 18 ++++
- drivers/i2c/busses/i2c-pca-platform.c              | 97 +++++++++-------------
- 2 files changed, 57 insertions(+), 58 deletions(-)
+ .../devicetree/bindings/i2c/i2c-pca-platform.txt       | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt b/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt
+new file mode 100644
+index 000000000000..86abf249b194
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-pca-platform.txt
+@@ -0,0 +1,18 @@
++* NXP PCA PCA9564/PCA9665 I2C controller
++
++The PCA9564/PCA9665 serves as an interface between most standard
++parallel-bus microcontrollers/microprocessors and the serial I2C-bus
++and allows the parallel bus system to communicate bi-directionally
++with the I2C-bus.
++
++Required properties :
++
++ - reg : Offset and length of the register set for the device
++ - compatible : one of "nxp,pca9564" or "nxp,pca9665"
++
++Optional properties
++ - interrupts : the interrupt number
++ - interrupt-parent : the phandle for the interrupt controller.
++   If an interrupt is not specified polling will be used.
++ - reset-gpios : gpio specifier for gpio connected to RESET_N pin.
++ - clock-frequency : I2C bus frequency.
 -- 
 2.13.0
