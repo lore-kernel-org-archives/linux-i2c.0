@@ -1,84 +1,52 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH v2 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
-Date: Tue, 20 Jun 2017 13:41:26 +0200
-Message-ID: <1497958890-5530-2-git-send-email-pierre-yves.mordret@st.com>
-References: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [PATCH v2 0/5] Add support for the STM32F7 I2C
+Date: Tue, 20 Jun 2017 13:41:25 +0200
+Message-ID: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1497958890-5530-1-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: pierre-yves.mordret-qxv4g6HH51o@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: pierre-yves.mordret@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the documentation of device tree bindings for STM32F7 I2C
-
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+This patchset adds support for the I2C controller embedded in STM32F7xx SoC.
+It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode and
+Fast-mode+ bus speed.
 ---
-Change in V2
-  * Remove i2c-timing binding in order to use generic bindings SCL Rising
-    and Falling time instead
+Changes in V2
+  * Implement an I2C timings computation algorithm instead of static
+    values(bindings). Algorithm uses generic I2C SCL Falling/Rising
+    bindings and System clock to compute its timings.
+  * I2C Device Tree Update
 ---
- .../devicetree/bindings/i2c/i2c-stm32.txt          | 29 +++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+Pierre-Yves MORDRET (5):
+  dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+  i2c: i2c-stm32f4: use generic definition of speed enum
+  i2c: i2c-stm32f7: add driver
+  ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+  ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-index 78eaf7b..3b54899 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-@@ -1,7 +1,9 @@
- * I2C controller embedded in STMicroelectronics STM32 I2C platform
- 
- Required properties :
--- compatible : Must be "st,stm32f4-i2c"
-+- compatible : Must be one of the following
-+  - "st,stm32f4-i2c"
-+  - "st,stm32f7-i2c"
- - reg : Offset and length of the register set for the device
- - interrupts : Must contain the interrupt id for I2C event and then the
-   interrupt id for I2C error.
-@@ -14,8 +16,16 @@ Required properties :
- 
- Optional properties :
- - clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
--  the default 100 kHz frequency will be used. As only Normal and Fast modes
--  are supported, possible values are 100000 and 400000.
-+  the default 100 kHz frequency will be used.
-+  For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
-+  100000 and 400000.
-+  For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
-+  possible values are 100000, 400000 and 1000000.
-+- i2c-scl-rising-time-ns : Only for STM32F7, I2C SCL Rising time for the board
-+  (default: 25)
-+- i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
-+  (default: 10)
-+  I2C Timings are derived from these 2 values
- 
- Example :
- 
-@@ -31,3 +41,16 @@ Example :
- 		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
- 		pinctrl-names = "default";
- 	};
-+
-+	i2c@40005400 {
-+		compatible = "st,stm32f7-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x40005400 0x400>;
-+		interrupts = <31>,
-+			     <32>;
-+		resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
-+		clocks = <&rcc 1 CLK_I2C1>;
-+		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
-+		pinctrl-names = "default";
-+	};
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
+ arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
+ arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-stm32.h                     |  20 +
+ drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
+ drivers/i2c/busses/i2c-stm32f7.c                   | 968 +++++++++++++++++++++
+ 8 files changed, 1062 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.h
+ create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
+
 -- 
 1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
