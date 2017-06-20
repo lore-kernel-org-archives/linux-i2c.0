@@ -1,87 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Tue, 20 Jun 2017 09:41:26 +0200
-Message-ID: <20170620074126.GA1541@katana>
-References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
- <1495947576-11037-3-git-send-email-shawnguo@kernel.org>
- <20170619193130.velebm7p3r5ggaos@ninjato>
- <20170620025815.GA4818@x250>
+Subject: Re: [PATCH v10 4/5] i2c: aspeed: added driver for Aspeed I2C
+Date: Tue, 20 Jun 2017 09:49:40 +0200
+Message-ID: <20170620074940.GB1541@katana>
+References: <20170603012952.2192-1-brendanhiggins@google.com>
+ <20170603012952.2192-5-brendanhiggins@google.com>
+ <20170619141322.devvmcbjaeq4jnv5@ninjato>
+ <20170619142105.kynebk74y7nbvmfx@ninjato>
+ <CAFd5g47D0zJax1X8MeV_OwMJvzd2Ba-hZc+8_X_Ks1ibH8ipeg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:39264 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750990AbdFTHl3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 20 Jun 2017 03:41:29 -0400
+        protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170620025815.GA4818@x250>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CAFd5g47D0zJax1X8MeV_OwMJvzd2Ba-hZc+8_X_Ks1ibH8ipeg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?utf-8?Q?C=C3=A9dric?= Le Goater <clg@kaod.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ryan Chen <ryan_chen@aspeedtech.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Shawn Guo <shawnguo@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Baoyou Xie <xie.baoyou@sanechips.com.cn>, Xin Zhou <zhou.xin8@sanechips.com.cn>, Baoyou Xie <baoyou.xie@linaro.org>
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Shawn,
-
-> Oh, yes, I should have mentioned it in the cover-letter.  Instead of
-> changing MAINTAINERS file in different subsystem patch series, which may
-> introduce merge conflicts, we plan to update it with a separate patch
-> adding all driver entries that lands on mainline, and get it in through
-> arm-soc tree.  Are you okay with that?
-
-Yup, totally fine! Good approach.
-
-> > Is this the error handling (NACK, etc)? Then, it got lost now since we
-> > don't reset the hardware anymore after timeouts. But that would have
-> > meant that errors are only detected after the timeout was reached
-> > instead of instantly? If so, no good design. But maybe I misunderstand.
+On Mon, Jun 19, 2017 at 05:58:19PM -0700, Brendan Higgins wrote:
+> On Mon, Jun 19, 2017 at 7:21 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >
+> > And any chance for a MAINTAINERS entry?
+> >
 >=20
-> Hmm, this doesn't make too much sense now, since this reset function is
-> only being called at probe time to ensure the device is in a sane
-> initial state.  There is no data transfer happening at this point at
-> all.  I will drop these error bits checking from here, and add the error
-> handling in irq handler.
-
-Great, thanks!
-
-> > How was this driver tested BTW?
+> We already have one:
+> http://elixir.free-electrons.com/linux/v4.11.5/source/MAINTAINERS#L1090
 >=20
-> The driver is being used to access an Audio codec on the I2C bus.
+> However, if you would like me to own this driver, I could add an entry
+> for myself.
 
-Nice. Can you also run 'i2cdetect' on the bus to see if we have proper
-NAK handling? AFAICS this should be broken now. And very slow with
-previous versions of the driver.
-
-Thanks,
-
-   Wolfram
+As far as get_maintainers.pl prints out someone responsibe, I am very
+happy. The above line won't work for I2C (and maybe some other
+subsystems), though,  because we are one directory level deeper
+(drivers/i2c/busses/*aspeed*). That might want fixing.
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllI0aEACgkQFA3kzBSg
-KbaCVw//QD4x82/rT6ZgUcBGy1P7EIl0eRP4PpR3+aVkAJCffpOPWxQoapjllgzR
-V4uSyi9fjYPEg+aaU+DlXNSGjQvT9W8AUoCk4jGslIpiJIH55qNN/mJH/+1RECJF
-Gg/Jq+r/+YU+dwOx/nfOjwKD6ONHpSvxdtUV0vsOFGSE+VJfCqI4yT6+6AeGnHcG
-lx49gNb/r24JmTd0sAfuw8nXqo2ykq1W+Q40znadgli51AvR4NjUT9AKCOxjrdz3
-C9JWLs1+M8NAUa6NQSqpz2XmA24RoMGsag4oEt+TwU1Gztz8cgEhbmLYbYs7IM44
-tRDighUSMR8/68mBilc7wh7C732X6XeVsUwyZVy++WZfeJYA6+zGtVRrHExmWjl/
-VJDF1v5ShL69xGWqls1RxP8OiddNqUbe3pi3ddhAsrGU9V6QhW7j0NSpuz69KBVB
-ImC84nFXgXaVv+IIQYzYPpKY5Q8s1V29SJFpL6gg/ZzKv1Dc/to+IQFKs1ItuDCt
-6s1hz/Lch4pD/QhzuJIeo9p7bLWALbNuMiHJGRUhB29uNivvDaD/ZQzCmV5jKdVn
-6BT7Ih7jQrAMiFls3OQ16V4L4MQN3aI0N0uufCHGqq96WiKSwamiaD7xhSf7kC3v
-TD99jNGvq6sqhiYfaktA54EU7JOQXRICWHON398o23WvBpaAxC8=
-=MmDy
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllI05QACgkQFA3kzBSg
+KbbNMBAAn/W1J+PtOGC7KB2IylKR79ve8dDiQcJUlqByR8CZ42UoyStLtXtyP+ew
+oSg8q8eiQjpLxrL1zB0MZecKOvMH+JhdLsmXt0q7S7nT8Z1KvqyHgMTZxSYLgINL
+PX43QGCBXdI502w4nPZH2Il1W4+CnYSV6Q46hmF8ZEytqoyIiAbfkrIipBPhIZXl
+/hIqX2QoTLVZsLrz0eAID6GzN6YxVDaKdi4bVIkUHAvqyOrBJ+zO12/G/yygiic+
+NrZmoylPPfJWJ2HMojOWud92e+zDnrnpQDlqwtTFdej1f9RjsJ6gFTPT2aLQt3p4
+1uRtTSd5kBWnBYUPP2UnQW/i9/M/G95BnHcjl4/jJe1Ff4hUqfaR0ndYuAa7eEQy
+ghYEhDB/63O9CH4E4cCbLbChp+8xqYLjqKz+XzP1Ep+xxUhddnXOC+BUb6XMgV9R
+nYwzbDVsr0lmhX8CyBhDkRnlx+KtbDlPHviSaRTeZH6MiCPWmj9DXxUqxqPHaBai
+DJKyduB8fhIEe7xclwwFqHrayXfQV7q4JD8Wx6QTnzEK49ss98fsK5ENvF2pCjBf
+Cuk/zaHKljolHQF+Q+oM0prrRFgheHoHV8au8UCeOZwC355RpL/O0fZ6PWszzge+
+3jGvwi4t5MVD+aeX32+ZmYi4szFM1TIMCj4PVLzhbvgEg5md12M=
+=wg8i
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--3lcZGd9BuhuYXNfi--
