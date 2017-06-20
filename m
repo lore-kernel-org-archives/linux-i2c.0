@@ -1,7 +1,7 @@
 From: Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
-Subject: [PATCH v2 5/5] i2c: pca-platform: use dev_warn/dev_info instead of printk
-Date: Tue, 20 Jun 2017 13:18:37 +1200
-Message-ID: <20170620011837.14010-6-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v2 3/5] i2c: pca-platform: use gpio_is_valid
+Date: Tue, 20 Jun 2017 13:18:35 +1200
+Message-ID: <20170620011837.14010-4-chris.packham@alliedtelesis.co.nz>
 References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <20170620011837.14010-1-chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
@@ -10,45 +10,54 @@ To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Use gpio_is_valid() instead of gpio > -1.
+
 Signed-off-by: Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
 ---
  drivers/i2c/busses/i2c-pca-platform.c | 9 ++++-----
  1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 12ab0cafa7c9..27175d681548 100644
+index 87ca2f02f607..3a9845bae9a4 100644
 --- a/drivers/i2c/busses/i2c-pca-platform.c
 +++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -107,8 +107,8 @@ static int i2c_pca_pf_waitforcompletion(void *pd)
- static void i2c_pca_pf_dummyreset(void *pd)
- {
- 	struct i2c_pca_pf_data *i2c = pd;
--	printk(KERN_WARNING "%s: No reset-pin found. Chip may get stuck!\n",
--		i2c->adap.name);
-+
-+	dev_warn(&i2c->adap.dev, "No reset-pin found. Chip may get stuck!\n");
- }
- 
- static void i2c_pca_pf_resetchip(void *pd)
-@@ -214,8 +214,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 			gpio_direction_output(i2c->gpio, 1);
- 			i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
- 		} else {
--			printk(KERN_WARNING "%s: Registering gpio failed!\n",
--				i2c->adap.name);
-+			dev_warn(&pdev->dev, "Registering gpio failed!\n");
- 			i2c->gpio = ret;
- 		}
+@@ -197,7 +197,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 	} else {
+ 		i2c->adap.timeout = HZ;
+ 		i2c->algo_data.i2c_clock = 59000;
+-		i2c->gpio = -1;
++		i2c->gpio = -ENODEV;
  	}
-@@ -233,7 +232,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
  
- 	platform_set_drvdata(pdev, i2c);
+ 	i2c->algo_data.data = i2c;
+@@ -220,8 +220,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 		break;
+ 	}
  
--	printk(KERN_INFO "%s registered.\n", i2c->adap.name);
-+	dev_info(&pdev->dev, "registered.\n");
+-	/* Use gpio_is_valid() when in mainline */
+-	if (i2c->gpio > -1) {
++	if (gpio_is_valid(i2c->gpio)) {
+ 		ret = gpio_request(i2c->gpio, i2c->adap.name);
+ 		if (ret == 0) {
+ 			gpio_direction_output(i2c->gpio, 1);
+@@ -255,7 +254,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 	if (irq)
+ 		free_irq(irq, i2c);
+ e_reqirq:
+-	if (i2c->gpio > -1)
++	if (gpio_is_valid(i2c->gpio))
+ 		gpio_free(i2c->gpio);
  
- 	return 0;
- }
+ 	iounmap(i2c->reg_base);
+@@ -277,7 +276,7 @@ static int i2c_pca_pf_remove(struct platform_device *pdev)
+ 	if (i2c->irq)
+ 		free_irq(i2c->irq, i2c);
+ 
+-	if (i2c->gpio > -1)
++	if (gpio_is_valid(i2c->gpio))
+ 		gpio_free(i2c->gpio);
+ 
+ 	iounmap(i2c->reg_base);
 -- 
 2.13.0
 
