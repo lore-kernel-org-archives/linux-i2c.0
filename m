@@ -1,102 +1,42 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
- RT suspended
-Date: Tue, 20 Jun 2017 15:07:33 +0200
-Message-ID: <CAPDyKFoqZuv3niz_0FQ1WVP2+gNjebxw9zLVnJ-L0WN24LK3eA@mail.gmail.com>
-References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
- <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
- <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com> <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
- <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: i801: Add support for Intel Cannon Lake
+Date: Tue, 20 Jun 2017 15:33:39 +0200
+Message-ID: <20170620153339.4b1118ee@endymion>
+References: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:34098 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751046AbdFTNHe (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Jun 2017 09:07:34 -0400
-Received: by mail-qk0-f179.google.com with SMTP id d14so56698642qkb.1
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Jun 2017 06:07:34 -0700 (PDT)
-In-Reply-To: <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:40675 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752075AbdFTNdm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 20 Jun 2017 09:33:42 -0400
+In-Reply-To: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, John Stultz <john.stultz@linaro.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On 16 June 2017 at 15:49, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> [...]
->
->>>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> index a597ba32de7e..42a9cd09aa64 100644
->>>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>>>> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
->>>>>         struct platform_device *pdev = to_platform_device(dev);
->>>>>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>>>>
->>>>> +       if (pm_runtime_suspended(dev))
->>>>> +               return 0;
->>>>
->>>>
->>>> This looks weird. I don't find any other drivers that needs this, what
->>>> is so different with this one?
->>>>
->>> There are some drivers that are checking pm_runtime_suspended() or
->>> pm_runtime_status_suspended() in their suspend/resume callbacks and doing
->>> things only when they return false so the problem is not so unique here.
->>>
->>> I didn't try to find are there drivers that are using some own state
->>> variable for the same purpose but I wouldn't surprise if there are.
->>>
->>>> I have been following the development for the i2c-designware driver
->>>> for a while. Some time back I also tried to fix the similar problems
->>>> as you are currently [1] are. Back then, I picked the same approach as
->>>> John Stultz did recently [2].
->>>>
->>>> To summarize my view, I don't understand the justification of using
->>>> the direct_complete feature for i2c-designware. To me, it just add
->>>> complexity to the driver that we really should try to avoid. I think
->>>> we need something else here.
->>>>
->>> Dates back to commit 8503ff166504 ("i2c: designware: Avoid unnecessary
->>> resuming during system suspend") but I agree it's worth to consider.
->>>
->>>> To me, the proper solution is to use the
->>>> pm_runtime_force_suspend|resume() helpers to deal with system
->>>> suspend/resume. However I understand that the behavior of the ACPI PM
->>>> domain currently prevents us from doing this. That said, perhaps we
->>>> should instead try to make the ACPI PM domain to better collaborate
->>>> with drivers using pm_runtime_force_suspend|resume()? I have been
->>>> investigating that and started to cook some patches, although I have
->>>> not yet been able to post something. If you think it could make sense,
->>>> I can pick it up.
->>>>
->>> That's a good idea. I didn't think about it at all.
->>
->> Okay, thanks! I will continue to look into this and try to submit
->> something within a reasonable time frame, keep you posted.
->>
->> Kind regards
->> Uffe
->
-> Jarkko, Andy,
->
-> I just wanted to mention that I haven't forgot about this, I am doing
-> the final changes for the ACPI PM domain at this very moment, however
-> I need a couple of more days more before I can post something.
->
+On Thu, 18 May 2017 11:23:06 +0300, Jarkko Nikula wrote:
+> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> 
+> Added SMBUS PCI Ids for SMBUS for Cannon Lake PCH.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> [jarkko.nikula@linux.intel.com: Add entries to Documentation and Kconfig.
+> Cover Cannon Lake-H too]
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+>  Documentation/i2c/busses/i2c-i801 | 2 ++
+>  drivers/i2c/busses/Kconfig        | 2 ++
+>  drivers/i2c/busses/i2c-i801.c     | 8 ++++++++
+>  3 files changed, 12 insertions(+)
+> (...)
 
-I have now published a branch at:
+Sorry, missed that one.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git acpi_pm_domain_wip
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-It contains both changes for the i2c designware platform driver and
-for the ACPI PM domain. If you by coincidence happen to have slack
-time (probably not), then please try it out.
-
-The branch is based upon today's version of Rafael's pm tree linux-next branch.
-
-If everything goes well, I intend to post the patches after some more tests.
-
-Kind regards
-Uffe
+-- 
+Jean Delvare
+SUSE L3 Support
