@@ -1,65 +1,42 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 4/5] i2c: aspeed: added driver for Aspeed I2C
-Date: Tue, 20 Jun 2017 09:49:40 +0200
-Message-ID: <20170620074940.GB1541@katana>
-References: <20170603012952.2192-1-brendanhiggins@google.com>
- <20170603012952.2192-5-brendanhiggins@google.com>
- <20170619141322.devvmcbjaeq4jnv5@ninjato>
- <20170619142105.kynebk74y7nbvmfx@ninjato>
- <CAFd5g47D0zJax1X8MeV_OwMJvzd2Ba-hZc+8_X_Ks1ibH8ipeg@mail.gmail.com>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v11 5/6] i2c: designware: add SLAVE mode functions
+Date: Tue, 20 Jun 2017 11:03:27 +0300
+Message-ID: <b6346c22-7078-13f3-dc0e-d3f8b452aee6@linux.intel.com>
+References: <cover.1497025304.git.lolivei@synopsys.com>
+ <bef9f237bed23f0ea05499b085103f7eea9058a1.1497025304.git.lolivei@synopsys.com>
+ <CAHp75VeHoUrq-PfayNZYGP0f-bbnKQQEN4uMBg6ZASJs46b_PQ@mail.gmail.com>
+ <6e332d71-1891-21aa-4479-b91a7550f8af@synopsys.com>
+ <20170619155858.xjs5nvdkg42b73vg@ninjato>
+ <CAHp75VfpgOZ72=5F3aN_tfau3TnyGLsdKt=sdx_ZJ04wtxMtJg@mail.gmail.com>
+ <20170619162235.o2i4wzuyvcyoguwk@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAFd5g47D0zJax1X8MeV_OwMJvzd2Ba-hZc+8_X_Ks1ibH8ipeg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Joel Stanley <joel@jms.id.au>, Vladimir Zapolskiy <vz@mleia.com>, Kachalov Anton <mouse@mayc.ru>, =?utf-8?Q?C=C3=A9dric?= Le Goater <clg@kaod.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ryan Chen <ryan_chen@aspeedtech.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170619162235.o2i4wzuyvcyoguwk@ninjato>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ramiro Oliveira <Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Joao Pinto <Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 06/19/2017 07:22 PM, Wolfram Sang wrote:
+>
+>>> I wonder if we haven't reached a state where Luis just could fix the
+>>> buildbot error (missing 'select I2C_SLAVE') and the thing pointed out by
+>>> Andy and we handle further small fixes incrementally during the v4.13
+>>> cycle? AFAICS there is no major show-stopper, or am I wrong?
+>>
+>> I would go with the following plan:
+>> 1. Push 1-4
+>> 2. Resend 5-6 with addressed pointed issues for one more (fast) round
+>
+> Good, so I'll pick up 1-4 now. Thanks!
+>
+Yep, that's easier for everyone.
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jun 19, 2017 at 05:58:19PM -0700, Brendan Higgins wrote:
-> On Mon, Jun 19, 2017 at 7:21 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >
-> > And any chance for a MAINTAINERS entry?
-> >
->=20
-> We already have one:
-> http://elixir.free-electrons.com/linux/v4.11.5/source/MAINTAINERS#L1090
->=20
-> However, if you would like me to own this driver, I could add an entry
-> for myself.
-
-As far as get_maintainers.pl prints out someone responsibe, I am very
-happy. The above line won't work for I2C (and maybe some other
-subsystems), though,  because we are one directory level deeper
-(drivers/i2c/busses/*aspeed*). That might want fixing.
-
-
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllI05QACgkQFA3kzBSg
-KbbNMBAAn/W1J+PtOGC7KB2IylKR79ve8dDiQcJUlqByR8CZ42UoyStLtXtyP+ew
-oSg8q8eiQjpLxrL1zB0MZecKOvMH+JhdLsmXt0q7S7nT8Z1KvqyHgMTZxSYLgINL
-PX43QGCBXdI502w4nPZH2Il1W4+CnYSV6Q46hmF8ZEytqoyIiAbfkrIipBPhIZXl
-/hIqX2QoTLVZsLrz0eAID6GzN6YxVDaKdi4bVIkUHAvqyOrBJ+zO12/G/yygiic+
-NrZmoylPPfJWJ2HMojOWud92e+zDnrnpQDlqwtTFdej1f9RjsJ6gFTPT2aLQt3p4
-1uRtTSd5kBWnBYUPP2UnQW/i9/M/G95BnHcjl4/jJe1Ff4hUqfaR0ndYuAa7eEQy
-ghYEhDB/63O9CH4E4cCbLbChp+8xqYLjqKz+XzP1Ep+xxUhddnXOC+BUb6XMgV9R
-nYwzbDVsr0lmhX8CyBhDkRnlx+KtbDlPHviSaRTeZH6MiCPWmj9DXxUqxqPHaBai
-DJKyduB8fhIEe7xclwwFqHrayXfQV7q4JD8Wx6QTnzEK49ss98fsK5ENvF2pCjBf
-Cuk/zaHKljolHQF+Q+oM0prrRFgheHoHV8au8UCeOZwC355RpL/O0fZ6PWszzge+
-3jGvwi4t5MVD+aeX32+ZmYi4szFM1TIMCj4PVLzhbvgEg5md12M=
-=wg8i
------END PGP SIGNATURE-----
-
---3lcZGd9BuhuYXNfi--
+-- 
+Jarkko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
