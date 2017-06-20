@@ -1,80 +1,84 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-imx: Use correct function to write to register
-Date: Tue, 20 Jun 2017 11:23:10 +0200
-Message-ID: <20170620092310.GA2337@katana>
-References: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
- <20170619144601.vhswaa27f5mcxcxs@ninjato>
- <681500CE65202E47A192754B01DAB4671B1674818F@SDE12.beckipc.net>
- <20170620082835.melqahq7lwyb2hfl@pengutronix.de>
+From: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH v2 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+Date: Tue, 20 Jun 2017 13:41:26 +0200
+Message-ID: <1497958890-5530-2-git-send-email-pierre-yves.mordret@st.com>
+References: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:59630 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752162AbdFTJXO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 20 Jun 2017 05:23:14 -0400
-Content-Disposition: inline
-In-Reply-To: <20170620082835.melqahq7lwyb2hfl@pengutronix.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1497958890-5530-1-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: pierre-yves.mordret-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, "l.stach@pengutronix.de" <l.stach@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, Andy Duan <fugang.duan@nxp.com>
 
+This patch adds the documentation of device tree bindings for STM32F7 I2C
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+---
+Change in V2
+  * Remove i2c-timing binding in order to use generic bindings SCL Rising
+    and Falling time instead
+---
+ .../devicetree/bindings/i2c/i2c-stm32.txt          | 29 +++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-On Tue, Jun 20, 2017 at 10:28:35AM +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Cc +=3D Andy Duan
->=20
-> On Tue, Jun 20, 2017 at 10:20:42AM +0200, Michail Georgios Etairidis wrot=
-e:
-> >=20
-> > The i2c-imx driver incorrectly uses readb()/writeb() to read and=20
-> > write to the appropriate registers when performing a repeated start.=20
-> > The appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions=20
-> > should be used instead. Performing a repeated start results in=20
-> > a kernel panic. The platform is imx.
->=20
-> I really wonder why this didn't pop up earlier, maybe repeated start
-> just isn't that usual.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+index 78eaf7b..3b54899 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+@@ -1,7 +1,9 @@
+ * I2C controller embedded in STMicroelectronics STM32 I2C platform
+ 
+ Required properties :
+-- compatible : Must be "st,stm32f4-i2c"
++- compatible : Must be one of the following
++  - "st,stm32f4-i2c"
++  - "st,stm32f7-i2c"
+ - reg : Offset and length of the register set for the device
+ - interrupts : Must contain the interrupt id for I2C event and then the
+   interrupt id for I2C error.
+@@ -14,8 +16,16 @@ Required properties :
+ 
+ Optional properties :
+ - clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
+-  the default 100 kHz frequency will be used. As only Normal and Fast modes
+-  are supported, possible values are 100000 and 400000.
++  the default 100 kHz frequency will be used.
++  For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
++  100000 and 400000.
++  For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
++  possible values are 100000, 400000 and 1000000.
++- i2c-scl-rising-time-ns : Only for STM32F7, I2C SCL Rising time for the board
++  (default: 25)
++- i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
++  (default: 10)
++  I2C Timings are derived from these 2 values
+ 
+ Example :
+ 
+@@ -31,3 +41,16 @@ Example :
+ 		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
+ 		pinctrl-names = "default";
+ 	};
++
++	i2c@40005400 {
++		compatible = "st,stm32f7-i2c";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x40005400 0x400>;
++		interrupts = <31>,
++			     <32>;
++		resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
++		clocks = <&rcc 1 CLK_I2C1>;
++		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
++		pinctrl-names = "default";
++	};
+-- 
+1.9.1
 
-Quite the contrary, read a register or something from an EEPROM and you
-should have the write (for the memory pointer) and the read (actual
-data) connected with a repeated start.
-
-The readb() calls are only accessed when a read message is not the last
-message. Since most transfers look like what I described above, this is
-not so super often. Add to that that not everyone reports such patches
-back upstream, this might go unnoticed for a while.
-
-So, thanks Michail for the patch and keeping at it!
-
-Note: I found there is some code duplication in the driver. Both
-'if (is_lastmsg)' blocks look like copied to me...
-
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllI6XoACgkQFA3kzBSg
-Kba2/RAAmAGrPcDpH5Pz2Q9ZdHBHwAXqlBpAmfWzsHNUhx+6yMeUeBtpAPuE51+2
-lELlVMcgFw/wXB8oxdmxGAYVoYiXXlT1Lxfe4lHsvdYz16oGrj2Oj/MHNtuq3ZSG
-M3SCoWdBdn6fxopZ6FfaEZw/SWhdWAeBu0OYiap9vd0FEnGzIhxtr3JrHyhoROqY
-mjAVgA+JwDKB/px2bSSu/obcEhf1c7FsSfg19eZNMOxWiEyn1Yuk6Fkyo75FzS5h
-zIh3xHMAtoB4zCn1VhfT3y+9eRRAUwaOfASI7p1o4iYPlTU6w4cB0/1aix48XUxN
-SL+qtA+U6910SAYU1gWoVzh3OHlmzYTpMYKP8KNoeiFtwuctXvpPjHuS7N4VcLsj
-LkGMvWLdCuLc+DxHusoKDM5JJ0SnAobuI/70y/lmjrZkHgoh74h9hkmCvrrJlWTQ
-BA/U5IfpFWtubJkh914FOruAY3Zt4ri038bimmeDZflnJeaBe9UaVj2JkVrQWyPu
-UqCiyUt8encZJvCHlGjlu5zCgaTD4bTWhbaEYDhFA/g/7P+EUfhX9IlhdL5TtX/D
-gO+XURp7JYVpA8pulkf4iVywHPf07WxCvXZ8NnpdL1X3sOx1EpZ3WBnIhTOEJeT4
-iXSR0U6//1dTc4NS3Y/g5Hzr3Ez65hRn45wHMujy4/c1mt/CFP4=
-=Ru41
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
