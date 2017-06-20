@@ -1,42 +1,74 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: i801: Add support for Intel Cannon Lake
-Date: Tue, 20 Jun 2017 15:33:39 +0200
-Message-ID: <20170620153339.4b1118ee@endymion>
-References: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [1/3, v2] usb: pci-quirks: Add a common mutex for the I/O port
+ pair of SB800
+Date: Tue, 20 Jun 2017 07:12:51 -0700
+Message-ID: <20170620141251.GA14290@roeck-us.net>
+References: <20170403075133.12343-2-zboszor@pr.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40675 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752075AbdFTNdm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 20 Jun 2017 09:33:42 -0400
-In-Reply-To: <20170518082306.3831-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170403075133.12343-2-zboszor@pr.hu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>
+Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-On Thu, 18 May 2017 11:23:06 +0300, Jarkko Nikula wrote:
-> From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+On Mon, Apr 03, 2017 at 09:51:31AM +0200, Zoltán Böszörményi wrote:
+> This patch adds a common mutex in the USB PCI quirks code and starts
+> using it to synchronize access to the I/O port pair 0xcd6 / 0xcd7 on
+> SB800.
 > 
-> Added SMBUS PCI Ids for SMBUS for Cannon Lake PCH.
+> These I/O ports are also used by i2c-piix4 and sp5100_tco, the next
+> two patches port these drivers to use this common mutex.
 > 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> [jarkko.nikula@linux.intel.com: Add entries to Documentation and Kconfig.
-> Cover Cannon Lake-H too]
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> v2: No extra header and no wrapper for mutex_lock() / mutex_unlock()
+> 
+
+So now the callers have to declare the mutex in a source file, which results
+in a checkpatch warning. This is not acceptable.
+
+This is not my major issue with this patch, though. It creates an artificial
+dependency between the watchdog driver, the i2c driver, and the USB host
+code, which I think is a really bad idea.
+
+Either the drivers accessing the IO region in question should use
+request_muxed_region(), or there should be an explicit API, located somewhere
+in core AMD kernel code, to access it.
+
+Guenter
+
+> Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
 > ---
->  Documentation/i2c/busses/i2c-i801 | 2 ++
->  drivers/i2c/busses/Kconfig        | 2 ++
->  drivers/i2c/busses/i2c-i801.c     | 8 ++++++++
->  3 files changed, 12 insertions(+)
-> (...)
-
-Sorry, missed that one.
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
--- 
-Jean Delvare
-SUSE L3 Support
+>  drivers/usb/host/pci-quirks.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
+> index a9a1e4c..1ef0ada 100644
+> --- a/drivers/usb/host/pci-quirks.c
+> +++ b/drivers/usb/host/pci-quirks.c
+> @@ -279,6 +279,9 @@ bool usb_amd_prefetch_quirk(void)
+>  }
+>  EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
+>  
+> +DEFINE_MUTEX(sb800_mutex);
+> +EXPORT_SYMBOL_GPL(sb800_mutex);
+> +
+>  /*
+>   * The hardware normally enables the A-link power management feature, which
+>   * lets the system lower the power consumption in idle states.
+> @@ -314,11 +317,13 @@ static void usb_amd_quirk_pll(int disable)
+>  	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
+>  			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
+>  			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
+> +		mutex_lock(&sb800_mutex);
+>  		outb_p(AB_REG_BAR_LOW, 0xcd6);
+>  		addr_low = inb_p(0xcd7);
+>  		outb_p(AB_REG_BAR_HIGH, 0xcd6);
+>  		addr_high = inb_p(0xcd7);
+>  		addr = addr_high << 8 | addr_low;
+> +		mutex_unlock(&sb800_mutex);
+>  
+>  		outl_p(0x30, AB_INDX(addr));
+>  		outl_p(0x40, AB_DATA(addr));
