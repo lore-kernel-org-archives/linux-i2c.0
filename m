@@ -1,74 +1,99 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [1/3, v2] usb: pci-quirks: Add a common mutex for the I/O port
- pair of SB800
-Date: Tue, 20 Jun 2017 07:12:51 -0700
-Message-ID: <20170620141251.GA14290@roeck-us.net>
-References: <20170403075133.12343-2-zboszor@pr.hu>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume
+ when RT suspended
+Date: Tue, 20 Jun 2017 19:08:58 +0300
+Message-ID: <1497974938.22624.170.camel@linux.intel.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+         <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
+         <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com>
+         <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
+         <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+         <CAPDyKFoqZuv3niz_0FQ1WVP2+gNjebxw9zLVnJ-L0WN24LK3eA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170403075133.12343-2-zboszor@pr.hu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>
-Cc: linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:7484 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750773AbdFTQNh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 20 Jun 2017 12:13:37 -0400
+In-Reply-To: <CAPDyKFoqZuv3niz_0FQ1WVP2+gNjebxw9zLVnJ-L0WN24LK3eA@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, John Stultz <john.stultz@linaro.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Mon, Apr 03, 2017 at 09:51:31AM +0200, Zolt�n B�sz�rm�nyi wrote:
-> This patch adds a common mutex in the USB PCI quirks code and starts
-> using it to synchronize access to the I/O port pair 0xcd6 / 0xcd7 on
-> SB800.
+On Tue, 2017-06-20 at 15:07 +0200, Ulf Hansson wrote:
+> On 16 June 2017 at 15:49, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+
+> > Jarkko, Andy,
+> > 
+> > I just wanted to mention that I haven't forgot about this, I am
+> > doing
+> > the final changes for the ACPI PM domain at this very moment,
+> > however
+> > I need a couple of more days more before I can post something.
+> > 
 > 
-> These I/O ports are also used by i2c-piix4 and sp5100_tco, the next
-> two patches port these drivers to use this common mutex.
+> I have now published a branch at:
 > 
-> v2: No extra header and no wrapper for mutex_lock() / mutex_unlock()
+> git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git
+> acpi_pm_domain_wip
+> 
+> It contains both changes for the i2c designware platform driver and
+> for the ACPI PM domain. If you by coincidence happen to have slack
+> time (probably not), then please try it out.
+> 
+> The branch is based upon today's version of Rafael's pm tree linux-
+> next branch.
+> 
+> If everything goes well, I intend to post the patches after some more
+> tests.
 > 
 
-So now the callers have to declare the mutex in a source file, which results
-in a checkpatch warning. This is not acceptable.
+I have gone through the series briefly.
+My concern is a quite nasty bug we have workaround for in acpi_lpss.c,
+i.e. auto power gating of DesignWare DMA on Intel Braswell (CherryTrail)
+platforms when it's enumerated via ACPI.
 
-This is not my major issue with this patch, though. It creates an artificial
-dependency between the watchdog driver, the i2c driver, and the USB host
-code, which I think is a really bad idea.
+Below is the sequence to test if it works and survives removal and
+system sleep (lpss-power.sh is the script which shows a power state of
+selected devices along with PMC Atom status registers and runtime PM):
 
-Either the drivers accessing the IO region in question should use
-request_muxed_region(), or there should be an explicit API, located somewhere
-in core AMD kernel code, to access it.
+   0 lpss-power.sh 
+   1 mount -t debugfs none /sys/kernel/debug
+   2 lpss-power.sh 
+   3 modprobe i2c-designware-platform
+   4 lpss-power.sh 
+   5 modprobe sdhci-acpi
+   6 lpss-power.sh 
+   7 lsmod
+   8 modprobe dw-dmac
+   9 lpss-power.sh 
+  10 modprobe -r dw-dmac
+  11 lpss-power.sh 
+  12 modprobe dw-dmac
+  13 lpss-power.sh 
+  14 rtcwake -m mem -s3
+  15 lpss-power.sh 
+  16 modprobe -r dw-dmac
+  17 lpss-power.sh 
+  18 modprobe dw-dmac
+  19 lpss-power.sh 
+  20 stty -F /dev/ttyS2 921600
+  21 dmesg > /dev/ttyS2
+  22 cat /proc/interrupts 
+  23 cat < /dev/ttyS1
+  24 lpss-power.sh 
+  25 cat < /dev/ttyS1 &
+  26 lpss-power.sh 
+  27 rtcwake -m mem -s3
+  28 lpss-power.sh
+  29 fg
+  30 lpss-power.sh 
 
-Guenter
+Be aware that DMA is not enabled for I2C!
 
-> Signed-off-by: Zoltan Boszormenyi <zboszor@pr.hu>
-> ---
->  drivers/usb/host/pci-quirks.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
-> index a9a1e4c..1ef0ada 100644
-> --- a/drivers/usb/host/pci-quirks.c
-> +++ b/drivers/usb/host/pci-quirks.c
-> @@ -279,6 +279,9 @@ bool usb_amd_prefetch_quirk(void)
->  }
->  EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
->  
-> +DEFINE_MUTEX(sb800_mutex);
-> +EXPORT_SYMBOL_GPL(sb800_mutex);
-> +
->  /*
->   * The hardware normally enables the A-link power management feature, which
->   * lets the system lower the power consumption in idle states.
-> @@ -314,11 +317,13 @@ static void usb_amd_quirk_pll(int disable)
->  	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
->  			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
->  			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
-> +		mutex_lock(&sb800_mutex);
->  		outb_p(AB_REG_BAR_LOW, 0xcd6);
->  		addr_low = inb_p(0xcd7);
->  		outb_p(AB_REG_BAR_HIGH, 0xcd6);
->  		addr_high = inb_p(0xcd7);
->  		addr = addr_high << 8 | addr_low;
-> +		mutex_unlock(&sb800_mutex);
->  
->  		outl_p(0x30, AB_INDX(addr));
->  		outl_p(0x40, AB_DATA(addr));
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
