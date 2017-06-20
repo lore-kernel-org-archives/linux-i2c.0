@@ -1,76 +1,120 @@
 From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v2 4/5] ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
-Date: Tue, 20 Jun 2017 13:41:29 +0200
-Message-ID: <1497958890-5530-5-git-send-email-pierre-yves.mordret@st.com>
+Subject: [PATCH v2 2/5] i2c: i2c-stm32f4: use generic definition of speed enum
+Date: Tue, 20 Jun 2017 13:41:27 +0200
+Message-ID: <1497958890-5530-3-git-send-email-pierre-yves.mordret@st.com>
 References: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: pierre-yves.mordret@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds I2C1 support for STM32F746 SoC.
+This patch uses a more generic definition of speed enum for i2c-stm32f4
+driver.
 
 Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Reviewed-by: Ludovic BARRE <ludovic.barre@st.com>
 ---
-Changes in V2:
-  * Update I2C SoC device tree with latest Linux version
----
- arch/arm/boot/dts/stm32f746.dtsi | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/i2c/busses/i2c-stm32.h   | 20 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-stm32f4.c | 18 +++++++-----------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.h
 
-diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
-index c2765ce..b00b96b 100644
---- a/arch/arm/boot/dts/stm32f746.dtsi
-+++ b/arch/arm/boot/dts/stm32f746.dtsi
-@@ -326,6 +326,16 @@
- 					bias-disable;
- 				};
- 			};
+diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
+new file mode 100644
+index 0000000..dab5176
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-stm32.h
+@@ -0,0 +1,20 @@
++/*
++ * i2c-stm32.h
++ *
++ * Copyright (C) M'boumba Cedric Madianga 2017
++ * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
++ *
++ * License terms:  GNU General Public License (GPL), version 2
++ */
 +
-+			i2c1_pins_b: i2c1@0 {
-+				pins {
-+					pinmux = <STM32F746_PB9_FUNC_I2C1_SDA>,
-+						 <STM32F746_PB8_FUNC_I2C1_SCL>;
-+					bias-disable;
-+					drive-open-drain;
-+					slew-rate = <0>;
-+				};
-+			};
- 		};
++#ifndef _I2C_STM32_H
++#define _I2C_STM32_H
++
++enum stm32_i2c_speed {
++	STM32_I2C_SPEED_STANDARD, /* 100 kHz */
++	STM32_I2C_SPEED_FAST, /* 400 kHz */
++	STM32_I2C_SPEED_FAST_PLUS, /* 1 MHz */
++	STM32_I2C_SPEED_END,
++};
++
++#endif /* _I2C_STM32_H */
+diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+index f9dd7e8..b81557d 100644
+--- a/drivers/i2c/busses/i2c-stm32f4.c
++++ b/drivers/i2c/busses/i2c-stm32f4.c
+@@ -27,6 +27,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/reset.h>
  
- 		crc: crc@40023000 {
-@@ -344,6 +354,18 @@
- 			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
- 			assigned-clock-rates = <1000000>;
- 		};
++#include "i2c-stm32.h"
 +
-+		i2c1: i2c@40005400 {
-+			compatible = "st,stm32f7-i2c";
-+			reg = <0x40005400 0x400>;
-+			interrupts = <31>,
-+				     <32>;
-+			resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
-+			clocks = <&rcc 1 CLK_I2C1>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
- 	};
- };
+ /* STM32F4 I2C offset registers */
+ #define STM32F4_I2C_CR1			0x00
+ #define STM32F4_I2C_CR2			0x04
+@@ -90,12 +92,6 @@
+ #define STM32F4_I2C_MAX_FREQ		46U
+ #define HZ_TO_MHZ			1000000
+ 
+-enum stm32f4_i2c_speed {
+-	STM32F4_I2C_SPEED_STANDARD, /* 100 kHz */
+-	STM32F4_I2C_SPEED_FAST, /* 400 kHz */
+-	STM32F4_I2C_SPEED_END,
+-};
+-
+ /**
+  * struct stm32f4_i2c_msg - client specific data
+  * @addr: 8-bit slave addr, including r/w bit
+@@ -159,7 +155,7 @@ static int stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
+ 	i2c_dev->parent_rate = clk_get_rate(i2c_dev->clk);
+ 	freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_TO_MHZ);
+ 
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
+ 		/*
+ 		 * To reach 100 kHz, the parent clk frequency should be between
+ 		 * a minimum value of 2 MHz and a maximum value of 46 MHz due
+@@ -216,7 +212,7 @@ static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
+ 	 * is not higher than 46 MHz . As a result trise is at most 4 bits wide
+ 	 * and so fits into the TRISE bits [5:0].
+ 	 */
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD)
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD)
+ 		trise = freq + 1;
+ 	else
+ 		trise = freq * 3 / 10 + 1;
+@@ -230,7 +226,7 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
+ 	u32 val;
+ 	u32 ccr = 0;
+ 
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
+ 		/*
+ 		 * In standard mode:
+ 		 * t_scl_high = t_scl_low = CCR * I2C parent clk period
+@@ -808,10 +804,10 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
+ 	udelay(2);
+ 	reset_control_deassert(rst);
+ 
+-	i2c_dev->speed = STM32F4_I2C_SPEED_STANDARD;
++	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
+ 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
+ 	if (!ret && clk_rate >= 400000)
+-		i2c_dev->speed = STM32F4_I2C_SPEED_FAST;
++		i2c_dev->speed = STM32_I2C_SPEED_FAST;
+ 
+ 	i2c_dev->dev = &pdev->dev;
  
 -- 
 1.9.1
