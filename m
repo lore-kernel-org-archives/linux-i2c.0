@@ -1,62 +1,47 @@
-From: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
-Subject: AW: [PATCH] i2c: i2c-imx: Use correct function to write to register
-Date: Tue, 20 Jun 2017 10:20:42 +0200
-Message-ID: <681500CE65202E47A192754B01DAB4671B1674818F@SDE12.beckipc.net>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] i2c: i2c-imx: Use correct function to write to register
+Date: Tue, 20 Jun 2017 10:28:35 +0200
+Message-ID: <20170620082835.melqahq7lwyb2hfl@pengutronix.de>
 References: <681500CE65202E47A192754B01DAB4671B16747E36@SDE12.beckipc.net>
  <20170619144601.vhswaa27f5mcxcxs@ninjato>
+ <681500CE65202E47A192754B01DAB4671B1674818F@SDE12.beckipc.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx.beck-ipc.com ([195.243.140.130]:60131 "EHLO mx.beck-ipc.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751007AbdFTIUq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 20 Jun 2017 04:20:46 -0400
-In-Reply-To: <20170619144601.vhswaa27f5mcxcxs@ninjato>
-Content-Language: de-DE
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:55791 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751018AbdFTI2h (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Jun 2017 04:28:37 -0400
+Content-Disposition: inline
+In-Reply-To: <681500CE65202E47A192754B01DAB4671B1674818F@SDE12.beckipc.net>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "l.stach@pengutronix.de" <l.stach@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>
+To: Michail Georgios Etairidis <m.etairidis@beck-ipc.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "l.stach@pengutronix.de" <l.stach@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, Andy Duan <fugang.duan@nxp.com>
 
+Cc += Andy Duan
 
-The i2c-imx driver incorrectly uses readb()/writeb() to read and 
-write to the appropriate registers when performing a repeated start. 
-The appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions 
-should be used instead. Performing a repeated start results in 
-a kernel panic. The platform is imx.
+On Tue, Jun 20, 2017 at 10:20:42AM +0200, Michail Georgios Etairidis wrote:
+> 
+> The i2c-imx driver incorrectly uses readb()/writeb() to read and 
+> write to the appropriate registers when performing a repeated start. 
+> The appropriate imx_i2c_read_reg()/imx_i2c_write_reg() functions 
+> should be used instead. Performing a repeated start results in 
+> a kernel panic. The platform is imx.
 
-Signed-off-by: Michail G Etairidis <m.etairidis@beck-ipc.com>
+I really wonder why this didn't pop up earlier, maybe repeated start
+just isn't that usual.
 
----
+> Signed-off-by: Michail G Etairidis <m.etairidis@beck-ipc.com>
+Fixes: ce1a78840ff7 ("i2c: imx: add DMA support for freescale i2c driver")
+Fixes: 054b62d9f25c ("i2c: imx: fix the i2c bus hang issue when do repeat restart")
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-I am resubmitting this patch to add the required Signed-off-by 
-information.
+Best regards
+Uwe
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index 95ed171..54a47b4 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -734,9 +734,9 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
- 		 * the first read operation, otherwise the first read cost
- 		 * one extra clock cycle.
- 		 */
--		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 		temp |= I2CR_MTX;
--		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	}
- 	msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
- 
-@@ -857,9 +857,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
- 				 * the first read operation, otherwise the first read cost
- 				 * one extra clock cycle.
- 				 */
--				temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-+				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 				temp |= I2CR_MTX;
--				writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 			}
- 		} else if (i == (msgs->len - 2)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
