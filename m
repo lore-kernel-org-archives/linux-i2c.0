@@ -1,32 +1,54 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH v11 0/4] i2c: aspeed: added driver for Aspeed I2C
-Date: Tue, 20 Jun 2017 14:15:12 -0700
-Message-ID: <20170620211516.13095-1-brendanhiggins@google.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:33399 "EHLO
-        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752533AbdFTVPb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Jun 2017 17:15:31 -0400
-Received: by mail-pf0-f179.google.com with SMTP id 83so75042137pfr.0
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Jun 2017 14:15:31 -0700 (PDT)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v11 1/4] MAINTAINERS: add entry for Aspeed I2C driver
+Date: Tue, 20 Jun 2017 14:15:13 -0700
+Message-ID: <20170620211516.13095-2-brendanhiggins@google.com>
+References: <20170620211516.13095-1-brendanhiggins@google.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170620211516.13095-1-brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, gregkh@linuxfoundation.org, davem@davemloft.net, mchehab@kernel.org, joel@jms.id.au, martin.petersen@oracle.com, benh@kernel.crashing.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
 
-Addressed comments from:
-  - Wolfram in: http://www.spinics.net/lists/devicetree/msg182142.html
-    and http://www.spinics.net/lists/devicetree/msg182144.html
+Added myself as maintainer of the Aspeed I2C driver and the associated
+I2C interrupt controller and added Joel Stanley and Benjamin
+Herrenschmidt as reviewers.
 
-Changes since previous update:
-  - MAINTAINERS: Added MAINTAINERS entry for Aspeed I2C driver and friends
-  - I2C driver: Added support for COMPILE_TEST
-  - I2C driver: Fixed i2c fault codes in interrupt handler
-  - I2C driver: Use i2c_{get|set}_adapdata instead of adapter->algo_data
-  - I2C driver: Fixed some other stylistic issues
+Signed-off-by: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+---
+Added in v11:
+  - Added MAINTAINERS entry for Aspeed I2C driver and friends
+---
+ MAINTAINERS | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-As the Aspeed I2C interrupt controller changes were already accepted by the
-irqchip maintainers, this patchset no longer contains them.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 053c3bdd1fe5..2bb541549cc1 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1123,6 +1123,18 @@ F:	arch/arm/mach-aspeed/
+ F:	arch/arm/boot/dts/aspeed-*
+ F:	drivers/*/*aspeed*
+ 
++ARM/ASPEED I2C DRIVER
++M:	Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
++R:	Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++R:	Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>
++L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++L:	openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
++S:	Maintained
++F:	drivers/irqchip/irq-aspeed-i2c-ic.c
++F:	drivers/i2c/busses/i2c-aspeed.c
++F:	Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
++
+ ARM/ATMEL AT91RM9200, AT91SAM9 AND SAMA5 SOC SUPPORT
+ M:	Nicolas Ferre <nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+ M:	Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+-- 
+2.13.1.611.g7e3b11ae1-goog
 
-As before, tested on Aspeed 2500 evaluation board and a real platform with an
-Aspeed 2520.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
