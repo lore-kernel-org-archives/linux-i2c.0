@@ -1,120 +1,102 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v2 2/5] i2c: i2c-stm32f4: use generic definition of speed enum
-Date: Tue, 20 Jun 2017 13:41:27 +0200
-Message-ID: <1497958890-5530-3-git-send-email-pierre-yves.mordret@st.com>
-References: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
+ RT suspended
+Date: Tue, 20 Jun 2017 15:07:33 +0200
+Message-ID: <CAPDyKFoqZuv3niz_0FQ1WVP2+gNjebxw9zLVnJ-L0WN24LK3eA@mail.gmail.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+ <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
+ <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com> <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
+ <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: pierre-yves.mordret@st.com
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk0-f179.google.com ([209.85.220.179]:34098 "EHLO
+        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751046AbdFTNHe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 20 Jun 2017 09:07:34 -0400
+Received: by mail-qk0-f179.google.com with SMTP id d14so56698642qkb.1
+        for <linux-i2c@vger.kernel.org>; Tue, 20 Jun 2017 06:07:34 -0700 (PDT)
+In-Reply-To: <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, John Stultz <john.stultz@linaro.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-This patch uses a more generic definition of speed enum for i2c-stm32f4
-driver.
+On 16 June 2017 at 15:49, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> [...]
+>
+>>>>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>> index a597ba32de7e..42a9cd09aa64 100644
+>>>>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>>>>> @@ -377,6 +377,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
+>>>>>         struct platform_device *pdev = to_platform_device(dev);
+>>>>>         struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+>>>>>
+>>>>> +       if (pm_runtime_suspended(dev))
+>>>>> +               return 0;
+>>>>
+>>>>
+>>>> This looks weird. I don't find any other drivers that needs this, what
+>>>> is so different with this one?
+>>>>
+>>> There are some drivers that are checking pm_runtime_suspended() or
+>>> pm_runtime_status_suspended() in their suspend/resume callbacks and doing
+>>> things only when they return false so the problem is not so unique here.
+>>>
+>>> I didn't try to find are there drivers that are using some own state
+>>> variable for the same purpose but I wouldn't surprise if there are.
+>>>
+>>>> I have been following the development for the i2c-designware driver
+>>>> for a while. Some time back I also tried to fix the similar problems
+>>>> as you are currently [1] are. Back then, I picked the same approach as
+>>>> John Stultz did recently [2].
+>>>>
+>>>> To summarize my view, I don't understand the justification of using
+>>>> the direct_complete feature for i2c-designware. To me, it just add
+>>>> complexity to the driver that we really should try to avoid. I think
+>>>> we need something else here.
+>>>>
+>>> Dates back to commit 8503ff166504 ("i2c: designware: Avoid unnecessary
+>>> resuming during system suspend") but I agree it's worth to consider.
+>>>
+>>>> To me, the proper solution is to use the
+>>>> pm_runtime_force_suspend|resume() helpers to deal with system
+>>>> suspend/resume. However I understand that the behavior of the ACPI PM
+>>>> domain currently prevents us from doing this. That said, perhaps we
+>>>> should instead try to make the ACPI PM domain to better collaborate
+>>>> with drivers using pm_runtime_force_suspend|resume()? I have been
+>>>> investigating that and started to cook some patches, although I have
+>>>> not yet been able to post something. If you think it could make sense,
+>>>> I can pick it up.
+>>>>
+>>> That's a good idea. I didn't think about it at all.
+>>
+>> Okay, thanks! I will continue to look into this and try to submit
+>> something within a reasonable time frame, keep you posted.
+>>
+>> Kind regards
+>> Uffe
+>
+> Jarkko, Andy,
+>
+> I just wanted to mention that I haven't forgot about this, I am doing
+> the final changes for the ACPI PM domain at this very moment, however
+> I need a couple of more days more before I can post something.
+>
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Reviewed-by: Ludovic BARRE <ludovic.barre@st.com>
----
- drivers/i2c/busses/i2c-stm32.h   | 20 ++++++++++++++++++++
- drivers/i2c/busses/i2c-stm32f4.c | 18 +++++++-----------
- 2 files changed, 27 insertions(+), 11 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-stm32.h
+I have now published a branch at:
 
-diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
-new file mode 100644
-index 0000000..dab5176
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-stm32.h
-@@ -0,0 +1,20 @@
-+/*
-+ * i2c-stm32.h
-+ *
-+ * Copyright (C) M'boumba Cedric Madianga 2017
-+ * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-+ *
-+ * License terms:  GNU General Public License (GPL), version 2
-+ */
-+
-+#ifndef _I2C_STM32_H
-+#define _I2C_STM32_H
-+
-+enum stm32_i2c_speed {
-+	STM32_I2C_SPEED_STANDARD, /* 100 kHz */
-+	STM32_I2C_SPEED_FAST, /* 400 kHz */
-+	STM32_I2C_SPEED_FAST_PLUS, /* 1 MHz */
-+	STM32_I2C_SPEED_END,
-+};
-+
-+#endif /* _I2C_STM32_H */
-diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
-index f9dd7e8..b81557d 100644
---- a/drivers/i2c/busses/i2c-stm32f4.c
-+++ b/drivers/i2c/busses/i2c-stm32f4.c
-@@ -27,6 +27,8 @@
- #include <linux/platform_device.h>
- #include <linux/reset.h>
- 
-+#include "i2c-stm32.h"
-+
- /* STM32F4 I2C offset registers */
- #define STM32F4_I2C_CR1			0x00
- #define STM32F4_I2C_CR2			0x04
-@@ -90,12 +92,6 @@
- #define STM32F4_I2C_MAX_FREQ		46U
- #define HZ_TO_MHZ			1000000
- 
--enum stm32f4_i2c_speed {
--	STM32F4_I2C_SPEED_STANDARD, /* 100 kHz */
--	STM32F4_I2C_SPEED_FAST, /* 400 kHz */
--	STM32F4_I2C_SPEED_END,
--};
--
- /**
-  * struct stm32f4_i2c_msg - client specific data
-  * @addr: 8-bit slave addr, including r/w bit
-@@ -159,7 +155,7 @@ static int stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
- 	i2c_dev->parent_rate = clk_get_rate(i2c_dev->clk);
- 	freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_TO_MHZ);
- 
--	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
-+	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
- 		/*
- 		 * To reach 100 kHz, the parent clk frequency should be between
- 		 * a minimum value of 2 MHz and a maximum value of 46 MHz due
-@@ -216,7 +212,7 @@ static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
- 	 * is not higher than 46 MHz . As a result trise is at most 4 bits wide
- 	 * and so fits into the TRISE bits [5:0].
- 	 */
--	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD)
-+	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD)
- 		trise = freq + 1;
- 	else
- 		trise = freq * 3 / 10 + 1;
-@@ -230,7 +226,7 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
- 	u32 val;
- 	u32 ccr = 0;
- 
--	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
-+	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
- 		/*
- 		 * In standard mode:
- 		 * t_scl_high = t_scl_low = CCR * I2C parent clk period
-@@ -808,10 +804,10 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
- 	udelay(2);
- 	reset_control_deassert(rst);
- 
--	i2c_dev->speed = STM32F4_I2C_SPEED_STANDARD;
-+	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
- 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
- 	if (!ret && clk_rate >= 400000)
--		i2c_dev->speed = STM32F4_I2C_SPEED_FAST;
-+		i2c_dev->speed = STM32_I2C_SPEED_FAST;
- 
- 	i2c_dev->dev = &pdev->dev;
- 
--- 
-1.9.1
+git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git acpi_pm_domain_wip
+
+It contains both changes for the i2c designware platform driver and
+for the ACPI PM domain. If you by coincidence happen to have slack
+time (probably not), then please try it out.
+
+The branch is based upon today's version of Rafael's pm tree linux-next branch.
+
+If everything goes well, I intend to post the patches after some more tests.
+
+Kind regards
+Uffe
