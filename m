@@ -1,76 +1,122 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
-Date: Wed, 21 Jun 2017 23:36:47 +0200
-Message-ID: <20170621213647.GA2419@katana>
-References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
- <1494947612.7509.24.camel@infinera.com>
- <1495547252.17446.60.camel@infinera.com>
- <20170529210419.GA2527@katana>
- <1496095395.17446.111.camel@infinera.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 6/9] PM / ACPI: Provide option to disable direct_complete
+ for ACPI devices
+Date: Wed, 21 Jun 2017 23:42:18 +0200
+Message-ID: <CAJZ5v0h71LNPgmU1ri3S0VJMPb-1_AHkGksNAaYn68rrLyAR2A@mail.gmail.com>
+References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org> <1498072888-14782-7-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:35366 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752124AbdFUVgu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 21 Jun 2017 17:36:50 -0400
-Content-Disposition: inline
-In-Reply-To: <1496095395.17446.111.camel@infinera.com>
+Received: from mail-it0-f68.google.com ([209.85.214.68]:33453 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752204AbdFUVmT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Jun 2017 17:42:19 -0400
+In-Reply-To: <1498072888-14782-7-git-send-email-ulf.hansson@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-Cc: "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
+On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> In some cases a driver for an ACPI device needs to be able to prevent the
+> ACPI PM domain from using the direct_complete path during system sleep.
+>
+> One typical case is when the driver for the device needs its device to stay
+> runtime enabled, during the __device_suspend phase. This isn't the case
+> when the direct_complete path is being executed by the PM core, as it then
+> disables runtime PM for the device in __device_suspend(). Any following
+> attempts to runtime resume the device after that point, just fails.
+>
+> A workaround to this problem is to let the driver runtime resume its device
+> from its ->prepare() callback, as that would prevent the direct_complete
+> path from being executed. However, that may often be a waste, especially if
+> it turned out that no one really needed the device.
+>
+> For this reason, invent acpi_dev_disable|enable_direct_complete(), to allow
+> drivers to inform the ACPI PM domain to change its default behaviour during
+> system sleep, and thus control whether it may use the direct_complete path
+> or not.
+>
+> Typically a driver should call acpi_dev_disable_direct_comlete() during
+> ->probe() and acpi_dev_enable_direct_complete() in ->remove().
+>
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
+>  drivers/acpi/device_pm.c | 37 ++++++++++++++++++++++++++++++++++++-
+>  include/acpi/acpi_bus.h  |  1 +
+>  include/linux/acpi.h     |  4 ++++
+>  3 files changed, 41 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+> index ee51e75..2393a1a 100644
+> --- a/drivers/acpi/device_pm.c
+> +++ b/drivers/acpi/device_pm.c
+> @@ -879,6 +879,41 @@ EXPORT_SYMBOL_GPL(acpi_subsys_runtime_resume);
+>
+>  #ifdef CONFIG_PM_SLEEP
+>  /**
+> + * acpi_dev_disable_direct_complete - Disable the direct_complete path for ACPI.
+> + * @dev: Device to disable the path for.
+> + *
+> + * Per default the ACPI PM domain tries to use the direct_complete path for its
+> + * devices during system sleep. This function allows a user, typically a driver
+> + * during probe, to disable the direct_complete path from being used by ACPI.
+> + */
+> +void acpi_dev_disable_direct_complete(struct device *dev)
+> +{
+> +       struct acpi_device *adev = ACPI_COMPANION(dev);
+> +
+> +       if (adev)
+> +               adev->no_direct_complete = true;
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We have an analogous flag in PCI now and it is called needs_resume, so
+it would be good to be consistent with that.
 
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_dev_disable_direct_complete);
+> +
+> +/**
+> + * acpi_dev_enable_direct_complete - Enable the direct_complete path for ACPI.
+> + * @dev: Device to enable the path for.
+> + *
+> + * Enable the direct_complete path to be used during system suspend for the ACPI
+> + * PM domain, which is the default option. Typically a driver that disabled the
+> + * path during ->probe(), must call this function during ->remove() to re-enable
+> + * the direct_complete path to be used by ACPI.
+> + */
+> +void acpi_dev_enable_direct_complete(struct device *dev)
+> +{
+> +       struct acpi_device *adev = ACPI_COMPANION(dev);
+> +
+> +       if (adev)
+> +               adev->no_direct_complete = false;
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_dev_enable_direct_complete);
+> +
+> +/**
+>   * acpi_dev_suspend_late - Put device into a low-power state using ACPI.
+>   * @dev: Device to put into a low-power state.
+>   *
+> @@ -967,7 +1002,7 @@ int acpi_subsys_prepare(struct device *dev)
+>         if (ret < 0)
+>                 return ret;
+>
+> -       if (!adev || !pm_runtime_suspended(dev))
+> +       if (!adev || adev->no_direct_complete || !pm_runtime_suspended(dev))
+>                 return 0;
+>
+>         return !acpi_dev_needs_resume(dev, adev);
+> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+> index 63a90a6..2293d24 100644
+> --- a/include/acpi/acpi_bus.h
+> +++ b/include/acpi/acpi_bus.h
+> @@ -380,6 +380,7 @@ struct acpi_device {
+>         struct list_head physical_node_list;
+>         struct mutex physical_node_lock;
+>         void (*remove)(struct acpi_device *);
+> +       bool no_direct_complete;
 
-> I did my I2C reset analysis many years ago but I found the reason in
-> som old code I had lying around, just sending 9 clocks will not
-> recover the case when stuck in an I2C write sequence. Adding START
-> into the sequence keeps the device in START once it has seen at least
-> one START, then the STOP will release the bus in the end.
+Also what about adding this to struct acpi_device_power instead?
 
-OK. I had some time to dig into the specs and understand why I was a bit
-cautious: Chapter 3.1.16 of the I2C specs describes the procedure of 9x
-toggling to be done when SDA is stuck low (which is super bad because
-you can't signal a STOP then). SDA can only stuck low in the read case.
-In the write case, the master controls SDA, and thus, you should be able
-to signal STOP immediately.
-
-So, for the write case, I'd think a single STOP before toggling should
-do. Toggling 9x even means you could then write something somewhere
-which in case of a PMIC can be really dangerous.
-
-(BTW I just noticed that the generic recovery routines in the I2C core
-do not send any STOP. Neither before nor after the toggling. This might
-need fixing but is a seperate issue).
-
-This is all from a theoretical point of view. I don't have a test case
-for that. Do you have a reproducibly misbehaving device?
-
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllK5usACgkQFA3kzBSg
-KbawyQ/+Ju2QAmfSwoCm1bXfdHsjTw1UjxWgkGKN+mzRK+SRPNjooD7s8+vGvNDC
-pL4eskGVm5LwiSSptSbz15VcHlhWQjZ9qSt6l30OQeqLgIioPu+/pDZvwYKRQEFQ
-wIuL3msC62Ikram0E8o3BcmUaEaNov1gbYE73mtG6JTPkCwCxspjy57zevPJYVbS
-9cOSsfNsO00r9DI4Uyb81XEhvc8LJi4AWmvmDlnX3vhfgvJjjTO+y/DanCFrUAiq
-rRCpSi2Sr/oqaJJ0C4D9keT4P6Cj+QY2dlJlVGE8NQZMgZK1qvHE0jKodnd+sv6a
-4iNaT1htwWyCz7CcN45Ti2IozEkFa2f0HTVurpik6sf4AT3sxERxdR0yVOVYL55X
-DfVKksONW3fgoIFr1iVJhrhc3+REoBTUHbVC8nu4J4RKpfy5/tvXuj8w7mBx/vcA
-oO5uATAnaNJfmVptIHRqeR6Xlhgf6Xrrjcn66Drz3W413+wHFYzmGHPcokv8fJCD
-NKRmoJqLfhyhVLGNYYXrDhtk4tFZ5kuL10OvqxHj8q6p0kCYFyQ1uZ3CxLmawjI+
-l+VOm2SzKxDNlQwNOQcKl4fj11FWx053kuxKaCUsdjpZqfhFe4lpGhvJ1IVPpZzR
-S7VBoIiI7QmPdfJF/UE6HL+Lu07hchTxnMa0LhVSYY/8djq7rfc=
-=P02N
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+Thanks,
+Rafael
