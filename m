@@ -1,313 +1,205 @@
-From: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v11 4/4] i2c: aspeed: added slave support for Aspeed I2C driver
-Date: Tue, 20 Jun 2017 14:15:16 -0700
-Message-ID: <20170620211516.13095-5-brendanhiggins@google.com>
-References: <20170620211516.13095-1-brendanhiggins@google.com>
+From: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: Add Spreadtrum I2C controller driver
+Date: Wed, 21 Jun 2017 11:25:30 +0800
+Message-ID: <20170621032529.GA1142@spreadtrum.com>
+References: <7bc5c69030b6e491cfb2519eb1b21c1b0adc70c3.1497525667.git.baolin.wang@spreadtrum.com>
+ <f3cdd27dcfa2ca6347502608928081fb9271c0b5.1497525667.git.baolin.wang@spreadtrum.com>
+ <CAHp75Vf+qPa6i84yctSz+rAkim2owhX=zAsHsTF1EQRnouBwxg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170620211516.13095-1-brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAHp75Vf+qPa6i84yctSz+rAkim2owhX=zAsHsTF1EQRnouBwxg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Added slave support for Aspeed I2C controller. Supports fourteen busses
-present in AST24XX and AST25XX BMC SoCs by Aspeed.
+Hi Andy,
 
-Signed-off-by: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
----
-Added in v6:
-  - Pulled slave support out of initial driver commit into its own commit.
-  - No longer arbitrarily restrict bus to be slave xor master.
-Changes for v7:
-  - Added hardware reset function
-  - Marked functions that need to be called with the lock held as "unlocked"
-  - Did some cleanup
-Changes for v8:
-  - None
-Changes for v9:
-  - None
-Changes for v10:
-  - None
-Changes for v11:
-  - Use i2c_{get|set}_adapdata instead of adapter->algo_data
----
- drivers/i2c/busses/i2c-aspeed.c | 201 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 201 insertions(+)
+Sorry for late reply due to my business trip.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 55f241f2cfcc..f19348328a71 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -49,6 +49,7 @@
- #define ASPEED_I2CD_SDA_DRIVE_1T_EN			BIT(8)
- #define ASPEED_I2CD_M_SDA_DRIVE_1T_EN			BIT(7)
- #define ASPEED_I2CD_M_HIGH_SPEED_EN			BIT(6)
-+#define ASPEED_I2CD_SLAVE_EN				BIT(1)
- #define ASPEED_I2CD_MASTER_EN				BIT(0)
- 
- /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
-@@ -69,6 +70,7 @@
-  */
- #define ASPEED_I2CD_INTR_SDA_DL_TIMEOUT			BIT(14)
- #define ASPEED_I2CD_INTR_BUS_RECOVER_DONE		BIT(13)
-+#define ASPEED_I2CD_INTR_SLAVE_MATCH			BIT(7)
- #define ASPEED_I2CD_INTR_SCL_TIMEOUT			BIT(6)
- #define ASPEED_I2CD_INTR_ABNORMAL			BIT(5)
- #define ASPEED_I2CD_INTR_NORMAL_STOP			BIT(4)
-@@ -101,6 +103,9 @@
- #define ASPEED_I2CD_M_TX_CMD				BIT(1)
- #define ASPEED_I2CD_M_START_CMD				BIT(0)
- 
-+/* 0x18 : I2CD Slave Device Address Register   */
-+#define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
-+
- enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_START,
- 	ASPEED_I2C_MASTER_TX_FIRST,
-@@ -111,6 +116,15 @@ enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_INACTIVE,
- };
- 
-+enum aspeed_i2c_slave_state {
-+	ASPEED_I2C_SLAVE_START,
-+	ASPEED_I2C_SLAVE_READ_REQUESTED,
-+	ASPEED_I2C_SLAVE_READ_PROCESSED,
-+	ASPEED_I2C_SLAVE_WRITE_REQUESTED,
-+	ASPEED_I2C_SLAVE_WRITE_RECEIVED,
-+	ASPEED_I2C_SLAVE_STOP,
-+};
-+
- struct aspeed_i2c_bus {
- 	struct i2c_adapter		adap;
- 	struct device			*dev;
-@@ -130,6 +144,10 @@ struct aspeed_i2c_bus {
- 	int				cmd_err;
- 	/* Protected only by i2c_lock_bus */
- 	int				master_xfer_result;
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+	struct i2c_client		*slave;
-+	enum aspeed_i2c_slave_state	slave_state;
-+#endif /* CONFIG_I2C_SLAVE */
- };
- 
- static int aspeed_i2c_reset(struct aspeed_i2c_bus *bus);
-@@ -202,6 +220,110 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
- 	return aspeed_i2c_reset(bus);
- }
- 
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
-+{
-+	u32 command, irq_status, status_ack = 0;
-+	struct i2c_client *slave = bus->slave;
-+	bool irq_handled = true;
-+	u8 value;
-+
-+	spin_lock(&bus->lock);
-+	if (!slave) {
-+		irq_handled = false;
-+		goto out;
-+	}
-+
-+	command = readl(bus->base + ASPEED_I2C_CMD_REG);
-+	irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-+
-+	/* Slave was requested, restart state machine. */
-+	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
-+		status_ack |= ASPEED_I2CD_INTR_SLAVE_MATCH;
-+		bus->slave_state = ASPEED_I2C_SLAVE_START;
-+	}
-+
-+	/* Slave is not currently active, irq was for someone else. */
-+	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
-+		irq_handled = false;
-+		goto out;
-+	}
-+
-+	dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
-+		irq_status, command);
-+
-+	/* Slave was sent something. */
-+	if (irq_status & ASPEED_I2CD_INTR_RX_DONE) {
-+		value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-+		/* Handle address frame. */
-+		if (bus->slave_state == ASPEED_I2C_SLAVE_START) {
-+			if (value & 0x1)
-+				bus->slave_state =
-+						ASPEED_I2C_SLAVE_READ_REQUESTED;
-+			else
-+				bus->slave_state =
-+						ASPEED_I2C_SLAVE_WRITE_REQUESTED;
-+		}
-+		status_ack |= ASPEED_I2CD_INTR_RX_DONE;
-+	}
-+
-+	/* Slave was asked to stop. */
-+	if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
-+		status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
-+		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
-+	}
-+	if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
-+		status_ack |= ASPEED_I2CD_INTR_TX_NAK;
-+		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
-+	}
-+
-+	switch (bus->slave_state) {
-+	case ASPEED_I2C_SLAVE_READ_REQUESTED:
-+		if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
-+			dev_err(bus->dev, "Unexpected ACK on read request.\n");
-+		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
-+
-+		i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
-+		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
-+		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
-+		break;
-+	case ASPEED_I2C_SLAVE_READ_PROCESSED:
-+		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
-+		if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
-+			dev_err(bus->dev,
-+				"Expected ACK after processed read.\n");
-+		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
-+		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
-+		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
-+		break;
-+	case ASPEED_I2C_SLAVE_WRITE_REQUESTED:
-+		bus->slave_state = ASPEED_I2C_SLAVE_WRITE_RECEIVED;
-+		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
-+		break;
-+	case ASPEED_I2C_SLAVE_WRITE_RECEIVED:
-+		i2c_slave_event(slave, I2C_SLAVE_WRITE_RECEIVED, &value);
-+		break;
-+	case ASPEED_I2C_SLAVE_STOP:
-+		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
-+		break;
-+	default:
-+		dev_err(bus->dev, "unhandled slave_state: %d\n",
-+			bus->slave_state);
-+		break;
-+	}
-+
-+	if (status_ack != irq_status)
-+		dev_err(bus->dev,
-+			"irq handled != irq. expected %x, but was %x\n",
-+			irq_status, status_ack);
-+	writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
-+
-+out:
-+	spin_unlock(&bus->lock);
-+	return irq_handled;
-+}
-+#endif /* CONFIG_I2C_SLAVE */
-+
- /* precondition: bus.lock has been acquired. */
- static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
- {
-@@ -427,6 +549,13 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- {
- 	struct aspeed_i2c_bus *bus = dev_id;
- 
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+	if (aspeed_i2c_slave_irq(bus)) {
-+		dev_dbg(bus->dev, "irq handled by slave.\n");
-+		return IRQ_HANDLED;
-+	}
-+#endif /* CONFIG_I2C_SLAVE */
-+
- 	return aspeed_i2c_master_irq(bus) ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-@@ -474,9 +603,75 @@ static u32 aspeed_i2c_functionality(struct i2c_adapter *adap)
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
- }
- 
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+/* precondition: bus.lock has been acquired. */
-+static void __aspeed_i2c_reg_slave(struct aspeed_i2c_bus *bus, u16 slave_addr)
-+{
-+	u32 addr_reg_val, func_ctrl_reg_val;
-+
-+	/* Set slave addr. */
-+	addr_reg_val = readl(bus->base + ASPEED_I2C_DEV_ADDR_REG);
-+	addr_reg_val &= ~ASPEED_I2CD_DEV_ADDR_MASK;
-+	addr_reg_val |= slave_addr & ASPEED_I2CD_DEV_ADDR_MASK;
-+	writel(addr_reg_val, bus->base + ASPEED_I2C_DEV_ADDR_REG);
-+
-+	/* Turn on slave mode. */
-+	func_ctrl_reg_val = readl(bus->base + ASPEED_I2C_FUN_CTRL_REG);
-+	func_ctrl_reg_val |= ASPEED_I2CD_SLAVE_EN;
-+	writel(func_ctrl_reg_val, bus->base + ASPEED_I2C_FUN_CTRL_REG);
-+}
-+
-+static int aspeed_i2c_reg_slave(struct i2c_client *client)
-+{
-+	struct aspeed_i2c_bus *bus = i2c_get_adapdata(client->adapter);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&bus->lock, flags);
-+	if (bus->slave) {
-+		spin_unlock_irqrestore(&bus->lock, flags);
-+		return -EINVAL;
-+	}
-+
-+	__aspeed_i2c_reg_slave(bus, client->addr);
-+
-+	bus->slave = client;
-+	bus->slave_state = ASPEED_I2C_SLAVE_STOP;
-+	spin_unlock_irqrestore(&bus->lock, flags);
-+
-+	return 0;
-+}
-+
-+static int aspeed_i2c_unreg_slave(struct i2c_client *client)
-+{
-+	struct aspeed_i2c_bus *bus = i2c_get_adapdata(client->adapter);
-+	u32 func_ctrl_reg_val;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&bus->lock, flags);
-+	if (!bus->slave) {
-+		spin_unlock_irqrestore(&bus->lock, flags);
-+		return -EINVAL;
-+	}
-+
-+	/* Turn off slave mode. */
-+	func_ctrl_reg_val = readl(bus->base + ASPEED_I2C_FUN_CTRL_REG);
-+	func_ctrl_reg_val &= ~ASPEED_I2CD_SLAVE_EN;
-+	writel(func_ctrl_reg_val, bus->base + ASPEED_I2C_FUN_CTRL_REG);
-+
-+	bus->slave = NULL;
-+	spin_unlock_irqrestore(&bus->lock, flags);
-+
-+	return 0;
-+}
-+#endif /* CONFIG_I2C_SLAVE */
-+
- static const struct i2c_algorithm aspeed_i2c_algo = {
- 	.master_xfer	= aspeed_i2c_master_xfer,
- 	.functionality	= aspeed_i2c_functionality,
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+	.reg_slave	= aspeed_i2c_reg_slave,
-+	.unreg_slave	= aspeed_i2c_unreg_slave,
-+#endif /* CONFIG_I2C_SLAVE */
- };
- 
- static u32 aspeed_i2c_get_clk_reg_val(u32 divisor)
-@@ -551,6 +746,12 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
- 	writel(readl(bus->base + ASPEED_I2C_FUN_CTRL_REG) | fun_ctrl_reg,
- 	       bus->base + ASPEED_I2C_FUN_CTRL_REG);
- 
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+	/* If slave has already been registered, re-enable it. */
-+	if (bus->slave)
-+		__aspeed_i2c_reg_slave(bus, bus->slave->addr);
-+#endif /* CONFIG_I2C_SLAVE */
-+
- 	/* Set interrupt generation of I2C controller */
- 	writel(ASPEED_I2CD_INTR_ALL, bus->base + ASPEED_I2C_INTR_CTRL_REG);
- 
--- 
-2.13.1.611.g7e3b11ae1-goog
+On 六,  6月 17, 2017 at 08:18:49下午 +0300, Andy Shevchenko wrote:
+> On Thu, Jun 15, 2017 at 2:30 PM, Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org> wrote:
+> > This patch adds the I2C controller driver for Spreadtrum platform.
+> 
+> 
+> > +       i2c_dev->irq = platform_get_irq(pdev, 0);
+> > +       if (i2c_dev->irq < 0) {
+> > +               dev_err(&pdev->dev, "failed to get irq resource\n");
+> 
+> > +               return -ENXIO;
+> 
+> Why shadow actual error?
 
+Sorry for missing this and will fix in next version.
+
+> 
+> > +       }
+> 
+> 
+> > +       if (!of_property_read_u32(dev->of_node, "clock-frequency", &prop))
+> > +               i2c_dev->bus_freq = prop;
+> > +
+> > +       sprd_i2c_clk_init(i2c_dev);
+> > +       platform_set_drvdata(pdev, i2c_dev);
+> > +
+> > +       pm_runtime_set_autosuspend_delay(i2c_dev->dev, SPRD_I2C_PM_TIMEOUT);
+> > +       pm_runtime_use_autosuspend(i2c_dev->dev);
+> > +       pm_runtime_set_active(i2c_dev->dev);
+> > +       pm_runtime_enable(i2c_dev->dev);
+> > +
+> > +       ret = pm_runtime_get_sync(i2c_dev->dev);
+> > +       if (ret < 0) {
+> > +               dev_err(&pdev->dev, "i2c%d pm runtime resume failed!\n",
+> > +                       pdev->id);
+> 
+> > +               return ret;
+> 
+> goto error;
+
+Yes, will fix it.
+
+> 
+> > +       }
+> > +
+> > +       ret = devm_request_threaded_irq(dev, i2c_dev->irq,
+> > +               sprd_i2c_isr, sprd_i2c_isr_thread,
+> > +               IRQF_NO_SUSPEND | IRQF_ONESHOT,
+> > +               pdev->name, i2c_dev);
+> > +       if (ret) {
+> > +               dev_err(&pdev->dev, "failed to request irq %d\n", i2c_dev->irq);
+> > +               goto error;
+> > +       }
+> > +
+> > +       ret = i2c_add_numbered_adapter(&i2c_dev->adap);
+> > +       if (ret) {
+> > +               dev_err(&pdev->dev, "add adapter failed\n");
+> > +               goto error;
+> > +       }
+> > +
+> > +       pm_runtime_mark_last_busy(i2c_dev->dev);
+> > +       pm_runtime_put_autosuspend(i2c_dev->dev);
+> > +       return 0;
+> > +
+> > +error:
+> > +       pm_runtime_put_noidle(i2c_dev->dev);
+> > +       pm_runtime_disable(i2c_dev->dev);
+> > +       return ret;
+> > +}
+> > +
+> > +static int sprd_i2c_remove(struct platform_device *pdev)
+> > +{
+> > +       struct sprd_i2c *i2c_dev = platform_get_drvdata(pdev);
+> > +       int ret;
+> > +
+> 
+> > +       ret = pm_runtime_get_sync(i2c_dev->dev);
+> > +       if (ret < 0)
+> > +               return ret;
+> 
+> Does it make any sense? Doesn't device core power on the device before
+> calling ->remove() ?
+
+Yes, you are right. We need power on device in probe() function.
+
+> 
+> > +
+> > +       i2c_del_adapter(&i2c_dev->adap);
+> > +
+> > +       if (!IS_ERR_OR_NULL(i2c_dev->clk))
+> 
+> _OR_NULL looks suspicious.
+
+Since our ->clk can be NULL as one optional connfig in case we test I2C
+driver on FPGA platform which does not support clock operation.
+
+> 
+> > +               clk_unprepare(i2c_dev->clk);
+> > +
+> > +       pm_runtime_put_noidle(i2c_dev->dev);
+> > +       pm_runtime_disable(i2c_dev->dev);
+> > +
+> > +       return 0;
+> > +}
+> > +
+> 
+> > +#ifdef CONFIG_PM_SLEEP
+> 
+> __maybe_unused instead?
+
+OK.
+
+> 
+> > +static int sprd_i2c_suspend_noirq(struct device *pdev)
+> 
+> > +static int sprd_i2c_resume_noirq(struct device *pdev)
+> 
+> > +#endif  /* CONFIG_PM_SLEEP */
+> 
+> > +#ifdef CONFIG_PM
+> 
+> Ditto.
+
+OK.
+
+> 
+> > +static int sprd_i2c_runtime_suspend(struct device *pdev)
+> 
+> > +}
+> 
+> > +static int sprd_i2c_runtime_resume(struct device *pdev)
+> > +{
+> 
+> > +       clk_prepare_enable(i2c_dev->clk);
+> 
+> This might fail.
+
+Yes, will check return value.
+
+> 
+> 
+> > +}
+> > +#endif  /* CONFIG_PM */
+> 
+> 
+> > +static struct platform_driver sprd_i2c_driver = {
+> > +       .probe = sprd_i2c_probe,
+> > +       .remove = sprd_i2c_remove,
+> > +       .driver = {
+> > +                  .name = "sprd-i2c",
+> 
+> > +                  .of_match_table = of_match_ptr(sprd_i2c_of_match),
+> 
+> of_match_ptr seems redundant.
+
+OK.
+
+> 
+> > +                  .pm = &sprd_i2c_pm_ops,
+> > +       },
+> > +};
+> > +
+> 
+> > +static int __init sprd_i2c_init(void)
+> > +{
+> > +       return platform_driver_register(&sprd_i2c_driver);
+> > +}
+> 
+> > +arch_initcall_sync(sprd_i2c_init);
+> 
+> Why?
+
+IN our Spreadtrum platform, our regulator driver will depend on I2C driver
+and the regulator driver uses subsys_initcall() level to initialize. Moreover
+some other drivers like GPU, they will depend on regulator to set voltage and
+they also need initialization much earlier. Thanks for your comments.
+
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
