@@ -1,70 +1,117 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: algo-bit: add support for I2C_M_STOP
-Date: Wed, 21 Jun 2017 16:30:18 +0200
-Message-ID: <20170621143018.GA1571@katana>
-References: <20170617171238.19638-1-wsa+renesas@sang-engineering.com>
- <20170619103002.5d502c92@endymion>
- <20170620172810.h2anac45n5u3oova@ninjato>
- <20170621091843.657de813@endymion>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH] i2c: designware: Do nothing in system suspend/resume when
+ RT suspended
+Date: Wed, 21 Jun 2017 16:40:18 +0200
+Message-ID: <CAPDyKFrC8PEu4v+Ce4Y-ZE+9dRs3OR7TcTrPA54qKGtZjkNL3A@mail.gmail.com>
+References: <20170330120444.12499-1-jarkko.nikula@linux.intel.com>
+ <CAPDyKFqfDYg1ZzcJ2Z7md5CD6tYWRMwi4N8M82DesG_ybVKHMw@mail.gmail.com>
+ <da36d4c0-7bcb-be18-6c8c-9fd714e2f1e0@linux.intel.com> <CAPDyKFqg3TDMwBO7a-1zuKYeLjE-BQ4RPmtXFKzA0s2a50jQqg@mail.gmail.com>
+ <CAPDyKFrJGFHvvM=-xYLcSTtv0FVvo=CNjnA9RAdm=pUrg552GQ@mail.gmail.com>
+ <CAPDyKFoqZuv3niz_0FQ1WVP2+gNjebxw9zLVnJ-L0WN24LK3eA@mail.gmail.com> <1497974938.22624.170.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170621091843.657de813@endymion>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f179.google.com ([209.85.216.179]:33790 "EHLO
+        mail-qt0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750999AbdFUOkU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 21 Jun 2017 10:40:20 -0400
+Received: by mail-qt0-f179.google.com with SMTP id u12so158884618qth.0
+        for <linux-i2c@vger.kernel.org>; Wed, 21 Jun 2017 07:40:19 -0700 (PDT)
+In-Reply-To: <1497974938.22624.170.camel@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, John Stultz <john.stultz@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
+On 20 June 2017 at 18:08, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Tue, 2017-06-20 at 15:07 +0200, Ulf Hansson wrote:
+>> On 16 June 2017 at 15:49, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>
+>> > Jarkko, Andy,
+>> >
+>> > I just wanted to mention that I haven't forgot about this, I am
+>> > doing
+>> > the final changes for the ACPI PM domain at this very moment,
+>> > however
+>> > I need a couple of more days more before I can post something.
+>> >
+>>
+>> I have now published a branch at:
+>>
+>> git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git
+>> acpi_pm_domain_wip
+>>
+>> It contains both changes for the i2c designware platform driver and
+>> for the ACPI PM domain. If you by coincidence happen to have slack
+>> time (probably not), then please try it out.
+>>
+>> The branch is based upon today's version of Rafael's pm tree linux-
+>> next branch.
+>>
+>> If everything goes well, I intend to post the patches after some more
+>> tests.
+>>
+>
+> I have gone through the series briefly.
+> My concern is a quite nasty bug we have workaround for in acpi_lpss.c,
+> i.e. auto power gating of DesignWare DMA on Intel Braswell (CherryTrail)
+> platforms when it's enumerated via ACPI.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+First, as long as there is no driver calling the new API
+acpi_dev_disable_direct_comlete(), the ACPI PM domain should behave
+exactly the same as before these changes.
 
-Hi Jean,
+However, regarding your concern, can you please be a bit more precise
+on how you deal with the problems. I would appreciate if you could
+give me real pointers to the code for the workaround, the above is too
+hand wavy for me to understand.
 
-> There's no problem with the scope. The problem is with the
-> initialization. The way you did, did_stop gets reset to false with
-> every iteration, which isn't what you want.
+So where things really starts to change is in the final i2c patch in
+the series, which converts the i2c designware platform driver to use
+the runtime PM centric approach, and to do that, it calls the
+acpi_dev_disable_direct_complete().
 
-Ouch, where is my brown paper bag...
+>
+> Below is the sequence to test if it works and survives removal and
+> system sleep (lpss-power.sh is the script which shows a power state of
+> selected devices along with PMC Atom status registers and runtime PM):
+>
+>    0 lpss-power.sh
+>    1 mount -t debugfs none /sys/kernel/debug
+>    2 lpss-power.sh
+>    3 modprobe i2c-designware-platform
+>    4 lpss-power.sh
+>    5 modprobe sdhci-acpi
+>    6 lpss-power.sh
+>    7 lsmod
+>    8 modprobe dw-dmac
+>    9 lpss-power.sh
+>   10 modprobe -r dw-dmac
+>   11 lpss-power.sh
+>   12 modprobe dw-dmac
+>   13 lpss-power.sh
+>   14 rtcwake -m mem -s3
+>   15 lpss-power.sh
+>   16 modprobe -r dw-dmac
+>   17 lpss-power.sh
+>   18 modprobe dw-dmac
+>   19 lpss-power.sh
+>   20 stty -F /dev/ttyS2 921600
+>   21 dmesg > /dev/ttyS2
+>   22 cat /proc/interrupts
+>   23 cat < /dev/ttyS1
+>   24 lpss-power.sh
+>   25 cat < /dev/ttyS1 &
+>   26 lpss-power.sh
+>   27 rtcwake -m mem -s3
+>   28 lpss-power.sh
+>   29 fg
+>   30 lpss-power.sh
+>
+> Be aware that DMA is not enabled for I2C!
 
-> I looked at how 10-bit addressing works again and in fact it is simply
-> impossible to not use repeated start when reading from a 10-bit address
-> slave. Only the first 2 bits of the 10-bit address are repeated in the
-> read part of the transaction. If there was a stop between the two parts
-> then there would be no way to know which 10-bit slave should send the
-> data.
+So if DMA isn't enabled for I2C, what is there to worry about?
 
-Which reminds me: Have you ever seen a 10-bit client device in the wild?
-I wanted to buy one for testing reasons but was not able to locate one.
-I only know a Renesas IP core which has 10-bit slave capability (but no
-driver support for that yet).
-
-Regards,
-
-   Wolfram
-
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllKgvUACgkQFA3kzBSg
-KbYmzQ//VBvyEJ1TNiyT93XFwKcEPa19lN+I3CxTGSP7QIFjmK04wDKlUs/TaKxG
-2382m/y8lnLx7rC6p58hB507bqD9leQFke72nY/bwu+soFPAlka0LWbzIdmgfD20
-g0cQ4n3w3Keq0lOQ+GO7H94qbTkozcz+06csSDrXPL8PiVeB0siClt6n/A8qR8VN
-thtZDP1nIwISEAbiwgxHFqmHTdbuWWmQ9DZUi6+zxMB/OHj5ckmV487EG0hKFRks
-085I9fY/9KDN/gs0eMWoY6PXHjQoVoS8qNLb1MbB7E1O+njY7+Nx+pgJyBy7JnMA
-Y/rAo1MrPJB2LrzJxCqpbjiT5cdxOswuJIOsbztgtAePZxJjMtEv+dsE9d2j53Vc
-zgRrrUI9caiTajyLJ/AZt1QaDeBwm+oL51RDm4rHY6VPCgFpkVq1nXq+klVZiyBw
-bvVCykmsp4CdtqZPzdbF2fc5M4/bTidbbmbeOYej3ieUO1XEQvjM0ydW29j6Ln86
-vpuww/bnmaCiMYMDKGgiR1PN153YMv9inqk9ocABMi/Y/s6/yqcMsmwuPCfAXBbI
-8heN2HSCIiO+nK5BpObBo7VNkacUTe+IdqK/lQGLWHy1CIbWgjANdT3yZs3maUpA
-JeG9RvpqGTi2XDsm0vQ1tTWNEC82T98nukO3nWafWhb9noqz/VE=
-=bKjt
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+Kind regards
+Uffe
