@@ -1,53 +1,69 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/5] dt-bindings: add bindings for i2c-pca-platform
-Date: Thu, 22 Jun 2017 10:22:31 +0200
-Message-ID: <20170622082230.wf4r2ylyevidizkd@ninjato>
-References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
- <20170620011837.14010-2-chris.packham@alliedtelesis.co.nz>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] i2c: cadance: (bugfix) ctrl/addr reg write order
+Date: Thu, 22 Jun 2017 10:35:46 +0200
+Message-ID: <20170622083546.33glkhns4hlodrbe@ninjato>
+References: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="inxsyrub7gourdbp"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="sfb5jzrhw375wpge"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:36419 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751116AbdFVIfx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 04:35:53 -0400
 Content-Disposition: inline
-In-Reply-To: <20170620011837.14010-2-chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+In-Reply-To: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Matt Weber <matthew.weber@rockwellcollins.com>
+Cc: linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, John Linn <john.linn@xilinx.com>, Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
 
 
---inxsyrub7gourdbp
+--sfb5jzrhw375wpge
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jun 21, 2017 at 08:45:26PM -0500, Matt Weber wrote:
+> The driver was clearing the hold bit in the control register before
+> writing to the address register which resulted in a stop condition
+> being generated rather than a repeated start.
+>=20
+> This issue was only observed when a system was running much
+> slower than a normal processor would execute.  The IP data sheet
+> mentions a ordering of writing to the address register before
+> clearing the hold.
+>=20
+> Signed-off-by: John Linn <john.linn@xilinx.com>
+> Signed-off-by: Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
+> Signed-off-by: Matthew Weber <matthew.weber@rockwellcollins.com>
+
+Looks good. It seems not urgent to me, though. Are you fine with me
+scheduling it for 4.13 yet with a stable tag attached? Or do you
+consider it 4.12 material? And if you could provide a Fixes: tag that
+would be helpful.
+
+Thanks for the patch!
 
 
-> + - reset-gpios : gpio specifier for gpio connected to RESET_N pin.
-
-What about the 'active' state that Rob mentioned in his last review?
-
-
---inxsyrub7gourdbp
+--sfb5jzrhw375wpge
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLfkYACgkQFA3kzBSg
-KbZBvA//ZeTKXw5pMWR0nql2GfOBU8ITD/NPP8L3SV7CYlaueRC/suNQ1Cw/kOnH
-GDQ+Di1RZf1AfzKxMb8/2PF2MTbWKIIpMFBa6ntE6a/5mTuGQ0evc25TFOGSp5iC
-hwt+AiiA4GBbwyCX1NfO+LsSrXMkzjTcm4WuRjVIGGZOPnU3oz38xHDVMBQzV6gV
-CHZfkR6S1V2jpSnVQrmr9iQux8+3uvpZ0RkLBgWC05AMJ9HjAqnDgtJZcEDOmEgu
-zN7egN0pf6OiocoKrc254tYAvnHrvGeURJCw5GJXT0ug/iUczTnHIwduY+Kr0vCi
-kIjtLOR9GiAoJrRU70ZZ1lggg5oRdojZDFG0VrnW5DgIK0xErpYlbvp8ZiJozAsP
-5p3Bh5b1qdIBejr8kjdJkFZ4KPAPZpUZ8ykNfQfWYeQpPxRwaGlZWNi/Q+YT4iKq
-K2GPYgpofOa5R3ihS+LeZV89xLv5rmV9WR97vqraovDVGAZC4oAT6Ymeh3C0DUyz
-DcEISNs7AUpdTxDJQdKUTVZ5LlRIVXEX9enUQGhWLHUjcPK8uFWug/fLdktwCxHi
-MA+v8uPGKP3yCZN3lwXo3Pr/OldDoFlPTA3oCu0s2cEtvKkpK9oCJnh/vgUWuUzR
-Et4IV19pVUBcRYF4l7gc+c2vgGrfcr1qtvatu5x1Pj9iSh4RxEg=
-=5qD1
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLgWIACgkQFA3kzBSg
+KbY6NA//R2WmgF4vIdapGW1rZLKJLPsy0SNmv0gLKEqVmJNVB729b6uLQMprQMrU
+FlJquWYUVrh4Cw6Ojrd1IUXEzqzyAbQrFzKT1ORr4HNqDFqXyo+FztF8pw7f1nv1
+JUdHsojTp8Dkocfz8gZaRW0PgYZ7zrtbegNxDeTygSYI/3PlAdtPVZldNzZ8SIoE
+kKiUejOuiiop2oYqJe5IYRveFFbaOeysDGcC/kJ/1ia3GaDgEW7eHxa+XjojZMBZ
+b/l1IAC9gE0t0pIvaeP2R7g/GoMSadvYae3IGj7T2V3nuGwBDbGjmXCUHmTsR3gH
+j1TbNJKwll51J8JVrJdeCVofvIZcjkbPUaQme8J1wZ98J411qL8g26Milw3+i2HS
+r32z+/PyD4Y6KiAezqZ7EapGqITUcYSdUHvaVRnNLLvZudhNZjtmNEi69a98rZxZ
+DY1/E/lKcb6tRHSXZcGMoJYNs7PsHzh5d5G/QGEyhh53Jqi674RdntXVyFNCZE7U
+DZKn4+eRzO9TqgFYjW8WIMg1SqPpPm8yUOIkbtEsqlnyCo2WUwUt3lCtMAYNOoBf
+gAisOIDbJBdZYrJb2K2iofq6tNsApWOsvVE62g6/I1mtzWX4x90QyYqz+Mlatn8p
+N93nQdk+nesSay/m2w81HWjbdtJF9g3HIxBug9xe1VfAxhJo2ck=
+=r33P
 -----END PGP SIGNATURE-----
 
---inxsyrub7gourdbp--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--sfb5jzrhw375wpge--
