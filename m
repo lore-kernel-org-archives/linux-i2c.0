@@ -1,75 +1,65 @@
-From: =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?=
-        <zboszor-v1d7l9VOqKc@public.gmane.org>
-Subject: [PATCH 3/5 v4] usb: pci-quirks: Protect the I/O port pair of SB800
-Date: Thu, 22 Jun 2017 15:21:32 +0200
-Message-ID: <20170622132134.7200-4-zboszor@pr.hu>
-References: <20170621035349.4125-1-zboszor@pr.hu>
- <20170622132134.7200-1-zboszor@pr.hu>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] i2c: cadance: (bugfix) ctrl/addr reg write order
+Date: Thu, 22 Jun 2017 15:26:11 +0200
+Message-ID: <20170622132610.GB3820@katana>
+References: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
+ <20170622083546.33glkhns4hlodrbe@ninjato>
+ <CANQCQpbmhfD0jgW2bQm6hjR_CTJiPHbNE_jfU9uicH7PVd6xjg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170622132134.7200-1-zboszor-v1d7l9VOqKc@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Christian Fetzer <fetzer.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Nehal Shah <nehal-bakulchandra.shah-5C7GfCeVMHo@public.gmane.org>, Tim Small <tim-v0yPK6tSSg/10XsdtD+oqA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, kernel-i2qG/+7/Q79eoWH0uzbU5w@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, jlayton-vpEMnDpepFuMZCB2o+C8xQ@public.gmane.org, marc.2377-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, cshorler-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, regressions-rCxcAJFjeRkk+I/owrrOrA@public.gmane.org, =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor-v1d7l9VOqKc@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:55838 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753104AbdFVN0S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 09:26:18 -0400
+Content-Disposition: inline
+In-Reply-To: <CANQCQpbmhfD0jgW2bQm6hjR_CTJiPHbNE_jfU9uicH7PVd6xjg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Matthew Weber <matthew.weber@rockwellcollins.com>
+Cc: linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, John Linn <john.linn@xilinx.com>, Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
 
-This patch uses the previously introduced macro called
-request_declared_muxed_region() to synchronize access to
-the I/O port pair 0xcd6 / 0xcd7 on SB800.
 
-These I/O ports are also used by i2c-piix4 and sp5100_tco,
-so synchronization is necessary. The other drivers will also
-be modified to use the new macro in subsequest patched.
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-v1: Started with a common mutex in a C source file.
 
-v2: Declared the common mutex in drivers/usb/host/pci-quirks.c
-    instead of in a common C file.
+> Not urgent, fell free to work it in where it makes sense. We're on a
+> older LTS at this point and will carry the patch.
 
-v3: Switched to using the new request_declared_muxed_region
-    macro.
+Okay then. I'll add it to 4.13.
 
-v4: Fixed checkpatch.pl warnings and use the new
-    release_declared_region() macro.
+> For the Fixes: tag in this case, should I just prefix my last
+> statement about the issue as there isn't a public bug report or
+> specific commit I can note?  I could add cadence ref manual section
+> and a link to a public download of the doc.
 
-Signed-off-by: Zoltán Böszörményi <zboszor-v1d7l9VOqKc@public.gmane.org>
----
- drivers/usb/host/pci-quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+The Fixes: tag is for specifying the commit ID which introduced the bug.
+So, all stable kernel versions having that commit ID know they want the
+patch carrying the Fixes: tag. I can look it up as well, but it makes my
+life easier if I get it provided. No worries!
 
-diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
-index a9a1e4c..593942a 100644
---- a/drivers/usb/host/pci-quirks.c
-+++ b/drivers/usb/host/pci-quirks.c
-@@ -279,6 +279,8 @@ bool usb_amd_prefetch_quirk(void)
- }
- EXPORT_SYMBOL_GPL(usb_amd_prefetch_quirk);
- 
-+static struct resource sb800_res = DEFINE_RES_IO_NAMED(0xcd6, 2, "SB800 USB");
-+
- /*
-  * The hardware normally enables the A-link power management feature, which
-  * lets the system lower the power consumption in idle states.
-@@ -314,11 +316,13 @@ static void usb_amd_quirk_pll(int disable)
- 	if (amd_chipset.sb_type.gen == AMD_CHIPSET_SB800 ||
- 			amd_chipset.sb_type.gen == AMD_CHIPSET_HUDSON2 ||
- 			amd_chipset.sb_type.gen == AMD_CHIPSET_BOLTON) {
-+		request_declared_muxed_region(&sb800_res);
- 		outb_p(AB_REG_BAR_LOW, 0xcd6);
- 		addr_low = inb_p(0xcd7);
- 		outb_p(AB_REG_BAR_HIGH, 0xcd6);
- 		addr_high = inb_p(0xcd7);
- 		addr = addr_high << 8 | addr_low;
-+		release_declared_region(&sb800_res);
- 
- 		outl_p(0x30, AB_INDX(addr));
- 		outl_p(0x40, AB_DATA(addr));
--- 
-2.9.4
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLxXIACgkQFA3kzBSg
+Kba9vw/7Biyh6iD46wt5mDSkpfN9k4AjBYcU7xBQZmCjzEmUMIp/+wa+tlm3w3Gp
+4JbCgURKfYaCRRnHBw/OvAMM5tNrMGzhJ9QcGnLqYM0jIE8SrJsDVeFjbu8MJy08
+JG8JwUd1598A/EO2tWV3dFva4cbOn0WTVQ255NjuCnraa2sxuzGYwRLtnZ6dQrn+
+KKnTxZ88bCIkg2zf42rjgSOxeniZAmPDAUIO9KS4CWg4dorYWPJUEZfyaMkRWRTC
+vX2qBgQN7znxzfWQoHALYgtise8PE0sPHZRWm/FlpYYNRhrwR3+ssgB/wVYrY35M
+Mo/RxGiXl8OmChHYPpzQxa8PuoBBKC8+TEqfiRyQ+omd3XNbrwgTnia22XTg4T9Q
+Rsue87sY1azaD92TnM7cSNEHmEt0QtR1hsfygLe7HSKBMgnHt0pMoBzLsGTNoMay
+IrSYI6CD7w8sJkIUrVuZwp4nRnWBpfb/s5SzV673t6dunBQvnuDadKLwL/pTg6Rw
+Pc9Tp5CNJG2vI0gdTM+onIaCLgE1q3lWvQgFDEctcJsLc+DrEPt2YKO8x9a6aN+t
+F02m7yICKWMtF14t6Ms4C0yngYBBdnKhqBFBc0luEd93LW8fuAJ/2nydazKycswq
+ltlnajmNLOZL931LYCayXLiH7Kj9LFwzbq2cC1Rqso62WvFXWo0=
+=AiUq
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--
