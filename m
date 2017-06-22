@@ -1,66 +1,70 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/9] i2c: designware: Fix system suspend
-Date: Thu, 22 Jun 2017 13:49:33 +0300
-Message-ID: <20170622104933.GY629@lahna.fi.intel.com>
-References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org>
- <1498072888-14782-2-git-send-email-ulf.hansson@linaro.org>
- <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com>
+From: Stefan Roese <sr@denx.de>
+Subject: Re: [PATCH] i2c: ocores: Add missing wake_up() call upon state change
+ to STATE_DONE
+Date: Thu, 22 Jun 2017 12:53:44 +0200
+Message-ID: <df9d294c-357f-788a-5213-b229d4c3c5c1@denx.de>
+References: <20170616092317.584-1-sr@denx.de>
+ <87a858hz71.fsf@dell.be.48ers.dk>
+ <7319c512-4301-8a33-5fc3-62486557a883@denx.de>
+ <871sqkhxm4.fsf@dell.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, stable@vger.linux.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.mailbox.org ([80.241.60.215]:42978 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753062AbdFVKyA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 06:54:00 -0400
+In-Reply-To: <871sqkhxm4.fsf@dell.be.48ers.dk>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, Jun 22, 2017 at 01:31:51AM +0200, Rafael J. Wysocki wrote:
-> On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> > The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
-> > during system suspend"), may suggest to the PM core to try out the so
-> > called direct_complete path for system sleep. In this path, the PM core
-> > treats a runtime suspended device as it's already in a proper low power
-> > state for system sleep, which makes it skip calling the system sleep
-> > callbacks for the device, except for the ->prepare() and the ->complete()
-> > callback.
-> >
-> > Moreover, under certain circumstances the PM core may unset the
-> > direct_complete flag for a parent device, in case its child device are
-> > being system suspended before. In other words, the PM core doesn't skip
-> > calling the system sleep callbacks, no matter if the device is runtime
-> > suspended or not.
-> >
-> > In cases of an i2c slave device, the above situation is triggered.
-> > Unfortunate, this also breaks the assumption that the i2c device is always
-> > runtime resumed, whenever the dw_i2c_plat_suspend() callback is being
-> > invoked, which then leads to a regression.
-> >
-> > More precisely, dw_i2c_plat_suspend() then calls clk_core_disable() and
-> > clk_core_unprepare(), for an already disabled/unprepared clock, leading to
-> > complaints about clocks calls being wrongly balanced.
-> >
-> > In cases when the i2c device is attached to the ACPI PM domain, the problem
-> > doesn't occur. That's because ACPI's ->suspend() callback, assigned to
-> > acpi_subsys_suspend(), calls pm_runtime_resume() for the i2c device.
+Hi Peter,
+
+first sorry for the delay.
+
+On 16.06.2017 15:26, Peter Korsgaard wrote:
+>>>>>> "Stefan" == Stefan Roese <sr@denx.de> writes:
 > 
-> Which really is expected to happen, so direct_complete should only be
-> used along with the ACPI PM domain in this case.
+> Hi,
 > 
-> Moreover, in the ACPI PM domain case acpi_subsys_prepare() is supposed
-> to do the right thing without dw_i2c_plat_prepare() and the return
-> value of the latter will be ignored anyway, so dw_i2c_plat_prepare()
-> will only have effect without ACPI PM domain AFAICS.
+>   >> It is close to 10 years ago since I last had access to any boards with
+>   >> the ocores controller, but the logic in ocores_process() indicates that
+>   >> the controller would generate another interrupt once the stop condition
+>   >> has been sent:
+>   >>
+>   >> if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
+>   >> /* stop has been sent */
+>   >> oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+>   >> wake_up(&i2c->wait);
+>   >> return;
+>   >> }
+>   >>
+>   >> Do you not see this interrupt?
 > 
-> It looks like commit 8503ff166504 is entirely misguided.
+>   > No. It took me quite some time last week, to notice this misbehavior
+>   > in this I2C driver. As the client (Goodix I2C touchscreen) always
+>   > returned only after more than 1 second from reading one I2C frame.
+> 
+> Funky. On what kind of platform / what VHDL source version is this?
 
-Indeed it is. At the time I suggested that change I did not really
-understand how the direct complete is supposed to be used :-/
+Thanks for looking into this. It seems that we had a quite old
+version of the OpenCores I2C core implemented on our Altera /
+Intel Arria V board:
 
-Thanks Ulf for taking care of this!
+Rev 1.2 (2001/11/10)
 
-I tested this series on Dell XPS 9350 which has touch panel connected to
-I2C and suspend/resume still works fine and I can see the controller
-going to D3 when the touch panel is idle.
+> The
+> driver has now existed for more than 10 years and has had contributions
+> from a number of people, but this is the first time I hear about this
+> missing interrupt.
 
-I can perform more comprehensive testing next week.
+After updating to the latest version from OpenCores, the issue
+with the missing interrupt seems to be resolved. So this patch
+can be dropped.
+
+Thanks,
+Stefan
