@@ -1,141 +1,72 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
-Date: Thu, 22 Jun 2017 12:00:47 +0200
-Message-ID: <20170622100047.pbzxez2w55ecxy2g@ninjato>
-References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
- <1494947612.7509.24.camel@infinera.com>
- <1495547252.17446.60.camel@infinera.com>
- <20170529210419.GA2527@katana>
- <1496095395.17446.111.camel@infinera.com>
- <20170621213647.GA2419@katana>
- <20170621215924.GB2419@katana>
- <1498120824.14148.27.camel@infinera.com>
+Subject: Re: [PATCH] i2c: algo-bit: add support for I2C_M_STOP
+Date: Thu, 22 Jun 2017 12:15:20 +0200
+Message-ID: <20170622101520.hwbzunqg5xxehttp@ninjato>
+References: <20170617171238.19638-1-wsa+renesas@sang-engineering.com>
+ <20170619103002.5d502c92@endymion>
+ <20170620172810.h2anac45n5u3oova@ninjato>
+ <20170621091843.657de813@endymion>
+ <20170621143018.GA1571@katana>
+ <20170622110606.6ae3aabc@endymion>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="23mjvsvbhxtmzure"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:36681 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752563AbdFVKAz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Jun 2017 06:00:55 -0400
+        protocol="application/pgp-signature"; boundary="b7fm5gn6xkytka4r"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1498120824.14148.27.camel@infinera.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170622110606.6ae3aabc@endymion>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-Cc: "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---23mjvsvbhxtmzure
-Content-Type: text/plain; charset=utf-8
+--b7fm5gn6xkytka4r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jun 22, 2017 at 08:40:25AM +0000, Joakim Tjernlund wrote:
-> On Wed, 2017-06-21 at 23:59 +0200, Wolfram Sang wrote:
-> > > Toggling 9x even means you could then write something somewhere
-> > > which in case of a PMIC can be really dangerous.
-> >=20
-> > I am partly wrong here because you send a START beforehand. And devices
-> > are required to reset their state machine when they detect a START (I2C
-> > Specs 3.1.10, Note 4). So, it *shouldn't* be dangerous. If all devices
-> > follow that rule, that is...
-> >=20
-> > However, you can only send START when SDA is not stuck. And still, this
-> > whole toggling is to reanimate a stuck SDA. So, it still looks to me
-> > that it doesn't make sense to have START & STOP around the toggling and
-> > rather have a single STOP before you try toggling.
-> >=20
-> > Makes sense?
->=20
-
-> STOP must be last so the bus is released, this was one of the problems
-> the patch fixed as next transfer would find the bus busy and the went
-> into fixup again.
-
-Yes, agreed. STOP must be last.
-
-> In general you cannot known if the slave stuck in somewhere in
-> READ/WRITE or some other state. Stuck is probably the wrong word here,
-> not in sync is a better description.
-
-I think those are two different issues. The bus can be stuck, namely
-when SCL or SDA is stuck low. We can't do anything about SCL other than
-HW reset, but for SDA we can try the toggling. For the device not in
-sync, I wonder how you detect this on bus driver level? If SCL and SDA
-are high, the device may still be out-of-sync but the bus will look free
-to the master. Or?
-
-> If you are afraid the slave won't see the the STARTs why would it see
-> any STOPs?
-
-Sure, it won't. I can't recall I was afraid of that. Maybe I was not
-clear what procedure I was proposing:
-
-1) bus is in unkown condition -> send STOP
-	a) good case: bus free, all devices wait for START again
-	b) bad case: SDA stuck low, you can't send STOP
-
-2) SDA is stuck low -> toggle SCL up to 9 times
-	a) good case: SDA is released again, send STOP
-	b) bad case: no SDA release, HW reset needed
-
-> Why would a STOP do anything here? The device is not listening until
-> you get to end of the byte where it will listen to NACK, STOP or
-> START.=20
-
-And this is a key question, I think: A device should listen to STOP or
-START always (Specs 3.1.10 Note 4). Do you really have a device that
-doesn't follow this?
-
-Don't get me wrong: I know that there always can be devices out there
-which do not follow the spec. I'd really love to know if you have one.
-I'd even like to buy one for testing.
-
-But it might be an option to consider this device simply broken. If the
-solution for this device might mean that other devices get a write to a
-random location, then there is simply more risk than gain.
-
-> The best way to get the slaves attention is the send the 9 clocks with
-> a START, if possible, in each clock. That will get the slaves
-> attention and place the slave in START state, then you finish with a
-> STOP so all devices, including any masters,=C2=A0 sees that the bus is
-> free.
-
-Even if I consider there are devices which do not react to START/STOP in
-the middle of a byte and need it to be fully transferred, I still can't
-see what a START gains you here. Because it won't react as we just said.
-After an additional cycle (up to 9 of them), it might react to a STOP
-then. That I see. And I think I agree of sending a STOP after each of
-these up to 9 cycles. But I wonder about the start. Note also, that
-START + STOP (void message) is considered illegal in the standard (Specs
-3.1.10 Note 5), although most devices will likely handle it.
-
-That's how it looks to me currently. Did I miss something?
-
-Regards,
-
-   Wolfram
 
 
---23mjvsvbhxtmzure
+> I remember wishing I could drop support, asking around, and a few
+> people replying to me that 10-bit slaves actually exist. But of course
+> I can't find the discussion thread again.
+
+Dropping 10-bit support would be super nice from a maintenance point of
+view, but I didn't have hopes for that to happen ;) This is why I wanted
+to buy a device to be able to test.
+
+> However it seems that in many cases I2C_M_TEN is used directly (instead
+> of the more correct I2C_CLIENT_TEN.) See for example
+
+Yeah, good idea to scan for I2C_CLIENT_TEN directly. From a glimpse, I
+didn't see a device which I could easily buy, connect, and sniff the
+wires. But it is not urgent anyhow.
+
+> I see also commits explicitly adding or fixing 10-bit address support
+> in various I2C bus drivers, I don't think developers would be doing
+> that if they didn't need it.
+
+Agreed. It will stay, I had no intention of removing it.
+
+Thanks for the help!
+
+
+--b7fm5gn6xkytka4r
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLlUsACgkQFA3kzBSg
-KbYAuRAAprQJoxMQRqnHqfJbQlENA05R1dSoktHkeFMM3y8tLitZgJLKLRugrKm8
-kU840vIbAVTFm7NgMHNBSkT+lt9BgIggWVtFvqfiYB+xwN9kZdbaYwuauStOhQbm
-rt8wauR86ttHIZtwS2oUJZ7tSq8AQ9a3OeGS5sikEOFmFQvO70HiJ9V0/6yKMwiK
-7eZWtHah3P62bn5VsUj8l493uvXw4/THDcXRHgFtXC2wkKIue7n1aHEAD2rpdS8P
-D4kUXPk215f4hVll2zDQzrttbXCqMT+cy+j2r9H96SqVoR2Qo2x/6JpwHCkBGWB9
-uPQlzzc7NWHu1Rvy7VdwNc+0q+5MoKYaIXAtF8gfkcQL53rdaD+ClgH0pZaZ1Mj3
-6BohO9JQ63rYPKtV2JdtyUk433Qgj4/iWTvMSOfA9wLK5bmKPZdTrYl5UyVzLg7E
-bRbmHBbMeYJJf0aTRLIs9B/dA28kWR7nVEFpvuyHkyrs5whVMs43vFLWO6isCdgv
-KtMPkVrwZ6EiTkJq52Tl86yc8Q5HiR7bQ6IGnFklcGjqSD0cYhnSE0otWAdprnMW
-kiRFSn51YpvHZgvSm4POw6yKKMg81db4xibE/6tuhgNpbWjCN7BHGFCZmJ70Wndh
-tL8VFayUC6A3zFQf1Y9jp+4E1T/He2YOQBXQuCx12A5GAMwDFZA=
-=3NbY
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLmLgACgkQFA3kzBSg
+KbZO3w//e5SQXFo4NC1KUGs/F8TSbhtwAMbsJOi9zP3NPEpNO4NXXCCv72/Ersoe
+hAzIx+pVLu5y4r1evqa6D4sbXE0eqwbsFJziJx+ZoZ4470lMzfi4is6HSGvgkhzL
+GAlNJn3A8mkZ3T1FWxVUGtUcupE587uytsSdWfXQFP22G2ECzLKdKPx4d8DmZRtr
+cbP1raKgF2LKy4BLJ97L708yI27F910fNyhYEL9ttS9UpVhjz8jPA4hMe34S/sS+
+1OQU8fC+Kmm2JCI6RAYL37am+Ee0DImvu43RurFnOXmJnkGxcKBKo9ZccZm+7xrq
+ecylNWuhJPs7bwBRejSPdaXbCUzhZSEr1tn17Bq4dsJn2X2IawU5DjBJwoNoU9Pd
+nOh1C3pH4sEEEbFpAed1KJfHTp9S/2a7KDEJ02tosC/SjFDEeZWv586gBa24ebiq
+iinBEPcES/B4V1wajYSVs2ebH8zyHLOSUyD7Cff4l1M2sM7rXfBI9E7VnaCs/u41
+B1L97wPYmOrD0QOoZ6QGmw1ptEbXefuCUWWTufH9MjT5GMBDWUXOHVvxPqE3hLqO
+AAeeLoQOMHuF9/D37MhSzVvR+yhU/qxiQyCXmHkZXFr0jhM0ld3WqRngmBVAykAJ
+5Irgen01DmBztpJX0U1JEvajlYT2A+F6qB+711vcIJiz55BjiNU=
+=pE38
 -----END PGP SIGNATURE-----
 
---23mjvsvbhxtmzure--
+--b7fm5gn6xkytka4r--
