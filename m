@@ -1,66 +1,61 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 1/9] i2c: designware: Fix system suspend
-Date: Thu, 22 Jun 2017 16:41:41 +0200
-Message-ID: <2842386.AFZiXzV2Sq@aspire.rjw.lan>
-References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org> <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com> <20170622104933.GY629@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+From: Matt Weber <matthew.weber@rockwellcollins.com>
+Subject: [PATCH v2 1/1] i2c: cadance: (bugfix) ctrl/addr reg write order
+Date: Thu, 22 Jun 2017 15:00:33 -0500
+Message-ID: <1498161633-12736-1-git-send-email-matthew.weber@rockwellcollins.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from cloudserver094114.home.net.pl ([79.96.170.134]:64100 "EHLO
-        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751866AbdFVOtG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Jun 2017 10:49:06 -0400
-In-Reply-To: <20170622104933.GY629@lahna.fi.intel.com>
+Received: from smtpimr.rockwellcollins.com ([205.175.227.27]:33246 "EHLO
+        da1vs01.rockwellcollins.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753362AbdFVUKJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Jun 2017 16:10:09 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, stable@vger.linux.org
+To: linux-i2c@vger.kernel.org
+Cc: wsa@the-dreams.de, soren.brinkmann@xilinx.com, Matt Weber <matthew.weber@rockwellcollins.com>, John Linn <john.linn@xilinx.com>, Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
 
-On Thursday, June 22, 2017 01:49:33 PM Mika Westerberg wrote:
-> On Thu, Jun 22, 2017 at 01:31:51AM +0200, Rafael J. Wysocki wrote:
-> > On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> > > The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
-> > > during system suspend"), may suggest to the PM core to try out the so
-> > > called direct_complete path for system sleep. In this path, the PM core
-> > > treats a runtime suspended device as it's already in a proper low power
-> > > state for system sleep, which makes it skip calling the system sleep
-> > > callbacks for the device, except for the ->prepare() and the ->complete()
-> > > callback.
-> > >
-> > > Moreover, under certain circumstances the PM core may unset the
-> > > direct_complete flag for a parent device, in case its child device are
-> > > being system suspended before. In other words, the PM core doesn't skip
-> > > calling the system sleep callbacks, no matter if the device is runtime
-> > > suspended or not.
-> > >
-> > > In cases of an i2c slave device, the above situation is triggered.
-> > > Unfortunate, this also breaks the assumption that the i2c device is always
-> > > runtime resumed, whenever the dw_i2c_plat_suspend() callback is being
-> > > invoked, which then leads to a regression.
-> > >
-> > > More precisely, dw_i2c_plat_suspend() then calls clk_core_disable() and
-> > > clk_core_unprepare(), for an already disabled/unprepared clock, leading to
-> > > complaints about clocks calls being wrongly balanced.
-> > >
-> > > In cases when the i2c device is attached to the ACPI PM domain, the problem
-> > > doesn't occur. That's because ACPI's ->suspend() callback, assigned to
-> > > acpi_subsys_suspend(), calls pm_runtime_resume() for the i2c device.
-> > 
-> > Which really is expected to happen, so direct_complete should only be
-> > used along with the ACPI PM domain in this case.
-> > 
-> > Moreover, in the ACPI PM domain case acpi_subsys_prepare() is supposed
-> > to do the right thing without dw_i2c_plat_prepare() and the return
-> > value of the latter will be ignored anyway, so dw_i2c_plat_prepare()
-> > will only have effect without ACPI PM domain AFAICS.
-> > 
-> > It looks like commit 8503ff166504 is entirely misguided.
-> 
-> Indeed it is. At the time I suggested that change I did not really
-> understand how the direct complete is supposed to be used :-/
+The driver was clearing the hold bit in the control register before
+writing to the address register which resulted in a stop condition
+being generated rather than a repeated start.
 
-So can we go for a full revert, please, and then fix up things properly?
+This issue was only observed when a system was running much
+slower than a normal processor would execute.  The IP data sheet
+mentions a ordering of writing to the address register before
+clearing the hold.
 
-Thanks,
-Rafael
+Fixes: df8eb5691c4 ("i2c: Add driver for Cadence I2C controller")
+
+Signed-off-by: John Linn <john.linn@xilinx.com>
+Signed-off-by: Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
+Signed-off-by: Matthew Weber <matthew.weber@rockwellcollins.com>
+---
+
+Changes
+v1 -> v2
+ - Added fixes tag (Suggested by W. Sang)
+---
+ drivers/i2c/busses/i2c-cadence.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 45d6771..75d8016 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -405,14 +405,14 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ 		cdns_i2c_writereg(id->recv_count, CDNS_I2C_XFER_SIZE_OFFSET);
+ 	}
+ 
++	/* Set the slave address in address register - triggers operation */
++	cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
++						CDNS_I2C_ADDR_OFFSET);
+ 	/* Clear the bus hold flag if bytes to receive is less than FIFO size */
+ 	if (!id->bus_hold_flag &&
+ 		((id->p_msg->flags & I2C_M_RECV_LEN) != I2C_M_RECV_LEN) &&
+ 		(id->recv_count <= CDNS_I2C_FIFO_DEPTH))
+ 			cdns_i2c_clear_bus_hold(id);
+-	/* Set the slave address in address register - triggers operation */
+-	cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
+-						CDNS_I2C_ADDR_OFFSET);
+ 	cdns_i2c_writereg(CDNS_I2C_ENABLED_INTR_MASK, CDNS_I2C_IER_OFFSET);
+ }
+ 
+-- 
+1.9.1
