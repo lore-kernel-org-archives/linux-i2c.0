@@ -1,67 +1,141 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 7/9] PM / ACPI: Enable the runtime PM centric approach for
- system sleep
-Date: Thu, 22 Jun 2017 11:42:11 +0200
-Message-ID: <CAPDyKFpYpLqPiyfqp16JT8fA7xwhanAcfhdnYm6MgeXyq0QfNQ@mail.gmail.com>
-References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org>
- <1498072888-14782-8-git-send-email-ulf.hansson@linaro.org> <CAJZ5v0jL-0TKUv5nK7tFLm+X7nE7J2e3hm21i=+FBFBzQLQ=Xw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
+Date: Thu, 22 Jun 2017 12:00:47 +0200
+Message-ID: <20170622100047.pbzxez2w55ecxy2g@ninjato>
+References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
+ <1494947612.7509.24.camel@infinera.com>
+ <1495547252.17446.60.camel@infinera.com>
+ <20170529210419.GA2527@katana>
+ <1496095395.17446.111.camel@infinera.com>
+ <20170621213647.GA2419@katana>
+ <20170621215924.GB2419@katana>
+ <1498120824.14148.27.camel@infinera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0jL-0TKUv5nK7tFLm+X7nE7J2e3hm21i=+FBFBzQLQ=Xw@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="23mjvsvbhxtmzure"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:36681 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752563AbdFVKAz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 06:00:55 -0400
+Content-Disposition: inline
+In-Reply-To: <1498120824.14148.27.camel@infinera.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Cc: "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 21 June 2017 at 23:47, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
->> This change extends the interpretation of the ACPI's no_direct_complete
->> flag to be used to enable the so called runtime PM centric approach, for
->> devices being attached to the ACPI PM domain.
->>
->> The principle behind the runtime PM centric approach is to re-use the
->> runtime PM callbacks to implement system sleep for drivers/subsystems.
->> Moreover, using the runtime PM centric approach gives an optimized
->> behaviour around avoiding to wake up a device from its low power state
->> during system sleep, unless really needed.
->>
->> To deploy the runtime PM centric approach for a subsystem/driver, the
->> following adaptations needs to be made.
->>
->> First, the runtime PM callbacks may be called when runtime PM has been
->> disabled for the device. This serves as an indication for the callbacks to
->> understand they are running in the system sleep sequence, instead of in the
->> regular runtime PM path. In some cases, a callback needs to take different
->> actions depending in what path it is being executed in, as is the case for
->> the ACPI PM domain.
->>
->> In particular for the ACPI PM domain's ->runtime_suspend|resume()
->> callbacks, when those finds runtime PM being disabled for the device, it
->> instead executes the same operations as normally being run when
->> ->suspend_late() and ->resume_early() callbacks are invoked during system
->> sleep.
->>
->> Second, at the PM domain level, it is expected that the driver for the
->> device makes use of pm_runtime_force_suspend|resume(), to re-use the
->> runtime PM callbacks to put the device into low power state and to wake it
->> up when needed during system sleep.
->
-> What if it doesn't do that?
->
-> Do all drivers of devices that may fall into the ACPI PM domain use
-> pm_runtime_force_suspend|resume()?
 
-No, no - the runtime PM centric path is optional by all ACPI
-devices/drivers. The default is still for the ACPI PM domain to try
-the direct_complete path.
+--23mjvsvbhxtmzure
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However if an ACPI device/driver (i2c designware in this case) likes
-to do that, they need to inform the ACPI PM domain about it. Then they
-call acpi_dev_disable_direct_complete() and makes use of
-pm_runtime_force_suspend|resume() to deal with system sleep.
+On Thu, Jun 22, 2017 at 08:40:25AM +0000, Joakim Tjernlund wrote:
+> On Wed, 2017-06-21 at 23:59 +0200, Wolfram Sang wrote:
+> > > Toggling 9x even means you could then write something somewhere
+> > > which in case of a PMIC can be really dangerous.
+> >=20
+> > I am partly wrong here because you send a START beforehand. And devices
+> > are required to reset their state machine when they detect a START (I2C
+> > Specs 3.1.10, Note 4). So, it *shouldn't* be dangerous. If all devices
+> > follow that rule, that is...
+> >=20
+> > However, you can only send START when SDA is not stuck. And still, this
+> > whole toggling is to reanimate a stuck SDA. So, it still looks to me
+> > that it doesn't make sense to have START & STOP around the toggling and
+> > rather have a single STOP before you try toggling.
+> >=20
+> > Makes sense?
+>=20
 
-Does that makes sense?
+> STOP must be last so the bus is released, this was one of the problems
+> the patch fixed as next transfer would find the bus busy and the went
+> into fixup again.
 
-Kind regards
-Uffe
+Yes, agreed. STOP must be last.
+
+> In general you cannot known if the slave stuck in somewhere in
+> READ/WRITE or some other state. Stuck is probably the wrong word here,
+> not in sync is a better description.
+
+I think those are two different issues. The bus can be stuck, namely
+when SCL or SDA is stuck low. We can't do anything about SCL other than
+HW reset, but for SDA we can try the toggling. For the device not in
+sync, I wonder how you detect this on bus driver level? If SCL and SDA
+are high, the device may still be out-of-sync but the bus will look free
+to the master. Or?
+
+> If you are afraid the slave won't see the the STARTs why would it see
+> any STOPs?
+
+Sure, it won't. I can't recall I was afraid of that. Maybe I was not
+clear what procedure I was proposing:
+
+1) bus is in unkown condition -> send STOP
+	a) good case: bus free, all devices wait for START again
+	b) bad case: SDA stuck low, you can't send STOP
+
+2) SDA is stuck low -> toggle SCL up to 9 times
+	a) good case: SDA is released again, send STOP
+	b) bad case: no SDA release, HW reset needed
+
+> Why would a STOP do anything here? The device is not listening until
+> you get to end of the byte where it will listen to NACK, STOP or
+> START.=20
+
+And this is a key question, I think: A device should listen to STOP or
+START always (Specs 3.1.10 Note 4). Do you really have a device that
+doesn't follow this?
+
+Don't get me wrong: I know that there always can be devices out there
+which do not follow the spec. I'd really love to know if you have one.
+I'd even like to buy one for testing.
+
+But it might be an option to consider this device simply broken. If the
+solution for this device might mean that other devices get a write to a
+random location, then there is simply more risk than gain.
+
+> The best way to get the slaves attention is the send the 9 clocks with
+> a START, if possible, in each clock. That will get the slaves
+> attention and place the slave in START state, then you finish with a
+> STOP so all devices, including any masters,=C2=A0 sees that the bus is
+> free.
+
+Even if I consider there are devices which do not react to START/STOP in
+the middle of a byte and need it to be fully transferred, I still can't
+see what a START gains you here. Because it won't react as we just said.
+After an additional cycle (up to 9 of them), it might react to a STOP
+then. That I see. And I think I agree of sending a STOP after each of
+these up to 9 cycles. But I wonder about the start. Note also, that
+START + STOP (void message) is considered illegal in the standard (Specs
+3.1.10 Note 5), although most devices will likely handle it.
+
+That's how it looks to me currently. Did I miss something?
+
+Regards,
+
+   Wolfram
+
+
+--23mjvsvbhxtmzure
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLlUsACgkQFA3kzBSg
+KbYAuRAAprQJoxMQRqnHqfJbQlENA05R1dSoktHkeFMM3y8tLitZgJLKLRugrKm8
+kU840vIbAVTFm7NgMHNBSkT+lt9BgIggWVtFvqfiYB+xwN9kZdbaYwuauStOhQbm
+rt8wauR86ttHIZtwS2oUJZ7tSq8AQ9a3OeGS5sikEOFmFQvO70HiJ9V0/6yKMwiK
+7eZWtHah3P62bn5VsUj8l493uvXw4/THDcXRHgFtXC2wkKIue7n1aHEAD2rpdS8P
+D4kUXPk215f4hVll2zDQzrttbXCqMT+cy+j2r9H96SqVoR2Qo2x/6JpwHCkBGWB9
+uPQlzzc7NWHu1Rvy7VdwNc+0q+5MoKYaIXAtF8gfkcQL53rdaD+ClgH0pZaZ1Mj3
+6BohO9JQ63rYPKtV2JdtyUk433Qgj4/iWTvMSOfA9wLK5bmKPZdTrYl5UyVzLg7E
+bRbmHBbMeYJJf0aTRLIs9B/dA28kWR7nVEFpvuyHkyrs5whVMs43vFLWO6isCdgv
+KtMPkVrwZ6EiTkJq52Tl86yc8Q5HiR7bQ6IGnFklcGjqSD0cYhnSE0otWAdprnMW
+kiRFSn51YpvHZgvSm4POw6yKKMg81db4xibE/6tuhgNpbWjCN7BHGFCZmJ70Wndh
+tL8VFayUC6A3zFQf1Y9jp+4E1T/He2YOQBXQuCx12A5GAMwDFZA=
+=3NbY
+-----END PGP SIGNATURE-----
+
+--23mjvsvbhxtmzure--
