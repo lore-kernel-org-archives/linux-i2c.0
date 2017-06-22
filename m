@@ -1,69 +1,70 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] i2c: cadance: (bugfix) ctrl/addr reg write order
-Date: Thu, 22 Jun 2017 10:35:46 +0200
-Message-ID: <20170622083546.33glkhns4hlodrbe@ninjato>
-References: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
+From: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Subject: Re: [PATCHv2] i2c-mpc: Correct I2C reset procedure
+Date: Thu, 22 Jun 2017 08:40:25 +0000
+Message-ID: <1498120824.14148.27.camel@infinera.com>
+References: <20170511122033.22471-1-joakim.tjernlund@infinera.com>
+         <1494947612.7509.24.camel@infinera.com>
+         <1495547252.17446.60.camel@infinera.com> <20170529210419.GA2527@katana>
+         <1496095395.17446.111.camel@infinera.com> <20170621213647.GA2419@katana>
+         <20170621215924.GB2419@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sfb5jzrhw375wpge"
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:36419 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751116AbdFVIfx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Jun 2017 04:35:53 -0400
-Content-Disposition: inline
-In-Reply-To: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
+Received: from mail-bn3nam01on0051.outbound.protection.outlook.com ([104.47.33.51]:47123
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752650AbdFVIkb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 04:40:31 -0400
+In-Reply-To: <20170621215924.GB2419@katana>
+Content-Language: en-US
+Content-ID: <23E5ACA0108D9646B498DCDA46B34A38@infinera.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Matt Weber <matthew.weber@rockwellcollins.com>
-Cc: linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, John Linn <john.linn@xilinx.com>, Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
+To: "wsa@the-dreams.de" <wsa@the-dreams.de>
+Cc: "oss@buserror.net" <oss@buserror.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-
---sfb5jzrhw375wpge
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Jun 21, 2017 at 08:45:26PM -0500, Matt Weber wrote:
-> The driver was clearing the hold bit in the control register before
-> writing to the address register which resulted in a stop condition
-> being generated rather than a repeated start.
+On Wed, 2017-06-21 at 23:59 +0200, Wolfram Sang wrote:
+> > Toggling 9x even means you could then write something somewhere
+> > which in case of a PMIC can be really dangerous.
 >=20
-> This issue was only observed when a system was running much
-> slower than a normal processor would execute.  The IP data sheet
-> mentions a ordering of writing to the address register before
-> clearing the hold.
+> I am partly wrong here because you send a START beforehand. And devices
+> are required to reset their state machine when they detect a START (I2C
+> Specs 3.1.10, Note 4). So, it *shouldn't* be dangerous. If all devices
+> follow that rule, that is...
 >=20
-> Signed-off-by: John Linn <john.linn@xilinx.com>
-> Signed-off-by: Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
-> Signed-off-by: Matthew Weber <matthew.weber@rockwellcollins.com>
+> However, you can only send START when SDA is not stuck. And still, this
+> whole toggling is to reanimate a stuck SDA. So, it still looks to me
+> that it doesn't make sense to have START & STOP around the toggling and
+> rather have a single STOP before you try toggling.
+>=20
+> Makes sense?
 
-Looks good. It seems not urgent to me, though. Are you fine with me
-scheduling it for 4.13 yet with a stable tag attached? Or do you
-consider it 4.12 material? And if you could provide a Fixes: tag that
-would be helpful.
+STOP must be last so the bus is released, this was one of the problems the =
+patch fixed as
+next transfer would find the bus busy and the went into fixup again.
 
-Thanks for the patch!
+In general you cannot known if the slave stuck in somewhere in READ/WRITE o=
+r
+some other state. Stuck is probably the wrong word here, not in sync is a b=
+etter description.
 
+If you are afraid the slave won't see the the STARTs why would it see any S=
+TOPs?
+Take this case:
+> So, for the write case, I'd think a single STOP before toggling should
+> do. Toggling 9x even means you could then write something somewhere
+> which in case of a PMIC can be really dangerous.
+Why would a STOP do anything here? The device is not listening until you ge=
+t to
+end of the byte where it will listen to NACK, STOP or START.=20
 
---sfb5jzrhw375wpge
-Content-Type: application/pgp-signature; name="signature.asc"
+The best way to get the slaves attention is the send the 9 clocks with a ST=
+ART,
+if possible, in each clock. That will get the slaves attention and place th=
+e slave
+in START state, then you finish with a STOP so all devices, including any m=
+asters,=A0
+sees that the bus is free.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLgWIACgkQFA3kzBSg
-KbY6NA//R2WmgF4vIdapGW1rZLKJLPsy0SNmv0gLKEqVmJNVB729b6uLQMprQMrU
-FlJquWYUVrh4Cw6Ojrd1IUXEzqzyAbQrFzKT1ORr4HNqDFqXyo+FztF8pw7f1nv1
-JUdHsojTp8Dkocfz8gZaRW0PgYZ7zrtbegNxDeTygSYI/3PlAdtPVZldNzZ8SIoE
-kKiUejOuiiop2oYqJe5IYRveFFbaOeysDGcC/kJ/1ia3GaDgEW7eHxa+XjojZMBZ
-b/l1IAC9gE0t0pIvaeP2R7g/GoMSadvYae3IGj7T2V3nuGwBDbGjmXCUHmTsR3gH
-j1TbNJKwll51J8JVrJdeCVofvIZcjkbPUaQme8J1wZ98J411qL8g26Milw3+i2HS
-r32z+/PyD4Y6KiAezqZ7EapGqITUcYSdUHvaVRnNLLvZudhNZjtmNEi69a98rZxZ
-DY1/E/lKcb6tRHSXZcGMoJYNs7PsHzh5d5G/QGEyhh53Jqi674RdntXVyFNCZE7U
-DZKn4+eRzO9TqgFYjW8WIMg1SqPpPm8yUOIkbtEsqlnyCo2WUwUt3lCtMAYNOoBf
-gAisOIDbJBdZYrJb2K2iofq6tNsApWOsvVE62g6/I1mtzWX4x90QyYqz+Mlatn8p
-N93nQdk+nesSay/m2w81HWjbdtJF9g3HIxBug9xe1VfAxhJo2ck=
-=r33P
------END PGP SIGNATURE-----
-
---sfb5jzrhw375wpge--
+   Jocke=
