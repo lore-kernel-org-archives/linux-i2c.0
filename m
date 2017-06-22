@@ -1,67 +1,44 @@
 From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 2/2] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Thu, 22 Jun 2017 20:25:59 +0800
-Message-ID: <20170622122558.GB23753@dragon>
-References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
- <1495947576-11037-3-git-send-email-shawnguo@kernel.org>
- <20170619193130.velebm7p3r5ggaos@ninjato>
- <20170620025815.GA4818@x250>
- <20170620074126.GA1541@katana>
- <20170622074831.GA23753@dragon>
- <20170622080730.o352kxrs5pz7wxnf@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2 0/2] Add I2C driver for ZTE ZX2967 family SoCs
+Date: Thu, 22 Jun 2017 20:56:53 +0800
+Message-ID: <1498136215-8102-1-git-send-email-shawnguo@kernel.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54766 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751835AbdFVM0L (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Jun 2017 08:26:11 -0400
-Content-Disposition: inline
-In-Reply-To: <20170622080730.o352kxrs5pz7wxnf@ninjato>
+        id S1750847AbdFVM6Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 22 Jun 2017 08:58:24 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Baoyou Xie <baoyou.xie@linaro.org>, Baoyou Xie <xie.baoyou@sanechips.com.cn>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Xin Zhou <zhou.xin8@sanechips.com.cn>
+Cc: Baoyou Xie <xie.baoyou@sanechips.com.cn>, Xin Zhou <zhou.xin8@sanechips.com.cn>, Jun Nie <jun.nie@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Shawn Guo <shawn.guo@linaro.org>
 
-On Thu, Jun 22, 2017 at 10:07:30AM +0200, Wolfram Sang wrote:
-> 
-> > The audio codec is on address 0x22.
-> > 
-> > Why do you think it should be broken now?
-> 
-> Because I thought that we skipped the error handling for every transfer
-> when we removed the call to reset_hardware from the xfer function.
-> 
-> So, either it still works because the transfer times out. But then
-> i2cdetect should be really slow. The timeout is set to 1s, so it should
-> take 1s to scan every address.
-> 
-> Or I am completely missing something. Then, I am sorry for the noise.
+From: Shawn Guo <shawn.guo@linaro.org>
 
-It's me who is missing something.  You are right.  With the current
-driver, i2cdetect takes 1s to scan most addresses.  Except address 0x22,
-those devices detected on other addresses are just wrong, and the
-addresses vary from a scan to another.
+It's the second posting of the patches adding I2C driver for ZTE ZX2967
+family SoCs.  Thanks a lot for Wolfram's review comments on v1 patch,
+which helps identify issues with NACK handling.
 
-With the proper error handling, i2cdetect now works very fast and only
-gets audio codec on 0x22, which is correct.
+Changes for v2:
+ - Add COMPILE_TEST for Kconfig option dependency.
+ - Drop warning message for unsupported SMBus transfer, since the driver
+   will fall back to emulate them via I2C anyway.
+ - Kill ZX2967_I2C_FUNCS define by returning I2C_FUNC_XXX directly.
+ - Drop error message for i2c_add_numbered_adapter() check, since the
+   core will do the reporting.
+ - Drop the error checking from zx2967_i2c_reset_hardware() which is
+   useless now, and add it into irq handler for proper NACK handling.
 
-$ i2cdetect 0
-WARNING! This program can confuse your I2C bus, cause data loss and worse!
-I will probe file /dev/i2c-0.
-I will probe address range 0x03-0x77.
-Continue? [Y/n] Y
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-20: -- -- UU -- -- -- -- -- -- -- -- -- -- -- -- -- 
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-70: -- -- -- -- -- -- -- --                         
+Baoyou Xie (2):
+  dt: bindings: add documentation for zx2967 family i2c controller
+  i2c: zx2967: add i2c controller driver for ZTE's zx2967 family
 
-Thanks a lot for identifying the bug.
+ .../devicetree/bindings/i2c/i2c-zx2967.txt         |  22 +
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-zx2967.c                    | 609 +++++++++++++++++++++
+ 4 files changed, 641 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-zx2967.txt
+ create mode 100644 drivers/i2c/busses/i2c-zx2967.c
 
-Shawn
+-- 
+1.9.1
