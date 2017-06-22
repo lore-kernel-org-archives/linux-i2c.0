@@ -1,65 +1,77 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] i2c: cadance: (bugfix) ctrl/addr reg write order
-Date: Thu, 22 Jun 2017 15:26:11 +0200
-Message-ID: <20170622132610.GB3820@katana>
-References: <1498095926-51264-1-git-send-email-matthew.weber@rockwellcollins.com>
- <20170622083546.33glkhns4hlodrbe@ninjato>
- <CANQCQpbmhfD0jgW2bQm6hjR_CTJiPHbNE_jfU9uicH7PVd6xjg@mail.gmail.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 7/9] PM / ACPI: Enable the runtime PM centric approach for system sleep
+Date: Thu, 22 Jun 2017 16:32:16 +0200
+Message-ID: <2162861.FQgDXG4xnB@aspire.rjw.lan>
+References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org> <CAJZ5v0jL-0TKUv5nK7tFLm+X7nE7J2e3hm21i=+FBFBzQLQ=Xw@mail.gmail.com> <CAPDyKFpYpLqPiyfqp16JT8fA7xwhanAcfhdnYm6MgeXyq0QfNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:55838 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753104AbdFVN0S (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Jun 2017 09:26:18 -0400
-Content-Disposition: inline
-In-Reply-To: <CANQCQpbmhfD0jgW2bQm6hjR_CTJiPHbNE_jfU9uicH7PVd6xjg@mail.gmail.com>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:48401 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751167AbdFVOjf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 22 Jun 2017 10:39:35 -0400
+In-Reply-To: <CAPDyKFpYpLqPiyfqp16JT8fA7xwhanAcfhdnYm6MgeXyq0QfNQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Matthew Weber <matthew.weber@rockwellcollins.com>
-Cc: linux-i2c@vger.kernel.org, soren.brinkmann@xilinx.com, John Linn <john.linn@xilinx.com>, Paresh Chaudhary <paresh.chaudhary@rockwellcollins.com>
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
+On Thursday, June 22, 2017 11:42:11 AM Ulf Hansson wrote:
+> On 21 June 2017 at 23:47, Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> >> This change extends the interpretation of the ACPI's no_direct_complete
+> >> flag to be used to enable the so called runtime PM centric approach, for
+> >> devices being attached to the ACPI PM domain.
+> >>
+> >> The principle behind the runtime PM centric approach is to re-use the
+> >> runtime PM callbacks to implement system sleep for drivers/subsystems.
+> >> Moreover, using the runtime PM centric approach gives an optimized
+> >> behaviour around avoiding to wake up a device from its low power state
+> >> during system sleep, unless really needed.
+> >>
+> >> To deploy the runtime PM centric approach for a subsystem/driver, the
+> >> following adaptations needs to be made.
+> >>
+> >> First, the runtime PM callbacks may be called when runtime PM has been
+> >> disabled for the device. This serves as an indication for the callbacks to
+> >> understand they are running in the system sleep sequence, instead of in the
+> >> regular runtime PM path. In some cases, a callback needs to take different
+> >> actions depending in what path it is being executed in, as is the case for
+> >> the ACPI PM domain.
+> >>
+> >> In particular for the ACPI PM domain's ->runtime_suspend|resume()
+> >> callbacks, when those finds runtime PM being disabled for the device, it
+> >> instead executes the same operations as normally being run when
+> >> ->suspend_late() and ->resume_early() callbacks are invoked during system
+> >> sleep.
+> >>
+> >> Second, at the PM domain level, it is expected that the driver for the
+> >> device makes use of pm_runtime_force_suspend|resume(), to re-use the
+> >> runtime PM callbacks to put the device into low power state and to wake it
+> >> up when needed during system sleep.
+> >
+> > What if it doesn't do that?
+> >
+> > Do all drivers of devices that may fall into the ACPI PM domain use
+> > pm_runtime_force_suspend|resume()?
+> 
+> No, no - the runtime PM centric path is optional by all ACPI
+> devices/drivers. The default is still for the ACPI PM domain to try
+> the direct_complete path.
+> 
+> However if an ACPI device/driver (i2c designware in this case) likes
+> to do that, they need to inform the ACPI PM domain about it. Then they
+> call acpi_dev_disable_direct_complete() and makes use of
+> pm_runtime_force_suspend|resume() to deal with system sleep.
+> 
+> Does that makes sense?
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Overall, yes, it does, but then it should be made clear that when you use
+"no_direct_complete" (all what you are going to call that eventually), you
+also must use pm_runtime_force_suspend|resume() as your sleep callbacks.
 
+Otherwise things may not work correctly if my understanding is correct.
 
-> Not urgent, fell free to work it in where it makes sense. We're on a
-> older LTS at this point and will carry the patch.
-
-Okay then. I'll add it to 4.13.
-
-> For the Fixes: tag in this case, should I just prefix my last
-> statement about the issue as there isn't a public bug report or
-> specific commit I can note?  I could add cadence ref manual section
-> and a link to a public download of the doc.
-
-The Fixes: tag is for specifying the commit ID which introduced the bug.
-So, all stable kernel versions having that commit ID know they want the
-patch carrying the Fixes: tag. I can look it up as well, but it makes my
-life easier if I get it provided. No worries!
-
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLxXIACgkQFA3kzBSg
-Kba9vw/7Biyh6iD46wt5mDSkpfN9k4AjBYcU7xBQZmCjzEmUMIp/+wa+tlm3w3Gp
-4JbCgURKfYaCRRnHBw/OvAMM5tNrMGzhJ9QcGnLqYM0jIE8SrJsDVeFjbu8MJy08
-JG8JwUd1598A/EO2tWV3dFva4cbOn0WTVQ255NjuCnraa2sxuzGYwRLtnZ6dQrn+
-KKnTxZ88bCIkg2zf42rjgSOxeniZAmPDAUIO9KS4CWg4dorYWPJUEZfyaMkRWRTC
-vX2qBgQN7znxzfWQoHALYgtise8PE0sPHZRWm/FlpYYNRhrwR3+ssgB/wVYrY35M
-Mo/RxGiXl8OmChHYPpzQxa8PuoBBKC8+TEqfiRyQ+omd3XNbrwgTnia22XTg4T9Q
-Rsue87sY1azaD92TnM7cSNEHmEt0QtR1hsfygLe7HSKBMgnHt0pMoBzLsGTNoMay
-IrSYI6CD7w8sJkIUrVuZwp4nRnWBpfb/s5SzV673t6dunBQvnuDadKLwL/pTg6Rw
-Pc9Tp5CNJG2vI0gdTM+onIaCLgE1q3lWvQgFDEctcJsLc+DrEPt2YKO8x9a6aN+t
-F02m7yICKWMtF14t6Ms4C0yngYBBdnKhqBFBc0luEd93LW8fuAJ/2nydazKycswq
-ltlnajmNLOZL931LYCayXLiH7Kj9LFwzbq2cC1Rqso62WvFXWo0=
-=AiUq
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
+Thanks,
+Rafael
