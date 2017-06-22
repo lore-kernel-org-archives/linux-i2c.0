@@ -1,44 +1,130 @@
-From: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v12 0/2] i2c: designware: add I2C SLAVE support
-Date: Thu, 22 Jun 2017 11:17:31 +0100
-Message-ID: <cover.1498126241.git.lolivei@synopsys.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: [PATCH v12 2/2] i2c: designware: enable SLAVE in platform module
+Date: Thu, 22 Jun 2017 11:17:33 +0100
+Message-ID: <258fe2f0cc73bcb8be6e7b61418a64a1927acf4e.1498126241.git.lolivei@synopsys.com>
+References: <cover.1498126241.git.lolivei@synopsys.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1498126241.git.lolivei@synopsys.com>
+In-Reply-To: <cover.1498126241.git.lolivei@synopsys.com>
+References: <cover.1498126241.git.lolivei@synopsys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luis.Oliveira@synopsys.com, Ramiro.Oliveira@synopsys.com, Joao.Pinto@synopsys.com, CARLOS.PALMINHA@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-This patches follows the merged patchset that refactors I2C Designware and
-enables it to have I2C support.
+- Slave mode selected in platform module if the support is detected in
+  the DT.
 
-The patch 1 adds the necessary functions to give the ability to be a SLAVE
-to the controller and for that changes also had to be made in the 
-Makefile and Kconfig.
-The patch 2 enables the SLAVE mode to be detected by the platform module.
+Signed-off-by: Luis Oliveira <lolivei@synopsys.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+---
+V11-V12
+- no changes
 
-The functionality was tested using the hardware independent slave-eeprom
-driver based on top of i2c/for-next. The tree I used can be found here:
+ drivers/i2c/busses/i2c-designware-core.h    |  2 ++
+ drivers/i2c/busses/i2c-designware-platdrv.c | 41 +++++++++++++++++++++++++----
+ 2 files changed, 38 insertions(+), 5 deletions(-)
 
-https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/log/?h=i2c/for-next
-
-Luis Oliveira (2):
-  i2c: designware: add SLAVE mode functions
-  i2c: designware: enable SLAVE in platform module
-
- drivers/i2c/busses/Kconfig                  |  14 +-
- drivers/i2c/busses/Makefile                 |   3 +
- drivers/i2c/busses/i2c-designware-common.c  |   6 +
- drivers/i2c/busses/i2c-designware-core.h    |   4 +
- drivers/i2c/busses/i2c-designware-platdrv.c |  41 ++-
- drivers/i2c/busses/i2c-designware-slave.c   | 395 ++++++++++++++++++++++++++++
- 6 files changed, 457 insertions(+), 6 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-designware-slave.c
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 64a39a983410..7bfbcc62f6c5 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -228,6 +228,7 @@
+  * @disable: function to disable the controller
+  * @disable_int: function to disable all interrupts
+  * @init: function to initialize the I2C hardware
++ * @mode: operation mode - DW_IC_MASTER or DW_IC_SLAVE
+  *
+  * HCNT and LCNT parameters can be used if the platform knows more accurate
+  * values than the one computed based only on the input clock frequency.
+@@ -282,6 +283,7 @@ struct dw_i2c_dev {
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
++	int			mode;
+ };
+ 
+ #define ACCESS_SWAP		0x00000001
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 1f38c807be5f..2ea6d0d25a01 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -1,5 +1,5 @@
+ /*
+- * Synopsys DesignWare I2C adapter driver (master only).
++ * Synopsys DesignWare I2C adapter driver.
+  *
+  * Based on the TI DAVINCI I2C adapter driver.
+  *
+@@ -174,9 +174,13 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 
+ static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+ {
++	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
++
+ 	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 			  DW_IC_CON_RESTART_EN;
+ 
++	dev->mode = DW_IC_MASTER;
++
+ 	switch (dev->clk_freq) {
+ 	case 100000:
+ 		dev->master_cfg |= DW_IC_CON_SPEED_STD;
+@@ -189,6 +193,28 @@ static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+ 	}
+ }
+ 
++static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
++{
++	dev->functionality = I2C_FUNC_SLAVE | DW_IC_DEFAULT_FUNCTIONALITY;
++
++	dev->slave_cfg = DW_IC_CON_RX_FIFO_FULL_HLD_CTRL |
++			 DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED |
++			 DW_IC_CON_SPEED_FAST;
++
++	dev->mode = DW_IC_SLAVE;
++
++	switch (dev->clk_freq) {
++	case 100000:
++		dev->slave_cfg |= DW_IC_CON_SPEED_STD;
++		break;
++	case 3400000:
++		dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
++		break;
++	default:
++		dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
++	}
++}
++
+ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+ {
+ 	if (IS_ERR(i_dev->clk))
+@@ -302,9 +328,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto exit_reset;
+ 
+-	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
+-
+-	i2c_dw_configure_master(dev);
++	if (i2c_detect_slave_mode(&pdev->dev))
++		i2c_dw_configure_slave(dev);
++	else
++		i2c_dw_configure_master(dev);
+ 
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (!i2c_dw_plat_prepare_clk(dev, true)) {
+@@ -333,7 +360,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		pm_runtime_enable(&pdev->dev);
+ 	}
+ 
+-	ret = i2c_dw_probe(dev);
++	if (dev->mode == DW_IC_SLAVE)
++		ret = i2c_dw_probe_slave(dev);
++	else
++		ret = i2c_dw_probe(dev);
++
+ 	if (ret)
+ 		goto exit_probe;
+ 
 -- 
 2.13.0
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
