@@ -1,70 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: zx2967: add i2c controller driver for ZTE's
- zx2967 family
-Date: Thu, 22 Jun 2017 10:07:30 +0200
-Message-ID: <20170622080730.o352kxrs5pz7wxnf@ninjato>
-References: <1495947576-11037-1-git-send-email-shawnguo@kernel.org>
- <1495947576-11037-3-git-send-email-shawnguo@kernel.org>
- <20170619193130.velebm7p3r5ggaos@ninjato>
- <20170620025815.GA4818@x250>
- <20170620074126.GA1541@katana>
- <20170622074831.GA23753@dragon>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 1/5] dt-bindings: add bindings for i2c-pca-platform
+Date: Thu, 22 Jun 2017 10:22:31 +0200
+Message-ID: <20170622082230.wf4r2ylyevidizkd@ninjato>
+References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
+ <20170620011837.14010-2-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ubrqga2l3jiehp6n"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:36326 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751874AbdFVIHd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 22 Jun 2017 04:07:33 -0400
+        protocol="application/pgp-signature"; boundary="inxsyrub7gourdbp"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170622074831.GA23753@dragon>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170620011837.14010-2-chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Shawn Guo <shawnguo@kernel.org>
-Cc: Baoyou Xie <baoyou.xie@linaro.org>, Baoyou Xie <xie.baoyou@sanechips.com.cn>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Xin Zhou <zhou.xin8@sanechips.com.cn>
 
 
---ubrqga2l3jiehp6n
+--inxsyrub7gourdbp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> The audio codec is on address 0x22.
->=20
-> Why do you think it should be broken now?
+> + - reset-gpios : gpio specifier for gpio connected to RESET_N pin.
 
-Because I thought that we skipped the error handling for every transfer
-when we removed the call to reset_hardware from the xfer function.
-
-So, either it still works because the transfer times out. But then
-i2cdetect should be really slow. The timeout is set to 1s, so it should
-take 1s to scan every address.
-
-Or I am completely missing something. Then, I am sorry for the noise.
-
-Thanks for testing anyhow!
+What about the 'active' state that Rob mentioned in his last review?
 
 
---ubrqga2l3jiehp6n
+--inxsyrub7gourdbp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLer4ACgkQFA3kzBSg
-KbYjXg/+JN/yp41RCG35wgv4ktWieRwzeemsA6PnyWIlIDzJ5iCoLx+iGNTYsPKY
-wr4LEATsi3cvPf0R+1dKgbFLlGPRffilnKk11coEYzj8IbXXdUs+CSKztyfRtDTv
-bkteEtPHqEQwIkgaXse+LgJXZj4FB64uNneqE2dL6/udbdMTLTE27kENlqBMSU19
-h6QqqswIS97h3FfgCARFue+alNwJOegbpu/PvBhFH1zjysj/ptJw4tNCm7yvHltM
-Saz5wHMZJVhvvEsjE8Maq7TCK8xi+yEJvzqpXD+CYTgZTd5Og8IM9qg5TRpq5vae
-uKbsL0nzTcdlPzQDrAa+vTiITJ0bGEtvkdrijIh2VYlqX9MPq9s0yL/y+EVgocei
-Ore2lbm8amtopoiZqfQyluPk/njtyphrfH8XerSdpJF9VbQ0K1dFu5dibHfVo/ud
-r1rDkaGNamAUDqujzMHiBNDz+pU2b4U/2OXeqDgCyglYZ6wpbIoGnssmlPHsg163
-cs90szR1ypoP4NXkSXjkRZ7rjYvld5AdP6EnJsGSQDOeTCGBtptrOLJzFZc0g4w0
-dUpbzjPe9Lg1mB2Ri6+IHGT9Zb2x7FN7trV9BfH54MxQusKTe12L0murM+YuseXR
-nmayVRncYqCX5EB8VbpDEXW8nBQWQbf8cbLBEduE6gPv1qaalfo=
-=2MQI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllLfkYACgkQFA3kzBSg
+KbZBvA//ZeTKXw5pMWR0nql2GfOBU8ITD/NPP8L3SV7CYlaueRC/suNQ1Cw/kOnH
+GDQ+Di1RZf1AfzKxMb8/2PF2MTbWKIIpMFBa6ntE6a/5mTuGQ0evc25TFOGSp5iC
+hwt+AiiA4GBbwyCX1NfO+LsSrXMkzjTcm4WuRjVIGGZOPnU3oz38xHDVMBQzV6gV
+CHZfkR6S1V2jpSnVQrmr9iQux8+3uvpZ0RkLBgWC05AMJ9HjAqnDgtJZcEDOmEgu
+zN7egN0pf6OiocoKrc254tYAvnHrvGeURJCw5GJXT0ug/iUczTnHIwduY+Kr0vCi
+kIjtLOR9GiAoJrRU70ZZ1lggg5oRdojZDFG0VrnW5DgIK0xErpYlbvp8ZiJozAsP
+5p3Bh5b1qdIBejr8kjdJkFZ4KPAPZpUZ8ykNfQfWYeQpPxRwaGlZWNi/Q+YT4iKq
+K2GPYgpofOa5R3ihS+LeZV89xLv5rmV9WR97vqraovDVGAZC4oAT6Ymeh3C0DUyz
+DcEISNs7AUpdTxDJQdKUTVZ5LlRIVXEX9enUQGhWLHUjcPK8uFWug/fLdktwCxHi
+MA+v8uPGKP3yCZN3lwXo3Pr/OldDoFlPTA3oCu0s2cEtvKkpK9oCJnh/vgUWuUzR
+Et4IV19pVUBcRYF4l7gc+c2vgGrfcr1qtvatu5x1Pj9iSh4RxEg=
+=5qD1
 -----END PGP SIGNATURE-----
 
---ubrqga2l3jiehp6n--
+--inxsyrub7gourdbp--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
