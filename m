@@ -1,68 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.12
-Date: Fri, 23 Jun 2017 20:27:10 +0200
-Message-ID: <20170623182706.mkz65j55re4koakc@ninjato>
+Subject: Re: [PATCH] i2c: ocores: Add missing wake_up() call upon state
+ change to STATE_DONE
+Date: Fri, 23 Jun 2017 20:29:49 +0200
+Message-ID: <20170623182949.xfag5smjvq6cbamy@ninjato>
+References: <20170616092317.584-1-sr@denx.de>
+ <87a858hz71.fsf@dell.be.48ers.dk>
+ <7319c512-4301-8a33-5fc3-62486557a883@denx.de>
+ <871sqkhxm4.fsf@dell.be.48ers.dk>
+ <df9d294c-357f-788a-5213-b229d4c3c5c1@denx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qg53ojx4fq6a2ncw"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="ozuqrppz6mgqjfqi"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41073 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754592AbdFWS3v (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Jun 2017 14:29:51 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <df9d294c-357f-788a-5213-b229d4c3c5c1@denx.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Stefan Roese <sr@denx.de>
+Cc: Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org
 
 
---qg53ojx4fq6a2ncw
+--ozuqrppz6mgqjfqi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Linus,
 
-I2C has another driver bugfix for you. Please pull.
+> After updating to the latest version from OpenCores, the issue
+> with the missing interrupt seems to be resolved. So this patch
+> can be dropped.
 
-Thanks,
-
-   Wolfram
+Thanks for the heads up and thanks to Peter for looking into this issue!
 
 
-The following changes since commit 41f1830f5a7af77cf5c86359aba3cbd706687e52:
-
-  Linux 4.12-rc6 (2017-06-19 22:19:37 +0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to 6c782a5ea56a799658e213a78dc1455264938afa:
-
-  i2c: imx: Use correct function to write to register (2017-06-22 10:52:02 +0200)
-
-----------------------------------------------------------------
-Michail Georgios Etairidis (1):
-      i2c: imx: Use correct function to write to register
-
- drivers/i2c/busses/i2c-imx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
---qg53ojx4fq6a2ncw
+--ozuqrppz6mgqjfqi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNXXUACgkQFA3kzBSg
-Kbbt3g//Z6nIMEwjMz617+EpxEObyl2nGnTjLA+tNa0EINSEtG/8vdabbJ8H67TN
-q5PWVb5FzG5MEOfNSZrxffaWREbyL6gjxB59b4Ea/q7zdeHzsgl8Snuzkmi2JlvW
-7HGZPacOtt2cPAapjrYZNyvvGBGHhbT22sXJucm0o0ZsDl7NQ2SI82g2fiUM1USK
-iuwn3cMW42NeT7bxYwm4fcIpXJp9AN18UC2jOjxH3LaUt+jh5xFtSxqm2SJm2oiZ
-cLwldcLug7oMXjta40T/TvfrEs0LJ0GAXqOrHnAIuOPyfgpyC1aCDV/2bEkj1n+8
-zDYbHxiTJztm/obh/gryoUlc+YvalU92zmA0Gqod7Wz0u/8ncqE62Vwi/V9b54TE
-AytDjR3XTvcZ8HIV6qeS804xm+qcbwjFXEl0yQzJ6faqh4QXSXvs28ffN0nFrslT
-hQt7e1Ktiv1w6fxTzJmsB/sMe7tMF2uAexbtO7HL4r4Y6Y/Qg/bu/MDhxah7to/K
-QVHVO7EBN2oNncJbqlFxS4HkxL1ys8AWo5XJ1eyFLQ479bxFAggy6RvpCqEAy+nA
-cAOlYJIjFMOBsw5/I0lZ/e5PRYF32h+7OiACmtyqAuSfgL1CDDEldhzQ/6X0Tj6m
-TEeu7Eoc11QrlCcRKRF3e5fdcFc4OeOQSTBdXryeQzJew/MW4D4=
-=6O7f
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNXh0ACgkQFA3kzBSg
+KbYfQA/+IXp5o3+MBf/vAAkkzAPY1dhdfmkzn/0dt7JEAEHesC/RAufX07jTTcJY
+uzl/vNMwljC8kgHRo03gntbXES5QpP4BS0X814Vymi+Z97LdPX2hfBUGTJyEgt7l
+rz2ImhJReS5ep8twVV8K9XwE6pX60pJIjj9+BkJ9INzIk5sScLcir3prkZMXtOCF
+7HFsKC4Fk1SpS5UvDS89d5JaC1dYfz/39soGIv6qUFQnA2gJLyk5WmIXA/kIAHY9
+2LRwTcOj8ans+MfFUbNcpTrlL2TIMKfBrIa1wqCGTtrXBMUX4rkwdOuZuZNBCCL/
+uBMBsg+ZDSIP9s6cCE3LKnYuPUoBwxf9Us0vo8yuo8dxYf04zRfjD61JuPi2X8/0
+aTZKOHQ/ppaxsOREQ31zh4FjjuMEQKzsOCvsPFaHG9PTChYy2TKtrbCQnzZoSlv0
+7JCVs9ZZ/zGae2z7L0fWQ5HmmejUNkBBz7WEwT/BECqxlIS6aW7/GZKZmi3oZMV8
+nU1nHR/wGiw+MhXKAv5ID70cH0wKrdTAUElnWOS3lV9GdAgGfK1OoYeEhTLRXU9G
+JqwI32JK/UokFaB6deOImZgiScUlfGnHQaKUza0YdLc5NvQNOQDOT2d9UU72jZPK
+KC7YBtXg/sunauoulsw3b5RB7DHH9CanRYi3PWcMvNhTAqi+W9s=
+=uUa/
 -----END PGP SIGNATURE-----
 
---qg53ojx4fq6a2ncw--
+--ozuqrppz6mgqjfqi--
