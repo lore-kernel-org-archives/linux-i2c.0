@@ -1,54 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v11 1/4] MAINTAINERS: add entry for Aspeed I2C driver
-Date: Fri, 23 Jun 2017 20:40:58 +0200
-Message-ID: <20170623184058.psxlo5gagnvzedpy@ninjato>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v11 2/4] i2c: aspeed: added documentation for Aspeed I2C
+ driver
+Date: Fri, 23 Jun 2017 20:41:05 +0200
+Message-ID: <20170623184105.vbfvayn6puczbjeq@ninjato>
 References: <20170620211516.13095-1-brendanhiggins@google.com>
- <20170620211516.13095-2-brendanhiggins@google.com>
+ <20170620211516.13095-3-brendanhiggins@google.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6uvrsnxszvshohcf"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="mk4lswix4km7ihfv"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170620211516.13095-2-brendanhiggins@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, gregkh@linuxfoundation.org, davem@davemloft.net, mchehab@kernel.org, joel@jms.id.au, martin.petersen@oracle.com, benh@kernel.crashing.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+In-Reply-To: <20170620211516.13095-3-brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6uvrsnxszvshohcf
+--mk4lswix4km7ihfv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 20, 2017 at 02:15:13PM -0700, Brendan Higgins wrote:
-> Added myself as maintainer of the Aspeed I2C driver and the associated
-> I2C interrupt controller and added Joel Stanley and Benjamin
-> Herrenschmidt as reviewers.
+On Tue, Jun 20, 2017 at 02:15:14PM -0700, Brendan Higgins wrote:
+> Added device tree binding documentation for Aspeed I2C busses.
 >=20
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+> Signed-off-by: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---6uvrsnxszvshohcf
+--mk4lswix4km7ihfv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNYLoACgkQFA3kzBSg
-KbbSDA//Q6G6LRPXxe6ZmVOsdyPSMIcGpq6/6xxXyP6H3qFXU2pa3wo8y8lbhTYm
-SlFTb5UcFqCk8NGqVKOuTeG/Zoj5WIiaTvMoD83dWfiRiPFVt/E14FFObwUNwmkx
-EjOIoaVFjQbVUmqqUdR21y/4nzY1uzk75/4TuUuwQRb7FgwiyIhAwV+nQVhvD5um
-FUgOIp0tYUVlcdMP4fIDFYc2nUUGabm3X5QQzBCnLSDPCZ03gPp5/1tJFLemYftc
-mQxfAaZjdZVa9/XtswkSZi6maUEAMO6nomUypGHrqiNwPcglHHB4/FFyzUhcQTW2
-nfX09MnN7Nv3CEebsKoG+bh6obf8/ore5HgUH0IIPF5hZzZdDgqfC3kKtd1nCIJf
-NgFRrNT8ERTCBICHqwSPV7xAk7KydohWUx4SuRbKvyjJJDUxstCfRI9t/Z5kHMJp
-V7NAp9vPmWFxdB1wbQqRgDqsBrVL8PS+Jgd14gEcIEyqi0aJMLViaMlbPy6yX5EA
-1i/WqX9J2BzvXJ2RgyV5PviEFA33KhxsTSBAcLO5S/kNxtCfP6teIdqYgMGULvPk
-1mGzDZKML6ifxi06Ap1AFVXjZRd3D7hzMJHfUdmsDqsKujMy4JYFL7vFX8gmIHRQ
-vVKTdIB3QRJlfQmlOhgr/B7kBHPMoZlwUn6zV26EEySOnfhwHd0=
-=VAZG
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNYMAACgkQFA3kzBSg
+KbZwHQ//ZmopCbw9Q+9k1RhtAlofs1645GLJZ6M4FPs/8YB6L/cobUB/91BhTPAY
+j7HsnZQWFZc3iBBqpf+zftGuMaYBbYmv5kxX28p6OL2peG4fSet+ez90+eEVhA8W
+BsTM/f3fB/KE0tOWBICgvBFmJGd4gJY9GMRLdrV/zeg+m6maim+YcIRsSCLDzGdQ
+gWvZ83qgaB/2rJeeMqeJMz1X5g35KlA2od/mKQ583YMuFXRYc01kjvHBlM/YVN0W
+y7sbm+4whSJfCsJHGSNqNA5mgCPUPqgjbtk4jK6WscvV721rJUNNIyUdkuQ1ib79
+rPJknw0ZUcd6H5Afyr/+Td29NfyKkRX5PiXmvsKdlEOZL5Is4eqRGKeTdTYPMCeX
+oKE0/EHdcUEhTp4tgx+ZLrB9ikwANk0nnZVbdJ9+maU94SUoMejP5GyTfq75M7+o
+yKrhCTfhzzwE+9IZZh7vP+JEUXizPSHS+MPE5KG4f7xHE/mKfLWK+NQeEQ7Cs2KT
+4QBrRYX+sK5G+PKu8evl5Z2JivUKGIvB7kz8nHqK63vjQHYgCp2iaAyZe4FxVOXq
+TI11DY0UZ7otzYjatr6IL7cj75XDowPKp3ggQk/D2oxyr66iO74VF8fTTDjjnGQ2
+eJ82zVw2zRJq3ha1l/LI4ADeOAgfpLOcfDNEtxKnaLxzDV5W+Nc=
+=LMl/
 -----END PGP SIGNATURE-----
 
---6uvrsnxszvshohcf--
+--mk4lswix4km7ihfv--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
