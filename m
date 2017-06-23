@@ -1,70 +1,68 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v7 05/10] i2c: core: call of_i2c_setup_smbus_alert in
- i2c_register_adapter
-Date: Fri, 23 Jun 2017 14:19:23 +0200
-Message-ID: <20170623121923.GN26073@mail.corp.redhat.com>
-References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
- <1497535178-12001-6-git-send-email-preid@electromag.com.au>
- <20170619152811.svoxmxybyoy6l4hc@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.12
+Date: Fri, 23 Jun 2017 20:27:10 +0200
+Message-ID: <20170623182706.mkz65j55re4koakc@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33034 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750932AbdFWMTd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 23 Jun 2017 08:19:33 -0400
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qg53ojx4fq6a2ncw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170619152811.svoxmxybyoy6l4hc@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Phil Reid <preid@electromag.com.au>, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
-On Jun 19 2017 or thereabouts, Wolfram Sang wrote:
-> On Thu, Jun 15, 2017 at 09:59:33PM +0800, Phil Reid wrote:
-> > Add a call to of_i2c_setup_smbus_alert when a i2c adapter is registered
-> > so the the smbalert driver can be registered.
-> > 
-> > Signed-off-by: Phil Reid <preid@electromag.com.au>
-> 
-> CCing Benjamin
-> 
-> > ---
-> >  drivers/i2c/i2c-core.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index d2402bb..626471b 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -40,6 +40,7 @@
-> >  #include <linux/gpio.h>
-> >  #include <linux/hardirq.h>
-> >  #include <linux/i2c.h>
-> > +#include <linux/i2c-smbus.h>
-> >  #include <linux/idr.h>
-> >  #include <linux/init.h>
-> >  #include <linux/irqflags.h>
-> > @@ -2045,6 +2046,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
-> >  		dev_warn(&adap->dev,
-> >  			 "Failed to create compatibility class link\n");
-> >  #endif
-> > +	res = of_i2c_setup_smbus_alert(adap);
-> > +	if (res)
-> > +		goto out_list;
 
-See my concerns in patch 4/10.
+--qg53ojx4fq6a2ncw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In addition, shouldn't this be placed before device_register() for the
-least? pm_runtime_enable() would require a matching pm_runtime_disable(),
-and device_register() some unregistering behavior too.
+Linus,
 
-Cheers,
-Benjamin
+I2C has another driver bugfix for you. Please pull.
 
-> >  
-> >  	i2c_init_recovery(adap);
-> >  
-> > -- 
-> > 1.8.3.1
-> > 
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 41f1830f5a7af77cf5c86359aba3cbd706687e52:
+
+  Linux 4.12-rc6 (2017-06-19 22:19:37 +0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to 6c782a5ea56a799658e213a78dc1455264938afa:
+
+  i2c: imx: Use correct function to write to register (2017-06-22 10:52:02 +0200)
+
+----------------------------------------------------------------
+Michail Georgios Etairidis (1):
+      i2c: imx: Use correct function to write to register
+
+ drivers/i2c/busses/i2c-imx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--qg53ojx4fq6a2ncw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNXXUACgkQFA3kzBSg
+Kbbt3g//Z6nIMEwjMz617+EpxEObyl2nGnTjLA+tNa0EINSEtG/8vdabbJ8H67TN
+q5PWVb5FzG5MEOfNSZrxffaWREbyL6gjxB59b4Ea/q7zdeHzsgl8Snuzkmi2JlvW
+7HGZPacOtt2cPAapjrYZNyvvGBGHhbT22sXJucm0o0ZsDl7NQ2SI82g2fiUM1USK
+iuwn3cMW42NeT7bxYwm4fcIpXJp9AN18UC2jOjxH3LaUt+jh5xFtSxqm2SJm2oiZ
+cLwldcLug7oMXjta40T/TvfrEs0LJ0GAXqOrHnAIuOPyfgpyC1aCDV/2bEkj1n+8
+zDYbHxiTJztm/obh/gryoUlc+YvalU92zmA0Gqod7Wz0u/8ncqE62Vwi/V9b54TE
+AytDjR3XTvcZ8HIV6qeS804xm+qcbwjFXEl0yQzJ6faqh4QXSXvs28ffN0nFrslT
+hQt7e1Ktiv1w6fxTzJmsB/sMe7tMF2uAexbtO7HL4r4Y6Y/Qg/bu/MDhxah7to/K
+QVHVO7EBN2oNncJbqlFxS4HkxL1ys8AWo5XJ1eyFLQ479bxFAggy6RvpCqEAy+nA
+cAOlYJIjFMOBsw5/I0lZ/e5PRYF32h+7OiACmtyqAuSfgL1CDDEldhzQ/6X0Tj6m
+TEeu7Eoc11QrlCcRKRF3e5fdcFc4OeOQSTBdXryeQzJew/MW4D4=
+=6O7f
+-----END PGP SIGNATURE-----
+
+--qg53ojx4fq6a2ncw--
