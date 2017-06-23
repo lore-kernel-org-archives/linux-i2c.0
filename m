@@ -1,55 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: algo-bit: add support for I2C_M_STOP
-Date: Fri, 23 Jun 2017 20:47:41 +0200
-Message-ID: <20170623184740.figeulice6bw7523@ninjato>
-References: <20170621092402.773a4b14@endymion>
- <20170621145426.yeourbp3coddjwmu@ninjato>
- <20170622110630.42eae574@endymion>
+Subject: Re: [PATCH v2 1/2] dt: bindings: add documentation for zx2967 family
+ i2c controller
+Date: Fri, 23 Jun 2017 20:55:39 +0200
+Message-ID: <20170623185539.k6lx5ruj2zbjmsyv@ninjato>
+References: <1498136215-8102-1-git-send-email-shawnguo@kernel.org>
+ <1498136215-8102-2-git-send-email-shawnguo@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4yzme5aqj46kii2n"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="wwzifd4jma3wecvz"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41230 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754327AbdFWSzl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 23 Jun 2017 14:55:41 -0400
 Content-Disposition: inline
-In-Reply-To: <20170622110630.42eae574@endymion>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <1498136215-8102-2-git-send-email-shawnguo@kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: Baoyou Xie <xie.baoyou@sanechips.com.cn>, Xin Zhou <zhou.xin8@sanechips.com.cn>, Jun Nie <jun.nie@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Baoyou Xie <baoyou.xie@linaro.org>, Shawn Guo <shawn.guo@linaro.org>
 
 
---4yzme5aqj46kii2n
+--wwzifd4jma3wecvz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > > +					bit_dbg(3, &i2c_adap->dev,
-> > > +						"emitting enforced stop/start condition\n"); =20
-> >=20
+On Thu, Jun 22, 2017 at 08:56:54PM +0800, Shawn Guo wrote:
+> From: Baoyou Xie <baoyou.xie@linaro.org>
 >=20
-> Go ahead, fine with me.
+> This patch adds dt-binding documentation for zx2967 family
+> i2c controller.
+>=20
+> Signed-off-by: Baoyou Xie <baoyou.xie@linaro.org>
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
 
-Did so and applied to for-next, thanks!
+Applied to for-next, thanks!
 
 
---4yzme5aqj46kii2n
+--wwzifd4jma3wecvz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNYkwACgkQFA3kzBSg
-KbanjxAAopyvKqO+QTic9sK97Ubbz4cvmKSs4xtcsMmWh2MWo76fCDnmOwM1iTuI
-dOPNjOGhR2DkKvr2QrChYsYFg6OW3L5XEZ+ITubc2TDTm5W3/ljs6krbgIxAJVEx
-3HKGzmgzdAMLqG9gE3A1hfIG4ePrGJGvWWKT+4236hiNFfykl9mnp9fsLWpcUblt
-fBJ3IVEqSng+0im+ziKNG6g3e5Xob7C3PdhjZgQ8ryd9yN6E8mvw1015SBlxi92Z
-v3ffA/cfn3XbujL2blQPYSKm4GKvV7lFg++ZORvxz9kDj4tHyLOLoDZicnRZmcM0
-UV7cGe66ADpUmAIR+XyC21pj4dNdfGYVivKVyldV5gZdfDZpH64s0owJBBDmgr+C
-Xihsib/SuAVWLfIFQbizTtxC0AZ1YOFZaSQii6gHXAr34N6Q/tQ41H3sCld7vzZ3
-WRSNNbB+p5wZLKJZnxrE5F8WZdOZw1EPm1BQqYOR4jA1raGuOrGX8cUbHXG37leG
-VOLG5bMRcABJETG0tl3g8DFtctLS/wA2Whs+ReoWYCcRkddnlAWxAKp5PLmwFYDc
-n/BSc52vk6dkKszcF8BKqEzvO/+oX3sJSCwfgl31Ht+7AXuZCQT7O5Tx0vSiMGFU
-RhC11clLPEg6CLaR/z6VQbYtfn5kpCgNwj84jFauuZKhz5Wt4Y4=
-=KQWV
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllNZCsACgkQFA3kzBSg
+KbYgRw//ZDXJmLFammDVTdU+PPgKe9jsEpjAPEfVN+pn1lTnrp6/NfESQkMhM7lU
+vZqU3q1L+W+6XR44+M25HO764sksfWQyzr0yBMef1QrO6T0gSN83i6nK6wQHN9AC
+K06k5UfMwY0UGzddI6Mo30zjrWiae8GX1kvWCp0mRo4qch28VM2zWycgzwHsRzls
+HkdjyTncr4jShTIMuREH2HCzneatp1AExXfO/YBbMDV50r4bqjMIfT4bSKz49y7Q
+vMIBjq1DtUVoPqfIuVo8VSAaituQj4y4T3FfTgKftJSFKtvspPLrUzjR9jtsB5KA
+iDqbENxpYocm91HrDk4+PDtWLPr66E+4wuhv1HgiS9c94mwHzjjXVd8zFwJq50ZB
+InFvT6HqmRQ7oY3NEJhEG318A3EpT3bAo7Gzj/XA6sLdI3Hz6/nUGl8vChw1TZN+
+k/y1Nmr9i7byQmtG0RtllhR/C24jL9DXuOj0iQ6I+nUdwWF4C7iklvWP92FY/G7C
+QyC05bakLSgZEPQZc3xLQbNZ87QFfrkbnogtQ6KTFidoVuGS+TJ5eAD6gYm03FnF
++Mvkd7JbzB4Kg5VuwecezHlH69X9jefXUsUEXwEQi5W3lWW+g4RU6x2B1FBBidhK
+WLVI5LRCkZrlnskGjIFpRr6zi7uWriiaedzpc+hnQvruX/XpCY0=
+=KG41
 -----END PGP SIGNATURE-----
 
---4yzme5aqj46kii2n--
+--wwzifd4jma3wecvz--
