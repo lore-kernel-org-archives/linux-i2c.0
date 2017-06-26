@@ -1,127 +1,84 @@
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v3 4/5] i2c: pca-platform: use device managed allocations
-Date: Mon, 26 Jun 2017 12:44:33 +1200
-Message-ID: <20170626004434.2757-5-chris.packham@alliedtelesis.co.nz>
-References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:34787 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751723AbdFZAor (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 25 Jun 2017 20:44:47 -0400
-In-Reply-To: <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: Add Spreadtrum I2C controller
+ documentation
+Date: Mon, 26 Jun 2017 10:40:47 +0800
+Message-ID: <20170626024046.GA19042@spreadtrum.com>
+References: <7bc5c69030b6e491cfb2519eb1b21c1b0adc70c3.1498029380.git.baolin.wang@spreadtrum.com>
+ <20170623222016.qwnypaumkytrfrn2@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170623222016.qwnypaumkytrfrn2@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-Switch to using the devm_ APIs and remove the now unnecessary error
-handling and most of the device removal code.
+Hi Rob,
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- drivers/i2c/busses/i2c-pca-platform.c | 53 +++++++----------------------------
- 1 file changed, 10 insertions(+), 43 deletions(-)
+On 五,  6月 23, 2017 at 05:20:16下午 -0500, Rob Herring wrote:
+> On Wed, Jun 21, 2017 at 03:23:03PM +0800, Baolin Wang wrote:
+> > This patch adds the binding documentation for Spreadtrum I2C
+> > controller device.
+> > 
+> > Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+> > ---
+> > Changes since v1:
+> >  - No updates.
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-sprd.txt |   31 ++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sprd.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-sprd.txt b/Documentation/devicetree/bindings/i2c/i2c-sprd.txt
+> > new file mode 100644
+> > index 0000000..f285e5b
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-sprd.txt
+> > @@ -0,0 +1,31 @@
+> > +I2C for Spreadtrum platforms
+> > +
+> > +Required properties:
+> > +- compatible: Should be "sprd,r8p0-i2c".
+> 
+> Compatible strings should be SoC specific.
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index a6df6b8d2289..7db481cbf402 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -143,35 +143,23 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	int ret = 0;
- 	int irq;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	irq = platform_get_irq(pdev, 0);
- 	/* If irq is 0, we do polling. */
- 	if (irq < 0)
- 		irq = 0;
- 
--	if (res == NULL) {
--		ret = -ENODEV;
--		goto e_print;
--	}
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
- 
--	if (!request_mem_region(res->start, resource_size(res), res->name)) {
--		ret = -ENOMEM;
--		goto e_print;
--	}
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	i2c->reg_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(i2c->reg_base))
-+		return PTR_ERR(i2c->reg_base);
- 
--	i2c = kzalloc(sizeof(struct i2c_pca_pf_data), GFP_KERNEL);
--	if (!i2c) {
--		ret = -ENOMEM;
--		goto e_alloc;
--	}
- 
- 	init_waitqueue_head(&i2c->wait);
- 
--	i2c->reg_base = ioremap(res->start, resource_size(res));
--	if (!i2c->reg_base) {
--		ret = -ENOMEM;
--		goto e_remap;
--	}
- 	i2c->io_base = res->start;
- 	i2c->io_size = resource_size(res);
- 	i2c->irq = irq;
-@@ -236,15 +224,14 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	}
- 
- 	if (irq) {
--		ret = request_irq(irq, i2c_pca_pf_handler,
-+		ret = devm_request_irq(&pdev->dev, irq, i2c_pca_pf_handler,
- 			IRQF_TRIGGER_FALLING, pdev->name, i2c);
- 		if (ret)
--			goto e_reqirq;
-+			return ret;
- 	}
- 
- 	if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {
--		ret = -ENODEV;
--		goto e_adapt;
-+		return -ENODEV;
- 	}
- 
- 	platform_set_drvdata(pdev, i2c);
-@@ -252,19 +239,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	printk(KERN_INFO "%s registered.\n", i2c->adap.name);
- 
- 	return 0;
--
--e_adapt:
--	if (irq)
--		free_irq(irq, i2c);
--e_reqirq:
--	iounmap(i2c->reg_base);
--e_remap:
--	kfree(i2c);
--e_alloc:
--	release_mem_region(res->start, resource_size(res));
--e_print:
--	printk(KERN_ERR "Registering PCA9564/PCA9665 FAILED! (%d)\n", ret);
--	return ret;
- }
- 
- static int i2c_pca_pf_remove(struct platform_device *pdev)
-@@ -273,13 +247,6 @@ static int i2c_pca_pf_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&i2c->adap);
- 
--	if (i2c->irq)
--		free_irq(i2c->irq, i2c);
--
--	iounmap(i2c->reg_base);
--	release_mem_region(i2c->io_base, i2c->io_size);
--	kfree(i2c);
--
- 	return 0;
- }
- 
--- 
-2.13.0
+Will fix this in next version. Thanks.
+
+> 
+> > +- reg: Specify the physical base address of the controller and length
+> > +  of memory mapped region.
+> > +- interrupts: Should contain I2C interrupt.
+> > +- clock-names: Should contain following entries:
+> > +  "i2c" for I2C clock,
+> > +  "source" for I2C source (parent) clock,
+> > +  "enable" for I2C module enable clock.
+> > +- clocks: Should contain a clock specifier for each entry in clock-names.
+> > +- clock-frequency: Constains desired I2C bus clock frequency in Hz.
+> > +- #address-cells: Should be 1 to describe address cells for I2C device address.
+> > +- #size-cells: Should be 0 means no size cell for I2C device address.
+> > +
+> > +Optional properties:
+> > +- Child nodes conforming to I2C bus binding
+> > +
+> > +Examples:
+> > +i2c0: i2c@70500000 {
+> > +	compatible = "sprd,r8p0-i2c";
+> > +	reg = <0 0x70500000 0 0x1000>;
+> > +	interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+> > +	clock-names = "i2c", "source", "enable";
+> > +	clocks = <&clk_i2c3>, <&ext_26m>, <&clk_ap_apb_gates 11>;
+> > +	clock-frequency = <400000>;
+> > +	#address-cells = <1>;
+> > +	#size-cells = <0>;
+> > +};
+> > +
+> > -- 
+> > 1.7.9.5
+> > 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
