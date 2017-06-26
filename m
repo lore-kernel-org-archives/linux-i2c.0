@@ -1,7 +1,7 @@
 From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 1/6] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Mon, 26 Jun 2017 14:29:30 -0500
-Message-ID: <1498505375-1454-2-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH 4/6] drivers/i2c: Add I2C master locking to FSI algorithm
+Date: Mon, 26 Jun 2017 14:29:33 -0500
+Message-ID: <1498505375-1454-5-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1498505375-1454-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
@@ -12,300 +12,103 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
-Add register definitions for FSI-attached I2C master and functions to
-access those registers over FSI. Add an FSI driver so that our I2C bus
-is probed up during an FSI scan.
+Since there are many ports per master, each with it's own adapter and
+chardev, we need some locking to prevent transfers from changing the\
+master state while other transfers are in progress.
 
 Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig   |  11 ++
- drivers/i2c/busses/Makefile  |   1 +
- drivers/i2c/busses/i2c-fsi.c | 245 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 257 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-fsi.c
+ drivers/i2c/busses/i2c-fsi.c | 41 +++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index ed7106e..47bba71 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1260,4 +1260,15 @@ config I2C_OPAL
- 	  This driver can also be built as a module. If so, the module will be
- 	  called as i2c-opal.
- 
-+config I2C_FSI
-+	tristate "FSI I2C driver"
-+	depends on FSI
-+	help
-+	  Driver for FSI bus attached I2C masters. These are I2C masters that
-+	  are connected to the system over a FSI bus, instead of the more
-+	  common PCI or MMIO interface.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called as i2c-fsi.
-+
- endmenu
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index c89a431..f99ea5d 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -126,5 +126,6 @@ obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
- obj-$(CONFIG_I2C_XGENE_SLIMPRO) += i2c-xgene-slimpro.o
- obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
-+obj-$(CONFIG_I2C_FSI)		+= i2c-fsi.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-new file mode 100644
-index 0000000..f8ea94e
---- /dev/null
+index 007f104..41193be 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -0,0 +1,245 @@
-+/*
-+ * Copyright 2017 IBM Corporation
-+ *
-+ * Eddie James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/fsi.h>
-+#include <linux/i2c.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/sched.h>
-+#include <linux/semaphore.h>
-+#include <linux/wait.h>
-+
-+#define FSI_ENGID_I2C		0x7
-+
-+/* Find left shift from first set bit in m */
-+#define MASK_TO_LSH(m)		(__builtin_ffsll(m) - 1ULL)
-+
-+/* Extract field m from v */
-+#define GETFIELD(m, v)		(((v) & (m)) >> MASK_TO_LSH(m))
-+
-+/* Set field m of v to val */
-+#define SETFIELD(m, v, val)	\
-+	(((v) & ~(m)) | ((((typeof(v))(val)) << MASK_TO_LSH(m)) & (m)))
-+
-+#define I2C_DEFAULT_CLK_DIV	6
-+
-+/* i2c registers */
-+#define I2C_FSI_FIFO		0x00
-+#define I2C_FSI_CMD		0x04
-+#define I2C_FSI_MODE		0x08
-+#define I2C_FSI_WATER_MARK	0x0C
-+#define I2C_FSI_INT_MASK	0x10
-+#define I2C_FSI_INT_COND	0x14
-+#define I2C_FSI_OR_INT_MASK	0x14
-+#define I2C_FSI_INTS		0x18
-+#define I2C_FSI_AND_INT_MASK	0x18
-+#define I2C_FSI_STAT		0x1C
-+#define I2C_FSI_RESET_I2C	0x1C
-+#define I2C_FSI_ESTAT		0x20
-+#define I2C_FSI_RESET_ERR	0x20
-+#define I2C_FSI_RESID_LEN	0x24
-+#define I2C_FSI_SET_SCL		0x24
-+#define I2C_FSI_PORT_BUSY	0x28
-+#define I2C_FSI_RESET_SCL	0x2C
-+#define I2C_FSI_SET_SDA		0x30
-+#define I2C_FSI_RESET_SDA	0x34
-+
-+/* cmd register */
-+#define I2C_CMD_WITH_START	0x80000000
-+#define I2C_CMD_WITH_ADDR	0x40000000
-+#define I2C_CMD_RD_CONT		0x20000000
-+#define I2C_CMD_WITH_STOP	0x10000000
-+#define I2C_CMD_FORCELAUNCH	0x08000000
-+#define I2C_CMD_ADDR		0x00fe0000
-+#define I2C_CMD_READ		0x00010000
-+#define I2C_CMD_LEN		0x0000ffff
-+
-+/* mode register */
-+#define I2C_MODE_CLKDIV		0xffff0000
-+#define I2C_MODE_PORT		0x0000fc00
-+#define I2C_MODE_ENHANCED	0x00000008
-+#define I2C_MODE_DIAG		0x00000004
-+#define I2C_MODE_PACE_ALLOW	0x00000002
-+#define I2C_MODE_WRAP		0x00000001
-+
-+/* watermark register */
-+#define I2C_WATERMARK_HI	0x0000f000
-+#define I2C_WATERMARK_LO	0x000000f0
-+
-+#define I2C_FIFO_HI_LVL		4
-+#define I2C_FIFO_LO_LVL		4
-+
-+/* interrupt register */
-+#define I2C_INT_INV_CMD		0x00008000
-+#define I2C_INT_PARITY		0x00004000
-+#define I2C_INT_BE_OVERRUN	0x00002000
-+#define I2C_INT_BE_ACCESS	0x00001000
-+#define I2C_INT_LOST_ARB	0x00000800
-+#define I2C_INT_NACK		0x00000400
-+#define I2C_INT_DAT_REQ		0x00000200
-+#define I2C_INT_CMD_COMP	0x00000100
-+#define I2C_INT_STOP_ERR	0x00000080
-+#define I2C_INT_BUSY		0x00000040
-+#define I2C_INT_IDLE		0x00000020
-+
-+#define I2C_INT_ENABLE		0x0000ff80
-+#define I2C_INT_ERR		0x0000fcc0
-+
-+/* status register */
-+#define I2C_STAT_INV_CMD	0x80000000
-+#define I2C_STAT_PARITY		0x40000000
-+#define I2C_STAT_BE_OVERRUN	0x20000000
-+#define I2C_STAT_BE_ACCESS	0x10000000
-+#define I2C_STAT_LOST_ARB	0x08000000
-+#define I2C_STAT_NACK		0x04000000
-+#define I2C_STAT_DAT_REQ	0x02000000
-+#define I2C_STAT_CMD_COMP	0x01000000
-+#define I2C_STAT_STOP_ERR	0x00800000
-+#define I2C_STAT_MAX_PORT	0x000f0000
-+#define I2C_STAT_ANY_INT	0x00008000
-+#define I2C_STAT_SCL_IN		0x00000800
-+#define I2C_STAT_SDA_IN		0x00000400
-+#define I2C_STAT_PORT_BUSY	0x00000200
-+#define I2C_STAT_SELF_BUSY	0x00000100
-+#define I2C_STAT_FIFO_COUNT	0x000000ff
-+
-+#define I2C_STAT_ERR		0xfc800000
-+#define I2C_STAT_ANY_RESP	0xff800000
-+
-+/* extended status register */
-+#define I2C_ESTAT_FIFO_SZ	0xff000000
-+#define I2C_ESTAT_SCL_IN_SY	0x00008000
-+#define I2C_ESTAT_SDA_IN_SY	0x00004000
-+#define I2C_ESTAT_S_SCL		0x00002000
-+#define I2C_ESTAT_S_SDA		0x00001000
-+#define I2C_ESTAT_M_SCL		0x00000800
-+#define I2C_ESTAT_M_SDA		0x00000400
-+#define I2C_ESTAT_HI_WATER	0x00000200
-+#define I2C_ESTAT_LO_WATER	0x00000100
-+#define I2C_ESTAT_PORT_BUSY	0x00000080
-+#define I2C_ESTAT_SELF_BUSY	0x00000040
-+#define I2C_ESTAT_VERSION	0x0000001f
-+
-+struct fsi_i2c_master {
-+	struct fsi_device	*fsi;
-+	u8			fifo_size;
-+};
-+
-+static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-+			    u32 *data)
+@@ -136,6 +136,8 @@ struct fsi_i2c_master {
+ 	u8			fifo_size;
+ 	struct list_head	ports;
+ 	struct ida		ida;
++	wait_queue_head_t	wait;
++	struct semaphore	lock;
+ };
+ 
+ struct fsi_i2c_port {
+@@ -171,6 +173,29 @@ static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
+ 	return fsi_device_write(fsi, reg, &data_be, sizeof(data_be));
+ }
+ 
++static int fsi_i2c_lock_master(struct fsi_i2c_master *i2c, int timeout)
 +{
 +	int rc;
-+	__be32 data_be;
 +
-+	rc = fsi_device_read(fsi, reg, &data_be, sizeof(data_be));
-+	if (rc)
-+		return rc;
++	rc = down_trylock(&i2c->lock);
++	if (!rc)
++		return 0;
 +
-+	*data = be32_to_cpu(data_be);
++	rc = wait_event_interruptible_timeout(i2c->wait,
++					      !down_trylock(&i2c->lock),
++					      timeout);
++	if (rc > 0)
++		return 0;
 +
-+	return 0;
++	return -EBUSY;
 +}
 +
-+static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
-+			     u32 *data)
++static void fsi_i2c_unlock_master(struct fsi_i2c_master *i2c)
 +{
-+	__be32 data_be = cpu_to_be32(*data);
-+
-+	return fsi_device_write(fsi, reg, &data_be, sizeof(data_be));
++	up(&i2c->lock);
++	wake_up(&i2c->wait);
 +}
 +
-+static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
-+{
-+	int rc;
-+	u32 mode = I2C_MODE_ENHANCED, extended_status, watermark = 0;
-+	u32 interrupt = 0;
-+
-+	/* since we use polling, disable interrupts */
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_INT_MASK, &interrupt);
+ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
+ {
+ 	int rc;
+@@ -412,25 +437,31 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	struct fsi_i2c_port *port = adap->algo_data;
+ 	struct i2c_msg *msg;
+ 
+-	rc = fsi_i2c_set_port(port);
++	rc = fsi_i2c_lock_master(port->master, adap->timeout);
+ 	if (rc)
+ 		return rc;
+ 
++	rc = fsi_i2c_set_port(port);
 +	if (rc)
-+		return rc;
++		goto unlock;
 +
-+	mode = SETFIELD(I2C_MODE_CLKDIV, mode, I2C_DEFAULT_CLK_DIV);
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_ESTAT, &extended_status);
-+	if (rc)
-+		return rc;
-+
-+	i2c->fifo_size = GETFIELD(I2C_ESTAT_FIFO_SZ, extended_status);
-+	watermark = SETFIELD(I2C_WATERMARK_HI, watermark,
-+			     i2c->fifo_size - I2C_FIFO_HI_LVL);
-+	watermark = SETFIELD(I2C_WATERMARK_LO, watermark,
-+			     I2C_FIFO_LO_LVL);
-+
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
-+
+ 	for (i = 0; i < num; ++i) {
+ 		msg = msgs + i;
+ 		start_time = jiffies;
+ 
+ 		rc = fsi_i2c_start(port, msg, i == num - 1);
+ 		if (rc)
+-			return rc;
++			goto unlock;
+ 
+ 		rc = fsi_i2c_wait(port, msg,
+ 				  adap->timeout - (jiffies - start_time));
+ 		if (rc)
+-			return rc;
++			goto unlock;
+ 	}
+ 
+-	return 0;
++unlock:
++	fsi_i2c_unlock_master(port->master);
 +	return rc;
-+}
-+
-+static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			int num)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_10BIT_ADDR;
-+}
-+
-+static const struct i2c_algorithm fsi_i2c_algorithm = {
-+	.master_xfer = fsi_i2c_xfer,
-+	.functionality = fsi_i2c_functionality,
-+};
-+
-+static int fsi_i2c_probe(struct device *dev)
-+{
-+	struct fsi_i2c_master *i2c;
-+	int rc;
-+
-+	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	i2c->fsi = to_fsi_dev(dev);
-+
-+	rc = fsi_i2c_dev_init(i2c);
-+	if (rc)
-+		return rc;
-+
-+	dev_set_drvdata(dev, i2c);
-+
-+	return 0;
-+}
-+
-+static const struct fsi_device_id fsi_i2c_ids[] = {
-+	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
-+	{ 0 }
-+};
-+
-+static struct fsi_driver fsi_i2c_driver = {
-+	.id_table = fsi_i2c_ids,
-+	.drv = {
-+		.name = "i2cm-fsi",
-+		.bus = &fsi_bus_type,
-+		.probe = fsi_i2c_probe,
-+	},
-+};
-+
-+module_fsi_driver(fsi_i2c_driver);
-+
-+MODULE_AUTHOR("Eddie James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>");
-+MODULE_DESCRIPTION("FSI attached I2C master");
-+MODULE_LICENSE("GPL");
+ }
+ 
+ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+@@ -455,6 +486,8 @@ static int fsi_i2c_probe(struct device *dev)
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
++	init_waitqueue_head(&i2c->wait);
++	sema_init(&i2c->lock, 1);
+ 	i2c->fsi = to_fsi_dev(dev);
+ 	i2c->idx = ida_simple_get(&fsi_i2c_ida, 1, INT_MAX, GFP_KERNEL);
+ 	ida_init(&i2c->ida);
 -- 
 1.8.3.1
 
