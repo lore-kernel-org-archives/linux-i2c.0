@@ -1,118 +1,118 @@
-From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 4/6] drivers/i2c: Add I2C master locking to FSI algorithm
-Date: Mon, 26 Jun 2017 14:29:33 -0500
-Message-ID: <1498505375-1454-5-git-send-email-eajames@linux.vnet.ibm.com>
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH 5/6] drivers/i2c: Add bus recovery for FSI algorithm
+Date: Mon, 26 Jun 2017 14:29:34 -0500
+Message-ID: <1498505375-1454-6-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1498505375-1454-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, eajames@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: "Edward A. James" <eajames@us.ibm.com>
 
-Since there are many ports per master, each with it's own adapter and
-chardev, we need some locking to prevent transfers from changing the\
-master state while other transfers are in progress.
+Bus recovery should reset the engine and force clock the bus 9 times
+to recover most situations.
 
-Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Edward A. James <eajames@us.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 41 +++++++++++++++++++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-fsi.c | 76 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 007f104..41193be 100644
+index 41193be..690589e 100644
 --- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -136,6 +136,8 @@ struct fsi_i2c_master {
- 	u8			fifo_size;
- 	struct list_head	ports;
- 	struct ida		ida;
-+	wait_queue_head_t	wait;
-+	struct semaphore	lock;
- };
- 
- struct fsi_i2c_port {
-@@ -171,6 +173,29 @@ static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
- 	return fsi_device_write(fsi, reg, &data_be, sizeof(data_be));
+@@ -469,6 +469,80 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+ 	return I2C_FUNC_I2C | I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_10BIT_ADDR;
  }
  
-+static int fsi_i2c_lock_master(struct fsi_i2c_master *i2c, int timeout)
++static int fsi_i2c_low_level_recover_bus(struct fsi_i2c_master *i2c)
++{
++	int i, rc;
++	u32 mode, dummy = 0;
++
++	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
++
++	mode |= I2C_MODE_DIAG;
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
++
++	for (i = 0; i < 9; ++i) {
++		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
++		if (rc)
++			return rc;
++
++		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
++		if (rc)
++			return rc;
++	}
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SDA, &dummy);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SDA, &dummy);
++	if (rc)
++		return rc;
++
++	mode &= ~I2C_MODE_DIAG;
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
++
++	return rc;
++}
++
++static int fsi_i2c_recover_bus(struct i2c_adapter *adap)
 +{
 +	int rc;
++	u32 dummy = 0;
++	struct fsi_i2c_port *port = adap->algo_data;
++	struct fsi_i2c_master *i2c = port->master;
 +
-+	rc = down_trylock(&i2c->lock);
-+	if (!rc)
-+		return 0;
-+
-+	rc = wait_event_interruptible_timeout(i2c->wait,
-+					      !down_trylock(&i2c->lock),
-+					      timeout);
-+	if (rc > 0)
-+		return 0;
-+
-+	return -EBUSY;
-+}
-+
-+static void fsi_i2c_unlock_master(struct fsi_i2c_master *i2c)
-+{
-+	up(&i2c->lock);
-+	wake_up(&i2c->wait);
-+}
-+
- static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- {
- 	int rc;
-@@ -412,25 +437,31 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	struct fsi_i2c_port *port = adap->algo_data;
- 	struct i2c_msg *msg;
- 
--	rc = fsi_i2c_set_port(port);
-+	rc = fsi_i2c_lock_master(port->master, adap->timeout);
- 	if (rc)
- 		return rc;
- 
-+	rc = fsi_i2c_set_port(port);
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_I2C, &dummy);
 +	if (rc)
-+		goto unlock;
++		return rc;
 +
- 	for (i = 0; i < num; ++i) {
- 		msg = msgs + i;
- 		start_time = jiffies;
- 
- 		rc = fsi_i2c_start(port, msg, i == num - 1);
- 		if (rc)
--			return rc;
-+			goto unlock;
- 
- 		rc = fsi_i2c_wait(port, msg,
- 				  adap->timeout - (jiffies - start_time));
- 		if (rc)
--			return rc;
-+			goto unlock;
- 	}
- 
--	return 0;
-+unlock:
-+	fsi_i2c_unlock_master(port->master);
++	rc = fsi_i2c_dev_init(i2c);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_low_level_recover_bus(i2c);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_ERR, &dummy);
++
 +	return rc;
- }
- 
- static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
-@@ -455,6 +486,8 @@ static int fsi_i2c_probe(struct device *dev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	init_waitqueue_head(&i2c->wait);
-+	sema_init(&i2c->lock, 1);
- 	i2c->fsi = to_fsi_dev(dev);
- 	i2c->idx = ida_simple_get(&fsi_i2c_ida, 1, INT_MAX, GFP_KERNEL);
- 	ida_init(&i2c->ida);
++}
++
++static struct i2c_bus_recovery_info fsi_i2c_bus_recovery_info = {
++	.recover_bus = fsi_i2c_recover_bus,
++};
++
+ static const struct i2c_algorithm fsi_i2c_algorithm = {
+ 	.master_xfer = fsi_i2c_xfer,
+ 	.functionality = fsi_i2c_functionality,
+@@ -516,6 +590,8 @@ static int fsi_i2c_probe(struct device *dev)
+ 			port->adapter.owner = THIS_MODULE;
+ 			port->adapter.dev.parent = dev;
+ 			port->adapter.algo = &fsi_i2c_algorithm;
++			port->adapter.bus_recovery_info =
++				&fsi_i2c_bus_recovery_info;
+ 			port->adapter.algo_data = port;
+ 			/* number ports uniquely */
+ 			port->adapter.nr = (i2c->idx * I2C_MASTER_NR_OFFSET) +
 -- 
 1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
