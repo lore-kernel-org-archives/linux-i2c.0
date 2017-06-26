@@ -1,133 +1,82 @@
-From: Lyude <lyude@redhat.com>
-Subject: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict harder
-Date: Mon, 26 Jun 2017 16:40:08 -0400
-Message-ID: <20170626204009.32607-1-lyude@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36424 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751432AbdFZUkP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 26 Jun 2017 16:40:15 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 1/9] i2c: designware: Fix system suspend
+Date: Mon, 26 Jun 2017 23:11:34 +0200
+Message-ID: <CAJZ5v0i-AgTDTOX+O41abVsnahU9V=NV+HEW0vajhBqGfJuUEg@mail.gmail.com>
+References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org>
+ <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com>
+ <20170622104933.GY629@lahna.fi.intel.com> <2842386.AFZiXzV2Sq@aspire.rjw.lan>
+ <CAPDyKFo80QWYhU_SFexr_riPSZS3QEXDyBcywa5qBYa3sJXcjw@mail.gmail.com>
+ <CAJZ5v0irHvYXHv1GykatTH+XROZyL0nR0c=KfdSrpH395s6V8g@mail.gmail.com>
+ <CAPDyKFov=08AQw0PPPgcFbrerTskoPGfLZcJL9gjikfQfZUJpw@mail.gmail.com> <4324e2c8-ab79-5a21-a8ab-c660920cba59@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <4324e2c8-ab79-5a21-a8ab-c660920cba59@ti.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: intel-gfx@lists.freedesktop.org
-Cc: Lyude <lyude@redhat.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Benjamin Tissoires <btissoir@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There's quite a number of machines on the market, mainly Lenovo
-ThinkPads, that make the horrible mistake in their firmware of reusing
-the PCIBAR space reserved for the SMBus for things that are completely
-unrelated to the SMBus controller, such as the OpRegion used for i915.
-This is very bad and entirely evil, but with Lenovo's historically poor
-track record of fixing their firmware, it is extremely unlikely this is
-ever going to be properly fixed.
+On Mon, Jun 26, 2017 at 9:39 PM, Grygorii Strashko
+<grygorii.strashko@ti.com> wrote:
+> On 06/26/2017 11:49 AM, Ulf Hansson wrote:
 
-So, while it would be nice if we could just cut off the SMBus controller
-and call it a day this unfortunately breaks RMI4 mode completely for
-most of the ThinkPads. Even though this behavior is extremely wrong, for
-whatever reason sharing the PCIBAR between the OpRegion and SMBus seems
-to be just fine. Regardless however, I think it's safe to assume that
-when the BIOS accesses the PCIBAR space of the SMBus controller like
-this that it's trying to get to something else that we mapped the SMBus
-controller over.
+[cut]
 
-On my X1 Carbon, this assumption appears to be correct. I've traced down
-the firmware accesses to being caused by the firmware mistakenly placing
-the SWSCI mailbox for i915 on top of the SMBus host controller region.
-And indeed, blacklisting i915 causes the firmware to never attempt to
-touch this region.
+>>>> This makes it worse in that sense, that then you don't even need an
+>>>> i2c slave to trigger the problem.
+>>>
+>>> In that case your changelog is a bit misleading.
+>>
+>> Yeah, it is! I didn't realize that until I fully investigated the revert option.
+>>
+>>>
+>>> It looks like the commit in question attempted to fix exactly this
+>>> issue, but it failed, so it should be replaced with something else
+>>> which is what your patch is effectively doing.
+>>>
+>>> IMO you should describe the original problem, explain why that commit
+>>> is not sufficient to fix it and then describe the final fix.
+>>>
+>>> Anyway, after reading the changelog it should be clear that things
+>>> were broken before the commit in question.
+>>>
+>>> And BTW I'm not really sure how the rest of the series is related to this?
+>>
+>> Going back in history, I realize the system sleep support in this
+>> driver has been broken even before the commit $subject patch intends
+>> to fix.
+>> However it has been working fine for the ACPI case, because of how the
+>> ACPI PM domain manages its devices during system sleep.
+>>
+>> The commit in question, adds an improvement to the driver, because it
+>> enables the direct_complete path. For ACPI, that was already working,
+>> but not for the other cases. So to be able to support the similar
+>> improvement as the direct_complete path offers, as that isn't working
+>> for this driver, I tried out using the runtime PM centric path
+>> instead. That is what the rest of the changes in this series takes
+>> care of.
+>>
+>> Now, as the system sleep support is broken I wanted to make a simple
+>> fix for that first, via $subject patch. I guess what makes this a bit
+>> confusing is that I shouldn't point to a certain commit, but rather
+>> just add a stable tag and update the changelog accordingly.
 
-So, in order to try to workaround this and not break either SMBus or
-i915, we temporarily unmap the PCI device for the SMBus controller,
-do the thing that the firmware wanted to do, then remap the device and
-report a firmware bug.
+I agree, modulo the below.
 
-Signed-off-by: Lyude <lyude@redhat.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Benjamin Tissoires <btissoir@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: intel-gfx@lists.freedesktop.org
----
-So: unfortunately
+>
+> Wouldn't it fix suspend for this driver if you will just replace
+> dw_i2c_plat_suspend() with pm_runtime_force_suspend() in SET_SYSTEM_SLEEP_PM_OPS() as
+> you've done in patch 9?
+>
+> And, I think, direct_complete path should still work after this also.
 
-a7ae81952cda (i2c: i801: Allow ACPI SystemIO OpRegion to conflict with PCI BAR)
+That's a good point and I was about to mention that.
 
-Seems to prevent the ThinkPad X1 Carbon 4th gen and the T460s from actually
-using their SMBus controllers at all. As mentioned above, I've traced the issue
-down to the firmware responding to the SWSCI by sticking data in places it
-shouldn't, e.g. the SMBus registers.
+In any case, even if the pm_runtime_resume() added by the $subject
+patch is necessary to start with, it could be added to the ->suspend
+callback of the driver instead of the ->complete one, in which case
+the ACPI path would not be affected by this change.
 
-I'm entirely unsure if this patch is the correct fix for this, and wouldn't be
-at all surprised if it's just as bad of a patch as I think it is ;P. So I
-figured I'd send it to intel-gfx and the authors of the original version of this
-patch to get their take on it and see if there might be something less hacky we
-can do to fix this.
-
- drivers/i2c/busses/i2c-i801.c | 41 +++++++++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 6484fa6..bfbe0f9 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1406,33 +1406,42 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
- {
- 	struct i801_priv *priv = handler_context;
- 	struct pci_dev *pdev = priv->pci_dev;
-+	struct device *dev = &pdev->dev;
- 	acpi_status status;
-+	int err;
- 
--	/*
--	 * Once BIOS AML code touches the OpRegion we warn and inhibit any
--	 * further access from the driver itself. This device is now owned
--	 * by the system firmware.
--	 */
- 	mutex_lock(&priv->acpi_lock);
- 
--	if (!priv->acpi_reserved) {
--		priv->acpi_reserved = true;
-+	/*
-+	 * BIOS AML code should never actually touch the SMBus registers,
-+	 * however crappy firmware (mainly Lenovo's) can make the mistake of
-+	 * mapping things over the SMBus region that should definitely not be
-+	 * there (such as the OpRegion for Intel GPUs).
-+	 * This is extremely bad firmware behavior, but it is unlikely this will
-+	 * ever get fixed by Lenovo.
-+	 */
-+	dev_warn_once(dev,
-+		      FW_BUG "OpRegion overlaps with SMBus registers, working around\n");
- 
--		dev_warn(&pdev->dev, "BIOS is accessing SMBus registers\n");
--		dev_warn(&pdev->dev, "Driver SMBus register access inhibited\n");
--
--		/*
--		 * BIOS is accessing the host controller so prevent it from
--		 * suspending automatically from now on.
--		 */
--		pm_runtime_get_sync(&pdev->dev);
--	}
-+	pm_runtime_get_sync(dev);
-+	pcim_iounmap_regions(pdev, 1 << SMBBAR);
- 
- 	if ((function & ACPI_IO_MASK) == ACPI_READ)
- 		status = acpi_os_read_port(address, (u32 *)value, bits);
- 	else
- 		status = acpi_os_write_port(address, (u32)*value, bits);
- 
-+	err = pcim_iomap_regions(pdev, 1 << SMBBAR,
-+				 dev_driver_string(&pdev->dev));
-+	if (err) {
-+		dev_err(&pdev->dev,
-+			FW_BUG "Failed to restore SMBus region 0x%lx-0x%Lx. SMBus is now broken.\n",
-+			priv->smba,
-+			(unsigned long long)pci_resource_end(pdev, SMBBAR));
-+		priv->acpi_reserved = true;
-+	}
-+
-+	pm_runtime_put(dev);
- 	mutex_unlock(&priv->acpi_lock);
- 
- 	return status;
--- 
-2.9.4
+Thanks,
+Rafael
