@@ -1,76 +1,315 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH 6/6] Documentation/devicetree: Add FSI-attached I2C master dt bindings
-Date: Mon, 26 Jun 2017 14:29:35 -0500
-Message-ID: <1498505375-1454-7-git-send-email-eajames@linux.vnet.ibm.com>
+From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 1/6] drivers/i2c: Add FSI-attached I2C master algorithm
+Date: Mon, 26 Jun 2017 14:29:30 -0500
+Message-ID: <1498505375-1454-2-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44938 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751798AbdFZTaD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2017 15:30:03 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id v5QJT9UG080680
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Jun 2017 15:30:02 -0400
-Received: from e31.co.us.ibm.com (e31.co.us.ibm.com [32.97.110.149])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2bb2yw6ucd-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Jun 2017 15:30:02 -0400
-Received: from localhost
-        by e31.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-i2c@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
-        Mon, 26 Jun 2017 13:30:00 -0600
-In-Reply-To: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1498505375-1454-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, eajames@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 
-From: "Edward A. James" <eajames@us.ibm.com>
+From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
-Document the bindings.
+Add register definitions for FSI-attached I2C master and functions to
+access those registers over FSI. Add an FSI driver so that our I2C bus
+is probed up during an FSI scan.
 
-Signed-off-by: Edward A. James <eajames@us.ibm.com>
+Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 31 +++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ drivers/i2c/busses/Kconfig   |  11 ++
+ drivers/i2c/busses/Makefile  |   1 +
+ drivers/i2c/busses/i2c-fsi.c | 245 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 257 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index ed7106e..47bba71 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1260,4 +1260,15 @@ config I2C_OPAL
+ 	  This driver can also be built as a module. If so, the module will be
+ 	  called as i2c-opal.
+ 
++config I2C_FSI
++	tristate "FSI I2C driver"
++	depends on FSI
++	help
++	  Driver for FSI bus attached I2C masters. These are I2C masters that
++	  are connected to the system over a FSI bus, instead of the more
++	  common PCI or MMIO interface.
++
++	  This driver can also be built as a module. If so, the module will be
++	  called as i2c-fsi.
++
+ endmenu
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index c89a431..f99ea5d 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -126,5 +126,6 @@ obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
+ obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
+ obj-$(CONFIG_I2C_XGENE_SLIMPRO) += i2c-xgene-slimpro.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
++obj-$(CONFIG_I2C_FSI)		+= i2c-fsi.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
 new file mode 100644
-index 0000000..fffc067
+index 0000000..f8ea94e
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-@@ -0,0 +1,31 @@
-+Device-tree bindings for FSI-attached I2C master driver
-+-------------------------------------------------------
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -0,0 +1,245 @@
++/*
++ * Copyright 2017 IBM Corporation
++ *
++ * Eddie James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
 +
-+Required properties:
-+ - compatible = "ibm,i2cm-fsi";
-+ - reg = < address size >;		: The FSI CFAM address and address space
-+					  size.
-+ - #address-cells = <1>;		: Number of address cells in child nodes
-+ - #size-cells = <0>;			: Number of size cells in child nodes.
-+ - child nodes				: Nodes to describe ports off the I2C
-+					  master.
++#include <linux/fsi.h>
++#include <linux/i2c.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/sched.h>
++#include <linux/semaphore.h>
++#include <linux/wait.h>
 +
-+Child node required properties:
-+ - reg = < port number >		: The port number on the I2C master.
++#define FSI_ENGID_I2C		0x7
 +
-+Examples:
++/* Find left shift from first set bit in m */
++#define MASK_TO_LSH(m)		(__builtin_ffsll(m) - 1ULL)
 +
-+    i2cm@1800 {
-+        compatible = "ibm,i2cm-fsi";
-+        reg = < 0x1800 0x400 >;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
++/* Extract field m from v */
++#define GETFIELD(m, v)		(((v) & (m)) >> MASK_TO_LSH(m))
 +
-+        port@0 {
-+            reg = <0>;
-+        };
++/* Set field m of v to val */
++#define SETFIELD(m, v, val)	\
++	(((v) & ~(m)) | ((((typeof(v))(val)) << MASK_TO_LSH(m)) & (m)))
 +
-+        port@1 {
-+            reg = <1>;
-+        };
-+    };
++#define I2C_DEFAULT_CLK_DIV	6
++
++/* i2c registers */
++#define I2C_FSI_FIFO		0x00
++#define I2C_FSI_CMD		0x04
++#define I2C_FSI_MODE		0x08
++#define I2C_FSI_WATER_MARK	0x0C
++#define I2C_FSI_INT_MASK	0x10
++#define I2C_FSI_INT_COND	0x14
++#define I2C_FSI_OR_INT_MASK	0x14
++#define I2C_FSI_INTS		0x18
++#define I2C_FSI_AND_INT_MASK	0x18
++#define I2C_FSI_STAT		0x1C
++#define I2C_FSI_RESET_I2C	0x1C
++#define I2C_FSI_ESTAT		0x20
++#define I2C_FSI_RESET_ERR	0x20
++#define I2C_FSI_RESID_LEN	0x24
++#define I2C_FSI_SET_SCL		0x24
++#define I2C_FSI_PORT_BUSY	0x28
++#define I2C_FSI_RESET_SCL	0x2C
++#define I2C_FSI_SET_SDA		0x30
++#define I2C_FSI_RESET_SDA	0x34
++
++/* cmd register */
++#define I2C_CMD_WITH_START	0x80000000
++#define I2C_CMD_WITH_ADDR	0x40000000
++#define I2C_CMD_RD_CONT		0x20000000
++#define I2C_CMD_WITH_STOP	0x10000000
++#define I2C_CMD_FORCELAUNCH	0x08000000
++#define I2C_CMD_ADDR		0x00fe0000
++#define I2C_CMD_READ		0x00010000
++#define I2C_CMD_LEN		0x0000ffff
++
++/* mode register */
++#define I2C_MODE_CLKDIV		0xffff0000
++#define I2C_MODE_PORT		0x0000fc00
++#define I2C_MODE_ENHANCED	0x00000008
++#define I2C_MODE_DIAG		0x00000004
++#define I2C_MODE_PACE_ALLOW	0x00000002
++#define I2C_MODE_WRAP		0x00000001
++
++/* watermark register */
++#define I2C_WATERMARK_HI	0x0000f000
++#define I2C_WATERMARK_LO	0x000000f0
++
++#define I2C_FIFO_HI_LVL		4
++#define I2C_FIFO_LO_LVL		4
++
++/* interrupt register */
++#define I2C_INT_INV_CMD		0x00008000
++#define I2C_INT_PARITY		0x00004000
++#define I2C_INT_BE_OVERRUN	0x00002000
++#define I2C_INT_BE_ACCESS	0x00001000
++#define I2C_INT_LOST_ARB	0x00000800
++#define I2C_INT_NACK		0x00000400
++#define I2C_INT_DAT_REQ		0x00000200
++#define I2C_INT_CMD_COMP	0x00000100
++#define I2C_INT_STOP_ERR	0x00000080
++#define I2C_INT_BUSY		0x00000040
++#define I2C_INT_IDLE		0x00000020
++
++#define I2C_INT_ENABLE		0x0000ff80
++#define I2C_INT_ERR		0x0000fcc0
++
++/* status register */
++#define I2C_STAT_INV_CMD	0x80000000
++#define I2C_STAT_PARITY		0x40000000
++#define I2C_STAT_BE_OVERRUN	0x20000000
++#define I2C_STAT_BE_ACCESS	0x10000000
++#define I2C_STAT_LOST_ARB	0x08000000
++#define I2C_STAT_NACK		0x04000000
++#define I2C_STAT_DAT_REQ	0x02000000
++#define I2C_STAT_CMD_COMP	0x01000000
++#define I2C_STAT_STOP_ERR	0x00800000
++#define I2C_STAT_MAX_PORT	0x000f0000
++#define I2C_STAT_ANY_INT	0x00008000
++#define I2C_STAT_SCL_IN		0x00000800
++#define I2C_STAT_SDA_IN		0x00000400
++#define I2C_STAT_PORT_BUSY	0x00000200
++#define I2C_STAT_SELF_BUSY	0x00000100
++#define I2C_STAT_FIFO_COUNT	0x000000ff
++
++#define I2C_STAT_ERR		0xfc800000
++#define I2C_STAT_ANY_RESP	0xff800000
++
++/* extended status register */
++#define I2C_ESTAT_FIFO_SZ	0xff000000
++#define I2C_ESTAT_SCL_IN_SY	0x00008000
++#define I2C_ESTAT_SDA_IN_SY	0x00004000
++#define I2C_ESTAT_S_SCL		0x00002000
++#define I2C_ESTAT_S_SDA		0x00001000
++#define I2C_ESTAT_M_SCL		0x00000800
++#define I2C_ESTAT_M_SDA		0x00000400
++#define I2C_ESTAT_HI_WATER	0x00000200
++#define I2C_ESTAT_LO_WATER	0x00000100
++#define I2C_ESTAT_PORT_BUSY	0x00000080
++#define I2C_ESTAT_SELF_BUSY	0x00000040
++#define I2C_ESTAT_VERSION	0x0000001f
++
++struct fsi_i2c_master {
++	struct fsi_device	*fsi;
++	u8			fifo_size;
++};
++
++static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
++			    u32 *data)
++{
++	int rc;
++	__be32 data_be;
++
++	rc = fsi_device_read(fsi, reg, &data_be, sizeof(data_be));
++	if (rc)
++		return rc;
++
++	*data = be32_to_cpu(data_be);
++
++	return 0;
++}
++
++static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
++			     u32 *data)
++{
++	__be32 data_be = cpu_to_be32(*data);
++
++	return fsi_device_write(fsi, reg, &data_be, sizeof(data_be));
++}
++
++static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
++{
++	int rc;
++	u32 mode = I2C_MODE_ENHANCED, extended_status, watermark = 0;
++	u32 interrupt = 0;
++
++	/* since we use polling, disable interrupts */
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_INT_MASK, &interrupt);
++	if (rc)
++		return rc;
++
++	mode = SETFIELD(I2C_MODE_CLKDIV, mode, I2C_DEFAULT_CLK_DIV);
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
++
++	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_ESTAT, &extended_status);
++	if (rc)
++		return rc;
++
++	i2c->fifo_size = GETFIELD(I2C_ESTAT_FIFO_SZ, extended_status);
++	watermark = SETFIELD(I2C_WATERMARK_HI, watermark,
++			     i2c->fifo_size - I2C_FIFO_HI_LVL);
++	watermark = SETFIELD(I2C_WATERMARK_LO, watermark,
++			     I2C_FIFO_LO_LVL);
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
++
++	return rc;
++}
++
++static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			int num)
++{
++	return -EOPNOTSUPP;
++}
++
++static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_10BIT_ADDR;
++}
++
++static const struct i2c_algorithm fsi_i2c_algorithm = {
++	.master_xfer = fsi_i2c_xfer,
++	.functionality = fsi_i2c_functionality,
++};
++
++static int fsi_i2c_probe(struct device *dev)
++{
++	struct fsi_i2c_master *i2c;
++	int rc;
++
++	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	i2c->fsi = to_fsi_dev(dev);
++
++	rc = fsi_i2c_dev_init(i2c);
++	if (rc)
++		return rc;
++
++	dev_set_drvdata(dev, i2c);
++
++	return 0;
++}
++
++static const struct fsi_device_id fsi_i2c_ids[] = {
++	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
++	{ 0 }
++};
++
++static struct fsi_driver fsi_i2c_driver = {
++	.id_table = fsi_i2c_ids,
++	.drv = {
++		.name = "i2cm-fsi",
++		.bus = &fsi_bus_type,
++		.probe = fsi_i2c_probe,
++	},
++};
++
++module_fsi_driver(fsi_i2c_driver);
++
++MODULE_AUTHOR("Eddie James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>");
++MODULE_DESCRIPTION("FSI attached I2C master");
++MODULE_LICENSE("GPL");
 -- 
 1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
