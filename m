@@ -1,61 +1,29 @@
-From: Jeremy Kerr <jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 6/6] Documentation/devicetree: Add FSI-attached I2C master
- dt bindings
-Date: Tue, 27 Jun 2017 09:06:04 +0800
-Message-ID: <ec4a5fec-fea0-09a7-8559-99d8eb071093@ozlabs.org>
-References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1498505375-1454-7-git-send-email-eajames@linux.vnet.ibm.com>
+From: Julian Smith <sinara_group@126.com>
+Subject: Product Inquiry
+Date: Mon, 26 Jun 2017 17:51:33 -0400 (EDT)
+Message-ID: <20170626215133.EAD8B9CC0D@mail.dealer.com>
+Reply-To: sinara-group@bk.ru
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1498505375-1454-7-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Content-Language: en-AU
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from host238-201-177-94.serverdedicati.aruba.it ([94.177.201.238]:46172
+        "EHLO mail.dealer.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751473AbdF0Coq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 26 Jun 2017 22:44:46 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Hi Eddie,
+Hello, 
 
-> +Required properties:
-> + - compatible = "ibm,i2cm-fsi";
-> + - reg = < address size >;		: The FSI CFAM address and address space
-> +					  size.
-> + - #address-cells = <1>;		: Number of address cells in child nodes
-> + - #size-cells = <0>;			: Number of size cells in child nodes.
-> + - child nodes				: Nodes to describe ports off the I2C
-> +					  master.
-> +
-> +Child node required properties:
-> + - reg = < port number >		: The port number on the I2C master.
-> +
-> +Examples:
-> +
-> +    i2cm@1800 {
-> +        compatible = "ibm,i2cm-fsi";
-> +        reg = < 0x1800 0x400 >;
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        port@0 {
-> +            reg = <0>;
-> +        };
-> +
-> +        port@1 {
-> +            reg = <1>;
-> +        };
-> +    };
+My name is Ms Julian Smith and i am from Sinara Group Co.
+We are glad to know about your company from the web and we are interested in
+your products.Please send us your Latest catalog and price list for our
+trial order. 
 
-Those child nodes represent the downstream i2c buses, and so also
-contain the i2c slave devices, right? If so, you may want to document
-that, and/or add a simple device to that example (say, an EEPROM).
-
-Cheers,
-
-
-Jeremy
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Julian Smith, 
+Purchasing Manager
+Sinara Group Co.
+7 Krasnogo Znameni Ave.
+Vladivostok,690106,Ukraine
