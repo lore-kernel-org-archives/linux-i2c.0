@@ -1,87 +1,135 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 1/9] i2c: designware: Fix system suspend
-Date: Tue, 27 Jun 2017 17:25:59 +0200
-Message-ID: <CAJZ5v0i6zEmb1anxL2ge5YqDJ6jMZA2v4W-u65AtoZv8b7Z89w@mail.gmail.com>
-References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org>
- <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com>
- <20170622104933.GY629@lahna.fi.intel.com> <2842386.AFZiXzV2Sq@aspire.rjw.lan>
- <CAPDyKFo80QWYhU_SFexr_riPSZS3QEXDyBcywa5qBYa3sJXcjw@mail.gmail.com>
- <CAJZ5v0irHvYXHv1GykatTH+XROZyL0nR0c=KfdSrpH395s6V8g@mail.gmail.com>
- <CAPDyKFov=08AQw0PPPgcFbrerTskoPGfLZcJL9gjikfQfZUJpw@mail.gmail.com>
- <4324e2c8-ab79-5a21-a8ab-c660920cba59@ti.com> <CAJZ5v0i-AgTDTOX+O41abVsnahU9V=NV+HEW0vajhBqGfJuUEg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0i-AgTDTOX+O41abVsnahU9V=NV+HEW0vajhBqGfJuUEg@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] x86/io: Include asm-generic/io.h to architectural code
+Date: Tue, 27 Jun 2017 19:06:41 +0300
+Message-ID: <20170627160641.75712-1-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:46034 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751893AbdF0QGs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 27 Jun 2017 12:06:48 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Baolin Wang <baolin.wang@spreadtrum.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Mon, Jun 26, 2017 at 11:11 PM, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> On Mon, Jun 26, 2017 at 9:39 PM, Grygorii Strashko
-> <grygorii.strashko@ti.com> wrote:
->> On 06/26/2017 11:49 AM, Ulf Hansson wrote:
->
-> [cut]
->
->>>>> This makes it worse in that sense, that then you don't even need an
->>>>> i2c slave to trigger the problem.
->>>>
->>>> In that case your changelog is a bit misleading.
->>>
->>> Yeah, it is! I didn't realize that until I fully investigated the revert option.
->>>
->>>>
->>>> It looks like the commit in question attempted to fix exactly this
->>>> issue, but it failed, so it should be replaced with something else
->>>> which is what your patch is effectively doing.
->>>>
->>>> IMO you should describe the original problem, explain why that commit
->>>> is not sufficient to fix it and then describe the final fix.
->>>>
->>>> Anyway, after reading the changelog it should be clear that things
->>>> were broken before the commit in question.
->>>>
->>>> And BTW I'm not really sure how the rest of the series is related to this?
->>>
->>> Going back in history, I realize the system sleep support in this
->>> driver has been broken even before the commit $subject patch intends
->>> to fix.
->>> However it has been working fine for the ACPI case, because of how the
->>> ACPI PM domain manages its devices during system sleep.
->>>
->>> The commit in question, adds an improvement to the driver, because it
->>> enables the direct_complete path. For ACPI, that was already working,
->>> but not for the other cases. So to be able to support the similar
->>> improvement as the direct_complete path offers, as that isn't working
->>> for this driver, I tried out using the runtime PM centric path
->>> instead. That is what the rest of the changes in this series takes
->>> care of.
->>>
->>> Now, as the system sleep support is broken I wanted to make a simple
->>> fix for that first, via $subject patch. I guess what makes this a bit
->>> confusing is that I shouldn't point to a certain commit, but rather
->>> just add a stable tag and update the changelog accordingly.
->
-> I agree, modulo the below.
->
->>
->> Wouldn't it fix suspend for this driver if you will just replace
->> dw_i2c_plat_suspend() with pm_runtime_force_suspend() in SET_SYSTEM_SLEEP_PM_OPS() as
->> you've done in patch 9?
->>
->> And, I think, direct_complete path should still work after this also.
->
-> That's a good point and I was about to mention that.
->
-> In any case, even if the pm_runtime_resume() added by the $subject
-> patch is necessary to start with, it could be added to the ->suspend
+asm-generic/io.h defines few helpers which would be useful in the drivers,
+such as writesb() and readsb().
 
-I meant ->resume, sorry.
+Include it to the asm/io.h in architectural folder.
 
-> callback of the driver instead of the ->complete one, in which case
-> the ACPI path would not be affected by this change.
+Note, to apply above we need to define macros for functions which do not have
+them yet defined, such as readb() or writeb(). This is done here as well.
 
-Thanks,
-Rafael
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ arch/x86/include/asm/io.h | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/arch/x86/include/asm/io.h b/arch/x86/include/asm/io.h
+index 7afb0e2f07f4..abb3090a5822 100644
+--- a/arch/x86/include/asm/io.h
++++ b/arch/x86/include/asm/io.h
+@@ -69,6 +69,9 @@ build_mmio_write(__writeb, "b", unsigned char, "q", )
+ build_mmio_write(__writew, "w", unsigned short, "r", )
+ build_mmio_write(__writel, "l", unsigned int, "r", )
+ 
++#define readb readb
++#define readw readw
++#define readl readl
+ #define readb_relaxed(a) __readb(a)
+ #define readw_relaxed(a) __readw(a)
+ #define readl_relaxed(a) __readl(a)
+@@ -76,6 +79,9 @@ build_mmio_write(__writel, "l", unsigned int, "r", )
+ #define __raw_readw __readw
+ #define __raw_readl __readl
+ 
++#define writeb writeb
++#define writew writew
++#define writel writel
+ #define writeb_relaxed(v, a) __writeb(v, a)
+ #define writew_relaxed(v, a) __writew(v, a)
+ #define writel_relaxed(v, a) __writel(v, a)
+@@ -119,6 +125,7 @@ static inline phys_addr_t virt_to_phys(volatile void *address)
+ {
+ 	return __pa(address);
+ }
++#define virt_to_phys virt_to_phys
+ 
+ /**
+  *	phys_to_virt	-	map physical address to virtual
+@@ -137,6 +144,7 @@ static inline void *phys_to_virt(phys_addr_t address)
+ {
+ 	return __va(address);
+ }
++#define phys_to_virt phys_to_virt
+ 
+ /*
+  * Change "struct page" to physical address.
+@@ -220,6 +228,7 @@ memset_io(volatile void __iomem *addr, unsigned char val, size_t count)
+ {
+ 	memset((void __force *)addr, val, count);
+ }
++#define memset_io(dst,c,count) memset_io(dst,c,count)
+ 
+ /**
+  * memcpy_fromio	Copy a block of data from I/O memory
+@@ -234,6 +243,7 @@ memcpy_fromio(void *dst, const volatile void __iomem *src, size_t count)
+ {
+ 	memcpy(dst, (const void __force *)src, count);
+ }
++#define memcpy_fromio(to,from,count) memcpy_fromio(to,from,count)
+ 
+ /**
+  * memcpy_toio		Copy a block of data into I/O memory
+@@ -248,6 +258,7 @@ memcpy_toio(volatile void __iomem *dst, const void *src, size_t count)
+ {
+ 	memcpy((void __force *)dst, src, count);
+ }
++#define memcpy_toio(to,from,count) memcpy_toio(to,from,count)
+ 
+ /*
+  * ISA space is 'always mapped' on a typical x86 system, no need to
+@@ -341,9 +352,32 @@ BUILDIO(b, b, char)
+ BUILDIO(w, w, short)
+ BUILDIO(l, , int)
+ 
++#define inb inb
++#define inw inw
++#define inl inl
++#define inb_p inb_p
++#define inw_p inw_p
++#define inl_p inl_p
++#define insb insb
++#define insw insw
++#define insl insl
++
++#define outb outb
++#define outw outw
++#define outl outl
++#define outb_p outb_p
++#define outw_p outw_p
++#define outl_p outl_p
++#define outsb outsb
++#define outsw outsw
++#define outsl outsl
++
+ extern void *xlate_dev_mem_ptr(phys_addr_t phys);
+ extern void unxlate_dev_mem_ptr(phys_addr_t phys, void *addr);
+ 
++#define xlate_dev_mem_ptr xlate_dev_mem_ptr
++#define unxlate_dev_mem_ptr unxlate_dev_mem_ptr
++
+ extern int ioremap_change_attr(unsigned long vaddr, unsigned long size,
+ 				enum page_cache_mode pcm);
+ extern void __iomem *ioremap_wc(resource_size_t offset, unsigned long size);
+@@ -365,6 +399,8 @@ extern bool xen_biovec_phys_mergeable(const struct bio_vec *vec1,
+ 
+ #define IO_SPACE_LIMIT 0xffff
+ 
++#include <asm-generic/io.h>
++
+ #ifdef CONFIG_MTRR
+ extern int __must_check arch_phys_wc_index(int handle);
+ #define arch_phys_wc_index arch_phys_wc_index
+-- 
+2.11.0
