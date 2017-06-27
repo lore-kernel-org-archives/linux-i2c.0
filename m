@@ -1,73 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] i2c: add helpers to ease DMA handling
-Date: Tue, 27 Jun 2017 23:16:10 +0200
-Message-ID: <20170627211610.53oeludkm3sooo64@ninjato>
-References: <20170615183039.22925-1-wsa+renesas@sang-engineering.com>
- <20170615183039.22925-2-wsa+renesas@sang-engineering.com>
- <CAMuHMdVe1tBMZO9weMsf2Tj7pQ_AUeVu_X=uKbs+JbziLFQHvQ@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v12 1/2] i2c: designware: add SLAVE mode functions
+Date: Tue, 27 Jun 2017 23:35:48 +0200
+Message-ID: <20170627213548.iq4jtor4eds4ebm3@ninjato>
+References: <cover.1498126241.git.lolivei@synopsys.com>
+ <8da0ec338fd4b634b01ecded0117f7bd423c6aaf.1498126241.git.lolivei@synopsys.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ym4qsbbkg5hla56o"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="ldswiu2xejqciazg"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdVe1tBMZO9weMsf2Tj7pQ_AUeVu_X=uKbs+JbziLFQHvQ@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <8da0ec338fd4b634b01ecded0117f7bd423c6aaf.1498126241.git.lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Luis Oliveira <Luis.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ramiro.Oliveira-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, Joao.Pinto-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, CARLOS.PALMINHA-HKixBCOQz3hWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ym4qsbbkg5hla56o
-Content-Type: text/plain; charset=us-ascii
+--ldswiu2xejqciazg
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Geert,
-
-> > +static inline int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned =
-int threshold,
-> > +                                       u8 **ptr_for_bounce_buf)
+On Thu, Jun 22, 2017 at 11:17:32AM +0100, Luis Oliveira wrote:
+> - Changes in Kconfig to enable I2C_DESIGNWARE_SLAVE support
+> - Slave functions added to core library file
+> - Slave abort sources added to common source file
+> - New driver: i2c-designware-slave added
+> - Changes in the Makefile to compile the I2C_DESIGNWARE_SLAVE module
+>   when supported by the architecture.
 >=20
-> __must_check?
-
-Yes, why not.
-
-> Isn't this function a bit large to be inlined?
-
-That can be argued, yes. But I am unsure to bloat the core if the
-function is so rarely needed...
-
-> > +static inline void i2c_release_bounce_buf(struct i2c_msg *msg, u8 *bou=
-nce_buf)
+> All the SLAVE flow is added but it is not enabled via platform
+> driver.
 >=20
-> This one is smaller.
+> Signed-off-by: Luis Oliveira <lolivei-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 
-Yup, but of course, they should be put in the same place, whereever that ma=
-y be.
+I fixed this checkpatch warning for you:
 
-Thanks,
+WARNING: quoted string split across lines
+#391: FILE: drivers/i2c/busses/i2c-designware-slave.c:281:
++		"%#x STAUTS SLAVE_ACTTVITY=3D%#x : RAW_INTR_STAT=3D%#x"
++		" : INTR_STAT=3D%#x\n",
 
-   Wolfram
+Nice, you fooled two code checkers by having code in comments :) No
+need to fix, of course:
+
+    SMATCH
+drivers/i2c/busses/i2c-designware-slave.c:318 i2c_dw_irq_handler_slave warn=
+: unused return: stat =3D i2c_dw_read_clear_intrbits_slave()
+drivers/i2c/busses/i2c-designware-slave.c:329 i2c_dw_irq_handler_slave warn=
+: unused return: stat =3D i2c_dw_read_clear_intrbits_slave()
+    CPPCHECK
+drivers/i2c/busses/i2c-designware-slave.c:329: style: Variable 'stat' is as=
+signed a value that is never used.
+
+Build warning:
+
+  CC      drivers/i2c/busses/i2c-designware-slave.o
+drivers/i2c/busses/i2c-designware-slave.c:173:5: warning: no previous proto=
+type for =E2=80=98i2c_dw_reg_slave=E2=80=99 [-Wmissing-prototypes]
+ int i2c_dw_reg_slave(struct i2c_client *slave)
+
+I declared the function static to fix it.
+
+Applied to for-next, thanks!
 
 
---ym4qsbbkg5hla56o
+--ldswiu2xejqciazg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSyxYACgkQFA3kzBSg
-KbaI/RAAhYMryJ5CJlQe5g7lZOqiAqyQS7AE22HMQpW/J5g/rmIUy8GxwjWJa9lQ
-BMm2R30/6fzQrNp7ic4jNKP5Ny2ELwpDau0INNJ0RBbcHEbgfBIL4SD3rjGL6dn4
-BzX6CgvG1K7RW2XhX57RT0LFaXxHKIcjzzYut6HSSGnyUIM69jjFDxxJ5RliwKbv
-gF28dcvHeeyGI5hV2xl5FmqXOAzu5Yc25/b/dA6j6baQcT+AsqCCg91Zw/73nv2y
-EfEMcwwLqc2IdQVWdO717nO4mNtX4hU4I7dmRLUq8PhblyvV1R96b3HKcXE52iT+
-0nnUZUzvP7n4q4Qc/yEIGkM2bCZcl07IDwn/bQ8kszjoaMnbGdEVxQzyoKIj+mdw
-uEz9Vl7dn30vUL+IrNdwQ3lg1UWEFUYrM0GYMHjJ7qh+tG0VuPJvNriOtfIA0zGo
-GTSuoQPSm/DvTkvwWUV2sva7hutkh6vTd6iwN2t7QW7dpxA91AlZq4hTzoesOk+b
-uVVEnpgGoQX16qAHNwKAgb6S1+ls0u9kkPr53Opq4hXwYXjPlGrOPH+NurmYaujk
-fW11Lx5sKTlardzCVf1zA3vwnux+f/cggHUae7QpVaTm7SFUkL14TKAQzwaqJB1/
-A0nftuHPSNFdSCx3VSAR8s9Ag5J1FmbM53ZK+sbEPlzZtztxn9I=
-=r09Y
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSz7QACgkQFA3kzBSg
+KbZwfA/+PSReaqK8zdbVXXDLLwT4dxRQpKTJKi7nl4bd0toCqxixL1savKvKoR1K
+b1WTFtiIkbJwm3r/OXvsCmOjFoTcTBLY4kvk08mYkdP8s2DG7xSHxroKQwbeQZYz
+OrAJSNFJZqYjvABPsfOAWstRUqa9pbbXyzyynQN0Q9VJ1OVtrQ3BnSKNQdRfwoyM
+/83r32KmXyBGgLx7HG36USBY4Nb+Z/uiOEN+0CtqK44xFW0XSZj+QrkfJwxgxr7G
+p4IZWKq1iRDP1Z5tX2DUL8qhwKJt+w/ckvD4mOSqgMcshHMLi4kyKdwl6iWjaTcH
+Bos2Ce12KOkFf0T2/fIUC4MEjGSmbkRP/BCDPENvI5sR8NjWeoAMeY++KVbmL5Er
+A55FDY3x6T0nohQlBlTvRCXoTG7r4zLutauFR4s4mMcaUekqR37nj9WkjinI6rBl
+mKadcVUH/uKJ7BEu6sSzitKLEq3FnIuXOh+G4qOGxzWokeQ8XPhTDJeIO1O8NSZQ
+V+e/GuBoaucu8xGi9Oz/aYx+2fIa45EeMhAU4pxXQ88n0IYn57cGryzxwFh7CvGl
+d/LNnsEs5OuQtrYG9k0X2wWOcfuAU0m0Z8dEtoeyK/aeNivYJrUhyfWFo5Igf4w0
+ZsTgdqf/+Rupz09vrVpqVXM/6PGt6MLuoX0H2Lhl585B0eo6NxE=
+=FNTb
 -----END PGP SIGNATURE-----
 
---ym4qsbbkg5hla56o--
+--ldswiu2xejqciazg--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
