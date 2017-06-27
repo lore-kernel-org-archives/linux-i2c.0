@@ -1,74 +1,54 @@
-From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 6/6] Documentation/devicetree: Add FSI-attached I2C master
- dt bindings
-Date: Tue, 27 Jun 2017 12:28:14 -0500
-Message-ID: <901bb9e4-a7b1-ce24-c68b-d96b61e1b274@linux.vnet.ibm.com>
-References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1498505375-1454-7-git-send-email-eajames@linux.vnet.ibm.com>
- <ec4a5fec-fea0-09a7-8559-99d8eb071093@ozlabs.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/5] dt-bindings: add bindings for i2c-pca-platform
+Date: Tue, 27 Jun 2017 21:53:42 +0200
+Message-ID: <20170627195342.p2e7wx7lv5v6emhw@ninjato>
+References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
+ <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
+ <20170626004434.2757-2-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <ec4a5fec-fea0-09a7-8559-99d8eb071093-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jeremy Kerr <jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="efxffvqdpbjftnss"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:54127 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752814AbdF0Txq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 27 Jun 2017 15:53:46 -0400
+Content-Disposition: inline
+In-Reply-To: <20170626004434.2757-2-chris.packham@alliedtelesis.co.nz>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
 
 
+--efxffvqdpbjftnss
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 06/26/2017 08:06 PM, Jeremy Kerr wrote:
-> Hi Eddie,
->
->> +Required properties:
->> + - compatible = "ibm,i2cm-fsi";
->> + - reg = < address size >;		: The FSI CFAM address and address space
->> +					  size.
->> + - #address-cells = <1>;		: Number of address cells in child nodes
->> + - #size-cells = <0>;			: Number of size cells in child nodes.
->> + - child nodes				: Nodes to describe ports off the I2C
->> +					  master.
->> +
->> +Child node required properties:
->> + - reg = < port number >		: The port number on the I2C master.
->> +
->> +Examples:
->> +
->> +    i2cm@1800 {
->> +        compatible = "ibm,i2cm-fsi";
->> +        reg = < 0x1800 0x400 >;
->> +        #address-cells = <1>;
->> +        #size-cells = <0>;
->> +
->> +        port@0 {
->> +            reg = <0>;
->> +        };
->> +
->> +        port@1 {
->> +            reg = <1>;
->> +        };
->> +    };
-> Those child nodes represent the downstream i2c buses, and so also
-> contain the i2c slave devices, right? If so, you may want to document
-> that, and/or add a simple device to that example (say, an EEPROM).
+On Mon, Jun 26, 2017 at 12:44:30PM +1200, Chris Packham wrote:
+> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-Yes, good point, but the driver currently wouldn't do anything with that 
-device information. It doesn't keep a list of populated devices on the 
-bus or anything. Still worth adding them to the device tree?
+Applied to for-next, thanks!
 
-Thanks,
-Eddie
 
->
-> Cheers,
->
->
-> Jeremy
->
+--efxffvqdpbjftnss
+Content-Type: application/pgp-signature; name="signature.asc"
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSt8YACgkQFA3kzBSg
+KbadCBAAruiQUGjGeDLdUyvF8xNyQ9n8PdP1ElAWay0FMN7kMnqCdcoeNXgWhQDx
+d0TUocH3KMXNoriZxWWLewp38mfjD5Gd5KoqW8oix2IBGGbv2ZS+i2vRm0Ch8MKX
+1OXG7APLzA5Eou/SdOpI83QTrk0aCkCYMPUhtYFYCSOil0b4UWeku7s3kyAZZoYr
+Cao6NcPWZ7tAcrayLK23fXbh8kO1LPpW9OJD/GF2YtRt8foR70n15GlwPbr+DNxd
++4jSahl5mM/2aR7FRi+L6Zp2EbrWdf4i4alGrWFoWEO0V0JsPf7DSll3IJkNZ+2e
+2xfxmlbypW8P/MZQgZxG7iP5O7HslE0Oi9W0wZQhTK49p0S4dX+2tAylYoQdeMeL
+s/Doky9L0xvXPCxz0rLi8+XZksLl0fZ4hCizDRD1MUyWDZ56s69OZzv0mxLZ0gjf
+cBj+4vZewpHFukFe0dcHDHrVh3YiBX2BfuW/w04ss0iIEyijyanJe67UyOCCImR3
+kMuALdcx1SEwmHd2jjnvWHdpBIZsk1TjItfR5x3S+YC8gMKL1tPn7di+KkCmFucj
+2728Xf079zO9zhsr6OMekaxN9jdYSwop69eSbxrlhurNUomlfdffltxqljXlUUyH
+Ox4gkk5y3QAZ4Mx1LQPbLOOv5sOgS7MG8loc2gltdKsPRJ80BbU=
+=yulN
+-----END PGP SIGNATURE-----
+
+--efxffvqdpbjftnss--
