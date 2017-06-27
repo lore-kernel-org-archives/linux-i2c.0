@@ -1,55 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 5/5] i2c: pca-platform: use dev_warn/dev_info instead
- of printk
-Date: Tue, 27 Jun 2017 21:55:54 +0200
-Message-ID: <20170627195554.fdjvuzhzziuxxu3s@ninjato>
-References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-6-chris.packham@alliedtelesis.co.nz>
+Subject: Re: [PATCH] i2c: zx2967: drop COMPILE_TEST dependency
+Date: Tue, 27 Jun 2017 21:59:05 +0200
+Message-ID: <20170627195905.zpirzdx7f22dj4ww@ninjato>
+References: <1498314326-16121-1-git-send-email-shawnguo@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="uodou2gg75imjjyc"
+        protocol="application/pgp-signature"; boundary="a5fodzea37pfyfvr"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54159 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:54171 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753445AbdF0Tz4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 27 Jun 2017 15:55:56 -0400
+        id S1753587AbdF0T7H (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 27 Jun 2017 15:59:07 -0400
 Content-Disposition: inline
-In-Reply-To: <20170626004434.2757-6-chris.packham@alliedtelesis.co.nz>
+In-Reply-To: <1498314326-16121-1-git-send-email-shawnguo@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Shawn Guo <shawnguo@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>
 
 
---uodou2gg75imjjyc
+--a5fodzea37pfyfvr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 26, 2017 at 12:44:34PM +1200, Chris Packham wrote:
-> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+On Sat, Jun 24, 2017 at 10:25:26PM +0800, Shawn Guo wrote:
+> From: Shawn Guo <shawn.guo@linaro.org>
+>=20
+> 0-DAY kernel test reports the following build issue on IA64 architecture
+> with allmodconfig.
+>=20
+>    drivers/i2c/busses/i2c-zx2967.c: In function 'zx2967_i2c_writesb':
+> >> drivers/i2c/busses/i2c-zx2967.c:87:2: error: implicit declaration of f=
+unction 'writesb' [-Werror=3Dimplicit-function-declaration]
+>      writesb(i2c->reg_base + reg, data, len);
+>      ^~~~~~~
+>    drivers/i2c/busses/i2c-zx2967.c: In function 'zx2967_i2c_readsb':
+> >> drivers/i2c/busses/i2c-zx2967.c:93:2: error: implicit declaration of f=
+unction 'readsb' [-Werror=3Dimplicit-function-declaration]
+>      readsb(i2c->reg_base + reg, data, len);
+>      ^~~~~~
+>    cc1: some warnings being treated as errors
+>=20
+> It's caused by that writesb/readsb are unavailable on IA64 architecture.
+> Let's drop COMPILE_TEST dependency to avoid the build issue.
+>=20
+> Reported-by: kbuild test robot <fengguang.wu@intel.com>
+> Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
 
 Applied to for-next, thanks!
 
 
---uodou2gg75imjjyc
+--a5fodzea37pfyfvr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSuEoACgkQFA3kzBSg
-KbYP6Q//X0NNOKNiL0At0yNORWfpXwugkxWKaEFXD5u21MrZNiA0iB9rKn5Z5kVE
-E2R+xoYyuORQW3YKa2iWIC96Ps731+Zyl1oBsMMKe2zRSqpnmAmXgdcaLJu+5ZnZ
-ZXSwlP/iRWpRU9qlNq//Qhyf+0fsiGpBFb6nQP0lDZsUXAJsG5oU5z68WhHWtxio
-gGJIkQo/Xy3Dqfni1+kdASbedT06fFer8tF+oaxt1oBqHei5jsvzOhiOLlr8yZVF
-VN+6gkj8045ZAnhojtrG+jnQBIe58Cc32k/Q7WRRDwdYQc5EqGDgWiIREoXBTe0B
-RRpYz+3WRqlZUfKb/hCP5yMdIsVwBDrl5PyVr1VA9qBSP2HVWIHTjwp5nxwjSih1
-Nx9nt95aYvNzLd3umjdKVkCIlZS6gd3XSyT1UQm4LjU+Eo7x+Vjt0kXZUrHmLsit
-PvpdKzAvYEY1b4P+6gykHEUhR7I6UUqxLkRp2Kmp/24X3UJ6nBep4H2lrgKVIIwE
-Gly6F+VMzG/YMBsKSJb8pZuhjDsfD/s7lDCt2W4W36WmqhKyygzm7eyH4EMwwa9G
-FgmnJuOoXWlt3f4CuAgoeFK0O5TGKsgTztGAKPBbKR6AIiXlFkCX0wHjVlGxfQuQ
-8u4cBjM5rrYfKUDoqKwn8xQhaitg/t1YGdh0zwCbU07jVP7k0mE=
-=Zvzq
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSuQkACgkQFA3kzBSg
+KbYYCQ/+NGYCQo2tZ9JCxLFMlpyeBKDlXxtW9TFBqiSsrLAZsRc2VI8MuVllTDHe
+mqxAU/0evYAJwmhFfoNePVvaDzm2P02HKthDBpVlmCW1JKtn2KsIqq9jCkgoDpkO
+sLAz53ehr7f9yH/xv+vC4yaZml7/87Q51lQ8NdWln6GSoxyqDhXgNi9WHLwgpsTG
+0f+0fQgj+5eWvhy74E+BpMKsdrj/NXe88Q/OqgWknZnM/havcyqSXf2P55ekkzag
+BrBr2lJbyInc2VbM0HM5neI1n/PdMnBYBOhGJu/LklwpRCdP4tPlDK66+2ktBtQF
+JuLhnpnxA6Gwvd616WY1/Tv6Kaxwg50rXZclqNpeUOqA6KkB7RrZGU4eJIB7zfab
+ii1z9G72fDFs9Q04ufLo9W0cVxi8oim/S2MfV96MTzkH3/MAEpYqD3d6uUTGvft9
+0mrBPZbi6nSWmvZ8Fp52EC+HJ9208HlVNXP4EUrpxHUutCuLyVAO/vmhm3PK3+h2
+KXGi73RL4Jrpsd5Ku0QZ0HAycfLHrECFZBmLW0VT/bRi9SrSKrhfWZiYz7KhsWyP
+ws85Vuf+SkJxT4xh/MU9gijcsusDAuKmL7kXwfd7FAyQZQQ8Nt28IgESTRmym4XR
+CQ+lLepWEqaYrjbowU2Y/xJH1Hj9yqiP1l+mRoGNXc/yfJWFClA=
+=r9jc
 -----END PGP SIGNATURE-----
 
---uodou2gg75imjjyc--
+--a5fodzea37pfyfvr--
