@@ -1,54 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/5] dt-bindings: add bindings for i2c-pca-platform
-Date: Tue, 27 Jun 2017 21:53:42 +0200
-Message-ID: <20170627195342.p2e7wx7lv5v6emhw@ninjato>
+Subject: Re: [PATCH v3 2/5] i2c: pca-platform: switch to struct gpio_desc
+Date: Tue, 27 Jun 2017 21:53:50 +0200
+Message-ID: <20170627195350.jszt3hzxky6cktg6@ninjato>
 References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
  <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-2-chris.packham@alliedtelesis.co.nz>
+ <20170626004434.2757-3-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="efxffvqdpbjftnss"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54127 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752814AbdF0Txq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 27 Jun 2017 15:53:46 -0400
+        protocol="application/pgp-signature"; boundary="a3luhuozddwyuh6g"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170626004434.2757-2-chris.packham@alliedtelesis.co.nz>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <20170626004434.2757-3-chris.packham@alliedtelesis.co.nz>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 
---efxffvqdpbjftnss
+--a3luhuozddwyuh6g
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 26, 2017 at 12:44:30PM +1200, Chris Packham wrote:
+On Mon, Jun 26, 2017 at 12:44:31PM +1200, Chris Packham wrote:
+> Make use of struct gpio_desc which allows us to specify the active state
+> of the reset pin.
+>=20
 > Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
 Applied to for-next, thanks!
 
 
---efxffvqdpbjftnss
+--a3luhuozddwyuh6g
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSt8YACgkQFA3kzBSg
-KbadCBAAruiQUGjGeDLdUyvF8xNyQ9n8PdP1ElAWay0FMN7kMnqCdcoeNXgWhQDx
-d0TUocH3KMXNoriZxWWLewp38mfjD5Gd5KoqW8oix2IBGGbv2ZS+i2vRm0Ch8MKX
-1OXG7APLzA5Eou/SdOpI83QTrk0aCkCYMPUhtYFYCSOil0b4UWeku7s3kyAZZoYr
-Cao6NcPWZ7tAcrayLK23fXbh8kO1LPpW9OJD/GF2YtRt8foR70n15GlwPbr+DNxd
-+4jSahl5mM/2aR7FRi+L6Zp2EbrWdf4i4alGrWFoWEO0V0JsPf7DSll3IJkNZ+2e
-2xfxmlbypW8P/MZQgZxG7iP5O7HslE0Oi9W0wZQhTK49p0S4dX+2tAylYoQdeMeL
-s/Doky9L0xvXPCxz0rLi8+XZksLl0fZ4hCizDRD1MUyWDZ56s69OZzv0mxLZ0gjf
-cBj+4vZewpHFukFe0dcHDHrVh3YiBX2BfuW/w04ss0iIEyijyanJe67UyOCCImR3
-kMuALdcx1SEwmHd2jjnvWHdpBIZsk1TjItfR5x3S+YC8gMKL1tPn7di+KkCmFucj
-2728Xf079zO9zhsr6OMekaxN9jdYSwop69eSbxrlhurNUomlfdffltxqljXlUUyH
-Ox4gkk5y3QAZ4Mx1LQPbLOOv5sOgS7MG8loc2gltdKsPRJ80BbU=
-=yulN
+iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllSt84ACgkQFA3kzBSg
+KbbmZg/4uvPw3zHRy6BP0OUdf08kEWHT5IFsxBaQb4Ou5bgnwCEVrF7fVU+mgCNS
+yn3mFN2NweJ9UrOYbL+2BjYsPGU7NJG8baB+oOPZz5DQn53ahYcy00OPyq4/MtBq
+hnpZKTIkx3icITlo6HfPuDkA0alZ0IksWd0xQda7eqkbzrcuhQvyUNrUaolP2LWB
+0Ysywgx0zAH814xcnPyddtLgH3X6XWynIoytkpbin2rbJLNyJuVEw4AKwFsleK0R
+kDxum7wO7NkT92E10YjjlHZ/KqxkPs7BJVn1naHluwWEp/ctjkwtG/AJ64GvS+HE
++7E2zVjRgkjhwzBFWpNZgMfMIV8I7T9lg7LhKEMo2xF6L2/9YTSjtLhInFWoYsA+
+U3yRPeWl8huDG7iPNDT3C9Jgt4J76Jnez05JULlP0lAFfmx2sQ3hTdUPjJVB6zm9
+m9eSMHzggt7D4+RrCrp1qBaRaCPEfK/h4fhx1m02Ee1RkYVPbOV8YhedoC+CzJKC
+DnPrRPuKCFfK0AzLt9noWP0cO5uVgCTF/Lw4O1fiVnfi4tpaKQPugzPe4G2Deg16
+6WZoF9SFD6nEVXnFjgn4bJDDHu7TWtnJidGXk1l6Yx65qsRiG1MsQHztsVVvDSy7
+iYBtMlFqnVkZwY7ztbwZqedWZFrfQN1G+PnBItbq6VPqo1DC6A==
+=dXSp
 -----END PGP SIGNATURE-----
 
---efxffvqdpbjftnss--
+--a3luhuozddwyuh6g--
