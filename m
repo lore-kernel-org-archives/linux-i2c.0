@@ -1,45 +1,43 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 1/9] i2c: designware: Fix system suspend
-Date: Tue, 27 Jun 2017 10:55:12 +0300
-Message-ID: <a7881812-0da6-478c-7eed-faf8a6e30891@linux.intel.com>
-References: <1498072888-14782-1-git-send-email-ulf.hansson@linaro.org>
- <1498072888-14782-2-git-send-email-ulf.hansson@linaro.org>
- <CAJZ5v0iYwPE8rpn=aZ9n6LV-qbAK3kynRqVZ7xxuB+gYar_fyg@mail.gmail.com>
- <20170622104933.GY629@lahna.fi.intel.com>
- <5540bae1-b1bf-0e15-1fa0-977076fa0753@linux.intel.com>
+From: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: Add Spreadtrum I2C controller
+ documentation
+Date: Tue, 27 Jun 2017 16:00:02 +0800
+Message-ID: <20170627080002.GA32447@spreadtrum.com>
+References: <2083c9d6e96a72f9c1324c8a277acfd780a34094.1498472593.git.baolin.wang@spreadtrum.com>
+ <CAL_JsqL5GcMAvO0-TLHqq5ho9bN_Xs45DWj8dtKRf-t_mr0n0g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <5540bae1-b1bf-0e15-1fa0-977076fa0753@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, stable@vger.linux.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAL_JsqL5GcMAvO0-TLHqq5ho9bN_Xs45DWj8dtKRf-t_mr0n0g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/22/2017 02:16 PM, Jarkko Nikula wrote:
-> On 06/22/2017 01:49 PM, Mika Westerberg wrote:
->> On Thu, Jun 22, 2017 at 01:31:51AM +0200, Rafael J. Wysocki wrote:
->>> On Wed, Jun 21, 2017 at 9:21 PM, Ulf Hansson <ulf.hansson@linaro.org>
->>> wrote:
->> Thanks Ulf for taking care of this!
->>
-> Indeed!
->
->> I tested this series on Dell XPS 9350 which has touch panel connected to
->> I2C and suspend/resume still works fine and I can see the controller
->> going to D3 when the touch panel is idle.
->>
->> I can perform more comprehensive testing next week.
->>
-> Unfortunately I'm seeing interrupt storm during suspend/resume on
-> platform using PM domain from drivers/acpi/acpi_lpss.c straight after
-> this patch. Maybe some timing related as I see it only if I have debug
-> messages on (i2c_designware_core.dyndbg=+p). But it occurs only after
-> this patch.
->
-Sorry the noise, this was bogus. That platform is doing this interrupt 
-storm randomly and it occurs also without the patch.
+On 一,  6月 26, 2017 at 09:05:39上午 -0500, Rob Herring wrote:
+> On Mon, Jun 26, 2017 at 5:28 AM, Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org> wrote:
+> > This patch adds the binding documentation for Spreadtrum I2C
+> > controller device.
+> >
+> > Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+> > ---
+> > Changes since v2:
+> >  - Change compatible strings to be SoC specific.
+> >
+> > Changes since v1:
+> >  - No updates.
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-sprd.txt |   31 ++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sprd.txt
+> 
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
--- 
-Jarkko
+Thanks Rob.
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
