@@ -1,59 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v11 3/4] i2c: aspeed: added driver for Aspeed I2C
-Date: Wed, 28 Jun 2017 09:45:15 +0200
-Message-ID: <20170628074515.GA1550@katana>
-References: <20170620211516.13095-1-brendanhiggins@google.com>
- <20170620211516.13095-4-brendanhiggins@google.com>
- <20170623184305.xqqhjgrbdmgk6lsr@ninjato>
- <CAFd5g45=O2_MgfZEkmbY-=ZZY+izxeWSuhZT+B2e08P=O+WEog@mail.gmail.com>
- <20170627090042.GA2408@katana>
- <CAFd5g449iu6DGvMuP8-n8C6GBbr62G6_ZYS6Lh9038EB0XO9YA@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v3 3/5] i2c: pca-platform: add devicetree awareness
+Date: Wed, 28 Jun 2017 12:20:41 +0300
+Message-ID: <CAHp75VeFUZzj00i9oSSanudPVzd61XFRkQ9Uz72r05EqdHNdxg@mail.gmail.com>
+References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
+ <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz> <20170626004434.2757-4-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAFd5g449iu6DGvMuP8-n8C6GBbr62G6_ZYS6Lh9038EB0XO9YA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S . Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f182.google.com ([209.85.216.182]:36665 "EHLO
+        mail-qt0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751495AbdF1JUn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Jun 2017 05:20:43 -0400
+In-Reply-To: <20170626004434.2757-4-chris.packham@alliedtelesis.co.nz>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+On Mon, Jun 26, 2017 at 3:44 AM, Chris Packham
+<chris.packham@alliedtelesis.co.nz> wrote:
+> Allow devices that use this driver to be registered via a
+> devicetree.
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Device Tree
 
+Wolfram was being a bit faster to apply it...
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
 
-> the struct i2c_bus_recovery_info. Is i2c_generic_scl_recovery supposed
-> to be part of the user interface, or is it just intended to help put the
-> main recovery function together?
+> +       struct device_node *np = pdev->dev.of_node;
 
-Sorry, I don't understand the question. What do you mean?
+>         /* If irq is 0, we do polling. */
+> +       if (irq < 0)
+> +               irq = 0;
 
+This does not belong to what is written in commit message. Looks like
+a separate fix.
 
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature; name="signature.asc"
+> +       i2c->adap.dev.of_node = np;
 
------BEGIN PGP SIGNATURE-----
+> +       } else if (np) {
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllTXocACgkQFA3kzBSg
-Kbaeeg//SPK9le+UeP5TF7ffb7my1IPiug4r8BHGZncLLQyS/FLmCp8yai5KpYWV
-oGFWrBnfnc/9kaHkrBXeyooCdyHKxIvYVarWiIoQsidM0Q9j4AD5J7edB9T31rGh
-2PJvhLt5tKKK3G/W73rWa2a+SR2fRPbMKGnJffJjJaUXoVMtzO/b/gBrkuWJTTie
-0UUlYm8TRDSW8IqtAJSxM10gU7a4lV5z9GGPrW+TmPm8/ezcqNjCZ483S+5+5izQ
-vEtPJXIbeAxZcOGb0NhLmJVE6SQnh7aYBIMGpgbXzSuTEQzL20e+RuBUEJUOI9vP
-C5kekSZzZHq7bTXg4pd1znCAnwTTvRb/OasqaeUZyj14N9LNWsDdZku3apLMauPU
-nnsfdmihimfbcECcaaxXMkSTVzP00Biw7Pn+Wtu6H8ESnuswy0YrSq+16C0SR1E9
-L5Wwvy5yyGGk2QCMpqgFfiCoRCgLhuHwN86qx1XTBBTe62PNqBiQIvn44pPykLQU
-Uoj5azB2xM956j0bzTxN8AXcWUDPTRABe9HkG027KsEqgqisgOq7dmEG2rBcx2jE
-cW2yCb+LawJQiR2XcSB6wen1dpYCOeQesDx8fSd3WLyy8Ln8aB1ftPT++Y3qmJG2
-KkskjrjWfpEDa6fi3xBbrcQ+F95pBZNv2PDS0bCAZ81rCtq01i4=
-=yvxZ
------END PGP SIGNATURE-----
+> +               i2c->adap.timeout = HZ;
+> +               i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
+> +               if (IS_ERR(i2c->gpio))
+> +                       return PTR_ERR(i2c->gpio);
+> +               of_property_read_u32_index(np, "clock-frequency", 0,
+> +                                          &i2c->algo_data.i2c_clock);
 
---u3/rZRmxL6MmkK24--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+And what prevents you to use device_property_read_*() here and get rid
+of OFstuff?
+
+> +#ifdef CONFIG_OF
+
+Better not to put it...
+
+> +               .of_match_table = of_match_ptr(i2c_pca_of_match_table),
+
+...and get rid of of_match_ptr().
+
+-- 
+With Best Regards,
+Andy Shevchenko
