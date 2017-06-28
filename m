@@ -1,44 +1,82 @@
-From: Jeremy Kerr <jk@ozlabs.org>
-Subject: Re: [PATCH 6/6] Documentation/devicetree: Add FSI-attached I2C master
- dt bindings
-Date: Wed, 28 Jun 2017 11:08:17 +0800
-Message-ID: <bcd64ad6-2cb0-b3ba-b577-2fabf253084b@ozlabs.org>
-References: <1498505375-1454-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1498505375-1454-7-git-send-email-eajames@linux.vnet.ibm.com>
- <ec4a5fec-fea0-09a7-8559-99d8eb071093@ozlabs.org>
- <901bb9e4-a7b1-ce24-c68b-d96b61e1b274@linux.vnet.ibm.com>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v7 05/10] i2c: core: call of_i2c_setup_smbus_alert in
+ i2c_register_adapter
+Date: Wed, 28 Jun 2017 14:44:23 +0800
+Message-ID: <367a1a1d-afdb-8895-8216-ae3c18e16fc8@electromag.com.au>
+References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
+ <1497535178-12001-6-git-send-email-preid@electromag.com.au>
+ <20170619152811.svoxmxybyoy6l4hc@ninjato>
+ <20170623121923.GN26073@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ozlabs.org ([103.22.144.67]:50395 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752010AbdF1DIV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 27 Jun 2017 23:08:21 -0400
-In-Reply-To: <901bb9e4-a7b1-ce24-c68b-d96b61e1b274@linux.vnet.ibm.com>
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:40048 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751225AbdF1Gob (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Jun 2017 02:44:31 -0400
+In-Reply-To: <20170623121923.GN26073@mail.corp.redhat.com>
 Content-Language: en-AU
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, gregkh@linuxfoundation.org, joel@jms.id.au, andrew@aj.id.au, "Edward A. James" <eajames@us.ibm.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
-Hi Eddie,
-
->> Those child nodes represent the downstream i2c buses, and so also
->> contain the i2c slave devices, right? If so, you may want to document
->> that, and/or add a simple device to that example (say, an EEPROM).
+On 23/06/2017 20:19, Benjamin Tissoires wrote:
+> On Jun 19 2017 or thereabouts, Wolfram Sang wrote:
+>> On Thu, Jun 15, 2017 at 09:59:33PM +0800, Phil Reid wrote:
+>>> Add a call to of_i2c_setup_smbus_alert when a i2c adapter is registered
+>>> so the the smbalert driver can be registered.
+>>>
+>>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>>
+>> CCing Benjamin
+>>
+>>> ---
+>>>   drivers/i2c/i2c-core.c | 4 ++++
+>>>   1 file changed, 4 insertions(+)
+>>>
+>>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>>> index d2402bb..626471b 100644
+>>> --- a/drivers/i2c/i2c-core.c
+>>> +++ b/drivers/i2c/i2c-core.c
+>>> @@ -40,6 +40,7 @@
+>>>   #include <linux/gpio.h>
+>>>   #include <linux/hardirq.h>
+>>>   #include <linux/i2c.h>
+>>> +#include <linux/i2c-smbus.h>
+>>>   #include <linux/idr.h>
+>>>   #include <linux/init.h>
+>>>   #include <linux/irqflags.h>
+>>> @@ -2045,6 +2046,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>>>   		dev_warn(&adap->dev,
+>>>   			 "Failed to create compatibility class link\n");
+>>>   #endif
+>>> +	res = of_i2c_setup_smbus_alert(adap);
+>>> +	if (res)
+>>> +		goto out_list;
 > 
-> Yes, good point, but the driver currently wouldn't do anything with that
-> device information. It doesn't keep a list of populated devices on the
-> bus or anything. Still worth adding them to the device tree?
+> See my concerns in patch 4/10.
+> 
+> In addition, shouldn't this be placed before device_register() for the
+> least? pm_runtime_enable() would require a matching pm_runtime_disable(),
+> and device_register() some unregistering behavior too.
+> 
 
-Surely the i2c core needs this to be able to find i2c slave devices on
-the bus though?
+G'day Ben,
 
-[You'll need to set i2c_adapter->dev.of_node for this to work though,
-which I don't think you are with the current patch set]
+Thanks for the review.
+Yes this makes sense. I tried having it before the device_register and I get an error
+about a kobject not being initialised in the a call from of_i2c_setup_smbus_alert.
 
-Cheers,
+Having a look at what I'm doing in of_i2c_setup_smbus_alert now I'm not sure there's
+a need to bail out on an error now. Originally I was registering the irq in the setup call.
+Which need to handle probe defer. Now this should be handled in the alert probe call.
+
+WDYR?
 
 
-Jeremy
+
+-- 
+Regards
+Phil Reid
