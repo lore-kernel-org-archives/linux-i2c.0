@@ -1,165 +1,59 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v7 04/10] i2c: i2c-smbus: add of_i2c_setup_smbus_alert
-Date: Wed, 28 Jun 2017 14:48:07 +0800
-Message-ID: <96160849-c1c7-afdd-8f9f-c9269f66efb2@electromag.com.au>
-References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
- <1497535178-12001-5-git-send-email-preid@electromag.com.au>
- <20170619152744.4gtlyrwdhjbhy562@ninjato>
- <20170623121552.GM26073@mail.corp.redhat.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v11 3/4] i2c: aspeed: added driver for Aspeed I2C
+Date: Wed, 28 Jun 2017 09:45:15 +0200
+Message-ID: <20170628074515.GA1550@katana>
+References: <20170620211516.13095-1-brendanhiggins@google.com>
+ <20170620211516.13095-4-brendanhiggins@google.com>
+ <20170623184305.xqqhjgrbdmgk6lsr@ninjato>
+ <CAFd5g45=O2_MgfZEkmbY-=ZZY+izxeWSuhZT+B2e08P=O+WEog@mail.gmail.com>
+ <20170627090042.GA2408@katana>
+ <CAFd5g449iu6DGvMuP8-n8C6GBbr62G6_ZYS6Lh9038EB0XO9YA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:42422 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751479AbdF1GsL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Jun 2017 02:48:11 -0400
-In-Reply-To: <20170623121552.GM26073@mail.corp.redhat.com>
-Content-Language: en-AU
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAFd5g449iu6DGvMuP8-n8C6GBbr62G6_ZYS6Lh9038EB0XO9YA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S . Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
-
-On 23/06/2017 20:15, Benjamin Tissoires wrote:
-> On Jun 19 2017 or thereabouts, Wolfram Sang wrote:
->> On Thu, Jun 15, 2017 at 09:59:32PM +0800, Phil Reid wrote:
->>> This commit adds of_i2c_setup_smbus_alert which allows the smbalert
->>> driver to be attached to an i2c adapter via the device tree.
->>>
->>> Signed-off-by: Phil Reid <preid@electromag.com.au>
->>> Acked-by: Rob Herring <robh@kernel.org>
->>
->> CCing Benjamin
->>
->>> ---
->>>   Documentation/devicetree/bindings/i2c/i2c.txt |  4 ++--
->>>   drivers/i2c/i2c-smbus.c                       | 34 ++++++++++++++++++++++++---
->>>   include/linux/i2c-smbus.h                     |  9 +++++++
->>>   3 files changed, 42 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
->>> index cee9d50..1126398 100644
->>> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
->>> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
->>> @@ -59,8 +59,8 @@ wants to support one of the below features, it should adapt the bindings below.
->>>   	interrupts used by the device.
->>>   
->>>   - interrupt-names
->>> -	"irq" and "wakeup" names are recognized by I2C core, other names are
->>> -	left to individual drivers.
->>> +	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
->>> +	other names are	left to individual drivers.
->>>   
->>>   - host-notify
->>>   	device uses SMBus host notify protocol instead of interrupt line.
->>> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
->>> index d4af270..0ad7f7f 100644
->>> --- a/drivers/i2c/i2c-smbus.c
->>> +++ b/drivers/i2c/i2c-smbus.c
->>> @@ -21,6 +21,7 @@
->>>   #include <linux/interrupt.h>
->>>   #include <linux/kernel.h>
->>>   #include <linux/module.h>
->>> +#include <linux/of_irq.h>
->>>   #include <linux/slab.h>
->>>   #include <linux/workqueue.h>
->>>   
->>> @@ -131,7 +132,7 @@ static int smbalert_probe(struct i2c_client *ara,
->>>   {
->>>   	struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
->>>   	struct i2c_smbus_alert *alert;
->>> -	struct i2c_adapter *adapter = ara->adapter;
->>> +	struct i2c_adapter *adap = ara->adapter;
-> 
-> I am not a big fan of this rename (even for consistency with the rest of
-> the file). It makes the patch bigger of 2 hunks for nothing :/
-> 
-> (Wolfram might have a different opinion)
-
-Fair enough I'll remove the rename.
-
-> 
->>>   	int res, irq;
->>>   
->>>   	alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
->>> @@ -139,7 +140,14 @@ static int smbalert_probe(struct i2c_client *ara,
->>>   	if (!alert)
->>>   		return -ENOMEM;
->>>   
->>> -	irq = setup->irq;
->>> +	if (setup) {
->>> +		irq = setup->irq;
->>> +	} else {
->>> +		irq = of_irq_get_byname(adap->dev.of_node, "smbus_alert");
->>> +		if (irq <= 0)
->>> +			return irq;
->>> +	}
->>> +
->>>   	INIT_WORK(&alert->alert, smbalert_work);
->>>   	alert->ara = ara;
->>>   
->>> @@ -153,7 +161,7 @@ static int smbalert_probe(struct i2c_client *ara,
->>>   	}
->>>   
->>>   	i2c_set_clientdata(ara, alert);
->>> -	dev_info(&adapter->dev, "supports SMBALERT#\n");
->>> +	dev_info(&adap->dev, "supports SMBALERT#\n");
->>>   
->>>   	return 0;
->>>   }
->>> @@ -214,6 +222,26 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
->>>   }
->>>   EXPORT_SYMBOL_GPL(i2c_setup_smbus_alert);
->>>   
->>> +int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
->>> +{
->>> +	struct i2c_client *client;
->>> +	int irq;
->>> +
->>> +	irq = of_property_match_string(adap->dev.of_node, "interrupt-names",
->>> +				       "smbus_alert");
->>> +	if (irq == -EINVAL || irq == -ENODATA)
->>> +		return 0;
->>> +	else if (irq < 0)
->>> +		return irq;
->>> +
->>> +	client = i2c_setup_smbus_alert(adap, NULL);
->>> +	if (!client)
->>> +		return -ENODEV;
->>> +
->>> +	return 0;
->>> +}
->>> +EXPORT_SYMBOL_GPL(of_i2c_setup_smbus_alert);
->>> +
->>>   /**
->>>    * i2c_handle_smbus_alert - Handle an SMBus alert
->>>    * @ara: the ARA client on the relevant adapter
->>> diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
->>> index 19efbd1..b5261c1 100644
->>> --- a/include/linux/i2c-smbus.h
->>> +++ b/include/linux/i2c-smbus.h
->>> @@ -49,4 +49,13 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
->>>   					 struct i2c_smbus_alert_setup *setup);
->>>   int i2c_handle_smbus_alert(struct i2c_client *ara);
->>>   
->>> +#if IS_ENABLED(CONFIG_I2C_SMBUS)
-> 
-> Can't we have:
-> #if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(*whatever OF config symbol is*)
-> 
-> Because otherwise, even if the code works from what I understand, we
-> will pull in i2c-smbus from i2c-core all the time.
-
-Sorry I'm lost here.
-CONFIG_I2C_SMBUS looks to the be symbol that enables i2c-smbus in the makefile.
-I thought this would be enough to keep it out of the core.
 
 
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+> the struct i2c_bus_recovery_info. Is i2c_generic_scl_recovery supposed
+> to be part of the user interface, or is it just intended to help put the
+> main recovery function together?
+
+Sorry, I don't understand the question. What do you mean?
 
 
--- 
-Regards
-Phil Reid
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllTXocACgkQFA3kzBSg
+Kbaeeg//SPK9le+UeP5TF7ffb7my1IPiug4r8BHGZncLLQyS/FLmCp8yai5KpYWV
+oGFWrBnfnc/9kaHkrBXeyooCdyHKxIvYVarWiIoQsidM0Q9j4AD5J7edB9T31rGh
+2PJvhLt5tKKK3G/W73rWa2a+SR2fRPbMKGnJffJjJaUXoVMtzO/b/gBrkuWJTTie
+0UUlYm8TRDSW8IqtAJSxM10gU7a4lV5z9GGPrW+TmPm8/ezcqNjCZ483S+5+5izQ
+vEtPJXIbeAxZcOGb0NhLmJVE6SQnh7aYBIMGpgbXzSuTEQzL20e+RuBUEJUOI9vP
+C5kekSZzZHq7bTXg4pd1znCAnwTTvRb/OasqaeUZyj14N9LNWsDdZku3apLMauPU
+nnsfdmihimfbcECcaaxXMkSTVzP00Biw7Pn+Wtu6H8ESnuswy0YrSq+16C0SR1E9
+L5Wwvy5yyGGk2QCMpqgFfiCoRCgLhuHwN86qx1XTBBTe62PNqBiQIvn44pPykLQU
+Uoj5azB2xM956j0bzTxN8AXcWUDPTRABe9HkG027KsEqgqisgOq7dmEG2rBcx2jE
+cW2yCb+LawJQiR2XcSB6wen1dpYCOeQesDx8fSd3WLyy8Ln8aB1ftPT++Y3qmJG2
+KkskjrjWfpEDa6fi3xBbrcQ+F95pBZNv2PDS0bCAZ81rCtq01i4=
+=yvxZ
+-----END PGP SIGNATURE-----
+
+--u3/rZRmxL6MmkK24--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
