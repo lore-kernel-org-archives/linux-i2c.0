@@ -1,17 +1,17 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3 4/5] i2c: pca-platform: use device managed allocations
-Date: Wed, 28 Jun 2017 12:23:00 +0300
-Message-ID: <CAHp75VfE=gCO3EDvadxar=qdnqMHKAZg2TSvXBtYebx+Y_agEw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/5] i2c: pca-platform: switch to struct gpio_desc
+Date: Wed, 28 Jun 2017 12:25:39 +0300
+Message-ID: <CAHp75VeoJeq0Xjsu76gfZcpgULMO0krnETMwydx9C_4LbWdNXQ@mail.gmail.com>
 References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz> <20170626004434.2757-5-chris.packham@alliedtelesis.co.nz>
+ <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz> <20170626004434.2757-3-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f174.google.com ([209.85.220.174]:33503 "EHLO
-        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751626AbdF1JXB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Jun 2017 05:23:01 -0400
-In-Reply-To: <20170626004434.2757-5-chris.packham@alliedtelesis.co.nz>
+Received: from mail-qk0-f181.google.com ([209.85.220.181]:35760 "EHLO
+        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751261AbdF1JZk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 28 Jun 2017 05:25:40 -0400
+In-Reply-To: <20170626004434.2757-3-chris.packham@alliedtelesis.co.nz>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>
@@ -19,16 +19,23 @@ Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux-i2
 
 On Mon, Jun 26, 2017 at 3:44 AM, Chris Packham
 <chris.packham@alliedtelesis.co.nz> wrote:
-> Switch to using the devm_ APIs and remove the now unnecessary error
-> handling and most of the device removal code.
+> Make use of struct gpio_desc which allows us to specify the active state
+> of the reset pin.
 
+> +               if (gpio_is_valid(platform_data->gpio)) {
 
->         if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {
-> -               ret = -ENODEV;
-> -               goto e_adapt;
-> +               return -ENODEV;
+No way, it should be provided by GPIO lookup table.
 
-This is still shadows the actual error code.
+> +                       ret = devm_gpio_request_one(&pdev->dev,
+> +                                                   platform_data->gpio,
+> +                                                   GPIOF_ACTIVE_LOW,
+> +                                                   i2c->adap.name);
+> +                       if (ret == 0) {
+> +                               i2c->gpio = gpio_to_desc(platform_data->gpio);
+
+This has to be devm_gpiod_get() instead.
+
+Wolfram, I suggested to drop the series for now and wait for improvements.
 
 -- 
 With Best Regards,
