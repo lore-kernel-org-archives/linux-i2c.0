@@ -1,63 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 5/5] i2c: pca-platform: use dev_warn/dev_info instead
- of printk
-Date: Wed, 28 Jun 2017 14:01:08 +0200
-Message-ID: <20170628120108.GA2782@katana>
-References: <20170620011837.14010-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-1-chris.packham@alliedtelesis.co.nz>
- <20170626004434.2757-6-chris.packham@alliedtelesis.co.nz>
- <CAHp75Ve-JFBMofDwoKKENL-AggXqMpKd7CbRZwJuPKWML13apA@mail.gmail.com>
- <20170628093717.wryvtbsxisilo3a2@ninjato>
- <CAHp75VcSe641XecqUMCHgrDo9=iQgX-Ywt6TQBbTC5RvRD3rEg@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v7 04/10] i2c: i2c-smbus: add of_i2c_setup_smbus_alert
+Date: Wed, 28 Jun 2017 14:42:37 +0200
+Message-ID: <20170628124237.GE26073@mail.corp.redhat.com>
+References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
+ <1497535178-12001-5-git-send-email-preid@electromag.com.au>
+ <20170619152744.4gtlyrwdhjbhy562@ninjato>
+ <20170623121552.GM26073@mail.corp.redhat.com>
+ <96160849-c1c7-afdd-8f9f-c9269f66efb2@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:32844 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751489AbdF1Mmr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 28 Jun 2017 08:42:47 -0400
 Content-Disposition: inline
-In-Reply-To: <CAHp75VcSe641XecqUMCHgrDo9=iQgX-Ywt6TQBbTC5RvRD3rEg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <96160849-c1c7-afdd-8f9f-c9269f66efb2@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
+On Jun 28 2017 or thereabouts, Phil Reid wrote:
+> > > > diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+> > > > index 19efbd1..b5261c1 100644
+> > > > --- a/include/linux/i2c-smbus.h
+> > > > +++ b/include/linux/i2c-smbus.h
+> > > > @@ -49,4 +49,13 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+> > > >   					 struct i2c_smbus_alert_setup *setup);
+> > > >   int i2c_handle_smbus_alert(struct i2c_client *ara);
+> > > > +#if IS_ENABLED(CONFIG_I2C_SMBUS)
+> > 
+> > Can't we have:
+> > #if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(*whatever OF config symbol is*)
+> > 
+> > Because otherwise, even if the code works from what I understand, we
+> > will pull in i2c-smbus from i2c-core all the time.
+> 
+> Sorry I'm lost here.
+> CONFIG_I2C_SMBUS looks to the be symbol that enables i2c-smbus in the makefile.
+> I thought this would be enough to keep it out of the core.
+> 
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Assuming CONFIG_I2C_SMBUS is set, my concerns are regarding the fact
+that i2c-smbus.ko will now be pulled in by i2c-core.ko no matter what.
+There is nothing wrong per se in the code, just that now i2c-core
+depends on i2c_smbus given that you call i2c_setup_smbus_alert() in
+i2c-core. So that makes the whole point of having a separate module
+for i2c-smbus moot.
 
-On Wed, Jun 28, 2017 at 01:57:01PM +0300, Andy Shevchenko wrote:
-> On Wed, Jun 28, 2017 at 12:37 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >
-> >> Not a chance! Where is the commit message?
-> >
-> > Don't you think $subject is clear enough?
->=20
-> I would add the comment at least on how the output is changed since
-> pr_*("%s:"..., i2c->adap.name,...)  to dev_*(&pdev->dev, ...)
-> replacement.
+If of_i2c_setup_smbus_alert() is masked by IS_ENABLED(OF), then the call
+for i2c_setup_smbus_alert() will only be done with OF enabled, meaning
+that i2c-smbus.ko will only be pulled in by i2c-core when OF is in use.
 
-Yes, that could have been done.
+But maybe that is too much of thinking from my part :)
 
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllTmoAACgkQFA3kzBSg
-Kbby2g//a604goYvpnePxtOeWDH5IveKS9zn7xc+VVdP24VCxUSmhg2cXC4JjzU8
-BXFniIitaD2gkZJ8vOZ187lcyM9TIt+xR6FlWxe64c/y6yRWy5P9sftsQFnE4O+4
-rGEEvlPzv97JhEqu6sIaQwEiBtirfUu7w87OwYjM6b8m+nQ7J2qaBQvmZKXf0Wr3
-q58OfjVjtdE8/bqmZcZOlqndx7OJ2rclVbb+ioiFpwbU5WyVJtqFpLoz5CBOoilS
-HQWGs3fcZPhWBpqCM3vD2heZZo1w09m2nxvTMRcE+A1w4d18uxqJ7wyRo5W6rqRr
-YAdKwIZneoI/wbXdKfeWvfWZUS4rb7H9UoMHLHnfOb0PshwFInlQDG/RcDNreSxO
-ToT/3T8jNZNJH1aGlJNnXjLy5TqaBrIfkozl4U00Ro0E6HQtCxVE29fqtuOHyhPE
-4Lh7kUeCG4bQpuMa0xpygDxNcPzBP5FBn9QS7zhog8417Rj6PZ7qf3Cab5JZwDWA
-CaH4jyq4kfrGsfNIHl1/2UWLf7lMuysROB39UNLnJU5cgwfFKehm0GSHDr8J5V93
-z4z58RaqXn79XZ58b8sc9Cru+MLwT5a+zz1fG2+X6njeoxfMZsf3koUoro7ovN3s
-E+vmbcqjKwSbk2FoymqjJfqtxf/f+hrCCUSNREiYpIbLPnnAaq8=
-=FwrZ
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+Cheers,
+Benjamin
