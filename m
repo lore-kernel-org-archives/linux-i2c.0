@@ -1,33 +1,45 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH][i2c-next] i2c: designware: fix spelling mistakes
-Date: Thu, 29 Jun 2017 13:07:02 +0300
-Message-ID: <1dacc13a-f857-d017-df1c-d7ac27022990@linux.intel.com>
-References: <20170629082215.9044-1-colin.king@canonical.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 0/2] i2c: designware: Post-slave mode support patches
+Date: Thu, 29 Jun 2017 13:40:05 +0300
+Message-ID: <1498732805.22624.223.camel@linux.intel.com>
+References: <20170628142329.14818-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:33693 "EHLO mga06.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:41961 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751595AbdF2KHG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 29 Jun 2017 06:07:06 -0400
-In-Reply-To: <20170629082215.9044-1-colin.king@canonical.com>
+        id S1751703AbdF2KkK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 29 Jun 2017 06:40:10 -0400
+In-Reply-To: <20170628142329.14818-1-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Colin King <colin.king@canonical.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Luis Oliveira <lolivei@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 06/29/2017 11:22 AM, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->
-> Trivial fixes to spelling mistakes in dev_dbg message
->
-> "STAUTS" -> "STATUS"
-> "SLAVE_ACTTVITY" -> "SLAVE_ACTIVITY"
->
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/i2c/busses/i2c-designware-slave.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+On Wed, 2017-06-28 at 17:23 +0300, Jarkko Nikula wrote:
+> Hi Luis
+> 
+> I noticed couple minor things after review. Here are patches.
+> 
+
+I like the series, esp. patch 1.
+
+Reviewed-and-acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.co
+m>
+
+
+> Jarkko Nikula (2):
+>   i2c: designware: Make HW init functions static
+>   i2c: designware: Let slave adapter support be optional
+> 
+>  drivers/i2c/busses/Kconfig                 | 1 -
+>  drivers/i2c/busses/i2c-designware-core.h   | 6 ++++--
+>  drivers/i2c/busses/i2c-designware-master.c | 7 +++----
+>  drivers/i2c/busses/i2c-designware-slave.c  | 3 +--
+>  4 files changed, 8 insertions(+), 9 deletions(-)
+> 
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
