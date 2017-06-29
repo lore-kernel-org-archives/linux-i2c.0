@@ -1,45 +1,44 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 0/2] i2c: designware: Post-slave mode support patches
-Date: Thu, 29 Jun 2017 13:40:05 +0300
-Message-ID: <1498732805.22624.223.camel@linux.intel.com>
-References: <20170628142329.14818-1-jarkko.nikula@linux.intel.com>
+From: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Subject: [RFC PATCH 0/3] Add at24 functionality to read form different EEPROM offsets
+Date: Thu, 29 Jun 2017 14:39:08 +0300
+Message-ID: <1498736351-9021-1-git-send-email-claudiu.beznea@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:41961 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751703AbdF2KkK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 29 Jun 2017 06:40:10 -0400
-In-Reply-To: <20170628142329.14818-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Luis Oliveira <lolivei@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On Wed, 2017-06-28 at 17:23 +0300, Jarkko Nikula wrote:
-> Hi Luis
-> 
-> I noticed couple minor things after review. Here are patches.
-> 
+Hi all,
 
-I like the series, esp. patch 1.
+Please give feedback on the following approach to extends at24 EEPROM
+driver to support reading MAC from different addresses in EEPROM (patch
+2 and 3 from this series). This will allow the at24 driver to be used
+as a generic driver by different hardwares.
 
-Reviewed-and-acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.co
-m>
+This series also contains a patch (patch 1 from this series) which document
+all at24 EEPROM memories and it was pushed with this series because patch
+3 from the series is based on it.
 
+Thank you,
+Claudiu Beznea
 
-> Jarkko Nikula (2):
->   i2c: designware: Make HW init functions static
->   i2c: designware: Let slave adapter support be optional
-> 
->  drivers/i2c/busses/Kconfig                 | 1 -
->  drivers/i2c/busses/i2c-designware-core.h   | 6 ++++--
->  drivers/i2c/busses/i2c-designware-master.c | 7 +++----
->  drivers/i2c/busses/i2c-designware-slave.c  | 3 +--
->  4 files changed, 8 insertions(+), 9 deletions(-)
-> 
+Claudiu Beznea (3):
+  dt-bindings: i2c: eeprom: document all at24 bindings
+  drivers: misc: eeprom: at24: support reading mac eeprom from
+    different addresses
+  dt-bindings: i2c: eeprom: document "start-offset" binding
+
+ Documentation/devicetree/bindings/eeprom/eeprom.txt | 20 +++++++++++++-------
+ drivers/misc/eeprom/at24.c                          |  5 ++++-
+ include/linux/platform_data/at24.h                  |  1 +
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
