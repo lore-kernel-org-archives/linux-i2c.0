@@ -1,36 +1,79 @@
-From: WCLC@suddenlink.net
-Subject: Congratulations Lucky Winner WCL10***22
-Date: Thu, 29 Jun 2017 16:45:16 +0100
-Message-ID: <20170629154516.3576E3002647@in3web-03-03.a3.dal09.isc4sb.com>
+From: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
+Subject: Re: [RFC PATCH 2/3] drivers: misc: eeprom: at24: support reading mac
+ eeprom from different addresses
+Date: Thu, 29 Jun 2017 10:32:12 -0500
+Message-ID: <b67a323b-5562-1259-08f1-fa7ee3509e8b@lechnology.com>
+References: <1498736351-9021-1-git-send-email-claudiu.beznea@microchip.com>
+ <1498736351-9021-3-git-send-email-claudiu.beznea@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from outbound3-fall-ussl.messaging.na.collabserv.com ([169.54.241.12]:45278
-        "EHLO outbound3-fall-ussl.messaging.na.collabserv.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752777AbdF2Pu6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 29 Jun 2017 11:50:58 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1498736351-9021-3-git-send-email-claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Lucky Winner,
+On 06/29/2017 06:39 AM, Claudiu Beznea wrote:
+> Add support for reading from different offsets of EEPROM.
+> The offset is initialized via device tree. If nothing is
+> given as input the old value, 0x90, is used. In this way
+> the driver could be used as generic driver for different
+> vendor memories by only changing the reading offset via
+> device tree.
+> 
+> Signed-off-by: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+> ---
+>   drivers/misc/eeprom/at24.c         | 5 ++++-
+>   include/linux/platform_data/at24.h | 1 +
+>   2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 764ff5df..53c5fb8 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -365,7 +365,7 @@ static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
+>   	memset(msg, 0, sizeof(msg));
+>   	msg[0].addr = client->addr;
+>   	msg[0].buf = addrbuf;
+> -	addrbuf[0] = 0x90 + offset;
+> +	addrbuf[0] = at24->chip.offset + offset;
+>   	msg[0].len = 1;
+>   	msg[1].addr = client->addr;
+>   	msg[1].flags = I2C_M_RD;
+> @@ -581,6 +581,9 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+>   		 */
+>   		chip->page_size = 1;
+>   	}
+> +	err = device_property_read_u8(dev, "start-offset", &chip->offset);
 
-After a random automated selection of email addresses over the Internet, your email emerged as one of our special winners to receive $3,524,037.00 and is attached to the following details:.
+Why use u8 here? I have an at24 EEPROM that uses 16-bit addressing where 
+the MAC address is stored at 0x3F06. Seems like it would be better to 
+just use u32, then you don't have to mess with /bits/ in the device tree 
+binding.
 
-                                                                    File Category:. WCLC/111/2017.
-                                                                       Ticket Digit Code:. 11/222.
-                                                                  Reference Number:. WCL1054622.
+> +	if (err)
+> +		chip->offset = 0x90;
+>   }
+>   
+>   static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+> diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+> index 271a4e2..d55c454 100644
+> --- a/include/linux/platform_data/at24.h
+> +++ b/include/linux/platform_data/at24.h
+> @@ -50,6 +50,7 @@ struct at24_platform_data {
+>   #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+>   #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
+>   #define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
+> +	u8		offset;
+>   
+>   	void		(*setup)(struct nvmem_device *nvmem, void *context);
+>   	void		*context;
+> 
 
-To confirm the authenticity and validity of your winnings as well as to commence receipts of your entitlement, you MUST FORWARD a copy of this announcement as well as your information below:.
-
-                                                                                  FULL NAMES:.
-                                                                        VALID MOBILE/CELL NO:.
-                                                                                OCCUPATION:.
-                                                                       COUNTRY OF RESIDENCE:.
-
-
-                                                                                 Kind Regards,
-                                                                                 Micheal Poska.
-                                                               Western Canada Lottery Corporation..
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
