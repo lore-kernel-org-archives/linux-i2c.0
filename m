@@ -1,66 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/6] i2c: pca-platform: propagate error from
- i2c_pca_add_numbered_bus
-Date: Fri, 30 Jun 2017 11:01:34 +0200
-Message-ID: <20170630090133.np56eweoa62xg2ph@ninjato>
+Subject: Re: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
+Date: Fri, 30 Jun 2017 11:03:55 +0200
+Message-ID: <20170630090354.6s6ahpjhis7ptbfg@ninjato>
 References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
- <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
- <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
+ <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
+ <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7kvrtiw7xay2m3cx"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:34353 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751565AbdF3JBi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 30 Jun 2017 05:01:38 -0400
+        protocol="application/pgp-signature"; boundary="qq5nbduvabei5q57"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
 To: Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
 
---7kvrtiw7xay2m3cx
+--qq5nbduvabei5q57
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 30, 2017 at 11:40:51AM +0300, Andy Shevchenko wrote:
-> On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham
-> <chris.packham@alliedtelesis.co.nz> wrote:
-> > Rather than returning -ENODEV if i2c_pca_add_numbered_bus() fails,
-> > propagate the error to aid debugging.
-> >
->=20
-> + Suggested-by ?
->=20
-> You or Wolfram can use below if you agree on it (I'm fine either way):
->=20
-> Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-I'll pick it.
+> > -               i2c->algo_data.i2c_clock =3D 59000;
+> > +               ret =3D device_property_read_u32(&pdev->dev, "clock-fre=
+quency",
+> > +                                              &i2c->algo_data.i2c_cloc=
+k);
+> > +               if (ret)
+> > +                       i2c->algo_data.i2c_clock =3D 59000;
+>=20
+> My idea is to get rid of legacy platform data completely.
+> That's why I suggested device_* in the first place.
+>=20
+> In similar way like you did with GPIO lookup table, you may use
+> PROPERTY_ENTRY*() macros in the board files.
+>=20
+> Does it make sense?
+
+Frankly, I am not a big fan of converting board files if we cannot test
+the changes.
 
 
---7kvrtiw7xay2m3cx
+--qq5nbduvabei5q57
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllWE2oACgkQFA3kzBSg
-KbYewhAAmyur87Hbqdf5X+Wpmp2OBW6jLTsZJ5YNoOet6M9hY8FridBuz/lfz9EI
-kEsxwtSvrKubCGkkoYSs8AqidxJHJTTzrfXAXan6gMGEXwN7SY1IcLa9lG8qJLiG
-FVjYx+l3CFtqDPob4rX2gpK8UZ8uiNMbf2sLijB6SgQ9t4FlQylwPOpcrlWeK7CI
-4jVmTIOk/4JVox8xQNTBIvrMgSMWHoNWLKQ56JCkGliBJRO3/OKXZNE7U9ESS9Hc
-xWk5OztKGxcLuRqb8BX+lz5wymkKJTW4bxaKJtxqDd1HnZspMPezgHKPQr531j0E
-5LqCLkD8kieG1JwzyjnKEVJOv37TL5sFwzYjmp/K9MTcIv4QDlj+C5T2Bc7NNPJS
-xVtYrQOK68Ar7Ynljd3eFhq/dMBTVz7qRyTeisH03LNuhLniFvO7HNLRtsnV5a/8
-eByOn6XbJNMjG6pZ5070iltzuwckvNFL1WRQvh3EtaMKxQ+ReB06Yrn6aE/qOFn4
-waFs9AI1Z4qkFBOC+jCQR+P39Y5uS/lBGfmv3nVUdOytMik5lW/Wzn1OKVczZCIU
-5CEjlH1jzHXboRhE/Jyv7kWU/00+N/Tfx8BTzPTllgWJQsVgr568oHjfhLNNrgwC
-i6iY50xdRzhzIPRfrFA0knS9gwhYSbD7IJ/O6UWp6AwoIeb6xAA=
-=eOLS
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllWE/oACgkQFA3kzBSg
+KbZ+mg/9HiJeVWAZlhH8PrUuRhuL6x6YwBPV196+ziXxc8MmaCGeO8b+7yYSPfWZ
+zSecMUBFLmXaFljK8T4BpB89V2bR8Vo3TvSJWP46eIN0rHtxDQwGWHX3yfwJcitN
+6FojbfZfxve0hui0CkH2EE2XlgbSDS6Dd3FjZCOtlOdG1RWvz+cYqxXLnVN9k75s
+xfbx0yWpUhlmvxtqDzla/lZPoqYvR7iZJ152djs8eyaVWgkslJX0YHMcR46+5l2i
+rnYpMQP9RxZMX7IXJjaY/oC+MqlXnxG7F8pDAN7CYRVGz3r6Ev5qB7iXTF+rUG63
+mMI7ufju9IEKoO112/o3bZNw3jPt+MO9p0pc23egYPLZSAZ6ICZidkywUMBzMFlw
+ayCOM6/Wlpubw/XF9eQxiYJjhb5hytjTPS2jHN8n9aabJ9rLRzaAqJZjQqSvY3+L
+m76ZccYhUTHWcwtn+Trdc8AP9juv07VKCnmq/S8d8v0vUj9zfP5JhLic6x5mAezN
+uYGu1w4gG3mIKEoCV9hezzb6adreBuD2tooexhKKFGoJoX24Hpz336O8aBIBWtwb
+FsuK/J9GWL275tE8xHeUv1SwhqEBSilF6kgiV0VdYdGhRZz3M8Oj7UTJZcCeBldE
+sSdrXgPYdE0V57y37JBA5tgi24lQKN17Ksbhjth0807N+3HoLco=
+=8IhU
 -----END PGP SIGNATURE-----
 
---7kvrtiw7xay2m3cx--
+--qq5nbduvabei5q57--
