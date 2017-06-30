@@ -1,46 +1,62 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2 3/5] i2c: i2c-stm32f7: add driver
-Date: Thu, 29 Jun 2017 20:00:55 +0200
-Message-ID: <20170629180055.ga6jgonch6dhowyi@pengutronix.de>
-References: <1497958890-5530-1-git-send-email-pierre-yves.mordret@st.com>
- <1497958890-5530-4-git-send-email-pierre-yves.mordret@st.com>
- <20170627205135.greh3baskzi4zetk@pengutronix.de>
- <21ca1ecb-39ac-5d43-71a2-d566974ab577@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 1/6] sh: sh7785lcr: add GPIO lookup table for i2c controller reset
+Date: Fri, 30 Jun 2017 12:54:03 +1200
+Message-ID: <20170630005408.23968-2-chris.packham@alliedtelesis.co.nz>
+References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:41649 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753615AbdF2SBL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Jun 2017 14:01:11 -0400
-Content-Disposition: inline
-In-Reply-To: <21ca1ecb-39ac-5d43-71a2-d566974ab577@st.com>
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:46129 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751333AbdF3AyU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Jun 2017 20:54:20 -0400
+In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: wsa@the-dreams.de, andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org
+Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Rich Felker <dalias@libc.org>, linux-kernel@vger.kernel.org
 
-Hello,
+Define the GPIO connected to the PCA9564 using a GPIO lookup table. This
+will allow the i2c-pca-platform driver to use the device managed APIs to
+lookup the gpio instead of using platform_data.
 
-On Thu, Jun 29, 2017 at 02:40:44PM +0000, Pierre Yves MORDRET wrote:
-> >> +	/* Arbitration loss */
-> >> +	if (status & STM32F7_I2C_ISR_ARLO) {
-> >> +		dev_err(dev, "<%s>: Arbitration loss\n", __func__);
-> > 
-> > Drop this. Arbitration loss is not an error and it shouldn't pollute the
-> > kernel log.
-> > 
-> 
-> I would like to keep it as indication though.
-> Agree with dev_warn ?
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+ arch/sh/boards/board-sh7785lcr.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-No, dev_debug is ok.
-
-Best regards
-Uwe
-
+diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
+index 2c4771ee84cd..4c321d0da945 100644
+--- a/arch/sh/boards/board-sh7785lcr.c
++++ b/arch/sh/boards/board-sh7785lcr.c
+@@ -25,6 +25,7 @@
+ #include <linux/io.h>
+ #include <linux/clk.h>
+ #include <linux/errno.h>
++#include <linux/gpio/machine.h>
+ #include <mach/sh7785lcr.h>
+ #include <cpu/sh7785.h>
+ #include <asm/heartbeat.h>
+@@ -243,6 +244,14 @@ static struct resource i2c_resources[] = {
+ 	},
+ };
+ 
++static struct gpiod_lookup_table i2c_gpio_table = {
++	.dev_id = "i2c.0",
++	.table = {
++		GPIO_LOOKUP("pfc-sh7757", 0, "reset-gpios", GPIO_ACTIVE_LOW),
++		{ },
++	},
++};
++
+ static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
+ 	.gpio			= 0,
+ 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
+@@ -283,6 +292,7 @@ static int __init sh7785lcr_devices_setup(void)
+ 		i2c_device.num_resources = ARRAY_SIZE(i2c_proto_resources);
+ 	}
+ 
++	gpiod_add_lookup(&i2c_gpio_table);
+ 	return platform_add_devices(sh7785lcr_devices,
+ 				    ARRAY_SIZE(sh7785lcr_devices));
+ }
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.13.0
