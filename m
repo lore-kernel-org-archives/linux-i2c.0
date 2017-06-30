@@ -1,46 +1,38 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
-Date: Fri, 30 Jun 2017 13:56:06 +0300
-Message-ID: <CAHp75Ve1daNFe4PLAMpqMudE9d+Ss2JpeZ=Sy5x5ij99gAVs_w@mail.gmail.com>
-References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
- <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
- <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com> <20170630090354.6s6ahpjhis7ptbfg@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170630090354.6s6ahpjhis7ptbfg@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 0/5] x86/io: Rely on asm-generic/io.h
+Date: Fri, 30 Jun 2017 20:09:29 +0300
+Message-ID: <20170630170934.83028-1-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:49047 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751728AbdF3RJk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 30 Jun 2017 13:09:40 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Baolin Wang <baolin.wang@spreadtrum.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, intel-gfx@lists.freedesktop.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Fri, Jun 30, 2017 at 12:03 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> > -               i2c->algo_data.i2c_clock = 59000;
->> > +               ret = device_property_read_u32(&pdev->dev, "clock-frequency",
->> > +                                              &i2c->algo_data.i2c_clock);
->> > +               if (ret)
->> > +                       i2c->algo_data.i2c_clock = 59000;
->>
->> My idea is to get rid of legacy platform data completely.
->> That's why I suggested device_* in the first place.
->>
->> In similar way like you did with GPIO lookup table, you may use
->> PROPERTY_ENTRY*() macros in the board files.
->>
->> Does it make sense?
->
-> Frankly, I am not a big fan of converting board files if we cannot test
-> the changes.
+The series brings a bit of order to arch/x86/include/asm/io.h by re-using
+definitions in the generic header.
 
-So, if no one is using that old boards, should we really take care
-more than just compile test?
+The series has been tested on Intel Broxton hardware in 32- and 64-bit modes.
 
-P.S. Legacy platform data makes a burden of development nowadays.
-Built-in device properties API (as a part of Unified Device
-Properties) is exactly for getting rid of legacy stuff and make things
-much cleaner.
+Since v2:
+- add cleanup patches in accordance to re-use what's defined in generic header
+- split to few patches
+- hopefully nail down an issue kbuild bot complained about
+- append tags (Wolfram)
+
+Andy Shevchenko (5):
+  x86/io: Define IO accessors by preprocessor
+  x86/io: Include asm-generic/io.h to architectural code
+  x86/io: Remove mem*io() duplications
+  x86/io: Remove xlate_dev_kmem_ptr() duplication
+  x86/io: Make readq() / writeq() API consistent
+
+ arch/x86/include/asm/io.h | 98 +++++++++++++++++++++++------------------------
+ include/asm-generic/io.h  | 27 +++++++++++++
+ 2 files changed, 74 insertions(+), 51 deletions(-)
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.11.0
