@@ -1,45 +1,45 @@
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
-Date: Fri, 30 Jun 2017 12:54:07 +1200
-Message-ID: <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
-References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-sh-owner@vger.kernel.org
-To: wsa@the-dreams.de, andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org
-Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-kernel@vger.kernel.org
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [RFC PATCH 2/3] drivers: misc: eeprom: at24: support reading mac
+ eeprom from different addresses
+Date: Fri, 30 Jun 2017 09:20:32 +0200
+Message-ID: <20170630072032.tbnatpnh3rej4lmf@pengutronix.de>
+References: <1498736351-9021-1-git-send-email-claudiu.beznea@microchip.com>
+ <1498736351-9021-3-git-send-email-claudiu.beznea@microchip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1498736351-9021-3-git-send-email-claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use device_property_read_u32 instead of of_property_read_u32_index to
-lookup the "clock-frequency" property.
+Hallo,
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- drivers/i2c/busses/i2c-pca-platform.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+On Thu, Jun 29, 2017 at 02:39:10PM +0300, Claudiu Beznea wrote:
+> diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+> index 271a4e2..d55c454 100644
+> --- a/include/linux/platform_data/at24.h
+> +++ b/include/linux/platform_data/at24.h
+> @@ -50,6 +50,7 @@ struct at24_platform_data {
+>  #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
+>  #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
+>  #define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
+> +	u8		offset;
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 1e3c247de8f8..80420f753a87 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -176,13 +176,12 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	if (platform_data) {
- 		i2c->adap.timeout = platform_data->timeout;
- 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
--	} else if (np) {
--		i2c->adap.timeout = HZ;
--		of_property_read_u32_index(np, "clock-frequency", 0,
--					   &i2c->algo_data.i2c_clock);
- 	} else {
- 		i2c->adap.timeout = HZ;
--		i2c->algo_data.i2c_clock = 59000;
-+		ret = device_property_read_u32(&pdev->dev, "clock-frequency",
-+					       &i2c->algo_data.i2c_clock);
-+		if (ret)
-+			i2c->algo_data.i2c_clock = 59000;
- 	}
- 
- 	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
+Assuming you rename the property, please adapt the member name here
+accordingly.
+
+Best regards
+Uwe
+
 -- 
-2.13.0
-
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
