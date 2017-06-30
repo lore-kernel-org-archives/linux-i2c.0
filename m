@@ -1,16 +1,16 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 3/6] i2c: pca-platform: propagate error from i2c_pca_add_numbered_bus
-Date: Fri, 30 Jun 2017 11:40:51 +0300
-Message-ID: <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
-References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz> <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
+Subject: Re: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
+Date: Fri, 30 Jun 2017 11:44:21 +0300
+Message-ID: <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com>
+References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz> <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:32987 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751695AbdF3Ikx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Jun 2017 04:40:53 -0400
-In-Reply-To: <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:34060 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751421AbdF3IoW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 30 Jun 2017 04:44:22 -0400
+In-Reply-To: <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>
@@ -18,44 +18,42 @@ Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Yos
 
 On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham
 <chris.packham@alliedtelesis.co.nz> wrote:
-> Rather than returning -ENODEV if i2c_pca_add_numbered_bus() fails,
-> propagate the error to aid debugging.
+> Use device_property_read_u32 instead of of_property_read_u32_index to
+> lookup the "clock-frequency" property.
+
+My comments below.
+
 >
-
-+ Suggested-by ?
-
-You or Wolfram can use below if you agree on it (I'm fine either way):
-
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
 > Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-
 > ---
->  drivers/i2c/busses/i2c-pca-platform.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/i2c/busses/i2c-pca-platform.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
 >
 > diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-> index daccef6865e8..853a2abedb05 100644
+> index 1e3c247de8f8..80420f753a87 100644
 > --- a/drivers/i2c/busses/i2c-pca-platform.c
 > +++ b/drivers/i2c/busses/i2c-pca-platform.c
-> @@ -232,9 +232,9 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
->                         return ret;
->         }
->
-> -       if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {
-> -               return -ENODEV;
-> -       }
-> +       ret = i2c_pca_add_numbered_bus(&i2c->adap);
-> +       if (ret)
-> +               return ret;
->
->         platform_set_drvdata(pdev, i2c);
->
-> --
-> 2.13.0
->
+> @@ -176,13 +176,12 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
 
+>         if (platform_data) {
+>                 i2c->adap.timeout = platform_data->timeout;
+>                 i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
 
+>         } else {
+>                 i2c->adap.timeout = HZ;
+> -               i2c->algo_data.i2c_clock = 59000;
+> +               ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+> +                                              &i2c->algo_data.i2c_clock);
+> +               if (ret)
+> +                       i2c->algo_data.i2c_clock = 59000;
+
+My idea is to get rid of legacy platform data completely.
+That's why I suggested device_* in the first place.
+
+In similar way like you did with GPIO lookup table, you may use
+PROPERTY_ENTRY*() macros in the board files.
+
+Does it make sense?
 
 -- 
 With Best Regards,
