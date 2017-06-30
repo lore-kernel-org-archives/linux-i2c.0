@@ -1,62 +1,36 @@
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 1/6] sh: sh7785lcr: add GPIO lookup table for i2c controller reset
-Date: Fri, 30 Jun 2017 12:54:03 +1200
-Message-ID: <20170630005408.23968-2-chris.packham@alliedtelesis.co.nz>
-References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 0/6] i2c: pca-platform: additional improvements
+Date: Fri, 30 Jun 2017 12:54:02 +1200
+Message-ID: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:46129 "EHLO
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:46132 "EHLO
         gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751333AbdF3AyU (ORCPT
+        with ESMTP id S1751567AbdF3AyU (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 29 Jun 2017 20:54:20 -0400
-In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: wsa@the-dreams.de, andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org
-Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Rich Felker <dalias@libc.org>, linux-kernel@vger.kernel.org
+Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-Define the GPIO connected to the PCA9564 using a GPIO lookup table. This
-will allow the i2c-pca-platform driver to use the device managed APIs to
-lookup the gpio instead of using platform_data.
+This series addresses some of the points identified by Andy. The series is
+based on top of i2c/for-next.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- arch/sh/boards/board-sh7785lcr.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+I haven't got a working sh4 toolchain so I haven't been able to compile test
+patch 1/1.
 
-diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
-index 2c4771ee84cd..4c321d0da945 100644
---- a/arch/sh/boards/board-sh7785lcr.c
-+++ b/arch/sh/boards/board-sh7785lcr.c
-@@ -25,6 +25,7 @@
- #include <linux/io.h>
- #include <linux/clk.h>
- #include <linux/errno.h>
-+#include <linux/gpio/machine.h>
- #include <mach/sh7785lcr.h>
- #include <cpu/sh7785.h>
- #include <asm/heartbeat.h>
-@@ -243,6 +244,14 @@ static struct resource i2c_resources[] = {
- 	},
- };
- 
-+static struct gpiod_lookup_table i2c_gpio_table = {
-+	.dev_id = "i2c.0",
-+	.table = {
-+		GPIO_LOOKUP("pfc-sh7757", 0, "reset-gpios", GPIO_ACTIVE_LOW),
-+		{ },
-+	},
-+};
-+
- static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
- 	.gpio			= 0,
- 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
-@@ -283,6 +292,7 @@ static int __init sh7785lcr_devices_setup(void)
- 		i2c_device.num_resources = ARRAY_SIZE(i2c_proto_resources);
- 	}
- 
-+	gpiod_add_lookup(&i2c_gpio_table);
- 	return platform_add_devices(sh7785lcr_devices,
- 				    ARRAY_SIZE(sh7785lcr_devices));
- }
+Chris Packham (6):
+  sh: sh7785lcr: add GPIO lookup table for i2c controller reset
+  i2c: pca-platform: correctly set algo_data.reset_chip
+  i2c: pca-platform: propagate error from i2c_pca_add_numbered_bus
+  i2c: pca-platform: unconditionally use devm_gpiod_get_optional
+  i2c: pca-platform: use device_property_read_u32
+  i2c: pca-platform: drop gpio from platform data
+
+ arch/blackfin/mach-bf561/boards/acvilon.c |  1 -
+ arch/sh/boards/board-sh7785lcr.c          | 11 +++++++-
+ drivers/i2c/busses/i2c-pca-platform.c     | 42 +++++++++++--------------------
+ include/linux/i2c-pca-platform.h          |  3 ---
+ 4 files changed, 25 insertions(+), 32 deletions(-)
+
 -- 
 2.13.0
