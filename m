@@ -1,56 +1,66 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 0/6] i2c: pca-platform: additional improvements
-Date: Fri, 30 Jun 2017 11:48:06 +0300
-Message-ID: <CAHp75Vfbvi40MjLmYScowsgRb6+fes5W8iV39_iiPgo4+=Bxjg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/6] i2c: pca-platform: propagate error from
+ i2c_pca_add_numbered_bus
+Date: Fri, 30 Jun 2017 11:01:34 +0200
+Message-ID: <20170630090133.np56eweoa62xg2ph@ninjato>
 References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
+ <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
+ <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-sh-owner@vger.kernel.org
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7kvrtiw7xay2m3cx"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:34353 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751565AbdF3JBi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 30 Jun 2017 05:01:38 -0400
+Content-Disposition: inline
+In-Reply-To: <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham
-<chris.packham@alliedtelesis.co.nz> wrote:
-> This series addresses some of the points identified by Andy. The series is
-> based on top of i2c/for-next.
->
-> I haven't got a working sh4 toolchain so I haven't been able to compile test
-> patch 1/1.
->
-
-Cool! So, for patches 1-4
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-Patch 5 needs more work I suppose which likely brings another patch or
-extends existing one.
-Patch 6 I didn't look deeply, so, only one concern is to check
-bisectability (looks like it is in a right place).
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
-> Chris Packham (6):
->   sh: sh7785lcr: add GPIO lookup table for i2c controller reset
->   i2c: pca-platform: correctly set algo_data.reset_chip
->   i2c: pca-platform: propagate error from i2c_pca_add_numbered_bus
->   i2c: pca-platform: unconditionally use devm_gpiod_get_optional
->   i2c: pca-platform: use device_property_read_u32
->   i2c: pca-platform: drop gpio from platform data
->
->  arch/blackfin/mach-bf561/boards/acvilon.c |  1 -
->  arch/sh/boards/board-sh7785lcr.c          | 11 +++++++-
->  drivers/i2c/busses/i2c-pca-platform.c     | 42 +++++++++++--------------------
->  include/linux/i2c-pca-platform.h          |  3 ---
->  4 files changed, 25 insertions(+), 32 deletions(-)
->
-> --
-> 2.13.0
->
+--7kvrtiw7xay2m3cx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jun 30, 2017 at 11:40:51AM +0300, Andy Shevchenko wrote:
+> On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham
+> <chris.packham@alliedtelesis.co.nz> wrote:
+> > Rather than returning -ENODEV if i2c_pca_add_numbered_bus() fails,
+> > propagate the error to aid debugging.
+> >
+>=20
+> + Suggested-by ?
+>=20
+> You or Wolfram can use below if you agree on it (I'm fine either way):
+>=20
+> Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+I'll pick it.
 
 
+--7kvrtiw7xay2m3cx
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-With Best Regards,
-Andy Shevchenko
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllWE2oACgkQFA3kzBSg
+KbYewhAAmyur87Hbqdf5X+Wpmp2OBW6jLTsZJ5YNoOet6M9hY8FridBuz/lfz9EI
+kEsxwtSvrKubCGkkoYSs8AqidxJHJTTzrfXAXan6gMGEXwN7SY1IcLa9lG8qJLiG
+FVjYx+l3CFtqDPob4rX2gpK8UZ8uiNMbf2sLijB6SgQ9t4FlQylwPOpcrlWeK7CI
+4jVmTIOk/4JVox8xQNTBIvrMgSMWHoNWLKQ56JCkGliBJRO3/OKXZNE7U9ESS9Hc
+xWk5OztKGxcLuRqb8BX+lz5wymkKJTW4bxaKJtxqDd1HnZspMPezgHKPQr531j0E
+5LqCLkD8kieG1JwzyjnKEVJOv37TL5sFwzYjmp/K9MTcIv4QDlj+C5T2Bc7NNPJS
+xVtYrQOK68Ar7Ynljd3eFhq/dMBTVz7qRyTeisH03LNuhLniFvO7HNLRtsnV5a/8
+eByOn6XbJNMjG6pZ5070iltzuwckvNFL1WRQvh3EtaMKxQ+ReB06Yrn6aE/qOFn4
+waFs9AI1Z4qkFBOC+jCQR+P39Y5uS/lBGfmv3nVUdOytMik5lW/Wzn1OKVczZCIU
+5CEjlH1jzHXboRhE/Jyv7kWU/00+N/Tfx8BTzPTllgWJQsVgr568oHjfhLNNrgwC
+i6iY50xdRzhzIPRfrFA0knS9gwhYSbD7IJ/O6UWp6AwoIeb6xAA=
+=eOLS
+-----END PGP SIGNATURE-----
+
+--7kvrtiw7xay2m3cx--
