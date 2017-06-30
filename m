@@ -1,51 +1,64 @@
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 2/6] i2c: pca-platform: correctly set algo_data.reset_chip
-Date: Fri, 30 Jun 2017 12:54:04 +1200
-Message-ID: <20170630005408.23968-3-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 6/6] i2c: pca-platform: drop gpio from platform data
+Date: Fri, 30 Jun 2017 12:54:08 +1200
+Message-ID: <20170630005408.23968-7-chris.packham@alliedtelesis.co.nz>
 References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-sh-owner@vger.kernel.org
 To: wsa@the-dreams.de, andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org
-Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-kernel@vger.kernel.org
+Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Steven Miao <realmz6@gmail.com>, Rich Felker <dalias@libc.org>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-When device tree support was added the setting of algo_data.reset_chip
-was moved. There were two problems with this. The first being that
-i2c_pca_pf_resetchip was only used if platform data was provided. The
-second that it was unconditionally overridden with
-i2c_pca_pf_dummyreset. Ensure that however the reset gpio is defined the
-correct reset_chip function is used.
+Now that the i2c-pca-plaform driver is using the device managed API for
+gpios there is no need for the reset gpio to be specified via
+i2c_pca9564_pf_platform_data.
 
-Fixes: commit 4cc7229daa46 ("i2c: pca-platform: switch to struct gpio_desc")
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 ---
- drivers/i2c/busses/i2c-pca-platform.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/blackfin/mach-bf561/boards/acvilon.c | 1 -
+ arch/sh/boards/board-sh7785lcr.c          | 1 -
+ include/linux/i2c-pca-platform.h          | 3 ---
+ 3 files changed, 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 395eca0cbb1f..daccef6865e8 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -184,7 +184,6 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 			if (ret == 0) {
- 				i2c->gpio = gpio_to_desc(platform_data->gpio);
- 				gpiod_direction_output(i2c->gpio, 0);
--				i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
- 			} else {
- 				dev_warn(&pdev->dev, "Registering gpio failed!\n");
- 				i2c->gpio = NULL;
-@@ -205,7 +204,10 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+diff --git a/arch/blackfin/mach-bf561/boards/acvilon.c b/arch/blackfin/mach-bf561/boards/acvilon.c
+index 37f8f25a1347..192404318a36 100644
+--- a/arch/blackfin/mach-bf561/boards/acvilon.c
++++ b/arch/blackfin/mach-bf561/boards/acvilon.c
+@@ -112,7 +112,6 @@ static struct resource bfin_i2c_pca_resources[] = {
+ };
  
- 	i2c->algo_data.data = i2c;
- 	i2c->algo_data.wait_for_completion = i2c_pca_pf_waitforcompletion;
--	i2c->algo_data.reset_chip = i2c_pca_pf_dummyreset;
-+	if (i2c->gpio)
-+		i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
-+	else
-+		i2c->algo_data.reset_chip = i2c_pca_pf_dummyreset;
+ struct i2c_pca9564_pf_platform_data pca9564_platform_data = {
+-	.gpio = -1,
+ 	.i2c_clock_speed = 330000,
+ 	.timeout = HZ,
+ };
+diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
+index 4c321d0da945..1170fc536db7 100644
+--- a/arch/sh/boards/board-sh7785lcr.c
++++ b/arch/sh/boards/board-sh7785lcr.c
+@@ -253,7 +253,6 @@ static struct gpiod_lookup_table i2c_gpio_table = {
+ };
  
- 	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
- 	case IORESOURCE_MEM_32BIT:
+ static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
+-	.gpio			= 0,
+ 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
+ 	.timeout		= HZ,
+ };
+diff --git a/include/linux/i2c-pca-platform.h b/include/linux/i2c-pca-platform.h
+index aba33759dec4..6331eaef9352 100644
+--- a/include/linux/i2c-pca-platform.h
++++ b/include/linux/i2c-pca-platform.h
+@@ -2,9 +2,6 @@
+ #define I2C_PCA9564_PLATFORM_H
+ 
+ struct i2c_pca9564_pf_platform_data {
+-	int gpio;		/* pin to reset chip. driver will work when
+-				 * not supplied (negative value), but it
+-				 * cannot exit some error conditions then */
+ 	int i2c_clock_speed;	/* values are defined in linux/i2c-algo-pca.h */
+ 	int timeout;		/* timeout in jiffies */
+ };
 -- 
 2.13.0
+
