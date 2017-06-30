@@ -1,64 +1,45 @@
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 6/6] i2c: pca-platform: drop gpio from platform data
-Date: Fri, 30 Jun 2017 12:54:08 +1200
-Message-ID: <20170630005408.23968-7-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
+Date: Fri, 30 Jun 2017 12:54:07 +1200
+Message-ID: <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
 References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
 Sender: linux-sh-owner@vger.kernel.org
 To: wsa@the-dreams.de, andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org
-Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Steven Miao <realmz6@gmail.com>, Rich Felker <dalias@libc.org>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Now that the i2c-pca-plaform driver is using the device managed API for
-gpios there is no need for the reset gpio to be specified via
-i2c_pca9564_pf_platform_data.
+Use device_property_read_u32 instead of of_property_read_u32_index to
+lookup the "clock-frequency" property.
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 ---
- arch/blackfin/mach-bf561/boards/acvilon.c | 1 -
- arch/sh/boards/board-sh7785lcr.c          | 1 -
- include/linux/i2c-pca-platform.h          | 3 ---
- 3 files changed, 5 deletions(-)
+ drivers/i2c/busses/i2c-pca-platform.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/blackfin/mach-bf561/boards/acvilon.c b/arch/blackfin/mach-bf561/boards/acvilon.c
-index 37f8f25a1347..192404318a36 100644
---- a/arch/blackfin/mach-bf561/boards/acvilon.c
-+++ b/arch/blackfin/mach-bf561/boards/acvilon.c
-@@ -112,7 +112,6 @@ static struct resource bfin_i2c_pca_resources[] = {
- };
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 1e3c247de8f8..80420f753a87 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -176,13 +176,12 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 	if (platform_data) {
+ 		i2c->adap.timeout = platform_data->timeout;
+ 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
+-	} else if (np) {
+-		i2c->adap.timeout = HZ;
+-		of_property_read_u32_index(np, "clock-frequency", 0,
+-					   &i2c->algo_data.i2c_clock);
+ 	} else {
+ 		i2c->adap.timeout = HZ;
+-		i2c->algo_data.i2c_clock = 59000;
++		ret = device_property_read_u32(&pdev->dev, "clock-frequency",
++					       &i2c->algo_data.i2c_clock);
++		if (ret)
++			i2c->algo_data.i2c_clock = 59000;
+ 	}
  
- struct i2c_pca9564_pf_platform_data pca9564_platform_data = {
--	.gpio = -1,
- 	.i2c_clock_speed = 330000,
- 	.timeout = HZ,
- };
-diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
-index 4c321d0da945..1170fc536db7 100644
---- a/arch/sh/boards/board-sh7785lcr.c
-+++ b/arch/sh/boards/board-sh7785lcr.c
-@@ -253,7 +253,6 @@ static struct gpiod_lookup_table i2c_gpio_table = {
- };
- 
- static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
--	.gpio			= 0,
- 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
- 	.timeout		= HZ,
- };
-diff --git a/include/linux/i2c-pca-platform.h b/include/linux/i2c-pca-platform.h
-index aba33759dec4..6331eaef9352 100644
---- a/include/linux/i2c-pca-platform.h
-+++ b/include/linux/i2c-pca-platform.h
-@@ -2,9 +2,6 @@
- #define I2C_PCA9564_PLATFORM_H
- 
- struct i2c_pca9564_pf_platform_data {
--	int gpio;		/* pin to reset chip. driver will work when
--				 * not supplied (negative value), but it
--				 * cannot exit some error conditions then */
- 	int i2c_clock_speed;	/* values are defined in linux/i2c-algo-pca.h */
- 	int timeout;		/* timeout in jiffies */
- };
+ 	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
 -- 
 2.13.0
 
