@@ -1,52 +1,81 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 4/5] x86/io: Remove xlate_dev_kmem_ptr()
-	duplication
-Date: Fri, 30 Jun 2017 20:09:33 +0300
-Message-ID: <20170630170934.83028-5-andriy.shevchenko@linux.intel.com>
-References: <20170630170934.83028-1-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170630170934.83028-1-andriy.shevchenko@linux.intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Baolin Wang <baolin.wang@spreadtrum.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, intel-gfx@lists.freedesktop.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] i2c: acpi: Do not create i2c-clients for LNXVIDEO ACPI devices
+Date: Sat,  1 Jul 2017 12:03:11 +0200
+Message-ID: <20170701100311.11859-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:57566 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751753AbdGAKDQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 1 Jul 2017 06:03:16 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
 
-R2VuZXJpYyBoZWFkZXIgZGVmaW5lcyB4bGF0ZV9kZXZfa21lbV9wdHIoKS4KClJldXNlIGl0IGZy
-b20gZ2VuZXJpYyBoZWFkZXIgYW5kIHJlbW92ZSBpbiB4ODYgY29kZS4KTW92ZSBhIGRlc2NyaXB0
-aW9uIHRvIHRoZSBnZW5lcmljIGhlYWRlciBhcyB3ZWxsLgoKU2lnbmVkLW9mZi1ieTogQW5keSBT
-aGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0BsaW51eC5pbnRlbC5jb20+Ci0tLQogYXJjaC94
-ODYvaW5jbHVkZS9hc20vaW8uaCB8IDUgLS0tLS0KIGluY2x1ZGUvYXNtLWdlbmVyaWMvaW8uaCAg
-fCAzICsrKwogMiBmaWxlcyBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0p
-CgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYvaW5jbHVkZS9hc20vaW8uaCBiL2FyY2gveDg2L2luY2x1
-ZGUvYXNtL2lvLmgKaW5kZXggMjUyNDM0YjAwZmRiLi5iM2JiYTJmODdlMTggMTAwNjQ0Ci0tLSBh
-L2FyY2gveDg2L2luY2x1ZGUvYXNtL2lvLmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vaW8u
-aApAQCAtMjE2LDExICsyMTYsNiBAQCBleHRlcm4gdm9pZCBzZXRfaW91bm1hcF9ub25sYXp5KHZv
-aWQpOwogI2luY2x1ZGUgPGFzbS1nZW5lcmljL2lvbWFwLmg+CiAKIC8qCi0gKiBDb252ZXJ0IGEg
-dmlydHVhbCBjYWNoZWQgcG9pbnRlciB0byBhbiB1bmNhY2hlZCBwb2ludGVyCi0gKi8KLSNkZWZp
-bmUgeGxhdGVfZGV2X2ttZW1fcHRyKHApCXAKLQotLyoKICAqIElTQSBzcGFjZSBpcyAnYWx3YXlz
-IG1hcHBlZCcgb24gYSB0eXBpY2FsIHg4NiBzeXN0ZW0sIG5vIG5lZWQgdG8KICAqIGV4cGxpY2l0
-bHkgaW9yZW1hcCgpIGl0LiBUaGUgZmFjdCB0aGF0IHRoZSBJU0EgSU8gc3BhY2UgaXMgbWFwcGVk
-CiAgKiB0byBQQUdFX09GRlNFVCBpcyBwdXJlIGNvaW5jaWRlbmNlIC0gaXQgZG9lcyBub3QgbWVh
-biBJU0EgdmFsdWVzCmRpZmYgLS1naXQgYS9pbmNsdWRlL2FzbS1nZW5lcmljL2lvLmggYi9pbmNs
-dWRlL2FzbS1nZW5lcmljL2lvLmgKaW5kZXggMzk1YWZjODI5NDA5Li5iNDUzMWUzYjIxMjAgMTAw
-NjQ0Ci0tLSBhL2luY2x1ZGUvYXNtLWdlbmVyaWMvaW8uaAorKysgYi9pbmNsdWRlL2FzbS1nZW5l
-cmljL2lvLmgKQEAgLTkxNSw2ICs5MTUsOSBAQCBleHRlcm4gdm9pZCBpb3BvcnRfdW5tYXAodm9p
-ZCBfX2lvbWVtICpwKTsKICNlbmRpZiAvKiBDT05GSUdfR0VORVJJQ19JT01BUCAqLwogI2VuZGlm
-IC8qIENPTkZJR19IQVNfSU9QT1JUX01BUCAqLwogCisvKgorICogQ29udmVydCBhIHZpcnR1YWwg
-Y2FjaGVkIHBvaW50ZXIgdG8gYW4gdW5jYWNoZWQgcG9pbnRlcgorICovCiAjaWZuZGVmIHhsYXRl
-X2Rldl9rbWVtX3B0cgogI2RlZmluZSB4bGF0ZV9kZXZfa21lbV9wdHIgeGxhdGVfZGV2X2ttZW1f
-cHRyCiBzdGF0aWMgaW5saW5lIHZvaWQgKnhsYXRlX2Rldl9rbWVtX3B0cih2b2lkICphZGRyKQot
-LSAKMi4xMS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+ACPI video devices get tagged by the kernel with the custom LNXVIDEO
+HID so that normal pnp-id matching can be used and are handled by the
+acpi-video driver.
+
+Sometimes the ACPI nodes describing these contain a SERIAL_TYPE_I2C ACPI
+resource. Before this commit the presence of this resource would cause the
+i2c-core to create a /sys/bus/i2c/devices/i2c-LNXVIDEO:00 device for this
+with a modalias of: "i2c:LNXVIDEO:00".
+
+There is no i2c driver for this custom HID, the acpi-video driver binds
+directly to the ACPI device /sys/bus/acpi/devices/LNXVIDEO\:00 which has
+a modalias of "acpi:LNXVIDEO:" .
+
+Not only is the creation of an i2c-client for this undesirable, it is
+actually causing problems. This weird pseudo-resource claims an i2c
+speed of 100KHz and typically points to the i2c bus which is used by the
+touchscreen controller. Some touchscreen controllers only work properly at
+400KHz, at 100KHz they cause errors like these:
+
+i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+silead_ts i2c-MSSL1680:00: Registers clear error -11
+
+This commit makes the i2c-core ignore LNXVIDEO compatible ACPI devices
+which has 2 positive results:
+
+1) The bogus i2c-client for these is no longer created.
+2) i2c_acpi_lookup_speed now ignores the 100KHz speed from the pseudo
+i2c-resouce and properly returns 400KHz as speed for the touchscreen
+i2c bus, fixing the touchscreen not working on various devies.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/i2c/i2c-core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 82576aaccc90..4334ee1116fe 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -154,11 +154,22 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+ 	struct i2c_board_info *info = lookup->info;
+ 	struct list_head resource_list;
+ 	int ret;
++	static const struct acpi_device_id video_device_ids[] = {
++		{ ACPI_VIDEO_HID, 0 },
++		{}
++	};
+ 
+ 	if (acpi_bus_get_status(adev) || !adev->status.present ||
+ 	    acpi_device_enumerated(adev))
+ 		return -EINVAL;
+ 
++	/*
++	 * ACPI video acpi_devices, which are handled by the acpi-video driver
++	 * sometimes contain a SERIAL_TYPE_I2C ACPI resource, ignore these.
++	 */
++	if (acpi_match_device_ids(adev, video_device_ids) == 0)
++		return -ENODEV;
++
+ 	memset(info, 0, sizeof(*info));
+ 	lookup->device_handle = acpi_device_handle(adev);
+ 
+-- 
+2.13.0
