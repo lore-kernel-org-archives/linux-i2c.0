@@ -1,52 +1,66 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 1/6] sh: sh7785lcr: add GPIO lookup table for i2c
- controller reset
-Date: Sun, 2 Jul 2017 19:15:56 +0200
-Message-ID: <CAMuHMdWxXXH4+orqXq+8BNZ0utnrRCL74ZV+s9ejD=tL3ooSeg@mail.gmail.com>
-References: <20170630005408.23968-2-chris.packham@alliedtelesis.co.nz> <201707030057.MeI4Unxu%fengguang.wu@intel.com>
+From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+Subject: Re: [PATCH 3/6] i2c: pca-platform: propagate error from
+ i2c_pca_add_numbered_bus
+Date: Sun, 2 Jul 2017 21:30:30 +0000
+Message-ID: <785fd906ff2b47d9a6fa6899f9cabe6d@svr-chch-ex1.atlnz.lc>
+References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
+ <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
+ <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <201707030057.MeI4Unxu%fengguang.wu@intel.com>
+Content-Language: en-US
 Sender: linux-sh-owner@vger.kernel.org
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: "kbuild-all@01.org" <kbuild-all@01.org>, kbuild test robot <lkp@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-sh list <linux-sh@vger.kernel.org>, Rich Felker <dalias@libc.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Chris,
-
-On Sun, Jul 2, 2017 at 6:47 PM, kbuild test robot <lkp@intel.com> wrote:
-> [auto build test ERROR on wsa/i2c/for-next]
-> [also build test ERROR on v4.12-rc7 next-20170630]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->
-> url:    https://github.com/0day-ci/linux/commits/Chris-Packham/sh-sh7785lcr-add-GPIO-lookup-table-for-i2c-controller-reset/20170702-214426
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-> config: sh-sh7785lcr_32bit_defconfig (attached as .config)
-> compiler: sh4-linux-gnu-gcc (Debian 6.1.1-9) 6.1.1 20160705
-> reproduce:
->         wget https://raw.githubusercontent.com/01org/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         make.cross ARCH=sh
->
-> All errors (new ones prefixed by >>):
->
->    arch/sh/boards/board-sh7785lcr.c: In function 'sh7785lcr_devices_setup':
->>> arch/sh/boards/board-sh7785lcr.c:295:2: error: implicit declaration of function 'gpiod_add_lookup' [-Werror=implicit-function-declaration]
->      gpiod_add_lookup(&i2c_gpio_table);
-
-It's called gpiod_add_lookup_table()
-
-https://www.kernel.org/pub/tools/crosstool/ is your friend...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+On 30/06/17 20:40, Andy Shevchenko wrote:=0A=
+> On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham=0A=
+> <chris.packham@alliedtelesis.co.nz> wrote:=0A=
+>> Rather than returning -ENODEV if i2c_pca_add_numbered_bus() fails,=0A=
+>> propagate the error to aid debugging.=0A=
+>>=0A=
+> =0A=
+> + Suggested-by ?=0A=
+> =0A=
+> You or Wolfram can use below if you agree on it (I'm fine either way):=0A=
+> =0A=
+> Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>=0A=
+> =0A=
+=0A=
+I'll include it (and the Reviewed-by) in v2 if there is one.=0A=
+=0A=
+>> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
+> =0A=
+>> ---=0A=
+>>   drivers/i2c/busses/i2c-pca-platform.c | 6 +++---=0A=
+>>   1 file changed, 3 insertions(+), 3 deletions(-)=0A=
+>>=0A=
+>> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/=
+i2c-pca-platform.c=0A=
+>> index daccef6865e8..853a2abedb05 100644=0A=
+>> --- a/drivers/i2c/busses/i2c-pca-platform.c=0A=
+>> +++ b/drivers/i2c/busses/i2c-pca-platform.c=0A=
+>> @@ -232,9 +232,9 @@ static int i2c_pca_pf_probe(struct platform_device *=
+pdev)=0A=
+>>                          return ret;=0A=
+>>          }=0A=
+>>=0A=
+>> -       if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {=0A=
+>> -               return -ENODEV;=0A=
+>> -       }=0A=
+>> +       ret =3D i2c_pca_add_numbered_bus(&i2c->adap);=0A=
+>> +       if (ret)=0A=
+>> +               return ret;=0A=
+>>=0A=
+>>          platform_set_drvdata(pdev, i2c);=0A=
+>>=0A=
+>> --=0A=
+>> 2.13.0=0A=
+>>=0A=
+> =0A=
+> =0A=
+> =0A=
+=0A=
