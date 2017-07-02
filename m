@@ -1,66 +1,58 @@
 From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Subject: Re: [PATCH 3/6] i2c: pca-platform: propagate error from
- i2c_pca_add_numbered_bus
-Date: Sun, 2 Jul 2017 21:30:30 +0000
-Message-ID: <785fd906ff2b47d9a6fa6899f9cabe6d@svr-chch-ex1.atlnz.lc>
+Subject: Re: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
+Date: Sun, 2 Jul 2017 21:51:44 +0000
+Message-ID: <942893991cc34410bf1515a6a970c5c2@svr-chch-ex1.atlnz.lc>
 References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
- <20170630005408.23968-4-chris.packham@alliedtelesis.co.nz>
- <CAHp75VejpMcgsyncpbFnDXbwYcwdD1BPqy53s98xcNmfAnJTFw@mail.gmail.com>
+ <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
+ <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com>
+ <20170630090354.6s6ahpjhis7ptbfg@ninjato>
+ <CAHp75Ve1daNFe4PLAMpqMudE9d+Ss2JpeZ=Sy5x5ij99gAVs_w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-US
-Sender: linux-sh-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 30/06/17 20:40, Andy Shevchenko wrote:=0A=
-> On Fri, Jun 30, 2017 at 3:54 AM, Chris Packham=0A=
-> <chris.packham@alliedtelesis.co.nz> wrote:=0A=
->> Rather than returning -ENODEV if i2c_pca_add_numbered_bus() fails,=0A=
->> propagate the error to aid debugging.=0A=
->>=0A=
-> =0A=
-> + Suggested-by ?=0A=
-> =0A=
-> You or Wolfram can use below if you agree on it (I'm fine either way):=0A=
-> =0A=
-> Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>=0A=
-> =0A=
+On 30/06/17 22:56, Andy Shevchenko wrote:=0A=
+> On Fri, Jun 30, 2017 at 12:03 PM, Wolfram Sang <wsa@the-dreams.de> wrote:=
 =0A=
-I'll include it (and the Reviewed-by) in v2 if there is one.=0A=
+>>=0A=
+>>>> -               i2c->algo_data.i2c_clock =3D 59000;=0A=
+>>>> +               ret =3D device_property_read_u32(&pdev->dev, "clock-fr=
+equency",=0A=
+>>>> +                                              &i2c->algo_data.i2c_clo=
+ck);=0A=
+>>>> +               if (ret)=0A=
+>>>> +                       i2c->algo_data.i2c_clock =3D 59000;=0A=
+>>>=0A=
+>>> My idea is to get rid of legacy platform data completely.=0A=
+>>> That's why I suggested device_* in the first place.=0A=
+>>>=0A=
+>>> In similar way like you did with GPIO lookup table, you may use=0A=
+>>> PROPERTY_ENTRY*() macros in the board files.=0A=
+>>>=0A=
+>>> Does it make sense?=0A=
+>>=0A=
+>> Frankly, I am not a big fan of converting board files if we cannot test=
 =0A=
->> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>=0A=
+>> the changes.=0A=
 > =0A=
->> ---=0A=
->>   drivers/i2c/busses/i2c-pca-platform.c | 6 +++---=0A=
->>   1 file changed, 3 insertions(+), 3 deletions(-)=0A=
->>=0A=
->> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/=
-i2c-pca-platform.c=0A=
->> index daccef6865e8..853a2abedb05 100644=0A=
->> --- a/drivers/i2c/busses/i2c-pca-platform.c=0A=
->> +++ b/drivers/i2c/busses/i2c-pca-platform.c=0A=
->> @@ -232,9 +232,9 @@ static int i2c_pca_pf_probe(struct platform_device *=
-pdev)=0A=
->>                          return ret;=0A=
->>          }=0A=
->>=0A=
->> -       if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {=0A=
->> -               return -ENODEV;=0A=
->> -       }=0A=
->> +       ret =3D i2c_pca_add_numbered_bus(&i2c->adap);=0A=
->> +       if (ret)=0A=
->> +               return ret;=0A=
->>=0A=
->>          platform_set_drvdata(pdev, i2c);=0A=
->>=0A=
->> --=0A=
->> 2.13.0=0A=
->>=0A=
+> So, if no one is using that old boards, should we really take care=0A=
+> more than just compile test?=0A=
 > =0A=
-> =0A=
-> =0A=
+> P.S. Legacy platform data makes a burden of development nowadays.=0A=
+> Built-in device properties API (as a part of Unified Device=0A=
+> Properties) is exactly for getting rid of legacy stuff and make things=0A=
+> much cleaner.=0A=
+=0A=
+We could probably go with an approach of making the device properties =0A=
+the default which would suit the new style and leave the platform_data =0A=
+to override things if it is present.=0A=
+=0A=
+If/when the older platforms go away we can drop struct =0A=
+i2c_pca9564_pf_platform_data.=0A=
 =0A=
