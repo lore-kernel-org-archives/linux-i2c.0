@@ -1,79 +1,107 @@
-From: Chunyan Zhang <zhang.lyra@gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: Add Spreadtrum I2C controller driver
-Date: Mon, 3 Jul 2017 17:29:57 +0800
-Message-ID: <CAAfSe-uJZFMA4nr8Ah3OKz0Wx9bJOLHXcWK9Ujxx3kSi=PvaLw@mail.gmail.com>
-References: <2083c9d6e96a72f9c1324c8a277acfd780a34094.1498472593.git.baolin.wang@spreadtrum.com>
- <6941c6866078fac8fe81d108b573f7408245a0b9.1498472593.git.baolin.wang@spreadtrum.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: acpi: Do not create i2c-clients for LNXVIDEO ACPI
+ devices
+Date: Mon, 03 Jul 2017 14:10:12 +0300
+Message-ID: <1499080212.22624.237.camel@linux.intel.com>
+References: <20170701100311.11859-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:32829 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753198AbdGCJ36 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 3 Jul 2017 05:29:58 -0400
-In-Reply-To: <6941c6866078fac8fe81d108b573f7408245a0b9.1498472593.git.baolin.wang@spreadtrum.com>
+Received: from mga14.intel.com ([192.55.52.115]:60588 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753126AbdGCLKQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Jul 2017 07:10:16 -0400
+In-Reply-To: <20170701100311.11859-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: wsa@the-dreams.de, Mark Rutland <mark.rutland@arm.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, baolin.wang@linaro.org, =?UTF-8?B?T3Jzb24gWmhhaSAo57+f5LqsKQ==?= <orson.zhai@spreadtrum.com>
+To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
-Hi Baolin,
+On Sat, 2017-07-01 at 12:03 +0200, Hans de Goede wrote:
+> ACPI video devices get tagged by the kernel with the custom LNXVIDEO
+> HID so that normal pnp-id matching can be used and are handled by the
+> acpi-video driver.
+> 
+> Sometimes the ACPI nodes describing these contain a SERIAL_TYPE_I2C
+> ACPI
+> resource. Before this commit the presence of this resource would cause
+> the
+> i2c-core to create a /sys/bus/i2c/devices/i2c-LNXVIDEO:00 device for
+> this
+> with a modalias of: "i2c:LNXVIDEO:00".
+> 
+> There is no i2c driver for this custom HID, the acpi-video driver
+> binds
+> directly to the ACPI device /sys/bus/acpi/devices/LNXVIDEO\:00 which
+> has
+> a modalias of "acpi:LNXVIDEO:" .
+> 
+> Not only is the creation of an i2c-client for this undesirable, it is
+> actually causing problems. This weird pseudo-resource claims an i2c
+> speed of 100KHz and typically points to the i2c bus which is used by
+> the
+> touchscreen controller. Some touchscreen controllers only work
+> properly at
+> 400KHz, at 100KHz they cause errors like these:
+> 
+> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
+> silead_ts i2c-MSSL1680:00: Registers clear error -11
+> 
+> This commit makes the i2c-core ignore LNXVIDEO compatible ACPI devices
+> which has 2 positive results:
+> 
+> 1) The bogus i2c-client for these is no longer created.
+> 2) i2c_acpi_lookup_speed now ignores the 100KHz speed from the pseudo
+> i2c-resouce and properly returns 400KHz as speed for the touchscreen
+> i2c bus, fixing the touchscreen not working on various devies.
 
-On 26 June 2017 at 18:28, Baolin Wang <baolin.wang@spreadtrum.com> wrote:
-> This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
->
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+Should it have Fixes tag?
+
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
-> Changes since v2:
->  - Remove some redundant comments and parens.
->  - Define macros instead of magic number.
->  - Add some comments to explain clock formula.
->  - Change of_clk_get_by_name() to devm_clk_get().
->  - Deal with other frequency.
->  - Change register definiton to low case.
->  - Change is_last_msg to boolean.
->  - Other optimization.
->
-> Changes sice v1:
->  - Power on I2C device in probe().
->  - Remove redundant macros and usb __maybe_unused.
->  - Remove redundant 'of_match_ptr'.
->  - Modify return values and check the return value for 'clk_prepare_enable'.
-> ---
->  drivers/i2c/busses/Kconfig    |    7 +
->  drivers/i2c/busses/Makefile   |    1 +
->  drivers/i2c/busses/i2c-sprd.c |  683 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 691 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-sprd.c
->
+>  drivers/i2c/i2c-core.c | 11 +++++++++++
 
-[snip]
+Shouldn't you rebase it on top of i2c-next? The file is called i2c-core-
+acpi.c nowadays.
 
-> diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-> new file mode 100644
-> index 0000000..a070f61
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-sprd.c
-> @@ -0,0 +1,683 @@
-> +/*
-> + * Copyright (C) 2017 Spreadtrum Communications Inc.
-> + *
-> + * This software is licensed under the terms of the GNU General Public
-> + * License version 2, as published by the Free Software Foundation, and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
+>  1 file changed, 11 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 82576aaccc90..4334ee1116fe 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -154,11 +154,22 @@ static int i2c_acpi_do_lookup(struct acpi_device
+> *adev,
+>  	struct i2c_board_info *info = lookup->info;
+>  	struct list_head resource_list;
+>  	int ret;
+> +	static const struct acpi_device_id video_device_ids[] = {
+> +		{ ACPI_VIDEO_HID, 0 },
+> +		{}
+> +	};
+>  
+>  	if (acpi_bus_get_status(adev) || !adev->status.present ||
+>  	    acpi_device_enumerated(adev))
+>  		return -EINVAL;
+>  
+> +	/*
+> +	 * ACPI video acpi_devices, which are handled by the acpi-
+> video driver
+> +	 * sometimes contain a SERIAL_TYPE_I2C ACPI resource, ignore
+> these.
+> +	 */
+> +	if (acpi_match_device_ids(adev, video_device_ids) == 0)
+> +		return -ENODEV;
+> +
+>  	memset(info, 0, sizeof(*info));
+>  	lookup->device_handle = acpi_device_handle(adev);
+>  
 
-According to RobH's comments [1], we're switching to use
-SPDX-License-Identifier tag instead, like [2].
-
-[1] http://lkml.iu.edu/hypermail/linux/kernel/1702.2/05122.html
-[2] http://elixir.free-electrons.com/linux/v4.12/source/arch/arm64/boot/dts/sprd/sp9860g-1h10.dts#L6
-
-
-Thanks,
-Chunyan
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
