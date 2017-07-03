@@ -1,117 +1,48 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCH v7 10/10] power: supply: sbs-battery: move gpio present
- detect to sbs_get_property
-Date: Mon, 3 Jul 2017 17:21:03 +0200
-Message-ID: <20170703152103.vw4htej6xswmzeky@earth>
-References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
- <1497535178-12001-11-git-send-email-preid@electromag.com.au>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: acpi: Do not create i2c-clients for LNXVIDEO ACPI
+ devices
+Date: Mon, 03 Jul 2017 18:48:54 +0300
+Message-ID: <1499096934.22624.241.camel@linux.intel.com>
+References: <20170701100311.11859-1-hdegoede@redhat.com>
+         <1499080212.22624.237.camel@linux.intel.com>
+         <3a2b63d6-d88e-aae8-d8a1-a6203a8e971e@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gyhd445ngqeoqlnx"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1497535178-12001-11-git-send-email-preid@electromag.com.au>
-Sender: linux-pm-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:25532 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752312AbdGCPs6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 3 Jul 2017 11:48:58 -0400
+In-Reply-To: <3a2b63d6-d88e-aae8-d8a1-a6203a8e971e@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
+On Mon, 2017-07-03 at 17:04 +0200, Hans de Goede wrote:
+> On 03-07-17 13:10, Andy Shevchenko wrote:
+> > On Sat, 2017-07-01 at 12:03 +0200, Hans de Goede wrote:
 
---gyhd445ngqeoqlnx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > This commit makes the i2c-core ignore LNXVIDEO compatible ACPI
+> > > devices
+> > > which has 2 positive results:
+> > > 
+> > > 1) The bogus i2c-client for these is no longer created.
+> > > 2) i2c_acpi_lookup_speed now ignores the 100KHz speed from the
+> > > pseudo
+> > > i2c-resouce and properly returns 400KHz as speed for the
+> > > touchscreen
+> > > i2c bus, fixing the touchscreen not working on various devies.
+> > 
+> > Should it have Fixes tag?
+> 
+> Well it is a fix, but it does not fix one specific commit, so no
+> I don't think it should.
 
-Hi,
+One may put several Fixes tags to make it clear that it applies on top
+of the tree that has all of them (in the given sequence AFAIR).
 
-On Thu, Jun 15, 2017 at 09:59:38PM +0800, Phil Reid wrote:
-> Currently when a gpio is defined for battery presence it is only used in
-> the sbs_get_battery_presence_and_health function for 2 properties.
-> All other properties currently try to read data form the battery before
-> returning an error if not present. We should know in advance that no
-> data is going to returned.
->=20
-> As the driver tries multiple times to access a property, this prevents
-> a lot of smbus accesses, which had a significant effect on device boot-up.
-> As when the device is registered lots of property accesses are attempted
-> during boot.
->=20
-> If no gpio is used for presence detection no change in behaviour should
-> occur.
->=20
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->  drivers/power/supply/sbs-battery.c | 23 +++++++++++++----------
->  1 file changed, 13 insertions(+), 10 deletions(-)
-
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-
--- Sebastian
-
-> diff --git a/drivers/power/supply/sbs-battery.c b/drivers/power/supply/sb=
-s-battery.c
-> index cf43e38..1e3a8b2 100644
-> --- a/drivers/power/supply/sbs-battery.c
-> +++ b/drivers/power/supply/sbs-battery.c
-> @@ -324,16 +324,6 @@ static int sbs_get_battery_presence_and_health(
->  	union power_supply_propval *val)
->  {
->  	s32 ret;
-> -	struct sbs_info *chip =3D i2c_get_clientdata(client);
-> -
-> -	if (psp =3D=3D POWER_SUPPLY_PROP_PRESENT && chip->gpio_detect) {
-> -		ret =3D gpiod_get_value_cansleep(chip->gpio_detect);
-> -		if (ret < 0)
-> -			return ret;
-> -		val->intval =3D ret;
-> -		chip->is_present =3D val->intval;
-> -		return ret;
-> -	}
-> =20
->  	/*
->  	 * Write to ManufacturerAccess with ManufacturerAccess command
-> @@ -599,6 +589,19 @@ static int sbs_get_property(struct power_supply *psy,
->  	struct sbs_info *chip =3D power_supply_get_drvdata(psy);
->  	struct i2c_client *client =3D chip->client;
-> =20
-> +	if (chip->gpio_detect) {
-> +		ret =3D gpiod_get_value_cansleep(chip->gpio_detect);
-> +		if (ret < 0)
-> +			return ret;
-> +		if (psp =3D=3D POWER_SUPPLY_PROP_PRESENT) {
-> +			val->intval =3D ret;
-> +			chip->is_present =3D val->intval;
-> +			return 0;
-> +		}
-> +		if (ret =3D=3D 0)
-> +			return -ENODATA;
-> +	}
-> +
->  	switch (psp) {
->  	case POWER_SUPPLY_PROP_PRESENT:
->  	case POWER_SUPPLY_PROP_HEALTH:
-> --=20
-> 1.8.3.1
->=20
-
---gyhd445ngqeoqlnx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllaYN8ACgkQ2O7X88g7
-+poBEw//SkbgBsGBo0cIjuHFRVib5iLUCbf8VWE1Fia/GAZEEtuHBueYsrsKCLUh
-c2RNcH2vVPuzBbhgMqo5sVP2pY9yd9FSuJlF9xfEVzGqNaJ1BzbdJjzvnu15jevK
-BlO6JIa+/5f8ELOpR2SttYKyPijKJlPSzHf0ONmJOxU/9LDjRRxt/kXN3iZPGIm9
-sbPt0zpqWgXtnnkcHD1POKbImYUlq//Ji8vRikDZMwb8z9Q+5eVAujz4EtaGSfLn
-CcotUd3AzVhOtzz/WdzoaY7F/TA92ONFJgK5Md4LJtKcbp6SpPGQB6ykuwM8qGbC
-8xIBqB2nUJQPx9NAg/S55yQeCd/cIQ9SaicOpWIGJOwC+tGlAT1ZI8rx2ayLuyMX
-OhbF5i2713St32xjhb52Zc0ckDmhBZdFpNCJDTlW8E73vl7yhnld2sVz0TiH+akL
-jt+3BbecPuTFPoMqp1LhKdTXnnBkM7GLwWz7dtmJIL8SbsAD+6rjh78yOmY46P1I
-GOLwf6aj9G5rsOv/KbW/MnkEwBypzU5sA2+wPTeDvaN1LLxeMRkG5mB2XJxU+PZj
-r8vVqS9V/emy3VteSME3kftBv+eqPp4NrLJ/lKTnKbSVED//fS8CD+Fy7Mx4TJhN
-+uc+OXpbABk+m/r8qhkmh2k74X7JBuoWKXd0TzGYxMgkKsS2NPw=
-=W8UP
------END PGP SIGNATURE-----
-
---gyhd445ngqeoqlnx--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
