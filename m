@@ -1,107 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: acpi: Do not create i2c-clients for LNXVIDEO ACPI
- devices
-Date: Mon, 03 Jul 2017 14:10:12 +0300
-Message-ID: <1499080212.22624.237.camel@linux.intel.com>
-References: <20170701100311.11859-1-hdegoede@redhat.com>
+From: David Weinehall <david.weinehall@linux.intel.com>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to
+ conflict harder
+Date: Mon, 3 Jul 2017 15:23:17 +0300
+Message-ID: <20170703122317.gcu2nx7lomzzghvm@boom>
+References: <20170626204009.32607-1-lyude@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:60588 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753126AbdGCLKQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 3 Jul 2017 07:10:16 -0400
-In-Reply-To: <20170701100311.11859-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20170626204009.32607-1-lyude@redhat.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Lyude <lyude@redhat.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Tissoires <btissoir@redhat.com>, intel-gfx@lists.freedesktop.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org
 
-On Sat, 2017-07-01 at 12:03 +0200, Hans de Goede wrote:
-> ACPI video devices get tagged by the kernel with the custom LNXVIDEO
-> HID so that normal pnp-id matching can be used and are handled by the
-> acpi-video driver.
-> 
-> Sometimes the ACPI nodes describing these contain a SERIAL_TYPE_I2C
-> ACPI
-> resource. Before this commit the presence of this resource would cause
-> the
-> i2c-core to create a /sys/bus/i2c/devices/i2c-LNXVIDEO:00 device for
-> this
-> with a modalias of: "i2c:LNXVIDEO:00".
-> 
-> There is no i2c driver for this custom HID, the acpi-video driver
-> binds
-> directly to the ACPI device /sys/bus/acpi/devices/LNXVIDEO\:00 which
-> has
-> a modalias of "acpi:LNXVIDEO:" .
-> 
-> Not only is the creation of an i2c-client for this undesirable, it is
-> actually causing problems. This weird pseudo-resource claims an i2c
-> speed of 100KHz and typically points to the i2c bus which is used by
-> the
-> touchscreen controller. Some touchscreen controllers only work
-> properly at
-> 400KHz, at 100KHz they cause errors like these:
-> 
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> silead_ts i2c-MSSL1680:00: Registers clear error -11
-> 
-> This commit makes the i2c-core ignore LNXVIDEO compatible ACPI devices
-> which has 2 positive results:
-> 
-> 1) The bogus i2c-client for these is no longer created.
-> 2) i2c_acpi_lookup_speed now ignores the 100KHz speed from the pseudo
-> i2c-resouce and properly returns 400KHz as speed for the touchscreen
-> i2c bus, fixing the touchscreen not working on various devies.
-
-Should it have Fixes tag?
-
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/i2c/i2c-core.c | 11 +++++++++++
-
-Shouldn't you rebase it on top of i2c-next? The file is called i2c-core-
-acpi.c nowadays.
-
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 82576aaccc90..4334ee1116fe 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -154,11 +154,22 @@ static int i2c_acpi_do_lookup(struct acpi_device
-> *adev,
->  	struct i2c_board_info *info = lookup->info;
->  	struct list_head resource_list;
->  	int ret;
-> +	static const struct acpi_device_id video_device_ids[] = {
-> +		{ ACPI_VIDEO_HID, 0 },
-> +		{}
-> +	};
->  
->  	if (acpi_bus_get_status(adev) || !adev->status.present ||
->  	    acpi_device_enumerated(adev))
->  		return -EINVAL;
->  
-> +	/*
-> +	 * ACPI video acpi_devices, which are handled by the acpi-
-> video driver
-> +	 * sometimes contain a SERIAL_TYPE_I2C ACPI resource, ignore
-> these.
-> +	 */
-> +	if (acpi_match_device_ids(adev, video_device_ids) == 0)
-> +		return -ENODEV;
-> +
->  	memset(info, 0, sizeof(*info));
->  	lookup->device_handle = acpi_device_handle(adev);
->  
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+T24gTW9uLCBKdW4gMjYsIDIwMTcgYXQgMDQ6NDA6MDhQTSAtMDQwMCwgTHl1ZGUgd3JvdGU6Cj4g
+VGhlcmUncyBxdWl0ZSBhIG51bWJlciBvZiBtYWNoaW5lcyBvbiB0aGUgbWFya2V0LCBtYWlubHkg
+TGVub3ZvCj4gVGhpbmtQYWRzLCB0aGF0IG1ha2UgdGhlIGhvcnJpYmxlIG1pc3Rha2UgaW4gdGhl
+aXIgZmlybXdhcmUgb2YgcmV1c2luZwo+IHRoZSBQQ0lCQVIgc3BhY2UgcmVzZXJ2ZWQgZm9yIHRo
+ZSBTTUJ1cyBmb3IgdGhpbmdzIHRoYXQgYXJlIGNvbXBsZXRlbHkKPiB1bnJlbGF0ZWQgdG8gdGhl
+IFNNQnVzIGNvbnRyb2xsZXIsIHN1Y2ggYXMgdGhlIE9wUmVnaW9uIHVzZWQgZm9yIGk5MTUuCj4g
+VGhpcyBpcyB2ZXJ5IGJhZCBhbmQgZW50aXJlbHkgZXZpbCwgYnV0IHdpdGggTGVub3ZvJ3MgaGlz
+dG9yaWNhbGx5IHBvb3IKPiB0cmFjayByZWNvcmQgb2YgZml4aW5nIHRoZWlyIGZpcm13YXJlLCBp
+dCBpcyBleHRyZW1lbHkgdW5saWtlbHkgdGhpcyBpcwo+IGV2ZXIgZ29pbmcgdG8gYmUgcHJvcGVy
+bHkgZml4ZWQuCj4gCj4gU28sIHdoaWxlIGl0IHdvdWxkIGJlIG5pY2UgaWYgd2UgY291bGQganVz
+dCBjdXQgb2ZmIHRoZSBTTUJ1cyBjb250cm9sbGVyCj4gYW5kIGNhbGwgaXQgYSBkYXkgdGhpcyB1
+bmZvcnR1bmF0ZWx5IGJyZWFrcyBSTUk0IG1vZGUgY29tcGxldGVseSBmb3IKPiBtb3N0IG9mIHRo
+ZSBUaGlua1BhZHMuIEV2ZW4gdGhvdWdoIHRoaXMgYmVoYXZpb3IgaXMgZXh0cmVtZWx5IHdyb25n
+LCBmb3IKPiB3aGF0ZXZlciByZWFzb24gc2hhcmluZyB0aGUgUENJQkFSIGJldHdlZW4gdGhlIE9w
+UmVnaW9uIGFuZCBTTUJ1cyBzZWVtcwo+IHRvIGJlIGp1c3QgZmluZS4gUmVnYXJkbGVzcyBob3dl
+dmVyLCBJIHRoaW5rIGl0J3Mgc2FmZSB0byBhc3N1bWUgdGhhdAo+IHdoZW4gdGhlIEJJT1MgYWNj
+ZXNzZXMgdGhlIFBDSUJBUiBzcGFjZSBvZiB0aGUgU01CdXMgY29udHJvbGxlciBsaWtlCj4gdGhp
+cyB0aGF0IGl0J3MgdHJ5aW5nIHRvIGdldCB0byBzb21ldGhpbmcgZWxzZSB0aGF0IHdlIG1hcHBl
+ZCB0aGUgU01CdXMKPiBjb250cm9sbGVyIG92ZXIuCj4gCj4gT24gbXkgWDEgQ2FyYm9uLCB0aGlz
+IGFzc3VtcHRpb24gYXBwZWFycyB0byBiZSBjb3JyZWN0LiBJJ3ZlIHRyYWNlZCBkb3duCj4gdGhl
+IGZpcm13YXJlIGFjY2Vzc2VzIHRvIGJlaW5nIGNhdXNlZCBieSB0aGUgZmlybXdhcmUgbWlzdGFr
+ZW5seSBwbGFjaW5nCj4gdGhlIFNXU0NJIG1haWxib3ggZm9yIGk5MTUgb24gdG9wIG9mIHRoZSBT
+TUJ1cyBob3N0IGNvbnRyb2xsZXIgcmVnaW9uLgo+IEFuZCBpbmRlZWQsIGJsYWNrbGlzdGluZyBp
+OTE1IGNhdXNlcyB0aGUgZmlybXdhcmUgdG8gbmV2ZXIgYXR0ZW1wdCB0bwo+IHRvdWNoIHRoaXMg
+cmVnaW9uLgo+IAo+IFNvLCBpbiBvcmRlciB0byB0cnkgdG8gd29ya2Fyb3VuZCB0aGlzIGFuZCBu
+b3QgYnJlYWsgZWl0aGVyIFNNQnVzIG9yCj4gaTkxNSwgd2UgdGVtcG9yYXJpbHkgdW5tYXAgdGhl
+IFBDSSBkZXZpY2UgZm9yIHRoZSBTTUJ1cyBjb250cm9sbGVyLAo+IGRvIHRoZSB0aGluZyB0aGF0
+IHRoZSBmaXJtd2FyZSB3YW50ZWQgdG8gZG8sIHRoZW4gcmVtYXAgdGhlIGRldmljZSBhbmQKPiBy
+ZXBvcnQgYSBmaXJtd2FyZSBidWcuCj4gCj4gU2lnbmVkLW9mZi1ieTogTHl1ZGUgPGx5dWRlQHJl
+ZGhhdC5jb20+Cj4gQ2M6IFJhZmFlbCBKLiBXeXNvY2tpIDxyYWZhZWwuai53eXNvY2tpQGludGVs
+LmNvbT4KPiBDYzogQmVuamFtaW4gVGlzc29pcmVzIDxidGlzc29pckByZWRoYXQuY29tPgo+IENj
+OiBNaWthIFdlc3RlcmJlcmcgPG1pa2Eud2VzdGVyYmVyZ0BsaW51eC5pbnRlbC5jb20+Cj4gQ2M6
+IEplYW4gRGVsdmFyZSA8amRlbHZhcmVAc3VzZS5kZT4KPiBDYzogV29sZnJhbSBTYW5nIDx3c2FA
+dGhlLWRyZWFtcy5kZT4KPiBDYzogaW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+IC0t
+LQo+IFNvOiB1bmZvcnR1bmF0ZWx5Cj4gCj4gYTdhZTgxOTUyY2RhIChpMmM6IGk4MDE6IEFsbG93
+IEFDUEkgU3lzdGVtSU8gT3BSZWdpb24gdG8gY29uZmxpY3Qgd2l0aCBQQ0kgQkFSKQo+IAo+IFNl
+ZW1zIHRvIHByZXZlbnQgdGhlIFRoaW5rUGFkIFgxIENhcmJvbiA0dGggZ2VuIGFuZCB0aGUgVDQ2
+MHMgZnJvbSBhY3R1YWxseQo+IHVzaW5nIHRoZWlyIFNNQnVzIGNvbnRyb2xsZXJzIGF0IGFsbC4g
+QXMgbWVudGlvbmVkIGFib3ZlLCBJJ3ZlIHRyYWNlZCB0aGUgaXNzdWUKPiBkb3duIHRvIHRoZSBm
+aXJtd2FyZSByZXNwb25kaW5nIHRvIHRoZSBTV1NDSSBieSBzdGlja2luZyBkYXRhIGluIHBsYWNl
+cyBpdAo+IHNob3VsZG4ndCwgZS5nLiB0aGUgU01CdXMgcmVnaXN0ZXJzLgo+IAo+IEknbSBlbnRp
+cmVseSB1bnN1cmUgaWYgdGhpcyBwYXRjaCBpcyB0aGUgY29ycmVjdCBmaXggZm9yIHRoaXMsIGFu
+ZCB3b3VsZG4ndCBiZQo+IGF0IGFsbCBzdXJwcmlzZWQgaWYgaXQncyBqdXN0IGFzIGJhZCBvZiBh
+IHBhdGNoIGFzIEkgdGhpbmsgaXQgaXMgO1AuIFNvIEkKPiBmaWd1cmVkIEknZCBzZW5kIGl0IHRv
+IGludGVsLWdmeCBhbmQgdGhlIGF1dGhvcnMgb2YgdGhlIG9yaWdpbmFsIHZlcnNpb24gb2YgdGhp
+cwo+IHBhdGNoIHRvIGdldCB0aGVpciB0YWtlIG9uIGl0IGFuZCBzZWUgaWYgdGhlcmUgbWlnaHQg
+YmUgc29tZXRoaW5nIGxlc3MgaGFja3kgd2UKPiBjYW4gZG8gdG8gZml4IHRoaXMuCgpIb3cgZG9l
+cyAidGhhdCBvdGhlciIgb3BlcmF0aW5nIHN5c3RlbSBoYW5kbGUgdGhpcz8KCkZXSVcgSSBvd24g
+YSBUaGlua1BhZCBYMSBDYXJib24gNHRoIEdlbiwgc28gSSdtIGhhcHB5IGZvciB5b3VyIHdvcmsg
+b24KaXQgOikKCgpLaW5kIHJlZ2FyZHMsIERhdmlkCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxp
+c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL2ludGVsLWdmeAo=
