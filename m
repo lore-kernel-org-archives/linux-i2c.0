@@ -1,78 +1,149 @@
-From: David Weinehall <david.weinehall@linux.intel.com>
-Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to
- conflict harder
-Date: Mon, 3 Jul 2017 15:23:17 +0300
-Message-ID: <20170703122317.gcu2nx7lomzzghvm@boom>
-References: <20170626204009.32607-1-lyude@redhat.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH v7 07/10] Documentation: Add sbs-manager device tree node
+ documentation
+Date: Mon, 3 Jul 2017 15:57:09 +0200
+Message-ID: <20170703135709.staqrypylh6pvfby@earth>
+References: <1497535178-12001-1-git-send-email-preid@electromag.com.au>
+ <1497535178-12001-8-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="hu7ijcaiz7ackdir"
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170626204009.32607-1-lyude@redhat.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Lyude <lyude@redhat.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Tissoires <btissoir@redhat.com>, intel-gfx@lists.freedesktop.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>
+In-Reply-To: <1497535178-12001-8-git-send-email-preid@electromag.com.au>
+Sender: linux-pm-owner@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gTW9uLCBKdW4gMjYsIDIwMTcgYXQgMDQ6NDA6MDhQTSAtMDQwMCwgTHl1ZGUgd3JvdGU6Cj4g
-VGhlcmUncyBxdWl0ZSBhIG51bWJlciBvZiBtYWNoaW5lcyBvbiB0aGUgbWFya2V0LCBtYWlubHkg
-TGVub3ZvCj4gVGhpbmtQYWRzLCB0aGF0IG1ha2UgdGhlIGhvcnJpYmxlIG1pc3Rha2UgaW4gdGhl
-aXIgZmlybXdhcmUgb2YgcmV1c2luZwo+IHRoZSBQQ0lCQVIgc3BhY2UgcmVzZXJ2ZWQgZm9yIHRo
-ZSBTTUJ1cyBmb3IgdGhpbmdzIHRoYXQgYXJlIGNvbXBsZXRlbHkKPiB1bnJlbGF0ZWQgdG8gdGhl
-IFNNQnVzIGNvbnRyb2xsZXIsIHN1Y2ggYXMgdGhlIE9wUmVnaW9uIHVzZWQgZm9yIGk5MTUuCj4g
-VGhpcyBpcyB2ZXJ5IGJhZCBhbmQgZW50aXJlbHkgZXZpbCwgYnV0IHdpdGggTGVub3ZvJ3MgaGlz
-dG9yaWNhbGx5IHBvb3IKPiB0cmFjayByZWNvcmQgb2YgZml4aW5nIHRoZWlyIGZpcm13YXJlLCBp
-dCBpcyBleHRyZW1lbHkgdW5saWtlbHkgdGhpcyBpcwo+IGV2ZXIgZ29pbmcgdG8gYmUgcHJvcGVy
-bHkgZml4ZWQuCj4gCj4gU28sIHdoaWxlIGl0IHdvdWxkIGJlIG5pY2UgaWYgd2UgY291bGQganVz
-dCBjdXQgb2ZmIHRoZSBTTUJ1cyBjb250cm9sbGVyCj4gYW5kIGNhbGwgaXQgYSBkYXkgdGhpcyB1
-bmZvcnR1bmF0ZWx5IGJyZWFrcyBSTUk0IG1vZGUgY29tcGxldGVseSBmb3IKPiBtb3N0IG9mIHRo
-ZSBUaGlua1BhZHMuIEV2ZW4gdGhvdWdoIHRoaXMgYmVoYXZpb3IgaXMgZXh0cmVtZWx5IHdyb25n
-LCBmb3IKPiB3aGF0ZXZlciByZWFzb24gc2hhcmluZyB0aGUgUENJQkFSIGJldHdlZW4gdGhlIE9w
-UmVnaW9uIGFuZCBTTUJ1cyBzZWVtcwo+IHRvIGJlIGp1c3QgZmluZS4gUmVnYXJkbGVzcyBob3dl
-dmVyLCBJIHRoaW5rIGl0J3Mgc2FmZSB0byBhc3N1bWUgdGhhdAo+IHdoZW4gdGhlIEJJT1MgYWNj
-ZXNzZXMgdGhlIFBDSUJBUiBzcGFjZSBvZiB0aGUgU01CdXMgY29udHJvbGxlciBsaWtlCj4gdGhp
-cyB0aGF0IGl0J3MgdHJ5aW5nIHRvIGdldCB0byBzb21ldGhpbmcgZWxzZSB0aGF0IHdlIG1hcHBl
-ZCB0aGUgU01CdXMKPiBjb250cm9sbGVyIG92ZXIuCj4gCj4gT24gbXkgWDEgQ2FyYm9uLCB0aGlz
-IGFzc3VtcHRpb24gYXBwZWFycyB0byBiZSBjb3JyZWN0LiBJJ3ZlIHRyYWNlZCBkb3duCj4gdGhl
-IGZpcm13YXJlIGFjY2Vzc2VzIHRvIGJlaW5nIGNhdXNlZCBieSB0aGUgZmlybXdhcmUgbWlzdGFr
-ZW5seSBwbGFjaW5nCj4gdGhlIFNXU0NJIG1haWxib3ggZm9yIGk5MTUgb24gdG9wIG9mIHRoZSBT
-TUJ1cyBob3N0IGNvbnRyb2xsZXIgcmVnaW9uLgo+IEFuZCBpbmRlZWQsIGJsYWNrbGlzdGluZyBp
-OTE1IGNhdXNlcyB0aGUgZmlybXdhcmUgdG8gbmV2ZXIgYXR0ZW1wdCB0bwo+IHRvdWNoIHRoaXMg
-cmVnaW9uLgo+IAo+IFNvLCBpbiBvcmRlciB0byB0cnkgdG8gd29ya2Fyb3VuZCB0aGlzIGFuZCBu
-b3QgYnJlYWsgZWl0aGVyIFNNQnVzIG9yCj4gaTkxNSwgd2UgdGVtcG9yYXJpbHkgdW5tYXAgdGhl
-IFBDSSBkZXZpY2UgZm9yIHRoZSBTTUJ1cyBjb250cm9sbGVyLAo+IGRvIHRoZSB0aGluZyB0aGF0
-IHRoZSBmaXJtd2FyZSB3YW50ZWQgdG8gZG8sIHRoZW4gcmVtYXAgdGhlIGRldmljZSBhbmQKPiBy
-ZXBvcnQgYSBmaXJtd2FyZSBidWcuCj4gCj4gU2lnbmVkLW9mZi1ieTogTHl1ZGUgPGx5dWRlQHJl
-ZGhhdC5jb20+Cj4gQ2M6IFJhZmFlbCBKLiBXeXNvY2tpIDxyYWZhZWwuai53eXNvY2tpQGludGVs
-LmNvbT4KPiBDYzogQmVuamFtaW4gVGlzc29pcmVzIDxidGlzc29pckByZWRoYXQuY29tPgo+IENj
-OiBNaWthIFdlc3RlcmJlcmcgPG1pa2Eud2VzdGVyYmVyZ0BsaW51eC5pbnRlbC5jb20+Cj4gQ2M6
-IEplYW4gRGVsdmFyZSA8amRlbHZhcmVAc3VzZS5kZT4KPiBDYzogV29sZnJhbSBTYW5nIDx3c2FA
-dGhlLWRyZWFtcy5kZT4KPiBDYzogaW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+IC0t
-LQo+IFNvOiB1bmZvcnR1bmF0ZWx5Cj4gCj4gYTdhZTgxOTUyY2RhIChpMmM6IGk4MDE6IEFsbG93
-IEFDUEkgU3lzdGVtSU8gT3BSZWdpb24gdG8gY29uZmxpY3Qgd2l0aCBQQ0kgQkFSKQo+IAo+IFNl
-ZW1zIHRvIHByZXZlbnQgdGhlIFRoaW5rUGFkIFgxIENhcmJvbiA0dGggZ2VuIGFuZCB0aGUgVDQ2
-MHMgZnJvbSBhY3R1YWxseQo+IHVzaW5nIHRoZWlyIFNNQnVzIGNvbnRyb2xsZXJzIGF0IGFsbC4g
-QXMgbWVudGlvbmVkIGFib3ZlLCBJJ3ZlIHRyYWNlZCB0aGUgaXNzdWUKPiBkb3duIHRvIHRoZSBm
-aXJtd2FyZSByZXNwb25kaW5nIHRvIHRoZSBTV1NDSSBieSBzdGlja2luZyBkYXRhIGluIHBsYWNl
-cyBpdAo+IHNob3VsZG4ndCwgZS5nLiB0aGUgU01CdXMgcmVnaXN0ZXJzLgo+IAo+IEknbSBlbnRp
-cmVseSB1bnN1cmUgaWYgdGhpcyBwYXRjaCBpcyB0aGUgY29ycmVjdCBmaXggZm9yIHRoaXMsIGFu
-ZCB3b3VsZG4ndCBiZQo+IGF0IGFsbCBzdXJwcmlzZWQgaWYgaXQncyBqdXN0IGFzIGJhZCBvZiBh
-IHBhdGNoIGFzIEkgdGhpbmsgaXQgaXMgO1AuIFNvIEkKPiBmaWd1cmVkIEknZCBzZW5kIGl0IHRv
-IGludGVsLWdmeCBhbmQgdGhlIGF1dGhvcnMgb2YgdGhlIG9yaWdpbmFsIHZlcnNpb24gb2YgdGhp
-cwo+IHBhdGNoIHRvIGdldCB0aGVpciB0YWtlIG9uIGl0IGFuZCBzZWUgaWYgdGhlcmUgbWlnaHQg
-YmUgc29tZXRoaW5nIGxlc3MgaGFja3kgd2UKPiBjYW4gZG8gdG8gZml4IHRoaXMuCgpIb3cgZG9l
-cyAidGhhdCBvdGhlciIgb3BlcmF0aW5nIHN5c3RlbSBoYW5kbGUgdGhpcz8KCkZXSVcgSSBvd24g
-YSBUaGlua1BhZCBYMSBDYXJib24gNHRoIEdlbiwgc28gSSdtIGhhcHB5IGZvciB5b3VyIHdvcmsg
-b24KaXQgOikKCgpLaW5kIHJlZ2FyZHMsIERhdmlkCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxp
-c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2ludGVsLWdmeAo=
+
+--hu7ijcaiz7ackdir
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Thu, Jun 15, 2017 at 09:59:35PM +0800, Phil Reid wrote:
+> From: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+>=20
+> This patch adds device tree documentation for the sbs-manager
+>=20
+> Signed-off-by: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
+> Acked-by: Rob Herring <robh@kernel.org>
+
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+
+-- Sebastian
+
+> ---
+>  .../bindings/power/supply/sbs,sbs-manager.txt      | 66 ++++++++++++++++=
+++++++
+>  1 file changed, 66 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/power/supply/sbs,sb=
+s-manager.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/power/supply/sbs,sbs-manag=
+er.txt b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
+> new file mode 100644
+> index 0000000..4b219557
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/supply/sbs,sbs-manager.txt
+> @@ -0,0 +1,66 @@
+> +Binding for sbs-manager
+> +
+> +Required properties:
+> +- compatible: "<vendor>,<part-number>", "sbs,sbs-charger" as fallback. T=
+he part
+> +  number compatible string might be used in order to take care of vendor
+> +  specific registers.
+> +- reg: integer, i2c address of the device. Should be <0xa>.
+> +Optional properties:
+> +- gpio-controller: Marks the port as GPIO controller.
+> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
+> +- #gpio-cells: Should be <2>. The first cell is the pin number, the seco=
+nd cell
+> +  is used to specify optional parameters:
+> +  See "gpio-specifier" in .../devicetree/bindings/gpio/gpio.txt.
+> +
+> +From OS view the device is basically an i2c-mux used to communicate with=
+ up to
+> +four smart battery devices at address 0xb. The driver actually implement=
+s this
+> +behaviour. So standard i2c-mux nodes can be used to register up to four =
+slave
+> +batteries. Channels will be numerated starting from 1 to 4.
+> +
+> +Example:
+> +
+> +batman@a {
+> +    compatible =3D "lltc,ltc1760", "sbs,sbs-manager";
+> +    reg =3D <0x0a>;
+> +    #address-cells =3D <1>;
+> +    #size-cells =3D <0>;
+> +
+> +    gpio-controller;
+> +    #gpio-cells =3D <2>;
+> +
+> +    i2c@1 {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +        reg =3D <1>;
+> +
+> +        battery@b {
+> +            compatible =3D "ti,bq2060", "sbs,sbs-battery";
+> +            reg =3D <0x0b>;
+> +            sbs,battery-detect-gpios =3D <&batman 1 1>;
+> +        };
+> +    };
+> +
+> +    i2c@2 {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +        reg =3D <2>;
+> +
+> +        battery@b {
+> +            compatible =3D "ti,bq2060", "sbs,sbs-battery";
+> +            reg =3D <0x0b>;
+> +            sbs,battery-detect-gpios =3D <&batman 2 1>;
+> +        };
+> +    };
+> +
+> +    i2c@3 {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +        reg =3D <3>;
+> +
+> +        battery@b {
+> +            compatible =3D "ti,bq2060", "sbs,sbs-battery";
+> +            reg =3D <0x0b>;
+> +            sbs,battery-detect-gpios =3D <&batman 3 1>;
+> +        };
+> +    };
+> +};
+> --=20
+> 1.8.3.1
+>=20
+
+--hu7ijcaiz7ackdir
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllaTTQACgkQ2O7X88g7
++ppRQg//X9v5OpO8GURFB16sEvfc1Jg5XLAKcPffsKcr99hcm/HC3OBwk9ZTPC2I
+gwMdaEZ8Eh63h7d4AZImKCo7dOBjPmmI4WdHxhj4uirsnwXToCo5JvUEl7dMmVAn
+yoFYiGic7VL8jUhiRQ5vowJTvWOThGruUOcOMtVPR1OSN+5EW1bHnzzlF41acINA
+eZAfDuMWxHaolV+NKb82LoercIVkc8xnGCLkfPMt9Zu0F5fBzaMHnUeGgpk2R3cP
+botI/pPGvTuJABVmWygknyVgOPqcZRzOJyPFQfbhyOnop8k2x2IOfBCsM5U5M99O
+DmILhSyidfJqIACPIjCmJFhhw/tgcK5Pxh8Pd/zmKHKvgs7Boq0sUzKasNyngsjb
+iKDf7AE7TbCzvfiDt2KdW3kKTWF+kaidXxHJjeMP7NLpnFn1rvxhONjHEFaIXAU2
++xlzgM6T230UREa+lr+MD8/6ionQldpGDKA9w0z/x4fwJgHqK9vYu7blUwMw+WY4
+ZTfM9p3qWKMivmNoxEAR4YN7voCYO3rxWT62vw2IYXeZl7Opq8D8zJV0QSKHdn5s
+/2A9vduJagV/3CAWd0f97v6Lz8Lkf7eclm9C+lOqhrbkA5X3TiM4lrSmAPKec0PH
+++oW430qw457mP2yGaBFbncduVLQIpyX4fheWQZ5R+GgGWWX0cc=
+=tbsx
+-----END PGP SIGNATURE-----
+
+--hu7ijcaiz7ackdir--
