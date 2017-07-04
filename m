@@ -1,71 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/6] i2c: pca-platform: use device_property_read_u32
-Date: Tue, 4 Jul 2017 16:07:06 +0200
-Message-ID: <20170704140706.p3yvxzc6722jeexs@ninjato>
-References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
- <20170630005408.23968-6-chris.packham@alliedtelesis.co.nz>
- <CAHp75Vc+6WGFiJifEExjv3jSFsy+ORGtRoDPmv31sSFN=zkHMg@mail.gmail.com>
- <20170630090354.6s6ahpjhis7ptbfg@ninjato>
- <CAHp75Ve1daNFe4PLAMpqMudE9d+Ss2JpeZ=Sy5x5ij99gAVs_w@mail.gmail.com>
- <942893991cc34410bf1515a6a970c5c2@svr-chch-ex1.atlnz.lc>
+Subject: Re: [PATCH][i2c-next] i2c: designware: fix spelling mistakes
+Date: Tue, 4 Jul 2017 16:09:15 +0200
+Message-ID: <20170704140915.dziy4duj3e5sc5a4@ninjato>
+References: <20170629082215.9044-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rcnbahvgpyccu534"
-Return-path: <linux-sh-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="u5czzzkmw7unvmow"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:49212 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751648AbdGDOJR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 4 Jul 2017 10:09:17 -0400
 Content-Disposition: inline
-In-Reply-To: <942893991cc34410bf1515a6a970c5c2@svr-chch-ex1.atlnz.lc>
-Sender: linux-sh-owner@vger.kernel.org
-To: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20170629082215.9044-1-colin.king@canonical.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---rcnbahvgpyccu534
+--u5czzzkmw7unvmow
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> >> Frankly, I am not a big fan of converting board files if we cannot test
-> >> the changes.
-> >=20
-> > So, if no one is using that old boards, should we really take care
-> > more than just compile test?
-> >=20
-> > P.S. Legacy platform data makes a burden of development nowadays.
-> > Built-in device properties API (as a part of Unified Device
-> > Properties) is exactly for getting rid of legacy stuff and make things
-> > much cleaner.
+On Thu, Jun 29, 2017 at 09:22:15AM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> We could probably go with an approach of making the device properties=20
-> the default which would suit the new style and leave the platform_data=20
-> to override things if it is present.
+> Trivial fixes to spelling mistakes in dev_dbg message
 >=20
-> If/when the older platforms go away we can drop struct=20
-> i2c_pca9564_pf_platform_data.
+> "STAUTS" -> "STATUS"
+> "SLAVE_ACTTVITY" -> "SLAVE_ACTIVITY"
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-I don't have a super strong opinion, so we can discuss this for 4.14.
-For 4.13, I picked the two easy patches already. Thanks!
+Applied to for-next, thanks!
 
 
---rcnbahvgpyccu534
+--u5czzzkmw7unvmow
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllboQoACgkQFA3kzBSg
-KbZFdg/9HWSBsv5ac0+p7QQw4RvY8KD1H2AgUxVhSTbs5h5t8MrHre29waCLElui
-xCDtfIunYs0KaRL9usOEvUld9Jxgd2OFxItpJXRjIFnHP2Atx5ptBE7RoqQTutwS
-tP83FYCjlDGvorO2ZmDgbL4ay+SLIBoUbzR9HyRY1tl2E3llnv+vX+KMawff1rnF
-c4iD4kA2BPSIIFZXkgzFcRi+/NtNzlNQwhmuu7OKTIIApJ7VE7Rp0YOQe+dcaoPN
-AZy3dXNQiuDAMYAErQiaaAHVt5krz2ADbnEN+TTr5oauBkxket9lrtJ87NZIG/3Q
-OEC1h+f38Lf30ZB8t+CE/45Cp87V8fglBNQp/aUCoRPzovp0KXvHhO1PY3E5QvL3
-92Oe6tG4gw/JutIr3yFdGB8LeOV9DsSttqMWGf/RZGrkJ6GQwc70xcWaWorQNmRj
-vTYYf/M/11FzQM63DcS43tWC+WgDFTn5BOpnoBvEuWz2LxjYsogFqcxhE5o0DXnJ
-3ka/DgJ7WqNW4K3oPELUzgkVvqhPd4bx4A8Q2Vl9y2JTWtJB7UyK9p2Fu37ZFELw
-8V0NpyzVKpy2z1eeO+1+6X2O7daB16sXUL159I9Kfc1Nh+nY82BV0pcRKtDuK9/b
-IVxKD6vESLsVR+lpy7fKkmFHjCxXCMKT0zE+5YchSrJ54a9f+Lg=
-=4nFf
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllboYsACgkQFA3kzBSg
+KbYKNA/+J6nl3msyK0mT7upE+pPjhrGI/5zJjyH5feK6gQ23NRFe8eq3vhYkk+zX
+G3zycC/GgooYaKRzYd0AZ4rqjXzKZoCh15lx5sqwgcsEig8XhVq2TnyeRVgUgYt6
+LefCRhrhLza0sQuTyhr7MNyHPmkn5+PhBMkTDXAzfvFgdR9QrfJKQTN4LM+ERPxM
+/sCJH8GM76Vm91PmTOdv1CN6srj46StzA05Cqo/R+R+lEGM7XWd55mZ2ByK4GDSo
+OKxR91+ZqbpU2ydYfjHDLOt1mzHkncNcvEA2dpQkS0c/YySUUUODUSSbk/RTtvvW
+G6wn7Vfqp9W1lUWKfbp1xWZiZN3LDT0jl0ZUnUkd62mdfOHvgiJa6mJvgny99gdg
+qkjtgd/kWWhz5tTsks3XJ2tEeQBUhURIoNU2MU/jMwS0PsEz19p/FhyGfYL4Nu+q
+RA6Y6CdJEsQLJb3L94b0jhU++YkBLOJnCg3eCe78NPV0ZxMIEz+1yaZA1H3Usyuh
+nIcCefdxrZrSA+U3M1yMuJ82VOko/hOcLOn9tLI7MvCd6AWSWIv8+Hi88f1PlWFy
+NyanEhzMI3INjcMne9LnWc5LWRF6YJWAJMfLhjklCtduMCf2MqtlWMZjWzdzR8/H
+wek/gfixnRuh/5rGdK9DwAtrc62ofrRRekGK/KKefDtyfTUZvyM=
+=I8bw
 -----END PGP SIGNATURE-----
 
---rcnbahvgpyccu534--
+--u5czzzkmw7unvmow--
