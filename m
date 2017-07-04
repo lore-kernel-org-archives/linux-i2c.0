@@ -1,89 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: acpi: Do not create i2c-clients for LNXVIDEO
- ACPI devices
-Date: Tue, 4 Jul 2017 15:58:33 +0200
-Message-ID: <20170704135832.ijcfpbckzpo3uxlw@ninjato>
-References: <20170704130448.19064-1-hdegoede@redhat.com>
+Subject: Re: [PATCH 2/6] i2c: pca-platform: correctly set algo_data.reset_chip
+Date: Tue, 4 Jul 2017 16:03:34 +0200
+Message-ID: <20170704140333.iahb7udd22ph6awk@ninjato>
+References: <20170630005408.23968-1-chris.packham@alliedtelesis.co.nz>
+ <20170630005408.23968-3-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2hwablnlllmfcabu"
+        protocol="application/pgp-signature"; boundary="5thzgr52ilotzhge"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49152 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:49175 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751972AbdGDN6f (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 4 Jul 2017 09:58:35 -0400
+        id S1752067AbdGDODg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 4 Jul 2017 10:03:36 -0400
 Content-Disposition: inline
-In-Reply-To: <20170704130448.19064-1-hdegoede@redhat.com>
+In-Reply-To: <20170630005408.23968-3-chris.packham@alliedtelesis.co.nz>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org, ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---2hwablnlllmfcabu
+--5thzgr52ilotzhge
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 04, 2017 at 03:04:48PM +0200, Hans de Goede wrote:
-> ACPI video devices get tagged by the kernel with the custom LNXVIDEO
-> HID so that normal pnp-id matching can be used and are handled by the
-> acpi-video driver.
+On Fri, Jun 30, 2017 at 12:54:04PM +1200, Chris Packham wrote:
+> When device tree support was added the setting of algo_data.reset_chip
+> was moved. There were two problems with this. The first being that
+> i2c_pca_pf_resetchip was only used if platform data was provided. The
+> second that it was unconditionally overridden with
+> i2c_pca_pf_dummyreset. Ensure that however the reset gpio is defined the
+> correct reset_chip function is used.
 >=20
-> Sometimes the ACPI nodes describing these contain a SERIAL_TYPE_I2C ACPI
-> resource. Before this commit the presence of this resource would cause the
-> i2c-core to create a /sys/bus/i2c/devices/i2c-LNXVIDEO:00 device for this
-> with a modalias of: "i2c:LNXVIDEO:00".
->=20
-> There is no i2c driver for this custom HID, the acpi-video driver binds
-> directly to the ACPI device /sys/bus/acpi/devices/LNXVIDEO\:00 which has
-> a modalias of "acpi:LNXVIDEO:" .
->=20
-> Not only is the creation of an i2c-client for this undesirable, it is
-> actually causing problems. This weird pseudo-resource claims an i2c
-> speed of 100KHz and typically points to the i2c bus which is used by the
-> touchscreen controller. Some touchscreen controllers only work properly at
-> 400KHz, at 100KHz they cause errors like these:
->=20
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> i2c_designware 80860F41:03: i2c_dw_handle_tx_abort: lost arbitration
-> silead_ts i2c-MSSL1680:00: Registers clear error -11
->=20
-> This commit makes the i2c-core ignore LNXVIDEO compatible ACPI devices
-> which has 2 positive results:
->=20
-> 1) The bogus i2c-client for these is no longer created.
-> 2) i2c_acpi_lookup_speed now ignores the 100KHz speed from the pseudo
-> i2c-resouce and properly returns 400KHz as speed for the touchscreen
-> i2c bus, fixing the touchscreen not working on various devies.
->=20
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Fixes: commit 4cc7229daa46 ("i2c: pca-platform: switch to struct gpio_des=
+c")
+> Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-Looks like a bugfix, so I'll include it in this merge window.
+It's a bugfix, so I'll include it in this merge window.
 
 Applied to for-next, thanks!
 
 
---2hwablnlllmfcabu
+--5thzgr52ilotzhge
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllbnwQACgkQFA3kzBSg
-KbZLDRAAqALu+mV6YS/8X+PchC/hcgWwNnD2KHdPhx64OrSbneIW2s3ty3zCCEQ/
-ZCNdc9rS5T3rZcFuz9jzl623oNrrXbjb7ZCRntWVahO+BjAHPszidV8RmyLTecRf
-74F/u4XAsUJl4dbYTecdJYx4dkG0cf/g7oCMoyzd0GN48sNrHDPPlM/cNrBbYiMk
-jbJZZlenfAy5f06MYwxo57XAYcdj5ldPfQn75LfFzXvRCY17IpXwYjqieIyb7EdF
-Kzy6+Ikbqvh1e+x4BFpIYLg4oDktJ2qJB8bbpyNoYDAwPuHi6c8gQc5srTaDXTsG
-7fFYcKP/QqvTy2HBkRYbGr9SAAP+1GEbxcgLcRN+ZehNDhlUzgHP6US8rovWE3gM
-xQUbvg5E6GqIDB4QYv5TsIqwKGthIk7NoTSAj+ZkP9cZAF1o62nbH2Mss4mKNfql
-kVGSo5kE2lmotPA7o/6UWKV2CHv/Z3pRxpb1CMT94xU+7d6FXV+QG80zraDBtfFG
-uGUHWHqBjk8KoVFPeW29hmJTFKLKUKD9pPBMN1JhNBJxoObg102ca5gnSDkOhCU2
-SRYOHM7r5Rvm4hHiRj8ZZ1BIugrRc9Ly2gd37Mj243wsXOdbVI/ikoTCy3efUITM
-ZXXJKOeRjFDJoIcKyiuXoxr2ubfA8ffq/Jl8h7pMsUvRkIt3ZOs=
-=WsWv
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllboDUACgkQFA3kzBSg
+KbbtPw//XQD0e7td5ohv5+ktnC70xdPFz34LrefB7y6Z34FRDvjbp1PSQirQy8Ap
+cobMfdHksEQ0CDTMcdDYBsD8ijpEpr03JOVWEPjE1eFvUnea56MSl/z41Bzdnx4a
+QT4iNZWfBz9GdcP7CFlUGMXoAwkHpTeyJu2S2wpe/9rgJDYDDGUAuhX8DSKNL5QV
+nSuQ3KtcGNANnB/bR5sj7TrV5/ZtGSCrTdNapi3uKOPW4M3YRp9XftmDXwAkeEgv
+0uNLwKdG+ac4LOWLFZyNIa8R4OUgwrc7OlOVbLDXFkQECfjBcA+0aXZtIgbz8R2f
+C1Ggf00dXwIHpVjsPEw1JwcYBbcPsoiEEul1djz12+UF5sgc56f36xrIEcurkIDY
+rAWGVSItKBSnlXepF8OMKR+bn3ZlXBiSyAgKpkhRdG6Zy7iIdMeLnScKL1i5wwLr
+vCKVUsyq+ZL/RT13iFt7S9LwQaBxNGLwkjg1nWltEK6jWYeaBrknHSOl5WXMfCH9
+DandR8XPW7Tioh4v64+kykc6b1wzN40xMquN1m+DLz6rvFIq7ZkmxNWqhFvhorO2
+a/yjoppWySaV3nrVtpijZUWc1ort6ZpnMcFyC2Xh/GzarUXx1lL5Fb0YRN6YbcPR
+IAbea74GUMOWbAXjfiInGDu15TQuXNEX/BglYLoMlJfwDrwal3Y=
+=Iz2L
 -----END PGP SIGNATURE-----
 
---2hwablnlllmfcabu--
+--5thzgr52ilotzhge--
