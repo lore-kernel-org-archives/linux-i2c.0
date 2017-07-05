@@ -1,59 +1,82 @@
-From: m18063 <Claudiu.Beznea@microchip.com>
+From: m18063 <Claudiu.Beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 Subject: Re: [RFC PATCH 2/3] drivers: misc: eeprom: at24: support reading mac
  eeprom from different addresses
-Date: Wed, 5 Jul 2017 12:31:37 +0300
-Message-ID: <c9ee02db-f364-7ac4-dbb5-12fed48ae489@microchip.com>
+Date: Wed, 5 Jul 2017 12:33:18 +0300
+Message-ID: <7fa4b55d-12dd-3687-5ffc-eef96a002533@microchip.com>
 References: <1498736351-9021-1-git-send-email-claudiu.beznea@microchip.com>
  <1498736351-9021-3-git-send-email-claudiu.beznea@microchip.com>
- <CAHp75Vf_SL3ReKLK0=8v3bDwHs5qwi2qc9p=XzJK9BXzOsLKLA@mail.gmail.com>
- <20170629133029.fq6jjivu5cx22j6q@rfolt0960.corp.atmel.com>
+ <b67a323b-5562-1259-08f1-fa7ee3509e8b@lechnology.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from esa1.microchip.iphmx.com ([68.232.147.91]:32880 "EHLO
-        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752357AbdGEJbo (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2017 05:31:44 -0400
-In-Reply-To: <20170629133029.fq6jjivu5cx22j6q@rfolt0960.corp.atmel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <b67a323b-5562-1259-08f1-fa7ee3509e8b-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sekhar Nori <nsekhar@ti.com>, David Lechner <david@lechnology.com>, Wolfram Sang <wsa@the-dreams.de>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Nicolas Ferre <nicolas.ferre@microchip.com>
 
 
 
-On 29.06.2017 16:30, Ludovic Desroches wrote:
-> On Thu, Jun 29, 2017 at 02:56:03PM +0300, Andy Shevchenko wrote:
->> On Thu, Jun 29, 2017 at 2:39 PM, Claudiu Beznea
->> <claudiu.beznea@microchip.com> wrote:
->>> Add support for reading from different offsets of EEPROM.
->>> The offset is initialized via device tree. If nothing is
->>> given as input the old value, 0x90, is used. In this way
->>> the driver could be used as generic driver for different
->>> vendor memories by only changing the reading offset via
->>> device tree.
+On 29.06.2017 18:32, David Lechner wrote:
+> On 06/29/2017 06:39 AM, Claudiu Beznea wrote:
+>> Add support for reading from different offsets of EEPROM.
+>> The offset is initialized via device tree. If nothing is
+>> given as input the old value, 0x90, is used. In this way
+>> the driver could be used as generic driver for different
+>> vendor memories by only changing the reading offset via
+>> device tree.
 >>
->>> +       err = device_property_read_u8(dev, "start-offset", &chip->offset);
+>> Signed-off-by: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+>> ---
+>>   drivers/misc/eeprom/at24.c         | 5 ++++-
+>>   include/linux/platform_data/at24.h | 1 +
+>>   2 files changed, 5 insertions(+), 1 deletion(-)
 >>
->> This property has to be documented.
-Sure! In this patch series it was documented in patch 2 from series.
-Are you talking about documenting it in another place?
-
->>
->> Moreover, the name looks too broad (I checked current use of
->> "*-offset" type of properties and they either vendor specific, or data
->> type specific.
->>
->> Taking above into consideration mac-offset sounds better to me.
-Ok, I will use that name.
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 764ff5df..53c5fb8 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -365,7 +365,7 @@ static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
+>>       memset(msg, 0, sizeof(msg));
+>>       msg[0].addr = client->addr;
+>>       msg[0].buf = addrbuf;
+>> -    addrbuf[0] = 0x90 + offset;
+>> +    addrbuf[0] = at24->chip.offset + offset;
+>>       msg[0].len = 1;
+>>       msg[1].addr = client->addr;
+>>       msg[1].flags = I2C_M_RD;
+>> @@ -581,6 +581,9 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+>>            */
+>>           chip->page_size = 1;
+>>       }
+>> +    err = device_property_read_u8(dev, "start-offset", &chip->offset);
 > 
-> I agree, it sounds better to me too.
-Ok, I will use that name.
+> Why use u8 here? I have an at24 EEPROM that uses 16-bit addressing where the MAC address is stored at 0x3F06. Seems like it would be better to just use u32, then you don't have to mess with /bits/ in the device tree binding.
+Agree! I will use u32 instead. It is better that way.
+
 Thanks,
 Claudiu
 > 
-> Regards
+>> +    if (err)
+>> +        chip->offset = 0x90;
+>>   }
+>>     static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>> diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+>> index 271a4e2..d55c454 100644
+>> --- a/include/linux/platform_data/at24.h
+>> +++ b/include/linux/platform_data/at24.h
+>> @@ -50,6 +50,7 @@ struct at24_platform_data {
+>>   #define AT24_FLAG_TAKE8ADDR    BIT(4)    /* take always 8 addresses (24c00) */
+>>   #define AT24_FLAG_SERIAL    BIT(3)    /* factory-programmed serial number */
+>>   #define AT24_FLAG_MAC        BIT(2)    /* factory-programmed mac address */
+>> +    u8        offset;
+>>         void        (*setup)(struct nvmem_device *nvmem, void *context);
+>>       void        *context;
+>>
 > 
-> Ludovic
-> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
