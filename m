@@ -1,63 +1,46 @@
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v2 4/4] i2c: pca-platform: drop gpio from platform data
-Date: Wed,  5 Jul 2017 22:13:58 +1200
-Message-ID: <20170705101358.17458-5-chris.packham@alliedtelesis.co.nz>
-References: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, ysato@users.sourceforge.jp, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Steven Miao <realmz6@gmail.com>, Rich Felker <dalias@libc.org>, adi-buildroot-devel@lists.sourceforge.net
+From: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH 0/3] crypto: introduce Microchip / Atmel ECC driver
+Date: Wed, 5 Jul 2017 12:54:25 +0200
+Message-ID: <A53140BD-29A8-498B-A0C9-2891E3F0EF7E@holtmann.org>
+References: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
+Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from coyote.holtmann.net ([212.227.132.17]:36667 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751696AbdGEKy2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2017 06:54:28 -0400
+In-Reply-To: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com
 
-Now that the i2c-pca-plaform driver is using the device managed API for
-gpios there is no need for the reset gpio to be specified via
-i2c_pca9564_pf_platform_data.
+Hi Tudor,
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- arch/blackfin/mach-bf561/boards/acvilon.c | 1 -
- arch/sh/boards/board-sh7785lcr.c          | 1 -
- include/linux/i2c-pca-platform.h          | 3 ---
- 3 files changed, 5 deletions(-)
+> This patch set introduces Microchip / Atmel ECC driver.
+> 
+> The first patch adds some helpers that will be used by fallbacks to
+> kpp software implementations.
+> 
+> The second patch adds ECDH support for the ATECC508A (I2C)
+> cryptographic engine. The I2C interface is designed to operate
+> at a maximum clock speed of 1MHz.
+> 
+> The device features hardware acceleration for the NIST standard
+> P256 prime curve and supports the complete key life cycle from
+> private key generation to ECDH key agreement.
+> 
+> Random private key generation is supported internally within
+> the device to ensure that the private key can never be known
+> outside of the device. If the user wants to use its own private
+> keys, the driver will fallback to the ecdh software implementation.
 
-diff --git a/arch/blackfin/mach-bf561/boards/acvilon.c b/arch/blackfin/mach-bf561/boards/acvilon.c
-index 37f8f25a1347..192404318a36 100644
---- a/arch/blackfin/mach-bf561/boards/acvilon.c
-+++ b/arch/blackfin/mach-bf561/boards/acvilon.c
-@@ -112,7 +112,6 @@ static struct resource bfin_i2c_pca_resources[] = {
- };
- 
- struct i2c_pca9564_pf_platform_data pca9564_platform_data = {
--	.gpio = -1,
- 	.i2c_clock_speed = 330000,
- 	.timeout = HZ,
- };
-diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
-index caec1ebffb09..d7d232dea33e 100644
---- a/arch/sh/boards/board-sh7785lcr.c
-+++ b/arch/sh/boards/board-sh7785lcr.c
-@@ -253,7 +253,6 @@ static struct gpiod_lookup_table i2c_gpio_table = {
- };
- 
- static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
--	.gpio			= 0,
- 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
- 	.timeout		= HZ,
- };
-diff --git a/include/linux/i2c-pca-platform.h b/include/linux/i2c-pca-platform.h
-index aba33759dec4..6331eaef9352 100644
---- a/include/linux/i2c-pca-platform.h
-+++ b/include/linux/i2c-pca-platform.h
-@@ -2,9 +2,6 @@
- #define I2C_PCA9564_PLATFORM_H
- 
- struct i2c_pca9564_pf_platform_data {
--	int gpio;		/* pin to reset chip. driver will work when
--				 * not supplied (negative value), but it
--				 * cannot exit some error conditions then */
- 	int i2c_clock_speed;	/* values are defined in linux/i2c-algo-pca.h */
- 	int timeout;		/* timeout in jiffies */
- };
--- 
-2.13.0
+can we get this testing with the Bluetooth SMP code? I would really like to see this being offloaded to hardware. For Bluetooth SMP we never really need the private key either. The end result is an symmetric 128-bit key for AES. And we throw the generated key pairs away.
+
+With the limitation of private is not available to Linux directly, we should make sure that KPP users that don’t require the private key are working properly and can utilize the offload.
+
+Regards
+
+Marcel
