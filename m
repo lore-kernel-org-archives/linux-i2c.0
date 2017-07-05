@@ -1,60 +1,53 @@
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: Re: [PATCH 0/3] crypto: introduce Microchip / Atmel ECC driver
-Date: Wed, 5 Jul 2017 14:44:55 +0300
-Message-ID: <3c858d4f-d583-61c3-0a51-d4d931ac8816@microchip.com>
-References: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
- <A53140BD-29A8-498B-A0C9-2891E3F0EF7E@holtmann.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2 0/4] i2c: pca-platform: additional improvements
+Date: Wed, 5 Jul 2017 14:48:54 +0300
+Message-ID: <CAHp75VfKhTkBZfuDdp=hkZMkXyBmMdYwrSNLmO-PyBz==NtrRQ@mail.gmail.com>
+References: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from esa2.microchip.iphmx.com ([68.232.149.84]:28819 "EHLO
-        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751772AbdGELpB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2017 07:45:01 -0400
-In-Reply-To: <A53140BD-29A8-498B-A0C9-2891E3F0EF7E@holtmann.org>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
+Sender: linux-sh-owner@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-i2c <linux-i2c@vger.kernel.org>, Linux-SH <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com
 
-Hi, Marcel,
+On Wed, Jul 5, 2017 at 1:13 PM, Chris Packham
+<chris.packham@alliedtelesis.co.nz> wrote:
+> This series addresses some of the points identified by Andy. The series is
+> based on top of i2c/for-next. 2 of the patches from v1 have already been
+> applied so I've dropped them from this version.
+>
+> I have compile tested patch 1/1 but I don't have access to sh hardware
+> to actually test the changes on.
 
-On 05.07.2017 13:54, Marcel Holtmann wrote:
-> Hi Tudor,
-> 
->> This patch set introduces Microchip / Atmel ECC driver.
->>
->> The first patch adds some helpers that will be used by fallbacks to
->> kpp software implementations.
->>
->> The second patch adds ECDH support for the ATECC508A (I2C)
->> cryptographic engine. The I2C interface is designed to operate
->> at a maximum clock speed of 1MHz.
->>
->> The device features hardware acceleration for the NIST standard
->> P256 prime curve and supports the complete key life cycle from
->> private key generation to ECDH key agreement.
->>
->> Random private key generation is supported internally within
->> the device to ensure that the private key can never be known
->> outside of the device. If the user wants to use its own private
->> keys, the driver will fallback to the ecdh software implementation.
-> 
-> can we get this testing with the Bluetooth SMP code? I would really like to see this being offloaded to hardware. For Bluetooth SMP we never really need the private key either. The end result is an symmetric 128-bit key for AES. And we throw the generated key pairs away.
-> 
-> With the limitation of private is not available to Linux directly, we should make sure that KPP users that don’t require the private key are working properly and can utilize the offload.
 
-The driver was tested with testmgr, the offload worked.
+Entire series looks good to me:
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-I've extended recently the ecdh software implementation with
-ecc privkey generation support. I also added a kpp test in
-testmgr to prove that it works correctly (see [1]).
+Further improvement is to get timeout value via device properties API
+and get rid of legacy platform data completely. This can be done in
+further series.
 
-I will take a look at Bluetooth SMP code.
+>
+> Chris Packham (4):
+>   sh: sh7785lcr: add GPIO lookup table for i2c controller reset
+>   i2c: pca-platform: unconditionally use devm_gpiod_get_optional
+>   i2c: pca-platform: use device_property_read_u32
+>   i2c: pca-platform: drop gpio from platform data
+>
+>  arch/blackfin/mach-bf561/boards/acvilon.c |  1 -
+>  arch/sh/boards/board-sh7785lcr.c          | 11 +++++++++-
+>  drivers/i2c/busses/i2c-pca-platform.c     | 34 +++++++++----------------------
+>  include/linux/i2c-pca-platform.h          |  3 ---
+>  4 files changed, 20 insertions(+), 29 deletions(-)
+>
+> --
+> 2.13.0
+>
 
-Thanks,
-ta
 
-[1] http://www.mail-archive.com/linux-crypto@vger.kernel.org/msg25835.html
+
+-- 
+With Best Regards,
+Andy Shevchenko
