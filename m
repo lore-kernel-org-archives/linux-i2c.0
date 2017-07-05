@@ -1,67 +1,65 @@
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v2 2/4] i2c: pca-platform: unconditionally use devm_gpiod_get_optional
-Date: Wed,  5 Jul 2017 22:13:56 +1200
-Message-ID: <20170705101358.17458-3-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v2 1/4] sh: sh7785lcr: add GPIO lookup table for i2c controller reset
+Date: Wed,  5 Jul 2017 22:13:55 +1200
+Message-ID: <20170705101358.17458-2-chris.packham@alliedtelesis.co.nz>
 References: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:56628 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752665AbdGEKOW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 5 Jul 2017 06:14:22 -0400
 In-Reply-To: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, ysato@users.sourceforge.jp, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, ysato@users.sourceforge.jp, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>, Rich Felker <dalias@libc.org>
 
-Allow for the reset-gpios property to be defined in the device tree
-or via a GPIO lookup table.
+Define the GPIO connected to the PCA9564 using a GPIO lookup table. This
+will allow the i2c-pca-platform driver to use the device managed APIs to
+lookup the gpio instead of using platform_data.
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 ---
 Changes in v2:
-- move call up above platform_data usage
+- use correct API (gpio_add_lookup_table) and compile test.
 
- drivers/i2c/busses/i2c-pca-platform.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ arch/sh/boards/board-sh7785lcr.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index 853a2abedb05..b90193d09d4b 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -173,33 +173,20 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = np;
+diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785lcr.c
+index 2c4771ee84cd..caec1ebffb09 100644
+--- a/arch/sh/boards/board-sh7785lcr.c
++++ b/arch/sh/boards/board-sh7785lcr.c
+@@ -25,6 +25,7 @@
+ #include <linux/io.h>
+ #include <linux/clk.h>
+ #include <linux/errno.h>
++#include <linux/gpio/machine.h>
+ #include <mach/sh7785lcr.h>
+ #include <cpu/sh7785.h>
+ #include <asm/heartbeat.h>
+@@ -243,6 +244,14 @@ static struct resource i2c_resources[] = {
+ 	},
+ };
  
-+	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
-+	if (IS_ERR(i2c->gpio))
-+		return PTR_ERR(i2c->gpio);
++static struct gpiod_lookup_table i2c_gpio_table = {
++	.dev_id = "i2c.0",
++	.table = {
++		GPIO_LOOKUP("pfc-sh7757", 0, "reset-gpios", GPIO_ACTIVE_LOW),
++		{ },
++	},
++};
 +
- 	if (platform_data) {
- 		i2c->adap.timeout = platform_data->timeout;
- 		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
--		if (gpio_is_valid(platform_data->gpio)) {
--			ret = devm_gpio_request_one(&pdev->dev,
--						    platform_data->gpio,
--						    GPIOF_ACTIVE_LOW,
--						    i2c->adap.name);
--			if (ret == 0) {
--				i2c->gpio = gpio_to_desc(platform_data->gpio);
--				gpiod_direction_output(i2c->gpio, 0);
--			} else {
--				dev_warn(&pdev->dev, "Registering gpio failed!\n");
--				i2c->gpio = NULL;
--			}
--		}
- 	} else if (np) {
- 		i2c->adap.timeout = HZ;
--		i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
--		if (IS_ERR(i2c->gpio))
--			return PTR_ERR(i2c->gpio);
- 		of_property_read_u32_index(np, "clock-frequency", 0,
- 					   &i2c->algo_data.i2c_clock);
- 	} else {
- 		i2c->adap.timeout = HZ;
- 		i2c->algo_data.i2c_clock = 59000;
--		i2c->gpio = NULL;
+ static struct i2c_pca9564_pf_platform_data i2c_platform_data = {
+ 	.gpio			= 0,
+ 	.i2c_clock_speed	= I2C_PCA_CON_330kHz,
+@@ -283,6 +292,7 @@ static int __init sh7785lcr_devices_setup(void)
+ 		i2c_device.num_resources = ARRAY_SIZE(i2c_proto_resources);
  	}
  
- 	i2c->algo_data.data = i2c;
++	gpiod_add_lookup_table(&i2c_gpio_table);
+ 	return platform_add_devices(sh7785lcr_devices,
+ 				    ARRAY_SIZE(sh7785lcr_devices));
+ }
 -- 
 2.13.0
