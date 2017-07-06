@@ -1,55 +1,87 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [RFC PATCH 3/3] dt-bindings: i2c: eeprom: document
- "start-offset" binding
-Date: Thu, 6 Jul 2017 10:45:00 -0500
-Message-ID: <20170706154500.d2eyomg5kweunddg@rob-hp-laptop>
-References: <1498736351-9021-1-git-send-email-claudiu.beznea@microchip.com>
- <1498736351-9021-4-git-send-email-claudiu.beznea@microchip.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [PATCH v3 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+Date: Thu, 6 Jul 2017 17:53:02 +0200
+Message-ID: <1499356386-28779-2-git-send-email-pierre-yves.mordret@st.com>
+References: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1498736351-9021-4-git-send-email-claudiu.beznea@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc: mark.rutland@arm.com, nsekhar@ti.com, david@lechnology.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:50451 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1750970AbdGFPxx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 6 Jul 2017 11:53:53 -0400
+In-Reply-To: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: pierre-yves.mordret@st.com
 
-On Thu, Jun 29, 2017 at 02:39:11PM +0300, Claudiu Beznea wrote:
-> Document "start-offset" binding that will be used by at24
-> EEPROM driver.
+This patch adds the documentation of device tree bindings for STM32F7 I2C
 
-Why do we need this property?
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+---
+ Version history:
+    v3:
+        * None
+    v2:
+        * Remove i2c-timing binding in order to use generic bindings SCL
+          Rising and Falling time instead
+---
+---
+ .../devicetree/bindings/i2c/i2c-stm32.txt          | 29 +++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-Seems like this should be handled by defining regions of the EEPROM that 
-you care about (or perhaps are reserved and don't want to touch). Just a 
-single offset value is not very flexible. 
-
-> 
-> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-> ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> index a50dc01..e0bec50 100644
-> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> @@ -35,10 +35,13 @@ Optional properties:
->  
->    - read-only: this parameterless property disables writes to the eeprom
->  
-> +  - start-offset: offset in EEPROM to start reading from
-> +
->  Example:
->  
->  eeprom@52 {
->  	compatible = "atmel,24c32";
->  	reg = <0x52>;
->  	pagesize = <32>;
-> +	start-offset = /bits/ 8 <0xf8>;
-
-The size of the property is part of the ABI. Unless you *never* need 
-offset of more than 256, then this should be 32-bit.
-
-Rob
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+index 78eaf7b..3b54899 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+@@ -1,7 +1,9 @@
+ * I2C controller embedded in STMicroelectronics STM32 I2C platform
+ 
+ Required properties :
+-- compatible : Must be "st,stm32f4-i2c"
++- compatible : Must be one of the following
++  - "st,stm32f4-i2c"
++  - "st,stm32f7-i2c"
+ - reg : Offset and length of the register set for the device
+ - interrupts : Must contain the interrupt id for I2C event and then the
+   interrupt id for I2C error.
+@@ -14,8 +16,16 @@ Required properties :
+ 
+ Optional properties :
+ - clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
+-  the default 100 kHz frequency will be used. As only Normal and Fast modes
+-  are supported, possible values are 100000 and 400000.
++  the default 100 kHz frequency will be used.
++  For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
++  100000 and 400000.
++  For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
++  possible values are 100000, 400000 and 1000000.
++- i2c-scl-rising-time-ns : Only for STM32F7, I2C SCL Rising time for the board
++  (default: 25)
++- i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
++  (default: 10)
++  I2C Timings are derived from these 2 values
+ 
+ Example :
+ 
+@@ -31,3 +41,16 @@ Example :
+ 		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
+ 		pinctrl-names = "default";
+ 	};
++
++	i2c@40005400 {
++		compatible = "st,stm32f7-i2c";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x40005400 0x400>;
++		interrupts = <31>,
++			     <32>;
++		resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
++		clocks = <&rcc 1 CLK_I2C1>;
++		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
++		pinctrl-names = "default";
++	};
+-- 
+2.7.4
