@@ -1,48 +1,49 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v3 5/5] ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
-Date: Thu, 6 Jul 2017 17:53:06 +0200
-Message-ID: <1499356386-28779-6-git-send-email-pierre-yves.mordret@st.com>
-References: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] i2c: Provide a stub for i2c_detect_slave_mode()
+Date: Thu,  6 Jul 2017 20:26:17 +0300
+Message-ID: <20170706172617.39817-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: pierre-yves.mordret@st.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:22687 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750970AbdGFR0Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 6 Jul 2017 13:26:25 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Luis.Oliveira@synopsys.com, linux-next <linux-next@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-This patch adds I2C1 support for STM32F746 eval board
+Drivers would like to call i2c_detect_slave_mode() even if !I2C_SLAVE.
+Give them what they want to,
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Otherwise kernel will not compile:
+drivers/i2c/busses/i2c-designware-platdrv.c: In function ‘dw_i2c_plat_probe’:
+drivers/i2c/busses/i2c-designware-platdrv.c:331:6: error: implicit declaration of function ‘i2c_detect_slave_mode’ [-Werror=implicit-function-declaration]
+  if (i2c_detect_slave_mode(&pdev->dev))
+      ^~~~~~~~~~~~~~~~~~~~~
+cc1: some warnings being treated as errors
+
+Fixes: 6e38cf3b4421 ("i2c: designware: Let slave adapter support be optional")
+Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- Version history:
-    v3:
-        * None
+ include/linux/i2c.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-    v2:
-        * Add SCL Rising/Falling time for eval board
----
----
- arch/arm/boot/dts/stm32746g-eval.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/arch/arm/boot/dts/stm32746g-eval.dts b/arch/arm/boot/dts/stm32746g-eval.dts
-index 69a9579..9288c7a 100644
---- a/arch/arm/boot/dts/stm32746g-eval.dts
-+++ b/arch/arm/boot/dts/stm32746g-eval.dts
-@@ -102,3 +102,11 @@
- 	pinctrl-names = "default";
- 	status = "okay";
- };
-+
-+&i2c1 {
-+	pinctrl-0 = <&i2c1_pins_b>;
-+	pinctrl-names = "default";
-+	i2c-scl-rising-time-ns = <185>;
-+	i2c-scl-falling-time-ns = <20>;
-+	status = "okay";
-+};
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 72d0ece70ed3..00ca5b86a753 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -295,6 +295,8 @@ static inline int i2c_slave_event(struct i2c_client *client,
+ {
+ 	return client->slave_cb(client, event, val);
+ }
++#else
++static inline bool i2c_detect_slave_mode(struct device *dev) { return false; }
+ #endif
+ 
+ /**
 -- 
-2.7.4
+2.11.0
