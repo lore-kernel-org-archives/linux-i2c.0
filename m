@@ -1,179 +1,45 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v1] i2c: mediatek: send i2c master code at 400k
-Date: Fri, 7 Jul 2017 10:12:19 +0800
-Message-ID: <1499393539-1102-1-git-send-email-jun.gao@mediatek.com>
+From: "Marcelo \"Marc\" Ranolfi" <marc.2377@gmail.com>
+Subject: Re: [PATCH 0/5 v4] Fix sp5100_tco watchdog driver regression
+Date: Thu, 6 Jul 2017 23:26:04 -0300
+Message-ID: <CAETC-g-s23nPXYJYRPM4ZRoiP35wjzbzgPMVHPyYwrGYCBPdBg@mail.gmail.com>
+References: <20170621035349.4125-1-zboszor@pr.hu> <20170622132134.7200-1-zboszor@pr.hu>
+ <21338590-400b-e1b3-1787-bd275a30c17c@pr.hu> <CAETC-g-0ZYiD=j_sAtYpfr0t-rciiTx3ruvpGuwEud+nbbpiBg@mail.gmail.com>
+ <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f53.google.com ([209.85.215.53]:33685 "EHLO
+        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753232AbdGGC0H (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 6 Jul 2017 22:26:07 -0400
+In-Reply-To: <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+(Reposting without html subpart, second attempt)
 
-The speed of sending i2c master code in high-speed mode depends on
-source clock, clock-div and TIMING register. The source clock and
-clock-div of different SoC are not all the same. In order to send
-i2c master code at 400k in high-speed mode, a appropriate value
-should be set to TIMING register for a certain source clock and
-clock-div.
+On Thu, Jul 6, 2017 at 11:09 PM, Marcelo "Marc" Ranolfi
+<marc.2377@gmail.com> wrote:
+Hi Zolt=C3=A1n and all,
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 65 +++++++++++++++++++++++++++++------------
- 1 file changed, 46 insertions(+), 19 deletions(-)
+I _was_ testing the patch series (the latest version), system worked
+OK for two days, but then I got a system crash (probably hardware
+related) and lost my files in the main partition. Posted about it in
+the F2FS mailing list
+(https://sourceforge.net/p/linux-f2fs/mailman/message/35928135/).
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 45d6171..9bedf0b 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -50,7 +50,6 @@
- #define I2C_FS_START_CON		0x1800
- #define I2C_TIME_CLR_VALUE		0x0000
- #define I2C_TIME_DEFAULT_VALUE		0x0003
--#define I2C_FS_TIME_INIT_VALUE		0x1303
- #define I2C_WRRD_TRANAC_VALUE		0x0002
- #define I2C_RD_TRANAC_VALUE		0x0001
- 
-@@ -154,6 +153,7 @@ struct mtk_i2c {
- 	bool use_push_pull;		/* IO config push-pull mode */
- 
- 	u16 irq_stat;			/* interrupt status */
-+	unsigned int clk_src_div;
- 	unsigned int speed_hz;		/* The speed in transfer */
- 	enum mtk_trans_op op;
- 	u16 timing_reg;
-@@ -285,23 +285,20 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
-  * less than or equal to i2c->speed_hz. The calculation try to get
-  * sample_cnt and step_cn
-  */
--static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
--			     unsigned int clock_div)
-+static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
-+				   unsigned int target_speed,
-+				   unsigned int *timing_step_cnt,
-+				   unsigned int *timing_sample_cnt)
- {
--	unsigned int clk_src;
- 	unsigned int step_cnt;
- 	unsigned int sample_cnt;
- 	unsigned int max_step_cnt;
--	unsigned int target_speed;
- 	unsigned int base_sample_cnt = MAX_SAMPLE_CNT_DIV;
- 	unsigned int base_step_cnt;
- 	unsigned int opt_div;
- 	unsigned int best_mul;
- 	unsigned int cnt_mul;
- 
--	clk_src = parent_clk / clock_div;
--	target_speed = i2c->speed_hz;
--
- 	if (target_speed > MAX_HS_MODE_SPEED)
- 		target_speed = MAX_HS_MODE_SPEED;
- 
-@@ -347,16 +344,48 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
- 		return -EINVAL;
- 	}
- 
--	step_cnt--;
--	sample_cnt--;
-+	*timing_step_cnt = step_cnt - 1;
-+	*timing_sample_cnt = sample_cnt - 1;
-+
-+	return 0;
-+}
-+
-+static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
-+{
-+	unsigned int clk_src;
-+	unsigned int step_cnt;
-+	unsigned int sample_cnt;
-+	unsigned int target_speed;
-+	int ret;
-+
-+	clk_src = parent_clk / i2c->clk_src_div;
-+	target_speed = i2c->speed_hz;
- 
- 	if (target_speed > MAX_FS_MODE_SPEED) {
-+		/* Set master code speed register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
- 		/* Set the high speed mode register */
--		i2c->timing_reg = I2C_FS_TIME_INIT_VALUE;
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
- 		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
- 			(sample_cnt << 12) | (step_cnt << 8);
- 	} else {
--		i2c->timing_reg = (sample_cnt << 8) | (step_cnt << 0);
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
- 		/* Disable the high speed transaction */
- 		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
- 	}
-@@ -647,8 +676,7 @@ static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = mtk_i2c_functionality,
- };
- 
--static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c,
--			    unsigned int *clk_src_div)
-+static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- {
- 	int ret;
- 
-@@ -656,11 +684,11 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c,
- 	if (ret < 0)
- 		i2c->speed_hz = I2C_DEFAULT_SPEED;
- 
--	ret = of_property_read_u32(np, "clock-div", clk_src_div);
-+	ret = of_property_read_u32(np, "clock-div", &i2c->clk_src_div);
- 	if (ret < 0)
- 		return ret;
- 
--	if (*clk_src_div == 0)
-+	if (i2c->clk_src_div == 0)
- 		return -EINVAL;
- 
- 	i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
-@@ -676,7 +704,6 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	int ret = 0;
- 	struct mtk_i2c *i2c;
- 	struct clk *clk;
--	unsigned int clk_src_div;
- 	struct resource *res;
- 	int irq;
- 
-@@ -684,7 +711,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	ret = mtk_i2c_parse_dt(pdev->dev.of_node, i2c, &clk_src_div);
-+	ret = mtk_i2c_parse_dt(pdev->dev.of_node, i2c);
- 	if (ret)
- 		return -EINVAL;
- 
-@@ -745,7 +772,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 
- 	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
- 
--	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk), clk_src_div);
-+	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to set the speed.\n");
- 		return -EINVAL;
--- 
-1.8.1.1
+While I don't believe that the freeze/crash was caused by the watchdog
+driver (many other things to blame: amdgpu driver on Southern Islands,
+CPU voltage lower than recommended...), it's worth mentioning that the
+computer was completely frozen for a little over 4 minutes, and did
+not reset as I'd expect the watchdog to. Just mentioning because I'm
+not sure of the implications.
+
+Once I get my system back online this weekend I'll have a good look at
+the code. Anyway, thanks again for the patches and I'm also expecting
+someone more qualified (than me, at least) to review them.
+
+Regards
+Marcelo "Marc" Ranolfi
