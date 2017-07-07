@@ -1,44 +1,46 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH i2c-tools-3.1] i2c-tools: add new tool 'i2ctransfer'
-Date: Fri, 7 Jul 2017 13:43:30 +0200
-Message-ID: <20170707134330.47bd5cbc@endymion>
-References: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
-        <20170419181257.bgzi2o4ygwdpquvs@ninjato>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C
+ bindings
+Date: Fri, 7 Jul 2017 08:41:01 -0500
+Message-ID: <20170707134101.pm6cni7mjefi56iv@rob-hp-laptop>
+References: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
+ <1499356386-28779-2-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170419181257.bgzi2o4ygwdpquvs@ninjato>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1499356386-28779-2-git-send-email-pierre-yves.mordret@st.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 19 Apr 2017 20:12:57 +0200, Wolfram Sang wrote:
-> On Fri, Apr 07, 2017 at 02:44:03PM +0200, Wolfram Sang wrote:
-> > This tool allows to construct and concat multiple I2C messages into one
-> > single transfer. Its aim is to test I2C master controllers, and so there
-> > is no SMBus fallback.
-> > 
-> > I've been missing such a tool a number of times now, so I finally got
-> > around to writing it myself. As with all I2C tools, it can be dangerous,
-> > but it can also be very useful when developing.
-> > 
-> > It has been tested with various Renesas I2C IP cores as well as Tegra,
-> > i.MX and AT91.
-> > 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > ---  
+On Thu, Jul 06, 2017 at 05:53:02PM +0200, Pierre-Yves MORDRET wrote:
+> This patch adds the documentation of device tree bindings for STM32F7 I2C
 > 
-> Pushed to i2c-tools-3.1.
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> ---
+>  Version history:
+>     v3:
+>         * None
+>     v2:
+>         * Remove i2c-timing binding in order to use generic bindings SCL
+>           Rising and Falling time instead
+> ---
+> ---
+>  .../devicetree/bindings/i2c/i2c-stm32.txt          | 29 +++++++++++++++++++---
+>  1 file changed, 26 insertions(+), 3 deletions(-)
 
-As usual I'm late to the party... I don't think this should have gone
-to branch 3.1 which is a bug-fix only branch. If people want the newest
-shiny stuff they should use the master branch. And if it bothers them
-that there is no released version of it... well they may be right, and
-it suggests it's about time to push a first version of i2c-tools 4 out
-the door.
+I acked v2. Please add acks when posting new versions.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Rob
