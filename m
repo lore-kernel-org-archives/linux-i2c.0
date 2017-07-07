@@ -1,45 +1,36 @@
-From: "Marcelo \"Marc\" Ranolfi" <marc.2377@gmail.com>
-Subject: Re: [PATCH 0/5 v4] Fix sp5100_tco watchdog driver regression
-Date: Thu, 6 Jul 2017 23:26:04 -0300
-Message-ID: <CAETC-g-s23nPXYJYRPM4ZRoiP35wjzbzgPMVHPyYwrGYCBPdBg@mail.gmail.com>
-References: <20170621035349.4125-1-zboszor@pr.hu> <20170622132134.7200-1-zboszor@pr.hu>
- <21338590-400b-e1b3-1787-bd275a30c17c@pr.hu> <CAETC-g-0ZYiD=j_sAtYpfr0t-rciiTx3ruvpGuwEud+nbbpiBg@mail.gmail.com>
- <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools releases
+Date: Fri, 7 Jul 2017 13:38:23 +0200
+Message-ID: <20170707133823.3100cfdc@endymion>
+References: <20170706095811.17369a6f@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f53.google.com ([209.85.215.53]:33685 "EHLO
-        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753232AbdGGC0H (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 6 Jul 2017 22:26:07 -0400
-In-Reply-To: <CAETC-g_YF7TWv+LNrNQrX9AY_-iepCeE0EmCKWYF4VyQzRY+UQ@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:45902 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750984AbdGGLi0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 7 Jul 2017 07:38:26 -0400
+In-Reply-To: <20170706095811.17369a6f@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 
-(Reposting without html subpart, second attempt)
+On Thu, 6 Jul 2017 09:58:11 +0200, Jean Delvare wrote:
+> FYI, i2c-tools finally has an official download location again. I have
+> just uploaded all past 3.x releases at:
+> 
+> https://www.kernel.org/pub/software/utils/i2c-tools/
+> 
+> and future releases will be uploaded there as well.
 
-On Thu, Jul 6, 2017 at 11:09 PM, Marcelo "Marc" Ranolfi
-<marc.2377@gmail.com> wrote:
-Hi Zolt=C3=A1n and all,
+I have also migrated the relevant pages from the dead lm-sensors wiki
+to the kernel.org wiki:
 
-I _was_ testing the patch series (the latest version), system worked
-OK for two days, but then I got a system crash (probably hardware
-related) and lost my files in the main partition. Posted about it in
-the F2FS mailing list
-(https://sourceforge.net/p/linux-f2fs/mailman/message/35928135/).
+https://i2c.wiki.kernel.org/index.php/I2C_Tools
+https://i2c.wiki.kernel.org/index.php/Plans_for_I2C_Tools_4
 
-While I don't believe that the freeze/crash was caused by the watchdog
-driver (many other things to blame: amdgpu driver on Southern Islands,
-CPU voltage lower than recommended...), it's worth mentioning that the
-computer was completely frozen for a little over 4 minutes, and did
-not reset as I'd expect the watchdog to. Just mentioning because I'm
-not sure of the implications.
-
-Once I get my system back online this weekend I'll have a good look at
-the code. Anyway, thanks again for the patches and I'm also expecting
-someone more qualified (than me, at least) to review them.
-
-Regards
-Marcelo "Marc" Ranolfi
+-- 
+Jean Delvare
+SUSE L3 Support
