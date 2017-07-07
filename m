@@ -1,35 +1,43 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-tools releases
-Date: Fri, 7 Jul 2017 13:38:23 +0200
-Message-ID: <20170707133823.3100cfdc@endymion>
-References: <20170706095811.17369a6f@endymion>
+Subject: Re: [PATCH i2c-tools-3.1] i2c-tools: add new tool 'i2ctransfer'
+Date: Fri, 7 Jul 2017 13:43:30 +0200
+Message-ID: <20170707134330.47bd5cbc@endymion>
+References: <20170407124403.1880-1-wsa+renesas@sang-engineering.com>
+        <20170419181257.bgzi2o4ygwdpquvs@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45902 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750984AbdGGLi0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 7 Jul 2017 07:38:26 -0400
-In-Reply-To: <20170706095811.17369a6f@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170419181257.bgzi2o4ygwdpquvs@ninjato>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, 6 Jul 2017 09:58:11 +0200, Jean Delvare wrote:
-> FYI, i2c-tools finally has an official download location again. I have
-> just uploaded all past 3.x releases at:
+On Wed, 19 Apr 2017 20:12:57 +0200, Wolfram Sang wrote:
+> On Fri, Apr 07, 2017 at 02:44:03PM +0200, Wolfram Sang wrote:
+> > This tool allows to construct and concat multiple I2C messages into one
+> > single transfer. Its aim is to test I2C master controllers, and so there
+> > is no SMBus fallback.
+> > 
+> > I've been missing such a tool a number of times now, so I finally got
+> > around to writing it myself. As with all I2C tools, it can be dangerous,
+> > but it can also be very useful when developing.
+> > 
+> > It has been tested with various Renesas I2C IP cores as well as Tegra,
+> > i.MX and AT91.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > ---  
 > 
-> https://www.kernel.org/pub/software/utils/i2c-tools/
-> 
-> and future releases will be uploaded there as well.
+> Pushed to i2c-tools-3.1.
 
-I have also migrated the relevant pages from the dead lm-sensors wiki
-to the kernel.org wiki:
-
-https://i2c.wiki.kernel.org/index.php/I2C_Tools
-https://i2c.wiki.kernel.org/index.php/Plans_for_I2C_Tools_4
+As usual I'm late to the party... I don't think this should have gone
+to branch 3.1 which is a bug-fix only branch. If people want the newest
+shiny stuff they should use the master branch. And if it bothers them
+that there is no released version of it... well they may be right, and
+it suggests it's about time to push a first version of i2c-tools 4 out
+the door.
 
 -- 
 Jean Delvare
