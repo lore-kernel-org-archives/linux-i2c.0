@@ -1,141 +1,125 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCHv4 3/3] i2c: altera: Add Altera I2C Controller driver
-Date: Sun, 9 Jul 2017 00:41:34 +0300
-Message-ID: <CAHp75Vdr6tomrzKMtJ2LQ+k-jU274VMEfHN-MTzvO-PYN_8DHw@mail.gmail.com>
-References: <1497904618-27010-1-git-send-email-thor.thayer@linux.intel.com>
- <1497904618-27010-4-git-send-email-thor.thayer@linux.intel.com>
- <CAHp75VcpdeGW0KXSqZwyMDkGbjT+6Ky5nBXTs7d-dN0gpYHV_w@mail.gmail.com> <f049d174-5a64-2a20-5f47-1638963ea475@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:35709 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751013AbdGHVlg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 8 Jul 2017 17:41:36 -0400
-In-Reply-To: <f049d174-5a64-2a20-5f47-1638963ea475@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] i2c: core: Protect acpi_match_device() against NULL
+Date: Sun,  9 Jul 2017 16:16:18 +0300
+Message-ID: <20170709131618.12121-1-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Thor Thayer <thor.thayer@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
 
-On Sat, Jul 8, 2017 at 12:08 AM, Thor Thayer
-<thor.thayer@linux.intel.com> wrote:
-> On 07/07/2017 11:25 AM, Andy Shevchenko wrote:
->> On Mon, Jun 19, 2017 at 11:36 PM,  <thor.thayer@linux.intel.com> wrote:
+The commit 09b3b246acba
+	("i2c: core: Allow empty id_table in ACPI case as well")
+brought an additional check for ACPI match table entry, though missed
+NULL check for table itself.
 
->>> +       while (bytes_to_transfer-- > 0) {
->>> +               *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->>> +               if (idev->msg_len == 1)
->>> +                       altr_i2c_stop(idev);
->>> +               else
->>> +                       writel(0, idev->base + ALTR_I2C_TFR_CMD);
->>> +
->>> +               idev->msg_len--;
->>> +       }
->>
->>
->> Move out invariant from the loop (and I see a bug, you might go over
->> boundaries).
->>
->>         while (bytes_to_transfer-- > 0) {
->>                 *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->>                 if (idev->msg_len-- == 1)
->>                     break;
->>                 writel(0, idev->base + ALTR_I2C_TFR_CMD);
->>         }
->>
->>         altr_i2c_stop(idev);
->>
-> I see your point on the boundary.
+Do it here by introducing a helper i2c_acpi_match_device().
 
-Actually I didn't notice min() call above. So, you may ignore that part.
+Note, we rename some static function in i2c-core-acpi.c to distinguish
+with public API.
 
-> However your change is slightly different
-> from what I'm trying to do.
+Fixes: 09b3b246acba ("i2c: core: Allow empty id_table in ACPI case as well")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/i2c-core-acpi.c | 19 +++++++++++++++----
+ drivers/i2c/i2c-core-base.c |  2 +-
+ drivers/i2c/i2c-core.h      |  9 +++++++++
+ 3 files changed, 25 insertions(+), 5 deletions(-)
 
-I don't see how it differs to what you wrote.
-
-> I think you assumed the alt_i2c_stop() call can cause a stop condition. This
-> soft IP can't send just a start or a stop condition by itself - both of
-> these conditions need to be paired with a byte.
-
-OK.
-
-> The other subtle side effect is the start condition + byte write is the
-> first write which is why the last write is skipped.
-
-> I need to send a byte with a stop condition on the last expected byte
-> (idev->msg_len == 1) while this change would send it after the FIFO is empty
-> or after (msg_len == 1).
-
-Consider the corner case when msg_len _is_ 1 at the beginning.
-Then continue with 2. I really didn't see the difference in two
-snippets. Perhaps you have a bug there.
-
-> Your version is cleaner so I'll just add the alt_i2c_stop(idev) call inside
-> the (msg_len == 1) condition and before the break.
-
->>> +static int altr_i2c_fill_tx_fifo(struct altr_i2c_dev *idev)
->>> +{
->>> +       size_t tx_fifo_avail = idev->fifo_size - readl(idev->base +
->>> +
->>> ALTR_I2C_TC_FIFO_LVL);
->>> +       int bytes_to_transfer = min(tx_fifo_avail, idev->msg_len);
->>> +       int ret = idev->msg_len - bytes_to_transfer;
->>> +
->>> +       while (bytes_to_transfer-- > 0) {
->>> +               if (idev->msg_len == 1)
->>> +                       writel(ALTR_I2C_TFR_CMD_STO | *idev->buf++,
->>> +                              idev->base + ALTR_I2C_TFR_CMD);
->>> +               else
->>> +                       writel(*idev->buf++, idev->base +
->>> ALTR_I2C_TFR_CMD);
->>> +               idev->msg_len--;
->>> +       }
->>
->>
->> Ditto.
->>
-> See above but I will move the msg_len-- inside the condition check like you
-> had.
-
-Ditto.
-
->>> +static int altr_i2c_wait_for_core_idle(struct altr_i2c_dev *idev)
->>> +{
->>> +       unsigned long timeout = jiffies +
->>> msecs_to_jiffies(ALTR_I2C_TIMEOUT);
->>> +
->>> +       do {
->>> +               if (time_after(jiffies, timeout)) {
->>> +                       dev_err(idev->dev, "Core Idle timeout\n");
->>> +                       return -ETIMEDOUT;
->>> +               }
->>> +       } while (readl(idev->base + ALTR_I2C_STATUS) &
->>> ALTR_I2C_STAT_CORE);
->>> +
->>> +       return 0;
->>> +}
-
->> readl_poll_timeout[_atomic]() please.
-
-You ignored some of my comments including this one. Why? Can you go
-again through my rreview and answer the rest?
-
->>> +       if (of_property_read_u32(np, "fifo-size", &idev->fifo_size))
->>> +               idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
-
->> Shouldn't be possible to auto detect?
->>
-> I agree. That would have been SO much better but the hardware designers
-> released this without capturing the size in a register - they come from a
-> bare-metal project perspective.  Since the FIFO size is configurable in the
-> FPGA from 4 to 256 levels deep, I need to capture this with the device tree.
-
-You may do it manually, right? There are examples for similar cases
-like writing the offset into FIFO until it returns the written value
-and FIFO maximum possible size is not achieved.
-
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 4842ec3a5451..a9126b3cda61 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -230,6 +230,16 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
+ }
+ 
++const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client)
++{
++	if (!(client && matches))
++		return NULL;
++
++	return acpi_match_device(matches, &client->dev);
++}
++
+ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
+ 					   void *data, void **return_value)
+ {
+@@ -289,7 +299,7 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
+ 
+-static int i2c_acpi_match_adapter(struct device *dev, void *data)
++static int i2c_acpi_find_match_adapter(struct device *dev, void *data)
+ {
+ 	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
+ 
+@@ -299,7 +309,7 @@ static int i2c_acpi_match_adapter(struct device *dev, void *data)
+ 	return ACPI_HANDLE(dev) == (acpi_handle)data;
+ }
+ 
+-static int i2c_acpi_match_device(struct device *dev, void *data)
++static int i2c_acpi_find_match_device(struct device *dev, void *data)
+ {
+ 	return ACPI_COMPANION(dev) == data;
+ }
+@@ -309,7 +319,7 @@ static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ 	struct device *dev;
+ 
+ 	dev = bus_find_device(&i2c_bus_type, NULL, handle,
+-			      i2c_acpi_match_adapter);
++			      i2c_acpi_find_match_adapter);
+ 	return dev ? i2c_verify_adapter(dev) : NULL;
+ }
+ 
+@@ -317,7 +327,8 @@ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+ 	struct device *dev;
+ 
+-	dev = bus_find_device(&i2c_bus_type, NULL, adev, i2c_acpi_match_device);
++	dev = bus_find_device(&i2c_bus_type, NULL, adev,
++			      i2c_acpi_find_match_device);
+ 	return dev ? i2c_verify_client(dev) : NULL;
+ }
+ 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 45231d2257ad..ba51551c3077 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -357,7 +357,7 @@ static int i2c_device_probe(struct device *dev)
+ 	 * Tree or ACPI match table entry is supplied for the probing device.
+ 	 */
+ 	if (!driver->id_table &&
+-	    !acpi_match_device(dev->driver->acpi_match_table, &client->dev) &&
++	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
+ 	    !i2c_of_match_device(dev->driver->of_match_table, client))
+ 		return -ENODEV;
+ 
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 3b63f5e5b89c..3d3d9bf02101 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -31,9 +31,18 @@ int i2c_check_addr_validity(unsigned addr, unsigned short flags);
+ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
+ 
+ #ifdef CONFIG_ACPI
++const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client);
+ void i2c_acpi_register_devices(struct i2c_adapter *adap);
+ #else /* CONFIG_ACPI */
+ static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
++static inline const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client)
++{
++	return NULL;
++}
+ #endif /* CONFIG_ACPI */
+ extern struct notifier_block i2c_acpi_notifier;
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.11.0
+
