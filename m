@@ -1,68 +1,76 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/2] i2c: designware: Some broken DSTDs use 1MiHz instead
- of 1MHz
-Date: Sun, 9 Jul 2017 20:54:19 +0200
-Message-ID: <bd305689-84ca-b6f3-3997-d6eb779d7b6a@redhat.com>
-References: <20170708131052.13524-1-hdegoede@redhat.com>
- <20170708131052.13524-2-hdegoede@redhat.com>
- <1499522154.22624.307.camel@linux.intel.com>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] i2c: stm32f4: constify i2c_algorithm structure
+Date: Sun, 9 Jul 2017 15:57:44 -0500
+Message-ID: <20170709205744.GA18652@embeddedgus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1499522154.22624.307.camel@linux.intel.com>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, stable@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
+Cc: "Gustavo A. R. Silva" <garsilva@embeddedor.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Check for i2c_algorithm structures that are only stored in
+the algo field of an i2c_adapter structure. This field is
+declared const, so i2c_algorithm structures that have this
+property can be declared as const also.
 
-On 08-07-17 15:55, Andy Shevchenko wrote:
-> On Sat, 2017-07-08 at 15:10 +0200, Hans de Goede wrote:
->> At least the Acer Iconia Tab8 / aka W1-810 uses 1MiHz instead of
->> 1MHz for one of its busses, fix this up to 1MHz instead of failing
->> the probe of that bus.
->>
->> This fixes the accelerometer on the Acer Iconia Tab8 not working.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/i2c/busses/i2c-designware-platdrv.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->> b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index d5acaf8d65bf..c6f5a41d72b5 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -254,6 +254,9 @@ static int dw_i2c_plat_probe(struct
->> platform_device *pdev)
->>   	}
->>   
->>   	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
->> +	/* Some broken DSTDs use 1MiHz instead of 1MHz */
->> +	if (acpi_speed == 1048576)
->> +		acpi_speed = 1000000;
-> 
-> I would rather convert to choose closest one, though I am not sure at
-> all which approach would be better in long term.
+This issue was identified using Coccinelle and the following
+semantic patch:
 
-We could always choose the closest lower one. I've been thinking
-about doing that instead myself.
+@r disable optional_qualifier@
+identifier i;
+position p;
+@@
+static struct i2c_algorithm i@p = { ... };
 
-Wolfram, do you have any opinion on this ?
+@ok@
+identifier r.i;
+struct i2c_adapter e;
+position p;
+@@
+e.algo = &i@p;
 
-Regards,
+@bad@
+position p != {r.p,ok.p};
+identifier r.i;
+@@
+i@p
 
-Hans
+@depends on !bad disable optional_qualifier@
+identifier r.i;
+@@
+static
++const
+ struct i2c_algorithm i = { ... };
 
+Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+---
+ drivers/i2c/busses/i2c-stm32f4.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
->>   	/*
->>   	 * Find bus speed from the "clock-frequency" device property,
->> ACPI
->>   	 * or by using fast mode if neither is set.
-> 
+diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+index f9dd7e8..9d6f110 100644
+--- a/drivers/i2c/busses/i2c-stm32f4.c
++++ b/drivers/i2c/busses/i2c-stm32f4.c
+@@ -751,7 +751,7 @@ static u32 stm32f4_i2c_func(struct i2c_adapter *adap)
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
+ 
+-static struct i2c_algorithm stm32f4_i2c_algo = {
++static const struct i2c_algorithm stm32f4_i2c_algo = {
+ 	.master_xfer = stm32f4_i2c_xfer,
+ 	.functionality = stm32f4_i2c_func,
+ };
+-- 
+2.5.0
