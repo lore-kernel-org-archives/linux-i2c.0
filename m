@@ -1,90 +1,65 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware-slave: constify i2c_algorithm structure
-Date: Mon, 10 Jul 2017 13:26:32 +0300
-Message-ID: <1499682392.22624.320.camel@linux.intel.com>
-References: <20170709213517.GA31846@embeddedgus>
+From: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Subject: Re: Today's linux-next build fail on powerpc
+Date: Mon, 10 Jul 2017 20:07:58 +0530
+Message-ID: <1499697478.19784.42.camel@abdul.in.ibm.com>
+References: <1499320823.19784.17.camel@abdul.in.ibm.com>
+         <CAHp75VdfjatKMWXzHLr7s3CCAh_-Gd=a2K72pFDdtt1X9Kk7Rw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:28073 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752658AbdGJK0g (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 10 Jul 2017 06:26:36 -0400
-In-Reply-To: <20170709213517.GA31846@embeddedgus>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56646 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1753565AbdGJOiL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 10 Jul 2017 10:38:11 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id v6AEXeBk065510
+        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 10:38:11 -0400
+Received: from e23smtp02.au.ibm.com (e23smtp02.au.ibm.com [202.81.31.144])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2bma0nchb1-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 10:38:10 -0400
+Received: from localhost
+        by e23smtp02.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-i2c@vger.kernel.org> from <abdhalee@linux.vnet.ibm.com>;
+        Tue, 11 Jul 2017 00:38:07 +1000
+In-Reply-To: <CAHp75VdfjatKMWXzHLr7s3CCAh_-Gd=a2K72pFDdtt1X9Kk7Rw@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel <linux-kernel@vger.kernel.org>, Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-next <linux-next@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-On Sun, 2017-07-09 at 16:35 -0500, Gustavo A. R. Silva wrote:
-> Check for i2c_algorithm structures that are only stored in
-> the algo field of an i2c_adapter structure. This field is
-> declared const, so i2c_algorithm structures that have this
-> property can be declared as const also.
+On Fri, 2017-07-07 at 19:36 +0300, Andy Shevchenko wrote:
+> On Thu, Jul 6, 2017 at 9:00 AM, Abdul Haleem
+> <abdhalee@linux.vnet.ibm.com> wrote:
+> > Hi Luis,
+> >
+> > next-20170705 fails to build on powerpc with below errors.
+> 
+> Hi,
+> 
+> I had sent a fix yesterday. Had you chance to test it?
+> 
 > 
 
-> This issue was identified using Coccinelle and the following
-> semantic patch:
-> 
-> @r disable optional_qualifier@
-> identifier i;
-> position p;
-> @@
-> static struct i2c_algorithm i@p = { ... };
-> 
-> @ok@
-> identifier r.i;
-> struct i2c_adapter e;
-> position p;
-> @@
-> e.algo = &i@p;
-> 
-> @bad@
-> position p != {r.p,ok.p};
-> identifier r.i;
-> @@
-> i@p
-> 
-> @depends on !bad disable optional_qualifier@
-> identifier r.i;
-> @@
-> static
-> +const
->  struct i2c_algorithm i = { ... };
+Are these the one you are referring to ?
 
-I don't think it's a good idea to copy'n'paste patch to each change
-where you fixing the issue. Can you create a github repository of the
-coccinelle recipes and give just a link?
+[v1,2/2] ACPI / boot: Don't define unused variables 
+[v1,1/2] ACPI / boot: Correct address space of __acpi_map_table()
 
-Other than that, I'm fine with the change as long as it compiles without
-troubles (had seen recently similar patch that has been sent without
-actual testing).
+Applying above patches did not fix the build failure.
 
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+drivers/i2c/busses/i2c-designware-platdrv.c:331:6: error: implicit
+declaration of function
+‘i2c_detect_slave_mode’ [-Werror=implicit-function-declaration]
+  if (i2c_detect_slave_mode(&pdev->dev))
+      ^
+  CC [M]  fs/jffs2/scan.o
 
-> 
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
-> ---
->  drivers/i2c/busses/i2c-designware-slave.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-slave.c
-> b/drivers/i2c/busses/i2c-designware-slave.c
-> index 4012c74..e62799e 100644
-> --- a/drivers/i2c/busses/i2c-designware-slave.c
-> +++ b/drivers/i2c/busses/i2c-designware-slave.c
-> @@ -344,7 +344,7 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq,
-> void *dev_id)
->  	return IRQ_RETVAL(ret);
->  }
->  
-> -static struct i2c_algorithm i2c_dw_algo = {
-> +static const struct i2c_algorithm i2c_dw_algo = {
->  	.functionality = i2c_dw_func,
->  	.reg_slave = i2c_dw_reg_slave,
->  	.unreg_slave = i2c_dw_unreg_slave,
+Please point me to the correct patch you are referring to ?
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Regard's
+
+Abdul Haleem
+IBM Linux Technology Centre
