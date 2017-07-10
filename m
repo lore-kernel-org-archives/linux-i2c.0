@@ -1,74 +1,36 @@
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] i2c: designware-slave: constify i2c_algorithm structure
-Date: Sun, 9 Jul 2017 16:35:17 -0500
-Message-ID: <20170709213517.GA31846@embeddedgus>
+From: Baolin Wang <baolin.wang@spreadtrum.com>
+Subject: Re: [PATCH v4 2/2] i2c: Add Spreadtrum I2C controller driver
+Date: Mon, 10 Jul 2017 10:37:34 +0800
+Message-ID: <20170710023734.GA15907@spreadtrum.com>
+References: <eda1f25512db9c6946b303dd43f518ae2f0f3b26.1499330475.git.baolin.wang@spreadtrum.com>
+ <7b2286a07cec8be20d30fd1b32d4762ec0419ef1.1499330476.git.baolin.wang@spreadtrum.com>
+ <CAHp75VdOH9QOFqzAaRUXXEObJQq5HNe-Cg41CxUdBXMwDJyJCw@mail.gmail.com>
+ <20170706091021.GA6983@spreadtrum.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gateway20.websitewelcome.com ([192.185.58.11]:37145 "EHLO
-        gateway20.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752630AbdGIVfa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 9 Jul 2017 17:35:30 -0400
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
-        by gateway20.websitewelcome.com (Postfix) with ESMTP id EBC70400CC210
-        for <linux-i2c@vger.kernel.org>; Sun,  9 Jul 2017 16:35:17 -0500 (CDT)
+Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:20382 "EHLO
+        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1753056AbdGJClV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 9 Jul 2017 22:41:21 -0400
 Content-Disposition: inline
+In-Reply-To: <20170706091021.GA6983@spreadtrum.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Baolin Wang <baolin.wang@linaro.org>
 
-Check for i2c_algorithm structures that are only stored in
-the algo field of an i2c_adapter structure. This field is
-declared const, so i2c_algorithm structures that have this
-property can be declared as const also.
+Hi Wolfram,
 
-This issue was identified using Coccinelle and the following
-semantic patch:
+On 四,  7月 06, 2017 at 05:10:21下午 +0800, Baolin Wang wrote:
+> Hi Andy,
+> 
+> On 四,  7月 06, 2017 at 12:00:29下午 +0300, Andy Shevchenko wrote:
+> > On Thu, Jul 6, 2017 at 11:47 AM, Baolin Wang <baolin.wang@spreadtrum.com> wrote:
+> > > This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
+> > >
+> > 
+> > Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-@r disable optional_qualifier@
-identifier i;
-position p;
-@@
-static struct i2c_algorithm i@p = { ... };
-
-@ok@
-identifier r.i;
-struct i2c_adapter e;
-position p;
-@@
-e.algo = &i@p;
-
-@bad@
-position p != {r.p,ok.p};
-identifier r.i;
-@@
-i@p
-
-@depends on !bad disable optional_qualifier@
-identifier r.i;
-@@
-static
-+const
- struct i2c_algorithm i = { ... };
-
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
----
- drivers/i2c/busses/i2c-designware-slave.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 4012c74..e62799e 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -344,7 +344,7 @@ static irqreturn_t i2c_dw_isr_slave(int this_irq, void *dev_id)
- 	return IRQ_RETVAL(ret);
- }
- 
--static struct i2c_algorithm i2c_dw_algo = {
-+static const struct i2c_algorithm i2c_dw_algo = {
- 	.functionality = i2c_dw_func,
- 	.reg_slave = i2c_dw_reg_slave,
- 	.unreg_slave = i2c_dw_unreg_slave,
--- 
-2.5.0
+Could you apply this patchset if there are no other comments? Do I need
+resend this patch with adding Andy's reviewed tag? Thanks.
