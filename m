@@ -1,44 +1,80 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/2] i2c: designware: Some broken DSTDs use 1MiHz instead of 1MHz
-Date: Mon, 10 Jul 2017 20:45:40 +0200
-Message-ID: <20170710184540.15119-2-hdegoede@redhat.com>
-References: <20170710184540.15119-1-hdegoede@redhat.com>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v4 1/2] wire: export w1_touch_bit
+Date: Tue, 11 Jul 2017 00:59:56 +0200
+Message-ID: <4aa9d196-1e31-de86-4ba7-752a0a04122c@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48510 "EHLO mx1.redhat.com"
+Received: from mout.gmx.net ([212.227.15.18]:53655 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753245AbdGJSpp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 10 Jul 2017 14:45:45 -0400
-In-Reply-To: <20170710184540.15119-1-hdegoede@redhat.com>
+        id S1754952AbdGJW76 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 10 Jul 2017 18:59:58 -0400
+Content-Language: de-DE
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Evgeniy Polyakov <zbr@ioremap.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-At least the Acer Iconia Tab8 / aka W1-810 uses 1MiHz instead of
-1MHz for one of its busses, fix this up to 1MHz instead of failing
-the probe of that bus.
+Changes in v4 against v3 in this subpatch:
+  - adapted to linux-4.12.0
 
-This fixes the accelerometer on the Acer Iconia Tab8 not working.
+No changes in v3 against v2,v1 in this subpatch.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
+
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
+
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
+
+
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 3 +++
- 1 file changed, 3 insertions(+)
+>From 6aedd1b890bd77bfe788f6af7a38724c16934ab0 Mon Sep 17 00:00:00 2001
+From: Jan Kandziora <jjj@gmx.de>
+Date: Sat, 8 Jul 2017 21:14:27 +0200
+Subject: [PATCH 1/2] wire: export w1_touch_bit
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 4a3a7eda978b..dc47eb1f18a6 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -254,6 +254,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+---
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 758a7a6..e7af855 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -295,6 +295,7 @@ int w1_attach_slave_device(struct w1_master *dev,
+struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+  u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index 1134e6b..4bb77a1 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -58,7 +58,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -69,6 +69,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
  	}
- 
- 	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
-+	/* Some broken DSTDs use 1MiHz instead of 1MHz */
-+	if (acpi_speed == 1048576)
-+		acpi_speed = 1000000;
- 	/*
- 	 * Find bus speed from the "clock-frequency" device property, ACPI
- 	 * or by using fast mode if neither is set.
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+  /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
 -- 
-2.13.0
+2.13.1
