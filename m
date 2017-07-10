@@ -1,27 +1,44 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/3] dt-bindings: i2c: eeprom: document all at24 bindings
-Date: Sun, 9 Jul 2017 22:44:31 -0500
-Message-ID: <20170710034431.4qxxogbjcpev6ssp@rob-hp-laptop>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/3] dt-bindings: i2c: eeprom: document "mac-offset"
+ binding
+Date: Sun, 9 Jul 2017 22:46:13 -0500
+Message-ID: <20170710034613.fc4vj6h22kagce24@rob-hp-laptop>
 References: <1499336217-16913-1-git-send-email-claudiu.beznea@microchip.com>
- <1499336217-16913-2-git-send-email-claudiu.beznea@microchip.com>
+ <1499336217-16913-4-git-send-email-claudiu.beznea@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:33643 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753069AbdGJDqQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 9 Jul 2017 23:46:16 -0400
 Content-Disposition: inline
-In-Reply-To: <1499336217-16913-2-git-send-email-claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
+In-Reply-To: <1499336217-16913-4-git-send-email-claudiu.beznea@microchip.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc: mark.rutland@arm.com, nsekhar@ti.com, david@lechnology.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com, ludovic.desroches@microchip.com
 
-On Thu, Jul 06, 2017 at 01:16:55PM +0300, Claudiu Beznea wrote:
-> Document all at24 memories specific bindings.
+On Thu, Jul 06, 2017 at 01:16:57PM +0300, Claudiu Beznea wrote:
+> Document "mac-offset" binding that will be used by at24 EEPROM driver.
+> 
+> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+> ---
+>  Documentation/devicetree/bindings/eeprom/eeprom.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+> index a50dc01..3dd267c 100644
+> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
+> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+> @@ -35,10 +35,13 @@ Optional properties:
+>  
+>    - read-only: this parameterless property disables writes to the eeprom
+>  
+> +  - mac-offset: offset in EEPROM where MAC address starts
+> +
 
-This will probably conflict with Javier's series "eeprom: at24: Add OF 
-device ID table".
+This doesn't scale if you have multiple things you need the offset to, 
+and we already have a binding for this. Use the nvmem binding.
 
 Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
