@@ -1,67 +1,67 @@
-From: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
-Subject: Re: Today's linux-next build fail on powerpc
-Date: Mon, 10 Jul 2017 23:21:57 +0530
-Message-ID: <1499709117.19784.44.camel@abdul.in.ibm.com>
-References: <1499320823.19784.17.camel@abdul.in.ibm.com>
-         <CAHp75VdfjatKMWXzHLr7s3CCAh_-Gd=a2K72pFDdtt1X9Kk7Rw@mail.gmail.com>
-         <1499697478.19784.42.camel@abdul.in.ibm.com>
-         <CAHp75VdSgpviH9U1nh7HVL-t9kHHQeAdDSnAGjsXtFaXXTNnXQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v1] i2c: core: Protect acpi_match_device() against NULL
+Date: Mon, 10 Jul 2017 20:21:52 +0200
+Message-ID: <20170710182151.xes5biaaj7jwkhzz@ninjato>
+References: <20170709131618.12121-1-andriy.shevchenko@linux.intel.com>
+ <1499606299.22624.315.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53249 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1754708AbdGJRwI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 10 Jul 2017 13:52:08 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id v6AHmivE015535
-        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 13:52:07 -0400
-Received: from e23smtp05.au.ibm.com (e23smtp05.au.ibm.com [202.81.31.147])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2bm48ygw2v-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 13:52:07 -0400
-Received: from localhost
-        by e23smtp05.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-i2c@vger.kernel.org> from <abdhalee@linux.vnet.ibm.com>;
-        Tue, 11 Jul 2017 03:52:04 +1000
-In-Reply-To: <CAHp75VdSgpviH9U1nh7HVL-t9kHHQeAdDSnAGjsXtFaXXTNnXQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wbb7pxtcftq3beqo"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1499606299.22624.315.camel@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel <linux-kernel@vger.kernel.org>, Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-next <linux-next@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-On Mon, 2017-07-10 at 18:17 +0300, Andy Shevchenko wrote:
-> On Mon, Jul 10, 2017 at 5:37 PM, Abdul Haleem
-> <abdhalee@linux.vnet.ibm.com> wrote:
-> > On Fri, 2017-07-07 at 19:36 +0300, Andy Shevchenko wrote:
-> >> On Thu, Jul 6, 2017 at 9:00 AM, Abdul Haleem
-> >> <abdhalee@linux.vnet.ibm.com> wrote:
-> >> > next-20170705 fails to build on powerpc with below errors.
-> >> I had sent a fix yesterday. Had you chance to test it?
-> 
-> > drivers/i2c/busses/i2c-designware-platdrv.c:331:6: error: implicit
-> > declaration of function
-> > ‘i2c_detect_slave_mode’ [-Werror=implicit-function-declaration]
-> >   if (i2c_detect_slave_mode(&pdev->dev))
-> >       ^
-> >   CC [M]  fs/jffs2/scan.o
-> >
-> > Please point me to the correct patch you are referring to ?
-> 
-> commit 8f1a357d41a22009150cf404b5aa5876efdb59b1
-> 
->    i2c: Provide a stub for i2c_detect_slave_mode()
-> 
 
-Thanks Andy for the fix, the patch fixes the build errors.
+--wbb7pxtcftq3beqo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Machine booted with no issues.
+On Sun, Jul 09, 2017 at 04:18:19PM +0300, Andy Shevchenko wrote:
+> On Sun, 2017-07-09 at 16:16 +0300, Andy Shevchenko wrote:
+> > The commit 09b3b246acba
+> > 	("i2c: core: Allow empty id_table in ACPI case as well")
+> > brought an additional check for ACPI match table entry, though missed
+> > NULL check for table itself.
+> >=20
+> > Do it here by introducing a helper i2c_acpi_match_device().
+> >=20
+> > Note, we rename some static function in i2c-core-acpi.c to distinguish
+> > with public API.
+> >=20
+>=20
+> Wolfram, feel free to squash it into the original commit if it looks
+> better.=20
 
-Reported-and-tested-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+I didn't want to send Linus a branch which too many last minute fixes.
+That's why I dropped the original patch and would like to ask you to
+resend a combined patch after rc1. If it is a bugfix, we will have no
+problems getting it into v4.13 but it seems a bit more testing is
+needed.
 
--- 
-Regard's
 
-Abdul Haleem
-IBM Linux Technology Centre
+--wbb7pxtcftq3beqo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlljxbsACgkQFA3kzBSg
+Kba3tQ//UcDKVHFKP148nCuK1rL7fcFe5kZmgDUd3bAemt9UG/X3syZdZupkNaoq
+Q8u1hoeR9nXdHuwUvvGeKHyBreePTgCtnoagmHddmQijib4jwREHy8kR30ANWSuR
+KLdYddH5yrl9cbQDmS7x7TDoIJ5BzJAs8nGJpe+l2X9nTihpychuOxglX8b8Gg4h
+7hgrbGkpZtQpmgNx2dYNRhg+MDxQv8HQdMvj6DcjRQKS1TJkt+MoHObsezX7AjMi
+2OjaqAFJWoMqwtqpgN9/ppkhBO7/LOidwlf5XeRWeANmzGE1KK1eSx270WuVWZoa
+TSV7qMkbHiohd0Vy7d7e+4L7qLGHShYWr3SG5QVHJWM392upme+dpFiJA5K7C1hN
+0zLe/QN2kYMFzoA13DlkpZbG8HsAF5v1vbYZtCUTtqIg8XCK5NZMQ2CKQmgBmPPp
+JmLcbjT4iIaKF5wkp4Sbmp01SBnMn3nFbn7I3/p2gjXABKmFXSycptoJP+qUfjiW
+0we0MIXjeArQrbv83ifhisOBGSq3amNs0iNfVLZayllQBCHHXgXjw6y6AUKiJyV7
+PhUnF448Zw15SIN1PF+QqtgNRck/qWchYzvLwoAxCbzSNBKIHUUjr+kCSWsxzpYN
+m5gNinoDJjJgSqMaaFprEAN3i0AkWEIj4Pj6Y5fBcS9wPY9Ru6U=
+=M2PT
+-----END PGP SIGNATURE-----
+
+--wbb7pxtcftq3beqo--
