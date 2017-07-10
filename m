@@ -1,44 +1,49 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 3/3] dt-bindings: i2c: eeprom: document "mac-offset"
- binding
-Date: Sun, 9 Jul 2017 22:46:13 -0500
-Message-ID: <20170710034613.fc4vj6h22kagce24@rob-hp-laptop>
-References: <1499336217-16913-1-git-send-email-claudiu.beznea@microchip.com>
- <1499336217-16913-4-git-send-email-claudiu.beznea@microchip.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [RESEND PATCH v6 0/8] mfd: Add OF device table to I2C drivers
+ that are missing it
+Date: Mon, 10 Jul 2017 09:40:46 +0200
+Message-ID: <CABxcv=k8g8c3KmLK+ZqQiG+-+j2Y=FuRpadQ=xguXG5qGGWwhg@mail.gmail.com>
+References: <20170615184928.12007-1-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:33643 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753069AbdGJDqQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 9 Jul 2017 23:46:16 -0400
-Content-Disposition: inline
-In-Reply-To: <1499336217-16913-4-git-send-email-claudiu.beznea@microchip.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170615184928.12007-1-javier@dowhile0.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Javier Martinez Canillas <javier@dowhile0.org>, =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc: mark.rutland@arm.com, nsekhar@ti.com, david@lechnology.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com, ludovic.desroches@microchip.com
 
-On Thu, Jul 06, 2017 at 01:16:57PM +0300, Claudiu Beznea wrote:
-> Document "mac-offset" binding that will be used by at24 EEPROM driver.
-> 
-> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-> ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> index a50dc01..3dd267c 100644
-> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> @@ -35,10 +35,13 @@ Optional properties:
->  
->    - read-only: this parameterless property disables writes to the eeprom
->  
-> +  - mac-offset: offset in EEPROM where MAC address starts
-> +
+Hello Lee,
 
-This doesn't scale if you have multiple things you need the offset to, 
-and we already have a binding for this. Use the nvmem binding.
+On Thu, Jun 15, 2017 at 8:49 PM, Javier Martinez Canillas
+<javier@dowhile0.org> wrote:
+>
+> This series add OF device ID tables to mfd I2C drivers whose devices are
+> either used in Device Tree source files or are listed in binding docs as
+> a compatible string.
+>
+> That's done because the plan is to change the I2C core to report proper OF
+> modaliases instead of always reporting a MODALIAS=i2c:<foo> regardless if
+> a device was registered via DT or using the legacy platform data mechanism.
+>
+> So these patches will make sure that mfd I2C drivers modules will continue
+> to be autoloaded once the I2C core is changed to report proper OF modalias.
+>
+> Users didn't have a vendor prefix in the used compatible strings, but since
+> there wasn't a DT binding document for these drivers, it can be said that
+> were working for mere luck and so this series fixes the users and add a DT
+> binding doc for the drivers.
+>
+> Most patches can be applied independently, with the exception of patches
+> 2 to 4 that should be applied in the same tree to keep bisect-ability. I
+> suggest these to go through the MFD subsystem tree.
+>
+> Best regards,
+> Javier
+>
 
-Rob
+Are you planning to pick this series? It has been in the list for
+months and were resent many times...
+
+Best regards,
+Javier
