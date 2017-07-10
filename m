@@ -1,259 +1,41 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v2 3/6] drivers/i2c: Add transfer implementation for FSI algorithm
-Date: Mon, 10 Jul 2017 13:37:59 -0500
-Message-ID: <1499711882-12918-4-git-send-email-eajames@linux.vnet.ibm.com>
-References: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, eajames@linux.vnet.ibm.com, cbostic@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 1/2] i2c: designware: Print clock freq on invalid clock freq error
+Date: Mon, 10 Jul 2017 20:45:39 +0200
+Message-ID: <20170710184540.15119-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:47328 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753245AbdGJSpo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 10 Jul 2017 14:45:44 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
 
-From: "Edward A. James" <eajames@us.ibm.com>
+When we refuse to probe due to an invalid clock frequency, log
+the frequency which is causing this error.
 
-Execute I2C transfers from the FSI-attached I2C master. Use polling
-instead of interrupts as we have no hardware IRQ over FSI.
-
-Signed-off-by: Edward A. James <eajames@us.ibm.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 197 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 195 insertions(+), 2 deletions(-)
+Changes in v2:
+-Also fix the message missing a \n at the end
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 4b52147..f86595b 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -13,10 +13,12 @@
- #include <linux/errno.h>
- #include <linux/fsi.h>
- #include <linux/i2c.h>
-+#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/sched.h>
- 
- #define FSI_ENGID_I2C		0x7
- 
-@@ -140,6 +142,7 @@ struct fsi_i2c_port {
- 	struct i2c_adapter	adapter;
- 	struct fsi_i2c_master	*master;
- 	u16			port;
-+	u16			xfrd;
- };
- 
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-@@ -224,17 +227,207 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
- 	return rc;
- }
- 
-+static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			 bool stop)
-+{
-+	int rc;
-+	struct fsi_i2c_master *i2c = port->master;
-+	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
-+
-+	port->xfrd = 0;
-+
-+	if (msg->flags & I2C_M_RD)
-+		cmd |= I2C_CMD_READ;
-+
-+	if (stop || msg->flags & I2C_M_STOP)
-+		cmd |= I2C_CMD_WITH_STOP;
-+
-+	cmd = SETFIELD(I2C_CMD_ADDR, cmd, msg->addr >> 1);
-+	cmd = SETFIELD(I2C_CMD_LEN, cmd, msg->len);
-+
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
-+
-+	return rc;
-+}
-+
-+static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			      u8 fifo_count)
-+{
-+	int write;
-+	int rc = 0;
-+	struct fsi_i2c_master *i2c = port->master;
-+	int bytes_to_write = i2c->fifo_size - fifo_count;
-+	int bytes_remaining = msg->len - port->xfrd;
-+
-+	if (bytes_to_write > bytes_remaining)
-+		bytes_to_write = bytes_remaining;
-+
-+	while (bytes_to_write > 0) {
-+		write = bytes_to_write;
-+		/* fsi limited to max 4 byte aligned ops */
-+		if (bytes_to_write > 4)
-+			write = 4;
-+		else if (write == 3)
-+			write = 2;
-+
-+		rc = fsi_device_write(i2c->fsi, I2C_FSI_FIFO,
-+				      &msg->buf[port->xfrd], write);
-+		if (rc)
-+			return rc;
-+
-+		port->xfrd += write;
-+		bytes_to_write -= write;
-+	}
-+
-+	return rc;
-+}
-+
-+static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			     u8 fifo_count)
-+{
-+	int read;
-+	int rc = 0;
-+	struct fsi_i2c_master *i2c = port->master;
-+	int xfr_remaining = msg->len - port->xfrd;
-+	u32 dummy;
-+
-+	while (fifo_count) {
-+		read = fifo_count;
-+		/* fsi limited to max 4 byte aligned ops */
-+		if (fifo_count > 4)
-+			read = 4;
-+		else if (read == 3)
-+			read = 2;
-+
-+		if (xfr_remaining) {
-+			if (xfr_remaining < read)
-+				read = xfr_remaining;
-+
-+			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
-+					     &msg->buf[port->xfrd], read);
-+			if (rc)
-+				return rc;
-+
-+			port->xfrd += read;
-+			xfr_remaining -= read;
-+		} else {
-+			/* no more buffer but data in fifo, need to clear it */
-+			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
-+					     read);
-+			if (rc)
-+				return rc;
-+		}
-+
-+		fifo_count -= read;
-+	}
-+
-+	return rc;
-+}
-+
-+static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
-+				 struct i2c_msg *msg, u32 status)
-+{
-+	int rc;
-+	u8 fifo_count;
-+	struct fsi_i2c_master *i2c = port->master;
-+	u32 dummy = 0;
-+
-+	if (status & I2C_STAT_ERR) {
-+		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_ERR, &dummy);
-+		if (rc)
-+			return rc;
-+
-+		if (status & I2C_STAT_NACK)
-+			return -EFAULT;
-+
-+		return -EIO;
-+	}
-+
-+	if (status & I2C_STAT_DAT_REQ) {
-+		fifo_count = GETFIELD(I2C_STAT_FIFO_COUNT, status);
-+
-+		if (msg->flags & I2C_M_RD)
-+			rc = fsi_i2c_read_fifo(port, msg, fifo_count);
-+		else
-+			rc = fsi_i2c_write_fifo(port, msg, fifo_count);
-+
-+		return rc;
-+	}
-+
-+	if (status & I2C_STAT_CMD_COMP) {
-+		if (port->xfrd < msg->len)
-+			rc = -ENODATA;
-+		else
-+			rc = msg->len;
-+
-+		return rc;
-+	}
-+
-+	return 0;
-+}
-+
-+static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			unsigned long timeout)
-+{
-+	const unsigned long local_timeout = 2; /* jiffies */
-+	u32 status = 0;
-+	int rc;
-+
-+	do {
-+		rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT,
-+				      &status);
-+		if (rc)
-+			return rc;
-+
-+		if (status & I2C_STAT_ANY_RESP) {
-+			rc = fsi_i2c_handle_status(port, msg, status);
-+			if (rc < 0)
-+				return rc;
-+
-+			/* cmd complete and all data xfrd */
-+			if (rc == msg->len)
-+				return 0;
-+
-+			/* need to xfr more data, but maybe don't need wait */
-+			continue;
-+		}
-+
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(local_timeout);
-+		timeout = (timeout < local_timeout) ? 0 :
-+			timeout - local_timeout;
-+	} while (timeout);
-+
-+	return -ETIME;
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
--	int rc;
-+	int i, rc;
-+	unsigned long start_time;
- 	struct fsi_i2c_port *port = adap->algo_data;
-+	struct i2c_msg *msg;
- 
- 	rc = fsi_i2c_set_port(port);
- 	if (rc)
- 		return rc;
- 
--	return -EOPNOTSUPP;
-+	for (i = 0; i < num; ++i) {
-+		msg = msgs + i;
-+		start_time = jiffies;
-+
-+		rc = fsi_i2c_start(port, msg, i == num - 1);
-+		if (rc)
-+			return rc;
-+
-+		rc = fsi_i2c_wait(port, msg,
-+				  adap->timeout - (jiffies - start_time));
-+		if (rc)
-+			return rc;
-+	}
-+
-+	return 0;
- }
- 
- static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index d1263b82d646..4a3a7eda978b 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -275,7 +275,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	if (dev->clk_freq != 100000 && dev->clk_freq != 400000
+ 	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000) {
+ 		dev_err(&pdev->dev,
+-			"Only 100kHz, 400kHz, 1MHz and 3.4MHz supported");
++			"%d Hz is unsupported, only 100kHz, 400kHz, 1MHz and 3.4MHz are supported\n",
++			dev->clk_freq);
+ 		r = -EINVAL;
+ 		goto exit_reset;
+ 	}
 -- 
-1.8.3.1
+2.13.0
