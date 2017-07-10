@@ -1,36 +1,27 @@
-From: Baolin Wang <baolin.wang@spreadtrum.com>
-Subject: Re: [PATCH v4 2/2] i2c: Add Spreadtrum I2C controller driver
-Date: Mon, 10 Jul 2017 10:37:34 +0800
-Message-ID: <20170710023734.GA15907@spreadtrum.com>
-References: <eda1f25512db9c6946b303dd43f518ae2f0f3b26.1499330475.git.baolin.wang@spreadtrum.com>
- <7b2286a07cec8be20d30fd1b32d4762ec0419ef1.1499330476.git.baolin.wang@spreadtrum.com>
- <CAHp75VdOH9QOFqzAaRUXXEObJQq5HNe-Cg41CxUdBXMwDJyJCw@mail.gmail.com>
- <20170706091021.GA6983@spreadtrum.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: eeprom: document all at24 bindings
+Date: Sun, 9 Jul 2017 22:44:31 -0500
+Message-ID: <20170710034431.4qxxogbjcpev6ssp@rob-hp-laptop>
+References: <1499336217-16913-1-git-send-email-claudiu.beznea@microchip.com>
+ <1499336217-16913-2-git-send-email-claudiu.beznea@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:20382 "EHLO
-        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1753056AbdGJClV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 9 Jul 2017 22:41:21 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170706091021.GA6983@spreadtrum.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1499336217-16913-2-git-send-email-claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Claudiu Beznea <claudiu.beznea-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Baolin Wang <baolin.wang@linaro.org>
 
-Hi Wolfram,
+On Thu, Jul 06, 2017 at 01:16:55PM +0300, Claudiu Beznea wrote:
+> Document all at24 memories specific bindings.
 
-On 四,  7月 06, 2017 at 05:10:21下午 +0800, Baolin Wang wrote:
-> Hi Andy,
-> 
-> On 四,  7月 06, 2017 at 12:00:29下午 +0300, Andy Shevchenko wrote:
-> > On Thu, Jul 6, 2017 at 11:47 AM, Baolin Wang <baolin.wang@spreadtrum.com> wrote:
-> > > This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
-> > >
-> > 
-> > Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+This will probably conflict with Javier's series "eeprom: at24: Add OF 
+device ID table".
 
-Could you apply this patchset if there are no other comments? Do I need
-resend this patch with adding Andy's reviewed tag? Thanks.
+Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
