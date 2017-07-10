@@ -1,127 +1,85 @@
-From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v2 4/6] drivers/i2c: Add I2C master locking to FSI algorithm
-Date: Mon, 10 Jul 2017 13:38:00 -0500
-Message-ID: <1499711882-12918-5-git-send-email-eajames@linux.vnet.ibm.com>
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v2 6/6] dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+Date: Mon, 10 Jul 2017 13:38:02 -0500
+Message-ID: <1499711882-12918-7-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1499711882-12918-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, andrew-zrmu5oMJ5Fs@public.gmane.org, eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, cbostic-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36969 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754429AbdGJSi1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 10 Jul 2017 14:38:27 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id v6AIbLJZ015040
+        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 14:38:27 -0400
+Received: from e32.co.us.ibm.com (e32.co.us.ibm.com [32.97.110.150])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2bmb3e9jm2-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <linux-i2c@vger.kernel.org>; Mon, 10 Jul 2017 14:38:27 -0400
+Received: from localhost
+        by e32.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-i2c@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
+        Mon, 10 Jul 2017 12:38:26 -0600
+In-Reply-To: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, eajames@linux.vnet.ibm.com, cbostic@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 
-From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: "Edward A. James" <eajames@us.ibm.com>
 
-Since there are many ports per master, each with it's own adapter and
-chardev, we need some locking to prevent transfers from changing the\
-master state while other transfers are in progress.
+Document the bindings.
 
-Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Edward A. James <eajames@us.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 43 +++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 39 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index f86595b..1c7fcae 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -19,6 +19,8 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/sched.h>
-+#include <linux/semaphore.h>
-+#include <linux/wait.h>
- 
- #define FSI_ENGID_I2C		0x7
- 
-@@ -135,6 +137,8 @@ struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
- 	struct list_head	ports;
-+	wait_queue_head_t	wait;
-+	struct semaphore	lock;
- };
- 
- struct fsi_i2c_port {
-@@ -168,6 +172,29 @@ static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
- 	return fsi_device_write(fsi, reg, &data_be, sizeof(data_be));
- }
- 
-+static int fsi_i2c_lock_master(struct fsi_i2c_master *i2c, int timeout)
-+{
-+	int rc;
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+new file mode 100644
+index 0000000..b1be2ce
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+@@ -0,0 +1,40 @@
++Device-tree bindings for FSI-attached I2C master and busses
++-----------------------------------------------------------
 +
-+	rc = down_trylock(&i2c->lock);
-+	if (!rc)
-+		return 0;
++Required properties:
++ - compatible = "ibm,i2c-fsi";
++ - reg = < address size >;		: The FSI CFAM address and address
++					  space size.
++ - #address-cells = <1>;		: Number of address cells in child
++					  nodes.
++ - #size-cells = <0>;			: Number of size cells in child nodes.
++ - child nodes				: Nodes to describe busses off the I2C
++					  master.
 +
-+	rc = wait_event_interruptible_timeout(i2c->wait,
-+					      !down_trylock(&i2c->lock),
-+					      timeout);
-+	if (rc > 0)
-+		return 0;
++Child node required properties:
++ - reg = < port number >		: The port number on the I2C master.
 +
-+	return -EBUSY;
-+}
++Child node optional properties:
++ - child nodes				: Nodes to describe devices on the I2C
++					  bus.
 +
-+static void fsi_i2c_unlock_master(struct fsi_i2c_master *i2c)
-+{
-+	up(&i2c->lock);
-+	wake_up(&i2c->wait);
-+}
++Examples:
 +
- static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- {
- 	int rc;
-@@ -409,25 +436,31 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	struct fsi_i2c_port *port = adap->algo_data;
- 	struct i2c_msg *msg;
- 
--	rc = fsi_i2c_set_port(port);
-+	rc = fsi_i2c_lock_master(port->master, adap->timeout);
- 	if (rc)
- 		return rc;
- 
-+	rc = fsi_i2c_set_port(port);
-+	if (rc)
-+		goto unlock;
++    i2c@1800 {
++        compatible = "ibm,i2c-fsi";
++        reg = < 0x1800 0x400 >;
++        #address-cells = <1>;
++        #size-cells = <0>;
 +
- 	for (i = 0; i < num; ++i) {
- 		msg = msgs + i;
- 		start_time = jiffies;
- 
- 		rc = fsi_i2c_start(port, msg, i == num - 1);
- 		if (rc)
--			return rc;
-+			goto unlock;
- 
- 		rc = fsi_i2c_wait(port, msg,
- 				  adap->timeout - (jiffies - start_time));
- 		if (rc)
--			return rc;
-+			goto unlock;
- 	}
- 
--	return 0;
-+unlock:
-+	fsi_i2c_unlock_master(port->master);
-+	return rc;
- }
- 
- static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
-@@ -452,6 +485,8 @@ static int fsi_i2c_probe(struct device *dev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	init_waitqueue_head(&i2c->wait);
-+	sema_init(&i2c->lock, 1);
- 	i2c->fsi = to_fsi_dev(dev);
- 	INIT_LIST_HEAD(&i2c->ports);
- 
++        i2c-bus@0 {
++            reg = <0>;
++        };
++
++        i2c-bus@1 {
++            reg = <1>;
++
++            eeprom@50 {
++                compatible = "vendor,dev-name";
++            };
++        };
++    };
 -- 
 1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
