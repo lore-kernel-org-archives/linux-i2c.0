@@ -1,73 +1,50 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [kbuild-all] [wsa:i2c/for-4.13 15/51] warning: __mcount_loc
- already exists: drivers/i2c/algos/i2c-algo-bit.o
-Date: Tue, 11 Jul 2017 10:46:19 +0200
-Message-ID: <20170711084619.GD2342@katana>
-References: <201707111232.THY3DhFS%fengguang.wu@intel.com>
- <20170711065431.GA2342@katana>
- <20170711075555.e5ktanutreueotu7@wfg-t540p.sh.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1] i2c: core: Protect acpi_match_device() against NULL
+Date: Tue, 11 Jul 2017 13:14:14 +0300
+Message-ID: <1499768054.22624.338.camel@linux.intel.com>
+References: <20170709131618.12121-1-andriy.shevchenko@linux.intel.com>
+         <1499606299.22624.315.camel@linux.intel.com>
+         <20170710182151.xes5biaaj7jwkhzz@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wLAMOaPNJ0fu1fTG"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:49864 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754126AbdGKIqW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 11 Jul 2017 04:46:22 -0400
-Content-Disposition: inline
-In-Reply-To: <20170711075555.e5ktanutreueotu7@wfg-t540p.sh.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170710182151.xes5biaaj7jwkhzz@ninjato>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa-dev@sang-engineering.com>, kbuild-all@01.org, Philip Li <philip.li@intel.com>
 
+On Mon, 2017-07-10 at 20:21 +0200, Wolfram Sang wrote:
+> On Sun, Jul 09, 2017 at 04:18:19PM +0300, Andy Shevchenko wrote:
+> > On Sun, 2017-07-09 at 16:16 +0300, Andy Shevchenko wrote:
+> > > The commit 09b3b246acba
+> > > 	("i2c: core: Allow empty id_table in ACPI case as well")
+> > > brought an additional check for ACPI match table entry, though
+> > > missed
+> > > NULL check for table itself.
+> > > 
+> > > Do it here by introducing a helper i2c_acpi_match_device().
+> > > 
+> > > Note, we rename some static function in i2c-core-acpi.c to
+> > > distinguish
+> > > with public API.
+> > > 
+> > 
+> > Wolfram, feel free to squash it into the original commit if it looks
+> > better. 
+> 
+> I didn't want to send Linus a branch which too many last minute fixes.
+> That's why I dropped the original patch and would like to ask you to
+> resend a combined patch after rc1. If it is a bugfix, we will have no
+> problems getting it into v4.13 but it seems a bit more testing is
+> needed.
 
---wLAMOaPNJ0fu1fTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Okay, let's do this way.
 
+I may also try to convert existing users (some coccinelle script I
+suppose).
 
-> >>All warnings (new ones prefixed by >>):
-> >>
-> >>>> warning: __mcount_loc already exists: drivers/i2c/algos/i2c-algo-bit=
-=2Eo
-> >>--
-> >>>> warning: __mcount_loc already exists: drivers/i2c/busses/i2c-emev2.o
-> >>--
-> >>>> warning: __mcount_loc already exists: drivers/i2c/busses/i2c-xlp9xx.o
-> >>--
-> >>>> warning: __mcount_loc already exists: drivers/i2c/busses/i2c-rcar.o
-> >
-> >False positive? How can a commit that only touches the DEBUG define in
-> >i2c-algo-bit have effects on the latter three drivers?
->=20
-> You are right, I just confirmed that it's a false positive.
->=20
-> The bisect didn't run distclean, which may explain the warnings on
-> duplicate __mcount_loc.
-
-Cool. Thanks for the heads up!
-
-
---wLAMOaPNJ0fu1fTG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllkkFsACgkQFA3kzBSg
-KbZ7Ew//e45v7dUpq9yPVFiUIOWrihGLQ0AqiWVL680Ab4sX5lxLfA/4UiC2IdFY
-uWregCJM8Db8Zv+iUuOCh44Us0n1cuTlrHVaMNFryKp/JMmzAOit9QybhWn4eKac
-qfDwkMmwJtJ2a36n/y0A77y9d7yTaURLjUjiCkkvtQYpYkhVuUhPdkXOuNDrxhPd
-WwGt9l+acyulitSoj7FC8Wch3B+qGyri0WQeyOVLFWGRvWIeok4L/6M70JoTT2WN
-sX+a1z4j+JNeSJFkM+c6s3uySxn9B2faYC7CjtoCHVrr9coH4P4SEMCMwPYgUjZn
-uvqTC3s+RLf2cNhPcnYQUr01uLfCN7wNUdV126wMpxV1Rs6Mdhrbie7AttwT78e2
-ZP3ovlgTX6iNrNzv0cCaXIv0YuRWiXlyzbQ8d5dQoX1hYPie5DjEBFtBf5iIE3bm
-N5oiaIY1agiNVvAojBlsAag3iMArmZugaahN2nX8UAHpNtNNXi+2BQxsv8kRuS4V
-p6eQ+NOYWveyIfU3fYzcdfzokNO3uJW3qJiY+KVge2YUZiATRtSbW/8oN0fcBPY4
-lKCbol/E7IrwZW1+zN66xLW8iithyiyG36COyB4xOR8A066vgxjJ81zFV5xM1Gvf
-HXRZvmWG2PSZG9x3JT1ZHmBfUFe7s6XuXkDloSHSFVh7YGFzgV4=
-=bv8k
------END PGP SIGNATURE-----
-
---wLAMOaPNJ0fu1fTG--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
