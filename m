@@ -1,71 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PULL REQUEST] i2c for 4.13
-Date: Wed, 12 Jul 2017 17:54:35 +0200
-Message-ID: <20170712155435.7bnwhf6apsr5tqhk@ninjato>
+Date: Wed, 12 Jul 2017 10:16:32 -0700
+Message-ID: <CA+55aFzHpnRw6Vw3GNGydzQbxK5SUFKkDH-MLUWPm5r1rAHeDQ@mail.gmail.com>
 References: <20170712154901.yrrhtwfpnokkmswe@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="75z443qnoi6vp2j6"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46205 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753209AbdGLPyi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 12 Jul 2017 11:54:38 -0400
-Content-Disposition: inline
+Received: from mail-oi0-f42.google.com ([209.85.218.42]:34984 "EHLO
+        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753485AbdGLRQe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 12 Jul 2017 13:16:34 -0400
 In-Reply-To: <20170712154901.yrrhtwfpnokkmswe@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
+On Wed, Jul 12, 2017 at 8:49 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>  drivers/i2c/i2c-core-acpi.c                        |  665 ++++++++
+>  drivers/i2c/{i2c-core.c => i2c-core-base.c}        | 1684 +-------------------
+>  drivers/i2c/i2c-core-of.c                          |  276 ++++
+>  drivers/i2c/i2c-core-slave.c                       |  115 ++
+>  drivers/i2c/i2c-core-smbus.c                       |  594 +++++++
+>  drivers/i2c/i2c-core.h                             |   24 +
+>  drivers/i2c/i2c-stub.c                             |   14 +-
 
---75z443qnoi6vp2j6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Side note on this.. (and doesn't affect the pull - I pulled it and
+it's going through my test build right now).
 
+Please don't do the silly "start every filename with the same prefix".
+It annoys people (ie me) that use tab-completion, and it just looks
+stupid.
 
-> with much appreciated quality assurance from
-> ----------------------------------------------------------------
-> Andy Shevchenko (17):
->       (Rev.) i2c: designware: Let slave adapter support be optional
->       (Rev.) i2c: designware: Make HW init functions static
->       (Rev.) i2c: pca-platform: propagate error from i2c_pca_add_numbered_bus
->       (Rev.) i2c: pca-platform: correctly set algo_data.reset_chip
->       (Rev.) i2c: acpi: Do not create i2c-clients for LNXVIDEO ACPI devices
->       (Rev.) i2c: designware: enable SLAVE in platform module
->       (Rev.) i2c: designware: add SLAVE mode functions
->       (Rev.) i2c: zx2967: add i2c controller driver for ZTE's zx2967 family
->       (Rev.) i2c: designware: introducing I2C_SLAVE definitions
->       (Rev.) i2c: designware: Cleaning and comment style fixes.
->       (Rev.) i2c: remove unneeded includes from core
->       (Rev.) docs: i2c: dev-interface: adapt to new filenames of the i2c core
->       (Rev.) i2c: break out ACPI support into separate file
->       (Rev.) i2c: break out OF support into separate file
->       (Rev.) i2c: break out smbus support into separate file
->       (Rev.) i2c: break out slave support into separate file
->       (Rev.) i2c: rename core source file to allow refactorization
+And this core re-org does it twice over - first with "i2c-" and then
+with "core-".
 
-^ This ^   Worth pointing out. Thanks a ton, Andy!
+Of *course* it's "i2c-something.c" - it's in the i2c directory. So
+that part is entirely pointless.
 
+And the "core-something.c" part seems to be entirely to keep the files
+together - but if the issue really is "sort files together", then
+that's why we have subdirectories.
 
---75z443qnoi6vp2j6
-Content-Type: application/pgp-signature; name="signature.asc"
+So I personally tend to much prefer
 
------BEGIN PGP SIGNATURE-----
+   drivers/i2c/core/acpi.c
+   drivers/i2c/core/base.c
+   drivers/i2c/core/of.c
+   drivers/i2c/core/slave.c
+   drivers/i2c/core/smbus.c
+   drivers/i2c/core/core.h
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllmRjsACgkQFA3kzBSg
-KbYyGg//QA+Zjf8aXsODEfktRVOfffZWfTq91nMdtoISkRolWUGt3VzWzLuibDyf
-vmhcIV2Qgw5fDKFdnZjoriViZtBGg8dhKy8LNrAo2NOulH3zhCFwjL1zp/PTCOoN
-NW4ddh41Wf8e8cVZnjX1HDUyx8JXArvaBCYbX7GAG2wgmsh7WtUPhhSAl33x6ISO
-rHxe5wlL4TqKgv2kbGKsHhiovGs+HLaHMemFEBsJNVwJ8ylI5/mnIJorT9ne324E
-QnqCupNssCHz13dCkxKzd7qLkrFnx7QGax3+k1H6KgySmPD4ySsVv7lCkaNp6+Ww
-keKGxsJjK5a6jtb92n+CKKqUnCV7XCbqfxWFUPZJCIVPRVTFnGnjP8Xhy3PQHPyb
-6jSDunUZbJ49A0qrIotOqGWImuFA9udmPI2Gr8X/gByFtRBX9S7jW3SYO/uD+zdu
-NwxWrZSGpn8JjpTinq+gsgewesN+kPKDWiePhW506Pn2rVhxuHrVj/2JRZyXsEje
-OzOQskw2gIAkHuUw4c+bGFKq6AYhbj7AmGfRzFspRA9zMQ08nljL1BWEoc17l5Bs
-Vj9Kh+8Ex81g2MURqKU+gFqOyxIzGQ4Uj8D0Q1loYVOeC46PXzV9Pe3Bhu5DqKuw
-jGQ4dPDNlkOcnu/NbFO0XN80DA8AfSDE3/apt8pnr9b0mLtp9S8=
-=fNDa
------END PGP SIGNATURE-----
+as the model. Then things *really* sort together, auto-complete works
+better, and tools like "git diff --dirstat" etc that group changes by
+directories also automatically just do the right thing.
 
---75z443qnoi6vp2j6--
+And notice how the filenames are smaller and prettier too? It's just a
+win/win situation.
+
+But I'm not going to enforce my style guide on you, since I very
+seldom actually end up touching those files. If this was some area
+where I often actually ended up looking at things, I'd almost require
+a sane directory structure, though.
+
+Because "name things with the same prefix" is not a sane directory structure.
+
+               Linus
