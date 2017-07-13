@@ -1,83 +1,89 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: move include files out of include/linux/i2c
-Date: Thu, 13 Jul 2017 11:46:10 +0200
-Message-ID: <20170713094610.noqty3z6sty6mfj5@ninjato>
-References: <20170521203743.6514-1-wsa@the-dreams.de>
+Subject: Re: [PULL REQUEST] i2c for 4.13
+Date: Thu, 13 Jul 2017 12:03:07 +0200
+Message-ID: <20170713100307.7lmn6biehdp3a426@ninjato>
+References: <20170712154901.yrrhtwfpnokkmswe@ninjato>
+ <CA+55aFzHpnRw6Vw3GNGydzQbxK5SUFKkDH-MLUWPm5r1rAHeDQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="juelcupbh4j3m3xb"
+        protocol="application/pgp-signature"; boundary="a5iedct3lyk7hkln"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48122 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:48181 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750877AbdGMJqO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 13 Jul 2017 05:46:14 -0400
+        id S1750920AbdGMKDK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 13 Jul 2017 06:03:10 -0400
 Content-Disposition: inline
-In-Reply-To: <20170521203743.6514-1-wsa@the-dreams.de>
+In-Reply-To: <CA+55aFzHpnRw6Vw3GNGydzQbxK5SUFKkDH-MLUWPm5r1rAHeDQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
 
---juelcupbh4j3m3xb
+--a5iedct3lyk7hkln
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi peda,
+Linus,
 
-On Sun, May 21, 2017 at 10:37:41PM +0200, Wolfram Sang wrote:
-> It doesn't make sense to use include/linux/i2c for client drivers which m=
-ay in
-> fact rather be hwmon or input or whatever devices. As a result, I want to
-> deprecate include/linux/i2c for good. This series moves the include files=
- to a
-> better location, largely include/platform_data because that is what most =
-of the
-> moved include files contain. Note that some files don't seem to have upst=
-ream
-> users in board code, so they maybe could even be removed? I didn't check =
-for
-> that now, but I did it for one i2c master driver recently. So, it may be
-> possible.
+> So I personally tend to much prefer
 >=20
-> And while i2c muxes might be a corner case, I still want to deprecate
-> include/linux/i2c for good ;)
+>    drivers/i2c/core/acpi.c
+>    drivers/i2c/core/base.c
+>    drivers/i2c/core/of.c
+>    drivers/i2c/core/slave.c
+>    drivers/i2c/core/smbus.c
+>    drivers/i2c/core/core.h
 >=20
-> No runtime testing because of no HW, but buildbot is happy with this seri=
-es at
-> least. A branch can be found here:
+> as the model. Then things *really* sort together, auto-complete works
+> better, and tools like "git diff --dirstat" etc that group changes by
+> directories also automatically just do the right thing.
 >=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_=
-data
+> And notice how the filenames are smaller and prettier too? It's just a
+> win/win situation.
 
-Since there were no other i2c-mux patches this merge window and thus no
-pull request, do you mind if I pick these two patches for my second pull
-request this merge window to have them included in 4.13 already?
+I am easily convinced by these benefits, thanks for pointing them out.
+There was one request from distributions, though, when we once tried to
+refactor only ACPI out back then (which we had to revert because of this
+request): keep the module name constant. Given that, I am going to take
+some middle path and rename like this:
 
-Regards,
+    drivers/i2c/acpi.c
+    drivers/i2c/base.c
+    drivers/i2c/of.c
+    drivers/i2c/slave.c
+    drivers/i2c/smbus.c
+    drivers/i2c/core.h
+
+and keep the resulting object name 'i2c-core.o'. That implies that the
+root directory of 'i2c' will be core only. I think this is fair.
+
+Will implement it hopefully today and send you a pull request ASAP.
+
+Thanks,
 
    Wolfram
 
 
---juelcupbh4j3m3xb
+--a5iedct3lyk7hkln
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllnQV4ACgkQFA3kzBSg
-KbbFHw//fJnTITtucNYygzlfdKCczpPsH8w6W8gqCT3vnBIdvjTGQBBAenlSlmPh
-TaTp29p1ZImBCaE8HJzG2i1ivwUL6XFvNdv9DVrLtyZMh2fVS0OQ6z1y0DrJDUs/
-etS3+H7PMSglSLUbjMIWmTIbPOUdV7YYx2P+6TKLv6+1ycdMzEczZl4zwr2ZDw4X
-o6YaIl1eS19SOghLS8wbPau1A8JUWPVZaJ+YxU3goeyyyAjlNrTOmurlu5cvVQtW
-XVAPewpeLboFOXMTJd1/4v89AWm4JugScJCRQWr2oOm5V/3Wy+rO5IwgHpaccyCs
-UcDiC6Zdwxfr8ZPvTr4HNgArZihfV5TD/8NJ/RKIskfAcN2QMElg6ttxwMJWUNif
-7JC1Bi7g5HY42BrJQllQ9X7P70MW5JCTeQfq5zJBbhw6WckAXcf9JvzgM9K/zJ5N
-QoFR88y12fZeZYc/vUQ6DBT7LFDjRTNZsisajbWuT9yo3a+tEVjT3Q4iVaZLimzm
-jJxZtNjqJhm2h8DqGCIW+vT979vpqrpOr7j22hL5zPeVsatWaOaGDkHSZp+a1i5j
-ctSgjuNUsHqIvQwzi5GMYWx0m3xZJfll01kYnAv4MCop2hPSLm7q2qMuhk4pEUHN
-0jXGplPMQs1KNbPwgeqzTtYy136FaFOoIMw6YO8Vyv2RJjqPC0U=
-=tOI8
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllnRVsACgkQFA3kzBSg
+KbZZMRAAhTBVanlW9rgOYsHNPi8qoTDynBlEHs3SPwRrUAKLmbQt+JqOBiQrgZOg
+Umvr+ptYvEoW9jNG5y/GWPj41jmtYkToAnarLYL+FBb47gbYNQthYoUgD0LPQLj/
+eD3+7PFTGksgUq4q8WixtBqrs0v8mLtsvyruSYlz/fgO2xOoIvvribmHXEnsq3YW
+EzVMgzyRCOd9mO8u7kDeO80XtI1K3emAFaFPYe/Ul9NhWnLAlbXKyrFaf1XzEird
+LMBQPTaN/an0v7oDsNorSfR97IjRvMcaumBwvYGLJz7gRxpHYjC8QBUMPprvk61h
+AYXcQvMjHQOkNuQrS3k0xM0t8UXW6sDBTib1mvUunfud1bfnWNlwIi58G63uZ7PP
+Tj30CvB4Clva9PBGcS8bkpE+P+XPNJBFLauHFoii/06fG5eldcZ6oMALkmDfjsMn
+stiIc7DfTUB6GJRFFI3E8uxOE/vwzUhbyUTCOmtNLEnkZpOLdtyRNHZYnLGwWucO
+x+370gIQpUk5qmEgSYF4fBsiihR4J4CUU3O7Fr2Vj+5LofXksAlG1j8U9jfuhDLT
+cmajhzUr0aIejR7q1UQ9oRNtPqQ17ZWn+9KV0NFYtb7aHvPKZubmHmhq6lKqePMW
+ZLOL7B8zHuJG0CuculuyUIScEtvHFSHp8tvSUhiFlag6xbCsA6c=
+=QvxK
 -----END PGP SIGNATURE-----
 
---juelcupbh4j3m3xb--
+--a5iedct3lyk7hkln--
