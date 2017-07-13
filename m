@@ -1,203 +1,84 @@
-From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCHv4 3/3] i2c: altera: Add Altera I2C Controller driver
-Date: Wed, 12 Jul 2017 17:39:59 -0500
-Message-ID: <41d47a3c-cff6-a24c-da96-3e7901e9334d@linux.intel.com>
-References: <1497904618-27010-1-git-send-email-thor.thayer@linux.intel.com>
- <1497904618-27010-4-git-send-email-thor.thayer@linux.intel.com>
- <CAHp75VcpdeGW0KXSqZwyMDkGbjT+6Ky5nBXTs7d-dN0gpYHV_w@mail.gmail.com>
- <f049d174-5a64-2a20-5f47-1638963ea475@linux.intel.com>
- <CAHp75Vdr6tomrzKMtJ2LQ+k-jU274VMEfHN-MTzvO-PYN_8DHw@mail.gmail.com>
-Reply-To: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PULL REQUEST] i2c for 4.13
+Date: Thu, 13 Jul 2017 09:56:10 +0200
+Message-ID: <20170713075610.ufck6nxokifamcvs@pengutronix.de>
+References: <20170712154901.yrrhtwfpnokkmswe@ninjato>
+ <CA+55aFzHpnRw6Vw3GNGydzQbxK5SUFKkDH-MLUWPm5r1rAHeDQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAHp75Vdr6tomrzKMtJ2LQ+k-jU274VMEfHN-MTzvO-PYN_8DHw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:41465 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750846AbdGMH4N (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 13 Jul 2017 03:56:13 -0400
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzHpnRw6Vw3GNGydzQbxK5SUFKkDH-MLUWPm5r1rAHeDQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Andy,
+Hello,
 
-On 07/08/2017 04:41 PM, Andy Shevchenko wrote:
-> On Sat, Jul 8, 2017 at 12:08 AM, Thor Thayer
-> <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
->> On 07/07/2017 11:25 AM, Andy Shevchenko wrote:
->>> On Mon, Jun 19, 2017 at 11:36 PM,  <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+On Wed, Jul 12, 2017 at 10:16:32AM -0700, Linus Torvalds wrote:
+> On Wed, Jul 12, 2017 at 8:49 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >  drivers/i2c/i2c-core-acpi.c                        |  665 ++++++++
+> >  drivers/i2c/{i2c-core.c => i2c-core-base.c}        | 1684 +-------------------
+> >  drivers/i2c/i2c-core-of.c                          |  276 ++++
+> >  drivers/i2c/i2c-core-slave.c                       |  115 ++
+> >  drivers/i2c/i2c-core-smbus.c                       |  594 +++++++
+> >  drivers/i2c/i2c-core.h                             |   24 +
+> >  drivers/i2c/i2c-stub.c                             |   14 +-
 > 
->>>> +       while (bytes_to_transfer-- > 0) {
->>>> +               *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->>>> +               if (idev->msg_len == 1)
->>>> +                       altr_i2c_stop(idev);
->>>> +               else
->>>> +                       writel(0, idev->base + ALTR_I2C_TFR_CMD);
->>>> +
->>>> +               idev->msg_len--;
->>>> +       }
->>>
->>>
->>> Move out invariant from the loop (and I see a bug, you might go over
->>> boundaries).
->>>
->>>          while (bytes_to_transfer-- > 0) {
->>>                  *idev->buf++ = readl(idev->base + ALTR_I2C_RX_DATA);
->>>                  if (idev->msg_len-- == 1)
->>>                      break;
->>>                  writel(0, idev->base + ALTR_I2C_TFR_CMD);
->>>          }
->>>
->>>          altr_i2c_stop(idev);
->>>
->> I see your point on the boundary.
+> Side note on this.. (and doesn't affect the pull - I pulled it and
+> it's going through my test build right now).
 > 
-> Actually I didn't notice min() call above. So, you may ignore that part.
+> Please don't do the silly "start every filename with the same prefix".
+> It annoys people (ie me) that use tab-completion, and it just looks
+> stupid.
 > 
->> However your change is slightly different
->> from what I'm trying to do.
+> And this core re-org does it twice over - first with "i2c-" and then
+> with "core-".
 > 
-> I don't see how it differs to what you wrote.
-
-The stop condition is sent after every FIFO read but I only want the 
-stop condition when the entire message has been sent (at msg_len == 1) 
-which will be the last byte.
-
+> Of *course* it's "i2c-something.c" - it's in the i2c directory. So
+> that part is entirely pointless.
 > 
->> I think you assumed the alt_i2c_stop() call can cause a stop condition. This
->> soft IP can't send just a start or a stop condition by itself - both of
->> these conditions need to be paired with a byte.
+> And the "core-something.c" part seems to be entirely to keep the files
+> together - but if the issue really is "sort files together", then
+> that's why we have subdirectories.
 > 
-> OK.
+> So I personally tend to much prefer
 > 
->> The other subtle side effect is the start condition + byte write is the
->> first write which is why the last write is skipped.
+>    drivers/i2c/core/acpi.c
+>    drivers/i2c/core/base.c
+>    drivers/i2c/core/of.c
+>    drivers/i2c/core/slave.c
+>    drivers/i2c/core/smbus.c
+>    drivers/i2c/core/core.h
 > 
->> I need to send a byte with a stop condition on the last expected byte
->> (idev->msg_len == 1) while this change would send it after the FIFO is empty
->> or after (msg_len == 1).
+> as the model. Then things *really* sort together, auto-complete works
+> better, and tools like "git diff --dirstat" etc that group changes by
+> directories also automatically just do the right thing.
 > 
-> Consider the corner case when msg_len _is_ 1 at the beginning.
-> Then continue with 2. I really didn't see the difference in two
-> snippets. Perhaps you have a bug there.
-
-I see your point about a bug. I'm sending an extra byte. I'll fix it in 
-the next revision. Thanks.
-
+> And notice how the filenames are smaller and prettier too? It's just a
+> win/win situation.
 > 
->> Your version is cleaner so I'll just add the alt_i2c_stop(idev) call inside
->> the (msg_len == 1) condition and before the break.
+> But I'm not going to enforce my style guide on you, since I very
+> seldom actually end up touching those files. If this was some area
+> where I often actually ended up looking at things, I'd almost require
+> a sane directory structure, though.
 > 
->>>> +static int altr_i2c_fill_tx_fifo(struct altr_i2c_dev *idev)
->>>> +{
->>>> +       size_t tx_fifo_avail = idev->fifo_size - readl(idev->base +
->>>> +
->>>> ALTR_I2C_TC_FIFO_LVL);
->>>> +       int bytes_to_transfer = min(tx_fifo_avail, idev->msg_len);
->>>> +       int ret = idev->msg_len - bytes_to_transfer;
->>>> +
->>>> +       while (bytes_to_transfer-- > 0) {
->>>> +               if (idev->msg_len == 1)
->>>> +                       writel(ALTR_I2C_TFR_CMD_STO | *idev->buf++,
->>>> +                              idev->base + ALTR_I2C_TFR_CMD);
->>>> +               else
->>>> +                       writel(*idev->buf++, idev->base +
->>>> ALTR_I2C_TFR_CMD);
->>>> +               idev->msg_len--;
->>>> +       }
->>>
->>>
->>> Ditto.
->>>
->> See above but I will move the msg_len-- inside the condition check like you
->> had.
-> 
-> Ditto.
+> Because "name things with the same prefix" is not a sane directory structure.
 
-I'll check this one as well.
+Another reason I remember for the prefix thing is that this way the
+kernel modules are not named of.ko, core.ko and base.ko. (But this can
+be fixed in the Makefile of course with some more prose.)
 
-> 
->>>> +static int altr_i2c_wait_for_core_idle(struct altr_i2c_dev *idev)
->>>> +{
->>>> +       unsigned long timeout = jiffies +
->>>> msecs_to_jiffies(ALTR_I2C_TIMEOUT);
->>>> +
->>>> +       do {
->>>> +               if (time_after(jiffies, timeout)) {
->>>> +                       dev_err(idev->dev, "Core Idle timeout\n");
->>>> +                       return -ETIMEDOUT;
->>>> +               }
->>>> +       } while (readl(idev->base + ALTR_I2C_STATUS) &
->>>> ALTR_I2C_STAT_CORE);
->>>> +
->>>> +       return 0;
->>>> +}
-> 
->>> readl_poll_timeout[_atomic]() please.
-> 
-> You ignored some of my comments including this one. Why? Can you go
-> again through my rreview and answer the rest?
+Best regards
+Uwe
 
-I wasn't aware of this function but it simplifies the code. I'll add it. 
-Thanks.
-
-I addressed most of your comments. In some cases, I grouped the comments 
-together - for instance in the msg[], the comments addressed the same 
-function.
-
-> 
->>>> +       if (of_property_read_u32(np, "fifo-size", &idev->fifo_size))
->>>> +               idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
-> 
->>> Shouldn't be possible to auto detect?
->>>
->> I agree. That would have been SO much better but the hardware designers
->> released this without capturing the size in a register - they come from a
->> bare-metal project perspective.  Since the FIFO size is configurable in the
->> FPGA from 4 to 256 levels deep, I need to capture this with the device tree.
-> 
-> You may do it manually, right? There are examples for similar cases
-> like writing the offset into FIFO until it returns the written value
-> and FIFO maximum possible size is not achieved.
-> 
-While I agree that some FIFOs could be discovered that way, data pushed 
-into this FIFO will be transmitted which isn't good.
-
-Reading from the device tree is quite clean.  Additionally, there is a 
-precedence for the "fifo-size" being read from the device tree in 
-i2c-at91.c.
-
-I have an addition question about a comment that isn't in this reply so 
-I'm copying it here to keep the thread clean.
-
-<snip> Copying my previous reply
-
- >>> +static u32 altr_i2c_func(struct i2c_adapter *adap)
- >>> +{
- >>> +       return I2C_FUNC_I2C;
- >>> +}
- >>
- >> Useless. Use value in place.
- >
- >Got it. Thanks!
-
-After looking at this, I'm not clear what you mean. The 
-i2c_algorithm.functionality parameter requires a function pointer which 
-is why the altr_i2c_func() is assigned to that parameter as shown below. 
-Am I missing something?
-
-+
-+static const struct i2c_algorithm altr_i2c_algo = {
-+	.master_xfer = altr_i2c_xfer,
-+	.functionality = altr_i2c_func,
-+};
-
-</snip>
-
-Thanks again for reviewing and for the helpful comments.
-
-Thor
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
