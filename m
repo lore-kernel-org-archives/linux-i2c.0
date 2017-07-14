@@ -1,66 +1,71 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 0/2] i2c: move include files out of include/linux/i2c
-Date: Fri, 14 Jul 2017 07:10:02 +0200
-Message-ID: <31675aa2-b8c2-a53b-f7a2-a6d700b3c596@axentia.se>
-References: <20170521203743.6514-1-wsa@the-dreams.de>
- <20170713094610.noqty3z6sty6mfj5@ninjato>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v11 3/4] i2c: aspeed: added driver for Aspeed I2C
+Date: Fri, 14 Jul 2017 09:18:00 +0200
+Message-ID: <20170714071800.GA1498@katana>
+References: <20170620211516.13095-1-brendanhiggins@google.com>
+ <20170620211516.13095-4-brendanhiggins@google.com>
+ <20170623184305.xqqhjgrbdmgk6lsr@ninjato>
+ <CAFd5g45=O2_MgfZEkmbY-=ZZY+izxeWSuhZT+B2e08P=O+WEog@mail.gmail.com>
+ <20170627090042.GA2408@katana>
+ <CAFd5g449iu6DGvMuP8-n8C6GBbr62G6_ZYS6Lh9038EB0XO9YA@mail.gmail.com>
+ <20170628074515.GA1550@katana>
+ <CAFd5g45V0Ya0UdBZMCoazvE0Sh33F3_oMb84-kLXn1qH0h=b3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr10132.outbound.protection.outlook.com ([40.107.1.132]:31648
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750786AbdGNFKK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 14 Jul 2017 01:10:10 -0400
-In-Reply-To: <20170713094610.noqty3z6sty6mfj5@ninjato>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAFd5g45V0Ya0UdBZMCoazvE0Sh33F3_oMb84-kLXn1qH0h=b3A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Brendan Higgins <brendanhiggins-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "David S . Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, OpenBMC Maillist <openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 
-On 2017-07-13 11:46, Wolfram Sang wrote:
-> Hi peda,
-> 
-> On Sun, May 21, 2017 at 10:37:41PM +0200, Wolfram Sang wrote:
->> It doesn't make sense to use include/linux/i2c for client drivers which may in
->> fact rather be hwmon or input or whatever devices. As a result, I want to
->> deprecate include/linux/i2c for good. This series moves the include files to a
->> better location, largely include/platform_data because that is what most of the
->> moved include files contain. Note that some files don't seem to have upstream
->> users in board code, so they maybe could even be removed? I didn't check for
->> that now, but I did it for one i2c master driver recently. So, it may be
->> possible.
->>
->> And while i2c muxes might be a corner case, I still want to deprecate
->> include/linux/i2c for good ;)
->>
->> No runtime testing because of no HW, but buildbot is happy with this series at
->> least. A branch can be found here:
->>
->> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
-> 
-> Since there were no other i2c-mux patches this merge window and thus no
-> pull request, do you mind if I pick these two patches for my second pull
-> request this merge window to have them included in 4.13 already?
 
-I don't seem to have this series in my inbox and not in my i2c folder either?
-(and I don't remember having seen the patches, but this was a while ago so I
-could easily have forgotten everything about it)
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Anyway, I had to lookup the branch to see what this was about. And in that
-branch, I find b7f1e84715a1 ("i2c: pca954x: move header file out of I2C realm"),
-but I initially didn't find the mlxcpld patch. That was because it had an
-"x86: " prefix that I didn't react to. I first found the mlxcpld patch in
-patchwork and then I found it in the branch too, but in patchwork it has the
-expected "i2c: mux: " prefix so I'm not sure what you are talking about
-*exactly*.
 
-But I'm sure you'll do something sensible, just go ahead.
+> Basically what I was asking is whether I could use i2c_generic_scl_recovery
+> in the case where SCL is hung.
 
-Cheers,
-Peter
+The name is a bit misleading, I am afraid. Recovery can only be used when
+SDA is stuck low. And to fix this it *uses* SCL toggling to get out of
+it. And 'generic_scl' means 'gimme some SCL to control and I will toggle
+it'. Compared to 'gpio_recovery' which will do all the GPIO handling for
+you.
 
-PS. Please Cc me if you want a faster reaction, I didn't notice this
-yesterday.
+When SCL is hung, you can only reset the device which forces SCL low.
+
+> I think I have a pretty good idea of what to do, I should probably just put
+> together an RFC patch.
+
+Sure.
+
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllocCQACgkQFA3kzBSg
+KbYLJA//eOt1O+Vx/SfQPxPJZvoe/8u/ntXbOwccem2evrB6yWqE2wGvGPrTfRgL
+ulNj1Pjg6kGd3wpxuRp1paGzHpcRVe1LFXqqpqqr/2R4cA6tKvmem4fBYhSdSfim
+4JxDTdl3OY9a6kFUoQPeY6N+Tm/P0fzL1uWDGfr/DeGYbjh0BP7ju68jgC0U+PPL
+IQVW7P1WQbo5ha2/2hneWUk2SiqmVLERNFwyIMsNF9C7FXyvtdr2MvsSIqx/YPWj
+bjaaPT1XG45+tBQFd9883sr/NK2b1AWSYY2HaOovxxkl/5XYUQsP4DaziH7Vo8j6
+60fbZ5c7BgcyCwLFCJpIMomv+/HZiIAqeAqr9loWTKG0QVhdiguadceSj2ZzSkm+
+yJOnCjRtTf9GwOVt38RIklcolWGtK62V3QzsIMzQH4RQIU8W5/8kihW7cM3ow4sG
++zoO3V7xTmODqRQ/SHj2emKIT9Sp95jR8fPio/FIbSuVx8vKAeXUZ0grrJbkr7nO
+5bSviIOEGYZiUofjeL9JDEwkVs/3kH3Z2CUpH5E12YwlrOKT8BXdvRRDBWoyqHxE
+0S+VLgIxYum+ODGL5EOCHEYui+ufQwDKtcg2Wlz+yuCozbvsFZzQdxrRCBAcwriK
+Q54B9SouScJ1TKsdtStsu476TjTau9SM8oEvbOudxB/e/jrZcUQ=
+=Ykr8
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
