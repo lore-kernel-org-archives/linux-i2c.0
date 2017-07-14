@@ -1,151 +1,55 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: PCA9541 as mux and gatekeeper mode in Linux?
-Date: Fri, 14 Jul 2017 12:41:09 +0200
-Message-ID: <2d6acb77-e2c8-14c9-8ae1-0f2dae5463c0@axentia.se>
-References: <CAGXyBZnSFfGALfQWMb3jjbCjiECMn1aWGhjZwYb_P81iL3Tm_g@mail.gmail.com>
- <59551830.1070505@axentia.se>
- <CAGXyBZkF9-tEiBy5-=Jd25rxNpbsR-UTK3xx7qsV+Q0j=2q5_Q@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 3/5 v4] usb: pci-quirks: Protect the I/O port pair of
+ SB800
+Date: Fri, 14 Jul 2017 13:36:06 +0200
+Message-ID: <20170714113606.GA20265@kroah.com>
+References: <20170621035349.4125-1-zboszor@pr.hu>
+ <20170622132134.7200-1-zboszor@pr.hu>
+ <20170622132134.7200-4-zboszor@pr.hu>
+ <d599eeac-d159-cff6-7140-7b6cce026c7a@pr.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0093.outbound.protection.outlook.com ([104.47.2.93]:37044
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753381AbdGNKlS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 14 Jul 2017 06:41:18 -0400
-In-Reply-To: <CAGXyBZkF9-tEiBy5-=Jd25rxNpbsR-UTK3xx7qsV+Q0j=2q5_Q@mail.gmail.com>
-Content-Language: en-US
+Received: from mail.linuxfoundation.org ([140.211.169.12]:42584 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753573AbdGNLgM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 14 Jul 2017 07:36:12 -0400
+Content-Disposition: inline
+In-Reply-To: <d599eeac-d159-cff6-7140-7b6cce026c7a@pr.hu>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bruce Hyde <chrome.bureau@gmail.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Boszormenyi Zoltan <zboszor@pr.hu>
+Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>, Guenter Roeck <linux@roeck-us.net>, kernel@ekass.net, wim@iguana.be, jlayton@poochiereds.net, marc.2377@gmail.com, cshorler@googlemail.com, wsa@the-dreams.de, regressions@leemhuis.info, Alex Williamson <alex.williamson@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Bjorn Helgaas <bhelgaas@google.com>, Toshi Kani <toshi.kani@hpe.com>, Jiang Liu <jiang.liu@linux.intel.com>, Jakub Sitnicki <jsitnicki@gmail.com>, Thierry Reding <tre>
 
-On 2017-07-02 16:52, Bruce Hyde wrote:
-> Hi!!
-> 
-> I did use TCA9548A multiplexer device connected with PCA9541 and this
-> is working OK!
-> Thank you for idea!
+On Fri, Jul 14, 2017 at 10:34:20AM +0200, Boszormenyi Zoltan wrote:
+> 2017-06-22 15:21 keltezéssel, Zoltán Böszörményi írta:
+> > This patch uses the previously introduced macro called
+> > request_declared_muxed_region() to synchronize access to
+> > the I/O port pair 0xcd6 / 0xcd7 on SB800.
+> > 
+> > These I/O ports are also used by i2c-piix4 and sp5100_tco,
+> > so synchronization is necessary. The other drivers will also
+> > be modified to use the new macro in subsequest patched.
+> > 
+> > v1: Started with a common mutex in a C source file.
+> > 
+> > v2: Declared the common mutex in drivers/usb/host/pci-quirks.c
+> >      instead of in a common C file.
+> > 
+> > v3: Switched to using the new request_declared_muxed_region
+> >      macro.
+> > 
+> > v4: Fixed checkpatch.pl warnings and use the new
+> >      release_declared_region() macro.
+> > 
+> > Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
 
-Cool, glad to be of help. However, after thinking some more, I think your
-original scheme was also ok, and allowed more parallel accesses. So, I'm
-real sorry for muddying the waters for you. I hope I didn't cause any
-major inconvenience!
+Why are you responding to your own patches?
 
-Anyway, the TCA9548A look compatible with PCA9548, do you happen to know
-if that's a fact? Should we add some more compatible strings to the
-i2c-mux-pca954x driver, so that any unexpected incompatibility can be
-handled cleanly?
+You do know this is the middle of the merge window, and we can't do
+anything here with patches, right?
 
-I find these chips that look like candidates:
-TCA9543A, TCA9544A, TCA9545A, TCA9546A and your TCA9548A.
+thanks,
 
-Cheers,
-Peter
-
-> Best regards,
-> Bruce.
-> 
-> 2017-06-29 17:09 GMT+02:00 Peter Rosin <peda@axentia.se>:
->> Hi!
->>
->> (please cc: the linux-i2c@ list; even though I'm the listed maintainer,
->> I'm not the only one who is able to answer questions, and others may get
->> hits while searching the list archives...)
->>
->> On 2017-06-29 15:29, Bruce Hyde wrote:
->>> Hi!
->>>
->>> I've noticed that you're currently the main maintainer of the i2c-mux
->>> functionality. I hope you will be able to help in my considerations or at least
->>> point to some useful information :-)
->>> Enclosed, you will find .txt file with my I2C topology illustrated (I wasn't
->>> sure if this would send in the proper plain text mode).
->>
->> I read almost all my email with a fixed width typeface. I hate non-plaintext
->> email...
->>
->>> In a nutshell: I'd like to use PCA9541 as a mux device. The main
->>> problem is that I'm
->>> not sure if it would be safe to let D1 and D3 have an address 0x30,
->>> and D2 and D4
->>> to have an address 0x40 => two devices with the same addresses on the i2c-0 bus
->>> from the master perspective.
->>
->> If you could only consider one master, this topology would work. However,
->> since you presumably don't know what the other master is up to, that other
->> master may open the other pca9541 while "your" master tries to operate the
->> first pca9541. If that ever happens (and it will, probably for the first
->> time with some really awkward timing, in accordance with Murphy's law...)
->> then two client devices with the same address are visible on i2c-0 while one
->> (or both) master(s) does an access. That must not happen.
->>
->> You are better off having one pca9541 do the 2-1 arbitration, followed
->> by one mux of some other kind doing 1-2 muxing on the client side of the
->> single pca9541. Like so:
->>
->>
->> +---------+       +---------+   +---------+             +----+
->> |         |       |  0x10   |   |  0x70   +---------+---+ D1 | 0x30
->> | MASTER1 +-------+         +---+         |         |   +----+
->> |         |       | PCA9541 |   | PCA9542 |         |   +----+
->> +---------+  +----+         |   |         +----+    +---+ D2 | 0x40
->>              |    +---------+   +---------+    |        +----+
->>              |                                 |
->>              |                                 |        +----+
->> +---------+  |                                 +----+---+ D3 | 0x30
->> |         |  |                                      |   +----+
->> | MASTER2 +--+                                      |   +----+
->> |         |                                         +---+ D4 | 0x40
->> +---------+                                             +----+
->>
->> Cheers,
->> peda
->>
->>
->>> It's stated in the PCA9541 datasheet (section 10.4) that:
->>>
->>>> Since each PCA9541/03 has its own unique address (for example, â€˜Aâ€™, â€˜Bâ€™, â€˜Câ€™, and so on), the EEPROMs
->>>> can be connected to the master, one at a time, by connecting one PCA9541/03 (Master 0 position) while
->>>> keeping the rest of the cards/devices isolated (off position).
->>>
->>> but should I really care about setting the PCA9541 to off position
->>> (isolation) while
->>> using Linux mux interface? I mean, for example, when I'd like to communicate
->>> with D1 (0x30) device, kernel knows that it is on the virtual bus
->>> i2c-11 (for example),
->>> so it will first send the request to the particular PCA9541 device to
->>> ->select proper
->>> channel and then allow to communicate with D1 device, blocking any
->>> requests to the
->>> other PCA9541, since this is parent locked mux.
->>>
->>> So, it's *not* possible that the master will somehow try to talk with
->>> D3 device (also with an address 0x30), because it is behind another PCA9541 mux.
->>> Could you please confirm if my thinking is correct and explain what am
->>> I missing, if it is
->>> not? Is that possible that mentioned topology will lead to I2C address
->>> collision and the
->>> only way to make it safe is to allow only one PCA9541 to be enabled at
->>> the particular
->>> time frame?
->>>
->>> Best regards,
->>> Bruce.
->>
->> [attachment inlined for those on the list]
->>
->>> +---------+                +---------+    +----+
->>> |         |                |  0x10   +----+ D1 | 0x30
->>> | MASTER1 +---+------------+         |    +----+
->>> |         |   |            | PCA9541 |    +----+
->>> +---------+   | +----------+         +----+ D2 | 0x40
->>>               | |          +---------+    +----+
->>>               | |
->>>               | |          +---------+    +----+
->>> +---------+   +------------+         +----+ D3 | 0x30
->>> |         |     |          | PCA9541 |    +----+
->>> | MASTER2 +-----+----------+  0x11   |    +----+
->>> |         |                |         +----+ D4 | 0x40
->>> +---------+                +---------+    +----+
+greg k-h
