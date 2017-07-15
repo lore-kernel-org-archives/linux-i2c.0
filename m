@@ -1,29 +1,110 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 6/6] dt-bindings: i2c: Add FSI-attached I2C master dt
- binding documentation
-Date: Fri, 14 Jul 2017 11:05:23 -0500
-Message-ID: <20170714160523.arw6dpdkme2lpco3@rob-hp-laptop>
-References: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1499711882-12918-7-git-send-email-eajames@linux.vnet.ibm.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h chips
+Date: Sat, 15 Jul 2017 16:51:26 -0700
+Message-ID: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1499711882-12918-7-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, gregkh@linuxfoundation.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, cbostic@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56720 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751198AbdGOXva (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Jul 2017 19:51:30 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-On Mon, Jul 10, 2017 at 01:38:02PM -0500, Eddie James wrote:
-> From: "Edward A. James" <eajames@us.ibm.com>
-> 
-> Document the bindings.
-> 
-> Signed-off-by: Edward A. James <eajames@us.ibm.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
->  1 file changed, 40 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+AMD Family 17h uses the KERNCZ SMBus controller. While its documentation
+is not publicly available, it is documented in the BIOS and Kernel
+Developer’s Guide for AMD Family 15h Models 60h-6Fh Processors.
 
-Acked-by: Rob Herring <robh@kernel.org>
+On this SMBus controller, the port select register is at PMx register
+0x02, bit 4:3 (PMx00 register bit 20:19).
+
+Without this patch, the 4 SMBus channels on AMD Family 17h chips are
+mirrored and report the same chips on all channels.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/i2c/busses/i2c-piix4.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 0ecdb47a23ab..01f767ee4546 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -94,6 +94,12 @@
+ #define SB800_PIIX4_PORT_IDX_ALT	0x2e
+ #define SB800_PIIX4_PORT_IDX_SEL	0x2f
+ #define SB800_PIIX4_PORT_IDX_MASK	0x06
++#define SB800_PIIX4_PORT_IDX_SHIFT	1
++
++/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
++#define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
++#define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
++#define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+ 
+ /* insmod parameters */
+ 
+@@ -149,6 +155,8 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+  */
+ static DEFINE_MUTEX(piix4_mutex_sb800);
+ static u8 piix4_port_sel_sb800;
++static u8 piix4_port_mask_sb800;
++static u8 piix4_port_shift_sb800;
+ static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
+ 	" port 0", " port 2", " port 3", " port 4"
+ };
+@@ -347,7 +355,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 
+ 	/* Find which register is used for port selection */
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+-		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
++		switch (PIIX4_dev->device) {
++		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
++			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
++			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
++			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
++			break;
++		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
++		default:
++			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
++			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
++			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
++			break;
++		}
+ 	} else {
+ 		mutex_lock(&piix4_mutex_sb800);
+ 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+@@ -355,6 +375,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+ 				       SB800_PIIX4_PORT_IDX_ALT :
+ 				       SB800_PIIX4_PORT_IDX;
++		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
++		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+ 		mutex_unlock(&piix4_mutex_sb800);
+ 	}
+ 
+@@ -616,8 +638,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 
+ 	port = adapdata->port;
+-	if ((smba_en_lo & SB800_PIIX4_PORT_IDX_MASK) != port)
+-		outb_p((smba_en_lo & ~SB800_PIIX4_PORT_IDX_MASK) | port,
++	if ((smba_en_lo & piix4_port_mask_sb800) != port)
++		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
+ 		       SB800_PIIX4_SMB_IDX + 1);
+ 
+ 	retval = piix4_access(adap, addr, flags, read_write,
+@@ -706,7 +728,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 
+ 	adapdata->smba = smba;
+ 	adapdata->sb800_main = sb800_main;
+-	adapdata->port = port << 1;
++	adapdata->port = port << piix4_port_shift_sb800;
+ 
+ 	/* set up the sysfs linkage to our parent device */
+ 	adap->dev.parent = &dev->dev;
+-- 
+2.7.4
