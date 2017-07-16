@@ -1,110 +1,60 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h chips
-Date: Sat, 15 Jul 2017 16:51:26 -0700
-Message-ID: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 1/2] i2c: designware: Print clock freq on invalid
+ clock freq error
+Date: Sun, 16 Jul 2017 17:02:01 +0300
+Message-ID: <1500213721.29303.17.camel@linux.intel.com>
+References: <20170713134502.10816-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:56720 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751198AbdGOXva (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 15 Jul 2017 19:51:30 -0400
+Received: from mga06.intel.com ([134.134.136.31]:23065 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751809AbdGPOFE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 16 Jul 2017 10:05:04 -0400
+In-Reply-To: <20170713134502.10816-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org
 
-AMD Family 17h uses the KERNCZ SMBus controller. While its documentation
-is not publicly available, it is documented in the BIOS and Kernel
-Developer’s Guide for AMD Family 15h Models 60h-6Fh Processors.
+On Thu, 2017-07-13 at 15:45 +0200, Hans de Goede wrote:
+> When we refuse to probe due to an invalid clock frequency, log
+> the frequency which is causing this error.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-On this SMBus controller, the port select register is at PMx register
-0x02, bit 4:3 (PMx00 register bit 20:19).
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Without this patch, the 4 SMBus channels on AMD Family 17h chips are
-mirrored and report the same chips on all channels.
+> ---
+> Changes in v2:
+> -Also fix the message missing a \n at the end
+> Changes in v3:
+> -Rebase on latest upstream master (adjust for s/r/ret/)
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+> b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 2ea6d0d25a01..d139b156f9c9 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -319,7 +319,8 @@ static int dw_i2c_plat_probe(struct
+> platform_device *pdev)
+>  	if (dev->clk_freq != 100000 && dev->clk_freq != 400000
+>  	    && dev->clk_freq != 1000000 && dev->clk_freq != 3400000)
+> {
+>  		dev_err(&pdev->dev,
+> -			"Only 100kHz, 400kHz, 1MHz and 3.4MHz
+> supported");
+> +			"%d Hz is unsupported, only 100kHz, 400kHz,
+> 1MHz and 3.4MHz are supported\n",
+> +			dev->clk_freq);
+>  		ret = -EINVAL;
+>  		goto exit_reset;
+>  	}
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/i2c/busses/i2c-piix4.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 0ecdb47a23ab..01f767ee4546 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -94,6 +94,12 @@
- #define SB800_PIIX4_PORT_IDX_ALT	0x2e
- #define SB800_PIIX4_PORT_IDX_SEL	0x2f
- #define SB800_PIIX4_PORT_IDX_MASK	0x06
-+#define SB800_PIIX4_PORT_IDX_SHIFT	1
-+
-+/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
-+#define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
-+#define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
-+#define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
- 
- /* insmod parameters */
- 
-@@ -149,6 +155,8 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
-  */
- static DEFINE_MUTEX(piix4_mutex_sb800);
- static u8 piix4_port_sel_sb800;
-+static u8 piix4_port_mask_sb800;
-+static u8 piix4_port_shift_sb800;
- static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
- 	" port 0", " port 2", " port 3", " port 4"
- };
-@@ -347,7 +355,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 
- 	/* Find which register is used for port selection */
- 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
--		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
-+		switch (PIIX4_dev->device) {
-+		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
-+			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
-+			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
-+			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
-+			break;
-+		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
-+		default:
-+			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
-+			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
-+			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
-+			break;
-+		}
- 	} else {
- 		mutex_lock(&piix4_mutex_sb800);
- 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
-@@ -355,6 +375,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
- 				       SB800_PIIX4_PORT_IDX_ALT :
- 				       SB800_PIIX4_PORT_IDX;
-+		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
-+		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
- 		mutex_unlock(&piix4_mutex_sb800);
- 	}
- 
-@@ -616,8 +638,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
- 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 
- 	port = adapdata->port;
--	if ((smba_en_lo & SB800_PIIX4_PORT_IDX_MASK) != port)
--		outb_p((smba_en_lo & ~SB800_PIIX4_PORT_IDX_MASK) | port,
-+	if ((smba_en_lo & piix4_port_mask_sb800) != port)
-+		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
- 		       SB800_PIIX4_SMB_IDX + 1);
- 
- 	retval = piix4_access(adap, addr, flags, read_write,
-@@ -706,7 +728,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 
- 	adapdata->smba = smba;
- 	adapdata->sb800_main = sb800_main;
--	adapdata->port = port << 1;
-+	adapdata->port = port << piix4_port_shift_sb800;
- 
- 	/* set up the sysfs linkage to our parent device */
- 	adap->dev.parent = &dev->dev;
 -- 
-2.7.4
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
