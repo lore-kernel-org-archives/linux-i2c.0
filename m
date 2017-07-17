@@ -1,87 +1,39 @@
-From: thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Subject: [PATCHv5 2/3] dt-bindings: i2c: Add Altera I2C Controller
-Date: Mon, 17 Jul 2017 11:35:13 -0500
-Message-ID: <1500309314-18464-3-git-send-email-thor.thayer@linux.intel.com>
+From: thor.thayer@linux.intel.com
+Subject: [PATCHv5 1/3] MAINTAINERS: Add Altera I2C Controller Driver
+Date: Mon, 17 Jul 2017 11:35:12 -0500
+Message-ID: <1500309314-18464-2-git-send-email-thor.thayer@linux.intel.com>
 References: <1500309314-18464-1-git-send-email-thor.thayer@linux.intel.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1500309314-18464-1-git-send-email-thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Cc: davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1500309314-18464-1-git-send-email-thor.thayer@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, thor.thayer@linux.intel.com
+Cc: devicetree@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mchehab@kernel.org, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-
-Add the documentation to support the Altera synthesizable
-logic I2C Controller in FPGA.
-
-Signed-off-by: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
----
-v2  Change the subject to identify dt-bindings
-    Add synthesizable logic to description.
-    Change compatible string to "altr,softip-i2c"
-    Make description of clock phandle singular since 1 clock.
-    Remove altr, from fifo-size
-    Specify fifo-size is in bytes.
-v3  Add version to compatible string "altr,softip-i2c-v1.0"
-    Add for use in FPGA in description.
-v4  No Change - Add Acked-by
-v5  No Change
----
- .../devicetree/bindings/i2c/i2c-altera.txt         | 39 ++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-new file mode 100644
-index 0000000..767664f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
-@@ -0,0 +1,39 @@
-+* Altera I2C Controller
-+* This is Altera's synthesizable logic block I2C Controller for use
-+* in Altera's FPGAs.
-+
-+Required properties :
-+ - compatible : should be "altr,softip-i2c-v1.0"
-+ - reg        : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number.
-+ - clocks     : phandle to input clock.
-+ - #address-cells = <1>;
-+ - #size-cells = <0>;
-+
-+Recommended properties :
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+
-+Optional properties :
-+ - fifo-size : Size of the RX and TX FIFOs in bytes.
-+ - Child nodes conforming to i2c bus binding
-+
-+Example :
-+
-+	i2c@100080000 {
-+		compatible = "altr,softip-i2c-v1.0";
-+		reg = <0x00000001 0x00080000 0x00000040>;
-+		interrupt-parent = <&intc>;
-+		interrupts = <0 43 4>;
-+		clocks = <&clk_0>;
-+		clock-frequency = <100000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		fifo-size = <4>;
-+
-+		eeprom@51 {
-+			compatible = "atmel,24c32";
-+			reg = <0x51>;
-+			pagesize = <32>;
-+		};
-+	};
-+
--- 
-2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+RnJvbTogVGhvciBUaGF5ZXIgPHRob3IudGhheWVyQGxpbnV4LmludGVsLmNvbT4KCkFkZCBtYWlu
+dGFpbmVyIGZvciB0aGUgQWx0ZXJhIEkyQyBDb250cm9sbGVyIERyaXZlci4KClNpZ25lZC1vZmYt
+Ynk6IFRob3IgVGhheWVyIDx0aG9yLnRoYXllckBsaW51eC5pbnRlbC5jb20+Ci0tLQp2Mi01ICBO
+byBjaGFuZ2UKLS0tCiBNQUlOVEFJTkVSUyB8IDUgKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA1IGlu
+c2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9NQUlOVEFJTkVSUyBiL01BSU5UQUlORVJTCmluZGV4
+IDZmMDhjZTcuLjVlZTg1ZDhhIDEwMDY0NAotLS0gYS9NQUlOVEFJTkVSUworKysgYi9NQUlOVEFJ
+TkVSUwpAQCAtNjM2LDYgKzYzNiwxMSBAQCBBTFBTIFBTLzIgVE9VQ0hQQUQgRFJJVkVSCiBSOglQ
+YWxpIFJvaMOhciA8cGFsaS5yb2hhckBnbWFpbC5jb20+CiBGOglkcml2ZXJzL2lucHV0L21vdXNl
+L2FscHMuKgogCitBTFRFUkEgSTJDIENPTlRST0xMRVIgRFJJVkVSCitNOglUaG9yIFRoYXllciA8
+dGhvci50aGF5ZXJAbGludXguaW50ZWwuY29tPgorUzoJTWFpbnRhaW5lZAorRjoJZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1hbHRlcmEuYworCiBBTFRFUkEgTUFJTEJPWCBEUklWRVIKIE06CUxleSBG
+b29uIFRhbiA8bGZ0YW5AYWx0ZXJhLmNvbT4KIEw6CW5pb3MyLWRldkBsaXN0cy5yb2NrZXRib2Fy
+ZHMub3JnIChtb2RlcmF0ZWQgZm9yIG5vbi1zdWJzY3JpYmVycykKLS0gCjIuNy40CgoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5l
+bCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6
+Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
