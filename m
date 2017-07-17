@@ -1,183 +1,127 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [RESEND PATCH v1] i2c: mediatek: send i2c master code at 400k
-Date: Mon, 17 Jul 2017 19:02:10 +0800
-Message-ID: <1500289330-31822-1-git-send-email-jun.gao@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2] i2c: core: Allow empty id_table in ACPI case as well
+Date: Mon, 17 Jul 2017 17:06:21 +0300
+Message-ID: <20170717140621.50857-1-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:38799 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751291AbdGQLC2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jul 2017 07:02:28 -0400
+Received: from mga09.intel.com ([134.134.136.24]:30330 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751286AbdGQOGh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 17 Jul 2017 10:06:37 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-From: Jun Gao <jun.gao@mediatek.com>
+For now empty ID table is not allowed with ACPI and prevents driver to
+be probed.
 
-The speed of sending i2c master code in high-speed mode depends on
-source clock, clock-div and TIMING register. The source clock and
-clock-div of different SoC are not all the same. In order to send
-i2c master code at 400k in high-speed mode, a appropriate value
-should be set to TIMING register for a certain source clock and
-clock-div.
+Add a check to allow empty ID table.
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+This introduces a helper i2c_acpi_match_device().
+
+Note, we rename some static function in i2c-core-acpi.c to distinguish
+with public API.
+
+Fixes: da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed devices")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 65 +++++++++++++++++++++++++++++------------
- 1 file changed, 46 insertions(+), 19 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 19 +++++++++++++++----
+ drivers/i2c/i2c-core-base.c |  1 +
+ drivers/i2c/i2c-core.h      |  9 +++++++++
+ 3 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 45d6171..9bedf0b 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -50,7 +50,6 @@
- #define I2C_FS_START_CON		0x1800
- #define I2C_TIME_CLR_VALUE		0x0000
- #define I2C_TIME_DEFAULT_VALUE		0x0003
--#define I2C_FS_TIME_INIT_VALUE		0x1303
- #define I2C_WRRD_TRANAC_VALUE		0x0002
- #define I2C_RD_TRANAC_VALUE		0x0001
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 4842ec3a5451..a9126b3cda61 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -230,6 +230,16 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
+ 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
+ }
  
-@@ -154,6 +153,7 @@ struct mtk_i2c {
- 	bool use_push_pull;		/* IO config push-pull mode */
- 
- 	u16 irq_stat;			/* interrupt status */
-+	unsigned int clk_src_div;
- 	unsigned int speed_hz;		/* The speed in transfer */
- 	enum mtk_trans_op op;
- 	u16 timing_reg;
-@@ -285,23 +285,20 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
-  * less than or equal to i2c->speed_hz. The calculation try to get
-  * sample_cnt and step_cn
-  */
--static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
--			     unsigned int clock_div)
-+static int mtk_i2c_calculate_speed(struct mtk_i2c *i2c, unsigned int clk_src,
-+				   unsigned int target_speed,
-+				   unsigned int *timing_step_cnt,
-+				   unsigned int *timing_sample_cnt)
- {
--	unsigned int clk_src;
- 	unsigned int step_cnt;
- 	unsigned int sample_cnt;
- 	unsigned int max_step_cnt;
--	unsigned int target_speed;
- 	unsigned int base_sample_cnt = MAX_SAMPLE_CNT_DIV;
- 	unsigned int base_step_cnt;
- 	unsigned int opt_div;
- 	unsigned int best_mul;
- 	unsigned int cnt_mul;
- 
--	clk_src = parent_clk / clock_div;
--	target_speed = i2c->speed_hz;
--
- 	if (target_speed > MAX_HS_MODE_SPEED)
- 		target_speed = MAX_HS_MODE_SPEED;
- 
-@@ -347,16 +344,48 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk,
- 		return -EINVAL;
- 	}
- 
--	step_cnt--;
--	sample_cnt--;
-+	*timing_step_cnt = step_cnt - 1;
-+	*timing_sample_cnt = sample_cnt - 1;
++const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client)
++{
++	if (!(client && matches))
++		return NULL;
 +
-+	return 0;
++	return acpi_match_device(matches, &client->dev);
 +}
 +
-+static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
-+{
-+	unsigned int clk_src;
-+	unsigned int step_cnt;
-+	unsigned int sample_cnt;
-+	unsigned int target_speed;
-+	int ret;
-+
-+	clk_src = parent_clk / i2c->clk_src_div;
-+	target_speed = i2c->speed_hz;
- 
- 	if (target_speed > MAX_FS_MODE_SPEED) {
-+		/* Set master code speed register */
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
- 		/* Set the high speed mode register */
--		i2c->timing_reg = I2C_FS_TIME_INIT_VALUE;
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
- 		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
- 			(sample_cnt << 12) | (step_cnt << 8);
- 	} else {
--		i2c->timing_reg = (sample_cnt << 8) | (step_cnt << 0);
-+		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-+					      &step_cnt, &sample_cnt);
-+		if (ret < 0)
-+			return ret;
-+
-+		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+
- 		/* Disable the high speed transaction */
- 		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
- 	}
-@@ -647,8 +676,7 @@ static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = mtk_i2c_functionality,
- };
- 
--static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c,
--			    unsigned int *clk_src_div)
-+static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
+ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
+ 					   void *data, void **return_value)
  {
- 	int ret;
+@@ -289,7 +299,7 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
  
-@@ -656,11 +684,11 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c,
- 	if (ret < 0)
- 		i2c->speed_hz = I2C_DEFAULT_SPEED;
+-static int i2c_acpi_match_adapter(struct device *dev, void *data)
++static int i2c_acpi_find_match_adapter(struct device *dev, void *data)
+ {
+ 	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
  
--	ret = of_property_read_u32(np, "clock-div", clk_src_div);
-+	ret = of_property_read_u32(np, "clock-div", &i2c->clk_src_div);
- 	if (ret < 0)
- 		return ret;
+@@ -299,7 +309,7 @@ static int i2c_acpi_match_adapter(struct device *dev, void *data)
+ 	return ACPI_HANDLE(dev) == (acpi_handle)data;
+ }
  
--	if (*clk_src_div == 0)
-+	if (i2c->clk_src_div == 0)
- 		return -EINVAL;
+-static int i2c_acpi_match_device(struct device *dev, void *data)
++static int i2c_acpi_find_match_device(struct device *dev, void *data)
+ {
+ 	return ACPI_COMPANION(dev) == data;
+ }
+@@ -309,7 +319,7 @@ static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ 	struct device *dev;
  
- 	i2c->have_pmic = of_property_read_bool(np, "mediatek,have-pmic");
-@@ -676,7 +704,6 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	int ret = 0;
- 	struct mtk_i2c *i2c;
- 	struct clk *clk;
--	unsigned int clk_src_div;
- 	struct resource *res;
- 	int irq;
+ 	dev = bus_find_device(&i2c_bus_type, NULL, handle,
+-			      i2c_acpi_match_adapter);
++			      i2c_acpi_find_match_adapter);
+ 	return dev ? i2c_verify_adapter(dev) : NULL;
+ }
  
-@@ -684,7 +711,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
+@@ -317,7 +327,8 @@ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+ 	struct device *dev;
  
--	ret = mtk_i2c_parse_dt(pdev->dev.of_node, i2c, &clk_src_div);
-+	ret = mtk_i2c_parse_dt(pdev->dev.of_node, i2c);
- 	if (ret)
- 		return -EINVAL;
+-	dev = bus_find_device(&i2c_bus_type, NULL, adev, i2c_acpi_match_device);
++	dev = bus_find_device(&i2c_bus_type, NULL, adev,
++			      i2c_acpi_find_match_device);
+ 	return dev ? i2c_verify_client(dev) : NULL;
+ }
  
-@@ -745,7 +772,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index c89dac7fd2e7..12822a4b8f8f 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -357,6 +357,7 @@ static int i2c_device_probe(struct device *dev)
+ 	 * Tree match table entry is supplied for the probing device.
+ 	 */
+ 	if (!driver->id_table &&
++	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
+ 	    !i2c_of_match_device(dev->driver->of_match_table, client))
+ 		return -ENODEV;
  
- 	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 3b63f5e5b89c..3d3d9bf02101 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -31,9 +31,18 @@ int i2c_check_addr_validity(unsigned addr, unsigned short flags);
+ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
  
--	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk), clk_src_div);
-+	ret = mtk_i2c_set_speed(i2c, clk_get_rate(clk));
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to set the speed.\n");
- 		return -EINVAL;
+ #ifdef CONFIG_ACPI
++const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client);
+ void i2c_acpi_register_devices(struct i2c_adapter *adap);
+ #else /* CONFIG_ACPI */
+ static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
++static inline const struct acpi_device_id *
++i2c_acpi_match_device(const struct acpi_device_id *matches,
++		      struct i2c_client *client)
++{
++	return NULL;
++}
+ #endif /* CONFIG_ACPI */
+ extern struct notifier_block i2c_acpi_notifier;
+ 
 -- 
-1.8.1.1
+2.11.0
