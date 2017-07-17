@@ -1,55 +1,37 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 Subject: Re: [PATCH v2 0/6] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Mon, 17 Jul 2017 16:20:13 +0200
-Message-ID: <20170717142013.ee2zzhlqx67bh7hr@ninjato>
+Date: Mon, 17 Jul 2017 16:26:19 +0200
+Message-ID: <20170717142619.GA18850@kroah.com>
 References: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
  <20170717141123.GA13295@kroah.com>
  <CACPK8XfeMLA5vUEkxVO_U=rN49gvGZ4zfdBJbxX44yTiUy27yw@mail.gmail.com>
+ <20170717142013.ee2zzhlqx67bh7hr@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wslqyvh5jafi6b5h"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:33683 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751278AbdGQOUP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 17 Jul 2017 10:20:15 -0400
-Content-Disposition: inline
-In-Reply-To: <CACPK8XfeMLA5vUEkxVO_U=rN49gvGZ4zfdBJbxX44yTiUy27yw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Eddie James <eajames@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Jeremy Kerr <jk@ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, Christopher Bostic <cbostic@linux.vnet.ibm.com>, "Edward A. James" <eajames@us.ibm.com>
-
-
---wslqyvh5jafi6b5h
 Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <20170717142013.ee2zzhlqx67bh7hr@ninjato>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Joel Stanley <joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org>, Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jeremy Kerr <jk-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Andrew Jeffery <andrew-zrmu5oMJ5Fs@public.gmane.org>, Christopher Bostic <cbostic-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jul 17, 2017 at 04:20:13PM +0200, Wolfram Sang wrote:
+> 
+> > This is a driver for the i2c bus master, so I would expect the patches
+> > to be reviewed and applied through Wolfram's i2c tree?
+> 
+> Yes, please.
+> 
 
-> This is a driver for the i2c bus master, so I would expect the patches
-> to be reviewed and applied through Wolfram's i2c tree?
+Ok, then why are people sending them to me?
 
-Yes, please.
+I'll gladly let others take them :)
 
+thanks,
 
---wslqyvh5jafi6b5h
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAllsx5kACgkQFA3kzBSg
-KbaYhw//QzDN0RPdUlvEGhRIBUC3CIppxWjG4gAPHlBz7SFeMatS+j8sEDeYDbl3
-SD33j6MikcUTWGiva3rhE4LPgw6dDUdBFbUlXDst2zTrG5+K80fvapFmL5vTGOYG
-/0WXTNnJ/8Aam4GqvJ/xKwm8F1gubSjEvQhmWjDwC1Z+6eRKSk69hAUCB+IAmjxb
-ZrrKkMPOukCHHP4LyjAI8dvTBkZD8USyHvyCHac3EyzizAAo0tFIxnM3Da5EmOFu
-fvpM2zun7UM1kr5Qsw6gEXiEM28//ZJWBWuUw3mzoPrmhAQw3E5nAhjtziYQDGBj
-GwqR6w3veryUoBCOfgEosc3dAyz+aGDkvO6D3c2nKWGNXexxHkbY6c6gsZL6Na80
-NvALyd4JjL3tGH9WZ4L7D2b0n01ym7Az9u+BpbNipX1RRMFf8OZxI4zKtd/Clpi9
-65+WP779aFn8D1eMld2k16Yciaee0VqDVS/g5RwqypuO7e64/udIE5gc2fZhfJbi
-zh1c+PjLDLYV5DiC+T+hplGGEevFpNVu9ylf845jxqSvJ4H26cpaPG9g2IntbOGk
-ftb42NuKz/jgNnt/exEaCXVe1atFNd8CgMGFVS6nTHjLUksheh9aKElFW8OSoKtR
-jfOVmpnW1VcpevZ/fDDm5kXsVpVV5U2fuWXj1GfBo0a+rEwHIOA=
-=x8+j
------END PGP SIGNATURE-----
-
---wslqyvh5jafi6b5h--
+greg k-h
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
