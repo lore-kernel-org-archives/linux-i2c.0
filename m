@@ -1,50 +1,59 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 1/2] wire: export w1_touch_bit
-Date: Mon, 17 Jul 2017 16:47:56 +0200
-Message-ID: <20170717144756.GA22531@kroah.com>
-References: <4aa9d196-1e31-de86-4ba7-752a0a04122c@gmx.de>
- <478401499958799@web19g.yandex.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <478401499958799@web19g.yandex.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Evgeniy Polyakov <zbr@ioremap.net>
-Cc: Jan Kandziora <jjj@gmx.de>, LKML <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Subject: [RFC v2 0/6] serdev multiplexing support
+Date: Mon, 17 Jul 2017 17:24:30 +0200
+Message-ID: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-serial@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, magnus.damm@gmail.com, laurent.pinchart@ideasonboard.com, wsa@the-dreams.de, robh@kernel.org, peda@axentia.se, geert@linux-m68k.org, linux-i2c@vger.kernel.org, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 13, 2017 at 06:13:19PM +0300, Evgeniy Polyakov wrote:
-> Hi Jan, Greg
-> 
-> 11.07.2017, 02:00, "Jan Kandziora" <jjj@gmx.de>:
-> > Changes in v4 against v3 in this subpatch:
-> >   - adapted to linux-4.12.0
-> >
-> > No changes in v3 against v2,v1 in this subpatch.
-> >
-> > The w1_ds28e17 driver from the next part of this patch needs to emit
-> > single-bit read timeslots to the DS28E17. The w1 subsystem already
-> > has this function but it is not exported outside drivers/w1/w1_io.c
-> >
-> > This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
-> > same as the other exported symbols in drivers/w1/w1_io.c
-> >
-> > May be also useful later for writing drivers for other Onewire chips
-> > which do single-bit communication.
-> >
-> > Signed-off-by: Jan Kandziora <jjj@gmx.de>
-> 
-> Greg, please pull this patchset into the tree, I missed it last time and it stuck in the queues for a too long.
-> Thank you.
-> 
-> Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
+Hi!
 
-This is in no format that I can apply, sorry.
+This is a new attempt to add multiplexer support to serdev. It is now based
+on the mux subsystem, making it more generic than the previous iteration
+("[RFC 0/4] serdev GPIO-based multiplexing support").
 
-Jan, can you resend it in a correct format?
+Thanks to reviewers for their comments. This revision incorporates the
+changes suggested as far as they are still applicable, which mostly applies
+to those concerning the MAX9260 i2c adapter driver.
 
-thanks,
+New patches have been added that fix a small issue in the mux include files
+("mux: include compiler.h from mux/consumer.h"), and implement deferred
+probing of serdev controllers ("serial: core: support deferring serdev
+controller registration"), hopefully correctly.
 
-greg k-h
+This series depends on the "pinctrl: sh-pfc: r8a7792: Add SCIF1 pin groups"
+patch as well as v15 of the mux subsystem series ("[PATCH v15 00/13] mux
+controller abstraction and iio/i2c muxes").
+
+CU
+Uli
+
+
+Ulrich Hecht (6):
+  mux: include compiler.h from mux/consumer.h
+  serdev: add method to set parity
+  serdev: add multiplexer support
+  serial: core: support deferring serdev controller registration
+  max9260: add driver for i2c over GMSL passthrough
+  ARM: dts: blanche: add SCIF1 and MAX9260 deserializer
+
+ arch/arm/boot/dts/r8a7792-blanche.dts |  52 ++++++
+ drivers/media/i2c/Kconfig             |   6 +
+ drivers/media/i2c/Makefile            |   1 +
+ drivers/media/i2c/max9260.c           | 288 ++++++++++++++++++++++++++++++++++
+ drivers/tty/serdev/Kconfig            |   3 +
+ drivers/tty/serdev/Makefile           |   1 +
+ drivers/tty/serdev/core.c             |  26 ++-
+ drivers/tty/serdev/mux.c              |  66 ++++++++
+ drivers/tty/serdev/serdev-ttyport.c   |  17 ++
+ drivers/tty/serial/serial_core.c      |   4 +
+ include/linux/mux/consumer.h          |   2 +
+ include/linux/serdev.h                |  20 ++-
+ 12 files changed, 482 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/media/i2c/max9260.c
+ create mode 100644 drivers/tty/serdev/mux.c
+
+-- 
+2.7.4
