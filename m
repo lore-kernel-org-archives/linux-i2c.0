@@ -1,127 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2] i2c: core: Allow empty id_table in ACPI case as well
-Date: Mon, 17 Jul 2017 17:06:21 +0300
-Message-ID: <20170717140621.50857-1-andriy.shevchenko@linux.intel.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 0/6] drivers/i2c: Add FSI-attached I2C master algorithm
+Date: Mon, 17 Jul 2017 16:11:23 +0200
+Message-ID: <20170717141123.GA13295@kroah.com>
+References: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:30330 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751286AbdGQOGh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 17 Jul 2017 10:06:37 -0400
+Received: from mail.linuxfoundation.org ([140.211.169.12]:60884 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751286AbdGQOL2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 17 Jul 2017 10:11:28 -0400
+Content-Disposition: inline
+In-Reply-To: <1499711882-12918-1-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, jk@ozlabs.org, joel@jms.id.au, andrew@aj.id.au, cbostic@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 
-For now empty ID table is not allowed with ACPI and prevents driver to
-be probed.
+On Mon, Jul 10, 2017 at 01:37:56PM -0500, Eddie James wrote:
+> From: "Edward A. James" <eajames@us.ibm.com>
+> 
+> This series adds an algorithm for an I2C master physically located on an FSI
+> slave device. The I2C master has multiple ports, each of which may be connected
+> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+> 
+> Due to the multi-port nature of the I2C master, the driver instantiates a new
+> I2C adapter for each port connected to a slave. The connected ports should be
+> defined in the device tree under the I2C master device.
+> 
+> Changes since v1:
 
-Add a check to allow empty ID table.
+I have 2 "v2" series in my inbox, and they are different :(
 
-This introduces a helper i2c_acpi_match_device().
+Please resend a "v4" so I know exactly which ones to pick up...
 
-Note, we rename some static function in i2c-core-acpi.c to distinguish
-with public API.
+thanks,
 
-Fixes: da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed devices")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-acpi.c | 19 +++++++++++++++----
- drivers/i2c/i2c-core-base.c |  1 +
- drivers/i2c/i2c-core.h      |  9 +++++++++
- 3 files changed, 25 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 4842ec3a5451..a9126b3cda61 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -230,6 +230,16 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
- 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
- }
- 
-+const struct acpi_device_id *
-+i2c_acpi_match_device(const struct acpi_device_id *matches,
-+		      struct i2c_client *client)
-+{
-+	if (!(client && matches))
-+		return NULL;
-+
-+	return acpi_match_device(matches, &client->dev);
-+}
-+
- static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
- 					   void *data, void **return_value)
- {
-@@ -289,7 +299,7 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
- 
--static int i2c_acpi_match_adapter(struct device *dev, void *data)
-+static int i2c_acpi_find_match_adapter(struct device *dev, void *data)
- {
- 	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
- 
-@@ -299,7 +309,7 @@ static int i2c_acpi_match_adapter(struct device *dev, void *data)
- 	return ACPI_HANDLE(dev) == (acpi_handle)data;
- }
- 
--static int i2c_acpi_match_device(struct device *dev, void *data)
-+static int i2c_acpi_find_match_device(struct device *dev, void *data)
- {
- 	return ACPI_COMPANION(dev) == data;
- }
-@@ -309,7 +319,7 @@ static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- 	struct device *dev;
- 
- 	dev = bus_find_device(&i2c_bus_type, NULL, handle,
--			      i2c_acpi_match_adapter);
-+			      i2c_acpi_find_match_adapter);
- 	return dev ? i2c_verify_adapter(dev) : NULL;
- }
- 
-@@ -317,7 +327,8 @@ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, adev, i2c_acpi_match_device);
-+	dev = bus_find_device(&i2c_bus_type, NULL, adev,
-+			      i2c_acpi_find_match_device);
- 	return dev ? i2c_verify_client(dev) : NULL;
- }
- 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index c89dac7fd2e7..12822a4b8f8f 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -357,6 +357,7 @@ static int i2c_device_probe(struct device *dev)
- 	 * Tree match table entry is supplied for the probing device.
- 	 */
- 	if (!driver->id_table &&
-+	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
- 	    !i2c_of_match_device(dev->driver->of_match_table, client))
- 		return -ENODEV;
- 
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 3b63f5e5b89c..3d3d9bf02101 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -31,9 +31,18 @@ int i2c_check_addr_validity(unsigned addr, unsigned short flags);
- int i2c_check_7bit_addr_validity_strict(unsigned short addr);
- 
- #ifdef CONFIG_ACPI
-+const struct acpi_device_id *
-+i2c_acpi_match_device(const struct acpi_device_id *matches,
-+		      struct i2c_client *client);
- void i2c_acpi_register_devices(struct i2c_adapter *adap);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
-+static inline const struct acpi_device_id *
-+i2c_acpi_match_device(const struct acpi_device_id *matches,
-+		      struct i2c_client *client)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_ACPI */
- extern struct notifier_block i2c_acpi_notifier;
- 
--- 
-2.11.0
+gre k-h
