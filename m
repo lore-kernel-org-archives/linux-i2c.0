@@ -1,193 +1,259 @@
 From: Rob Herring <robh@kernel.org>
-Subject: [PATCH] i2c: Convert to using %pOF instead of full_name
-Date: Tue, 18 Jul 2017 16:43:06 -0500
-Message-ID: <20170718214339.7774-26-robh@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Haavard Skinnemoen <hskinnemoen@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [RFC v2 3/6] serdev: add multiplexer support
+Date: Tue, 18 Jul 2017 18:06:49 -0500
+Message-ID: <CAL_JsqJ5M18+cSr0GaMHs5N5quJxLaU-fE2vDPYE1+X5pSFmuQ@mail.gmail.com>
+References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1500305076-15570-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1500305076-15570-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now that we have a custom printf format specifier, convert users of
-full_name to use %pOF instead. This is preparation to remove storing
-of the full path string for each node.
+On Mon, Jul 17, 2017 at 10:24 AM, Ulrich Hecht
+<ulrich.hecht+renesas@gmail.com> wrote:
+> Adds an interface for slave device multiplexing using the mux subsystem.
+>
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+> ---
+>  drivers/tty/serdev/Kconfig  |  3 +++
+>  drivers/tty/serdev/Makefile |  1 +
+>  drivers/tty/serdev/core.c   | 14 +++++++++-
+>  drivers/tty/serdev/mux.c    | 66 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/serdev.h      | 16 ++++++++---
+>  5 files changed, 96 insertions(+), 4 deletions(-)
+>  create mode 100644 drivers/tty/serdev/mux.c
+>
+> diff --git a/drivers/tty/serdev/Kconfig b/drivers/tty/serdev/Kconfig
+> index cdc6b82..9096b71 100644
+> --- a/drivers/tty/serdev/Kconfig
+> +++ b/drivers/tty/serdev/Kconfig
+> @@ -13,4 +13,7 @@ config SERIAL_DEV_CTRL_TTYPORT
+>         depends on TTY
+>         depends on SERIAL_DEV_BUS != m
+>
+> +config SERIAL_DEV_MUX
+> +       bool "Serial device multiplexer support"
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Cc: Haavard Skinnemoen <hskinnemoen@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-arm-kernel@lists.infradead.org
----
- drivers/i2c/busses/i2c-gpio.c         |  4 ++--
- drivers/i2c/busses/i2c-powermac.c     | 10 ++++------
- drivers/i2c/busses/i2c-sun6i-p2wi.c   |  4 ++--
- drivers/i2c/i2c-core-of.c             | 24 +++++++++++-------------
- drivers/i2c/muxes/i2c-demux-pinctrl.c |  4 ++--
- 5 files changed, 21 insertions(+), 25 deletions(-)
+I think this breaks for modules.
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index 34cfc0ebdcb9..0ef8fcc6ac3a 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -98,8 +98,8 @@ static int of_i2c_gpio_get_pins(struct device_node *np,
- 		return -EPROBE_DEFER;
+I'm inclined to just keep mux support in the core.
 
- 	if (!gpio_is_valid(*sda_pin) || !gpio_is_valid(*scl_pin)) {
--		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
--		       np->full_name, *sda_pin, *scl_pin);
-+		pr_err("%pOF: invalid GPIO pins, sda=%d/scl=%d\n",
-+		       np, *sda_pin, *scl_pin);
- 		return -ENODEV;
- 	}
+> +
+>  endif
+> diff --git a/drivers/tty/serdev/Makefile b/drivers/tty/serdev/Makefile
+> index 0cbdb94..d713381 100644
+> --- a/drivers/tty/serdev/Makefile
+> +++ b/drivers/tty/serdev/Makefile
+> @@ -1,5 +1,6 @@
+>  serdev-objs := core.o
+>
+>  obj-$(CONFIG_SERIAL_DEV_BUS) += serdev.o
+> +obj-$(CONFIG_SERIAL_DEV_MUX) += mux.o
+>
+>  obj-$(CONFIG_SERIAL_DEV_CTRL_TTYPORT) += serdev-ttyport.o
+> diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
+> index 1fbaa4c..92c5bfa 100644
+> --- a/drivers/tty/serdev/core.c
+> +++ b/drivers/tty/serdev/core.c
+> @@ -305,7 +305,8 @@ struct serdev_device *serdev_device_alloc(struct serdev_controller *ctrl)
+>                 return NULL;
+>
+>         serdev->ctrl = ctrl;
+> -       ctrl->serdev = serdev;
+> +       if (!ctrl->serdev)
+> +               ctrl->serdev = serdev;
+>         device_initialize(&serdev->dev);
+>         serdev->dev.parent = &ctrl->dev;
+>         serdev->dev.bus = &serdev_bus_type;
+> @@ -368,6 +369,8 @@ static int of_serdev_register_devices(struct serdev_controller *ctrl)
+>         struct serdev_device *serdev = NULL;
+>         int err;
+>         bool found = false;
+> +       int nr = 0;
+> +       u32 reg;
+>
+>         for_each_available_child_of_node(ctrl->dev.of_node, node) {
+>                 if (!of_get_property(node, "compatible", NULL))
+> @@ -380,6 +383,10 @@ static int of_serdev_register_devices(struct serdev_controller *ctrl)
+>                         continue;
+>
+>                 serdev->dev.of_node = node;
+> +               serdev->nr = nr++;
+> +
+> +               if (!of_property_read_u32(node, "reg", &reg))
+> +                       serdev->mux_addr = reg;
 
-diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
-index b0d9dee14a7e..ef9c858fe1d4 100644
---- a/drivers/i2c/busses/i2c-powermac.c
-+++ b/drivers/i2c/busses/i2c-powermac.c
-@@ -234,7 +234,7 @@ static u32 i2c_powermac_get_addr(struct i2c_adapter *adap,
- 	else if (!strcmp(node->name, "deq"))
- 		return 0x34;
+Perhaps nr should just be assigned reg value.
 
--	dev_warn(&adap->dev, "No i2c address for %s\n", node->full_name);
-+	dev_warn(&adap->dev, "No i2c address for %pOF\n", node);
+>
+>                 err = serdev_device_add(serdev);
+>                 if (err) {
+> @@ -414,6 +421,11 @@ int serdev_controller_add(struct serdev_controller *ctrl)
+>         if (ret)
+>                 return ret;
+>
+> +#ifdef CONFIG_SERIAL_DEV_MUX
+> +       if (of_serdev_register_mux(ctrl) == -EPROBE_DEFER)
+> +               return -EPROBE_DEFER;
+> +#endif
+> +
+>         ret = of_serdev_register_devices(ctrl);
+>         if (ret)
+>                 goto out_dev_del;
+> diff --git a/drivers/tty/serdev/mux.c b/drivers/tty/serdev/mux.c
+> new file mode 100644
+> index 0000000..fc9405b
+> --- /dev/null
+> +++ b/drivers/tty/serdev/mux.c
+> @@ -0,0 +1,66 @@
+> +/*
+> + * Copyright (C) 2017 Ulrich Hecht
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 and
+> + * only version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/mux/consumer.h>
+> +#include <linux/mux/driver.h>
+> +#include <linux/of_gpio.h>
+> +#include <linux/serdev.h>
+> +#include <linux/slab.h>
+> +
+> +int serdev_device_mux_select(struct serdev_device *serdev)
+> +{
+> +       struct mux_control *mux = serdev->ctrl->mux;
+> +       int ret;
+> +
+> +       if (!mux)
+> +               return -EINVAL;
+> +
+> +       ret = mux_control_select(mux, serdev->mux_addr);
+> +       serdev->ctrl->mux_do_not_deselect = ret < 0;
+> +
+> +       serdev->ctrl->serdev = serdev;
+> +
+> +       return ret;
+> +}
+> +
+> +int serdev_device_mux_deselect(struct serdev_device *serdev)
+> +{
+> +       struct mux_control *mux = serdev->ctrl->mux;
+> +
+> +       if (!mux)
+> +               return -EINVAL;
+> +
+> +       if (!serdev->ctrl->mux_do_not_deselect)
+> +               return mux_control_deselect(mux);
+> +       else
+> +               return 0;
+> +}
+> +
+> +int of_serdev_register_mux(struct serdev_controller *ctrl)
+> +{
+> +       struct mux_control *mux;
+> +       struct device *dev = &ctrl->dev;
+> +
+> +       mux = devm_mux_control_get(dev, NULL);
+> +
+> +       if (IS_ERR(mux)) {
+> +               if (PTR_ERR(mux) != -EPROBE_DEFER)
+> +                       dev_err(dev, "failed to get control mux\n");
+> +               return PTR_ERR(mux);
+> +       }
+> +
+> +       ctrl->mux = mux;
+> +
+> +       return 0;
+> +}
+> +
+> diff --git a/include/linux/serdev.h b/include/linux/serdev.h
+> index 8b67fcd..26d5994 100644
+> --- a/include/linux/serdev.h
+> +++ b/include/linux/serdev.h
+> @@ -17,6 +17,7 @@
+>  #include <linux/device.h>
+>  #include <linux/termios.h>
+>  #include <linux/delay.h>
+> +#include <linux/rtmutex.h>
+>
+>  struct serdev_controller;
+>  struct serdev_device;
+> @@ -51,6 +52,7 @@ struct serdev_device {
+>         const struct serdev_device_ops *ops;
+>         struct completion write_comp;
+>         struct mutex write_lock;
+> +       int mux_addr;
+>  };
+>
+>  static inline struct serdev_device *to_serdev_device(struct device *d)
+> @@ -76,6 +78,8 @@ static inline struct serdev_device_driver *to_serdev_device_driver(struct device
+>         return container_of(d, struct serdev_device_driver, driver);
+>  }
+>
+> +int of_serdev_register_mux(struct serdev_controller *ctrl);
+> +
+>  /*
+>   * serdev controller structures
+>   */
+> @@ -97,14 +101,18 @@ struct serdev_controller_ops {
+>   * struct serdev_controller - interface to the serdev controller
+>   * @dev:       Driver model representation of the device.
+>   * @nr:                number identifier for this controller/bus.
+> - * @serdev:    Pointer to slave device for this controller.
+> + * @serdev:    Pointer to active slave device for this controller.
+>   * @ops:       Controller operations.
+> + * @mux:       Slave multiplexer control.
+> + * @mux_do_not_deselect: Set if slave selection failed.
+>   */
+>  struct serdev_controller {
+>         struct device           dev;
+>         unsigned int            nr;
+>         struct serdev_device    *serdev;
+>         const struct serdev_controller_ops *ops;
+> +       struct mux_control      *mux;
+> +       int                     mux_do_not_deselect;
+>  };
+>
+>  static inline struct serdev_controller *to_serdev_controller(struct device *d)
+> @@ -172,7 +180,7 @@ static inline void serdev_controller_write_wakeup(struct serdev_controller *ctrl
+>  {
+>         struct serdev_device *serdev = ctrl->serdev;
+>
+> -       if (!serdev || !serdev->ops->write_wakeup)
+> +       if (!serdev || !serdev->ops || !serdev->ops->write_wakeup)
 
- 	return 0xffffffff;
- }
-@@ -315,8 +315,7 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
- 		}
- 	}
+When is ops ever NULL? Should be a separate change AFIACT.
 
--	dev_err(&adap->dev, "i2c-powermac: modalias failure"
--		" on %s\n", node->full_name);
-+	dev_err(&adap->dev, "i2c-powermac: modalias failure on %pOF\n", node);
- 	return false;
- }
-
-@@ -348,8 +347,7 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
- 		if (!pmac_i2c_match_adapter(node, adap))
- 			continue;
-
--		dev_dbg(&adap->dev, "i2c-powermac: register %s\n",
--			node->full_name);
-+		dev_dbg(&adap->dev, "i2c-powermac: register %pOF\n", node);
-
- 		/*
- 		 * Keep track of some device existence to handle
-@@ -372,7 +370,7 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
- 		newdev = i2c_new_device(adap, &info);
- 		if (!newdev) {
- 			dev_err(&adap->dev, "i2c-powermac: Failure to register"
--				" %s\n", node->full_name);
-+				" %pOF\n", node);
- 			of_node_put(node);
- 			/* We do not dispose of the interrupt mapping on
- 			 * purpose. It's not necessary (interrupt cannot be
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index 7668e2e9b8fd..8a24464dc337 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -223,8 +223,8 @@ static int p2wi_probe(struct platform_device *pdev)
- 	if (childnp) {
- 		ret = of_property_read_u32(childnp, "reg", &slave_addr);
- 		if (ret) {
--			dev_err(dev, "invalid slave address on node %s\n",
--				childnp->full_name);
-+			dev_err(dev, "invalid slave address on node %pOF\n",
-+				childnp);
- 			return -EINVAL;
- 		}
-
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index ccf82fdbcd8e..8d474bb1dc15 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -32,18 +32,17 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 	u32 addr;
- 	int len;
-
--	dev_dbg(&adap->dev, "of_i2c: register %s\n", node->full_name);
-+	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
-
- 	if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
--		dev_err(&adap->dev, "of_i2c: modalias failure on %s\n",
--			node->full_name);
-+		dev_err(&adap->dev, "of_i2c: modalias failure on %pOF\n",
-+			node);
- 		return ERR_PTR(-EINVAL);
- 	}
-
- 	addr_be = of_get_property(node, "reg", &len);
- 	if (!addr_be || (len < sizeof(*addr_be))) {
--		dev_err(&adap->dev, "of_i2c: invalid reg on %s\n",
--			node->full_name);
-+		dev_err(&adap->dev, "of_i2c: invalid reg on %pOF\n", node);
- 		return ERR_PTR(-EINVAL);
- 	}
-
-@@ -59,8 +58,8 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 	}
-
- 	if (i2c_check_addr_validity(addr, info.flags)) {
--		dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
--			addr, node->full_name);
-+		dev_err(&adap->dev, "of_i2c: invalid addr=%x on %pOF\n",
-+			addr, node);
- 		return ERR_PTR(-EINVAL);
- 	}
-
-@@ -76,8 +75,7 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
-
- 	result = i2c_new_device(adap, &info);
- 	if (result == NULL) {
--		dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
--			node->full_name);
-+		dev_err(&adap->dev, "of_i2c: Failure registering %pOF\n", node);
- 		of_node_put(node);
- 		return ERR_PTR(-EINVAL);
- 	}
-@@ -106,8 +104,8 @@ void of_i2c_register_devices(struct i2c_adapter *adap)
- 		client = of_i2c_register_device(adap, node);
- 		if (IS_ERR(client)) {
- 			dev_warn(&adap->dev,
--				 "Failed to create I2C device for %s\n",
--				 node->full_name);
-+				 "Failed to create I2C device for %pOF\n",
-+				 node);
- 			of_node_clear_flag(node, OF_POPULATED);
- 		}
- 	}
-@@ -243,8 +241,8 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
- 		put_device(&adap->dev);
-
- 		if (IS_ERR(client)) {
--			dev_err(&adap->dev, "failed to create client for '%s'\n",
--				 rd->dn->full_name);
-+			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
-+				 rd->dn);
- 			of_node_clear_flag(rd->dn, OF_POPULATED);
- 			return notifier_from_errno(PTR_ERR(client));
- 		}
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 3e6fe1760d82..33ce032cb701 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -167,8 +167,8 @@ static ssize_t available_masters_show(struct device *dev,
- 	int count = 0, i;
-
- 	for (i = 0; i < priv->num_chan && count < PAGE_SIZE; i++)
--		count += scnprintf(buf + count, PAGE_SIZE - count, "%d:%s%c",
--				   i, priv->chan[i].parent_np->full_name,
-+		count += scnprintf(buf + count, PAGE_SIZE - count, "%d:%pOF%c",
-+				   i, priv->chan[i].parent_np,
- 				   i == priv->num_chan - 1 ? '\n' : ' ');
-
- 	return count;
---
-2.11.0
+>                 return;
+>
+>         serdev->ops->write_wakeup(serdev);
+> @@ -184,7 +192,7 @@ static inline int serdev_controller_receive_buf(struct serdev_controller *ctrl,
+>  {
+>         struct serdev_device *serdev = ctrl->serdev;
+>
+> -       if (!serdev || !serdev->ops->receive_buf)
+> +       if (!serdev || !serdev->ops || !serdev->ops->receive_buf)
+>                 return -EINVAL;
+>
+>         return serdev->ops->receive_buf(serdev, data, count);
+> @@ -204,6 +212,8 @@ void serdev_device_write_wakeup(struct serdev_device *);
+>  int serdev_device_write(struct serdev_device *, const unsigned char *, size_t, unsigned long);
+>  void serdev_device_write_flush(struct serdev_device *);
+>  int serdev_device_write_room(struct serdev_device *);
+> +int serdev_device_mux_select(struct serdev_device *);
+> +int serdev_device_mux_deselect(struct serdev_device *);
+>
+>  /*
+>   * serdev device driver functions
+> --
+> 2.7.4
+>
