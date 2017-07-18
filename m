@@ -1,68 +1,120 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, ARM and I2C due for the
- v4.14 merge window
-Date: Tue, 18 Jul 2017 09:04:41 +0100
-Message-ID: <20170718080441.g3kmastovt32y33y@dell>
-References: <20170615184928.12007-1-javier@dowhile0.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f169.google.com ([209.85.128.169]:32829 "EHLO
-        mail-wr0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751358AbdGRIEp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jul 2017 04:04:45 -0400
-Received: by mail-wr0-f169.google.com with SMTP id a10so17348974wrd.0
-        for <linux-i2c@vger.kernel.org>; Tue, 18 Jul 2017 01:04:44 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170615184928.12007-1-javier@dowhile0.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: [PATCH v8 2/9] i2c: i2c-smbus: add of_i2c_setup_smbus_alert
+Date: Tue, 18 Jul 2017 16:19:37 +0800
+Message-ID: <1500365984-61404-3-git-send-email-preid@electromag.com.au>
+References: <1500365984-61404-1-git-send-email-preid@electromag.com.au>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1500365984-61404-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-Enjoy!
+This commit adds of_i2c_setup_smbus_alert which allows the smbalert
+driver to be attached to an i2c adapter via the device tree.
 
-The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba20877:
+Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c.txt |  4 ++--
+ drivers/i2c/i2c-smbus.c                       | 32 ++++++++++++++++++++++++++-
+ include/linux/i2c-smbus.h                     |  9 ++++++++
+ 3 files changed, 42 insertions(+), 3 deletions(-)
 
-  Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-arm-i2c-v4.14
-
-for you to fetch changes up to ea5ae803192eb2b03e0bd23db63d2f355fd23eda:
-
-  ARM: ux500: Add vendor prefix to tps61052 node (2017-07-18 08:27:46 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, ARM and I2C due for the v4.14 merge window
-
-----------------------------------------------------------------
-Javier Martinez Canillas (8):
-      dt-bindings: mfd: Add retu/tahvo ASIC chips bindings
-      mfd: retu: Drop -mfd suffix from I2C device ID name
-      ARM: dts: n8x0: Add vendor prefix to retu node
-      mfd: retu: Add OF device ID table
-      i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
-      dt-bindings: mfd: Add TI tps6105x chip bindings
-      mfd: tps6105x: Add OF device ID table
-      ARM: ux500: Add vendor prefix to tps61052 node
-
- .../devicetree/bindings/i2c/i2c-cbus-gpio.txt      |  4 ++--
- Documentation/devicetree/bindings/mfd/retu.txt     | 25 ++++++++++++++++++++++
- Documentation/devicetree/bindings/mfd/tps6105x.txt | 17 +++++++++++++++
- arch/arm/boot/dts/omap2420-n8x0-common.dtsi        |  4 ++--
- arch/arm/boot/dts/ste-hrefprev60.dtsi              |  2 +-
- arch/arm/mach-omap1/board-nokia770.c               |  4 ++--
- drivers/mfd/retu-mfd.c                             | 12 +++++++++--
- drivers/mfd/tps6105x.c                             |  8 +++++++
- 8 files changed, 67 insertions(+), 9 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/retu.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/tps6105x.txt
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index cee9d50..1126398 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -59,8 +59,8 @@ wants to support one of the below features, it should adapt the bindings below.
+ 	interrupts used by the device.
+ 
+ - interrupt-names
+-	"irq" and "wakeup" names are recognized by I2C core, other names are
+-	left to individual drivers.
++	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
++	other names are	left to individual drivers.
+ 
+ - host-notify
+ 	device uses SMBus host notify protocol instead of interrupt line.
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index d4af270..a34f41d 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -21,6 +21,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of_irq.h>
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
+ 
+@@ -139,7 +140,14 @@ static int smbalert_probe(struct i2c_client *ara,
+ 	if (!alert)
+ 		return -ENOMEM;
+ 
+-	irq = setup->irq;
++	if (setup) {
++		irq = setup->irq;
++	} else {
++		irq = of_irq_get_byname(adapter->dev.of_node, "smbus_alert");
++		if (irq <= 0)
++			return irq;
++	}
++
+ 	INIT_WORK(&alert->alert, smbalert_work);
+ 	alert->ara = ara;
+ 
+@@ -214,6 +222,28 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+ }
+ EXPORT_SYMBOL_GPL(i2c_setup_smbus_alert);
+ 
++#if IS_ENABLED(CONFIG_OF)
++int of_i2c_setup_smbus_alert(struct i2c_adapter *adapter)
++{
++	struct i2c_client *client;
++	int irq;
++
++	irq = of_property_match_string(adapter->dev.of_node, "interrupt-names",
++				       "smbus_alert");
++	if (irq == -EINVAL || irq == -ENODATA)
++		return 0;
++	else if (irq < 0)
++		return irq;
++
++	client = i2c_setup_smbus_alert(adapter, NULL);
++	if (!client)
++		return -ENODEV;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(of_i2c_setup_smbus_alert);
++#endif
++
+ /**
+  * i2c_handle_smbus_alert - Handle an SMBus alert
+  * @ara: the ARA client on the relevant adapter
+diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+index 19efbd1..fb0e040 100644
+--- a/include/linux/i2c-smbus.h
++++ b/include/linux/i2c-smbus.h
+@@ -49,4 +49,13 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+ 					 struct i2c_smbus_alert_setup *setup);
+ int i2c_handle_smbus_alert(struct i2c_client *ara);
+ 
++#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
++int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
++#else
++static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
++{
++	return 0;
++}
++#endif
++
+ #endif /* _LINUX_I2C_SMBUS_H */
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
