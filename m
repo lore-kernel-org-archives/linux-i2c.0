@@ -1,91 +1,50 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v3 4/4] i2c: rcar: check for DMA-capable buffers
-Date: Tue, 18 Jul 2017 12:23:39 +0200
-Message-ID: <20170718102339.28726-5-wsa+renesas@sang-engineering.com>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 0/3] crypto: introduce Microchip / Atmel ECC driver
+Date: Tue, 18 Jul 2017 18:38:01 +0800
+Message-ID: <20170718103801.GP6479@gondor.apana.org.au>
+References: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: linux-i2c@vger.kernel.org
-Cc: alsa-devel@alsa-project.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from orcrist.hmeau.com ([104.223.48.154]:33306 "EHLO
+        deadmen.hmeau.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751367AbdGRKib (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jul 2017 06:38:31 -0400
+Content-Disposition: inline
+In-Reply-To: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: davem@davemloft.net, linux-crypto@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com
 
-Handling this is special for this driver. Because the hardware needs to
-initialize the next message in interrupt context, we cannot use the
-i2c_check_msg_for_dma() directly. This helper only works reliably in
-process context. So, we need to check during initial preparation of the
-whole transfer and need to disable DMA completely for the whole transfer
-once a message with a not-DMA-capable buffer is found.
+On Wed, Jul 05, 2017 at 01:07:57PM +0300, Tudor Ambarus wrote:
+> Hi,
+> 
+> This patch set introduces Microchip / Atmel ECC driver.
+> 
+> The first patch adds some helpers that will be used by fallbacks to
+> kpp software implementations.
+> 
+> The second patch adds ECDH support for the ATECC508A (I2C)
+> cryptographic engine. The I2C interface is designed to operate
+> at a maximum clock speed of 1MHz.
+> 
+> The device features hardware acceleration for the NIST standard
+> P256 prime curve and supports the complete key life cycle from
+> private key generation to ECDH key agreement.
+> 
+> Random private key generation is supported internally within
+> the device to ensure that the private key can never be known
+> outside of the device. If the user wants to use its own private
+> keys, the driver will fallback to the ecdh software implementation.
+> 
+> Tudor Ambarus (3):
+>   crypto: kpp: add get/set_flags helpers
+>   crypto: introduce Microchip / Atmel ECC driver
+>   MAINTAINERS: add a maintainer for Microchip / Atmel ECC driver
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 93c1a54981df08..5d0e820d708853 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -111,8 +111,11 @@
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
- /* persistent flags */
-+#define ID_P_NODMA	(1 << 30)
- #define ID_P_PM_BLOCKED	(1 << 31)
--#define ID_P_MASK	ID_P_PM_BLOCKED
-+#define ID_P_MASK	(ID_P_PM_BLOCKED | ID_P_NODMA)
-+
-+#define RCAR_DMA_THRESHOLD 8
- 
- enum rcar_i2c_type {
- 	I2C_RCAR_GEN1,
-@@ -358,8 +361,7 @@ static void rcar_i2c_dma(struct rcar_i2c_priv *priv)
- 	unsigned char *buf;
- 	int len;
- 
--	/* Do not use DMA if it's not available or for messages < 8 bytes */
--	if (IS_ERR(chan) || msg->len < 8)
-+	if (IS_ERR(chan) || msg->len < RCAR_DMA_THRESHOLD || priv->flags & ID_P_NODMA)
- 		return;
- 
- 	if (read) {
-@@ -657,11 +659,15 @@ static void rcar_i2c_request_dma(struct rcar_i2c_priv *priv,
- 				 struct i2c_msg *msg)
- {
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
--	bool read;
-+	bool read = msg->flags & I2C_M_RD;
- 	struct dma_chan *chan;
- 	enum dma_transfer_direction dir;
- 
--	read = msg->flags & I2C_M_RD;
-+	/* we need to check here because we need the 'current' context */
-+	if (i2c_check_msg_for_dma(msg, RCAR_DMA_THRESHOLD, NULL) == -EFAULT) {
-+		dev_dbg(dev, "skipping DMA for this whole transfer\n");
-+		priv->flags |= ID_P_NODMA;
-+	}
- 
- 	chan = read ? priv->dma_rx : priv->dma_tx;
- 	if (PTR_ERR(chan) != -EPROBE_DEFER)
-@@ -740,6 +746,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	if (ret < 0 && ret != -ENXIO)
- 		dev_err(dev, "error %d : %x\n", ret, priv->flags);
- 
-+	priv->flags &= ~ID_P_NODMA;
-+
- 	return ret;
- }
- 
+All patches applied.  Thanks.
 -- 
-2.11.0
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
