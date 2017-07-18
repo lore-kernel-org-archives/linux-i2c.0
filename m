@@ -1,56 +1,57 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 1/2] wire: export w1_touch_bit (RESEND: line breaks
- fixed, I hope.)
-Date: Tue, 18 Jul 2017 07:00:26 +0200
-Message-ID: <20170718050026.GB6176@kroah.com>
-References: <b68811cc-58f3-d217-642d-2ddb16154910@gmx.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC v2 5/6] max9260: add driver for i2c over GMSL passthrough
+Date: Tue, 18 Jul 2017 08:51:06 +0200
+Message-ID: <CAMuHMdWybpNd0=iVaiJbO=31jBMFi+Zq+jQ0tcEsXEdxLrh-Nw@mail.gmail.com>
+References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1500305076-15570-6-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b68811cc-58f3-d217-642d-2ddb16154910@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Evgeniy Polyakov <zbr@ioremap.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1500305076-15570-6-git-send-email-ulrich.hecht+renesas@gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh@kernel.org>, Peter Rosin <peda@axentia.se>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 18, 2017 at 12:53:14AM +0200, Jan Kandziora wrote:
-> Changes in v4 against v3 in this subpatch:
->   - adapted to linux-4.12.0
-> 
-> No changes in v3 against v2,v1 in this subpatch.
+Hi Ulrich,
 
-All of that needs to go below the --- line.
+On Mon, Jul 17, 2017 at 5:24 PM, Ulrich Hecht
+<ulrich.hecht+renesas@gmail.com> wrote:
+> This driver implements tunnelling of i2c requests over GMSL via a
+> MAX9260 deserializer. It provides an i2c adapter that can be used
+> to reach devices on the far side of the link.
+>
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 
-And your subject needs to be fixed.  I should not have to edit anything
-in a patch by hand in order to apply it.
+Thanks for your patch!
 
-> 
-> The w1_ds28e17 driver from the next part of this patch needs to emit
-> single-bit read timeslots to the DS28E17. The w1 subsystem already
-> has this function but it is not exported outside drivers/w1/w1_io.c
-> 
-> This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
-> same as the other exported symbols in drivers/w1/w1_io.c
-> 
-> May be also useful later for writing drivers for other Onewire chips
-> which do single-bit communication.
-> 
-> 
-> Signed-off-by: Jan Kandziora <jjj@gmx.de>
-> ---
-> >From 6aedd1b890bd77bfe788f6af7a38724c16934ab0 Mon Sep 17 00:00:00 2001
-> From: Jan Kandziora <jjj@gmx.de>
-> Date: Sat, 8 Jul 2017 21:14:27 +0200
-> Subject: [PATCH 1/2] wire: export w1_touch_bit
+> --- /dev/null
+> +++ b/drivers/media/i2c/max9260.c
+> @@ -0,0 +1,288 @@
 
+> +static void max9260_transact(struct max9260_device *dev,
+> +                            int expect,
+> +                            u8 *request, int len)
 
-Why is this all here?
+const u8 *request (or const void *?)
 
-And where is patch 2/2?
+> +static int max9260_read_reg(struct max9260_device *dev, int reg)
+> +{
+> +       u8 request[] = { 0x79, 0x91, reg, 1 };
 
-Please fix and resend the whole series.
+static const
 
-thanks,
+I don't know if this buffer is ever copied. If not, perhaps it should not be
+on the stack anyway because some serial drivers may not support DMA
+from stack buffers?
+This applies to all buffers below.
 
-greg k-h
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
