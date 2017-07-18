@@ -1,50 +1,44 @@
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH 0/3] crypto: introduce Microchip / Atmel ECC driver
-Date: Tue, 18 Jul 2017 18:38:01 +0800
-Message-ID: <20170718103801.GP6479@gondor.apana.org.au>
-References: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 0/5] x86/io: Rely on asm-generic/io.h
+Date: Tue, 18 Jul 2017 18:52:53 +0300
+Message-ID: <1500393173.29303.84.camel@linux.intel.com>
+References: <20170630170934.83028-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from orcrist.hmeau.com ([104.223.48.154]:33306 "EHLO
-        deadmen.hmeau.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751367AbdGRKib (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jul 2017 06:38:31 -0400
-Content-Disposition: inline
-In-Reply-To: <1499249280-31779-1-git-send-email-tudor.ambarus@microchip.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170630170934.83028-1-andriy.shevchenko@linux.intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Baolin Wang <baolin.wang@spreadtrum.com>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, intel-gfx@lists.freedesktop.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: davem@davemloft.net, linux-crypto@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com
 
-On Wed, Jul 05, 2017 at 01:07:57PM +0300, Tudor Ambarus wrote:
-> Hi,
-> 
-> This patch set introduces Microchip / Atmel ECC driver.
-> 
-> The first patch adds some helpers that will be used by fallbacks to
-> kpp software implementations.
-> 
-> The second patch adds ECDH support for the ATECC508A (I2C)
-> cryptographic engine. The I2C interface is designed to operate
-> at a maximum clock speed of 1MHz.
-> 
-> The device features hardware acceleration for the NIST standard
-> P256 prime curve and supports the complete key life cycle from
-> private key generation to ECDH key agreement.
-> 
-> Random private key generation is supported internally within
-> the device to ensure that the private key can never be known
-> outside of the device. If the user wants to use its own private
-> keys, the driver will fallback to the ecdh software implementation.
-> 
-> Tudor Ambarus (3):
->   crypto: kpp: add get/set_flags helpers
->   crypto: introduce Microchip / Atmel ECC driver
->   MAINTAINERS: add a maintainer for Microchip / Atmel ECC driver
-
-All patches applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+T24gRnJpLCAyMDE3LTA2LTMwIGF0IDIwOjA5ICswMzAwLCBBbmR5IFNoZXZjaGVua28gd3JvdGU6
+Cj4gVGhlIHNlcmllcyBicmluZ3MgYSBiaXQgb2Ygb3JkZXIgdG8gYXJjaC94ODYvaW5jbHVkZS9h
+c20vaW8uaCBieSByZS0KPiB1c2luZwo+IGRlZmluaXRpb25zIGluIHRoZSBnZW5lcmljIGhlYWRl
+ci4KPiAKPiBUaGUgc2VyaWVzIGhhcyBiZWVuIHRlc3RlZCBvbiBJbnRlbCBCcm94dG9uIGhhcmR3
+YXJlIGluIDMyLSBhbmQgNjQtYml0IAo+IG1vZGVzLgoKQW55IGNvbW1lbnRzPwpTaGFsbCBJIHJl
+c2VuZCB0aGlzPwoKPiAKPiBTaW5jZSB2MjoKPiAtIGFkZCBjbGVhbnVwIHBhdGNoZXMgaW4gYWNj
+b3JkYW5jZSB0byByZS11c2Ugd2hhdCdzIGRlZmluZWQgaW4KPiBnZW5lcmljIGhlYWRlcgo+IC0g
+c3BsaXQgdG8gZmV3IHBhdGNoZXMKPiAtIGhvcGVmdWxseSBuYWlsIGRvd24gYW4gaXNzdWUga2J1
+aWxkIGJvdCBjb21wbGFpbmVkIGFib3V0Cj4gLSBhcHBlbmQgdGFncyAoV29sZnJhbSkKPiAKPiBB
+bmR5IFNoZXZjaGVua28gKDUpOgo+IMKgIHg4Ni9pbzogRGVmaW5lIElPIGFjY2Vzc29ycyBieSBw
+cmVwcm9jZXNzb3IKPiDCoCB4ODYvaW86IEluY2x1ZGUgYXNtLWdlbmVyaWMvaW8uaCB0byBhcmNo
+aXRlY3R1cmFsIGNvZGUKPiDCoCB4ODYvaW86IFJlbW92ZSBtZW0qaW8oKSBkdXBsaWNhdGlvbnMK
+PiDCoCB4ODYvaW86IFJlbW92ZSB4bGF0ZV9kZXZfa21lbV9wdHIoKSBkdXBsaWNhdGlvbgo+IMKg
+IHg4Ni9pbzogTWFrZSByZWFkcSgpIC8gd3JpdGVxKCkgQVBJIGNvbnNpc3RlbnQKPiAKPiDCoGFy
+Y2gveDg2L2luY2x1ZGUvYXNtL2lvLmggfCA5OCArKysrKysrKysrKysrKysrKysrKysrKy0tLS0t
+LS0tLS0tLS0tLQo+IC0tLS0tLS0tLQo+IMKgaW5jbHVkZS9hc20tZ2VuZXJpYy9pby5owqDCoHwg
+MjcgKysrKysrKysrKysrKwo+IMKgMiBmaWxlcyBjaGFuZ2VkLCA3NCBpbnNlcnRpb25zKCspLCA1
+MSBkZWxldGlvbnMoLSkKPiAKCi0tIApBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtv
+QGxpbnV4LmludGVsLmNvbT4KSW50ZWwgRmlubGFuZCBPeQpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdm
+eEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
+bG1hbi9saXN0aW5mby9pbnRlbC1nZngK
