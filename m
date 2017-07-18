@@ -1,60 +1,68 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC v2 6/6] ARM: dts: blanche: add SCIF1 and MAX9260 deserializer
-Date: Tue, 18 Jul 2017 08:52:33 +0200
-Message-ID: <CAMuHMdWBqRNKLmzfx_ynPbCyrce5aceH5E7nHgTu-36igOxZow@mail.gmail.com>
-References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1500305076-15570-7-git-send-email-ulrich.hecht+renesas@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [GIT PULL] Immutable branch between MFD, ARM and I2C due for the
+ v4.14 merge window
+Date: Tue, 18 Jul 2017 09:04:41 +0100
+Message-ID: <20170718080441.g3kmastovt32y33y@dell>
+References: <20170615184928.12007-1-javier@dowhile0.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:33484 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750931AbdGRGwf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jul 2017 02:52:35 -0400
-In-Reply-To: <1500305076-15570-7-git-send-email-ulrich.hecht+renesas@gmail.com>
+Received: from mail-wr0-f169.google.com ([209.85.128.169]:32829 "EHLO
+        mail-wr0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751358AbdGRIEp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 18 Jul 2017 04:04:45 -0400
+Received: by mail-wr0-f169.google.com with SMTP id a10so17348974wrd.0
+        for <linux-i2c@vger.kernel.org>; Tue, 18 Jul 2017 01:04:44 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170615184928.12007-1-javier@dowhile0.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Cc: "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh@kernel.org>, Peter Rosin <peda@axentia.se>, Linux I2C <linux-i2c@vger.kernel.org>
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-Hi Uli,
+Enjoy!
 
-On Mon, Jul 17, 2017 at 5:24 PM, Ulrich Hecht
-<ulrich.hecht+renesas@gmail.com> wrote:
-> Adds serial port SCIF1 and the MAX9260 deserializers connected to it.
->
-> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba20877:
 
-Thanks for your patch!
+  Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
 
->  arch/arm/boot/dts/r8a7792-blanche.dts | 52 +++++++++++++++++++++++++++++++++++
->  1 file changed, 52 insertions(+)
->
-> diff --git a/arch/arm/boot/dts/r8a7792-blanche.dts b/arch/arm/boot/dts/r8a7792-blanche.dts
-> index 9b67dca..2ae9a87 100644
-> --- a/arch/arm/boot/dts/r8a7792-blanche.dts
-> +++ b/arch/arm/boot/dts/r8a7792-blanche.dts
+are available in the git repository at:
 
->         status = "okay";
->  };
->
-> +&scif1 {
-> +       pinctrl-0 = <&scif1_pins>;
-> +       pinctrl-names = "default";
-> +
-> +       status = "okay";
-> +
-> +       mux-controls = <&mux>;
-> +
-> +       #address-cells = <1>;
-> +       #size-cells = <0>;
-> +       gmsl-deserializer@0 {
-> +               compatible = "maxim,max9260";
-> +               reg = <0x8>;
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-arm-i2c-v4.14
 
-unit address and reg property don't match.
+for you to fetch changes up to ea5ae803192eb2b03e0bd23db63d2f355fd23eda:
 
-(try "make dtbs W=1")
+  ARM: ux500: Add vendor prefix to tps61052 node (2017-07-18 08:27:46 +0100)
 
-Gr{oetje,eeting}s,
+----------------------------------------------------------------
+Immutable branch between MFD, ARM and I2C due for the v4.14 merge window
 
-                        Geert
+----------------------------------------------------------------
+Javier Martinez Canillas (8):
+      dt-bindings: mfd: Add retu/tahvo ASIC chips bindings
+      mfd: retu: Drop -mfd suffix from I2C device ID name
+      ARM: dts: n8x0: Add vendor prefix to retu node
+      mfd: retu: Add OF device ID table
+      i2c: i2c-cbus-gpio: Add vendor prefix to retu node in example
+      dt-bindings: mfd: Add TI tps6105x chip bindings
+      mfd: tps6105x: Add OF device ID table
+      ARM: ux500: Add vendor prefix to tps61052 node
+
+ .../devicetree/bindings/i2c/i2c-cbus-gpio.txt      |  4 ++--
+ Documentation/devicetree/bindings/mfd/retu.txt     | 25 ++++++++++++++++++++++
+ Documentation/devicetree/bindings/mfd/tps6105x.txt | 17 +++++++++++++++
+ arch/arm/boot/dts/omap2420-n8x0-common.dtsi        |  4 ++--
+ arch/arm/boot/dts/ste-hrefprev60.dtsi              |  2 +-
+ arch/arm/mach-omap1/board-nokia770.c               |  4 ++--
+ drivers/mfd/retu-mfd.c                             | 12 +++++++++--
+ drivers/mfd/tps6105x.c                             |  8 +++++++
+ 8 files changed, 67 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/retu.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/tps6105x.txt
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
