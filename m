@@ -1,64 +1,66 @@
-From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Wed, 19 Jul 2017 21:15:15 +0200
-Message-ID: <20170719211515.46a1196c@windsurf>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v4 1/2] wire: export w1_touch_bit
+Date: Wed, 19 Jul 2017 22:14:08 +0200
+Message-ID: <20170719201409.5968-1-jjj@gmx.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Evgeniy Polyakov <zbr@ioremap.net>, Linux-I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
 
-On Wed, 19 Jul 2017 17:25:04 +0200, Philipp Zabel wrote:
-> The reset control API has two modes: exclusive access, where the driver
-> expects to have full and immediate control over the state of the reset
-> line, and shared (clock-like) access, where drivers only request reset
-> deassertion while active, but don't care about the state of the reset line
-> while inactive.
-> 
-> Commit a53e35db70d1 ("reset: Ensure drivers are explicit when requesting
-> reset lines") started to transition the reset control request API calls
-> to explicitly state whether the driver needs exclusive or shared reset
-> control behavior.
-> 
-> This series converts all drivers that currently implicitly request
-> exclusive reset controls to the corresponding explicit API call. It is,
-> for the most part, generated from the following semantic patch:
-> 
-> @@
-> expression rstc, dev, id;
-> @@
-> -rstc = reset_control_get(dev, id);
-> +rstc = reset_control_get_exclusive(dev, id);
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
 
-I don't know if it has been discussed in the past, so forgive me if it
-has been. Have you considered adding a "int flags" argument to the
-existing reset_control_get_*() functions, rather than introducing
-separate exclusive variants ?
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
 
-Indeed, with a "int flags" argument you could in the future add more
-variants/behaviors without actually multiplying the number of
-functions. Something like the "flags" argument for request_irq() for
-example.
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+---
+Changes in v4 against v3 in this subpatch:
+  - adapted to linux-4.12.0
 
-Best regards,
+No changes in v3 against v2,v1 in this subpatch.
 
-Thomas
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 758a7a6..e7af855 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -295,6 +295,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+ 
+ u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index 1134e6b..4bb77a1 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -58,7 +58,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -69,6 +69,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+ 
+ /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.13.2
