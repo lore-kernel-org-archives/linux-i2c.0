@@ -1,57 +1,72 @@
-From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Thu, 20 Jul 2017 10:11:57 +0200
-Message-ID: <20170720081157.GA11630@kroah.com>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v3 0/5] Add support for the STM32F7 I2C
+Date: Thu, 20 Jul 2017 08:34:53 +0000
+Message-ID: <d749429a-3cdc-ea9b-84ef-afa9fdf55f29@st.com>
+References: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel@
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
+Content-Language: en-US
+Content-ID: <090D44A4CD53EC40BEDA6060453C5FA9@st.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark
+ Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 19, 2017 at 05:25:04PM +0200, Philipp Zabel wrote:
-> The reset control API has two modes: exclusive access, where the driver
-> expects to have full and immediate control over the state of the reset
-> line, and shared (clock-like) access, where drivers only request reset
-> deassertion while active, but don't care about the state of the reset line
-> while inactive.
+
+
+On 07/06/2017 05:53 PM, Pierre-Yves MORDRET wrote:
+> This patchset adds support for the I2C controller embedded in STM32F7xx SoC.
+> It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode and
+> Fast-mode+ bus speed.
+
+Gentle ping for driver review since DT Bindings has been acked by Rob 
+Herring.
+
+Thanks
+Py
+
+> ---
+>   Version history:
+>      v3:
+>          * Move stm32f7_i2c_match above stm32f7_i2c_driver
+>          * of_device_get_match_data instead of of_match_device
+>          * Improve I2C Speed DT gathering
+>          * dev_err into dev_dbg for Arbitration loss
+>          * Remove useless space aligned
 > 
-> Commit a53e35db70d1 ("reset: Ensure drivers are explicit when requesting
-> reset lines") started to transition the reset control request API calls
-> to explicitly state whether the driver needs exclusive or shared reset
-> control behavior.
+>      v2:
+>          * Implement an I2C timings computation algorithm instead of static
+>            values(bindings). Algorithm uses generic I2C SCL Falling/Rising
+>            bindings and System clock to compute its timings.
+>          * I2C Device Tree Update
+> ---
+> Pierre-Yves MORDRET (5):
+>    dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+>    i2c: i2c-stm32f4: use generic definition of speed enum
+>    i2c: i2c-stm32f7: add driver
+>    ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+>    ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
 > 
-> This series converts all drivers that currently implicitly request
-> exclusive reset controls to the corresponding explicit API call. It is,
-> for the most part, generated from the following semantic patch:
-
-Hey, I'm all for large api changes, but this really seems ackward, isn't
-there a "better" way to do this?
-
-Why not, as you say the "implicit" request is exclusive, just leave
-everything alone and state that the "reset_control_get()" call is
-exclusive and make the shared one the "odd" usage as that seems to not
-be the normal case.
-
-That should be a much smaller patch right?
-
-That way you don't break everything here, and require 100+ patches to
-just change the name of a function from one to another and do nothing
-else.
-
-thanks,
-
-greg k-h
+>   .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
+>   arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
+>   arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
+>   drivers/i2c/busses/Kconfig                         |  10 +
+>   drivers/i2c/busses/Makefile                        |   1 +
+>   drivers/i2c/busses/i2c-stm32.h                     |  20 +
+>   drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
+>   drivers/i2c/busses/i2c-stm32f7.c                   | 974 +++++++++++++++++++++
+>   8 files changed, 1068 insertions(+), 14 deletions(-)
+>   create mode 100644 drivers/i2c/busses/i2c-stm32.h
+>   create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
+> 
