@@ -1,36 +1,77 @@
-From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Thu, 20 Jul 2017 22:32:49 +0200
-Message-ID: <1687646.TMvigZNUOP__4187.64552237025$1500660934$gmane$org@phil>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v3 2/2] i2c: designware: Some broken DSTDs use 1MiHz
+ instead of 1MHz
+Date: Sat, 22 Jul 2017 00:15:16 +0200
+Message-ID: <e344e80b-bdaa-a6df-d4f4-948b08544d60@redhat.com>
+References: <20170713134502.10816-1-hdegoede@redhat.com>
+ <20170713134502.10816-2-hdegoede@redhat.com>
+ <1500213858.29303.20.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49226 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753853AbdGUWPS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 21 Jul 2017 18:15:18 -0400
+In-Reply-To: <1500213858.29303.20.camel@linux.intel.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, stable@vger.kernel.org
 
 Hi,
 
->   crypto: rockchip: explicitly request exclusive reset control
->   iio: adc: rockchip_saradc: explicitly request exclusive reset control
->   PCI: rockchip: explicitly request exclusive reset control
->   phy: rockchip-pcie: explicitly request exclusive reset control
->   phy: rockchip-typec: explicitly request exclusive reset control
->   phy: rockchip-usb: explicitly request exclusive reset control
->   thermal: rockchip: explicitly request exclusive reset control
+On 16-07-17 16:04, Andy Shevchenko wrote:
+> On Thu, 2017-07-13 at 15:45 +0200, Hans de Goede wrote:
+>> At least the Acer Iconia Tab8 / aka W1-810 uses 1MiHz instead of
+>> 1MHz for one of its busses, fix this up to 1MHz instead of failing
+>> the probe of that bus.
+>>
+>> This fixes the accelerometer on the Acer Iconia Tab8 not working.
+>>
+> 
+> Should it have a Fixes tag?
 
-for the driver-related Rockchip changes
+No I don't think so, as this worksaround a firmware bug the original
+commit introducing the check is not really fixed by this, as the
+original commit is fine really.
 
-Acked-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Regards,
+
+Hans
+
+
+
+> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> (on condition Jarkko and Wolfram are okay with this; in the future it
+> would be better to have a list of possible speeds and algo that chooses
+> one based on FW configuration)
+> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/i2c/busses/i2c-designware-platdrv.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index d139b156f9c9..143a8fd582b4 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -298,6 +298,9 @@ static int dw_i2c_plat_probe(struct
+>> platform_device *pdev)
+>>   	}
+>>   
+>>   	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
+>> +	/* Some broken DSTDs use 1MiHz instead of 1MHz */
+>> +	if (acpi_speed == 1048576)
+>> +		acpi_speed = 1000000;
+>>   	/*
+>>   	 * Find bus speed from the "clock-frequency" device property,
+>> ACPI
+>>   	 * or by using fast mode if neither is set.
+> 
