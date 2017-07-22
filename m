@@ -1,77 +1,36 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 2/2] i2c: designware: Some broken DSTDs use 1MiHz
- instead of 1MHz
-Date: Sat, 22 Jul 2017 00:15:16 +0200
-Message-ID: <e344e80b-bdaa-a6df-d4f4-948b08544d60@redhat.com>
-References: <20170713134502.10816-1-hdegoede@redhat.com>
- <20170713134502.10816-2-hdegoede@redhat.com>
- <1500213858.29303.20.camel@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v8 3/9] i2c: core: call of_i2c_setup_smbus_alert in
+ i2c_register_adapter
+Date: Sat, 22 Jul 2017 13:49:45 +0200
+Message-ID: <20170722134945.6db60b24@endymion>
+References: <201707200255.SHskJrcM%fengguang.wu@intel.com>
+        <c6e4dce0-853f-a4d4-be64-ef4bb0f68162@electromag.com.au>
+        <20170721093759.GD11387@mail.corp.redhat.com>
+        <20170721164533.54855e1d@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49226 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753853AbdGUWPS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 21 Jul 2017 18:15:18 -0400
-In-Reply-To: <1500213858.29303.20.camel@linux.intel.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20170721164533.54855e1d@endymion>
+Sender: linux-pm-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Phil Reid <preid@electromag.com.au>, kbuild test robot <lkp@intel.com>, kbuild-all@01.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, stable@vger.kernel.org
 
-Hi,
-
-On 16-07-17 16:04, Andy Shevchenko wrote:
-> On Thu, 2017-07-13 at 15:45 +0200, Hans de Goede wrote:
->> At least the Acer Iconia Tab8 / aka W1-810 uses 1MiHz instead of
->> 1MHz for one of its busses, fix this up to 1MHz instead of failing
->> the probe of that bus.
->>
->> This fixes the accelerometer on the Acer Iconia Tab8 not working.
->>
+On Fri, 21 Jul 2017 16:45:33 +0200, Jean Delvare wrote:
+> On Fri, 21 Jul 2017 11:37:59 +0200, Benjamin Tissoires wrote:
+> > What if I2C selects I2C_SMBUS directly?  
 > 
-> Should it have a Fixes tag?
+> Selecting I2C_SMBUS is what device drivers are indeed supposed to do.
+> However doing it from i2c-core seems awkward, because i2c-smbus itself
+> depends on i2c-core. If they end up both built in, I guess it will be
+> fine. But if they are modular, I'm afraid you won't be able to load the
+> modules, because each of them requires the other to be loaded first for
+> proper symbol resolution.
 
-No I don't think so, as this worksaround a firmware bug the original
-commit introducing the check is not really fixed by this, as the
-original commit is fine really.
+Out of curiosity I gave it a try and I can confirm it fails as I
+expected.
 
-Regards,
-
-Hans
-
-
-
-> 
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
-> (on condition Jarkko and Wolfram are okay with this; in the future it
-> would be better to have a list of possible speeds and algo that chooses
-> one based on FW configuration)
-> 
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/i2c/busses/i2c-designware-platdrv.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->> b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index d139b156f9c9..143a8fd582b4 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -298,6 +298,9 @@ static int dw_i2c_plat_probe(struct
->> platform_device *pdev)
->>   	}
->>   
->>   	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
->> +	/* Some broken DSTDs use 1MiHz instead of 1MHz */
->> +	if (acpi_speed == 1048576)
->> +		acpi_speed = 1000000;
->>   	/*
->>   	 * Find bus speed from the "clock-frequency" device property,
->> ACPI
->>   	 * or by using fast mode if neither is set.
-> 
+-- 
+Jean Delvare
+SUSE L3 Support
