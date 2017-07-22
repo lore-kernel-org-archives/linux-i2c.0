@@ -1,36 +1,93 @@
-From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Thu, 20 Jul 2017 22:32:49 +0200
-Message-ID: <1687646.TMvigZNUOP__23329.3554898866$1500745025$gmane$org@phil>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/nouveau>,
- <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/nouveau>
-List-Post: <mailto:nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/nouveau>,
- <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "Nouveau" <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Sat, 22 Jul 2017 20:55:37 +0200
+Message-ID: <20170722185537.12696-2-hdegoede@redhat.com>
+References: <20170722185537.12696-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43630 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750873AbdGVSzn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 22 Jul 2017 14:55:43 -0400
+In-Reply-To: <20170722185537.12696-1-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-SGksCgo+ICAgY3J5cHRvOiByb2NrY2hpcDogZXhwbGljaXRseSByZXF1ZXN0IGV4Y2x1c2l2ZSBy
-ZXNldCBjb250cm9sCj4gICBpaW86IGFkYzogcm9ja2NoaXBfc2FyYWRjOiBleHBsaWNpdGx5IHJl
-cXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIFBDSTogcm9ja2NoaXA6IGV4cGxpY2l0
-bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+ICAgcGh5OiByb2NrY2hpcC1wY2ll
-OiBleHBsaWNpdGx5IHJlcXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIHBoeTogcm9j
-a2NoaXAtdHlwZWM6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+
-ICAgcGh5OiByb2NrY2hpcC11c2I6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQg
-Y29udHJvbAo+ICAgdGhlcm1hbDogcm9ja2NoaXA6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNp
-dmUgcmVzZXQgY29udHJvbAoKZm9yIHRoZSBkcml2ZXItcmVsYXRlZCBSb2NrY2hpcCBjaGFuZ2Vz
-CgpBY2tlZC1ieTogSGVpa28gU3R1ZWJuZXIgPGhlaWtvQHNudGVjaC5kZT4KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KTm91dmVhdSBtYWlsaW5nIGxpc3QK
-Tm91dmVhdUBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5v
-cmcvbWFpbG1hbi9saXN0aW5mby9ub3V2ZWF1Cg==
+The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
+it uses its own protocol which is handled by the chipone_icn8318 driver.
+
+If the i2c_hid_driver's probe functon gets called it will fail with a
+"hid_descr_cmd failed" error.
+
+Worse, after the probe failure the i2c / ACPI core code will put the ACPI
+device in D3 state and when the chipone_icn8318 driver then loads the
+device is put back in D0 state, executing its PS0 ACPI method, which
+resets the controller, causing the controller to loose its firmware
+which was loaded by the BIOS. The chipone_icn8318 driver has a workaround
+for this, but that requires it to be the only (or the first) driver to
+probe the device.
+
+This commit adds a match callback and returns -ENODEV for i2c_client-s
+with a CHPN0001 ACPI device id, so that the probe function never gets
+called, fixing the controller losing its firmware.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Use the new i2c_driver match callback to only filter out the CHPN0001
+ ACPI device, rather then use acpi_dev_present in probe and not
+ registering the driver at all when the system has a CHPN0001 device
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 046f692fd0a2..79bed9afc388 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -891,6 +891,26 @@ static void i2c_hid_acpi_fix_up_power(struct device *dev)
+ 		acpi_device_fix_up_power(adev);
+ }
+ 
++static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
++	/*
++	 * The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID
++	 * compatible, just probing it puts the device in an unusable state due
++	 * to it also have ACPI power management issues.
++	 */
++	{"CHPN0001", 0 },
++	{ },
++};
++
++static int i2c_hid_match(struct i2c_client *client)
++{
++	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
++
++	if (adev && acpi_match_device_ids(adev, i2c_hid_acpi_blacklist) == 0)
++		return -ENODEV;
++
++	return 0;
++}
++
+ static const struct acpi_device_id i2c_hid_acpi_match[] = {
+ 	{"ACPI0C50", 0 },
+ 	{"PNP0C50", 0 },
+@@ -905,6 +925,7 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
+ }
+ 
+ static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
++static int i2c_hid_match(struct i2c_client *client) { return 0; }
+ #endif
+ 
+ #ifdef CONFIG_OF
+@@ -1255,6 +1276,7 @@ static struct i2c_driver i2c_hid_driver = {
+ 		.of_match_table = of_match_ptr(i2c_hid_of_match),
+ 	},
+ 
++	.match		= i2c_hid_match,
+ 	.probe		= i2c_hid_probe,
+ 	.remove		= i2c_hid_remove,
+ 	.shutdown	= i2c_hid_shutdown,
+-- 
+2.13.0
