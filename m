@@ -1,87 +1,170 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/2] i2c: core: Allow the driver to override the default i2c_bus match behavior
-Date: Sat, 22 Jul 2017 20:55:36 +0200
-Message-ID: <20170722185537.12696-1-hdegoede@redhat.com>
+From: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
+Date: Sun, 23 Jul 2017 12:22:42 +0100
+Message-ID: <20170723122242.7fd0edf4@jic23.retrosnub.co.uk>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+        <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
 Sender: linux-input-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Some ACPI devices report multiple ids for a single i2c_client, while not
-really implementing the hw-interface asociated with some of these ids.
+On Tue, 18 Jul 2017 12:23:36 +0200
+Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-For some of these devices calling probe and having probe fail with
--ENODEV is a problem in itself as this causes the device to be
-powered-up and down again (causes its PS0 and PS3 ACPI methods to be
-executed) which puts some devices in an unusable state.
+> One helper checks if DMA is suitable and optionally creates a bounce
+> buffer, if not. The other function returns the bounce buffer and makes
+> sure the data is properly copied back to the message.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+My knowledge of the exact requirements for dma on all platforms isn't
+all that good.  Mostly it's based around the assumption that if one
+forces a heap allocation and makes sure nothing else is in the
+cacheline all is good.
 
-This commit adds a match callback to i2c_driver, allowing drivers to
-override the default i2c_bus match behavior and tell the core they
-are not the right driver for the device, avoiding i2c_bus_type.probe
-getting called, avoiding the undesirable power up / down cycle.
+I like the basic idea of this patch set a lot btw!
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/i2c/i2c-core-base.c | 12 +++++++++---
- include/linux/i2c.h         |  6 ++++++
- 2 files changed, 15 insertions(+), 3 deletions(-)
+Jonathan
+> ---
+> Changes since v2:
+> 
+> * rebased to v4.13-rc1
+> * helper functions are not inlined anymore but moved to i2c core
+> * __must_check has been added to the buffer check helper
+> * the release function has been renamed to contain 'dma' as well
+> 
+>  drivers/i2c/i2c-core-base.c | 68 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h         |  5 ++++
+>  2 files changed, 73 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index c89dac7fd2e7b7..7326a9d2e4eb69 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/irqflags.h>
+>  #include <linux/jump_label.h>
+>  #include <linux/kernel.h>
+> +#include <linux/mm.h>
+>  #include <linux/module.h>
+>  #include <linux/mutex.h>
+>  #include <linux/of_device.h>
+> @@ -44,6 +45,7 @@
+>  #include <linux/pm_wakeirq.h>
+>  #include <linux/property.h>
+>  #include <linux/rwsem.h>
+> +#include <linux/sched/task_stack.h>
+>  #include <linux/slab.h>
+>  
+>  #include "i2c-core.h"
+> @@ -2240,6 +2242,72 @@ void i2c_put_adapter(struct i2c_adapter *adap)
+>  }
+>  EXPORT_SYMBOL(i2c_put_adapter);
+>  
+> +/**
+> + * i2c_check_msg_for_dma() - check if a message is suitable for DMA
+> + * @msg: the message to be checked
+> + * @threshold: the amount of byte from which using DMA makes sense
+> + * @ptr_for_bounce_buf: if not NULL, a bounce buffer will be attached to this
+> + *			ptr, if needed. The bounce buffer must be freed by the
+> + *			caller using i2c_release_dma_bounce_buf().
+> + *
+> + * Return: -ERANGE if message is smaller than threshold
+> + *	   -EFAULT if message buffer is not DMA capable and no bounce buffer
+> + *		   was requested
+> + *	   -ENOMEM if a bounce buffer could not be created
+> + *	   0 if message is suitable for DMA
+> + *
+> + * The return value must be checked.
+> + *
+> + * Note: This function should only be called from process context! It uses
+> + * helper functions which work on the 'current' task.
+> + */
+> +int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
+> +					u8 **ptr_for_bounce_buf)
+> +{
+> +	if (ptr_for_bounce_buf)
+> +		*ptr_for_bounce_buf = NULL;
+> +
+> +	if (msg->len < threshold)
+> +		return -ERANGE;
+> +
+> +	if (!virt_addr_valid(msg->buf) || object_is_on_stack(msg->buf)) {
+> +		pr_debug("msg buffer to 0x%04x is not DMA safe%s\n", msg->addr,
+> +			 ptr_for_bounce_buf ? ", trying bounce buffer" : "");
+> +		if (ptr_for_bounce_buf) {
+> +			if (msg->flags & I2C_M_RD)
+> +				*ptr_for_bounce_buf = kzalloc(msg->len, GFP_KERNEL);
+> +			else
+> +				*ptr_for_bounce_buf = kmemdup(msg->buf, msg->len,
+> +							      GFP_KERNEL);
+> +			if (!*ptr_for_bounce_buf)
+> +				return -ENOMEM;
+> +		} else {
+> +			return -EFAULT;
+> +		}
+> +	}
+I'm trying to get my head around whether this is a sufficient set of conditions
+for a dma safe buffer and I'm not sure it is.
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index c89dac7fd2e7..2c6702f2347b 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -98,8 +98,16 @@ EXPORT_SYMBOL_GPL(i2c_match_id);
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
--	struct i2c_driver	*driver;
-+	struct i2c_driver	*driver = to_i2c_driver(drv);
-+	int ret;
- 
-+	if (driver->match && client) {
-+		ret = driver->match(client);
-+		if (ret < 0)
-+			return 0;
-+		if (ret > 0)
-+			return 1;
-+	}
- 
- 	/* Attempt an OF style match */
- 	if (i2c_of_match_device(drv->of_match_table, client))
-@@ -109,8 +117,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 	if (acpi_driver_match_device(dev, drv))
- 		return 1;
- 
--	driver = to_i2c_driver(drv);
--
- 	/* Finally an I2C match */
- 	if (i2c_match_id(driver->id_table, client))
- 		return 1;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 00ca5b86a753..670577c82bc3 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -139,6 +139,9 @@ enum i2c_alert_protocol {
-  * struct i2c_driver - represent an I2C device driver
-  * @class: What kind of i2c device we instantiate (for detect)
-  * @attach_adapter: Callback for bus addition (deprecated)
-+ * @match: Allows the driver to override the default i2c_bus match behavior
-+ *         return < 0 to fail the match, > 0 to force a match, 0 to fallback
-+ *         to default id matching
-  * @probe: Callback for device binding - soon to be deprecated
-  * @probe_new: New callback for device binding
-  * @remove: Callback for device unbinding
-@@ -180,6 +183,9 @@ struct i2c_driver {
- 	 */
- 	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
- 
-+	/* Set this to override standard i2c_bus match behavior */
-+	int (*match)(struct i2c_client *);
-+
- 	/* Standard driver model interfaces */
- 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
- 	int (*remove)(struct i2c_client *);
--- 
-2.13.0
+We go to a lot of effort with SPI buffers to ensure they are in their own cache
+lines.  Do we not need to do the same here?  The issue would be the
+classic case of embedding a buffer inside a larger structure which is on
+the stack.  Need the magic of __cacheline_aligned to force it into it's
+own line for devices with dma-incoherent caches.
+DMA-API-HOWTO.txt (not read that for a while at it is a rather good
+at describing this stuff these days!)
+
+So that one is easy enough to check by checking if it is cache line aligned,
+but what do you do to know there is nothing much after it?
+
+Not sure there is a way around this short of auditing i2c drivers to
+change any that do this.
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_check_msg_for_dma);
+> +
+> +/**
+> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
+> + * @msg: the message to be copied back to
+> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
+> + *		May be NULL.
+> + */
+> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
+> +{
+> +	if (!bounce_buf)
+> +		return;
+> +
+> +	if (msg->flags & I2C_M_RD)
+> +		memcpy(msg->buf, bounce_buf, msg->len);
+> +
+> +	kfree(bounce_buf);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
+> +
+>  MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+>  MODULE_DESCRIPTION("I2C-Bus main module");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 00ca5b86a753f8..ac02287b6c0d8f 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -766,6 +766,11 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
+>  	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+>  }
+>  
+> +int __must_check i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
+> +					u8 **ptr_for_bounce_buf);
+> +
+> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf);
+> +
+>  int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+>  /**
+>   * module_i2c_driver() - Helper macro for registering a modular I2C driver
 
