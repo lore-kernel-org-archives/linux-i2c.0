@@ -1,15 +1,15 @@
 From: "Robert P. J. Day" <rpjday@crashcourse.ca>
 Subject: Re: where to report i2c-related man page issues?
-Date: Mon, 24 Jul 2017 14:16:24 -0400 (EDT)
-Message-ID: <alpine.LFD.2.20.1707241416030.24438@localhost.localdomain>
+Date: Mon, 24 Jul 2017 15:05:57 -0400 (EDT)
+Message-ID: <alpine.LFD.2.20.1707241504510.25387@localhost.localdomain>
 References: <20170724081734.Horde.FhzpnpyGm_BJDSG1hHxDRxI@crashcourse.ca> <20170724174145.GA1543@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from cpanel2.indieserve.net ([199.212.143.6]:60814 "EHLO
+Received: from cpanel2.indieserve.net ([199.212.143.6]:56767 "EHLO
         cpanel2.indieserve.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754253AbdGXSQ2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Jul 2017 14:16:28 -0400
+        with ESMTP id S1752785AbdGXTGC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Jul 2017 15:06:02 -0400
 In-Reply-To: <20170724174145.GA1543@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -34,11 +34,8 @@ On Mon, 24 Jul 2017, Wolfram Sang wrote:
 >   Jean Delvare <jdelvare@suse.de>
 > For additional information about this list, see:
 >   http://vger.kernel.org/vger-lists.html#linux-i2c
->
-> So, you found the right list, but missed a CC. Still assuming you
-> are talking about i2c-tools...
 
-  yup, thanks. reports coming shortly ...
+  by the way, the current README file does not include that "Cc" line.
 
 rday
 
