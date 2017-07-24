@@ -1,103 +1,63 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Mon, 24 Jul 2017 10:19:28 +0200
-Message-ID: <20170724081928.GB18097@mail.corp.redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v8 3/9] i2c: core: call of_i2c_setup_smbus_alert in
+ i2c_register_adapter
+Date: Mon, 24 Jul 2017 16:27:21 +0800
+Message-ID: <4bb4c374-4934-ce19-7714-728661aa4416@electromag.com.au>
+References: <201707200255.SHskJrcM%fengguang.wu@intel.com>
+ <c6e4dce0-853f-a4d4-be64-ef4bb0f68162@electromag.com.au>
+ <20170721163310.1c003963@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170722185537.12696-2-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:50106 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751778AbdGXI1a (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Jul 2017 04:27:30 -0400
+In-Reply-To: <20170721163310.1c003963@endymion>
+Content-Language: en-AU
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: kbuild test robot <lkp@intel.com>, kbuild-all@01.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, benjamin.tissoires@redhat.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 
-On Jul 22 2017 or thereabouts, Hans de Goede wrote:
-> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
-> it uses its own protocol which is handled by the chipone_icn8318 driver.
+G'day Jean,
+On 21/07/2017 22:33, Jean Delvare wrote:
+> Hi Phil,
 > 
-> If the i2c_hid_driver's probe functon gets called it will fail with a
-> "hid_descr_cmd failed" error.
+> On Thu, 20 Jul 2017 12:44:52 +0800, Phil Reid wrote:
+>> Calling a function in i2c-smbus (module) from i2c-core (builtin) is then a problem.
+>>
+>> However there doesn't seem to be a way (that I can see) to have select statement force I2C_SMBUS=y if I2C=y
+>>
+>> Can I get a hint on what the correct course of action is.
 > 
-> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
-> device in D3 state and when the chipone_icn8318 driver then loads the
-> device is put back in D0 state, executing its PS0 ACPI method, which
-> resets the controller, causing the controller to loose its firmware
-> which was loaded by the BIOS. The chipone_icn8318 driver has a workaround
-> for this, but that requires it to be the only (or the first) driver to
-> probe the device.
+> Well, i2c-smbus is supposed to go on top of i2c-core. This means
+> i2c-smbus can make use of functions from i2c-core but not the other way
+> around.
 > 
-> This commit adds a match callback and returns -ENODEV for i2c_client-s
-> with a CHPN0001 ACPI device id, so that the probe function never gets
-> called, fixing the controller losing its firmware.
+> So far, the split worked fine because i2c_setup_smbus_alert() was
+> always called from individual device drivers (typically built as
+> modules.) It was not supposed to be called from core code, but this is
+> what you are trying to do now (indirectly.)
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Use the new i2c_driver match callback to only filter out the CHPN0001
->  ACPI device, rather then use acpi_dev_present in probe and not
->  registering the driver at all when the system has a CHPN0001 device
+> I can think of 3 ways to sort it out:
+> 1* (Part of) the code you added (and possibly dependencies thereof)
+>     should be in i2c-core instead of i2c-smbus.
+> 2* The call you added to i2c-core should in fact be somewhere else (for
+>     example a dedicated module, which would depend on both i2c-core and
+>     i2c-smbus).
+> 3* The whole idea of splitting the i2c-smbus code to a separate module
+>     no longer flies, and i2c-core should be built from i2c-core.c +
+>     i2c-smbus.c (and CONFIG_I2C_SMBUS becomes a boolean.)
+> 
+Thanks for the detailed response. That really clears things up for me.
 
-I like the v2 much more than the v1.
+Moving i2c_setup_smbus_alert & of_i2c_setup_smbus_alert to i2c-core-smbus, as per 1*,
+seems to fix the problem.
 
-Reviewed-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Cheers,
-Benjamin
 
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 046f692fd0a2..79bed9afc388 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -891,6 +891,26 @@ static void i2c_hid_acpi_fix_up_power(struct device *dev)
->  		acpi_device_fix_up_power(adev);
->  }
->  
-> +static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
-> +	/*
-> +	 * The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID
-> +	 * compatible, just probing it puts the device in an unusable state due
-> +	 * to it also have ACPI power management issues.
-> +	 */
-> +	{"CHPN0001", 0 },
-> +	{ },
-> +};
-> +
-> +static int i2c_hid_match(struct i2c_client *client)
-> +{
-> +	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
-> +
-> +	if (adev && acpi_match_device_ids(adev, i2c_hid_acpi_blacklist) == 0)
-> +		return -ENODEV;
-> +
-> +	return 0;
-> +}
-> +
->  static const struct acpi_device_id i2c_hid_acpi_match[] = {
->  	{"ACPI0C50", 0 },
->  	{"PNP0C50", 0 },
-> @@ -905,6 +925,7 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
->  }
->  
->  static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
-> +static int i2c_hid_match(struct i2c_client *client) { return 0; }
->  #endif
->  
->  #ifdef CONFIG_OF
-> @@ -1255,6 +1276,7 @@ static struct i2c_driver i2c_hid_driver = {
->  		.of_match_table = of_match_ptr(i2c_hid_of_match),
->  	},
->  
-> +	.match		= i2c_hid_match,
->  	.probe		= i2c_hid_probe,
->  	.remove		= i2c_hid_remove,
->  	.shutdown	= i2c_hid_shutdown,
-> -- 
-> 2.13.0
-> 
+-- 
+Regards
+Phil Reid
