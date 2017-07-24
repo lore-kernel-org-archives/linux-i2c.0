@@ -1,31 +1,27 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [Resend, PATCH v2] i2c: core: Allow empty id_table in ACPI case
- as well
-Date: Mon, 24 Jul 2017 13:45:59 +0300
-Message-ID: <20170724104559.GS629@lahna.fi.intel.com>
-References: <20170717141328.52286-1-andriy.shevchenko@linux.intel.com>
+From: rpjday@crashcourse.ca
+Subject: where to report i2c-related man page issues?
+Date: Mon, 24 Jul 2017 08:17:34 -0400
+Message-ID: <20170724081734.Horde.FhzpnpyGm_BJDSG1hHxDRxI@crashcourse.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cpanel2.indieserve.net ([199.212.143.6]:59286 "EHLO
+        cpanel2.indieserve.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751610AbdGXMlq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 24 Jul 2017 08:41:46 -0400
+Received: from [::1] (port=38692 helo=cpanel2.indieserve.net)
+        by cpanel2.indieserve.net with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.89)
+        (envelope-from <rpjday@crashcourse.ca>)
+        id 1dZcIo-0000xi-Fk
+        for linux-i2c@vger.kernel.org; Mon, 24 Jul 2017 08:17:34 -0400
 Content-Disposition: inline
-In-Reply-To: <20170717141328.52286-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-On Mon, Jul 17, 2017 at 05:13:28PM +0300, Andy Shevchenko wrote:
-> For now empty ID table is not allowed with ACPI and prevents driver to
-> be probed.
-> 
-> Add a check to allow empty ID table.
-> 
-> This introduces a helper i2c_acpi_match_device().
-> 
-> Note, we rename some static function in i2c-core-acpi.c to distinguish
-> with public API.
-> 
-> Fixes: da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed devices")
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+   where is the right place to point out current i2c man page issues,
+or out-of-date passages? thank you kindly.
+
+rday
