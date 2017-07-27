@@ -1,64 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: can't write more than one byte to AT24C64 EEPROM using "eeprog"
-Date: Thu, 27 Jul 2017 11:34:53 +0200
-Message-ID: <20170727093452.GA2786@katana>
-References: <20170725085131.Horde.ogXTYHLwBV6pmCIUgV7abh7@crashcourse.ca>
- <alpine.LFD.2.20.1707251344110.20856@localhost.localdomain>
- <alpine.LFD.2.20.1707261427010.32595@localhost.localdomain>
- <20170726205740.GB1510@katana>
- <alpine.LFD.2.20.1707270439580.7822@localhost.localdomain>
+Subject: Re: [GIT PULL] Immutable branch between MFD, ARM and I2C due for the
+ v4.14 merge window
+Date: Thu, 27 Jul 2017 14:21:15 +0200
+Message-ID: <20170727122115.kvwq6qk7pjp73lkn@ninjato>
+References: <20170615184928.12007-1-javier@dowhile0.org>
+ <20170718080441.g3kmastovt32y33y@dell>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:49448 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750836AbdG0Jez (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 27 Jul 2017 05:34:55 -0400
+        protocol="application/pgp-signature"; boundary="ufwtyazw4hbcs3it"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.20.1707270439580.7822@localhost.localdomain>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170718080441.g3kmastovt32y33y@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Cc: linux-i2c@vger.kernel.org
 
 
---k+w/mQv8wyuph6w0
+--ufwtyazw4hbcs3it
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jul 18, 2017 at 09:04:41AM +0100, Lee Jones wrote:
+> Enjoy!
+>=20
+> The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba208=
+77:
+>=20
+>   Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
+>=20
+> are available in the git repository at:
+>=20
+>   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-arm-i2=
+c-v4.14
+
+Pulled, thanks!
 
 
->   so, just for the record, you're saying i should have no expectation
-> that these tools work properly? that's kind of disappointing.
-
-Nope, I am not saying that. I am saying that if you ask questions
-about these tools, you might not find a lot of other users for
-discussion. And for the same reason you *might* find bugs undiscovered
-so far; I am not saying you *will* find bugs.
-
-Your work on or interest in these tools is much appreciated. I just
-wanted to describe the area you entered and the reasons why there are
-maybe not much responses.
-
-
---k+w/mQv8wyuph6w0
+--ufwtyazw4hbcs3it
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll5s7gACgkQFA3kzBSg
-Kba8QA/9HYW7YXNBBi3p79hX6VM3zFMWC5tSU63WgcVzd36YsN3x115rufDUCro8
-2ObBVH1Bvb3tuqayOe8KjSoRluWJj4R8VrBjPlvglThSBA9NG3vBzW4IlUFZZwvh
-7S+E6W7cGYKmpNCxLAxRWaJQyTqNCdD/XDiURWftekB2xwnM9LvAuN9M8+vbpTR0
-yfAXxhJr79XcgmqzXlDV4ofKFgAAeLBKbbOIbfRBVZyYIapGLaJq5almfVhWF0WV
-4NZbx4MwZv8Jh7NJo7a+k/T7kXAWCNmhFK1cEIeuKRRYxrLpx9yGP+VrKXi8M9AG
-YW5wJlrb28pPqQpXnnCr+b8yxS0Bj4ZS4q6HreXKLZXH+EdrX/miIUatd44SxRN6
-eB3DUl0kPmPOU0El+NMdbe0IaQAp14Ezb6jdHBaTJPf30pMUx7uF+llllVQv4ocY
-FBkujYDiS5AEOkHQnnn85MdKtYBB+Ufmw7nFzy3iGhSI4XjvwKuuUtKCl+4o+PnA
-xP3KqVg8zHRwyCMf8yEtg+rGCxRKMl6iK3ZMbwGIPzmyLm7MIIHOTesQHxIS2Fol
-8lQ/x1gMfnNezRTZeQ6hmXlN4/WMk+qvva9ipEKZ8a+s3KlCPXuPDkLrJwu0at1r
-2JIn6TBMmFki90xpEfl8Voy9sQcwlMUGNpUCr2/SJBmnkyFShFc=
-=HbRg
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll52rcACgkQFA3kzBSg
+KbaLUQ//dDrho4sppWiFcCDTWswRI4zmTOUCCB2gRoybkiS8jcrO+b0zlLVBB70N
+PSw3fyvweXwwYzLMzmKnlS/fKid3ROGWDiAo2GReMnZP9l88Msr0ylyrM5RmzDop
+GP6pU9oJl6yfyQ3gP6oEEREz/AaMIEEO7lAhW4BdqABrms65d4JsaJwxrwnUKjBP
+bUatFJ56B/B/cAz/YG/SA9N0Kdh1wuzyaoCOVl8J7brOdCuUmCxAr0+1uaCL7/Sx
+9axljcJ67TWa1J48JZptGZuc2iShK5BRpcTHPrwnefnaxE6kciJ+2XrRALDY7o6V
+lJC0Iz8wjDqEcGA5vClt77er0s8CEOnJVvuxTfk1eQtEJG9vFDgRlCM238jcrK5Q
+KoPFM8+Wm8rKtdIUVmpi39pa6oQJHBYD4n0v/Tz/7sQTh79BzQWSn3lZ9FWGGQtf
+huvTtaVjAELaNZwi1lIsKI5Hf4gSDIwnedvJ78iGspIoCEBW1ZJF71ZqZzUnOyjD
+LRb8+q/jJaNt9idvdkYGaB2ghbs1+5L3IFMJUuAnqWJ9TeqMZt6quc/Wk00J3yec
+jlqNv74hmyH2nruM3MpE+tdkEx/NCTKVvHg/LO5UyUss6NxmKzVqeisMnG+Iagv1
+wQgLG0K2/Uvh94B/9L96QQPsgQzjsCNbX6rwvzQ/c+zXKIV+8N0=
+=S1kz
 -----END PGP SIGNATURE-----
 
---k+w/mQv8wyuph6w0--
+--ufwtyazw4hbcs3it--
