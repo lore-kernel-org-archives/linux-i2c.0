@@ -1,43 +1,44 @@
 From: divagar.mohandass@intel.com
-Subject: [PATCH 2/3] eeprom: at24: add support to fetch device property "size"
-Date: Thu, 27 Jul 2017 22:13:08 +0530
-Message-ID: <1501173789-25959-3-git-send-email-divagar.mohandass@intel.com>
+Subject: [PATCH 1/3] dt-bindings: add "size" property.
+Date: Thu, 27 Jul 2017 22:13:07 +0530
+Message-ID: <1501173789-25959-2-git-send-email-divagar.mohandass@intel.com>
 References: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:6789 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751760AbdG0QnN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 27 Jul 2017 12:43:13 -0400
 In-Reply-To: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: rajmohan.mani@intel.com, Divagar Mohandass <divagar.mohandass@intel.com>
-List-Id: linux-i2c@vger.kernel.org
 
 From: Divagar Mohandass <divagar.mohandass@intel.com>
 
-This adds support to fetch device property "size" from _DSD.
+This adds "size" as optional property for i2c eeproms.
 
-There is a CAT24C16/GT24C16S NVMEM chip part of the OV13858
-camera module and it is connected to i2c bus on Intel KBL board.
-This device will use the existing ACPI ID INT3499 and platform
-fw will expose "read-only", "pagesize" and "size" props via _DSD.
+"size" should be mentioned in byte and it should refer
+to the eeprom size. This will be read by the driver and
+used to calculating the number of bytes in read/write calls.
 
 Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
 ---
- drivers/misc/eeprom/at24.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 764ff5df..2199c42 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -570,6 +570,10 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
- 	if (device_property_present(dev, "read-only"))
- 		chip->flags |= AT24_FLAG_READONLY;
+diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+index 5696eb5..1436569 100644
+--- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
++++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+@@ -32,6 +32,8 @@ Optional properties:
  
-+	err = device_property_read_u32(dev, "size", &val);
-+	if (!err)
-+		chip->byte_len = val;
+   - read-only: this parameterless property disables writes to the eeprom
+ 
++  - size: total eeprom size in bytes
 +
- 	err = device_property_read_u32(dev, "pagesize", &val);
- 	if (!err) {
- 		chip->page_size = val;
+ Example:
+ 
+ eeprom@52 {
 -- 
 1.9.1
