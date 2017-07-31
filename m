@@ -1,82 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core: Prevent race condition when removing i2c
- devices
-Date: Mon, 31 Jul 2017 15:38:14 +0200
-Message-ID: <20170731133814.b5lyujdl5iwhcalx@ninjato>
-References: <20170608024344.9311-1-david.thomson@alliedtelesis.co.nz>
- <20170619143656.zigxk77vegedscjx@ninjato>
- <24ee1e30-1737-e3ef-a23e-01d41a29d45f@axentia.se>
- <2e4c5807-3d3c-1ce2-da35-3e37b2e3b08b@axentia.se>
+Subject: Re: [Resend, PATCH v2] i2c: core: Allow empty id_table in ACPI case
+ as well
+Date: Mon, 31 Jul 2017 15:54:17 +0200
+Message-ID: <20170731135417.5gwvx7g4zctgl7hl@ninjato>
+References: <20170717141328.52286-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="klaquncw2eqqdmau"
+        protocol="application/pgp-signature"; boundary="hwxgwm5btxfu3jab"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49300 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:49346 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751054AbdGaNiP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 31 Jul 2017 09:38:15 -0400
+        id S1751865AbdGaNyT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jul 2017 09:54:19 -0400
 Content-Disposition: inline
-In-Reply-To: <2e4c5807-3d3c-1ce2-da35-3e37b2e3b08b@axentia.se>
+In-Reply-To: <20170717141328.52286-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: David Thomson <david.thomson@alliedtelesis.co.nz>, linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org
 
 
---klaquncw2eqqdmau
+--hwxgwm5btxfu3jab
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 19, 2017 at 09:30:06PM +0200, Peter Rosin wrote:
-> On 2017-06-19 18:34, Peter Rosin wrote:
-> > It would certainly be nice to know why .owner is clobbered, because I
-> > don't see it. But then again, I don't know what sources I should be
-> > reading...
->
-> BTW, one thing I noticed when reading the current code is that I see this
-> at the end of i2c_del_adapter:
->
-> 	/* Clear the device structure in case this adapter is ever going to be
-> 	   added again */
-> 	memset(&adap->dev, 0, sizeof(adap->dev));
-> }
-> EXPORT_SYMBOL(i2c_del_adapter);
+On Mon, Jul 17, 2017 at 05:13:28PM +0300, Andy Shevchenko wrote:
+> For now empty ID table is not allowed with ACPI and prevents driver to
+> be probed.
+>=20
+> Add a check to allow empty ID table.
+>=20
+> This introduces a helper i2c_acpi_match_device().
+>=20
+> Note, we rename some static function in i2c-core-acpi.c to distinguish
+> with public API.
+>=20
+> Fixes: da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed dev=
+ices")
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-It was added with commit bd4bc3dbded9cd ("i2c: Clear i2c_adapter.dev on
-adapter removal") with this commit message:
-
-    i2c: Clear i2c_adapter.dev on adapter removal
-
-    Clear i2c_adapter.dev on adapter removal. This makes it possible to
-    re-add the adapter at a later point, which some drivers
-    (i2c-amd756-s4882, i2c-nforce2-s4985) actually do.
-
-    This fixes a bug reported by John Stultz here:
-      http://lkml.org/lkml/2008/7/15/720
-    and by Ingo Molar there:
-      http://lkml.org/lkml/2008/7/16/78
-
-So, despite the docs, it used to be an issue actually...
+Applied to for-current, thanks!
 
 
---klaquncw2eqqdmau
+--hwxgwm5btxfu3jab
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/MsYACgkQFA3kzBSg
-KbaORA/9GRW1nkvbk3TQ5+sv3fovuXUUQlZtvJ8Bqtwx7bFzwNKytzoVjrFhFlIX
-0gHWCwlwYt7qCM5JmTxSuXOIZRiVbIsByObwrJGoYRKeLYNSD4E+gVTfqT/DZqWZ
-MFCV4KhR+GeTiINWNZsl+GJVUJNAY9OeFUKa3ftjBz7eMoU0OG4JEt0mdUp2Y0WD
-OI32Gb8dbEcDPCCnG36j1v2ob+q0NL7hziySpOoIcVn1cmn8YW0nmQVsfXpbH5b6
-7E/S9pbRSk3rYJ9SdaIuoSFGE2NrOh3Gao6uAUUVnzg0GaPhT7dGeN2QtldwXTYR
-jBEBO0fn9gstDP0dulpjjwimTvGRyFoh0a50KVcKvIKEs299/UBIFo2xy9C3tlJp
-XYXz4ZaI2BMCiunndSkIiyNpql6/mhRZstIuEh27M6Kqh0+pTym/9xn5wREHXsva
-QICZjg52pcWavKvCe6RLb2XluyfFgSm/C+BmKKajX1JDA0v90wpRi8xtsQhXp0t7
-KG7FL2988/CnCi3Nmptwa2uiG3wt3VtfGblM4f6Zn4NpHMoD/GnB+pNBaTu2MA4n
-pdawQjnaVgjSSkBsmYBfZyi5Kan5cFPxTo6brHVCjMVnZKOVC3GhtU3qtdXRD1R3
-7idIwBfMCT+z2eLPw7m1T3YPJFxa/fIEwEyavFOZwHxkwL0s3+I=
-=7E55
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/NokACgkQFA3kzBSg
+Kba/ChAArzFVlSNJwgMo+W3qWGvcT3bu/GWDnOhYcrQ7IhWM86ZvofCfDg9JyvES
+5h1YcOhonYAM770Wr+YyYZd23f1J/TxlSLJfCprQaFI9uOjfibEMOaP5V5z9iSAl
+lFvLafGHvtdBwmIM+KkYh2M057CIhFBJok/B6qz4c4AJ5/8AIvfb/OyH2ldtMomI
+xFTHlmepRRLdbP7LbCSeJ7W8rykcSkuS7Nwb7V8Y1NkQe7PyICFZW2edOVYqMc4L
+Jh1fL2y96RTnqOUhmkrDLILNcQijgJ6K7IuE8fxmxAJyikIVGIkz+Z4RKp/FE0g8
+ebNZ5BAfGWyYET17/Bub1qQNW4cO9s9sz/mxSdBQpSZiM523KX8llkeUurt/B7l1
+wVuv/ubwhUKeM6naRJL7GuD+4b/EZW+nYncq0nA3tdYgZRsLvYE2hYJTxcWrK/+a
+7GySqu/WtFNVJiSnu5u8XWCkDzb9juxpkcAZeEF4xLjXKRHsvghjutkypQ1lQoSp
+0k2v92EtXteAzIpA9fgPxUKR7ra2T9jn+pqUY7ZyNXYgDshz1XAxAW2ame/GoCCf
+Q99dbli8tiZ+Y6JJd4PNNwomRdVA2NFuUDO8J+hCN02KdAKVHjmPN/ny94XNcorJ
+lCyOZ5El3jYXaBQoFjvNOGjvBstB8pr7HLiJLYhaBI9wGh0lG04=
+=XD4d
 -----END PGP SIGNATURE-----
 
---klaquncw2eqqdmau--
+--hwxgwm5btxfu3jab--
