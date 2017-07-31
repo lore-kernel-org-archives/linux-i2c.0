@@ -1,131 +1,126 @@
-From: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH 06/14] ARM: dts: rockchip: add i2c dt node for rv1108
-Date: Mon, 31 Jul 2017 18:13:39 +0800
-Message-ID: <1501496019-21659-1-git-send-email-andy.yan@rock-chips.com>
-References: <1501495449-21290-1-git-send-email-andy.yan@rock-chips.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1501495449-21290-1-git-send-email-andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [RFC v2 2/6] serdev: add method to set parity
+Date: Mon, 31 Jul 2017 13:55:12 +0300
+Message-ID: <3171716.rxI4aCGIDo@avalon>
+References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1500305076-15570-3-git-send-email-ulrich.hecht+renesas@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1500305076-15570-3-git-send-email-ulrich.hecht+renesas@gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: linux-serial@vger.kernel.org, linux-renesas-soc@vger.kernel.org, magnus.damm@gmail.com, wsa@the-dreams.de, robh@kernel.org, peda@axentia.se, geert@linux-m68k.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-There are four i2c controllers on rv1108, add
-device tree node for them.
+Hi Ulrich,
 
-Signed-off-by: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
----
+Thank you for the patch.
 
- arch/arm/boot/dts/rv1108.dtsi | 72 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+On Monday 17 Jul 2017 17:24:32 Ulrich Hecht wrote:
+> Adds serdev_device_set_parity() and an implementation for ttyport.
+> 
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+> ---
+>  drivers/tty/serdev/core.c           | 12 ++++++++++++
+>  drivers/tty/serdev/serdev-ttyport.c | 17 +++++++++++++++++
+>  include/linux/serdev.h              |  4 ++++
+>  3 files changed, 33 insertions(+)
+> 
+> diff --git a/drivers/tty/serdev/core.c b/drivers/tty/serdev/core.c
+> index f71b473..1fbaa4c 100644
+> --- a/drivers/tty/serdev/core.c
+> +++ b/drivers/tty/serdev/core.c
+> @@ -242,6 +242,18 @@ int serdev_device_set_tiocm(struct serdev_device
+> *serdev, int set, int clear) }
+>  EXPORT_SYMBOL_GPL(serdev_device_set_tiocm);
+> 
+> +int serdev_device_set_parity(struct serdev_device *serdev,
+> +			     bool enable, bool odd)
 
-diff --git a/arch/arm/boot/dts/rv1108.dtsi b/arch/arm/boot/dts/rv1108.dtsi
-index 0da144c..a4d34d9 100644
---- a/arch/arm/boot/dts/rv1108.dtsi
-+++ b/arch/arm/boot/dts/rv1108.dtsi
-@@ -52,6 +52,10 @@
- 	interrupt-parent = <&gic>;
- 
- 	aliases {
-+		i2c0 = &i2c0;
-+		i2c1 = &i2c1;
-+		i2c2 = &i2c2;
-+		i2c3 = &i2c3;
- 		serial0 = &uart0;
- 		serial1 = &uart1;
- 		serial2 = &uart2;
-@@ -154,11 +158,67 @@
- 		status = "disabled";
- 	};
- 
-+	i2c1: i2c@10240000 {
-+		compatible = "rockchip,rv1108-i2c";
-+		reg = <0x10240000 0x1000>;
-+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-+		rockchip,grf = <&grf>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clocks = <&cru SCLK_I2C1>, <&cru PCLK_I2C1>;
-+		clock-names = "i2c", "pclk";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c1_xfer>;
-+		status = "disabled";
-+	};
-+
-+	i2c2: i2c@10250000 {
-+		compatible = "rockchip,rv1108-i2c";
-+		reg = <0x10250000 0x1000>;
-+		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-+		rockchip,grf = <&grf>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clocks = <&cru SCLK_I2C2>, <&cru PCLK_I2C2>;
-+		clock-names = "i2c", "pclk";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c2m1_xfer>;
-+		status = "disabled";
-+	};
-+
-+	i2c3: i2c@10260000 {
-+		compatible = "rockchip,rv1108-i2c";
-+		reg = <0x10260000 0x1000>;
-+		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
-+		rockchip,grf = <&grf>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clocks = <&cru SCLK_I2C3>, <&cru PCLK_I2C3>;
-+		clock-names = "i2c", "pclk";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c3_xfer>;
-+		status = "disabled";
-+	};
-+
- 	grf: syscon@10300000 {
- 		compatible = "rockchip,rv1108-grf", "syscon";
- 		reg = <0x10300000 0x1000>;
- 	};
- 
-+	i2c0: i2c@20000000 {
-+		compatible = "rockchip,rv1108-i2c";
-+		reg = <0x20000000 0x1000>;
-+		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-+		rockchip,grf = <&grf>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clocks = <&cru SCLK_I2C0_PMU>, <&cru PCLK_I2C0_PMU>;
-+		clock-names = "i2c", "pclk";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2c0_xfer>;
-+		status = "disabled";
-+	};
-+
- 	pmugrf: syscon@20060000 {
- 		compatible = "rockchip,rv1108-pmugrf", "syscon";
- 		reg = <0x20060000 0x1000>;
-@@ -330,6 +390,18 @@
- 			input-enable;
- 		};
- 
-+		pcfg_pull_none_smt: pcfg-pull-none-smt {
-+			bias-disable;
-+			input-schmitt-enable;
-+		};
-+
-+		i2c0 {
-+			i2c0_xfer: i2c0-xfer {
-+				rockchip,pins = <0 RK_PB1 RK_FUNC_1 &pcfg_pull_none_smt>,
-+						<0 RK_PB2 RK_FUNC_1 &pcfg_pull_none_smt>;
-+			};
-+		};
-+
- 		i2c1 {
- 			i2c1_xfer: i2c1-xfer {
- 				rockchip,pins = <2 RK_PD3 RK_FUNC_1 &pcfg_pull_up>,
+Code calling this function will be difficult to read:
+
+	serdev_device_set_partity(dev, true, false);
+
+Without looking up the function definition, the last two arguments are not 
+very explicit. How about replacing them with a disabled, odd, even enum ?
+
+> +{
+> +	struct serdev_controller *ctrl = serdev->ctrl;
+> +
+> +	if (!ctrl || !ctrl->ops->set_parity)
+> +		return -ENOTSUPP;
+> +
+> +	return ctrl->ops->set_parity(ctrl, enable, odd);
+> +}
+> +EXPORT_SYMBOL_GPL(serdev_device_set_parity);
+> +
+>  static int serdev_drv_probe(struct device *dev)
+>  {
+>  	const struct serdev_device_driver *sdrv =
+> to_serdev_device_driver(dev->driver); diff --git
+> a/drivers/tty/serdev/serdev-ttyport.c b/drivers/tty/serdev/serdev-ttyport.c
+> index 302018d..9114956 100644
+> --- a/drivers/tty/serdev/serdev-ttyport.c
+> +++ b/drivers/tty/serdev/serdev-ttyport.c
+> @@ -195,6 +195,22 @@ static int ttyport_set_tiocm(struct serdev_controller
+> *ctrl, unsigned int set, u return tty->driver->ops->tiocmset(tty, set,
+> clear);
+>  }
+> 
+> +static int ttyport_set_parity(struct serdev_controller *ctrl,
+> +			      bool enable, bool odd)
+> +{
+> +	struct serport *serport = serdev_controller_get_drvdata(ctrl);
+> +	struct tty_struct *tty = serport->tty;
+> +	struct ktermios ktermios = tty->termios;
+> +
+> +	ktermios.c_cflag &= ~(PARENB | PARODD);
+> +	if (enable)
+> +		ktermios.c_cflag |= PARENB;
+> +	if (odd)
+> +		ktermios.c_cflag |= PARODD;
+> +
+> +	return tty_set_termios(tty, &ktermios);
+> +}
+> +
+>  static const struct serdev_controller_ops ctrl_ops = {
+>  	.write_buf = ttyport_write_buf,
+>  	.write_flush = ttyport_write_flush,
+> @@ -206,6 +222,7 @@ static const struct serdev_controller_ops ctrl_ops = {
+>  	.wait_until_sent = ttyport_wait_until_sent,
+>  	.get_tiocm = ttyport_get_tiocm,
+>  	.set_tiocm = ttyport_set_tiocm,
+> +	.set_parity = ttyport_set_parity,
+>  };
+> 
+>  struct device *serdev_tty_port_register(struct tty_port *port,
+> diff --git a/include/linux/serdev.h b/include/linux/serdev.h
+> index e69402d..8b67fcd 100644
+> --- a/include/linux/serdev.h
+> +++ b/include/linux/serdev.h
+> @@ -90,6 +90,7 @@ struct serdev_controller_ops {
+>  	void (*wait_until_sent)(struct serdev_controller *, long);
+>  	int (*get_tiocm)(struct serdev_controller *);
+>  	int (*set_tiocm)(struct serdev_controller *, unsigned int, unsigned 
+int);
+> +	int (*set_parity)(struct serdev_controller *, bool, bool);
+>  };
+> 
+>  /**
+> @@ -298,6 +299,9 @@ static inline int serdev_device_set_rts(struct
+> serdev_device *serdev, bool enabl return serdev_device_set_tiocm(serdev, 0,
+> TIOCM_RTS);
+>  }
+> 
+> +int serdev_device_set_parity(struct serdev_device *serdev,
+> +			     bool enable, bool odd);
+> +
+>  /*
+>   * serdev hooks into TTY core
+>   */
+
 -- 
-2.7.4
+Regards,
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Laurent Pinchart
