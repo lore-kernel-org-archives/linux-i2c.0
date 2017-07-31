@@ -1,40 +1,121 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: rephrase explanation of I2C_CLASS_DEPRECATED
-Date: Sat, 29 Jul 2017 14:11:43 +0200
-Message-ID: <20170729121143.3980-1-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:42986 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753166AbdG2MLq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 29 Jul 2017 08:11:46 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 1/2] i2c: uniphier: add PM suspend / resume support
+Date: Mon, 31 Jul 2017 13:51:07 +0900
+Message-ID: <1501476668-18432-1-git-send-email-yamada.masahiro@socionext.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, Jassi Brar <jaswinder.singh@linaro.org>, Masami Hiramatsu <mhiramat@kernel.org>, linux-arm-kernel@lists.infradead.org
+List-Id: linux-i2c@vger.kernel.org
 
-Hopefully making clear that it is not needed for new drivers.
+When resuming, set up registers that have been lost in the sleep state.
+Also, add clock handling in the resume / suspend hooks.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
-Is this more undestandable?
+ drivers/i2c/busses/i2c-uniphier.c | 40 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 35 insertions(+), 5 deletions(-)
 
- include/linux/i2c.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 00ca5b86a753f8..d501d3956f13f0 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -689,7 +689,8 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
- #define I2C_CLASS_HWMON		(1<<0)	/* lm_sensors, ... */
- #define I2C_CLASS_DDC		(1<<3)	/* DDC bus on graphics adapters */
- #define I2C_CLASS_SPD		(1<<7)	/* Memory modules */
--#define I2C_CLASS_DEPRECATED	(1<<8)	/* Warn users that adapter will stop using classes */
-+/* Warn users that the adapter doesn't support classes anymore */
-+#define I2C_CLASS_DEPRECATED	(1<<8)
+diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
+index 777c0fe93653..f41a09d9927a 100644
+--- a/drivers/i2c/busses/i2c-uniphier.c
++++ b/drivers/i2c/busses/i2c-uniphier.c
+@@ -53,6 +53,7 @@ struct uniphier_i2c_priv {
+ 	void __iomem *membase;
+ 	struct clk *clk;
+ 	unsigned int busy_cnt;
++	unsigned int clk_cycle;
+ };
  
- /* Internal numbers to terminate lists */
- #define I2C_CLIENT_END		0xfffeU
+ static irqreturn_t uniphier_i2c_interrupt(int irq, void *dev_id)
+@@ -316,13 +317,13 @@ static struct i2c_bus_recovery_info uniphier_i2c_bus_recovery_info = {
+ 	.unprepare_recovery = uniphier_i2c_unprepare_recovery,
+ };
+ 
+-static void uniphier_i2c_hw_init(struct uniphier_i2c_priv *priv,
+-				 u32 bus_speed, unsigned long clk_rate)
++static void uniphier_i2c_hw_init(struct uniphier_i2c_priv *priv)
+ {
++	unsigned int cyc = priv->clk_cycle;
++
+ 	uniphier_i2c_reset(priv, true);
+ 
+-	writel((clk_rate / bus_speed / 2 << 16) | (clk_rate / bus_speed),
+-	       priv->membase + UNIPHIER_I2C_CLK);
++	writel((cyc / 2 << 16) | cyc, priv->membase + UNIPHIER_I2C_CLK);
+ 
+ 	uniphier_i2c_reset(priv, false);
+ }
+@@ -376,6 +377,7 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
+ 		goto disable_clk;
+ 	}
+ 
++	priv->clk_cycle = clk_rate / bus_speed;
+ 	init_completion(&priv->comp);
+ 	priv->adap.owner = THIS_MODULE;
+ 	priv->adap.algo = &uniphier_i2c_algo;
+@@ -386,7 +388,7 @@ static int uniphier_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&priv->adap, priv);
+ 	platform_set_drvdata(pdev, priv);
+ 
+-	uniphier_i2c_hw_init(priv, bus_speed, clk_rate);
++	uniphier_i2c_hw_init(priv);
+ 
+ 	ret = devm_request_irq(dev, irq, uniphier_i2c_interrupt, 0, pdev->name,
+ 			       priv);
+@@ -413,6 +415,33 @@ static int uniphier_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static int uniphier_i2c_suspend(struct device *dev)
++{
++	struct uniphier_i2c_priv *priv = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(priv->clk);
++
++	return 0;
++}
++
++static int uniphier_i2c_resume(struct device *dev)
++{
++	struct uniphier_i2c_priv *priv = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(priv->clk);
++	if (ret)
++		return ret;
++
++	uniphier_i2c_hw_init(priv);
++
++	return 0;
++}
++
++static const struct dev_pm_ops uniphier_i2c_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(uniphier_i2c_suspend, uniphier_i2c_resume)
++};
++
+ static const struct of_device_id uniphier_i2c_match[] = {
+ 	{ .compatible = "socionext,uniphier-i2c" },
+ 	{ /* sentinel */ }
+@@ -425,6 +454,7 @@ static struct platform_driver uniphier_i2c_drv = {
+ 	.driver = {
+ 		.name  = "uniphier-i2c",
+ 		.of_match_table = uniphier_i2c_match,
++		.pm = &uniphier_i2c_pm_ops,
+ 	},
+ };
+ module_platform_driver(uniphier_i2c_drv);
 -- 
-2.11.0
+2.7.4
