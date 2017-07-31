@@ -1,64 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 0/5] Add I3C subsystem
-Date: Mon, 31 Jul 2017 22:47:01 +0200
-Message-ID: <20170731204701.GD1542@katana>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
+Date: Mon, 31 Jul 2017 22:46:58 +0200
+Message-ID: <20170731224658.3991e2fd@bbrezillon>
 References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
- <20170731191745.GB1542@katana>
- <20170731224019.737bc624@bbrezillon>
+        <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
+        <20170731191721.GA1542@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170731224019.737bc624@bbrezillon>
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170731191721.GA1542@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+Le Mon, 31 Jul 2017 21:17:21 +0200,
+Wolfram Sang <wsa@the-dreams.de> a écrit :
 
---eqp4TxRxnD4KrmFZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > +This document is just a brief introduction to the I3C protocol and the concepts
+> > +it brings on the table. If you need more information, please refer to the MIPI
+> > +I3C specification.  
+> 
+> I wish I could.
+> 
+> > +
+> > +Introduction
+> > +============
+> > +
+> > +The I3C (I-Cube-C) is a MIPI standardized protocol designed to overcome I2C  
+> 
+> "Eye-three-See", according to:
+> http://eecatalog.com/sensors/2017/07/05/after-35-years-of-i2c-i3c-improves-capability-and-performance/
 
+I remember hearing eye-cube-see during the discussion we had with
+Cadence engineers but I might wrong. I'll double check (or maybe I'll
+just drop any mention of the pronunciation).
 
-> > I agree this is the least invasive and also the most compatible
-> > approach. The other solution would probably be to have some kind of
-> > emulation layer?
->=20
-> Could you detail a bit more what you mean by "emulation layer"?
+> 
+> > +Backward compatibility with I2C devices
+> > +=======================================
+> > +
+> > +The I3C protocol has been designed to be backward compatible with I2C devices.
+> > +This backward compatibility allows one to connect a mix of I2C and I3C devices
+> > +on the same bus, though, in order to be really efficient, I2C devices should
+> > +be equipped with 50 ns spike filters.  
+> 
+> I just found a slide which says I3C does not support clock stretching.
+> That should be mentioned here, too.
+> 
 
-Not really. That was more a extremly high level approach of what
-theoretically could be possible. When I try to think about details, it
-gets pretty invasive.
-
-> > Since the spec is not public, details about the protocol will be
-> > especially useful, I'd say.
->=20
-> Okay, I'll see what I can do.
-
-Thanks.
-
-
---eqp4TxRxnD4KrmFZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/l0EACgkQFA3kzBSg
-KbZaUg/+Pdq9jD3nwEz6XxA3GUALJZyhNoH2Uri/Lb82XDQy5DaJuvVvyFyy94GY
-3N/4g9orfiUH/1Py+vq87BNAQ/oU5mgw1VgwX8KZ9DxmfXyJfNl07+IVEqhGPJUi
-pZcCFuCcmBqTQVCe9kC0A2Jwp//Q3CXg9JAhq6KW61LJfqjXp0c3HFpmFgqjSjFW
-q9t8rvO+J9OObrhHecqiTjX4gAawGyWA7QETB7ish1eiTC/rZokeM+sGO2o0boRr
-igOshYb0i486gObSQ0fDpTl8VY+qIAsV68nQVdPZjibiNWYSmEKk87rV6CW3Ionl
-yVhH+NyVSCi69HDQ1D1CApFIdmMnGeqn1fErGjkhrcOByNBipEczNFmFEAHccw7l
-mQ5v6F/nxFwJDDbWzZKO7d9GNQM6qSm09ly6C4dx0pz3+cyGn+1h/cMen0Nb18Yb
-vs09UemXWXg7wVw9I2nn0HGOT6muFB3YAYkUZZ6E2bA2FwDRm0OYENUJ8k5jelwW
-RjN64Zn8EKlxBFuEpfZlpogfAos+aDEw/AhwESpzd2DpbZzdXPBeK5a+J8rH0zMb
-HBNaKL7bNXgtEVzyLRVWcgcgHQrUY/GrMNiVLi8ykdpdetFe83ojV+1S+rqu9xL7
-tlADDykq7vKbFKVguDFTqP6mxgKFV6K8X6wttE82PbLrAoA4Gyw=
-=W/zc
------END PGP SIGNATURE-----
-
---eqp4TxRxnD4KrmFZ--
+You're right, clock stretching is not allowed, and if devices without a
+50ns spike filter are connected to the bus, it lowers the maximum
+speed for all devices, which renders I3C kind of useless.
