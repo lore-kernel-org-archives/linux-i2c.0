@@ -1,55 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: allow i2c-versatile for ARM MPS platforms
-Date: Mon, 31 Jul 2017 17:05:51 +0200
-Message-ID: <20170731150551.lv465twbzj2boqcq@ninjato>
-References: <E1daJAT-0003kF-TG@rmk-PC.armlinux.org.uk>
+Subject: Re: [PATCH] i2c: Convert to using %pOF instead of full_name
+Date: Mon, 31 Jul 2017 17:19:57 +0200
+Message-ID: <20170731151957.jjq43coqlsql3v2x@ninjato>
+References: <20170718214339.7774-26-robh@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="weprfrwb5d2z32ki"
+        protocol="application/pgp-signature"; boundary="djgytsdz3wtc2dzp"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49578 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:49652 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752497AbdGaPFx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 31 Jul 2017 11:05:53 -0400
+        id S1751951AbdGaPT7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jul 2017 11:19:59 -0400
 Content-Disposition: inline
-In-Reply-To: <E1daJAT-0003kF-TG@rmk-PC.armlinux.org.uk>
+In-Reply-To: <20170718214339.7774-26-robh@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Haavard Skinnemoen <hskinnemoen@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 
 
---weprfrwb5d2z32ki
+--djgytsdz3wtc2dzp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 26, 2017 at 11:03:49AM +0100, Russell King wrote:
-> Allow i2c-versatile to be enabled for ARM MPS platforms.
+On Tue, Jul 18, 2017 at 04:43:06PM -0500, Rob Herring wrote:
+> Now that we have a custom printf format specifier, convert users of
+> full_name to use %pOF instead. This is preparation to remove storing
+> of the full path string for each node.
 >=20
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> Cc: Haavard Skinnemoen <hskinnemoen@gmail.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Cc: Chen-Yu Tsai <wens@csie.org>
+> Cc: Peter Rosin <peda@axentia.se>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-arm-kernel@lists.infradead.org
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---weprfrwb5d2z32ki
+--djgytsdz3wtc2dzp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/R08ACgkQFA3kzBSg
-KbZEZw/+OFdwkAvfL5UuvLMXn6lN1SEMLPxy0xHgXEWx1D/0rQb4SBcetC2o3uge
-fhwoJaT1bOLAp0nv2819DCiD+MdMZjNTvkWz9WSGcgOArvSTmIrknYfmP6w+rM61
-U7HGmzWGKjUU/VdzqLgE6oFJj8JPVtKz9kmZ16LVise1jUpm6UI7DwiV7SXl5gjL
-KA/k1TuKTuVZHqUoRpl33ml4tH3K9ZszM447iLw/AwIbsQxn5gP/WuZS8qUKSmmS
-0rGwB523guNSMklues58GrISrFJPVtJzdIjTsJKCtv6+ML/JIX79Gtw13iNR2HuL
-BHLg5hNcsbZbPGxObyylBXrC5SVJ4wsDmkuNTpb8RzPBF8OisBl+sY/a2XYvidF4
-9q4jr72omwQKnKJgo2pCeINqBrioV6chZohfEFOb+tBcPxw4IBijfX4P8oXbvfmv
-2mw3ICsle96TyUDBl3yWu4FaVR0p0ZvEVLTDpUXcWWW6gYTf7S33SNVLC2zVYc3a
-Gq6rIphKbRVILm8HRvsQShgGv1D+lKEiyl/gTG+cK4HJ14CciJhf1Lyxh8qAzPnV
-1ejVkB5dQWiOCpL+fS5Vh/V2Pq8ZZ3Rsdj+VrGZKk/dRYdGMkW0aOOE9Go2LuY4m
-M1Q3W/SJjQYWsAmFIq4Qb5YXfgTuIjef9tXAGyjs6COWpvTEQbU=
-=yNXc
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/Sp0ACgkQFA3kzBSg
+KbYJJQ/+K+iyWbEUv/vHUQ1Yvs8XlbdXptbUdySw1CnyAWEFbl3BqWFUwELLX4mL
+W07E53al1sfRi1XfhSgdbeQiEOueoDKg+Gmc2qSvpqaCwplh6Z6HNcH0iYr0aVqJ
+OFKXXfjU0X2uF37LnXJ50nUJdlPaofNSW3ldLo8SB7NO+ptxDMdiHwuor/YU0HH6
+voNvszqQP/4XE2degPMpzxNdU3YLmAkSiHjKCoJRv4nnAoKWBgX2HPvTJLCimYnQ
+ipzpalDUEWqMHyySXnlbVN6YamzC54RrUy87iA84D0ynPm3Opo0um03k8XMEk0Wx
+yA19e0s6npr50yuFLMO4icHcGd+Pt/54DZEfQnkwnxYSTp4WHZ7c++WKx5bRS9Jd
++YZ8g/wuG3tKUUYujPi56NijN2g9TtUeS2DX1BuDM/isJNuH1L0/CK1vTz/KKmoM
+R65u9UKRmhXXewKpG5yEeL+zhyt7xRvNWqEnOdsggrPC7+CGnsPN5y0hoGglcSbW
+4R0Vactq0icSBPmwnHp4HotDRQm4cNyxPqC+rUTzDsuFjUchk4Abdv6AH0oL3Ln5
+WmGdhWPDqxoyftL6zwuoEkOXnch4lmJPMJHk1dInK7OtB9E/GjuMVEeqHOCCFxm2
+6iRCVjiiTpjXfQjqcI7ualreNc/W4sOI7XVdH9ibzUPuWxKzgA4=
+=bf8t
 -----END PGP SIGNATURE-----
 
---weprfrwb5d2z32ki--
+--djgytsdz3wtc2dzp--
