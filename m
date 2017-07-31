@@ -1,53 +1,69 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/2] i2c: designware: Some broken DSTDs use 1MiHz
- instead of 1MHz
-Date: Mon, 31 Jul 2017 15:57:11 +0200
-Message-ID: <20170731135711.c77d2zrgyuzlb2af@ninjato>
-References: <20170713134502.10816-1-hdegoede@redhat.com>
- <20170713134502.10816-2-hdegoede@redhat.com>
- <1500213858.29303.20.camel@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: core: Prevent race condition when removing i2c
+ devices
+Date: Mon, 31 Jul 2017 16:02:01 +0200
+Message-ID: <111b974f-8db7-8dd2-18fb-582af47a341b@axentia.se>
+References: <20170608024344.9311-1-david.thomson@alliedtelesis.co.nz>
+ <20170619143656.zigxk77vegedscjx@ninjato>
+ <24ee1e30-1737-e3ef-a23e-01d41a29d45f@axentia.se>
+ <2e4c5807-3d3c-1ce2-da35-3e37b2e3b08b@axentia.se>
+ <20170731133814.b5lyujdl5iwhcalx@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dlt2mdaddwryzfmc"
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1500213858.29303.20.camel@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr40117.outbound.protection.outlook.com ([40.107.4.117]:6336
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751647AbdGaOCI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jul 2017 10:02:08 -0400
+In-Reply-To: <20170731133814.b5lyujdl5iwhcalx@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: David Thomson <david.thomson@alliedtelesis.co.nz>, linux-i2c@vger.kernel.org
 
+On 2017-07-31 15:38, Wolfram Sang wrote:
+> On Mon, Jun 19, 2017 at 09:30:06PM +0200, Peter Rosin wrote:
+>> On 2017-06-19 18:34, Peter Rosin wrote:
+>>> It would certainly be nice to know why .owner is clobbered, because I
+>>> don't see it. But then again, I don't know what sources I should be
+>>> reading...
+>>
+>> BTW, one thing I noticed when reading the current code is that I see this
+>> at the end of i2c_del_adapter:
+>>
+>> 	/* Clear the device structure in case this adapter is ever going to be
+>> 	   added again */
+>> 	memset(&adap->dev, 0, sizeof(adap->dev));
+>> }
+>> EXPORT_SYMBOL(i2c_del_adapter);
+> 
+> It was added with commit bd4bc3dbded9cd ("i2c: Clear i2c_adapter.dev on
+> adapter removal") with this commit message:
+> 
+>     i2c: Clear i2c_adapter.dev on adapter removal
+> 
+>     Clear i2c_adapter.dev on adapter removal. This makes it possible to
+>     re-add the adapter at a later point, which some drivers
+>     (i2c-amd756-s4882, i2c-nforce2-s4985) actually do.
+> 
+>     This fixes a bug reported by John Stultz here:
+>       http://lkml.org/lkml/2008/7/15/720
+>     and by Ingo Molar there:
+>       http://lkml.org/lkml/2008/7/16/78
+> 
+> So, despite the docs, it used to be an issue actually...
 
---dlt2mdaddwryzfmc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What do you mean "despite the docs"? The docs says that you shouldn't
+reuse struct device. When you did, you got splats. Zeroing out struct
+device happens to work in this case probably because there is a
+completion going on around the call to device_unregister(). Without
+that completion it would have been seriously wrong to zero out the
+struct device, I think. But even with it, I'm not sure it's correct
+to do so and worry about rcu grace periods etc. Has any driver model
+expert looked at this struct device reuse and blessed it as ok?
 
-
-> (on condition Jarkko and Wolfram are okay with this; in the future it
-> would be better to have a list of possible speeds and algo that chooses
-> one based on FW configuration)
-
-In deed, that sounds feasible if more broken firmware shows up.
-
-
---dlt2mdaddwryzfmc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/NzcACgkQFA3kzBSg
-KbZYfhAAkvTsPhoP7gd3vaDYNSvkg6+MzDCkgfGI6gLNuHFsd/ywM44KahaXlNTP
-CawSvjbDS+1CR1j6akyBCY/hZviRhxGdgDWkowQiiiJquq4j2wdrapjAX4vFGzTy
-sXDvCyZQ/W1t+KosXbjyDGhVHrcSDPgzxpC+owjygasQwcblv43m7X3vAjVsW4C8
-5egRlPJZjO7vJHtMlFQt8v+1DefriPWX3rB5UMxZms4r7s4VhosuoPwakDS+IKVl
-yFGxtCRAb+oq/oTofkZGmRw6mbewEIksygGlFWdOY6wQHrhOR+sJU1IpT8Eo+xMv
-6Jk2bd3m11ywAGNRi3NEg2GvaNQUCPnXnWzlSa/p/q3hUSAtxtfCidMY/CbUlg5o
-BX2Lc5FOyrypcx7wmJ7brbRglsMXNIH1tgISsJR0pQ37cACBhwTNjQCRivdTHKOo
-eqRaBWXPwO/rtOfk8UQKakuer5wdLR6dLI2qY7J2bDrIGgcWJsQpKknPxUShEQ5O
-1oLdPLpR0bnIHs5sidXg8qqrvHBAyxx9HMM7UZIXJj4CjBdodtfz/nljmvkTKgho
-9j8n9bX+ewM2s8jgWDrXBMzAR/OHhAgL91Nj5wQPxvfJqAtI0tnTR1UVftF19EWC
-iCb6JwUeDGis8hyjUI5AIUg7VXCUAlPQVmged7m6nyJ3CFdrTKc=
-=VAlT
------END PGP SIGNATURE-----
-
---dlt2mdaddwryzfmc--
+Cheers,
+Peter
