@@ -1,79 +1,64 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [RFC 0/5] Add I3C subsystem
-Date: Mon, 31 Jul 2017 22:40:19 +0200
-Message-ID: <20170731224019.737bc624@bbrezillon>
+Date: Mon, 31 Jul 2017 22:47:01 +0200
+Message-ID: <20170731204701.GD1542@katana>
 References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
-        <20170731191745.GB1542@katana>
+ <20170731191745.GB1542@katana>
+ <20170731224019.737bc624@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20170731191745.GB1542@katana>
+Content-Disposition: inline
+In-Reply-To: <20170731224019.737bc624@bbrezillon>
 Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
 Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram, 
 
-Le Mon, 31 Jul 2017 21:17:45 +0200,
-Wolfram Sang <wsa@the-dreams.de> a écrit :
+--eqp4TxRxnD4KrmFZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hi Boris,
-> 
-> > This patch series is a proposal for a new I3C [1] subsystem.  
-> 
-> Nice. Good luck with that!
-> 
-> Some hi-level comments from me related to I2C. I can't say a lot more
-> because the specs are not public :(
 
-Unfortunately they're not :(.
+> > I agree this is the least invasive and also the most compatible
+> > approach. The other solution would probably be to have some kind of
+> > emulation layer?
+>=20
+> Could you detail a bit more what you mean by "emulation layer"?
 
-> 
-> > - the bus element is a separate object and is not implicitly described
-> >   by the master (as done in I2C). The reason is that I want to be able
-> >   to handle multiple master connected to the same bus and visible to
-> >   Linux.
-> >   In this situation, we should only have one instance of the device and
-> >   not one per master, and sharing the bus object would be part of the
-> >   solution to gracefully handle this case.
-> >   I'm not sure if we will ever need to deal with multiple masters
-> >   controlling the same bus and exposed under Linux, but separating the
-> >   bus and master concept is pretty easy, hence the decision to do it
-> >   now, just in case we need it some day.  
-> 
-> From my experience, it is a good thing to have this separation.
+Not really. That was more a extremly high level approach of what
+theoretically could be possible. When I try to think about details, it
+gets pretty invasive.
 
-Good to hear that you agree with this approach.
+> > Since the spec is not public, details about the protocol will be
+> > especially useful, I'd say.
+>=20
+> Okay, I'll see what I can do.
 
-> 
-> > - I2C backward compatibility has been designed to be transparent to I2C
-> >   drivers and the I2C subsystem. The I3C master just registers an I2C
-> >   adapter which creates a new I2C bus. I'd say that, from a
-> >   representation PoV it's not ideal because what should appear as a
-> >   single I3C bus exposing I3C and I2C devices here appears as 2
-> >   different busses connected to each other through the parenting (the
-> >   I3C master is the parent of the I2C and I3C busses).
-> >   On the other hand, I don't see a better solution if we want something
-> >   that is not invasive.  
-> 
-> I agree this is the least invasive and also the most compatible
-> approach. The other solution would probably be to have some kind of
-> emulation layer?
+Thanks.
 
-Could you detail a bit more what you mean by "emulation layer"?
 
-> 
-> > I'd also like to get feedback on the doc. Should I detail a bit more
-> > the protocol or the framework API? Is this the kind of things you
-> > expect in a subsystem doc?  
-> 
-> Since the spec is not public, details about the protocol will be
-> especially useful, I'd say.
+--eqp4TxRxnD4KrmFZ
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Okay, I'll see what I can do.
+-----BEGIN PGP SIGNATURE-----
 
-Thanks,
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/l0EACgkQFA3kzBSg
+KbZaUg/+Pdq9jD3nwEz6XxA3GUALJZyhNoH2Uri/Lb82XDQy5DaJuvVvyFyy94GY
+3N/4g9orfiUH/1Py+vq87BNAQ/oU5mgw1VgwX8KZ9DxmfXyJfNl07+IVEqhGPJUi
+pZcCFuCcmBqTQVCe9kC0A2Jwp//Q3CXg9JAhq6KW61LJfqjXp0c3HFpmFgqjSjFW
+q9t8rvO+J9OObrhHecqiTjX4gAawGyWA7QETB7ish1eiTC/rZokeM+sGO2o0boRr
+igOshYb0i486gObSQ0fDpTl8VY+qIAsV68nQVdPZjibiNWYSmEKk87rV6CW3Ionl
+yVhH+NyVSCi69HDQ1D1CApFIdmMnGeqn1fErGjkhrcOByNBipEczNFmFEAHccw7l
+mQ5v6F/nxFwJDDbWzZKO7d9GNQM6qSm09ly6C4dx0pz3+cyGn+1h/cMen0Nb18Yb
+vs09UemXWXg7wVw9I2nn0HGOT6muFB3YAYkUZZ6E2bA2FwDRm0OYENUJ8k5jelwW
+RjN64Zn8EKlxBFuEpfZlpogfAos+aDEw/AhwESpzd2DpbZzdXPBeK5a+J8rH0zMb
+HBNaKL7bNXgtEVzyLRVWcgcgHQrUY/GrMNiVLi8ykdpdetFe83ojV+1S+rqu9xL7
+tlADDykq7vKbFKVguDFTqP6mxgKFV6K8X6wttE82PbLrAoA4Gyw=
+=W/zc
+-----END PGP SIGNATURE-----
 
-Boris
+--eqp4TxRxnD4KrmFZ--
