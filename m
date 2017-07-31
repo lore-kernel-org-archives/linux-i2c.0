@@ -1,13 +1,24 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 2/2] i2c: uniphier-f: add PM suspend / resume support
-Date: Mon, 31 Jul 2017 13:51:08 +0900
-Message-ID: <1501476668-18432-2-git-send-email-yamada.masahiro@socionext.com>
-References: <1501476668-18432-1-git-send-email-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1501476668-18432-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v2 2/2] i2c: uniphier-f: add suspend / resume support
+Date: Mon, 31 Jul 2017 14:53:07 +0900
+Message-ID: <1501480387-15692-2-git-send-email-yamada.masahiro@socionext.com>
+References: <1501480387-15692-1-git-send-email-yamada.masahiro@socionext.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1501480387-15692-1-git-send-email-yamada.masahiro@socionext.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>, Jassi Brar <jaswinder.singh@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, Jassi Brar <jaswinder.singh@linaro.org>, Masami Hiramatsu <mhiramat@kernel.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 When resuming, set up registers that have been lost in the sleep state.
@@ -16,11 +27,14 @@ Also, add clock handling in the resume / suspend hooks.
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
+Changes in v2:
+  - Fix define but not used warning
+
  drivers/i2c/busses/i2c-uniphier-f.c | 46 +++++++++++++++++++++++++++++--------
  1 file changed, 37 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index beee31892295..74cf0752bbd0 100644
+index beee31892295..9918bdd81619 100644
 --- a/drivers/i2c/busses/i2c-uniphier-f.c
 +++ b/drivers/i2c/busses/i2c-uniphier-f.c
 @@ -97,6 +97,7 @@ struct uniphier_fi2c_priv {
@@ -81,7 +95,7 @@ index beee31892295..74cf0752bbd0 100644
  	return 0;
  }
  
-+static int uniphier_fi2c_suspend(struct device *dev)
++static int __maybe_unused uniphier_fi2c_suspend(struct device *dev)
 +{
 +	struct uniphier_fi2c_priv *priv = dev_get_drvdata(dev);
 +
@@ -90,7 +104,7 @@ index beee31892295..74cf0752bbd0 100644
 +	return 0;
 +}
 +
-+static int uniphier_fi2c_resume(struct device *dev)
++static int __maybe_unused uniphier_fi2c_resume(struct device *dev)
 +{
 +	struct uniphier_fi2c_priv *priv = dev_get_drvdata(dev);
 +	int ret;
