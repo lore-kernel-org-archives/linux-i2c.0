@@ -1,46 +1,55 @@
-From: Andy Yan <andy.yan@rock-chips.com>
-Subject: [PATCH 00/14] Support more devices on rockchip rv1108
-Date: Mon, 31 Jul 2017 18:04:09 +0800
-Message-ID: <1501495449-21290-1-git-send-email-andy.yan@rock-chips.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: heiko@sntech.de
-Cc: devicetree@vger.kernel.org, linus.walleij@linaro.org, mturquette@baylibre.com, linux-gpio@vger.kernel.org, sboyd@codeaurora.org, broonie@kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, shawn.lin@rock-chips.com, linux-spi@vger.kernel.org, zhangqing@rock-chips.com, linux-arm-kernel@lists.infradead.org, Andy Yan <andy.yan@rock-chips.com>
+From: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH 05/14] i2c: rk3x: add support for rv1108
+Date: Mon, 31 Jul 2017 18:12:43 +0800
+Message-ID: <1501495963-21608-1-git-send-email-andy.yan@rock-chips.com>
+References: <1501495449-21290-1-git-send-email-andy.yan@rock-chips.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1501495449-21290-1-git-send-email-andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Support for the i2c controller on rv1108
 
-This series try to support i2c/spi/pwm/saradc/pmic/watchdog and
-the full clk tree on rockchip rv1108 soc.
+Signed-off-by: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
 
+ drivers/i2c/busses/i2c-rk3x.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Andy Yan (12):
-  pinctrl: rockchip: add input schmitt support for rv1108
-  dt-bindings: i2c: rk3x: add support for rv1108
-  i2c: rk3x: add support for rv1108
-  ARM: dts: rockchip: add i2c dt node for rv1108
-  spi: rockchip: add compatible string for rv1108 spi
-  ARM: dts: rockchip: add spi dt node for rv1108
-  ARM: dts: rockchip: add pwm dt node for rv1108
-  ARM: dts: rockchip: add watchdog dt node for rv1108
-  ARM: dts: rockchip: add saradc support for rv1108
-  ARM: dts: rockchip: add pwm backlight for rv1108 evb
-  ARM: dts: rockchip: add pmic rk805 dt node for rv1108 evb
-  ARM: dts: rockchip: add accelerometer bma250e dt node for rv1108 evb
-
-Elaine Zhang (2):
-  clk: rockchip: add more clk ids for rv1108
-  clk: rockchip: support more clks for rv1108
-
- Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |   1 +
- .../devicetree/bindings/spi/spi-rockchip.txt       |   1 +
- arch/arm/boot/dts/rv1108-evb.dts                   | 158 +++++++
- arch/arm/boot/dts/rv1108.dtsi                      | 249 ++++++++++
- drivers/clk/rockchip/clk-rv1108.c                  | 513 ++++++++++++++++-----
- drivers/i2c/busses/i2c-rk3x.c                      |   9 +
- drivers/pinctrl/pinctrl-rockchip.c                 |  31 ++
- drivers/spi/spi-rockchip.c                         |   1 +
- include/dt-bindings/clock/rv1108-cru.h             | 128 ++++-
- 9 files changed, 964 insertions(+), 127 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index df22066..fe23457 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -1131,6 +1131,11 @@ static const struct i2c_algorithm rk3x_i2c_algorithm = {
+ 	.functionality		= rk3x_i2c_func,
+ };
+ 
++static const struct rk3x_i2c_soc_data rv1108_soc_data = {
++	.grf_offset = -1,
++	.calc_timings = rk3x_i2c_v1_calc_timings,
++};
++
+ static const struct rk3x_i2c_soc_data rk3066_soc_data = {
+ 	.grf_offset = 0x154,
+ 	.calc_timings = rk3x_i2c_v0_calc_timings,
+@@ -1158,6 +1163,10 @@ static const struct rk3x_i2c_soc_data rk3399_soc_data = {
+ 
+ static const struct of_device_id rk3x_i2c_match[] = {
+ 	{
++		.compatible = "rockchip,rv1108-i2c",
++		.data = (void *)&rv1108_soc_data
++	},
++	{
+ 		.compatible = "rockchip,rk3066-i2c",
+ 		.data = (void *)&rk3066_soc_data
+ 	},
 -- 
 2.7.4
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
