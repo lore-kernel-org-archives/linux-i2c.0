@@ -1,50 +1,58 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC v2 1/6] mux: include compiler.h from mux/consumer.h
-Date: Mon, 31 Jul 2017 11:02:07 +0200
-Message-ID: <1a1233da-2f39-7777-1149-7a0f32a4b1d5@axentia.se>
-References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com>
- <1500305076-15570-2-git-send-email-ulrich.hecht+renesas@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH v1] i2c: aspeed: fixed potential null pointer dereference
+Date: Mon, 31 Jul 2017 18:57:09 +0930
+Message-ID: <CACPK8XdT5yxKFj75JCuXZ+3GT1Q6x0EYADmFdu6we6SHwTMnLw@mail.gmail.com>
+References: <20170729010012.5032-1-brendanhiggins@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <1500305076-15570-2-git-send-email-ulrich.hecht+renesas@gmail.com>
-Content-Language: en-US
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, linux-serial@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, magnus.damm@gmail.com, laurent.pinchart@ideasonboard.com, wsa@the-dreams.de, robh@kernel.org, geert@linux-m68k.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-yw0-f195.google.com ([209.85.161.195]:37608 "EHLO
+        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750739AbdGaJ1b (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jul 2017 05:27:31 -0400
+In-Reply-To: <20170729010012.5032-1-brendanhiggins@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Patrick Venture <venture@google.com>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Ulrich,
+On Sat, Jul 29, 2017 at 10:30 AM, Brendan Higgins
+<brendanhiggins@google.com> wrote:
+> Before I skipped null checks when the master is in the STOP state; this
+> fixes that.
+>
+> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 
-This patch looks good to me. Let me know if I should feed this
-through the mux subsystem or if it will take some other route.
+Acked-by: Joel Stanley <joel@jms.id.au>
 
-In case someone else ends up taking it:
-Acked-by: Peter Rosin <peda@axentia.se>
+Out of interest, was this found by code review, or did you hit this in testing?
 
 Cheers,
-Peter
 
-On 2017-07-17 17:24, Ulrich Hecht wrote:
-> Required for __must_check.
-> 
-> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Joel
+
 > ---
->  include/linux/mux/consumer.h | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/include/linux/mux/consumer.h b/include/linux/mux/consumer.h
-> index 5577e1b..ea96d4c 100644
-> --- a/include/linux/mux/consumer.h
-> +++ b/include/linux/mux/consumer.h
-> @@ -13,6 +13,8 @@
->  #ifndef _LINUX_MUX_CONSUMER_H
->  #define _LINUX_MUX_CONSUMER_H
->  
-> +#include <linux/compiler.h>
-> +
->  struct device;
->  struct mux_control;
->  
-> 
+>  drivers/i2c/busses/i2c-aspeed.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index f19348328a71..6fdf9231c23c 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -410,10 +410,11 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>         }
+>
+>         /* We are in an invalid state; reset bus to a known state. */
+> -       if (!bus->msgs && bus->master_state != ASPEED_I2C_MASTER_STOP) {
+> +       if (!bus->msgs) {
+>                 dev_err(bus->dev, "bus in unknown state");
+>                 bus->cmd_err = -EIO;
+> -               aspeed_i2c_do_stop(bus);
+> +               if (bus->master_state != ASPEED_I2C_MASTER_STOP)
+> +                       aspeed_i2c_do_stop(bus);
+>                 goto out_no_complete;
+>         }
+>         msg = &bus->msgs[bus->msgs_index];
+> --
+> 2.14.0.rc0.400.g1c36432dff-goog
+>
