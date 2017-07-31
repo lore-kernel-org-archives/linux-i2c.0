@@ -1,32 +1,46 @@
-From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Subject: Re: [RFC v2 1/6] mux: include compiler.h from mux/consumer.h
-Date: Mon, 31 Jul 2017 11:56:08 +0200
-Message-ID: <CAO3366zDCcOEOi2vTbd6XGgb75eS61+B1vviqzZuLksGopiU1A@mail.gmail.com>
-References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com>
- <1500305076-15570-2-git-send-email-ulrich.hecht+renesas@gmail.com> <1a1233da-2f39-7777-1149-7a0f32a4b1d5@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:32894 "EHLO
-        mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751862AbdGaJ4K (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 31 Jul 2017 05:56:10 -0400
-In-Reply-To: <1a1233da-2f39-7777-1149-7a0f32a4b1d5@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andy Yan <andy.yan@rock-chips.com>
+Subject: [PATCH 00/14] Support more devices on rockchip rv1108
+Date: Mon, 31 Jul 2017 18:04:09 +0800
+Message-ID: <1501495449-21290-1-git-send-email-andy.yan@rock-chips.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: heiko@sntech.de
+Cc: devicetree@vger.kernel.org, linus.walleij@linaro.org, mturquette@baylibre.com, linux-gpio@vger.kernel.org, sboyd@codeaurora.org, broonie@kernel.org, linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-rockchip@lists.infradead.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, shawn.lin@rock-chips.com, linux-spi@vger.kernel.org, zhangqing@rock-chips.com, linux-arm-kernel@lists.infradead.org, Andy Yan <andy.yan@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-serial@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org
 
-On Mon, Jul 31, 2017 at 11:02 AM, Peter Rosin <peda@axentia.se> wrote:
-> Hi Ulrich,
->
-> This patch looks good to me. Let me know if I should feed this
-> through the mux subsystem or if it will take some other route.
 
-Please pick it up, thanks.
+This series try to support i2c/spi/pwm/saradc/pmic/watchdog and
+the full clk tree on rockchip rv1108 soc.
 
-> In case someone else ends up taking it:
-> Acked-by: Peter Rosin <peda@axentia.se>
 
-CU
-Uli
+Andy Yan (12):
+  pinctrl: rockchip: add input schmitt support for rv1108
+  dt-bindings: i2c: rk3x: add support for rv1108
+  i2c: rk3x: add support for rv1108
+  ARM: dts: rockchip: add i2c dt node for rv1108
+  spi: rockchip: add compatible string for rv1108 spi
+  ARM: dts: rockchip: add spi dt node for rv1108
+  ARM: dts: rockchip: add pwm dt node for rv1108
+  ARM: dts: rockchip: add watchdog dt node for rv1108
+  ARM: dts: rockchip: add saradc support for rv1108
+  ARM: dts: rockchip: add pwm backlight for rv1108 evb
+  ARM: dts: rockchip: add pmic rk805 dt node for rv1108 evb
+  ARM: dts: rockchip: add accelerometer bma250e dt node for rv1108 evb
+
+Elaine Zhang (2):
+  clk: rockchip: add more clk ids for rv1108
+  clk: rockchip: support more clks for rv1108
+
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |   1 +
+ .../devicetree/bindings/spi/spi-rockchip.txt       |   1 +
+ arch/arm/boot/dts/rv1108-evb.dts                   | 158 +++++++
+ arch/arm/boot/dts/rv1108.dtsi                      | 249 ++++++++++
+ drivers/clk/rockchip/clk-rv1108.c                  | 513 ++++++++++++++++-----
+ drivers/i2c/busses/i2c-rk3x.c                      |   9 +
+ drivers/pinctrl/pinctrl-rockchip.c                 |  31 ++
+ drivers/spi/spi-rockchip.c                         |   1 +
+ include/dt-bindings/clock/rv1108-cru.h             | 128 ++++-
+ 9 files changed, 964 insertions(+), 127 deletions(-)
+
+-- 
+2.7.4
