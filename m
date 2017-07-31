@@ -1,33 +1,75 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH v1] i2c: aspeed: fixed potential null pointer dereference
-Date: Mon, 31 Jul 2017 11:20:29 -0700
-Message-ID: <CAFd5g44UjOfGwpCdCTQ7-0rPTXoWLvDcYAbekQ-JMtNsYHZneQ@mail.gmail.com>
-References: <20170729010012.5032-1-brendanhiggins@google.com> <CACPK8XdT5yxKFj75JCuXZ+3GT1Q6x0EYADmFdu6we6SHwTMnLw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
+Date: Mon, 31 Jul 2017 21:17:21 +0200
+Message-ID: <20170731191721.GA1542@katana>
+References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACPK8XdT5yxKFj75JCuXZ+3GT1Q6x0EYADmFdu6we6SHwTMnLw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Patrick Venture <venture@google.com>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:36036 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750971AbdGaTRY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 31 Jul 2017 15:17:24 -0400
+Content-Disposition: inline
+In-Reply-To: <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 
-On Mon, Jul 31, 2017 at 2:27 AM, Joel Stanley <joel@jms.id.au> wrote:
-> On Sat, Jul 29, 2017 at 10:30 AM, Brendan Higgins
-> <brendanhiggins@google.com> wrote:
->> Before I skipped null checks when the master is in the STOP state; this
->> fixes that.
->>
->> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
->
-> Acked-by: Joel Stanley <joel@jms.id.au>
->
-> Out of interest, was this found by code review, or did you hit this in testing?
 
-I am pretty sure we hit it in testing. Unfortunately, we had trouble reproducing
-it, but we did see a null pointer dereference.
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->
-> Cheers,
->
-> Joel
+
+> +This document is just a brief introduction to the I3C protocol and the concepts
+> +it brings on the table. If you need more information, please refer to the MIPI
+> +I3C specification.
+
+I wish I could.
+
+> +
+> +Introduction
+> +============
+> +
+> +The I3C (I-Cube-C) is a MIPI standardized protocol designed to overcome I2C
+
+"Eye-three-See", according to:
+http://eecatalog.com/sensors/2017/07/05/after-35-years-of-i2c-i3c-improves-capability-and-performance/
+
+> +Backward compatibility with I2C devices
+> +=======================================
+> +
+> +The I3C protocol has been designed to be backward compatible with I2C devices.
+> +This backward compatibility allows one to connect a mix of I2C and I3C devices
+> +on the same bus, though, in order to be really efficient, I2C devices should
+> +be equipped with 50 ns spike filters.
+
+I just found a slide which says I3C does not support clock stretching.
+That should be mentioned here, too.
+
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll/gj0ACgkQFA3kzBSg
+KbZJzRAAldnFRC1tvImhgxmo3kHYW0c/2ICSWaj1rJd7sbypvsSY99wI5RtRwi1J
+odmdukQQvdbfKMhIDv+XmV/cIlffSL9iQR+8/EUbjR0gnvFEM7JMZdmR+70qiUaT
+h7hgfi+okPXmDr80ZBLTGsAje2cG5u7iiAFsvL1BOMrCc7ldNnY4o2L1f8rgL8OM
+79dRV8MBGkBpyvs0H0ZiYtuOIoxYTL4X4zzl6RKlBmO9+n9pRMjjRD2oI2nlB7ZR
+dFnHP7HRxykQAWoh9PJ62guyf1i2BH4ea990v/+3U5ugowZRWvtkrE7AQSa1V0To
+F2AeApIBFaA1kszTZdqQc0Of8P0DYypPK+ko6qKYbpN1bX83ast1976NA27gOJ9i
+ZdblFygMG2GZ7eTYD6pjPBHC6uZCyVl7jfXP5tFivpOkZA7RqzfeZidD+3l/4m/B
+noC4XAznWSikUqpiRdJRUzX225/JV08K10EK4HRof58veQL4kgPCstFXoElp42PG
+wFQwTYvqJJtELpcMSnjJPLfuCcHq6HQvuoCHqtTktpg/xXDvPb9vNyYupU5EA/C4
+Q8QllvzUL1cEOoGCNtzYdNPuk9KfGfzRO4cdiSy6hNDWGgmt0xUdyD7lrzAOHk9V
+pIk88FzLUixTuNYRqMkmRybw187dkCiEdl0aVQNQyiJESikqX0I=
+=Ll99
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
