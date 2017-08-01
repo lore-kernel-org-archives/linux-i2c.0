@@ -1,142 +1,106 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
-Date: Tue, 1 Aug 2017 10:51:33 -0700
-Message-ID: <20170801175133.GA30520@kroah.com>
+Date: Tue, 1 Aug 2017 22:16:29 +0200
+Message-ID: <CAK8P3a12kUxi1dFPeoMEkDvaoEaV28WiBTvWU+O+m2_CU3W=EQ@mail.gmail.com>
 References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
  <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
- <20170801014021.GA20004@kroah.com>
- <20170801124801.38bbc431@bbrezillon>
+ <CAK8P3a06GoMdKdn=3Cq0FUwYnjGX0oG+FQLjxfiasVDpbonWRw@mail.gmail.com>
+ <20170731231509.77d1fba4@bbrezillon> <CAK8P3a0p=m-8U7TN8usG8HO-QNu_S7rSfykNzu4gm+MOaM2Kzg@mail.gmail.com>
+ <20170801142936.5df48702@bbrezillon> <CAK8P3a0SH4kWcvXK+_iPt9LWuNnpjr+omp+ZpyTLjT=H602n+w@mail.gmail.com>
+ <20170801153414.6ce34ee8@bbrezillon> <20170801155813.4b811a4d@bbrezillon>
+ <CAK8P3a10oJwsE8vQmPoX4Xf2zg17ZFqypMHMiPR_xOWUAMSB-w@mail.gmail.com> <20170801171434.2bc2aa84@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170801124801.38bbc431@bbrezillon>
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@co>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170801171434.2bc2aa84@bbrezillon>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Jan Kotas <jank-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Ku
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 01, 2017 at 12:48:01PM +0200, Boris Brezillon wrote:
-> > > +static DEFINE_MUTEX(i3c_core_lock);
-> > > +
-> > > +void i3c_bus_lock(struct i3c_bus *bus, bool exclusive)
-> > > +{
-> > > +	if (exclusive)
-> > > +		down_write(&bus->lock);
-> > > +	else
-> > > +		down_read(&bus->lock);
-> > > +}  
-> > 
-> > The "exclusive" flag is odd, and messy, and hard to understand, don't
-> > you agree?
-> 
-> I could create 2 functions, one for the exclusive lock and the other
-> one for the shared lock.
+On Tue, Aug 1, 2017 at 5:14 PM, Boris Brezillon
+<boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> On Tue, 1 Aug 2017 16:22:21 +0200 Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
+>> On Tue, Aug 1, 2017 at 3:58 PM, Boris Brezillon
+>> <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+>> > On Tue, 1 Aug 2017 15:34:14 +0200
+>> > Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+>> >> On Tue, 1 Aug 2017 15:11:44 +0200
+>> >> Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
+>> >> > On Tue, Aug 1, 2017 at 2:29 PM, Boris Brezillon
+>> >> > <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+>> > I just realized I forgot to add a "depends on I2C" in the I3C Kconfig
+>> > entry. Indeed, I'm unconditionally calling functions provided by the
+>> > I2C framework which have no dummy wrapper when I2C support is disabled.
+>> > I could of course conditionally compile some portion of the I3C
+>> > framework so that it still builds when I2C is disabled but I'm not sure
+>> > it's worth the trouble.
+>> >
+>> > This "depends on I2C" should also solve the I2C+I3C driver issue, since
+>> > I2C is necessarily enabled when I3C is.
+>> >
+>> > Am I missing something?
+>>
+>> That should solve another part of the problem, as a combined driver then
+>> just needs 'depends on I3C'.
+>>
+>> On top of that, the i3c_driver structure could also contain callback
+>> pointers for the i2c subsystem, e.g. i2c_probe(), i2c_remove() etc.
+>> When the i2c_probe() callback exists, the i3c layer could construct
+>> a 'struct i2c_driver' with those callbacks and register that under the
+>> cover. This would mean that combined drivers no longer need to
+>> register two driver objects.
+>
+> That should work. Actually, i2c_driver contains a few more hooks, like
+> ->alert(), ->command() and ->detect(). Of course we could assume that
+> I3C/I2C drivers do not need them,
 
-Or you could just use a simple mutex until you determine you really
-would do better with a rw lock :)
+I was thinking we can add them as they are needed.
 
-> > And have you measured the difference in using a rw lock over
-> > a normal mutex and found it to be faster?  If not, just use a normal
-> > mutex, it's simpler and almost always better in the end.
-> 
-> I did not measure the difference, but using a standard lock means
-> serializing all I3C accesses going through a given master in the core.
+> but I'm wondering if it's not easier
+> to just add an i2c_driver pointer inside the i3c_driver struct and let
+> the driver populate it if it needs to supports both protocols.
+>
+> Something like:
+>
+>         struct i3c_driver {
+>                 ...
+>                 struct i2c_driver *i2c_compat;
+>                 ...
+>         };
+>
+>
+> and then in I3C/I2C drivers:
+>
+>         static struct i2c_driver my_i2c_driver = {
+>                 ...
+>         };
+>
+>         static struct i3c_driver my_i3c_driver = {
+>                 ...
+>                 .i2c_compat = &my_i2c_driver,
+>                 ...
+>         };
+>         module_i3c_driver(my_i3c_driver);
+>
+>
+>
+> Of course, you'll have a few fields of ->i2c_compat that would be
+> filled by the core (like the driver name which can be extracted from
+> my_i3c_driver->driver.name).
 
-Which you are doing with a rw lock anyway, right?
+Right, that would work too, but it's almost the same as the version
+you proposed earlier that would use
 
-> Note that this lock is not here to guarantee that calls to
-> master->ops->xxx() are serialized (this part is left to the master
-> driver), but to ensure that when a bus management operation is in
-> progress (like changing the address of a device on the bus), no one can
-> send I3C frames. If we don't do that, one could queue an I3C transfer,
-> and by the time this transfer reach the bus, the I3C device this
-> message was targeting may have a different address.
+module_i2c_i3c_driver(my_i2c_driver, my_i3c_driver);
 
-That sounds really odd.  locks should protect data, not bus access,
-right?
+It's probably a little cleaner this way in the subsystem implementation
+compared to my suggestion of adding the i2c callback pointers in
+struct i3c_driver, while that would make the drivers look a little nicer
+(and save a few lines per driver).
 
-> Unless you see a good reason to not use a R/W lock, I'd like to keep it
-> this way because master IPs are likely to implement advanced queuing
-> mechanism (allows one to queue new transfers even if the master is
-> already busy processing other requests), and serializing things at the
-> framework level will just prevent us from using this kind of
-> optimization.
-
-Unless you can prove otherwise, using a rw lock is almost always worse
-than just a mutex.  And you shouldn't have a lock for bus transactions,
-that's just going to be a total mess.  You could have a lock for a
-single device access, but that still seems really strange, is the i3c
-spec that bad?
-
-> > > +static ssize_t hdrcap_show(struct device *dev,
-> > > +			   struct device_attribute *da,
-> > > +			   char *buf)
-> > > +{
-> > > +	struct i3c_device *i3cdev = dev_to_i3cdev(dev);
-> > > +	struct i3c_bus *bus = i3c_device_get_bus(i3cdev);
-> > > +	unsigned long caps = i3cdev->info.hdr_cap;
-> > > +	ssize_t offset = 0, ret;
-> > > +	int mode;
-> > > +
-> > > +	i3c_bus_lock(bus, false);
-> > > +	for_each_set_bit(mode, &caps, 8) {
-> > > +		if (mode >= ARRAY_SIZE(hdrcap_strings))
-> > > +			break;
-> > > +
-> > > +		if (!hdrcap_strings[mode])
-> > > +			continue;
-> > > +
-> > > +		ret = sprintf(buf + offset, "%s\n", hdrcap_strings[mode]);  
-> > 
-> > Multiple lines in a single sysfs file?  No.
-> 
-> Okay. Would that be okay with a different separator (like a comma)?
-
-No, sysfs files are "one value per file", given you don't have any
-documentation saying what this file is supposed to be showing, I can't
-really judge the proper way for you to present it to userspace :)
-
-> > > +static const struct attribute_group *i3c_device_groups[] = {
-> > > +	&i3c_device_group,
-> > > +	NULL,
-> > > +};  
-> > 
-> > ATTRIBUTE_GROUPS()?
-> 
-> My initial plan was to have a common set of attributes that apply to
-> both devices and masters, and then add specific attributes in each of
-> them when they only apply to a specific device type.
-
-That's fine, but you do know that attributes can be enabled/disabled at
-device creation time with the return value of the callback is_visable(),
-right?  Why not just use that here, simplifying a lot of logic?
-
-> Just out of curiosity, what's the preferred solution when you need to
-> do something like that? Should we just use ATTRIBUTE_GROUPS() and
-> duplicate the entries that apply to both device types?
-
-is_visable()?
-
-> > No release type?  Oh that's bad bad bad and implies you have never
-> > removed a device from your system as the kernel would have complained
-> > loudly at you.
-> 
-> You got me, never tried to remove a device :-). Note that these
-> ->release() hooks will just be dummy ones, because right now, device
-> resources are freed at bus destruction time.
-
-You better not have a "dummy" release hook, do that and as per the
-kernel documentation, I get to make fun of you in public for doing that
-:(
-
-> Also, I see that dev->release() is called instead of
-> dev->type->release() if it's not NULL [1]. what's the preferred solution
-> here? Set dev->release or type->release()?
-
-It depends on how your bus is managed, who controls the creation of the
-resources, free it in the same place you create it.
-
-thanks,
-
-greg k-h
+         Arnd
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
