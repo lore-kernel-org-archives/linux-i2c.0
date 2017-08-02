@@ -1,52 +1,48 @@
-From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 3/4] dt-bindings: i2c: i2c-davinci: Update binding for 66AK2Gx pwr dm property
-Date: Wed, 2 Aug 2017 17:17:52 -0500
-Message-ID: <20170802221753.13786-4-fcooper@ti.com>
-References: <20170802221753.13786-1-fcooper@ti.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] i2c: mux: pinctrl: drop the idle_state member
+Date: Wed, 2 Aug 2017 16:50:35 -0600
+Message-ID: <ee71d80d-840c-a784-7fc7-a72b7cc2f453@wwwdotorg.org>
+References: <20170802072728.24586-1-peda@axentia.se>
+ <20170802072728.24586-3-peda@axentia.se>
+ <15488723-e0ef-62b3-e62f-e74d12d8328d@wwwdotorg.org>
+ <cb3ecc9b-b26f-bb81-5836-ecd459ec3456@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170802221753.13786-1-fcooper-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cb3ecc9b-b26f-bb81-5836-ecd459ec3456@axentia.se>
+Content-Language: en-GB
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@nvidia.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add pm-domains property which is required for 66AK2Gx. Also document 66AK2G
-unique clocks property usage.
+On 08/02/2017 03:25 PM, Peter Rosin wrote:
+> On 2017-08-02 21:06, Stephen Warren wrote:
+>> On 08/02/2017 01:27 AM, Peter Rosin wrote:
+>>> The information is available elsewhere.
+>>
+>>> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+>>
+>>>    static int i2c_mux_pinctrl_deselect(struct i2c_mux_core *muxc, u32 chan)
+>>>    {
+>>> +	return i2c_mux_pinctrl_select(muxc, muxc->num_adapters);
+>>>    }
+>>
+>>> @@ -166,7 +162,7 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+>>
+>>>    	/* Do not add any adapter for the idle state (if it's there at all). */
+>>> -	for (i = 0; i < num_names - !!mux->state_idle; i++) {
+>>> +	for (i = 0; i < num_names - !!muxc->deselect; i++) {
+>>
+>> I think that "num_names - !!muxc->deselect" could just be
+>> muxc->num_adapters?
+> 
+> Not really, it's the i2c_mux_add_adapter call in the loop that bumps
+> muxc->num_adapters, so the loop would not be entered. Not desirable :-)
 
-Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
----
- Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+Ok, that makes sense.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-index 5b123e0..64e6e65 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-@@ -6,6 +6,18 @@ davinci/keystone i2c interface contains.
- Required properties:
- - compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
- - reg : Offset and length of the register set for the device
-+- clocks: I2C functional clock phandle.
-+	  For 66AK2G this property should be set per binding,
-+	  Documentation/devicetree/bindings/clock/ti,sci-clk.txt
-+
-+SoC-specific Required Properties:
-+
-+The following are mandatory properties for Keystone 2 66AK2G SoCs only:
-+
-+- power-domains:	Should contain a phandle to a PM domain provider node
-+			and an args specifier containing the I2C device id
-+			value. This property is as per the binding,
-+			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.txt
- 
- Recommended properties :
- - interrupts : standard interrupt property.
--- 
-2.9.4.dirty
+> (and muxc->max_adapters == num_names)
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Well, unless muxc->deselect is true...
