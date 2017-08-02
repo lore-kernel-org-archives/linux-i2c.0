@@ -1,78 +1,52 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/2] i2c: mux: pinctrl: remove platform_data
-Date: Wed, 2 Aug 2017 23:19:52 +0200
-Message-ID: <ae7ab989-fa37-c907-40f7-1a73211eb927@axentia.se>
+Subject: Re: [PATCH 2/2] i2c: mux: pinctrl: drop the idle_state member
+Date: Wed, 2 Aug 2017 23:25:02 +0200
+Message-ID: <cb3ecc9b-b26f-bb81-5836-ecd459ec3456@axentia.se>
 References: <20170802072728.24586-1-peda@axentia.se>
- <20170802072728.24586-2-peda@axentia.se>
- <bcf82834-7bdd-8a55-2746-389144d68e64@wwwdotorg.org>
+ <20170802072728.24586-3-peda@axentia.se>
+ <15488723-e0ef-62b3-e62f-e74d12d8328d@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0107.outbound.protection.outlook.com ([104.47.1.107]:24385
+Received: from mail-ve1eur01on0139.outbound.protection.outlook.com ([104.47.1.139]:43830
         "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750725AbdHBVUC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 2 Aug 2017 17:20:02 -0400
-In-Reply-To: <bcf82834-7bdd-8a55-2746-389144d68e64@wwwdotorg.org>
+        id S1750725AbdHBVZJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 2 Aug 2017 17:25:09 -0400
+In-Reply-To: <15488723-e0ef-62b3-e62f-e74d12d8328d@wwwdotorg.org>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Stephen Warren <swarren@wwwdotorg.org>
 Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@nvidia.com>, linux-i2c@vger.kernel.org
 
-On 2017-08-02 21:05, Stephen Warren wrote:
+On 2017-08-02 21:06, Stephen Warren wrote:
 > On 08/02/2017 01:27 AM, Peter Rosin wrote:
->> No platform (at least no upstreamed platform) has ever used this
->> platform_data. Just drop it and simplify the code.
+>> The information is available elsewhere.
 > 
 >> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
 > 
->>   static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+>>   static int i2c_mux_pinctrl_deselect(struct i2c_mux_core *muxc, u32 chan)
+>>   {
+>> +	return i2c_mux_pinctrl_select(muxc, muxc->num_adapters);
+>>   }
 > 
-> (eliding some - lines for brevity in the following):
+>> @@ -166,7 +162,7 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
 > 
->> +	for (i = 0; i < num_names; i++) {
->> +		ret = of_property_read_string_index(np, "pinctrl-names", i,
->> +						    &name);
->> +		if (ret < 0) {
->> +			dev_err(dev, "Cannot parse pinctrl-names: %d\n", ret);
->> +			goto err_put_parent;
->> +		}
->> +
->> +		mux->states[i] = pinctrl_lookup_state(mux->pinctrl, name);
->>   		if (IS_ERR(mux->states[i])) {
->>   			ret = PTR_ERR(mux->states[i]);
->> +			dev_err(dev, "Cannot look up pinctrl state %s: %d\n",
->> +				name, ret);
->> +			goto err_put_parent;
+>>   	/* Do not add any adapter for the idle state (if it's there at all). */
+>> -	for (i = 0; i < num_names - !!mux->state_idle; i++) {
+>> +	for (i = 0; i < num_names - !!muxc->deselect; i++) {
 > 
-> This error path doesn't undo pinctrl_lookup_state. Is that OK? I think 
-> so, but wanted to check.
+> I think that "num_names - !!muxc->deselect" could just be 
+> muxc->num_adapters? 
 
-I also think so, looking at pinctrl_lookup_state, it seems to just match
-strings and return a pointer. No refcounts or other state change involved
-that I can see. Either way, the preexisting code would have the same issue
-so it would be orthogonal and fodder for another patch...
+Not really, it's the i2c_mux_add_adapter call in the loop that bumps
+muxc->num_adapters, so the loop would not be entered. Not desirable :-)
 
->> +	muxc = i2c_mux_alloc(parent, dev, num_names,
->> +			     sizeof(*mux) + num_names * sizeof(*mux->states),
->> +			     0, i2c_mux_pinctrl_select, NULL);
-> ...
->> +	/* Do not add any adapter for the idle state (if it's there at all). */
->> +	for (i = 0; i < num_names - !!mux->state_idle; i++) {
->> +		ret = i2c_mux_add_adapter(muxc, 0, i, 0);
-> 
-> Is it OK to potentially add one fewer adapter here than the child bus 
-> count passed to i2c_mux_alloc() earlier? The old code specifically 
-> excluded the idle state (if present) from the child bus count passed to 
-> i2c_mux_alloc(), which was aided by the fact that it parsed the DT 
-> before calling i2c_mux_alloc().
+(and muxc->max_adapters == num_names)
 
-Yes, that is perfectly fine. The only issue is wasting space for one extra
-pointer.
-
-> If those two things are OK, then:
+>                     Otherwise,
 > Reviewed-by: Stephen Warren <swarren@nvidia.com>
 
 Thanks!
