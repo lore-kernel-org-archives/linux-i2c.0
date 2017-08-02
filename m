@@ -1,66 +1,71 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
-Date: Wed, 2 Aug 2017 12:21:38 +0200
-Message-ID: <20170802102138.GA1549@katana>
-References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
- <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
- <CAK8P3a06GoMdKdn=3Cq0FUwYnjGX0oG+FQLjxfiasVDpbonWRw@mail.gmail.com>
- <20170731231509.77d1fba4@bbrezillon>
- <20170731214211.GA11776@tetsubishi>
- <1538596b-80ed-7800-db97-70e73b90b9e2@ti.com>
- <20170801172703.GA2737@katana>
- <20170801234738.148a874c@bbrezillon>
+From: <Edmond@fmmh.com>
+Subject: (unknown)
+Date: Wed, 02 Aug 2017 17:31:45 -0000
+Message-ID: <150169510580.2725.2980333272799806491@avangarddsl.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170801234738.148a874c@bbrezillon>
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: "Andrew F. Davis" <afd@ti.com>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+d>
+Content-Type: application/zip; name="EMAIL_0884435643248_linux-i2c.zip"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from pppoe.178-67-79-184.avangarddsl.ru ([178.67.79.184]:32984 "HELO
+        avangarddsl.ru" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with SMTP id S1752864AbdHBRbs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 2 Aug 2017 13:31:48 -0400
+Content-Disposition: attachment
+Subject: 
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Carpenter@fcbu.com
 
-
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > Yes, my wording was a bit too strong. It is possible, sure. Yet, I
-> > understood that one of the features of I3C is to have in-band interrupt
-> > support. We will see if the demand for backward compatibility or "saving
-> > pins" is higher.
-> >=20
->=20
-> Indeed, you can use in-band interrupts if your device is able to
-> generate them, but that doesn't prevent I3C device designers from using
-> an external pin to signal interrupts if they prefer.
-
-Exactly. Thus, "We will see if the demand for backward compatibility or "sa=
-ving
-pins" is higher" :)
-
-
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmBp64ACgkQFA3kzBSg
-KbYx2w/9HnA52gby01zn1TcmSs6Rxf7xvDvli1rQ6jgEsAhazTo0lgveE9oL9SsV
-uzfN55vAwN1o6EOKLIi7Ol/wYuw9aUfrjYicpDWKfX4fYSVLQ4dWo5+UTIl7nttK
-Gs6O3dje9DPOuSfDEMiigRdPBIOrD+8RSqjb3L/gvuxJQ+CkH7pMtDZ6HeokgZRd
-VZprsf+//1ij1EMfpfaHmvABrGshHW8dntjur3C9OVomDfNyFS3RLsha6+qoSuI4
-jeFhXPjKeBjJW0y/I/5GgZd+d+Wcb6fIEqtHVnlkPzEo7U9pYudiX0aQOnQvO8sN
-ewfb4LssCUwiJ65MQyb4D7pq/xv9P2Wbn8bmAOi6zgm+PUfAg1ejvQ3f1OLfIlXZ
-C9NXOlLZQQklPsTkt5mIv1quXHClCpCuuwQDKZtUKJGTn3zhEp1JpVQpyudYUl9H
-+dAEXIXzd8p2S1uG7jS/0O/yXD5ODIkUx28UWv7jPPagfR7bNO+jactifEmDxdNL
-xRRGSYJUdGyugrczUGmOkjlvWB51qNe5hVcFqGv1cWikHJ8ZaPIhpN3Tuk73SLfK
-xbcKbqEf7hOUN2J54ODOl2RiSNDnzuqPtygVU7BfqDBWffh6LwCgRUqAOn+GdMkS
-FpTB7Ochnz0YC9qoAXS9iDxJsMrYCBTi54YKh4kNSkUu1+dHLJo=
-=QkMA
------END PGP SIGNATURE-----
-
---liOOAslEiF7prFVr--
+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
+AAEAWwAAADALAAAAAA==
