@@ -1,39 +1,50 @@
 From: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Subject: [PATCH 0/7] iio: srf08: add support for similar devices and
- triggered buffers
-Date: Thu, 3 Aug 2017 01:22:59 +0200
-Message-ID: <20170802232259.GA15210@arbeit>
+Subject: [PATCH 1/7] iio: srf08: add device tree binding for srf02 and srf10
+Date: Thu, 3 Aug 2017 01:23:35 +0200
+Message-ID: <20170802232335.GA15222@arbeit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series adds support for the ultrasonic devices srf02 and srf10.
+add trivial device tree binding "devantech,srf02" and "devantech,srf10"
 
-Triggered buffer support is added
+Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Andreas Klinger (7):
-  iio: srf08: add device tree binding for srf02 and srf10
-  iio: srf08: add sensor type srf10
-  iio: srf08: add triggered buffer support
-  iio: srf08: add device tree table
-  iio: srf08: add support for srf02 in i2c mode
-  iio: srf08: add buffered to device mode
-  iio: srf08: change text in Kconfig
-
- .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
- drivers/iio/proximity/Kconfig                      |  12 +-
- drivers/iio/proximity/srf08.c                      | 163 +++++++++++++++++----
- 3 files changed, 145 insertions(+), 32 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index ad10fbe61562..0e5fb016e912 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -36,7 +36,9 @@ dallas,ds1775		Tiny Digital Thermometer and Thermostat
+ dallas,ds3232		Extremely Accurate I²C RTC with Integrated Crystal and SRAM
+ dallas,ds4510		CPU Supervisor with Nonvolatile Memory and Programmable I/O
+ dallas,ds75		Digital Thermometer and Thermostat
++devantech,srf02		Devantech SRF02 ultrasonic ranger in I2C mode
+ devantech,srf08		Devantech SRF08 ultrasonic ranger
++devantech,srf10		Devantech SRF10 ultrasonic ranger
+ dlg,da9053		DA9053: flexible system level PMIC with multicore support
+ dlg,da9063		DA9063: system PMIC for quad-core application processors
+ domintech,dmard09	DMARD09: 3-axis Accelerometer
 -- 
 2.1.4
 
 
 -- 
+Andreas Klinger
+Grabenreith 27
+84508 Burgkirchen
++49 8623 919966
+ak-n176/SwNRljddJNmlsFzeA@public.gmane.org
+www.it-klinger.de
+www.grabenreith.de
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
