@@ -1,83 +1,41 @@
 From: Franklin S Cooper Jr <fcooper@ti.com>
-Subject: [PATCH 4/4] ARM: dts: keystone-k2g: Add I2C nodes
-Date: Wed, 2 Aug 2017 17:17:53 -0500
-Message-ID: <20170802221753.13786-5-fcooper@ti.com>
-References: <20170802221753.13786-1-fcooper@ti.com>
+Subject: [PATCH 0/4] ARM: dts: keystone-k2g: Add I2C support for 66AK2G
+Date: Wed, 2 Aug 2017 17:17:49 -0500
+Message-ID: <20170802221753.13786-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170802221753.13786-1-fcooper@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Vitaly Andrianov <vitalya@ti.com>, Dave Gerlach <d-gerlach@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Vitaly Andrianov <vitalya@ti.com>
+Add I2C support to 66AK2G. Primary requirement is to add PM
+Runtime support to the driver.
 
-Add nodes for the various I2C instances.
+This has been tested on following platforms by performing simple i2c test
+such as i2c detect and reading on board i2c devices:
+K2G GP evm
+OMAPL138
+K2L GP EVM
 
-Signed-off-by: Vitaly Andrianov <vitalya@ti.com>
-[d-gerlach@ti.com: Add power domain and clock properties]
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-[fcooper@ti.com: Update subject and commit message]
-Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
----
- arch/arm/boot/dts/keystone-k2g.dtsi | 36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+and boot tested on:
+K2E GP EVM
+K2HK GP EVM
 
-diff --git a/arch/arm/boot/dts/keystone-k2g.dtsi b/arch/arm/boot/dts/keystone-k2g.dtsi
-index bf4d1fa..5c0acf37 100644
---- a/arch/arm/boot/dts/keystone-k2g.dtsi
-+++ b/arch/arm/boot/dts/keystone-k2g.dtsi
-@@ -27,6 +27,9 @@
- 
- 	aliases {
- 		serial0 = &uart0;
-+		i2c0 = &i2c0;
-+		i2c1 = &i2c1;
-+		i2c2 = &i2c2;
- 	};
- 
- 	cpus {
-@@ -113,6 +116,39 @@
- 			status = "disabled";
- 		};
- 
-+		i2c0: i2c@2530000 {
-+			compatible = "ti,keystone-i2c";
-+			reg = <0x02530000 0x400>;
-+			clocks = <&k2g_clks 0x003a 0>;
-+			power-domains = <&k2g_pds 0x003a>;
-+			interrupts = <GIC_SPI 88 IRQ_TYPE_EDGE_RISING>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
-+		i2c1: i2c@2530400 {
-+			compatible = "ti,keystone-i2c";
-+			reg = <0x02530400 0x400>;
-+			clocks = <&k2g_clks 0x003b 0>;
-+			power-domains = <&k2g_pds 0x003b>;
-+			interrupts = <GIC_SPI 89 IRQ_TYPE_EDGE_RISING>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
-+		i2c2: i2c@2530800 {
-+			compatible = "ti,keystone-i2c";
-+			reg = <0x02530800 0x400>;
-+			clocks = <&k2g_clks 0x003c 0>;
-+			power-domains = <&k2g_pds 0x003c>;
-+			interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
- 		kirq0: keystone_irq@026202a0 {
- 			compatible = "ti,keystone-irq";
- 			interrupts = <GIC_SPI 1 IRQ_TYPE_EDGE_RISING>;
+Franklin S Cooper Jr (3):
+  i2c: davinci: Preserve return value of devm_clk_get
+  i2c: davinci: Add PM Runtime Support
+  dt-bindings: i2c: i2c-davinci: Update binding for 66AK2Gx pwr dm
+    property
+
+Vitaly Andrianov (1):
+  ARM: dts: keystone-k2g: Add I2C nodes
+
+ .../devicetree/bindings/i2c/i2c-davinci.txt        | 12 +++++
+ arch/arm/boot/dts/keystone-k2g.dtsi                | 36 +++++++++++++
+ drivers/i2c/busses/i2c-davinci.c                   | 63 ++++++++++++++++++----
+ 3 files changed, 102 insertions(+), 9 deletions(-)
+
 -- 
 2.9.4.dirty
