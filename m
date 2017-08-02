@@ -1,7 +1,7 @@
 From: Franklin S Cooper Jr <fcooper@ti.com>
-Subject: [PATCH 1/4] i2c: davinci: Preserve return value of devm_clk_get
-Date: Wed, 2 Aug 2017 17:17:50 -0500
-Message-ID: <20170802221753.13786-2-fcooper@ti.com>
+Subject: [PATCH 4/4] ARM: dts: keystone-k2g: Add I2C nodes
+Date: Wed, 2 Aug 2017 17:17:53 -0500
+Message-ID: <20170802221753.13786-5-fcooper@ti.com>
 References: <20170802221753.13786-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,34 +9,75 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170802221753.13786-1-fcooper@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Franklin S Cooper Jr <fcooper@ti.com>
+Cc: Vitaly Andrianov <vitalya@ti.com>, Dave Gerlach <d-gerlach@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c driver can run into driver dependency issues if its loaded
-before a clock driver it depends on. Therefore, EPROBE_DEFER may be
-returned by devm_clk_get and should be returned in probe to allow the
-kernel to reprobe the driver at a later time. This patch allows the error
-value returned by devm_clk_get to be passed through and not overwritten.
+From: Vitaly Andrianov <vitalya@ti.com>
 
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Add nodes for the various I2C instances.
+
+Signed-off-by: Vitaly Andrianov <vitalya@ti.com>
+[d-gerlach@ti.com: Add power domain and clock properties]
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+[fcooper@ti.com: Update subject and commit message]
 Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
 ---
- drivers/i2c/busses/i2c-davinci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/keystone-k2g.dtsi | 36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 9e7ef5c..5749aac 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -801,7 +801,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/keystone-k2g.dtsi b/arch/arm/boot/dts/keystone-k2g.dtsi
+index bf4d1fa..5c0acf37 100644
+--- a/arch/arm/boot/dts/keystone-k2g.dtsi
++++ b/arch/arm/boot/dts/keystone-k2g.dtsi
+@@ -27,6 +27,9 @@
  
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk))
--		return -ENODEV;
-+		return PTR_ERR(dev->clk);
- 	clk_prepare_enable(dev->clk);
+ 	aliases {
+ 		serial0 = &uart0;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c2 = &i2c2;
+ 	};
  
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	cpus {
+@@ -113,6 +116,39 @@
+ 			status = "disabled";
+ 		};
+ 
++		i2c0: i2c@2530000 {
++			compatible = "ti,keystone-i2c";
++			reg = <0x02530000 0x400>;
++			clocks = <&k2g_clks 0x003a 0>;
++			power-domains = <&k2g_pds 0x003a>;
++			interrupts = <GIC_SPI 88 IRQ_TYPE_EDGE_RISING>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@2530400 {
++			compatible = "ti,keystone-i2c";
++			reg = <0x02530400 0x400>;
++			clocks = <&k2g_clks 0x003b 0>;
++			power-domains = <&k2g_pds 0x003b>;
++			interrupts = <GIC_SPI 89 IRQ_TYPE_EDGE_RISING>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@2530800 {
++			compatible = "ti,keystone-i2c";
++			reg = <0x02530800 0x400>;
++			clocks = <&k2g_clks 0x003c 0>;
++			power-domains = <&k2g_pds 0x003c>;
++			interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		kirq0: keystone_irq@026202a0 {
+ 			compatible = "ti,keystone-irq";
+ 			interrupts = <GIC_SPI 1 IRQ_TYPE_EDGE_RISING>;
 -- 
 2.9.4.dirty
