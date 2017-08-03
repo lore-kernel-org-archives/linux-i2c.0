@@ -1,114 +1,71 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
-Date: Thu, 3 Aug 2017 10:03:34 +0200
-Message-ID: <20170803100334.64988a66@bbrezillon>
-References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
-        <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
-        <CAK8P3a06GoMdKdn=3Cq0FUwYnjGX0oG+FQLjxfiasVDpbonWRw@mail.gmail.com>
-        <20170731231509.77d1fba4@bbrezillon>
-        <CAK8P3a0p=m-8U7TN8usG8HO-QNu_S7rSfykNzu4gm+MOaM2Kzg@mail.gmail.com>
-        <20170801142936.5df48702@bbrezillon>
-        <CAK8P3a0SH4kWcvXK+_iPt9LWuNnpjr+omp+ZpyTLjT=H602n+w@mail.gmail.com>
-        <20170801153414.6ce34ee8@bbrezillon>
-        <20170801141218.GA1450@katana>
-        <20170801164826.423183ff@bbrezillon>
-        <20170801150108.GC1450@katana>
-        <20170801172041.30aaac2e@bbrezillon>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: i2c: Add Spreadtrum I2C
+ controller documentation
+Date: Thu, 3 Aug 2017 10:26:52 +0200
+Message-ID: <b67d5908-dbac-4dd4-77f5-68d59f71b7fd@axentia.se>
+References: <eda1f25512db9c6946b303dd43f518ae2f0f3b26.1500021045.git.baolin.wang@spreadtrum.com>
+ <20170724065146.GA22330@spreadtrum.com>
+ <CAMz4kuLcGDxcNwymHDNTEf6Zs3ci11Q=1idsXcD=DJLe1rz0PQ@mail.gmail.com>
+ <CAMz4kuKhJBoQjrzdy0mO+2WUUw+Hnw9dSWv4VEdR1uPBvHuKYQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170801172041.30aaac2e@bbrezillon>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Jan Kotas <jank-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr10108.outbound.protection.outlook.com ([40.107.1.108]:2688
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751043AbdHCI1B (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 3 Aug 2017 04:27:01 -0400
+In-Reply-To: <CAMz4kuKhJBoQjrzdy0mO+2WUUw+Hnw9dSWv4VEdR1uPBvHuKYQ@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Baolin Wang <baolin.wang@linaro.org>, wsa@the-dreams.de, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, wsa+renesas@sang-engineering.com
 
-On Tue, 1 Aug 2017 17:20:41 +0200
-Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-
-> On Tue, 1 Aug 2017 17:01:08 +0200
-> Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+On 2017-08-03 09:29, Baolin Wang wrote:
+> Hi Wolfram,
 > 
-> > > I do not know of any real devices as of today (all my tests have been
-> > > done with a dummy/fake I3C slaves emulated with a slave IP),    
-> > 
-> > I see.
-> >   
-> > > spec clearly describe what legacy/static addresses are for and one of
-> > > their use case is to connect an I3C device on an I2C bus and let it act
-> > > as an I2C device.    
-> > 
-> > OK. That makes it more likely.
-> >   
-> > > Unless you want your device (likely a sensor) to be compatible with both
-> > > I3C and I2C so that you can target even more people.    
-> > 
-> > Right. My question was if this is a realistic or more academic scenario.
-> >   
-> > > I'm perfectly fine with the I3C / I2C framework separation. The only
-> > > minor problem I had with that was the inaccuracy of the
-> > > sysfs/device-model representation: we don't have one i2c and one i3c
-> > > bus, we just have one i3c bus with a mix of i2c and i3c devices.    
-> > 
-> > I understand that. What if I2C had the same seperation between the "bus"
-> > and the "master"?
-> >   
+> On 27 July 2017 at 17:29, Baolin Wang <baolin.wang@linaro.org> wrote:
+>> Hi Wolfram,
+>>
+>> On 24 July 2017 at 14:51, Baolin Wang <baolin.wang@spreadtrum.com> wrote:
+>>> Hi Wolfram,
+>>>
+>>> On 五,  7月 14, 2017 at 05:01:10下午 +0800, Baolin Wang wrote:
+>>>> This patch adds the binding documentation for Spreadtrum I2C
+>>>> controller device.
+>>>>
+>>>> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+>>>> Acked-by: Rob Herring <robh@kernel.org>
+>>>> ---
+>>>> Changes since v3:
+>>>>  - Add Ack from RobH.
+>>>>
+>>>> Changes since v2:
+>>>>  - Change compatible strings to be SoC specific.
+>>>>
+>>>> Changes since v1:
+>>>>  - No updates.
+>>>> ---
+>>>
+>>> Could you apply this patchset if there are no other comments?
+>>> It is a long time since the v4 was send out. Thanks.
+>>
+>> Ping?
 > 
-> Yep, it might work if we can register an i2c_adapter and pass it an
-> existing bus object. We'd still need a common base for i2c and i3c
-> busses, unless we consider the bus as an opaque "struct device *"
-> object.
+> Since this patchset has waited for a long time, could you pick up this
+> patchset into your branch? Thanks.
 
-I tried to envision how this could be implemented but realized
-separating the bus and master concepts in I2C wouldn't solve all
-problems.
+Please calm down. You first sent v4 4 weeks ago in the beginning of the
+merge window when everybody are supposedly looking at the integration of
+the work from the previous cycle. You have managed to send remainders
+four times in those few weeks.
 
-Each device is attached a bus_type which defines how to match devices
-and drivers, uevent format, ... But it also defines where the device
-appears in sysfs (/sys/bus/<bus-name>/devices).
+Four weeks is not a "long time", and it's not like you didn't get any
+feedback. Part of that feedback was that there was room for improvement.
+Have you looked into that? Or have you been busy sending pings? I'm sure
+Wolfram will pick the series in time for the next merge window if he's
+happy with it, there was that thing about room for improvement...
 
-First question: where should an I2C device connected on an I3C bus
-appear? /sys/bus/i3c/devices/ or /sys/bus/i2c/devices/? I'd say both
-(with one of them being a symlink to the other) but I'm not sure.
-
-Also, if we go for a 'single bus per master' representation but still
-want i3c and i2c to be differentiated, that means when one adds an
-i2c_driver we'll have to duplicate this driver object and register one
-instance to the i2c framework and the other one to the i3c framework,
-because device <-> driver matching is done per bus_type.
-
-One solution would be to go for Arnd suggestion to extend i2c_bus_type
-with I3C support, but then i3c related kojects would be exposed
-under /sys/bus/i2c/ which can be disturbing for people who are used to
-look at /sys/bus/<bus-name> to find devices connected on a specific bus
-type.
-
-Honestly, I don't know what's the best solution here. Every solution has
-its pros and cons:
-
-1/ The "one i2c bus and one i3c bus per i3c master" I proposed in this
-   RFC is non-invasive but the resulting sysfs/device-model
-   representation is not accurate.
-2/ Separating the I3C and I2C framework with a thin layer between them
-   to propagate i2c drivers registration to the i3c framework and make
-   sure i2c devices are exposed in both worlds is much more complicated
-   to implement but should provide an accurate bus <-> device
-   representation.
-3/ Extending i2c_bus_type (and more generally the I2C framework) to
-   support I3C devices/busses is invasive and we still have a
-   non-accurate representation (i2c busses are mixed with i3c busses
-   and all exposed under /sys/bus/i2c/). One advantage with this
-   solution compared to #2 is that we don't need to duplicate
-   i2c_driver objects in order to register them to both i2c and i3c bus
-   types.
-
-Any advice is welcome.
-
-Thanks,
-
-Boris
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Peter
