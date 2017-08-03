@@ -1,52 +1,36 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/3] dt-bindings: add "size" property.
-Date: Thu, 3 Aug 2017 15:27:34 -0500
-Message-ID: <20170803202734.rqyoiqhqvonvvtca@rob-hp-laptop>
-References: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
- <1501173789-25959-2-git-send-email-divagar.mohandass@intel.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 2/2] i2c: mux: pinctrl: drop the idle_state member
+Date: Thu, 3 Aug 2017 15:41:32 -0600
+Message-ID: <a51db36a-86ee-16ea-2063-90a55a455a9a@wwwdotorg.org>
+References: <20170802072728.24586-1-peda@axentia.se>
+ <20170802072728.24586-3-peda@axentia.se>
+ <15488723-e0ef-62b3-e62f-e74d12d8328d@wwwdotorg.org>
+ <cb3ecc9b-b26f-bb81-5836-ecd459ec3456@axentia.se>
+ <ee71d80d-840c-a784-7fc7-a72b7cc2f453@wwwdotorg.org>
+ <0f8c5821-e6d3-5574-80e7-b7b2e2bb9f18@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1501173789-25959-2-git-send-email-divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from avon.wwwdotorg.org ([104.237.132.123]:45562 "EHLO
+        avon.wwwdotorg.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751736AbdHCVlj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 3 Aug 2017 17:41:39 -0400
+In-Reply-To: <0f8c5821-e6d3-5574-80e7-b7b2e2bb9f18@axentia.se>
+Content-Language: en-GB
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@nvidia.com>, linux-i2c@vger.kernel.org
 
-On Thu, Jul 27, 2017 at 10:13:07PM +0530, divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org wrote:
-> From: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-
-Please improve the subject. Add size to what?
-
+On 08/02/2017 11:19 PM, Peter Rosin wrote:
+> On 2017-08-03 00:50, Stephen Warren wrote:
+>> On 08/02/2017 03:25 PM, Peter Rosin wrote:
+>>> (and muxc->max_adapters == num_names)
+>>
+>> Well, unless muxc->deselect is true...
 > 
-> This adds "size" as optional property for i2c eeproms.
-> 
-> "size" should be mentioned in byte and it should refer
-> to the eeprom size. This will be read by the driver and
-> used to calculating the number of bytes in read/write calls.
-> 
-> Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> index 5696eb5..1436569 100644
-> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> @@ -32,6 +32,8 @@ Optional properties:
->  
->    - read-only: this parameterless property disables writes to the eeprom
->  
-> +  - size: total eeprom size in bytes
-> +
+> No, deselect does not affect neither max_adapters nor num_names. They
+> are always equal.
 
-This should be implied by the compatible string of the eeprom. Why do 
-you need this?
-
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ah yes, I was confusing max_adapters with num_adapters.
