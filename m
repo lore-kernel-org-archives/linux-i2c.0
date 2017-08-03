@@ -1,57 +1,37 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Compatibles for i2c muxes nxp,pca954x and ti,tca954x
-Date: Thu, 3 Aug 2017 12:00:27 +0200
-Message-ID: <62519d0b-0b7b-9124-8481-9ef8de24eaf6@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: i2c-tools 4.0
+Date: Thu, 3 Aug 2017 15:34:14 +0200
+Message-ID: <20170803153414.4c9135ff@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>, Stefan Agner <stefan@agner.ch>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:36690 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751143AbdHCNeQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 3 Aug 2017 09:34:16 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 
-Hi!
+Hi all,
 
-Texas has apparently made copies for some of the NXP devices
-handled by the drivers/i2c/muxes/i2c-mux-pca954x.c driver.
+I have been delaying this for too long, let's release i2c-tools 4.0. I
+know that there are still a few things which I wanted to include in it
+which aren't ready (specifically, merging (parts of) tools/i2cbusses
+into the library, and documenting the API), but apparently I can't find
+the time for them. So I have come to the conclusion that we should
+release what we have, and build incrementally on top of it after it has
+been adopted by distributions.
 
-How is that best handled?
+Therefore I would like to ask everyone to give good testing to the
+master branch of:
 
-I see e.g. that arch/arm/boot/dts/vf610-zii-dev-rev-{b,c}.dts has
-this snippet:
+https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/
 
-&i2c2 {
-	tca9548@70 {
-		compatible = "nxp,pca9548";
+because it will become i2c-tools 4.0 in a near future.
 
-Which indicates that it really is a Texas chip sitting there, but that
-someone did not bother to state that explicitly.
-
-As I see it, there are two levels to this.
-
-1. Update the above to be
-
-		compatible = "ti,tca9548a", "nxp,pca9548";
-
-   and rely on the secondary compatible to be matched with the driver.
-
-2. Also update the driver to recognize the "ti,tca9548a" compatible.
-
-There are also "ti,tca9543a", "ti,tca9544a", "ti,tca9545a" and
-"ti,tca9546a" to consider (but no "ti,tca9542a" or "ti,tca9547a").
-
-AFAIU, the Texas chips are completely compatible from the driver
-point of view.
-
-Step 1 above is probably a bugfix, should someone find some
-unexpected incompatibility in the future. Without differentiating
-the compatibles now, there's just no way to handle that in a future
-driver.
-
-But is step 2 needed/desired until such a time that differences between
-the chips are found? How is this situation handled elsewhere?
-
-Cheers,
-peda
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
