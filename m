@@ -1,195 +1,420 @@
-From: Michael Shych <michaelsh@mellanox.com>
-Subject: RE: [PATCH] i2c: mux: rename files to not have superfluous prefixes
-Date: Sun, 6 Aug 2017 09:37:18 +0000
-Message-ID: <DB5PR05MB1432EEFEB2D0A53080E4D403D9B40@DB5PR05MB1432.eurprd05.prod.outlook.com>
-References: <20170804090736.13404-1-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH resend v2] i2c-cht-wc: Add Intel Cherry Trail Whiskey Cove SMBUS controller driver
+Date: Sun,  6 Aug 2017 12:59:43 +0200
+Message-ID: <20170806105943.31470-2-hdegoede@redhat.com>
+References: <20170806105943.31470-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr00085.outbound.protection.outlook.com ([40.107.0.85]:39392
-        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751258AbdHFJhV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 6 Aug 2017 05:37:21 -0400
-In-Reply-To: <20170804090736.13404-1-peda@axentia.se>
-Content-Language: en-US
+Received: from mx1.redhat.com ([209.132.183.28]:47960 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751277AbdHFK7s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 6 Aug 2017 06:59:48 -0400
+In-Reply-To: <20170806105943.31470-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Michael Hennerich <michael.hennerich@analog.com>, Guenter Roeck <linux@roeck-us.net>
+To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
 
+The Intel Cherry Trail Whiskey Cove PMIC does not contain a builtin
+battery charger, instead boards with this PMIC use an external TI
+bq24292i charger IC, which is connected to a SMBUS controller built into
+the PMIC.
 
-> -----Original Message-----
-> From: Peter Rosin [mailto:peda@axentia.se]
-> Sent: Friday, August 04, 2017 12:08 PM
-> To: linux-kernel@vger.kernel.org
-> Cc: Peter Rosin <peda@axentia.se>; Wolfram Sang <wsa@the-dreams.de>;
-> linux-i2c@vger.kernel.org; Peter Korsgaard <peter.korsgaard@barco.com>;
-> Michael Hennerich <michael.hennerich@analog.com>; Michael Shych
-> <michaelsh@mellanox.com>; Guenter Roeck <linux@roeck-us.net>
-> Subject: [PATCH] i2c: mux: rename files to not have superfluous prefixes
->=20
-> Keep the module names intact using extra lines in the Makefile.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+This commit adds an i2c-bus driver for the PMIC's builtin SMBUS
+controller. The probe function for this i2c-bus will also register an
+i2c-client for the TI bq24292i charger after the i2c-bus has been
+registered.
 
-Acked-by: Michael Shych <michaelsh@mellanox.com>
+Note that several device-properties are set on the client-device to
+tell the bq24190 power-supply driver to integrate the Whiskey Cove PMIC
+and e.g. use the PMIC's BC1.2 detection (through extcon) to determine
+the maximum input current.
 
-> ---
->  MAINTAINERS                                                 |  8 ++++---=
--
->  drivers/i2c/muxes/Makefile                                  | 13 +++++++=
-++++++
->  .../{i2c-arb-gpio-challenge.c =3D> arb-gpio-challenge.c}      |  0
->  drivers/i2c/muxes/{i2c-demux-pinctrl.c =3D> demux-pinctrl.c}  |  0
->  drivers/i2c/muxes/{i2c-mux-gpio.c =3D> gpio.c}                |  0
->  drivers/i2c/muxes/{i2c-mux-gpmux.c =3D> gpmux.c}              |  0
->  drivers/i2c/muxes/{i2c-mux-ltc4306.c =3D> ltc4306.c}          |  0
->  drivers/i2c/muxes/{i2c-mux-mlxcpld.c =3D> mlxcpld.c}          |  0
->  drivers/i2c/muxes/{i2c-mux-pca9541.c =3D> pca9541.c}          |  0
->  drivers/i2c/muxes/{i2c-mux-pca954x.c =3D> pca954x.c}          |  0
->  drivers/i2c/muxes/{i2c-mux-pinctrl.c =3D> pinctrl.c}          |  0
->  drivers/i2c/muxes/{i2c-mux-reg.c =3D> reg.c}                  |  0
->  12 files changed, 17 insertions(+), 4 deletions(-)  rename
-> drivers/i2c/muxes/{i2c-arb-gpio-challenge.c =3D> arb-gpio-challenge.c} (1=
-00%)
-> rename drivers/i2c/muxes/{i2c-demux-pinctrl.c =3D> demux-pinctrl.c} (100%=
-)
-> rename drivers/i2c/muxes/{i2c-mux-gpio.c =3D> gpio.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-gpmux.c =3D> gpmux.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-ltc4306.c =3D> ltc4306.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-mlxcpld.c =3D> mlxcpld.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-pca9541.c =3D> pca9541.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-pca954x.c =3D> pca954x.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-pinctrl.c =3D> pinctrl.c} (100%)  rename
-> drivers/i2c/muxes/{i2c-mux-reg.c =3D> reg.c} (100%)
->=20
-> Hi Wolfram!
->=20
-> In the light of the rant from Linus the other week [1], I thought this mi=
-ght be
-> a good idea?
->=20
-> Cheers,
-> peda
->=20
-> [1]
-> https://emea01.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Flk
-> ml.org%2Flkml%2F2017%2F7%2F12%2F430&data=3D02%7C01%7Cmichaelsh%40
-> mellanox.com%7C6cbbed292e99475e99d208d4db184a42%7Ca652971c7d2e4
-> d9ba6a4d149256f461b%7C0%7C0%7C636374344761668884&sdata=3Dk2CK8RQq
-> mWOEs3CULrPqOR1uddb1iIawqUTD7%2F4BLiU%3D&reserved=3D0
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 205d3977ac46..46356c87f0c9 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5687,7 +5687,7 @@ GENERIC GPIO I2C MULTIPLEXER DRIVER
->  M:	Peter Korsgaard <peter.korsgaard@barco.com>
->  L:	linux-i2c@vger.kernel.org
->  S:	Supported
-> -F:	drivers/i2c/muxes/i2c-mux-gpio.c
-> +F:	drivers/i2c/muxes/gpio.c
->  F:	include/linux/i2c-mux-gpio.h
->  F:	Documentation/i2c/muxes/i2c-mux-gpio
->=20
-> @@ -7998,7 +7998,7 @@ M:	Michael Hennerich
-> <michael.hennerich@analog.com>
->  W:
-> 	https://emea01.safelinks.protection.outlook.com/?url=3Dhttp%3A%2F
-> %2Fez.analog.com%2Fcommunity%2Flinux-device-
-> drivers&data=3D02%7C01%7Cmichaelsh%40mellanox.com%7C6cbbed292e9947
-> 5e99d208d4db184a42%7Ca652971c7d2e4d9ba6a4d149256f461b%7C0%7C0%7
-> C636374344761668884&sdata=3DhehiWQXI5WY2oz1SCBV9TqjWQ3wYPzKuIKes
-> K44Ar%2Fg%3D&reserved=3D0
->  L:	linux-i2c@vger.kernel.org
->  S:	Supported
-> -F:	drivers/i2c/muxes/i2c-mux-ltc4306.c
-> +F:	drivers/i2c/muxes/ltc4306.c
->  F:	Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
->=20
->  LTP (Linux Test Project)
-> @@ -8558,7 +8558,7 @@ M:	Michael Shych <michaelsh@mellanox.com>
->  L:	linux-i2c@vger.kernel.org
->  S:	Supported
->  F:	drivers/i2c/busses/i2c-mlxcpld.c
-> -F:	drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> +F:	drivers/i2c/muxes/mlxcpld.c
->  F:	Documentation/i2c/busses/i2c-mlxcpld
->=20
->  MELLANOX MLXCPLD LED DRIVER
-> @@ -10018,7 +10018,7 @@ PCA9541 I2C BUS MASTER SELECTOR DRIVER
->  M:	Guenter Roeck <linux@roeck-us.net>
->  L:	linux-i2c@vger.kernel.org
->  S:	Maintained
-> -F:	drivers/i2c/muxes/i2c-mux-pca9541.c
-> +F:	drivers/i2c/muxes/pca9541.c
->=20
->  PCDP - PRIMARY CONSOLE AND DEBUG PORT
->  M:	Khalid Aziz <khalid@gonehiking.org>
-> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile inde=
-x
-> 4a67d3199877..b9f7a78d7604 100644
-> --- a/drivers/i2c/muxes/Makefile
-> +++ b/drivers/i2c/muxes/Makefile
-> @@ -1,6 +1,19 @@
->  #
->  # Makefile for multiplexer I2C chip drivers.
->=20
-> +i2c-arb-gpio-challenge-objs	:=3D arb-gpio-challenge.o
-> +
-> +i2c-demux-pinctrl-objs		:=3D demux-pinctrl.o
-> +
-> +i2c-mux-gpio-objs		:=3D gpio.o
-> +i2c-mux-gpmux-objs		:=3D gpmux.o
-> +i2c-mux-ltc4306-objs		:=3D ltc4306.o
-> +i2c-mux-mlxcpld-objs		:=3D mlxcpld.o
-> +i2c-mux-pca9541-objs		:=3D pca9541.o
-> +i2c-mux-pca954x-objs		:=3D pca954x.o
-> +i2c-mux-pinctrl-objs		:=3D pinctrl.o
-> +i2c-mux-reg-objs		:=3D reg.o
-> +
->  obj-$(CONFIG_I2C_ARB_GPIO_CHALLENGE)	+=3D i2c-arb-gpio-challenge.o
->=20
->  obj-$(CONFIG_I2C_DEMUX_PINCTRL)		+=3D i2c-demux-pinctrl.o
-> diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
-> b/drivers/i2c/muxes/arb-gpio-challenge.c
-> similarity index 100%
-> rename from drivers/i2c/muxes/i2c-arb-gpio-challenge.c
-> rename to drivers/i2c/muxes/arb-gpio-challenge.c
-> diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> b/drivers/i2c/muxes/demux-pinctrl.c
-> similarity index 100%
-> rename from drivers/i2c/muxes/i2c-demux-pinctrl.c
-> rename to drivers/i2c/muxes/demux-pinctrl.c diff --git
-> a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/gpio.c similarity
-> index 100% rename from drivers/i2c/muxes/i2c-mux-gpio.c rename to
-> drivers/i2c/muxes/gpio.c diff --git a/drivers/i2c/muxes/i2c-mux-gpmux.c
-> b/drivers/i2c/muxes/gpmux.c similarity index 100% rename from
-> drivers/i2c/muxes/i2c-mux-gpmux.c rename to drivers/i2c/muxes/gpmux.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> b/drivers/i2c/muxes/ltc4306.c similarity index 100% rename from
-> drivers/i2c/muxes/i2c-mux-ltc4306.c
-> rename to drivers/i2c/muxes/ltc4306.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> b/drivers/i2c/muxes/mlxcpld.c similarity index 100% rename from
-> drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> rename to drivers/i2c/muxes/mlxcpld.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c
-> b/drivers/i2c/muxes/pca9541.c similarity index 100% rename from
-> drivers/i2c/muxes/i2c-mux-pca9541.c
-> rename to drivers/i2c/muxes/pca9541.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> b/drivers/i2c/muxes/pca954x.c similarity index 100% rename from
-> drivers/i2c/muxes/i2c-mux-pca954x.c
-> rename to drivers/i2c/muxes/pca954x.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/pinc=
-trl.c
-> similarity index 100% rename from drivers/i2c/muxes/i2c-mux-pinctrl.c
-> rename to drivers/i2c/muxes/pinctrl.c
-> diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/reg.c
-> similarity index 100% rename from drivers/i2c/muxes/i2c-mux-reg.c rename
-> to drivers/i2c/muxes/reg.c
-> --
-> 2.11.0
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+Changes in v2:
+-Various style (mostly captialization and variable name) fixes
+-Use device-properties instead of platform_data for the i2c_board_info
+---
+ drivers/i2c/busses/Kconfig      |   8 +
+ drivers/i2c/busses/Makefile     |   1 +
+ drivers/i2c/busses/i2c-cht-wc.c | 336 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 345 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-cht-wc.c
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 1006b230b236..f20b1f84013a 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -189,6 +189,14 @@ config I2C_PIIX4
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-piix4.
+ 
++config I2C_CHT_WC
++	tristate "Intel Cherry Trail Whiskey Cove PMIC smbus controller"
++	depends on INTEL_SOC_PMIC_CHTWC
++	help
++	  If you say yes to this option, support will be included for the
++	  SMBus controller found in the Intel Cherry Trail Whiskey Cove PMIC
++	  found on some Intel Cherry Trail systems.
++
+ config I2C_NFORCE2
+ 	tristate "Nvidia nForce2, nForce3 and nForce4"
+ 	depends on PCI
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 1b2fc815a4d8..4e654b5dbe6f 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -12,6 +12,7 @@ obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
+ obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
+ obj-$(CONFIG_I2C_AMD756_S4882)	+= i2c-amd756-s4882.o
+ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
++obj-$(CONFIG_I2C_CHT_WC)	+= i2c-cht-wc.o
+ obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
+ obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
+ obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+new file mode 100644
+index 000000000000..ccf0785bcb75
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -0,0 +1,336 @@
++/*
++ * Intel CHT Whiskey Cove PMIC I2C Master driver
++ * Copyright (C) 2017 Hans de Goede <hdegoede@redhat.com>
++ *
++ * Based on various non upstream patches to support the CHT Whiskey Cove PMIC:
++ * Copyright (C) 2011 - 2014 Intel Corporation. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version
++ * 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/completion.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/irqdomain.h>
++#include <linux/mfd/intel_soc_pmic.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++#define CHT_WC_I2C_CTRL			0x5e24
++#define CHT_WC_I2C_CTRL_WR		BIT(0)
++#define CHT_WC_I2C_CTRL_RD		BIT(1)
++#define CHT_WC_I2C_CLIENT_ADDR		0x5e25
++#define CHT_WC_I2C_REG_OFFSET		0x5e26
++#define CHT_WC_I2C_WRDATA		0x5e27
++#define CHT_WC_I2C_RDDATA		0x5e28
++
++#define CHT_WC_EXTCHGRIRQ		0x6e0a
++#define CHT_WC_EXTCHGRIRQ_CLIENT_IRQ	BIT(0)
++#define CHT_WC_EXTCHGRIRQ_WRITE_IRQ	BIT(1)
++#define CHT_WC_EXTCHGRIRQ_READ_IRQ	BIT(2)
++#define CHT_WC_EXTCHGRIRQ_NACK_IRQ	BIT(3)
++#define CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK	((u8)GENMASK(3, 1))
++#define CHT_WC_EXTCHGRIRQ_MSK		0x6e17
++
++struct cht_wc_i2c_adap {
++	struct i2c_adapter adapter;
++	wait_queue_head_t wait;
++	struct irq_chip irqchip;
++	struct mutex irqchip_lock;
++	struct regmap *regmap;
++	struct irq_domain *irq_domain;
++	struct i2c_client *client;
++	int client_irq;
++	u8 irq_mask;
++	u8 old_irq_mask;
++	bool nack;
++	bool done;
++};
++
++static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
++{
++	struct cht_wc_i2c_adap *adap = data;
++	int ret, reg;
++
++	/* Read IRQs */
++	ret = regmap_read(adap->regmap, CHT_WC_EXTCHGRIRQ, &reg);
++	if (ret) {
++		dev_err(&adap->adapter.dev, "Error reading extchgrirq reg\n");
++		return IRQ_NONE;
++	}
++
++	reg &= ~adap->irq_mask;
++
++	/*
++	 * Immediately ack IRQs, so that if new IRQs arrives while we're
++	 * handling the previous ones our irq will re-trigger when we're done.
++	 */
++	ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ, reg);
++	if (ret)
++		dev_err(&adap->adapter.dev, "Error writing extchgrirq reg\n");
++
++	/*
++	 * Do NOT use handle_nested_irq here, the client irq handler will
++	 * likely want to do i2c transfers and the i2c controller uses this
++	 * interrupt handler as well, so running the client irq handler from
++	 * this thread will cause things to lock up.
++	 */
++	if (reg & CHT_WC_EXTCHGRIRQ_CLIENT_IRQ) {
++		/*
++		 * generic_handle_irq expects local IRQs to be disabled
++		 * as normally it is called from interrupt context.
++		 */
++		local_irq_disable();
++		generic_handle_irq(adap->client_irq);
++		local_irq_enable();
++	}
++
++	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
++		adap->nack = !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
++		adap->done = true;
++		wake_up(&adap->wait);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static u32 cht_wc_i2c_adap_master_func(struct i2c_adapter *adap)
++{
++	/* This i2c adapter only supports SMBUS byte transfers */
++	return I2C_FUNC_SMBUS_BYTE_DATA;
++}
++
++static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
++				      unsigned short flags, char read_write,
++				      u8 command, int size,
++				      union i2c_smbus_data *data)
++{
++	struct cht_wc_i2c_adap *adap = i2c_get_adapdata(_adap);
++	int ret, reg;
++
++	adap->nack = false;
++	adap->done = false;
++
++	ret = regmap_write(adap->regmap, CHT_WC_I2C_CLIENT_ADDR, addr);
++	if (ret)
++		return ret;
++
++	if (read_write == I2C_SMBUS_WRITE) {
++		ret = regmap_write(adap->regmap, CHT_WC_I2C_WRDATA, data->byte);
++		if (ret)
++			return ret;
++	}
++
++	ret = regmap_write(adap->regmap, CHT_WC_I2C_REG_OFFSET, command);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(adap->regmap, CHT_WC_I2C_CTRL,
++			   (read_write == I2C_SMBUS_WRITE) ?
++			   CHT_WC_I2C_CTRL_WR : CHT_WC_I2C_CTRL_RD);
++	if (ret)
++		return ret;
++
++	/* 3 second timeout, during cable plug the PMIC responds quite slow */
++	ret = wait_event_timeout(adap->wait, adap->done, 3 * HZ);
++	if (ret == 0)
++		return -ETIMEDOUT;
++	if (adap->nack)
++		return -EIO;
++
++	if (read_write == I2C_SMBUS_READ) {
++		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &reg);
++		if (ret)
++			return ret;
++
++		data->byte = reg;
++	}
++
++	return 0;
++}
++
++static const struct i2c_algorithm cht_wc_i2c_adap_algo = {
++	.functionality = cht_wc_i2c_adap_master_func,
++	.smbus_xfer = cht_wc_i2c_adap_smbus_xfer,
++};
++
++/**** irqchip for the client connected to the extchgr i2c adapter ****/
++static void cht_wc_i2c_irq_lock(struct irq_data *data)
++{
++	struct cht_wc_i2c_adap *adap = irq_data_get_irq_chip_data(data);
++
++	mutex_lock(&adap->irqchip_lock);
++}
++
++static void cht_wc_i2c_irq_sync_unlock(struct irq_data *data)
++{
++	struct cht_wc_i2c_adap *adap = irq_data_get_irq_chip_data(data);
++	int ret;
++
++	if (adap->irq_mask != adap->old_irq_mask) {
++		ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ_MSK,
++				   adap->irq_mask);
++		if (ret == 0)
++			adap->old_irq_mask = adap->irq_mask;
++		else
++			dev_err(&adap->adapter.dev, "Error writing EXTCHGRIRQ_MSK\n");
++	}
++
++	mutex_unlock(&adap->irqchip_lock);
++}
++
++static void cht_wc_i2c_irq_enable(struct irq_data *data)
++{
++	struct cht_wc_i2c_adap *adap = irq_data_get_irq_chip_data(data);
++
++	adap->irq_mask &= ~CHT_WC_EXTCHGRIRQ_CLIENT_IRQ;
++}
++
++static void cht_wc_i2c_irq_disable(struct irq_data *data)
++{
++	struct cht_wc_i2c_adap *adap = irq_data_get_irq_chip_data(data);
++
++	adap->irq_mask |= CHT_WC_EXTCHGRIRQ_CLIENT_IRQ;
++}
++
++static const struct irq_chip cht_wc_i2c_irq_chip = {
++	.irq_bus_lock		= cht_wc_i2c_irq_lock,
++	.irq_bus_sync_unlock	= cht_wc_i2c_irq_sync_unlock,
++	.irq_disable		= cht_wc_i2c_irq_disable,
++	.irq_enable		= cht_wc_i2c_irq_enable,
++	.name			= "cht_wc_ext_chrg_irq_chip",
++};
++
++static const struct property_entry bq24190_props[] = {
++	PROPERTY_ENTRY_STRING("extcon-name", "cht_wcove_pwrsrc"),
++	PROPERTY_ENTRY_BOOL("omit-battery-class"),
++	PROPERTY_ENTRY_BOOL("disable-reset"),
++	{ }
++};
++
++static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
++{
++	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
++	struct cht_wc_i2c_adap *adap;
++	struct i2c_board_info board_info = {
++		.type = "bq24190",
++		.addr = 0x6b,
++		.properties = bq24190_props,
++	};
++	int ret, irq;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(&pdev->dev, "Error missing irq resource\n");
++		return -EINVAL;
++	}
++
++	adap = devm_kzalloc(&pdev->dev, sizeof(*adap), GFP_KERNEL);
++	if (!adap)
++		return -ENOMEM;
++
++	init_waitqueue_head(&adap->wait);
++	mutex_init(&adap->irqchip_lock);
++	adap->irqchip = cht_wc_i2c_irq_chip;
++	adap->regmap = pmic->regmap;
++	adap->adapter.owner = THIS_MODULE;
++	adap->adapter.class = I2C_CLASS_HWMON;
++	adap->adapter.algo = &cht_wc_i2c_adap_algo;
++	strlcpy(adap->adapter.name, "PMIC I2C Adapter",
++		sizeof(adap->adapter.name));
++	adap->adapter.dev.parent = &pdev->dev;
++
++	/* Clear and activate i2c-adapter interrupts, disable client IRQ */
++	adap->old_irq_mask = adap->irq_mask = ~CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK;
++	ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ, ~adap->irq_mask);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ_MSK, adap->irq_mask);
++	if (ret)
++		return ret;
++
++	/* Alloc and register client IRQ */
++	adap->irq_domain = irq_domain_add_linear(pdev->dev.of_node, 1,
++						 &irq_domain_simple_ops, NULL);
++	if (!adap->irq_domain)
++		return -ENOMEM;
++
++	adap->client_irq = irq_create_mapping(adap->irq_domain, 0);
++	if (!adap->client_irq) {
++		ret = -ENOMEM;
++		goto remove_irq_domain;
++	}
++
++	irq_set_chip_data(adap->client_irq, adap);
++	irq_set_chip_and_handler(adap->client_irq, &adap->irqchip,
++				 handle_simple_irq);
++
++	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
++					cht_wc_i2c_adap_thread_handler,
++					IRQF_ONESHOT, "PMIC I2C Adapter", adap);
++	if (ret)
++		goto remove_irq_domain;
++
++	i2c_set_adapdata(&adap->adapter, adap);
++	ret = i2c_add_adapter(&adap->adapter);
++	if (ret)
++		goto remove_irq_domain;
++
++	board_info.irq = adap->client_irq;
++	adap->client = i2c_new_device(&adap->adapter, &board_info);
++	if (!adap->client) {
++		ret = -ENOMEM;
++		goto del_adapter;
++	}
++
++	platform_set_drvdata(pdev, adap);
++	return 0;
++
++del_adapter:
++	i2c_del_adapter(&adap->adapter);
++remove_irq_domain:
++	irq_domain_remove(adap->irq_domain);
++	return ret;
++}
++
++static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
++{
++	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
++
++	i2c_unregister_device(adap->client);
++	i2c_del_adapter(&adap->adapter);
++	irq_domain_remove(adap->irq_domain);
++
++	return 0;
++}
++
++static struct platform_device_id cht_wc_i2c_adap_id_table[] = {
++	{ .name = "cht_wcove_ext_chgr" },
++	{},
++};
++MODULE_DEVICE_TABLE(platform, cht_wc_i2c_adap_id_table);
++
++struct platform_driver cht_wc_i2c_adap_driver = {
++	.probe = cht_wc_i2c_adap_i2c_probe,
++	.remove = cht_wc_i2c_adap_i2c_remove,
++	.driver = {
++		.name = "cht_wcove_ext_chgr",
++	},
++	.id_table = cht_wc_i2c_adap_id_table,
++};
++module_platform_driver(cht_wc_i2c_adap_driver);
++
++MODULE_DESCRIPTION("Intel CHT Whiskey Cove PMIC I2C Master driver");
++MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
++MODULE_LICENSE("GPL");
+-- 
+2.13.3
