@@ -1,42 +1,36 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 18/18] i2c-cht-wc: Add device-properties for fusb302 integration
-Date: Sun, 6 Aug 2017 19:29:08 +0300
-Message-ID: <CAHp75VfM-cGzhng4amYs=Y3nJorFud6u6R_xj4C-rSJuHePicQ@mail.gmail.com>
-References: <20170806123555.5124-1-hdegoede@redhat.com> <20170806123555.5124-19-hdegoede@redhat.com>
- <9ba933c6-daae-f30d-2c83-e9c2b756d27f@roeck-us.net> <ae6fcdce-1dd0-d29f-ce04-9d9c77f14730@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <ae6fcdce-1dd0-d29f-ce04-9d9c77f14730@redhat.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, devel@driverdev.osuosl.org
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] i2c: imx: Remove a useless test in 'i2c_imx_init_recovery_info()'
+Date: Mon,  7 Aug 2017 01:49:53 +0200
+Message-ID: <20170806234953.30682-1-christophe.jaillet@wanadoo.fr>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp01.smtpout.orange.fr ([80.12.242.123]:33572 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751424AbdHGFCk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 7 Aug 2017 01:02:40 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-On Sun, Aug 6, 2017 at 6:05 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> On 06-08-17 16:35, Guenter Roeck wrote:
->> On 08/06/2017 05:35 AM, Hans de Goede wrote:
+'devm_pinctrl_get()' never returns NULL, so this test can be simplified.
 
-> FWIW all DSTDs I've seen are all copy and paste and all declare a INT33FE
-> ACPI
-> device with identical i2c client addresses which strongly suggests the
-> use of the same combo. Note that on most devices this part of the DSTD is
-> not active (_STA returns 0) because they actually use a different config.
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Which is quite likely just blindly copied from a reference BIOS code.
-(Reminds me that bug with GPIO pin setting for interrupt as output only)
-
-> The only extra safe-guard I can come up with is a DMI string check, but that
-> is sub-optimal since the DMI strings on these devices contain useful values
-> as "Default String" still we could add it as an extra check.
-
-...and in worst cases CPU model ID.
-
-> Since I had the same concern I've done a web search and I've been unable
-> to find any other devices which seem to use a Whiskey Cove PMIC, but that
-> does not mean that there aren't any.
-
-
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 54a47b40546f..7e84662fe1c0 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -997,7 +997,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+ 	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+ 
+ 	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+-	if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
++	if (IS_ERR(i2c_imx->pinctrl)) {
+ 		dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
+ 		return PTR_ERR(i2c_imx->pinctrl);
+ 	}
 -- 
-With Best Regards,
-Andy Shevchenko
+2.11.0
