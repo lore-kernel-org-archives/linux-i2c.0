@@ -1,128 +1,79 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH] i2c: imx: Remove a useless test in
- 'i2c_imx_init_recovery_info()'
-Date: Mon, 7 Aug 2017 09:16:59 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1708070916300.2061@hadrien>
-References: <20170806234953.30682-1-christophe.jaillet@wanadoo.fr> <20170807063617.5wr4i7b7k72uyrit@pengutronix.de>
+From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
+Subject: RE: [PATCH 1/3] dt-bindings: add "size" property.
+Date: Mon, 7 Aug 2017 09:08:02 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DB615E@BGSMSX107.gar.corp.intel.com>
+References: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
+ <1501173789-25959-2-git-send-email-divagar.mohandass@intel.com>
+ <20170803202734.rqyoiqhqvonvvtca@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323329-747096559-1502090219=:2061"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170807063617.5wr4i7b7k72uyrit@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
-List-Id: linux-i2c@vger.kernel.org
-
---8323329-747096559-1502090219=:2061
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:38568 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752331AbdHGJIH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 7 Aug 2017 05:08:07 -0400
+In-Reply-To: <20170803202734.rqyoiqhqvonvvtca@rob-hp-laptop>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
 
-
-
-On Mon, 7 Aug 2017, Uwe Kleine-König wrote:
-
-> On Mon, Aug 07, 2017 at 01:49:53AM +0200, Christophe JAILLET wrote:
-> > 'devm_pinctrl_get()' never returns NULL, so this test can be simplified.
+>-----Original Message-----
+>From: Rob Herring [mailto:robh@kernel.org]
+>Sent: Friday, August 04, 2017 1:58 AM
+>To: Mohandass, Divagar <divagar.mohandass@intel.com>
+>Cc: mark.rutland@arm.com; wsa@the-dreams.de;
+>devicetree@vger.kernel.org; linux-i2c@vger.kernel.org; linux-
+>kernel@vger.kernel.org; Mani, Rajmohan <rajmohan.mani@intel.com>
+>Subject: Re: [PATCH 1/3] dt-bindings: add "size" property.
 >
-> That's wrong. If CONFIG_PINCTRL is disabled devm_pinctrl_get returns
-> NULL. But I think this shouldn't be considered an error, so your change
-> is right, just the commit log is not.
+>On Thu, Jul 27, 2017 at 10:13:07PM +0530, divagar.mohandass@intel.com
+>wrote:
+>> From: Divagar Mohandass <divagar.mohandass@intel.com>
 >
-> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> > index 54a47b40546f..7e84662fe1c0 100644
-> > --- a/drivers/i2c/busses/i2c-imx.c
-> > +++ b/drivers/i2c/busses/i2c-imx.c
-> > @@ -997,7 +997,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
-> >  	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
-> >
-> >  	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
-> > -	if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
-> > +	if (IS_ERR(i2c_imx->pinctrl)) {
-> >  		dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
-> >  		return PTR_ERR(i2c_imx->pinctrl);
-> >  	}
->
-> Side note: I'm not sure, this construct is valid. IIRC PTR_ERR should
-> only be called for values x where IS_ERR(x) is true. Here it is at least
-> surprising that an message hints to a problem but the return code is 0.
->
-> @Julia: I'm sure coccinelle can find more of those?!
+>Please improve the subject. Add size to what?
 
-I only found a few.  Christophe, if you want to fix tem up, please go
-ahead.
-
-julia
-
-diff -u -p /var/linuxes/linux-next/drivers/net/ethernet/intel/e100.c
-/tmp/nothing/drivers/net/ethernet/intel/e100.c
---- /var/linuxes/linux-next/drivers/net/ethernet/intel/e100.c
-+++ /tmp/nothing/drivers/net/ethernet/intel/e100.c
-@@ -1370,8 +1370,6 @@ static inline int e100_load_ucode_wait(s
-
-        fw = e100_request_firmware(nic);
-        /* If it's NULL, then no ucode is required */
--       if (!fw || IS_ERR(fw))
--               return PTR_ERR(fw);
-
-        if ((err = e100_exec_cb(nic, (void *)fw, e100_setup_ucode)))
-                netif_err(nic, probe, nic->netdev,
-diff -u -p /var/linuxes/linux-next/drivers/i2c/busses/i2c-imx.c
-/tmp/nothing/drivers/i2c/busses/i2c-imx.c
---- /var/linuxes/linux-next/drivers/i2c/busses/i2c-imx.c
-+++ /tmp/nothing/drivers/i2c/busses/i2c-imx.c
-@@ -997,9 +997,7 @@ static int i2c_imx_init_recovery_info(st
-        struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
-
-        i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
--       if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
-                dev_info(&pdev->dev, "can't get pinctrl, bus recovery not
-supported\n");
--               return PTR_ERR(i2c_imx->pinctrl);
-        }
-
-        i2c_imx->pinctrl_pins_default =
-pinctrl_lookup_state(i2c_imx->pinctrl,
-diff -u -p /var/linuxes/linux-next/drivers/crypto/chelsio/chcr_algo.c
-/tmp/nothing/drivers/crypto/chelsio/chcr_algo.c
---- /var/linuxes/linux-next/drivers/crypto/chelsio/chcr_algo.c
-+++ /tmp/nothing/drivers/crypto/chelsio/chcr_algo.c
-@@ -3159,8 +3159,6 @@ static int chcr_aead_op(struct aead_requ
-        skb = create_wr_fn(req, u_ctx->lldi.rxq_ids[ctx->rx_qidx], size,
-                           op_type);
-
--       if (IS_ERR(skb) || !skb)
--               return PTR_ERR(skb);
-
-        skb->dev = u_ctx->lldi.ports[0];
-        set_wr_txq(skb, CPL_PRIORITY_DATA, ctx->tx_qidx);
-diff -u -p /var/linuxes/linux-next/fs/ocfs2/acl.c
-/tmp/nothing/fs/ocfs2/acl.c
---- /var/linuxes/linux-next/fs/ocfs2/acl.c
-+++ /tmp/nothing/fs/ocfs2/acl.c
-@@ -331,8 +331,6 @@ int ocfs2_acl_chmod(struct inode *inode,
-                return 0;
-
-        acl = ocfs2_get_acl_nolock(inode, ACL_TYPE_ACCESS, bh);
--       if (IS_ERR(acl) || !acl)
--               return PTR_ERR(acl);
-        ret = __posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
-        if (ret)
-                return ret;
-
-
-
-
+I will update the title to say 'add eeprom "size" property' in the next version.
 
 >
-> Best regards
-> Uwe
+>>
+>> This adds "size" as optional property for i2c eeproms.
+>>
+>> "size" should be mentioned in byte and it should refer to the eeprom
+>> size. This will be read by the driver and used to calculating the
+>> number of bytes in read/write calls.
+>>
+>> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
+>> ---
+>>  Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> index 5696eb5..1436569 100644
+>> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> @@ -32,6 +32,8 @@ Optional properties:
+>>
+>>    - read-only: this parameterless property disables writes to the
+>> eeprom
+>>
+>> +  - size: total eeprom size in bytes
+>> +
 >
-> --
-> Pengutronix e.K.                           | Uwe Kleine-König            |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>This should be implied by the compatible string of the eeprom. Why do you
+>need this?
+
+This eeprom "size" property is optional for at24 driver, 
+In the at24 driver size information is passed as part of the i2c_device_id' 
+driver_data during initial probe. If you want to use an existing ID for an 
+eeprom for a different size, there is no way to override it currently. 
+By introducing an optional size device property, we can reuse IDs for chips of
+different sizes.
+
+This is also consistent with the implementation in the at25 driver.
+
 >
---8323329-747096559-1502090219=:2061--
+>Rob
