@@ -1,53 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c-tools 4.0
-Date: Mon, 7 Aug 2017 23:06:39 +0200
-Message-ID: <20170807210639.GB2104@katana>
-References: <20170803153414.4c9135ff@endymion>
+From: Stephen Douthit <stephend@adiengineering.com>
+Subject: [PATCH 0/2] i2c: ismt: Fix length handling for SMBus block reads
+Date: Mon,  7 Aug 2017 17:10:58 -0400
+Message-ID: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xgyAXRrhYN0wYx8y"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:43892 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751962AbdHGVGm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Aug 2017 17:06:42 -0400
-Content-Disposition: inline
-In-Reply-To: <20170803153414.4c9135ff@endymion>
+Received: from mail-he1eur01on0102.outbound.protection.outlook.com ([104.47.0.102]:13680
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751761AbdHGVLe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 7 Aug 2017 17:11:34 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
+To: seth.heasley@intel.com, nhorman@tuxdriver.com
+Cc: wsa@the-dreams.de, danp@adiengineering.com, stephend@adiengineering.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hello all,
 
---xgyAXRrhYN0wYx8y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We ran into an issue where the ipmi_ssif and i2c-ismt drivers don't
+agree on the format for data returned by i2c_smbus_read_block_data()
 
+Looking at the traffic on the wire with a beagle analyzer:
+-----
+Packet Details   (Values in hex; [S] = Start condition;
+                  [P] = Stop condition; * = No Ack)
+[S] <10:R> 12 1C 01 00 00 80 02 1C 02 8F BE 12 00 25 12 41 01 00 00* [P]
+-----
 
-> I have been delaying this for too long, let's release i2c-tools 4.0.
+Looking at the matching kernel trace:
+-----
+kssif0010-759   [001] ....  1435.891090: smbus_read: i2c-0 a=010 f=0000 c=3 BLOCK_DATA
+kssif0010-759   [001] ....  1436.202906: smbus_reply: i2c-0 a=010 f=0000 c=3 BLOCK_DATA l=20 [13-12-1c-01-00-00-80-02-1c-02-8f-be-12-00-25-12-41-01-00-00]
+kssif0010-759   [001] ....  1436.202908: smbus_result: i2c-0 a=010 f=0000 c=3 BLOCK_DATA rd res=0
+-----
 
-Yay! Thanks, Jean. I've been using the master branch a lot on my
-embedded boards. But I'll give it extra attention from now on.
+So basically the byte count already precedes the data in the dma_buffer,
+then the driver sticks desc->rxbytes in front of this resulting in the
+trace above.
 
+The first patch tackles this.
 
---xgyAXRrhYN0wYx8y
-Content-Type: application/pgp-signature; name="signature.asc"
+The second patch in the series adds a sanity check on the byte count
+supplied by the slave device.  This might be a nice to have, but is
+probably less critical.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmI1l8ACgkQFA3kzBSg
-KbYd+A//QTP6Tnzs1bn4rMOjcGC6aAZHbvZLjuMzt0zumCRPNbA+7xaZii+qC7gw
-mtdfGjP0w9HfJSfai4HRHuX09wUvp/1pJ4QagzftKUyTcVfVj/hn7Crngx6f/gNV
-2NJhYmjdFdoOB0nyZ5cnbnkRuXYkgcCHzoRCgam1pVZxVaSFfZ2g9buuD7HwnW43
-DO0mh+EL8RPs+mvOHJeOjvM6lWdFArHd0F2/WogxVdcO6ox+61fdNUCAsRei56V+
-Vf4g+Fx0A/cB2KLQsp59pp4ZfOj7N7VS4bUo4Ci3gU5z6pxYDQLEreejlJGcwNIh
-nBJH9U9bLBH4MMv7ZB6N5X+XIHepqVytkMOLove1ruP4anREsD9rx81wWcsFdiZu
-/lDKW+EW75zlt3TJ3/SXhA35VRS22aYq7ussNnwgaZg+yZu8Xz4IS5vSPuctpb5L
-KPi/bl92dSptfICXE1HPVD4DJEzm5yXQjMRNOKJX+xPVe/l4u4berNIE3+q7UALe
-UoRSHpRH0YUgSS909gYj+9Z189Nv/YH1JO5nnTaF3Dd8lI2TE7ycT9fTC39UsYpl
-sxFrGRm84qauh00+H0J1wGLSQFcDYfnZUh+TunAVnriK5d/MVniN/JdHRMVbmCbL
-pPzQIAAxX5X3t0fX7W5i+C9XACr7SofIJhqRCy+CNYbBUhOhJ2k=
-=HMh+
------END PGP SIGNATURE-----
-
---xgyAXRrhYN0wYx8y--
+-Steve
