@@ -1,50 +1,31 @@
-From: Stephen Douthit <stephend@adiengineering.com>
-Subject: [PATCH 2/2] i2c: ismt: Return EMSGSIZE for block reads with bogus length
-Date: Mon,  7 Aug 2017 17:11:00 -0400
-Message-ID: <1502140260-13789-3-git-send-email-stephend@adiengineering.com>
-References: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 13/18] power: supply: bq24190_charger: Export 5V boost
+ converter as regulator
+Date: Mon, 7 Aug 2017 21:15:43 -0700
+Message-ID: <20170808041543.GH5190@atomide.com>
+References: <20170806123555.5124-1-hdegoede@redhat.com>
+ <20170806123555.5124-14-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0102.outbound.protection.outlook.com ([104.47.0.102]:13680
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751761AbdHGVLi (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 7 Aug 2017 17:11:38 -0400
-In-Reply-To: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
+Received: from muru.com ([72.249.23.125]:56982 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750727AbdHHEPr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 8 Aug 2017 00:15:47 -0400
+Content-Disposition: inline
+In-Reply-To: <20170806123555.5124-14-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: seth.heasley@intel.com, nhorman@tuxdriver.com
-Cc: wsa@the-dreams.de, danp@adiengineering.com, stephend@adiengineering.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
 
-Compare the number of bytes actually seen on the wire to the byte
-count field returned by the slave device.
+* Hans de Goede <hdegoede@redhat.com> [170806 05:37]:
+> Register the 5V boost converter as a regulator named
+> "regulator-bq24190-usb-vbus". Note the name includes "bq24190" because
+> the bq24190 family is also used on ACPI devices where there are no
+> device-tree phandles, so regulator_get will fallback to the name and thus
+> it must be unique on the system.
 
-Previously we just overwrote the byte count returned by the slave
-with the real byte count and let the caller figure out if the
-message was sane.
+Nice, this makes VBUS easy to use for USB PHY drivers :)
 
-Signed-off-by: Stephen Douthit <stephend@adiengineering.com>
-Tested-by: Dan Priamo <danp@adiengineering.com>
----
- drivers/i2c/busses/i2c-ismt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 9af2337..22ffcb7 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -341,8 +341,10 @@ static int ismt_process_desc(const struct ismt_desc *desc,
- 			break;
- 		case I2C_SMBUS_BLOCK_DATA:
- 		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			if (desc->rxbytes != dma_buffer[0] + 1)
-+				return -EMSGSIZE;
-+
- 			memcpy(data->block, dma_buffer, desc->rxbytes);
--			data->block[0] = desc->rxbytes - 1;
- 			break;
- 		}
- 		return 0;
--- 
-2.7.5
+Tony
