@@ -1,77 +1,49 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 10/18] staging: typec: fusb302: Add support for
- fcs,vbus-regulator-name device-property
-Date: Tue, 8 Aug 2017 10:39:47 +0100
-Message-ID: <20170808093947.ezczjb6stdgek4hy@sirena.org.uk>
-References: <5f3d7cfa-c993-0cda-fae6-a975f7d4ca1c@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ujy25oqi53cn24gn"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5f3d7cfa-c993-0cda-fae6-a975f7d4ca1c@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
+From: Biju Das <biju.das-kTT6dE0pTRh9uiUsa/gSgQ@public.gmane.org>
+Subject: [PATCH  1/2] dt-bindings: i2c: Document r8a7743/5 support
+Date: Tue,  8 Aug 2017 12:20:31 +0100
+Message-ID: <1502191231-8682-1-git-send-email-biju.das@bp.renesas.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Chris Paterson <chris.paterson2-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Biju Das <biju.das-kTT6dE0pTRh9uiUsa/gSgQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Document i2c Device Tree support for RZ/G1[ME]
+(also known as r8aA774[35]) SoCs. They are compatible with
+R-Car Gen2 SoC family.
 
---ujy25oqi53cn24gn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Biju Das <biju.das-kTT6dE0pTRh9uiUsa/gSgQ@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-On Mon, Aug 07, 2017 at 09:20:05PM +0200, Hans de Goede wrote:
-> On 07-08-17 17:41, Mark Brown wrote:
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 2b8bd33..cad39ae 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -2,6 +2,8 @@ I2C for R-Car platforms
+ 
+ Required properties:
+ - compatible:
++	"renesas,i2c-r8a7743" if the device is a part of a R8A7743 SoC.
++	"renesas,i2c-r8a7745" if the device is a part of a R8A7745 SoC.
+ 	"renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
+ 	"renesas,i2c-r8a7779" if the device is a part of a R8A7779 SoC.
+ 	"renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
+@@ -12,7 +14,8 @@ Required properties:
+ 	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
+ 	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
+ 	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
+-	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 compatible device.
++	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 or RZ/G1 compatible
++				device.
+ 	"renesas,rcar-gen3-i2c" for a generic R-Car Gen3 compatible device.
+ 	"renesas,i2c-rcar" (deprecated)
+ 
+-- 
+1.9.1
 
-> > I2C has a perfectly good platform_data pointer in the board info for
-> > this stuff.
-
-> True, so you are suggesting that I define a bq24190_platform_data
-> struct with a regulator_init_data pointer in there I guess?
-
-Yes. =20
-
-> I don't think the power-supply maintainers will be enthusiastic
-> about this (hi Sebastian). But that does make sense and is
-> actually a good idea for tackling the problem of regulator_init_data.
-
-Why not?  This is just really standard usage of platform data.
-
-> Would extending the struct regulator_map with a const char *provider_name:
-
-> struct regulator_map {
->         struct list_head list;
->         const char *dev_name;   /* The dev_name() for the consumer */
->         const char *supply;
->         struct regulator_dev *regulator;
-> 	const char *provider;	/* The dev_name() for the regulator parent-dev */
-> };
-
-Please don't invent new terminology like this.  Just call it a regulator
-name.
-
-> Alternatively the entry could additionally contain a provider_supply_name
-> so that we can make arbitrary consumer-dev-name + consumer-supply-name
-> provider-dev-name + provider-supply-name matches. That would probably
-> be more flexible then requiring the supply name to match.
-
-I'm sorry but I can't follow what you mean here.  What do you mean by
-"provider_supply_name"?
-
---ujy25oqi53cn24gn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmJhuIACgkQJNaLcl1U
-h9BGaAf+LfNpR+egdlA8mhuvZKvRfRMpSLj3MJmOAgN+nMwlvJvp7fXnGRfmnwCO
-QY6hxGv4Ty3bA3FKnOagmeHves1tQTIkIJJkm7iOkXx+xzFXbi33PuoI3+VrSPXO
-/hKepOXFZfkKRvZKEZMZjz8CQC+qSjTf1JtpDbQ5GPBCTHklhIfntU9mtS5UxJ+V
-QYTL80l75NhlsNKMNGyxJHq8iho671pU+rEzBugkV84vROYjU0OxLYjsy0Jf1pdM
-p7hqw68epC6S86LpE2H02J2zHUvhUTE887y95lV+UKwydKkDZD9VohqMIkGadF5a
-c8rEB0ysFBkOEOMXvE4YkIH2qCINrw==
-=u3k9
------END PGP SIGNATURE-----
-
---ujy25oqi53cn24gn--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
