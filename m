@@ -1,164 +1,77 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 16/18] power: supply: bq24190_charger: Remove extcon
- handling
-Date: Tue, 8 Aug 2017 11:12:45 +0200
-Message-ID: <cdcf4506-0e64-d495-b40d-16f1f591af85@redhat.com>
-References: <20170806123555.5124-1-hdegoede@redhat.com>
- <20170806123555.5124-17-hdegoede@redhat.com>
- <CAKvHMgRKetHrqgWuUq9-QoL47_23f__04W6ZSGvH-AiG4RGKFw@mail.gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 10/18] staging: typec: fusb302: Add support for
+ fcs,vbus-regulator-name device-property
+Date: Tue, 8 Aug 2017 10:39:47 +0100
+Message-ID: <20170808093947.ezczjb6stdgek4hy@sirena.org.uk>
+References: <5f3d7cfa-c993-0cda-fae6-a975f7d4ca1c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ujy25oqi53cn24gn"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKvHMgRKetHrqgWuUq9-QoL47_23f__04W6ZSGvH-AiG4RGKFw@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <5f3d7cfa-c993-0cda-fae6-a975f7d4ca1c@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Liam Breck <liam@networkimprov.net>
-Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-On 08-08-17 10:27, Liam Breck wrote:
-> Hi Hans,
-> 
-> On Sun, Aug 6, 2017 at 5:35 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->> Now that drivers/i2c/busses/i2c-cht-wc.c uses
->> "input-current-limit-from-supplier" instead of "extcon-name" the last
->> user of the bq24190 extcon code is gone, remove it.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/power/supply/bq24190_charger.c | 107 ---------------------------------
->>   1 file changed, 107 deletions(-)
->>
->> diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
->> index 1f6424f0772f..0376de6d8e70 100644
->> --- a/drivers/power/supply/bq24190_charger.c
->> +++ b/drivers/power/supply/bq24190_charger.c
->> @@ -11,7 +11,6 @@
->>   #include <linux/module.h>
->>   #include <linux/interrupt.h>
->>   #include <linux/delay.h>
->> -#include <linux/extcon.h>
->>   #include <linux/of_irq.h>
->>   #include <linux/of_device.h>
->>   #include <linux/pm_runtime.h>
->> @@ -155,9 +154,6 @@ struct bq24190_dev_info {
->>          struct device                   *dev;
->>          struct power_supply             *charger;
->>          struct power_supply             *battery;
->> -       struct extcon_dev               *extcon;
->> -       struct notifier_block           extcon_nb;
->> -       struct delayed_work             extcon_work;
->>          char                            model_name[I2C_NAME_SIZE];
->>          bool                            initialized;
->>          bool                            irq_event;
->> @@ -1530,75 +1526,6 @@ static irqreturn_t bq24190_irq_handler_thread(int irq, void *data)
->>          return IRQ_HANDLED;
->>   }
->>
->> -static void bq24190_extcon_work(struct work_struct *work)
->> -{
->> -       struct bq24190_dev_info *bdi =
->> -               container_of(work, struct bq24190_dev_info, extcon_work.work);
->> -       int error, iinlim = 0;
->> -       u8 v;
->> -
->> -       error = pm_runtime_get_sync(bdi->dev);
->> -       if (error < 0) {
->> -               dev_warn(bdi->dev, "pm_runtime_get failed: %i\n", error);
->> -               pm_runtime_put_noidle(bdi->dev);
->> -               return;
->> -       }
->> -
->> -       if      (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_SDP) == 1)
->> -               iinlim =  500000;
->> -       else if (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_CDP) == 1 ||
->> -                extcon_get_state(bdi->extcon, EXTCON_CHG_USB_ACA) == 1)
->> -               iinlim = 1500000;
->> -       else if (extcon_get_state(bdi->extcon, EXTCON_CHG_USB_DCP) == 1)
->> -               iinlim = 2000000;
->> -
->> -       if (iinlim) {
->> -               error = bq24190_set_field_val(bdi, BQ24190_REG_ISC,
->> -                                             BQ24190_REG_ISC_IINLIM_MASK,
->> -                                             BQ24190_REG_ISC_IINLIM_SHIFT,
->> -                                             bq24190_isc_iinlim_values,
->> -                                             ARRAY_SIZE(bq24190_isc_iinlim_values),
->> -                                             iinlim);
->> -               if (error < 0)
->> -                       dev_err(bdi->dev, "Can't set IINLIM: %d\n", error);
->> -       }
->> -
->> -       /* if no charger found and in USB host mode, set OTG 5V boost, else normal */
->> -       if (!iinlim && extcon_get_state(bdi->extcon, EXTCON_USB_HOST) == 1)
->> -               v = BQ24190_REG_POC_CHG_CONFIG_OTG;
->> -       else
->> -               v = BQ24190_REG_POC_CHG_CONFIG_CHARGE;
->> -
->> -       error = bq24190_write_mask(bdi, BQ24190_REG_POC,
->> -                                  BQ24190_REG_POC_CHG_CONFIG_MASK,
->> -                                  BQ24190_REG_POC_CHG_CONFIG_SHIFT,
->> -                                  v);
->> -       if (error < 0)
->> -               dev_err(bdi->dev, "Can't set CHG_CONFIG: %d\n", error);
->> -
->> -       pm_runtime_mark_last_busy(bdi->dev);
->> -       pm_runtime_put_autosuspend(bdi->dev);
->> -}
->> -
->> -static int bq24190_extcon_event(struct notifier_block *nb, unsigned long event,
->> -                               void *param)
->> -{
->> -       struct bq24190_dev_info *bdi =
->> -               container_of(nb, struct bq24190_dev_info, extcon_nb);
->> -
->> -       /*
->> -        * The Power-Good detection may take up to 220ms, sometimes
->> -        * the external charger detection is quicker, and the bq24190 will
->> -        * reset to iinlim based on its own charger detection (which is not
->> -        * hooked up when using external charger detection) resulting in
->> -        * a too low default 500mA iinlim. Delay applying the extcon value
->> -        * for 300ms to avoid this.
->> -        */
->> -       queue_delayed_work(system_wq, &bdi->extcon_work, msecs_to_jiffies(300));
->> -
->> -       return NOTIFY_OK;
->> -}
->> -
->>   static int bq24190_hw_init(struct bq24190_dev_info *bdi)
->>   {
->>          u8 v;
->> @@ -1636,7 +1563,6 @@ static int bq24190_probe(struct i2c_client *client,
->>          struct device *dev = &client->dev;
->>          struct power_supply_config charger_cfg = {}, battery_cfg = {};
->>          struct bq24190_dev_info *bdi;
->> -       const char *name;
->>          int ret;
->>
->>          if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
->> @@ -1668,25 +1594,6 @@ static int bq24190_probe(struct i2c_client *client,
->>                  device_property_read_bool(dev,
->>                                            "input-current-limit-from-supplier");
->>
->> -       /*
->> -        * Devicetree platforms should get extcon via phandle (not yet supported).
->> -        * On ACPI platforms, extcon clients may invoke us with:
->> -        * struct property_entry pe[] =
->> -        *   { PROPERTY_ENTRY_STRING("extcon-name", client_name), ... };
->> -        * struct i2c_board_info bi =
->> -        *   { .type = "bq24190", .addr = 0x6b, .properties = pe, .irq = irq };
->> -        * struct i2c_adapter ad = { ... };
->> -        * i2c_add_adapter(&ad);
->> -        * i2c_new_device(&ad, &bi);
->> -        */
-> 
-> Maybe we should keep a variation of the above comment, documenting how
-> we're invoked by another driver, and the dev props it sets for us.
+--ujy25oqi53cn24gn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, I will move this comment to one of the other props for v2.
+On Mon, Aug 07, 2017 at 09:20:05PM +0200, Hans de Goede wrote:
+> On 07-08-17 17:41, Mark Brown wrote:
 
-Regards,
+> > I2C has a perfectly good platform_data pointer in the board info for
+> > this stuff.
 
-Hans
+> True, so you are suggesting that I define a bq24190_platform_data
+> struct with a regulator_init_data pointer in there I guess?
+
+Yes. =20
+
+> I don't think the power-supply maintainers will be enthusiastic
+> about this (hi Sebastian). But that does make sense and is
+> actually a good idea for tackling the problem of regulator_init_data.
+
+Why not?  This is just really standard usage of platform data.
+
+> Would extending the struct regulator_map with a const char *provider_name:
+
+> struct regulator_map {
+>         struct list_head list;
+>         const char *dev_name;   /* The dev_name() for the consumer */
+>         const char *supply;
+>         struct regulator_dev *regulator;
+> 	const char *provider;	/* The dev_name() for the regulator parent-dev */
+> };
+
+Please don't invent new terminology like this.  Just call it a regulator
+name.
+
+> Alternatively the entry could additionally contain a provider_supply_name
+> so that we can make arbitrary consumer-dev-name + consumer-supply-name
+> provider-dev-name + provider-supply-name matches. That would probably
+> be more flexible then requiring the supply name to match.
+
+I'm sorry but I can't follow what you mean here.  What do you mean by
+"provider_supply_name"?
+
+--ujy25oqi53cn24gn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmJhuIACgkQJNaLcl1U
+h9BGaAf+LfNpR+egdlA8mhuvZKvRfRMpSLj3MJmOAgN+nMwlvJvp7fXnGRfmnwCO
+QY6hxGv4Ty3bA3FKnOagmeHves1tQTIkIJJkm7iOkXx+xzFXbi33PuoI3+VrSPXO
+/hKepOXFZfkKRvZKEZMZjz8CQC+qSjTf1JtpDbQ5GPBCTHklhIfntU9mtS5UxJ+V
+QYTL80l75NhlsNKMNGyxJHq8iho671pU+rEzBugkV84vROYjU0OxLYjsy0Jf1pdM
+p7hqw68epC6S86LpE2H02J2zHUvhUTE887y95lV+UKwydKkDZD9VohqMIkGadF5a
+c8rEB0ysFBkOEOMXvE4YkIH2qCINrw==
+=u3k9
+-----END PGP SIGNATURE-----
+
+--ujy25oqi53cn24gn--
