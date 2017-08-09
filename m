@@ -1,45 +1,145 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/7] iio: srf08: add device tree binding for srf02 and
- srf10
-Date: Thu, 10 Aug 2017 00:33:06 +0100
-Message-ID: <20170810003306.651be1a1@archlinux>
-References: <20170802232335.GA15222@arbeit>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [RFC 3/5] dt-bindings: i3c: Document core bindings
+Date: Wed, 9 Aug 2017 18:43:02 -0500
+Message-ID: <20170809234302.ffcr3gwpiy4roj7l@rob-hp-laptop>
+References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1501518290-5723-4-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170802232335.GA15222@arbeit>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.orgRob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1501518290-5723-4-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 3 Aug 2017 01:23:35 +0200
-Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org> wrote:
-
-> add trivial device tree binding "devantech,srf02" and "devantech,srf10"
+On Mon, Jul 31, 2017 at 06:24:48PM +0200, Boris Brezillon wrote:
+> A new I3C subsystem has been added and a generic description has been
+> created to represent the I3C bus and the devices connected on it.
 > 
-> Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Please remember to cc the device tree maintainers and list of bindings.
-For trivial ones, sometimes it makes more sense for them to pick them
-up directly as it reduces the chance of conflict on merges.
-
-Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> Document this generic representation.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 > ---
->  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
->  1 file changed, 2 insertions(+)
+>  Documentation/devicetree/bindings/i3c/i3c.txt | 90 +++++++++++++++++++++++++++
+>  1 file changed, 90 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> index ad10fbe61562..0e5fb016e912 100644
-> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> @@ -36,7 +36,9 @@ dallas,ds1775		Tiny Digital Thermometer and Thermostat
->  dallas,ds3232		Extremely Accurate I²C RTC with Integrated Crystal and SRAM
->  dallas,ds4510		CPU Supervisor with Nonvolatile Memory and Programmable I/O
->  dallas,ds75		Digital Thermometer and Thermostat
-> +devantech,srf02		Devantech SRF02 ultrasonic ranger in I2C mode
->  devantech,srf08		Devantech SRF08 ultrasonic ranger
-> +devantech,srf10		Devantech SRF10 ultrasonic ranger
->  dlg,da9053		DA9053: flexible system level PMIC with multicore support
->  dlg,da9063		DA9063: system PMIC for quad-core application processors
->  domintech,dmard09	DMARD09: 3-axis Accelerometer
+> diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
+> new file mode 100644
+> index 000000000000..49261dec7b01
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
+> @@ -0,0 +1,90 @@
+> +Generic device tree bindings for I3C busses
+> +===========================================
+> +
+> +This document describes generic bindings that should be used to describe I3C
+> +busses in a device tree.
+> +
+> +Required properties
+> +-------------------
+> +
+> +- #address-cells  - should be <1>. Read more about addresses below.
+> +- #size-cells     - should be <0>.
+> +- compatible      - name of I3C bus controller following generic names
+> +		    recommended practice.
+> +
+> +For other required properties e.g. to describe register sets,
+> +clocks, etc. check the binding documentation of the specific driver.
+> +
+> +Optional properties
+> +-------------------
+> +
+> +These properties may not be supported by all I3C master drivers. Each I3C
+> +master bindings should specify which of them are supported.
+> +
+> +- i3c-scl-frequency: frequency (in Hz) of the SCL signal used for I3C
+> +		     transfers. When undefined the core set it to 12.5MHz.
+> +
+> +- i2c-scl-frequency: frequency (in Hz) of the SCL signal used for I2C
+> +		     transfers. When undefined, the core looks at LVR values
+> +		     of I2C devices described in the device tree to determine
+> +		     the maximum I2C frequency.
+> +
+> +I2C devices
+> +===========
+> +
+> +Each I2C device connected to the bus should be described in a subnode with
+> +the following properties:
+> +
+> +All properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
+> +valid here.
+> +
+> +New required properties:
+> +------------------------
+> +- i3c-lvr: 32 bits integer property (only the lowest 8 bits are meaningful)
+
+What does lvr mean?
+
+> +	   describing device capabilities as described in the I3C
+> +	   specification.
+> +
+> +	   bit[31:8]: unused
+> +	   bit[7:5]: I2C device index. Possible values
+
+index? Seems more like flags
+
+> +	    * 0: I2C device has a 50 ns spike filter
+> +	    * 1: I2C device does not have a 50 ns spike filter but supports high
+> +		 frequency on SCL
+> +	    * 2: I2C device does not have a 50 ns spike filter and is not
+> +		 tolerant to high frequencies
+> +	    * 3-7: reserved
+> +
+> +	   bit[4]: tell whether the device operates in FM or FM+ mode
+> +	    * 0: FM+ mode
+> +	    * 1: FM mode
+> +
+> +	   bit[3:0]: device type
+> +	    * 0-15: reserved
+
+That's useful...
+
+> +
+> +I3C devices
+> +===========
+> +
+> +I3C are not described in the device tree yet. We could decide to represent them
+> +at some point to assign a specific dynamic address to a device or to force an
+> +I3C device to act as an I2C device if it has a static address.
+
+I think we need to define this sooner rather than later if there's not a 
+standard connector. That's the only thing that would enforce any sort of 
+standard. Of course, that didn't help with SDIO.
+
+> +
+> +Example:
+> +
+> +	i3c-master@0d040000 {
+
+The node name should go into the DT spec. I tend to think "i3c" would be 
+sufficient and aligned with i2c.
+
+> +		compatible = "cdns,i3c-master";
+> +		clocks = <&coreclock>, <&i3csysclock>;
+> +		clock-names = "pclk", "sysclk";
+> +		interrupts = <3 0>;
+> +		reg = <0x0d040000 0x1000>;
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		status = "okay";
+> +		i2c-scl-frequency = <100000>;
+> +
+> +		nunchuk: nunchuk@52 {
+> +			compatible = "nintendo,nunchuk";
+> +			reg = <0x52>;
+> +			i3c-lvr = <0x10>;
+> +		};
+> +	};
+> +
+> -- 
+> 2.7.4
+> 
