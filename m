@@ -1,34 +1,64 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH 0/2] Add i2c dt-binding and compatible for Mediatek MT7622 SoC
-Date: Wed, 9 Aug 2017 15:43:49 +0800
-Message-ID: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH  1/2] dt-bindings: i2c: Document r8a7743/5 support
+Date: Wed, 9 Aug 2017 09:59:29 +0200
+Message-ID: <20170809075929.GG2705@verge.net.au>
+References: <1502191231-8682-1-git-send-email-biju.das@bp.renesas.com>
+ <20170808115006.GC1674@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from kirsty.vergenet.net ([202.4.237.240]:53341 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752199AbdHIH7e (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Aug 2017 03:59:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20170808115006.GC1674@katana>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Biju Das <biju.das@bp.renesas.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Magnus Damm <magnus.damm@gmail.com>, Russell King <linux@armlinux.org.uk>, Chris Paterson <chris.paterson2@renesas.com>, devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-This patch series based on v4.13-rc1, include MT7622 i2c dt-binding
-and compatible.
+On Tue, Aug 08, 2017 at 01:50:06PM +0200, Wolfram Sang wrote:
+> On Tue, Aug 08, 2017 at 12:20:31PM +0100, Biju Das wrote:
+> > Document i2c Device Tree support for RZ/G1[ME]
+> > (also known as r8aA774[35]) SoCs. They are compatible with
+> > R-Car Gen2 SoC family.
+> > 
+> > Signed-off-by: Biju Das <biju.das@bp.renesas.com>
+> 
+> Looks good to me, yet I'd like an ack from Simon who is currently
+> working on the generic fallback compatibles.
 
-Jun Gao (2):
-  dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-  i2c: mediatek: Add i2c compatible for MediaTek MT7622
+Acked-by: Simon Horman <horms+renesas@verge.net.au>
 
- Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
- drivers/i2c/busses/i2c-mt65xx.c                   | 18 ++++++++++++++++++
- 2 files changed, 24 insertions(+), 5 deletions(-)
-
---
-1.8.1.1
+> 
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > index 2b8bd33..cad39ae 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> > @@ -2,6 +2,8 @@ I2C for R-Car platforms
+> >  
+> >  Required properties:
+> >  - compatible:
+> > +	"renesas,i2c-r8a7743" if the device is a part of a R8A7743 SoC.
+> > +	"renesas,i2c-r8a7745" if the device is a part of a R8A7745 SoC.
+> >  	"renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
+> >  	"renesas,i2c-r8a7779" if the device is a part of a R8A7779 SoC.
+> >  	"renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
+> > @@ -12,7 +14,8 @@ Required properties:
+> >  	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
+> >  	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
+> >  	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
+> > -	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 compatible device.
+> > +	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 or RZ/G1 compatible
+> > +				device.
+> >  	"renesas,rcar-gen3-i2c" for a generic R-Car Gen3 compatible device.
+> >  	"renesas,i2c-rcar" (deprecated)
+> >  
+> > -- 
+> > 1.9.1
+> > 
