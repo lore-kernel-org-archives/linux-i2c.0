@@ -1,49 +1,34 @@
 From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-Date: Wed, 9 Aug 2017 15:43:50 +0800
-Message-ID: <1502264631-12572-2-git-send-email-jun.gao@mediatek.com>
-References: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
+Subject: [PATCH 0/2] Add i2c dt-binding and compatible for Mediatek MT7622 SoC
+Date: Wed, 9 Aug 2017 15:43:49 +0800
+Message-ID: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+Cc: devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+This patch series based on v4.13-rc1, include MT7622 i2c dt-binding
+and compatible.
 
-Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
-controller, MT7622 limit message size to 255, and not support
-4GB DMA mode.
+Jun Gao (2):
+  dt-bindings: i2c: Add MediaTek MT7622 i2c binding
+  i2c: mediatek: Add i2c compatible for MediaTek MT7622
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
----
  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c                   | 18 ++++++++++++++++++
+ 2 files changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-index bd5a7be..ff9ac61 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
- 
- Required properties:
-   - compatible: value should be either of the following.
--      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
--      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
--      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
--      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
--      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
-+	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-+	"mediatek,mt6577-i2c": for Mediatek MT6577
-+	"mediatek,mt6589-i2c": for Mediatek MT6589
-+	"mediatek,mt7622-i2c": for Mediatek MT7622
-+	"mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-+	"mediatek,mt8173-i2c": for Mediatek MT8173
-   - reg: physical base address of the controller and dma base, length of memory
-     mapped region.
-   - interrupts: interrupt number to the cpu.
--- 
+--
 1.8.1.1
