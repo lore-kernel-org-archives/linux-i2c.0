@@ -1,81 +1,45 @@
-From: John Stultz <john.stultz@linaro.org>
-Subject: Re: [PATCH] i2c: designware: Fix system suspend
-Date: Wed, 9 Aug 2017 13:55:07 -0700
-Message-ID: <CALAqxLW31Huu3+BWUO3tO+bsKUv7_r4_2joBy8YpZfa81zJ5tw@mail.gmail.com>
-References: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/7] iio: srf08: add device tree binding for srf02 and
+ srf10
+Date: Thu, 10 Aug 2017 00:33:06 +0100
+Message-ID: <20170810003306.651be1a1@archlinux>
+References: <20170802232335.GA15222@arbeit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qk0-f169.google.com ([209.85.220.169]:34772 "EHLO
-        mail-qk0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753077AbdHIUzI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 9 Aug 2017 16:55:08 -0400
-Received: by mail-qk0-f169.google.com with SMTP id u139so42868991qka.1
-        for <linux-i2c@vger.kernel.org>; Wed, 09 Aug 2017 13:55:08 -0700 (PDT)
-In-Reply-To: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170802232335.GA15222@arbeit>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.orgRob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux PM list <linux-pm@vger.kernel.org>, "# v4 . 4+" <stable@vger.kernel.org>
 
-On Wed, Aug 9, 2017 at 6:28 AM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
-> during system suspend"), may suggest to the PM core to try out the so
-> called direct_complete path for system sleep. In this path, the PM core
-> treats a runtime suspended device as it's already in a proper low power
-> state for system sleep, which makes it skip calling the system sleep
-> callbacks for the device, except for the ->prepare() and the ->complete()
-> callbacks.
->
-> However, the PM core may unset the direct_complete flag for a parent
-> device, in case its child device are being system suspended before. In this
-> scenario, the PM core invokes the system sleep callbacks, no matter if the
-> device is runtime suspended or not.
->
-> Particularly in cases of an existing i2c slave device, the above path is
-> triggered, which breaks the assumption that the i2c device is always
-> runtime resumed whenever the dw_i2c_plat_suspend() is being called.
->
-> More precisely, dw_i2c_plat_suspend() calls clk_core_disable() and
-> clk_core_unprepare(), for an already disabled/unprepared clock, leading to
-> a splat in the log about clocks calls being wrongly balanced and breaking
-> system sleep.
->
-> To still allow the direct_complete path in cases when it's possible, but
-> also to keep the fix simple, let's runtime resume the i2c device in the
-> ->suspend() callback, before continuing to put the device into low power
-> state.
->
-> Note, in cases when the i2c device is attached to the ACPI PM domain, this
-> problem doesn't occur, because ACPI's ->suspend() callback, assigned to
-> acpi_subsys_suspend(), already calls pm_runtime_resume() for the device.
->
-> It should also be noted that this change does not fix commit 8503ff166504
-> ("i2c: designware: Avoid unnecessary resuming during system suspend").
-> Because for the non-ACPI case, the system sleep support was already broken
-> prior that point.
->
-> Cc: <stable@vger.kernel.org> # v4.4+
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+On Thu, 3 Aug 2017 01:23:35 +0200
+Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org> wrote:
+
+> add trivial device tree binding "devantech,srf02" and "devantech,srf10"
+> 
+> Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+Please remember to cc the device tree maintainers and list of bindings.
+For trivial ones, sometimes it makes more sense for them to pick them
+up directly as it reduces the chance of conflict on merges.
+
+Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 > ---
->
-> I decided to post this as a separate change, instead of as earlier folding it
-> in the series that extends the ACPI PM domain to cope with the runtime PM
-> centric path for system sleep.
->
-> This change applies on a fresh v4.4+. If someone wants it's applied for earlier
-> version, please send a backport yourself.
->
-> It's based on 4.13 rc4 and I assume it should go as a fix via the i2c tree.
->
-> Changes in v2:
->         - Updated changelog.
->         - Runtime resume the device in ->suspend() instead of in ->prepare().
-
-
-This avoids the suspend/resume warning I've seen w/o the patch on HiKey.
-
-Tested-by: John Stultz <john.stultz@linaro.org>
-
-thanks
--john
+>  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> index ad10fbe61562..0e5fb016e912 100644
+> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> @@ -36,7 +36,9 @@ dallas,ds1775		Tiny Digital Thermometer and Thermostat
+>  dallas,ds3232		Extremely Accurate I²C RTC with Integrated Crystal and SRAM
+>  dallas,ds4510		CPU Supervisor with Nonvolatile Memory and Programmable I/O
+>  dallas,ds75		Digital Thermometer and Thermostat
+> +devantech,srf02		Devantech SRF02 ultrasonic ranger in I2C mode
+>  devantech,srf08		Devantech SRF08 ultrasonic ranger
+> +devantech,srf10		Devantech SRF10 ultrasonic ranger
+>  dlg,da9053		DA9053: flexible system level PMIC with multicore support
+>  dlg,da9063		DA9063: system PMIC for quad-core application processors
+>  domintech,dmard09	DMARD09: 3-axis Accelerometer
