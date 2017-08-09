@@ -1,103 +1,113 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.13
-Date: Wed, 9 Aug 2017 21:29:29 +0200
-Message-ID: <20170809192924.svb7qfvqywsddszy@ninjato>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH] i2c: designware: Fix system suspend
+Date: Wed, 09 Aug 2017 22:43:22 +0200
+Message-ID: <1776600.GWYGTRKWSN@aspire.rjw.lan>
+References: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fufgqrdbbb24seki"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, "# v4 . 4+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wednesday, August 9, 2017 3:28:22 PM CEST Ulf Hansson wrote:
+> The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
+> during system suspend"), may suggest to the PM core to try out the so
+> called direct_complete path for system sleep. In this path, the PM core
+> treats a runtime suspended device as it's already in a proper low power
+> state for system sleep, which makes it skip calling the system sleep
+> callbacks for the device, except for the ->prepare() and the ->complete()
+> callbacks.
+> 
+> However, the PM core may unset the direct_complete flag for a parent
+> device, in case its child device are being system suspended before. In this
+> scenario, the PM core invokes the system sleep callbacks, no matter if the
+> device is runtime suspended or not.
+> 
+> Particularly in cases of an existing i2c slave device, the above path is
+> triggered, which breaks the assumption that the i2c device is always
+> runtime resumed whenever the dw_i2c_plat_suspend() is being called.
+> 
+> More precisely, dw_i2c_plat_suspend() calls clk_core_disable() and
+> clk_core_unprepare(), for an already disabled/unprepared clock, leading to
+> a splat in the log about clocks calls being wrongly balanced and breaking
+> system sleep.
+> 
+> To still allow the direct_complete path in cases when it's possible, but
+> also to keep the fix simple, let's runtime resume the i2c device in the
+> ->suspend() callback, before continuing to put the device into low power
+> state.
+> 
+> Note, in cases when the i2c device is attached to the ACPI PM domain, this
+> problem doesn't occur, because ACPI's ->suspend() callback, assigned to
+> acpi_subsys_suspend(), already calls pm_runtime_resume() for the device.
+> 
+> It should also be noted that this change does not fix commit 8503ff166504
+> ("i2c: designware: Avoid unnecessary resuming during system suspend").
+> Because for the non-ACPI case, the system sleep support was already broken
+> prior that point.
+> 
+> Cc: <stable@vger.kernel.org> # v4.4+
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
---fufgqrdbbb24seki
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looks OK to me.
 
-Linus,
-
-here is a pull request from I2C. The main thing is to allow empty
-id_tables for ACPI to make some drivers get probed again. It looks a bit
-bigger than usual because it needs some internal renaming, too. Other
-than that, there is a fix for broken DSTDs, a super simple enablement
-for ARM MPS, and two documentation fixes which I'd like to see in v4.13
-already. Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 16f73eb02d7e1765ccab3d2018e0bd98eb93d973:
-
-  Linux 4.13-rc3 (2017-07-30 12:40:36 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 9c80034921d1ece5c0e3241ba1645bce32387684:
-
-  i2c: rephrase explanation of I2C_CLASS_DEPRECATED (2017-07-31 17:33:53 +0200)
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      i2c: core: Allow empty id_table in ACPI case as well
-
-Chris Gorman (1):
-      i2c: mux: pinctrl: mention correct module name in Kconfig help text
-
-Hans de Goede (2):
-      i2c: designware: Print clock freq on invalid clock freq error
-      i2c: designware: Some broken DSTDs use 1MiHz instead of 1MHz
-
-Russell King (1):
-      i2c: allow i2c-versatile for ARM MPS platforms
-
-Wolfram Sang (2):
-      Merge branch 'i2c-mux/for-current' of https://github.com/peda-r/i2c-mux into i2c/for-current
-      i2c: rephrase explanation of I2C_CLASS_DEPRECATED
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Andy Shevchenko (2):
-      (Rev.) i2c: designware: Some broken DSTDs use 1MiHz instead of 1MHz
-      (Rev.) i2c: designware: Print clock freq on invalid clock freq error
-
-Rajmohan Mani (1):
-      (Test) i2c: core: Allow empty id_table in ACPI case as well
-
- drivers/i2c/busses/Kconfig                  |  2 +-
- drivers/i2c/busses/i2c-designware-platdrv.c |  6 +++++-
- drivers/i2c/i2c-core-acpi.c                 | 19 +++++++++++++++----
- drivers/i2c/i2c-core-base.c                 |  1 +
- drivers/i2c/i2c-core.h                      |  9 +++++++++
- drivers/i2c/muxes/Kconfig                   |  2 +-
- include/linux/i2c.h                         |  3 ++-
- 7 files changed, 34 insertions(+), 8 deletions(-)
-
---fufgqrdbbb24seki
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmLYo8ACgkQFA3kzBSg
-KbZEhQ//avk6pRF+vpLl++xqKZOHI9Ct0HUtZERvsq+qQmF4VCT129SHZCcZ5kLJ
-nAdKzWXYkX/zqnEH8VYIQMHTZuZgm/+a4EbPSFxFrlTjLJUsILBXQoNrRDgimfSA
-NNRDtxnPaxjwB5KXpxtpeORgR9gqFJ0ju8c1gAYtF8yHaqcEK4vO/DUSnkCPpAM+
-i8QzGt5w1jpNruWdCKIsnxAG2xH/IXkvGRf1FokjBYCsGnaf3qFmPmfIX8zxBtCZ
-RlVc4xA8RT8VA4Vv70iaIGCKF1JCunbC/B7NbP8vwwO7l39AFlIguvU9rQ25D6TZ
-zfL5AgfJOAHs6pKOyLKdjmv/gkNBNd2AMj5P1fovIysCX5pkTThQjb7iwThYHEOv
-RzJC52FDHzJVmeVzC8111DDtyoF88MIcSoiburaVOrkk6D9KKqzcxa8ZZ2MBqiwl
-LhURoOAfkC/GG97tqmNutR+yOio/jhw1IHiB4S1Kbefc9Ycv/yYyeHATGg5ysBsT
-wa3lhAT9s8zRQsxQt/NMHnFkXB4ftf2fuIpxxW+cuSfBduIVBdhXXmTN8uSvb/UK
-CmDQkiYBQrgfIxNAuixO6QrYGL1P2q/51nO8y3e3Ja4+kR3PzxYBcuntV1YU2+F9
-MNcvDNAAjhr8fb5Kh/eGB6riUdjhREX2t+oYSmMlPLoLT0jZCKY=
-=h75C
------END PGP SIGNATURE-----
-
---fufgqrdbbb24seki--
+> ---
+> 
+> I decided to post this as a separate change, instead of as earlier folding it
+> in the series that extends the ACPI PM domain to cope with the runtime PM
+> centric path for system sleep.
+> 
+> This change applies on a fresh v4.4+. If someone wants it's applied for earlier
+> version, please send a backport yourself.
+> 
+> It's based on 4.13 rc4 and I assume it should go as a fix via the i2c tree.
+> 
+> Changes in v2:
+> 	- Updated changelog.
+> 	- Runtime resume the device in ->suspend() instead of in ->prepare().
+> 
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 14 ++++++++++++--
+>  1 file changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 2ea6d0d..bb3b8c8 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -426,7 +426,7 @@ static void dw_i2c_plat_complete(struct device *dev)
+>  #endif
+>  
+>  #ifdef CONFIG_PM
+> -static int dw_i2c_plat_suspend(struct device *dev)
+> +static int dw_i2c_plat_runtime_suspend(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+> @@ -448,11 +448,21 @@ static int dw_i2c_plat_resume(struct device *dev)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_PM_SLEEP
+> +static int dw_i2c_plat_suspend(struct device *dev)
+> +{
+> +	pm_runtime_resume(dev);
+> +	return dw_i2c_plat_runtime_suspend(dev);
+> +}
+> +#endif
+> +
+>  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>  	.prepare = dw_i2c_plat_prepare,
+>  	.complete = dw_i2c_plat_complete,
+>  	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+> -	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+> +	SET_RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend,
+> +			   dw_i2c_plat_resume,
+> +			   NULL)
+>  };
+>  
+>  #define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
+> 
