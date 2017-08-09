@@ -1,52 +1,86 @@
-From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: [PATCH] i2c: core: Make comment about I2C table requirement to reflect the code
-Date: Wed,  9 Aug 2017 11:21:28 +0200
-Message-ID: <20170809092128.29202-1-javierm@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34382 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752360AbdHIJVh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 9 Aug 2017 05:21:37 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: mediatek: Add i2c compatible for MediaTek
+ MT7622
+Date: Wed, 9 Aug 2017 17:40:38 +0800
+Message-ID: <1502271638.31781.3.camel@mtksdaap41>
+References: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
+         <1502264631-12572-3-git-send-email-jun.gao@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1502264631-12572-3-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javierm@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-I2C drivers were required to have an I2C device ID table even if were for
-devices that would only be registered using a specific firmware interface
-(e.g: OF or ACPI).
+On Wed, 2017-08-09 at 15:43 +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> 
+> Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
+> MT7622 limit message size to 255, and not support 4GB DMA mode.
 
-But commit da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed
-devices") changed the I2C core to relax the requirement and allow drivers
-to avoid defining this table.
 
-Unfortunately it only took into account drivers for OF-only devices and
-forgot about ACPI-only ones, and this was fixed by commit c64ffff7a9d1
-("i2c: core: Allow empty id_table in ACPI case as well").
+Jun,
 
-But the latter didn't update the original comment, so it doesn't reflect
-what the code does now.
+Do you mean message numbers?
 
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
----
 
- drivers/i2c/i2c-core-base.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Joe.C
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 12822a4b8f8f..56e46581b84b 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -353,8 +353,8 @@ static int i2c_device_probe(struct device *dev)
- 	}
- 
- 	/*
--	 * An I2C ID table is not mandatory, if and only if, a suitable Device
--	 * Tree match table entry is supplied for the probing device.
-+	 * An I2C ID table is not mandatory, if and only if, a suitable OF
-+	 * or ACPI ID table is supplied for the probing device.
- 	 */
- 	if (!driver->id_table &&
- 	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
--- 
-2.13.3
+> 
+> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-mt65xx.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+> index 9bedf0b..2c7f847 100644
+> --- a/drivers/i2c/busses/i2c-mt65xx.c
+> +++ b/drivers/i2c/busses/i2c-mt65xx.c
+> @@ -172,6 +172,14 @@ struct mtk_i2c {
+>  	.max_comb_2nd_msg_len = 31,
+>  };
+>  
+> +static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
+> +	.max_num_msgs = 255,
+> +	.max_write_len = 65535,
+> +	.max_read_len = 65535,
+> +	.max_comb_1st_msg_len = 65535,
+> +	.max_comb_2nd_msg_len = 65535,
+> +};
+> +
+>  static const struct mtk_i2c_compatible mt6577_compat = {
+>  	.quirks = &mt6577_i2c_quirks,
+>  	.pmic_i2c = 0,
+> @@ -190,6 +198,15 @@ struct mtk_i2c {
+>  	.support_33bits = 0,
+>  };
+>  
+> +static const struct mtk_i2c_compatible mt7622_compat = {
+> +	.quirks = &mt7622_i2c_quirks,
+> +	.pmic_i2c = 0,
+> +	.dcm = 1,
+> +	.auto_restart = 1,
+> +	.aux_len_reg = 1,
+> +	.support_33bits = 0,
+> +};
+> +
+>  static const struct mtk_i2c_compatible mt8173_compat = {
+>  	.pmic_i2c = 0,
+>  	.dcm = 1,
+> @@ -201,6 +218,7 @@ struct mtk_i2c {
+>  static const struct of_device_id mtk_i2c_of_match[] = {
+>  	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
+>  	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
+> +	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
+>  	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
+>  	{}
+>  };
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
