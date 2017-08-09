@@ -1,86 +1,74 @@
-From: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: mediatek: Add i2c compatible for MediaTek
- MT7622
-Date: Wed, 9 Aug 2017 17:40:38 +0800
-Message-ID: <1502271638.31781.3.camel@mtksdaap41>
-References: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
-         <1502264631-12572-3-git-send-email-jun.gao@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1502264631-12572-3-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Javier Martinez Canillas <javierm@redhat.com>
+Subject: [PATCH] i2c: slave-eeprom: Add an OF device ID table
+Date: Wed,  9 Aug 2017 12:12:56 +0200
+Message-ID: <20170809101256.31204-1-javierm@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Luis Oliveira <Luis.Oliveira@synopsys.com>, Javier Martinez Canillas <javierm@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2017-08-09 at 15:43 +0800, Jun Gao wrote:
-> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> 
-> Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
-> MT7622 limit message size to 255, and not support 4GB DMA mode.
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees as shown in the following DT binding doc:
 
+Documentation/devicetree/bindings/i2c/i2c-designware.txt
 
-Jun,
+But this works on the assumption that a I2C device registered via OF will
+always match a legacy I2C device ID and that the MODALIAS reported will
+always be of the form i2c:<device>.
 
-Do you mean message numbers?
+And this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 
-Joe.C
+---
 
-> 
-> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index 9bedf0b..2c7f847 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -172,6 +172,14 @@ struct mtk_i2c {
->  	.max_comb_2nd_msg_len = 31,
->  };
->  
-> +static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-> +	.max_num_msgs = 255,
-> +	.max_write_len = 65535,
-> +	.max_read_len = 65535,
-> +	.max_comb_1st_msg_len = 65535,
-> +	.max_comb_2nd_msg_len = 65535,
-> +};
-> +
->  static const struct mtk_i2c_compatible mt6577_compat = {
->  	.quirks = &mt6577_i2c_quirks,
->  	.pmic_i2c = 0,
-> @@ -190,6 +198,15 @@ struct mtk_i2c {
->  	.support_33bits = 0,
->  };
->  
-> +static const struct mtk_i2c_compatible mt7622_compat = {
-> +	.quirks = &mt7622_i2c_quirks,
-> +	.pmic_i2c = 0,
-> +	.dcm = 1,
-> +	.auto_restart = 1,
-> +	.aux_len_reg = 1,
-> +	.support_33bits = 0,
-> +};
-> +
->  static const struct mtk_i2c_compatible mt8173_compat = {
->  	.pmic_i2c = 0,
->  	.dcm = 1,
-> @@ -201,6 +218,7 @@ struct mtk_i2c {
->  static const struct of_device_id mtk_i2c_of_match[] = {
->  	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
->  	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
-> +	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
->  	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
->  	{}
->  };
+ drivers/i2c/i2c-slave-eeprom.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+index b2039f94c9d8..20226860cfe7 100644
+--- a/drivers/i2c/i2c-slave-eeprom.c
++++ b/drivers/i2c/i2c-slave-eeprom.c
+@@ -17,6 +17,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/of.h>
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+@@ -108,7 +109,12 @@ static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_de
+ {
+ 	struct eeprom_data *eeprom;
+ 	int ret;
+-	unsigned size = id->driver_data;
++	unsigned size;
++
++	if (client->dev.of_node)
++		size = (kernel_ulong_t)of_device_get_match_data(&client->dev);
++	else
++		size = id->driver_data;
+ 
+ 	eeprom = devm_kzalloc(&client->dev, sizeof(struct eeprom_data) + size, GFP_KERNEL);
+ 	if (!eeprom)
+@@ -154,9 +160,16 @@ static const struct i2c_device_id i2c_slave_eeprom_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
+ 
++static const struct of_device_id i2c_slave_eeprom_of_match[] = {
++	{ .compatible = "linux,slave-24c02", .data = (void *)(2048 / 8) },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, i2c_slave_eeprom_of_match);
++
+ static struct i2c_driver i2c_slave_eeprom_driver = {
+ 	.driver = {
+ 		.name = "i2c-slave-eeprom",
++		.of_match_table = i2c_slave_eeprom_of_match,
+ 	},
+ 	.probe = i2c_slave_eeprom_probe,
+ 	.remove = i2c_slave_eeprom_remove,
+-- 
+2.13.3
