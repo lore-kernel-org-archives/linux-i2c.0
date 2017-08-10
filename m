@@ -1,196 +1,57 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: Re: [RFC 3/5] dt-bindings: i3c: Document core bindings
-Date: Thu, 10 Aug 2017 10:49:58 +0200
-Message-ID: <20170810104958.7e34332f@bbrezillon>
-References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
-        <1501518290-5723-4-git-send-email-boris.brezillon@free-electrons.com>
-        <20170809234302.ffcr3gwpiy4roj7l@rob-hp-laptop>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools 4.0
+Date: Thu, 10 Aug 2017 11:29:27 +0200
+Message-ID: <1502357367.6201.9.camel@suse.de>
+References: <20170803153414.4c9135ff@endymion>
+                <alpine.LFD.2.20.1708081358330.10607@localhost.localdomain>
+         <20170810095936.22a8057a@endymion>
+         <alpine.LFD.2.20.1708100427530.31724@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20170809234302.ffcr3gwpiy4roj7l@rob-hp-laptop>
-Sender: linux-doc-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:53780 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751412AbdHJJ33 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Aug 2017 05:29:29 -0400
+In-Reply-To: <alpine.LFD.2.20.1708100427530.31724@localhost.localdomain>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Robert P. J. Day" <rpjday@crashcourse.ca>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 
-Hi Rob,
-
-Le Wed, 9 Aug 2017 18:43:02 -0500,
-Rob Herring <robh@kernel.org> a écrit :
-
-> On Mon, Jul 31, 2017 at 06:24:48PM +0200, Boris Brezillon wrote:
-> > A new I3C subsystem has been added and a generic description has been
-> > created to represent the I3C bus and the devices connected on it.
-> > 
-> > Document this generic representation.
-> > 
-> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> > ---
-> >  Documentation/devicetree/bindings/i3c/i3c.txt | 90 +++++++++++++++++++++++++++
-> >  1 file changed, 90 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
-> > new file mode 100644
-> > index 000000000000..49261dec7b01
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
-> > @@ -0,0 +1,90 @@
-> > +Generic device tree bindings for I3C busses
-> > +===========================================
-> > +
-> > +This document describes generic bindings that should be used to describe I3C
-> > +busses in a device tree.
-> > +
-> > +Required properties
-> > +-------------------
-> > +
-> > +- #address-cells  - should be <1>. Read more about addresses below.
-> > +- #size-cells     - should be <0>.
-> > +- compatible      - name of I3C bus controller following generic names
-> > +		    recommended practice.
-> > +
-> > +For other required properties e.g. to describe register sets,
-> > +clocks, etc. check the binding documentation of the specific driver.
-> > +
-> > +Optional properties
-> > +-------------------
-> > +
-> > +These properties may not be supported by all I3C master drivers. Each I3C
-> > +master bindings should specify which of them are supported.
-> > +
-> > +- i3c-scl-frequency: frequency (in Hz) of the SCL signal used for I3C
-> > +		     transfers. When undefined the core set it to 12.5MHz.
-> > +
-> > +- i2c-scl-frequency: frequency (in Hz) of the SCL signal used for I2C
-> > +		     transfers. When undefined, the core looks at LVR values
-> > +		     of I2C devices described in the device tree to determine
-> > +		     the maximum I2C frequency.
-> > +
-> > +I2C devices
-> > +===========
-> > +
-> > +Each I2C device connected to the bus should be described in a subnode with
-> > +the following properties:
-> > +
-> > +All properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
-> > +valid here.
-> > +
-> > +New required properties:
-> > +------------------------
-> > +- i3c-lvr: 32 bits integer property (only the lowest 8 bits are meaningful)  
+On jeu., 2017-08-10 at 04:30 -0400, Robert P. J. Day wrote:
+> On Thu, 10 Aug 2017, Jean Delvare wrote:
+> > Thanks for the report. I wonder why people always wait for
+> > announcements of imminent releases to report bugs ;-) Bugs have to
+> > be fixed anyway, before or after a release doesn't really make a
+> > difference, as there were other releases before and there will be
+> > other releases later. Distributions will cherry pick individual
+> > commits for backport as needed.
 > 
-> What does lvr mean?
-
-Legacy Virtual Register. It's the name used in the I3C specification
-and a short description is given in the I3C doc (patch 2 of this RFC):
-
-"
-Backward compatibility with I2C devices
-=======================================
-
-The I3C protocol has been designed to be backward compatible with I2C
-devices. This backward compatibility allows one to connect a mix of I2C
-and I3C device on the same bus, though, in order to be really
-efficient, I2C devices should be equipped with 50 ns spike filters.
-
-I2C devices can't be discovered like I3C ones and have to be statically
-declared. In order to let the master know what these devices are
-capable of (both in terms of bus related limitations and
-functionalities), the software has to provide some information, which
-is done through the LVR (Legacy I2C Virtual Register).
-"
-
+>   i actually did ask about this very issue last month:
 > 
-> > +	   describing device capabilities as described in the I3C
-> > +	   specification.
-> > +
-> > +	   bit[31:8]: unused
-> > +	   bit[7:5]: I2C device index. Possible values  
+> http://marc.info/?l=linux-i2c&m=150109384702585&w=2
+
+You forgot to Cc me :(
+
+> > Back to the bug itself, the fix will clearly slow down the writes
+> > for some users. I'm not so worried as writing to EEPROMs isn't a
+> > frequent operation and better safe than sorry. So I can apply it,
+> > but for the long term I think this is calling for either a command
+> > line parameter (to let the user decide of the sleep time) or a retry
+> > loop (this is what the at24 kernel driver is doing.) If anyone wants
+> > to provide a patch implementing either solution, I'll be happy to
+> > review it.
 > 
-> index?
+>   if the patch referred to above still applies cleanly, i can just
+> submit that later today. i understand that it will slow down writes;
+> on the other hand, without it, multi-byte writes simply won't work.
 
-Yes, I also find this name inappropriate, but that's directly
-extracted from the specification. 
+No need, I already applied a cleaned up version thereof:
 
-> Seems more like flags
+https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/commit/?id=7c1260bd0ee73c392f8c2a5b32b4b7c118011255
 
-These are not described as independent flags in the spec. It's an enum
-with only 3 values on 7 currently defined. I guess MIPI reserves other
-values for future use (v2 of the spec?).
-
-> 
-> > +	    * 0: I2C device has a 50 ns spike filter
-> > +	    * 1: I2C device does not have a 50 ns spike filter but supports high
-> > +		 frequency on SCL
-> > +	    * 2: I2C device does not have a 50 ns spike filter and is not
-> > +		 tolerant to high frequencies
-> > +	    * 3-7: reserved
-> > +
-> > +	   bit[4]: tell whether the device operates in FM or FM+ mode
-> > +	    * 0: FM+ mode
-> > +	    * 1: FM mode
-> > +
-> > +	   bit[3:0]: device type
-> > +	    * 0-15: reserved  
-> 
-> That's useful...
-
-Unfortunately, v1 of the spec does not define any of these device
-types. Probably something that will be extended in future versions.
-
-> 
-> > +
-> > +I3C devices
-> > +===========
-> > +
-> > +I3C are not described in the device tree yet. We could decide to represent them
-> > +at some point to assign a specific dynamic address to a device or to force an
-> > +I3C device to act as an I2C device if it has a static address.  
-> 
-> I think we need to define this sooner rather than later if there's not a 
-> standard connector. That's the only thing that would enforce any sort of 
-> standard. Of course, that didn't help with SDIO.
-
-I'm perfectly fine with that. I'll try to come up with a proposal in
-v2 of this patchset.
-
-> 
-> > +
-> > +Example:
-> > +
-> > +	i3c-master@0d040000 {  
-> 
-> The node name should go into the DT spec. I tend to think "i3c" would be 
-> sufficient and aligned with i2c.
-
-Well, I3C slave IPs are around the corner (actually I used one to test
-this framework), and I thought clarifying things from the beginning
-would be beneficial. But if you think i3c implicitly means i3c-master,
-I can change that.
-
-> 
-> > +		compatible = "cdns,i3c-master";
-> > +		clocks = <&coreclock>, <&i3csysclock>;
-> > +		clock-names = "pclk", "sysclk";
-> > +		interrupts = <3 0>;
-> > +		reg = <0x0d040000 0x1000>;
-> > +		#address-cells = <1>;
-> > +		#size-cells = <0>;
-> > +
-> > +		status = "okay";
-> > +		i2c-scl-frequency = <100000>;
-> > +
-> > +		nunchuk: nunchuk@52 {
-> > +			compatible = "nintendo,nunchuk";
-> > +			reg = <0x52>;
-> > +			i3c-lvr = <0x10>;
-> > +		};
-> > +	};
-> > +
-> > -- 
-> > 2.7.4
-> >   
-
+-- 
+Jean Delvare
+SUSE L3 Support
