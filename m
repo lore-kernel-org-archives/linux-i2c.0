@@ -1,57 +1,81 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-tools 4.0
-Date: Thu, 10 Aug 2017 11:29:27 +0200
-Message-ID: <1502357367.6201.9.camel@suse.de>
-References: <20170803153414.4c9135ff@endymion>
-                <alpine.LFD.2.20.1708081358330.10607@localhost.localdomain>
-         <20170810095936.22a8057a@endymion>
-         <alpine.LFD.2.20.1708100427530.31724@localhost.localdomain>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Fix system suspend
+Date: Thu, 10 Aug 2017 13:25:33 +0300
+Message-ID: <7cf63e74-0ece-4af2-89e9-e08b52858195@linux.intel.com>
+References: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
+ <CALAqxLW31Huu3+BWUO3tO+bsKUv7_r4_2joBy8YpZfa81zJ5tw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:53780 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751412AbdHJJ33 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 10 Aug 2017 05:29:29 -0400
-In-Reply-To: <alpine.LFD.2.20.1708100427530.31724@localhost.localdomain>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CALAqxLW31Huu3+BWUO3tO+bsKUv7_r4_2joBy8YpZfa81zJ5tw@mail.gmail.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: John Stultz <john.stultz@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux PM list <linux-pm@vger.kernel.org>, "# v4 . 4+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 
-On jeu., 2017-08-10 at 04:30 -0400, Robert P. J. Day wrote:
-> On Thu, 10 Aug 2017, Jean Delvare wrote:
-> > Thanks for the report. I wonder why people always wait for
-> > announcements of imminent releases to report bugs ;-) Bugs have to
-> > be fixed anyway, before or after a release doesn't really make a
-> > difference, as there were other releases before and there will be
-> > other releases later. Distributions will cherry pick individual
-> > commits for backport as needed.
+On 08/09/2017 11:55 PM, John Stultz wrote:
+> On Wed, Aug 9, 2017 at 6:28 AM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>> The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
+>> during system suspend"), may suggest to the PM core to try out the so
+>> called direct_complete path for system sleep. In this path, the PM core
+>> treats a runtime suspended device as it's already in a proper low power
+>> state for system sleep, which makes it skip calling the system sleep
+>> callbacks for the device, except for the ->prepare() and the ->complete()
+>> callbacks.
+>>
+>> However, the PM core may unset the direct_complete flag for a parent
+>> device, in case its child device are being system suspended before. In this
+>> scenario, the PM core invokes the system sleep callbacks, no matter if the
+>> device is runtime suspended or not.
+>>
+>> Particularly in cases of an existing i2c slave device, the above path is
+>> triggered, which breaks the assumption that the i2c device is always
+>> runtime resumed whenever the dw_i2c_plat_suspend() is being called.
+>>
+>> More precisely, dw_i2c_plat_suspend() calls clk_core_disable() and
+>> clk_core_unprepare(), for an already disabled/unprepared clock, leading to
+>> a splat in the log about clocks calls being wrongly balanced and breaking
+>> system sleep.
+>>
+>> To still allow the direct_complete path in cases when it's possible, but
+>> also to keep the fix simple, let's runtime resume the i2c device in the
+>> ->suspend() callback, before continuing to put the device into low power
+>> state.
+>>
+>> Note, in cases when the i2c device is attached to the ACPI PM domain, this
+>> problem doesn't occur, because ACPI's ->suspend() callback, assigned to
+>> acpi_subsys_suspend(), already calls pm_runtime_resume() for the device.
+>>
+>> It should also be noted that this change does not fix commit 8503ff166504
+>> ("i2c: designware: Avoid unnecessary resuming during system suspend").
+>> Because for the non-ACPI case, the system sleep support was already broken
+>> prior that point.
+>>
+>> Cc: <stable@vger.kernel.org> # v4.4+
+>> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+>> ---
+>>
+>> I decided to post this as a separate change, instead of as earlier folding it
+>> in the series that extends the ACPI PM domain to cope with the runtime PM
+>> centric path for system sleep.
+>>
+>> This change applies on a fresh v4.4+. If someone wants it's applied for earlier
+>> version, please send a backport yourself.
+>>
+>> It's based on 4.13 rc4 and I assume it should go as a fix via the i2c tree.
+>>
+>> Changes in v2:
+>>          - Updated changelog.
+>>          - Runtime resume the device in ->suspend() instead of in ->prepare().
 > 
->   i actually did ask about this very issue last month:
 > 
-> http://marc.info/?l=linux-i2c&m=150109384702585&w=2
-
-You forgot to Cc me :(
-
-> > Back to the bug itself, the fix will clearly slow down the writes
-> > for some users. I'm not so worried as writing to EEPROMs isn't a
-> > frequent operation and better safe than sorry. So I can apply it,
-> > but for the long term I think this is calling for either a command
-> > line parameter (to let the user decide of the sleep time) or a retry
-> > loop (this is what the at24 kernel driver is doing.) If anyone wants
-> > to provide a patch implementing either solution, I'll be happy to
-> > review it.
+> This avoids the suspend/resume warning I've seen w/o the patch on HiKey.
 > 
->   if the patch referred to above still applies cleanly, i can just
-> submit that later today. i understand that it will slow down writes;
-> on the other hand, without it, multi-byte writes simply won't work.
+> Tested-by: John Stultz <john.stultz@linaro.org>
+> 
+Cool, no issues from acpi_lpss.c nor mfd/intel-lpss.c platforms.
 
-No need, I already applied a cleaned up version thereof:
-
-https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/commit/?id=7c1260bd0ee73c392f8c2a5b32b4b7c118011255
-
--- 
-Jean Delvare
-SUSE L3 Support
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
