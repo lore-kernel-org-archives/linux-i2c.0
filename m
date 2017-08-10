@@ -1,70 +1,55 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [RESEND PATCH 2/2] i2c: mediatek: Add i2c compatible for MediaTek MT7622
-Date: Thu, 10 Aug 2017 10:27:41 +0800
-Message-ID: <1502332061-25085-3-git-send-email-jun.gao@mediatek.com>
-References: <1502332061-25085-1-git-send-email-jun.gao@mediatek.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/7] iio: srf08: add device tree binding for srf02 and
+ srf10
+Date: Thu, 10 Aug 2017 08:54:40 +0200
+Message-ID: <20170810065440.GA1519@katana>
+References: <20170802232335.GA15222@arbeit>
+ <20170810003306.651be1a1@archlinux>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502332061-25085-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:60464 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751410AbdHJGyn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Aug 2017 02:54:43 -0400
+Content-Disposition: inline
+In-Reply-To: <20170810003306.651be1a1@archlinux>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Andreas Klinger <ak@it-klinger.de>, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
 
-Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
-MT7622 limits message numbers to 255, and does not support 4GB
-DMA mode.
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 9bedf0b..2c7f847 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -172,6 +172,14 @@ struct mtk_i2c {
- 	.max_comb_2nd_msg_len = 31,
- };
- 
-+static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-+	.max_num_msgs = 255,
-+	.max_write_len = 65535,
-+	.max_read_len = 65535,
-+	.max_comb_1st_msg_len = 65535,
-+	.max_comb_2nd_msg_len = 65535,
-+};
-+
- static const struct mtk_i2c_compatible mt6577_compat = {
- 	.quirks = &mt6577_i2c_quirks,
- 	.pmic_i2c = 0,
-@@ -190,6 +198,15 @@ struct mtk_i2c {
- 	.support_33bits = 0,
- };
- 
-+static const struct mtk_i2c_compatible mt7622_compat = {
-+	.quirks = &mt7622_i2c_quirks,
-+	.pmic_i2c = 0,
-+	.dcm = 1,
-+	.auto_restart = 1,
-+	.aux_len_reg = 1,
-+	.support_33bits = 0,
-+};
-+
- static const struct mtk_i2c_compatible mt8173_compat = {
- 	.pmic_i2c = 0,
- 	.dcm = 1,
-@@ -201,6 +218,7 @@ struct mtk_i2c {
- static const struct of_device_id mtk_i2c_of_match[] = {
- 	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
- 	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
-+	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
- 	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
- 	{}
- };
--- 
-1.8.1.1
+> >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+
+trivial-devices.txt has been moved one directory up some months ago.
+Rebasing to current top-of-tree probably makes sense.
+
+
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmMAywACgkQFA3kzBSg
+KbaKBxAAnKlDvKsyIlSFqCk82Yt8ouuUcUl6sNU3JeS77nLd+1t4THjcNJ3cN5ob
+bHUBqKiuKnlgzI3AwelO5Ccy4rt5YCIk/dO19dSc/2b5ORSQp0mHJGeFrsb4RjUS
+yXMgIPrQ1B13uZf4sMzB1o6lQ5Ae9LB+baPQ2jP/i92/stdA9K3QKmZVdpj3rM2W
+6/L8RAq4hGI2M3B7lUXU90ESUKWRkAhN7yqGRDCuCOk5pFccaZcFWY6kEDZ8uZUD
+ChfZyjWFcs474yUK9jBuJTmpyOo+ZhoX3CELfC1988g0M1ymSwHG7vEfmKDdcek9
+iqQXwjGCBSutalJtacoUnJhYKGCh/j3O8b7d8wGua2HGQ/C1fjQay2E1sEvjOdpd
+doLBYPt9wdQ8CVi0xyAXD+khNZyEZFZo3Vg/fjf7x0vcXKN6ap6fBSW9+KTMyVK2
+76LZqDJAM7Zw/gkmP22cCv/Gc8Jj3unQT66W2eWFGAD5n168AKJKbdwWovFzlk2o
+RgBg4pWkD5OnrY8meiBBwhVtsK7zaAYygvznjFX9pXsibuhPJfFz7z635OQTD2sz
+4cfTE9dbUtd9MYlfAmLJky3wSObHIQsaleTvEeajgZXNcf8SyGYaFTEJYUcPOFWC
+IXdBMLhmNT90KoQaXKW4aDYhDh3ZQY98rG3ZvJ93jd90hIy+MY4=
+=4/d1
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
