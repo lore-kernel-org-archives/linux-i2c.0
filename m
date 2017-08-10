@@ -1,50 +1,28 @@
-From: Anton Vasilyev <vasilyev@ispras.ru>
-Subject: [PATCH] i2c: use release_mem_region instead of release_resource
-Date: Thu, 10 Aug 2017 18:15:45 +0300
-Message-ID: <1502378145-12869-1-git-send-email-vasilyev@ispras.ru>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from bran.ispras.ru ([83.149.199.196]:33957 "EHLO smtp.ispras.ru"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751972AbdHJPP4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 10 Aug 2017 11:15:56 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 11/23] dt-bindings: i2c: rk3x: add support for rv1108
+Date: Thu, 10 Aug 2017 11:15:00 -0500
+Message-ID: <20170810161500.e3f4ufbqpqcng6v2@rob-hp-laptop>
+References: <1501662303-11687-1-git-send-email-andy.yan@rock-chips.com>
+ <1501663312-12310-1-git-send-email-andy.yan@rock-chips.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1501663312-12310-1-git-send-email-andy.yan@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Yan <andy.yan@rock-chips.com>
+Cc: heiko@sntech.de, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Anton Vasilyev <vasilyev@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
-Use api pair of request_mem_region and release_mem_region
-instead of release_resource.
+On Wed, Aug 02, 2017 at 04:41:52PM +0800, Andy Yan wrote:
+> Add dt Document for i2c controller on rv1108
+> 
+> Signed-off-by: Andy Yan <andy.yan@rock-chips.com>
+> ---
+> 
+> Changes in v2: None
+> 
+>  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
----
- drivers/i2c/busses/i2c-simtec.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-simtec.c b/drivers/i2c/busses/i2c-simtec.c
-index b4685bb..adca51a 100644
---- a/drivers/i2c/busses/i2c-simtec.c
-+++ b/drivers/i2c/busses/i2c-simtec.c
-@@ -127,8 +127,7 @@ static int simtec_i2c_probe(struct platform_device *dev)
- 	iounmap(pd->reg);
- 
-  err_res:
--	release_resource(pd->ioarea);
--	kfree(pd->ioarea);
-+	release_mem_region(pd->ioarea->start, size);
- 
-  err:
- 	kfree(pd);
-@@ -142,8 +141,7 @@ static int simtec_i2c_remove(struct platform_device *dev)
- 	i2c_del_adapter(&pd->adap);
- 
- 	iounmap(pd->reg);
--	release_resource(pd->ioarea);
--	kfree(pd->ioarea);
-+	release_mem_region(pd->ioarea->start, resource_size(pd->ioarea));
- 	kfree(pd);
- 
- 	return 0;
--- 
-2.7.4
+Acked-by: Rob Herring <robh@kernel.org>
