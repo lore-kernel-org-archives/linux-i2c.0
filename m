@@ -1,94 +1,58 @@
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: Re: [RESEND PATCH 2/2] i2c: mediatek: Add i2c compatible for
- MediaTek MT7622
-Date: Thu, 10 Aug 2017 16:03:46 +0800
-Message-ID: <1502352226.12382.1.camel@mtksdaap41>
+From: Honghui Zhang <honghui.zhang@mediatek.com>
+Subject: Re: [RESEND PATCH 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c
+ binding
+Date: Thu, 10 Aug 2017 16:19:00 +0800
+Message-ID: <1502353140.17420.7.camel@mtksdaap41>
 References: <1502332061-25085-1-git-send-email-jun.gao@mediatek.com>
-         <1502332061-25085-3-git-send-email-jun.gao@mediatek.com>
-         <1502349760.930.66.camel@mhfsdcap03>
+         <1502332061-25085-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502349760.930.66.camel@mhfsdcap03>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jun Gao <jun.gao@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailgw01.mediatek.com ([210.61.82.183]:47450 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750735AbdHJITG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2017 04:19:06 -0400
+In-Reply-To: <1502332061-25085-2-git-send-email-jun.gao@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>, devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Thu, 2017-08-10 at 15:22 +0800, Jun Gao wrote:
-> On Thu, 2017-08-10 at 10:27 +0800, Jun Gao wrote:
-> > From: Jun Gao <jun.gao@mediatek.com>
-> > 
-> > Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
-> > MT7622 limits message numbers to 255, and does not support 4GB
-> > DMA mode.
-> > 
+On Thu, 2017-08-10 at 10:27 +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 > 
-> These two resend patches only modify commit message.
-> Thanks!
+> Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
+> controller, MT7622 limits message numbers to 255, and does not
+> support 4GB DMA mode.
 > 
-> Jun
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> index bd5a7be..ff9ac61 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+>  
+>  Required properties:
+>    - compatible: value should be either of the following.
+> -      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
+> -      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
+> -      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
+> -      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
+> -      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
+> +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
+> +	"mediatek,mt6577-i2c": for Mediatek MT6577
+> +	"mediatek,mt6589-i2c": for Mediatek MT6589
 
-Looks good to me, so for new version:
-Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Better not change those and just add compatible strings for mt7622.
 
-Joe.C
-
-
-> 
-> > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-> > ---
-> >  drivers/i2c/busses/i2c-mt65xx.c | 18 ++++++++++++++++++
-> >  1 file changed, 18 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> > index 9bedf0b..2c7f847 100644
-> > --- a/drivers/i2c/busses/i2c-mt65xx.c
-> > +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> > @@ -172,6 +172,14 @@ struct mtk_i2c {
-> >  	.max_comb_2nd_msg_len = 31,
-> >  };
-> >  
-> > +static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-> > +	.max_num_msgs = 255,
-> > +	.max_write_len = 65535,
-> > +	.max_read_len = 65535,
-> > +	.max_comb_1st_msg_len = 65535,
-> > +	.max_comb_2nd_msg_len = 65535,
-> > +};
-> > +
-> >  static const struct mtk_i2c_compatible mt6577_compat = {
-> >  	.quirks = &mt6577_i2c_quirks,
-> >  	.pmic_i2c = 0,
-> > @@ -190,6 +198,15 @@ struct mtk_i2c {
-> >  	.support_33bits = 0,
-> >  };
-> >  
-> > +static const struct mtk_i2c_compatible mt7622_compat = {
-> > +	.quirks = &mt7622_i2c_quirks,
-> > +	.pmic_i2c = 0,
-> > +	.dcm = 1,
-> > +	.auto_restart = 1,
-> > +	.aux_len_reg = 1,
-> > +	.support_33bits = 0,
-> > +};
-> > +
-> >  static const struct mtk_i2c_compatible mt8173_compat = {
-> >  	.pmic_i2c = 0,
-> >  	.dcm = 1,
-> > @@ -201,6 +218,7 @@ struct mtk_i2c {
-> >  static const struct of_device_id mtk_i2c_of_match[] = {
-> >  	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
-> >  	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
-> > +	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
-> >  	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
-> >  	{}
-> >  };
-> 
-> 
-> 
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+> +	"mediatek,mt7622-i2c": for Mediatek MT7622
+> +	"mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
+> +	"mediatek,mt8173-i2c": for Mediatek MT8173
+>    - reg: physical base address of the controller and dma base, length of memory
+>      mapped region.
+>    - interrupts: interrupt number to the cpu.
