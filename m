@@ -1,26 +1,50 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix system suspend
-Date: Thu, 10 Aug 2017 13:31:37 +0300
-Message-ID: <20170810103137.GT2369@lahna.fi.intel.com>
-References: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
- <CALAqxLW31Huu3+BWUO3tO+bsKUv7_r4_2joBy8YpZfa81zJ5tw@mail.gmail.com>
- <7cf63e74-0ece-4af2-89e9-e08b52858195@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7cf63e74-0ece-4af2-89e9-e08b52858195@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: John Stultz <john.stultz@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux PM list <linux-pm@vger.kernel.org>, "# v4 . 4+" <stable@vger.kernel.org>
+From: Anton Vasilyev <vasilyev@ispras.ru>
+Subject: [PATCH] i2c: use release_mem_region instead of release_resource
+Date: Thu, 10 Aug 2017 18:15:45 +0300
+Message-ID: <1502378145-12869-1-git-send-email-vasilyev@ispras.ru>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from bran.ispras.ru ([83.149.199.196]:33957 "EHLO smtp.ispras.ru"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751972AbdHJPP4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 10 Aug 2017 11:15:56 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Anton Vasilyev <vasilyev@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
-On Thu, Aug 10, 2017 at 01:25:33PM +0300, Jarkko Nikula wrote:
-> Cool, no issues from acpi_lpss.c nor mfd/intel-lpss.c platforms.
-> 
-> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Use api pair of request_mem_region and release_mem_region
+instead of release_resource.
 
-Looks good to me as well,
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+---
+ drivers/i2c/busses/i2c-simtec.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-simtec.c b/drivers/i2c/busses/i2c-simtec.c
+index b4685bb..adca51a 100644
+--- a/drivers/i2c/busses/i2c-simtec.c
++++ b/drivers/i2c/busses/i2c-simtec.c
+@@ -127,8 +127,7 @@ static int simtec_i2c_probe(struct platform_device *dev)
+ 	iounmap(pd->reg);
+ 
+  err_res:
+-	release_resource(pd->ioarea);
+-	kfree(pd->ioarea);
++	release_mem_region(pd->ioarea->start, size);
+ 
+  err:
+ 	kfree(pd);
+@@ -142,8 +141,7 @@ static int simtec_i2c_remove(struct platform_device *dev)
+ 	i2c_del_adapter(&pd->adap);
+ 
+ 	iounmap(pd->reg);
+-	release_resource(pd->ioarea);
+-	kfree(pd->ioarea);
++	release_mem_region(pd->ioarea->start, resource_size(pd->ioarea));
+ 	kfree(pd);
+ 
+ 	return 0;
+-- 
+2.7.4
