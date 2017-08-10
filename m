@@ -1,28 +1,27 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 11/23] dt-bindings: i2c: rk3x: add support for rv1108
-Date: Thu, 10 Aug 2017 11:15:00 -0500
-Message-ID: <20170810161500.e3f4ufbqpqcng6v2@rob-hp-laptop>
-References: <1501662303-11687-1-git-send-email-andy.yan@rock-chips.com>
- <1501663312-12310-1-git-send-email-andy.yan@rock-chips.com>
+Subject: Re: [PATCH 3/4] dt-bindings: i2c: i2c-davinci: Update binding for
+ 66AK2Gx pwr dm property
+Date: Thu, 10 Aug 2017 11:36:45 -0500
+Message-ID: <20170810163645.wt52uharpdxhnmbb@rob-hp-laptop>
+References: <20170802221753.13786-1-fcooper@ti.com>
+ <20170802221753.13786-4-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1501663312-12310-1-git-send-email-andy.yan@rock-chips.com>
+In-Reply-To: <20170802221753.13786-4-fcooper@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Yan <andy.yan@rock-chips.com>
-Cc: heiko@sntech.de, linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Franklin S Cooper Jr <fcooper@ti.com>
+Cc: wsa@the-dreams.de, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 02, 2017 at 04:41:52PM +0800, Andy Yan wrote:
-> Add dt Document for i2c controller on rv1108
+On Wed, Aug 02, 2017 at 05:17:52PM -0500, Franklin S Cooper Jr wrote:
+> Add pm-domains property which is required for 66AK2Gx. Also document 66AK2G
+> unique clocks property usage.
 > 
-> Signed-off-by: Andy Yan <andy.yan@rock-chips.com>
+> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
 > ---
-> 
-> Changes in v2: None
-> 
->  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 
 Acked-by: Rob Herring <robh@kernel.org>
