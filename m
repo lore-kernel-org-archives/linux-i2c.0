@@ -1,74 +1,56 @@
-From: Honghui Zhang <honghui.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [RESEND PATCH 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c
- binding
-Date: Fri, 11 Aug 2017 10:17:06 +0800
-Message-ID: <1502417826.10379.1.camel@mtksdaap41>
-References: <1502332061-25085-1-git-send-email-jun.gao@mediatek.com>
-         <1502332061-25085-2-git-send-email-jun.gao@mediatek.com>
-         <1502353140.17420.7.camel@mtksdaap41> <1502415473.930.72.camel@mhfsdcap03>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1502415473.930.72.camel@mhfsdcap03>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v3 00/13] Support more devices on rockchip rv1108
+Date: Fri, 11 Aug 2017 11:36:18 +0800
+Message-ID: <1502422578-30611-1-git-send-email-andy.yan@rock-chips.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2017-08-11 at 09:37 +0800, Jun Gao wrote:
-> On Thu, 2017-08-10 at 16:19 +0800, Honghui Zhang wrote:
-> > On Thu, 2017-08-10 at 10:27 +0800, Jun Gao wrote:
-> > > From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > > 
-> > > Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
-> > > controller, MT7622 limits message numbers to 255, and does not
-> > > support 4GB DMA mode.
-> > > 
-> > > Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > > ---
-> > >  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
-> > >  1 file changed, 6 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > > index bd5a7be..ff9ac61 100644
-> > > --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > > +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
-> > >  
-> > >  Required properties:
-> > >    - compatible: value should be either of the following.
-> > > -      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
-> > > -      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
-> > > -      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
-> > > -      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
-> > > -      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
-> > > +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-> > > +	"mediatek,mt6577-i2c": for Mediatek MT6577
-> > > +	"mediatek,mt6589-i2c": for Mediatek MT6589
-> > 
-> > Better not change those and just add compatible strings for mt7622.
-> > 
-> It seems better to use the same format for all SoCs. 
-> 
+This series try to support i2c/spi/pwm/saradc/pmic/watchdog
+on rockchip rv1108 soc.
 
-Alright, do you need to put those changes in commit message?
-Thanks.
+As the clk tree part has been taken from Elaine's series, so
+this part will be not included in my series from this version.
 
-> Jun
-> > > +	"mediatek,mt7622-i2c": for Mediatek MT7622
-> > > +	"mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-> > > +	"mediatek,mt8173-i2c": for Mediatek MT8173
-> > >    - reg: physical base address of the controller and dma base, length of memory
-> > >      mapped region.
-> > >    - interrupts: interrupt number to the cpu.
-> > 
-> > 
-> 
-> 
+This version has no more changes, except the pwm  dt-bindings
+followed by Rob's suggestion, and the Acked-by from Rob of other
+dt-bindings.
 
+Changes in v3:
+- remove the clk tree part
+- make the compatible string be: "rockchip,rv1108-pwm", "rockchip,rk3288-pwm"
+  for rv1108 pwm
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes in v2:
+- add compatible string "rockchip,rv1108-pwm"
+- add compatible string "rockchip,rv1108-saradc"
+
+Andy Yan (13):
+  dt-bindings: i2c: rk3x: add support for rv1108
+  i2c: rk3x: add support for rv1108
+  ARM: dts: rockchip: add i2c dt node for rv1108
+  spi: rockchip: add compatible string for rv1108 spi
+  ARM: dts: rockchip: add spi dt node for rv1108
+  dt-bindings: pwm: add description for rv1108 pwm
+  ARM: dts: rockchip: add pwm dt node for rv1108
+  ARM: dts: rockchip: add watchdog dt node for rv1108
+  dt-bindings: adc: add description for rv1108 saradc
+  ARM: dts: rockchip: add saradc support for rv1108
+  ARM: dts: rockchip: add pwm backlight for rv1108 evb
+  ARM: dts: rockchip: add pmic rk805 dt node for rv1108 evb
+  ARM: dts: rockchip: add accelerometer bma250e dt node for rv1108 evb
+
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |   1 +
+ .../bindings/iio/adc/rockchip-saradc.txt           |   1 +
+ .../devicetree/bindings/pwm/pwm-rockchip.txt       |   3 +-
+ .../devicetree/bindings/spi/spi-rockchip.txt       |   1 +
+ arch/arm/boot/dts/rv1108-evb.dts                   | 158 +++++++++++++
+ arch/arm/boot/dts/rv1108.dtsi                      | 249 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-rk3x.c                      |   9 +
+ drivers/spi/spi-rockchip.c                         |   1 +
+ 8 files changed, 422 insertions(+), 1 deletion(-)
+
+-- 
+2.7.4
