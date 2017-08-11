@@ -1,102 +1,63 @@
-From: Javier Martinez Canillas <javierm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: modalias for OF-declared I2C/SPI devices
-Date: Fri, 11 Aug 2017 16:11:51 +0200
-Message-ID: <1fcd1d99-39ca-6db6-51fc-148c84f66297@redhat.com>
-References: <20170811081429.GA9957@wunner.de>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH 1/4] i2c: davinci: Preserve return value of devm_clk_get
+Date: Fri, 11 Aug 2017 17:00:35 -0500
+Message-ID: <3598274c-4567-eacb-adaa-24c4fd1c1ace@ti.com>
+References: <20170802221753.13786-1-fcooper@ti.com>
+ <20170802221753.13786-2-fcooper@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170811081429.GA9957-JFq808J9C/izQB+pC5nmwQ@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170802221753.13786-2-fcooper@ti.com>
 Content-Language: en-US
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lukas Wunner <lukas-JFq808J9C/izQB+pC5nmwQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Cc: Lennart Poettering <lennart-mdGvqq1h2p+GdvJs77BJ7Q@public.gmane.org>, Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-[adding the I2C and SPI subsystem maintainers]
 
-Hello Lukas,
 
-On 08/11/2017 10:14 AM, Lukas Wunner wrote:
-> Hi Javier,
+On 08/02/2017 05:17 PM, Franklin S Cooper Jr wrote:
+> The i2c driver can run into driver dependency issues if its loaded
+> before a clock driver it depends on. Therefore, EPROBE_DEFER may be
+> returned by devm_clk_get and should be returned in probe to allow the
+> kernel to reprobe the driver at a later time. This patch allows the error
+> value returned by devm_clk_get to be passed through and not overwritten.
 > 
-> you proposed an RFC patch a while ago which lets the I2C and SPI core
-> report an "of:" modalias to user space for devices declared in a
-> device tree (vs. a legacy machine description), instead of an "i2c:"
-> or "spi:" modalias:
+> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+> Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+
+I think it's better to drop internal tags.
+
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+
+> ---
+>   drivers/i2c/busses/i2c-davinci.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> https://lkml.org/lkml/2014/9/11/458
-> https://lkml.org/lkml/2015/8/20/98
-> 
-> I justed wanted to ask what the status of the patch is?  Looking at
-> linux-next I notice that you've been fixing up drivers, machine
-> descriptions and device trees as recently as July.  Apparently you're
-> still busy landing all the prep work necessary for the patch, is that
-> correct?
->
-
-That's partially correct. I'm still pushing the remaining fixes for I2C but I'm
-not doing any changes to SPI drivers anymore. It's just too much work and churn
-for maintainers.
-
-> It seems to be an awful lot of work cleaning up this mess and I assume
-
-I would also give up on I2C but I'm just keep doing it since we are so close to
-finally fix it (only fixes for a couple of drivers are remaining to be merged).
-
-> there is plenty of out-of-tree stuff that may break once the patch lands,
-
-That's correct, but IMHO that's not a problem for mainline. It's the out-of-tree
-drivers that were relying on a broken behavior and so what they are doing wasn't
-ever expected to work (the fact that works is just due an implementation detail).
-
-Once the I2C and SPI subsystems are fixed to report the proper OF modalias, then
-we should document clearly that this may break out-of-tree drivers for courtesy
-but I think that's all that mainline should do IMHO.
-
-> so I've been wondering if a simpler solution might be to change user
-> space, given that we already communicate all the OF_COMPATIBLE_* uevent
-> variables.  So I opened an issue for systemd-udevd but so far Lennart
-> remains unconvinced:
-> 
-> https://github.com/systemd/systemd/issues/6555
-> 
-> I still think that evaluation of OF_COMPATIBLE_* by user space would be
-> the best solution since it seems impossible to cram the degrees of
-> freedom afforded by compatible strings into a single modalias string.
->
-
-I agree with Lennart on this. User-space is doing the correct thing and should
-not be changed. I'll comment on the Github issue as well.
- 
-> The reason I came across this issue is that module autoloading fails for
-> drivers/gpio/gpio-74x164.c as it only declares an "of" MODULE_DEVICE_TABLE.
-> I was going to upstream a GPIO and an IIO driver, both SPI-based, and was
-> wondering what the current best practice is:  Should I only declare an
-> "of" MODULE_DEVICE_TABLE or should I also provide an "spi"
-> MODULE_DEVICE_TABLE?
->
-
-That's a question for Mark Brown. My opinion (since I'm not a maintainer) is
-that you should add a SPI device ID table and export it as spi:<foo> aliases
-until this is properly fixed.
-
-The correct way to fix this is to move this into the device model instead of
-all subsystem types duplicating the same uevent logic and requiring a table
-per each firmware interface. But that's a much bigger task...
- 
-> Thanks!
-> 
-> Lukas
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 9e7ef5c..5749aac 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -801,7 +801,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>   
+>   	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>   	if (IS_ERR(dev->clk))
+> -		return -ENODEV;
+> +		return PTR_ERR(dev->clk);
+>   	clk_prepare_enable(dev->clk);
+>   
+>   	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 > 
 
-Best regards,
 -- 
-Javier Martinez Canillas
-Software Engineer - Desktop Hardware Enablement
-Red Hat
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+regards,
+-grygorii
