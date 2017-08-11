@@ -1,51 +1,67 @@
-From: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Subject: Re: i2c-tools 4.0
-Date: Thu, 10 Aug 2017 14:19:56 -0400 (EDT)
-Message-ID: <alpine.LFD.2.20.1708101417120.9961@localhost.localdomain>
-References: <20170803153414.4c9135ff@endymion>         <alpine.LFD.2.20.1708081358330.10607@localhost.localdomain>  <20170810095936.22a8057a@endymion>  <alpine.LFD.2.20.1708100427530.31724@localhost.localdomain> <1502357367.6201.9.camel@suse.de>
+From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [RESEND PATCH 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c
+ binding
+Date: Fri, 11 Aug 2017 09:37:53 +0800
+Message-ID: <1502415473.930.72.camel@mhfsdcap03>
+References: <1502332061-25085-1-git-send-email-jun.gao@mediatek.com>
+         <1502332061-25085-2-git-send-email-jun.gao@mediatek.com>
+         <1502353140.17420.7.camel@mtksdaap41>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from cpanel2.indieserve.net ([199.212.143.6]:43858 "EHLO
-        cpanel2.indieserve.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752552AbdHJSUA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 10 Aug 2017 14:20:00 -0400
-In-Reply-To: <1502357367.6201.9.camel@suse.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1502353140.17420.7.camel@mtksdaap41>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Honghui Zhang <honghui.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 
-On Thu, 10 Aug 2017, Jean Delvare wrote:
+On Thu, 2017-08-10 at 16:19 +0800, Honghui Zhang wrote:
+> On Thu, 2017-08-10 at 10:27 +0800, Jun Gao wrote:
+> > From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> > 
+> > Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
+> > controller, MT7622 limits message numbers to 255, and does not
+> > support 4GB DMA mode.
+> > 
+> > Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
+> >  1 file changed, 6 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > index bd5a7be..ff9ac61 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+> >  
+> >  Required properties:
+> >    - compatible: value should be either of the following.
+> > -      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
+> > -      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
+> > -      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
+> > -      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
+> > -      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
+> > +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
+> > +	"mediatek,mt6577-i2c": for Mediatek MT6577
+> > +	"mediatek,mt6589-i2c": for Mediatek MT6589
+> 
+> Better not change those and just add compatible strings for mt7622.
+> 
+It seems better to use the same format for all SoCs. 
 
-> On jeu., 2017-08-10 at 04:30 -0400, Robert P. J. Day wrote:
-> > On Thu, 10 Aug 2017, Jean Delvare wrote:
-> > > Thanks for the report. I wonder why people always wait for
-> > > announcements of imminent releases to report bugs ;-) Bugs have to
-> > > be fixed anyway, before or after a release doesn't really make a
-> > > difference, as there were other releases before and there will be
-> > > other releases later. Distributions will cherry pick individual
-> > > commits for backport as needed.
-> >
-> >   i actually did ask about this very issue last month:
-> >
-> > http://marc.info/?l=linux-i2c&m=150109384702585&w=2
->
-> You forgot to Cc me :(
+Jun
+> > +	"mediatek,mt7622-i2c": for Mediatek MT7622
+> > +	"mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
+> > +	"mediatek,mt8173-i2c": for Mediatek MT8173
+> >    - reg: physical base address of the controller and dma base, length of memory
+> >      mapped region.
+> >    - interrupts: interrupt number to the cpu.
+> 
+> 
 
-  in my defense, at the time, the README file knew nothing about you.
-:-)
 
-http://marc.info/?l=linux-i2c&m=150092316304021&w=2
-
-rday
-
--- 
-
-========================================================================
-Robert P. J. Day                                 Ottawa, Ontario, CANADA
-                        http://crashcourse.ca
-
-Twitter:                                       http://twitter.com/rpjday
-LinkedIn:                               http://ca.linkedin.com/in/rpjday
-========================================================================
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
