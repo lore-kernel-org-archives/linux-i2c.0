@@ -1,59 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 02/13] i2c: rk3x: add support for rv1108
-Date: Sat, 12 Aug 2017 16:01:16 +0200
-Message-ID: <20170812140116.pjcswhe5mylns7x4@ninjato>
-References: <1502422578-30611-1-git-send-email-andy.yan@rock-chips.com>
- <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
+Subject: Re: [PATCH 1/2] i2c: mux: pinctrl: remove platform_data
+Date: Sat, 12 Aug 2017 16:12:13 +0200
+Message-ID: <20170812141213.oimvophh766u4wxi@ninjato>
+References: <20170802072728.24586-1-peda@axentia.se>
+ <20170802072728.24586-2-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="hkcpjsr7mbybzghj"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="p6udk7m3ctvgujl7"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43229 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750896AbdHLOMP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 12 Aug 2017 10:12:15 -0400
 Content-Disposition: inline
-In-Reply-To: <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Yan <andy.yan@rock-chips.com>
-Cc: heiko@sntech.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170802072728.24586-2-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, linux-i2c@vger.kernel.org
 
 
---hkcpjsr7mbybzghj
+--p6udk7m3ctvgujl7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Wed, Aug 02, 2017 at 09:27:27AM +0200, Peter Rosin wrote:
+> No platform (at least no upstreamed platform) has ever used this
+> platform_data. Just drop it and simplify the code.
+>=20
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-> +static const struct rk3x_i2c_soc_data rv1108_soc_data = {
-> +	.grf_offset = -1,
-> +	.calc_timings = rk3x_i2c_v1_calc_timings,
-> +};
-> +
+Very nice!
 
-I don't care super much, but why don't you reuse rk3399_soc_data()?
-Or even use the rk3399 compatible as fallback value?
-
-Kind regards,
-
-   Wolfram
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---hkcpjsr7mbybzghj
+--p6udk7m3ctvgujl7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPCiwACgkQFA3kzBSg
-KbYFvA/+NolCjQUN4gqJJw17QDcxgLbJUSIn5nFxRraSjaUCEDnOgzAQW0gYVhkY
-vSGMmU9dPOGvLgGyRFukqtRuYJd8aLFSGUqtsOLzd0c6LQn2vAxCgxbya8T1U20L
-JPZWNg3R0ejVHW0boDG8UkSW2XLyrY3e5+uIAEk28EiCnZeHO9Z+05vTInCzX0W/
-05Rq6ED1qcZc3LxQdNIovyK81bmt/7Odpy0NE6piGpM5miO4byxwrm4k6ywGQVyz
-r2fqyQAt95rT6Fj9xhIBCVqF1G+rCpcG5n9PJ3HoRsNZsiUvIUI9aTsKiZJdV8aX
-7AgcIz3BMMhzuC+p1Hr8YwgK4QzsWfl7VXLo1oiw6ZseJiySJntY/VJvU3N4lK1p
-1/zg5ed16tQlRiKv9SykWJ7wngQUd23Qmi9/nGFhGSDWV+BRyX9cTJzyMheaK8vb
-qETzO8ZpkNzyg0VtxQImDlQ9zlsXUbwMfiRa57/oeoeayCIWwGLGRRH190VAt+i1
-kiQF8jRmcL+RxVWZrL4qz+8i67DpTgNduQIaTrfoqBG3OUe3A9HSQIT7psUbLEaX
-RreBQJj7GLwItTQPoLrguKDZgbFKvurME4+i6p0IF36nUd0BRUEj5gzBaZJGN49q
-FheEy6j8igINMWsJSlER3wJqveKU4X6yFzTgV2N5Af+D1KQBemI=
-=4Z8K
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPDLkACgkQFA3kzBSg
+KbYSpg//f1fWa9yUvOQ7Fc1XEeQ9O7/auMFlZbaeYUlQQuPY0Js1IIHoTlSOly1k
+3HB/JkIHROtawCmFiM4qOyLdi6qPCqwFFdBx1idtARGz9X+dGfdznzLo/5ypOZBZ
+MnwIP/TAHa8QgW1iE4yC52nlkwzkPAn1aFjs3TwGp18fog/hr1gOwqcD/k7Y43cT
+jk7eAPHEOzxDcnJqebzSYGo4fIFTSnirANCIGDyzH1Rc5NlW6vDf7s5ClGLs3BID
+ZPAY7xaum6eUKDA8DzGtJOA6fMAzydvwE4NqqNsnoQkDcXZcTuM4PxlzY7Aua+Ra
+19yfVJHxebLgriu7fPt6RexKbgol3eEpwLpSqKqtA6KEz29pteMma5NORA9Q7kVt
+RJMxLYbWJLIIqsKibdIeh2P2skT2UHaWIVEAwUe2EhEmgcvDDaSCCYO9fKWqtcTP
+MAGQ5tBaQ9zKEEcQsIOKBtgrPulSFpdH2jd4CFl+qNJkue9sg6hzsiMXXFju4vMS
+HwUHyT2s7bwzXnJCFOgDw0n+5cTqYphEHiAxJ6hYlSb+k+XGBY45qFgMPFwEOOGG
+I+yWp3aRzNfWVcCyayCE56A3GbP2mCpZL6wJFVkoxGPW26m8Kh987ZuQz/MGMOTW
+6qoZ1J+qQE0x+9kajvNXqe5wFgfNCnK3ouSQH6v3y2j/s2npVGk=
+=SZVb
 -----END PGP SIGNATURE-----
 
---hkcpjsr7mbybzghj--
+--p6udk7m3ctvgujl7--
