@@ -1,29 +1,70 @@
 From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v2 0/2] Add i2c dt-binding and compatible for Mediatek MT7622 SoC
-Date: Sat, 12 Aug 2017 10:57:50 +0800
-Message-ID: <1502506672-7620-1-git-send-email-jun.gao@mediatek.com>
+Subject: [PATCH v2 2/2] i2c: mediatek: Add i2c compatible for MediaTek MT7622
+Date: Sat, 12 Aug 2017 10:57:52 +0800
+Message-ID: <1502506672-7620-3-git-send-email-jun.gao@mediatek.com>
+References: <1502506672-7620-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1502506672-7620-1-git-send-email-jun.gao@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series based on v4.13-rc1, include MT7622 i2c dt-binding
-and compatible.
+From: Jun Gao <jun.gao@mediatek.com>
 
-changes since v1:
-- Modify commit message
-- Revise dt-binding documentation
+Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
+MT7622 limits message numbers to 255, and does not support 4GB
+DMA mode.
 
-Jun Gao (2):
-  dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-  i2c: mediatek: Add i2c compatible for MediaTek MT7622
+Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
- Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
- drivers/i2c/busses/i2c-mt65xx.c                   | 18 ++++++++++++++++++
- 2 files changed, 24 insertions(+), 5 deletions(-)
-
---
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 9bedf0b..2c7f847 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -172,6 +172,14 @@ struct mtk_i2c {
+ 	.max_comb_2nd_msg_len = 31,
+ };
+ 
++static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
++	.max_num_msgs = 255,
++	.max_write_len = 65535,
++	.max_read_len = 65535,
++	.max_comb_1st_msg_len = 65535,
++	.max_comb_2nd_msg_len = 65535,
++};
++
+ static const struct mtk_i2c_compatible mt6577_compat = {
+ 	.quirks = &mt6577_i2c_quirks,
+ 	.pmic_i2c = 0,
+@@ -190,6 +198,15 @@ struct mtk_i2c {
+ 	.support_33bits = 0,
+ };
+ 
++static const struct mtk_i2c_compatible mt7622_compat = {
++	.quirks = &mt7622_i2c_quirks,
++	.pmic_i2c = 0,
++	.dcm = 1,
++	.auto_restart = 1,
++	.aux_len_reg = 1,
++	.support_33bits = 0,
++};
++
+ static const struct mtk_i2c_compatible mt8173_compat = {
+ 	.pmic_i2c = 0,
+ 	.dcm = 1,
+@@ -201,6 +218,7 @@ struct mtk_i2c {
+ static const struct of_device_id mtk_i2c_of_match[] = {
+ 	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
+ 	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
++	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
+ 	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
+ 	{}
+ };
+-- 
 1.8.1.1
