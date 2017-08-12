@@ -1,58 +1,53 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 01/13] dt-bindings: i2c: rk3x: add support for rv1108
-Date: Sat, 12 Aug 2017 16:40:15 +0200
-Message-ID: <20170812144015.fxqvgrd5d67333me@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 02/13] i2c: rk3x: add support for rv1108
+Date: Sat, 12 Aug 2017 16:40:19 +0200
+Message-ID: <20170812144019.xlkctjoeijo4dgz2@ninjato>
 References: <1502422578-30611-1-git-send-email-andy.yan@rock-chips.com>
- <1502422709-30672-1-git-send-email-andy.yan@rock-chips.com>
+ <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sabti5kk32ohabuf"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="mzqzkm2p4mwvin4h"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1502422709-30672-1-git-send-email-andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Yan <andy.yan@rock-chips.com>
+Cc: heiko@sntech.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---sabti5kk32ohabuf
+--mzqzkm2p4mwvin4h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 11, 2017 at 11:38:29AM +0800, Andy Yan wrote:
-> Add dt Document for i2c controller on rv1108
+On Fri, Aug 11, 2017 at 11:39:13AM +0800, Andy Yan wrote:
+> Support for the i2c controller on rv1108 soc.
 >=20
-> Signed-off-by: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->=20
+> Signed-off-by: Andy Yan <andy.yan@rock-chips.com>
+> Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 
 Applied to for-next, thanks!
 
 
---sabti5kk32ohabuf
+--mzqzkm2p4mwvin4h
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPE04ACgkQFA3kzBSg
-KbZb7hAAkJwKELJKgh2kYm6Wa7uEL+55kgWof1MhtEwScxw9aSLbTke6eQkexaos
-35XVBnNaymTsUG5wJXMrUK48sJR7XsvbttjU/niKxTUox98kobIwt6MMAAoXD0TC
-nA8g4RwbR5yWq6H1Nkj0Ij9G3gVURt+BlzXqSE+ayI6sYtvDyUjq6GZzIfWrCWjv
-sqO3VpQCwP+wvYy2Nzs3XG1h/TB9Bl/twJGLZE3kjzZIQtSlbi+nS2RNECcPRFuW
-53aORgltcfH6h3HLdYwI5yDLXNYwgkGe7Eve/ZmWuhlP4HZMSQDsGup8D/wYWlWS
-EtjUqiw0tMPECvKniXKUyahGv47Ql8tsXyxMt1wK6Yim6+kjY75fDy/xAJEyKd7Y
-jABryNqXpIj1SYiNKI5X7T4rC9b5Aj94aNYP9AuaCFCvddyRutlasyk7O9o+kPtq
-4iMl7QsI1V1vuXFqiY6fU+FFF0ivb0pCRppLEc28gj9RL10yHyVV87ukSp7eITUo
-vzAgG259NchdE5gxkzy6klBBnicZNT7hTfIr36FBCod7/MLCzQ5COABy6HOocApu
-Zq3TxBYON4XOeShQXbHJLwaBqpIYlnH585CKKfDD2tSHrYm5DuDWxCACUwXQp4Hi
-J3YZQT1bsw9oZ/ACN1PW8ioCbI82aJJNEPSzNDlFRmQ0csadRD4=
-=FtVz
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPE1IACgkQFA3kzBSg
+KbZVfg/9H4HRPQjYdKFv1LW+zW//xGTVpf51IPMMT9RA0Zrw3rVH8JTQ/Ws9xdrs
+s+v8FxB/cOxBBcix/5IO/cLMfY1UfNfCvba+ibN3d4LY0oW95eUfdYTK4wKWHckV
+D0ZjJmkTgk5ktbphD2xO4aBiXKI4+7LjvMQnXNGdGUevjh/J8cX1cyj30PeaXnnN
+QwKa4923Oszv+4/MLfaQMaukDmTHIuSP2pQJ3SdKGPE7jz6lC/SsfuSgQIg1Mx+M
+OOZZn2s4ufscdyIIxzUNKgaK+Dp7vRIpg45lk8FsJyOOdNVzjQWdXQrcL0GYMrPm
+l46UG27U6bksInydKj4732q7WSrwR0IshuJrTV/XMSDWscwDNexbdfI65KP16VMd
+TMKoixfZRvA8jt7es5CD76uQm9hyylntOWTA14RnoKBgn5j1/NmfIpe1V1hx0E+t
+luuUhaw23/jqodE8rXEFfHa6pa3nfjMjzwQdLhUbI9Ik5OiRVIKXVE+UGJ7hxsJH
+RiXiueZvXbkAH2+BxHpBUEbk6oRIWetPsEDK7uzlgm74C+8frDKMIv3oiBB+6Zqr
+h7PMgCA/fYnCYBXQ1VCLM2eopY10lpamKkH31vG9bpY51wQxb0gCOnM7A0i9AWi8
+Kwm3VgoG2oNHL0W6MszrNKvo1FKx0qZR89G/E7VvMynQjgglv4o=
+=2ELG
 -----END PGP SIGNATURE-----
 
---sabti5kk32ohabuf--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--mzqzkm2p4mwvin4h--
