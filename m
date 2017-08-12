@@ -1,62 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware-slave: constify i2c_algorithm structure
-Date: Sat, 12 Aug 2017 13:25:48 +0200
-Message-ID: <20170812112548.mn5on2vcv3pzvb6z@ninjato>
-References: <20170709213517.GA31846@embeddedgus>
- <1499682392.22624.320.camel@linux.intel.com>
- <4bcd6609-963b-e64c-8c77-8badde089e6e@embeddedor.com>
+Subject: Re: [PATCH v2 1/1] i2c: aspeed: add proper support fo 24xx clock
+ params
+Date: Sat, 12 Aug 2017 13:30:13 +0200
+Message-ID: <20170812113013.2ajkurbj7ongg5cq@ninjato>
+References: <20170728204558.6455-1-brendanhiggins@google.com>
+ <20170728204558.6455-2-brendanhiggins@google.com>
+ <CAPLgG==69mNpqoqKUf-0tT4iJJ5-aCg+1uaAoLJ5QSe+8LGYkw@mail.gmail.com>
+ <CAPLgG=kUxfriYRq-fc+AD=eo1T+6xa4imzda7Fd_aXmAb2pD3Q@mail.gmail.com>
+ <CAFd5g45O7rJymFgnWj3SnSKhCvXoX4_xCO8FqeBFCe0-Du9AYg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rufheo7v5bat4cew"
+        protocol="application/pgp-signature"; boundary="dfq5twjtmfw3izn6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:42698 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:42717 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750844AbdHLLZv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 12 Aug 2017 07:25:51 -0400
+        id S1750885AbdHLLaO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 12 Aug 2017 07:30:14 -0400
 Content-Disposition: inline
-In-Reply-To: <4bcd6609-963b-e64c-8c77-8badde089e6e@embeddedor.com>
+In-Reply-To: <CAFd5g45O7rJymFgnWj3SnSKhCvXoX4_xCO8FqeBFCe0-Du9AYg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: Rick Altherr <raltherr@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Robi Buranyi <rburanyi@google.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
 
---rufheo7v5bat4cew
+--dfq5twjtmfw3izn6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> > I don't think it's a good idea to copy'n'paste patch to each change
-> > where you fixing the issue. Can you create a github repository of the
-> > coccinelle recipes and give just a link?
->=20
-> I will take note of that, thanks for the suggestion.
+> That being said, I could implement this as a custom clock subclass, which
+> would probably be cleaner that what I have done.
 
-I took the liberty to squash the 4 patches into one commit and fixed the
-commit message by removing the semantic patch.
-
-Applied to for-next, thanks!
+Shall I wait for that one or do you want this patch to be included?
+I don't mind, your call here...
 
 
---rufheo7v5bat4cew
+--dfq5twjtmfw3izn6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmO5bwACgkQFA3kzBSg
-KbbfjQ/+IWvMxazXesqfxlQnJzx7RlElFKrWB6UqXnfGR9hdFnUHDZCOUV+7VPUz
-IJuu9cZCRg3BfE0dY9OzC/i+P+N8e+fPh2VJ15dh7xgY7LePLyOf+oGWc3H7S9WJ
-FiyL36QRvtFuOPQ4O8W5XBlK6Y20ywYBRF5pTQ8OAN/BJNPVb580FMr1qaRCuUao
-nFdYG6V5hi4bsLMHp1qb0zo5YJrUfJ8SmnUzYZ+EzjLjzmJnVaL4AJTpAnYSll6U
-3CAsPSbYTtrMIf4bR7OYGRL0VAMJMr9C61AL8GtTyvCNmxFi1RI6IPvjsw2zYUrC
-dOK+uORRGis7dMR3FWlJFat5qLdWgn7qsCXy2903xUyIIx82vi2fiwPLP2iY6mwH
-uj1OMUqzb8wt3opPNU5M76nhaFPMVGib//J8ecd/M4BDCazLj0bcBHL+F8OmCsiX
-Vslnd4caD6yXxk3bKs5xoxzRHeW7Cr7Pya7Ijhb+opURWLAklx1G/AhBUn/mnJGl
-9gJHC6AGmetb9pjpbq+eMV1u44U45eCnWhmOGoltSJKo/fILvPIuQFTIZxk5BPFn
-mOzpQGMJ5/+UDapU9YSZ3jzOczZYipXL1kMW+AUjhS1IoY2rRn86XNsQjz0Mgn55
-VooYBVotsK75iI1StyahfyBTMn5DqwWOYzhKgYuKkGTyv/uthgU=
-=twKX
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmO5sUACgkQFA3kzBSg
+KbYtYQ//YVHAHTJsF1rzm5WDWGLL+Uk4TEOdRPorqp2AxYnVEcMTzleESf02YxcG
+N1aiweTaAf78m6fjFakG1iOX2ud6qRldr/RWw5LtoIW5JhXu5WXpDZ5bgg7NfUi+
+shiiJ2QlNw8RTXgdvq3f7j/5PB03eImj4wnF/oL3AcTX/bSXm+RU36JBh6Grw8RA
+eypNJyw78WTpnq5Dzn9XYGEcoRTJUyPTIYSPapIE5Vjvz13RKggnP5VZEV8+td1r
+DK+i83g3SCWsc/+JqEfF8MO1KvPB0m23EfL8vfjERdKWWsayIfBhJFskYS/K7750
+tGO50ZIUiRHTKBbkzq0msAlxxPE41HjiY2hP3gGRP/0ORMLRN0ahBVoDkA8D1wyQ
+uszICZgb07T7utrfpfoGY3gybmihwdW19JBqJNhwSQAWBrjbKi+OUiG/oz+Dtefw
+JkB4wl+G1EL6B2oPNYw/XmVZJcMpSC1ec05bFGg6t5/LYMVosV8dSow1JDW6ffxt
+FLPtIRqbYaoyyWqXn5iGkb796A8ZlLKjPu5Hwz7ZK0ceSVqR6/w4k9ekA0z2dOba
+Wx/Do25welfgVLjn0v9LH1z1rPzhUNMXvJzFyITBEmUkQaIeq3OnVwsPRSiBI3c/
+EBvvvNIpoBJ7ZNW0J3+ot5gHXoJgvY91/6audsaBquZCulmlV7k=
+=6hK4
 -----END PGP SIGNATURE-----
 
---rufheo7v5bat4cew--
+--dfq5twjtmfw3izn6--
