@@ -1,177 +1,80 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 5/7] iio: srf08: add support for srf02 in i2c mode
-Date: Sat, 12 Aug 2017 12:59:23 +0100
-Message-ID: <20170812125923.13028539@archlinux>
-References: <20170802232536.GA15377@arbeit>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH resend v2] i2c-cht-wc: Add Intel Cherry Trail Whiskey
+ Cove SMBUS controller driver
+Date: Sat, 12 Aug 2017 14:04:11 +0200
+Message-ID: <20170812120410.he2jkil7clhlybd4@ninjato>
+References: <20170806105943.31470-1-hdegoede@redhat.com>
+ <20170806105943.31470-2-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170802232536.GA15377@arbeit>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Klinger <ak@it-klinger.de>
-Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="up6yqraskqukepub"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:42927 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752331AbdHLMEM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 12 Aug 2017 08:04:12 -0400
+Content-Disposition: inline
+In-Reply-To: <20170806105943.31470-2-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
 
-On Thu, 3 Aug 2017 01:25:36 +0200
-Andreas Klinger <ak@it-klinger.de> wrote:
 
-> srf02 added with support for i2c interface
-> 
-> Attributes for setting max range or sensitivity are omitted for the case of
-> srf02 type sensor, because they are not supported by the hardware.
-> 
-> Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-A few little things inline.
-> ---
->  drivers/iio/proximity/srf08.c | 56 ++++++++++++++++++++++++++++++-------------
->  1 file changed, 39 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/iio/proximity/srf08.c b/drivers/iio/proximity/srf08.c
-> index a2913a5bf68e..a63c272c3b22 100644
-> --- a/drivers/iio/proximity/srf08.c
-> +++ b/drivers/iio/proximity/srf08.c
-> @@ -1,14 +1,17 @@
->  /*
-> - * srf08.c - Support for Devantech SRF08 ultrasonic ranger
-> + * srf08.c - Support for Devantech SRF02/SRF08/SRF10 ultrasonic ranger
-> + *           with I2C-Interface
->   *
-> - * Copyright (c) 2016 Andreas Klinger <ak@it-klinger.de>
-> + * Copyright (c) 2016, 2017 Andreas Klinger <ak@it-klinger.de>
->   *
->   * This file is subject to the terms and conditions of version 2 of
-> - * the GNU General Public License.  See the file COPYING in the main
-> + * the GNU General Public License. See the file COPYING in the main
->   * directory of this archive for more details.
->   *
->   * For details about the device see:
->   * http://www.robot-electronics.co.uk/htm/srf08tech.html
-> + * http://www.robot-electronics.co.uk/htm/srf10tech.htm
-Push this into an earlier patch please.  Nothing to do with the srf02.
-> + * http://www.robot-electronics.co.uk/htm/srf02tech.htm
->   */
->  
->  #include <linux/err.h>
-> @@ -38,6 +41,7 @@
->  #define SRF08_MAX_SENSITIVITY	32	/* number of Gain Register values */
->  
->  enum srf08_sensor_type {
-> +	SRF02,
->  	SRF08,
->  	SRF10,
->  	SRF_MAX_TYPE
-> @@ -61,6 +65,13 @@ struct srf08_data {
->   * is called "Sensitivity" here.
->   */
->  static const int srf08_sensitivity[SRF_MAX_TYPE][SRF08_MAX_SENSITIVITY] = {
-> +	/* SRF02: unused */
-> +	{
-Same as below, use indexed value setting and you won't need to
-pad this out.
-> +	  0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0
-> +	},
->  	/* SRF08 */
->  	{
->  	 94,  97, 100, 103, 107, 110, 114, 118,
-> @@ -78,6 +89,8 @@ static const int srf08_sensitivity[SRF_MAX_TYPE][SRF08_MAX_SENSITIVITY] = {
->  };
->  
->  static const int srf08_default_sensitivity[SRF_MAX_TYPE] = {
-> +	/* SRF02: unused*/
-> +	0,
-Use indexed assignment and this becomes clear.
-[1] = 1025,
-[2] = ...
+--up6yqraskqukepub
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Even better if you can index it with an appropriate enum and
-hence drop the documentation as it'll be obvious from the code.
->  	/* SRF08 */
->  	1025,
->  	/* SRF10 */
-> @@ -394,7 +407,7 @@ static const struct iio_chan_spec srf08_channels[] = {
->  	IIO_CHAN_SOFT_TIMESTAMP(1),
->  };
->  
-> -static const struct iio_info srf08_info = {
-> +static struct iio_info srf08_info = {
->  	.read_raw = srf08_read_raw,
->  	.attrs = &srf08_attribute_group,
->  	.driver_module = THIS_MODULE,
-> @@ -425,6 +438,11 @@ static int srf08_probe(struct i2c_client *client,
->  	indio_dev->name = id->name;
->  	indio_dev->dev.parent = &client->dev;
->  	indio_dev->modes = INDIO_DIRECT_MODE;
+
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License version
+> + * 2 as published by the Free Software Foundation.
+
+Here you say V2 only, in MODULE_LICENSE you say V2+.
+
+...
+
+> +static const struct property_entry bq24190_props[] = {
+> +	PROPERTY_ENTRY_STRING("extcon-name", "cht_wcove_pwrsrc"),
+> +	PROPERTY_ENTRY_BOOL("omit-battery-class"),
+> +	PROPERTY_ENTRY_BOOL("disable-reset"),
+> +	{ }
+> +};
 > +
-> +	/* srf02 is not using sensitivity nor max_range */
-> +	if (id->driver_data == SRF02)
-This I really don't like.  Just have two possible info structures
-and pick between them rather than doing this.  If you have
-two different sensors on one board, this just broke the driver.
+> +static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+> +	struct cht_wc_i2c_adap *adap;
+> +	struct i2c_board_info board_info = {
+> +		.type = "bq24190",
+> +		.addr = 0x6b,
+> +		.properties = bq24190_props,
+> +	};
 
-> +		srf08_info.attrs = NULL;
-> +
->  	indio_dev->info = &srf08_info;
->  	indio_dev->channels = srf08_channels;
->  	indio_dev->num_channels = ARRAY_SIZE(srf08_channels);
-> @@ -438,24 +456,27 @@ static int srf08_probe(struct i2c_client *client,
->  		return ret;
->  	}
->  
-> -	/*
-> -	 * set default values of device here
-> -	 * these register values cannot be read from the hardware
-> -	 * therefore set driver specific default values
-> -	 */
-> -	ret = srf08_write_range_mm(data, SRF08_DEFAULT_RANGE);
-> -	if (ret < 0)
-> -		return ret;
-> +	if (id->driver_data != SRF02) {
-I'd have a slight preference for doing this as a switch
-with all the options listed.  That way it is cleaner to extend
-in future when another device comes along.
-> +		/*
-> +		 * set default values of device here
-> +		 * these register values cannot be read from the hardware
-> +		 * therefore set driver specific default values
-> +		 */
-> +		ret = srf08_write_range_mm(data, SRF08_DEFAULT_RANGE);
-> +		if (ret < 0)
-> +			return ret;
->  
-> -	ret = srf08_write_sensitivity(data,
-> -			srf08_default_sensitivity[id->driver_data]);
-> -	if (ret < 0)
-> -		return ret;
-> +		ret = srf08_write_sensitivity(data,
-> +				srf08_default_sensitivity[id->driver_data]);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
->  
->  	return devm_iio_device_register(&client->dev, indio_dev);
->  }
->  
->  static const struct of_device_id of_srf08_match[] = {
-> +	{ .compatible = "devantech,srf02", (void *)SRF02},
->  	{ .compatible = "devantech,srf08", (void *)SRF08},
->  	{ .compatible = "devantech,srf10", (void *)SRF10},
->  	{},
-> @@ -464,6 +485,7 @@ static const struct of_device_id of_srf08_match[] = {
->  MODULE_DEVICE_TABLE(of, of_srf08_match);
->  
->  static const struct i2c_device_id srf08_id[] = {
-> +	{ "srf02", SRF02 },
->  	{ "srf08", SRF08 },
->  	{ "srf10", SRF10 },
->  	{ }
-> @@ -481,5 +503,5 @@ static struct i2c_driver srf08_driver = {
->  module_i2c_driver(srf08_driver);
->  
->  MODULE_AUTHOR("Andreas Klinger <ak@it-klinger.de>");
-> -MODULE_DESCRIPTION("Devantech SRF08/SRF10 ultrasonic ranger driver");
-> +MODULE_DESCRIPTION("Devantech SRF02/SRF08/SRF10 i2c ultrasonic ranger driver");
->  MODULE_LICENSE("GPL");
+I don't know ACPI world much, but it looks to me like the wrong layer to
+add this stuff? Shouldn't that be in the same place where the
+i2c_adapter is instantiated? Because the place requesting the adapter
+should know what is attached to it?
+
+
+--up6yqraskqukepub
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmO7rYACgkQFA3kzBSg
+KbZ+2w//ZJDUcmJrU3oihBJL/C0IDMlwDbud/LyV+2ZXHCbfqnUFZQrrV9JlaJtF
+6hql76RVoYrHGZSgtVwZEIReK552dlE6k9B50TCLMINlye44le0R9DJQ9HF2IDxe
+Gw0cne1GOKiOYlU7ySdhR7bPdiKJNrhvfBTsq5518jKYtZGBZ4OgkIDUyZzdJ5su
+T1MEhN3FKpPSHRjTlxSrosy+MOpuUkpBTC+168+BLofwn9KNA/Ew2BReKrUw45LS
+e0hefBcUbKbbB7ugwVh9yg8Cm/Q/3hvbGl9+0egd3L7oDfeevK51SZVshUh439js
+/KxFs0Ea0dllbY83ikeoq/J8E3ROEc/JFZXEWVPMCyDGmQ01Drz3LeZ7uUZzF6dj
+kgVlPCSLawKVStGliF7WQP3DSR2FshlQm3R5Z+we1RpQbdAycQVER+H3IgO4SrMY
+vqDTYMHRMEEFuHTi7aTNieVhBdg94HyMmolQQIIYgbue9xPy+eHuGsLAj3Hmf/ks
+AIiRH13ZHrERPoS3Z6szj7W6cZQXtGftyt3RglQZNTsh8Nmuf7Ra2MT86ycE9Zb0
+voM2w3K3S3/JSXVuibIx5zWVa8911pldlqOHxR1/SBAT5d6JNVxgNb1icxsBNQuv
+wLhhIq0j3EjXiUPd9serVDCzR7Ni4z6M2SErPTHW7mf2JRX9fqI=
+=ao8+
+-----END PGP SIGNATURE-----
+
+--up6yqraskqukepub--
