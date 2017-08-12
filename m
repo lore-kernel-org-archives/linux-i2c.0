@@ -1,30 +1,27 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: uniphier: add suspend / resume support
-Date: Sat, 12 Aug 2017 15:38:54 +0200
-Message-ID: <20170812133854.csmxs5d3x2xhkww2@ninjato>
+Subject: Re: [PATCH v2 2/2] i2c: uniphier-f: add suspend / resume support
+Date: Sat, 12 Aug 2017 15:38:57 +0200
+Message-ID: <20170812133857.36gzdcbjf6a7ybht@ninjato>
 References: <1501480387-15692-1-git-send-email-yamada.masahiro@socionext.com>
+ <1501480387-15692-2-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="t5zcwxv6bjiwjlqy"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43143 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751155AbdHLNiz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 12 Aug 2017 09:38:55 -0400
+        protocol="application/pgp-signature"; boundary="qvo4gdfkbnfe4bvc"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1501480387-15692-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <1501480387-15692-2-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: linux-i2c@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, Jassi Brar <jaswinder.singh@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 
---t5zcwxv6bjiwjlqy
+--qvo4gdfkbnfe4bvc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 31, 2017 at 02:53:06PM +0900, Masahiro Yamada wrote:
+On Mon, Jul 31, 2017 at 02:53:07PM +0900, Masahiro Yamada wrote:
 > When resuming, set up registers that have been lost in the sleep state.
 > Also, add clock handling in the resume / suspend hooks.
 >=20
@@ -33,24 +30,24 @@ On Mon, Jul 31, 2017 at 02:53:06PM +0900, Masahiro Yamada wrote:
 Applied to for-next, thanks!
 
 
---t5zcwxv6bjiwjlqy
+--qvo4gdfkbnfe4bvc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPBOoACgkQFA3kzBSg
-KbYSLQ//RjQ222G44oS4hU2oN/3wYm6f4kV4GVlQ/CS0mh0nL8Sd24D+PFcccJtV
-sV6Me+BHgApGM5udLdNud9fjU+6bahPi+A5ATgb0G1bzCEK5YHFn70VF0Izw48K1
-ZDPVZGjibUP0VfOhSiuBe+8QP7g0XjHxron8kPRjjLSOESfSvBJ8f41sGfMNhWWp
-R93fn6Z0CSOFp6UNEaf13HILVMoi0XIdVh/xa2mUawxDNoX3jdBcw/UpLNkKuanN
-a9bd7gtmqoOA0zrDXE5PPeF/waYs5Q5m1iB+qLLuVqm5OL/z6pwDlXHHjUQLrD+F
-2JtnE6XcndN1UrVPp0bEcoRPXn0P0g+6NfrG7fzHZXhbyDtOdRPBzG5jXP7UyKlM
-sowhfFOh7OH3XrzeWlf4V++59KwS75CdPqKHjX7lQyAstCx01VF4f9agtiDyPh+R
-ptQ2+yfJm6PEBldf7n0PaItQn5b6X/oy8gGa7eYri6ScrDP3i5cXLg1BSV7w0A5o
-3xXRRfl/QScuFlIaIcRmwP5I6x5Nxd6SJmkWh/5ztvl5kg0DnhMutYt3vNl2qC45
-1+wICYB5IaCNtHy+jR9oqUeEe73EfabSVHX2cfEKpgPLYXGy2lpM8ZszXHYfURV6
-R8qMFHQGcebj6fwBx7XTuK0vNenX0F55Y7QbAmIhP5nj5pguSRQ=
-=/I+q
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPBPEACgkQFA3kzBSg
+KbbtJA/9FL65Ez+gJ00engk17/VGDwArtS3/B5nkgPOo28wcgpIsQE0HcnORSTb1
+lXBzUIcTFYP3idW9/TJDdzSHojAiBsKsXa+wlWYfkSkbTDHxT5IX8Y47ylMwFMjS
+f9TG7hmD+xIox1SEfgaJxTFb0I5Q3bGIcXCveRr8QdlK3AEEUsKi/cRjq+ixI4NQ
+K8M0OGqHTJ0oHcvkBV/lEKVnS/vjv/U6k3JuDyChYK5CelqeAL/O6mJQ0/RvCnu3
+7FIBJuSuDIBh60mNmcM/y/FIZVTxjFXk7rsG9umP0UaGDOgGH2ZFNn75n7S67Puu
+TUcgdaiqTLWZF5MpKcK2UHpoVn9WMNhphDDbk9csjuXiv9KEXf92u+JOP6x22p0R
+3q39AS5CPBvNubqbf24fRUqRXxxvBydNI5hr6AJLEEAnSKT+GOj0ccSyAwTkqw0s
+B3SayoP7S2lfhloH6x5055Hj2azfnJUCxn4tXxA+Pc2OWFTyAV45054p5ETbAsu5
+tFGGfXPl3mjRicPolwWK+ilF7758Z5HiwJdYrj9abjxPb6bgd8zCS3BaFBkC3lBz
+tsz4YO6FrkmwheVLFbUdlmt+1Mkrl9Zfad6KO8T4n/df9Z/s5M9v3epRIX70gU9c
+xTvjbtg6GoYZVfBOwcAxt0W0iNeq8WZd+WybNd2BUO/wKqV4G6g=
+=UhJO
 -----END PGP SIGNATURE-----
 
---t5zcwxv6bjiwjlqy--
+--qvo4gdfkbnfe4bvc--
