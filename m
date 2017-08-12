@@ -1,58 +1,48 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 4/7] iio: srf08: add device tree table
-Date: Sat, 12 Aug 2017 12:54:49 +0100
-Message-ID: <20170812125449.7dcfeb92@archlinux>
-References: <20170802232504.GA15256@arbeit>
+Subject: Re: [PATCH 6/7] iio: srf08: add buffered to device mode
+Date: Sat, 12 Aug 2017 13:02:08 +0100
+Message-ID: <20170812130208.2ed84b76@archlinux>
+References: <20170802232609.GA15406@arbeit>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170802232504.GA15256@arbeit>
+In-Reply-To: <20170802232609.GA15406@arbeit>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andreas Klinger <ak@it-klinger.de>
 Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 3 Aug 2017 01:25:04 +0200
+On Thu, 3 Aug 2017 01:26:09 +0200
 Andreas Klinger <ak@it-klinger.de> wrote:
 
-> Added MODULE_DEVICE_TABLE for device tree bindings.
-> 
-> It used to work without it by using the i2c_device_id table, but adding the
-> table makes everything clear and documented.
+> Add INDIO_BUFFER_TRIGGERED and INDIO_BUFFER_SOFTWARE to device mode
 > 
 > Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-Looks fine.  Will pick up once the rest are sorted.
-
-Jonathan
 > ---
->  drivers/iio/proximity/srf08.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
+>  drivers/iio/proximity/srf08.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/iio/proximity/srf08.c b/drivers/iio/proximity/srf08.c
-> index 92e1799c430c..a2913a5bf68e 100644
+> index a63c272c3b22..ea238ab1066c 100644
 > --- a/drivers/iio/proximity/srf08.c
 > +++ b/drivers/iio/proximity/srf08.c
-> @@ -455,6 +455,14 @@ static int srf08_probe(struct i2c_client *client,
->  	return devm_iio_device_register(&client->dev, indio_dev);
->  }
+> @@ -437,7 +437,9 @@ static int srf08_probe(struct i2c_client *client,
 >  
-> +static const struct of_device_id of_srf08_match[] = {
-> +	{ .compatible = "devantech,srf08", (void *)SRF08},
-> +	{ .compatible = "devantech,srf10", (void *)SRF10},
-> +	{},
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, of_srf08_match);
-> +
->  static const struct i2c_device_id srf08_id[] = {
->  	{ "srf08", SRF08 },
->  	{ "srf10", SRF10 },
-> @@ -465,6 +473,7 @@ MODULE_DEVICE_TABLE(i2c, srf08_id);
->  static struct i2c_driver srf08_driver = {
->  	.driver = {
->  		.name	= "srf08",
-> +		.of_match_table	= of_srf08_match,
->  	},
->  	.probe = srf08_probe,
->  	.id_table = srf08_id,
+>  	indio_dev->name = id->name;
+>  	indio_dev->dev.parent = &client->dev;
+> -	indio_dev->modes = INDIO_DIRECT_MODE;
+> +	indio_dev->modes = INDIO_DIRECT_MODE
+> +				| INDIO_BUFFER_TRIGGERED
+Huh.?  Firstly I think only one of these is relevant and secondly
+should be merged back into the original patch that added the support.
+
+Also the triggered_buffer setup already set it for you...
+
+So all in all, drop this patch.
+
+Jonathan
+> +				| INDIO_BUFFER_SOFTWARE;
+>  
+>  	/* srf02 is not using sensitivity nor max_range */
+>  	if (id->driver_data == SRF02)
