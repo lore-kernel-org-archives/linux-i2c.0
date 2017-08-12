@@ -1,53 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: uniphier-f: add suspend / resume support
-Date: Sat, 12 Aug 2017 15:38:57 +0200
-Message-ID: <20170812133857.36gzdcbjf6a7ybht@ninjato>
-References: <1501480387-15692-1-git-send-email-yamada.masahiro@socionext.com>
- <1501480387-15692-2-git-send-email-yamada.masahiro@socionext.com>
+Subject: Re: [PATCH v3 02/13] i2c: rk3x: add support for rv1108
+Date: Sat, 12 Aug 2017 16:01:16 +0200
+Message-ID: <20170812140116.pjcswhe5mylns7x4@ninjato>
+References: <1502422578-30611-1-git-send-email-andy.yan@rock-chips.com>
+ <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qvo4gdfkbnfe4bvc"
+        protocol="application/pgp-signature"; boundary="hkcpjsr7mbybzghj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1501480387-15692-2-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1502422753-30725-1-git-send-email-andy.yan@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, Jassi Brar <jaswinder.singh@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Andy Yan <andy.yan@rock-chips.com>
+Cc: heiko@sntech.de, robh+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qvo4gdfkbnfe4bvc
+--hkcpjsr7mbybzghj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 31, 2017 at 02:53:07PM +0900, Masahiro Yamada wrote:
-> When resuming, set up registers that have been lost in the sleep state.
-> Also, add clock handling in the resume / suspend hooks.
->=20
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Hi,
 
-Applied to for-next, thanks!
+> +static const struct rk3x_i2c_soc_data rv1108_soc_data = {
+> +	.grf_offset = -1,
+> +	.calc_timings = rk3x_i2c_v1_calc_timings,
+> +};
+> +
+
+I don't care super much, but why don't you reuse rk3399_soc_data()?
+Or even use the rk3399 compatible as fallback value?
+
+Kind regards,
+
+   Wolfram
 
 
---qvo4gdfkbnfe4bvc
+--hkcpjsr7mbybzghj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPBPEACgkQFA3kzBSg
-KbbtJA/9FL65Ez+gJ00engk17/VGDwArtS3/B5nkgPOo28wcgpIsQE0HcnORSTb1
-lXBzUIcTFYP3idW9/TJDdzSHojAiBsKsXa+wlWYfkSkbTDHxT5IX8Y47ylMwFMjS
-f9TG7hmD+xIox1SEfgaJxTFb0I5Q3bGIcXCveRr8QdlK3AEEUsKi/cRjq+ixI4NQ
-K8M0OGqHTJ0oHcvkBV/lEKVnS/vjv/U6k3JuDyChYK5CelqeAL/O6mJQ0/RvCnu3
-7FIBJuSuDIBh60mNmcM/y/FIZVTxjFXk7rsG9umP0UaGDOgGH2ZFNn75n7S67Puu
-TUcgdaiqTLWZF5MpKcK2UHpoVn9WMNhphDDbk9csjuXiv9KEXf92u+JOP6x22p0R
-3q39AS5CPBvNubqbf24fRUqRXxxvBydNI5hr6AJLEEAnSKT+GOj0ccSyAwTkqw0s
-B3SayoP7S2lfhloH6x5055Hj2azfnJUCxn4tXxA+Pc2OWFTyAV45054p5ETbAsu5
-tFGGfXPl3mjRicPolwWK+ilF7758Z5HiwJdYrj9abjxPb6bgd8zCS3BaFBkC3lBz
-tsz4YO6FrkmwheVLFbUdlmt+1Mkrl9Zfad6KO8T4n/df9Z/s5M9v3epRIX70gU9c
-xTvjbtg6GoYZVfBOwcAxt0W0iNeq8WZd+WybNd2BUO/wKqV4G6g=
-=UhJO
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmPCiwACgkQFA3kzBSg
+KbYFvA/+NolCjQUN4gqJJw17QDcxgLbJUSIn5nFxRraSjaUCEDnOgzAQW0gYVhkY
+vSGMmU9dPOGvLgGyRFukqtRuYJd8aLFSGUqtsOLzd0c6LQn2vAxCgxbya8T1U20L
+JPZWNg3R0ejVHW0boDG8UkSW2XLyrY3e5+uIAEk28EiCnZeHO9Z+05vTInCzX0W/
+05Rq6ED1qcZc3LxQdNIovyK81bmt/7Odpy0NE6piGpM5miO4byxwrm4k6ywGQVyz
+r2fqyQAt95rT6Fj9xhIBCVqF1G+rCpcG5n9PJ3HoRsNZsiUvIUI9aTsKiZJdV8aX
+7AgcIz3BMMhzuC+p1Hr8YwgK4QzsWfl7VXLo1oiw6ZseJiySJntY/VJvU3N4lK1p
+1/zg5ed16tQlRiKv9SykWJ7wngQUd23Qmi9/nGFhGSDWV+BRyX9cTJzyMheaK8vb
+qETzO8ZpkNzyg0VtxQImDlQ9zlsXUbwMfiRa57/oeoeayCIWwGLGRRH190VAt+i1
+kiQF8jRmcL+RxVWZrL4qz+8i67DpTgNduQIaTrfoqBG3OUe3A9HSQIT7psUbLEaX
+RreBQJj7GLwItTQPoLrguKDZgbFKvurME4+i6p0IF36nUd0BRUEj5gzBaZJGN49q
+FheEy6j8igINMWsJSlER3wJqveKU4X6yFzTgV2N5Af+D1KQBemI=
+=4Z8K
 -----END PGP SIGNATURE-----
 
---qvo4gdfkbnfe4bvc--
+--hkcpjsr7mbybzghj--
