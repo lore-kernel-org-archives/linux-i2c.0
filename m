@@ -1,359 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH RESEND] blackfin: merge the two TWI header files
-Date: Sun, 13 Aug 2017 16:21:17 +0200
-Message-ID: <20170813142117.3977-1-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46515 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750907AbdHMOV0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 13 Aug 2017 10:21:26 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Subject: [PATCH] MAINTAINERS: drop entry for Blackfin I2C and Sonic's email
+Date: Sun, 13 Aug 2017 17:34:31 +0200
+Message-ID: <20170813153431.4487-1-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: adi-buildroot-devel@lists.sourceforge.net, Steven Miao <realmz6@gmail.com>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
-To: adi-buildroot-devel@lists.sourceforge.net
-Cc: Wolfram Sang <wsa@the-dreams.de>, Steven Miao <realmz6@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-There seems to be no need for separate ones since all users include both
-files anyhow. Merge them because include/linux/i2c is to be deprecated.
+Sonic's email address bounced, so remove it from MAINTAINERS. Since
+there was no I2C/TWI maintenance activity for 3 years now, drop that
+whole entry.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
 
-Reseding, rebased on v4.13-rc4. Now subscribed to the adi-ML as well.
-I'd prefer if this goes via the ADI tree but I can pick it, too, if desired.
+Because the Blackfin ML activity is very low, I wonder if the state of the
+whole Blackfin arch really matches "Supported"? Yet, I can only speak for
+I2C/TWI here. And as always: If you think I am wrong and want to step up, I'd
+super-happily drop this patch in favor of an update.
 
- arch/blackfin/include/asm/bfin_twi.h | 134 +++++++++++++++++++++++++++++++-
- arch/blackfin/kernel/debug-mmrs.c    |   1 -
- drivers/i2c/busses/i2c-bfin-twi.c    |   1 -
- include/linux/i2c/bfin_twi.h         | 145 -----------------------------------
- 4 files changed, 133 insertions(+), 148 deletions(-)
- delete mode 100644 include/linux/i2c/bfin_twi.h
+ MAINTAINERS | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/arch/blackfin/include/asm/bfin_twi.h b/arch/blackfin/include/asm/bfin_twi.h
-index aaa0834d34aa7e..211e9c78f6fb89 100644
---- a/arch/blackfin/include/asm/bfin_twi.h
-+++ b/arch/blackfin/include/asm/bfin_twi.h
-@@ -1,7 +1,7 @@
- /*
-  * bfin_twi.h - interface to Blackfin TWIs
-  *
-- * Copyright 2005-2010 Analog Devices Inc.
-+ * Copyright 2005-2014 Analog Devices Inc.
-  *
-  * Licensed under the GPL-2 or later.
-  */
-@@ -10,6 +10,138 @@
- #define __ASM_BFIN_TWI_H__
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6f7721d1634c2e..b9f585784e9dee 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2546,13 +2546,6 @@ W:	http://blackfin.uclinux.org
+ S:	Supported
+ F:	drivers/net/ethernet/adi/
  
- #include <asm/blackfin.h>
-+#include <linux/types.h>
-+#include <linux/i2c.h>
-+
-+/*
-+ * ADI twi registers layout
-+ */
-+struct bfin_twi_regs {
-+	u16 clkdiv;
-+	u16 dummy1;
-+	u16 control;
-+	u16 dummy2;
-+	u16 slave_ctl;
-+	u16 dummy3;
-+	u16 slave_stat;
-+	u16 dummy4;
-+	u16 slave_addr;
-+	u16 dummy5;
-+	u16 master_ctl;
-+	u16 dummy6;
-+	u16 master_stat;
-+	u16 dummy7;
-+	u16 master_addr;
-+	u16 dummy8;
-+	u16 int_stat;
-+	u16 dummy9;
-+	u16 int_mask;
-+	u16 dummy10;
-+	u16 fifo_ctl;
-+	u16 dummy11;
-+	u16 fifo_stat;
-+	u16 dummy12;
-+	u32 __pad[20];
-+	u16 xmt_data8;
-+	u16 dummy13;
-+	u16 xmt_data16;
-+	u16 dummy14;
-+	u16 rcv_data8;
-+	u16 dummy15;
-+	u16 rcv_data16;
-+	u16 dummy16;
-+};
-+
-+struct bfin_twi_iface {
-+	int			irq;
-+	spinlock_t		lock;
-+	char			read_write;
-+	u8			command;
-+	u8			*transPtr;
-+	int			readNum;
-+	int			writeNum;
-+	int			cur_mode;
-+	int			manual_stop;
-+	int			result;
-+	struct i2c_adapter	adap;
-+	struct completion	complete;
-+	struct i2c_msg		*pmsg;
-+	int			msg_num;
-+	int			cur_msg;
-+	u16			saved_clkdiv;
-+	u16			saved_control;
-+	struct bfin_twi_regs __iomem *regs_base;
-+};
-+
-+/*  ********************  TWO-WIRE INTERFACE (TWI) MASKS  ********************/
-+/* TWI_CLKDIV Macros (Use: *pTWI_CLKDIV = CLKLOW(x)|CLKHI(y);  ) */
-+#define	CLKLOW(x)	((x) & 0xFF)	/* Periods Clock Is Held Low */
-+#define CLKHI(y)	(((y)&0xFF)<<0x8) /* Periods Before New Clock Low */
-+
-+/* TWI_PRESCALE Masks */
-+#define	PRESCALE	0x007F	/* SCLKs Per Internal Time Reference (10MHz) */
-+#define	TWI_ENA		0x0080	/* TWI Enable */
-+#define	SCCB		0x0200	/* SCCB Compatibility Enable */
-+
-+/* TWI_SLAVE_CTL Masks */
-+#define	SEN		0x0001	/* Slave Enable */
-+#define	SADD_LEN	0x0002	/* Slave Address Length */
-+#define	STDVAL		0x0004	/* Slave Transmit Data Valid */
-+#define	NAK		0x0008	/* NAK Generated At Conclusion Of Transfer */
-+#define	GEN		0x0010	/* General Call Address Matching Enabled */
-+
-+/* TWI_SLAVE_STAT Masks	*/
-+#define	SDIR		0x0001	/* Slave Transfer Direction (RX/TX*) */
-+#define GCALL		0x0002	/* General Call Indicator */
-+
-+/* TWI_MASTER_CTL Masks	*/
-+#define	MEN		0x0001	/* Master Mode Enable          */
-+#define	MADD_LEN	0x0002	/* Master Address Length       */
-+#define	MDIR		0x0004	/* Master Transmit Direction (RX/TX*) */
-+#define	FAST		0x0008	/* Use Fast Mode Timing Specs  */
-+#define	STOP		0x0010	/* Issue Stop Condition        */
-+#define	RSTART		0x0020	/* Repeat Start or Stop* At End Of Transfer */
-+#define	DCNT		0x3FC0	/* Data Bytes To Transfer      */
-+#define	SDAOVR		0x4000	/* Serial Data Override        */
-+#define	SCLOVR		0x8000	/* Serial Clock Override       */
-+
-+/* TWI_MASTER_STAT Masks */
-+#define	MPROG		0x0001	/* Master Transfer In Progress */
-+#define	LOSTARB		0x0002	/* Lost Arbitration Indicator (Xfer Aborted) */
-+#define	ANAK		0x0004	/* Address Not Acknowledged    */
-+#define	DNAK		0x0008	/* Data Not Acknowledged       */
-+#define	BUFRDERR	0x0010	/* Buffer Read Error           */
-+#define	BUFWRERR	0x0020	/* Buffer Write Error          */
-+#define	SDASEN		0x0040	/* Serial Data Sense           */
-+#define	SCLSEN		0x0080	/* Serial Clock Sense          */
-+#define	BUSBUSY		0x0100	/* Bus Busy Indicator          */
-+
-+/* TWI_INT_SRC and TWI_INT_ENABLE Masks	*/
-+#define	SINIT		0x0001	/* Slave Transfer Initiated    */
-+#define	SCOMP		0x0002	/* Slave Transfer Complete     */
-+#define	SERR		0x0004	/* Slave Transfer Error        */
-+#define	SOVF		0x0008	/* Slave Overflow              */
-+#define	MCOMP		0x0010	/* Master Transfer Complete    */
-+#define	MERR		0x0020	/* Master Transfer Error       */
-+#define	XMTSERV		0x0040	/* Transmit FIFO Service       */
-+#define	RCVSERV		0x0080	/* Receive FIFO Service        */
-+
-+/* TWI_FIFO_CTRL Masks */
-+#define	XMTFLUSH	0x0001	/* Transmit Buffer Flush                 */
-+#define	RCVFLUSH	0x0002	/* Receive Buffer Flush                  */
-+#define	XMTINTLEN	0x0004	/* Transmit Buffer Interrupt Length      */
-+#define	RCVINTLEN	0x0008	/* Receive Buffer Interrupt Length       */
-+
-+/* TWI_FIFO_STAT Masks */
-+#define	XMTSTAT		0x0003	/* Transmit FIFO Status                  */
-+#define	XMT_EMPTY	0x0000	/* Transmit FIFO Empty                   */
-+#define	XMT_HALF	0x0001	/* Transmit FIFO Has 1 Byte To Write     */
-+#define	XMT_FULL	0x0003	/* Transmit FIFO Full (2 Bytes To Write) */
-+
-+#define	RCVSTAT		0x000C	/* Receive FIFO Status                   */
-+#define	RCV_EMPTY	0x0000	/* Receive FIFO Empty                    */
-+#define	RCV_HALF	0x0004	/* Receive FIFO Has 1 Byte To Read       */
-+#define	RCV_FULL	0x000C	/* Receive FIFO Full (2 Bytes To Read)   */
+-BLACKFIN I2C TWI DRIVER
+-M:	Sonic Zhang <sonic.zhang@analog.com>
+-L:	adi-buildroot-devel@lists.sourceforge.net (moderated for non-subscribers)
+-W:	http://blackfin.uclinux.org/
+-S:	Supported
+-F:	drivers/i2c/busses/i2c-bfin-twi.c
+-
+ BLACKFIN MEDIA DRIVER
+ M:	Scott Jiang <scott.jiang.linux@gmail.com>
+ L:	adi-buildroot-devel@lists.sourceforge.net (moderated for non-subscribers)
+@@ -2569,14 +2562,12 @@ S:	Supported
+ F:	drivers/rtc/rtc-bfin.c
  
- #define DEFINE_TWI_REG(reg_name, reg) \
- static inline u16 read_##reg_name(struct bfin_twi_iface *iface) \
-diff --git a/arch/blackfin/kernel/debug-mmrs.c b/arch/blackfin/kernel/debug-mmrs.c
-index e272bca93c648f..f31ace221392c4 100644
---- a/arch/blackfin/kernel/debug-mmrs.c
-+++ b/arch/blackfin/kernel/debug-mmrs.c
-@@ -10,7 +10,6 @@
- #include <linux/fs.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/i2c/bfin_twi.h>
- #include <linux/gpio.h>
+ BLACKFIN SDH DRIVER
+-M:	Sonic Zhang <sonic.zhang@analog.com>
+ L:	adi-buildroot-devel@lists.sourceforge.net (moderated for non-subscribers)
+ W:	http://blackfin.uclinux.org
+ S:	Supported
+ F:	drivers/mmc/host/bfin_sdh.c
  
- #include <asm/blackfin.h>
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 9fe942b8c61047..ff3343186a8295 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -21,7 +21,6 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/delay.h>
--#include <linux/i2c/bfin_twi.h>
- 
- #include <asm/irq.h>
- #include <asm/portmux.h>
-diff --git a/include/linux/i2c/bfin_twi.h b/include/linux/i2c/bfin_twi.h
-deleted file mode 100644
-index 135a4e0876aeba..00000000000000
---- a/include/linux/i2c/bfin_twi.h
-+++ /dev/null
-@@ -1,145 +0,0 @@
--/*
-- * i2c-bfin-twi.h - interface to ADI TWI controller
-- *
-- * Copyright 2005-2014 Analog Devices Inc.
-- *
-- * Licensed under the GPL-2 or later.
-- */
--
--#ifndef __I2C_BFIN_TWI_H__
--#define __I2C_BFIN_TWI_H__
--
--#include <linux/types.h>
--#include <linux/i2c.h>
--
--/*
-- * ADI twi registers layout
-- */
--struct bfin_twi_regs {
--	u16 clkdiv;
--	u16 dummy1;
--	u16 control;
--	u16 dummy2;
--	u16 slave_ctl;
--	u16 dummy3;
--	u16 slave_stat;
--	u16 dummy4;
--	u16 slave_addr;
--	u16 dummy5;
--	u16 master_ctl;
--	u16 dummy6;
--	u16 master_stat;
--	u16 dummy7;
--	u16 master_addr;
--	u16 dummy8;
--	u16 int_stat;
--	u16 dummy9;
--	u16 int_mask;
--	u16 dummy10;
--	u16 fifo_ctl;
--	u16 dummy11;
--	u16 fifo_stat;
--	u16 dummy12;
--	u32 __pad[20];
--	u16 xmt_data8;
--	u16 dummy13;
--	u16 xmt_data16;
--	u16 dummy14;
--	u16 rcv_data8;
--	u16 dummy15;
--	u16 rcv_data16;
--	u16 dummy16;
--};
--
--struct bfin_twi_iface {
--	int			irq;
--	spinlock_t		lock;
--	char			read_write;
--	u8			command;
--	u8			*transPtr;
--	int			readNum;
--	int			writeNum;
--	int			cur_mode;
--	int			manual_stop;
--	int			result;
--	struct i2c_adapter	adap;
--	struct completion	complete;
--	struct i2c_msg		*pmsg;
--	int			msg_num;
--	int			cur_msg;
--	u16			saved_clkdiv;
--	u16			saved_control;
--	struct bfin_twi_regs __iomem *regs_base;
--};
--
--/*  ********************  TWO-WIRE INTERFACE (TWI) MASKS  ********************/
--/* TWI_CLKDIV Macros (Use: *pTWI_CLKDIV = CLKLOW(x)|CLKHI(y);  ) */
--#define	CLKLOW(x)	((x) & 0xFF)	/* Periods Clock Is Held Low */
--#define CLKHI(y)	(((y)&0xFF)<<0x8) /* Periods Before New Clock Low */
--
--/* TWI_PRESCALE Masks */
--#define	PRESCALE	0x007F	/* SCLKs Per Internal Time Reference (10MHz) */
--#define	TWI_ENA		0x0080	/* TWI Enable */
--#define	SCCB		0x0200	/* SCCB Compatibility Enable */
--
--/* TWI_SLAVE_CTL Masks */
--#define	SEN		0x0001	/* Slave Enable */
--#define	SADD_LEN	0x0002	/* Slave Address Length */
--#define	STDVAL		0x0004	/* Slave Transmit Data Valid */
--#define	NAK		0x0008	/* NAK Generated At Conclusion Of Transfer */
--#define	GEN		0x0010	/* General Call Address Matching Enabled */
--
--/* TWI_SLAVE_STAT Masks	*/
--#define	SDIR		0x0001	/* Slave Transfer Direction (RX/TX*) */
--#define GCALL		0x0002	/* General Call Indicator */
--
--/* TWI_MASTER_CTL Masks	*/
--#define	MEN		0x0001	/* Master Mode Enable          */
--#define	MADD_LEN	0x0002	/* Master Address Length       */
--#define	MDIR		0x0004	/* Master Transmit Direction (RX/TX*) */
--#define	FAST		0x0008	/* Use Fast Mode Timing Specs  */
--#define	STOP		0x0010	/* Issue Stop Condition        */
--#define	RSTART		0x0020	/* Repeat Start or Stop* At End Of Transfer */
--#define	DCNT		0x3FC0	/* Data Bytes To Transfer      */
--#define	SDAOVR		0x4000	/* Serial Data Override        */
--#define	SCLOVR		0x8000	/* Serial Clock Override       */
--
--/* TWI_MASTER_STAT Masks */
--#define	MPROG		0x0001	/* Master Transfer In Progress */
--#define	LOSTARB		0x0002	/* Lost Arbitration Indicator (Xfer Aborted) */
--#define	ANAK		0x0004	/* Address Not Acknowledged    */
--#define	DNAK		0x0008	/* Data Not Acknowledged       */
--#define	BUFRDERR	0x0010	/* Buffer Read Error           */
--#define	BUFWRERR	0x0020	/* Buffer Write Error          */
--#define	SDASEN		0x0040	/* Serial Data Sense           */
--#define	SCLSEN		0x0080	/* Serial Clock Sense          */
--#define	BUSBUSY		0x0100	/* Bus Busy Indicator          */
--
--/* TWI_INT_SRC and TWI_INT_ENABLE Masks	*/
--#define	SINIT		0x0001	/* Slave Transfer Initiated    */
--#define	SCOMP		0x0002	/* Slave Transfer Complete     */
--#define	SERR		0x0004	/* Slave Transfer Error        */
--#define	SOVF		0x0008	/* Slave Overflow              */
--#define	MCOMP		0x0010	/* Master Transfer Complete    */
--#define	MERR		0x0020	/* Master Transfer Error       */
--#define	XMTSERV		0x0040	/* Transmit FIFO Service       */
--#define	RCVSERV		0x0080	/* Receive FIFO Service        */
--
--/* TWI_FIFO_CTRL Masks */
--#define	XMTFLUSH	0x0001	/* Transmit Buffer Flush                 */
--#define	RCVFLUSH	0x0002	/* Receive Buffer Flush                  */
--#define	XMTINTLEN	0x0004	/* Transmit Buffer Interrupt Length      */
--#define	RCVINTLEN	0x0008	/* Receive Buffer Interrupt Length       */
--
--/* TWI_FIFO_STAT Masks */
--#define	XMTSTAT		0x0003	/* Transmit FIFO Status                  */
--#define	XMT_EMPTY	0x0000	/* Transmit FIFO Empty                   */
--#define	XMT_HALF	0x0001	/* Transmit FIFO Has 1 Byte To Write     */
--#define	XMT_FULL	0x0003	/* Transmit FIFO Full (2 Bytes To Write) */
--
--#define	RCVSTAT		0x000C	/* Receive FIFO Status                   */
--#define	RCV_EMPTY	0x0000	/* Receive FIFO Empty                    */
--#define	RCV_HALF	0x0004	/* Receive FIFO Has 1 Byte To Read       */
--#define	RCV_FULL	0x000C	/* Receive FIFO Full (2 Bytes To Read)   */
--
--#endif
+ BLACKFIN SERIAL DRIVER
+-M:	Sonic Zhang <sonic.zhang@analog.com>
+ L:	adi-buildroot-devel@lists.sourceforge.net (moderated for non-subscribers)
+ W:	http://blackfin.uclinux.org
+ S:	Supported
 -- 
 2.11.0
