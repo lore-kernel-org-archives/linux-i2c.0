@@ -1,47 +1,85 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: rename files to not have superfluous prefixes
-Date: Sat, 12 Aug 2017 23:03:56 +0200
-Message-ID: <cf6096a6-c25f-86dc-d474-19accedabd36@axentia.se>
-References: <20170804090736.13404-1-peda@axentia.se>
- <20170812142625.xugkg2swbuazchug@ninjato>
+From: Hans de Goede <j.w.r.degoede@gmail.com>
+Subject: Re: [PATCH resend v2] i2c-cht-wc: Add Intel Cherry Trail Whiskey Cove
+ SMBUS controller driver
+Date: Sun, 13 Aug 2017 12:09:31 +0200
+Message-ID: <c0f592f8-77b9-7765-8530-ac01ffaffab6@gmail.com>
+References: <20170806105943.31470-1-hdegoede@redhat.com>
+ <20170806105943.31470-2-hdegoede@redhat.com>
+ <20170812120410.he2jkil7clhlybd4@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0113.outbound.protection.outlook.com ([104.47.1.113]:65456
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752095AbdHLVEI (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 12 Aug 2017 17:04:08 -0400
-In-Reply-To: <20170812142625.xugkg2swbuazchug@ninjato>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:38168 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751031AbdHMKJe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Aug 2017 06:09:34 -0400
+Received: by mail-wr0-f196.google.com with SMTP id g32so5264774wrd.5
+        for <linux-i2c@vger.kernel.org>; Sun, 13 Aug 2017 03:09:34 -0700 (PDT)
+In-Reply-To: <20170812120410.he2jkil7clhlybd4@ninjato>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Michael Hennerich <michael.hennerich@analog.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
 
-On 2017-08-12 16:26, Wolfram Sang wrote:
-> Hi peda,
+Hi,
+
+On 12-08-17 14:04, Wolfram Sang wrote:
 > 
->> In the light of the rant from Linus the other week [1], I thought this
->> might be a good idea?
+>> + * This program is free software; you can redistribute it and/or
+>> + * modify it under the terms of the GNU General Public License version
+>> + * 2 as published by the Free Software Foundation.
 > 
-> I am still not decided on this one. I tried to do it with the core files
-> and didn't find a convincing solution there. Also, the churn is quite
-> high: git history becomes less usable, likely broken references, it is
-> not consistent in the kernel anyhow...
+> Here you say V2 only, in MODULE_LICENSE you say V2+.
+
+Good catch, I've added the ", or (at your option) any later version."
+text here for v3 of the patch (which was my intention all along).
+
+> ...
 > 
-> So, I decided to work on real issues for now. The pain point for me is
-> not reached yet. But if it is for you (or someone else), I am open to
-> look at an subsystem wide solution.
+>> +static const struct property_entry bq24190_props[] = {
+>> +	PROPERTY_ENTRY_STRING("extcon-name", "cht_wcove_pwrsrc"),
+>> +	PROPERTY_ENTRY_BOOL("omit-battery-class"),
+>> +	PROPERTY_ENTRY_BOOL("disable-reset"),
+>> +	{ }
+>> +};
+>> +
+>> +static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+>> +	struct cht_wc_i2c_adap *adap;
+>> +	struct i2c_board_info board_info = {
+>> +		.type = "bq24190",
+>> +		.addr = 0x6b,
+>> +		.properties = bq24190_props,
+>> +	};
+> 
+> I don't know ACPI world much, but it looks to me like the wrong layer to
+> add this stuff? Shouldn't that be in the same place where the
+> i2c_adapter is instantiated? Because the place requesting the adapter
+> should know what is attached to it?
 
-Yeah, there are a few downsides and I agree that the whole i2c subsystem
-should be "converted" at the same time, probably directly after some
-future rc1. Feel free to use this patch (or an adjusted version) if/when
-the time comes, or poke me and I'll redo it.
+The adapter is instantiated by the drivers/mfd/intel_cht_wc.c mfd driver
+for the i2c attached Intel Cherry Trail Whiskey Cove PMIC (yes this
+is an i2c-controller which is itself attached to an i2c bus). The
+mfd/intel_cht_wc.c driver does not really know what is attached any
+more (or less) then this (i2c-cht-wc) driver. All boards I've seen
+using this PMIC combine it with a bq24192i charger and there is no
+other info on this in the ACPI tables.
 
-In other words, I'm not super-committed to this patch, and will just drop
-it for now...
+The i2c-cht-wc driver is only used in combination with this PMIC and we
+use the presence of the PMIC as indication that there will be a bq24190
+attached to the PMIC's child i2c-bus, so from a having access to the
+best information to determine what is attached pov, it does not matter
+if we instantiate the i2c-client here or in the MFD driver.
 
-Cheers,
-Peter
+ From a practical/implementation pov however it is a lot easier to
+implement the i2c-client instantiation in the i2c-cht-wc adapter
+driver because that gives us easy access to the i2c_adapter struct
+and to the irq for charger-ic-irq-pin on the PMIC. Esp. getting access
+to the irq somewhere else is problematic.
+
+Regards,
+
+Hans
