@@ -1,68 +1,62 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-Date: Mon, 14 Aug 2017 18:05:39 +0800
-Message-ID: <1502705139.930.78.camel@mhfsdcap03>
-References: <1502264631-12572-1-git-send-email-jun.gao@mediatek.com>
-         <1502264631-12572-2-git-send-email-jun.gao@mediatek.com>
-         <3384d424-827a-0a4b-d1d6-7d361d8c8391@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH RESEND] blackfin: merge the two TWI header files
+Date: Mon, 14 Aug 2017 12:20:07 +0200
+Message-ID: <20170814102007.pjgekosppqd4latb@ninjato>
+References: <20170813142117.3977-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ihrvsiua54l7g22a"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw01.mediatek.com ([210.61.82.183]:15281 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752195AbdHNKFq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 14 Aug 2017 06:05:46 -0400
-In-Reply-To: <3384d424-827a-0a4b-d1d6-7d361d8c8391@gmail.com>
+Received: from sauhun.de ([88.99.104.3]:49069 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752594AbdHNKUL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 06:20:11 -0400
+Content-Disposition: inline
+In-Reply-To: <20170813142117.3977-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+To: adi-buildroot-devel@lists.sourceforge.net
+Cc: Steven Miao <realmz6@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Mon, 2017-08-14 at 11:36 +0200, Matthias Brugger wrote:
-> 
-> On 08/09/2017 09:43 AM, Jun Gao wrote:
-> > From: Jun Gao <jun.gao@mediatek.com>
-> > 
-> > Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
-> > controller, MT7622 limit message size to 255, and not support
-> > 4GB DMA mode.
-> > 
-> > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-> > ---
-> >   Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
-> >   1 file changed, 6 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > index bd5a7be..ff9ac61 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> > @@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
-> >   
-> >   Required properties:
-> >     - compatible: value should be either of the following.
-> > -      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
-> > -      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
-> > -      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
-> > -      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
-> > -      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
-> > +	"mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-> > +	"mediatek,mt6577-i2c": for Mediatek MT6577
-> > +	"mediatek,mt6589-i2c": for Mediatek MT6589
-> > +	"mediatek,mt7622-i2c": for Mediatek MT7622
-> > +	"mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-> > +	"mediatek,mt8173-i2c": for Mediatek MT8173
-> >     - reg: physical base address of the controller and dma base, length of memory
-> >       mapped region.
-> >     - interrupts: interrupt number to the cpu.
-> > 
-> 
-> In the next series, could you please make sure not to change the indentation.
-> 
-> Thanks a lot,
-> Matthias
 
-Please review [PATCH v2 1/2], I will not change the indentation any
-more. Thanks!
+--ihrvsiua54l7g22a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jun
+On Sun, Aug 13, 2017 at 04:21:17PM +0200, Wolfram Sang wrote:
+> There seems to be no need for separate ones since all users include both
+> files anyhow. Merge them because include/linux/i2c is to be deprecated.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>=20
+> Reseding, rebased on v4.13-rc4. Now subscribed to the adi-ML as well.
+> I'd prefer if this goes via the ADI tree but I can pick it, too, if desir=
+ed.
+
+Seeing the BF activity over the last months, it is probably easier if I
+pick it?
+
+
+--ihrvsiua54l7g22a
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmReVIACgkQFA3kzBSg
+KbYjIw//WAUXdNKm7B+W5hYCEvio83zi52yph897ffryPbXXs4vqg5CKHgQ3c+tg
+UEOwfUYy4qcelXEsur/jK6GhcRUZA7DpHDdYbbr6lSBohrbZpoJGYKuHPqyNOEtt
+BcRjAuaUX9y0lx0f0cOA1Ed3ye/jmO6NNztA0J8cw+6rXint9Pbqj1kjflg5TJqY
+tmRIY79viSWNNoECKJX0PDnSiaytl0uDxqx5Fj7aDRgYYoPvy6/N2YZ8a4gt6gkR
+aydHCsLCnQewdmPcC4dFF0WkEcPjvCEGZhaiXq6nq1gUzmmeOD8QPObCnDZhrgD+
+OHfmKRC5wOcCAA1Rs1nztTCzHeiVJyCNAgGME4/01lOAlnq6jAPRGVuHSuVxthpu
+/bkwx22QoytGY8uuiEQBBaF76yzJKs3keMMCdDZkd8moSWkZ69E1+KxnzThg9xcV
+NF7ufpJgfax9hJxGivpGBH/wXFmQ8TD1pimmRsOanbXrtw+Mj4SGRMCXKrKP6BwQ
+rrZTEgas3vvgcuu1vdbXxcACs1Bc/WQojoG0txZWQIv/8/gezTrxL+vJx7pkqa4H
+7VKiaOZP8eU0lIaesFM3Ogr4Az/Ips/mFHb+VamBYpU2ILVS4/thi22BQXLltHx8
+Blsrz02pMgWjraYqZJyV8mkPmmGLRPYzlVQrKD5SDG8MD449Yks=
+=+Qk8
+-----END PGP SIGNATURE-----
+
+--ihrvsiua54l7g22a--
