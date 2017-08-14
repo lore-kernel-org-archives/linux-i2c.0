@@ -1,58 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: use release_mem_region instead of release_resource
-Date: Mon, 14 Aug 2017 21:37:57 +0200
-Message-ID: <20170814193756.pux5c7l23izojwus@ninjato>
-References: <1502378145-12869-1-git-send-email-vasilyev@ispras.ru>
+Subject: Re: [PATCH v2 2/2] i2c: mediatek: Add i2c compatible for MediaTek
+ MT7622
+Date: Mon, 14 Aug 2017 21:47:13 +0200
+Message-ID: <20170814194713.c6ojqcbi2iluayau@ninjato>
+References: <1502506672-7620-1-git-send-email-jun.gao@mediatek.com>
+ <1502506672-7620-3-git-send-email-jun.gao@mediatek.com>
+ <20170812144411.zqgbncsemzaolldv@ninjato>
+ <1502674616.930.74.camel@mhfsdcap03>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="m7k4ahtkl4ao5q3t"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:50555 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750771AbdHNTh6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Aug 2017 15:37:58 -0400
+        protocol="application/pgp-signature"; boundary="pglexgzmdx5j52xk"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1502378145-12869-1-git-send-email-vasilyev@ispras.ru>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1502674616.930.74.camel@mhfsdcap03>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Anton Vasilyev <vasilyev@ispras.ru>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
 
---m7k4ahtkl4ao5q3t
+--pglexgzmdx5j52xk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 10, 2017 at 06:15:45PM +0300, Anton Vasilyev wrote:
-> Use api pair of request_mem_region and release_mem_region
-> instead of release_resource.
->=20
-> Found by Linux Driver Verification project (linuxtesting.org).
->=20
-> Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+On Mon, Aug 14, 2017 at 09:36:56AM +0800, Jun Gao wrote:
+> On Sat, 2017-08-12 at 16:44 +0200, Wolfram Sang wrote:
+> > > +static const struct i2c_adapter_quirks mt7622_i2c_quirks =3D {
+> > > +	.max_num_msgs =3D 255,
+> > > +	.max_write_len =3D 65535,
+> > > +	.max_read_len =3D 65535,
+> > > +	.max_comb_1st_msg_len =3D 65535,
+> > > +	.max_comb_2nd_msg_len =3D 65535,
+> > > +};
+> >=20
+> > That looks like no quirks? Then just leave the quirks pointer below
+> > empty.
+> >=20
+> Compare to MT8173 i2c controller, MT7622 limits message numbers to 255.
 
-Applied to for-current, thanks!
+I see. But you can safely drop all the length settings. The i2c core has
+this comment in quirk handling:
+
+/* Check if val is exceeding the quirk IFF quirk is non 0 */
+
+IFF means "if and only if".
 
 
---m7k4ahtkl4ao5q3t
+--pglexgzmdx5j52xk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR/BEACgkQFA3kzBSg
-KbZp5g//X/5Nrv4LIjEPboKXJSyLkPeqYKr8cVa++0bu9zNToQZEB+yzHfrl2wYE
-4tHGlMG6oW4pseExBfAfhplba+PpZWY9xEQHjgu97isGrvjSdYQzvJ0Oba+HqPZe
-QY3kyyXZRJUqV+03GVEQnoFUVhapzFP0eAjGgI0ht8WqI4haLGCvAncjqqzoOZCg
-XuOCZ+WHGFFM26z/zTaZatHgVE2iOeJjBs0M1BIZf+OdWtJpcog0/kTPA1A/pDf8
-QeuRtuN0YEOeGC/cpmGmsRy00RKqNexlnRnwzvFWXjBfqO6LDHPB27eh4wMoxEPU
-OjZ8UKTN2JfmAIxO5IuAYEbm4guGo5FsVUG8DMW/Yg7/igvAtK6C1r7mzWLrzNop
-nBkeJ14UTzqjiSjjMvcNZR7IzliaoHcfWZm/n/7DifBAgm/hioAigB6xkRLbzbNF
-WKo6BCOwgsElRg5wV/U81g63roh/dRW9tP5KwZl28nesFqPLtK4vtkkhAFCEd6e3
-vB1rV8zOfAgaRF/mURKdVT4X81OO+i8CEMNxAu1ggMu6vZ78ZjbMIQecGyLk4lPr
-cwc+tgoK7HiPcF4nNEQxBgTGzedS4kR4X6fFbyxIZE+/JbKIZKmaaEZ88Z+eBdnQ
-CRQrF7q19OvsHBjHDKT4mmkPp/kGVFgyRejPMR4aEex2QEv1a08=
-=l7sO
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR/kEACgkQFA3kzBSg
+Kbbj5Q//fQDCE7Au3G8Agh/MrXOjv7xt2g8VnVxGTBz6hRC3wkRjVFhEL1VdhRaa
+jtAfNw5WImXlMAgCK48eWnP3kUi+KEEoFXF/eyevwLX6yhviZEvFHZNtPlH6EjZx
+k+RfmC51eYiC4/T+ebynW7xZJH4oeMwx8kqXkWyTMzC87RNn8l0TnGcSErwoXzRh
+ddAwKI/2yBn9WyxJW0Ab8nu7/NFZQi6MS00UgSUeN3+/jia5FwHOKHWTgcfiG6Sy
+0FkKGG4/+/A09Y1lNIU0fIowflX4T6onTwxs4EgUoF6uMS1q94zKcZZpuMeN7m6L
+WjAk1CpyloV0EuqBUt2NxVNhhaEzgDu29JNuTegTBmfJVPrmzlH54dEfRccurL2G
+v3xQgxOmRWYPiPq3gHm31NHXp8svL7J6nHtz8aRJGL1MIHA47icRbVXFiTibE5Wg
+I4nhYCR1+4Q/m4pYtPGz+7PPc722hguIogHrS05IFeb0tIvuZN+X+2eTjLbqjg4e
+tzIMIkAO52y5TYUsIjI9LViQJrZ8ARA0ftzW+DbbhWf8q615YmIzZLGUBO8HIRjQ
+JykHVgsthDGAOTrxXP1fl7M0qJqRiI98kylmxaeLJkbLLr9/brW9+RGrd6FmppIF
+WkDuGHnQjexTP9ayRLyJpDhb1oziXwtyMZ3lCqob5n4UgDWTIuY=
+=I9R4
 -----END PGP SIGNATURE-----
 
---m7k4ahtkl4ao5q3t--
+--pglexgzmdx5j52xk--
