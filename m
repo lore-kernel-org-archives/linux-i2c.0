@@ -1,104 +1,128 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 1/2] i2c: core: Allow the driver to override the default
- i2c_bus match behavior
-Date: Mon, 14 Aug 2017 22:13:23 +0200
-Message-ID: <de6bf483-9ef4-522b-507d-272f736bcabc@redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20170722185537.12696-1-hdegoede@redhat.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: [PATCH 1/3] i2c-cht-wc: Add locking to interrupt / smbus_xfer functions
+Date: Mon, 14 Aug 2017 22:17:24 +0200
+Message-ID: <20170814201726.21045-2-hdegoede@redhat.com>
+References: <20170814201726.21045-1-hdegoede@redhat.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37886 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751527AbdHNURa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 16:17:30 -0400
+In-Reply-To: <20170814201726.21045-1-hdegoede@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
 
-Hi,
+Although unlikely without locking the smbux_xfer function may miss
+the nack flag and further fixes in this patch-set add some more
+complex constructions which need protection.
 
-On 22-07-17 20:55, Hans de Goede wrote:
-> Some ACPI devices report multiple ids for a single i2c_client, while not
-> really implementing the hw-interface asociated with some of these ids.
-> 
-> For some of these devices calling probe and having probe fail with
-> -ENODEV is a problem in itself as this causes the device to be
-> powered-up and down again (causes its PS0 and PS3 ACPI methods to be
-> executed) which puts some devices in an unusable state.
-> 
-> This commit adds a match callback to i2c_driver, allowing drivers to
-> override the default i2c_bus match behavior and tell the core they
-> are not the right driver for the device, avoiding i2c_bus_type.probe
-> getting called, avoiding the undesirable power up / down cycle.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/i2c/busses/i2c-cht-wc.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-What is the status of this series ? I thought there was agreement
-on merging this through the i2c (wsa/linux.git) tree ?
-
-Regards,
-
-Hans
-
-
-> ---
->   drivers/i2c/i2c-core-base.c | 12 +++++++++---
->   include/linux/i2c.h         |  6 ++++++
->   2 files changed, 15 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index c89dac7fd2e7..2c6702f2347b 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -98,8 +98,16 @@ EXPORT_SYMBOL_GPL(i2c_match_id);
->   static int i2c_device_match(struct device *dev, struct device_driver *drv)
->   {
->   	struct i2c_client	*client = i2c_verify_client(dev);
-> -	struct i2c_driver	*driver;
-> +	struct i2c_driver	*driver = to_i2c_driver(drv);
-> +	int ret;
->   
-> +	if (driver->match && client) {
-> +		ret = driver->match(client);
-> +		if (ret < 0)
-> +			return 0;
-> +		if (ret > 0)
-> +			return 1;
-> +	}
->   
->   	/* Attempt an OF style match */
->   	if (i2c_of_match_device(drv->of_match_table, client))
-> @@ -109,8 +117,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
->   	if (acpi_driver_match_device(dev, drv))
->   		return 1;
->   
-> -	driver = to_i2c_driver(drv);
-> -
->   	/* Finally an I2C match */
->   	if (i2c_match_id(driver->id_table, client))
->   		return 1;
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 00ca5b86a753..670577c82bc3 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -139,6 +139,9 @@ enum i2c_alert_protocol {
->    * struct i2c_driver - represent an I2C device driver
->    * @class: What kind of i2c device we instantiate (for detect)
->    * @attach_adapter: Callback for bus addition (deprecated)
-> + * @match: Allows the driver to override the default i2c_bus match behavior
-> + *         return < 0 to fail the match, > 0 to force a match, 0 to fallback
-> + *         to default id matching
->    * @probe: Callback for device binding - soon to be deprecated
->    * @probe_new: New callback for device binding
->    * @remove: Callback for device unbinding
-> @@ -180,6 +183,9 @@ struct i2c_driver {
->   	 */
->   	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
->   
-> +	/* Set this to override standard i2c_bus match behavior */
-> +	int (*match)(struct i2c_client *);
-> +
->   	/* Standard driver model interfaces */
->   	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
->   	int (*remove)(struct i2c_client *);
-> 
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+index fe5caf70c7fe..09e0df49df6b 100644
+--- a/drivers/i2c/busses/i2c-cht-wc.c
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -47,6 +47,7 @@ struct cht_wc_i2c_adap {
+ 	struct i2c_adapter adapter;
+ 	wait_queue_head_t wait;
+ 	struct irq_chip irqchip;
++	struct mutex adap_lock;
+ 	struct mutex irqchip_lock;
+ 	struct regmap *regmap;
+ 	struct irq_domain *irq_domain;
+@@ -63,10 +64,13 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
+ 	struct cht_wc_i2c_adap *adap = data;
+ 	int ret, reg;
+ 
++	mutex_lock(&adap->adap_lock);
++
+ 	/* Read IRQs */
+ 	ret = regmap_read(adap->regmap, CHT_WC_EXTCHGRIRQ, &reg);
+ 	if (ret) {
+ 		dev_err(&adap->adapter.dev, "Error reading extchgrirq reg\n");
++		mutex_unlock(&adap->adap_lock);
+ 		return IRQ_NONE;
+ 	}
+ 
+@@ -80,6 +84,16 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
+ 	if (ret)
+ 		dev_err(&adap->adapter.dev, "Error writing extchgrirq reg\n");
+ 
++	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
++		adap->nack = !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
++		adap->done = true;
++	}
++
++	mutex_unlock(&adap->adap_lock);
++
++	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK)
++		wake_up(&adap->wait);
++
+ 	/*
+ 	 * Do NOT use handle_nested_irq here, the client irq handler will
+ 	 * likely want to do i2c transfers and the i2c controller uses this
+@@ -96,12 +110,6 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
+ 		local_irq_enable();
+ 	}
+ 
+-	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
+-		adap->nack = !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
+-		adap->done = true;
+-		wake_up(&adap->wait);
+-	}
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -119,8 +127,10 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
+ 	struct cht_wc_i2c_adap *adap = i2c_get_adapdata(_adap);
+ 	int ret, reg;
+ 
++	mutex_lock(&adap->adap_lock);
+ 	adap->nack = false;
+ 	adap->done = false;
++	mutex_unlock(&adap->adap_lock);
+ 
+ 	ret = regmap_write(adap->regmap, CHT_WC_I2C_CLIENT_ADDR, addr);
+ 	if (ret)
+@@ -146,18 +156,18 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
+ 	ret = wait_event_timeout(adap->wait, adap->done, 3 * HZ);
+ 	if (ret == 0)
+ 		return -ETIMEDOUT;
+-	if (adap->nack)
+-		return -EIO;
+ 
+-	if (read_write == I2C_SMBUS_READ) {
++	ret = 0;
++	mutex_lock(&adap->adap_lock);
++	if (adap->nack)
++		ret = -EIO;
++	else if (read_write == I2C_SMBUS_READ) {
+ 		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &reg);
+-		if (ret)
+-			return ret;
+-
+ 		data->byte = reg;
+ 	}
++	mutex_unlock(&adap->adap_lock);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct i2c_algorithm cht_wc_i2c_adap_algo = {
+@@ -241,6 +251,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	init_waitqueue_head(&adap->wait);
++	mutex_init(&adap->adap_lock);
+ 	mutex_init(&adap->irqchip_lock);
+ 	adap->irqchip = cht_wc_i2c_irq_chip;
+ 	adap->regmap = pmic->regmap;
+-- 
+2.13.4
