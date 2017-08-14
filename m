@@ -1,32 +1,54 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv6 2/2] i2c: altera: Add Altera I2C Controller driver
-Date: Mon, 14 Aug 2017 23:43:23 +0300
-Message-ID: <CAHp75VekTB2vLFpXsYhO0E5QacXe_ssCz9Bp-MpapJFCg4WJoA@mail.gmail.com>
-References: <1502728113-22547-1-git-send-email-thor.thayer@linux.intel.com> <1502728113-22547-2-git-send-email-thor.thayer@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/3] i2c-cht-wc: Add locking to interrupt / smbus_xfer
+ functions
+Date: Mon, 14 Aug 2017 22:55:07 +0200
+Message-ID: <d5e73f83-90dd-6bf2-c682-2d8da849fc49@redhat.com>
+References: <20170814201726.21045-1-hdegoede@redhat.com>
+ <20170814201726.21045-2-hdegoede@redhat.com>
+ <1502742959.25945.3.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1502728113-22547-2-git-send-email-thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:44948 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751644AbdHNUzJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 16:55:09 -0400
+In-Reply-To: <1502742959.25945.3.camel@linux.intel.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-On Mon, Aug 14, 2017 at 7:28 PM,  <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->
-> Add driver support for the Altera I2C Controller. The I2C
-> controller is soft IP for use in FPGAs.
+Hi,
 
-Hmm...
-Could you remind me if I reviewed this and gave a tag?
-If yes, where is the tag, since changelog doesn't clarify this.
+On 14-08-17 22:35, Andy Shevchenko wrote:
+> On Mon, 2017-08-14 at 22:17 +0200, Hans de Goede wrote:
+>> Although unlikely without locking the smbux_xfer function may miss
+>> the nack flag and further fixes in this patch-set add some more
+>> complex constructions which need protection.
+>   
+>> -	if (read_write == I2C_SMBUS_READ) {
+>> +	ret = 0;
+>> +	mutex_lock(&adap->adap_lock);
+>> +	if (adap->nack)
+>> +		ret = -EIO;
+>> +	else if (read_write == I2C_SMBUS_READ) {
+>>   		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA,
+>> &reg);
+>> -		if (ret)
+>> -			return ret;
+>> -
+> 
+>>   		data->byte = reg;
+> 
+> Can this be moved out to keep logic the same (don't dirt data on error)?
 
+Setting data on error is not really a problem and this gets
+fixed in the next patch in the series where the reading
+of the data moves to the irq-handler.
 
--- 
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+
+Hans
