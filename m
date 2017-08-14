@@ -1,58 +1,104 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/1] i2c: aspeed: add proper support fo 24xx clock
- params
-Date: Mon, 14 Aug 2017 22:09:24 +0200
-Message-ID: <20170814200924.gfwogtgazgepd42u@ninjato>
-References: <20170728204558.6455-1-brendanhiggins@google.com>
- <20170728204558.6455-2-brendanhiggins@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/2] i2c: core: Allow the driver to override the default
+ i2c_bus match behavior
+Date: Mon, 14 Aug 2017 22:13:23 +0200
+Message-ID: <de6bf483-9ef4-522b-507d-272f736bcabc@redhat.com>
+References: <20170722185537.12696-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ryd4k455hnzkgzqd"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170728204558.6455-2-brendanhiggins@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>
-Cc: benh@kernel.crashing.org, joel@jms.id.au, rburanyi@google.com, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20170722185537.12696-1-hdegoede@redhat.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---ryd4k455hnzkgzqd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 22-07-17 20:55, Hans de Goede wrote:
+> Some ACPI devices report multiple ids for a single i2c_client, while not
+> really implementing the hw-interface asociated with some of these ids.
+> 
+> For some of these devices calling probe and having probe fail with
+> -ENODEV is a problem in itself as this causes the device to be
+> powered-up and down again (causes its PS0 and PS3 ACPI methods to be
+> executed) which puts some devices in an unusable state.
+> 
+> This commit adds a match callback to i2c_driver, allowing drivers to
+> override the default i2c_bus match behavior and tell the core they
+> are not the right driver for the device, avoiding i2c_bus_type.probe
+> getting called, avoiding the undesirable power up / down cycle.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-On Fri, Jul 28, 2017 at 01:45:58PM -0700, Brendan Higgins wrote:
-> 24xx BMCs have larger clock divider granularity which can cause problems
-> when trying to set them as 25xx clock dividers; this adds clock setting
-> code specific to 24xx.
->=20
-> This also fixes a potential issue where clock dividers were rounded down
-> instead of up.
->=20
-> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+What is the status of this series ? I thought there was agreement
+on merging this through the i2c (wsa/linux.git) tree ?
 
-Applied to for-next, thanks!
+Regards,
+
+Hans
 
 
---ryd4k455hnzkgzqd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmSA3QACgkQFA3kzBSg
-KbZwwRAAsoQEYP1VWgUli8j3bbzadX2ErUWOYfan28SL+OrNh82agUqtew4FwgYG
-rSUDaEzzZAx+5GuFduzFAVbTKECTkWiKlY4yBtAyx5BgPAV9U8zHMmvEqf63ygv1
-S0um3aryfJ9a09Yc/PDAmX0lA8OmvaiUvMJUdgxmRVyf2GiiLkkdgkRcTU19NcsB
-V5SrztVQaQCXX8a1ehYLjJQ3krHKlZkHvhoTMELPlxkxUEvKk+DrnvSfTHzflIRR
-ViPm2/H2muiVdYBS3ljd0P5eGT/shdIbTFXDBys6OtHcQSCIYmLHi41VgLwiLn1w
-ifYNb3kTsW6wYyPQkokZfH/62jtNvVvwQuh/66V7z79uTWYCZz02HGSznmgwvdHv
-sIYCV4SSWDN0Nd3JBhe2ObRWxTc0HZxaBL2B7XhkWndPModbS2kDxQwOqEXsTeiK
-p0i7k27271ZNsf0xVu5PMhfs3104UkFaITsKmiwnxXckKj6SNpfOhfVoLrGfYhdN
-LodTCuy2Q/JXsHFxxlT/x45dI0caocBoHF54jJqXgDx/uqQEPn9Z1n6q6f0tToj8
-e5PReO7QN4JlZwHCApNPXu4OjLCiYrkXXAbEX3Y/pmtho+q6vIFGOnici7o/gHiP
-7KzxN5c3MDz0vnV9xZ+9EXnoHqbhT/t5sWjEhBgaCXSzoJMzpN4=
-=O7c1
------END PGP SIGNATURE-----
-
---ryd4k455hnzkgzqd--
+> ---
+>   drivers/i2c/i2c-core-base.c | 12 +++++++++---
+>   include/linux/i2c.h         |  6 ++++++
+>   2 files changed, 15 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index c89dac7fd2e7..2c6702f2347b 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -98,8 +98,16 @@ EXPORT_SYMBOL_GPL(i2c_match_id);
+>   static int i2c_device_match(struct device *dev, struct device_driver *drv)
+>   {
+>   	struct i2c_client	*client = i2c_verify_client(dev);
+> -	struct i2c_driver	*driver;
+> +	struct i2c_driver	*driver = to_i2c_driver(drv);
+> +	int ret;
+>   
+> +	if (driver->match && client) {
+> +		ret = driver->match(client);
+> +		if (ret < 0)
+> +			return 0;
+> +		if (ret > 0)
+> +			return 1;
+> +	}
+>   
+>   	/* Attempt an OF style match */
+>   	if (i2c_of_match_device(drv->of_match_table, client))
+> @@ -109,8 +117,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+>   	if (acpi_driver_match_device(dev, drv))
+>   		return 1;
+>   
+> -	driver = to_i2c_driver(drv);
+> -
+>   	/* Finally an I2C match */
+>   	if (i2c_match_id(driver->id_table, client))
+>   		return 1;
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 00ca5b86a753..670577c82bc3 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -139,6 +139,9 @@ enum i2c_alert_protocol {
+>    * struct i2c_driver - represent an I2C device driver
+>    * @class: What kind of i2c device we instantiate (for detect)
+>    * @attach_adapter: Callback for bus addition (deprecated)
+> + * @match: Allows the driver to override the default i2c_bus match behavior
+> + *         return < 0 to fail the match, > 0 to force a match, 0 to fallback
+> + *         to default id matching
+>    * @probe: Callback for device binding - soon to be deprecated
+>    * @probe_new: New callback for device binding
+>    * @remove: Callback for device unbinding
+> @@ -180,6 +183,9 @@ struct i2c_driver {
+>   	 */
+>   	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
+>   
+> +	/* Set this to override standard i2c_bus match behavior */
+> +	int (*match)(struct i2c_client *);
+> +
+>   	/* Standard driver model interfaces */
+>   	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+>   	int (*remove)(struct i2c_client *);
+> 
