@@ -1,54 +1,37 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 1/3] i2c-cht-wc: Add locking to interrupt / smbus_xfer
- functions
-Date: Mon, 14 Aug 2017 22:55:07 +0200
-Message-ID: <d5e73f83-90dd-6bf2-c682-2d8da849fc49@redhat.com>
-References: <20170814201726.21045-1-hdegoede@redhat.com>
- <20170814201726.21045-2-hdegoede@redhat.com>
- <1502742959.25945.3.camel@linux.intel.com>
+From: Thor Thayer <thor.thayer@linux.intel.com>
+Subject: Re: [PATCHv6 2/2] i2c: altera: Add Altera I2C Controller driver
+Date: Mon, 14 Aug 2017 16:00:58 -0500
+Message-ID: <4e5936d1-1964-211f-8144-bb7af5208f03@linux.intel.com>
+References: <1502728113-22547-1-git-send-email-thor.thayer@linux.intel.com>
+ <1502728113-22547-2-git-send-email-thor.thayer@linux.intel.com>
+ <CAHp75VekTB2vLFpXsYhO0E5QacXe_ssCz9Bp-MpapJFCg4WJoA@mail.gmail.com>
+Reply-To: thor.thayer@linux.intel.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44948 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751644AbdHNUzJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Aug 2017 16:55:09 -0400
-In-Reply-To: <1502742959.25945.3.camel@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAHp75VekTB2vLFpXsYhO0E5QacXe_ssCz9Bp-MpapJFCg4WJoA@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
 
-Hi,
-
-On 14-08-17 22:35, Andy Shevchenko wrote:
-> On Mon, 2017-08-14 at 22:17 +0200, Hans de Goede wrote:
->> Although unlikely without locking the smbux_xfer function may miss
->> the nack flag and further fixes in this patch-set add some more
->> complex constructions which need protection.
->   
->> -	if (read_write == I2C_SMBUS_READ) {
->> +	ret = 0;
->> +	mutex_lock(&adap->adap_lock);
->> +	if (adap->nack)
->> +		ret = -EIO;
->> +	else if (read_write == I2C_SMBUS_READ) {
->>   		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA,
->> &reg);
->> -		if (ret)
->> -			return ret;
->> -
+On 08/14/2017 03:43 PM, Andy Shevchenko wrote:
+> On Mon, Aug 14, 2017 at 7:28 PM,  <thor.thayer@linux.intel.com> wrote:
+>> From: Thor Thayer <thor.thayer@linux.intel.com>
+>>
+>> Add driver support for the Altera I2C Controller. The I2C
+>> controller is soft IP for use in FPGAs.
 > 
->>   		data->byte = reg;
+> Hmm...
+> Could you remind me if I reviewed this and gave a tag?
+> If yes, where is the tag, since changelog doesn't clarify this.
 > 
-> Can this be moved out to keep logic the same (don't dirt data on error)?
+> 
 
-Setting data on error is not really a problem and this gets
-fixed in the next patch in the series where the reading
-of the data moves to the irq-handler.
+Whoops, sorry! Yes, you did review it and tagged it with
 
-Regards,
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Hans
+https://lkml.org/lkml/2017/7/26/212
