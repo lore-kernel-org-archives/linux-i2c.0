@@ -1,43 +1,76 @@
-From: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2 1/5] iio: srf08: add device tree binding for srf02 and
  srf10
-Date: Mon, 14 Aug 2017 12:39:18 +0200
-Message-ID: <20170814103918.GB3062@imap.1und1.de>
+Date: Mon, 14 Aug 2017 14:37:26 +0200
+Message-ID: <20170814123725.GA2238@katana>
 References: <20170814085941.GA9759@arbeit>
  <20170814091106.rvdvebcxfbpggmjd@ninjato>
+ <20170814103918.GB3062@imap.1und1.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from www.zeus03.de ([194.117.254.33]:51898 "EHLO mail.zeus03.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753074AbdHNMh2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 08:37:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20170814091106.rvdvebcxfbpggmjd@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20170814103918.GB3062@imap.1und1.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andreas Klinger <ak@it-klinger.de>
+Cc: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> schrieb am Mon, 14. Aug 11:11:
-> On Mon, Aug 14, 2017 at 10:59:41AM +0200, Andreas Klinger wrote:
-> > add trivial device tree binding "devantech,srf02" and "devantech,srf10"
-> > 
-> > Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-> > Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
-> 
-> Again: This file has moved since v4.12-rc1. Please rebase to v4.12 or
-> even v4.13-rc5.
-> 
 
-Then i split the patch series up in two parts:
-- patch with only device tree binding against >= v4.12
-- everything else as patch series against git tree of IIO
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok?
+On Mon, Aug 14, 2017 at 12:39:18PM +0200, Andreas Klinger wrote:
+> Wolfram Sang <wsa@the-dreams.de> schrieb am Mon, 14. Aug 11:11:
+> > On Mon, Aug 14, 2017 at 10:59:41AM +0200, Andreas Klinger wrote:
+> > > add trivial device tree binding "devantech,srf02" and "devantech,srf1=
+0"
+> > >=20
+> > > Signed-off-by: Andreas Klinger <ak@it-klinger.de>
+> > > Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > > ---
+> > >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+> >=20
+> > Again: This file has moved since v4.12-rc1. Please rebase to v4.12 or
+> > even v4.13-rc5.
+> >=20
+>=20
+> Then i split the patch series up in two parts:
+> - patch with only device tree binding against >=3D v4.12
+> - everything else as patch series against git tree of IIO
+>=20
+> Ok?
 
-Andreas
+Wooha, the master branch of iio.git is at v4.11? I see. So, this is the
+culprit, sorry! @Jonathan: is that the branch people should develop on,
+or is it your testing branch?
 
--- 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmRmYEACgkQFA3kzBSg
+KbbOig//ROG3M78W1k49GH0hBYMuRUC5RzWKXJkMdgvpUyWLlP1yEJl5CSZpfxf2
+TdO3ekU8I69fUxSaX76lr4Z3QIyoFsPzw5ccbtorZY53fb/QyisLWkTqr/xEzzpq
+2Wc8Uk+kqy7rZIsrrwlWS8egGxIm6RA5hcPXt9/vJz1CcGCxqVHKcThHq4Q22aiC
+IIWX05Cij1Fav/O9xPYwiC988dknR3rDtol1LMDNFKqtAOzdmAL2hwveL6Na7RJe
+TaQjG6MbnlLWJ00UrqsRyueHGXgXIEm+9b1fG0kmTtUrpu76PvOgfm4PwrmItm3R
+5aBm0CBboQp7GlX/PMxZ8ltK9CDgEpEW9wci1XArzxbtXc4Haiyyynlk9CMM0ocS
+LaY9knOwn/PheRoYyI7UMj2avYxy4gsLf84NqsTQzpPqwetuaC38Mp3nS+4g0IM+
+/ZgYnfx6rlIlKsvo7nRWoVPFbsDMSYbAsGP+dn4WXhEK+dOAqIq8iv0FFwJTZHQ9
+YeVqavuNoQVBtNxltiC+vvN5Nb+CRDhSyCBz2VxlQHcVh8lczmpK8VUgrPzW8Eql
++THyWGv4CTlUpm6uXkyzrm8tQYUyYkosFY7Gfpksl7FQiVsyMb959VjMlIhxkyMR
+3TNEctggObTl1CGA6m63GOuTbAd40OjRY/9N07f8/9W7I6olv/s=
+=XR9y
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--
