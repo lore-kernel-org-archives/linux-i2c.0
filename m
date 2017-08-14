@@ -1,128 +1,114 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/3] i2c-cht-wc: Add locking to interrupt / smbus_xfer functions
-Date: Mon, 14 Aug 2017 22:17:24 +0200
-Message-ID: <20170814201726.21045-2-hdegoede@redhat.com>
+Subject: [PATCH 2/3] i2c-cht-wc: Ack read irqs after reading the data register
+Date: Mon, 14 Aug 2017 22:17:25 +0200
+Message-ID: <20170814201726.21045-3-hdegoede@redhat.com>
 References: <20170814201726.21045-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37886 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52096 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751527AbdHNURa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Aug 2017 16:17:30 -0400
+        id S1751588AbdHNURb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 16:17:31 -0400
 In-Reply-To: <20170814201726.21045-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org
 
-Although unlikely without locking the smbux_xfer function may miss
-the nack flag and further fixes in this patch-set add some more
-complex constructions which need protection.
+Testing has shown that writing 1 to clear the read-complete irq does
+not work until the data register has been read first.
+
+This commit fixes the driver to read the data register first, halving the
+amount of interrupts in most cases since we mostly read on this i2c bus.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/busses/i2c-cht-wc.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-cht-wc.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-index fe5caf70c7fe..09e0df49df6b 100644
+index 09e0df49df6b..11f7e516f1b1 100644
 --- a/drivers/i2c/busses/i2c-cht-wc.c
 +++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -47,6 +47,7 @@ struct cht_wc_i2c_adap {
- 	struct i2c_adapter adapter;
- 	wait_queue_head_t wait;
- 	struct irq_chip irqchip;
-+	struct mutex adap_lock;
- 	struct mutex irqchip_lock;
- 	struct regmap *regmap;
- 	struct irq_domain *irq_domain;
-@@ -63,10 +64,13 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
- 	struct cht_wc_i2c_adap *adap = data;
- 	int ret, reg;
+@@ -55,7 +55,8 @@ struct cht_wc_i2c_adap {
+ 	int client_irq;
+ 	u8 irq_mask;
+ 	u8 old_irq_mask;
+-	bool nack;
++	int read_data;
++	bool io_error;
+ 	bool done;
+ };
  
-+	mutex_lock(&adap->adap_lock);
-+
- 	/* Read IRQs */
- 	ret = regmap_read(adap->regmap, CHT_WC_EXTCHGRIRQ, &reg);
- 	if (ret) {
- 		dev_err(&adap->adapter.dev, "Error reading extchgrirq reg\n");
-+		mutex_unlock(&adap->adap_lock);
- 		return IRQ_NONE;
- 	}
+@@ -76,6 +77,11 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
  
-@@ -80,6 +84,16 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
- 	if (ret)
- 		dev_err(&adap->adapter.dev, "Error writing extchgrirq reg\n");
+ 	reg &= ~adap->irq_mask;
  
-+	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
-+		adap->nack = !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
-+		adap->done = true;
-+	}
-+
-+	mutex_unlock(&adap->adap_lock);
-+
-+	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK)
-+		wake_up(&adap->wait);
++	/* Reads must be acked after reading the received data. */
++	ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &adap->read_data);
++	if (ret)
++		adap->io_error = true;
 +
  	/*
- 	 * Do NOT use handle_nested_irq here, the client irq handler will
- 	 * likely want to do i2c transfers and the i2c controller uses this
-@@ -96,12 +110,6 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
- 		local_irq_enable();
- 	}
+ 	 * Immediately ack IRQs, so that if new IRQs arrives while we're
+ 	 * handling the previous ones our irq will re-trigger when we're done.
+@@ -85,7 +91,7 @@ static irqreturn_t cht_wc_i2c_adap_thread_handler(int id, void *data)
+ 		dev_err(&adap->adapter.dev, "Error writing extchgrirq reg\n");
  
--	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
+ 	if (reg & CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK) {
 -		adap->nack = !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
--		adap->done = true;
--		wake_up(&adap->wait);
--	}
--
- 	return IRQ_HANDLED;
- }
- 
-@@ -119,8 +127,10 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
- 	struct cht_wc_i2c_adap *adap = i2c_get_adapdata(_adap);
- 	int ret, reg;
- 
-+	mutex_lock(&adap->adap_lock);
- 	adap->nack = false;
- 	adap->done = false;
-+	mutex_unlock(&adap->adap_lock);
- 
- 	ret = regmap_write(adap->regmap, CHT_WC_I2C_CLIENT_ADDR, addr);
- 	if (ret)
-@@ -146,18 +156,18 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
- 	ret = wait_event_timeout(adap->wait, adap->done, 3 * HZ);
- 	if (ret == 0)
- 		return -ETIMEDOUT;
--	if (adap->nack)
--		return -EIO;
- 
--	if (read_write == I2C_SMBUS_READ) {
-+	ret = 0;
-+	mutex_lock(&adap->adap_lock);
-+	if (adap->nack)
-+		ret = -EIO;
-+	else if (read_write == I2C_SMBUS_READ) {
- 		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &reg);
--		if (ret)
--			return ret;
--
- 		data->byte = reg;
++		adap->io_error |= !!(reg & CHT_WC_EXTCHGRIRQ_NACK_IRQ);
+ 		adap->done = true;
  	}
-+	mutex_unlock(&adap->adap_lock);
  
--	return 0;
-+	return ret;
- }
+@@ -125,10 +131,10 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
+ 				      union i2c_smbus_data *data)
+ {
+ 	struct cht_wc_i2c_adap *adap = i2c_get_adapdata(_adap);
+-	int ret, reg;
++	int ret;
  
- static const struct i2c_algorithm cht_wc_i2c_adap_algo = {
-@@ -241,6 +251,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+ 	mutex_lock(&adap->adap_lock);
+-	adap->nack = false;
++	adap->io_error = false;
+ 	adap->done = false;
+ 	mutex_unlock(&adap->adap_lock);
  
- 	init_waitqueue_head(&adap->wait);
-+	mutex_init(&adap->adap_lock);
- 	mutex_init(&adap->irqchip_lock);
- 	adap->irqchip = cht_wc_i2c_irq_chip;
- 	adap->regmap = pmic->regmap;
+@@ -159,12 +165,10 @@ static int cht_wc_i2c_adap_smbus_xfer(struct i2c_adapter *_adap, u16 addr,
+ 
+ 	ret = 0;
+ 	mutex_lock(&adap->adap_lock);
+-	if (adap->nack)
++	if (adap->io_error)
+ 		ret = -EIO;
+-	else if (read_write == I2C_SMBUS_READ) {
+-		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &reg);
+-		data->byte = reg;
+-	}
++	else if (read_write == I2C_SMBUS_READ)
++		data->byte = adap->read_data;
+ 	mutex_unlock(&adap->adap_lock);
+ 
+ 	return ret;
+@@ -238,7 +242,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 		.addr = 0x6b,
+ 		.properties = bq24190_props,
+ 	};
+-	int ret, irq;
++	int ret, reg, irq;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+@@ -264,6 +268,11 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 
+ 	/* Clear and activate i2c-adapter interrupts, disable client IRQ */
+ 	adap->old_irq_mask = adap->irq_mask = ~CHT_WC_EXTCHGRIRQ_ADAP_IRQMASK;
++
++	ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA, &reg);
++	if (ret)
++		return ret;
++
+ 	ret = regmap_write(adap->regmap, CHT_WC_EXTCHGRIRQ, ~adap->irq_mask);
+ 	if (ret)
+ 		return ret;
 -- 
 2.13.4
