@@ -1,33 +1,35 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [PATCH v2 2/2] i2c: mediatek: Add i2c compatible for MediaTek
- MT7622
-Date: Mon, 14 Aug 2017 09:36:56 +0800
-Message-ID: <1502674616.930.74.camel@mhfsdcap03>
-References: <1502506672-7620-1-git-send-email-jun.gao@mediatek.com>
-         <1502506672-7620-3-git-send-email-jun.gao@mediatek.com>
-         <20170812144411.zqgbncsemzaolldv@ninjato>
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH v1] i2c: aspeed: fixed potential null pointer dereference
+Date: Mon, 14 Aug 2017 13:21:19 +0930
+Message-ID: <CACPK8XfVrsg1KyxQBRJZf4Qn6mZaL2XPDMUwFoKgEAYL8SmP_A@mail.gmail.com>
+References: <20170729010012.5032-1-brendanhiggins@google.com> <20170812113250.iydbbggbcvfvhxyo@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170812144411.zqgbncsemzaolldv@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f49.google.com ([209.85.215.49]:36562 "EHLO
+        mail-lf0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751097AbdHNDvl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 13 Aug 2017 23:51:41 -0400
+In-Reply-To: <20170812113250.iydbbggbcvfvhxyo@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Patrick Venture <venture@google.com>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Sat, 2017-08-12 at 16:44 +0200, Wolfram Sang wrote:
-> > +static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-> > +	.max_num_msgs = 255,
-> > +	.max_write_len = 65535,
-> > +	.max_read_len = 65535,
-> > +	.max_comb_1st_msg_len = 65535,
-> > +	.max_comb_2nd_msg_len = 65535,
-> > +};
-> 
-> That looks like no quirks? Then just leave the quirks pointer below
-> empty.
-> 
-Compare to MT8173 i2c controller, MT7622 limits message numbers to 255.
+On Sat, Aug 12, 2017 at 9:02 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, Jul 28, 2017 at 06:00:12PM -0700, Brendan Higgins wrote:
+>> Before I skipped null checks when the master is in the STOP state; this
+>> fixes that.
+>>
+>> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+>
+> Is there a suitable "Fixes:" tag for this?
+>
 
-Jun
+The driver was introduced in 4.13, so we could add:
+
+Fixes: f327c686d3ba ("i2c: aspeed: added driver for Aspeed I2C")
+
+Cheers,
+
+Joel
