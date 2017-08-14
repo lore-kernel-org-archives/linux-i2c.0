@@ -1,121 +1,99 @@
-From: Divagar Mohandass <divagar.mohandass@intel.com>
-Subject: [PATCH v2 3/3] eeprom: at24: enable runtime pm support
-Date: Tue, 15 Aug 2017 00:11:59 +0530
-Message-ID: <1502736119-32084-4-git-send-email-divagar.mohandass@intel.com>
-References: <1502736119-32084-1-git-send-email-divagar.mohandass@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502736119-32084-1-git-send-email-divagar.mohandass@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de
-Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rajmohan.mani@intel.com, Divagar Mohandass <divagar.mohandass@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: Fix system suspend
+Date: Mon, 14 Aug 2017 21:04:40 +0200
+Message-ID: <20170814190440.jaznldtdpr7trvz4@ninjato>
+References: <1502285302-21552-1-git-send-email-ulf.hansson@linaro.org>
+ <1776600.GWYGTRKWSN@aspire.rjw.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="p7m45mzjgk7zhkql"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1776600.GWYGTRKWSN@aspire.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, "# v4 . 4+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently the device is kept in D0, there is an opportunity
-to save power by enabling runtime pm.
 
-Device can be daisy chained from PMIC and we can't rely on I2C core
-for auto resume/suspend. Driver will decide when to resume/suspend.
+--p7m45mzjgk7zhkql
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
----
- drivers/misc/eeprom/at24.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+On Wed, Aug 09, 2017 at 10:43:22PM +0200, Rafael J. Wysocki wrote:
+> On Wednesday, August 9, 2017 3:28:22 PM CEST Ulf Hansson wrote:
+> > The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
+> > during system suspend"), may suggest to the PM core to try out the so
+> > called direct_complete path for system sleep. In this path, the PM core
+> > treats a runtime suspended device as it's already in a proper low power
+> > state for system sleep, which makes it skip calling the system sleep
+> > callbacks for the device, except for the ->prepare() and the ->complete=
+()
+> > callbacks.
+> >=20
+> > However, the PM core may unset the direct_complete flag for a parent
+> > device, in case its child device are being system suspended before. In =
+this
+> > scenario, the PM core invokes the system sleep callbacks, no matter if =
+the
+> > device is runtime suspended or not.
+> >=20
+> > Particularly in cases of an existing i2c slave device, the above path is
+> > triggered, which breaks the assumption that the i2c device is always
+> > runtime resumed whenever the dw_i2c_plat_suspend() is being called.
+> >=20
+> > More precisely, dw_i2c_plat_suspend() calls clk_core_disable() and
+> > clk_core_unprepare(), for an already disabled/unprepared clock, leading=
+ to
+> > a splat in the log about clocks calls being wrongly balanced and breaki=
+ng
+> > system sleep.
+> >=20
+> > To still allow the direct_complete path in cases when it's possible, but
+> > also to keep the fix simple, let's runtime resume the i2c device in the
+> > ->suspend() callback, before continuing to put the device into low power
+> > state.
+> >=20
+> > Note, in cases when the i2c device is attached to the ACPI PM domain, t=
+his
+> > problem doesn't occur, because ACPI's ->suspend() callback, assigned to
+> > acpi_subsys_suspend(), already calls pm_runtime_resume() for the device.
+> >=20
+> > It should also be noted that this change does not fix commit 8503ff1665=
+04
+> > ("i2c: designware: Avoid unnecessary resuming during system suspend").
+> > Because for the non-ACPI case, the system sleep support was already bro=
+ken
+> > prior that point.
+> >=20
+> > Cc: <stable@vger.kernel.org> # v4.4+
+> > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+>=20
+> Looks OK to me.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2199c42..0d26681 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c.h>
- #include <linux/nvmem-provider.h>
- #include <linux/platform_data/at24.h>
-+#include <linux/pm_runtime.h>
- 
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-@@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
- static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct i2c_client *client;
- 	char *buf = val;
-+	int ret;
- 
- 	if (unlikely(!count))
- 		return count;
- 
-+	client = at24_translate_offset(at24, &off);
-+
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&client->dev);
-+		return ret;
-+	}
-+
- 	/*
- 	 * Read data from chip, protecting against concurrent updates
- 	 * from this host, but not from other I2C masters.
-@@ -527,17 +538,29 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 
- 	mutex_unlock(&at24->lock);
- 
-+	pm_runtime_put(&client->dev);
-+
- 	return 0;
- }
- 
- static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct i2c_client *client;
- 	char *buf = val;
-+	int ret;
- 
- 	if (unlikely(!count))
- 		return -EINVAL;
- 
-+	client = at24_translate_offset(at24, &off);
-+
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&client->dev);
-+		return ret;
-+	}
-+
- 	/*
- 	 * Write data to chip, protecting against concurrent updates
- 	 * from this host, but not from other I2C masters.
-@@ -559,6 +582,8 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 
- 	mutex_unlock(&at24->lock);
- 
-+	pm_runtime_put(&client->dev);
-+
- 	return 0;
- }
- 
-@@ -743,6 +768,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	i2c_set_clientdata(client, at24);
- 
-+	/* enable runtime pm */
-+	err = pm_runtime_set_active(&client->dev);
-+	if (err < 0)
-+		goto err_clients;
-+
-+	pm_runtime_enable(&client->dev);
-+
- 	/*
- 	 * Perform a one-byte test read to verify that the
- 	 * chip is functional.
-@@ -810,6 +842,8 @@ static int at24_remove(struct i2c_client *client)
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
- 
-+	pm_runtime_disable(&client->dev);
-+
- 	return 0;
- }
- 
--- 
-1.9.1
+I read this as Acked-by. If so, using the real "Acked-by" tag would be
+helpful because patchwork collects them automatically.
+
+
+--p7m45mzjgk7zhkql
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR9D8ACgkQFA3kzBSg
+Kbb+bQ//QFNzxQ9KcbeEMwx7vmVs9VGB1T7du/7Dnl8DOc1zhCgjm6V0Mv452OOu
+nQcvHNP7v2VZNayamG4Q0464qbuH4qLrd0CNoqnI0g1a5EAxERSmWwUiWch3XO1E
+fLny8OTGG8K0x5GDzvrXfVYFPrdZ4VHrXD33h0fFHiUmU2PmmegB4kv7MnqI48uV
+ocJijwO0AwMzFFwUVu6e97HBJp3lrsUhiF9MaOmFkzI37zUpEIxnrBBTVx7ybN7F
+duK0sTTEwPOEiR5P1uS4VXSxpmkipn7MaRzyKoirLr4QfHDbmLvPdNuGYdFSBZ+r
+DGVEY9DlLSLadETIys79/OOnb1iRWOTzW9zFhIB1SSsTyLHZFwKeg8+nNTEwNJr6
+8kugLicCsqobUnr+YVSlBgbglZSd3Up/DSS2ei1kja3Chg4lnta07cIInSil14fN
+o+186UmFvh7hUwWEV4M9eV97exWdTElQUweB4XeBJfsbOse6c+3Xz4/pvhF2cJnp
+ZlqTaXPPVafRzWKUXgBhUOu55+I0KFtLM7C/kkasD1UCDMGjOYpapokBG6jwgYFe
+HgXlw7tK0N7sFDRuB+kuwYdSOxpP617TxLnCn7sfCc/M836ebXk1aJkDjysBas8s
+yz3R7g5xwKWAhgwo3OKPebwY6tT3hYGtzdCqm8nzjdhsp2nzN3M=
+=s/Ae
+-----END PGP SIGNATURE-----
+
+--p7m45mzjgk7zhkql--
