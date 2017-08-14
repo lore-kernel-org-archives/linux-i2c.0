@@ -1,51 +1,32 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/3] i2c-cht-wc: Add locking to interrupt / smbus_xfer
- functions
-Date: Mon, 14 Aug 2017 23:35:59 +0300
-Message-ID: <1502742959.25945.3.camel@linux.intel.com>
-References: <20170814201726.21045-1-hdegoede@redhat.com>
-         <20170814201726.21045-2-hdegoede@redhat.com>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv6 2/2] i2c: altera: Add Altera I2C Controller driver
+Date: Mon, 14 Aug 2017 23:43:23 +0300
+Message-ID: <CAHp75VekTB2vLFpXsYhO0E5QacXe_ssCz9Bp-MpapJFCg4WJoA@mail.gmail.com>
+References: <1502728113-22547-1-git-send-email-thor.thayer@linux.intel.com> <1502728113-22547-2-git-send-email-thor.thayer@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:28427 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752031AbdHNUmC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Aug 2017 16:42:02 -0400
-In-Reply-To: <20170814201726.21045-2-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1502728113-22547-2-git-send-email-thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
 
-On Mon, 2017-08-14 at 22:17 +0200, Hans de Goede wrote:
-> Although unlikely without locking the smbux_xfer function may miss
-> the nack flag and further fixes in this patch-set add some more
-> complex constructions which need protection.
- 
-> -	if (read_write == I2C_SMBUS_READ) {
-> +	ret = 0;
-> +	mutex_lock(&adap->adap_lock);
-> +	if (adap->nack)
-> +		ret = -EIO;
-> +	else if (read_write == I2C_SMBUS_READ) {
->  		ret = regmap_read(adap->regmap, CHT_WC_I2C_RDDATA,
-> &reg);
-> -		if (ret)
-> -			return ret;
-> -
+On Mon, Aug 14, 2017 at 7:28 PM,  <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> From: Thor Thayer <thor.thayer-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
+> Add driver support for the Altera I2C Controller. The I2C
+> controller is soft IP for use in FPGAs.
 
->  		data->byte = reg;
+Hmm...
+Could you remind me if I reviewed this and gave a tag?
+If yes, where is the tag, since changelog doesn't clarify this.
 
-Can this be moved out to keep logic the same (don't dirt data on error)?
-
->  	}
-> +	mutex_unlock(&adap->adap_lock);
->  
-> -	return 0;
-> +	return ret;
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+With Best Regards,
+Andy Shevchenko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
