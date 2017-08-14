@@ -1,47 +1,56 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Mon, 14 Aug 2017 09:36:38 +0200
-Message-ID: <1502696198.2287.7.camel@pengutronix.de>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
-         <20170719211515.46a1196c@windsurf>
-         <1500543415.2354.37.camel@pengutronix.de>
-         <20170720123640.43c2ce01@windsurf>
-         <1500555312.2354.75.camel@pengutronix.de>
-         <CAKdAkRTx8jd8UToz5_EgMmdW3V47i2uo++YvVB_yzytqSA=P1Q@mail.gmail.com>
-         <CACRpkdaXOv7mX+b-q1K34CB5w0SWPXCKa21wHaxL7qjf91PJXQ@mail.gmail.com>
-         <1500885221.2391.50.camel@pengutronix.de>
-         <20170812114357.v4ru75dw5hq7wemx@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 0/2] i2c: mux: move include files out of
+ include/linux/i2c
+Date: Mon, 14 Aug 2017 10:08:18 +0200
+Message-ID: <20170814080818.tfw46axtmw2mxhwc@ninjato>
+References: <20170813135856.3454-1-wsa@the-dreams.de>
+ <4ff46816-6585-2197-5804-c0065af6d9f5@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20170812114357.v4ru75dw5hq7wemx@ninjato>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, lkml <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Prashant Gaikwad <pgaikwad@nvidia.com>, Heiko Stuebner <heiko@sntech.de>, Peter Chen <Peter.Chen@nxp.com>, DRI <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, Rakesh Iyer <riyer@nvidia.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-clk <linux-clk@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Chanwoo Choi <cw00.choi@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Jiri Slaby <jslaby@suse.com>, Michael Turquette <mturquette@baylibre.com>, Guenter
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ua22z7gh6aszezss"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:48632 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752360AbdHNIIV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 04:08:21 -0400
+Content-Disposition: inline
+In-Reply-To: <4ff46816-6585-2197-5804-c0065af6d9f5@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org
 
-On Sat, 2017-08-12 at 13:43 +0200, Wolfram Sang wrote:
-> > Thanks for the hint and the references. It seems this turned out
-> > okay,
-> > but I wouldn't dare to introduce such macro horror^Wmagic.
-> > I'd rather have all users converted to the _exclusive/_shared
-> > function
-> > calls and maybe then replace the internal __reset_control_get with
-> > Thomas' suggestion.
-> 
-> I didn't follow the discussion closely. Shall I still apply the i2c
-> patches?
 
-Yes, please.
+--ua22z7gh6aszezss
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-regards
-Philipp
+
+> Right, no problem, I'm happy to take them. However, I know I probably acked
+> them and all, but now that I look at them I see that the #includes are no
+> longer sorted. Care to fix that?
+
+Sure, will do.
+
+
+--ua22z7gh6aszezss
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmRWm4ACgkQFA3kzBSg
+Kba4gg/+KKj2dYrW2frIkzjwhLPIG4Oed1bFPuyeAts8drTrjdVxvsLEETG7+C6/
+HyyM2Ap4/7T+e2pQf4N2PkGI0e2BDGdO+TxSoCM/Szp6SQZW9N3TrEjb4eqc/5j/
+lhX6gaZsQhBL85iNLJKHg3aNjbvDQRA3J2C/lK1NbAieSfQIHpGT0g9FcWDOVARK
+c9mfpuXAsH50/ph4V2NqQ/sIHAD3XNLRQr0FrlIxxq3H6I+ywxhm+SvknytyBhoB
+KpSotXnAzAj5hw5gFqNpGbu2YigCOXM+U2VSmK4s8AEtY+8i2fx8AONWlZ0DV3qB
+I8gDa0kLTT0k0Nw08Hb0wx7RVQQHoqrTX9NyAaFITZTo3wYp1u7CORMJ0znZvll0
+PZkqsHbblEtNGYCGz9xpgM/qiiQxTij1WBxFxKAAaUsvZguJXO7wP218QqkAgzME
+SOoLYb6Wir00I+Z/zq53jOZjSU+sYonHFUdOcVZpShUyqhUgxLOVqFv29STYRXKp
+fSh/ipAIINe//4KSPpH0oHT5k6AdtRXGCPEx+bezU5XSfCyf1y7J0Rdd/fbMkiYN
+RWpQS7UAcF/HUnJF2/9aVswtwMbSGPnCLkaY4PHmKqBVmXWCd+b2STDpLi4z8VHd
+95u0w4o/5yckzmUdBARln60E43aHrHucSz7TMWKtk98iriFkJzg=
+=JDZJ
+-----END PGP SIGNATURE-----
+
+--ua22z7gh6aszezss--
