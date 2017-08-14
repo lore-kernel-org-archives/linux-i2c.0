@@ -1,71 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Mon, 14 Aug 2017 18:32:21 +0200
-Message-ID: <20170814163221.ef6rxfvtehmpq7qf@ninjato>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
- <20170706064453.GH16144@ulmo.fritz.box>
- <20170706070352.xdecvsnremwqed72@dell>
- <20170813133700.tv4ka7anvbzcplr7@ninjato>
- <20170814064247.qvggx4ito4vgjqvs@dell>
- <20170814084340.65morabelapfegph@ninjato>
- <20170814162219.GX8569@atomide.com>
- <c5e65e34-f308-f601-ba0b-d96792591727@linaro.org>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="r5bnhd66xto22335"
-Return-path: <rtc-linux+bncBDP47C6LHEIJPIOHZQCRUBAE6K6WS-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <c5e65e34-f308-f601-ba0b-d96792591727-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Daniel Thompson <daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Wim
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 0/3] mfd: move include files out of include/linux/i2c
+Date: Mon, 14 Aug 2017 18:34:21 +0200
+Message-ID: <20170814163424.2197-1-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:50014 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751752AbdHNQey (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 12:34:54 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+
+It doesn't make sense to use include/linux/i2c for client drivers which may in
+fact rather be hwmon or input or whatever devices. As a result, I want to
+deprecate include/linux/i2c for good. This series moves the include files to a
+better location, for the mfd subsystem to include/linux/mfd.
+
+V2 is mainly a rebase and acks added. Some acks are still missing, if a patch
+contains a Cc: line including you, please ack the patch if you are fine with
+it. Lee needs it to apply the change.
+
+No runtime testing because of no HW, but buildbot is happy with this series at
+least and I did build testing, too. A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
+
+Thanks and kind regards,
+
+   Wolfram
 
 
---r5bnhd66xto22335
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
+Wolfram Sang (3):
+  mfd: dm355evm_msp: move header file out of I2C realm
+  mfd: tps65010: move header file out of I2C realm
+  mfd: twl: move header file out of I2C realm
 
-> Acked-by: Daniel Thompson <daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Added, thanks!
+ arch/arm/mach-omap1/board-h2-mmc.c        | 2 +-
+ arch/arm/mach-omap1/board-h2.c            | 2 +-
+ arch/arm/mach-omap1/board-h3-mmc.c        | 2 +-
+ arch/arm/mach-omap1/board-h3.c            | 2 +-
+ arch/arm/mach-omap1/board-osk.c           | 2 +-
+ arch/arm/mach-omap2/common.h              | 2 +-
+ arch/arm/mach-omap2/omap_twl.c            | 2 +-
+ arch/arm/mach-s3c24xx/mach-osiris-dvs.c   | 2 +-
+ arch/arm/mach-s3c24xx/mach-osiris.c       | 2 +-
+ drivers/gpio/gpio-twl4030.c               | 2 +-
+ drivers/iio/adc/twl4030-madc.c            | 2 +-
+ drivers/iio/adc/twl6030-gpadc.c           | 2 +-
+ drivers/input/keyboard/twl4030_keypad.c   | 2 +-
+ drivers/input/misc/dm355evm_keys.c        | 2 +-
+ drivers/input/misc/twl4030-pwrbutton.c    | 2 +-
+ drivers/input/misc/twl4030-vibra.c        | 2 +-
+ drivers/mfd/dm355evm_msp.c                | 2 +-
+ drivers/mfd/tps65010.c                    | 2 +-
+ drivers/mfd/twl-core.c                    | 6 +++---
+ drivers/mfd/twl4030-audio.c               | 2 +-
+ drivers/mfd/twl4030-irq.c                 | 2 +-
+ drivers/mfd/twl4030-power.c               | 2 +-
+ drivers/mfd/twl6030-irq.c                 | 2 +-
+ drivers/phy/ti/phy-twl4030-usb.c          | 2 +-
+ drivers/power/supply/twl4030_charger.c    | 2 +-
+ drivers/pwm/pwm-twl-led.c                 | 2 +-
+ drivers/pwm/pwm-twl.c                     | 2 +-
+ drivers/regulator/twl-regulator.c         | 2 +-
+ drivers/regulator/twl6030-regulator.c     | 2 +-
+ drivers/rtc/rtc-dm355evm.c                | 2 +-
+ drivers/rtc/rtc-twl.c                     | 2 +-
+ drivers/usb/host/ohci-omap.c              | 2 +-
+ drivers/usb/phy/phy-isp1301-omap.c        | 2 +-
+ drivers/usb/phy/phy-twl6030-usb.c         | 2 +-
+ drivers/video/backlight/pandora_bl.c      | 2 +-
+ drivers/video/fbdev/omap/lcd_h3.c         | 2 +-
+ drivers/watchdog/twl4030_wdt.c            | 2 +-
+ include/linux/{i2c => mfd}/dm355evm_msp.h | 0
+ include/linux/{i2c => mfd}/tps65010.h     | 2 +-
+ include/linux/{i2c => mfd}/twl.h          | 0
+ sound/soc/codecs/twl4030.c                | 2 +-
+ 41 files changed, 41 insertions(+), 41 deletions(-)
+ rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+ rename include/linux/{i2c => mfd}/tps65010.h (99%)
+ rename include/linux/{i2c => mfd}/twl.h (100%)
 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
-
---r5bnhd66xto22335
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR0JUACgkQFA3kzBSg
-Kbb3UBAAgndBbA09/crNsM5iaqnA/DYgD6njMNag0No8CkC8WzDc8c1dZ3mD3+/b
-85cDD+WHMumbLsRhoqoiCMIk9izQTouKfop/DZZAA2pN0gEAcDJNyjL+4NuH/k2G
-suO6XQnuKEuNzUOcXQIrY6W3GEvO8W9WVBD2thjcu8Uf3UYFELAtAMgexqlB7JPa
-bvTGlLeCEhx8XcDz7utEjeiqJ/Ip1LjBXovQto0j/vioZ5BRaJWlfPJHDJquB9Uz
-fxJm0G4VfmT1OszuWMSZv5gTlazDKNOAadsw7swrp5jmuf3qNjCKkmztcq6rVnkm
-W5A8qOJcxjzPk9V/OmuLk/hlQAMrTHv9xmH4AuW/xnwP0OOrDb3lt9DnSGzW+pCi
-NAZfPEe5DzVlqvQ+RYWG1aM4f2lgJdGrX3EzwcPymVpN9qi+PtB+3oYgqky6CSew
-+X5sULm/xrwoh2zdgiVWTRKrdfthPtk/XfNSTpXOGtGf0ZZsUTMYrSuckTd6zmxW
-TxuuZn4fPEx18Zfpy6uxof6nnrZbEZ6jGAF+s/nWHHAPCfn+aPPFOoIF6XsTkwyE
-q6iUSzT7QIaKQ3G5p9zYzCdaWDWq5ks3mhsa9nivBKKM15V9OMBgrKAMJtl2HmYY
-YQv+A1FOXchHAzSyKL/vhyCeu0gOValLeFdtzTIJZRjyYTvhtTk=
-=ltAb
------END PGP SIGNATURE-----
-
---r5bnhd66xto22335--
+2.11.0
