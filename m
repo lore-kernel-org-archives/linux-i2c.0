@@ -1,56 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/5] iio: srf08: add device tree binding for srf02 and
- srf10
-Date: Mon, 14 Aug 2017 11:11:06 +0200
-Message-ID: <20170814091106.rvdvebcxfbpggmjd@ninjato>
-References: <20170814085941.GA9759@arbeit>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: modalias for OF-declared I2C/SPI devices
+Date: Mon, 14 Aug 2017 10:20:38 +0100
+Message-ID: <20170814092038.ddo76bcfz3vh7sld@sirena.org.uk>
+References: <20170811081429.GA9957@wunner.de>
+ <1fcd1d99-39ca-6db6-51fc-148c84f66297@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vehecvtbu6jzjx6a"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="vzh6mqtvlrn6qfhd"
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170814085941.GA9759@arbeit>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1fcd1d99-39ca-6db6-51fc-148c84f66297-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Javier Martinez Canillas <javierm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Lukas Wunner <lukas-JFq808J9C/izQB+pC5nmwQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Lennart Poettering <lennart-mdGvqq1h2p+GdvJs77BJ7Q@public.gmane.org>, Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---vehecvtbu6jzjx6a
+--vzh6mqtvlrn6qfhd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 14, 2017 at 10:59:41AM +0200, Andreas Klinger wrote:
-> add trivial device tree binding "devantech,srf02" and "devantech,srf10"
->=20
-> Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
-> Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+On Fri, Aug 11, 2017 at 04:11:51PM +0200, Javier Martinez Canillas wrote:
+> On 08/11/2017 10:14 AM, Lukas Wunner wrote:
 
-Again: This file has moved since v4.12-rc1. Please rebase to v4.12 or
-even v4.13-rc5.
+> > The reason I came across this issue is that module autoloading fails for
+> > drivers/gpio/gpio-74x164.c as it only declares an "of" MODULE_DEVICE_TABLE.
+> > I was going to upstream a GPIO and an IIO driver, both SPI-based, and was
+> > wondering what the current best practice is:  Should I only declare an
+> > "of" MODULE_DEVICE_TABLE or should I also provide an "spi"
+> > MODULE_DEVICE_TABLE?
 
+> That's a question for Mark Brown. My opinion (since I'm not a maintainer) is
+> that you should add a SPI device ID table and export it as spi:<foo> aliases
+> until this is properly fixed.
 
---vehecvtbu6jzjx6a
+Declare both.  Apart from anything else not all the world is DT.
+
+> The correct way to fix this is to move this into the device model instead of
+> all subsystem types duplicating the same uevent logic and requiring a table
+> per each firmware interface. But that's a much bigger task...
+
+Yes.
+
+--vzh6mqtvlrn6qfhd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmRaSoACgkQFA3kzBSg
-KbakJw/+LZTTTkS3sKtt4Eg5vrbPueM65Bm6Au85zqVi1xl6Ews8SLQ+Anzul7Ho
-JmgrhgaunBiCBsCxeUuUkwghJe31fD8WaGaB2+KT4mHfew5PwAYxU7k28vU6pZOv
-erGi2+xlOSimtlieRfB668ghV3EGA9bR5WS/3gtoCCqBjL3aMT+9u9bFUSyPKq5a
-+AD6Glbv6oCuaeOd9xH4eblwaS/wAfEFujGZZOgEwRbGaW/OYRl7fCJS9/Dl/K1Z
-gUPrbpwA4E0ST3o4y1zAq0wojtte+VolvnW0jpuwmvdNS396tbkLyBKeIkoUK3S+
-m+NDvQhNVraAYe/NjW5k1X8cPkpVvu5iJvb0VbwugsVdaFoy3udW+RzGzhpEz/8D
-iQ9BrIolrPGgsxMVEJNRlJlCqusH2ueY60Yow8SvTFcSh9CUu1eydz+geh2PRQWY
-bTe9mz5m91lZdFoIBmtbHlYjwGkNaMEGB9uOiOropCU6fiWmeY2jXg60lAl/5IZP
-2MKKOq1RBm+Ekb5ZGhPRgu501kMW/7rTVkxeyg0lSktaKNI7n4MUpDyXBcKX95S4
-5BZyt3zuoF4KSr5zLm7cGi9RnnIudeLYCVQ+KgHfhX+gD6WtfTzUTd4fs3JzG6qD
-wGTq8yr1So2/XOLAcojHWNxg2hUEQWG9lIlOgslbsdgScL/o/sA=
-=jOc0
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmRa2AACgkQJNaLcl1U
+h9A6QAf+I2VEnk2MMNzyTrORsxwgr2lDcpwsAKioYpAnsJTzwiT/TofpdejKK2k9
+61i9irsIAFkc8N1qAGs3ReEnSq8gucqFd1pG2BzdhpSIAhEXF4Rlj7Q4m+sbAI0a
+N7Cm7sbo9A4o4IGR9zfufHnr9CKoYFZQyjWd5wguo2bf5c6Ck3CLRTh6nv608Q/z
+HC0treKWGqozIDbh0OLw5ge14FnBAWmjMFecSYLSETj1ai2kFvBYKFagFaoUuBDX
+LZCY90p/tY5/Cyb7cl2voawFL6Hu+Z5v/0tcCpDi3qH08claa4gm1cpP17SZm/df
+MT3LwDNa0SHY60zDcvfvHcEiA5ORkg==
+=wf6e
 -----END PGP SIGNATURE-----
 
---vehecvtbu6jzjx6a--
+--vzh6mqtvlrn6qfhd--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
