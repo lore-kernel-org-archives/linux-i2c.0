@@ -1,84 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: ismt: Fix length handling for SMBus block reads
-Date: Mon, 14 Aug 2017 21:31:05 +0200
-Message-ID: <20170814193105.cosdlbf5gypazlzn@ninjato>
-References: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
+Subject: Re: [PATCH] i2c: core: Make comment about I2C table requirement to
+ reflect the code
+Date: Mon, 14 Aug 2017 21:34:23 +0200
+Message-ID: <20170814193423.er7hpbxpddztltwp@ninjato>
+References: <20170809092128.29202-1-javierm@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rucubi6p2bc74llv"
+        protocol="application/pgp-signature"; boundary="u72mrwjl2p4zu6vs"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:50518 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:50537 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750896AbdHNTbH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 14 Aug 2017 15:31:07 -0400
+        id S1750771AbdHNTeY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 15:34:24 -0400
 Content-Disposition: inline
-In-Reply-To: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
+In-Reply-To: <20170809092128.29202-1-javierm@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Stephen Douthit <stephend@adiengineering.com>
-Cc: seth.heasley@intel.com, nhorman@tuxdriver.com, danp@adiengineering.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Javier Martinez Canillas <javierm@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---rucubi6p2bc74llv
+--u72mrwjl2p4zu6vs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 07, 2017 at 05:10:58PM -0400, Stephen Douthit wrote:
-> Hello all,
+On Wed, Aug 09, 2017 at 11:21:28AM +0200, Javier Martinez Canillas wrote:
+> I2C drivers were required to have an I2C device ID table even if were for
+> devices that would only be registered using a specific firmware interface
+> (e.g: OF or ACPI).
 >=20
-> We ran into an issue where the ipmi_ssif and i2c-ismt drivers don't
-> agree on the format for data returned by i2c_smbus_read_block_data()
+> But commit da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed
+> devices") changed the I2C core to relax the requirement and allow drivers
+> to avoid defining this table.
 >=20
-> Looking at the traffic on the wire with a beagle analyzer:
-> -----
-> Packet Details   (Values in hex; [S] =3D Start condition;
->                   [P] =3D Stop condition; * =3D No Ack)
-> [S] <10:R> 12 1C 01 00 00 80 02 1C 02 8F BE 12 00 25 12 41 01 00 00* [P]
-> -----
+> Unfortunately it only took into account drivers for OF-only devices and
+> forgot about ACPI-only ones, and this was fixed by commit c64ffff7a9d1
+> ("i2c: core: Allow empty id_table in ACPI case as well").
 >=20
-> Looking at the matching kernel trace:
-> -----
-> kssif0010-759   [001] ....  1435.891090: smbus_read: i2c-0 a=3D010 f=3D00=
-00 c=3D3 BLOCK_DATA
-> kssif0010-759   [001] ....  1436.202906: smbus_reply: i2c-0 a=3D010 f=3D0=
-000 c=3D3 BLOCK_DATA l=3D20 [13-12-1c-01-00-00-80-02-1c-02-8f-be-12-00-25-1=
-2-41-01-00-00]
-> kssif0010-759   [001] ....  1436.202908: smbus_result: i2c-0 a=3D010 f=3D=
-0000 c=3D3 BLOCK_DATA rd res=3D0
-> -----
+> But the latter didn't update the original comment, so it doesn't reflect
+> what the code does now.
 >=20
-> So basically the byte count already precedes the data in the dma_buffer,
-> then the driver sticks desc->rxbytes in front of this resulting in the
-> trace above.
->=20
-> The first patch tackles this.
->=20
-> The second patch in the series adds a sanity check on the byte count
-> supplied by the slave device.  This might be a nice to have, but is
-> probably less critical.
+> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 
-Both patches look good to me. Seth, Neil, do you agree?
+Applied to for-current, thanks!
 
 
---rucubi6p2bc74llv
+--u72mrwjl2p4zu6vs
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR+nkACgkQFA3kzBSg
-KbYEIw/9EHubsFO9CyG0k7Q46YysKinxkoyVSukBvwSeq/WM3S6nfnPX2zU0d/cK
-sxJ76WvKI3p8q9LwzuxI8TFKTd9kB2VbZYBxGjPbJLM/k5JGP2Of4RHx6KV4WuQO
-UTLCpKJnxQTzhorULmdOxTmmhzTvrACLLN6gfXa89yWClP1m2J9CsoBtid4kp37X
-6lrrt2VEEB5NeUQAiQtocvwphh23lPdmSeVKfsyxYl4HCQTp5A1HEEIBvlSUgND4
-Q8ODo75vY2uZNoUgRror5tfjojKu5kznCMJlI5PHUXboBNFEh0s+O0SHsvm5TxYk
-eZSHIKQmpvlr3vqt01E7aOoNFK4AB5zP4aRbU8Ww+0CA5L2MAkqivaK2f1rciy7f
-JXN/x4F0pq1r+RydQ3UmaDM6taPJc/nqfs06SlHHQNtCy+BnCRx1/WObZjqKBWIm
-b4IhQJGLcHGmfugfn5SIdLjAHXjMCWZphiAa2U1g/ejS48q5p1+jh3VvVmxrLsyV
-GQ7Q6VNit2UlDkF/6fKMnuYeeu1R57j71OuMfdwpHk5zPGTGjuTDxCv9ksM+9Q+m
-Qf2ihk2DMLJWnfm9Uy8bnKB/Sef3/1dwFK89I42KOApybtCOku8ZWDEbSMLopqeY
-vBnwbJybVnzHzTV8l/cw+POixhs9ZDso5FFp9dkybSJsZ2/aEts=
-=KOLd
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR+z4ACgkQFA3kzBSg
+KbaX8RAAq1r+TnY1suuSHqaMFF91h9RmRq3qu5Qop92OJxGvg+Wb3KXv61qUyiGK
+Wn1OkiItS8AsY8LdMyB1KrtLDecGXsCIFgV0tJL6jypyJDDpS4OsHl/YRqP9QO7Z
+otpV8gooU8Eonkd1CNWAijHCvrwMc6QLCxVKYxBM48abr+NMXf8pUjfB8K6t1VBh
+UO/fMGEFDvlJrEhrzZ/KoCEclhI2/019y/qxoJwo0RJvNZxpzmZxk6bFtjfusJdJ
+b4Z15W/nsV5Wg7bKEDL4Od4xDiKy9tDhJGj6JYyUSwoRsRDpvWnK8Hanerwzx6KT
+V0mJrow8ACenTPOLHTs39HM6hb+njToWnGqxxN3S7Dfjxb90Z6I4WMmgG1hCzf59
+OyIEu444noIS1S0pv+CSEWt3yFICr2b/cV4zrlTBwkBul4WAlnfZB/FyhPbMYihf
+n+H8ridLm5RtCxoaoUfgiw+csMv6MDiG2B8wYvMErfq9yFAUBOZcf2bT1vo54v0v
+YE1FK8F2YqyzqrI0BbBACprrJDCm2KXhxlFQwQCIPZ37Ori3zaipBGzz57P3aMFx
+h92gtQooDqqrgAeo66j8ICHptG4aI9aNmUyHHkAb/YH3QqBRQT9xiC+z8twGdmJU
+IOciGvACcpn88p1ynfO2i2obANlbW4GtuRXtlN+8sr5t+IwlxnQ=
+=iqDG
 -----END PGP SIGNATURE-----
 
---rucubi6p2bc74llv--
+--u72mrwjl2p4zu6vs--
