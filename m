@@ -1,56 +1,48 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/3] mfd: tps65010: move header file out of I2C realm
-Date: Mon, 14 Aug 2017 09:44:12 +0100
-Message-ID: <20170814084412.dfbsqfwrgmy5bsu3@dell>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-3-wsa@the-dreams.de>
- <20170523071819.4zpdef7ofzz3moil@dell>
- <20170813133445.vqbfelwshvrififp@ninjato>
- <20170814064355.foiilzr5cmwk65hr@dell>
+From: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+Subject: [PATCH v2 0/5] iio: srf08: add support for similar devices and
+ triggered buffers
+Date: Mon, 14 Aug 2017 10:59:00 +0200
+Message-ID: <20170814085900.GA9722@arbeit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170814064355.foiilzr5cmwk65hr@dell>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Felipe Balbi <balbi@kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 14 Aug 2017, Lee Jones wrote:
+This patch series adds support for:
+- triggered buffer
+- ultrasonic devices srf02 and srf10
 
-> On Sun, 13 Aug 2017, Wolfram Sang wrote:
-> 
-> > On Tue, May 23, 2017 at 08:18:19AM +0100, Lee Jones wrote:
-> > > On Mon, 22 May 2017, Wolfram Sang wrote:
-> > > 
-> > > > include/linux/i2c is not for client devices. Move the header file to a
-> > > > more appropriate location.
-> > > > 
-> > > > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> > > > ---
-> > > >  arch/arm/mach-omap1/board-h2-mmc.c      | 2 +-
-> > > >  arch/arm/mach-omap1/board-h2.c          | 2 +-
-> > > >  arch/arm/mach-omap1/board-h3-mmc.c      | 2 +-
-> > > >  arch/arm/mach-omap1/board-h3.c          | 2 +-
-> > > >  arch/arm/mach-omap1/board-osk.c         | 2 +-
-> > > >  arch/arm/mach-s3c24xx/mach-osiris-dvs.c | 2 +-
-> > > >  arch/arm/mach-s3c24xx/mach-osiris.c     | 2 +-
-> > > 
-> > > >  drivers/mfd/tps65010.c                  | 2 +-
-> > > 
-> > > For my own reference:
-> > >   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-> > 
-> > Same here: ok for 4.14 or something needed?
-> 
-> Can this patch be applied on its own, or does it have dependencies?
+Thanks to Jonathan for his review which lined out improvements throughout
+the patches.
 
-Even if it doesn't, it still requires Acks.
+I'm not sure, if the cc of [PATCH v2 1/5] is correct now.
+
+Changes in v2:
+- removed unnecessary patch "[PATCH 6/7] iio: srf08: add buffered to device
+  mode"
+- incorporated patch "[PATCH 7/7] iio: srf08: change text in Kconfig" where
+  suitable
+- changed order of patches to improve logical flow of changes
+- improved distinction of sensor types
+
+Andreas Klinger (5):
+  iio: srf08: add device tree binding for srf02 and srf10
+  iio: srf08: add device tree table
+  iio: srf08: add triggered buffer support
+  iio: srf08: add sensor type srf10
+  iio: srf08: add support for srf02 in i2c mode
+
+ .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
+ drivers/iio/proximity/Kconfig                      |   8 +-
+ drivers/iio/proximity/srf08.c                      | 191 ++++++++++++++++++---
+ 3 files changed, 169 insertions(+), 32 deletions(-)
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.1.4
+
+
+-- 
