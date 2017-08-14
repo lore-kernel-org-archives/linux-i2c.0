@@ -1,66 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: slave-eeprom: Add an OF device ID table
-Date: Mon, 14 Aug 2017 21:52:36 +0200
-Message-ID: <20170814195236.4miomp2omul5qikt@ninjato>
-References: <20170809101256.31204-1-javierm@redhat.com>
+Subject: Re: [PATCH v1] i2c: aspeed: fixed potential null pointer dereference
+Date: Mon, 14 Aug 2017 22:09:13 +0200
+Message-ID: <20170814200913.l7wan6wpmv3tcjoj@ninjato>
+References: <20170729010012.5032-1-brendanhiggins@google.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="axy4lceqhp2ztxms"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="32qhdm5jlgtls5kd"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:50668 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752124AbdHNUJP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 14 Aug 2017 16:09:15 -0400
 Content-Disposition: inline
-In-Reply-To: <20170809101256.31204-1-javierm@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javierm@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org
+In-Reply-To: <20170729010012.5032-1-brendanhiggins@google.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Brendan Higgins <brendanhiggins@google.com>
+Cc: benh@kernel.crashing.org, joel@jms.id.au, venture@google.com, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org
 
 
---axy4lceqhp2ztxms
+--32qhdm5jlgtls5kd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 09, 2017 at 12:12:56PM +0200, Javier Martinez Canillas wrote:
-> The driver doesn't have a struct of_device_id table but supported devices
-> are registered via Device Trees as shown in the following DT binding doc:
+On Fri, Jul 28, 2017 at 06:00:12PM -0700, Brendan Higgins wrote:
+> Before I skipped null checks when the master is in the STOP state; this
+> fixes that.
 >=20
-> Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
 
-Uhhh, that needs to be fixed to something else! I don't think i2c slave
-functionality should be described in DT. The slave functionality is pure
-software, so IMO it doesn't match the "HW description" requirement.
-
-> But this works on the assumption that a I2C device registered via OF will
-> always match a legacy I2C device ID and that the MODALIAS reported will
-> always be of the form i2c:<device>.
->=20
-> And this could change in the future so the correct approach is to have an
-> OF device ID table if the devices are registered via OF.
->=20
-> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-
-Thanks for finding the issue, still NAK to this patch. Are you
-interested in updating the docs?
+Applied to for-current, thanks!
 
 
---axy4lceqhp2ztxms
+--32qhdm5jlgtls5kd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmR/4QACgkQFA3kzBSg
-KbY6KQ/8CAl8v5SLo488XYsCvssJBJ5RjcjwL4P3oUyM/UjbMTYK/sfXAR5zU2Gc
-bWM9zeIA+Ys2kF2Jv9obgbxjQcx3tHgOsohU4OXRbRK5Y1n3bigGykuBWHA9Xt7T
-vc1nqwQpwbSArByyY68f7gSLJp3FTyTvhcRfLgN+dLtPqSAjpIbzxwvT58zN6X/a
-ZjoFkUlf6nfa+ZNqK0tKZnf2yjssXe/UXNYBecDTUxYih6MzAhJSn96rP5ySBIeg
-jCtCVgZswk82pZgY4aWIYcERtLCsyqWWuh1Buy5j8KFsbQpUve5Kv5OmCaa0YEm3
-oczUTIGXJI4oQ5xXniEQbCWyvRQORYgrJ603z5zBCs+tbgHdE92L6C/Fpuq6edMn
-baWj2BKmKK4F6cKIJO0/MT8w/tC0h/f3RqIjhXt8mHZKDT0IiK9GN7g6/PatUup8
-MJmq7of1PRKXVQVao2KtCRHLUQYUoD1TWtWJkTB6o5oi+Mbdci43MqB0VjOZwp4z
-UkoVv0J6jvDywynRpKzKfskolso8/pm0+uSa3WWNy7c9kx5e6OWP4uQAbnnr+k8i
-CNkx4Sc4kUYc74lNMIkxfHOQXEyVxA854sVQQuUz7HoB1KMkvBuAV9MuXBcGV8cx
-I09uvptgNZN09DyWWmi72HksMbpvipTEUY+jJOOgJefxJoGh2rI=
-=i/Xq
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmSA2UACgkQFA3kzBSg
+KbYXlQ//WqOJtd9dUU6wKQ3MeWBN42GNgv+nBB2+31uKroACemCZFRuyRJ7ZCVkQ
+V/uOxPBCG9hu2zyya0x/qUJGeM3mUYIv3CghO6I5QVz06xGJZD1YHGrualy692Pn
+Jr1lCzd00cheC2SMjM5NWRYyExd37o93Akib3yocfXNFtDUuf4nexSc6WLj0pZz6
+zDx9sa1FUAr5dZ/N7Gc8wnfScbn5qPqrsup0fdIJvKIvCJLmmOsT3c1FL/sBwo89
+gM8EJcj+ZC/nf/f7osKDP5NMb0Leh377m5A5sbvcRl4NSf3hf2JVXA+a2ggTcVUN
+pDuRkbzK54KsbAUUOKrKyj7lsHxL9ty/wWifvfQ9vzsTa5B6DPMsE+r1E+rlyYUa
+clmwtFYt8ydQgDZnIw1r5s9gmtGTJx7FZS0uFrbuExH1Veyv1m79yXLKo0uS0T8z
+lJBW9LZdP2Cn1gjz8Tz3XNkhDHksuZYDkUOzO+EjlSLe43LkLoSp59GbM5h5eGTv
+6m/JKpC99dGHDjOA9J8yPe3SyOWXyhCPARFBy71YjcKV8VvhT/8tQDAbj0GczWLW
+Lb8VxMY5pdvTcFp3eZrAxP0QW5YQ7ppN3O6Y4curjWlImDiw9uln6nj/t95xU4i/
+21Vq/8dmhX+NuIf/2tEVBwfT1WTy53PeOjHiGsXvJ2ig1M8Fq6M=
+=HC57
 -----END PGP SIGNATURE-----
 
---axy4lceqhp2ztxms--
+--32qhdm5jlgtls5kd--
