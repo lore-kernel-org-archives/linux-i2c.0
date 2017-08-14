@@ -1,70 +1,83 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: core: Allow the driver to override the default
- i2c_bus match behavior
-Date: Mon, 14 Aug 2017 23:21:15 +0200
-Message-ID: <20170814212115.GA5142@katana>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <de6bf483-9ef4-522b-507d-272f736bcabc@redhat.com>
+From: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Subject: [PATCH 1/4] i2c: i801: Restore the presence state of P2SB PCI device after reading BAR
+Date: Mon, 14 Aug 2017 23:46:48 +0800
+Message-ID: <20170814154648.21566-1-qiuxu.zhuo@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <de6bf483-9ef4-522b-507d-272f736bcabc@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:8791 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752167AbdHOGfB (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 15 Aug 2017 02:35:01 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, wsa@the-dreams.de
+Cc: tony.luck@intel.com, mika.westerberg@intel.com, bp@alien8.de, linux-i2c@vger.kernel.org, Qiuxu Zhuo <qiuxu.zhuo@intel.com>
 
+Sun, Yunying reported the following failure on Denverton micro-server:
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ EDAC DEBUG: pnd2_init:
+ EDAC DEBUG: pnd2_probe:
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_tolud_pci=00000000_80000000
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_lo_pci=00000000_80000000
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_hi_pci=00000000_00000004
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region0_mchbar=00000000_00000000
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region1_mchbar=00000000_00000000
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_base_mchbar=00000000_00000000
+ EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_mask_mchbar=00000000_00000000
+ EDAC pnd2: Failed to register device with error -19.
 
-On Mon, Aug 14, 2017 at 10:13:23PM +0200, Hans de Goede wrote:
-> Hi,
->=20
-> On 22-07-17 20:55, Hans de Goede wrote:
-> >Some ACPI devices report multiple ids for a single i2c_client, while not
-> >really implementing the hw-interface asociated with some of these ids.
-> >
-> >For some of these devices calling probe and having probe fail with
-> >-ENODEV is a problem in itself as this causes the device to be
-> >powered-up and down again (causes its PS0 and PS3 ACPI methods to be
-> >executed) which puts some devices in an unusable state.
-> >
-> >This commit adds a match callback to i2c_driver, allowing drivers to
-> >override the default i2c_bus match behavior and tell the core they
-> >are not the right driver for the device, avoiding i2c_bus_type.probe
-> >getting called, avoiding the undesirable power up / down cycle.
-> >
-> >Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> What is the status of this series ? I thought there was agreement
-> on merging this through the i2c (wsa/linux.git) tree ?
+On Denverton micro-server, the presence of the P2SB bridge PCI device is
+enabled or disabled by the item 'RelaxSecConf' in BIOS setup menu. When
+'RelaxSecConf' is enabled, the P2SB PCI device is present and the pnd2_edac
+EDAC driver also uses it to get BAR. Hiding the P2SB PCI device caused the
+pnd2_edac EDAC driver failed to get BAR then reported the above failure.
 
-Yes, but I need to review the I2C core changes first.
+Therefor, store the presence state of P2SB PCI device before unhiding it
+for reading BAR and restore the presence state after reading BAR.
 
+Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Reported-and-tested-by: Yunying Sun <yunying.sun@intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmSFEcACgkQFA3kzBSg
-KbZRXg/7BJuQgjl1XSMgZ4IjKAl3MgLMhUql4jgvOlV4Pl2NgIhqx2W4L4lMitfM
-RylBdPL4y4F/NBt/85zhu7Jh63oEfWdp16OBxspu0LyIIOgqYSuJnigyPTKA1EQB
-PqE9+1ZVoZdrqa4QmQbm8LmhHlrYS8PSK5NQ+LAv0kglfSJf9biKs1I4GkgdW6pO
-xfgH0WESpjOeWqCh9SNoWK5kEkP2rLbGTEpr5PkhhH5jrL/50Of1jzzC5w4XqniS
-Vp+mZM1+gixiyVLZtaFVst9a42/LzH3JdgYfpcZNZlZmyFozJxQ6mb7WUxZl+4ua
-dhejx3VgpDFz6tUs+ret92MEbjLXEPOiutJSreqe+uMiEF7mKpLpd2uA7oS640FK
-IqfkM8F4X8mipk4m2IS7AqX9Q7XlE0KIs6Du+DrGM51g+OSDSbPI4oDNDKtZmr3O
-X7Q7l/5B6ldvrdiLwSVajSel5nghrzYffEGiCHjB5FAvEOkGF7Ecs362NcYLNR+H
-/hzri8S2Z1NGwipKhekSe2KWXjHGX4qAYI3wqf7c35B2RwTWEckQne1YuuaNI/OG
-l1jpOLi92OUrWhbtwEbj6u+0dvd/n33O6ofoETO9u5C7PKk75o+cQnSUQlrLs9/O
-xWB6u60W4nTqqrTdDEl3kodenWCzUhPXxU+zsIEZCs0CdyMpH4Y=
-=Cnez
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index c9536e1..e114e4e 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1332,6 +1332,7 @@ static void i801_add_tco(struct i801_priv *priv)
+ 	u32 tco_base, tco_ctl;
+ 	u32 base_addr, ctrl_val;
+ 	u64 base64_addr;
++	u8 hidden;
+ 
+ 	if (!(priv->features & FEATURE_TCO))
+ 		return;
+@@ -1376,8 +1377,10 @@ static void i801_add_tco(struct i801_priv *priv)
+ 
+ 	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 1);
+ 
+-	/* Unhide the P2SB device */
+-	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
++	/* Unhide the P2SB device, if it is hidden */
++	pci_bus_read_config_byte(pci_dev->bus, devfn, 0xe1, &hidden);
++	if (hidden)
++		pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x0);
+ 
+ 	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR, &base_addr);
+ 	base64_addr = base_addr & 0xfffffff0;
+@@ -1385,8 +1388,9 @@ static void i801_add_tco(struct i801_priv *priv)
+ 	pci_bus_read_config_dword(pci_dev->bus, devfn, SBREG_BAR + 0x4, &base_addr);
+ 	base64_addr |= (u64)base_addr << 32;
+ 
+-	/* Hide the P2SB device */
+-	pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, 0x1);
++	/* Hide the P2SB device, if it was hidden before */
++	if (hidden)
++		pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, hidden);
+ 	spin_unlock(&p2sb_spinlock);
+ 
+ 	res = &tco_res[ICH_RES_MEM_OFF];
+-- 
+2.9.0.GIT
