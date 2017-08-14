@@ -1,58 +1,80 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
-Date: Mon, 14 Aug 2017 09:22:20 -0700
-Message-ID: <20170814162219.GX8569@atomide.com>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-4-wsa@the-dreams.de>
- <20170706064453.GH16144@ulmo.fritz.box>
- <20170706070352.xdecvsnremwqed72@dell>
- <20170813133700.tv4ka7anvbzcplr7@ninjato>
- <20170814064247.qvggx4ito4vgjqvs@dell>
- <20170814084340.65morabelapfegph@ninjato>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <rtc-linux+bncBCQPVKWLVAIRBRE4Y7GAKGQEQSRITUA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20170814084340.65morabelapfegph@ninjato>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Daniel Thompson <daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.>
+From: thor.thayer@linux.intel.com
+Subject: [PATCHv6 1/2] dt-bindings: i2c: Add Altera I2C Controller
+Date: Mon, 14 Aug 2017 11:28:32 -0500
+Message-ID: <1502728113-22547-1-git-send-email-thor.thayer@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, thor.thayer@linux.intel.com, andy.shevchenko@gmail.com
+Cc: davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> [170814 01:43]:
-> 
-> > > Given the triviality of the change for non-MFD subsystems, can we apply
-> > > this for 4.14?
-> > 
-> > I can't apply anything without Acks for *all* of the subsystems above.
-> 
-> Well, there are cases when you can. Those should be exceptions and well
-> justified, of course.
-> 
-> > My suggestion would be to collect the Acks you've received up until
-> > this point and identify which SS's are still lacking in change log
-> > section of a RESEND.
-> 
-> I agree, though, that I can try a second round to get the acks.
+From: Thor Thayer <thor.thayer@linux.intel.com>
 
-As long as it's been compile tested with omap2plus_defconfig:
+Add the documentation to support the Altera synthesizable
+logic I2C Controller in FPGA.
 
-Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+Acked-by: Rob Herring <robh@kernel.org>
+---
+v2  Change the subject to identify dt-bindings
+    Add synthesizable logic to description.
+    Change compatible string to "altr,softip-i2c"
+    Make description of clock phandle singular since 1 clock.
+    Remove altr, from fifo-size
+    Specify fifo-size is in bytes.
+v3  Add version to compatible string "altr,softip-i2c-v1.0"
+    Add for use in FPGA in description.
+v4  No Change - Add Acked-by
+v5-6  No Change
+---
+ .../devicetree/bindings/i2c/i2c-altera.txt         | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
 
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-altera.txt b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
+new file mode 100644
+index 0000000..767664f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-altera.txt
+@@ -0,0 +1,39 @@
++* Altera I2C Controller
++* This is Altera's synthesizable logic block I2C Controller for use
++* in Altera's FPGAs.
++
++Required properties :
++ - compatible : should be "altr,softip-i2c-v1.0"
++ - reg        : Offset and length of the register set for the device
++ - interrupts : <IRQ> where IRQ is the interrupt number.
++ - clocks     : phandle to input clock.
++ - #address-cells = <1>;
++ - #size-cells = <0>;
++
++Recommended properties :
++ - clock-frequency : desired I2C bus clock frequency in Hz.
++
++Optional properties :
++ - fifo-size : Size of the RX and TX FIFOs in bytes.
++ - Child nodes conforming to i2c bus binding
++
++Example :
++
++	i2c@100080000 {
++		compatible = "altr,softip-i2c-v1.0";
++		reg = <0x00000001 0x00080000 0x00000040>;
++		interrupt-parent = <&intc>;
++		interrupts = <0 43 4>;
++		clocks = <&clk_0>;
++		clock-frequency = <100000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		fifo-size = <4>;
++
++		eeprom@51 {
++			compatible = "atmel,24c32";
++			reg = <0x51>;
++			pagesize = <32>;
++		};
++	};
++
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+2.7.4
