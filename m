@@ -1,47 +1,63 @@
-From: Mika Westerberg <mika.westerberg@intel.com>
-Subject: Re: [PATCH 1/1] i2c: i801: Restore the presence state of P2SB PCI
- device after reading BAR
-Date: Tue, 15 Aug 2017 10:13:28 +0300
-Message-ID: <20170815071328.GJ2369@lahna.fi.intel.com>
-References: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:40226 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753320AbdHOHOO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 15 Aug 2017 03:14:14 -0400
-Content-Disposition: inline
-In-Reply-To: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andrew Jeffery <andrew@aj.id.au>
+Subject: [PATCH] i2c: aspeed: Retain delay/setup/hold values when configuring bus frequency
+Date: Tue, 15 Aug 2017 16:51:02 +0930
+Message-ID: <20170815072102.23067-1-andrew@aj.id.au>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Andrew Jeffery <andrew@aj.id.au>, wsa@the-dreams.de, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
 List-Id: linux-i2c@vger.kernel.org
-To: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: jdelvare@suse.com, wsa@the-dreams.de, tony.luck@intel.com, bp@alien8.de, linux-i2c@vger.kernel.org
 
-On Tue, Aug 15, 2017 at 12:04:50AM +0800, Qiuxu Zhuo wrote:
-> Sun, Yunying reported the following failure on Denverton micro-server:
-> 
->  EDAC DEBUG: pnd2_init:
->  EDAC DEBUG: pnd2_probe:
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_tolud_pci=00000000_80000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_lo_pci=00000000_80000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_hi_pci=00000000_00000004
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region0_mchbar=00000000_00000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region1_mchbar=00000000_00000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_base_mchbar=00000000_00000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_mask_mchbar=00000000_00000000
->  EDAC pnd2: Failed to register device with error -19.
-> 
-> On Denverton micro-server, the presence of the P2SB bridge PCI device is
-> enabled or disabled by the item 'RelaxSecConf' in BIOS setup menu. When
-> 'RelaxSecConf' is enabled, the P2SB PCI device is present and the pnd2_edac
-> EDAC driver also uses it to get BAR. Hiding the P2SB PCI device caused the
-> pnd2_edac EDAC driver failed to get BAR then reported the above failure.
-> 
-> Therefor, store the presence state of P2SB PCI device before unhiding it
-> for reading BAR and restore the presence state after reading BAR.
-> 
-> Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-> Reported-and-tested-by: Yunying Sun <yunying.sun@intel.com>
+In addition to the base, low and high clock configuration, the AC timing
+register #1 on the AST2400 houses fields controlling:
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+1. tBUF: Minimum delay between Stop and Start conditions
+2. tHDSTA: Hold time for the Start condition
+3. tACST: Setup time for Start and Stop conditions, and hold time for the
+   Repeated Start condition
+
+These values are defined in hardware on the AST2500 and therefore don't
+need to be set.
+
+aspeed_i2c_init_clk() was performing a direct write of the generated
+clock values rather than a read/mask/modify/update sequence to retain
+tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
+fields on the AST2400. This resulted in a delay/setup/hold time of 1
+base clock, which in some configurations is not enough for some devices
+(e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
+bus speed of 100kHz).
+
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+---
+ drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index ee76e6dddc4b..284f8670dbeb 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -53,6 +53,9 @@
+ #define ASPEED_I2CD_MASTER_EN				BIT(0)
+ 
+ /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
++#define ASPEED_I2CD_TIME_TBUF_MASK			GENMASK(31, 28)
++#define ASPEED_I2CD_TIME_THDSTA_MASK			GENMASK(27, 24)
++#define ASPEED_I2CD_TIME_TACST_MASK			GENMASK(23, 20)
+ #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT			16
+ #define ASPEED_I2CD_TIME_SCL_HIGH_MASK			GENMASK(19, 16)
+ #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT			12
+@@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
+ 	u32 divisor, clk_reg_val;
+ 
+ 	divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
+-	clk_reg_val = bus->get_clk_reg_val(divisor);
++	clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
++	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
++			ASPEED_I2CD_TIME_THDSTA_MASK |
++			ASPEED_I2CD_TIME_TACST_MASK);
++	clk_reg_val |= bus->get_clk_reg_val(divisor);
+ 	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
+ 	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
+ 
+-- 
+2.11.0
