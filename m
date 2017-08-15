@@ -1,58 +1,51 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, ARM, USB and Video due for
- the v4.14 merge window
-Date: Tue, 15 Aug 2017 09:20:17 +0100
-Message-ID: <20170815082017.6k4xf3hp5wpabzrc@dell>
-References: <20170814163424.2197-1-wsa@the-dreams.de>
- <20170814163424.2197-3-wsa@the-dreams.de>
+From: Tarker Hu <tarkerhu@gmail.com>
+Subject: 2 Questions about "i2c-tools (3.1.1)"
+Date: Tue, 15 Aug 2017 17:42:55 +0800
+Message-ID: <CAFz8etO28fsVkYkcw8ZxAX2sh69B+EHS8oL08tjBpWbwTew3Rw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170814163424.2197-3-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f178.google.com ([209.85.216.178]:36396 "EHLO
+        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752504AbdHOJm4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Aug 2017 05:42:56 -0400
+Received: by mail-qt0-f178.google.com with SMTP id v29so1862559qtv.3
+        for <linux-i2c@vger.kernel.org>; Tue, 15 Aug 2017 02:42:56 -0700 (PDT)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
-Enjoy!
+Hi,
 
-The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba20877:
 
-  Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
 
-are available in the git repository at:
+=E3=80=80=E3=80=80We are using "i2c-tools (3.1.1)" and we have 2 questions:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd-arm-usb-video-v4.14
+=E3=80=80=E3=80=80(01 ) When I send cmd =E2=80=9Ci2cdetect -y -r 2=E2=80=9D=
+, I find that some device
+address always shows =E2=80=9CUU=E2=80=9D.
 
-for you to fetch changes up to 9787076c43a86f3465d46aa344cc3e2f607ae72f:
+        What =E2=80=9CUU=E2=80=9D means?
 
-  mfd: tps65010: Move header file out of I2C realm (2017-08-15 08:27:22 +0100)
+=E3=80=80=E3=80=80=E3=80=80=E3=80=80When I used i2cdump to that address (sh=
+owing =E2=80=9CUU=E2=80=9D), it always came
+out =E2=80=9CXXXX=E2=80=9D. Can I i2cdump it?
 
-----------------------------------------------------------------
-Immutable branch between MFD, ARM, USB and Video due for the v4.14 merge window
-----------------------------------------------------------------
-Wolfram Sang (1):
-      mfd: tps65010: Move header file out of I2C realm
+=E3=80=80=E3=80=80=E3=80=80=E3=80=80Is there any document about that?
 
- arch/arm/mach-omap1/board-h2-mmc.c      | 2 +-
- arch/arm/mach-omap1/board-h2.c          | 2 +-
- arch/arm/mach-omap1/board-h3-mmc.c      | 2 +-
- arch/arm/mach-omap1/board-h3.c          | 2 +-
- arch/arm/mach-omap1/board-osk.c         | 2 +-
- arch/arm/mach-s3c24xx/mach-osiris-dvs.c | 2 +-
- arch/arm/mach-s3c24xx/mach-osiris.c     | 2 +-
- drivers/mfd/tps65010.c                  | 2 +-
- drivers/usb/host/ohci-omap.c            | 2 +-
- drivers/usb/phy/phy-isp1301-omap.c      | 2 +-
- drivers/video/fbdev/omap/lcd_h3.c       | 2 +-
- include/linux/{i2c => mfd}/tps65010.h   | 2 +-
- 12 files changed, 12 insertions(+), 12 deletions(-)
- rename include/linux/{i2c => mfd}/tps65010.h (99%)
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+
+=E3=80=80=E3=80=80(02 ) If I need to i2cget/i2cset to an device with =E2=80=
+=9Cword-address
+(address with 16 bits)=E2=80=9D, how can I do?
+
+=E3=80=80=E3=80=80=E3=80=80=E3=80=80Is there any document?
+
+=E3=80=80=E3=80=80=E3=80=80=E3=80=80Can you show me a real example?
+
+
+
+Best,
+
+Tarker
