@@ -1,51 +1,47 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, Input and RTC due for the
- v3.14 merge window
-Date: Tue, 15 Aug 2017 08:13:24 +0100
-Message-ID: <20170815071324.uh74pxo6puhh3qqm@dell>
-References: <20170814163424.2197-1-wsa@the-dreams.de>
- <20170814163424.2197-2-wsa@the-dreams.de>
+From: Mika Westerberg <mika.westerberg@intel.com>
+Subject: Re: [PATCH 1/1] i2c: i801: Restore the presence state of P2SB PCI
+ device after reading BAR
+Date: Tue, 15 Aug 2017 10:13:28 +0300
+Message-ID: <20170815071328.GJ2369@lahna.fi.intel.com>
+References: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:40226 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753320AbdHOHOO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 15 Aug 2017 03:14:14 -0400
 Content-Disposition: inline
-In-Reply-To: <20170814163424.2197-2-wsa@the-dreams.de>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+In-Reply-To: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Cc: jdelvare@suse.com, wsa@the-dreams.de, tony.luck@intel.com, bp@alien8.de, linux-i2c@vger.kernel.org
 
-Enjoy!
+On Tue, Aug 15, 2017 at 12:04:50AM +0800, Qiuxu Zhuo wrote:
+> Sun, Yunying reported the following failure on Denverton micro-server:
+> 
+>  EDAC DEBUG: pnd2_init:
+>  EDAC DEBUG: pnd2_probe:
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_tolud_pci=00000000_80000000
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_lo_pci=00000000_80000000
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_hi_pci=00000000_00000004
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region0_mchbar=00000000_00000000
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region1_mchbar=00000000_00000000
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_base_mchbar=00000000_00000000
+>  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_mask_mchbar=00000000_00000000
+>  EDAC pnd2: Failed to register device with error -19.
+> 
+> On Denverton micro-server, the presence of the P2SB bridge PCI device is
+> enabled or disabled by the item 'RelaxSecConf' in BIOS setup menu. When
+> 'RelaxSecConf' is enabled, the P2SB PCI device is present and the pnd2_edac
+> EDAC driver also uses it to get BAR. Hiding the P2SB PCI device caused the
+> pnd2_edac EDAC driver failed to get BAR then reported the above failure.
+> 
+> Therefor, store the presence state of P2SB PCI device before unhiding it
+> for reading BAR and restore the presence state after reading BAR.
+> 
+> Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+> Reported-and-tested-by: Yunying Sun <yunying.sun@intel.com>
 
-The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba20877:
-
-  Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-rtc-v4.14
-
-for you to fetch changes up to 0335a9554b4d6acc2d17efe752bff54ce59b57eb:
-
-  mfd: dm355evm_msp: Move header file out of I2C realm (2017-08-15 08:06:14 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Input and RTC due for the v3.14 merge window
-
-----------------------------------------------------------------
-Wolfram Sang (1):
-      mfd: dm355evm_msp: Move header file out of I2C realm
-
- drivers/input/misc/dm355evm_keys.c        | 2 +-
- drivers/mfd/dm355evm_msp.c                | 2 +-
- drivers/rtc/rtc-dm355evm.c                | 2 +-
- include/linux/{i2c => mfd}/dm355evm_msp.h | 0
- 4 files changed, 3 insertions(+), 3 deletions(-)
- rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
- 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
