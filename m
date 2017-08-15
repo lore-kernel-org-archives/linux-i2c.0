@@ -1,63 +1,54 @@
-From: Andrew Jeffery <andrew@aj.id.au>
-Subject: [PATCH] i2c: aspeed: Retain delay/setup/hold values when configuring bus frequency
-Date: Tue, 15 Aug 2017 16:51:02 +0930
-Message-ID: <20170815072102.23067-1-andrew@aj.id.au>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Andrew Jeffery <andrew@aj.id.au>, wsa@the-dreams.de, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH v5 0/6] drivers/i2c: Add FSI-attached I2C master algorithm
+Date: Tue, 15 Aug 2017 17:40:38 +0930
+Message-ID: <CACPK8XexFdz63t4y5uO1GzoWrx=wnkqBxbYKGtuFq0JupeLNHQ@mail.gmail.com>
+References: <1501089198-10356-1-git-send-email-eajames@linux.vnet.ibm.com> <f324da3b-7c9e-3dc1-0cdc-91576c7a50b8@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f43.google.com ([209.85.215.43]:35300 "EHLO
+        mail-lf0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750992AbdHOILB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Aug 2017 04:11:01 -0400
+In-Reply-To: <f324da3b-7c9e-3dc1-0cdc-91576c7a50b8@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Eddie James <eajames@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Jeremy Kerr <jk@ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, Christopher Bostic <cbostic@linux.vnet.ibm.com>, "Edward A. James" <eajames@us.ibm.com>
 
-In addition to the base, low and high clock configuration, the AC timing
-register #1 on the AST2400 houses fields controlling:
+On Tue, Aug 15, 2017 at 4:06 PM, Peter Rosin <peda@axentia.se> wrote:
+> On 2017-07-26 19:13, Eddie James wrote:
+>> From: "Edward A. James" <eajames@us.ibm.com>
+>>
+>> This series adds an algorithm for an I2C master physically located on an FSI
+>> slave device. The I2C master has multiple ports, each of which may be connected
+>> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+>>
+>> Due to the multi-port nature of the I2C master, the driver instantiates a new
+>> I2C adapter for each port connected to a slave. The connected ports should be
+>> defined in the device tree under the I2C master device.
+>
+> Hmmm, AFAIU fsi is a bus, and on this bus you have some "client" device that
+> happens to be an i2c master, and this is a driver for that "client". Is it
+> totally inconceivable to have some other client device in the future that is
+> implementing an i2c master differently, but still using the fsi bus?
+>
+> With that in mind, is it wise to pick the driver name from the bus that the
+> device is connected to, and nothing else without further qualification?
+>
+> I don't see any "i2c-usb" driver, but I think there are a couple of i2c master
+> drivers that communicate via usb.
 
-1. tBUF: Minimum delay between Stop and Start conditions
-2. tHDSTA: Hold time for the Start condition
-3. tACST: Setup time for Start and Stop conditions, and hold time for the
-   Repeated Start condition
+You make a fair point. When I did a prototype of this driver I called
+it i2c-cfam, as it is part of the CFAM hardware unit inside of the
+Power8/Power9 processors.
 
-These values are defined in hardware on the AST2500 and therefore don't
-need to be set.
+The documentation does call it FSI_I2CM, so that's an argument for the
+current name.
 
-aspeed_i2c_init_clk() was performing a direct write of the generated
-clock values rather than a read/mask/modify/update sequence to retain
-tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
-fields on the AST2400. This resulted in a delay/setup/hold time of 1
-base clock, which in some configurations is not enough for some devices
-(e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
-bus speed of 100kHz).
+I'm not sure how accurate that name is. Chris, Eddie, do you have any
+other suggestions?
 
-Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
----
- drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Cheers,
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index ee76e6dddc4b..284f8670dbeb 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -53,6 +53,9 @@
- #define ASPEED_I2CD_MASTER_EN				BIT(0)
- 
- /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
-+#define ASPEED_I2CD_TIME_TBUF_MASK			GENMASK(31, 28)
-+#define ASPEED_I2CD_TIME_THDSTA_MASK			GENMASK(27, 24)
-+#define ASPEED_I2CD_TIME_TACST_MASK			GENMASK(23, 20)
- #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT			16
- #define ASPEED_I2CD_TIME_SCL_HIGH_MASK			GENMASK(19, 16)
- #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT			12
-@@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
- 	u32 divisor, clk_reg_val;
- 
- 	divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
--	clk_reg_val = bus->get_clk_reg_val(divisor);
-+	clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
-+	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
-+			ASPEED_I2CD_TIME_THDSTA_MASK |
-+			ASPEED_I2CD_TIME_TACST_MASK);
-+	clk_reg_val |= bus->get_clk_reg_val(divisor);
- 	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
- 	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
- 
--- 
-2.11.0
+Joel
