@@ -1,53 +1,47 @@
-From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-Date: Tue, 15 Aug 2017 21:08:14 +0800
-Message-ID: <1502802495-5064-2-git-send-email-jun.gao@mediatek.com>
-References: <1502802495-5064-1-git-send-email-jun.gao@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1502802495-5064-1-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH 1/2] i2c: designware: Remove needless pm_runtime_put_noidle() call
+Date: Tue, 15 Aug 2017 17:34:44 +0300
+Message-ID: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:7639 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751989AbdHOOkw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 15 Aug 2017 10:40:52 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+I guess pm_runtime_put_noidle() call in i2c_dw_probe_slave() was copied
+by accident from similar master mode adapter registration code. It is
+unbalanced due missing pm_runtime_get_noresume() but harmless since it
+doesn't decrease dev->power.usage_count below zero.
 
-Add MT7622 i2c binding to binding file and change the compatible
-information formats of all SoCs to the same.
+In theory we can hit similar needless runtime suspend/resume cycle
+during slave mode adapter registration that was happening when
+registering the master mode adapter. See commit cd998ded5c12 ("i2c:
+designware: Prevent runtime suspend during adapter registration").
 
-Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+However, since we are slave, we can consider it as a wrong configuration
+if we have other slaves attached under this adapter and can omit the
+pm_runtime_get_noresume()/pm_runtime_put_noidle() calls for simplicity.
+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-designware-slave.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-index bd5a7be..71fc0b3 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index 64c7c5e337b9..bb8f738cab14 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -382,7 +382,6 @@ int i2c_dw_probe_slave(struct dw_i2c_dev *dev)
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret)
+ 		dev_err(dev->dev, "failure adding adapter: %d\n", ret);
+-	pm_runtime_put_noidle(dev->dev);
  
- Required properties:
-   - compatible: value should be either of the following.
--      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
--      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
--      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
--      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
--      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
-+      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
-+      "mediatek,mt6577-i2c": for Mediatek MT6577
-+      "mediatek,mt6589-i2c": for Mediatek MT6589
-+      "mediatek,mt7622-i2c": for Mediatek MT7622
-+      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
-+      "mediatek,mt8173-i2c": for Mediatek MT8173
-   - reg: physical base address of the controller and dma base, length of memory
-     mapped region.
-   - interrupts: interrupt number to the cpu.
+ 	return ret;
+ }
 -- 
-1.8.1.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.14.1
