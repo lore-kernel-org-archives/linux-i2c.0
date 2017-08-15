@@ -1,54 +1,55 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v5 0/6] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Tue, 15 Aug 2017 17:40:38 +0930
-Message-ID: <CACPK8XexFdz63t4y5uO1GzoWrx=wnkqBxbYKGtuFq0JupeLNHQ@mail.gmail.com>
-References: <1501089198-10356-1-git-send-email-eajames@linux.vnet.ibm.com> <f324da3b-7c9e-3dc1-0cdc-91576c7a50b8@axentia.se>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 2/3] mfd: tps65010: move header file out of I2C realm
+Date: Tue, 15 Aug 2017 09:19:28 +0100
+Message-ID: <20170815081928.kqrmcxwz4mbezpsr@dell>
+References: <20170814163424.2197-1-wsa@the-dreams.de>
+ <20170814163424.2197-3-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f43.google.com ([209.85.215.43]:35300 "EHLO
-        mail-lf0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750992AbdHOILB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 15 Aug 2017 04:11:01 -0400
-In-Reply-To: <f324da3b-7c9e-3dc1-0cdc-91576c7a50b8@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170814163424.2197-3-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-watchdog@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Tony Lindgren <tony@atomide.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Eddie James <eajames@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Jeremy Kerr <jk@ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, Christopher Bostic <cbostic@linux.vnet.ibm.com>, "Edward A. James" <eajames@us.ibm.com>
 
-On Tue, Aug 15, 2017 at 4:06 PM, Peter Rosin <peda@axentia.se> wrote:
-> On 2017-07-26 19:13, Eddie James wrote:
->> From: "Edward A. James" <eajames@us.ibm.com>
->>
->> This series adds an algorithm for an I2C master physically located on an FSI
->> slave device. The I2C master has multiple ports, each of which may be connected
->> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
->>
->> Due to the multi-port nature of the I2C master, the driver instantiates a new
->> I2C adapter for each port connected to a slave. The connected ports should be
->> defined in the device tree under the I2C master device.
->
-> Hmmm, AFAIU fsi is a bus, and on this bus you have some "client" device that
-> happens to be an i2c master, and this is a driver for that "client". Is it
-> totally inconceivable to have some other client device in the future that is
-> implementing an i2c master differently, but still using the fsi bus?
->
-> With that in mind, is it wise to pick the driver name from the bus that the
-> device is connected to, and nothing else without further qualification?
->
-> I don't see any "i2c-usb" driver, but I think there are a couple of i2c master
-> drivers that communicate via usb.
+On Mon, 14 Aug 2017, Wolfram Sang wrote:
 
-You make a fair point. When I did a prototype of this driver I called
-it i2c-cfam, as it is part of the CFAM hardware unit inside of the
-Power8/Power9 processors.
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Acked-by: Tony Lindgren <tony@atomide.com>
+> ---
+> Change since V1:
+> 
+> * rebased to v4.13-rc5, no changes needed
+> * acks added. I think none are missing.
+> 
+>  arch/arm/mach-omap1/board-h2-mmc.c      | 2 +-
+>  arch/arm/mach-omap1/board-h2.c          | 2 +-
+>  arch/arm/mach-omap1/board-h3-mmc.c      | 2 +-
+>  arch/arm/mach-omap1/board-h3.c          | 2 +-
+>  arch/arm/mach-omap1/board-osk.c         | 2 +-
+>  arch/arm/mach-s3c24xx/mach-osiris-dvs.c | 2 +-
+>  arch/arm/mach-s3c24xx/mach-osiris.c     | 2 +-
+>  drivers/mfd/tps65010.c                  | 2 +-
+>  drivers/usb/host/ohci-omap.c            | 2 +-
+>  drivers/usb/phy/phy-isp1301-omap.c      | 2 +-
+>  drivers/video/fbdev/omap/lcd_h3.c       | 2 +-
+>  include/linux/{i2c => mfd}/tps65010.h   | 2 +-
+>  12 files changed, 12 insertions(+), 12 deletions(-)
+>  rename include/linux/{i2c => mfd}/tps65010.h (99%)
 
-The documentation does call it FSI_I2CM, so that's an argument for the
-current name.
+Applied, thanks.
 
-I'm not sure how accurate that name is. Chris, Eddie, do you have any
-other suggestions?
-
-Cheers,
-
-Joel
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
