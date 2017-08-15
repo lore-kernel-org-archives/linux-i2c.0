@@ -1,54 +1,65 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH 2/2] i2c: designware: Fix runtime PM for I2C slave mode
-Date: Tue, 15 Aug 2017 17:34:45 +0300
-Message-ID: <20170815143445.26167-2-jarkko.nikula@linux.intel.com>
-References: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:17087 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752148AbdHOOl2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 15 Aug 2017 10:41:28 -0400
-In-Reply-To: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Christopher Bostic <cbostic@linux.vnet.ibm.com>
+Subject: Re: [PATCH v5 0/6] drivers/i2c: Add FSI-attached I2C master algorithm
+Date: Tue, 15 Aug 2017 11:28:50 -0500
+Message-ID: <59175354-07ba-2bbb-962e-ac1de36dfa4a@linux.vnet.ibm.com>
+References: <1501089198-10356-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <f324da3b-7c9e-3dc1-0cdc-91576c7a50b8@axentia.se>
+ <CACPK8XexFdz63t4y5uO1GzoWrx=wnkqBxbYKGtuFq0JupeLNHQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACPK8XexFdz63t4y5uO1GzoWrx=wnkqBxbYKGtuFq0JupeLNHQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joel Stanley <joel@jms.id.au>, Peter Rosin <peda@axentia.se>
+Cc: Eddie James <eajames@linux.vnet.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Jeremy Kerr <jk@ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-I2C slave controller must be powered and active all the time when I2C
-slave backend is registered in order to let master address and
-communicate with us.
 
-Now if the controller is runtime PM capable it will be suspended after
-probe and cannot ever respond to the master or generate interrupts.
 
-Fix this by resuming the controller when I2C slave backend is registered
-and let it suspend after unregistering.
+On 8/15/17 3:10 AM, Joel Stanley wrote:
+> On Tue, Aug 15, 2017 at 4:06 PM, Peter Rosin <peda@axentia.se> wrote:
+>> On 2017-07-26 19:13, Eddie James wrote:
+>>> From: "Edward A. James" <eajames@us.ibm.com>
+>>>
+>>> This series adds an algorithm for an I2C master physically located on an FSI
+>>> slave device. The I2C master has multiple ports, each of which may be connected
+>>> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+>>>
+>>> Due to the multi-port nature of the I2C master, the driver instantiates a new
+>>> I2C adapter for each port connected to a slave. The connected ports should be
+>>> defined in the device tree under the I2C master device.
+>> Hmmm, AFAIU fsi is a bus, and on this bus you have some "client" device that
+>> happens to be an i2c master, and this is a driver for that "client". Is it
+>> totally inconceivable to have some other client device in the future that is
+>> implementing an i2c master differently, but still using the fsi bus?
+>>
+>> With that in mind, is it wise to pick the driver name from the bus that the
+>> device is connected to, and nothing else without further qualification?
+>>
+>> I don't see any "i2c-usb" driver, but I think there are a couple of i2c master
+>> drivers that communicate via usb.
+> You make a fair point. When I did a prototype of this driver I called
+> it i2c-cfam, as it is part of the CFAM hardware unit inside of the
+> Power8/Power9 processors.
+>
+> The documentation does call it FSI_I2CM, so that's an argument for the
+> current name.
+>
+> I'm not sure how accurate that name is. Chris, Eddie, do you have any
+> other suggestions?
+The I2C engine up to now has been always accessed via the FSI bus so 
+historically I assume that's why its labelled as FSI_I2CM in the p8/p9 
+specs.  There isn't any reason this I2C device couldn't be implemented 
+in some other topology independent of FSI / CFAMs.  In other words there 
+are no FSI details internal to this I2C engine, an argument for removing 
+the 'FSI' tag.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-slave.c | 3 +++
- 1 file changed, 3 insertions(+)
+Thanks,
+Chris
 
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index bb8f738cab14..ea9578ab19a1 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -177,6 +177,8 @@ static int i2c_dw_reg_slave(struct i2c_client *slave)
- 		return -EBUSY;
- 	if (slave->flags & I2C_CLIENT_TEN)
- 		return -EAFNOSUPPORT;
-+	pm_runtime_get_sync(dev->dev);
-+
- 	/*
- 	 * Set slave address in the IC_SAR register,
- 	 * the address to which the DW_apb_i2c responds.
-@@ -205,6 +207,7 @@ static int i2c_dw_unreg_slave(struct i2c_client *slave)
- 	dev->disable_int(dev);
- 	dev->disable(dev);
- 	dev->slave = NULL;
-+	pm_runtime_put(dev->dev);
- 
- 	return 0;
- }
--- 
-2.14.1
+>
+> Cheers,
+>
+> Joel
+>
