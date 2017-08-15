@@ -1,66 +1,53 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v3 2/2] i2c: mediatek: Add i2c compatible for MediaTek MT7622
-Date: Tue, 15 Aug 2017 21:08:15 +0800
-Message-ID: <1502802495-5064-3-git-send-email-jun.gao@mediatek.com>
+From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v3 1/2] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
+Date: Tue, 15 Aug 2017 21:08:14 +0800
+Message-ID: <1502802495-5064-2-git-send-email-jun.gao@mediatek.com>
 References: <1502802495-5064-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502802495-5064-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1502802495-5064-1-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 
-Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
-MT7622 limits message numbers to 255, and does not support 4GB
-DMA mode.
+Add MT7622 i2c binding to binding file and change the compatible
+information formats of all SoCs to the same.
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 9bedf0b..09d288c 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -172,6 +172,10 @@ struct mtk_i2c {
- 	.max_comb_2nd_msg_len = 31,
- };
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+index bd5a7be..71fc0b3 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+@@ -4,11 +4,12 @@ The Mediatek's I2C controller is used to interface with I2C devices.
  
-+static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-+	.max_num_msgs = 255,
-+};
-+
- static const struct mtk_i2c_compatible mt6577_compat = {
- 	.quirks = &mt6577_i2c_quirks,
- 	.pmic_i2c = 0,
-@@ -190,6 +194,15 @@ struct mtk_i2c {
- 	.support_33bits = 0,
- };
- 
-+static const struct mtk_i2c_compatible mt7622_compat = {
-+	.quirks = &mt7622_i2c_quirks,
-+	.pmic_i2c = 0,
-+	.dcm = 1,
-+	.auto_restart = 1,
-+	.aux_len_reg = 1,
-+	.support_33bits = 0,
-+};
-+
- static const struct mtk_i2c_compatible mt8173_compat = {
- 	.pmic_i2c = 0,
- 	.dcm = 1,
-@@ -201,6 +214,7 @@ struct mtk_i2c {
- static const struct of_device_id mtk_i2c_of_match[] = {
- 	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
- 	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
-+	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
- 	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
- 	{}
- };
+ Required properties:
+   - compatible: value should be either of the following.
+-      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
+-      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
+-      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
+-      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
+-      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
++      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek MT2701
++      "mediatek,mt6577-i2c": for Mediatek MT6577
++      "mediatek,mt6589-i2c": for Mediatek MT6589
++      "mediatek,mt7622-i2c": for Mediatek MT7622
++      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for Mediatek MT7623
++      "mediatek,mt8173-i2c": for Mediatek MT8173
+   - reg: physical base address of the controller and dma base, length of memory
+     mapped region.
+   - interrupts: interrupt number to the cpu.
 -- 
 1.8.1.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
