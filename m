@@ -1,47 +1,60 @@
-From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
- configuring bus frequency
-Date: Wed, 16 Aug 2017 09:15:39 +0200
-Message-ID: <7d2aa1d5-f3c7-4581-f7e8-36b1f9d4d80d@kaod.org>
-References: <20170815072102.23067-1-andrew@aj.id.au>
- <CACPK8XeNDxo14KRsAqo3a0Rs26h-1vRsLyqSX+bt2jfZHq=5yA@mail.gmail.com>
- <247768a3-074f-70ad-6132-39d1443ce210@kaod.org>
- <1502866778.4493.84.camel@kernel.crashing.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: 2 Questions about "i2c-tools (3.1.1)"
+Date: Wed, 16 Aug 2017 09:23:51 +0200
+Message-ID: <20170816072351.3mrjcmr4hv3g6dlf@pengutronix.de>
+References: <CAFz8etO28fsVkYkcw8ZxAX2sh69B+EHS8oL08tjBpWbwTew3Rw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502866778.4493.84.camel@kernel.crashing.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
-Cc: Ryan Chen <ryan_chen@aspeedtech.com>, linux-aspeed@lists.ozlabs.org, Wolfram Sang <wsa@the-dreams.de>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:36751 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751620AbdHPHXx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2017 03:23:53 -0400
+Content-Disposition: inline
+In-Reply-To: <CAFz8etO28fsVkYkcw8ZxAX2sh69B+EHS8oL08tjBpWbwTew3Rw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tarker Hu <tarkerhu@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-On 08/16/2017 08:59 AM, Benjamin Herrenschmidt wrote:
-> On Wed, 2017-08-16 at 08:53 +0200, Cédric Le Goater wrote:
->>>>          divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
->>>> -       clk_reg_val = bus->get_clk_reg_val(divisor);
->>>> +       clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
->>>> +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
->>>> +                       ASPEED_I2CD_TIME_THDSTA_MASK |
->>>> +                       ASPEED_I2CD_TIME_TACST_MASK);
->>>
->>> Instead of keeping the u-boot values (which appear to be hard-coded),
->>> should we instead put the known working values in the register?
->>
->> Yes. I was wondering where the initial setting was from on the AST400.
-> 
-> Well, the AST2500 hard codes them in HW, so it makes some amount of
-> sense to use whatever aspeed platform.S hard codes in u-boot for the
-> 2400. The values look reasonably sane.
-> 
-> If we ever see a need to change them, we can add DT props etc... but
-> for now I'd just not bother.
-> 
-> The way it is now, at least, if I have problems, I can tweak the values
-> with devmem and try again without the driver overwriting them :-)
+Hello,
 
-ah yes. that is useful I agree. 
+On Tue, Aug 15, 2017 at 05:42:55PM +0800, Tarker Hu wrote:
+> 　　We are using "i2c-tools (3.1.1)" and we have 2 questions:
+> 
+> 　　(01 ) When I send cmd “i2cdetect -y -r 2”, I find that some device
+> address always shows “UU”.
+> 
+>         What “UU” means?
 
-C.
+Did you read the man page of i2cdetect. There is a section "INTERPRETING
+THE OUTPUT" that describes UU.
+ 
+> 　　　　When I used i2cdump to that address (showing “UU”), it always came
+> out “XXXX”. Can I i2cdump it?
+
+You should unbind the driver first.
+
+> 　　　　Is there any document about that?
+> 
+> 　　(02 ) If I need to i2cget/i2cset to an device with “word-address
+> (address with 16 bits)”, how can I do?
+> 
+> 　　　　Is there any document?
+
+Yes, the man page for i2cget and i2cset.
+
+> 　　　　Can you show me a real example?
+
+I don't have something handy. If you find that i2cset/get are not
+flexible enough, you should be able to do whatever you want with
+i2ctransfer (which doesn't exist yet in 3.1.1 though).
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
