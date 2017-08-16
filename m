@@ -1,66 +1,70 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: slave-eeprom: Add an OF device ID table
-Date: Wed, 16 Aug 2017 15:41:12 +0200
-Message-ID: <20170816134112.GA1391@katana>
-References: <20170809101256.31204-1-javierm@redhat.com>
- <20170814195236.4miomp2omul5qikt@ninjato>
- <1b2335bb-50e5-5664-0e01-38902cf717f1@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
+Date: Wed, 16 Aug 2017 16:51:33 +0200
+Message-ID: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com> <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1b2335bb-50e5-5664-0e01-38902cf717f1@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Javier Martinez Canillas <javierm@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 18, 2017 at 12:23 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> One helper checks if DMA is suitable and optionally creates a bounce
+> buffer, if not. The other function returns the bounce buffer and makes
+> sure the data is properly copied back to the message.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> Changes since v2:
+>
+> * rebased to v4.13-rc1
+> * helper functions are not inlined anymore but moved to i2c core
+> * __must_check has been added to the buffer check helper
+> * the release function has been renamed to contain 'dma' as well
 
+Right:
 
-> What kind of change are you looking for? The example was introduced by co=
-mmit
-> 04606ccc84e3 ("i2c: designware: introducing I2C_SLAVE definitions") that =
-says:
->=20
-> - A example was added to designware-core.txt Documentation that shows
->   how the slave can be setup using DTS
+drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
+undeclared here (not in a function)
+ EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
 
-My fault, I missed it :(
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
 
-> So I could change this example to instead use a real EEPROM compatible (e=
-=2Eg:
-> "microchip,24c02") instead of "linux,slave-24c02". Would that be correct?
+> +/**
+> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
+      ^^^^^^^^^^^^^^^^^^^^^^
+> + * @msg: the message to be copied back to
+> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
+> + *             May be NULL.
+> + */
+> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
+> +{
+> +       if (!bounce_buf)
+> +               return;
+> +
+> +       if (msg->flags & I2C_M_RD)
+> +               memcpy(msg->buf, bounce_buf, msg->len);
+> +
+> +       kfree(bounce_buf);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
+                     ^^^^^^^^^^^^^^^^^^^^^^
 
-I think this is Luis call how he'd like this to be changed. Given the
-current discussion, I'd think it must be dropped entirely.
+Gr{oetje,eeting}s,
 
-Luis?
+                        Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUS3QACgkQFA3kzBSg
-Kbb89A/9H2tev7C1gPCzlYaBpPCX8yfHKyoSW98UXSSXzdnHxK0ZlO8ynnroLeyJ
-JvqwpUUJx3gG3Hn3v3TTNcmF7UbVTFLGlfm67xPmYEXfl0QJPsrCXbFTovnBoX/u
-4t+iU8Uz90QcrJcvA/0OszS8+pkxseYZXQsHGl1fDfcrXSggbIDIBAp/pIiB3tcM
-eAz1vDS9xgBy284Ey9wtWtL6xHTfat5dYcTeR0fLa+pWYyetL1NXAbD3wP1L4udH
-JB2WT6PegJg4cbQJ370BQu+PmC6ipojHDIsFQFpXhiHT3P9owQH8BTctWzkePFI3
-hCAB5c/Grpb+dsuZPsxAGI3pMGxzEeVHoeIikuuiijtIxm1BFgyB+9jILbLgJat2
-1FxF3yPHmzuXQj1qme2bVS7TkcfVSYrcftw75Oljx8TL+HEg6+NiZJC0yq+3jGFN
-cZfVih2HhalrhcTorEgFYeZJVX3lx5BX4qf9s3lI14O9rhecKVIN+qNtrTcFbJpx
-OwzsVdn1seWL6uVSP362m+fMvT+AWASwV/G0Mhh4MIyeQNIJ1TTRC03/gdNjAikS
-NTdwba+fxgywcaPLlN/8qHQPSu7d4vRtILfzMfXWTKTnb5G0GoocVJMXm9x58Lwb
-+/X1MnWbpONYZcQRPUtwi+tIC78ysYo+hDg92Os+hG0jyW6RgE0=
-=NCFi
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
