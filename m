@@ -1,61 +1,54 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v2 08/14] power: supply: Add
- power_supply_set_input_current_limit_from_supplier helper
-Date: Wed, 16 Aug 2017 12:21:33 -0700
-Message-ID: <20170816192132.GV3930@atomide.com>
-References: <20170815200502.17339-1-hdegoede@redhat.com>
- <20170815200502.17339-9-hdegoede@redhat.com>
- <20170816155443.GH8569@atomide.com>
- <327357a2-3491-fa7c-f715-eb1c321c3c38@redhat.com>
+From: Andreas Klinger <ak@it-klinger.de>
+Subject: [PATCH v3 0/5] iio: srf08: add support for similar devices and
+ triggered buffers
+Date: Wed, 16 Aug 2017 21:32:57 +0200
+Message-ID: <20170816193257.GA24393@arbeit>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.187]:59485 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752444AbdHPTct (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2017 15:32:49 -0400
 Content-Disposition: inline
-In-Reply-To: <327357a2-3491-fa7c-f715-eb1c321c3c38@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Breck <liam@networkimprov.net>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-* Hans de Goede <hdegoede@redhat.com> [170816 10:38]:
-> Hi,
-> 
-> On 16-08-17 17:54, Tony Lindgren wrote:
-> > * Hans de Goede <hdegoede@redhat.com> [170815 13:06]:
-> > > On some devices the USB Type-C port power (USB PD 2.0) negotiation is
-> > > done by a separate port-controller IC, while the current limit is
-> > > controlled through another (charger) IC.
-> > > 
-> > > It has been decided to model this by modelling the external Type-C
-> > > power brick (adapter/charger) as a power-supply class device which
-> > > supplies the charger-IC, with its voltage-now and current-max representing
-> > > the negotiated voltage and max current draw.
-> > > 
-> > > This commit adds a power_supply_set_input_current_limit_from_supplier
-> > > helper function which charger power-supply drivers can call to get
-> > > the max-current from their supplier and have this applied
-> > > through their set_property call-back to their input-current-limit.
-> > 
-> > Hmm so can this also be used for the USB gadget subsystem
-> > to tell charge controller when it's OK to enable 500mA
-> > charging after enumeration?
-> 
-> I'm not sure that that would be best modeled this way. Perhaps
-> the phy-driver can directly control the gpio you have for that,
-> that seems better then trying to solve this with cross subsystem
-> calls which are always tricky.
+This patch series adds support for:
+- triggered buffer
+- ultrasonic devices srf02 and srf10
 
-I don't think the phy driver knows either when the system
-has enumerated as a gadget..
+Thanks for the review of Peter and Wolfram.
 
-> > FYI, that's controlled by the bq24190 pin named OTG that should
-> > be only set high after enumeration. Any ideas how that is wired
-> > on your device? Does it connect to the USB PHY or to a GPIO
-> > line?
-> 
-> I believe it is just hardwired to be logical high all the time
-> on my board.
+@Wolfram: please let me know, if you want a separate patch for [PATCH 1/5]
 
-OK thanks for checking.
+Changes in v3:
+- introduce struct chip_info for device specific features
+- remove locking error in srf08_trigger_handler()
 
-Tony
+Changes in v2:
+- removed unnecessary patch "[PATCH 6/7] iio: srf08: add buffered to device mode"
+- incorporated patch "[PATCH 7/7] iio: srf08: change text in Kconfig" where suitable
+- changed order of patches to improve logical flow of changes
+- improved distinction of sensor types
+
+
+Andreas Klinger (5):
+  iio: srf08: add device tree binding for srf02 and srf10
+  iio: srf08: add device tree table
+  iio: srf08: add triggered buffer support
+  iio: srf08: add sensor type srf10
+  iio: srf08: add support for srf02 in i2c mode
+
+ .../devicetree/bindings/i2c/trivial-devices.txt    |   2 +
+ drivers/iio/proximity/Kconfig                      |   8 +-
+ drivers/iio/proximity/srf08.c                      | 227 ++++++++++++++++++---
+ 3 files changed, 203 insertions(+), 34 deletions(-)
+
+-- 
+2.1.4
+
+
+-- 
