@@ -1,53 +1,41 @@
-From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v2 3/3] dt-bindings: i2c: i2c-davinci: Update binding for 66AK2Gx pwr dm property
-Date: Wed, 16 Aug 2017 17:17:15 -0500
-Message-ID: <20170816221715.15027-4-fcooper@ti.com>
+From: Franklin S Cooper Jr <fcooper@ti.com>
+Subject: [PATCH v2 1/3] i2c: davinci: Preserve return value of devm_clk_get
+Date: Wed, 16 Aug 2017 17:17:13 -0500
+Message-ID: <20170816221715.15027-2-fcooper@ti.com>
 References: <20170816221715.15027-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170816221715.15027-1-fcooper-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
-Cc: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170816221715.15027-1-fcooper@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add pm-domains property which is required for 66AK2Gx. Also document 66AK2G
-unique clocks property usage.
+The i2c driver can run into driver dependency issues if its loaded
+before a clock driver it depends on. Therefore, EPROBE_DEFER may be
+returned by devm_clk_get and should be returned in probe to allow the
+kernel to reprobe the driver at a later time. This patch allows the error
+value returned by devm_clk_get to be passed through and not overwritten.
 
-Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/i2c/busses/i2c-davinci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-index 5b123e0..64e6e65 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-@@ -6,6 +6,18 @@ davinci/keystone i2c interface contains.
- Required properties:
- - compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
- - reg : Offset and length of the register set for the device
-+- clocks: I2C functional clock phandle.
-+	  For 66AK2G this property should be set per binding,
-+	  Documentation/devicetree/bindings/clock/ti,sci-clk.txt
-+
-+SoC-specific Required Properties:
-+
-+The following are mandatory properties for Keystone 2 66AK2G SoCs only:
-+
-+- power-domains:	Should contain a phandle to a PM domain provider node
-+			and an args specifier containing the I2C device id
-+			value. This property is as per the binding,
-+			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.txt
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 33ca9a3..b8c4353 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -801,7 +801,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
  
- Recommended properties :
- - interrupts : standard interrupt property.
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk))
+-		return -ENODEV;
++		return PTR_ERR(dev->clk);
+ 	clk_prepare_enable(dev->clk);
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
 2.9.4.dirty
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
