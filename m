@@ -1,80 +1,73 @@
-From: Sean Wang <sean.wang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: mediatek: Add i2c compatible for MediaTek
- MT7622
-Date: Wed, 16 Aug 2017 11:08:54 +0800
-Message-ID: <1502852934.19230.45.camel@mtkswgap22>
-References: <1502802495-5064-1-git-send-email-jun.gao@mediatek.com>
-         <1502802495-5064-3-git-send-email-jun.gao@mediatek.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
+ configuring bus frequency
+Date: Wed, 16 Aug 2017 09:30:18 +0300
+Message-ID: <CAFd5g45r+YAz706Uhwj9_Gf6iJy8P92K_JZmo22skDWNOXf8rw@mail.gmail.com>
+References: <20170815072102.23067-1-andrew@aj.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1502802495-5064-3-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170815072102.23067-1-andrew@aj.id.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ryan Chen <ryan_chen@aspeedtech.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2017-08-15 at 21:08 +0800, Jun Gao wrote:
-> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> 
-> Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
-> MT7622 limits message numbers to 255, and does not support 4GB
-> DMA mode.
-> 
-> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-
-you seemed missing a Reviewed-by tag from Joe.C
-
-http://lists.infradead.org/pipermail/linux-mediatek/2017-August/009975.html
-
-
+On Tue, Aug 15, 2017 at 10:21 AM, Andrew Jeffery <andrew@aj.id.au> wrote:
+> In addition to the base, low and high clock configuration, the AC timing
+> register #1 on the AST2400 houses fields controlling:
+>
+> 1. tBUF: Minimum delay between Stop and Start conditions
+> 2. tHDSTA: Hold time for the Start condition
+> 3. tACST: Setup time for Start and Stop conditions, and hold time for the
+>    Repeated Start condition
+>
+> These values are defined in hardware on the AST2500 and therefore don't
+> need to be set.
+>
+> aspeed_i2c_init_clk() was performing a direct write of the generated
+> clock values rather than a read/mask/modify/update sequence to retain
+> tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
+> fields on the AST2400. This resulted in a delay/setup/hold time of 1
+> base clock, which in some configurations is not enough for some devices
+> (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
+> bus speed of 100kHz).
+>
+> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
 > ---
->  drivers/i2c/busses/i2c-mt65xx.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index 9bedf0b..09d288c 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -172,6 +172,10 @@ struct mtk_i2c {
->  	.max_comb_2nd_msg_len = 31,
->  };
->  
-> +static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
-> +	.max_num_msgs = 255,
-> +};
-> +
->  static const struct mtk_i2c_compatible mt6577_compat = {
->  	.quirks = &mt6577_i2c_quirks,
->  	.pmic_i2c = 0,
-> @@ -190,6 +194,15 @@ struct mtk_i2c {
->  	.support_33bits = 0,
->  };
->  
-> +static const struct mtk_i2c_compatible mt7622_compat = {
-> +	.quirks = &mt7622_i2c_quirks,
-> +	.pmic_i2c = 0,
-> +	.dcm = 1,
-> +	.auto_restart = 1,
-> +	.aux_len_reg = 1,
-> +	.support_33bits = 0,
-> +};
-> +
->  static const struct mtk_i2c_compatible mt8173_compat = {
->  	.pmic_i2c = 0,
->  	.dcm = 1,
-> @@ -201,6 +214,7 @@ struct mtk_i2c {
->  static const struct of_device_id mtk_i2c_of_match[] = {
->  	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
->  	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
-> +	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
->  	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
->  	{}
->  };
+>  drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index ee76e6dddc4b..284f8670dbeb 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -53,6 +53,9 @@
+>  #define ASPEED_I2CD_MASTER_EN                          BIT(0)
+>
+>  /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
+> +#define ASPEED_I2CD_TIME_TBUF_MASK                     GENMASK(31, 28)
+> +#define ASPEED_I2CD_TIME_THDSTA_MASK                   GENMASK(27, 24)
+> +#define ASPEED_I2CD_TIME_TACST_MASK                    GENMASK(23, 20)
+>  #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT                        16
+>  #define ASPEED_I2CD_TIME_SCL_HIGH_MASK                 GENMASK(19, 16)
+>  #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT                 12
+> @@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
+>         u32 divisor, clk_reg_val;
+>
+>         divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
+> -       clk_reg_val = bus->get_clk_reg_val(divisor);
+> +       clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
+> +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
+> +                       ASPEED_I2CD_TIME_THDSTA_MASK |
+> +                       ASPEED_I2CD_TIME_TACST_MASK);
+> +       clk_reg_val |= bus->get_clk_reg_val(divisor);
+>         writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
+>         writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
+>
+> --
+> 2.11.0
+>
 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Awesome! I think this might fix an issue we saw on one of our boards.
+I am out of the country right now, so I cannot test this myself, until Monday.
