@@ -1,43 +1,66 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [RFC v2 5/6] max9260: add driver for i2c over GMSL passthrough
-Date: Wed, 16 Aug 2017 16:32:25 +0300
-Message-ID: <4224346.LEY5A6FZfI@avalon>
-References: <1500305076-15570-1-git-send-email-ulrich.hecht+renesas@gmail.com> <20170719150038.GA6172@katana> <CAO3366yOpH3Q0J9YbCh2S_L8yLevag-FaVHNngvD3WoquXzp6w@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: slave-eeprom: Add an OF device ID table
+Date: Wed, 16 Aug 2017 15:41:12 +0200
+Message-ID: <20170816134112.GA1391@katana>
+References: <20170809101256.31204-1-javierm@redhat.com>
+ <20170814195236.4miomp2omul5qikt@ninjato>
+ <1b2335bb-50e5-5664-0e01-38902cf717f1@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:44153 "EHLO
-        galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751644AbdHPNcF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2017 09:32:05 -0400
-In-Reply-To: <CAO3366yOpH3Q0J9YbCh2S_L8yLevag-FaVHNngvD3WoquXzp6w@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1b2335bb-50e5-5664-0e01-38902cf717f1@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javierm@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-serial@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Rob Herring <robh@kernel.org>, Peter Rosin <peda@axentia.se>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org
 
-Hi Ulrich,
 
-On Wednesday 16 Aug 2017 15:23:52 Ulrich Hecht wrote:
-> On Wed, Jul 19, 2017 at 5:00 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >> +{
-> >> +     wait_event_interruptible_timeout(dev->rx_wq,
-> >> +             dev->rx_state <= RX_FRAME_ERROR,
-> >> +             HZ/2);
-> > 
-> > I'd suggest to drop the interruptible. It can be done but it is usually
-> > not trivial to abort the operation gracefully when a signal comes in.
-> > 
-> > Also, timeout is superfluous since you don't get the return value?
-> 
-> Be that as it may, I still want a timeout; wouldn't wait_event() block
-> forever?
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think that Wolfram's point is that you should report the timeout error up to 
-the upper layers.
 
--- 
-Regards,
+> What kind of change are you looking for? The example was introduced by co=
+mmit
+> 04606ccc84e3 ("i2c: designware: introducing I2C_SLAVE definitions") that =
+says:
+>=20
+> - A example was added to designware-core.txt Documentation that shows
+>   how the slave can be setup using DTS
 
-Laurent Pinchart
+My fault, I missed it :(
+
+> So I could change this example to instead use a real EEPROM compatible (e=
+=2Eg:
+> "microchip,24c02") instead of "linux,slave-24c02". Would that be correct?
+
+I think this is Luis call how he'd like this to be changed. Given the
+current discussion, I'd think it must be dropped entirely.
+
+Luis?
+
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUS3QACgkQFA3kzBSg
+Kbb89A/9H2tev7C1gPCzlYaBpPCX8yfHKyoSW98UXSSXzdnHxK0ZlO8ynnroLeyJ
+JvqwpUUJx3gG3Hn3v3TTNcmF7UbVTFLGlfm67xPmYEXfl0QJPsrCXbFTovnBoX/u
+4t+iU8Uz90QcrJcvA/0OszS8+pkxseYZXQsHGl1fDfcrXSggbIDIBAp/pIiB3tcM
+eAz1vDS9xgBy284Ey9wtWtL6xHTfat5dYcTeR0fLa+pWYyetL1NXAbD3wP1L4udH
+JB2WT6PegJg4cbQJ370BQu+PmC6ipojHDIsFQFpXhiHT3P9owQH8BTctWzkePFI3
+hCAB5c/Grpb+dsuZPsxAGI3pMGxzEeVHoeIikuuiijtIxm1BFgyB+9jILbLgJat2
+1FxF3yPHmzuXQj1qme2bVS7TkcfVSYrcftw75Oljx8TL+HEg6+NiZJC0yq+3jGFN
+cZfVih2HhalrhcTorEgFYeZJVX3lx5BX4qf9s3lI14O9rhecKVIN+qNtrTcFbJpx
+OwzsVdn1seWL6uVSP362m+fMvT+AWASwV/G0Mhh4MIyeQNIJ1TTRC03/gdNjAikS
+NTdwba+fxgywcaPLlN/8qHQPSu7d4vRtILfzMfXWTKTnb5G0GoocVJMXm9x58Lwb
++/X1MnWbpONYZcQRPUtwi+tIC78ysYo+hDg92Os+hG0jyW6RgE0=
+=NCFi
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--
