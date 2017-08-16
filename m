@@ -1,44 +1,60 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v2 08/14] power: supply: Add
- power_supply_set_input_current_limit_from_supplier helper
-Date: Wed, 16 Aug 2017 08:54:43 -0700
-Message-ID: <20170816155443.GH8569@atomide.com>
-References: <20170815200502.17339-1-hdegoede@redhat.com>
- <20170815200502.17339-9-hdegoede@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
+Date: Wed, 16 Aug 2017 18:06:29 +0200
+Message-ID: <20170816160628.nlthmtgusg3qtkkh@ninjato>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+ <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+ <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="nsrjp7y3b3zb64fa"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:56666 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751605AbdHPQGc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 16 Aug 2017 12:06:32 -0400
 Content-Disposition: inline
-In-Reply-To: <20170815200502.17339-9-hdegoede@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Breck <liam@networkimprov.net>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org
+In-Reply-To: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-* Hans de Goede <hdegoede@redhat.com> [170815 13:06]:
-> On some devices the USB Type-C port power (USB PD 2.0) negotiation is
-> done by a separate port-controller IC, while the current limit is
-> controlled through another (charger) IC.
-> 
-> It has been decided to model this by modelling the external Type-C
-> power brick (adapter/charger) as a power-supply class device which
-> supplies the charger-IC, with its voltage-now and current-max representing
-> the negotiated voltage and max current draw.
-> 
-> This commit adds a power_supply_set_input_current_limit_from_supplier
-> helper function which charger power-supply drivers can call to get
-> the max-current from their supplier and have this applied
-> through their set_property call-back to their input-current-limit.
 
-Hmm so can this also be used for the USB gadget subsystem
-to tell charge controller when it's OK to enable 500mA
-charging after enumeration?
+--nsrjp7y3b3zb64fa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-FYI, that's controlled by the bq24190 pin named OTG that should
-be only set high after enumeration. Any ideas how that is wired
-on your device? Does it connect to the USB PHY or to a GPIO
-line?
 
-Regards,
+> Right:
+>=20
+> drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
+> undeclared here (not in a function)
+>  EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
 
-Tony
+Thanks. I am just now working on V4 currently which is a redesign.
+I'll write more in an hour or so.
+
+
+--nsrjp7y3b3zb64fa
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUbYEACgkQFA3kzBSg
+Kba39g//X32uCcGGCEPDlgr0TB3ouPKuyEiPphMokvbPgcxxwlOnZWfsbo5wP2aN
+WdiDI99ElKtFO/o4/bD39yvteWVR6Twp3z+kvbqXfUzP/2WMQOb5vU6VhnqmLjyl
+0sClEEnfFsmmzJakIx7f+Vbh719MQpR2JM6UZ9SzYZ34fQqfPQRa40bg7zdX4CaU
++6lDv8195SmlSIdLZf0vjo8YAfRUHYd9ptCVeld+Kp9D+rZSugGjOWXyUnZDpjvR
+Gq9jf/ZLwWJDl04mIR8kcRtmDJzp7gYMtJua042T7I+qzE3NU86RUGKnbyagB5p+
+o+MRouHQjNaBqP9xTfkdqjg1DqHR87KJ299hAOFmzIQMFBjgCjNNf3HkttZij9o9
+40HPj2ox45uzCoxJ8wTxEqyxUW+DIKI2fZTE37yGH46MhchKyl2FflpYAHFF+twA
+RGuBea1GtBHgghamk94W+lfVKR1Wl+iCCkAZU26mzus0ahH3SvJ/xeHRGFHFDlJ4
+LV731GUhReuNJWUjQcRuAepU7/6wUZxwthOgKpyQBdeu0IPCYfPGMD3dnHjorosc
+45s7GuEpczxurtbv/r+ldha9bj8MYcRi11N/YRNleQp8HLmazZPu9oMHeXNQp7yi
+1zs0o71HwZlKLpur3/ALHH5JLgbuOyPHfN4io2MrLI1oyvLWs30=
+=WI+Q
+-----END PGP SIGNATURE-----
+
+--nsrjp7y3b3zb64fa--
