@@ -1,19 +1,23 @@
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Joel Stanley <joel@jms.id.au>
 Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
  configuring bus frequency
-Date: Wed, 16 Aug 2017 09:30:18 +0300
-Message-ID: <CAFd5g45r+YAz706Uhwj9_Gf6iJy8P92K_JZmo22skDWNOXf8rw@mail.gmail.com>
+Date: Wed, 16 Aug 2017 16:19:57 +0930
+Message-ID: <CACPK8XeNDxo14KRsAqo3a0Rs26h-1vRsLyqSX+bt2jfZHq=5yA@mail.gmail.com>
 References: <20170815072102.23067-1-andrew@aj.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:34827 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751687AbdHPGuT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2017 02:50:19 -0400
 In-Reply-To: <20170815072102.23067-1-andrew@aj.id.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Jeffery <andrew@aj.id.au>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ryan Chen <ryan_chen@aspeedtech.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ryan Chen <ryan_chen@aspeedtech.com>
 
-On Tue, Aug 15, 2017 at 10:21 AM, Andrew Jeffery <andrew@aj.id.au> wrote:
+On Tue, Aug 15, 2017 at 4:51 PM, Andrew Jeffery <andrew@aj.id.au> wrote:
 > In addition to the base, low and high clock configuration, the AC timing
 > register #1 on the AST2400 houses fields controlling:
 >
@@ -61,13 +65,10 @@ On Tue, Aug 15, 2017 at 10:21 AM, Andrew Jeffery <andrew@aj.id.au> wrote:
 > +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
 > +                       ASPEED_I2CD_TIME_THDSTA_MASK |
 > +                       ASPEED_I2CD_TIME_TACST_MASK);
-> +       clk_reg_val |= bus->get_clk_reg_val(divisor);
->         writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
->         writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
->
-> --
-> 2.11.0
->
 
-Awesome! I think this might fix an issue we saw on one of our boards.
-I am out of the country right now, so I cannot test this myself, until Monday.
+Instead of keeping the u-boot values (which appear to be hard-coded),
+should we instead put the known working values in the register?
+
+Cheers,
+
+Joel
