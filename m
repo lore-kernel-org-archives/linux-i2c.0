@@ -1,46 +1,59 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
-Date: Wed, 16 Aug 2017 23:03:55 +0200
-Message-ID: <CAMuHMdXB0aU6mdaTw02Fz-9Mr+Ums4_SLmtDgi8b2gE75SsMVg@mail.gmail.com>
-References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
- <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
- <CAK8P3a06GoMdKdn=3Cq0FUwYnjGX0oG+FQLjxfiasVDpbonWRw@mail.gmail.com>
- <20170731231509.77d1fba4@bbrezillon> <CAK8P3a0p=m-8U7TN8usG8HO-QNu_S7rSfykNzu4gm+MOaM2Kzg@mail.gmail.com>
- <20170801142936.5df48702@bbrezillon> <CAK8P3a0SH4kWcvXK+_iPt9LWuNnpjr+omp+ZpyTLjT=H602n+w@mail.gmail.com>
- <20170801153414.6ce34ee8@bbrezillon> <20170801141218.GA1450@katana>
- <20170801164826.423183ff@bbrezillon> <20170801150108.GC1450@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [wsa:renesas/topic/i2c-core-dma-rfc-v4 6/6]
+ drivers//i2c/i2c-dev.c:284:23: error: 'I2C_M_SAFE_DMA' undeclared
+Date: Wed, 16 Aug 2017 23:05:52 +0200
+Message-ID: <20170816210551.lvh5sdr33spseenu@ninjato>
+References: <201708170421.D0PlJuFU%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170801150108.GC1450@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Jan Kotas <jank-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll@ar>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="zaoswf27zmaqff57"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:57596 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752233AbdHPVFx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 16 Aug 2017 17:05:53 -0400
+Content-Disposition: inline
+In-Reply-To: <201708170421.D0PlJuFU%fengguang.wu@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: kbuild test robot <fengguang.wu@intel.com>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org
 
-On Tue, Aug 1, 2017 at 5:01 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> I'm perfectly fine with the I3C / I2C framework separation. The only
->> minor problem I had with that was the inaccuracy of the
->> sysfs/device-model representation: we don't have one i2c and one i3c
->> bus, we just have one i3c bus with a mix of i2c and i3c devices.
->
-> I understand that. What if I2C had the same seperation between the "bus"
-> and the "master"?
 
-There can be multiple masters on an i2c bus.  But not on an i3c bus, due
-to SCL being push/pull.
+--zaoswf27zmaqff57
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Gr{oetje,eeting}s,
+Hi,
 
-                        Geert
+can buildbot be configured in a way that only for "i2c/for-*" branches
+the build errors are reported to official mailing list? Any differently
+prefixed branches are experimental and do not need attention from
+official mailing lists IMHO.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+Thanks,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+   Wolfram
+
+
+--zaoswf27zmaqff57
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUs6sACgkQFA3kzBSg
+KbYVcw/9EjufYDFHCKoQjnDfrxZArm0jVPcgcuzKi1buPSy6YUP6bwY1d05B4/O+
+9NUJo888YzIUt6+N02ryCni1rJB6NM6DFC3GNYaRDXJw3rgkXHAGNW2fSKdm5iFL
+B5pgX2xq7TEYAN6VHqEtU+0Cd7howBYw/F3if4J+isOFZATzGicpqLD7QfsOHE92
+G2tQJvmvJWWZLgpiAusoP2Qgtq+0Iqw/2wS1U6c9gG/DB2rDlZ6RZbjsHy1tdM7M
+gWiScNCTDuGvw26XEuTm+SW6ikeNpcLzI8bZwhc24VdqQvUvGyE1pLEWW6oOkzMo
+wRXIRqMI9pdI6I0qD7wJgxATIIsnW9Fq9Km4c6RMoMvYczP2TtEjTDF3YvwBIpAd
+wY+OcwsHxnBtzIUTcJ0dSExct+qf+1+A+B11OUnqTOTGJ+5rh8MbpwYwxKe4KfXu
+nchX1i93yZnCcg+LiYAFO/IeRZUSjGJf6a/D5TOB+dvSibogsydOZN8+9srbbsuL
+u9qTd1mMZNBrPIWZ61ciRetQ0FSUHPZpYqDSL1g94T7Yl/VGlXjXZ7rszmy1YFLe
+SbX0dIJu9CXvxhrd5Ccaq22bJVKrpFVtI+XG88waYa00gr0MQEgmQbHb89XWgv+6
+rK/AhN2Hdg2JWtbPQwk942cnLcBqaFHY/KJC3gYTfU7JSFHVb9c=
+=gpJ6
+-----END PGP SIGNATURE-----
+
+--zaoswf27zmaqff57--
