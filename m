@@ -1,81 +1,245 @@
-From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
- configuring bus frequency
-Date: Wed, 16 Aug 2017 08:53:30 +0200
-Message-ID: <247768a3-074f-70ad-6132-39d1443ce210@kaod.org>
-References: <20170815072102.23067-1-andrew@aj.id.au>
- <CACPK8XeNDxo14KRsAqo3a0Rs26h-1vRsLyqSX+bt2jfZHq=5yA@mail.gmail.com>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig-5C7GfCeVMHo@public.gmane.org>
+Subject: Re: [patch net-next 0/3] net/sched: Improve getting objects by indexes
+Date: Wed, 16 Aug 2017 09:49:07 +0200
+Message-ID: <144b87a3-bbe4-a194-ed83-e54840d7c7c2@amd.com>
+References: <1502849538-14284-1-git-send-email-chrism@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from 8.mo3.mail-out.ovh.net ([87.98.172.249]:46220 "EHLO
-        8.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751224AbdHPH2y (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 16 Aug 2017 03:28:54 -0400
-Received: from player758.ha.ovh.net (b6.ovh.net [213.186.33.56])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id B44AE12B77B
-        for <linux-i2c@vger.kernel.org>; Wed, 16 Aug 2017 08:53:43 +0200 (CEST)
-In-Reply-To: <CACPK8XeNDxo14KRsAqo3a0Rs26h-1vRsLyqSX+bt2jfZHq=5yA@mail.gmail.com>
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <1502849538-14284-1-git-send-email-chrism-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+To: Chris Mi <chrism-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lucho-OnYtXJJ0/fesTnJN9+BGXg@public.gmane.org, sergey.senozhatsky.work-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, snitzer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, markb-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org, tom.leiming-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, stefanr-MtYdepGKPcBMYopoZt5u/LNAH6kLmebB@public.gmane.org, zhi.a.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, bfields-uC3wQj2KruNg9hUCZPvPmw@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org, jinpu.wang-EIkl63zCoXaH+58JC4qpiA@public.gmane.org, pshelar-LZ6Gd1LRuIk@public.gmane.org, sumit.semwal-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, AlexBin.Xie-5C7GfCeVMHo@public.gmane.org, david1.zhou-5C7GfCeVMHo@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maximlevitsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sudarsana.kalluru-h88ZbnxC6KDQT0dZR+AlfA@public.gmane.org, marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-atm-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, dtwlin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, michel.daenzer-5C7GfCeVMHo@public.gmane.org, dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, niranjana.vishwanathapura-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, philipp.reisner-63ez5xqkn6DQT0dZR+AlfA@public.gmane.org, shli-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org, pmladek-IBi9RG/b67k@public.gmane.org, dick.kennedy-dY08KVG/lbpWk0Htik3J/w@public.gmane.orglinu
 List-Id: linux-i2c@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
-Cc: Ryan Chen <ryan_chen@aspeedtech.com>, linux-aspeed@lists.ozlabs.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 
-On 08/16/2017 08:49 AM, Joel Stanley wrote:
-> On Tue, Aug 15, 2017 at 4:51 PM, Andrew Jeffery <andrew@aj.id.au> wrote:
->> In addition to the base, low and high clock configuration, the AC timing
->> register #1 on the AST2400 houses fields controlling:
->>
->> 1. tBUF: Minimum delay between Stop and Start conditions
->> 2. tHDSTA: Hold time for the Start condition
->> 3. tACST: Setup time for Start and Stop conditions, and hold time for the
->>    Repeated Start condition
->>
->> These values are defined in hardware on the AST2500 and therefore don't
->> need to be set.
->>
->> aspeed_i2c_init_clk() was performing a direct write of the generated
->> clock values rather than a read/mask/modify/update sequence to retain
->> tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
->> fields on the AST2400. This resulted in a delay/setup/hold time of 1
->> base clock, which in some configurations is not enough for some devices
->> (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
->> bus speed of 100kHz).
->>
->> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
->> ---
->>  drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
->>  1 file changed, 8 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
->> index ee76e6dddc4b..284f8670dbeb 100644
->> --- a/drivers/i2c/busses/i2c-aspeed.c
->> +++ b/drivers/i2c/busses/i2c-aspeed.c
->> @@ -53,6 +53,9 @@
->>  #define ASPEED_I2CD_MASTER_EN                          BIT(0)
->>
->>  /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
->> +#define ASPEED_I2CD_TIME_TBUF_MASK                     GENMASK(31, 28)
->> +#define ASPEED_I2CD_TIME_THDSTA_MASK                   GENMASK(27, 24)
->> +#define ASPEED_I2CD_TIME_TACST_MASK                    GENMASK(23, 20)
->>  #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT                        16
->>  #define ASPEED_I2CD_TIME_SCL_HIGH_MASK                 GENMASK(19, 16)
->>  #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT                 12
->> @@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
->>         u32 divisor, clk_reg_val;
->>
->>         divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
->> -       clk_reg_val = bus->get_clk_reg_val(divisor);
->> +       clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
->> +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
->> +                       ASPEED_I2CD_TIME_THDSTA_MASK |
->> +                       ASPEED_I2CD_TIME_TACST_MASK);
-> 
-> Instead of keeping the u-boot values (which appear to be hard-coded),
-> should we instead put the known working values in the register?
+Am 16.08.2017 um 04:12 schrieb Chris Mi:
+> Using current TC code, it is very slow to insert a lot of rules.
+>
+> In order to improve the rules update rate in TC,
+> we introduced the following two changes:
+>          1) changed cls_flower to use IDR to manage the filters.
+>          2) changed all act_xxx modules to use IDR instead of
+>             a small hash table
+>
+> But IDR has a limitation that it uses int. TC handle uses u32.
+> To make sure there is no regression, we also changed IDR to use
+> unsigned long. All clients of IDR are changed to use new IDR API.
 
-Yes. I was wondering where the initial setting was from on the AST400.
+WOW, wait a second. The idr change is touching a lot of drivers and to 
+be honest doesn't looks correct at all.
 
-C.
+Just look at the first chunk of your modification:
+> @@ -998,8 +999,9 @@ int bsg_register_queue(struct request_queue *q, struct device *parent,
+>   
+>   	mutex_lock(&bsg_mutex);
+>   
+> -	ret = idr_alloc(&bsg_minor_idr, bcd, 0, BSG_MAX_DEVS, GFP_KERNEL);
+> -	if (ret < 0) {
+> +	ret = idr_alloc(&bsg_minor_idr, bcd, &idr_index, 0, BSG_MAX_DEVS,
+> +			GFP_KERNEL);
+> +	if (ret) {
+>   		if (ret == -ENOSPC) {
+>   			printk(KERN_ERR "bsg: too many bsg devices\n");
+>   			ret = -EINVAL;
+The condition "if (ret)" will now always be true after the first 
+allocation and so we always run into the error handling after that.
+
+I've never read the bsg code before, but that's certainly not correct. 
+And that incorrect pattern repeats over and over again in this code.
+
+Apart from that why the heck do you want to allocate more than 1<<31 
+handles?
+
+Regards,
+Christian.
+
+>
+> Chris Mi (3):
+>    idr: Use unsigned long instead of int
+>    net/sched: Change cls_flower to use IDR
+>    net/sched: Change act_api and act_xxx modules to use IDR
+>
+>   block/bsg.c                                     |   8 +-
+>   block/genhd.c                                   |  12 +-
+>   drivers/atm/nicstar.c                           |  11 +-
+>   drivers/block/drbd/drbd_main.c                  |  31 +--
+>   drivers/block/drbd/drbd_nl.c                    |  22 ++-
+>   drivers/block/drbd/drbd_proc.c                  |   3 +-
+>   drivers/block/drbd/drbd_receiver.c              |  15 +-
+>   drivers/block/drbd/drbd_state.c                 |  34 ++--
+>   drivers/block/drbd/drbd_worker.c                |   6 +-
+>   drivers/block/loop.c                            |  17 +-
+>   drivers/block/nbd.c                             |  20 +-
+>   drivers/block/zram/zram_drv.c                   |   9 +-
+>   drivers/char/tpm/tpm-chip.c                     |  10 +-
+>   drivers/char/tpm/tpm.h                          |   2 +-
+>   drivers/dca/dca-sysfs.c                         |   9 +-
+>   drivers/firewire/core-cdev.c                    |  18 +-
+>   drivers/firewire/core-device.c                  |  15 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c     |   8 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_ctx.c         |   9 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c         |   6 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c         |   2 +-
+>   drivers/gpu/drm/drm_auth.c                      |   9 +-
+>   drivers/gpu/drm/drm_connector.c                 |  10 +-
+>   drivers/gpu/drm/drm_context.c                   |  20 +-
+>   drivers/gpu/drm/drm_dp_aux_dev.c                |  11 +-
+>   drivers/gpu/drm/drm_drv.c                       |   6 +-
+>   drivers/gpu/drm/drm_gem.c                       |  19 +-
+>   drivers/gpu/drm/drm_info.c                      |   2 +-
+>   drivers/gpu/drm/drm_mode_object.c               |  11 +-
+>   drivers/gpu/drm/drm_syncobj.c                   |  18 +-
+>   drivers/gpu/drm/exynos/exynos_drm_ipp.c         |  25 ++-
+>   drivers/gpu/drm/i915/gvt/display.c              |   2 +-
+>   drivers/gpu/drm/i915/gvt/kvmgt.c                |   2 +-
+>   drivers/gpu/drm/i915/gvt/vgpu.c                 |   9 +-
+>   drivers/gpu/drm/i915/i915_debugfs.c             |   6 +-
+>   drivers/gpu/drm/i915/i915_gem_context.c         |   9 +-
+>   drivers/gpu/drm/qxl/qxl_cmd.c                   |   8 +-
+>   drivers/gpu/drm/qxl/qxl_release.c               |  14 +-
+>   drivers/gpu/drm/sis/sis_mm.c                    |   8 +-
+>   drivers/gpu/drm/tegra/drm.c                     |  10 +-
+>   drivers/gpu/drm/tilcdc/tilcdc_slave_compat.c    |   3 +-
+>   drivers/gpu/drm/vgem/vgem_fence.c               |  12 +-
+>   drivers/gpu/drm/via/via_mm.c                    |   8 +-
+>   drivers/gpu/drm/virtio/virtgpu_kms.c            |   5 +-
+>   drivers/gpu/drm/virtio/virtgpu_vq.c             |   5 +-
+>   drivers/gpu/drm/vmwgfx/vmwgfx_resource.c        |   9 +-
+>   drivers/i2c/i2c-core-base.c                     |  19 +-
+>   drivers/infiniband/core/cm.c                    |   8 +-
+>   drivers/infiniband/core/cma.c                   |  12 +-
+>   drivers/infiniband/core/rdma_core.c             |   9 +-
+>   drivers/infiniband/core/sa_query.c              |  23 +--
+>   drivers/infiniband/core/ucm.c                   |   7 +-
+>   drivers/infiniband/core/ucma.c                  |  14 +-
+>   drivers/infiniband/hw/cxgb3/iwch.c              |   4 +-
+>   drivers/infiniband/hw/cxgb3/iwch.h              |   4 +-
+>   drivers/infiniband/hw/cxgb4/device.c            |  18 +-
+>   drivers/infiniband/hw/cxgb4/iw_cxgb4.h          |   4 +-
+>   drivers/infiniband/hw/hfi1/init.c               |   9 +-
+>   drivers/infiniband/hw/hfi1/vnic_main.c          |   6 +-
+>   drivers/infiniband/hw/mlx4/cm.c                 |  13 +-
+>   drivers/infiniband/hw/ocrdma/ocrdma_main.c      |   7 +-
+>   drivers/infiniband/hw/qib/qib_init.c            |   9 +-
+>   drivers/infiniband/ulp/opa_vnic/opa_vnic_vema.c |  10 +-
+>   drivers/iommu/intel-svm.c                       |   9 +-
+>   drivers/md/dm.c                                 |  13 +-
+>   drivers/memstick/core/memstick.c                |  10 +-
+>   drivers/memstick/core/ms_block.c                |   9 +-
+>   drivers/memstick/core/mspro_block.c             |  12 +-
+>   drivers/mfd/rtsx_pcr.c                          |   9 +-
+>   drivers/misc/c2port/core.c                      |   7 +-
+>   drivers/misc/cxl/context.c                      |   8 +-
+>   drivers/misc/cxl/main.c                         |  15 +-
+>   drivers/misc/mei/main.c                         |   8 +-
+>   drivers/misc/mic/scif/scif_api.c                |  11 +-
+>   drivers/misc/mic/scif/scif_ports.c              |  18 +-
+>   drivers/misc/tifm_core.c                        |   9 +-
+>   drivers/mtd/mtdcore.c                           |   9 +-
+>   drivers/mtd/mtdcore.h                           |   2 +-
+>   drivers/mtd/ubi/block.c                         |   7 +-
+>   drivers/net/ppp/ppp_generic.c                   |  27 +--
+>   drivers/net/tap.c                               |  10 +-
+>   drivers/net/wireless/ath/ath10k/htt.h           |   3 +-
+>   drivers/net/wireless/ath/ath10k/htt_tx.c        |  22 ++-
+>   drivers/net/wireless/ath/ath10k/mac.c           |   2 +-
+>   drivers/net/wireless/marvell/mwifiex/main.c     |  13 +-
+>   drivers/net/wireless/marvell/mwifiex/wmm.c      |   2 +-
+>   drivers/of/overlay.c                            |  15 +-
+>   drivers/of/unittest.c                           |  25 ++-
+>   drivers/power/supply/bq2415x_charger.c          |  16 +-
+>   drivers/power/supply/bq27xxx_battery_i2c.c      |  15 +-
+>   drivers/power/supply/ds2782_battery.c           |   9 +-
+>   drivers/powercap/powercap_sys.c                 |   8 +-
+>   drivers/pps/pps.c                               |  10 +-
+>   drivers/rapidio/rio_cm.c                        |  17 +-
+>   drivers/remoteproc/remoteproc_core.c            |   8 +-
+>   drivers/rpmsg/virtio_rpmsg_bus.c                |   8 +-
+>   drivers/scsi/bfa/bfad_im.c                      |   8 +-
+>   drivers/scsi/ch.c                               |   8 +-
+>   drivers/scsi/lpfc/lpfc_crtn.h                   |   2 +-
+>   drivers/scsi/lpfc/lpfc_init.c                   |  11 +-
+>   drivers/scsi/lpfc/lpfc_vport.c                  |   8 +-
+>   drivers/scsi/sg.c                               |  10 +-
+>   drivers/scsi/st.c                               |   8 +-
+>   drivers/staging/greybus/uart.c                  |  22 +--
+>   drivers/staging/unisys/visorhba/visorhba_main.c |   7 +-
+>   drivers/target/iscsi/iscsi_target.c             |   7 +-
+>   drivers/target/iscsi/iscsi_target_login.c       |   9 +-
+>   drivers/target/target_core_device.c             |   9 +-
+>   drivers/target/target_core_user.c               |  13 +-
+>   drivers/tee/tee_shm.c                           |   8 +-
+>   drivers/uio/uio.c                               |   9 +-
+>   drivers/usb/class/cdc-acm.c                     |  24 +--
+>   drivers/usb/core/devices.c                      |   2 +-
+>   drivers/usb/core/hcd.c                          |   7 +-
+>   drivers/usb/mon/mon_main.c                      |   3 +-
+>   drivers/usb/serial/usb-serial.c                 |  11 +-
+>   drivers/vfio/vfio.c                             |  15 +-
+>   fs/dlm/lock.c                                   |   9 +-
+>   fs/dlm/lockspace.c                              |   6 +-
+>   fs/dlm/recover.c                                |  10 +-
+>   fs/nfs/nfs4client.c                             |   9 +-
+>   fs/nfsd/nfs4state.c                             |   8 +-
+>   fs/notify/inotify/inotify_fsnotify.c            |   4 +-
+>   fs/notify/inotify/inotify_user.c                |   9 +-
+>   fs/ocfs2/cluster/tcp.c                          |  10 +-
+>   include/linux/idr.h                             |  26 +--
+>   include/linux/of.h                              |   4 +-
+>   include/linux/radix-tree.h                      |   2 +-
+>   include/net/9p/9p.h                             |   2 +-
+>   include/net/act_api.h                           |  76 +++-----
+>   ipc/msg.c                                       |   2 +-
+>   ipc/sem.c                                       |   2 +-
+>   ipc/shm.c                                       |   4 +-
+>   ipc/util.c                                      |  17 +-
+>   kernel/bpf/syscall.c                            |  20 +-
+>   kernel/cgroup/cgroup.c                          |  57 +++---
+>   kernel/events/core.c                            |  10 +-
+>   kernel/workqueue.c                              |  15 +-
+>   lib/idr.c                                       |  38 ++--
+>   lib/radix-tree.c                                |   5 +-
+>   mm/memcontrol.c                                 |  11 +-
+>   net/9p/client.c                                 |  17 +-
+>   net/9p/util.c                                   |  14 +-
+>   net/core/net_namespace.c                        |  23 ++-
+>   net/mac80211/cfg.c                              |  23 +--
+>   net/mac80211/iface.c                            |   3 +-
+>   net/mac80211/main.c                             |   2 +-
+>   net/mac80211/tx.c                               |   7 +-
+>   net/mac80211/util.c                             |   3 +-
+>   net/netlink/genetlink.c                         |  18 +-
+>   net/qrtr/qrtr.c                                 |  21 +-
+>   net/rxrpc/conn_client.c                         |  15 +-
+>   net/sched/act_api.c                             | 249 +++++++++++-------------
+>   net/sched/act_bpf.c                             |  17 +-
+>   net/sched/act_connmark.c                        |  16 +-
+>   net/sched/act_csum.c                            |  16 +-
+>   net/sched/act_gact.c                            |  16 +-
+>   net/sched/act_ife.c                             |  20 +-
+>   net/sched/act_ipt.c                             |  26 ++-
+>   net/sched/act_mirred.c                          |  19 +-
+>   net/sched/act_nat.c                             |  16 +-
+>   net/sched/act_pedit.c                           |  18 +-
+>   net/sched/act_police.c                          |  18 +-
+>   net/sched/act_sample.c                          |  17 +-
+>   net/sched/act_simple.c                          |  20 +-
+>   net/sched/act_skbedit.c                         |  18 +-
+>   net/sched/act_skbmod.c                          |  18 +-
+>   net/sched/act_tunnel_key.c                      |  20 +-
+>   net/sched/act_vlan.c                            |  22 +--
+>   net/sched/cls_flower.c                          |  55 +++---
+>   net/sctp/associola.c                            |   8 +-
+>   net/tipc/server.c                               |   7 +-
+>   172 files changed, 1256 insertions(+), 1113 deletions(-)
+>
