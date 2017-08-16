@@ -1,70 +1,75 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
-Date: Wed, 16 Aug 2017 16:51:33 +0200
-Message-ID: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com> <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2 02/14] staging: typec: tcpm: Add get_current_limit
+ tcpc_dev callback
+Date: Wed, 16 Aug 2017 08:11:18 -0700
+Message-ID: <655b5cd9-76df-c99d-39d9-efe31ad5849d@roeck-us.net>
+References: <20170815200502.17339-1-hdegoede@redhat.com>
+ <20170815200502.17339-3-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20170815200502.17339-3-hdegoede@redhat.com>
+Content-Language: en-US
+Sender: linux-pm-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 08/15/2017 01:04 PM, Hans de Goede wrote:
+> A Rp signalling the default current limit indicates that we're possibly
+> connected to an USB2 power-source. In some cases the type-c port-controller
+> may provide the capability to detect the current-limit in this case,
+> through e.g. BC1.2 detection.
+> 
+> This commit adds an optional get_current_limit tcpc_dev callback which
+> allows the port-controller to provide current-limit detection for when
+> the CC pin is pulled up with Rp.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-On Tue, Jul 18, 2017 at 12:23 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> One helper checks if DMA is suitable and optionally creates a bounce
-> buffer, if not. The other function returns the bounce buffer and makes
-> sure the data is properly copied back to the message.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
 > ---
-> Changes since v2:
->
-> * rebased to v4.13-rc1
-> * helper functions are not inlined anymore but moved to i2c core
-> * __must_check has been added to the buffer check helper
-> * the release function has been renamed to contain 'dma' as well
-
-Right:
-
-drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
-undeclared here (not in a function)
- EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
-
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-
-> +/**
-> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
-      ^^^^^^^^^^^^^^^^^^^^^^
-> + * @msg: the message to be copied back to
-> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
-> + *             May be NULL.
-> + */
-> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
-> +{
-> +       if (!bounce_buf)
-> +               return;
-> +
-> +       if (msg->flags & I2C_M_RD)
-> +               memcpy(msg->buf, bounce_buf, msg->len);
-> +
-> +       kfree(bounce_buf);
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
-                     ^^^^^^^^^^^^^^^^^^^^^^
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> Changes in v2:
+> -s/get_usb2_current_limit/get_current_limit/
+> ---
+>   drivers/staging/typec/tcpm.c | 5 ++++-
+>   drivers/staging/typec/tcpm.h | 7 +++++++
+>   2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/staging/typec/tcpm.c b/drivers/staging/typec/tcpm.c
+> index 20eb4eb..8e823af 100644
+> --- a/drivers/staging/typec/tcpm.c
+> +++ b/drivers/staging/typec/tcpm.c
+> @@ -660,7 +660,10 @@ static u32 tcpm_get_current_limit(struct tcpm_port *port)
+>   		break;
+>   	case TYPEC_CC_RP_DEF:
+>   	default:
+> -		limit = 0;
+> +		if (port->tcpc->get_current_limit)
+> +			limit = port->tcpc->get_current_limit(port->tcpc);
+> +		else
+> +			limit = 0;
+>   		break;
+>   	}
+>   
+> diff --git a/drivers/staging/typec/tcpm.h b/drivers/staging/typec/tcpm.h
+> index 19c307d..1465668 100644
+> --- a/drivers/staging/typec/tcpm.h
+> +++ b/drivers/staging/typec/tcpm.h
+> @@ -108,6 +108,13 @@ struct tcpc_dev {
+>   
+>   	int (*init)(struct tcpc_dev *dev);
+>   	int (*get_vbus)(struct tcpc_dev *dev);
+> +	/*
+> +	 * This optional callback gets called by the tcpm core when configured
+> +	 * as a snk and cc=Rp-def. This allows the tcpm to provide a fallback
+> +	 * current-limit detection method for the cc=Rp-def case. E.g. some
+> +	 * tcpcs may include BC1.2 charger detection and use that in this case.
+> +	 */
+> +	int (*get_current_limit)(struct tcpc_dev *dev);
+>   	int (*set_cc)(struct tcpc_dev *dev, enum typec_cc_status cc);
+>   	int (*get_cc)(struct tcpc_dev *dev, enum typec_cc_status *cc1,
+>   		      enum typec_cc_status *cc2);
+> 
