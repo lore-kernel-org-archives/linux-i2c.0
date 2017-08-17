@@ -1,60 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: sh_mobile: avoid unused return
-Date: Thu, 17 Aug 2017 17:50:33 +0200
-Message-ID: <20170817155033.tsiuw6e2ugynx5xb@ninjato>
-References: <20170815203624.19274-1-erosca@de.adit-jv.com>
- <20170815203624.19274-3-erosca@de.adit-jv.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Remove needless
+ pm_runtime_put_noidle() call
+Date: Thu, 17 Aug 2017 17:57:08 +0200
+Message-ID: <20170817155708.iakoglf7qrdf66bc@ninjato>
+References: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tm4y4qdyp2vy77kv"
+        protocol="application/pgp-signature"; boundary="6uo77eyu4mijgow6"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:60269 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:60288 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752555AbdHQPue (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Aug 2017 11:50:34 -0400
+        id S1751620AbdHQP5K (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Aug 2017 11:57:10 -0400
 Content-Disposition: inline
-In-Reply-To: <20170815203624.19274-3-erosca@de.adit-jv.com>
+In-Reply-To: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Eugeniu Rosca <erosca@de.adit-jv.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>
 
 
---tm4y4qdyp2vy77kv
+--6uo77eyu4mijgow6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 15, 2017 at 10:36:24PM +0200, Eugeniu Rosca wrote:
-> Fix smatch warning:
-> drivers/i2c/busses/i2c-sh_mobile.c:564 \
->   sh_mobile_i2c_request_dma_chan() warn: unused return: ret =3D PTR_ERR()
+On Tue, Aug 15, 2017 at 05:34:44PM +0300, Jarkko Nikula wrote:
+> I guess pm_runtime_put_noidle() call in i2c_dw_probe_slave() was copied
+> by accident from similar master mode adapter registration code. It is
+> unbalanced due missing pm_runtime_get_noresume() but harmless since it
+> doesn't decrease dev->power.usage_count below zero.
 >=20
-> Fixes: fe07adec730d ("i2c: sh_mobile: fix uninitialized var when debug is=
- enabled")
-> Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+> In theory we can hit similar needless runtime suspend/resume cycle
+> during slave mode adapter registration that was happening when
+> registering the master mode adapter. See commit cd998ded5c12 ("i2c:
+> designware: Prevent runtime suspend during adapter registration").
+>=20
+> However, since we are slave, we can consider it as a wrong configuration
+> if we have other slaves attached under this adapter and can omit the
+> pm_runtime_get_noresume()/pm_runtime_put_noidle() calls for simplicity.
+>=20
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks! Not really a bugfix, but 2/2 is, so,
+well... BTW, Luis, are you still there? Holiday season?
 
 
---tm4y4qdyp2vy77kv
+--6uo77eyu4mijgow6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmVu0gACgkQFA3kzBSg
-KbbXeg/9G5tJKDi6EzX9pHm5slAjDpx2yWZQNlCOcnd+8VY6Z1vdesHlOOgQGzup
-5xE4ZroIsrCSWZ9bmnnYHKFt43xSYiP7E8X9oY/3LvWz6mkU0kRy+GQCddWzhhYh
-lVxEd+PM/5eMDRic+vCM9UTflZRJmDe6xqEB493j5kcwWGsx8chuNOchGd8cAf+h
-et3oE9N5O8RXpoUTlQyojrO/IEIFMR1i3RFRey7Ij00/QaXg5VqOEcJQaI+ZIif9
-Z1/BUu/Sg5s1KyEM5dsAKf7/4MaIQAuqb+XNtnWr387J+uvE9Qgf1O73hVvpFT0q
-0WbZrCuIaO62c0AEkRatBMwN9+yNjkaiFwqeyxHtL9nKImPF+GshOGQu1b9zvQkV
-veHMpVsAI/7rNj0pvI3W+c7/o/PLR98caNptfeoOCIov4wyAI+sqzyokW5jAWyJv
-URNOLls0mPReit3XrxDe1PcotK9LJi1TaeBFshOMSCRn4C6DSvopYWPAAIPE7v1L
-A4SAS/VamK6nVdeNIevvle5HipS7zZIk/VOXmSz6BDmsnICGTIs/HaP+UH+gmBUD
-8c+48fyNvvcqGAHFR6qDiyHSj8px1gqX0qo9Obq83BBYhjOYNlGiKhCPZqUpk9ov
-xc+cf4pJ+eFMV9JBhoZ/tkGkir4G8rU5bymPt76iducT+VpQCf0=
-=YlXu
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmVvNQACgkQFA3kzBSg
+KbaWCg/6AzKuexNoTb4MCQ6deSjAwBpz27CpjxbtULt/L8k//08rYysx6NRJNkg7
+8fTPwFH9l2XHp4sI6GnHsY/4WDQhx7rah31T/82+q3oMASi1GdeJTc4lWeQ2oOoK
+zqq2SPPyzcgWZonjk/PItOap/nqDqYbdacl5dw+Uzz/8Y0qBmSTxVTHcZXpL7Nnv
+HaxGCAuM41PMRa2LRcT5J1vbPcahRDpBRdIRTXisVEC9QKqn6+saG/gNolzTLSk3
+4ySOf3L9uuguBSfKpDb1Bp6iYrT2T5vlWAHL4zt2IEX9paiQmdSB4rVt6mR9JFnH
+8+cOmh4BQmmlF161JMeb7+KBQ7nh0lVarZfHF2SmKbYgQcM1wu7g4DVQUzJ2wupi
+9F+cYUT0zoNNT6nCDwJ9vBsd/eREKF18lqLDeYhVG0MOyRt+Alogc+oIrqGhvUdD
+HGXFGvSHE/tpCHJOtq3JGxZTpjosKn5/w2x2Mg/lakN2eEWLu2pyyCEXaWcxzX+I
+Qe5pbMy1Uml+3uKJQLkirhBviw3ZD/smEfr2IR/pjrPqrI5vu0UF5DI4m0hkQcFM
+gP1zguXfp4lVW0ZVi0PD+cv6frK3DZ19mGTHpp/G0Zmf/MANzJ5KzMoVUk6Dtsaj
+XdSV8hMYdJt6ZzpGZkjsbcvV7W9oZfV/UTyNekQ4ysgj0tQ7H3Q=
+=q86H
 -----END PGP SIGNATURE-----
 
---tm4y4qdyp2vy77kv--
+--6uo77eyu4mijgow6--
