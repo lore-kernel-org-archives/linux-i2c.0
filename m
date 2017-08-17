@@ -1,53 +1,74 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: pinctrl: potential NULL dereference on error
-Date: Thu, 17 Aug 2017 14:34:02 +0200
-Message-ID: <a08c1f34-9487-c606-77b9-8ea73a3ed30f@axentia.se>
-References: <20170817115355.fsc3z64eih7wjze6@mwanda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <20170817115355.fsc3z64eih7wjze6@mwanda>
-Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Subject: [RFC PATCH v4 0/6] i2c: document DMA handling and add helpers for it
+Date: Thu, 17 Aug 2017 16:14:43 +0200
+Message-ID: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+So, after revisiting old mail threads, taking part in a similar discussion on
+the USB list, and implementing a not-convincing solution before, here is what I
+cooked up to document and ease DMA handling for I2C within Linux. Please have a
+look at the documentation introduced in patch 3 for details.
 
-On 2017-08-17 13:53, Dan Carpenter wrote:
-> If i2c_mux_alloc() fails then we'd have a NULL derefecrence here.
-> 
-> Fixes: c4aee3e1b0de ("i2c: mux: pinctrl: remove platform_data")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+While the previous versions tried to magically apply bounce buffers when
+needed, it became clear that detecting DMA safe buffers is too fragile. This
+approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+outcome so far is very convincing IMO. The core additions are simple and easy
+to understand (makes me even think of inlining them again?). The driver changes
+for the Renesas IP cores became easier to understand, too. While only a tad for
+the i2c-sh_mobile driver, the situation became a LOT better for the i2c-rcar
+driver. No more DMA disabling for the whole transfer in case of unsafe buffers,
+we are back to per-msg handling. And the code fix is now an easy to understand
+one line change. Yay!
 
-Indeed, thanks for the patch. Applied.
+Of course, we must now whitelist DMA safe buffers. An example for I2C_RDWR case
+is in this series. It makes the i2ctransfer utility have DMA_SAFE buffers,
+which is nice for testing as i2cdump will (currently) not use DMA_SAFE buffers.
+My plan is to add two new calls: i2c_master_{send|receive}_dma_safe which can
+be used if DMA_SAFE buffers are provided. So, drivers can simply switch to
+them. Also, the buffers used within i2c_smbus_xfer_emulated() need to be
+converted to be DMA_SAFE which will cover a huge bunch of use cases. The rest
+is then updating drivers which can be done when needed.
 
-(IIUC, small memory allocations are not supposed to fail so this is
- not really a "real" problem?)
+As these conversions are not done yet, this patch series has RFC status. But I
+already would like to get opinions on this approach, so I'll cc mailing lists
+of the heavier I2C users. Please let me know what you think.
 
-FTR, I have work in progress that further cleans up i2c muxes.
-Most .remove functions disappear from drivers/i2c/muxes/ and
-most i2c mux users outside of i2c/muxes are also simplified for
-a nice net loss in lines-of-code, and this bug would simply not
-have happened with that. Oh well, that's not for the this cycle
-anyway...
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W).
 
-Cheers,
-peda
+The branch can be found here:
 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> index 20b90a7a1e61..cc6818aabab5 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> @@ -173,7 +173,7 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
->  err_del_adapter:
->  	i2c_mux_del_adapters(muxc);
->  err_put_parent:
-> -	i2c_put_adapter(muxc->parent);
-> +	i2c_put_adapter(parent);
->  
->  	return ret;
->  }
-> 
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-rfc-v4
 
+And big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+Changes since v3:
+	* completely redesigned
+
+Wolfram Sang (6):
+  i2c: add a message flag for DMA safe buffers
+  i2c: add helpers to ease DMA handling
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use helper to decide if DMA is useful
+  i2c: rcar: skip DMA if buffer is not safe
+  i2c: dev: mark RDWR buffers as DMA_SAFE
+
+ Documentation/i2c/DMA-considerations | 50 ++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        |  2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c   |  8 ++++--
+ drivers/i2c/i2c-core-base.c          | 45 ++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-dev.c                |  2 ++
+ include/linux/i2c.h                  |  3 +++
+ include/uapi/linux/i2c.h             |  3 +++
+ 7 files changed, 110 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/i2c/DMA-considerations
+
+-- 
+2.11.0
