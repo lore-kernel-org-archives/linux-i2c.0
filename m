@@ -1,80 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Thu, 17 Aug 2017 21:39:12 +0200
-Message-ID: <20170817193912.hccxyjwstrtr5oiv@ninjato>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: i801: Allow ACPI SystemIO OpRegion to conflict
+ harder
+Date: Thu, 17 Aug 2017 21:48:58 +0200
+Message-ID: <20170817194858.znjttvqq662agwk2@ninjato>
+References: <20170626204009.32607-1-lyude@redhat.com>
+ <20170812111507.rxc7lzc6f7uoqlt2@ninjato>
+ <1502726770.489.0.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tzsrhrz7gahwvwmv"
-Return-path: <linux-input-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="agqwtvhk2v3qtsjr"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170722185537.12696-2-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1502726770.489.0.camel@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lyude Paul <lyude@redhat.com>
+Cc: intel-gfx@lists.freedesktop.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, Benjamin Tissoires <btissoir@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---tzsrhrz7gahwvwmv
+--agqwtvhk2v3qtsjr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hey guys,
 
-Sorry, I don't understand some of the stuff here. But I'd like to
-understand it before I add something to the I2C core. Especially as it
-feels a bit a the edge of the driver model to me.
+> > > Signed-off-by: Lyude <lyude@redhat.com>
+> >=20
+> > No full name? Or is it your full name?
+> Looks like I forgot to change my desktop's S-B identity to full name,
+> but it shouldn't be a big deal. I've got tons of other patches already
+> upstream like this.
 
-On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
-> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
-> it uses its own protocol which is handled by the chipone_icn8318 driver.
->=20
-> If the i2c_hid_driver's probe functon gets called it will fail with a
-> "hid_descr_cmd failed" error.
+I'd much prefer a full name. But more importantly, what I definately
+need is some review/ack/whatever because I don't know enough about this
+stuff (other than knowing it is a fragile area).
 
-That sounds like it fails pretty late. I'd assume we could check the
-blacklist right at the beginning of probe and bail out immediately?
-
-> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
-> device in D3 state
-
-Where does that happen? Sorry, I can't find it. Would it be an idea to
-add a flag somewhere telling the device should not be put into D3? That
-would be way more generic in case this happens outside I2C world, or?
-Disclaimer: I am brainstorming here, don't know super much about ACPI.
-
-> This commit adds a match callback and returns -ENODEV for i2c_client-s
-> with a CHPN0001 ACPI device id, so that the probe function never gets
-> called, fixing the controller losing its firmware.
-
-Do you know if something like a match-callback exists somewhere else in
-the kernel?
+Maybe you could resend with full name and the acpi list on CC?
 
 Regards,
 
    Wolfram
 
 
---tzsrhrz7gahwvwmv
+--agqwtvhk2v3qtsjr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmV8NwACgkQFA3kzBSg
-KbZY5xAAokA05IRMLnYvBKNL8lQZJgmHZre0jVS8174gb6ps/geS3bDVZLjPwyu+
-sHJbZ8Aba5d+AvrY2RQ/3jebAQ/pG9kwOuQQGVyk00z+3eTx3/68PWaYIW187vCb
-qCi9e2/qoXWbh+WUDQO2/AkEqK/E2cTmLds0WCG0Hx8vaQx9Z+mXBChQSz686oxS
-BVbvf3zoE9ljQwzcoDLae3TPc9MFz1qB6MU77v9UO+oeDJ+ppY1ULLtz4YavFPcN
-GQFp0hYBBOJKsjvtgUyUe4tH5EDluHvX1QOvVMtSE/Z9Btqv55Qn/u+FT2OmTfMt
-MUot9oYe/SRKBkoWT3choJ50TM25Z6tf7n3IOiIRFTbw783kkD5PZUxL1BrcpIoG
-AVAobQ7m0PigLnEmgBV6esKhVTL2a9cSqSAbx2zOpV0Lql5JiBDQPqseS5m9vvWP
-aJP9YE7oSyt3HovcFnA1epStT9+nf65WPAeZEJWhJ2wUrBLAD9fxg65TH2bpdJmm
-+zO2C4GDRiKijvnF66Pc08KICc19mHrcCmhVC6mcZldODbsJ1ahcnpoT9CUVoJvJ
-5VimrYX/i25GTsBnqX7FqFHMf29mbMzwW8uGGtG1pjW7ytugPak1SyEPLVz/G9gS
-waKzXEzei1TCL6AlSav+1/5PnjS7pvv4c5JMb58tGrwlgJ6KXDU=
-=QOO4
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmV8yoACgkQFA3kzBSg
+KbYkAw/9FcC8NmQoweSRUsbAdL7qNlQy+9Y/4vqJojsn43o4Oay41F5NOJRxnMON
+3Ky6yhmUOf3W8P+5TTqQ4P3dmEYnbJv5zmjX+6sVMFvkoi+ZQmnFw/tm7nRGGNxQ
+nKj3ZQaM/3tHn6w0TypDCXge3Gshij87Mel9ks1bmZSRHVas9ki+hFsFOs1tRsGM
+pONXiuWp+k/dcLVAOKMiS3Ieyl2i0+sHZIhgsS9DaY7lQbVCcgH//0+9M6vVYehb
+fwr3n4WNs6IFYlrNdxQcXQqg5x/vg8w+L+xaYcLr+IcgNK/8/HcVQiNmyJMVxOTd
+HaN9eKS1q1OahBQb6+YAW+ynJv+IMJ1xr7sifkDA0neYk0mwJGvP2Bu5yNIb/aQV
+gOwyTevwsNeoq6vf2kGqw6U+bzGpplAYVmww1geTn7ilzdtGnEqoOza9yZvuxdV2
+LykKgr93/9mmnh7Ksr5tPLWu+63O8bdNywvmDldfFDd3WFtck3WzcyrueO16AAiu
+1XfyrJDA8Rp2oNuGtid9wwkkBHdSUh9njhLT7Z4Huh4Qm2eJaUWmdzqu5IyKeLTm
+JqQB04t9fVQNk6UiCUE+ovrvpo7wQ8y1B9O3B6Dt2L6SajT9OYCxzs/q4qk3WX3x
+iOALYzat7+fzeycdoRnSL+RS9QBCroEycVBE6FH/sLHgramBZW0=
+=c5e0
 -----END PGP SIGNATURE-----
 
---tzsrhrz7gahwvwmv--
+--agqwtvhk2v3qtsjr--
