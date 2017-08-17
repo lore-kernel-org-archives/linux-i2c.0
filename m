@@ -1,53 +1,49 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
-Date: Thu, 17 Aug 2017 09:48:26 +0200
-Message-ID: <20170817094826.2b9efcb8@bbrezillon>
+Date: Thu, 17 Aug 2017 11:03:10 +0200
+Message-ID: <CACRpkdZm7rrw3PQa9Q2U8N-FopdQJTfdM4uMM9VaatTRfypE1A@mail.gmail.com>
 References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
-        <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
-        <CAK8P3a06GoMdKdn=3Cq0FUwYnjGX0oG+FQLjxfiasVDpbonWRw@mail.gmail.com>
-        <20170731231509.77d1fba4@bbrezillon>
-        <CAK8P3a0p=m-8U7TN8usG8HO-QNu_S7rSfykNzu4gm+MOaM2Kzg@mail.gmail.com>
-        <20170801142936.5df48702@bbrezillon>
-        <CAK8P3a0SH4kWcvXK+_iPt9LWuNnpjr+omp+ZpyTLjT=H602n+w@mail.gmail.com>
-        <20170801153414.6ce34ee8@bbrezillon>
-        <20170801141218.GA1450@katana>
-        <20170801164826.423183ff@bbrezillon>
-        <20170801150108.GC1450@katana>
-        <CAMuHMdXB0aU6mdaTw02Fz-9Mr+Ums4_SLmtDgi8b2gE75SsMVg@mail.gmail.com>
+ <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdXB0aU6mdaTw02Fz-9Mr+Ums4_SLmtDgi8b2gE75SsMVg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Arnd Bergmann <arnd@arndb.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:35881 "EHLO
+        mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751844AbdHQJDM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 17 Aug 2017 05:03:12 -0400
+Received: by mail-oi0-f47.google.com with SMTP id g131so60253379oic.3
+        for <linux-i2c@vger.kernel.org>; Thu, 17 Aug 2017 02:03:11 -0700 (PDT)
+In-Reply-To: <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Jan Kotas <jank@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.>
 
-Le Wed, 16 Aug 2017 23:03:55 +0200,
-Geert Uytterhoeven <geert@linux-m68k.org> a écrit :
+On Mon, Jul 31, 2017 at 6:24 PM, Boris Brezillon
+<boris.brezillon@free-electrons.com> wrote:
 
-> On Tue, Aug 1, 2017 at 5:01 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >> I'm perfectly fine with the I3C / I2C framework separation. The only
-> >> minor problem I had with that was the inaccuracy of the
-> >> sysfs/device-model representation: we don't have one i2c and one i3c
-> >> bus, we just have one i3c bus with a mix of i2c and i3c devices.  
-> >
-> > I understand that. What if I2C had the same seperation between the "bus"
-> > and the "master"?  
-> 
-> There can be multiple masters on an i2c bus.  But not on an i3c bus, due
-> to SCL being push/pull.
+> This infrastructure is not complete yet and will be extended over
+> time.
 
-I guess you mean there can't be a mix of I2C and I3C masters on the same
-bus. Then yes, you're right, you can only connect I2C slaves on an I3C
-bus, but I don't think Wolfram suggested this approach to support this
-case.
+I noticed the lack of pm_* from the core.
 
-Note that there can be multiple I3C masters on an I3C bus. When a
-'secondary master' wants to become the current master it must ask the
-permission to the 'current master' which can decide to ack or nack the
-request.
-As soon as the previous 'current master' accepted to release the bus it
-should act as a slave and if it needs to reclaim the bus, it should ask
-the new 'current master'.
+This will be noticed very quickly since the means the problem seen
+in e.g. commit 04f59143b571 and the wakeup IRQ business will make it
+impossible to do power-efficient drivers until that is resolved.
+
+It'd be nice to have it to PM right from the start, and the I2C core has
+all the right infrastructure in place, so when this stabilize I'd say
+atleast it'd be *nice* if the PM business was added in the same
+kernel release that introduce this core infrastructure, even if it will
+be a separate patch.
+
+I.e. I consider that more of necessary bread and butter and less of
+nice to have topping on the cake.
+
+What I have seen that leaf vendors doing (i3c) device drivers do
+otherwise is complain "it is broken" and then they start to hack
+around it instead of helping out with the core. (I think you're
+well aware of that phenomenon.)
+
+Yours,
+Linus Walleij
