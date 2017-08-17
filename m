@@ -1,63 +1,61 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH v4 4/6] i2c: sh_mobile: use helper to decide if DMA is useful
-Date: Thu, 17 Aug 2017 16:14:47 +0200
-Message-ID: <20170817141449.23958-5-wsa+renesas@sang-engineering.com>
-References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2 1/5] iio: srf08: add device tree binding for srf02
+ and srf10
+Date: Thu, 17 Aug 2017 15:30:17 +0100
+Message-ID: <20170817153017.6615fc96@archlinux>
+References: <20170814085941.GA9759@arbeit>
+        <20170814091106.rvdvebcxfbpggmjd@ninjato>
+        <20170814103918.GB3062@imap.1und1.de>
+        <20170814123725.GA2238@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20170814123725.GA2238@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andreas Klinger <ak@it-klinger.de>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This ensures that we fall back to PIO if the message length is too small
-for DMA being useful. Otherwise, we use DMA. A bounce buffer might be
-applied by the helper if the original message buffer is not DMA safe.
+On Mon, 14 Aug 2017 14:37:26 +0200
+Wolfram Sang <wsa@the-dreams.de> wrote:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-sh_mobile.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+> On Mon, Aug 14, 2017 at 12:39:18PM +0200, Andreas Klinger wrote:
+> > Wolfram Sang <wsa@the-dreams.de> schrieb am Mon, 14. Aug 11:11:  
+> > > On Mon, Aug 14, 2017 at 10:59:41AM +0200, Andreas Klinger wrote:  
+> > > > add trivial device tree binding "devantech,srf02" and "devantech,srf10"
+> > > > 
+> > > > Signed-off-by: Andreas Klinger <ak@it-klinger.de>
+> > > > Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++  
+> > > 
+> > > Again: This file has moved since v4.12-rc1. Please rebase to v4.12 or
+> > > even v4.13-rc5.
+> > >   
+> > 
+> > Then i split the patch series up in two parts:
+> > - patch with only device tree binding against >= v4.12
+> > - everything else as patch series against git tree of IIO
+> > 
+> > Ok?  
+> 
+> Wooha, the master branch of iio.git is at v4.11? I see. So, this is the
+> culprit, sorry! @Jonathan: is that the branch people should develop on,
+> or is it your testing branch?
+> 
+Yeah, that's a dead end really.  Mostly developing against latest
+mainline is the best bet (or latest recentish version).
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 2e097d97d258bc..5efdb7becd83d6 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -145,6 +145,7 @@ struct sh_mobile_i2c_data {
- 	struct dma_chan *dma_rx;
- 	struct scatterlist sg;
- 	enum dma_data_direction dma_direction;
-+	u8 *dma_buf;
- };
- 
- struct sh_mobile_dt_config {
-@@ -548,6 +549,8 @@ static void sh_mobile_i2c_dma_callback(void *data)
- 	pd->pos = pd->msg->len;
- 	pd->stop_after_dma = true;
- 
-+	i2c_release_dma_safe_msg_buf(pd->msg, pd->dma_buf);
-+
- 	iic_set_clr(pd, ICIC, 0, ICIC_TDMAE | ICIC_RDMAE);
- }
- 
-@@ -608,7 +611,7 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
- 	if (IS_ERR(chan))
- 		return;
- 
--	dma_addr = dma_map_single(chan->device->dev, pd->msg->buf, pd->msg->len, dir);
-+	dma_addr = dma_map_single(chan->device->dev, pd->dma_buf, pd->msg->len, dir);
- 	if (dma_mapping_error(chan->device->dev, dma_addr)) {
- 		dev_dbg(pd->dev, "dma map failed, using PIO\n");
- 		return;
-@@ -665,7 +668,8 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
- 	pd->pos = -1;
- 	pd->sr = 0;
- 
--	if (pd->msg->len > 8)
-+	pd->dma_buf = i2c_get_dma_safe_msg_buf(pd->msg, 8);
-+	if (pd->dma_buf)
- 		sh_mobile_i2c_xfer_dma(pd);
- 
- 	/* Enable all interrupts to begin with */
--- 
-2.11.0
+Last time I tried to delete the master branch I think it broke the
+web interface on kernel.org as it didn't know what branch to default
+to.  Not tried it for a while.
+
+Anyhow, I just pushed out my upstream as master so it should now be
+a fairly random pull I did of Greg's tree but will include everything
+that is in linux-next from IIO.
+
+I'll try and remember to do that when I fast forward after he
+has taken a pull request.
+
+Jonathan
