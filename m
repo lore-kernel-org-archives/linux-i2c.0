@@ -1,91 +1,62 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 04/14] staging: typec: fusb302: Get max snk mv/ma/mw
- from device-properties
-Date: Thu, 17 Aug 2017 16:41:31 -0500
-Message-ID: <20170817214131.63vetzuove7dz5pi@rob-hp-laptop>
-References: <20170815200502.17339-1-hdegoede@redhat.com>
- <20170815200502.17339-5-hdegoede@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Thu, 17 Aug 2017 15:15:24 -0700
+Message-ID: <CAKdAkRQjhE3WRkcWrZtYzxtMs+dy718JTYWjzELBEDRoVY_qWw@mail.gmail.com>
+References: <20170722185537.12696-1-hdegoede@redhat.com> <20170722185537.12696-2-hdegoede@redhat.com>
+ <20170817193912.hccxyjwstrtr5oiv@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170815200502.17339-5-hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Heikki Krogerus <heikki.krogerus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Andy Shevchenko <andy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Breck <liam-RYWXG+zxWwBdeoIcmNTgJF6hYfS7NtTn@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Yueyao (Nathan) Zhu" <yueyao-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20170817193912.hccxyjwstrtr5oiv@ninjato>
+Sender: linux-input-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 15, 2017 at 10:04:52PM +0200, Hans de Goede wrote:
-> This is board specific info so it should come from board config, such
-> as devicetree.
-> 
-> I've chosen to prefix these with "fcs," treating them as fusb302 driver
-> specific for now. We may want to revisit this and replace these with
-> properties which are part of a (to be written) generic type-c controller
-> devicetree binding.
-> 
-> Since this commit adds new dt-properties it also adds devicetree-bindings
-> documentation (which so far was absent for the fusb302 driver).
-> 
-> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: "Yueyao (Nathan) Zhu" <yueyao-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> ---
-> Changes in v2:
-> -Use micro... instead of mili...
-> -Add devicetree bindings documentation
-> ---
->  .../devicetree/bindings/usb/fcs,fusb302.txt        | 29 ++++++++++++++++++++++
->  drivers/staging/typec/fusb302/TODO                 |  4 +++
->  drivers/staging/typec/fusb302/fusb302.c            | 18 +++++++++++++-
->  3 files changed, 50 insertions(+), 1 deletion(-)
->  create mode 100644 Documentation/devicetree/bindings/usb/fcs,fusb302.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/usb/fcs,fusb302.txt b/Documentation/devicetree/bindings/usb/fcs,fusb302.txt
-> new file mode 100644
-> index 0000000..ffc6c87
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/usb/fcs,fusb302.txt
-> @@ -0,0 +1,29 @@
-> +Fairchild FUSB302 Type-C Port controllers
-> +
-> +Required properties :
-> +- compatible            : "fcs,fusb302"
-> +- reg                   : I2C slave address
-> +- interrupts            : Interrupt specifier
-> +
-> +Optional properties :
-> +- fcs,max-snk-microvolt : Maximum voltage to negotiate when configured as sink
-> +- fcs,max-snk-microamp  : Maximum current to negotiate when configured as sink
-> +- fcs,max-snk-microwatt : Maximum power to negotiate when configured as sink
-> +			  If this is less then max-snk-microvolt *
-> +			  max-snk-microamp then the configured current will
-> +			  be clamped.
-> +- fcs,operating-snk-microwatt :
+On Thu, Aug 17, 2017 at 12:39 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Hey guys,
+>
+> Sorry, I don't understand some of the stuff here. But I'd like to
+> understand it before I add something to the I2C core. Especially as it
+> feels a bit a the edge of the driver model to me.
+>
+> On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
+>> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
+>> it uses its own protocol which is handled by the chipone_icn8318 driver.
+>>
+>> If the i2c_hid_driver's probe functon gets called it will fail with a
+>> "hid_descr_cmd failed" error.
+>
+> That sounds like it fails pretty late. I'd assume we could check the
+> blacklist right at the beginning of probe and bail out immediately?
+>
+>> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
+>> device in D3 state
 
-Might as well spell out sink.
+So I guess this will also happen if I unbind/rebind chipone_icn8318 driver?
 
-Otherwise,
+>
+> Where does that happen? Sorry, I can't find it. Would it be an idea to
+> add a flag somewhere telling the device should not be put into D3? That
+> would be way more generic in case this happens outside I2C world, or?
+> Disclaimer: I am brainstorming here, don't know super much about ACPI.
+>
+>> This commit adds a match callback and returns -ENODEV for i2c_client-s
+>> with a CHPN0001 ACPI device id, so that the probe function never gets
+>> called, fixing the controller losing its firmware.
+>
+> Do you know if something like a match-callback exists somewhere else in
+> the kernel?
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Having blacklist means that we are failing at design somewhere...
 
-> +                          Minimum amount of power accepted from a sink
-> +			  when negotiating
-> +
-> +Example:
-> +
-> +fusb302: typec-portc@54 {
-> +	compatible = "fcs,fusb302";
-> +	reg = <0x54>;
-> +	interrupt-parent = <&nmi_intc>;
-> +	interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-> +	fcs,max-snk-microvolt = <12000000>;
-> +	fcs,max-snk-microamp = <3000000>;
-> +	fcs,max-snk-microwatt = <36000000>;
-> +};
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+In this case what we have is wrong ACPI table. Instead of adding hooks
+to i2c core can we fix it (DSDT) up? I know people do not like it, but
+I'd say this is task for yet another platform driver to adjust ACPI
+properties (kill the wrong _CID, disable PS0) before instantiating the
+device.
+
+Thanks.
+
+-- 
+Dmitry
