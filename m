@@ -1,61 +1,53 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 1/5] iio: srf08: add device tree binding for srf02
- and srf10
-Date: Thu, 17 Aug 2017 15:30:17 +0100
-Message-ID: <20170817153017.6615fc96@archlinux>
-References: <20170814085941.GA9759@arbeit>
-        <20170814091106.rvdvebcxfbpggmjd@ninjato>
-        <20170814103918.GB3062@imap.1und1.de>
-        <20170814123725.GA2238@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: taos-evm: constify serio_device_id
+Date: Thu, 17 Aug 2017 17:37:24 +0200
+Message-ID: <20170817153724.yg33zhmgdnthbxlb@ninjato>
+References: <251e9103c373c0b7d9a97917e48f323f2adcf716.1502971448.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="m53r4ajhk6bykggs"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170814123725.GA2238@katana>
+Content-Disposition: inline
+In-Reply-To: <251e9103c373c0b7d9a97917e48f323f2adcf716.1502971448.git.arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andreas Klinger <ak@it-klinger.de>, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: jdelvare@suse.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 14 Aug 2017 14:37:26 +0200
-Wolfram Sang <wsa@the-dreams.de> wrote:
 
-> On Mon, Aug 14, 2017 at 12:39:18PM +0200, Andreas Klinger wrote:
-> > Wolfram Sang <wsa@the-dreams.de> schrieb am Mon, 14. Aug 11:11:  
-> > > On Mon, Aug 14, 2017 at 10:59:41AM +0200, Andreas Klinger wrote:  
-> > > > add trivial device tree binding "devantech,srf02" and "devantech,srf10"
-> > > > 
-> > > > Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-> > > > Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > > > ---
-> > > >  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++  
-> > > 
-> > > Again: This file has moved since v4.12-rc1. Please rebase to v4.12 or
-> > > even v4.13-rc5.
-> > >   
-> > 
-> > Then i split the patch series up in two parts:
-> > - patch with only device tree binding against >= v4.12
-> > - everything else as patch series against git tree of IIO
-> > 
-> > Ok?  
-> 
-> Wooha, the master branch of iio.git is at v4.11? I see. So, this is the
-> culprit, sorry! @Jonathan: is that the branch people should develop on,
-> or is it your testing branch?
-> 
-Yeah, that's a dead end really.  Mostly developing against latest
-mainline is the best bet (or latest recentish version).
+--m53r4ajhk6bykggs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Last time I tried to delete the master branch I think it broke the
-web interface on kernel.org as it didn't know what branch to default
-to.  Not tried it for a while.
+On Thu, Aug 17, 2017 at 05:35:52PM +0530, Arvind Yadav wrote:
+> serio_device_id are not supposed to change at runtime. All functions
+> working with serio_device_id provided by <linux/serio.h> work with
+> const serio_device_id. So mark the non-const structs as const.
+>=20
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
-Anyhow, I just pushed out my upstream as master so it should now be
-a fairly random pull I did of Greg's tree but will include everything
-that is in linux-next from IIO.
+Applied to for-next, thanks!
 
-I'll try and remember to do that when I fast forward after he
-has taken a pull request.
 
-Jonathan
+--m53r4ajhk6bykggs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmVuDEACgkQFA3kzBSg
+KbZ5OxAAqL+YrZx8DwXBJYDlhtxpMiMMK0Z/FpBwVrMe7xj3uBB5HtqscNZB+ChL
+Nw7i6leIEZd6kHH8FJscKGVJWwwagnOffjToZEieoeQ6fFYsHj5wBqU5FS0TxCkz
+6XSOeb90g+EMMqy4xVXMaddrx8XxlR0HmW/VqntnZVMswq90skBlt1V3shYVWh66
+k13yIF5THTlu7O5EeGs1AdkBOsoa46SnRlEcCK//w1ORz4AsGvGuASrp7YK9d/Uu
+n0sqanT1iJemHpGtO+gaE7dMKTeJQ9XPrbe03rxb/Io96YxyQ6JoERSbUnkXiQCq
+t4lPQ6SlOVQglqDtqzOPIH8WvaihBUt2LiRd5cvaXRu+wlIjRoji0/7fgmPrleVW
+tUfaxh76ZlThuP/S1yvfUKThhQbnmt15Fd/Ti62x5G3QuZgV/zr49I1wMiOwt0sF
+ULLFYoNtzsKy+3ePijMYE7orOk12Ro2jRgOJ65nIXE/r+YQTuCpUmh8S3XFqA7uY
+rXhEhba44jU5YE1Zy6L8DmoaRx2GepEUfJI3ntM0X4Hn86XGtaQ07i5b9adcCQtg
+LDtvlXN1kTLZkCYoX+yzesSBBjVm0Jcqn9wGfyakn9Sz6+pIUs3bNczZWykPvGFQ
+hJ1NlSvdL4fBPz8/5edsePlurMHfSN9ANcXd6+l0WkghpTGuUJs=
+=6rwk
+-----END PGP SIGNATURE-----
+
+--m53r4ajhk6bykggs--
