@@ -1,69 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: designware: Remove needless
- pm_runtime_put_noidle() call
-Date: Thu, 17 Aug 2017 17:57:08 +0200
-Message-ID: <20170817155708.iakoglf7qrdf66bc@ninjato>
+Subject: Re: [PATCH 2/2] i2c: designware: Fix runtime PM for I2C slave mode
+Date: Thu, 17 Aug 2017 17:57:12 +0200
+Message-ID: <20170817155712.oces7tvdrrrstob4@ninjato>
 References: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
+ <20170815143445.26167-2-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6uo77eyu4mijgow6"
+        protocol="application/pgp-signature"; boundary="4fjhfbfguri3wyey"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:60288 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:60295 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751620AbdHQP5K (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 17 Aug 2017 11:57:10 -0400
+        id S1751637AbdHQP5O (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 17 Aug 2017 11:57:14 -0400
 Content-Disposition: inline
-In-Reply-To: <20170815143445.26167-1-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20170815143445.26167-2-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>
 
 
---6uo77eyu4mijgow6
+--4fjhfbfguri3wyey
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 15, 2017 at 05:34:44PM +0300, Jarkko Nikula wrote:
-> I guess pm_runtime_put_noidle() call in i2c_dw_probe_slave() was copied
-> by accident from similar master mode adapter registration code. It is
-> unbalanced due missing pm_runtime_get_noresume() but harmless since it
-> doesn't decrease dev->power.usage_count below zero.
+On Tue, Aug 15, 2017 at 05:34:45PM +0300, Jarkko Nikula wrote:
+> I2C slave controller must be powered and active all the time when I2C
+> slave backend is registered in order to let master address and
+> communicate with us.
 >=20
-> In theory we can hit similar needless runtime suspend/resume cycle
-> during slave mode adapter registration that was happening when
-> registering the master mode adapter. See commit cd998ded5c12 ("i2c:
-> designware: Prevent runtime suspend during adapter registration").
+> Now if the controller is runtime PM capable it will be suspended after
+> probe and cannot ever respond to the master or generate interrupts.
 >=20
-> However, since we are slave, we can consider it as a wrong configuration
-> if we have other slaves attached under this adapter and can omit the
-> pm_runtime_get_noresume()/pm_runtime_put_noidle() calls for simplicity.
+> Fix this by resuming the controller when I2C slave backend is registered
+> and let it suspend after unregistering.
 >=20
 > Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Applied to for-current, thanks! Not really a bugfix, but 2/2 is, so,
-well... BTW, Luis, are you still there? Holiday season?
+Applied to for-current, thanks!
 
 
---6uo77eyu4mijgow6
+--4fjhfbfguri3wyey
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmVvNQACgkQFA3kzBSg
-KbaWCg/6AzKuexNoTb4MCQ6deSjAwBpz27CpjxbtULt/L8k//08rYysx6NRJNkg7
-8fTPwFH9l2XHp4sI6GnHsY/4WDQhx7rah31T/82+q3oMASi1GdeJTc4lWeQ2oOoK
-zqq2SPPyzcgWZonjk/PItOap/nqDqYbdacl5dw+Uzz/8Y0qBmSTxVTHcZXpL7Nnv
-HaxGCAuM41PMRa2LRcT5J1vbPcahRDpBRdIRTXisVEC9QKqn6+saG/gNolzTLSk3
-4ySOf3L9uuguBSfKpDb1Bp6iYrT2T5vlWAHL4zt2IEX9paiQmdSB4rVt6mR9JFnH
-8+cOmh4BQmmlF161JMeb7+KBQ7nh0lVarZfHF2SmKbYgQcM1wu7g4DVQUzJ2wupi
-9F+cYUT0zoNNT6nCDwJ9vBsd/eREKF18lqLDeYhVG0MOyRt+Alogc+oIrqGhvUdD
-HGXFGvSHE/tpCHJOtq3JGxZTpjosKn5/w2x2Mg/lakN2eEWLu2pyyCEXaWcxzX+I
-Qe5pbMy1Uml+3uKJQLkirhBviw3ZD/smEfr2IR/pjrPqrI5vu0UF5DI4m0hkQcFM
-gP1zguXfp4lVW0ZVi0PD+cv6frK3DZ19mGTHpp/G0Zmf/MANzJ5KzMoVUk6Dtsaj
-XdSV8hMYdJt6ZzpGZkjsbcvV7W9oZfV/UTyNekQ4ysgj0tQ7H3Q=
-=q86H
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmVvNgACgkQFA3kzBSg
+KbZSVxAAh8seYj8cHGE7LsDAVk/Fh4HAWuRotyZzisLyHUvS5qMGnnuPmIFWmCIP
+P53Cp0hKf+EsnU1zkBEnQh2NYQY6htFO6R7kZ1289B4Ihafkv2ghHD/KEwHLptNx
+/2CAYc551LjNqGmNnHU9QOve4Bt6fGwZsG3iDWjeJofnS7CDNpmSixVa8eGpTCrC
+qO+dHjc/9cv0n4qpP47WfJpOLK6a92e9r6iDlZGreJWos+b9mpXsKObI3LowCCcK
+yZ09zASugP1ox7DJ1Pw4MSMLoqwYZvAi6bM8Vl0KTH7G3THc5mlqducK3qUdckWD
+MH69H/JZgCI3RWgX+yj0ASD+FeCfbET4/hvzQRzqWnq8HfqDzFEkSFPwxSanKysZ
+8Yx6J7mcwog9Ermw6V1/6/nWoInm7sCMMGw3r+CrwG7zwTcD5btE9H5rAT+8Fkdy
+4wCILnOjObAQh4RC1ZkcaeRxasBX2aCX3W6p608hh55P7wuW8NKXNI+VaybCsywI
+m1dtK7bSWxCTz8dWYBVj1tglbU/ZyD7XC0Bhh2NBNB1h7xAt0VUKPvcc3xuXxJOC
+rHmMcnBEWl/hOhu4QwD4ZQdiHCdJ8lVEKvc6FekC2a4ioJYx7hBojL6ulzgZ+g7b
+J0RycP/r6g4b/8qa2ADgtpYjy44/56iT/VOV59N1No+II2U/ITw=
+=Wss0
 -----END PGP SIGNATURE-----
 
---6uo77eyu4mijgow6--
+--4fjhfbfguri3wyey--
