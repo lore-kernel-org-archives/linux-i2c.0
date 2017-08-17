@@ -1,62 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Thu, 17 Aug 2017 15:15:24 -0700
-Message-ID: <CAKdAkRQjhE3WRkcWrZtYzxtMs+dy718JTYWjzELBEDRoVY_qWw@mail.gmail.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com> <20170722185537.12696-2-hdegoede@redhat.com>
- <20170817193912.hccxyjwstrtr5oiv@ninjato>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 1/5] iio: srf08: add device tree binding for srf02 and
+ srf10
+Date: Thu, 17 Aug 2017 17:17:58 -0500
+Message-ID: <20170817221758.qjxdqgznq4enj6yl@rob-hp-laptop>
+References: <20170816193323.GA24405@arbeit>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20170817193912.hccxyjwstrtr5oiv@ninjato>
-Sender: linux-input-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170816193323.GA24405@arbeit>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 17, 2017 at 12:39 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Hey guys,
->
-> Sorry, I don't understand some of the stuff here. But I'd like to
-> understand it before I add something to the I2C core. Especially as it
-> feels a bit a the edge of the driver model to me.
->
-> On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
->> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
->> it uses its own protocol which is handled by the chipone_icn8318 driver.
->>
->> If the i2c_hid_driver's probe functon gets called it will fail with a
->> "hid_descr_cmd failed" error.
->
-> That sounds like it fails pretty late. I'd assume we could check the
-> blacklist right at the beginning of probe and bail out immediately?
->
->> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
->> device in D3 state
+On Wed, Aug 16, 2017 at 09:33:23PM +0200, Andreas Klinger wrote:
+> add trivial device tree binding "devantech,srf02" and "devantech,srf10"
+> 
+> Signed-off-by: Andreas Klinger <ak-n176/SwNRljddJNmlsFzeA@public.gmane.org>
+> Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/trivial-devices.txt | 2 ++
+>  1 file changed, 2 insertions(+)
 
-So I guess this will also happen if I unbind/rebind chipone_icn8318 driver?
+I thought this was mentioned in the prior versions, but this file has 
+moved. Rebase to 4.13. Please send trivial-devices.txt changes 
+separately to me.
 
->
-> Where does that happen? Sorry, I can't find it. Would it be an idea to
-> add a flag somewhere telling the device should not be put into D3? That
-> would be way more generic in case this happens outside I2C world, or?
-> Disclaimer: I am brainstorming here, don't know super much about ACPI.
->
->> This commit adds a match callback and returns -ENODEV for i2c_client-s
->> with a CHPN0001 ACPI device id, so that the probe function never gets
->> called, fixing the controller losing its firmware.
->
-> Do you know if something like a match-callback exists somewhere else in
-> the kernel?
-
-Having blacklist means that we are failing at design somewhere...
-
-In this case what we have is wrong ACPI table. Instead of adding hooks
-to i2c core can we fix it (DSDT) up? I know people do not like it, but
-I'd say this is task for yet another platform driver to adjust ACPI
-properties (kill the wrong _CID, disable PS0) before instantiating the
-device.
-
-Thanks.
-
--- 
-Dmitry
+Rob
