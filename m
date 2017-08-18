@@ -1,58 +1,53 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: core: Prevent race condition when removing i2c
- devices
-Date: Fri, 18 Aug 2017 10:04:21 +0200
-Message-ID: <bab6e8e3-dca5-1d2a-309d-fe29b115ae49@axentia.se>
-References: <20170608024344.9311-1-david.thomson@alliedtelesis.co.nz>
- <20170619143656.zigxk77vegedscjx@ninjato>
- <24ee1e30-1737-e3ef-a23e-01d41a29d45f@axentia.se>
- <2e4c5807-3d3c-1ce2-da35-3e37b2e3b08b@axentia.se>
- <1498688452141.89697@alliedtelesis.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Radu Rendec <radu.rendec@gmail.com>
+Subject: [PATCH 0/2] i2c: ismt: align the DMA buffer to avoid parity errors
+Date: Fri, 18 Aug 2017 17:01:26 +0100
+Message-ID: <20170818160128.21228-1-radu.rendec@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0121.outbound.protection.outlook.com ([104.47.1.121]:48032
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750810AbdHRIE2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 18 Aug 2017 04:04:28 -0400
-In-Reply-To: <1498688452141.89697@alliedtelesis.co.nz>
-Content-Language: en-US
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:37132 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750971AbdHRQBq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 18 Aug 2017 12:01:46 -0400
+Received: by mail-wm0-f65.google.com with SMTP id t138so4671672wmt.4
+        for <linux-i2c@vger.kernel.org>; Fri, 18 Aug 2017 09:01:45 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Thomson <David.Thomson@alliedtelesis.co.nz>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Radu Rendec <radu.rendec@gmail.com>
 
-On 2017-06-29 00:20, David Thomson wrote:
-> On 2017-06-19 18:34, Peter Rosin wrote:
->> It would certainly be nice to know why .owner is clobbered, because I
->> don't see it. But then again, I don't know what sources I should be
->> reading...
-> Hi Peter
-> 
-> Thanks for your reply. Unfortunately we cannot reproduce the issue on a newer kernel as it requires userspace applications (for processing the hotswap) that rely on our (many) changes to the kernel. I appreciate you taking the time to consider the issue.
+Hello all,
 
-Still interested in what base version you have and if there are any
-patches of relevance to the i2c subsystem... The oldest mainline
-that had i2c_del_mux_adapter is v4.6 (May 2016), so I had a second
-look at that. Could you also tell us what i2c-mux driver this is
-and whether it is expected that .owner is NULL in the first place? In
-other words, is the i2c-mux driver in question built-in or a loaded
-module?
+I ran into an issue where write transfers were randomly failing with
+"data parity" errors (bit 9 set in ERRSTS). This seems to be caused by a
+hardware bug, probably the same as v3.12-rc2-5-gbf41691 addresses.
 
-If you have not added any new i2c-mux driver (which I doubt, you
-would surely have mentioned that) the only way that this race can
-happen is if the driver is removed twice since i2c_del_mux_adapter
-is only called in .remove (and in .probe on failure, but I don't
-think that can race). At least that's the case for the i2c-mux drivers
-that I looked at...
+The problem appeared on an x86_64 kernel after enabling Xen support
+(CONFIG_XEN), which appears to be completely unrelated but, as a side
+effect, changed the alignment of the private structure (struct ismt_priv)
+allocated at the beginning of ismt_probe().
 
-It seems pretty serious that a driver can have its .remove called
-twice so I suspect your patch just papers over a much bigger problem?
+On x86_64, addresses returned by kmalloc are guaranteed to be only 8-byte
+aligned. However, i2c-ismt apparently was always getting a 16-byte
+aligned address.
 
-So, why is the i2c-mux driver being removed more than once? The
-module refcounting must be badly screwed up for that to happen. Or?
+Since the hardware seems to have issues with unaligned DMA buffers (at
+least in some revisions), I believe it is safer to always align the
+buffer at the cost of 15 extra bytes of memory.
 
-Cheers,
-Peter
+The first patch tackles this.
+
+The second patch in the series adds a register dump at the end of
+transactions (when debugging is enabled). This is not critical, but
+probably helps debugging issues where some general/master registers are
+changed as result of a failed transaction.
+
+-Radu
+
+Radu Rendec (2):
+  i2c: ismt: 16-byte align the DMA buffer address
+  i2c: ismt: dump registers at the end of transactions
+
+ drivers/i2c/busses/i2c-ismt.c | 39 +++++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
+
+-- 
+2.9.5
