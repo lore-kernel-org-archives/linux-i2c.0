@@ -1,7 +1,7 @@
 From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH 1/4] i2c: busses: make i2c_adapter const
-Date: Sat, 19 Aug 2017 16:04:12 +0530
-Message-ID: <1503138855-585-2-git-send-email-bhumirks@gmail.com>
+Subject: [PATCH 2/4] [media] media: pci: make i2c_adapter const
+Date: Sat, 19 Aug 2017 16:04:13 +0530
+Message-ID: <1503138855-585-3-git-send-email-bhumirks@gmail.com>
 References: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
@@ -11,81 +11,132 @@ Cc: Bhumika Goyal <bhumirks@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 Make these const as they are only used in a copy operation.
-Done using Coccinelle.
+Done using Coccinelle
 
 Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 ---
- drivers/i2c/busses/i2c-kempld.c          | 2 +-
- drivers/i2c/busses/i2c-ocores.c          | 2 +-
- drivers/i2c/busses/i2c-octeon-platdrv.c  | 2 +-
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 2 +-
- drivers/i2c/busses/i2c-xiic.c            | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/media/pci/cobalt/cobalt-i2c.c             | 2 +-
+ drivers/media/pci/cx18/cx18-i2c.c                 | 2 +-
+ drivers/media/pci/cx23885/cx23885-i2c.c           | 2 +-
+ drivers/media/pci/cx25821/cx25821-i2c.c           | 2 +-
+ drivers/media/pci/ivtv/ivtv-i2c.c                 | 4 ++--
+ drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c | 2 +-
+ drivers/media/pci/saa7134/saa7134-i2c.c           | 2 +-
+ drivers/media/pci/saa7164/saa7164-i2c.c           | 2 +-
+ 8 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-kempld.c b/drivers/i2c/busses/i2c-kempld.c
-index 25993d2..e879190 100644
---- a/drivers/i2c/busses/i2c-kempld.c
-+++ b/drivers/i2c/busses/i2c-kempld.c
-@@ -289,7 +289,7 @@ static u32 kempld_i2c_func(struct i2c_adapter *adap)
- 	.functionality	= kempld_i2c_func,
+diff --git a/drivers/media/pci/cobalt/cobalt-i2c.c b/drivers/media/pci/cobalt/cobalt-i2c.c
+index ad16b89..1a5c556 100644
+--- a/drivers/media/pci/cobalt/cobalt-i2c.c
++++ b/drivers/media/pci/cobalt/cobalt-i2c.c
+@@ -301,7 +301,7 @@ static u32 cobalt_func(struct i2c_adapter *adap)
+ }
+ 
+ /* template for i2c-bit-algo */
+-static struct i2c_adapter cobalt_i2c_adap_template = {
++static const struct i2c_adapter cobalt_i2c_adap_template = {
+ 	.name = "cobalt i2c driver",
+ 	.algo = NULL,                   /* set by i2c-algo-bit */
+ 	.algo_data = NULL,              /* filled from template */
+diff --git a/drivers/media/pci/cx18/cx18-i2c.c b/drivers/media/pci/cx18/cx18-i2c.c
+index eabdd4c..2eb62b2 100644
+--- a/drivers/media/pci/cx18/cx18-i2c.c
++++ b/drivers/media/pci/cx18/cx18-i2c.c
+@@ -206,7 +206,7 @@ static int cx18_getsda(void *data)
+ }
+ 
+ /* template for i2c-bit-algo */
+-static struct i2c_adapter cx18_i2c_adap_template = {
++static const struct i2c_adapter cx18_i2c_adap_template = {
+ 	.name = "cx18 i2c driver",
+ 	.algo = NULL,                   /* set by i2c-algo-bit */
+ 	.algo_data = NULL,              /* filled from template */
+diff --git a/drivers/media/pci/cx23885/cx23885-i2c.c b/drivers/media/pci/cx23885/cx23885-i2c.c
+index 8528032..0f21467 100644
+--- a/drivers/media/pci/cx23885/cx23885-i2c.c
++++ b/drivers/media/pci/cx23885/cx23885-i2c.c
+@@ -264,7 +264,7 @@ static u32 cx23885_functionality(struct i2c_adapter *adap)
+ 
+ /* ----------------------------------------------------------------------- */
+ 
+-static struct i2c_adapter cx23885_i2c_adap_template = {
++static const struct i2c_adapter cx23885_i2c_adap_template = {
+ 	.name              = "cx23885",
+ 	.owner             = THIS_MODULE,
+ 	.algo              = &cx23885_i2c_algo_template,
+diff --git a/drivers/media/pci/cx25821/cx25821-i2c.c b/drivers/media/pci/cx25821/cx25821-i2c.c
+index 263a1cf..000049d 100644
+--- a/drivers/media/pci/cx25821/cx25821-i2c.c
++++ b/drivers/media/pci/cx25821/cx25821-i2c.c
+@@ -285,7 +285,7 @@ static u32 cx25821_functionality(struct i2c_adapter *adap)
+ #endif
  };
  
--static struct i2c_adapter kempld_i2c_adapter = {
-+static const struct i2c_adapter kempld_i2c_adapter = {
+-static struct i2c_adapter cx25821_i2c_adap_template = {
++static const struct i2c_adapter cx25821_i2c_adap_template = {
+ 	.name = "cx25821",
+ 	.owner = THIS_MODULE,
+ 	.algo = &cx25821_i2c_algo_template,
+diff --git a/drivers/media/pci/ivtv/ivtv-i2c.c b/drivers/media/pci/ivtv/ivtv-i2c.c
+index dea80ef..1ef6c72 100644
+--- a/drivers/media/pci/ivtv/ivtv-i2c.c
++++ b/drivers/media/pci/ivtv/ivtv-i2c.c
+@@ -632,7 +632,7 @@ static u32 ivtv_functionality(struct i2c_adapter *adap)
+ };
+ 
+ /* template for our-bit banger */
+-static struct i2c_adapter ivtv_i2c_adap_hw_template = {
++static const struct i2c_adapter ivtv_i2c_adap_hw_template = {
+ 	.name = "ivtv i2c driver",
+ 	.algo = &ivtv_algo,
+ 	.algo_data = NULL,			/* filled from template */
+@@ -682,7 +682,7 @@ static int ivtv_getsda_old(void *data)
+ }
+ 
+ /* template for i2c-bit-algo */
+-static struct i2c_adapter ivtv_i2c_adap_template = {
++static const struct i2c_adapter ivtv_i2c_adap_template = {
+ 	.name = "ivtv i2c driver",
+ 	.algo = NULL,                   /* set by i2c-algo-bit */
+ 	.algo_data = NULL,              /* filled from template */
+diff --git a/drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c b/drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c
+index b49e4f9..b13e319 100644
+--- a/drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c
++++ b/drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c
+@@ -300,7 +300,7 @@ static u32 netup_i2c_func(struct i2c_adapter *adap)
+ 	.functionality	= netup_i2c_func,
+ };
+ 
+-static struct i2c_adapter netup_i2c_adapter = {
++static const struct i2c_adapter netup_i2c_adapter = {
  	.owner		= THIS_MODULE,
- 	.name		= "i2c-kempld",
+ 	.name		= NETUP_UNIDVB_NAME,
  	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 34f1889..8c42ca7 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -276,7 +276,7 @@ static u32 ocores_func(struct i2c_adapter *adap)
- 	.functionality = ocores_func,
+diff --git a/drivers/media/pci/saa7134/saa7134-i2c.c b/drivers/media/pci/saa7134/saa7134-i2c.c
+index 9d0e69e..8f2ed63 100644
+--- a/drivers/media/pci/saa7134/saa7134-i2c.c
++++ b/drivers/media/pci/saa7134/saa7134-i2c.c
+@@ -339,7 +339,7 @@ static u32 functionality(struct i2c_adapter *adap)
+ 	.functionality = functionality,
  };
  
--static struct i2c_adapter ocores_adapter = {
-+static const struct i2c_adapter ocores_adapter = {
- 	.owner = THIS_MODULE,
- 	.name = "i2c-ocores",
- 	.class = I2C_CLASS_DEPRECATED,
-diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-index 917524c..64bda83 100644
---- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-+++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-@@ -126,7 +126,7 @@ static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = octeon_i2c_functionality,
- };
+-static struct i2c_adapter saa7134_adap_template = {
++static const struct i2c_adapter saa7134_adap_template = {
+ 	.owner         = THIS_MODULE,
+ 	.name          = "saa7134",
+ 	.algo          = &saa7134_algo,
+diff --git a/drivers/media/pci/saa7164/saa7164-i2c.c b/drivers/media/pci/saa7164/saa7164-i2c.c
+index 430f678..4bcde7c 100644
+--- a/drivers/media/pci/saa7164/saa7164-i2c.c
++++ b/drivers/media/pci/saa7164/saa7164-i2c.c
+@@ -78,7 +78,7 @@ static u32 saa7164_functionality(struct i2c_adapter *adap)
  
--static struct i2c_adapter octeon_i2c_ops = {
-+static const struct i2c_adapter octeon_i2c_ops = {
- 	.owner = THIS_MODULE,
- 	.name = "OCTEON adapter",
- 	.algo = &octeon_i2c_algo,
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index ea35a895..df0976f 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -75,7 +75,7 @@ static u32 thunderx_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = thunderx_i2c_functionality,
- };
+ /* ----------------------------------------------------------------------- */
  
--static struct i2c_adapter thunderx_i2c_ops = {
-+static const struct i2c_adapter thunderx_i2c_ops = {
- 	.owner	= THIS_MODULE,
- 	.name	= "ThunderX adapter",
- 	.algo	= &thunderx_i2c_algo,
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 34b27bf..ae6ed25 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -721,7 +721,7 @@ static u32 xiic_func(struct i2c_adapter *adap)
- 	.functionality = xiic_func,
- };
- 
--static struct i2c_adapter xiic_adapter = {
-+static const struct i2c_adapter xiic_adapter = {
- 	.owner = THIS_MODULE,
- 	.name = DRIVER_NAME,
- 	.class = I2C_CLASS_DEPRECATED,
+-static struct i2c_adapter saa7164_i2c_adap_template = {
++static const struct i2c_adapter saa7164_i2c_adap_template = {
+ 	.name              = "saa7164",
+ 	.owner             = THIS_MODULE,
+ 	.algo              = &saa7164_i2c_algo_template,
 -- 
 1.9.1
