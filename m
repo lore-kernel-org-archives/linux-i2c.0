@@ -1,128 +1,72 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH 4/4] [media] usb: make i2c_adapter const
-Date: Sat, 19 Aug 2017 16:04:15 +0530
-Message-ID: <1503138855-585-5-git-send-email-bhumirks@gmail.com>
-References: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: julia.lawall@lip6.fr, wsa@the-dreams.de, jacmet@sunsite.dk, jglauber@cavium.com, david.daney@cavium.com, hans.verkuil@cisco.com, mchehab@kernel.org, awalls@md.metrocast.net, serjk@netup.ru, aospan@netup.ru, isely@pobox.com, ezequiel@vanguardiasur.com.ar, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+From: isely@isely.net
+Subject: Re: [PATCH 2/2] [media] usb: make i2c_algorithm const
+Date: Sat, 19 Aug 2017 15:15:02 -0500 (CDT)
+Message-ID: <alpine.DEB.2.11.1708191514360.27909@lochley.isely.net>
+References: <1503072418-6887-1-git-send-email-bhumirks@gmail.com>
+ <1503072418-6887-3-git-send-email-bhumirks@gmail.com>
+Reply-To: Mike Isely at pobox <isely@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1503072418-6887-3-git-send-email-bhumirks@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: gxt@mprc.pku.edu.cn, wsa@the-dreams.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, vz@mleia.com, julia.lawall@lip6.fr, linux-i2c@vger.kernel.org, slemieux.tyco@gmail.com, mchehab@kernel.org, Mike Isely at pobox <isely@pobox.com>, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Make these const as they are only used in a copy operation.
-Done using Coccinelle
 
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
----
- drivers/media/usb/au0828/au0828-i2c.c        | 2 +-
- drivers/media/usb/cx231xx/cx231xx-i2c.c      | 2 +-
- drivers/media/usb/em28xx/em28xx-i2c.c        | 2 +-
- drivers/media/usb/hdpvr/hdpvr-i2c.c          | 2 +-
- drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c | 2 +-
- drivers/media/usb/stk1160/stk1160-i2c.c      | 2 +-
- drivers/media/usb/usbvision/usbvision-i2c.c  | 4 ++--
- 7 files changed, 8 insertions(+), 8 deletions(-)
+Acked-by: Mike Isely <isely@pobox.com>
 
-diff --git a/drivers/media/usb/au0828/au0828-i2c.c b/drivers/media/usb/au0828/au0828-i2c.c
-index 42b352b..9074a98 100644
---- a/drivers/media/usb/au0828/au0828-i2c.c
-+++ b/drivers/media/usb/au0828/au0828-i2c.c
-@@ -336,7 +336,7 @@ static u32 au0828_functionality(struct i2c_adapter *adap)
- 
- /* ----------------------------------------------------------------------- */
- 
--static struct i2c_adapter au0828_i2c_adap_template = {
-+static const struct i2c_adapter au0828_i2c_adap_template = {
- 	.name              = KBUILD_MODNAME,
- 	.owner             = THIS_MODULE,
- 	.algo              = &au0828_i2c_algo_template,
-diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-index 8ce6b81..23648da 100644
---- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
-+++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
-@@ -459,7 +459,7 @@ static u32 functionality(struct i2c_adapter *adap)
- 	.functionality = functionality,
- };
- 
--static struct i2c_adapter cx231xx_adap_template = {
-+static const struct i2c_adapter cx231xx_adap_template = {
- 	.owner = THIS_MODULE,
- 	.name = "cx231xx",
- 	.algo = &cx231xx_algo,
-diff --git a/drivers/media/usb/em28xx/em28xx-i2c.c b/drivers/media/usb/em28xx/em28xx-i2c.c
-index 60b195c..66c5012 100644
---- a/drivers/media/usb/em28xx/em28xx-i2c.c
-+++ b/drivers/media/usb/em28xx/em28xx-i2c.c
-@@ -876,7 +876,7 @@ static u32 functionality(struct i2c_adapter *i2c_adap)
- 	.functionality = functionality,
- };
- 
--static struct i2c_adapter em28xx_adap_template = {
-+static const struct i2c_adapter em28xx_adap_template = {
- 	.owner = THIS_MODULE,
- 	.name = "em28xx",
- 	.algo = &em28xx_algo,
-diff --git a/drivers/media/usb/hdpvr/hdpvr-i2c.c b/drivers/media/usb/hdpvr/hdpvr-i2c.c
-index fcab550..7329310 100644
---- a/drivers/media/usb/hdpvr/hdpvr-i2c.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-i2c.c
-@@ -184,7 +184,7 @@ static u32 hdpvr_functionality(struct i2c_adapter *adapter)
- 	.functionality = hdpvr_functionality,
- };
- 
--static struct i2c_adapter hdpvr_i2c_adapter_template = {
-+static const struct i2c_adapter hdpvr_i2c_adapter_template = {
- 	.name   = "Hauppage HD PVR I2C",
- 	.owner  = THIS_MODULE,
- 	.algo   = &hdpvr_algo,
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-index 20a52b7..3618ace 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
-@@ -519,7 +519,7 @@ static u32 pvr2_i2c_functionality(struct i2c_adapter *adap)
- 	.functionality = pvr2_i2c_functionality,
- };
- 
--static struct i2c_adapter pvr2_i2c_adap_template = {
-+static const struct i2c_adapter pvr2_i2c_adap_template = {
- 	.owner         = THIS_MODULE,
- 	.class	       = 0,
- };
-diff --git a/drivers/media/usb/stk1160/stk1160-i2c.c b/drivers/media/usb/stk1160/stk1160-i2c.c
-index 3f2517b..2c70173 100644
---- a/drivers/media/usb/stk1160/stk1160-i2c.c
-+++ b/drivers/media/usb/stk1160/stk1160-i2c.c
-@@ -240,7 +240,7 @@ static u32 functionality(struct i2c_adapter *adap)
- 	.functionality = functionality,
- };
- 
--static struct i2c_adapter adap_template = {
-+static const struct i2c_adapter adap_template = {
- 	.owner = THIS_MODULE,
- 	.name = "stk1160",
- 	.algo = &algo,
-diff --git a/drivers/media/usb/usbvision/usbvision-i2c.c b/drivers/media/usb/usbvision/usbvision-i2c.c
-index 68acafb..837bd4d 100644
---- a/drivers/media/usb/usbvision/usbvision-i2c.c
-+++ b/drivers/media/usb/usbvision/usbvision-i2c.c
-@@ -173,7 +173,7 @@ static u32 functionality(struct i2c_adapter *adap)
- /* ----------------------------------------------------------------------- */
- /* usbvision specific I2C functions                                        */
- /* ----------------------------------------------------------------------- */
--static struct i2c_adapter i2c_adap_template;
-+static const struct i2c_adapter i2c_adap_template;
- 
- int usbvision_i2c_register(struct usb_usbvision *usbvision)
- {
-@@ -441,7 +441,7 @@ static int usbvision_i2c_read(struct usb_usbvision *usbvision, unsigned char add
- 	return rdcount;
- }
- 
--static struct i2c_adapter i2c_adap_template = {
-+static const struct i2c_adapter i2c_adap_template = {
- 	.owner = THIS_MODULE,
- 	.name              = "usbvision",
- };
+On Fri, 18 Aug 2017, Bhumika Goyal wrote:
+
+> Make these const as they are only used in a copy operation or
+> are stored in the algo field of i2c_adapter structure, which is const.
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  drivers/media/usb/au0828/au0828-i2c.c        | 2 +-
+>  drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/media/usb/au0828/au0828-i2c.c b/drivers/media/usb/au0828/au0828-i2c.c
+> index 42b352b..a028e36 100644
+> --- a/drivers/media/usb/au0828/au0828-i2c.c
+> +++ b/drivers/media/usb/au0828/au0828-i2c.c
+> @@ -329,7 +329,7 @@ static u32 au0828_functionality(struct i2c_adapter *adap)
+>  	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C;
+>  }
+>  
+> -static struct i2c_algorithm au0828_i2c_algo_template = {
+> +static const struct i2c_algorithm au0828_i2c_algo_template = {
+>  	.master_xfer	= i2c_xfer,
+>  	.functionality	= au0828_functionality,
+>  };
+> diff --git a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> index 20a52b7..cfa8fbe 100644
+> --- a/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> +++ b/drivers/media/usb/pvrusb2/pvrusb2-i2c-core.c
+> @@ -514,7 +514,7 @@ static u32 pvr2_i2c_functionality(struct i2c_adapter *adap)
+>  	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C;
+>  }
+>  
+> -static struct i2c_algorithm pvr2_i2c_algo_template = {
+> +static const struct i2c_algorithm pvr2_i2c_algo_template = {
+>  	.master_xfer   = pvr2_i2c_xfer,
+>  	.functionality = pvr2_i2c_functionality,
+>  };
+> 
+
 -- 
-1.9.1
+
+Mike Isely
+isely @ isely (dot) net
+PGP: 03 54 43 4D 75 E5 CC 92 71 16 01 E2 B5 F5 C1 E8
