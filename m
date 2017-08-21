@@ -1,14 +1,15 @@
 From: Sekhar Nori <nsekhar@ti.com>
 Subject: Re: [PATCH v2 2/3] i2c: davinci: Add PM Runtime Support
-Date: Mon, 21 Aug 2017 14:35:01 +0530
-Message-ID: <8207a684-f010-ca82-baae-db06665f098e@ti.com>
+Date: Mon, 21 Aug 2017 14:39:56 +0530
+Message-ID: <3996b44e-68cd-0a19-c685-64f6345cdf88@ti.com>
 References: <20170816221715.15027-1-fcooper@ti.com>
  <20170816221715.15027-3-fcooper@ti.com>
+ <20170817162427.izbfsa7xatjxb2aw@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170816221715.15027-3-fcooper@ti.com>
+In-Reply-To: <20170817162427.izbfsa7xatjxb2aw@ninjato>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -19,63 +20,29 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
+To: Wolfram Sang <wsa@the-dreams.de>, Franklin S Cooper Jr <fcooper@ti.com>
+Cc: devicetree@vger.kernel.org, grygorii.strashko@ti.com, vigneshr@ti.com, Kevin Hilman <khilman@baylibre.com>, linux@armlinux.org.uk, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 17 August 2017 03:47 AM, Franklin S Cooper Jr wrote:
+Hi Wolfram,
 
-> @@ -802,7 +821,6 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	dev->clk = devm_clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(dev->clk))
->  		return PTR_ERR(dev->clk);
-> -	clk_prepare_enable(dev->clk);
->  
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	dev->base = devm_ioremap_resource(&pdev->dev, mem);
-> @@ -811,6 +829,18 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  		goto err_unuse_clocks;
+On Thursday 17 August 2017 09:54 PM, Wolfram Sang wrote:
+> On Wed, Aug 16, 2017 at 05:17:14PM -0500, Franklin S Cooper Jr wrote:
+>> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
+>> like other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
+>> is required to insure the power domain used by the specific I2C instance is
+>> properly turned on along with its functional clock.
+>>
+>> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+> 
+> I'd need a review from the driver maintainers here. Which are Sekhar
+> Nori and Kevin Hilman(?) according to MAINTAINERS. Is that still
+> correct?
 
-This goto is wrong now. There is no need to unwind the pm_runtime setup
-on a devm_ioremap_resource() failure. You can just return error here.
+I just finished the review (sent the comments). Thanks for the reminder!
 
->  	}
->  
-> +	pm_runtime_set_autosuspend_delay(dev->dev,
-> +					 DAVINCI_I2C_PM_TIMEOUT);
-> +	pm_runtime_use_autosuspend(dev->dev);
-> +
-> +	pm_runtime_enable(dev->dev);
-> +
-> +	r = pm_runtime_get_sync(dev->dev);
-> +	if (r < 0) {
-> +		dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
-> +		goto err_unuse_clocks;
-> +	}
-> +
->  	i2c_davinci_init(dev);
->  
->  	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
-> @@ -849,10 +879,16 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	if (r)
->  		goto err_unuse_clocks;
->  
-> +	pm_runtime_mark_last_busy(dev->dev);
-> +	pm_runtime_put_autosuspend(dev->dev);
-> +
->  	return 0;
->  
->  err_unuse_clocks:
-> -	clk_disable_unprepare(dev->clk);
-> +	pm_runtime_dont_use_autosuspend(dev->dev);
-> +	pm_runtime_put_sync(dev->dev);
-> +	pm_runtime_disable(dev->dev);
-> +
->  	dev->clk = NULL;
+Also, tested the patches using i2cdetect and suspend/resume on OMAP-L138
+LCDK board.
 
-This null setting of clk seems quite bogus and can be cleaned-up.
-
->  	return r;
->  }
-
-Thanks,
+Regards,
 Sekhar
