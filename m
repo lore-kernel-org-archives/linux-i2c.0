@@ -1,39 +1,29 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v4 2/3] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-Date: Mon, 21 Aug 2017 11:36:53 +0800
-Message-ID: <1503286614-17670-3-git-send-email-jun.gao@mediatek.com>
-References: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 5/6] ARM: dts: blanche: add SCIF1 and MAX9260 deserializer
+Date: Mon, 21 Aug 2017 10:54:47 +0200
+Message-ID: <20170821085447.GB14174@verge.net.au>
+References: <1502889748-31499-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <1502889748-31499-6-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from kirsty.vergenet.net ([202.4.237.240]:41727 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752354AbdHUIys (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 21 Aug 2017 04:54:48 -0400
+Content-Disposition: inline
+In-Reply-To: <1502889748-31499-6-git-send-email-ulrich.hecht+renesas@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: linux-serial@vger.kernel.org, linux-renesas-soc@vger.kernel.org, magnus.damm@gmail.com, laurent.pinchart@ideasonboard.com, wsa@the-dreams.de, robh@kernel.org, peda@axentia.se, geert@linux-m68k.org, linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+On Wed, Aug 16, 2017 at 03:22:27PM +0200, Ulrich Hecht wrote:
+> Adds serial port SCIF1 and the MAX9260 deserializers connected to it.
+> 
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 
-Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
-controller, MT7622 limits message numbers to 255, and does not
-support 4GB DMA mode.
+Hi Ulrich,
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
----
- Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-index 9c86424..ff7bf37 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-@@ -7,6 +7,7 @@ Required properties:
-       "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for MediaTek MT2701
-       "mediatek,mt6577-i2c": for MediaTek MT6577
-       "mediatek,mt6589-i2c": for MediaTek MT6589
-+      "mediatek,mt7622-i2c": for MediaTek MT7622
-       "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
-       "mediatek,mt8173-i2c": for MediaTek MT8173
-   - reg: physical base address of the controller and dma base, length of memory
--- 
-1.8.1.1
+I am marking this patch as deferred pending progress on the rest of the
+series.
