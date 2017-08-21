@@ -1,7 +1,7 @@
 From: Jun Gao <jun.gao@mediatek.com>
-Subject: [PATCH v4 1/3] dt-bindings: i2c: modify information formats
-Date: Mon, 21 Aug 2017 11:36:52 +0800
-Message-ID: <1503286614-17670-2-git-send-email-jun.gao@mediatek.com>
+Subject: [PATCH v4 3/3] i2c: mediatek: Add i2c compatible for MediaTek MT7622
+Date: Mon, 21 Aug 2017 11:36:54 +0800
+Message-ID: <1503286614-17670-4-git-send-email-jun.gao@mediatek.com>
 References: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,39 +14,54 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Jun Gao <jun.gao@mediatek.com>
 
-Use common name MediaTek and modify the compatible information
-formats of all SoCs to the same.
+Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
+MT7622 limits message numbers to 255, and does not support 4GB
+DMA mode.
 
 Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-index bd5a7be..9c86424 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-@@ -1,14 +1,14 @@
--* Mediatek's I2C controller
-+* MediaTek's I2C controller
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 9bedf0b..09d288c 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -172,6 +172,10 @@ struct mtk_i2c {
+ 	.max_comb_2nd_msg_len = 31,
+ };
  
--The Mediatek's I2C controller is used to interface with I2C devices.
-+The MediaTek's I2C controller is used to interface with I2C devices.
++static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
++	.max_num_msgs = 255,
++};
++
+ static const struct mtk_i2c_compatible mt6577_compat = {
+ 	.quirks = &mt6577_i2c_quirks,
+ 	.pmic_i2c = 0,
+@@ -190,6 +194,15 @@ struct mtk_i2c {
+ 	.support_33bits = 0,
+ };
  
- Required properties:
-   - compatible: value should be either of the following.
--      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for Mediatek mt2701
--      "mediatek,mt6577-i2c": for i2c compatible with mt6577.
--      "mediatek,mt6589-i2c": for i2c compatible with mt6589.
--      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for i2c compatible with mt7623.
--      "mediatek,mt8173-i2c": for i2c compatible with mt8173.
-+      "mediatek,mt2701-i2c", "mediatek,mt6577-i2c": for MediaTek MT2701
-+      "mediatek,mt6577-i2c": for MediaTek MT6577
-+      "mediatek,mt6589-i2c": for MediaTek MT6589
-+      "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
-+      "mediatek,mt8173-i2c": for MediaTek MT8173
-   - reg: physical base address of the controller and dma base, length of memory
-     mapped region.
-   - interrupts: interrupt number to the cpu.
++static const struct mtk_i2c_compatible mt7622_compat = {
++	.quirks = &mt7622_i2c_quirks,
++	.pmic_i2c = 0,
++	.dcm = 1,
++	.auto_restart = 1,
++	.aux_len_reg = 1,
++	.support_33bits = 0,
++};
++
+ static const struct mtk_i2c_compatible mt8173_compat = {
+ 	.pmic_i2c = 0,
+ 	.dcm = 1,
+@@ -201,6 +214,7 @@ struct mtk_i2c {
+ static const struct of_device_id mtk_i2c_of_match[] = {
+ 	{ .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
+ 	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
++	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
+ 	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
+ 	{}
+ };
 -- 
 1.8.1.1
