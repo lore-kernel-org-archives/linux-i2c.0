@@ -1,26 +1,35 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: i2c-arb-gpio-challenge: allow compiling w/o OF
- support
-Date: Tue, 22 Aug 2017 08:35:59 +0200
-Message-ID: <802a682c-e311-5ed0-d08c-b166d8363706@axentia.se>
-References: <20170802093251.29567-1-peda@axentia.se>
+From: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
+Subject: RE: [PATCH 1/1] i2c: i801: Restore the presence state of P2SB PCI
+ device after reading BAR
+Date: Tue, 22 Aug 2017 08:48:35 +0000
+Message-ID: <E6AF1AFDEA62A94A97508F458CBDD47F6F5B80D7@SHSMSX101.ccr.corp.intel.com>
+References: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
+ <20170817160557.dvhvkoprszbehos5@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170802093251.29567-1-peda@axentia.se>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:11755 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932205AbdHVIsk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 22 Aug 2017 04:48:40 -0400
+In-Reply-To: <20170817160557.dvhvkoprszbehos5@ninjato>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, "jdelvare@suse.com" <jdelvare@suse.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, "Westerberg, Mika" <mika.westerberg@intel.com>, "bp@alien8.de" <bp@alien8.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 2017-08-02 11:32, Peter Rosin wrote:
-> It simplifies some tests.
-> 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+... 
+> Looks good to me, but I'll give Jean a chance to comment...
 
-Applied to i2c-mux/for-next
+Hi Wolfram Sang,
+   Thanks for your review!
 
-Cheers,
-peda
+Hi Jean,
+
+    Would you please review/comment this patch?
+    Thanks!
+
+- Qiuxu
