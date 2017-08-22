@@ -1,46 +1,79 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 3/3] mfd: twl: move header file out of I2C realm
-Date: Tue, 22 Aug 2017 15:06:31 +0200
-Message-ID: <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
-References: <20170814163424.2197-1-wsa@the-dreams.de> <20170814163424.2197-4-wsa@the-dreams.de>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v3 0/5] Add support for the STM32F7 I2C
+Date: Tue, 22 Aug 2017 15:41:47 +0200
+Message-ID: <0e2ae765-1608-f25b-663f-948f8c3f1cf2@st.com>
+References: <1499356386-28779-1-git-send-email-pierre-yves.mordret@st.com>
+ <d749429a-3cdc-ea9b-84ef-afa9fdf55f29@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20170814163424.2197-4-wsa@the-dreams.de>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, LINUXWATCHDOG <linux-watchdog@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Brown <broonie@kernel.org>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kishon Vijay Abraham I <kishon@ti.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Thierry Reding <thierry.reding@gmail.com>, Tony Lindgren <tony@atomide.com>, Daniel Thompson <daniel>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <d749429a-3cdc-ea9b-84ef-afa9fdf55f29@st.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 14, 2017 at 6:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+Hello all,
 
-> include/linux/i2c is not for client devices. Move the header file to a
-> more appropriate location.
->
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> Acked-by: Jonathan Cameron <jic23@kernel.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
-> Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Acked-by: Thierry Reding <thierry.reding@gmail.com>
-> Acked-by: Tony Lindgren <tony@atomide.com>
-> Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> ---
->
-> Change since V1:
->
-> * rebased to v4.13-rc5, one change needed (twl4030-adc.h gone, too)
-> * acks added. I think gpio and hwmon acks are missing.
->   Linus, Guenter, pretty please? :)
+Another gentle ping for driver review since DT Bindings has been acked by Rob
+Herring.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-For anything hitting GPIO.
+Many thanks in advance
+Regards
 
-Yours,
-Linus Walleij
+On 07/20/2017 10:34 AM, Pierre Yves MORDRET wrote:
+> 
+> 
+> On 07/06/2017 05:53 PM, Pierre-Yves MORDRET wrote:
+>> This patchset adds support for the I2C controller embedded in STM32F7xx SoC.
+>> It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode and
+>> Fast-mode+ bus speed.
+> 
+> Gentle ping for driver review since DT Bindings has been acked by Rob 
+> Herring.
+> 
+> Thanks
+> Py
+> 
+>> ---
+>>   Version history:
+>>      v3:
+>>          * Move stm32f7_i2c_match above stm32f7_i2c_driver
+>>          * of_device_get_match_data instead of of_match_device
+>>          * Improve I2C Speed DT gathering
+>>          * dev_err into dev_dbg for Arbitration loss
+>>          * Remove useless space aligned
+>>
+>>      v2:
+>>          * Implement an I2C timings computation algorithm instead of static
+>>            values(bindings). Algorithm uses generic I2C SCL Falling/Rising
+>>            bindings and System clock to compute its timings.
+>>          * I2C Device Tree Update
+>> ---
+>> Pierre-Yves MORDRET (5):
+>>    dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+>>    i2c: i2c-stm32f4: use generic definition of speed enum
+>>    i2c: i2c-stm32f7: add driver
+>>    ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+>>    ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
+>>
+>>   .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
+>>   arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
+>>   arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
+>>   drivers/i2c/busses/Kconfig                         |  10 +
+>>   drivers/i2c/busses/Makefile                        |   1 +
+>>   drivers/i2c/busses/i2c-stm32.h                     |  20 +
+>>   drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
+>>   drivers/i2c/busses/i2c-stm32f7.c                   | 974 +++++++++++++++++++++
+>>   8 files changed, 1068 insertions(+), 14 deletions(-)
+>>   create mode 100644 drivers/i2c/busses/i2c-stm32.h
+>>   create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
