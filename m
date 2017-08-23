@@ -1,104 +1,32 @@
-From: David Daney <ddaney@caviumnetworks.com>
-Subject: Re: [PATCH 1/4] i2c: busses: make i2c_adapter const
-Date: Tue, 22 Aug 2017 09:39:14 -0700
-Message-ID: <9831a3fd-829d-9165-20f9-9cd341e5646b@caviumnetworks.com>
-References: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
- <1503138855-585-2-git-send-email-bhumirks@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 1/3] dt-bindings: i2c: modify information formats
+Date: Tue, 22 Aug 2017 19:36:00 -0500
+Message-ID: <20170823003600.cna5zgornwommtok@rob-hp-laptop>
+References: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
+ <1503286614-17670-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1503138855-585-2-git-send-email-bhumirks@gmail.com>
-Content-Language: en-US
-Sender: linux-media-owner@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>, julia.lawall@lip6.fr, wsa@the-dreams.de, jacmet@sunsite.dk, jglauber@cavium.com, david.daney@cavium.com, hans.verkuil@cisco.com, mchehab@kernel.org, awalls@md.metrocast.net, serjk@netup.ru, aospan@netup.ru, isely@pobox.com, ezequiel@vanguardiasur.com.ar, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:34950 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752779AbdHWAgC (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 22 Aug 2017 20:36:02 -0400
+Content-Disposition: inline
+In-Reply-To: <1503286614-17670-2-git-send-email-jun.gao@mediatek.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 
-On 08/19/2017 03:34 AM, Bhumika Goyal wrote:
-> Make these const as they are only used in a copy operation.
-> Done using Coccinelle.
+On Mon, Aug 21, 2017 at 11:36:52AM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 > 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-
-
-
-i2c-octeon-platdrv.c and i2c-thunderx-pcidrv.c changes:
-
-Acked-by: David Daney <david.daney@cavium.com>
-
-Thanks.
-
+> Use common name MediaTek and modify the compatible information
+> formats of all SoCs to the same.
+> 
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 > ---
->   drivers/i2c/busses/i2c-kempld.c          | 2 +-
->   drivers/i2c/busses/i2c-ocores.c          | 2 +-
->   drivers/i2c/busses/i2c-octeon-platdrv.c  | 2 +-
->   drivers/i2c/busses/i2c-thunderx-pcidrv.c | 2 +-
->   drivers/i2c/busses/i2c-xiic.c            | 2 +-
->   5 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-kempld.c b/drivers/i2c/busses/i2c-kempld.c
-> index 25993d2..e879190 100644
-> --- a/drivers/i2c/busses/i2c-kempld.c
-> +++ b/drivers/i2c/busses/i2c-kempld.c
-> @@ -289,7 +289,7 @@ static u32 kempld_i2c_func(struct i2c_adapter *adap)
->   	.functionality	= kempld_i2c_func,
->   };
->   
-> -static struct i2c_adapter kempld_i2c_adapter = {
-> +static const struct i2c_adapter kempld_i2c_adapter = {
->   	.owner		= THIS_MODULE,
->   	.name		= "i2c-kempld",
->   	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
-> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-> index 34f1889..8c42ca7 100644
-> --- a/drivers/i2c/busses/i2c-ocores.c
-> +++ b/drivers/i2c/busses/i2c-ocores.c
-> @@ -276,7 +276,7 @@ static u32 ocores_func(struct i2c_adapter *adap)
->   	.functionality = ocores_func,
->   };
->   
-> -static struct i2c_adapter ocores_adapter = {
-> +static const struct i2c_adapter ocores_adapter = {
->   	.owner = THIS_MODULE,
->   	.name = "i2c-ocores",
->   	.class = I2C_CLASS_DEPRECATED,
-> diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-> index 917524c..64bda83 100644
-> --- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-> @@ -126,7 +126,7 @@ static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
->   	.functionality = octeon_i2c_functionality,
->   };
->   
-> -static struct i2c_adapter octeon_i2c_ops = {
-> +static const struct i2c_adapter octeon_i2c_ops = {
->   	.owner = THIS_MODULE,
->   	.name = "OCTEON adapter",
->   	.algo = &octeon_i2c_algo,
-> diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-> index ea35a895..df0976f 100644
-> --- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-> @@ -75,7 +75,7 @@ static u32 thunderx_i2c_functionality(struct i2c_adapter *adap)
->   	.functionality = thunderx_i2c_functionality,
->   };
->   
-> -static struct i2c_adapter thunderx_i2c_ops = {
-> +static const struct i2c_adapter thunderx_i2c_ops = {
->   	.owner	= THIS_MODULE,
->   	.name	= "ThunderX adapter",
->   	.algo	= &thunderx_i2c_algo,
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index 34b27bf..ae6ed25 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -721,7 +721,7 @@ static u32 xiic_func(struct i2c_adapter *adap)
->   	.functionality = xiic_func,
->   };
->   
-> -static struct i2c_adapter xiic_adapter = {
-> +static const struct i2c_adapter xiic_adapter = {
->   	.owner = THIS_MODULE,
->   	.name = DRIVER_NAME,
->   	.class = I2C_CLASS_DEPRECATED,
-> 
+>  Documentation/devicetree/bindings/i2c/i2c-mtk.txt | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+
+Acked-by: Rob Herring <robh@kernel.org>
