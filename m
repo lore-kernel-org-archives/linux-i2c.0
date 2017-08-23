@@ -1,134 +1,80 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: designware: Don't set SCL timings and speed mode when in slave mode
-Date: Wed, 23 Aug 2017 16:46:12 +0300
-Message-ID: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:5422 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754114AbdHWNqf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Aug 2017 09:46:35 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH v2 0/9] PM / ACPI / i2c: Deploy runtime PM centric path for system sleep
+Date: Wed, 23 Aug 2017 16:42:00 +0200
+Message-ID: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org
+Cc: Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-According to data sheet SCL timing parameters and DW_IC_CON SPEED mode
-bits are not used when operating in slave mode.
+The i2c designware platform driver, drivers/i2c/busses/i2c-designware-platdrv.c,
+isn't well optimized for system sleep.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-I've done quick testing with i2c-slave-eeprom and i2cdump over together
-hooked busses without issues. Would like to hear tested by or comment
-from Luis though. Patch is not urgent so can wait after vacation etc.
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 11 -----
- drivers/i2c/busses/i2c-designware-slave.c   | 64 -----------------------------
- 2 files changed, 75 deletions(-)
+What makes this driver particularly interesting is because it's a cross-SoC
+driver, which sometimes means there is an ACPI PM domain attached to the i2c
+device and sometimes not. The driver is being used on both x86 and ARM.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 56a17fdc2270..962c7ab25b93 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -201,17 +201,6 @@ static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
- 			 DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED;
- 
- 	dev->mode = DW_IC_SLAVE;
--
--	switch (dev->clk_freq) {
--	case 100000:
--		dev->slave_cfg |= DW_IC_CON_SPEED_STD;
--		break;
--	case 3400000:
--		dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
--		break;
--	default:
--		dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
--	}
- }
- 
- static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index ea9578ab19a1..d42558d1b002 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -51,9 +51,7 @@ static void i2c_dw_configure_fifo_slave(struct dw_i2c_dev *dev)
-  */
- static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
- {
--	u32 sda_falling_time, scl_falling_time;
- 	u32 reg, comp_param1;
--	u32 hcnt, lcnt;
- 	int ret;
- 
- 	ret = i2c_dw_acquire_lock(dev);
-@@ -79,68 +77,6 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
- 	/* Disable the adapter. */
- 	__i2c_dw_enable_and_wait(dev, false);
- 
--	/* Set standard and fast speed deviders for high/low periods. */
--	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
--	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
--
--	/* Set SCL timing parameters for standard-mode. */
--	if (dev->ss_hcnt && dev->ss_lcnt) {
--		hcnt = dev->ss_hcnt;
--		lcnt = dev->ss_lcnt;
--	} else {
--		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
--				       4000,	/* tHD;STA = tHIGH = 4.0 us */
--				       sda_falling_time,
--				       0,	/* 0: DW default, 1: Ideal */
--				       0);	/* No offset */
--		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
--				       4700,	/* tLOW = 4.7 us */
--				       scl_falling_time,
--				       0);	/* No offset */
--	}
--	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
--	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
--	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
--
--	/* Set SCL timing parameters for fast-mode or fast-mode plus. */
--	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
--		hcnt = dev->fp_hcnt;
--		lcnt = dev->fp_lcnt;
--	} else if (dev->fs_hcnt && dev->fs_lcnt) {
--		hcnt = dev->fs_hcnt;
--		lcnt = dev->fs_lcnt;
--	} else {
--		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
--				       600,	/* tHD;STA = tHIGH = 0.6 us */
--				       sda_falling_time,
--				       0,	/* 0: DW default, 1: Ideal */
--				       0);	/* No offset */
--		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
--				       1300,	/* tLOW = 1.3 us */
--				       scl_falling_time,
--				       0);	/* No offset */
--	}
--	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
--	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
--	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
--
--	if ((dev->slave_cfg & DW_IC_CON_SPEED_MASK) ==
--		DW_IC_CON_SPEED_HIGH) {
--		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
--			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
--			dev_err(dev->dev, "High Speed not supported!\n");
--			dev->slave_cfg &= ~DW_IC_CON_SPEED_MASK;
--			dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
--		} else if (dev->hs_hcnt && dev->hs_lcnt) {
--			hcnt = dev->hs_hcnt;
--			lcnt = dev->hs_lcnt;
--			dw_writel(dev, hcnt, DW_IC_HS_SCL_HCNT);
--			dw_writel(dev, lcnt, DW_IC_HS_SCL_LCNT);
--			dev_dbg(dev->dev, "HighSpeed-mode HCNT:LCNT = %d:%d\n",
--				hcnt, lcnt);
--		}
--	}
--
- 	/* Configure SDA Hold Time if required. */
- 	reg = dw_readl(dev, DW_IC_COMP_VERSION);
- 	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+In principle, to optimize the system sleep support in i2c driver, this series
+enables the proven runtime PM centric path for the i2c driver. However, to do
+that the ACPI PM domain also have to collaborate and understand this behaviour.
+Therefore a number of changes, patch 1 to patch 7, makes the needed changes to
+the ACPI PM domain. In patch8 and patch 9, the i2c driver gets optimized and is
+converted to the runtime PM centric path for system sleep.
+
+It shall be noted, the behaviour of the ACPI PM domain should remain intact,
+still taking benefit of using the direct_complete path during system sleep,
+except for those drivers that explicitly request it not to (via a new ACPI API
+added in this series).
+
+This series has been tested on an ARM64 Hikey board, which isn't having the
+i2c device attached to the ACPI PM domain. This means that the ACPI changes
+needs to be tested on some relevant Intel SoCs and it's greatly appreciated
+is someone could help out with this, so is of course review comments.
+
+Some news in v2:
+	- The v1 contained a fix for the i2c driver, this has been sent
+	separately [1] and picked up for fixes by Wolfram for v4.13-rcs. However
+	the fix has not yet reached Linus' tree. The changes on i2c driver
+	are based upon that change.
+	- To simplify for testers, I have published a branch [2] based upon
+	Rafael's pm tree and linux-next branch, which also includes the above
+	patch.
+	- Rephrased the coverletter to clarify the intent of this series.
+	- Addressed review comments from v1.
+
+[1]
+http://patchwork.ozlabs.org/patch/799803/
+
+[2]
+git://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git acpi_pm_i2c_rpm_path_v2
+
+Kind regards
+Ulf Hansson
+
+
+Ulf Hansson (9):
+  PM / ACPI: Restore acpi_subsys_complete()
+  PM / Sleep: Remove pm_complete_with_resume_check()
+  PM / ACPI: Split code validating need for runtime resume in
+    ->prepare()
+  PM / ACPI: Split acpi_lpss_suspend_late|resume_early()
+  PM / ACPI: Provide option to disable direct_complete for ACPI devices
+  PM / ACPI: Enable the runtime PM centric approach for system sleep
+  PM / ACPI: Avoid runtime resuming device in
+    acpi_subsys_suspend|freeze()
+  i2c: designware: Don't resume device in the ->complete() callback
+  i2c: designware: Deploy the runtime PM centric approach for system
+    sleep
+
+ drivers/acpi/acpi_lpss.c                    |  81 +++++++++----
+ drivers/acpi/device_pm.c                    | 169 ++++++++++++++++++++++++----
+ drivers/base/power/generic_ops.c            |  23 ----
+ drivers/i2c/busses/i2c-designware-platdrv.c |  35 +-----
+ include/acpi/acpi_bus.h                     |   1 +
+ include/linux/acpi.h                        |   4 +
+ include/linux/pm.h                          |   1 -
+ 7 files changed, 218 insertions(+), 96 deletions(-)
+
 -- 
-2.14.1
+2.7.4
