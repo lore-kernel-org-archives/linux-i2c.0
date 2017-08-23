@@ -1,138 +1,38 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH v2] i2c: core: add device-managed version of i2c_new_dummy
-Date: Wed, 23 Aug 2017 21:12:52 +0200
-Message-ID: <f3545096-7830-7100-8c9b-e57e08adafef@gmail.com>
-References: <8c0a982f-30d5-1124-c871-b040b5bce636@gmail.com>
- <1913702d-9cb0-2874-7760-0e3f83985e61@axentia.se>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v2 1/9] PM / ACPI: Restore acpi_subsys_complete()
+Date: Thu, 24 Aug 2017 00:41:08 +0200
+Message-ID: <CAJZ5v0iAanGEvRF=J-wL9jKoBpZoGGc7+BXokt4PLWKxi85ctA@mail.gmail.com>
+References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <1503499329-28834-2-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:36148 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932458AbdHWTNB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Aug 2017 15:13:01 -0400
-Received: by mail-wr0-f193.google.com with SMTP id u17so247279wrf.3
-        for <linux-i2c@vger.kernel.org>; Wed, 23 Aug 2017 12:13:00 -0700 (PDT)
-In-Reply-To: <1913702d-9cb0-2874-7760-0e3f83985e61@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1503499329-28834-2-git-send-email-ulf.hansson@linaro.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Am 23.08.2017 um 14:09 schrieb Peter Rosin:
-> On 2017-08-22 07:45, Heiner Kallweit wrote:
->> i2c_new_dummy is typically called from the probe function of the
->> driver for the primary i2c client. It requires calls to
->> i2c_unregister_device in the error path of the probe function and
->> in the remove function.
->> This can be simplified by introducing a device-managed version.
->>
->> Note the changed error case return value type:
->> i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
->>
->> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> 
-> Looks good to me, assuming you have some user in the wings...
-> I will use it in at24 I2C EEPROM driver. Some patches from me are pending
-already, switching to devm_i2c_new_dummy will be one of the next.
+On Wed, Aug 23, 2017 at 4:42 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> The commit 58a1fbbb2ee8 ("PM / PCI / ACPI: Kick devices that might have
+> been reset by firmware"), made PCI's and ACPI's ->complete() callbacks to
+> be assigned to a new API called pm_complete_with_resume_check(), which was
+> introduced in the same change.
+>
+> Later it turned out that using pm_complete_with_resume_check() isn't good
+> enough for PCI, as it needs additional PCI specific checks, before deciding
+> whether runtime resuming the device is needed when running the ->complete()
+> callback.
+>
+> This leaves ACPI being the only user of pm_complete_with_resume_check().
 
-Thanks, Heiner
+I would say "the ACPI PM domain" instead of just "ACPI" here, because
+in fact this is only about the ACPI PM domain.
 
-> Reviewed-by: Peter Rosin <peda@axentia.se>
-> 
-> Cheers,
-> peda
-> 
->> ---
->> v2:
->> - added entry to Documentation/driver-model/devres.txt
->> - extended documentation of new function
->> - changed return value type to an ERR_PTR in case of error
->> ---
->>  Documentation/driver-model/devres.txt |  3 +++
->>  drivers/i2c/i2c-core-base.c           | 39 +++++++++++++++++++++++++++++++++++
->>  include/linux/i2c.h                   |  3 +++
->>  3 files changed, 45 insertions(+)
->>
->> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
->> index 30e04f7a..67d59528 100644
->> --- a/Documentation/driver-model/devres.txt
->> +++ b/Documentation/driver-model/devres.txt
->> @@ -258,6 +258,9 @@ GPIO
->>    devm_gpio_request_one()
->>    devm_gpio_free()
->>  
->> +I2C
->> +  devm_i2c_new_dummy
->> +
->>  IIO
->>    devm_iio_device_alloc()
->>    devm_iio_device_free()
->> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
->> index 12822a4b..aac9491c 100644
->> --- a/drivers/i2c/i2c-core-base.c
->> +++ b/drivers/i2c/i2c-core-base.c
->> @@ -868,6 +868,45 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->>  }
->>  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->>  
->> +static void devm_i2c_release_dummy(struct device *dev, void *res)
->> +{
->> +	i2c_unregister_device(*(struct i2c_client **)res);
->> +}
->> +
->> +/**
->> + * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
->> + * @dev: device the managed resource is bound to
->> + * @adapter: the adapter managing the device
->> + * @address: seven bit address to be used
->> + * Context: can sleep
->> + *
->> + * This is the device-managed version of i2c_new_dummy.
->> + * Note the changed return value type: It returns the new i2c client
->> + * or an ERR_PTR in case of an error.
->> + */
->> +struct i2c_client *devm_i2c_new_dummy(struct device *dev,
->> +				      struct i2c_adapter *adapter,
->> +				      u16 address)
->> +{
->> +	struct i2c_client *ret, **dr;
->> +
->> +	dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
->> +	if (!dr)
->> +		return ERR_PTR(-ENOMEM);
->> +
->> +	ret = i2c_new_dummy(adapter, address);
->> +	if (!ret) {
->> +		devres_free(dr);
->> +		return ERR_PTR(-EBUSY);
->> +	}
->> +
->> +	*dr = ret;
->> +	devres_add(dev, dr);
->> +
->> +	return ret;
->> +}
->> +EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
->> +
->>  /**
->>   * i2c_new_secondary_device - Helper to get the instantiated secondary address
->>   * and create the associated device
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index d501d395..d0c091e6 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -381,6 +381,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
->>  extern struct i2c_client *
->>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
->>  
->> +extern struct i2c_client *
->> +devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
->> +
->>  extern struct i2c_client *
->>  i2c_new_secondary_device(struct i2c_client *client,
->>  				const char *name,
->>
-> 
-> 
+This more-or-less applies to all of the changelogs in this series and
+to some comments added by it too: please be specific that it is *only*
+about the ACPI PM domain.
+
+The patch itself is fine.
+
+Thanks,
+Rafael
