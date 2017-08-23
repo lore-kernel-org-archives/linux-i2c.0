@@ -1,130 +1,134 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2] i2c: core: add device-managed version of i2c_new_dummy
-Date: Wed, 23 Aug 2017 14:09:56 +0200
-Message-ID: <1913702d-9cb0-2874-7760-0e3f83985e61@axentia.se>
-References: <8c0a982f-30d5-1124-c871-b040b5bce636@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH] i2c: designware: Don't set SCL timings and speed mode when in slave mode
+Date: Wed, 23 Aug 2017 16:46:12 +0300
+Message-ID: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0102.outbound.protection.outlook.com ([104.47.0.102]:3980
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753955AbdHWMKE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 23 Aug 2017 08:10:04 -0400
-In-Reply-To: <8c0a982f-30d5-1124-c871-b040b5bce636@gmail.com>
-Content-Language: en-US
+Received: from mga05.intel.com ([192.55.52.43]:5422 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754114AbdHWNqf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 23 Aug 2017 09:46:35 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-On 2017-08-22 07:45, Heiner Kallweit wrote:
-> i2c_new_dummy is typically called from the probe function of the
-> driver for the primary i2c client. It requires calls to
-> i2c_unregister_device in the error path of the probe function and
-> in the remove function.
-> This can be simplified by introducing a device-managed version.
-> 
-> Note the changed error case return value type:
-> i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+According to data sheet SCL timing parameters and DW_IC_CON SPEED mode
+bits are not used when operating in slave mode.
 
-Looks good to me, assuming you have some user in the wings...
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+I've done quick testing with i2c-slave-eeprom and i2cdump over together
+hooked busses without issues. Would like to hear tested by or comment
+from Luis though. Patch is not urgent so can wait after vacation etc.
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 11 -----
+ drivers/i2c/busses/i2c-designware-slave.c   | 64 -----------------------------
+ 2 files changed, 75 deletions(-)
 
-Reviewed-by: Peter Rosin <peda@axentia.se>
-
-Cheers,
-peda
-
-> ---
-> v2:
-> - added entry to Documentation/driver-model/devres.txt
-> - extended documentation of new function
-> - changed return value type to an ERR_PTR in case of error
-> ---
->  Documentation/driver-model/devres.txt |  3 +++
->  drivers/i2c/i2c-core-base.c           | 39 +++++++++++++++++++++++++++++++++++
->  include/linux/i2c.h                   |  3 +++
->  3 files changed, 45 insertions(+)
-> 
-> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-> index 30e04f7a..67d59528 100644
-> --- a/Documentation/driver-model/devres.txt
-> +++ b/Documentation/driver-model/devres.txt
-> @@ -258,6 +258,9 @@ GPIO
->    devm_gpio_request_one()
->    devm_gpio_free()
->  
-> +I2C
-> +  devm_i2c_new_dummy
-> +
->  IIO
->    devm_iio_device_alloc()
->    devm_iio_device_free()
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 12822a4b..aac9491c 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -868,6 +868,45 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->  
-> +static void devm_i2c_release_dummy(struct device *dev, void *res)
-> +{
-> +	i2c_unregister_device(*(struct i2c_client **)res);
-> +}
-> +
-> +/**
-> + * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
-> + * @dev: device the managed resource is bound to
-> + * @adapter: the adapter managing the device
-> + * @address: seven bit address to be used
-> + * Context: can sleep
-> + *
-> + * This is the device-managed version of i2c_new_dummy.
-> + * Note the changed return value type: It returns the new i2c client
-> + * or an ERR_PTR in case of an error.
-> + */
-> +struct i2c_client *devm_i2c_new_dummy(struct device *dev,
-> +				      struct i2c_adapter *adapter,
-> +				      u16 address)
-> +{
-> +	struct i2c_client *ret, **dr;
-> +
-> +	dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
-> +	if (!dr)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	ret = i2c_new_dummy(adapter, address);
-> +	if (!ret) {
-> +		devres_free(dr);
-> +		return ERR_PTR(-EBUSY);
-> +	}
-> +
-> +	*dr = ret;
-> +	devres_add(dev, dr);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
-> +
->  /**
->   * i2c_new_secondary_device - Helper to get the instantiated secondary address
->   * and create the associated device
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index d501d395..d0c091e6 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -381,6 +381,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
->  extern struct i2c_client *
->  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
->  
-> +extern struct i2c_client *
-> +devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
-> +
->  extern struct i2c_client *
->  i2c_new_secondary_device(struct i2c_client *client,
->  				const char *name,
-> 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 56a17fdc2270..962c7ab25b93 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -201,17 +201,6 @@ static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
+ 			 DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED;
+ 
+ 	dev->mode = DW_IC_SLAVE;
+-
+-	switch (dev->clk_freq) {
+-	case 100000:
+-		dev->slave_cfg |= DW_IC_CON_SPEED_STD;
+-		break;
+-	case 3400000:
+-		dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
+-		break;
+-	default:
+-		dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
+-	}
+ }
+ 
+ static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index ea9578ab19a1..d42558d1b002 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -51,9 +51,7 @@ static void i2c_dw_configure_fifo_slave(struct dw_i2c_dev *dev)
+  */
+ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+ {
+-	u32 sda_falling_time, scl_falling_time;
+ 	u32 reg, comp_param1;
+-	u32 hcnt, lcnt;
+ 	int ret;
+ 
+ 	ret = i2c_dw_acquire_lock(dev);
+@@ -79,68 +77,6 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+ 	/* Disable the adapter. */
+ 	__i2c_dw_enable_and_wait(dev, false);
+ 
+-	/* Set standard and fast speed deviders for high/low periods. */
+-	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
+-	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
+-
+-	/* Set SCL timing parameters for standard-mode. */
+-	if (dev->ss_hcnt && dev->ss_lcnt) {
+-		hcnt = dev->ss_hcnt;
+-		lcnt = dev->ss_lcnt;
+-	} else {
+-		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
+-				       4000,	/* tHD;STA = tHIGH = 4.0 us */
+-				       sda_falling_time,
+-				       0,	/* 0: DW default, 1: Ideal */
+-				       0);	/* No offset */
+-		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
+-				       4700,	/* tLOW = 4.7 us */
+-				       scl_falling_time,
+-				       0);	/* No offset */
+-	}
+-	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
+-	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
+-	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+-
+-	/* Set SCL timing parameters for fast-mode or fast-mode plus. */
+-	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
+-		hcnt = dev->fp_hcnt;
+-		lcnt = dev->fp_lcnt;
+-	} else if (dev->fs_hcnt && dev->fs_lcnt) {
+-		hcnt = dev->fs_hcnt;
+-		lcnt = dev->fs_lcnt;
+-	} else {
+-		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
+-				       600,	/* tHD;STA = tHIGH = 0.6 us */
+-				       sda_falling_time,
+-				       0,	/* 0: DW default, 1: Ideal */
+-				       0);	/* No offset */
+-		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
+-				       1300,	/* tLOW = 1.3 us */
+-				       scl_falling_time,
+-				       0);	/* No offset */
+-	}
+-	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
+-	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+-	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+-
+-	if ((dev->slave_cfg & DW_IC_CON_SPEED_MASK) ==
+-		DW_IC_CON_SPEED_HIGH) {
+-		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
+-			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
+-			dev_err(dev->dev, "High Speed not supported!\n");
+-			dev->slave_cfg &= ~DW_IC_CON_SPEED_MASK;
+-			dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
+-		} else if (dev->hs_hcnt && dev->hs_lcnt) {
+-			hcnt = dev->hs_hcnt;
+-			lcnt = dev->hs_lcnt;
+-			dw_writel(dev, hcnt, DW_IC_HS_SCL_HCNT);
+-			dw_writel(dev, lcnt, DW_IC_HS_SCL_LCNT);
+-			dev_dbg(dev->dev, "HighSpeed-mode HCNT:LCNT = %d:%d\n",
+-				hcnt, lcnt);
+-		}
+-	}
+-
+ 	/* Configure SDA Hold Time if required. */
+ 	reg = dw_readl(dev, DW_IC_COMP_VERSION);
+ 	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+-- 
+2.14.1
