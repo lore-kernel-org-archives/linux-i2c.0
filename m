@@ -1,55 +1,60 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v2 0/2] i2c: designware: add i2c gpio recovery option
-Date: Thu, 24 Aug 2017 17:21:54 +0800
-Message-ID: <c81a485d-b9da-fd64-c3ae-25fcf8744f80@electromag.com.au>
-References: <1497598977-37622-1-git-send-email-preid@electromag.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:52517 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751274AbdHXJWD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Aug 2017 05:22:03 -0400
-In-Reply-To: <1497598977-37622-1-git-send-email-preid@electromag.com.au>
-Content-Language: en-AU
-Sender: linux-i2c-owner@vger.kernel.org
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: [PATCH v11 04/10] i2c: core: call of_i2c_setup_smbus_alert in i2c_register_adapter
+Date: Thu, 24 Aug 2017 17:31:04 +0800
+Message-ID: <1503567070-115646-5-git-send-email-preid@electromag.com.au>
+References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1503567070-115646-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
 
-On 16/06/2017 15:42, Phil Reid wrote:
-> Changes from V1:
-> - In review Andy suggested change the i2c core to use the gpiod
->    I've added a patch that allows the gradual switching of drivers
->    to using gpiod interface. The old interface is preserved so
->    that changes can be made incrementally.
-> - I've update Tim's patch for the designware driver to use the new
->    interface. Tweaked a couple of things to his patch and fixed
->    up things Andy id in last review.
->    The core changes in p1 don't require the get/set scl/sda functions.
->    Hopefully I've done the right thing with preserving authorship and
->    signoff.
-> 
-> Phil Reid (1):
->    i2c: Switch to using gpiod interface for gpio bus recovery
-> 
-> Tim Sander (1):
->    i2c: designware: add i2c gpio recovery option
-> 
->   drivers/i2c/busses/i2c-designware-core.c    | 12 ++++--
->   drivers/i2c/busses/i2c-designware-core.h    |  1 +
->   drivers/i2c/busses/i2c-designware-platdrv.c | 58 +++++++++++++++++++++++++++++
->   drivers/i2c/i2c-core-base.c                 | 22 +++++++++--
->   include/linux/i2c.h                         |  2 +
->   5 files changed, 88 insertions(+), 7 deletions(-)
-> 
+Add a call to of_i2c_setup_smbus_alert when a i2c adapter is registered
+so the the smbalert driver can be registered.
 
-Ping:
+Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+---
+ drivers/i2c/i2c-core-base.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Any comments on these 2 patches?
-
-
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 033b7b9..7006486 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -29,6 +29,7 @@
+ #include <linux/errno.h>
+ #include <linux/gpio.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-smbus.h>
+ #include <linux/idr.h>
+ #include <linux/init.h>
+ #include <linux/irqflags.h>
+@@ -1273,6 +1274,10 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 		goto out_list;
+ 	}
+ 
++	res = of_i2c_setup_smbus_alert(adap);
++	if (res)
++		goto out_reg;
++
+ 	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
+ 
+ 	pm_runtime_no_callbacks(&adap->dev);
+@@ -1304,6 +1309,10 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 
+ 	return 0;
+ 
++out_reg:
++	init_completion(&adap->dev_released);
++	device_unregister(&adap->dev);
++	wait_for_completion(&adap->dev_released);
+ out_list:
+ 	mutex_lock(&core_lock);
+ 	idr_remove(&i2c_adapter_idr, adap->nr);
 -- 
-Regards
-Phil Reid
+1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
