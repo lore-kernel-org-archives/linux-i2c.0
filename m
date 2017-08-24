@@ -1,50 +1,79 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v2 5/9] PM / ACPI: Provide option to disable
- direct_complete for ACPI devices
-Date: Thu, 24 Aug 2017 01:39:44 +0200
-Message-ID: <CAJZ5v0gJn=SzNFGUT7Zb+CfhQBZ7KNDK2GTSSXGexD8GObjGOw@mail.gmail.com>
-References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <1503499329-28834-6-git-send-email-ulf.hansson@linaro.org>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
+ configuring bus frequency
+Date: Wed, 23 Aug 2017 17:19:59 -0700
+Message-ID: <CAFd5g46ZtSxY2MfCLEUArbByFUTDHFp3HRAg6YDJ8oYf42G3OA@mail.gmail.com>
+References: <20170815072102.23067-1-andrew@aj.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1503499329-28834-6-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170815072102.23067-1-andrew@aj.id.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ryan Chen <ryan_chen@aspeedtech.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 23, 2017 at 4:42 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> In some cases a driver for an ACPI device needs to be able to prevent the
-> ACPI PM domain from using the direct_complete path during system sleep.
+On Tue, Aug 15, 2017 at 12:21 AM, Andrew Jeffery <andrew@aj.id.au> wrote:
+> In addition to the base, low and high clock configuration, the AC timing
+> register #1 on the AST2400 houses fields controlling:
 >
-> One typical case is when the driver for the device needs its device to stay
-> runtime enabled, during the __device_suspend phase. This isn't the case
-> when the direct_complete path is being executed by the PM core, as it then
-> disables runtime PM for the device in __device_suspend(). Any following
-> attempts to runtime resume the device after that point, just fails.
-
-OK, that is a problem.
-
-> A workaround to this problem is to let the driver runtime resume its device
-> from its ->prepare() callback, as that would prevent the direct_complete
-> path from being executed. However, that may often be a waste, especially if
-> it turned out that no one really needed the device.
+> 1. tBUF: Minimum delay between Stop and Start conditions
+> 2. tHDSTA: Hold time for the Start condition
+> 3. tACST: Setup time for Start and Stop conditions, and hold time for the
+>    Repeated Start condition
 >
-> For this reason, invent acpi_dev_disable|enable_direct_complete(), to allow
-> drivers to inform the ACPI PM domain to change its default behaviour during
-> system sleep, and thus control whether it may use the direct_complete path
-> or not.
+> These values are defined in hardware on the AST2500 and therefore don't
+> need to be set.
+>
+> aspeed_i2c_init_clk() was performing a direct write of the generated
+> clock values rather than a read/mask/modify/update sequence to retain
+> tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
+> fields on the AST2400. This resulted in a delay/setup/hold time of 1
+> base clock, which in some configurations is not enough for some devices
+> (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
+> bus speed of 100kHz).
+>
+> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+> ---
+>  drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index ee76e6dddc4b..284f8670dbeb 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -53,6 +53,9 @@
+>  #define ASPEED_I2CD_MASTER_EN                          BIT(0)
+>
+>  /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
+> +#define ASPEED_I2CD_TIME_TBUF_MASK                     GENMASK(31, 28)
+> +#define ASPEED_I2CD_TIME_THDSTA_MASK                   GENMASK(27, 24)
+> +#define ASPEED_I2CD_TIME_TACST_MASK                    GENMASK(23, 20)
+>  #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT                        16
+>  #define ASPEED_I2CD_TIME_SCL_HIGH_MASK                 GENMASK(19, 16)
+>  #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT                 12
+> @@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
+>         u32 divisor, clk_reg_val;
+>
+>         divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
+> -       clk_reg_val = bus->get_clk_reg_val(divisor);
+> +       clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
+> +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
+> +                       ASPEED_I2CD_TIME_THDSTA_MASK |
+> +                       ASPEED_I2CD_TIME_TACST_MASK);
+> +       clk_reg_val |= bus->get_clk_reg_val(divisor);
+>         writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
+>         writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
+>
+> --
+> 2.11.0
+>
 
-But I'm not sure this is the right place to address it as it very well
-may affect a PCI device too.
+Sorry for the delay.
 
-Also, this is about the device and not about its ACPI companion
-object, so putting the flag in there is somewhat unclean, so to speak.
+We tried this out and it fixes a problem similar to the one you described.
 
-It looks like we need a flag in dev_pm_info saying something along the
-lines of "my system suspend callback can deal with runtime PM" that
-will cause the direct_complete update to occur in
-__device_suspend_late() instead of __device_suspend().
+Thanks again!
 
-Thanks,
-Rafael
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
