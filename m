@@ -1,79 +1,109 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
- configuring bus frequency
-Date: Wed, 23 Aug 2017 17:19:59 -0700
-Message-ID: <CAFd5g46ZtSxY2MfCLEUArbByFUTDHFp3HRAg6YDJ8oYf42G3OA@mail.gmail.com>
-References: <20170815072102.23067-1-andrew@aj.id.au>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v2 5/9] PM / ACPI: Provide option to disable direct_complete for ACPI devices
+Date: Thu, 24 Aug 2017 02:13:55 +0200
+Message-ID: <3774251.HUIR40xRhc@aspire.rjw.lan>
+References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <1503499329-28834-6-git-send-email-ulf.hansson@linaro.org> <CAJZ5v0gJn=SzNFGUT7Zb+CfhQBZ7KNDK2GTSSXGexD8GObjGOw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170815072102.23067-1-andrew@aj.id.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Jeffery <andrew@aj.id.au>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ryan Chen <ryan_chen@aspeedtech.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:47461 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751003AbdHXAWb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 23 Aug 2017 20:22:31 -0400
+In-Reply-To: <CAJZ5v0gJn=SzNFGUT7Zb+CfhQBZ7KNDK2GTSSXGexD8GObjGOw@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-On Tue, Aug 15, 2017 at 12:21 AM, Andrew Jeffery <andrew@aj.id.au> wrote:
-> In addition to the base, low and high clock configuration, the AC timing
-> register #1 on the AST2400 houses fields controlling:
->
-> 1. tBUF: Minimum delay between Stop and Start conditions
-> 2. tHDSTA: Hold time for the Start condition
-> 3. tACST: Setup time for Start and Stop conditions, and hold time for the
->    Repeated Start condition
->
-> These values are defined in hardware on the AST2500 and therefore don't
-> need to be set.
->
-> aspeed_i2c_init_clk() was performing a direct write of the generated
-> clock values rather than a read/mask/modify/update sequence to retain
-> tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
-> fields on the AST2400. This resulted in a delay/setup/hold time of 1
-> base clock, which in some configurations is not enough for some devices
-> (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
-> bus speed of 100kHz).
->
-> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index ee76e6dddc4b..284f8670dbeb 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -53,6 +53,9 @@
->  #define ASPEED_I2CD_MASTER_EN                          BIT(0)
->
->  /* 0x04 : I2CD Clock and AC Timing Control Register #1 */
-> +#define ASPEED_I2CD_TIME_TBUF_MASK                     GENMASK(31, 28)
-> +#define ASPEED_I2CD_TIME_THDSTA_MASK                   GENMASK(27, 24)
-> +#define ASPEED_I2CD_TIME_TACST_MASK                    GENMASK(23, 20)
->  #define ASPEED_I2CD_TIME_SCL_HIGH_SHIFT                        16
->  #define ASPEED_I2CD_TIME_SCL_HIGH_MASK                 GENMASK(19, 16)
->  #define ASPEED_I2CD_TIME_SCL_LOW_SHIFT                 12
-> @@ -744,7 +747,11 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
->         u32 divisor, clk_reg_val;
->
->         divisor = DIV_ROUND_UP(bus->parent_clk_frequency, bus->bus_frequency);
-> -       clk_reg_val = bus->get_clk_reg_val(divisor);
-> +       clk_reg_val = readl(bus->base + ASPEED_I2C_AC_TIMING_REG1);
-> +       clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
-> +                       ASPEED_I2CD_TIME_THDSTA_MASK |
-> +                       ASPEED_I2CD_TIME_TACST_MASK);
-> +       clk_reg_val |= bus->get_clk_reg_val(divisor);
->         writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
->         writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
->
-> --
-> 2.11.0
->
+On Thursday, August 24, 2017 1:39:44 AM CEST Rafael J. Wysocki wrote:
+> On Wed, Aug 23, 2017 at 4:42 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+> > In some cases a driver for an ACPI device needs to be able to prevent the
+> > ACPI PM domain from using the direct_complete path during system sleep.
+> >
+> > One typical case is when the driver for the device needs its device to stay
+> > runtime enabled, during the __device_suspend phase. This isn't the case
+> > when the direct_complete path is being executed by the PM core, as it then
+> > disables runtime PM for the device in __device_suspend(). Any following
+> > attempts to runtime resume the device after that point, just fails.
+> 
+> OK, that is a problem.
+> 
+> > A workaround to this problem is to let the driver runtime resume its device
+> > from its ->prepare() callback, as that would prevent the direct_complete
+> > path from being executed. However, that may often be a waste, especially if
+> > it turned out that no one really needed the device.
+> >
+> > For this reason, invent acpi_dev_disable|enable_direct_complete(), to allow
+> > drivers to inform the ACPI PM domain to change its default behaviour during
+> > system sleep, and thus control whether it may use the direct_complete path
+> > or not.
+> 
+> But I'm not sure this is the right place to address it as it very well
+> may affect a PCI device too.
+> 
+> Also, this is about the device and not about its ACPI companion
+> object, so putting the flag in there is somewhat unclean, so to speak.
+> 
+> It looks like we need a flag in dev_pm_info saying something along the
+> lines of "my system suspend callback can deal with runtime PM" that
+> will cause the direct_complete update to occur in
+> __device_suspend_late() instead of __device_suspend().
 
-Sorry for the delay.
+IOW, something like the patch below.
 
-We tried this out and it fixes a problem similar to the one you described.
+It actually should work with the ACPI PM domain code as is except that it
+will cause the device to be runtime resumed every time during suspend.
 
-Thanks again!
+But acpi_subsys_suspend() can be changed to avoid resuming the device if
+power.force_suspend is set.
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Tested-by: Brendan Higgins <brendanhiggins@google.com>
+---
+ drivers/base/power/main.c |   11 +++++++++--
+ include/linux/pm.h        |    1 +
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+Index: linux-pm/drivers/base/power/main.c
+===================================================================
+--- linux-pm.orig/drivers/base/power/main.c
++++ linux-pm/drivers/base/power/main.c
+@@ -1271,9 +1271,16 @@ static int __device_suspend_late(struct
+ 		goto Complete;
+ 	}
+ 
+-	if (dev->power.syscore || dev->power.direct_complete)
++	if (dev->power.syscore)
+ 		goto Complete;
+ 
++	if (dev->power.direct_complete) {
++		if (pm_runtime_status_suspended(dev))
++			goto Complete;
++
++		dev->power.direct_complete = false;
++	}
++
+ 	if (dev->pm_domain) {
+ 		info = "late power domain ";
+ 		callback = pm_late_early_op(&dev->pm_domain->ops, state);
+@@ -1482,7 +1489,7 @@ static int __device_suspend(struct devic
+ 	if (dev->power.syscore)
+ 		goto Complete;
+ 
+-	if (dev->power.direct_complete) {
++	if (dev->power.direct_complete && !dev->power.force_suspend) {
+ 		if (pm_runtime_status_suspended(dev)) {
+ 			pm_runtime_disable(dev);
+ 			if (pm_runtime_status_suspended(dev))
+Index: linux-pm/include/linux/pm.h
+===================================================================
+--- linux-pm.orig/include/linux/pm.h
++++ linux-pm/include/linux/pm.h
+@@ -554,6 +554,7 @@ struct dev_pm_info {
+ 	pm_message_t		power_state;
+ 	unsigned int		can_wakeup:1;
+ 	unsigned int		async_suspend:1;
++	unsigned int		force_suspend:1;
+ 	bool			in_dpm_list:1;	/* Owned by the PM core */
+ 	bool			is_prepared:1;	/* Owned by the PM core */
+ 	bool			is_suspended:1;	/* Ditto */
