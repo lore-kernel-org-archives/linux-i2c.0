@@ -1,43 +1,60 @@
-From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Subject: [PATCH v11 06/10] i2c: mux: pca954x: Return error if irq_create_mapping fails
-Date: Thu, 24 Aug 2017 17:31:06 +0800
-Message-ID: <1503567070-115646-7-git-send-email-preid@electromag.com.au>
-References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1503567070-115646-1-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 0/2] i2c: designware: add i2c gpio recovery option
+Date: Thu, 24 Aug 2017 14:59:55 +0300
+Message-ID: <1503575995.25945.82.camel@linux.intel.com>
+References: <1497598977-37622-1-git-send-email-preid@electromag.com.au>
+         <c81a485d-b9da-fd64-c3ae-25fcf8744f80@electromag.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga03.intel.com ([134.134.136.65]:58691 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751270AbdHXL76 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 24 Aug 2017 07:59:58 -0400
+In-Reply-To: <c81a485d-b9da-fd64-c3ae-25fcf8744f80@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
 
-irq_create_mapping can return an error, report error to log and return.
-Cleanup will occur in the probe function when an error is returned.
+On Thu, 2017-08-24 at 17:21 +0800, Phil Reid wrote:
+> On 16/06/2017 15:42, Phil Reid wrote:
+> > Changes from V1:
+> > - In review Andy suggested change the i2c core to use the gpiod
+> >    I've added a patch that allows the gradual switching of drivers
+> >    to using gpiod interface. The old interface is preserved so
+> >    that changes can be made incrementally.
+> > - I've update Tim's patch for the designware driver to use the new
+> >    interface. Tweaked a couple of things to his patch and fixed
+> >    up things Andy id in last review.
+> >    The core changes in p1 don't require the get/set scl/sda
+> > functions.
+> >    Hopefully I've done the right thing with preserving authorship
+> > and
+> >    signoff.
+> > 
+> > Phil Reid (1):
+> >    i2c: Switch to using gpiod interface for gpio bus recovery
+> > 
+> > Tim Sander (1):
+> >    i2c: designware: add i2c gpio recovery option
+> > 
+> >   drivers/i2c/busses/i2c-designware-core.c    | 12 ++++--
+> >   drivers/i2c/busses/i2c-designware-core.h    |  1 +
+> >   drivers/i2c/busses/i2c-designware-platdrv.c | 58
+> > +++++++++++++++++++++++++++++
+> >   drivers/i2c/i2c-core-base.c                 | 22 +++++++++--
+> >   include/linux/i2c.h                         |  2 +
+> >   5 files changed, 88 insertions(+), 7 deletions(-)
+> > 
+> 
+> Ping:
+> 
+> Any comments on these 2 patches?
 
-Suggested-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Acked-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Signed-off-by: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Oops, overloaded. I will do latest next week. I would like to massage a
+bit this and see the result.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 5ec5020..fb725de 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -277,6 +277,10 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
- 
- 	for (c = 0; c < data->chip->nchans; c++) {
- 		irq = irq_create_mapping(data->irq, c);
-+		if (!irq) {
-+			dev_err(&client->dev, "failed irq create map\n");
-+			return -EINVAL;
-+		}
- 		irq_set_chip_data(irq, data);
- 		irq_set_chip_and_handler(irq, &pca954x_irq_chip,
- 			handle_simple_irq);
 -- 
-1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
