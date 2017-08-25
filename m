@@ -1,75 +1,115 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 5/9] PM / ACPI: Provide option to disable direct_complete for ACPI devices
-Date: Thu, 24 Aug 2017 23:50:40 +0200
-Message-ID: <6003495.864qntojfu@aspire.rjw.lan>
-References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <CAPDyKFrj6RdsG4Qf847OvLQMgqHeyh1=YyeKZMeaGgQ2du3cNA@mail.gmail.com> <12333551.k204JYSgao@aspire.rjw.lan>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH v2 5/9] PM / ACPI: Provide option to disable
+ direct_complete for ACPI devices
+Date: Fri, 25 Aug 2017 11:04:53 +0200
+Message-ID: <CAPDyKFpznYWU3NcuUfUD3=isR_w=it995+=GTaF8OU2Ho-GOQg@mail.gmail.com>
+References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org>
+ <CAJZ5v0gJn=SzNFGUT7Zb+CfhQBZ7KNDK2GTSSXGexD8GObjGOw@mail.gmail.com>
+ <CAPDyKFrGvqhBdenSyQ8Qr76DbfEvc74_dKZAjraA5qL63Mm2rg@mail.gmail.com> <4050921.GfHh1Z5NrX@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from cloudserver094114.home.net.pl ([79.96.170.134]:56213 "EHLO
-        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753844AbdHXV7R (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 24 Aug 2017 17:59:17 -0400
-In-Reply-To: <12333551.k204JYSgao@aspire.rjw.lan>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <4050921.GfHh1Z5NrX@aspire.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, August 24, 2017 6:35:49 PM CEST Rafael J. Wysocki wrote:
-> On Thursday, August 24, 2017 11:15:26 AM CEST Ulf Hansson wrote:
+On 24 August 2017 at 16:57, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> On Thursday, August 24, 2017 10:19:43 AM CEST Ulf Hansson wrote:
+>> On 24 August 2017 at 01:39, Rafael J. Wysocki <rafael@kernel.org> wrote:
+>> > On Wed, Aug 23, 2017 at 4:42 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>> >> In some cases a driver for an ACPI device needs to be able to prevent the
+>> >> ACPI PM domain from using the direct_complete path during system sleep.
+>> >>
+>> >> One typical case is when the driver for the device needs its device to stay
+>> >> runtime enabled, during the __device_suspend phase. This isn't the case
+>> >> when the direct_complete path is being executed by the PM core, as it then
+>> >> disables runtime PM for the device in __device_suspend(). Any following
+>> >> attempts to runtime resume the device after that point, just fails.
+>> >
+>> > OK, that is a problem.
+>> >
+>> >> A workaround to this problem is to let the driver runtime resume its device
+>> >> from its ->prepare() callback, as that would prevent the direct_complete
+>> >> path from being executed. However, that may often be a waste, especially if
+>> >> it turned out that no one really needed the device.
+>> >>
+>> >> For this reason, invent acpi_dev_disable|enable_direct_complete(), to allow
+>> >> drivers to inform the ACPI PM domain to change its default behaviour during
+>> >> system sleep, and thus control whether it may use the direct_complete path
+>> >> or not.
+>> >
+>> > But I'm not sure this is the right place to address it as it very well
+>> > may affect a PCI device too.
+>> >
+>> > Also, this is about the device and not about its ACPI companion
+>> > object, so putting the flag in there is somewhat unclean, so to speak.
+>> >
+>> > It looks like we need a flag in dev_pm_info saying something along the
+>> > lines of "my system suspend callback can deal with runtime PM" that
+>> > will cause the direct_complete update to occur in
+>> > __device_suspend_late() instead of __device_suspend().
+>>
+>> I realize that in the end this turns out to be a comparison between
+>> the runtime PM centric path and the direct_complete path while
+>> implementing system sleep. In patch 9, there is some more explanation
+>> around this, however if you like I can elaborate even more about
+>> this!?
+>>
+>> Regarding making changes to the PM core and adding more flags to the
+>> dev_pm_info etc, I am not sure we really want that. Isn't it already
+>> complex enough?
+>
+> Maybe it is.
+>
+>> My point is, that I am trying to improve the behavior of the ACPI PM
+>> domain by enabling the runtime PM centric path for it, and even if
+>> there is something similar that could be done for PCI, I don't think
+>> we should need involvement by the PM core.
+>
+> Well, this generally simply doesn't work.
+>
+> The whole "runtime PM centric approach" idea is generally fine by me,
+> but the fact today is that there are drivers not ready for it.  Which
+> is why there is the direct_complete thing (it may be regarded as a
+> sort-of workaround for the unreadiness of drivers if you will).
 
-[cut]
+This is how I see it:
 
-> [BTW, it is not entirely clear to me why it ever is necessary to runtime resume
-> a device with direct_complete set after __device_suspend(), because it can only
-> have direct_complete set at that point if all of the hierarchy below it has
-> this flag set too and so runtime PM has to be disabled for all of those
-> devices as well.]
+The runtime PM centric path is being widely deployed, however it takes
+time to convert drivers.
 
-Which makes me realize that we should take a step back and look at what
-problems there are.
+The direct_complete path offers a great intermediate step for the ACPI
+PM domain as it affects all its devices - while we wait for further
+optimizations being deployed using the runtime PM centric path.
 
-First, there are devices (I know about two examples so far and both are PCI)
-that may need to be runtime resumed during system suspend for reasons other
-than the ones checked by the ACPI PM domain (or the PCI bus type).  There needs
-to be a way to indicate that from the driver side.
+>
+> Now, buy adding the no_direct_complete flag just to the ACPI PM domain
+> you basically overlook the fact that this potentially affects the parents
+> of the devices in question by preventing direct_complete from being set
+> for them.  And those parents may not be in the ACPI PM domain in principle,
+> so the problem needs to be addressed in the core.
 
-However, it still may be valuable to check the power-related conditions for
-leaving the device in runtime suspend over system suspend/resume in case
-it actually doesn't need to be runtime resumed during system suspend after
-all.  That's what the majority of my patch was about.
+Okay, let's move the flag to the dev_pm* structures, to not limit this
+to the ACPI PM domain.
 
-The second problem is that the ACPI PM domain (and the PCI bus type)
-runtime resumes all devices unconditionally in its ->suspend callback,
-even though that may not be necessary for some devices.  Therefore there
-needs to be a way to indicate that too.  That still would be good to
-have *regardless* of the direct_complete mechanism, because the direct_complete
-flag may not be set very often due to dependencies and then the
-resume-during-suspend will take place unnecessarily.
+However in the current approach taken in this series, as it's coded as
+opt-in to use for drivers, I am questioning how big of a problem
+parent devices not being able to use the direct_complete path could
+be!?
+Couldn't it be good enough to just adopt the behavior of the ACPI PM
+domain and more or less leave the core out of it - at least for now!?
 
-Accordingly, it looks like we need a "no need to resume me" flag in the first
-place.  That would indicate to interested pieces of code that, from the
-driver perspective, the device doesn't need to be runtime resumed before
-invoking its system suspend callbacks.  This should be clear enough to everyone
-IMO.
+I am also thinking, that for those parent devices that potentially may
+suffer from not be able to use the direct_complete path, those can be
+fixed by deploying the runtime PM centric path in their
+subsystems/drivers. That would even mean that the parent devices get
+the additional benefits that the runtime PM centric path offers. So,
+in the end we would end up having a better optimized solution than we
+had before.
 
-[Note that if that flag is set for all devices, we may drop it along with
-direct_complete, but before that happens both are needed.]
+What do you think?
 
-To address the first issue I would add something like the flag in the patches
-I sent (but without the ACPI PM domain part which should be covered by the
-"no need to resume me" flag above), because that allows the device's ->suspend
-callback to run in principle and the driver may use that callback even to
-runtime resume the device if that's what it wants to do.  So something like
-"run my ->suspend callback even though I might stay in runtime suspend".
-
-I would probably add driver_flags to dev_pm_info for that to set at the probe
-time (and I would make the core clear that on driver removal).
-
-The complexity concern is there, but honestly I don't see a better way at
-this point.
-
-Thanks,
-Rafael
+Kind regards
+Uffe
