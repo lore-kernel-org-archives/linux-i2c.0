@@ -1,104 +1,263 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.13
-Date: Fri, 25 Aug 2017 16:30:58 +0200
-Message-ID: <20170825143054.vguk564qjnrhv7hf@ninjato>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="u4ozmoomd5apj542"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: gpio: add fault injector
+Date: Fri, 25 Aug 2017 17:39:18 +0200
+Message-ID: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Add fault injection capabilities to the i2c-gpio driver. When connected to
+another I2C bus, it can create unusual states which the other I2C bus master
+driver needs to handle. Only for debugging!
 
---u4ozmoomd5apj542
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-Linus,
+Here is my take on the GPIO fault injection driver. I hope it can help to make
+Linux I2C bus drivers more robust. Not all ideas I had are implemented
+currently, but I think it is a nice start. Further ideas are: create
+arbitration lost, simulate a device holding SDA low and release it again,
+inject faulty bits and see if PEC works. Also, it could be considered to move
+this functionality into a seperate file. But given the size currently, I think
+it fits nicely into the main driver.
 
-I2C has some bugfixes for you: mainly Jarkko fixed up a few things in
-the designware driver regarding the new slave mode. But Ulf also fixed a
-long-standing and now agreed suspend problem. Plus, some simple stuff
-which nonetheless needs fixing.
+ Documentation/i2c/gpio-fault-injection |  54 ++++++++++++++++
+ drivers/i2c/busses/Kconfig             |   8 +++
+ drivers/i2c/busses/i2c-gpio.c          | 112 +++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
+ create mode 100644 Documentation/i2c/gpio-fault-injection
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit ef954844c7ace62f773f4f23e28d2d915adc419f:
-
-  Linux 4.13-rc5 (2017-08-13 16:01:32 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 2a86cdd2e7d3c75580f41f89f9b9211e225573cc:
-
-  i2c: designware: Fix runtime PM for I2C slave mode (2017-08-17 17:55:29 +0200)
-
-----------------------------------------------------------------
-Anton Vasilyev (1):
-      i2c: simtec: use release_mem_region instead of release_resource
-
-Brendan Higgins (1):
-      i2c: aspeed: fixed potential null pointer dereference
-
-Jarkko Nikula (4):
-      i2c: designware: Fix oops from i2c_dw_irq_handler_slave
-      i2c: designware: Fix standard mode speed when configuring the slave mode
-      i2c: designware: Remove needless pm_runtime_put_noidle() call
-      i2c: designware: Fix runtime PM for I2C slave mode
-
-Javier Martinez Canillas (1):
-      i2c: core: Make comment about I2C table requirement to reflect the code
-
-Ulf Hansson (1):
-      i2c: designware: Fix system suspend
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Jarkko Nikula (1):
-      (Test) i2c: designware: Fix system suspend
-
-John Stultz (1):
-      (Test) i2c: designware: Fix system suspend
-
-Mika Westerberg (1):
-      (Rev.) i2c: designware: Fix system suspend
-
- drivers/i2c/busses/i2c-aspeed.c             |  5 +++--
- drivers/i2c/busses/i2c-designware-platdrv.c | 17 +++++++++++++----
- drivers/i2c/busses/i2c-designware-slave.c   |  6 ++++--
- drivers/i2c/busses/i2c-simtec.c             |  6 ++----
- drivers/i2c/i2c-core-base.c                 |  4 ++--
- 5 files changed, 24 insertions(+), 14 deletions(-)
-
---u4ozmoomd5apj542
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmgNJkACgkQFA3kzBSg
-KbbuzBAAsTYJHdCu5LIHZEC55N9QOTUI8Pm26GbFz1/h8LCaUAglSISKKJmu57Eg
-uMHO1G9CIbdg+tm7zQogaA310WWp8dODd+rWNgy4uzCFIqJhzt5jkuDeB2e1f3Vx
-NKOMmuWjSsxENfoWTxcJf1+LYN0jijTv34Jsz1YOvO4AHTGKUMLaP1FGwrYeSVEq
-fKWrvNjceurwcREHEXU5DYSnWLvj8QvZbsdeYhpU5l2eGmqVOgBgTdalwz1xvn6y
-Lce6Ma5ghQlPCLvucIxSPmOhWh+lhadOdxsnhiE1x2xR9ie0hGXKGBxiz6MZ/6HT
-n8eYLSc3tyEwtAF4kei2dG9VPiTez5BFbzkcfE4A/ppt1eXQcnQYNq1TGCqBZnHg
-ctzSaW81/JpBG5ez5/5fTqZpmh1EyeoSvBDXweulROPoZICro4dcEMGtRfACaGmD
-M8UMMsQ4bWhGN8vdaKmnXTLj3B+radM8ErEqhvwF38hE/N+zsCNX07gJWLgUYmWu
-F3Ic0DxiNEfe+nRCQ8PnYZeKgXy9HKavyp3/0aPgx4MrA1bHN3TL5OQxMLTFHTAa
-TXSCmP4PUGssfyyD2oAxNeWNuhFDG9ixWyZlnfxjluu3qJKwIO2izPmAuNtdMEvM
-0uaeTEPN7HvIdqLBcw82oYeu80sbhKotvrE9Pq7Ph1FmVNEJwKA=
-=a1kc
------END PGP SIGNATURE-----
-
---u4ozmoomd5apj542--
+diff --git a/Documentation/i2c/gpio-fault-injection b/Documentation/i2c/gpio-fault-injection
+new file mode 100644
+index 00000000000000..e0c4f775e2390f
+--- /dev/null
++++ b/Documentation/i2c/gpio-fault-injection
+@@ -0,0 +1,54 @@
++Linux I2C fault injection
++=========================
++
++The GPIO based I2C bus master driver can be configured to provide fault
++injection capabilities. It is then meant to be connected to another I2C bus
++which is driven by the I2C bus master driver under test. The GPIO fault
++injection driver can create special states on the bus which the other I2C bus
++master driver should handle gracefully.
++
++Once the Kconfig option I2C_GPIO_FAULT_INJECTOR is enabled, there will be an
++'i2c-fault-injector' subdirectory in the Kernel debugfs filesystem, usually
++mounted at /sys/kernel/debug. There will be a separate subdirectory per GPIO
++driven I2C bus. Each subdirectory will contain files to trigger the fault
++injection. They will be described now along with their intended use-cases.
++
++"scl"
++-----
++
++By reading this file, you get the current state of SCL. By writing, you can
++change its state to either force it low or to release it again. So, by using
++"echo 0 > scl" you force SCL low and thus, no communication will be possible
++because the bus master under test will not be able to clock. It should detect
++the condition of SCL being unresponsive and report an error to the upper
++layers.
++
++"sda"
++-----
++
++By reading this file, you get the current state of SDA. By writing, you can
++change its state to either force it low or to release it again. So, by using
++"echo 0 > sda" you force SDA low and thus, data cannot be transmitted. The bus
++master under test should detect this condition and trigger a bus recovery (see
++I2C specification version 4, section 3.1.16) using the helpers of the Linux I2C
++core (see 'struct bus_recovery_info'). However, the bus recovery will not
++succeed because SDA is still pinned low until you manually release it again
++with "echo 1 > sda". A test with an automatic release can be done with the
++'incomplete_transfer' file.
++
++"incomplete_transfer"
++---------------------
++
++This file is write only and you need to write the address of an existing I2C
++client device to it. Then, a transfer to this device will be started, but it
++will stop at the ACK phase after the address of the client has been
++transmitted. Because the device will ACK its presence, this results in SDA
++being pulled low by the device while SCL is high. So, similar to the "sda" file
++above, the bus master under test should detect this condition and try a bus
++recovery. This time, however, it should succeed and the device should release
++SDA after toggling SCL. Please note: there are I2C client devices which detect
++a stuck SDA on their side and release it on their own after a few milliseconds.
++Also, there are external devices deglitching and monitoring the I2C bus. They
++can also detect a stuck SDA and will init a bus recovery on their own. If you
++want to implement bus recovery in a bus master driver, make sure you checked
++your hardware setup carefully before.
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 79c33817e412e6..5b03698e1a3930 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -587,6 +587,14 @@ config I2C_GPIO
+ 	  This is a very simple bitbanging I2C driver utilizing the
+ 	  arch-neutral GPIO API to control the SCL and SDA lines.
+ 
++config I2C_GPIO_FAULT_INJECTOR
++	bool "GPIO-based fault injector"
++	depends on I2C_GPIO
++	help
++	  This adds some functionality to the i2c-gpio driver which can inject
++	  faults to an I2C bus, so another bus master can be stress-tested.
++	  This is for debugging. If unsure, say 'no'.
++
+ config I2C_HIGHLANDER
+ 	tristate "Highlander FPGA SMBus interface"
+ 	depends on SH_HIGHLANDER
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index 0ef8fcc6ac3aca..a49cc136753eb7 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -7,6 +7,8 @@
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
+  */
++#include <linux/debugfs.h>
++#include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+ #include <linux/i2c-gpio.h>
+@@ -22,6 +24,9 @@ struct i2c_gpio_private_data {
+ 	struct i2c_adapter adap;
+ 	struct i2c_algo_bit_data bit_data;
+ 	struct i2c_gpio_platform_data pdata;
++#ifdef CONFIG_I2C_GPIO_FAULT_INJECTOR
++	struct dentry *debug_dir;
++#endif
+ };
+ 
+ /* Toggle SDA by changing the direction of the pin */
+@@ -85,6 +90,109 @@ static int i2c_gpio_getscl(void *data)
+ 	return gpio_get_value(pdata->scl_pin);
+ }
+ 
++#ifdef CONFIG_I2C_GPIO_FAULT_INJECTOR
++static struct dentry *i2c_gpio_debug_dir;
++
++#define setsda(bd, val)	(bd)->setsda((bd)->data, val)
++#define setscl(bd, val)	(bd)->setscl((bd)->data, val)
++#define getsda(bd)	(bd)->getsda((bd)->data)
++#define getscl(bd)	(bd)->getscl((bd)->data)
++
++#define WIRE_ATTRIBUTE(wire) \
++static int fops_##wire##_get(void *data, u64 *val)	\
++{							\
++	struct i2c_gpio_private_data *priv = data;	\
++							\
++	i2c_lock_adapter(&priv->adap);			\
++	*val = get##wire(&priv->bit_data);		\
++	i2c_unlock_adapter(&priv->adap);		\
++	return 0;					\
++}							\
++static int fops_##wire##_set(void *data, u64 val)	\
++{							\
++	struct i2c_gpio_private_data *priv = data;	\
++							\
++	i2c_lock_adapter(&priv->adap);			\
++	set##wire(&priv->bit_data, val);		\
++	i2c_unlock_adapter(&priv->adap);		\
++	return 0;					\
++}							\
++DEFINE_DEBUGFS_ATTRIBUTE(fops_##wire, fops_##wire##_get, fops_##wire##_set, "%llu\n")
++
++WIRE_ATTRIBUTE(scl);
++WIRE_ATTRIBUTE(sda);
++
++static int fops_incomplete_transfer_set(void *data, u64 addr)
++{
++	struct i2c_gpio_private_data *priv = data;
++	struct i2c_algo_bit_data *bit_data = &priv->bit_data;
++	int i, pattern;
++
++	if (addr > 0x7f)
++		return -EINVAL;
++
++	/* ADDR (7 bit) + RD (1 bit) + SDA hi (1 bit) */
++	pattern = (addr << 2) | 3;
++
++	i2c_lock_adapter(&priv->adap);
++
++	/* START condition */
++	setsda(bit_data, 0);
++	udelay(bit_data->udelay);
++
++	/* Send ADDR+RD, request ACK, don't send STOP */
++	for (i = 8; i >= 0; i--) {
++		setscl(bit_data, 0);
++		udelay(bit_data->udelay / 2);
++		setsda(bit_data, (pattern >> i) & 1);
++		udelay((bit_data->udelay + 1) / 2);
++		setscl(bit_data, 1);
++		udelay(bit_data->udelay);
++	}
++
++	i2c_unlock_adapter(&priv->adap);
++
++	return 0;
++}
++DEFINE_DEBUGFS_ATTRIBUTE(fops_incomplete_transfer, NULL, fops_incomplete_transfer_set, "%llu\n");
++
++static void i2c_gpio_fault_injector_init(struct platform_device *pdev)
++{
++	struct i2c_gpio_private_data *priv = platform_get_drvdata(pdev);
++
++	/*
++	 * If there will be a debugfs-dir per i2c adapter somewhen, put the
++	 * 'fault-injector' dir there. Until then, we have a global dir with
++	 * all adapters as subdirs.
++	 */
++	if (!i2c_gpio_debug_dir) {
++		i2c_gpio_debug_dir = debugfs_create_dir("i2c-fault-injector", NULL);
++		if (!i2c_gpio_debug_dir)
++			return;
++	}
++
++	priv->debug_dir = debugfs_create_dir(pdev->name, i2c_gpio_debug_dir);
++	if (!priv->debug_dir)
++		return;
++
++	debugfs_create_file_unsafe("scl", S_IWUSR | S_IRUSR, priv->debug_dir, priv, &fops_scl);
++	debugfs_create_file_unsafe("sda", S_IWUSR | S_IRUSR, priv->debug_dir, priv, &fops_sda);
++	debugfs_create_file_unsafe("incomplete_transfer", S_IWUSR, priv->debug_dir,
++				   priv, &fops_incomplete_transfer);
++}
++
++static void inline i2c_gpio_fault_injector_exit(struct platform_device *pdev)
++{
++	struct i2c_gpio_private_data *priv = platform_get_drvdata(pdev);
++
++	debugfs_remove_recursive(priv->debug_dir);
++}
++#else
++static void inline i2c_gpio_fault_injector_init(struct platform_device *pdev) {}
++static void inline i2c_gpio_fault_injector_exit(struct platform_device *pdev) {}
++#endif /* CONFIG_I2C_GPIO_FAULT_INJECTOR*/
++
++
+ static int of_i2c_gpio_get_pins(struct device_node *np,
+ 				unsigned int *sda_pin, unsigned int *scl_pin)
+ {
+@@ -232,6 +340,8 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		 pdata->scl_is_output_only
+ 		 ? ", no clock stretching" : "");
+ 
++	i2c_gpio_fault_injector_init(pdev);
++
+ 	return 0;
+ }
+ 
+@@ -240,6 +350,8 @@ static int i2c_gpio_remove(struct platform_device *pdev)
+ 	struct i2c_gpio_private_data *priv;
+ 	struct i2c_adapter *adap;
+ 
++	i2c_gpio_fault_injector_exit(pdev);
++
+ 	priv = platform_get_drvdata(pdev);
+ 	adap = &priv->adap;
+ 
+-- 
+2.11.0
