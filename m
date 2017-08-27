@@ -1,59 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/3] dt-bindings: i2c: modify information formats
-Date: Sun, 27 Aug 2017 15:31:41 +0200
-Message-ID: <20170827133141.n4edtxpadutwsfj6@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 3/3] i2c: mediatek: Add i2c compatible for MediaTek
+ MT7622
+Date: Sun, 27 Aug 2017 15:31:52 +0200
+Message-ID: <20170827133152.igoqe4ftzslza3um@ninjato>
 References: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
- <1503286614-17670-2-git-send-email-jun.gao@mediatek.com>
+ <1503286614-17670-4-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gudrv6hk4uoej7mm"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="ra7sroh3hvy2gz2t"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1503286614-17670-2-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <1503286614-17670-4-git-send-email-jun.gao@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---gudrv6hk4uoej7mm
+--ra7sroh3hvy2gz2t
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 21, 2017 at 11:36:52AM +0800, Jun Gao wrote:
-> From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+On Mon, Aug 21, 2017 at 11:36:54AM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 >=20
-> Use common name MediaTek and modify the compatible information
-> formats of all SoCs to the same.
+> Add i2c compatible for MT7622. Compare to MT8173 i2c controller,
+> MT7622 limits message numbers to 255, and does not support 4GB
+> DMA mode.
 >=20
-> Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
 
 Applied to for-next, thanks!
 
 
---gudrv6hk4uoej7mm
+--ra7sroh3hvy2gz2t
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiyb0ACgkQFA3kzBSg
-KbaIIQ/+NumtDZfmW8y/BOL0ZliY7nLGg6U9N1K/MTCEWnMHZ5SGQnSgP3EW+Jaf
-VsDq/0ntoss6l+oQ8LQ9DT/ulmT8y5jCgz0ixd/jC0nFAZPwuAhyWPMFxIgY8fnM
-KfvDtxfuFiECNjm7EYGAJ3BW9VdTM2Jm1yADCXJZQTLGorFuFf9wi4A+iE8O8liE
-h14v7N//iZ3PNOx6gQLFOTxNtFBOsJvasvqPhVD9UBf+kMOXviVPjhFYFfuF9JMH
-FfqKsrP2tpgGwtYaT16JiSzrF9op/GASsjYUNxbNpLmCRlJD/gHlwWTYfGsdrvFh
-DolJ4vKo9aVrJUKXDbo/0QLHVm/c4llCEHyfFq6vXD3/QeZI7ahbK3P8/FW4TWj/
-V94QTJTpQbvFvIJ+SsOVK1VFw7ZbWARgelczap9whuivqG2/z2XyTBkNN9qbLJI4
-qEkZFDZteVT5+orWNUcWCmwgFJYK9SGTyYpngdSW0KFuU65TxTMEupeUQIHq3uiG
-dro7qFYzQ26HhuQkNTs01LOiyIznOU+hUqUrJYbU8U89NcT0la4Gb7c152dnRp0g
-8rLHY2st874HdrBsyWCvAqeX5K1vq69WpnCjyUFfF3CoSOq0In1zv3yS6k4NeldW
-8EgzNn/29gwbNjGbytiKQPblzbI5HTrjzOkJFSC4lK1/jQ0ygUE=
-=wcij
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiycgACgkQFA3kzBSg
+KbZWfxAAnRLneYkwnQs+FNeOn2/ZzavFKcni/KGA3V9coKIquLwtYTmSLGIrJWo6
+MgJL7NLPO8CaEMUwgC54mtWlh5OHZmKxqFZmyR0xCziTLE4HHpCQTTrufm1EnJTL
+dciL+b4Hx4JayWWIG7UTy9V3Ymhip8BSXy/f4q9BgV4D2AOjbhdugu9SSUmiTuTa
+FJeP+RwV3rFN79f9PN5v2m5ZAMpRE7/TO+G7q9KEP9bhqyY5vHQJI6fpzhPVIN06
+FJtjTbc6ithITYGExlUXo8vfi/YyebkJ3bKp7C1AR5GOuSASZMcBXnVCmypUsIgO
+xvFrOJXsnUAxy3sWog/0CijL0mQcPKVEfjrmS3zHbjf95SyfCamf+fRQLaNGO6SK
+me/4LU5Ky78P8B1bPUH9kke//c008qhvE6Xp8Fjx8uifd3s820dup+II3rNrUJ6R
+KbU5hCo1x5zLqILZGSASi1SxyDms1FpKq5sm3tSsBuaOWj67u3JmP0dsOj/Bq/Gi
+r66PIyBJ9pjmVJUsStQ7ewU5uKHwTyOyI+nO9NtYk8LTbtvhqUYxHN53kZwxVOil
+5OtDh9T16VrZy+8oESlYouDH5FQJm135zMjTQvkPT+J7ICBz1ePfw0N2ojCErVqy
+J6ZoOHj7zBukugJkeEvGgFcNGofDo01BwV/IlvKy4dQEnURveNc=
+=h6SC
 -----END PGP SIGNATURE-----
 
---gudrv6hk4uoej7mm--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--ra7sroh3hvy2gz2t--
