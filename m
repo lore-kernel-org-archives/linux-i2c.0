@@ -1,64 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] i2c: davinci: Preserve return value of
- devm_clk_get
-Date: Sun, 27 Aug 2017 15:34:54 +0200
-Message-ID: <20170827133454.ffroiht5ayfqyr4k@ninjato>
-References: <20170816221715.15027-1-fcooper@ti.com>
- <20170816221715.15027-2-fcooper@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH RESEND] blackfin: merge the two TWI header files
+Date: Sun, 27 Aug 2017 15:39:04 +0200
+Message-ID: <20170827133904.vezzq64csnvasiei@ninjato>
+References: <20170813142117.3977-1-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4uejk634amjwm7z2"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="7a3ak7bfzjzr6p2y"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:37279 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751347AbdH0NjH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 27 Aug 2017 09:39:07 -0400
 Content-Disposition: inline
-In-Reply-To: <20170816221715.15027-2-fcooper-l0cyMroinI0@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
+In-Reply-To: <20170813142117.3977-1-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: adi-buildroot-devel@lists.sourceforge.net
+Cc: Steven Miao <realmz6@gmail.com>, Sonic Zhang <sonic.zhang@analog.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---4uejk634amjwm7z2
+--7a3ak7bfzjzr6p2y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 16, 2017 at 05:17:13PM -0500, Franklin S Cooper Jr wrote:
-> The i2c driver can run into driver dependency issues if its loaded
-> before a clock driver it depends on. Therefore, EPROBE_DEFER may be
-> returned by devm_clk_get and should be returned in probe to allow the
-> kernel to reprobe the driver at a later time. This patch allows the error
-> value returned by devm_clk_get to be passed through and not overwritten.
+On Sun, Aug 13, 2017 at 04:21:17PM +0200, Wolfram Sang wrote:
+> There seems to be no need for separate ones since all users include both
+> files anyhow. Merge them because include/linux/i2c is to be deprecated.
 >=20
-> Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
-> Reviewed-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Applied to for-next, thanks!
-
-Waiting for V3 of the other patches.
+Applied to i2c/for-next, thanks!
 
 
---4uejk634amjwm7z2
+--7a3ak7bfzjzr6p2y
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiyn4ACgkQFA3kzBSg
-KbaVMxAAtL4EAdsFA6OykrTRUUhXG8q7XdppBNIAG2MNNVzAwnke3OXMdUwlMEXg
-qM5VvzvBZa9/b+FeZLEjOw5f5TW67JbEWLt6+K9wuWovRnr4ESGECChgFSwKXgDZ
-eQYODFbvDua10ayr4USrq1wRiBqXx8OhzFvnBTGKhB/p3dlT5o0FXMd8u5BJU49o
-2+dwHBAiuu7YDgiNfyzvmDs2I/2+rPwc+vfIyNDeGO5dh9ckgRbwfSc3l9kokSkK
-WXC6jroiRzzPIoExcqrlS6v4y+7kuPruWGNo6m4ff3qDc/FChUr8+NzslzeA//Ur
-tLCKOA/zDcDvyIdwwzD/0ZypM3edKJXpibNnr/+ijaob/g8s94dcI9PhyhD5pV65
-/Kbx7PHqBCoh5JwgVzklxipF8FJomgmApmdU0+EsMJ66iiXhsz49qkOt06n03AIB
-c/DsYWFWxFtpo4ymuMshq8MNMLqm00ntGzvH9aWLw6hirS9AEZYceFUDU7Rlm39i
-jigHtOPJlDmN3Rn9R3q3NwE5U5XVNaNW1fDHGGqJ0LqDYBOJbtY24iQycSizC2Ec
-DiV7SPJhWtvAhbR2tsmiNC7HfC142Z60S9vUk0HK9kJxl8QKdqyALGRDw13M3xZq
-rLQ2uKcg/+Jev9p/iARLgdzdM2CetgvA6uP84X13/+20kWYlabM=
-=zCAb
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiy3cACgkQFA3kzBSg
+KbZFJxAAo4yVfnd1pW2YKfN0m9vuXUSNZfE8g07EASBTQP9eG91atBwUneUTA5nZ
+OHJzR79F5pj6qfv5pYi+62QVKH6RjlUtI8Q8e8m7Z/IeQmWV6TQG+y/GL1N3YIYF
+PTYhN3VEdhcLFfoQRsQcDOodfvQ9l96O8F+5gOeD7lHXMblN73E7tigQsZQmqJ2e
+oJ2wm/A5eJ9NjKm7LUCi8ERMxyflfMujYhdxiISgWQyv3hI7NIbmcR3ug1H7Uvg9
+kQZCpyJ4N9xYxEqwPV+Q8kVPIZZ3TPOuB89ersuIMCvaXV7tNEerAO0hd30Mg2b3
+sEIgN5gIG8VXFlU1qQCfnQT1uHNwHgJvK9yAqFEO9Kv4M63tr0oPieMto0p7td6n
+YtfzI5sWRYSRG526uIOtVv4q0vgw8OUyDmqaV1VaBD187y81TQ3wtbh/VPTcN9O4
+B6htwOgrvFbWA5YgpaNb3epX7oFXnyny9tUmyLEGIktro4wFpxPvmRNkuotEgB5g
+/FjGC0wU7t5uvyIvCp3fm/9b8vcKISRgkE79mIX0/1voI+dqL/8GjTs/Z3hNNstJ
+GFjG/pxI2PakQruJgmln+t6aD7vN3KBiJ0VsNWMYlAtqYestyZZ56PmqTNLQf2/e
+FmATJANBHOe6NF+vbeBuUdenVir2/l2paIC0h4rAac08VaoIZEY=
+=xMBv
 -----END PGP SIGNATURE-----
 
---4uejk634amjwm7z2--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--7a3ak7bfzjzr6p2y--
