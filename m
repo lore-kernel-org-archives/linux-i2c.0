@@ -1,56 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 2/3] dt-bindings: i2c: Add MediaTek MT7622 i2c binding
-Date: Sun, 27 Aug 2017 15:31:47 +0200
-Message-ID: <20170827133147.gv3mjvz3buodta26@ninjato>
-References: <1503286614-17670-1-git-send-email-jun.gao@mediatek.com>
- <1503286614-17670-3-git-send-email-jun.gao@mediatek.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 1/3] i2c: davinci: Preserve return value of
+ devm_clk_get
+Date: Sun, 27 Aug 2017 15:34:54 +0200
+Message-ID: <20170827133454.ffroiht5ayfqyr4k@ninjato>
+References: <20170816221715.15027-1-fcooper@ti.com>
+ <20170816221715.15027-2-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kqmgyk6uuvciss2r"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="4uejk634amjwm7z2"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1503286614-17670-3-git-send-email-jun.gao@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jun Gao <jun.gao@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+In-Reply-To: <20170816221715.15027-2-fcooper-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---kqmgyk6uuvciss2r
+--4uejk634amjwm7z2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 21, 2017 at 11:36:53AM +0800, Jun Gao wrote:
-> From: Jun Gao <jun.gao@mediatek.com>
+On Wed, Aug 16, 2017 at 05:17:13PM -0500, Franklin S Cooper Jr wrote:
+> The i2c driver can run into driver dependency issues if its loaded
+> before a clock driver it depends on. Therefore, EPROBE_DEFER may be
+> returned by devm_clk_get and should be returned in probe to allow the
+> kernel to reprobe the driver at a later time. This patch allows the error
+> value returned by devm_clk_get to be passed through and not overwritten.
 >=20
-> Add MT7622 i2c binding to binding file. Compare to MT8173 i2c
-> controller, MT7622 limits message numbers to 255, and does not
-> support 4GB DMA mode.
->=20
-> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+> Reviewed-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
 
 Applied to for-next, thanks!
 
+Waiting for V3 of the other patches.
 
---kqmgyk6uuvciss2r
+
+--4uejk634amjwm7z2
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiycMACgkQFA3kzBSg
-KbaPLg//bqBXT4rLUPKT/FKye1TiOQ39WRQD7Rer9axjgVt9is30wT81YhJg2lMQ
-h6acnc1NDwnKeUSSI6tjm5aT9Ku6EwqRu97llk1VWkCngQvNJq7/GaAgkWdOLYF/
-RPuG6uFof8tfd8kL5YuQXNrad1hhwaUotmm/wQ0GffKvqksKD+aAFwB7VOOHfsey
-YWkmFNQOMFixXEI/QF+QGn/Tke7FaN0OTZD/AUCJ1njDwO092l1XztDes1yYhAfV
-jpqX4dMgGO2u94WBPRUvgHSbfM0lV6Z1FjOwPH8hwSiVUfJ2MxWalMil3h3KCivP
-eHV66BbxQ14PwcVrVXRvcf5gMBAmAvLplqUUl99rfcU8bgssOBVULBmZyhpHb6+P
-Sl8058G41w2Il6Grcr2HxcabYgKlhPAylxsrQwa8ASr4YkdNcz200ZGTMa21rCAw
-2Q2BVtWgMSC/bIw2nRc7elS2JpZ8nCPM4uV1RMp1+QB8beQmYN/SYnhj7LmNNoQ6
-Kw6haXdOAJMVRxj0LjTFpYQmQoP7Ht3hibW3F/b3f4V/ITAeAvzdV3+PKxtO5hk3
-B3h34nvjKvYtFxN5HWev11OJl5faEaLuPKGfEH5MxfqHow6UZ+GH2Sw3uY6HzBr5
-BoTkLyX2ZBVYNaPuJpXHJL333ASrnpECjQyEjEqHHp/aLn6sNSw=
-=HVrI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmiyn4ACgkQFA3kzBSg
+KbaVMxAAtL4EAdsFA6OykrTRUUhXG8q7XdppBNIAG2MNNVzAwnke3OXMdUwlMEXg
+qM5VvzvBZa9/b+FeZLEjOw5f5TW67JbEWLt6+K9wuWovRnr4ESGECChgFSwKXgDZ
+eQYODFbvDua10ayr4USrq1wRiBqXx8OhzFvnBTGKhB/p3dlT5o0FXMd8u5BJU49o
+2+dwHBAiuu7YDgiNfyzvmDs2I/2+rPwc+vfIyNDeGO5dh9ckgRbwfSc3l9kokSkK
+WXC6jroiRzzPIoExcqrlS6v4y+7kuPruWGNo6m4ff3qDc/FChUr8+NzslzeA//Ur
+tLCKOA/zDcDvyIdwwzD/0ZypM3edKJXpibNnr/+ijaob/g8s94dcI9PhyhD5pV65
+/Kbx7PHqBCoh5JwgVzklxipF8FJomgmApmdU0+EsMJ66iiXhsz49qkOt06n03AIB
+c/DsYWFWxFtpo4ymuMshq8MNMLqm00ntGzvH9aWLw6hirS9AEZYceFUDU7Rlm39i
+jigHtOPJlDmN3Rn9R3q3NwE5U5XVNaNW1fDHGGqJ0LqDYBOJbtY24iQycSizC2Ec
+DiV7SPJhWtvAhbR2tsmiNC7HfC142Z60S9vUk0HK9kJxl8QKdqyALGRDw13M3xZq
+rLQ2uKcg/+Jev9p/iARLgdzdM2CetgvA6uP84X13/+20kWYlabM=
+=zCAb
 -----END PGP SIGNATURE-----
 
---kqmgyk6uuvciss2r--
+--4uejk634amjwm7z2--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
