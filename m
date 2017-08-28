@@ -1,82 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] i2c: i801: Restore the presence state of P2SB PCI
- device after reading BAR
-Date: Mon, 28 Aug 2017 17:33:40 +0200
-Message-ID: <20170828153340.cp7negyixh756uoj@ninjato>
-References: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
+Date: Mon, 28 Aug 2017 18:01:21 +0200
+Message-ID: <20170828160121.gu4wf7jqu4ditksc@ninjato>
+References: <20170615185418.13980-1-javier@dowhile0.org>
+ <20170731153009.xkjknygpmckv2pfp@ninjato>
+ <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="k4cypdeaha3oo3iz"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40978 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751259AbdH1Pdm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 28 Aug 2017 11:33:42 -0400
+        protocol="application/pgp-signature"; boundary="kxl2ldofwcq27yov"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>
+Cc: Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Florian Larysch <fl-J+Jo6bLUB7M@public.gmane.org>, David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>li
 List-Id: linux-i2c@vger.kernel.org
-To: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: jdelvare@suse.com, tony.luck@intel.com, mika.westerberg@intel.com, bp@alien8.de, linux-i2c@vger.kernel.org
 
 
---k4cypdeaha3oo3iz
+--kxl2ldofwcq27yov
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 15, 2017 at 12:04:50AM +0800, Qiuxu Zhuo wrote:
-> Sun, Yunying reported the following failure on Denverton micro-server:
->=20
->  EDAC DEBUG: pnd2_init:
->  EDAC DEBUG: pnd2_probe:
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_tolud_pci=3D00000000_80000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_lo_pci=3D00000000_80000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_touud_hi_pci=3D00000000_00000004
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region0_mchbar=3D00000000_000=
-00000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_asym_mem_region1_mchbar=3D00000000_000=
-00000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_base_mchbar=3D00000000_00000000
->  EDAC DEBUG: dnv_rd_reg: Read b_cr_mot_out_mask_mchbar=3D00000000_00000000
->  EDAC pnd2: Failed to register device with error -19.
->=20
-> On Denverton micro-server, the presence of the P2SB bridge PCI device is
-> enabled or disabled by the item 'RelaxSecConf' in BIOS setup menu. When
-> 'RelaxSecConf' is enabled, the P2SB PCI device is present and the pnd2_ed=
-ac
-> EDAC driver also uses it to get BAR. Hiding the P2SB PCI device caused the
-> pnd2_edac EDAC driver failed to get BAR then reported the above failure.
->=20
-> Therefor, store the presence state of P2SB PCI device before unhiding it
-> for reading BAR and restore the presence state after reading BAR.
->=20
-> Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-> Reported-and-tested-by: Yunying Sun <yunying.sun@intel.com>
 
-Applied to for-next, thanks! I don't want to apply it to for-current
-or stable without Jean's ack. So, let's get more test coverage first. It
-can still be backported later. Hope this is fine with you.
+> > But there is a dependency, no? If I apply the driver patch,
+> > non-converted device trees will not find their eeproms anymore. So, I
+>=20
+> I don't think that's correct. If you apply this patch before the DTS
+> changes, the driver will still match using the I2C device ID table
+> like it has been doing it until today.
+
+My tests do not confirm this. If I add a node with a "renesas,24c01"
+compatible to my board, it works before your patch, but not after. If I
+change it to "atmel,24c01" it works even after your patch. I haven't
+looked into it, though, maybe i2c_of_match_device_sysfs() is stepping on
+our foots here?
+
+Did you test and did it work for you?
 
 
---k4cypdeaha3oo3iz
+--kxl2ldofwcq27yov
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmkN88ACgkQFA3kzBSg
-KbZdVA/8DN6/9bUNu5BR9QvsXObPlb/uta2oqm3UtpwDJtG0D3ES1uwPqmS4cxH3
-AIJsuFkN50UiyEGYSBY7ODaeW1dn/E3pm5Et6FuUMkOfsBu6fsIOgCUGk38Gx+TP
-AxQaTFXEQlPBd62APt4QyeczFbVa4/fUa+iRvD3lycqmw9Y2O4xAlOmb/eEtp7B3
-/rPZrLbZQENBPwiLx5eziZTam8/5cPFYyXX+PggI3806agd0FHtYADvUwn9sHwY+
-/d8mv7aVQFIjwMspgSzA+Q3vfS5WKJzk5rCafFsoBhieXwcfOAjVn8tXjTmacG5S
-9S2F9da6PT2ooMdDZ1A/jlr/0Nu96bplt4KtNArE8ipj6/tsyijf31zdwS7ymJbx
-6ZZ0pmV+AodAR8nQjFCUWYg6bKozq8LfiO51+k+9T0g50Cx+iYyioOtcA+9GyfAn
-xlKOqsAz4QCdNAfwxsnOOYs18jnf69uTUHsZSdRg2coMMjAQaBnbs3DhFltDV9Ck
-Eco2QRnK15yQq/6ENUaM4CLJfvpRhfZCfLpuMGWmgshyY8ufphvvHMmNTOT2NbLw
-+8nkfYVGY5q1ia6PR6pw80hfoyeYt1hzJ5PgBIMq32vU/85RO+Pl7uaxlZjwdMjJ
-11v+v+PiOGT2heLLOPJ6BjPfalaOKALF5m7rhd6gbl/Qt4Q5c6o=
-=dUNh
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmkPlEACgkQFA3kzBSg
+KbY9mQ//ZYxuivYI37NBqNzvT6LEyeDnhT5YpI+3SDGk88+Ny3uOysJpehIW1zmQ
+/o4MmLhMZq0emuNniTUcq6hs1DmPC1YFAHoNPhdcPEJY9BDB5Z28l187ETQ0wtYD
+u8DAc11LnQLCGRgBngM9zAVClRI16o07T68hSGlUntK/oEAuqEqtcw3Nt4wAY1nD
+1ALzfhgtBsGJ+BSDLTvW7sZ5cqJ1NhjHnEV2rLDIxTQPTTVBc3guI7Zw7+qXuETX
+cJ/mIhwyYPpcdlPM7A9mt3CozKhjFEnWG+TZEl3xiQVs/5Gb6hF7c+q06g1t1BBE
+OufNGdCTbg3etFN0y//oj2+K2iUqfw4m/33VmGBltVZuKxcrEFCOHBaONdyAJ2ET
+tki7C+Vz/JzD5VDl7nUp7Ci95FbRjFGXDy45e8u0Nyb1eQX02Y+owo/Pk5ZuiRQw
+fi6c5lJP34KazsrmGpqm9W/wzggxJSoXW1abAOeDTindLZ4DiSH41od6tx2y/nHs
+e2i2OygFb3NNccXZ9QL/xmcRiCzwi9hk9Tt71fawGWQ+hLKxrLs7emt8kfpPU4aU
+ZpdA4TbozeaOWWDzbOzwV25d0kOe+LiwKx+PTNgW2Uimz1sQBWOpIm0vZGXxqa8y
+wSSRx/WWug0tYILnAP5BQmLV9X5N3m8zaJ6u1neWImCTNpCweFU=
+=nrOV
 -----END PGP SIGNATURE-----
 
---k4cypdeaha3oo3iz--
+--kxl2ldofwcq27yov--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
