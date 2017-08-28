@@ -1,101 +1,134 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 04/14] staging: typec: fusb302: Get max snk mv/ma/mw
- from device-properties
-Date: Mon, 28 Aug 2017 18:11:38 +0200
-Message-ID: <c6966f66-98bd-5271-a681-ed72c52805f6@redhat.com>
-References: <20170815200502.17339-1-hdegoede@redhat.com>
- <20170815200502.17339-5-hdegoede@redhat.com>
- <20170817214131.63vetzuove7dz5pi@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Mon, 28 Aug 2017 09:31:31 -0700
+Message-ID: <20170828163131.GA12195@dtor-ws>
+References: <20170722185537.12696-1-hdegoede@redhat.com>
+ <20170722185537.12696-2-hdegoede@redhat.com>
+ <20170817193912.hccxyjwstrtr5oiv@ninjato>
+ <CAKdAkRQjhE3WRkcWrZtYzxtMs+dy718JTYWjzELBEDRoVY_qWw@mail.gmail.com>
+ <5093164f-72a5-1217-a2b5-52e0a6d9a9d1@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170817214131.63vetzuove7dz5pi@rob-hp-laptop>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org, Frank Rowand <frowand.list@gmail.com>, devicetree@vger.kernel.org, "Yueyao (Nathan) Zhu" <yueyao@google.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:32901 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751172AbdH1Qbg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 28 Aug 2017 12:31:36 -0400
+Content-Disposition: inline
+In-Reply-To: <5093164f-72a5-1217-a2b5-52e0a6d9a9d1@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 
-Hi,
+Hi Hans,
 
-On 17-08-17 23:41, Rob Herring wrote:
-> On Tue, Aug 15, 2017 at 10:04:52PM +0200, Hans de Goede wrote:
->> This is board specific info so it should come from board config, such
->> as devicetree.
->>
->> I've chosen to prefix these with "fcs," treating them as fusb302 driver
->> specific for now. We may want to revisit this and replace these with
->> properties which are part of a (to be written) generic type-c controller
->> devicetree binding.
->>
->> Since this commit adds new dt-properties it also adds devicetree-bindings
->> documentation (which so far was absent for the fusb302 driver).
->>
->> Cc: Rob Herring <robh+dt@kernel.org>
->> Cc: Frank Rowand <frowand.list@gmail.com>
->> Cc: devicetree@vger.kernel.org
->> Cc: "Yueyao (Nathan) Zhu" <yueyao@google.com>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Use micro... instead of mili...
->> -Add devicetree bindings documentation
->> ---
->>   .../devicetree/bindings/usb/fcs,fusb302.txt        | 29 ++++++++++++++++++++++
->>   drivers/staging/typec/fusb302/TODO                 |  4 +++
->>   drivers/staging/typec/fusb302/fusb302.c            | 18 +++++++++++++-
->>   3 files changed, 50 insertions(+), 1 deletion(-)
->>   create mode 100644 Documentation/devicetree/bindings/usb/fcs,fusb302.txt
->>
->> diff --git a/Documentation/devicetree/bindings/usb/fcs,fusb302.txt b/Documentation/devicetree/bindings/usb/fcs,fusb302.txt
->> new file mode 100644
->> index 0000000..ffc6c87
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/usb/fcs,fusb302.txt
->> @@ -0,0 +1,29 @@
->> +Fairchild FUSB302 Type-C Port controllers
->> +
->> +Required properties :
->> +- compatible            : "fcs,fusb302"
->> +- reg                   : I2C slave address
->> +- interrupts            : Interrupt specifier
->> +
->> +Optional properties :
->> +- fcs,max-snk-microvolt : Maximum voltage to negotiate when configured as sink
->> +- fcs,max-snk-microamp  : Maximum current to negotiate when configured as sink
->> +- fcs,max-snk-microwatt : Maximum power to negotiate when configured as sink
->> +			  If this is less then max-snk-microvolt *
->> +			  max-snk-microamp then the configured current will
->> +			  be clamped.
->> +- fcs,operating-snk-microwatt :
+On Mon, Aug 28, 2017 at 03:04:04PM +0200, Hans de Goede wrote:
+> Hi,
 > 
-> Might as well spell out sink.
-
-Fixed for v3.
-
-> Otherwise,
+> On 18-08-17 00:15, Dmitry Torokhov wrote:
+> >On Thu, Aug 17, 2017 at 12:39 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >>Hey guys,
+> >>
+> >>Sorry, I don't understand some of the stuff here. But I'd like to
+> >>understand it before I add something to the I2C core. Especially as it
+> >>feels a bit a the edge of the driver model to me.
+> >>
+> >>On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
+> >>>The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
+> >>>it uses its own protocol which is handled by the chipone_icn8318 driver.
+> >>>
+> >>>If the i2c_hid_driver's probe functon gets called it will fail with a
+> >>>"hid_descr_cmd failed" error.
+> >>
+> >>That sounds like it fails pretty late. I'd assume we could check the
+> >>blacklist right at the beginning of probe and bail out immediately?
+> >>
+> >>>Worse, after the probe failure the i2c / ACPI core code will put the ACPI
+> >>>device in D3 state
+> >
+> >So I guess this will also happen if I unbind/rebind chipone_icn8318 driver?
 > 
-> Acked-by: Rob Herring <robh@kernel.org>
+> No because on probe the chipone_icn8318 driver does (with the patches
+> I've pending) :
+> 
+>     struct acpi_device *adev;
+> 
+>     adev = ACPI_COMPANION(dev);
+> 
+>     /*
+>      * Disable ACPI power management the _PS3 method is empty, so
+>      * there is no powersaving when using ACPI power management.
+>      * The _PS0 method resets the controller causing it to loose its
+>      * firmware, which has been loaded by the BIOS and we do not
+>      * know how to restore the firmware.
+>      */
+>     adev->flags.power_manageable = 0;
+> 
+> So it disables ACPI pm for the device, keeping the controller in D0 so that
+> it will never loose its firmware.
+> 
+> 
+> >>Where does that happen? Sorry, I can't find it. Would it be an idea to
+> >>add a flag somewhere telling the device should not be put into D3? That
+> >>would be way more generic in case this happens outside I2C world, or?
+> >>Disclaimer: I am brainstorming here, don't know super much about ACPI.
+> >>
+> >>>This commit adds a match callback and returns -ENODEV for i2c_client-s
+> >>>with a CHPN0001 ACPI device id, so that the probe function never gets
+> >>>called, fixing the controller losing its firmware.
+> >>
+> >>Do you know if something like a match-callback exists somewhere else in
+> >>the kernel?
+> >
+> >Having blacklist means that we are failing at design somewhere...
+> >
+> >In this case what we have is wrong ACPI table. Instead of adding hooks
+> >to i2c core can we fix it (DSDT) up? I know people do not like it, but
+> >I'd say this is task for yet another platform driver to adjust ACPI
+> >properties (kill the wrong _CID, disable PS0) before instantiating the
+> >device.
+> 
+> I don't think that is going to fly. Certainly DSDT patching is out of the
+> question, we could modify the acpi_dev after enumeration, but that is not
+> going to be pretty. This is going to be drivers/platform/x86/silead_dmi.c
+> all over again, but where that made sense as to decouple the board-info
+> from the driver this case is different as we are not talking board
+> specific behavior here, but device specific so this really belongs in the
+> drivers IMHO, also the reception of silead_dmi.c has not been 100% positive.
 
-Thank you, added to v3 of this patch-set.
+No, this is definitely board-specific as well. This is a brain dead
+firmware on a particular board that declares PS0 and wrong CID. The
+device itself can be made working perfectly well in another box.
 
-Regards,
+I think I also mentioned before that encoding particular platform
+behavior in the device driver is not the best option.
 
-Hans
+I understand that nobody likes silead_dmi as it is nasty (as it shoudl
+be, it fixes missing/wrong data suplied by the platform), but I think
+the main objection is that we had to make it built-in. I wonder if we
+could work on making it usable as a module, by having driver core try
+loading "<device-alias>-quirk" module before doing probes so that quirk
+is guaranteed to be available?
 
 > 
->> +                          Minimum amount of power accepted from a sink
->> +			  when negotiating
->> +
->> +Example:
->> +
->> +fusb302: typec-portc@54 {
->> +	compatible = "fcs,fusb302";
->> +	reg = <0x54>;
->> +	interrupt-parent = <&nmi_intc>;
->> +	interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
->> +	fcs,max-snk-microvolt = <12000000>;
->> +	fcs,max-snk-microamp = <3000000>;
->> +	fcs,max-snk-microwatt = <36000000>;
->> +};
+> I don't think the blacklist entry in i2c-hid is a problem per se, we've
+> similar issues with USB devices where they claim a generic class but need
+> a specific driver and we typically solve that with a blacklist for the
+> specific vid:pid in the class driver.
+
+Yes, you do that for a particular _device_. You move this device to a
+brand new box and you still need the same quirk. Here it is the box that
+is deficient.
+
+> 
+> The nastiness here is not the blacklist, but the pm issues when the wrong
+> driver gets its probe() method called first.
+
+BTW, how do we order probing? Should we try matching on _HID before
+trying _CID?
+
+Thanks.
+
+-- 
+Dmitry
