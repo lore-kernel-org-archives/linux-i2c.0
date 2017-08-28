@@ -1,20 +1,31 @@
 From: Liam Breck <liam@networkimprov.net>
 Subject: Re: [PATCH v2 11/14] power: supply: bq24190_charger: Get
  input_current_limit from our supplier
-Date: Mon, 28 Aug 2017 10:02:02 -0700
-Message-ID: <CAKvHMgQvxUKOm+yeHVOivih7D99A9Gp6zHzWaG3bBceebaaN7g@mail.gmail.com>
-References: <20170815200502.17339-1-hdegoede@redhat.com> <20170815200502.17339-12-hdegoede@redhat.com>
- <CAKvHMgQMgkA=b_jGFMhs7-Ta=+WYjh2u8YNjON3MapA8tTju9w@mail.gmail.com> <3c3c65dd-fb5f-becd-0d04-f22f103baeb0@redhat.com>
+Date: Mon, 28 Aug 2017 11:07:31 -0700
+Message-ID: <CAKvHMgSkuwJKeSQGVgmsvt=rEtN8qhHFoouewy8=7XuG9odVbQ@mail.gmail.com>
+References: <20170815200502.17339-1-hdegoede@redhat.com>
+ <20170815200502.17339-12-hdegoede@redhat.com>
+ <CAKvHMgQMgkA=b_jGFMhs7-Ta=+WYjh2u8YNjON3MapA8tTju9w@mail.gmail.com>
+ <3c3c65dd-fb5f-becd-0d04-f22f103baeb0@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 In-Reply-To: <3c3c65dd-fb5f-becd-0d04-f22f103baeb0@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devel@driverdev.osuosl.org
+Cc: devel@driverdev.osuosl.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, platform-driver-x86@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Hans,
+Hi Hans, I sent too soon...
 
 On Mon, Aug 28, 2017 at 9:04 AM, Hans de Goede <hdegoede@redhat.com> wrote:
 > Hi,
@@ -162,12 +173,10 @@ On Mon, Aug 28, 2017 at 9:04 AM, Hans de Goede <hdegoede@redhat.com> wrote:
 > Done, except for making the flag a field in input_current_limit_work,
 > input_current_limit_work is of type struct delayed_work so I cannot just
 > add a field.
-
-What I meant was you could check an existing field in delayed_work to
-see if it was init'd.
-
+>
 >> Also should document property for DT use assuming Sebastian is ok with
 >> new power_supply method.
+>
 >
 > Also done for v3 of this patch.
 >
@@ -180,4 +189,5 @@ see if it was init'd.
 > to rebase on top of the rest once the rest is merged by Sebastian (otherwise
 > I need to rebase after each revision of the patch-set).
 
-Sounds good.
+If the property is linux,input-current-limit-from-supplier should it
+also be documented elsewhere in DT bindings?
