@@ -1,126 +1,193 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 5/9] PM / ACPI: Provide option to disable direct_complete for ACPI devices
-Date: Mon, 28 Aug 2017 03:30:52 +0200
-Message-ID: <35832703.Y3V01Ybc1Y@aspire.rjw.lan>
-References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <6003495.864qntojfu@aspire.rjw.lan> <2333939.YcVPemMPxH@aspire.rjw.lan>
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: Re: [RESEND PATCH v4 2/2] i2c: Add Spreadtrum I2C controller driver
+Date: Mon, 28 Aug 2017 11:21:09 +0800
+Message-ID: <CAMz4ku+MJ49-Orp4mGL=jW0bfnko5o9fZgAjpZKqAMVUiw-o4Q@mail.gmail.com>
+References: <eda1f25512db9c6946b303dd43f518ae2f0f3b26.1500021045.git.baolin.wang@spreadtrum.com>
+ <acbfda522aa806284b86f8935278cc7f7133e876.1500021046.git.baolin.wang@spreadtrum.com>
+ <20170827153054.ijqxbjk25zpskojl@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2333939.YcVPemMPxH@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f43.google.com ([209.85.218.43]:33759 "EHLO
+        mail-oi0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751941AbdH1DVK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 27 Aug 2017 23:21:10 -0400
+Received: by mail-oi0-f43.google.com with SMTP id r203so32403198oih.0
+        for <linux-i2c@vger.kernel.org>; Sun, 27 Aug 2017 20:21:10 -0700 (PDT)
+In-Reply-To: <20170827153054.ijqxbjk25zpskojl@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Baolin Wang <baolin.wang@spreadtrum.com>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>
 
-On Friday, August 25, 2017 3:42:35 PM CEST Rafael J. Wysocki wrote:
-> On Thursday, August 24, 2017 11:50:40 PM CEST Rafael J. Wysocki wrote:
-> > On Thursday, August 24, 2017 6:35:49 PM CEST Rafael J. Wysocki wrote:
-> > > On Thursday, August 24, 2017 11:15:26 AM CEST Ulf Hansson wrote:
-> > 
-> > [cut]
-> > 
-> > > [BTW, it is not entirely clear to me why it ever is necessary to runtime resume
-> > > a device with direct_complete set after __device_suspend(), because it can only
-> > > have direct_complete set at that point if all of the hierarchy below it has
-> > > this flag set too and so runtime PM has to be disabled for all of those
-> > > devices as well.]
-> > 
-> > Which makes me realize that we should take a step back and look at what
-> > problems there are.
-> > 
-> > First, there are devices (I know about two examples so far and both are PCI)
-> > that may need to be runtime resumed during system suspend for reasons other
-> > than the ones checked by the ACPI PM domain (or the PCI bus type).  There needs
-> > to be a way to indicate that from the driver side.
-> > 
-> > However, it still may be valuable to check the power-related conditions for
-> > leaving the device in runtime suspend over system suspend/resume in case
-> > it actually doesn't need to be runtime resumed during system suspend after
-> > all.  That's what the majority of my patch was about.
-> > 
-> > The second problem is that the ACPI PM domain (and the PCI bus type)
-> > runtime resumes all devices unconditionally in its ->suspend callback,
-> > even though that may not be necessary for some devices.  Therefore there
-> > needs to be a way to indicate that too.  That still would be good to
-> > have *regardless* of the direct_complete mechanism, because the direct_complete
-> > flag may not be set very often due to dependencies and then the
-> > resume-during-suspend will take place unnecessarily.
-> > 
-> > Accordingly, it looks like we need a "no need to resume me" flag in the first
-> > place.  That would indicate to interested pieces of code that, from the
-> > driver perspective, the device doesn't need to be runtime resumed before
-> > invoking its system suspend callbacks.  This should be clear enough to everyone
-> > IMO.
-> > 
-> > [Note that if that flag is set for all devices, we may drop it along with
-> > direct_complete, but before that happens both are needed.]
-> 
-> I think we are in agreement that direct_complete will not be necessary any
-> more when all drivers/bus types/PM domains and so on can do the "safe
-> suspend", but we're not there yet. :-)
-> 
-> > To address the first issue I would add something like the flag in the patches
-> > I sent (but without the ACPI PM domain part which should be covered by the
-> > "no need to resume me" flag above), because that allows the device's ->suspend
-> > callback to run in principle and the driver may use that callback even to
-> > runtime resume the device if that's what it wants to do.  So something like
-> > "run my ->suspend callback even though I might stay in runtime suspend".
-> > 
-> > I would probably add driver_flags to dev_pm_info for that to set at the probe
-> > time (and I would make the core clear that on driver removal).
-> > 
-> > The complexity concern is there, but honestly I don't see a better way at
-> > this point.
-> 
-> So below is a prototype patch.  It still is missing a documentation update, but
-> other than that it should be complete unless I missed something.
-> 
-> The way it works is that the SAFE_SUSPEND flag is not looked at by the core
-> at all.  The ACPI PM domain looks at it and the PCI bus type can be modified
-> to take it into account in the future.  That is what causes the "runtime resume
-> during system suspend" to be skipped.
-> 
-> In turn, the ALWAYS_SUSPEND flag is only looked at by the core and it causes
-> the decision on whether or not to use direct_complete to be deferred to the
-> __device_suspend_late() time.  If you set it for a PCI device, the effect is
-> equivalent to "no direct_complete".  If you set it for a device in the ACPI
-> PM domain, that depends on whether or not SAFE_SUSPEND is set.  If it isn't
-> set, the effect is equivalent to "no direct_complete" too, but if it is set,
-> the core may still try to use direct_complete for the device, but it will
-> make the decision on it in __device_suspend_late() and then it will not invoke
-> the ->suspend_late callback for the device if it is still runtime suspended.
-> [Note that you cannot runtime resume and runtime suspend again a device during
-> system suspend, so if it is runtime suspended in __device_suspend_late(), it
-> has been runtime suspend all the way since device_prepare().]
-> 
-> So say you point the ->suspend_late and ->resume_early callbacks of
-> the designware i2c driver to pm_runtime_force_suspend() and
-> pm_runtime_force_resume(), respectively, and set both the SAFE_SUSPEND
-> and ALWAYS_SUSPEND flags for the device.
-> 
-> If system suspend is started and the device is not runtime suspended,
-> direct_complete is not set for it and everything works as usual, so say
-> the device is runtime suspended in device_prepare().  Then, the ACPI PM
-> domain checks the other conditions for leaving it in runtime suspend and
-> returns either 0 or a positive number from acpi_subsys_prepare().
-> 
-> If 0 is returned, direct_complete is not set by the core and
-> acpi_subsys_suspend() is called.  It checks the SAFE_SUSPEND flag and sees
-> that the device need not be runtime resumed, so it invokes the driver's
-> ->suspend callback (which is not present, so it doesn't do anything).
-> Next, in __device_suspend_late(), acpi_subsys_suspend_late() is invoked
-> and it calls pm_runtime_force_suspend(), which executes the driver's
-> ->runtime_suspend() callback, and then (if successful) calls
-> acpi_dev_suspend_late() to put the device into a low-power state.  The
-> resume path is a reverse of the above in this case.  So far, so good.
+Hi Wolfram,
 
-Well, not really, because if the device remains runtime suspended,
-->runtime_suspend() will not be called by pm_runtime_force_suspend() and
-acpi_dev_suspend_late() should not be called then.
+On 27 August 2017 at 23:30, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Hi,
+>
+> thanks for your submission.
+>
+>> +static void sprd_i2c_dump_reg(struct sprd_i2c *i2c_dev)
+>> +{
+>> +     dev_err(&i2c_dev->adap.dev, ": ======dump i2c-%d reg=======\n",
+>> +             i2c_dev->adap.nr);
+>> +     dev_err(&i2c_dev->adap.dev, ": I2C_CTRL:0x%x\n",
+>> +             readl(i2c_dev->base + I2C_CTL));
+>> +     dev_err(&i2c_dev->adap.dev, ": I2C_ADDR_CFG:0x%x\n",
+>> +             readl(i2c_dev->base + I2C_ADDR_CFG));
+>> +     dev_err(&i2c_dev->adap.dev, ": I2C_COUNT:0x%x\n",
+>> +             readl(i2c_dev->base + I2C_COUNT));
+>> +     dev_err(&i2c_dev->adap.dev, ": I2C_RX:0x%x\n",
+>> +             readl(i2c_dev->base + I2C_RX));
+>> +     dev_err(&i2c_dev->adap.dev, ": I2C_STATUS:0x%x\n",
+>> +             readl(i2c_dev->base + I2C_STATUS));
+>> +     dev_err(&i2c_dev->adap.dev, ": ADDR_DVD0:0x%x\n",
+>> +             readl(i2c_dev->base + ADDR_DVD0));
+>> +     dev_err(&i2c_dev->adap.dev, ": ADDR_DVD1:0x%x\n",
+>> +             readl(i2c_dev->base + ADDR_DVD1));
+>> +     dev_err(&i2c_dev->adap.dev, ": ADDR_STA0_DVD:0x%x\n",
+>> +             readl(i2c_dev->base + ADDR_STA0_DVD));
+>> +     dev_err(&i2c_dev->adap.dev, ": ADDR_RST:0x%x\n",
+>> +             readl(i2c_dev->base + ADDR_RST));
+>
+> I really thing register dumps should be dev_dbg().
 
-So more changes in the ACPI PM domain are needed after all.
+OK. Will fix in next version.
 
-Thanks,
-Rafael
+>
+>> +}
+>> +
+>> +static void sprd_i2c_set_count(struct sprd_i2c *i2c_dev, u32 count)
+>> +{
+>> +     writel(count, i2c_dev->base + I2C_COUNT);
+>> +}
+>> +
+>> +static void sprd_i2c_send_stop(struct sprd_i2c *i2c_dev, int stop)
+>> +{
+>> +     unsigned int tmp = readl(i2c_dev->base + I2C_CTL);
+>
+> u32? Here and in many other places?
 
+OK.
+
+>
+> ...
+>
+>> +static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
+>> +{
+>> +     struct sprd_i2c *i2c_dev = dev_id;
+>> +     struct i2c_msg *msg = i2c_dev->msg;
+>> +     int ack = readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK;
+>> +     u32 i2c_count = readl(i2c_dev->base + I2C_COUNT);
+>> +     u32 i2c_tran;
+>> +
+>> +     if (msg->flags & I2C_M_RD)
+>> +             i2c_tran = i2c_dev->count >= I2C_FIFO_FULL_THLD;
+>> +     else
+>> +             i2c_tran = i2c_count;
+>> +
+>> +     /*
+>> +      * If we got one ACK from slave when writing data, and we did not
+>
+> Here you say: "If we get ack..."
+>
+>> +      * finish this transmission (i2c_tran is not zero), then we should
+>> +      * continue to write data.
+>> +      *
+>> +      * For reading data, ack is always 0, if i2c_tran is not 0 which
+>> +      * means we still need to contine to read data from slave.
+>> +      */
+>> +     if (i2c_tran && !ack) {
+>
+> ... but the code gives the assumption you did NOT get an ack. So, either
+> rename the variable to 'ack_err' or keep it 'ack' and invert the logic
+> when initializing the variable.
+
+If ack == 0 means we got one ack. I will invert the logic as you suggested.
+
+>
+>> +             sprd_i2c_data_transfer(i2c_dev);
+>> +             return IRQ_HANDLED;
+>> +     }
+>> +
+>> +     i2c_dev->err = 0;
+>> +
+>> +     /*
+>> +      * If we did not get one ACK from slave when writing data, we should
+>> +      * dump all registers to check I2C status.
+>
+> Why? I would say no. NACK from a slave can always happen, e.g. when an
+> EEPROM is busy erasing a page.
+
+For our I2C controller databook, if the master did not get one ACK
+from slave when writing data to salve, we should send one STOP signal
+to abort this data transfer or generate one repeated START signal to
+start one new data transfer cycle. Considering our I2C usage
+scenarios, we should dump registers to analyze I2C status and notify
+to user to re-start new data transfer.
+
+>
+>> +      */
+>> +     if (ack) {
+>> +             i2c_dev->err = -EIO;
+>> +             sprd_i2c_dump_reg(i2c_dev);
+>> +     } else if (msg->flags & I2C_M_RD && i2c_dev->count) {
+>> +             sprd_i2c_read_bytes(i2c_dev, i2c_dev->buf, i2c_dev->count);
+>> +     }
+>> +
+>> +     /* Transmission is done and clear ack and start operation */
+>> +     sprd_i2c_clear_ack(i2c_dev);
+>> +     sprd_i2c_clear_start(i2c_dev);
+>> +     complete(&i2c_dev->complete);
+>> +
+>> +     return IRQ_HANDLED;
+>> +}
+>
+> ...
+>
+>> +
+>> +     pm_runtime_set_autosuspend_delay(i2c_dev->dev, SPRD_I2C_PM_TIMEOUT);
+>> +     pm_runtime_use_autosuspend(i2c_dev->dev);
+>> +     pm_runtime_set_active(i2c_dev->dev);
+>> +     pm_runtime_enable(i2c_dev->dev);
+>> +
+>> +     ret = pm_runtime_get_sync(i2c_dev->dev);
+>> +     if (ret < 0) {
+>> +             dev_err(&pdev->dev, "i2c%d pm runtime resume failed!\n",
+>> +                     pdev->id);
+>
+> Error message has wrong text.
+
+Will fix it.
+
+>
+>> +             goto err_rpm_put;
+>> +     }
+>> +
+>> +static int sprd_i2c_init(void)
+>> +{
+>> +     return platform_driver_register(&sprd_i2c_driver);
+>> +}
+>> +arch_initcall_sync(sprd_i2c_init);
+>
+> arch_initcall? and no exit() function? Why is it that way and/or why
+> can't you use platform_module_driver()?
+
+As I explained before, in our Spreadtrum platform, our regulator
+driver will depend on I2C driver and the regulator driver uses
+subsys_initcall() level to initialize. Moreover some other drivers
+like GPU, they will depend on regulator to set voltage and they also
+need initialization much earlier.
+
+Since it is arch_initcall() level, Andy suggested I should get rid of
+tristate (use bool) and drop module.h here and all leftovers like
+MODULE_*() calls including module_exit().
+
+>
+> Rest looks good. I like the comments you added to the code.
+
+Really appreciated for your comments.
+
+-- 
+Baolin.wang
+Best Regards
