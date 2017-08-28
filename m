@@ -1,161 +1,75 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 11/14] power: supply: bq24190_charger: Get
- input_current_limit from our supplier
-Date: Mon, 28 Aug 2017 18:04:15 +0200
-Message-ID: <3c3c65dd-fb5f-becd-0d04-f22f103baeb0@redhat.com>
-References: <20170815200502.17339-1-hdegoede@redhat.com>
- <20170815200502.17339-12-hdegoede@redhat.com>
- <CAKvHMgQMgkA=b_jGFMhs7-Ta=+WYjh2u8YNjON3MapA8tTju9w@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
+ configuring bus frequency
+Date: Mon, 28 Aug 2017 18:07:02 +0200
+Message-ID: <20170828160702.x45hagij4kkm5zzc@ninjato>
+References: <20170815072102.23067-1-andrew@aj.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2bsylw4bkiptnjz5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52964 "EHLO mx1.redhat.com"
+Received: from sauhun.de ([88.99.104.3]:41105 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751297AbdH1QET (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 28 Aug 2017 12:04:19 -0400
-In-Reply-To: <CAKvHMgQMgkA=b_jGFMhs7-Ta=+WYjh2u8YNjON3MapA8tTju9w@mail.gmail.com>
-Content-Language: en-US
+        id S1751294AbdH1QHD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 28 Aug 2017 12:07:03 -0400
+Content-Disposition: inline
+In-Reply-To: <20170815072102.23067-1-andrew@aj.id.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Liam Breck <liam@networkimprov.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sebastian Reichel <sre@kernel.org>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devel@driverdev.osuosl.org
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
 
-Hi,
 
-On 16-08-17 22:28, Liam Breck wrote:
-> Hi Hans,
-> 
-> On Tue, Aug 15, 2017 at 1:04 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->> On some devices the USB Type-C port power (USB PD 2.0) negotiation is
->> done by a separate port-controller IC, while the current limit is
->> controlled through another (charger) IC.
->>
->> It has been decided to model this by modelling the external Type-C
->> power brick (adapter/charger) as a power-supply class device which
->> supplies the charger-IC, with its voltage-now and current-max representing
->> the negotiated voltage and max current draw.
->>
->> This commit adds support for this to the bq24190_charger driver by calling
->> power_supply_set_input_current_limit_from_supplier helper if the
->> "input-current-limit-from-supplier" device-property is set.
->>
->> Note this replaces the functionality to get the current-limit from an
->> extcon device, which will be removed in a follow-up commit.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Wait a bit before applying current-max from our supplier as input-current-limit
->>   the bq24190 may still be in its power-good wait-state while our supplier is
->>   done negotating current-max and if we apply the limit to early then the
->>   input-current-limit will be reset to 0.5A by the bq24190 after its
->>   power-good wait is done.
->> ---
->>   drivers/power/supply/bq24190_charger.c | 35 ++++++++++++++++++++++++++++++++++
->>   1 file changed, 35 insertions(+)
->>
->> diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
->> index f13f892..6f75c8e 100644
->> --- a/drivers/power/supply/bq24190_charger.c
->> +++ b/drivers/power/supply/bq24190_charger.c
->> @@ -159,9 +159,11 @@ struct bq24190_dev_info {
->>          struct extcon_dev               *extcon;
->>          struct notifier_block           extcon_nb;
->>          struct delayed_work             extcon_work;
->> +       struct delayed_work             input_current_limit_work;
->>          char                            model_name[I2C_NAME_SIZE];
->>          bool                            initialized;
->>          bool                            irq_event;
->> +       bool                            input_current_limit_from_supplier;
->>          struct mutex                    f_reg_lock;
->>          u8                              f_reg;
->>          u8                              ss_reg;
->> @@ -1142,6 +1144,32 @@ static int bq24190_charger_property_is_writeable(struct power_supply *psy,
->>          return ret;
->>   }
->>
->> +static void bq24190_input_current_limit_work(struct work_struct *work)
->> +{
->> +       struct bq24190_dev_info *bdi =
->> +               container_of(work, struct bq24190_dev_info,
->> +                            input_current_limit_work.work);
->> +
->> +       power_supply_set_input_current_limit_from_supplier(bdi->charger);
->> +}
->> +
->> +static void bq24190_charger_external_power_changed(struct power_supply *psy)
->> +{
->> +       struct bq24190_dev_info *bdi = power_supply_get_drvdata(psy);
->> +
->> +       /*
->> +        * The Power-Good detection may take up to 220ms, sometimes
->> +        * the external charger detection is quicker, and the bq24190 will
->> +        * reset to iinlim based on its own charger detection (which is not
->> +        * hooked up when using external charger detection) resulting in a
->> +        * too low default 500mA iinlim. Delay setting the input-current-limit
->> +        * for 300ms to avoid this.
->> +        */
->> +       if (bdi->input_current_limit_from_supplier)
->> +               queue_delayed_work(system_wq, &bdi->input_current_limit_work,
->> +                                  msecs_to_jiffies(300));
->> +}
->> +
->>   static enum power_supply_property bq24190_charger_properties[] = {
->>          POWER_SUPPLY_PROP_CHARGE_TYPE,
->>          POWER_SUPPLY_PROP_HEALTH,
->> @@ -1170,6 +1198,7 @@ static const struct power_supply_desc bq24190_charger_desc = {
->>          .get_property           = bq24190_charger_get_property,
->>          .set_property           = bq24190_charger_set_property,
->>          .property_is_writeable  = bq24190_charger_property_is_writeable,
->> +       .external_power_changed = bq24190_charger_external_power_changed,
->>   };
->>
->>   /* Battery power supply property routines */
->> @@ -1651,6 +1680,8 @@ static int bq24190_probe(struct i2c_client *client,
->>          mutex_init(&bdi->f_reg_lock);
->>          bdi->f_reg = 0;
->>          bdi->ss_reg = BQ24190_REG_SS_VBUS_STAT_MASK; /* impossible state */
->> +       INIT_DELAYED_WORK(&bdi->input_current_limit_work,
->> +                         bq24190_input_current_limit_work);
->>
->>          i2c_set_clientdata(client, bdi);
->>
->> @@ -1659,6 +1690,10 @@ static int bq24190_probe(struct i2c_client *client,
->>                  return -EINVAL;
->>          }
->>
->> +       bdi->input_current_limit_from_supplier =
->> +               device_property_read_bool(dev,
->> +                                         "input-current-limit-from-supplier");
->> +
-> 
-> Maybe
->    if (device_property_read_bool(dev,
-> "linux,input-current-limit-from-supplier")) {
->         INIT_DELAYED_WORK(&bdi->input_current_limit_work,
->                           bq24190_input_current_limit_work);
->        bdi->input_current_limit_from_supplier = true; // or use a field
-> in bdi->input_current_limit_work as the flag?
->     }
+--2bsylw4bkiptnjz5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Done, except for making the flag a field in input_current_limit_work,
-input_current_limit_work is of type struct delayed_work so I cannot just
-add a field.
+On Tue, Aug 15, 2017 at 04:51:02PM +0930, Andrew Jeffery wrote:
+> In addition to the base, low and high clock configuration, the AC timing
+> register #1 on the AST2400 houses fields controlling:
+>=20
+> 1. tBUF: Minimum delay between Stop and Start conditions
+> 2. tHDSTA: Hold time for the Start condition
+> 3. tACST: Setup time for Start and Stop conditions, and hold time for the
+>    Repeated Start condition
+>=20
+> These values are defined in hardware on the AST2500 and therefore don't
+> need to be set.
+>=20
+> aspeed_i2c_init_clk() was performing a direct write of the generated
+> clock values rather than a read/mask/modify/update sequence to retain
+> tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACST
+> fields on the AST2400. This resulted in a delay/setup/hold time of 1
+> base clock, which in some configurations is not enough for some devices
+> (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
+> bus speed of 100kHz).
+>=20
+> Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
 
-> Also should document property for DT use assuming Sebastian is ok with
-> new power_supply method.
+Applied to for-next, thanks! I even considered for-current but it does
+not apply there. So, I leave the backporting for the interested parties
+:)
 
-Also done for v3 of this patch.
 
-> And can you rebase to my pending series in next pass? There's nothing
-> controversial in it :-)
+--2bsylw4bkiptnjz5
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I've cherry-picked v3 of the patch adding the dt-binding-doc to my tree so
-that I could add the documentation for the property on top. I will make sure
-to rebase on top of the rest once the rest is merged by Sebastian (otherwise
-I need to rebase after each revision of the patch-set).
+-----BEGIN PGP SIGNATURE-----
 
-Regards,
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmkP6AACgkQFA3kzBSg
+KbaFrA/8DXKBteAeaG3KIpU1zfUMAmnm2gHcJ4zZIGj6+vrqSZj09kNvfgj634La
+em9UYdIjuoAmxoyX31A3PyokYstH2wi5U2Mxst06bfLg7AjcA5yuSt9j3DllaJof
+ZdQgkcD3S5F4c5K27F6zN8mJ4C3tHPy5ydtzAxzqwKgaxv+5RDh6gcv5SzRt4yKM
+sshSW1RxLL9Vsa1tPzU/FzbEhbQkL2WDaJGTBwQdz/zxhBULTahZUFsdYJT8La3n
+COo5EqOKP9MRC+Fv1oi7YCI0uShZcaTxPNNlym/Rmh85awFycAJfStkTNtPwP3Ej
+MFynTxU/ZkT3MR2GS3pyGbRAmwU3kdlG53lkjZuDupwO2V8A+ETavSywayCFrNDA
+UHW2UN5SboHKAxpuA8NOUK6TAlhqQJKRLXPCZSVPyjQN4OEwTZm0G06usHJjXyX7
+VvAxSx0sBanfRMZS866kEccltMYQ1PGy1mDgmmu0t6GeWxqjcE8CFVM6/rFWUEQ+
+tvmK+KC4KRzWt3OOLHBwgVekKYf3unH4/6sa0anfRlimzFVsLwiTbvGKLchjQg+3
+mdZVWl+4+eoUHzXiiEmrYLfZ9XozTsh/rKvXf73ohxVEw6Nwgn3CK/HFxkgdVhB3
+MlwprgeT37Hs+Ci1z9Sw1Y5oHT1GrG5IU3irpzWeQfbeJufbrUs=
+=nKgd
+-----END PGP SIGNATURE-----
 
-Hans
+--2bsylw4bkiptnjz5--
