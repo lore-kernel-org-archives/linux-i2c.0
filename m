@@ -1,57 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 2/2] i2c: Add Spreadtrum I2C controller driver
-Date: Tue, 29 Aug 2017 12:14:16 +0200
-Message-ID: <20170829101416.5oq4fte74i7f5jcx@ninjato>
-References: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang@spreadtrum.com>
- <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
+Subject: Re: [PATCH 0/2] i2c: ismt: Fix length handling for SMBus block reads
+Date: Tue, 29 Aug 2017 12:22:25 +0200
+Message-ID: <20170829102225.7yjh52hivygbdbc7@ninjato>
+References: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
+ <20170814193105.cosdlbf5gypazlzn@ninjato>
+ <f1d1d452-892a-82ff-c6a2-1e2512d9ed70@adiengineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="d3xulhg6zzvokqj4"
+        protocol="application/pgp-signature"; boundary="ya73meqvsfqm7jaa"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43876 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:43910 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751802AbdH2KOS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 06:14:18 -0400
+        id S1751902AbdH2KW1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 29 Aug 2017 06:22:27 -0400
 Content-Disposition: inline
-In-Reply-To: <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
+In-Reply-To: <f1d1d452-892a-82ff-c6a2-1e2512d9ed70@adiengineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: mark.rutland@arm.com, robh+dt@kernel.org, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, broonie@kernel.org, baolin.wang@linaro.org
+To: Stephen Douthit <stephend@adiengineering.com>
+Cc: seth.heasley@intel.com, nhorman@tuxdriver.com, danp@adiengineering.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---d3xulhg6zzvokqj4
+--ya73meqvsfqm7jaa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 29, 2017 at 11:35:04AM +0800, Baolin Wang wrote:
-> This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
+
+> >> So basically the byte count already precedes the data in the dma_buffe=
+r,
+> >> then the driver sticks desc->rxbytes in front of this resulting in the
+> >> trace above.
+> >>
+> >> The first patch tackles this.
+> >>
+> >> The second patch in the series adds a sanity check on the byte count
+> >> supplied by the slave device.  This might be a nice to have, but is
+> >> probably less critical.
+> >=20
+> > Both patches look good to me. Seth, Neil, do you agree?
+> >=20
 >=20
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Ping.
+>=20
+> Not sure what the usual review time is, let me know if this is premature.
 
-Applied to for-next, thanks!
+I applied both patches to for-next (v4.14) now to get a broader
+audience. for-current (v4.13) might have been also applicable, but I
+don't want to apply the patches there without the driver maintainer
+acks. I hope this works for you.
 
 
---d3xulhg6zzvokqj4
+--ya73meqvsfqm7jaa
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPncACgkQFA3kzBSg
-KbZLbg//Q8AOA7vV+GLZPu4YMhtcrR3CUQU7flnBd4seLf162muxcaVUlLCUZdpe
-3LL7ZGDuGVJqOE4WcZLAJMTXCpmHtNiqyzctcc9Z63cA8zZYJXUBSK7hO91aDVjm
-rSaIr7lVXxAbQvvh26DaGnBcu6vN1m9hTFv0B3zqqScbLOEuu2mLhuxLztHyOYUy
-trFeHMNMV1RD+CNJgitmb/Oo8dY/aug618I2psZEfGAFwQB8IyEIrVvXks6zEEAT
-TA8Ej4yCNz+85LtCJMx97x01DR1lxmQIkO6qPYLZ2cAEPjETnkjacNkG2ntgBUm8
-gp3Vv4BBUMuZeym5So3xpD/+scKwJH64SHpWLsV9fLrqkixGGfpSeczt095sbC9Y
-HK14GH/O8Cq3wmhvLwNzBpIO1ykYXgpJPwNXpRuqZMKdLxEYrEqL5/adKIOQ7Qq4
-9xOUiBth8Nh+ZBmbLtz/5bo3iJI2J/BmIdyuVPShsLaWsQMqgkm0YM0sFCCY7b1R
-JzgYYGU4mXSj8kS0ymJSUWwAmWkX7Sci7YKKMOcnG8wviqhH5gh9L9udbNAx4REN
-qShSTW82KwyqgBpE7IcyDl21YdkAV+bt4nXHllShMG+2h1PtxmhTOhVd4GQ3lilc
-3x/qVBt6gHk1ZvNxD4ofBOACDrlAENNLUMl6hGfFaRYZZidep0w=
-=3gxC
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlQGEACgkQFA3kzBSg
+KbYGYg//aLV/dmr2xWgYu7NNROI0issj/8g84eczRuSWmItQQ+mUuKW3Al5AzUC+
+lqYVfSW+V+1MfD47IVSN1XdLkpfLOc3Pzp6m6Ud8uc9LpqXri2x7OlrtWAcKNWZm
+yA5fKaW3aExCKyfEVZqhPEksPMoF0UtS2HPPIjWtkIJITO88EjCe8rgswvIPGZgw
+EfsQ3qGU5w62rM3O8sHLY3Xj2GDiwGTRxB6zFnE8r5+8Af7U/0Qti/AstPBOS07Y
+FewaWTYgCfPUn3umkETNH0GlDr/Ce/WdFqA1kDOZYgTUgIvbIwPebXpM6O5REg2B
+B/+w1CFQsS4hfpsH2G64VVly/9Vt0AD6JLhH7xS/PRBxkj4EQxRFJVcqHShdGYKz
++QvF6unRgyXTnLJPlr0M3gg/MTTVwJk+fttUeK8K5k+QgH3OqXU1IosSubq2cfSJ
+MMJF4M6CSYPvjs62RlDh4mti5KtlllH+uvmFGC0W/OZ3ze4NUFUril9OvgOv4d9M
+/XnWK/cRBoFdJWTTOFRnVv4enr2HsPcbYQBXt2+oxo60f/hotvMTR8gJUxdajD8d
+JdFwyruL0/I7DYdESlmddlNBka9hCCZ/tXIRfArxAGn9wvyxc0y7IObXj35SvV5t
+OLDq0ztgHVcX8V1pVns8/Jo/s2OjvYCCfkRDi+WX+MtTPnnGBTc=
+=I2gM
 -----END PGP SIGNATURE-----
 
---d3xulhg6zzvokqj4--
+--ya73meqvsfqm7jaa--
