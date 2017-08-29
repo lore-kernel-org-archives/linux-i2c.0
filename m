@@ -1,58 +1,57 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] dt-bindings: i2c: Add Spreadtrum I2C controller
- documentation
-Date: Tue, 29 Aug 2017 12:14:11 +0200
-Message-ID: <20170829101411.mt42fvi6ds6sfbmp@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 2/2] i2c: Add Spreadtrum I2C controller driver
+Date: Tue, 29 Aug 2017 12:14:16 +0200
+Message-ID: <20170829101416.5oq4fte74i7f5jcx@ninjato>
 References: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang@spreadtrum.com>
+ <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wnac77fwwsq7ei2u"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="d3xulhg6zzvokqj4"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43876 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751802AbdH2KOS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 29 Aug 2017 06:14:18 -0400
 Content-Disposition: inline
-In-Reply-To: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+In-Reply-To: <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Baolin Wang <baolin.wang@spreadtrum.com>
+Cc: mark.rutland@arm.com, robh+dt@kernel.org, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, broonie@kernel.org, baolin.wang@linaro.org
 
 
---wnac77fwwsq7ei2u
+--d3xulhg6zzvokqj4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 29, 2017 at 11:35:03AM +0800, Baolin Wang wrote:
-> This patch adds the binding documentation for Spreadtrum I2C
-> controller device.
+On Tue, Aug 29, 2017 at 11:35:04AM +0800, Baolin Wang wrote:
+> This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
 >=20
-> Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
 Applied to for-next, thanks!
 
 
---wnac77fwwsq7ei2u
+--d3xulhg6zzvokqj4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPnMACgkQFA3kzBSg
-KbYbghAAq6w3QsLyqofZdvbNr0iLqXgyKTBDT+GK+qW8NjOL3G0E5oajUH5imtsK
-nSf++sAKZyRCyPg3dWIoQNxqDcoJ0tCrEjBBtoBkkSTW1qmCoPSpn2SS0fh8RWvL
-i80Fj2CXi8ddVJKs+wg19G6sh+qVZuSKNLHvz7QQVGEeqYd3dBHkQtkbJFoGUsxn
-HYcrovrxWwsBrn+FlkzUEO98J6iZeKkXgjmD8SXvy9BEWR1y8fRb2BrboRuzgJrh
-1NIt9EU5/WGWbj35KXJ+HDzCZrGHYUTw0EgUTxGvkf/p8vJeUxxU+X16PoGdYS+a
-cKpXu/LSv7BUPDReEBrqMhEpjsoDVM4+msEm1AJXFMvaOdZMmEVN6n64TpuWLD6j
-2d4AewzPX8r7L9T2vnjoqcmpZJoxw2FwOefl7UunxxCgIjdZSH9hUvWakfvCYQHr
-7EExtzCWTSBOW5EV59XG8u4FgtxgnyZr8yew9wRKqarf9eQ0cL4sSdp9f+9Briu3
-lXUErJ4Rxmqiu65O3Y+tuZ+umA81yWQ7GrQz/FLwoHO+5LmDn3SAP08BGR63lgXM
-W0f418YbzLk4xO5+d/wq7Uzh+yVGS2m+/aE64QKNlygQeaLCElHVowji3GwFwkFE
-AekPe1uTTXqr91PmZZutfsWEsc64P9uWCu3fKnoyFRGrHb6DJrs=
-=gA2g
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPncACgkQFA3kzBSg
+KbZLbg//Q8AOA7vV+GLZPu4YMhtcrR3CUQU7flnBd4seLf162muxcaVUlLCUZdpe
+3LL7ZGDuGVJqOE4WcZLAJMTXCpmHtNiqyzctcc9Z63cA8zZYJXUBSK7hO91aDVjm
+rSaIr7lVXxAbQvvh26DaGnBcu6vN1m9hTFv0B3zqqScbLOEuu2mLhuxLztHyOYUy
+trFeHMNMV1RD+CNJgitmb/Oo8dY/aug618I2psZEfGAFwQB8IyEIrVvXks6zEEAT
+TA8Ej4yCNz+85LtCJMx97x01DR1lxmQIkO6qPYLZ2cAEPjETnkjacNkG2ntgBUm8
+gp3Vv4BBUMuZeym5So3xpD/+scKwJH64SHpWLsV9fLrqkixGGfpSeczt095sbC9Y
+HK14GH/O8Cq3wmhvLwNzBpIO1ykYXgpJPwNXpRuqZMKdLxEYrEqL5/adKIOQ7Qq4
+9xOUiBth8Nh+ZBmbLtz/5bo3iJI2J/BmIdyuVPShsLaWsQMqgkm0YM0sFCCY7b1R
+JzgYYGU4mXSj8kS0ymJSUWwAmWkX7Sci7YKKMOcnG8wviqhH5gh9L9udbNAx4REN
+qShSTW82KwyqgBpE7IcyDl21YdkAV+bt4nXHllShMG+2h1PtxmhTOhVd4GQ3lilc
+3x/qVBt6gHk1ZvNxD4ofBOACDrlAENNLUMl6hGfFaRYZZidep0w=
+=3gxC
 -----END PGP SIGNATURE-----
 
---wnac77fwwsq7ei2u--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--d3xulhg6zzvokqj4--
