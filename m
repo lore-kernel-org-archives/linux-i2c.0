@@ -1,46 +1,78 @@
-From: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: [PATCH 0/2] i2c: ismt: Fix length handling for SMBus block reads
-Date: Tue, 29 Aug 2017 07:35:58 -0400
-Message-ID: <20170829113558.GA5406@hmswarspite.think-freely.org>
-References: <1502140260-13789-1-git-send-email-stephend@adiengineering.com>
- <20170814193105.cosdlbf5gypazlzn@ninjato>
- <f1d1d452-892a-82ff-c6a2-1e2512d9ed70@adiengineering.com>
- <20170829102225.7yjh52hivygbdbc7@ninjato>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH v2 11/14] power: supply: bq24190_charger: Get
+ input_current_limit from our supplier
+Date: Tue, 29 Aug 2017 13:40:03 +0200
+Message-ID: <20170829114003.rcj6l5up4277urxq@earth>
+References: <20170815200502.17339-1-hdegoede@redhat.com>
+ <20170815200502.17339-12-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="2hyh4nsrt7j57ide"
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170829102225.7yjh52hivygbdbc7@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Douthit <stephend@adiengineering.com>, seth.heasley@intel.com, danp@adiengineering.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170815200502.17339-12-hdegoede@redhat.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 29, 2017 at 12:22:25PM +0200, Wolfram Sang wrote:
-> 
-> > >> So basically the byte count already precedes the data in the dma_buffer,
-> > >> then the driver sticks desc->rxbytes in front of this resulting in the
-> > >> trace above.
-> > >>
-> > >> The first patch tackles this.
-> > >>
-> > >> The second patch in the series adds a sanity check on the byte count
-> > >> supplied by the slave device.  This might be a nice to have, but is
-> > >> probably less critical.
-> > > 
-> > > Both patches look good to me. Seth, Neil, do you agree?
-> > > 
-> > 
-> > Ping.
-> > 
-> > Not sure what the usual review time is, let me know if this is premature.
-> 
-> I applied both patches to for-next (v4.14) now to get a broader
-> audience. for-current (v4.13) might have been also applicable, but I
-> don't want to apply the patches there without the driver maintainer
-> acks. I hope this works for you.
-> 
 
-Sorry, I've been on vacation, yes, the patches look good to me
+--2hyh4nsrt7j57ide
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Hi,
+
+On Tue, Aug 15, 2017 at 10:04:59PM +0200, Hans de Goede wrote:
+> On some devices the USB Type-C port power (USB PD 2.0) negotiation is
+> done by a separate port-controller IC, while the current limit is
+> controlled through another (charger) IC.
+>=20
+> It has been decided to model this by modelling the external Type-C
+> power brick (adapter/charger) as a power-supply class device which
+> supplies the charger-IC, with its voltage-now and current-max representing
+> the negotiated voltage and max current draw.
+>=20
+> This commit adds support for this to the bq24190_charger driver by calling
+> power_supply_set_input_current_limit_from_supplier helper if the
+> "input-current-limit-from-supplier" device-property is set.
+>=20
+> Note this replaces the functionality to get the current-limit from an
+> extcon device, which will be removed in a follow-up commit.
+
+I'm fine with the general approach, but ...
+
+> [...]
+> +	bdi->input_current_limit_from_supplier =3D
+> +		device_property_read_bool(dev,
+> +					  "input-current-limit-from-supplier");
+> [...]
+
+I wonder if we actually need this. I think we can just enable it
+unconditionally when we have a parent power supply providing the
+information.
+
+-- Sebastian
+
+--2hyh4nsrt7j57ide
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmlUpAACgkQ2O7X88g7
++ppuGBAAkLr6i2NQ89qrmrMC08EH4j0jvVt9KNacP6efL7+O9sx9XUaOMbjWoJdn
+BjOHkxHEjk/tL+u031hJwrp859+yM3WD4x0iWTPiCu4ugCJhVe7Lw27Oyan3Qtga
+yYNIP4Ib+6OsSsWXbcy2RS4hNdnACZCPuhmzmcdD4StZYSHOlrjIsY01lckeM7yX
+7AN/vz9WdYWjTFzqXJWWU734MrpbA7gv1QY9TzWjcTBEB0QRvAyeQkBv+t6Cumeo
+QuQxdVTbsKX71CUh5Ad6ihBPgJIJQdWdUsVdEV8Y0LdviBJmBU2DBvOidlKMs1ZF
+mV7m6cQjCPhIDNLHG6+360kyptxn7KJv2hjfFTkUvmY9mzD6r4dpM61iV/L3lpd9
+z9l1+DPCEmkl5qndWcQ7gZLCX+bLA05zPrK+JNm1BRf+rciQG4aTMmtFSmydXUXN
+L3MIoaJbonJerbCs8AokLtCCkwOuFrMq28dM++pDN0cyFPklQT1NPEkXVM794g7p
+2sl4ThRWWAdgII1204dS7Zf1dtwv8/LjC46HI3Nyf70qs8dY14ZPHaqGR0lg3SG/
+UX6l5ZCbS1QX/6vw6m2g4u2DJgdx2J1fv4jyeH5ZfOwIhleCfJjKKvi6hhtzXop4
+MKEYihT76vTNPEPdoSZvQsKuHntfxeswJwzoqwxz+AAI2fI8t7g=
+=CW+c
+-----END PGP SIGNATURE-----
+
+--2hyh4nsrt7j57ide--
