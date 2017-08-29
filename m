@@ -1,50 +1,37 @@
-From: Johannes Stezenbach <js@sig21.net>
-Subject: Re: [PATCH 0/3] PM / ACPI / i2c: Runtime PM aware system sleep
- handling
-Date: Tue, 29 Aug 2017 12:29:27 +0200
-Message-ID: <20170829102927.5lpjkfj2jbtpxadm@sig21.net>
-References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org>
- <4245176.X6JjkhnUAM@aspire.rjw.lan>
+From: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v5 2/2] i2c: Add Spreadtrum I2C controller driver
+Date: Tue, 29 Aug 2017 18:41:11 +0800
+Message-ID: <CAMz4ku+67DdVg-Tap84h+sXcjYm+7cyG8UTQZB8iouzuihnj-g@mail.gmail.com>
+References: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang@spreadtrum.com>
+ <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
+ <20170829101416.5oq4fte74i7f5jcx@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4245176.X6JjkhnUAM@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170829101416.5oq4fte74i7f5jcx@ninjato>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Wolfram,
 
-On Tue, Aug 29, 2017 at 02:18:13AM +0200, Rafael J. Wysocki wrote:
-> On Wednesday, August 23, 2017 4:42:00 PM CEST Ulf Hansson wrote:
-> > The i2c designware platform driver, drivers/i2c/busses/i2c-designware-platdrv.c,
-> > isn't well optimized for system sleep.
-> > 
-> > What makes this driver particularly interesting is because it's a cross-SoC
-> > driver, which sometimes means there is an ACPI PM domain attached to the i2c
-> > device and sometimes not. The driver is being used on both x86 and ARM.
-...
-> Basically, the point is to allow i2c-designware-platdrv to point its late
-> suspend and early resume callbacks, respectively, to pm_runtime_force_suspend()
-> and pm_runtime_force_resume() which then will do the right thing regardless of
-> whether or not the device is runtime suspended when system suspend starts.
+On 29 August 2017 at 18:14, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Tue, Aug 29, 2017 at 11:35:04AM +0800, Baolin Wang wrote:
+>> This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
+>>
+>> Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+>> Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> Applied to for-next, thanks!
+>
 
-I'd like to point out a comment added by Hans de Goede in
-https://bugzilla.kernel.org/show_bug.cgi?id=193891#c99
+Thanks.
 
-  The D0 / D3 methods of some devices use ACPI OpRegions on the PMIC which is
-  attached to I2C7, these methods get executed by acpi_dev_suspend_late /
-  acpi_dev_resume_early. Since the i2c-designware driver uses regular suspend /
-  resume callbacks it is already suspended at the time those calls happen,
-  leading to a device-suspend error and the system not suspending at all.
-
-It's the reason for the Cherrytrail I2C7 special treatment in
-i2c-designware-platdrv.c and pm_disabled = true in i2c-designware-baytrail.c,
-however pm_disabled seems to be a problem for S0ix support.
-To solve it, i2c-designware-platdrv needs to suspend after all
-devices using ACPI OpRegions for suspend.
-
-
-Johannes
+-- 
+Baolin.wang
+Best Regards
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
