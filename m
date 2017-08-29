@@ -1,91 +1,70 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
- supported clk
-Date: Tue, 29 Aug 2017 17:12:59 +0300
-Message-ID: <afe402a1-4476-edc0-8158-a6d26975fb05@linux.intel.com>
-References: <20170829120835.17276-1-hdegoede@redhat.com>
- <1504009379.25945.142.camel@linux.intel.com>
- <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 0/3] PM / ACPI / i2c: Runtime PM aware system sleep handling
+Date: Tue, 29 Aug 2017 16:43:15 +0200
+Message-ID: <1512684.bFXWtdU0Ox@aspire.rjw.lan>
+References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <20170829102927.5lpjkfj2jbtpxadm@sig21.net> <CAPDyKFp5dpuUeRjmmSSA3sZzFVwJihmzteyCDzqG33s2Xb1ewA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:58343 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752428AbdH2OPL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 10:15:11 -0400
-In-Reply-To: <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAPDyKFp5dpuUeRjmmSSA3sZzFVwJihmzteyCDzqG33s2Xb1ewA@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Johannes Stezenbach <js@sig21.net>, Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.>
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
 
-On 08/29/2017 03:52 PM, Hans de Goede wrote:
-> Hi,
+On Tuesday, August 29, 2017 1:44:11 PM CEST Ulf Hansson wrote:
+> On 29 August 2017 at 12:29, Johannes Stezenbach <js@sig21.net> wrote:
+> > Hi,
+> >
+> > On Tue, Aug 29, 2017 at 02:18:13AM +0200, Rafael J. Wysocki wrote:
+> >> On Wednesday, August 23, 2017 4:42:00 PM CEST Ulf Hansson wrote:
+> >> > The i2c designware platform driver, drivers/i2c/busses/i2c-designware-platdrv.c,
+> >> > isn't well optimized for system sleep.
+> >> >
+> >> > What makes this driver particularly interesting is because it's a cross-SoC
+> >> > driver, which sometimes means there is an ACPI PM domain attached to the i2c
+> >> > device and sometimes not. The driver is being used on both x86 and ARM.
+> > ...
+> >> Basically, the point is to allow i2c-designware-platdrv to point its late
+> >> suspend and early resume callbacks, respectively, to pm_runtime_force_suspend()
+> >> and pm_runtime_force_resume() which then will do the right thing regardless of
+> >> whether or not the device is runtime suspended when system suspend starts.
+> >
+> > I'd like to point out a comment added by Hans de Goede in
+> > https://bugzilla.kernel.org/show_bug.cgi?id=193891#c99
+> >
+> >   The D0 / D3 methods of some devices use ACPI OpRegions on the PMIC which is
+> >   attached to I2C7, these methods get executed by acpi_dev_suspend_late /
+> >   acpi_dev_resume_early. Since the i2c-designware driver uses regular suspend /
+> >   resume callbacks it is already suspended at the time those calls happen,
+> >   leading to a device-suspend error and the system not suspending at all.
 > 
-> On 29-08-17 14:22, Andy Shevchenko wrote:
->> On Tue, 2017-08-29 at 14:08 +0200, Hans de Goede wrote:
->>> The Lenovo Miix2 8 DSDT contains an i2c clk / bus speed of 1700000 Hz
->>> for one if its devices, which is not supported.
->>>
->>> This is the second DSDT to show up with an unsupported clk in a short
->>> time, remove the hardcoded fix for DSDTs with a 1 MiHz clock and
->>> simply
->>> always round down the clk to the nearest supported value.
->>>
->>> Reported-by: russianneuromancer@ya.ru
->>> Fixes: 682c6c2188 ("i2c: designware: Some broken DSTDs use 1MiHz ...")
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> ---
->>>   drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++++++----
->>>   1 file changed, 12 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> index 57248bccadbc..2b98a173136f 100644
->>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->>> @@ -256,7 +256,8 @@ static int dw_i2c_plat_probe(struct
->>> platform_device *pdev)
->>>       struct dw_i2c_dev *dev;
->>>       u32 acpi_speed, ht = 0;
->>>       struct resource *mem;
->>> -    int irq, ret;
->>> +    int i, irq, ret;
->>> +    const int supported_speeds[] = { 0, 100000, 400000, 1000000,
->>> 3400000 };
->>>       irq = platform_get_irq(pdev, 0);
->>>       if (irq < 0)
->>> @@ -297,9 +298,16 @@ static int dw_i2c_plat_probe(struct
->>> platform_device *pdev)
->>>       }
->>>       acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
->>> -    /* Some broken DSTDs use 1MiHz instead of 1MHz */
->>> -    if (acpi_speed == 1048576)
->>> -        acpi_speed = 1000000;
->>> +    /*
->>> +     * Some DSTDs use a non standard speed, round down to the
->>> lowest
->>> +     * standard speed.
->>> +     */
->>> +    for (i = 1; i < ARRAY_SIZE(supported_speeds); i++) {
->>> +        if (acpi_speed < supported_speeds[i])
->>> +            break;
->>> +    }
->>> +    acpi_speed = supported_speeds[i - 1];
->>
->> I dunno what standard says if we may or may not use 100 kHz as a last
->> resort even for speeds defined less than 100 kHz.
+> Yes, that's why I moved those operation to be managed at the
+> ->suspend_late() in my series, and at the same time prevent the
+> direct_complete patch from executed for this device.
 > 
-> The < 100000 case is for when i2c_acpi_find_bus_speed() returns 0, so
-> that we then keep it 0, in which case the code a bit lower will pick
-> a default. Since speeds < 100000 are clearly not valid treating them
-> as ACPI not providing any bus-speed info seems sensible to me.
+> >
+> > It's the reason for the Cherrytrail I2C7 special treatment in
+> > i2c-designware-platdrv.c and pm_disabled = true in i2c-designware-baytrail.c,
+> > however pm_disabled seems to be a problem for S0ix support.
+> > To solve it, i2c-designware-platdrv needs to suspend after all
+> > devices using ACPI OpRegions for suspend.
+> >
+> >
+> > Johannes
 > 
-I don't know how sensible values timing parameter calculation routines 
-would produce for "bogus" < 100 kHz ACPI speeds so picking the default 
-400 kHz sounds more sensible to me as well as it used to be the default 
-speed earlier.
+> Did you try out my series (v2) if that could fix this problem in a
+> more flexible manner?
+> 
+> In other words, is it fine if the device remains runtime PM enabled
+> during the entire device_suspend() phase, and also not being suspended
+> until ->suspend_late()?
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Ulf, please, this is a *different* problem.
+
+Can we focus on one problem at a time?
+
+Thanks,
+Rafael
+
