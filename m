@@ -1,57 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: Add entry for
- drivers/i2c/busses/i2c-cht-wc.c
-Date: Tue, 29 Aug 2017 12:06:43 +0200
-Message-ID: <20170829100643.6w5smhntivpxtegy@ninjato>
-References: <20170828164029.2274-1-hdegoede@redhat.com>
+Subject: Re: [PATCH][i2c-next] i2c-cht-wc: make cht_wc_i2c_adap_driver static
+Date: Tue, 29 Aug 2017 12:09:41 +0200
+Message-ID: <20170829100941.ipn2zt4or7znee37@ninjato>
+References: <20170816091659.10738-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="c24wz7lkkdhisary"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43817 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751209AbdH2KGp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 06:06:45 -0400
+        protocol="application/pgp-signature"; boundary="piib7iadrgtwifmq"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170828164029.2274-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170816091659.10738-1-colin.king@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-i2c@vger.kernel.org
 
 
---c24wz7lkkdhisary
+--piib7iadrgtwifmq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 28, 2017 at 06:40:29PM +0200, Hans de Goede wrote:
-> Add an entry for drivers/i2c/busses/i2c-cht-wc.c and add myself as
-> maintainer of this driver.
+On Wed, Aug 16, 2017 at 10:16:59AM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> The structure cht_wc_i2c_adap_driver is local to the source
+> and does not need to be in global scope, so make it static.
+>=20
+> Cleans up sparse warning:
+> symbol 'cht_wc_i2c_adap_driver' was not declared. Should it be static?
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-Applied to for-next, thank you very much for stepping up!
+Applied to for-next, thanks!
 
 
---c24wz7lkkdhisary
+--piib7iadrgtwifmq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPK8ACgkQFA3kzBSg
-Kbb3uw/+JNwJz8M51aiD5Cp8nXE/hQ1BHN/PJ8tgypyNQ905BvYy523DLIIO5OoN
-OvFjJc+oZCoND9lugG3xuzh1HsdtLElaVCzNcjpHXcoivDcOitXlChGOsjSjA9uO
-6Vb4bV4Tfu7oB34bQDg+OzknA+GWInef0Pe64lnDGG2RROoDt7k0mxZ7+WjDGjj6
-agzxuKTvmJWQoFSRI65vo17Wc00zz1ie2zoTkVZYQeEnjKhx+BHTqFo9rWZDXHso
-BgDnDP7/bvWPc0yD6nsnq8y5R+Zeo1vfZUxFe32R/JtHpHvWnhIVhcTVE6EcLaVG
-WHB8ivEzXD4V+vvlFZJ9hY4s/IsytyLkYAkppnS2b9hSx39VkWom74uBQgMY6tbz
-ins0Dzbv1dwCK/0xC0WrLOr5hTNJZwgK2hC5qyGDoPnMMCwDMKnEC/BBZvhg3PVh
-mLSKQ+G92duZ9am/fYZWnNpF20bpuv0KdtrDl6vOQOTwZhqWssQrLSkRGsejIdP1
-slSG6/Ulyc+TgVT36S7guZ8DO3teh9BLzR77/XSFRiiNVSZj2ECIBfmRYDUzvycp
-56QRcRCO9yZhBwTB9ln/NOUqJDiYFOalGMkKTG8jnPU6CmJRLUMWz/xnMTpk6M0L
-9xlG3fWtnVqsiNGjekCWBVKAsPRsgxI6MYrSXpOl7mu9FKD6tBs=
-=EHIm
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPWQACgkQFA3kzBSg
+Kbal1xAAlTydYraexrPmfeFbK/vNn2KQdr7epogoEAuGncU9Wrm0Xb3kCRv0fk/f
+oMJHtFAjjnOSkwNuWfcaPcMa4lMSbAExGmiiPTJF0GKSZXBO2Aeb0EnzGmv+BSfB
+F8ruJXqhzodzhIL/uGht5kP+kQWGy1jj+nDHwkGBquv2PxqT3/kKP/suG0wL3AA6
+jorbWeorWdMasIBxlYp3qfM/0evRejLQUtQ9FBYUyhwjpaNePezA12gf4/5YWA/r
+hErTEhGP/rQHw9BqWYOQ1KkKywc+9FBEQlVDqSeWodFIu841ewV5WXktk9hZkniA
+OxD8lQUfU0fGowEqq58WQCCKBaey/O/QUdH0onPQJu0t6bN9dDoXkBVDeCqFM0D/
+8my2JOn3EgAQ73hmT9GUKXUPV3Zx0oH57yIAHEXZXAZ5r7BmZGNo5Sn9pWVDNlMJ
+n36RReruIbiJPlbW7w7jj4zcn7CggPcD5UEoTS972uj1/6q9KokcX6yZTW12qVj1
+LzFp80zdXZbDaG/89hzUtKn2cegroXelKp7OezTBdlHEmg6ELNibeRfwwNSfv4gq
+Dva27NMsz3BWzaH/AgrjYTdz63QU7xvomWm9Yx8jaH1qw78WtsC5h/P958M/e5Un
+Yj5fg0dg6l5iOVftB6D1MSMfOWqcHthGkAI/d1ydMTAB/1HTCH0=
+=Tkvv
 -----END PGP SIGNATURE-----
 
---c24wz7lkkdhisary--
+--piib7iadrgtwifmq--
