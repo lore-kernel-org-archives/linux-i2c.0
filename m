@@ -1,93 +1,44 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Tue, 29 Aug 2017 10:37:35 +0200
-Message-ID: <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
- <20170817193912.hccxyjwstrtr5oiv@ninjato>
- <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
+Date: Tue, 29 Aug 2017 10:44:09 +0200
+Message-ID: <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
+References: <20170615185418.13980-1-javier@dowhile0.org> <20170731153009.xkjknygpmckv2pfp@ninjato>
+ <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com> <20170828160121.gu4wf7jqu4ditksc@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47362 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750779AbdH2Ihk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 04:37:40 -0400
-In-Reply-To: <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170828160121.gu4wf7jqu4ditksc@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>
+List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hello Wolfram,
 
-On 28-08-17 14:50, Hans de Goede wrote:
-> Hi again,
-> 
-> I realized I did not answer 1 of your questions:
-> 
-> On 17-08-17 21:39, Wolfram Sang wrote:
->> Hey guys,
+On Mon, Aug 28, 2017 at 6:01 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> > But there is a dependency, no? If I apply the driver patch,
+>> > non-converted device trees will not find their eeproms anymore. So, I
 >>
->> Sorry, I don't understand some of the stuff here. But I'd like to
->> understand it before I add something to the I2C core. Especially as it
->> feels a bit a the edge of the driver model to me.
->>
->> On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
->>> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
->>> it uses its own protocol which is handled by the chipone_icn8318 driver.
->>>
->>> If the i2c_hid_driver's probe functon gets called it will fail with a
->>> "hid_descr_cmd failed" error.
->>
->> That sounds like it fails pretty late. I'd assume we could check the
->> blacklist right at the beginning of probe and bail out immediately?
->>
->>> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
->>> device in D3 state
->>
->> Where does that happen? Sorry, I can't find it. Would it be an idea to
->> add a flag somewhere telling the device should not be put into D3?
-> 
-> It is already possible to do this and my patches for the icn8318 driver
-> do this:
-> 
->      struct acpi_device *adev;
-> 
->      adev = ACPI_COMPANION(dev);
-> 
->      /*
->       * Disable ACPI power management the _PS3 method is empty, so
->       * there is no powersaving when using ACPI power management.
->       * The _PS0 method resets the controller causing it to loose its
->       * firmware, which has been loaded by the BIOS and we do not
->       * know how to restore the firmware.
->       */
->      adev->flags.power_manageable = 0;
-> 
-> The problem is that this happens in the probe() from the icn8318 driver
-> and if the i2c-hid drivers probe() executes first we end up in the
-> dev_pm_domain_detach() path of i2c_device_probe() and after that the
-> touchscreen-controller no longer works (*), iow after that it is too late
-> to disable acpi pm for the device.
+>> I don't think that's correct. If you apply this patch before the DTS
+>> changes, the driver will still match using the I2C device ID table
+>> like it has been doing it until today.
+>
+> My tests do not confirm this. If I add a node with a "renesas,24c01"
+> compatible to my board, it works before your patch, but not after. If I
+> change it to "atmel,24c01" it works even after your patch. I haven't
+> looked into it, though, maybe i2c_of_match_device_sysfs() is stepping on
+> our foots here?
+>
+> Did you test and did it work for you?
+>
 
-So thinking more about this it might be cleaner to add a blacklist
-of _CID / _HID ACPI-ids for which power-management should be disabled
-to drivers/acpi/device_pm.c : acpi_bus_init_power().
+I would swear that I tested both combinations (driver patch without DT
+changes and DTS changes without driver patch), but it was months ago
+when I first posted the patches so I may misremembering.
 
-When I've some time to look into this I will write a patch following
-that approach.
+I don't have a DT based system at hand now, but I'll test it again and
+let you know probably tomorrow.
 
-So lets forget about the approach to add an i2c_driver match callback
-for now.
-
-Regards,
-
-Hans
-
-
-> *) Unless we find a way to reload the firmware, which technically is
-> doable, but then we get into the problem of now having to distribute the
-> firmware in linux-firmware
+Best regards,
+Javier
