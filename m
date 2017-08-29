@@ -1,73 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
- supported clk
-Date: Tue, 29 Aug 2017 22:18:26 +0200
-Message-ID: <20170829201826.htdia6olxs3j5k66@ninjato>
-References: <20170829120835.17276-1-hdegoede@redhat.com>
- <1504009379.25945.142.camel@linux.intel.com>
- <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
+Subject: Re: [PATCH 1/2] i2c: busses: make i2c_algorithm const
+Date: Tue, 29 Aug 2017 22:22:13 +0200
+Message-ID: <20170829202213.senab5jhzebku4de@ninjato>
+References: <1503072418-6887-1-git-send-email-bhumirks@gmail.com>
+ <1503072418-6887-2-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7t4jmlr4yb56t7mi"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46201 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750909AbdH2US3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 16:18:29 -0400
+        protocol="application/pgp-signature"; boundary="arnucy7svgqc4irn"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1503072418-6887-2-git-send-email-bhumirks@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, vz@mleia.com, slemieux.tyco@gmail.com, gxt@mprc.pku.edu.cn, mchehab@kernel.org, isely@pobox.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
 
---7t4jmlr4yb56t7mi
+--arnucy7svgqc4irn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-> > I dunno what standard says if we may or may not use 100 kHz as a last
-> > resort even for speeds defined less than 100 kHz.
+On Fri, Aug 18, 2017 at 09:36:57PM +0530, Bhumika Goyal wrote:
+> Make these const as they are only stored in the algo field of
+> i2c_adapter structure, which is const.
 >=20
-> The < 100000 case is for when i2c_acpi_find_bus_speed() returns 0, so
-> that we then keep it 0, in which case the code a bit lower will pick
-> a default.
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 
-This is fine by me.
-
-> Since speeds < 100000 are clearly not valid treating them
-
-Here I wonder: Not valid because of ACPI specs? Because I2C specs surely
-allow speeds < 100kHz.
-
-> as ACPI not providing any bus-speed info seems sensible to me.
-
-Regards,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---7t4jmlr4yb56t7mi
+--arnucy7svgqc4irn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlzBIACgkQFA3kzBSg
-KbaBMRAArElIM09m0M0r0bU1l0CYb70Fl0+QzoZugkJKQdRbwYwZeFnhdPpCFUIY
-cgKcDpC6NRDyTSiXYO1bxnML4WuDVAGik+830cvx1cvGvWWntHDQljC9iufHlnJL
-pQYhUPJcDfg/VKIF9td6WIWsvlqThjj9G5isivrUO1PD1LF9tI63kwGW4H/7B1Kb
-uFur+bRDeTNX/2uL/M4ojwemHugMlPYs3nhshsuJWVl7k4NXiGPGLvTmS/4E2jq9
-XptpPpI2xoSdZUXGAGBdaMmEtEo3C9gP0kY48I/szZEiBtVvhrAx2m+m508QhhVw
-upDbNpBGzEdk6sPIPNJw/CSt78Qm9nA9hMOmTPKPfTtq8zSfNEmqPTOFFxug3NmG
-YK7JdFaSqksgtHHl5rkNWkpyHA8fFv0oaDMMDBl7sDk6y348gPLSOTjqQEEb6+aD
-3qXr79qFoZZwQtdn+uKe1g0AIdU6cOfD712dsTSCbHaxzFzUsa1Vw1IhddWblTj/
-jqQoC4MfgZppkqL6tiEqQfGTSPgq7KBrPrpNotIg+mn8mzuidgINjIyI2NJ0bjHV
-E8NyIUAUduUh2KFDktyCFZTrcTu+urr7F26cOcvpTp+VUtgMLmMb7Dse0F46MPa7
-9nSyHSGf6sUdtz8vUCoOfCFHt0itAZDFh73aNKJ5tOLb6YmT5P8=
-=7j2g
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlzPUACgkQFA3kzBSg
+KbbdKA//amYhb0qzZGyQhNsHl/9/OCp3ZCxEQZFRgkZUpPmflwgTzJDjblb1l+eb
+/qT9oO0TyhuWs7CMaSweV7pzUVAd4yiBfAwizQrnHrZ6M2oBnW7aiJjVrcoRopjN
+7djcbBd4+VF0MJ+Ye+jnSbaSap/MsKEcTYR6IjBb4PyMOkCTL+SGMzF9s1Jt67Aw
+vqEYakAFwo9qpDR1lCNBGPD5T918sxi/1zzPvcmPsKBKVNCw+SyvL9Eqdg53beqq
+OhNIFaoSw3Uyl+ZamlNW5Ts5Tul0mX9y3oUTxacVz8ycIiJ1VtIoapFjCCQgRyxC
++aQSuoNnPPIUk0V4tYfyyS5HtRyVw2GhPc7OUjT/dc+7C034m6ClogJyou9crBSq
+LuMCklzJfhJDcMz9knYoPUMKyNr+pVSEI1QKThelTUcWNshJN4rbjqh29eWGX8BB
+jVuB8XTURqEwS+zROyN9QzYeGaj8AnzO9Djo+Zvmykq0GE84QVy8FASFTESNOUB+
+MRxdECfAEuV3ICNHOtpyQkBtg4wgI5gLpc1yu4EGBxY6WfYr9YNaYpxPBLlspeq9
+P9gwg7CmZchni96l23OJummKCrpn54eYoh7/HqunqElCY51HRmPRxzc+AQWl3nuL
+0NNICxj0SVq/ePyoq56LGrjD6CbzNrlHXgZhiGVXId4lQybw5gY=
+=9ttg
 -----END PGP SIGNATURE-----
 
---7t4jmlr4yb56t7mi--
+--arnucy7svgqc4irn--
