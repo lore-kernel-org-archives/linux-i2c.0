@@ -1,44 +1,56 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
-Date: Tue, 29 Aug 2017 10:44:09 +0200
-Message-ID: <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
-References: <20170615185418.13980-1-javier@dowhile0.org> <20170731153009.xkjknygpmckv2pfp@ninjato>
- <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com> <20170828160121.gu4wf7jqu4ditksc@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
+ configuring bus frequency
+Date: Tue, 29 Aug 2017 10:45:09 +0200
+Message-ID: <20170829084508.edybxf6zctgx4xwy@ninjato>
+References: <20170815072102.23067-1-andrew@aj.id.au>
+ <20170828160702.x45hagij4kkm5zzc@ninjato>
+ <1503989809.5933.5.camel@aj.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kvm256seylhxblkl"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170828160121.gu4wf7jqu4ditksc@ninjato>
+Content-Disposition: inline
+In-Reply-To: <1503989809.5933.5.camel@aj.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>
+To: Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-On Mon, Aug 28, 2017 at 6:01 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> > But there is a dependency, no? If I apply the driver patch,
->> > non-converted device trees will not find their eeproms anymore. So, I
->>
->> I don't think that's correct. If you apply this patch before the DTS
->> changes, the driver will still match using the I2C device ID table
->> like it has been doing it until today.
->
-> My tests do not confirm this. If I add a node with a "renesas,24c01"
-> compatible to my board, it works before your patch, but not after. If I
-> change it to "atmel,24c01" it works even after your patch. I haven't
-> looked into it, though, maybe i2c_of_match_device_sysfs() is stepping on
-> our foots here?
->
-> Did you test and did it work for you?
->
+--kvm256seylhxblkl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I would swear that I tested both combinations (driver patch without DT
-changes and DTS changes without driver patch), but it was months ago
-when I first posted the patches so I may misremembering.
 
-I don't have a DT based system at hand now, but I'll test it again and
-let you know probably tomorrow.
+> I'd argue that Brendan's patch should go in for-current as well,
+> because it fixes a divisor rounding error for the ast2500 (bus is
+> clocked faster than requested).
 
-Best regards,
-Javier
+Hmmm, pity, the description said "potential" issue so I decided for
+for-next. However, I wouldn't like to reshuffle my branches much so
+short before the merge window. So, would it be OK with you that you send
+both patches to stable after rc1?
+
+
+--kvm256seylhxblkl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKY4ACgkQFA3kzBSg
+KbbMbw//aVe77sPGCbEkvl2GTBtH+61PghLdggKTthWj2fY/+y2+OV6MeM70XdJO
+HhNh2lykrzKZ9YUS/Omufhu3NmdmPeE1skmiZqbmFw/BMQJ1o8BpzqCPjuVM45NS
+bjzFb9dSLy5wM15Ve4Wq3fHwn7b8D3/Mlhygf8Gk5P37RGxr6Wj5nWrS2ZyY7Osb
+cpnMZxtYcs4E1dOPpupIOS2+6r42f2+gGhqtwm/hlBRI2C4qhEwqpdP4PxIfFGpp
+2ZJF1+T58PqA1NLsqi+RZKNmtFUcLfMlncpugC6GLPie72/vUvyMWcGukQtDTvg0
+cuIIsMC4cL2FjVcIVlFUE0/nvl80Ks510jx5bB6L/xELVqU6yDgoSnYEYJ50/JuA
+dxaNtnGqnRew3jfHahkkscLUcRUxR3A5i0SGg9a84mUASo8KYAjZ/7+disRQb7Iy
+dsE7LpTy1YkO6dT2wfo3LvesSOmMt83gnwpfrr312bc360+Xa7zFnqQGtGwJnSb7
+OiOwtsHyrB8Yv3+pkEQaAExPF5hSNzijCE4QbsWNOKTc/liuuFZRvl5qgOfBPeM6
+gA8i2XdPy84tKBID4TiaqEnaHDCDGHk53FASiNqoBgDoMh1jmbUIeM7CPwLkorRq
+UoswvohQw2XbT3fA1/8LV3gI0gf/V+K2oQsL2BqO7vfBy4Twg6g=
+=vZjk
+-----END PGP SIGNATURE-----
+
+--kvm256seylhxblkl--
