@@ -1,63 +1,53 @@
-From: Andrew Jeffery <andrew@aj.id.au>
-Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
- configuring bus frequency
-Date: Tue, 29 Aug 2017 18:16:29 +0930
-Message-ID: <1503996389.5933.9.camel@aj.id.au>
-References: <20170815072102.23067-1-andrew@aj.id.au>
-         <20170828160702.x45hagij4kkm5zzc@ninjato>
-         <1503989809.5933.5.camel@aj.id.au>
-         <20170829084508.edybxf6zctgx4xwy@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
+Date: Tue, 29 Aug 2017 10:48:31 +0200
+Message-ID: <20170829084831.hsdok3ksi7anxzuc@ninjato>
+References: <20170615185418.13980-1-javier@dowhile0.org>
+ <20170731153009.xkjknygpmckv2pfp@ninjato>
+ <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
+ <20170828160121.gu4wf7jqu4ditksc@ninjato>
+ <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-atHR4LNRxbeydv6T7sas"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170829084508.edybxf6zctgx4xwy@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xckmxrsvdukgxtmb"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>li
 List-Id: linux-i2c@vger.kernel.org
 
 
---=-atHR4LNRxbeydv6T7sas
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+--xckmxrsvdukgxtmb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, 2017-08-29 at 10:45 +0200, Wolfram Sang wrote:
-> > I'd argue that Brendan's patch should go in for-current as well,
-> > because it fixes a divisor rounding error for the ast2500 (bus is
-> > clocked faster than requested).
->=20
-> Hmmm, pity, the description said "potential" issue so I decided for
-> for-next. However, I wouldn't like to reshuffle my branches much so
-> short before the merge window. So, would it be OK with you that you send
-> both patches to stable after rc1?
->=20
 
-Will do.
+> I don't have a DT based system at hand now, but I'll test it again and
+> let you know probably tomorrow.
 
-Cheers,
+I will try again today, too. Thanks!
 
-Andrew
---=-atHR4LNRxbeydv6T7sas
+
+--xckmxrsvdukgxtmb
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAABCgAGBQJZpSnlAAoJEJ0dnzgO5LT52FMP/0msIRm4eNiY5zCU3cDhPzwu
-xtiEkh9xbUtS39IEVEthjU6xop7gk8fED0xdoW8ZVqwDNmHbcoAuKe+OrjUq6hf1
-UQ6iM5KzFVdzpiZYaStheMcZIyiJBcdd08xKPPVEoR3K9jRcdruh+X6VVNWshmkr
-Lpq33lkAIML+FB3Z9pkQN+IZOYfPhKkNyXxzYC2e/pO8qpejl3oQIsxRTUTNrSKm
-7tAFSQcs/KUF7Mf9RyoCKIjpGrY2fhRGUzcOg6E9JTpqDklvSKroQtA3HtlJK1HW
-CmjRE0rvbDrcu3TZsRDjgwoV5FJAyek4+lZqq5CkCgZ+NJb6v6LrL9ERduj6O7ms
-DLODsjMPNgAQY6V5v6GpqoiahDjiOj52nDTjcYvH4UV02Xt/QabUjT45Je6Ir/60
-+D7YSk3YStpSuC5JhdaXOuMaYbpV1IvM0z0aMquGvTeyCtJaHvhwuHVN/ME898Xi
-FFbtBCDj1FRH7AtdmmvYt+HK3PSGQL+HtRjjEDi24h4eIonMMg1XkLLZ9Xt/2UNT
-uLVJreShMH4NOpTsW2sPpq1rNNXGKoefiRx8kXX1Ks38pKXnOGMHLoctxlER9ZEj
-UHtlf/cHwCuo/YOABpl43SVN8sAYtpH89zWu8bkuA8+pJo1UNqPyavQXbNsLK3h0
-CymjDnN3oN7gVVNw8m8C
-=YSuO
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKl8ACgkQFA3kzBSg
+KbbJ/hAAsf8FDB/Es9uR8b+Rzmdr2IqMb8/dvO+NUNr3eTW2T8Pxkgq3FjBqIIjb
+JlVz7HYC/ZlkO4w6iHh935/maJaxyOCHG8Jfxm2oAvM24Z2Z2uEEC1fQ4TmEzJeJ
+NhTzYD4mzMFlS44t2kuJ+N2F8b4uqddwDwLONVnyF7exbDtLD/v0iVyCGo1mHNRU
+G2vQ/+ASDnFCZt3h/XJ2xH3s5cQRthIy2W/uUVKouRQUMEIFpNa6iNqFaLnCVwZU
+/X3f3F6/P0eo10XZhUJ6FCjPogJE0DxFUAri+tJflv5XZCNM07GVFOR3Wm2nVp9c
+pzk52JpL4kQl/IcbChdhg2offvEgDg12/LA5PegJkXe6SxjfFQy0clwOJm6BFj/+
+bEikY4FJS9WtMAvLnUIRXKY2gwu42YVUy7c68Xw/db8RHtnDT0C3mKCT08HaA0gE
+RLqo4zvCiHpG2cJdWwjfFThdOKIUn6X2aYYU4wnOsgnJtYtV0uzVz2jgrXt1YKeE
+HRbhn3YdZRrMfxjueVg4VsF52I9XQJHw8uuO5V0PuWXLHrtI6dKt8dnskD2DGCWl
+CjGwiTmZlCfd7FQPcFpParv9nJANMSBiPty9DK/hImRcbVBDdsmDbLtTJSjoym9/
+ZIe9xpgYDBOesdhnGyYilx6aKajbm7rQ5soACyoPtevooPt43CE=
+=jOix
 -----END PGP SIGNATURE-----
 
---=-atHR4LNRxbeydv6T7sas--
+--xckmxrsvdukgxtmb--
