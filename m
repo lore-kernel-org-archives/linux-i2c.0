@@ -1,53 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: busses: make i2c_algorithm const
-Date: Tue, 29 Aug 2017 22:22:13 +0200
-Message-ID: <20170829202213.senab5jhzebku4de@ninjato>
-References: <1503072418-6887-1-git-send-email-bhumirks@gmail.com>
- <1503072418-6887-2-git-send-email-bhumirks@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
+ supported clk
+Date: Tue, 29 Aug 2017 22:27:14 +0200
+Message-ID: <3cc3df29-b2b5-4a2a-fce4-a9d2302fee54@redhat.com>
+References: <20170829120835.17276-1-hdegoede@redhat.com>
+ <1504009379.25945.142.camel@linux.intel.com>
+ <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
+ <20170829201826.htdia6olxs3j5k66@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="arnucy7svgqc4irn"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1503072418-6887-2-git-send-email-bhumirks@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, vz@mleia.com, slemieux.tyco@gmail.com, gxt@mprc.pku.edu.cn, mchehab@kernel.org, isely@pobox.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34412 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751249AbdH2U1R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 29 Aug 2017 16:27:17 -0400
+In-Reply-To: <20170829201826.htdia6olxs3j5k66@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
+Hi,
 
---arnucy7svgqc4irn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 08/29/2017 10:18 PM, Wolfram Sang wrote:
+> Hi,
+> 
+>>> I dunno what standard says if we may or may not use 100 kHz as a last
+>>> resort even for speeds defined less than 100 kHz.
+>>
+>> The < 100000 case is for when i2c_acpi_find_bus_speed() returns 0, so
+>> that we then keep it 0, in which case the code a bit lower will pick
+>> a default.
+> 
+> This is fine by me.
+> 
+>> Since speeds < 100000 are clearly not valid treating them
+> 
+> Here I wonder: Not valid because of ACPI specs? Because I2C specs surely
+> allow speeds < 100kHz.
 
-On Fri, Aug 18, 2017 at 09:36:57PM +0530, Bhumika Goyal wrote:
-> Make these const as they are only stored in the algo field of
-> i2c_adapter structure, which is const.
->=20
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+The speed comes from an ACPI entry describing an i2c client,
+any compliant i2c client must at least support 100KHz, right ?
 
-Applied to for-next, thanks!
+Alternatively I could wrap the entire round-down for loop in
+an if (acpi_speed) {} block.
 
+Regards,
 
---arnucy7svgqc4irn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlzPUACgkQFA3kzBSg
-KbbdKA//amYhb0qzZGyQhNsHl/9/OCp3ZCxEQZFRgkZUpPmflwgTzJDjblb1l+eb
-/qT9oO0TyhuWs7CMaSweV7pzUVAd4yiBfAwizQrnHrZ6M2oBnW7aiJjVrcoRopjN
-7djcbBd4+VF0MJ+Ye+jnSbaSap/MsKEcTYR6IjBb4PyMOkCTL+SGMzF9s1Jt67Aw
-vqEYakAFwo9qpDR1lCNBGPD5T918sxi/1zzPvcmPsKBKVNCw+SyvL9Eqdg53beqq
-OhNIFaoSw3Uyl+ZamlNW5Ts5Tul0mX9y3oUTxacVz8ycIiJ1VtIoapFjCCQgRyxC
-+aQSuoNnPPIUk0V4tYfyyS5HtRyVw2GhPc7OUjT/dc+7C034m6ClogJyou9crBSq
-LuMCklzJfhJDcMz9knYoPUMKyNr+pVSEI1QKThelTUcWNshJN4rbjqh29eWGX8BB
-jVuB8XTURqEwS+zROyN9QzYeGaj8AnzO9Djo+Zvmykq0GE84QVy8FASFTESNOUB+
-MRxdECfAEuV3ICNHOtpyQkBtg4wgI5gLpc1yu4EGBxY6WfYr9YNaYpxPBLlspeq9
-P9gwg7CmZchni96l23OJummKCrpn54eYoh7/HqunqElCY51HRmPRxzc+AQWl3nuL
-0NNICxj0SVq/ePyoq56LGrjD6CbzNrlHXgZhiGVXId4lQybw5gY=
-=9ttg
------END PGP SIGNATURE-----
-
---arnucy7svgqc4irn--
+Hans
