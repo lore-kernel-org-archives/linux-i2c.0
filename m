@@ -1,739 +1,96 @@
-From: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-Subject: [PATCH v5 2/2] i2c: Add Spreadtrum I2C controller driver
-Date: Tue, 29 Aug 2017 11:35:04 +0800
-Message-ID: <6a85f5be4a3c30d598c8635da09ac3e30af00550.1503977439.git.baolin.wang@spreadtrum.com>
-References: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang@spreadtrum.com>
+From: Andrew Jeffery <andrew@aj.id.au>
+Subject: Re: [PATCH] i2c: aspeed: Retain delay/setup/hold values when
+ configuring bus frequency
+Date: Tue, 29 Aug 2017 16:26:49 +0930
+Message-ID: <1503989809.5933.5.camel@aj.id.au>
+References: <20170815072102.23067-1-andrew@aj.id.au>
+         <20170828160702.x45hagij4kkm5zzc@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-5SFIj/aZuTWk4Ss2sI3E"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:40899 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751219AbdH2G47 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Aug 2017 02:56:59 -0400
+In-Reply-To: <20170828160702.x45hagij4kkm5zzc@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, brendanhiggins@google.com, benh@kernel.crashing.org, joel@jms.id.au, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, ryan_chen@aspeedtech.com
 
-This patch adds the I2C controller driver for Spreadtrum SC9860 platform.
 
-Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-Changes since v4:
- - Remove dump registers function.
- - Change 'unsigned int' to 'u32' type.
- - Invert ack logic to make it clear.
- - Modify some comments and error message.
+--=-5SFIj/aZuTWk4Ss2sI3E
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Changes since v3:
- - Use SPDX-License-Identifier tag instead.
+On Mon, 2017-08-28 at 18:07 +0200, Wolfram Sang wrote:
+> On Tue, Aug 15, 2017 at 04:51:02PM +0930, Andrew Jeffery wrote:
+> > In addition to the base, low and high clock configuration, the AC timin=
+g
+> > register #1 on the AST2400 houses fields controlling:
+> >=20
+> > 1. tBUF: Minimum delay between Stop and Start conditions
+> > 2. tHDSTA: Hold time for the Start condition
+> > 3. tACST: Setup time for Start and Stop conditions, and hold time for t=
+he
+> > =C2=A0=C2=A0=C2=A0Repeated Start condition
+> >=20
+> > These values are defined in hardware on the AST2500 and therefore don't
+> > need to be set.
+> >=20
+> > aspeed_i2c_init_clk() was performing a direct write of the generated
+> > clock values rather than a read/mask/modify/update sequence to retain
+> > tBUF, tHDSTA and tACST, and therefore cleared the tBUF, tHDSTA and tACS=
+T
+> > fields on the AST2400. This resulted in a delay/setup/hold time of 1
+> > base clock, which in some configurations is not enough for some devices
+> > (e.g. the MAX31785 fan controller, with an APB of 48MHz and a desired
+> > bus speed of 100kHz).
+> >=20
+> > Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+>=20
+> Applied to for-next, thanks!=20
 
-Changes since v2:
- - Remove some redundant comments and parens.
- - Define macros instead of magic number.
- - Add some comments to explain clock formula.
- - Change of_clk_get_by_name() to devm_clk_get().
- - Deal with other frequency.
- - Change register definiton to low case.
- - Change is_last_msg to boolean.
- - Other optimization.
+Thanks!
 
-Changes sice v1:
- - Power on I2C device in probe().
- - Remove redundant macros and usb __maybe_unused.
- - Remove redundant 'of_match_ptr'.
- - Modify return values and check the return value for 'clk_prepare_enable'.
----
- drivers/i2c/busses/Kconfig    |    7 +
- drivers/i2c/busses/Makefile   |    1 +
- drivers/i2c/busses/i2c-sprd.c |  646 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 654 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-sprd.c
+> I even considered for-current but it does
+> not apply there. So, I leave the backporting for the interested parties
+> :)
+>=20
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 1006b23..64729ac 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -900,6 +900,13 @@ config I2C_SIRF
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-sirf.
- 
-+config I2C_SPRD
-+	bool "Spreadtrum I2C interface"
-+	depends on ARCH_SPRD
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  Spreadtrum I2C interface.
-+
- config I2C_ST
- 	tristate "STMicroelectronics SSC I2C support"
- 	depends on ARCH_STI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 1b2fc81..505f74a 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -89,6 +89,7 @@ obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
- obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
- obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
- obj-$(CONFIG_I2C_SIRF)		+= i2c-sirf.o
-+obj-$(CONFIG_I2C_SPRD)		+= i2c-sprd.o
- obj-$(CONFIG_I2C_ST)		+= i2c-st.o
- obj-$(CONFIG_I2C_STM32F4)	+= i2c-stm32f4.o
- obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-new file mode 100644
-index 0000000..22e08ae
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -0,0 +1,646 @@
-+/*
-+ * Copyright (C) 2017 Spreadtrum Communications Inc.
-+ *
-+ * SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/io.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
-+
-+#define I2C_CTL			0x00
-+#define I2C_ADDR_CFG		0x04
-+#define I2C_COUNT		0x08
-+#define I2C_RX			0x0c
-+#define I2C_TX			0x10
-+#define I2C_STATUS		0x14
-+#define I2C_HSMODE_CFG		0x18
-+#define I2C_VERSION		0x1c
-+#define ADDR_DVD0		0x20
-+#define ADDR_DVD1		0x24
-+#define ADDR_STA0_DVD		0x28
-+#define ADDR_RST		0x2c
-+
-+/* I2C_CTL */
-+#define STP_EN			BIT(20)
-+#define FIFO_AF_LVL_MASK	GENMASK(19, 16)
-+#define FIFO_AF_LVL		16
-+#define FIFO_AE_LVL_MASK	GENMASK(15, 12)
-+#define FIFO_AE_LVL		12
-+#define I2C_DMA_EN		BIT(11)
-+#define FULL_INTEN		BIT(10)
-+#define EMPTY_INTEN		BIT(9)
-+#define I2C_DVD_OPT		BIT(8)
-+#define I2C_OUT_OPT		BIT(7)
-+#define I2C_TRIM_OPT		BIT(6)
-+#define I2C_HS_MODE		BIT(4)
-+#define I2C_MODE		BIT(3)
-+#define I2C_EN			BIT(2)
-+#define I2C_INT_EN		BIT(1)
-+#define I2C_START		BIT(0)
-+
-+/* I2C_STATUS */
-+#define SDA_IN			BIT(21)
-+#define SCL_IN			BIT(20)
-+#define FIFO_FULL		BIT(4)
-+#define FIFO_EMPTY		BIT(3)
-+#define I2C_INT			BIT(2)
-+#define I2C_RX_ACK		BIT(1)
-+#define I2C_BUSY		BIT(0)
-+
-+/* ADDR_RST */
-+#define I2C_RST			BIT(0)
-+
-+#define I2C_FIFO_DEEP		12
-+#define I2C_FIFO_FULL_THLD	15
-+#define I2C_FIFO_EMPTY_THLD	4
-+#define I2C_DATA_STEP		8
-+#define I2C_ADDR_DVD0_CALC(high, low)	\
-+	((((high) & GENMASK(15, 0)) << 16) | ((low) & GENMASK(15, 0)))
-+#define I2C_ADDR_DVD1_CALC(high, low)	\
-+	(((high) & GENMASK(31, 16)) | (((low) & GENMASK(31, 16)) >> 16))
-+
-+/* timeout (ms) for pm runtime autosuspend */
-+#define SPRD_I2C_PM_TIMEOUT	1000
-+
-+/* SPRD i2c data structure */
-+struct sprd_i2c {
-+	struct i2c_adapter adap;
-+	struct device *dev;
-+	void __iomem *base;
-+	struct i2c_msg *msg;
-+	struct clk *clk;
-+	u32 src_clk;
-+	u32 bus_freq;
-+	struct completion complete;
-+	u8 *buf;
-+	u32 count;
-+	int irq;
-+	int err;
-+};
-+
-+static void sprd_i2c_set_count(struct sprd_i2c *i2c_dev, u32 count)
-+{
-+	writel(count, i2c_dev->base + I2C_COUNT);
-+}
-+
-+static void sprd_i2c_send_stop(struct sprd_i2c *i2c_dev, int stop)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	if (stop)
-+		writel(tmp & ~STP_EN, i2c_dev->base + I2C_CTL);
-+	else
-+		writel(tmp | STP_EN, i2c_dev->base + I2C_CTL);
-+}
-+
-+static void sprd_i2c_clear_start(struct sprd_i2c *i2c_dev)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	writel(tmp & ~I2C_START, i2c_dev->base + I2C_CTL);
-+}
-+
-+static void sprd_i2c_clear_ack(struct sprd_i2c *i2c_dev)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_STATUS);
-+
-+	writel(tmp & ~I2C_RX_ACK, i2c_dev->base + I2C_STATUS);
-+}
-+
-+static void sprd_i2c_clear_irq(struct sprd_i2c *i2c_dev)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_STATUS);
-+
-+	writel(tmp & ~I2C_INT, i2c_dev->base + I2C_STATUS);
-+}
-+
-+static void sprd_i2c_reset_fifo(struct sprd_i2c *i2c_dev)
-+{
-+	writel(I2C_RST, i2c_dev->base + ADDR_RST);
-+}
-+
-+static void sprd_i2c_set_devaddr(struct sprd_i2c *i2c_dev, struct i2c_msg *m)
-+{
-+	writel(m->addr << 1, i2c_dev->base + I2C_ADDR_CFG);
-+}
-+
-+static void sprd_i2c_write_bytes(struct sprd_i2c *i2c_dev, u8 *buf, u32 len)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < len; i++)
-+		writeb(buf[i], i2c_dev->base + I2C_TX);
-+}
-+
-+static void sprd_i2c_read_bytes(struct sprd_i2c *i2c_dev, u8 *buf, u32 len)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < len; i++)
-+		buf[i] = readb(i2c_dev->base + I2C_RX);
-+}
-+
-+static void sprd_i2c_set_full_thld(struct sprd_i2c *i2c_dev, u32 full_thld)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	tmp &= ~FIFO_AF_LVL_MASK;
-+	tmp |= full_thld << FIFO_AF_LVL;
-+	writel(tmp, i2c_dev->base + I2C_CTL);
-+};
-+
-+static void sprd_i2c_set_empty_thld(struct sprd_i2c *i2c_dev, u32 empty_thld)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	tmp &= ~FIFO_AE_LVL_MASK;
-+	tmp |= empty_thld << FIFO_AE_LVL;
-+	writel(tmp, i2c_dev->base + I2C_CTL);
-+};
-+
-+static void sprd_i2c_set_fifo_full_int(struct sprd_i2c *i2c_dev, int enable)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	if (enable)
-+		tmp |= FULL_INTEN;
-+	else
-+		tmp &= ~FULL_INTEN;
-+
-+	writel(tmp, i2c_dev->base + I2C_CTL);
-+};
-+
-+static void sprd_i2c_set_fifo_empty_int(struct sprd_i2c *i2c_dev, int enable)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	if (enable)
-+		tmp |= EMPTY_INTEN;
-+	else
-+		tmp &= ~EMPTY_INTEN;
-+
-+	writel(tmp, i2c_dev->base + I2C_CTL);
-+};
-+
-+static void sprd_i2c_opt_start(struct sprd_i2c *i2c_dev)
-+{
-+	u32 tmp = readl(i2c_dev->base + I2C_CTL);
-+
-+	writel(tmp | I2C_START, i2c_dev->base + I2C_CTL);
-+}
-+
-+static void sprd_i2c_opt_mode(struct sprd_i2c *i2c_dev, int rw)
-+{
-+	u32 cmd = readl(i2c_dev->base + I2C_CTL) & ~I2C_MODE;
-+
-+	writel(cmd | rw << 3, i2c_dev->base + I2C_CTL);
-+}
-+
-+static void sprd_i2c_data_transfer(struct sprd_i2c *i2c_dev)
-+{
-+	u32 i2c_count = i2c_dev->count;
-+	u32 need_tran = i2c_count <= I2C_FIFO_DEEP ? i2c_count : I2C_FIFO_DEEP;
-+	struct i2c_msg *msg = i2c_dev->msg;
-+
-+	if (msg->flags & I2C_M_RD) {
-+		sprd_i2c_read_bytes(i2c_dev, i2c_dev->buf, I2C_FIFO_FULL_THLD);
-+		i2c_dev->count -= I2C_FIFO_FULL_THLD;
-+		i2c_dev->buf += I2C_FIFO_FULL_THLD;
-+
-+		/*
-+		 * If the read data count is larger than rx fifo full threshold,
-+		 * we should enable the rx fifo full interrupt to read data
-+		 * again.
-+		 */
-+		if (i2c_dev->count >= I2C_FIFO_FULL_THLD)
-+			sprd_i2c_set_fifo_full_int(i2c_dev, 1);
-+	} else {
-+		sprd_i2c_write_bytes(i2c_dev, i2c_dev->buf, need_tran);
-+		i2c_dev->buf += need_tran;
-+		i2c_dev->count -= need_tran;
-+
-+		/*
-+		 * If the write data count is arger than tx fifo depth which
-+		 * means we can not write all data in one time, then we should
-+		 * enable the tx fifo empty interrupt to write again.
-+		 */
-+		if (i2c_count > I2C_FIFO_DEEP)
-+			sprd_i2c_set_fifo_empty_int(i2c_dev, 1);
-+	}
-+}
-+
-+static int sprd_i2c_handle_msg(struct i2c_adapter *i2c_adap,
-+			       struct i2c_msg *msg, bool is_last_msg)
-+{
-+	struct sprd_i2c *i2c_dev = i2c_adap->algo_data;
-+
-+	i2c_dev->msg = msg;
-+	i2c_dev->buf = msg->buf;
-+	i2c_dev->count = msg->len;
-+
-+	reinit_completion(&i2c_dev->complete);
-+	sprd_i2c_reset_fifo(i2c_dev);
-+	sprd_i2c_set_devaddr(i2c_dev, msg);
-+	sprd_i2c_set_count(i2c_dev, msg->len);
-+
-+	if (msg->flags & I2C_M_RD) {
-+		sprd_i2c_opt_mode(i2c_dev, 1);
-+		sprd_i2c_send_stop(i2c_dev, 1);
-+	} else {
-+		sprd_i2c_opt_mode(i2c_dev, 0);
-+		sprd_i2c_send_stop(i2c_dev, !!is_last_msg);
-+	}
-+
-+	/*
-+	 * We should enable rx fifo full interrupt to get data when receiving
-+	 * full data.
-+	 */
-+	if (msg->flags & I2C_M_RD)
-+		sprd_i2c_set_fifo_full_int(i2c_dev, 1);
-+	else
-+		sprd_i2c_data_transfer(i2c_dev);
-+
-+	sprd_i2c_opt_start(i2c_dev);
-+
-+	wait_for_completion(&i2c_dev->complete);
-+
-+	return i2c_dev->err;
-+}
-+
-+static int sprd_i2c_master_xfer(struct i2c_adapter *i2c_adap,
-+				struct i2c_msg *msgs, int num)
-+{
-+	struct sprd_i2c *i2c_dev = i2c_adap->algo_data;
-+	int im, ret;
-+
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
-+	if (ret < 0)
-+		return ret;
-+
-+	for (im = 0; im < num - 1; im++) {
-+		ret = sprd_i2c_handle_msg(i2c_adap, &msgs[im], 0);
-+		if (ret)
-+			goto err_msg;
-+	}
-+
-+	ret = sprd_i2c_handle_msg(i2c_adap, &msgs[im++], 1);
-+
-+err_msg:
-+	pm_runtime_mark_last_busy(i2c_dev->dev);
-+	pm_runtime_put_autosuspend(i2c_dev->dev);
-+
-+	return ret < 0 ? ret : im;
-+}
-+
-+static u32 sprd_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static const struct i2c_algorithm sprd_i2c_algo = {
-+	.master_xfer = sprd_i2c_master_xfer,
-+	.functionality = sprd_i2c_func,
-+};
-+
-+static void sprd_i2c_set_clk(struct sprd_i2c *i2c_dev, u32 freq)
-+{
-+	u32 apb_clk = i2c_dev->src_clk;
-+	/*
-+	 * From I2C databook, the prescale calculation formula:
-+	 * prescale = freq_i2c / (4 * freq_scl) - 1;
-+	 */
-+	u32 i2c_dvd = apb_clk / (4 * freq) - 1;
-+	/*
-+	 * From I2C databook, the high period of SCL clock is recommended as
-+	 * 40% (2/5), and the low period of SCL clock is recommended as 60%
-+	 * (3/5), then the formula should be:
-+	 * high = (prescale * 2 * 2) / 5
-+	 * low = (prescale * 2 * 3) / 5
-+	 */
-+	u32 high = ((i2c_dvd << 1) * 2) / 5;
-+	u32 low = ((i2c_dvd << 1) * 3) / 5;
-+	u32 div0 = I2C_ADDR_DVD0_CALC(high, low);
-+	u32 div1 = I2C_ADDR_DVD1_CALC(high, low);
-+
-+	writel(div0, i2c_dev->base + ADDR_DVD0);
-+	writel(div1, i2c_dev->base + ADDR_DVD1);
-+
-+	/* Start hold timing = hold time(us) * source clock */
-+	if (freq == 400000)
-+		writel((6 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
-+	else if (freq == 100000)
-+		writel((4 * apb_clk) / 1000000, i2c_dev->base + ADDR_STA0_DVD);
-+}
-+
-+static void sprd_i2c_enable(struct sprd_i2c *i2c_dev)
-+{
-+	u32 tmp = I2C_DVD_OPT;
-+
-+	writel(tmp, i2c_dev->base + I2C_CTL);
-+
-+	sprd_i2c_set_full_thld(i2c_dev, I2C_FIFO_FULL_THLD);
-+	sprd_i2c_set_empty_thld(i2c_dev, I2C_FIFO_EMPTY_THLD);
-+
-+	sprd_i2c_set_clk(i2c_dev, i2c_dev->bus_freq);
-+	sprd_i2c_reset_fifo(i2c_dev);
-+	sprd_i2c_clear_irq(i2c_dev);
-+
-+	tmp = readl(i2c_dev->base + I2C_CTL);
-+	writel(tmp | I2C_EN | I2C_INT_EN, i2c_dev->base + I2C_CTL);
-+}
-+
-+static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
-+{
-+	struct sprd_i2c *i2c_dev = dev_id;
-+	struct i2c_msg *msg = i2c_dev->msg;
-+	bool ack = !(readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK);
-+	u32 i2c_count = readl(i2c_dev->base + I2C_COUNT);
-+	u32 i2c_tran;
-+
-+	if (msg->flags & I2C_M_RD)
-+		i2c_tran = i2c_dev->count >= I2C_FIFO_FULL_THLD;
-+	else
-+		i2c_tran = i2c_count;
-+
-+	/*
-+	 * If we got one ACK from slave when writing data, and we did not
-+	 * finish this transmission (i2c_tran is not zero), then we should
-+	 * continue to write data.
-+	 *
-+	 * For reading data, ack is always true, if i2c_tran is not 0 which
-+	 * means we still need to contine to read data from slave.
-+	 */
-+	if (i2c_tran && ack) {
-+		sprd_i2c_data_transfer(i2c_dev);
-+		return IRQ_HANDLED;
-+	}
-+
-+	i2c_dev->err = 0;
-+
-+	/*
-+	 * If we did not get one ACK from slave when writing data, we should
-+	 * return -EIO to notify users.
-+	 */
-+	if (!ack)
-+		i2c_dev->err = -EIO;
-+	else if (msg->flags & I2C_M_RD && i2c_dev->count)
-+		sprd_i2c_read_bytes(i2c_dev, i2c_dev->buf, i2c_dev->count);
-+
-+	/* Transmission is done and clear ack and start operation */
-+	sprd_i2c_clear_ack(i2c_dev);
-+	sprd_i2c_clear_start(i2c_dev);
-+	complete(&i2c_dev->complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t sprd_i2c_isr(int irq, void *dev_id)
-+{
-+	struct sprd_i2c *i2c_dev = dev_id;
-+	struct i2c_msg *msg = i2c_dev->msg;
-+	u32 i2c_count = readl(i2c_dev->base + I2C_COUNT);
-+	bool ack = !(readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK);
-+	u32 i2c_tran;
-+
-+	if (msg->flags & I2C_M_RD)
-+		i2c_tran = i2c_dev->count >= I2C_FIFO_FULL_THLD;
-+	else
-+		i2c_tran = i2c_count;
-+
-+	/*
-+	 * If we did not get one ACK from slave when writing data, then we
-+	 * should finish this transmission since we got some errors.
-+	 *
-+	 * When writing data, if i2c_tran == 0 which means we have writen
-+	 * done all data, then we can finish this transmission.
-+	 *
-+	 * When reading data, if conut < rx fifo full threshold, which
-+	 * means we can read all data in one time, then we can finish this
-+	 * transmission too.
-+	 */
-+	if (!i2c_tran || !ack) {
-+		sprd_i2c_clear_start(i2c_dev);
-+		sprd_i2c_clear_irq(i2c_dev);
-+	}
-+
-+	sprd_i2c_set_fifo_empty_int(i2c_dev, 0);
-+	sprd_i2c_set_fifo_full_int(i2c_dev, 0);
-+
-+	return IRQ_WAKE_THREAD;
-+}
-+
-+static int sprd_i2c_clk_init(struct sprd_i2c *i2c_dev)
-+{
-+	struct clk *clk_i2c, *clk_parent;
-+
-+	clk_i2c = devm_clk_get(i2c_dev->dev, "i2c");
-+	if (IS_ERR(clk_i2c)) {
-+		dev_warn(i2c_dev->dev, "i2c%d can't get the i2c clock\n",
-+			 i2c_dev->adap.nr);
-+		clk_i2c = NULL;
-+	}
-+
-+	clk_parent = devm_clk_get(i2c_dev->dev, "source");
-+	if (IS_ERR(clk_parent)) {
-+		dev_warn(i2c_dev->dev, "i2c%d can't get the source clock\n",
-+			 i2c_dev->adap.nr);
-+		clk_parent = NULL;
-+	}
-+
-+	if (clk_set_parent(clk_i2c, clk_parent))
-+		i2c_dev->src_clk = clk_get_rate(clk_i2c);
-+	else
-+		i2c_dev->src_clk = 26000000;
-+
-+	dev_dbg(i2c_dev->dev, "i2c%d set source clock is %d\n",
-+		i2c_dev->adap.nr, i2c_dev->src_clk);
-+
-+	i2c_dev->clk = devm_clk_get(i2c_dev->dev, "enable");
-+	if (IS_ERR(i2c_dev->clk)) {
-+		dev_warn(i2c_dev->dev, "i2c%d can't get the enable clock\n",
-+			 i2c_dev->adap.nr);
-+		i2c_dev->clk = NULL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int sprd_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct sprd_i2c *i2c_dev;
-+	struct resource *res;
-+	u32 prop;
-+	int ret;
-+
-+	pdev->id = of_alias_get_id(dev->of_node, "i2c");
-+
-+	i2c_dev = devm_kzalloc(dev, sizeof(struct sprd_i2c), GFP_KERNEL);
-+	if (!i2c_dev)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	i2c_dev->base = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(i2c_dev->base))
-+		return PTR_ERR(i2c_dev->base);
-+
-+	i2c_dev->irq = platform_get_irq(pdev, 0);
-+	if (i2c_dev->irq < 0) {
-+		dev_err(&pdev->dev, "failed to get irq resource\n");
-+		return i2c_dev->irq;
-+	}
-+
-+	i2c_set_adapdata(&i2c_dev->adap, i2c_dev);
-+	init_completion(&i2c_dev->complete);
-+	snprintf(i2c_dev->adap.name, sizeof(i2c_dev->adap.name),
-+		 "%s", "sprd-i2c");
-+
-+	i2c_dev->bus_freq = 100000;
-+	i2c_dev->adap.owner = THIS_MODULE;
-+	i2c_dev->dev = dev;
-+	i2c_dev->adap.retries = 3;
-+	i2c_dev->adap.algo = &sprd_i2c_algo;
-+	i2c_dev->adap.algo_data = i2c_dev;
-+	i2c_dev->adap.dev.parent = dev;
-+	i2c_dev->adap.nr = pdev->id;
-+	i2c_dev->adap.dev.of_node = dev->of_node;
-+
-+	if (!of_property_read_u32(dev->of_node, "clock-frequency", &prop))
-+		i2c_dev->bus_freq = prop;
-+
-+	/* We only support 100k and 400k now, otherwise will return error. */
-+	if (i2c_dev->bus_freq != 100000 && i2c_dev->bus_freq != 400000)
-+		return -EINVAL;
-+
-+	sprd_i2c_clk_init(i2c_dev);
-+	platform_set_drvdata(pdev, i2c_dev);
-+
-+	ret = clk_prepare_enable(i2c_dev->clk);
-+	if (ret)
-+		return ret;
-+
-+	sprd_i2c_enable(i2c_dev);
-+
-+	pm_runtime_set_autosuspend_delay(i2c_dev->dev, SPRD_I2C_PM_TIMEOUT);
-+	pm_runtime_use_autosuspend(i2c_dev->dev);
-+	pm_runtime_set_active(i2c_dev->dev);
-+	pm_runtime_enable(i2c_dev->dev);
-+
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
-+	if (ret < 0)
-+		goto err_rpm_put;
-+
-+	ret = devm_request_threaded_irq(dev, i2c_dev->irq,
-+		sprd_i2c_isr, sprd_i2c_isr_thread,
-+		IRQF_NO_SUSPEND | IRQF_ONESHOT,
-+		pdev->name, i2c_dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to request irq %d\n", i2c_dev->irq);
-+		goto err_rpm_put;
-+	}
-+
-+	ret = i2c_add_numbered_adapter(&i2c_dev->adap);
-+	if (ret) {
-+		dev_err(&pdev->dev, "add adapter failed\n");
-+		goto err_rpm_put;
-+	}
-+
-+	pm_runtime_mark_last_busy(i2c_dev->dev);
-+	pm_runtime_put_autosuspend(i2c_dev->dev);
-+	return 0;
-+
-+err_rpm_put:
-+	pm_runtime_put_noidle(i2c_dev->dev);
-+	pm_runtime_disable(i2c_dev->dev);
-+	clk_disable_unprepare(i2c_dev->clk);
-+	return ret;
-+}
-+
-+static int sprd_i2c_remove(struct platform_device *pdev)
-+{
-+	struct sprd_i2c *i2c_dev = platform_get_drvdata(pdev);
-+	int ret;
-+
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
-+	if (ret < 0)
-+		return ret;
-+
-+	i2c_del_adapter(&i2c_dev->adap);
-+	clk_disable_unprepare(i2c_dev->clk);
-+
-+	pm_runtime_put_noidle(i2c_dev->dev);
-+	pm_runtime_disable(i2c_dev->dev);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sprd_i2c_suspend_noirq(struct device *pdev)
-+{
-+	return pm_runtime_force_suspend(pdev);
-+}
-+
-+static int __maybe_unused sprd_i2c_resume_noirq(struct device *pdev)
-+{
-+	return pm_runtime_force_resume(pdev);
-+}
-+
-+static int __maybe_unused sprd_i2c_runtime_suspend(struct device *pdev)
-+{
-+	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
-+
-+	clk_disable_unprepare(i2c_dev->clk);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused sprd_i2c_runtime_resume(struct device *pdev)
-+{
-+	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
-+	int ret;
-+
-+	ret = clk_prepare_enable(i2c_dev->clk);
-+	if (ret)
-+		return ret;
-+
-+	sprd_i2c_enable(i2c_dev);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops sprd_i2c_pm_ops = {
-+	SET_RUNTIME_PM_OPS(sprd_i2c_runtime_suspend,
-+			   sprd_i2c_runtime_resume, NULL)
-+
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(sprd_i2c_suspend_noirq,
-+				      sprd_i2c_resume_noirq)
-+};
-+
-+static const struct of_device_id sprd_i2c_of_match[] = {
-+	{ .compatible = "sprd,sc9860-i2c", },
-+};
-+
-+static struct platform_driver sprd_i2c_driver = {
-+	.probe = sprd_i2c_probe,
-+	.remove = sprd_i2c_remove,
-+	.driver = {
-+		   .name = "sprd-i2c",
-+		   .of_match_table = sprd_i2c_of_match,
-+		   .pm = &sprd_i2c_pm_ops,
-+	},
-+};
-+
-+static int sprd_i2c_init(void)
-+{
-+	return platform_driver_register(&sprd_i2c_driver);
-+}
-+arch_initcall_sync(sprd_i2c_init);
--- 
-1.7.9.5
+It depends on Brendan's clock divisor calculation fix, which appears to
+be in for-next but not for-current:
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    87b59ff8d1d9 i2c: aspeed: add proper support fo 24xx clock params
+
+I'd argue that Brendan's patch should go in for-current as well,
+because it fixes a divisor rounding error for the ast2500 (bus is
+clocked faster than requested).
+
+Cheers,
+
+Andrew
+--=-5SFIj/aZuTWk4Ss2sI3E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAABCgAGBQJZpRAxAAoJEJ0dnzgO5LT5aeMP/1rp0owg8dov/DKlzF+JUiL2
+UCsX8o0X+nnZhuoBFTx03yf4ghvxrzgQnH/gtCOTWhcJOV2Pf4S+aosaz99e0UvY
+oy5MdNGXgerzNRbTbtfPCe7yzixEkFCHwcjeOF48jICq0pknA+JxQyotZnGvY6Eo
+5RghPA0LZoqrgPw18DzFR0zuqcup17NjSdajFd0bM855FJZV93HlaTkN3Du+o2h2
+d+6HqSm9ZWPZf47qwiOb2Mh5zxSXR7QhMfxQ1sBq659M0Aohh0Gq7dGT+hzdImJ2
+5nlVAG8iUNZrzhiyszri+VFWz/L3SKhUMRKOSnIGEluGv7EfQWLXuFYB31WE1HqU
+fJetN9uFjyfpp+GWwH7SAKcvdvio+sswxrgcki6o1p0EKk8NW8uV2coqY7CVMDIj
+2hI0TJbWvjqAB9oYj41TOR5TTrUeVQJqtZeRaFkUKDYNSa8WnjD6BtZWiueVKVg+
+t/bR/DKhvBxrHyqVg8zycD/MaFKowxn/N+PBz7hmpol6mD0g1byfsOReqvnRxU5v
+JZA/TnmSw2R6y+hrgB2WehYuVbFLfe/7XLy39BwroDtcZ305VI0bGjspsCKoDK7m
+LsFUhYRE+eZthZwFE5KDTxdS4VJd63pV2XkmP2jdOmlaw2eg3WBD8c2242yRbMW1
+n08P6xrFanr2dgsHsLyG
+=dYzu
+-----END PGP SIGNATURE-----
+
+--=-5SFIj/aZuTWk4Ss2sI3E--
