@@ -1,53 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
-Date: Tue, 29 Aug 2017 10:48:31 +0200
-Message-ID: <20170829084831.hsdok3ksi7anxzuc@ninjato>
-References: <20170615185418.13980-1-javier@dowhile0.org>
- <20170731153009.xkjknygpmckv2pfp@ninjato>
- <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
- <20170828160121.gu4wf7jqu4ditksc@ninjato>
- <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Tue, 29 Aug 2017 10:51:03 +0200
+Message-ID: <20170829085103.yqgyphzcd4sihkca@ninjato>
+References: <20170722185537.12696-1-hdegoede@redhat.com>
+ <20170722185537.12696-2-hdegoede@redhat.com>
+ <20170817193912.hccxyjwstrtr5oiv@ninjato>
+ <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
+ <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xckmxrsvdukgxtmb"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="pjvk3c6tcx4oualm"
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>li
+In-Reply-To: <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---xckmxrsvdukgxtmb
+--pjvk3c6tcx4oualm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> I don't have a DT based system at hand now, but I'll test it again and
-> let you know probably tomorrow.
+> So thinking more about this it might be cleaner to add a blacklist
+> of _CID / _HID ACPI-ids for which power-management should be disabled
+> to drivers/acpi/device_pm.c : acpi_bus_init_power().
+>=20
+> When I've some time to look into this I will write a patch following
+> that approach.
+>=20
+> So lets forget about the approach to add an i2c_driver match callback
+> for now.
 
-I will try again today, too. Thanks!
+Thanks for the update! That sounds better to me from the high level view
+that I have. Thanks to you and Dmitry for discussing the details
+throughly. Very much appreciated!
 
 
---xckmxrsvdukgxtmb
+--pjvk3c6tcx4oualm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKl8ACgkQFA3kzBSg
-KbbJ/hAAsf8FDB/Es9uR8b+Rzmdr2IqMb8/dvO+NUNr3eTW2T8Pxkgq3FjBqIIjb
-JlVz7HYC/ZlkO4w6iHh935/maJaxyOCHG8Jfxm2oAvM24Z2Z2uEEC1fQ4TmEzJeJ
-NhTzYD4mzMFlS44t2kuJ+N2F8b4uqddwDwLONVnyF7exbDtLD/v0iVyCGo1mHNRU
-G2vQ/+ASDnFCZt3h/XJ2xH3s5cQRthIy2W/uUVKouRQUMEIFpNa6iNqFaLnCVwZU
-/X3f3F6/P0eo10XZhUJ6FCjPogJE0DxFUAri+tJflv5XZCNM07GVFOR3Wm2nVp9c
-pzk52JpL4kQl/IcbChdhg2offvEgDg12/LA5PegJkXe6SxjfFQy0clwOJm6BFj/+
-bEikY4FJS9WtMAvLnUIRXKY2gwu42YVUy7c68Xw/db8RHtnDT0C3mKCT08HaA0gE
-RLqo4zvCiHpG2cJdWwjfFThdOKIUn6X2aYYU4wnOsgnJtYtV0uzVz2jgrXt1YKeE
-HRbhn3YdZRrMfxjueVg4VsF52I9XQJHw8uuO5V0PuWXLHrtI6dKt8dnskD2DGCWl
-CjGwiTmZlCfd7FQPcFpParv9nJANMSBiPty9DK/hImRcbVBDdsmDbLtTJSjoym9/
-ZIe9xpgYDBOesdhnGyYilx6aKajbm7rQ5soACyoPtevooPt43CE=
-=jOix
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKvcACgkQFA3kzBSg
+KbaFaA/+O895rXmveUAMHUOsOpFETX6jf3d+vGugPs/sW+id7EK24aB2H9JuDJh+
+9dzwm/CWcXzCwXjO2SX+IwHX4xnDN0/HD8J+rNNY/Q6pHobfbVlKOwlT9dUZzHpR
+B3pd0ermKULN1oFehXmVA2NrekXQgt4M+WQyDAgO/PVQU8iuBX6hMa2IjVQZPPB4
+3DhbejYzQpfVDx0JzYHhmX76c72qdIukWcozsbH46HbwUF7Rsn+0yKtluv8vPFbT
+r0efR4mtVwXODz3HwBcho/jAFUlcGhY8zjdKOw4eEStW7zTsPJp0arumv+KaRm08
+OHt1ERaH4DmH1mRE00BxdvD8EtR8H+B3WI75lLGsIVQm6ciIKhkFNtfTx4mt5h/K
+fEcShlWEfkcCdyXGJwZHSCV/cjME8TlQkpTrWOxq8q916Wm4nrVwqucwtQGAjMLk
+CkXVumbNnddDRVAGKgf5ABk3vn8tFh9I1PwZ5EqMwhzStC6FWFgBg/iARFUnXhUR
+sQs3Q6yMcz5vuAcIX/KXOCBh/rlyNho7dLHc712VIcrtjZvDYpTncZcNrMryQaVA
+v6Pw7jvxp/G3hdKz1nr1w/mQiyuHOBrsU6WAp+qOAYPGYGfUAYaJrw0Al3X2fSYB
+wJ3TlaSdig5Ztk2aI3SJT2e4spbRHZpmmJHnIgozTCoVypatHJE=
+=9JVB
 -----END PGP SIGNATURE-----
 
---xckmxrsvdukgxtmb--
+--pjvk3c6tcx4oualm--
