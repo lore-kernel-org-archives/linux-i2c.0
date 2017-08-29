@@ -1,52 +1,46 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
- supported clk
-Date: Tue, 29 Aug 2017 22:27:14 +0200
-Message-ID: <3cc3df29-b2b5-4a2a-fce4-a9d2302fee54@redhat.com>
-References: <20170829120835.17276-1-hdegoede@redhat.com>
- <1504009379.25945.142.camel@linux.intel.com>
- <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
- <20170829201826.htdia6olxs3j5k66@ninjato>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v3 0/8] PM / ACPI / i2c: Deploy runtime PM centric path for system sleep
+Date: Tue, 29 Aug 2017 22:19:43 +0200
+Message-ID: <1957183.ZU1CWrAZoR@aspire.rjw.lan>
+References: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34412 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751249AbdH2U1R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 16:27:17 -0400
-In-Reply-To: <20170829201826.htdia6olxs3j5k66@ninjato>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
-Hi,
-
-On 08/29/2017 10:18 PM, Wolfram Sang wrote:
-> Hi,
+On Tuesday, August 29, 2017 4:56:42 PM CEST Ulf Hansson wrote:
+> The i2c designware platform driver, drivers/i2c/busses/i2c-designware-platdrv.c,
+> isn't well optimized for system sleep.
 > 
->>> I dunno what standard says if we may or may not use 100 kHz as a last
->>> resort even for speeds defined less than 100 kHz.
->>
->> The < 100000 case is for when i2c_acpi_find_bus_speed() returns 0, so
->> that we then keep it 0, in which case the code a bit lower will pick
->> a default.
+> What makes this driver particularly interesting is because it's a cross-SoC
+> driver, which sometimes means there is an ACPI PM domain attached to the i2c
+> device and sometimes not. The driver is being used on both x86 and ARM.
 > 
-> This is fine by me.
-> 
->> Since speeds < 100000 are clearly not valid treating them
-> 
-> Here I wonder: Not valid because of ACPI specs? Because I2C specs surely
-> allow speeds < 100kHz.
+> In principle, to optimize the system sleep support in i2c driver, this series
+> enables the proven runtime PM centric path for the i2c driver. However, to do
+> that the ACPI PM domain also have to collaborate and understand this behaviour.
+> From earlier versions, Rafael has also pointed out that also the PM core needs
+> to be involved.
 
-The speed comes from an ACPI entry describing an i2c client,
-any compliant i2c client must at least support 100KHz, right ?
+Earlier today I realized that drivers pointing their ->suspend_late and
+->resume_early callbacks, respectively, to pm_runtime_force_suspend() and
+pm_runtime_force_resume(), are fundamentally incompatible with any bus type
+doing nontrivial PM and with almost any nontrivial PM domains, for two reasons.
 
-Alternatively I could wrap the entire round-down for loop in
-an if (acpi_speed) {} block.
+First, it basically requires the bus type or PM domain to expect that its
+->runtime_suspend callback may or may not be indirectly invoked from its
+own ->suspend_late callback, depending on the driver (and analogously
+for ->runtime_resume and ->resume early), which is insane.
 
-Regards,
+Second, it is a layering violation, because it makes the driver effectively
+override the upper layer's decisions about what code to run.
 
-Hans
+That's why I'm afraid that we've reached a dead end here. :-(
+
+Thanks,
+Rafael
