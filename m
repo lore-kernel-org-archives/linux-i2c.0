@@ -1,28 +1,28 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/4] [media] radio-usb-si4713: make i2c_adapter const
-Date: Tue, 29 Aug 2017 22:30:11 +0200
-Message-ID: <20170829203011.bguvpfhwy25tunik@ninjato>
+Subject: Re: [PATCH 4/4] [media] usb: make i2c_adapter const
+Date: Tue, 29 Aug 2017 22:30:20 +0200
+Message-ID: <20170829203020.i4yjro22z6t6xemt@ninjato>
 References: <1503138855-585-1-git-send-email-bhumirks@gmail.com>
- <1503138855-585-4-git-send-email-bhumirks@gmail.com>
+ <1503138855-585-5-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2mnm2vy4juijtydi"
+        protocol="application/pgp-signature"; boundary="iuxy4r5pw2n2xcdx"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1503138855-585-4-git-send-email-bhumirks@gmail.com>
+In-Reply-To: <1503138855-585-5-git-send-email-bhumirks@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Bhumika Goyal <bhumirks@gmail.com>
 Cc: julia.lawall@lip6.fr, jacmet@sunsite.dk, jglauber@cavium.com, david.daney@cavium.com, hans.verkuil@cisco.com, mchehab@kernel.org, awalls@md.metrocast.net, serjk@netup.ru, aospan@netup.ru, isely@pobox.com, ezequiel@vanguardiasur.com.ar, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2mnm2vy4juijtydi
+--iuxy4r5pw2n2xcdx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 19, 2017 at 04:04:14PM +0530, Bhumika Goyal wrote:
-> Make this const as it is only used in a copy operation.
+On Sat, Aug 19, 2017 at 04:04:15PM +0530, Bhumika Goyal wrote:
+> Make these const as they are only used in a copy operation.
 > Done using Coccinelle
 >=20
 > Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
@@ -30,24 +30,24 @@ On Sat, Aug 19, 2017 at 04:04:14PM +0530, Bhumika Goyal wrote:
 Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---2mnm2vy4juijtydi
+--iuxy4r5pw2n2xcdx
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlztMACgkQFA3kzBSg
-KbZy/g/9GlBfjDDFLf7ggm474cJSylnCHfo15KFIkekoyydf6WLMMgdQjtRJHfYx
-GvnEPh9DKM6vqw0jojZilJKwkk3GCYaqCUA19Z67TUyvM4b7ybvc+c/UNZXKbEqb
-a1x41eYKujCqb6nlLQ8N2u7/qBEyRomyYxp3ajETs2V+TGKPdcPLhOmV/7R4sVAa
-jrO/98vhKSL+3gMVISJZwOuckMTSdDJB53mtUXOzdAbVUgz8wEEOHFnad1ei0EUl
-v4buCjn/FmeMEyVo/dExXAVtJN5CYk1TbV8EwsrNKsU+9mHkM/Pq38nWessJ/KmN
-sxwshm7eBK5KWhf+Z7rib3WZsCJbRyiHMMDx83EHd5DFNpLXF94kbPAOgz9z9o3X
-wvx0xZvrKvzmn4JXofTe9zWN29UM3uS1hBRGAnntWojd89bZVHBnKcgOGIk/ny6V
-voGJ2mo6WN6A/mOiF5mdjxa/PwAPl6t08wXSDDZOoYW+xCvmEgHV0Vdxr3mou1vx
-6BCsEZ8cmw2o51jRAx1DXQ7F3f468AULEcdS1S13WdQ1UUJP9w/YFyv7xAcV5Nbv
-4oFHoJ5xBgtvd+LhwahJnygT8Zk71JsFquEUOGdTJMhnKLyyIzr5TgrWdRulZD3j
-e6lIzytfHPE8s6llja0AxvxWqkgRfgHxM3d5MqmMJgvU9KOB/aE=
-=XawK
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlztsACgkQFA3kzBSg
+KbYQ0g/+Nzohplnc6IImXvpo78cbZk+1bo3R99SI1+iAs0obzUgKUod56zRruMr8
+X2Mwzob+6bkIU4ajTu5fGU3PCTYD+067FMSY4Nt+drTtWbS3MBbrlAcP2efYfSgI
+8069VYH3xNzZ9F8XeVfVjeoBJL6JfDpOo/hJwS3ZV3DZj7c8D5TSHFmIvkSHrSKW
+q4aKMb6J5309TgaTSAu/4u7z3voK81C49KLi0CIxNdos+0401kMbzgkyTxI0CRAq
+Yqk1J7cgLaiTNdEXAi3TsFmYeX9KJ1Ec2YGxMVesY92J00C4GNjZWvDWHTPbvUae
+UpRkp9Yg7yFnG5oy71R0HISUsPXbet4FMflTnPYnaW1CPu7ktLXa0rkolfD+M0XP
+CSAGiFmLn/U6WiUcwT+CPBouEvA7+pTRz4PL+lnsonoTMo21N9NfA/SFZ1e10iPb
+jHzCBQQaHRQUsPWeevvR9KJQQMq9NTJ+YwiW5kjqUirC2kmVql08xpmnB30iIOu+
+kr/+gqvwfB4Hrk9YcxX5wE7E9x2TM2F1+tZph/6HoYFpfAw1USY0GS90msxKteG+
+vl0ftsOZ/mBif9aWgBuZy162HtuCvRQx9yNMFAjOOOT8/QO+SDFmMUHG11bpOrDJ
+1akGJaaf/1ajAUmxrqBc1fq78jHc8W6e8+m4hNDVg64T+F6BCbk=
+=/QqD
 -----END PGP SIGNATURE-----
 
---2mnm2vy4juijtydi--
+--iuxy4r5pw2n2xcdx--
