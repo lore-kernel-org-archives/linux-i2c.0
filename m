@@ -1,72 +1,65 @@
-From: radu.rendec@gmail.com
-Subject: Re: [PATCH 1/2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Tue, 29 Aug 2017 17:37:40 +0100
-Message-ID: <1504024660.4416.27.camel@gmail.com>
-References: <20170818160128.21228-1-radu.rendec@gmail.com>
-         <20170818160128.21228-2-radu.rendec@gmail.com>
-         <20170827143755.zpb7l7kuk4hf2pjt@ninjato>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 3/3] PM: i2c-designware-platdrv: System sleep handling rework
+Date: Tue, 29 Aug 2017 18:38:11 +0200
+Message-ID: <2533904.WxKdIHdxQJ@aspire.rjw.lan>
+References: <1503499329-28834-1-git-send-email-ulf.hansson@linaro.org> <4245176.X6JjkhnUAM@aspire.rjw.lan> <6543072.R9SdZCE16v@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:36469 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751447AbdH2Qho (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Aug 2017 12:37:44 -0400
-Received: by mail-wm0-f67.google.com with SMTP id j72so4282431wmi.3
-        for <linux-i2c@vger.kernel.org>; Tue, 29 Aug 2017 09:37:43 -0700 (PDT)
-In-Reply-To: <20170827143755.zpb7l7kuk4hf2pjt@ninjato>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:45024 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751180AbdH2Qqx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Aug 2017 12:46:53 -0400
+In-Reply-To: <6543072.R9SdZCE16v@aspire.rjw.lan>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>
-Cc: linux-i2c@vger.kernel.org
+To: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Sun, 2017-08-27 at 16:37 +0200, Wolfram Sang wrote:
-> Please use scripts/get_maintainers.pl as cc-cmd of git-send-email. This
-> would have added Seth and Neil (driver maintainers) to CC automatically.
-> I have done so now.
-
-My bad; sorry about that and thanks for adding Seth and Neil.
-
-> The IIO subsystems uses ____cacheline_aligned. I have never looked into
-> this closely, but it probably is cleaner than working with ALIGN on an
-> oversized buffer? Dunno why ____cacheline_aligned has four underscores
-> at the beginning, though...
-
-I haven't looked into that either; it seems that ____cacheline_aligned
-is just __attribute__((__aligned__(SMP_CACHE_BYTES))) unless already
-defined by the architecture (see include/linux/cache.h).
-
-I believe using this on a (whole) structure only makes sense with
-statically allocated structures and instructs the compiler to allocate
-the structure at an aligned address. My guess is that it has no effect
-on dynamically allocated structures (such as struct ismt_priv).
-
-If you were thinking about using ____cacheline_aligned just on the
-dma_buffer field, then it would align the field with respect to the
-beginning of the structure (i.e. insert the required padding), but the
-field would still be misaligned if the structure itself is misaligned.
-
-> @@ -320,7 +320,7 @@ static int ismt_process_desc(const struct
-> > ismt_desc *desc,
-> >  			     struct ismt_priv *priv, int size,
-> >  			     char read_write)
-> >  {
-> > -	u8 *dma_buffer = priv->dma_buffer;
-> > +	u8 *dma_buffer = (u8*)ALIGN((unsigned long)&priv->buffer[0], 16);
+On Tuesday, August 29, 2017 2:59:49 AM CEST Rafael J. Wysocki wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 > 
-> The fixed value here might not work on all (future?) generations?
+> Rework the power management part of the i2c-designware-platdrv driver
+> so that its ->suspend and ->resume callbacks do not point to the
+> callback routines used by it for runtime PM.  Instead, point its late
+> suspend and early resume callbacks to pm_runtime_force_suspend() and
+> pm_runtime_force_resume(), respectively, and make it set the
+> SAFE_SUSPEND driver flag (introduced earlier) to instruct the generic
+> ACPI PM domain code that the driver can cope with runtime suspended
+> devices in its system sleep callbacks.
+> 
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> Index: linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+> ===================================================================
+> --- linux-pm.orig/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -358,6 +358,7 @@ static int dw_i2c_plat_probe(struct plat
+>  	if (dev->pm_disabled) {
+>  		pm_runtime_forbid(&pdev->dev);
+>  	} else {
+> +		dev->power.driver_flags = DPM_FLAG_SAFE_SUSPEND;
+>  		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+>  		pm_runtime_use_autosuspend(&pdev->dev);
+>  		pm_runtime_set_active(&pdev->dev);
+> @@ -455,7 +456,8 @@ static int dw_i2c_plat_resume(struct dev
+>  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>  	.prepare = dw_i2c_plat_prepare,
+>  	.complete = dw_i2c_plat_complete,
+> -	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+> +	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+> +				     pm_runtime_force_resume)
+>  	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+>  };
 
-Good question. In theory this alignment should not be necessary at all.
-There is no such requirement in the public datasheet, which is probably
-why it was not implemented in the driver in the first place.
+This isn't going to work, because pm_runtime_force_suspend() will invoke
+the bus type callback and not the driver's one.
 
-This is related to some hardware errata and the problem probably occurs
-only with some specific hardware revisions. Hard to say what happens
-with future generations. But at least it should not make any difference
-to the other (existing) generations.
+So scratch this, please.
 
-In any case, it's probably better to use a macro (e.g. #define
-ISMT_DMA_ALIGN 16) rather than hardcoding the "16" value.
-
-Radu
+Thanks,
+Rafael
