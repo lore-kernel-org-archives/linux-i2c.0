@@ -1,57 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH][i2c-next] i2c-cht-wc: make cht_wc_i2c_adap_driver static
-Date: Tue, 29 Aug 2017 12:09:41 +0200
-Message-ID: <20170829100941.ipn2zt4or7znee37@ninjato>
-References: <20170816091659.10738-1-colin.king@canonical.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 1/2] dt-bindings: i2c: Add Spreadtrum I2C controller
+ documentation
+Date: Tue, 29 Aug 2017 12:14:11 +0200
+Message-ID: <20170829101411.mt42fvi6ds6sfbmp@ninjato>
+References: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang@spreadtrum.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="piib7iadrgtwifmq"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="wnac77fwwsq7ei2u"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170816091659.10738-1-colin.king@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <8677c8e20e767b27a53468531c1af03016cf22bb.1503977439.git.baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---piib7iadrgtwifmq
+--wnac77fwwsq7ei2u
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 16, 2017 at 10:16:59AM +0100, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Tue, Aug 29, 2017 at 11:35:03AM +0800, Baolin Wang wrote:
+> This patch adds the binding documentation for Spreadtrum I2C
+> controller device.
 >=20
-> The structure cht_wc_i2c_adap_driver is local to the source
-> and does not need to be in global scope, so make it static.
->=20
-> Cleans up sparse warning:
-> symbol 'cht_wc_i2c_adap_driver' was not declared. Should it be static?
->=20
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Baolin Wang <baolin.wang-lxIno14LUO0EEoCn2XhGlw@public.gmane.org>
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---piib7iadrgtwifmq
+--wnac77fwwsq7ei2u
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPWQACgkQFA3kzBSg
-Kbal1xAAlTydYraexrPmfeFbK/vNn2KQdr7epogoEAuGncU9Wrm0Xb3kCRv0fk/f
-oMJHtFAjjnOSkwNuWfcaPcMa4lMSbAExGmiiPTJF0GKSZXBO2Aeb0EnzGmv+BSfB
-F8ruJXqhzodzhIL/uGht5kP+kQWGy1jj+nDHwkGBquv2PxqT3/kKP/suG0wL3AA6
-jorbWeorWdMasIBxlYp3qfM/0evRejLQUtQ9FBYUyhwjpaNePezA12gf4/5YWA/r
-hErTEhGP/rQHw9BqWYOQ1KkKywc+9FBEQlVDqSeWodFIu841ewV5WXktk9hZkniA
-OxD8lQUfU0fGowEqq58WQCCKBaey/O/QUdH0onPQJu0t6bN9dDoXkBVDeCqFM0D/
-8my2JOn3EgAQ73hmT9GUKXUPV3Zx0oH57yIAHEXZXAZ5r7BmZGNo5Sn9pWVDNlMJ
-n36RReruIbiJPlbW7w7jj4zcn7CggPcD5UEoTS972uj1/6q9KokcX6yZTW12qVj1
-LzFp80zdXZbDaG/89hzUtKn2cegroXelKp7OezTBdlHEmg6ELNibeRfwwNSfv4gq
-Dva27NMsz3BWzaH/AgrjYTdz63QU7xvomWm9Yx8jaH1qw78WtsC5h/P958M/e5Un
-Yj5fg0dg6l5iOVftB6D1MSMfOWqcHthGkAI/d1ydMTAB/1HTCH0=
-=Tkvv
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlPnMACgkQFA3kzBSg
+KbYbghAAq6w3QsLyqofZdvbNr0iLqXgyKTBDT+GK+qW8NjOL3G0E5oajUH5imtsK
+nSf++sAKZyRCyPg3dWIoQNxqDcoJ0tCrEjBBtoBkkSTW1qmCoPSpn2SS0fh8RWvL
+i80Fj2CXi8ddVJKs+wg19G6sh+qVZuSKNLHvz7QQVGEeqYd3dBHkQtkbJFoGUsxn
+HYcrovrxWwsBrn+FlkzUEO98J6iZeKkXgjmD8SXvy9BEWR1y8fRb2BrboRuzgJrh
+1NIt9EU5/WGWbj35KXJ+HDzCZrGHYUTw0EgUTxGvkf/p8vJeUxxU+X16PoGdYS+a
+cKpXu/LSv7BUPDReEBrqMhEpjsoDVM4+msEm1AJXFMvaOdZMmEVN6n64TpuWLD6j
+2d4AewzPX8r7L9T2vnjoqcmpZJoxw2FwOefl7UunxxCgIjdZSH9hUvWakfvCYQHr
+7EExtzCWTSBOW5EV59XG8u4FgtxgnyZr8yew9wRKqarf9eQ0cL4sSdp9f+9Briu3
+lXUErJ4Rxmqiu65O3Y+tuZ+umA81yWQ7GrQz/FLwoHO+5LmDn3SAP08BGR63lgXM
+W0f418YbzLk4xO5+d/wq7Uzh+yVGS2m+/aE64QKNlygQeaLCElHVowji3GwFwkFE
+AekPe1uTTXqr91PmZZutfsWEsc64P9uWCu3fKnoyFRGrHb6DJrs=
+=gA2g
 -----END PGP SIGNATURE-----
 
---piib7iadrgtwifmq--
+--wnac77fwwsq7ei2u--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
