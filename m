@@ -1,98 +1,66 @@
-From: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
-Date: Wed, 30 Aug 2017 18:19:02 +0200
-Message-ID: <CABxcv=nqbNsTs7D57VOt1-Tav_3i9U=XKn=BV=hPr1tG68eE2g@mail.gmail.com>
-References: <20170615185418.13980-1-javier@dowhile0.org> <20170731153009.xkjknygpmckv2pfp@ninjato>
- <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
- <20170828160121.gu4wf7jqu4ditksc@ninjato> <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
- <20170829084831.hsdok3ksi7anxzuc@ninjato>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH v3 08/11] power: supply: bq24190_charger: Export 5V boost
+ converter as regulator
+Date: Wed, 30 Aug 2017 18:32:27 +0200
+Message-ID: <20170830163227.ew3jon24s3mdajiv@earth>
+References: <20170830094814.17758-1-hdegoede@redhat.com>
+ <20170830094814.17758-9-hdegoede@redhat.com>
+ <20170830144649.GF6008@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170829084831.hsdok3ksi7anxzuc@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Florian Larysch <fl-J+Jo6bLUB7M@public.gmane.org>, David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinguyen-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Scott Wood <oss-fOR+EgIDQEHk1uMJSBkQmQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ysqxn6cyw6biivfy"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170830144649.GF6008@atomide.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-On Tue, Aug 29, 2017 at 10:48 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
->> I don't have a DT based system at hand now, but I'll test it again and
->> let you know probably tomorrow.
->
-> I will try again today, too. Thanks!
->
+--ysqxn6cyw6biivfy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, I had some time to do some tests again. I used an ARM Chromebook
-(Exynos Peach Pi) that has an I2C touchpad (Atmel maXTouch).
+Hi,
 
-Tested the following cases:
+On Wed, Aug 30, 2017 at 07:46:50AM -0700, Tony Lindgren wrote:
+> * Hans de Goede <hdegoede@redhat.com> [170830 02:49]:
+> > Register the 5V boost converter as a regulator named "usb_otg_vbus".
+> >=20
+> > This commit also adds support for bq24190_platform_data, through which
+> > non device-tree platforms can pass the regulator_init_data (containing
+> > mappings for the consumer amongst other things).
+> >=20
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>=20
+> This will make it easy for USB PHY drivers to implement USB host mode:
+>=20
+> Acked-by: Tony Lindgren <tony@atomide.com>
 
-1) Driver without OF device ID table (only a I2C table with a
-"maxtouch" entry) and DTS defining a device node with a
-"atmel,maxtouch" compatible string. This is the case without any of
-the patches in this series.
+Thanks, queued.
 
-$ modinfo drivers/input/touchscreen/atmel_mxt_ts.ko | grep maxtouch
-alias:          i2c:maxtouch
+-- Sebastian
 
-$ grep maxtouch /sys/devices/platform/soc/12e00000.i2c/i2c-8/8-004b/uevent
-OF_COMPATIBLE_0=atmel,maxtouch
-MODALIAS=i2c:maxtouch
+--ysqxn6cyw6biivfy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-2) Driver without OF device ID table (only a I2C table with a
-"maxtouch" entry) and DTS defining a device node with a
-"atmel,maxtouch", "generic,maxtouch" compatible string. This is the
-case when platform maintainers merge the DTS patches without the
-driver patch.
+-----BEGIN PGP SIGNATURE-----
 
-$ modinfo drivers/input/touchscreen/atmel_mxt_ts.ko | grep maxtouch
-alias:          i2c:maxtouch
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmm6JgACgkQ2O7X88g7
++prGjg/+JaamhKJCKsMpNmHofemdPOvZlbmiMMGxLh6fh8CF9+xsNfyNPpHxDz9T
+IOzj5BnFJh+HyPSvxzpI44SUvmGpiUg9KTZObpnrt9aJRxX98llfj/t0t0x5jivH
+L+t0qCBk6sF5HSdan0HIpdWQisilBIeDDDYAtxZRD+7K5Tg+P2jHyJMFiD1f2f7o
+ZYClCteNHtFfFyMSKnphSnJGQEYVGYc1KzwUIxhpvre5W1tfoJtRn7muux+pGQYl
+P0LH1uOLL68QN9tvn66G3VnvlGfkGWeoew7PzxeaRofNO8PG9o+4KnMqqcif3C/e
+Q6lSQ0rnXzrNmgmU66V3pBCvVp0z6x6yIFg/+VG62sW32yP49OA2PHtOq1whCnI3
+UagpSZYQKvwMlPUKOMpP8H7A/lTwujUCP7zBnmCXlN6/gvqCVhdhlMuKHzc1xM+E
+6jD8EOs8yrBqsXoyyxfCEFgs1CSzXbmLjYCVTeVOg8EbTkkuiml5WFhSCyTbG99r
+vJ8oBl1nrXQvCnS5VUdXP3fRIsd45lnqZ6DsWT4IxaTSC6HZe2NOkSusUvrXn790
+sf3CyXjdg8gSgxDam03VTRzZdWmBIQgrMr0mehF2YXa2xylOdjnGvXjoBl5eJ/Ei
+qcNfW7qrRigIjQjb3fiPxcqZE1BbwsD41TnB6GYep9YaatWimfg=
+=0Sj2
+-----END PGP SIGNATURE-----
 
-$ grep maxtouch /sys/devices/platform/soc/12e00000.i2c/i2c-8/8-004b/uevent
-OF_COMPATIBLE_0=atmel,maxtouch
-OF_COMPATIBLE_1=generic,maxtouch
-MODALIAS=i2c:maxtouch
-
-3) Driver with an OF device ID table (with a "generic,maxtouch" entry)
-and DTS defining a device node with a "atmel,maxtouch" compatible
-string. This is the case when the driver patch is merged without the
-DTS patches.
-
-$ modinfo drivers/input/touchscreen/atmel_mxt_ts.ko | grep maxtouch
-alias:          of:N*T*Cgeneric,maxtouchC*
-alias:          of:N*T*Cgeneric,maxtouch
-alias:          i2c:maxtouch
-
-$ grep maxtouch /sys/devices/platform/soc/12e00000.i2c/i2c-8/8-004b/uevent
-OF_COMPATIBLE_0=atmel,maxtouch
-MODALIAS=i2c:maxtouch
-
-4) Driver with an OF device ID table (with a "generic,maxtouch" entry)
-and DTS defining a device node with a "atmel,maxtouch",
-"generic,maxtouch" compatible string. This is the case when both the
-DTS and driver patches are merged.
-
-$ modinfo drivers/input/touchscreen/atmel_mxt_ts.ko | grep maxtouch
-alias:          of:N*T*Cgeneric,maxtouchC*
-alias:          of:N*T*Cgeneric,maxtouch
-alias:          i2c:maxtouch
-
-$ grep maxtouch /sys/devices/platform/soc/12e00000.i2c/i2c-8/8-004b/uevent
-OF_COMPATIBLE_0=atmel,maxtouch
-OF_COMPATIBLE_1=generic,maxtouch
-MODALIAS=i2c:maxtouch
-
-For all cases module autoload, driver probe and evtest worked for me.
-
-You said that (3) doesn't work but I don't understand why is failing
-for you. Probably I'm missing something.
-
-Best regards,
-Javier
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--ysqxn6cyw6biivfy--
