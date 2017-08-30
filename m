@@ -1,71 +1,144 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
- supported clk
-Date: Tue, 29 Aug 2017 23:00:48 +0200
-Message-ID: <20170829210048.mqcyep22tqn7t65l@ninjato>
-References: <20170829120835.17276-1-hdegoede@redhat.com>
- <1504009379.25945.142.camel@linux.intel.com>
- <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
- <20170829201826.htdia6olxs3j5k66@ninjato>
- <3cc3df29-b2b5-4a2a-fce4-a9d2302fee54@redhat.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [RFT][PATCH v2 3/3] PM: i2c-designware-platdrv: System sleep handling rework
+Date: Wed, 30 Aug 2017 02:07:20 +0200
+Message-ID: <3521168.PErTxbFMEc@aspire.rjw.lan>
+References: <1551534.5XKjjnxbAy@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7xxyyjbdsudeshzx"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46441 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751270AbdH2VAt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 29 Aug 2017 17:00:49 -0400
-Content-Disposition: inline
-In-Reply-To: <3cc3df29-b2b5-4a2a-fce4-a9d2302fee54@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1551534.5XKjjnxbAy@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, linux-i2c@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
+
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+Rework the power management part of the i2c-designware-platdrv driver
+so that it need not be runtime resumed by the generic ACPI PM domain
+and the ACPI LPSS driver during system suspend.
+
+First, add a "suspended" and "suspend_skipped" flags to struct
+dw_i2c_dev and make dw_i2c_plat_suspend() and dw_i2c_plat_resume()
+use them to avoid suspending or resuming the device twice in a row
+and to avoid resuming a previously runtime-suspended device during
+system resume.
+
+Second, point the driver's ->late_suspend and ->early_resume
+callbacks, rather than its ->suspend and ->resume callbacks,
+to dw_i2c_plat_suspend() and dw_i2c_plat_resume(), respectively,
+so that they are not executed in parallel with each other, for
+example if runtime resume of the device takes place during system
+suspend.
+
+Next, make the driver set the SAFE_SUSPEND driver flag (introduced
+earlier) to inform the upper code layers that from the driver's
+perspective it is fine to leave the device in runtime suspend over
+system suspend and resume.
+
+Finally, drop the driver's ->prepare and ->complete PM callbacks
+that aren't necessary any more, because the driver is now able to
+cope with devices left in runtime suspend over system suspend and
+resume and need not indicate to the PM core that its suspend
+and resume callbacks may be skipped (and need not clean up if the
+core actually does that).
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/i2c/busses/i2c-designware-core.h    |    2 +
+ drivers/i2c/busses/i2c-designware-platdrv.c |   36 +++++++++++++---------------
+ 2 files changed, 19 insertions(+), 19 deletions(-)
+
+Index: linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+===================================================================
+--- linux-pm.orig/drivers/i2c/busses/i2c-designware-platdrv.c
++++ linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -358,6 +358,7 @@ static int dw_i2c_plat_probe(struct plat
+ 	if (dev->pm_disabled) {
+ 		pm_runtime_forbid(&pdev->dev);
+ 	} else {
++		pdev->dev.power.driver_flags = DPM_FLAG_SAFE_SUSPEND;
+ 		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+ 		pm_runtime_use_autosuspend(&pdev->dev);
+ 		pm_runtime_set_active(&pdev->dev);
+@@ -413,31 +414,23 @@ static const struct of_device_id dw_i2c_
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #endif
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int dw_i2c_plat_prepare(struct device *dev)
+-{
+-	return pm_runtime_suspended(dev);
+-}
+-
+-static void dw_i2c_plat_complete(struct device *dev)
+-{
+-	if (dev->power.direct_complete)
+-		pm_request_resume(dev);
+-}
+-#else
+-#define dw_i2c_plat_prepare	NULL
+-#define dw_i2c_plat_complete	NULL
+-#endif
+-
+ #ifdef CONFIG_PM
+ static int dw_i2c_plat_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	if (i_dev->suspended) {
++		i_dev->suspend_skipped = true;
++		return 0;
++	}
++
+ 	i_dev->disable(i_dev);
+ 	i2c_dw_plat_prepare_clk(i_dev, false);
+ 
++	i_dev->suspended = true;
++	i_dev->suspend_skipped = false;
++
+ 	return 0;
+ }
+ 
+@@ -446,6 +439,13 @@ static int dw_i2c_plat_resume(struct dev
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	if (!i_dev->suspended || i_dev->suspend_skipped) {
++		i_dev->suspend_skipped = false;
++		return 0;
++	}
++
++	i_dev->suspended = false;
++
+ 	i2c_dw_plat_prepare_clk(i_dev, true);
+ 	i_dev->init(i_dev);
+ 
+@@ -453,9 +453,7 @@ static int dw_i2c_plat_resume(struct dev
+ }
+ 
+ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+-	.prepare = dw_i2c_plat_prepare,
+-	.complete = dw_i2c_plat_complete,
+-	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+ 	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+ };
+ 
+Index: linux-pm/drivers/i2c/busses/i2c-designware-core.h
+===================================================================
+--- linux-pm.orig/drivers/i2c/busses/i2c-designware-core.h
++++ linux-pm/drivers/i2c/busses/i2c-designware-core.h
+@@ -280,6 +280,8 @@ struct dw_i2c_dev {
+ 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+ 	void			(*release_lock)(struct dw_i2c_dev *dev);
+ 	bool			pm_disabled;
++	bool			suspended;
++	bool			suspend_skipped;
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
 
 
---7xxyyjbdsudeshzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> The speed comes from an ACPI entry describing an i2c client,
-> any compliant i2c client must at least support 100KHz, right ?
-
-Well, due to flaky board design, you may not be able to utilize the max
-speed because of interferences etc even if the devices would support it.
-Such knowledge of flaky boards could be encoded in the ACPI tables, or?
-But probably not in the client device, hmmm...
-
-> Alternatively I could wrap the entire round-down for loop in
-> an if (acpi_speed) {} block.
-
-I don't know enough about real-world ACPI tables to suggest a best
-practice here. I just wanted to add that busses < 100 kHz are legal from
-how I read the specs.
-
-Oh well, Jarkko liked the patch, so let's all sleep over this patch and
-if nothing else comes up, I'll apply it tomorrow or so...
-
-
---7xxyyjbdsudeshzx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlml1foACgkQFA3kzBSg
-KbZjSRAAsKsTnwW0qMkwB+kYa27l400A+G3P8ySPQoxDFDhPO6K0TIKPjqi4OLx4
-he0n56xae52nv7n9X6HFs+DrjlXrvCLNE/IvVkDLjGOzMLyzF8b1F7zNVjsJ4DoT
-d3t8DhFemadtNZaqNIh6+NquxIg5mDkXCwt8ARxXzNXwYn8rRld+/7khfJ8fpWqR
-3OcPCFz9cT41Buj3Hfv5RB3vtmlHwTL8zMRbjRI0+KHCfPs8I3SmPFlsFQEgZz7v
-nYk5QBEyd7RJBVh1OBcJC2nA4A3o7FiBr+U76Y8ki6uIcOkHm4dk95V6Zab5ixVS
-6nYTyzBSJTHZT3cAEdXEotjsxUGLnOJ111OVvjYBcF1Oh7/sEdpJYCTmTxYuR6xA
-dzKKJ3TK3D9JvHGg0yFRWcSMS4HRNh6s7ZHKNrJ1LEThhi0nnwo95m0r5K1NDAAd
-9rx197sNlyZYLfaK9v9frjqe42QH9cCA+PDucQxlOGNiaQGofLxJUGLUqxM/SqRy
-rbd6nGm/0XMz4ma/OwMSkRc2a5qZkAR3o+nDivJKSxeHVOzRNlylPKmINXLNclSk
-sA/Xdy54dFnJARalcEZi7OLOBCZbpBlZ14WqEn7QUYCNld/VqFq5Pknd4K3mOiL+
-wiX7qvAWwSvrEC88fdtjrQKmkP9rXHUQjiG5VhYRuMxbvcsOiNg=
-=qk4r
------END PGP SIGNATURE-----
-
---7xxyyjbdsudeshzx--
