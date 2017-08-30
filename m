@@ -1,53 +1,50 @@
-From: Sakari Ailus <sakari.ailus-X3B1VOXEql0@public.gmane.org>
-Subject: Re: [PATCH v3 3/3] eeprom: at24: enable runtime pm support
-Date: Wed, 30 Aug 2017 15:41:23 +0300
-Message-ID: <20170830124122.3oipo4ykpzmkzdy2@valkosipuli.retiisi.org.uk>
-References: <1504066266-30051-1-git-send-email-divagar.mohandass@intel.com>
- <1504066266-30051-4-git-send-email-divagar.mohandass@intel.com>
- <20170830075329.cyhzitpfwojq3aox@valkosipuli.retiisi.org.uk>
- <7B8CE47BD58441468D2BB13285B50E6031DE621E@BGSMSX107.gar.corp.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v3 03/11] staging: typec: fusb302: Set max supply voltage
+ to 5V
+Date: Wed, 30 Aug 2017 06:37:22 -0700
+Message-ID: <cb509efe-58e9-906b-af4a-bc080a410aea@roeck-us.net>
+References: <20170830094814.17758-1-hdegoede@redhat.com>
+ <20170830094814.17758-4-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DE621E-yHIBzpp8AekLtBVenmexd7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20170830094814.17758-4-hdegoede@redhat.com>
+Content-Language: en-US
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org, "Yueyao (Nathan) Zhu" <yueyao@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 30, 2017 at 12:32:07PM +0000, Mohandass, Divagar wrote:
-> >> @@ -743,6 +770,15 @@ static int at24_probe(struct i2c_client *client,
-> >> const struct i2c_device_id *id)
-> >>
-> >>  	i2c_set_clientdata(client, at24);
-> >>
-> >> +	/* enable runtime pm */
-> >> +	pm_runtime_get_noresume(&client->dev);
-> >> +	err = pm_runtime_set_active(&client->dev);
-> >> +	if (err < 0)
-> >> +		goto err_clients;
-> >> +
-> >> +	pm_runtime_enable(&client->dev);
-> >> +	pm_runtime_put(&client->dev);
-> >> +
-> >
-> >You're just about to perform a read here. I believe you should move the last
-> >put after that.
+On 08/30/2017 02:48 AM, Hans de Goede wrote:
+> Anything higher then 5V may damage hardware not capable of it, so
+> the only sane default here is 5V. If a board is able to handle a
+> higher voltage that should come from board specific data such as
+> device-tree and not be hard coded into the fusb302 code.
 > 
-> At the end of at24_read we are performing a pm_runtime_put, still we need this change ?
+> Cc: "Yueyao (Nathan) Zhu" <yueyao@google.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-True, so this isn't an actual problem.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-It'll still power the chip down when you're about to need it, so it'd make
-sense to perform the check before pm_runtime_put().
-
-I might move the runtime PM setup after the check altogether.
-
--- 
-Sakari Ailus
-e-mail: sakari.ailus-X3B1VOXEql0@public.gmane.org
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>   drivers/staging/typec/fusb302/fusb302.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/staging/typec/fusb302/fusb302.c b/drivers/staging/typec/fusb302/fusb302.c
+> index 03a3809d18f0..6baed06a3c0d 100644
+> --- a/drivers/staging/typec/fusb302/fusb302.c
+> +++ b/drivers/staging/typec/fusb302/fusb302.c
+> @@ -1187,9 +1187,9 @@ static const struct tcpc_config fusb302_tcpc_config = {
+>   	.nr_src_pdo = ARRAY_SIZE(src_pdo),
+>   	.snk_pdo = snk_pdo,
+>   	.nr_snk_pdo = ARRAY_SIZE(snk_pdo),
+> -	.max_snk_mv = 9000,
+> +	.max_snk_mv = 5000,
+>   	.max_snk_ma = 3000,
+> -	.max_snk_mw = 27000,
+> +	.max_snk_mw = 15000,
+>   	.operating_snk_mw = 2500,
+>   	.type = TYPEC_PORT_DRP,
+>   	.default_role = TYPEC_SINK,
+> 
