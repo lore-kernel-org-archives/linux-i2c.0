@@ -1,116 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Javier Martinez Canillas <javier@dowhile0.org>
 Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
-Date: Wed, 30 Aug 2017 19:42:28 +0200
-Message-ID: <20170830174228.sx5jgtxxy56zq47t@ninjato>
-References: <20170615185418.13980-1-javier@dowhile0.org>
- <20170731153009.xkjknygpmckv2pfp@ninjato>
+Date: Wed, 30 Aug 2017 21:57:16 +0200
+Message-ID: <CABxcv==JFm0H_kB8LRyRpZNbajcO3UkxYOepkk=YUAaT1UH1gg@mail.gmail.com>
+References: <20170615185418.13980-1-javier@dowhile0.org> <20170731153009.xkjknygpmckv2pfp@ninjato>
  <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
- <20170828160121.gu4wf7jqu4ditksc@ninjato>
- <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
- <20170829084831.hsdok3ksi7anxzuc@ninjato>
- <CABxcv=nqbNsTs7D57VOt1-Tav_3i9U=XKn=BV=hPr1tG68eE2g@mail.gmail.com>
+ <20170828160121.gu4wf7jqu4ditksc@ninjato> <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
+ <20170829084831.hsdok3ksi7anxzuc@ninjato> <CABxcv=nqbNsTs7D57VOt1-Tav_3i9U=XKn=BV=hPr1tG68eE2g@mail.gmail.com>
+ <20170830174228.sx5jgtxxy56zq47t@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ytpb2jjbrb4v5ate"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:49959 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750995AbdH3Rmb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 30 Aug 2017 13:42:31 -0400
-Content-Disposition: inline
-In-Reply-To: <CABxcv=nqbNsTs7D57VOt1-Tav_3i9U=XKn=BV=hPr1tG68eE2g@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170830174228.sx5jgtxxy56zq47t@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Javier Martinez Canillas <javier@dowhile0.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark Rutland <mark.rutland@arm.com>li
 
+>
+> I think we should talk about the same case: Let me repeat what I did:
+>
+> 1) I added your patch "eeprom: at24: Add OF device ID table"
+> 2) I added an EEPROM node to an I2C
+>
+> +       eeprom@50 {
+> +               compatible = "renesas,24c01";
+> +               reg = <0x50>;
+> +       };
+>
+> -> no at24 binding to the device
+>
+> 3) I revert your patch
+>
+> -> at24 binding to the device
+>
 
---ytpb2jjbrb4v5ate
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've tested this and you are right, it fails...
 
-On Wed, Aug 30, 2017 at 06:19:02PM +0200, Javier Martinez Canillas wrote:
-> Hello Wolfram,
->=20
-> On Tue, Aug 29, 2017 at 10:48 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >
-> >> I don't have a DT based system at hand now, but I'll test it again and
-> >> let you know probably tomorrow.
-> >
-> > I will try again today, too. Thanks!
-> >
->=20
-> Ok, I had some time to do some tests again. I used an ARM Chromebook
-> (Exynos Peach Pi) that has an I2C touchpad (Atmel maXTouch).
+The problem is that the patch also changes how the driver obtains the
+EEPROM parameters (the magic value in the entry's data field).
 
-I tried again as well and it still fails for me.
+So even when module autoload and device / driver matching works, the
+driver probe function fails because if (client->dev.of_node) the
+driver attempts to get the entry data using
+of_device_get_match_data(), which is obviously wrong since the
+compatible string in the dev node isn't present in the OF table.
 
-> Tested the following cases:
+The id->driver_data from the I2C table should be used instead since
+that's the table that matches in this case.
 
-I think we should talk about the same case: Let me repeat what I did:
+One option is to fallback to id->driver_data if
+of_device_get_match_data() fails, but that's just an (ugly)
+workaround. So I agree with you that the best option is to wait for
+the DTS patches to land first.
 
-1) I added your patch "eeprom: at24: Add OF device ID table"
-2) I added an EEPROM node to an I2C
+It worked for me on my previous tests because the tested drivers
+didn't use a table entry data, I'm so sorry for missing this :(
 
-+       eeprom@50 {
-+               compatible =3D "renesas,24c01";
-+               reg =3D <0x50>;
-+       };
-
--> no at24 binding to the device
-
-3) I revert your patch
-
--> at24 binding to the device
-
-I think you should be able to test this DTS snipplet even without a real
-eeprom. Especially after applying this to the at24 driver.
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 79c5c39be29cac..f9f547680c53db 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -805,11 +805,6 @@ static int at24_probe(struct i2c_client *client, const=
- struct i2c_device_id *id)
- 	 * Perform a one-byte test read to verify that the
- 	 * chip is functional.
- 	 */
--	err =3D at24_read(at24, 0, &test_byte, 1);
--	if (err) {
--		err =3D -ENODEV;
--		goto err_clients;
--	}
-=20
- 	at24->nvmem_config.name =3D dev_name(&client->dev);
- 	at24->nvmem_config.dev =3D &client->dev;
-
-
-Can you check this?
-
-Thanks,
-
-   Wolfram
-
-
---ytpb2jjbrb4v5ate
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmm+QAACgkQFA3kzBSg
-KbaE2Q//Ztb57N4sjqcTqycN0sZpXbdacPZDeXtEK8KJP8FVq2qJiry5i/Y3IueQ
-8eehX6yk7ZPuXV9A3oMCi9IMRB5pPaAN0iiyMeaprfjCjrZnohY8dV0Arxjdee0y
-IIfgcj/R8FrO5wco/VCNeNFn2Hkd5i+tlbHxi2CoDJ6jTuxj+5VHEnTNPthJDdiA
-L0Nu4jQPuL1tywQfCwHbx4p9fnUdcobnCZl7nRXB4SFCdU/714R1XuYDbF2ZNN7u
-Uy+xyEl7Ui5tvQMVMT2tUlrs3TTn4x9dX5pX0oQg4YYQieL+P20Yn4BkDbntzOWh
-Ja9V1uzyL03PHZbTXie6dfnQzDHifVZpfeSrn0ayNVbAnG6svBQ8KXIcpMlmZSaA
-biFOzjQlixCtp++uffxERZd9MWyZk1vQ2uL6OQBQMIm0RKUfzApb1jSADwHzM4Jn
-PgOb9mN8vD6LrFgGOz9AtDQZ2gzCEpd8OEyUPlI+WfRaNsJDyLEIitl0ZDdaehIT
-AfjhhXIVOB0mPdPsw4Z7IXkXhQn4LqQmVWS5wiLXBwgrk3nPePCVyTjGupZMvgoL
-g9lntxWx+wfQgIFpFVp/zBxjW85nzq2aB9Gi2tbIPaCo5nIII1LZRlQwqTEvQVwF
-hftPQqukT556jgHLoKu3tsDkEJqi4MpckAvU020qHEKcqyR4YrY=
-=aBjO
------END PGP SIGNATURE-----
-
---ytpb2jjbrb4v5ate--
+Best regards,
+Javier
