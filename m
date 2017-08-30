@@ -1,115 +1,58 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: [RFT][PATCH v2 0/3] PM / ACPI / i2c: Runtime PM aware system sleep handling
-Date: Wed, 30 Aug 2017 02:00:27 +0200
-Message-ID: <1551534.5XKjjnxbAy@aspire.rjw.lan>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
+ supported clk
+Date: Wed, 30 Aug 2017 09:23:07 +0800
+Message-ID: <f05a083c-c8d1-352f-d084-1ccf5e37e14c@electromag.com.au>
+References: <20170829120835.17276-1-hdegoede@redhat.com>
+ <1504009379.25945.142.camel@linux.intel.com>
+ <078c7214-230e-2a68-734b-2a01003ee378@redhat.com>
+ <20170829201826.htdia6olxs3j5k66@ninjato>
+ <3cc3df29-b2b5-4a2a-fce4-a9d2302fee54@redhat.com>
+ <20170829210048.mqcyep22tqn7t65l@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-pm@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, linux-i2c@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:37293 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751240AbdH3BXN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 29 Aug 2017 21:23:13 -0400
+In-Reply-To: <20170829210048.mqcyep22tqn7t65l@ninjato>
+Content-Language: en-AU
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
 
-Hi,
+On 30/08/2017 05:00, Wolfram Sang wrote:
+> 
+>> The speed comes from an ACPI entry describing an i2c client,
+>> any compliant i2c client must at least support 100KHz, right ?
+> 
+> Well, due to flaky board design, you may not be able to utilize the max
+> speed because of interferences etc even if the devices would support it.
+> Such knowledge of flaky boards could be encoded in the ACPI tables, or?
+> But probably not in the client device, hmmm...
+> 
+>> Alternatively I could wrap the entire round-down for loop in
+>> an if (acpi_speed) {} block.
+> 
+> I don't know enough about real-world ACPI tables to suggest a best
+> practice here. I just wanted to add that busses < 100 kHz are legal from
+> how I read the specs.
+> 
+> Oh well, Jarkko liked the patch, so let's all sleep over this patch and
+> if nothing else comes up, I'll apply it tomorrow or so...
+> 
 
-The point here is to avoid runtime resuming i2c designware devices during
-system suspend in the generic ACPI PM domain and the ACPI LPSS driver if
-that is not necessary.  The ordering issue between i2c designware and
-other devices relying on it for their PM is not addressed here (but it can
-be addressed on top of this to some extent).
+My understanding is 100k is what the client must support.
+But sometimes buses need to be run slower.
+Particularly when using range extenders.
 
-For this to work, the ACPI PM domain and the LPSS driver (which also has to
-work with i2c-designware-platdrv) have to track the status of the device in
-order to handle it correctly regardless of whether or not the device is
-runtime-suspended when system suspend starts.
+eg: I have an i2c bus running over a 10m cable that needs to run at about 40k
+to be reliable.
 
-The primary problem with that is that acpi_subsys_suspend() has to decide
-whether or not to runtime resume the device and then
-acpi_subsys_suspend_late/resume_early() (and their counterparts in the ACPI
-LPSS driver) need to know whether or not to run acpi_dev_suspend_late/resume_early(), respectively.
 
-In order to make that decision, acpi_subsys_suspend() needs to know (a) if
-the power state of the device has to be updated (in which case the device
-should be runtime resumed) and (b) if the driver's callbacks that will be
-run subsequently can cope with a runtime suspended device.  The former can
-be figured out from the check done in acpi_subsys_prepare() (the result of it
-needs to be saved), but the latter is only known to the driver, so it needs a
-way to tell the code above it about that.  Hence, the SAFE_SUSPEND flag
-introduced by the first patch.
-
-The second patch simply reworks the ACPI PM domain and the ACPI LPSS driver
-to carry out all the checks etc as needed.
-
-The third one finally updates i2c-designware-platdrv (details in the changelog).
-
-The cases to consider are the following: i2c-designware-platdrv without ACPI
-(either the ACPI PM domain or the ACPI LPSS driver), i2c-designware-platdrv
-with the generic ACPI PM domain (direct_complete set or unset) and
-i2c-designware-platdrv with the ACPI LPSS driver (direct_complete set or unset).
-
-First, for i2c-designware-platdrv without ACPI, the first two patches don't
-matter and the third one moves the callbacks to a later phase of suspend
-and an earlier phase of resume and drops ->prepare and ->complete.  The effect
-of dropping ->prepare is that it will not return 1 any more, so the core will
-never set power.direct_complete for this device.  The effect of the other
-change is that system suspend will always call dw_i2c_plat_suspend() after
-all invocations of dw_i2c_plat_resume() by runtime resume and system resume
-will always call the latter before any post-resume runtime PM operations.
-If the device is not runtime-suspended before system suspend, dw_i2c_plat_suspend()
-(executed as the ->suspend_late callback) will see the "suspended" flag unset
-and it will suspend the device.  Otherwise, it will see the "suspended" flag set
-and it will return early, but it will set "suspend_skipped".  During system resume,
-dw_i2c_plat_resume() will always see "suspended" set (it won't see "suspended"
-set when invoked as the runtime resume callback), but if it sees "suspend_skipped"
-set (which can only be set during system suspend), it will return early (it
-needs to clear "suspend_skipped" then in case it is invoked shortly as the
-runtime resume callback).  Otherwise, it will resume the device.
-
-Next, consider i2c-designware-platdrv with the ACPI PM domain and say that the
-device is not runtime-suspended when system suspend is started.  In that case
-the core will not set power.direct_complete for the device and
-acpi_subsys_suspend() will run.  It will see that the device is not runtime-
-suspended, so it will only update power.update_state (the driver's ->suspend
-callback could be run too, but it is not present).  During late suspend,
-acpi_subsys_suspend_late() will be called.  It will run the driver's
-->suspend_late callback (which will suspend the device, because it will see
-"suspended" unset) and because power.update_state is set,
-acpi_dev_suspend_late() will be called to change the power state and wakeup
-settings of the device.  During resume, acpi_subsys_resume_early() will
-see power.update_state set, so it will call acpi_dev_resume_early() to power-up
-the device and it will call the driver's ->resume_early (which will see
-"suspend_skipped" unset, so it will resume the device).
-
-If the device is runtime-suspended when system suspend starts, there are a
-few possibilities.  If the device's power state doesn't need to be updated,
-the PM domain's ->prepare will return 1 and the core may or may not set
-power.direct_complete for the device.  If it is set, the callbacks will
-not be invoked and the PM domain's ->complete will queue up runtime resume
-of the device to update its power state.  If power.direct_complete is not set,
-acpi_subsys_suspend() will run again, but this time the device *is* runtime-
-suspended.  Then, as a rule, power.update_state will not be set and the
-function will return without doing anything (so far, so good).  Next, (unless
-the device is runtime resumed in the meantime) acpi_dev_suspend_late() will
-call the driver's ->suspend_late (which will see "suspended" set, so it will
-return early) and then it will return early because of power.update_state
-unset.  During resume, acpi_subsys_resume_early() will skip powering up
-the device and will call the driver's ->resume_early (which will see
-"suspend_skipped" set and will return early), so still OK.
-
-If the device is runtime-suspended when system suspend starts, but its power
-settings need to be updated, the bus type's ->prepare will return 0 and
-power.direct_complete will not be set for the device, so acpi_subsys_suspend()
-will run.  However, this time it will see power.update_state set, so it will
-runtime resume the device.  From this point on, this case is analogous to the
-one when the device was not runtime-suspended to start with.
-
-The "i2c-designware-platdrv with the ACPI LPSS driver" case should be analogous
-to the one with the generic ACPI PM domain if I haven't overlooked anything,
-so to my eyes it should work.
-
-Please test if you can and let me know if anything breaks.
-
-Thanks,
-Rafael
-
+-- 
+Regards
+Phil Reid
