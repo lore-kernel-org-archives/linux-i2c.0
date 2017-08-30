@@ -1,77 +1,49 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCH v3 09/11] power: supply: bq24190_charger: Get
- input_current_limit from our supplier
-Date: Wed, 30 Aug 2017 18:32:54 +0200
-Message-ID: <20170830163253.ay6qjpld5i2bwmgs@earth>
-References: <20170830094814.17758-1-hdegoede@redhat.com>
- <20170830094814.17758-10-hdegoede@redhat.com>
- <20170830144746.GG6008@atomide.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="t2ce6ual62q36b7d"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170830144746.GG6008@atomide.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
+From: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4 0/3] enable eeprom "size" property and runtime pm
+Date: Wed, 30 Aug 2017 22:35:37 +0530
+Message-ID: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sakari.ailus-X3B1VOXEql0@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This series adds support for eeprom "size" property which will be read by the
+driver for eeprom size. The existing ACPI has a different default size which
+can be overridden with a DSD property value provided by the platform FW.
 
---t2ce6ual62q36b7d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series also adds support for runtime PM. The eeprom driver currently
+did not have support for runtime PM and the device was kept in D0 throughout.
 
-Hi,
+[v1]
+- Add support for eeprom "size" property.
+- Add runtime PM support to the driver.
 
-On Wed, Aug 30, 2017 at 07:47:46AM -0700, Tony Lindgren wrote:
-> * Hans de Goede <hdegoede@redhat.com> [170830 02:49]:
-> > On some devices the USB Type-C port power (USB PD 2.0) negotiation is
-> > done by a separate port-controller IC, while the current limit is
-> > controlled through another (charger) IC.
-> >=20
-> > It has been decided to model this by modelling the external Type-C
-> > power brick (adapter/charger) as a power-supply class device which
-> > supplies the charger-IC, with its voltage-now and current-max represent=
-ing
-> > the negotiated voltage and max current draw.
-> >=20
-> > This commit adds support for this to the bq24190_charger driver by addi=
-ng
-> > an external_power_changed callback and calling
-> > power_supply_set_input_current_limit_from_supplier from this callback.
-> > This callback will only get called if the bq24190 has a parent-supply.
-> >=20
-> > Note this replaces the functionality to get the current-limit from an
-> > extcon device, which will be removed in a follow-up commit.
-> >=20
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> Acked-by: Tony Lindgren <tony@atomide.com>
+[v2]
+- Improved the patch subject.
 
-Thanks, queued.
+[v3]
+- Addressed comments from Sakari Ailus.
+- Improved patch description.
+- Improved pm support patch.
 
--- Sebastian
+[v4]
+- Improved runtime pm support.
+- Addressed comments from Sakari Ailus.
 
---t2ce6ual62q36b7d
-Content-Type: application/pgp-signature; name="signature.asc"
+Divagar Mohandass (3):
+  dt-bindings: add eeprom "size" property
+  eeprom: at24: add support to fetch eeprom device property "size"
+  eeprom: at24: enable runtime pm support
 
------BEGIN PGP SIGNATURE-----
+ .../devicetree/bindings/eeprom/eeprom.txt          |  2 +
+ drivers/misc/eeprom/at24.c                         | 44 ++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmm6LUACgkQ2O7X88g7
-+po7lxAAkCj3GJhbz6mqDmbPlklpZ+xO1THvQXSo7E6ZSCXpyysl2cGqGdBJ6jHs
-UDjtnozsCFjsJK7cPohB40GYJ1v0q5r21ewAa9QQh6F6jrXpAP8xMIvFNgxriOIP
-4VseYXwYrVHGZETumbAi2b22EBtFrvwij/VmKkdyAoq4WkmG7AV1k4+DBum2kK+P
-Qb7fqarmuNvnA1DjhBvMgXf4pz3PRQobPjOrEoOI3QB/eA4Su/dbWdJVbkOs+B+I
-l9Z44LnSt/CV5IBy5EJRvr1UaqFWQUV2aI1JE5lGzOf4T2mT2zkLj5fs98w+9gxo
-MVWU6+6uhjwwJapZWrZfUFaSw7ump0kd1/pHNxysfcVRjG69gskwwmVagBWTzSfn
-So9xybn9rbdlAjr/mdSzj9/FrL/uvgqIdvHQq2SwWqzAOJvfVvFzY60XBjHLTgEs
-F7+nmYIUIaFaVPZyk/Ti05lwBOR6yCekdlxAea4rr7JIH23jlFwRKdjmlsQwafBI
-6vo6/ktp/GP8lk7IWLtZ9lanLuW7Od0hMcvFgQRrdMw0GK0/lOIIzymked3NJ9Ue
-t3b2YsMhEi1SOPCtJEc2568KFWZZISlb1Gm7SZJk7rjwhnx+vfzEnVnPfguaQohI
-cW8MNqPIVd9/7cTlTrMSX3PARiYKTX92cLuo4KlN1uPv5WRekb0=
-=WIkY
------END PGP SIGNATURE-----
+-- 
+1.9.1
 
---t2ce6ual62q36b7d--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
