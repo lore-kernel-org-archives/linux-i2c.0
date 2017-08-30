@@ -1,88 +1,177 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [RESEND PATCH v5 00/16] eeprom: at24: Add OF device ID table
-Date: Wed, 30 Aug 2017 22:59:14 +0200
-Message-ID: <CABxcv=kbnNY9wvcRDuK02f6s6kmqd3SFhjwVg8zikVDqtRU4Mw@mail.gmail.com>
-References: <20170615185418.13980-1-javier@dowhile0.org> <20170731153009.xkjknygpmckv2pfp@ninjato>
- <CABxcv=mdbE0QGjoi3aLzxRqM3-MbkQ_Ai6fShcGVUGSNNqqrqw@mail.gmail.com>
- <20170828160121.gu4wf7jqu4ditksc@ninjato> <CABxcv=kSiqDN1=9fSfLkyW=uuXQZAoW4dhw=fco9RyOdDuPAdA@mail.gmail.com>
- <20170829084831.hsdok3ksi7anxzuc@ninjato> <CABxcv=nqbNsTs7D57VOt1-Tav_3i9U=XKn=BV=hPr1tG68eE2g@mail.gmail.com>
- <20170830174228.sx5jgtxxy56zq47t@ninjato> <CABxcv==JFm0H_kB8LRyRpZNbajcO3UkxYOepkk=YUAaT1UH1gg@mail.gmail.com>
- <CAMuHMdXRVnHsvCNfRqRgTusdyhOYcV7bWconD99OgXmVcHT8yw@mail.gmail.com>
+From: Sakari Ailus <sakari.ailus@iki.fi>
+Subject: Re: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
+Date: Thu, 31 Aug 2017 00:19:38 +0300
+Message-ID: <20170830211938.3m4xdwlfq5yozymq@valkosipuli.retiisi.org.uk>
+References: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
+ <1504112740-14072-4-git-send-email-divagar.mohandass@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdXRVnHsvCNfRqRgTusdyhOYcV7bWconD99OgXmVcHT8yw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux Kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, Florian Larysch <fl@n621.de>, David Lechner <david@lechnology.com>, Rob Herring <robh+dt@kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, Simon Horman <horms@verge.net.au>, Michal Simek <michal.simek@xilinx.com>, Dinh Nguyen <dinguyen@kernel.org>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Scott Wood <oss@buserror.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joachim Eastwood <manabian@gmail.com>, Mark
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from nblzone-211-213.nblnetworks.fi ([83.145.211.213]:41750 "EHLO
+        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1750761AbdH3VTm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 30 Aug 2017 17:19:42 -0400
+Content-Disposition: inline
+In-Reply-To: <1504112740-14072-4-git-send-email-divagar.mohandass@intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Divagar Mohandass <divagar.mohandass@intel.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rajmohan.mani@intel.com
 
-Hello Geert,
+Hi Divagar,
 
-On Wed, Aug 30, 2017 at 10:15 PM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> Hi Javier,
->
-> On Wed, Aug 30, 2017 at 9:57 PM, Javier Martinez Canillas
-> <javier@dowhile0.org> wrote:
->>> I think we should talk about the same case: Let me repeat what I did:
->>>
->>> 1) I added your patch "eeprom: at24: Add OF device ID table"
->>> 2) I added an EEPROM node to an I2C
->>>
->>> +       eeprom@50 {
->>> +               compatible = "renesas,24c01";
->>> +               reg = <0x50>;
->>> +       };
->>>
->>> -> no at24 binding to the device
->>>
->>> 3) I revert your patch
->>>
->>> -> at24 binding to the device
->>>
->>
->> I've tested this and you are right, it fails...
->>
->> The problem is that the patch also changes how the driver obtains the
->> EEPROM parameters (the magic value in the entry's data field).
->>
->> So even when module autoload and device / driver matching works, the
->> driver probe function fails because if (client->dev.of_node) the
->> driver attempts to get the entry data using
->> of_device_get_match_data(), which is obviously wrong since the
->> compatible string in the dev node isn't present in the OF table.
->>
->> The id->driver_data from the I2C table should be used instead since
->> that's the table that matches in this case.
->>
->> One option is to fallback to id->driver_data if
->> of_device_get_match_data() fails, but that's just an (ugly)
->> workaround. So I agree with you that the best option is to wait for
->> the DTS patches to land first.
->
-> Which means new kernels won't work with old DTBs. Oops...
-> I'm afraid that needs to be fixed.  People care about DTB backward
-> compatibility on many platforms.
->
+Thanks for the update.
 
-Right, I've yet to find one of those mythical platforms that ship old
-DTBs with new kernels, but I agree with you since people seem to care
-about backward compatibility (at least on theory).
+On Wed, Aug 30, 2017 at 10:35:40PM +0530, Divagar Mohandass wrote:
+> Currently the device is kept in D0, there is an opportunity
+> to save power by enabling runtime pm.
+> 
+> Device can be daisy chained from PMIC and we can't rely on I2C core
+> for auto resume/suspend. Driver will decide when to resume/suspend.
+> 
+> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 40 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 40 insertions(+)
+> 
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 2199c42..65a7d83 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -24,6 +24,7 @@
+>  #include <linux/i2c.h>
+>  #include <linux/nvmem-provider.h>
+>  #include <linux/platform_data/at24.h>
+> +#include <linux/pm_runtime.h>
+>  
+>  /*
+>   * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
+> @@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
+>  static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+>  {
+>  	struct at24_data *at24 = priv;
+> +	struct i2c_client *client;
+>  	char *buf = val;
+> +	int ret;
+>  
+>  	if (unlikely(!count))
+>  		return count;
+>  
+> +	client = at24_translate_offset(at24, &off);
+> +
+> +	ret = pm_runtime_get_sync(&client->dev);
+> +	if (ret < 0) {
+> +		pm_runtime_put_noidle(&client->dev);
+> +		return ret;
+> +	}
+> +
+>  	/*
+>  	 * Read data from chip, protecting against concurrent updates
+>  	 * from this host, but not from other I2C masters.
+> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+>  		status = at24->read_func(at24, buf, off, count);
+>  		if (status < 0) {
+>  			mutex_unlock(&at24->lock);
+> +			pm_runtime_put(&client->dev);
+>  			return status;
+>  		}
+>  		buf += status;
+> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+>  
+>  	mutex_unlock(&at24->lock);
+>  
+> +	pm_runtime_put(&client->dev);
+> +
+>  	return 0;
+>  }
+>  
+>  static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+>  {
+>  	struct at24_data *at24 = priv;
+> +	struct i2c_client *client;
+>  	char *buf = val;
+> +	int ret;
+>  
+>  	if (unlikely(!count))
+>  		return -EINVAL;
+>  
+> +	client = at24_translate_offset(at24, &off);
+> +
+> +	ret = pm_runtime_get_sync(&client->dev);
+> +	if (ret < 0) {
+> +		pm_runtime_put_noidle(&client->dev);
+> +		return ret;
+> +	}
+> +
+>  	/*
+>  	 * Write data to chip, protecting against concurrent updates
+>  	 * from this host, but not from other I2C masters.
+> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+>  		status = at24->write_func(at24, buf, off, count);
+>  		if (status < 0) {
+>  			mutex_unlock(&at24->lock);
+> +			pm_runtime_put(&client->dev);
+>  			return status;
+>  		}
+>  		buf += status;
+> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+>  
+>  	mutex_unlock(&at24->lock);
+>  
+> +	pm_runtime_put(&client->dev);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -743,6 +770,14 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  
+>  	i2c_set_clientdata(client, at24);
+>  
+> +	/* enable runtime pm */
+> +	pm_runtime_get_noresume(&client->dev);
+> +	err = pm_runtime_set_active(&client->dev);
+> +	if (err < 0)
+> +		goto err_clients;
 
-So I see two options then:
+Btw. I don't think pm_runtime_set_active() can fail here. In other words
+it'd be fine to ignore the return value.
 
-1) Use the workaround I mentioned and lookup the I2C device ID table
-entry data if of_device_get_match_data() fails
+> +
+> +	pm_runtime_enable(&client->dev);
+> +
+>  	/*
+>  	 * Perform a one-byte test read to verify that the
+>  	 * chip is functional.
+> @@ -753,6 +788,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  		goto err_clients;
 
-2) Only call of_device_get_match_data() if (dev->of_node &&
-of_match_device(dev->driver->of_match_table, dev))
+I suppose the runtime PM state is re-initialised for a device when a driver
+is probed, but it'd still be nice to decrement the use count if this fails.
+You should also disable PM runtime if probe fails and set the device
+suspended again.
 
-Not sure what's the preferred idiom for these cases.
+Same for other error cases. I think you'll need a new label.
 
-To good thing about keeping backward compatibility is that Wolfram
-would be able to pick the driver patch even before the DTS patches
-land.
+>  	}
+>  
+> +	pm_runtime_put(&client->dev);
+> +
+>  	at24->nvmem_config.name = dev_name(&client->dev);
+>  	at24->nvmem_config.dev = &client->dev;
+>  	at24->nvmem_config.read_only = !writable;
+> @@ -810,6 +847,9 @@ static int at24_remove(struct i2c_client *client)
+>  	for (i = 1; i < at24->num_addresses; i++)
+>  		i2c_unregister_device(at24->client[i]);
+>  
+> +	pm_runtime_disable(&client->dev);
+> +	pm_runtime_set_suspended(&client->dev);
+> +
+>  	return 0;
+>  }
+>  
 
-Best regards,
-Javier
+-- 
+Regards,
+
+Sakari Ailus
+e-mail: sakari.ailus@iki.fi
