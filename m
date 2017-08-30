@@ -1,104 +1,200 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v3 0/8] PM / ACPI / i2c: Deploy runtime PM centric path
- for system sleep
-Date: Wed, 30 Aug 2017 11:57:28 +0200
-Message-ID: <CAPDyKFosu8RYUUCiBn7+03b3TNmND-aCTqR=+svcvzCwhxw9+A@mail.gmail.com>
-References: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org> <1957183.ZU1CWrAZoR@aspire.rjw.lan>
+From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
+Subject: RE: [PATCH v3 3/3] eeprom: at24: enable runtime pm support
+Date: Wed, 30 Aug 2017 12:32:07 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DE621E@BGSMSX107.gar.corp.intel.com>
+References: <1504066266-30051-1-git-send-email-divagar.mohandass@intel.com>
+ <1504066266-30051-4-git-send-email-divagar.mohandass@intel.com>
+ <20170830075329.cyhzitpfwojq3aox@valkosipuli.retiisi.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1957183.ZU1CWrAZoR@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:22375 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751318AbdH3McO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 30 Aug 2017 08:32:14 -0400
+In-Reply-To: <20170830075329.cyhzitpfwojq3aox@valkosipuli.retiisi.org.uk>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sakari Ailus <sakari.ailus@iki.fi>
+Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
 
-On 29 August 2017 at 22:19, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Tuesday, August 29, 2017 4:56:42 PM CEST Ulf Hansson wrote:
->> The i2c designware platform driver, drivers/i2c/busses/i2c-designware-platdrv.c,
->> isn't well optimized for system sleep.
+Hi Sakari,
+
+Thanks for your time.
+My comments below.
+
+---
+^Divagar
+
+>-----Original Message-----
+>From: Sakari Ailus [mailto:sakari.ailus@iki.fi]
+>Sent: Wednesday, August 30, 2017 1:24 PM
+>To: Mohandass, Divagar <divagar.mohandass@intel.com>
+>Cc: robh+dt@kernel.org; mark.rutland@arm.com; wsa@the-dreams.de;
+>devicetree@vger.kernel.org; linux-i2c@vger.kernel.org; linux-
+>kernel@vger.kernel.org; Mani, Rajmohan <rajmohan.mani@intel.com>
+>Subject: Re: [PATCH v3 3/3] eeprom: at24: enable runtime pm support
+>
+>Hi Divagar,
+>
+>Thanks for the update. A few more comments below.
+>
+>On Wed, Aug 30, 2017 at 09:41:06AM +0530, Divagar Mohandass wrote:
+>> Currently the device is kept in D0, there is an opportunity to save
+>> power by enabling runtime pm.
 >>
->> What makes this driver particularly interesting is because it's a cross-SoC
->> driver, which sometimes means there is an ACPI PM domain attached to the i2c
->> device and sometimes not. The driver is being used on both x86 and ARM.
+>> Device can be daisy chained from PMIC and we can't rely on I2C core
+>> for auto resume/suspend. Driver will decide when to resume/suspend.
 >>
->> In principle, to optimize the system sleep support in i2c driver, this series
->> enables the proven runtime PM centric path for the i2c driver. However, to do
->> that the ACPI PM domain also have to collaborate and understand this behaviour.
->> From earlier versions, Rafael has also pointed out that also the PM core needs
->> to be involved.
+>> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
+>> ---
+>>  drivers/misc/eeprom/at24.c | 39
+>> +++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 39 insertions(+)
+>>
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 2199c42..a670814 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -24,6 +24,7 @@
+>>  #include <linux/i2c.h>
+>>  #include <linux/nvmem-provider.h>
+>>  #include <linux/platform_data/at24.h>
+>> +#include <linux/pm_runtime.h>
+>>
+>>  /*
+>>   * I2C EEPROMs from most vendors are inexpensive and mostly
+>interchangeable.
+>> @@ -501,11 +502,22 @@ static ssize_t at24_eeprom_write_i2c(struct
+>> at24_data *at24, const char *buf,  static int at24_read(void *priv,
+>> unsigned int off, void *val, size_t count)  {
+>>  	struct at24_data *at24 = priv;
+>> +	struct i2c_client *client;
+>>  	char *buf = val;
+>> +	int ret;
+>>
+>>  	if (unlikely(!count))
+>>  		return count;
+>>
+>> +	client = at24_translate_offset(at24, &off);
+>> +
+>> +	ret = pm_runtime_get_sync(&client->dev);
+>> +	if (ret < 0) {
+>> +		pm_runtime_put_noidle(&client->dev);
+>> +		pm_runtime_put(&client->dev);
 >
-> Earlier today I realized that drivers pointing their ->suspend_late and
-> ->resume_early callbacks, respectively, to pm_runtime_force_suspend() and
-> pm_runtime_force_resume(), are fundamentally incompatible with any bus type
-> doing nontrivial PM and with almost any nontrivial PM domains, for two reasons.
->
-> First, it basically requires the bus type or PM domain to expect that its
-> ->runtime_suspend callback may or may not be indirectly invoked from its
-> own ->suspend_late callback, depending on the driver (and analogously
-> for ->runtime_resume and ->resume early), which is insane.
->
-> Second, it is a layering violation, because it makes the driver effectively
-> override the upper layer's decisions about what code to run.
+>Two puts are too much here. How about dropping this one?
 
-You are right that for more complex bus types and PM domains, those
-needs to play along. So that is what I am trying to implement for the
-ACPI PM domain in this series.
-
-The generic PM domain, is simple in this regards. There is only a
-minor adaptation for the ->runtime_suspend|resume() callbacks, which
-avoids validating dev_pm_qos constraints during system sleep. Nothing
-special is needed in ->suspend_late|noirq callbacks, etc.
-
-For most other simple bus types, like the platform bus, spi, i2c,
-amba, no particular adoptions is needed at all. Instead those just
-trust the drivers to do the right thing.
-
-Before we had the direct_complete path, using the
-pm_runtime_force_suspend|resume() helpers, was the only good way for
-these kind of drivers, to in an optimized manner, deal with system
-sleep when runtime PM also was enabled for their devices. Now this
-method has become widely deployed, unfortunate whether you like it or
-not.
-
-Besides the slightly better optimizations you get when using
-pm_runtime_force_suspend|resume(), comparing to the direct_complete
-path - I think it's also worth to consider, how easy it becomes for
-drivers to deploy system sleep support. In many cases, only two lines
-of code is needed to add system sleep support in a driver.
-
-Now, some complex code always needs to be implemented somewhere. When
-using the runtime PM centric path, that code consist of the
-pm_runtime_force_suspend|resume() helpers itself - and some
-adaptations in buses/PM domains in cases when those needs special
-care.
-
-My point is, the runtime PM centric path, allows us to keep the
-complex part of the code at a few centralized places, instead of
-having it spread/duplicated into drivers.
-
-So yes, you could consider it insane, but to me and many others, it
-seems to work out quite well.
-
-Yeah, and the laying violation is undoubtedly the most controversial
-part of the runtime PM centric path - I agree to that! The
-direct_complete path don't have this, as you implemented it. :-)
-
-On the other hand, one could consider that these upper layers, in many
-cases anyway needs to play along with the behavior of the driver. So,
-I guess it depends on how one see it.
+Ack
+Will fix in next version.
 
 >
-> That's why I'm afraid that we've reached a dead end here. :-(
+>> +		return ret;
+>> +	}
+>> +
+>>  	/*
+>>  	 * Read data from chip, protecting against concurrent updates
+>>  	 * from this host, but not from other I2C masters.
+>
+>If an error happens between the two chunks, you'll need pm_runtime_put(),
+>too.
+>
 
-That's said news. Is was really hoping I could find a way to move this
-forward. You don't have any other ideas on how I can adjust the series
-to make you happy?
+Ack
+
+>> @@ -527,17 +539,30 @@ static int at24_read(void *priv, unsigned int
+>> off, void *val, size_t count)
+>>
+>>  	mutex_unlock(&at24->lock);
+>>
+>> +	pm_runtime_put(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>>  static int at24_write(void *priv, unsigned int off, void *val, size_t
+>> count)  {
+>>  	struct at24_data *at24 = priv;
+>> +	struct i2c_client *client;
+>>  	char *buf = val;
+>> +	int ret;
+>>
+>>  	if (unlikely(!count))
+>>  		return -EINVAL;
+>>
+>> +	client = at24_translate_offset(at24, &off);
+>> +
+>> +	ret = pm_runtime_get_sync(&client->dev);
+>> +	if (ret < 0) {
+>> +		pm_runtime_put_noidle(&client->dev);
+>> +		pm_runtime_put(&client->dev);
+>
+>Same here.
+>
+
+Ack
+
+>> +		return ret;
+>> +	}
+>> +
+>>  	/*
+>>  	 * Write data to chip, protecting against concurrent updates
+>>  	 * from this host, but not from other I2C masters.
+>
+>Ditto.
+
+Ack
 
 >
-> Thanks,
-> Rafael
+>> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int
+>> off, void *val, size_t count)
+>>
+>>  	mutex_unlock(&at24->lock);
+>>
+>> +	pm_runtime_put(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>> @@ -743,6 +770,15 @@ static int at24_probe(struct i2c_client *client,
+>> const struct i2c_device_id *id)
+>>
+>>  	i2c_set_clientdata(client, at24);
+>>
+>> +	/* enable runtime pm */
+>> +	pm_runtime_get_noresume(&client->dev);
+>> +	err = pm_runtime_set_active(&client->dev);
+>> +	if (err < 0)
+>> +		goto err_clients;
+>> +
+>> +	pm_runtime_enable(&client->dev);
+>> +	pm_runtime_put(&client->dev);
+>> +
 >
+>You're just about to perform a read here. I believe you should move the last
+>put after that.
 
-Kind regards
-Uffe
+At the end of at24_read we are performing a pm_runtime_put, still we need this change ?
+
+>
+>>  	/*
+>>  	 * Perform a one-byte test read to verify that the
+>>  	 * chip is functional.
+>> @@ -810,6 +846,9 @@ static int at24_remove(struct i2c_client *client)
+>>  	for (i = 1; i < at24->num_addresses; i++)
+>>  		i2c_unregister_device(at24->client[i]);
+>>
+>> +	pm_runtime_disable(&client->dev);
+>> +	pm_runtime_set_suspended(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>
+>--
+>Regards,
+>
+>Sakari Ailus
+>e-mail: sakari.ailus@iki.fi
