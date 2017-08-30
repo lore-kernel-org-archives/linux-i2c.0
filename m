@@ -1,45 +1,37 @@
 From: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 0/3] enable eeprom "size" property and runtime pm
-Date: Wed, 30 Aug 2017 22:35:37 +0530
-Message-ID: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
+Subject: [PATCH v4 1/3] dt-bindings: add eeprom "size" property
+Date: Wed, 30 Aug 2017 22:35:38 +0530
+Message-ID: <1504112740-14072-2-git-send-email-divagar.mohandass@intel.com>
+References: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1504112740-14072-1-git-send-email-divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sakari.ailus-X3B1VOXEql0@public.gmane.org
 Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This series adds support for eeprom "size" property which will be read by the
-driver for eeprom size. The existing ACPI has a different default size which
-can be overridden with a DSD property value provided by the platform FW.
+This adds eeprom "size" as optional property for i2c eeproms.
+The "size" property allows explicitly specifying the size of the
+EEPROM chip in bytes.
 
-This series also adds support for runtime PM. The eeprom driver currently
-did not have support for runtime PM and the device was kept in D0 throughout.
+Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-[v1]
-- Add support for eeprom "size" property.
-- Add runtime PM support to the driver.
-
-[v2]
-- Improved the patch subject.
-
-[v3]
-- Addressed comments from Sakari Ailus.
-- Improved patch description.
-- Improved pm support patch.
-
-[v4]
-- Improved runtime pm support.
-- Addressed comments from Sakari Ailus.
-
-Divagar Mohandass (3):
-  dt-bindings: add eeprom "size" property
-  eeprom: at24: add support to fetch eeprom device property "size"
-  eeprom: at24: enable runtime pm support
-
- .../devicetree/bindings/eeprom/eeprom.txt          |  2 +
- drivers/misc/eeprom/at24.c                         | 44 ++++++++++++++++++++++
- 2 files changed, 46 insertions(+)
-
+diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+index 5696eb5..1436569 100644
+--- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
++++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+@@ -32,6 +32,8 @@ Optional properties:
+ 
+   - read-only: this parameterless property disables writes to the eeprom
+ 
++  - size: total eeprom size in bytes
++
+ Example:
+ 
+ eeprom@52 {
 -- 
 1.9.1
 
