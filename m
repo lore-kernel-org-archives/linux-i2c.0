@@ -1,156 +1,85 @@
-From: Sakari Ailus <sakari.ailus@iki.fi>
-Subject: Re: [PATCH v3 3/3] eeprom: at24: enable runtime pm support
-Date: Wed, 30 Aug 2017 10:53:30 +0300
-Message-ID: <20170830075329.cyhzitpfwojq3aox@valkosipuli.retiisi.org.uk>
-References: <1504066266-30051-1-git-send-email-divagar.mohandass@intel.com>
- <1504066266-30051-4-git-send-email-divagar.mohandass@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v3 00/11] Hookup typec power-negotation to the PMIC and charger
+Date: Wed, 30 Aug 2017 11:48:03 +0200
+Message-ID: <20170830094814.17758-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1504066266-30051-4-git-send-email-divagar.mohandass@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Divagar Mohandass <divagar.mohandass@intel.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rajmohan.mani@intel.com
+To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Liam Breck <liam@networkimprov.net>, Tony Lindgren <tony@atomide.com>, linux-pm@vger.kernel.org, devel@driverdev.osuosl.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Divagar,
+Hi All,
 
-Thanks for the update. A few more comments below.
+Here is v3 of my typec power-negotation hookup series. New this version:
+- Drop a few patches merged into linux-power-supply.git/for-next
+- Drop the "power: supply: bq24190_charger: Remove extcon handling"
+  patch *for now*, this can only be merged once all the other patches are
+  in place (and extcon handling is no longer needed)
+- Address some review comments in some of the other patches, see the
+  per patch changelogs inside the commit messages
 
-On Wed, Aug 30, 2017 at 09:41:06AM +0530, Divagar Mohandass wrote:
-> Currently the device is kept in D0, there is an opportunity
-> to save power by enabling runtime pm.
-> 
-> Device can be daisy chained from PMIC and we can't rely on I2C core
-> for auto resume/suspend. Driver will decide when to resume/suspend.
-> 
-> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
-> ---
->  drivers/misc/eeprom/at24.c | 39 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
-> 
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 2199c42..a670814 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -24,6 +24,7 @@
->  #include <linux/i2c.h>
->  #include <linux/nvmem-provider.h>
->  #include <linux/platform_data/at24.h>
-> +#include <linux/pm_runtime.h>
->  
->  /*
->   * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-> @@ -501,11 +502,22 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
->  static int at24_read(void *priv, unsigned int off, void *val, size_t count)
->  {
->  	struct at24_data *at24 = priv;
-> +	struct i2c_client *client;
->  	char *buf = val;
-> +	int ret;
->  
->  	if (unlikely(!count))
->  		return count;
->  
-> +	client = at24_translate_offset(at24, &off);
-> +
-> +	ret = pm_runtime_get_sync(&client->dev);
-> +	if (ret < 0) {
-> +		pm_runtime_put_noidle(&client->dev);
-> +		pm_runtime_put(&client->dev);
+I believe that this series is ready for merging now and I would like to
+ask the various subsys maintainers to pick up and merge these patches.
+All the patches can be merged independent of eachother with the exception
+of the last 2 patches:
 
-Two puts are too much here. How about dropping this one?
+i2c-cht-wc: Add device-properties for fusb302 integration
+platform/x86: intel_cht_int33fe: Update fusb302 type string, add properties
 
-> +		return ret;
-> +	}
-> +
->  	/*
->  	 * Read data from chip, protecting against concurrent updates
->  	 * from this host, but not from other I2C masters.
+Which should not be merged until all the other patches are in place.
 
-If an error happens between the two chunks, you'll need pm_runtime_put(),
-too.
+For reference below is the cover letter of v2 of this patch.
 
-> @@ -527,17 +539,30 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
->  
->  	mutex_unlock(&at24->lock);
->  
-> +	pm_runtime_put(&client->dev);
-> +
->  	return 0;
->  }
->  
->  static int at24_write(void *priv, unsigned int off, void *val, size_t count)
->  {
->  	struct at24_data *at24 = priv;
-> +	struct i2c_client *client;
->  	char *buf = val;
-> +	int ret;
->  
->  	if (unlikely(!count))
->  		return -EINVAL;
->  
-> +	client = at24_translate_offset(at24, &off);
-> +
-> +	ret = pm_runtime_get_sync(&client->dev);
-> +	if (ret < 0) {
-> +		pm_runtime_put_noidle(&client->dev);
-> +		pm_runtime_put(&client->dev);
-
-Same here.
-
-> +		return ret;
-> +	}
-> +
->  	/*
->  	 * Write data to chip, protecting against concurrent updates
->  	 * from this host, but not from other I2C masters.
-
-Ditto.
-
-> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
->  
->  	mutex_unlock(&at24->lock);
->  
-> +	pm_runtime_put(&client->dev);
-> +
->  	return 0;
->  }
->  
-> @@ -743,6 +770,15 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  
->  	i2c_set_clientdata(client, at24);
->  
-> +	/* enable runtime pm */
-> +	pm_runtime_get_noresume(&client->dev);
-> +	err = pm_runtime_set_active(&client->dev);
-> +	if (err < 0)
-> +		goto err_clients;
-> +
-> +	pm_runtime_enable(&client->dev);
-> +	pm_runtime_put(&client->dev);
-> +
-
-You're just about to perform a read here. I believe you should move the
-last put after that.
-
->  	/*
->  	 * Perform a one-byte test read to verify that the
->  	 * chip is functional.
-> @@ -810,6 +846,9 @@ static int at24_remove(struct i2c_client *client)
->  	for (i = 1; i < at24->num_addresses; i++)
->  		i2c_unregister_device(at24->client[i]);
->  
-> +	pm_runtime_disable(&client->dev);
-> +	pm_runtime_set_suspended(&client->dev);
-> +
->  	return 0;
->  }
->  
-
--- 
 Regards,
 
-Sakari Ailus
-e-mail: sakari.ailus@iki.fi
+Hans
+
+
+v2 series cover letter:
+
+This series implements a number of typec changes discussed a while back:
+
+- It exports the negotiated voltage and max-current in the form of a
+  power-supply class device which represents the USB Type-C power-brick
+  (adapter/charger)
+- It adds a power_supply_set_input_current_limit_from_supplier helper
+  function which charger drivers can use to get the max-current from
+  their supplier
+- It adds regulator support to the charger IC on the device I've. The
+  exported regulator controls the 5v boost convertor which generates the
+  5V USB vbus which gets output when the Type-C port is in host / power-src
+  mode
+- It adds a bunch of misc. related fixes and glue code to tie everything
+  together
+
+One thing which was undecided in the previous discussion was how to make
+port-controller drivers hookup to external ICs (e.g. a non Type-C aware PMIC)
+to decect the input-current-limit for USB2 power-sources (through e.g. BC1.2
+detection). Since a number of existing drivers, including the one for the
+PMIC used on the 2 mini laptops I'm working on, already use the extcon
+framework to communicate the detected USB2 charger-type, I've decided to
+simply hook into this existing code. As this patch set shows this can be
+done with zero changes to the existing PMIC/extcon drivers.
+
+With this series the GPD win and GPD pocket mini laptops both fully
+support any type of Type-C charging. When hooked up with:
+-A -> C cable and plugged into a regular port they charge at 5V 0.5A
+-A -> C cable and plugged into a dedictaed charger they charge at 5V 2A
+-C -> C cable and plugged into a fixed 5V 3A charger, at 5V 3A
+-C -> C cable and plugged into a PD capable charger, which delivers max 12V, 2A
+ they charge at 12V, 2A
+
+And when a Type-C to USB-A receptacle (so host mode) cable gets plugged in
+the port correctly supplies 5V to any plugged in USB-A peripherals.
+
+This is v2 of this series, which has the following changes (see
+changelog inside individual patches for details):
+
+-Add "i2c: Allow overriding dev_name through board_info" patch, this is
+ necessary for getting stable dev_names which are necessary for specifying
+ regulator-mappings through regulator_init_data
+-Use regulator_init_data to specify mapping,  drop "staging: typec:
+ fusb302: Add support for fcs,vbus-regulator-name device-property" patch
+-Merged helper code for port-c related extcon / power_supply handling
+ directly into the fusb302 patches using the code, rather then trying
+ to add generic helpers even though there is only 1 user
