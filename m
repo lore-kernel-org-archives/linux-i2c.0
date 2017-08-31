@@ -1,65 +1,40 @@
-From: Sakari Ailus <sakari.ailus@iki.fi>
-Subject: Re: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
-Date: Thu, 31 Aug 2017 18:37:02 +0300
-Message-ID: <20170831153702.eeilqwdxsoy4e3vt@valkosipuli.retiisi.org.uk>
-References: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
- <1504112740-14072-4-git-send-email-divagar.mohandass@intel.com>
- <20170830211938.3m4xdwlfq5yozymq@valkosipuli.retiisi.org.uk>
- <7B8CE47BD58441468D2BB13285B50E6031DE6BFC@BGSMSX107.gar.corp.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3 00/11] Hookup typec power-negotation to the PMIC and
+ charger
+Date: Thu, 31 Aug 2017 18:26:37 +0200
+Message-ID: <20170831162637.GA8353@kroah.com>
+References: <20170830094814.17758-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DE6BFC@BGSMSX107.gar.corp.intel.com>
+In-Reply-To: <20170830094814.17758-1-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Sebastian Reichel <sre@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, devel@driverdev.osuosl.org, linux-pm@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, Liam Breck <liam@networkimprov.net>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 31, 2017 at 11:24:38AM +0000, Mohandass, Divagar wrote:
-> >> @@ -743,6 +770,14 @@ static int at24_probe(struct i2c_client *client,
-> >> const struct i2c_device_id *id)
-> >>
-> >>  	i2c_set_clientdata(client, at24);
-> >>
-> >> +	/* enable runtime pm */
-> >> +	pm_runtime_get_noresume(&client->dev);
-> >> +	err = pm_runtime_set_active(&client->dev);
-> >> +	if (err < 0)
-> >> +		goto err_clients;
-> >
-> >Btw. I don't think pm_runtime_set_active() can fail here. In other words it'd be
-> >fine to ignore the return value.
-> >
+On Wed, Aug 30, 2017 at 11:48:03AM +0200, Hans de Goede wrote:
+> Hi All,
 > 
-> Ack
+> Here is v3 of my typec power-negotation hookup series. New this version:
+> - Drop a few patches merged into linux-power-supply.git/for-next
+> - Drop the "power: supply: bq24190_charger: Remove extcon handling"
+>   patch *for now*, this can only be merged once all the other patches are
+>   in place (and extcon handling is no longer needed)
+> - Address some review comments in some of the other patches, see the
+>   per patch changelogs inside the commit messages
 > 
+> I believe that this series is ready for merging now and I would like to
+> ask the various subsys maintainers to pick up and merge these patches.
+> All the patches can be merged independent of eachother with the exception
+> of the last 2 patches:
 > 
-> >> +
-> >> +	pm_runtime_enable(&client->dev);
-> >> +
-> >>  	/*
-> >>  	 * Perform a one-byte test read to verify that the
-> >>  	 * chip is functional.
-> >> @@ -753,6 +788,8 @@ static int at24_probe(struct i2c_client *client, const
-> >struct i2c_device_id *id)
-> >>  		goto err_clients;
-> >
-> >I suppose the runtime PM state is re-initialised for a device when a driver is
-> >probed, but it'd still be nice to decrement the use count if this fails.
+> i2c-cht-wc: Add device-properties for fusb302 integration
+> platform/x86: intel_cht_int33fe: Update fusb302 type string, add properties
 > 
-> Ack
-> 
-> >You should also disable PM runtime if probe fails and set the device
-> >suspended again.
-> >
-> >Same for other error cases. I think you'll need a new label.
-> >
-> 
-> Can I disable PM runtime and set suspend in the 'err_clients' label itself ?
+> Which should not be merged until all the other patches are in place.
 
-Disable, yes, but the get and put calls need to be balanced.
+staging patches all now merged, thanks!
 
--- 
-Sakari Ailus
-e-mail: sakari.ailus@iki.fi
+greg k-h
