@@ -1,57 +1,63 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH/RFC 1/3] dt-bindings: i2c: i2c-gpio: Add support for
- named gpios
-Date: Thu, 31 Aug 2017 12:55:29 -0500
-Message-ID: <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop>
-References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
- <1503566474-5335-2-git-send-email-geert+renesas@glider.be>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
+ supported clk
+Date: Thu, 31 Aug 2017 20:29:45 +0200
+Message-ID: <20170831182945.ttdwpjjar6rcmlfd@ninjato>
+References: <20170829120835.17276-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mhzxb6tdsodjxl3r"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:37991 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750955AbdHaRzb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Aug 2017 13:55:31 -0400
+Received: from sauhun.de ([88.99.104.3]:54002 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750996AbdHaS3s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 31 Aug 2017 14:29:48 -0400
 Content-Disposition: inline
-In-Reply-To: <1503566474-5335-2-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <20170829120835.17276-1-hdegoede@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
 
-On Thu, Aug 24, 2017 at 11:21:12AM +0200, Geert Uytterhoeven wrote:
-> The current i2c-gpio DT bindings use a single unnamed "gpios" property
-> to refer to the SDA and SCL signal lines by index.  This is error-prone
-> for the casual DT writer and reviewer, as one has to look up the order
-> in the DT bindings.
-> 
-> Fix this by amending the DT bindings to use two separate named gpios
-> properties, and deprecate the old unnamed variant.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-> index 4f8ec947c6bd9cad..61033f73577dd70e 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-> @@ -2,8 +2,9 @@ Device-Tree bindings for i2c gpio driver
->  
->  Required properties:
->  	- compatible = "i2c-gpio";
-> -	- gpios: sda and scl gpio
-> -
-> +	- sda-gpios: gpio used for the sda signal
-> +	- scl-gpios: gpio used for the scl signal
-> +	- gpios: sda and scl gpio, alternative for {sda,scl}-gpios (deprecated)
->  
->  Optional properties:
->  	- i2c-gpio,sda-open-drain: sda as open drain
 
-Well, if we're going to change things, we should drop these open-drain 
-properties. We have open-drain flags in gpio cells, so we don't need 
-these I think.
+--mhzxb6tdsodjxl3r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+On Tue, Aug 29, 2017 at 02:08:35PM +0200, Hans de Goede wrote:
+> The Lenovo Miix2 8 DSDT contains an i2c clk / bus speed of 1700000 Hz
+> for one if its devices, which is not supported.
+>=20
+> This is the second DSDT to show up with an unsupported clk in a short
+> time, remove the hardcoded fix for DSDTs with a 1 MiHz clock and simply
+> always round down the clk to the nearest supported value.
+>=20
+> Reported-by: russianneuromancer@ya.ru
+> Fixes: 682c6c2188 ("i2c: designware: Some broken DSTDs use 1MiHz ...")
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+Applied to for-current, thanks!
+
+
+--mhzxb6tdsodjxl3r
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmoVZUACgkQFA3kzBSg
+KbbZTw/9HOWCQ1BMvYZFD+TZedVUPGHS6nq7yUsaIhj+3cKzBhNQdWhE90cRcDDN
+8DJQvXZ9hy3t9KuzmOskZ3T2NEdLd/bZJdK0KbviAjYiYlq8oHG7cwgeYtHS2GWX
+AWMlNNUOLUkN1gq3c9VSjyAr1Xk2GUXc/uLaRvnuhqTUXCFa/N8rH1y45r2vABic
+btbmpkpPhUJUNJWfPGk4W816pj2ZZM2Z4eXnkyGNABBI83TvXasTfAGg8dXYm457
+y3qik5T43ikAx7SzvCyJufxGj8iTw/nv7wdaMy1qrTTOQ04nfuOH2sxKz26ilOhC
+6rkPVyRFACpFABkO3A678yak2KjDvgI8AR8k+UfxWRCJROWdrjmCRqMBVu++6As8
++tj4rnb237VOGQ6jeXcVQATBMpeHjdo2iHZuJDHgmRc7LplFGriYJUbKft4doSv3
+q3bTvmZ/cVfaoD2ZKk0XqlyYJREHzx2FJEz+LTPuxtmmXYmWCOMZ8eV7cwiua8Ij
+B1ZktV6JBUglKOTOrUfaFV4V/l25fYBnLzwE9NSLzDJyAFzr76B8CIh2Hzg/iG5R
+4KZCI1rGQbiIa5AI1+/yQlYd41TqC+WHl1hqjqd8oPahKnMsCxaL2GV7b1BwCnhZ
+t261ri65kSo4HKLtuhOojTTIJFN6OwIqCspN+Di8G2/KmnSk8Pg=
+=ipq1
+-----END PGP SIGNATURE-----
+
+--mhzxb6tdsodjxl3r--
