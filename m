@@ -1,186 +1,215 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v3 1/8] PM / Sleep: Make the runtime PM centric path known
- to the PM core
-Date: Thu, 31 Aug 2017 11:06:05 +0200
-Message-ID: <CAPDyKFoOJzciMNMWkc+ci+Fn2iD8vwsg25TQjcx=xw2ftg5rug@mail.gmail.com>
-References: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org>
- <13933269.sbLfAJfmVU@aspire.rjw.lan> <CAPDyKFqujAbw9RAxG-kRhgnhEtAZeojBiL=v5F+JS3T9eaxfgQ@mail.gmail.com>
- <2403318.HVB4k3qRsK@aspire.rjw.lan>
+From: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
+Date: Thu, 31 Aug 2017 11:24:38 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DE6BFC@BGSMSX107.gar.corp.intel.com>
+References: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
+ <1504112740-14072-4-git-send-email-divagar.mohandass@intel.com>
+ <20170830211938.3m4xdwlfq5yozymq@valkosipuli.retiisi.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f175.google.com ([209.85.223.175]:38907 "EHLO
-        mail-io0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750908AbdHaJGH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 31 Aug 2017 05:06:07 -0400
-Received: by mail-io0-f175.google.com with SMTP id 81so18843143ioj.5
-        for <linux-i2c@vger.kernel.org>; Thu, 31 Aug 2017 02:06:07 -0700 (PDT)
-In-Reply-To: <2403318.HVB4k3qRsK@aspire.rjw.lan>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170830211938.3m4xdwlfq5yozymq-S+BSfZ9RZZmRSg0ZkenSGLdO1Tsj/99ntUK59QYPAWc@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sakari Ailus <sakari.ailus-X3B1VOXEql0@public.gmane.org>
+Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-[...]
+Hi Sakari,
 
->> >> diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
->> >> index ea1732e..865737a 100644
->> >> --- a/drivers/base/power/main.c
->> >> +++ b/drivers/base/power/main.c
->> >> @@ -1549,14 +1549,16 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
->> >>               if (parent) {
->> >>                       spin_lock_irq(&parent->power.lock);
->> >>
->> >> -                     dev->parent->power.direct_complete = false;
->> >> +                     if (!dev->power.is_rpm_sleep)
->> >> +                             dev->parent->power.direct_complete = false;
->> >
->> > This doesn't look good to me at all.
->> >
->> > It potentially breaks the fundamental assumption of the direct_complete
->> > mechanism that no devices with that flag set will ever be runtime resumed
->> > during system suspend.
->> >
->> > Which can happen with this change if a device with power.is_rpm_sleep is
->> > resumed causing the parent to be resumed too.
+Thanks for the review.
+My comments below.
+
+---
+^Divagar
+
+>-----Original Message-----
+>From: Sakari Ailus [mailto:sakari.ailus-X3B1VOXEql0@public.gmane.org]
+>Sent: Thursday, August 31, 2017 2:50 AM
+>To: Mohandass, Divagar <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org;
+>devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Subject: Re: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
+>
+>Hi Divagar,
+>
+>Thanks for the update.
+>
+>On Wed, Aug 30, 2017 at 10:35:40PM +0530, Divagar Mohandass wrote:
+>> Currently the device is kept in D0, there is an opportunity to save
+>> power by enabling runtime pm.
 >>
->> Doesn't the exact same problem you describe, already exist prior my change!?
->
-> No, it doesn't.
->
->> That is, if the current device is runtime suspended and the
->> direct_complete flag is set for it, then __device_suspend() has
->> already disabled runtime PM for the device, when we reach this point.
->> That means, a following attempts to runtime resume the device will
->> fail and thus also to runtime resume its parent.
->
-> That's because any devices with direct_complete set *cannot* be runtime
-> resumed after __device_suspend().  That's intentional and how the thing
-> is designed.  It cannot work differently, sorry.
->
->> So to me, this is a different problem, related how to work out the
->> correct order of how to suspend devices.
->
-> The ordering matters here, but it is not the problem.
->
-> Setting direct_complete means that PM callbacks for this device won't be
-> invoked going forward.  However, if the state of the device was to change
-> (like as a result of runtime PM resume), it would be necessary to run those
-> callbacks after all, but after __device_suspend() it may be too late for
-> that, because the ->suspend callback may have been skipped already.
->
-> The only way to address that is to prevent runtime PM resume of the device
-> from happening at the point the PM core decides to use direct_complete for it,
-> but that requires runtime PM to be disabled for it.  Moreover, since the
-> device is now suspended with runtime PM disabled and its children might rely
-> on it if they were active, the children must be suspended with runtime PM
-> disabled at this point too.  That's why direct_complete can only be set
-> for a device if it is set for the entire hierarchy below it.
-
-Thanks, this was a very nice description of the direct_complete path!
-
->
-> Summary: If you allow a device to be runtime resumed during system susped,
-> direct_complete cannot be set for it and it cannot be set for its parent and
-> so on.
-
-Yes, this is what it seems to boils done to!
-
-Perhaps the ACPI PM domain is special in this case, because in its
-->prepare() callback it asks the ACPI FW about whether the
-direct_complete path is possible for a device. In other words, the
-ACPI FW seems to be capable of providing information about if a device
-may become runtime resumed during system suspend. But, really, isn't
-that just a best guess? No?
-
-On those ARM SoCs I am working on, non-ACPI, the information about
-whether a device may become runtime resumed during system suspend,
-most often can't be find out in a deterministic way. That's because
-this information depends on how a device is being used by other
-devices, which changes dynamically and from one system suspend
-sequence to another. In cases like the i2c-designware-plat driver used
-in Hikey (ARM64 board), it can't ever know before hand, if someone is
-going to request an i2c transfer during system suspend or not.
-
-To really deal with these devices properly, we have to suspend them in
-the correct order.
-
-My point is, doesn't the ordering problem exists also for a device,
-which the PM core runs the direct_complete path for, even if the ACPI
-PM domain is attached to the device? Just because runtime PM is
-disabled for a device, doesn't mean the ordering issue disappears,
-right?
-
->
-> [cut]
->
->> >> @@ -1709,11 +1711,14 @@ static int device_prepare(struct device *dev, pm_message_t state)
->> >>        * A positive return value from ->prepare() means "this device appears
->> >>        * to be runtime-suspended and its state is fine, so if it really is
->> >>        * runtime-suspended, you can leave it in that state provided that you
->> >> -      * will do the same thing with all of its descendants".  This only
->> >> -      * applies to suspend transitions, however.
->> >> +      * will do the same thing with all of its descendants". To allow this,
->> >> +      * the is_rpm_sleep flag must not be set, which is default false, but
->> >> +      * may have been changed by a driver. This only applies to suspend
->> >> +      * transitions, however.
->> >>        */
->> >>       spin_lock_irq(&dev->power.lock);
->> >> -     dev->power.direct_complete = ret > 0 && state.event == PM_EVENT_SUSPEND;
->> >> +     dev->power.direct_complete = ret > 0 && !dev->power.is_rpm_sleep &&
->> >> +                             state.event == PM_EVENT_SUSPEND;
->> >
->> > The only problem addressed by avoiding direct_complete is when runtime PM needs
->> > to work during __device_suspend() for devices with direct_complete set.  You
->> > said that this was not the case with the i2c designware driver, so I'm not sure
->> > what the purpose of this is.
+>> Device can be daisy chained from PMIC and we can't rely on I2C core
+>> for auto resume/suspend. Driver will decide when to resume/suspend.
 >>
->> I should probably work more on my changelog, because I tried to
->> explain it there.
+>> Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>> ---
+>>  drivers/misc/eeprom/at24.c | 40
+>> ++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 40 insertions(+)
 >>
->> Anyway, let me quote the important parts, and this is not specific for
->> the i2c-designware-driver, but generic to drivers using
->> pm_runtime_force_suspend|resume().
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 2199c42..65a7d83 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -24,6 +24,7 @@
+>>  #include <linux/i2c.h>
+>>  #include <linux/nvmem-provider.h>
+>>  #include <linux/platform_data/at24.h>
+>> +#include <linux/pm_runtime.h>
 >>
->> "In the runtime PM centric path, the driver is expected to make use of
->> the pm_runtime_force_suspend|resume() helpers, to deploy system sleep
->> support. More precisely it may assign the system sleep callbacks to
->> these helpers or may call them from its own callbacks, in case it
->> needs to perform additional actions during system sleep.
+>>  /*
+>>   * I2C EEPROMs from most vendors are inexpensive and mostly
+>interchangeable.
+>> @@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct
+>> at24_data *at24, const char *buf,  static int at24_read(void *priv,
+>> unsigned int off, void *val, size_t count)  {
+>>  	struct at24_data *at24 = priv;
+>> +	struct i2c_client *client;
+>>  	char *buf = val;
+>> +	int ret;
 >>
->> In other words, the PM core must always invoke the system sleep
->> callbacks for the device when they are present, to allow the driver to
->> deal with the system sleep operations."
+>>  	if (unlikely(!count))
+>>  		return count;
 >>
->> A concrete example is drivers/spi/spi-fsl-espi.c, but one can easily find more.
+>> +	client = at24_translate_offset(at24, &off);
+>> +
+>> +	ret = pm_runtime_get_sync(&client->dev);
+>> +	if (ret < 0) {
+>> +		pm_runtime_put_noidle(&client->dev);
+>> +		return ret;
+>> +	}
+>> +
+>>  	/*
+>>  	 * Read data from chip, protecting against concurrent updates
+>>  	 * from this host, but not from other I2C masters.
+>> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned int off,
+>void *val, size_t count)
+>>  		status = at24->read_func(at24, buf, off, count);
+>>  		if (status < 0) {
+>>  			mutex_unlock(&at24->lock);
+>> +			pm_runtime_put(&client->dev);
+>>  			return status;
+>>  		}
+>>  		buf += status;
+>> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned int
+>> off, void *val, size_t count)
+>>
+>>  	mutex_unlock(&at24->lock);
+>>
+>> +	pm_runtime_put(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>>  static int at24_write(void *priv, unsigned int off, void *val, size_t
+>> count)  {
+>>  	struct at24_data *at24 = priv;
+>> +	struct i2c_client *client;
+>>  	char *buf = val;
+>> +	int ret;
+>>
+>>  	if (unlikely(!count))
+>>  		return -EINVAL;
+>>
+>> +	client = at24_translate_offset(at24, &off);
+>> +
+>> +	ret = pm_runtime_get_sync(&client->dev);
+>> +	if (ret < 0) {
+>> +		pm_runtime_put_noidle(&client->dev);
+>> +		return ret;
+>> +	}
+>> +
+>>  	/*
+>>  	 * Write data to chip, protecting against concurrent updates
+>>  	 * from this host, but not from other I2C masters.
+>> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned int off,
+>void *val, size_t count)
+>>  		status = at24->write_func(at24, buf, off, count);
+>>  		if (status < 0) {
+>>  			mutex_unlock(&at24->lock);
+>> +			pm_runtime_put(&client->dev);
+>>  			return status;
+>>  		}
+>>  		buf += status;
+>> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int
+>> off, void *val, size_t count)
+>>
+>>  	mutex_unlock(&at24->lock);
+>>
+>> +	pm_runtime_put(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>> @@ -743,6 +770,14 @@ static int at24_probe(struct i2c_client *client,
+>> const struct i2c_device_id *id)
+>>
+>>  	i2c_set_clientdata(client, at24);
+>>
+>> +	/* enable runtime pm */
+>> +	pm_runtime_get_noresume(&client->dev);
+>> +	err = pm_runtime_set_active(&client->dev);
+>> +	if (err < 0)
+>> +		goto err_clients;
 >
-> In fact, the new flag introduced here means "assume that that the driver of this
-> device points ->late_suspend and ->early_resume to pm_runtime_force_suspend()
-> and pm_runtime_force_resume(), respectively."  Which then implies that
-> direct_complete cannot be used with it and (and with its parent and so on)
-> and that it is not necessary to runtime resume it during system suspend.
+>Btw. I don't think pm_runtime_set_active() can fail here. In other words it'd be
+>fine to ignore the return value.
 >
-> However, there are (or at least there may be) devices that need not be
-> runtime resumed during system suspend even though their drivers don't use
-> _force_suspend/resume().
->
-> Also there are devices whose drivers don't want direct_complete to be used with
-> them, even though they don't use _force_suspend/resume() and they *do* need
-> their devices to be runtime resumed during system suspend.
->
-> Moreover, some drivers may not mind direct_complete even though their devices
-> need not be runtime resumed during system suspend.  All of that doesn't have
-> to be related to using _force_suspend/resume() at all.
->
-> So I don't see any reason whatever for combining all of these three *different*
-> conditions under one flag.
 
-Okay!
+Ack
 
+
+>> +
+>> +	pm_runtime_enable(&client->dev);
+>> +
+>>  	/*
+>>  	 * Perform a one-byte test read to verify that the
+>>  	 * chip is functional.
+>> @@ -753,6 +788,8 @@ static int at24_probe(struct i2c_client *client, const
+>struct i2c_device_id *id)
+>>  		goto err_clients;
 >
-> Thanks,
-> Rafael
+>I suppose the runtime PM state is re-initialised for a device when a driver is
+>probed, but it'd still be nice to decrement the use count if this fails.
+
+Ack
+
+>You should also disable PM runtime if probe fails and set the device
+>suspended again.
+>
+>Same for other error cases. I think you'll need a new label.
 >
 
-Kind regards
-Uffe
+Can I disable PM runtime and set suspend in the 'err_clients' label itself ?
+
+>>  	}
+>>
+>> +	pm_runtime_put(&client->dev);
+>> +
+>>  	at24->nvmem_config.name = dev_name(&client->dev);
+>>  	at24->nvmem_config.dev = &client->dev;
+>>  	at24->nvmem_config.read_only = !writable; @@ -810,6 +847,9 @@
+>static
+>> int at24_remove(struct i2c_client *client)
+>>  	for (i = 1; i < at24->num_addresses; i++)
+>>  		i2c_unregister_device(at24->client[i]);
+>>
+>> +	pm_runtime_disable(&client->dev);
+>> +	pm_runtime_set_suspended(&client->dev);
+>> +
+>>  	return 0;
+>>  }
+>>
+>
+>--
+>Regards,
+>
+>Sakari Ailus
+>e-mail: sakari.ailus-X3B1VOXEql0@public.gmane.org
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
