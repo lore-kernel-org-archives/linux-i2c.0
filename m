@@ -1,63 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Round down ACPI provided clk to nearest
- supported clk
-Date: Thu, 31 Aug 2017 20:29:45 +0200
-Message-ID: <20170831182945.ttdwpjjar6rcmlfd@ninjato>
-References: <20170829120835.17276-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: sprd: Fix undefined reference errors
+Date: Thu, 31 Aug 2017 20:33:16 +0200
+Message-ID: <20170831183316.ncq7o2bgg6kb4uhw@ninjato>
+References: <550ed5bf75d653e227d09266670caf2a058b0473.1504061716.git.baolin.wang@spreadtrum.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mhzxb6tdsodjxl3r"
+        protocol="application/pgp-signature"; boundary="rydphbotd5laho2w"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54002 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:54021 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750996AbdHaS3s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 31 Aug 2017 14:29:48 -0400
+        id S1750996AbdHaSdS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 31 Aug 2017 14:33:18 -0400
 Content-Disposition: inline
-In-Reply-To: <20170829120835.17276-1-hdegoede@redhat.com>
+In-Reply-To: <550ed5bf75d653e227d09266670caf2a058b0473.1504061716.git.baolin.wang@spreadtrum.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
+To: Baolin Wang <baolin.wang@spreadtrum.com>
+Cc: andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, broonie@kernel.org, baolin.wang@linaro.org
 
 
---mhzxb6tdsodjxl3r
+--rydphbotd5laho2w
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 29, 2017 at 02:08:35PM +0200, Hans de Goede wrote:
-> The Lenovo Miix2 8 DSDT contains an i2c clk / bus speed of 1700000 Hz
-> for one if its devices, which is not supported.
+On Wed, Aug 30, 2017 at 11:05:47AM +0800, Baolin Wang wrote:
+> Since the i2c driver of Spreadtrum can not be build as one module, thus
+> it should depend on CONFIG_I2C is build in.
 >=20
-> This is the second DSDT to show up with an unsupported clk in a short
-> time, remove the hardcoded fix for DSDTs with a 1 MiHz clock and simply
-> always round down the clk to the nearest supported value.
->=20
-> Reported-by: russianneuromancer@ya.ru
-> Fixes: 682c6c2188 ("i2c: designware: Some broken DSTDs use 1MiHz ...")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---mhzxb6tdsodjxl3r
+--rydphbotd5laho2w
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmoVZUACgkQFA3kzBSg
-KbbZTw/9HOWCQ1BMvYZFD+TZedVUPGHS6nq7yUsaIhj+3cKzBhNQdWhE90cRcDDN
-8DJQvXZ9hy3t9KuzmOskZ3T2NEdLd/bZJdK0KbviAjYiYlq8oHG7cwgeYtHS2GWX
-AWMlNNUOLUkN1gq3c9VSjyAr1Xk2GUXc/uLaRvnuhqTUXCFa/N8rH1y45r2vABic
-btbmpkpPhUJUNJWfPGk4W816pj2ZZM2Z4eXnkyGNABBI83TvXasTfAGg8dXYm457
-y3qik5T43ikAx7SzvCyJufxGj8iTw/nv7wdaMy1qrTTOQ04nfuOH2sxKz26ilOhC
-6rkPVyRFACpFABkO3A678yak2KjDvgI8AR8k+UfxWRCJROWdrjmCRqMBVu++6As8
-+tj4rnb237VOGQ6jeXcVQATBMpeHjdo2iHZuJDHgmRc7LplFGriYJUbKft4doSv3
-q3bTvmZ/cVfaoD2ZKk0XqlyYJREHzx2FJEz+LTPuxtmmXYmWCOMZ8eV7cwiua8Ij
-B1ZktV6JBUglKOTOrUfaFV4V/l25fYBnLzwE9NSLzDJyAFzr76B8CIh2Hzg/iG5R
-4KZCI1rGQbiIa5AI1+/yQlYd41TqC+WHl1hqjqd8oPahKnMsCxaL2GV7b1BwCnhZ
-t261ri65kSo4HKLtuhOojTTIJFN6OwIqCspN+Di8G2/KmnSk8Pg=
-=ipq1
+iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmoVmwACgkQFA3kzBSg
+Kbb9uA/43Bqero5XKmFncoStG7L51NkMrC8uAvPnqUXvDvcul8+Drjnsb+bzfiAQ
+r+zfY6m7qKBnCrhTGob0eGsvWHYyEYC9ddAqQRmvCbfUJeIySD8dOggyBXIBElkh
+OTSHWkxfCpDog4tAA6DUbm4QR5P69hm+0yQ10quO7uga09heN+Dk6uPiCRP9oMTu
+GYuuD01NzN4Njo5Ai4NfhEuMcSQCpQEhn995uk0n8lSUJfAkr0t0cvTcnk+grAjp
+KQAel3ObzvTydYTKTHQiCmWbRyCb5Gq3eTJ2tldJOl7gQvnwW+yDqfAqMjFOCbDc
+wNQJJy/sXFP629CFM35Ay8YVXw4s/gXS0NfzB7+/jbA4utwbGpoWUFcjUB8mIedE
+bfC8MUIUS456wfxvcg2rCs4Mf++J9fbbQxtSqHcYsvAkZ2yGZrjrWHiyOLLtHvhe
+iyCNUUv0PYxXZhGdti9AxXhPcqXIrhhp59FqJbEh6gbac4NcjLEFIPqdbDi9p/qW
+ibwduXb2oVX0gHCMsgLrxreHd4BHIbZvRyctPx+HmEe/iyTXEV8b9K1Qdg0DiAxi
+zLv5loIlpP0+8j6QSw+Lm2f+2FLoj3Y2Ew2yG0ogTyhTYAHXDRfQAwdgcZDClQqX
+PZYBDqqmuqu9mnP1FGSEL06pvzrZ30ryXWCvmStcC5YY91Huig==
+=Kst+
 -----END PGP SIGNATURE-----
 
---mhzxb6tdsodjxl3r--
+--rydphbotd5laho2w--
