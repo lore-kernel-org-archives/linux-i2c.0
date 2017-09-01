@@ -1,60 +1,76 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [RESEND PATCH v3 0/5] Add support for the STM32F7 I2C
-Date: Fri, 1 Sep 2017 09:34:10 +0200
-Message-ID: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Subject: [RESEND PATCH v3 4/5] ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+Date: Fri, 1 Sep 2017 09:34:14 +0200
+Message-ID: <1504251255-20469-5-git-send-email-pierre-yves.mordret@st.com>
+References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1504251255-20469-1-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patchset adds support for the I2C controller embedded in STM32F7xx SoC.
-It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode and
-Fast-mode+ bus speed.
+This patch adds I2C1 support for STM32F746 SoC.
+
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
 ---
  Version history:
     v3:
-        * Move stm32f7_i2c_match above stm32f7_i2c_driver
-        * of_device_get_match_data instead of of_match_device
-        * Improve I2C Speed DT gathering
-        * dev_err into dev_dbg for Arbitration loss
-        * Remove useless space aligned
-
+        * None
     v2:
-        * Implement an I2C timings computation algorithm instead of static
-          values(bindings). Algorithm uses generic I2C SCL Falling/Rising
-          bindings and System clock to compute its timings.
-        * I2C Device Tree Update
+        * Update I2C SoC device tree with latest Linux version
 ---
-Pierre-Yves MORDRET (5):
-  dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
-  i2c: i2c-stm32f4: use generic definition of speed enum
-  i2c: i2c-stm32f7: add driver
-  ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
-  ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
+---
+ arch/arm/boot/dts/stm32f746.dtsi | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
- .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
- arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
- arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
- drivers/i2c/busses/Kconfig                         |  10 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-stm32.h                     |  20 +
- drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
- drivers/i2c/busses/i2c-stm32f7.c                   | 974 +++++++++++++++++++++
- 8 files changed, 1068 insertions(+), 14 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-stm32.h
- create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
-
+diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
+index 4506eb9..ddd8f2c 100644
+--- a/arch/arm/boot/dts/stm32f746.dtsi
++++ b/arch/arm/boot/dts/stm32f746.dtsi
+@@ -361,6 +361,16 @@
+ 					bias-disable;
+ 				};
+ 			};
++
++			i2c1_pins_b: i2c1@0 {
++				pins {
++					pinmux = <STM32F746_PB9_FUNC_I2C1_SDA>,
++						 <STM32F746_PB8_FUNC_I2C1_SCL>;
++					bias-disable;
++					drive-open-drain;
++					slew-rate = <0>;
++				};
++			};
+ 		};
+ 
+ 		crc: crc@40023000 {
+@@ -380,6 +390,18 @@
+ 			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
+ 			assigned-clock-rates = <1000000>;
+ 		};
++
++		i2c1: i2c@40005400 {
++			compatible = "st,stm32f7-i2c";
++			reg = <0x40005400 0x400>;
++			interrupts = <31>,
++				     <32>;
++			resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
++			clocks = <&rcc 1 CLK_I2C1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
+ 	};
+ };
+ 
 -- 
 2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
