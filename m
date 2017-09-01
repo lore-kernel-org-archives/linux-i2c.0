@@ -1,56 +1,126 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: sprd: Fix undefined reference errors
-Date: Thu, 31 Aug 2017 20:33:16 +0200
-Message-ID: <20170831183316.ncq7o2bgg6kb4uhw@ninjato>
-References: <550ed5bf75d653e227d09266670caf2a058b0473.1504061716.git.baolin.wang@spreadtrum.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [RESEND PATCH v3 2/5] i2c: i2c-stm32f4: use generic definition of speed enum
+Date: Fri, 1 Sep 2017 09:34:12 +0200
+Message-ID: <1504251255-20469-3-git-send-email-pierre-yves.mordret@st.com>
+References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rydphbotd5laho2w"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54021 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750996AbdHaSdS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 31 Aug 2017 14:33:18 -0400
-Content-Disposition: inline
-In-Reply-To: <550ed5bf75d653e227d09266670caf2a058b0473.1504061716.git.baolin.wang@spreadtrum.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Baolin Wang <baolin.wang@spreadtrum.com>
-Cc: andy.shevchenko@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, broonie@kernel.org, baolin.wang@linaro.org
 
+This patch uses a more generic definition of speed enum for i2c-stm32f4
+driver.
 
---rydphbotd5laho2w
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Reviewed-by: Ludovic BARRE <ludovic.barre@st.com>
+---
+ Version history:
+    v3:
+    v2:
+        * None
+---
+---
+ drivers/i2c/busses/i2c-stm32.h   | 20 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-stm32f4.c | 18 +++++++-----------
+ 2 files changed, 27 insertions(+), 11 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.h
 
-On Wed, Aug 30, 2017 at 11:05:47AM +0800, Baolin Wang wrote:
-> Since the i2c driver of Spreadtrum can not be build as one module, thus
-> it should depend on CONFIG_I2C is build in.
->=20
-> Signed-off-by: Baolin Wang <baolin.wang@spreadtrum.com>
-
-Applied to for-next, thanks!
-
-
---rydphbotd5laho2w
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmoVmwACgkQFA3kzBSg
-Kbb9uA/43Bqero5XKmFncoStG7L51NkMrC8uAvPnqUXvDvcul8+Drjnsb+bzfiAQ
-r+zfY6m7qKBnCrhTGob0eGsvWHYyEYC9ddAqQRmvCbfUJeIySD8dOggyBXIBElkh
-OTSHWkxfCpDog4tAA6DUbm4QR5P69hm+0yQ10quO7uga09heN+Dk6uPiCRP9oMTu
-GYuuD01NzN4Njo5Ai4NfhEuMcSQCpQEhn995uk0n8lSUJfAkr0t0cvTcnk+grAjp
-KQAel3ObzvTydYTKTHQiCmWbRyCb5Gq3eTJ2tldJOl7gQvnwW+yDqfAqMjFOCbDc
-wNQJJy/sXFP629CFM35Ay8YVXw4s/gXS0NfzB7+/jbA4utwbGpoWUFcjUB8mIedE
-bfC8MUIUS456wfxvcg2rCs4Mf++J9fbbQxtSqHcYsvAkZ2yGZrjrWHiyOLLtHvhe
-iyCNUUv0PYxXZhGdti9AxXhPcqXIrhhp59FqJbEh6gbac4NcjLEFIPqdbDi9p/qW
-ibwduXb2oVX0gHCMsgLrxreHd4BHIbZvRyctPx+HmEe/iyTXEV8b9K1Qdg0DiAxi
-zLv5loIlpP0+8j6QSw+Lm2f+2FLoj3Y2Ew2yG0ogTyhTYAHXDRfQAwdgcZDClQqX
-PZYBDqqmuqu9mnP1FGSEL06pvzrZ30ryXWCvmStcC5YY91Huig==
-=Kst+
------END PGP SIGNATURE-----
-
---rydphbotd5laho2w--
+diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
+new file mode 100644
+index 0000000..dab5176
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-stm32.h
+@@ -0,0 +1,20 @@
++/*
++ * i2c-stm32.h
++ *
++ * Copyright (C) M'boumba Cedric Madianga 2017
++ * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
++ *
++ * License terms:  GNU General Public License (GPL), version 2
++ */
++
++#ifndef _I2C_STM32_H
++#define _I2C_STM32_H
++
++enum stm32_i2c_speed {
++	STM32_I2C_SPEED_STANDARD, /* 100 kHz */
++	STM32_I2C_SPEED_FAST, /* 400 kHz */
++	STM32_I2C_SPEED_FAST_PLUS, /* 1 MHz */
++	STM32_I2C_SPEED_END,
++};
++
++#endif /* _I2C_STM32_H */
+diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+index f9dd7e8..b81557d 100644
+--- a/drivers/i2c/busses/i2c-stm32f4.c
++++ b/drivers/i2c/busses/i2c-stm32f4.c
+@@ -27,6 +27,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/reset.h>
+ 
++#include "i2c-stm32.h"
++
+ /* STM32F4 I2C offset registers */
+ #define STM32F4_I2C_CR1			0x00
+ #define STM32F4_I2C_CR2			0x04
+@@ -90,12 +92,6 @@
+ #define STM32F4_I2C_MAX_FREQ		46U
+ #define HZ_TO_MHZ			1000000
+ 
+-enum stm32f4_i2c_speed {
+-	STM32F4_I2C_SPEED_STANDARD, /* 100 kHz */
+-	STM32F4_I2C_SPEED_FAST, /* 400 kHz */
+-	STM32F4_I2C_SPEED_END,
+-};
+-
+ /**
+  * struct stm32f4_i2c_msg - client specific data
+  * @addr: 8-bit slave addr, including r/w bit
+@@ -159,7 +155,7 @@ static int stm32f4_i2c_set_periph_clk_freq(struct stm32f4_i2c_dev *i2c_dev)
+ 	i2c_dev->parent_rate = clk_get_rate(i2c_dev->clk);
+ 	freq = DIV_ROUND_UP(i2c_dev->parent_rate, HZ_TO_MHZ);
+ 
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
+ 		/*
+ 		 * To reach 100 kHz, the parent clk frequency should be between
+ 		 * a minimum value of 2 MHz and a maximum value of 46 MHz due
+@@ -216,7 +212,7 @@ static void stm32f4_i2c_set_rise_time(struct stm32f4_i2c_dev *i2c_dev)
+ 	 * is not higher than 46 MHz . As a result trise is at most 4 bits wide
+ 	 * and so fits into the TRISE bits [5:0].
+ 	 */
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD)
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD)
+ 		trise = freq + 1;
+ 	else
+ 		trise = freq * 3 / 10 + 1;
+@@ -230,7 +226,7 @@ static void stm32f4_i2c_set_speed_mode(struct stm32f4_i2c_dev *i2c_dev)
+ 	u32 val;
+ 	u32 ccr = 0;
+ 
+-	if (i2c_dev->speed == STM32F4_I2C_SPEED_STANDARD) {
++	if (i2c_dev->speed == STM32_I2C_SPEED_STANDARD) {
+ 		/*
+ 		 * In standard mode:
+ 		 * t_scl_high = t_scl_low = CCR * I2C parent clk period
+@@ -808,10 +804,10 @@ static int stm32f4_i2c_probe(struct platform_device *pdev)
+ 	udelay(2);
+ 	reset_control_deassert(rst);
+ 
+-	i2c_dev->speed = STM32F4_I2C_SPEED_STANDARD;
++	i2c_dev->speed = STM32_I2C_SPEED_STANDARD;
+ 	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
+ 	if (!ret && clk_rate >= 400000)
+-		i2c_dev->speed = STM32F4_I2C_SPEED_FAST;
++		i2c_dev->speed = STM32_I2C_SPEED_FAST;
+ 
+ 	i2c_dev->dev = &pdev->dev;
+ 
+-- 
+2.7.4
