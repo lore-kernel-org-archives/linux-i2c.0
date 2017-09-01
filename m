@@ -1,51 +1,94 @@
-From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Subject: RE: [PATCH v4 1/3] dt-bindings: add eeprom "size" property
-Date: Fri, 1 Sep 2017 12:02:24 +0000
-Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DE73F8@BGSMSX107.gar.corp.intel.com>
+From: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
+Date: Fri, 1 Sep 2017 18:26:47 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DE74AB@BGSMSX107.gar.corp.intel.com>
 References: <1504112740-14072-1-git-send-email-divagar.mohandass@intel.com>
- <1504112740-14072-2-git-send-email-divagar.mohandass@intel.com>
- <20170831152605.zhpi46uu6b5omaou@rob-hp-laptop>
+ <1504112740-14072-4-git-send-email-divagar.mohandass@intel.com>
+ <20170830211938.3m4xdwlfq5yozymq@valkosipuli.retiisi.org.uk>
+ <7B8CE47BD58441468D2BB13285B50E6031DE6BFC@BGSMSX107.gar.corp.intel.com>
+ <20170831153702.eeilqwdxsoy4e3vt@valkosipuli.retiisi.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga03.intel.com ([134.134.136.65]:18289 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751684AbdIAMCa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 1 Sep 2017 08:02:30 -0400
-In-Reply-To: <20170831152605.zhpi46uu6b5omaou@rob-hp-laptop>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170831153702.eeilqwdxsoy4e3vt-S+BSfZ9RZZmRSg0ZkenSGLdO1Tsj/99ntUK59QYPAWc@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sakari Ailus <sakari.ailus-X3B1VOXEql0@public.gmane.org>
+Cc: "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
 
-Hi Rob,
+Hi Sakari,
 
-Sorry I missed it, will follow from next version.
+Thanks for the review.
+My comments below.
 
 ---
 ^Divagar
 
 >-----Original Message-----
->From: Rob Herring [mailto:robh@kernel.org]
->Sent: Thursday, August 31, 2017 8:56 PM
->To: Mohandass, Divagar <divagar.mohandass@intel.com>
->Cc: mark.rutland@arm.com; wsa@the-dreams.de; sakari.ailus@iki.fi;
->devicetree@vger.kernel.org; linux-i2c@vger.kernel.org; linux-
->kernel@vger.kernel.org; Mani, Rajmohan <rajmohan.mani@intel.com>
->Subject: Re: [PATCH v4 1/3] dt-bindings: add eeprom "size" property
+>From: Sakari Ailus [mailto:sakari.ailus-X3B1VOXEql0@public.gmane.org]
+>Sent: Thursday, August 31, 2017 9:07 PM
+>To: Mohandass, Divagar <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org;
+>devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Subject: Re: [PATCH v4 3/3] eeprom: at24: enable runtime pm support
 >
->On Wed, Aug 30, 2017 at 10:35:38PM +0530, Divagar Mohandass wrote:
->> This adds eeprom "size" as optional property for i2c eeproms.
->> The "size" property allows explicitly specifying the size of the
->> EEPROM chip in bytes.
+>On Thu, Aug 31, 2017 at 11:24:38AM +0000, Mohandass, Divagar wrote:
+>> >> @@ -743,6 +770,14 @@ static int at24_probe(struct i2c_client
+>> >> *client, const struct i2c_device_id *id)
+>> >>
+>> >>  	i2c_set_clientdata(client, at24);
+>> >>
+>> >> +	/* enable runtime pm */
+>> >> +	pm_runtime_get_noresume(&client->dev);
+>> >> +	err = pm_runtime_set_active(&client->dev);
+>> >> +	if (err < 0)
+>> >> +		goto err_clients;
+>> >
+>> >Btw. I don't think pm_runtime_set_active() can fail here. In other
+>> >words it'd be fine to ignore the return value.
+>> >
 >>
->> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
->> ---
->>  Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
->>  1 file changed, 2 insertions(+)
+>> Ack
+>>
+>>
+>> >> +
+>> >> +	pm_runtime_enable(&client->dev);
+>> >> +
+>> >>  	/*
+>> >>  	 * Perform a one-byte test read to verify that the
+>> >>  	 * chip is functional.
+>> >> @@ -753,6 +788,8 @@ static int at24_probe(struct i2c_client
+>> >> *client, const
+>> >struct i2c_device_id *id)
+>> >>  		goto err_clients;
+>> >
+>> >I suppose the runtime PM state is re-initialised for a device when a
+>> >driver is probed, but it'd still be nice to decrement the use count if this
+>fails.
+>>
+>> Ack
+>>
+>> >You should also disable PM runtime if probe fails and set the device
+>> >suspended again.
+>> >
+>> >Same for other error cases. I think you'll need a new label.
+>> >
+>>
+>> Can I disable PM runtime and set suspend in the 'err_clients' label itself ?
 >
->Please add acks when posting new versions or state here why you didn't.
+>Disable, yes, but the get and put calls need to be balanced.
+
+We are performing pm_runtime_put after the first read check and in the error condition, so PM runtime disable alone should be sufficient in the 'err_clients' label.
+I think it is balanced, your comments ?
+
 >
->Acked-by: Rob Herring <robh@kernel.org>
+>--
+>Sakari Ailus
+>e-mail: sakari.ailus-X3B1VOXEql0@public.gmane.org
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
