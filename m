@@ -1,76 +1,98 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
-Subject: [RESEND PATCH v3 4/5] ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
-Date: Fri, 1 Sep 2017 09:34:14 +0200
-Message-ID: <1504251255-20469-5-git-send-email-pierre-yves.mordret@st.com>
-References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH v3 6/8] PM / ACPI: Enable the runtime PM centric approach
+ for system sleep
+Date: Fri, 1 Sep 2017 10:27:05 +0200
+Message-ID: <CAPDyKFq5ic+bAVRoEC58oSO-8VTGnfipJndLmR6YLXgEhZ+RWw@mail.gmail.com>
+References: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org>
+ <1504018610-10822-7-git-send-email-ulf.hansson@linaro.org> <2855684.NY3Ly9PzrE@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1504251255-20469-1-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f176.google.com ([209.85.223.176]:33935 "EHLO
+        mail-io0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751667AbdIAI1H (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Sep 2017 04:27:07 -0400
+Received: by mail-io0-f176.google.com with SMTP id i200so2392088ioa.1
+        for <linux-i2c@vger.kernel.org>; Fri, 01 Sep 2017 01:27:06 -0700 (PDT)
+In-Reply-To: <2855684.NY3Ly9PzrE@aspire.rjw.lan>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-This patch adds I2C1 support for STM32F746 SoC.
+On 29 August 2017 at 17:27, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> On Tuesday, August 29, 2017 4:56:48 PM CEST Ulf Hansson wrote:
+>> This change enables the ACPI PM domain to cope with drivers that deploys
+>> the runtime PM centric path for system sleep.
+>
+> [cut]
+>
+>> @@ -1052,11 +1066,20 @@ EXPORT_SYMBOL_GPL(acpi_subsys_complete);
+>>   * @dev: Device to handle.
+>>   *
+>>   * Follow PCI and resume devices suspended at run time before running their
+>> - * system suspend callbacks.
+>> + * system suspend callbacks. However, try to avoid it in case the runtime PM
+>> + * centric path is used for the device and then trust the driver to do the
+>> + * right thing.
+>>   */
+>>  int acpi_subsys_suspend(struct device *dev)
+>>  {
+>> -     pm_runtime_resume(dev);
+>> +     struct acpi_device *adev = ACPI_COMPANION(dev);
+>> +
+>> +     if (!adev)
+>> +             return 0;
+>> +
+>> +     if (!dev_pm_is_rpm_sleep(dev) || acpi_dev_needs_resume(dev, adev))
+>> +             pm_runtime_resume(dev);
+>> +
+>>       return pm_generic_suspend(dev);
+>>  }
+>>  EXPORT_SYMBOL_GPL(acpi_subsys_suspend);
+>
+> Well, I tried to avoid calling acpi_dev_needs_resume() for multiple times
+> and that's why I added the update_state thing.
+>
+> Moreover, the is_rpm_sleep flag here has to mean not only that
+> direct_complete should not be used with the device, but also that its driver
+> is fine with not resuming it.
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
----
- Version history:
-    v3:
-        * None
-    v2:
-        * Update I2C SoC device tree with latest Linux version
----
----
- arch/arm/boot/dts/stm32f746.dtsi | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+Let me try to explain this better. I realize the changelog is
+misleading around this particular section! Huh, apologize for that!
 
-diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
-index 4506eb9..ddd8f2c 100644
---- a/arch/arm/boot/dts/stm32f746.dtsi
-+++ b/arch/arm/boot/dts/stm32f746.dtsi
-@@ -361,6 +361,16 @@
- 					bias-disable;
- 				};
- 			};
-+
-+			i2c1_pins_b: i2c1@0 {
-+				pins {
-+					pinmux = <STM32F746_PB9_FUNC_I2C1_SDA>,
-+						 <STM32F746_PB8_FUNC_I2C1_SCL>;
-+					bias-disable;
-+					drive-open-drain;
-+					slew-rate = <0>;
-+				};
-+			};
- 		};
- 
- 		crc: crc@40023000 {
-@@ -380,6 +390,18 @@
- 			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
- 			assigned-clock-rates = <1000000>;
- 		};
-+
-+		i2c1: i2c@40005400 {
-+			compatible = "st,stm32f7-i2c";
-+			reg = <0x40005400 0x400>;
-+			interrupts = <31>,
-+				     <32>;
-+			resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
-+			clocks = <&rcc 1 CLK_I2C1>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
- 	};
- };
- 
--- 
-2.7.4
+First, patch1 makes the PM core treat the is_rpm_sleep flag as the
+direct_complete isn't allowed for the device.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+For that reason, when the is_rpm_sleep is set, there is no point
+calling acpi_dev_needs_resume() from acpi_subsys_prepare(), but
+instead that can be deferred to acpi_subsys_suspend() - because it
+doesn't matter if acpi_subsys_prepare() returns 0 or 1, in either case
+the acpi_subsys_suspend() will be called. That's really what goes on
+here.
+
+The end result is the same. If the acpi_dev_needs_resume() thinks that
+the device needs to be runtime resumed, pm_runtime_resume() is called
+for the device in acpi_subsys_suspend().
+
+So, this has nothing to do with whether the driver "is fine with not
+resuming it" thing.
+
+>
+> IMO it is not a good idea to use one flag for these two different things at the
+> same time at all.
+
+Yeah, I guess my upper comment addresses your immediate concern here?
+
+However, there is one other thing the is_rpm_flag means. That is that
+the driver has informed the ACPI PM domain, to trust the driver to
+deal with system sleep, via re-using the runtime PM callbacks.
+So the flag does still have two meanings, but that we can change - of course.
+
+>
+> Thanks,
+> Rafael
+>
+
+Kind regards
+Uffe
