@@ -1,7 +1,7 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4 1/3] i2c: Allow overriding dev_name through board_info
-Date: Sun,  3 Sep 2017 14:41:54 +0200
-Message-ID: <20170903124156.7440-2-hdegoede@redhat.com>
+Subject: [PATCH v4 2/3] i2c-cht-wc: Add device-properties for fusb302 integration
+Date: Sun,  3 Sep 2017 14:41:55 +0200
+Message-ID: <20170903124156.7440-3-hdegoede@redhat.com>
 References: <20170903124156.7440-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170903124156.7440-1-hdegoede@redhat.com>
@@ -10,78 +10,148 @@ To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wo
 Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-For devices not instantiated through ACPI the i2c-client's device-name
-gets set to <busnr>-<addr> by default, e.g. "0-0022" this means that
-the device-name is dependent on the order in which the i2c-busses are
-enumerated.
+Add device-properties to make the bq24292i charger connected to
+the bus get its input-current-limit from the fusb302 Type-C port
+controller which is used on boards with the cht-wc PMIC,
+as well as regulator_init_data for the 5V boost converter on
+the bq24292i.
 
-In some cases having a predictable constant device-name is desirable,
-for example on non device-tree platforms the link between a regulator
-and its consumers is specified by the platform code by setting
-regulator_init_data.consumers. This array identifies the regulator's
-consumers by dev_name and supply(-name). Which requires a constant
-dev_name.
-
-This commit adds a dev_name field to i2c_board_info allowing
-platform code to set a contstant dev_name so that the device can
-be identified by its dev_name in other platform code.
+Since this means we now hook-up the bq24292i to the fusb302 Type-C port
+controller add a check for the ACPI device which instantiates the fusb302.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-base.c | 10 ++++++++--
- include/linux/i2c.h         |  2 ++
- 2 files changed, 10 insertions(+), 2 deletions(-)
+Changes in v2:
+-Set board_info.dev_name
+-Define and pass regulator_init_data for the bq24292i
+-Add a check for the ACPI device which instantiates the fusb302
+Changes in v4:
+-Drop the ti,input-current-limit-from-supplier property on the bq24292i
+ this is the default now
+---
+ drivers/i2c/busses/Kconfig      |  5 ++++
+ drivers/i2c/busses/i2c-cht-wc.c | 51 +++++++++++++++++++++++++++++++++++------
+ 2 files changed, 49 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 45fafcc88b93..5cdf3b947c23 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -672,10 +672,16 @@ static void i2c_adapter_unlock_bus(struct i2c_adapter *adapter,
- }
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 79c33817e412..272ef10fb629 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -197,6 +197,11 @@ config I2C_CHT_WC
+ 	  SMBus controller found in the Intel Cherry Trail Whiskey Cove PMIC
+ 	  found on some Intel Cherry Trail systems.
  
- static void i2c_dev_set_name(struct i2c_adapter *adap,
--			     struct i2c_client *client)
-+			     struct i2c_client *client,
-+			     struct i2c_board_info const *info)
- {
- 	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
- 
-+	if (info && info->dev_name) {
-+		dev_set_name(&client->dev, "i2c-%s", info->dev_name);
-+		return;
-+	}
++	  Note this controller is hooked up to a TI bq24292i charger-IC,
++	  combined with a FUSB302 Type-C port-controller as such it is advised
++	  to also select CONFIG_CHARGER_BQ24190=m and CONFIG_TYPEC_FUSB302=m
++	  (the fusb302 driver currently is in drivers/staging).
 +
- 	if (adev) {
- 		dev_set_name(&client->dev, "i2c-%s", acpi_dev_name(adev));
- 		return;
-@@ -772,7 +778,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->dev.of_node = info->of_node;
- 	client->dev.fwnode = info->fwnode;
+ config I2C_NFORCE2
+ 	tristate "Nvidia nForce2, nForce3 and nForce4"
+ 	depends on PCI
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+index 21312eed09e4..82e331db8d98 100644
+--- a/drivers/i2c/busses/i2c-cht-wc.c
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -16,6 +16,7 @@
+  * GNU General Public License for more details.
+  */
  
--	i2c_dev_set_name(adap, client);
-+	i2c_dev_set_name(adap, client, info);
++#include <linux/acpi.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+@@ -25,6 +26,7 @@
+ #include <linux/mfd/intel_soc_pmic.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/power/bq24190_charger.h>
+ #include <linux/slab.h>
  
- 	if (info->properties) {
- 		status = device_add_properties(&client->dev, info->properties);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 701ad26fa6b4..d3655cfe9a3e 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -310,6 +310,7 @@ static inline bool i2c_detect_slave_mode(struct device *dev) { return false; }
-  * @type: chip type, to initialize i2c_client.name
-  * @flags: to initialize i2c_client.flags
-  * @addr: stored in i2c_client.addr
-+ * @dev_name: Overrides the default <busnr>-<addr> dev_name if set
-  * @platform_data: stored in i2c_client.dev.platform_data
-  * @archdata: copied into i2c_client.dev.archdata
-  * @of_node: pointer to OpenFirmware device node
-@@ -334,6 +335,7 @@ struct i2c_board_info {
- 	char		type[I2C_NAME_SIZE];
- 	unsigned short	flags;
- 	unsigned short	addr;
-+	const char	*dev_name;
- 	void		*platform_data;
- 	struct dev_archdata	*archdata;
- 	struct device_node *of_node;
+ #define CHT_WC_I2C_CTRL			0x5e24
+@@ -232,13 +234,35 @@ static const struct irq_chip cht_wc_i2c_irq_chip = {
+ 	.name			= "cht_wc_ext_chrg_irq_chip",
+ };
+ 
++static const char * const bq24190_suppliers[] = { "fusb302-typec-source" };
++
+ static const struct property_entry bq24190_props[] = {
+-	PROPERTY_ENTRY_STRING("extcon-name", "cht_wcove_pwrsrc"),
++	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", bq24190_suppliers),
+ 	PROPERTY_ENTRY_BOOL("omit-battery-class"),
+ 	PROPERTY_ENTRY_BOOL("disable-reset"),
+ 	{ }
+ };
+ 
++static struct regulator_consumer_supply fusb302_consumer = {
++	.supply = "vbus",
++	/* Must match fusb302 dev_name in intel_cht_int33fe.c */
++	.dev_name = "i2c-fusb302",
++};
++
++static const struct regulator_init_data bq24190_vbus_init_data = {
++	.constraints = {
++		/* The name is used in intel_cht_int33fe.c do not change. */
++		.name = "cht_wc_usb_typec_vbus",
++		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
++	},
++	.consumer_supplies = &fusb302_consumer,
++	.num_consumer_supplies = 1,
++};
++
++static struct bq24190_platform_data bq24190_pdata = {
++	.regulator_init_data = &bq24190_vbus_init_data,
++};
++
+ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
+@@ -246,7 +270,9 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_board_info board_info = {
+ 		.type = "bq24190",
+ 		.addr = 0x6b,
++		.dev_name = "bq24190",
+ 		.properties = bq24190_props,
++		.platform_data = &bq24190_pdata,
+ 	};
+ 	int ret, reg, irq;
+ 
+@@ -314,11 +340,21 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto remove_irq_domain;
+ 
+-	board_info.irq = adap->client_irq;
+-	adap->client = i2c_new_device(&adap->adapter, &board_info);
+-	if (!adap->client) {
+-		ret = -ENOMEM;
+-		goto del_adapter;
++	/*
++	 * Normally the Whiskey Cove PMIC is paired with a TI bq24292i charger,
++	 * connected to this i2c bus, and a max17047 fuel-gauge and a fusb302
++	 * USB Type-C controller connected to another i2c bus. In this setup
++	 * the max17047 and fusb302 devices are enumerated through an INT33FE
++	 * ACPI device. If this device is present register an i2c-client for
++	 * the TI bq24292i charger.
++	 */
++	if (acpi_dev_present("INT33FE", NULL, -1)) {
++		board_info.irq = adap->client_irq;
++		adap->client = i2c_new_device(&adap->adapter, &board_info);
++		if (!adap->client) {
++			ret = -ENOMEM;
++			goto del_adapter;
++		}
+ 	}
+ 
+ 	platform_set_drvdata(pdev, adap);
+@@ -335,7 +371,8 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
+ 
+-	i2c_unregister_device(adap->client);
++	if (adap->client)
++		i2c_unregister_device(adap->client);
+ 	i2c_del_adapter(&adap->adapter);
+ 	irq_domain_remove(adap->irq_domain);
+ 
 -- 
 2.13.4
