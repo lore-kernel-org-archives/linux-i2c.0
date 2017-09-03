@@ -1,69 +1,35 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [I2C] About warning 'DMA-API: device driver maps memory from
- stack'
-Date: Sat, 2 Sep 2017 23:58:30 +0200
-Message-ID: <20170902215829.3jpwmbyy27cpu5rm@ninjato>
-References: <1504354088.31793.48.camel@mhfsdcap03>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kw5527oc57zspplz"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v4 0/3] i2c: Hookup typec power-negotation to the PMIC and charger
+Date: Sun,  3 Sep 2017 14:41:53 +0200
+Message-ID: <20170903124156.7440-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:33116 "EHLO pokefinder.org"
+Received: from mx1.redhat.com ([209.132.183.28]:56462 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752761AbdIBV6d (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 2 Sep 2017 17:58:33 -0400
-Content-Disposition: inline
-In-Reply-To: <1504354088.31793.48.camel@mhfsdcap03>
+        id S1751604AbdICMmA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 3 Sep 2017 08:42:00 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jun Gao <jun.gao@mediatek.com>
-Cc: srv_heupstream@mediatek.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, yingjoe.chen@mediatek.com
+To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---kw5527oc57zspplz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Almost all patches from my patch series for hooking up typec
+power-negotation to the PMIC and charger drivers have been
+queued for merging into 4.14, leaving only the 3 patches of
+the v4 of this series.
 
-Hi,
+The first 2 patches are i2c patches, if you could review and
+merge these (preferably for 4.14, but 4.15 is fine too) that would
+be great.
 
-nice to see someone else interested in the I2C & DMA topic.
+Darren, Andy, the single platform/x86 patch in here should only
+be merged after the 2 i2c patches are in place, otherwise users
+of the board(s) in question will end up not having any battery
+monitoring. Also note that this patch applies on top of the
+"[PATCH v2] platform/x86: intel_cht_int33fe: Work around BIOS bug on some devices"
+patch I send out yesterday.
 
-Please check this series which I sent out recently:
+Regards,
 
-"[RFC PATCH v4 0/6] i2c: document DMA handling and add helpers for it"
-
-In that series, I proposed...
-
-> 3. kmalloc data buffer instead of local variables buf in function
-> i2c_smbus_xfer_emulated(...)
-
-... this solution. Although I have to check Mauro's general response to
-the series first. I'd be interested in what you think of the series,
-too.
-
-Kind regards,
-
-   Wolfram
-
-
---kw5527oc57zspplz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmrKYEACgkQFA3kzBSg
-KbZt0g//fPC1uKGhc3J/ow/k11MRV0mL/pL0/Gva6fhMRCFIAVUyT/SuOcKrn3Gf
-6W9u8DUBwMTBnUDRTLIbUhfkYDfXuV7GP5McMwc+GMBAqi9iHYmOnZ3Ddr9Wb67W
-iACGn7MgvDgzbHf8NcJH4EoEd6LSa1E0pHSM3cmOB3yVXfvvTlUyRJzBy7J5xPqe
-w9/Yd0h4Qc6zqAmAZSa1k/fFMZnzpzRRuuXq+b2MeqWLPNbRbN3lPHuCyQyt3CtS
-JOG8BL3yYv61xNlfsNKpt2WfWRLm7imPAq6jFXyqIYRzzUaoehXXEJErJBrA32hd
-Glxc4txdGm6Rv+6LLDQbWoB2KUpuKu3RNdzXXZGt9YWIN6Iog3QqeTSo4xa5FVlP
-uZmJONx+pCczMVaZGOEHpGH9jGP55frD5AgGvcqFf0HmvZBjOQZTu/rKhK/GR5Vj
-ceqolEhoujkgFJYy/rcVgqoH2T0KyfVqjOjVVo+disgLuAf+Q8lr2neGF8BD3nFF
-njSpNzzJXImNO7WkX0S2TDjR4StWgVW7kpQZAU4SlhTXdXc/8edO+3DHoEuLC1RD
-aBFB8dnQ69SyQQs14XqZaN3l/W+vuXHEPD3/+3oVAnzLHeJT9t4pqcI9/nZ/r+Ax
-5gK0Fi+WbiDH+wqi7UOrLWhX+nytbeIu8x7mRwPUGnoB9MWzGdY=
-=Zzs8
------END PGP SIGNATURE-----
-
---kw5527oc57zspplz--
+Hans
