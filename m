@@ -1,158 +1,61 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 3/3] platform/x86: intel_cht_int33fe: Update fusb302 type string, add properties
-Date: Mon,  4 Sep 2017 15:47:03 +0200
-Message-ID: <20170904134703.25663-4-hdegoede@redhat.com>
-References: <20170904134703.25663-1-hdegoede@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170904134703.25663-1-hdegoede@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 0/3] i2c: Hookup typec power-negotation to the PMIC
+ and charger
+Date: Mon, 4 Sep 2017 15:56:14 +0200
+Message-ID: <20170904135614.w3v3yvrrqructa37@ninjato>
+References: <20170903124156.7440-1-hdegoede@redhat.com>
+ <20170904045645.fb6scegrypdodvfl@ninjato>
+ <be26a8cd-e089-0997-2438-5f12ecd02988@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="awn2vh3ydoalziol"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:38754 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753591AbdIDN4R (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Sep 2017 09:56:17 -0400
+Content-Disposition: inline
+In-Reply-To: <be26a8cd-e089-0997-2438-5f12ecd02988@redhat.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-The fusb302 driver as merged in staging uses "typec_fusb302" as i2c-id
-rather then just "fusb302" and needs us to set a number of device-
-properties, adjust the intel_cht_int33fe driver accordingly.
 
-One of the properties set is max-snk-mv which makes the fusb302 driver
-negotiate up to 12V charging voltage, which is a bad idea on boards
-which are not setup to handle this, so this commit also adds 2 extra
-sanity checks to make sure that the expected Whiskey Cove PMIC +
-TI bq24292i charger combo, which can handle 12V, is present.
+--awn2vh3ydoalziol
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
-Changes in v2:
--Set board_info.dev_name
--Adjust for changes in other patches in this patch-set
 
-Changes in v5:
--Improve Kconfig help text
----
- drivers/platform/x86/Kconfig             |  6 ++++-
- drivers/platform/x86/intel_cht_int33fe.c | 44 +++++++++++++++++++++++++++++++-
- 2 files changed, 48 insertions(+), 2 deletions(-)
+> I've some other patches pending which require further changes to the
+> intel_cht_int33fe driver (*), so I think it would be best if the last
+> patch got merged through the platform/x86 tree. The dependencies
+> between patch 2-3 are runtime only (and not fatal if missing, just
+> inconvenient) so merging this to 2 separate trees should be fine
+> as long as both patches get merged for 4.15.
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 80b87954f6dd..312d2472b8b3 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -793,7 +793,7 @@ config ACPI_CMPC
- 
- config INTEL_CHT_INT33FE
- 	tristate "Intel Cherry Trail ACPI INT33FE Driver"
--	depends on X86 && ACPI && I2C
-+	depends on X86 && ACPI && I2C && REGULATOR
- 	---help---
- 	  This driver add support for the INT33FE ACPI device found on
- 	  some Intel Cherry Trail devices.
-@@ -804,6 +804,10 @@ config INTEL_CHT_INT33FE
- 	  This driver instantiates i2c-clients for these, so that standard
- 	  i2c drivers for these chips can bind to the them.
- 
-+	  If you enable this driver it is advised to also select
-+	  CONFIG_TYPEC_FUSB302=m (under "Staging drivers"),
-+	  CONFIG_CHARGER_BQ24190=m and CONFIG_BATTERY_MAX17042=m.
-+
- config INTEL_INT0002_VGPIO
- 	tristate "Intel ACPI INT0002 Virtual GPIO driver"
- 	depends on GPIOLIB && ACPI
-diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
-index a9cbc4b8ca63..b2925d996613 100644
---- a/drivers/platform/x86/intel_cht_int33fe.c
-+++ b/drivers/platform/x86/intel_cht_int33fe.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- 
- #define EXPECTED_PTYPE		4
-@@ -77,12 +78,21 @@ static const struct property_entry max17047_props[] = {
- 	{ }
- };
- 
-+static const struct property_entry fusb302_props[] = {
-+	PROPERTY_ENTRY_STRING("fcs,extcon-name", "cht_wcove_pwrsrc"),
-+	PROPERTY_ENTRY_U32("fcs,max-sink-microvolt", 12000000),
-+	PROPERTY_ENTRY_U32("fcs,max-sink-microamp",   3000000),
-+	PROPERTY_ENTRY_U32("fcs,max-sink-microwatt", 36000000),
-+	{ }
-+};
-+
- static int cht_int33fe_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct i2c_board_info board_info;
- 	struct cht_int33fe_data *data;
- 	struct i2c_client *max17047;
-+	struct regulator *regulator;
- 	unsigned long long ptyp;
- 	acpi_status status;
- 	int ret, fusb302_irq;
-@@ -100,6 +110,34 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 	if (ptyp != EXPECTED_PTYPE)
- 		return -ENODEV;
- 
-+	/* Check presence of INT34D3 (hardware-rev 3) expected for ptype == 4 */
-+	if (!acpi_dev_present("INT34D3", "1", 3)) {
-+		dev_err(dev, "Error PTYPE == %d, but no INT34D3 device\n",
-+			EXPECTED_PTYPE);
-+		return -ENODEV;
-+	}
-+
-+	/*
-+	 * We expect the WC PMIC to be paired with a TI bq24292i charger-IC.
-+	 * We check for the bq24292i vbus regulator here, this has 2 purposes:
-+	 * 1) The bq24292i allows charging with up to 12V, setting the fusb302's
-+	 *    max-snk voltage to 12V with another charger-IC is not good.
-+	 * 2) For the fusb302 driver to get the bq24292i vbus regulator, the
-+	 *    regulator-map, which is part of the bq24292i regulator_init_data,
-+	 *    must be registered before the fusb302 is instantiated, otherwise
-+	 *    it will end up with a dummy-regulator.
-+	 * Note "cht_wc_usb_typec_vbus" comes from the regulator_init_data
-+	 * which is defined in i2c-cht-wc.c from where the bq24292i i2c-client
-+	 * gets instantiated. We use regulator_get_optional here so that we
-+	 * don't end up getting a dummy-regulator ourselves.
-+	 */
-+	regulator = regulator_get_optional(dev, "cht_wc_usb_typec_vbus");
-+	if (IS_ERR(regulator)) {
-+		ret = PTR_ERR(regulator);
-+		return (ret == -ENODEV) ? -EPROBE_DEFER : ret;
-+	}
-+	regulator_put(regulator);
-+
- 	/* The FUSB302 uses the irq at index 1 and is the only irq user */
- 	fusb302_irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 1);
- 	if (fusb302_irq < 0) {
-@@ -126,6 +164,7 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 	} else {
- 		memset(&board_info, 0, sizeof(board_info));
- 		strlcpy(board_info.type, "max17047", I2C_NAME_SIZE);
-+		board_info.dev_name = "max17047";
- 		board_info.properties = max17047_props;
- 		data->max17047 = i2c_acpi_new_device(dev, 1, &board_info);
- 		if (!data->max17047)
-@@ -133,7 +172,9 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 	}
- 
- 	memset(&board_info, 0, sizeof(board_info));
--	strlcpy(board_info.type, "fusb302", I2C_NAME_SIZE);
-+	strlcpy(board_info.type, "typec_fusb302", I2C_NAME_SIZE);
-+	board_info.dev_name = "fusb302";
-+	board_info.properties = fusb302_props;
- 	board_info.irq = fusb302_irq;
- 
- 	data->fusb302 = i2c_acpi_new_device(dev, 2, &board_info);
-@@ -141,6 +182,7 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 		goto out_unregister_max17047;
- 
- 	memset(&board_info, 0, sizeof(board_info));
-+	board_info.dev_name = "pi3usb30532";
- 	strlcpy(board_info.type, "pi3usb30532", I2C_NAME_SIZE);
- 
- 	data->pi3usb30532 = i2c_acpi_new_device(dev, 3, &board_info);
--- 
-2.13.4
+OK. So, I'll just look at the first two patches. You'll know when I done
+this.
+
+
+--awn2vh3ydoalziol
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmtW3kACgkQFA3kzBSg
+KbaFNg/8DR19caCyAyHytZFcO/YvcIWTHNKLqR/2ARE+aRz1uy2aJpkUfMpcg2nP
+oMZXJ5Uyyd/pCL05lZXD7+WLDJk71w7SZwXunpUNB3coSkrV7JxBmelWfKk3aurF
+WhXUVL8omJrqM2SCnNq4TNnwRgvjGrVyOD3qKzljDGjc0uG5XTOgNHimNYNfnpwK
+keWifu/kAiIiaxy+E8cTON560CiVGglbYBJ5FdbP3zAi0cZXiF+FSe/m9RlIO/HE
++p4Z4BFri0Kc0feCi9Uaf4VLOWRE+NdiAFPCrkOEFxfHTdcFqBiyFDW7zNN+E3T7
+mZs97JsL52qbZFNT8LCrauauh/PD0/oUr7pdaNdyByK7HwdhJ1jsxpYtRYamsJPm
+P18SDV4Xc9GXfL8Upr+GkwyTqGmjG32K10E2tUJEAIVyCd/K+bVk0gLyjwup9KAY
+KyKNtjuRr8iIqk5m1x58TjgA0TKv0OO1EHHhuGQFAMGsQOpLpCCOyENdSUGFHOYF
++SsnhOhY5IK1tQwu10VjvtvU2a81fZDYJPIZ520ZhMIe9wenMxKEpuj3YYvVM2GJ
+zhrNQGc2hxgRO2KERNVcTxyO7ykIF2yhKVRv/0niwO9sVufZxpJ9EfXuIXU8wblt
+lriq+2X9Go87hToFRPHinzCnL5w7+VNfk0MRHBDv4XTO754Ws2Q=
+=GaLw
+-----END PGP SIGNATURE-----
+
+--awn2vh3ydoalziol--
