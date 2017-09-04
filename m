@@ -1,57 +1,161 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] dt-bindings: add "size" property.
-Date: Mon, 4 Sep 2017 10:57:39 +0200
-Message-ID: <20170904085738.vzp3cwvpema5oxvz@ninjato>
-References: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
- <1501173789-25959-2-git-send-email-divagar.mohandass@intel.com>
- <20170803202734.rqyoiqhqvonvvtca@rob-hp-laptop>
- <7B8CE47BD58441468D2BB13285B50E6031DB615E@BGSMSX107.gar.corp.intel.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [RFT][PATCH v2 2/2] PM / i2c: designware: Clean up system sleep handling without ACPI
+Date: Mon, 04 Sep 2017 12:01:54 +0200
+Message-ID: <1729594.8Da7J7iljp@aspire.rjw.lan>
+References: <3023226.l5IfJK6GIc@aspire.rjw.lan> <6044272.h4jTMoqRfC@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4pdkikykskjg3mpa"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:37986 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753318AbdIDI5l (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 4 Sep 2017 04:57:41 -0400
-Content-Disposition: inline
-In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DB615E@BGSMSX107.gar.corp.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <6044272.h4jTMoqRfC@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Ulf Hansson <ulf.hansson@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Cc: Rob Herring <robh@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
 
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
---4pdkikykskjg3mpa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+After commit a23318feeff6 (i2c: designware: Fix system suspend)
+the i2c-designware-platdrv driver always resumes the device in its
+system sleep ->suspend callback which isn't particularly nice,
+even though it is technically correct.
 
+A better approach would be to make the driver track the PM state of
+the device so that it doesn't need to resume it in ->suspend and
+to drop its ->prepare and ->complete callbacks which are only
+marginally useful, so implement that.
 
-> If you want to use an existing ID for an eeprom for a different size,
-> there is no way to override it currently.=20
+First, drop dw_i2c_plat_suspend() added by commit a23318feeff6 and
+rename dw_i2c_plat_runtime_suspend() back to dw_i2c_plat_suspend().
 
-Can you give an example for that?
+Second, point the driver's ->late_suspend and ->early_resume
+callbacks, rather than its ->suspend and ->resume callbacks,
+to dw_i2c_plat_suspend() and dw_i2c_plat_resume(), respectively,
+so that they are not executed in parallel with each other, for
+example if runtime resume of the device takes place during system
+suspend.
 
+Next, add "suspended" and "skip_resume" flags to struct dw_i2c_dev
+and make dw_i2c_plat_suspend() and dw_i2c_plat_resume() use them to
+avoid suspending or resuming the device twice in a row and to avoid
+resuming a previously runtime-suspended device during system resume.
 
---4pdkikykskjg3mpa
-Content-Type: application/pgp-signature; name="signature.asc"
+Finally, drop the driver's ->prepare and ->complete PM callbacks,
+because returning "true" from ->prepare for runtime-suspended
+devices is marginally useful (the PM core may still ignore that
+return value and invoke the driver's ->suspend callback anyway)
+and ->complete is only needed because of what ->prepare does.
 
------BEGIN PGP SIGNATURE-----
+Overrides: a23318feeff6 (i2c: designware: Fix system suspend)
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmtFX4ACgkQFA3kzBSg
-KbZzIBAAkAyryIgMRdhZvWbkgzJ0Ilx/v/mlr+wtu53b+vkHGLzVUsiQUvhV28JS
-Jzvtd8YrPn9wLxQZ+v7saaje2zzs8b7YHBUE0JGtHabtF59IVpPIooLgj19U+lqG
-f5Bvlw1Ef66U5JdzXxpF1C9HAKF19paAlvF+ol6yBkf7kANQtQ0lgnyGH2lRSs6H
-94XURrRMkPgiqGO+5iOr6IhjWksTXlhWurVmPdeSCzY+PIHqYMxiRWmJUC9LVPei
-2U/SNRYqmsDbN1OEDlw5ofxXxq7dvfBxenVvYGY1on/8HHpoSuMSCRTsAJXnjetv
-INbhcGyHCKSVvoXJLmNteS/dVpFTiyoYhW4L2UnMdTT6lemJEaPI/EwehXBolFN2
-HzS5XSvB8Bsd/RJbP++H36QxVnTjeGNo6iClWX/NKVxyGOg/nS+e66K48Mpur68f
-dKtvl/3QI21iR586ZCR5m4GN6kNoFGan21SeccaqFN4pcGcfyKfe2hOqPAa9mHcc
-5SVOB+m4YqTVv5QSztU6DwEdcj3Q0LyiNH1hjgN+i2DrO5QjE5EGUdtclICr9nMr
-/OPFalN2KwiXMsMyrpyzMuV5GPOJTHZFH4/luLLQRNMpbD0Bwy5QZOpym6Sm7C/k
-eBtXHMih9ujgtMauPJJR6+SHp6whV0vsWfqfXsiIzTMhhEbLJGA=
-=7fwT
------END PGP SIGNATURE-----
+-> v2: Add the "suspended" flag, which is needed, because
+       dw_i2c_plat_suspend() doesn't update the runtime PM
+       status of the device, so dw_i2c_plat_resume() can't
+       rely on the pm_runtime_status_suspended() check
+       during system resume.
 
---4pdkikykskjg3mpa--
+---
+ drivers/i2c/busses/i2c-designware-core.h    |    2 +
+ drivers/i2c/busses/i2c-designware-platdrv.c |   51 ++++++++++------------------
+ 2 files changed, 22 insertions(+), 31 deletions(-)
+
+Index: linux-pm/drivers/i2c/busses/i2c-designware-core.h
+===================================================================
+--- linux-pm.orig/drivers/i2c/busses/i2c-designware-core.h
++++ linux-pm/drivers/i2c/busses/i2c-designware-core.h
+@@ -280,6 +280,8 @@ struct dw_i2c_dev {
+ 	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+ 	void			(*release_lock)(struct dw_i2c_dev *dev);
+ 	bool			pm_disabled;
++	bool			suspended;
++	bool			skip_resume;
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
+Index: linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+===================================================================
+--- linux-pm.orig/drivers/i2c/busses/i2c-designware-platdrv.c
++++ linux-pm/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -434,31 +434,22 @@ static const struct of_device_id dw_i2c_
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #endif
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int dw_i2c_plat_prepare(struct device *dev)
+-{
+-	return pm_runtime_suspended(dev);
+-}
+-
+-static void dw_i2c_plat_complete(struct device *dev)
+-{
+-	if (dev->power.direct_complete)
+-		pm_request_resume(dev);
+-}
+-#else
+-#define dw_i2c_plat_prepare	NULL
+-#define dw_i2c_plat_complete	NULL
+-#endif
+-
+ #ifdef CONFIG_PM
+-static int dw_i2c_plat_runtime_suspend(struct device *dev)
++static int dw_i2c_plat_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	if (i_dev->suspended) {
++		i_dev->skip_resume = true;
++		return 0;
++	}
++
+ 	i_dev->disable(i_dev);
+ 	i2c_dw_plat_prepare_clk(i_dev, false);
+ 
++	i_dev->suspended = true;
++
+ 	return 0;
+ }
+ 
+@@ -467,27 +458,25 @@ static int dw_i2c_plat_resume(struct dev
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	if (!i_dev->suspended)
++		return 0;
++
++	if (i_dev->skip_resume) {
++		i_dev->skip_resume = false;
++		return 0;
++	}
++
+ 	i2c_dw_plat_prepare_clk(i_dev, true);
+ 	i_dev->init(i_dev);
+ 
+-	return 0;
+-}
++	i_dev->suspended = false;
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int dw_i2c_plat_suspend(struct device *dev)
+-{
+-	pm_runtime_resume(dev);
+-	return dw_i2c_plat_runtime_suspend(dev);
++	return 0;
+ }
+-#endif
+ 
+ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+-	.prepare = dw_i2c_plat_prepare,
+-	.complete = dw_i2c_plat_complete,
+-	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+-	SET_RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend,
+-			   dw_i2c_plat_resume,
+-			   NULL)
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
++	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+ };
+ 
+ #define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
+
