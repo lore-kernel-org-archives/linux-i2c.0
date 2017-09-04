@@ -1,193 +1,78 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v4 3/3] platform/x86: intel_cht_int33fe: Update fusb302
- type string, add properties
-Date: Mon, 4 Sep 2017 15:38:44 +0200
-Message-ID: <56295622-0532-d940-f79f-a91bb8146068@redhat.com>
-References: <20170903124156.7440-1-hdegoede@redhat.com>
- <20170903124156.7440-4-hdegoede@redhat.com>
- <CAHp75Ve2yCn3R42oUSW4LYgaMcFEh9eqZh3fCG8n=Zmu68WjvA@mail.gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [GIT PULL] Immutable branch between MFD and many other subsystems
+ due for the v4.14 merge window
+Date: Mon, 4 Sep 2017 14:43:28 +0100
+Message-ID: <20170904134328.c6stoqane6733xkv@dell>
+References: <20170814163424.2197-1-wsa@the-dreams.de>
+ <20170814163424.2197-4-wsa@the-dreams.de>
+ <CACRpkdZd1TecLVQA2uPiPM_fWDw1mS2-kpmN06xp=dP4Wh-vYQ@mail.gmail.com>
+ <20170827164444.GB22819@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58666 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752835AbdIDNir (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 4 Sep 2017 09:38:47 -0400
-In-Reply-To: <CAHp75Ve2yCn3R42oUSW4LYgaMcFEh9eqZh3fCG8n=Zmu68WjvA@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170827164444.GB22819-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUXWATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-Hi,
+Enjoy!
 
-On 04-09-17 08:27, Andy Shevchenko wrote:
-> On Sun, Sep 3, 2017 at 3:41 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->> The fusb302 driver as merged in staging uses "typec_fusb302" as i2c-id
->> rather then just "fusb302" and needs us to set a number of device-
->> properties, adjust the intel_cht_int33fe driver accordingly.
->>
->> One of the properties set is max-snk-mv which makes the fusb302 driver
->> negotiate up to 12V charging voltage, which is a bad idea on boards
->> which are not setup to handle this, so this commit also adds 2 extra
->> sanity checks to make sure that the expected Whiskey Cove PMIC +
->> TI bq24292i charger combo, which can handle 12V, is present.
-> 
-> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> 
-> (in case Wolfram would like to take it)
-> 
-> See comments below.
-> 
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Set board_info.dev_name
->> -Adjust for changes in other patches in this patch-set
->> ---
->>   drivers/platform/x86/Kconfig             |  6 ++++-
->>   drivers/platform/x86/intel_cht_int33fe.c | 44 +++++++++++++++++++++++++++++++-
->>   2 files changed, 48 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
->> index 80b87954f6dd..c5554577681a 100644
->> --- a/drivers/platform/x86/Kconfig
->> +++ b/drivers/platform/x86/Kconfig
->> @@ -793,7 +793,7 @@ config ACPI_CMPC
->>
->>   config INTEL_CHT_INT33FE
->>          tristate "Intel Cherry Trail ACPI INT33FE Driver"
->> -       depends on X86 && ACPI && I2C
->> +       depends on X86 && ACPI && I2C && REGULATOR
->>          ---help---
->>            This driver add support for the INT33FE ACPI device found on
->>            some Intel Cherry Trail devices.
->> @@ -804,6 +804,10 @@ config INTEL_CHT_INT33FE
->>            This driver instantiates i2c-clients for these, so that standard
->>            i2c drivers for these chips can bind to the them.
->>
->> +         If you enable this driver it is advised to also select
->> +         CONFIG_CHARGER_BQ24190=m, CONFIG_BATTERY_MAX17042=m and
->> +         CONFIG_TYPEC_FUSB302=m (currently in drivers/staging).
->> +
-> 
-> I would put FUSB302 first since it's not obvious now that remark in
-> parens is related only to it. And might be better rephase the path in
-> terms of `make menuconfig` rather than pathname in the source tree.
+The following changes since commit 569dbb88e80deb68974ef6fdd6a13edb9d686261:
 
-Ok, fixed for v5, which I will send right away.
+  Linux 4.13 (2017-09-03 13:56:17 -0700)
 
-Regards,
+are available in the git repository at:
 
-Hans
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-many-v4.14
 
+for you to fetch changes up to a205425658dead19bb1b8ac00584aed98e60dde2:
 
+  mfd: twl: Move header file out of I2C realm (2017-09-04 14:41:02 +0100)
 
->>   config INTEL_INT0002_VGPIO
->>          tristate "Intel ACPI INT0002 Virtual GPIO driver"
->>          depends on GPIOLIB && ACPI
->> diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
->> index a9cbc4b8ca63..b2925d996613 100644
->> --- a/drivers/platform/x86/intel_cht_int33fe.c
->> +++ b/drivers/platform/x86/intel_cht_int33fe.c
->> @@ -24,6 +24,7 @@
->>   #include <linux/i2c.h>
->>   #include <linux/interrupt.h>
->>   #include <linux/module.h>
->> +#include <linux/regulator/consumer.h>
->>   #include <linux/slab.h>
->>
->>   #define EXPECTED_PTYPE         4
->> @@ -77,12 +78,21 @@ static const struct property_entry max17047_props[] = {
->>          { }
->>   };
->>
->> +static const struct property_entry fusb302_props[] = {
->> +       PROPERTY_ENTRY_STRING("fcs,extcon-name", "cht_wcove_pwrsrc"),
->> +       PROPERTY_ENTRY_U32("fcs,max-sink-microvolt", 12000000),
->> +       PROPERTY_ENTRY_U32("fcs,max-sink-microamp",   3000000),
->> +       PROPERTY_ENTRY_U32("fcs,max-sink-microwatt", 36000000),
->> +       { }
->> +};
->> +
->>   static int cht_int33fe_probe(struct i2c_client *client)
->>   {
->>          struct device *dev = &client->dev;
->>          struct i2c_board_info board_info;
->>          struct cht_int33fe_data *data;
->>          struct i2c_client *max17047;
->> +       struct regulator *regulator;
->>          unsigned long long ptyp;
->>          acpi_status status;
->>          int ret, fusb302_irq;
->> @@ -100,6 +110,34 @@ static int cht_int33fe_probe(struct i2c_client *client)
->>          if (ptyp != EXPECTED_PTYPE)
->>                  return -ENODEV;
->>
->> +       /* Check presence of INT34D3 (hardware-rev 3) expected for ptype == 4 */
->> +       if (!acpi_dev_present("INT34D3", "1", 3)) {
->> +               dev_err(dev, "Error PTYPE == %d, but no INT34D3 device\n",
->> +                       EXPECTED_PTYPE);
->> +               return -ENODEV;
->> +       }
->> +
->> +       /*
->> +        * We expect the WC PMIC to be paired with a TI bq24292i charger-IC.
->> +        * We check for the bq24292i vbus regulator here, this has 2 purposes:
->> +        * 1) The bq24292i allows charging with up to 12V, setting the fusb302's
->> +        *    max-snk voltage to 12V with another charger-IC is not good.
->> +        * 2) For the fusb302 driver to get the bq24292i vbus regulator, the
->> +        *    regulator-map, which is part of the bq24292i regulator_init_data,
->> +        *    must be registered before the fusb302 is instantiated, otherwise
->> +        *    it will end up with a dummy-regulator.
->> +        * Note "cht_wc_usb_typec_vbus" comes from the regulator_init_data
->> +        * which is defined in i2c-cht-wc.c from where the bq24292i i2c-client
->> +        * gets instantiated. We use regulator_get_optional here so that we
->> +        * don't end up getting a dummy-regulator ourselves.
->> +        */
->> +       regulator = regulator_get_optional(dev, "cht_wc_usb_typec_vbus");
->> +       if (IS_ERR(regulator)) {
->> +               ret = PTR_ERR(regulator);
->> +               return (ret == -ENODEV) ? -EPROBE_DEFER : ret;
->> +       }
->> +       regulator_put(regulator);
->> +
->>          /* The FUSB302 uses the irq at index 1 and is the only irq user */
->>          fusb302_irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 1);
->>          if (fusb302_irq < 0) {
->> @@ -126,6 +164,7 @@ static int cht_int33fe_probe(struct i2c_client *client)
->>          } else {
->>                  memset(&board_info, 0, sizeof(board_info));
->>                  strlcpy(board_info.type, "max17047", I2C_NAME_SIZE);
->> +               board_info.dev_name = "max17047";
->>                  board_info.properties = max17047_props;
->>                  data->max17047 = i2c_acpi_new_device(dev, 1, &board_info);
->>                  if (!data->max17047)
->> @@ -133,7 +172,9 @@ static int cht_int33fe_probe(struct i2c_client *client)
->>          }
->>
->>          memset(&board_info, 0, sizeof(board_info));
->> -       strlcpy(board_info.type, "fusb302", I2C_NAME_SIZE);
->> +       strlcpy(board_info.type, "typec_fusb302", I2C_NAME_SIZE);
->> +       board_info.dev_name = "fusb302";
->> +       board_info.properties = fusb302_props;
->>          board_info.irq = fusb302_irq;
->>
->>          data->fusb302 = i2c_acpi_new_device(dev, 2, &board_info);
->> @@ -141,6 +182,7 @@ static int cht_int33fe_probe(struct i2c_client *client)
->>                  goto out_unregister_max17047;
->>
->>          memset(&board_info, 0, sizeof(board_info));
->> +       board_info.dev_name = "pi3usb30532";
->>          strlcpy(board_info.type, "pi3usb30532", I2C_NAME_SIZE);
->>
->>          data->pi3usb30532 = i2c_acpi_new_device(dev, 3, &board_info);
->> --
->> 2.13.4
->>
-> 
-> 
-> 
+----------------------------------------------------------------
+Immutable branch between MFD and many other subsystems due for the v4.14 merge window
+
+----------------------------------------------------------------
+Wolfram Sang (1):
+      mfd: twl: Move header file out of I2C realm
+
+ arch/arm/mach-omap2/common.h            | 2 +-
+ arch/arm/mach-omap2/omap_twl.c          | 2 +-
+ drivers/gpio/gpio-twl4030.c             | 2 +-
+ drivers/iio/adc/twl4030-madc.c          | 2 +-
+ drivers/iio/adc/twl6030-gpadc.c         | 2 +-
+ drivers/input/keyboard/twl4030_keypad.c | 2 +-
+ drivers/input/misc/twl4030-pwrbutton.c  | 2 +-
+ drivers/input/misc/twl4030-vibra.c      | 2 +-
+ drivers/mfd/twl-core.c                  | 6 +++---
+ drivers/mfd/twl4030-audio.c             | 2 +-
+ drivers/mfd/twl4030-irq.c               | 2 +-
+ drivers/mfd/twl4030-power.c             | 2 +-
+ drivers/mfd/twl6030-irq.c               | 2 +-
+ drivers/phy/ti/phy-twl4030-usb.c        | 2 +-
+ drivers/power/supply/twl4030_charger.c  | 2 +-
+ drivers/pwm/pwm-twl-led.c               | 2 +-
+ drivers/pwm/pwm-twl.c                   | 2 +-
+ drivers/regulator/twl-regulator.c       | 2 +-
+ drivers/regulator/twl6030-regulator.c   | 2 +-
+ drivers/rtc/rtc-twl.c                   | 2 +-
+ drivers/usb/phy/phy-twl6030-usb.c       | 2 +-
+ drivers/video/backlight/pandora_bl.c    | 2 +-
+ drivers/watchdog/twl4030_wdt.c          | 2 +-
+ include/linux/{i2c => mfd}/twl.h        | 0
+ sound/soc/codecs/twl4030.c              | 2 +-
+ 25 files changed, 26 insertions(+), 26 deletions(-)
+ rename include/linux/{i2c => mfd}/twl.h (100%)
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
