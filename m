@@ -1,151 +1,44 @@
-From: Divagar Mohandass <divagar.mohandass@intel.com>
-Subject: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Mon,  4 Sep 2017 15:58:48 +0530
-Message-ID: <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, sakari.ailus@iki.fi
-Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rajmohan.mani@intel.com, Divagar Mohandass <divagar.mohandass@intel.com>
+From: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/3] dt-bindings: add "size" property.
+Date: Mon, 4 Sep 2017 10:46:04 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DE8164@BGSMSX107.gar.corp.intel.com>
+References: <1501173789-25959-1-git-send-email-divagar.mohandass@intel.com>
+ <1501173789-25959-2-git-send-email-divagar.mohandass@intel.com>
+ <20170803202734.rqyoiqhqvonvvtca@rob-hp-laptop>
+ <7B8CE47BD58441468D2BB13285B50E6031DB615E@BGSMSX107.gar.corp.intel.com>
+ <20170904085738.vzp3cwvpema5oxvz@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170904085738.vzp3cwvpema5oxvz@ninjato>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently the device is kept in D0, there is an opportunity
-to save power by enabling runtime pm.
 
-Device can be daisy chained from PMIC and we can't rely on I2C core
-for auto resume/suspend. Driver will decide when to resume/suspend.
+>-----Original Message-----
+>From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+>Sent: Monday, September 04, 2017 2:28 PM
+>To: Mohandass, Divagar <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>; mark.rutland-5wv7dgnIgG8@public.gmane.org;
+>devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>Subject: Re: [PATCH 1/3] dt-bindings: add "size" property.
+>
+>
+>> If you want to use an existing ID for an eeprom for a different size,
+>> there is no way to override it currently.
+>
+>Can you give an example for that?
 
-Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
----
- drivers/misc/eeprom/at24.c | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+There is a CAT24C16/GT24C16S NVMEM chip part of the OV13858
+camera module and it is connected to i2c bus on Intel KBL board.
+This device will use the existing ACPI ID INT3499 for an eeprom of size 2048 byte.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2199c42..d718a7a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c.h>
- #include <linux/nvmem-provider.h>
- #include <linux/platform_data/at24.h>
-+#include <linux/pm_runtime.h>
- 
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-@@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
- static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct i2c_client *client;
- 	char *buf = val;
-+	int ret;
- 
- 	if (unlikely(!count))
- 		return count;
- 
-+	client = at24_translate_offset(at24, &off);
-+
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&client->dev);
-+		return ret;
-+	}
-+
- 	/*
- 	 * Read data from chip, protecting against concurrent updates
- 	 * from this host, but not from other I2C masters.
-@@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 		status = at24->read_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
-+			pm_runtime_put(&client->dev);
- 			return status;
- 		}
- 		buf += status;
-@@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 
- 	mutex_unlock(&at24->lock);
- 
-+	pm_runtime_put(&client->dev);
-+
- 	return 0;
- }
- 
- static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct i2c_client *client;
- 	char *buf = val;
-+	int ret;
- 
- 	if (unlikely(!count))
- 		return -EINVAL;
- 
-+	client = at24_translate_offset(at24, &off);
-+
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&client->dev);
-+		return ret;
-+	}
-+
- 	/*
- 	 * Write data to chip, protecting against concurrent updates
- 	 * from this host, but not from other I2C masters.
-@@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 		status = at24->write_func(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
-+			pm_runtime_put(&client->dev);
- 			return status;
- 		}
- 		buf += status;
-@@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 
- 	mutex_unlock(&at24->lock);
- 
-+	pm_runtime_put(&client->dev);
-+
- 	return 0;
- }
- 
-@@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	i2c_set_clientdata(client, at24);
- 
-+	/* enable runtime pm */
-+	pm_runtime_get_noresume(&client->dev);
-+	pm_runtime_set_active(&client->dev);
-+	pm_runtime_enable(&client->dev);
-+
- 	/*
- 	 * Perform a one-byte test read to verify that the
- 	 * chip is functional.
- 	 */
- 	err = at24_read(at24, 0, &test_byte, 1);
-+	pm_runtime_put(&client->dev);
- 	if (err) {
- 		err = -ENODEV;
- 		goto err_clients;
-@@ -795,6 +828,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		if (at24->client[i])
- 			i2c_unregister_device(at24->client[i]);
- 
-+	pm_runtime_disable(&client->dev);
-+
- 	return err;
- }
- 
-@@ -810,6 +845,9 @@ static int at24_remove(struct i2c_client *client)
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
- 
-+	pm_runtime_disable(&client->dev);
-+	pm_runtime_set_suspended(&client->dev);
-+
- 	return 0;
- }
- 
--- 
-1.9.1
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
