@@ -1,124 +1,87 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v3 6/8] PM / ACPI: Enable the runtime PM centric approach
- for system sleep
-Date: Mon, 4 Sep 2017 15:21:15 +0200
-Message-ID: <CAPDyKFoTz3fFJwpJgmmwLfHQTzmWpyZL+NcVPY8D254nR2Mzag@mail.gmail.com>
-References: <1504018610-10822-1-git-send-email-ulf.hansson@linaro.org>
- <2855684.NY3Ly9PzrE@aspire.rjw.lan> <CAPDyKFq5ic+bAVRoEC58oSO-8VTGnfipJndLmR6YLXgEhZ+RWw@mail.gmail.com>
- <2209426.5Z3u1iKN4i@aspire.rjw.lan>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v4 0/3] i2c: Hookup typec power-negotation to the PMIC and
+ charger
+Date: Mon, 4 Sep 2017 15:33:22 +0200
+Message-ID: <be26a8cd-e089-0997-2438-5f12ecd02988@redhat.com>
+References: <20170903124156.7440-1-hdegoede@redhat.com>
+ <20170904045645.fb6scegrypdodvfl@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2209426.5Z3u1iKN4i@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:50334 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752835AbdIDNdZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Sep 2017 09:33:25 -0400
+In-Reply-To: <20170904045645.fb6scegrypdodvfl@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Guenter Roeck <linux@roeck-us.net>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On 2 September 2017 at 17:38, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Friday, September 1, 2017 10:27:05 AM CEST Ulf Hansson wrote:
->> On 29 August 2017 at 17:27, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->> > On Tuesday, August 29, 2017 4:56:48 PM CEST Ulf Hansson wrote:
->> >> This change enables the ACPI PM domain to cope with drivers that deploys
->> >> the runtime PM centric path for system sleep.
->> >
->> > [cut]
->> >
->> >> @@ -1052,11 +1066,20 @@ EXPORT_SYMBOL_GPL(acpi_subsys_complete);
->> >>   * @dev: Device to handle.
->> >>   *
->> >>   * Follow PCI and resume devices suspended at run time before running their
->> >> - * system suspend callbacks.
->> >> + * system suspend callbacks. However, try to avoid it in case the runtime PM
->> >> + * centric path is used for the device and then trust the driver to do the
->> >> + * right thing.
->> >>   */
->> >>  int acpi_subsys_suspend(struct device *dev)
->> >>  {
->> >> -     pm_runtime_resume(dev);
->> >> +     struct acpi_device *adev = ACPI_COMPANION(dev);
->> >> +
->> >> +     if (!adev)
->> >> +             return 0;
->> >> +
->> >> +     if (!dev_pm_is_rpm_sleep(dev) || acpi_dev_needs_resume(dev, adev))
->> >> +             pm_runtime_resume(dev);
->> >> +
->> >>       return pm_generic_suspend(dev);
->> >>  }
->> >>  EXPORT_SYMBOL_GPL(acpi_subsys_suspend);
->> >
->> > Well, I tried to avoid calling acpi_dev_needs_resume() for multiple times
->> > and that's why I added the update_state thing.
->> >
->> > Moreover, the is_rpm_sleep flag here has to mean not only that
->> > direct_complete should not be used with the device, but also that its driver
->> > is fine with not resuming it.
->>
->> Let me try to explain this better. I realize the changelog is
->> misleading around this particular section! Huh, apologize for that!
->>
->> First, patch1 makes the PM core treat the is_rpm_sleep flag as the
->> direct_complete isn't allowed for the device.
->>
->> For that reason, when the is_rpm_sleep is set, there is no point
->> calling acpi_dev_needs_resume() from acpi_subsys_prepare(), but
->> instead that can be deferred to acpi_subsys_suspend() - because it
->> doesn't matter if acpi_subsys_prepare() returns 0 or 1, in either case
->> the acpi_subsys_suspend() will be called. That's really what goes on
->> here.
->>
->> The end result is the same. If the acpi_dev_needs_resume() thinks that
->> the device needs to be runtime resumed, pm_runtime_resume() is called
->> for the device in acpi_subsys_suspend().
->>
->> So, this has nothing to do with whether the driver "is fine with not
->> resuming it" thing.
->
-> No, sorry.
->
-> If is_rpm_sleep was not set, the ACPI PM domain would resume the device in
-> acpi_subsys_suspend() regardless of the acpi_dev_needs_resume() return value.
+Hi,
 
-Yes, I believe I forgot about one scenario, when the direct_complete
-path has been abandoned by the PM core, because a child device was
-suspend before and it couldn't run the direct_complete path for it?
+On 04-09-17 06:56, Wolfram Sang wrote:
+> Hi,
+> 
+>> The first 2 patches are i2c patches, if you could review and
+>> merge these (preferably for 4.14, but 4.15 is fine too) that would
+>> be great.
+> 
+> Definately for v4.15 and I very likely won't be able to review them
+> before rc1 or rc2 time, if even that. Sorry, but I2C core changes need
+> extra careful review and I2C maintenance is largely done in my limited
+> spare time.
 
-Just to be sure, that's the case you also had in mind?
+Ok, I understand.
 
-> That's what's there in the patch.  So clearly, setting is_rpm_sleep means
-> "this device does not need to be resumed in acpi_subsys_suspend() unless
-> acpi_dev_needs_resume() returns true".  Which clearly means that the driver
-> *is* fine with not resuming it, because if is_rpm_sleep is set, the device
-> in fact may not be resumed and then the driver will need to cope with that.
+> If you could get other people to review/tag the patches,
+> this would be very helpful.
 
-Yes, I understand your concern, because we may break the default
-behavior of the ACPI PM domain.
+FWIW althought the first patch is a core change it is not really a big
+one and won't impact any existing drivers, but I fully understand
+you still want to take your time to review it.
 
-So, *if* there will be a next version, I will make sure to be better
-safe than sorry, and add one flag per use case.
+Andy (Shevchenko) can you perhaps take a look at the first patch
+in this series and give your opinion on it ?
 
->
-> And note that this meaning of is_rpm_sleep is different from what it is
-> expected to mean to the core.
->
->> >
->> > IMO it is not a good idea to use one flag for these two different things at the
->> > same time at all.
->>
->> Yeah, I guess my upper comment addresses your immediate concern here?
->
-> No, they don't.
->
->> However, there is one other thing the is_rpm_flag means. That is that
->> the driver has informed the ACPI PM domain, to trust the driver to
->> deal with system sleep, via re-using the runtime PM callbacks.
->> So the flag does still have two meanings, but that we can change - of course.
->
-> I guess that you are referring to the use of dev_pm_is_rpm_sleep() in
-> acpi_subsys_suspend_late()?  That's the third thing this flag means ...
+>> Darren, Andy, the single platform/x86 patch in here should only
+>> be merged after the 2 i2c patches are in place, otherwise users
+>> of the board(s) in question will end up not having any battery
+>> monitoring. Also note that this patch applies on top of the
+>> "[PATCH v2] platform/x86: intel_cht_int33fe: Work around BIOS bug on some devices"
+>> patch I send out yesterday.
+> 
+> Is that dependency for v4.14?
 
-Yes.
+Yes that dep should make 4.14.
 
-Kind regards
-Uffe
+> Would it be an idea if I take the platform
+> patch via the i2c tree then?
+
+I've some other patches pending which require further changes to the
+intel_cht_int33fe driver (*), so I think it would be best if the last
+patch got merged through the platform/x86 tree. The dependencies
+between patch 2-3 are runtime only (and not fatal if missing, just
+inconvenient) so merging this to 2 separate trees should be fine
+as long as both patches get merged for 4.15.
+
+Regards,
+
+Hans
+
+
+*) The intel_cht_int33fe and i2c/busses/i2c-cht-wc drivers together
+instantiate 4 i2c devices which together make all the "magic" behind
+the Type-C connector on these boards happen. The patch-series
+completed by these 3 patches ties 3 of the 4 drivers together so
+that charging and battery monitoring fully works. Ideally all 4
+i2c-clients would be instantiated from a single place, e.g.
+intel_cht_int33fe.c, but the charger is hooked up through a "child"
+i2c bus on the pmic, which is where i2c/busses/i2c-cht-wc.c
+comes into play.
+
+The next series adds support for the 4th chip, the type-c cross-switch/
+mux which is necessary to get superspeed usb and/or displayport working
+over the Type-C connector.
