@@ -1,67 +1,72 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH/RFC 1/3] dt-bindings: i2c: i2c-gpio: Add support for named gpios
-Date: Thu, 7 Sep 2017 13:42:17 +0200
-Message-ID: <CAMuHMdXGm0XuuihG=L_JRBV_WHt2QPtZgdsMFT0PeyDH3ejsNg@mail.gmail.com>
-References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
- <1503566474-5335-2-git-send-email-geert+renesas@glider.be> <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop>
+From: Shivaraj Shetty <shettyshivaraj@gmail.com>
+Subject: Re: [REF] Query regarding process call/repeated start in i2c driver
+Date: Thu, 7 Sep 2017 20:13:58 +0530
+Message-ID: <CANXXpoCfa496JK_E1wUtNiiEnKZS8fiG8pOOxeYUCOms93sJdg@mail.gmail.com>
+References: <CANXXpoBfWccpXNza3xyVXDd7biAdrq+8DyzeRsGidVRE55iNyA@mail.gmail.com>
+ <20170905175212.7lw5zaqq2lf5r2fg@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:33890 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755169AbdIGLmS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2017 07:42:18 -0400
-In-Reply-To: <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop>
+Received: from mail-it0-f52.google.com ([209.85.214.52]:36211 "EHLO
+        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754005AbdIGOoA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2017 10:44:00 -0400
+Received: by mail-it0-f52.google.com with SMTP id 6so127388itl.1
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Sep 2017 07:44:00 -0700 (PDT)
+In-Reply-To: <20170905175212.7lw5zaqq2lf5r2fg@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-Hi Rob,
+Hi Wolfram Sang,
 
-On Thu, Aug 31, 2017 at 7:55 PM, Rob Herring <robh@kernel.org> wrote:
-> On Thu, Aug 24, 2017 at 11:21:12AM +0200, Geert Uytterhoeven wrote:
->> The current i2c-gpio DT bindings use a single unnamed "gpios" property
->> to refer to the SDA and SCL signal lines by index.  This is error-prone
->> for the casual DT writer and reviewer, as one has to look up the order
->> in the DT bindings.
->>
->> Fix this by amending the DT bindings to use two separate named gpios
->> properties, and deprecate the old unnamed variant.
->>
->> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
->> ---
->>  Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 5 +++--
->>  1 file changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->> index 4f8ec947c6bd9cad..61033f73577dd70e 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->> @@ -2,8 +2,9 @@ Device-Tree bindings for i2c gpio driver
->>
->>  Required properties:
->>       - compatible = "i2c-gpio";
->> -     - gpios: sda and scl gpio
->> -
->> +     - sda-gpios: gpio used for the sda signal
->> +     - scl-gpios: gpio used for the scl signal
->> +     - gpios: sda and scl gpio, alternative for {sda,scl}-gpios (deprecated)
->>
->>  Optional properties:
->>       - i2c-gpio,sda-open-drain: sda as open drain
+I am facing issue on nxp-pca9505 I/O expander as I add support for
+repeated start to bcm-iproc i2c driver.
+I will check on code changes that I have done to support repeated
+start, as you have confirmed that ideally i2c client shouldn't have
+issue using repeated start instead of stop-start.
+
+Thank you.
+
+On 5 September 2017 at 23:22, Wolfram Sang <wsa@the-dreams.de> wrote:
 >
-> Well, if we're going to change things, we should drop these open-drain
-> properties. We have open-drain flags in gpio cells, so we don't need
-> these I think.
+>> 1. From I2C_AQ_COMB quirk it looks like if there are two messages in
+>> single i2c_transfer api to i2c-core, it has to be repeated-start.
+>> Is my understanding correct?
+>
+> Yes.
+>
+>> 2. On calling smbus api for word read (non process call), it calls i2c
+>> transfer api with two messages (emulation on i2c case). Now if 1 is
+>> true we end up in repeated start case.
+>
+> Yes, this is exactly how it is described in the SMBus Specification.
+>
+>> But this may not be expected by the i2c client.
+>
+> Quite the contrary, you usually run into more problems if you replace
+> repeated start with STOP/START. For example, you could get interrupted
+> by another master on the bus. But some clients also reset their state
+> machine after STOP. What device are you talking about? Which device
+> cannot handle repeated start? That would be interesting to know.
+>
+>> Basically how to know from the i2c host/core driver, if the client
+>> wants to use Repeated start or not?
+>
+> The client driver knows what the client wants.
+>
+>> Why don't we have a way where i2c client driver can call the i2c core
+>> api with flag to indicate whether to use repeated-start or not?
+>> (similar to protocolparameter in smbus api - can be set as
+>> I2C_SMBUS_PROC_CALL for process call)
+>
+> Because your client is not SMBus compatible, and you need work on I2C
+> level then where you can describe your own transfers the way you want.
+>
 
-It depends. Some GPIO controllers use #gpio-cells = 1, lacking flags.
-Furthermore, the gpio-specifiers are controller-specific, and not all GPIO
-controllers supporting flags follow the semi-standard flag definitions in
-<dt-bindings/gpio/gpio.h>.
 
-See Documentation/devicetree/bindings/gpio/gpio.txt.
 
-Gr{oetje,eeting}s,
-
-                        Geert
+-- 
+Regards,
+Shivaraj Shetty
