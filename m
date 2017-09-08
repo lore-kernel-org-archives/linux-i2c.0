@@ -1,72 +1,103 @@
-From: Shivaraj Shetty <shettyshivaraj@gmail.com>
-Subject: Re: [REF] Query regarding process call/repeated start in i2c driver
-Date: Thu, 7 Sep 2017 20:13:58 +0530
-Message-ID: <CANXXpoCfa496JK_E1wUtNiiEnKZS8fiG8pOOxeYUCOms93sJdg@mail.gmail.com>
-References: <CANXXpoBfWccpXNza3xyVXDd7biAdrq+8DyzeRsGidVRE55iNyA@mail.gmail.com>
- <20170905175212.7lw5zaqq2lf5r2fg@ninjato>
+From: "Wangtao (Kevin, Kirin)" <kevin.wangtao@hisilicon.com>
+Subject: Re: [1/9] i2c: designware: Fix system suspend
+Date: Fri, 8 Sep 2017 11:23:28 +0800
+Message-ID: <5597d9a7-8b1a-d45d-e8d5-d1c0b46ddb7a@hisilicon.com>
+References: <1498072888-14782-2-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f52.google.com ([209.85.214.52]:36211 "EHLO
-        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754005AbdIGOoA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2017 10:44:00 -0400
-Received: by mail-it0-f52.google.com with SMTP id 6so127388itl.1
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Sep 2017 07:44:00 -0700 (PDT)
-In-Reply-To: <20170905175212.7lw5zaqq2lf5r2fg@ninjato>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:5998 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753963AbdIHDXl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2017 23:23:41 -0400
+In-Reply-To: <1498072888-14782-2-git-send-email-ulf.hansson@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-
-Hi Wolfram Sang,
-
-I am facing issue on nxp-pca9505 I/O expander as I add support for
-repeated start to bcm-iproc i2c driver.
-I will check on code changes that I have done to support repeated
-start, as you have confirmed that ideally i2c client shouldn't have
-issue using repeated start instead of stop-start.
-
-Thank you.
-
-On 5 September 2017 at 23:22, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> 1. From I2C_AQ_COMB quirk it looks like if there are two messages in
->> single i2c_transfer api to i2c-core, it has to be repeated-start.
->> Is my understanding correct?
->
-> Yes.
->
->> 2. On calling smbus api for word read (non process call), it calls i2c
->> transfer api with two messages (emulation on i2c case). Now if 1 is
->> true we end up in repeated start case.
->
-> Yes, this is exactly how it is described in the SMBus Specification.
->
->> But this may not be expected by the i2c client.
->
-> Quite the contrary, you usually run into more problems if you replace
-> repeated start with STOP/START. For example, you could get interrupted
-> by another master on the bus. But some clients also reset their state
-> machine after STOP. What device are you talking about? Which device
-> cannot handle repeated start? That would be interesting to know.
->
->> Basically how to know from the i2c host/core driver, if the client
->> wants to use Repeated start or not?
->
-> The client driver knows what the client wants.
->
->> Why don't we have a way where i2c client driver can call the i2c core
->> api with flag to indicate whether to use repeated-start or not?
->> (similar to protocolparameter in smbus api - can be set as
->> I2C_SMBUS_PROC_CALL for process call)
->
-> Because your client is not SMBus compatible, and you need work on I2C
-> level then where you can describe your own transfers the way you want.
->
+To: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org
+Cc: Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, stable@vger.linux.org
 
 
+This patch can fix the issue we found on hikey960 that i2c doesn't skip system suspend when it is runtime suspended.
 
--- 
-Regards,
-Shivaraj Shetty
+在 2017/6/22 3:21, Ulf Hansson 写道:
+> The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
+> during system suspend"), may suggest to the PM core to try out the so
+> called direct_complete path for system sleep. In this path, the PM core
+> treats a runtime suspended device as it's already in a proper low power
+> state for system sleep, which makes it skip calling the system sleep
+> callbacks for the device, except for the ->prepare() and the ->complete()
+> callback.
+> 
+> Moreover, under certain circumstances the PM core may unset the
+> direct_complete flag for a parent device, in case its child device are
+> being system suspended before. In other words, the PM core doesn't skip
+> calling the system sleep callbacks, no matter if the device is runtime
+> suspended or not.
+> 
+> In cases of an i2c slave device, the above situation is triggered.
+> Unfortunate, this also breaks the assumption that the i2c device is always
+> runtime resumed, whenever the dw_i2c_plat_suspend() callback is being
+> invoked, which then leads to a regression.
+> 
+> More precisely, dw_i2c_plat_suspend() then calls clk_core_disable() and
+> clk_core_unprepare(), for an already disabled/unprepared clock, leading to
+> complaints about clocks calls being wrongly balanced.
+> 
+> In cases when the i2c device is attached to the ACPI PM domain, the problem
+> doesn't occur. That's because ACPI's ->suspend() callback, assigned to
+> acpi_subsys_suspend(), calls pm_runtime_resume() for the i2c device.
+> 
+> To make a simple fix for this regression, let's runtime resume the i2c
+> device in the ->prepare() callback, assigned to dw_i2c_plat_prepare(). This
+> prevents the direct_complete path from being executed by the PM core and
+> guarantees the dw_i2c_plat_suspend() is called with the i2c device always
+> being runtime resumed.
+> 
+> Of course this change is suboptimal, because to always force a runtime
+> resume of the i2c device in ->prepare() is a waste, especially in those
+> cases when it could have remained runtime suspended during the entire
+> system sleep sequence. However, to accomplish that behaviour a bigger
+> change is needed, so defer that to future changes not applicable as fixes
+> or for stable.
+> 
+> Fixes: 8503ff166504 ("i2c: designware: Avoid unnecessary resuming...")
+> Cc: stable@vger.linux.org
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
+>   drivers/i2c/busses/i2c-designware-platdrv.c | 11 ++---------
+>   1 file changed, 2 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index d1263b8..2b7fa75 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -375,17 +375,11 @@ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+>   #ifdef CONFIG_PM_SLEEP
+>   static int dw_i2c_plat_prepare(struct device *dev)
+>   {
+> -	return pm_runtime_suspended(dev);
+> -}
+> -
+> -static void dw_i2c_plat_complete(struct device *dev)
+> -{
+> -	if (dev->power.direct_complete)
+> -		pm_request_resume(dev);
+> +	pm_runtime_resume(dev);
+> +	return 0;
+>   }
+>   #else
+>   #define dw_i2c_plat_prepare	NULL
+> -#define dw_i2c_plat_complete	NULL
+>   #endif
+>   
+>   #ifdef CONFIG_PM
+> @@ -413,7 +407,6 @@ static int dw_i2c_plat_resume(struct device *dev)
+>   
+>   static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>   	.prepare = dw_i2c_plat_prepare,
+> -	.complete = dw_i2c_plat_complete,
+>   	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+>   	SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL)
+>   };
+> 
