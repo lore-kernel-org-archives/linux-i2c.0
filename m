@@ -1,122 +1,158 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [1/9] i2c: designware: Fix system suspend
-Date: Fri, 8 Sep 2017 10:29:53 +0200
-Message-ID: <CAPDyKFq0W2NXXGzNgKq2xeiFsj=kt8JG+LzEzOb=38RWBqi+YA@mail.gmail.com>
-References: <1498072888-14782-2-git-send-email-ulf.hansson@linaro.org> <5597d9a7-8b1a-d45d-e8d5-d1c0b46ddb7a@hisilicon.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
+Date: Fri, 8 Sep 2017 10:56:40 +0200
+Message-ID: <20170908085640.42wzzgd2s2roikyd@ninjato>
+References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+ <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+ <20170827083748.248e2430@vento.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <5597d9a7-8b1a-d45d-e8d5-d1c0b46ddb7a@hisilicon.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Wangtao (Kevin, Kirin)" <kevin.wangtao@hisilicon.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, stable@vger.linux.org
+Content-Type: multipart/mixed; boundary="===============0112086450=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170827083748.248e2430@vento.lan>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 8 September 2017 at 05:23, Wangtao (Kevin, Kirin)
-<kevin.wangtao@hisilicon.com> wrote:
->
-> This patch can fix the issue we found on hikey960 that i2c doesn't skip
-> system suspend when it is runtime suspended.
 
-We decided to go with a slightly different version. You may try out
-the below and see if that also fixes your problem.
+--===============0112086450==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pyvw5k7cs3klgvb6"
+Content-Disposition: inline
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
-id=3Da23318feeff662c8d25d21623daebdd2e55ec221
 
-Kind regards
-Uffe
+--pyvw5k7cs3klgvb6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->
-> =E5=9C=A8 2017/6/22 3:21, Ulf Hansson =E5=86=99=E9=81=93:
->>
->> The commit 8503ff166504 ("i2c: designware: Avoid unnecessary resuming
->> during system suspend"), may suggest to the PM core to try out the so
->> called direct_complete path for system sleep. In this path, the PM core
->> treats a runtime suspended device as it's already in a proper low power
->> state for system sleep, which makes it skip calling the system sleep
->> callbacks for the device, except for the ->prepare() and the ->complete(=
-)
->> callback.
->>
->> Moreover, under certain circumstances the PM core may unset the
->> direct_complete flag for a parent device, in case its child device are
->> being system suspended before. In other words, the PM core doesn't skip
->> calling the system sleep callbacks, no matter if the device is runtime
->> suspended or not.
->>
->> In cases of an i2c slave device, the above situation is triggered.
->> Unfortunate, this also breaks the assumption that the i2c device is alwa=
-ys
->> runtime resumed, whenever the dw_i2c_plat_suspend() callback is being
->> invoked, which then leads to a regression.
->>
->> More precisely, dw_i2c_plat_suspend() then calls clk_core_disable() and
->> clk_core_unprepare(), for an already disabled/unprepared clock, leading =
-to
->> complaints about clocks calls being wrongly balanced.
->>
->> In cases when the i2c device is attached to the ACPI PM domain, the
->> problem
->> doesn't occur. That's because ACPI's ->suspend() callback, assigned to
->> acpi_subsys_suspend(), calls pm_runtime_resume() for the i2c device.
->>
->> To make a simple fix for this regression, let's runtime resume the i2c
->> device in the ->prepare() callback, assigned to dw_i2c_plat_prepare().
->> This
->> prevents the direct_complete path from being executed by the PM core and
->> guarantees the dw_i2c_plat_suspend() is called with the i2c device alway=
-s
->> being runtime resumed.
->>
->> Of course this change is suboptimal, because to always force a runtime
->> resume of the i2c device in ->prepare() is a waste, especially in those
->> cases when it could have remained runtime suspended during the entire
->> system sleep sequence. However, to accomplish that behaviour a bigger
->> change is needed, so defer that to future changes not applicable as fixe=
-s
->> or for stable.
->>
->> Fixes: 8503ff166504 ("i2c: designware: Avoid unnecessary resuming...")
->> Cc: stable@vger.linux.org
->> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->> ---
->>   drivers/i2c/busses/i2c-designware-platdrv.c | 11 ++---------
->>   1 file changed, 2 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c
->> b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index d1263b8..2b7fa75 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -375,17 +375,11 @@ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
->>   #ifdef CONFIG_PM_SLEEP
->>   static int dw_i2c_plat_prepare(struct device *dev)
->>   {
->> -       return pm_runtime_suspended(dev);
->> -}
->> -
->> -static void dw_i2c_plat_complete(struct device *dev)
->> -{
->> -       if (dev->power.direct_complete)
->> -               pm_request_resume(dev);
->> +       pm_runtime_resume(dev);
->> +       return 0;
->>   }
->>   #else
->>   #define dw_i2c_plat_prepare   NULL
->> -#define dw_i2c_plat_complete   NULL
->>   #endif
->>     #ifdef CONFIG_PM
->> @@ -413,7 +407,6 @@ static int dw_i2c_plat_resume(struct device *dev)
->>     static const struct dev_pm_ops dw_i2c_dev_pm_ops =3D {
->>         .prepare =3D dw_i2c_plat_prepare,
->> -       .complete =3D dw_i2c_plat_complete,
->>         SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
->>         SET_RUNTIME_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume, NULL=
-)
->>   };
->>
->
+Hi Mauro,
+
+thanks for your comments. Much appreciated!
+
+> There are also a couple of things here that Sphinx would complain.
+> So, it could be worth to rename it to *.rst, while you're writing
+> it, and see what:
+> 	make htmldocs
+> will complain and how it will look in html.
+
+OK, I'll check that.
+
+> > +Given that I2C is a low-speed bus where largely small messages are tra=
+nsferred,
+> > +it is not considered a prime user of DMA access. At this time of writi=
+ng, only
+> > +10% of I2C bus master drivers have DMA support implemented.
+>=20
+> Are you sure about that? I'd say that, on media, at least half of the
+> drivers use DMA for I2C bus access, as the I2C bus is on a remote
+> board that talks with CPU via USB, using DMA, and all communication
+> with USB should be DMA-safe.
+
+Well, the DMA-safe requirement comes then from the USB subsystem,
+doesn't it? Or do you really use DMA on the remote board to transfer
+data via I2C to an I2C client?
+
+> I guess what you really wanted to say on most of this section is
+> about SoC (and other CPUs) where the I2C bus master is is at the
+> mainboard, and not on some peripheral.
+
+I might be biased to that, yes. So, it is good talking about it.
+
+> > And the vast
+> > +majority of transactions are so small that setting up DMA for it will =
+likely
+> > +add more overhead than a plain PIO transfer.
+> > +
+> > +Therefore, it is *not* mandatory that the buffer of an I2C message is =
+DMA safe.
+>=20
+> Again, that may not be true on media boards. The code that implements the
+> I2C transfers there, on most boards, have to be DMA safe, as it won't
+> otherwise send/receive commands from the chips that are after the USB
+> bridge.
+
+That still sounds to me like the DMA-safe requirement comes from USB
+(which is fine, of course.). In any case, a sentence like "Other
+subsystem you might use for bridging I2C might impose other DMA
+requirements" sounds like to nice to have.
+
+> > +Drivers wishing to implement DMA can use helper functions from the I2C=
+ core.
+> > +One gives you a DMA-safe buffer for a given i2c_msg as long as a certa=
+in
+> > +threshold is met.
+> > +
+> > +	dma_buf =3D i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
+>=20
+> I'm concerned about the new bits added by this call. Right now,
+> USB drivers just use kalloc() for transfer buffers used to send and
+> receive URB control messages for both setting the main device and
+> for I2C messages. Before this changeset, buffers allocated this
+> way are DMA save and have been working for years.
+
+Can you give me a pointer to a driver doing this? I glimpsed around in
+drivers/media/usb and found that most drivers are having their i2c_msg
+buffers on the stack. Which is clearly not DMA-safe.
+
+> When you add some flags that would make the I2C subsystem aware
+> that a buffer is now DMA safe, I guess you could be breaking
+> those drivers, as a DMA safe buffer will now be considered as
+> DMA-unsafe.
+
+Well, this flag is only relevant for i2c master drivers wishing to do
+DMA. So, grepping in the above directory
+
+	grep dma $(grep -rl i2c_add_adapter *)
+
+only gives one driver which is irrelevant because the i2c master it
+registers is not doing any DMA?
+
+Am I missing something? We are clearly not aligned yet...
+
+Regards,
+
+   Wolfram
+
+
+--pyvw5k7cs3klgvb6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmyW0QACgkQFA3kzBSg
+KbYZNg/9EnabaEpCNVqzi+wqs6ncXDgpJtRDPBdRcXGFqjA56pjIUzsIcVUoNYzT
+jXhwBFxrUoSrgf0lefnyXhR5kRW6IIi2y+xz+GQFUlx/wETiaJ5k+U7Xq17QF9WM
+/BGszke18iiaySHzA5wrv0oTt3wVH5i5zU0Ly5XD1lL0Hxy2UIUXiJLSKPighX0V
+6ChQ++Jly8iC+zV4W95AQ5sTydm9+buNiaoy6EapUmIjls4Kt0xbdjk30S1dquew
+vf0130vnX6bJf2FLo8gTOuy3LZVPJ6R7hdHe9ffxfcGg5lL77Xx8Xn5hdDLfk/zU
+4Gi9dhoKkhMZJ23MOVmnTCgIRvrKwCzmvKSl2lTdvuAGr4CA5FtjmeRJrx2FN5cC
+Va9jfcE7RUIlLkP/N7pA7m7Shbxdkm0AnbLTo8Ppud7swfLatvyICCBTlm9qPTya
+YkMuRuprP4UtER+q9vglcsnNKmxjAPfVWY2cuLVRFnM4e/HbHErSPh/T6hbiJ939
+Gv2zrX+ZgXxtw96KJbfjszqzkuZOEqHSKfzE5c5a+xqy0m167bVb+gxJBjPs1kzP
+nctGfp02cr7x9UAJa23ePhi6O9NWeXcMj3YKxrOzQhuOqpgIYZKc86JLQKi+PC9N
+KF9ZU5x4TOG3fTIn1iFba0ykHvJgI025Y3v4sptw5Zt6gLT4h4o=
+=EPyl
+-----END PGP SIGNATURE-----
+
+--pyvw5k7cs3klgvb6--
+
+--===============0112086450==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============0112086450==--
