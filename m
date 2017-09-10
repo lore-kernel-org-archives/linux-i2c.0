@@ -1,102 +1,116 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 2/5] gpio: Make it possible for consumers to enforce open drain
-Date: Sun, 10 Sep 2017 23:44:21 +0200
-Message-ID: <20170910214424.14945-3-linus.walleij@linaro.org>
+Subject: [PATCH 5/5] i2c: gpio: Local vars in probe
+Date: Sun, 10 Sep 2017 23:44:24 +0200
+Message-ID: <20170910214424.14945-6-linus.walleij@linaro.org>
 References: <20170910214424.14945-1-linus.walleij@linaro.org>
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f41.google.com ([209.85.215.41]:33400 "EHLO
+        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751827AbdIJVow (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 10 Sep 2017 17:44:52 -0400
+Received: by mail-lf0-f41.google.com with SMTP id c80so14448725lfh.0
+        for <linux-i2c@vger.kernel.org>; Sun, 10 Sep 2017 14:44:51 -0700 (PDT)
 In-Reply-To: <20170910214424.14945-1-linus.walleij@linaro.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Linus Walleij <linus.walleij@linaro.org>
 
-Some busses, like I2C, strictly need to have the line handled
-as open drain, i.e. not actively driven high. For this reason
-the i2c-gpio.c bit-banged I2C driver is reimplementing open
-drain handling outside of gpiolib.
+By creating local variables for *dev and *np, the code become
+much easier to read, in my opinion.
 
-This is not very optimal. Instead make it possible for a
-consumer to explcitly express that the line must be handled
-as open drain instead of allowing local hacks papering over
-this issue.
-
-The descriptor tables, whether DT, ACPI or board files, should
-of course have flagged these lines as open drain. E.g.:
-enum gpio_lookup_flags GPIO_OPEN_DRAIN for a board file, or
-gpios = <&foo 42 GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN>; in a
-device tree using <dt-bindings/gpio/gpio.h>
-
-But more often than not, these descriptors are wrong. So
-we need to make it possible for consumers to enforce this
-open drain behaviour.
-
-We now have two new enumerated GPIO descriptor config flags:
-GPIOD_OUT_LOW_OPEN_DRAIN and GPIOD_OUT_HIGH_OPEN_DRAIN
-that will set up the lined enforced as open drain as output
-low or high, using open drain (if the driver supports it)
-or using open drain emulation (setting the line as input
-to drive it high) from the gpiolib core.
-
-Cc: linux-gpio@vger.kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
-Obviously I authorize this patch to be applied directly
-to the I2C tree as part of the refactorings.
+I put this at the end of the series because compared to the
+rest of the patches it is completely unimportant.
 ---
- drivers/gpio/gpiolib.c        | 13 +++++++++++++
- include/linux/gpio/consumer.h |  6 ++++++
- 2 files changed, 19 insertions(+)
+ drivers/i2c/busses/i2c-gpio.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index cd003b74512f..cb73a50a5d5d 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3228,8 +3228,21 @@ int gpiod_configure_flags(struct gpio_desc *desc, const char *con_id,
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index 18ac4cf2ee75..7fe599f4fdb0 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -88,10 +88,12 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_algo_bit_data *bit_data;
+ 	struct i2c_adapter *adap;
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
+ 	enum gpiod_flags gflags;
+ 	int ret;
  
- 	if (lflags & GPIO_ACTIVE_LOW)
- 		set_bit(FLAG_ACTIVE_LOW, &desc->flags);
-+
- 	if (lflags & GPIO_OPEN_DRAIN)
- 		set_bit(FLAG_OPEN_DRAIN, &desc->flags);
-+	else if (dflags & GPIOD_FLAGS_BIT_OPEN_DRAIN) {
-+		/*
-+		 * This enforces open drain mode from the consumer side.
-+		 * This is necessary for some busses like I2C, but the lookup
-+		 * should *REALLY* have specified them as open drain in the
-+		 * first place, so print a little warning here.
-+		 */
-+		set_bit(FLAG_OPEN_DRAIN, &desc->flags);
-+		gpiod_warn(desc,
-+			   "enforced open drain please flag it properly in DT/ACPI DSDT/board file\n");
-+	}
-+
- 	if (lflags & GPIO_OPEN_SOURCE)
- 		set_bit(FLAG_OPEN_SOURCE, &desc->flags);
- 	if (lflags & GPIO_SLEEP_MAY_LOOSE_VALUE)
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index 8f702fcbe485..5f72a49d1aa3 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -28,6 +28,7 @@ struct gpio_descs {
- #define GPIOD_FLAGS_BIT_DIR_SET		BIT(0)
- #define GPIOD_FLAGS_BIT_DIR_OUT		BIT(1)
- #define GPIOD_FLAGS_BIT_DIR_VAL		BIT(2)
-+#define GPIOD_FLAGS_BIT_OPEN_DRAIN	BIT(3)
+-	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
- /**
-  * Optional flags that can be passed to one of gpiod_* to configure direction
-@@ -39,6 +40,11 @@ enum gpiod_flags {
- 	GPIOD_OUT_LOW	= GPIOD_FLAGS_BIT_DIR_SET | GPIOD_FLAGS_BIT_DIR_OUT,
- 	GPIOD_OUT_HIGH	= GPIOD_FLAGS_BIT_DIR_SET | GPIOD_FLAGS_BIT_DIR_OUT |
- 			  GPIOD_FLAGS_BIT_DIR_VAL,
-+	GPIOD_OUT_LOW_OPEN_DRAIN = GPIOD_FLAGS_BIT_DIR_SET |
-+			  GPIOD_FLAGS_BIT_DIR_OUT | GPIOD_FLAGS_BIT_OPEN_DRAIN,
-+	GPIOD_OUT_HIGH_OPEN_DRAIN = GPIOD_FLAGS_BIT_DIR_SET |
-+			  GPIOD_FLAGS_BIT_DIR_OUT | GPIOD_FLAGS_BIT_DIR_VAL |
-+			  GPIOD_FLAGS_BIT_OPEN_DRAIN,
- };
+@@ -99,15 +101,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	bit_data = &priv->bit_data;
+ 	pdata = &priv->pdata;
  
- #ifdef CONFIG_GPIOLIB
+-	if (pdev->dev.of_node) {
+-		of_i2c_gpio_get_props(pdev->dev.of_node, pdata);
++	if (np) {
++		of_i2c_gpio_get_props(np, pdata);
+ 	} else {
+ 		/*
+ 		 * If all platform data settings are zero it is OK
+ 		 * to not provide any platform data from the board.
+ 		 */
+-		if (dev_get_platdata(&pdev->dev))
+-			memcpy(pdata, dev_get_platdata(&pdev->dev),
++		if (dev_get_platdata(dev))
++			memcpy(pdata, dev_get_platdata(dev),
+ 			       sizeof(*pdata));
+ 	}
+ 
+@@ -123,7 +125,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		gflags = GPIOD_OUT_HIGH;
+ 	else
+ 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
+-	priv->sda = devm_gpiod_get_index(&pdev->dev, NULL, 0, gflags);
++	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
+ 	if (IS_ERR(priv->sda)) {
+ 		ret = PTR_ERR(priv->sda);
+ 		/* FIXME: hack in the old code, is this really necessary? */
+@@ -142,7 +144,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		gflags = GPIOD_OUT_LOW;
+ 	else
+ 		gflags = GPIOD_OUT_LOW_OPEN_DRAIN;
+-	priv->scl = devm_gpiod_get_index(&pdev->dev, NULL, 1, gflags);
++	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
+ 	if (IS_ERR(priv->scl)) {
+ 		ret = PTR_ERR(priv->sda);
+ 		/* FIXME: hack in the old code, is this really necessary? */
+@@ -173,15 +175,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	bit_data->data = priv;
+ 
+ 	adap->owner = THIS_MODULE;
+-	if (pdev->dev.of_node)
+-		strlcpy(adap->name, dev_name(&pdev->dev), sizeof(adap->name));
++	if (np)
++		strlcpy(adap->name, dev_name(dev), sizeof(adap->name));
+ 	else
+ 		snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
+ 
+ 	adap->algo_data = bit_data;
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+-	adap->dev.parent = &pdev->dev;
+-	adap->dev.of_node = pdev->dev.of_node;
++	adap->dev.parent = dev;
++	adap->dev.of_node = np;
+ 
+ 	adap->nr = pdev->id;
+ 	ret = i2c_bit_add_numbered_bus(adap);
+@@ -195,7 +197,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	 * get accessors to get the actual name of the GPIO line,
+ 	 * from the descriptor, then provide that instead.
+ 	 */
+-	dev_info(&pdev->dev, "using lines %u (SDA) and %u (SCL%s)\n",
++	dev_info(dev, "using lines %u (SDA) and %u (SCL%s)\n",
+ 		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl),
+ 		 pdata->scl_is_output_only
+ 		 ? ", no clock stretching" : "");
 -- 
 2.13.5
-
