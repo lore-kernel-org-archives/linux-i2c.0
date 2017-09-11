@@ -1,57 +1,97 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
-Date: Mon, 11 Sep 2017 21:37:16 +0200
-Message-ID: <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
-References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-2-linus.walleij@linaro.org>
- <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
+From: Franklin S Cooper Jr <fcooper@ti.com>
+Subject: Re: [PATCH v3 1/2] i2c: davinci: Add PM Runtime Support
+Date: Mon, 11 Sep 2017 15:07:15 -0500
+Message-ID: <f185afb9-e877-1916-fcbc-c2a28f23b0cc@ti.com>
+References: <20170908175448.3367-1-fcooper@ti.com>
+ <20170908175448.3367-2-fcooper@ti.com>
+ <57153767-6dee-a5b5-548c-f7b0dc104b46@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux MIPS Mailing List <linux-mips@linux-mips.org>, Steven Miao <realmz6@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Ralf Baechle <ralf@linux-mips.org>, "arm@kernel.org" <arm@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:52807 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750969AbdIKUHw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2017 16:07:52 -0400
+In-Reply-To: <57153767-6dee-a5b5-548c-f7b0dc104b46@ti.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sekhar Nori <nsekhar@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
 
-On Mon, Sep 11, 2017 at 1:27 PM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
-> On Sun, Sep 10, 2017 at 11:44 PM, Linus Walleij
-> <linus.walleij@linaro.org> wrote:
->> This converts the GPIO-based I2C-driver to using GPIO
->> descriptors instead of the old global numberspace-based
->> GPIO interface. We:
+
+
+On 09/11/2017 06:29 AM, Sekhar Nori wrote:
+> On Friday 08 September 2017 11:24 PM, Franklin S Cooper Jr wrote:
+>> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
+>> like other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
+> 
+> unlike ?
+> 
+>> is required to insure the power domain used by the specific I2C instance is
+>> properly turned on along with its functional clock.
 >>
->> - Convert the driver to unconditionally grab two GPIOs
->>   from the device by index 0 (SDA) and 1 (SCL) which
->>   will work fine with device tree and descriptor tables.
->>   The existing device trees will continue to work just
->>   like before, but without any roundtrip through the
->>   global numberspace.
->
-> FYI, I recently posted a series to deprecate (at least for DT) this error
-> prone indexing, in favor of using named GPIOs:
->
->     [PATCH/RFC 0/3] i2c: gpio: Add support for named gpios in DT
->     http://www.spinics.net/lists/devicetree/msg191936.html
+>> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+>> ---
+>> Version 3 changes:
+>> Remove several statements that set clk to NULL
+>> Fix error path
+>>
+>>  drivers/i2c/busses/i2c-davinci.c | 64 +++++++++++++++++++++++++++++++++-------
+>>  1 file changed, 53 insertions(+), 11 deletions(-)
+> 
+>> @@ -802,12 +821,22 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>  	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>>  	if (IS_ERR(dev->clk))
+>>  		return PTR_ERR(dev->clk);
+>> -	clk_prepare_enable(dev->clk);
+>>  
+>>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>  	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+>>  	if (IS_ERR(dev->base)) {
+>> -		r = PTR_ERR(dev->base);
+>> +		return PTR_ERR(dev->base);
+>> +	}
+>> +
+>> +	pm_runtime_set_autosuspend_delay(dev->dev,
+>> +					 DAVINCI_I2C_PM_TIMEOUT);
+>> +	pm_runtime_use_autosuspend(dev->dev);
+>> +
+>> +	pm_runtime_enable(dev->dev);
+>> +
+>> +	r = pm_runtime_get_sync(dev->dev);
+>> +	if (r < 0) {
+>> +		dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
+>>  		goto err_unuse_clocks;
+> 
+> You end up doing a pm_runtime_put_sync() on failure here, instead of
+> pm_runtime_put_noidle() like rest of the patch.
+> 
+> May be handle this failure here instead of relying on the goto path.
 
-Nice.
-
-If Wolfram likes this series, I volunteer to rebase your patch
-(oh well rewrite patch 2 from scratch, haha) on top of it as well
-so he can apply the whole thing.
-
-They will need some adjustments, I volunteer to do them.
-Will provide feedback in the patches.
-
-Yours.
-Linus Walleij
+Ok
+> 
+>>  	}
+>>  
+>> @@ -849,27 +878,40 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>  	if (r)
+>>  		goto err_unuse_clocks;
+>>  
+>> +	pm_runtime_mark_last_busy(dev->dev);
+>> +	pm_runtime_put_autosuspend(dev->dev);
+>> +
+>>  	return 0;
+>>  
+>>  err_unuse_clocks:
+>> -	clk_disable_unprepare(dev->clk);
+>> -	dev->clk = NULL;
+>> +	pm_runtime_dont_use_autosuspend(dev->dev);
+>> +	pm_runtime_put_sync(dev->dev);
+>> +	pm_runtime_disable(dev->dev);
+>> +
+>>  	return r;
+>>  }
+> 
+> Thanks,
+> Sekhar
+> 
