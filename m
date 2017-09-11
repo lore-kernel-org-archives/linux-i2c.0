@@ -1,53 +1,54 @@
-From: Franklin S Cooper Jr <fcooper@ti.com>
-Subject: [PATCH v4 0/2] i2c: davinci: Add PM Runtime Support needed by 66AK2G
-Date: Mon, 11 Sep 2017 15:11:43 -0500
-Message-ID: <20170911201145.31257-1-fcooper@ti.com>
+From: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v4 2/2] dt-bindings: i2c: i2c-davinci: Update binding for 66AK2Gx pwr dm property
+Date: Mon, 11 Sep 2017 15:11:45 -0500
+Message-ID: <20170911201145.31257-3-fcooper@ti.com>
+References: <20170911201145.31257-1-fcooper@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lelnx193.ext.ti.com ([198.47.27.77]:52981 "EHLO
-        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750987AbdIKUMf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2017 16:12:35 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170911201145.31257-1-fcooper-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
+Cc: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
-Cc: Franklin S Cooper Jr <fcooper@ti.com>
 
-Add I2C support to 66AK2G. Primary requirement is to add PM
-Runtime support to the driver.
+Add pm-domains property which is required for 66AK2Gx. Also document 66AK2G
+unique clocks property usage.
 
-This has been tested on following platforms by performing simple i2c test
-such as i2c detect and reading on board i2c devices:
-K2G GP evm
-OMAPL138
-K2L GP EVM
+Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Acked-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-and boot tested on:
-K2E GP EVM
-K2HK GP EVM
-
-Version 2 changes:
-Moved ordering of pm runtime calls
-
-Version 3 changes:
-Dropped first patch since it was pulled in.
-Remove clk = NULL statements
-Fix error path
-
-Version 4 changes:
-Fix typo in commit message
-Fix error path
-
-
-Franklin S Cooper Jr (2):
-  i2c: davinci: Add PM Runtime Support
-  dt-bindings: i2c: i2c-davinci: Update binding for 66AK2Gx pwr dm
-    property
-
- .../devicetree/bindings/i2c/i2c-davinci.txt        | 12 ++++
- drivers/i2c/busses/i2c-davinci.c                   | 67 ++++++++++++++++++----
- 2 files changed, 67 insertions(+), 12 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
+index 5b123e0..64e6e65 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
+@@ -6,6 +6,18 @@ davinci/keystone i2c interface contains.
+ Required properties:
+ - compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
+ - reg : Offset and length of the register set for the device
++- clocks: I2C functional clock phandle.
++	  For 66AK2G this property should be set per binding,
++	  Documentation/devicetree/bindings/clock/ti,sci-clk.txt
++
++SoC-specific Required Properties:
++
++The following are mandatory properties for Keystone 2 66AK2G SoCs only:
++
++- power-domains:	Should contain a phandle to a PM domain provider node
++			and an args specifier containing the I2C device id
++			value. This property is as per the binding,
++			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.txt
+ 
+ Recommended properties :
+ - interrupts : standard interrupt property.
 -- 
 2.9.4.dirty
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
