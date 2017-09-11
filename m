@@ -1,90 +1,87 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH v3 1/2] i2c: davinci: Add PM Runtime Support
-Date: Mon, 11 Sep 2017 16:59:10 +0530
-Message-ID: <57153767-6dee-a5b5-548c-f7b0dc104b46@ti.com>
-References: <20170908175448.3367-1-fcooper@ti.com>
- <20170908175448.3367-2-fcooper@ti.com>
+From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Subject: Re: [RESEND PATCH v3 0/5] Add support for the STM32F7 I2C
+Date: Mon, 11 Sep 2017 14:55:19 +0200
+Message-ID: <CA+M3ks4y0u=ozKiq=xHFvcKJcBjDZDQysU6Mac+i1nEGTW6xOg@mail.gmail.com>
+References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lelnx194.ext.ti.com ([198.47.27.80]:45824 "EHLO
-        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751079AbdIKL3w (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2017 07:29:52 -0400
-In-Reply-To: <20170908175448.3367-2-fcooper@ti.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
 
-On Friday 08 September 2017 11:24 PM, Franklin S Cooper Jr wrote:
-> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
-> like other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
+2017-09-01 9:34 GMT+02:00 Pierre-Yves MORDRET <pierre-yves.mordret@st.com>:
+> This patchset adds support for the I2C controller embedded in STM32F7xx S=
+oC.
+> It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode a=
+nd
+> Fast-mode+ bus speed.
 
-unlike ?
+Hi Wolfram,
 
-> is required to insure the power domain used by the specific I2C instance is
-> properly turned on along with its functional clock.
-> 
-> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+I notice that those patches aren't in pull request for 4.14 and not in
+i2c-next branch.
+What can we do to progress in this topic? Does issues/remarks still
+need to be fixed in this code ?
+
+Thanks for your advices,
+Benjamin
+
 > ---
-> Version 3 changes:
-> Remove several statements that set clk to NULL
-> Fix error path
-> 
->  drivers/i2c/busses/i2c-davinci.c | 64 +++++++++++++++++++++++++++++++++-------
->  1 file changed, 53 insertions(+), 11 deletions(-)
+>  Version history:
+>     v3:
+>         * Move stm32f7_i2c_match above stm32f7_i2c_driver
+>         * of_device_get_match_data instead of of_match_device
+>         * Improve I2C Speed DT gathering
+>         * dev_err into dev_dbg for Arbitration loss
+>         * Remove useless space aligned
+>
+>     v2:
+>         * Implement an I2C timings computation algorithm instead of stati=
+c
+>           values(bindings). Algorithm uses generic I2C SCL Falling/Rising
+>           bindings and System clock to compute its timings.
+>         * I2C Device Tree Update
+> ---
+> Pierre-Yves MORDRET (5):
+>   dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
+>   i2c: i2c-stm32f4: use generic definition of speed enum
+>   i2c: i2c-stm32f7: add driver
+>   ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
+>   ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
+>
+>  .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
+>  arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
+>  arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
+>  drivers/i2c/busses/Kconfig                         |  10 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-stm32.h                     |  20 +
+>  drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
+>  drivers/i2c/busses/i2c-stm32f7.c                   | 974 +++++++++++++++=
+++++++
+>  8 files changed, 1068 insertions(+), 14 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-stm32.h
+>  create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
+>
+> --
+> 2.7.4
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
-> @@ -802,12 +821,22 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	dev->clk = devm_clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(dev->clk))
->  		return PTR_ERR(dev->clk);
-> -	clk_prepare_enable(dev->clk);
->  
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	dev->base = devm_ioremap_resource(&pdev->dev, mem);
->  	if (IS_ERR(dev->base)) {
-> -		r = PTR_ERR(dev->base);
-> +		return PTR_ERR(dev->base);
-> +	}
-> +
-> +	pm_runtime_set_autosuspend_delay(dev->dev,
-> +					 DAVINCI_I2C_PM_TIMEOUT);
-> +	pm_runtime_use_autosuspend(dev->dev);
-> +
-> +	pm_runtime_enable(dev->dev);
-> +
-> +	r = pm_runtime_get_sync(dev->dev);
-> +	if (r < 0) {
-> +		dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
->  		goto err_unuse_clocks;
 
-You end up doing a pm_runtime_put_sync() on failure here, instead of
-pm_runtime_put_noidle() like rest of the patch.
 
-May be handle this failure here instead of relying on the goto path.
+--=20
+Benjamin Gaignard
 
->  	}
->  
-> @@ -849,27 +878,40 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	if (r)
->  		goto err_unuse_clocks;
->  
-> +	pm_runtime_mark_last_busy(dev->dev);
-> +	pm_runtime_put_autosuspend(dev->dev);
-> +
->  	return 0;
->  
->  err_unuse_clocks:
-> -	clk_disable_unprepare(dev->clk);
-> -	dev->clk = NULL;
-> +	pm_runtime_dont_use_autosuspend(dev->dev);
-> +	pm_runtime_put_sync(dev->dev);
-> +	pm_runtime_disable(dev->dev);
-> +
->  	return r;
->  }
+Graphic Study Group
 
-Thanks,
-Sekhar
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+
+Follow Linaro: Facebook | Twitter | Blog
