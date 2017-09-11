@@ -1,87 +1,57 @@
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: Re: [RESEND PATCH v3 0/5] Add support for the STM32F7 I2C
-Date: Mon, 11 Sep 2017 14:55:19 +0200
-Message-ID: <CA+M3ks4y0u=ozKiq=xHFvcKJcBjDZDQysU6Mac+i1nEGTW6xOg@mail.gmail.com>
-References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
+Date: Mon, 11 Sep 2017 21:37:16 +0200
+Message-ID: <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
+References: <20170910214424.14945-1-linus.walleij@linaro.org>
+ <20170910214424.14945-2-linus.walleij@linaro.org>
+ <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux MIPS Mailing List <linux-mips@linux-mips.org>, Steven Miao <realmz6@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Ralf Baechle <ralf@linux-mips.org>, "arm@kernel.org" <arm@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2017-09-01 9:34 GMT+02:00 Pierre-Yves MORDRET <pierre-yves.mordret@st.com>:
-> This patchset adds support for the I2C controller embedded in STM32F7xx S=
-oC.
-> It enables I2C transfer in interrupt mode with Standard-mode, Fast-mode a=
-nd
-> Fast-mode+ bus speed.
-
-Hi Wolfram,
-
-I notice that those patches aren't in pull request for 4.14 and not in
-i2c-next branch.
-What can we do to progress in this topic? Does issues/remarks still
-need to be fixed in this code ?
-
-Thanks for your advices,
-Benjamin
-
-> ---
->  Version history:
->     v3:
->         * Move stm32f7_i2c_match above stm32f7_i2c_driver
->         * of_device_get_match_data instead of of_match_device
->         * Improve I2C Speed DT gathering
->         * dev_err into dev_dbg for Arbitration loss
->         * Remove useless space aligned
+On Mon, Sep 11, 2017 at 1:27 PM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> On Sun, Sep 10, 2017 at 11:44 PM, Linus Walleij
+> <linus.walleij@linaro.org> wrote:
+>> This converts the GPIO-based I2C-driver to using GPIO
+>> descriptors instead of the old global numberspace-based
+>> GPIO interface. We:
+>>
+>> - Convert the driver to unconditionally grab two GPIOs
+>>   from the device by index 0 (SDA) and 1 (SCL) which
+>>   will work fine with device tree and descriptor tables.
+>>   The existing device trees will continue to work just
+>>   like before, but without any roundtrip through the
+>>   global numberspace.
 >
->     v2:
->         * Implement an I2C timings computation algorithm instead of stati=
-c
->           values(bindings). Algorithm uses generic I2C SCL Falling/Rising
->           bindings and System clock to compute its timings.
->         * I2C Device Tree Update
-> ---
-> Pierre-Yves MORDRET (5):
->   dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
->   i2c: i2c-stm32f4: use generic definition of speed enum
->   i2c: i2c-stm32f7: add driver
->   ARM: dts: stm32: Add I2C1 support for STM32F746 SoC
->   ARM: dts: stm32: Add I2C1 support for STM32F746 eval board
+> FYI, I recently posted a series to deprecate (at least for DT) this error
+> prone indexing, in favor of using named GPIOs:
 >
->  .../devicetree/bindings/i2c/i2c-stm32.txt          |  29 +-
->  arch/arm/boot/dts/stm32746g-eval.dts               |   8 +
->  arch/arm/boot/dts/stm32f746.dtsi                   |  22 +
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-stm32.h                     |  20 +
->  drivers/i2c/busses/i2c-stm32f4.c                   |  18 +-
->  drivers/i2c/busses/i2c-stm32f7.c                   | 974 +++++++++++++++=
-++++++
->  8 files changed, 1068 insertions(+), 14 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-stm32.h
->  create mode 100644 drivers/i2c/busses/i2c-stm32f7.c
->
-> --
-> 2.7.4
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>     [PATCH/RFC 0/3] i2c: gpio: Add support for named gpios in DT
+>     http://www.spinics.net/lists/devicetree/msg191936.html
 
+Nice.
 
+If Wolfram likes this series, I volunteer to rebase your patch
+(oh well rewrite patch 2 from scratch, haha) on top of it as well
+so he can apply the whole thing.
 
---=20
-Benjamin Gaignard
+They will need some adjustments, I volunteer to do them.
+Will provide feedback in the patches.
 
-Graphic Study Group
-
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-
-Follow Linaro: Facebook | Twitter | Blog
+Yours.
+Linus Walleij
