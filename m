@@ -1,227 +1,89 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v4 1/2] i2c: davinci: Add PM Runtime Support
-Date: Tue, 12 Sep 2017 09:58:42 +0800
-Message-ID: <CAMz4kuLGVes6a4iCF0VbG1ErWPR5at=HKgeGv3cMr1zv7aLzJg@mail.gmail.com>
-References: <20170911201145.31257-1-fcooper@ti.com> <20170911201145.31257-2-fcooper@ti.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH v3 1/2] i2c: davinci: Add PM Runtime Support
+Date: Tue, 12 Sep 2017 13:55:52 +0530
+Message-ID: <5d8778d8-281c-8926-fec3-f9acf82e342c@ti.com>
+References: <20170908175448.3367-1-fcooper@ti.com>
+ <20170908175448.3367-2-fcooper@ti.com>
+ <57153767-6dee-a5b5-548c-f7b0dc104b46@ti.com>
+ <f185afb9-e877-1916-fcbc-c2a28f23b0cc@ti.com>
+ <94b7a185-4cde-03e6-cc17-f64d5d28c9f2@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f181.google.com ([209.85.223.181]:33641 "EHLO
-        mail-io0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750967AbdILB6n (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2017 21:58:43 -0400
-Received: by mail-io0-f181.google.com with SMTP id y123so38042924iod.0
-        for <linux-i2c@vger.kernel.org>; Mon, 11 Sep 2017 18:58:43 -0700 (PDT)
-In-Reply-To: <20170911201145.31257-2-fcooper@ti.com>
+Received: from lelnx194.ext.ti.com ([198.47.27.80]:46435 "EHLO
+        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751144AbdILI0i (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Sep 2017 04:26:38 -0400
+In-Reply-To: <94b7a185-4cde-03e6-cc17-f64d5d28c9f2@ti.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Franklin S Cooper Jr <fcooper@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux@armlinux.org.uk, nsekhar@ti.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
+To: Grygorii Strashko <grygorii.strashko@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vigneshr@ti.com
 
-Hi,
+On Tuesday 12 September 2017 01:41 AM, Grygorii Strashko wrote:
+> 
+> 
+> On 09/11/2017 03:07 PM, Franklin S Cooper Jr wrote:
+>>
+>>
+>> On 09/11/2017 06:29 AM, Sekhar Nori wrote:
+>>> On Friday 08 September 2017 11:24 PM, Franklin S Cooper Jr wrote:
+>>>> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
+>>>> like other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
+>>>
+>>> unlike ?
+>>>
+>>>> is required to insure the power domain used by the specific I2C instance is
+>>>> properly turned on along with its functional clock.
+>>>>
+>>>> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
+>>>> ---
+>>>> Version 3 changes:
+>>>> Remove several statements that set clk to NULL
+>>>> Fix error path
+>>>>
+>>>>   drivers/i2c/busses/i2c-davinci.c | 64 +++++++++++++++++++++++++++++++++-------
+>>>>   1 file changed, 53 insertions(+), 11 deletions(-)
+>>>
+>>>> @@ -802,12 +821,22 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>>>   	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>>>>   	if (IS_ERR(dev->clk))
+>>>>   		return PTR_ERR(dev->clk);
+>>>> -	clk_prepare_enable(dev->clk);
+>>>>   
+>>>>   	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>>>>   	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+>>>>   	if (IS_ERR(dev->base)) {
+>>>> -		r = PTR_ERR(dev->base);
+>>>> +		return PTR_ERR(dev->base);
+>>>> +	}
+>>>> +
+>>>> +	pm_runtime_set_autosuspend_delay(dev->dev,
+>>>> +					 DAVINCI_I2C_PM_TIMEOUT);
+>>>> +	pm_runtime_use_autosuspend(dev->dev);
+>>>> +
+>>>> +	pm_runtime_enable(dev->dev);
+>>>> +
+>>>> +	r = pm_runtime_get_sync(dev->dev);
+>>>> +	if (r < 0) {
+>>>> +		dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
+>>>>   		goto err_unuse_clocks;
+>>>
+>>> You end up doing a pm_runtime_put_sync() on failure here, instead of
+>>> pm_runtime_put_noidle() like rest of the patch.
+>>>
+>>> May be handle this failure here instead of relying on the goto path.
+>>
+>> Ok
+> 
+> I think, it's not necessary - pm_runtime_put_sync() can be used in this case
+>  (and used the same way in many other drivers).
+> In case, of failure in this place - pm_runtime_put_sync() will just decrement usage counter.
 
-On 12 September 2017 at 04:11, Franklin S Cooper Jr <fcooper@ti.com> wrote:
-> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
-> unlike other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
-> is required to insure the power domain used by the specific I2C instance is
-> properly turned on along with its functional clock.
->
-> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
-> ---
-> Version 4 changes:
-> Fix wording on error message
-> Fix additional error path
->
-> Version 3 changes:
-> Remove several statements that set clk to NULL
-> Fix error path
->
->  drivers/i2c/busses/i2c-davinci.c | 67 +++++++++++++++++++++++++++++++++-------
->  1 file changed, 55 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index b8c4353..a2d9f7c 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -36,6 +36,7 @@
->  #include <linux/gpio.h>
->  #include <linux/of_device.h>
->  #include <linux/platform_data/i2c-davinci.h>
-> +#include <linux/pm_runtime.h>
->
->  /* ----- global defines ----------------------------------------------- */
->
-> @@ -122,6 +123,9 @@
->  /* set the SDA GPIO low */
->  #define DAVINCI_I2C_DCLR_PDCLR1        BIT(1)
->
-> +/* timeout for pm runtime autosuspend */
-> +#define DAVINCI_I2C_PM_TIMEOUT 1000    /* ms */
-> +
->  struct davinci_i2c_dev {
->         struct device           *dev;
->         void __iomem            *base;
-> @@ -541,10 +545,17 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->
->         dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
->
-> +       ret = pm_runtime_get_sync(dev->dev);
-> +       if (ret < 0) {
-> +               dev_err(dev->dev, "Failed to runtime_get device: %d\n", ret);
-> +               pm_runtime_put_noidle(dev->dev);
-> +               return ret;
-> +       }
-> +
->         ret = i2c_davinci_wait_bus_not_busy(dev);
->         if (ret < 0) {
->                 dev_warn(dev->dev, "timeout waiting for bus ready\n");
-> -               return ret;
-> +               goto out;
->         }
->
->         for (i = 0; i < num; i++) {
-> @@ -552,14 +563,19 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->                 dev_dbg(dev->dev, "%s [%d/%d] ret: %d\n", __func__, i + 1, num,
->                         ret);
->                 if (ret < 0)
-> -                       return ret;
-> +                       goto out;
->         }
->
-> +       ret = num;
->  #ifdef CONFIG_CPU_FREQ
->         complete(&dev->xfr_complete);
->  #endif
->
-> -       return num;
-> +out:
-> +       pm_runtime_mark_last_busy(dev->dev);
-> +       pm_runtime_put_autosuspend(dev->dev);
-> +
-> +       return ret;
->  }
->
->  static u32 i2c_davinci_func(struct i2c_adapter *adap)
-> @@ -599,6 +615,9 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->         int count = 0;
->         u16 w;
->
-> +       if (pm_runtime_suspended(dev->dev))
-> +               return IRQ_NONE;
-> +
->         while ((stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG))) {
->                 dev_dbg(dev->dev, "%s: stat=0x%x\n", __func__, stat);
->                 if (count++ == 100) {
-> @@ -802,13 +821,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->         dev->clk = devm_clk_get(&pdev->dev, NULL);
->         if (IS_ERR(dev->clk))
->                 return PTR_ERR(dev->clk);
-> -       clk_prepare_enable(dev->clk);
+Can you please explain why this is the case? At least on DA850, I see
+the runtime_idle callback invoked from rpm_idle() if
+pm_runtime_put_sync() is used in the failure path.
 
-You removed clk enable here, I think it can not work if we did not
-open CONFIG_PM macro. I think you should keep clk enable here, and set
-rpm active by pm_runtime_set_active() before issuing
-pm_runtime_enable().
-
->
->         mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->         dev->base = devm_ioremap_resource(&pdev->dev, mem);
->         if (IS_ERR(dev->base)) {
-> -               r = PTR_ERR(dev->base);
-> -               goto err_unuse_clocks;
-> +               return PTR_ERR(dev->base);
-> +       }
-> +
-> +       pm_runtime_set_autosuspend_delay(dev->dev,
-> +                                        DAVINCI_I2C_PM_TIMEOUT);
-> +       pm_runtime_use_autosuspend(dev->dev);
-> +
-> +       pm_runtime_enable(dev->dev);
-> +
-> +       r = pm_runtime_get_sync(dev->dev);
-> +       if (r < 0) {
-> +               dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
-> +               pm_runtime_put_noidle(dev->dev);
-> +               return r;
->         }
->
->         i2c_davinci_init(dev);
-> @@ -849,27 +879,40 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->         if (r)
->                 goto err_unuse_clocks;
->
-> +       pm_runtime_mark_last_busy(dev->dev);
-> +       pm_runtime_put_autosuspend(dev->dev);
-> +
->         return 0;
->
->  err_unuse_clocks:
-> -       clk_disable_unprepare(dev->clk);
-> -       dev->clk = NULL;
-> +       pm_runtime_dont_use_autosuspend(dev->dev);
-> +       pm_runtime_put_sync(dev->dev);
-> +       pm_runtime_disable(dev->dev);
-> +
->         return r;
->  }
->
->  static int davinci_i2c_remove(struct platform_device *pdev)
->  {
->         struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
-> +       int ret;
->
->         i2c_davinci_cpufreq_deregister(dev);
->
->         i2c_del_adapter(&dev->adapter);
->
-> -       clk_disable_unprepare(dev->clk);
-> -       dev->clk = NULL;
-> +       ret = pm_runtime_get_sync(&pdev->dev);
-> +       if (ret < 0) {
-> +               pm_runtime_put_noidle(&pdev->dev);
-> +               return ret;
-> +       }
->
->         davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
->
-> +       pm_runtime_dont_use_autosuspend(dev->dev);
-> +       pm_runtime_put_sync(dev->dev);
-> +       pm_runtime_disable(dev->dev);
-> +
->         return 0;
->  }
->
-> @@ -880,7 +923,6 @@ static int davinci_i2c_suspend(struct device *dev)
->
->         /* put I2C into reset */
->         davinci_i2c_reset_ctrl(i2c_dev, 0);
-> -       clk_disable_unprepare(i2c_dev->clk);
->
->         return 0;
->  }
-> @@ -889,7 +931,6 @@ static int davinci_i2c_resume(struct device *dev)
->  {
->         struct davinci_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->
-> -       clk_prepare_enable(i2c_dev->clk);
->         /* take I2C out of reset */
->         davinci_i2c_reset_ctrl(i2c_dev, 1);
->
-> @@ -899,6 +940,8 @@ static int davinci_i2c_resume(struct device *dev)
->  static const struct dev_pm_ops davinci_i2c_pm = {
->         .suspend        = davinci_i2c_suspend,
->         .resume         = davinci_i2c_resume,
-> +       SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
-> +                                     pm_runtime_force_resume)
->  };
->
->  #define davinci_i2c_pm_ops (&davinci_i2c_pm)
-> --
-> 2.9.4.dirty
->
-
-
-
--- 
-Baolin.wang
-Best Regards
+Thanks
+Sekhar
