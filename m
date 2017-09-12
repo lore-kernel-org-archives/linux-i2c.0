@@ -1,89 +1,42 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH v3 1/2] i2c: davinci: Add PM Runtime Support
-Date: Tue, 12 Sep 2017 13:55:52 +0530
-Message-ID: <5d8778d8-281c-8926-fec3-f9acf82e342c@ti.com>
-References: <20170908175448.3367-1-fcooper@ti.com>
- <20170908175448.3367-2-fcooper@ti.com>
- <57153767-6dee-a5b5-548c-f7b0dc104b46@ti.com>
- <f185afb9-e877-1916-fcbc-c2a28f23b0cc@ti.com>
- <94b7a185-4cde-03e6-cc17-f64d5d28c9f2@ti.com>
+From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v4 1/2] i2c: davinci: Add PM Runtime Support
+Date: Tue, 12 Sep 2017 14:18:08 +0530
+Message-ID: <021a99bb-3670-fff5-6835-b14d28827929@ti.com>
+References: <20170911201145.31257-1-fcooper@ti.com>
+ <20170911201145.31257-2-fcooper@ti.com>
+ <CAMz4kuLGVes6a4iCF0VbG1ErWPR5at=HKgeGv3cMr1zv7aLzJg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lelnx194.ext.ti.com ([198.47.27.80]:46435 "EHLO
-        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751144AbdILI0i (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 12 Sep 2017 04:26:38 -0400
-In-Reply-To: <94b7a185-4cde-03e6-cc17-f64d5d28c9f2@ti.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMz4kuLGVes6a4iCF0VbG1ErWPR5at=HKgeGv3cMr1zv7aLzJg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, vigneshr@ti.com
 
-On Tuesday 12 September 2017 01:41 AM, Grygorii Strashko wrote:
-> 
-> 
-> On 09/11/2017 03:07 PM, Franklin S Cooper Jr wrote:
->>
->>
->> On 09/11/2017 06:29 AM, Sekhar Nori wrote:
->>> On Friday 08 September 2017 11:24 PM, Franklin S Cooper Jr wrote:
->>>> 66AK2G has I2C instances that are not apart of the ALWAYS_ON power domain
->>>> like other Keystone 2 SoCs and OMAPL138. Therefore, pm_runtime
->>>
->>> unlike ?
->>>
->>>> is required to insure the power domain used by the specific I2C instance is
->>>> properly turned on along with its functional clock.
->>>>
->>>> Signed-off-by: Franklin S Cooper Jr <fcooper@ti.com>
->>>> ---
->>>> Version 3 changes:
->>>> Remove several statements that set clk to NULL
->>>> Fix error path
->>>>
->>>>   drivers/i2c/busses/i2c-davinci.c | 64 +++++++++++++++++++++++++++++++++-------
->>>>   1 file changed, 53 insertions(+), 11 deletions(-)
->>>
->>>> @@ -802,12 +821,22 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->>>>   	dev->clk = devm_clk_get(&pdev->dev, NULL);
->>>>   	if (IS_ERR(dev->clk))
->>>>   		return PTR_ERR(dev->clk);
->>>> -	clk_prepare_enable(dev->clk);
->>>>   
->>>>   	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>>>   	dev->base = devm_ioremap_resource(&pdev->dev, mem);
->>>>   	if (IS_ERR(dev->base)) {
->>>> -		r = PTR_ERR(dev->base);
->>>> +		return PTR_ERR(dev->base);
->>>> +	}
->>>> +
->>>> +	pm_runtime_set_autosuspend_delay(dev->dev,
->>>> +					 DAVINCI_I2C_PM_TIMEOUT);
->>>> +	pm_runtime_use_autosuspend(dev->dev);
->>>> +
->>>> +	pm_runtime_enable(dev->dev);
->>>> +
->>>> +	r = pm_runtime_get_sync(dev->dev);
->>>> +	if (r < 0) {
->>>> +		dev_err(dev->dev, "failed to runtime_get device: %d\n", r);
->>>>   		goto err_unuse_clocks;
->>>
->>> You end up doing a pm_runtime_put_sync() on failure here, instead of
->>> pm_runtime_put_noidle() like rest of the patch.
->>>
->>> May be handle this failure here instead of relying on the goto path.
->>
->> Ok
-> 
-> I think, it's not necessary - pm_runtime_put_sync() can be used in this case
->  (and used the same way in many other drivers).
-> In case, of failure in this place - pm_runtime_put_sync() will just decrement usage counter.
+On Tuesday 12 September 2017 07:28 AM, Baolin Wang wrote:
+>> @@ -802,13 +821,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>         dev->clk = devm_clk_get(&pdev->dev, NULL);
+>>         if (IS_ERR(dev->clk))
+>>                 return PTR_ERR(dev->clk);
+>> -       clk_prepare_enable(dev->clk);
 
-Can you please explain why this is the case? At least on DA850, I see
-the runtime_idle callback invoked from rpm_idle() if
-pm_runtime_put_sync() is used in the failure path.
+> You removed clk enable here, I think it can not work if we did not
+> open CONFIG_PM macro. I think you should keep clk enable here, and set
 
-Thanks
+What do you mean by "open CONFIG_PM macro" ?
+
+> rpm active by pm_runtime_set_active() before issuing
+> pm_runtime_enable().
+
+Can you explain why you want to do this instead of relying on
+pm_runtime_get_sync() to enable clock?
+
+Thanks,
 Sekhar
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
