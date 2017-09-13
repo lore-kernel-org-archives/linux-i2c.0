@@ -1,53 +1,59 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH/RFC 2/3] i2c: gpio: Add support for named gpios in DT
-Date: Wed, 13 Sep 2017 22:53:33 +0200
-Message-ID: <20170913205333.wjtmg6727bcsxjrg@ninjato>
-References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
- <1503566474-5335-3-git-send-email-geert+renesas@glider.be>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
+Date: Wed, 13 Sep 2017 22:55:44 +0200
+Message-ID: <20170913205544.iatsjsb3ffohruwi@ninjato>
+References: <20170910214424.14945-1-linus.walleij@linaro.org>
+ <20170910214424.14945-2-linus.walleij@linaro.org>
+ <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
+ <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="iq72dm2lyronaoe4"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="rpjnafryku246gtn"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43430 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751253AbdIMUzp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 13 Sep 2017 16:55:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1503566474-5335-3-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, Steven Miao <realmz6@gmail.com>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Ralf Baechle <ralf@linux-mips.org>, "arm@kernel.org" <arm@kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
 
---iq72dm2lyronaoe4
+--rpjnafryku246gtn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> +	/* Try deprecated unnamed gpios */
+> If Wolfram likes this series, I volunteer to rebase your patch
+> (oh well rewrite patch 2 from scratch, haha) on top of it as well
+> so he can apply the whole thing.
 
-I think adding "(deprecated use)" or sth would be good.
+Yes, I like Geert's series. Merging the two series sounds great to me
+and is probably easiest, but I'll leave it to you guys how to upstream
+it.
 
 
---iq72dm2lyronaoe4
+--rpjnafryku246gtn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5ms0ACgkQFA3kzBSg
-KbZwrhAAgYNe2RokJnCaXTcx1ZNWk/rTPfSqn9U6XdtbcPqQKMt75Ce4yuCplKeF
-+cB5jVq4mhKtRfrTjhr987c3JQ1i5E0f3BZlpYKah6dcwzYlM9vwktcVAFwMTmZi
-70gWC9o6ULw1wwLkkrqk+/TAKuLJy9fiE7pbH1X41XAkBWCtJLbb3slkOGNbppPj
-8SLz0vqPGvI/k3VXykjLjGKAh+VmuAENIXNyV3cClkQ7rjU6/o/AEEp/LafsQIco
-3rs6al6vZv3lVYuEiZyUVVFuenPM39FstM8tNrD1k7pfaM2Q8Cx/QmLzi9YKnY78
-oqeFeNFLh9hU9TLASFFj5QjB0zakQqoP9bfpbnwuMB90p/UuzHsCA6xqrkVDycTz
-mYX9hsWhlgQl7iGOyEv9gLGocEMs1TddzV2iJGWmason9Y5z4w9o7tcbFslr4cbG
-Sx9pcCvENExEohXlwDaSf93b3kaskU/R8E8pExs8p+FMqB2YsI//Go7DbOFarHvq
-aBer4sd1UO3zcMAIwA1pe0yburVFnFR1wXTCSnVW5njOh4JdDIU3I1zJwY7qQh7C
-Rc6agWZy8mqjgNo4r+dNb1zdXb4r2u3fOxDKY1Xlcg4xdCGueSIJe7G7//aaVbts
-ejjxmC6EmnqtitFKWzlssup43Gm1TIc//rSGx7ufFmQhuAbJsoE=
-=2Jaf
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5m1AACgkQFA3kzBSg
+Kba9IBAAn7uOLxskwT8kgRTLzPXBB74aK9mmLaD1FQwvVLF0EcVoFYod987Zg3WA
+1QecZTUcKAqDFjc4HHUbHrzX8C/QrsKl2Bj+u8lt+iFkn5hlwpmE+mwjtcyT8OZF
+Lb8tMzKH3fLxBN9aSjMzt7klbhl9y1CFxOlKVueNEuY0ienwMG4NZAsBhWEoJwe+
+BCoeWK75P9Us1WFH4SbWqcxa5CMPfSfTTu0Rc8p1DFFrbo+ibjOAIcNNv/ac1RTT
+b1fdMo+8NEJjW1rnyB8l50IbevhgtWpPRrYsCl0dRWUZeKdbu5crT006V/28CCpV
+cc25Q+VGyBtGmTdtMtFIJBeRLrl6p3P1QS6d+/KBgZdYkbp5FKsjoXxGa1pQh7Lw
+ssPm9LLwPJ8uGvP1gjZnOWgOEjdpWO53QqrUKS2fXuJEsQQDwdMmK4V4MHY95wk9
+DDOnJ1YgeX6MbcfjS6j6lu6pwdji0g6IRIOYL1gCirTkDX/OpCAftRnbTVYwpuqR
+FwU3xhNXz1p4eDy43DlTNmiCmugkkkYWx3DQLymCIoHjWbXP3/mVNzenF65eKUBr
+wOgco1nJwC/1ktq7JEbZJ6jFce/TP5zGk/q69SCFZ3+mKhd/b07i/QIcr2yA0Vya
+4jjqwNmJxWTYRyf3Dcsjb9ybA95VgL5SNkW3e7w88kA25QdmwdU=
+=v60d
 -----END PGP SIGNATURE-----
 
---iq72dm2lyronaoe4--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--rpjnafryku246gtn--
