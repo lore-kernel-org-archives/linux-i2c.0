@@ -1,59 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
-Date: Wed, 13 Sep 2017 22:55:44 +0200
-Message-ID: <20170913205544.iatsjsb3ffohruwi@ninjato>
-References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-2-linus.walleij@linaro.org>
- <CAMuHMdXabvax2Wru8j+MC4X5F+z5hoUo1tEbX+zn2AUW6QENVA@mail.gmail.com>
- <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
+Subject: Re: [PATCH/RFC 2/3] i2c: gpio: Add support for named gpios in DT
+Date: Wed, 13 Sep 2017 22:57:46 +0200
+Message-ID: <20170913205746.d22v4rhfuspyyakd@ninjato>
+References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
+ <1503566474-5335-3-git-send-email-geert+renesas@glider.be>
+ <20170913205333.wjtmg6727bcsxjrg@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rpjnafryku246gtn"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43430 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751253AbdIMUzp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 13 Sep 2017 16:55:45 -0400
+        protocol="application/pgp-signature"; boundary="f2bqqvy4g72mtydt"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdb4LQAqyWpRAWGRxUOcTbWVksNc3FTWdPnYNE-AUHtfgg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170913205333.wjtmg6727bcsxjrg@ninjato>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, Steven Miao <realmz6@gmail.com>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Ralf Baechle <ralf@linux-mips.org>, "arm@kernel.org" <arm@kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
 
---rpjnafryku246gtn
+--f2bqqvy4g72mtydt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Sep 13, 2017 at 10:53:33PM +0200, Wolfram Sang wrote:
+>=20
+> > +	/* Try deprecated unnamed gpios */
+>=20
+> I think adding "(deprecated use)" or sth would be good.
+
+Where is my brown paper bag :)
 
 
-> If Wolfram likes this series, I volunteer to rebase your patch
-> (oh well rewrite patch 2 from scratch, haha) on top of it as well
-> so he can apply the whole thing.
-
-Yes, I like Geert's series. Merging the two series sounds great to me
-and is probably easiest, but I'll leave it to you guys how to upstream
-it.
-
-
---rpjnafryku246gtn
+--f2bqqvy4g72mtydt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5m1AACgkQFA3kzBSg
-Kba9IBAAn7uOLxskwT8kgRTLzPXBB74aK9mmLaD1FQwvVLF0EcVoFYod987Zg3WA
-1QecZTUcKAqDFjc4HHUbHrzX8C/QrsKl2Bj+u8lt+iFkn5hlwpmE+mwjtcyT8OZF
-Lb8tMzKH3fLxBN9aSjMzt7klbhl9y1CFxOlKVueNEuY0ienwMG4NZAsBhWEoJwe+
-BCoeWK75P9Us1WFH4SbWqcxa5CMPfSfTTu0Rc8p1DFFrbo+ibjOAIcNNv/ac1RTT
-b1fdMo+8NEJjW1rnyB8l50IbevhgtWpPRrYsCl0dRWUZeKdbu5crT006V/28CCpV
-cc25Q+VGyBtGmTdtMtFIJBeRLrl6p3P1QS6d+/KBgZdYkbp5FKsjoXxGa1pQh7Lw
-ssPm9LLwPJ8uGvP1gjZnOWgOEjdpWO53QqrUKS2fXuJEsQQDwdMmK4V4MHY95wk9
-DDOnJ1YgeX6MbcfjS6j6lu6pwdji0g6IRIOYL1gCirTkDX/OpCAftRnbTVYwpuqR
-FwU3xhNXz1p4eDy43DlTNmiCmugkkkYWx3DQLymCIoHjWbXP3/mVNzenF65eKUBr
-wOgco1nJwC/1ktq7JEbZJ6jFce/TP5zGk/q69SCFZ3+mKhd/b07i/QIcr2yA0Vya
-4jjqwNmJxWTYRyf3Dcsjb9ybA95VgL5SNkW3e7w88kA25QdmwdU=
-=v60d
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5m8oACgkQFA3kzBSg
+KbY4uBAAgEGNlhjV7lr1Cd3yjIsVqeBelZCoM/i4wtmcj5Pg8E8wytMu3GSRM4Kw
+qXcFL7aGN63xGlH44PpDLQJ1u3gHrW1X7eVwMSqFKKhRHioD4NHRt+ajHNIDCQuC
+wztTayhV4Jq6sWV/MjXSsS/so0I8QEV98DE2GiSu4kn5wSSmooIZoVzFrufK2qa8
+0DEgKBfExuvB+aFfkNZlrgTEURQAXc929GlLA8jCvUPx27cCyDCNGE0xDfoZy3l4
+nVmkU2Ya9jv197rca7JaFimaSEzzLp1cvP6oE09c5Mkcs5vjgW8I5K1b115YUJWG
+Eodqcdbc6OiK0EEKxQdUL2Z4pYwithB8Sbg2J95mS8fXzGzlmIM5Xqlvy6pyZSZh
+sE9TWXBfh4KthH7d7sbKF57jjUdrdog6+WP7eGUSkKW1jzssrPMsFdD5XyE4Iap8
+PtCWQTPRy/hI+G5VaIwkOyDc648NsIi0aEbMqj8EM2HVQlMOTlwLRlTLhnForjcl
+RMh8T1oghPZf5ypMUwjYzuEPhfXwVcflO2guseJdTqKMPJyXP3CuiFVRCHVATaIs
+C7savJUgfWABNi+OzE3ZlFDVHbsU+JECSInGxz297UbI2oQ1l/YuiBt4HHf+PLua
+HOWYXwHhoAZLkyJMG52RkXOCdbwqlr/1J92uQ3XbE8gGpF91Ais=
+=HYQC
 -----END PGP SIGNATURE-----
 
---rpjnafryku246gtn--
+--f2bqqvy4g72mtydt--
