@@ -1,45 +1,65 @@
-From: <ying.zhang22455@nxp.com>
-Subject: [PATCH v2] i2c: imx: allow i2c devices share an interrupt
-Date: Mon, 11 Sep 2017 16:34:16 +0800
-Message-ID: <20170911083416.2895-1-ying.zhang22455@nxp.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [[RESEND]PATCHv6 2/2] i2c: altera: Add Altera I2C Controller
+ driver
+Date: Wed, 13 Sep 2017 22:50:38 +0200
+Message-ID: <20170913205038.ndlkaivkdgxa3ee2@ninjato>
+References: <1505164640-26413-1-git-send-email-thor.thayer@linux.intel.com>
+ <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-by2nam01on0060.outbound.protection.outlook.com ([104.47.34.60]:51840
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751065AbdIKIva (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 11 Sep 2017 04:51:30 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pi4mtplocq5gytux"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: thor.thayer@linux.intel.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, andy.shevchenko@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Zhang Ying-22455 <ying.zhang22455@nxp.com>
 
-From: Zhang Ying-22455 <ying.zhang22455@nxp.com>
 
-Allow the I2C device on the same bus can’t claim irq.
+--pi4mtplocq5gytux
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Zhang Ying-22455 <ying.zhang22455@nxp.com>
----
-[change from v1]
-----update the commit message.
+On Mon, Sep 11, 2017 at 04:17:20PM -0500, thor.thayer@linux.intel.com wrote:
+> From: Thor Thayer <thor.thayer@linux.intel.com>
+>=20
+> Add driver support for the Altera I2C Controller. The I2C
+> controller is soft IP for use in FPGAs.
+>=20
+> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> ---
 
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied to for-next (will be in v4.14), thanks!
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 54a47b40546f..e5c8b3d5df77 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1100,7 +1100,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
-+	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
- 				pdev->name, i2c_imx);
- 	if (ret) {
- 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--- 
-2.14.1
+> +	if (finish) {
+> +		/* Wait for the Core to finish */
+> +		ret =3D readl_poll_timeout_atomic(idev->base + ALTR_I2C_STATUS,
+
+I wonder a bit about polling in an interrupt handler (maybe threaded
+irqs?) but we can fix that later, I think.
+
+
+--pi4mtplocq5gytux
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5mh0ACgkQFA3kzBSg
+KbY0nw//W8o8vGfiQj6spiCOXbT8RPUdzZHTZHUSXPEx9HGxqFRMkG6aWQdCObWz
+DsDtPa1eH8A0M9AOR38/BYxSoshoWQ4jLpIdi+uBWqarM/L3EmdP4Z9mSAVOVT7z
+af5hX9884n697WT1wXgg7z5EtcZNIvcvh2BHj88wCEsyrdZ6DTT0DmHpnpHOInXx
+QIt74Zb3ZsM72yJYpYhuxAxr80fm4PfBUFOn/OZpFt508ZVDMml2VPuThwSIZz+b
+apoYKQoIRg2dA3wlC8GrLI+wxwBuiPrL8VzF2fruVSpKt03dCJYdttaJUIwOKG4I
+wMX5CKJzzaaw2LICDlE9SrvRQQfGulPQtnZXi/CzqbHSdU7dBel+IP/hkmIKo2x1
+FKM90LJGo6rF0lwI71hq/c8LOb0vQBGLAoOBopiFMJseTjJQ8NgMn+Lveh2KEt5j
+9eLxF150NC6TrueBT0F/7oRw2SBGQqz3bqrOlgLH41OdiyRvuOMMBPBoJupUjfs8
+aGLIz5tU+lt5XY16ALJZ9lEJkwx7xl+m9nUoTTZyxOHfzEVSFY5krQueOhqXZ49t
+sFRWQZhpHLbz1AUJoPb4eggzq3FBfUu9SauU9CsSQcCoTBnOPhLQ0JLC7bwVi0mb
+Qpk2Y6XpNPbWpJxqhmUqeM2I084CEPhPAwnGbfaEWG78n3hjJxQ=
+=nlPw
+-----END PGP SIGNATURE-----
+
+--pi4mtplocq5gytux--
