@@ -1,53 +1,153 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [[RESEND]PATCHv6 2/2] i2c: altera: Add Altera I2C Controller
- driver
-Date: Wed, 13 Sep 2017 23:28:14 +0200
-Message-ID: <20170913212813.5le2qn74b4kulfco@ninjato>
-References: <1505164640-26413-1-git-send-email-thor.thayer@linux.intel.com>
- <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [RESEND PATCH v3 3/5] i2c: i2c-stm32f7: add driver
+Date: Thu, 14 Sep 2017 10:11:11 +0200
+Message-ID: <63ecfac9-990b-e6c5-d9bf-7708bacc10d2@st.com>
+References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
+ <1504251255-20469-4-git-send-email-pierre-yves.mordret@st.com>
+ <20170913212639.2zyvg24364ovwfxh@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2iao2wgdltflt2ny"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43545 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751380AbdIMV2P (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 13 Sep 2017 17:28:15 -0400
-Content-Disposition: inline
-In-Reply-To: <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170913212639.2zyvg24364ovwfxh@ninjato>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: thor.thayer@linux.intel.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, andy.shevchenko@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
 
---2iao2wgdltflt2ny
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
+On 09/13/2017 11:26 PM, Wolfram Sang wrote:
+> Hi,
+> 
+> thanks for this driver!
+> 
+>> +/**
+>> + * struct stm32f7_i2c_spec - private i2c specification timing
+>> + * @rate: I2C bus speed (Hz)
+>> + * @rate_min: 80% of I2C bus speed (Hz)
+>> + * @rate_max: 120% of I2C bus speed (Hz)
+> 
+> You would generate a clock which is higher than the requested one?
+> This is highly unusual. Any special reason?
 
-And please use [PATCH V6 RESEND ...] in the future; the double '[['
-confuses the tools like patchwork.
+Well. I allow the clock to be higher than expected.
+Looking at I2C spec again it turns out the mode specifies the max: no overshoot
+of the clock. I will lock max to 100% then.
+Will be fixed
 
+> 
+>> + * @fall_max: Max fall time of both SDA and SCL signals (ns)
+>> + * @rise_max: Max rise time of both SDA and SCL signals (ns)
+>> + * @hddat_min: Min data hold time (ns)
+>> + * @vddat_max: Max data valid time (ns)
+>> + * @sudat_min: Min data setup time (ns)
+>> + * @l_min: Min low period of the SCL clock (ns)
+>> + * @h_min: Min high period of the SCL clock (ns)
+>> + */
+>> +static struct stm32f7_i2c_spec i2c_specs[] = {
+>> +	[STM32_I2C_SPEED_STANDARD] = {
+>> +		.rate = 100000,
+>> +		.rate_min = 8000,
+> 
+> This is not 80%. Typo?
 
---2iao2wgdltflt2ny
-Content-Type: application/pgp-signature; name="signature.asc"
+Yep. This is a typo
 
------BEGIN PGP SIGNATURE-----
+> 
+>> +		.rate_max = 120000,
+>> +		.fall_max = 300,
+>> +		.rise_max = 1000,
+>> +		.hddat_min = 0,
+>> +		.vddat_max = 3450,
+>> +		.sudat_min = 250,
+>> +		.l_min = 4700,
+>> +		.h_min = 4000,
+>> +	},
+> 
+> ...
+> 
+>> +	/*
+>> +	 * Among Prescaler possibilities discovered above figures out SCL Low
+>> +	 * and High Period. Provided:
+>> +	 * - SCL Low Period has to be higher than Low Period of tehs SCL Clock
+> 
+> tehs?
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm5ou0ACgkQFA3kzBSg
-KbZ8wg//eBtRAmLz8YPn11VXp8w7BN9ciekl4SK5nimqDfxb9sHNKW7/9kPKytwE
-lsruDen7xfhsu/iv7S0aXm6a/T7eZPkJp2/X7Cc5ZXlkl0OUp+MaVezi67QsVWdP
-wdlPu8h244IY96g8061rDb8RKaUzUusx8KxeQHb9Gf605UGERAkZzJ3DFyjd2qyX
-b8lCGahvAKZBRR6oPowsj6rdHjPoDbFeG2/APDU9rIru7ToUcjCYTiZlv3w61niF
-yqjGddnlp+QhJo/I7jOwv2mAbO33Tnhy29tT1RgRXio27GwM4R0eL+8NlC4Bytpn
-rxkRJiMdpWq3I7Twu2O8Fa6yoS9YsdedAaF7eEF+eqqZ/MCZHnzJEqvlccUiJsrc
-WbNwAnIT83vPAIXIID86jqpCHZ90D2hfi3mqIk20WvOsmWH9mi91cX5DJfC4BpYV
-bxvC3bY+K4tox8IazZFQz8GRA/7vRozGH+OC6iaYomD0K3+nR2kThUo7oxF+Nv6O
-Uht3cmgtYoF6Kl4w+KIL+Nf97stlsLF8yYHf7S5oCBD8hbOJzmfllQ++kLBnOUI1
-mN26UUV1QGB7yYGHv9HiDbkpUqrgXw0WWFzUX21eUvAcW01VgkEjcEf+VLXgR4Yj
-2hdDra85FmleYK/aK12O3esN6LV14Va0VeBk+cOUHwWY1FgaIDg=
-=3BUQ
------END PGP SIGNATURE-----
+Oops.
 
---2iao2wgdltflt2ny--
+> 
+>> +	 *   defined by I2C Specification. I2C Clock has to be lower than
+>> +	 *   (SCL Low Period - Analog/Digital filters) / 4.
+>> +	 * - SCL High Period has to be lower than High Period of the SCL Clock
+>> +	 *   defined by I2C Specification
+>> +	 * - I2C Clock has to be lower than SCL High Period
+>> +	 */
+> 
+> ...
+> 
+>> +	/* NACK received */
+>> +	if (status & STM32F7_I2C_ISR_NACKF) {
+>> +		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK\n", __func__);
+>> +		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
+>> +		f7_msg->result = -EBADE;
+> 
+> -ENXIO (see Documentation/i2c/fault-codes)
+
+OK
+
+> 
+> ...
+> 
+>> +	timeout = wait_for_completion_timeout(&i2c_dev->complete,
+>> +					      i2c_dev->adap.timeout);
+>> +	ret = f7_msg->result;
+>> +
+>> +	if (!timeout) {
+>> +		dev_dbg(i2c_dev->dev, "Access to slave 0x%x timed out\n",
+>> +			i2c_dev->msg->addr);
+>> +		ret = -ETIMEDOUT;
+>> +	}
+> 
+> Could you rename the variable to time_left? It looks strange, basically:
+> 
+> 	if (!timeout)
+> 		return -ETIMEDOUT
+> 
+
+okay
+
+> ...
+> 
+>> +	adap->retries = 0;
+> 
+> Why no retries when you check for arbitration lost?
+> 
+>> +	adap->algo = &stm32f7_i2c_algo;
+>> +	adap->dev.parent = &pdev->dev;
+>> +	adap->dev.of_node = pdev->dev.of_node;
+>> +
+>> +	init_completion(&i2c_dev->complete);
+>> +
+>> +	ret = i2c_add_adapter(adap);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "Failed to add adapter\n");
+> 
+> Please remove, the core will print info when adding fails.
+> 
+
+I will
+
+> 
+> Rest looks good!
+
+Great !
+
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+
+Thanks
