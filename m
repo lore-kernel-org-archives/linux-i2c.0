@@ -1,21 +1,21 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 4/5] i2c: gpio: Augment all boardfiles to use open drain
-Date: Thu, 14 Sep 2017 10:30:17 +0100
-Message-ID: <20170914093017.3xqgqomzt7i7gb5m@dell>
+Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
+Date: Thu, 14 Sep 2017 10:35:09 +0100
+Message-ID: <20170914093509.uwk47vt3wnm3rtqb@dell>
 References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-5-linus.walleij@linaro.org>
+ <20170910214424.14945-2-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f182.google.com ([209.85.128.182]:46075 "EHLO
-        mail-wr0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751385AbdINJaU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Sep 2017 05:30:20 -0400
-Received: by mail-wr0-f182.google.com with SMTP id m18so5116786wrm.2
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Sep 2017 02:30:20 -0700 (PDT)
+Received: from mail-wr0-f177.google.com ([209.85.128.177]:46530 "EHLO
+        mail-wr0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751555AbdINJfN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Sep 2017 05:35:13 -0400
+Received: by mail-wr0-f177.google.com with SMTP id o42so5110156wrb.3
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Sep 2017 02:35:12 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170910214424.14945-5-linus.walleij@linaro.org>
+In-Reply-To: <20170910214424.14945-2-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>
@@ -23,14 +23,96 @@ Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kerne
 
 On Sun, 10 Sep 2017, Linus Walleij wrote:
 
-> We now handle the open drain mode internally in the I2C GPIO
-> driver, but we will get warnings from the gpiolib that we
-> override the default mode of the line so it becomes open
-> drain.
+> This converts the GPIO-based I2C-driver to using GPIO
+> descriptors instead of the old global numberspace-based
+> GPIO interface. We:
 > 
-> We can fix all in-kernel users by simply passing the right
-> flag along in the descriptor table, and we already touched
-> all of these files in the series so let's just tidy it up.
+> - Convert the driver to unconditionally grab two GPIOs
+>   from the device by index 0 (SDA) and 1 (SCL) which
+>   will work fine with device tree and descriptor tables.
+>   The existing device trees will continue to work just
+>   like before, but without any roundtrip through the
+>   global numberspace.
+> 
+> - Brutally convert all boardfiles still passing global
+>   GPIOs by registering descriptor tables associated with
+>   the devices instead so this driver does not need to keep
+>   supporting passing any GPIO numbers as platform data.
+> 
+> There is no stepwise approach as elegant as this, I
+> strongly prefer this big hammer over any antsteps for this
+> conversion. This way the old GPIO numbers go away and
+> NEVER COME BACK.
+> 
+> Special conversion for the different boards utilizing
+> I2C-GPIO:
+> 
+> - EP93xx (arch/arm/mach-ep93xx): pretty straight forward as
+>   all boards were using the same two GPIO lines, just define
+>   these two in a lookup table for "i2c-gpio" and register
+>   these along with the device. None of them define any
+>   other platform data so just pass NULL as platform data.
+>   This platform selects GPIOLIB so all should be smooth.
+>   The pins appear on a gpiochip for bank "G" as pins 1 (SDA)
+>   and 0 (SCL).
+> 
+> - IXP4 (arch/arm/mach-ixp4): descriptor tables have to
+>   be registered for each board separately. They all use
+>   "IXP4XX_GPIO_CHIP" so it is pretty straight forward.
+>   Most board define no other platform data than SCL/SDA
+>   so they can drop the #include of <linux/i2c-gpio.h> and
+>   assign NULL to platform data.
+> 
+>   The "goramo_mlr" (Goramo Multilink Router) board is a bit
+>   worrisome: it implements its own I2C bit-banging in the
+>   board file, and optionally registers an I2C serial port,
+>   but claims the same GPIO lines for itself in the board file.
+>   This is not going to work: there will be competition for the
+>   GPIO lines, so delete the optional extra I2C bus instead, no
+>   I2C devices are registered on it anyway, there are just hints
+>   that it may contain an EEPROM that may be accessed from
+>   userspace. This needs to be fixed up properly by the serial
+>   clock using I2C emulation so drop a note in the code.
+> 
+> - KS8695 board acs5k (arch/arm/mach-ks8695/board-acs5.c)
+>   has some platform data in addition to the pins so it needs to
+>   be kept around sans GPIO lines. Its GPIO chip is named
+>   "KS8695" and the arch selects GPIOLIB.
+> 
+> - PXA boards (arch/arm/mach-pxa/*) use some of the platform
+>   data so it needs to be preserved here. The viper board even
+>   registers two GPIO I2Cs. The gpiochip is named "gpio-pxa" and
+>   the arch selects GPIOLIB.
+> 
+> - SA1100 Simpad (arch/arm/mach-sa1100/simpad.c) defines a GPIO
+>   I2C bus, and the arch selects GPIOLIB.
+> 
+> - Blackfin boards (arch/blackfin/bf533 etc) for these I assume
+>   their I2C GPIOs refer to the local gpiochip defined in
+>   arch/blackfin/kernel/bfin_gpio.c names "BFIN-GPIO".
+>   The arch selects GPIOLIB. The boards get spiked with
+>   IF_ENABLED(I2C_GPIO) but that is a side effect of it
+>   being like that already (I would just have Kconfig select
+>   I2C_GPIO and get rid of them all.) I also delete any
+>   platform data set to 0 as it will get that value anyway
+>   from static declartions of platform data.
+> 
+> - The MIPS selects GPIOLIB and the Alchemy machine is using
+>   two local GPIO chips, one of them has a GPIO I2C. We need
+>   to adjust the local offset from the global number space here.
+>   The ATH79 has a proper GPIO driver in drivers/gpio/gpio-ath79.c
+>   and AFAICT the chip is named "ath79-gpio" and the PB44
+>   PCF857x expander spawns from this on GPIO 1 and 0. The latter
+>   board only use the platform data to specify pins so it can be
+>   cut altogether after this.
+> 
+> - The MFD Silicon Motion SM501 is a special case. It dynamically
+>   spawns an I2C bus off the MFD using sm501_create_subdev().
+>   We use an approach to dynamically create a machine descriptor
+>   table and attach this to the "SM501-LOW" or "SM501-HIGH"
+>   gpiochip. We use chip-local offsets to grab the right lines.
+>   We can get rid of two local static inline helpers as part
+>   of this refactoring.
 > 
 > Cc: arm@kernel.org
 > Cc: Steven Miao <realmz6@gmail.com>
@@ -43,27 +125,39 @@ On Sun, 10 Sep 2017, Linus Walleij wrote:
 > Ralf (MIPS): requesting ACK for Wolfram to take this patch.
 > Lee: requesting ACK for Wolfram to take this patch.
 > ---
->  arch/arm/mach-ep93xx/core.c                  | 6 ++++--
->  arch/arm/mach-ixp4xx/avila-setup.c           | 4 ++--
->  arch/arm/mach-ixp4xx/dsmg600-setup.c         | 4 ++--
->  arch/arm/mach-ixp4xx/fsg-setup.c             | 4 ++--
->  arch/arm/mach-ixp4xx/ixdp425-setup.c         | 4 ++--
->  arch/arm/mach-ixp4xx/nas100d-setup.c         | 4 ++--
->  arch/arm/mach-ixp4xx/nslu2-setup.c           | 4 ++--
->  arch/arm/mach-ks8695/board-acs5k.c           | 6 ++++--
->  arch/arm/mach-pxa/palmz72.c                  | 6 ++++--
->  arch/arm/mach-pxa/viper.c                    | 8 ++++----
->  arch/arm/mach-sa1100/simpad.c                | 6 ++++--
->  arch/blackfin/mach-bf533/boards/blackstamp.c | 4 ++--
->  arch/blackfin/mach-bf533/boards/ezkit.c      | 4 ++--
->  arch/blackfin/mach-bf533/boards/stamp.c      | 4 ++--
->  arch/blackfin/mach-bf561/boards/ezkit.c      | 4 ++--
->  arch/mips/alchemy/board-gpr.c                | 4 ++++
->  arch/mips/ath79/mach-pb44.c                  | 4 ++--
+>  arch/arm/mach-ep93xx/core.c                  |  39 ++++----
+>  arch/arm/mach-ep93xx/edb93xx.c               |  15 +--
+>  arch/arm/mach-ep93xx/include/mach/platform.h |   4 +-
+>  arch/arm/mach-ep93xx/simone.c                |  12 +--
+>  arch/arm/mach-ep93xx/snappercl15.c           |  12 +--
+>  arch/arm/mach-ep93xx/vision_ep9307.c         |   7 +-
+>  arch/arm/mach-ixp4xx/avila-setup.c           |  17 +++-
+>  arch/arm/mach-ixp4xx/dsmg600-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/fsg-setup.c             |  16 +++-
+>  arch/arm/mach-ixp4xx/goramo_mlr.c            |  24 ++---
+>  arch/arm/mach-ixp4xx/ixdp425-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nas100d-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nslu2-setup.c           |  16 +++-
+>  arch/arm/mach-ks8695/board-acs5k.c           |  13 ++-
+>  arch/arm/mach-pxa/palmz72.c                  |  12 ++-
+>  arch/arm/mach-pxa/viper.c                    |  27 +++++-
+>  arch/arm/mach-sa1100/simpad.c                |  12 ++-
+>  arch/blackfin/mach-bf533/boards/blackstamp.c |  19 +++-
+>  arch/blackfin/mach-bf533/boards/ezkit.c      |  18 +++-
+>  arch/blackfin/mach-bf533/boards/stamp.c      |  18 +++-
+>  arch/blackfin/mach-bf561/boards/ezkit.c      |  18 +++-
+>  arch/mips/alchemy/board-gpr.c                |  19 +++-
+>  arch/mips/ath79/mach-pb44.c                  |  16 +++-
+>  drivers/i2c/busses/i2c-gpio.c                | 134 +++++++++++++--------------
 
->  drivers/mfd/sm501.c                          | 4 ++--
+>  drivers/mfd/sm501.c                          |  49 +++++-----
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+I'd prefer for this to be applied with a Tested-by.  I appreciate that
+this is an old driver, but can you attempt to contact one of the
+authors or someone else who might have hardware please?
+
+>  include/linux/i2c-gpio.h                     |   4 -
+>  26 files changed, 327 insertions(+), 242 deletions(-)
 
 -- 
 Lee Jones
