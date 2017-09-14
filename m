@@ -1,85 +1,55 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v4 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C bindings
-Date: Thu, 14 Sep 2017 16:28:35 +0200
-Message-ID: <1505399319-14782-2-git-send-email-pierre-yves.mordret@st.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 1/5] dt-bindings: i2c-stm32: Document the STM32F7 I2C
+ bindings
+Date: Thu, 14 Sep 2017 17:38:20 +0200
+Message-ID: <20170914153820.idq7t5gtlkcfbk6w@ninjato>
 References: <1505399319-14782-1-git-send-email-pierre-yves.mordret@st.com>
+ <1505399319-14782-2-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ykkdeei2w4oh5ic6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1505399319-14782-1-git-send-email-pierre-yves.mordret@st.com>
+Content-Disposition: inline
+In-Reply-To: <1505399319-14782-2-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the documentation of device tree bindings for STM32F7 I2C
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
- Version history:
-    v4:
-    v3:
-        * None
-    v2:
-        * Remove i2c-timing binding in order to use generic bindings SCL
-          Rising and Falling time instead
----
----
- .../devicetree/bindings/i2c/i2c-stm32.txt          | 29 +++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+--ykkdeei2w4oh5ic6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-index 78eaf7b..3b54899 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-@@ -1,7 +1,9 @@
- * I2C controller embedded in STMicroelectronics STM32 I2C platform
- 
- Required properties :
--- compatible : Must be "st,stm32f4-i2c"
-+- compatible : Must be one of the following
-+  - "st,stm32f4-i2c"
-+  - "st,stm32f7-i2c"
- - reg : Offset and length of the register set for the device
- - interrupts : Must contain the interrupt id for I2C event and then the
-   interrupt id for I2C error.
-@@ -14,8 +16,16 @@ Required properties :
- 
- Optional properties :
- - clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
--  the default 100 kHz frequency will be used. As only Normal and Fast modes
--  are supported, possible values are 100000 and 400000.
-+  the default 100 kHz frequency will be used.
-+  For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
-+  100000 and 400000.
-+  For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
-+  possible values are 100000, 400000 and 1000000.
-+- i2c-scl-rising-time-ns : Only for STM32F7, I2C SCL Rising time for the board
-+  (default: 25)
-+- i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
-+  (default: 10)
-+  I2C Timings are derived from these 2 values
- 
- Example :
- 
-@@ -31,3 +41,16 @@ Example :
- 		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
- 		pinctrl-names = "default";
- 	};
-+
-+	i2c@40005400 {
-+		compatible = "st,stm32f7-i2c";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x40005400 0x400>;
-+		interrupts = <31>,
-+			     <32>;
-+		resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
-+		clocks = <&rcc 1 CLK_I2C1>;
-+		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
-+		pinctrl-names = "default";
-+	};
--- 
-2.7.4
+On Thu, Sep 14, 2017 at 04:28:35PM +0200, Pierre-Yves MORDRET wrote:
+> This patch adds the documentation of device tree bindings for STM32F7 I2C
+>=20
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> Acked-by: Rob Herring <robh@kernel.org>
+
+Applied to for-next, thanks!
+
+
+--ykkdeei2w4oh5ic6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlm6omgACgkQFA3kzBSg
+KbZ7GA/8DCgrJHEwiRz9PiSjGUytd3iYJbFkKUGjZai8/c13FaFiCykrUvpUqKMv
+LAKJRO8O0LN/WwklzDyp7Lum9ZrHqtHZjMLDc0yy6oxD9RYs3BCBB3g82RqyjZ0r
+YGPKceXSXINo4YfNlW3p+qZ+ZM/lq5v0qBq34hciq4lU4Jb3mJJq5vQEDV+gOWW7
+Hci0zl8xV7Z0UfUG8OhiN+BYAZe50F29A8XRdJS7CY1AlizB+LzgW/0v2nzf4AZ/
+99nDI5x/OtqBTaZ9pem4IZrpSTvN9pzujviUihzKCxhS0qzReJRGSMv4kdS8MsX5
+rUKxfagiWe5Dd21pKDmm2cmb7oOKU0Fr5AflLK3edAEyxd/QNMeVqrPZbXR/hq6i
+9EbTvmxK0W3Jv7+c2bVEL+TFHkAVVG4638pTzpeXzFII0bdcphz7/V5qBG9DwuaB
+YVK3D6DXT6UhuJkUQJ/2fQHLpPqSOL7C/twXRXY9joNJZ/11nl64DdZ/ejq6RJD3
+W/JjdkRGIZQ0tnD8kCYO1pBEflP1bmq9eyelCL5U8cCM7wpHY0400o9vJcZO/u5+
+IK3oKvoOiWH8MW1ZFFgniopj4+PSOkGpHyKk1v4LxAdByGmMEecm+NM+gA+lQZwu
+0HMln6B3GnOYC4dxbM91cLtTP+7oTA7vbHbZnerw/obRt4wAijI=
+=wNWH
+-----END PGP SIGNATURE-----
+
+--ykkdeei2w4oh5ic6--
