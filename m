@@ -1,153 +1,72 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [RESEND PATCH v3 3/5] i2c: i2c-stm32f7: add driver
-Date: Thu, 14 Sep 2017 10:11:11 +0200
-Message-ID: <63ecfac9-990b-e6c5-d9bf-7708bacc10d2@st.com>
-References: <1504251255-20469-1-git-send-email-pierre-yves.mordret@st.com>
- <1504251255-20469-4-git-send-email-pierre-yves.mordret@st.com>
- <20170913212639.2zyvg24364ovwfxh@ninjato>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 4/5] i2c: gpio: Augment all boardfiles to use open drain
+Date: Thu, 14 Sep 2017 10:30:17 +0100
+Message-ID: <20170914093017.3xqgqomzt7i7gb5m@dell>
+References: <20170910214424.14945-1-linus.walleij@linaro.org>
+ <20170910214424.14945-5-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170913212639.2zyvg24364ovwfxh@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr0-f182.google.com ([209.85.128.182]:46075 "EHLO
+        mail-wr0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751385AbdINJaU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Sep 2017 05:30:20 -0400
+Received: by mail-wr0-f182.google.com with SMTP id m18so5116786wrm.2
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Sep 2017 02:30:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170910214424.14945-5-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, arm@kernel.org, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
 
+On Sun, 10 Sep 2017, Linus Walleij wrote:
 
+> We now handle the open drain mode internally in the I2C GPIO
+> driver, but we will get warnings from the gpiolib that we
+> override the default mode of the line so it becomes open
+> drain.
+> 
+> We can fix all in-kernel users by simply passing the right
+> flag along in the descriptor table, and we already touched
+> all of these files in the series so let's just tidy it up.
+> 
+> Cc: arm@kernel.org
+> Cc: Steven Miao <realmz6@gmail.com>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ARM SoC folks: requesting ACK for Wolfram to take this patch.
+> Steven (Blackfin): requesting ACK for Wolfram to take this patch.
+> Ralf (MIPS): requesting ACK for Wolfram to take this patch.
+> Lee: requesting ACK for Wolfram to take this patch.
+> ---
+>  arch/arm/mach-ep93xx/core.c                  | 6 ++++--
+>  arch/arm/mach-ixp4xx/avila-setup.c           | 4 ++--
+>  arch/arm/mach-ixp4xx/dsmg600-setup.c         | 4 ++--
+>  arch/arm/mach-ixp4xx/fsg-setup.c             | 4 ++--
+>  arch/arm/mach-ixp4xx/ixdp425-setup.c         | 4 ++--
+>  arch/arm/mach-ixp4xx/nas100d-setup.c         | 4 ++--
+>  arch/arm/mach-ixp4xx/nslu2-setup.c           | 4 ++--
+>  arch/arm/mach-ks8695/board-acs5k.c           | 6 ++++--
+>  arch/arm/mach-pxa/palmz72.c                  | 6 ++++--
+>  arch/arm/mach-pxa/viper.c                    | 8 ++++----
+>  arch/arm/mach-sa1100/simpad.c                | 6 ++++--
+>  arch/blackfin/mach-bf533/boards/blackstamp.c | 4 ++--
+>  arch/blackfin/mach-bf533/boards/ezkit.c      | 4 ++--
+>  arch/blackfin/mach-bf533/boards/stamp.c      | 4 ++--
+>  arch/blackfin/mach-bf561/boards/ezkit.c      | 4 ++--
+>  arch/mips/alchemy/board-gpr.c                | 4 ++++
+>  arch/mips/ath79/mach-pb44.c                  | 4 ++--
 
-On 09/13/2017 11:26 PM, Wolfram Sang wrote:
-> Hi,
-> 
-> thanks for this driver!
-> 
->> +/**
->> + * struct stm32f7_i2c_spec - private i2c specification timing
->> + * @rate: I2C bus speed (Hz)
->> + * @rate_min: 80% of I2C bus speed (Hz)
->> + * @rate_max: 120% of I2C bus speed (Hz)
-> 
-> You would generate a clock which is higher than the requested one?
-> This is highly unusual. Any special reason?
+>  drivers/mfd/sm501.c                          | 4 ++--
 
-Well. I allow the clock to be higher than expected.
-Looking at I2C spec again it turns out the mode specifies the max: no overshoot
-of the clock. I will lock max to 100% then.
-Will be fixed
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-> 
->> + * @fall_max: Max fall time of both SDA and SCL signals (ns)
->> + * @rise_max: Max rise time of both SDA and SCL signals (ns)
->> + * @hddat_min: Min data hold time (ns)
->> + * @vddat_max: Max data valid time (ns)
->> + * @sudat_min: Min data setup time (ns)
->> + * @l_min: Min low period of the SCL clock (ns)
->> + * @h_min: Min high period of the SCL clock (ns)
->> + */
->> +static struct stm32f7_i2c_spec i2c_specs[] = {
->> +	[STM32_I2C_SPEED_STANDARD] = {
->> +		.rate = 100000,
->> +		.rate_min = 8000,
-> 
-> This is not 80%. Typo?
-
-Yep. This is a typo
-
-> 
->> +		.rate_max = 120000,
->> +		.fall_max = 300,
->> +		.rise_max = 1000,
->> +		.hddat_min = 0,
->> +		.vddat_max = 3450,
->> +		.sudat_min = 250,
->> +		.l_min = 4700,
->> +		.h_min = 4000,
->> +	},
-> 
-> ...
-> 
->> +	/*
->> +	 * Among Prescaler possibilities discovered above figures out SCL Low
->> +	 * and High Period. Provided:
->> +	 * - SCL Low Period has to be higher than Low Period of tehs SCL Clock
-> 
-> tehs?
-
-Oops.
-
-> 
->> +	 *   defined by I2C Specification. I2C Clock has to be lower than
->> +	 *   (SCL Low Period - Analog/Digital filters) / 4.
->> +	 * - SCL High Period has to be lower than High Period of the SCL Clock
->> +	 *   defined by I2C Specification
->> +	 * - I2C Clock has to be lower than SCL High Period
->> +	 */
-> 
-> ...
-> 
->> +	/* NACK received */
->> +	if (status & STM32F7_I2C_ISR_NACKF) {
->> +		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK\n", __func__);
->> +		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
->> +		f7_msg->result = -EBADE;
-> 
-> -ENXIO (see Documentation/i2c/fault-codes)
-
-OK
-
-> 
-> ...
-> 
->> +	timeout = wait_for_completion_timeout(&i2c_dev->complete,
->> +					      i2c_dev->adap.timeout);
->> +	ret = f7_msg->result;
->> +
->> +	if (!timeout) {
->> +		dev_dbg(i2c_dev->dev, "Access to slave 0x%x timed out\n",
->> +			i2c_dev->msg->addr);
->> +		ret = -ETIMEDOUT;
->> +	}
-> 
-> Could you rename the variable to time_left? It looks strange, basically:
-> 
-> 	if (!timeout)
-> 		return -ETIMEDOUT
-> 
-
-okay
-
-> ...
-> 
->> +	adap->retries = 0;
-> 
-> Why no retries when you check for arbitration lost?
-> 
->> +	adap->algo = &stm32f7_i2c_algo;
->> +	adap->dev.parent = &pdev->dev;
->> +	adap->dev.of_node = pdev->dev.of_node;
->> +
->> +	init_completion(&i2c_dev->complete);
->> +
->> +	ret = i2c_add_adapter(adap);
->> +	if (ret) {
->> +		dev_err(&pdev->dev, "Failed to add adapter\n");
-> 
-> Please remove, the core will print info when adding fails.
-> 
-
-I will
-
-> 
-> Rest looks good!
-
-Great !
-
-> 
-> Thanks,
-> 
->    Wolfram
-> 
-
-Thanks
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
