@@ -1,51 +1,75 @@
-From: Olof Johansson <olof@lixom.net>
-Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
-Date: Fri, 15 Sep 2017 10:57:24 -0700
-Message-ID: <CAOesGMi5Jx+hDGtUV_3sE8-7Rc+KronFyUmRzT55hZuRn28OPQ@mail.gmail.com>
-References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-2-linus.walleij@linaro.org> <CAOesGMitNqwjEHugsiwsmRAVSinUEv=eprJXHRRhSHUypm=b1A@mail.gmail.com>
- <20170915175439.izhfpx2ztep4evet@ninjato>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Fri, 15 Sep 2017 18:31:51 -0500
+Message-ID: <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:35299 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751184AbdIOR51 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Sep 2017 13:57:27 -0400
-Received: by mail-lf0-f66.google.com with SMTP id c8so1553638lfe.2
-        for <linux-i2c@vger.kernel.org>; Fri, 15 Sep 2017 10:57:26 -0700 (PDT)
-In-Reply-To: <20170915175439.izhfpx2ztep4evet@ninjato>
+Received: from lelnx194.ext.ti.com ([198.47.27.80]:51664 "EHLO
+        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751807AbdIOXcL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Sep 2017 19:32:11 -0400
+In-Reply-To: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux-MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, "arm@kernel.org" <arm@kernel.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Lee Jones <lee.jones@linaro.org>
-
-On Fri, Sep 15, 2017 at 10:54 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Fri, Sep 15, 2017 at 10:51:28AM -0700, Olof Johansson wrote:
->> On Sun, Sep 10, 2017 at 2:44 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
->> [...]
->> > Cc: arm@kernel.org
->> > Cc: Steven Miao <realmz6@gmail.com>
->> > Cc: Ralf Baechle <ralf@linux-mips.org>
->> > Cc: Lee Jones <lee.jones@linaro.org>
->> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->> > ---
->> > ARM SoC folks: requesting ACK for Wolfram to take this patch.
->> > Steven (Blackfin): requesting ACK for Wolfram to take this patch.
->> > Ralf (MIPS): requesting ACK for Wolfram to take this patch.
->> > Lee: requesting ACK for Wolfram to take this patch.
->>
->> Acked-by: Olof Johansson <olof@lixom.net>
->>
->> Wolfram: Same thing here, maybe this and the other patch can go on one
->> branch for merge in case of conflicts.
->
-> Yes, I am fine with picking all these up. However, we already found out
-> there needs to be a V2 because Geert had another series cleaning up the
-> i2c-gpio driver and it was decided to merge those two series.
-
-Yep, that approach makes sense. I suspect the arm mach pieces will
-still look the same so the ack can stay in that case.
+To: Claudio Foellmi <claudio.foellmi@ergon.ch>, Tony Lindgren <tony@atomide.com>, Sekhar Nori <nsekhar@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
--Olof
+
+On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
+> A very conservative check for bus activity (to prevent interference
+> in multimaster setups) prevented the bus recovery methods from being
+> triggered in the case that SDA or SCL was stuck low.
+> This defeats the purpose of the recovery mechanism, which was introduced
+> for exactly this situation (a slave device keeping SDA pulled down).
+> 
+> Note that bus lockups can persist across reboots. The only other options
+> are to reset or power cycle the offending slave device, and many i2c
+> slaves do not even have a reset pin.
+> 
+> If we see that one of the lines is low for the entire timeout duration,
+> we can actually be sure that there is no other master driving the bus.
+> It is therefore save for us to attempt a bus recovery.
+> 
+
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+
+> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+> ---
+> Caveat: It turns out I don't have the hardware to fully test the
+> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
+> not SDA (so the recovery will not succeed in my case).
+> But by directly connecting SDA to ground, I could at least make sure
+> the recovery function gets called after applying this patch.
+> 
+>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
+>   1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 1ebb5e9..4b25fd1 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
+>   		}
+>   
+>   		if (time_after(jiffies, timeout)) {
+> +			/*
+> +			 * SDA or SCL were low for the entire timeout without
+> +			 * any activity detected. Most likely, a slave is
+> +			 * locking up the bus with no master driving the clock.
+> +			 */
+>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
+> -			return -ETIMEDOUT;
+> +			return i2c_recover_bus(&omap->adapter);
+>   		}
+>   
+>   		msleep(1);
+> 
+
+-- 
+regards,
+-grygorii
