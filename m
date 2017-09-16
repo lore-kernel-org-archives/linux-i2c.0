@@ -1,75 +1,68 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
-Date: Fri, 15 Sep 2017 18:31:51 -0500
-Message-ID: <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
-References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Andrew Worsley <amworsley@gmail.com>
+Subject: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
+Date: Sat, 16 Sep 2017 13:02:52 +1000
+Message-ID: <20170916030252.10680-1-amworsley@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from lelnx194.ext.ti.com ([198.47.27.80]:51664 "EHLO
-        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751807AbdIOXcL (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Sep 2017 19:32:11 -0400
-In-Reply-To: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
-Content-Language: en-US
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35699 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751257AbdIPDDI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Sep 2017 23:03:08 -0400
+Received: by mail-pg0-f68.google.com with SMTP id j16so2201041pga.2
+        for <linux-i2c@vger.kernel.org>; Fri, 15 Sep 2017 20:03:08 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Claudio Foellmi <claudio.foellmi@ergon.ch>, Tony Lindgren <tony@atomide.com>, Sekhar Nori <nsekhar@ti.com>, Franklin S Cooper Jr <fcooper@ti.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+To: michal.simek@xilinx.com
+Cc: soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Andrew Worsley <amworsley@gmail.com>
 
+The i2c interrupt handler was not checking against the length of
+supplied buffer so if the hardware supplied more data than requested in
+the i2c transfer it happily copies it right past the end of the buffer!
 
+Signed-off-by: Andrew Worsley <amworsley@gmail.com>
+---
 
-On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
-> A very conservative check for bus activity (to prevent interference
-> in multimaster setups) prevented the bus recovery methods from being
-> triggered in the case that SDA or SCL was stuck low.
-> This defeats the purpose of the recovery mechanism, which was introduced
-> for exactly this situation (a slave device keeping SDA pulled down).
-> 
-> Note that bus lockups can persist across reboots. The only other options
-> are to reset or power cycle the offending slave device, and many i2c
-> slaves do not even have a reset pin.
-> 
-> If we see that one of the lines is low for the entire timeout duration,
-> we can actually be sure that there is no other master driving the bus.
-> It is therefore save for us to attempt a bus recovery.
-> 
+  This bug reliably caused a stack corruption when the hardware provided more data than
+asked for in the i2c request. The hardware (a tpm) very occasionally appends a burst of
+0xff to the end of the data requested and the i2c interrupt handler mindlessly copies all
+the data right past the end of the buffer and in my case across the stack. :-(
 
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+  With this patch the transfer now terminates with an -EIO but with out voilating the
+buffer boundaries. I would prefer to just make the transfer succeed while not retrieving
+additional bytes but I wasn't able to find an easy way to do this. As this is definitely a
+fault that causes a kernel oops I just wanted to get a fix out there for others to avoid
+the problem as it has taken me a few weeks to chase down this oops. If someone has a
+better or nicer fix I would appreciate it or a pointer to how to do this.
 
-> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
-> ---
-> Caveat: It turns out I don't have the hardware to fully test the
-> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
-> not SDA (so the recovery will not succeed in my case).
-> But by directly connecting SDA to ground, I could at least make sure
-> the recovery function gets called after applying this patch.
-> 
->   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
->   1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 1ebb5e9..4b25fd1 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
->   		}
->   
->   		if (time_after(jiffies, timeout)) {
-> +			/*
-> +			 * SDA or SCL were low for the entire timeout without
-> +			 * any activity detected. Most likely, a slave is
-> +			 * locking up the bus with no master driving the clock.
-> +			 */
->   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
-> -			return -ETIMEDOUT;
-> +			return i2c_recover_bus(&omap->adapter);
->   		}
->   
->   		msleep(1);
-> 
+    Thanks
 
+    Andrew
+ drivers/i2c/busses/i2c-cadence.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index b13605718291..c1f61ca6843e 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -234,6 +234,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 	if (id->p_recv_buf &&
+ 	    ((isr_status & CDNS_I2C_IXR_COMP) ||
+ 	     (isr_status & CDNS_I2C_IXR_DATA))) {
++		unsigned char *p = id->p_recv_buf;
+ 		/* Read data if receive data valid is set */
+ 		while (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) &
+ 		       CDNS_I2C_SR_RXDV) {
+@@ -246,6 +247,12 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 			    !id->bus_hold_flag)
+ 				cdns_i2c_clear_bus_hold(id);
+ 
++			if (id->recv_count == 0) {
++				pr_notice("%s: i2c receive buffer filled : %u aborting transfer %p - %p\n",
++					__func__, (id->p_recv_buf - p));
++				break;
++			}
++
+ 			*(id->p_recv_buf)++ =
+ 				cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
+ 			id->recv_count--;
 -- 
-regards,
--grygorii
+2.11.0
