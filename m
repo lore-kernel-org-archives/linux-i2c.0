@@ -1,59 +1,42 @@
-From: Jun Gao <jun.gao@mediatek.com>
-Subject: Re: [I2C] About warning 'DMA-API: device driver maps memory from
- stack'
-Date: Sat, 16 Sep 2017 17:33:59 +0800
-Message-ID: <1505554439.31793.76.camel@mhfsdcap03>
-References: <1504354088.31793.48.camel@mhfsdcap03>
-         <20170902215829.3jpwmbyy27cpu5rm@ninjato>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] i2c: i2c-stm32f7: make structure stm32f7_setup static
+Date: Sat, 16 Sep 2017 12:33:08 +0100
+Message-ID: <20170916113308.25534-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:18218 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750909AbdIPJeG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Sep 2017 05:34:06 -0400
-In-Reply-To: <20170902215829.3jpwmbyy27cpu5rm@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, yingjoe.chen@mediatek.com
 
-On Sat, 2017-09-02 at 23:58 +0200, Wolfram Sang wrote:
-> Hi,
-> 
-> nice to see someone else interested in the I2C & DMA topic.
-> 
-> Please check this series which I sent out recently:
-> 
-> "[RFC PATCH v4 0/6] i2c: document DMA handling and add helpers for it"
-> 
-> In that series, I proposed...
-> 
-> > 3. kmalloc data buffer instead of local variables buf in function
-> > i2c_smbus_xfer_emulated(...)
-> 
-> ... this solution. Although I have to check Mauro's general response to
-> the series first. I'd be interested in what you think of the series,
-> too.
-Sorry for late reply.
+From: Colin Ian King <colin.king@canonical.com>
 
-As you said in "[RFC,v4,3/6]i2c: add docs to clarify DMA handling". Most
-i2c_msgs are register accesses and thus, small messages. And
-"[RFC,v4,4/6] i2c: sh_mobile: use helper to decide if DMA is useful".
+The structure stm32f7_setup is local to the source and does not need
+to be in global scope, so make it static.
 
-Maybe the solution as below will be better. Other drivers which will use
-i2c would not have to make buffer DMA safe especially register
-accesses(they like to use local variables when data_len = 1 or 2).
+Cleans up sparse warning:
+symbol 'stm32f7_setup' was not declared. Should it be static?
 
-solution:
-2. use FIFO mode when length<=fifo_depth(mtk i2c fifo_depth=8), use
-the flag "I2C_M_DMA_SAFE" to check buffer for DMA mode when
-length>fifo_depth in i2c-mt65xx.c .
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.
-> 
-> Kind regards,
-> 
->    Wolfram
-> 
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 47c67b0ca896..a9cb78de22e0 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -265,7 +265,7 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
+ 	},
+ };
+ 
+-struct stm32f7_i2c_setup stm32f7_setup = {
++static struct stm32f7_i2c_setup stm32f7_setup = {
+ 	.rise_time = STM32F7_I2C_RISE_TIME_DEFAULT,
+ 	.fall_time = STM32F7_I2C_FALL_TIME_DEFAULT,
+ 	.dnf = STM32F7_I2C_DNF_DEFAULT,
+-- 
+2.14.1
+
