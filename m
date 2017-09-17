@@ -1,100 +1,125 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 6/7] dt-bindings: i2c: i2c-gpio: Add support for named gpios
-Date: Sun, 17 Sep 2017 11:39:05 +0200
-Message-ID: <20170917093906.16325-7-linus.walleij@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 7/7] i2c: gpio: Add support for named gpios in DT
+Date: Sun, 17 Sep 2017 11:39:06 +0200
+Message-ID: <20170917093906.16325-8-linus.walleij@linaro.org>
 References: <20170917093906.16325-1-linus.walleij@linaro.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170917093906.16325-1-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, geert.renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-lf0-f41.google.com ([209.85.215.41]:56577 "EHLO
+        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751186AbdIQJkS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Sep 2017 05:40:18 -0400
+Received: by mail-lf0-f41.google.com with SMTP id a18so5563285lfl.13
+        for <linux-i2c@vger.kernel.org>; Sun, 17 Sep 2017 02:40:17 -0700 (PDT)
+In-Reply-To: <20170917093906.16325-1-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>
 
-From: Geert Uytterhoeven <geert+renesas () glider ! be>
+This adds support for using the "sda" and "scl" GPIOs in
+device tree instead of anonymously using index 0 and 1 of
+the "gpios" property.
 
-The current i2c-gpio DT bindings use a single unnamed "gpios" property
-to refer to the SDA and SCL signal lines by index.  This is error-prone
-for the casual DT writer and reviewer, as one has to look up the order
-in the DT bindings.
+We add a helper function to retrieve the GPIO descriptors
+and some explicit error handling since the probe may have
+to be deferred. At least this happened to me when moving
+to using named "sda" and "scl" lines (all of a sudden this
+started to probe before the GPIO driver) so we need to
+gracefully defer probe when we ge -ENOENT in the error
+pointer.
 
-Fix this by amending the DT bindings to use two separate named gpios
-properties, and deprecate the old unnamed variant.
-
-Take this opportunity to clearly deprecate the "i2c-gpio,sda-open-drain"
-and "i2c-gpio,scl-open-drain" flags as well. The commit describes
-in detail what these flags actually mean, and why they should not be
-used in new device trees.
-
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-[Augmented to what I and Rob would like]
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
-ChangeLog v1->v2:
-- Create a special section for the deprecated bindings
-- Also deprecate the open drain bool properties
-- Update the example to use the new style of bindings
+This is pretty much a rewrite of Geerts patch on top of
+my own changes to support descriptors.
 ---
- Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 32 ++++++++++++++++------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-gpio.c | 59 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 43 insertions(+), 16 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-index 4f8ec947c6bd..38a05562d1d2 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-@@ -2,25 +2,39 @@ Device-Tree bindings for i2c gpio driver
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index beb5ce523684..2738b851f470 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -82,6 +82,42 @@ static void of_i2c_gpio_get_props(struct device_node *np,
+ 		of_property_read_bool(np, "i2c-gpio,scl-output-only");
+ }
  
- Required properties:
- 	- compatible = "i2c-gpio";
--	- gpios: sda and scl gpio
--
-+	- sda-gpios: gpio used for the sda signal, this should be flagged as
-+	  active high using open drain with (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)
-+	  from <dt-bindings/gpio/gpio.h> since the signal is by definition
-+	  open drain.
-+	- scl-gpios: gpio used for the scl signal, this should be flagged as
-+	  active high using open drain with (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)
-+	  from <dt-bindings/gpio/gpio.h> since the signal is by definition
-+	  open drain.
- 
- Optional properties:
--	- i2c-gpio,sda-open-drain: sda as open drain
--	- i2c-gpio,scl-open-drain: scl as open drain
- 	- i2c-gpio,scl-output-only: scl as output only
- 	- i2c-gpio,delay-us: delay between GPIO operations (may depend on each platform)
- 	- i2c-gpio,timeout-ms: timeout to get data
- 
-+Deprecated properties, do not use in new device tree sources:
-+	- gpios: sda and scl gpio, alternative for {sda,scl}-gpios
-+	- i2c-gpio,sda-open-drain: this means that something outside of our
-+	  control has put the GPIO line used for SDA into open drain mode, and
-+	  that something is not the GPIO chip. It is essentially an
-+	  inconsistency flag.
-+	- i2c-gpio,scl-open-drain: this means that something outside of our
-+	  control has put the GPIO line used for SCL into open drain mode, and
-+	  that something is not the GPIO chip. It is essentially an
-+	  inconsistency flag.
++static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
++					   const char *con_id,
++					   unsigned int index,
++					   enum gpiod_flags gflags)
++{
++	struct gpio_desc *retdesc;
++	int ret;
 +
- Example nodes:
- 
-+#include <dt-bindings/gpio/gpio.h>
++	retdesc = devm_gpiod_get(dev, con_id, gflags);
++	if (!IS_ERR(retdesc)) {
++		dev_dbg(dev, "got GPIO from name %s\n", con_id);
++		return retdesc;
++	}
 +
- i2c@0 {
- 	compatible = "i2c-gpio";
--	gpios = <&pioA 23 0 /* sda */
--		 &pioA 24 0 /* scl */
--		>;
--	i2c-gpio,sda-open-drain;
--	i2c-gpio,scl-open-drain;
-+	sda-gpios = <&pioA 23 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
-+	scl-gpios = <&pioA 24 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
- 	i2c-gpio,delay-us = <2>;	/* ~100 kHz */
- 	#address-cells = <1>;
- 	#size-cells = <0>;
++	retdesc = devm_gpiod_get_index(dev, NULL, index, gflags);
++	if (!IS_ERR(retdesc)) {
++		dev_dbg(dev, "got GPIO from index %u\n", index);
++		return retdesc;
++	}
++
++	ret = PTR_ERR(retdesc);
++
++	/* FIXME: hack in the old code, is this really necessary? */
++	if (ret == -EINVAL)
++		retdesc = ERR_PTR(-EPROBE_DEFER);
++
++	/* This happens if the GPIO driver is not yet probed, let's defer */
++	if (ret == -ENOENT)
++		retdesc = ERR_PTR(-EPROBE_DEFER);
++
++	if (ret != -EPROBE_DEFER)
++		dev_err(dev, "error trying to get descriptor: %ld\n", ret);
++
++	return retdesc;
++}
++
+ static int i2c_gpio_probe(struct platform_device *pdev)
+ {
+ 	struct i2c_gpio_private_data *priv;
+@@ -125,14 +161,10 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		gflags = GPIOD_OUT_HIGH;
+ 	else
+ 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
+-	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
+-	if (IS_ERR(priv->sda)) {
+-		ret = PTR_ERR(priv->sda);
+-		/* FIXME: hack in the old code, is this really necessary? */
+-		if (ret == -EINVAL)
+-			ret = -EPROBE_DEFER;
+-		return ret;
+-	}
++	priv->sda = i2c_gpio_get_desc(dev, "sda", 0, gflags);
++	if (IS_ERR(priv->sda))
++		return PTR_ERR(priv->sda);
++
+ 	/*
+ 	 * If the SCL line is marked from platform data or device tree as
+ 	 * "open drain" it means something outside of our control is making
+@@ -144,14 +176,9 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		gflags = GPIOD_OUT_LOW;
+ 	else
+ 		gflags = GPIOD_OUT_LOW_OPEN_DRAIN;
+-	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
+-	if (IS_ERR(priv->scl)) {
+-		ret = PTR_ERR(priv->scl);
+-		/* FIXME: hack in the old code, is this really necessary? */
+-		if (ret == -EINVAL)
+-			ret = -EPROBE_DEFER;
+-		return ret;
+-	}
++	priv->scl = i2c_gpio_get_desc(dev, "scl", 1, gflags);
++	if (IS_ERR(priv->scl))
++		return PTR_ERR(priv->scl);
+ 
+ 	bit_data->setsda = i2c_gpio_setsda_val;
+ 	bit_data->setscl = i2c_gpio_setscl_val;
 -- 
 2.13.5
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
