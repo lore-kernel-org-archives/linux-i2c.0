@@ -1,48 +1,74 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
-Date: Sat, 16 Sep 2017 17:14:42 -0700
-Message-ID: <7f67dfa0-31da-0967-0929-28ae105bb2b5@roeck-us.net>
-References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-2-linus.walleij@linaro.org>
- <20170914093509.uwk47vt3wnm3rtqb@dell>
- <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 0/7] I2C GPIO to use gpiolibs open drain
+Date: Sun, 17 Sep 2017 11:38:59 +0200
+Message-ID: <20170917093906.16325-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:38729 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751047AbdIQAOp (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 16 Sep 2017 20:14:45 -0400
-Received: by mail-pf0-f193.google.com with SMTP id q76so2952988pfq.5
-        for <linux-i2c@vger.kernel.org>; Sat, 16 Sep 2017 17:14:45 -0700 (PDT)
-In-Reply-To: <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
-Content-Language: en-US
+Received: from mail-lf0-f53.google.com ([209.85.215.53]:49960 "EHLO
+        mail-lf0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750803AbdIQJjQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Sep 2017 05:39:16 -0400
+Received: by mail-lf0-f53.google.com with SMTP id r17so5618970lff.6
+        for <linux-i2c@vger.kernel.org>; Sun, 17 Sep 2017 02:39:16 -0700 (PDT)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>, Ben Dooks <ben@fluff.org.uk>, Ville Syrjala <syrjala@sci.fi>, Magnus Damm <magnus.damm@gmail.com>, Heiko Schocher <hs@denx.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, "arm@kernel.org" <arm@kernel.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>
 
-On 09/16/2017 03:25 PM, Linus Walleij wrote:
-> On Thu, Sep 14, 2017 at 11:35 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> 
->>>   drivers/mfd/sm501.c                          |  49 +++++-----
->>
->> I'd prefer for this to be applied with a Tested-by.  I appreciate that
->> this is an old driver, but can you attempt to contact one of the
->> authors or someone else who might have hardware please?
-> 
-> For SM501 specifically I guess.
-> 
-> OK makes sense as it is the most invasive one, paging around...
-> 
-> Ben, Ville, Magnus, Heiko, Guenther: is one of you still using this
-> hardware so you can test the patch set?
-> 
+This augments the I2C GPIO driver to use open drain emulation
+or hardware support for open drain from the GPIO driver.
 
-qemu supports it. I _think_ my commit for this driver was to fix a warning
-I saw when running some qemu test. Unfortunately, I have no idea how that
-message was triggered in my tests, or in other words which qemu machine
-actually uses it. I'll try to find out, but no promises.
+This version layers Geert Uytterhoeven's idea to use explicit
+sda-gpios and scl-gpios for the GPIO lines, and strongly
+encourage the (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN) flags to be
+used in all device trees.
 
-Guenter
+We have collected ACKs from the ARM SoC maintainers and the
+MFD maintainer and are looking for testers to try this out.
+
+Geert Uytterhoeven (1):
+  dt-bindings: i2c: i2c-gpio: Add support for named gpios
+
+Linus Walleij (6):
+  i2c: gpio: Convert to use descriptors
+  gpio: Make it possible for consumers to enforce open drain
+  i2c: gpio: Enforce open drain through gpiolib
+  i2c: gpio: Augment all boardfiles to use open drain
+  i2c: gpio: Local vars in probe
+  i2c: gpio: Add support for named gpios in DT
+
+ Documentation/devicetree/bindings/i2c/i2c-gpio.txt |  32 +++-
+ arch/arm/mach-ep93xx/core.c                        |  41 ++--
+ arch/arm/mach-ep93xx/edb93xx.c                     |  15 +-
+ arch/arm/mach-ep93xx/include/mach/platform.h       |   4 +-
+ arch/arm/mach-ep93xx/simone.c                      |  12 +-
+ arch/arm/mach-ep93xx/snappercl15.c                 |  12 +-
+ arch/arm/mach-ep93xx/vision_ep9307.c               |   7 +-
+ arch/arm/mach-ixp4xx/avila-setup.c                 |  17 +-
+ arch/arm/mach-ixp4xx/dsmg600-setup.c               |  16 +-
+ arch/arm/mach-ixp4xx/fsg-setup.c                   |  16 +-
+ arch/arm/mach-ixp4xx/goramo_mlr.c                  |  24 +--
+ arch/arm/mach-ixp4xx/ixdp425-setup.c               |  16 +-
+ arch/arm/mach-ixp4xx/nas100d-setup.c               |  16 +-
+ arch/arm/mach-ixp4xx/nslu2-setup.c                 |  16 +-
+ arch/arm/mach-ks8695/board-acs5k.c                 |  15 +-
+ arch/arm/mach-pxa/palmz72.c                        |  14 +-
+ arch/arm/mach-pxa/viper.c                          |  27 ++-
+ arch/arm/mach-sa1100/simpad.c                      |  14 +-
+ arch/blackfin/mach-bf533/boards/blackstamp.c       |  19 +-
+ arch/blackfin/mach-bf533/boards/ezkit.c            |  18 +-
+ arch/blackfin/mach-bf533/boards/stamp.c            |  18 +-
+ arch/blackfin/mach-bf561/boards/ezkit.c            |  18 +-
+ arch/mips/alchemy/board-gpr.c                      |  23 ++-
+ arch/mips/ath79/mach-pb44.c                        |  16 +-
+ drivers/gpio/gpiolib.c                             |  13 ++
+ drivers/i2c/busses/i2c-gpio.c                      | 213 ++++++++++-----------
+ drivers/mfd/sm501.c                                |  49 ++---
+ include/linux/gpio/consumer.h                      |   6 +
+ include/linux/i2c-gpio.h                           |   4 -
+ 29 files changed, 423 insertions(+), 288 deletions(-)
+
+-- 
+2.13.5
