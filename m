@@ -1,101 +1,70 @@
-From: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
-Date: Mon, 18 Sep 2017 14:01:27 +0200
-Message-ID: <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
-References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
- <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
- <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v4 1/2] wire: export w1_touch_bit
+Date: Mon, 18 Sep 2017 15:03:45 +0200
+Message-ID: <20170918130346.3886-1-jjj@gmx.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.ergon.ch ([87.239.214.68]:49211 "EHLO mx1.ergon.ch"
+Received: from mout.gmx.net ([212.227.17.21]:51633 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753887AbdIRMBp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Sep 2017 08:01:45 -0400
-In-Reply-To: <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
-Content-Language: en-US
+        id S1752112AbdIRNDw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Sep 2017 09:03:52 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: GregKH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Evgeniy Polyakov <zbr@ioremap.net>, Linux-I2C <linux-i2c@vger.kernel.org>
 
-On 18.09.2017 07:24, Vignesh R wrote:
-> 
-> 
-> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
->>
->>
->> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
->>> A very conservative check for bus activity (to prevent interference
->>> in multimaster setups) prevented the bus recovery methods from being
->>> triggered in the case that SDA or SCL was stuck low.
->>> This defeats the purpose of the recovery mechanism, which was introduced
->>> for exactly this situation (a slave device keeping SDA pulled down).
->>>
->>> Note that bus lockups can persist across reboots. The only other options
->>> are to reset or power cycle the offending slave device, and many i2c
->>> slaves do not even have a reset pin.
->>>
->>> If we see that one of the lines is low for the entire timeout duration,
->>> we can actually be sure that there is no other master driving the bus.
->>> It is therefore save for us to attempt a bus recovery.
->>>
->>
->> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
->>
->>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
->>> ---
->>> Caveat: It turns out I don't have the hardware to fully test the
->>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
->>> not SDA (so the recovery will not succeed in my case).
-> 
-> Maybe, you could detect SCL stuck low case by reading status of SCL line
-> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
-> that can be done) instead of bus recovery.
-> 
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
 
-I plan on posting a related patch soon, that will print better messages
-if the generic recovery fails. If SCL is stuck low, I think the best we
-can do is make the problem visible in the kernel log.
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
 
->>> But by directly connecting SDA to ground, I could at least make sure
->>> the recovery function gets called after applying this patch.
->>>
-> 
-> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
-> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
-> Did you observe this behavior on your system? Could you mention the
-> platform on which this experiment done?
-> 
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
 
-So attempting bus recovery is dangerous on some platforms?
-I did not notice any obvious problems (assuming an 'unusable system'
-would be hard to miss), but then again I only have one target to test on.
-I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+---
+Changes in v4 against v3 in this subpatch:
+  - adapted to linux-4.12.0
 
->>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
->>>   1 file changed, 6 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->>> index 1ebb5e9..4b25fd1 100644
->>> --- a/drivers/i2c/busses/i2c-omap.c
->>> +++ b/drivers/i2c/busses/i2c-omap.c
->>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
->>>   		}
->>>   
->>>   		if (time_after(jiffies, timeout)) {
->>> +			/*
->>> +			 * SDA or SCL were low for the entire timeout without
->>> +			 * any activity detected. Most likely, a slave is
->>> +			 * locking up the bus with no master driving the clock.
->>> +			 */
->>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
->>> -			return -ETIMEDOUT;
->>> +			return i2c_recover_bus(&omap->adapter);
->>>   		}
->>>   
->>>   		msleep(1);
->>>
->>
-> 
+No changes in v3 against v2,v1 in this subpatch.
+
+ drivers/w1/w1.h    | 1 +
+ drivers/w1/w1_io.c | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1.h b/drivers/w1/w1.h
+index 758a7a6..e7af855 100644
+--- a/drivers/w1/w1.h
++++ b/drivers/w1/w1.h
+@@ -295,6 +295,7 @@ int w1_attach_slave_device(struct w1_master *dev, struct w1_reg_num *rn);
+ int w1_slave_detach(struct w1_slave *sl);
+ 
+ u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index 1134e6b..4bb77a1 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -58,7 +58,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -69,6 +69,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+ 
+ /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
+-- 
+2.13.3
