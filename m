@@ -1,50 +1,91 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
-Date: Mon, 18 Sep 2017 07:07:15 +0200
-Message-ID: <59BF5483.9020403@denx.de>
-References: <20170910214424.14945-1-linus.walleij@linaro.org>
- <20170910214424.14945-2-linus.walleij@linaro.org>
- <20170914093509.uwk47vt3wnm3rtqb@dell>
- <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
-Reply-To: hs@denx.de
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Mon, 18 Sep 2017 10:54:06 +0530
+Message-ID: <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:60489 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751416AbdIRFHV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Sep 2017 01:07:21 -0400
-In-Reply-To: <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:59613 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750757AbdIRFYK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Sep 2017 01:24:10 -0400
+In-Reply-To: <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Ben Dooks <ben@fluff.org.uk>, Ville Syrjala <syrjala@sci.fi>, Magnus Damm <magnus.damm@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, "arm@kernel.org" <arm@kernel.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
+To: "Strashko, Grygorii" <grygorii.strashko@ti.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hello Linux,
 
-Am 17.09.2017 um 00:25 schrieb Linus Walleij:
-> On Thu, Sep 14, 2017 at 11:35 AM, Lee Jones <lee.jones@linaro.org> wrote:
->
->>>   drivers/mfd/sm501.c                          |  49 +++++-----
+
+On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
+> 
+> 
+> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
+>> A very conservative check for bus activity (to prevent interference
+>> in multimaster setups) prevented the bus recovery methods from being
+>> triggered in the case that SDA or SCL was stuck low.
+>> This defeats the purpose of the recovery mechanism, which was introduced
+>> for exactly this situation (a slave device keeping SDA pulled down).
 >>
->> I'd prefer for this to be applied with a Tested-by.  I appreciate that
->> this is an old driver, but can you attempt to contact one of the
->> authors or someone else who might have hardware please?
->
-> For SM501 specifically I guess.
->
-> OK makes sense as it is the most invasive one, paging around...
->
-> Ben, Ville, Magnus, Heiko, Guenther: is one of you still using this
-> hardware so you can test the patch set?
+>> Note that bus lockups can persist across reboots. The only other options
+>> are to reset or power cycle the offending slave device, and many i2c
+>> slaves do not even have a reset pin.
+>>
+>> If we see that one of the lines is low for the entire timeout duration,
+>> we can actually be sure that there is no other master driving the bus.
+>> It is therefore save for us to attempt a bus recovery.
+>>
+> 
+> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> 
+>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+>> ---
+>> Caveat: It turns out I don't have the hardware to fully test the
+>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
+>> not SDA (so the recovery will not succeed in my case).
 
-I am Sorry, I do not have the hardware anymore so no chance to test
-it :-(
+Maybe, you could detect SCL stuck low case by reading status of SCL line
+from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
+that can be done) instead of bus recovery.
 
-bye,
-Heiko
+>> But by directly connecting SDA to ground, I could at least make sure
+>> the recovery function gets called after applying this patch.
+>>
+
+I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
+0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
+Did you observe this behavior on your system? Could you mention the
+platform on which this experiment done?
+
+>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
+>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>> index 1ebb5e9..4b25fd1 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
+>>   		}
+>>   
+>>   		if (time_after(jiffies, timeout)) {
+>> +			/*
+>> +			 * SDA or SCL were low for the entire timeout without
+>> +			 * any activity detected. Most likely, a slave is
+>> +			 * locking up the bus with no master driving the clock.
+>> +			 */
+>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
+>> -			return -ETIMEDOUT;
+>> +			return i2c_recover_bus(&omap->adapter);
+>>   		}
+>>   
+>>   		msleep(1);
+>>
+> 
+
 -- 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: +49-8142-66989-52   Fax: +49-8142-66989-80   Email: hs@denx.de
+Regards
+Vignesh
