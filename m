@@ -1,71 +1,101 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 0/7] I2C GPIO to use gpiolibs open drain
-Date: Mon, 18 Sep 2017 13:15:55 +0200
-Message-ID: <CAMuHMdWOt3e7eT4_wF8QJVM=aZNNcou+tGmjZOyvOziutedv_w@mail.gmail.com>
-References: <20170917093906.16325-1-linus.walleij@linaro.org>
+From: Claudio Foellmi <claudio.foellmi@ergon.ch>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Mon, 18 Sep 2017 14:01:27 +0200
+Message-ID: <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+ <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34342 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752156AbdIRLP4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Sep 2017 07:15:56 -0400
-Received: by mail-pg0-f68.google.com with SMTP id v82so79613pgb.1
-        for <linux-i2c@vger.kernel.org>; Mon, 18 Sep 2017 04:15:56 -0700 (PDT)
-In-Reply-To: <20170917093906.16325-1-linus.walleij@linaro.org>
+Received: from mx1.ergon.ch ([87.239.214.68]:49211 "EHLO mx1.ergon.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753887AbdIRMBp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Sep 2017 08:01:45 -0400
+In-Reply-To: <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>
+To: Vignesh R <vigneshr@ti.com>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Linus,
+On 18.09.2017 07:24, Vignesh R wrote:
+> 
+> 
+> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
+>>
+>>
+>> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
+>>> A very conservative check for bus activity (to prevent interference
+>>> in multimaster setups) prevented the bus recovery methods from being
+>>> triggered in the case that SDA or SCL was stuck low.
+>>> This defeats the purpose of the recovery mechanism, which was introduced
+>>> for exactly this situation (a slave device keeping SDA pulled down).
+>>>
+>>> Note that bus lockups can persist across reboots. The only other options
+>>> are to reset or power cycle the offending slave device, and many i2c
+>>> slaves do not even have a reset pin.
+>>>
+>>> If we see that one of the lines is low for the entire timeout duration,
+>>> we can actually be sure that there is no other master driving the bus.
+>>> It is therefore save for us to attempt a bus recovery.
+>>>
+>>
+>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+>>
+>>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+>>> ---
+>>> Caveat: It turns out I don't have the hardware to fully test the
+>>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
+>>> not SDA (so the recovery will not succeed in my case).
+> 
+> Maybe, you could detect SCL stuck low case by reading status of SCL line
+> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
+> that can be done) instead of bus recovery.
+> 
 
-On Sun, Sep 17, 2017 at 11:38 AM, Linus Walleij
-<linus.walleij@linaro.org> wrote:
-> This augments the I2C GPIO driver to use open drain emulation
-> or hardware support for open drain from the GPIO driver.
->
-> This version layers Geert Uytterhoeven's idea to use explicit
-> sda-gpios and scl-gpios for the GPIO lines, and strongly
-> encourage the (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN) flags to be
-> used in all device trees.
->
-> We have collected ACKs from the ARM SoC maintainers and the
-> MFD maintainer and are looking for testers to try this out.
->
-> Geert Uytterhoeven (1):
->   dt-bindings: i2c: i2c-gpio: Add support for named gpios
->
-> Linus Walleij (6):
->   i2c: gpio: Convert to use descriptors
->   gpio: Make it possible for consumers to enforce open drain
->   i2c: gpio: Enforce open drain through gpiolib
->   i2c: gpio: Augment all boardfiles to use open drain
->   i2c: gpio: Local vars in probe
->   i2c: gpio: Add support for named gpios in DT
+I plan on posting a related patch soon, that will print better messages
+if the generic recovery fails. If SCL is stuck low, I think the best we
+can do is make the problem visible in the kernel log.
 
-Thanks for doing this, and picking up my patch.
+>>> But by directly connecting SDA to ground, I could at least make sure
+>>> the recovery function gets called after applying this patch.
+>>>
+> 
+> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
+> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
+> Did you observe this behavior on your system? Could you mention the
+> platform on which this experiment done?
+> 
 
-I gave this a try on r8a7740/armadillo800eva.
-Without DT changes, the GPIO i2c bus still works fine, but a warning is
-printed, as expected:
+So attempting bus recovery is dangerous on some platforms?
+I did not notice any obvious problems (assuming an 'unusable system'
+would be hard to miss), but then again I only have one target to test on.
+I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
 
-    gpio-208 (sda): enforced open drain please flag it properly in
-DT/ACPI DSDT/board file
-    gpio-91 (scl): enforced open drain please flag it properly in
-DT/ACPI DSDT/board file
-
-After
-
-    -  sda-gpios = <&pfc 208 GPIO_ACTIVE_HIGH>;
-    -  scl-gpios = <&pfc 91 GPIO_ACTIVE_HIGH>;
-    + sda-gpios = <&pfc 208 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-    + scl-gpios = <&pfc 91 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-
-the warning is gone, and the GPIO i2c bus still works.
-
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
+>>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
+>>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>>> index 1ebb5e9..4b25fd1 100644
+>>> --- a/drivers/i2c/busses/i2c-omap.c
+>>> +++ b/drivers/i2c/busses/i2c-omap.c
+>>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
+>>>   		}
+>>>   
+>>>   		if (time_after(jiffies, timeout)) {
+>>> +			/*
+>>> +			 * SDA or SCL were low for the entire timeout without
+>>> +			 * any activity detected. Most likely, a slave is
+>>> +			 * locking up the bus with no master driving the clock.
+>>> +			 */
+>>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
+>>> -			return -ETIMEDOUT;
+>>> +			return i2c_recover_bus(&omap->adapter);
+>>>   		}
+>>>   
+>>>   		msleep(1);
+>>>
+>>
+> 
