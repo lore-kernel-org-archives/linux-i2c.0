@@ -1,47 +1,49 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH][V2] i2c: i2c-stm32f7: make structure stm32f7_setup static
- const
-Date: Mon, 18 Sep 2017 11:18:02 +0200
-Message-ID: <3684ee87-f9ca-85e8-302a-7f681c58fdd5@st.com>
-References: <20170918081539.26512-1-colin.king@canonical.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 7/7] i2c: gpio: Add support for named gpios in DT
+Date: Mon, 18 Sep 2017 11:26:04 +0200
+Message-ID: <CAMuHMdX4+e6D_AEdvVF2Ubyxs0L6-53fqwot=wDXfPatvnMGTg@mail.gmail.com>
+References: <20170917093906.16325-1-linus.walleij@linaro.org> <20170917093906.16325-8-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <20170918081539.26512-1-colin.king@canonical.com>
-Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>, Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20170917093906.16325-8-linus.walleij@linaro.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS Mailing List <linux-mips@linux-mips.org>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/18/2017 10:15 AM, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The structure stm32f7_setup is local to the source and does not need
-> to be in global scope, make it static const.
-> 
-> Cleans up sparse warning:
-> symbol 'stm32f7_setup' was not declared. Should it be static?
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index 47c67b0ca896..3eae4fc96884 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -265,7 +265,7 @@ static struct stm32f7_i2c_spec i2c_specs[] = {
->  	},
->  };
->  
-> -struct stm32f7_i2c_setup stm32f7_setup = {
-> +static const struct stm32f7_i2c_setup stm32f7_setup = {
->  	.rise_time = STM32F7_I2C_RISE_TIME_DEFAULT,
->  	.fall_time = STM32F7_I2C_FALL_TIME_DEFAULT,
->  	.dnf = STM32F7_I2C_DNF_DEFAULT,
-> 
+On Sun, Sep 17, 2017 at 11:39 AM, Linus Walleij
+<linus.walleij@linaro.org> wrote:
+> This adds support for using the "sda" and "scl" GPIOs in
+> device tree instead of anonymously using index 0 and 1 of
+> the "gpios" property.
+>
+> We add a helper function to retrieve the GPIO descriptors
+> and some explicit error handling since the probe may have
+> to be deferred. At least this happened to me when moving
+> to using named "sda" and "scl" lines (all of a sudden this
+> started to probe before the GPIO driver) so we need to
+> gracefully defer probe when we ge -ENOENT in the error
 
-Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+get
+
+> pointer.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
