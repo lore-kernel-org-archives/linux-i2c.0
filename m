@@ -1,42 +1,57 @@
-From: GregKH <greg@kroah.com>
-Subject: Re: [PATCH v4 1/2] wire: export w1_touch_bit
-Date: Mon, 18 Sep 2017 16:19:29 +0200
-Message-ID: <20170918141929.GA10178@kroah.com>
-References: <20170918130346.3886-1-jjj@gmx.de>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH v4 0/2] i2c: davinci: Add PM Runtime Support needed by
+ 66AK2G
+Date: Mon, 18 Sep 2017 21:28:42 +0530
+Message-ID: <7b1c9624-01de-84a5-7236-3a0dbe8f9e5f@ti.com>
+References: <20170911201145.31257-1-fcooper@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170918130346.3886-1-jjj@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Kandziora <jjj@gmx.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Evgeniy Polyakov <zbr@ioremap.net>, Linux-I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170911201145.31257-1-fcooper@ti.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Franklin S Cooper Jr <fcooper@ti.com>, wsa@the-dreams.de, robh+dt@kernel.org, linux@armlinux.org.uk, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, grygorii.strashko@ti.com, vigneshr@ti.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 18, 2017 at 03:03:45PM +0200, Jan Kandziora wrote:
-> The w1_ds28e17 driver from the next part of this patch needs to emit
-> single-bit read timeslots to the DS28E17. The w1 subsystem already
-> has this function but it is not exported outside drivers/w1/w1_io.c
+On Tuesday 12 September 2017 01:41 AM, Franklin S Cooper Jr wrote:
+> Add I2C support to 66AK2G. Primary requirement is to add PM
+> Runtime support to the driver.
 > 
-> This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
-> same as the other exported symbols in drivers/w1/w1_io.c
+> This has been tested on following platforms by performing simple i2c test
+> such as i2c detect and reading on board i2c devices:
+> K2G GP evm
+> OMAPL138
+> K2L GP EVM
 > 
-> May be also useful later for writing drivers for other Onewire chips
-> which do single-bit communication.
+> and boot tested on:
+> K2E GP EVM
+> K2HK GP EVM
 > 
-> Signed-off-by: Jan Kandziora <jjj@gmx.de>
-> Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
-> ---
-> Changes in v4 against v3 in this subpatch:
->   - adapted to linux-4.12.0
+> Version 2 changes:
+> Moved ordering of pm runtime calls
 > 
-> No changes in v3 against v2,v1 in this subpatch.
+> Version 3 changes:
+> Dropped first patch since it was pulled in.
+> Remove clk = NULL statements
+> Fix error path
+> 
+> Version 4 changes:
+> Fix typo in commit message
+> Fix error path
 
-You should change it as it does not apply to 4.14-rc1 :(
+Acked-by: Sekhar Nori <nsekhar@ti.com>
 
-Please rebase your patches and resend them, with Evgeniy's acks added to
-them.
+Tested on DA850 LCDK board with some basic i2cdetect/i2cdump and
+suspend/resume tests.
 
-thanks,
-
-greg k-h
+Thanks,
+Sekhar
