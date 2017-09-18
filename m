@@ -1,75 +1,37 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH/RFC 1/3] dt-bindings: i2c: i2c-gpio: Add support for named gpios
-Date: Mon, 18 Sep 2017 11:52:48 -0500
-Message-ID: <CAL_JsqKS++33tOr6PVzX1Fifmn5teaZVYeY0UWeNiAfi=nHetA@mail.gmail.com>
-References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
- <1503566474-5335-2-git-send-email-geert+renesas@glider.be>
- <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop> <CAMuHMdXGm0XuuihG=L_JRBV_WHt2QPtZgdsMFT0PeyDH3ejsNg@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
+Date: Mon, 18 Sep 2017 21:00:18 +0200
+Message-ID: <CACRpkdb8jDRZxuTUNoosLORqDbF4PP4RSHj3avtUqzvW2RwpmQ@mail.gmail.com>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-2-linus.walleij@linaro.org> <20170918083629.qn4dlrmk7ffipfsz@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdXGm0XuuihG=L_JRBV_WHt2QPtZgdsMFT0PeyDH3ejsNg@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f176.google.com ([209.85.223.176]:46758 "EHLO
+        mail-io0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752772AbdIRTAX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Sep 2017 15:00:23 -0400
+Received: by mail-io0-f176.google.com with SMTP id d16so4566164ioj.3
+        for <linux-i2c@vger.kernel.org>; Mon, 18 Sep 2017 12:00:22 -0700 (PDT)
+In-Reply-To: <20170918083629.qn4dlrmk7ffipfsz@dell>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben.dooks@codethink.co.uk>, Heiko Schocher <hs@denx.de>
 
-On Thu, Sep 7, 2017 at 6:42 AM, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> Hi Rob,
+On Mon, Sep 18, 2017 at 10:36 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Sun, 17 Sep 2017, Linus Walleij wrote:
+
+>> Lee: requesting ACK for Wolfram to take this patch.
 >
-> On Thu, Aug 31, 2017 at 7:55 PM, Rob Herring <robh@kernel.org> wrote:
->> On Thu, Aug 24, 2017 at 11:21:12AM +0200, Geert Uytterhoeven wrote:
->>> The current i2c-gpio DT bindings use a single unnamed "gpios" property
->>> to refer to the SDA and SCL signal lines by index.  This is error-prone
->>> for the casual DT writer and reviewer, as one has to look up the order
->>> in the DT bindings.
->>>
->>> Fix this by amending the DT bindings to use two separate named gpios
->>> properties, and deprecate the old unnamed variant.
->>>
->>> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
->>> ---
->>>  Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 5 +++--
->>>  1 file changed, 3 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->>> index 4f8ec947c6bd9cad..61033f73577dd70e 100644
->>> --- a/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->>> +++ b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
->>> @@ -2,8 +2,9 @@ Device-Tree bindings for i2c gpio driver
->>>
->>>  Required properties:
->>>       - compatible = "i2c-gpio";
->>> -     - gpios: sda and scl gpio
->>> -
->>> +     - sda-gpios: gpio used for the sda signal
->>> +     - scl-gpios: gpio used for the scl signal
->>> +     - gpios: sda and scl gpio, alternative for {sda,scl}-gpios (deprecated)
->>>
->>>  Optional properties:
->>>       - i2c-gpio,sda-open-drain: sda as open drain
->>
->> Well, if we're going to change things, we should drop these open-drain
->> properties. We have open-drain flags in gpio cells, so we don't need
->> these I think.
+> This ...
 >
-> It depends. Some GPIO controllers use #gpio-cells = 1, lacking flags.
+>> SM501 users: requesting Tested-by on this patch.
+>
+> ... loosely depends on this (until it doesn't).
 
-We should stop allowing that or at least require that anyone using
-i2c-gpio have flags. If they are added this new i2c-gpio binding, then
-they can add flags too.
+Yeah I did my best to scout around the commit logs
+to figure out who's been contributing to the SM501 and
+using it, I hope someone will step up and test it.
 
-> Furthermore, the gpio-specifiers are controller-specific, and not all GPIO
-> controllers supporting flags follow the semi-standard flag definitions in
-> <dt-bindings/gpio/gpio.h>.
-
-In theory yes, but reality is pretty much everyone follows it. There's
-no other way to specify active high vs. low for example. Furthermore,
-if someone wanted to do flags in their own custom way, that would
-still work. It is still the controller (or GPIO core) that interprets
-the flags, not the client.
-
-This is a new binding, so only new DT will have it and we can apply
-new standards.
-
-Rob
+Linus
