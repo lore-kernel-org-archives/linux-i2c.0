@@ -1,125 +1,50 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 7/7] i2c: gpio: Add support for named gpios in DT
-Date: Sun, 17 Sep 2017 11:39:06 +0200
-Message-ID: <20170917093906.16325-8-linus.walleij@linaro.org>
-References: <20170917093906.16325-1-linus.walleij@linaro.org>
+From: Heiko Schocher <hs@denx.de>
+Subject: Re: [PATCH 1/5] i2c: gpio: Convert to use descriptors
+Date: Mon, 18 Sep 2017 07:07:15 +0200
+Message-ID: <59BF5483.9020403@denx.de>
+References: <20170910214424.14945-1-linus.walleij@linaro.org>
+ <20170910214424.14945-2-linus.walleij@linaro.org>
+ <20170914093509.uwk47vt3wnm3rtqb@dell>
+ <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
+Reply-To: hs@denx.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f41.google.com ([209.85.215.41]:56577 "EHLO
-        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751186AbdIQJkS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 17 Sep 2017 05:40:18 -0400
-Received: by mail-lf0-f41.google.com with SMTP id a18so5563285lfl.13
-        for <linux-i2c@vger.kernel.org>; Sun, 17 Sep 2017 02:40:17 -0700 (PDT)
-In-Reply-To: <20170917093906.16325-1-linus.walleij@linaro.org>
+Received: from mail-out.m-online.net ([212.18.0.9]:60489 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751416AbdIRFHV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Sep 2017 01:07:21 -0400
+In-Reply-To: <CACRpkdZYDALXSoEE9jdo7A5P4XZczVbh_uiLkE54=sRtA3rNDQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Ben Dooks <ben@fluff.org.uk>, Ville Syrjala <syrjala@sci.fi>, Magnus Damm <magnus.damm@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, "arm@kernel.org" <arm@kernel.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>
 
-This adds support for using the "sda" and "scl" GPIOs in
-device tree instead of anonymously using index 0 and 1 of
-the "gpios" property.
+Hello Linux,
 
-We add a helper function to retrieve the GPIO descriptors
-and some explicit error handling since the probe may have
-to be deferred. At least this happened to me when moving
-to using named "sda" and "scl" lines (all of a sudden this
-started to probe before the GPIO driver) so we need to
-gracefully defer probe when we ge -ENOENT in the error
-pointer.
+Am 17.09.2017 um 00:25 schrieb Linus Walleij:
+> On Thu, Sep 14, 2017 at 11:35 AM, Lee Jones <lee.jones@linaro.org> wrote:
+>
+>>>   drivers/mfd/sm501.c                          |  49 +++++-----
+>>
+>> I'd prefer for this to be applied with a Tested-by.  I appreciate that
+>> this is an old driver, but can you attempt to contact one of the
+>> authors or someone else who might have hardware please?
+>
+> For SM501 specifically I guess.
+>
+> OK makes sense as it is the most invasive one, paging around...
+>
+> Ben, Ville, Magnus, Heiko, Guenther: is one of you still using this
+> hardware so you can test the patch set?
 
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-This is pretty much a rewrite of Geerts patch on top of
-my own changes to support descriptors.
----
- drivers/i2c/busses/i2c-gpio.c | 59 +++++++++++++++++++++++++++++++------------
- 1 file changed, 43 insertions(+), 16 deletions(-)
+I am Sorry, I do not have the hardware anymore so no chance to test
+it :-(
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index beb5ce523684..2738b851f470 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -82,6 +82,42 @@ static void of_i2c_gpio_get_props(struct device_node *np,
- 		of_property_read_bool(np, "i2c-gpio,scl-output-only");
- }
- 
-+static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
-+					   const char *con_id,
-+					   unsigned int index,
-+					   enum gpiod_flags gflags)
-+{
-+	struct gpio_desc *retdesc;
-+	int ret;
-+
-+	retdesc = devm_gpiod_get(dev, con_id, gflags);
-+	if (!IS_ERR(retdesc)) {
-+		dev_dbg(dev, "got GPIO from name %s\n", con_id);
-+		return retdesc;
-+	}
-+
-+	retdesc = devm_gpiod_get_index(dev, NULL, index, gflags);
-+	if (!IS_ERR(retdesc)) {
-+		dev_dbg(dev, "got GPIO from index %u\n", index);
-+		return retdesc;
-+	}
-+
-+	ret = PTR_ERR(retdesc);
-+
-+	/* FIXME: hack in the old code, is this really necessary? */
-+	if (ret == -EINVAL)
-+		retdesc = ERR_PTR(-EPROBE_DEFER);
-+
-+	/* This happens if the GPIO driver is not yet probed, let's defer */
-+	if (ret == -ENOENT)
-+		retdesc = ERR_PTR(-EPROBE_DEFER);
-+
-+	if (ret != -EPROBE_DEFER)
-+		dev_err(dev, "error trying to get descriptor: %ld\n", ret);
-+
-+	return retdesc;
-+}
-+
- static int i2c_gpio_probe(struct platform_device *pdev)
- {
- 	struct i2c_gpio_private_data *priv;
-@@ -125,14 +161,10 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 		gflags = GPIOD_OUT_HIGH;
- 	else
- 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
--	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
--	if (IS_ERR(priv->sda)) {
--		ret = PTR_ERR(priv->sda);
--		/* FIXME: hack in the old code, is this really necessary? */
--		if (ret == -EINVAL)
--			ret = -EPROBE_DEFER;
--		return ret;
--	}
-+	priv->sda = i2c_gpio_get_desc(dev, "sda", 0, gflags);
-+	if (IS_ERR(priv->sda))
-+		return PTR_ERR(priv->sda);
-+
- 	/*
- 	 * If the SCL line is marked from platform data or device tree as
- 	 * "open drain" it means something outside of our control is making
-@@ -144,14 +176,9 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 		gflags = GPIOD_OUT_LOW;
- 	else
- 		gflags = GPIOD_OUT_LOW_OPEN_DRAIN;
--	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
--	if (IS_ERR(priv->scl)) {
--		ret = PTR_ERR(priv->scl);
--		/* FIXME: hack in the old code, is this really necessary? */
--		if (ret == -EINVAL)
--			ret = -EPROBE_DEFER;
--		return ret;
--	}
-+	priv->scl = i2c_gpio_get_desc(dev, "scl", 1, gflags);
-+	if (IS_ERR(priv->scl))
-+		return PTR_ERR(priv->scl);
- 
- 	bit_data->setsda = i2c_gpio_setsda_val;
- 	bit_data->setscl = i2c_gpio_setscl_val;
+bye,
+Heiko
 -- 
-2.13.5
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Phone: +49-8142-66989-52   Fax: +49-8142-66989-80   Email: hs@denx.de
