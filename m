@@ -1,43 +1,51 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH/RFC 1/3] dt-bindings: i2c: i2c-gpio: Add support for named gpios
-Date: Mon, 18 Sep 2017 21:45:29 +0200
-Message-ID: <CACRpkdZqEXJBZbOOVy0jNrDX=ayeiquAdXHyMMnNKmFqwELEuw@mail.gmail.com>
-References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
- <1503566474-5335-2-git-send-email-geert+renesas@glider.be>
- <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop> <CAMuHMdXGm0XuuihG=L_JRBV_WHt2QPtZgdsMFT0PeyDH3ejsNg@mail.gmail.com>
- <CAL_JsqKS++33tOr6PVzX1Fifmn5teaZVYeY0UWeNiAfi=nHetA@mail.gmail.com>
+From: Thor Thayer <thor.thayer@linux.intel.com>
+Subject: Re: [[RESEND]PATCHv6 2/2] i2c: altera: Add Altera I2C Controller
+ driver
+Date: Mon, 18 Sep 2017 15:04:34 -0500
+Message-ID: <3f9fe0a6-0e8d-7038-28e6-eacc6ed2e7ad@linux.intel.com>
+References: <1505164640-26413-1-git-send-email-thor.thayer@linux.intel.com>
+ <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
+ <20170913205038.ndlkaivkdgxa3ee2@ninjato>
+Reply-To: thor.thayer@linux.intel.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqKS++33tOr6PVzX1Fifmn5teaZVYeY0UWeNiAfi=nHetA@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170913205038.ndlkaivkdgxa3ee2@ninjato>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, andy.shevchenko@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 18, 2017 at 6:52 PM, Rob Herring <robh@kernel.org> wrote:
+On 09/13/2017 03:50 PM, Wolfram Sang wrote:
+> On Mon, Sep 11, 2017 at 04:17:20PM -0500, thor.thayer@linux.intel.com wrote:
+>> From: Thor Thayer <thor.thayer@linux.intel.com>
+>>
+>> Add driver support for the Altera I2C Controller. The I2C
+>> controller is soft IP for use in FPGAs.
+>>
+>> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+>> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>> ---
+> 
+> Applied to for-next (will be in v4.14), thanks!
+> 
+>> +	if (finish) {
+>> +		/* Wait for the Core to finish */
+>> +		ret = readl_poll_timeout_atomic(idev->base + ALTR_I2C_STATUS,
+> 
+> I wonder a bit about polling in an interrupt handler (maybe threaded
+> irqs?) but we can fix that later, I think.
+> 
 
-> In theory yes, but reality is pretty much everyone follows it. There's
-> no other way to specify active high vs. low for example. Furthermore,
-> if someone wanted to do flags in their own custom way, that would
-> still work. It is still the controller (or GPIO core) that interprets
-> the flags, not the client.
->
-> This is a new binding, so only new DT will have it and we can apply
-> new standards.
+Yes, based on your previous feedback, I changed to a threaded IRQ as 
+shown below. The altr_i2c_isr_quick wakes up this IRQ handler if the 
+status is non-zero.
 
-I'd like to get a picture of any one-cell GPIO DTS:es and/or drivers
-still around.
++
++	ret = devm_request_threaded_irq(&pdev->dev, irq, altr_i2c_isr_quick,
++					altr_i2c_isr, IRQF_ONESHOT,
++					pdev->name, idev);
 
-I would like to deal with them somehow.
-
-When we started the big DT migration this was one of the areas
-we made some screwups in, admittedly, but someone just has to
-go first, and that was incidentally GPIO controllers.
-
-At this time people were even playing around with DT bindings in
-BNF form, which is why the GPIO binding is a bit .. esoteric
-at times. I guess I should fix that.
-
-Yours,
-Linus Walleij
+Thanks for the review and applying the patch!
