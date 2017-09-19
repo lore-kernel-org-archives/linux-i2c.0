@@ -1,51 +1,54 @@
-From: Thor Thayer <thor.thayer@linux.intel.com>
-Subject: Re: [[RESEND]PATCHv6 2/2] i2c: altera: Add Altera I2C Controller
- driver
-Date: Mon, 18 Sep 2017 15:04:34 -0500
-Message-ID: <3f9fe0a6-0e8d-7038-28e6-eacc6ed2e7ad@linux.intel.com>
-References: <1505164640-26413-1-git-send-email-thor.thayer@linux.intel.com>
- <1505164640-26413-2-git-send-email-thor.thayer@linux.intel.com>
- <20170913205038.ndlkaivkdgxa3ee2@ninjato>
-Reply-To: thor.thayer@linux.intel.com
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
+Date: Tue, 19 Sep 2017 10:19:52 +0100
+Message-ID: <42702eb3-d1dd-5dd0-dbd6-ac163bcc27c2@codethink.co.uk>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-2-linus.walleij@linaro.org>
+ <20170918083629.qn4dlrmk7ffipfsz@dell>
+ <CACRpkdb8jDRZxuTUNoosLORqDbF4PP4RSHj3avtUqzvW2RwpmQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170913205038.ndlkaivkdgxa3ee2@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, andy.shevchenko@gmail.com, davem@davemloft.net, gregkh@linuxfoundation.org, mchehab@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CACRpkdb8jDRZxuTUNoosLORqDbF4PP4RSHj3avtUqzvW2RwpmQ@mail.gmail.com>
+Content-Language: en-GB
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>
+Cc: Linux MIPS <linux-mips@linux-mips.org>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Steven Miao <realmz6@gmail.com>, Magnus Damm <magnus.damm@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, Ralf Baechle <ralf@linux-mips.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Heiko Schocher <hs@denx.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/13/2017 03:50 PM, Wolfram Sang wrote:
-> On Mon, Sep 11, 2017 at 04:17:20PM -0500, thor.thayer@linux.intel.com wrote:
->> From: Thor Thayer <thor.thayer@linux.intel.com>
+On 18/09/17 20:00, Linus Walleij wrote:
+> On Mon, Sep 18, 2017 at 10:36 AM, Lee Jones <lee.jones@linaro.org> wrote:
+>> On Sun, 17 Sep 2017, Linus Walleij wrote:
+> 
+>>> Lee: requesting ACK for Wolfram to take this patch.
 >>
->> Add driver support for the Altera I2C Controller. The I2C
->> controller is soft IP for use in FPGAs.
+>> This ...
 >>
->> Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
->> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
->> ---
+>>> SM501 users: requesting Tested-by on this patch.
+>>
+>> ... loosely depends on this (until it doesn't).
 > 
-> Applied to for-next (will be in v4.14), thanks!
-> 
->> +	if (finish) {
->> +		/* Wait for the Core to finish */
->> +		ret = readl_poll_timeout_atomic(idev->base + ALTR_I2C_STATUS,
-> 
-> I wonder a bit about polling in an interrupt handler (maybe threaded
-> irqs?) but we can fix that later, I think.
-> 
+> Yeah I did my best to scout around the commit logs
+> to figure out who's been contributing to the SM501 and
+> using it, I hope someone will step up and test it.
 
-Yes, based on your previous feedback, I changed to a threaded IRQ as 
-shown below. The altr_i2c_isr_quick wakes up this IRQ handler if the 
-status is non-zero.
+I don't know if anything I have available working has an
+SM501 on it. We did a couple of boards with S3C2440 and
+an SM501 connected via external IO. However these have
+not been supported in years (since Simtec)
 
-+
-+	ret = devm_request_threaded_irq(&pdev->dev, irq, altr_i2c_isr_quick,
-+					altr_i2c_isr, IRQF_ONESHOT,
-+					pdev->name, idev);
+I don't even think I have the PCI SM501 kit, that may have
+ended up either at Simtec or one of the other engineers.
 
-Thanks for the review and applying the patch!
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
