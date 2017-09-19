@@ -1,54 +1,133 @@
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
-Date: Tue, 19 Sep 2017 10:19:52 +0100
-Message-ID: <42702eb3-d1dd-5dd0-dbd6-ac163bcc27c2@codethink.co.uk>
-References: <20170917093906.16325-1-linus.walleij@linaro.org>
- <20170917093906.16325-2-linus.walleij@linaro.org>
- <20170918083629.qn4dlrmk7ffipfsz@dell>
- <CACRpkdb8jDRZxuTUNoosLORqDbF4PP4RSHj3avtUqzvW2RwpmQ@mail.gmail.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Tue, 19 Sep 2017 16:20:49 +0530
+Message-ID: <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+ <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+ <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CACRpkdb8jDRZxuTUNoosLORqDbF4PP4RSHj3avtUqzvW2RwpmQ@mail.gmail.com>
-Content-Language: en-GB
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>
-Cc: Linux MIPS <linux-mips@linux-mips.org>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Steven Miao <realmz6@gmail.com>, Magnus Damm <magnus.damm@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, Ralf Baechle <ralf@linux-mips.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Heiko Schocher <hs@denx.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:27561 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751205AbdISKvq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Sep 2017 06:51:46 -0400
+In-Reply-To: <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Claudio Foellmi <claudio.foellmi@ergon.ch>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 18/09/17 20:00, Linus Walleij wrote:
-> On Mon, Sep 18, 2017 at 10:36 AM, Lee Jones <lee.jones@linaro.org> wrote:
->> On Sun, 17 Sep 2017, Linus Walleij wrote:
+
+
+On Monday 18 September 2017 05:31 PM, Claudio Foellmi wrote:
+> On 18.09.2017 07:24, Vignesh R wrote:
+>>
+>>
+>> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
+>>>
+>>>
+>>> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
+>>>> A very conservative check for bus activity (to prevent interference
+>>>> in multimaster setups) prevented the bus recovery methods from being
+>>>> triggered in the case that SDA or SCL was stuck low.
+>>>> This defeats the purpose of the recovery mechanism, which was introduced
+>>>> for exactly this situation (a slave device keeping SDA pulled down).
+>>>>
+>>>> Note that bus lockups can persist across reboots. The only other options
+>>>> are to reset or power cycle the offending slave device, and many i2c
+>>>> slaves do not even have a reset pin.
+>>>>
+>>>> If we see that one of the lines is low for the entire timeout duration,
+>>>> we can actually be sure that there is no other master driving the bus.
+>>>> It is therefore save for us to attempt a bus recovery.
+>>>>
+>>>
+>>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+>>>
+>>>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+>>>> ---
+>>>> Caveat: It turns out I don't have the hardware to fully test the
+>>>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
+>>>> not SDA (so the recovery will not succeed in my case).
+>>
+>> Maybe, you could detect SCL stuck low case by reading status of SCL line
+>> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
+>> that can be done) instead of bus recovery.
+>>
 > 
->>> Lee: requesting ACK for Wolfram to take this patch.
->>
->> This ...
->>
->>> SM501 users: requesting Tested-by on this patch.
->>
->> ... loosely depends on this (until it doesn't).
+> I plan on posting a related patch soon, that will print better messages
+> if the generic recovery fails. If SCL is stuck low, I think the best we
+> can do is make the problem visible in the kernel log.
 > 
-> Yeah I did my best to scout around the commit logs
-> to figure out who's been contributing to the SM501 and
-> using it, I hope someone will step up and test it.
+>>>> But by directly connecting SDA to ground, I could at least make sure
+>>>> the recovery function gets called after applying this patch.
+>>>>
+>>
+>> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
+>> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
+>> Did you observe this behavior on your system? Could you mention the
+>> platform on which this experiment done?
+>>
+> 
+> So attempting bus recovery is dangerous on some platforms?
+> I did not notice any obvious problems (assuming an 'unusable system'
+> would be hard to miss), but then again I only have one target to test on.
+> I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
+> 
 
-I don't know if anything I have available working has an
-SM501 on it. We did a couple of boards with S3C2440 and
-an SM501 connected via external IO. However these have
-not been supported in years (since Simtec)
+I hit a situation where when communicating with a faulty i2c device, the
+last transaction on the bus does not end with proper STOP condition on
+the i2c bus. Since, STOP condition was not detected by IP, Bus Busy will
+remain set even though both SCL and SDA are high. Thus,
+omap_i2c_wait_for_bb() function would end up calling bus recovery. And
+as soon as TMODE is set to 0x3 and ST_EN to 0x1, there is a flood of
+XRDY & RRDY interrupts.
 
-I don't even think I have the PCI SM501 kit, that may have
-ended up either at Simtec or one of the other engineers.
+This spurious irqs can be reproduced easily by setting TMODE to 0x3 and
+ST_EN to 0x1 in OMAP_I2C_SYSTEST_REG when both SCL and SDA are high (bus
+is idle) even on AM335x.
+
+So, if you are not seeing irq flood when SCL/SDA is stuck low, then
+maybe its safe to enter TMODE 0x3 in such cases. Could you modify the
+patch to test whether or not SDA is stuck low before initiating bus
+recovery?
+
+
+>>>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
+>>>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>>>> index 1ebb5e9..4b25fd1 100644
+>>>> --- a/drivers/i2c/busses/i2c-omap.c
+>>>> +++ b/drivers/i2c/busses/i2c-omap.c
+>>>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
+>>>>   		}
+>>>>   
+>>>>   		if (time_after(jiffies, timeout)) {
+>>>> +			/*
+>>>> +			 * SDA or SCL were low for the entire timeout without
+>>>> +			 * any activity detected. Most likely, a slave is
+>>>> +			 * locking up the bus with no master driving the clock.
+>>>> +			 */
+>>>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
+>>>> -			return -ETIMEDOUT;
+>>>> +			return i2c_recover_bus(&omap->adapter);
+>>>>   		}
+>>>>   
+>>>>   		msleep(1);
+>>>>
+>>>
+>>
+> 
+> --
+> Regards
+> Claudio
+> 
 
 -- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+Regards
+Vignesh
