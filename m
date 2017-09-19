@@ -1,133 +1,39 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
-Date: Tue, 19 Sep 2017 16:20:49 +0530
-Message-ID: <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
-References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
- <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
- <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
- <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+From: Rajat Jain <rajatja@google.com>
+Subject: Understanding suspend() vs suspend_late() for I2c devices
+Date: Tue, 19 Sep 2017 10:35:18 -0700
+Message-ID: <CACK8Z6EF+cHAh=7HQ2Z14wyRFTxRODYFZ-iV_MDp5=AqW=vNFw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from fllnx209.ext.ti.com ([198.47.19.16]:27561 "EHLO
-        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751205AbdISKvq (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Sep 2017 06:51:46 -0400
-In-Reply-To: <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Furquan Shaikh <furquan@google.com>, Rajat Jain <rajatxjain@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Claudio Foellmi <claudio.foellmi@ergon.ch>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
+Hello folks,
 
+I'm trying to understand the valid expectations from i2c drivers
+standpoint, from suspend() callback vs suspend_late() callback. The
+Documentation/power/devices.txt states that:
 
-On Monday 18 September 2017 05:31 PM, Claudio Foellmi wrote:
-> On 18.09.2017 07:24, Vignesh R wrote:
->>
->>
->> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
->>>
->>>
->>> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
->>>> A very conservative check for bus activity (to prevent interference
->>>> in multimaster setups) prevented the bus recovery methods from being
->>>> triggered in the case that SDA or SCL was stuck low.
->>>> This defeats the purpose of the recovery mechanism, which was introduced
->>>> for exactly this situation (a slave device keeping SDA pulled down).
->>>>
->>>> Note that bus lockups can persist across reboots. The only other options
->>>> are to reset or power cycle the offending slave device, and many i2c
->>>> slaves do not even have a reset pin.
->>>>
->>>> If we see that one of the lines is low for the entire timeout duration,
->>>> we can actually be sure that there is no other master driving the bus.
->>>> It is therefore save for us to attempt a bus recovery.
->>>>
->>>
->>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
->>>
->>>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
->>>> ---
->>>> Caveat: It turns out I don't have the hardware to fully test the
->>>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
->>>> not SDA (so the recovery will not succeed in my case).
->>
->> Maybe, you could detect SCL stuck low case by reading status of SCL line
->> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
->> that can be done) instead of bus recovery.
->>
-> 
-> I plan on posting a related patch soon, that will print better messages
-> if the generic recovery fails. If SCL is stuck low, I think the best we
-> can do is make the problem visible in the kernel log.
-> 
->>>> But by directly connecting SDA to ground, I could at least make sure
->>>> the recovery function gets called after applying this patch.
->>>>
->>
->> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
->> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
->> Did you observe this behavior on your system? Could you mention the
->> platform on which this experiment done?
->>
-> 
-> So attempting bus recovery is dangerous on some platforms?
-> I did not notice any obvious problems (assuming an 'unusable system'
-> would be hard to miss), but then again I only have one target to test on.
-> I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
-> 
+==================================================
+For a number of devices it is convenient to split suspend into the
+"quiesce device" and "save device state" phases, in which cases
+suspend_late is meant to do the latter.
+==================================================
 
-I hit a situation where when communicating with a faulty i2c device, the
-last transaction on the bus does not end with proper STOP condition on
-the i2c bus. Since, STOP condition was not detected by IP, Bus Busy will
-remain set even though both SCL and SDA are high. Thus,
-omap_i2c_wait_for_bb() function would end up calling bus recovery. And
-as soon as TMODE is set to 0x3 and ST_EN to 0x1, there is a flood of
-XRDY & RRDY interrupts.
+1) So it seems that it is fair expectation from a driver, to be able
+to access its own device and its registers in
+suspend_late()/resume_early() call backs?
 
-This spurious irqs can be reproduced easily by setting TMODE to 0x3 and
-ST_EN to 0x1 in OMAP_I2C_SYSTEST_REG when both SCL and SDA are high (bus
-is idle) even on AM335x.
+2) For the drivers that provide a controller to a bus (e.g.
+i2c_adapter drivers), is it correct that they should make sure that
+bus operation continues to stay OK even after their suspend() callback
+is executed?(This is because the drivers for the downstream devices -
+eg i2c_client drivers may want to talk to their device in *their*
+suspend_late() callbacks). So bus operations should be suspended by
+the adapter drivers only in their suspend_late() callback routines,
+and not suspend() routines?
 
-So, if you are not seeing irq flood when SCL/SDA is stuck low, then
-maybe its safe to enter TMODE 0x3 in such cases. Could you modify the
-patch to test whether or not SDA is stuck low before initiating bus
-recovery?
+Thanks,
 
-
->>>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
->>>>   1 file changed, 6 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->>>> index 1ebb5e9..4b25fd1 100644
->>>> --- a/drivers/i2c/busses/i2c-omap.c
->>>> +++ b/drivers/i2c/busses/i2c-omap.c
->>>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
->>>>   		}
->>>>   
->>>>   		if (time_after(jiffies, timeout)) {
->>>> +			/*
->>>> +			 * SDA or SCL were low for the entire timeout without
->>>> +			 * any activity detected. Most likely, a slave is
->>>> +			 * locking up the bus with no master driving the clock.
->>>> +			 */
->>>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
->>>> -			return -ETIMEDOUT;
->>>> +			return i2c_recover_bus(&omap->adapter);
->>>>   		}
->>>>   
->>>>   		msleep(1);
->>>>
->>>
->>
-> 
-> --
-> Regards
-> Claudio
-> 
-
--- 
-Regards
-Vignesh
+Rajat
