@@ -1,39 +1,65 @@
-From: Rajat Jain <rajatja@google.com>
-Subject: Understanding suspend() vs suspend_late() for I2c devices
-Date: Tue, 19 Sep 2017 10:35:18 -0700
-Message-ID: <CACK8Z6EF+cHAh=7HQ2Z14wyRFTxRODYFZ-iV_MDp5=AqW=vNFw@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH/RFC 1/3] dt-bindings: i2c: i2c-gpio: Add support for named gpios
+Date: Tue, 19 Sep 2017 15:23:39 -0500
+Message-ID: <CAL_JsqLagjVaPgBJmOOFS6yw5axnZaCNbBafJd=r8dtQj-E9Qw@mail.gmail.com>
+References: <1503566474-5335-1-git-send-email-geert+renesas@glider.be>
+ <1503566474-5335-2-git-send-email-geert+renesas@glider.be>
+ <20170831175529.vuchpgvi2aigz2r5@rob-hp-laptop> <CAMuHMdXGm0XuuihG=L_JRBV_WHt2QPtZgdsMFT0PeyDH3ejsNg@mail.gmail.com>
+ <CAL_JsqKS++33tOr6PVzX1Fifmn5teaZVYeY0UWeNiAfi=nHetA@mail.gmail.com> <CACRpkdZqEXJBZbOOVy0jNrDX=ayeiquAdXHyMMnNKmFqwELEuw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Furquan Shaikh <furquan@google.com>, Rajat Jain <rajatxjain@gmail.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdZqEXJBZbOOVy0jNrDX=ayeiquAdXHyMMnNKmFqwELEuw@mail.gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello folks,
+On Mon, Sep 18, 2017 at 2:45 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+> On Mon, Sep 18, 2017 at 6:52 PM, Rob Herring <robh@kernel.org> wrote:
+>
+>> In theory yes, but reality is pretty much everyone follows it. There's
+>> no other way to specify active high vs. low for example. Furthermore,
+>> if someone wanted to do flags in their own custom way, that would
+>> still work. It is still the controller (or GPIO core) that interprets
+>> the flags, not the client.
+>>
+>> This is a new binding, so only new DT will have it and we can apply
+>> new standards.
+>
+> I'd like to get a picture of any one-cell GPIO DTS:es and/or drivers
+> still around.
 
-I'm trying to understand the valid expectations from i2c drivers
-standpoint, from suspend() callback vs suspend_late() callback. The
-Documentation/power/devices.txt states that:
+$ git grep '#gpio-cells.*1'
+Documentation/devicetree/bindings/gpio/gpio.txt:
+#gpio-cells = <1>;
+Documentation/devicetree/bindings/gpio/spear_spics.txt:  *
+#gpio-cells: should be 1 and will mention chip select number
+Documentation/devicetree/bindings/interrupt-controller/interrupts.txt:
+                 #gpio-cells = <1>;
+Documentation/devicetree/bindings/mfd/twl6040.txt:- #gpio-cells = <1>:
+twl6040 provides GPO lines.
+arch/mips/boot/dts/xilfpga/nexys4ddr.dts:               #gpio-cells = <1>;
 
-==================================================
-For a number of devices it is convenient to split suspend into the
-"quiesce device" and "save device state" phases, in which cases
-suspend_late is meant to do the latter.
-==================================================
+...and this one may be out of date. All other instances for Xilinx
+gpio use 2 cells.
 
-1) So it seems that it is fair expectation from a driver, to be able
-to access its own device and its registers in
-suspend_late()/resume_early() call backs?
+We also have to look for custom translate functions of which there are
+a handful, but they all use standard flags.
 
-2) For the drivers that provide a controller to a bus (e.g.
-i2c_adapter drivers), is it correct that they should make sure that
-bus operation continues to stay OK even after their suspend() callback
-is executed?(This is because the drivers for the downstream devices -
-eg i2c_client drivers may want to talk to their device in *their*
-suspend_late() callbacks). So bus operations should be suspended by
-the adapter drivers only in their suspend_late() callback routines,
-and not suspend() routines?
+>
+> I would like to deal with them somehow.
 
-Thanks,
+Looks like we already warn in the kernel if <2. Might be worth adding
+this to dtc, then I can get the warning without booting a kernel on
+platforms I don't have.
 
-Rajat
+> When we started the big DT migration this was one of the areas
+> we made some screwups in, admittedly, but someone just has to
+> go first, and that was incidentally GPIO controllers.
+
+The move to standardize flags started before the Great ARM Conversion,
+so I would have expected some old PPC DTs. But it looks like we are
+good.
+
+Rob
