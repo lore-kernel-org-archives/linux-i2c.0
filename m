@@ -1,195 +1,150 @@
-From: Tomasz Figa <tfiga@chromium.org>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Wed, 20 Sep 2017 17:59:18 +0900
-Message-ID: <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com> <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
+From: Claudio Foellmi <claudio.foellmi@ergon.ch>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Wed, 20 Sep 2017 11:24:44 +0200
+Message-ID: <7c68d7e7-6c10-dc51-4dd9-b11a0d2c1b62@ergon.ch>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+ <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+ <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+ <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-yw0-f176.google.com ([209.85.161.176]:56450 "EHLO
-        mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751468AbdITI7m (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Sep 2017 04:59:42 -0400
-Received: by mail-yw0-f176.google.com with SMTP id w22so1422583ywa.13
-        for <linux-i2c@vger.kernel.org>; Wed, 20 Sep 2017 01:59:42 -0700 (PDT)
-Received: from mail-yw0-f169.google.com (mail-yw0-f169.google.com. [209.85.161.169])
-        by smtp.gmail.com with ESMTPSA id n129sm543727ywe.109.2017.09.20.01.59.39
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Sep 2017 01:59:39 -0700 (PDT)
-Received: by mail-yw0-f169.google.com with SMTP id i6so1431056ywc.9
-        for <linux-i2c@vger.kernel.org>; Wed, 20 Sep 2017 01:59:39 -0700 (PDT)
-In-Reply-To: <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
+Received: from mx1.ergon.ch ([87.239.214.68]:31065 "EHLO mx1.ergon.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751378AbdITJYq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 20 Sep 2017 05:24:46 -0400
+In-Reply-To: <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>
-Cc: "Mani, Rajmohan" <rajmohan.mani@intel.com>, "Mohandass, Divagar" <divagar.mohandass@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, mika.westerberg@linux.intel.com
+To: Vignesh R <vigneshr@ti.com>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Wed, Sep 20, 2017 at 5:45 PM, sakari.ailus@iki.fi
-<sakari.ailus@iki.fi> wrote:
-> Hi Tomasz,
+On 19.09.2017 12:50, Vignesh R wrote:
+> 
+> 
+> On Monday 18 September 2017 05:31 PM, Claudio Foellmi wrote:
+>> On 18.09.2017 07:24, Vignesh R wrote:
+>>>
+>>>
+>>> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
+>>>>
+>>>>
+>>>> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
+>>>>> A very conservative check for bus activity (to prevent interference
+>>>>> in multimaster setups) prevented the bus recovery methods from being
+>>>>> triggered in the case that SDA or SCL was stuck low.
+>>>>> This defeats the purpose of the recovery mechanism, which was introduced
+>>>>> for exactly this situation (a slave device keeping SDA pulled down).
+>>>>>
+>>>>> Note that bus lockups can persist across reboots. The only other options
+>>>>> are to reset or power cycle the offending slave device, and many i2c
+>>>>> slaves do not even have a reset pin.
+>>>>>
+>>>>> If we see that one of the lines is low for the entire timeout duration,
+>>>>> we can actually be sure that there is no other master driving the bus.
+>>>>> It is therefore save for us to attempt a bus recovery.
+>>>>>
+>>>>
+>>>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+>>>>
+>>>>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+>>>>> ---
+>>>>> Caveat: It turns out I don't have the hardware to fully test the
+>>>>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
+>>>>> not SDA (so the recovery will not succeed in my case).
+>>>
+>>> Maybe, you could detect SCL stuck low case by reading status of SCL line
+>>> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
+>>> that can be done) instead of bus recovery.
+>>>
+>>
+>> I plan on posting a related patch soon, that will print better messages
+>> if the generic recovery fails. If SCL is stuck low, I think the best we
+>> can do is make the problem visible in the kernel log.
+>>
+>>>>> But by directly connecting SDA to ground, I could at least make sure
+>>>>> the recovery function gets called after applying this patch.
+>>>>>
+>>>
+>>> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
+>>> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
+>>> Did you observe this behavior on your system? Could you mention the
+>>> platform on which this experiment done?
+>>>
+>>
+>> So attempting bus recovery is dangerous on some platforms?
+>> I did not notice any obvious problems (assuming an 'unusable system'
+>> would be hard to miss), but then again I only have one target to test on.
+>> I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
+>>
 >
-> On Wed, Sep 20, 2017 at 12:56:09PM +0900, Tomasz Figa wrote:
->> Thanks Raj.
->>
->> Let me post my comments inline.
->>
->> On Wed, Sep 20, 2017 at 12:52 PM, Mani, Rajmohan
->> <rajmohan.mani@intel.com> wrote:
->> > Adding Tomasz...
->> >
->> >> -----Original Message-----
->> >> From: Mohandass, Divagar
->> >> Sent: Monday, September 04, 2017 3:29 AM
->> >> To: robh+dt@kernel.org; mark.rutland@arm.com; wsa@the-dreams.de;
->> >> sakari.ailus@iki.fi
->> >> Cc: devicetree@vger.kernel.org; linux-i2c@vger.kernel.org; linux-
->> >> kernel@vger.kernel.org; Mani, Rajmohan <rajmohan.mani@intel.com>;
->> >> Mohandass, Divagar <divagar.mohandass@intel.com>
->> >> Subject: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
->> >>
->> >> Currently the device is kept in D0, there is an opportunity to save p=
-ower by
->> >> enabling runtime pm.
->> >>
->> >> Device can be daisy chained from PMIC and we can't rely on I2C core f=
-or auto
->> >> resume/suspend. Driver will decide when to resume/suspend.
->> >>
->> >> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
->> >> ---
->> >>  drivers/misc/eeprom/at24.c | 38
->> >> ++++++++++++++++++++++++++++++++++++++
->> >>  1 file changed, 38 insertions(+)
->> >>
->> >> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c =
-index
->> >> 2199c42..d718a7a 100644
->> >> --- a/drivers/misc/eeprom/at24.c
->> >> +++ b/drivers/misc/eeprom/at24.c
->> >> @@ -24,6 +24,7 @@
->> >>  #include <linux/i2c.h>
->> >>  #include <linux/nvmem-provider.h>
->> >>  #include <linux/platform_data/at24.h>
->> >> +#include <linux/pm_runtime.h>
->> >>
->> >>  /*
->> >>   * I2C EEPROMs from most vendors are inexpensive and mostly
->> >> interchangeable.
->> >> @@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct
->> >> at24_data *at24, const char *buf,  static int at24_read(void *priv, u=
-nsigned int
->> >> off, void *val, size_t count)  {
->> >>       struct at24_data *at24 =3D priv;
->> >> +     struct i2c_client *client;
->> >>       char *buf =3D val;
->> >> +     int ret;
->> >>
->> >>       if (unlikely(!count))
->> >>               return count;
->> >>
->> >> +     client =3D at24_translate_offset(at24, &off);
->> >> +
->> >> +     ret =3D pm_runtime_get_sync(&client->dev);
->> >> +     if (ret < 0) {
->> >> +             pm_runtime_put_noidle(&client->dev);
->> >> +             return ret;
->> >> +     }
->> >> +
->> >>       /*
->> >>        * Read data from chip, protecting against concurrent updates
->> >>        * from this host, but not from other I2C masters.
->> >> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned int off=
-, void
->> >> *val, size_t count)
->> >>               status =3D at24->read_func(at24, buf, off, count);
->> >>               if (status < 0) {
->> >>                       mutex_unlock(&at24->lock);
->> >> +                     pm_runtime_put(&client->dev);
->> >>                       return status;
->> >>               }
->> >>               buf +=3D status;
->> >> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned int o=
-ff, void
->> >> *val, size_t count)
->> >>
->> >>       mutex_unlock(&at24->lock);
->> >>
->> >> +     pm_runtime_put(&client->dev);
->> >> +
->> >>       return 0;
->> >>  }
->> >>
->> >>  static int at24_write(void *priv, unsigned int off, void *val, size_=
-t count)  {
->> >>       struct at24_data *at24 =3D priv;
->> >> +     struct i2c_client *client;
->> >>       char *buf =3D val;
->> >> +     int ret;
->> >>
->> >>       if (unlikely(!count))
->> >>               return -EINVAL;
->> >>
->> >> +     client =3D at24_translate_offset(at24, &off);
->> >> +
->> >> +     ret =3D pm_runtime_get_sync(&client->dev);
->> >> +     if (ret < 0) {
->> >> +             pm_runtime_put_noidle(&client->dev);
->> >> +             return ret;
->> >> +     }
->> >> +
->> >>       /*
->> >>        * Write data to chip, protecting against concurrent updates
->> >>        * from this host, but not from other I2C masters.
->> >> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned int of=
-f, void
->> >> *val, size_t count)
->> >>               status =3D at24->write_func(at24, buf, off, count);
->> >>               if (status < 0) {
->> >>                       mutex_unlock(&at24->lock);
->> >> +                     pm_runtime_put(&client->dev);
->> >>                       return status;
->> >>               }
->> >>               buf +=3D status;
->> >> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int of=
-f, void
->> >> *val, size_t count)
->> >>
->> >>       mutex_unlock(&at24->lock);
->> >>
->> >> +     pm_runtime_put(&client->dev);
->> >> +
->> >>       return 0;
->> >>  }
->> >>
->> >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client *client=
-, const
->> >> struct i2c_device_id *id)
->> >>
->> >>       i2c_set_clientdata(client, at24);
->> >>
->> >> +     /* enable runtime pm */
->> >> +     pm_runtime_get_noresume(&client->dev);
->> >> +     pm_runtime_set_active(&client->dev);
->> >> +     pm_runtime_enable(&client->dev);
->>
->> Do we need this get_noresume/set_active dance? I remember it was for
->> some reason needed for PCI devices, but I don't see why for I2C
->> anything else than just pm_runtime_enable() would be necessary.
+> I hit a situation where when communicating with a faulty i2c device, the
+> last transaction on the bus does not end with proper STOP condition on
+> the i2c bus. Since, STOP condition was not detected by IP, Bus Busy will
+> remain set even though both SCL and SDA are high. Thus,
+> omap_i2c_wait_for_bb() function would end up calling bus recovery. And
+> as soon as TMODE is set to 0x3 and ST_EN to 0x1, there is a flood of
+> XRDY & RRDY interrupts.
 >
-> You specifically do not need (all) this for PCI devices, but AFAIU for I=
-=E6=B6=8E
-> devices you do. The runtime PM status of a device is disabled by default
-> and the use count is zero, but on ACPI based systems the device is still
-> powered on.
 
-Okay, so _get_noresume() and _set_active() would do the thing for ACPI
-indeed, but not sure about other platforms. Perhaps _enable(),
-_get_sync() would be more general?
+If I understand the code correctly, the problem is that omap_i2c_wait_for_bb_valid
+does not quite do what the name would suggest:
+If SDA, SCL and BB are all 1 for a while, it correctly detects that
+the bus is actually free, but then just sets bb_valid=1 and returns.
+So now bb_valid is set, even though the value of BB is wrong.
+Later, omap_i2c_wait_for_bb runs into a timeout because it trusts that BB flag,
+and triggers the recovery.
 
-Bets regards,
-Tomasz
+It would be nice if we could manually set BB to 0 in that case.
+But from what I've read in the manual, the only way to reset BB is to
+reset the device.
+
+> This spurious irqs can be reproduced easily by setting TMODE to 0x3 and
+> ST_EN to 0x1 in OMAP_I2C_SYSTEST_REG when both SCL and SDA are high (bus
+> is idle) even on AM335x.
+>
+> So, if you are not seeing irq flood when SCL/SDA is stuck low, then
+> maybe its safe to enter TMODE 0x3 in such cases. Could you modify the
+> patch to test whether or not SDA is stuck low before initiating bus
+> recovery?
+>
+
+What happens if we try to transmit while BB is still 1?
+If the transmission succeeds, adding such a check in omap_i2c_wait_for_bb
+should be enough to deal with your case (as the message we then send
+will contain the stop condition to correct BB).
+
+Btw, it also looks like omap_i2c_wait_for_bb currently assumes that if
+recovery succeeds, the bus will then also be free. I'm not sure if that
+is actually correct.
+
+>>>>>   drivers/i2c/busses/i2c-omap.c | 7 ++++++-
+>>>>>   1 file changed, 6 insertions(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>>>>> index 1ebb5e9..4b25fd1 100644
+>>>>> --- a/drivers/i2c/busses/i2c-omap.c
+>>>>> +++ b/drivers/i2c/busses/i2c-omap.c
+>>>>> @@ -563,8 +563,13 @@ static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *omap)
+>>>>>   		}
+>>>>>   
+>>>>>   		if (time_after(jiffies, timeout)) {
+>>>>> +			/*
+>>>>> +			 * SDA or SCL were low for the entire timeout without
+>>>>> +			 * any activity detected. Most likely, a slave is
+>>>>> +			 * locking up the bus with no master driving the clock.
+>>>>> +			 */
+>>>>>   			dev_warn(omap->dev, "timeout waiting for bus ready\n");
+>>>>> -			return -ETIMEDOUT;
+>>>>> +			return i2c_recover_bus(&omap->adapter);
+>>>>>   		}
+>>>>>   
+>>>>>   		msleep(1);
+>>>>>
+>>>>
+>>>
+>>
+>
