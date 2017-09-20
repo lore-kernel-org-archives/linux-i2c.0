@@ -1,55 +1,74 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 6/7] dt-bindings: i2c: i2c-gpio: Add support for named
- gpios
-Date: Wed, 20 Sep 2017 15:53:04 -0500
-Message-ID: <20170920205304.shkguzlqco3m6weu@rob-hp-laptop>
-References: <20170917093906.16325-1-linus.walleij@linaro.org>
- <20170917093906.16325-7-linus.walleij@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <20170917093906.16325-7-linus.walleij@linaro.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, geert.renesas@glider.be, devicetree@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jan Kandziora <jjj@gmx.de>
+Subject: [PATCH v5 1/2] wire: export w1_touch_bit
+Date: Wed, 20 Sep 2017 23:52:45 +0200
+Message-ID: <20170920215246.5821-1-jjj@gmx.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.gmx.net ([212.227.17.22]:63804 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751586AbdITVww (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 20 Sep 2017 17:52:52 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: GregKH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Evgeniy Polyakov <zbr@ioremap.net>, Linux-I2C <linux-i2c@vger.kernel.org>
 
-On Sun, Sep 17, 2017 at 11:39:05AM +0200, Linus Walleij wrote:
-> From: Geert Uytterhoeven <geert+renesas () glider ! be>
-> 
-> The current i2c-gpio DT bindings use a single unnamed "gpios" property
-> to refer to the SDA and SCL signal lines by index.  This is error-prone
-> for the casual DT writer and reviewer, as one has to look up the order
-> in the DT bindings.
-> 
-> Fix this by amending the DT bindings to use two separate named gpios
-> properties, and deprecate the old unnamed variant.
-> 
-> Take this opportunity to clearly deprecate the "i2c-gpio,sda-open-drain"
-> and "i2c-gpio,scl-open-drain" flags as well. The commit describes
-> in detail what these flags actually mean, and why they should not be
-> used in new device trees.
-> 
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> [Augmented to what I and Rob would like]
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Create a special section for the deprecated bindings
-> - Also deprecate the open drain bool properties
-> - Update the example to use the new style of bindings
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 32 ++++++++++++++++------
->  1 file changed, 23 insertions(+), 9 deletions(-)
+The w1_ds28e17 driver from the next part of this patch needs to emit
+single-bit read timeslots to the DS28E17. The w1 subsystem already
+has this function but it is not exported outside drivers/w1/w1_io.c
 
-Acked-by: Rob Herring <robh@kernel.org>
+This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
+same as the other exported symbols in drivers/w1/w1_io.c
+
+May be also useful later for writing drivers for other Onewire chips
+which do single-bit communication.
+
+Signed-off-by: Jan Kandziora <jjj@gmx.de>
+Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
+---
+Changes in v5 against v4 in this subpatch:
+  - adapted to linux-4.14-rc1
+
+Changes in v4 against v3 in this subpatch:
+  - adapted to linux-4.12.0
+
+No changes in v3 against v2,v1 in this subpatch.
+
+ drivers/w1/w1_io.c | 3 ++-
+ include/linux/w1.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index d191e1f..075d120 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -58,7 +58,7 @@ static u8 w1_read_bit(struct w1_master *dev);
+  * @dev:	the master device
+  * @bit:	0 - write a 0, 1 - write a 0 read the level
+  */
+-static u8 w1_touch_bit(struct w1_master *dev, int bit)
++u8 w1_touch_bit(struct w1_master *dev, int bit)
+ {
+ 	if (dev->bus_master->touch_bit)
+ 		return dev->bus_master->touch_bit(dev->bus_master->data, bit);
+@@ -69,6 +69,7 @@ static u8 w1_touch_bit(struct w1_master *dev, int bit)
+ 		return 0;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(w1_touch_bit);
+ 
+ /**
+  * w1_write_bit() - Generates a write-0 or write-1 cycle.
+diff --git a/include/linux/w1.h b/include/linux/w1.h
+index 5b29729..694101f 100644
+--- a/include/linux/w1.h
++++ b/include/linux/w1.h
+@@ -293,6 +293,7 @@ void w1_unregister_family(struct w1_family *family);
+ 			w1_unregister_family)
+ 
+ u8 w1_triplet(struct w1_master *dev, int bdir);
++u8 w1_touch_bit(struct w1_master *dev, int bit);
+ void w1_write_8(struct w1_master *, u8);
+ u8 w1_read_8(struct w1_master *);
+ int w1_reset_bus(struct w1_master *);
+-- 
+2.13.3
