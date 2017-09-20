@@ -1,189 +1,66 @@
-From: "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Wed, 20 Sep 2017 12:32:22 +0300
-Message-ID: <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
- <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
- <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Wed, 20 Sep 2017 17:02:16 +0200
+Message-ID: <20170920150215.fw7dcru6m234pp56@earth>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+ <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+ <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+ <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="5ipqkxngmbtuhqfc"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from nblzone-211-213.nblnetworks.fi ([83.145.211.213]:44872 "EHLO
-        hillosipuli.retiisi.org.uk" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751189AbdITJcZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Sep 2017 05:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45820 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751570AbdITPCT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 20 Sep 2017 11:02:19 -0400
 Content-Disposition: inline
-In-Reply-To: <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
+In-Reply-To: <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Tomasz Figa <tfiga@chromium.org>
-Cc: "Mani, Rajmohan" <rajmohan.mani@intel.com>, "Mohandass, Divagar" <divagar.mohandass@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, mika.westerberg@linux.intel.com
+To: Vignesh R <vigneshr@ti.com>
+Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Tomasz,
 
-On Wed, Sep 20, 2017 at 05:59:18PM +0900, Tomasz Figa wrote:
-> On Wed, Sep 20, 2017 at 5:45 PM, sakari.ailus@iki.fi
-> <sakari.ailus@iki.fi> wrote:
-> > Hi Tomasz,
-> >
-> > On Wed, Sep 20, 2017 at 12:56:09PM +0900, Tomasz Figa wrote:
-> >> Thanks Raj.
-> >>
-> >> Let me post my comments inline.
-> >>
-> >> On Wed, Sep 20, 2017 at 12:52 PM, Mani, Rajmohan
-> >> <rajmohan.mani@intel.com> wrote:
-> >> > Adding Tomasz...
-> >> >
-> >> >> -----Original Message-----
-> >> >> From: Mohandass, Divagar
-> >> >> Sent: Monday, September 04, 2017 3:29 AM
-> >> >> To: robh+dt@kernel.org; mark.rutland@arm.com; wsa@the-dreams.de;
-> >> >> sakari.ailus@iki.fi
-> >> >> Cc: devicetree@vger.kernel.org; linux-i2c@vger.kernel.org; linux-
-> >> >> kernel@vger.kernel.org; Mani, Rajmohan <rajmohan.mani@intel.com>;
-> >> >> Mohandass, Divagar <divagar.mohandass@intel.com>
-> >> >> Subject: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-> >> >>
-> >> >> Currently the device is kept in D0, there is an opportunity to save power by
-> >> >> enabling runtime pm.
-> >> >>
-> >> >> Device can be daisy chained from PMIC and we can't rely on I2C core for auto
-> >> >> resume/suspend. Driver will decide when to resume/suspend.
-> >> >>
-> >> >> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
-> >> >> ---
-> >> >>  drivers/misc/eeprom/at24.c | 38
-> >> >> ++++++++++++++++++++++++++++++++++++++
-> >> >>  1 file changed, 38 insertions(+)
-> >> >>
-> >> >> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c index
-> >> >> 2199c42..d718a7a 100644
-> >> >> --- a/drivers/misc/eeprom/at24.c
-> >> >> +++ b/drivers/misc/eeprom/at24.c
-> >> >> @@ -24,6 +24,7 @@
-> >> >>  #include <linux/i2c.h>
-> >> >>  #include <linux/nvmem-provider.h>
-> >> >>  #include <linux/platform_data/at24.h>
-> >> >> +#include <linux/pm_runtime.h>
-> >> >>
-> >> >>  /*
-> >> >>   * I2C EEPROMs from most vendors are inexpensive and mostly
-> >> >> interchangeable.
-> >> >> @@ -501,11 +502,21 @@ static ssize_t at24_eeprom_write_i2c(struct
-> >> >> at24_data *at24, const char *buf,  static int at24_read(void *priv, unsigned int
-> >> >> off, void *val, size_t count)  {
-> >> >>       struct at24_data *at24 = priv;
-> >> >> +     struct i2c_client *client;
-> >> >>       char *buf = val;
-> >> >> +     int ret;
-> >> >>
-> >> >>       if (unlikely(!count))
-> >> >>               return count;
-> >> >>
-> >> >> +     client = at24_translate_offset(at24, &off);
-> >> >> +
-> >> >> +     ret = pm_runtime_get_sync(&client->dev);
-> >> >> +     if (ret < 0) {
-> >> >> +             pm_runtime_put_noidle(&client->dev);
-> >> >> +             return ret;
-> >> >> +     }
-> >> >> +
-> >> >>       /*
-> >> >>        * Read data from chip, protecting against concurrent updates
-> >> >>        * from this host, but not from other I2C masters.
-> >> >> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned int off, void
-> >> >> *val, size_t count)
-> >> >>               status = at24->read_func(at24, buf, off, count);
-> >> >>               if (status < 0) {
-> >> >>                       mutex_unlock(&at24->lock);
-> >> >> +                     pm_runtime_put(&client->dev);
-> >> >>                       return status;
-> >> >>               }
-> >> >>               buf += status;
-> >> >> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned int off, void
-> >> >> *val, size_t count)
-> >> >>
-> >> >>       mutex_unlock(&at24->lock);
-> >> >>
-> >> >> +     pm_runtime_put(&client->dev);
-> >> >> +
-> >> >>       return 0;
-> >> >>  }
-> >> >>
-> >> >>  static int at24_write(void *priv, unsigned int off, void *val, size_t count)  {
-> >> >>       struct at24_data *at24 = priv;
-> >> >> +     struct i2c_client *client;
-> >> >>       char *buf = val;
-> >> >> +     int ret;
-> >> >>
-> >> >>       if (unlikely(!count))
-> >> >>               return -EINVAL;
-> >> >>
-> >> >> +     client = at24_translate_offset(at24, &off);
-> >> >> +
-> >> >> +     ret = pm_runtime_get_sync(&client->dev);
-> >> >> +     if (ret < 0) {
-> >> >> +             pm_runtime_put_noidle(&client->dev);
-> >> >> +             return ret;
-> >> >> +     }
-> >> >> +
-> >> >>       /*
-> >> >>        * Write data to chip, protecting against concurrent updates
-> >> >>        * from this host, but not from other I2C masters.
-> >> >> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned int off, void
-> >> >> *val, size_t count)
-> >> >>               status = at24->write_func(at24, buf, off, count);
-> >> >>               if (status < 0) {
-> >> >>                       mutex_unlock(&at24->lock);
-> >> >> +                     pm_runtime_put(&client->dev);
-> >> >>                       return status;
-> >> >>               }
-> >> >>               buf += status;
-> >> >> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned int off, void
-> >> >> *val, size_t count)
-> >> >>
-> >> >>       mutex_unlock(&at24->lock);
-> >> >>
-> >> >> +     pm_runtime_put(&client->dev);
-> >> >> +
-> >> >>       return 0;
-> >> >>  }
-> >> >>
-> >> >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client *client, const
-> >> >> struct i2c_device_id *id)
-> >> >>
-> >> >>       i2c_set_clientdata(client, at24);
-> >> >>
-> >> >> +     /* enable runtime pm */
-> >> >> +     pm_runtime_get_noresume(&client->dev);
-> >> >> +     pm_runtime_set_active(&client->dev);
-> >> >> +     pm_runtime_enable(&client->dev);
-> >>
-> >> Do we need this get_noresume/set_active dance? I remember it was for
-> >> some reason needed for PCI devices, but I don't see why for I2C
-> >> anything else than just pm_runtime_enable() would be necessary.
-> >
-> > You specifically do not need (all) this for PCI devices, but AFAIU for I涎
-> > devices you do. The runtime PM status of a device is disabled by default
-> > and the use count is zero, but on ACPI based systems the device is still
-> > powered on.
-> 
-> Okay, so _get_noresume() and _set_active() would do the thing for ACPI
-> indeed, but not sure about other platforms. Perhaps _enable(),
-> _get_sync() would be more general?
+--5ipqkxngmbtuhqfc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-What I ended up doing in e.g. the smiapp driver was to explicitly power the
-device on first and then enable runtime PM. (See
-drivers/media/i2c/smiapp/smiapp-core.c .) This approach works even if
-CONFIG_PM is disabled, both on DT and ACPI.
+Hi,
 
--- 
-Regards,
+On Tue, Sep 19, 2017 at 04:20:49PM +0530, Vignesh R wrote:
+> I hit a situation where when communicating with a faulty i2c device, the
+> last transaction on the bus does not end with proper STOP condition on
+> the i2c bus.
 
-Sakari Ailus
-e-mail: sakari.ailus@iki.fi
+Yeah, omap-i2c seems to have big issues with a device not acking a
+transaction properly. It can be easily triggered on N950 (OMAP3 based):
+
+https://patchwork.kernel.org/patch/9914785/
+
+Please Cc me when sending a patch, so that I can test it on N950.
+
+-- Sebastian
+
+--5ipqkxngmbtuhqfc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlnCgvUACgkQ2O7X88g7
++prmXg//XJjVPFwJzoJYVC9Vjs0R6rcrrjkzvYlZ6d7LYzKZfomBKVhwC7XFpLVB
+TooCf5ir9sSYU5I+UmB6xI1w79BY3scUYMn+YzNU48S7HN5tgXDrB+ohMXTsnbi6
+RlS1QoKxh0edraToiQfRq50mlpSKGmGW3v3XXu0wHy/eM4dSTN/j5IwHJqsjWv9e
+TKSHnpl6fRHde8KJxa7b6T3WbQkKgUN8J46WVVb0E9sP5++IIcaN0JAi1NwS+Van
+4voAGpbnoF6iXf71WfN9tNPfrm9NKXKqW0Wwtw1CFYsTFKiQVXP4h52JGDcFp7Zq
+bLV76i9clcv8kTWnLCiewnF8Y/B3td6hPjOV8k8fXga4c/ac9U1jgN7B2RUKOBG4
+QVA6jVFuc7yphuj2hFyUkbKKd01RmhjY1QirtkUAJ+iQjZrlEE/e8X364O3Wr/mh
+A+hf8uTBXjyezrf1NGehGeRLlgLm30uW5a4UAXp+0UwHE9mJ5PR3Va5WVKOVnTVv
+fH1vUz9PxGWPDVrmiHnp2lKtozcemwFzT6fdEFpw/6syBYSDdi5GGdRixD3uAaQp
+JddlTcu2bBQMjgANZCozNYLoEmj17AiNMV0Uzm9iwV4ThsQMq5G9786ka8clvFSW
+wpTb3FPGgif7C/Ujcy/6FbYkqWVm61f1J41JL3RbFKKbCSwDFJk=
+=+srL
+-----END PGP SIGNATURE-----
+
+--5ipqkxngmbtuhqfc--
