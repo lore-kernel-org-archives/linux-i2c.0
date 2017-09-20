@@ -1,99 +1,55 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [RFC PATCH v5 3/6] i2c: add docs to clarify DMA handling
-Date: Wed, 20 Sep 2017 16:56:48 -0300
-Message-ID: <20170920165626.2b41a587@recife.lan>
-References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
- <20170920185956.13874-4-wsa+renesas@sang-engineering.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 6/7] dt-bindings: i2c: i2c-gpio: Add support for named
+ gpios
+Date: Wed, 20 Sep 2017 15:53:04 -0500
+Message-ID: <20170920205304.shkguzlqco3m6weu@rob-hp-laptop>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-7-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20170920185956.13874-4-wsa+renesas@sang-engineering.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+In-Reply-To: <20170917093906.16325-7-linus.walleij@linaro.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, geert.renesas@glider.be, devicetree@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-Em Wed, 20 Sep 2017 20:59:53 +0200
-Wolfram Sang <wsa+renesas@sang-engineering.com> escreveu:
-
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Documentation looks OK on my eyes. So:
-
-Reviewed-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-
-> ---
->  Documentation/i2c/DMA-considerations | 58 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 58 insertions(+)
->  create mode 100644 Documentation/i2c/DMA-considerations
+On Sun, Sep 17, 2017 at 11:39:05AM +0200, Linus Walleij wrote:
+> From: Geert Uytterhoeven <geert+renesas () glider ! be>
 > 
-> diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
-> new file mode 100644
-> index 00000000000000..5a63355c6a9b6f
-> --- /dev/null
-> +++ b/Documentation/i2c/DMA-considerations
-> @@ -0,0 +1,58 @@
-> +=================
-> +Linux I2C and DMA
-> +=================
-> +
-> +Given that I2C is a low-speed bus where largely small messages are transferred,
-> +it is not considered a prime user of DMA access. At this time of writing, only
-> +10% of I2C bus master drivers have DMA support implemented. And the vast
-> +majority of transactions are so small that setting up DMA for it will likely
-> +add more overhead than a plain PIO transfer.
-> +
-> +Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
-> +It does not seem reasonable to apply additional burdens when the feature is so
-> +rarely used. However, it is recommended to use a DMA-safe buffer if your
-> +message size is likely applicable for DMA. Most drivers have this threshold
-> +around 8 bytes (as of today, this is mostly an educated guess, however). For
-> +any message of 16 byte or larger, it is probably a really good idea. Please
-> +note that other subsystems you use might add requirements. E.g., if your
-> +I2C bus master driver is using USB as a bridge, then you need to have DMA
-> +safe buffers always, because USB requires it.
-> +
-> +For clients, if you use a DMA safe buffer in i2c_msg, set the I2C_M_DMA_SAFE
-> +flag with it. Then, the I2C core and drivers know they can safely operate DMA
-> +on it. Note that using this flag is optional. I2C host drivers which are not
-> +updated to use this flag will work like before. And like before, they risk
-> +using an unsafe DMA buffer. To improve this situation, using I2C_M_DMA_SAFE in
-> +more and more clients and host drivers is the planned way forward. Note also
-> +that setting this flag makes only sense in kernel space. User space data is
-> +copied into kernel space anyhow. The I2C core makes sure the destination
-> +buffers in kernel space are always DMA capable.
-> +
-> +FIXME: Need to implement i2c_master_{send|receive}_dma and proper buffers for i2c_smbus_xfer_emulated.
-> +
-> +Drivers wishing to implement safe DMA can use helper functions from the I2C
-> +core. One gives you a DMA-safe buffer for a given i2c_msg as long as a certain
-> +threshold is met::
-> +
-> +	dma_buf = i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
-> +
-> +If a buffer is returned, it is either msg->buf for the I2C_M_DMA_SAFE case or a
-> +bounce buffer. But you don't need to care about that detail, just use the
-> +returned buffer. If NULL is returned, the threshold was not met or a bounce
-> +buffer could not be allocated. Fall back to PIO in that case.
-> +
-> +In any case, a buffer obtained from above needs to be released. It ensures data
-> +is copied back to the message and a potentially used bounce buffer is freed::
-> +
-> +	i2c_release_dma_safe_msg_buf(msg, dma_buf);
-> +
-> +The bounce buffer handling from the core is generic and simple. It will always
-> +allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
-> +reusing pre-allocated buffers), you are free to implement your own.
-> +
-> +Please also check the in-kernel documentation for details. The i2c-sh_mobile
-> +driver can be used as a reference example how to use the above helpers.
-> +
-> +Final note: If you plan to use DMA with I2C (or with anything else, actually)
-> +make sure you have CONFIG_DMA_API_DEBUG enabled during development. It can help
-> +you find various issues which can be complex to debug otherwise.
+> The current i2c-gpio DT bindings use a single unnamed "gpios" property
+> to refer to the SDA and SCL signal lines by index.  This is error-prone
+> for the casual DT writer and reviewer, as one has to look up the order
+> in the DT bindings.
+> 
+> Fix this by amending the DT bindings to use two separate named gpios
+> properties, and deprecate the old unnamed variant.
+> 
+> Take this opportunity to clearly deprecate the "i2c-gpio,sda-open-drain"
+> and "i2c-gpio,scl-open-drain" flags as well. The commit describes
+> in detail what these flags actually mean, and why they should not be
+> used in new device trees.
+> 
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> [Augmented to what I and Rob would like]
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Create a special section for the deprecated bindings
+> - Also deprecate the open drain bool properties
+> - Update the example to use the new style of bindings
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-gpio.txt | 32 ++++++++++++++++------
+>  1 file changed, 23 insertions(+), 9 deletions(-)
 
-
-
-Thanks,
-Mauro
+Acked-by: Rob Herring <robh@kernel.org>
