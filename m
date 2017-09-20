@@ -1,48 +1,39 @@
-From: Jan Kandziora <jjj@gmx.de>
-Subject: Re: [PATCH v4 1/2] wire: export w1_touch_bit
-Date: Wed, 20 Sep 2017 23:54:22 +0200
-Message-ID: <12671116-8678-dc6f-c7ee-24037070554d@gmx.de>
-References: <20170918130346.3886-1-jjj@gmx.de>
- <20170918141929.GA10178@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.20]:49434 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751499AbdITVy1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 20 Sep 2017 17:54:27 -0400
-In-Reply-To: <20170918141929.GA10178@kroah.com>
-Content-Language: de-DE
-Sender: linux-i2c-owner@vger.kernel.org
+From: Rajat Jain <rajatja@google.com>
+Subject: [PATCH 1/2] i2c: designware: switch to suspend_late/resume_early
+Date: Wed, 20 Sep 2017 15:31:51 -0700
+Message-ID: <20170920223152.100641-1-rajatja@google.com>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-pm@vger.kernel.org, Len Brown <len.brown@intel.com>, furquan@google.com, rajatxjain@gmail.com
+Cc: Rajat Jain <rajatja@google.com>
 List-Id: linux-i2c@vger.kernel.org
-To: GregKH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Evgeniy Polyakov <zbr@ioremap.net>, Linux-I2C <linux-i2c@vger.kernel.org>
 
-Am 18.09.2017 um 16:19 schrieb GregKH:
-> On Mon, Sep 18, 2017 at 03:03:45PM +0200, Jan Kandziora wrote:
->> The w1_ds28e17 driver from the next part of this patch needs to emit
->> single-bit read timeslots to the DS28E17. The w1 subsystem already
->> has this function but it is not exported outside drivers/w1/w1_io.c
->>
->> This subpatch exports the w1_touch_bit symbol with EXPORT_SYMBOL_GPL,
->> same as the other exported symbols in drivers/w1/w1_io.c
->>
->> May be also useful later for writing drivers for other Onewire chips
->> which do single-bit communication.
->>
->> Signed-off-by: Jan Kandziora <jjj@gmx.de>
->> Acked-by: Evgeniy Polyakov <zbr@ioremap.net>
->> ---
->> Changes in v4 against v3 in this subpatch:
->>   - adapted to linux-4.12.0
->>
->> No changes in v3 against v2,v1 in this subpatch.
-> 
-> You should change it as it does not apply to 4.14-rc1 :(
-> 
-I revised it and just sent it to you and now I hope for the best.
+Ref: https://lkml.org/lkml/2017/9/19/649
 
-Kind regards
+The bus controllers should suspend the bus operations only after
+all of the devices on the bus have suspended their device
+completely. Since the i2c_client drivers could be talking to
+their devices in their suspend_late() calls, lets ensure that the
+bus is alive by that time. Thus moving the controller suspend logic to
+suspend_late().
 
-	Jan
+Signed-off-by: Rajat Jain <rajatja@google.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0e65b97842b4..66dd7f844c40 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -468,7 +468,7 @@ static int dw_i2c_plat_suspend(struct device *dev)
+ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+ 	.prepare = dw_i2c_plat_prepare,
+ 	.complete = dw_i2c_plat_complete,
+-	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+ 	SET_RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend,
+ 			   dw_i2c_plat_resume,
+ 			   NULL)
+-- 
+2.14.1.821.g8fa685d3b7-goog
