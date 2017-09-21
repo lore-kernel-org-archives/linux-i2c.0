@@ -1,75 +1,107 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v1] i2c:i2c-stm32f7: fix setup structure
-Date: Thu, 21 Sep 2017 15:30:09 +0200
-Message-ID: <1506000609-27409-1-git-send-email-pierre-yves.mordret@st.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [RFC PATCH v5 2/6] i2c: add helpers to ease DMA handling
+Date: Thu, 21 Sep 2017 14:59:22 +0100
+Message-ID: <20170921145922.000017b5@huawei.com>
+References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
+        <20170920185956.13874-3-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:17912 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751436AbdIUNa7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2017 09:30:59 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170920185956.13874-3-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-I2C drive setup structure is not properly allocated.
-Make it static instead of pointer to store driver data.
+On Wed, 20 Sep 2017 20:59:52 +0200
+Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
----
- drivers/i2c/busses/i2c-stm32f7.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+> One helper checks if DMA is suitable and optionally creates a bounce
+> buffer, if not. The other function returns the bounce buffer and makes
+> sure the data is properly copied back to the message.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 47c67b0..42ebdb1 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -215,7 +215,7 @@ struct stm32f7_i2c_dev {
- 	unsigned int msg_num;
- 	unsigned int msg_id;
- 	struct stm32f7_i2c_msg f7_msg;
--	struct stm32f7_i2c_setup *setup;
-+	struct stm32f7_i2c_setup setup;
- 	struct stm32f7_i2c_timings timing;
- };
- 
-@@ -537,7 +537,7 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
- 	writel_relaxed(timing, i2c_dev->base + STM32F7_I2C_TIMINGR);
- 
- 	/* Enable I2C */
--	if (i2c_dev->setup->analog_filter)
-+	if (i2c_dev->setup.analog_filter)
- 		stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
- 				     STM32F7_I2C_CR1_ANFOFF);
- 	else
-@@ -887,22 +887,19 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	setup = of_device_get_match_data(&pdev->dev);
--	i2c_dev->setup->rise_time = setup->rise_time;
--	i2c_dev->setup->fall_time = setup->fall_time;
--	i2c_dev->setup->dnf = setup->dnf;
--	i2c_dev->setup->analog_filter = setup->analog_filter;
-+	i2c_dev->setup = *setup;
- 
- 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
- 				       &rise_time);
- 	if (!ret)
--		i2c_dev->setup->rise_time = rise_time;
-+		i2c_dev->setup.rise_time = rise_time;
- 
- 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-falling-time-ns",
- 				       &fall_time);
- 	if (!ret)
--		i2c_dev->setup->fall_time = fall_time;
-+		i2c_dev->setup.fall_time = fall_time;
- 
--	ret = stm32f7_i2c_setup_timing(i2c_dev, i2c_dev->setup);
-+	ret = stm32f7_i2c_setup_timing(i2c_dev, &i2c_dev->setup);
- 	if (ret)
- 		goto clk_free;
- 
--- 
-2.7.4
+One minor suggestion for wording. Otherwise looks good to me.
+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
+> ---
+>  drivers/i2c/i2c-core-base.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h         |  3 +++
+>  2 files changed, 48 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 56e46581b84bdb..925a22794d3ced 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -2241,6 +2241,51 @@ void i2c_put_adapter(struct i2c_adapter *adap)
+>  }
+>  EXPORT_SYMBOL(i2c_put_adapter);
+>  
+> +/**
+> + * i2c_get_dma_safe_msg_buf() - get a DMA safe buffer for the given i2c_msg
+> + * @msg: the message to be checked
+> + * @threshold: the amount of byte from which using DMA makes sense
+
+the minimum number of bytes for which using DMA makes sense.
+
+> + *
+> + * Return: NULL if a DMA safe buffer was not obtained. Use msg->buf with PIO.
+> + *
+> + *	   Or a valid pointer to be used with DMA. Note that it can either be
+> + *	   msg->buf or a bounce buffer. After use, release it by calling
+> + *	   i2c_release_dma_safe_msg_buf().
+> + *
+> + * This function must only be called from process context!
+> + */
+> +u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold)
+> +{
+> +	if (msg->len < threshold)
+> +		return NULL;
+> +
+> +	if (msg->flags & I2C_M_DMA_SAFE)
+> +		return msg->buf;
+> +
+> +	if (msg->flags & I2C_M_RD)
+> +		return kzalloc(msg->len, GFP_KERNEL);
+> +	else
+> +		return kmemdup(msg->buf, msg->len, GFP_KERNEL);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_get_dma_safe_msg_buf);
+> +
+> +/**
+> + * i2c_release_dma_safe_msg_buf - release DMA safe buffer and sync with i2c_msg
+> + * @msg: the message to be synced with
+> + * @buf: the buffer obtained from i2c_get_dma_safe_msg_buf(). May be NULL.
+> + */
+> +void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
+> +{
+> +	if (!buf || buf == msg->buf)
+> +		return;
+> +
+> +	if (msg->flags & I2C_M_RD)
+> +		memcpy(msg->buf, buf, msg->len);
+> +
+> +	kfree(buf);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_release_dma_safe_msg_buf);
+> +
+>  MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+>  MODULE_DESCRIPTION("I2C-Bus main module");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index d501d3956f13f0..1e99342f180f45 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -767,6 +767,9 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
+>  	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+>  }
+>  
+> +u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold);
+> +void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
+> +
+>  int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+>  /**
+>   * module_i2c_driver() - Helper macro for registering a modular I2C driver
