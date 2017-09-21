@@ -1,69 +1,34 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/2] mfd: intel-lpss: switch to
- suspend_late()/resume_early()
-Date: Thu, 21 Sep 2017 09:41:33 +0100
-Message-ID: <20170921084133.pptabevkolnwv2wy@dell>
-References: <20170920223152.100641-1-rajatja@google.com>
- <20170920223152.100641-2-rajatja@google.com>
- <CAJZ5v0iB6=C953zPBYW8fB+XW7fq4fwyP2W4S=ocgNwWic+gPg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0iB6=C953zPBYW8fB+XW7fq4fwyP2W4S=ocgNwWic+gPg@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Rajat Jain <rajatja@google.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Len Brown <len.brown@intel.com>, furquan@google.com, rajatxjain@gmail.com
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] [trivial] dt-bindings: i2c: i2c-mux: Spelling s/required is/required if/
+Date: Thu, 21 Sep 2017 14:52:29 +0200
+Message-ID: <1505998349-10091-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jiri Kosina <trivial@kernel.org>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 21 Sep 2017, Rafael J. Wysocki wrote:
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mux.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> On Thu, Sep 21, 2017 at 12:31 AM, Rajat Jain <rajatja@google.com> wrote:
-> > Ref: https://lkml.org/lkml/2017/9/19/649
-> >
-> > The intel-lpss hosts the designware i2c controller device, which
-> > needs to be up and running until all its i2c child devices have
-> > suspended (child devices need to be accessible over i2c until
-> > suspend_late() has been called for all those devices).
-> >
-> > So lets delay the resetting of the controller until suspend_late().
-> > I thought of renaming function to say *_late / *_early but that
-> > might cause confusion since the same function is also used for runtime
-> > suspend/resume.
-> >
-> > Fixes: 0b471aaa0e1a ("Put I2C and SPI controllers into reset state on suspend")
-> > Signed-off-by: Rajat Jain <rajatja@google.com>
-> > ---
-> >  drivers/mfd/intel-lpss.h | 7 +------
-> >  1 file changed, 1 insertion(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/mfd/intel-lpss.h b/drivers/mfd/intel-lpss.h
-> > index 694116630ffa..865bbeaaf00c 100644
-> > --- a/drivers/mfd/intel-lpss.h
-> > +++ b/drivers/mfd/intel-lpss.h
-> > @@ -38,12 +38,7 @@ int intel_lpss_resume(struct device *dev);
-> >  #ifdef CONFIG_PM_SLEEP
-> >  #define INTEL_LPSS_SLEEP_PM_OPS                        \
-> >         .prepare = intel_lpss_prepare,          \
-> > -       .suspend = intel_lpss_suspend,          \
-> > -       .resume = intel_lpss_resume,            \
-> > -       .freeze = intel_lpss_suspend,           \
-> > -       .thaw = intel_lpss_resume,              \
-> > -       .poweroff = intel_lpss_suspend,         \
-> > -       .restore = intel_lpss_resume,
-> > +       SET_LATE_SYSTEM_SLEEP_PM_OPS(intel_lpss_suspend, intel_lpss_resume)
-> >  #else
-> >  #define INTEL_LPSS_SLEEP_PM_OPS
-> >  #endif
-> 
-> So I sent this exact patch several days ago:
-> https://patchwork.kernel.org/patch/9939809/
-
-You did?  Any reason you didn't send it to me?
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux.txt b/Documentation/devicetree/bindings/i2c/i2c-mux.txt
+index 212e6779dc5c0caf..b38f58a1c8784184 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux.txt
+@@ -6,10 +6,10 @@ multiplexer/switch will have one child node for each child bus.
+ 
+ Optional properties:
+ - #address-cells = <1>;
+-   This property is required is the i2c-mux child node does not exist.
++   This property is required if the i2c-mux child node does not exist.
+ 
+ - #size-cells = <0>;
+-   This property is required is the i2c-mux child node does not exist.
++   This property is required if the i2c-mux child node does not exist.
+ 
+ - i2c-mux
+    For i2c multiplexers/switches that have child nodes that are a mixture
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.7.4
