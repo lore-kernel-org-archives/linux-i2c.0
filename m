@@ -1,85 +1,75 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: i801: Add support for Intel Cedar Fork
-Date: Thu, 21 Sep 2017 16:23:16 +0300
-Message-ID: <20170921132316.20517-1-jarkko.nikula@linux.intel.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [PATCH v1] i2c:i2c-stm32f7: fix setup structure
+Date: Thu, 21 Sep 2017 15:30:09 +0200
+Message-ID: <1506000609-27409-1-git-send-email-pierre-yves.mordret@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:45873 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751618AbdIUNXZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 21 Sep 2017 09:23:25 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:17912 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751436AbdIUNa7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2017 09:30:59 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-Add PCI ID for Intel Cedar Fork PCH.
+I2C drive setup structure is not properly allocated.
+Make it static instead of pointer to store driver data.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 ---
- Documentation/i2c/busses/i2c-i801 | 1 +
- drivers/i2c/busses/Kconfig        | 1 +
- drivers/i2c/busses/i2c-i801.c     | 4 ++++
- 3 files changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-stm32f7.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index 0500193434cb..d47702456926 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -36,6 +36,7 @@ Supported adapters:
-   * Intel Gemini Lake (SOC)
-   * Intel Cannon Lake-H (PCH)
-   * Intel Cannon Lake-LP (PCH)
-+  * Intel Cedar Fork (PCH)
-    Datasheets: Publicly available at the Intel website
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 47c67b0..42ebdb1 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -215,7 +215,7 @@ struct stm32f7_i2c_dev {
+ 	unsigned int msg_num;
+ 	unsigned int msg_id;
+ 	struct stm32f7_i2c_msg f7_msg;
+-	struct stm32f7_i2c_setup *setup;
++	struct stm32f7_i2c_setup setup;
+ 	struct stm32f7_i2c_timings timing;
+ };
  
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index c06dce2c1da7..45a3f3ca29b3 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -131,6 +131,7 @@ config I2C_I801
- 	    Gemini Lake (SOC)
- 	    Cannon Lake-H (PCH)
- 	    Cannon Lake-LP (PCH)
-+	    Cedar Fork (PCH)
+@@ -537,7 +537,7 @@ static void stm32f7_i2c_hw_config(struct stm32f7_i2c_dev *i2c_dev)
+ 	writel_relaxed(timing, i2c_dev->base + STM32F7_I2C_TIMINGR);
  
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index e114e4e00d29..9e12a53ef7b8 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -68,6 +68,7 @@
-  * Gemini Lake (SOC)		0x31d4	32	hard	yes	yes	yes
-  * Cannon Lake-H (PCH)		0xa323	32	hard	yes	yes	yes
-  * Cannon Lake-LP (PCH)		0x9da3	32	hard	yes	yes	yes
-+ * Cedar Fork (PCH)		0x18df	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -204,6 +205,7 @@
+ 	/* Enable I2C */
+-	if (i2c_dev->setup->analog_filter)
++	if (i2c_dev->setup.analog_filter)
+ 		stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
+ 				     STM32F7_I2C_CR1_ANFOFF);
+ 	else
+@@ -887,22 +887,19 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	}
  
- /* Older devices have their ID defined in <linux/pci_ids.h> */
- #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
-+#define PCI_DEVICE_ID_INTEL_CDF_SMBUS			0x18df
- #define PCI_DEVICE_ID_INTEL_DNV_SMBUS			0x19df
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
- #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS		0x1d22
-@@ -1025,6 +1027,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CDF_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DNV_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BROXTON_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS) },
-@@ -1513,6 +1516,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	case PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_CDF_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS:
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 	setup = of_device_get_match_data(&pdev->dev);
+-	i2c_dev->setup->rise_time = setup->rise_time;
+-	i2c_dev->setup->fall_time = setup->fall_time;
+-	i2c_dev->setup->dnf = setup->dnf;
+-	i2c_dev->setup->analog_filter = setup->analog_filter;
++	i2c_dev->setup = *setup;
+ 
+ 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
+ 				       &rise_time);
+ 	if (!ret)
+-		i2c_dev->setup->rise_time = rise_time;
++		i2c_dev->setup.rise_time = rise_time;
+ 
+ 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-falling-time-ns",
+ 				       &fall_time);
+ 	if (!ret)
+-		i2c_dev->setup->fall_time = fall_time;
++		i2c_dev->setup.fall_time = fall_time;
+ 
+-	ret = stm32f7_i2c_setup_timing(i2c_dev, i2c_dev->setup);
++	ret = stm32f7_i2c_setup_timing(i2c_dev, &i2c_dev->setup);
+ 	if (ret)
+ 		goto clk_free;
+ 
 -- 
-2.14.1
+2.7.4
