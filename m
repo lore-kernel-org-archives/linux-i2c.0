@@ -1,47 +1,75 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [RFC PATCH v5 6/6] i2c: dev: mark RDWR buffers as DMA_SAFE
-Date: Thu, 21 Sep 2017 15:17:44 +0100
-Message-ID: <20170921151744.000054d0@huawei.com>
-References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
-        <20170920185956.13874-7-wsa+renesas@sang-engineering.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 2/2] mfd: intel-lpss: switch to suspend_late()/resume_early()
+Date: Thu, 21 Sep 2017 16:10:13 +0200
+Message-ID: <1817408.bhcOjT5fdi@aspire.rjw.lan>
+References: <20170920223152.100641-1-rajatja@google.com> <CAJZ5v0iB6=C953zPBYW8fB+XW7fq4fwyP2W4S=ocgNwWic+gPg@mail.gmail.com> <20170921084133.pptabevkolnwv2wy@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170920185956.13874-7-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:48407 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751387AbdIUOTV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2017 10:19:21 -0400
+In-Reply-To: <20170921084133.pptabevkolnwv2wy@dell>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Rajat Jain <rajatja@google.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Linux PM <linux-pm@vger.kernel.org>, Len Brown <len.brown@intel.com>, furquan@google.com, rajatxjain@gmail.com
 
-On Wed, 20 Sep 2017 20:59:56 +0200
-Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
-
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Makes sense as do the other drivers.
-
-Feel free to add
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-to all of them (though they hardly took a lot of reviewing given how simple
-the patches were :)
-
-> ---
->  drivers/i2c/i2c-dev.c | 2 ++
->  1 file changed, 2 insertions(+)
+On Thursday, September 21, 2017 10:41:33 AM CEST Lee Jones wrote:
+> On Thu, 21 Sep 2017, Rafael J. Wysocki wrote:
 > 
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index 6f638bbc922db4..bbc7aadb4c899d 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -280,6 +280,8 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
->  			res = PTR_ERR(rdwr_pa[i].buf);
->  			break;
->  		}
-> +		/* memdup_user allocates with GFP_KERNEL, so DMA is ok */
-> +		rdwr_pa[i].flags |= I2C_M_DMA_SAFE;
->  
->  		/*
->  		 * If the message length is received from the slave (similar
+> > On Thu, Sep 21, 2017 at 12:31 AM, Rajat Jain <rajatja@google.com> wrote:
+> > > Ref: https://lkml.org/lkml/2017/9/19/649
+> > >
+> > > The intel-lpss hosts the designware i2c controller device, which
+> > > needs to be up and running until all its i2c child devices have
+> > > suspended (child devices need to be accessible over i2c until
+> > > suspend_late() has been called for all those devices).
+> > >
+> > > So lets delay the resetting of the controller until suspend_late().
+> > > I thought of renaming function to say *_late / *_early but that
+> > > might cause confusion since the same function is also used for runtime
+> > > suspend/resume.
+> > >
+> > > Fixes: 0b471aaa0e1a ("Put I2C and SPI controllers into reset state on suspend")
+> > > Signed-off-by: Rajat Jain <rajatja@google.com>
+> > > ---
+> > >  drivers/mfd/intel-lpss.h | 7 +------
+> > >  1 file changed, 1 insertion(+), 6 deletions(-)
+> > >
+> > > diff --git a/drivers/mfd/intel-lpss.h b/drivers/mfd/intel-lpss.h
+> > > index 694116630ffa..865bbeaaf00c 100644
+> > > --- a/drivers/mfd/intel-lpss.h
+> > > +++ b/drivers/mfd/intel-lpss.h
+> > > @@ -38,12 +38,7 @@ int intel_lpss_resume(struct device *dev);
+> > >  #ifdef CONFIG_PM_SLEEP
+> > >  #define INTEL_LPSS_SLEEP_PM_OPS                        \
+> > >         .prepare = intel_lpss_prepare,          \
+> > > -       .suspend = intel_lpss_suspend,          \
+> > > -       .resume = intel_lpss_resume,            \
+> > > -       .freeze = intel_lpss_suspend,           \
+> > > -       .thaw = intel_lpss_resume,              \
+> > > -       .poweroff = intel_lpss_suspend,         \
+> > > -       .restore = intel_lpss_resume,
+> > > +       SET_LATE_SYSTEM_SLEEP_PM_OPS(intel_lpss_suspend, intel_lpss_resume)
+> > >  #else
+> > >  #define INTEL_LPSS_SLEEP_PM_OPS
+> > >  #endif
+> > 
+> > So I sent this exact patch several days ago:
+> > https://patchwork.kernel.org/patch/9939809/
+> 
+> You did?
+
+Yes, I did.
+
+> Any reason you didn't send it to me?
+
+Well, Lee Jones <lee@kernel.org> is very much in the CC list of it.
+
+Was I expected to use a different e-mail address for that?
+
+Thanks,
+Rafael
