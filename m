@@ -1,75 +1,127 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 2/3] eeprom: at24: add support to fetch eeprom device
- property "size"
-Date: Fri, 22 Sep 2017 19:11:40 +0300
-Message-ID: <CAHp75Ve_1oRe6w_yyQW_76NHf-boF+VqYNenTKit0PJPFj+N7A@mail.gmail.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-3-git-send-email-divagar.mohandass@intel.com> <6F87890CF0F5204F892DEA1EF0D77A5972FC126B@FMSMSX114.amr.corp.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h
+ chips
+Date: Fri, 22 Sep 2017 15:41:39 -0700
+Message-ID: <0ec731d7-16c5-9303-b528-fd795b0f65be@roeck-us.net>
+References: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
+ <20170812113357.ijna5riha7uechja@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6F87890CF0F5204F892DEA1EF0D77A5972FC126B-XfjTATA9Em864kNsxIetb7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "sakari.ailus-X3B1VOXEql0@public.gmane.org" <sakari.ailus-X3B1VOXEql0@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:36540 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752083AbdIVWlm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Sep 2017 18:41:42 -0400
+In-Reply-To: <20170812113357.ijna5riha7uechja@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2017 at 6:52 AM, Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
-> Adding Tomasz...
-
-Please, don't top post.
-Better to resend entire series with all stakeholders included.
-
->> Obtain the size of the EEPROM chip from DT if the "size" property is specified
->> for the device.
+On 08/12/2017 04:33 AM, Wolfram Sang wrote:
+> On Sat, Jul 15, 2017 at 04:51:26PM -0700, Guenter Roeck wrote:
+>> AMD Family 17h uses the KERNCZ SMBus controller. While its documentation
+>> is not publicly available, it is documented in the BIOS and Kernel
+>> Developer’s Guide for AMD Family 15h Models 60h-6Fh Processors.
 >>
+>> On this SMBus controller, the port select register is at PMx register
+>> 0x02, bit 4:3 (PMx00 register bit 20:19).
+>>
+>> Without this patch, the 4 SMBus channels on AMD Family 17h chips are
+>> mirrored and report the same chips on all channels.
+>>
+>> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> I need input from Jean for this one.
+> 
+I am getting feedback from others that both Ryzen and Threadripper CPUs are affected.
+It would be great if we can find a means to move this forward or find a better fix.
 
-I guess it lacks
-Suggested-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Thanks,
+Guenter
 
-Other than that, looks good to me!
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-
-Wolfram, the binding is ACKed by Rob and this one is in a good shape.
-Moreover, it seems like a demand for the property since some IoT stuff
-would like to use the driver on ACPI enabled platforms with different
-sizes.
-
-Can you go ahead and apply first two patches? It would be really appreciated.
-
->> Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 >> ---
->>  drivers/misc/eeprom/at24.c | 4 ++++
->>  1 file changed, 4 insertions(+)
+>>   drivers/i2c/busses/i2c-piix4.c | 30 ++++++++++++++++++++++++++----
+>>   1 file changed, 26 insertions(+), 4 deletions(-)
 >>
->> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c index
->> 764ff5df..2199c42 100644
->> --- a/drivers/misc/eeprom/at24.c
->> +++ b/drivers/misc/eeprom/at24.c
->> @@ -570,6 +570,10 @@ static void at24_get_pdata(struct device *dev, struct
->> at24_platform_data *chip)
->>       if (device_property_present(dev, "read-only"))
->>               chip->flags |= AT24_FLAG_READONLY;
->>
->> +     err = device_property_read_u32(dev, "size", &val);
->> +     if (!err)
->> +             chip->byte_len = val;
+>> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+>> index 0ecdb47a23ab..01f767ee4546 100644
+>> --- a/drivers/i2c/busses/i2c-piix4.c
+>> +++ b/drivers/i2c/busses/i2c-piix4.c
+>> @@ -94,6 +94,12 @@
+>>   #define SB800_PIIX4_PORT_IDX_ALT	0x2e
+>>   #define SB800_PIIX4_PORT_IDX_SEL	0x2f
+>>   #define SB800_PIIX4_PORT_IDX_MASK	0x06
+>> +#define SB800_PIIX4_PORT_IDX_SHIFT	1
 >> +
->>       err = device_property_read_u32(dev, "pagesize", &val);
->>       if (!err) {
->>               chip->page_size = val;
->> --
->> 1.9.1
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
+>> +#define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
+>> +#define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
+>> +#define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+>>   
+>>   /* insmod parameters */
+>>   
+>> @@ -149,6 +155,8 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+>>    */
+>>   static DEFINE_MUTEX(piix4_mutex_sb800);
+>>   static u8 piix4_port_sel_sb800;
+>> +static u8 piix4_port_mask_sb800;
+>> +static u8 piix4_port_shift_sb800;
+>>   static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
+>>   	" port 0", " port 2", " port 3", " port 4"
+>>   };
+>> @@ -347,7 +355,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>>   
+>>   	/* Find which register is used for port selection */
+>>   	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+>> -		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+>> +		switch (PIIX4_dev->device) {
+>> +		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
+>> +			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+>> +			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
+>> +			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+>> +			break;
+>> +		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+>> +		default:
+>> +			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+>> +			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+>> +			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+>> +			break;
+>> +		}
+>>   	} else {
+>>   		mutex_lock(&piix4_mutex_sb800);
+>>   		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+>> @@ -355,6 +375,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>>   		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+>>   				       SB800_PIIX4_PORT_IDX_ALT :
+>>   				       SB800_PIIX4_PORT_IDX;
+>> +		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+>> +		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+>>   		mutex_unlock(&piix4_mutex_sb800);
+>>   	}
+>>   
+>> @@ -616,8 +638,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>>   	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>>   
+>>   	port = adapdata->port;
+>> -	if ((smba_en_lo & SB800_PIIX4_PORT_IDX_MASK) != port)
+>> -		outb_p((smba_en_lo & ~SB800_PIIX4_PORT_IDX_MASK) | port,
+>> +	if ((smba_en_lo & piix4_port_mask_sb800) != port)
+>> +		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
+>>   		       SB800_PIIX4_SMB_IDX + 1);
+>>   
+>>   	retval = piix4_access(adap, addr, flags, read_write,
+>> @@ -706,7 +728,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+>>   
+>>   	adapdata->smba = smba;
+>>   	adapdata->sb800_main = sb800_main;
+>> -	adapdata->port = port << 1;
+>> +	adapdata->port = port << piix4_port_shift_sb800;
+>>   
+>>   	/* set up the sysfs linkage to our parent device */
+>>   	adap->dev.parent = &dev->dev;
+>> -- 
+>> 2.7.4
+>>
