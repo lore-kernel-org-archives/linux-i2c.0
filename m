@@ -1,58 +1,73 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: make const array supported_speeds static
- to shink object code size
-Date: Fri, 22 Sep 2017 10:10:59 +0300
-Message-ID: <f2c03d85-da0d-7bb0-2f1a-5a3b298200e9@linux.intel.com>
-References: <20170921223007.21081-1-colin.king@canonical.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
+Date: Fri, 22 Sep 2017 09:30:51 +0200
+Message-ID: <87377fmbpw.fsf@free-electrons.com>
+References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:28867 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751795AbdIVHUL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 22 Sep 2017 03:20:11 -0400
-In-Reply-To: <20170921223007.21081-1-colin.king@canonical.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170922020429.20941-1-kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+        (Kalyan Kinthada's message of "Fri, 22 Sep 2017 14:04:29 +1200")
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Colin King <colin.king@canonical.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 09/22/2017 01:30 AM, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> Don't populate const array supported_speeds on the stack, instead
-> make it static.  Makes the object code smaller by 150 bytes:
-> 
-> Before:
->     text	   data	    bss	    dec	    hex	filename
->     8474	   1440	      0	   9914	   26ba	i2c-designware-platdrv.o
-> 
-> After:
->     text	   data	    bss	    dec	    hex	filename
->     8324	   1440	      0	   9764	   2624	i2c-designware-platdrv.o
-> 
-> (gcc version 7.2.0 x86_64)
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Hi Kalyan,
+ 
+ On ven., sept. 22 2017, Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
+
+> All armada-38x variants(380, 385, 388) SoCs have an issue
+> in i2c controller which violates the i2c repeated start timing.
+
+
+Did you had an issue with one of the SoC ?
+If yes what was your setting ?
+On my side I never managed to have this sort of issue on Armada 38x.
+
+>
+> This errata is fixed in the i2c-mv64xxx driver but enabled
+> only for devices with compatible string "marvell,mv78230-i2c".
+
+In this case why not just adding the "marvell,mv78230-i2c" as compatible
+string in the appropriate device tree files ?
+
+Gregory
+
+>
+> This patch introduces a new compatible string
+> "marvell,armada-38x-i2c" for the i2c controller on armada-38x SoCs
+> so that the workaound is enabled.
+
+
+>
+> Signed-off-by: Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
 > ---
->   drivers/i2c/busses/i2c-designware-platdrv.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0e65b97842b4..8a7b29b9afbe 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -257,7 +257,9 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->   	u32 acpi_speed, ht = 0;
->   	struct resource *mem;
->   	int i, irq, ret;
-> -	const int supported_speeds[] = { 0, 100000, 400000, 1000000, 3400000 };
-> +	static const int supported_speeds[] = {
-> +		0, 100000, 400000, 1000000, 3400000
-> +	};
->   
-Oh, this is so easy to forget.
+>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 5c30026921..fc100b6bdb 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -14,6 +14,7 @@ Required properties :
+>                           very rare, initial version of the SoC which
+>                           had broken offload support.  Linux
+>                           auto-detects this and sets it appropriately.
+> +                     - "marvell,armada-38x-i2c"
+>   - interrupts      : The interrupt number
+>  
+>  Optional properties :
+> -- 
+> 2.14.1
+>
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
