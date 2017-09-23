@@ -1,127 +1,63 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h
- chips
-Date: Fri, 22 Sep 2017 15:41:39 -0700
-Message-ID: <0ec731d7-16c5-9303-b528-fd795b0f65be@roeck-us.net>
-References: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
- <20170812113357.ijna5riha7uechja@ninjato>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 1/2] i2c: designware: switch to suspend_late/resume_early
+Date: Sat, 23 Sep 2017 14:55:06 +0200
+Message-ID: <CAJZ5v0jErc1yZBdQmMPnzceVAKeR+PFBCb_eT5ZRNS2Fh3VJ6A@mail.gmail.com>
+References: <20170920223152.100641-1-rajatja@google.com> <CAJZ5v0jJ-WQ15BNHrno_DFqyJU1Rn4KaBnaA5bbK8WmmmWfNgw@mail.gmail.com>
+ <CACK8Z6HQRyjFOgubBm02zZSz_o3LOgxsNbMj0VkpwN0thfZzzg@mail.gmail.com> <2747669.9xpxs90BZc@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:36540 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752083AbdIVWlm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Sep 2017 18:41:42 -0400
-In-Reply-To: <20170812113357.ijna5riha7uechja@ninjato>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2747669.9xpxs90BZc@aspire.rjw.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Rajat Jain <rajatja@google.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Linux PM <linux-pm@vger.kernel.org>, Len Brown <len.brown@intel.com>, Furquan Shaikh <furquan@google.com>, Rajat Jain <rajatxjain@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 08/12/2017 04:33 AM, Wolfram Sang wrote:
-> On Sat, Jul 15, 2017 at 04:51:26PM -0700, Guenter Roeck wrote:
->> AMD Family 17h uses the KERNCZ SMBus controller. While its documentation
->> is not publicly available, it is documented in the BIOS and Kernel
->> Developer’s Guide for AMD Family 15h Models 60h-6Fh Processors.
+On Thu, Sep 21, 2017 at 4:11 PM, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> On Thursday, September 21, 2017 3:13:56 AM CEST Rajat Jain wrote:
+>> On Wed, Sep 20, 2017 at 5:24 PM, Rafael J. Wysocki <rafael@kernel.org> wrote:
+>> > On Thu, Sep 21, 2017 at 12:31 AM, Rajat Jain <rajatja@google.com> wrote:
+>> >> Ref: https://lkml.org/lkml/2017/9/19/649
+>> >>
+>> >> The bus controllers should suspend the bus operations only after
+>> >> all of the devices on the bus have suspended their device
+>> >> completely. Since the i2c_client drivers could be talking to
+>> >> their devices in their suspend_late() calls, lets ensure that the
+>> >> bus is alive by that time. Thus moving the controller suspend logic to
+>> >> suspend_late().
+>> >>
+>> >> Signed-off-by: Rajat Jain <rajatja@google.com>
+>> >> ---
+>> >>  drivers/i2c/busses/i2c-designware-platdrv.c | 2 +-
+>> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+>> >>
+>> >> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> >> index 0e65b97842b4..66dd7f844c40 100644
+>> >> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> >> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> >> @@ -468,7 +468,7 @@ static int dw_i2c_plat_suspend(struct device *dev)
+>> >>  static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+>> >>         .prepare = dw_i2c_plat_prepare,
+>> >>         .complete = dw_i2c_plat_complete,
+>> >> -       SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+>> >> +       SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+>> >>         SET_RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend,
+>> >>                            dw_i2c_plat_resume,
+>> >>                            NULL)
+>> >
+>> > No, you can't just do that.
+>> >
+>> > I sent patches to do it properly before my trip to LA last week, it
+>> > shouldn't be overly difficult to find them in the mailing list
+>> > archives.  I can look them up tomorrow if need be.
 >>
->> On this SMBus controller, the port select register is at PMx register
->> 0x02, bit 4:3 (PMx00 register bit 20:19).
+>> Thanks, I am guessing you mean this?
 >>
->> Without this patch, the 4 SMBus channels on AMD Family 17h chips are
->> mirrored and report the same chips on all channels.
->>
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> I need input from Jean for this one.
-> 
-I am getting feedback from others that both Ryzen and Threadripper CPUs are affected.
-It would be great if we can find a means to move this forward or find a better fix.
+>> https://patchwork.kernel.org/patch/9939807/
+>
+> Yes, that's what I mean.
+
+BTW, does this patchset work for you?
 
 Thanks,
-Guenter
-
->> ---
->>   drivers/i2c/busses/i2c-piix4.c | 30 ++++++++++++++++++++++++++----
->>   1 file changed, 26 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
->> index 0ecdb47a23ab..01f767ee4546 100644
->> --- a/drivers/i2c/busses/i2c-piix4.c
->> +++ b/drivers/i2c/busses/i2c-piix4.c
->> @@ -94,6 +94,12 @@
->>   #define SB800_PIIX4_PORT_IDX_ALT	0x2e
->>   #define SB800_PIIX4_PORT_IDX_SEL	0x2f
->>   #define SB800_PIIX4_PORT_IDX_MASK	0x06
->> +#define SB800_PIIX4_PORT_IDX_SHIFT	1
->> +
->> +/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
->> +#define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
->> +#define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
->> +#define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
->>   
->>   /* insmod parameters */
->>   
->> @@ -149,6 +155,8 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
->>    */
->>   static DEFINE_MUTEX(piix4_mutex_sb800);
->>   static u8 piix4_port_sel_sb800;
->> +static u8 piix4_port_mask_sb800;
->> +static u8 piix4_port_shift_sb800;
->>   static const char *piix4_main_port_names_sb800[PIIX4_MAX_ADAPTERS] = {
->>   	" port 0", " port 2", " port 3", " port 4"
->>   };
->> @@ -347,7 +355,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->>   
->>   	/* Find which register is used for port selection */
->>   	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
->> -		piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
->> +		switch (PIIX4_dev->device) {
->> +		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
->> +			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
->> +			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
->> +			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
->> +			break;
->> +		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
->> +		default:
->> +			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
->> +			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
->> +			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
->> +			break;
->> +		}
->>   	} else {
->>   		mutex_lock(&piix4_mutex_sb800);
->>   		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
->> @@ -355,6 +375,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->>   		piix4_port_sel_sb800 = (port_sel & 0x01) ?
->>   				       SB800_PIIX4_PORT_IDX_ALT :
->>   				       SB800_PIIX4_PORT_IDX;
->> +		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
->> +		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
->>   		mutex_unlock(&piix4_mutex_sb800);
->>   	}
->>   
->> @@ -616,8 +638,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->>   	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
->>   
->>   	port = adapdata->port;
->> -	if ((smba_en_lo & SB800_PIIX4_PORT_IDX_MASK) != port)
->> -		outb_p((smba_en_lo & ~SB800_PIIX4_PORT_IDX_MASK) | port,
->> +	if ((smba_en_lo & piix4_port_mask_sb800) != port)
->> +		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
->>   		       SB800_PIIX4_SMB_IDX + 1);
->>   
->>   	retval = piix4_access(adap, addr, flags, read_write,
->> @@ -706,7 +728,7 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
->>   
->>   	adapdata->smba = smba;
->>   	adapdata->sb800_main = sb800_main;
->> -	adapdata->port = port << 1;
->> +	adapdata->port = port << piix4_port_shift_sb800;
->>   
->>   	/* set up the sysfs linkage to our parent device */
->>   	adap->dev.parent = &dev->dev;
->> -- 
->> 2.7.4
->>
+Rafael
