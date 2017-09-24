@@ -1,103 +1,56 @@
-From: Kalyan Kinthada <Kalyan.Kinthada@alliedtelesis.co.nz>
-Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
-Date: Sun, 24 Sep 2017 21:44:21 +0000
-Message-ID: <1506289460890.34765@alliedtelesis.co.nz>
-References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>,<87377fmbpw.fsf@free-electrons.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [PATCH v4 2/3] PM / mfd: intel-lpss: Push system sleep callbacks to late/early stages
+Date: Mon, 25 Sep 2017 01:20:35 +0200
+Message-ID: <4332008.kXBLY0K23i@aspire.rjw.lan>
+References: <3023226.l5IfJK6GIc@aspire.rjw.lan> <3958866.l2qnKDbinI@aspire.rjw.lan> <65494652.vEfz4tCBDb@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:44780 "EHLO
-        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752881AbdIXVo1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 24 Sep 2017 17:44:27 -0400
-In-Reply-To: <87377fmbpw.fsf@free-electrons.com>
-Content-Language: en-NZ
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <65494652.vEfz4tCBDb@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Ulf Hansson <ulf.hansson@linaro.org>, Rajat Jain <rajatja@google.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chris Packham <Chris.Packham@alliedtelesis.co.nz>
 
-Hi Gregory,=0A=
-=0A=
-I got this information from Armada-38x functional errata document.=0A=
-=0A=
-I can add the "marvell,mv78230-i2c" compatible string to the appropriate  d=
-evice tree files =0A=
-but the i2c-mv64xxx driver enables an additional  feature (offload i2c tran=
-sactions)=0A=
-based on the compatible string "marvell,mv78230-i2c".=0A=
-=0A=
-I am not sure if this feature (offload i2c transactions) should be enabled =
-for Armada-38x devices.=0A=
-That is the reason I felt for the need of a new compatible string specifica=
-lly for Armada-38x SoCs.=0A=
-=0A=
-Thanks,=0A=
-Kalyan=0A=
-________________________________________=0A=
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>=0A=
-Sent: Friday, 22 September 2017 7:30 p.m.=0A=
-To: Kalyan Kinthada=0A=
-Cc: devicetree@vger.kernel.org; wsa@the-dreams.de; robh+dt@kernel.org; pawe=
-l.moll@arm.com; mark.rutland@arm.com; ijc+devicetree@hellion.org.uk; galak@=
-codeaurora.org; linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org; Ch=
-ris Packham=0A=
-Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding=0A=
-=0A=
-Hi Kalyan,=0A=
-=0A=
- On ven., sept. 22 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.=
-nz> wrote:=0A=
-=0A=
-> All armada-38x variants(380, 385, 388) SoCs have an issue=0A=
-> in i2c controller which violates the i2c repeated start timing.=0A=
-=0A=
-=0A=
-Did you had an issue with one of the SoC ?=0A=
-If yes what was your setting ?=0A=
-On my side I never managed to have this sort of issue on Armada 38x.=0A=
-=0A=
->=0A=
-> This errata is fixed in the i2c-mv64xxx driver but enabled=0A=
-> only for devices with compatible string "marvell,mv78230-i2c".=0A=
-=0A=
-In this case why not just adding the "marvell,mv78230-i2c" as compatible=0A=
-string in the appropriate device tree files ?=0A=
-=0A=
-Gregory=0A=
-=0A=
->=0A=
-> This patch introduces a new compatible string=0A=
-> "marvell,armada-38x-i2c" for the i2c controller on armada-38x SoCs=0A=
-> so that the workaound is enabled.=0A=
-=0A=
-=0A=
->=0A=
-> Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>=0A=
-> ---=0A=
->  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +=0A=
->  1 file changed, 1 insertion(+)=0A=
->=0A=
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Docu=
-mentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
-> index 5c30026921..fc100b6bdb 100644=0A=
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
-> @@ -14,6 +14,7 @@ Required properties :=0A=
->                           very rare, initial version of the SoC which=0A=
->                           had broken offload support.  Linux=0A=
->                           auto-detects this and sets it appropriately.=0A=
-> +                     - "marvell,armada-38x-i2c"=0A=
->   - interrupts      : The interrupt number=0A=
->=0A=
->  Optional properties :=0A=
-> --=0A=
-> 2.14.1=0A=
->=0A=
-=0A=
---=0A=
-Gregory Clement, Free Electrons=0A=
-Kernel, drivers, real-time and embedded Linux=0A=
-development, consulting, training and support.=0A=
-http://free-electrons.com=0A=
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+Push the system suspend/resume callbacks of intel-lpss to the late
+suspend/early resume stages to allow child device callbacks to be
+pushed to the late/early stages of suspend/resume too, so as to
+make it possible to avoid resuming the children if they are runtime-
+suspended during system suspend going forward.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Johannes Stezenbach <js@sig21.net>
+Tested-by: Rajat Jain <rajatja@google.com>
+---
+
+v3 -> v4: Added Tested-by tags.
+
+---
+ drivers/mfd/intel-lpss.h |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+Index: linux-pm/drivers/mfd/intel-lpss.h
+===================================================================
+--- linux-pm.orig/drivers/mfd/intel-lpss.h
++++ linux-pm/drivers/mfd/intel-lpss.h
+@@ -38,12 +38,7 @@ int intel_lpss_resume(struct device *dev
+ #ifdef CONFIG_PM_SLEEP
+ #define INTEL_LPSS_SLEEP_PM_OPS			\
+ 	.prepare = intel_lpss_prepare,		\
+-	.suspend = intel_lpss_suspend,		\
+-	.resume = intel_lpss_resume,		\
+-	.freeze = intel_lpss_suspend,		\
+-	.thaw = intel_lpss_resume,		\
+-	.poweroff = intel_lpss_suspend,		\
+-	.restore = intel_lpss_resume,
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(intel_lpss_suspend, intel_lpss_resume)
+ #else
+ #define INTEL_LPSS_SLEEP_PM_OPS
+ #endif
+
+
