@@ -1,44 +1,54 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v4 2/3] PM / mfd: intel-lpss: Push system sleep callbacks to late/early stages
-Date: Mon, 25 Sep 2017 14:50:56 +0200
-Message-ID: <3654965.TWMXy0zEsZ@aspire.rjw.lan>
-References: <3023226.l5IfJK6GIc@aspire.rjw.lan> <4332008.kXBLY0K23i@aspire.rjw.lan> <20170925072847.nl2a6feqzrzdcxwz@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 2/3] PM / mfd: intel-lpss: Push system sleep callbacks
+ to late/early stages
+Date: Mon, 25 Sep 2017 16:24:28 +0200
+Message-ID: <20170925142428.2favzil5upydpusw@katana>
+References: <3023226.l5IfJK6GIc@aspire.rjw.lan>
+ <4332008.kXBLY0K23i@aspire.rjw.lan>
+ <20170925072847.nl2a6feqzrzdcxwz@ninjato>
+ <3654965.TWMXy0zEsZ@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ctrcamb2jfx2mqmn"
 Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20170925072847.nl2a6feqzrzdcxwz@ninjato>
+Content-Disposition: inline
+In-Reply-To: <3654965.TWMXy0zEsZ@aspire.rjw.lan>
 Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
 Cc: linux-pm@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Ulf Hansson <ulf.hansson@linaro.org>, Rajat Jain <rajatja@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, September 25, 2017 9:28:47 AM CEST Wolfram Sang wrote:
-> On Mon, Sep 25, 2017 at 01:20:35AM +0200, Rafael J. Wysocki wrote:
-> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > 
-> > Push the system suspend/resume callbacks of intel-lpss to the late
-> > suspend/early resume stages to allow child device callbacks to be
-> > pushed to the late/early stages of suspend/resume too, so as to
-> > make it possible to avoid resuming the children if they are runtime-
-> > suspended during system suspend going forward.
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > Tested-by: Johannes Stezenbach <js@sig21.net>
-> > Tested-by: Rajat Jain <rajatja@google.com>
-> 
-> If this series shall go in via I2C, I'd need an ack from Lee for this
-> one.
 
-Sure.
+--ctrcamb2jfx2mqmn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Also, I'd assume this should go in for v4.14 already?
 
-Well, it may be slightly late for that.  Realistically, the earliest -rc it
-can get into seems to be -rc4 and I'd prefer it to get a bit more exposure
-before it gets into a release.  It's up to you, though. :-)
+> Well, it may be slightly late for that.  Realistically, the earliest -rc it
+> can get into seems to be -rc4 and I'd prefer it to get a bit more exposure
+> before it gets into a release.  It's up to you, though. :-)
 
-Thanks,
-Rafael
+Fine with me, I'll schedule it for v4.15 then.
+
+
+--ctrcamb2jfx2mqmn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnJEZgACgkQFA3kzBSg
+KbZ57RAAkuRVb6uAlZdyFRk8wq88sv0aPAWzD/wgNQTEjNz6/+Cln+nGGNwNmP5o
+1BTBkw7nMWGL5oQHNtZve2QnMk1j29VQ73QvAwMtbwUfLWtpX2qJr7w0iUWt3TF3
+OiImVegkPMZkJLGtrnqPntLG/gJynXSvXnbdKHFEvprnTk1t/vJZdbflLH5kDB6i
+ZPae8sBVvQTz2DKcdsvn864a0IB3IXR9q5MpYiikwVlR21SQiQL10cgWjGE9IgSo
+V6J/yMsbyv8XwMSHarSA4IH2/LPguiDG/MA/aYNh6WYBbHbi0TW3itZ3azajqVmY
+lxaXUeWL4kYNBh7Bzspfyv11EZfCCEz+LVAr5AwZ18O5JTxeR9wWoLhu0E7O9fX3
+hMbiHA5S/mH/oeTCUu6K9rXW/G2Z1QgP5BbweuNtALjUtxeHh7lcPqb6YfRJN2Pe
+h7ESFpL0sxGMYVSeXvArkXQkXGcvWRcZXMP3fylzqDgyNwiP5fZ29crbXW3S7N6v
+m0VNmtVvuzh8DaGq0IBBhZgeZLolCqODwJRPZCdfHFjnHIbgfaGYVgLpbXpKyiAw
+fXIaWPmvWamCGWU6QDt+emTqnluc58/jQ+03KCzVkaQJh0L3ppmk0Cy+q0uG8RDa
+urTnVTNU+puR8oBlEEnfEw0lMOxTpcGf7AdfaL5hQWj/JgYPz5M=
+=Y1nT
+-----END PGP SIGNATURE-----
+
+--ctrcamb2jfx2mqmn--
