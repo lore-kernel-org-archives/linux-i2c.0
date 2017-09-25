@@ -1,52 +1,43 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] [trivial] dt-bindings: i2c: i2c-mux: Spelling s/required
- is/required if/
-Date: Mon, 25 Sep 2017 17:36:17 +0200
-Message-ID: <fbda62c7-3947-fb5c-b4e9-d727a4f324a5@axentia.se>
-References: <1505998349-10091-1-git-send-email-geert+renesas@glider.be>
- <2e6b5d12-f3aa-7228-9335-e3910e790109@axentia.se>
- <CAMuHMdWMh5jnfeqxoczdq7SnEj7Sa-egcxgwCi-0y4bmQv6meg@mail.gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH v4 1/3] PM: i2c-designware-platdrv: Clean up PM handling
+ in probe
+Date: Mon, 25 Sep 2017 21:12:28 +0200
+Message-ID: <CAPDyKFo_E79POLCuV_0Dd3tDL_Ko-WY_oZ4zLyf=y3GLf52ajg@mail.gmail.com>
+References: <3023226.l5IfJK6GIc@aspire.rjw.lan> <3958866.l2qnKDbinI@aspire.rjw.lan>
+ <65494652.vEfz4tCBDb@aspire.rjw.lan> <2813826.3DA0fVXnVa@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0104.outbound.protection.outlook.com ([104.47.0.104]:19781
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934109AbdIYPg1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 25 Sep 2017 11:36:27 -0400
-In-Reply-To: <CAMuHMdWMh5jnfeqxoczdq7SnEj7Sa-egcxgwCi-0y4bmQv6meg@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <2813826.3DA0fVXnVa@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Lee Jones <lee.jones@linaro.org>, Rajat Jain <rajatja@google.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jiri Kosina <trivial@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On 2017-09-25 17:24, Geert Uytterhoeven wrote:
-> Hi Peter,
-> 
-> On Mon, Sep 25, 2017 at 5:13 PM, Peter Rosin <peda@axentia.se> wrote:
->> On 2017-09-21 14:52, Geert Uytterhoeven wrote:
->>> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
->>
->> Yes, this is trivial, both the patch and my complaint, but can you please
->> add a "body of explanation" as suggested by submitting-patches in its topic
->> "The canonical patch format"?
-> 
-> A patch should provide the answer to 3 questions: what?, why?, and how?,
-> and IMHO all of these have been answered.
-> What more can I say, besides duplicating the one-line summary?
-> 
->> Maintainers accepting empty patch descriptions are publicly shamed, and
->> I do not wish to be in that boat, sorry...
-> 
-> Are they? AFAIK only if they apply patches that need more explanation.
+On 25 September 2017 at 01:17, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>
+> The power management handling in dw_i2c_plat_probe() is somewhat
+> messy and it is rather hard to figure out the code intention for
+> the case when pm_disabled is set.  In that case, the driver doesn't
+> enable runtime PM at all, but in addition to that it calls
+> pm_runtime_forbid() as though it wasn't sure if runtime PM might
+> be enabled for the device later by someone else.
+>
+> Although that concern doesn't seem to be actually valid, the
+> device is clearly still expected to be PM-capable even in the
+> pm_disabled set case, so a better approach would be to enable
+> runtime PM for it unconditionally and then prevent it from
+> being runtime-suspended by using pm_runtime_forbid().
 
-There was an LWN article a while back that counted the number of patches
-with an empty body and presented a table with top "offenders".
+This is nice cleanup! However I have one suggestion/comment.
 
-But ok, I'll just fix it up myself as I apply it. Hopefully w/o adding any
-further speeling mitsaeks..,.
+Using pm_runtime_forbid() to prevent the device from being runtime
+suspended may be a bit fragile, as userspace can then still change to
+"allow" it. Wouldn't it be better to bump the runtime PM usage count
+(pm_runtime_get_noresume()) instead?
 
-Cheers,
-Peter
+[...]
+
+Kind regards
+Uffe
