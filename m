@@ -1,54 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 2/3] PM / mfd: intel-lpss: Push system sleep callbacks
- to late/early stages
-Date: Mon, 25 Sep 2017 16:24:28 +0200
-Message-ID: <20170925142428.2favzil5upydpusw@katana>
-References: <3023226.l5IfJK6GIc@aspire.rjw.lan>
- <4332008.kXBLY0K23i@aspire.rjw.lan>
- <20170925072847.nl2a6feqzrzdcxwz@ninjato>
- <3654965.TWMXy0zEsZ@aspire.rjw.lan>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH] [trivial] dt-bindings: i2c: i2c-mux: Spelling s/required
+ is/required if/
+Date: Mon, 25 Sep 2017 17:13:35 +0200
+Message-ID: <2e6b5d12-f3aa-7228-9335-e3910e790109@axentia.se>
+References: <1505998349-10091-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ctrcamb2jfx2mqmn"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3654965.TWMXy0zEsZ@aspire.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: linux-pm@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Ulf Hansson <ulf.hansson@linaro.org>, Rajat Jain <rajatja@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1505998349-10091-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jiri Kosina <trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 2017-09-21 14:52, Geert Uytterhoeven wrote:
+> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
---ctrcamb2jfx2mqmn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, this is trivial, both the patch and my complaint, but can you please
+add a "body of explanation" as suggested by submitting-patches in its topic
+"The canonical patch format"?
 
+Maintainers accepting empty patch descriptions are publicly shamed, and
+I do not wish to be in that boat, sorry...
 
-> Well, it may be slightly late for that.  Realistically, the earliest -rc it
-> can get into seems to be -rc4 and I'd prefer it to get a bit more exposure
-> before it gets into a release.  It's up to you, though. :-)
+Cheers,
+Peter
 
-Fine with me, I'll schedule it for v4.15 then.
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-mux.txt | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux.txt b/Documentation/devicetree/bindings/i2c/i2c-mux.txt
+> index 212e6779dc5c0caf..b38f58a1c8784184 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux.txt
+> @@ -6,10 +6,10 @@ multiplexer/switch will have one child node for each child bus.
+>  
+>  Optional properties:
+>  - #address-cells = <1>;
+> -   This property is required is the i2c-mux child node does not exist.
+> +   This property is required if the i2c-mux child node does not exist.
+>  
+>  - #size-cells = <0>;
+> -   This property is required is the i2c-mux child node does not exist.
+> +   This property is required if the i2c-mux child node does not exist.
+>  
+>  - i2c-mux
+>     For i2c multiplexers/switches that have child nodes that are a mixture
+> 
 
-
---ctrcamb2jfx2mqmn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnJEZgACgkQFA3kzBSg
-KbZ57RAAkuRVb6uAlZdyFRk8wq88sv0aPAWzD/wgNQTEjNz6/+Cln+nGGNwNmP5o
-1BTBkw7nMWGL5oQHNtZve2QnMk1j29VQ73QvAwMtbwUfLWtpX2qJr7w0iUWt3TF3
-OiImVegkPMZkJLGtrnqPntLG/gJynXSvXnbdKHFEvprnTk1t/vJZdbflLH5kDB6i
-ZPae8sBVvQTz2DKcdsvn864a0IB3IXR9q5MpYiikwVlR21SQiQL10cgWjGE9IgSo
-V6J/yMsbyv8XwMSHarSA4IH2/LPguiDG/MA/aYNh6WYBbHbi0TW3itZ3azajqVmY
-lxaXUeWL4kYNBh7Bzspfyv11EZfCCEz+LVAr5AwZ18O5JTxeR9wWoLhu0E7O9fX3
-hMbiHA5S/mH/oeTCUu6K9rXW/G2Z1QgP5BbweuNtALjUtxeHh7lcPqb6YfRJN2Pe
-h7ESFpL0sxGMYVSeXvArkXQkXGcvWRcZXMP3fylzqDgyNwiP5fZ29crbXW3S7N6v
-m0VNmtVvuzh8DaGq0IBBhZgeZLolCqODwJRPZCdfHFjnHIbgfaGYVgLpbXpKyiAw
-fXIaWPmvWamCGWU6QDt+emTqnluc58/jQ+03KCzVkaQJh0L3ppmk0Cy+q0uG8RDa
-urTnVTNU+puR8oBlEEnfEw0lMOxTpcGf7AdfaL5hQWj/JgYPz5M=
-=Y1nT
------END PGP SIGNATURE-----
-
---ctrcamb2jfx2mqmn--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
