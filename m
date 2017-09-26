@@ -1,170 +1,95 @@
-From: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
-Date: Tue, 26 Sep 2017 14:24:59 +0200
-Message-ID: <3778fa75-0327-0c36-1721-e89e23a782b6@ergon.ch>
-References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
- <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
- <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
- <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
- <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
+From: Kalyan Kinthada <Kalyan.Kinthada@alliedtelesis.co.nz>
+Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
+Date: Tue, 26 Sep 2017 23:10:32 +0000
+Message-ID: <b3468215-5fdb-9896-c03f-1a610adca273@alliedtelesis.co.nz>
+References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>
+ <87377fmbpw.fsf@free-electrons.com> <1506289460890.34765@alliedtelesis.co.nz>
+ <87lgl1ishv.fsf@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.ergon.ch ([87.239.214.68]:39147 "EHLO mx1.ergon.ch"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S968651AbdIZMZE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 26 Sep 2017 08:25:04 -0400
-In-Reply-To: <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:49417 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S937393AbdIZXKg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Sep 2017 19:10:36 -0400
+In-Reply-To: <87lgl1ishv.fsf@free-electrons.com>
 Content-Language: en-US
+Content-ID: <4882B9BC784E6E428382950FF3FFD48B@atlnz.lc>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Sebastian Reichel <sre@kernel.org>
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chris Packham <Chris.Packham@alliedtelesis.co.nz>
 
-On 19.09.2017 12:50, Vignesh R wrote:
-> 
-> 
-> On Monday 18 September 2017 05:31 PM, Claudio Foellmi wrote:
->> On 18.09.2017 07:24, Vignesh R wrote:
->>>
->>>
->>> On Saturday 16 September 2017 05:01 AM, Strashko, Grygorii wrote:
->>>>
->>>>
->>>> On 09/14/2017 10:39 AM, Claudio Foellmi wrote:
->>>>> A very conservative check for bus activity (to prevent interference
->>>>> in multimaster setups) prevented the bus recovery methods from being
->>>>> triggered in the case that SDA or SCL was stuck low.
->>>>> This defeats the purpose of the recovery mechanism, which was introduced
->>>>> for exactly this situation (a slave device keeping SDA pulled down).
->>>>>
->>>>> Note that bus lockups can persist across reboots. The only other options
->>>>> are to reset or power cycle the offending slave device, and many i2c
->>>>> slaves do not even have a reset pin.
->>>>>
->>>>> If we see that one of the lines is low for the entire timeout duration,
->>>>> we can actually be sure that there is no other master driving the bus.
->>>>> It is therefore save for us to attempt a bus recovery.
->>>>>
->>>>
->>>> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
->>>>
->>>>> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
->>>>> ---
->>>>> Caveat: It turns out I don't have the hardware to fully test the
->>>>> recovery mechanism. My faulty i2c slave device actually pulls down SCL,
->>>>> not SDA (so the recovery will not succeed in my case).
->>>
->>> Maybe, you could detect SCL stuck low case by reading status of SCL line
->>> from OMAP_I2C_SYSTEST_REG and then call IP reset (there is nothing much
->>> that can be done) instead of bus recovery.
->>>
->>
->> I plan on posting a related patch soon, that will print better messages
->> if the generic recovery fails. If SCL is stuck low, I think the best we
->> can do is make the problem visible in the kernel log.
->>
->>>>> But by directly connecting SDA to ground, I could at least make sure
->>>>> the recovery function gets called after applying this patch.
->>>>>
->>>
->>> I had seen flood of XRDY & RRDY interrupts as soon as TMODE is set to
->>> 0x3 as part of omap_i2c_prepare_recovery() leading to unusable system.
->>> Did you observe this behavior on your system? Could you mention the
->>> platform on which this experiment done?
->>>
->>
->> So attempting bus recovery is dangerous on some platforms?
->> I did not notice any obvious problems (assuming an 'unusable system'
->> would be hard to miss), but then again I only have one target to test on.
->> I'm working with a TI AM3352, the slave is a NXP NT3H2211 on i2c-1.
->>
-> 
-> I hit a situation where when communicating with a faulty i2c device, the
-> last transaction on the bus does not end with proper STOP condition on
-> the i2c bus. Since, STOP condition was not detected by IP, Bus Busy will
-> remain set even though both SCL and SDA are high. Thus,
-> omap_i2c_wait_for_bb() function would end up calling bus recovery. And
-> as soon as TMODE is set to 0x3 and ST_EN to 0x1, there is a flood of
-> XRDY & RRDY interrupts.
-> 
-> This spurious irqs can be reproduced easily by setting TMODE to 0x3 and
-> ST_EN to 0x1 in OMAP_I2C_SYSTEST_REG when both SCL and SDA are high (bus
-> is idle) even on AM335x.
-> 
-> So, if you are not seeing irq flood when SCL/SDA is stuck low, then
-> maybe its safe to enter TMODE 0x3 in such cases. Could you modify the
-> patch to test whether or not SDA is stuck low before initiating bus
-> recovery?
-> 
-
-This sounds more like a problem with the interrupt handler than with
-bus recovery, so I'm a bit hesitant to just add such a workaround.
-Instead, I spent a few hours looking through the interrupt handling
-(and poking my i2c bus with a wire to induce random faults), and
-I suspect to have found the underlying cause, or at least part of it:
-
-We sometimes ignore some interrupts (such as RRDY if we think we are
-not in receiving mode), but don't really deal with their cause.
-As a result, the same interrupt will just be raised again as soon as
-we leave the handler. It will then be ignored again, and raised again...
-
-I'm still not quite sure how we can reliably get into such situations in
-the first place, but not sending a stop condition seems to be part of it.
-Maybe it is somehow connected to the automatic internal state change
-that happens as part of AL or NACK interrupts.
-
-
-Below is a small patch that should test my assumptions.
-It clears the incoming fifo and acks the ignored RRDY interrupts.
-
-Sebastian, can you please check if this helps with your problems on N950?
-If it does, I'll turn it into a proper standalone patch.
-
-
-Cc: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
----
- drivers/i2c/busses/i2c-omap.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 1ebb5e9..1ad1b0c 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1009,6 +1009,7 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
- 	struct omap_i2c_dev *omap = dev_id;
- 	u16 bits;
- 	u16 stat;
-+	u16 buf;
- 	int err = 0, count = 0;
- 
- 	do {
-@@ -1016,11 +1017,21 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
- 		stat = omap_i2c_read_reg(omap, OMAP_I2C_STAT_REG);
- 		stat &= bits;
- 
--		/* If we're in receiver mode, ignore XDR/XRDY */
--		if (omap->receiver)
-+		/* If we're in receiver mode, ignore XDR/XRDY and vice versa */
-+		if (omap->receiver && stat & (OMAP_I2C_STAT_XDR |
-+				OMAP_I2C_STAT_XRDY)) {
-+			dev_err(omap->dev, "ignoring TX interrupts\n");
- 			stat &= ~(OMAP_I2C_STAT_XDR | OMAP_I2C_STAT_XRDY);
--		else
-+		} else if (!omap->receiver && stat & (OMAP_I2C_STAT_RDR |
-+				OMAP_I2C_STAT_RRDY)) {
-+			dev_err(omap->dev, "ignoring RX interrupts\n");
- 			stat &= ~(OMAP_I2C_STAT_RDR | OMAP_I2C_STAT_RRDY);
-+			buf = omap_i2c_read_reg(omap, OMAP_I2C_BUF_REG);
-+			buf |= OMAP_I2C_BUF_RXFIF_CLR;
-+			omap_i2c_write_reg(omap, OMAP_I2C_BUF_REG, buf);
-+			omap_i2c_ack_stat(omap,
-+				OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR);
-+		}
- 
- 		if (!stat) {
- 			/* my work here is done */
--- 
-2.7.4
+T24gMjcvMDkvMTcgMDA6NTUsIEdyZWdvcnkgQ0xFTUVOVCB3cm90ZToNCj4gSGkgS2FseWFuLA0K
+Pg0KPiBQbGVhc2UgdHJ5IGF2b2lkIHRvcC1wb3N0aW5nLg0KSSBhbSBzb3JyeS4gRml4ZWQgaXQg
+bm93Lg0KPg0KPiAgIE9uIGRpbS4sIHNlcHQuIDI0IDIwMTcsIEthbHlhbiBLaW50aGFkYSA8S2Fs
+eWFuLktpbnRoYWRhQGFsbGllZHRlbGVzaXMuY28ubno+IHdyb3RlOg0KPg0KPj4gSGkgR3JlZ29y
+eSwNCj4+DQo+PiBJIGdvdCB0aGlzIGluZm9ybWF0aW9uIGZyb20gQXJtYWRhLTM4eCBmdW5jdGlv
+bmFsIGVycmF0YSBkb2N1bWVudC4NCj4gT0sgYnV0IGluIGFueSBjYXNlIGp1c3QgYWRkaW5nIGEg
+bmV3IGNvbXBhdGlibGUgd2FzIG5vdCBlbm91Z2ggeW91IGhhdmUNCj4gdG8gdXBkYXRlIHRoZSBk
+cml2ZXIgaW4gdGhlIHNhbWUgdGltZSwgaG93ZXZlciBmb3IgdGhpcyBjYXNlIHdlIHdvbid0DQo+
+IG5lZWQgaXQsIHNlZSBiZWxvdy4NCj4NCj4+IEkgY2FuIGFkZCB0aGUgIm1hcnZlbGwsbXY3ODIz
+MC1pMmMiIGNvbXBhdGlibGUgc3RyaW5nIHRvIHRoZSBhcHByb3ByaWF0ZSAgZGV2aWNlIHRyZWUg
+ZmlsZXMNCj4+IGJ1dCB0aGUgaTJjLW12NjR4eHggZHJpdmVyIGVuYWJsZXMgYW4gYWRkaXRpb25h
+bCAgZmVhdHVyZSAob2ZmbG9hZCBpMmMgdHJhbnNhY3Rpb25zKQ0KPj4gYmFzZWQgb24gdGhlIGNv
+bXBhdGlibGUgc3RyaW5nICJtYXJ2ZWxsLG12NzgyMzAtaTJjIi4NCj4+DQo+PiBJIGFtIG5vdCBz
+dXJlIGlmIHRoaXMgZmVhdHVyZSAob2ZmbG9hZCBpMmMgdHJhbnNhY3Rpb25zKSBzaG91bGQgYmUg
+ZW5hYmxlZCBmb3IgQXJtYWRhLTM4eCBkZXZpY2VzLg0KPj4gVGhhdCBpcyB0aGUgcmVhc29uIEkg
+ZmVsdCBmb3IgdGhlIG5lZWQgb2YgYSBuZXcgY29tcGF0aWJsZSBzdHJpbmcNCj4+IHNwZWNpZmlj
+YWxseSBmb3IgQXJtYWRhLTM4eCBTb0NzLg0KPiBJbmRlZWQgdGhlIEFybWFkYS0zOHggU29DcyBk
+b2VzIG5vdCBzdXBwb3J0IGhhcmR3YXJlIG9mZmxvYWRpbmcgKGF0DQo+IGxlYXN0IGFjY29yZGlu
+ZyB0aGUgZGF0YXNoZWV0KS4gQnV0IGl0IGhhcHBlbnMgdGhhdCBpbiB0aGUgZWFybGllcg0KPiB2
+ZXJzaW9uIG9mIHRoZSBBcm1hZGEgWFAgdGhlIGhhcmR3YXJlIG9mZmxvYWRpbmcgd2FzIGJ1Z2d5
+LCBzbyB3ZQ0KPiBpbnRyb2R1Y2VkIGEgY29tcGF0aWJsZSBmb3IgdGhpcyBjYXNlOiBtYXJ2ZWxs
+LG12NzgyMzAtYTAtaTJjLiBUaGlzDQo+IGNvbXBhdGlibGUgZW5hYmxlIHRoZSBlcnJhdGEgZml4
+IGJ1dCBub3QgdGhlIG9mZmxvYWRpbmcgZmVhdHVyZS4gVGhhdA0KPiBtZWFucyB0aGF0IGl0IGlz
+IGV4YWN0bHkgdGhlIGNvbXBhdGlibGUgeW91IG5lZWQgZm9yIEFybWFkYSAzOHggKGFuZA0KPiBB
+cm1hZGEgMzl4IGFuZCAzNzUgSSB0aGluaykuDQoNCiAgIE9rLiBJIHdpbGwgYWRkICJtYXJ2ZWxs
+LG12NzgyMzAtYTAtaTJjIiB0byB0aGUgQXJtYWRhLTM4eA0KICAgZGV2aWNlIHRyZWUgZmlsZS4g
+SSB3aWxsIHNlbmQgYSBuZXcgcGF0Y2ggd2l0aCB0aGVzZSBjaGFuZ2VzLg0KDQpUaGFua3MgZm9y
+IHlvdXIgdGltZS4NCg0KUmVnYXJkcywNCkthbHlhbg0KPg0KPiBHcmVnb3J5DQo+DQo+PiBUaGFu
+a3MsDQo+PiBLYWx5YW4NCj4+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18NCj4+IEZyb206IEdyZWdvcnkgQ0xFTUVOVCA8Z3JlZ29yeS5jbGVtZW50QGZyZWUtZWxlY3Ry
+b25zLmNvbT4NCj4+IFNlbnQ6IEZyaWRheSwgMjIgU2VwdGVtYmVyIDIwMTcgNzozMCBwLm0uDQo+
+PiBUbzogS2FseWFuIEtpbnRoYWRhDQo+PiBDYzogZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7
+IHdzYUB0aGUtZHJlYW1zLmRlOyByb2JoK2R0QGtlcm5lbC5vcmc7DQo+PiBwYXdlbC5tb2xsQGFy
+bS5jb207IG1hcmsucnV0bGFuZEBhcm0uY29tOw0KPj4gaWpjK2RldmljZXRyZWVAaGVsbGlvbi5v
+cmcudWs7IGdhbGFrQGNvZGVhdXJvcmEub3JnOw0KPj4gbGludXgtaTJjQHZnZXIua2VybmVsLm9y
+ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgQ2hyaXMgUGFja2hhbQ0KPj4gU3ViamVj
+dDogUmU6IFtQQVRDSF0gZHQtYmluZGluZ3M6IGkyYzogQWRkIGFybWFkYS0zOHggaTJjIGJpbmRp
+bmcNCj4+DQo+PiBIaSBLYWx5YW4sDQo+Pg0KPj4gICBPbiB2ZW4uLCBzZXB0LiAyMiAyMDE3LCBL
+YWx5YW4gS2ludGhhZGEgPGthbHlhbi5raW50aGFkYUBhbGxpZWR0ZWxlc2lzLmNvLm56PiB3cm90
+ZToNCj4+DQo+Pj4gQWxsIGFybWFkYS0zOHggdmFyaWFudHMoMzgwLCAzODUsIDM4OCkgU29DcyBo
+YXZlIGFuIGlzc3VlDQo+Pj4gaW4gaTJjIGNvbnRyb2xsZXIgd2hpY2ggdmlvbGF0ZXMgdGhlIGky
+YyByZXBlYXRlZCBzdGFydCB0aW1pbmcuDQo+Pg0KPj4gRGlkIHlvdSBoYWQgYW4gaXNzdWUgd2l0
+aCBvbmUgb2YgdGhlIFNvQyA/DQo+PiBJZiB5ZXMgd2hhdCB3YXMgeW91ciBzZXR0aW5nID8NCj4+
+IE9uIG15IHNpZGUgSSBuZXZlciBtYW5hZ2VkIHRvIGhhdmUgdGhpcyBzb3J0IG9mIGlzc3VlIG9u
+IEFybWFkYSAzOHguDQo+Pg0KPj4+IFRoaXMgZXJyYXRhIGlzIGZpeGVkIGluIHRoZSBpMmMtbXY2
+NHh4eCBkcml2ZXIgYnV0IGVuYWJsZWQNCj4+PiBvbmx5IGZvciBkZXZpY2VzIHdpdGggY29tcGF0
+aWJsZSBzdHJpbmcgIm1hcnZlbGwsbXY3ODIzMC1pMmMiLg0KPj4gSW4gdGhpcyBjYXNlIHdoeSBu
+b3QganVzdCBhZGRpbmcgdGhlICJtYXJ2ZWxsLG12NzgyMzAtaTJjIiBhcyBjb21wYXRpYmxlDQo+
+PiBzdHJpbmcgaW4gdGhlIGFwcHJvcHJpYXRlIGRldmljZSB0cmVlIGZpbGVzID8NCj4+DQo+PiBH
+cmVnb3J5DQo+Pg0KPj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhIG5ldyBjb21wYXRpYmxlIHN0
+cmluZw0KPj4+ICJtYXJ2ZWxsLGFybWFkYS0zOHgtaTJjIiBmb3IgdGhlIGkyYyBjb250cm9sbGVy
+IG9uIGFybWFkYS0zOHggU29Dcw0KPj4+IHNvIHRoYXQgdGhlIHdvcmthb3VuZCBpcyBlbmFibGVk
+Lg0KPj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBLYWx5YW4gS2ludGhhZGEgPGthbHlhbi5raW50aGFk
+YUBhbGxpZWR0ZWxlc2lzLmNvLm56Pg0KPj4+IC0tLQ0KPj4+ICAgRG9jdW1lbnRhdGlvbi9kZXZp
+Y2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQgfCAxICsNCj4+PiAgIDEgZmlsZSBj
+aGFuZ2VkLCAxIGluc2VydGlvbigrKQ0KPj4+DQo+Pj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRp
+b24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW12NjR4eHgudHh0IGIvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQNCj4+PiBpbmRleCA1YzMw
+MDI2OTIxLi5mYzEwMGI2YmRiIDEwMDY0NA0KPj4+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNl
+dHJlZS9iaW5kaW5ncy9pMmMvaTJjLW12NjR4eHgudHh0DQo+Pj4gKysrIGIvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQNCj4+PiBAQCAtMTQsNiAr
+MTQsNyBAQCBSZXF1aXJlZCBwcm9wZXJ0aWVzIDoNCj4+PiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB2ZXJ5IHJhcmUsIGluaXRpYWwgdmVyc2lvbiBvZiB0aGUgU29DIHdoaWNoDQo+Pj4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgaGFkIGJyb2tlbiBvZmZsb2FkIHN1cHBvcnQuICBMaW51
+eA0KPj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGF1dG8tZGV0ZWN0cyB0aGlzIGFuZCBz
+ZXRzIGl0IGFwcHJvcHJpYXRlbHkuDQo+Pj4gKyAgICAgICAgICAgICAgICAgICAgIC0gIm1hcnZl
+bGwsYXJtYWRhLTM4eC1pMmMiDQo+Pj4gICAgLSBpbnRlcnJ1cHRzICAgICAgOiBUaGUgaW50ZXJy
+dXB0IG51bWJlcg0KPj4+DQo+Pj4gICBPcHRpb25hbCBwcm9wZXJ0aWVzIDoNCj4+PiAtLQ0KPj4+
+IDIuMTQuMQ0KPj4+DQo+PiAtLQ0KPj4gR3JlZ29yeSBDbGVtZW50LCBGcmVlIEVsZWN0cm9ucw0K
+Pj4gS2VybmVsLCBkcml2ZXJzLCByZWFsLXRpbWUgYW5kIGVtYmVkZGVkIExpbnV4DQo+PiBkZXZl
+bG9wbWVudCwgY29uc3VsdGluZywgdHJhaW5pbmcgYW5kIHN1cHBvcnQuDQo+PiBodHRwOi8vZnJl
+ZS1lbGVjdHJvbnMuY29tDQoNCg==
