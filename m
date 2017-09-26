@@ -1,234 +1,103 @@
-From: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Tue, 26 Sep 2017 14:33:37 +0900
-Message-ID: <CAAFQd5AQX+OuxkkXsyBXO3v-Fyv49kOK9Gdpcp1+XgZLm0KMHQ@mail.gmail.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
- <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
- <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
- <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk> <7B8CE47BD58441468D2BB13285B50E6031DF0734@BGSMSX107.gar.corp.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: possible clarifications/suggestions for I2C man pages
+Date: Tue, 26 Sep 2017 09:55:38 +0200
+Message-ID: <20170926095538.4bc34e02@endymion>
+References: <20170811064111.Horde._C0AZIBvbLnSuYjG4OMcyvG@crashcourse.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DF0734-yHIBzpp8AekLtBVenmexd7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "sakari.ailus-X3B1VOXEql0@public.gmane.org" <sakari.ailus-X3B1VOXEql0@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:37829 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S965643AbdIZHzl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 26 Sep 2017 03:55:41 -0400
+In-Reply-To: <20170811064111.Horde._C0AZIBvbLnSuYjG4OMcyvG@crashcourse.ca>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: rpjday@crashcourse.ca
+Cc: linux-i2c@vger.kernel.org
 
-[+Rafael, Ulf]
+On Fri, 11 Aug 2017 06:41:11 -0400, rpjday@crashcourse.ca wrote:
+>    trying to sneak stuff in before the 4.0 release so, from the perspective
+> of someone who only recently dug into this stuff in any detail, some
+> things that might help the man pages.
+> 
+>    first, some examples of each command would be spectacularly helpful,
+> rather than just relying on the synopsis. specifically, it would be useful
+> to see an example of each variant of a command, including the differences
+> when doing byte vs. word reads and writes. i realize the experts know
+> this stuff by heart, but examples are never a bad thing.
 
-On Tue, Sep 26, 2017 at 2:29 PM, Mohandass, Divagar
-<divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
-> Hi Sakari & Tomas,
->
-> Are you ok with the current revision, let me know if any changes are need=
-ed.
+Good point, noted.
 
-Nope, my concerns have not been addressed, but we need someone from
-the PM world to clarify how we should do this to work on all
-platforms.
+>    also, i was just handed the following script loop for hex dumping an
+> EEPROM:
+> 
+>      i2cset -f -y 0 0x50 0x00 0x00
+>      for (( n=1; n < 8200; n++ )); do
+>          hex=$(i2cget -f -y 0 0x50)
+>          echo -en "\\${hex#0}"
+>      done | hexdump -C
+> 
+> which inspires a couple questions.
 
-Best regards,
-Tomasz
+The first thing this inspires me is that you really should be using the
+at24 kernel driver instead of reading byte by byte from user-space. It
+would be a lot faster, and safer too.
 
-P.S. Please avoid top-posting on mailing lists, it is considered bad manner=
-.
+>    first, i was not aware that simply calling "i2cget" over and over would
+> iterate through the registers; that's not mentioned in the i2cget man
+> page. the i2cget man page simply says,
+> 
+> "data-address specifies the address on that chip to read from, and is
+> an integer between 0x00 and 0xFF. If omitted, the currently active
+> register will be read (if that makes sense for the considered chip)."
+> 
+> is that normal behaviour for i2cget, or does it depend on the device?
+> or is this a dumb question?
 
->
-> ---
-> ^Divagar
->
->>-----Original Message-----
->>From: sakari.ailus-X3B1VOXEql0@public.gmane.org [mailto:sakari.ailus-X3B1VOXEql0@public.gmane.org]
->>Sent: Wednesday, September 20, 2017 3:02 PM
->>To: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
->>Cc: Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; Mohandass, Divagar
->><divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org;
->>mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
->>linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
->>mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
->>Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
->>
->>Hi Tomasz,
->>
->>On Wed, Sep 20, 2017 at 05:59:18PM +0900, Tomasz Figa wrote:
->>> On Wed, Sep 20, 2017 at 5:45 PM, sakari.ailus-X3B1VOXEql0@public.gmane.org
->>> <sakari.ailus-X3B1VOXEql0@public.gmane.org> wrote:
->>> > Hi Tomasz,
->>> >
->>> > On Wed, Sep 20, 2017 at 12:56:09PM +0900, Tomasz Figa wrote:
->>> >> Thanks Raj.
->>> >>
->>> >> Let me post my comments inline.
->>> >>
->>> >> On Wed, Sep 20, 2017 at 12:52 PM, Mani, Rajmohan
->>> >> <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
->>> >> > Adding Tomasz...
->>> >> >
->>> >> >> -----Original Message-----
->>> >> >> From: Mohandass, Divagar
->>> >> >> Sent: Monday, September 04, 2017 3:29 AM
->>> >> >> To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa@the-
->>dreams.de;
->>> >> >> sakari.ailus-X3B1VOXEql0@public.gmane.org
->>> >> >> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
->>> >> >> linux- kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mani, Rajmohan
->>> >> >> <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; Mohandass, Divagar
->>> >> >> <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->>> >> >> Subject: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
->>> >> >>
->>> >> >> Currently the device is kept in D0, there is an opportunity to
->>> >> >> save power by enabling runtime pm.
->>> >> >>
->>> >> >> Device can be daisy chained from PMIC and we can't rely on I2C
->>> >> >> core for auto resume/suspend. Driver will decide when to
->>resume/suspend.
->>> >> >>
->>> >> >> Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->>> >> >> ---
->>> >> >>  drivers/misc/eeprom/at24.c | 38
->>> >> >> ++++++++++++++++++++++++++++++++++++++
->>> >> >>  1 file changed, 38 insertions(+)
->>> >> >>
->>> >> >> diff --git a/drivers/misc/eeprom/at24.c
->>> >> >> b/drivers/misc/eeprom/at24.c index 2199c42..d718a7a 100644
->>> >> >> --- a/drivers/misc/eeprom/at24.c
->>> >> >> +++ b/drivers/misc/eeprom/at24.c
->>> >> >> @@ -24,6 +24,7 @@
->>> >> >>  #include <linux/i2c.h>
->>> >> >>  #include <linux/nvmem-provider.h>  #include
->>> >> >> <linux/platform_data/at24.h>
->>> >> >> +#include <linux/pm_runtime.h>
->>> >> >>
->>> >> >>  /*
->>> >> >>   * I2C EEPROMs from most vendors are inexpensive and mostly
->>> >> >> interchangeable.
->>> >> >> @@ -501,11 +502,21 @@ static ssize_t
->>> >> >> at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
->>> >> >> static int at24_read(void *priv, unsigned int off, void *val, siz=
-e_t
->>count)  {
->>> >> >>       struct at24_data *at24 =3D priv;
->>> >> >> +     struct i2c_client *client;
->>> >> >>       char *buf =3D val;
->>> >> >> +     int ret;
->>> >> >>
->>> >> >>       if (unlikely(!count))
->>> >> >>               return count;
->>> >> >>
->>> >> >> +     client =3D at24_translate_offset(at24, &off);
->>> >> >> +
->>> >> >> +     ret =3D pm_runtime_get_sync(&client->dev);
->>> >> >> +     if (ret < 0) {
->>> >> >> +             pm_runtime_put_noidle(&client->dev);
->>> >> >> +             return ret;
->>> >> >> +     }
->>> >> >> +
->>> >> >>       /*
->>> >> >>        * Read data from chip, protecting against concurrent updat=
-es
->>> >> >>        * from this host, but not from other I2C masters.
->>> >> >> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned
->>> >> >> int off, void *val, size_t count)
->>> >> >>               status =3D at24->read_func(at24, buf, off, count);
->>> >> >>               if (status < 0) {
->>> >> >>                       mutex_unlock(&at24->lock);
->>> >> >> +                     pm_runtime_put(&client->dev);
->>> >> >>                       return status;
->>> >> >>               }
->>> >> >>               buf +=3D status;
->>> >> >> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned
->>> >> >> int off, void *val, size_t count)
->>> >> >>
->>> >> >>       mutex_unlock(&at24->lock);
->>> >> >>
->>> >> >> +     pm_runtime_put(&client->dev);
->>> >> >> +
->>> >> >>       return 0;
->>> >> >>  }
->>> >> >>
->>> >> >>  static int at24_write(void *priv, unsigned int off, void *val, s=
-ize_t
->>count)  {
->>> >> >>       struct at24_data *at24 =3D priv;
->>> >> >> +     struct i2c_client *client;
->>> >> >>       char *buf =3D val;
->>> >> >> +     int ret;
->>> >> >>
->>> >> >>       if (unlikely(!count))
->>> >> >>               return -EINVAL;
->>> >> >>
->>> >> >> +     client =3D at24_translate_offset(at24, &off);
->>> >> >> +
->>> >> >> +     ret =3D pm_runtime_get_sync(&client->dev);
->>> >> >> +     if (ret < 0) {
->>> >> >> +             pm_runtime_put_noidle(&client->dev);
->>> >> >> +             return ret;
->>> >> >> +     }
->>> >> >> +
->>> >> >>       /*
->>> >> >>        * Write data to chip, protecting against concurrent update=
-s
->>> >> >>        * from this host, but not from other I2C masters.
->>> >> >> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned
->>> >> >> int off, void *val, size_t count)
->>> >> >>               status =3D at24->write_func(at24, buf, off, count);
->>> >> >>               if (status < 0) {
->>> >> >>                       mutex_unlock(&at24->lock);
->>> >> >> +                     pm_runtime_put(&client->dev);
->>> >> >>                       return status;
->>> >> >>               }
->>> >> >>               buf +=3D status;
->>> >> >> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned
->>> >> >> int off, void *val, size_t count)
->>> >> >>
->>> >> >>       mutex_unlock(&at24->lock);
->>> >> >>
->>> >> >> +     pm_runtime_put(&client->dev);
->>> >> >> +
->>> >> >>       return 0;
->>> >> >>  }
->>> >> >>
->>> >> >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client
->>> >> >> *client, const struct i2c_device_id *id)
->>> >> >>
->>> >> >>       i2c_set_clientdata(client, at24);
->>> >> >>
->>> >> >> +     /* enable runtime pm */
->>> >> >> +     pm_runtime_get_noresume(&client->dev);
->>> >> >> +     pm_runtime_set_active(&client->dev);
->>> >> >> +     pm_runtime_enable(&client->dev);
->>> >>
->>> >> Do we need this get_noresume/set_active dance? I remember it was
->>> >> for some reason needed for PCI devices, but I don't see why for I2C
->>> >> anything else than just pm_runtime_enable() would be necessary.
->>> >
->>> > You specifically do not need (all) this for PCI devices, but AFAIU
->>> > for I=E6=B6=8E
->>> > devices you do. The runtime PM status of a device is disabled by
->>> > default and the use count is zero, but on ACPI based systems the
->>> > device is still powered on.
->>>
->>> Okay, so _get_noresume() and _set_active() would do the thing for ACPI
->>> indeed, but not sure about other platforms. Perhaps _enable(),
->>> _get_sync() would be more general?
->>
->>What I ended up doing in e.g. the smiapp driver was to explicitly power t=
-he
->>device on first and then enable runtime PM. (See
->>drivers/media/i2c/smiapp/smiapp-core.c .) This approach works even if
->>CONFIG_PM is disabled, both on DT and ACPI.
->>
->>--
->>Regards,
->>
->>Sakari Ailus
->>e-mail: sakari.ailus-X3B1VOXEql0@public.gmane.org
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It depends on the device. Many I2C devices have an internal register
+storing the currently active address, and a short read (no address
+provided) will read from it. On top of that, some I2C devices, most
+notably EEPROMs, have an auto-increment feature which causes this
+internal register to self-increment when read. This allows using short
+reads to read the whole EEPROM byte by byte. Which is highly
+inefficient, but sometimes the only way if the master has limited
+capabilities.
+
+This is documented in the i2cdump(8) man page, but not the i2cget(8)
+man page. I agree it could be mentioned there as well.
+
+>    also, while i2cget can be handed an 8-bit address to read, as i read
+> here,
+> 
+> https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=17590
+> 
+> if you want to read from a 16-bit address, you must (as above) first
+> use i2cset to specify that 16-bit address. the i2cget man page doesn't
+> seem to say anything about that, and that's a pretty useful thing to
+> know.
+
+The core problem here is that there are no semantics attached to I2C
+transactions. Only bytes flying in either direction. The i2c-tools
+were primarily written with SMBus in mind, which is a subset of I2C
+with semantics attached. 16-bit addressed EEPROMs are not
+SMBus-compliant, which is why the semantics described in the manual
+pages do not match. Specifically:
+
+i2cset -f -y 0 0x50 0x00 0x00
+                    ^^^^ ^^^^
+
+These two bytes are "data-address" and "value" according to our
+documentation, which follows the SMBus conventions, but when using that
+on an 16-bit addressed EEPROM, they actually constitute a single 16-bit
+value, which is written to the internal address pointer register of the
+EEPROM.
+
+Short of making the manual pages very vague to avoid making any
+assumption about the semantics, it's simply impossible to cover all
+possibilities.
+
+-- 
+Jean Delvare
+SUSE L3 Support
