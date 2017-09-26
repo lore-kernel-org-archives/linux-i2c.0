@@ -1,150 +1,234 @@
-From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Subject: RE: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Tue, 26 Sep 2017 05:29:26 +0000
-Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DF0734@BGSMSX107.gar.corp.intel.com>
+From: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
+Date: Tue, 26 Sep 2017 14:33:37 +0900
+Message-ID: <CAAFQd5AQX+OuxkkXsyBXO3v-Fyv49kOK9Gdpcp1+XgZLm0KMHQ@mail.gmail.com>
 References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
  <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
  <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
  <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
  <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
  <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
- <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk>
+ <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk> <7B8CE47BD58441468D2BB13285B50E6031DF0734@BGSMSX107.gar.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>, Tomasz Figa <tfiga@chromium.org>
-Cc: "Mani, Rajmohan" <rajmohan.mani@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DF0734-yHIBzpp8AekLtBVenmexd7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Mohandass, Divagar" <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: "sakari.ailus-X3B1VOXEql0@public.gmane.org" <sakari.ailus-X3B1VOXEql0@public.gmane.org>, "Mani, Rajmohan" <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgU2FrYXJpICYgVG9tYXMsDQoNCkFyZSB5b3Ugb2sgd2l0aCB0aGUgY3VycmVudCByZXZpc2lv
-biwgbGV0IG1lIGtub3cgaWYgYW55IGNoYW5nZXMgYXJlIG5lZWRlZC4NCg0KLS0tDQpeRGl2YWdh
-cg0KDQo+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBzYWthcmkuYWlsdXNAaWtp
-LmZpIFttYWlsdG86c2FrYXJpLmFpbHVzQGlraS5maV0NCj5TZW50OiBXZWRuZXNkYXksIFNlcHRl
-bWJlciAyMCwgMjAxNyAzOjAyIFBNDQo+VG86IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJvbWl1bS5v
-cmc+DQo+Q2M6IE1hbmksIFJham1vaGFuIDxyYWptb2hhbi5tYW5pQGludGVsLmNvbT47IE1vaGFu
-ZGFzcywgRGl2YWdhcg0KPjxkaXZhZ2FyLm1vaGFuZGFzc0BpbnRlbC5jb20+OyByb2JoK2R0QGtl
-cm5lbC5vcmc7DQo+bWFyay5ydXRsYW5kQGFybS5jb207IHdzYUB0aGUtZHJlYW1zLmRlOyBkZXZp
-Y2V0cmVlQHZnZXIua2VybmVsLm9yZzsNCj5saW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51
-eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPm1pa2Eud2VzdGVyYmVyZ0BsaW51eC5pbnRlbC5j
-b20NCj5TdWJqZWN0OiBSZTogW1BBVENIIHY2IDMvM10gZWVwcm9tOiBhdDI0OiBlbmFibGUgcnVu
-dGltZSBwbSBzdXBwb3J0DQo+DQo+SGkgVG9tYXN6LA0KPg0KPk9uIFdlZCwgU2VwIDIwLCAyMDE3
-IGF0IDA1OjU5OjE4UE0gKzA5MDAsIFRvbWFzeiBGaWdhIHdyb3RlOg0KPj4gT24gV2VkLCBTZXAg
-MjAsIDIwMTcgYXQgNTo0NSBQTSwgc2FrYXJpLmFpbHVzQGlraS5maQ0KPj4gPHNha2FyaS5haWx1
-c0Bpa2kuZmk+IHdyb3RlOg0KPj4gPiBIaSBUb21hc3osDQo+PiA+DQo+PiA+IE9uIFdlZCwgU2Vw
-IDIwLCAyMDE3IGF0IDEyOjU2OjA5UE0gKzA5MDAsIFRvbWFzeiBGaWdhIHdyb3RlOg0KPj4gPj4g
-VGhhbmtzIFJhai4NCj4+ID4+DQo+PiA+PiBMZXQgbWUgcG9zdCBteSBjb21tZW50cyBpbmxpbmUu
-DQo+PiA+Pg0KPj4gPj4gT24gV2VkLCBTZXAgMjAsIDIwMTcgYXQgMTI6NTIgUE0sIE1hbmksIFJh
-am1vaGFuDQo+PiA+PiA8cmFqbW9oYW4ubWFuaUBpbnRlbC5jb20+IHdyb3RlOg0KPj4gPj4gPiBB
-ZGRpbmcgVG9tYXN6Li4uDQo+PiA+PiA+DQo+PiA+PiA+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQ0KPj4gPj4gPj4gRnJvbTogTW9oYW5kYXNzLCBEaXZhZ2FyDQo+PiA+PiA+PiBTZW50OiBN
-b25kYXksIFNlcHRlbWJlciAwNCwgMjAxNyAzOjI5IEFNDQo+PiA+PiA+PiBUbzogcm9iaCtkdEBr
-ZXJuZWwub3JnOyBtYXJrLnJ1dGxhbmRAYXJtLmNvbTsgd3NhQHRoZS0NCj5kcmVhbXMuZGU7DQo+
-PiA+PiA+PiBzYWthcmkuYWlsdXNAaWtpLmZpDQo+PiA+PiA+PiBDYzogZGV2aWNldHJlZUB2Z2Vy
-Lmtlcm5lbC5vcmc7IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7DQo+PiA+PiA+PiBsaW51eC0g
-a2VybmVsQHZnZXIua2VybmVsLm9yZzsgTWFuaSwgUmFqbW9oYW4NCj4+ID4+ID4+IDxyYWptb2hh
-bi5tYW5pQGludGVsLmNvbT47IE1vaGFuZGFzcywgRGl2YWdhcg0KPj4gPj4gPj4gPGRpdmFnYXIu
-bW9oYW5kYXNzQGludGVsLmNvbT4NCj4+ID4+ID4+IFN1YmplY3Q6IFtQQVRDSCB2NiAzLzNdIGVl
-cHJvbTogYXQyNDogZW5hYmxlIHJ1bnRpbWUgcG0gc3VwcG9ydA0KPj4gPj4gPj4NCj4+ID4+ID4+
-IEN1cnJlbnRseSB0aGUgZGV2aWNlIGlzIGtlcHQgaW4gRDAsIHRoZXJlIGlzIGFuIG9wcG9ydHVu
-aXR5IHRvDQo+PiA+PiA+PiBzYXZlIHBvd2VyIGJ5IGVuYWJsaW5nIHJ1bnRpbWUgcG0uDQo+PiA+
-PiA+Pg0KPj4gPj4gPj4gRGV2aWNlIGNhbiBiZSBkYWlzeSBjaGFpbmVkIGZyb20gUE1JQyBhbmQg
-d2UgY2FuJ3QgcmVseSBvbiBJMkMNCj4+ID4+ID4+IGNvcmUgZm9yIGF1dG8gcmVzdW1lL3N1c3Bl
-bmQuIERyaXZlciB3aWxsIGRlY2lkZSB3aGVuIHRvDQo+cmVzdW1lL3N1c3BlbmQuDQo+PiA+PiA+
-Pg0KPj4gPj4gPj4gU2lnbmVkLW9mZi1ieTogRGl2YWdhciBNb2hhbmRhc3MgPGRpdmFnYXIubW9o
-YW5kYXNzQGludGVsLmNvbT4NCj4+ID4+ID4+IC0tLQ0KPj4gPj4gPj4gIGRyaXZlcnMvbWlzYy9l
-ZXByb20vYXQyNC5jIHwgMzgNCj4+ID4+ID4+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrDQo+PiA+PiA+PiAgMSBmaWxlIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKykNCj4+
-ID4+ID4+DQo+PiA+PiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9taXNjL2VlcHJvbS9hdDI0LmMN
-Cj4+ID4+ID4+IGIvZHJpdmVycy9taXNjL2VlcHJvbS9hdDI0LmMgaW5kZXggMjE5OWM0Mi4uZDcx
-OGE3YSAxMDA2NDQNCj4+ID4+ID4+IC0tLSBhL2RyaXZlcnMvbWlzYy9lZXByb20vYXQyNC5jDQo+
-PiA+PiA+PiArKysgYi9kcml2ZXJzL21pc2MvZWVwcm9tL2F0MjQuYw0KPj4gPj4gPj4gQEAgLTI0
-LDYgKzI0LDcgQEANCj4+ID4+ID4+ICAjaW5jbHVkZSA8bGludXgvaTJjLmg+DQo+PiA+PiA+PiAg
-I2luY2x1ZGUgPGxpbnV4L252bWVtLXByb3ZpZGVyLmg+ICAjaW5jbHVkZQ0KPj4gPj4gPj4gPGxp
-bnV4L3BsYXRmb3JtX2RhdGEvYXQyNC5oPg0KPj4gPj4gPj4gKyNpbmNsdWRlIDxsaW51eC9wbV9y
-dW50aW1lLmg+DQo+PiA+PiA+Pg0KPj4gPj4gPj4gIC8qDQo+PiA+PiA+PiAgICogSTJDIEVFUFJP
-TXMgZnJvbSBtb3N0IHZlbmRvcnMgYXJlIGluZXhwZW5zaXZlIGFuZCBtb3N0bHkNCj4+ID4+ID4+
-IGludGVyY2hhbmdlYWJsZS4NCj4+ID4+ID4+IEBAIC01MDEsMTEgKzUwMiwyMSBAQCBzdGF0aWMg
-c3NpemVfdA0KPj4gPj4gPj4gYXQyNF9lZXByb21fd3JpdGVfaTJjKHN0cnVjdCBhdDI0X2RhdGEg
-KmF0MjQsIGNvbnN0IGNoYXIgKmJ1ZiwNCj4+ID4+ID4+IHN0YXRpYyBpbnQgYXQyNF9yZWFkKHZv
-aWQgKnByaXYsIHVuc2lnbmVkIGludCBvZmYsIHZvaWQgKnZhbCwgc2l6ZV90DQo+Y291bnQpICB7
-DQo+PiA+PiA+PiAgICAgICBzdHJ1Y3QgYXQyNF9kYXRhICphdDI0ID0gcHJpdjsNCj4+ID4+ID4+
-ICsgICAgIHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQ7DQo+PiA+PiA+PiAgICAgICBjaGFyICpi
-dWYgPSB2YWw7DQo+PiA+PiA+PiArICAgICBpbnQgcmV0Ow0KPj4gPj4gPj4NCj4+ID4+ID4+ICAg
-ICAgIGlmICh1bmxpa2VseSghY291bnQpKQ0KPj4gPj4gPj4gICAgICAgICAgICAgICByZXR1cm4g
-Y291bnQ7DQo+PiA+PiA+Pg0KPj4gPj4gPj4gKyAgICAgY2xpZW50ID0gYXQyNF90cmFuc2xhdGVf
-b2Zmc2V0KGF0MjQsICZvZmYpOw0KPj4gPj4gPj4gKw0KPj4gPj4gPj4gKyAgICAgcmV0ID0gcG1f
-cnVudGltZV9nZXRfc3luYygmY2xpZW50LT5kZXYpOw0KPj4gPj4gPj4gKyAgICAgaWYgKHJldCA8
-IDApIHsNCj4+ID4+ID4+ICsgICAgICAgICAgICAgcG1fcnVudGltZV9wdXRfbm9pZGxlKCZjbGll
-bnQtPmRldik7DQo+PiA+PiA+PiArICAgICAgICAgICAgIHJldHVybiByZXQ7DQo+PiA+PiA+PiAr
-ICAgICB9DQo+PiA+PiA+PiArDQo+PiA+PiA+PiAgICAgICAvKg0KPj4gPj4gPj4gICAgICAgICog
-UmVhZCBkYXRhIGZyb20gY2hpcCwgcHJvdGVjdGluZyBhZ2FpbnN0IGNvbmN1cnJlbnQgdXBkYXRl
-cw0KPj4gPj4gPj4gICAgICAgICogZnJvbSB0aGlzIGhvc3QsIGJ1dCBub3QgZnJvbSBvdGhlciBJ
-MkMgbWFzdGVycy4NCj4+ID4+ID4+IEBAIC01MTgsNiArNTI5LDcgQEAgc3RhdGljIGludCBhdDI0
-X3JlYWQodm9pZCAqcHJpdiwgdW5zaWduZWQNCj4+ID4+ID4+IGludCBvZmYsIHZvaWQgKnZhbCwg
-c2l6ZV90IGNvdW50KQ0KPj4gPj4gPj4gICAgICAgICAgICAgICBzdGF0dXMgPSBhdDI0LT5yZWFk
-X2Z1bmMoYXQyNCwgYnVmLCBvZmYsIGNvdW50KTsNCj4+ID4+ID4+ICAgICAgICAgICAgICAgaWYg
-KHN0YXR1cyA8IDApIHsNCj4+ID4+ID4+ICAgICAgICAgICAgICAgICAgICAgICBtdXRleF91bmxv
-Y2soJmF0MjQtPmxvY2spOw0KPj4gPj4gPj4gKyAgICAgICAgICAgICAgICAgICAgIHBtX3J1bnRp
-bWVfcHV0KCZjbGllbnQtPmRldik7DQo+PiA+PiA+PiAgICAgICAgICAgICAgICAgICAgICAgcmV0
-dXJuIHN0YXR1czsNCj4+ID4+ID4+ICAgICAgICAgICAgICAgfQ0KPj4gPj4gPj4gICAgICAgICAg
-ICAgICBidWYgKz0gc3RhdHVzOw0KPj4gPj4gPj4gQEAgLTUyNywxNyArNTM5LDI5IEBAIHN0YXRp
-YyBpbnQgYXQyNF9yZWFkKHZvaWQgKnByaXYsIHVuc2lnbmVkDQo+PiA+PiA+PiBpbnQgb2ZmLCB2
-b2lkICp2YWwsIHNpemVfdCBjb3VudCkNCj4+ID4+ID4+DQo+PiA+PiA+PiAgICAgICBtdXRleF91
-bmxvY2soJmF0MjQtPmxvY2spOw0KPj4gPj4gPj4NCj4+ID4+ID4+ICsgICAgIHBtX3J1bnRpbWVf
-cHV0KCZjbGllbnQtPmRldik7DQo+PiA+PiA+PiArDQo+PiA+PiA+PiAgICAgICByZXR1cm4gMDsN
-Cj4+ID4+ID4+ICB9DQo+PiA+PiA+Pg0KPj4gPj4gPj4gIHN0YXRpYyBpbnQgYXQyNF93cml0ZSh2
-b2lkICpwcml2LCB1bnNpZ25lZCBpbnQgb2ZmLCB2b2lkICp2YWwsIHNpemVfdA0KPmNvdW50KSAg
-ew0KPj4gPj4gPj4gICAgICAgc3RydWN0IGF0MjRfZGF0YSAqYXQyNCA9IHByaXY7DQo+PiA+PiA+
-PiArICAgICBzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50Ow0KPj4gPj4gPj4gICAgICAgY2hhciAq
-YnVmID0gdmFsOw0KPj4gPj4gPj4gKyAgICAgaW50IHJldDsNCj4+ID4+ID4+DQo+PiA+PiA+PiAg
-ICAgICBpZiAodW5saWtlbHkoIWNvdW50KSkNCj4+ID4+ID4+ICAgICAgICAgICAgICAgcmV0dXJu
-IC1FSU5WQUw7DQo+PiA+PiA+Pg0KPj4gPj4gPj4gKyAgICAgY2xpZW50ID0gYXQyNF90cmFuc2xh
-dGVfb2Zmc2V0KGF0MjQsICZvZmYpOw0KPj4gPj4gPj4gKw0KPj4gPj4gPj4gKyAgICAgcmV0ID0g
-cG1fcnVudGltZV9nZXRfc3luYygmY2xpZW50LT5kZXYpOw0KPj4gPj4gPj4gKyAgICAgaWYgKHJl
-dCA8IDApIHsNCj4+ID4+ID4+ICsgICAgICAgICAgICAgcG1fcnVudGltZV9wdXRfbm9pZGxlKCZj
-bGllbnQtPmRldik7DQo+PiA+PiA+PiArICAgICAgICAgICAgIHJldHVybiByZXQ7DQo+PiA+PiA+
-PiArICAgICB9DQo+PiA+PiA+PiArDQo+PiA+PiA+PiAgICAgICAvKg0KPj4gPj4gPj4gICAgICAg
-ICogV3JpdGUgZGF0YSB0byBjaGlwLCBwcm90ZWN0aW5nIGFnYWluc3QgY29uY3VycmVudCB1cGRh
-dGVzDQo+PiA+PiA+PiAgICAgICAgKiBmcm9tIHRoaXMgaG9zdCwgYnV0IG5vdCBmcm9tIG90aGVy
-IEkyQyBtYXN0ZXJzLg0KPj4gPj4gPj4gQEAgLTU1MCw2ICs1NzQsNyBAQCBzdGF0aWMgaW50IGF0
-MjRfd3JpdGUodm9pZCAqcHJpdiwgdW5zaWduZWQNCj4+ID4+ID4+IGludCBvZmYsIHZvaWQgKnZh
-bCwgc2l6ZV90IGNvdW50KQ0KPj4gPj4gPj4gICAgICAgICAgICAgICBzdGF0dXMgPSBhdDI0LT53
-cml0ZV9mdW5jKGF0MjQsIGJ1Ziwgb2ZmLCBjb3VudCk7DQo+PiA+PiA+PiAgICAgICAgICAgICAg
-IGlmIChzdGF0dXMgPCAwKSB7DQo+PiA+PiA+PiAgICAgICAgICAgICAgICAgICAgICAgbXV0ZXhf
-dW5sb2NrKCZhdDI0LT5sb2NrKTsNCj4+ID4+ID4+ICsgICAgICAgICAgICAgICAgICAgICBwbV9y
-dW50aW1lX3B1dCgmY2xpZW50LT5kZXYpOw0KPj4gPj4gPj4gICAgICAgICAgICAgICAgICAgICAg
-IHJldHVybiBzdGF0dXM7DQo+PiA+PiA+PiAgICAgICAgICAgICAgIH0NCj4+ID4+ID4+ICAgICAg
-ICAgICAgICAgYnVmICs9IHN0YXR1czsNCj4+ID4+ID4+IEBAIC01NTksNiArNTg0LDggQEAgc3Rh
-dGljIGludCBhdDI0X3dyaXRlKHZvaWQgKnByaXYsIHVuc2lnbmVkDQo+PiA+PiA+PiBpbnQgb2Zm
-LCB2b2lkICp2YWwsIHNpemVfdCBjb3VudCkNCj4+ID4+ID4+DQo+PiA+PiA+PiAgICAgICBtdXRl
-eF91bmxvY2soJmF0MjQtPmxvY2spOw0KPj4gPj4gPj4NCj4+ID4+ID4+ICsgICAgIHBtX3J1bnRp
-bWVfcHV0KCZjbGllbnQtPmRldik7DQo+PiA+PiA+PiArDQo+PiA+PiA+PiAgICAgICByZXR1cm4g
-MDsNCj4+ID4+ID4+ICB9DQo+PiA+PiA+Pg0KPj4gPj4gPj4gQEAgLTc0MywxMSArNzcwLDE3IEBA
-IHN0YXRpYyBpbnQgYXQyNF9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudA0KPj4gPj4gPj4gKmNsaWVu
-dCwgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKmlkKQ0KPj4gPj4gPj4NCj4+ID4+ID4+ICAg
-ICAgIGkyY19zZXRfY2xpZW50ZGF0YShjbGllbnQsIGF0MjQpOw0KPj4gPj4gPj4NCj4+ID4+ID4+
-ICsgICAgIC8qIGVuYWJsZSBydW50aW1lIHBtICovDQo+PiA+PiA+PiArICAgICBwbV9ydW50aW1l
-X2dldF9ub3Jlc3VtZSgmY2xpZW50LT5kZXYpOw0KPj4gPj4gPj4gKyAgICAgcG1fcnVudGltZV9z
-ZXRfYWN0aXZlKCZjbGllbnQtPmRldik7DQo+PiA+PiA+PiArICAgICBwbV9ydW50aW1lX2VuYWJs
-ZSgmY2xpZW50LT5kZXYpOw0KPj4gPj4NCj4+ID4+IERvIHdlIG5lZWQgdGhpcyBnZXRfbm9yZXN1
-bWUvc2V0X2FjdGl2ZSBkYW5jZT8gSSByZW1lbWJlciBpdCB3YXMNCj4+ID4+IGZvciBzb21lIHJl
-YXNvbiBuZWVkZWQgZm9yIFBDSSBkZXZpY2VzLCBidXQgSSBkb24ndCBzZWUgd2h5IGZvciBJMkMN
-Cj4+ID4+IGFueXRoaW5nIGVsc2UgdGhhbiBqdXN0IHBtX3J1bnRpbWVfZW5hYmxlKCkgd291bGQg
-YmUgbmVjZXNzYXJ5Lg0KPj4gPg0KPj4gPiBZb3Ugc3BlY2lmaWNhbGx5IGRvIG5vdCBuZWVkIChh
-bGwpIHRoaXMgZm9yIFBDSSBkZXZpY2VzLCBidXQgQUZBSVUNCj4+ID4gZm9yIEnmto4NCj4+ID4g
-ZGV2aWNlcyB5b3UgZG8uIFRoZSBydW50aW1lIFBNIHN0YXR1cyBvZiBhIGRldmljZSBpcyBkaXNh
-YmxlZCBieQ0KPj4gPiBkZWZhdWx0IGFuZCB0aGUgdXNlIGNvdW50IGlzIHplcm8sIGJ1dCBvbiBB
-Q1BJIGJhc2VkIHN5c3RlbXMgdGhlDQo+PiA+IGRldmljZSBpcyBzdGlsbCBwb3dlcmVkIG9uLg0K
-Pj4NCj4+IE9rYXksIHNvIF9nZXRfbm9yZXN1bWUoKSBhbmQgX3NldF9hY3RpdmUoKSB3b3VsZCBk
-byB0aGUgdGhpbmcgZm9yIEFDUEkNCj4+IGluZGVlZCwgYnV0IG5vdCBzdXJlIGFib3V0IG90aGVy
-IHBsYXRmb3Jtcy4gUGVyaGFwcyBfZW5hYmxlKCksDQo+PiBfZ2V0X3N5bmMoKSB3b3VsZCBiZSBt
-b3JlIGdlbmVyYWw/DQo+DQo+V2hhdCBJIGVuZGVkIHVwIGRvaW5nIGluIGUuZy4gdGhlIHNtaWFw
-cCBkcml2ZXIgd2FzIHRvIGV4cGxpY2l0bHkgcG93ZXIgdGhlDQo+ZGV2aWNlIG9uIGZpcnN0IGFu
-ZCB0aGVuIGVuYWJsZSBydW50aW1lIFBNLiAoU2VlDQo+ZHJpdmVycy9tZWRpYS9pMmMvc21pYXBw
-L3NtaWFwcC1jb3JlLmMgLikgVGhpcyBhcHByb2FjaCB3b3JrcyBldmVuIGlmDQo+Q09ORklHX1BN
-IGlzIGRpc2FibGVkLCBib3RoIG9uIERUIGFuZCBBQ1BJLg0KPg0KPi0tDQo+UmVnYXJkcywNCj4N
-Cj5TYWthcmkgQWlsdXMNCj5lLW1haWw6IHNha2FyaS5haWx1c0Bpa2kuZmkNCg==
+[+Rafael, Ulf]
+
+On Tue, Sep 26, 2017 at 2:29 PM, Mohandass, Divagar
+<divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> Hi Sakari & Tomas,
+>
+> Are you ok with the current revision, let me know if any changes are need=
+ed.
+
+Nope, my concerns have not been addressed, but we need someone from
+the PM world to clarify how we should do this to work on all
+platforms.
+
+Best regards,
+Tomasz
+
+P.S. Please avoid top-posting on mailing lists, it is considered bad manner=
+.
+
+>
+> ---
+> ^Divagar
+>
+>>-----Original Message-----
+>>From: sakari.ailus-X3B1VOXEql0@public.gmane.org [mailto:sakari.ailus-X3B1VOXEql0@public.gmane.org]
+>>Sent: Wednesday, September 20, 2017 3:02 PM
+>>To: Tomasz Figa <tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>>Cc: Mani, Rajmohan <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; Mohandass, Divagar
+>><divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org;
+>>mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+>>linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+>>mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+>>Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
+>>
+>>Hi Tomasz,
+>>
+>>On Wed, Sep 20, 2017 at 05:59:18PM +0900, Tomasz Figa wrote:
+>>> On Wed, Sep 20, 2017 at 5:45 PM, sakari.ailus-X3B1VOXEql0@public.gmane.org
+>>> <sakari.ailus-X3B1VOXEql0@public.gmane.org> wrote:
+>>> > Hi Tomasz,
+>>> >
+>>> > On Wed, Sep 20, 2017 at 12:56:09PM +0900, Tomasz Figa wrote:
+>>> >> Thanks Raj.
+>>> >>
+>>> >> Let me post my comments inline.
+>>> >>
+>>> >> On Wed, Sep 20, 2017 at 12:52 PM, Mani, Rajmohan
+>>> >> <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+>>> >> > Adding Tomasz...
+>>> >> >
+>>> >> >> -----Original Message-----
+>>> >> >> From: Mohandass, Divagar
+>>> >> >> Sent: Monday, September 04, 2017 3:29 AM
+>>> >> >> To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; wsa@the-
+>>dreams.de;
+>>> >> >> sakari.ailus-X3B1VOXEql0@public.gmane.org
+>>> >> >> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+>>> >> >> linux- kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Mani, Rajmohan
+>>> >> >> <rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; Mohandass, Divagar
+>>> >> >> <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>>> >> >> Subject: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
+>>> >> >>
+>>> >> >> Currently the device is kept in D0, there is an opportunity to
+>>> >> >> save power by enabling runtime pm.
+>>> >> >>
+>>> >> >> Device can be daisy chained from PMIC and we can't rely on I2C
+>>> >> >> core for auto resume/suspend. Driver will decide when to
+>>resume/suspend.
+>>> >> >>
+>>> >> >> Signed-off-by: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>>> >> >> ---
+>>> >> >>  drivers/misc/eeprom/at24.c | 38
+>>> >> >> ++++++++++++++++++++++++++++++++++++++
+>>> >> >>  1 file changed, 38 insertions(+)
+>>> >> >>
+>>> >> >> diff --git a/drivers/misc/eeprom/at24.c
+>>> >> >> b/drivers/misc/eeprom/at24.c index 2199c42..d718a7a 100644
+>>> >> >> --- a/drivers/misc/eeprom/at24.c
+>>> >> >> +++ b/drivers/misc/eeprom/at24.c
+>>> >> >> @@ -24,6 +24,7 @@
+>>> >> >>  #include <linux/i2c.h>
+>>> >> >>  #include <linux/nvmem-provider.h>  #include
+>>> >> >> <linux/platform_data/at24.h>
+>>> >> >> +#include <linux/pm_runtime.h>
+>>> >> >>
+>>> >> >>  /*
+>>> >> >>   * I2C EEPROMs from most vendors are inexpensive and mostly
+>>> >> >> interchangeable.
+>>> >> >> @@ -501,11 +502,21 @@ static ssize_t
+>>> >> >> at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
+>>> >> >> static int at24_read(void *priv, unsigned int off, void *val, siz=
+e_t
+>>count)  {
+>>> >> >>       struct at24_data *at24 =3D priv;
+>>> >> >> +     struct i2c_client *client;
+>>> >> >>       char *buf =3D val;
+>>> >> >> +     int ret;
+>>> >> >>
+>>> >> >>       if (unlikely(!count))
+>>> >> >>               return count;
+>>> >> >>
+>>> >> >> +     client =3D at24_translate_offset(at24, &off);
+>>> >> >> +
+>>> >> >> +     ret =3D pm_runtime_get_sync(&client->dev);
+>>> >> >> +     if (ret < 0) {
+>>> >> >> +             pm_runtime_put_noidle(&client->dev);
+>>> >> >> +             return ret;
+>>> >> >> +     }
+>>> >> >> +
+>>> >> >>       /*
+>>> >> >>        * Read data from chip, protecting against concurrent updat=
+es
+>>> >> >>        * from this host, but not from other I2C masters.
+>>> >> >> @@ -518,6 +529,7 @@ static int at24_read(void *priv, unsigned
+>>> >> >> int off, void *val, size_t count)
+>>> >> >>               status =3D at24->read_func(at24, buf, off, count);
+>>> >> >>               if (status < 0) {
+>>> >> >>                       mutex_unlock(&at24->lock);
+>>> >> >> +                     pm_runtime_put(&client->dev);
+>>> >> >>                       return status;
+>>> >> >>               }
+>>> >> >>               buf +=3D status;
+>>> >> >> @@ -527,17 +539,29 @@ static int at24_read(void *priv, unsigned
+>>> >> >> int off, void *val, size_t count)
+>>> >> >>
+>>> >> >>       mutex_unlock(&at24->lock);
+>>> >> >>
+>>> >> >> +     pm_runtime_put(&client->dev);
+>>> >> >> +
+>>> >> >>       return 0;
+>>> >> >>  }
+>>> >> >>
+>>> >> >>  static int at24_write(void *priv, unsigned int off, void *val, s=
+ize_t
+>>count)  {
+>>> >> >>       struct at24_data *at24 =3D priv;
+>>> >> >> +     struct i2c_client *client;
+>>> >> >>       char *buf =3D val;
+>>> >> >> +     int ret;
+>>> >> >>
+>>> >> >>       if (unlikely(!count))
+>>> >> >>               return -EINVAL;
+>>> >> >>
+>>> >> >> +     client =3D at24_translate_offset(at24, &off);
+>>> >> >> +
+>>> >> >> +     ret =3D pm_runtime_get_sync(&client->dev);
+>>> >> >> +     if (ret < 0) {
+>>> >> >> +             pm_runtime_put_noidle(&client->dev);
+>>> >> >> +             return ret;
+>>> >> >> +     }
+>>> >> >> +
+>>> >> >>       /*
+>>> >> >>        * Write data to chip, protecting against concurrent update=
+s
+>>> >> >>        * from this host, but not from other I2C masters.
+>>> >> >> @@ -550,6 +574,7 @@ static int at24_write(void *priv, unsigned
+>>> >> >> int off, void *val, size_t count)
+>>> >> >>               status =3D at24->write_func(at24, buf, off, count);
+>>> >> >>               if (status < 0) {
+>>> >> >>                       mutex_unlock(&at24->lock);
+>>> >> >> +                     pm_runtime_put(&client->dev);
+>>> >> >>                       return status;
+>>> >> >>               }
+>>> >> >>               buf +=3D status;
+>>> >> >> @@ -559,6 +584,8 @@ static int at24_write(void *priv, unsigned
+>>> >> >> int off, void *val, size_t count)
+>>> >> >>
+>>> >> >>       mutex_unlock(&at24->lock);
+>>> >> >>
+>>> >> >> +     pm_runtime_put(&client->dev);
+>>> >> >> +
+>>> >> >>       return 0;
+>>> >> >>  }
+>>> >> >>
+>>> >> >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client
+>>> >> >> *client, const struct i2c_device_id *id)
+>>> >> >>
+>>> >> >>       i2c_set_clientdata(client, at24);
+>>> >> >>
+>>> >> >> +     /* enable runtime pm */
+>>> >> >> +     pm_runtime_get_noresume(&client->dev);
+>>> >> >> +     pm_runtime_set_active(&client->dev);
+>>> >> >> +     pm_runtime_enable(&client->dev);
+>>> >>
+>>> >> Do we need this get_noresume/set_active dance? I remember it was
+>>> >> for some reason needed for PCI devices, but I don't see why for I2C
+>>> >> anything else than just pm_runtime_enable() would be necessary.
+>>> >
+>>> > You specifically do not need (all) this for PCI devices, but AFAIU
+>>> > for I=E6=B6=8E
+>>> > devices you do. The runtime PM status of a device is disabled by
+>>> > default and the use count is zero, but on ACPI based systems the
+>>> > device is still powered on.
+>>>
+>>> Okay, so _get_noresume() and _set_active() would do the thing for ACPI
+>>> indeed, but not sure about other platforms. Perhaps _enable(),
+>>> _get_sync() would be more general?
+>>
+>>What I ended up doing in e.g. the smiapp driver was to explicitly power t=
+he
+>>device on first and then enable runtime PM. (See
+>>drivers/media/i2c/smiapp/smiapp-core.c .) This approach works even if
+>>CONFIG_PM is disabled, both on DT and ACPI.
+>>
+>>--
+>>Regards,
+>>
+>>Sakari Ailus
+>>e-mail: sakari.ailus-X3B1VOXEql0@public.gmane.org
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
