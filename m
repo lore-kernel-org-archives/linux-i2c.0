@@ -1,103 +1,127 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: possible clarifications/suggestions for I2C man pages
-Date: Tue, 26 Sep 2017 09:55:38 +0200
-Message-ID: <20170926095538.4bc34e02@endymion>
-References: <20170811064111.Horde._C0AZIBvbLnSuYjG4OMcyvG@crashcourse.ca>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
+Date: Tue, 26 Sep 2017 13:55:40 +0200
+Message-ID: <87lgl1ishv.fsf@free-electrons.com>
+References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>
+        <87377fmbpw.fsf@free-electrons.com>
+        <1506289460890.34765@alliedtelesis.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37829 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S965643AbdIZHzl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 26 Sep 2017 03:55:41 -0400
-In-Reply-To: <20170811064111.Horde._C0AZIBvbLnSuYjG4OMcyvG@crashcourse.ca>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1506289460890.34765-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> (Kalyan Kinthada's
+        message of "Sun, 24 Sep 2017 21:44:21 +0000")
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kalyan Kinthada <Kalyan.Kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Cc: "devicetree@vger.kernel.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa@the-dreams.de" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "robh+dt@kernel.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "pawel.moll@arm.com" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland@arm.com" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak@codeaurora.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-i2c@vger.kernel.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel@vger.kernel.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Chris Packham <Chris.Packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: rpjday@crashcourse.ca
-Cc: linux-i2c@vger.kernel.org
 
-On Fri, 11 Aug 2017 06:41:11 -0400, rpjday@crashcourse.ca wrote:
->    trying to sneak stuff in before the 4.0 release so, from the perspective
-> of someone who only recently dug into this stuff in any detail, some
-> things that might help the man pages.
-> 
->    first, some examples of each command would be spectacularly helpful,
-> rather than just relying on the synopsis. specifically, it would be useful
-> to see an example of each variant of a command, including the differences
-> when doing byte vs. word reads and writes. i realize the experts know
-> this stuff by heart, but examples are never a bad thing.
+Hi Kalyan,
 
-Good point, noted.
+Please try avoid top-posting.
 
->    also, i was just handed the following script loop for hex dumping an
-> EEPROM:
-> 
->      i2cset -f -y 0 0x50 0x00 0x00
->      for (( n=1; n < 8200; n++ )); do
->          hex=$(i2cget -f -y 0 0x50)
->          echo -en "\\${hex#0}"
->      done | hexdump -C
-> 
-> which inspires a couple questions.
+ On dim., sept. 24 2017, Kalyan Kinthada <Kalyan.Kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
 
-The first thing this inspires me is that you really should be using the
-at24 kernel driver instead of reading byte by byte from user-space. It
-would be a lot faster, and safer too.
+> Hi Gregory,
+>
+> I got this information from Armada-38x functional errata document.
 
->    first, i was not aware that simply calling "i2cget" over and over would
-> iterate through the registers; that's not mentioned in the i2cget man
-> page. the i2cget man page simply says,
-> 
-> "data-address specifies the address on that chip to read from, and is
-> an integer between 0x00 and 0xFF. If omitted, the currently active
-> register will be read (if that makes sense for the considered chip)."
-> 
-> is that normal behaviour for i2cget, or does it depend on the device?
-> or is this a dumb question?
+OK but in any case just adding a new compatible was not enough you have
+to update the driver in the same time, however for this case we won't
+need it, see below.
 
-It depends on the device. Many I2C devices have an internal register
-storing the currently active address, and a short read (no address
-provided) will read from it. On top of that, some I2C devices, most
-notably EEPROMs, have an auto-increment feature which causes this
-internal register to self-increment when read. This allows using short
-reads to read the whole EEPROM byte by byte. Which is highly
-inefficient, but sometimes the only way if the master has limited
-capabilities.
+>
+> I can add the "marvell,mv78230-i2c" compatible string to the appropriate  device tree files 
+> but the i2c-mv64xxx driver enables an additional  feature (offload i2c transactions)
+> based on the compatible string "marvell,mv78230-i2c".
+>
+> I am not sure if this feature (offload i2c transactions) should be enabled for Armada-38x devices.
+> That is the reason I felt for the need of a new compatible string
+> specifically for Armada-38x SoCs.
 
-This is documented in the i2cdump(8) man page, but not the i2cget(8)
-man page. I agree it could be mentioned there as well.
+Indeed the Armada-38x SoCs does not support hardware offloading (at
+least according the datasheet). But it happens that in the earlier
+version of the Armada XP the hardware offloading was buggy, so we
+introduced a compatible for this case: marvell,mv78230-a0-i2c. This
+compatible enable the errata fix but not the offloading feature. That
+means that it is exactly the compatible you need for Armada 38x (and
+Armada 39x and 375 I think).
 
->    also, while i2cget can be handed an 8-bit address to read, as i read
-> here,
-> 
-> https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=17590
-> 
-> if you want to read from a 16-bit address, you must (as above) first
-> use i2cset to specify that 16-bit address. the i2cget man page doesn't
-> seem to say anything about that, and that's a pretty useful thing to
-> know.
+Gregory
 
-The core problem here is that there are no semantics attached to I2C
-transactions. Only bytes flying in either direction. The i2c-tools
-were primarily written with SMBus in mind, which is a subset of I2C
-with semantics attached. 16-bit addressed EEPROMs are not
-SMBus-compliant, which is why the semantics described in the manual
-pages do not match. Specifically:
-
-i2cset -f -y 0 0x50 0x00 0x00
-                    ^^^^ ^^^^
-
-These two bytes are "data-address" and "value" according to our
-documentation, which follows the SMBus conventions, but when using that
-on an 16-bit addressed EEPROM, they actually constitute a single 16-bit
-value, which is written to the internal address pointer register of the
-EEPROM.
-
-Short of making the manual pages very vague to avoid making any
-assumption about the semantics, it's simply impossible to cover all
-possibilities.
+>
+> Thanks,
+> Kalyan
+> ________________________________________
+> From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Sent: Friday, 22 September 2017 7:30 p.m.
+> To: Kalyan Kinthada
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org;
+> pawel.moll-5wv7dgnIgG8@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org;
+> ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org; galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org;
+> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Chris Packham
+> Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
+>
+> Hi Kalyan,
+>
+>  On ven., sept. 22 2017, Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
+>
+>> All armada-38x variants(380, 385, 388) SoCs have an issue
+>> in i2c controller which violates the i2c repeated start timing.
+>
+>
+> Did you had an issue with one of the SoC ?
+> If yes what was your setting ?
+> On my side I never managed to have this sort of issue on Armada 38x.
+>
+>>
+>> This errata is fixed in the i2c-mv64xxx driver but enabled
+>> only for devices with compatible string "marvell,mv78230-i2c".
+>
+> In this case why not just adding the "marvell,mv78230-i2c" as compatible
+> string in the appropriate device tree files ?
+>
+> Gregory
+>
+>>
+>> This patch introduces a new compatible string
+>> "marvell,armada-38x-i2c" for the i2c controller on armada-38x SoCs
+>> so that the workaound is enabled.
+>
+>
+>>
+>> Signed-off-by: Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+>> ---
+>>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+>> index 5c30026921..fc100b6bdb 100644
+>> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+>> @@ -14,6 +14,7 @@ Required properties :
+>>                           very rare, initial version of the SoC which
+>>                           had broken offload support.  Linux
+>>                           auto-detects this and sets it appropriately.
+>> +                     - "marvell,armada-38x-i2c"
+>>   - interrupts      : The interrupt number
+>>
+>>  Optional properties :
+>> --
+>> 2.14.1
+>>
+>
+> --
+> Gregory Clement, Free Electrons
+> Kernel, drivers, real-time and embedded Linux
+> development, consulting, training and support.
+> http://free-electrons.com
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
