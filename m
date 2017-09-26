@@ -1,31 +1,67 @@
-From: Daniel Versick <danls@versick.de>
-Subject: i2c-ismt timeout
-Date: Tue, 26 Sep 2017 09:50:40 +1000
-Message-ID: <0564ED57-D2B8-4192-8747-283F8DCCDEC5@versick.de>
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
+Subject: RE: [PATCH v6 2/3] eeprom: at24: add support to fetch eeprom device
+ property "size"
+Date: Tue, 26 Sep 2017 05:29:06 +0000
+Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DF0721@BGSMSX107.gar.corp.intel.com>
+References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
+ <1504520928-5191-3-git-send-email-divagar.mohandass@intel.com>
+ <6F87890CF0F5204F892DEA1EF0D77A5972FC126B@FMSMSX114.amr.corp.intel.com>
+ <CAHp75Ve_1oRe6w_yyQW_76NHf-boF+VqYNenTKit0PJPFj+N7A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from versick.de ([54.229.28.156]:36159 "EHLO www.versick.de"
+Received: from mga02.intel.com ([134.134.136.20]:4349 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S965022AbdIZAAj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 25 Sep 2017 20:00:39 -0400
+        id S934482AbdIZF3U (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 26 Sep 2017 01:29:20 -0400
+In-Reply-To: <CAHp75Ve_1oRe6w_yyQW_76NHf-boF+VqYNenTKit0PJPFj+N7A@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, "Mani, Rajmohan" <rajmohan.mani@intel.com>
+Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "tfiga@chromium.org" <tfiga@chromium.org>
 
-Hi,
-
-I am trying to resolve the known issue of ‘completion timed out’ in the i2c-ismt driver which has been reported a couple of times. I’ve seen few requests referring to it but no working solution yet.
-
-I can reliably reproduce that problem on an Intel Atom C2xxx-based device and I found out that the driver does not receive interrupts anymore after getting into the timeout state. Even changing the driver to a polling version shows the same behaviour. It just does not receive a status bit change after transaction. So there is no problem with the MSI interrupt system which has been my first guess.
-
-When being in the timeout state, the SMbus controller seems to be in such a bad condition that I cannot revive it at all. I tried different resets (such as ISMT_GCTRL_SRST and reseting the driver data structures). Only rebooting the device resolves the problem until next occurrence. A scope shows that data and clock lines are high.
-
-I found a patch on the Internet which slows down the I2C communication by adding a delay to ismt_access. This patch probably refers to a known errata of the Atom S1200 and might work there but is no solution for the problem I am currently facing.
-
-Are there any ideas or further information which might help? I tend to believe that this might be a silicon issue. Is there anything known?
-
-Thanks and regards,
-Daniel
+SGkgQW5keSwNCg0KU29ycnkgbWlzc2VkIHRoZSAnU3VnZ2VzdGVkLWJ5JyB0YWcuIENhbiBJIHJl
+c2VuZCB0aGUgdjYgd2l0aCB0aGlzIGNoYW5nZSwgc28gdGhhdCBXb2xmcmFtIGNhbiBwaWNrIHRo
+ZXNlIHBhdGNoZXMgPw0KDQotLS0NCl5EaXZhZ2FyDQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
+LS0tLQ0KPkZyb206IEFuZHkgU2hldmNoZW5rbyBbbWFpbHRvOmFuZHkuc2hldmNoZW5rb0BnbWFp
+bC5jb21dDQo+U2VudDogRnJpZGF5LCBTZXB0ZW1iZXIgMjIsIDIwMTcgOTo0MiBQTQ0KPlRvOiBN
+YW5pLCBSYWptb2hhbiA8cmFqbW9oYW4ubWFuaUBpbnRlbC5jb20+DQo+Q2M6IE1vaGFuZGFzcywg
+RGl2YWdhciA8ZGl2YWdhci5tb2hhbmRhc3NAaW50ZWwuY29tPjsNCj5yb2JoK2R0QGtlcm5lbC5v
+cmc7IG1hcmsucnV0bGFuZEBhcm0uY29tOyB3c2FAdGhlLWRyZWFtcy5kZTsNCj5zYWthcmkuYWls
+dXNAaWtpLmZpOyBkZXZpY2V0cmVlQHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZnZXIua2Vy
+bmVsLm9yZzsNCj5saW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyB0ZmlnYUBjaHJvbWl1bS5v
+cmcNCj5TdWJqZWN0OiBSZTogW1BBVENIIHY2IDIvM10gZWVwcm9tOiBhdDI0OiBhZGQgc3VwcG9y
+dCB0byBmZXRjaCBlZXByb20NCj5kZXZpY2UgcHJvcGVydHkgInNpemUiDQo+DQo+T24gV2VkLCBT
+ZXAgMjAsIDIwMTcgYXQgNjo1MiBBTSwgTWFuaSwgUmFqbW9oYW4NCj48cmFqbW9oYW4ubWFuaUBp
+bnRlbC5jb20+IHdyb3RlOg0KPj4gQWRkaW5nIFRvbWFzei4uLg0KPg0KPlBsZWFzZSwgZG9uJ3Qg
+dG9wIHBvc3QuDQo+QmV0dGVyIHRvIHJlc2VuZCBlbnRpcmUgc2VyaWVzIHdpdGggYWxsIHN0YWtl
+aG9sZGVycyBpbmNsdWRlZC4NCj4NCj4+PiBPYnRhaW4gdGhlIHNpemUgb2YgdGhlIEVFUFJPTSBj
+aGlwIGZyb20gRFQgaWYgdGhlICJzaXplIiBwcm9wZXJ0eSBpcw0KPj4+IHNwZWNpZmllZCBmb3Ig
+dGhlIGRldmljZS4NCj4+Pg0KPg0KPkkgZ3Vlc3MgaXQgbGFja3MNCj5TdWdnZXN0ZWQtYnk6IEFu
+ZHkgU2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29tPg0KPg0KPk90
+aGVyIHRoYW4gdGhhdCwgbG9va3MgZ29vZCB0byBtZSENCj4NCj5SZXZpZXdlZC1ieTogQW5keSBT
+aGV2Y2hlbmtvIDxhbmR5LnNoZXZjaGVua29AZ21haWwuY29tPg0KPg0KPg0KPldvbGZyYW0sIHRo
+ZSBiaW5kaW5nIGlzIEFDS2VkIGJ5IFJvYiBhbmQgdGhpcyBvbmUgaXMgaW4gYSBnb29kIHNoYXBl
+Lg0KPk1vcmVvdmVyLCBpdCBzZWVtcyBsaWtlIGEgZGVtYW5kIGZvciB0aGUgcHJvcGVydHkgc2lu
+Y2Ugc29tZSBJb1Qgc3R1ZmYNCj53b3VsZCBsaWtlIHRvIHVzZSB0aGUgZHJpdmVyIG9uIEFDUEkg
+ZW5hYmxlZCBwbGF0Zm9ybXMgd2l0aCBkaWZmZXJlbnQgc2l6ZXMuDQo+DQo+Q2FuIHlvdSBnbyBh
+aGVhZCBhbmQgYXBwbHkgZmlyc3QgdHdvIHBhdGNoZXM/IEl0IHdvdWxkIGJlIHJlYWxseSBhcHBy
+ZWNpYXRlZC4NCj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBEaXZhZ2FyIE1vaGFuZGFzcyA8ZGl2YWdh
+ci5tb2hhbmRhc3NAaW50ZWwuY29tPg0KPj4+IC0tLQ0KPj4+ICBkcml2ZXJzL21pc2MvZWVwcm9t
+L2F0MjQuYyB8IDQgKysrKw0KPj4+ICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspDQo+
+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9taXNjL2VlcHJvbS9hdDI0LmMgYi9kcml2ZXJz
+L21pc2MvZWVwcm9tL2F0MjQuYw0KPj4+IGluZGV4DQo+Pj4gNzY0ZmY1ZGYuLjIxOTljNDIgMTAw
+NjQ0DQo+Pj4gLS0tIGEvZHJpdmVycy9taXNjL2VlcHJvbS9hdDI0LmMNCj4+PiArKysgYi9kcml2
+ZXJzL21pc2MvZWVwcm9tL2F0MjQuYw0KPj4+IEBAIC01NzAsNiArNTcwLDEwIEBAIHN0YXRpYyB2
+b2lkIGF0MjRfZ2V0X3BkYXRhKHN0cnVjdCBkZXZpY2UgKmRldiwNCj4+PiBzdHJ1Y3QgYXQyNF9w
+bGF0Zm9ybV9kYXRhICpjaGlwKQ0KPj4+ICAgICAgIGlmIChkZXZpY2VfcHJvcGVydHlfcHJlc2Vu
+dChkZXYsICJyZWFkLW9ubHkiKSkNCj4+PiAgICAgICAgICAgICAgIGNoaXAtPmZsYWdzIHw9IEFU
+MjRfRkxBR19SRUFET05MWTsNCj4+Pg0KPj4+ICsgICAgIGVyciA9IGRldmljZV9wcm9wZXJ0eV9y
+ZWFkX3UzMihkZXYsICJzaXplIiwgJnZhbCk7DQo+Pj4gKyAgICAgaWYgKCFlcnIpDQo+Pj4gKyAg
+ICAgICAgICAgICBjaGlwLT5ieXRlX2xlbiA9IHZhbDsNCj4+PiArDQo+Pj4gICAgICAgZXJyID0g
+ZGV2aWNlX3Byb3BlcnR5X3JlYWRfdTMyKGRldiwgInBhZ2VzaXplIiwgJnZhbCk7DQo+Pj4gICAg
+ICAgaWYgKCFlcnIpIHsNCj4+PiAgICAgICAgICAgICAgIGNoaXAtPnBhZ2Vfc2l6ZSA9IHZhbDsN
+Cj4+PiAtLQ0KPj4+IDEuOS4xDQo+Pg0KPg0KPg0KPg0KPi0tDQo+V2l0aCBCZXN0IFJlZ2FyZHMs
+DQo+QW5keSBTaGV2Y2hlbmtvDQo=
