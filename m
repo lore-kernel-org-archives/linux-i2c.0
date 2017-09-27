@@ -1,95 +1,152 @@
-From: Kalyan Kinthada <Kalyan.Kinthada@alliedtelesis.co.nz>
+From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
 Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
-Date: Tue, 26 Sep 2017 23:10:32 +0000
-Message-ID: <b3468215-5fdb-9896-c03f-1a610adca273@alliedtelesis.co.nz>
+Date: Wed, 27 Sep 2017 01:15:12 +0000
+Message-ID: <5376f24bf4c540088ce6432097b5cb51@svr-chch-ex1.atlnz.lc>
 References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>
  <87377fmbpw.fsf@free-electrons.com> <1506289460890.34765@alliedtelesis.co.nz>
  <87lgl1ishv.fsf@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:49417 "EHLO
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:49854 "EHLO
         gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S937393AbdIZXKg (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Sep 2017 19:10:36 -0400
-In-Reply-To: <87lgl1ishv.fsf@free-electrons.com>
+        with ESMTP id S967953AbdI0BPP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Sep 2017 21:15:15 -0400
 Content-Language: en-US
-Content-ID: <4882B9BC784E6E428382950FF3FFD48B@atlnz.lc>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>, Kalyan Kinthada <Kalyan.Kinthada@alliedtelesis.co.nz>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "pawel.moll@arm.com" <pawel.moll@arm.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "ijc+devicetree@hellion.org.uk" <ijc+devicetree@hellion.org.uk>, "galak@codeaurora.org" <galak@codeaurora.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-T24gMjcvMDkvMTcgMDA6NTUsIEdyZWdvcnkgQ0xFTUVOVCB3cm90ZToNCj4gSGkgS2FseWFuLA0K
-Pg0KPiBQbGVhc2UgdHJ5IGF2b2lkIHRvcC1wb3N0aW5nLg0KSSBhbSBzb3JyeS4gRml4ZWQgaXQg
-bm93Lg0KPg0KPiAgIE9uIGRpbS4sIHNlcHQuIDI0IDIwMTcsIEthbHlhbiBLaW50aGFkYSA8S2Fs
-eWFuLktpbnRoYWRhQGFsbGllZHRlbGVzaXMuY28ubno+IHdyb3RlOg0KPg0KPj4gSGkgR3JlZ29y
-eSwNCj4+DQo+PiBJIGdvdCB0aGlzIGluZm9ybWF0aW9uIGZyb20gQXJtYWRhLTM4eCBmdW5jdGlv
-bmFsIGVycmF0YSBkb2N1bWVudC4NCj4gT0sgYnV0IGluIGFueSBjYXNlIGp1c3QgYWRkaW5nIGEg
-bmV3IGNvbXBhdGlibGUgd2FzIG5vdCBlbm91Z2ggeW91IGhhdmUNCj4gdG8gdXBkYXRlIHRoZSBk
-cml2ZXIgaW4gdGhlIHNhbWUgdGltZSwgaG93ZXZlciBmb3IgdGhpcyBjYXNlIHdlIHdvbid0DQo+
-IG5lZWQgaXQsIHNlZSBiZWxvdy4NCj4NCj4+IEkgY2FuIGFkZCB0aGUgIm1hcnZlbGwsbXY3ODIz
-MC1pMmMiIGNvbXBhdGlibGUgc3RyaW5nIHRvIHRoZSBhcHByb3ByaWF0ZSAgZGV2aWNlIHRyZWUg
-ZmlsZXMNCj4+IGJ1dCB0aGUgaTJjLW12NjR4eHggZHJpdmVyIGVuYWJsZXMgYW4gYWRkaXRpb25h
-bCAgZmVhdHVyZSAob2ZmbG9hZCBpMmMgdHJhbnNhY3Rpb25zKQ0KPj4gYmFzZWQgb24gdGhlIGNv
-bXBhdGlibGUgc3RyaW5nICJtYXJ2ZWxsLG12NzgyMzAtaTJjIi4NCj4+DQo+PiBJIGFtIG5vdCBz
-dXJlIGlmIHRoaXMgZmVhdHVyZSAob2ZmbG9hZCBpMmMgdHJhbnNhY3Rpb25zKSBzaG91bGQgYmUg
-ZW5hYmxlZCBmb3IgQXJtYWRhLTM4eCBkZXZpY2VzLg0KPj4gVGhhdCBpcyB0aGUgcmVhc29uIEkg
-ZmVsdCBmb3IgdGhlIG5lZWQgb2YgYSBuZXcgY29tcGF0aWJsZSBzdHJpbmcNCj4+IHNwZWNpZmlj
-YWxseSBmb3IgQXJtYWRhLTM4eCBTb0NzLg0KPiBJbmRlZWQgdGhlIEFybWFkYS0zOHggU29DcyBk
-b2VzIG5vdCBzdXBwb3J0IGhhcmR3YXJlIG9mZmxvYWRpbmcgKGF0DQo+IGxlYXN0IGFjY29yZGlu
-ZyB0aGUgZGF0YXNoZWV0KS4gQnV0IGl0IGhhcHBlbnMgdGhhdCBpbiB0aGUgZWFybGllcg0KPiB2
-ZXJzaW9uIG9mIHRoZSBBcm1hZGEgWFAgdGhlIGhhcmR3YXJlIG9mZmxvYWRpbmcgd2FzIGJ1Z2d5
-LCBzbyB3ZQ0KPiBpbnRyb2R1Y2VkIGEgY29tcGF0aWJsZSBmb3IgdGhpcyBjYXNlOiBtYXJ2ZWxs
-LG12NzgyMzAtYTAtaTJjLiBUaGlzDQo+IGNvbXBhdGlibGUgZW5hYmxlIHRoZSBlcnJhdGEgZml4
-IGJ1dCBub3QgdGhlIG9mZmxvYWRpbmcgZmVhdHVyZS4gVGhhdA0KPiBtZWFucyB0aGF0IGl0IGlz
-IGV4YWN0bHkgdGhlIGNvbXBhdGlibGUgeW91IG5lZWQgZm9yIEFybWFkYSAzOHggKGFuZA0KPiBB
-cm1hZGEgMzl4IGFuZCAzNzUgSSB0aGluaykuDQoNCiAgIE9rLiBJIHdpbGwgYWRkICJtYXJ2ZWxs
-LG12NzgyMzAtYTAtaTJjIiB0byB0aGUgQXJtYWRhLTM4eA0KICAgZGV2aWNlIHRyZWUgZmlsZS4g
-SSB3aWxsIHNlbmQgYSBuZXcgcGF0Y2ggd2l0aCB0aGVzZSBjaGFuZ2VzLg0KDQpUaGFua3MgZm9y
-IHlvdXIgdGltZS4NCg0KUmVnYXJkcywNCkthbHlhbg0KPg0KPiBHcmVnb3J5DQo+DQo+PiBUaGFu
-a3MsDQo+PiBLYWx5YW4NCj4+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18NCj4+IEZyb206IEdyZWdvcnkgQ0xFTUVOVCA8Z3JlZ29yeS5jbGVtZW50QGZyZWUtZWxlY3Ry
-b25zLmNvbT4NCj4+IFNlbnQ6IEZyaWRheSwgMjIgU2VwdGVtYmVyIDIwMTcgNzozMCBwLm0uDQo+
-PiBUbzogS2FseWFuIEtpbnRoYWRhDQo+PiBDYzogZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7
-IHdzYUB0aGUtZHJlYW1zLmRlOyByb2JoK2R0QGtlcm5lbC5vcmc7DQo+PiBwYXdlbC5tb2xsQGFy
-bS5jb207IG1hcmsucnV0bGFuZEBhcm0uY29tOw0KPj4gaWpjK2RldmljZXRyZWVAaGVsbGlvbi5v
-cmcudWs7IGdhbGFrQGNvZGVhdXJvcmEub3JnOw0KPj4gbGludXgtaTJjQHZnZXIua2VybmVsLm9y
-ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgQ2hyaXMgUGFja2hhbQ0KPj4gU3ViamVj
-dDogUmU6IFtQQVRDSF0gZHQtYmluZGluZ3M6IGkyYzogQWRkIGFybWFkYS0zOHggaTJjIGJpbmRp
-bmcNCj4+DQo+PiBIaSBLYWx5YW4sDQo+Pg0KPj4gICBPbiB2ZW4uLCBzZXB0LiAyMiAyMDE3LCBL
-YWx5YW4gS2ludGhhZGEgPGthbHlhbi5raW50aGFkYUBhbGxpZWR0ZWxlc2lzLmNvLm56PiB3cm90
-ZToNCj4+DQo+Pj4gQWxsIGFybWFkYS0zOHggdmFyaWFudHMoMzgwLCAzODUsIDM4OCkgU29DcyBo
-YXZlIGFuIGlzc3VlDQo+Pj4gaW4gaTJjIGNvbnRyb2xsZXIgd2hpY2ggdmlvbGF0ZXMgdGhlIGky
-YyByZXBlYXRlZCBzdGFydCB0aW1pbmcuDQo+Pg0KPj4gRGlkIHlvdSBoYWQgYW4gaXNzdWUgd2l0
-aCBvbmUgb2YgdGhlIFNvQyA/DQo+PiBJZiB5ZXMgd2hhdCB3YXMgeW91ciBzZXR0aW5nID8NCj4+
-IE9uIG15IHNpZGUgSSBuZXZlciBtYW5hZ2VkIHRvIGhhdmUgdGhpcyBzb3J0IG9mIGlzc3VlIG9u
-IEFybWFkYSAzOHguDQo+Pg0KPj4+IFRoaXMgZXJyYXRhIGlzIGZpeGVkIGluIHRoZSBpMmMtbXY2
-NHh4eCBkcml2ZXIgYnV0IGVuYWJsZWQNCj4+PiBvbmx5IGZvciBkZXZpY2VzIHdpdGggY29tcGF0
-aWJsZSBzdHJpbmcgIm1hcnZlbGwsbXY3ODIzMC1pMmMiLg0KPj4gSW4gdGhpcyBjYXNlIHdoeSBu
-b3QganVzdCBhZGRpbmcgdGhlICJtYXJ2ZWxsLG12NzgyMzAtaTJjIiBhcyBjb21wYXRpYmxlDQo+
-PiBzdHJpbmcgaW4gdGhlIGFwcHJvcHJpYXRlIGRldmljZSB0cmVlIGZpbGVzID8NCj4+DQo+PiBH
-cmVnb3J5DQo+Pg0KPj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhIG5ldyBjb21wYXRpYmxlIHN0
-cmluZw0KPj4+ICJtYXJ2ZWxsLGFybWFkYS0zOHgtaTJjIiBmb3IgdGhlIGkyYyBjb250cm9sbGVy
-IG9uIGFybWFkYS0zOHggU29Dcw0KPj4+IHNvIHRoYXQgdGhlIHdvcmthb3VuZCBpcyBlbmFibGVk
-Lg0KPj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBLYWx5YW4gS2ludGhhZGEgPGthbHlhbi5raW50aGFk
-YUBhbGxpZWR0ZWxlc2lzLmNvLm56Pg0KPj4+IC0tLQ0KPj4+ICAgRG9jdW1lbnRhdGlvbi9kZXZp
-Y2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQgfCAxICsNCj4+PiAgIDEgZmlsZSBj
-aGFuZ2VkLCAxIGluc2VydGlvbigrKQ0KPj4+DQo+Pj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRp
-b24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW12NjR4eHgudHh0IGIvRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQNCj4+PiBpbmRleCA1YzMw
-MDI2OTIxLi5mYzEwMGI2YmRiIDEwMDY0NA0KPj4+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNl
-dHJlZS9iaW5kaW5ncy9pMmMvaTJjLW12NjR4eHgudHh0DQo+Pj4gKysrIGIvRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXY2NHh4eC50eHQNCj4+PiBAQCAtMTQsNiAr
-MTQsNyBAQCBSZXF1aXJlZCBwcm9wZXJ0aWVzIDoNCj4+PiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB2ZXJ5IHJhcmUsIGluaXRpYWwgdmVyc2lvbiBvZiB0aGUgU29DIHdoaWNoDQo+Pj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgaGFkIGJyb2tlbiBvZmZsb2FkIHN1cHBvcnQuICBMaW51
-eA0KPj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGF1dG8tZGV0ZWN0cyB0aGlzIGFuZCBz
-ZXRzIGl0IGFwcHJvcHJpYXRlbHkuDQo+Pj4gKyAgICAgICAgICAgICAgICAgICAgIC0gIm1hcnZl
-bGwsYXJtYWRhLTM4eC1pMmMiDQo+Pj4gICAgLSBpbnRlcnJ1cHRzICAgICAgOiBUaGUgaW50ZXJy
-dXB0IG51bWJlcg0KPj4+DQo+Pj4gICBPcHRpb25hbCBwcm9wZXJ0aWVzIDoNCj4+PiAtLQ0KPj4+
-IDIuMTQuMQ0KPj4+DQo+PiAtLQ0KPj4gR3JlZ29yeSBDbGVtZW50LCBGcmVlIEVsZWN0cm9ucw0K
-Pj4gS2VybmVsLCBkcml2ZXJzLCByZWFsLXRpbWUgYW5kIGVtYmVkZGVkIExpbnV4DQo+PiBkZXZl
-bG9wbWVudCwgY29uc3VsdGluZywgdHJhaW5pbmcgYW5kIHN1cHBvcnQuDQo+PiBodHRwOi8vZnJl
-ZS1lbGVjdHJvbnMuY29tDQoNCg==
+Hi Gregory,=0A=
+=0A=
+On 27/09/17 00:56, Gregory CLEMENT wrote:=0A=
+> Hi Kalyan,=0A=
+> =0A=
+> Please try avoid top-posting.=0A=
+> =0A=
+>   On dim., sept. 24 2017, Kalyan Kinthada <Kalyan.Kinthada@alliedtelesis.=
+co.nz> wrote:=0A=
+> =0A=
+>> Hi Gregory,=0A=
+>>=0A=
+>> I got this information from Armada-38x functional errata document.=0A=
+> =0A=
+> OK but in any case just adding a new compatible was not enough you have=
+=0A=
+> to update the driver in the same time, however for this case we won't=0A=
+> need it, see below.=0A=
+> =0A=
+>>=0A=
+>> I can add the "marvell,mv78230-i2c" compatible string to the appropriate=
+  device tree files=0A=
+>> but the i2c-mv64xxx driver enables an additional  feature (offload i2c t=
+ransactions)=0A=
+>> based on the compatible string "marvell,mv78230-i2c".=0A=
+>>=0A=
+>> I am not sure if this feature (offload i2c transactions) should be enabl=
+ed for Armada-38x devices.=0A=
+>> That is the reason I felt for the need of a new compatible string=0A=
+>> specifically for Armada-38x SoCs.=0A=
+> =0A=
+> Indeed the Armada-38x SoCs does not support hardware offloading (at=0A=
+> least according the datasheet). But it happens that in the earlier=0A=
+> version of the Armada XP the hardware offloading was buggy, so we=0A=
+> introduced a compatible for this case: marvell,mv78230-a0-i2c. This=0A=
+> compatible enable the errata fix but not the offloading feature. That=0A=
+> means that it is exactly the compatible you need for Armada 38x (and=0A=
+> Armada 39x and 375 I think).=0A=
+=0A=
+The "mv78230-a0-i2c" dt-binding has the following note=0A=
+=0A=
+   Note: Only use "marvell,mv78230-a0-i2c" for a=0A=
+   very rare, initial version of the SoC which=0A=
+   had broken offload support.  Linux=0A=
+   auto-detects this and sets it appropriately.=0A=
+=0A=
+If we are going to re-use this binding for armada-38x we should probably =
+=0A=
+remove this note. Personally my preference would be an armada-38x =0A=
+compatible string (or 370 if that's the common base of these SoCs). But =0A=
+of course we'll go with whatever your preference is as maintainer.=0A=
+=0A=
+> =0A=
+> Gregory=0A=
+> =0A=
+>>=0A=
+>> Thanks,=0A=
+>> Kalyan=0A=
+>> ________________________________________=0A=
+>> From: Gregory CLEMENT <gregory.clement@free-electrons.com>=0A=
+>> Sent: Friday, 22 September 2017 7:30 p.m.=0A=
+>> To: Kalyan Kinthada=0A=
+>> Cc: devicetree@vger.kernel.org; wsa@the-dreams.de; robh+dt@kernel.org;=
+=0A=
+>> pawel.moll@arm.com; mark.rutland@arm.com;=0A=
+>> ijc+devicetree@hellion.org.uk; galak@codeaurora.org;=0A=
+>> linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org; Chris Packham=
+=0A=
+>> Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding=0A=
+>>=0A=
+>> Hi Kalyan,=0A=
+>>=0A=
+>>   On ven., sept. 22 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis=
+.co.nz> wrote:=0A=
+>>=0A=
+>>> All armada-38x variants(380, 385, 388) SoCs have an issue=0A=
+>>> in i2c controller which violates the i2c repeated start timing.=0A=
+>>=0A=
+>>=0A=
+>> Did you had an issue with one of the SoC ?=0A=
+>> If yes what was your setting ?=0A=
+>> On my side I never managed to have this sort of issue on Armada 38x.=0A=
+>>=0A=
+>>>=0A=
+>>> This errata is fixed in the i2c-mv64xxx driver but enabled=0A=
+>>> only for devices with compatible string "marvell,mv78230-i2c".=0A=
+>>=0A=
+>> In this case why not just adding the "marvell,mv78230-i2c" as compatible=
+=0A=
+>> string in the appropriate device tree files ?=0A=
+>>=0A=
+>> Gregory=0A=
+>>=0A=
+>>>=0A=
+>>> This patch introduces a new compatible string=0A=
+>>> "marvell,armada-38x-i2c" for the i2c controller on armada-38x SoCs=0A=
+>>> so that the workaound is enabled.=0A=
+>>=0A=
+>>=0A=
+>>>=0A=
+>>> Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>=0A=
+>>> ---=0A=
+>>>   Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +=0A=
+>>>   1 file changed, 1 insertion(+)=0A=
+>>>=0A=
+>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Do=
+cumentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
+>>> index 5c30026921..fc100b6bdb 100644=0A=
+>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
+>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt=0A=
+>>> @@ -14,6 +14,7 @@ Required properties :=0A=
+>>>                            very rare, initial version of the SoC which=
+=0A=
+>>>                            had broken offload support.  Linux=0A=
+>>>                            auto-detects this and sets it appropriately.=
+=0A=
+>>> +                     - "marvell,armada-38x-i2c"=0A=
+>>>    - interrupts      : The interrupt number=0A=
+>>>=0A=
+>>>   Optional properties :=0A=
+>>> --=0A=
+>>> 2.14.1=0A=
+>>>=0A=
+>>=0A=
+>> --=0A=
+>> Gregory Clement, Free Electrons=0A=
+>> Kernel, drivers, real-time and embedded Linux=0A=
+>> development, consulting, training and support.=0A=
+>> http://free-electrons.com=0A=
+> =0A=
+=0A=
