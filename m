@@ -1,80 +1,59 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH 2/2] dt-bindings: i2c: Update documentation for "mv78230-a0-i2c"
-Date: Thu, 28 Sep 2017 09:56:38 +0200
-Message-ID: <87wp4jgssp.fsf@free-electrons.com>
-References: <20170928040407.8933-1-kalyan.kinthada@alliedtelesis.co.nz>
-        <20170928040407.8933-3-kalyan.kinthada@alliedtelesis.co.nz>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/3] ACPI / APD: Add clock frequency for ThunderX2 I2C
+ controller
+Date: Thu, 28 Sep 2017 11:45:55 +0300
+Message-ID: <20170928084555.GK4630@lahna.fi.intel.com>
+References: <1506523943-8632-1-git-send-email-kamlakant.patel@cavium.com>
+ <1506523943-8632-2-git-send-email-kamlakant.patel@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170928040407.8933-3-kalyan.kinthada@alliedtelesis.co.nz>
-        (Kalyan Kinthada's message of "Thu, 28 Sep 2017 17:04:07 +1300")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>
-Cc: jason@lakedaemon.net, andrew@lunn.ch, sebastian.hesselbarth@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, wsa@the-dreams.de, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1506523943-8632-2-git-send-email-kamlakant.patel@cavium.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Kamlakant Patel <kamlakant.patel@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Jayachandran C <jnair@caviumnetworks.com>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kalyan,
- 
- On jeu., sept. 28 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz> wrote:
+(You should CC Rafael when doing changes touching ACPI)
 
-> This commit modifies the documentation for
-> "marvell,mv78230-a0-i2c" compatible string.
->
-> The "marvell,mv78230-a0-i2c" compatible string enables the workaround
-> for an i2c repeated start timing violation, but unlike
-> "marvell,mv78230-i2c" it disables the i2c offload support. This is
-> applicable to a number of SoCs such as early revisions of the Armada XP
-> and the Armada 38x.
->
-> Deleted the special note for "marvell,mv78230-a0-i2c" as it can
-> be used by other SoCs as well.
->
-> Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>
+On Wed, Sep 27, 2017 at 08:22:21PM +0530, Kamlakant Patel wrote:
+> From: Jayachandran C <jnair@caviumnetworks.com>
+> 
+> Add the input frequency of 125MHz for the ThunderX2 I2C controller block.
+> The ACPI ID used is "CAV9007".
+> 
+> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
+
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 4 ----
->  1 file changed, 4 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> index 5c30026921ae..37c00ad1c0bb 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> @@ -10,10 +10,6 @@ Required properties :
->                       - "marvell,mv64xxx-i2c"
->                       - "marvell,mv78230-i2c"
->                       - "marvell,mv78230-a0-i2c"
-> -                       * Note: Only use "marvell,mv78230-a0-i2c" for a
-> -                         very rare, initial version of the SoC which
-> -                         had broken offload support.  Linux
-> -                         auto-detects this and sets it appropriately.
-
-I think here we should pour more details like what you wrote in the
-commit log. Maybe something like:
-
-                        - "marvell,mv78230-a0-i2c": for controller which
-                          do not support offload but still have the i2c
-                          repeated start timing violation issue, such as
-                          the ones found in the Armada XP A0 and the
-                          Armada 38x SoCs.
-
-
-And I still have to check it for Armada 375 and Armada 39x, but of
-course it is not preventing merging your patches.
-
-Gregory
-
-
-
-
->   - interrupts      : The interrupt number
+>  drivers/acpi/acpi_apd.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> index 17a1eb1..93acc9b 100644
+> --- a/drivers/acpi/acpi_apd.c
+> +++ b/drivers/acpi/acpi_apd.c
+> @@ -106,6 +106,10 @@ static const struct apd_device_desc vulcan_spi_desc = {
+>  	.setup = acpi_apd_setup,
+>  	.fixed_clk_rate = 133000000,
+>  };
+> +static const struct apd_device_desc thunderx2_i2c_desc = {
+> +	.setup = acpi_apd_setup,
+> +	.fixed_clk_rate = 125000000,
+> +};
+>  #endif
 >  
->  Optional properties :
+>  #else
+> @@ -170,6 +174,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+>  	{ "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+>  	{ "BRCM900D", APD_ADDR(vulcan_spi_desc) },
+>  	{ "CAV900D",  APD_ADDR(vulcan_spi_desc) },
+> +	{ "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
+>  #endif
+>  	{ }
+>  };
 > -- 
-> 2.14.1
->
-
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+> 2.7.4
