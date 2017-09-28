@@ -1,77 +1,106 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 0/4] i2c: designware: add i2c gpio recovery option
-Date: Thu, 28 Sep 2017 13:55:14 +0300
-Message-ID: <1506596114.16112.148.camel@linux.intel.com>
+Subject: Re: [PATCH v3 4/4] i2c: designware: add i2c gpio recovery option
+Date: Thu, 28 Sep 2017 13:58:41 +0300
+Message-ID: <1506596321.16112.156.camel@linux.intel.com>
 References: <1504073857-122449-1-git-send-email-preid@electromag.com.au>
-         <1b54a382-c447-2f42-fd00-6a033449d394@electromag.com.au>
+         <1504073857-122449-5-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:2299 "EHLO mga14.intel.com"
+Received: from mga03.intel.com ([134.134.136.65]:62630 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752543AbdI1LEG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 28 Sep 2017 07:04:06 -0400
-In-Reply-To: <1b54a382-c447-2f42-fd00-6a033449d394@electromag.com.au>
+        id S1751816AbdI1LHM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 28 Sep 2017 07:07:12 -0400
+In-Reply-To: <1504073857-122449-5-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Phil Reid <preid@electromag.com.au>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
-Cc: Ferry Toth gmail <fntoth@gmail.com>
 
-On Thu, 2017-09-28 at 15:37 +0800, Phil Reid wrote:
-> On 30/08/2017 14:17, Phil Reid wrote:
-> > Changes from V1:
-> > - In review Andy suggested change the i2c core to use the gpiod
-> >    I've added a patch that allows the gradual switching of drivers
-> >    to using gpiod interface. The old interface is preserved so
-> >    that changes can be made incrementally.
-> > - I've update Tim's patch for the designware driver to use the new
-> >    interface. Tweaked a couple of things to his patch and fixed
-> >    up things Andy id in last review.
-> >    The core changes in p1 don't require the get/set scl/sda
-> > functions.
-> >    Hopefully I've done the right thing with preserving authorship
-> > and
-> >    signoff.
-
-+Cc: Ferry.
-
-Ferry, I think you might be interested in this series.
-If so, perhaps Phil can include you in Cc for v4 of it.
-
-> > 
-> > Changes from V2:
-> > - Rebase on https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linu
-> > x.git/
-> >    i2c/for-next
-> >    No intentional changes, but needed to move
-> > i2c_dw_plat_prepare_clk to common
-> >    for the master recovery functions to use. which is included as
-> > two additional
-> >    patches.
-> > 
-> > 
-> > Phil Reid (4):
-> >    i2c: Switch to using gpiod interface for gpio bus recovery
-> >    i2c: designware: move i2c_dw_plat_prepare_clk to common
-> >    i2c: designware: rename i2c_dw_plat_prepare_clk to
-> > i2c_dw_prepare_clk
-> > 
-> > Tim Sander (1):
-> >    i2c: designware: add i2c gpio recovery option
-> > 
-> >   drivers/i2c/busses/i2c-designware-common.c  | 24 ++++++++++--
-> >   drivers/i2c/busses/i2c-designware-core.h    |  2 +
-> >   drivers/i2c/busses/i2c-designware-master.c  | 57
-> > +++++++++++++++++++++++++++++
-> >   drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++-------
-> >   drivers/i2c/i2c-core-base.c                 | 22 +++++++++--
-> >   include/linux/i2c.h                         |  2 +
-> >   6 files changed, 103 insertions(+), 22 deletions(-)
-> > 
+On Wed, 2017-08-30 at 14:17 +0800, Phil Reid wrote:
+> From: Tim Sander <tim@krieglstein.org>
 > 
-> Any comments on this series?
-> 
+> This patch contains much input from Phil Reid and has been tested
+> on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
+> SCL and SDA GPIO's. I am still a little unsure about the recover
+> in the timeout case (i2c-designware-core.c:770) as i could not
+> test this codepath.
+
+ 
+> -	if (abort_source & DW_IC_TX_ARB_LOST)
+> +	if (abort_source & DW_IC_TX_ARB_LOST) {
+> +		i2c_recover_bus(&dev->adapter);
+>  		return -EAGAIN;
+
+> -	else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
+> +	} else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
+
+else is redundant.
+
+>  		return -EINVAL; /* wrong msgs[] data */
+>  	else
+
+Ditto.
+
+>  		return -EIO;
+
+> +static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+> +{
+> +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +	struct i2c_adapter *adap = &dev->adapter;
+> +	struct gpio_desc *gpio;
+> +	int r;
+> +
+> +	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
+> +	if (IS_ERR(gpio)) {
+> +		r = PTR_ERR(gpio);
+
+> +		if ((r == -ENOENT) || (r == -ENOENT))
+
+Copy'n'paste typo?
+
+> +			return 0;
+> +		return r;
+> +	}
+> +	rinfo->scl_gpiod = gpio;
+> +
+> +	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
+> +	if (IS_ERR(gpio))
+> +		return PTR_ERR(gpio);
+> +	rinfo->sda_gpiod = gpio;
+> +
+> +	rinfo->recover_bus = i2c_generic_scl_recovery;
+> +	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
+> +	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
+> +	adap->bus_recovery_info = rinfo;
+> +
+
+> +	dev_info(dev->dev,
+> +		"adapter: %s running with gpio recovery mode! scl:%i
+> sda:%i\n",
+> +		adap->name, !!rinfo->scl_gpiod, !!rinfo->sda_gpiod);
+
+Instead of doing numbers, better just to list available descriptors,
+e.g.
+
+...("... %s scl\n", rinfo->sda_gpiod ? "sda,");
+
+No need to explain that scl doesn't need any check here.
+
+And I'm not sure why do you need adap->name here. Can you show an
+example of output from your test platform?
+
+> +	if (!ret)
+> +		ret = i2c_dw_init_recovery_info(dev);
+
+Better to 
+if (ret)
+ return ret;
+
+return i2c...();
+
+> +
+>  	return ret;
 
 -- 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
