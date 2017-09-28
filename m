@@ -1,55 +1,73 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v3 4/4] i2c: designware: add i2c gpio recovery option
-Date: Thu, 28 Sep 2017 16:21:16 +0300
-Message-ID: <ec3abe75-ff3d-8e19-3f7b-08f822e654e4@linux.intel.com>
-References: <1504073857-122449-1-git-send-email-preid@electromag.com.au>
- <1504073857-122449-5-git-send-email-preid@electromag.com.au>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 2/3] PM / mfd: intel-lpss: Push system sleep callbacks
+ to late/early stages
+Date: Thu, 28 Sep 2017 20:19:09 +0100
+Message-ID: <20170928191909.ftpm5ktabe6fnufv@dell>
+References: <3023226.l5IfJK6GIc@aspire.rjw.lan>
+ <3958866.l2qnKDbinI@aspire.rjw.lan>
+ <65494652.vEfz4tCBDb@aspire.rjw.lan>
+ <4332008.kXBLY0K23i@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:19091 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753259AbdI1NVT (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 28 Sep 2017 09:21:19 -0400
-In-Reply-To: <1504073857-122449-5-git-send-email-preid@electromag.com.au>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4332008.kXBLY0K23i@aspire.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: linux-pm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jisheng Zhang <jszhang@marvell.com>, John Stultz <john.stultz@linaro.org>, Guodong Xu <guodong.xu@linaro.org>, Sumit Semwal <sumit.semwal@linaro.org>, Haojian Zhuang <haojian.zhuang@linaro.org>, Johannes Stezenbach <js@sig21.net>, Ulf Hansson <ulf.hansson@linaro.org>, Rajat Jain <rajatja@google.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
 
-On 08/30/2017 09:17 AM, Phil Reid wrote:
-> From: Tim Sander <tim@krieglstein.org>
+On Mon, 25 Sep 2017, Rafael J. Wysocki wrote:
+
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 > 
-> This patch contains much input from Phil Reid and has been tested
-> on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
-> SCL and SDA GPIO's. I am still a little unsure about the recover
-> in the timeout case (i2c-designware-core.c:770) as i could not
-> test this codepath.
+> Push the system suspend/resume callbacks of intel-lpss to the late
+> suspend/early resume stages to allow child device callbacks to be
+> pushed to the late/early stages of suspend/resume too, so as to
+> make it possible to avoid resuming the children if they are runtime-
+> suspended during system suspend going forward.
 > 
-> Signed-off-by: Tim Sander <tim@krieglstein.org>
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Tested-by: Johannes Stezenbach <js@sig21.net>
+> Tested-by: Rajat Jain <rajatja@google.com>
 > ---
->   drivers/i2c/busses/i2c-designware-common.c | 11 ++++--
->   drivers/i2c/busses/i2c-designware-core.h   |  1 +
->   drivers/i2c/busses/i2c-designware-master.c | 57 ++++++++++++++++++++++++++++++
->   3 files changed, 66 insertions(+), 3 deletions(-)
 > 
-While taking into account Andy's comments please modify the last 
-sentence in the above commit log - i2c-designware-core.c doesn't exist 
-anymore. Maybe better is to have the uncertainty documented as a 
-"REVISIT:" comment in the code etc.
+> v3 -> v4: Added Tested-by tags.
+> 
+> ---
+>  drivers/mfd/intel-lpss.h |    7 +------
+>  1 file changed, 1 insertion(+), 6 deletions(-)
+> 
+> Index: linux-pm/drivers/mfd/intel-lpss.h
+> ===================================================================
+> --- linux-pm.orig/drivers/mfd/intel-lpss.h
+> +++ linux-pm/drivers/mfd/intel-lpss.h
 
-> @@ -254,9 +258,10 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
->   	for_each_set_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
->   		dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
->   
-> -	if (abort_source & DW_IC_TX_ARB_LOST)
-> +	if (abort_source & DW_IC_TX_ARB_LOST) {
-> +		i2c_recover_bus(&dev->adapter);
+Weird.  What format is this?
 
-Are you sure about doing recovery for arbitration lost case? To me it 
-seems wrong to do it if another master is accessing the bus.
+Don't you use `git format-patch` and `git send-email`?
+
+> @@ -38,12 +38,7 @@ int intel_lpss_resume(struct device *dev
+>  #ifdef CONFIG_PM_SLEEP
+>  #define INTEL_LPSS_SLEEP_PM_OPS			\
+>  	.prepare = intel_lpss_prepare,		\
+> -	.suspend = intel_lpss_suspend,		\
+> -	.resume = intel_lpss_resume,		\
+> -	.freeze = intel_lpss_suspend,		\
+> -	.thaw = intel_lpss_resume,		\
+> -	.poweroff = intel_lpss_suspend,		\
+> -	.restore = intel_lpss_resume,
+> +	SET_LATE_SYSTEM_SLEEP_PM_OPS(intel_lpss_suspend, intel_lpss_resume)
+
+For the diff:
+
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
-Jarkko
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
