@@ -1,57 +1,120 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v3 1/4] i2c: Switch to using gpiod interface for gpio bus
- recovery
-Date: Fri, 29 Sep 2017 14:59:00 +0800
-Message-ID: <249f3801-d7b0-dd27-a838-6e7ca6967447@electromag.com.au>
+Subject: Re: [PATCH v3 4/4] i2c: designware: add i2c gpio recovery option
+Date: Fri, 29 Sep 2017 15:00:53 +0800
+Message-ID: <22b2a4a3-6b79-3845-586c-fe98c75411fe@electromag.com.au>
 References: <1504073857-122449-1-git-send-email-preid@electromag.com.au>
- <1504073857-122449-2-git-send-email-preid@electromag.com.au>
- <1506595483.16112.137.camel@linux.intel.com>
- <2ecc500b-42ec-8f30-b8cf-fd646eaaa198@linux.intel.com>
- <1506596304.16112.155.camel@linux.intel.com>
+ <1504073857-122449-5-git-send-email-preid@electromag.com.au>
+ <1506596321.16112.156.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:53079 "EHLO
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:54528 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1750929AbdI2G7F (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Sep 2017 02:59:05 -0400
-In-Reply-To: <1506596304.16112.155.camel@linux.intel.com>
+        with ESMTP id S1750709AbdI2HA4 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Sep 2017 03:00:56 -0400
+In-Reply-To: <1506596321.16112.156.camel@linux.intel.com>
 Content-Language: en-AU
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
+
+Thanks for the review.
 
 On 28/09/2017 18:58, Andy Shevchenko wrote:
-> On Thu, 2017-09-28 at 13:54 +0300, Jarkko Nikula wrote:
->> On 09/28/2017 01:44 PM, Andy Shevchenko wrote:
->>>> interface. This will allow individual driver to be updated and
->>>> tested
->>>> individual to switch to using the gpiod interface.
->>>>    	int scl_gpio;
->>>>    	int sda_gpio;
->>>> +	struct gpio_desc *scl_gpiod;
->>>> +	struct gpio_desc *sda_gpiod;
->>>
->>> I think we even could get rid of plain integers completely.
->>> In case some call needs it we can derive it still from the
->>> descriptor.
->>>
+> On Wed, 2017-08-30 at 14:17 +0800, Phil Reid wrote:
+>> From: Tim Sander <tim@krieglstein.org>
 >>
->> I guess it's still worth to split that into multiple patches and
->> those
->> driver conversion and integer removal can be follow up patches
->> somewhere
->> in the future?
+>> This patch contains much input from Phil Reid and has been tested
+>> on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
+>> SCL and SDA GPIO's. I am still a little unsure about the recover
+>> in the timeout case (i2c-designware-core.c:770) as i could not
+>> test this codepath.
 > 
-> I didn't check and my memory is clean about users.
-> So, if there are users of those integers outside of I2C core, definitely
-> we need more patches / iterations.
+>   
+>> -	if (abort_source & DW_IC_TX_ARB_LOST)
+>> +	if (abort_source & DW_IC_TX_ARB_LOST) {
+>> +		i2c_recover_bus(&dev->adapter);
+>>   		return -EAGAIN;
 > 
-There's a couple of drivers using those.
-If my approach looks good then I can try and update those as well.
+>> -	else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
+>> +	} else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
+> 
+> else is redundant.
+> 
+>>   		return -EINVAL; /* wrong msgs[] data */
+>>   	else
+> 
+> Ditto.
+Yep.
+> 
+>>   		return -EIO;
+> 
+>> +static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+>> +{
+>> +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+>> +	struct i2c_adapter *adap = &dev->adapter;
+>> +	struct gpio_desc *gpio;
+>> +	int r;
+>> +
+>> +	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
+>> +	if (IS_ERR(gpio)) {
+>> +		r = PTR_ERR(gpio);
+> 
+>> +		if ((r == -ENOENT) || (r == -ENOENT))
+> 
+> Copy'n'paste typo?
+Yep.
 
-Question is does it all need to be in the one patch series?
+> 
+>> +			return 0;
+>> +		return r;
+>> +	}
+>> +	rinfo->scl_gpiod = gpio;
+>> +
+>> +	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
+>> +	if (IS_ERR(gpio))
+>> +		return PTR_ERR(gpio);
+>> +	rinfo->sda_gpiod = gpio;
+>> +
+>> +	rinfo->recover_bus = i2c_generic_scl_recovery;
+>> +	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
+>> +	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
+>> +	adap->bus_recovery_info = rinfo;
+>> +
+> 
+>> +	dev_info(dev->dev,
+>> +		"adapter: %s running with gpio recovery mode! scl:%i
+>> sda:%i\n",
+>> +		adap->name, !!rinfo->scl_gpiod, !!rinfo->sda_gpiod);
+> 
+> Instead of doing numbers, better just to list available descriptors,
+> e.g.
+> 
+> ...("... %s scl\n", rinfo->sda_gpiod ? "sda,");
+Ok.
+
+> 
+> No need to explain that scl doesn't need any check here.
+> 
+> And I'm not sure why do you need adap->name here. Can you show an
+> example of output from your test platform?
+
+Good question. can't see a need.
+
+> 
+>> +	if (!ret)
+>> +		ret = i2c_dw_init_recovery_info(dev);
+> 
+> Better to
+> if (ret)
+>   return ret;
+> 
+> return i2c...();
+> 
+>> +
+>>   	return ret;
+> 
 
 
 -- 
