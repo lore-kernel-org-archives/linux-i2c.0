@@ -1,86 +1,39 @@
 From: Todor Tomov <todor.tomov@linaro.org>
-Subject: [PATCH 1/4] dt-bindings: media: Binding document for Qualcomm Camera Control Interface driver
-Date: Mon,  2 Oct 2017 17:13:30 +0300
-Message-ID: <1506953613-23875-2-git-send-email-todor.tomov@linaro.org>
+Subject: [PATCH 3/4] MAINTAINERS: Add Qualcomm Camera Control Interface driver
+Date: Mon,  2 Oct 2017 17:13:32 +0300
+Message-ID: <1506953613-23875-4-git-send-email-todor.tomov@linaro.org>
 References: <1506953613-23875-1-git-send-email-todor.tomov@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1506953613-23875-1-git-send-email-todor.tomov@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add DT binding document for Qualcomm Camera Control Interface driver
+Add an entry for Qualcomm Camera Control Interface driver.
 
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
-CC: devicetree@vger.kernel.org
 Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
 ---
- .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 55 ++++++++++++++++++++++
- 1 file changed, 55 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-new file mode 100644
-index 0000000..f4c5338
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-@@ -0,0 +1,55 @@
-+Qualcomm Camera Control Interface I2C controller
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6671f37..aa3484f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11158,6 +11158,13 @@ W:	http://wireless.kernel.org/en/users/Drivers/ath9k
+ S:	Supported
+ F:	drivers/net/wireless/ath/ath9k/
+ 
++QUALCOMM CAMERA CONTROL INTERFACE DRIVER
++M:	Todor Tomov <todor.tomov@linaro.org>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
++F:	drivers/i2c/busses/i2c-qcom-cci.c
 +
-+Required properties:
-+ - compatible: Should be one of:
-+   - "qcom,cci-v1.0.8" for 8916;
-+   - "qcom,cci-v1.4.0" for 8996.
-+ - #address-cells: Should be <1>.
-+ - #size-cells: Should be <0>.
-+ - reg: Base address of the controller and length of memory mapped region.
-+ - reg-names: Should be "cci".
-+ - interrupts: Specifier for CCI interrupt.
-+ - interrupt-names: Should be "cci".
-+ - clocks: List of clock specifiers, one for each entry in clock-names.
-+ - clock-names: Should contain:
-+   - "mmss_mmagic_ahb" - on 8996 only;
-+   - "camss_top_ahb";
-+   - "cci_ahb";
-+   - "cci";
-+   - "camss_ahb".
-+ - pinctrl-names: Should contain only one value - "default".
-+ - pinctrl-0: Pin control group to be used for this controller.
-+
-+
-+Required properties on 8996:
-+ - power-domains: Power domain specifier.
-+
-+Optional:
-+ - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
-+   if omitted.
-+
-+Example:
-+
-+                cci: qcom,cci@a0c000 {
-+                        compatible = "qcom,cci-v1.4.0";
-+                        #address-cells = <1>;
-+                        #size-cells = <0>;
-+                        reg = <0xa0c000 0x1000>;
-+                        reg-names = "cci";
-+                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
-+                        interrupt-names = "cci";
-+                        power-domains = <&mmcc CAMSS_GDSC>;
-+                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
-+                                        <&mmcc CAMSS_TOP_AHB_CLK>,
-+                                        <&mmcc CAMSS_CCI_AHB_CLK>,
-+                                        <&mmcc CAMSS_CCI_CLK>,
-+                                        <&mmcc CAMSS_AHB_CLK>;
-+                        clock-names = "mmss_mmagic_ahb",
-+                                        "camss_top_ahb",
-+                                        "cci_ahb",
-+                                        "cci",
-+                                        "camss_ahb";
-+                        pinctrl-names = "default";
-+                        pinctrl-0 = <&cci0_default>;
-+                        clock-frequency = <400000>;
-+                };
+ QUALCOMM CAMERA SUBSYSTEM DRIVER
+ M:	Todor Tomov <todor.tomov@linaro.org>
+ L:	linux-media@vger.kernel.org
 -- 
 2.7.4
