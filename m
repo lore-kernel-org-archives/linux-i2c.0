@@ -1,79 +1,74 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: Update documentation for "mv78230-a0-i2c"
-Date: Mon, 02 Oct 2017 16:23:43 +0200
-Message-ID: <87k20dmxw0.fsf@free-electrons.com>
-References: <20170928213605.22874-1-kalyan.kinthada@alliedtelesis.co.nz>
-        <20170928213605.22874-3-kalyan.kinthada@alliedtelesis.co.nz>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
+Date: Mon, 2 Oct 2017 17:11:00 +0100
+Message-ID: <3100653b-21b7-0a84-6379-7c38e18e2dd6@codethink.co.uk>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-2-linus.walleij@linaro.org>
+ <CACRpkdZ=BZHp3mjccUYaPTuMbXgwGSErvLprnp4j0H+7C5NYJQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170928213605.22874-3-kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
-        (Kalyan Kinthada's message of "Fri, 29 Sep 2017 10:36:05 +1300")
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Packham <chris.packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <CACRpkdZ=BZHp3mjccUYaPTuMbXgwGSErvLprnp4j0H+7C5NYJQ@mail.gmail.com>
+Content-Language: en-GB
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Simtec Linux Team <linux@simtec.co.uk>, Vincent Sanders <vincent.sanders@collabora.co.uk>, Vincent Sanders <vince@kyllikki.org>, Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Magnus Damm <magnus.damm@gmail.com>, Heiko Schocher <hs@denx.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
- 
- On ven., sept. 29 2017, Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
+On 02/10/17 02:05, Linus Walleij wrote:
+> On Sun, Sep 17, 2017 at 11:39 AM, Linus Walleij
+> <linus.walleij@linaro.org> wrote:
+> 
+>> - The MFD Silicon Motion SM501 is a special case. It dynamically
+>>    spawns an I2C bus off the MFD using sm501_create_subdev().
+>>    We use an approach to dynamically create a machine descriptor
+>>    table and attach this to the "SM501-LOW" or "SM501-HIGH"
+>>    gpiochip. We use chip-local offsets to grab the right lines.
+>>    We can get rid of two local static inline helpers as part
+>>    of this refactoring.
+> (...)
+>> SM501 users: requesting Tested-by on this patch.
+> 
+> Paging Simtec (if it reaches anyone), Vincent Sanders,
+> Teddy Wang at Silicon Motion:
 
-> This commit modifies the documentation for
-> "marvell,mv78230-a0-i2c" compatible string.
->
-> The "marvell,mv78230-a0-i2c" compatible string enables the workaround
-> for an i2c repeated start timing violation, but unlike
-> "marvell,mv78230-i2c" it disables the i2c offload support. This is
-> applicable to a number of SoCs such as early revisions of the Armada XP
-> and the Armada 38x.
->
-> Signed-off-by: Kalyan Kinthada <kalyan.kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>
+I'm fairly sure Simtec is not currently active. See below.
+I have no idea if the SM501 is even available for current designs.
 
+> Does any of you have an "Anubis" board so you can test GPIO
+> on this board before/after this patch and see if it checks out right?
+> 
+> I guess it's this board:
+> http://www.simtec.co.uk/products/BBD20EUROA/
 
-I applied the dt fix on my mvebu/fixes branch. Do you want to apply this
-one on your branch, or do you prefer I take it. In this case an acked-by
-would be nice.
+I think that's fairly close.
+We did have a couple of other designs done for clients, but they may
+not have been available to the general public.
 
-Thanks,
+> 
+> Does anyone know of a commercially obtainable product using
+> SM501 with reasonable mainline Linux support so I can test it myself?
+> 
+> Getting a bit desperate...
 
-Gregory
+At the moment I have no time to go through the boxes of ex-Simtec stuff
+that I still have... quite a lot of my old Simtec stuff has already been
+recycled as it has been over five years since leaving.
 
+> Yours,
+> Linus Walleij
+> 
 
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> index 5c30026921ae..c6cbab17ed0a 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> @@ -10,10 +10,12 @@ Required properties :
->                       - "marvell,mv64xxx-i2c"
->                       - "marvell,mv78230-i2c"
->                       - "marvell,mv78230-a0-i2c"
-> -                       * Note: Only use "marvell,mv78230-a0-i2c" for a
-> -                         very rare, initial version of the SoC which
-> -                         had broken offload support.  Linux
-> -                         auto-detects this and sets it appropriately.
-> +                       * Note: Use "marvell,mv78230-a0-i2c" for
-> +                         controller which do not support offload
-> +                         but still have the i2c repeated start
-> +                         timing violation issue, such as the
-> +                         ones found in the Armada XP A0 and the
-> +                         Armada 38x SoCs.
->   - interrupts      : The interrupt number
->  
->  Optional properties :
-> -- 
-> 2.14.1
->
 
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
