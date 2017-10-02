@@ -1,66 +1,49 @@
-From: Pontus Andersson <epontan@gmail.com>
-Subject: [PATCH] i2c: ismt: Separate I2C block read from SMBus block read
-Date: Mon, 2 Oct 2017 14:45:19 +0200
-Message-ID: <20171002124519.GA13496@leonis.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:38517 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750929AbdJBMpY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Oct 2017 08:45:24 -0400
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+From: Todor Tomov <todor.tomov@linaro.org>
+Subject: [PATCH 0/4] Qualcomm Camera Control Interface driver
+Date: Mon,  2 Oct 2017 17:13:29 +0300
+Message-ID: <1506953613-23875-1-git-send-email-todor.tomov@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Commit b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for
-block reads") broke I2C block reads. It aimed to fix normal SMBus block
-read, but changed the correct behavior of I2C block read in the process.
+This patchset adds basic support for the Qualcomm Camera Control Interface
+(CCI) controller found on Qualcomm MSM8916/APQ8016 and MSM8996/APQ8996 SoC.
 
-According to Documentation/i2c/smbus-protocol, one vital difference
-between normal SMBus block read and I2C block read is that there is no
-byte count prefixed in the data sent on the wire:
+CCI has one I2C bus on MSM8916/APQ8016 and two I2C busses on MSM8996/APQ8096.
+The present driver supports the first I2C bus only.
 
- SMBus Block Read:  i2c_smbus_read_block_data()
- S Addr Wr [A] Comm [A]
-            S Addr Rd [A] [Count] A [Data] A [Data] A ... A [Data] NA P
+The driver is implemented using as a reference the Qualcomm CCI driver
+for Android as found in Code Aurora [1] and [2].
 
- I2C Block Read:  i2c_smbus_read_i2c_block_data()
- S Addr Wr [A] Comm [A]
-            S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
+The driver is tested on Dragonboard 410c (APQ8016) and Dragonboard 820c 
+(APQ8096) with one and two OV5645 camera sensors.
 
-Therefore the two transaction types need to be processed differently in
-the driver by copying of the dma_buffer as done previously for the
-I2C_SMBUS_I2C_BLOCK_DATA case.
 
-Fixes: b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for block reads")
-Signed-off-by: Pontus Andersson <epontan@gmail.com>
-Cc: stable@vger.kernel.org
----
- drivers/i2c/busses/i2c-ismt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+[1] https://source.codeaurora.org/quic/la/kernel/msm-3.10/
+[2] https://source.codeaurora.org/quic/la/kernel/msm-3.18/
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 22ffcb73c185..b51adffa4841 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -340,12 +340,15 @@ static int ismt_process_desc(const struct ismt_desc *desc,
- 			data->word = dma_buffer[0] | (dma_buffer[1] << 8);
- 			break;
- 		case I2C_SMBUS_BLOCK_DATA:
--		case I2C_SMBUS_I2C_BLOCK_DATA:
- 			if (desc->rxbytes != dma_buffer[0] + 1)
- 				return -EMSGSIZE;
- 
- 			memcpy(data->block, dma_buffer, desc->rxbytes);
- 			break;
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			memcpy(&data->block[1], dma_buffer, desc->rxbytes);
-+			data->block[0] = desc->rxbytes;
-+			break;
- 		}
- 		return 0;
- 	}
+
+Todor Tomov (4):
+  dt-bindings: media: Binding document for Qualcomm Camera Control
+    Interface driver
+  i2c: Add Qualcomm Camera Control Interface driver
+  MAINTAINERS: Add Qualcomm Camera Control Interface driver
+  arm64: dts: qcom: Add Camera Control Interface support
+
+ .../devicetree/bindings/i2c/i2c-qcom-cci.txt       |  55 ++
+ MAINTAINERS                                        |   7 +
+ arch/arm64/boot/dts/qcom/msm8916-pins.dtsi         |  14 +
+ arch/arm64/boot/dts/qcom/msm8916.dtsi              |  21 +
+ arch/arm64/boot/dts/qcom/msm8996-pins.dtsi         |  14 +
+ arch/arm64/boot/dts/qcom/msm8996.dtsi              |  24 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-qcom-cci.c                  | 793 +++++++++++++++++++++
+ 9 files changed, 939 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+ create mode 100644 drivers/i2c/busses/i2c-qcom-cci.c
+
 -- 
-2.14.1
+2.7.4
