@@ -1,74 +1,126 @@
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
-Date: Mon, 2 Oct 2017 17:11:00 +0100
-Message-ID: <3100653b-21b7-0a84-6379-7c38e18e2dd6@codethink.co.uk>
-References: <20170917093906.16325-1-linus.walleij@linaro.org>
- <20170917093906.16325-2-linus.walleij@linaro.org>
- <CACRpkdZ=BZHp3mjccUYaPTuMbXgwGSErvLprnp4j0H+7C5NYJQ@mail.gmail.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH] i2c-omap: Trigger bus recovery in lockup case
+Date: Mon, 2 Oct 2017 18:01:19 -0500
+Message-ID: <9520300c-4cbb-b905-a534-103ae7ca3f5f@ti.com>
+References: <1505403549-12992-1-git-send-email-claudio.foellmi@ergon.ch>
+ <9d3e3029-f775-a9aa-8025-badccb699ed8@ti.com>
+ <48ddc9bc-2b83-97c9-fbd7-90d4da9f2687@ti.com>
+ <0a506277-6c9b-1407-dea3-f9895fdc3e63@ergon.ch>
+ <cbb3aaa2-44d1-8a7d-1d8e-1433b0a7b9d3@ti.com>
+ <3778fa75-0327-0c36-1721-e89e23a782b6@ergon.ch>
+ <20170929125213.by5mwverw2a47lmo@earth>
+ <ad684ace-272a-1e45-f65b-b280be86ffc2@ergon.ch>
+ <20170929163716.nprxehj7eyld4io5@earth>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <CACRpkdZ=BZHp3mjccUYaPTuMbXgwGSErvLprnp4j0H+7C5NYJQ@mail.gmail.com>
-Content-Language: en-GB
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Simtec Linux Team <linux@simtec.co.uk>, Vincent Sanders <vincent.sanders@collabora.co.uk>, Vincent Sanders <vince@kyllikki.org>, Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux MIPS <linux-mips@linux-mips.org>, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Magnus Damm <magnus.damm@gmail.com>, Heiko Schocher <hs@denx.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from fllnx209.ext.ti.com ([198.47.19.16]:59896 "EHLO
+        fllnx209.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750770AbdJBXCy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 2 Oct 2017 19:02:54 -0400
+In-Reply-To: <20170929163716.nprxehj7eyld4io5@earth>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Claudio Foellmi <claudio.foellmi@ergon.ch>
+Cc: Vignesh R <vigneshr@ti.com>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Wolfram Sang <wsa@the-dreams.de>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 02/10/17 02:05, Linus Walleij wrote:
-> On Sun, Sep 17, 2017 at 11:39 AM, Linus Walleij
-> <linus.walleij@linaro.org> wrote:
+
+
+On 09/29/2017 11:37 AM, Sebastian Reichel wrote:
+> Hi,
 > 
->> - The MFD Silicon Motion SM501 is a special case. It dynamically
->>    spawns an I2C bus off the MFD using sm501_create_subdev().
->>    We use an approach to dynamically create a machine descriptor
->>    table and attach this to the "SM501-LOW" or "SM501-HIGH"
->>    gpiochip. We use chip-local offsets to grab the right lines.
->>    We can get rid of two local static inline helpers as part
->>    of this refactoring.
-> (...)
->> SM501 users: requesting Tested-by on this patch.
+> On Fri, Sep 29, 2017 at 05:17:47PM +0200, Claudio Foellmi wrote:
+>>>> Sebastian, can you please check if this helps with your problems on N950?
+>>>> If it does, I'll turn it into a proper standalone patch.
+>>>
+>>> No, it does not. Also no interrupts ignoring messages appearing
+>>> in dmesg:
+>>>
+>>> n950# dmesg | grep -E "48072000.i2c|lp5523x"
+>>> [    0.791046] omap_i2c 48072000.i2c: bus 1 rev4.4 at 400 kHz
+>>> [    4.934265] lp5523x 1-0032: reset command sent (no ACK)!
+>>> [    6.003875] omap_i2c 48072000.i2c: controller timed out
+>>> [    6.033874] lp5523x 1-0032: device detection err: -110
+>>> [    6.039154] lp5523x: probe of 1-0032 failed with error -110
+>>>
+>>
+>> Hi Sebastian
+>>
+>> Thank you for trying it out.
+>> It seems that your symptoms are quite different from the ones that Vignesh
+>> described earlier. He had never-ending storms of spurious interrupts
+>> (which that patch would have addressed), but you don't seem to get
+>> any interrupts at all. Not even the NACK one, which just looks wrong.
+
+regarding spurious interrupts during recovery. In my opinion,
+I2C IRQs should be disabled on entering recovery and re-enabled after, as
+bus state is unpredictable during recovery and OMAP I2C driver expect to
+receive IRQs only and only when omap_i2c_xfer() is called.
+(omap->receiver will have correct value only in above case)
+
+>>
+>> If you want to still dig deeper, you can enable debug logs for i2c-omap,
+>> so you can see every single interrupt. But if there are none, I don't see
+>> what we could possibly do to fix it.
+>>
+>>
+>> Vignesh, do you still have access to any of those devices with interrupt
+>> floods? If so, could you try the previous patch on one of them?
+>>
+>> Also note that Sebastian's issue is definitely not caused (or helped)
+>> by bus recovery, the timeout he sees resets the adapter right away.
+>> So he is not affected by my original patch either way.
+>>
+>> -- Claudio
 > 
-> Paging Simtec (if it reaches anyone), Vincent Sanders,
-> Teddy Wang at Silicon Motion:
-
-I'm fairly sure Simtec is not currently active. See below.
-I have no idea if the SM501 is even available for current designs.
-
-> Does any of you have an "Anubis" board so you can test GPIO
-> on this board before/after this patch and see if it checks out right?
+> Yeah, I don't see IRQ storm, so this might be a different issue.
+> FWIW this is what I see on N950:
 > 
-> I guess it's this board:
-> http://www.simtec.co.uk/products/BBD20EUROA/
+> n950# dmesg | grep -E "48072000.i2c|lp55"
+> [    2.136383] omap_i2c 48072000.i2c: bus 1 rev4.4 at 400 kHz
+> [    8.212951] omap_i2c 48072000.i2c: addr: 0x0032, len: 2, flags: 0x0, stop: 1
+> [    8.213287] omap_i2c 48072000.i2c: IRQ (ISR = 0x0010)
+> [    8.213592] omap_i2c 48072000.i2c: IRQ (ISR = 0x0002)
+> [    8.213897] lp5523x 1-0032: reset command sent (no ACK)!
+> [    8.242462] omap_i2c 48072000.i2c: addr: 0x0032, len: 2, flags: 0x0, stop: 1
+> [    8.243255] omap_i2c 48072000.i2c: IRQ (ISR = 0x0014)
+> [    8.243469] omap_i2c 48072000.i2c: IRQ (ISR = 0x0010)
 
-I think that's fairly close.
-We did have a couple of other designs done for clients, but they may
-not have been available to the general public.
+this second XRDY looks suspicious, as it's received after ARDY.
 
-> 
-> Does anyone know of a commercially obtainable product using
-> SM501 with reasonable mainline Linux support so I can test it myself?
-> 
-> Getting a bit desperate...
+> [    8.253387] omap_i2c 48072000.i2c: addr: 0x0032, len: 1, flags: 0x0, stop: 0
+> [    8.253631] omap_i2c 48072000.i2c: IRQ (ISR = 0x0010)
+> [    9.272735] omap_i2c 48072000.i2c: controller timed out
+> [    9.278167] lp5523x 1-0032: device detection err: -110
+> [    9.283843] lp5523x: probe of 1-0032 failed with error -110
+> [    9.662780] omap_i2c 48072000.i2c: addr: 0x0060, len: 1, flags: 0x0, stop: 0
+> [    9.670166] omap_i2c 48072000.i2c: IRQ (ISR = 0x0010)
+> [    9.675659] omap_i2c 48072000.i2c: IRQ (ISR = 0x0004)
+> [    9.682617] omap_i2c 48072000.i2c: addr: 0x0060, len: 1, flags: 0x1, stop: 1
+> [    9.689819] omap_i2c 48072000.i2c: IRQ (ISR = 0x0008)
+> [    9.695007] omap_i2c 48072000.i2c: IRQ (ISR = 0x0004)
 
-At the moment I have no time to go through the boxes of ex-Simtec stuff
-that I still have... quite a lot of my old Simtec stuff has already been
-recycled as it has been over five years since leaving.
+ 
+Wouldn't below diff help:
 
-> Yours,
-> Linus Walleij
-> 
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 1ebb5e9..e52bdae 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -959,7 +959,7 @@ static int omap_i2c_transmit_data(struct omap_i2c_dev *omap, u8 num_bytes,
+ {
+        u16             w;
+ 
+-       while (num_bytes--) {
++       while (omap->buf_len && num_bytes--) {
+                w = *omap->buf++;
+                omap->buf_len--;
+
+
 
 
 -- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+regards,
+-grygorii
