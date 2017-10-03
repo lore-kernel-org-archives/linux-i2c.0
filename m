@@ -1,71 +1,87 @@
-From: "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Tue, 3 Oct 2017 17:23:50 +0300
-Message-ID: <20171003142349.6uxwfime32dwzxwk@valkosipuli.retiisi.org.uk>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
- <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: i2c: Add armada-38x i2c binding
+Date: Tue, 3 Oct 2017 16:49:25 -0500
+Message-ID: <20171003214925.353u7l35jvnergsr@rob-hp-laptop>
+References: <20170922020429.20941-1-kalyan.kinthada@alliedtelesis.co.nz>
+ <87377fmbpw.fsf@free-electrons.com>
+ <1506289460890.34765@alliedtelesis.co.nz>
+ <87lgl1ishv.fsf@free-electrons.com>
+ <5376f24bf4c540088ce6432097b5cb51@svr-chch-ex1.atlnz.lc>
+ <87efqsiok3.fsf@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tomasz Figa <tfiga@chromium.org>
-Cc: "Mani, Rajmohan" <rajmohan.mani@intel.com>, "Mohandass, Divagar" <divagar.mohandass@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, mika.westerberg@linux.intel.com, linux-pm@vger.kernel.org
+In-Reply-To: <87efqsiok3.fsf-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Chris Packham <Chris.Packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>, Kalyan Kinthada <Kalyan.Kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "pawel.moll-5wv7dgnIgG8@public.gmane.org" <pawel.moll-5wv7dgnIgG8@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 20, 2017 at 11:45:20AM +0300, sakari.ailus@iki.fi wrote:
-> > >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client *client, const
-> > >> struct i2c_device_id *id)
-> > >>
-> > >>       i2c_set_clientdata(client, at24);
-> > >>
-> > >> +     /* enable runtime pm */
-> > >> +     pm_runtime_get_noresume(&client->dev);
-> > >> +     pm_runtime_set_active(&client->dev);
-> > >> +     pm_runtime_enable(&client->dev);
-> > 
-> > Do we need this get_noresume/set_active dance? I remember it was for
-> > some reason needed for PCI devices, but I don't see why for I2C
-> > anything else than just pm_runtime_enable() would be necessary.
+On Wed, Sep 27, 2017 at 09:33:00AM +0200, Gregory CLEMENT wrote:
+> Hi Chris,
+>  
+>  On mer., sept. 27 2017, Chris Packham <Chris.Packham-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
 > 
-> You specifically do not need (all) this for PCI devices, but AFAIU for I²C
-> devices you do. The runtime PM status of a device is disabled by default
-> and the use count is zero, but on ACPI based systems the device is still
-> powered on.
+> > Hi Gregory,
+> >
+> > On 27/09/17 00:56, Gregory CLEMENT wrote:
+> >> Hi Kalyan,
+> >> 
+> >> Please try avoid top-posting.
+> >> 
+> >>   On dim., sept. 24 2017, Kalyan Kinthada <Kalyan.Kinthada-6g8wRflRTwXFdCa3tKVlE6U/zSkkHjvu@public.gmane.org> wrote:
+> >> 
+> >>> Hi Gregory,
+> >>>
+> >>> I got this information from Armada-38x functional errata document.
+> >> 
+> >> OK but in any case just adding a new compatible was not enough you have
+> >> to update the driver in the same time, however for this case we won't
+> >> need it, see below.
+> >> 
+> >>>
+> >>> I can add the "marvell,mv78230-i2c" compatible string to the appropriate  device tree files
+> >>> but the i2c-mv64xxx driver enables an additional  feature (offload i2c transactions)
+> >>> based on the compatible string "marvell,mv78230-i2c".
+> >>>
+> >>> I am not sure if this feature (offload i2c transactions) should be enabled for Armada-38x devices.
+> >>> That is the reason I felt for the need of a new compatible string
+> >>> specifically for Armada-38x SoCs.
+> >> 
+> >> Indeed the Armada-38x SoCs does not support hardware offloading (at
+> >> least according the datasheet). But it happens that in the earlier
+> >> version of the Armada XP the hardware offloading was buggy, so we
+> >> introduced a compatible for this case: marvell,mv78230-a0-i2c. This
+> >> compatible enable the errata fix but not the offloading feature. That
+> >> means that it is exactly the compatible you need for Armada 38x (and
+> >> Armada 39x and 375 I think).
+> >
+> > The "mv78230-a0-i2c" dt-binding has the following note
+> >
+> >    Note: Only use "marvell,mv78230-a0-i2c" for a
+> >    very rare, initial version of the SoC which
+> >    had broken offload support.  Linux
+> >    auto-detects this and sets it appropriately.
+> >
+> > If we are going to re-use this binding for armada-38x we should probably 
+> > remove this note. Personally my preference would be an armada-38x
 > 
-> > 
-> > Also, we enable runtime PM, but we don't provide any callbacks. If
-> > there is no callback in any level of the hierarchy, NULL would be
-> > returned in [3], making [2] return -ENOSYS and [1] fail. The behavior
-> > depends on subsystem and whether the device is attached to a
-> > pm_domain. In our particular case I'd guess the device would be in an
-> > ACPI pm_domain and that would work, but the driver is generic and must
-> > work in any cases.
+> Updating the documentation is the right thing to do yes.
 > 
-> Agreed.
+> 
+> > compatible string (or 370 if that's the common base of these SoCs). But 
+> > of course we'll go with whatever your preference is as maintainer.
+> 
+> If the IP is compatible then there is no reason to add a new one, else
+> we will end with a compatible for each SoC and the compatible property
+> will just loose its meaning.
 
-I looked at the code and what actually happens here is the runtime_suspend
-and runtime_resume callbacks aren't set is that the first pm_runtime_put()
-call itself succeeds because checking the the runtime_suspend callback will
-be done in the work queue function. This leaves the device in RPM_ACTIVE
-state, which I don't think is a problem since the driver did not have
-explicit functions to control the device power state.
+If you all had added compatibles for each SoC in the first place, then 
+we wouldn't be having this dicussion.
 
-Further pm_runtime_put() and pm_runtime_get() calls will succeed because
-the device is in RPM_ACTIVE state.
-
-So I see no reason to set the callbacks if they would not actually control
-regulators, clocks or GPIOs required by the device.
-
-Cc linux-pm.
-
--- 
-Kind regards,
-
-Sakari Ailus
-e-mail: sakari.ailus@iki.fi
+Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
