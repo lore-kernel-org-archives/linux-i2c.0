@@ -1,111 +1,134 @@
-From: Ferry Toth <ftoth@telfort.nl>
-Subject: Re: [PATCH v3 0/4] i2c: designware: add i2c gpio recovery option
-Date: Wed, 04 Oct 2017 11:41:38 +0200
-Message-ID: <1507110098.6358.1.camel@telfort.nl>
-References: <1504073857-122449-1-git-send-email-preid@electromag.com.au>
-         <1b54a382-c447-2f42-fd00-6a033449d394@electromag.com.au>
-         <1506596114.16112.148.camel@linux.intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH] [media] ov5645: I2C address change
+Date: Wed, 04 Oct 2017 13:47:22 +0300
+Message-ID: <3073637.dhNDna4gKQ@avalon>
+References: <1506950925-13924-1-git-send-email-todor.tomov@linaro.org> <20171004103008.g7azpn4a3hfj4fs2@valkosipuli.retiisi.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from [195.159.176.226] ([195.159.176.226]:33216 "EHLO
-        blaine.gmane.org" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1751240AbdJDJpU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Oct 2017 05:45:20 -0400
-Received: from list by blaine.gmane.org with local (Exim 4.84_2)
-        (envelope-from <gldi-i2c-1@m.gmane.org>)
-        id 1dzgEi-0008IJ-Ct
-        for linux-i2c@vger.kernel.org; Wed, 04 Oct 2017 11:45:04 +0200
-In-Reply-To: <1506596114.16112.148.camel@linux.intel.com>
+Received: from galahad.ideasonboard.com ([185.26.127.97]:57374 "EHLO
+        galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751440AbdJDKrU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Oct 2017 06:47:20 -0400
+In-Reply-To: <20171004103008.g7azpn4a3hfj4fs2@valkosipuli.retiisi.org.uk>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Sakari Ailus <sakari.ailus@iki.fi>
+Cc: Todor Tomov <todor.tomov@linaro.org>, mchehab@kernel.org, hansverk@cisco.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
+CC'ing the I2C mainling list and the I2C maintainer.
 
+On Wednesday, 4 October 2017 13:30:08 EEST Sakari Ailus wrote:
+> Hi Todor,
+>=20
+> On Mon, Oct 02, 2017 at 04:28:45PM +0300, Todor Tomov wrote:
+> > As soon as the sensor is powered on, change the I2C address to the one
+> > specified in DT. This allows to use multiple physical sensors connected
+> > to the same I2C bus.
+> >=20
+> > Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+>=20
+> The smiapp driver does something similar and I understand Laurent might be
+> interested in such functionality as well.
+>=20
+> It'd be nice to handle this through the I=B2C framework instead and to de=
+fine
+> how the information is specified through DT. That way it could be made
+> generic, to work with more devices than just this one.
+>=20
+> What do you think?
+>=20
+> Cc Laurent.
+>=20
+> > ---
+> >=20
+> >  drivers/media/i2c/ov5645.c | 42 ++++++++++++++++++++++++++++++++++++++=
+++
+> >  1 file changed, 42 insertions(+)
+> >=20
+> > diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
+> > index d28845f..8541109 100644
+> > --- a/drivers/media/i2c/ov5645.c
+> > +++ b/drivers/media/i2c/ov5645.c
+> > @@ -33,6 +33,7 @@
+> >  #include <linux/i2c.h>
+> >  #include <linux/init.h>
+> >  #include <linux/module.h>
+> > +#include <linux/mutex.h>
+> >  #include <linux/of.h>
+> >  #include <linux/of_graph.h>
+> >  #include <linux/regulator/consumer.h>
+> > @@ -42,6 +43,8 @@
+> >  #include <media/v4l2-fwnode.h>
+> >  #include <media/v4l2-subdev.h>
+> >=20
+> > +static DEFINE_MUTEX(ov5645_lock);
+> > +
+> >  #define OV5645_VOLTAGE_ANALOG               2800000
+> >  #define OV5645_VOLTAGE_DIGITAL_CORE         1500000
+> >  #define OV5645_VOLTAGE_DIGITAL_IO           1800000
+> > @@ -590,6 +593,31 @@ static void ov5645_regulators_disable(struct ov5645
+> > *ov5645)
+> >  		dev_err(ov5645->dev, "io regulator disable failed\n");
+> >  }
+> >=20
+> > +static int ov5645_write_reg_to(struct ov5645 *ov5645, u16 reg, u8 val,
+> > +			       u16 i2c_addr)
+> > +{
+> > +	u8 regbuf[3] =3D {
+> > +		reg >> 8,
+> > +		reg & 0xff,
+> > +		val
+> > +	};
+> > +	struct i2c_msg msgs =3D {
+> > +		.addr =3D i2c_addr,
+> > +		.flags =3D 0,
+> > +		.len =3D 3,
+> > +		.buf =3D regbuf
+> > +	};
+> > +	int ret;
+> > +
+> > +	ret =3D i2c_transfer(ov5645->i2c_client->adapter, &msgs, 1);
+> > +	if (ret < 0)
+> > +		dev_err(ov5645->dev,
+> > +			"%s: write reg error %d on addr 0x%x: reg=3D0x%x, val=3D0x%x\n",
+> > +			__func__, ret, i2c_addr, reg, val);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> >  static int ov5645_write_reg(struct ov5645 *ov5645, u16 reg, u8 val)
+> >  {
+> >  	u8 regbuf[3];
+> > @@ -729,10 +757,24 @@ static int ov5645_s_power(struct v4l2_subdev *sd,
+> > int on)
+> >  	 */
+> >  	if (ov5645->power_count =3D=3D !on) {
+> >  		if (on) {
+> > +			mutex_lock(&ov5645_lock);
+> > +
+> >  			ret =3D ov5645_set_power_on(ov5645);
+> >  			if (ret < 0)
+> >  				goto exit;
+> >=20
+> > +			ret =3D ov5645_write_reg_to(ov5645, 0x3100,
+> > +						ov5645->i2c_client->addr, 0x78);
+> > +			if (ret < 0) {
+> > +				dev_err(ov5645->dev,
+> > +					"could not change i2c address\n");
+> > +				ov5645_set_power_off(ov5645);
+> > +				mutex_unlock(&ov5645_lock);
+> > +				goto exit;
+> > +			}
+> > +
+> > +			mutex_unlock(&ov5645_lock);
+> > +
+> >  			ret =3D ov5645_set_register_array(ov5645,
+> >  					ov5645_global_init_setting,
+> >  					ARRAY_SIZE(ov5645_global_init_setting));
 
-Andy Shevchenko schreef op do 28-09-2017 om 13:55 [+0300]:
-> On Thu, 2017-09-28 at 15:37 +0800, Phil Reid wrote:
-> > On 30/08/2017 14:17, Phil Reid wrote:
-> > > Changes from V1:
-> > > - In review Andy suggested change the i2c core to use the gpiod
-> > >    I've added a patch that allows the gradual switching of
-> > > drivers
-> > >    to using gpiod interface. The old interface is preserved so
-> > >    that changes can be made incrementally.
-> > > - I've update Tim's patch for the designware driver to use the
-> > > new
-> > >    interface. Tweaked a couple of things to his patch and fixed
-> > >    up things Andy id in last review.
-> > >    The core changes in p1 don't require the get/set scl/sda
-> > > functions.
-> > >    Hopefully I've done the right thing with preserving authorship
-> > > and
-> > >    signoff.
-> 
-> +Cc: Ferry.
-> 
-> Ferry, I think you might be interested in this series.
-> If so, perhaps Phil can include you in Cc for v4 of it.
+=2D-=20
+Regards,
 
-Thanks. I am interested in this, though I may be experiencing a
-somewhat different issue.
-
-I my case (Intel Edison on Arduino expansion board) there are 4 MUX
-attached to the same i2c bus. On warm boot sometimes the first device
-is not detected (as shown by i2c-detect). The 2nd - 4th devices are
-detected fine.
-
-It would seem that initially the bus is stuck accessing the first
-device and recovers after this. But this is probably not the case, as
-on successive warm reboots, the same first device remains undetected.
-
-A cold boot fixes this.
-
-To me that looks like the bus is not stuck, but the particular slave is
-in the wrong state. 
-
-I have not yet been able to figure out if this patch series only resets
-a device when it holds the bus, or if it also resets a device that
-doesn't respond or responds with garbled data, but I will look into it.
-
-Up to now I have not found a reliable way to trigger the situation,
-other than noting it seems to happen mostly after a kernel or u-boot
-reflash. 
-
-> > > 
-> > > Changes from V2:
-> > > - Rebase on https://git.kernel.org/pub/scm/linux/kernel/git/wsa/l
-> > > inu
-> > > x.git/
-> > >    i2c/for-next
-> > >    No intentional changes, but needed to move
-> > > i2c_dw_plat_prepare_clk to common
-> > >    for the master recovery functions to use. which is included as
-> > > two additional
-> > >    patches.
-> > > 
-> > > 
-> > > Phil Reid (4):
-> > >    i2c: Switch to using gpiod interface for gpio bus recovery
-> > >    i2c: designware: move i2c_dw_plat_prepare_clk to common
-> > >    i2c: designware: rename i2c_dw_plat_prepare_clk to
-> > > i2c_dw_prepare_clk
-> > > 
-> > > Tim Sander (1):
-> > >    i2c: designware: add i2c gpio recovery option
-> > > 
-> > >   drivers/i2c/busses/i2c-designware-common.c  | 24 ++++++++++--
-> > >   drivers/i2c/busses/i2c-designware-core.h    |  2 +
-> > >   drivers/i2c/busses/i2c-designware-master.c  | 57
-> > > +++++++++++++++++++++++++++++
-> > >   drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++-------
-> > >   drivers/i2c/i2c-core-base.c                 | 22 +++++++++--
-> > >   include/linux/i2c.h                         |  2 +
-> > >   6 files changed, 103 insertions(+), 22 deletions(-)
-> > > 
-> > 
-> > Any comments on this series?
-> > 
-> 
-> 
+Laurent Pinchart
