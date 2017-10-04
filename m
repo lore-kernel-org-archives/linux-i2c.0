@@ -1,134 +1,169 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] [media] ov5645: I2C address change
-Date: Wed, 04 Oct 2017 13:47:22 +0300
-Message-ID: <3073637.dhNDna4gKQ@avalon>
-References: <1506950925-13924-1-git-send-email-todor.tomov@linaro.org> <20171004103008.g7azpn4a3hfj4fs2@valkosipuli.retiisi.org.uk>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
+Date: Wed, 4 Oct 2017 11:57:03 +0100
+Message-ID: <20171004105703.qmahtqieimw4kn3p@dell>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-2-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from galahad.ideasonboard.com ([185.26.127.97]:57374 "EHLO
-        galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751440AbdJDKrU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Oct 2017 06:47:20 -0400
-In-Reply-To: <20171004103008.g7azpn4a3hfj4fs2@valkosipuli.retiisi.org.uk>
+Received: from mail-wm0-f52.google.com ([74.125.82.52]:45686 "EHLO
+        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751433AbdJDK5H (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 4 Oct 2017 06:57:07 -0400
+Received: by mail-wm0-f52.google.com with SMTP id q124so22054371wmb.0
+        for <linux-i2c@vger.kernel.org>; Wed, 04 Oct 2017 03:57:06 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170917093906.16325-2-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@iki.fi>
-Cc: Todor Tomov <todor.tomov@linaro.org>, mchehab@kernel.org, hansverk@cisco.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Steven Miao <realmz6@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Guenter Roeck <linux@roeck-us.net>, Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben.dooks@codethink.co.uk>, Heiko Schocher <hs@denx.de>
 
-CC'ing the I2C mainling list and the I2C maintainer.
+On Sun, 17 Sep 2017, Linus Walleij wrote:
 
-On Wednesday, 4 October 2017 13:30:08 EEST Sakari Ailus wrote:
-> Hi Todor,
->=20
-> On Mon, Oct 02, 2017 at 04:28:45PM +0300, Todor Tomov wrote:
-> > As soon as the sensor is powered on, change the I2C address to the one
-> > specified in DT. This allows to use multiple physical sensors connected
-> > to the same I2C bus.
-> >=20
-> > Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
->=20
-> The smiapp driver does something similar and I understand Laurent might be
-> interested in such functionality as well.
->=20
-> It'd be nice to handle this through the I=B2C framework instead and to de=
-fine
-> how the information is specified through DT. That way it could be made
-> generic, to work with more devices than just this one.
->=20
-> What do you think?
->=20
-> Cc Laurent.
->=20
-> > ---
-> >=20
-> >  drivers/media/i2c/ov5645.c | 42 ++++++++++++++++++++++++++++++++++++++=
-++
-> >  1 file changed, 42 insertions(+)
-> >=20
-> > diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
-> > index d28845f..8541109 100644
-> > --- a/drivers/media/i2c/ov5645.c
-> > +++ b/drivers/media/i2c/ov5645.c
-> > @@ -33,6 +33,7 @@
-> >  #include <linux/i2c.h>
-> >  #include <linux/init.h>
-> >  #include <linux/module.h>
-> > +#include <linux/mutex.h>
-> >  #include <linux/of.h>
-> >  #include <linux/of_graph.h>
-> >  #include <linux/regulator/consumer.h>
-> > @@ -42,6 +43,8 @@
-> >  #include <media/v4l2-fwnode.h>
-> >  #include <media/v4l2-subdev.h>
-> >=20
-> > +static DEFINE_MUTEX(ov5645_lock);
-> > +
-> >  #define OV5645_VOLTAGE_ANALOG               2800000
-> >  #define OV5645_VOLTAGE_DIGITAL_CORE         1500000
-> >  #define OV5645_VOLTAGE_DIGITAL_IO           1800000
-> > @@ -590,6 +593,31 @@ static void ov5645_regulators_disable(struct ov5645
-> > *ov5645)
-> >  		dev_err(ov5645->dev, "io regulator disable failed\n");
-> >  }
-> >=20
-> > +static int ov5645_write_reg_to(struct ov5645 *ov5645, u16 reg, u8 val,
-> > +			       u16 i2c_addr)
-> > +{
-> > +	u8 regbuf[3] =3D {
-> > +		reg >> 8,
-> > +		reg & 0xff,
-> > +		val
-> > +	};
-> > +	struct i2c_msg msgs =3D {
-> > +		.addr =3D i2c_addr,
-> > +		.flags =3D 0,
-> > +		.len =3D 3,
-> > +		.buf =3D regbuf
-> > +	};
-> > +	int ret;
-> > +
-> > +	ret =3D i2c_transfer(ov5645->i2c_client->adapter, &msgs, 1);
-> > +	if (ret < 0)
-> > +		dev_err(ov5645->dev,
-> > +			"%s: write reg error %d on addr 0x%x: reg=3D0x%x, val=3D0x%x\n",
-> > +			__func__, ret, i2c_addr, reg, val);
-> > +
-> > +	return ret;
-> > +}
-> > +
-> >  static int ov5645_write_reg(struct ov5645 *ov5645, u16 reg, u8 val)
-> >  {
-> >  	u8 regbuf[3];
-> > @@ -729,10 +757,24 @@ static int ov5645_s_power(struct v4l2_subdev *sd,
-> > int on)
-> >  	 */
-> >  	if (ov5645->power_count =3D=3D !on) {
-> >  		if (on) {
-> > +			mutex_lock(&ov5645_lock);
-> > +
-> >  			ret =3D ov5645_set_power_on(ov5645);
-> >  			if (ret < 0)
-> >  				goto exit;
-> >=20
-> > +			ret =3D ov5645_write_reg_to(ov5645, 0x3100,
-> > +						ov5645->i2c_client->addr, 0x78);
-> > +			if (ret < 0) {
-> > +				dev_err(ov5645->dev,
-> > +					"could not change i2c address\n");
-> > +				ov5645_set_power_off(ov5645);
-> > +				mutex_unlock(&ov5645_lock);
-> > +				goto exit;
-> > +			}
-> > +
-> > +			mutex_unlock(&ov5645_lock);
-> > +
-> >  			ret =3D ov5645_set_register_array(ov5645,
-> >  					ov5645_global_init_setting,
-> >  					ARRAY_SIZE(ov5645_global_init_setting));
+> This converts the GPIO-based I2C-driver to using GPIO
+> descriptors instead of the old global numberspace-based
+> GPIO interface. We:
+> 
+> - Convert the driver to unconditionally grab two GPIOs
+>   from the device by index 0 (SDA) and 1 (SCL) which
+>   will work fine with device tree and descriptor tables.
+>   The existing device trees will continue to work just
+>   like before, but without any roundtrip through the
+>   global numberspace.
+> 
+> - Brutally convert all boardfiles still passing global
+>   GPIOs by registering descriptor tables associated with
+>   the devices instead so this driver does not need to keep
+>   supporting passing any GPIO numbers as platform data.
+> 
+> There is no stepwise approach as elegant as this, I
+> strongly prefer this big hammer over any antsteps for this
+> conversion. This way the old GPIO numbers go away and
+> NEVER COME BACK.
+> 
+> Special conversion for the different boards utilizing
+> I2C-GPIO:
+> 
+> - EP93xx (arch/arm/mach-ep93xx): pretty straight forward as
+>   all boards were using the same two GPIO lines, just define
+>   these two in a lookup table for "i2c-gpio" and register
+>   these along with the device. None of them define any
+>   other platform data so just pass NULL as platform data.
+>   This platform selects GPIOLIB so all should be smooth.
+>   The pins appear on a gpiochip for bank "G" as pins 1 (SDA)
+>   and 0 (SCL).
+> 
+> - IXP4 (arch/arm/mach-ixp4): descriptor tables have to
+>   be registered for each board separately. They all use
+>   "IXP4XX_GPIO_CHIP" so it is pretty straight forward.
+>   Most board define no other platform data than SCL/SDA
+>   so they can drop the #include of <linux/i2c-gpio.h> and
+>   assign NULL to platform data.
+> 
+>   The "goramo_mlr" (Goramo Multilink Router) board is a bit
+>   worrisome: it implements its own I2C bit-banging in the
+>   board file, and optionally registers an I2C serial port,
+>   but claims the same GPIO lines for itself in the board file.
+>   This is not going to work: there will be competition for the
+>   GPIO lines, so delete the optional extra I2C bus instead, no
+>   I2C devices are registered on it anyway, there are just hints
+>   that it may contain an EEPROM that may be accessed from
+>   userspace. This needs to be fixed up properly by the serial
+>   clock using I2C emulation so drop a note in the code.
+> 
+> - KS8695 board acs5k (arch/arm/mach-ks8695/board-acs5.c)
+>   has some platform data in addition to the pins so it needs to
+>   be kept around sans GPIO lines. Its GPIO chip is named
+>   "KS8695" and the arch selects GPIOLIB.
+> 
+> - PXA boards (arch/arm/mach-pxa/*) use some of the platform
+>   data so it needs to be preserved here. The viper board even
+>   registers two GPIO I2Cs. The gpiochip is named "gpio-pxa" and
+>   the arch selects GPIOLIB.
+> 
+> - SA1100 Simpad (arch/arm/mach-sa1100/simpad.c) defines a GPIO
+>   I2C bus, and the arch selects GPIOLIB.
+> 
+> - Blackfin boards (arch/blackfin/bf533 etc) for these I assume
+>   their I2C GPIOs refer to the local gpiochip defined in
+>   arch/blackfin/kernel/bfin_gpio.c names "BFIN-GPIO".
+>   The arch selects GPIOLIB. The boards get spiked with
+>   IF_ENABLED(I2C_GPIO) but that is a side effect of it
+>   being like that already (I would just have Kconfig select
+>   I2C_GPIO and get rid of them all.) I also delete any
+>   platform data set to 0 as it will get that value anyway
+>   from static declartions of platform data.
+> 
+> - The MIPS selects GPIOLIB and the Alchemy machine is using
+>   two local GPIO chips, one of them has a GPIO I2C. We need
+>   to adjust the local offset from the global number space here.
+>   The ATH79 has a proper GPIO driver in drivers/gpio/gpio-ath79.c
+>   and AFAICT the chip is named "ath79-gpio" and the PB44
+>   PCF857x expander spawns from this on GPIO 1 and 0. The latter
+>   board only use the platform data to specify pins so it can be
+>   cut altogether after this.
+> 
+> - The MFD Silicon Motion SM501 is a special case. It dynamically
+>   spawns an I2C bus off the MFD using sm501_create_subdev().
+>   We use an approach to dynamically create a machine descriptor
+>   table and attach this to the "SM501-LOW" or "SM501-HIGH"
+>   gpiochip. We use chip-local offsets to grab the right lines.
+>   We can get rid of two local static inline helpers as part
+>   of this refactoring.
+> 
+> Cc: Steven Miao <realmz6@gmail.com>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: Magnus Damm <magnus.damm@gmail.com>
+> Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+> Cc: Heiko Schocher <hs@denx.de>
+> Acked-by: Olof Johansson <olof@lixom.net>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Fix a minor typo in error path (scl was sda from copy-paste)
+> - Collected Olof's ACK
+> 
+> Steven (Blackfin): requesting ACK for Wolfram to take this patch.
+> Ralf (MIPS): requesting ACK for Wolfram to take this patch.
+> Lee: requesting ACK for Wolfram to take this patch.
+> SM501 users: requesting Tested-by on this patch.
+> ---
+>  arch/arm/mach-ep93xx/core.c                  |  39 ++++----
+>  arch/arm/mach-ep93xx/edb93xx.c               |  15 +--
+>  arch/arm/mach-ep93xx/include/mach/platform.h |   4 +-
+>  arch/arm/mach-ep93xx/simone.c                |  12 +--
+>  arch/arm/mach-ep93xx/snappercl15.c           |  12 +--
+>  arch/arm/mach-ep93xx/vision_ep9307.c         |   7 +-
+>  arch/arm/mach-ixp4xx/avila-setup.c           |  17 +++-
+>  arch/arm/mach-ixp4xx/dsmg600-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/fsg-setup.c             |  16 +++-
+>  arch/arm/mach-ixp4xx/goramo_mlr.c            |  24 ++---
+>  arch/arm/mach-ixp4xx/ixdp425-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nas100d-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nslu2-setup.c           |  16 +++-
+>  arch/arm/mach-ks8695/board-acs5k.c           |  13 ++-
+>  arch/arm/mach-pxa/palmz72.c                  |  12 ++-
+>  arch/arm/mach-pxa/viper.c                    |  27 +++++-
+>  arch/arm/mach-sa1100/simpad.c                |  12 ++-
+>  arch/blackfin/mach-bf533/boards/blackstamp.c |  19 +++-
+>  arch/blackfin/mach-bf533/boards/ezkit.c      |  18 +++-
+>  arch/blackfin/mach-bf533/boards/stamp.c      |  18 +++-
+>  arch/blackfin/mach-bf561/boards/ezkit.c      |  18 +++-
+>  arch/mips/alchemy/board-gpr.c                |  19 +++-
+>  arch/mips/ath79/mach-pb44.c                  |  16 +++-
+>  drivers/i2c/busses/i2c-gpio.c                | 134 +++++++++++++--------------
+>  drivers/mfd/sm501.c                          |  49 +++++-----
 
-=2D-=20
-Regards,
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-Laurent Pinchart
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
