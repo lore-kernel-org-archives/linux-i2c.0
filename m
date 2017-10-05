@@ -1,121 +1,73 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5/7 v3] i2c: gpio: Local vars in probe
-Date: Thu,  5 Oct 2017 13:03:08 +0200
-Message-ID: <20171005110310.5900-6-linus.walleij@linaro.org>
-References: <20171005110310.5900-1-linus.walleij@linaro.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f179.google.com ([209.85.128.179]:48825 "EHLO
-        mail-wr0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751890AbdJELDl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2017 07:03:41 -0400
-Received: by mail-wr0-f179.google.com with SMTP id u5so10398958wrc.5
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Oct 2017 04:03:40 -0700 (PDT)
-In-Reply-To: <20171005110310.5900-1-linus.walleij@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: Update documentation for
+ "mv78230-a0-i2c"
+Date: Thu, 5 Oct 2017 13:08:20 +0200
+Message-ID: <20171005110820.phcjh7dmygi43dhq@ninjato>
+References: <20170928213605.22874-1-kalyan.kinthada@alliedtelesis.co.nz>
+ <20170928213605.22874-3-kalyan.kinthada@alliedtelesis.co.nz>
+ <87k20dmxw0.fsf@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="c3k3g3hmxn2uyaya"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <87k20dmxw0.fsf@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>, jason@lakedaemon.net, andrew@lunn.ch, sebastian.hesselbarth@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>
 
-By creating local variables for *dev and *np, the code become
-much easier to read, in my opinion.
 
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v2->v3:
-- Put memcpy on a single line, keeping down the LoC changed
+--c3k3g3hmxn2uyaya
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I put this at the end of the series because compared to the
-rest of the patches it is completely unimportant.
----
- drivers/i2c/busses/i2c-gpio.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+On Mon, Oct 02, 2017 at 04:23:43PM +0200, Gregory CLEMENT wrote:
+> Hi Wolfram,
+> =20
+>  On ven., sept. 29 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.c=
+o.nz> wrote:
+>=20
+> > This commit modifies the documentation for
+> > "marvell,mv78230-a0-i2c" compatible string.
+> >
+> > The "marvell,mv78230-a0-i2c" compatible string enables the workaround
+> > for an i2c repeated start timing violation, but unlike
+> > "marvell,mv78230-i2c" it disables the i2c offload support. This is
+> > applicable to a number of SoCs such as early revisions of the Armada XP
+> > and the Armada 38x.
+> >
+> > Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>
+>=20
+>=20
+> I applied the dt fix on my mvebu/fixes branch. Do you want to apply this
+> one on your branch, or do you prefer I take it. In this case an acked-by
+> would be nice.
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index 97b9c29e9429..a702e493275c 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -88,10 +88,12 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 	struct i2c_gpio_platform_data *pdata;
- 	struct i2c_algo_bit_data *bit_data;
- 	struct i2c_adapter *adap;
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
- 	enum gpiod_flags gflags;
- 	int ret;
- 
--	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
- 	if (!priv)
- 		return -ENOMEM;
- 
-@@ -99,16 +101,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 	bit_data = &priv->bit_data;
- 	pdata = &priv->pdata;
- 
--	if (pdev->dev.of_node) {
--		of_i2c_gpio_get_props(pdev->dev.of_node, pdata);
-+	if (np) {
-+		of_i2c_gpio_get_props(np, pdata);
- 	} else {
- 		/*
- 		 * If all platform data settings are zero it is OK
- 		 * to not provide any platform data from the board.
- 		 */
--		if (dev_get_platdata(&pdev->dev))
--			memcpy(pdata, dev_get_platdata(&pdev->dev),
--			       sizeof(*pdata));
-+		if (dev_get_platdata(dev))
-+			memcpy(pdata, dev_get_platdata(dev), sizeof(*pdata));
- 	}
- 
- 	/*
-@@ -123,7 +124,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 		gflags = GPIOD_OUT_HIGH;
- 	else
- 		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
--	priv->sda = devm_gpiod_get_index(&pdev->dev, NULL, 0, gflags);
-+	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
- 	if (IS_ERR(priv->sda)) {
- 		ret = PTR_ERR(priv->sda);
- 		/* FIXME: hack in the old code, is this really necessary? */
-@@ -142,7 +143,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 		gflags = GPIOD_OUT_LOW;
- 	else
- 		gflags = GPIOD_OUT_LOW_OPEN_DRAIN;
--	priv->scl = devm_gpiod_get_index(&pdev->dev, NULL, 1, gflags);
-+	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
- 	if (IS_ERR(priv->scl)) {
- 		ret = PTR_ERR(priv->scl);
- 		/* FIXME: hack in the old code, is this really necessary? */
-@@ -173,15 +174,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 	bit_data->data = priv;
- 
- 	adap->owner = THIS_MODULE;
--	if (pdev->dev.of_node)
--		strlcpy(adap->name, dev_name(&pdev->dev), sizeof(adap->name));
-+	if (np)
-+		strlcpy(adap->name, dev_name(dev), sizeof(adap->name));
- 	else
- 		snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
- 
- 	adap->algo_data = bit_data;
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
--	adap->dev.parent = &pdev->dev;
--	adap->dev.of_node = pdev->dev.of_node;
-+	adap->dev.parent = dev;
-+	adap->dev.of_node = np;
- 
- 	adap->nr = pdev->id;
- 	ret = i2c_bit_add_numbered_bus(adap);
-@@ -195,7 +196,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 	 * get accessors to get the actual name of the GPIO line,
- 	 * from the descriptor, then provide that instead.
- 	 */
--	dev_info(&pdev->dev, "using lines %u (SDA) and %u (SCL%s)\n",
-+	dev_info(dev, "using lines %u (SDA) and %u (SCL%s)\n",
- 		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl),
- 		 pdata->scl_is_output_only
- 		 ? ", no clock stretching" : "");
--- 
-2.13.5
+I'd prefer to take it. What I'd really like to see here is an ack from
+Rob because of the previous discussion of an earlier revision of this
+patch.
+
+
+--c3k3g3hmxn2uyaya
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnWEqQACgkQFA3kzBSg
+KbZX+w//YXKFM19HnM6m7d5reL8L5ZKnl3jrgkHNGiriSVgvNyVMg2k+urkC+IgS
+btqzZ0SA7kAQ/rDXC4A5hbvANB44SWMwo5fFAAwhN1UCILbKBsnTzjl273HrCR6s
+KoxPnyz2EbGnGVqDKK3lUY+6Uxgo9u30LFcnjIlvlJL+vnhdfI+SnSvruG6OghhK
+gGFPBU/xQyLZ+JNo1UQ8ccKkkGEg/1zb+XPbaeKzH9Jjk1OoaWX/tElv2GdsvAiK
+lgbgDYHzXKUcd/6ukxQGR6ItShjAUfZNNIBKoMgmMlYbWoBBkVJX3qnbaR5L9MDH
+r9Lzgn9gNCMlrGNV4xV6DIfPw+L27SN3hoCIH17oCpqAG/lPCu/UL+eqAnKzTm2v
+yvd2UlfgCmPL19zdx0a7Rpg6LVynkCymApZalb/WpvlCjCj/HGYyzknClYrydwZK
+tA1AIPo0dujg2l4IJgMRFaNXoAAUYRMhjkUZSy9cyCd6uM5OfXEj3UMWevyARed9
+kU8d05rqQDkWDAXX/MKcbCwAhDEJMzR5QhyvzXYkxSNH4EwohQpMlboVnxX0S6Xh
+b3Rz3R2lsCTsTyvOwLqwnx7tOV0IdOiHLoP/e4Q2+/UorC7AmX/N9UNhkeqYuDJl
+YuK0t7c7o5FykvUYTax/ebCGzMRPegvFR5Ox4FOX+zY7RaaDE1w=
+=DKpW
+-----END PGP SIGNATURE-----
+
+--c3k3g3hmxn2uyaya--
