@@ -1,73 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: Update documentation for
- "mv78230-a0-i2c"
-Date: Thu, 5 Oct 2017 13:08:20 +0200
-Message-ID: <20171005110820.phcjh7dmygi43dhq@ninjato>
-References: <20170928213605.22874-1-kalyan.kinthada@alliedtelesis.co.nz>
- <20170928213605.22874-3-kalyan.kinthada@alliedtelesis.co.nz>
- <87k20dmxw0.fsf@free-electrons.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v1] i2c:i2c-stm32f7: fix setup structure
+Date: Thu, 5 Oct 2017 13:14:44 +0200
+Message-ID: <20171005111444.77qib2ddnz4jmbnr@ninjato>
+References: <1506000609-27409-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="c3k3g3hmxn2uyaya"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="x6aochfhdu7k2ja7"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87k20dmxw0.fsf@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>, jason@lakedaemon.net, andrew@lunn.ch, sebastian.hesselbarth@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
+In-Reply-To: <1506000609-27409-1-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---c3k3g3hmxn2uyaya
+--x6aochfhdu7k2ja7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 02, 2017 at 04:23:43PM +0200, Gregory CLEMENT wrote:
-> Hi Wolfram,
-> =20
->  On ven., sept. 29 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.c=
-o.nz> wrote:
+On Thu, Sep 21, 2017 at 03:30:09PM +0200, Pierre-Yves MORDRET wrote:
+> I2C drive setup structure is not properly allocated.
+> Make it static instead of pointer to store driver data.
 >=20
-> > This commit modifies the documentation for
-> > "marvell,mv78230-a0-i2c" compatible string.
-> >
-> > The "marvell,mv78230-a0-i2c" compatible string enables the workaround
-> > for an i2c repeated start timing violation, but unlike
-> > "marvell,mv78230-i2c" it disables the i2c offload support. This is
-> > applicable to a number of SoCs such as early revisions of the Armada XP
-> > and the Armada 38x.
-> >
-> > Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>
->=20
->=20
-> I applied the dt fix on my mvebu/fixes branch. Do you want to apply this
-> one on your branch, or do you prefer I take it. In this case an acked-by
-> would be nice.
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
 
-I'd prefer to take it. What I'd really like to see here is an ack from
-Rob because of the previous discussion of an earlier revision of this
-patch.
+Ouch! How did it work before?
+
+Applied to for-current, thanks! Please provide a Fixes: tag next time,
+did this for you now.
 
 
---c3k3g3hmxn2uyaya
+--x6aochfhdu7k2ja7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnWEqQACgkQFA3kzBSg
-KbZX+w//YXKFM19HnM6m7d5reL8L5ZKnl3jrgkHNGiriSVgvNyVMg2k+urkC+IgS
-btqzZ0SA7kAQ/rDXC4A5hbvANB44SWMwo5fFAAwhN1UCILbKBsnTzjl273HrCR6s
-KoxPnyz2EbGnGVqDKK3lUY+6Uxgo9u30LFcnjIlvlJL+vnhdfI+SnSvruG6OghhK
-gGFPBU/xQyLZ+JNo1UQ8ccKkkGEg/1zb+XPbaeKzH9Jjk1OoaWX/tElv2GdsvAiK
-lgbgDYHzXKUcd/6ukxQGR6ItShjAUfZNNIBKoMgmMlYbWoBBkVJX3qnbaR5L9MDH
-r9Lzgn9gNCMlrGNV4xV6DIfPw+L27SN3hoCIH17oCpqAG/lPCu/UL+eqAnKzTm2v
-yvd2UlfgCmPL19zdx0a7Rpg6LVynkCymApZalb/WpvlCjCj/HGYyzknClYrydwZK
-tA1AIPo0dujg2l4IJgMRFaNXoAAUYRMhjkUZSy9cyCd6uM5OfXEj3UMWevyARed9
-kU8d05rqQDkWDAXX/MKcbCwAhDEJMzR5QhyvzXYkxSNH4EwohQpMlboVnxX0S6Xh
-b3Rz3R2lsCTsTyvOwLqwnx7tOV0IdOiHLoP/e4Q2+/UorC7AmX/N9UNhkeqYuDJl
-YuK0t7c7o5FykvUYTax/ebCGzMRPegvFR5Ox4FOX+zY7RaaDE1w=
-=DKpW
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnWFCQACgkQFA3kzBSg
+KbY13w//QAQXgYmF20eEIk1lC4jjJ9Z4ZMZGj3nMI+v+pRD7oRuZvMB1LQDOoeT1
+YJA2P/lff0Fw+NpvvBQDWTlFei0uFWbGngme3byHfm30cb2GiiO1aFgGgtK0VTvY
+ZxWJTSR8MHHp42PpG98hFinnTfJq9omVyZ8ciHgiLv/nVce9n1aqov3avRmwv89Z
+t9T2dtAVubJi7rLOTFkG7n0t8XwYCVH1dBfKMwTTfwcsnzS1/dGVHSHX9TFMLj0D
+neC0SxtNrC9M/WUzuTn6kOo6g/dzPRwLvdtFG+GE/OXVqyPrTtj9W1gQ5gl9YZWD
+X+WbhbSXS4unICGsqMO5BoGI5DC1S44nbh4+4BfVwcwG3cADgB+09ALlMFoTXPfA
+8oOTp2eYWvpyBOhp3DnuX5R/Zi3Jv8povjZ+5g2ynmGYXZimnAVBGFKc+NcMmOm9
+GdK4HBW8RZoMBHN1yZ2Cs3WSm/W86vN0D30lBesmbw43+/SHcyvrJg+l32v5Te9k
+R8eFRyTtdSZnH5CLkJMCyp6KVnO8rpyIPWqzmEDQ52lmIGBzCIEajgJcnlPMCzrv
+1djLSfEgKANn5aVBeKDK/z47Qio4Yhg1Gp1mSPlMC30FJK9xqJJ06rLwrjpayrXC
+16g2aNQPuKPhVEcoUPhgRGwbELIzvrZPRMtUV60IkFuTF0Qx/IQ=
+=9/mT
 -----END PGP SIGNATURE-----
 
---c3k3g3hmxn2uyaya--
+--x6aochfhdu7k2ja7--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
