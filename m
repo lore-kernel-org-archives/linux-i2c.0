@@ -1,26 +1,54 @@
-From: Rudolf Marek <r.marek@assembler.cz>
-Subject: Re: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h
- chips
-Date: Thu, 5 Oct 2017 20:34:01 +0200
-Message-ID: <29eac89d-d482-bc0a-22e1-166d0f8612be@assembler.cz>
-References: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: Update documentation for
+ "mv78230-a0-i2c"
+Date: Thu, 5 Oct 2017 18:29:53 -0500
+Message-ID: <20171005232953.gsxs6ecp6kopolf2@rob-hp-laptop>
+References: <20170928213605.22874-1-kalyan.kinthada@alliedtelesis.co.nz>
+ <20170928213605.22874-3-kalyan.kinthada@alliedtelesis.co.nz>
+ <87k20dmxw0.fsf@free-electrons.com>
+ <20171005110820.phcjh7dmygi43dhq@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:37712 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752045AbdJEX3z (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2017 19:29:55 -0400
+Content-Disposition: inline
+In-Reply-To: <20171005110820.phcjh7dmygi43dhq@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>, jason@lakedaemon.net, andrew@lunn.ch, sebastian.hesselbarth@gmail.com, mark.rutland@arm.com, linux@armlinux.org.uk, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-Hi Guys,
+On Thu, Oct 05, 2017 at 01:08:20PM +0200, Wolfram Sang wrote:
+> On Mon, Oct 02, 2017 at 04:23:43PM +0200, Gregory CLEMENT wrote:
+> > Hi Wolfram,
+> >  
+> >  On ven., sept. 29 2017, Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz> wrote:
+> > 
+> > > This commit modifies the documentation for
+> > > "marvell,mv78230-a0-i2c" compatible string.
+> > >
+> > > The "marvell,mv78230-a0-i2c" compatible string enables the workaround
+> > > for an i2c repeated start timing violation, but unlike
+> > > "marvell,mv78230-i2c" it disables the i2c offload support. This is
+> > > applicable to a number of SoCs such as early revisions of the Armada XP
+> > > and the Armada 38x.
+> > >
+> > > Signed-off-by: Kalyan Kinthada <kalyan.kinthada@alliedtelesis.co.nz>
+> > 
+> > 
+> > I applied the dt fix on my mvebu/fixes branch. Do you want to apply this
+> > one on your branch, or do you prefer I take it. In this case an acked-by
+> > would be nice.
+> 
+> I'd prefer to take it. What I'd really like to see here is an ack from
+> Rob because of the previous discussion of an earlier revision of this
+> patch.
 
-Even in "AMD Family 15h Models 60h-6Fh Processors" [1]
-are ports3 and ports4 marked as "Reserved". Maybe we should limit "KERN" to 2 ports?
+I'm confused how mv78230 relates to Armada XP or 38x... I don't really 
+want to know either. If normal compatible string conventions were 
+followed then I wouldn't have to.
 
-Thanks
-Rudolf
-
-[1] http://support.amd.com/TechDocs/50742_15h_Models_60h-6Fh_BKDG.pdf
+Rob
