@@ -1,129 +1,121 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 7/7 v3] i2c: gpio: Add support for named gpios in DT
-Date: Thu,  5 Oct 2017 13:03:10 +0200
-Message-ID: <20171005110310.5900-8-linus.walleij@linaro.org>
+Subject: [PATCH 5/7 v3] i2c: gpio: Local vars in probe
+Date: Thu,  5 Oct 2017 13:03:08 +0200
+Message-ID: <20171005110310.5900-6-linus.walleij@linaro.org>
 References: <20171005110310.5900-1-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:49689 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751890AbdJELDr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2017 07:03:47 -0400
-Received: by mail-wm0-f54.google.com with SMTP id b189so1358497wmd.4
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Oct 2017 04:03:46 -0700 (PDT)
+Received: from mail-wr0-f179.google.com ([209.85.128.179]:48825 "EHLO
+        mail-wr0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751890AbdJELDl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2017 07:03:41 -0400
+Received: by mail-wr0-f179.google.com with SMTP id u5so10398958wrc.5
+        for <linux-i2c@vger.kernel.org>; Thu, 05 Oct 2017 04:03:40 -0700 (PDT)
 In-Reply-To: <20171005110310.5900-1-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: Linus Walleij <linus.walleij@linaro.org>
 
-This adds support for using the "sda" and "scl" GPIOs in
-device tree instead of anonymously using index 0 and 1 of
-the "gpios" property.
+By creating local variables for *dev and *np, the code become
+much easier to read, in my opinion.
 
-We add a helper function to retrieve the GPIO descriptors
-and some explicit error handling since the probe may have
-to be deferred. At least this happened to me when moving
-to using named "sda" and "scl" lines (all of a sudden this
-started to probe before the GPIO driver) so we need to
-gracefully defer probe when we ge -ENOENT in the error
-pointer.
-
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
 ChangeLog v2->v3:
-- Switched using %d to print error code rather than %ld
+- Put memcpy on a single line, keeping down the LoC changed
 
-This is pretty much a rewrite of Geerts patch on top of
-my own changes to support descriptors.
+I put this at the end of the series because compared to the
+rest of the patches it is completely unimportant.
 ---
- drivers/i2c/busses/i2c-gpio.c | 59 +++++++++++++++++++++++++++++++------------
- 1 file changed, 43 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-gpio.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index a702e493275c..d80ea6ce91bb 100644
+index 97b9c29e9429..a702e493275c 100644
 --- a/drivers/i2c/busses/i2c-gpio.c
 +++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -82,6 +82,42 @@ static void of_i2c_gpio_get_props(struct device_node *np,
- 		of_property_read_bool(np, "i2c-gpio,scl-output-only");
- }
+@@ -88,10 +88,12 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_algo_bit_data *bit_data;
+ 	struct i2c_adapter *adap;
++	struct device *dev = &pdev->dev;
++	struct device_node *np = dev->of_node;
+ 	enum gpiod_flags gflags;
+ 	int ret;
  
-+static struct gpio_desc *i2c_gpio_get_desc(struct device *dev,
-+					   const char *con_id,
-+					   unsigned int index,
-+					   enum gpiod_flags gflags)
-+{
-+	struct gpio_desc *retdesc;
-+	int ret;
-+
-+	retdesc = devm_gpiod_get(dev, con_id, gflags);
-+	if (!IS_ERR(retdesc)) {
-+		dev_dbg(dev, "got GPIO from name %s\n", con_id);
-+		return retdesc;
-+	}
-+
-+	retdesc = devm_gpiod_get_index(dev, NULL, index, gflags);
-+	if (!IS_ERR(retdesc)) {
-+		dev_dbg(dev, "got GPIO from index %u\n", index);
-+		return retdesc;
-+	}
-+
-+	ret = PTR_ERR(retdesc);
-+
-+	/* FIXME: hack in the old code, is this really necessary? */
-+	if (ret == -EINVAL)
-+		retdesc = ERR_PTR(-EPROBE_DEFER);
-+
-+	/* This happens if the GPIO driver is not yet probed, let's defer */
-+	if (ret == -ENOENT)
-+		retdesc = ERR_PTR(-EPROBE_DEFER);
-+
-+	if (ret != -EPROBE_DEFER)
-+		dev_err(dev, "error trying to get descriptor: %d\n", ret);
-+
-+	return retdesc;
-+}
-+
- static int i2c_gpio_probe(struct platform_device *pdev)
- {
- 	struct i2c_gpio_private_data *priv;
-@@ -124,14 +160,10 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+-	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+@@ -99,16 +101,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	bit_data = &priv->bit_data;
+ 	pdata = &priv->pdata;
+ 
+-	if (pdev->dev.of_node) {
+-		of_i2c_gpio_get_props(pdev->dev.of_node, pdata);
++	if (np) {
++		of_i2c_gpio_get_props(np, pdata);
+ 	} else {
+ 		/*
+ 		 * If all platform data settings are zero it is OK
+ 		 * to not provide any platform data from the board.
+ 		 */
+-		if (dev_get_platdata(&pdev->dev))
+-			memcpy(pdata, dev_get_platdata(&pdev->dev),
+-			       sizeof(*pdata));
++		if (dev_get_platdata(dev))
++			memcpy(pdata, dev_get_platdata(dev), sizeof(*pdata));
+ 	}
+ 
+ 	/*
+@@ -123,7 +124,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
  		gflags = GPIOD_OUT_HIGH;
  	else
  		gflags = GPIOD_OUT_HIGH_OPEN_DRAIN;
--	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
--	if (IS_ERR(priv->sda)) {
--		ret = PTR_ERR(priv->sda);
--		/* FIXME: hack in the old code, is this really necessary? */
--		if (ret == -EINVAL)
--			ret = -EPROBE_DEFER;
--		return ret;
--	}
-+	priv->sda = i2c_gpio_get_desc(dev, "sda", 0, gflags);
-+	if (IS_ERR(priv->sda))
-+		return PTR_ERR(priv->sda);
-+
- 	/*
- 	 * If the SCL line is marked from platform data or device tree as
- 	 * "open drain" it means something outside of our control is making
-@@ -143,14 +175,9 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+-	priv->sda = devm_gpiod_get_index(&pdev->dev, NULL, 0, gflags);
++	priv->sda = devm_gpiod_get_index(dev, NULL, 0, gflags);
+ 	if (IS_ERR(priv->sda)) {
+ 		ret = PTR_ERR(priv->sda);
+ 		/* FIXME: hack in the old code, is this really necessary? */
+@@ -142,7 +143,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
  		gflags = GPIOD_OUT_LOW;
  	else
  		gflags = GPIOD_OUT_LOW_OPEN_DRAIN;
--	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
--	if (IS_ERR(priv->scl)) {
--		ret = PTR_ERR(priv->scl);
--		/* FIXME: hack in the old code, is this really necessary? */
--		if (ret == -EINVAL)
--			ret = -EPROBE_DEFER;
--		return ret;
--	}
-+	priv->scl = i2c_gpio_get_desc(dev, "scl", 1, gflags);
-+	if (IS_ERR(priv->scl))
-+		return PTR_ERR(priv->scl);
+-	priv->scl = devm_gpiod_get_index(&pdev->dev, NULL, 1, gflags);
++	priv->scl = devm_gpiod_get_index(dev, NULL, 1, gflags);
+ 	if (IS_ERR(priv->scl)) {
+ 		ret = PTR_ERR(priv->scl);
+ 		/* FIXME: hack in the old code, is this really necessary? */
+@@ -173,15 +174,15 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	bit_data->data = priv;
  
- 	bit_data->setsda = i2c_gpio_setsda_val;
- 	bit_data->setscl = i2c_gpio_setscl_val;
+ 	adap->owner = THIS_MODULE;
+-	if (pdev->dev.of_node)
+-		strlcpy(adap->name, dev_name(&pdev->dev), sizeof(adap->name));
++	if (np)
++		strlcpy(adap->name, dev_name(dev), sizeof(adap->name));
+ 	else
+ 		snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
+ 
+ 	adap->algo_data = bit_data;
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+-	adap->dev.parent = &pdev->dev;
+-	adap->dev.of_node = pdev->dev.of_node;
++	adap->dev.parent = dev;
++	adap->dev.of_node = np;
+ 
+ 	adap->nr = pdev->id;
+ 	ret = i2c_bit_add_numbered_bus(adap);
+@@ -195,7 +196,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 	 * get accessors to get the actual name of the GPIO line,
+ 	 * from the descriptor, then provide that instead.
+ 	 */
+-	dev_info(&pdev->dev, "using lines %u (SDA) and %u (SCL%s)\n",
++	dev_info(dev, "using lines %u (SDA) and %u (SCL%s)\n",
+ 		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl),
+ 		 pdata->scl_is_output_only
+ 		 ? ", no clock stretching" : "");
 -- 
 2.13.5
