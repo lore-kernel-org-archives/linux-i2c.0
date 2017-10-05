@@ -1,54 +1,125 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c: Cocci spatch "of_table"
-Date: Thu, 5 Oct 2017 13:26:44 +0200
-Message-ID: <20171005112644.pndi3upya3cflunk@ninjato>
-References: <1505974912018-1637125348-0-diffsplit-thomas@m3y3r.de>
- <1505974912018-1581728551-2-diffsplit-thomas@m3y3r.de>
+Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
+Date: Thu, 5 Oct 2017 14:01:25 +0200
+Message-ID: <20171005120125.nnhomwg2e2twbaqm@ninjato>
+References: <20170916030252.10680-1-amworsley@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="552puj7itg6tabud"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="zklvukmqjq6mzyph"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:39148 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751295AbdJEMB2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 5 Oct 2017 08:01:28 -0400
 Content-Disposition: inline
-In-Reply-To: <1505974912018-1581728551-2-diffsplit-thomas@m3y3r.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Meyer <thomas@m3y3r.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170916030252.10680-1-amworsley@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andrew Worsley <amworsley@gmail.com>, michal.simek@xilinx.com, soren.brinkmann@xilinx.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
 
---552puj7itg6tabud
-Content-Type: text/plain; charset=us-ascii
+--zklvukmqjq6mzyph
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 21, 2017 at 08:24:27AM +0200, Thomas Meyer wrote:
-> Make sure (of/i2c/platform)_device_id tables are NULL terminated.
-> Found by coccinelle spatch "misc/of_table.cocci"
+On Sat, Sep 16, 2017 at 01:02:52PM +1000, Andrew Worsley wrote:
+> The i2c interrupt handler was not checking against the length of
+> supplied buffer so if the hardware supplied more data than requested in
+> the i2c transfer it happily copies it right past the end of the buffer!
 >=20
-> Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+> Signed-off-by: Andrew Worsley <amworsley@gmail.com>
 
-Applied to for-current, thanks! But please use descriptive subjects, I
-cahanged it to "i2c: ensure termination of *_device_id tables"
+Thank you for the bug report. I don't know the hardware in detail, but I
+am a bit confused...
 
+> ---
+>=20
+>   This bug reliably caused a stack corruption when the hardware provided =
+more data than
+> asked for in the i2c request. The hardware (a tpm) very occasionally appe=
+nds a burst of
+> 0xff to the end of the data requested and the i2c interrupt handler mindl=
+essly copies all
+> the data right past the end of the buffer and in my case across the stack=
+=2E :-(
 
---552puj7itg6tabud
+=2E.. because you as the master should have control over how many bytes
+you want to have. If you are done, send NAK+STOP and the message is
+over. Is it really the device (which one is it BTW?)? Or is the FIFO
+handling of the master driver buggy?
+
+Michal, S=C3=B6ren?
+
+>=20
+>   With this patch the transfer now terminates with an -EIO but with out v=
+oilating the
+> buffer boundaries. I would prefer to just make the transfer succeed while=
+ not retrieving
+> additional bytes but I wasn't able to find an easy way to do this. As thi=
+s is definitely a
+> fault that causes a kernel oops I just wanted to get a fix out there for =
+others to avoid
+> the problem as it has taken me a few weeks to chase down this oops. If so=
+meone has a
+> better or nicer fix I would appreciate it or a pointer to how to do this.
+>=20
+>     Thanks
+>=20
+>     Andrew
+>  drivers/i2c/busses/i2c-cadence.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-ca=
+dence.c
+> index b13605718291..c1f61ca6843e 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -234,6 +234,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+>  	if (id->p_recv_buf &&
+>  	    ((isr_status & CDNS_I2C_IXR_COMP) ||
+>  	     (isr_status & CDNS_I2C_IXR_DATA))) {
+> +		unsigned char *p =3D id->p_recv_buf;
+>  		/* Read data if receive data valid is set */
+>  		while (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) &
+>  		       CDNS_I2C_SR_RXDV) {
+> @@ -246,6 +247,12 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+>  			    !id->bus_hold_flag)
+>  				cdns_i2c_clear_bus_hold(id);
+> =20
+> +			if (id->recv_count =3D=3D 0) {
+> +				pr_notice("%s: i2c receive buffer filled : %u aborting transfer %p -=
+ %p\n",
+> +					__func__, (id->p_recv_buf - p));
+> +				break;
+> +			}
+> +
+>  			*(id->p_recv_buf)++ =3D
+>  				cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
+>  			id->recv_count--;
+> --=20
+> 2.11.0
+>=20
+
+--zklvukmqjq6mzyph
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnWFvQACgkQFA3kzBSg
-KbZpZg/+JYGZZLkNTg7fdWZWKJpi3Bna7ZfiCBgMlqy6y2zkVrDj7BDY2AWyWbrC
-JD++LN9indQCExbtnUgOC00wZrRfvwqa1mLroBNlu/0BPycRFeK4HtQ2bE0U5v5S
-zE984yFYQ2theAc9+m8vo2iz8iRZEhmeOSN+APg/pIvgDHg/wvN2kXJUmjXAwLNm
-g/WAj4tIfHp9yIsD19TPFlChPTttZpQ5LNOPL8CGMAEJtL+JdoZXa0pqBH38rSTq
-aNUmGbwUvLfcUAdZBZ4QQeaws1z08RjGUVcmxJKIYFqRa+p33fS3qHufA0p53l5A
-f2cTnIhP0X07309PMQbhuM0NBObYsUT81JxyQ997guZVHeDOJhRk1jaeBVI/hD+b
-Jc0R5PZC7cDZ9T4ncO7jPQcXSlOejtjzt7sHTZP4SeIWiWjAPRrYkuRA+rw1M7hn
-cESLUcJd8yl7HHGSWkbYNgob5YtmETPsoSu5N+v49sjJSSoUV0QBDfGTq1K3QYVK
-+6OQrOSZp8uKqxalJY8O2dE7br9Lqqd4edns9Etr2anr1zmOqaTrlQOadAtGulO8
-3B1OOnrCCWu//zzubPWHs4w5kizCH57j/xfh5Wn2qgiqRfwvbrVlbwtCeKOMd2gF
-sroNqQqotQG3tpk9mv3zSN7q+JCMkDCXSQkGyEWzrBGeCdFXPfg=
-=Po5U
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnWHxEACgkQFA3kzBSg
+KbZhMA//TYM+nPLVCCZ/aiJihpm3iVszslW8aE+Royk7/EXne0gW6/NkIUgmUISU
+SRAwd/bQsqvGRzDFcY18Dv0YM/my9x0Xm3PyuJy/SIB22njzgZs0txJtVcgFPD8o
+dKpU3K2l07c6OEFtdD5Rcj/gtb4wscdn0iS+KJxyRdjNkVrPPUT+hiPJHiccZFIK
+hRRk3z5dMIVGXQkxB/ZZRS+5CONm1pSpCtV3XIZsfZgPO78Lvox2GbpjZSqqe+y8
+hCymhgawxLanzcEdNvo38hzXG7ZLmdJ6w6A2fmOD1cqJLOzYTkj2iHf/sTQsio51
++ovwj3OdxfzNR5ct2KAJaLYTBFSmj0RXPhIaQZEqV2gtOtk3Rse1EThIkqtY1qZw
+1PWehFqmtkgo2wKnJ+z4JCgSj7Hy1zEJX4goIMK0MEKj5Y88/5RP+3/BlE2ZMU9u
+6SRoaOE8BtyoRFxMxCm66NuGENTSozHZdFEwDFzxgnR4SQx7fNwFEWcnJ0hHKJzI
+sktGd65OOdF89n9BP6Jcno5nK36rAWjXSL58jbNZ+n/7kUibb1yTsyYauFbCC3v1
+TcEfD3fkSP9VoZubJNaj7B2tfo4N3Oy5Gc45tMgsVboLgy+7EwKDFQ3WT8DqpZ1T
+lP8NEl7UuNytEMqxUpOhQ6kPXIe7v14B0CwZtxy8HDpLaDNCi0U=
+=6w6Q
 -----END PGP SIGNATURE-----
 
---552puj7itg6tabud--
+--zklvukmqjq6mzyph--
