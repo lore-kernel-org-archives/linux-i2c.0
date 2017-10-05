@@ -1,68 +1,52 @@
-From: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Subject: [PATCH] i2c: generic recovery: check SCL before SDA
-Date: Thu,  5 Oct 2017 14:44:14 +0200
-Message-ID: <1507207454-25158-1-git-send-email-claudio.foellmi@ergon.ch>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.ergon.ch ([87.239.214.68]:41713 "EHLO mx1.ergon.ch"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751532AbdJEMpa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 5 Oct 2017 08:45:30 -0400
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+From: Pontus Andersson <epontan@gmail.com>
+Subject: Re: [PATCH] i2c: ismt: Separate I2C block read from SMBus block read
+Date: Thu, 5 Oct 2017 16:13:11 +0200
+Message-ID: <20171005141311.GA8565@leonis.localdomain>
+References: <20171002124519.GA13496@leonis.localdomain>
+ <20171005124133.7ue727bib2mlpnyy@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171005124133.7ue727bib2mlpnyy@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Stephen Douthit <stephend@adiengineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Move the check for a stuck SCL before the check for a high SDA.
-This prevent false positives in the specific case that SDA is fine
-and SCL is stuck, which previously returned 0.
+On Thu, Oct 05, 2017 at 02:41:33PM +0200, Wolfram Sang wrote:
+> On Mon, Oct 02, 2017 at 02:45:19PM +0200, Pontus Andersson wrote:
+> > Commit b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for
+> > block reads") broke I2C block reads. It aimed to fix normal SMBus block
+> > read, but changed the correct behavior of I2C block read in the process.
+> > 
+> > According to Documentation/i2c/smbus-protocol, one vital difference
+> > between normal SMBus block read and I2C block read is that there is no
+> > byte count prefixed in the data sent on the wire:
+> > 
+> >  SMBus Block Read:  i2c_smbus_read_block_data()
+> >  S Addr Wr [A] Comm [A]
+> >             S Addr Rd [A] [Count] A [Data] A [Data] A ... A [Data] NA P
+> > 
+> >  I2C Block Read:  i2c_smbus_read_i2c_block_data()
+> >  S Addr Wr [A] Comm [A]
+> >             S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
+> > 
+> > Therefore the two transaction types need to be processed differently in
+> > the driver by copying of the dma_buffer as done previously for the
+> > I2C_SMBUS_I2C_BLOCK_DATA case.
+> > 
+> > Fixes: b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for block reads")
+> > Signed-off-by: Pontus Andersson <epontan@gmail.com>
+> > Cc: stable@vger.kernel.org
+> 
+> Applied to for-current, thanks!
 
-Also check SDA again after the loop, if we can.
-Together, these changes should lead to a lot more failed
-recoveries being caught and returning error codes.
+Thank you! Is it safe to asume it will be backported to 4.4 stable
+branch and upwards as the problematic commit did (once in mainline)?
 
-Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
----
-I'm not sure if the null check for get_sda really is necessary
-(are there really any drivers that can access scl but not sda?),
-but I kept it in just in case.
+> Might have been good to CC the patch author of the problematic commit,
+> too.
 
- drivers/i2c/i2c-core-base.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 56e4658..65a0415 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -205,9 +205,6 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
- 	 */
- 	while (i++ < RECOVERY_CLK_CNT * 2) {
- 		if (val) {
--			/* Break if SDA is high */
--			if (bri->get_sda && bri->get_sda(adap))
--					break;
- 			/* SCL shouldn't be low here */
- 			if (!bri->get_scl(adap)) {
- 				dev_err(&adap->dev,
-@@ -215,6 +212,9 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
- 				ret = -EBUSY;
- 				break;
- 			}
-+			/* Break if SDA is high */
-+			if (bri->get_sda && bri->get_sda(adap))
-+				break;
- 		}
- 
- 		val = !val;
-@@ -222,6 +222,10 @@ static int i2c_generic_recovery(struct i2c_adapter *adap)
- 		ndelay(RECOVERY_NDELAY);
- 	}
- 
-+	/* check if recovery actually succeeded */
-+	if (bri->get_sda && !bri->get_sda(adap))
-+		ret = -EBUSY;
-+
- 	if (bri->unprepare_recovery)
- 		bri->unprepare_recovery(adap);
- 
--- 
-2.7.4
+Yes, of course! Stephen is CC now at least (kept the commit message
+quoted at his convenience).
