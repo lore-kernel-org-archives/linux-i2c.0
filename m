@@ -1,29 +1,46 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h
- chips
-Date: Fri, 6 Oct 2017 10:18:21 -0700
-Message-ID: <20171006171821.GA14922@roeck-us.net>
-References: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
- <29eac89d-d482-bc0a-22e1-166d0f8612be@assembler.cz>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH 4/7] i2c: gpio: Augment all boardfiles to use open drain
+Date: Fri, 06 Oct 2017 22:52:50 +0200
+Message-ID: <87bmlkf17h.fsf@belgarion.home>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+        <20170917093906.16325-5-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <29eac89d-d482-bc0a-22e1-166d0f8612be@assembler.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rudolf Marek <r.marek@assembler.cz>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:17419 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751491AbdJFUwy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 6 Oct 2017 16:52:54 -0400
+In-Reply-To: <20170917093906.16325-5-linus.walleij@linaro.org> (Linus
+        Walleij's message of "Sun, 17 Sep 2017 11:39:03 +0200")
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Steven Miao <realmz6@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, Ralf Baechle <ralf@linux-mips.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-arm-kernel@lists.infradead.org
 
-On Thu, Oct 05, 2017 at 08:34:01PM +0200, Rudolf Marek wrote:
-> Hi Guys,
-> 
-> Even in "AMD Family 15h Models 60h-6Fh Processors" [1]
-> are ports3 and ports4 marked as "Reserved". Maybe we should limit "KERN" to 2 ports?
-> 
+Linus Walleij <linus.walleij@linaro.org> writes:
 
-Maybe, if we are sure that this applies to all CPU models supported
-by the driver. That should be a separate patch, though. 
+> We now handle the open drain mode internally in the I2C GPIO
+> driver, but we will get warnings from the gpiolib that we
+> override the default mode of the line so it becomes open
+> drain.
+>
+> We can fix all in-kernel users by simply passing the right
+> flag along in the descriptor table, and we already touched
+> all of these files in the series so let's just tidy it up.
+>
+> Cc: Steven Miao <realmz6@gmail.com>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Acked-by: Olof Johansson <olof@lixom.net>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Collected ACKs.
+>
+> Steven (Blackfin): requesting ACK for Wolfram to take this patch.
+> Ralf (MIPS): requesting ACK for Wolfram to take this patch.
+For mach-pxa:
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-Thanks,
-Guenter
+Cheers.
