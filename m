@@ -1,130 +1,56 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 1/4] dt-bindings: media: Binding document for Qualcomm
- Camera Control Interface driver
-Date: Thu, 5 Oct 2017 22:29:54 -0700
-Message-ID: <20171006052954.GC1575@tuxbook>
-References: <1506953613-23875-1-git-send-email-todor.tomov@linaro.org>
- <1506953613-23875-2-git-send-email-todor.tomov@linaro.org>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v3 4/4] i2c: designware: add i2c gpio recovery option
+Date: Fri, 6 Oct 2017 13:56:35 +0800
+Message-ID: <d4432f21-c5f2-429d-5078-1e9b592a89b9@electromag.com.au>
+References: <1504073857-122449-1-git-send-email-preid@electromag.com.au>
+ <1504073857-122449-5-git-send-email-preid@electromag.com.au>
+ <ec3abe75-ff3d-8e19-3f7b-08f822e654e4@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1506953613-23875-2-git-send-email-todor.tomov@linaro.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Todor Tomov <todor.tomov@linaro.org>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:52838 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750732AbdJFF4h (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 6 Oct 2017 01:56:37 -0400
+In-Reply-To: <ec3abe75-ff3d-8e19-3f7b-08f822e654e4@linux.intel.com>
+Content-Language: en-AU
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, tim@krieglstein.org, linux-i2c@vger.kernel.org
 
-On Mon 02 Oct 07:13 PDT 2017, Todor Tomov wrote:
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-> new file mode 100644
-> index 0000000..f4c5338
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-> @@ -0,0 +1,55 @@
-> +Qualcomm Camera Control Interface I2C controller
+On 28/09/2017 21:21, Jarkko Nikula wrote:
+> On 08/30/2017 09:17 AM, Phil Reid wrote:
+>> From: Tim Sander <tim@krieglstein.org>
+>>
+>> This patch contains much input from Phil Reid and has been tested
+>> on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
+>> SCL and SDA GPIO's. I am still a little unsure about the recover
+>> in the timeout case (i2c-designware-core.c:770) as i could not
+>> test this codepath.
+>>
+>> Signed-off-by: Tim Sander <tim@krieglstein.org>
+>> Signed-off-by: Phil Reid <preid@electromag.com.au>
+>> ---
+>>   drivers/i2c/busses/i2c-designware-common.c | 11 ++++--
+>>   drivers/i2c/busses/i2c-designware-core.h   |  1 +
+>>   drivers/i2c/busses/i2c-designware-master.c | 57 ++++++++++++++++++++++++++++++
+>>   3 files changed, 66 insertions(+), 3 deletions(-)
+>>
+> While taking into account Andy's comments please modify the last sentence in the above commit log - i2c-designware-core.c doesn't exist anymore. Maybe better is 
+> to have the uncertainty documented as a "REVISIT:" comment in the code etc.
+> 
+>> @@ -254,9 +258,10 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
+>>       for_each_set_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
+>>           dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
+>> -    if (abort_source & DW_IC_TX_ARB_LOST)
+>> +    if (abort_source & DW_IC_TX_ARB_LOST) {
+>> +        i2c_recover_bus(&dev->adapter);
+> 
+> Are you sure about doing recovery for arbitration lost case? To me it seems wrong to do it if another master is accessing the bus.
+> 
+yes I think your right.
 
-Well, it's not a I2C controller, it is a MIPI CCI controller.
-
-> +
-> +Required properties:
-> + - compatible: Should be one of:
-> +   - "qcom,cci-v1.0.8" for 8916;
-> +   - "qcom,cci-v1.4.0" for 8996.
-> + - #address-cells: Should be <1>.
-> + - #size-cells: Should be <0>.
-> + - reg: Base address of the controller and length of memory mapped region.
-> + - reg-names: Should be "cci".
-
-No need for reg-names, as we only have one.
-
-> + - interrupts: Specifier for CCI interrupt.
-> + - interrupt-names: Should be "cci".
-
-No need for interrupt-names, as we only have one.
-
-> + - clocks: List of clock specifiers, one for each entry in clock-names.
-> + - clock-names: Should contain:
-> +   - "mmss_mmagic_ahb" - on 8996 only;
-> +   - "camss_top_ahb";
-> +   - "cci_ahb";
-> +   - "cci";
-> +   - "camss_ahb".
-> + - pinctrl-names: Should contain only one value - "default".
-> + - pinctrl-0: Pin control group to be used for this controller.
-
-No need to document that the node can have the default pinctrl
-properties.
-
-> +
-> +
-> +Required properties on 8996:
-> + - power-domains: Power domain specifier.
-> +
-> +Optional:
-> + - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
-> +   if omitted.
-> +
-> +Example:
-> +
-> +                cci: qcom,cci@a0c000 {
-
-Don't do qcom, in the node name, and there's probably no reason to have
-a label for this node either. So just make it
-
-		   cci@a0c000 {
-
-> +                        compatible = "qcom,cci-v1.4.0";
-> +                        #address-cells = <1>;
-> +                        #size-cells = <0>;
-> +                        reg = <0xa0c000 0x1000>;
-> +                        reg-names = "cci";
-> +                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
-> +                        interrupt-names = "cci";
-> +                        power-domains = <&mmcc CAMSS_GDSC>;
-> +                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
-> +                                        <&mmcc CAMSS_TOP_AHB_CLK>,
-> +                                        <&mmcc CAMSS_CCI_AHB_CLK>,
-> +                                        <&mmcc CAMSS_CCI_CLK>,
-> +                                        <&mmcc CAMSS_AHB_CLK>;
-> +                        clock-names = "mmss_mmagic_ahb",
-> +                                        "camss_top_ahb",
-> +                                        "cci_ahb",
-> +                                        "cci",
-> +                                        "camss_ahb";
-> +                        pinctrl-names = "default";
-> +                        pinctrl-0 = <&cci0_default>;
-> +                        clock-frequency = <400000>;
-> +                };
-
-In the case of this single cci block having two masters we need a way to
-describe the two sets of clients. I think the two options we have are:
-
-cci {
-	client {
-		reg = <0 0x2c>;
-	};
-};
-
-The reg here being <master address>
-
-or:
-
-cci {
-	master0 {
-		client {
-			reg = <0x2c>;
-		};
-	};
-};
-
-The name "master0" could be made significant and picked up by name, and
-in the case of single-master this level could be omitted.
-
-
-I like the first one, but it looks really hard to get implemented in
-Linux, based on the i2c core's expectation that #address-cells is 1. So
-I think the latter is the favourable option.
-
-Regards,
-Bjorn
+-- 
+Regards
+Phil Reid
