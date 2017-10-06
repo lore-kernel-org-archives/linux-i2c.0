@@ -1,40 +1,92 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH v1] i2c:i2c-stm32f7: fix setup structure
-Date: Fri, 6 Oct 2017 09:53:23 +0200
-Message-ID: <3b0e9bd4-298f-3ec9-7560-9758a8198e27@st.com>
-References: <1506000609-27409-1-git-send-email-pierre-yves.mordret@st.com>
- <20171005111444.77qib2ddnz4jmbnr@ninjato>
+From: Alexandre Torgue <alexandre.torgue-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v4 4/5] ARM: dts: stm32: Add I2C1 support for STM32F746
+ SoC
+Date: Fri, 6 Oct 2017 15:00:25 +0200
+Message-ID: <4b0f5b6c-2755-a7be-ac57-24844ae41f45@st.com>
+References: <1505399319-14782-1-git-send-email-pierre-yves.mordret@st.com>
+ <1505399319-14782-5-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171005111444.77qib2ddnz4jmbnr@ninjato>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1505399319-14782-5-git-send-email-pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Coquelin <mcoquelin.stm32-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
 
-
-On 10/05/2017 01:14 PM, Wolfram Sang wrote:
-> On Thu, Sep 21, 2017 at 03:30:09PM +0200, Pierre-Yves MORDRET wrote:
->> I2C drive setup structure is not properly allocated.
->> Make it static instead of pointer to store driver data.
->>
->> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+On 09/14/2017 04:28 PM, Pierre-Yves MORDRET wrote:
+> This patch adds I2C1 support for STM32F746 SoC.
 > 
-> Ouch! How did it work before?
-
-Well yes it did. When it has been discovered during internal code review I was
-skeptical but it turned out to be true. I tested on STM32 F7/H7 without any
-trouble : scary !
-
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret-qxv4g6HH51o@public.gmane.org>
+> ---
+>   Version history:
+>      v4:
+>      v3:
+>          * None
+>      v2:
+>          * Update I2C SoC device tree with latest Linux version
+> ---
+> ---
+>   arch/arm/boot/dts/stm32f746.dtsi | 22 ++++++++++++++++++++++
+>   1 file changed, 22 insertions(+)
 > 
-> Applied to for-current, thanks! Please provide a Fixes: tag next time,
-> did this for you now.
-> 
-Sorry I wasn't aware about that. I gonna remember for the next time.
-Thanks !
+> diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
+> index 4506eb9..ddd8f2c 100644
+> --- a/arch/arm/boot/dts/stm32f746.dtsi
+> +++ b/arch/arm/boot/dts/stm32f746.dtsi
 
-Py
+Applied on stm32-dt-for-v4.15 branch.
+
+Thanks
+Alex
+
+
+
+> @@ -361,6 +361,16 @@
+>   					bias-disable;
+>   				};
+>   			};
+> +
+> +			i2c1_pins_b: i2c1@0 {
+> +				pins {
+> +					pinmux = <STM32F746_PB9_FUNC_I2C1_SDA>,
+> +						 <STM32F746_PB8_FUNC_I2C1_SCL>;
+> +					bias-disable;
+> +					drive-open-drain;
+> +					slew-rate = <0>;
+> +				};
+> +			};
+>   		};
+>   
+>   		crc: crc@40023000 {
+> @@ -380,6 +390,18 @@
+>   			assigned-clocks = <&rcc 1 CLK_HSE_RTC>;
+>   			assigned-clock-rates = <1000000>;
+>   		};
+> +
+> +		i2c1: i2c@40005400 {
+> +			compatible = "st,stm32f7-i2c";
+> +			reg = <0x40005400 0x400>;
+> +			interrupts = <31>,
+> +				     <32>;
+> +			resets = <&rcc STM32F7_APB1_RESET(I2C1)>;
+> +			clocks = <&rcc 1 CLK_I2C1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+>   	};
+>   };
+>   
+> 
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
