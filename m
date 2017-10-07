@@ -1,65 +1,94 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: ismt: Separate I2C block read from SMBus block read
-Date: Sat, 7 Oct 2017 10:14:26 +0200
-Message-ID: <20171007081426.inlxjb4zevybkai6@ninjato>
-References: <20171002124519.GA13496@leonis.localdomain>
- <20171005124133.7ue727bib2mlpnyy@ninjato>
- <20171005141311.GA8565@leonis.localdomain>
+Subject: [PULL REQUEST] i2c for 4.14
+Date: Sat, 7 Oct 2017 10:27:14 +0200
+Message-ID: <20171007082710.or56cv7lqy5ixhc3@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7eenpfsu7pz52tn5"
+        protocol="application/pgp-signature"; boundary="mlmljnhvxkvsgqqb"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46229 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:46272 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750798AbdJGIO2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 7 Oct 2017 04:14:28 -0400
+        id S1750798AbdJGI1P (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 7 Oct 2017 04:27:15 -0400
 Content-Disposition: inline
-In-Reply-To: <20171005141311.GA8565@leonis.localdomain>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pontus Andersson <epontan@gmail.com>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Stephen Douthit <stephend@adiengineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>
 
 
---7eenpfsu7pz52tn5
+--mlmljnhvxkvsgqqb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+Linus,
+
+I2C has three driver fixes for the newly introduced drivers and one ID
+addition for the i801 driver.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
-> Thank you! Is it safe to asume it will be backported to 4.4 stable
-> branch and upwards as the problematic commit did (once in mainline)?
+The following changes since commit 9e66317d3c92ddaab330c125dfe9d06eee268aff:
 
-Yes, it has a Fixes: and a stable tag. That should do.
+  Linux 4.14-rc3 (2017-10-01 14:54:54 -0700)
 
-> > Might have been good to CC the patch author of the problematic commit,
-> > too.
->=20
-> Yes, of course! Stephen is CC now at least (kept the commit message
-> quoted at his convenience).
+are available in the git repository at:
 
-So, I'll wait for his tests and then send it to Linus ASAP. I think it
-should be in rc5.
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-4.14
+
+for you to fetch changes up to 25f2f440989c7079fdd8fccd54592cc077b63ae5:
+
+  i2c: i2c-stm32f7: make structure stm32f7_setup static const (2017-10-05 14:44:57 +0200)
+
+----------------------------------------------------------------
+Colin Ian King (1):
+      i2c: i2c-stm32f7: make structure stm32f7_setup static const
+
+Jarkko Nikula (1):
+      i2c: i801: Add support for Intel Cedar Fork
+
+Pierre-Yves MORDRET (1):
+      i2c: stm32f7: fix setup structure
+
+Thomas Meyer (1):
+      i2c: ensure termination of *_device_id tables
 
 
---7eenpfsu7pz52tn5
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Jean Delvare (1):
+      (Rev.) i2c: i801: Add support for Intel Cedar Fork
+
+ Documentation/i2c/busses/i2c-i801 |  1 +
+ drivers/i2c/busses/Kconfig        |  1 +
+ drivers/i2c/busses/i2c-i801.c     |  4 ++++
+ drivers/i2c/busses/i2c-sprd.c     |  1 +
+ drivers/i2c/busses/i2c-stm32f7.c  | 17 +++++++----------
+ 5 files changed, 14 insertions(+), 10 deletions(-)
+
+--mlmljnhvxkvsgqqb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnYjN4ACgkQFA3kzBSg
-KbaHYxAApRSTQJfWuy7tThwj0mNDv78vEfq1BSr8X8CqRaAGg+yNLmyHg5GD2RVm
-VuCQQqT17bN2FfZxloyuZy86QSjhtNjzhS/R5P3MX65ibZnEDzh/gQvFsqYYVLZ6
-qKQ7ca99AfhJMhcD/gZUnDovB3qAQDUD1VWrYhsgky2zYPw/s6/DatNpbXaAE/Ft
-bI7QxeRegcOgpjsbFaFSLqT0e9FG2sftQgWkENQmqMC2FMP7a3P4BmK2acQdMKCY
-v2wBpszTk1SU1/4tcl4HUhoLqI1Y1I/9fJw+K+f2QHfq4Kjh/F0YTXlNYQAMAFf0
-fvIHNNQg2PtWT3Vecpn1f9BMm4ImnbBi1hNpiYMDBVoAXMtjU2uRLty0qL7j6sql
-EOqLR5VDPUcv1wNmgl0SPfsY/QNO9FED19ciGIiMQd8zYI1YMncBZN5txH6FjJ4a
-97Nk3cZ7CfmjmE4kIB4ieswQbpx0UFDyvyoO0CF3A3zZCe1P/FO/YX9wnvYv7k6t
-kwPKZoGvYyNnKQ8qMfL2w60EBeLk7L/f9T6pDyWOinNqy12BIAOjR/cB1sMdi2w/
-uBRFcdu0Us4uaY7uPc0trCDq7/Q23fEZ/010ktMCtsU2x9gaj+BY/cgOJHv9ntRC
-rtSyr4RbVwqmrz257Gu4G8fS3jlWqt3wLIoWzXJ3j6omoSFap5Y=
-=THDB
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnYj94ACgkQFA3kzBSg
+KbauoA/+PC9tBr0VqO1pBkY09QKAAEltq3DCsVGl2RTptU6Plkf3I+3IsLrlEHxk
+WZuwILBFmKQG6p+oCd2T3fgOEouuDebHJ420hZorCOX9C4LKCdHUmGKle77wk9RK
+mKeGbLQPSpBfSjYTKn495GFjRvRkG5i+yS89BFq4jX+1g+ACQ2CKGsyuJRDpipe0
+0GgGSDNOozPDs4g870ktOWhJUzr7H4KIntijkUQoCOiGU/4tTsxzBBwaDkWFgRw2
+nzFK0bdxn4CMT7ZFKvTqr5Ys3dstAasQBpUmPxD857NE0IhcOLv7vCJECbgLFJuV
+K2y7zFIbBfMirc3TU/E29kYVC2tOb7U1CgGccnRRxx2XHF1cS9bhtcdTqAyw91Tn
+CdIwjMqJh/Bmo3Hb/k2YV1zMjRG/JGTClZv0lWLPHIsxIMczISm7g5PHxr7Sl3m+
+pH9WTDQHFW7kqu0lU5OwuAMtEYVCjqlVl2ARI6+ziITqxQ4DfE0jevCHGUyLQrEj
+nIflIlD993EbjufH9KEe0oMI4PP5uONK/VCjmynAah402U4Aa5KGSeUEA23twyGm
+zSrWgcNG2M+RndL9hJtNc/c5MVrGLk2qZoqxpKRfSgtiQ6PnTCTuLA6otLQRHGBq
+9AqVc1FDYdsQ5ydbEYwuW3T1u5pD6ejFhlqf0WloI4NOdy9Wptw=
+=bB3Q
 -----END PGP SIGNATURE-----
 
---7eenpfsu7pz52tn5--
+--mlmljnhvxkvsgqqb--
