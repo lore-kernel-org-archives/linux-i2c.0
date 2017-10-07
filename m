@@ -1,72 +1,65 @@
-From: Stephen Douthit <stephend@adiengineering.com>
-Subject: Re: [PATCH] i2c: ismt: Separate I2C block read from SMBus block read
-Date: Fri, 6 Oct 2017 18:54:56 -0400
-Message-ID: <9e4c9318-579f-b5f2-6ad2-c1cb9aad8e78@adiengineering.com>
-References: <20171002124519.GA13496@leonis.localdomain>
- <20171005124133.7ue727bib2mlpnyy@ninjato>
- <20171005141311.GA8565@leonis.localdomain>
-Reply-To: stephend@adiengineering.com
+From: Andrew Worsley <amworsley@gmail.com>
+Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
+Date: Sat, 7 Oct 2017 16:32:29 +1100
+Message-ID: <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
+References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0091.outbound.protection.outlook.com ([104.47.1.91]:57067
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751868AbdJFWzP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 6 Oct 2017 18:55:15 -0400
-In-Reply-To: <20171005141311.GA8565@leonis.localdomain>
-Content-Language: en-US
+Received: from mail-ua0-f176.google.com ([209.85.217.176]:45271 "EHLO
+        mail-ua0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750713AbdJGFcb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Oct 2017 01:32:31 -0400
+Received: by mail-ua0-f176.google.com with SMTP id l40so12182565uah.2
+        for <linux-i2c@vger.kernel.org>; Fri, 06 Oct 2017 22:32:30 -0700 (PDT)
+In-Reply-To: <20171005120125.nnhomwg2e2twbaqm@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pontus Andersson <epontan@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-On 10/05/2017 10:13 AM, Pontus Andersson wrote:
-> On Thu, Oct 05, 2017 at 02:41:33PM +0200, Wolfram Sang wrote:
->> On Mon, Oct 02, 2017 at 02:45:19PM +0200, Pontus Andersson wrote:
->>> Commit b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for
->>> block reads") broke I2C block reads. It aimed to fix normal SMBus block
->>> read, but changed the correct behavior of I2C block read in the process.
->>>
->>> According to Documentation/i2c/smbus-protocol, one vital difference
->>> between normal SMBus block read and I2C block read is that there is no
->>> byte count prefixed in the data sent on the wire:
->>>
->>>   SMBus Block Read:  i2c_smbus_read_block_data()
->>>   S Addr Wr [A] Comm [A]
->>>              S Addr Rd [A] [Count] A [Data] A [Data] A ... A [Data] NA P
->>>
->>>   I2C Block Read:  i2c_smbus_read_i2c_block_data()
->>>   S Addr Wr [A] Comm [A]
->>>              S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
->>>
->>> Therefore the two transaction types need to be processed differently in
->>> the driver by copying of the dma_buffer as done previously for the
->>> I2C_SMBUS_I2C_BLOCK_DATA case.
->>>
->>> Fixes: b6c159a9cb69 ("i2c: ismt: Don't duplicate the receive length for block reads")
->>> Signed-off-by: Pontus Andersson <epontan@gmail.com>
->>> Cc: stable@vger.kernel.org
->>
->> Applied to for-current, thanks!
-> 
-> Thank you! Is it safe to asume it will be backported to 4.4 stable
-> branch and upwards as the problematic commit did (once in mainline)?
-> 
->> Might have been good to CC the patch author of the problematic commit,
->> too.
-> 
-> Yes, of course! Stephen is CC now at least (kept the commit message
-> quoted at his convenience).
+> Thank you for the bug report. I don't know the hardware in detail, but I
+> am a bit confused...
+>
+>> ---
+>>   This bug reliably caused a stack corruption when the hardware provided=
+ more data than
+>> asked for in the i2c request. The hardware (a tpm) very occasionally app=
+ends a burst of
+>> 0xff to the end of the data requested and the i2c interrupt handler mind=
+lessly copies all
+>> the data right past the end of the buffer and in my case across the stac=
+k. :-(
+>
+> ... because you as the master should have control over how many bytes
+> you want to have. If you are done, send NAK+STOP and the message is
+> over. Is it really the device (which one is it BTW?)? Or is the FIFO
+> handling of the master driver buggy?
+>
+> Michal, S=C3=B6ren?
 
-Doh.  Looks like our regression test gave a false pass on the I2C access 
-case.  I'd guess it's probably doing a series of byte reads instead of a 
-block read and missing the I2C_SMBUS_I2C_BLOCK_DATA case entirely.
+Just a quick comment - as I don't have time at the moment to look
+deeply into the driver at the moment.
 
-Unfortunately I can't find the board that was modded with more I2C 
-devices on the ismt bus to verify this right now.  I'll check with Dan 
-on Monday to see if he knows where that board is stashed.
+I was just looking at Ch 20 of the TRM on the i2c under Read Transfer
+and it says step 4 write the number of requested bytes to the Transfer
+Size Register.
 
-Apologies for moving the bug instead of fixing it, and FWIW I'll have an 
-update Monday.
+But in the code it talks about a work around for large receive operation.
+
+Looking at the change log: commit  9fae82e1acda
+
+Explains for transfers > 252 bytes that
+
+     "the transfer size register has to be maintained at a value >=3D 1
+
+So my guess is the code is trying to keep this transfer size non-zero
+and so just keeps pulling more bytes our of the slave i2c device. I
+find it is hard to follow the complex code though.
+
+My buggy condition was a transfer of 128 bytes so it is not hit this
+condition except in that the slave supplies way more bytes than was in
+the original i2c_transfer request.
+
+Andrew
