@@ -1,65 +1,65 @@
-From: Andrew Worsley <amworsley@gmail.com>
-Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
-Date: Sat, 7 Oct 2017 16:32:29 +1100
-Message-ID: <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
-References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: ismt: Separate I2C block read from SMBus block read
+Date: Sat, 7 Oct 2017 10:14:26 +0200
+Message-ID: <20171007081426.inlxjb4zevybkai6@ninjato>
+References: <20171002124519.GA13496@leonis.localdomain>
+ <20171005124133.7ue727bib2mlpnyy@ninjato>
+ <20171005141311.GA8565@leonis.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7eenpfsu7pz52tn5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ua0-f176.google.com ([209.85.217.176]:45271 "EHLO
-        mail-ua0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750713AbdJGFcb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Oct 2017 01:32:31 -0400
-Received: by mail-ua0-f176.google.com with SMTP id l40so12182565uah.2
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Oct 2017 22:32:30 -0700 (PDT)
-In-Reply-To: <20171005120125.nnhomwg2e2twbaqm@ninjato>
+Received: from sauhun.de ([88.99.104.3]:46229 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750798AbdJGIO2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 7 Oct 2017 04:14:28 -0400
+Content-Disposition: inline
+In-Reply-To: <20171005141311.GA8565@leonis.localdomain>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Pontus Andersson <epontan@gmail.com>
+Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Stephen Douthit <stephend@adiengineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> Thank you for the bug report. I don't know the hardware in detail, but I
-> am a bit confused...
->
->> ---
->>   This bug reliably caused a stack corruption when the hardware provided=
- more data than
->> asked for in the i2c request. The hardware (a tpm) very occasionally app=
-ends a burst of
->> 0xff to the end of the data requested and the i2c interrupt handler mind=
-lessly copies all
->> the data right past the end of the buffer and in my case across the stac=
-k. :-(
->
-> ... because you as the master should have control over how many bytes
-> you want to have. If you are done, send NAK+STOP and the message is
-> over. Is it really the device (which one is it BTW?)? Or is the FIFO
-> handling of the master driver buggy?
->
-> Michal, S=C3=B6ren?
 
-Just a quick comment - as I don't have time at the moment to look
-deeply into the driver at the moment.
+--7eenpfsu7pz52tn5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I was just looking at Ch 20 of the TRM on the i2c under Read Transfer
-and it says step 4 write the number of requested bytes to the Transfer
-Size Register.
 
-But in the code it talks about a work around for large receive operation.
+> Thank you! Is it safe to asume it will be backported to 4.4 stable
+> branch and upwards as the problematic commit did (once in mainline)?
 
-Looking at the change log: commit  9fae82e1acda
+Yes, it has a Fixes: and a stable tag. That should do.
 
-Explains for transfers > 252 bytes that
+> > Might have been good to CC the patch author of the problematic commit,
+> > too.
+>=20
+> Yes, of course! Stephen is CC now at least (kept the commit message
+> quoted at his convenience).
 
-     "the transfer size register has to be maintained at a value >=3D 1
+So, I'll wait for his tests and then send it to Linus ASAP. I think it
+should be in rc5.
 
-So my guess is the code is trying to keep this transfer size non-zero
-and so just keeps pulling more bytes our of the slave i2c device. I
-find it is hard to follow the complex code though.
 
-My buggy condition was a transfer of 128 bytes so it is not hit this
-condition except in that the slave supplies way more bytes than was in
-the original i2c_transfer request.
+--7eenpfsu7pz52tn5
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Andrew
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnYjN4ACgkQFA3kzBSg
+KbaHYxAApRSTQJfWuy7tThwj0mNDv78vEfq1BSr8X8CqRaAGg+yNLmyHg5GD2RVm
+VuCQQqT17bN2FfZxloyuZy86QSjhtNjzhS/R5P3MX65ibZnEDzh/gQvFsqYYVLZ6
+qKQ7ca99AfhJMhcD/gZUnDovB3qAQDUD1VWrYhsgky2zYPw/s6/DatNpbXaAE/Ft
+bI7QxeRegcOgpjsbFaFSLqT0e9FG2sftQgWkENQmqMC2FMP7a3P4BmK2acQdMKCY
+v2wBpszTk1SU1/4tcl4HUhoLqI1Y1I/9fJw+K+f2QHfq4Kjh/F0YTXlNYQAMAFf0
+fvIHNNQg2PtWT3Vecpn1f9BMm4ImnbBi1hNpiYMDBVoAXMtjU2uRLty0qL7j6sql
+EOqLR5VDPUcv1wNmgl0SPfsY/QNO9FED19ciGIiMQd8zYI1YMncBZN5txH6FjJ4a
+97Nk3cZ7CfmjmE4kIB4ieswQbpx0UFDyvyoO0CF3A3zZCe1P/FO/YX9wnvYv7k6t
+kwPKZoGvYyNnKQ8qMfL2w60EBeLk7L/f9T6pDyWOinNqy12BIAOjR/cB1sMdi2w/
+uBRFcdu0Us4uaY7uPc0trCDq7/Q23fEZ/010ktMCtsU2x9gaj+BY/cgOJHv9ntRC
+rtSyr4RbVwqmrz257Gu4G8fS3jlWqt3wLIoWzXJ3j6omoSFap5Y=
+=THDB
+-----END PGP SIGNATURE-----
+
+--7eenpfsu7pz52tn5--
