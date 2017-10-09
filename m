@@ -1,74 +1,154 @@
-From: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Subject: RE: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Mon, 9 Oct 2017 03:14:24 +0000
-Message-ID: <7B8CE47BD58441468D2BB13285B50E6031DF530B@BGSMSX107.gar.corp.intel.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
- <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
- <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
- <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk>
- <20171003135109.v7ch7oc4fvjwzl7w@valkosipuli.retiisi.org.uk>
+From: Todor Tomov <todor.tomov@linaro.org>
+Subject: Re: [PATCH] [media] ov5645: I2C address change
+Date: Mon, 9 Oct 2017 11:36:01 +0300
+Message-ID: <edc2f078-0896-d9c7-f52a-e5d0604fdeea@linaro.org>
+References: <1506950925-13924-1-git-send-email-todor.tomov@linaro.org>
+ <20171004103008.g7azpn4a3hfj4fs2@valkosipuli.retiisi.org.uk>
+ <3073637.dhNDna4gKQ@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:54567 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752161AbdJIDOb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 8 Oct 2017 23:14:31 -0400
-In-Reply-To: <20171003135109.v7ch7oc4fvjwzl7w@valkosipuli.retiisi.org.uk>
+Received: from mail-wm0-f51.google.com ([74.125.82.51]:49361 "EHLO
+        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750795AbdJIIgG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Oct 2017 04:36:06 -0400
+Received: by mail-wm0-f51.google.com with SMTP id b189so20177503wmd.4
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Oct 2017 01:36:05 -0700 (PDT)
+In-Reply-To: <3073637.dhNDna4gKQ@avalon>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "'sakari.ailus@iki.fi'" <sakari.ailus@iki.fi>, Tomasz Figa <tfiga@chromium.org>
-Cc: "Mani, Rajmohan" <rajmohan.mani@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+To: Sakari Ailus <sakari.ailus@iki.fi>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, mchehab@kernel.org, hansverk@cisco.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-SGkgVG9tYXN6LA0KDQo+LS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBzYWthcmku
-YWlsdXNAaWtpLmZpIFttYWlsdG86c2FrYXJpLmFpbHVzQGlraS5maV0NCj5TZW50OiBUdWVzZGF5
-LCBPY3RvYmVyIDAzLCAyMDE3IDc6MjEgUE0NCj5UbzogVG9tYXN6IEZpZ2EgPHRmaWdhQGNocm9t
-aXVtLm9yZz4NCj5DYzogTWFuaSwgUmFqbW9oYW4gPHJham1vaGFuLm1hbmlAaW50ZWwuY29tPjsg
-TW9oYW5kYXNzLCBEaXZhZ2FyDQo+PGRpdmFnYXIubW9oYW5kYXNzQGludGVsLmNvbT47IHJvYmgr
-ZHRAa2VybmVsLm9yZzsNCj5tYXJrLnJ1dGxhbmRAYXJtLmNvbTsgd3NhQHRoZS1kcmVhbXMuZGU7
-IGRldmljZXRyZWVAdmdlci5rZXJuZWwub3JnOw0KPmxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+bWlrYS53ZXN0ZXJiZXJnQGxpbnV4Lmlu
-dGVsLmNvbTsgbGludXgtcG1Admdlci5rZXJuZWwub3JnDQo+U3ViamVjdDogUmU6IFtQQVRDSCB2
-NiAzLzNdIGVlcHJvbTogYXQyNDogZW5hYmxlIHJ1bnRpbWUgcG0gc3VwcG9ydA0KPg0KPkhpIFRv
-bWFzeiwNCj4NCj5PbiBXZWQsIFNlcCAyMCwgMjAxNyBhdCAxMjozMjoyMlBNICswMzAwLCBzYWth
-cmkuYWlsdXNAaWtpLmZpIHdyb3RlOg0KPj4gPiA+PiA+PiBAQCAtNzQzLDExICs3NzAsMTcgQEAg
-c3RhdGljIGludCBhdDI0X3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50DQo+PiA+ID4+ID4+ICpjbGll
-bnQsIGNvbnN0IHN0cnVjdCBpMmNfZGV2aWNlX2lkICppZCkNCj4+ID4gPj4gPj4NCj4+ID4gPj4g
-Pj4gICAgICAgaTJjX3NldF9jbGllbnRkYXRhKGNsaWVudCwgYXQyNCk7DQo+PiA+ID4+ID4+DQo+
-PiA+ID4+ID4+ICsgICAgIC8qIGVuYWJsZSBydW50aW1lIHBtICovDQo+PiA+ID4+ID4+ICsgICAg
-IHBtX3J1bnRpbWVfZ2V0X25vcmVzdW1lKCZjbGllbnQtPmRldik7DQo+PiA+ID4+ID4+ICsgICAg
-IHBtX3J1bnRpbWVfc2V0X2FjdGl2ZSgmY2xpZW50LT5kZXYpOw0KPj4gPiA+PiA+PiArICAgICBw
-bV9ydW50aW1lX2VuYWJsZSgmY2xpZW50LT5kZXYpOw0KPj4gPiA+Pg0KPj4gPiA+PiBEbyB3ZSBu
-ZWVkIHRoaXMgZ2V0X25vcmVzdW1lL3NldF9hY3RpdmUgZGFuY2U/IEkgcmVtZW1iZXIgaXQgd2Fz
-DQo+PiA+ID4+IGZvciBzb21lIHJlYXNvbiBuZWVkZWQgZm9yIFBDSSBkZXZpY2VzLCBidXQgSSBk
-b24ndCBzZWUgd2h5IGZvcg0KPj4gPiA+PiBJMkMgYW55dGhpbmcgZWxzZSB0aGFuIGp1c3QgcG1f
-cnVudGltZV9lbmFibGUoKSB3b3VsZCBiZSBuZWNlc3NhcnkuDQo+PiA+ID4NCj4+ID4gPiBZb3Ug
-c3BlY2lmaWNhbGx5IGRvIG5vdCBuZWVkIChhbGwpIHRoaXMgZm9yIFBDSSBkZXZpY2VzLCBidXQg
-QUZBSVUNCj4+ID4gPiBmb3IgSea2jg0KPj4gPiA+IGRldmljZXMgeW91IGRvLiBUaGUgcnVudGlt
-ZSBQTSBzdGF0dXMgb2YgYSBkZXZpY2UgaXMgZGlzYWJsZWQgYnkNCj4+ID4gPiBkZWZhdWx0IGFu
-ZCB0aGUgdXNlIGNvdW50IGlzIHplcm8sIGJ1dCBvbiBBQ1BJIGJhc2VkIHN5c3RlbXMgdGhlDQo+
-PiA+ID4gZGV2aWNlIGlzIHN0aWxsIHBvd2VyZWQgb24uDQo+PiA+DQo+PiA+IE9rYXksIHNvIF9n
-ZXRfbm9yZXN1bWUoKSBhbmQgX3NldF9hY3RpdmUoKSB3b3VsZCBkbyB0aGUgdGhpbmcgZm9yDQo+
-PiA+IEFDUEkgaW5kZWVkLCBidXQgbm90IHN1cmUgYWJvdXQgb3RoZXIgcGxhdGZvcm1zLiBQZXJo
-YXBzIF9lbmFibGUoKSwNCj4+ID4gX2dldF9zeW5jKCkgd291bGQgYmUgbW9yZSBnZW5lcmFsPw0K
-Pj4NCj4+IFdoYXQgSSBlbmRlZCB1cCBkb2luZyBpbiBlLmcuIHRoZSBzbWlhcHAgZHJpdmVyIHdh
-cyB0byBleHBsaWNpdGx5DQo+PiBwb3dlciB0aGUgZGV2aWNlIG9uIGZpcnN0IGFuZCB0aGVuIGVu
-YWJsZSBydW50aW1lIFBNLiAoU2VlDQo+PiBkcml2ZXJzL21lZGlhL2kyYy9zbWlhcHAvc21pYXBw
-LWNvcmUuYyAuKSBUaGlzIGFwcHJvYWNoIHdvcmtzIGV2ZW4gaWYNCj4+IENPTkZJR19QTSBpcyBk
-aXNhYmxlZCwgYm90aCBvbiBEVCBhbmQgQUNQSS4NCj4NCj5wbV9ydW50aW1lX2dldF9ub3Jlc3Vt
-ZSgpICsgcG1fcnVudGltZV9wdXQoKSBjYW4gYmUgcmVwbGFjZWQgYnkgYSBzaW5nbGUNCj5wbV9y
-dW50aW1lX2lkbGUoKSBjYWxsICh3aGVyZSBwbV9ydW50aW1lX3B1dCgpIHdhcykuIHBtX3J1bnRp
-bWVfZW5hYmxlKCkNCj5pcyByZXF1aXJlZCB0byBlbmFibGUgcnVudGltZSBQTSBmb3IgYSBkZXZp
-Y2UuDQoNClZlcmlmaWVkIHRoZSBjaGFuZ2Ugc3VnZ2VzdGVkIGJ5IFNha2FyaS4gDQpMZXQgbWUg
-a25vdyBJIGNhbiBzZW5kIGEgdXBkYXRlZCBwYXRjaCB2ZXJzaW9uIHdpdGggdGhpcyBjaGFuZ2Uu
-DQoNCj4NCj5wbV9ydW50aW1lX2FsbG93KCkgbWF5IGJlIG9taXR0ZWQgYnV0IHRoZW4gdG8gbWFr
-ZSB0aGUgcnVudGltZSBQTQ0KPmZyYW1ld29yayB0byBtYWtlIHRoZSBwb3dlciBzdGF0ZSB0cmFu
-c2l0aW9ucyB0aGlzIG5lZWRzIHRvIGJlIGNvbmZpZ3VyZWQNCj5mcm9tIHRoZSB1c2VyIHNwYWNl
-IC0tLSB3aGljaCBJIGRvbid0IHRoaW5rIGlzIGludGVuZGVkLg0KPg0KPkNjIGxpbnV4LXBtLCB0
-b28uDQo+DQo+LS0NCj5SZWdhcmRzLA0KPg0KPlNha2FyaSBBaWx1cw0KPmUtbWFpbDogc2FrYXJp
-LmFpbHVzQGlraS5maQ0K
+Hi Sakari,
+
+On  4.10.2017 13:47, Laurent Pinchart wrote:
+> CC'ing the I2C mainling list and the I2C maintainer.
+> 
+> On Wednesday, 4 October 2017 13:30:08 EEST Sakari Ailus wrote:
+>> Hi Todor,
+>>
+>> On Mon, Oct 02, 2017 at 04:28:45PM +0300, Todor Tomov wrote:
+>>> As soon as the sensor is powered on, change the I2C address to the one
+>>> specified in DT. This allows to use multiple physical sensors connected
+>>> to the same I2C bus.
+>>>
+>>> Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+>>
+>> The smiapp driver does something similar and I understand Laurent might be
+>> interested in such functionality as well.
+>>
+>> It'd be nice to handle this through the I²C framework instead and to define
+>> how the information is specified through DT. That way it could be made
+>> generic, to work with more devices than just this one.
+>>
+>> What do you think?
+
+Thank you for this suggestion.
+
+The way I have done it is to put the new I2C address in the DT and the driver
+programs the change using the original I2C address. The original I2C address
+is hardcoded in the driver. So maybe we can extend the DT binding and the I2C
+framework so that both addresses come from the DT and avoid hiding the
+original I2C address in the driver. This sounds good to me.
+
+Then changing the address could be device specific and also this must be done
+right after power on so that there are no address conflicts. So I don't think
+that we can support this through the I2C framework only, the drivers that we
+want to do that will have to be expanded with this functionality. Or do you
+have any other idea?
+
+Best regards,
+Todor 
+
+>>
+>> Cc Laurent.
+>>
+>>> ---
+>>>
+>>>  drivers/media/i2c/ov5645.c | 42 ++++++++++++++++++++++++++++++++++++++++
+>>>  1 file changed, 42 insertions(+)
+>>>
+>>> diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
+>>> index d28845f..8541109 100644
+>>> --- a/drivers/media/i2c/ov5645.c
+>>> +++ b/drivers/media/i2c/ov5645.c
+>>> @@ -33,6 +33,7 @@
+>>>  #include <linux/i2c.h>
+>>>  #include <linux/init.h>
+>>>  #include <linux/module.h>
+>>> +#include <linux/mutex.h>
+>>>  #include <linux/of.h>
+>>>  #include <linux/of_graph.h>
+>>>  #include <linux/regulator/consumer.h>
+>>> @@ -42,6 +43,8 @@
+>>>  #include <media/v4l2-fwnode.h>
+>>>  #include <media/v4l2-subdev.h>
+>>>
+>>> +static DEFINE_MUTEX(ov5645_lock);
+>>> +
+>>>  #define OV5645_VOLTAGE_ANALOG               2800000
+>>>  #define OV5645_VOLTAGE_DIGITAL_CORE         1500000
+>>>  #define OV5645_VOLTAGE_DIGITAL_IO           1800000
+>>> @@ -590,6 +593,31 @@ static void ov5645_regulators_disable(struct ov5645
+>>> *ov5645)
+>>>  		dev_err(ov5645->dev, "io regulator disable failed\n");
+>>>  }
+>>>
+>>> +static int ov5645_write_reg_to(struct ov5645 *ov5645, u16 reg, u8 val,
+>>> +			       u16 i2c_addr)
+>>> +{
+>>> +	u8 regbuf[3] = {
+>>> +		reg >> 8,
+>>> +		reg & 0xff,
+>>> +		val
+>>> +	};
+>>> +	struct i2c_msg msgs = {
+>>> +		.addr = i2c_addr,
+>>> +		.flags = 0,
+>>> +		.len = 3,
+>>> +		.buf = regbuf
+>>> +	};
+>>> +	int ret;
+>>> +
+>>> +	ret = i2c_transfer(ov5645->i2c_client->adapter, &msgs, 1);
+>>> +	if (ret < 0)
+>>> +		dev_err(ov5645->dev,
+>>> +			"%s: write reg error %d on addr 0x%x: reg=0x%x, val=0x%x\n",
+>>> +			__func__, ret, i2c_addr, reg, val);
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>>  static int ov5645_write_reg(struct ov5645 *ov5645, u16 reg, u8 val)
+>>>  {
+>>>  	u8 regbuf[3];
+>>> @@ -729,10 +757,24 @@ static int ov5645_s_power(struct v4l2_subdev *sd,
+>>> int on)
+>>>  	 */
+>>>  	if (ov5645->power_count == !on) {
+>>>  		if (on) {
+>>> +			mutex_lock(&ov5645_lock);
+>>> +
+>>>  			ret = ov5645_set_power_on(ov5645);
+>>>  			if (ret < 0)
+>>>  				goto exit;
+>>>
+>>> +			ret = ov5645_write_reg_to(ov5645, 0x3100,
+>>> +						ov5645->i2c_client->addr, 0x78);
+>>> +			if (ret < 0) {
+>>> +				dev_err(ov5645->dev,
+>>> +					"could not change i2c address\n");
+>>> +				ov5645_set_power_off(ov5645);
+>>> +				mutex_unlock(&ov5645_lock);
+>>> +				goto exit;
+>>> +			}
+>>> +
+>>> +			mutex_unlock(&ov5645_lock);
+>>> +
+>>>  			ret = ov5645_set_register_array(ov5645,
+>>>  					ov5645_global_init_setting,
+>>>  					ARRAY_SIZE(ov5645_global_init_setting));
+> 
