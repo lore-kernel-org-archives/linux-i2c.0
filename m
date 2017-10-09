@@ -1,109 +1,167 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] [media] ov5645: I2C address change
-Date: Mon, 09 Oct 2017 15:52:32 +0300
-Message-ID: <2363273.DvfkURjy3A@avalon>
-References: <1506950925-13924-1-git-send-email-todor.tomov@linaro.org> <edc2f078-0896-d9c7-f52a-e5d0604fdeea@linaro.org> <20171009093425.ftxgckycj2nuumle@valkosipuli.retiisi.org.uk>
+From: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH 1/7] i2c: gpio: Convert to use descriptors
+Date: Mon, 9 Oct 2017 16:24:03 +0200
+Message-ID: <20171009142403.GA17971@linux-mips.org>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-2-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171009093425.ftxgckycj2nuumle@valkosipuli.retiisi.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@iki.fi>
-Cc: Todor Tomov <todor.tomov@linaro.org>, mchehab@kernel.org, hansverk@cisco.com, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from eddie.linux-mips.org ([148.251.95.138]:51288 "EHLO
+        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754411AbdJIOY1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Oct 2017 10:24:27 -0400
+Received: from localhost.localdomain ([127.0.0.1]:59356 "EHLO linux-mips.org"
+        rhost-flags-OK-OK-OK-FAIL) by eddie.linux-mips.org with ESMTP
+        id S23992800AbdJIOYZYL09s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 9 Oct 2017 16:24:25 +0200
+Content-Disposition: inline
+In-Reply-To: <20170917093906.16325-2-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, adi-buildroot-devel@lists.sourceforge.net, Geert Uytterhoeven <geert@linux-m68k.org>, Steven Miao <realmz6@gmail.com>, Lee Jones <lee.jones@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben.dooks@codethink.co.uk>, Heiko Schocher <hs@denx.de>
 
-Hello,
+On Sun, Sep 17, 2017 at 11:39:00AM +0200, Linus Walleij wrote:
 
-On Monday, 9 October 2017 12:34:26 EEST Sakari Ailus wrote:
-> On Mon, Oct 09, 2017 at 11:36:01AM +0300, Todor Tomov wrote:
-> > On  4.10.2017 13:47, Laurent Pinchart wrote:
-> >> CC'ing the I2C mainling list and the I2C maintainer.
-> >>=20
-> >> On Wednesday, 4 October 2017 13:30:08 EEST Sakari Ailus wrote:
-> >>> On Mon, Oct 02, 2017 at 04:28:45PM +0300, Todor Tomov wrote:
-> >>>> As soon as the sensor is powered on, change the I2C address to the o=
-ne
-> >>>> specified in DT. This allows to use multiple physical sensors
-> >>>> connected to the same I2C bus.
-> >>>>=20
-> >>>> Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
-> >>>=20
-> >>> The smiapp driver does something similar and I understand Laurent mig=
-ht
-> >>> be interested in such functionality as well.
-> >>>=20
-> >>> It'd be nice to handle this through the I=B2C framework instead and to
-> >>> define how the information is specified through DT. That way it could
-> >>> be made generic, to work with more devices than just this one.
-> >>>=20
-> >>> What do you think?
-> >=20
-> > Thank you for this suggestion.
-> >=20
-> > The way I have done it is to put the new I2C address in the DT and the
-> > driver programs the change using the original I2C address. The original
-> > I2C address is hardcoded in the driver. So maybe we can extend the DT
-> > binding and the I2C framework so that both addresses come from the DT a=
-nd
-> > avoid hiding the original I2C address in the driver. This sounds good to
-> > me.
->=20
-> Agreed.
->=20
-> In this case the address is known but in general that's not the case it's
-> not that simple. There are register compatible devices that have different
-> addresses even if they're the same devices.
->=20
-> It might be a good idea to make this explicit.
+> This converts the GPIO-based I2C-driver to using GPIO
+> descriptors instead of the old global numberspace-based
+> GPIO interface. We:
+> 
+> - Convert the driver to unconditionally grab two GPIOs
+>   from the device by index 0 (SDA) and 1 (SCL) which
+>   will work fine with device tree and descriptor tables.
+>   The existing device trees will continue to work just
+>   like before, but without any roundtrip through the
+>   global numberspace.
+> 
+> - Brutally convert all boardfiles still passing global
+>   GPIOs by registering descriptor tables associated with
+>   the devices instead so this driver does not need to keep
+>   supporting passing any GPIO numbers as platform data.
+> 
+> There is no stepwise approach as elegant as this, I
+> strongly prefer this big hammer over any antsteps for this
+> conversion. This way the old GPIO numbers go away and
+> NEVER COME BACK.
+> 
+> Special conversion for the different boards utilizing
+> I2C-GPIO:
+> 
+> - EP93xx (arch/arm/mach-ep93xx): pretty straight forward as
+>   all boards were using the same two GPIO lines, just define
+>   these two in a lookup table for "i2c-gpio" and register
+>   these along with the device. None of them define any
+>   other platform data so just pass NULL as platform data.
+>   This platform selects GPIOLIB so all should be smooth.
+>   The pins appear on a gpiochip for bank "G" as pins 1 (SDA)
+>   and 0 (SCL).
+> 
+> - IXP4 (arch/arm/mach-ixp4): descriptor tables have to
+>   be registered for each board separately. They all use
+>   "IXP4XX_GPIO_CHIP" so it is pretty straight forward.
+>   Most board define no other platform data than SCL/SDA
+>   so they can drop the #include of <linux/i2c-gpio.h> and
+>   assign NULL to platform data.
+> 
+>   The "goramo_mlr" (Goramo Multilink Router) board is a bit
+>   worrisome: it implements its own I2C bit-banging in the
+>   board file, and optionally registers an I2C serial port,
+>   but claims the same GPIO lines for itself in the board file.
+>   This is not going to work: there will be competition for the
+>   GPIO lines, so delete the optional extra I2C bus instead, no
+>   I2C devices are registered on it anyway, there are just hints
+>   that it may contain an EEPROM that may be accessed from
+>   userspace. This needs to be fixed up properly by the serial
+>   clock using I2C emulation so drop a note in the code.
+> 
+> - KS8695 board acs5k (arch/arm/mach-ks8695/board-acs5.c)
+>   has some platform data in addition to the pins so it needs to
+>   be kept around sans GPIO lines. Its GPIO chip is named
+>   "KS8695" and the arch selects GPIOLIB.
+> 
+> - PXA boards (arch/arm/mach-pxa/*) use some of the platform
+>   data so it needs to be preserved here. The viper board even
+>   registers two GPIO I2Cs. The gpiochip is named "gpio-pxa" and
+>   the arch selects GPIOLIB.
+> 
+> - SA1100 Simpad (arch/arm/mach-sa1100/simpad.c) defines a GPIO
+>   I2C bus, and the arch selects GPIOLIB.
+> 
+> - Blackfin boards (arch/blackfin/bf533 etc) for these I assume
+>   their I2C GPIOs refer to the local gpiochip defined in
+>   arch/blackfin/kernel/bfin_gpio.c names "BFIN-GPIO".
+>   The arch selects GPIOLIB. The boards get spiked with
+>   IF_ENABLED(I2C_GPIO) but that is a side effect of it
+>   being like that already (I would just have Kconfig select
+>   I2C_GPIO and get rid of them all.) I also delete any
+>   platform data set to 0 as it will get that value anyway
+>   from static declartions of platform data.
+> 
+> - The MIPS selects GPIOLIB and the Alchemy machine is using
+>   two local GPIO chips, one of them has a GPIO I2C. We need
+>   to adjust the local offset from the global number space here.
+>   The ATH79 has a proper GPIO driver in drivers/gpio/gpio-ath79.c
+>   and AFAICT the chip is named "ath79-gpio" and the PB44
+>   PCF857x expander spawns from this on GPIO 1 and 0. The latter
+>   board only use the platform data to specify pins so it can be
+>   cut altogether after this.
+> 
+> - The MFD Silicon Motion SM501 is a special case. It dynamically
+>   spawns an I2C bus off the MFD using sm501_create_subdev().
+>   We use an approach to dynamically create a machine descriptor
+>   table and attach this to the "SM501-LOW" or "SM501-HIGH"
+>   gpiochip. We use chip-local offsets to grab the right lines.
+>   We can get rid of two local static inline helpers as part
+>   of this refactoring.
+> 
+> Cc: Steven Miao <realmz6@gmail.com>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Lee Jones <lee.jones@linaro.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: Magnus Damm <magnus.damm@gmail.com>
+> Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+> Cc: Heiko Schocher <hs@denx.de>
+> Acked-by: Olof Johansson <olof@lixom.net>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Fix a minor typo in error path (scl was sda from copy-paste)
+> - Collected Olof's ACK
+> 
+> Steven (Blackfin): requesting ACK for Wolfram to take this patch.
+> Ralf (MIPS): requesting ACK for Wolfram to take this patch.
+> Lee: requesting ACK for Wolfram to take this patch.
+> SM501 users: requesting Tested-by on this patch.
+> ---
+>  arch/arm/mach-ep93xx/core.c                  |  39 ++++----
+>  arch/arm/mach-ep93xx/edb93xx.c               |  15 +--
+>  arch/arm/mach-ep93xx/include/mach/platform.h |   4 +-
+>  arch/arm/mach-ep93xx/simone.c                |  12 +--
+>  arch/arm/mach-ep93xx/snappercl15.c           |  12 +--
+>  arch/arm/mach-ep93xx/vision_ep9307.c         |   7 +-
+>  arch/arm/mach-ixp4xx/avila-setup.c           |  17 +++-
+>  arch/arm/mach-ixp4xx/dsmg600-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/fsg-setup.c             |  16 +++-
+>  arch/arm/mach-ixp4xx/goramo_mlr.c            |  24 ++---
+>  arch/arm/mach-ixp4xx/ixdp425-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nas100d-setup.c         |  16 +++-
+>  arch/arm/mach-ixp4xx/nslu2-setup.c           |  16 +++-
+>  arch/arm/mach-ks8695/board-acs5k.c           |  13 ++-
+>  arch/arm/mach-pxa/palmz72.c                  |  12 ++-
+>  arch/arm/mach-pxa/viper.c                    |  27 +++++-
+>  arch/arm/mach-sa1100/simpad.c                |  12 ++-
+>  arch/blackfin/mach-bf533/boards/blackstamp.c |  19 +++-
+>  arch/blackfin/mach-bf533/boards/ezkit.c      |  18 +++-
+>  arch/blackfin/mach-bf533/boards/stamp.c      |  18 +++-
+>  arch/blackfin/mach-bf561/boards/ezkit.c      |  18 +++-
+>  arch/mips/alchemy/board-gpr.c                |  19 +++-
+>  arch/mips/ath79/mach-pb44.c                  |  16 +++-
 
-Yes, in the general case we need to specify the original address in DT, as =
-the=20
-chip could have a non-fixed boot-up I2C address.
+For MIPS:
 
-In many cases the value of the new I2C address doesn't matter much, as long=
- as=20
-it's unique on the bus. I was thinking about implementing a dynamic allocat=
-or=20
-for I2C addresses, but after discussing it with Wolfram we concluded that i=
-t=20
-would probably not be a good idea. There could be other I2C devices on the =
-bus=20
-that Linux isn't aware of, in which case the dynamic allocator could create=
-=20
-address conflicts. Specifying the new address in DT is likely a better idea=
-,=20
-even if it could feel a bit more of system configuration information than a=
-=20
-pure hardware description.
+Acked-by: Ralf Baechle <ralf@linux-mips.org>
 
-> > Then changing the address could be device specific and also this must be
-> > done right after power on so that there are no address conflicts. So I
-> > don't think that we can support this through the I2C framework only, the
-> > drivers that we want to do that will have to be expanded with this
-> > functionality. Or do you have any other idea?
->=20
-> Yes, how the address is changed is always hardware specific. This would be
-> most conveniently done in driver's probe or PM runtime_resume functions.
-
-This patch modifies client->addr directly, which I don't think is a good id=
-ea.=20
-I'd prefer making the I2C core aware of the address change through an expli=
-cit=20
-API call. This would allow catching I2C adress conflicts for instance.
-
-> It could be as simple as providing an adapter specific mutex to serialise
-> address changes on the bus so that no two address changes are taking place
-> at the same time. Which is essentially the impliementation you had, only
-> the mutex would be for the I=B2C adapter, not the driver. An helper funct=
-ions
-> for acquiring and releasing the mutex.
-
-Why do you need to serialize address changes ?
-
-> I wonder what others think.
-
-=2D-=20
-Regards,
-
-Laurent Pinchart
+  Ralf
