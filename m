@@ -1,63 +1,43 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v3] i2c: piix4: Disable completely the IMC during
- SMBUS_BLOCK_DATA
-Date: Tue, 10 Oct 2017 20:28:59 +0200
-Message-ID: <20171010202859.2d2f0865@endymion>
-References: <20171010161115.2259-1-ricardo.ribalda@gmail.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v2 0/3] i2c-xlp9xx: update i2c driver to handle
+ I2C_M_RECV_LEN flag
+Date: Wed, 11 Oct 2017 01:35:10 +0200
+Message-ID: <CAJZ5v0gz9FQMXhiBokOKY5esrmv2JNoScsv5-LNR2ui_CZPdAQ@mail.gmail.com>
+References: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51086 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756288AbdJJS3D (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Oct 2017 14:29:03 -0400
-In-Reply-To: <20171010161115.2259-1-ricardo.ribalda@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Kamlakant Patel <kamlakant.patel@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
 List-Id: linux-i2c@vger.kernel.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, 10 Oct 2017 18:11:15 +0200, Ricardo Ribalda Delgado wrote:
-> SMBUS_BLOCK_DATA transactions might fail due to a race condition with
-> the IMC (Integrated Micro Controller), even when the IMC semaphore
-> is used.
-> 
-> This bug has been reported and confirmed by AMD, who suggested as a
-> solution an IMC firmware upgrade (obtained via BIOS update) and
-> disabling the IMC during SMBUS_BLOCK_DATA transactions.
-> 
-> Even without the IMC upgrade, the SMBUS is much more stable with this
-> patch.
-> 
-> Tested on a Bettong-alike board.
-> 
-> Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-> ---
-> v3: Suggestions by Jean Delvare <jdelvare@suse.de>
-> -Group booleans in struct i2c_piix4_adaptada
-> (Sorry about that, I thought your concern was the space between the
->  new field and the rest)
-> -Rename port regions
-> -Rename definitions
-> -Unify comment style
-> 
-> v2: Suggestions by Jean Delvare <jdelvare@suse.de>
-> -Fix function definitions (static)
-> -Add register definition
-> -Use muxed_io interface
-> -Improve comments
-> -Keep old timeout
-> -Rebase
-> 
->  drivers/i2c/busses/i2c-piix4.c | 132 +++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 126 insertions(+), 6 deletions(-)
-> (...)
+On Tue, Oct 10, 2017 at 8:27 AM, Kamlakant Patel
+<kamlakant.patel@cavium.com> wrote:
+> This patch set has following changes:
+>  * Use Linux clk APIs to get input clock frequency for the I2C controller.
+>  * I2C driver update to handle I2C_M_RECV_LEN and I2C_CLIENT_PEC flags.
+>
+> Changes since v1:
+> * Rebased to mainline(4.14-rc4).
+> * Removed unnecessary parens in i2c-xlp9xx.c.
+>
+> Jayachandran C (2):
+>   ACPI / APD: Add clock frequency for ThunderX2 I2C controller
+>   i2c: xlp9xx: Get clock frequency with clk API
+>
+> Kamlakant Patel (1):
+>   i2c: xlp9xx: Handle I2C_M_RECV_LEN in msg->flags
+>
+>  drivers/acpi/acpi_apd.c         |  5 +++++
+>  drivers/i2c/busses/i2c-xlp9xx.c | 44 +++++++++++++++++++++++++++++++++++++----
+>  2 files changed, 45 insertions(+), 4 deletions(-)
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Hi Wolfram,
 
-Great job, thanks Ricardo.
+I'm assuming that this will go in via the i2c tree, so please let me
+know if anything is needed from my side.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Thanks,
+Rafael
