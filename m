@@ -1,82 +1,68 @@
-From: Tomasz Figa <tfiga@chromium.org>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
-Date: Tue, 10 Oct 2017 12:55:45 +0900
-Message-ID: <CAAFQd5CF5SOsPw9=t-XDj1ey0YV-+M04xzQLAjZEQjecOyYUdw@mail.gmail.com>
-References: <1504520928-5191-1-git-send-email-divagar.mohandass@intel.com>
- <1504520928-5191-4-git-send-email-divagar.mohandass@intel.com>
- <6F87890CF0F5204F892DEA1EF0D77A5972FC1278@FMSMSX114.amr.corp.intel.com>
- <CAAFQd5DUNHJ7fqWy5iD_fb=TBUqGy3AQ3uGXr-TdQ5v39f_hsw@mail.gmail.com>
- <20170920084519.asyfjxo6upt36woz@valkosipuli.retiisi.org.uk>
- <CAAFQd5B65bJHsZkMgtjGgyd3btuoWzJwYQRQb5j2kSaefxCZ7Q@mail.gmail.com>
- <20170920093222.yzfw2ctrupep5iqx@valkosipuli.retiisi.org.uk>
- <20171003135109.v7ch7oc4fvjwzl7w@valkosipuli.retiisi.org.uk> <7B8CE47BD58441468D2BB13285B50E6031DF530B@BGSMSX107.gar.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Joel Stanley <joel@jms.id.au>
+Subject: [PATCH] i2c: aspeed: Deassert reset in probe
+Date: Tue, 10 Oct 2017 15:18:28 +1030
+Message-ID: <20171010044828.20913-1-joel@jms.id.au>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7B8CE47BD58441468D2BB13285B50E6031DF530B@BGSMSX107.gar.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Mohandass, Divagar" <divagar.mohandass@intel.com>
-Cc: "sakari.ailus@iki.fi" <sakari.ailus@iki.fi>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 9, 2017 at 12:14 PM, Mohandass, Divagar
-<divagar.mohandass@intel.com> wrote:
-> Hi Tomasz,
->
->>-----Original Message-----
->>From: sakari.ailus@iki.fi [mailto:sakari.ailus@iki.fi]
->>Sent: Tuesday, October 03, 2017 7:21 PM
->>To: Tomasz Figa <tfiga@chromium.org>
->>Cc: Mani, Rajmohan <rajmohan.mani@intel.com>; Mohandass, Divagar
->><divagar.mohandass@intel.com>; robh+dt@kernel.org;
->>mark.rutland@arm.com; wsa@the-dreams.de; devicetree@vger.kernel.org;
->>linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org;
->>mika.westerberg@linux.intel.com; linux-pm@vger.kernel.org
->>Subject: Re: [PATCH v6 3/3] eeprom: at24: enable runtime pm support
->>
->>Hi Tomasz,
->>
->>On Wed, Sep 20, 2017 at 12:32:22PM +0300, sakari.ailus@iki.fi wrote:
->>> > >> >> @@ -743,11 +770,17 @@ static int at24_probe(struct i2c_client
->>> > >> >> *client, const struct i2c_device_id *id)
->>> > >> >>
->>> > >> >>       i2c_set_clientdata(client, at24);
->>> > >> >>
->>> > >> >> +     /* enable runtime pm */
->>> > >> >> +     pm_runtime_get_noresume(&client->dev);
->>> > >> >> +     pm_runtime_set_active(&client->dev);
->>> > >> >> +     pm_runtime_enable(&client->dev);
->>> > >>
->>> > >> Do we need this get_noresume/set_active dance? I remember it was
->>> > >> for some reason needed for PCI devices, but I don't see why for
->>> > >> I2C anything else than just pm_runtime_enable() would be necessary=
-.
->>> > >
->>> > > You specifically do not need (all) this for PCI devices, but AFAIU
->>> > > for I=E6=B6=8E
->>> > > devices you do. The runtime PM status of a device is disabled by
->>> > > default and the use count is zero, but on ACPI based systems the
->>> > > device is still powered on.
->>> >
->>> > Okay, so _get_noresume() and _set_active() would do the thing for
->>> > ACPI indeed, but not sure about other platforms. Perhaps _enable(),
->>> > _get_sync() would be more general?
->>>
->>> What I ended up doing in e.g. the smiapp driver was to explicitly
->>> power the device on first and then enable runtime PM. (See
->>> drivers/media/i2c/smiapp/smiapp-core.c .) This approach works even if
->>> CONFIG_PM is disabled, both on DT and ACPI.
->>
->>pm_runtime_get_noresume() + pm_runtime_put() can be replaced by a single
->>pm_runtime_idle() call (where pm_runtime_put() was). pm_runtime_enable()
->>is required to enable runtime PM for a device.
->
-> Verified the change suggested by Sakari.
-> Let me know I can send a updated patch version with this change.
+In order to use i2c from a cold boot, the i2c peripheral must be taken
+out of reset. We request a shared reset controller each time a bus
+driver is loaded, as the reset is shared between the 14 i2c buses.
 
-Okay, looks like Sakari confirmed that the driver should work fine
-without callbacks, so please go ahead. Thanks for patience.
+On remove the reset is asserted, which only touches the hardware once
+the last i2c bus is removed.
 
-Best regards,
-Tomasz
+The request is optional, so if a device tree does not specify a reset
+controller (or the driver is not built in), the driver continues to
+probe.
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+ drivers/i2c/busses/i2c-aspeed.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index 284f8670dbeb..ad06f902f90f 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -28,6 +28,8 @@
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/reset.h>
+ 
+ /* I2C Register */
+ #define ASPEED_I2C_FUN_CTRL_REG				0x00
+@@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
+ 	struct i2c_adapter		adap;
+ 	struct device			*dev;
+ 	void __iomem			*base;
++	struct reset_control		*rst;
+ 	/* Synchronizes I/O mem access to base. */
+ 	spinlock_t			lock;
+ 	struct completion		cmd_complete;
+@@ -847,6 +850,9 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+ 	/* We just need the clock rate, we don't actually use the clk object. */
+ 	devm_clk_put(&pdev->dev, parent_clk);
+ 
++	bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
++	reset_control_deassert(bus->rst);
++
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+ 				   "bus-frequency", &bus->bus_frequency);
+ 	if (ret < 0) {
+@@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&bus->adap);
+ 
++	reset_control_assert(bus->rst);
++
+ 	return 0;
+ }
+ 
+-- 
+2.14.1
