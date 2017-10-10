@@ -1,85 +1,107 @@
 From: Kamlakant Patel <kamlakant.patel@cavium.com>
-Subject: [PATCH v2 2/3] i2c: xlp9xx: Get clock frequency with clk API
-Date: Tue, 10 Oct 2017 11:57:55 +0530
-Message-ID: <1507616876-17189-3-git-send-email-kamlakant.patel@cavium.com>
+Subject: [PATCH v2 3/3] i2c: xlp9xx: Handle I2C_M_RECV_LEN in msg->flags
+Date: Tue, 10 Oct 2017 11:57:56 +0530
+Message-ID: <1507616876-17189-4-git-send-email-kamlakant.patel@cavium.com>
 References: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0078.outbound.protection.outlook.com ([104.47.36.78]:45024
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751810AbdJJG1j (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 10 Oct 2017 02:27:39 -0400
+Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Jayachandran C <jnair@caviumnetworks.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Kamlakant Patel <kamlakant.patel@cavium.com>
+Cc: Kamlakant Patel <kamlakant.patel@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Jayachandran C <jnair@caviumnetworks.com>
+List-Id: linux-i2c@vger.kernel.org
 
-From: Jayachandran C <jnair@caviumnetworks.com>
+The driver needs to handle the flag I2C_M_RECV_LEN during receive to
+support SMBus emulation.
 
-Get the input clock frequency to the controller from the linux clk
-API, if it is available. This allows us to pass in the block input
-frequency either from ACPI (using APD) or from device tree.
+Update receive logic to handle the case where the length is received
+as the first byte of a transaction.
 
-The old hardcoded frequency is used as default for backwards compatibility.
+Also update the code to handle I2C_CLIENT_PEC, which is set when the
+client sends a packet error checking code byte.
 
 Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
 Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-xlp9xx.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xlp9xx.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index 6b106e9..f0bef2d 100644
+index f0bef2d..b970bf8 100644
 --- a/drivers/i2c/busses/i2c-xlp9xx.c
 +++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/acpi.h>
-+#include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -84,6 +85,7 @@ struct xlp9xx_i2c_dev {
+@@ -82,6 +82,8 @@ struct xlp9xx_i2c_dev {
+ 	struct completion msg_complete;
+ 	int irq;
+ 	bool msg_read;
++	bool len_recv;
++	bool client_pec;
  	u32 __iomem *base;
  	u32 msg_buf_remaining;
  	u32 msg_len;
-+	u32 ip_clk_hz;
- 	u32 clk_hz;
- 	u32 msg_err;
- 	u8 *msg_buf;
-@@ -213,7 +215,7 @@ static int xlp9xx_i2c_init(struct xlp9xx_i2c_dev *priv)
- 	 * The controller uses 5 * SCL clock internally.
- 	 * So prescale value should be divided by 5.
- 	 */
--	prescale = DIV_ROUND_UP(XLP9XX_I2C_IP_CLK_FREQ, priv->clk_hz);
-+	prescale = DIV_ROUND_UP(priv->ip_clk_hz, priv->clk_hz);
- 	prescale = ((prescale - 8) / 5) - 1;
- 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_RST);
- 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_EN |
-@@ -342,9 +344,19 @@ static const struct i2c_algorithm xlp9xx_i2c_algo = {
- static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
- 				    struct xlp9xx_i2c_dev *priv)
+@@ -143,10 +145,25 @@ static void xlp9xx_i2c_fill_tx_fifo(struct xlp9xx_i2c_dev *priv)
+ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
  {
-+	struct clk *clk;
- 	u32 freq;
- 	int err;
+ 	u32 len, i;
+-	u8 *buf = priv->msg_buf;
++	u8 rlen, *buf = priv->msg_buf;
  
-+	clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(clk)) {
-+		priv->ip_clk_hz = XLP9XX_I2C_IP_CLK_FREQ;
-+		dev_dbg(&pdev->dev, "using default input frequency %u\n",
-+			priv->ip_clk_hz);
-+	} else {
-+		priv->ip_clk_hz = clk_get_rate(clk);
+ 	len = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_FIFOWCNT) &
+ 				  XLP9XX_I2C_FIFO_WCNT_MASK;
++	if (!len)
++		return;
++	if (priv->len_recv) {
++		/* read length byte */
++		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
++		*buf++ = rlen;
++		len--;
++		if (priv->client_pec)
++			++rlen;
++		/* update remaining bytes and message length */
++		priv->msg_buf_remaining = rlen;
++		priv->msg_len = rlen + 1;
++		priv->len_recv = false;
 +	}
 +
- 	err = device_property_read_u32(&pdev->dev, "clock-frequency", &freq);
- 	if (err) {
- 		freq = XLP9XX_I2C_DEFAULT_FREQ;
+ 	len = min(priv->msg_buf_remaining, len);
+ 	for (i = 0; i < len; i++, buf++)
+ 		*buf = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
+@@ -230,7 +247,7 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 			       int last_msg)
+ {
+ 	unsigned long timeleft;
+-	u32 intr_mask, cmd, val;
++	u32 intr_mask, cmd, val, len;
+ 
+ 	priv->msg_buf = msg->buf;
+ 	priv->msg_buf_remaining = priv->msg_len = msg->len;
+@@ -263,9 +280,13 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 	else
+ 		val &= ~XLP9XX_I2C_CTRL_ADDMODE;
+ 
++	priv->len_recv = msg->flags & I2C_M_RECV_LEN;
++	len = priv->len_recv ? XLP9XX_I2C_FIFO_SIZE : msg->len;
++	priv->client_pec = msg->flags & I2C_CLIENT_PEC;
++
+ 	/* set data length to be transferred */
+ 	val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
+-	      (msg->len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
++	      (len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
+ 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, val);
+ 
+ 	/* fill fifo during tx */
+@@ -312,6 +333,9 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 		return -ETIMEDOUT;
+ 	}
+ 
++	/* update msg->len with actual received length */
++	if (msg->flags & I2C_M_RECV_LEN)
++		msg->len = priv->msg_len;
+ 	return 0;
+ }
+ 
 -- 
 2.7.4
+
