@@ -1,68 +1,62 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: [PATCH] i2c: aspeed: Deassert reset in probe
-Date: Tue, 10 Oct 2017 15:18:28 +1030
-Message-ID: <20171010044828.20913-1-joel@jms.id.au>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v7 0/3] enable eeprom "size" property and runtime pm
+Date: Tue, 10 Oct 2017 11:30:34 +0530
+Message-ID: <1507615237-21744-1-git-send-email-divagar.mohandass@intel.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sakari.ailus-X3B1VOXEql0@public.gmane.org, tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rajmohan.mani-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In order to use i2c from a cold boot, the i2c peripheral must be taken
-out of reset. We request a shared reset controller each time a bus
-driver is loaded, as the reset is shared between the 14 i2c buses.
+This series adds support for eeprom "size" property which will be read by the
+driver for eeprom size. The existing ACPI has a different default size which
+can be overridden with a DSD property value provided by the platform FW.
 
-On remove the reset is asserted, which only touches the hardware once
-the last i2c bus is removed.
+This series also adds support for runtime PM. The eeprom driver currently
+did not have support for runtime PM and the device was kept in D0 throughout.
 
-The request is optional, so if a device tree does not specify a reset
-controller (or the driver is not built in), the driver continues to
-probe.
+[v1]
+- Add support for eeprom "size" property.
+- Add runtime PM support to the driver.
 
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
- drivers/i2c/busses/i2c-aspeed.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+[v2]
+- Improved the patch subject.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 284f8670dbeb..ad06f902f90f 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -28,6 +28,8 @@
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/reset.h>
- 
- /* I2C Register */
- #define ASPEED_I2C_FUN_CTRL_REG				0x00
-@@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
- 	struct i2c_adapter		adap;
- 	struct device			*dev;
- 	void __iomem			*base;
-+	struct reset_control		*rst;
- 	/* Synchronizes I/O mem access to base. */
- 	spinlock_t			lock;
- 	struct completion		cmd_complete;
-@@ -847,6 +850,9 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	/* We just need the clock rate, we don't actually use the clk object. */
- 	devm_clk_put(&pdev->dev, parent_clk);
- 
-+	bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-+	reset_control_deassert(bus->rst);
-+
- 	ret = of_property_read_u32(pdev->dev.of_node,
- 				   "bus-frequency", &bus->bus_frequency);
- 	if (ret < 0) {
-@@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&bus->adap);
- 
-+	reset_control_assert(bus->rst);
-+
- 	return 0;
- }
- 
+[v3]
+- Addressed comments from Sakari Ailus.
+- Improved patch description.
+- Improved pm support patch.
+
+[v4]
+- Improved runtime pm support.
+- Addressed comments from Sakari Ailus.
+
+[v5]
+- Addressed comments from Sakari Ailus.
+- Improved error handling for PM support.
+
+[v6]
+- Addressed comments from Sakari Ailus.
+
+[v7]
+- Added suggested-by and reviewed-by tags given in
+  https://lkml.org/lkml/2017/9/22/444
+  https://lkml.org/lkml/2017/9/5/430
+- Addressed comments on PM support.
+
+Divagar Mohandass (3):
+  dt-bindings: add eeprom "size" property
+  eeprom: at24: add support to fetch eeprom device property "size"
+  eeprom: at24: enable runtime pm support
+
+ .../devicetree/bindings/eeprom/eeprom.txt          |  2 ++
+ drivers/misc/eeprom/at24.c                         | 41 ++++++++++++++++++++++
+ 2 files changed, 43 insertions(+)
+
 -- 
-2.14.1
+1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
