@@ -1,47 +1,65 @@
 From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v2 0/3] i2c-xlp9xx: update i2c driver to handle
- I2C_M_RECV_LEN flag
-Date: Wed, 11 Oct 2017 15:09:48 +0200
-Message-ID: <CAJZ5v0gfkZo56=f1oAL6uNO_OrNhKDxmxaFRT4my_KZx3gLutw@mail.gmail.com>
-References: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com>
- <CAJZ5v0gz9FQMXhiBokOKY5esrmv2JNoScsv5-LNR2ui_CZPdAQ@mail.gmail.com> <20171011070658.aixzgmgzacrwldnw@ninjato>
+Subject: Re: [PATCH v2 1/3] ACPI / APD: Add clock frequency for ThunderX2 I2C controller
+Date: Wed, 11 Oct 2017 15:10:38 +0200
+Message-ID: <CAJZ5v0iQXeFA1EYqDO8SC4PtynmN+=BTBNJ+2vezWT_M9YiEVg@mail.gmail.com>
+References: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com> <1507616876-17189-2-git-send-email-kamlakant.patel@cavium.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20171011070658.aixzgmgzacrwldnw@ninjato>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Kamlakant Patel <kamlakant.patel@cavium.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:50590 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752432AbdJKNKj (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2017 09:10:39 -0400
+In-Reply-To: <1507616876-17189-2-git-send-email-kamlakant.patel@cavium.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Kamlakant Patel <kamlakant.patel@cavium.com>
+Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Jayachandran C <jnair@caviumnetworks.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
 
-On Wed, Oct 11, 2017 at 9:06 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Oct 11, 2017 at 01:35:10AM +0200, Rafael J. Wysocki wrote:
->> On Tue, Oct 10, 2017 at 8:27 AM, Kamlakant Patel
->> <kamlakant.patel@cavium.com> wrote:
->> > This patch set has following changes:
->> >  * Use Linux clk APIs to get input clock frequency for the I2C controller.
->> >  * I2C driver update to handle I2C_M_RECV_LEN and I2C_CLIENT_PEC flags.
->> >
->> > Changes since v1:
->> > * Rebased to mainline(4.14-rc4).
->> > * Removed unnecessary parens in i2c-xlp9xx.c.
->> >
->> > Jayachandran C (2):
->> >   ACPI / APD: Add clock frequency for ThunderX2 I2C controller
->> >   i2c: xlp9xx: Get clock frequency with clk API
->> >
->> > Kamlakant Patel (1):
->> >   i2c: xlp9xx: Handle I2C_M_RECV_LEN in msg->flags
->> >
->> >  drivers/acpi/acpi_apd.c         |  5 +++++
->> >  drivers/i2c/busses/i2c-xlp9xx.c | 44 +++++++++++++++++++++++++++++++++++++----
->> >  2 files changed, 45 insertions(+), 4 deletions(-)
->>
->> Hi Wolfram,
->>
->> I'm assuming that this will go in via the i2c tree, so please let me
->> know if anything is needed from my side.
+On Tue, Oct 10, 2017 at 8:27 AM, Kamlakant Patel
+<kamlakant.patel@cavium.com> wrote:
+> From: Jayachandran C <jnair@caviumnetworks.com>
 >
-> An ack for patch 1 would be nice.
+> Add the input frequency of 125MHz for the ThunderX2 I2C controller block.
+> The ACPI ID used is "CAV9007".
+>
+> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-OK
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+> ---
+>  drivers/acpi/acpi_apd.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> index d5999eb..d553b00 100644
+> --- a/drivers/acpi/acpi_apd.c
+> +++ b/drivers/acpi/acpi_apd.c
+> @@ -116,6 +116,10 @@ static const struct apd_device_desc hip08_i2c_desc = {
+>         .setup = acpi_apd_setup,
+>         .fixed_clk_rate = 250000000,
+>  };
+> +static const struct apd_device_desc thunderx2_i2c_desc = {
+> +       .setup = acpi_apd_setup,
+> +       .fixed_clk_rate = 125000000,
+> +};
+>  #endif
+>
+>  #else
+> @@ -180,6 +184,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+>         { "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
+>         { "BRCM900D", APD_ADDR(vulcan_spi_desc) },
+>         { "CAV900D",  APD_ADDR(vulcan_spi_desc) },
+> +       { "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
+>         { "HISI02A1", APD_ADDR(hip07_i2c_desc) },
+>         { "HISI02A2", APD_ADDR(hip08_i2c_desc) },
+>  #endif
+> --
+> 2.7.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
