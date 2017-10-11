@@ -1,161 +1,60 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH resend v5 2/3] i2c-cht-wc: Add device-properties for fusb302 integration
-Date: Wed, 11 Oct 2017 11:41:20 +0200
-Message-ID: <20171011094121.6108-3-hdegoede@redhat.com>
-References: <20171011094121.6108-1-hdegoede@redhat.com>
+From: "Wu, Aaron" <Aaron.Wu@analog.com>
+Subject: RE: [Adi-buildroot-devel] [PATCH 4/7] i2c: gpio: Augment all
+ boardfiles to use open drain
+Date: Wed, 11 Oct 2017 10:37:03 +0000
+Message-ID: <649EF91064D35D40B9C93A225BF41674ADD7CEFD@NWD2MBX6.ad.analog.com>
+References: <20170917093906.16325-1-linus.walleij@linaro.org>
+ <20170917093906.16325-5-linus.walleij@linaro.org>
+ <20171009142824.GB17971@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33070 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753006AbdJKJl3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 11 Oct 2017 05:41:29 -0400
-In-Reply-To: <20171011094121.6108-1-hdegoede@redhat.com>
+Received: from mail-dm3nam03on0064.outbound.protection.outlook.com ([104.47.41.64]:5315
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753256AbdJKKhK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 11 Oct 2017 06:37:10 -0400
+In-Reply-To: <20171009142824.GB17971@linux-mips.org>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Ralf Baechle <ralf@linux-mips.org>, Linus Walleij <linus.walleij@linaro.org>
+Cc: "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, Steven Miao <realmz6@gmail.com>, "adi-buildroot-devel@lists.sourceforge.net" <adi-buildroot-devel@lists.sourceforge.net>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 
-Add device-properties to make the bq24292i charger connected to
-the bus get its input-current-limit from the fusb302 Type-C port
-controller which is used on boards with the cht-wc PMIC,
-as well as regulator_init_data for the 5V boost converter on
-the bq24292i.
+Hi all,
 
-Since this means we now hook-up the bq24292i to the fusb302 Type-C port
-controller add a check for the ACPI device which instantiates the fusb302.
+Steven is no longer working on this for ADI. Acked by me if this works. Tha=
+nks.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Best regards,
+Aaron Wu
+Analog Devices Inc.
+
+-----Original Message-----
+From: Ralf Baechle [mailto:ralf@linux-mips.org]=20
+Sent: Monday, October 09, 2017 10:28 PM
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-mips@linux-mips.org; Steven Miao <realmz6@gmail.com>; adi-buildro=
+ot-devel@lists.sourceforge.net; Geert Uytterhoeven <geert@linux-m68k.org>; =
+linux-i2c@vger.kernel.org; linux-arm-kernel@lists.infradead.org
+Subject: Re: [Adi-buildroot-devel] [PATCH 4/7] i2c: gpio: Augment all board=
+files to use open drain
+
+On Sun, Sep 17, 2017 at 11:39:03AM +0200, Linus Walleij wrote:
+
+> Steven (Blackfin): requesting ACK for Wolfram to take this patch.
+> Ralf (MIPS): requesting ACK for Wolfram to take this patch.
+
+Acked-by: Ralf Baechle <ralf@linux-mips.org>
+
+  Ralf
+
+---------------------------------------------------------------------------=
 ---
-Changes in v2:
--Set board_info.dev_name
--Define and pass regulator_init_data for the bq24292i
--Add a check for the ACPI device which instantiates the fusb302
-Changes in v4:
--Drop the ti,input-current-limit-from-supplier property on the bq24292i
- this is the default now
----
- drivers/i2c/busses/Kconfig      |  5 ++++
- drivers/i2c/busses/i2c-cht-wc.c | 51 +++++++++++++++++++++++++++++++++++------
- 2 files changed, 49 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index c06dce2c1da7..64e0e9d4df46 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -197,6 +197,11 @@ config I2C_CHT_WC
- 	  SMBus controller found in the Intel Cherry Trail Whiskey Cove PMIC
- 	  found on some Intel Cherry Trail systems.
- 
-+	  Note this controller is hooked up to a TI bq24292i charger-IC,
-+	  combined with a FUSB302 Type-C port-controller as such it is advised
-+	  to also select CONFIG_CHARGER_BQ24190=m and CONFIG_TYPEC_FUSB302=m
-+	  (the fusb302 driver currently is in drivers/staging).
-+
- config I2C_NFORCE2
- 	tristate "Nvidia nForce2, nForce3 and nForce4"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-index 190bbbc7bfee..0d05dadb2dc5 100644
---- a/drivers/i2c/busses/i2c-cht-wc.c
-+++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -16,6 +16,7 @@
-  * GNU General Public License for more details.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/completion.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-@@ -25,6 +26,7 @@
- #include <linux/mfd/intel_soc_pmic.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/power/bq24190_charger.h>
- #include <linux/slab.h>
- 
- #define CHT_WC_I2C_CTRL			0x5e24
-@@ -232,13 +234,35 @@ static const struct irq_chip cht_wc_i2c_irq_chip = {
- 	.name			= "cht_wc_ext_chrg_irq_chip",
- };
- 
-+static const char * const bq24190_suppliers[] = { "fusb302-typec-source" };
-+
- static const struct property_entry bq24190_props[] = {
--	PROPERTY_ENTRY_STRING("extcon-name", "cht_wcove_pwrsrc"),
-+	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", bq24190_suppliers),
- 	PROPERTY_ENTRY_BOOL("omit-battery-class"),
- 	PROPERTY_ENTRY_BOOL("disable-reset"),
- 	{ }
- };
- 
-+static struct regulator_consumer_supply fusb302_consumer = {
-+	.supply = "vbus",
-+	/* Must match fusb302 dev_name in intel_cht_int33fe.c */
-+	.dev_name = "i2c-fusb302",
-+};
-+
-+static const struct regulator_init_data bq24190_vbus_init_data = {
-+	.constraints = {
-+		/* The name is used in intel_cht_int33fe.c do not change. */
-+		.name = "cht_wc_usb_typec_vbus",
-+		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
-+	},
-+	.consumer_supplies = &fusb302_consumer,
-+	.num_consumer_supplies = 1,
-+};
-+
-+static struct bq24190_platform_data bq24190_pdata = {
-+	.regulator_init_data = &bq24190_vbus_init_data,
-+};
-+
- static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- {
- 	struct intel_soc_pmic *pmic = dev_get_drvdata(pdev->dev.parent);
-@@ -246,7 +270,9 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- 	struct i2c_board_info board_info = {
- 		.type = "bq24190",
- 		.addr = 0x6b,
-+		.dev_name = "bq24190",
- 		.properties = bq24190_props,
-+		.platform_data = &bq24190_pdata,
- 	};
- 	int ret, reg, irq;
- 
-@@ -314,11 +340,21 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto remove_irq_domain;
- 
--	board_info.irq = adap->client_irq;
--	adap->client = i2c_new_device(&adap->adapter, &board_info);
--	if (!adap->client) {
--		ret = -ENOMEM;
--		goto del_adapter;
-+	/*
-+	 * Normally the Whiskey Cove PMIC is paired with a TI bq24292i charger,
-+	 * connected to this i2c bus, and a max17047 fuel-gauge and a fusb302
-+	 * USB Type-C controller connected to another i2c bus. In this setup
-+	 * the max17047 and fusb302 devices are enumerated through an INT33FE
-+	 * ACPI device. If this device is present register an i2c-client for
-+	 * the TI bq24292i charger.
-+	 */
-+	if (acpi_dev_present("INT33FE", NULL, -1)) {
-+		board_info.irq = adap->client_irq;
-+		adap->client = i2c_new_device(&adap->adapter, &board_info);
-+		if (!adap->client) {
-+			ret = -ENOMEM;
-+			goto del_adapter;
-+		}
- 	}
- 
- 	platform_set_drvdata(pdev, adap);
-@@ -335,7 +371,8 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
- {
- 	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
- 
--	i2c_unregister_device(adap->client);
-+	if (adap->client)
-+		i2c_unregister_device(adap->client);
- 	i2c_del_adapter(&adap->adapter);
- 	irq_domain_remove(adap->irq_domain);
- 
--- 
-2.14.2
+Check out the vibrant tech community on one of the world's most engaging te=
+ch sites, Slashdot.org! http://sdm.link/slashdot __________________________=
+_____________________
+Adi-buildroot-devel mailing list
+Adi-buildroot-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/adi-buildroot-devel
