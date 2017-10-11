@@ -1,41 +1,53 @@
-From: Wei Yongjun <weiyongjun1@huawei.com>
-Subject: [PATCH] irqchip/aspeed-i2c-ic: Fix return value check in aspeed_i2c_ic_of_init()
-Date: Wed, 11 Oct 2017 10:50:23 +0000
-Message-ID: <1507719023-127618-1-git-send-email-weiyongjun1@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:7971 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751915AbdJKKqG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2017 06:46:06 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
+Subject: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C controller
+Date: Wed, 11 Oct 2017 13:53:08 +0200
+Message-ID: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32
+        ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
+Cc: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org
 
-In case of error, the function of_iomap() returns NULL pointer not
-ERR_PTR(). The IS_ERR() test in the return value check should be
-replaced with NULL test..
+	Do not read data on RXNE but on BTF only due to HW
+	synchronisation problems and NACKing read data too early.
+	It was found during testing of stmpe811 touchscreen driver.
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
 ---
- drivers/irqchip/irq-aspeed-i2c-ic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-stm32f4.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/irqchip/irq-aspeed-i2c-ic.c b/drivers/irqchip/irq-aspeed-i2c-ic.c
-index 815b88d..f20200a 100644
---- a/drivers/irqchip/irq-aspeed-i2c-ic.c
-+++ b/drivers/irqchip/irq-aspeed-i2c-ic.c
-@@ -76,8 +76,8 @@ static int __init aspeed_i2c_ic_of_init(struct device_node *node,
- 		return -ENOMEM;
- 
- 	i2c_ic->base = of_iomap(node, 0);
--	if (IS_ERR(i2c_ic->base)) {
--		ret = PTR_ERR(i2c_ic->base);
-+	if (!i2c_ic->base) {
-+		ret = -ENOMEM;
- 		goto err_free_ic;
+diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+index 4ec1084..86bcf4c 100644
+--- a/drivers/i2c/busses/i2c-stm32f4.c
++++ b/drivers/i2c/busses/i2c-stm32f4.c
+@@ -409,16 +409,9 @@ static void stm32f4_i2c_handle_read(struct stm32f4_i2c_dev *i2c_dev)
+ 	 * So, here we just disable buffer interrupt in order to avoid another
+ 	 * system preemption due to RX not empty event.
+ 	 */
+-	case 2:
+-	case 3:
++	default:
+ 		stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
+ 		break;
+-	/*
+-	 * For N byte reception with N > 3 we directly read data register
+-	 * until N-2 data.
+-	 */
+-	default:
+-		stm32f4_i2c_read_msg(i2c_dev);
  	}
+ }
  
+@@ -470,8 +463,6 @@ static void stm32f4_i2c_handle_rx_done(struct stm32f4_i2c_dev *i2c_dev)
+ 		 */
+ 		reg = i2c_dev->base + STM32F4_I2C_CR1;
+ 		stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
+-		stm32f4_i2c_read_msg(i2c_dev);
+-		break;
+ 	default:
+ 		stm32f4_i2c_read_msg(i2c_dev);
+ 	}
+-- 
+1.9.1
