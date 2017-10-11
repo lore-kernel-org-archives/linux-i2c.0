@@ -1,65 +1,36 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v2 1/3] ACPI / APD: Add clock frequency for ThunderX2 I2C controller
-Date: Wed, 11 Oct 2017 15:10:38 +0200
-Message-ID: <CAJZ5v0iQXeFA1EYqDO8SC4PtynmN+=BTBNJ+2vezWT_M9YiEVg@mail.gmail.com>
-References: <1507616876-17189-1-git-send-email-kamlakant.patel@cavium.com> <1507616876-17189-2-git-send-email-kamlakant.patel@cavium.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+Subject: RE: [PATCH v2] i2c: riic: remove fixed clock restriction
+Date: Wed, 11 Oct 2017 15:20:29 +0000
+Message-ID: <SG2PR06MB11656505D83C3D552B2CAC2D8A4A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170929171637.121262-1-chris.brandt@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:50590 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752432AbdJKNKj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2017 09:10:39 -0400
-In-Reply-To: <1507616876-17189-2-git-send-email-kamlakant.patel@cavium.com>
+Received: from relmlor1.renesas.com ([210.160.252.171]:28138 "EHLO
+        relmlie4.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751831AbdJKPUe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2017 11:20:34 -0400
+In-Reply-To: <20170929171637.121262-1-chris.brandt@renesas.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Kamlakant Patel <kamlakant.patel@cavium.com>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Jayachandran C <jnair@caviumnetworks.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 
-On Tue, Oct 10, 2017 at 8:27 AM, Kamlakant Patel
-<kamlakant.patel@cavium.com> wrote:
-> From: Jayachandran C <jnair@caviumnetworks.com>
->
-> Add the input frequency of 125MHz for the ThunderX2 I2C controller block.
-> The ACPI ID used is "CAV9007".
->
-> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
-> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
+On Friday, September 29, 2017, Chris Brandt wrote:
+> Most systems with this i2c are going to have a clock of either 33.3MHz or
+> 32MHz. That 4% difference is not reason enough to warrant that the driver
+> to completely fail.
+>=20
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 > ---
->  drivers/acpi/acpi_apd.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index d5999eb..d553b00 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -116,6 +116,10 @@ static const struct apd_device_desc hip08_i2c_desc = {
->         .setup = acpi_apd_setup,
->         .fixed_clk_rate = 250000000,
->  };
-> +static const struct apd_device_desc thunderx2_i2c_desc = {
-> +       .setup = acpi_apd_setup,
-> +       .fixed_clk_rate = 125000000,
-> +};
->  #endif
->
->  #else
-> @@ -180,6 +184,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
->         { "APMC0D0F", APD_ADDR(xgene_i2c_desc) },
->         { "BRCM900D", APD_ADDR(vulcan_spi_desc) },
->         { "CAV900D",  APD_ADDR(vulcan_spi_desc) },
-> +       { "CAV9007",  APD_ADDR(thunderx2_i2c_desc) },
->         { "HISI02A1", APD_ADDR(hip07_i2c_desc) },
->         { "HISI02A2", APD_ADDR(hip08_i2c_desc) },
->  #endif
-> --
-> 2.7.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> v2:
+>  * simplified error message.
+> ---
+
+What ever happened to this patch?
+Was there any objection?
+
+Thanks,
+Chris
