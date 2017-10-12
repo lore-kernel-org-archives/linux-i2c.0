@@ -1,592 +1,142 @@
 From: Todor Tomov <todor.tomov@linaro.org>
-Subject: Re: [PATCH 2/4] i2c: Add Qualcomm Camera Control Interface driver
-Date: Thu, 12 Oct 2017 17:47:57 +0300
-Message-ID: <1978f9ea-5b9d-fb16-7758-4b263c787b7f@linaro.org>
+Subject: Re: [PATCH 1/4] dt-bindings: media: Binding document for Qualcomm
+ Camera Control Interface driver
+Date: Thu, 12 Oct 2017 17:50:03 +0300
+Message-ID: <e8bbc79a-6224-8ae3-78de-e1207c7718a4@linaro.org>
 References: <1506953613-23875-1-git-send-email-todor.tomov@linaro.org>
- <1506953613-23875-3-git-send-email-todor.tomov@linaro.org>
- <20171006052040.GB1575@tuxbook>
+ <1506953613-23875-2-git-send-email-todor.tomov@linaro.org>
+ <20171006052954.GC1575@tuxbook>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:47051 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752697AbdJLOsB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Oct 2017 10:48:01 -0400
-Received: by mail-wm0-f54.google.com with SMTP id m72so13905244wmc.1
-        for <linux-i2c@vger.kernel.org>; Thu, 12 Oct 2017 07:48:00 -0700 (PDT)
-In-Reply-To: <20171006052040.GB1575@tuxbook>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20171006052954.GC1575@tuxbook>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Hi Bjorn,
 
-Thank you for the review. There are a lot of important suggestions.
+Thank you for the review.
 
-On  6.10.2017 08:20, Bjorn Andersson wrote:
+On  6.10.2017 08:29, Bjorn Andersson wrote:
 > On Mon 02 Oct 07:13 PDT 2017, Todor Tomov wrote:
->> diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-> [..]
->> +#define NUM_MASTERS 1
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+>> new file mode 100644
+>> index 0000000..f4c5338
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+>> @@ -0,0 +1,55 @@
+>> +Qualcomm Camera Control Interface I2C controller
 > 
-> So you will only register one of the masters?
-
-Yes, in this version of the driver - only one. Probably I will extend the driver later
-to support also the second master on 8096.
-
-> 
-> [..]
->> +enum cci_i2c_queue_t {
->> +	QUEUE_0,
->> +	QUEUE_1
-> 
-> Could these be called QUEUE_READ and QUEUE_WRITE instead?
-
-There isn't anything read or write specific in the queues, this is just how we assign them.
-Both of them can do both operations. So I think that we should not narrow the names to read
-and write.
-
-> 
->> +};
->> +
->> +enum cci_i2c_master_t {
->> +	MASTER_0,
->> +	MASTER_1
-> 
-> Just use 0 and 1 when denoting the two masters.
-
-Ok.
-
-> 
->> +};
->> +
->> +struct resources {
-> 
-> This struct name is not awesome, name it something like cci_res instead.
-
-Ok.
-
-> 
->> +	char *clock[CCI_RES_MAX];
->> +	u32 clock_rate[CCI_RES_MAX];
->> +	char *reg[CCI_RES_MAX];
->> +	char *interrupt[CCI_RES_MAX];
->> +};
-> [..]
->> +
->> +struct cci_master {
->> +	u32 status;
-> 
-> You use this to pass 0 or negative errno between functions, so make it
-> int.
-
-Ops.
-
-> 
->> +	u8 complete_pending;
-> 
-> bool
-
-Ok.
-
-> 
->> +	struct completion irq_complete;
->> +};
->> +
->> +struct cci {
->> +	struct device *dev;
->> +	struct i2c_adapter adap;
->> +	void __iomem *base;
->> +	u32 irq;
-> 
-> "irq" is generally supposed to be a "int".
-
-Ok.
-
-> 
->> +	char irq_name[30];
->> +	struct cci_clock *clock;
-> 
-> If you set the rate of your clocks initially you can replace this array
-> with clk_bulk_data and use the clk_bulk_prepare_enable() and
-> clk_bulk_disable_unprepare().
-
-Ok, I'll switch to the bulk API.
-
-> 
->> +	int nclocks;
->> +	u8 mode;
->> +	u16 queue_size[NUM_QUEUES];
->> +	struct cci_master master[NUM_MASTERS];
->> +};
->> +
->> +static const struct resources res_v1_0_8 = {
->> +	.clock = { "camss_top_ahb",
->> +		   "cci_ahb",
->> +		   "camss_ahb",
->> +		   "cci" },
-> 
-> The code consuming this will read until NULL, so please add terminator.
-
-The fields which are not explicitely initialized are set to NULL, right?
-I may add a comment that a space in the array for the terminator must be left.
-
-> It happens to work as the first clock_rate is 0 in both cases.
-
-I think that it works because it reaches the terminator.
-
-> 
->> +	.clock_rate = { 0,
->> +			80000000,
->> +			0,
->> +			19200000 },
->> +	.reg = { "cci" },
->> +	.interrupt = { "cci" }
-> 
-> No need to specify reg and interrupt here until they actually need to be
-> configured; just put the strings in the code.
-> 
-
-Ok.
-
->> +};
->> +
-> [..]
->> +
->> +/*
->> + * cci_enable_clocks - Enable multiple clocks
-> 
-> Correct kerneldoc would be:
-> 
-> /**
->  * cci_enable_clocks() - Enable multiple clocks
-
-Ok.
-
-> 
->> + * @nclocks: Number of clocks in clock array
->> + * @clock: Clock array
->> + * @dev: Device
->> + *
->> + * Return 0 on success or a negative error code otherwise
->> + */
->> +int cci_enable_clocks(int nclocks, struct cci_clock *clock, struct device *dev)
-> 
-> Overall this is clk_bulk_prepare_enable(), please use that.
-
-Yes, I will.
-
-> 
-> [..]
->> +/*
->> + * cci_disable_clocks - Disable multiple clocks
->> + * @nclocks: Number of clocks in clock array
->> + * @clock: Clock array
->> + */
->> +void cci_disable_clocks(int nclocks, struct cci_clock *clock)
-> 
-> Overall this is clk_bulk_disable_unprepare(), so please use that.
-
-Yes.
-
-> 
->> +{
->> +	int i;
->> +
->> +	for (i = nclocks - 1; i >= 0; i--)
->> +		clk_disable_unprepare(clock[i].clk);
->> +}
->> +
-> [..]
->> +
->> +static int cci_init(struct cci *cci, const struct hw_params *hw)
->> +{
->> +	u32 val = CCI_IRQ_MASK_0_I2C_M0_RD_DONE |
->> +			CCI_IRQ_MASK_0_I2C_M0_Q0_REPORT |
->> +			CCI_IRQ_MASK_0_I2C_M0_Q1_REPORT |
->> +			CCI_IRQ_MASK_0_I2C_M1_RD_DONE |
->> +			CCI_IRQ_MASK_0_I2C_M1_Q0_REPORT |
->> +			CCI_IRQ_MASK_0_I2C_M1_Q1_REPORT |
->> +			CCI_IRQ_MASK_0_RST_DONE_ACK |
->> +			CCI_IRQ_MASK_0_I2C_M0_Q0Q1_HALT_ACK |
->> +			CCI_IRQ_MASK_0_I2C_M1_Q0Q1_HALT_ACK |
->> +			CCI_IRQ_MASK_0_I2C_M0_ERROR |
->> +			CCI_IRQ_MASK_0_I2C_M1_ERROR;
->> +	int i;
->> +
->> +	writel(val, cci->base + CCI_IRQ_MASK_0);
->> +
->> +	for (i = 0; i < NUM_MASTERS; i++) {
->> +		val = hw->thigh << 16 | hw->tlow;
->> +		writel(val, cci->base + CCI_I2C_Mm_SCL_CTL(i));
->> +
->> +		val = hw->tsu_sto << 16 | hw->tsu_sta;
->> +		writel(val, cci->base + CCI_I2C_Mm_SDA_CTL_0(i));
->> +
->> +		val = hw->thd_dat << 16 | hw->thd_sta;
->> +		writel(val, cci->base + CCI_I2C_Mm_SDA_CTL_1(i));
->> +
->> +		val = hw->tbuf;
->> +		writel(val, cci->base + CCI_I2C_Mm_SDA_CTL_2(i));
->> +
->> +		val = hw->scl_stretch_en << 8 | hw->trdhld << 4 | hw->tsp;
->> +		writel(val, cci->base + CCI_I2C_Mm_MISC_CTL(i));
->> +
->> +		cci->master[i].status = 0;
-> 
-> I don't think you need to initialize status here, it's always written
-> before read in the rest of the driver.
-> 
-
-Ok.
-
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static int cci_run_queue(struct cci *cci, u8 master, u8 queue)
->> +{
->> +	unsigned long time;
->> +	u32 val;
->> +	int ret;
->> +
->> +	val = readl(cci->base + CCI_I2C_Mm_Qn_CUR_WORD_CNT(master, queue));
->> +	writel(val, cci->base + CCI_I2C_Mm_Qn_EXEC_WORD_CNT(master, queue));
->> +
->> +	val = 1 << ((master * 2) + queue);
-> 
-> BIT(master * 2 + queue)
-
-Ok. Will use BIT() also on the rest of the places where it can be used.
-
-> 
->> +	writel(val, cci->base + CCI_QUEUE_START);
->> +
->> +	time = wait_for_completion_timeout(&cci->master[master].irq_complete,
->> +					   CCI_TIMEOUT_MS);
->> +	if (!time) {
->> +		dev_err(cci->dev, "master %d queue %d timeout\n",
->> +			master, queue);
->> +		return -ETIMEDOUT;
->> +	}
->> +
->> +	ret = cci->master[master].status;
->> +	if (ret < 0)
->> +		dev_err(cci->dev, "master %d queue %d error %d\n",
->> +			master, queue, ret);
->> +
->> +	return ret;
->> +}
->> +
->> +static int cci_validate_queue(struct cci *cci, u32 len, u8 master, u8 queue)
->> +{
->> +	int ret = 0;
->> +	u32 val;
->> +
->> +	val = readl(cci->base + CCI_I2C_Mm_Qn_CUR_WORD_CNT(master, queue));
->> +
->> +	if (val + len + 1 > cci->queue_size[queue]) {
-> 
-> 	if (val + len >= cci->queue_size[queue])
-> 
-> 
-> Or even better, flip this around and do:
-> 
-> 	if (val + len < cci->queue_size[queue])
-> 		return 0;
-> 
-> 	val = ..
-> 	writel()
-> 
-> 	return cci_run_queue();
-> 
-> 
-> That said, this function is always called with len ==
-> cci->queue_size[queue]. So this will always "run the queue" unless val
-> == 0. So you can simplify this function slightly by dropping the "len".
-
-Yes, I'll rework this and remove "len".
-
-> 
->> +		val = CCI_I2C_REPORT | (1 << 8);
->> +		writel(val, cci->base + CCI_I2C_Mm_Qn_LOAD_DATA(master, queue));
->> +
->> +		ret = cci_run_queue(cci, master, queue);
->> +	}
->> +
->> +	return ret;
->> +}
->> +
->> +static int cci_i2c_read(struct cci *cci, u16 addr, u8 *buf, u16 len)
->> +{
->> +	u8 master = MASTER_0;
->> +	u8 queue = QUEUE_1;
->> +	u32 val;
->> +	u32 words_read, words_exp;
->> +	int i, index, first;
->> +	int ret;
->> +
->> +	if (len > cci->adap.quirks->max_read_len)
->> +		return -EOPNOTSUPP;
->> +
-> 
-> The core already checks each entry against the max length quirks.
-> 
-> But are these actually the max amount of data you can read in one
-> operation? Generally one has to drain the fifo but the actual transfers
-> can be larger...
-
-Yes, the maximum data which you can read in one operation. And this is
-the meaning of quirks->max_read_len, right? Not the i2c transfer size.
-So the check is correct but I'll remove it as it is already done in
-i2c_check_for_quirks(), as you have pointed out.
-
-> 
-> [..]
->> +}
->> +
->> +static int cci_i2c_write(struct cci *cci, u16 addr, u8 *buf, u16 len)
->> +{
->> +	u8 master = MASTER_0;
->> +	u8 queue = QUEUE_0;
->> +	u8 load[12] = { 0 };
->> +	u8 i, j;
-> 
-> Use int for counters.
-
-Ok.
-
-> 
->> +	u32 val;
->> +	int ret;
->> +
->> +	if (len > cci->adap.quirks->max_write_len)
->> +		return -EOPNOTSUPP;
->> +
-> 
-> This is taken care of by the core.
-
-Yes, I'll remove it.
-
-> 
-> [..]
->> +}
->> +
->> +static int cci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->> +{
->> +	struct cci *cci = i2c_get_adapdata(adap);
->> +	int i;
->> +	int ret = 0;
->> +
->> +	if (!num)
->> +		return -EOPNOTSUPP;
-> 
-> I don't think you need to handle this case explicitly.
-
-Ok.
-
+> Well, it's not a I2C controller, it is a MIPI CCI controller.
 > 
 >> +
->> +	for (i = 0; i < num; i++) {
->> +		if (msgs[i].flags & I2C_M_RD)
->> +			ret = cci_i2c_read(cci, msgs[i].addr, msgs[i].buf,
->> +					   msgs[i].len);
->> +		else
->> +			ret = cci_i2c_write(cci, msgs[i].addr, msgs[i].buf,
->> +					    msgs[i].len);
->> +
->> +		if (ret < 0) {
->> +			dev_err(cci->dev, "cci i2c xfer error %d", ret);
->> +			break;
->> +		}
->> +	}
->> +
->> +	return ret;
+>> +Required properties:
+>> + - compatible: Should be one of:
+>> +   - "qcom,cci-v1.0.8" for 8916;
+>> +   - "qcom,cci-v1.4.0" for 8996.
+>> + - #address-cells: Should be <1>.
+>> + - #size-cells: Should be <0>.
+>> + - reg: Base address of the controller and length of memory mapped region.
+>> + - reg-names: Should be "cci".
 > 
-> This should return num on success.
-
-Yes.
-
+> No need for reg-names, as we only have one.
 > 
-> [..]
->> +static int cci_probe(struct platform_device *pdev)
->> +{
->> +	struct device *dev = &pdev->dev;
-> [..]
->> +	cci = devm_kzalloc(&pdev->dev, sizeof(*cci), GFP_KERNEL);
+>> + - interrupts: Specifier for CCI interrupt.
+>> + - interrupt-names: Should be "cci".
 > 
-> Use dev instead &pdev->dev here, of just use pdev->dev throughout the
-> function.
-
-Ok.
-
+> No need for interrupt-names, as we only have one.
 > 
-> [..]
->> +	cci->mode = I2C_MODE_STANDARD;
+>> + - clocks: List of clock specifiers, one for each entry in clock-names.
+>> + - clock-names: Should contain:
+>> +   - "mmss_mmagic_ahb" - on 8996 only;
+>> +   - "camss_top_ahb";
+>> +   - "cci_ahb";
+>> +   - "cci";
+>> +   - "camss_ahb".
+>> + - pinctrl-names: Should contain only one value - "default".
+>> + - pinctrl-0: Pin control group to be used for this controller.
 > 
-> cci->mode is a local variable, please don't put it in the struct.
-
-Ok.
-
-> 
->> +	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency", &val);
->> +	if (!ret) {
->> +		if (val == 400000)
->> +			cci->mode = I2C_MODE_FAST;
->> +		else if (val == 1000000)
->> +			cci->mode = I2C_MODE_FAST_PLUS;
->> +	}
->> +
->> +	/* Memory */
->> +
->> +	r = platform_get_resource_byname(pdev, IORESOURCE_MEM, res->reg[0]);
-> 
-> You only have a single reg, so please just use
-> 
-> r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> 
-
-Ok.
-
-> 
->> +	cci->base = devm_ioremap_resource(dev, r);
->> +	if (IS_ERR(cci->base)) {
->> +		dev_err(dev, "could not map memory\n");
->> +		return PTR_ERR(cci->base);
->> +	}
->> +
->> +	/* Interrupt */
->> +
->> +	r = platform_get_resource_byname(pdev, IORESOURCE_IRQ,
->> +					 res->interrupt[0]);
->> +	if (!r) {
->> +		dev_err(dev, "missing IRQ\n");
->> +		return -EINVAL;
->> +	}
->> +
->> +	cci->irq = r->start;
-> 
-> Please replace this with:
-> 
-> cci->irq = platform_get_irq(pdev, 0);
-
-Ok.
-
-> 
->> +	snprintf(cci->irq_name, sizeof(cci->irq_name), "%s", dev_name(dev));
-> 
-> And just hard code this in the function call.
-
-Ok.
-
-> 
->> +	ret = devm_request_irq(dev, cci->irq, cci_isr,
->> +			       IRQF_TRIGGER_RISING, cci->irq_name, cci);
->> +	if (ret < 0) {
->> +		dev_err(dev, "request_irq failed, ret: %d\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	disable_irq(cci->irq);
-> 
-> The time between devm_request_irq() and disable_irq() is still long
-> enough for cci_isr() to be called, before irq_complete is initialized.
-> 
-> Don't request irqs until you're ready to receive the interrupts.
-
-This makes sense however at this point the clocks to the device are
-still not enabled, doesn't this avoid any problems?
-
+> No need to document that the node can have the default pinctrl
+> properties.
 > 
 >> +
->> +	/* Clocks */
 >> +
->> +	cci->nclocks = 0;
->> +	while (res->clock[cci->nclocks])
->> +		cci->nclocks++;
+>> +Required properties on 8996:
+>> + - power-domains: Power domain specifier.
 >> +
->> +	cci->clock = devm_kzalloc(dev, cci->nclocks *
->> +				  sizeof(*cci->clock), GFP_KERNEL);
+>> +Optional:
+>> + - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
+>> +   if omitted.
+>> +
+>> +Example:
+>> +
+>> +                cci: qcom,cci@a0c000 {
 > 
-> This can max be CCI_RES_MAX (i.e. 6) so just make the array fixed size
-> and skip the kzalloc().
-
-Does it matter?
-
+> Don't do qcom, in the node name, and there's probably no reason to have
+> a label for this node either. So just make it
 > 
->> +	if (!cci->clock)
->> +		return -ENOMEM;
->> +
->> +	for (i = 0; i < cci->nclocks; i++) {
->> +		struct cci_clock *clock = &cci->clock[i];
->> +
->> +		clock->clk = devm_clk_get(dev, res->clock[i]);
->> +		if (IS_ERR(clock->clk))
->> +			return PTR_ERR(clock->clk);
->> +
->> +		clock->name = res->clock[i];
->> +		clock->freq = res->clock_rate[i];
->> +	}
->> +
->> +	ret = cci_enable_clocks(cci->nclocks, cci->clock, dev);
->> +	if (ret < 0)
->> +		return ret;
->> +
->> +	val = readl_relaxed(cci->base + CCI_HW_VERSION);
->> +	dev_info(dev, "%s: CCI HW version = 0x%08x", __func__, val);
+> 		   cci@a0c000 {
 > 
-> Please don't "spam" the kernel log by default, if this is useful make it
-> dev_dbg() and people can easily enable the print.
-
-Ok.
-
+>> +                        compatible = "qcom,cci-v1.4.0";
+>> +                        #address-cells = <1>;
+>> +                        #size-cells = <0>;
+>> +                        reg = <0xa0c000 0x1000>;
+>> +                        reg-names = "cci";
+>> +                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
+>> +                        interrupt-names = "cci";
+>> +                        power-domains = <&mmcc CAMSS_GDSC>;
+>> +                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
+>> +                                        <&mmcc CAMSS_TOP_AHB_CLK>,
+>> +                                        <&mmcc CAMSS_CCI_AHB_CLK>,
+>> +                                        <&mmcc CAMSS_CCI_CLK>,
+>> +                                        <&mmcc CAMSS_AHB_CLK>;
+>> +                        clock-names = "mmss_mmagic_ahb",
+>> +                                        "camss_top_ahb",
+>> +                                        "cci_ahb",
+>> +                                        "cci",
+>> +                                        "camss_ahb";
+>> +                        pinctrl-names = "default";
+>> +                        pinctrl-0 = <&cci0_default>;
+>> +                        clock-frequency = <400000>;
+>> +                };
 > 
->> +
->> +	init_completion(&cci->master[0].irq_complete);
->> +	init_completion(&cci->master[1].irq_complete);
->> +
->> +	enable_irq(cci->irq);
->> +
->> +	ret = cci_reset(cci);
->> +	if (ret < 0)
+> In the case of this single cci block having two masters we need a way to
+> describe the two sets of clients. I think the two options we have are:
 > 
-> Clocks needs to be disabled if this fails.
-
-Ok.
-
+> cci {
+> 	client {
+> 		reg = <0 0x2c>;
+> 	};
+> };
 > 
->> +		return ret;
->> +
->> +	ret = cci_init(cci, &hw[cci->mode]);
->> +	if (ret < 0)
+> The reg here being <master address>
 > 
-> Dito
-
-Ok.
-
+> or:
 > 
->> +		return ret;
->> +
->> +	ret = i2c_add_adapter(&cci->adap);
+> cci {
+> 	master0 {
+> 		client {
+> 			reg = <0x2c>;
+> 		};
+> 	};
+> };
 > 
-> Dito
-
-Ok.
-
+> The name "master0" could be made significant and picked up by name, and
+> in the case of single-master this level could be omitted.
 > 
->> +
->> +	return ret;
->> +}
-> [..]
->> +MODULE_ALIAS("platform:i2c-qcom-cci");
 > 
-> You don't need to specify this alias.
+> I like the first one, but it looks really hard to get implemented in
+> Linux, based on the i2c core's expectation that #address-cells is 1. So
+> I think the latter is the favourable option.
 
-Ok.
+Yes, I'll try this for the version which supports the second bus. Thank
+you for this suggestion.
+
+The rest of the points I'll fix now and send a v2.
 
 > 
 > Regards,
