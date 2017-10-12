@@ -1,70 +1,71 @@
-From: =?UTF-8?Q?Rados=C5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
-Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C controller
-Date: Thu, 12 Oct 2017 11:55:45 +0200
-Message-ID: <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
-References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com> <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Sluggish AT91 I2C driver causes SMBus timeouts
+Date: Thu, 12 Oct 2017 13:35:17 +0200
+Message-ID: <3d83fd8b-ade9-da10-3364-2afefa2e90af@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:52571 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750907AbdJLJzs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 12 Oct 2017 05:55:48 -0400
-In-Reply-To: <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
+Received: from mail-db5eur01on0121.outbound.protection.outlook.com ([104.47.2.121]:58545
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751849AbdJLLfY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 12 Oct 2017 07:35:24 -0400
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-It looks like there is a use case when IRQ handler is delayed a bit
-and the logic in the driver does not work. What is the real root cause
-I don't know.
+Hi!
 
-2017-10-12 11:31 GMT+02:00 Pierre Yves MORDRET <pierre-yves.mordret@st.com>:
->
->
-> On 10/11/2017 01:53 PM, Radoslaw Pietrzyk wrote:
->>       Do not read data on RXNE but on BTF only due to HW
->>       synchronisation problems and NACKing read data too early.
->>       It was found during testing of stmpe811 touchscreen driver.
->>
->
-> Would you mind to explain what is behind "hw sync issue" you've seen ?
->
->> Signed-off-by: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
->> ---
->>  drivers/i2c/busses/i2c-stm32f4.c | 11 +----------
->>  1 file changed, 1 insertion(+), 10 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
->> index 4ec1084..86bcf4c 100644
->> --- a/drivers/i2c/busses/i2c-stm32f4.c
->> +++ b/drivers/i2c/busses/i2c-stm32f4.c
->> @@ -409,16 +409,9 @@ static void stm32f4_i2c_handle_read(struct stm32f4_i2c_dev *i2c_dev)
->>        * So, here we just disable buffer interrupt in order to avoid another
->>        * system preemption due to RX not empty event.
->>        */
->> -     case 2:
->> -     case 3:
->> +     default:
->>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
->>               break;
->> -     /*
->> -      * For N byte reception with N > 3 we directly read data register
->> -      * until N-2 data.
->> -      */
->> -     default:
->> -             stm32f4_i2c_read_msg(i2c_dev);
->>       }
->>  }
->>
->> @@ -470,8 +463,6 @@ static void stm32f4_i2c_handle_rx_done(struct stm32f4_i2c_dev *i2c_dev)
->>                */
->>               reg = i2c_dev->base + STM32F4_I2C_CR1;
->>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
->> -             stm32f4_i2c_read_msg(i2c_dev);
->> -             break;
->>       default:
->>               stm32f4_i2c_read_msg(i2c_dev);
->>       }
->>
+I have encountered an "interesting" bug. It silently corrupts data
+and is generally nasty...
+
+On an I2C bus, driven by the at91 driver and DMA (an Atmel
+sama5d31 chip), I have an 256 byte eeprom (NXP SE97BTP). I'm using
+Linux v4.13.
+
+The at24 driver for the eeprom detects that the I2C adapter is
+capable of I2C transactions and selects that over SMBus. Reads
+are done in 128 byte chunks. However, sometimes there is some
+kind of event that disturbs the transactions such that the very
+last bit och the very last byte (and the following NACK and STOP)
+of such chunks are delayed for a long time (the latest incident
+shows 85ms on the scope). That is too long for the eeprom which
+is expecting SMBus and times out after about 30 ms. When the
+eeprom times out, it just releases the data line so that it is
+pulled up high. The I2C driver does not notice this, and when it
+finally gets going, it reads a one for the last bit instead of
+the expected zero. Since it is the last byte of the read, a NACK
+is expected and since the eeprom has timed out the NACK is there.
+And the STOP condition also looks normal (expected since it is
+generated by the driver itself). So, the driver has not noticed
+anything funny. But the data is corrupted.
+
+I can work around this by disabling the SMBus timeout in the eeprom
+with:
+
+	i2cset -f 0 0x18 0x22 0x8100
+
+But that is done on a different I2C address (the eeprom is on
+address 0x50), since the chip is a combined temperature sensor and
+eeprom, and the SMBus timeout bit is of course in a temperature
+sensor register.
+
+HOWEVER, I fail to see how this is limited to my case with this
+eeprom. Any SMBus chip with a timeout will suffer the same fate.
+The real bug is that this happens without the driver noticing it.
+And why is there a 85ms delay in the middle of the last byte?
+Sure, I can see why there might be a delay before finishing up
+with a STOP condition or between bytes if there needs to be some
+DMA setup at some interval, but after the 7th bit of a byte?
+
+For a lot of transactions on the I2C bus there is no delay before
+the last bit. And most of the time there is no delay for the
+eeprom reads either; the delay only occurs when it feels like it.
+
+This does not feel good at all.
+
+Cheers,
+Peter
