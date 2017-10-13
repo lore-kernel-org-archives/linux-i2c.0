@@ -1,34 +1,40 @@
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH] i2c: mux: reg: use of_property_read_bool()
-Date: Fri, 13 Oct 2017 15:13:03 +0300
-Message-ID: <e418f5f1-ad50-ab1e-5af4-55217c105448@cogentembedded.com>
-References: <20170820190656.846142358@cogentembedded.com>
+Subject: [PATCH] i2c: rcar: document R8A77970 bindings
+Date: Fri, 13 Oct 2017 15:23:55 +0300
+Message-ID: <20171013122401.540656908@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f46.google.com ([209.85.215.46]:56794 "EHLO
-        mail-lf0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757859AbdJMMNH (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Oct 2017 08:13:07 -0400
-Received: by mail-lf0-f46.google.com with SMTP id 90so9375372lfs.13
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Oct 2017 05:13:06 -0700 (PDT)
-In-Reply-To: <20170820190656.846142358@cogentembedded.com>
-Content-Language: en-MW
+Received: from mail-lf0-f52.google.com ([209.85.215.52]:54376 "EHLO
+        mail-lf0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753231AbdJMMYG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 13 Oct 2017 08:24:06 -0400
+Received: by mail-lf0-f52.google.com with SMTP id d10so9421090lfg.11
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Oct 2017 05:24:06 -0700 (PDT)
+Content-Disposition: inline; filename=i2c-rcar-document-R8A77970-bindings.patch
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-renesas-soc@vger.kernel.org, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-Hello!
+R-Car V3M (R8A77970) SoC also has the R-Car gen3 compatible I2C controller,
+so document  the SoC specific bindings.
 
-On 08/20/2017 10:06 PM, Sergei Shtylyov wrote:
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-> Use more compact of_property_read_bool() calls for the boolean properties
-> instead  of of_find_property() calls  in i2c_mux_reg_probe_dt().
-> 
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-[...]
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |    1 +
+ 1 file changed, 1 insertion(+)
 
-    This patch seems to be lost. Ping?
-
-MBR, Sergei
+Index: linux/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+===================================================================
+--- linux.orig/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ linux/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -13,6 +13,7 @@ Required properties:
+ 	"renesas,i2c-r8a7794" if the device is a part of a R8A7794 SoC.
+ 	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
+ 	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
++	"renesas,i2c-r8a77970" if the device is a part of a R8A77970 SoC.
+ 	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
+ 	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 or RZ/G1 compatible
+ 				device.
