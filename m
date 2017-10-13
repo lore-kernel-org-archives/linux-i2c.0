@@ -1,60 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Fix SMBus port selection for AMD Family 17h
- chips
-Date: Fri, 13 Oct 2017 21:01:00 +0200
-Message-ID: <20171013190100.wjmjwyjmj6nt53i3@ninjato>
-References: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH v3] i2c: piix4: Disable completely the IMC during
+ SMBUS_BLOCK_DATA
+Date: Fri, 13 Oct 2017 21:03:26 +0200
+Message-ID: <20171013190326.gozfjhmv2pbmnrgt@ninjato>
+References: <20171010161115.2259-1-ricardo.ribalda@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zamswe7sddd6m5a4"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="yiv6g6hbr5ij4nzg"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41646 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751057AbdJMTD1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 13 Oct 2017 15:03:27 -0400
 Content-Disposition: inline
-In-Reply-To: <1500162686-21682-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20171010161115.2259-1-ricardo.ribalda@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
 
---zamswe7sddd6m5a4
-Content-Type: text/plain; charset=utf-8
+--yiv6g6hbr5ij4nzg
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 15, 2017 at 04:51:26PM -0700, Guenter Roeck wrote:
-> AMD Family 17h uses the KERNCZ SMBus controller. While its documentation
-> is not publicly available, it is documented in the BIOS and Kernel
-> Developer=E2=80=99s Guide for AMD Family 15h Models 60h-6Fh Processors.
+On Tue, Oct 10, 2017 at 06:11:15PM +0200, Ricardo Ribalda Delgado wrote:
+> SMBUS_BLOCK_DATA transactions might fail due to a race condition with
+> the IMC (Integrated Micro Controller), even when the IMC semaphore
+> is used.
 >=20
-> On this SMBus controller, the port select register is at PMx register
-> 0x02, bit 4:3 (PMx00 register bit 20:19).
+> This bug has been reported and confirmed by AMD, who suggested as a
+> solution an IMC firmware upgrade (obtained via BIOS update) and
+> disabling the IMC during SMBUS_BLOCK_DATA transactions.
 >=20
-> Without this patch, the 4 SMBus channels on AMD Family 17h chips are
-> mirrored and report the same chips on all channels.
+> Even without the IMC upgrade, the SMBUS is much more stable with this
+> patch.
 >=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Tested on a Bettong-alike board.
+>=20
+> Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
 Applied to for-current, thanks!
 
 
---zamswe7sddd6m5a4
+--yiv6g6hbr5ij4nzg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnhDWsACgkQFA3kzBSg
-KbZuXA//XnJBuJ8scgpE2OEVITqZV+yUuPcXqayZKgUfzYKYy+OOMToDY6GBXdJ+
-YTIjlgI9FkaUTDNr+vQYCCL4YfKDxOraszAmlCWpEPx+NfI5jDsmpfOV7mKSxxov
-42D806R58WH5fr714UO+F2vOj9E1v7NjR/1bAulS05XmxxVFU+bWzB5V/WksNxCM
-rJCUvb/6aU75Vm+scl7yMebYfASpeojK+LecmBgYLlDasRnpnMKRPOuGFO/FiU9z
-Ddpe7cv8EziJkIMydrorArXuxqRwg35XlZFv8HdIcX5sQ1qb6dy6FXkZN09Zkj1Y
-Y9EHWc3whCWCCITNziTPQuHiuSAQ6Eg2AsvTAmQbKQvenPa2LzxGDZ95T9WL6yuC
-bZTKsvmxbRUWHgrsln0OLcb9SW8T/tc4jZxDyA5Em+dFyg/Q7TmVYyhOObC2p31J
-vfOEDT2rRWBhE/Fh/ptx4jp7XzECNK3EOrWNisQsXJ+EaGM/Rf/HdNXfRcKx2SZb
-ZBkUvfEpFr7jX6ibwP7BQnRWGYbQhEbqY004d8lwWqZNyodLnW9gPNV5wqIR1eox
-yg0Xlxk5nBH+sUV7OnRcWBOi2xNPMcfAxrlRnd3lXRtE0P0RkBNfLg5cMLeshBt0
-2wlyvThvEq0+zCmkt9Rhb5gD1aSOMYTdUVB9cEo6OkNslmvQJYU=
-=XcW+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnhDf4ACgkQFA3kzBSg
+KbY12xAAl/mbAEkd1HtOlW28e481xNixN/dYnj2vRPgfbnB13CgkXmhxjfW92SlM
+Ckj6wUP+BCegjpWr1YkV+uQp02rYcnHqji2qO99W0vb5p0kLXKBJny/MdeFUReIX
+XTNhf+ea8xcemx7ClQr4F+01xe+kXpOBL6IvyXdfgshuDVZCaEzLJc0hdlIjPuA6
+dLk8biI8oAxQ9Z7SF7QIubnOwvCVX6aC7H+bCZIL8MraCQcq1jDhdn/gi1R5OlJP
+TqRDnK3Va1mVINEKm9OhYxcCTu64wZq358/Ymf0PZ0LESFd8MkwrUjucfVqlLGOg
+MwaAkhwQTu8DhvERj2LJEp4zg1UqX+pyK5pfZVV7K652HEB6AJF7tLzDPOMkyk9t
+i91bF++1EgKGTkRpFRvuPwZzPDhI+lyVpyBgiuewMNuXZCHzIwsHNkh/zfuIW8Yz
+1ukgFqWjy4dEVS+dcO1Mj0f6y5DqeuK7bxkh1ujgLgzg1Exr3UhJTam8mL9cMrXE
+2gXQSHdDR3LO5eqQQVVsbtYacvvsqinnHP29e/UAZpkf5cpWa6XiGevm2Yf+snpl
+bwEDXTkRgX9QBqQlj1ahLWawR09zdpJWBrCrlnIamxOCz78+qRD2jI4LNCID3XIY
+GW8zgERlSIh37bgZM3BXsIVL9H6/+gL2HyLlHxCwUcEOpSUOtw0=
+=bipU
 -----END PGP SIGNATURE-----
 
---zamswe7sddd6m5a4--
+--yiv6g6hbr5ij4nzg--
