@@ -1,83 +1,58 @@
-From: Chris Brandt <Chris.Brandt@renesas.com>
-Subject: RE: [PATCH v2] i2c: riic: remove fixed clock restriction
-Date: Fri, 13 Oct 2017 19:37:50 +0000
-Message-ID: <SG2PR06MB11658FE2DCDC2A50FA5ED7258A480@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170929171637.121262-1-chris.brandt@renesas.com>
- <SG2PR06MB11656505D83C3D552B2CAC2D8A4A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <20171013185633.lakiw4cu5o22cwjf@ninjato>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH] i2c: pxa: move header file out of deprecated i2c folder
+Date: Fri, 13 Oct 2017 22:59:16 +0200
+Message-ID: <87d15qlq6z.fsf@belgarion.home>
+References: <20170814164303.2383-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20171013185633.lakiw4cu5o22cwjf@ninjato>
-Content-Language: en-US
-Sender: linux-renesas-soc-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170814164303.2383-1-wsa@the-dreams.de> (Wolfram Sang's message
+        of "Mon, 14 Aug 2017 18:43:01 +0200")
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-i2c@vger.kernel.org, Eric Miao <eric.y.miao@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Russell King <linux@armlinux.org.uk>, Daniel Mack <daniel@zonque.org>, Marek Vasut <marek.vasut@gmail.com>, Philipp Zabel <philipp.zabel@gmail.com>, Paul Parsons <lost.distance@yahoo.com>, Jonathan Cameron <jic23@cam.ac.uk>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, October 13, 2017, Wolfram Sang wrote:
-> On Wed, Oct 11, 2017 at 03:20:29PM +0000, Chris Brandt wrote:
-> > On Friday, September 29, 2017, Chris Brandt wrote:
-> > > Most systems with this i2c are going to have a clock of either 33.3MH=
-z
-> or
-> > > 32MHz. That 4% difference is not reason enough to warrant that the
-> driver
-> > > to completely fail.
-> > >
-> > > Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-> > > ---
-> > > v2:
-> > >  * simplified error message.
-> > > ---
-> >
-> > What ever happened to this patch?
-> > Was there any objection?
->=20
-> In deed, I'd prefer to limit the settings to the two known frequencies.
-> We shouldn't use the settings if someone is using it with e.g. 16MHz?
+Wolfram Sang <wsa@the-dreams.de> writes:
 
-How about a range of -4% to +2% ?
+> include/linux/i2c is deprecated because too many platform_data of i2c
+> clients incorrectly ended up there. The few still relevant include files
+> for I2C bus masters with their platform_data have been moved to the
+> platform_data directory. This final one, PXA, is not entirely
+> platform_data, so it is simply moved one layer up. After that, the i2c
+> subfolder can finally go soon.
+>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>
+> If you think this should rather go to "include/linux/platform_data" instead of
+> "include/linux", I am open for that. I like the latter a tad better, but not
+> super much.
+>
+> No runtime testing because of no HW, but buildbot is happy with this series at
+> least and I did build testing, too.
 
+Hi Wolfram,
 
-	/*
-	 * TODO: Implement formula to calculate the timing values depending on
-	 * variable parent clock rate and arbitrary bus speed.
-	 * For now, just use calculations based on a 33325000Hz clock.
-	 */
-	rate =3D clk_get_rate(riic->clk);
-	if ((rate < 32000000) || (rate > 34000000)) {
-		dev_err(&riic->adapter.dev,
-			"invalid parent clk (%lu). Must be 32MHz-34MHz\n",
-			rate);
-		clk_disable_unprepare(riic->clk);
-		return -EINVAL;
-	}
+I'm sorry I completely missed this one.
+Either it's too late and trash this mail, or it's not, and then I'd suggest
+another approach :
+ - patch 1 : move include/linux/i2c/pxa-i2c.h to include/platform_data/i2c-pxa.h
+   (i2c-pxa.h and not pxa-i2c.h to be consistent)
+ - patch 2 : move this chunk to arch/arm/mach-pxa/devices.h
+> extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+> 
+> #ifdef CONFIG_PXA27x
+> extern void pxa27x_set_i2c_power_info(struct i2c_pxa_platform_data *info);
+> #endif
+> 
+> #ifdef CONFIG_PXA3xx
+> extern void pxa3xx_set_i2c_power_info(struct i2c_pxa_platform_data *info);
+> #endif
 
+This is the cleanest approach I could think of.
 
+Cheers.
 
-> Of course, my most favorite option would be implementing the formula
-> instead of fixed settings, but I am not forcing that on you.
-
-So I looked at that.
-
-However...
-
-Technically, to do it right, to calculate the ACTUAL I2C baud rate, you=20
-have to take into effect the load resistance and capacitance of the=20
-lines in order to factor in the rise and fall times correctly. Of course=20
-that varies board to board. And then, 100kHz (standard-mode) and 400kHz=20
-(fast-mode) have different minimum HIGH/LOW times and duty cycle=20
-restrictions, so that has to be taken into account when coming up with a fo=
-rmula.
-
-   --or--
-
-Just live with the fact that the speed might be off by 4%.
-
-
-   (I decided on option #2)
-
-
-Chris
+--
+Robert
