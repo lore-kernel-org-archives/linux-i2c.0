@@ -1,48 +1,43 @@
-From: Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH] i2c: meson: use generic compatible
-Date: Fri, 13 Oct 2017 10:22:06 +0200
-Message-ID: <20171013082206.31632-1-jbrunet@baylibre.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>
-Cc: Jerome Brunet <jbrunet@baylibre.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
+From: Todor Tomov <todor.tomov@linaro.org>
+Subject: [PATCH v2 3/4] MAINTAINERS: Add Qualcomm Camera Control Interface driver
+Date: Fri, 13 Oct 2017 13:56:42 +0300
+Message-ID: <1507892203-17033-4-git-send-email-todor.tomov@linaro.org>
+References: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ns.mm-sol.com ([37.157.136.199]:37942 "EHLO extserv.mm-sol.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751607AbdJMK5s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 13 Oct 2017 06:57:48 -0400
+In-Reply-To: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 
-The meson i2c driver seems to be compatible with more SoCs than
-initially thought. Let's use the most generic compatible he have in
-DT instead of the gxbb specific one
+Add an entry for Qualcomm Camera Control Interface driver.
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-meson.txt | 2 +-
- drivers/i2c/busses/i2c-meson.c                      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-index 611b934c7e10..e6a563443e26 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-@@ -1,7 +1,7 @@
- Amlogic Meson I2C controller
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2d3d750..10d78cb 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11171,6 +11171,13 @@ W:	http://wireless.kernel.org/en/users/Drivers/ath9k
+ S:	Supported
+ F:	drivers/net/wireless/ath/ath9k/
  
- Required properties:
-- - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gxbb-i2c"
-+ - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gx-i2c"
-  - reg: physical address and length of the device registers
-  - interrupts: a single interrupt specifier
-  - clocks: clock for the device
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 88d15b92ec35..7b238d8c19af 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -442,7 +442,7 @@ static int meson_i2c_remove(struct platform_device *pdev)
- 
- static const struct of_device_id meson_i2c_match[] = {
- 	{ .compatible = "amlogic,meson6-i2c" },
--	{ .compatible = "amlogic,meson-gxbb-i2c" },
-+	{ .compatible = "amlogic,meson-gx-i2c" },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, meson_i2c_match);
++QUALCOMM CAMERA CONTROL INTERFACE DRIVER
++M:	Todor Tomov <todor.tomov@linaro.org>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
++F:	drivers/i2c/busses/i2c-qcom-cci.c
++
+ QUALCOMM CAMERA SUBSYSTEM DRIVER
+ M:	Todor Tomov <todor.tomov@linaro.org>
+ L:	linux-media@vger.kernel.org
 -- 
-2.13.6
+2.7.4
