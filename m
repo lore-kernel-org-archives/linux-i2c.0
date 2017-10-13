@@ -1,77 +1,61 @@
 From: Todor Tomov <todor.tomov@linaro.org>
-Subject: [PATCH v2 1/4] dt-bindings: media: Binding document for Qualcomm Camera Control Interface driver
-Date: Fri, 13 Oct 2017 13:56:40 +0300
-Message-ID: <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
-References: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
+Subject: [PATCH v2 0/4] Qualcomm Camera Control Interface driver
+Date: Fri, 13 Oct 2017 13:56:39 +0300
+Message-ID: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add DT binding document for Qualcomm Camera Control Interface driver
+This patchset adds basic support for the Qualcomm Camera Control Interface
+(CCI) controller found on Qualcomm MSM8916/APQ8016 and MSM8996/APQ8996 SoC.
 
-CC: Rob Herring <robh+dt@kernel.org>
-CC: Mark Rutland <mark.rutland@arm.com>
-CC: devicetree@vger.kernel.org
-Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
----
- .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 46 ++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+CCI has one I2C bus on MSM8916/APQ8016 and two I2C busses on MSM8996/APQ8096.
+The present driver supports the first I2C bus only.
+
+The driver is implemented using as a reference the Qualcomm CCI driver
+for Android as found in Code Aurora [1] and [2].
+
+The driver is tested on Dragonboard 410c (APQ8016) and Dragonboard 820c 
+(APQ8096) with one and two OV5645 camera sensors.
+
+
+[1] https://source.codeaurora.org/quic/la/kernel/msm-3.10/
+[2] https://source.codeaurora.org/quic/la/kernel/msm-3.18/
+
+--------------------------------------------------------------------------------
+
+Changes in v2:
+- use clock bulk API for clock handling;
+- remove reg and interrupt names from dt binding as there are only one from
+  each;
+- improved checks in cci_validate_queue();
+- halt and reset CCI on timeout after run queue;
+- a fix for CCI reset after halt;
+- a lot of small code and style fixes.
+
+--------------------------------------------------------------------------------
+
+Todor Tomov (4):
+  dt-bindings: media: Binding document for Qualcomm Camera Control
+    Interface driver
+  i2c: Add Qualcomm Camera Control Interface driver
+  MAINTAINERS: Add Qualcomm Camera Control Interface driver
+  arm64: dts: qcom: Add Camera Control Interface support
+
+ .../devicetree/bindings/i2c/i2c-qcom-cci.txt       |  46 ++
+ MAINTAINERS                                        |   7 +
+ arch/arm64/boot/dts/qcom/msm8916-pins.dtsi         |  14 +
+ arch/arm64/boot/dts/qcom/msm8916.dtsi              |  19 +
+ arch/arm64/boot/dts/qcom/msm8996-pins.dtsi         |  14 +
+ arch/arm64/boot/dts/qcom/msm8996.dtsi              |  22 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-qcom-cci.c                  | 789 +++++++++++++++++++++
+ 9 files changed, 922 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+ create mode 100644 drivers/i2c/busses/i2c-qcom-cci.c
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-new file mode 100644
-index 0000000..cb1fe15
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-@@ -0,0 +1,46 @@
-+Qualcomm Camera Control Interface controller
-+
-+Required properties:
-+ - compatible: Should be one of:
-+   - "qcom,cci-v1.0.8" for 8916;
-+   - "qcom,cci-v1.4.0" for 8996.
-+ - #address-cells: Should be <1>.
-+ - #size-cells: Should be <0>.
-+ - reg: Base address of the controller and length of memory mapped region.
-+ - interrupts: Specifier for CCI interrupt.
-+ - clocks: List of clock specifiers, one for each entry in clock-names.
-+ - clock-names: Should contain:
-+   - "mmss_mmagic_ahb" - on 8996 only;
-+   - "camss_top_ahb";
-+   - "cci_ahb";
-+   - "cci";
-+   - "camss_ahb".
-+
-+Required properties on 8996:
-+ - power-domains: Power domain specifier.
-+
-+Optional:
-+ - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
-+   if omitted.
-+
-+Example:
-+
-+                cci@a0c000 {
-+                        compatible = "qcom,cci-v1.4.0";
-+                        #address-cells = <1>;
-+                        #size-cells = <0>;
-+                        reg = <0xa0c000 0x1000>;
-+                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
-+                        power-domains = <&mmcc CAMSS_GDSC>;
-+                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
-+                                        <&mmcc CAMSS_TOP_AHB_CLK>,
-+                                        <&mmcc CAMSS_CCI_AHB_CLK>,
-+                                        <&mmcc CAMSS_CCI_CLK>,
-+                                        <&mmcc CAMSS_AHB_CLK>;
-+                        clock-names = "mmss_mmagic_ahb",
-+                                        "camss_top_ahb",
-+                                        "cci_ahb",
-+                                        "cci",
-+                                        "camss_ahb";
-+                        clock-frequency = <400000>;
-+                };
 -- 
 2.7.4
