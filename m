@@ -1,90 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: riic: remove fixed clock restriction
-Date: Fri, 13 Oct 2017 23:51:09 +0200
-Message-ID: <20171013215109.l35j652amscnrsfe@ninjato>
-References: <20170929171637.121262-1-chris.brandt@renesas.com>
- <SG2PR06MB11656505D83C3D552B2CAC2D8A4A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <20171013185633.lakiw4cu5o22cwjf@ninjato>
- <SG2PR06MB11658FE2DCDC2A50FA5ED7258A480@SG2PR06MB1165.apcprd06.prod.outlook.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: mux: reg: use of_property_read_bool()
+Date: Fri, 13 Oct 2017 23:53:28 +0200
+Message-ID: <0296e18d-91c2-ee56-9b78-4b3d18660f83@axentia.se>
+References: <20170820190656.846142358@cogentembedded.com>
+ <e418f5f1-ad50-ab1e-5af4-55217c105448@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="76dla3w63pp2a7qz"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <SG2PR06MB11658FE2DCDC2A50FA5ED7258A480@SG2PR06MB1165.apcprd06.prod.outlook.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ve1eur01on0115.outbound.protection.outlook.com ([104.47.1.115]:44161
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752969AbdJMVxf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 13 Oct 2017 17:53:35 -0400
+In-Reply-To: <e418f5f1-ad50-ab1e-5af4-55217c105448@cogentembedded.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
+On 2017-10-13 14:13, Sergei Shtylyov wrote:
+> Hello!
+> 
+> On 08/20/2017 10:06 PM, Sergei Shtylyov wrote:
+> 
+>> Use more compact of_property_read_bool() calls for the boolean properties
+>> instead  of of_find_property() calls  in i2c_mux_reg_probe_dt().
+>>
+>> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> [...]
+> 
+>     This patch seems to be lost. Ping?
 
---76dla3w63pp2a7qz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch arrived too late to hit the previous merge window (I had already
+done the pull request). I had admittedly forgotten about this patch, but the
+mail sits there with a "TODO" tag, so I think I would have found it when
+digging through stuff for this merge window.
 
-Hi Chris,
+Anyway, thanks for the reminder, and sorry for the delay.
 
-> How about a range of -4% to +2% ?
-
-I am fine with a range in general, but I don't like +x% because we should n=
-ever
-be faster than requested. Clients may have problems with that.
-
-> Technically, to do it right, to calculate the ACTUAL I2C baud rate, you=
-=20
-> have to take into effect the load resistance and capacitance of the=20
-> lines in order to factor in the rise and fall times correctly. Of course=
-=20
-
-We have those generic bindings upstream:
-
-- i2c-scl-falling-time-ns
-        Number of nanoseconds the SCL signal takes to fall; t(f) in the I2C
-        specification.
-
-- i2c-scl-internal-delay-ns
-        Number of nanoseconds the IP core additionally needs to setup SCL.
-
-- i2c-scl-rising-time-ns
-        Number of nanoseconds the SCL signal takes to rise; t(r) in the I2C
-        specification.
-
-- i2c-sda-falling-time-ns
-        Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-        specification.
-
-So far, that was all that is needed, however...
-
-> Just live with the fact that the speed might be off by 4%.
-
-=2E.. as I said before, I won't force it on you for the frequencies you wan=
-t to
-support.
-
-Regards,
-
-   Wolfram
-
-
---76dla3w63pp2a7qz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnhNU0ACgkQFA3kzBSg
-KbYlDQ//ZCXJ/eak9SC3zPg4tPBDatqoZtSmalFz8LqPHZPMUd+KpEsdtSkUnDO7
-WsTIor51WWeOJJaBMdlbTqp+g0kwlmA67X9By54VuVJ7xiCTGh4/fI+2sHBSQEv4
-c3Re2cmrc8ZFErOuZyPZzrk8unkc/y7L0WL1cXHFfQrmRcSvFimXPu/ImleKMKKz
-NKTn7IqgV71qvR5cTxaI50UmfbW1dkF2GM6sT1CAjoRf1xBcDmaffg3dTrnsj4is
-RWYO1dq0uAJKGFz62FNlGo7ulafkLHGcIhFHdAJ0gMMkqBjCIN2/1w/9jxaTjnD/
-AOAjlTjXKwZhdZB/E+Z4AXvR4KstpoI5H6IoR8nN9dfISBpNAYn9a2+Kes2lG6ED
-KM+NZFC9xovBQJOW4/GKXM2uB8Eadu2RGCoP/mpRD2ufzIpIHSqcxt6WaYipj3mI
-IIEjM6/DZsflBswQz5TkvGWtDNnT7H9t0dAALfnMzxmvnpKl+w1MSbTLVlmnKC5i
-tfftPFlh7sXrOOewbBK7BLszGkP92LO6HQA5Rehu99dTI1QgXA1p8zGB1PXaEGCR
-Qp6vOPs2N0NhIRG3MkSRhMzK8EFihnNcdJwDK1w8RR1YGm59LKiW68FcWEFKwvfj
-mRvTfRay7kIBZ0M7zoHlhjMnQ44bhEXfGvd0FzvOOmkPe/JNbpY=
-=QmTK
------END PGP SIGNATURE-----
-
---76dla3w63pp2a7qz--
+Cheers,
+Peter
