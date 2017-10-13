@@ -1,43 +1,77 @@
 From: Todor Tomov <todor.tomov@linaro.org>
-Subject: [PATCH v2 3/4] MAINTAINERS: Add Qualcomm Camera Control Interface driver
-Date: Fri, 13 Oct 2017 13:56:42 +0300
-Message-ID: <1507892203-17033-4-git-send-email-todor.tomov@linaro.org>
+Subject: [PATCH v2 1/4] dt-bindings: media: Binding document for Qualcomm Camera Control Interface driver
+Date: Fri, 13 Oct 2017 13:56:40 +0300
+Message-ID: <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
 References: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ns.mm-sol.com ([37.157.136.199]:37942 "EHLO extserv.mm-sol.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751607AbdJMK5s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 13 Oct 2017 06:57:48 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Todor Tomov <todor.tomov@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Add an entry for Qualcomm Camera Control Interface driver.
+Add DT binding document for Qualcomm Camera Control Interface driver
 
+CC: Rob Herring <robh+dt@kernel.org>
+CC: Mark Rutland <mark.rutland@arm.com>
+CC: devicetree@vger.kernel.org
 Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
 ---
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 46 ++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2d3d750..10d78cb 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11171,6 +11171,13 @@ W:	http://wireless.kernel.org/en/users/Drivers/ath9k
- S:	Supported
- F:	drivers/net/wireless/ath/ath9k/
- 
-+QUALCOMM CAMERA CONTROL INTERFACE DRIVER
-+M:	Todor Tomov <todor.tomov@linaro.org>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-+F:	drivers/i2c/busses/i2c-qcom-cci.c
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+new file mode 100644
+index 0000000..cb1fe15
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+@@ -0,0 +1,46 @@
++Qualcomm Camera Control Interface controller
 +
- QUALCOMM CAMERA SUBSYSTEM DRIVER
- M:	Todor Tomov <todor.tomov@linaro.org>
- L:	linux-media@vger.kernel.org
++Required properties:
++ - compatible: Should be one of:
++   - "qcom,cci-v1.0.8" for 8916;
++   - "qcom,cci-v1.4.0" for 8996.
++ - #address-cells: Should be <1>.
++ - #size-cells: Should be <0>.
++ - reg: Base address of the controller and length of memory mapped region.
++ - interrupts: Specifier for CCI interrupt.
++ - clocks: List of clock specifiers, one for each entry in clock-names.
++ - clock-names: Should contain:
++   - "mmss_mmagic_ahb" - on 8996 only;
++   - "camss_top_ahb";
++   - "cci_ahb";
++   - "cci";
++   - "camss_ahb".
++
++Required properties on 8996:
++ - power-domains: Power domain specifier.
++
++Optional:
++ - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
++   if omitted.
++
++Example:
++
++                cci@a0c000 {
++                        compatible = "qcom,cci-v1.4.0";
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++                        reg = <0xa0c000 0x1000>;
++                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
++                        power-domains = <&mmcc CAMSS_GDSC>;
++                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
++                                        <&mmcc CAMSS_TOP_AHB_CLK>,
++                                        <&mmcc CAMSS_CCI_AHB_CLK>,
++                                        <&mmcc CAMSS_CCI_CLK>,
++                                        <&mmcc CAMSS_AHB_CLK>;
++                        clock-names = "mmss_mmagic_ahb",
++                                        "camss_top_ahb",
++                                        "cci_ahb",
++                                        "cci",
++                                        "camss_ahb";
++                        clock-frequency = <400000>;
++                };
 -- 
 2.7.4
