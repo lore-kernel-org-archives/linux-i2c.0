@@ -1,43 +1,36 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: reg: use of_property_read_bool()
-Date: Fri, 13 Oct 2017 23:53:28 +0200
-Message-ID: <0296e18d-91c2-ee56-9b78-4b3d18660f83@axentia.se>
-References: <20170820190656.846142358@cogentembedded.com>
- <e418f5f1-ad50-ab1e-5af4-55217c105448@cogentembedded.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v5 0/3] i2c: Hookup typec power-negotation to the PMIC and charger
+Date: Sat, 14 Oct 2017 13:45:24 +0300
+Message-ID: <CAHp75VeqskRsmedvA3eAx27o8WeZzH44880T=Q=+1mD+1nSSAg@mail.gmail.com>
+References: <20171011094121.6108-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0115.outbound.protection.outlook.com ([104.47.1.115]:44161
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752969AbdJMVxf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 13 Oct 2017 17:53:35 -0400
-In-Reply-To: <e418f5f1-ad50-ab1e-5af4-55217c105448@cogentembedded.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171011094121.6108-1-hdegoede@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, "Krogerus, Heikki" <heikki.krogerus@linux.intel.com>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On 2017-10-13 14:13, Sergei Shtylyov wrote:
-> Hello!
-> 
-> On 08/20/2017 10:06 PM, Sergei Shtylyov wrote:
-> 
->> Use more compact of_property_read_bool() calls for the boolean properties
->> instead  of of_find_property() calls  in i2c_mux_reg_probe_dt().
->>
->> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> [...]
-> 
->     This patch seems to be lost. Ping?
+On Wed, Oct 11, 2017 at 12:41 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi All,
+>
+> These are the last 3 patches from all my work to add support for
+> USB PD charging to Intel Cherry Trail devices with a Whiskey Cove PMIC
+> and fusb302 Type-C controller.
+>
+> With these 3 patches these devices change from slowly discharging
+> at 5V 0.5A to actually charging at 12V 2A, so getting these upstream
+> is important for users of these devices.
+>
+> Wolfram does not really have time to review the first 2 patches, so if
+> someone else (from the people in the Cc) can review the first 2 patches
+> and esp. the first patch, so that we can get this merged for 4.15, then
+> that would be great.
 
-The patch arrived too late to hit the previous merge window (I had already
-done the pull request). I had admittedly forgotten about this patch, but the
-mail sits there with a "TODO" tag, so I think I would have found it when
-digging through stuff for this merge window.
+The person comes to my mind is Heikki,
+Though I dunno he has time either.
 
-Anyway, thanks for the reminder, and sorry for the delay.
-
-Cheers,
-Peter
+-- 
+With Best Regards,
+Andy Shevchenko
