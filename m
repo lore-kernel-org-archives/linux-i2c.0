@@ -1,62 +1,53 @@
-From: Chris Brandt <Chris.Brandt@renesas.com>
-Subject: RE: [PATCH v2] i2c: riic: remove fixed clock restriction
-Date: Mon, 16 Oct 2017 17:21:07 +0000
-Message-ID: <SG2PR06MB11659AC755BCA8000EC8D30D8A4F0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-References: <20170929171637.121262-1-chris.brandt@renesas.com>
- <SG2PR06MB11656505D83C3D552B2CAC2D8A4A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <20171013185633.lakiw4cu5o22cwjf@ninjato>
- <SG2PR06MB11658FE2DCDC2A50FA5ED7258A480@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <20171013215109.l35j652amscnrsfe@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20171013215109.l35j652amscnrsfe@ninjato>
-Content-Language: en-US
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
+From: Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v3] i2c: riic: remove fixed clock restriction
+Date: Mon, 16 Oct 2017 13:32:53 -0500
+Message-ID: <20171016183253.2291-1-chris.brandt@renesas.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from relmlor3.renesas.com ([210.160.252.173]:50563 "EHLO
+        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1754777AbdJPSeF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 14:34:05 -0400
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Chris Brandt <chris.brandt@renesas.com>
 
-Hi Wolfram,
+Most systems with this i2c are going to have a clock of either 33.33MHz or
+32MHz. That 4% difference is not reason enough to warrant that the driver
+to completely fail.
 
-On Friday, October 13, 2017, Wolfram Sang wrote:
-> > Technically, to do it right, to calculate the ACTUAL I2C baud rate, you
-> > have to take into effect the load resistance and capacitance of the
-> > lines in order to factor in the rise and fall times correctly. Of cours=
-e
->=20
-> We have those generic bindings upstream:
->=20
-> - i2c-scl-falling-time-ns
->         Number of nanoseconds the SCL signal takes to fall; t(f) in the
-> I2C
->         specification.
->=20
-> - i2c-scl-internal-delay-ns
->         Number of nanoseconds the IP core additionally needs to setup SCL=
-.
->=20
-> - i2c-scl-rising-time-ns
->         Number of nanoseconds the SCL signal takes to rise; t(r) in the
-> I2C
->         specification.
->=20
-> - i2c-sda-falling-time-ns
->         Number of nanoseconds the SDA signal takes to fall; t(f) in the
-> I2C
->         specification.
->=20
-> So far, that was all that is needed, however...
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+---
+v3:
+ * now check a range of safe frequencies
+v2:
+ * simplified error message.
+---
+---
+ drivers/i2c/busses/i2c-riic.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-So for now, I'm going to take the easy way out and just put in the range
-as you suggested.
-
-
-But, I think later I will revisit this and come up with an algorithm for
-calculating the rate/duty at run-time. I want to do that when I have=20
-more time to verify things with a scope and such.
-
-
-Thanks,
-Chris
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index c811af4c8d81..4c001d09aac2 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -299,12 +299,14 @@ static int riic_init_hw(struct riic_dev *riic, u32 spd)
+ 
+ 	/*
+ 	 * TODO: Implement formula to calculate the timing values depending on
+-	 * variable parent clock rate and arbitrary bus speed
++	 * variable parent clock rate and arbitrary bus speed.
++	 * For now, just use calculations based on a 33.33MHz clock.
+ 	 */
+ 	rate = clk_get_rate(riic->clk);
+-	if (rate != 33325000) {
++	if ((rate < 32000000) || (rate > 33400000)) {
+ 		dev_err(&riic->adapter.dev,
+-			"invalid parent clk (%lu). Must be 33325000Hz\n", rate);
++			"invalid parent clk (%lu). Must be 32.0MHz-33.4MHz.\n",
++			rate);
+ 		clk_disable_unprepare(riic->clk);
+ 		return -EINVAL;
+ 	}
+-- 
+2.14.1
