@@ -1,86 +1,101 @@
-From: Andrew Worsley <amworsley@gmail.com>
+From: Harini Katakam <harinikatakamlinux@gmail.com>
 Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
-Date: Mon, 16 Oct 2017 20:18:37 +1100
-Message-ID: <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
+Date: Mon, 16 Oct 2017 16:08:30 +0530
+Message-ID: <CAFcVECK85xW_8oxVQGsHBGyZ4_5bcghpbonqDH-8tLp+Mwq=xQ@mail.gmail.com>
 References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
  <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
  <20171013184646.cy5gmpwrxbacje3m@ninjato> <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
+ <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-vk0-f52.google.com ([209.85.213.52]:53992 "EHLO
-        mail-vk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751501AbdJPJSi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 05:18:38 -0400
-Received: by mail-vk0-f52.google.com with SMTP id c76so7181553vkd.10
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Oct 2017 02:18:38 -0700 (PDT)
-In-Reply-To: <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
+Received: from mail-qt0-f178.google.com ([209.85.216.178]:44482 "EHLO
+        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750914AbdJPKib (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 06:38:31 -0400
+Received: by mail-qt0-f178.google.com with SMTP id 8so30582555qtv.1
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Oct 2017 03:38:31 -0700 (PDT)
+In-Reply-To: <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Harini Katakam <harinikatakamlinux@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Andrew Worsley <amworsley@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Harini Katakam <harinik@xilinx.com>
 
-Thanks I think I know understand how this transfer register is set up.
-I will add some diagnostic printk's to track down exactly how it is
-failing and get back to you.
+Hi Andrew,
 
- Yes it is zynq. The test case is large (128 byte) transfers from a
-tpm to fill an rng driver. I just pull large amounts of data via dd.
-
-It may depend on the i2c slave being willing to just respond to
-requests that read arbitrary amounts of data. In this case the TPM
-appeared to generate FF when requested for more data than was in the
-TPM_RANDOM request.
-
-
-
-On 16 October 2017 at 16:55, Harini Katakam
-<harinikatakamlinux@gmail.com> wrote:
-> Hi Andrew,
+On Mon, Oct 16, 2017 at 2:48 PM, Andrew Worsley <amworsley@gmail.com> wrote:
+> Thanks I think I know understand how this transfer register is set up.
+> I will add some diagnostic printk's to track down exactly how it is
+> failing and get back to you.
 >
-> On Sat, Oct 14, 2017 at 12:16 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-.....
+>  Yes it is zynq. The test case is large (128 byte) transfers from a
+> tpm to fill an rng driver. I just pull large amounts of data via dd.
+>
+> It may depend on the i2c slave being willing to just respond to
+> requests that read arbitrary amounts of data. In this case the TPM
+> appeared to generate FF when requested for more data than was in the
+> TPM_RANDOM request.
+>
+>
+>
+> On 16 October 2017 at 16:55, Harini Katakam
+> <harinikatakamlinux@gmail.com> wrote:
+>> Hi Andrew,
 >>
->> So, let's add Harini Katakam to CC who implemented this. But I'd be
->> happy for anyone from Xilinx to respond...
+>> On Sat, Oct 14, 2017 at 12:16 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> .....
+>>>
+>>> So, let's add Harini Katakam to CC who implemented this. But I'd be
+>>> happy for anyone from Xilinx to respond...
+>>
+>> The workaround you are referring to is implemented under
+>> "if (cdns_is_holdquirk(id, hold_quirk)) {"
+>> and should not apply to your case of 128 byte transfer at all.
 >
-> The workaround you are referring to is implemented under
-> "if (cdns_is_holdquirk(id, hold_quirk)) {"
-> and should not apply to your case of 128 byte transfer at all.
+> Ah I can see the logic now. If the transfer is small (< 250 or so
+> bytes) it will just write it into the transfer register. Yes my
+> transfers are only 128 + some TPM related headers ( not big I expect).
+> ....
+>
+>
+>>
+>> The specific place you have problem is under the loop
+>> where RX data valid is being checked and ideally, that
+>> buffer should never be written with more data than requested -
+>> because no. of bytes requested is written to transfer size register,
+>> the same is the amount the controller (master) fetches and
+>> RX data valid remains set only for that duration.
+>
+> If the transfer register was set with the
 
-Ah I can see the logic now. If the transfer is small (< 250 or so
-bytes) it will just write it into the transfer register. Yes my
-transfers are only 128 + some TPM related headers ( not big I expect).
-....
+Yes, this is assuming the transfer size register was not set inittially
+or later with more byted than required.
 
+>>
+>> Are you using Zynq?
+>> I'm not working on this anymore but we could take a look at
+>> your error if we are able to reproduce it.
+>> Could you please provide more details of your application and
+>> setup?
+>>
+>> Regards,
+>> Harini
+>
+> Yes - I will get back to you with more details and further debugging
+> around exactly how it is failing.
+>
+> Assuming it is not obvious how to fix it - perhaps I can try setting
+> the transfer register to zero when it hits the end of the transfer?
+> (if recv_count == 0).
+
+Yes, that can be done as a workaround but ideally, the transfer
+size register should have decremented to zero by this point.
 
 >
-> The specific place you have problem is under the loop
-> where RX data valid is being checked and ideally, that
-> buffer should never be written with more data than requested -
-> because no. of bytes requested is written to transfer size register,
-> the same is the amount the controller (master) fetches and
-> RX data valid remains set only for that duration.
+> Thanks very much Harini  - that was just the pointer I needed to
+> follow the code.
 
-If the transfer register was set with the
->
-> Are you using Zynq?
-> I'm not working on this anymore but we could take a look at
-> your error if we are able to reproduce it.
-> Could you please provide more details of your application and
-> setup?
->
-> Regards,
-> Harini
+Thanks for the information - please let me know what you find.
 
-Yes - I will get back to you with more details and further debugging
-around exactly how it is failing.
-
-Assuming it is not obvious how to fix it - perhaps I can try setting
-the transfer register to zero when it hits the end of the transfer?
-(if recv_count == 0).
-
-Thanks very much Harini  - that was just the pointer I needed to
-follow the code.
-
-Andrew
+Regards,
+Harini
