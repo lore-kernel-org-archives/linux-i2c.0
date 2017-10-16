@@ -1,86 +1,51 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: [PATCH 08/12] ACPI / PM: Take SMART_SUSPEND driver flag into account
-Date: Mon, 16 Oct 2017 03:30:06 +0200
-Message-ID: <27437209.Q3JHjOQKcL@aspire.rjw.lan>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+From: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
+Subject: RE: [PATCH 1/1] i2c: i801: Restore the presence state of P2SB PCI
+ device after reading BAR
+Date: Mon, 16 Oct 2017 05:31:27 +0000
+Message-ID: <E6AF1AFDEA62A94A97508F458CBDD47F6F5E7A1F@SHSMSX101.ccr.corp.intel.com>
+References: <20170814160450.21978-1-qiuxu.zhuo@intel.com>
+ <20171013150135.51e481f0@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <3806130.B2KCK0tvef@aspire.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: Linux PM <linux-pm@vger.kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:42775 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751276AbdJPFbd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Oct 2017 01:31:33 -0400
+In-Reply-To: <20171013150135.51e481f0@endymion>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "Luck, Tony" <tony.luck@intel.com>, "Westerberg, Mika" <mika.westerberg@intel.com>, "bp@alien8.de" <bp@alien8.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> From: Jean Delvare [mailto:jdelvare@suse.de]
+... 
+> Sorry, this happened while I was on vacation and I missed it.
+> 
+> The change looks sane, so:
+> 
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> 
+> And I approve backporting to older kernels if needed.
+> 
+> That being said... Looking at the code, I have to say I'm surprised that the whole
+> value of configuration byte 0xe1 is used as true/false.
+> I'd expect a single bit (bit 0) in this configuration file to decide if the P2SB device
+> is hidden or visible. So it seems to me that we are trashing 7 bits in the process.
+> These bits may be unused at the moment, but could be used in future devices,
+> and then unexpected behavior will appear.
+> 
+> I'm still approving this patch because the same problem was present before, but
+> I think this should be checked, and fixed if I'm right.
+> I'll be happy to do it myself if someone at Intel points me to the Denverton
+> datasheet - if it is public.
 
-Make the ACPI PM domain take DPM_FLAG_SMART_SUSPEND into account in
-its system suspend callbacks.
+Hi Jean,
+    Yes, bit[0] is to decide the visibility of P2SB and bits[1-7] are reserved. 
+    The internal datasheet (I didn't find the public spec) says that hardware will not allocate the reserved bits[1-7] for any purpose in the future. And it can always write to bit[0] without to remember any other field values. 
+    But I agree you that using a single bit[0] would be better :-) 
 
-[Note that the pm_runtime_suspended() check in acpi_dev_needs_resume()
-is an optimization, because if is not passed, all of the subsequent
-checks may be skipped and some of them are much more overhead in
-general.]
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
----
- drivers/acpi/device_pm.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
-
-Index: linux-pm/drivers/acpi/device_pm.c
-===================================================================
---- linux-pm.orig/drivers/acpi/device_pm.c
-+++ linux-pm/drivers/acpi/device_pm.c
-@@ -936,7 +936,8 @@ static bool acpi_dev_needs_resume(struct
- 	u32 sys_target = acpi_target_system_state();
- 	int ret, state;
- 
--	if (device_may_wakeup(dev) != !!adev->wakeup.prepare_count)
-+	if (!pm_runtime_suspended(dev) || !adev ||
-+	    device_may_wakeup(dev) != !!adev->wakeup.prepare_count)
- 		return true;
- 
- 	if (sys_target == ACPI_STATE_S0)
-@@ -968,9 +969,6 @@ int acpi_subsys_prepare(struct device *d
- 	if (!ret && dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_PREPARE))
- 		return 0;
- 
--	if (!adev || !pm_runtime_suspended(dev))
--		return 0;
--
- 	return !acpi_dev_needs_resume(dev, adev);
- }
- EXPORT_SYMBOL_GPL(acpi_subsys_prepare);
-@@ -996,12 +994,17 @@ EXPORT_SYMBOL_GPL(acpi_subsys_complete);
-  * acpi_subsys_suspend - Run the device driver's suspend callback.
-  * @dev: Device to handle.
-  *
-- * Follow PCI and resume devices suspended at run time before running their
-- * system suspend callbacks.
-+ * Follow PCI and resume devices from runtime suspend before running their
-+ * system suspend callbacks, unless the driver can cope with runtime-suspended
-+ * devices during system suspend and there are no ACPI-specific reasons for
-+ * resuming them.
-  */
- int acpi_subsys_suspend(struct device *dev)
- {
--	pm_runtime_resume(dev);
-+	if (!dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_SUSPEND) ||
-+	    acpi_dev_needs_resume(dev, ACPI_COMPANION(dev)))
-+		pm_runtime_resume(dev);
-+
- 	return pm_generic_suspend(dev);
- }
- EXPORT_SYMBOL_GPL(acpi_subsys_suspend);
-@@ -1047,7 +1050,9 @@ int acpi_subsys_freeze(struct device *de
- 	 * runtime-suspended devices should not be touched during freeze/thaw
- 	 * transitions.
- 	 */
--	pm_runtime_resume(dev);
-+	if (!dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_SUSPEND))
-+		pm_runtime_resume(dev);
-+
- 	return pm_generic_freeze(dev);
- }
- EXPORT_SYMBOL_GPL(acpi_subsys_freeze);
+Thanks!
+- Qiuxu
