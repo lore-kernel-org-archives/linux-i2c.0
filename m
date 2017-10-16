@@ -1,46 +1,49 @@
-From: Michal Simek <michal.simek@xilinx.com>
+From: Harini Katakam <harinikatakamlinux@gmail.com>
 Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
-Date: Mon, 16 Oct 2017 07:49:28 +0200
-Message-ID: <aa2e1353-1490-d939-3c2f-48f96d7f7cbd@xilinx.com>
-References: <20170916030252.10680-1-amworsley@gmail.com>
- <20171005120125.nnhomwg2e2twbaqm@ninjato>
- <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
- <20171013184646.cy5gmpwrxbacje3m@ninjato>
+Date: Mon, 16 Oct 2017 11:25:18 +0530
+Message-ID: <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
+References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
+ <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com> <20171013184646.cy5gmpwrxbacje3m@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam02on0078.outbound.protection.outlook.com ([104.47.36.78]:65056
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750826AbdJPFti (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 16 Oct 2017 01:49:38 -0400
+Received: from mail-qk0-f174.google.com ([209.85.220.174]:48500 "EHLO
+        mail-qk0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750821AbdJPFzT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 01:55:19 -0400
+Received: by mail-qk0-f174.google.com with SMTP id d67so11501832qkg.5
+        for <linux-i2c@vger.kernel.org>; Sun, 15 Oct 2017 22:55:19 -0700 (PDT)
 In-Reply-To: <20171013184646.cy5gmpwrxbacje3m@ninjato>
-Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andrew Worsley <amworsley@gmail.com>, Harini Katakam <harinik@xilinx.com>
-Cc: Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andrew Worsley <amworsley@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Wolfram,
+Hi Andrew,
 
-On 13.10.2017 20:46, Wolfram Sang wrote:
+On Sat, Oct 14, 2017 at 12:16 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
 > On Sat, Oct 07, 2017 at 04:32:29PM +1100, Andrew Worsley wrote:
->>> Thank you for the bug report. I don't know the hardware in detail, but I
->>> am a bit confused...
->>>
->>>> ---
->>>>   This bug reliably caused a stack corruption when the hardware provided more data than
->>>> asked for in the i2c request. The hardware (a tpm) very occasionally appends a burst of
->>>> 0xff to the end of the data requested and the i2c interrupt handler mindlessly copies all
->>>> the data right past the end of the buffer and in my case across the stack. :-(
->>>
->>> ... because you as the master should have control over how many bytes
->>> you want to have. If you are done, send NAK+STOP and the message is
->>> over. Is it really the device (which one is it BTW?)? Or is the FIFO
->>> handling of the master driver buggy?
->>>
->>> Michal, Sören?
+>> > Thank you for the bug report. I don't know the hardware in detail, but=
+ I
+>> > am a bit confused...
+>> >
+>> >> ---
+>> >>   This bug reliably caused a stack corruption when the hardware provi=
+ded more data than
+>> >> asked for in the i2c request. The hardware (a tpm) very occasionally =
+appends a burst of
+>> >> 0xff to the end of the data requested and the i2c interrupt handler m=
+indlessly copies all
+>> >> the data right past the end of the buffer and in my case across the s=
+tack. :-(
+>> >
+>> > ... because you as the master should have control over how many bytes
+>> > you want to have. If you are done, send NAK+STOP and the message is
+>> > over. Is it really the device (which one is it BTW?)? Or is the FIFO
+>> > handling of the master driver buggy?
+>> >
+>> > Michal, S=C3=B6ren?
 >>
 >> Just a quick comment - as I don't have time at the moment to look
 >> deeply into the driver at the moment.
@@ -49,13 +52,14 @@ On 13.10.2017 20:46, Wolfram Sang wrote:
 >> and it says step 4 write the number of requested bytes to the Transfer
 >> Size Register.
 >>
->> But in the code it talks about a work around for large receive operation.
+>> But in the code it talks about a work around for large receive operation=
+.
 >>
 >> Looking at the change log: commit  9fae82e1acda
 >>
 >> Explains for transfers > 252 bytes that
 >>
->>      "the transfer size register has to be maintained at a value >= 1
+>>      "the transfer size register has to be maintained at a value >=3D 1
 >>
 >> So my guess is the code is trying to keep this transfer size non-zero
 >> and so just keeps pulling more bytes our of the slave i2c device. I
@@ -64,12 +68,26 @@ On 13.10.2017 20:46, Wolfram Sang wrote:
 >> My buggy condition was a transfer of 128 bytes so it is not hit this
 >> condition except in that the slave supplies way more bytes than was in
 >> the original i2c_transfer request.
-> 
+>
 > So, let's add Harini Katakam to CC who implemented this. But I'd be
 > happy for anyone from Xilinx to respond...
 
-It is still in my inbox to look at more details or ask my colleague to
-look at it. I simply didn't have a time to do it.
+The workaround you are referring to is implemented under
+"if (cdns_is_holdquirk(id, hold_quirk)) {"
+and should not apply to your case of 128 byte transfer at all.
 
-Thanks,
-Michal
+The specific place you have problem is under the loop
+where RX data valid is being checked and ideally, that
+buffer should never be written with more data than requested -
+because no. of bytes requested is written to transfer size register,
+the same is the amount the controller (master) fetches and
+RX data valid remains set only for that duration.
+
+Are you using Zynq?
+I'm not working on this anymore but we could take a look at
+your error if we are able to reproduce it.
+Could you please provide more details of your application and
+setup?
+
+Regards,
+Harini
