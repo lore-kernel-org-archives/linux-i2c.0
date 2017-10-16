@@ -1,41 +1,78 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
- flags
-Date: Mon, 16 Oct 2017 16:16:15 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1710161612080.1377-100000@iolanthe.rowland.org>
-References: <1998650.Q52BuGQTI4@aspire.rjw.lan>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Tony Lindgren <tony@atomide.com>
+Subject: [PATCH] i2c: omap: Fix error handlign for clk_get()
+Date: Mon, 16 Oct 2017 14:06:14 -0700
+Message-ID: <20171016210614.15842-1-tony@atomide.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:36398 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1754691AbdJPUQQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 16:16:16 -0400
-In-Reply-To: <1998650.Q52BuGQTI4@aspire.rjw.lan>
+Received: from muru.com ([72.249.23.125]:44608 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1757515AbdJPVG2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 16 Oct 2017 17:06:28 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Claudio Foellmi <claudio.foellmi@ergon.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, Tero Kristo <t-kristo@ti.com>, Vignesh R <vigneshr@ti.com>
 
-On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
+Otherwise we can get the following if the fck alias is missing:
 
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> 
-> The motivation for this change is to provide a way to work around
-> a problem with the direct-complete mechanism used for avoiding
-> system suspend/resume handling for devices in runtime suspend.
-> 
-> The problem is that some middle layer code (the PCI bus type and
-> the ACPI PM domain in particular) returns positive values from its
-> system suspend ->prepare callbacks regardless of whether the driver's
-> ->prepare returns a positive value or 0, which effectively prevents
-> drivers from being able to control the direct-complete feature.
-> Some drivers need that control, however, and the PCI bus type has
-> grown its own flag to deal with this issue, but since it is not
-> limited to PCI, it is better to address it by adding driver flags at
-> the core level.
+Unable to handle kernel paging request at virtual address fffffffe
+...
+PC is at clk_get_rate+0x8/0x10
+LR is at omap_i2c_probe+0x278/0x6ec
+...
+[<c056eb08>] (clk_get_rate) from [<c06f4f08>] (omap_i2c_probe+0x278/0x6ec)
+[<c06f4f08>] (omap_i2c_probe) from [<c0610944>] (platform_drv_probe+0x50/0xb0)
+[<c0610944>] (platform_drv_probe) from [<c060e900>] (driver_probe_device+0x264/0x2ec)
+[<c060e900>] (driver_probe_device) from [<c060cda0>] (bus_for_each_drv+0x70/0xb8)
+[<c060cda0>] (bus_for_each_drv) from [<c060e5b0>] (__device_attach+0xcc/0x13c)
+[<c060e5b0>] (__device_attach) from [<c060db10>] (bus_probe_device+0x88/0x90)
+[<c060db10>] (bus_probe_device) from [<c060df68>] (deferred_probe_work_func+0x4c/0x14c)
 
-I'm curious: Why does the PCI bus type (and others) do this?  Why 
-doesn't it do what the driver says to do?
+Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Cc: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/i2c/busses/i2c-omap.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Alan Stern
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -360,6 +360,7 @@ static int omap_i2c_init(struct omap_i2c_dev *omap)
+ 	unsigned long fclk_rate = 12000000;
+ 	unsigned long internal_clk = 0;
+ 	struct clk *fclk;
++	int error;
+ 
+ 	if (omap->rev >= OMAP_I2C_REV_ON_3430_3530) {
+ 		/*
+@@ -378,6 +379,13 @@ static int omap_i2c_init(struct omap_i2c_dev *omap)
+ 		 * do this bit unconditionally.
+ 		 */
+ 		fclk = clk_get(omap->dev, "fck");
++		if (IS_ERR(fclk)) {
++			error = PTR_ERR(fclk);
++			dev_err(omap->dev, "could not get fck: %i\n", error);
++
++			return error;
++		}
++
+ 		fclk_rate = clk_get_rate(fclk);
+ 		clk_put(fclk);
+ 
+@@ -410,6 +418,12 @@ static int omap_i2c_init(struct omap_i2c_dev *omap)
+ 		else
+ 			internal_clk = 4000;
+ 		fclk = clk_get(omap->dev, "fck");
++		if (IS_ERR(fclk)) {
++			error = PTR_ERR(fclk);
++			dev_err(omap->dev, "could not get fck: %i\n", error);
++
++			return error;
++		}
+ 		fclk_rate = clk_get_rate(fclk) / 1000;
+ 		clk_put(fclk);
+ 
+-- 
+2.14.2
