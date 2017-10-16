@@ -1,53 +1,41 @@
-From: Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH v3] i2c: riic: remove fixed clock restriction
-Date: Mon, 16 Oct 2017 13:32:53 -0500
-Message-ID: <20171016183253.2291-1-chris.brandt@renesas.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
+ flags
+Date: Mon, 16 Oct 2017 16:16:15 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1710161612080.1377-100000@iolanthe.rowland.org>
+References: <1998650.Q52BuGQTI4@aspire.rjw.lan>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:50563 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1754777AbdJPSeF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 14:34:05 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:36398 "HELO
+        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1754691AbdJPUQQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 16:16:16 -0400
+In-Reply-To: <1998650.Q52BuGQTI4@aspire.rjw.lan>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Chris Brandt <chris.brandt@renesas.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 
-Most systems with this i2c are going to have a clock of either 33.33MHz or
-32MHz. That 4% difference is not reason enough to warrant that the driver
-to completely fail.
+On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
 
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
----
-v3:
- * now check a range of safe frequencies
-v2:
- * simplified error message.
----
----
- drivers/i2c/busses/i2c-riic.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> The motivation for this change is to provide a way to work around
+> a problem with the direct-complete mechanism used for avoiding
+> system suspend/resume handling for devices in runtime suspend.
+> 
+> The problem is that some middle layer code (the PCI bus type and
+> the ACPI PM domain in particular) returns positive values from its
+> system suspend ->prepare callbacks regardless of whether the driver's
+> ->prepare returns a positive value or 0, which effectively prevents
+> drivers from being able to control the direct-complete feature.
+> Some drivers need that control, however, and the PCI bus type has
+> grown its own flag to deal with this issue, but since it is not
+> limited to PCI, it is better to address it by adding driver flags at
+> the core level.
 
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index c811af4c8d81..4c001d09aac2 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -299,12 +299,14 @@ static int riic_init_hw(struct riic_dev *riic, u32 spd)
- 
- 	/*
- 	 * TODO: Implement formula to calculate the timing values depending on
--	 * variable parent clock rate and arbitrary bus speed
-+	 * variable parent clock rate and arbitrary bus speed.
-+	 * For now, just use calculations based on a 33.33MHz clock.
- 	 */
- 	rate = clk_get_rate(riic->clk);
--	if (rate != 33325000) {
-+	if ((rate < 32000000) || (rate > 33400000)) {
- 		dev_err(&riic->adapter.dev,
--			"invalid parent clk (%lu). Must be 33325000Hz\n", rate);
-+			"invalid parent clk (%lu). Must be 32.0MHz-33.4MHz.\n",
-+			rate);
- 		clk_disable_unprepare(riic->clk);
- 		return -EINVAL;
- 	}
--- 
-2.14.1
+I'm curious: Why does the PCI bus type (and others) do this?  Why 
+doesn't it do what the driver says to do?
+
+Alan Stern
