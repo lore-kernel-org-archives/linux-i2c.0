@@ -1,101 +1,62 @@
-From: Harini Katakam <harinikatakamlinux@gmail.com>
-Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
-Date: Mon, 16 Oct 2017 16:08:30 +0530
-Message-ID: <CAFcVECK85xW_8oxVQGsHBGyZ4_5bcghpbonqDH-8tLp+Mwq=xQ@mail.gmail.com>
-References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
- <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
- <20171013184646.cy5gmpwrxbacje3m@ninjato> <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
- <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+Subject: RE: [PATCH v2] i2c: riic: remove fixed clock restriction
+Date: Mon, 16 Oct 2017 17:21:07 +0000
+Message-ID: <SG2PR06MB11659AC755BCA8000EC8D30D8A4F0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20170929171637.121262-1-chris.brandt@renesas.com>
+ <SG2PR06MB11656505D83C3D552B2CAC2D8A4A0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <20171013185633.lakiw4cu5o22cwjf@ninjato>
+ <SG2PR06MB11658FE2DCDC2A50FA5ED7258A480@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <20171013215109.l35j652amscnrsfe@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f178.google.com ([209.85.216.178]:44482 "EHLO
-        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750914AbdJPKib (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 16 Oct 2017 06:38:31 -0400
-Received: by mail-qt0-f178.google.com with SMTP id 8so30582555qtv.1
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Oct 2017 03:38:31 -0700 (PDT)
-In-Reply-To: <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20171013215109.l35j652amscnrsfe@ninjato>
+Content-Language: en-US
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andrew Worsley <amworsley@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Harini Katakam <harinik@xilinx.com>
 
-Hi Andrew,
+Hi Wolfram,
 
-On Mon, Oct 16, 2017 at 2:48 PM, Andrew Worsley <amworsley@gmail.com> wrote:
-> Thanks I think I know understand how this transfer register is set up.
-> I will add some diagnostic printk's to track down exactly how it is
-> failing and get back to you.
->
->  Yes it is zynq. The test case is large (128 byte) transfers from a
-> tpm to fill an rng driver. I just pull large amounts of data via dd.
->
-> It may depend on the i2c slave being willing to just respond to
-> requests that read arbitrary amounts of data. In this case the TPM
-> appeared to generate FF when requested for more data than was in the
-> TPM_RANDOM request.
->
->
->
-> On 16 October 2017 at 16:55, Harini Katakam
-> <harinikatakamlinux@gmail.com> wrote:
->> Hi Andrew,
->>
->> On Sat, Oct 14, 2017 at 12:16 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> .....
->>>
->>> So, let's add Harini Katakam to CC who implemented this. But I'd be
->>> happy for anyone from Xilinx to respond...
->>
->> The workaround you are referring to is implemented under
->> "if (cdns_is_holdquirk(id, hold_quirk)) {"
->> and should not apply to your case of 128 byte transfer at all.
->
-> Ah I can see the logic now. If the transfer is small (< 250 or so
-> bytes) it will just write it into the transfer register. Yes my
-> transfers are only 128 + some TPM related headers ( not big I expect).
-> ....
->
->
->>
->> The specific place you have problem is under the loop
->> where RX data valid is being checked and ideally, that
->> buffer should never be written with more data than requested -
->> because no. of bytes requested is written to transfer size register,
->> the same is the amount the controller (master) fetches and
->> RX data valid remains set only for that duration.
->
-> If the transfer register was set with the
+On Friday, October 13, 2017, Wolfram Sang wrote:
+> > Technically, to do it right, to calculate the ACTUAL I2C baud rate, you
+> > have to take into effect the load resistance and capacitance of the
+> > lines in order to factor in the rise and fall times correctly. Of cours=
+e
+>=20
+> We have those generic bindings upstream:
+>=20
+> - i2c-scl-falling-time-ns
+>         Number of nanoseconds the SCL signal takes to fall; t(f) in the
+> I2C
+>         specification.
+>=20
+> - i2c-scl-internal-delay-ns
+>         Number of nanoseconds the IP core additionally needs to setup SCL=
+.
+>=20
+> - i2c-scl-rising-time-ns
+>         Number of nanoseconds the SCL signal takes to rise; t(r) in the
+> I2C
+>         specification.
+>=20
+> - i2c-sda-falling-time-ns
+>         Number of nanoseconds the SDA signal takes to fall; t(f) in the
+> I2C
+>         specification.
+>=20
+> So far, that was all that is needed, however...
 
-Yes, this is assuming the transfer size register was not set inittially
-or later with more byted than required.
+So for now, I'm going to take the easy way out and just put in the range
+as you suggested.
 
->>
->> Are you using Zynq?
->> I'm not working on this anymore but we could take a look at
->> your error if we are able to reproduce it.
->> Could you please provide more details of your application and
->> setup?
->>
->> Regards,
->> Harini
->
-> Yes - I will get back to you with more details and further debugging
-> around exactly how it is failing.
->
-> Assuming it is not obvious how to fix it - perhaps I can try setting
-> the transfer register to zero when it hits the end of the transfer?
-> (if recv_count == 0).
 
-Yes, that can be done as a workaround but ideally, the transfer
-size register should have decremented to zero by this point.
+But, I think later I will revisit this and come up with an algorithm for
+calculating the rate/duty at run-time. I want to do that when I have=20
+more time to verify things with a scope and such.
 
->
-> Thanks very much Harini  - that was just the pointer I needed to
-> follow the code.
 
-Thanks for the information - please let me know what you find.
-
-Regards,
-Harini
+Thanks,
+Chris
