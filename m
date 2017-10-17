@@ -1,95 +1,49 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH] i2c/busses: Convert timers to use timer_setup()
-Date: Mon, 16 Oct 2017 16:27:29 -0700
-Message-ID: <20171016232729.GA101069@beast>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
+ flags
+Date: Tue, 17 Oct 2017 09:15:43 +0200
+Message-ID: <20171017071543.GB27293@kroah.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <1998650.Q52BuGQTI4@aspire.rjw.lan>
+ <20171016062852.GA28732@kroah.com>
+ <6007227.iNoRbQyInB@aspire.rjw.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <6007227.iNoRbQyInB@aspire.rjw.lan>
+Sender: linux-doc-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for unconditionally passing the struct timer_list pointer to
-all timer callbacks, switch to using the new timer_setup() and from_timer()
-to pass the timer pointer explicitly.
+On Tue, Oct 17, 2017 at 12:05:11AM +0200, Rafael J. Wysocki wrote:
+> On Monday, October 16, 2017 8:28:52 AM CEST Greg Kroah-Hartman wrote:
+> > On Mon, Oct 16, 2017 at 03:29:02AM +0200, Rafael J. Wysocki wrote:
+> > >  struct dev_pm_info {
+> > >  	pm_message_t		power_state;
+> > >  	unsigned int		can_wakeup:1;
+> > > @@ -561,6 +580,7 @@ struct dev_pm_info {
+> > >  	bool			is_late_suspended:1;
+> > >  	bool			early_init:1;	/* Owned by the PM core */
+> > >  	bool			direct_complete:1;	/* Owned by the PM core */
+> > > +	unsigned int		driver_flags;
+> > 
+> > Minor nit, u32 or u64?
+> 
+> u32 I think, will update.
+> 
+> BTW, there's a mess in this struct overall and I'd like all of the bit fileds
+> to be the same type (and that shouldn't be bool IMO :-)).
+> 
+> Do you prefer u32 or unsinged int?
 
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>
-Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/i2c/busses/i2c-img-scb.c | 7 +++----
- drivers/i2c/busses/i2c-pnx.c     | 8 +++-----
- 2 files changed, 6 insertions(+), 9 deletions(-)
+I always prefer an explicit size for variables, unless it's a "generic
+loop" type thing.  So I'll always say "u32" for this.
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index eb1d91b986fd..823b0b33b2cb 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -826,9 +826,9 @@ static unsigned int img_i2c_atomic(struct img_i2c *i2c,
-  * Timer function to check if something has gone wrong in automatic mode (so we
-  * don't have to handle so many interrupts just to catch an exception).
-  */
--static void img_i2c_check_timer(unsigned long arg)
-+static void img_i2c_check_timer(struct timer_list *t)
- {
--	struct img_i2c *i2c = (struct img_i2c *)arg;
-+	struct img_i2c *i2c = from_timer(i2c, t, check_timer);
- 	unsigned long flags;
- 	unsigned int line_status;
- 
-@@ -1362,8 +1362,7 @@ static int img_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Set up the exception check timer */
--	setup_timer(&i2c->check_timer, img_i2c_check_timer,
--		    (unsigned long)i2c);
-+	timer_setup(&i2c->check_timer, img_i2c_check_timer, 0);
- 
- 	i2c->bitrate = timings[0].max_bitrate;
- 	if (!of_property_read_u32(node, "clock-frequency", &val))
-diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index 42d6b3a226f8..a542041df0cd 100644
---- a/drivers/i2c/busses/i2c-pnx.c
-+++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -112,7 +112,6 @@ static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
- 		jiffies, expires);
- 
- 	timer->expires = jiffies + expires;
--	timer->data = (unsigned long)alg_data;
- 
- 	add_timer(timer);
- }
-@@ -435,9 +434,9 @@ static irqreturn_t i2c_pnx_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static void i2c_pnx_timeout(unsigned long data)
-+static void i2c_pnx_timeout(struct timer_list *t)
- {
--	struct i2c_pnx_algo_data *alg_data = (struct i2c_pnx_algo_data *)data;
-+	struct i2c_pnx_algo_data *alg_data = from_timer(alg_data, t, mif.timer);
- 	u32 ctl;
- 
- 	dev_err(&alg_data->adapter.dev,
-@@ -659,8 +658,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
- 	if (IS_ERR(alg_data->clk))
- 		return PTR_ERR(alg_data->clk);
- 
--	setup_timer(&alg_data->mif.timer, i2c_pnx_timeout,
--			(unsigned long)alg_data);
-+	timer_setup(&alg_data->mif.timer, i2c_pnx_timeout, 0);
- 
- 	snprintf(alg_data->adapter.name, sizeof(alg_data->adapter.name),
- 		 "%s", pdev->name);
--- 
-2.7.4
+And cleaning up the structure would be great, it's grown over time in
+odd ways as you point out.
 
+thanks,
 
--- 
-Kees Cook
-Pixel Security
+greg k-h
