@@ -1,70 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
-Date: Tue, 17 Oct 2017 23:47:32 +0200
-Message-ID: <20171017214732.f3iaw2mgue2kfbf6@ninjato>
-References: <20171001104948.21663-1-javierm@redhat.com>
- <20171017214040.kak3kpvh6tunjjfp@ninjato>
- <CABGGiswNP=PrwpuqSH-Lqz6tBzrNUpZYCEzFHOPmZSWqsn3zaA@mail.gmail.com>
+Subject: Re: [PATCH] i2c: designware: make const array supported_speeds
+ static to shink object code size
+Date: Tue, 17 Oct 2017 23:50:19 +0200
+Message-ID: <20171017215019.2xvl3btrxx57ckxd@ninjato>
+References: <20170921223007.21081-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zxu6mycnmrp56kxs"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54684 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753138AbdJQVre (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Oct 2017 17:47:34 -0400
+        protocol="application/pgp-signature"; boundary="rtznlqrhghmoj6nw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CABGGiswNP=PrwpuqSH-Lqz6tBzrNUpZYCEzFHOPmZSWqsn3zaA@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170921223007.21081-1-colin.king@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Javier Martinez Canillas <javierm@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
 
---zxu6mycnmrp56kxs
+--rtznlqrhghmoj6nw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 17, 2017 at 04:43:14PM -0500, Rob Herring wrote:
-> On Tue, Oct 17, 2017 at 4:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > Hi,
-> >
-> >> +     {
-> >> +             .compatible =3D "atmel,spd",
-> >> +             .data =3D (void *)AT24_DEVICE_MAGIC(2048 / 8,
-> >> +                             AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
-> >> +     },
-> >
-> > checkpatch reported this one as un-documented. And come to think of it,
-> > since this is solely for EEPROMs on RAM modules, I think we can drop a
-> > DT binding for it. Could you agree? I can do it locally, no need to
-> > resend. I'll do HW testing later, but wanted to check on your opinion
-> > already.
+On Thu, Sep 21, 2017 at 11:30:07PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> It is used by arch/powerpc/boot/dts/mpc8349emitx.dts.
+> Don't populate const array supported_speeds on the stack, instead
+> make it static.  Makes the object code smaller by 150 bytes:
+>=20
+> Before:
+>    text	   data	    bss	    dec	    hex	filename
+>    8474	   1440	      0	   9914	   26ba	i2c-designware-platdrv.o
+>=20
+> After:
+>    text	   data	    bss	    dec	    hex	filename
+>    8324	   1440	      0	   9764	   2624	i2c-designware-platdrv.o
+>=20
+> (gcc version 7.2.0 x86_64)
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-Thanks!
+Applied to for-next, thanks!
 
 
---zxu6mycnmrp56kxs
+--rtznlqrhghmoj6nw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmenQACgkQFA3kzBSg
-KbZb5Q/+MSvlXzLoUS3cWZr97ExVZG48CKqtK/+MWhcEaf9/DvFE8gF+pA62xdvs
-D9Ua0PHqGzkoyB0P7YN5hMi9pEzO8HnWC6yUALcMoQO8H8UQpcC2WtZAbqwQLjC3
-+TUwabY85MQwsqOrhjrrLPDO3ufPwfPB5ikTubkGrHeH+XtixOKGpZwr9JDQ6OEr
-y5frh32DiqRAGZpJ9s0Kd5hCLtuORqywbTR1tE4zzK++mEfCTsjuXTsH0pCfm7jY
-zbqBlmulddjs7VmdcS8noGv0lGArYFSSQAQ+vYDQplpzjm7ViATuPvMfHnYcABiO
-3ySfUxbwJCwtK9ohpZeXwoff3HzJSO837ncOgvGmWaKPYXl2S7LLh/w5fEdG9w6l
-d7UHwmPshua2Q8/DJB6/jSX0SkUyA+5vALN6bSVnCSiIrdZLy7RzWdi2oJ+q49l+
-yR9qYqlN3mpZxWJfXUn/iaNH2t/sURxZltRombLFlzpNCCubTO5ohG0ubTa8eX6t
-l3aWK86Frm85Tm7GttCz04SFChMSQl08qKMd8JU/nAybYfjGhXGVPj8BPShz7Pix
-HLk6dkXZGTQ74W8oHliGer0FHwfQCbsiwqDLn7QUl8zTqII/1wrG/NT9AgS/fBja
-EctOuSrOXxReqVBcUygTQjD9xM3w6dZJwQYXzCtEKg3L2b3g8yM=
-=Dmgo
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmexoACgkQFA3kzBSg
+KbZz9w/9GIw0JJv/S3R+mnvHjC4bEa3HdmgW6gjtXikM8nIOzE4qYRz4ru9sFZeg
+G9pqzJxmvi/m/m3yz2RINp6L3BrMeWSLg9pz+HQdXJbBRetShZHcfxrrS21kjEmW
+OGjUI0CfunYR5V+DA4Ucrm0kAXUPi8IfFIwsuFK3MLZJq/Bt4PKwcvs8gKek7so0
+dDLgFCi85uN8daLMdU8Ed9LqhoJBkElNulkY7Hqlk3Cy5Vh1OKDeqBmOqW0a51Dl
+Hb6X/K6UhY7IWyVxA+BCG2wTSeMnMt7wVlfpz+utQzKiavD1Yi3LOlBbNmQQHcrZ
+p1yHccaPAF1DUoxHcTcxKMn7Zg7azjCUyMI453wJA+Mz+4o+j01p30u0CfTBuDy/
+FrWv6H9V7riJK0gBkbDipPQo0YxieL67stEE/617qsPW50QfDtHfQDuHQeWa/S5J
+wzVm5WfQ+XUiqwQOh3WIe3QwVP4zHGwDRROk7vye4TIp00zqvZ9s+3g6xrjZ/ogl
+fHYcnZmoi1xPp4inkx2WXiXuryzeyMMSbJV2YAaMqGMnVSOZwgNm6J2zjiFt5Biv
+t3Ye7KFvt/CTR2kCewWJWuXjp/OWv0na16R5AlQ5Vys11abhp9aQd7Vn9KOv+xeZ
+94uTu25xz5UFG1VB7Qi0joEErwYMLN92m+/Nay7AeZ5mSLsSz6U=
+=HL32
 -----END PGP SIGNATURE-----
 
---zxu6mycnmrp56kxs--
+--rtznlqrhghmoj6nw--
