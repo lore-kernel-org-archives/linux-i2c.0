@@ -1,66 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] i2c: meson: use generic compatible
-Date: Tue, 17 Oct 2017 16:19:13 -0500
-Message-ID: <20171017211913.gvspqwmts3aqz5tv@rob-hp-laptop>
-References: <20171013082206.31632-1-jbrunet@baylibre.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 1/3] dt-bindings: add eeprom "size" property
+Date: Tue, 17 Oct 2017 23:35:58 +0200
+Message-ID: <20171017213558.rct4fjpplh3cfyyo@ninjato>
+References: <1507615237-21744-1-git-send-email-divagar.mohandass@intel.com>
+ <1507615237-21744-2-git-send-email-divagar.mohandass@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:50562 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756023AbdJQVTP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Oct 2017 17:19:15 -0400
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2qwkx27l7hkxso7v"
+Return-path: <linux-pm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171013082206.31632-1-jbrunet@baylibre.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <1507615237-21744-2-git-send-email-divagar.mohandass@intel.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Divagar Mohandass <divagar.mohandass@intel.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sakari.ailus@iki.fi, tfiga@chromium.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, rajmohan.mani@intel.com, mika.westerberg@linux.intel.com, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jerome Brunet <jbrunet@baylibre.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org
 
-On Fri, Oct 13, 2017 at 10:22:06AM +0200, Jerome Brunet wrote:
-> The meson i2c driver seems to be compatible with more SoCs than
-> initially thought. Let's use the most generic compatible he have in
-> DT instead of the gxbb specific one
-> 
-> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-meson.txt | 2 +-
->  drivers/i2c/busses/i2c-meson.c                      | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> index 611b934c7e10..e6a563443e26 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> @@ -1,7 +1,7 @@
->  Amlogic Meson I2C controller
->  
->  Required properties:
-> - - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gxbb-i2c"
-> + - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gx-i2c"
 
-Seems like a pointless, not backwards compatible change.
+--2qwkx27l7hkxso7v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->   - reg: physical address and length of the device registers
->   - interrupts: a single interrupt specifier
->   - clocks: clock for the device
-> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-> index 88d15b92ec35..7b238d8c19af 100644
-> --- a/drivers/i2c/busses/i2c-meson.c
-> +++ b/drivers/i2c/busses/i2c-meson.c
-> @@ -442,7 +442,7 @@ static int meson_i2c_remove(struct platform_device *pdev)
->  
->  static const struct of_device_id meson_i2c_match[] = {
->  	{ .compatible = "amlogic,meson6-i2c" },
-> -	{ .compatible = "amlogic,meson-gxbb-i2c" },
-> +	{ .compatible = "amlogic,meson-gx-i2c" },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(of, meson_i2c_match);
-> -- 
-> 2.13.6
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Tue, Oct 10, 2017 at 11:30:35AM +0530, Divagar Mohandass wrote:
+> This adds eeprom "size" as optional property for i2c eeproms.
+> The "size" property allows explicitly specifying the size of the
+> EEPROM chip in bytes.
+>=20
+> Acked-by: Rob Herring <robh@kernel.org>
+> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Signed-off-by: Divagar Mohandass <divagar.mohandass@intel.com>
+
+Applied to for-next, thanks!
+
+
+--2qwkx27l7hkxso7v
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmd7oACgkQFA3kzBSg
+KbblFBAAn7F2ZSl9+BZqREdwPEwX2/0SddLIswOeqrlvOTp/EL1rXzMLzRsVXAnp
+9lU6rySzRo6s4uZfW+rp1QHIcNQhH8RWM++0FVNSJc7mTdDvi07UWLmNeBG0yHb5
+G/mbuBjzEe4SzL2TgqLQIATDfGUOfC699TbkWDQybqNJ4GJq/J7AFdFvgdKWpuFz
+uNuElMup6gXBRmMg5JOw5CgMJMjrYqrJwSPjLUwsEDr4xhRNCrV8buQM44rN4G/6
+MZOUDFL9LfY7mVDkK5W4tv8v+gqaOfCAuehJxjyymbvsxpDfL21dC6Jih4S6doHk
+bfrJcpJA/yY6CTBGDccEBhFFhKxReCVpBc+fx/QdTaktp+UAx4yya7j6ZLYZTGOv
+3jFPuSBgReBn0kGP8spd82oPbUCNoXdJDE7KU36jOboNVncTonYvt05nVU8h/E4T
+9oE9HIzLAHKM9ISD5dYkN+aY4+IMpRiHvgNn5a8omFjEmTlCJyG7MxQ2anAVoZXl
++3SSCCNR7m6ady6CKr8t1fVR3nHdgTs4+gaWBrejPexwAseEox/0Kq9Aa6ZrDY4H
+K5Y93dcEirelwkG3TAUFvo1cvr0SVw4xgbfBxGVHqz1WrkRLWqPSub885qfCAc5G
+wfd/eqzlm/nCEsdVh4uZUZG2RaeqKp5AejLUvkB1W1QO7fUR380=
+=jmaE
+-----END PGP SIGNATURE-----
+
+--2qwkx27l7hkxso7v--
