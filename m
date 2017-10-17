@@ -1,54 +1,78 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: riic: remove fixed clock restriction
-Date: Wed, 18 Oct 2017 00:03:06 +0200
-Message-ID: <20171017220306.p4h3wbp5c3uaexh4@ninjato>
-References: <20171016183253.2291-1-chris.brandt@renesas.com>
- <SG2PR06MB11652F2C132728B93232119C8A4C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+Subject: Re: [PATCH] i2c: omap: Fix error handlign for clk_get()
+Date: Wed, 18 Oct 2017 00:08:53 +0200
+Message-ID: <20171017220853.jhy6hzgsayi4rszu@ninjato>
+References: <20171016210614.15842-1-tony@atomide.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="riace2bgkydzteqi"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="huiji65l654xkaec"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:54812 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932080AbdJQWI4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 17 Oct 2017 18:08:56 -0400
 Content-Disposition: inline
-In-Reply-To: <SG2PR06MB11652F2C132728B93232119C8A4C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <20171016210614.15842-1-tony@atomide.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Claudio Foellmi <claudio.foellmi@ergon.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, Tero Kristo <t-kristo@ti.com>, Vignesh R <vigneshr@ti.com>
 
 
---riace2bgkydzteqi
+--huiji65l654xkaec
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Mon, Oct 16, 2017 at 02:06:14PM -0700, Tony Lindgren wrote:
+> Otherwise we can get the following if the fck alias is missing:
+>=20
+> Unable to handle kernel paging request at virtual address fffffffe
+> ...
+> PC is at clk_get_rate+0x8/0x10
+> LR is at omap_i2c_probe+0x278/0x6ec
+> ...
+> [<c056eb08>] (clk_get_rate) from [<c06f4f08>] (omap_i2c_probe+0x278/0x6ec)
+> [<c06f4f08>] (omap_i2c_probe) from [<c0610944>] (platform_drv_probe+0x50/=
+0xb0)
+> [<c0610944>] (platform_drv_probe) from [<c060e900>] (driver_probe_device+=
+0x264/0x2ec)
+> [<c060e900>] (driver_probe_device) from [<c060cda0>] (bus_for_each_drv+0x=
+70/0xb8)
+> [<c060cda0>] (bus_for_each_drv) from [<c060e5b0>] (__device_attach+0xcc/0=
+x13c)
+> [<c060e5b0>] (__device_attach) from [<c060db10>] (bus_probe_device+0x88/0=
+x90)
+> [<c060db10>] (bus_probe_device) from [<c060df68>] (deferred_probe_work_fu=
+nc+0x4c/0x14c)
+>=20
+> Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
+> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+> Cc: Tero Kristo <t-kristo@ti.com>
+> Cc: Vignesh R <vigneshr@ti.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
 
-> Actually, if you want to hold off on this patch, I'm almost done with a=
-=20
-> real fix which is to calculate any frequency based on current parent=20
-> clock and rise/fall timings specified in the DT as you suggested.
-
-Sounds awesome! So, I'll wait a little how the formula goes. We can
-always fall back to this patch if all fails... Thanks!
+Applied to for-current, thanks!
 
 
---riace2bgkydzteqi
+--huiji65l654xkaec
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmfhoACgkQFA3kzBSg
-KbYOYA/+L9uhdrzFLdkzV3PQqsBI2hKqjgWCvnPzOvi/0WXNvZ2AGV8MLS4Cv0Go
-d2KWzUsOJooIyjC3YxaKIJQU4O9HYQgiMYbUPI7/s/VccWVkNDDliWjtc75rlMiP
-FVtrf+ArK7JJ7zRtuZvozWUkmz2M5qIJ8g28FeAYRPgQDnUz64SU5AubAByYeBXI
-0y6lbF5NKK/sMLaCLLT/Ulbhabte8CSpG/2eOH+nl/UR75VmBo6dBAeFeCr7T76H
-1jJ8mB3cUHRtX3B8YoONMU1c3HSakSyR1cWPz/sHsxrk+btmKpBFOAMJIeTbJAtE
-FyNxpEzp641dLzMM33ouEaLUAySuCiX2cAaoqc3ZwFkDdQgwjUIbKk8U7L5pKf4C
-IHxPCKfzUlW4xOJzzptf9qPjkK1xn9iYv9+mkBWuIEZXf5mLdq5VR/3rn0ytBSAt
-0bG0ZgJNA5b6xARXB3RtWfvUql9SOA69pQnL8/uelyyie0lQsJK+3ck1kRtJXT/F
-UZSAb6Cp2uyg13b5xvhGCwcO+HmYeOYbiSonqMKyTNsqdgAuapQe2tKurzeEZXtI
-OeH5SZNk4a4Yy3818UnsfyQiz6llBoz5onmnRWChbPGmSIPLdOOVrYadHJyYqEQW
-B1mjUhjpbvVwIBVLA+Tp3QQZsY3DQUtTyppRjvm7KDVVNGaEZeQ=
-=IP1J
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmf3EACgkQFA3kzBSg
+KbaPnBAAlNtYsVccTypoqXfXpONaK8HnVpqV6v1eOXu32dNHokXcMSTSFKS+jVg1
+fs8fstQfmRuzuEkvpKPIz7Az28DhzhXnyByxUTCvNVZ/T0GTWh806maJV7Di0DwO
+8PMOilo34bPQgrDSElQ/9fMfcuuMlsCqt0THNlBlLYXAGfMabTdNbPw4w+xRGrrk
+5J/q4hCFIXnp11DLACBtgKYt88UqjA9Eus1shkwgimrjSLIa1qefaPRVP3yK41qk
+Y6ZEmXhCMRRSHZ6p/1+hOk56EL2PeJPi3QanDH7WFiMTyKvmUE0HqY50/iAv7rFC
+grQeDLTECyR3xhOtmn+Rm5xd0etR/ErnGYxe1Drkry8HgMgn3G9IRoJ3bYijoAwu
+3vSxYRS2HvJURfdphqsy1q+WyBGx1waQik63Q1GbkIQzbmjDgg2WXUo692jaTqNM
+J8b/BALksdZhZ3Y4rsRqi3XVSp86FPYhgL+EcChY1FNk43QQxEcHfXOCcnr5jTtG
+OYNamMGauynzrRMS4G09MHD7IL7Rn5ys0jDqQsq1AxDmbvD+x/lKZrJi7HHKpSDK
+2v++oI3OGBAZ//UAQQr73FzRDyKwKL2qlDKHHKrrefxDKxlBL8SEAwLwlcvjWdsY
+zLLRDELeL8iBNeSDTiyvKY1WAQLWPU1lofMQ+OBhu53y3jaq+tA=
+=XNDl
 -----END PGP SIGNATURE-----
 
---riace2bgkydzteqi--
+--huiji65l654xkaec--
