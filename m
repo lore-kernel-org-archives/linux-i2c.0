@@ -1,55 +1,91 @@
-From: Juergen Fitschen <me@jue.yt>
-Subject: I2C slave mode for i2c-at91 driver
-Date: Tue, 17 Oct 2017 12:56:24 +0200
-Message-ID: <97ba9ab73b527ac882e7d591b42ae621@jfitschen.de>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C
+ controller
+Date: Tue, 17 Oct 2017 15:18:24 +0200
+Message-ID: <2d892fec-0496-8a6f-51c9-439b933d9975@st.com>
+References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
+ <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
+ <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from srv1.host37.de ([176.28.54.59]:44407 "EHLO srv1.host37.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932880AbdJQLcd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Oct 2017 07:32:33 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:43647 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1752660AbdJQNTA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Oct 2017 09:19:00 -0400
+In-Reply-To: <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-
-Hello,
-
-
-Currently I'm working on a driver adding I2C slave support to some 
-Atmel / Microchip MPUs. I already patched the i2c-at91.c and made the 
-i2c-slave-eeprom backend working on an ATSAMA5D27. But this is still in 
-the prototype status. My next steps are cleaning up the code and sharing 
-the patch with you for review and merge into Linux.
-
-But before I do so, I would like to hear your thoughts on some design 
-decisions I'm going to make to fulfill the Linux I2C slave interface 
-description [1] as good as possible:
-
-1) According to [1] the return value of the I2C_SLAVE_WRITE_RECEIVED 
-event determines whether the received byte shall be ACKed or NACKed. The 
-problem with the Atmel hardware is that it is not possible to manipulate 
-the ACK bit of the current byte in flight; it will be ACKed 
-automatically. It is only possible to (N)ACK the following byte(s) since 
-some FIFO magic is going on inside the hardware.
-Do you think it is a valid approach to ignore the return value and 
-always ACK received bytes? Or would you rather set the behaviour for the 
-following bytes? That would delay the desired ACK bit by at least one 
-byte.
-
-2) The Atmel hardware does not support master and slave concurrently. 
-The data sheet [2] examples disable master mode before entering the 
-slave mode. (cf. p. 1362) Furthermore send and receive registers and 
-their FIFOs are shared.
-How would you implement blocking master transactions while slave mode 
-is enabled? I would return EBUSY if master_xfer is called.
+To: =?UTF-8?Q?Rados=c5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
 
 
-Best regards,
-  Juergen Fitschen
 
+On 10/12/2017 11:55 AM, Radosław Pietrzyk wrote:
+> It looks like there is a use case when IRQ handler is delayed a bit
+> and the logic in the driver does not work. What is the real root cause
+> I don't know.
+> 
 
-[1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
-[2] http://ww1.microchip.com/downloads/en/DeviceDoc/DS60001476B.pdf
+As far as I know on this STM32 F4 platform there is some trouble with timer
+events that may have bad influences on scheduling. Some tasks could be delayed
+for some reasons.
+It would be great if the following patches below could help in your matter
+https://patchwork.kernel.org/patch/9980961/
+https://patchwork.kernel.org/patch/9980963/
+https://patchwork.kernel.org/patch/9980965/
+https://patchwork.kernel.org/patch/9980967/
+
+Would you mind to test those ?
+Thanks
+
+> 2017-10-12 11:31 GMT+02:00 Pierre Yves MORDRET <pierre-yves.mordret@st.com>:
+>>
+>>
+>> On 10/11/2017 01:53 PM, Radoslaw Pietrzyk wrote:
+>>>       Do not read data on RXNE but on BTF only due to HW
+>>>       synchronisation problems and NACKing read data too early.
+>>>       It was found during testing of stmpe811 touchscreen driver.
+>>>
+>>
+>> Would you mind to explain what is behind "hw sync issue" you've seen ?
+>>
+>>> Signed-off-by: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
+>>> ---
+>>>  drivers/i2c/busses/i2c-stm32f4.c | 11 +----------
+>>>  1 file changed, 1 insertion(+), 10 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+>>> index 4ec1084..86bcf4c 100644
+>>> --- a/drivers/i2c/busses/i2c-stm32f4.c
+>>> +++ b/drivers/i2c/busses/i2c-stm32f4.c
+>>> @@ -409,16 +409,9 @@ static void stm32f4_i2c_handle_read(struct stm32f4_i2c_dev *i2c_dev)
+>>>        * So, here we just disable buffer interrupt in order to avoid another
+>>>        * system preemption due to RX not empty event.
+>>>        */
+>>> -     case 2:
+>>> -     case 3:
+>>> +     default:
+>>>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
+>>>               break;
+>>> -     /*
+>>> -      * For N byte reception with N > 3 we directly read data register
+>>> -      * until N-2 data.
+>>> -      */
+>>> -     default:
+>>> -             stm32f4_i2c_read_msg(i2c_dev);
+>>>       }
+>>>  }
+>>>
+>>> @@ -470,8 +463,6 @@ static void stm32f4_i2c_handle_rx_done(struct stm32f4_i2c_dev *i2c_dev)
+>>>                */
+>>>               reg = i2c_dev->base + STM32F4_I2C_CR1;
+>>>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
+>>> -             stm32f4_i2c_read_msg(i2c_dev);
+>>> -             break;
+>>>       default:
+>>>               stm32f4_i2c_read_msg(i2c_dev);
+>>>       }
+>>>
