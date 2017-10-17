@@ -1,70 +1,38 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Tue, 17 Oct 2017 16:12:19 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1710171558170.1864-100000@iolanthe.rowland.org>
-References: <CAPDyKFrMTSUHP86hnpHius2CDfv-ap4svGg=xgwAiH8pKj9Lvw@mail.gmail.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+Subject: RE: [PATCH v3] i2c: riic: remove fixed clock restriction
+Date: Tue, 17 Oct 2017 20:31:05 +0000
+Message-ID: <SG2PR06MB11652F2C132728B93232119C8A4C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20171016183253.2291-1-chris.brandt@renesas.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFrMTSUHP86hnpHius2CDfv-ap4svGg=xgwAiH8pKj9Lvw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20171016183253.2291-1-chris.brandt@renesas.com>
+Content-Language: en-US
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Oct 2017, Ulf Hansson wrote:
+Hi Wolfram,
 
-> > These functions are wrong, however, because they attempt to reuse the
-> > whole callback *path* instead of just reusing driver callbacks.  The
-> > *only* reason why it all "works" is because there are no middle layer
-> > callbacks involved in that now.
-> >
-> > If you changed them to reuse driver callbacks only today, nothing would break
-> > AFAICS.
-> 
-> Yes, it would.
-> 
-> First, for example, the amba bus is responsible for the amba bus
-> clock, but relies on drivers to gate/ungate it during system sleep. In
-> case the amba drivers don't use the pm_runtime_force_suspend|resume(),
-> it will explicitly have to start manage the clock during system sleep
-> themselves. Leading to open coding.
+On Monday, October 16, 2017, Chris Brandt wrote:
+> Most systems with this i2c are going to have a clock of either 33.33MHz o=
+r
+> 32MHz. That 4% difference is not reason enough to warrant that the driver
+> to completely fail.
+>=20
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+> ---
+> v3:
+>  * now check a range of safe frequencies
+> v2:
+>  * simplified error message.
+> ---
 
-I think what Rafael has in mind is that the PM core will call the amba
-bus's ->suspend callback, and that routine will then be able to call
-the amba driver's runtime_suspend routine directly, if it wants to --
-as opposed to going through pm_runtime_force_suspend.
+Actually, if you want to hold off on this patch, I'm almost done with a=20
+real fix which is to calculate any frequency based on current parent=20
+clock and rise/fall timings specified in the DT as you suggested.
 
-However, it's not clear whether this fully answers your concerns.
 
-> Second, it will introduce a regression in behavior for all users of
-> pm_runtime_force_suspend|resume(), especially during system resume as
-> the driver may then end up resuming the device even in case it isn't
-> needed. I believe I have explained why, also several times by now -
-> and that's also how far you could take the i2c designware driver at
-> this point.
-> 
-> That said, I assume the second part may be addressed in this series,
-> if these drivers convert to use the "driver PM flags", right?
-
-Presumably.
-
-The problem is how to handle things which need to be treated
-differently for runtime PM vs. system suspend vs. hibernation.  If
-everything filters through a runtime_suspend routine, that doesn't
-leave any scope for handling the different kinds of PM transitions
-differently.  Instead, we can make the middle layer (i.e., the bus-type
-callbacks) take care of the varying tasks, and they can directly invoke
-a driver's runtime-PM callbacks to handle all the common activities.  
-If that's how the middle layer wants to do it.
-
-> However, what about the first case? Is some open coding needed or your
-> think the amba driver can instruct the amba bus via the "driver PM
-> flags"?
-
-PM flags won't directly be able to cover things like disabling clocks.  
-But they could be useful for indicating explicitly whether the code to
-take care of those things needs to reside at the driver layer or at the
-bus layer.
-
-Alan Stern
+Chris
