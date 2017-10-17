@@ -1,43 +1,61 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
-Date: Tue, 17 Oct 2017 16:43:14 -0500
-Message-ID: <CABGGiswNP=PrwpuqSH-Lqz6tBzrNUpZYCEzFHOPmZSWqsn3zaA@mail.gmail.com>
-References: <20171001104948.21663-1-javierm@redhat.com> <20171017214040.kak3kpvh6tunjjfp@ninjato>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v4 2/2] dt-bindings: i2c: i2c-davinci: Update binding for
+ 66AK2Gx pwr dm property
+Date: Tue, 17 Oct 2017 23:46:22 +0200
+Message-ID: <20171017214622.k4e274topkoc2yew@ninjato>
+References: <20170911201145.31257-1-fcooper@ti.com>
+ <20170911201145.31257-3-fcooper@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33034 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754653AbdJQVnh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Oct 2017 17:43:37 -0400
-Received: from mail-wr0-f176.google.com (mail-wr0-f176.google.com [209.85.128.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB35D21924
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Oct 2017 21:43:36 +0000 (UTC)
-Received: by mail-wr0-f176.google.com with SMTP id l1so3116973wrc.3
-        for <linux-i2c@vger.kernel.org>; Tue, 17 Oct 2017 14:43:36 -0700 (PDT)
-In-Reply-To: <20171017214040.kak3kpvh6tunjjfp@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="peiwda3slco7kbag"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170911201145.31257-3-fcooper-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, vigneshr-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Javier Martinez Canillas <javierm@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 
-On Tue, Oct 17, 2017 at 4:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Hi,
->
->> +     {
->> +             .compatible = "atmel,spd",
->> +             .data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
->> +                             AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
->> +     },
->
-> checkpatch reported this one as un-documented. And come to think of it,
-> since this is solely for EEPROMs on RAM modules, I think we can drop a
-> DT binding for it. Could you agree? I can do it locally, no need to
-> resend. I'll do HW testing later, but wanted to check on your opinion
-> already.
 
-It is used by arch/powerpc/boot/dts/mpc8349emitx.dts.
+--peiwda3slco7kbag
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+On Mon, Sep 11, 2017 at 03:11:45PM -0500, Franklin S Cooper Jr wrote:
+> Add pm-domains property which is required for 66AK2Gx. Also document 66AK=
+2G
+> unique clocks property usage.
+>=20
+> Signed-off-by: Franklin S Cooper Jr <fcooper-l0cyMroinI0@public.gmane.org>
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Acked-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+
+Applied to for-next, thanks!
+
+
+--peiwda3slco7kbag
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmei4ACgkQFA3kzBSg
+KbYddQ//aOhZqC471Edlyrm1bZCDT23ePox/BiM5YYwxMB2Js+2Q+44tWxfX5Cuz
+jIjl8zKvbFRqFCY+RSj4JdxlQqqoFOcHJZ2cMDLyflSH63b4G9pLPBYB1fj8vr6E
+8XeR6i5RDgS93YokmX6mQ+563c8KEPi+N8kp32I8HviP6B5OXGTfZnUn4YL3SR9G
+aRYweIXKI4WpDecnJ+vsvp1r4QdnCOFV1xsDsrhP3J1lqtTzM9IfMY3BzUYIT3i+
+7/j+fLa+e+XBw9frkrnEPSIx4b9Y4vyuHBKQwE5gK39AV3LVZUSMXbGwzOeAbitn
+hCWAzVYDfWYRZL/gTs1GnS0/H3EUkzXG/zj4AJL+HR/jgmA6o/wE6zIDtIxeXfZc
+kBXX5c+Dvuxi1dNLg9xpdMdV9yM/T+8DU9M9IVld6pTU0NpzOeP5bDr1hwReHUD5
+daxazJ14ATHfhtu34RTg88rfNHMnRF7UplvHXNt/Bm0H/Cinua4smJAo4Cgi6gvZ
+Xgna2AkTn7xJ1yReiJE+eIAWss6NsV+TvB+SixKi3x+iPb33kXyyrJcIwN2HUJ0q
+BbhXW6tVstCp6HvLB7x4+I4+PTP4WAQAvBVhRw3cl/kXVDH8diEbx3sUradC2E9h
+rb76LshH8tP+QSU3PF9S64ayGIiGF1vj+XGyO4U2tzd891W1HuI=
+=hoTj
+-----END PGP SIGNATURE-----
+
+--peiwda3slco7kbag--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
