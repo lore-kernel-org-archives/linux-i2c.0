@@ -1,91 +1,38 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C
- controller
-Date: Tue, 17 Oct 2017 15:18:24 +0200
-Message-ID: <2d892fec-0496-8a6f-51c9-439b933d9975@st.com>
-References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
- <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
- <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
+ flags
+Date: Tue, 17 Oct 2017 15:26:41 +0200
+Message-ID: <20171017132641.GD25683@kroah.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <1998650.Q52BuGQTI4@aspire.rjw.lan>
+ <20171016063122.GB28732@kroah.com>
+ <1545766.cfb3OTroPT@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:43647 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752660AbdJQNTA (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 17 Oct 2017 09:19:00 -0400
-In-Reply-To: <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1545766.cfb3OTroPT@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: =?UTF-8?Q?Rados=c5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
 
-
-
-On 10/12/2017 11:55 AM, Radosław Pietrzyk wrote:
-> It looks like there is a use case when IRQ handler is delayed a bit
-> and the logic in the driver does not work. What is the real root cause
-> I don't know.
+On Tue, Oct 17, 2017 at 12:07:37AM +0200, Rafael J. Wysocki wrote:
+> On Monday, October 16, 2017 8:31:22 AM CEST Greg Kroah-Hartman wrote:
+> > On Mon, Oct 16, 2017 at 03:29:02AM +0200, Rafael J. Wysocki wrote:
+> > > +static inline void dev_pm_set_driver_flags(struct device *dev, unsigned int flags)
+> > > +{
+> > > +	dev->power.driver_flags = flags;
+> > > +}
+> > 
+> > Should this function just set the specific bit?  Or is it going to be ok
+> > to set the whole value, meaning you aren't going to care about turning
+> > on and off specific flags over the lifetime of the driver/device, you
+> > are just going to set them once and then just test them as needed?
 > 
+> The idea is to set them once and they should not be touched again until
+> the driver (or device) goes away, so that would be the whole value at once
+> (and one of the i2c-designware-platdrv patches actually sets multiple flags
+> in one go).
 
-As far as I know on this STM32 F4 platform there is some trouble with timer
-events that may have bad influences on scheduling. Some tasks could be delayed
-for some reasons.
-It would be great if the following patches below could help in your matter
-https://patchwork.kernel.org/patch/9980961/
-https://patchwork.kernel.org/patch/9980963/
-https://patchwork.kernel.org/patch/9980965/
-https://patchwork.kernel.org/patch/9980967/
-
-Would you mind to test those ?
-Thanks
-
-> 2017-10-12 11:31 GMT+02:00 Pierre Yves MORDRET <pierre-yves.mordret@st.com>:
->>
->>
->> On 10/11/2017 01:53 PM, Radoslaw Pietrzyk wrote:
->>>       Do not read data on RXNE but on BTF only due to HW
->>>       synchronisation problems and NACKing read data too early.
->>>       It was found during testing of stmpe811 touchscreen driver.
->>>
->>
->> Would you mind to explain what is behind "hw sync issue" you've seen ?
->>
->>> Signed-off-by: Radoslaw Pietrzyk <radoslaw.pietrzyk@gmail.com>
->>> ---
->>>  drivers/i2c/busses/i2c-stm32f4.c | 11 +----------
->>>  1 file changed, 1 insertion(+), 10 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
->>> index 4ec1084..86bcf4c 100644
->>> --- a/drivers/i2c/busses/i2c-stm32f4.c
->>> +++ b/drivers/i2c/busses/i2c-stm32f4.c
->>> @@ -409,16 +409,9 @@ static void stm32f4_i2c_handle_read(struct stm32f4_i2c_dev *i2c_dev)
->>>        * So, here we just disable buffer interrupt in order to avoid another
->>>        * system preemption due to RX not empty event.
->>>        */
->>> -     case 2:
->>> -     case 3:
->>> +     default:
->>>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR2_ITBUFEN);
->>>               break;
->>> -     /*
->>> -      * For N byte reception with N > 3 we directly read data register
->>> -      * until N-2 data.
->>> -      */
->>> -     default:
->>> -             stm32f4_i2c_read_msg(i2c_dev);
->>>       }
->>>  }
->>>
->>> @@ -470,8 +463,6 @@ static void stm32f4_i2c_handle_rx_done(struct stm32f4_i2c_dev *i2c_dev)
->>>                */
->>>               reg = i2c_dev->base + STM32F4_I2C_CR1;
->>>               stm32f4_i2c_clr_bits(reg, STM32F4_I2C_CR1_ACK);
->>> -             stm32f4_i2c_read_msg(i2c_dev);
->>> -             break;
->>>       default:
->>>               stm32f4_i2c_read_msg(i2c_dev);
->>>       }
->>>
+Ok, thanks.
