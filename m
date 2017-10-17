@@ -1,58 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: document R8A77970 bindings
-Date: Wed, 18 Oct 2017 00:01:16 +0200
-Message-ID: <20171017220115.a5i5unwgyydxxtvt@ninjato>
-References: <20171013122401.540656908@cogentembedded.com>
+Subject: Re: [PATCH v3] i2c: riic: remove fixed clock restriction
+Date: Wed, 18 Oct 2017 00:03:06 +0200
+Message-ID: <20171017220306.p4h3wbp5c3uaexh4@ninjato>
+References: <20171016183253.2291-1-chris.brandt@renesas.com>
+ <SG2PR06MB11652F2C132728B93232119C8A4C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="z3mm5rvfiyxeka2k"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54780 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S966345AbdJQWBR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Oct 2017 18:01:17 -0400
+        protocol="application/pgp-signature"; boundary="riace2bgkydzteqi"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171013122401.540656908@cogentembedded.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <SG2PR06MB11652F2C132728B93232119C8A4C0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Chris Brandt <Chris.Brandt@renesas.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-renesas-soc@vger.kernel.org
 
 
---z3mm5rvfiyxeka2k
+--riace2bgkydzteqi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 13, 2017 at 03:23:55PM +0300, Sergei Shtylyov wrote:
-> R-Car V3M (R8A77970) SoC also has the R-Car gen3 compatible I2C controlle=
-r,
-> so document  the SoC specific bindings.
->=20
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
->=20
 
-Applied to for-next, thanks!
+> Actually, if you want to hold off on this patch, I'm almost done with a=
+=20
+> real fix which is to calculate any frequency based on current parent=20
+> clock and rise/fall timings specified in the DT as you suggested.
+
+Sounds awesome! So, I'll wait a little how the formula goes. We can
+always fall back to this patch if all fails... Thanks!
 
 
---z3mm5rvfiyxeka2k
+--riace2bgkydzteqi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmfasACgkQFA3kzBSg
-KbYsKg/+Kjl2W5ZhUSqAn68sth/BDbkqJSan0689nfoaq4SlEBtOfaz+OLGKxZBB
-hZkOVpkCgRRI3SKci8L6pLCY9vHncy5aiFjTcNSSL30nb3B4qPZ4lbCzQ2WcvP4l
-4AQxPwQLOdySza7kxse8K+F0GKyaAvE0Eo7GCoYa/ASNZTwFgOeZYOOhRjeuZ3t9
-Pliq8o8LOFyY7WpQvnie9rILZ1QKLGX74+88VW+pudMuLwe2pf40mv3V1UVQQdsc
-D32kp06loHTXH2OkREwUbWcSL9eYVo+Z/blOCEpCxNgaV6+wv9QPFo+L/oYFM6Zd
-2tOvQDKniNkg+XY5SCKLd66ktqW1H6YAN3L4qeM+moRKiLGOabFVGrR9gu1IjCqN
-SKaYMYrM38pH6w42hqBnMTQwvzMtZZAjDMIPH77tfH/N1JizgKQMENQmGBml90pE
-kEHmqk+lEeSOVm3OjQ/q578dz9C2AmGBlhQzMuZ8jymCJ0rX3uTP8AhBGVBho2To
-Naic3S99rY2HP5+OSw0+7EJw5WAV/mgbWE4wK8/WI6tULHNSvnnTIyL4JRn9AeYr
-K9V3dSIs/P1ZsVkbmQRaeHL8oUzXbMTIUBaU634fsM4ZHJAya2N4hjB55W1Qc4CT
-jyS7CYCPtHjGDjSezHECawd3HcOOOYIXPrdjBtSlH8mF97tlUCY=
-=hjg8
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnmfhoACgkQFA3kzBSg
+KbYOYA/+L9uhdrzFLdkzV3PQqsBI2hKqjgWCvnPzOvi/0WXNvZ2AGV8MLS4Cv0Go
+d2KWzUsOJooIyjC3YxaKIJQU4O9HYQgiMYbUPI7/s/VccWVkNDDliWjtc75rlMiP
+FVtrf+ArK7JJ7zRtuZvozWUkmz2M5qIJ8g28FeAYRPgQDnUz64SU5AubAByYeBXI
+0y6lbF5NKK/sMLaCLLT/Ulbhabte8CSpG/2eOH+nl/UR75VmBo6dBAeFeCr7T76H
+1jJ8mB3cUHRtX3B8YoONMU1c3HSakSyR1cWPz/sHsxrk+btmKpBFOAMJIeTbJAtE
+FyNxpEzp641dLzMM33ouEaLUAySuCiX2cAaoqc3ZwFkDdQgwjUIbKk8U7L5pKf4C
+IHxPCKfzUlW4xOJzzptf9qPjkK1xn9iYv9+mkBWuIEZXf5mLdq5VR/3rn0ytBSAt
+0bG0ZgJNA5b6xARXB3RtWfvUql9SOA69pQnL8/uelyyie0lQsJK+3ck1kRtJXT/F
+UZSAb6Cp2uyg13b5xvhGCwcO+HmYeOYbiSonqMKyTNsqdgAuapQe2tKurzeEZXtI
+OeH5SZNk4a4Yy3818UnsfyQiz6llBoz5onmnRWChbPGmSIPLdOOVrYadHJyYqEQW
+B1mjUhjpbvVwIBVLA+Tp3QQZsY3DQUtTyppRjvm7KDVVNGaEZeQ=
+=IP1J
 -----END PGP SIGNATURE-----
 
---z3mm5rvfiyxeka2k--
+--riace2bgkydzteqi--
