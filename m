@@ -1,42 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: davinci: use correct format identifier for size_t
-Date: Wed, 18 Oct 2017 00:17:09 +0200
-Message-ID: <20171017221709.24992-1-wsa@the-dreams.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/4] dt-bindings: media: Binding document for Qualcomm
+ Camera Control Interface driver
+Date: Tue, 17 Oct 2017 17:21:28 -0500
+Message-ID: <20171017222128.eg256eba4ufqjsus@rob-hp-laptop>
+References: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
+ <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54874 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756594AbdJQWRU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 17 Oct 2017 18:17:20 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Todor Tomov <todor.tomov@linaro.org>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Franklin S Cooper Jr <fcooper@ti.com>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Fixes this warning (found by build testing with 64bit):
+gOn Fri, Oct 13, 2017 at 01:56:40PM +0300, Todor Tomov wrote:
+> Add DT binding document for Qualcomm Camera Control Interface driver
+> 
+> CC: Rob Herring <robh+dt@kernel.org>
+> CC: Mark Rutland <mark.rutland@arm.com>
+> CC: devicetree@vger.kernel.org
+> Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 46 ++++++++++++++++++++++
+>  1 file changed, 46 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+> new file mode 100644
+> index 0000000..cb1fe15
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+> @@ -0,0 +1,46 @@
+> +Qualcomm Camera Control Interface controller
+> +
+> +Required properties:
+> + - compatible: Should be one of:
+> +   - "qcom,cci-v1.0.8" for 8916;
+> +   - "qcom,cci-v1.4.0" for 8996.
 
-format ‘%i’ expects argument of type ‘int’, but argument 3 has type
-‘size_t {aka long unsigned int}’ [-Wformat=]
+Does using version numbers really buy anything over using SoC names?
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/i2c-davinci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> + - #address-cells: Should be <1>.
+> + - #size-cells: Should be <0>.
+> + - reg: Base address of the controller and length of memory mapped region.
+> + - interrupts: Specifier for CCI interrupt.
+> + - clocks: List of clock specifiers, one for each entry in clock-names.
+> + - clock-names: Should contain:
+> +   - "mmss_mmagic_ahb" - on 8996 only;
+> +   - "camss_top_ahb";
+> +   - "cci_ahb";
+> +   - "cci";
+> +   - "camss_ahb".
+> +
+> +Required properties on 8996:
+> + - power-domains: Power domain specifier.
+> +
+> +Optional:
+> + - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
+> +   if omitted.
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a2d9f7c56dacdc..2ead9b9eebb79a 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -504,7 +504,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 		/* This should be 0 if all bytes were transferred
- 		 * or dev->cmd_err denotes an error.
- 		 */
--		dev_err(dev->dev, "abnormal termination buf_len=%i\n",
-+		dev_err(dev->dev, "abnormal termination buf_len=%zu\n",
- 			dev->buf_len);
- 		dev->terminate = 1;
- 		wmb();
--- 
-2.11.0
+I2C freq? The block has an I2C controller? If so, you should explicitly 
+state that somewhere in here and show a sensor as a child node.
+
+
+> +
+> +Example:
+> +
+> +                cci@a0c000 {
+> +                        compatible = "qcom,cci-v1.4.0";
+> +                        #address-cells = <1>;
+> +                        #size-cells = <0>;
+> +                        reg = <0xa0c000 0x1000>;
+> +                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
+> +                        power-domains = <&mmcc CAMSS_GDSC>;
+> +                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
+> +                                        <&mmcc CAMSS_TOP_AHB_CLK>,
+> +                                        <&mmcc CAMSS_CCI_AHB_CLK>,
+> +                                        <&mmcc CAMSS_CCI_CLK>,
+> +                                        <&mmcc CAMSS_AHB_CLK>;
+> +                        clock-names = "mmss_mmagic_ahb",
+> +                                        "camss_top_ahb",
+> +                                        "cci_ahb",
+> +                                        "cci",
+> +                                        "camss_ahb";
+> +                        clock-frequency = <400000>;
+> +                };
+> -- 
+> 2.7.4
+> 
