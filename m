@@ -1,92 +1,86 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 1/4] dt-bindings: media: Binding document for Qualcomm
- Camera Control Interface driver
-Date: Tue, 17 Oct 2017 17:21:28 -0500
-Message-ID: <20171017222128.eg256eba4ufqjsus@rob-hp-laptop>
-References: <1507892203-17033-1-git-send-email-todor.tomov@linaro.org>
- <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
+Date: Wed, 18 Oct 2017 01:07:35 +0200
+Message-ID: <2098332.bUT5UI0m5H@aspire.rjw.lan>
+References: <Pine.LNX.4.44L0.1710171558170.1864-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1507892203-17033-2-git-send-email-todor.tomov@linaro.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Todor Tomov <todor.tomov@linaro.org>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1710171558170.1864-100000@iolanthe.rowland.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-gOn Fri, Oct 13, 2017 at 01:56:40PM +0300, Todor Tomov wrote:
-> Add DT binding document for Qualcomm Camera Control Interface driver
+On Tuesday, October 17, 2017 10:12:19 PM CEST Alan Stern wrote:
+> On Tue, 17 Oct 2017, Ulf Hansson wrote:
 > 
-> CC: Rob Herring <robh+dt@kernel.org>
-> CC: Mark Rutland <mark.rutland@arm.com>
-> CC: devicetree@vger.kernel.org
-> Signed-off-by: Todor Tomov <todor.tomov@linaro.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-qcom-cci.txt       | 46 ++++++++++++++++++++++
->  1 file changed, 46 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
+> > > These functions are wrong, however, because they attempt to reuse the
+> > > whole callback *path* instead of just reusing driver callbacks.  The
+> > > *only* reason why it all "works" is because there are no middle layer
+> > > callbacks involved in that now.
+> > >
+> > > If you changed them to reuse driver callbacks only today, nothing would break
+> > > AFAICS.
+> > 
+> > Yes, it would.
+> > 
+> > First, for example, the amba bus is responsible for the amba bus
+> > clock, but relies on drivers to gate/ungate it during system sleep. In
+> > case the amba drivers don't use the pm_runtime_force_suspend|resume(),
+> > it will explicitly have to start manage the clock during system sleep
+> > themselves. Leading to open coding.
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-> new file mode 100644
-> index 0000000..cb1fe15
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-cci.txt
-> @@ -0,0 +1,46 @@
-> +Qualcomm Camera Control Interface controller
-> +
-> +Required properties:
-> + - compatible: Should be one of:
-> +   - "qcom,cci-v1.0.8" for 8916;
-> +   - "qcom,cci-v1.4.0" for 8996.
+> I think what Rafael has in mind is that the PM core will call the amba
+> bus's ->suspend callback, and that routine will then be able to call
+> the amba driver's runtime_suspend routine directly, if it wants to --
+> as opposed to going through pm_runtime_force_suspend.
 
-Does using version numbers really buy anything over using SoC names?
+Right in general.
 
-> + - #address-cells: Should be <1>.
-> + - #size-cells: Should be <0>.
-> + - reg: Base address of the controller and length of memory mapped region.
-> + - interrupts: Specifier for CCI interrupt.
-> + - clocks: List of clock specifiers, one for each entry in clock-names.
-> + - clock-names: Should contain:
-> +   - "mmss_mmagic_ahb" - on 8996 only;
-> +   - "camss_top_ahb";
-> +   - "cci_ahb";
-> +   - "cci";
-> +   - "camss_ahb".
-> +
-> +Required properties on 8996:
-> + - power-domains: Power domain specifier.
-> +
-> +Optional:
-> + - clock-frequency: Desired I2C bus clock frequency in Hz, defaults to 100 kHz
-> +   if omitted.
+> However, it's not clear whether this fully answers your concerns.
 
-I2C freq? The block has an I2C controller? If so, you should explicitly 
-state that somewhere in here and show a sensor as a child node.
+Well, in the particular AMBA case fixing this should be quite straightforward.
 
-
-> +
-> +Example:
-> +
-> +                cci@a0c000 {
-> +                        compatible = "qcom,cci-v1.4.0";
-> +                        #address-cells = <1>;
-> +                        #size-cells = <0>;
-> +                        reg = <0xa0c000 0x1000>;
-> +                        interrupts = <GIC_SPI 295 IRQ_TYPE_EDGE_RISING>;
-> +                        power-domains = <&mmcc CAMSS_GDSC>;
-> +                        clocks = <&mmcc MMSS_MMAGIC_AHB_CLK>,
-> +                                        <&mmcc CAMSS_TOP_AHB_CLK>,
-> +                                        <&mmcc CAMSS_CCI_AHB_CLK>,
-> +                                        <&mmcc CAMSS_CCI_CLK>,
-> +                                        <&mmcc CAMSS_AHB_CLK>;
-> +                        clock-names = "mmss_mmagic_ahb",
-> +                                        "camss_top_ahb",
-> +                                        "cci_ahb",
-> +                                        "cci",
-> +                                        "camss_ahb";
-> +                        clock-frequency = <400000>;
-> +                };
-> -- 
-> 2.7.4
+> > Second, it will introduce a regression in behavior for all users of
+> > pm_runtime_force_suspend|resume(), especially during system resume as
+> > the driver may then end up resuming the device even in case it isn't
+> > needed. I believe I have explained why, also several times by now -
+> > and that's also how far you could take the i2c designware driver at
+> > this point.
+> > 
+> > That said, I assume the second part may be addressed in this series,
+> > if these drivers convert to use the "driver PM flags", right?
 > 
+> Presumably.
+> 
+> The problem is how to handle things which need to be treated
+> differently for runtime PM vs. system suspend vs. hibernation.  If
+> everything filters through a runtime_suspend routine, that doesn't
+> leave any scope for handling the different kinds of PM transitions
+> differently.  Instead, we can make the middle layer (i.e., the bus-type
+> callbacks) take care of the varying tasks, and they can directly invoke
+> a driver's runtime-PM callbacks to handle all the common activities.  
+> If that's how the middle layer wants to do it.
+
+Well, that's what happens today, except that driver runtime PM callbacks
+are not directly invoked.  Actually, I tried to implement that, but it was
+so ugly and fragile that I gave up.
+
+It really is better if drivers point the different callback pointers to the
+same rountine if they want to reuse it.
+
+> > However, what about the first case? Is some open coding needed or your
+> > think the amba driver can instruct the amba bus via the "driver PM
+> > flags"?
+> 
+> PM flags won't directly be able to cover things like disabling clocks.  
+> But they could be useful for indicating explicitly whether the code to
+> take care of those things needs to reside at the driver layer or at the
+> bus layer.
+
+Right.
+
+Thanks,
+Rafael
