@@ -1,49 +1,77 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
- flags
-Date: Tue, 17 Oct 2017 09:15:43 +0200
-Message-ID: <20171017071543.GB27293@kroah.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
- <1998650.Q52BuGQTI4@aspire.rjw.lan>
- <20171016062852.GA28732@kroah.com>
- <6007227.iNoRbQyInB@aspire.rjw.lan>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: Sluggish AT91 I2C driver causes SMBus timeouts
+Date: Tue, 17 Oct 2017 09:58:07 +0200
+Message-ID: <20171017075807.tsh5walc3sla3pth@rfolt0960.corp.atmel.com>
+References: <3d83fd8b-ade9-da10-3364-2afefa2e90af@axentia.se>
+ <20171013142935.14ef302e@alans-desktop>
+ <92675fc4-060b-0056-4fe8-3fe3368cb617@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6007227.iNoRbQyInB@aspire.rjw.lan>
-Sender: linux-doc-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+In-Reply-To: <92675fc4-060b-0056-4fe8-3fe3368cb617@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Ludovic Desroches <ludovic.desroches@microchip.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 17, 2017 at 12:05:11AM +0200, Rafael J. Wysocki wrote:
-> On Monday, October 16, 2017 8:28:52 AM CEST Greg Kroah-Hartman wrote:
-> > On Mon, Oct 16, 2017 at 03:29:02AM +0200, Rafael J. Wysocki wrote:
-> > >  struct dev_pm_info {
-> > >  	pm_message_t		power_state;
-> > >  	unsigned int		can_wakeup:1;
-> > > @@ -561,6 +580,7 @@ struct dev_pm_info {
-> > >  	bool			is_late_suspended:1;
-> > >  	bool			early_init:1;	/* Owned by the PM core */
-> > >  	bool			direct_complete:1;	/* Owned by the PM core */
-> > > +	unsigned int		driver_flags;
+Hi Peter,
+
+On Fri, Oct 13, 2017 at 05:01:04PM +0200, Peter Rosin wrote:
+> On 2017-10-13 15:29, Alan Cox wrote:
+> > On Thu, 12 Oct 2017 13:35:17 +0200
+> > Peter Rosin <peda@axentia.se> wrote:
 > > 
-> > Minor nit, u32 or u64?
+> >> Hi!
+> >>
+> >> I have encountered an "interesting" bug. It silently corrupts data
+> >> and is generally nasty...
+> >>
+> >> On an I2C bus, driven by the at91 driver and DMA (an Atmel
+> >> sama5d31 chip), I have an 256 byte eeprom (NXP SE97BTP). I'm using
+> >> Linux v4.13.
+> > 
+> > If your force the transfer to PIO does it behave ? Does the controller in
+> > fact need to siwtch to PIO for SMBUS ?
 > 
-> u32 I think, will update.
+> Like, what if I disable DMA?
 > 
-> BTW, there's a mess in this struct overall and I'd like all of the bit fileds
-> to be the same type (and that shouldn't be bool IMO :-)).
+> I saw no way to do that, short of short-cutting a few things in the
+> driver code. So, did that and I cannot tickle the bug. But I don't
+> know if that makes me safe?
 > 
-> Do you prefer u32 or unsinged int?
+> Ludovic, any reason to believe disabling DMA will prevent these
+> stalls, or will they just appear under different circumstances?
 
-I always prefer an explicit size for variables, unless it's a "generic
-loop" type thing.  So I'll always say "u32" for this.
+Sorry I am currently on vacation. I outlined this discussion.
 
-And cleaning up the structure would be great, it's grown over time in
-odd ways as you point out.
+As you noticed, there are some hardware constraints when using DMA.
+Switching from DMA to PIO to handle the end of the transfer is probably the
+root cause of the delay you get.
 
-thanks,
+I read you added traces, did you manage to get some information about
+timings? Do we waste time waiting for the dma callback? for the RXRDY
+interrupt?
 
-greg k-h
+If we spend time waiting for the dma callback for sure, disabling DMA
+should prevent these stalls. If the stall is inbetween the two last
+RXRDY interrupts, it seems it can appear under different circumstances.
+
+> 
+> I used this dirty "patch" to i2c-at91.c:at91_twi_configure_dma() for
+> testing:
+> 
+> -	dev->use_dma = true;
+> +	//dev->use_dma = true;
+> 
+
+You can simply remove dma bindings from the i2c node to force the i2c
+controller to use the PIO mode.
+
+
+Regards
+
+Ludovic
+
+> Cheers,
+> Peter
