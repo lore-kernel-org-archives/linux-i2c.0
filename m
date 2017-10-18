@@ -1,65 +1,96 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Wed, 18 Oct 2017 14:34:10 +0200
-Message-ID: <CAPDyKFpNHL=tZYbQduDJqypz7rbwPwvW7sOymm-djbRSFgZ00g@mail.gmail.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <CAPDyKFrMTSUHP86hnpHius2CDfv-ap4svGg=xgwAiH8pKj9Lvw@mail.gmail.com>
- <1591167.zlNa3zLfmM@aspire.rjw.lan> <2745759.OYb9FSKnNE@aspire.rjw.lan>
+From: Juergen Fitschen <me@jue.yt>
+Subject: Re: I2C slave mode for i2c-at91 driver
+Date: Wed, 18 Oct 2017 14:32:53 +0200
+Message-ID: <029b74bfca29bb33fe551975e3d1f7ce@jfitschen.de>
+References: <97ba9ab73b527ac882e7d591b42ae621@jfitschen.de>
+ <20171018073725.6qtglbpquyqx5xyq@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2745759.OYb9FSKnNE@aspire.rjw.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from srv1.host37.de ([176.28.54.59]:49932 "EHLO srv1.host37.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752905AbdJRNBt (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 18 Oct 2017 09:01:49 -0400
+In-Reply-To: <20171018073725.6qtglbpquyqx5xyq@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 
-[...]
+Hi Wolfram,
 
->> Are there any major reasons why the appended patch (obviously untested) won't
->> work, then?
+>> 1) According to [1] the return value of the I2C_SLAVE_WRITE_RECEIVED 
+>> event
+>> determines whether the received byte shall be ACKed or NACKed. The 
+>> problem
+>> with the Atmel hardware is that it is not possible to manipulate the 
+>> ACK bit
+>> of the current byte in flight; it will be ACKed automatically. It is 
+>> only
+>> possible to (N)ACK the following byte(s) since some FIFO magic is 
+>> going on
+>> inside the hardware.
 >
-> OK, there is a reason, which is the optimizations bundled into
-> pm_runtime_force_*, because (a) the device may be left in runtime suspend
-> by them (in which case amba_pm_suspend_early() in my patch should not run)
-> and (b) pm_runtime_force_resume() may decide to leave it suspended (in which
-> case amba_pm_suspend_late() in my patch should not run).
+> So, it is not possible to NACK the last byte?
 
-Exactly.
+If you would like to receive 3 bytes from a remote master and the last 
+byte shall be NACKed, the backend must have the following behaviour to 
+be compatible with the SAMA5 MPUs:
 
+                                  +-----+-+-----+-+-----+-+
+   Data on wire:                  |BYTE1|A|BYTE2|A|BYTE3|N|
+                                  +-----+-+-----+-+-----+-+
+   I2C_SLAVE_WRITE_RECEIVED fired:        ^       ^       ^
+   Event's return value:                  A       N       X  (X=don't 
+care)
+
+But if I understand the documentation correctly, the return value 
+corresponds to the currently received byte and not the next byte. So the 
+following backend behaviour is described by the docs:
+
+                                  +-----+-+-----+-+-----+-+
+   Data on wire:                  |BYTE1|A|BYTE2|A|BYTE3|N|
+                                  +-----+-+-----+-+-----+-+
+   I2C_SLAVE_WRITE_RECEIVED fired:      ^       ^       ^
+   Event's return value:                A       A       N
+
+Or am I wrong?
+
+
+>> Do you think it is a valid approach to ignore the return value and 
+>> always
+>> ACK received bytes? Or would you rather set the behaviour for the 
+>> following
+>> bytes? That would delay the desired ACK bit by at least one byte.
 >
-> [BTW, the "leave the device suspended" optimization in pm_runtime_force_*
-> is potentially problematic too, because it requires the children to do
-> the right thing, which effectively means that their drivers need to use
-> pm_runtime_force_* too, but what if they don't want to reuse their
-> runtime PM callbacks for system-wide PM?]
+> Tricky, since both options are really sub-optimal. I tend to think 
+> that
+> reporting the error a bit later is the slightly better option. Most
+> client drivers will act on the fact that the whole transfer failed
+> somehow. Where it fails is not so essential. We don't have proper 
+> means
+> to report the exact position of the failure currently anyhow.
 
-Deployment of pm_runtime_force_suspend() should generally be done for
-children devices first.
+I had a look into the i2c-designware driver sources. As far as I 
+understand it also does not respect the return value of the 
+I2C_SLAVE_WRITE_RECEIVED event. It just prints out debug messages if the 
+received byte shall be ACKed.
 
-If some reason that isn't the case, it's expected that the call to
-pm_runtime_set_suspended() invoked from pm_runtime_force_suspend(),
-for the parent, should fail and thus abort system suspend.
 
+>> How would you implement blocking master transactions while slave 
+>> mode is
+>> enabled? I would return EBUSY if master_xfer is called.
 >
-> Honestly, I don't like the way this is designed.  IMO, it would be better
-> to do the optimizations and all in the bus type middle-layer code instead
-> of expecting drivers to use pm_runtime_force_* as their system-wide PM
-> callbacks (and that expectation should at least be documented, which I'm
-> not sure is the case now).  But whatever.
->
-> It all should work the way it does now without pm_runtime_force_* if (a) the
-> bus type's PM callbacks are changed like in the last patch and the drivers
-> (b) point their system suspend callbacks to the runtime PM callback routines
-> and (c) set DPM_FLAG_SMART_SUSPEND and DPM_FLAG_LEAVE_SUSPENDED for the
-> devices (if they need to do the PM in ->suspend and ->resume, they may set
-> DPM_FLAG_AVOID_RPM too).
->
-> And if you see a reason why that won't work, please let me know.
+> The i2c-designware driver has the same problem. We decided to have
+> seperate struct i2c_algorithms for master and slave. The core helper
+> i2c_detect_slave_mode() can help you to determine which mode should 
+> be
+> used. The designware drive might give you some inspiration.
 
-I will have look and try out the series by using my local "runtime PM
-test driver".
+Thank you for the hint! This really helps.
 
-I get back to you with an update on this.
 
-Kind regards
-Uffe
+Kind regards,
+   Juergen
