@@ -1,63 +1,55 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] i2c: riic: remove clock and frequency restrictions
-Date: Wed, 18 Oct 2017 17:14:37 +0200
-Message-ID: <CAMuHMdW8JLMzm9AQEO6UstW1MTHTjkf7rskLN8d4p95eZt0Z1g@mail.gmail.com>
+From: Chris Brandt <Chris.Brandt@renesas.com>
+Subject: RE: [PATCH] i2c: riic: remove clock and frequency restrictions
+Date: Wed, 18 Oct 2017 15:47:28 +0000
+Message-ID: <SG2PR06MB1165A75C7BBC84FCAF8ACB0D8A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
 References: <20171018140459.104351-1-chris.brandt@renesas.com>
- <CAMuHMdWLh=4mETrwXHZ0LSfx9mtBewaDV6dhHKhvhGJ=ii-Vxg@mail.gmail.com> <SG2PR06MB116572EFA9E1BD8C7BB47AB78A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdWLh=4mETrwXHZ0LSfx9mtBewaDV6dhHKhvhGJ=ii-Vxg@mail.gmail.com>
+ <SG2PR06MB116572EFA9E1BD8C7BB47AB78A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+ <CAMuHMdW8JLMzm9AQEO6UstW1MTHTjkf7rskLN8d4p95eZt0Z1g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <SG2PR06MB116572EFA9E1BD8C7BB47AB78A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from relmlor2.renesas.com ([210.160.252.172]:9806 "EHLO
+        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1750742AbdJRPre (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 11:47:34 -0400
+In-Reply-To: <CAMuHMdW8JLMzm9AQEO6UstW1MTHTjkf7rskLN8d4p95eZt0Z1g@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>
 
-Hi Chris,
-
-On Wed, Oct 18, 2017 at 5:10 PM, Chris Brandt <Chris.Brandt@renesas.com> wrote:
-> On Wednesday, October 18, 2017 1, Geert Uytterhoeven wrote:
->> > +       /*
->> > +        * Remove clock ticks for rise and fall times. Convert ns to
->> clock
->> > +        * ticks.
->> > +        */
->> > +       brl -= t->scl_fall_ns / (1000000000/rate);
->> > +       brh -= t->scl_rise_ns / (1000000000/rate);
->>
->> To avoid losing too much precision by the division, you can rewrite this
->> as
->> e.g.
->>
->>     brl -= t->scl_fall_ns * rate / 1000000000;
->>
->> ("scl_fall_ns * rate" should not overflow).
->> Perhaps DIV_ROUND_UP(), too?
->
-> Unfortunately, I do not get the correct number every time.
->
-> Sometimes I get the correct number, but most of the time I get 0.
->
-> Note, if rate=33,330,000 and t->scl_fall_ns=300, then
->
-> t->scl_fall_ns * rate  = 9,999,000,000 (0x253FCA1C0) a 34-bit number.
->
-> So, I'd rather just stick with the less precision because it's not that
-> much of a bit deal.
-
-Oops, so the numbers are bigger than I had expected, naively.
-
-Alternatively, you can use a 64-by-32 division, e.g.
-
-    DIV_ROUND_UP_ULL((u64)t->scl_fall_ns * rate, 1000000000)
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+SGkgR2VlcnQsDQoNCk9uIFdlZG5lc2RheSwgT2N0b2JlciAxOCwgMjAxNyAxLCBHZWVydCBVeXR0
+ZXJob2V2ZW4gd3JvdGU6DQo+ID4+ID4gKyAgICAgICAvKg0KPiA+PiA+ICsgICAgICAgICogUmVt
+b3ZlIGNsb2NrIHRpY2tzIGZvciByaXNlIGFuZCBmYWxsIHRpbWVzLiBDb252ZXJ0IG5zIHRvDQo+
+ID4+IGNsb2NrDQo+ID4+ID4gKyAgICAgICAgKiB0aWNrcy4NCj4gPj4gPiArICAgICAgICAqLw0K
+PiA+PiA+ICsgICAgICAgYnJsIC09IHQtPnNjbF9mYWxsX25zIC8gKDEwMDAwMDAwMDAvcmF0ZSk7
+DQo+ID4+ID4gKyAgICAgICBicmggLT0gdC0+c2NsX3Jpc2VfbnMgLyAoMTAwMDAwMDAwMC9yYXRl
+KTsNCj4gPj4NCj4gPj4gVG8gYXZvaWQgbG9zaW5nIHRvbyBtdWNoIHByZWNpc2lvbiBieSB0aGUg
+ZGl2aXNpb24sIHlvdSBjYW4gcmV3cml0ZQ0KPiB0aGlzDQo+ID4+IGFzDQo+ID4+IGUuZy4NCj4g
+Pj4NCj4gPj4gICAgIGJybCAtPSB0LT5zY2xfZmFsbF9ucyAqIHJhdGUgLyAxMDAwMDAwMDAwOw0K
+PiA+Pg0KPiA+PiAoInNjbF9mYWxsX25zICogcmF0ZSIgc2hvdWxkIG5vdCBvdmVyZmxvdykuDQo+
+ID4+IFBlcmhhcHMgRElWX1JPVU5EX1VQKCksIHRvbz8NCj4gPg0KPiA+IFVuZm9ydHVuYXRlbHks
+IEkgZG8gbm90IGdldCB0aGUgY29ycmVjdCBudW1iZXIgZXZlcnkgdGltZS4NCj4gPg0KPiA+IFNv
+bWV0aW1lcyBJIGdldCB0aGUgY29ycmVjdCBudW1iZXIsIGJ1dCBtb3N0IG9mIHRoZSB0aW1lIEkg
+Z2V0IDAuDQo+ID4NCj4gPiBOb3RlLCBpZiByYXRlPTMzLDMzMCwwMDAgYW5kIHQtPnNjbF9mYWxs
+X25zPTMwMCwgdGhlbg0KPiA+DQo+ID4gdC0+c2NsX2ZhbGxfbnMgKiByYXRlICA9IDksOTk5LDAw
+MCwwMDAgKDB4MjUzRkNBMUMwKSBhIDM0LWJpdCBudW1iZXIuDQo+ID4NCj4gPiBTbywgSSdkIHJh
+dGhlciBqdXN0IHN0aWNrIHdpdGggdGhlIGxlc3MgcHJlY2lzaW9uIGJlY2F1c2UgaXQncyBub3Qg
+dGhhdA0KPiA+IG11Y2ggb2YgYSBiaXQgZGVhbC4NCj4gDQo+IE9vcHMsIHNvIHRoZSBudW1iZXJz
+IGFyZSBiaWdnZXIgdGhhbiBJIGhhZCBleHBlY3RlZCwgbmFpdmVseS4NCj4gDQo+IEFsdGVybmF0
+aXZlbHksIHlvdSBjYW4gdXNlIGEgNjQtYnktMzIgZGl2aXNpb24sIGUuZy4NCj4gDQo+ICAgICBE
+SVZfUk9VTkRfVVBfVUxMKCh1NjQpdC0+c2NsX2ZhbGxfbnMgKiByYXRlLCAxMDAwMDAwMDAwKQ0K
+DQpUaGF0IHdvcmtzIGJldHRlci4NCg0KSG93ZXZlciwgcm91bmRpbmcgdXAgb24gdGhpcyBjYWxj
+dWxhdGlvbiBtZWFucyB5b3UgbWF5IHJ1biBmYXN0ZXIgdGhhbiANClNwZWNpZmllZCAoaWUsIHlv
+dSBzcGVuZCBtb3JlIHRpbWUgSElHSCBvciBMT1cpDQoNCg0KQXMgYSByYXcgbWF0aCB2cyBjb2Rl
+IGNvbXBhcmlzb246DQoNCnQtPnNjbF9mYWxsX25zID0gMzAwDQpyYXRlID0gMTY2NjI1MDAgICAg
+KDMzMzI1MDAwLzIpDQpSRUFMIG51bWJlciA9IDQuOTk4NzUNCkRJVl9ST1VORF9VUF9VTEwgcHJv
+ZHVjZXMgPSA1DQoNCnQtPnNjbF9mYWxsX25zID0gMjUwDQpyYXRlID0gMTY2NjI1MDAgICAgKDMz
+MzI1MDAwLzIpDQpSRUFMIG51bWJlciA9IDQuMTY1NjI1DQpESVZfUk9VTkRfVVBfVUxMIHByb2R1
+Y2VzID0gNSAobm93IEknbSBydW5uaW5nIGhpZ2hlciBmYXN0ZXIgdGhhbiA0MDBrSHopDQoNCg0K
+U28gb24gdGhpcyBudW1iZXIsIHJvdW5kaW5nIGRvd24gKHRydW5jYXRpbmcpIGlzICdzYWZlcicg
+ZnJvbSBhIHNwZWVkIA0Kc3RhbmQgcG9pbnQuDQoNCldoYXQgZG8geW91IHRoaW5rPw0KDQpDaHJp
+cw0KDQo=
