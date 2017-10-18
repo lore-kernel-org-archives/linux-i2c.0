@@ -1,55 +1,185 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
-Date: Wed, 18 Oct 2017 20:51:26 +0200
-Message-ID: <CABxcv==yK=_52Z5g1fb+UOM6io=zdGGAha=ZE6=S9Eo=x9enGA@mail.gmail.com>
-References: <20171001104948.21663-1-javierm@redhat.com> <20171017214040.kak3kpvh6tunjjfp@ninjato>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
+Date: Wed, 18 Oct 2017 14:45:11 -0500
+Message-ID: <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <1591167.zlNa3zLfmM@aspire.rjw.lan>
+ <CAPDyKFqYVjd2zmixQyJ43ZLdXeQZ-7NcLZ66+ci4VT8-q_avPA@mail.gmail.com>
+ <2890181.vdGMMavi5M@aspire.rjw.lan>
+ <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171017214040.kak3kpvh6tunjjfp@ninjato>
+In-Reply-To: <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Javier Martinez Canillas <javierm@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 17, 2017 at 11:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Hi,
->
->> +     {
->> +             .compatible = "atmel,spd",
->> +             .data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
->> +                             AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
->> +     },
->
-> checkpatch reported this one as un-documented. And come to think of it,
-> since this is solely for EEPROMs on RAM modules, I think we can drop a
-> DT binding for it. Could you agree? I can do it locally, no need to
 
-As mentioned by Rob, it's already used by a DTS in mainline.
 
-I think the problem is in how the DT binding for this driver is described.
+On 10/18/2017 09:11 AM, Ulf Hansson wrote:
+> [...]
+> 
+>>>
+>>> The reason why pm_runtime_force_* needs to respects the hierarchy of
+>>> the RPM callbacks, is because otherwise it can't safely update the
+>>> runtime PM status of the device.
+>>
+>> I'm not sure I follow this requirement.  Why is that so?
+> 
+> If the PM domain controls some resources for the device in its RPM
+> callbacks and the driver controls some other resources in its RPM
+> callbacks - then these resources needs to be managed together.
+> 
+> This follows the behavior of when a regular call to
+> pm_runtime_get|put(), triggers the RPM callbacks to be invoked.
+> 
+>>
+>>> And updating the runtime PM status of
+>>> the device is required to manage the optimized behavior during system
+>>> resume (avoiding to unnecessary resume devices).
+>>
+>> Well, OK.  The runtime PM status of the device after system resume should
+>> better reflect its physical state.
+>>
+>> [The physical state of the device may not be under the control of the
+>> kernel in some cases, like in S3 resume on some systems that reset
+>> devices in the firmware and so on, but let's set that aside.]
+>>
+>> However, for the runtime PM status of the device may still reflect its state
+>> if, say, a ->resume_early of the middle layer is called during resume along
+>> with a driver's ->runtime_resume.  That still can produce the right state
+>> of the device and all depends on the middle layer.
+>>
+>> On the other hand, as I said before, using a middle-layer ->runtime_suspend
+>> during a system sleep transition may be outright incorrect, say if device
+>> wakeup settings need to be adjusted by the middle layer (which is the
+>> case for some of them).
+>>
+>> Of course, if the middle layer expects the driver to point its
+>> system-wide PM callbacks to pm_runtime_force_*, then that's how it goes,
+>> but the drivers working with this particular middle layer generally
+>> won't work with other middle layers and may interact incorrectly
+>> with parents and/or children using the other middle layers.
+>>
+>> I guess the problem boils down to having a common set of expectations
+>> on the driver side and on the middle layer side allowing different
+>> combinations of these to work together.
+> 
+> Yes!
+> 
+>>
+>>> Besides the AMBA case, I also realized that we are dealing with PM
+>>> clocks in the genpd case. For this, genpd relies on the that runtime
+>>> PM status of the device properly reflects the state of the HW, during
+>>> system-wide PM.
+>>>
+>>> In other words, if the driver would change the runtime PM status of
+>>> the device, without respecting the hierarchy of the runtime PM
+>>> callbacks, it would lead to that genpd starts taking wrong decisions
+>>> while managing the PM clocks during system-wide PM. So in case you
+>>> intend to change pm_runtime_force_* this needs to be addressed too.
+>>
+>> I've just looked at the genpd code and quite frankly I'm not sure how this
+>> works, but I'll figure this out. :-)
+> 
+> You may think of it as genpd's RPM callback controls some device
+> clocks, while the driver control some other device resources (pinctrl
+> for example) from its RPM callback.
+> 
+> These resources needs to managed together, similar to as I described above.
+> 
+> [...]
+> 
+>>> Absolutely agree about the different wake-up settings. However, these
+>>> issues can be addressed also when using pm_runtime_force_*, at least
+>>> in general, but then not for PCI.
+>>
+>> Well, not for the ACPI PM domain too.
+>>
+>> In general, not if the wakeup settings are adjusted by the middle layer.
+> 
+> Correct!
+> 
+> To use pm_runtime_force* for these cases, one would need some
+> additional information exchange between the driver and the
+> middle-layer.
+> 
+>>
+>>> Regarding hibernation, honestly that's not really my area of
+>>> expertise. Although, I assume the middle-layer and driver can treat
+>>> that as a separate case, so if it's not suitable to use
+>>> pm_runtime_force* for that case, then they shouldn't do it.
+>>
+>> Well, agreed.
+>>
+>> In some simple cases, though, driver callbacks can be reused for hibernation
+>> too, so it would be good to have a common way to do that too, IMO.
+> 
+> Okay, that makes sense!
+> 
+>>
+>>>>
+>>>> Also, quite so often other middle layers interact with PCI directly or
+>>>> indirectly (eg. a platform device may be a child or a consumer of a PCI
+>>>> device) and some optimizations need to take that into account (eg. parents
+>>>> generally need to be accessible when their childres are resumed and so on).
+>>>
+>>> A device's parent becomes informed when changing the runtime PM status
+>>> of the device via pm_runtime_force_suspend|resume(), as those calls
+>>> pm_runtime_set_suspended|active().
+>>
+>> This requires the parent driver or middle layer to look at the reference
+>> counter and understand it the same way as pm_runtime_force_*.
+>>
+>>> In case that isn't that sufficient, what else is needed? Perhaps you can
+>>> point me to an example so I can understand better?
+>>
+>> Say you want to leave the parent suspended after system resume, but the
+>> child drivers use pm_runtime_force_suspend|resume().  The parent would then
+>> need to use pm_runtime_force_suspend|resume() too, no?
+> 
+> Actually no.
+> 
+> Currently the other options of "deferring resume" (not using
+> pm_runtime_force_*), is either using the "direct_complete" path or
+> similar to the approach you took for the i2c designware driver.
+> 
+> Both cases should play nicely in combination of a child being managed
+> by pm_runtime_force_*. That's because only when the parent device is
+> kept runtime suspended during system suspend, resuming can be
+> deferred.
+> 
+> That means, if the resume of the parent is deferred, so will the also
+> the resume of the child.
+> 
+>>
+>>> For a PCI consumer device those will of course have to play by the rules of PCI.
+>>>
+>>>>
+>>>> Moreover, the majority of the "other subsystems/middle-layers" you've talked
+>>>> about so far don't provide any PM callbacks to be invoked by pm_runtime_force_*,
+>>>> so question is how representative they really are.
+>>>
+>>> That's the point. We know pm_runtime_force_* works nicely for the
+>>> trivial middle-layer cases.
+>>
+>> In which cases the middle-layer callbacks don't exist, so it's just like
+>> reusing driver callbacks directly. :-)
 
-Most DT bindings describes the complete list of compatible strings
-supported by a driver and that's what checkpatch expects. But
-Documentation/devicetree/bindings/eeprom/eeprom.txt describes it as
-the cartesian product of the atmel (and also the deprecated at and
-at24) manufacturer and a list of devices. To save you a lookup:
+I'd like to ask you clarify one point here and provide some info which I hope can be useful - 
+what's exactly means  "trivial middle-layer cases"?
 
-If there is no specific driver for <manufacturer>, a generic
-device with <type> and manufacturer "atmel" should be used.
-Possible types are:
-"24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
-"24c128", "24c256", "24c512", "24c1024", "spd"
+Is it when systems use "drivers/base/power/clock_ops.c - Generic clock manipulation PM callbacks"
+as dev_pm_domain (arm davinci/keystone), or OMAP device framework struct dev_pm_domain omap_device_pm_domain
+ (arm/mach-omap2/omap_device.c) or static const struct dev_pm_ops tegra_aconnect_pm_ops?
 
-> resend. I'll do HW testing later, but wanted to check on your opinion
-> already.
->
+if yes all above have PM runtime callbacks.
 
-Great, thanks! I hope I got it right this time. Adding a DTS snippet I
-can see that the entry .data is correctly used but I don't a device to
-check if is working correctly after $SUBJECT.
 
-> Thanks,
->
->    Wolfram
->
+-- 
+regards,
+-grygorii
