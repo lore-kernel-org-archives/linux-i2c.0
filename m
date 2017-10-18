@@ -1,69 +1,84 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: riic: remove clock and frequency restrictions
-Date: Wed, 18 Oct 2017 18:44:12 +0200
-Message-ID: <20171018164412.agmhbvxky5rzz5wt@ninjato>
-References: <20171018140459.104351-1-chris.brandt@renesas.com>
- <20171018163725.ik6ieofpd6ehilbo@ninjato>
- <SG2PR06MB1165C76C6B35511B21CC70668A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH v2] i2c: aspeed: Deassert reset in probe
+Date: Wed, 18 Oct 2017 10:40:28 -0700
+Message-ID: <CAFd5g45H-FowZ7F2PnT1+iksTtUKLCT4JANM4fSgOjC3qrXKKw@mail.gmail.com>
+References: <20171018142930.13052-1-joel@jms.id.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f3nre6rbnha2cqel"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:57761 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751038AbdJRQoN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 18 Oct 2017 12:44:13 -0400
-Content-Disposition: inline
-In-Reply-To: <SG2PR06MB1165C76C6B35511B21CC70668A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171018142930.13052-1-joel@jms.id.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joel Stanley <joel@jms.id.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Chris Brandt <Chris.Brandt@renesas.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 
-
---f3nre6rbnha2cqel
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Oct 18, 2017 at 04:41:57PM +0000, Chris Brandt wrote:
-> On Wednesday, October 18, 2017 1, Wolfram Sang wrote:
-> > > +	brl -=3D t->scl_fall_ns / (1000000000/rate);
-> > > +	brh -=3D t->scl_rise_ns / (1000000000/rate);
-> >=20
-> > However you solve the precision issue, please take care about the "space
-> > around operators" rule afterwards. checkpatch should help you there.
->=20
-> OK.
->=20
-> I ran checkpatch and fixed everything it found, but it didn't flag that o=
-ne.
->=20
->=20
-> $ scripts/checkpatch.pl z_patches/riic/S4V1/*
-> total: 0 errors, 0 warnings, 169 lines checked
-
-I see. Yes, I recall that it missed it once for me, too.
-
-
---f3nre6rbnha2cqel
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnnhNsACgkQFA3kzBSg
-Kba3Ag//T8czEcUUnrXt9+OZR7J4bAGzZ3ak/dMXBFslqJiwkrU8RxjAGhzRA5y3
-0+eI+h6vA49PkvGibzEOrBZLfB93Xndguxgnrl6sEG3wS6xDu5dYUnqKa3nJ+rF+
-PkgZ6Byt3fsRvMZ7TRQC29+Yafu56RywJYWYpZcxIOg/xwVffHG1l7pQkQNlGwxe
-Ztmwu20NqCXK7dQvJr7UK784IRTpYASsSGx6WLpTOPmtyWcFWTuaigrMLCb7cs1P
-mPmgfKrHIJYVvCjxlZRgto+KuwjgHvcLnn5Dys8auksTHFsWgIxv9RX2D2WggT85
-em4n6DxWmMSGTw26JbsnvNjfO9uPK2fJGgo9gMFp0gkqE02arginVF8Ny9GV0SJv
-AI8bmK86oCB/IJgdcamd3wRfD5xZWFe/NZ6A6cMDsdm3zz32dohS89FCYZrveIFq
-G6/mHooWwByuoTM1QhytuMX8j9b5nH4KKXQjQ2RwQ6veKn1VwtxrHHCMRV/dD1i0
-997urrhgOb1A4ufiCViCVI6GphhhQaeBhcxZcwNaJMmc0j/yEJi7S/CaUVbvO4+0
-F28Fj9yxgm54XXNjARSv3LdNxZi2DJd1KxUQwaIFCQAwmn9hbKM4O+v6rMn70udt
-Wh/CdK/YlxIVTarboYn/HHUEDoVz5xy/s0aYAw+GV7Ta9RscEc0=
-=ZmS9
------END PGP SIGNATURE-----
-
---f3nre6rbnha2cqel--
+On Wed, Oct 18, 2017 at 7:29 AM, Joel Stanley <joel@jms.id.au> wrote:
+> In order to use i2c from a cold boot, the i2c peripheral must be taken
+> out of reset. We request a shared reset controller each time a bus
+> driver is loaded, as the reset is shared between the 14 i2c buses.
+>
+> On remove the reset is asserted, which only touches the hardware once
+> the last i2c bus is removed.
+>
+> The request is optional, so if a device tree does not specify a reset
+> controller (or the driver is not built in), the driver continues to
+> probe.
+>
+> Signed-off-by: Joel Stanley <joel@jms.id.au>
+> ---
+> v2: Sort the headers
+>
+>  drivers/i2c/busses/i2c-aspeed.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index 284f8670dbeb..a2006376322f 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -12,6 +12,7 @@
+>
+>  #include <linux/clk.h>
+>  #include <linux/completion.h>
+> +#include <linux/delay.h>
+>  #include <linux/err.h>
+>  #include <linux/errno.h>
+>  #include <linux/i2c.h>
+> @@ -27,6 +28,7 @@
+>  #include <linux/of_irq.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/reset.h>
+>  #include <linux/slab.h>
+>
+>  /* I2C Register */
+> @@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
+>         struct i2c_adapter              adap;
+>         struct device                   *dev;
+>         void __iomem                    *base;
+> +       struct reset_control            *rst;
+>         /* Synchronizes I/O mem access to base. */
+>         spinlock_t                      lock;
+>         struct completion               cmd_complete;
+> @@ -847,6 +850,9 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+>         /* We just need the clock rate, we don't actually use the clk object. */
+>         devm_clk_put(&pdev->dev, parent_clk);
+>
+> +       bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
+> +       reset_control_deassert(bus->rst);
+> +
+>         ret = of_property_read_u32(pdev->dev.of_node,
+>                                    "bus-frequency", &bus->bus_frequency);
+>         if (ret < 0) {
+> @@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
+>
+>         i2c_del_adapter(&bus->adap);
+>
+> +       reset_control_assert(bus->rst);
+> +
+>         return 0;
+>  }
+>
+> --
+> 2.14.1
+>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
