@@ -1,208 +1,190 @@
-From: Chris Brandt <chris.brandt@renesas.com>
-Subject: [PATCH] i2c: riic: remove clock and frequency restrictions
-Date: Wed, 18 Oct 2017 09:04:59 -0500
-Message-ID: <20171018140459.104351-1-chris.brandt@renesas.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Chris Brandt <chris.brandt@renesas.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
+Date: Wed, 18 Oct 2017 16:11:33 +0200
+Message-ID: <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <1591167.zlNa3zLfmM@aspire.rjw.lan>
+ <CAPDyKFqYVjd2zmixQyJ43ZLdXeQZ-7NcLZ66+ci4VT8-q_avPA@mail.gmail.com> <2890181.vdGMMavi5M@aspire.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f46.google.com ([209.85.214.46]:51723 "EHLO
+        mail-it0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750881AbdJROLf (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 10:11:35 -0400
+Received: by mail-it0-f46.google.com with SMTP id o135so6099855itb.0
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Oct 2017 07:11:35 -0700 (PDT)
+In-Reply-To: <2890181.vdGMMavi5M@aspire.rjw.lan>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 
-Remove the restriction that the parent clock has to be a specific frequency
-and also allow any speed to be supported.
+[...]
 
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
----
-Tested on the RZ/A1H RSK board with the following DT:
-&i2c3 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c3_pins>;
-	status = "okay";
-	clock-frequency = <400000>; /* tested values from 10k-400k */
-	i2c-scl-rising-time-ns = <300>;
-	i2c-scl-falling-time-ns = <250>;
-};
----
- drivers/i2c/busses/i2c-riic.c | 117 ++++++++++++++++++++++++++++++------------
- 1 file changed, 83 insertions(+), 34 deletions(-)
+>>
+>> The reason why pm_runtime_force_* needs to respects the hierarchy of
+>> the RPM callbacks, is because otherwise it can't safely update the
+>> runtime PM status of the device.
+>
+> I'm not sure I follow this requirement.  Why is that so?
 
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index c811af4c8d81..97fe204c812d 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -84,12 +84,7 @@
- 
- #define ICSR2_NACKF	0x10
- 
--/* ICBRx (@ PCLK 33MHz) */
- #define ICBR_RESERVED	0xe0 /* Should be 1 on writes */
--#define ICBRL_SP100K	(19 | ICBR_RESERVED)
--#define ICBRH_SP100K	(16 | ICBR_RESERVED)
--#define ICBRL_SP400K	(21 | ICBR_RESERVED)
--#define ICBRH_SP400K	(9 | ICBR_RESERVED)
- 
- #define RIIC_INIT_MSG	-1
- 
-@@ -288,48 +283,101 @@ static const struct i2c_algorithm riic_algo = {
- 	.functionality	= riic_func,
- };
- 
--static int riic_init_hw(struct riic_dev *riic, u32 spd)
-+static int riic_init_hw(struct riic_dev *riic, struct i2c_timings *t)
- {
- 	int ret;
- 	unsigned long rate;
-+	int total_ticks, cks, brl, brh;
- 
- 	ret = clk_prepare_enable(riic->clk);
- 	if (ret)
- 		return ret;
- 
-+	if (t->bus_freq_hz > 400000) {
-+		dev_err(&riic->adapter.dev,
-+			"unsupported bus speed (%dHz). 400000 max\n",
-+			t->bus_freq_hz);
-+		clk_disable_unprepare(riic->clk);
-+		return -EINVAL;
-+	}
-+
-+	rate = clk_get_rate(riic->clk);
-+
- 	/*
--	 * TODO: Implement formula to calculate the timing values depending on
--	 * variable parent clock rate and arbitrary bus speed
-+	 * Assume the default register settings:
-+	 *  FER.SCLE = 1 (SCL sync circuit enabled, adds 2 or 3 cycles)
-+	 *  FER.NFE = 1 (noise circuit enabled)
-+	 *  MR3.NF = 0 (1 cycle of noise filtered out)
-+	 *
-+	 * Freq (CKS=000) = (I2CCLK + tr + tf)/ (BRH + 3 + 1) + (BRL + 3 + 1)
-+	 * Freq (CKS!=000) = (I2CCLK + tr + tf)/ (BRH + 2 + 1) + (BRL + 2 + 1)
- 	 */
--	rate = clk_get_rate(riic->clk);
--	if (rate != 33325000) {
--		dev_err(&riic->adapter.dev,
--			"invalid parent clk (%lu). Must be 33325000Hz\n", rate);
-+
-+	/*
-+	 * Determine reference clock rate. We must be able to get the desired
-+	 * frequency with only 62 clock ticks max (31 high, 31 low).
-+	 * Aim for a duty of 60% LOW, 40% HIGH.
-+	 */
-+	total_ticks = rate / t->bus_freq_hz;
-+	if (rate % t->bus_freq_hz)		/* round up */
-+		total_ticks++;
-+
-+	for (cks = 0; cks < 7; cks++) {
-+		/*
-+		 * 60% low time must be less than BRL + 2 + 1
-+		 * BRL max register value is 0x1F.
-+		 */
-+		brl = ((total_ticks * 6) / 10);
-+		if (brl <= (0x1F + 3))
-+			break;
-+
-+		total_ticks /= 2;
-+		rate /= 2;
-+	}
-+
-+	if (brl > (0x1F + 3)) {
-+		dev_err(&riic->adapter.dev, "invalid speed (%lu). Too slow.\n",
-+			(unsigned long)t->bus_freq_hz);
- 		clk_disable_unprepare(riic->clk);
- 		return -EINVAL;
- 	}
- 
-+	brh = total_ticks - brl;
-+
-+	/* Remove automatic clock ticks for sync circuit and NF */
-+	if (cks == 0) {
-+		brl -= 4;
-+		brh -= 4;
-+	} else {
-+		brl -= 3;
-+		brh -= 3;
-+	}
-+
-+	/*
-+	 * Remove clock ticks for rise and fall times. Convert ns to clock
-+	 * ticks.
-+	 */
-+	brl -= t->scl_fall_ns / (1000000000/rate);
-+	brh -= t->scl_rise_ns / (1000000000/rate);
-+
-+	/* adjust for min register values for when SCLE=1 and NFE=1 */
-+	if (brl < 1)
-+		brl = 1;
-+	if (brh < 1)
-+		brh = 1;
-+
-+	pr_debug("i2c-riic: freq=%lu, duty=%d, fall=%lu, rise=%lu, cks=%d, brl=%d, brh=%d\n",
-+		 rate/total_ticks, ((brl+3)*100)/(brl+brh+6),
-+		 t->scl_fall_ns / (1000000000/rate),
-+		 t->scl_rise_ns / (1000000000/rate), cks, brl, brh);
-+
- 	/* Changing the order of accessing IICRST and ICE may break things! */
- 	writeb(ICCR1_IICRST | ICCR1_SOWP, riic->base + RIIC_ICCR1);
- 	riic_clear_set_bit(riic, 0, ICCR1_ICE, RIIC_ICCR1);
- 
--	switch (spd) {
--	case 100000:
--		writeb(ICMR1_CKS(3), riic->base + RIIC_ICMR1);
--		writeb(ICBRH_SP100K, riic->base + RIIC_ICBRH);
--		writeb(ICBRL_SP100K, riic->base + RIIC_ICBRL);
--		break;
--	case 400000:
--		writeb(ICMR1_CKS(1), riic->base + RIIC_ICMR1);
--		writeb(ICBRH_SP400K, riic->base + RIIC_ICBRH);
--		writeb(ICBRL_SP400K, riic->base + RIIC_ICBRL);
--		break;
--	default:
--		dev_err(&riic->adapter.dev,
--			"unsupported bus speed (%dHz). Use 100000 or 400000\n", spd);
--		clk_disable_unprepare(riic->clk);
--		return -EINVAL;
--	}
-+	writeb(ICMR1_CKS(cks), riic->base + RIIC_ICMR1);
-+	writeb(brh | ICBR_RESERVED, riic->base + RIIC_ICBRH);
-+	writeb(brl | ICBR_RESERVED, riic->base + RIIC_ICBRL);
- 
- 	writeb(0, riic->base + RIIC_ICSER);
- 	writeb(ICMR3_ACKWP | ICMR3_RDRFS, riic->base + RIIC_ICMR3);
-@@ -351,11 +399,10 @@ static struct riic_irq_desc riic_irqs[] = {
- 
- static int riic_i2c_probe(struct platform_device *pdev)
- {
--	struct device_node *np = pdev->dev.of_node;
- 	struct riic_dev *riic;
- 	struct i2c_adapter *adap;
- 	struct resource *res;
--	u32 bus_rate = 0;
-+	struct i2c_timings i2c_t;
- 	int i, ret;
- 
- 	riic = devm_kzalloc(&pdev->dev, sizeof(*riic), GFP_KERNEL);
-@@ -396,8 +443,9 @@ static int riic_i2c_probe(struct platform_device *pdev)
- 
- 	init_completion(&riic->msg_done);
- 
--	of_property_read_u32(np, "clock-frequency", &bus_rate);
--	ret = riic_init_hw(riic, bus_rate);
-+	i2c_parse_fw_timings(&pdev->dev, &i2c_t, true);
-+
-+	ret = riic_init_hw(riic, &i2c_t);
- 	if (ret)
- 		return ret;
- 
-@@ -408,7 +456,8 @@ static int riic_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, riic);
- 
--	dev_info(&pdev->dev, "registered with %dHz bus speed\n", bus_rate);
-+	dev_info(&pdev->dev, "registered with %dHz bus speed\n",
-+		 i2c_t.bus_freq_hz);
- 	return 0;
- }
- 
--- 
-2.14.1
+If the PM domain controls some resources for the device in its RPM
+callbacks and the driver controls some other resources in its RPM
+callbacks - then these resources needs to be managed together.
+
+This follows the behavior of when a regular call to
+pm_runtime_get|put(), triggers the RPM callbacks to be invoked.
+
+>
+>> And updating the runtime PM status of
+>> the device is required to manage the optimized behavior during system
+>> resume (avoiding to unnecessary resume devices).
+>
+> Well, OK.  The runtime PM status of the device after system resume should
+> better reflect its physical state.
+>
+> [The physical state of the device may not be under the control of the
+> kernel in some cases, like in S3 resume on some systems that reset
+> devices in the firmware and so on, but let's set that aside.]
+>
+> However, for the runtime PM status of the device may still reflect its state
+> if, say, a ->resume_early of the middle layer is called during resume along
+> with a driver's ->runtime_resume.  That still can produce the right state
+> of the device and all depends on the middle layer.
+>
+> On the other hand, as I said before, using a middle-layer ->runtime_suspend
+> during a system sleep transition may be outright incorrect, say if device
+> wakeup settings need to be adjusted by the middle layer (which is the
+> case for some of them).
+>
+> Of course, if the middle layer expects the driver to point its
+> system-wide PM callbacks to pm_runtime_force_*, then that's how it goes,
+> but the drivers working with this particular middle layer generally
+> won't work with other middle layers and may interact incorrectly
+> with parents and/or children using the other middle layers.
+>
+> I guess the problem boils down to having a common set of expectations
+> on the driver side and on the middle layer side allowing different
+> combinations of these to work together.
+
+Yes!
+
+>
+>> Besides the AMBA case, I also realized that we are dealing with PM
+>> clocks in the genpd case. For this, genpd relies on the that runtime
+>> PM status of the device properly reflects the state of the HW, during
+>> system-wide PM.
+>>
+>> In other words, if the driver would change the runtime PM status of
+>> the device, without respecting the hierarchy of the runtime PM
+>> callbacks, it would lead to that genpd starts taking wrong decisions
+>> while managing the PM clocks during system-wide PM. So in case you
+>> intend to change pm_runtime_force_* this needs to be addressed too.
+>
+> I've just looked at the genpd code and quite frankly I'm not sure how this
+> works, but I'll figure this out. :-)
+
+You may think of it as genpd's RPM callback controls some device
+clocks, while the driver control some other device resources (pinctrl
+for example) from its RPM callback.
+
+These resources needs to managed together, similar to as I described above.
+
+[...]
+
+>> Absolutely agree about the different wake-up settings. However, these
+>> issues can be addressed also when using pm_runtime_force_*, at least
+>> in general, but then not for PCI.
+>
+> Well, not for the ACPI PM domain too.
+>
+> In general, not if the wakeup settings are adjusted by the middle layer.
+
+Correct!
+
+To use pm_runtime_force* for these cases, one would need some
+additional information exchange between the driver and the
+middle-layer.
+
+>
+>> Regarding hibernation, honestly that's not really my area of
+>> expertise. Although, I assume the middle-layer and driver can treat
+>> that as a separate case, so if it's not suitable to use
+>> pm_runtime_force* for that case, then they shouldn't do it.
+>
+> Well, agreed.
+>
+> In some simple cases, though, driver callbacks can be reused for hibernation
+> too, so it would be good to have a common way to do that too, IMO.
+
+Okay, that makes sense!
+
+>
+>> >
+>> > Also, quite so often other middle layers interact with PCI directly or
+>> > indirectly (eg. a platform device may be a child or a consumer of a PCI
+>> > device) and some optimizations need to take that into account (eg. parents
+>> > generally need to be accessible when their childres are resumed and so on).
+>>
+>> A device's parent becomes informed when changing the runtime PM status
+>> of the device via pm_runtime_force_suspend|resume(), as those calls
+>> pm_runtime_set_suspended|active().
+>
+> This requires the parent driver or middle layer to look at the reference
+> counter and understand it the same way as pm_runtime_force_*.
+>
+>> In case that isn't that sufficient, what else is needed? Perhaps you can
+>> point me to an example so I can understand better?
+>
+> Say you want to leave the parent suspended after system resume, but the
+> child drivers use pm_runtime_force_suspend|resume().  The parent would then
+> need to use pm_runtime_force_suspend|resume() too, no?
+
+Actually no.
+
+Currently the other options of "deferring resume" (not using
+pm_runtime_force_*), is either using the "direct_complete" path or
+similar to the approach you took for the i2c designware driver.
+
+Both cases should play nicely in combination of a child being managed
+by pm_runtime_force_*. That's because only when the parent device is
+kept runtime suspended during system suspend, resuming can be
+deferred.
+
+That means, if the resume of the parent is deferred, so will the also
+the resume of the child.
+
+>
+>> For a PCI consumer device those will of course have to play by the rules of PCI.
+>>
+>> >
+>> > Moreover, the majority of the "other subsystems/middle-layers" you've talked
+>> > about so far don't provide any PM callbacks to be invoked by pm_runtime_force_*,
+>> > so question is how representative they really are.
+>>
+>> That's the point. We know pm_runtime_force_* works nicely for the
+>> trivial middle-layer cases.
+>
+> In which cases the middle-layer callbacks don't exist, so it's just like
+> reusing driver callbacks directly. :-)
+>
+>> For the more complex cases, we need something additional/different.
+>
+> Something different.
+>
+> But overall, as I said, this is about common expectations.
+>
+> Today, some middle layers expect drivers to point their callback pointers
+> to the same routine in order to resue it (PCI, ACPI bus type), some of them
+> expect pm_runtime_force_suspend|resume() to be used (AMBA, maybe genpd),
+> and some of them have no expectations at all.
+>
+> There needs to be a common ground in that area for drivers to be able to
+> work with different middle layers.
+
+Yes, reaching that point would be great, we should definitively aim for that!
+
+[...]
+
+Kind regards
+Uffe
