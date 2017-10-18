@@ -1,42 +1,55 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
-Date: Wed, 18 Oct 2017 08:39:39 +0200
-Message-ID: <CAMuHMdVo8_jV0RmWSS=MhF07hwFH68W6vMtj3Uts3NmNHbiqoQ@mail.gmail.com>
-References: <20171001104948.21663-1-javierm@redhat.com> <20171017214040.kak3kpvh6tunjjfp@ninjato>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
+ flags
+Date: Wed, 18 Oct 2017 08:56:24 +0200
+Message-ID: <20171018065624.GA22059@kroah.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <6007227.iNoRbQyInB@aspire.rjw.lan>
+ <20171017071543.GB27293@kroah.com>
+ <79398495.qfC5mmSRrG@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f180.google.com ([209.85.128.180]:55838 "EHLO
-        mail-wr0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932346AbdJRGjl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 02:39:41 -0400
-In-Reply-To: <20171017214040.kak3kpvh6tunjjfp@ninjato>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:55134 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752670AbdJRG4Q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 02:56:16 -0400
+Content-Disposition: inline
+In-Reply-To: <79398495.qfC5mmSRrG@aspire.rjw.lan>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Javier Martinez Canillas <javierm@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 
-Hi Wolfram,
+On Tue, Oct 17, 2017 at 05:26:20PM +0200, Rafael J. Wysocki wrote:
+> On Tuesday, October 17, 2017 9:15:43 AM CEST Greg Kroah-Hartman wrote:
+> > On Tue, Oct 17, 2017 at 12:05:11AM +0200, Rafael J. Wysocki wrote:
+> > > On Monday, October 16, 2017 8:28:52 AM CEST Greg Kroah-Hartman wrote:
+> > > > On Mon, Oct 16, 2017 at 03:29:02AM +0200, Rafael J. Wysocki wrote:
+> > > > >  struct dev_pm_info {
+> > > > >  	pm_message_t		power_state;
+> > > > >  	unsigned int		can_wakeup:1;
+> > > > > @@ -561,6 +580,7 @@ struct dev_pm_info {
+> > > > >  	bool			is_late_suspended:1;
+> > > > >  	bool			early_init:1;	/* Owned by the PM core */
+> > > > >  	bool			direct_complete:1;	/* Owned by the PM core */
+> > > > > +	unsigned int		driver_flags;
+> > > > 
+> > > > Minor nit, u32 or u64?
+> > > 
+> > > u32 I think, will update.
+> > > 
+> > > BTW, there's a mess in this struct overall and I'd like all of the bit fileds
+> > > to be the same type (and that shouldn't be bool IMO :-)).
+> > > 
+> > > Do you prefer u32 or unsinged int?
+> > 
+> > I always prefer an explicit size for variables, unless it's a "generic
+> > loop" type thing.  So I'll always say "u32" for this.
+> > 
+> > And cleaning up the structure would be great, it's grown over time in
+> > odd ways as you point out.
+> 
+> OK, but that will be separate from this work.
 
-On Tue, Oct 17, 2017 at 11:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->> +     {
->> +             .compatible = "atmel,spd",
->> +             .data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
->> +                             AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
->> +     },
->
-> checkpatch reported this one as un-documented. And come to think of it,
-> since this is solely for EEPROMs on RAM modules, I think we can drop a
-> DT binding for it. Could you agree? I can do it locally, no need to
-> resend. I'll do HW testing later, but wanted to check on your opinion
-> already.
-
-Why?
-
-No one has placeholders for memory modules in DT?
-In addition, I can imagine a DT overlay for a memory module, adding the
-memory node and the EEPROM.
-
-Gr{oetje,eeting}s,
-
-                        Geert
+Of course :)
