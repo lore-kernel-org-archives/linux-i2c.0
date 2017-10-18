@@ -1,77 +1,34 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: [PATCH v2] i2c: aspeed: Deassert reset in probe
-Date: Wed, 18 Oct 2017 22:29:30 +0800
-Message-ID: <20171018142930.13052-1-joel@jms.id.au>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Chris Brandt <Chris.Brandt@renesas.com>
+Subject: RE: [PATCH] i2c: riic: remove clock and frequency restrictions
+Date: Wed, 18 Oct 2017 15:10:15 +0000
+Message-ID: <SG2PR06MB116572EFA9E1BD8C7BB47AB78A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+References: <20171018140459.104351-1-chris.brandt@renesas.com>
+ <CAMuHMdWLh=4mETrwXHZ0LSfx9mtBewaDV6dhHKhvhGJ=ii-Vxg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdWLh=4mETrwXHZ0LSfx9mtBewaDV6dhHKhvhGJ=ii-Vxg@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-In order to use i2c from a cold boot, the i2c peripheral must be taken
-out of reset. We request a shared reset controller each time a bus
-driver is loaded, as the reset is shared between the 14 i2c buses.
-
-On remove the reset is asserted, which only touches the hardware once
-the last i2c bus is removed.
-
-The request is optional, so if a device tree does not specify a reset
-controller (or the driver is not built in), the driver continues to
-probe.
-
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
-v2: Sort the headers
-
- drivers/i2c/busses/i2c-aspeed.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 284f8670dbeb..a2006376322f 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -27,6 +28,7 @@
- #include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/reset.h>
- #include <linux/slab.h>
- 
- /* I2C Register */
-@@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
- 	struct i2c_adapter		adap;
- 	struct device			*dev;
- 	void __iomem			*base;
-+	struct reset_control		*rst;
- 	/* Synchronizes I/O mem access to base. */
- 	spinlock_t			lock;
- 	struct completion		cmd_complete;
-@@ -847,6 +850,9 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	/* We just need the clock rate, we don't actually use the clk object. */
- 	devm_clk_put(&pdev->dev, parent_clk);
- 
-+	bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-+	reset_control_deassert(bus->rst);
-+
- 	ret = of_property_read_u32(pdev->dev.of_node,
- 				   "bus-frequency", &bus->bus_frequency);
- 	if (ret < 0) {
-@@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&bus->adap);
- 
-+	reset_control_assert(bus->rst);
-+
- 	return 0;
- }
- 
--- 
-2.14.1
+SGkgR2VlcnQsDQoNClRoYW5rIHlvdSBmb3IgeW91ciByZXZpZXcuDQoNCk9uIFdlZG5lc2RheSwg
+T2N0b2JlciAxOCwgMjAxNyAxLCBHZWVydCBVeXR0ZXJob2V2ZW4gd3JvdGU6DQo+ID4gKyAgICAg
+ICAvKg0KPiA+ICsgICAgICAgICogUmVtb3ZlIGNsb2NrIHRpY2tzIGZvciByaXNlIGFuZCBmYWxs
+IHRpbWVzLiBDb252ZXJ0IG5zIHRvDQo+IGNsb2NrDQo+ID4gKyAgICAgICAgKiB0aWNrcy4NCj4g
+PiArICAgICAgICAqLw0KPiA+ICsgICAgICAgYnJsIC09IHQtPnNjbF9mYWxsX25zIC8gKDEwMDAw
+MDAwMDAvcmF0ZSk7DQo+ID4gKyAgICAgICBicmggLT0gdC0+c2NsX3Jpc2VfbnMgLyAoMTAwMDAw
+MDAwMC9yYXRlKTsNCj4gDQo+IFRvIGF2b2lkIGxvc2luZyB0b28gbXVjaCBwcmVjaXNpb24gYnkg
+dGhlIGRpdmlzaW9uLCB5b3UgY2FuIHJld3JpdGUgdGhpcw0KPiBhcw0KPiBlLmcuDQo+IA0KPiAg
+ICAgYnJsIC09IHQtPnNjbF9mYWxsX25zICogcmF0ZSAvIDEwMDAwMDAwMDA7DQo+IA0KPiAoInNj
+bF9mYWxsX25zICogcmF0ZSIgc2hvdWxkIG5vdCBvdmVyZmxvdykuDQo+IFBlcmhhcHMgRElWX1JP
+VU5EX1VQKCksIHRvbz8NCg0KVW5mb3J0dW5hdGVseSwgSSBkbyBub3QgZ2V0IHRoZSBjb3JyZWN0
+IG51bWJlciBldmVyeSB0aW1lLg0KDQpTb21ldGltZXMgSSBnZXQgdGhlIGNvcnJlY3QgbnVtYmVy
+LCBidXQgbW9zdCBvZiB0aGUgdGltZSBJIGdldCAwLg0KDQpOb3RlLCBpZiByYXRlPTMzLDMzMCww
+MDAgYW5kIHQtPnNjbF9mYWxsX25zPTMwMCwgdGhlbiANCg0KdC0+c2NsX2ZhbGxfbnMgKiByYXRl
+ICA9IDksOTk5LDAwMCwwMDAgKDB4MjUzRkNBMUMwKSBhIDM0LWJpdCBudW1iZXIuDQoNClNvLCBJ
+J2QgcmF0aGVyIGp1c3Qgc3RpY2sgd2l0aCB0aGUgbGVzcyBwcmVjaXNpb24gYmVjYXVzZSBpdCdz
+IG5vdCB0aGF0IA0KbXVjaCBvZiBhIGJpdCBkZWFsLg0KDQoNCkNocmlzDQo=
