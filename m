@@ -1,185 +1,171 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Wed, 18 Oct 2017 14:45:11 -0500
-Message-ID: <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
- <1591167.zlNa3zLfmM@aspire.rjw.lan>
- <CAPDyKFqYVjd2zmixQyJ43ZLdXeQZ-7NcLZ66+ci4VT8-q_avPA@mail.gmail.com>
- <2890181.vdGMMavi5M@aspire.rjw.lan>
- <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
+From: tim@timakro.de
+Subject: i2cset doesn't work on ASUS 22T1E via Nvidia GeForce 1050 Ti and
+ HDMI
+Date: Wed, 18 Oct 2017 19:57:10 +0000
+Message-ID: <20171018195710.Horde.u1J8jQWW3eh6W_Ak590Rgg5@horde.bschusrv.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Content-Type: multipart/signed; boundary="=_fywD_9yWzUjHIyBMc7QAjg1";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.135]:53261 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750839AbdJRT5L (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 15:57:11 -0400
+Received: from mail-jessie.bs.de ([185.126.101.70]) by
+ mrelayeu.kundenserver.de (mreue003 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 0Lr6Rz-1dZ8D82qBf-00egz4 for <linux-i2c@vger.kernel.org>; Wed, 18 Oct 2017
+ 21:57:09 +0200
+Received: from horde-jessie.bs.de ([192.168.2.9] helo=horde-jessie)
+        by mail-jessie.bs.de with esmtps (TLS1.0:ECDHE_RSA_AES_128_CBC_SHA1:128)
+        (Exim 4.84_2)
+        (envelope-from <tim@timakro.de>)
+        id 1e4uSk-0004X4-B0
+        for linux-i2c@vger.kernel.org; Wed, 18 Oct 2017 21:57:10 +0200
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
 
+This message is in MIME format and has been PGP signed.
 
+--=_fywD_9yWzUjHIyBMc7QAjg1
+Content-Type: multipart/mixed; boundary="=_HafzU7DNy_NVsLdmQF10dg1"
 
-On 10/18/2017 09:11 AM, Ulf Hansson wrote:
-> [...]
-> 
->>>
->>> The reason why pm_runtime_force_* needs to respects the hierarchy of
->>> the RPM callbacks, is because otherwise it can't safely update the
->>> runtime PM status of the device.
->>
->> I'm not sure I follow this requirement.  Why is that so?
-> 
-> If the PM domain controls some resources for the device in its RPM
-> callbacks and the driver controls some other resources in its RPM
-> callbacks - then these resources needs to be managed together.
-> 
-> This follows the behavior of when a regular call to
-> pm_runtime_get|put(), triggers the RPM callbacks to be invoked.
-> 
->>
->>> And updating the runtime PM status of
->>> the device is required to manage the optimized behavior during system
->>> resume (avoiding to unnecessary resume devices).
->>
->> Well, OK.  The runtime PM status of the device after system resume should
->> better reflect its physical state.
->>
->> [The physical state of the device may not be under the control of the
->> kernel in some cases, like in S3 resume on some systems that reset
->> devices in the firmware and so on, but let's set that aside.]
->>
->> However, for the runtime PM status of the device may still reflect its state
->> if, say, a ->resume_early of the middle layer is called during resume along
->> with a driver's ->runtime_resume.  That still can produce the right state
->> of the device and all depends on the middle layer.
->>
->> On the other hand, as I said before, using a middle-layer ->runtime_suspend
->> during a system sleep transition may be outright incorrect, say if device
->> wakeup settings need to be adjusted by the middle layer (which is the
->> case for some of them).
->>
->> Of course, if the middle layer expects the driver to point its
->> system-wide PM callbacks to pm_runtime_force_*, then that's how it goes,
->> but the drivers working with this particular middle layer generally
->> won't work with other middle layers and may interact incorrectly
->> with parents and/or children using the other middle layers.
->>
->> I guess the problem boils down to having a common set of expectations
->> on the driver side and on the middle layer side allowing different
->> combinations of these to work together.
-> 
-> Yes!
-> 
->>
->>> Besides the AMBA case, I also realized that we are dealing with PM
->>> clocks in the genpd case. For this, genpd relies on the that runtime
->>> PM status of the device properly reflects the state of the HW, during
->>> system-wide PM.
->>>
->>> In other words, if the driver would change the runtime PM status of
->>> the device, without respecting the hierarchy of the runtime PM
->>> callbacks, it would lead to that genpd starts taking wrong decisions
->>> while managing the PM clocks during system-wide PM. So in case you
->>> intend to change pm_runtime_force_* this needs to be addressed too.
->>
->> I've just looked at the genpd code and quite frankly I'm not sure how this
->> works, but I'll figure this out. :-)
-> 
-> You may think of it as genpd's RPM callback controls some device
-> clocks, while the driver control some other device resources (pinctrl
-> for example) from its RPM callback.
-> 
-> These resources needs to managed together, similar to as I described above.
-> 
-> [...]
-> 
->>> Absolutely agree about the different wake-up settings. However, these
->>> issues can be addressed also when using pm_runtime_force_*, at least
->>> in general, but then not for PCI.
->>
->> Well, not for the ACPI PM domain too.
->>
->> In general, not if the wakeup settings are adjusted by the middle layer.
-> 
-> Correct!
-> 
-> To use pm_runtime_force* for these cases, one would need some
-> additional information exchange between the driver and the
-> middle-layer.
-> 
->>
->>> Regarding hibernation, honestly that's not really my area of
->>> expertise. Although, I assume the middle-layer and driver can treat
->>> that as a separate case, so if it's not suitable to use
->>> pm_runtime_force* for that case, then they shouldn't do it.
->>
->> Well, agreed.
->>
->> In some simple cases, though, driver callbacks can be reused for hibernation
->> too, so it would be good to have a common way to do that too, IMO.
-> 
-> Okay, that makes sense!
-> 
->>
->>>>
->>>> Also, quite so often other middle layers interact with PCI directly or
->>>> indirectly (eg. a platform device may be a child or a consumer of a PCI
->>>> device) and some optimizations need to take that into account (eg. parents
->>>> generally need to be accessible when their childres are resumed and so on).
->>>
->>> A device's parent becomes informed when changing the runtime PM status
->>> of the device via pm_runtime_force_suspend|resume(), as those calls
->>> pm_runtime_set_suspended|active().
->>
->> This requires the parent driver or middle layer to look at the reference
->> counter and understand it the same way as pm_runtime_force_*.
->>
->>> In case that isn't that sufficient, what else is needed? Perhaps you can
->>> point me to an example so I can understand better?
->>
->> Say you want to leave the parent suspended after system resume, but the
->> child drivers use pm_runtime_force_suspend|resume().  The parent would then
->> need to use pm_runtime_force_suspend|resume() too, no?
-> 
-> Actually no.
-> 
-> Currently the other options of "deferring resume" (not using
-> pm_runtime_force_*), is either using the "direct_complete" path or
-> similar to the approach you took for the i2c designware driver.
-> 
-> Both cases should play nicely in combination of a child being managed
-> by pm_runtime_force_*. That's because only when the parent device is
-> kept runtime suspended during system suspend, resuming can be
-> deferred.
-> 
-> That means, if the resume of the parent is deferred, so will the also
-> the resume of the child.
-> 
->>
->>> For a PCI consumer device those will of course have to play by the rules of PCI.
->>>
->>>>
->>>> Moreover, the majority of the "other subsystems/middle-layers" you've talked
->>>> about so far don't provide any PM callbacks to be invoked by pm_runtime_force_*,
->>>> so question is how representative they really are.
->>>
->>> That's the point. We know pm_runtime_force_* works nicely for the
->>> trivial middle-layer cases.
->>
->> In which cases the middle-layer callbacks don't exist, so it's just like
->> reusing driver callbacks directly. :-)
+This message is in MIME format.
 
-I'd like to ask you clarify one point here and provide some info which I hope can be useful - 
-what's exactly means  "trivial middle-layer cases"?
+--=_HafzU7DNy_NVsLdmQF10dg1
+Content-Type: text/plain; charset=UTF-8; format=flowed; DelSp=Yes
+Content-Disposition: inline
 
-Is it when systems use "drivers/base/power/clock_ops.c - Generic clock manipulation PM callbacks"
-as dev_pm_domain (arm davinci/keystone), or OMAP device framework struct dev_pm_domain omap_device_pm_domain
- (arm/mach-omap2/omap_device.c) or static const struct dev_pm_ops tegra_aconnect_pm_ops?
+Dear devs,
 
-if yes all above have PM runtime callbacks.
+I'm trying to write the EEPROM in my ASUS 22T1E monitor containing  
+EDID data using i2cset. The monitor is connected via HMDI to a Nvidia  
+GeForce 1050 Ti. Actually I have no idea if there is a EEPROM in my  
+monitor, I just assumed it. My problem is that the value never changes  
+when I try to write.
 
+# i2cset -r 4 0x50 38 0xd1
+WARNING! This program can confuse your I2C bus, cause data loss and worse!
+DANGEROUS! Writing to a serial EEPROM on a memory DIMM
+may render your memory USELESS and make your system UNBOOTABLE!
+I will write to device file /dev/i2c-4, chip address 0x50, data address
+0x26, data 0xd1, mode byte.
+Continue? [y/N] y
+Warning - data mismatch - wrote 0xd1, read back 0x71
 
--- 
-regards,
--grygorii
+Also my GPU registers multiple buses, might it be related to that?
+
+# i2cdetect -l
+i2c-3	i2c       	NVIDIA i2c adapter 4 at 1:00.0  	I2C adapter
+i2c-1	smbus     	ddbridge                        	SMBus adapter
+i2c-4	i2c       	NVIDIA i2c adapter 6 at 1:00.0  	I2C adapter
+i2c-2	smbus     	ddbridge                        	SMBus adapter
+i2c-0	smbus     	ddbridge                        	SMBus adapter
+i2c-5	i2c       	NVIDIA i2c adapter 7 at 1:00.0  	I2C adapter
+
+Bus 4 seems to be the one containing the relevant data:
+
+# i2cdetect 4
+WARNING! This program can confuse your I2C bus, cause data loss and worse!
+I will probe file /dev/i2c-4.
+I will probe address range 0x03-0x77.
+Continue? [Y/n]
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- 37 -- -- 3a -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+Any ideas why this couldn't be working are welcome. Is it maybe not  
+possible to write the EDID data on this specific monitor? Should I try  
+this using a different GPU?
+
+Regards,
+     Tim Schumacher
+
+--=_HafzU7DNy_NVsLdmQF10dg1
+Content-Type: application/pgp-keys
+Content-Description: PGP Public Key
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+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
+=rDCs
+-----END PGP PUBLIC KEY BLOCK-----
+--=_HafzU7DNy_NVsLdmQF10dg1--
+
+--=_fywD_9yWzUjHIyBMc7QAjg1
+Content-Type: application/pgp-signature
+Content-Description: PGP Digital Signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAABAgAGBQJZ57IWAAoJEKPWnj2poP80TpAP/2gbWslHw4Z4pYaylC9P96iT
+Kubk4m9WqA0v5gAvNjsmVSU/7e0rLnfmPi//RsbtZ0rHEW25Ia2GZZsCh/ai66GH
+D4k7EFzoQQt0GbeX83OfUrutcHAYwTra692yWmgPjqc8VmUJZzicxHOnk/GqGI37
+GBRFcfXhaj7NZdCP/OMEZD6KW6f5WjQYUk3M4OoDX1DcSTmj5PupZSYhw2hK9029
+CcPpKuE2uOmOus1Cl8p4YvGZHwnATDvLdnRCefncUaRjg1WYGIpRBLTo/kFw3lF4
++2fx+0hcyK77PZLzA3t/JtfiZDkpnVGE53cMX8SZo0YK8s0CazDj62EXDKwMnEHk
+XYuG1yh+FvT8DM8pNSHGEKdAYvWPeSCCAFik14iUb/sfPvzEjacyW5oE9iDUwSMg
+4EQtp3MY897h3odiVqNGErnkxWk+YrGIqfVCiF+bMSNeVRpo/sgH3GsRo/XC8qzN
+oNrPY/Lqz/J+hl0nl5lLH25+wM/wXnjXpPqBhk8n+DzBXIjJ0Ii9Nx2skDWHsiyu
+hzwxj23Fh5OxXfXCx8+kM+mYzJ8RIIzTdjzV9xl6XAotp3Vq4RGYl90uost5MrF9
+6CGalX6Hst79GlI6pf6UMsJYg5AzMaF1JBGanaO4B9sVdJ9Ukbc41bB+uKvOYi3L
+nSm4LGOcPvsDhAwMp7OX
+=900Q
+-----END PGP SIGNATURE-----
+
+--=_fywD_9yWzUjHIyBMc7QAjg1--
