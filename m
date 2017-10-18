@@ -1,55 +1,41 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver
- flags
-Date: Wed, 18 Oct 2017 08:56:24 +0200
-Message-ID: <20171018065624.GA22059@kroah.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
- <6007227.iNoRbQyInB@aspire.rjw.lan>
- <20171017071543.GB27293@kroah.com>
- <79398495.qfC5mmSRrG@aspire.rjw.lan>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: I2C slave mode for i2c-at91 driver
+Date: Wed, 18 Oct 2017 09:31:15 +0200
+Message-ID: <20171018073115.ewuoy5z3pbrysx4i@pengutronix.de>
+References: <97ba9ab73b527ac882e7d591b42ae621@jfitschen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:55134 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752670AbdJRG4Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 02:56:16 -0400
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:52207 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1762413AbdJRHbS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 03:31:18 -0400
 Content-Disposition: inline
-In-Reply-To: <79398495.qfC5mmSRrG@aspire.rjw.lan>
+In-Reply-To: <97ba9ab73b527ac882e7d591b42ae621@jfitschen.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+To: Juergen Fitschen <me@jue.yt>
+Cc: linux-i2c@vger.kernel.org
 
-On Tue, Oct 17, 2017 at 05:26:20PM +0200, Rafael J. Wysocki wrote:
-> On Tuesday, October 17, 2017 9:15:43 AM CEST Greg Kroah-Hartman wrote:
-> > On Tue, Oct 17, 2017 at 12:05:11AM +0200, Rafael J. Wysocki wrote:
-> > > On Monday, October 16, 2017 8:28:52 AM CEST Greg Kroah-Hartman wrote:
-> > > > On Mon, Oct 16, 2017 at 03:29:02AM +0200, Rafael J. Wysocki wrote:
-> > > > >  struct dev_pm_info {
-> > > > >  	pm_message_t		power_state;
-> > > > >  	unsigned int		can_wakeup:1;
-> > > > > @@ -561,6 +580,7 @@ struct dev_pm_info {
-> > > > >  	bool			is_late_suspended:1;
-> > > > >  	bool			early_init:1;	/* Owned by the PM core */
-> > > > >  	bool			direct_complete:1;	/* Owned by the PM core */
-> > > > > +	unsigned int		driver_flags;
-> > > > 
-> > > > Minor nit, u32 or u64?
-> > > 
-> > > u32 I think, will update.
-> > > 
-> > > BTW, there's a mess in this struct overall and I'd like all of the bit fileds
-> > > to be the same type (and that shouldn't be bool IMO :-)).
-> > > 
-> > > Do you prefer u32 or unsinged int?
-> > 
-> > I always prefer an explicit size for variables, unless it's a "generic
-> > loop" type thing.  So I'll always say "u32" for this.
-> > 
-> > And cleaning up the structure would be great, it's grown over time in
-> > odd ways as you point out.
-> 
-> OK, but that will be separate from this work.
+Hello,
 
-Of course :)
+On Tue, Oct 17, 2017 at 12:56:24PM +0200, Juergen Fitschen wrote:
+> Currently I'm working on a driver adding I2C slave support to some Atmel /
+> Microchip MPUs. I already patched the i2c-at91.c and made the
+> i2c-slave-eeprom backend working on an ATSAMA5D27. But this is still in the
+> prototype status. My next steps are cleaning up the code and sharing the
+> patch with you for review and merge into Linux.
+
+<halfknowledge> Isn't the at91 i2c hardware broken or unreliable such
+that it's usually recommended to stick to i2c-gpio? If so maybe the same
+applies to client mode and someone should better extend i2c-gpio to
+handle the slave API?
+
+Best regards
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
