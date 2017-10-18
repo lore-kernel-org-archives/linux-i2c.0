@@ -1,55 +1,50 @@
-From: Chris Brandt <Chris.Brandt@renesas.com>
-Subject: RE: [PATCH] i2c: riic: remove clock and frequency restrictions
-Date: Wed, 18 Oct 2017 15:47:28 +0000
-Message-ID: <SG2PR06MB1165A75C7BBC84FCAF8ACB0D8A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: riic: remove clock and frequency restrictions
+Date: Wed, 18 Oct 2017 18:37:25 +0200
+Message-ID: <20171018163725.ik6ieofpd6ehilbo@ninjato>
 References: <20171018140459.104351-1-chris.brandt@renesas.com>
- <CAMuHMdWLh=4mETrwXHZ0LSfx9mtBewaDV6dhHKhvhGJ=ii-Vxg@mail.gmail.com>
- <SG2PR06MB116572EFA9E1BD8C7BB47AB78A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
- <CAMuHMdW8JLMzm9AQEO6UstW1MTHTjkf7rskLN8d4p95eZt0Z1g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relmlor2.renesas.com ([210.160.252.172]:9806 "EHLO
-        relmlie1.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1750742AbdJRPre (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 18 Oct 2017 11:47:34 -0400
-In-Reply-To: <CAMuHMdW8JLMzm9AQEO6UstW1MTHTjkf7rskLN8d4p95eZt0Z1g@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wr4eryw4isbeuvcc"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171018140459.104351-1-chris.brandt@renesas.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>
 
-SGkgR2VlcnQsDQoNCk9uIFdlZG5lc2RheSwgT2N0b2JlciAxOCwgMjAxNyAxLCBHZWVydCBVeXR0
-ZXJob2V2ZW4gd3JvdGU6DQo+ID4+ID4gKyAgICAgICAvKg0KPiA+PiA+ICsgICAgICAgICogUmVt
-b3ZlIGNsb2NrIHRpY2tzIGZvciByaXNlIGFuZCBmYWxsIHRpbWVzLiBDb252ZXJ0IG5zIHRvDQo+
-ID4+IGNsb2NrDQo+ID4+ID4gKyAgICAgICAgKiB0aWNrcy4NCj4gPj4gPiArICAgICAgICAqLw0K
-PiA+PiA+ICsgICAgICAgYnJsIC09IHQtPnNjbF9mYWxsX25zIC8gKDEwMDAwMDAwMDAvcmF0ZSk7
-DQo+ID4+ID4gKyAgICAgICBicmggLT0gdC0+c2NsX3Jpc2VfbnMgLyAoMTAwMDAwMDAwMC9yYXRl
-KTsNCj4gPj4NCj4gPj4gVG8gYXZvaWQgbG9zaW5nIHRvbyBtdWNoIHByZWNpc2lvbiBieSB0aGUg
-ZGl2aXNpb24sIHlvdSBjYW4gcmV3cml0ZQ0KPiB0aGlzDQo+ID4+IGFzDQo+ID4+IGUuZy4NCj4g
-Pj4NCj4gPj4gICAgIGJybCAtPSB0LT5zY2xfZmFsbF9ucyAqIHJhdGUgLyAxMDAwMDAwMDAwOw0K
-PiA+Pg0KPiA+PiAoInNjbF9mYWxsX25zICogcmF0ZSIgc2hvdWxkIG5vdCBvdmVyZmxvdykuDQo+
-ID4+IFBlcmhhcHMgRElWX1JPVU5EX1VQKCksIHRvbz8NCj4gPg0KPiA+IFVuZm9ydHVuYXRlbHks
-IEkgZG8gbm90IGdldCB0aGUgY29ycmVjdCBudW1iZXIgZXZlcnkgdGltZS4NCj4gPg0KPiA+IFNv
-bWV0aW1lcyBJIGdldCB0aGUgY29ycmVjdCBudW1iZXIsIGJ1dCBtb3N0IG9mIHRoZSB0aW1lIEkg
-Z2V0IDAuDQo+ID4NCj4gPiBOb3RlLCBpZiByYXRlPTMzLDMzMCwwMDAgYW5kIHQtPnNjbF9mYWxs
-X25zPTMwMCwgdGhlbg0KPiA+DQo+ID4gdC0+c2NsX2ZhbGxfbnMgKiByYXRlICA9IDksOTk5LDAw
-MCwwMDAgKDB4MjUzRkNBMUMwKSBhIDM0LWJpdCBudW1iZXIuDQo+ID4NCj4gPiBTbywgSSdkIHJh
-dGhlciBqdXN0IHN0aWNrIHdpdGggdGhlIGxlc3MgcHJlY2lzaW9uIGJlY2F1c2UgaXQncyBub3Qg
-dGhhdA0KPiA+IG11Y2ggb2YgYSBiaXQgZGVhbC4NCj4gDQo+IE9vcHMsIHNvIHRoZSBudW1iZXJz
-IGFyZSBiaWdnZXIgdGhhbiBJIGhhZCBleHBlY3RlZCwgbmFpdmVseS4NCj4gDQo+IEFsdGVybmF0
-aXZlbHksIHlvdSBjYW4gdXNlIGEgNjQtYnktMzIgZGl2aXNpb24sIGUuZy4NCj4gDQo+ICAgICBE
-SVZfUk9VTkRfVVBfVUxMKCh1NjQpdC0+c2NsX2ZhbGxfbnMgKiByYXRlLCAxMDAwMDAwMDAwKQ0K
-DQpUaGF0IHdvcmtzIGJldHRlci4NCg0KSG93ZXZlciwgcm91bmRpbmcgdXAgb24gdGhpcyBjYWxj
-dWxhdGlvbiBtZWFucyB5b3UgbWF5IHJ1biBmYXN0ZXIgdGhhbiANClNwZWNpZmllZCAoaWUsIHlv
-dSBzcGVuZCBtb3JlIHRpbWUgSElHSCBvciBMT1cpDQoNCg0KQXMgYSByYXcgbWF0aCB2cyBjb2Rl
-IGNvbXBhcmlzb246DQoNCnQtPnNjbF9mYWxsX25zID0gMzAwDQpyYXRlID0gMTY2NjI1MDAgICAg
-KDMzMzI1MDAwLzIpDQpSRUFMIG51bWJlciA9IDQuOTk4NzUNCkRJVl9ST1VORF9VUF9VTEwgcHJv
-ZHVjZXMgPSA1DQoNCnQtPnNjbF9mYWxsX25zID0gMjUwDQpyYXRlID0gMTY2NjI1MDAgICAgKDMz
-MzI1MDAwLzIpDQpSRUFMIG51bWJlciA9IDQuMTY1NjI1DQpESVZfUk9VTkRfVVBfVUxMIHByb2R1
-Y2VzID0gNSAobm93IEknbSBydW5uaW5nIGhpZ2hlciBmYXN0ZXIgdGhhbiA0MDBrSHopDQoNCg0K
-U28gb24gdGhpcyBudW1iZXIsIHJvdW5kaW5nIGRvd24gKHRydW5jYXRpbmcpIGlzICdzYWZlcicg
-ZnJvbSBhIHNwZWVkIA0Kc3RhbmQgcG9pbnQuDQoNCldoYXQgZG8geW91IHRoaW5rPw0KDQpDaHJp
-cw0KDQo=
+
+--wr4eryw4isbeuvcc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> +	brl -= t->scl_fall_ns / (1000000000/rate);
+> +	brh -= t->scl_rise_ns / (1000000000/rate);
+
+However you solve the precision issue, please take care about the "space
+around operators" rule afterwards. checkpatch should help you there.
+
+
+--wr4eryw4isbeuvcc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnng0EACgkQFA3kzBSg
+KbZbaBAAqra9PU01Q6YLCN7W5BJNXRAIMgzv25EsvYQ8k/a4lsAEUzZRewBUqA2J
+3pZW9iUnk12kHJwjsFRk3gahJKiPitT3t7oUYE0hhIKl3JFRbkJm4ukaYnjapPVX
+Wa+f1Uuu3wzmiOR8wmb9q0+/2c8TFKcu2waACATI065RLSEibsRj+KeSsF2byr99
+IiCNE/e85JsF1bLb/z9GPyftehPhDwW1fPNJLtUc2AkjXWLB2WUXZr29UmRsy4mI
+vnpX4bZ4YPt8gjGGHVqtmyf48j2yOtTKumhdTpDrQJvoITy4mXauz+KWr6rJ3Ktc
+/o+U4AQ1dv6PMy35y24IBrLEOaNoAvVT9+M7x7Jilj5SEzCWNZkwlNc2Q0/KdXfk
+lOJmtkHwJvSUE+/rMmNYqouuWtamS3xLEMGIYMKaj/N7+eSZH5nk9P8lOS5DNyXt
+9I73o0AV2/6bUb5qj9+Mzyvd4QOLwfhjOvfwt/7datNQu2cbCc4dnwtMkCWsxxLw
+U9rADbi2ioUXgvA95YX+7UAB1i5ws3XbOqjkQgNEu71YDf9GRHFOZGGfirxIp3r/
+Wcrm5fDks3EkUYpwETZ0xhltRKRQrtR9NdQ0Za5zbDhZgNfcFZjbK/IbgG8Jml8D
+hmHdEq430A9JgrnPZ5w63NblZ0Ioet8v2/n7+Z7YNbi4/lBf0xo=
+=Ba9q
+-----END PGP SIGNATURE-----
+
+--wr4eryw4isbeuvcc--
