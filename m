@@ -1,90 +1,48 @@
-From: Philipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [PATCH v2] i2c: aspeed: Deassert reset in probe
-Date: Wed, 18 Oct 2017 23:10:25 +0200
-Message-ID: <CA+gwMccb45zXESWJBa528jUa2n_LQdqJD8UFBnfZBkA+q5+mQg@mail.gmail.com>
-References: <20171018142930.13052-1-joel@jms.id.au>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
+Date: Wed, 18 Oct 2017 23:48:20 +0200
+Message-ID: <2926646.NJduVklg7n@aspire.rjw.lan>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com> <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171018142930.13052-1-joel@jms.id.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 18, 2017 at 4:29 PM, Joel Stanley <joel@jms.id.au> wrote:
-> In order to use i2c from a cold boot, the i2c peripheral must be taken
-> out of reset. We request a shared reset controller each time a bus
-> driver is loaded, as the reset is shared between the 14 i2c buses.
->
-> On remove the reset is asserted, which only touches the hardware once
-> the last i2c bus is removed.
->
-> The request is optional, so if a device tree does not specify a reset
-> controller (or the driver is not built in), the driver continues to
-> probe.
->
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> ---
-> v2: Sort the headers
->
->  drivers/i2c/busses/i2c-aspeed.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 284f8670dbeb..a2006376322f 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -12,6 +12,7 @@
->
->  #include <linux/clk.h>
->  #include <linux/completion.h>
-> +#include <linux/delay.h>
->  #include <linux/err.h>
->  #include <linux/errno.h>
->  #include <linux/i2c.h>
-> @@ -27,6 +28,7 @@
->  #include <linux/of_irq.h>
->  #include <linux/of_platform.h>
->  #include <linux/platform_device.h>
-> +#include <linux/reset.h>
->  #include <linux/slab.h>
->
->  /* I2C Register */
-> @@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
->         struct i2c_adapter              adap;
->         struct device                   *dev;
->         void __iomem                    *base;
-> +       struct reset_control            *rst;
->         /* Synchronizes I/O mem access to base. */
->         spinlock_t                      lock;
->         struct completion               cmd_complete;
-> @@ -847,6 +850,9 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->         /* We just need the clock rate, we don't actually use the clk object. */
->         devm_clk_put(&pdev->dev, parent_clk);
->
-> +       bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
+On Wednesday, October 18, 2017 9:45:11 PM CEST Grygorii Strashko wrote:
+> 
+> On 10/18/2017 09:11 AM, Ulf Hansson wrote:
 
-This could return error values in case of broken device trees, so you
-may want to check IS_ERR(bus->rst) and handle the error here.
+[...]
 
-> +       reset_control_deassert(bus->rst);
+> >>> That's the point. We know pm_runtime_force_* works nicely for the
+> >>> trivial middle-layer cases.
+> >>
+> >> In which cases the middle-layer callbacks don't exist, so it's just like
+> >> reusing driver callbacks directly. :-)
+> 
+> I'd like to ask you clarify one point here and provide some info which I hope can be useful - 
+> what's exactly means  "trivial middle-layer cases"?
+> 
+> Is it when systems use "drivers/base/power/clock_ops.c - Generic clock
+> manipulation PM callbacks" as dev_pm_domain (arm davinci/keystone), or OMAP
+> device framework struct dev_pm_domain omap_device_pm_domain
+> (arm/mach-omap2/omap_device.c) or static const struct dev_pm_ops
+> tegra_aconnect_pm_ops?
+> 
+> if yes all above have PM runtime callbacks.
 
-Otherwise this will dump a warning.
+Trivial ones don't actually do anything meaningful in their PM callbacks.
 
-> +
->         ret = of_property_read_u32(pdev->dev.of_node,
->                                    "bus-frequency", &bus->bus_frequency);
->         if (ret < 0) {
-> @@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
->
->         i2c_del_adapter(&bus->adap);
->
-> +       reset_control_assert(bus->rst);
+Things like the platform bus type, spi bus type, i2c bus type and similar.
 
-As will this.
+If the middle-layer callbacks manipulate devices in a significant way, then
+they aren't trivial.
 
-Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
+Thanks,
+Rafael
 
-regards
-Philipp
