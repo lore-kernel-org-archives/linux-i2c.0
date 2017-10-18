@@ -1,213 +1,250 @@
 From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Thu, 19 Oct 2017 00:12:09 +0200
-Message-ID: <4337843.QuD5zygUhU@aspire.rjw.lan>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <2890181.vdGMMavi5M@aspire.rjw.lan> <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
+Subject: [Update][PATCH v2 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver flags
+Date: Thu, 19 Oct 2017 01:17:31 +0200
+Message-ID: <11013815.Nxk07oyMGD@aspire.rjw.lan>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <1998650.Q52BuGQTI4@aspire.rjw.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1998650.Q52BuGQTI4@aspire.rjw.lan>
+Sender: linux-doc-owner@vger.kernel.org
+To: Linux PM <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukas Wunner <lukas@wunner.de>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, October 18, 2017 4:11:33 PM CEST Ulf Hansson wrote:
-> [...]
-> 
-> >>
-> >> The reason why pm_runtime_force_* needs to respects the hierarchy of
-> >> the RPM callbacks, is because otherwise it can't safely update the
-> >> runtime PM status of the device.
-> >
-> > I'm not sure I follow this requirement.  Why is that so?
-> 
-> If the PM domain controls some resources for the device in its RPM
-> callbacks and the driver controls some other resources in its RPM
-> callbacks - then these resources needs to be managed together.
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Right, but that doesn't automatically make it necessary to use runtime PM
-callbacks in the middle layer.  Its system-wide PM callbacks may be
-suitable for that just fine.
+The motivation for this change is to provide a way to work around
+a problem with the direct-complete mechanism used for avoiding
+system suspend/resume handling for devices in runtime suspend.
 
-That is, at least in some cases, you can combine ->runtime_suspend from a
-driver and ->suspend_late from a middle layer with no problems, for example.
+The problem is that some middle layer code (the PCI bus type and
+the ACPI PM domain in particular) returns positive values from its
+system suspend ->prepare callbacks regardless of whether the driver's
+->prepare returns a positive value or 0, which effectively prevents
+drivers from being able to control the direct-complete feature.
+Some drivers need that control, however, and the PCI bus type has
+grown its own flag to deal with this issue, but since it is not
+limited to PCI, it is better to address it by adding driver flags at
+the core level.
 
-That's why some middle layers allow drivers to point ->suspend_late and
-->runtime_suspend to the same routine if they want to reuse that code.
+To that end, add a driver_flags field to struct dev_pm_info for flags
+that can be set by device drivers at the probe time to inform the PM
+core and/or bus types, PM domains and so on on the capabilities and/or
+preferences of device drivers.  Also add two static inline helpers
+for setting that field and testing it against a given set of flags
+and make the driver core clear it automatically on driver remove
+and probe failures.
 
-> This follows the behavior of when a regular call to
-> pm_runtime_get|put(), triggers the RPM callbacks to be invoked.
+Define and document two PM driver flags related to the direct-
+complete feature: NEVER_SKIP and SMART_PREPARE that can be used,
+respectively, to indicate to the PM core that the direct-complete
+mechanism should never be used for the device and to inform the
+middle layer code (bus types, PM domains etc) that it can only
+request the PM core to use the direct-complete mechanism for
+the device (by returning a positive value from its ->prepare
+callback) if it also has been requested by the driver.
 
-But (a) it doesn't have to follow it and (b) in some cases it should not
-follow it.
+While at it, make the core check pm_runtime_suspended() when
+setting power.direct_complete so that it doesn't need to be
+checked by ->prepare callbacks.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+
+-> v2: Change the data type for driver_flags to u32 as suggested by Greg
+       and fix a couple of documentation typos pointed out by Lukas.
+
+---
+ Documentation/driver-api/pm/devices.rst |   14 ++++++++++++++
+ Documentation/power/pci.txt             |   19 +++++++++++++++++++
+ drivers/acpi/device_pm.c                |    3 +++
+ drivers/base/dd.c                       |    2 ++
+ drivers/base/power/main.c               |    4 +++-
+ drivers/pci/pci-driver.c                |    5 ++++-
+ include/linux/device.h                  |   10 ++++++++++
+ include/linux/pm.h                      |   20 ++++++++++++++++++++
+ 8 files changed, 75 insertions(+), 2 deletions(-)
+
+Index: linux-pm/include/linux/device.h
+===================================================================
+--- linux-pm.orig/include/linux/device.h
++++ linux-pm/include/linux/device.h
+@@ -1070,6 +1070,16 @@ static inline void dev_pm_syscore_device
+ #endif
+ }
  
-> >
-> >> And updating the runtime PM status of
-> >> the device is required to manage the optimized behavior during system
-> >> resume (avoiding to unnecessary resume devices).
-> >
-> > Well, OK.  The runtime PM status of the device after system resume should
-> > better reflect its physical state.
-> >
-> > [The physical state of the device may not be under the control of the
-> > kernel in some cases, like in S3 resume on some systems that reset
-> > devices in the firmware and so on, but let's set that aside.]
-> >
-> > However, for the runtime PM status of the device may still reflect its state
-> > if, say, a ->resume_early of the middle layer is called during resume along
-> > with a driver's ->runtime_resume.  That still can produce the right state
-> > of the device and all depends on the middle layer.
-> >
-> > On the other hand, as I said before, using a middle-layer ->runtime_suspend
-> > during a system sleep transition may be outright incorrect, say if device
-> > wakeup settings need to be adjusted by the middle layer (which is the
-> > case for some of them).
-> >
-> > Of course, if the middle layer expects the driver to point its
-> > system-wide PM callbacks to pm_runtime_force_*, then that's how it goes,
-> > but the drivers working with this particular middle layer generally
-> > won't work with other middle layers and may interact incorrectly
-> > with parents and/or children using the other middle layers.
-> >
-> > I guess the problem boils down to having a common set of expectations
-> > on the driver side and on the middle layer side allowing different
-> > combinations of these to work together.
-> 
-> Yes!
-> 
-> >
-> >> Besides the AMBA case, I also realized that we are dealing with PM
-> >> clocks in the genpd case. For this, genpd relies on the that runtime
-> >> PM status of the device properly reflects the state of the HW, during
-> >> system-wide PM.
-> >>
-> >> In other words, if the driver would change the runtime PM status of
-> >> the device, without respecting the hierarchy of the runtime PM
-> >> callbacks, it would lead to that genpd starts taking wrong decisions
-> >> while managing the PM clocks during system-wide PM. So in case you
-> >> intend to change pm_runtime_force_* this needs to be addressed too.
-> >
-> > I've just looked at the genpd code and quite frankly I'm not sure how this
-> > works, but I'll figure this out. :-)
-> 
-> You may think of it as genpd's RPM callback controls some device
-> clocks, while the driver control some other device resources (pinctrl
-> for example) from its RPM callback.
-> 
-> These resources needs to managed together, similar to as I described above.
++static inline void dev_pm_set_driver_flags(struct device *dev, u32 flags)
++{
++	dev->power.driver_flags = flags;
++}
++
++static inline bool dev_pm_test_driver_flags(struct device *dev, u32 flags)
++{
++	return !!(dev->power.driver_flags & flags);
++}
++
+ static inline void device_lock(struct device *dev)
+ {
+ 	mutex_lock(&dev->mutex);
+Index: linux-pm/include/linux/pm.h
+===================================================================
+--- linux-pm.orig/include/linux/pm.h
++++ linux-pm/include/linux/pm.h
+@@ -550,6 +550,25 @@ struct pm_subsys_data {
+ #endif
+ };
+ 
++/*
++ * Driver flags to control system suspend/resume behavior.
++ *
++ * These flags can be set by device drivers at the probe time.  They need not be
++ * cleared by the drivers as the driver core will take care of that.
++ *
++ * NEVER_SKIP: Do not skip system suspend/resume callbacks for the device.
++ * SMART_PREPARE: Check the return value of the driver's ->prepare callback.
++ *
++ * Setting SMART_PREPARE instructs bus types and PM domains which may want
++ * system suspend/resume callbacks to be skipped for the device to return 0 from
++ * their ->prepare callbacks if the driver's ->prepare callback returns 0 (in
++ * other words, the system suspend/resume callbacks can only be skipped for the
++ * device if its driver doesn't object against that).  This flag has no effect
++ * if NEVER_SKIP is set.
++ */
++#define DPM_FLAG_NEVER_SKIP	BIT(0)
++#define DPM_FLAG_SMART_PREPARE	BIT(1)
++
+ struct dev_pm_info {
+ 	pm_message_t		power_state;
+ 	unsigned int		can_wakeup:1;
+@@ -561,6 +580,7 @@ struct dev_pm_info {
+ 	bool			is_late_suspended:1;
+ 	bool			early_init:1;	/* Owned by the PM core */
+ 	bool			direct_complete:1;	/* Owned by the PM core */
++	u32			driver_flags;
+ 	spinlock_t		lock;
+ #ifdef CONFIG_PM_SLEEP
+ 	struct list_head	entry;
+Index: linux-pm/drivers/base/dd.c
+===================================================================
+--- linux-pm.orig/drivers/base/dd.c
++++ linux-pm/drivers/base/dd.c
+@@ -464,6 +464,7 @@ pinctrl_bind_failed:
+ 	if (dev->pm_domain && dev->pm_domain->dismiss)
+ 		dev->pm_domain->dismiss(dev);
+ 	pm_runtime_reinit(dev);
++	dev_pm_set_driver_flags(dev, 0);
+ 
+ 	switch (ret) {
+ 	case -EPROBE_DEFER:
+@@ -869,6 +870,7 @@ static void __device_release_driver(stru
+ 		if (dev->pm_domain && dev->pm_domain->dismiss)
+ 			dev->pm_domain->dismiss(dev);
+ 		pm_runtime_reinit(dev);
++		dev_pm_set_driver_flags(dev, 0);
+ 
+ 		klist_remove(&dev->p->knode_driver);
+ 		device_pm_check_callbacks(dev);
+Index: linux-pm/drivers/base/power/main.c
+===================================================================
+--- linux-pm.orig/drivers/base/power/main.c
++++ linux-pm/drivers/base/power/main.c
+@@ -1700,7 +1700,9 @@ unlock:
+ 	 * applies to suspend transitions, however.
+ 	 */
+ 	spin_lock_irq(&dev->power.lock);
+-	dev->power.direct_complete = ret > 0 && state.event == PM_EVENT_SUSPEND;
++	dev->power.direct_complete = state.event == PM_EVENT_SUSPEND &&
++		pm_runtime_suspended(dev) && ret > 0 &&
++		!dev_pm_test_driver_flags(dev, DPM_FLAG_NEVER_SKIP);
+ 	spin_unlock_irq(&dev->power.lock);
+ 	return 0;
+ }
+Index: linux-pm/drivers/pci/pci-driver.c
+===================================================================
+--- linux-pm.orig/drivers/pci/pci-driver.c
++++ linux-pm/drivers/pci/pci-driver.c
+@@ -682,8 +682,11 @@ static int pci_pm_prepare(struct device
+ 
+ 	if (drv && drv->pm && drv->pm->prepare) {
+ 		int error = drv->pm->prepare(dev);
+-		if (error)
++		if (error < 0)
+ 			return error;
++
++		if (!error && dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_PREPARE))
++			return 0;
+ 	}
+ 	return pci_dev_keep_suspended(to_pci_dev(dev));
+ }
+Index: linux-pm/drivers/acpi/device_pm.c
+===================================================================
+--- linux-pm.orig/drivers/acpi/device_pm.c
++++ linux-pm/drivers/acpi/device_pm.c
+@@ -965,6 +965,9 @@ int acpi_subsys_prepare(struct device *d
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if (!ret && dev_pm_test_driver_flags(dev, DPM_FLAG_SMART_PREPARE))
++		return 0;
++
+ 	if (!adev || !pm_runtime_suspended(dev))
+ 		return 0;
+ 
+Index: linux-pm/Documentation/driver-api/pm/devices.rst
+===================================================================
+--- linux-pm.orig/Documentation/driver-api/pm/devices.rst
++++ linux-pm/Documentation/driver-api/pm/devices.rst
+@@ -354,6 +354,20 @@ the phases are: ``prepare``, ``suspend``
+ 	is because all such devices are initially set to runtime-suspended with
+ 	runtime PM disabled.
+ 
++	This feature also can be controlled by device drivers by using the
++	``DPM_FLAG_NEVER_SKIP`` and ``DPM_FLAG_SMART_PREPARE`` driver power
++	management flags.  [Typically, they are set at the time the driver is
++	probed against the device in question by passing them to the
++	:c:func:`dev_pm_set_driver_flags` helper function.]  If the first of
++	these flags is set, the PM core will not apply the direct-complete
++	procedure described above to the given device and, consequenty, to any
++	of its ancestors.  The second flag, when set, informs the middle layer
++	code (bus types, device types, PM domains, classes) that it should take
++	the return value of the ``->prepare`` callback provided by the driver
++	into account and it may only return a positive value from its own
++	``->prepare`` callback if the driver's one also has returned a positive
++	value.
++
+     2.	The ``->suspend`` methods should quiesce the device to stop it from
+ 	performing I/O.  They also may save the device registers and put it into
+ 	the appropriate low-power state, depending on the bus type the device is
+Index: linux-pm/Documentation/power/pci.txt
+===================================================================
+--- linux-pm.orig/Documentation/power/pci.txt
++++ linux-pm/Documentation/power/pci.txt
+@@ -961,6 +961,25 @@ dev_pm_ops to indicate that one suspend
+ .suspend(), .freeze(), and .poweroff() members and one resume routine is to
+ be pointed to by the .resume(), .thaw(), and .restore() members.
+ 
++3.1.19. Driver Flags for Power Management
++
++The PM core allows device drivers to set flags that influence the handling of
++power management for the devices by the core itself and by middle layer code
++including the PCI bus type.  The flags should be set once at the driver probe
++time with the help of the dev_pm_set_driver_flags() function and they should not
++be updated directly afterwards.
++
++The DPM_FLAG_NEVER_SKIP flag prevents the PM core from using the direct-complete
++mechanism allowing device suspend/resume callbacks to be skipped if the device
++is in runtime suspend when the system suspend starts.  That also affects all of
++the ancestors of the device, so this flag should only be used if absolutely
++necessary.
++
++The DPM_FLAG_SMART_PREPARE flag instructs the PCI bus type to only return a
++positive value from pci_pm_prepare() if the ->prepare callback provided by the
++driver of the device returns a positive value.  That allows the driver to opt
++out from using the direct-complete mechanism dynamically.
++
+ 3.2. Device Runtime Power Management
+ ------------------------------------
+ In addition to providing device power management callbacks PCI device drivers
 
-Which, again, doesn't mean that runtime PM callbacks from the middle layer
-have to be used for that.
-
-> [...]
-> 
-> >> Absolutely agree about the different wake-up settings. However, these
-> >> issues can be addressed also when using pm_runtime_force_*, at least
-> >> in general, but then not for PCI.
-> >
-> > Well, not for the ACPI PM domain too.
-> >
-> > In general, not if the wakeup settings are adjusted by the middle layer.
-> 
-> Correct!
-> 
-> To use pm_runtime_force* for these cases, one would need some
-> additional information exchange between the driver and the
-> middle-layer.
-
-Which pretty much defeats the purpose of the wrappers, doesn't it?
-
-> >
-> >> Regarding hibernation, honestly that's not really my area of
-> >> expertise. Although, I assume the middle-layer and driver can treat
-> >> that as a separate case, so if it's not suitable to use
-> >> pm_runtime_force* for that case, then they shouldn't do it.
-> >
-> > Well, agreed.
-> >
-> > In some simple cases, though, driver callbacks can be reused for hibernation
-> > too, so it would be good to have a common way to do that too, IMO.
-> 
-> Okay, that makes sense!
-> 
-> >
-> >> >
-> >> > Also, quite so often other middle layers interact with PCI directly or
-> >> > indirectly (eg. a platform device may be a child or a consumer of a PCI
-> >> > device) and some optimizations need to take that into account (eg. parents
-> >> > generally need to be accessible when their childres are resumed and so on).
-> >>
-> >> A device's parent becomes informed when changing the runtime PM status
-> >> of the device via pm_runtime_force_suspend|resume(), as those calls
-> >> pm_runtime_set_suspended|active().
-> >
-> > This requires the parent driver or middle layer to look at the reference
-> > counter and understand it the same way as pm_runtime_force_*.
-> >
-> >> In case that isn't that sufficient, what else is needed? Perhaps you can
-> >> point me to an example so I can understand better?
-> >
-> > Say you want to leave the parent suspended after system resume, but the
-> > child drivers use pm_runtime_force_suspend|resume().  The parent would then
-> > need to use pm_runtime_force_suspend|resume() too, no?
-> 
-> Actually no.
-> 
-> Currently the other options of "deferring resume" (not using
-> pm_runtime_force_*), is either using the "direct_complete" path or
-> similar to the approach you took for the i2c designware driver.
->
-> Both cases should play nicely in combination of a child being managed
-> by pm_runtime_force_*. That's because only when the parent device is
-> kept runtime suspended during system suspend, resuming can be
-> deferred.
-
-And because the parent remains in runtime suspend late enough in the
-system suspend path, its children also are guaranteed to be suspended.
-
-But then all of them need to be left in runtime suspend during system
-resume too, which is somewhat restrictive, because some drivers may
-want their devices to be resumed then.
-
-[BTW, our current documentation recommends resuming devices during
-system resume, actually, and gives a list of reasons why. :-)]
-
-> That means, if the resume of the parent is deferred, so will the also
-> the resume of the child.
-> 
-> >
-> >> For a PCI consumer device those will of course have to play by the rules of PCI.
-> >>
-> >> >
-> >> > Moreover, the majority of the "other subsystems/middle-layers" you've talked
-> >> > about so far don't provide any PM callbacks to be invoked by pm_runtime_force_*,
-> >> > so question is how representative they really are.
-> >>
-> >> That's the point. We know pm_runtime_force_* works nicely for the
-> >> trivial middle-layer cases.
-> >
-> > In which cases the middle-layer callbacks don't exist, so it's just like
-> > reusing driver callbacks directly. :-)
-> >
-> >> For the more complex cases, we need something additional/different.
-> >
-> > Something different.
-> >
-> > But overall, as I said, this is about common expectations.
-> >
-> > Today, some middle layers expect drivers to point their callback pointers
-> > to the same routine in order to resue it (PCI, ACPI bus type), some of them
-> > expect pm_runtime_force_suspend|resume() to be used (AMBA, maybe genpd),
-> > and some of them have no expectations at all.
-> >
-> > There needs to be a common ground in that area for drivers to be able to
-> > work with different middle layers.
-> 
-> Yes, reaching that point would be great, we should definitively aim for that!
-
-Indeed.
-
-Thanks,
-Rafael
