@@ -1,54 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/7 v3] I2C GPIO to use gpiolibs open drain
-Date: Thu, 19 Oct 2017 16:40:19 +0200
-Message-ID: <20171019144019.f2mcpsida44o2ql4@katana>
-References: <20171005110310.5900-1-linus.walleij@linaro.org>
- <CACRpkdbjyDWFpb5p6kQTRm8Q=rM5L-Mhi4Q1rphEmOwgF6SHVg@mail.gmail.com>
+Subject: Re: [PATCH v5 0/3] i2c: Hookup typec power-negotation to the PMIC
+ and charger
+Date: Thu, 19 Oct 2017 16:42:51 +0200
+Message-ID: <20171019144251.hmvkaijwbgamaqoo@katana>
+References: <20171011094121.6108-1-hdegoede@redhat.com>
+ <CAHp75VeqskRsmedvA3eAx27o8WeZzH44880T=Q=+1mD+1nSSAg@mail.gmail.com>
+ <e875d3d3-d62c-7363-e596-9c0dbeadce5d@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rfty7ec7fh7lckzt"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:53062 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752684AbdJSOkV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 19 Oct 2017 10:40:21 -0400
+        protocol="application/pgp-signature"; boundary="bz6kgvecgtc7ntfr"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdbjyDWFpb5p6kQTRm8Q=rM5L-Mhi4Q1rphEmOwgF6SHVg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <e875d3d3-d62c-7363-e596-9c0dbeadce5d@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "Krogerus, Heikki" <heikki.krogerus@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---rfty7ec7fh7lckzt
+--bz6kgvecgtc7ntfr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> Sorry to bother with this, it's fine if you don't have time
-> to do the administration for this refactoring for v4.15.
+> The first patch, although it is an i2c-core change, is really
+> quite simple. I believe anyone can review it. But it does need
+> someone other then me to take a proper look (and not just do
+> a code only review) because it is a core change. Maybe there
+> is another way to solve the problem (persistent / predictable
+> device-names for i2c devices instantiated through board-data),
+> but I don't think so.
 
-My plan is to review it this weekend and hopefully merge it for v4.15.
+My plan is to hopefully meet Mark Brown (SPI and regulator maintainer)
+at ELCE next week and have a chat with him about this series. If all
+goes well, I'll merge it for v4.15.
 
 
---rfty7ec7fh7lckzt
+--bz6kgvecgtc7ntfr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnouUsACgkQFA3kzBSg
-KbYyDBAAktvc46RrTRBTCLZPiaTKt+GkSXu46voyeSwWBZ9qTORZNyG1drj5KJif
-KiJcFl4iV/ZNh2qm8w+SjIIbONxMyF+9kcvUkFZe54lsQ1aSlnlJIGCIW6qn6ZaY
-ZFGGHYaTGbhRVg1+5WmzRdRCVwAMtdptlBXqh2yXo2kkovP1x7J5ugRFjEvPgMvS
-2m4TX0nYA2e3bsEXJ/IedqtjA5ES3K8JrtQ6GJ121PkKs/qAVvYNduLf7ruHECxB
-2GNt7ysaFFEm3C9aXsgZbKZBDVJXzIFHoTqqoOYwnVs7IRSORtdWVGPyTwpQFHiz
-UPifWLPelal8oP0uExA85uaZRevtrF7tlH5A6HZ2f/JVIo7Us7gSGFecW/XCquJX
-lrvutJRiD1jj0pCcrhS84C87wnFZqcFPL8PQSioKBaFZaGYNah+X/IUybUEiDgEH
-iSjD4XcGopsHqFodYQ+ZoSUI15KG/e5OcNxYunLPi/m0DLdSIgiJKiz8zOhjRwCr
-9OxNT+0i9l5wBfYiRT7nAb6wmieoL6fsMFWwoc945Lm0ih+El+OkVTCvp7OI6xrV
-ewkGlZWUK4+3LoSUajk1un4aCtilHhDEWw4LAtOo9AzXlz5Wv3gZeJ4BeQF7Ra9W
-EcARhYTc2JZbKCUyp4mg0b+KN53XS5W+BJTeFy1r82aEcm0vkpQ=
-=FIgk
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnouesACgkQFA3kzBSg
+Kbaziw/8CudcqHk04BCiiS7OV3iTZ+YxPGaSgxBKztRz0mm9vy57YN/DWKDhkjae
+2qE+fDjLKNZLRcBSBAdOVgrbFT7fomdfKjIbYAq70/IxX2YgBlOYNlf+3fHwbnLB
+kU3CfOzQgNBglUHqENCpDg03o83+hT95uvrgJF11P4JQ5FLrFFNcugSV+5a896Dx
+dAKA1g9HDn7cVfYlVPRhNjMqmAGneO+baItJ30l6XA4a+W/w/TebUr0lK7118+bQ
+pK12t19xOxPhVVamegX8+i/UDD3vcwAJ5UwVL2VgbLIBopuFYfr8WdgHhKQ/oqAM
+NH5jCwxVg9AcnAW7ZlTWuQY2xw/HvqCUquAA+rSN8YShOvXbmJ3s3cyMbR7ImCFc
+a67frvKkGOncgpqqnWrv6DaMcgVe3w1RiBzMN1apOh7MwjTR7XvgVcKsWqBwVGS6
+zpfDYRy+UFbbE2b8sPW5geVRe7F3dCGfQLzNinqsvPHuGZYt8sqSpmxLmueJW3Uo
+EM+7tpQPd+3YsYTcTc+JnU19g4PfuTpMQBwYywyo711IZhEAExp1oduqqSyxdcSi
+kjJE76At5LCfEiFq3Snb+HvpnRTmhzpFdeom+pDWjjCo7+t9eAfMExthKCbAYVS4
+wHYILYAH/Swsy+eowAdvn/LBve9aKUkZuB41Qj9TkchO/cs3QDU=
+=XV0X
 -----END PGP SIGNATURE-----
 
---rfty7ec7fh7lckzt--
+--bz6kgvecgtc7ntfr--
