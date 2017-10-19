@@ -1,77 +1,63 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Thu, 19 Oct 2017 12:21:08 -0500
-Message-ID: <1769d82f-07d3-14c9-c06a-d6afec20fa0e@ti.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+Date: Thu, 19 Oct 2017 20:01:05 +0200
+Message-ID: <CAPDyKFo2u3KDz-HbUOESPcEcqi-+K6AB8R4Yg_NfDg0nw4+4tQ@mail.gmail.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <2890181.vdGMMavi5M@aspire.rjw.lan>
  <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
- <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com>
- <2926646.NJduVklg7n@aspire.rjw.lan>
- <CAPDyKFrFbdXrZqtvwm=xmJSqQckfGzs7XNn7AOCTbOjwP4iAFQ@mail.gmail.com>
+ <4337843.QuD5zygUhU@aspire.rjw.lan> <CAPDyKFqq9_ZbPFYn22s+6sxtxePWgnd0GJNodeqkCKF2+QkrNA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFrFbdXrZqtvwm=xmJSqQckfGzs7XNn7AOCTbOjwP4iAFQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <CAPDyKFqq9_ZbPFYn22s+6sxtxePWgnd0GJNodeqkCKF2+QkrNA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
+[...]
 
-
-On 10/19/2017 03:33 AM, Ulf Hansson wrote:
-> On 18 October 2017 at 23:48, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->> On Wednesday, October 18, 2017 9:45:11 PM CEST Grygorii Strashko wrote:
+>>> > Say you want to leave the parent suspended after system resume, but the
+>>> > child drivers use pm_runtime_force_suspend|resume().  The parent would then
+>>> > need to use pm_runtime_force_suspend|resume() too, no?
 >>>
->>> On 10/18/2017 09:11 AM, Ulf Hansson wrote:
->>
->> [...]
->>
->>>>>> That's the point. We know pm_runtime_force_* works nicely for the
->>>>>> trivial middle-layer cases.
->>>>>
->>>>> In which cases the middle-layer callbacks don't exist, so it's just like
->>>>> reusing driver callbacks directly. :-)
+>>> Actually no.
 >>>
->>> I'd like to ask you clarify one point here and provide some info which I hope can be useful -
->>> what's exactly means  "trivial middle-layer cases"?
+>>> Currently the other options of "deferring resume" (not using
+>>> pm_runtime_force_*), is either using the "direct_complete" path or
+>>> similar to the approach you took for the i2c designware driver.
 >>>
->>> Is it when systems use "drivers/base/power/clock_ops.c - Generic clock
->>> manipulation PM callbacks" as dev_pm_domain (arm davinci/keystone), or OMAP
->>> device framework struct dev_pm_domain omap_device_pm_domain
->>> (arm/mach-omap2/omap_device.c) or static const struct dev_pm_ops
->>> tegra_aconnect_pm_ops?
->>>
->>> if yes all above have PM runtime callbacks.
+>>> Both cases should play nicely in combination of a child being managed
+>>> by pm_runtime_force_*. That's because only when the parent device is
+>>> kept runtime suspended during system suspend, resuming can be
+>>> deferred.
 >>
->> Trivial ones don't actually do anything meaningful in their PM callbacks.
+>> And because the parent remains in runtime suspend late enough in the
+>> system suspend path, its children also are guaranteed to be suspended.
+>
+> Yes.
+>
 >>
->> Things like the platform bus type, spi bus type, i2c bus type and similar.
->>
->> If the middle-layer callbacks manipulate devices in a significant way, then
->> they aren't trivial.
-> 
-> I fully agree with Rafael's description above, but let me also clarify
-> one more thing.
-> 
-> We have also been discussing PM domains as being trivial and
-> non-trivial. In some statements I even think the PM domain has been a
-> part the middle-layer terminology, which may have been a bit
-> confusing.
-> 
-> In this regards as we consider genpd being a trivial PM domain, those
-> examples your bring up above is too me also examples of trivial PM
-> domains. Especially because they don't deal with wakeups, as that is
-> taken care of by the drivers, right!?
+>> But then all of them need to be left in runtime suspend during system
+>> resume too, which is somewhat restrictive, because some drivers may
+>> want their devices to be resumed then.
+>
+> Actually, this scenario is also addressed when using the pm_runtime_force_*.
+>
+> The driver for the child would only need to bump the runtime PM usage
+> count (pm_runtime_get_noresume()) before calling
+> pm_runtime_force_suspend() at system suspend. That then also
+> propagates to the parent, leading to that both the parent and the
+> child will be resumed when pm_runtime_force_resume() is called for
+> them.
 
-Not directly, for example, omap device framework has noirq callback implemented
-which forcibly disable all devices which are not PM runtime suspended.
-while doing this it calls drivers PM .runtime_suspend() which may return
-non 0 value and in this case device will be left enabled (powered) at suspend for
-wake up purposes (see _od_suspend_noirq()).
+I need to correct myself here. The above currently only works if the
+child is runtime resumed while pm_runtime_force_suspend() is called.
 
+The logic in pm_runtime_force_* needs to be improved to take care of
+such scenarios. However I think that should be rather easy to fix, if
+we want that.
 
--- 
-regards,
--grygorii
+[...]
+
+Kind regards
+Uffe
