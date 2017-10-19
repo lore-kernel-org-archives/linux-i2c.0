@@ -1,61 +1,41 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Thu, 19 Oct 2017 10:33:47 +0200
-Message-ID: <CAPDyKFrFbdXrZqtvwm=xmJSqQckfGzs7XNn7AOCTbOjwP4iAFQ@mail.gmail.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
- <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com> <2926646.NJduVklg7n@aspire.rjw.lan>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Don't set SCL timings and speed mode
+ when in slave mode
+Date: Thu, 19 Oct 2017 12:32:15 +0300
+Message-ID: <74ce49f5-8d4d-786c-cf57-24909356e5f5@linux.intel.com>
+References: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
+ <20171005111825.kbfb4gcvq26wexnq@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2926646.NJduVklg7n@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:35799 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752188AbdJSJcS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 19 Oct 2017 05:32:18 -0400
+In-Reply-To: <20171005111825.kbfb4gcvq26wexnq@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 18 October 2017 at 23:48, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> On Wednesday, October 18, 2017 9:45:11 PM CEST Grygorii Strashko wrote:
+Hi Luis
+
+On 10/05/2017 02:18 PM, Wolfram Sang wrote:
+> On Wed, Aug 23, 2017 at 04:46:12PM +0300, Jarkko Nikula wrote:
+>> According to data sheet SCL timing parameters and DW_IC_CON SPEED mode
+>> bits are not used when operating in slave mode.
 >>
->> On 10/18/2017 09:11 AM, Ulf Hansson wrote:
->
-> [...]
->
->> >>> That's the point. We know pm_runtime_force_* works nicely for the
->> >>> trivial middle-layer cases.
->> >>
->> >> In which cases the middle-layer callbacks don't exist, so it's just like
->> >> reusing driver callbacks directly. :-)
->>
->> I'd like to ask you clarify one point here and provide some info which I hope can be useful -
->> what's exactly means  "trivial middle-layer cases"?
->>
->> Is it when systems use "drivers/base/power/clock_ops.c - Generic clock
->> manipulation PM callbacks" as dev_pm_domain (arm davinci/keystone), or OMAP
->> device framework struct dev_pm_domain omap_device_pm_domain
->> (arm/mach-omap2/omap_device.c) or static const struct dev_pm_ops
->> tegra_aconnect_pm_ops?
->>
->> if yes all above have PM runtime callbacks.
->
-> Trivial ones don't actually do anything meaningful in their PM callbacks.
->
-> Things like the platform bus type, spi bus type, i2c bus type and similar.
->
-> If the middle-layer callbacks manipulate devices in a significant way, then
-> they aren't trivial.
+>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> ---
+>> I've done quick testing with i2c-slave-eeprom and i2cdump over together
+>> hooked busses without issues. Would like to hear tested by or comment
+>> from Luis though. Patch is not urgent so can wait after vacation etc.
+> 
+> Luis?
+> 
+Do you have possibility test my patch it doesn't break anything?
 
-I fully agree with Rafael's description above, but let me also clarify
-one more thing.
-
-We have also been discussing PM domains as being trivial and
-non-trivial. In some statements I even think the PM domain has been a
-part the middle-layer terminology, which may have been a bit
-confusing.
-
-In this regards as we consider genpd being a trivial PM domain, those
-examples your bring up above is too me also examples of trivial PM
-domains. Especially because they don't deal with wakeups, as that is
-taken care of by the drivers, right!?
-
-Kind regards
-Uffe
+-- 
+Jarkko
