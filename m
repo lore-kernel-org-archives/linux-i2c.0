@@ -1,59 +1,73 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
-Date: Fri, 20 Oct 2017 08:05:17 +0200
-Message-ID: <CAPDyKFptOc2w-5gXVtzt=fp1cRta3KyLssaGbTe0koV4kNaD=A@mail.gmail.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <CAPDyKFozJtSHxxBEFtC+ofJ4XUyQjqUundPs81JATT=WfjXoYA@mail.gmail.com>
- <7b9c2a3e-2e88-938e-46a5-703de0080681@ti.com> <2926646.NJduVklg7n@aspire.rjw.lan>
- <CAPDyKFrFbdXrZqtvwm=xmJSqQckfGzs7XNn7AOCTbOjwP4iAFQ@mail.gmail.com>
- <1769d82f-07d3-14c9-c06a-d6afec20fa0e@ti.com> <CAPDyKFoAKguKiwnJu6zQF7F-w5AQ+mQoQq_XbNOQrys+c54Jhw@mail.gmail.com>
- <CAPDyKFrtQO_rowO8q=7Lsb25x8+bQAJyc1yUYVRgiguG-2W0tA@mail.gmail.com> <fa2647cb-b043-0116-8129-cb035e03cb2c@ti.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [Update][PATCH v2 01/12] PM / core: Add NEVER_SKIP and SMART_PREPARE driver flags
+Date: Fri, 20 Oct 2017 13:11:22 +0200
+Message-ID: <1564009.ulyn1Ag4Ad@aspire.rjw.lan>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <11013815.Nxk07oyMGD@aspire.rjw.lan> <20171019073315.GB20787@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <fa2647cb-b043-0116-8129-cb035e03cb2c@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from cloudserver094114.home.net.pl ([79.96.170.134]:44741 "EHLO
+        cloudserver094114.home.net.pl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752774AbdJTLVF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 20 Oct 2017 07:21:05 -0400
+In-Reply-To: <20171019073315.GB20787@kroah.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Lukas Wunner <lukas@wunner.de>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 
-[...]
+On Thursday, October 19, 2017 9:33:15 AM CEST Greg Kroah-Hartman wrote:
+> On Thu, Oct 19, 2017 at 01:17:31AM +0200, Rafael J. Wysocki wrote:
+> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > 
+> > The motivation for this change is to provide a way to work around
+> > a problem with the direct-complete mechanism used for avoiding
+> > system suspend/resume handling for devices in runtime suspend.
+> > 
+> > The problem is that some middle layer code (the PCI bus type and
+> > the ACPI PM domain in particular) returns positive values from its
+> > system suspend ->prepare callbacks regardless of whether the driver's
+> > ->prepare returns a positive value or 0, which effectively prevents
+> > drivers from being able to control the direct-complete feature.
+> > Some drivers need that control, however, and the PCI bus type has
+> > grown its own flag to deal with this issue, but since it is not
+> > limited to PCI, it is better to address it by adding driver flags at
+> > the core level.
+> > 
+> > To that end, add a driver_flags field to struct dev_pm_info for flags
+> > that can be set by device drivers at the probe time to inform the PM
+> > core and/or bus types, PM domains and so on on the capabilities and/or
+> > preferences of device drivers.  Also add two static inline helpers
+> > for setting that field and testing it against a given set of flags
+> > and make the driver core clear it automatically on driver remove
+> > and probe failures.
+> > 
+> > Define and document two PM driver flags related to the direct-
+> > complete feature: NEVER_SKIP and SMART_PREPARE that can be used,
+> > respectively, to indicate to the PM core that the direct-complete
+> > mechanism should never be used for the device and to inform the
+> > middle layer code (bus types, PM domains etc) that it can only
+> > request the PM core to use the direct-complete mechanism for
+> > the device (by returning a positive value from its ->prepare
+> > callback) if it also has been requested by the driver.
+> > 
+> > While at it, make the core check pm_runtime_suspended() when
+> > setting power.direct_complete so that it doesn't need to be
+> > checked by ->prepare callbacks.
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
->>>>> In this regards as we consider genpd being a trivial PM domain, those
->>>>> examples your bring up above is too me also examples of trivial PM
->>>>> domains. Especially because they don't deal with wakeups, as that is
->>>>> taken care of by the drivers, right!?
->>>>
->>>> Not directly, for example, omap device framework has noirq callback implemented
->>>> which forcibly disable all devices which are not PM runtime suspended.
->>>> while doing this it calls drivers PM .runtime_suspend() which may return
->>>> non 0 value and in this case device will be left enabled (powered) at suspend for
->>>> wake up purposes (see _od_suspend_noirq()).
->>>>
->>>
->>> Yeah, I had that feeling that omap has some trickyness going on. :-)
->>>
->>> I sure that can be fixed in the omap PM domain, although
->>
->> ...slipped with my fingers.. here is the rest of the reply...
->>
->> ..of course that require us to use another way for drivers to signal
->> to the omap PM domain that it needs to stay powered as to deal with
->> wakeup.
->>
->> I can have a look at that more closely, to see if it makes sense to change.
->>
->
-> Also, additional note here. some IPs are reused between OMAP/Davinci/Keystone,
-> OMAP PM domain have some code running at noirq time to dial with devices left
-> in PM runtime enabled state (OMAP PM runtime centric), while Davinci/Keystone haven't (clock_ops.c),
-> so pm_runtime_force_* API is actually possibility now to make the same driver work
->  on all these platforms.
+Thanks!
 
-That sounds great!
+Does it also apply to the other patches in the series?
 
-Also, in the end it would be nice to also convert the OMAP PM domain
-to genpd. I think most of the needed infrastructure is already there
-to do that.
+I'd like to queue up the core patches for 4.15 as they are specifically
+designed to only affect the drivers that actually set the flags, so there
+shouldn't be any regression resulting from them, and I'd like to be
+able to start using the flags in drivers going forward.
 
-Kind regards
-Uffe
+Thanks,
+Rafael
