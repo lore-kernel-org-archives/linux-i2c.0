@@ -1,39 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux: reg: use of_property_read_bool()
-Date: Fri, 20 Oct 2017 17:40:33 +0200
-Message-ID: <264492cb-a294-378e-a609-7d48ce2ad2fb@axentia.se>
-References: <20170820190656.846142358@cogentembedded.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 0/3] i2c: Hookup typec power-negotation to the PMIC
+ and charger
+Date: Fri, 20 Oct 2017 19:36:15 +0300
+Message-ID: <1508517375.16112.518.camel@linux.intel.com>
+References: <20171011094121.6108-1-hdegoede@redhat.com>
+         <CAHp75VeqskRsmedvA3eAx27o8WeZzH44880T=Q=+1mD+1nSSAg@mail.gmail.com>
+         <e875d3d3-d62c-7363-e596-9c0dbeadce5d@redhat.com>
+         <20171019144251.hmvkaijwbgamaqoo@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr50118.outbound.protection.outlook.com ([40.107.5.118]:3310
-        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751018AbdJTPkj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 20 Oct 2017 11:40:39 -0400
-In-Reply-To: <20170820190656.846142358@cogentembedded.com>
-Content-Language: en-US
+Received: from mga09.intel.com ([134.134.136.24]:33440 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752642AbdJTQgW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Oct 2017 12:36:22 -0400
+In-Reply-To: <20171019144251.hmvkaijwbgamaqoo@katana>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "Krogerus, Heikki" <heikki.krogerus@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-On 2017-08-20 21:06, Sergei Shtylyov wrote:
-> Use more compact of_property_read_bool() calls for the boolean properties
-> instead  of of_find_property() calls  in i2c_mux_reg_probe_dt().
+On Thu, 2017-10-19 at 16:42 +0200, Wolfram Sang wrote:
+> > The first patch, although it is an i2c-core change, is really
+> > quite simple. I believe anyone can review it. But it does need
+> > someone other then me to take a proper look (and not just do
+> > a code only review) because it is a core change. Maybe there
+> > is another way to solve the problem (persistent / predictable
+> > device-names for i2c devices instantiated through board-data),
+> > but I don't think so.
 > 
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> 
-> ---
-> The patch is against Wolfram Sang's 'linux.git' repo's 'i2c/for-next' branch.
+> My plan is to hopefully meet Mark Brown (SPI and regulator maintainer)
+> at ELCE next week and have a chat with him about this series.
 
-Patch applied. For the next time, please use "git format-patch" to generate
-your patches (or rather, read and follow the latest incarnation of [1]).
-I fixed it up along with a couple of white-space issues this time, since
-I was bored and had so little for this merge window. But you generally
-can't expect maintainers to do this for you.
+If you don't mind I would like to join. (Yes, I will be at ELC next
+week)
 
-Cheers,
-Peter
+>  If all
+> goes well, I'll merge it for v4.15.
 
-[1] https://www.kernel.org/doc/html/v4.13/process/submitting-patches.html
+
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
