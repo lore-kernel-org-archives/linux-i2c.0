@@ -1,42 +1,39 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PULL REQUEST] i2c-mux for 4.15-rc1
-Date: Fri, 20 Oct 2017 17:27:34 +0200
-Message-ID: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
+Subject: Re: [PATCH] i2c: mux: reg: use of_property_read_bool()
+Date: Fri, 20 Oct 2017 17:40:33 +0200
+Message-ID: <264492cb-a294-378e-a609-7d48ce2ad2fb@axentia.se>
+References: <20170820190656.846142358@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr50118.outbound.protection.outlook.com ([40.107.5.118]:3310
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751018AbdJTPkj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 20 Oct 2017 11:40:39 -0400
+In-Reply-To: <20170820190656.846142358@cogentembedded.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 2017-08-20 21:06, Sergei Shtylyov wrote:
+> Use more compact of_property_read_bool() calls for the boolean properties
+> instead  of of_find_property() calls  in i2c_mux_reg_probe_dt().
+> 
+> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> 
+> ---
+> The patch is against Wolfram Sang's 'linux.git' repo's 'i2c/for-next' branch.
 
-This cycle has been real quiet for me. There's only the one trivial patch
-that somewhat simplifies DT parsing in the i2c-mux-reg driver.
-
-Please pull.
+Patch applied. For the next time, please use "git format-patch" to generate
+your patches (or rather, read and follow the latest incarnation of [1]).
+I fixed it up along with a couple of white-space issues this time, since
+I was bored and had so little for this merge window. But you generally
+can't expect maintainers to do this for you.
 
 Cheers,
 Peter
 
-The following changes since commit 33d930e59a98fa10a0db9f56c7fa2f21a4aef9b9:
-
-  Linux 4.14-rc5 (2017-10-15 21:01:12 -0400)
-
-are available in the git repository at:
-
-  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
-
-for you to fetch changes up to 3997fb74846f35d0364c5e88e54bc9b166d5a1bc:
-
-  i2c: mux: reg: use of_property_read_bool() (2017-10-20 16:33:07 +0200)
-
-----------------------------------------------------------------
-Sergei Shtylyov (1):
-      i2c: mux: reg: use of_property_read_bool()
-
- drivers/i2c/muxes/i2c-mux-reg.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+[1] https://www.kernel.org/doc/html/v4.13/process/submitting-patches.html
