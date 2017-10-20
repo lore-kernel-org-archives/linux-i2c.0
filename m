@@ -1,46 +1,29 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 0/3] i2c: Hookup typec power-negotation to the PMIC
- and charger
-Date: Fri, 20 Oct 2017 19:36:15 +0300
-Message-ID: <1508517375.16112.518.camel@linux.intel.com>
-References: <20171011094121.6108-1-hdegoede@redhat.com>
-         <CAHp75VeqskRsmedvA3eAx27o8WeZzH44880T=Q=+1mD+1nSSAg@mail.gmail.com>
-         <e875d3d3-d62c-7363-e596-9c0dbeadce5d@redhat.com>
-         <20171019144251.hmvkaijwbgamaqoo@katana>
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Re: [PATCH 0/12] PM / sleep: Driver flags for system suspend/resume
+Date: Fri, 20 Oct 2017 15:46:07 -0500
+Message-ID: <20171020204607.GQ6332@bhelgaas-glaptop.roam.corp.google.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:33440 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752642AbdJTQgW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 20 Oct 2017 12:36:22 -0400
-In-Reply-To: <20171019144251.hmvkaijwbgamaqoo@katana>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <3806130.B2KCK0tvef@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "Krogerus, Heikki" <heikki.krogerus@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-On Thu, 2017-10-19 at 16:42 +0200, Wolfram Sang wrote:
-> > The first patch, although it is an i2c-core change, is really
-> > quite simple. I believe anyone can review it. But it does need
-> > someone other then me to take a proper look (and not just do
-> > a code only review) because it is a core change. Maybe there
-> > is another way to solve the problem (persistent / predictable
-> > device-names for i2c devices instantiated through board-data),
-> > but I don't think so.
+On Mon, Oct 16, 2017 at 03:12:35AM +0200, Rafael J. Wysocki wrote:
+> Hi All,
 > 
-> My plan is to hopefully meet Mark Brown (SPI and regulator maintainer)
-> at ELCE next week and have a chat with him about this series.
+> Well, this took more time than expected, as I tried to cover everything I had
+> in mind regarding PM flags for drivers.
 
-If you don't mind I would like to join. (Yes, I will be at ELC next
-week)
+For the parts that touch PCI,
 
->  If all
-> goes well, I'll merge it for v4.15.
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
+I doubt there'll be conflicts with changes in my tree, but let me know if
+you trip over any so I can watch for them when merging.
 
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Bjorn
