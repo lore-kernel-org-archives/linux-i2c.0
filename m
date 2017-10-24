@@ -1,110 +1,70 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: [PATCH] i2c: xgene-slimpro: Support v2
-Date: Mon, 23 Oct 2017 15:12:20 -0700
-Message-ID: <1508796740-2294-1-git-send-email-hotran@apm.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:48753 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751282AbdJWWMb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Oct 2017 18:12:31 -0400
-Received: by mail-pg0-f66.google.com with SMTP id v78so12855037pgb.5
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Oct 2017 15:12:31 -0700 (PDT)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH 04/12] PM / core: Add SMART_SUSPEND driver flag
+Date: Tue, 24 Oct 2017 07:22:25 +0200
+Message-ID: <CAPDyKFopE6Pv8fH1U1mhY4io76BbtdNLTJ2b5f-vyfG=rnksvw@mail.gmail.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <2481137.OYGUrPQscL@aspire.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2481137.OYGUrPQscL@aspire.rjw.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, patches@apm.com, Hoan Tran <hotran@apm.com>
 
-This patch supports xgene-slimpro-i2c v2 which uses the non-cachable memory
-as the PCC shared memory.
+On 16 October 2017 at 03:29, Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>
+> Define and document a SMART_SUSPEND flag to instruct bus types and PM
+> domains that the system suspend callbacks provided by the driver can
+> cope with runtime-suspended devices, so from the driver's perspective
+> it should be safe to leave devices in runtime suspend during system
+> suspend.
+>
+> Setting that flag also causes the PM core to skip the "late" and
+> "noirq" phases of device suspend for devices that remain in runtime
+> suspend at the beginning of the "late" phase (when runtime PM has
+> been disabled for them) under the assumption that their state cannot
+> (and should not) change after that point until the system suspend
+> transition is complete.  Moreover, the PM core prevents runtime PM
+> from acting on devices with DPM_FLAG_SMART_SUSPEND during system
+> resume by setting their runtime PM status to "active" at the end of
+> the "early" phase (right prior to enabling runtime PM for them).
+> That allows system resume callbacks to do whatever is necessary to
+> resume the device without worrying about runtime PM possibly
+> running in parallel with them.
 
-Signed-off-by: Hoan Tran <hotran@apm.com>
----
- drivers/i2c/busses/i2c-xgene-slimpro.c | 45 +++++++++++++++++++++++++---------
- 1 file changed, 34 insertions(+), 11 deletions(-)
+After some sleep, I woke up and realized that the hole thing of making
+the PM core skip invoking system sleep callbacks, is not compatible
+with devices being attached to the genpd. Sorry.
 
-diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
-index 7e89ba6..31314d8 100644
---- a/drivers/i2c/busses/i2c-xgene-slimpro.c
-+++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
-@@ -129,6 +129,11 @@ struct slimpro_i2c_dev {
- #define to_slimpro_i2c_dev(cl)	\
- 		container_of(cl, struct slimpro_i2c_dev, mbox_client)
- 
-+enum slimpro_i2c_version {
-+	XGENE_SLIMPRO_I2C_V1 = 0,
-+	XGENE_SLIMPRO_I2C_V2 = 1,
-+};
-+
- /*
-  * This function tests and clears a bitmask then returns its old value
-  */
-@@ -446,6 +451,15 @@ static u32 xgene_slimpro_i2c_func(struct i2c_adapter *adapter)
- 	.functionality = xgene_slimpro_i2c_func,
- };
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
-+	{"APMC0D40", XGENE_SLIMPRO_I2C_V1},
-+	{"APMC0D8B", XGENE_SLIMPRO_I2C_V2},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(acpi, xgene_slimpro_i2c_acpi_ids);
-+#endif
-+
- static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
- {
- 	struct slimpro_i2c_dev *ctx;
-@@ -476,6 +490,17 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
- 		}
- 	} else {
- 		struct acpi_pcct_hw_reduced *cppc_ss;
-+		int version = XGENE_SLIMPRO_I2C_V1;
-+#ifdef CONFIG_ACPI
-+		const struct acpi_device_id *acpi_id;
-+
-+		acpi_id = acpi_match_device(xgene_slimpro_i2c_acpi_ids,
-+					    &pdev->dev);
-+		if (!acpi_id)
-+			return -EINVAL;
-+
-+		version = (int)acpi_id->driver_data;
-+#endif
- 
- 		if (device_property_read_u32(&pdev->dev, "pcc-channel",
- 					     &ctx->mbox_idx))
-@@ -514,9 +539,15 @@ static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
- 		 */
- 		ctx->comm_base_addr = cppc_ss->base_address;
- 		if (ctx->comm_base_addr) {
--			ctx->pcc_comm_addr = memremap(ctx->comm_base_addr,
--						      cppc_ss->length,
--						      MEMREMAP_WB);
-+			if (version == XGENE_SLIMPRO_I2C_V2)
-+				ctx->pcc_comm_addr = (void __force *)ioremap(
-+							ctx->comm_base_addr,
-+							cppc_ss->length);
-+			else
-+				ctx->pcc_comm_addr = memremap(
-+							ctx->comm_base_addr,
-+							cppc_ss->length,
-+							MEMREMAP_WB);
- 		} else {
- 			dev_err(&pdev->dev, "Failed to get PCC comm region\n");
- 			rc = -ENOENT;
-@@ -579,14 +610,6 @@ static int xgene_slimpro_i2c_remove(struct platform_device *pdev)
- };
- MODULE_DEVICE_TABLE(of, xgene_slimpro_i2c_dt_ids);
- 
--#ifdef CONFIG_ACPI
--static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
--	{"APMC0D40", 0},
--	{}
--};
--MODULE_DEVICE_TABLE(acpi, xgene_slimpro_i2c_acpi_ids);
--#endif
--
- static struct platform_driver xgene_slimpro_i2c_driver = {
- 	.probe	= xgene_slimpro_i2c_probe,
- 	.remove	= xgene_slimpro_i2c_remove,
--- 
-1.9.1
+The reason is because genpd may not power off the PM domain, even if
+all devices attached to it are runtime suspended. For example, due to
+a subdomain holding it powered or because a PM QoS constraints
+prevents to power off it in runtime. Then to understand whether it
+shall power off/on the PM domain, during system-wide PM it requires
+the system sleep callbacks to be invoked.
+
+So, even if the driver can cope with the behavior from
+DPM_FLAG_SMART_SUSPEND, then what happens when the PM domain (genpd)
+can not?
+
+Taking this into account, this feels like solution entirely specific
+to ACPI and PCI. That is fine by me, however then we still have those
+cross SoC drivers, the i2c-designware driver, which may have its
+device attached to an ACPI PM domain or perhaps a genpd.
+
+>
+> However, that doesn't apply to transitions involving ->thaw_noirq,
+> ->thaw_early and ->thaw callbacks during hibernation, as they
+> generally are not expected to change the power states of devices.
+> Consequently, if a device is in runtime suspend at the beginning
+> of such a transition, it must stay in runtime suspend until the
+> "complete" phase of it (since the callbacks may not change its
+> power state).
+>
+
+[...]
+
+Kind regards
+Uffe
