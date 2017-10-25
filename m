@@ -1,70 +1,69 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] I2C-Octeon: Use common error handling code in
- octeon_i2c_probe()
-Date: Wed, 25 Oct 2017 11:52:28 +0200
-Message-ID: <73affb84-9cdd-9f5c-b96a-5a392739e789@users.sourceforge.net>
+Subject: [PATCH] I2C-PIIX4: Use common error handling code in piix4_probe()
+Date: Wed, 25 Oct 2017 13:40:55 +0200
+Message-ID: <be36ce5f-9e75-6c05-86a2-ea8368f09dc1@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, David Daney <david.daney@cavium.com>, Jan Glauber <jglauber@cavium.com>, Wolfram Sang <wsa@the-dreams.de>
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 25 Oct 2017 11:45:48 +0200
+Date: Wed, 25 Oct 2017 13:30:18 +0200
 
-Add a jump target so that a specific error message is stored only once
-at the end of this function implementation.
-Replace two calls of the function "dev_err" by goto statements.
+Add a jump target so that a bit of exception handling can be better reused
+at the end of this function.
 
 This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/i2c/busses/i2c-octeon-platdrv.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-index 64bda83e65ac..ac8a1099c523 100644
---- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-+++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-@@ -207,10 +207,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 		result = devm_request_irq(&pdev->dev, i2c->hlc_irq,
- 					  octeon_i2c_hlc_isr78, 0,
- 					  DRV_NAME, i2c);
--		if (result < 0) {
--			dev_err(i2c->dev, "failed to attach interrupt\n");
--			goto out;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 0ecdb47a23ab..22cc56e9f304 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -780,20 +780,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id, 0);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
+-			return retval;
 -		}
-+		if (result < 0)
-+			goto report_failure;
++		if (retval < 0)
++			goto release_region;
+ 
+ 		/*
+ 		 * Try to register multiplexed main SMBus adapter,
+ 		 * give up if we can't
+ 		 */
+ 		retval = piix4_add_adapters_sb800(dev, retval);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
+-			return retval;
+-		}
++		if (retval < 0)
++			goto release_region;
  	} else {
- 		i2c->int_enable = octeon_i2c_int_enable;
- 		i2c->int_disable = octeon_i2c_int_disable;
-@@ -220,10 +218,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+ 		retval = piix4_setup(dev, id);
+ 		if (retval < 0)
+@@ -833,6 +829,10 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	}
  
- 	result = devm_request_irq(&pdev->dev, i2c->irq,
- 				  octeon_i2c_isr, 0, DRV_NAME, i2c);
--	if (result < 0) {
--		dev_err(i2c->dev, "failed to attach interrupt\n");
--		goto out;
--	}
-+	if (result < 0)
-+		goto report_failure;
- 
- 	if (OCTEON_IS_MODEL(OCTEON_CN38XX))
- 		i2c->broken_irq_check = true;
-@@ -251,6 +247,8 @@ static int octeon_i2c_probe(struct platform_device *pdev)
- 	dev_info(i2c->dev, "probed\n");
  	return 0;
++
++release_region:
++	release_region(SB800_PIIX4_SMB_IDX, 2);
++	return retval;
+ }
  
-+report_failure:
-+	dev_err(i2c->dev, "failed to attach interrupt\n");
- out:
- 	return result;
- };
+ static void piix4_adap_remove(struct i2c_adapter *adap)
 -- 
 2.14.3
