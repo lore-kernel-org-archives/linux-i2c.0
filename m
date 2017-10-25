@@ -1,19 +1,28 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] I2C-PIIX4: Use common error handling code in piix4_probe()
-Date: Wed, 25 Oct 2017 13:40:55 +0200
-Message-ID: <be36ce5f-9e75-6c05-86a2-ea8368f09dc1@users.sourceforge.net>
+Subject: [PATCH] I2C-S3C2410: Use common error handling code in
+ s3c24xx_i2c_probe()
+Date: Wed, 25 Oct 2017 15:05:52 +0200
+Message-ID: <32c82282-ee0a-137f-4913-310b194b60f3@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>, Kukjin Kim <kgene@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 25 Oct 2017 13:30:18 +0200
+Date: Wed, 25 Oct 2017 15:00:35 +0200
 
 Add a jump target so that a bit of exception handling can be better reused
 at the end of this function.
@@ -22,48 +31,68 @@ This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/i2c/busses/i2c-piix4.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 0ecdb47a23ab..22cc56e9f304 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -780,20 +780,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 
- 		/* base address location etc changed in SB800 */
- 		retval = piix4_setup_sb800(dev, id, 0);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
--			return retval;
--		}
-+		if (retval < 0)
-+			goto release_region;
- 
- 		/*
- 		 * Try to register multiplexed main SMBus adapter,
- 		 * give up if we can't
- 		 */
- 		retval = piix4_add_adapters_sb800(dev, retval);
--		if (retval < 0) {
--			release_region(SB800_PIIX4_SMB_IDX, 2);
--			return retval;
--		}
-+		if (retval < 0)
-+			goto release_region;
- 	} else {
- 		retval = piix4_setup(dev, id);
- 		if (retval < 0)
-@@ -833,6 +829,10 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5d97510ee48b..304a6d492c8c 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1168,8 +1168,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	clk_disable(i2c->clk);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "I2C controller init failed\n");
+-		clk_unprepare(i2c->clk);
+-		return ret;
++		goto unprepare_clock;
  	}
  
+ 	/*
+@@ -1180,24 +1179,21 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+ 		if (ret <= 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
+-			clk_unprepare(i2c->clk);
+-			return ret;
++			goto unprepare_clock;
+ 		}
+ 
+ 		ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq,
+ 				       0, dev_name(&pdev->dev), i2c);
+ 		if (ret != 0) {
+ 			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+-			clk_unprepare(i2c->clk);
+-			return ret;
++			goto unprepare_clock;
+ 		}
+ 	}
+ 
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
+-		clk_unprepare(i2c->clk);
+-		return ret;
++		goto unprepare_clock;
+ 	}
+ 
+ 	/*
+@@ -1217,12 +1213,15 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	if (ret < 0) {
+ 		pm_runtime_disable(&pdev->dev);
+ 		s3c24xx_i2c_deregister_cpufreq(i2c);
+-		clk_unprepare(i2c->clk);
+-		return ret;
++		goto unprepare_clock;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
  	return 0;
 +
-+release_region:
-+	release_region(SB800_PIIX4_SMB_IDX, 2);
-+	return retval;
++unprepare_clock:
++	clk_unprepare(i2c->clk);
++	return ret;
  }
  
- static void piix4_adap_remove(struct i2c_adapter *adap)
+ static int s3c24xx_i2c_remove(struct platform_device *pdev)
 -- 
 2.14.3
