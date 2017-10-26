@@ -1,91 +1,77 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 11/12] PM: i2c-designware-platdrv: Optimize power
- management
-Date: Thu, 26 Oct 2017 22:41:40 +0200
-Message-ID: <20171026204140.wzrq4lronz4nu6la@ninjato>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
- <2298462.BTY6P2Oy1l@aspire.rjw.lan>
+Subject: Re: [PATCH v2] i2c: aspeed: Deassert reset in probe
+Date: Thu, 26 Oct 2017 22:53:48 +0200
+Message-ID: <20171026205348.zh2gicql4pyyeoaa@ninjato>
+References: <20171018142930.13052-1-joel@jms.id.au>
+ <CA+gwMccb45zXESWJBa528jUa2n_LQdqJD8UFBnfZBkA+q5+mQg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="p4od3itvpvopd5d5"
+        protocol="application/pgp-signature"; boundary="exvvntgzvuhfygzx"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59777 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:59836 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932416AbdJZUlm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Oct 2017 16:41:42 -0400
+        id S1751960AbdJZUxu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Oct 2017 16:53:50 -0400
 Content-Disposition: inline
-In-Reply-To: <2298462.BTY6P2Oy1l@aspire.rjw.lan>
+In-Reply-To: <CA+gwMccb45zXESWJBa528jUa2n_LQdqJD8UFBnfZBkA+q5+mQg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+To: Philipp Zabel <philipp.zabel@gmail.com>
+Cc: Joel Stanley <joel@jms.id.au>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
 
---p4od3itvpvopd5d5
+--exvvntgzvuhfygzx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 16, 2017 at 03:31:17AM +0200, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > +       bus->rst =3D devm_reset_control_get_optional_shared(&pdev->dev,=
+ NULL);
 >=20
-> Optimize the power management in i2c-designware-platdrv by making it
-> set the DPM_FLAG_SMART_SUSPEND and DPM_FLAG_LEAVE_SUSPENDED which
-> allows some code to be dropped from its PM callbacks.
+> This could return error values in case of broken device trees, so you
+> may want to check IS_ERR(bus->rst) and handle the error here.
 >=20
-> First, setting DPM_FLAG_SMART_SUSPEND causes the intel-lpss driver
-> to avoid resuming i2c-designware-platdrv devices in its ->prepare
-> callback, so they can stay in runtime suspend after that point even
-> if the direct-complete feature is not used for them.
+> > +       reset_control_deassert(bus->rst);
 >=20
-> It also causes the PM core to avoid invoking "late" and "noirq"
-> suspend callbacks for these devices if they are in runtime suspend
-> at the beginning of the "late" phase of device suspend during
-> system suspend.  That guarantees dw_i2c_plat_suspend() to be
-> called for a device only if it is not in runtime suspend.
-> Moreover, it also causes the PM core to set the device's runtime
-> PM status to "active" after calling dw_i2c_plat_resume() for
-> it, so the driver doesn't need internal flags to avoid invoking
-> either dw_i2c_plat_suspend() or dw_i2c_plat_resume() twice in
-> a row.
+> Otherwise this will dump a warning.
 >=20
-> Second, setting DPM_FLAG_LEAVE_SUSPENDED enables the optimization
-> allowing the device to stay suspended after system resume under
-> suitable conditions, so again the driver doesn't need to take
-> care of that by itself.
+> > +
+> >         ret =3D of_property_read_u32(pdev->dev.of_node,
+> >                                    "bus-frequency", &bus->bus_frequency=
+);
+> >         if (ret < 0) {
+> > @@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_de=
+vice *pdev)
+> >
+> >         i2c_del_adapter(&bus->adap);
+> >
+> > +       reset_control_assert(bus->rst);
 >=20
-> Accordingly, the internal "suspended" and "skip_resume" flags
-> used by the driver are not necessary any more, so drop them and
-> simplify the driver's PM callbacks.
+> As will this.
 >=20
-> Additionally, notice that dw_i2c_plat_complete() only needs
-> to schedule runtime PM for the device if platform firmware
-> has been involved in resuming the system, so make it call
-> pm_resume_via_firmware() to check that.
->=20
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
 
-So, if the designware maintainers ack it, I will, too.
+Joel, do you want to fix it? I'd think it makes sense...
 
 
---p4od3itvpvopd5d5
+--exvvntgzvuhfygzx
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnySIQACgkQFA3kzBSg
-KbZqfg//eepQ7dfIR99euQ0zyI993jzfRLKBz6UAy5kdpVCo6Hl2E2QcJNecTwFU
-eyNRbrPW6EpXZvE2QqVASNHVVqYCQXSK1mJtopwDmZJHPq1WL1fQ7LlXvk4fPc8S
-KaiPqvZ4s3leeseUgOCkEW8Ee8g2V5k6mZUmotDjL9lGdi80sKcycm4BJ3nWZLaH
-/6KwYYHy7UKTw7LlXgoTQ4qeqLKjngHh6/tv7U/qkeD9Ai9ia21x6x6hzHcshfnS
-QUNPdKMAqJdHJgdXxBQB8aOdupkKj1lV0AXMw+v+CmMh/8gDfsSET5HWt1teVPVR
-2SBZv9bw/AFuZrnAM5vlLvxeBFs91VfP7C/RzjKT+vfHxmiiOfJMgGY2aCY3JsOe
-SqfhT/5gdemKcn3lcPvLjMA+0g4woZI59VOaeSETdSvXPHxfe4Y0D4LtNEKtubc/
-4vw8Kkh5XDLv6WtI1zDjoHcxcdwyQ7tluK/2jUGN2ekm0lnCHjUtKAkQSpZnWSE0
-MXQhqdwatY8GXi5wGxlPu/eAqcgt471/qi1yHvFf1DdKlmcLNRQcF3a7/xW+u2Ct
-qK1w7Y8GElRdzacu0so2bfRMEYPh3tH3JKbFAH/PpmoYIi9+83zi5kLohOPdQ/WI
-9ALXn8cRYaKM0zpFotULZ75sZqEoJqta974bnGTP14m4zLHnkGo=
-=JoV4
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyS1gACgkQFA3kzBSg
+KbZSzxAAslR7gDMr1LdCM/H0cLLPYITdUG5WFZs913qIwLfdG/kn0NXw1Z1H2I+t
+co7RxxBJZgtVVgwZ91qsZ6xyImkVlfIKcgbinDXsXFWNMk33MDMewfe4z2EMwO5z
+2FVL1nRGVnn76JCQ5OCukZUvaq2Bng7ztjOocaFO3gHHI6gqMFX8sw5MoN31z32V
+LosO79oSZqtyUmbOOf8fyAzhev4AC8leUZO2jq8Z/aUnqVGac8BwoWEungWtY9mV
+pqcPfWF03MN/hyWCcF9urQb95qK3/z6HAWslbaHmMOyIC+cJVlNTQ/BF+6d2p5cZ
+RNnkZBvvRSVxMmOR2WkBwRj99RuMhwgLcNScGG9ObkAR4QLihyUH6IktMs49a/Wn
+y+1mS7qu6yDiA8vOUqzf0E/B9NcYF9uScg8hbN/db9eKv23Fe32B7XQJ92AFI5+z
+nfutkiWlsZjaeX5uc9yUsCkYkqjwsdtjLnUKNZhN7N42Mx8Ikeu6kLvsocA6sSge
+LeHxNXsWrdL0YI+3XM6IqVE3J1NYbqd+IXlUs6EigmbMGmR1FEQRnPbf9v/3GECa
+m/1eSdjDwCOAzajPRkGKR0FuZhAGPx4aJUzyVzi36APVDILZ/Bl8XgQ+NAMLHKez
+eglfSFI2Ykts+G+su0qhGRV3dQqTXpdmaoIhYsrZ9RftAlpakgY=
+=bZSh
 -----END PGP SIGNATURE-----
 
---p4od3itvpvopd5d5--
+--exvvntgzvuhfygzx--
