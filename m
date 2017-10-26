@@ -1,80 +1,59 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: make *CNT values configurable
-Date: Thu, 26 Oct 2017 17:16:07 +0300
-Message-ID: <4ddeadd3-aa31-87f4-cd8d-ddf2132edb49@linux.intel.com>
-References: <20171025185022.GA25920@sjc-ads-4188.cisco.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: davinci: use correct format identifier for size_t
+Date: Thu, 26 Oct 2017 22:23:32 +0200
+Message-ID: <20171026202332.gmdqgvqro5vxoxgq@ninjato>
+References: <20171017221709.24992-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7xfhhezh2f7ejwun"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:34119 "EHLO mga06.intel.com"
+Received: from sauhun.de ([88.99.104.3]:59647 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932246AbdJZOUd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Oct 2017 10:20:33 -0400
-In-Reply-To: <20171025185022.GA25920@sjc-ads-4188.cisco.com>
-Content-Language: en-US
+        id S932406AbdJZUXf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Oct 2017 16:23:35 -0400
+Content-Disposition: inline
+In-Reply-To: <20171017221709.24992-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Shikhar Dogra <shidogra@cisco.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, xe-linux-external@cisco.com
+To: linux-i2c@vger.kernel.org
+Cc: Franklin S Cooper Jr <fcooper@ti.com>, Sekhar Nori <nsekhar@ti.com>
 
-Hi
 
-On 10/25/2017 09:50 PM, Shikhar Dogra wrote:
-> The values are already configurable from ACPI.
-> 
-> This patch makes the high count (HCNT) and low count (LCNT)
-> register values configurable through device tree.
-> 
-> Cc: xe-linux-external@cisco.com
-> Signed-off-by: Shikhar Dogra <shidogra@cisco.com>
-> ---
->   Documentation/devicetree/bindings/i2c/i2c-designware.txt | 16 ++++++++++++++++
->   drivers/i2c/busses/i2c-designware-platdrv.c              | 12 ++++++++++++
->   2 files changed, 28 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index fee26dc..2b9ddca 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -20,6 +20,18 @@ Optional properties :
->    - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
->      This value which is by default 300ns is used to compute the tHIGH period.
->   
-> + - i2c-ss-hcnt : should contain the I2C controller standard speed HCNT value.
-> +   If this is not set we use the calculated and more conservative values.
-> +
-> + - i2c-ss-lcnt : should contain the I2C controller standard speed LCNT value.
-> +   If this is not set we use the calculated and more conservative values.
-> +
-> + - i2c-fs-hcnt : should contain the I2C controller fast speed HCNT value.
-> +   If this is not set we use the calculated and more conservative values.
-> +
-> + - i2c-fs-lcnt : should contain the I2C controller fast speed LCNT value.
-> +   If this is not set we use the calculated and more conservative values.
-> +
+--7xfhhezh2f7ejwun
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Worth to add also properties for high-speed while at it.
+On Wed, Oct 18, 2017 at 12:17:09AM +0200, Wolfram Sang wrote:
+> Fixes this warning (found by build testing with 64bit):
+>=20
+> format =E2=80=98%i=E2=80=99 expects argument of type =E2=80=98int=E2=80=
+=99, but argument 3 has type
+> =E2=80=98size_t {aka long unsigned int}=E2=80=99 [-Wformat=3D]
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Out of curiosity, are calculated values by using 
-"i2c-sda-falling-time-ns" and "i2c-scl-falling-time-ns" properties 
-non-optimal on your platform and controller clock?
+Applied to for-next, thanks!
 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 6b00061c..25c3b0c 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -177,6 +177,18 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
->   		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
->   				     &clk_freq);
->   
-> +		of_property_read_u16(pdev->dev.of_node,
-> +				     "i2c-ss-hcnt", &dev->ss_hcnt);
-> +
 
-This patch is against old kernel. These were converted near 2 years ago 
-by the commit 4c5301abbf81 ("i2c: designware: Convert to use unified 
-device property API")
+--7xfhhezh2f7ejwun
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-Jarkko
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyRD8ACgkQFA3kzBSg
+KbZS1xAAjx1Pd96m5tCGwbGzoA3urWOFOfYtorN1F6jrJZFWK614PZZQIWHVXNqU
+6Q9edPEBeexL99MRSjS0j+BEFLwn7PP+/eTQLAWbhi7BpqFszMOglumX8GUoNFaY
+jBaXHEAzbk6Nt3TKTX/uKaD34cSuJdNE4LnPBFU0xmPsmojYfXOk3iaYmEveW+tC
+QEOSkRwDUuzdh62fWKCRUTHP7M6yIN+7HbrseLzgC6dQ0Bbl64YhhX2EXiWl19gf
+7w8v/e+VFYjMgnCgkaybqwSMET3xzAeEX3VQ+r7vM19UDQYjsmRXoHzZ+GbGt17t
+eojJo3kmgBR88VYfkhTMbVeCJ5fvijUFrWn1DE58AXl0J88/785dNzG260lFlV9N
+DEhw/cG3jtM05PQ1vAeF+4V5AqGUGF0kR5aF8OXjcGSFv2osNpZyAbqtjTjJHKTq
+AFmBMHOQUE/0ARaR3f4TcZHTEIUl9qFkDpoMhBIfvXA3Vt3m9/NeHkquxZVysbTb
+Ml/imShY2t/rkLvSSnyAWj1EE372lYGdgZaH1N/eWNk1pbtpvi5Y6F/Vudw0h8H3
+ytlb1Df9kKGkW00uZluleuwjGKk/ODFh+QBxyo988YHuIHdLqnQODtTUD4pTowii
+n6a8qgYp0bHVaKKZoSKsrIqys9pH5SrGrnmQkeFMnJZbkzRDU6A=
+=fo1J
+-----END PGP SIGNATURE-----
+
+--7xfhhezh2f7ejwun--
