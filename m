@@ -1,63 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH resend v5 3/3] platform/x86: intel_cht_int33fe: Update
- fusb302 type string, add properties
-Date: Thu, 26 Oct 2017 22:33:23 +0200
-Message-ID: <20171026203323.w5xj2mms5epda6pt@ninjato>
-References: <20171011094121.6108-1-hdegoede@redhat.com>
- <20171011094121.6108-4-hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: riic: remove clock and frequency restrictions
+Date: Thu, 26 Oct 2017 22:36:22 +0200
+Message-ID: <20171026203622.hyala2lxsjpdshnh@ninjato>
+References: <20171018140459.104351-1-chris.brandt@renesas.com>
+ <20171018163725.ik6ieofpd6ehilbo@ninjato>
+ <SG2PR06MB1165C76C6B35511B21CC70668A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ab45oeqlemti6fn4"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="v7t3jkswcpvpypwj"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:59734 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751228AbdJZUgZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Oct 2017 16:36:25 -0400
 Content-Disposition: inline
-In-Reply-To: <20171011094121.6108-4-hdegoede@redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <SG2PR06MB1165C76C6B35511B21CC70668A4D0@SG2PR06MB1165.apcprd06.prod.outlook.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chris Brandt <Chris.Brandt@renesas.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 
 
---ab45oeqlemti6fn4
+--v7t3jkswcpvpypwj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 11, 2017 at 11:41:21AM +0200, Hans de Goede wrote:
-> The fusb302 driver as merged in staging uses "typec_fusb302" as i2c-id
-> rather then just "fusb302" and needs us to set a number of device-
-> properties, adjust the intel_cht_int33fe driver accordingly.
+
+> I ran checkpatch and fixed everything it found, but it didn't flag that o=
+ne.
 >=20
-> One of the properties set is max-snk-mv which makes the fusb302 driver
-> negotiate up to 12V charging voltage, which is a bad idea on boards
-> which are not setup to handle this, so this commit also adds 2 extra
-> sanity checks to make sure that the expected Whiskey Cove PMIC +
-> TI bq24292i charger combo, which can handle 12V, is present.
 >=20
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> $ scripts/checkpatch.pl z_patches/riic/S4V1/*
+> total: 0 errors, 0 warnings, 169 lines checked
 
-I can't apply this one. Is there an immutable branch I need to pick up?
-Or shall this go via another tree? My base is v4.14-rc5.
+with "--strict" it will find it.
 
 
---ab45oeqlemti6fn4
+--v7t3jkswcpvpypwj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyRpMACgkQFA3kzBSg
-KbYV5hAAmPY9huUdoyhu+YG6Q9+L+i5knzPgh/DnImd8O/g6uEPYJhxyMbX5YSdL
-00M0UBluArH6DUeAZZXJt8Ggq13d3tPvX/EpKDQe4ItA2zmubuBc6glDPKN1apda
-myF+65WB75mSnBpZy6MHf38Tff40Tc0Xya8MNkHHU3W2nd9klAFPc5OQCuQahfFi
-aTOxjV7njt0gcEZj7lH9GFFwBnHuijlJOyR1jIeycOFoUgUu4kBgJZORvuwItGO5
-EnG3tIc0cTE60GzpL9tn8U1YAiuiqZKY8+nyae3HMdcBMJQ9bSRch/heUa403dqr
-b84ir+0/eIzTi4WYCconFxU/vuvJr+lm1qceRlz19j0DOST19M3aTu7YcRbb/LO+
-8yroDv323sl4QOOThKv1mEoDL9p2CCnXLCxXKgGnmKdjbJ5RFoiL6QWoAfBk2lve
-XmPTA6S06P+ntXtoZtinZtef9Am2Woxv3nGydEe3cwoJEx8nFvDuHKGwI3mZkNbI
-kbLovk6R0B2YeZfS9B60HRUyzPIduygZZeZQApGpsyr78zTEbP/yayoKwDidfkbT
-u/Rp4gittCgzkmbtpyG7f609drvxiKyA4XV+6SD8jN6m+JcHNhhDbAvu7RWBopHP
-K3q8ThJcDz0U0uRVamXFuGVQ4skEdV8m5mZC4FPUhaOeHRMCNcQ=
-=Eyki
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyR0YACgkQFA3kzBSg
+KbY8/g//WDk2MzHV+LkVlr0Sk7wnw5k/9tXRczkGEwqCECLN3b1olxk5GYN48V72
+fjti7x9B4Fq2x7yYNPfA/7QCj1qyVHuWqE7Hgov2nFYwUsHGP10smotjH5MA90+3
+/ROdCUu5rk3v0YRRBByJPVzxGzNNxhNvJqGD4xAefwmk3y2nMdkJg3XxN3ncfqPy
+Wyy8YEI7yJpUbmWrvY9XFq14SI8jdkmOMRyrzgWjzWzFYR6WJlP/7LJPWEifzSCC
+4OwPUeh1kco5ePVsFoeve9EoUYahOYJ/uPyeTuAdIXmsdbqLNNMBdiLLqL75zK+P
+APbmtHGSwHqA+gkWlhoFoFJoHepjlbbhZo/+MYsYSoXADdshaSbsjE9O3LuFejyP
+pCjahaRkjfNopn3HVyCJMUcUSLJw2vB5vReG041PBh/nT7peeOmAg4QR3SDpxbma
+piGJj+B39/9kfFhGgSElKul9fge04bCl00QSGpXOEfmqSmXC8pV1WzaXjF+s8yFD
+h7CSxNLXHhGBf90ounrBmV/IQ60yDMu7jQj6XHkG4Go/rg56YWKKKjmWnTpydbi8
+tlAVoliiuSbnOhU+zKIQ2JiDWqSoanitG7BYXdDKxps3IIOpWa9QZaWDIdNGAYNO
+Iz/ms9tK0ILsP32FsN8fESEjal/NgPEiWWLr6QG9IhMw0SKaFvc=
+=qUBN
 -----END PGP SIGNATURE-----
 
---ab45oeqlemti6fn4--
+--v7t3jkswcpvpypwj--
