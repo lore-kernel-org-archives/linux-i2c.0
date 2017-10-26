@@ -1,77 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: aspeed: Deassert reset in probe
-Date: Thu, 26 Oct 2017 22:53:48 +0200
-Message-ID: <20171026205348.zh2gicql4pyyeoaa@ninjato>
-References: <20171018142930.13052-1-joel@jms.id.au>
- <CA+gwMccb45zXESWJBa528jUa2n_LQdqJD8UFBnfZBkA+q5+mQg@mail.gmail.com>
+Subject: Re: [PATCH] i2c/busses: Convert timers to use timer_setup()
+Date: Thu, 26 Oct 2017 23:10:23 +0200
+Message-ID: <20171026211023.cu5yueotpj2qui5r@ninjato>
+References: <20171016232729.GA101069@beast>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="exvvntgzvuhfygzx"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59836 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751960AbdJZUxu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Oct 2017 16:53:50 -0400
+        protocol="application/pgp-signature"; boundary="5bgiksihli626hog"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+gwMccb45zXESWJBa528jUa2n_LQdqJD8UFBnfZBkA+q5+mQg@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20171016232729.GA101069@beast>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Philipp Zabel <philipp.zabel@gmail.com>
-Cc: Joel Stanley <joel@jms.id.au>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
 
---exvvntgzvuhfygzx
+--5bgiksihli626hog
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> > +       bus->rst =3D devm_reset_control_get_optional_shared(&pdev->dev,=
- NULL);
+On Mon, Oct 16, 2017 at 04:27:29PM -0700, Kees Cook wrote:
+> In preparation for unconditionally passing the struct timer_list pointer =
+to
+> all timer callbacks, switch to using the new timer_setup() and from_timer=
+()
+> to pass the timer pointer explicitly.
 >=20
-> This could return error values in case of broken device trees, so you
-> may want to check IS_ERR(bus->rst) and handle the error here.
->=20
-> > +       reset_control_deassert(bus->rst);
->=20
-> Otherwise this will dump a warning.
->=20
-> > +
-> >         ret =3D of_property_read_u32(pdev->dev.of_node,
-> >                                    "bus-frequency", &bus->bus_frequency=
-);
-> >         if (ret < 0) {
-> > @@ -919,6 +925,8 @@ static int aspeed_i2c_remove_bus(struct platform_de=
-vice *pdev)
-> >
-> >         i2c_del_adapter(&bus->adap);
-> >
-> > +       reset_control_assert(bus->rst);
->=20
-> As will this.
->=20
-> Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Vladimir Zapolskiy <vz@mleia.com>
+> Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Joel, do you want to fix it? I'd think it makes sense...
+Applied to for-next, thanks!
 
 
---exvvntgzvuhfygzx
+--5bgiksihli626hog
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyS1gACgkQFA3kzBSg
-KbZSzxAAslR7gDMr1LdCM/H0cLLPYITdUG5WFZs913qIwLfdG/kn0NXw1Z1H2I+t
-co7RxxBJZgtVVgwZ91qsZ6xyImkVlfIKcgbinDXsXFWNMk33MDMewfe4z2EMwO5z
-2FVL1nRGVnn76JCQ5OCukZUvaq2Bng7ztjOocaFO3gHHI6gqMFX8sw5MoN31z32V
-LosO79oSZqtyUmbOOf8fyAzhev4AC8leUZO2jq8Z/aUnqVGac8BwoWEungWtY9mV
-pqcPfWF03MN/hyWCcF9urQb95qK3/z6HAWslbaHmMOyIC+cJVlNTQ/BF+6d2p5cZ
-RNnkZBvvRSVxMmOR2WkBwRj99RuMhwgLcNScGG9ObkAR4QLihyUH6IktMs49a/Wn
-y+1mS7qu6yDiA8vOUqzf0E/B9NcYF9uScg8hbN/db9eKv23Fe32B7XQJ92AFI5+z
-nfutkiWlsZjaeX5uc9yUsCkYkqjwsdtjLnUKNZhN7N42Mx8Ikeu6kLvsocA6sSge
-LeHxNXsWrdL0YI+3XM6IqVE3J1NYbqd+IXlUs6EigmbMGmR1FEQRnPbf9v/3GECa
-m/1eSdjDwCOAzajPRkGKR0FuZhAGPx4aJUzyVzi36APVDILZ/Bl8XgQ+NAMLHKez
-eglfSFI2Ykts+G+su0qhGRV3dQqTXpdmaoIhYsrZ9RftAlpakgY=
-=bZSh
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyTz8ACgkQFA3kzBSg
+KbaXTw//TY3NRJoR3ZhVy8AnfUaFR7fGrfrmpDQwg1NUEmavY4yG7aLM0ZdaYqVU
+jLKk03TKG0AygIg9g0YwwIlBZoYloN++nxvHvds33zQdRd13sgsAJCy9tfPrJBwx
+3sEesqbvxBB5VRN51ZQT90jq0FqH/iKo/IOFAxLC4ZiePBKZKGnfutFf5fCoM18S
+eHorksEkLYfsL45BmvdabLngjPgc2O4YfgRP3Y8bGdcJlwz5TgGnJupw1YUaranB
+6t2sG7Q4Faeku42jzU6gAjZ3gNjyWEZQwWwcahlPbr8TkCOYB6iRf8L6vcbdpLN7
+ukDoxiaxEJaBXa6eO5czgxUIySRdRuklUU9UcUmOTPHNEj0BJdH6+jKvrSzlIP94
+ks63/FB7vYqfXZi/Bg0SwBbKLLu+iqBLIUKsPyeD2kFvbIrVMImV1ZH3SlQ8R5tu
+naZKrQGIauswT7xf8dKGJvohgbo5DIb1tPIzO6qflNYlMdI3Ux8rl1hvrApmS7hU
+n3jWtl7Td1S9IscS0oYAigX5Kl3ORP6HZduFpPmnt/kqe1WIQqgFotAis/5Alxyr
+uEi+Oegz8m/ZDbePMIwNL2yphk/3JuvRU1LvWSeaSSnOw5zOqiM6bcg3dK9g6lDE
+YCviVXaX46mTora55hYsQ/+ummL2lEkw4+QELv046nyCBg35VaY=
+=Etlj
 -----END PGP SIGNATURE-----
 
---exvvntgzvuhfygzx--
+--5bgiksihli626hog--
