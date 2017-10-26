@@ -1,60 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c/busses: Convert timers to use timer_setup()
-Date: Thu, 26 Oct 2017 23:10:23 +0200
-Message-ID: <20171026211023.cu5yueotpj2qui5r@ninjato>
-References: <20171016232729.GA101069@beast>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 11/12] PM: i2c-designware-platdrv: Optimize power management
+Date: Thu, 26 Oct 2017 23:14:08 +0200
+Message-ID: <7872726.1UjM5oeC1r@aspire.rjw.lan>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <2298462.BTY6P2Oy1l@aspire.rjw.lan> <20171026204140.wzrq4lronz4nu6la@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5bgiksihli626hog"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171016232729.GA101069@beast>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20171026204140.wzrq4lronz4nu6la@ninjato>
+Sender: linux-pm-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thursday, October 26, 2017 10:41:40 PM CEST Wolfram Sang wrote:
+> On Mon, Oct 16, 2017 at 03:31:17AM +0200, Rafael J. Wysocki wrote:
+> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > 
+> > Optimize the power management in i2c-designware-platdrv by making it
+> > set the DPM_FLAG_SMART_SUSPEND and DPM_FLAG_LEAVE_SUSPENDED which
+> > allows some code to be dropped from its PM callbacks.
+> > 
+> > First, setting DPM_FLAG_SMART_SUSPEND causes the intel-lpss driver
+> > to avoid resuming i2c-designware-platdrv devices in its ->prepare
+> > callback, so they can stay in runtime suspend after that point even
+> > if the direct-complete feature is not used for them.
+> > 
+> > It also causes the PM core to avoid invoking "late" and "noirq"
+> > suspend callbacks for these devices if they are in runtime suspend
+> > at the beginning of the "late" phase of device suspend during
+> > system suspend.  That guarantees dw_i2c_plat_suspend() to be
+> > called for a device only if it is not in runtime suspend.
+> > Moreover, it also causes the PM core to set the device's runtime
+> > PM status to "active" after calling dw_i2c_plat_resume() for
+> > it, so the driver doesn't need internal flags to avoid invoking
+> > either dw_i2c_plat_suspend() or dw_i2c_plat_resume() twice in
+> > a row.
+> > 
+> > Second, setting DPM_FLAG_LEAVE_SUSPENDED enables the optimization
+> > allowing the device to stay suspended after system resume under
+> > suitable conditions, so again the driver doesn't need to take
+> > care of that by itself.
+> > 
+> > Accordingly, the internal "suspended" and "skip_resume" flags
+> > used by the driver are not necessary any more, so drop them and
+> > simplify the driver's PM callbacks.
+> > 
+> > Additionally, notice that dw_i2c_plat_complete() only needs
+> > to schedule runtime PM for the device if platform firmware
+> > has been involved in resuming the system, so make it call
+> > pm_resume_via_firmware() to check that.
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> 
+> So, if the designware maintainers ack it, I will, too.
 
---5bgiksihli626hog
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks!
 
-On Mon, Oct 16, 2017 at 04:27:29PM -0700, Kees Cook wrote:
-> In preparation for unconditionally passing the struct timer_list pointer =
-to
-> all timer callbacks, switch to using the new timer_setup() and from_timer=
-()
-> to pass the timer pointer explicitly.
->=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Vladimir Zapolskiy <vz@mleia.com>
-> Cc: Sylvain Lemieux <slemieux.tyco@gmail.com>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+I need to post a new revision of the core patches, so I'll send this one
+again later.  Likely during the next cycle.
 
-Applied to for-next, thanks!
-
-
---5bgiksihli626hog
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyTz8ACgkQFA3kzBSg
-KbaXTw//TY3NRJoR3ZhVy8AnfUaFR7fGrfrmpDQwg1NUEmavY4yG7aLM0ZdaYqVU
-jLKk03TKG0AygIg9g0YwwIlBZoYloN++nxvHvds33zQdRd13sgsAJCy9tfPrJBwx
-3sEesqbvxBB5VRN51ZQT90jq0FqH/iKo/IOFAxLC4ZiePBKZKGnfutFf5fCoM18S
-eHorksEkLYfsL45BmvdabLngjPgc2O4YfgRP3Y8bGdcJlwz5TgGnJupw1YUaranB
-6t2sG7Q4Faeku42jzU6gAjZ3gNjyWEZQwWwcahlPbr8TkCOYB6iRf8L6vcbdpLN7
-ukDoxiaxEJaBXa6eO5czgxUIySRdRuklUU9UcUmOTPHNEj0BJdH6+jKvrSzlIP94
-ks63/FB7vYqfXZi/Bg0SwBbKLLu+iqBLIUKsPyeD2kFvbIrVMImV1ZH3SlQ8R5tu
-naZKrQGIauswT7xf8dKGJvohgbo5DIb1tPIzO6qflNYlMdI3Ux8rl1hvrApmS7hU
-n3jWtl7Td1S9IscS0oYAigX5Kl3ORP6HZduFpPmnt/kqe1WIQqgFotAis/5Alxyr
-uEi+Oegz8m/ZDbePMIwNL2yphk/3JuvRU1LvWSeaSSnOw5zOqiM6bcg3dK9g6lDE
-YCviVXaX46mTora55hYsQ/+ummL2lEkw4+QELv046nyCBg35VaY=
-=Etlj
------END PGP SIGNATURE-----
-
---5bgiksihli626hog--
+Thanks,
+Rafael
