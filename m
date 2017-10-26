@@ -1,41 +1,80 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: Re: I2C-Octeon: Use common error handling code in octeon_i2c_probe()
-Date: Thu, 26 Oct 2017 07:00:36 +0200
-Message-ID: <20e16385-afab-1d3d-b682-04589568850e@users.sourceforge.net>
-References: <73affb84-9cdd-9f5c-b96a-5a392739e789@users.sourceforge.net>
- <77df0e64-bf30-b6d0-b28b-ddb3c0574dfe@caviumnetworks.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: make *CNT values configurable
+Date: Thu, 26 Oct 2017 17:16:07 +0300
+Message-ID: <4ddeadd3-aa31-87f4-cd8d-ddf2132edb49@linux.intel.com>
+References: <20171025185022.GA25920@sjc-ads-4188.cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.17.11]:63024 "EHLO mout.web.de"
+Received: from mga06.intel.com ([134.134.136.31]:34119 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750859AbdJZFBJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Oct 2017 01:01:09 -0400
-In-Reply-To: <77df0e64-bf30-b6d0-b28b-ddb3c0574dfe@caviumnetworks.com>
-Content-Language: en-GB
+        id S932246AbdJZOUd (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Oct 2017 10:20:33 -0400
+In-Reply-To: <20171025185022.GA25920@sjc-ads-4188.cisco.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: David Daney <ddaney@caviumnetworks.com>, David Daney <david.daney@cavium.com>, linux-i2c@vger.kernel.org
-Cc: Jan Glauber <jglauber@cavium.com>, Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Shikhar Dogra <shidogra@cisco.com>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, xe-linux-external@cisco.com
 
-> NAK.  We don't need any more Markus Elfring spam.
+Hi
 
-Why do you not like another update suggestion for this use case?
-
-
->> Add a jump target so that a specific error message is stored only once
->> at the end of this function implementation.
+On 10/25/2017 09:50 PM, Shikhar Dogra wrote:
+> The values are already configurable from ACPI.
 > 
-> Please read C standard about duplicate literal strings to see
-> why this is a completely misleading and false statement.
+> This patch makes the high count (HCNT) and low count (LCNT)
+> register values configurable through device tree.
+> 
+> Cc: xe-linux-external@cisco.com
+> Signed-off-by: Shikhar Dogra <shidogra@cisco.com>
+> ---
+>   Documentation/devicetree/bindings/i2c/i2c-designware.txt | 16 ++++++++++++++++
+>   drivers/i2c/busses/i2c-designware-platdrv.c              | 12 ++++++++++++
+>   2 files changed, 28 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> index fee26dc..2b9ddca 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> @@ -20,6 +20,18 @@ Optional properties :
+>    - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
+>      This value which is by default 300ns is used to compute the tHIGH period.
+>   
+> + - i2c-ss-hcnt : should contain the I2C controller standard speed HCNT value.
+> +   If this is not set we use the calculated and more conservative values.
+> +
+> + - i2c-ss-lcnt : should contain the I2C controller standard speed LCNT value.
+> +   If this is not set we use the calculated and more conservative values.
+> +
+> + - i2c-fs-hcnt : should contain the I2C controller fast speed HCNT value.
+> +   If this is not set we use the calculated and more conservative values.
+> +
+> + - i2c-fs-lcnt : should contain the I2C controller fast speed LCNT value.
+> +   If this is not set we use the calculated and more conservative values.
+> +
 
-* I proposed to adjust the position for one function call, didn't I?
+Worth to add also properties for high-speed while at it.
 
-* Do you care for a bit of code reduction?
+Out of curiosity, are calculated values by using 
+"i2c-sda-falling-time-ns" and "i2c-scl-falling-time-ns" properties 
+non-optimal on your platform and controller clock?
 
-* Do you prefer to use an optimisation option like “-fmerge-constants”
-  (instead of integrating the shown small change)?
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 6b00061c..25c3b0c 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -177,6 +177,18 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>   		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+>   				     &clk_freq);
+>   
+> +		of_property_read_u16(pdev->dev.of_node,
+> +				     "i2c-ss-hcnt", &dev->ss_hcnt);
+> +
 
-Regards,
-Markus
+This patch is against old kernel. These were converted near 2 years ago 
+by the commit 4c5301abbf81 ("i2c: designware: Convert to use unified 
+device property API")
+
+-- 
+Jarkko
