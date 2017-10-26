@@ -1,59 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: davinci: use correct format identifier for size_t
-Date: Thu, 26 Oct 2017 22:23:32 +0200
-Message-ID: <20171026202332.gmdqgvqro5vxoxgq@ninjato>
-References: <20171017221709.24992-1-wsa@the-dreams.de>
+Subject: Re: [PULL REQUEST] i2c-mux for 4.15-rc1
+Date: Thu, 26 Oct 2017 22:26:01 +0200
+Message-ID: <20171026202601.pwetelxerqbqniks@ninjato>
+References: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7xfhhezh2f7ejwun"
+        protocol="application/pgp-signature"; boundary="gbveb76ji6zfroj5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59647 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:59666 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932406AbdJZUXf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 26 Oct 2017 16:23:35 -0400
+        id S1751236AbdJZU0D (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 26 Oct 2017 16:26:03 -0400
 Content-Disposition: inline
-In-Reply-To: <20171017221709.24992-1-wsa@the-dreams.de>
+In-Reply-To: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Franklin S Cooper Jr <fcooper@ti.com>, Sekhar Nori <nsekhar@ti.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
---7xfhhezh2f7ejwun
-Content-Type: text/plain; charset=utf-8
+--gbveb76ji6zfroj5
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 18, 2017 at 12:17:09AM +0200, Wolfram Sang wrote:
-> Fixes this warning (found by build testing with 64bit):
+On Fri, Oct 20, 2017 at 05:27:34PM +0200, Peter Rosin wrote:
+> Hi Wolfram,
 >=20
-> format =E2=80=98%i=E2=80=99 expects argument of type =E2=80=98int=E2=80=
-=99, but argument 3 has type
-> =E2=80=98size_t {aka long unsigned int}=E2=80=99 [-Wformat=3D]
+> This cycle has been real quiet for me. There's only the one trivial patch
+> that somewhat simplifies DT parsing in the i2c-mux-reg driver.
 >=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Please pull.
 
-Applied to for-next, thanks!
+Thanks, pulled.
 
 
---7xfhhezh2f7ejwun
+--gbveb76ji6zfroj5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyRD8ACgkQFA3kzBSg
-KbZS1xAAjx1Pd96m5tCGwbGzoA3urWOFOfYtorN1F6jrJZFWK614PZZQIWHVXNqU
-6Q9edPEBeexL99MRSjS0j+BEFLwn7PP+/eTQLAWbhi7BpqFszMOglumX8GUoNFaY
-jBaXHEAzbk6Nt3TKTX/uKaD34cSuJdNE4LnPBFU0xmPsmojYfXOk3iaYmEveW+tC
-QEOSkRwDUuzdh62fWKCRUTHP7M6yIN+7HbrseLzgC6dQ0Bbl64YhhX2EXiWl19gf
-7w8v/e+VFYjMgnCgkaybqwSMET3xzAeEX3VQ+r7vM19UDQYjsmRXoHzZ+GbGt17t
-eojJo3kmgBR88VYfkhTMbVeCJ5fvijUFrWn1DE58AXl0J88/785dNzG260lFlV9N
-DEhw/cG3jtM05PQ1vAeF+4V5AqGUGF0kR5aF8OXjcGSFv2osNpZyAbqtjTjJHKTq
-AFmBMHOQUE/0ARaR3f4TcZHTEIUl9qFkDpoMhBIfvXA3Vt3m9/NeHkquxZVysbTb
-Ml/imShY2t/rkLvSSnyAWj1EE372lYGdgZaH1N/eWNk1pbtpvi5Y6F/Vudw0h8H3
-ytlb1Df9kKGkW00uZluleuwjGKk/ODFh+QBxyo988YHuIHdLqnQODtTUD4pTowii
-n6a8qgYp0bHVaKKZoSKsrIqys9pH5SrGrnmQkeFMnJZbkzRDU6A=
-=fo1J
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnyRNkACgkQFA3kzBSg
+KbbKwhAAoYn7qb2h1f790IBkmWIJJgs1472E8x2vHaiSnZYPYnfO++WalhdPiRMN
+7RymmP39AU3LDQYtr/VqVigr+4SpvIQ+mg6udHAbJaG0U03Hc4wnJMcwbB8JjqO6
+PlG4kfzMFuIYFKoW2YrHWiIFrU8/bFuuQ+WHkjU1XJyZ3jsasYaJUSRf7GK1mKq3
+VgFnENe77y3oU6U1PXP3CB6x/xfBAzbI5Ga5lpp8ep4IiFPXdnTYMcg3TXAa+Ols
+nfO8RbRFnWRD+5/ZK0F/oZLQaRDDpMNjSeXNhf6P16WSSuh1AETheY7AE/akx1b7
+oxs1dPuGeCPzL9av3cE980Brt2dy7BHA+pv3pL6R7xN4Ek5OR+65BvnGcjt0BKZ6
+dhqY48DOHiVAHJXYgkp9dGCN8ruBc+7fi4gzUcDQdRnylXH8jt9luWbR83G6B016
+gB8MWHXlAOkF2/DeRikx+dTkAYq7H2J2usfKZvNCJfMeqhD1EK+87fx3cNemesSV
+wUMnnxHY/yXHZ8fI7WZWkUca/BFVoV7aAmt8CZeF5KjMPCoNPE4jxsXS/5/3d5iL
+iuGy7zsFETFOY7vOkZ+CUZnpCs71ylrMJJ+kcMNhkQZcrAAsds9ccwufyk5XJJXF
+jzWvxE8q49PBhO0MBTGnFyAP9cOOM+Hwu3bFr2pvO7cQ1QMSNA4=
+=xbek
 -----END PGP SIGNATURE-----
 
---7xfhhezh2f7ejwun--
+--gbveb76ji6zfroj5--
