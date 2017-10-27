@@ -1,77 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c/cht-wc-fusb302-immutable branch for v4.15
-Date: Fri, 27 Oct 2017 21:35:51 +0200
-Message-ID: <20171027193546.x5wccdcd7kq3faa6@ninjato>
+Subject: Re: [PATCH v2] i2c: riic: remove clock and frequency restrictions
+Date: Fri, 27 Oct 2017 21:40:33 +0200
+Message-ID: <20171027194033.3rzzcbqcgb3lq4io@ninjato>
+References: <20171027153756.90447-1-chris.brandt@renesas.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ufwmqlvn7p3fmkzf"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="nza6g7ufy7x3fefv"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:35275 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932438AbdJ0Tkj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 27 Oct 2017 15:40:39 -0400
 Content-Disposition: inline
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20171027153756.90447-1-chris.brandt@renesas.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 
 
---ufwmqlvn7p3fmkzf
+--nza6g7ufy7x3fefv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Fri, Oct 27, 2017 at 10:37:56AM -0500, Chris Brandt wrote:
+> Remove the restriction that the parent clock has to be a specific frequen=
+cy
+> and also allow any speed to be supported.
+>=20
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-as discussed before, here is the immutable branch for the i2c-cht-wc
-driver, so you can safely apply Hans' patch "[PATCH resend v5 3/3]
-platform/x86: intel_cht_int33fe: Update fusb302 type string, add
-properties" [1] on top of this.
-
-Thanks,
-
-   Wolfram
-
-[1] http://patchwork.ozlabs.org/patch/824314/
+Applied to for-next, thanks!
 
 
-The following changes since commit bb176f67090ca54869fc1262c913aa69d2ede070:
-
-  Linux 4.14-rc6 (2017-10-23 06:49:47 -0400)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/cht-wc-fusb302-immutable
-
-for you to fetch changes up to 0224d45c9d46401b6d7018a96cfe049c5da7d91c:
-
-  i2c-cht-wc: Add device-properties for fusb302 integration (2017-10-27 15:51:51 +0200)
-
-----------------------------------------------------------------
-Hans de Goede (2):
-      i2c: Allow overriding dev_name through board_info
-      i2c-cht-wc: Add device-properties for fusb302 integration
-
- drivers/i2c/busses/Kconfig      |  5 ++++
- drivers/i2c/busses/i2c-cht-wc.c | 51 +++++++++++++++++++++++++++++++++++------
- drivers/i2c/i2c-core-base.c     | 10 ++++++--
- include/linux/i2c.h             |  2 ++
- 4 files changed, 59 insertions(+), 9 deletions(-)
-
---ufwmqlvn7p3fmkzf
+--nza6g7ufy7x3fefv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnzipIACgkQFA3kzBSg
-KbZjEhAAo2IslrbeXykt87qA5+GLkbUyKGGLi+JIT6jfmt/wVYICUXsm0FRoLhSI
-fz8ZDxmkip7u+VNy+awvHg36hnTXq2/TLQ7nMFwLw81CPpnMOrH0Lm/YoeZHbW9g
-c+PEOBm0+QfRIc81Dk5X4/Vz19X++JvrJDPlJ9/YngLO8aeatQjJamr9ED0cGkZC
-qaOGhUAOzgDureenY0ovNQdTknTr745uAcB09FSos1z2duG99pG5vh6RF1PjJWeX
-E6WRqV7fySr9WohRhhOPPfS1QfsFrGTKALlYloVc1fGd4Bl+1/aRouL0fTaPzv7r
-Z3Kxk5ZHFENjMi1CPETkjtIBARJ8ljsHYeEjWZBdfgmh2maCtFldycHv4qag5D75
-ekM6sesItgFYhOgfEVt7qsq0e6ChrEZYWrLcRnzucoVQY3U+GfVvpvocSUf8uGwB
-1UldsL+BKmplNpi4/ynIgli7X9VoJZxtgBHMfwX1rfc5XHdM8UpgBXSwq9mhXNZq
-sLygaMG6kDRNPGa44ah2vw2aYLAhpi4KSVNi6+UFzW1Qzflh6LRS4Rs31DPgd0BQ
-RdalNtD8Tlrmnz+r5DqgCKAhs32E0dsUm1Fk0MmhNK9sNru1sCvQVsjubaHs2LJ2
-QWoIUDUPEK/XW/aILDYRFKPCa19bi1+t9778Kd4a+/JO5JDJ3bQ=
-=lZcy
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnzi7AACgkQFA3kzBSg
+KbbQnQ/+MphOv6QU/oO2LzpL5zPBtxPu+dm9cUfjJgKIxUkna5qorgXFXRg3pUup
+p+1ccVhs6zpQcx6Y6572b5UpP21EpGJsQQVTuxdoTJZI0Atzov4/IGJ5fA9B5roX
+o6+chf9y7ZBlS1OKBG7+xGmSGJOW7TtX+oRuP+YolRNlAMfgFctM5eAz/YJdOS0l
+8mME7+gkLIM4SI/11gkDdZpn4VEe9mEBs/PJ1kkwSR5iPUEfiKyPwyzHeGgiORSe
+D+jG/rw+fVyK3XTlSUqkT2w1JIBjzYR8GwK9/563VUs+87aONFi8+eOjZShgWPim
+URjWCjS0VSlz+oIy3hZgA6SnyC4eZ41gXZ3zqyqKwtbR9KapdM9sdnbnlhO8Tnc+
+JgVnmerZjWj0vqszbsQpASxl6m0HefumRXA5p8z3IGa8faQR9MMvS21XWRNZw8qa
+2bWThmpj+kZhe6p5+OpdP5exLBg/0BZ4kQlRpKIi92abdUZxH+xZxiqy26pm3vuB
+VhfFxoTmuoZR8fCTwiBtORUQjV2YglrR1JIzIJwOaIqSbqDnzUUIQFDD7o9nRVGq
+zr6qT8H8bMNr/QEHzKiUTBCGqE4e45OOwEbbAJIybfr+au1pt0wPeDOzhZbFFiR9
+xN95mL1EFgBE7qPe9AF0XCawzgU1ye4Hl9v7sQyiN/A3vAKRxME=
+=Upoq
 -----END PGP SIGNATURE-----
 
---ufwmqlvn7p3fmkzf--
+--nza6g7ufy7x3fefv--
