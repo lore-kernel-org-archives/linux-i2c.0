@@ -1,65 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: img-scb: Add runtime PM
-Date: Fri, 27 Oct 2017 22:04:30 +0200
-Message-ID: <20171027200429.cq565fpkedc7luls@ninjato>
-References: <1506937741-32748-1-git-send-email-ed.blake@sondrel.com>
+Subject: Re: [PATCH] i2c: imx: Remove a useless test in
+ 'i2c_imx_init_recovery_info()'
+Date: Fri, 27 Oct 2017 22:08:23 +0200
+Message-ID: <20171027200823.eeltypcwwyuuuvgi@ninjato>
+References: <20170806234953.30682-1-christophe.jaillet@wanadoo.fr>
+ <20170807063617.5wr4i7b7k72uyrit@pengutronix.de>
+ <9279b880-558a-17fb-404c-98012bb0f9f1@wanadoo.fr>
+ <20170808081501.jxhid5rgfeqpshfw@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="txwh4qdkltlhxbtm"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:35369 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750998AbdJ0UEe (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 27 Oct 2017 16:04:34 -0400
+        protocol="application/pgp-signature"; boundary="t5dogecywoc46qvw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1506937741-32748-1-git-send-email-ed.blake@sondrel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20170808081501.jxhid5rgfeqpshfw@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>
 List-Id: linux-i2c@vger.kernel.org
-To: Ed Blake <ed.blake@sondrel.com>
-Cc: linux-i2c@vger.kernel.org
 
 
---txwh4qdkltlhxbtm
-Content-Type: text/plain; charset=us-ascii
+--t5dogecywoc46qvw
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 02, 2017 at 10:49:01AM +0100, Ed Blake wrote:
-> The i2c-img-scb driver already dynamically enables / disables clocks to
-> save power, but doesn't use the runtime PM framework. Convert the
-> driver to use runtime PM, so that dynamic clock management will be
-> disabled when runtime PM is disabled, and so that autosuspend can be
-> used to avoid unnecessarily disabling and re-enabling clocks repeatedly
-> during a sequence of transactions.
+On Tue, Aug 08, 2017 at 10:15:01AM +0200, Uwe Kleine-K=C3=B6nig wrote:
+> On Tue, Aug 08, 2017 at 09:40:59AM +0200, Christophe JAILLET wrote:
+> > Le 07/08/2017 =C3=A0 08:36, Uwe Kleine-K=C3=B6nig a =C3=A9crit :
+> > > On Mon, Aug 07, 2017 at 01:49:53AM +0200, Christophe JAILLET wrote:
+> > > > 'devm_pinctrl_get()' never returns NULL, so this test can be simpli=
+fied.
+> > > That's wrong. If CONFIG_PINCTRL is disabled devm_pinctrl_get returns
+> > > NULL. But I think this shouldn't be considered an error, so your chan=
+ge
+> > > is right, just the commit log is not.
+> > With that said, in fact, I think that the test is correct as is.
+> > If CONFIG_PINCTRL is disabled, we will display an info about a missing
+> > functionality, but would still continue normally without it (i.e. return
+> > PTR_ERR(NULL) =3D 0 =3D success), as stated in the comment in front of
+> > 'i2c_imx_init_recovery_info':
+> >     "These alternative pinmux settings can be described in the device t=
+ree
+> > by
+> >      a separate pinctrl state "gpio". If this is missing this is not a =
+big
+> >      problem, the only implication is that we can't do bus recovery."
+> >=20
+> > So, I won't propose any v2 patch with an updated commit log.
+> > Feel free to update it yourself and apply it if you don't share my anal=
+ysis
+> > above.
 >=20
-> Signed-off-by: Ed Blake <ed.blake@sondrel.com>
+> Then the only issue (maybe?) is that the driver makes use of
+> PTR_ERR(NULL) =3D=3D 0 which I'm not sure is explicitly allowed.
 
-I get on build-testing:
-
-drivers/i2c/busses/i2c-img-scb.c:1164:10: warning: comparison of unsigned e=
-xpression < 0 is always false [-Wtype-limits]
-
-?
+I'll drop this patch for now. If somebody wants this applied, please
+send a V2 with the issues here addressed.
 
 
---txwh4qdkltlhxbtm
+--t5dogecywoc46qvw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnzkUkACgkQFA3kzBSg
-KbbvhQ/+PxF6NIXBbwH0AD4Cg03o/72VAuBmUb+3We7SRz/TPnXtbPwSZF1loSRS
-T26M94ywW7rLAZ/kt6Q434CoZ6z/VuIsCHpQ4tvYXqzH4tf/wHRoVjdBD9F0J+DG
-O6IzYMOqG101TQXreke0tfilY19U4tQI1XWabxIpldePH+WMhGaxlXeepwUmwJdD
-a+oxAb7IKudCjF0biydqzokvFDoEkVGlmVBkTtmRskCg7AR103iozT727O1ZyxOc
-KiclA5y/V14QwpGfV4A4WUvj8nDCf0zgpDobJ+Na5nDEhkgZZEc4eVGe3tTqUDiH
-TZK+t4Oos5xkC/mSzOcXpHXos88mYdVjaFLmVYyL0qTpe55R2s/pUs7eNx3OL7vO
-H8MmTTbA9V8l5x+3AiDj14jPU7S9MUcLGXbPEgc+SQAMelI+b4xlBb6Ne/fWCIxZ
-ER8CzDu3sh3C8LYB58Y1ivbE2DpBxXNhNXbNHET/t8P+/NR05jCOs+ehoxIZoC19
-yIvdvaU+rvxDTgnVq/gRH9OBvu5UvEmjDbwn8kOra8we+lOyYRv7JjXsAjxlrjoD
-oDSQvebrkDsRj4JgG7xBkMm2xlMLG+FvWlsFDIMz1ZEJ+YNIxdDZNIc7fUdI7MGs
-70Qa56x+vONV+OoV238WY2wXdN/PTLhrciAoKlOExljeZDzvdX0=
-=Ofpx
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnzkjcACgkQFA3kzBSg
+KbYRJxAAnJHNGenCeS+tQEvHaYULeWVCI9eHNlde/6nD3d3haKZ2hMp0yJOwoX5e
+xLLxJBThW1rigjEEvWdwNsq2M8RZlmZSxcNq2upKzlOe6WXDTU6dzw0shaeHDrJM
+Gy08KfOe+M8EuBzkCZwOoZU4/XpXdBMytmc2Sa4wgIJ56jyTtFOxpgOH6YGxFdzd
+7bhkMppK4SS3ndJxpMm9E80xN4iY+unxGB1ArRUhnKJdSyrcSglQ5o+jEMIYyN9b
+58AYghHR/ViYNx93DnRlHvJc3bG1KayM5oxp4QakOZgCAGMQ6MA+tiLR2OS/d6EQ
+q5YwetKMEaAQKPHQtJEXaRAbux4Flg4ZcoBEPFae2EsRDTBaa3cpYHs4+FBSyk8v
+LXldG0fjwJT0PULf2jg3QoKj7GxZ1bcMqhaJKgnzxXkNSn5fG44MVGjhNJbQUDxp
+qxh4zBBCKTVTUNYKDZJNMJ6WT8Bek2IwTieQqYxLha1UlFubcpWeYHtokvri8y9G
+hknjQytgaWl1rKyKTdYEJmZS3nQwXuxd6BfuL3ZlME9EDU8i7HMzItDdjxq0Wu+U
+n8sRNEmkgZikd4JU18b4w7cxi09hatBQKKoDhMc1S8G3bP6Ylrxr57+16iNmu2HE
+MBqE+qGzQPXWYg1vGpfSe1asL4l0CDFyIC8erByuWUd3TQAXBIQ=
+=d7tW
 -----END PGP SIGNATURE-----
 
---txwh4qdkltlhxbtm--
+--t5dogecywoc46qvw--
