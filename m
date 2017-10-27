@@ -1,64 +1,56 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 11/12] PM: i2c-designware-platdrv: Optimize power management
-Date: Thu, 26 Oct 2017 23:14:08 +0200
-Message-ID: <7872726.1UjM5oeC1r@aspire.rjw.lan>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <2298462.BTY6P2Oy1l@aspire.rjw.lan> <20171026204140.wzrq4lronz4nu6la@ninjato>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH resend v5 3/3] platform/x86: intel_cht_int33fe: Update
+ fusb302 type string, add properties
+Date: Fri, 27 Oct 2017 12:13:23 +0200
+Message-ID: <5f747f91-0eb8-5566-5de3-b5dfd1f134ce@redhat.com>
+References: <20171011094121.6108-1-hdegoede@redhat.com>
+ <20171011094121.6108-4-hdegoede@redhat.com>
+ <20171026203323.w5xj2mms5epda6pt@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20171026204140.wzrq4lronz4nu6la@ninjato>
-Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54338 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752346AbdJ0KN1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 27 Oct 2017 06:13:27 -0400
+In-Reply-To: <20171026203323.w5xj2mms5epda6pt@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Thursday, October 26, 2017 10:41:40 PM CEST Wolfram Sang wrote:
-> On Mon, Oct 16, 2017 at 03:31:17AM +0200, Rafael J. Wysocki wrote:
-> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > 
-> > Optimize the power management in i2c-designware-platdrv by making it
-> > set the DPM_FLAG_SMART_SUSPEND and DPM_FLAG_LEAVE_SUSPENDED which
-> > allows some code to be dropped from its PM callbacks.
-> > 
-> > First, setting DPM_FLAG_SMART_SUSPEND causes the intel-lpss driver
-> > to avoid resuming i2c-designware-platdrv devices in its ->prepare
-> > callback, so they can stay in runtime suspend after that point even
-> > if the direct-complete feature is not used for them.
-> > 
-> > It also causes the PM core to avoid invoking "late" and "noirq"
-> > suspend callbacks for these devices if they are in runtime suspend
-> > at the beginning of the "late" phase of device suspend during
-> > system suspend.  That guarantees dw_i2c_plat_suspend() to be
-> > called for a device only if it is not in runtime suspend.
-> > Moreover, it also causes the PM core to set the device's runtime
-> > PM status to "active" after calling dw_i2c_plat_resume() for
-> > it, so the driver doesn't need internal flags to avoid invoking
-> > either dw_i2c_plat_suspend() or dw_i2c_plat_resume() twice in
-> > a row.
-> > 
-> > Second, setting DPM_FLAG_LEAVE_SUSPENDED enables the optimization
-> > allowing the device to stay suspended after system resume under
-> > suitable conditions, so again the driver doesn't need to take
-> > care of that by itself.
-> > 
-> > Accordingly, the internal "suspended" and "skip_resume" flags
-> > used by the driver are not necessary any more, so drop them and
-> > simplify the driver's PM callbacks.
-> > 
-> > Additionally, notice that dw_i2c_plat_complete() only needs
-> > to schedule runtime PM for the device if platform firmware
-> > has been involved in resuming the system, so make it call
-> > pm_resume_via_firmware() to check that.
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Hi,
+
+On 26-10-17 22:33, Wolfram Sang wrote:
+> On Wed, Oct 11, 2017 at 11:41:21AM +0200, Hans de Goede wrote:
+>> The fusb302 driver as merged in staging uses "typec_fusb302" as i2c-id
+>> rather then just "fusb302" and needs us to set a number of device-
+>> properties, adjust the intel_cht_int33fe driver accordingly.
+>>
+>> One of the properties set is max-snk-mv which makes the fusb302 driver
+>> negotiate up to 12V charging voltage, which is a bad idea on boards
+>> which are not setup to handle this, so this commit also adds 2 extra
+>> sanity checks to make sure that the expected Whiskey Cove PMIC +
+>> TI bq24292i charger combo, which can handle 12V, is present.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 > 
-> So, if the designware maintainers ack it, I will, too.
+> I can't apply this one. Is there an immutable branch I need to pick up?
+> Or shall this go via another tree? My base is v4.14-rc5.
 
-Thanks!
+It should be applied on top of this patch:
 
-I need to post a new revision of the core patches, so I'll send this one
-again later.  Likely during the next cycle.
+http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/commitdiff/5c003458db40cf3c89aeddd22c6e934c28b5a565
 
-Thanks,
-Rafael
+ From linux-platform-drivers-x86.git/for-next.
+
+So either we are going to need an immutable branch from you
+with the first patch of this series so that the platform/x86
+maintainers can merge this, or the other way around :|
+
+Regards,
+
+Hans
