@@ -1,63 +1,77 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PULL REQUEST] i2c-mux for 4.15-rc1
-Date: Fri, 27 Oct 2017 21:27:57 +0200
-Message-ID: <20171027192757.utcn6duckmfmbvi6@ninjato>
-References: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
+Subject: [PULL REQUEST] i2c/cht-wc-fusb302-immutable branch for v4.15
+Date: Fri, 27 Oct 2017 21:35:51 +0200
+Message-ID: <20171027193546.x5wccdcd7kq3faa6@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="j2jth67jdat7ghmn"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:35223 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750998AbdJ0T2A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 27 Oct 2017 15:28:00 -0400
+        protocol="application/pgp-signature"; boundary="ufwmqlvn7p3fmkzf"
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
 
---j2jth67jdat7ghmn
+--ufwmqlvn7p3fmkzf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi Peda,
+Hi,
 
-> This cycle has been real quiet for me. There's only the one trivial patch
-> that somewhat simplifies DT parsing in the i2c-mux-reg driver.
+as discussed before, here is the immutable branch for the i2c-cht-wc
+driver, so you can safely apply Hans' patch "[PATCH resend v5 3/3]
+platform/x86: intel_cht_int33fe: Update fusb302 type string, add
+properties" [1] on top of this.
 
-Did this maybe slip through the cracks?
-
-http://patchwork.ozlabs.org/patch/816846/
-
-("[trivial] dt-bindings: i2c: i2c-mux: Spelling s/required is/required
-if/")
-
-Regards,
+Thanks,
 
    Wolfram
 
+[1] http://patchwork.ozlabs.org/patch/824314/
 
---j2jth67jdat7ghmn
+
+The following changes since commit bb176f67090ca54869fc1262c913aa69d2ede070:
+
+  Linux 4.14-rc6 (2017-10-23 06:49:47 -0400)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/cht-wc-fusb302-immutable
+
+for you to fetch changes up to 0224d45c9d46401b6d7018a96cfe049c5da7d91c:
+
+  i2c-cht-wc: Add device-properties for fusb302 integration (2017-10-27 15:51:51 +0200)
+
+----------------------------------------------------------------
+Hans de Goede (2):
+      i2c: Allow overriding dev_name through board_info
+      i2c-cht-wc: Add device-properties for fusb302 integration
+
+ drivers/i2c/busses/Kconfig      |  5 ++++
+ drivers/i2c/busses/i2c-cht-wc.c | 51 +++++++++++++++++++++++++++++++++++------
+ drivers/i2c/i2c-core-base.c     | 10 ++++++--
+ include/linux/i2c.h             |  2 ++
+ 4 files changed, 59 insertions(+), 9 deletions(-)
+
+--ufwmqlvn7p3fmkzf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnziLkACgkQFA3kzBSg
-KbYgyA/8CHX+WFD3isjeVmqMvvgCI3hIjpR9BWwgFgUMmXHN8rtsGHLBT7IJ4YTw
-Jb2C9L6eOtJIpPveJfWYYblz0KwqPPnI/QTg/GZGjyZvUxsho4ad8DIyczTi6ERk
-cSI+99MquupxgZyMsSgeqJRJhS5F/i4BKB7TJ1WK6sxAFk3bv6Ih0pLgTme+NcKH
-+ryBfgMwAE2DK+Rkohx5/zqu6awE1/3saFWJEEl76c+nqwseEE3GpGVbFf4mybiS
-zuDl04GkZPcPjB8giB0v69VC+v9ebANYCkgiLjVPjyl/DcfBLJDgAQWj4O6y/vAK
-iA5h9VZ2zoCY7HqiEb2wef6GFBX9pmqLvQCE7F2/oBnIqfcbIb+StdDTw5NvzHWz
-WsxuQTxx7sLgkLaIFpPqOSy5TQKMd5kYMRqf/9H/oCA8288lPiSMjm8cWrcU7So3
-HzY5zcpNSZRkA96AhJ9qWvlXqhFA0UfFJo+S4Nfa9iKFCbzwFrZv96KNDB90tAYI
-zfOqx2nqvmIZ9YpDjnuumDZEtYwEIin1adDmM2sHCOo0mR9TRGgtb9+ySMsU/J/7
-4iovZsBlv2hMyTsHm7SIhIQLMz4qP5bE7YcXIeuWC7OHM7PmZ4azYRo9DhhkKzL8
-byZZNmx3+FDhQkR17RAYIa1kIhsoJaeXJMz148gYCFsJpsg9Z7Q=
-=8aRq
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnzipIACgkQFA3kzBSg
+KbZjEhAAo2IslrbeXykt87qA5+GLkbUyKGGLi+JIT6jfmt/wVYICUXsm0FRoLhSI
+fz8ZDxmkip7u+VNy+awvHg36hnTXq2/TLQ7nMFwLw81CPpnMOrH0Lm/YoeZHbW9g
+c+PEOBm0+QfRIc81Dk5X4/Vz19X++JvrJDPlJ9/YngLO8aeatQjJamr9ED0cGkZC
+qaOGhUAOzgDureenY0ovNQdTknTr745uAcB09FSos1z2duG99pG5vh6RF1PjJWeX
+E6WRqV7fySr9WohRhhOPPfS1QfsFrGTKALlYloVc1fGd4Bl+1/aRouL0fTaPzv7r
+Z3Kxk5ZHFENjMi1CPETkjtIBARJ8ljsHYeEjWZBdfgmh2maCtFldycHv4qag5D75
+ekM6sesItgFYhOgfEVt7qsq0e6ChrEZYWrLcRnzucoVQY3U+GfVvpvocSUf8uGwB
+1UldsL+BKmplNpi4/ynIgli7X9VoJZxtgBHMfwX1rfc5XHdM8UpgBXSwq9mhXNZq
+sLygaMG6kDRNPGa44ah2vw2aYLAhpi4KSVNi6+UFzW1Qzflh6LRS4Rs31DPgd0BQ
+RdalNtD8Tlrmnz+r5DqgCKAhs32E0dsUm1Fk0MmhNK9sNru1sCvQVsjubaHs2LJ2
+QWoIUDUPEK/XW/aILDYRFKPCa19bi1+t9778Kd4a+/JO5JDJ3bQ=
+=lZcy
 -----END PGP SIGNATURE-----
 
---j2jth67jdat7ghmn--
+--ufwmqlvn7p3fmkzf--
