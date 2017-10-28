@@ -1,67 +1,41 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PULL REQUEST] i2c-mux for 4.15-rc1
-Date: Fri, 27 Oct 2017 23:05:16 +0200
-Message-ID: <d7225ec1-8d47-ee9f-8f80-3c9fe2f42a96@axentia.se>
-References: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
- <20171027192757.utcn6duckmfmbvi6@ninjato>
+From: Ed Blake <ed.blake@sondrel.com>
+Subject: Re: [PATCH] i2c: img-scb: Add runtime PM
+Date: Sat, 28 Oct 2017 12:42:42 +0100
+Message-ID: <61f0e41e-3c99-50f7-edc5-746f6445e999@sondrel.com>
+References: <1506937741-32748-1-git-send-email-ed.blake@sondrel.com>
+ <20171027200429.cq565fpkedc7luls@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01on0138.outbound.protection.outlook.com ([104.47.0.138]:49120
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+Received: from mail-ve1eur01on0047.outbound.protection.outlook.com ([104.47.1.47]:3872
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932329AbdJ0VFY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 27 Oct 2017 17:05:24 -0400
-In-Reply-To: <20171027192757.utcn6duckmfmbvi6@ninjato>
+        id S1750930AbdJ1Lmu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 28 Oct 2017 07:42:50 -0400
+In-Reply-To: <20171027200429.cq565fpkedc7luls@ninjato>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: linux-i2c@vger.kernel.org
 
-On 2017-10-27 21:27, Wolfram Sang wrote:
-> Hi Peda,
-> 
->> This cycle has been real quiet for me. There's only the one trivial patch
->> that somewhat simplifies DT parsing in the i2c-mux-reg driver.
-> 
-> Did this maybe slip through the cracks?
-> 
-> http://patchwork.ozlabs.org/patch/816846/
-> 
-> ("[trivial] dt-bindings: i2c: i2c-mux: Spelling s/required is/required
-> if/")
+On 27/10/17 21:04, Wolfram Sang wrote:
+> On Mon, Oct 02, 2017 at 10:49:01AM +0100, Ed Blake wrote:
+>> The i2c-img-scb driver already dynamically enables / disables clocks to
+>> save power, but doesn't use the runtime PM framework. Convert the
+>> driver to use runtime PM, so that dynamic clock management will be
+>> disabled when runtime PM is disabled, and so that autosuspend can be
+>> used to avoid unnecessarily disabling and re-enabling clocks repeatedly
+>> during a sequence of transactions.
+>>
+>> Signed-off-by: Ed Blake <ed.blake@sondrel.com>
+> I get on build-testing:
+>
+> drivers/i2c/busses/i2c-img-scb.c:1164:10: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+>
+> ?
 
-Right. Blush. I blame the immense flow of patches. I just can't seem to
-keep up... :-) Anyway, thanks for catching this and sorry for making you
-do that.
+Sorry, I didn't have that warning enabled.  I'll fix in v2.
 
-Some words for the merge commit:
-
-This trivial patch managed to fall through the cracks and was forgotten
-in the first pull request, as noticed by Wolfram. Thanks.
-
-Please pull.
-
-Cheers,
-Peter
-
-The following changes since commit 3997fb74846f35d0364c5e88e54bc9b166d5a1bc:
-
-  i2c: mux: reg: use of_property_read_bool() (2017-10-20 16:33:07 +0200)
-
-are available in the git repository at:
-
-  https://github.com/peda-r/i2c-mux.git tags/i2c-mux/for-4.15-2
-
-for you to fetch changes up to fcc046801b934ad27ba80e20e3e0f4c97957af58:
-
-  dt-bindings: i2c: i2c-mux: spelling s/required is/required if/ (2017-10-27 22:45:28 +0200)
-
-----------------------------------------------------------------
-Geert Uytterhoeven (1):
-      dt-bindings: i2c: i2c-mux: spelling s/required is/required if/
-
- Documentation/devicetree/bindings/i2c/i2c-mux.txt | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Ed.
