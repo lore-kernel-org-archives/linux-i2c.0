@@ -1,57 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: omap: Trigger bus recovery in lockup case
-Date: Sat, 28 Oct 2017 22:52:55 +0200
-Message-ID: <20171028205255.56qryat6eanhwfcz@ninjato>
-References: <e9b43138-6c01-bc99-9bac-355823bc0c19@ti.com>
- <1507110225-3050-1-git-send-email-claudio.foellmi@ergon.ch>
+Subject: Re: [PATCH] i2c: generic recovery: check SCL before SDA
+Date: Sat, 28 Oct 2017 22:55:46 +0200
+Message-ID: <20171028205546.g7hs4voihbzflfhe@ninjato>
+References: <1507207454-25158-1-git-send-email-claudio.foellmi@ergon.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wy624xugb77ouchi"
+        protocol="application/pgp-signature"; boundary="we4etmz4ccrcuamj"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:39427 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:39449 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751446AbdJ1Uw7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 28 Oct 2017 16:52:59 -0400
+        id S1751478AbdJ1Uzs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 28 Oct 2017 16:55:48 -0400
 Content-Disposition: inline
-In-Reply-To: <1507110225-3050-1-git-send-email-claudio.foellmi@ergon.ch>
+In-Reply-To: <1507207454-25158-1-git-send-email-claudio.foellmi@ergon.ch>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Cc: Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Vignesh R <vigneshr@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---wy624xugb77ouchi
+--we4etmz4ccrcuamj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Oct 05, 2017 at 02:44:14PM +0200, Claudio Foellmi wrote:
+> Move the check for a stuck SCL before the check for a high SDA.
+> This prevent false positives in the specific case that SDA is fine
+> and SCL is stuck, which previously returned 0.
+>=20
+> Also check SDA again after the loop, if we can.
+> Together, these changes should lead to a lot more failed
+> recoveries being caught and returning error codes.
+>=20
+> Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
+
+Applied to for-next, thanks!
+
+Huh, I thought we already fixed the add-SDA-check-after-loop, but seems
+I was wrong :( I am not super happy with the now doubled SDA check, but
+refactoring the whole loop is a seperate change IMO which can be done
+later.
 
 
-> +	if (!(systest & OMAP_I2C_SYSTEST_SCL_I_FUNC))
-> +		return -ETIMEDOUT; /* recovery would not fix SCL */
-
-I'd rather return EBUSY here. It is not that the transaction timed out.
-If you agree, I can fix it locally, no need to resend.
-
-Rest looks good, thanks!
-
-
---wy624xugb77ouchi
+--we4etmz4ccrcuamj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln07iIACgkQFA3kzBSg
-KbbpxQ//QMmLAQm/VQOHTlK+CRIO1Jc6isWKcbscQ6ZViyUzZ+0yWJmvniS4eftb
-NnwTxswdvyddzpSE7xMUx0KKRNJyKO35gPf+6vqXKVPiwFClm3PN+/kz16wVYL4U
-5zCsShukqKUl7iuXOKNMoqj5eEEhoFio2d/nFX9ILZyDwfIElYK9ZHzCpMsmUqYU
-kdi+t7UVqpyNQgT3BGBBkrZaIDsLwvqWjblvn6hc8/yE5MEdlK0Pav6AXVNtF+9H
-sPkYULXr6OYDMYuHBLfiGj61xUP/AP19QvatazEKsOETWb9j5KBT5f4u7M5oQwql
-KQb4M25nkf6FsvCnV93LCtlQlgISx+Pegl5MRv4yJqZEjmy1J1Yg8Wq82tg5KvJL
-uskUFD8vrQP5JhfZk8VWZQhHF7mFiN5DEAQ+gQqLRvDnPUXGf5334Jf8AT51bqCu
-eGfD+PdohiCPE7Q3eSzZy3AWbGVqOvV8V9Bh0CCfZVLVSUaCfx67vJyig7eRfoPP
-BiCx3DPVkUxaXPZ7sQ7RoAqeGIsSYeTUKaPVeNRcW0GHH0yYMwH/YemAuS1cbMEV
-yj+JRnmNVGDOQQbVgKzJ6jQHBcD8gQpbLPolg14z/vRZAPTT08Z51cje2h0KvrNq
-HaMhzhmvZKa23QkUxOP7KKQiv/DM9HabMNfHBQ4t7iTu8XP+hPo=
-=TkmH
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln07tIACgkQFA3kzBSg
+KbbPFBAArvOGFq0aHmW/EQFXTklRQVZxAfQ7Wf9C3GOjDhKHi0urk0tyeSMn4vbg
+SgggkLUpXKuhxV3zoh1NhpsHxZKxyQJWGm1JYeYSmtOfZmE0bUR/0YtwlDPsPCCi
+N2uBegY+7kwz0nNFRsUqFRVryGZoFsXQwfuhcl992HUeYCEummKqG+i2XclEawdc
+g1p4umicZ/9WuCzt9u7dbybM+Epm9iHYuvlfnQaoPCAEstvN+jzUX9jVIs791cQ1
+Z8A1dJe89suKohlVJnxJ6iXD1np7fkvp1BF38HXtEWOA4pIVuoVQiPcuQ2g7+/Rs
+XMqBm+LaNInds6aVlF6RkCQUbTt7P5awiacERGmVxU/CCUliFyRKgHe/yhM3YRtk
+lndXM3NXuTg2iRQPvNYB+aShsql5HIG8aHXuxCPH+sxtFo94UxuSqUcXGeKD3EZ0
+p/dptiMgsNnrLcRqLL9RGEUJMVkZj4Xr4sn17WWWXUKUCmARFNIRMseuCSA3+AzD
+U9DHCI8EuG3I1RtwbMFV4Sbklsi84E1LZwtMNE1QwSc5FsJO1EC6iGkilR/bzVdW
+ZQj2ZjKIsb6UH0G7zvlxYvJF5sZEwcBd9sGTckp7V+znZhjhfYHz37kRdcQnVvKK
+y2Z6VjVLlTeRorMMyugbzGbeQcURUPVM7yxrL0/Mat6eeL2Sk94=
+=UQYQ
 -----END PGP SIGNATURE-----
 
---wy624xugb77ouchi--
+--we4etmz4ccrcuamj--
