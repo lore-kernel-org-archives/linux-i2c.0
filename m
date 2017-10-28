@@ -1,243 +1,60 @@
-From: Ed Blake <ed.blake@sondrel.com>
-Subject: [PATCH v2] i2c: img-scb: Add runtime PM
-Date: Sat, 28 Oct 2017 12:44:34 +0100
-Message-ID: <20171028114434.17352-1-ed.blake@sondrel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: img-scb: Add runtime PM
+Date: Sat, 28 Oct 2017 14:04:31 +0200
+Message-ID: <20171028120431.g2eoiri2vbbeddiy@ninjato>
+References: <20171028114434.17352-1-ed.blake@sondrel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="htfc57wtwajbpely"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr40047.outbound.protection.outlook.com ([40.107.4.47]:19136
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751029AbdJ1Los (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 28 Oct 2017 07:44:48 -0400
+Received: from sauhun.de ([88.99.104.3]:37899 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751029AbdJ1MEf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 28 Oct 2017 08:04:35 -0400
+Content-Disposition: inline
+In-Reply-To: <20171028114434.17352-1-ed.blake@sondrel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, Ed Blake <ed.blake@sondrel.com>
+To: Ed Blake <ed.blake@sondrel.com>
+Cc: linux-i2c@vger.kernel.org
 
-The i2c-img-scb driver already dynamically enables / disables clocks to
-save power, but doesn't use the runtime PM framework. Convert the
-driver to use runtime PM, so that dynamic clock management will be
-disabled when runtime PM is disabled, and so that autosuspend can be
-used to avoid unnecessarily disabling and re-enabling clocks repeatedly
-during a sequence of transactions.
 
-Signed-off-by: Ed Blake <ed.blake@sondrel.com>
----
-Changes in v2:
- - Changed the type of ret in img_i2c_init to int to avoid the warning:
-   comparison of unsigned expression < 0 is always false [-Wtype-limits]
----
- drivers/i2c/busses/i2c-img-scb.c | 97 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 78 insertions(+), 19 deletions(-)
+--htfc57wtwajbpely
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-index 84fb35f6837f..b645c9b18557 100644
---- a/drivers/i2c/busses/i2c-img-scb.c
-+++ b/drivers/i2c/busses/i2c-img-scb.c
-@@ -82,6 +82,7 @@
- #include <linux/module.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
- 
-@@ -280,6 +281,8 @@
- #define ISR_COMPLETE(err)	(ISR_COMPLETE_M | (ISR_STATUS_M & (err)))
- #define ISR_FATAL(err)		(ISR_COMPLETE(err) | ISR_FATAL_M)
- 
-+#define IMG_I2C_PM_TIMEOUT	1000 /* ms */
-+
- enum img_i2c_mode {
- 	MODE_INACTIVE,
- 	MODE_RAW,
-@@ -408,6 +411,9 @@ struct img_i2c {
- 	unsigned int raw_timeout;
- };
- 
-+static int img_i2c_runtime_suspend(struct device *dev);
-+static int img_i2c_runtime_resume(struct device *dev);
-+
- static void img_i2c_writel(struct img_i2c *i2c, u32 offset, u32 value)
- {
- 	writel(value, i2c->base + offset);
-@@ -1054,8 +1060,8 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			atomic = true;
- 	}
- 
--	ret = clk_prepare_enable(i2c->scb_clk);
--	if (ret)
-+	ret = pm_runtime_get_sync(adap->dev.parent);
-+	if (ret < 0)
- 		return ret;
- 
- 	for (i = 0; i < num; i++) {
-@@ -1131,7 +1137,8 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			break;
- 	}
- 
--	clk_disable_unprepare(i2c->scb_clk);
-+	pm_runtime_mark_last_busy(adap->dev.parent);
-+	pm_runtime_put_autosuspend(adap->dev.parent);
- 
- 	return i2c->msg_status ? i2c->msg_status : num;
- }
-@@ -1149,12 +1156,13 @@ static const struct i2c_algorithm img_i2c_algo = {
- static int img_i2c_init(struct img_i2c *i2c)
- {
- 	unsigned int clk_khz, bitrate_khz, clk_period, tckh, tckl, tsdh;
--	unsigned int i, ret, data, prescale, inc, int_bitrate, filt;
-+	unsigned int i, data, prescale, inc, int_bitrate, filt;
- 	struct img_i2c_timings timing;
- 	u32 rev;
-+	int ret;
- 
--	ret = clk_prepare_enable(i2c->scb_clk);
--	if (ret)
-+	ret = pm_runtime_get_sync(i2c->adap.dev.parent);
-+	if (ret < 0)
- 		return ret;
- 
- 	rev = img_i2c_readl(i2c, SCB_CORE_REV_REG);
-@@ -1163,7 +1171,8 @@ static int img_i2c_init(struct img_i2c *i2c)
- 			 "Unknown hardware revision (%d.%d.%d.%d)\n",
- 			 (rev >> 24) & 0xff, (rev >> 16) & 0xff,
- 			 (rev >> 8) & 0xff, rev & 0xff);
--		clk_disable_unprepare(i2c->scb_clk);
-+		pm_runtime_mark_last_busy(i2c->adap.dev.parent);
-+		pm_runtime_put_autosuspend(i2c->adap.dev.parent);
- 		return -EINVAL;
- 	}
- 
-@@ -1314,7 +1323,8 @@ static int img_i2c_init(struct img_i2c *i2c)
- 	/* Perform a synchronous sequence to reset the bus */
- 	ret = img_i2c_reset_bus(i2c);
- 
--	clk_disable_unprepare(i2c->scb_clk);
-+	pm_runtime_mark_last_busy(i2c->adap.dev.parent);
-+	pm_runtime_put_autosuspend(i2c->adap.dev.parent);
- 
- 	return ret;
- }
-@@ -1384,22 +1394,30 @@ static int img_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, i2c);
- 
--	ret = clk_prepare_enable(i2c->sys_clk);
--	if (ret)
--		return ret;
-+	pm_runtime_set_autosuspend_delay(&pdev->dev, IMG_I2C_PM_TIMEOUT);
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+	if (!pm_runtime_enabled(&pdev->dev)) {
-+		ret = img_i2c_runtime_resume(&pdev->dev);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	ret = img_i2c_init(i2c);
- 	if (ret)
--		goto disable_clk;
-+		goto rpm_disable;
- 
- 	ret = i2c_add_numbered_adapter(&i2c->adap);
- 	if (ret < 0)
--		goto disable_clk;
-+		goto rpm_disable;
- 
- 	return 0;
- 
--disable_clk:
--	clk_disable_unprepare(i2c->sys_clk);
-+rpm_disable:
-+	if (!pm_runtime_enabled(&pdev->dev))
-+		img_i2c_runtime_suspend(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	return ret;
- }
- 
-@@ -1408,19 +1426,55 @@ static int img_i2c_remove(struct platform_device *dev)
- 	struct img_i2c *i2c = platform_get_drvdata(dev);
- 
- 	i2c_del_adapter(&i2c->adap);
-+	pm_runtime_disable(&dev->dev);
-+	if (!pm_runtime_status_suspended(&dev->dev))
-+		img_i2c_runtime_suspend(&dev->dev);
-+
-+	return 0;
-+}
-+
-+static int img_i2c_runtime_suspend(struct device *dev)
-+{
-+	struct img_i2c *i2c = dev_get_drvdata(dev);
-+
-+	clk_disable_unprepare(i2c->scb_clk);
- 	clk_disable_unprepare(i2c->sys_clk);
- 
- 	return 0;
- }
- 
-+static int img_i2c_runtime_resume(struct device *dev)
-+{
-+	struct img_i2c *i2c = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = clk_prepare_enable(i2c->sys_clk);
-+	if (ret) {
-+		dev_err(dev, "Unable to enable sys clock\n");
-+		return ret;
-+	}
-+
-+	ret = clk_prepare_enable(i2c->scb_clk);
-+	if (ret) {
-+		dev_err(dev, "Unable to enable scb clock\n");
-+		clk_disable_unprepare(i2c->sys_clk);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- static int img_i2c_suspend(struct device *dev)
- {
- 	struct img_i2c *i2c = dev_get_drvdata(dev);
-+	int ret;
- 
--	img_i2c_switch_mode(i2c, MODE_SUSPEND);
-+	ret = pm_runtime_force_suspend(dev);
-+	if (ret)
-+		return ret;
- 
--	clk_disable_unprepare(i2c->sys_clk);
-+	img_i2c_switch_mode(i2c, MODE_SUSPEND);
- 
- 	return 0;
- }
-@@ -1430,7 +1484,7 @@ static int img_i2c_resume(struct device *dev)
- 	struct img_i2c *i2c = dev_get_drvdata(dev);
- 	int ret;
- 
--	ret = clk_prepare_enable(i2c->sys_clk);
-+	ret = pm_runtime_force_resume(dev);
- 	if (ret)
- 		return ret;
- 
-@@ -1440,7 +1494,12 @@ static int img_i2c_resume(struct device *dev)
- }
- #endif /* CONFIG_PM_SLEEP */
- 
--static SIMPLE_DEV_PM_OPS(img_i2c_pm, img_i2c_suspend, img_i2c_resume);
-+static const struct dev_pm_ops img_i2c_pm = {
-+	SET_RUNTIME_PM_OPS(img_i2c_runtime_suspend,
-+			   img_i2c_runtime_resume,
-+			   NULL)
-+	SET_SYSTEM_SLEEP_PM_OPS(img_i2c_suspend, img_i2c_resume)
-+};
- 
- static const struct of_device_id img_scb_i2c_match[] = {
- 	{ .compatible = "img,scb-i2c" },
--- 
-2.11.0
+oN sAT, oct 28, 2017 at 12:44:34PM +0100, Ed Blake wrote:
+> The i2c-img-scb driver already dynamically enables / disables clocks to
+> save power, but doesn't use the runtime PM framework. Convert the
+> driver to use runtime PM, so that dynamic clock management will be
+> disabled when runtime PM is disabled, and so that autosuspend can be
+> used to avoid unnecessarily disabling and re-enabling clocks repeatedly
+> during a sequence of transactions.
+>=20
+> Signed-off-by: Ed Blake <ed.blake@sondrel.com>
+
+Applied to for-next, thanks!
+
+
+--htfc57wtwajbpely
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln0cksACgkQFA3kzBSg
+KbaE7w//YKdpaf6eAVs9J0RTP+Pvfq6MEdWpbWQPGe2GGjl24v0HicUvHlbx8DDg
+6cMDDWQkvICkSaqoxBO2HL2UGEf9UOz/Fmh7ODuVe1U9Jx7ze5LpCdS7btr/1RrV
+uc/Pglz3dh0j57e388tEnYMpmyNeSYf45Rm2YeoKOA+yo8p/ESgJI2pUA8PejmI7
+agXZjPBTXTFe9eA0TJMnYUWsvF5ypBT7CM8mKnLd9tneC/PIFrY+V5y0ewQVxiQv
+ITlt+zDRGBFjZkCar/SKssaMeM1hUbEIgpk9Z+5cRPKzckgEFN3aHt17TWGdRHQC
+tWCOIbkkle8s0kTRrArQ1FW5ghbM1T1AK7Usjy8yC1LQuunaLngGW62JyknuAlcI
+vofA/LSk+fzxw2mFK2BxV8U4CHihOKyWuSgXlEFD83l15ChIDN+IDbnrAKhiQ3p1
+8LIevo1tDShPcCaSsGwi8vsqA5gtVM4AKSJxw3euehN45bOpvt0qzGdkw1L+uOGy
+L974IfZawYmQP9pudf8g13/AS8wl+leRLqRlMvuaCnTMbXtQI3sb3yNzxQ2OmsQn
+afM7QsMBSru91vTqi6Y2gtcJFgFioNU7UKtwtf58H61cDkHDofI/eS50F5n054/G
+blDemO6P3nIyfbFduZJaZ6nCsw78c1HVQeD2phyJu0suN4uJ2io=
+=c0X2
+-----END PGP SIGNATURE-----
+
+--htfc57wtwajbpely--
