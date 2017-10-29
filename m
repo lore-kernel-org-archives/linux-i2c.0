@@ -1,74 +1,73 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v11 02/10] i2c: i2c-smbus: Move i2c_setup_smbus_alert
- from i2c-smbus to i2c-core-smbus
-Date: Sun, 29 Oct 2017 16:44:08 +0100
-Message-ID: <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
-References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
- <1503567070-115646-3-git-send-email-preid@electromag.com.au>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 0/4] i2c: pca-platform: additional improvements
+Date: Sun, 29 Oct 2017 18:29:18 +0100
+Message-ID: <20171029172918.2xtz2srh2meq45io@ninjato>
+References: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3ttwrb3btjf6zwrj"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="someicsnm7yinxah"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43141 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751621AbdJ2R3W (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 29 Oct 2017 13:29:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1503567070-115646-3-git-send-email-preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: ysato@users.sourceforge.jp, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---3ttwrb3btjf6zwrj
+--someicsnm7yinxah
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 24, 2017 at 05:31:02PM +0800, Phil Reid wrote:
-> In preparation to adding of_i2c_setup_smbus_alert() move
-> i2c_setup_smbus_alert() to core module. of_i2c_setup_smbus_alert()
-> will call i2c_setup_smbus_alert() and this avoid module dependecy issues.
+On Wed, Jul 05, 2017 at 10:13:54PM +1200, Chris Packham wrote:
+> This series addresses some of the points identified by Andy. The series is
+> based on top of i2c/for-next. 2 of the patches from v1 have already been
+> applied so I've dropped them from this version.
+>=20
+> I have compile tested patch 1/1 but I don't have access to sh hardware
+> to actually test the changes on.
+>=20
+> Chris Packham (4):
+>   sh: sh7785lcr: add GPIO lookup table for i2c controller reset
+>   i2c: pca-platform: unconditionally use devm_gpiod_get_optional
+>   i2c: pca-platform: use device_property_read_u32
+>   i2c: pca-platform: drop gpio from platform data
+>=20
+>  arch/blackfin/mach-bf561/boards/acvilon.c |  1 -
+>  arch/sh/boards/board-sh7785lcr.c          | 11 +++++++++-
+>  drivers/i2c/busses/i2c-pca-platform.c     | 34 +++++++++----------------=
+------
+>  include/linux/i2c-pca-platform.h          |  3 ---
+>  4 files changed, 20 insertions(+), 29 deletions(-)
 
-I am not very happy with this but don't want to cause another delay. So,
-I hope we can discuss and fix it incrementally.
-
-=46rom what it does, I really think both setup_alert functions belong to
-i2c-smbus.c. Three possibilities come to my mind (untested, though):
-
-a) use try_then_request_module somehow
-
-b) add to CONFIG_I2C something like:
-	select I2C_SMBUS if OF
-
-c) get rid of i2c-smbus.c entirely and move it all into the core
-
-Dunno if a) or b) have been tried in the course of this series already?
-
-Kind regards,
-
-   Wolfram
+Series looks good to me, too. I'd need ACKs from the SH maintainers,
+though. Technically, from Blackfin maintainers as well. But I haven't
+heard from them in months, so I could go without that.
 
 
---3ttwrb3btjf6zwrj
+--someicsnm7yinxah
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln190QACgkQFA3kzBSg
-KbahfhAAj0Pjm3wgot/4JAZqwufaZfuMfPpIMEDl2xdcdkPrvgfxPZwdM+JknJQK
-c5tHOoijY1XlSAOwv+E8agjUE2YZpBcPIfSeItV6wHFkhYvzawXG6MpV0irUfrC6
-gwv3OaiWTPmSvCrIvDg/ghirvE7lY4uVJlr/mE2GKzVSsGdjSI+TJmnym6HMx4N6
-XYySJlyQh5aBxddt0XTjNMLprIHhgh9rb88MljL4wdYf7dyhwPwjklTlrwy0WjUY
-A8nG+SoQAl1NnYbGizXZFF4z1NOIsxbUrtU759fovNOgPY5juldvTsUZbpDSKrSB
-T2GzXyAAFUi5o2ImCbdYbu7kr/wgfSmMDQtHhBtTnYBc9/5fCCgRMlQKjhVAkIRi
-n+VAS7On3yyJKGpJTi3g2d5riIkBbD7bEL+RRxWOb+xGdEHqA2udW49HA0INqz1C
-Kpon/MIJeR9mB0kERG/TCFuaqPda5BKZZsxFrOVpFdJl7BOqKhBMuo54Q36cYsMP
-/zns0TjqduNXdf8/9VSIzipWYqAO6NLwYHyv17yjubWTX0Hd/WPirfFr+gNaOxOi
-LYc2+4iQc12G77yHUlOox5cCPLKIN2ZzFd+l51rXsJuxdGobtVFm4+7/4Mkig9fx
-pGRod31OiV838WmSbHADesbdHZiVndsusfMs75ZsLlU91vX/WzE=
-=tsb9
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln2D+oACgkQFA3kzBSg
+KbbVNA/9FeZ+qC/dFF3NXE9GKxWrKm9kACxpfLTWFCCbmVl5wZIgBOqluP5dpozI
+Kl8FCX441SLXCZfm/onCbYFPu6YDuGC+envxRgQ/b51Z0wWFur31o/1EVf6bRHm0
+h/Ot4FIPZBV0gzu6O567fqxnkYdc9nn1rOaE5J3/YewnbxAMJ+XzsLhGR5mZqBgU
+GOva4g4LkqYv2PYN6/RRTcL1haw1ZJ+5b/LpbkfLOoX8B8MOm3eoj9TBS7KCIlFq
+fpxYVGJX1QajunTXVzrDRHyMXbhpfvJucuRkxedoeQPykxKCXajNJuF0WtS00o58
+lrsAfr09hSB2vJdgkRcCGHNzH12DaduVDkztyNC/5HALUhY2sInM/Hp7ZFtBrmR/
+Wu8PMz2M8PStWaHY5Yy3+F9eH3Ay1XHXEsD1chCM6TdhBYEVc9leIGmWmDHbdsBB
+0hXTD3r4ArNE/LEWhhbd8N6RP4lKWiFoEiYY19EAA5jDX5L06VJj7mO20pb+j2fz
+a7Agsp4Tvv6X+ScFXTELfnHjy8X4NxYsv74e/MfKFQhplxxAleoQWWWwwSVUMkYT
+IZkAYiaChGX5T1gLhL5Ew6cfhgHu25GUchKzPIOdh38xf5cgbC26hZ9Clvl5B++g
+HzkVU9x5VGZh592+IjjHhSuS5HM/eIVGLnM4mt2QFBcN/ibaG6g=
+=Zyt6
 -----END PGP SIGNATURE-----
 
---3ttwrb3btjf6zwrj--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--someicsnm7yinxah--
