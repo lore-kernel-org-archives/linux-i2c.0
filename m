@@ -1,31 +1,116 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v3] i2c: aspeed: Deassert reset in probe
-Date: Tue, 31 Oct 2017 07:05:46 +1100
-Message-ID: <1509393946.26914.0.camel@kernel.crashing.org>
-References: <20171030034438.26482-1-joel@jms.id.au>
-         <20171030142446.rsvytlcfcuhnkhdj@ninjato>
+From: Hoan Tran <hotran@apm.com>
+Subject: Re: [PATCH] i2c: xgene-slimpro: Support v2
+Date: Mon, 30 Oct 2017 14:33:19 -0700
+Message-ID: <CAFHUOYxFsM0GD7zRcOuOnboC5PHcdsNh=_44P8244nfWjkCpnA@mail.gmail.com>
+References: <1508796740-2294-1-git-send-email-hotran@apm.com>
+ <20171028121135.nltpjjdinzdtfvgj@ninjato> <1509219424.10233.26.camel@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from gate.crashing.org ([63.228.1.57]:48469 "EHLO gate.crashing.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751608AbdJ3UZv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Oct 2017 16:25:51 -0400
-In-Reply-To: <20171030142446.rsvytlcfcuhnkhdj@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1509219424.10233.26.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Loc Ho <lho@apm.com>, patches <patches@apm.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Joel Stanley <joel@jms.id.au>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2017-10-30 at 15:24 +0100, Wolfram Sang wrote:
-> checkpatch --strict says:
-> 
-> CHECK: braces {} should be used on all arms of this statement
+Hi Andy,
 
-And checkpatch should die a horrible death, so what ? :-)
 
-Sorry, I can't help but trolling here when checkpatch enforce obviously
-disgusting and wasteful coding style.
+On Sat, Oct 28, 2017 at 12:37 PM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Sat, 2017-10-28 at 14:11 +0200, Wolfram Sang wrote:
+>> Thanks for the patch!
+>>
+>> On Mon, Oct 23, 2017 at 03:12:20PM -0700, Hoan Tran wrote:
+>> > This patch supports xgene-slimpro-i2c v2 which uses the non-cachable
+>> > memory
+>> > as the PCC shared memory.
+>> >
+>> > Signed-off-by: Hoan Tran <hotran@apm.com>
+>>
+>> I can't tell if __force is justified here but I don't know much about
+>> ACPI... Andy, can you have a look?
+>
+> Few comments to the patch as well.
+>
+>> > +#ifdef CONFIG_ACPI
+>> > +static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
+>> > +   {"APMC0D40", XGENE_SLIMPRO_I2C_V1},
+>> > +   {"APMC0D8B", XGENE_SLIMPRO_I2C_V2},
+>> > +   {}
+>> > +};
+>> > +MODULE_DEVICE_TABLE(acpi, xgene_slimpro_i2c_acpi_ids);
+>> > +#endif
+>
+> No need to move this here...
+>
+>> > +
+>> >  static int xgene_slimpro_i2c_probe(struct platform_device *pdev)
+>> >  {
+>> >     struct slimpro_i2c_dev *ctx;
+>> > @@ -476,6 +490,17 @@ static int xgene_slimpro_i2c_probe(struct
+>> > platform_device *pdev)
+>> >             }
+>> >     } else {
+>> >             struct acpi_pcct_hw_reduced *cppc_ss;
+>> > +           int version = XGENE_SLIMPRO_I2C_V1;
+>> > +#ifdef CONFIG_ACPI
+>
+> Do you really need this ifdef?
+>
+>> > +           const struct acpi_device_id *acpi_id;
+>> > +
+>> > +           acpi_id =
+>> > acpi_match_device(xgene_slimpro_i2c_acpi_ids,
+>
+> ... you may get pointer to id table via pdev.
+>
+>> > +                                       &pdev->dev);
+>> > +           if (!acpi_id)
+>> > +                   return -EINVAL;
+>> > +
+>> > +           version = (int)acpi_id->driver_data;
+>> > +#endif
+>
+>> >             if (ctx->comm_base_addr) {
+>> > -                   ctx->pcc_comm_addr = memremap(ctx-
+>> > >comm_base_addr,
+>> > -                                                 cppc_ss-
+>> > >length,
+>> > -                                                 MEMREMAP_WB);
+>> > +                   if (version == XGENE_SLIMPRO_I2C_V2)
+>> > +                           ctx->pcc_comm_addr = (void __force
+>> > *)ioremap(
+>> > +                                                   ctx-
+>> > >comm_base_addr,
+>> > +                                                   cppc_ss-
+>> > >length);
+>
+> Commit message actually doesn't explain why we switch to iomap over
+> memmap.
+>
+> (__force here is obviously to suppress __iomap annotation for mapped
+> memory)
+>
+> If you need non-cacheable MEMREMAP_WT I guess will do a job.
 
-Ben.
+Yes, I can switch to MEMREMAP_WT.
+
+I'm going to send out another patch soon.
+
+Thanks
+Hoan
+
+>
+>> > +                   else
+>> > +                           ctx->pcc_comm_addr = memremap(
+>> > +                                                   ctx-
+>> > >comm_base_addr,
+>> > +                                                   cppc_ss-
+>> > >length,
+>> > +                                                   MEMREMAP_WB
+>> > );
+>
+> --
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy
