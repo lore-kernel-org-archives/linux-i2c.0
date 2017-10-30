@@ -1,37 +1,48 @@
-From: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Subject: Re: [PATCH v2] i2c: omap: Trigger bus recovery in lockup case
-Date: Mon, 30 Oct 2017 10:11:57 +0100
-Message-ID: <47a1c363-d9a4-015f-60c7-35dca8a41f26@ergon.ch>
-References: <e9b43138-6c01-bc99-9bac-355823bc0c19@ti.com>
- <1507110225-3050-1-git-send-email-claudio.foellmi@ergon.ch>
- <20171028205255.56qryat6eanhwfcz@ninjato>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: i2c-tools 4.0 has been released
+Date: Mon, 30 Oct 2017 11:10:50 +0100
+Message-ID: <20171030111050.31f82e26@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.ergon.ch ([87.239.214.68]:26677 "EHLO mx1.ergon.ch"
+Received: from mx2.suse.de ([195.135.220.15]:50873 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751794AbdJ3JL7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 30 Oct 2017 05:11:59 -0400
-In-Reply-To: <20171028205255.56qryat6eanhwfcz@ninjato>
-Content-Language: en-US
+        id S1752473AbdJ3KKz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Oct 2017 06:10:55 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Vignesh R <vigneshr@ti.com>
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Angelo Compagnucci <angelo.compagnucci@gmail.com>, rpjday@crashcourse.ca, =?UTF-8?B?T25kxZllaiBMeXNvbsSbaw==?= <olysonek@redhat.com>
 
-On 10/28/2017 10:52 PM, Wolfram Sang wrote:
-> 
->> +	if (!(systest & OMAP_I2C_SYSTEST_SCL_I_FUNC))
->> +		return -ETIMEDOUT; /* recovery would not fix SCL */
-> 
-> I'd rather return EBUSY here. It is not that the transaction timed out.
-> If you agree, I can fix it locally, no need to resend.
-> 
-> Rest looks good, thanks!
->
+Hi all,
 
-Agreed, EBUSY is the better choice since that is also what the actual recovery would return.
+After 6 years of waiting, a new version of i2c-tools is finally out. It
+marks a significant milestone of the project, because we finally got
+rid of the huge ugly i2c-dev.h header file full of inline functions
+that was interfacing with the kernel, and replaced it with a small
+library. This means no more code duplication, no more compiler
+warnings, and no more confusion and collision with kernel header files.
+Hopefully.
+
+Note that libi2c is released under the LGPL, as you would expect for a
+library.
+
+You can download i2c-tools 4.0 at the usual place:
+https://www.kernel.org/pub/software/utils/i2c-tools/
+
+You can check the CHANGES file for a list of other improvements. Most
+notably:
+ * Many fixes and improvements to decode-dimms, although unfortunately
+   it is still missing DDR4 support.
+ * New manual pages and examples added to existing manual pages.
+ * New tool written by Wolfram Sang to transfer raw I2C messages:
+   i2ctransfer.
+ * Support for python 3.
+
+Please let me know if anything doesn't work or doesn't look good.
 
 Thanks,
-Claudio
+-- 
+Jean Delvare
+SUSE L3 Support
