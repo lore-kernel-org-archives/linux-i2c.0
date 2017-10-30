@@ -1,111 +1,66 @@
-From: Philipp Zabel <philipp.zabel@gmail.com>
-Subject: Re: [PATCH v3] i2c: aspeed: Deassert reset in probe
-Date: Mon, 30 Oct 2017 17:09:21 +0100
-Message-ID: <CA+gwMccgGGNctf0iJb6548amRxUMxBUxrMDN8LvMmcx-LSqRsw@mail.gmail.com>
-References: <20171030034438.26482-1-joel@jms.id.au>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Looking for AT24 maintainer
+Date: Mon, 30 Oct 2017 19:39:30 +0100
+Message-ID: <20171030183926.flybg3oestd43c7h@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kxepjko6kpshqj3v"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ua0-f196.google.com ([209.85.217.196]:50200 "EHLO
-        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751475AbdJ3QJX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Oct 2017 12:09:23 -0400
-In-Reply-To: <20171030034438.26482-1-joel@jms.id.au>
+Received: from sauhun.de ([88.99.104.3]:48448 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751952AbdJ3Sjc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Oct 2017 14:39:32 -0400
+Content-Disposition: inline
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Heiner Kallweit <hkallweit1@gmail.com>, Javier Martinez Canillas <javierm@redhat.com>
 
-On Mon, Oct 30, 2017 at 4:44 AM, Joel Stanley <joel@jms.id.au> wrote:
-> In order to use i2c from a cold boot, the i2c peripheral must be taken
-> out of reset. We request a shared reset controller each time a bus
-> driver is loaded, as the reset is shared between the 14 i2c buses.
->
-> On remove the reset is asserted, which only touches the hardware once
-> the last i2c bus is removed.
->
-> The request is optional, so if a device tree does not specify a reset
-> controller (or the driver is not built in), the driver continues to
-> probe.
->
-> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-> Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
-> Signed-off-by: Joel Stanley <joel@jms.id.au>
-> ---
-> v3: Check for bad reset controller probe (caused by eg. bad device tree)
->     and set ->rst to NULL so assert/desassert does not cause a warning to
->     be printed
-> v2: Sort the headers
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 284f8670dbeb..5dec00d663eb 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -12,6 +12,7 @@
->
->  #include <linux/clk.h>
->  #include <linux/completion.h>
-> +#include <linux/delay.h>
->  #include <linux/err.h>
->  #include <linux/errno.h>
->  #include <linux/i2c.h>
-> @@ -27,6 +28,7 @@
->  #include <linux/of_irq.h>
->  #include <linux/of_platform.h>
->  #include <linux/platform_device.h>
-> +#include <linux/reset.h>
->  #include <linux/slab.h>
->
->  /* I2C Register */
-> @@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
->         struct i2c_adapter              adap;
->         struct device                   *dev;
->         void __iomem                    *base;
-> +       struct reset_control            *rst;
->         /* Synchronizes I/O mem access to base. */
->         spinlock_t                      lock;
->         struct completion               cmd_complete;
-> @@ -847,6 +850,13 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->         /* We just need the clock rate, we don't actually use the clk object. */
->         devm_clk_put(&pdev->dev, parent_clk);
->
-> +       bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-> +       if (IS_ERR(bus->rst)) {
-> +               dev_err(&pdev->dev, "invalid reset controller in device tree");
-> +               bus->rst = NULL;
-> +       } else
-> +               reset_control_deassert(bus->rst);
 
-devm_reset_control_get_optional_shared returns NULL if no reset is
-given in the device tree,
-and reset_control_deassert will just ignore a NULL parameter. I would
-suggest to change this to:
+--kxepjko6kpshqj3v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-        bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-        if (IS_ERR(bus->rst)) {
-                dev_err(&pdev->dev, "invalid reset controller in device tree");
-                return PTR_ERR(bus->rst);
-        }
-        reset_control_deassert(bus->rst);
+Hi,
 
-> +
->         ret = of_property_read_u32(pdev->dev.of_node,
->                                    "bus-frequency", &bus->bus_frequency);
->         if (ret < 0) {
-> @@ -919,6 +929,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
->
->         i2c_del_adapter(&bus->adap);
->
-> +       reset_control_assert(bus->rst);
-> +
->         return 0;
->  }
->
-> --
-> 2.14.1
+quite obviously, I don't have the time anymore to maintain the AT24
+driver. So, I am looking for someone to take over maintainership. It is
+a driver with very few patches coming in. It is just that they piled up
+a bit due to my inability to process them. I think it is a good driver
+to start being a maintainer and I'd be there if questions arise.
 
-regards
-Philipp
+I put some people on CC which were active on this driver somewhat
+recently or people having substantial patches pending because I assume
+they have an interest in this driver. But anyone who is interested and
+has some experiences with the Kernel workflow is welcome to reply here,
+so we can start discussing things.
+
+If nobody wants, I'll just orphan it the next merge window, to make the
+current status official :/
+
+All the best,
+
+   Wolfram
+
+
+--kxepjko6kpshqj3v
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln3cdkACgkQFA3kzBSg
+KbYAgxAAqZ4QPKDs0pCnxvzaGn36hGTs97YbtHaJUWflUcATS4ZVPwH8o7QdIYWS
+vN3ZcJifkUbYPlZ0loortOoT7P98LlMcRsuiIw91TSbtBgZBJl67G2mxvScCT6uh
+loc8rDvrVs9rBnf7/XJHXbeRcigJLEm/YS1UICCGed9T3oPuwHEBeRR2VT+MqYaw
+pInd1+ePBCg3epMh76izzgWE6RTWVP6ftBlvdJM9kNm4zSKDl067In6jyT0cKNT+
+1cWcT+hW5p/mZpfWaOPy6JhrNHlqUR+0EuKRZISik6DtEjthR6C4lLVnPLmdqkId
+Q/pWKc9dNtHf7NJOs6kU4WItcATZJcvy60am9AEAVqdVIXMsNTXw4QtNlsI81BuS
+hZBFVaaqFO/W8a6p9TpOiaY7/wQE0oE9TwBGOxijZ1rZPTCCK7asnSXo7aZUKjCB
+Jj9n2rrfhMZZooLPiL3QsowxKjpBl+hR/Vo3gaM6i7l5ywNfEG6utzQwlcnQ/8kY
+w9Ic65Sog6LHkhI8ULXsc1rJ4k8sfX1DurKIBMFDihgYUMOWu+XT3odplPZRVc6D
+HY2OFJVMtrQMpydoGEX5D44Y8qTphyTkLiv4VKEAnljzY7xTgiZ+/r9l7jdUrY+P
+e0DSILtUqNH3x29xajgdjMCe41JyayHrPlS56dBvgWDB8Uerl88=
+=kNmo
+-----END PGP SIGNATURE-----
+
+--kxepjko6kpshqj3v--
