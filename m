@@ -1,86 +1,63 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: [PATCH v3] i2c: aspeed: Deassert reset in probe
-Date: Mon, 30 Oct 2017 14:14:38 +1030
-Message-ID: <20171030034438.26482-1-joel@jms.id.au>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH v11 02/10] i2c: i2c-smbus: Move i2c_setup_smbus_alert from
+ i2c-smbus to i2c-core-smbus
+Date: Mon, 30 Oct 2017 12:23:05 +0800
+Message-ID: <1397131b-c22d-9872-dbe0-9b691553cb9e@electromag.com.au>
+References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
+ <1503567070-115646-3-git-send-email-preid@electromag.com.au>
+ <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
+Content-Language: en-AU
+Sender: linux-pm-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, benjamin.tissoires@redhat.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In order to use i2c from a cold boot, the i2c peripheral must be taken
-out of reset. We request a shared reset controller each time a bus
-driver is loaded, as the reset is shared between the 14 i2c buses.
+On 29/10/2017 23:44, Wolfram Sang wrote:
+> On Thu, Aug 24, 2017 at 05:31:02PM +0800, Phil Reid wrote:
+>> In preparation to adding of_i2c_setup_smbus_alert() move
+>> i2c_setup_smbus_alert() to core module. of_i2c_setup_smbus_alert()
+>> will call i2c_setup_smbus_alert() and this avoid module dependecy issues.
+> 
+> I am not very happy with this but don't want to cause another delay. So,
+> I hope we can discuss and fix it incrementally.
+> 
+>  From what it does, I really think both setup_alert functions belong to
+> i2c-smbus.c. Three possibilities come to my mind (untested, though):
+> 
+> a) use try_then_request_module somehow
+> 
+> b) add to CONFIG_I2C something like:
+> 	select I2C_SMBUS if OF
+> 
+> c) get rid of i2c-smbus.c entirely and move it all into the core
+> 
+> Dunno if a) or b) have been tried in the course of this series already?
+> 
+G'day Wolfram, Thanks for reviewing.
 
-On remove the reset is asserted, which only touches the hardware once
-the last i2c bus is removed.
+Nope hadn't tried either a) or b).
+a) is not something I was aware of.
+Had a brief play and not sure how to make this work. This gives me the same linking problem.
 
-The request is optional, so if a device tree does not specify a reset
-controller (or the driver is not built in), the driver continues to
-probe.
+A variant of b) was tried by selecting I2C_SMBUS from driver modules having smbalert support,
+but that caused problems if the i2c core was builtin and the driver was a module. But this looks
+to work for me.
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
----
-v3: Check for bad reset controller probe (caused by eg. bad device tree)
-    and set ->rst to NULL so assert/desassert does not cause a warning to
-    be printed
-v2: Sort the headers
----
- drivers/i2c/busses/i2c-aspeed.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+A variant of c) with option to exclude the i2c-smbus code still.
+Add i2c-smbus to the i2c-core module by:
+Change Kconfig I2C_SMBUS to a bool
+add i2c-smbus to i2c-core object.
+fixup duplicate init_module calls etc.
+Possibly also rename i2c-smbus to i2c-smbus-alert?
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 284f8670dbeb..5dec00d663eb 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -27,6 +28,7 @@
- #include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/reset.h>
- #include <linux/slab.h>
- 
- /* I2C Register */
-@@ -132,6 +134,7 @@ struct aspeed_i2c_bus {
- 	struct i2c_adapter		adap;
- 	struct device			*dev;
- 	void __iomem			*base;
-+	struct reset_control		*rst;
- 	/* Synchronizes I/O mem access to base. */
- 	spinlock_t			lock;
- 	struct completion		cmd_complete;
-@@ -847,6 +850,13 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	/* We just need the clock rate, we don't actually use the clk object. */
- 	devm_clk_put(&pdev->dev, parent_clk);
- 
-+	bus->rst = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
-+	if (IS_ERR(bus->rst)) {
-+		dev_err(&pdev->dev, "invalid reset controller in device tree");
-+		bus->rst = NULL;
-+	} else
-+		reset_control_deassert(bus->rst);
-+
- 	ret = of_property_read_u32(pdev->dev.of_node,
- 				   "bus-frequency", &bus->bus_frequency);
- 	if (ret < 0) {
-@@ -919,6 +929,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&bus->adap);
- 
-+	reset_control_assert(bus->rst);
-+
- 	return 0;
- }
- 
+Let me know your preference and I'll put something together.
+
+
 -- 
-2.14.1
+Regards
+Phil Reid
