@@ -1,42 +1,41 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 0/7 v3] I2C GPIO to use gpiolibs open drain
-Date: Mon, 30 Oct 2017 08:52:18 +0100
-Message-ID: <CACRpkdbX6O527z3B-jYUFQ-udwsQnD0iLPaTAwcj-1r24KR=Lw@mail.gmail.com>
-References: <20171005110310.5900-1-linus.walleij@linaro.org>
- <CACRpkdbjyDWFpb5p6kQTRm8Q=rM5L-Mhi4Q1rphEmOwgF6SHVg@mail.gmail.com>
- <20171027134918.uclfmwgmukshwi5z@ninjato> <20171030002808.ytay6nvqose4jspr@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PULL REQUEST] i2c-mux for 4.15-rc1
+Date: Mon, 30 Oct 2017 09:31:45 +0100
+Message-ID: <0bc3d5d8-c5dd-d44c-0b58-2793155982f1@axentia.se>
+References: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
+ <20171027192757.utcn6duckmfmbvi6@ninjato>
+ <d7225ec1-8d47-ee9f-8f80-3c9fe2f42a96@axentia.se>
+ <20171028122544.k6rua34we4mmlbth@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:47944 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751417AbdJ3HwU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Oct 2017 03:52:20 -0400
-Received: by mail-io0-f196.google.com with SMTP id h70so25113689ioi.4
-        for <linux-i2c@vger.kernel.org>; Mon, 30 Oct 2017 00:52:19 -0700 (PDT)
-In-Reply-To: <20171030002808.ytay6nvqose4jspr@ninjato>
+Received: from mail-he1eur01on0090.outbound.protection.outlook.com ([104.47.0.90]:12614
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751390AbdJ3Ibv (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Oct 2017 04:31:51 -0400
+In-Reply-To: <20171028122544.k6rua34we4mmlbth@ninjato>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Oct 30, 2017 at 1:28 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+On 2017-10-28 14:25, Wolfram Sang wrote:
+> 
+>> Right. Blush. I blame the immense flow of patches. I just can't seem to
+>> keep up... :-) Anyway, thanks for catching this and sorry for making you
+>> do that.
+> 
+> No worries. Patchwork makes it easy for me to track patches. Speaking
+> of, if you register at patchwork.ozlabs.org, then I could assign you the
+> patches for the mux subsystem. Then you'd have the patches listed. Just
+> saying...
 
->> don't get ACKs for Blackfin these days, but there is still some MIPS and
->> MFD ack missing? Can you ping them again?
->
-> Update: Lee's ack is already collected and Ralf acked V1 of this series.
-> Did you miss to include it in v3? Or did the patch change so much?
+Sounds like a splendid idea. I signed up as 'peda'.
 
-Their ACKs are on the relevant patches on the git branch AFAICT
-but if you want I can resend the patches too.
+Do you need anything else?
 
-BTW my branch contains my changelogs as well,
-so it should be edited to remove those (below the ---)
-for convenience I also published a branch without them:
-git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git for-wolfram
-
-If you want to pull from my tree, take this :)
-
-Yours,
-Linus Walleij
+Cheers,
+Peter
