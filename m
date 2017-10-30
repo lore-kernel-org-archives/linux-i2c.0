@@ -1,57 +1,37 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PULL REQUEST] i2c-mux for 4.15-rc1
-Date: Mon, 30 Oct 2017 09:39:18 +0100
-Message-ID: <20171030083918.fn2jx4njmlha6j4r@ninjato>
-References: <21496b51-370f-2009-b25c-881c524fe2b9@axentia.se>
- <20171027192757.utcn6duckmfmbvi6@ninjato>
- <d7225ec1-8d47-ee9f-8f80-3c9fe2f42a96@axentia.se>
- <20171028122544.k6rua34we4mmlbth@ninjato>
- <0bc3d5d8-c5dd-d44c-0b58-2793155982f1@axentia.se>
+From: Claudio Foellmi <claudio.foellmi@ergon.ch>
+Subject: Re: [PATCH v2] i2c: omap: Trigger bus recovery in lockup case
+Date: Mon, 30 Oct 2017 10:11:57 +0100
+Message-ID: <47a1c363-d9a4-015f-60c7-35dca8a41f26@ergon.ch>
+References: <e9b43138-6c01-bc99-9bac-355823bc0c19@ti.com>
+ <1507110225-3050-1-git-send-email-claudio.foellmi@ergon.ch>
+ <20171028205255.56qryat6eanhwfcz@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kxlwcc6ycnf5sff3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0bc3d5d8-c5dd-d44c-0b58-2793155982f1@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx1.ergon.ch ([87.239.214.68]:26677 "EHLO mx1.ergon.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751794AbdJ3JL7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 30 Oct 2017 05:11:59 -0400
+In-Reply-To: <20171028205255.56qryat6eanhwfcz@ninjato>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "Cooper Jr., Franklin" <fcooper@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Vignesh R <vigneshr@ti.com>
 
+On 10/28/2017 10:52 PM, Wolfram Sang wrote:
+> 
+>> +	if (!(systest & OMAP_I2C_SYSTEST_SCL_I_FUNC))
+>> +		return -ETIMEDOUT; /* recovery would not fix SCL */
+> 
+> I'd rather return EBUSY here. It is not that the transaction timed out.
+> If you agree, I can fix it locally, no need to resend.
+> 
+> Rest looks good, thanks!
+>
 
---kxlwcc6ycnf5sff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Agreed, EBUSY is the better choice since that is also what the actual recovery would return.
 
-
-> Sounds like a splendid idea. I signed up as 'peda'.
-
-Great!
-
-> Do you need anything else?
-
-Nope, I need to ask Jeremy to add you to the i2c project. Can't do this
-myself, sadly. Will keep you updated!
-
-
---kxlwcc6ycnf5sff3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln25TEACgkQFA3kzBSg
-KbZOEw/+JuQc3QgvtzRN4Ztk0rtPwxW92uEde05MKvir4Z0FZZ5Vz6y6iyxGqvS/
-ANxbU+yKYXUxCwXq74HmNhBbBpvixcJ/GdmV+bdEQwEPkuHJBhR8qbkcrjfQoSFa
-NVsYq51WwCKnuVhWRw+gqt89z04wCss9R2Rbva8c6qrrzwgA7keAAD8v+m/+xo7j
-1/ijORUqbfHfzWPABgcbc5KSaDyaXeXhy0SxfCcVQYFsN1DIia9fqbaHUJQheJNT
-UZ782vF1lmCiU4YqKK7WB8RuPXh3T62K3vTp/XrblSgVwWnNwP4l8uvr5sXAmBUu
-sjzjW+Brgt5R5XyME3jqf8ws5oDdhcX0X9mmqLuUxZS7NDpytgy9O4Ki/w3MkpTd
-fmjPskUVL80SX+gcYsi6IuAtIa5iGcz2+OjW+qzABr7FvDY3SUIPPBAvQZC2MYB+
-W/UT82SjOb4k8OXDXvX6ZZ5A6Dj/JagRp1Dzt70IyaXbKhmqzOODMXtLHO5hKK1T
-3fPN2NoeruZOGmXjrZNOSh2OGELBwxdau0VBs4Jx2FYuu6ImKCXjEBgzD45+1wDQ
-p7oY5QvJNmZDMOuGlmaGHes5+H0Tb7K7Jeixij5K5j6dIcCna+bzuCiaXg1WUUoB
-yejYXvRiYXdr3q0J5gPjNAUoloJC8RcJsSbA3Cn7U6YkzEqqHIg=
-=qaug
------END PGP SIGNATURE-----
-
---kxlwcc6ycnf5sff3--
+Thanks,
+Claudio
