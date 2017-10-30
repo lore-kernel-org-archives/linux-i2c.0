@@ -1,63 +1,42 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v11 02/10] i2c: i2c-smbus: Move i2c_setup_smbus_alert from
- i2c-smbus to i2c-core-smbus
-Date: Mon, 30 Oct 2017 12:23:05 +0800
-Message-ID: <1397131b-c22d-9872-dbe0-9b691553cb9e@electromag.com.au>
-References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
- <1503567070-115646-3-git-send-email-preid@electromag.com.au>
- <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 0/7 v3] I2C GPIO to use gpiolibs open drain
+Date: Mon, 30 Oct 2017 08:52:18 +0100
+Message-ID: <CACRpkdbX6O527z3B-jYUFQ-udwsQnD0iLPaTAwcj-1r24KR=Lw@mail.gmail.com>
+References: <20171005110310.5900-1-linus.walleij@linaro.org>
+ <CACRpkdbjyDWFpb5p6kQTRm8Q=rM5L-Mhi4Q1rphEmOwgF6SHVg@mail.gmail.com>
+ <20171027134918.uclfmwgmukshwi5z@ninjato> <20171030002808.ytay6nvqose4jspr@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
-Content-Language: en-AU
-Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, benjamin.tissoires@redhat.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:47944 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751417AbdJ3HwU (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Oct 2017 03:52:20 -0400
+Received: by mail-io0-f196.google.com with SMTP id h70so25113689ioi.4
+        for <linux-i2c@vger.kernel.org>; Mon, 30 Oct 2017 00:52:19 -0700 (PDT)
+In-Reply-To: <20171030002808.ytay6nvqose4jspr@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 29/10/2017 23:44, Wolfram Sang wrote:
-> On Thu, Aug 24, 2017 at 05:31:02PM +0800, Phil Reid wrote:
->> In preparation to adding of_i2c_setup_smbus_alert() move
->> i2c_setup_smbus_alert() to core module. of_i2c_setup_smbus_alert()
->> will call i2c_setup_smbus_alert() and this avoid module dependecy issues.
-> 
-> I am not very happy with this but don't want to cause another delay. So,
-> I hope we can discuss and fix it incrementally.
-> 
->  From what it does, I really think both setup_alert functions belong to
-> i2c-smbus.c. Three possibilities come to my mind (untested, though):
-> 
-> a) use try_then_request_module somehow
-> 
-> b) add to CONFIG_I2C something like:
-> 	select I2C_SMBUS if OF
-> 
-> c) get rid of i2c-smbus.c entirely and move it all into the core
-> 
-> Dunno if a) or b) have been tried in the course of this series already?
-> 
-G'day Wolfram, Thanks for reviewing.
+On Mon, Oct 30, 2017 at 1:28 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-Nope hadn't tried either a) or b).
-a) is not something I was aware of.
-Had a brief play and not sure how to make this work. This gives me the same linking problem.
+>> don't get ACKs for Blackfin these days, but there is still some MIPS and
+>> MFD ack missing? Can you ping them again?
+>
+> Update: Lee's ack is already collected and Ralf acked V1 of this series.
+> Did you miss to include it in v3? Or did the patch change so much?
 
-A variant of b) was tried by selecting I2C_SMBUS from driver modules having smbalert support,
-but that caused problems if the i2c core was builtin and the driver was a module. But this looks
-to work for me.
+Their ACKs are on the relevant patches on the git branch AFAICT
+but if you want I can resend the patches too.
 
-A variant of c) with option to exclude the i2c-smbus code still.
-Add i2c-smbus to the i2c-core module by:
-Change Kconfig I2C_SMBUS to a bool
-add i2c-smbus to i2c-core object.
-fixup duplicate init_module calls etc.
-Possibly also rename i2c-smbus to i2c-smbus-alert?
+BTW my branch contains my changelogs as well,
+so it should be edited to remove those (below the ---)
+for convenience I also published a branch without them:
+git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git for-wolfram
 
-Let me know your preference and I'll put something together.
+If you want to pull from my tree, take this :)
 
-
--- 
-Regards
-Phil Reid
+Yours,
+Linus Walleij
