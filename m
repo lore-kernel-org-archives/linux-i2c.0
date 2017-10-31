@@ -1,113 +1,120 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v4 1/7] i2c: Switch to using gpiod interface for gpio bus recovery
-Date: Tue, 31 Oct 2017 15:33:53 +0800
-Message-ID: <1509435239-64848-2-git-send-email-preid@electromag.com.au>
-References: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: xgene-slimpro: Support v2
+Date: Tue, 31 Oct 2017 11:14:54 +0200
+Message-ID: <1509441294.10233.81.camel@linux.intel.com>
+References: <1509402256-3357-1-git-send-email-hotran@apm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:37352 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752662AbdJaHeM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 03:34:12 -0400
-In-Reply-To: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
+Received: from mga14.intel.com ([192.55.52.115]:35203 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751024AbdJaJR6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 31 Oct 2017 05:17:58 -0400
+In-Reply-To: <1509402256-3357-1-git-send-email-hotran@apm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, fntoth@gmail.com
+To: Hoan Tran <hotran@apm.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, patches@apm.com
 
-Currently the i2c gpio recovery code uses gpio integer interface
-instead of the gpiod. This change switch the core code to use
-the gpiod while still retaining compatibility with the gpio integer
-interface. This will allow individual driver to be updated and tested
-individual to switch to using the gpiod interface.
+On Mon, 2017-10-30 at 15:24 -0700, Hoan Tran wrote:
+> This patch supports xgene-slimpro-i2c v2 which uses the non-cachable
+> memory
+> as the PCC shared memory.
+> 
 
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
- drivers/i2c/i2c-core-base.c | 21 +++++++++++++++++----
- include/linux/i2c.h         |  2 ++
- 2 files changed, 19 insertions(+), 4 deletions(-)
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index db6558e..29c8e6d 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -133,17 +133,17 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
- /* i2c bus recovery routines */
- static int get_scl_gpio_value(struct i2c_adapter *adap)
- {
--	return gpio_get_value(adap->bus_recovery_info->scl_gpio);
-+	return gpiod_get_value_cansleep(adap->bus_recovery_info->scl_gpiod);
- }
- 
- static void set_scl_gpio_value(struct i2c_adapter *adap, int val)
- {
--	gpio_set_value(adap->bus_recovery_info->scl_gpio, val);
-+	gpiod_set_value_cansleep(adap->bus_recovery_info->scl_gpiod, val);
- }
- 
- static int get_sda_gpio_value(struct i2c_adapter *adap)
- {
--	return gpio_get_value(adap->bus_recovery_info->sda_gpio);
-+	return gpiod_get_value_cansleep(adap->bus_recovery_info->sda_gpiod);
- }
- 
- static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
-@@ -158,6 +158,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
- 		dev_warn(dev, "Can't get SCL gpio: %d\n", bri->scl_gpio);
- 		return ret;
- 	}
-+	bri->scl_gpiod = gpio_to_desc(bri->scl_gpio);
- 
- 	if (bri->get_sda) {
- 		if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
-@@ -166,6 +167,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
- 					bri->sda_gpio);
- 			bri->get_sda = NULL;
- 		}
-+		bri->sda_gpiod = gpio_to_desc(bri->sda_gpio);
- 	}
- 
- 	return ret;
-@@ -175,10 +177,13 @@ static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
- {
- 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
- 
--	if (bri->get_sda)
-+	if (bri->get_sda) {
- 		gpio_free(bri->sda_gpio);
-+		bri->sda_gpiod = NULL;
-+	}
- 
- 	gpio_free(bri->scl_gpio);
-+	bri->scl_gpiod = NULL;
- }
- 
- /*
-@@ -276,6 +281,14 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
- 		goto err;
- 	}
- 
-+	if (bri->scl_gpiod && bri->recover_bus == i2c_generic_scl_recovery) {
-+		bri->get_scl = get_scl_gpio_value;
-+		bri->set_scl = set_scl_gpio_value;
-+		if (bri->sda_gpiod)
-+			bri->get_sda = get_sda_gpio_value;
-+		return;
-+	}
-+
- 	/* Generic GPIO recovery */
- 	if (bri->recover_bus == i2c_generic_gpio_recovery) {
- 		if (!gpio_is_valid(bri->scl_gpio)) {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0f77440..ea31cb3 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -513,6 +513,8 @@ struct i2c_bus_recovery_info {
- 	/* gpio recovery */
- 	int scl_gpio;
- 	int sda_gpio;
-+	struct gpio_desc *scl_gpiod;
-+	struct gpio_desc *sda_gpiod;
- };
- 
- int i2c_recover_bus(struct i2c_adapter *adap);
+(I'm totally fine with ACPI bits here, for the rest I hope it had been
+tested and works as expected)
+
+> Signed-off-by: Hoan Tran <hotran@apm.com>
+> ---
+> v2:
+>  - Remove un-necessary ifdef CONFIG_ACPI
+>  - Use acpi_match_table pointer from pdev
+>  - Use MEMREMAP_WT for non-cachable memory
+> 
+>  drivers/i2c/busses/i2c-xgene-slimpro.c | 30
+> ++++++++++++++++++++++++++----
+>  1 file changed, 26 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c
+> b/drivers/i2c/busses/i2c-xgene-slimpro.c
+> index 7e89ba6..a7ac746 100644
+> --- a/drivers/i2c/busses/i2c-xgene-slimpro.c
+> +++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+> @@ -129,6 +129,11 @@ struct slimpro_i2c_dev {
+>  #define to_slimpro_i2c_dev(cl)	\
+>  		container_of(cl, struct slimpro_i2c_dev, mbox_client)
+>  
+> +enum slimpro_i2c_version {
+> +	XGENE_SLIMPRO_I2C_V1 = 0,
+> +	XGENE_SLIMPRO_I2C_V2 = 1,
+> +};
+> +
+>  /*
+>   * This function tests and clears a bitmask then returns its old
+> value
+>   */
+> @@ -476,6 +481,15 @@ static int xgene_slimpro_i2c_probe(struct
+> platform_device *pdev)
+>  		}
+>  	} else {
+>  		struct acpi_pcct_hw_reduced *cppc_ss;
+> +		const struct acpi_device_id *acpi_id;
+> +		int version = XGENE_SLIMPRO_I2C_V1;
+> +
+> +		acpi_id = acpi_match_device(pdev->dev.driver-
+> >acpi_match_table,
+> +					    &pdev->dev);
+> +		if (!acpi_id)
+> +			return -EINVAL;
+> +
+> +		version = (int)acpi_id->driver_data;
+>  
+>  		if (device_property_read_u32(&pdev->dev, "pcc-
+> channel",
+>  					     &ctx->mbox_idx))
+> @@ -514,9 +528,16 @@ static int xgene_slimpro_i2c_probe(struct
+> platform_device *pdev)
+>  		 */
+>  		ctx->comm_base_addr = cppc_ss->base_address;
+>  		if (ctx->comm_base_addr) {
+> -			ctx->pcc_comm_addr = memremap(ctx-
+> >comm_base_addr,
+> -						      cppc_ss-
+> >length,
+> -						      MEMREMAP_WB);
+> +			if (version == XGENE_SLIMPRO_I2C_V2)
+> +				ctx->pcc_comm_addr = memremap(
+> +							ctx-
+> >comm_base_addr,
+> +							cppc_ss-
+> >length,
+> +							MEMREMAP_WT);
+> +			else
+> +				ctx->pcc_comm_addr = memremap(
+> +							ctx-
+> >comm_base_addr,
+> +							cppc_ss-
+> >length,
+> +							MEMREMAP_WB);
+>  		} else {
+>  			dev_err(&pdev->dev, "Failed to get PCC comm
+> region\n");
+>  			rc = -ENOENT;
+> @@ -581,7 +602,8 @@ MODULE_DEVICE_TABLE(of, xgene_slimpro_i2c_dt_ids);
+>  
+>  #ifdef CONFIG_ACPI
+>  static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
+> -	{"APMC0D40", 0},
+> +	{"APMC0D40", XGENE_SLIMPRO_I2C_V1},
+> +	{"APMC0D8B", XGENE_SLIMPRO_I2C_V2},
+>  	{}
+>  };
+>  MODULE_DEVICE_TABLE(acpi, xgene_slimpro_i2c_acpi_ids);
+
 -- 
-1.8.3.1
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
