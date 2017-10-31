@@ -1,48 +1,77 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v4 7/7] i2c: remove legacy integer scl/sda gpio for
- recovery
-Date: Tue, 31 Oct 2017 12:19:48 +0200
-Message-ID: <1509445188.10233.110.camel@linux.intel.com>
-References: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
-         <1509435239-64848-8-git-send-email-preid@electromag.com.au>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH RFC 0/4] i2c: at91: slave mode support
+Date: Tue, 31 Oct 2017 15:07:40 +0100
+Message-ID: <20171031140740.tp7rkh4troamd656@rfolt0960.corp.atmel.com>
+References: <cover.1509112910.git.me@jue.yt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:8247 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932272AbdJaKTw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 31 Oct 2017 06:19:52 -0400
-In-Reply-To: <1509435239-64848-8-git-send-email-preid@electromag.com.au>
+Received: from esa6.microchip.iphmx.com ([216.71.154.253]:30492 "EHLO
+        esa6.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751620AbdJaOHr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 10:07:47 -0400
+Content-Disposition: inline
+In-Reply-To: <cover.1509112910.git.me@jue.yt>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, fntoth@gmail.com
+To: Juergen Fitschen <me@jue.yt>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2017-10-31 at 15:33 +0800, Phil Reid wrote:
-> Remove all reference to code related to using integer based ids for
-> scl/sda gpio for bus recovery. All in tree drivers are now using the
-> gpio descriptors to specific the required gpios.
+Hello Juergen,
 
-> - * @scl_gpio: gpio number of the SCL line. Only required for GPIO
-> recovery.
-> - * @sda_gpio: gpio number of the SDA line. Only required for GPIO
-> recovery.
-> + * @scl_gpiod: gpiod of the SCL line. Only required for GPIO
-> recovery.
-> + * @sda_gpiod: gpiod of the SDA line. Only required for GPIO
-> recovery.
+On Fri, Oct 27, 2017 at 05:10:58PM +0200, Juergen Fitschen wrote:
+> Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
+> AT91 hardware and tried to fulfill the Linux I2C slave interface description
+> [2] as good as possible. This enables aforementioned hardware to act as an I2C
+> slave that can be accessed by a remote I2C master.
 
-Ah, missed comment here.
+I am sorry, I missed the first discussion since I was on vacation on not in Cc.
 
-0day kbuild bot now warns if we add field w/o kernel doc description.
+So thanks a lot for trying to mainline your work. For sure it will be
+useful.
 
-I would suggest to add the descriptions in the same patch which brings
-new fields and here just remove old ones.
+> 
+> I have tested this patchset successfully on an ATSAMA5D27 with the
+> i2c-slave-eeprom backend for some time and I'm convinced that it works stable
+> enough to be reviewed by you.
 
->  	/* gpio recovery */
-> -	int scl_gpio;
-> -	int sda_gpio;
+I never used our I2C controller in slave mode so I'll try to test it on
+SAMA5D2 but also with older SoCs.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+> 
+> Since I am a newcomer to kernel coding, I really would like to hear your
+> comments on this patchset.
+
+IMO, it sounds pretty good.
+
+Regards
+
+Ludovic
+
+> 
+> [1] https://marc.info/?t=150824004800001&r=1&w=1
+> [2] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+> 
+> Juergen Fitschen (4):
+>   i2c: at91: segregate master mode specific code from probe and init
+>     func
+>   i2c: at91: split driver into core and master file
+>   i2c: at91: added slave mode support
+>   i2c: at91: take slave mode capabilities of hardware into account
+> 
+>  MAINTAINERS                          |    3 +-
+>  drivers/i2c/busses/Makefile          |    4 +
+>  drivers/i2c/busses/i2c-at91-core.c   |  390 +++++++++++
+>  drivers/i2c/busses/i2c-at91-master.c |  804 ++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-at91-slave.c  |  147 ++++
+>  drivers/i2c/busses/i2c-at91.c        | 1243 ----------------------------------
+>  drivers/i2c/busses/i2c-at91.h        |  184 +++++
+>  7 files changed, 1531 insertions(+), 1244 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-at91-core.c
+>  create mode 100644 drivers/i2c/busses/i2c-at91-master.c
+>  create mode 100644 drivers/i2c/busses/i2c-at91-slave.c
+>  delete mode 100644 drivers/i2c/busses/i2c-at91.c
+>  create mode 100644 drivers/i2c/busses/i2c-at91.h
+> 
+> --
+> 2.7.4
