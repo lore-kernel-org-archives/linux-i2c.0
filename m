@@ -1,65 +1,113 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v4 5/7] i2c: imx: switch to using gpiod for bus recovery gpios
-Date: Tue, 31 Oct 2017 15:33:57 +0800
-Message-ID: <1509435239-64848-6-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v4 1/7] i2c: Switch to using gpiod interface for gpio bus recovery
+Date: Tue, 31 Oct 2017 15:33:53 +0800
+Message-ID: <1509435239-64848-2-git-send-email-preid@electromag.com.au>
 References: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:37203 "EHLO
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:37352 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752485AbdJaHeI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 03:34:08 -0400
+        with ESMTP id S1752662AbdJaHeM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 03:34:12 -0400
 In-Reply-To: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, fntoth@gmail.com
 
-Change the driver to use the gpio descriptors for the bus recovery
-information instead of the deprecated integer interface.
+Currently the i2c gpio recovery code uses gpio integer interface
+instead of the gpiod. This change switch the core code to use
+the gpiod while still retaining compatibility with the gpio integer
+interface. This will allow individual driver to be updated and tested
+individual to switch to using the gpiod interface.
 
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- drivers/i2c/busses/i2c-imx.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/i2c/i2c-core-base.c | 21 +++++++++++++++++----
+ include/linux/i2c.h         |  2 ++
+ 2 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index f96830f..c4cf265 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1006,26 +1006,26 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- 			PINCTRL_STATE_DEFAULT);
- 	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
- 			"gpio");
--	rinfo->sda_gpio = of_get_named_gpio(pdev->dev.of_node, "sda-gpios", 0);
--	rinfo->scl_gpio = of_get_named_gpio(pdev->dev.of_node, "scl-gpios", 0);
-+	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_OUT_HIGH);
-+	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_IN);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index db6558e..29c8e6d 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -133,17 +133,17 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ /* i2c bus recovery routines */
+ static int get_scl_gpio_value(struct i2c_adapter *adap)
+ {
+-	return gpio_get_value(adap->bus_recovery_info->scl_gpio);
++	return gpiod_get_value_cansleep(adap->bus_recovery_info->scl_gpiod);
+ }
  
--	if (rinfo->sda_gpio == -EPROBE_DEFER ||
--	    rinfo->scl_gpio == -EPROBE_DEFER) {
-+	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
-+	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
- 		return -EPROBE_DEFER;
--	} else if (!gpio_is_valid(rinfo->sda_gpio) ||
--		   !gpio_is_valid(rinfo->scl_gpio) ||
-+	} else if (IS_ERR(rinfo->sda_gpiod) ||
-+		   IS_ERR(rinfo->scl_gpiod) ||
- 		   IS_ERR(i2c_imx->pinctrl_pins_default) ||
- 		   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
- 		dev_dbg(&pdev->dev, "recovery information incomplete\n");
- 		return 0;
+ static void set_scl_gpio_value(struct i2c_adapter *adap, int val)
+ {
+-	gpio_set_value(adap->bus_recovery_info->scl_gpio, val);
++	gpiod_set_value_cansleep(adap->bus_recovery_info->scl_gpiod, val);
+ }
+ 
+ static int get_sda_gpio_value(struct i2c_adapter *adap)
+ {
+-	return gpio_get_value(adap->bus_recovery_info->sda_gpio);
++	return gpiod_get_value_cansleep(adap->bus_recovery_info->sda_gpiod);
+ }
+ 
+ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+@@ -158,6 +158,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+ 		dev_warn(dev, "Can't get SCL gpio: %d\n", bri->scl_gpio);
+ 		return ret;
+ 	}
++	bri->scl_gpiod = gpio_to_desc(bri->scl_gpio);
+ 
+ 	if (bri->get_sda) {
+ 		if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
+@@ -166,6 +167,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+ 					bri->sda_gpio);
+ 			bri->get_sda = NULL;
+ 		}
++		bri->sda_gpiod = gpio_to_desc(bri->sda_gpio);
  	}
  
--	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n",
--			rinfo->scl_gpio, rinfo->sda_gpio);
-+	dev_dbg(&pdev->dev, "using scl%s for recovery\n",
-+		rinfo->sda_gpiod ? ",sda" : "");
+ 	return ret;
+@@ -175,10 +177,13 @@ static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
+ {
+ 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
  
- 	rinfo->prepare_recovery = i2c_imx_prepare_recovery;
- 	rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
--	rinfo->recover_bus = i2c_generic_gpio_recovery;
-+	rinfo->recover_bus = i2c_generic_scl_recovery;
- 	i2c_imx->adapter.bus_recovery_info = rinfo;
+-	if (bri->get_sda)
++	if (bri->get_sda) {
+ 		gpio_free(bri->sda_gpio);
++		bri->sda_gpiod = NULL;
++	}
  
- 	return 0;
+ 	gpio_free(bri->scl_gpio);
++	bri->scl_gpiod = NULL;
+ }
+ 
+ /*
+@@ -276,6 +281,14 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
+ 		goto err;
+ 	}
+ 
++	if (bri->scl_gpiod && bri->recover_bus == i2c_generic_scl_recovery) {
++		bri->get_scl = get_scl_gpio_value;
++		bri->set_scl = set_scl_gpio_value;
++		if (bri->sda_gpiod)
++			bri->get_sda = get_sda_gpio_value;
++		return;
++	}
++
+ 	/* Generic GPIO recovery */
+ 	if (bri->recover_bus == i2c_generic_gpio_recovery) {
+ 		if (!gpio_is_valid(bri->scl_gpio)) {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 0f77440..ea31cb3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -513,6 +513,8 @@ struct i2c_bus_recovery_info {
+ 	/* gpio recovery */
+ 	int scl_gpio;
+ 	int sda_gpio;
++	struct gpio_desc *scl_gpiod;
++	struct gpio_desc *sda_gpiod;
+ };
+ 
+ int i2c_recover_bus(struct i2c_adapter *adap);
 -- 
 1.8.3.1
