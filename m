@@ -1,121 +1,150 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: Sluggish AT91 I2C driver causes SMBus timeouts
-Date: Tue, 31 Oct 2017 17:10:16 +0100
-Message-ID: <20171031161016.mcfxucwabzv4glyv@rfolt0960.corp.atmel.com>
-References: <3d83fd8b-ade9-da10-3364-2afefa2e90af@axentia.se>
- <20171013142935.14ef302e@alans-desktop>
- <92675fc4-060b-0056-4fe8-3fe3368cb617@axentia.se>
- <20171017075807.tsh5walc3sla3pth@rfolt0960.corp.atmel.com>
- <fd09259b-9779-12de-5351-783c397d27aa@axentia.se>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: i2c: qup: missing stop bit and messages
+Date: Tue, 31 Oct 2017 12:19:08 -0400
+Message-ID: <20171031161908.acfwka6zk277glyv@workotop.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from esa1.microchip.iphmx.com ([68.232.147.91]:59151 "EHLO
-        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752216AbdJaQK0 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 12:10:26 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <fd09259b-9779-12de-5351-783c397d27aa@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sricharan R <sricharan@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ludovic Desroches <ludovic.desroches@microchip.com>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>
 
-Hi Peter,
+Hi,
 
-On Wed, Oct 25, 2017 at 11:40:50PM +0200, Peter Rosin wrote:
-> Hi Ludovic,
-> 
-> On 2017-10-17 09:58, Ludovic Desroches wrote:
-> > Hi Peter,
-> > 
-> > On Fri, Oct 13, 2017 at 05:01:04PM +0200, Peter Rosin wrote:
-> >> On 2017-10-13 15:29, Alan Cox wrote:
-> >>> On Thu, 12 Oct 2017 13:35:17 +0200
-> >>> Peter Rosin <peda@axentia.se> wrote:
-> >>>
-> >>>> Hi!
-> >>>>
-> >>>> I have encountered an "interesting" bug. It silently corrupts data
-> >>>> and is generally nasty...
-> >>>>
-> >>>> On an I2C bus, driven by the at91 driver and DMA (an Atmel
-> >>>> sama5d31 chip), I have an 256 byte eeprom (NXP SE97BTP). I'm using
-> >>>> Linux v4.13.
-> >>>
-> >>> If your force the transfer to PIO does it behave ? Does the controller in
-> >>> fact need to siwtch to PIO for SMBUS ?
-> >>
-> >> Like, what if I disable DMA?
-> >>
-> >> I saw no way to do that, short of short-cutting a few things in the
-> >> driver code. So, did that and I cannot tickle the bug. But I don't
-> >> know if that makes me safe?
-> >>
-> >> Ludovic, any reason to believe disabling DMA will prevent these
-> >> stalls, or will they just appear under different circumstances?
-> > 
-> > Sorry I am currently on vacation. I outlined this discussion.
-> 
-> And I got buried in other stuff so I managed to ignore and then forget
-> this for a couple of days. Sorry for the delay...
-> 
 
-No problem.
+While testing a gas gauge, we encountered intermittent i2c issues with
+the APQ8016. Sometimes, the i2c controller seems to send incomplete
+messages, or doesn't send some messages. To read values from the gas
+gauge, this group of two messages is sent:
+ - one write message of 1 byte, with the gas gauge register to be read
+ - one read message of 2 bytes, for the reply from the device
 
-> > As you noticed, there are some hardware constraints when using DMA.
-> > Switching from DMA to PIO to handle the end of the transfer is probably the
-> > root cause of the delay you get.
-> > 
-> > I read you added traces, did you manage to get some information about
-> > timings? Do we waste time waiting for the dma callback? for the RXRDY
-> > interrupt?
-> 
-> I *think* the stalls I'm seeing are from the dma callback.
-> 
-> > If we spend time waiting for the dma callback for sure, disabling DMA
-> > should prevent these stalls. If the stall is inbetween the two last
-> > RXRDY interrupts, it seems it can appear under different circumstances.
-> 
-> Exactly my point. It is hard to tell for sure. If we don't do dma, there
-> is simply no guarantee that the problem goes away. I fear that disabling
-> dma will only make the problem less likely, and that it therefore is not
-> a real fix. I can test this any number of times, and Murphy will make
-> sure that it doesn't trigger. Until it's in the hands of the customer...
-> 
-> The smbus timeout is quite hard to handle when there is no way to
-> guarantee that deadlines are met. The way I see it, the only safe option
-> is to disable the smbus timeout. I prefer that over killing dma
-> completely.
-> 
+Once in a while, there is an odd sequence:
+ - First, the very last tick of the clock of the read message is
+   shorter, and the stop bit is missing.
+ - The following group of messages is incomplete, only the write
+   message is sent.
 
-Your approach is probably the good one as it seems that the i2c-at91
-controller is not the only one that cannot handle the SMBus timeout
-feature.
+So on the scope, we observe the following timeline:
+ ...  [ok] [ok] [ok] [missing stop bit] [only write message]
 
-> See my patches that take that approach (sorry for not having you on the
-> cc list)
-> https://lkml.org/lkml/2017/10/13/184
-> 
 
-Thanks.
+Here are captures of what we see. These are three consecutive queries of
+the gas gauge:
+ - successful query: https://postimg.org/gallery/215zrvd9o/
+ - missing stop bit: https://postimg.org/gallery/26xn101d8/
+ - incomplete group: https://postimg.org/image/2cvghepi0b/
+(a start is indicated by a green marker, a stop by a red one)
 
-Regards
 
-Ludovic
+As we use i2c3, for which dts bindings are not yet upstreamed, below are
+the additions in our device tree. It's slightly incomplete, but note
+that blsp_i2c3 is enabled and blsp_spi3 disabled. Maybe there is an
+issue with that particular i2c core?
 
-> >>
-> >> I used this dirty "patch" to i2c-at91.c:at91_twi_configure_dma() for
-> >> testing:
-> >>
-> >> -	dev->use_dma = true;
-> >> +	//dev->use_dma = true;
-> >>
-> > 
-> > You can simply remove dma bindings from the i2c node to force the i2c
-> > controller to use the PIO mode.
-> 
-> Ok, that's less intrusive...
-> 
-> Cheers,
-> Peter
+
+Regards,
+Damien
+
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+index 899f2b28a9c9..a303a4c8cad4 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-pins.dtsi
+@@ -294,6 +294,30 @@
+ 		};
+ 	};
+ 
++	i2c3_default: i2c3_default {
++		pinmux {
++			function = "blsp_i2c3";
++			pins = "gpio10", "gpio11";
++		};
++		pinconf {
++			pins = "gpio10", "gpio11";
++			drive-strength = <16>;
++			bias-disable = <0>;
++		};
++	};
++
++	i2c3_sleep: i2c3_sleep {
++		pinmux {
++			function = "gpio";
++			pins = "gpio10", "gpio11";
++		};
++		pinconf {
++			pins = "gpio10", "gpio11";
++			drive-strength = <2>;
++			bias-disable = <0>;
++		};
++	};
++
+ 	i2c4_default: i2c4_default {
+ 		pinmux {
+ 			function = "blsp_i2c4";
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index f6091aafc984..a08e2b4894fd 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -618,6 +618,21 @@
+ 			status = "disabled";
+ 		};
+ 
++		blsp_i2c3: i2c@78b7000 {
++			compatible = "qcom,i2c-qup-v2.2.1";
++			reg = <0x78b7000 0x1000>;
++			interrupts = <GIC_SPI 97 0>;
++			clocks = <&gcc GCC_BLSP1_AHB_CLK>,
++				<&gcc GCC_BLSP1_QUP3_I2C_APPS_CLK>;
++			clock-names = "iface", "core";
++			pinctrl-names = "default", "sleep";
++			pinctrl-0 = <&i2c3_default>;
++			pinctrl-1 = <&i2c3_sleep>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		blsp_i2c4: i2c@78b8000 {
+ 			compatible = "qcom,i2c-qup-v2.2.1";
+ 			reg = <0x78b8000 0x1000>;
+diff --git a/arch/arm64/boot/dts/qcom/apq8016-sbc-centaur.dts
+b/arch/arm64/boot/dts/qcom/apq8016-sbc-centaur.dts
+index c96aebcb046c..10928bf31189 100644
+--- a/arch/arm64/boot/dts/qcom/apq8016-sbc-centaur.dts
++++ b/arch/arm64/boot/dts/qcom/apq8016-sbc-centaur.dts
+@@ -29,6 +29,13 @@
+ /* use i2c3 instead of spi3, for gas gauge */
+ &blsp_i2c3 {
+ 	status = "okay";
++
++	bq27510@55 {
++		compatible = "ti,bq27510g2";
++		reg = <0x55>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&fuelgauge_default>;
++	};
+ };
+ 
+ &blsp_i2c4 {
+@@ -155,6 +162,18 @@
+ 		};
+ 	};
+ 
++	fuelgauge_default: fuelgauge_default {
++		pinmux {
++			function = "gpio";
++			pins = "gpio9";
++		};
++		pinconf {
++			pins = "gpio9";
++			input-enable;
++			bias-pull-up;
++		};
++	};
++
+ 	/* overwrite this node to use gpio 13 instead of 110 */
+ 	keypad_default: keypad_default {
+ 		pinmux {
