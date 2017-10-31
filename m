@@ -1,43 +1,59 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
-Date: Tue, 31 Oct 2017 17:28:57 +0100
-Message-ID: <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <5094729.JAaD38WncM@aspire.rjw.lan>
- <20171031150933.oho2ffvuj3iagx4m@dell>
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+Subject: Re: [PATCH v1 08/15] drm/i2c: tda998x: Remove duplicate NULL check
+Date: Tue, 31 Oct 2017 17:03:43 +0000
+Message-ID: <20171031170343.GG9463@n2100.armlinux.org.uk>
+References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+ <20171031142149.32512-8-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20171031150933.oho2ffvuj3iagx4m@dell>
-Sender: linux-pci-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:49384 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751884AbdJaRDw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 13:03:52 -0400
+Content-Disposition: inline
+In-Reply-To: <20171031142149.32512-8-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org
 
-On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
->
->> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->>
->> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
->> devices which will allow them to stay in runtime suspend during
->> system suspend unless they need to be reconfigured for some reason.
->>
->> Also make it avoid resuming its child devices if they have
->> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
->> suspend during system suspend.
->>
->> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->> ---
->>  drivers/mfd/intel-lpss.c |    6 +++++-
->>  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> Is this patch independent?
+On Tue, Oct 31, 2017 at 04:21:42PM +0200, Andy Shevchenko wrote:
+> Since i2c_unregister_device() became NULL-aware we may remove duplicate
+> NULL check.
+> 
+> Cc: Russell King <linux@armlinux.org.uk>
 
-It depends on the flag definition at least, but functionally it also
-depends on the PCI support for the flag.
+Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
 
-> For my own reference:
->   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Thanks.
 
-Thanks,
-Rafael
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: dri-devel@lists.freedesktop.org
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i2c/tda998x_drv.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i2c/tda998x_drv.c b/drivers/gpu/drm/i2c/tda998x_drv.c
+> index 4d1f45acf2cd..7a349e85f964 100644
+> --- a/drivers/gpu/drm/i2c/tda998x_drv.c
+> +++ b/drivers/gpu/drm/i2c/tda998x_drv.c
+> @@ -1602,8 +1602,7 @@ static int tda998x_create(struct i2c_client *client, struct tda998x_priv *priv)
+>  	/* if encoder_init fails, the encoder slave is never registered,
+>  	 * so cleanup here:
+>  	 */
+> -	if (priv->cec)
+> -		i2c_unregister_device(priv->cec);
+> +	i2c_unregister_device(priv->cec);
+>  	return -ENXIO;
+>  }
+>  
+> -- 
+> 2.14.2
+> 
+
+-- 
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
+According to speedtest.net: 8.21Mbps down 510kbps up
