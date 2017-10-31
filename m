@@ -1,155 +1,97 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v4 4/7] i2c: designware: add i2c gpio recovery option
-Date: Tue, 31 Oct 2017 15:33:56 +0800
-Message-ID: <1509435239-64848-5-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v4 3/7] i2c: designware: rename i2c_dw_plat_prepare_clk to i2c_dw_prepare_clk
+Date: Tue, 31 Oct 2017 15:33:55 +0800
+Message-ID: <1509435239-64848-4-git-send-email-preid@electromag.com.au>
 References: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:37178 "EHLO
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:37160 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751849AbdJaHeH (ORCPT
+        with ESMTP id S1751971AbdJaHeH (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 03:34:07 -0400
 In-Reply-To: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, fntoth@gmail.com
-Cc: Tim Sander <tim@krieglstein.org>
 
-From: Tim Sander <tim@krieglstein.org>
+For consistency with the reset of the file rename function and parameter to
+be consistent with the reset of the common file.
 
-This patch contains much input from Phil Reid and has been tested
-on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
-SCL and SDA GPIO's.
-
-Signed-off-by: Tim Sander <tim@krieglstein.org>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- drivers/i2c/busses/i2c-designware-common.c |  6 +++-
- drivers/i2c/busses/i2c-designware-core.h   |  1 +
- drivers/i2c/busses/i2c-designware-master.c | 57 ++++++++++++++++++++++++++++++
- 3 files changed, 63 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-common.c  | 10 +++++-----
+ drivers/i2c/busses/i2c-designware-core.h    |  2 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c |  6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 3d684c6..6b82809 100644
+index b79f342..3d684c6 100644
 --- a/drivers/i2c/busses/i2c-designware-common.c
 +++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -230,7 +230,11 @@ int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
- 	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
- 		if (timeout <= 0) {
- 			dev_warn(dev->dev, "timeout waiting for bus ready\n");
--			return -ETIMEDOUT;
-+			i2c_recover_bus(&dev->adapter);
-+
-+			if (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY)
-+				return -ETIMEDOUT;
-+			return 0;
- 		}
- 		timeout--;
- 		usleep_range(1000, 1100);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 33c6c8f..d58a336 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -286,6 +286,7 @@ struct dw_i2c_dev {
- 	void			(*disable_int)(struct dw_i2c_dev *dev);
- 	int			(*init)(struct dw_i2c_dev *dev);
- 	int			mode;
-+	struct i2c_bus_recovery_info rinfo;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 418c233..ae69188 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -25,11 +25,13 @@
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/export.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/pm_runtime.h>
-+#include <linux/reset.h>
- 
- #include "i2c-designware-core.h"
- 
-@@ -443,6 +445,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		/* i2c_dw_init implicitly disables the adapter */
-+		i2c_recover_bus(&dev->adapter);
- 		i2c_dw_init_master(dev);
- 		ret = -ETIMEDOUT;
- 		goto done;
-@@ -613,6 +616,56 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 	return IRQ_HANDLED;
+@@ -186,15 +186,15 @@ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
+ 	return dev->get_clk_rate_khz(dev);
  }
  
-+static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+
-+	i2c_dw_disable(dev);
-+	reset_control_assert(dev->rst);
-+	i2c_dw_prepare_clk(dev, false);
-+}
-+
-+static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+
-+	i2c_dw_prepare_clk(dev, true);
-+	reset_control_deassert(dev->rst);
-+	i2c_dw_init_master(dev);
-+}
-+
-+static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
-+{
-+	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-+	struct i2c_adapter *adap = &dev->adapter;
-+	struct gpio_desc *gpio;
-+	int r;
-+
-+	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
-+	if (IS_ERR(gpio)) {
-+		r = PTR_ERR(gpio);
-+		if (r == -ENOENT)
-+			return 0;
-+		return r;
-+	}
-+	rinfo->scl_gpiod = gpio;
-+
-+	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
-+	if (IS_ERR(gpio))
-+		return PTR_ERR(gpio);
-+	rinfo->sda_gpiod = gpio;
-+
-+	rinfo->recover_bus = i2c_generic_scl_recovery;
-+	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
-+	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
-+	adap->bus_recovery_info = rinfo;
-+
-+	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
-+		 rinfo->sda_gpiod ? ",sda" : "");
-+
-+	return 0;
-+}
-+
- int i2c_dw_probe(struct dw_i2c_dev *dev)
+-int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
++int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
  {
- 	struct i2c_adapter *adap = &dev->adapter;
-@@ -652,6 +705,10 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 		return ret;
+-	if (IS_ERR(i_dev->clk))
+-		return PTR_ERR(i_dev->clk);
++	if (IS_ERR(dev->clk))
++		return PTR_ERR(dev->clk);
+ 
+ 	if (prepare)
+-		return clk_prepare_enable(i_dev->clk);
++		return clk_prepare_enable(dev->clk);
+ 
+-	clk_disable_unprepare(i_dev->clk);
++	clk_disable_unprepare(dev->clk);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index e80a14c..33c6c8f 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -301,7 +301,7 @@ struct dw_i2c_dev {
+ void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable);
+ void __i2c_dw_enable_and_wait(struct dw_i2c_dev *dev, bool enable);
+ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev);
+-int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare);
++int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare);
+ int i2c_dw_acquire_lock(struct dw_i2c_dev *dev);
+ void i2c_dw_release_lock(struct dw_i2c_dev *dev);
+ int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index a5fd0ee..9c5f649 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -343,7 +343,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		i2c_dw_configure_master(dev);
+ 
+ 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!i2c_dw_plat_prepare_clk(dev, true)) {
++	if (!i2c_dw_prepare_clk(dev, true)) {
+ 		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+ 
+ 		if (!dev->sda_hold_time && ht)
+@@ -447,7 +447,7 @@ static int dw_i2c_plat_suspend(struct device *dev)
  	}
  
-+	ret = i2c_dw_init_recovery_info(dev);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * Increment PM usage count during adapter registration in order to
- 	 * avoid possible spurious runtime suspend when adapter device is
+ 	i_dev->disable(i_dev);
+-	i2c_dw_plat_prepare_clk(i_dev, false);
++	i2c_dw_prepare_clk(i_dev, false);
+ 
+ 	i_dev->suspended = true;
+ 
+@@ -466,7 +466,7 @@ static int dw_i2c_plat_resume(struct device *dev)
+ 		return 0;
+ 	}
+ 
+-	i2c_dw_plat_prepare_clk(i_dev, true);
++	i2c_dw_prepare_clk(i_dev, true);
+ 	i_dev->init(i_dev);
+ 
+ 	i_dev->suspended = false;
 -- 
 1.8.3.1
