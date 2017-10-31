@@ -1,61 +1,57 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 12/15] hwmon: (w83793) Remove duplicate NULL check
-Date: Tue, 31 Oct 2017 16:21:46 +0200
-Message-ID: <20171031142149.32512-12-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 10/15] hwmon: (w83791d) Remove duplicate NULL check
+Date: Tue, 31 Oct 2017 16:21:44 +0200
+Message-ID: <20171031142149.32512-10-andriy.shevchenko@linux.intel.com>
 References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:36400 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753518AbdJaOXb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 31 Oct 2017 10:23:31 -0400
+Return-path: <linux-hwmon-owner@vger.kernel.org>
 In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-hwmon-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rudolf Marek <r.marek@assembler.cz>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Marc Hulsman <m.hulsman@tudelft.nl>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Since i2c_unregister_device() became NULL-aware we may remove duplicate
 NULL check.
 
-Cc: Rudolf Marek <r.marek@assembler.cz>
+Cc: Marc Hulsman <m.hulsman@tudelft.nl>
 Cc: Jean Delvare <jdelvare@suse.com>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-hwmon@vger.kernel.org
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hwmon/w83793.c | 15 +++++----------
+ drivers/hwmon/w83791d.c | 15 +++++----------
  1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hwmon/w83793.c b/drivers/hwmon/w83793.c
-index 5ba9d9f1daa1..0af0f6283b35 100644
---- a/drivers/hwmon/w83793.c
-+++ b/drivers/hwmon/w83793.c
-@@ -1564,10 +1564,8 @@ static int w83793_remove(struct i2c_client *client)
- 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
- 		device_remove_file(dev, &w83793_temp[i].dev_attr);
+diff --git a/drivers/hwmon/w83791d.c b/drivers/hwmon/w83791d.c
+index 8af6081b4ab4..28fa3bd2c096 100644
+--- a/drivers/hwmon/w83791d.c
++++ b/drivers/hwmon/w83791d.c
+@@ -1316,8 +1316,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
+ /* Undo inits in case of errors */
  
--	if (data->lm75[0] != NULL)
--		i2c_unregister_device(data->lm75[0]);
--	if (data->lm75[1] != NULL)
--		i2c_unregister_device(data->lm75[1]);
-+	i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[1]);
- 
- 	/* Decrease data reference counter */
- 	mutex_lock(&watchdog_data_mutex);
-@@ -1625,8 +1623,7 @@ w83793_detect_subclients(struct i2c_client *client)
- 	/* Undo inits in case of errors */
- 
- ERROR_SC_1:
+ error_sc_1:
 -	if (data->lm75[0] != NULL)
 -		i2c_unregister_device(data->lm75[0]);
 +	i2c_unregister_device(data->lm75[0]);
- ERROR_SC_0:
+ error_sc_0:
  	return err;
  }
-@@ -1962,10 +1959,8 @@ static int w83793_probe(struct i2c_client *client,
- 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
- 		device_remove_file(dev, &w83793_temp[i].dev_attr);
+@@ -1434,10 +1433,8 @@ static int w83791d_probe(struct i2c_client *client,
+ error4:
+ 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
+ error3:
+-	if (data->lm75[0] != NULL)
+-		i2c_unregister_device(data->lm75[0]);
+-	if (data->lm75[1] != NULL)
+-		i2c_unregister_device(data->lm75[1]);
++	i2c_unregister_device(data->lm75[0]);
++	i2c_unregister_device(data->lm75[1]);
+ 	return err;
+ }
+ 
+@@ -1448,10 +1445,8 @@ static int w83791d_remove(struct i2c_client *client)
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
  
 -	if (data->lm75[0] != NULL)
 -		i2c_unregister_device(data->lm75[0]);
@@ -63,8 +59,9 @@ index 5ba9d9f1daa1..0af0f6283b35 100644
 -		i2c_unregister_device(data->lm75[1]);
 +	i2c_unregister_device(data->lm75[0]);
 +	i2c_unregister_device(data->lm75[1]);
- free_mem:
- 	kfree(data);
- exit:
+ 
+ 	return 0;
+ }
 -- 
 2.14.2
+
