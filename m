@@ -1,55 +1,42 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 14/15] media: adv7180: Remove duplicate checks
-Date: Tue, 31 Oct 2017 16:21:48 +0200
-Message-ID: <20171031142149.32512-14-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 03/15] i2c: thunderx: Remove duplicate NULL check
+Date: Tue, 31 Oct 2017 16:21:37 +0200
+Message-ID: <20171031142149.32512-3-andriy.shevchenko@linux.intel.com>
 References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:41879 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751366AbdJaOWX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 31 Oct 2017 10:22:23 -0400
 In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Lars-Peter Clausen <lars@metafoo.de>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jan Glauber <jglauber@cavium.com>, David Daney <david.daney@cavium.com>
 
-Since i2c_unregister_device() became NULL-aware we may remove duplicate checks.
+Since i2c_unregister_device() became NULL-aware we may remove duplicate
+NULL check.
 
-Cc: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-media@vger.kernel.org
+Cc: Jan Glauber <jglauber@cavium.com>
+Cc: David Daney <david.daney@cavium.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/media/i2c/adv7180.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/adv7180.c b/drivers/media/i2c/adv7180.c
-index 3df28f2f9b38..c7e2ee7fe8a4 100644
---- a/drivers/media/i2c/adv7180.c
-+++ b/drivers/media/i2c/adv7180.c
-@@ -1366,11 +1366,9 @@ static int adv7180_probe(struct i2c_client *client,
- err_free_ctrl:
- 	adv7180_exit_controls(state);
- err_unregister_vpp_client:
--	if (state->chip_info->flags & ADV7180_FLAG_I2P)
--		i2c_unregister_device(state->vpp_client);
-+	i2c_unregister_device(state->vpp_client);
- err_unregister_csi_client:
--	if (state->chip_info->flags & ADV7180_FLAG_MIPI_CSI2)
--		i2c_unregister_device(state->csi_client);
-+	i2c_unregister_device(state->csi_client);
- 	mutex_destroy(&state->mutex);
- 	return ret;
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index df0976f4432a..61866646ae8e 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -149,8 +149,7 @@ static int thunder_i2c_smbus_setup(struct octeon_i2c *i2c,
+ 
+ static void thunder_i2c_smbus_remove(struct octeon_i2c *i2c)
+ {
+-	if (i2c->ara)
+-		i2c_unregister_device(i2c->ara);
++	i2c_unregister_device(i2c->ara);
  }
-@@ -1388,10 +1386,8 @@ static int adv7180_remove(struct i2c_client *client)
- 	media_entity_cleanup(&sd->entity);
- 	adv7180_exit_controls(state);
  
--	if (state->chip_info->flags & ADV7180_FLAG_I2P)
--		i2c_unregister_device(state->vpp_client);
--	if (state->chip_info->flags & ADV7180_FLAG_MIPI_CSI2)
--		i2c_unregister_device(state->csi_client);
-+	i2c_unregister_device(state->vpp_client);
-+	i2c_unregister_device(state->csi_client);
- 
- 	adv7180_set_power_pin(state, false);
- 
+ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
 -- 
 2.14.2
