@@ -1,56 +1,52 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 09/15] hwmon: (w83781d) Remove duplicate NULL check
-Date: Tue, 31 Oct 2017 16:21:43 +0200
-Message-ID: <20171031142149.32512-9-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 05/15] gpio: max732x: Remove duplicate NULL check
+Date: Tue, 31 Oct 2017 16:21:39 +0200
+Message-ID: <20171031142149.32512-5-andriy.shevchenko@linux.intel.com>
 References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-hwmon-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:56054 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751620AbdJaOWy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 31 Oct 2017 10:22:54 -0400
 In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org
 
 Since i2c_unregister_device() became NULL-aware we may remove duplicate
 NULL check.
 
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-hwmon@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-gpio@vger.kernel.org
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hwmon/w83781d.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/gpio/gpio-max732x.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/w83781d.c b/drivers/hwmon/w83781d.c
-index 246fb2365126..2b0f182daa87 100644
---- a/drivers/hwmon/w83781d.c
-+++ b/drivers/hwmon/w83781d.c
-@@ -1246,10 +1246,8 @@ w83781d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+diff --git a/drivers/gpio/gpio-max732x.c b/drivers/gpio/gpio-max732x.c
+index 7f4d26ce5f23..5fc2efd837fd 100644
+--- a/drivers/gpio/gpio-max732x.c
++++ b/drivers/gpio/gpio-max732x.c
+@@ -709,8 +709,7 @@ static int max732x_probe(struct i2c_client *client,
+ 	return 0;
  
-  exit_remove_files:
- 	w83781d_remove_files(dev);
--	if (data->lm75[0])
--		i2c_unregister_device(data->lm75[0]);
--	if (data->lm75[1])
--		i2c_unregister_device(data->lm75[1]);
-+	i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[1]);
- 	return err;
+ out_failed:
+-	if (chip->client_dummy)
+-		i2c_unregister_device(chip->client_dummy);
++	i2c_unregister_device(chip->client_dummy);
+ 	return ret;
  }
  
-@@ -1262,10 +1260,8 @@ w83781d_remove(struct i2c_client *client)
- 	hwmon_device_unregister(data->hwmon_dev);
- 	w83781d_remove_files(dev);
+@@ -734,8 +733,7 @@ static int max732x_remove(struct i2c_client *client)
+ 	gpiochip_remove(&chip->gpio_chip);
  
--	if (data->lm75[0])
--		i2c_unregister_device(data->lm75[0]);
--	if (data->lm75[1])
--		i2c_unregister_device(data->lm75[1]);
-+	i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[1]);
+ 	/* unregister any dummy i2c_client */
+-	if (chip->client_dummy)
+-		i2c_unregister_device(chip->client_dummy);
++	i2c_unregister_device(chip->client_dummy);
  
  	return 0;
  }
 -- 
 2.14.2
-
