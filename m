@@ -1,67 +1,48 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 10/15] hwmon: (w83791d) Remove duplicate NULL check
-Date: Tue, 31 Oct 2017 16:21:44 +0200
-Message-ID: <20171031142149.32512-10-andriy.shevchenko@linux.intel.com>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Marc Hulsman <m.hulsman@tudelft.nl>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [PATCH] I2C-S3C2410: Use common error handling code in
+ s3c24xx_i2c_probe()
+Date: Tue, 31 Oct 2017 14:36:50 +0000
+Message-ID: <20171031143650.GA13049@trinity.fluff.org>
+References: <32c82282-ee0a-137f-4913-310b194b60f3@users.sourceforge.net>
+ <20171025132620.l7scp2eachnarpzt@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20171025132620.l7scp2eachnarpzt@mwanda>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, SF Markus Elfring <elfring@users.sourceforge.net>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Since i2c_unregister_device() became NULL-aware we may remove duplicate
-NULL check.
+On Wed, Oct 25, 2017 at 04:26:20PM +0300, Dan Carpenter wrote:
+> > @@ -1180,24 +1179,21 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+> >  		i2c->irq = ret = platform_get_irq(pdev, 0);
+> >  		if (ret <= 0) {
+> 
+> Not related to this patch, but the comparison here should be < 0.  Or
+> otherwise we should set an error code.  The bug was introduced in commit
+> e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.").
+> 
+> >  			dev_err(&pdev->dev, "cannot find IRQ\n");
+> > -			clk_unprepare(i2c->clk);
+> > -			return ret;
+> 
+> regards,
+> dan carpenter
 
-Cc: Marc Hulsman <m.hulsman@tudelft.nl>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-hwmon@vger.kernel.org
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/hwmon/w83791d.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+I believe (ret < 0) { } should be the correct case here.
 
-diff --git a/drivers/hwmon/w83791d.c b/drivers/hwmon/w83791d.c
-index 8af6081b4ab4..28fa3bd2c096 100644
---- a/drivers/hwmon/w83791d.c
-+++ b/drivers/hwmon/w83791d.c
-@@ -1316,8 +1316,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
- /* Undo inits in case of errors */
- 
- error_sc_1:
--	if (data->lm75[0] != NULL)
--		i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[0]);
- error_sc_0:
- 	return err;
- }
-@@ -1434,10 +1433,8 @@ static int w83791d_probe(struct i2c_client *client,
- error4:
- 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
- error3:
--	if (data->lm75[0] != NULL)
--		i2c_unregister_device(data->lm75[0]);
--	if (data->lm75[1] != NULL)
--		i2c_unregister_device(data->lm75[1]);
-+	i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[1]);
- 	return err;
- }
- 
-@@ -1448,10 +1445,8 @@ static int w83791d_remove(struct i2c_client *client)
- 	hwmon_device_unregister(data->hwmon_dev);
- 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
- 
--	if (data->lm75[0] != NULL)
--		i2c_unregister_device(data->lm75[0]);
--	if (data->lm75[1] != NULL)
--		i2c_unregister_device(data->lm75[1]);
-+	i2c_unregister_device(data->lm75[0]);
-+	i2c_unregister_device(data->lm75[1]);
- 
- 	return 0;
- }
 -- 
-2.14.2
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
 
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
