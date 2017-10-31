@@ -1,42 +1,42 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 07/15] drm/i2c/sil164: Remove duplicate NULL check
-Date: Tue, 31 Oct 2017 16:21:41 +0200
-Message-ID: <20171031142149.32512-7-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 15/15] media: i2c: adv748x: Remove duplicate NULL check
+Date: Tue, 31 Oct 2017 16:21:49 +0200
+Message-ID: <20171031142149.32512-15-andriy.shevchenko@linux.intel.com>
 References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:61202 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753056AbdJaOW0 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 31 Oct 2017 10:22:26 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Since i2c_unregister_device() became NULL-aware we may remove duplicate
 NULL check.
 
-Cc: David Airlie <airlied@linux.ie>
-Cc: dri-devel@lists.freedesktop.org
+Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-media@vger.kernel.org
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/gpu/drm/i2c/sil164_drv.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/i2c/adv748x/adv748x-core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i2c/sil164_drv.c b/drivers/gpu/drm/i2c/sil164_drv.c
-index ecaa58757529..c52d7a3af786 100644
---- a/drivers/gpu/drm/i2c/sil164_drv.c
-+++ b/drivers/gpu/drm/i2c/sil164_drv.c
-@@ -326,8 +326,7 @@ sil164_encoder_destroy(struct drm_encoder *encoder)
+diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
+index 5ee14f2c2747..10c3d469175c 100644
+--- a/drivers/media/i2c/adv748x/adv748x-core.c
++++ b/drivers/media/i2c/adv748x/adv748x-core.c
+@@ -225,10 +225,8 @@ static void adv748x_unregister_clients(struct adv748x_state *state)
  {
- 	struct sil164_priv *priv = to_sil164_priv(encoder);
+ 	unsigned int i;
  
--	if (priv->duallink_slave)
--		i2c_unregister_device(priv->duallink_slave);
-+	i2c_unregister_device(priv->duallink_slave);
+-	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i) {
+-		if (state->i2c_clients[i])
+-			i2c_unregister_device(state->i2c_clients[i]);
+-	}
++	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i)
++		i2c_unregister_device(state->i2c_clients[i]);
+ }
  
- 	kfree(priv);
- 	drm_i2c_encoder_destroy(encoder);
+ static int adv748x_initialise_clients(struct adv748x_state *state)
 -- 
 2.14.2
