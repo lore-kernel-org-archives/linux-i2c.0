@@ -1,57 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/7 v3] I2C GPIO to use gpiolibs open drain
-Date: Wed, 1 Nov 2017 23:45:38 +0100
-Message-ID: <20171101224538.g7qnhxdzdh4n6mq3@ninjato>
-References: <20171005110310.5900-1-linus.walleij@linaro.org>
- <CACRpkdbjyDWFpb5p6kQTRm8Q=rM5L-Mhi4Q1rphEmOwgF6SHVg@mail.gmail.com>
- <20171027134918.uclfmwgmukshwi5z@ninjato>
- <20171030002808.ytay6nvqose4jspr@ninjato>
- <CACRpkdbX6O527z3B-jYUFQ-udwsQnD0iLPaTAwcj-1r24KR=Lw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v11 00/10] Add sbs-manager with smbalert support
+Date: Wed, 1 Nov 2017 23:52:46 +0100
+Message-ID: <20171101225246.i4gbb7ruqrm3pvg5@ninjato>
+References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
+ <66235a12-a209-be89-5bfd-dc69b769cab9@electromag.com.au>
+ <20171028225552.4uhsqx6fkurmcn3j@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ziohbmoi5mlyxd5g"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59256 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753175AbdKAWpk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 18:45:40 -0400
+        protocol="application/pgp-signature"; boundary="d6ppsmtkziqcrn7q"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdbX6O527z3B-jYUFQ-udwsQnD0iLPaTAwcj-1r24KR=Lw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20171028225552.4uhsqx6fkurmcn3j@ninjato>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---ziohbmoi5mlyxd5g
+--d6ppsmtkziqcrn7q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> for convenience I also published a branch without them:
-> git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git for-wolfram
+> I just pushed a branch with some minor fixes to my tree [1] so that
+> buildbot can check it. If all goes well, I'll post the patches tomorrow
+> and merge this branch to for-next soon after.
 
-Merged this one. Thanks!
+And merged now!
 
 
---ziohbmoi5mlyxd5g
+--d6ppsmtkziqcrn7q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6To4ACgkQFA3kzBSg
-KbZcFw//dQDXie4XmPdnVTU7Vi6SanzHfc9pJuClsASqM8oeV1DcM50eM2ZP/I0k
-PqTnEoCf+Q7MUnwCQBdpfOL/BVg2nObBrRpFHFdADYvKsmx4mUZhUAQG5KWoEG5g
-rWN0qbsYNyUtwT1ek8OzmeBvekcYXmC8EHrmFHOKsn0k9rZsOPdwehlHIvZWLOLF
-OeqRhkMI4/0SmRnBefElc2Mglzk1+3FZRDV7SkFcwWbMyVChcprGcJuPiPqaOhmM
-9NIDCX7V8IWSULpKJSso//d6XkTqGHJDEDFTuue5Itt8YFVXDYqd1IDQZCW1t7vp
-E2dKm6h9/PDQFPM9h0V4PTrtYNBIgRtz4whB/FMZq1cdxsUFV9d008/k6Lu36vLA
-Tp4Sj3FuTuKpEwLwJGwVa1yHRoksOr7fBE6M0z6NvXlXl2cORRjSIi7IQx3afSIq
-dpaKdvdJeGalzamj+6VwmcKGKEEJCxwYV+NA6evl8A33DDPaRSBxBKyrhkdQW3CI
-+nu+qNDa+R+q7t2RKLeDpKJZuPGUVaEFlRxvAN11iliz9TCg+vu3a69HrO2bJdqs
-g6EWHvfOD+uC5zr31oKqCslbFX6ejYEkSDj9peNuqMJg3svfSXDUwYY1Rmb85ZQe
-31Q9w7ZVvZ56RtFVPsTMGj5U3+/9eEZVRyRemjjFUQ6iF3jAdWk=
-=BH7O
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6UD4ACgkQFA3kzBSg
+KbbLUxAAhlo0bx3EHVSZBvaj6/5R6ggpjOtOMcjFwdDHepO7O4Ya0J6VoP7LxxKk
+q3RNUNIKdLSaH4ZIsiuRf8Xjnkf/8gEuT9QgOL+TZvKDIMBbM6tJlbkpZVmGqyzp
+XpWGW/psq2uTHvKUhNKofnYwfNsrk8oMIvvnMa4fFyYfVdqGPwmz889nJpcah49D
+06yf8LtNCGHycXZjDtLaln04duBWdziHO8vKAKX0ALLQ6FU/9ZzGWKM09aQhn3jS
+DPnGRDvqz1Mca1GjyNcfEwaCUgcbW0QFE3Q9E6s1zYTrQWpQriikjtziIfjOf26K
+hCOez4q1fo7O0irC2x9TEgDiq+eMBDeHfpZJ+v+loOJc+ouic9P8AMrNHJFNYsZt
+KOGrXH9EYh9Cd7RBmZNJW2eHcu5JyctaKGAhQMhqIOiTo577Yet1ej1jo3/uhhQf
+CEzcDPfYJ3R6s1nw7MjdrCgRbjYfAd0a78LtkUw16uNevQb+28baagRmfvu1Oedv
+p0Oq4snoUIFHjczHrcolG4Udm1YHtX2ac/MGR3mSI61Tq5e9wWRlq8CFJ29D/JV6
+2xLfY/FHYU68T0LX11Agu+Pme1aSF+dRl6EbCFJGMHf1W2XbGkv4ysEVl6IXoTHa
+nyYCssPjnmsI/rIz2q2a0wMpDaT1ThzG9mc+CBHdn1CJslNEnxQ=
+=GvlB
 -----END PGP SIGNATURE-----
 
---ziohbmoi5mlyxd5g--
+--d6ppsmtkziqcrn7q--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
