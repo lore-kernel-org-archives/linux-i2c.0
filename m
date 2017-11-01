@@ -1,71 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 09/15] hwmon: (w83781d) Remove duplicate NULL check
-Date: Thu, 2 Nov 2017 00:07:34 +0100
-Message-ID: <20171101230734.6zsxizhcwazffhrx@ninjato>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
- <20171031142149.32512-9-andriy.shevchenko@linux.intel.com>
- <4b621f23-f251-7fa6-c79c-059b48f27345@roeck-us.net>
- <1509542817.10233.156.camel@linux.intel.com>
+Subject: Re: Looking for AT24 maintainer
+Date: Thu, 2 Nov 2017 00:15:18 +0100
+Message-ID: <20171101231518.ac5cuddqgzpixgfc@ninjato>
+References: <20171030183926.flybg3oestd43c7h@ninjato>
+ <CAMRc=Mdirm=3iS4bU4Mg=psjmZo9FNnAuZ0_1srrkCvVgnTCfQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zmbhu7jk2ohctori"
+        protocol="application/pgp-signature"; boundary="yqtkcgxtzjmiekpm"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59356 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:59389 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933530AbdKAXHg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 19:07:36 -0400
+        id S1752001AbdKAXPU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 1 Nov 2017 19:15:20 -0400
 Content-Disposition: inline
-In-Reply-To: <1509542817.10233.156.camel@linux.intel.com>
+In-Reply-To: <CAMRc=Mdirm=3iS4bU4Mg=psjmZo9FNnAuZ0_1srrkCvVgnTCfQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>, Javier Martinez Canillas <javierm@redhat.com>
 
 
---zmbhu7jk2ohctori
+--yqtkcgxtzjmiekpm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+Hi Bartosz,
+
+> I have access to a couple compatible chips including some exotic ones
+> and I'm interested in this driver being actively maintained, so I can
+> give it a try.
+
+Awesome! Thank you. I'll prepare a patch for MAINTAINERS in a minute.
+
+As a last thing, I'll take care of this patch for 4.15:
+
+" [v6] eeprom: at24: Add OF device ID table "
+
+But after that, I'd hand things over to you. You can check i2c patchwork
+for a list of pending patches:
+
+http://patchwork.ozlabs.org/project/linux-i2c/list/?series=&submitter=&state=&q=at24&archive=&delegate=
+
+Thanks again and let me know if you have questions,
+
+   Wolfram
 
 
-> > I'll keep the hwmon patches from this series on hold until the changes
-> > to i2c_unregister_device make it into the tree. Ok with me if the
-> > patches
-> > are merged through some other tree.
->=20
-> Wolfram, what do you think?
->=20
-> At least we have couple of options:
-> - apply i2c core patch now and wait until rc1
-> - apply everything through i2c tree
-> - ...
-
-I just applied patches 1-3 to my for-4.15 branch. So, other subsystems
-could pick it at rc1 time. If you are going to resend, you can add my
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-to all of the remaining patches.
-
-
---zmbhu7jk2ohctori
+--yqtkcgxtzjmiekpm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6U7YACgkQFA3kzBSg
-KbaIYg/+NwIVFwmU2IgcVS8Xn4l3bjFJ9PAzMeO1Tza4GXNQmdRu7LARsDRoLgcI
-DBChpINhJJU6PNHbsOo+rOkdHeDqGt2YUWHZtzoCeqdfU8zJI1FM69p7lG+l/bb1
-5UneSQzHc9oKxwcqbv8pnM50uWkzOB9/PR+1VC+RsKGb+vH4rrdVd/0IPBearj+W
-2WUNjM0P3CBdvbKmczBt9L/Z8eTT3OjYEtez8SFqVgjyXdnLovJlSetagKnwrMua
-nNd5+Lxki5uGfz/so8mcr1VMQkfDMYEyKQw0P1hWgcl8xA2FgMmzKXDVqtwi+6Q9
-zyyDHe+3c0kZPxuruuCdeh/cq/ixh7Mr+ioauCet3RstoWXkbF0Xh7PbMbWDEjyI
-WQtI7TXgfQxGJQ4lTgYl5bVTJE06SERf971B/vfQ+OFmuUufDzd7au6BHK05CVr6
-bnmOZtlQJd/swOIuuVILtIoLnaNkaAvOqMZMEUVIVg9/QHQ59EJdSy1cDgFNwtYC
-p8vnWFWJ5xGOTqGUeakPH6GahTlfZS2KvXntEM3FDLl0P4cdKg4o7NjMKJo/AOoZ
-LA5WY8jGa/xrsqBOpVpXbp+Stbkll5/8pUSAehZ5k8Eb/y74Qddfb8oVunlUmmcl
-yt0n9FU+AhS5GgwxIiC9zcnHRnCBhSdZB/YJhn867Hmes/wfOlQ=
-=XIAS
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6VYYACgkQFA3kzBSg
+KbYG/g/8C2mp4JLEQLs/F5JrUxeropKNQ+CEKlSPBesigsO5QKh+eSsVZm3B+Tuu
+3w3+MDMbRtnYy2VcSXiQFzyJwo1JMA69UP3YfoSVpCfBZBaLjQyNE95n2N12zLfc
+MZIlZJlY/8nWoIiWMI3thq7eDtsVY0iE8ZPTDnkeyI/gbrplBB1UTGPNCk9YROiR
+54VIj+qDWo4Bc4LZcKgsPYOqw/sWMA2sRdwiB6Km6Nz7krvh/p4vAA4YHIMx7ZOf
+8i//6q7I2fC0wsVYf8NpW2mxI+kuyB7npdIsV8DLws390azeajlmnQH4zFZs2NJS
+2GWVOK1JrZk2YatceisXltTn8yOqHjNQHvfBMp1wEswljlHVEI/cTDS7HnqCYcnu
+DiQZokV7qbRpl4D/ExayXO0qj8exrAuZ2SK+xeTfnEkFWnVIClK5VsukVOJSx5uD
+JyhHsf3WCK1taEszxzbSOwtdliszbQLLzptU/JYyg8XIvZewhupRfRja10PaAxcV
+zU7Of0zqj7uXbhzWrzvIP4ylR+3odACWCE+8e9vEPhD0CI1SMSojq4LouJUmTMf0
+kSciBwhqFibga8Ti8mx54QY2mb4kpzzqfvzo8FXnj0RjSyQtbQTbr/6/Rq5n8JSC
+f2pxOkWBJKa2+gYYOLRXv28BBNwQk+O25fEHurBokHPrDNoXlXo=
+=z/I9
 -----END PGP SIGNATURE-----
 
---zmbhu7jk2ohctori--
+--yqtkcgxtzjmiekpm--
