@@ -1,55 +1,56 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
-Date: Wed, 1 Nov 2017 21:26:13 +0100
-Message-ID: <CAJZ5v0gbmPd=rrveH1LyOYhB2Uu8Tz54C1Y+TutYmdRJCv8G4g@mail.gmail.com>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan> <5094729.JAaD38WncM@aspire.rjw.lan>
- <20171031150933.oho2ffvuj3iagx4m@dell> <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
- <20171101092819.thhofiwwjxblef4a@dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Stefan Lengfeld <contact@stefanchrist.eu>
+Subject: [PATCH] i2c: use macro IS_ENABLED in header i2c.h
+Date: Wed,  1 Nov 2017 21:06:41 +0100
+Message-ID: <20171101200641.11323-1-contact@stefanchrist.eu>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:48703 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755183AbdKAU0O (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 16:26:14 -0400
-In-Reply-To: <20171101092819.thhofiwwjxblef4a@dell>
+Received: from stcim.de ([78.46.90.227]:58360 "EHLO stcim.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755173AbdKAUph (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 1 Nov 2017 16:45:37 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org, wsa@the-dreams.de
 
-On Wed, Nov 1, 2017 at 10:28 AM, Lee Jones <lee.jones@linaro.org> wrote:
-> On Tue, 31 Oct 2017, Rafael J. Wysocki wrote:
->
->> On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
->> > On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
->> >
->> >> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->> >>
->> >> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
->> >> devices which will allow them to stay in runtime suspend during
->> >> system suspend unless they need to be reconfigured for some reason.
->> >>
->> >> Also make it avoid resuming its child devices if they have
->> >> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
->> >> suspend during system suspend.
->> >>
->> >> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->> >> ---
->> >>  drivers/mfd/intel-lpss.c |    6 +++++-
->> >>  1 file changed, 5 insertions(+), 1 deletion(-)
->> >
->> > Is this patch independent?
->>
->> It depends on the flag definition at least, but functionally it also
->> depends on the PCI support for the flag.
->
-> No problem.  Which tree to you propose this goes through?
+From: Stefan Lengfeld <slengfeld@inovex.de>
 
-linux-pm.git if that's not a problem as the patches it depends on will
-go through it too.
+Using the macro IS_ENABLED to check the option CONFIG_I2C=(y|m) makes
+the code nicer.  No functional change.
 
-That said I'll resend it when the core patches it depends on are ready.
+Signed-off-by: Stefan Lengfeld <contact@stefanchrist.eu>
+---
+ include/linux/i2c.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thanks,
-Rafael
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index d501d3956f13..9245a269d160 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -55,7 +55,7 @@ typedef int (*i2c_slave_cb_t)(struct i2c_client *, enum i2c_slave_event, u8 *);
+ struct module;
+ struct property_entry;
+ 
+-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
++#if IS_ENABLED(CONFIG_I2C)
+ /*
+  * The master routines are the ones normally used to transmit data to devices
+  * on a bus (or read from them). Apart from two basic transfer functions to
+@@ -352,7 +352,7 @@ struct i2c_board_info {
+ 	.type = dev_type, .addr = (dev_addr)
+ 
+ 
+-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
++#if IS_ENABLED(CONFIG_I2C)
+ /* Add-on boards should register/unregister their devices; e.g. a board
+  * with integrated I2C, a config eeprom, sensors, and a codec that's
+  * used in conjunction with the primary hardware.
+@@ -704,7 +704,7 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
+ 
+ /* administration...
+  */
+-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
++#if IS_ENABLED(CONFIG_I2C)
+ extern int i2c_add_adapter(struct i2c_adapter *);
+ extern void i2c_del_adapter(struct i2c_adapter *);
+ extern int i2c_add_numbered_adapter(struct i2c_adapter *);
+-- 
+2.13.5
