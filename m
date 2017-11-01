@@ -1,131 +1,113 @@
-From: Hoan Tran <hotran@apm.com>
-Subject: Re: [PATCH v2] i2c: xgene-slimpro: Support v2
-Date: Tue, 31 Oct 2017 13:27:52 -0700
-Message-ID: <CAFHUOYyPF5pJ0OTxOJV1RsxN=8ZzMvt7w5hM40iHRoe3z0by_Q@mail.gmail.com>
-References: <1509402256-3357-1-git-send-email-hotran@apm.com> <1509441294.10233.81.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Joel Stanley <joel@jms.id.au>
+Subject: [PATCH v4] i2c: aspeed: Deassert reset in probe
+Date: Wed,  1 Nov 2017 10:53:30 +1030
+Message-ID: <20171101002330.24981-1-joel@jms.id.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:45045 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752023AbdJaU1x (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 16:27:53 -0400
-Received: by mail-oi0-f65.google.com with SMTP id v132so417620oie.1
-        for <linux-i2c@vger.kernel.org>; Tue, 31 Oct 2017 13:27:53 -0700 (PDT)
-In-Reply-To: <1509441294.10233.81.camel@linux.intel.com>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:52130 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751286AbdKAAXo (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2017 20:23:44 -0400
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Loc Ho <lho@apm.com>, patches <patches@apm.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Andy,
+In order to use i2c from a cold boot, the i2c peripheral must be taken
+out of reset. We request a shared reset controller each time a bus
+driver is loaded, as the reset is shared between the 14 i2c buses.
 
-On Tue, Oct 31, 2017 at 2:14 AM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Mon, 2017-10-30 at 15:24 -0700, Hoan Tran wrote:
->> This patch supports xgene-slimpro-i2c v2 which uses the non-cachable
->> memory
->> as the PCC shared memory.
->>
->
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->
-> (I'm totally fine with ACPI bits here, for the rest I hope it had been
-> tested and works as expected)
+On remove the reset is asserted, which only touches the hardware once
+the last i2c bus is removed.
 
-Yes, it had been tested.
+The reset is required as the I2C buses will not work without releasing
+the reset. Previously the driver only worked with out of tree hacks
+that released this reset before the driver was loaded. Update the
+device tree bindings to reflect this.
 
-Thanks
-Hoan
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+---
+v4:
+  - Make reset required and update device tree bindings
+  - Remove unnecessary delay.h
+  - Exit when reset controller probing fails
+  - Fix ordering when removing the driver so that it is the opposite of probing
+v3: Check for bad reset controller probe (caused by eg. bad device tree)
+    and set ->rst to NULL so assert/desassert does not cause a warning to
+    be printed
+v2: Sort the headers
 
->
->> Signed-off-by: Hoan Tran <hotran@apm.com>
->> ---
->> v2:
->>  - Remove un-necessary ifdef CONFIG_ACPI
->>  - Use acpi_match_table pointer from pdev
->>  - Use MEMREMAP_WT for non-cachable memory
->>
->>  drivers/i2c/busses/i2c-xgene-slimpro.c | 30
->> ++++++++++++++++++++++++++----
->>  1 file changed, 26 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c
->> b/drivers/i2c/busses/i2c-xgene-slimpro.c
->> index 7e89ba6..a7ac746 100644
->> --- a/drivers/i2c/busses/i2c-xgene-slimpro.c
->> +++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
->> @@ -129,6 +129,11 @@ struct slimpro_i2c_dev {
->>  #define to_slimpro_i2c_dev(cl)       \
->>               container_of(cl, struct slimpro_i2c_dev, mbox_client)
->>
->> +enum slimpro_i2c_version {
->> +     XGENE_SLIMPRO_I2C_V1 = 0,
->> +     XGENE_SLIMPRO_I2C_V2 = 1,
->> +};
->> +
->>  /*
->>   * This function tests and clears a bitmask then returns its old
->> value
->>   */
->> @@ -476,6 +481,15 @@ static int xgene_slimpro_i2c_probe(struct
->> platform_device *pdev)
->>               }
->>       } else {
->>               struct acpi_pcct_hw_reduced *cppc_ss;
->> +             const struct acpi_device_id *acpi_id;
->> +             int version = XGENE_SLIMPRO_I2C_V1;
->> +
->> +             acpi_id = acpi_match_device(pdev->dev.driver-
->> >acpi_match_table,
->> +                                         &pdev->dev);
->> +             if (!acpi_id)
->> +                     return -EINVAL;
->> +
->> +             version = (int)acpi_id->driver_data;
->>
->>               if (device_property_read_u32(&pdev->dev, "pcc-
->> channel",
->>                                            &ctx->mbox_idx))
->> @@ -514,9 +528,16 @@ static int xgene_slimpro_i2c_probe(struct
->> platform_device *pdev)
->>                */
->>               ctx->comm_base_addr = cppc_ss->base_address;
->>               if (ctx->comm_base_addr) {
->> -                     ctx->pcc_comm_addr = memremap(ctx-
->> >comm_base_addr,
->> -                                                   cppc_ss-
->> >length,
->> -                                                   MEMREMAP_WB);
->> +                     if (version == XGENE_SLIMPRO_I2C_V2)
->> +                             ctx->pcc_comm_addr = memremap(
->> +                                                     ctx-
->> >comm_base_addr,
->> +                                                     cppc_ss-
->> >length,
->> +                                                     MEMREMAP_WT);
->> +                     else
->> +                             ctx->pcc_comm_addr = memremap(
->> +                                                     ctx-
->> >comm_base_addr,
->> +                                                     cppc_ss-
->> >length,
->> +                                                     MEMREMAP_WB);
->>               } else {
->>                       dev_err(&pdev->dev, "Failed to get PCC comm
->> region\n");
->>                       rc = -ENOENT;
->> @@ -581,7 +602,8 @@ MODULE_DEVICE_TABLE(of, xgene_slimpro_i2c_dt_ids);
->>
->>  #ifdef CONFIG_ACPI
->>  static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
->> -     {"APMC0D40", 0},
->> +     {"APMC0D40", XGENE_SLIMPRO_I2C_V1},
->> +     {"APMC0D8B", XGENE_SLIMPRO_I2C_V2},
->>       {}
->>  };
->>  MODULE_DEVICE_TABLE(acpi, xgene_slimpro_i2c_acpi_ids);
->
-> --
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
+ Documentation/devicetree/bindings/i2c/i2c-aspeed.txt |  7 +++++--
+ drivers/i2c/busses/i2c-aspeed.c                      | 12 ++++++++++++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+index bd6480b19535..e7106bfc1f13 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+@@ -7,7 +7,9 @@ Required Properties:
+ - compatible		: should be "aspeed,ast2400-i2c-bus"
+ 			  or "aspeed,ast2500-i2c-bus"
+ - clocks		: root clock of bus, should reference the APB
+-			  clock
++			  clock in the second cell
++- resets		: phandle to reset controller with the reset number in
++			  the second cell
+ - interrupts		: interrupt number
+ - interrupt-parent	: interrupt controller for bus, should reference a
+ 			  aspeed,ast2400-i2c-ic or aspeed,ast2500-i2c-ic
+@@ -40,7 +42,8 @@ i2c {
+ 		#interrupt-cells = <1>;
+ 		reg = <0x40 0x40>;
+ 		compatible = "aspeed,ast2400-i2c-bus";
+-		clocks = <&clk_apb>;
++		clocks = <&syscon ASPEED_CLK_APB>;
++		resets = <&syscon ASPEED_RESET_I2C>;
+ 		bus-frequency = <100000>;
+ 		interrupts = <0>;
+ 		interrupt-parent = <&i2c_ic>;
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index 284f8670dbeb..7d4aeb4465b3 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -27,6 +27,7 @@
+ #include <linux/of_irq.h>
+ #include <linux/of_platform.h>
+ #include <linux/platform_device.h>
++#include <linux/reset.h>
+ #include <linux/slab.h>
+ 
+ /* I2C Register */
+@@ -132,6 +133,7 @@ struct aspeed_i2c_bus {
+ 	struct i2c_adapter		adap;
+ 	struct device			*dev;
+ 	void __iomem			*base;
++	struct reset_control		*rst;
+ 	/* Synchronizes I/O mem access to base. */
+ 	spinlock_t			lock;
+ 	struct completion		cmd_complete;
+@@ -847,6 +849,14 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+ 	/* We just need the clock rate, we don't actually use the clk object. */
+ 	devm_clk_put(&pdev->dev, parent_clk);
+ 
++	bus->rst = devm_reset_control_get_shared(&pdev->dev, NULL);
++	if (IS_ERR(bus->rst)) {
++		dev_err(&pdev->dev,
++			"missing or invalid reset controller device tree entry");
++		return PTR_ERR(bus->rst);
++	}
++	reset_control_deassert(bus->rst);
++
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+ 				   "bus-frequency", &bus->bus_frequency);
+ 	if (ret < 0) {
+@@ -917,6 +927,8 @@ static int aspeed_i2c_remove_bus(struct platform_device *pdev)
+ 
+ 	spin_unlock_irqrestore(&bus->lock, flags);
+ 
++	reset_control_assert(bus->rst);
++
+ 	i2c_del_adapter(&bus->adap);
+ 
+ 	return 0;
+-- 
+2.14.1
