@@ -1,16 +1,15 @@
 From: Juergen Fitschen <me@jue.yt>
-Subject: Re: [PATCH RFC 4/4] i2c: at91: take slave mode capabilities of
- hardware into account
-Date: Wed, 1 Nov 2017 12:16:36 +0100
-Message-ID: <20171101111636.GA17565@jfi-dev>
+Subject: Re: [PATCH RFC 3/4] i2c: at91: added slave mode support
+Date: Wed, 1 Nov 2017 12:35:05 +0100
+Message-ID: <20171101113505.GB17565@jfi-dev>
 References: <cover.1509112910.git.me@jue.yt>
- <1e3e7e50e25afd3ebe14daf89d1f194c45ca6cbb.1509112910.git.me@jue.yt>
- <20171031152250.4oasjhfpya5rmzyv@rfolt0960.corp.atmel.com>
+ <b81e56548dbe4fa6c37fec4c80b38622f1f1fcdf.1509112910.git.me@jue.yt>
+ <20171031155542.rsy7gtpa5notpwcd@rfolt0960.corp.atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171031152250.4oasjhfpya5rmzyv@rfolt0960.corp.atmel.com>
+In-Reply-To: <20171031155542.rsy7gtpa5notpwcd@rfolt0960.corp.atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ludovic Desroches <ludovic.desroches@microchip.com>
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -18,70 +17,61 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hello Ludovic,
 
-Thank you very much for your feedback!
-
-On Tue, Oct 31, 2017 at 04:22:50PM +0100, Ludovic Desroches wrote:
-> On Fri, Oct 27, 2017 at 05:12:17PM +0200, Juergen Fitschen wrote:
-> > Some AT91 hardware has no slave mode included or only limited features
-> > (i.e. no fifos).
+On Tue, Oct 31, 2017 at 04:55:42PM +0100, Ludovic Desroches wrote:
+> On Fri, Oct 27, 2017 at 05:12:00PM +0200, Juergen Fitschen wrote:
+> > Slave mode driver is based on the concept of i2c-designware driver.
+> > 
+> > Signed-off-by: Juergen Fitschen <me@jue.yt>
+> > ---
+> >  drivers/i2c/busses/Makefile         |   3 +
+> >  drivers/i2c/busses/i2c-at91-core.c  |  13 +++-
+> >  drivers/i2c/busses/i2c-at91-slave.c | 147 ++++++++++++++++++++++++++++++++++++
+> >  drivers/i2c/busses/i2c-at91.h       |  30 +++++++-
+> >  4 files changed, 189 insertions(+), 4 deletions(-)
+> >  create mode 100644 drivers/i2c/busses/i2c-at91-slave.c
 > > 
 > 
-> I am wondering if it won't be better to squash this patch into the
-> previous one:
-> Without it, it seems that we can set slave_detected for the RM9200 even
-> if it doesn't support the slave mode.
+> Adding an example in Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> could be useful.
 
-Good point. I will squash both patches into one in the next version. In the
-first place I wanted to support the review process by splitting the changes in
-two patches.
+I will add this.
 
-> > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> > index bb502c1..4a4fa67 100644
-> > --- a/drivers/i2c/busses/i2c-at91.h
-> > +++ b/drivers/i2c/busses/i2c-at91.h
-> > @@ -107,9 +107,14 @@
-> >  
-> >  #define	AT91_TWI_VER		0x00fc	/* Version Register */
-> >  
-> > +#define	AT91_TWI_SM_AVAILABLE	BIT(0)	/* Slave mode supported */
-> > +#define	AT91_TWI_SM_CAN_NACK	BIT(1)	/* Can send NACKs in slave mode */
-> > +#define	AT91_TWI_SM_HAS_FIFO	BIT(2)	/* Has FIFO for slave mode */
-> > +
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index 2a79c3d..b38fb8e9 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -34,6 +34,9 @@ obj-$(CONFIG_I2C_ALTERA)	+= i2c-altera.o
+> >  obj-$(CONFIG_I2C_ASPEED)	+= i2c-aspeed.o
+> >  obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+> >  i2c-at91-objs			:= i2c-at91-core.o i2c-at91-master.o
+> > +ifeq ($(CONFIG_I2C_SLAVE),y)
+> > +	i2c-at91-objs		+= i2c-at91-slave.o
+> > +endif
 > 
-> I would not add AT91_TWI_SM_CAN_NACK, AT91_TWI_SM_HAS_FIFO since there
-> is no code relying on them. Maybe you have some plans for the future?
+> As Designware driver, I would add an entry in 'I2C Hardware Bus
+> Support'.
+> 
+> If a user wants to use the I2C GPIO driver as the I2C slave (once it has
+> the slave support), it's not useful to embed i2c-at91-slave code.
 
-Wolfram mentioned that supporting NACKs would be a welcome feature [1]. But I
-haven't implemented it, yet. The same goes for FIFO support. ATM I am not sure
-if my application will need this, since I am observing quite a lot clock
-stretching without FIFOs due to the occupied receive holding registered (RHR).
+Good point.
 
-BTW: Both implementations would be kind of controversal. Without using FIFOs the
-desired NACK would be delayed by 1 byte (cf. my "artistic" ASCII graphic [2]).
-If FIFOs are enabled the delay would be even larger. So the options are:
+> > +void at91_init_twi_bus_slave(struct at91_twi_dev *dev)
+> > +{
+> > +	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_MSDIS);
+> > +	if (dev->slave_detected && dev->smr) {
+> 
+> slave_detected has been checked in the caller. smr has been set just
+> before calling at91_init_twi_bus().
 
- * No NACKs at all
- * NACKs delayed by 1 byte, no FIFOs
- * NACKs delayed by n byte, with FIFOs
+Whoops! Better safe than sorry ;) I will remove that check.
 
-Non of these abovementioned options is optimal and fulfill the desired behaviour
-(cf. section I2C_SLAVE_WRITE_RECEIVED of [3]).  Furthermore, AFAIK NACKs and
-FIFOs are just supported by SAMA5D2x MPUs.
 
-These are the main reasons why I haven't implented anything related to
-AT91_TWI_SM_CAN_NACK and AT91_TWI_SM_HAS_FIFO. The designware driver ignores
-the NACK problem, as well.
 
-Do you have an opinion on this topic?
-
-In the next version of this patchset I will remove this. I think readding these
-flags if needed shouldn't be a big deal.
+Thank you for testing everything! I am curious about how the other MPUs will
+perform with the patchset. I have a SAMA5D35 at hand and can test everything on
+this MPU in the next days.
 
 
 Best regards
   Juergen
-
-
-[1] https://marc.info/?l=linux-i2c&m=150831224824540&w=2
-[2] https://marc.info/?l=linux-i2c&m=150833171430595&w=2
-[3] https://www.kernel.org/doc/Documentation/i2c/slave-interface
