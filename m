@@ -1,47 +1,55 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: Looking for AT24 maintainer
-Date: Wed, 1 Nov 2017 10:07:39 +0100
-Message-ID: <CAMRc=Mdirm=3iS4bU4Mg=psjmZo9FNnAuZ0_1srrkCvVgnTCfQ@mail.gmail.com>
-References: <20171030183926.flybg3oestd43c7h@ninjato>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
+Date: Wed, 1 Nov 2017 09:28:19 +0000
+Message-ID: <20171101092819.thhofiwwjxblef4a@dell>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <5094729.JAaD38WncM@aspire.rjw.lan>
+ <20171031150933.oho2ffvuj3iagx4m@dell>
+ <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f44.google.com ([209.85.218.44]:44385 "EHLO
-        mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751390AbdKAJHk (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 05:07:40 -0400
-Received: by mail-oi0-f44.google.com with SMTP id v132so2521224oie.1
-        for <linux-i2c@vger.kernel.org>; Wed, 01 Nov 2017 02:07:40 -0700 (PDT)
-In-Reply-To: <20171030183926.flybg3oestd43c7h@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>, Javier Martinez Canillas <javierm@redhat.com>
 
-2017-10-30 19:39 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> Hi,
->
-> quite obviously, I don't have the time anymore to maintain the AT24
-> driver. So, I am looking for someone to take over maintainership. It is
-> a driver with very few patches coming in. It is just that they piled up
-> a bit due to my inability to process them. I think it is a good driver
-> to start being a maintainer and I'd be there if questions arise.
->
-> I put some people on CC which were active on this driver somewhat
-> recently or people having substantial patches pending because I assume
-> they have an interest in this driver. But anyone who is interested and
-> has some experiences with the Kernel workflow is welcome to reply here,
-> so we can start discussing things.
->
-> If nobody wants, I'll just orphan it the next merge window, to make the
-> current status official :/
->
+On Tue, 31 Oct 2017, Rafael J. Wysocki wrote:
 
-Hi Wolfram,
+> On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
+> >
+> >> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >>
+> >> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
+> >> devices which will allow them to stay in runtime suspend during
+> >> system suspend unless they need to be reconfigured for some reason.
+> >>
+> >> Also make it avoid resuming its child devices if they have
+> >> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
+> >> suspend during system suspend.
+> >>
+> >> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >> ---
+> >>  drivers/mfd/intel-lpss.c |    6 +++++-
+> >>  1 file changed, 5 insertions(+), 1 deletion(-)
+> >
+> > Is this patch independent?
+> 
+> It depends on the flag definition at least, but functionally it also
+> depends on the PCI support for the flag.
 
-I have access to a couple compatible chips including some exotic ones
-and I'm interested in this driver being actively maintained, so I can
-give it a try.
+No problem.  Which tree to you propose this goes through?
 
-Best regards,
-Bartosz Golaszewski
+> > For my own reference:
+> >   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
