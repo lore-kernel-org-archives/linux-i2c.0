@@ -1,35 +1,55 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v4 1/7] i2c: Switch to using gpiod interface for gpio bus
- recovery
-Date: Wed, 1 Nov 2017 18:23:22 +0200
-Message-ID: <d6f29fd9-1f22-8956-d9c6-aa797aa4340b@linux.intel.com>
-References: <1509435239-64848-1-git-send-email-preid@electromag.com.au>
- <1509435239-64848-2-git-send-email-preid@electromag.com.au>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
+Date: Wed, 1 Nov 2017 21:26:13 +0100
+Message-ID: <CAJZ5v0gbmPd=rrveH1LyOYhB2Uu8Tz54C1Y+TutYmdRJCv8G4g@mail.gmail.com>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan> <5094729.JAaD38WncM@aspire.rjw.lan>
+ <20171031150933.oho2ffvuj3iagx4m@dell> <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
+ <20171101092819.thhofiwwjxblef4a@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:44174 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751853AbdKAQXn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 12:23:43 -0400
-In-Reply-To: <1509435239-64848-2-git-send-email-preid@electromag.com.au>
-Content-Language: en-US
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:48703 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755183AbdKAU0O (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 16:26:14 -0400
+In-Reply-To: <20171101092819.thhofiwwjxblef4a@dell>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, fntoth@gmail.com
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
 
-On 10/31/2017 09:33 AM, Phil Reid wrote:
-> Currently the i2c gpio recovery code uses gpio integer interface
-> instead of the gpiod. This change switch the core code to use
-> the gpiod while still retaining compatibility with the gpio integer
-> interface. This will allow individual driver to be updated and tested
-> individual to switch to using the gpiod interface.
-> 
-> Signed-off-by: Phil Reid <preid@electromag.com.au>
-> ---
->   drivers/i2c/i2c-core-base.c | 21 +++++++++++++++++----
->   include/linux/i2c.h         |  2 ++
->   2 files changed, 19 insertions(+), 4 deletions(-)
-> 
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+On Wed, Nov 1, 2017 at 10:28 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Tue, 31 Oct 2017, Rafael J. Wysocki wrote:
+>
+>> On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
+>> > On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
+>> >
+>> >> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>> >>
+>> >> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
+>> >> devices which will allow them to stay in runtime suspend during
+>> >> system suspend unless they need to be reconfigured for some reason.
+>> >>
+>> >> Also make it avoid resuming its child devices if they have
+>> >> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
+>> >> suspend during system suspend.
+>> >>
+>> >> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>> >> ---
+>> >>  drivers/mfd/intel-lpss.c |    6 +++++-
+>> >>  1 file changed, 5 insertions(+), 1 deletion(-)
+>> >
+>> > Is this patch independent?
+>>
+>> It depends on the flag definition at least, but functionally it also
+>> depends on the PCI support for the flag.
+>
+> No problem.  Which tree to you propose this goes through?
+
+linux-pm.git if that's not a problem as the patches it depends on will
+go through it too.
+
+That said I'll resend it when the core patches it depends on are ready.
+
+Thanks,
+Rafael
