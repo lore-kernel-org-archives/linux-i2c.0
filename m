@@ -1,55 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 01/15] i2c: Make i2c_unregister_device() NULL-aware
-Date: Thu, 2 Nov 2017 00:04:39 +0100
-Message-ID: <20171101230439.7kiv6qln5amzbid2@ninjato>
+Subject: Re: [PATCH v1 02/15] i2c: taos-evm: Remove duplicate NULL check
+Date: Thu, 2 Nov 2017 00:04:43 +0100
+Message-ID: <20171101230443.czioqwwtxks67j5v@ninjato>
 References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+ <20171031142149.32512-2-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yn7nqhkh7p3mxzmy"
+        protocol="application/pgp-signature"; boundary="qconrqibsmekcpdt"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59336 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:59339 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933336AbdKAXEl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 19:04:41 -0400
+        id S933336AbdKAXEo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 1 Nov 2017 19:04:44 -0400
 Content-Disposition: inline
-In-Reply-To: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20171031142149.32512-2-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
 
 
---yn7nqhkh7p3mxzmy
+--qconrqibsmekcpdt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 31, 2017 at 04:21:35PM +0200, Andy Shevchenko wrote:
-> It's a common pattern to be NULL-aware when freeing resources.
+On Tue, Oct 31, 2017 at 04:21:36PM +0200, Andy Shevchenko wrote:
+> Since i2c_unregister_device() became NULL-aware we may remove duplicate
+> NULL check.
 >=20
+> Cc: Jean Delvare <jdelvare@suse.com>
 > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Applied to for-next, thanks!
 
 
---yn7nqhkh7p3mxzmy
+--qconrqibsmekcpdt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6UwcACgkQFA3kzBSg
-KbZ2TA//S1ujCjxn2/fdVjtkK701/zvi2XMCcxCiKgjcgugWrbLW1zBC7A0uxEtP
-hI17O5S9g5/k52n7NQjeplBw+Dbb0gNYmpKhOLhFGqTaa+AkSvjCcI0sqbIQr9+t
-cL+h9qT01x+xpPAlh6c5/0V4NPdxiXgv8yvH1xNHZtR2JRC+FKfKoQnxuRVA6Dkr
-niT9RXNurcbnpPXosexdsfCMlm9D/fXd7I1dGZAZSyecTlAxV0N7mkzCmb7MMZCU
-+q44i1pDOtzxrqMXKN1IvBi+lvln2z+7j1Ve5oq11PkTjwbFtCTLHa65S1tYZYsj
-HhYHSlMO8ff6nbcxd3l05NRsb1mD/p2wRUoovWMOg26qvMyv/2DX88smjsSgyd8y
-QmJWC7WLdimOLhqjXezQwBRE1BtQnhDt7Aaf9oytFCO5ZFmLSjBMBLjnLolzAk1c
-Ct674yzWIrstu2ynhFWFG7+cjmHZjIqQFq0eHDKSK370FXGRZ9hXRfIdIy3rIIoT
-+uFFfRhk64HeyPU1NrRx0N4OlmtMuejCYpt3Gdmq23tGktabXfkcIuXbFTbO+JMN
-cRHmJmjBpFf0mG3CgpbMPDaMbnZOYa1WEh6M64YFDxkKyJT7iGQKv3sZ+JAlEtBR
-AcoGCXl+21YQ0PeV1cbDScee+RQsl6MD1hUHOXf1oteR5UG8iVM=
-=H9ng
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6UwsACgkQFA3kzBSg
+Kba5ig/9FFQPzgpwYnvH40ILe202TKGbwFiqKV6LfRESOWBtPTzp7cBUFxjRipwA
+1lT0s6WUuPmDYmxVAv8t/28ieEjxa6M/FVEKxNWdlQ5rpMkRz67iLtyHp+ggwgrb
+qM0KV46FHNmIfJBbfnfWgdRc6Fol4GyJLZmhq8UDevrxFbfaT7sJsWKpMlyD3Eb+
+2yWa59ZKAa27ZYuio/Vt0GBp/G3W69kV5NJ6KOHO780z5Ftvmi5cxOxtzx6aLmD2
+Q/VuVjbIXcmZVXVjjEwKDzFVtrEv+n1YjKPMNolmVjL6MurVtdW4/SJ1elwna2Pu
+xivCLG6OaAHpObyRXM/iJaCvwBtk06HVwlIGsc9pjv0ZnMpo+niEmo2bHshKc/OJ
+bf+K+gniloYMyVUOOLFnN1YE/LEewidVmSQp/XfsAY1/s1cXO8xlkRkrgNrB6F3Q
+VjHq/8cAM0PI72VdbkwRFpqEYlA5oroIrqOcPCYzFmLONVW4p+bifsuznW8UQjuu
+70qo7NVmLy+LsC/YZ+CpWXjXNuP6mcbufpwSdIW+H08r/3lTZcLg3OFWZUOo+XFB
+z5BcYWFjj7Nch6zwjEYm5Kx++YSpcRI1m9pxTd6DjJLC/JKj9XiAxP5Gt9YiR+LV
+WXA4Y7vnlJOnU7t7wmtu5BdhMe1LH9KFhx1jC8L6doLe0hLvLWI=
+=um6x
 -----END PGP SIGNATURE-----
 
---yn7nqhkh7p3mxzmy--
+--qconrqibsmekcpdt--
