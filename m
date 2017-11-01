@@ -1,60 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mpc: remove useless variable initialization
-Date: Wed, 1 Nov 2017 23:52:53 +0100
-Message-ID: <20171101225253.hdr2ol6bysbv6dii@ninjato>
-References: <20171027202444.20220-1-wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: xgene-slimpro: Support v2
+Date: Wed, 1 Nov 2017 23:55:37 +0100
+Message-ID: <20171101225537.csurkrz42zkrts5j@ninjato>
+References: <1509402256-3357-1-git-send-email-hotran@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="omr7nzpkfhxy5noz"
+        protocol="application/pgp-signature"; boundary="dqsfurjjoeone37l"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59289 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:59298 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933336AbdKAWwz (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 18:52:55 -0400
-Received: from localhost (p54B33BFD.dip0.t-ipconnect.de [84.179.59.253])
-        by pokefinder.org (Postfix) with ESMTPSA id C632A2C348B
-        for <linux-i2c@vger.kernel.org>; Wed,  1 Nov 2017 23:52:53 +0100 (CET)
+        id S933336AbdKAWzj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 1 Nov 2017 18:55:39 -0400
 Content-Disposition: inline
-In-Reply-To: <20171027202444.20220-1-wsa@the-dreams.de>
+In-Reply-To: <1509402256-3357-1-git-send-email-hotran@apm.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
+To: Hoan Tran <hotran@apm.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Loc Ho <lho@apm.com>, patches@apm.com
 
 
---omr7nzpkfhxy5noz
+--dqsfurjjoeone37l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 27, 2017 at 10:24:44PM +0200, Wolfram Sang wrote:
-> cppcheck rightfully says:
+On Mon, Oct 30, 2017 at 03:24:16PM -0700, Hoan Tran wrote:
+> This patch supports xgene-slimpro-i2c v2 which uses the non-cachable memo=
+ry
+> as the PCC shared memory.
 >=20
-> drivers/i2c/busses/i2c-mpc.c:329: style: Variable 'node' is reassigned a =
-value before the old one has been used.
->=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Hoan Tran <hotran@apm.com>
 
 Applied to for-next, thanks!
 
 
---omr7nzpkfhxy5noz
+--dqsfurjjoeone37l
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6UEUACgkQFA3kzBSg
-KbYWFhAApzitfJeIbfbfrrljBSyXlWuTEbhpH2bH/+SnjiqpfKenu7FLS1yUYGTX
-qBanRD4BvGIzjvxsU+gFmbnGEhEOJ8MghTgUBxORjpweIB+/PMbWciW2XaK5iLNe
-Mtoq1qxa0tfegHQObDzW7+18z8du2/jDjJbQFjs1uCtAAQQfOjXCFWfNAp65kcWK
-K51Iq2uVLvhDYjHkxJx4SzRSGnrDTx8rYD6kiNCwcsyBbY4FbQneWdpjYbx/RWOx
-OMMUFO4uf2674KUndmSeOJMBwMug/43s68ez2qCNtqYj6Evu82bN8FHFVSyMtu5e
-BIut/hgr7C2d74pW62JFwTmyG7nqOkLsqqQ6h60WyoD5PDwOhkC5iu/mfI+S6bkH
-7aLn+NwLJyoHtUPxpHOcqMK4R8U1ZH2DramLleDm8x27UaRhHCDI0/uLLSqvkjXI
-4zoS7/z+1z47UxBf0hrPlp9DykxCQHCjnBbyknB22dCiyo39R1amQiQsAQzK/yzD
-HRAUrDXKBW6TCCUN0OwQDNDbassfxAspUV0KnOVRHK6WLLfeRx3thVgMhgxpYShj
-/9KgM/ABbMbz4PfJagYliGCScMXJRxrXeoaDq3+EmGcZFz2MNWQlGB4VOvnpH+uz
-X6FfZukOBNBOKjVEcKWjUwiBS0KURfhmKhe5QqgwAp4zNJi/a48=
-=hDll
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAln6UOkACgkQFA3kzBSg
+KbaT9g//Rw9Qg6bgGdJv701KZ3pVenDtVa0hwNQ3K2fqg3BT03+DO40AvRtPF5AD
+G//Bffe40xBn7/bQtzYbl5oL3JrNkqvj1Zyr1vxP9p95VokudxZiHvO93jI9G78y
+QKx8vBYuQE42F3lOk06MlYt8LYxx/pLyyui1EkmLzMBwxolYQorZMcViyoquOshQ
+WDjGoGyJii9LXJDko449cf/dNogv8RLBm8rqp9LsI2/z1x9Tm+EnF4qfkSq9Wu12
+mHQd5GNbmYKCbX0wngzfRitY5AJBx/EOJu9I0B7D8VJULVw9yhosObLbbnIQ7f2A
+hhnBefIAWQVkL4dt2pPoOSQ2NoR8k15RvHBGwvvHS8/v28XmbAkZuBw2RxJBT2rO
+2aPkMg4BBzHmTa7pCawhcGBqnwjX1o/a0QGCHEHCdHBb63+JNsoPxWZD0BuobDVq
+Lo3MKldRequJSepqOz6m4RlFJtmJH955Nd1iQMzWBvjn2JDmkNRNe7kmdRbSPTyA
+oROXjLKivxkqRkU+Ko18xnQ/txbsrw2jS5py2wQIErBubLC5gtIhgTYuPzP8O+Ks
+R6D7SQMv09a1cOAGqiSJnjDGNsVKF70FLK1vzdYmsy2IA/qjtAwBYTenxnw4w9zc
++nqWy/dHb9sGRUIHTaC0g+HLe2Vyg9FSaFuYK+prGEonauFwTxs=
+=w4eI
 -----END PGP SIGNATURE-----
 
---omr7nzpkfhxy5noz--
+--dqsfurjjoeone37l--
