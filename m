@@ -1,55 +1,87 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
-Date: Wed, 1 Nov 2017 09:28:19 +0000
-Message-ID: <20171101092819.thhofiwwjxblef4a@dell>
-References: <3806130.B2KCK0tvef@aspire.rjw.lan>
- <5094729.JAaD38WncM@aspire.rjw.lan>
- <20171031150933.oho2ffvuj3iagx4m@dell>
- <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
+From: Juergen Fitschen <me@jue.yt>
+Subject: Re: [PATCH RFC 4/4] i2c: at91: take slave mode capabilities of
+ hardware into account
+Date: Wed, 1 Nov 2017 12:16:36 +0100
+Message-ID: <20171101111636.GA17565@jfi-dev>
+References: <cover.1509112910.git.me@jue.yt>
+ <1e3e7e50e25afd3ebe14daf89d1f194c45ca6cbb.1509112910.git.me@jue.yt>
+ <20171031152250.4oasjhfpya5rmzyv@rfolt0960.corp.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
+In-Reply-To: <20171031152250.4oasjhfpya5rmzyv@rfolt0960.corp.atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 31 Oct 2017, Rafael J. Wysocki wrote:
+Hello Ludovic,
 
-> On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
-> > On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
-> >
-> >> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> >>
-> >> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
-> >> devices which will allow them to stay in runtime suspend during
-> >> system suspend unless they need to be reconfigured for some reason.
-> >>
-> >> Also make it avoid resuming its child devices if they have
-> >> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
-> >> suspend during system suspend.
-> >>
-> >> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> >> ---
-> >>  drivers/mfd/intel-lpss.c |    6 +++++-
-> >>  1 file changed, 5 insertions(+), 1 deletion(-)
-> >
-> > Is this patch independent?
+Thank you very much for your feedback!
+
+On Tue, Oct 31, 2017 at 04:22:50PM +0100, Ludovic Desroches wrote:
+> On Fri, Oct 27, 2017 at 05:12:17PM +0200, Juergen Fitschen wrote:
+> > Some AT91 hardware has no slave mode included or only limited features
+> > (i.e. no fifos).
+> > 
 > 
-> It depends on the flag definition at least, but functionally it also
-> depends on the PCI support for the flag.
+> I am wondering if it won't be better to squash this patch into the
+> previous one:
+> Without it, it seems that we can set slave_detected for the RM9200 even
+> if it doesn't support the slave mode.
 
-No problem.  Which tree to you propose this goes through?
+Good point. I will squash both patches into one in the next version. In the
+first place I wanted to support the review process by splitting the changes in
+two patches.
 
-> > For my own reference:
-> >   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+> > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+> > index bb502c1..4a4fa67 100644
+> > --- a/drivers/i2c/busses/i2c-at91.h
+> > +++ b/drivers/i2c/busses/i2c-at91.h
+> > @@ -107,9 +107,14 @@
+> >  
+> >  #define	AT91_TWI_VER		0x00fc	/* Version Register */
+> >  
+> > +#define	AT91_TWI_SM_AVAILABLE	BIT(0)	/* Slave mode supported */
+> > +#define	AT91_TWI_SM_CAN_NACK	BIT(1)	/* Can send NACKs in slave mode */
+> > +#define	AT91_TWI_SM_HAS_FIFO	BIT(2)	/* Has FIFO for slave mode */
+> > +
+> 
+> I would not add AT91_TWI_SM_CAN_NACK, AT91_TWI_SM_HAS_FIFO since there
+> is no code relying on them. Maybe you have some plans for the future?
+
+Wolfram mentioned that supporting NACKs would be a welcome feature [1]. But I
+haven't implemented it, yet. The same goes for FIFO support. ATM I am not sure
+if my application will need this, since I am observing quite a lot clock
+stretching without FIFOs due to the occupied receive holding registered (RHR).
+
+BTW: Both implementations would be kind of controversal. Without using FIFOs the
+desired NACK would be delayed by 1 byte (cf. my "artistic" ASCII graphic [2]).
+If FIFOs are enabled the delay would be even larger. So the options are:
+
+ * No NACKs at all
+ * NACKs delayed by 1 byte, no FIFOs
+ * NACKs delayed by n byte, with FIFOs
+
+Non of these abovementioned options is optimal and fulfill the desired behaviour
+(cf. section I2C_SLAVE_WRITE_RECEIVED of [3]).  Furthermore, AFAIK NACKs and
+FIFOs are just supported by SAMA5D2x MPUs.
+
+These are the main reasons why I haven't implented anything related to
+AT91_TWI_SM_CAN_NACK and AT91_TWI_SM_HAS_FIFO. The designware driver ignores
+the NACK problem, as well.
+
+Do you have an opinion on this topic?
+
+In the next version of this patchset I will remove this. I think readding these
+flags if needed shouldn't be a big deal.
 
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Best regards
+  Juergen
+
+
+[1] https://marc.info/?l=linux-i2c&m=150831224824540&w=2
+[2] https://marc.info/?l=linux-i2c&m=150833171430595&w=2
+[3] https://www.kernel.org/doc/Documentation/i2c/slave-interface
