@@ -1,45 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 09/15] hwmon: (w83781d) Remove duplicate NULL check
-Date: Thu, 02 Nov 2017 14:23:29 +0200
-Message-ID: <1509625409.10233.184.camel@linux.intel.com>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-         <20171031142149.32512-9-andriy.shevchenko@linux.intel.com>
-         <4b621f23-f251-7fa6-c79c-059b48f27345@roeck-us.net>
-         <1509542817.10233.156.camel@linux.intel.com>
-         <20171101230734.6zsxizhcwazffhrx@ninjato>
+From: "Mr David Williams" <78298156@mylife.unisa.ac.za>
+Subject: Darlehensangebot
+Date: Thu, 02 Nov 2017 18:05:12 +0530
+Message-ID: <VI1PR0101MB254453F9C5507574A5646C61B15C0@VI1PR0101MB2544.eurprd01.prod.exchangelabs.com>
+Reply-To: david.loanfirm09@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-In-Reply-To: <20171101230734.6zsxizhcwazffhrx@ninjato>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-he1eur02hn0219.outbound.protection.outlook.com ([104.47.5.219]:54676
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750971AbdKBMdf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 2 Nov 2017 08:33:35 -0400
+Content-Description: Mail message body
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Recipients <78298156@mylife.unisa.ac.za>
 
-On Thu, 2017-11-02 at 00:07 +0100, Wolfram Sang wrote:
-> > > I'll keep the hwmon patches from this series on hold until the
-> > > changes
-> > > to i2c_unregister_device make it into the tree. Ok with me if the
-> > > patches
-> > > are merged through some other tree.
-> > 
-> > Wolfram, what do you think?
-> > 
-> > At least we have couple of options:
-> > - apply i2c core patch now and wait until rc1
-> > - apply everything through i2c tree
-> > - ...
-> 
-> I just applied patches 1-3 to my for-4.15 branch. So, other subsystems
-> could pick it at rc1 time. If you are going to resend, you can add my
-> 
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> 
-> to all of the remaining patches.
+Sch=C3=B6nen Tag,
+ =
 
-Noted, thanks!
+Sie ben=C3=B6tigen einen echten Kredit online Ihre Rechnungen zu sichern?
+Startet ein neues Unternehmen? Sie ben=C3=B6tigen einen pers=C3=B6nlichen K=
+redit
+oder Business-Darlehen? Wir bieten ein Darlehen von =E2=82=AC 10.000 bis =
+=E2=82=AC
+500,000.000.00 mit 2% Zinsen pro Jahr und auch mit einem
+erschwinglichen R=C3=BCckzahlungsbedingungen und Zustand. Ich suche f=C3=BCr
+Darlehen und Projektinvestmentfonds ? Wir halten professionelle
+Exzellenz, unsere Definition von Exzellenz liegt in hervorragenden
+Kundenservice, erschwingliche Zahlung und R=C3=BCckzahlung Pl=C3=A4ne, schn=
+ell
+und einfach-Prozess.
+Hochachtungsvoll....
+ =
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Freundliche Gr=C3=BC=C3=9Fe,
+Herr David Williams
