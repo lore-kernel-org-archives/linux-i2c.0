@@ -1,67 +1,41 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v5 0/7]  i2c: designware: add i2c gpio recovery option
-Date: Thu,  2 Nov 2017 10:40:23 +0800
-Message-ID: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:41140 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S934170AbdKBCkn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 22:40:43 -0400
-Sender: linux-i2c-owner@vger.kernel.org
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH] MAINTAINERS: new maintainer for AT24 driver
+Date: Thu, 2 Nov 2017 10:01:18 +0100
+Message-ID: <CAMRc=MeT0QN+=BMYD=UMYkLyGrxTvJ24MJ-bQ2S-PRhvrrEKAA@mail.gmail.com>
+References: <20171101231859.16404-1-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171101231859.16404-1-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 
-Changes from V3:
-- fix typ in message s/reset/rest/
-- move *_gpiod field comments to the first commit where the fields
-  are actually added.
-- Add Jarkko/Andy Ack/Reviewed.
+2017-11-02 0:18 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
+> Bartosz agreed to take over maintainership from me. Thank you very much
+> and good luck and have fun! :)
+>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index d85c08956875e5..e021587e8fe46d 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2247,7 +2247,7 @@ F:        include/linux/dmaengine.h
+>  F:     include/linux/async_tx.h
+>
+>  AT24 EEPROM DRIVER
+> -M:     Wolfram Sang <wsa@the-dreams.de>
+> +M:     Bartosz Golaszewski <brgl@bgdev.pl>
+>  L:     linux-i2c@vger.kernel.org
+>  S:     Maintained
+>  F:     drivers/misc/eeprom/at24.c
+> --
+> 2.11.0
+>
 
-Changes from V3:
-- rebase on i2c/for-next
-- Add patches to convert other drivers using gpio recover to gpiod
-- Remove legacy gpio
-- Address minor issues raised in review and add acks received so far
-
-Changes from V2:
-- Rebase on https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git/
-  i2c/for-next
-  No intentional changes, but needed to move i2c_dw_plat_prepare_clk to common
-  for the master recovery functions to use. which is included as two additional
-  patches.
-
-Changes from V1:
-- In review Andy suggested change the i2c core to use the gpiod
-  I've added a patch that allows the gradual switching of drivers 
-  to using gpiod interface. The old interface is preserved so
-  that changes can be made incrementally.
-- I've update Tim's patch for the designware driver to use the new
-  interface. Tweaked a couple of things to his patch and fixed
-  up things Andy id in last review. 
-  The core changes in p1 don't require the get/set scl/sda functions.
-  Hopefully I've done the right thing with preserving authorship and
-  signoff.
-
-Phil Reid (6):
-  i2c: Switch to using gpiod interface for gpio bus recovery
-  i2c: designware: move i2c_dw_plat_prepare_clk to common
-  i2c: designware: rename i2c_dw_plat_prepare_clk to i2c_dw_prepare_clk
-  i2c: imx: switch to using gpiod for bus recovery gpios
-  i2c: davinci: switch to using gpiod for bus recovery gpios
-  i2c: remove legacy integer scl/sda gpio for recovery
-
-Tim Sander (1):
-  i2c: designware: add i2c gpio recovery option
-
- drivers/i2c/busses/i2c-davinci.c            | 20 +++++--
- drivers/i2c/busses/i2c-designware-common.c  | 19 ++++++-
- drivers/i2c/busses/i2c-designware-core.h    |  2 +
- drivers/i2c/busses/i2c-designware-master.c  | 57 ++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++-----
- drivers/i2c/busses/i2c-imx.c                | 18 +++----
- drivers/i2c/i2c-core-base.c                 | 83 ++++-------------------------
- include/linux/i2c.h                         | 11 ++--
- 8 files changed, 120 insertions(+), 108 deletions(-)
-
--- 
-1.8.3.1
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
