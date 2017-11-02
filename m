@@ -1,157 +1,124 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
-Date: Thu,  2 Nov 2017 10:40:27 +0800
-Message-ID: <1509590430-11968-5-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v5 1/7] i2c: Switch to using gpiod interface for gpio bus recovery
+Date: Thu,  2 Nov 2017 10:40:24 +0800
+Message-ID: <1509590430-11968-2-git-send-email-preid@electromag.com.au>
 References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy2.45ru.net.au ([203.30.46.146]:36822 "EHLO
+Received: from anchovy1.45ru.net.au ([203.30.46.145]:51672 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S933888AbdKBCkm (ORCPT
+        with ESMTP id S934168AbdKBCkm (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 22:40:42 -0400
 In-Reply-To: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Cc: Tim Sander <tim@krieglstein.org>
 
-From: Tim Sander <tim@krieglstein.org>
+Currently the i2c gpio recovery code uses gpio integer interface
+instead of the gpiod. This change switch the core code to use
+the gpiod while still retaining compatibility with the gpio integer
+interface. This will allow individual driver to be updated and tested
+individual to switch to using the gpiod interface.
 
-This patch contains much input from Phil Reid and has been tested
-on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
-SCL and SDA GPIO's.
-
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Tim Sander <tim@krieglstein.org>
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- drivers/i2c/busses/i2c-designware-common.c |  6 +++-
- drivers/i2c/busses/i2c-designware-core.h   |  1 +
- drivers/i2c/busses/i2c-designware-master.c | 57 ++++++++++++++++++++++++++++++
- 3 files changed, 63 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 21 +++++++++++++++++----
+ include/linux/i2c.h         |  4 ++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 3d684c6..6b82809 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -230,7 +230,11 @@ int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
- 	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
- 		if (timeout <= 0) {
- 			dev_warn(dev->dev, "timeout waiting for bus ready\n");
--			return -ETIMEDOUT;
-+			i2c_recover_bus(&dev->adapter);
-+
-+			if (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY)
-+				return -ETIMEDOUT;
-+			return 0;
- 		}
- 		timeout--;
- 		usleep_range(1000, 1100);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 33c6c8f..d58a336 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -286,6 +286,7 @@ struct dw_i2c_dev {
- 	void			(*disable_int)(struct dw_i2c_dev *dev);
- 	int			(*init)(struct dw_i2c_dev *dev);
- 	int			mode;
-+	struct i2c_bus_recovery_info rinfo;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 418c233..ae69188 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -25,11 +25,13 @@
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/export.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/pm_runtime.h>
-+#include <linux/reset.h>
- 
- #include "i2c-designware-core.h"
- 
-@@ -443,6 +445,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		/* i2c_dw_init implicitly disables the adapter */
-+		i2c_recover_bus(&dev->adapter);
- 		i2c_dw_init_master(dev);
- 		ret = -ETIMEDOUT;
- 		goto done;
-@@ -613,6 +616,56 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 	return IRQ_HANDLED;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 706164b..fdc6a9d 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -134,17 +134,17 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ /* i2c bus recovery routines */
+ static int get_scl_gpio_value(struct i2c_adapter *adap)
+ {
+-	return gpio_get_value(adap->bus_recovery_info->scl_gpio);
++	return gpiod_get_value_cansleep(adap->bus_recovery_info->scl_gpiod);
  }
  
-+static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+
-+	i2c_dw_disable(dev);
-+	reset_control_assert(dev->rst);
-+	i2c_dw_prepare_clk(dev, false);
-+}
-+
-+static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+
-+	i2c_dw_prepare_clk(dev, true);
-+	reset_control_deassert(dev->rst);
-+	i2c_dw_init_master(dev);
-+}
-+
-+static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
-+{
-+	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-+	struct i2c_adapter *adap = &dev->adapter;
-+	struct gpio_desc *gpio;
-+	int r;
-+
-+	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
-+	if (IS_ERR(gpio)) {
-+		r = PTR_ERR(gpio);
-+		if (r == -ENOENT)
-+			return 0;
-+		return r;
-+	}
-+	rinfo->scl_gpiod = gpio;
-+
-+	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
-+	if (IS_ERR(gpio))
-+		return PTR_ERR(gpio);
-+	rinfo->sda_gpiod = gpio;
-+
-+	rinfo->recover_bus = i2c_generic_scl_recovery;
-+	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
-+	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
-+	adap->bus_recovery_info = rinfo;
-+
-+	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
-+		 rinfo->sda_gpiod ? ",sda" : "");
-+
-+	return 0;
-+}
-+
- int i2c_dw_probe(struct dw_i2c_dev *dev)
+ static void set_scl_gpio_value(struct i2c_adapter *adap, int val)
  {
- 	struct i2c_adapter *adap = &dev->adapter;
-@@ -652,6 +705,10 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+-	gpio_set_value(adap->bus_recovery_info->scl_gpio, val);
++	gpiod_set_value_cansleep(adap->bus_recovery_info->scl_gpiod, val);
+ }
+ 
+ static int get_sda_gpio_value(struct i2c_adapter *adap)
+ {
+-	return gpio_get_value(adap->bus_recovery_info->sda_gpio);
++	return gpiod_get_value_cansleep(adap->bus_recovery_info->sda_gpiod);
+ }
+ 
+ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+@@ -159,6 +159,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+ 		dev_warn(dev, "Can't get SCL gpio: %d\n", bri->scl_gpio);
  		return ret;
  	}
++	bri->scl_gpiod = gpio_to_desc(bri->scl_gpio);
  
-+	ret = i2c_dw_init_recovery_info(dev);
-+	if (ret)
-+		return ret;
+ 	if (bri->get_sda) {
+ 		if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
+@@ -167,6 +168,7 @@ static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+ 					bri->sda_gpio);
+ 			bri->get_sda = NULL;
+ 		}
++		bri->sda_gpiod = gpio_to_desc(bri->sda_gpio);
+ 	}
+ 
+ 	return ret;
+@@ -176,10 +178,13 @@ static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
+ {
+ 	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+ 
+-	if (bri->get_sda)
++	if (bri->get_sda) {
+ 		gpio_free(bri->sda_gpio);
++		bri->sda_gpiod = NULL;
++	}
+ 
+ 	gpio_free(bri->scl_gpio);
++	bri->scl_gpiod = NULL;
+ }
+ 
+ /*
+@@ -277,6 +282,14 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
+ 		goto err;
+ 	}
+ 
++	if (bri->scl_gpiod && bri->recover_bus == i2c_generic_scl_recovery) {
++		bri->get_scl = get_scl_gpio_value;
++		bri->set_scl = set_scl_gpio_value;
++		if (bri->sda_gpiod)
++			bri->get_sda = get_sda_gpio_value;
++		return;
++	}
 +
- 	/*
- 	 * Increment PM usage count during adapter registration in order to
- 	 * avoid possible spurious runtime suspend when adapter device is
+ 	/* Generic GPIO recovery */
+ 	if (bri->recover_bus == i2c_generic_gpio_recovery) {
+ 		if (!gpio_is_valid(bri->scl_gpio)) {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 0f77440..25d5db5 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -499,6 +499,8 @@ struct i2c_timings {
+  *	may configure padmux here for SDA/SCL line or something else they want.
+  * @scl_gpio: gpio number of the SCL line. Only required for GPIO recovery.
+  * @sda_gpio: gpio number of the SDA line. Only required for GPIO recovery.
++ * @scl_gpiod: gpiod of the SCL line. Only required for GPIO recovery.
++ * @sda_gpiod: gpiod of the SDA line. Only required for GPIO recovery.
+  */
+ struct i2c_bus_recovery_info {
+ 	int (*recover_bus)(struct i2c_adapter *);
+@@ -513,6 +515,8 @@ struct i2c_bus_recovery_info {
+ 	/* gpio recovery */
+ 	int scl_gpio;
+ 	int sda_gpio;
++	struct gpio_desc *scl_gpiod;
++	struct gpio_desc *sda_gpiod;
+ };
+ 
+ int i2c_recover_bus(struct i2c_adapter *adap);
 -- 
 1.8.3.1
