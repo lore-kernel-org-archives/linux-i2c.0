@@ -1,41 +1,45 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] MAINTAINERS: new maintainer for AT24 driver
-Date: Thu, 2 Nov 2017 10:01:18 +0100
-Message-ID: <CAMRc=MeT0QN+=BMYD=UMYkLyGrxTvJ24MJ-bQ2S-PRhvrrEKAA@mail.gmail.com>
-References: <20171101231859.16404-1-wsa@the-dreams.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 09/15] hwmon: (w83781d) Remove duplicate NULL check
+Date: Thu, 02 Nov 2017 14:23:29 +0200
+Message-ID: <1509625409.10233.184.camel@linux.intel.com>
+References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+         <20171031142149.32512-9-andriy.shevchenko@linux.intel.com>
+         <4b621f23-f251-7fa6-c79c-059b48f27345@roeck-us.net>
+         <1509542817.10233.156.camel@linux.intel.com>
+         <20171101230734.6zsxizhcwazffhrx@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171101231859.16404-1-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+In-Reply-To: <20171101230734.6zsxizhcwazffhrx@ninjato>
+Sender: linux-hwmon-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2017-11-02 0:18 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> Bartosz agreed to take over maintainership from me. Thank you very much
-> and good luck and have fun! :)
->
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index d85c08956875e5..e021587e8fe46d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -2247,7 +2247,7 @@ F:        include/linux/dmaengine.h
->  F:     include/linux/async_tx.h
->
->  AT24 EEPROM DRIVER
-> -M:     Wolfram Sang <wsa@the-dreams.de>
-> +M:     Bartosz Golaszewski <brgl@bgdev.pl>
->  L:     linux-i2c@vger.kernel.org
->  S:     Maintained
->  F:     drivers/misc/eeprom/at24.c
-> --
-> 2.11.0
->
+On Thu, 2017-11-02 at 00:07 +0100, Wolfram Sang wrote:
+> > > I'll keep the hwmon patches from this series on hold until the
+> > > changes
+> > > to i2c_unregister_device make it into the tree. Ok with me if the
+> > > patches
+> > > are merged through some other tree.
+> > 
+> > Wolfram, what do you think?
+> > 
+> > At least we have couple of options:
+> > - apply i2c core patch now and wait until rc1
+> > - apply everything through i2c tree
+> > - ...
+> 
+> I just applied patches 1-3 to my for-4.15 branch. So, other subsystems
+> could pick it at rc1 time. If you are going to resend, you can add my
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> 
+> to all of the remaining patches.
 
-Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Noted, thanks!
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
