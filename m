@@ -1,59 +1,36 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH RFC 3/4] i2c: at91: added slave mode support
-Date: Thu, 2 Nov 2017 15:53:44 +0100
-Message-ID: <20171102145344.xivuz3nnrkdfdeoh@rfolt0960.corp.atmel.com>
-References: <cover.1509112910.git.me@jue.yt>
- <b81e56548dbe4fa6c37fec4c80b38622f1f1fcdf.1509112910.git.me@jue.yt>
- <20171101130417.GA17787@jfi-dev>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH v5 6/7] i2c: davinci: switch to using gpiod for bus
+ recovery gpios
+Date: Thu, 2 Nov 2017 20:45:21 +0530
+Message-ID: <62ea3116-f909-2a80-dcd7-df03a82973bf@ti.com>
+References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
+ <1509590430-11968-7-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from esa5.microchip.iphmx.com ([216.71.150.166]:60641 "EHLO
-        esa5.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933448AbdKBOxt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 2 Nov 2017 10:53:49 -0400
-Content-Disposition: inline
-In-Reply-To: <20171101130417.GA17787@jfi-dev>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1509590430-11968-7-git-send-email-preid@electromag.com.au>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Phil Reid <preid@electromag.com.au>, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Juergen Fitschen <me@jue.yt>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2017 at 02:04:18PM +0100, Juergen Fitschen wrote:
-> Helle Ludovic,
+On Thursday 02 November 2017 08:10 AM, Phil Reid wrote:
+> Change the driver to use the gpio descriptors for the bus recovery
+> information instead of the deprecated integer interface.
 > 
-> while going through this patch a question related to the Atmel / Microchip HW
-> came into mind:
-> 
-> On Fri, Oct 27, 2017 at 05:12:00PM +0200, Juergen Fitschen wrote:
-> > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> > (...)
-> >  #define	AT91_TWI_INT_MASK \
-> > -	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK)
-> > +	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
-> > +	| AT91_TWI_SVACC | AT91_TWI_EOSACC)
-> 
-> The AT91_TWI_INT_MASK is used to disable all interrputs in the
-> at91_disable_twi_interrupts function by writing the mask to the interrupt
-> disable register (IDR). I wonder what happens on MPUs that don't have
-> AT91_TWI_SVACC and AT91_TWI_EOSACC implemented, like the AT91RM9200? Do you
-> think we should revise this and write specific masks depending on the current
-> moude the I2C HW is in?
-> 
-> Something like this:
-> 
-> void at91_disable_twi_interrupts(struct at91_twi_dev *dev)
-> {
->         if (dev->slave_detected)
->                 at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_INT_MASK_SLAVE);
->         else
->                 at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_INT_MASK_MASTER);
-> }
-> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
 
-I don't think it's necessary. Usually, writing a bit which is unused don't
-cause weird behaviors.
+Reviewed-by: Sekhar Nori <nsekhar@ti.com>
 
-Regards
-
-Ludovic
+Thanks,
+Sekhar
