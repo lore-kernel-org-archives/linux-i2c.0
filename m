@@ -1,37 +1,157 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] MAINTAINERS: new maintainer for AT24 driver
-Date: Thu,  2 Nov 2017 00:18:59 +0100
-Message-ID: <20171101231859.16404-1-wsa@the-dreams.de>
+From: Phil Reid <preid@electromag.com.au>
+Subject: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
+Date: Thu,  2 Nov 2017 10:40:27 +0800
+Message-ID: <1509590430-11968-5-git-send-email-preid@electromag.com.au>
+References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59410 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752001AbdKAXT2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 1 Nov 2017 19:19:28 -0400
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:36822 "EHLO
+        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S933888AbdKBCkm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 22:40:42 -0400
+In-Reply-To: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+To: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, preid@electromag.com.au, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: Tim Sander <tim@krieglstein.org>
 
-Bartosz agreed to take over maintainership from me. Thank you very much
-and good luck and have fun! :)
+From: Tim Sander <tim@krieglstein.org>
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This patch contains much input from Phil Reid and has been tested
+on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
+SCL and SDA GPIO's.
+
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Tim Sander <tim@krieglstein.org>
+Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-common.c |  6 +++-
+ drivers/i2c/busses/i2c-designware-core.h   |  1 +
+ drivers/i2c/busses/i2c-designware-master.c | 57 ++++++++++++++++++++++++++++++
+ 3 files changed, 63 insertions(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d85c08956875e5..e021587e8fe46d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2247,7 +2247,7 @@ F:	include/linux/dmaengine.h
- F:	include/linux/async_tx.h
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 3d684c6..6b82809 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -230,7 +230,11 @@ int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+ 	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
+ 		if (timeout <= 0) {
+ 			dev_warn(dev->dev, "timeout waiting for bus ready\n");
+-			return -ETIMEDOUT;
++			i2c_recover_bus(&dev->adapter);
++
++			if (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY)
++				return -ETIMEDOUT;
++			return 0;
+ 		}
+ 		timeout--;
+ 		usleep_range(1000, 1100);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 33c6c8f..d58a336 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -286,6 +286,7 @@ struct dw_i2c_dev {
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
+ 	int			mode;
++	struct i2c_bus_recovery_info rinfo;
+ };
  
- AT24 EEPROM DRIVER
--M:	Wolfram Sang <wsa@the-dreams.de>
-+M:	Bartosz Golaszewski <brgl@bgdev.pl>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
- F:	drivers/misc/eeprom/at24.c
+ #define ACCESS_SWAP		0x00000001
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 418c233..ae69188 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -25,11 +25,13 @@
+ #include <linux/err.h>
+ #include <linux/errno.h>
+ #include <linux/export.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
+ #include <linux/pm_runtime.h>
++#include <linux/reset.h>
+ 
+ #include "i2c-designware-core.h"
+ 
+@@ -443,6 +445,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	if (!wait_for_completion_timeout(&dev->cmd_complete, adap->timeout)) {
+ 		dev_err(dev->dev, "controller timed out\n");
+ 		/* i2c_dw_init implicitly disables the adapter */
++		i2c_recover_bus(&dev->adapter);
+ 		i2c_dw_init_master(dev);
+ 		ret = -ETIMEDOUT;
+ 		goto done;
+@@ -613,6 +616,56 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
++{
++	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
++
++	i2c_dw_disable(dev);
++	reset_control_assert(dev->rst);
++	i2c_dw_prepare_clk(dev, false);
++}
++
++static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
++{
++	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
++
++	i2c_dw_prepare_clk(dev, true);
++	reset_control_deassert(dev->rst);
++	i2c_dw_init_master(dev);
++}
++
++static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
++{
++	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
++	struct i2c_adapter *adap = &dev->adapter;
++	struct gpio_desc *gpio;
++	int r;
++
++	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
++	if (IS_ERR(gpio)) {
++		r = PTR_ERR(gpio);
++		if (r == -ENOENT)
++			return 0;
++		return r;
++	}
++	rinfo->scl_gpiod = gpio;
++
++	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
++	if (IS_ERR(gpio))
++		return PTR_ERR(gpio);
++	rinfo->sda_gpiod = gpio;
++
++	rinfo->recover_bus = i2c_generic_scl_recovery;
++	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
++	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
++	adap->bus_recovery_info = rinfo;
++
++	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
++		 rinfo->sda_gpiod ? ",sda" : "");
++
++	return 0;
++}
++
+ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_adapter *adap = &dev->adapter;
+@@ -652,6 +705,10 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ 		return ret;
+ 	}
+ 
++	ret = i2c_dw_init_recovery_info(dev);
++	if (ret)
++		return ret;
++
+ 	/*
+ 	 * Increment PM usage count during adapter registration in order to
+ 	 * avoid possible spurious runtime suspend when adapter device is
 -- 
-2.11.0
+1.8.3.1
