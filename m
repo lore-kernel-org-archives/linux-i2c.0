@@ -1,13 +1,13 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH v5 6/7] i2c: davinci: switch to using gpiod for bus recovery gpios
-Date: Thu,  2 Nov 2017 10:40:29 +0800
-Message-ID: <1509590430-11968-7-git-send-email-preid@electromag.com.au>
+Subject: [PATCH v5 5/7] i2c: imx: switch to using gpiod for bus recovery gpios
+Date: Thu,  2 Nov 2017 10:40:28 +0800
+Message-ID: <1509590430-11968-6-git-send-email-preid@electromag.com.au>
 References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:51686 "EHLO
+Received: from anchovy2.45ru.net.au ([203.30.46.146]:36856 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S933932AbdKBCkm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 22:40:42 -0400
+        with ESMTP id S934183AbdKBCkn (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2017 22:40:43 -0400
 In-Reply-To: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -19,60 +19,48 @@ information instead of the deprecated integer interface.
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Phil Reid <preid@electromag.com.au>
 ---
- drivers/i2c/busses/i2c-davinci.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 2ead9b9..2afb12a 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -294,7 +294,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- }
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index f96830f..c4cf265 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1006,26 +1006,26 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+ 			PINCTRL_STATE_DEFAULT);
+ 	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+ 			"gpio");
+-	rinfo->sda_gpio = of_get_named_gpio(pdev->dev.of_node, "sda-gpios", 0);
+-	rinfo->scl_gpio = of_get_named_gpio(pdev->dev.of_node, "scl-gpios", 0);
++	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_OUT_HIGH);
++	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_IN);
  
- /*
-- * This routine does i2c bus recovery by using i2c_generic_gpio_recovery
-+ * This routine does i2c bus recovery by using i2c_generic_scl_recovery
-  * which is provided by I2C Bus recovery infrastructure.
-  */
- static void davinci_i2c_prepare_recovery(struct i2c_adapter *adap)
-@@ -316,7 +316,7 @@ static void davinci_i2c_unprepare_recovery(struct i2c_adapter *adap)
- }
- 
- static struct i2c_bus_recovery_info davinci_i2c_gpio_recovery_info = {
--	.recover_bus = i2c_generic_gpio_recovery,
-+	.recover_bus = i2c_generic_scl_recovery,
- 	.prepare_recovery = davinci_i2c_prepare_recovery,
- 	.unprepare_recovery = davinci_i2c_unprepare_recovery,
- };
-@@ -769,6 +769,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	struct davinci_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
-+	struct i2c_bus_recovery_info *rinfo;
- 	int r, irq;
- 
- 	irq = platform_get_irq(pdev, 0);
-@@ -869,9 +870,18 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	if (dev->pdata->has_pfunc)
- 		adap->bus_recovery_info = &davinci_i2c_scl_recovery_info;
- 	else if (dev->pdata->scl_pin) {
--		adap->bus_recovery_info = &davinci_i2c_gpio_recovery_info;
--		adap->bus_recovery_info->scl_gpio = dev->pdata->scl_pin;
--		adap->bus_recovery_info->sda_gpio = dev->pdata->sda_pin;
-+		rinfo =  &davinci_i2c_gpio_recovery_info;
-+		adap->bus_recovery_info = rinfo;
-+		r = gpio_request_one(dev->pdata->scl_pin, GPIOF_OPEN_DRAIN |
-+				     GPIOF_OUT_INIT_HIGH, "i2c-scl");
-+		if (r)
-+			goto err_unuse_clocks;
-+		rinfo->scl_gpiod = gpio_to_desc(dev->pdata->scl_pin);
-+
-+		r = gpio_request_one(dev->pdata->sda_pin, GPIOF_IN, "i2c-sda");
-+		if (r)
-+			goto err_unuse_clocks;
-+		rinfo->sda_gpiod = gpio_to_desc(dev->pdata->scl_pin);
+-	if (rinfo->sda_gpio == -EPROBE_DEFER ||
+-	    rinfo->scl_gpio == -EPROBE_DEFER) {
++	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
++	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
+ 		return -EPROBE_DEFER;
+-	} else if (!gpio_is_valid(rinfo->sda_gpio) ||
+-		   !gpio_is_valid(rinfo->scl_gpio) ||
++	} else if (IS_ERR(rinfo->sda_gpiod) ||
++		   IS_ERR(rinfo->scl_gpiod) ||
+ 		   IS_ERR(i2c_imx->pinctrl_pins_default) ||
+ 		   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+ 		dev_dbg(&pdev->dev, "recovery information incomplete\n");
+ 		return 0;
  	}
  
- 	adap->nr = pdev->id;
+-	dev_dbg(&pdev->dev, "using scl-gpio %d and sda-gpio %d for recovery\n",
+-			rinfo->scl_gpio, rinfo->sda_gpio);
++	dev_dbg(&pdev->dev, "using scl%s for recovery\n",
++		rinfo->sda_gpiod ? ",sda" : "");
+ 
+ 	rinfo->prepare_recovery = i2c_imx_prepare_recovery;
+ 	rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
+-	rinfo->recover_bus = i2c_generic_gpio_recovery;
++	rinfo->recover_bus = i2c_generic_scl_recovery;
+ 	i2c_imx->adapter.bus_recovery_info = rinfo;
+ 
+ 	return 0;
 -- 
 1.8.3.1
