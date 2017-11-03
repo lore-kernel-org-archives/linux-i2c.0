@@ -1,79 +1,54 @@
-From: "Shikhar Dogra (shidogra)" <shidogra@cisco.com>
-Subject: Re: [PATCH] i2c: designware: make *CNT values configurable
-Date: Fri, 3 Nov 2017 17:23:03 +0000
-Message-ID: <AA51DAE2-6CF0-4D51-9447-1AD0D46CF2FA@cisco.com>
-References: <20171025185022.GA25920@sjc-ads-4188.cisco.com>
- <4ddeadd3-aa31-87f4-cd8d-ddf2132edb49@linux.intel.com>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: Re: [PATCH v1 15/15] media: i2c: adv748x: Remove duplicate NULL check
+Date: Fri, 3 Nov 2017 23:41:25 +0000
+Message-ID: <fe9de50f-aacc-de87-cc6e-81cf32e83756@ideasonboard.com>
+References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+ <20171031142149.32512-15-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4ddeadd3-aa31-87f4-cd8d-ddf2132edb49@linux.intel.com>
-Content-Language: en-US
-Content-ID: <DFD72F0189AD954B8C3562511B766C6C@emea.cisco.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "xe-linux-external(mailer list)" <xe-linux-external@cisco.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20171031142149.32512-15-andriy.shevchenko@linux.intel.com>
+Content-Language: en-GB
+Sender: linux-media-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkNCg0KT24gMTAvMjYvMTcsIDc6MjAgQU0sICJKYXJra28gTmlrdWxhIiA8amFya2tvLm5pa3Vs
-YUBsaW51eC5pbnRlbC5jb20+IHdyb3RlOg0KDQogICAgSGkNCiAgICANCiAgICBPbiAxMC8yNS8y
-MDE3IDA5OjUwIFBNLCBTaGlraGFyIERvZ3JhIHdyb3RlOg0KICAgID4gVGhlIHZhbHVlcyBhcmUg
-YWxyZWFkeSBjb25maWd1cmFibGUgZnJvbSBBQ1BJLg0KICAgID4gDQogICAgPiBUaGlzIHBhdGNo
-IG1ha2VzIHRoZSBoaWdoIGNvdW50IChIQ05UKSBhbmQgbG93IGNvdW50IChMQ05UKQ0KICAgID4g
-cmVnaXN0ZXIgdmFsdWVzIGNvbmZpZ3VyYWJsZSB0aHJvdWdoIGRldmljZSB0cmVlLg0KICAgID4g
-DQogICAgPiBDYzogeGUtbGludXgtZXh0ZXJuYWxAY2lzY28uY29tDQogICAgPiBTaWduZWQtb2Zm
-LWJ5OiBTaGlraGFyIERvZ3JhIDxzaGlkb2dyYUBjaXNjby5jb20+DQogICAgPiAtLS0NCiAgICA+
-ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtZGVzaWdud2FyZS50
-eHQgfCAxNiArKysrKysrKysrKysrKysrDQogICAgPiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
-ZGVzaWdud2FyZS1wbGF0ZHJ2LmMgICAgICAgICAgICAgIHwgMTIgKysrKysrKysrKysrDQogICAg
-PiAgIDIgZmlsZXMgY2hhbmdlZCwgMjggaW5zZXJ0aW9ucygrKQ0KICAgID4gDQogICAgPiBkaWZm
-IC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtZGVzaWdu
-d2FyZS50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1kZXNp
-Z253YXJlLnR4dA0KICAgID4gaW5kZXggZmVlMjZkYy4uMmI5ZGRjYSAxMDA2NDQNCiAgICA+IC0t
-LSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWRlc2lnbndhcmUu
-dHh0DQogICAgPiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2ky
-Yy1kZXNpZ253YXJlLnR4dA0KICAgID4gQEAgLTIwLDYgKzIwLDE4IEBAIE9wdGlvbmFsIHByb3Bl
-cnRpZXMgOg0KICAgID4gICAgLSBpMmMtc2RhLWZhbGxpbmctdGltZS1ucyA6IHNob3VsZCBjb250
-YWluIHRoZSBTREEgZmFsbGluZyB0aW1lIGluIG5hbm9zZWNvbmRzLg0KICAgID4gICAgICBUaGlz
-IHZhbHVlIHdoaWNoIGlzIGJ5IGRlZmF1bHQgMzAwbnMgaXMgdXNlZCB0byBjb21wdXRlIHRoZSB0
-SElHSCBwZXJpb2QuDQogICAgPiAgIA0KICAgID4gKyAtIGkyYy1zcy1oY250IDogc2hvdWxkIGNv
-bnRhaW4gdGhlIEkyQyBjb250cm9sbGVyIHN0YW5kYXJkIHNwZWVkIEhDTlQgdmFsdWUuDQogICAg
-PiArICAgSWYgdGhpcyBpcyBub3Qgc2V0IHdlIHVzZSB0aGUgY2FsY3VsYXRlZCBhbmQgbW9yZSBj
-b25zZXJ2YXRpdmUgdmFsdWVzLg0KICAgID4gKw0KICAgID4gKyAtIGkyYy1zcy1sY250IDogc2hv
-dWxkIGNvbnRhaW4gdGhlIEkyQyBjb250cm9sbGVyIHN0YW5kYXJkIHNwZWVkIExDTlQgdmFsdWUu
-DQogICAgPiArICAgSWYgdGhpcyBpcyBub3Qgc2V0IHdlIHVzZSB0aGUgY2FsY3VsYXRlZCBhbmQg
-bW9yZSBjb25zZXJ2YXRpdmUgdmFsdWVzLg0KICAgID4gKw0KICAgID4gKyAtIGkyYy1mcy1oY250
-IDogc2hvdWxkIGNvbnRhaW4gdGhlIEkyQyBjb250cm9sbGVyIGZhc3Qgc3BlZWQgSENOVCB2YWx1
-ZS4NCiAgICA+ICsgICBJZiB0aGlzIGlzIG5vdCBzZXQgd2UgdXNlIHRoZSBjYWxjdWxhdGVkIGFu
-ZCBtb3JlIGNvbnNlcnZhdGl2ZSB2YWx1ZXMuDQogICAgPiArDQogICAgPiArIC0gaTJjLWZzLWxj
-bnQgOiBzaG91bGQgY29udGFpbiB0aGUgSTJDIGNvbnRyb2xsZXIgZmFzdCBzcGVlZCBMQ05UIHZh
-bHVlLg0KICAgID4gKyAgIElmIHRoaXMgaXMgbm90IHNldCB3ZSB1c2UgdGhlIGNhbGN1bGF0ZWQg
-YW5kIG1vcmUgY29uc2VydmF0aXZlIHZhbHVlcy4NCiAgICA+ICsNCiAgICANCiAgICBXb3J0aCB0
-byBhZGQgYWxzbyBwcm9wZXJ0aWVzIGZvciBoaWdoLXNwZWVkIHdoaWxlIGF0IGl0Lg0KDQpTdXJl
-LCB3aWxsIGxvb2sgYXQgaXQuDQoNCiAgICBPdXQgb2YgY3VyaW9zaXR5LCBhcmUgY2FsY3VsYXRl
-ZCB2YWx1ZXMgYnkgdXNpbmcgDQogICAgImkyYy1zZGEtZmFsbGluZy10aW1lLW5zIiBhbmQgImky
-Yy1zY2wtZmFsbGluZy10aW1lLW5zIiBwcm9wZXJ0aWVzIA0KICAgIG5vbi1vcHRpbWFsIG9uIHlv
-dXIgcGxhdGZvcm0gYW5kIGNvbnRyb2xsZXIgY2xvY2s/DQoNCldlIGRpZCBub3QgdHJ5IHdpdGgg
-c3BlY2lmaWMgdmFsdWVzIGZvciB0aGVzZSBpbiBkdGIgYW5kIHRoZSBkZWZhdWx0IHZhbHVlcyBv
-ZiAzMDBucyBkaWQgbm90IHdvcmsgZm9yIHVzLg0KUGxhdGZvcm0gcHJvdmlkZWQgZm9yIHRoZSBv
-cHRpbXVtICpjbnQgdmFsdWVzIHdoaWNoIHdlIGZvdW5kIHdlcmUgY29uZmlndXJhYmxlIHZpYSBB
-Q1BJIHNvLCB3ZSB3ZW50IGFoZWFkIHRvIGFkZCBzdXBwb3J0IGZvciBkZXZpY2UgdHJlZSBhcyB3
-ZWxsLg0KICAgIA0KICAgID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVz
-aWdud2FyZS1wbGF0ZHJ2LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxh
-dGRydi5jDQogICAgPiBpbmRleCA2YjAwMDYxYy4uMjVjM2IwYyAxMDA2NDQNCiAgICA+IC0tLSBh
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMNCiAgICA+ICsrKyBi
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMNCiAgICA+IEBAIC0x
-NzcsNiArMTc3LDE4IEBAIHN0YXRpYyBpbnQgZHdfaTJjX3BsYXRfcHJvYmUoc3RydWN0IHBsYXRm
-b3JtX2RldmljZSAqcGRldikNCiAgICA+ICAgCQlvZl9wcm9wZXJ0eV9yZWFkX3UzMihwZGV2LT5k
-ZXYub2Zfbm9kZSwgImNsb2NrLWZyZXF1ZW5jeSIsDQogICAgPiAgIAkJCQkgICAgICZjbGtfZnJl
-cSk7DQogICAgPiAgIA0KICAgID4gKwkJb2ZfcHJvcGVydHlfcmVhZF91MTYocGRldi0+ZGV2Lm9m
-X25vZGUsDQogICAgPiArCQkJCSAgICAgImkyYy1zcy1oY250IiwgJmRldi0+c3NfaGNudCk7DQog
-ICAgPiArDQogICAgDQogICAgVGhpcyBwYXRjaCBpcyBhZ2FpbnN0IG9sZCBrZXJuZWwuIFRoZXNl
-IHdlcmUgY29udmVydGVkIG5lYXIgMiB5ZWFycyBhZ28gDQogICAgYnkgdGhlIGNvbW1pdCA0YzUz
-MDFhYmJmODEgKCJpMmM6IGRlc2lnbndhcmU6IENvbnZlcnQgdG8gdXNlIHVuaWZpZWQgDQogICAg
-ZGV2aWNlIHByb3BlcnR5IEFQSSIpDQoNCldpbGwgbW92ZSB0aGUgcGF0Y2ggdG8gbGF0ZXN0IGtl
-cm5lbCAod2FzIHVzaW5nIHY0LjQpLCBkbyB0aGUgcmVxdWlyZWQgbW9kaWZpY2F0aW9uIGFuZCB1
-cGxvYWQgZm9yIHJldmlldyBhZ2Fpbi4NCg0KVGhhbmsgeW91LA0KUmVnYXJkcw0KLS0gDQpTaGlr
-aGFyIERvZ3JhDQpTT0ZUV0FSRSBFTkdJTkVFUg0KQ29yZSBTb2Z0d2FyZSBHcm91cA0Kc2hpZG9n
-cmFAY2lzY28uY29tDQpQaG9uZTogKzEgNDA4IDUyNyAwNTQzDQoNCg0K
+Hi Andy,
+
+Thankyou for the patch.
+
+On 31/10/17 14:21, Andy Shevchenko wrote:
+> Since i2c_unregister_device() became NULL-aware we may remove duplicate
+> NULL check.
+> 
+> Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>
+> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Cc: linux-media@vger.kernel.org
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Acked-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+
+> ---
+>  drivers/media/i2c/adv748x/adv748x-core.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
+> index 5ee14f2c2747..10c3d469175c 100644
+> --- a/drivers/media/i2c/adv748x/adv748x-core.c
+> +++ b/drivers/media/i2c/adv748x/adv748x-core.c
+> @@ -225,10 +225,8 @@ static void adv748x_unregister_clients(struct adv748x_state *state)
+>  {
+>  	unsigned int i;
+>  
+> -	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i) {
+> -		if (state->i2c_clients[i])
+> -			i2c_unregister_device(state->i2c_clients[i]);
+> -	}
+> +	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i)
+> +		i2c_unregister_device(state->i2c_clients[i]);
+>  }
+>  
+>  static int adv748x_initialise_clients(struct adv748x_state *state)
+> 
