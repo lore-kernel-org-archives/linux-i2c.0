@@ -1,107 +1,79 @@
-From: jacopo mondi <jacopo@jmondi.org>
-Subject: Re: [PATCH RFT 0/5] i2c: sh_mobile: refactor HW init/deinit
-Date: Fri, 3 Nov 2017 10:15:33 +0100
-Message-ID: <20171103091533.GE23381@w540>
-References: <20171102124731.10484-1-wsa+renesas@sang-engineering.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH resend v5 3/3] platform/x86: intel_cht_int33fe: Update
+ fusb302 type string, add properties
+Date: Fri, 3 Nov 2017 13:55:26 +0200
+Message-ID: <CAHp75VfivMVGXRs-9JgBZdVSQ8rK+8aDbqProT4i6R7psZRjjg@mail.gmail.com>
+References: <20171011094121.6108-1-hdegoede@redhat.com> <20171011094121.6108-4-hdegoede@redhat.com>
+ <20171026203323.w5xj2mms5epda6pt@ninjato> <5f747f91-0eb8-5566-5de3-b5dfd1f134ce@redhat.com>
+ <011c294b-20c3-9c37-3606-626b2201fde9@redhat.com> <20171027104126.iaoandrsng7hxehq@ninjato>
+ <62bb0948-f763-d726-9a88-d5cc2b2e2c9c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:48635 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754612AbdKCJPh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Nov 2017 05:15:37 -0400
-Content-Disposition: inline
-In-Reply-To: <20171102124731.10484-1-wsa+renesas@sang-engineering.com>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:52032 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756175AbdKCLz3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 3 Nov 2017 07:55:29 -0400
+In-Reply-To: <62bb0948-f763-d726-9a88-d5cc2b2e2c9c@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Platform Driver <platform-driver-x86@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-Hi Wolfram,
-
-On Thu, Nov 02, 2017 at 01:47:26PM +0100, Wolfram Sang wrote:
-> When clearing the ICE bit, all registers fall back to their defaut value. That
-> allows for some simplifications in the code.
->
-> Tested on a Renesas Lager board (R-Car H2) doing a bunch of consecutive
-> commands. No spurious interrupts have been observed and the signals look
-> exactly the same when visualized with sigrok.
->
-> According to the docs, the ICE bit behaviour is the same since the beginning of
-> this driver (sh7722) for the migo-r board.
->
-> jacopo: can you please test this series while you work on migo-r anyhow? Thank
-> you a ton for that!
-
-I have applied your series on top of my developments on Migo-R
-
-------------------------------------------------------------
-57d007c i2c: sh_mobile: shorten exit of xfer routine
-67dfa18 i2c: sh_mobile: use direct writes when accessing ICE bit
-f44a2df i2c: sh_mobile: manually "inline" two short functions
-5d656b6 i2c: sh_mobile: remove redundant deinitialization
-9d2b8cc i2c: sh_mobile: remove redundant initialization
-cac9723 arch: sh: migor: Use new CEU camera driver
-...
-------------------------------------------------------------
-
-And I can successfully probe the camera sensor
-
-------------------------------------------------------------
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-ov772x 0-0021: ov7725 Product ID 77:21 Manufacturer ID 7f:a2
-------------------------------------------------------------
-
-As well as set format on it without noticeable errors
-
-------------------------------------------------------------
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
-i2c i2c-0: master_xfer[1] R, addr=0x21, len=1
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-i2c i2c-0: master_xfer[0] W, addr=0x21, len=2
-------------------------------------------------------------
-
-I cannot try capture, as I currently have issues with mmap on SH4 :(
-
-If you want me to run some specific tests, let me know.
-Otherwise you can add my
-
-Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-
-Cheers!
-   j
->
-> Looking forward to other comments, as well...
+On Fri, Oct 27, 2017 at 6:24 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> On 27-10-17 12:41, Wolfram Sang wrote:
+>> On Fri, Oct 27, 2017 at 12:31:01PM +0200, Hans de Goede wrote:
+>>> On 27-10-17 12:13, Hans de Goede wrote:
+>>>> On 26-10-17 22:33, Wolfram Sang wrote:
+>>>>>
+>>>>> On Wed, Oct 11, 2017 at 11:41:21AM +0200, Hans de Goede wrote:
+>>>>>>
+>>>>>> The fusb302 driver as merged in staging uses "typec_fusb302" as i2c-id
+>>>>>> rather then just "fusb302" and needs us to set a number of device-
+>>>>>> properties, adjust the intel_cht_int33fe driver accordingly.
+>>>>>>
+>>>>>> One of the properties set is max-snk-mv which makes the fusb302 driver
+>>>>>> negotiate up to 12V charging voltage, which is a bad idea on boards
+>>>>>> which are not setup to handle this, so this commit also adds 2 extra
+>>>>>> sanity checks to make sure that the expected Whiskey Cove PMIC +
+>>>>>> TI bq24292i charger combo, which can handle 12V, is present.
+>>>>>>
+>>>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>>>> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>>>>>
+>>>>>
+>>>>> I can't apply this one. Is there an immutable branch I need to pick up?
+>>>>> Or shall this go via another tree? My base is v4.14-rc5.
+>>>>
+>>>>
+>>>> It should be applied on top of this patch:
+>>>>
+>>>>
+>>>> http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/commitdiff/5c003458db40cf3c89aeddd22c6e934c28b5a565
+>>>>
+>>>>   From linux-platform-drivers-x86.git/for-next.
+>>>>
+>>>> So either we are going to need an immutable branch from you
+>>>> with the first patch of this series so that the platform/x86
+>>>> maintainers can merge this, or the other way around :|
+>>>
+>>>
+>>> Alternatively we could push this patch as a post rc1 fix I guess.
+>>
+>>
+>> I intentionally did not push out yet until this was cleared. So, I think
+>> the most simple option is that I create an immutable branch with only
+>> the i2c patches from you. Then linux-platform maintainers can pull in
+>> my branch and your patch here on top of that. Would be my favourite.
+>>
+>> D'accord everyone?
 >
 >
-> Wolfram Sang (5):
->   i2c: sh_mobile: remove redundant initialization
->   i2c: sh_mobile: remove redundant deinitialization
->   i2c: sh_mobile: manually "inline" two short functions
->   i2c: sh_mobile: use direct writes when accessing ICE bit
->   i2c: sh_mobile: shorten exit of xfer routine
->
->  drivers/i2c/busses/i2c-sh_mobile.c | 50 +++++++++-----------------------------
->  1 file changed, 12 insertions(+), 38 deletions(-)
->
-> --
-> 2.11.0
->
+> Works for me, ack.
+
+Okay, merged, thanks!
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
