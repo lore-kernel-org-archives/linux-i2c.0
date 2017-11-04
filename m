@@ -1,54 +1,85 @@
-From: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Subject: Re: [PATCH v1 15/15] media: i2c: adv748x: Remove duplicate NULL check
-Date: Fri, 3 Nov 2017 23:41:25 +0000
-Message-ID: <fe9de50f-aacc-de87-cc6e-81cf32e83756@ideasonboard.com>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
- <20171031142149.32512-15-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20171031142149.32512-15-andriy.shevchenko@linux.intel.com>
-Content-Language: en-GB
-Sender: linux-media-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Subject: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Sat,  4 Nov 2017 21:20:00 +0100
+Message-ID: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
+So, after revisiting old mail threads, taking part in a similar discussion on
+the USB list, and implementing a not-convincing solution before, here is what I
+cooked up to document and ease DMA handling for I2C within Linux. Please have a
+look at the documentation introduced in patch 7 for details. And to make it
+clear again: The stuff below is opt-in. If host drivers are not updated, they
+will continue to work like before.
 
-Thankyou for the patch.
+While previous versions until v3 tried to magically apply bounce buffers when
+needed, it became clear that detecting DMA safe buffers is too fragile. This
+approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+outcome so far is very convincing IMO. The core additions are simple and easy
+to understand. The driver changes for the Renesas IP cores became easy to
+understand, too.
 
-On 31/10/17 14:21, Andy Shevchenko wrote:
-> Since i2c_unregister_device() became NULL-aware we may remove duplicate
-> NULL check.
-> 
-> Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>
-> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Cc: linux-media@vger.kernel.org
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Of course, we must now whitelist DMA safe buffers. This series implements it
+for core functionality:
 
-Acked-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+a) for the I2C_RDWR when messages come from userspace
+b) for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+   block transfers
+c) i2c_master_{send|recv} have now a *_dmasafe variant
 
-> ---
->  drivers/media/i2c/adv748x/adv748x-core.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
-> index 5ee14f2c2747..10c3d469175c 100644
-> --- a/drivers/media/i2c/adv748x/adv748x-core.c
-> +++ b/drivers/media/i2c/adv748x/adv748x-core.c
-> @@ -225,10 +225,8 @@ static void adv748x_unregister_clients(struct adv748x_state *state)
->  {
->  	unsigned int i;
->  
-> -	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i) {
-> -		if (state->i2c_clients[i])
-> -			i2c_unregister_device(state->i2c_clients[i]);
-> -	}
-> +	for (i = 1; i < ARRAY_SIZE(state->i2c_clients); ++i)
-> +		i2c_unregister_device(state->i2c_clients[i]);
->  }
->  
->  static int adv748x_initialise_clients(struct adv748x_state *state)
-> 
+I am still not sure how we can teach regmap this new flag. regmap is a heavy
+user of I2C, so broonie's opinion here would be great to have. The rest should
+mostly be updating individual drivers which can be done when needed.
+
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W) and
+Renesas Lager board (r8a7790/H2). But more testing is really really welcome.
+
+The branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-v6
+
+It is planned to land upstream in v4.16 and I want to push it to linux-next
+early after v4.15 to get lots of testing for the core changes.
+
+Big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+Change since V5:
+* i2c_master_{send|recv} have now a *_dmasafe variant
+* for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+  block transfers
+* updated the documentation
+* merged some rewording suggestions from Jonathan Cameron (thanks!)
+* rebased the patches v4.14-rc6+i2c/for-next, reordered patches
+
+
+Wolfram Sang (9):
+  i2c: add a message flag for DMA safe buffers
+  i2c: add helpers to ease DMA handling
+  i2c: dev: mark RDWR buffers as DMA_SAFE
+  i2c: refactor i2c_master_{send_recv}
+  i2c: add i2c_master_{send|recv}_dmasafe
+  i2c: smbus: use DMA safe buffers for emulated SMBus transactions
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use core helper to decide when to use DMA
+  i2c: rcar: skip DMA if buffer is not safe
+
+ Documentation/i2c/DMA-considerations |  67 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        |   2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c   |   8 ++-
+ drivers/i2c/i2c-core-base.c          | 110 ++++++++++++++++++++---------------
+ drivers/i2c/i2c-core-smbus.c         |  45 ++++++++++++--
+ drivers/i2c/i2c-dev.c                |   2 +
+ include/linux/i2c.h                  |  68 ++++++++++++++++++++--
+ include/uapi/linux/i2c.h             |   3 +
+ 8 files changed, 246 insertions(+), 59 deletions(-)
+ create mode 100644 Documentation/i2c/DMA-considerations
+
+-- 
+2.11.0
