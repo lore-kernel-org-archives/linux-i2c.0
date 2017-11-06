@@ -1,59 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH RFT 3/5] i2c: sh_mobile: manually "inline" two short
- functions
-Date: Mon, 6 Nov 2017 09:54:21 +0100
-Message-ID: <20171106085421.zgwz4dn5pmpjpodu@ninjato>
-References: <20171102124731.10484-1-wsa+renesas@sang-engineering.com>
- <20171102124731.10484-4-wsa+renesas@sang-engineering.com>
- <CAMuHMdXoSyauV1ikYzVBq85Qwm=iPBWvEWNCwd-JNUt32NYUOw@mail.gmail.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
+Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
+Date: Mon, 6 Nov 2017 10:13:45 +0100
+Message-ID: <fec1c0d1-425d-542e-bb6c-402b47b46ceb@redhat.com>
+References: <20171001104948.21663-1-javierm@redhat.com>
+ <20171105215344.a5nyk7xmcdl22tpd@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2pjkuecogt7npvat"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXoSyauV1ikYzVBq85Qwm=iPBWvEWNCwd-JNUt32NYUOw@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jacopo Mondi <jacopo@jmondi.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171105215344.a5nyk7xmcdl22tpd@ninjato>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---2pjkuecogt7npvat
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 11/05/2017 10:53 PM, Wolfram Sang wrote:
+> On Sun, Oct 01, 2017 at 12:49:48PM +0200, Javier Martinez Canillas wrote:
+>> The driver doesn't have a struct of_device_id table but supported devices
+>> are registered via Device Trees. This is working on the assumption that a
+>> I2C device registered via OF will always match a legacy I2C device ID and
+>> that the MODALIAS reported will always be of the form i2c:<device>.
+>>
+>> But this could change in the future so the correct approach is to have an
+>> OF device ID table if the devices are registered via OF.
+>>
+>> To maintain backward compatibility with old Device Trees, only use the OF
+>> device ID table .data if the device was registered via OF and the OF node
+>> compatible matches an entry in the OF device ID table.
+>>
+>> Suggested-by: Wolfram Sang <wsa@the-dreams.de>
+>> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+>>
+> 
+> Applied to for-next, thanks for keeping at it!
+> 
 
-> > -       activate_ch(pd);
-> > +       /* Wake up device and enable clock */
-> > +       pm_runtime_get_sync(pd->dev);
-> > +       clk_prepare_enable(pd->clk);
->=20
-> Suggestion for further cleanup: the call to clk_prepare_enable() should
-> not be needed, due to Runtime PM taking care of that.
-> This is also the case on SH, which uses the legacy clock domain
-> (drivers/sh/pm_runtime.c).
+Great, thanks a lot for your feedback and suggestions on this series.
 
-Ah, I didn't know that about SH. Thanks for the heads up!
-
-
---2pjkuecogt7npvat
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloAIzkACgkQFA3kzBSg
-KbbPXA/+Nr55ViplnwX/Uo+aDNw6SP/cCXd75uVEKVQJjOabQwhHlbKp3EACZrZT
-VlYezNGFqPzSUc68CqsVWiwkBlghL3DerBr1nn8aORDnVJNW3MUsd1ej3yqYAKus
-Q9gzKFM0pJucMHlqJgC07c2tMa+wlyXw9tMukVjOYZ2bXoWhXdvtVqSxRDKQTQ7o
-IOVZgGvpOW1dYmS9ay1AYZtyO0V5lKaMryUktWNGOF469MUyDWTGzYbexiupUvau
-TPuWXIlF09wM1zAvsyhKGlDCpHjKzdOcdkqWNgIemfmq1NiaorjIii4mtnZKpdVN
-3skdR1KXOyj2e0alLHpLb+yCBM8fQdCB37AWCgIEut24yIQZJ6smGhAEUdIudWqE
-Ajj/nKHsLClmKIB9/05bsaRQaM6qwmEycW0TH91EC7qustcoTZtf/WOgQop6JBok
-3tcIl5tuvYxFJh6Z/KE1FguOsLDV8G9jbIWK7Wu0pypO5HHAabalMYvgiPwTwled
-pkIOteroLJjBluCwZe5kuqHzSgskkJLnqO5KQUCGWGJhdeMiF0vE4Ke8oNGn0hZ/
-FcW4I6cXcEFdxAEzxOsiPyvicBRBAwvPHUGLPWd+wFuWPkcO++z7o6QSvsbVYnJn
-aX2NyKSNomKcSkzwX2j0pimgyTFYBMjb1mbnEC+blp4ZQ66VcCA=
-=pUT3
------END PGP SIGNATURE-----
-
---2pjkuecogt7npvat--
+Best regards,
+-- 
+Javier Martinez Canillas
+Software Engineer - Desktop Hardware Enablement
+Red Hat
