@@ -1,47 +1,49 @@
-From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH v6] eeprom: at24: Add OF device ID table
-Date: Mon, 6 Nov 2017 10:13:45 +0100
-Message-ID: <fec1c0d1-425d-542e-bb6c-402b47b46ceb@redhat.com>
-References: <20171001104948.21663-1-javierm@redhat.com>
- <20171105215344.a5nyk7xmcdl22tpd@ninjato>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
+Date: Mon, 6 Nov 2017 13:04:26 +0100
+Message-ID: <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
+References: <20171031081604.18a9ca54@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171105215344.a5nyk7xmcdl22tpd@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:52613 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752362AbdKFME2 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Nov 2017 07:04:28 -0500
+Content-Disposition: inline
+In-Reply-To: <20171031081604.18a9ca54@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-Hello Wolfram,
+Hello Jean,
 
-On 11/05/2017 10:53 PM, Wolfram Sang wrote:
-> On Sun, Oct 01, 2017 at 12:49:48PM +0200, Javier Martinez Canillas wrote:
->> The driver doesn't have a struct of_device_id table but supported devices
->> are registered via Device Trees. This is working on the assumption that a
->> I2C device registered via OF will always match a legacy I2C device ID and
->> that the MODALIAS reported will always be of the form i2c:<device>.
->>
->> But this could change in the future so the correct approach is to have an
->> OF device ID table if the devices are registered via OF.
->>
->> To maintain backward compatibility with old Device Trees, only use the OF
->> device ID table .data if the device was registered via OF and the OF node
->> compatible matches an entry in the OF device ID table.
->>
->> Suggested-by: Wolfram Sang <wsa@the-dreams.de>
->> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
->>
+On Tue, Oct 31, 2017 at 08:16:04AM +0100, Jean Delvare wrote:
+> sprintf isn't safe, use snprintf instead.
+> ---
+>  tools/i2cbusses.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
-> Applied to for-next, thanks for keeping at it!
-> 
+> --- a/tools/i2cbusses.c
+> +++ b/tools/i2cbusses.c
+> @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
+>  
+>  		/* this should work for kernels 2.6.5 or higher and */
+>  		/* is preferred because is unambiguous */
+> -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
+> +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
 
-Great, thanks a lot for your feedback and suggestions on this series.
+OK, now instead of running in a buffer overflow in sprintf you might
+call fopen with a partial (maybe unterminated?) filename. While this is
+definitively better, you should check the return value of snprintf to be
+completely safe here.
 
-Best regards,
+Best regards
+Uwe
+
 -- 
-Javier Martinez Canillas
-Software Engineer - Desktop Hardware Enablement
-Red Hat
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
