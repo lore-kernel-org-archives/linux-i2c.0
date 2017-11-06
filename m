@@ -1,57 +1,94 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v4] i2c: aspeed: Deassert reset in probe
-Date: Mon, 6 Nov 2017 12:40:21 +1100
-Message-ID: <CACPK8Xf0pr6tw=7RDpcVCL0-sKAP=N25ntU-5a=t0G0mqNkoPA@mail.gmail.com>
-References: <20171101002330.24981-1-joel@jms.id.au> <20171105124949.ct4ity6htxqgvvfp@ninjato>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH RFT 3/5] i2c: sh_mobile: manually "inline" two short functions
+Date: Mon, 6 Nov 2017 09:35:53 +0100
+Message-ID: <CAMuHMdXoSyauV1ikYzVBq85Qwm=iPBWvEWNCwd-JNUt32NYUOw@mail.gmail.com>
+References: <20171102124731.10484-1-wsa+renesas@sang-engineering.com> <20171102124731.10484-4-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:55831 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750778AbdKFBko (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 5 Nov 2017 20:40:44 -0500
-In-Reply-To: <20171105124949.ct4ity6htxqgvvfp@ninjato>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:56734 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750728AbdKFIfy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Nov 2017 03:35:54 -0500
+In-Reply-To: <20171102124731.10484-4-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jacopo Mondi <jacopo@jmondi.org>
 
-On Sun, Nov 5, 2017 at 11:49 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Nov 01, 2017 at 10:53:30AM +1030, Joel Stanley wrote:
->> In order to use i2c from a cold boot, the i2c peripheral must be taken
->> out of reset. We request a shared reset controller each time a bus
->> driver is loaded, as the reset is shared between the 14 i2c buses.
->>
->> On remove the reset is asserted, which only touches the hardware once
->> the last i2c bus is removed.
->>
->> The reset is required as the I2C buses will not work without releasing
->> the reset. Previously the driver only worked with out of tree hacks
->> that released this reset before the driver was loaded. Update the
->> device tree bindings to reflect this.
->>
->> Signed-off-by: Joel Stanley <joel@jms.id.au>
->> ---
->> v4:
->>   - Make reset required and update device tree bindings
+Hi Wolfram,
+
+On Thu, Nov 2, 2017 at 1:47 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> Those two functions are very short and only called once. The code
+> becomes easier to understand if the code is directly put into the main
+> xfer function.
 >
-> For that change, I'd like to have an ack from Rob first. Won't that
-> cause problems when you update only the kernel and keep the "old"
-> devicetree?
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/busses/i2c-sh_mobile.c | 28 +++++++++-------------------
+>  1 file changed, 9 insertions(+), 19 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+> index a1253df9574594..cdd7a746b9d1ed 100644
+> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> @@ -298,23 +298,6 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+>         return 0;
+>  }
+>
+> -static void activate_ch(struct sh_mobile_i2c_data *pd)
+> -{
+> -       /* Wake up device and enable clock */
+> -       pm_runtime_get_sync(pd->dev);
+> -       clk_prepare_enable(pd->clk);
+> -}
+> -
+> -static void deactivate_ch(struct sh_mobile_i2c_data *pd)
+> -{
+> -       /* Disable channel */
+> -       iic_set_clr(pd, ICCR, 0, ICCR_ICE);
+> -
+> -       /* Disable clock and mark device as idle */
+> -       clk_disable_unprepare(pd->clk);
+> -       pm_runtime_put_sync(pd->dev);
+> -}
+> -
+>  static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
+>                             enum sh_mobile_i2c_op op, unsigned char data)
+>  {
+> @@ -717,7 +700,9 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+>         int i;
+>         long timeout;
+>
+> -       activate_ch(pd);
+> +       /* Wake up device and enable clock */
+> +       pm_runtime_get_sync(pd->dev);
+> +       clk_prepare_enable(pd->clk);
 
-In theory, yes.
+Suggestion for further cleanup: the call to clk_prepare_enable() should
+not be needed, due to Runtime PM taking care of that.
+This is also the case on SH, which uses the legacy clock domain
+(drivers/sh/pm_runtime.c).
 
-In practice, the consumers of the Aspeed port are using a downstream
-fork that I maintain as part of the OpenBMC project:
+>
+>         /* Process all messages */
+>         for (i = 0; i < num; i++) {
+> @@ -754,7 +739,12 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+>                         break;
+>         }
+>
+> -       deactivate_ch(pd);
+> +       /* Disable channel */
+> +       iic_set_clr(pd, ICCR, 0, ICCR_ICE);
+> +
+> +       /* Disable clock and mark device as idle */
+> +       clk_disable_unprepare(pd->clk);
 
-  https://github.com/openbmc/linux/
+Likewise for clk_disable_unprepare().
 
-None of the machines that use this kernel take a copy of the dtb and
-place it in flash, for example.
+> +       pm_runtime_put_sync(pd->dev);
 
-My goal is to make the upstream port fully functional so we don't need
-the downstream any more.
+Gr{oetje,eeting}s,
 
-Cheers,
-
-Joel
+                        Geert
