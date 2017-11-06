@@ -1,40 +1,39 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v4] i2c: aspeed: Deassert reset in probe
-Date: Mon, 6 Nov 2017 08:19:58 -0600
-Message-ID: <CAL_Jsq++8gpeJch-tTTvfKu9sFbNi1fjG5+Uxg27TPcb0Zd2Kw@mail.gmail.com>
-References: <20171101002330.24981-1-joel@jms.id.au> <20171105124949.ct4ity6htxqgvvfp@ninjato>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
+Date: Mon, 06 Nov 2017 18:09:41 +0200
+Message-ID: <1509984581.25007.47.camel@linux.intel.com>
+References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
+         <1509590430-11968-5-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171105124949.ct4ity6htxqgvvfp@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Joel Stanley <joel@jms.id.au>, Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:64200 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932196AbdKFQLP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 6 Nov 2017 11:11:15 -0500
+In-Reply-To: <1509590430-11968-5-git-send-email-preid@electromag.com.au>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: Tim Sander <tim@krieglstein.org>
 
-On Sun, Nov 5, 2017 at 6:49 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Nov 01, 2017 at 10:53:30AM +1030, Joel Stanley wrote:
->> In order to use i2c from a cold boot, the i2c peripheral must be taken
->> out of reset. We request a shared reset controller each time a bus
->> driver is loaded, as the reset is shared between the 14 i2c buses.
->>
->> On remove the reset is asserted, which only touches the hardware once
->> the last i2c bus is removed.
->>
->> The reset is required as the I2C buses will not work without releasing
->> the reset. Previously the driver only worked with out of tree hacks
->> that released this reset before the driver was loaded. Update the
->> device tree bindings to reflect this.
->>
->> Signed-off-by: Joel Stanley <joel@jms.id.au>
->> ---
->> v4:
->>   - Make reset required and update device tree bindings
->
-> For that change, I'd like to have an ack from Rob first. Won't that
-> cause problems when you update only the kernel and keep the "old"
-> devicetree?
+On Thu, 2017-11-02 at 10:40 +0800, Phil Reid wrote:
+> From: Tim Sander <tim@krieglstein.org>
+> 
+> This patch contains much input from Phil Reid and has been tested
+> on Intel/Altera Cyclone V SOC Hardware with Altera GPIO's for the
+> SCL and SDA GPIO's.
+> 
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Given it didn't really work as explained above, I'm okay with the change.
+Shame on me, I totally forgot one important comment on all this.
 
-Acked-by: Rob Herring <robh@kernel.org>
+How do we switch pinctrl back to the native function? Is it guaranteed
+by pinctrl framework and all underneath drivers?
+
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
