@@ -1,49 +1,40 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
-Date: Mon, 6 Nov 2017 13:04:26 +0100
-Message-ID: <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
-References: <20171031081604.18a9ca54@endymion>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH v4] i2c: aspeed: Deassert reset in probe
+Date: Mon, 6 Nov 2017 08:19:58 -0600
+Message-ID: <CAL_Jsq++8gpeJch-tTTvfKu9sFbNi1fjG5+Uxg27TPcb0Zd2Kw@mail.gmail.com>
+References: <20171101002330.24981-1-joel@jms.id.au> <20171105124949.ct4ity6htxqgvvfp@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:52613 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752362AbdKFME2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 6 Nov 2017 07:04:28 -0500
-Content-Disposition: inline
-In-Reply-To: <20171031081604.18a9ca54@endymion>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171105124949.ct4ity6htxqgvvfp@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Joel Stanley <joel@jms.id.au>, Brendan Higgins <brendanhiggins@google.com>, Philipp Zabel <philipp.zabel@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-Hello Jean,
+On Sun, Nov 5, 2017 at 6:49 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Wed, Nov 01, 2017 at 10:53:30AM +1030, Joel Stanley wrote:
+>> In order to use i2c from a cold boot, the i2c peripheral must be taken
+>> out of reset. We request a shared reset controller each time a bus
+>> driver is loaded, as the reset is shared between the 14 i2c buses.
+>>
+>> On remove the reset is asserted, which only touches the hardware once
+>> the last i2c bus is removed.
+>>
+>> The reset is required as the I2C buses will not work without releasing
+>> the reset. Previously the driver only worked with out of tree hacks
+>> that released this reset before the driver was loaded. Update the
+>> device tree bindings to reflect this.
+>>
+>> Signed-off-by: Joel Stanley <joel@jms.id.au>
+>> ---
+>> v4:
+>>   - Make reset required and update device tree bindings
+>
+> For that change, I'd like to have an ack from Rob first. Won't that
+> cause problems when you update only the kernel and keep the "old"
+> devicetree?
 
-On Tue, Oct 31, 2017 at 08:16:04AM +0100, Jean Delvare wrote:
-> sprintf isn't safe, use snprintf instead.
-> ---
->  tools/i2cbusses.c |   10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> --- a/tools/i2cbusses.c
-> +++ b/tools/i2cbusses.c
-> @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
->  
->  		/* this should work for kernels 2.6.5 or higher and */
->  		/* is preferred because is unambiguous */
-> -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
-> +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
+Given it didn't really work as explained above, I'm okay with the change.
 
-OK, now instead of running in a buffer overflow in sprintf you might
-call fopen with a partial (maybe unterminated?) filename. While this is
-definitively better, you should check the return value of snprintf to be
-completely safe here.
-
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Acked-by: Rob Herring <robh@kernel.org>
