@@ -1,130 +1,56 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
-Date: Tue,  7 Nov 2017 21:18:57 +0100
-Message-ID: <20171107201857.5752-1-linus.walleij@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
+Date: Tue, 7 Nov 2017 21:36:21 +0100
+Message-ID: <20171107203621.53uxggqcd4rzbfjw@ninjato>
+References: <20171107201857.5752-1-linus.walleij@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xzyxnfts6mqmgwmy"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:52682 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751687AbdKGUVB (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 7 Nov 2017 15:21:01 -0500
-Received: by mail-lf0-f65.google.com with SMTP id b190so517375lfg.9
-        for <linux-i2c@vger.kernel.org>; Tue, 07 Nov 2017 12:21:01 -0800 (PST)
+Received: from sauhun.de ([88.99.104.3]:57570 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933348AbdKGUgX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 7 Nov 2017 15:36:23 -0500
+Content-Disposition: inline
+In-Reply-To: <20171107201857.5752-1-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jochen Friedrich <jochen@scram.de>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>
 
-Arnd reported the following build bug bug:
 
-In file included from arch/arm/mach-sa1100/simpad.c:20:0:
-arch/arm/mach-sa1100/include/mach/SA-1100.h:1118:18: error: large
-integer implicitly truncated to unsigned type [-Werror=overflow]
-                      (0x00000001 << (Nb))
-                      ^
-include/linux/gpio/machine.h:56:16: note: in definition of macro
-'GPIO_LOOKUP_IDX'
-.chip_hwnum = _chip_hwnum,
-              ^~~~~~~~~~~
-arch/arm/mach-sa1100/include/mach/SA-1100.h:1140:21: note: in
-expansion of macro 'GPIO_GPIO'
-                    ^~~~~~~~~
-arch/arm/mach-sa1100/simpad.c:331:27: note: in expansion of
-macro 'GPIO_GPIO21'
-  GPIO_LOOKUP_IDX("gpio", GPIO_GPIO21, NULL, 0,
+--xzyxnfts6mqmgwmy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is what happened:
 
-commit b2e63555592f81331c8da3afaa607d8cf83e8138
-"i2c: gpio: Convert to use descriptors"
-commit 4d0ce62c0a02e41a65cfdcfe277f5be430edc371
-"i2c: gpio: Augment all boardfiles to use open drain"
-together uncovered an old bug in the Simpad board
-file: as theGPIO_LOOKUP_IDX() encodes GPIO offsets
-on gpiochips in an u16 (see <linux/gpio/machine.h>)
-these GPIO "numbers" does not fit, since in
-arch/arm/mach-sa1100/include/mach/SA-1100.h it is
-defined as:
+> Wolfram: this is in the i2c GPIO refactoring in your tree,
+> please apply it directly as a fix for v4.15 if there are
+> no protests.
 
-  #define GPIO_GPIO(Nb) (0x00000001 << (Nb))
-  (...)
-  #define GPIO_GPIO21 GPIO_GPIO(21) /* GPIO [21] */
+OK, noted that this is for v4.15. Since it touches arch/arm, some ack
+=66rom an arm-maintainer would be good to have...
 
-This is however provably wrong, since the i2c-gpio
-driver uses proper GPIO numbers, albeit earlier from
-the global number space, whereas this GPIO_GPIO21
-is the local line offset in the GPIO register, which
-is used in other code but certainly not in the
-gpiolib GPIO driver in drivers/gpio/gpio-sa1100.c, which
-has code like this:
 
-static void sa1100_gpio_set(struct gpio_chip *chip,
-                            unsigned offset, int value)
-{
-    int reg = value ? R_GPSR : R_GPCR;
+--xzyxnfts6mqmgwmy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-    writel_relaxed(BIT(offset),
-        sa1100_gpio_chip(chip)->membase + reg);
-}
+-----BEGIN PGP SIGNATURE-----
 
-So far everything however compiled fine as an unsigned
-int was used to pass the GPIO numbers in
-struct i2c_gpio_platform_data. We can trace the actual error
-back to
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloCGUUACgkQFA3kzBSg
+KbZR4g//W+koQvIWbeKfYj04b1SPpctbVlVq4VKEqB/davzxR85S7QZbgJKCg8g7
+AAuCYX1xhQs7ycf13QamT3H6UblHPTjXIPwpdbfvy1pIG+It20FAXiwbz3OVra12
+heJoyJ4MxZlLL7WVOOLr7v3vLHaM8RN9tohGg9Is7JPA4KW8H+TUeiUzlgZAPLph
+Cy8YBrVPQ2Tag4YbgHt4MJ4bsLlGKrnzZyr4EETdnhOfFlmiGM6PbdVq/g0+A4ML
+7r6hOCJWoH5PJHXhfi7+QQwAJSvTVbozonu6XuZIQ0gJzV27l/6bmy0GcQMjLGPz
+jW4hPqegq7ef5moKK5M+a0EWi8h3EhEZ7yUEymgTQjFkIlrEig3LaOItUU8EkVsz
+hgNU4ZFbxDoEM3b575yst27tgWyQ3al3m1Nm3zVfsX+Qu+ZSB54brPhxwcOBezcJ
+Cksp0jFj/CBVQBzGFZNbKntPqQ7Z83CYU1Ixd7PdTrV7fvx3co4V60p0mrtmtR4u
+qEWSJZRNkUw9SSesAYWp+f233UMqQL3XCYwo240qbkD2s9n+zZ3rcdkpQR3VgS+F
++zY8+q9mPbS1na7bQSuvoZUQOLB8QmuvDqcKut0YZSy385OOlvgSOg1usybpnNVV
+ZEG4X+rGvJgfUmbQN5WsX1L50QlvzjGxTy0mh22S8oWjHxlLLOk=
+=RMfg
+-----END PGP SIGNATURE-----
 
-commit dbd406f9d0a1d33a1303eb75cbe3f9435513d339
-"ARM: 7025/1: simpad: add GPIO based device definitions."
-This added the i2c_gpio with the wrong offsets.
-
-This commit was before the SA1100 was converted to use
-the gpiolib, but as can be seen from the contemporary
-gpio.c in mach-sa1100, it was already using:
-
-static int sa1100_gpio_get(struct gpio_chip *chip,
-                           unsigned offset)
-{
-        return GPLR & GPIO_GPIO(offset);
-}
-
-And GPIO_GPIO() is essentially the BIT() macro.
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jochen Friedrich <jochen@scram.de>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Russell King <linux@arm.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- Fix the commit message part that got stubbed out because
-  of #define
-- Correct Wolfram's email address.
-- Put Arnd on CC.
-
-Wolfram: this is in the i2c GPIO refactoring in your tree,
-please apply it directly as a fix for v4.15 if there are
-no protests.
-Jochen: did this ever work? I suspect the patch was simply
-developed on top of a different kernel.
----
- arch/arm/mach-sa1100/simpad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm/mach-sa1100/simpad.c b/arch/arm/mach-sa1100/simpad.c
-index 9db483a42826..7d4feb8a49ac 100644
---- a/arch/arm/mach-sa1100/simpad.c
-+++ b/arch/arm/mach-sa1100/simpad.c
-@@ -328,9 +328,9 @@ static struct platform_device simpad_gpio_leds = {
- static struct gpiod_lookup_table simpad_i2c_gpiod_table = {
- 	.dev_id = "i2c-gpio",
- 	.table = {
--		GPIO_LOOKUP_IDX("gpio", GPIO_GPIO21, NULL, 0,
-+		GPIO_LOOKUP_IDX("gpio", 21, NULL, 0,
- 				GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
--		GPIO_LOOKUP_IDX("gpio", GPIO_GPIO25, NULL, 1,
-+		GPIO_LOOKUP_IDX("gpio", 25, NULL, 1,
- 				GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
- 	},
- };
--- 
-2.13.6
+--xzyxnfts6mqmgwmy--
