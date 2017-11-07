@@ -1,38 +1,63 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH 0/2] ARM: pxa: move pxa-i2c.h to platform_data
-Date: Tue, 07 Nov 2017 08:21:05 +0100
-Message-ID: <87efpa8sgu.fsf@belgarion.home>
-References: <20171105141226.13624-1-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v11 02/10] i2c: i2c-smbus: Move i2c_setup_smbus_alert
+ from i2c-smbus to i2c-core-smbus
+Date: Tue, 7 Nov 2017 08:22:55 +0100
+Message-ID: <20171107072254.s43mwpyplx3hdkyo@ninjato>
+References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
+ <1503567070-115646-3-git-send-email-preid@electromag.com.au>
+ <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
+ <1397131b-c22d-9872-dbe0-9b691553cb9e@electromag.com.au>
+ <20171106213646.2h3zsitnlablblli@ninjato>
+ <2eaccb51-62cf-b764-d313-84008c6c8f87@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp01.smtpout.orange.fr ([80.12.242.123]:55078 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755249AbdKGHVI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 7 Nov 2017 02:21:08 -0500
-In-Reply-To: <20171105141226.13624-1-wsa@the-dreams.de> (Wolfram Sang's
-        message of "Sun, 5 Nov 2017 15:12:24 +0100")
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bikpymgkkwmtznnd"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2eaccb51-62cf-b764-d313-84008c6c8f87@electromag.com.au>
+Sender: linux-pm-owner@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>
+Cc: Jean Delvare <jdelvare@suse.de>, robh+dt@kernel.org, mark.rutland@arm.com, sre@kernel.org, jdelvare@suse.com, jglauber@cavium.com, david.daney@cavium.com, peda@axentia.se, benjamin.tissoires@redhat.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Wolfram Sang <wsa@the-dreams.de> writes:
 
-> As discussed previously, we move the declarations now to devices.h and the
-> platform_data to the platform_data directory. Only build tested, but buildbot
-> is happy.
->
-> Wolfram Sang (2):
->   ARM: pxa: move declarations to proper place
->   ARM: pxa: move header file out of I2C realm
+--bikpymgkkwmtznnd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Wolfram,
 
-This serie looks nice to me.
-I'll throw it at my testbench today for a safety check and to see the bissection
-is all right.
+> I was just thinking that all that's in the file now is smbus-alert code.
+> The other smbus (host notify) code was moved to i2c-core
+> So maybe i2c-core-smbus-alert and as you say use makefile to include it.
 
-Meanwhile you can safely prepare your v2.
+Aaaah, i2c-core-smbus-alert.c. Yes, that probably makes sense. I was
+wondering about i2c-smbus-alert.c (without -core)...
 
-Cheers.
+> I've tried this and it seems to work for the various combinations.
+> I'll wait a bit for Jean to offer an opinion.
+
+Well, if you have code already, can you post it as RFC and CC Jean?
+It usually is easier to talk over code, even if it is not perfect yet...
+
+
+--bikpymgkkwmtznnd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloBX0oACgkQFA3kzBSg
+Kbb6nhAAiTjcLEHcmWcnWXLWm52v1eFi99WAwm3ONH6wlmWdT1WK/4ktJ6X3bx2Z
+XSVGvELMjeuFY2khXNmrM08pNu/ceNVBcBAuOhxDg9PeKLsBuRlPm6/38GIkKy9t
+IJbAz4+VJ1hqtpFNyOKuafvmcIwAYfdAeNOz5nqqiGGqZbHA3qMwLBxRvt3oupMB
+0ngTY/unB/x1tvhnXKAI73gq+I2S3OLM+SifwD+x84N8curvQ/oCtfhQ5WS+fuUW
+6FF/BeyE5qH0wN4LfDtap1LdIiiZnaHoI709hF8AGtJiLxmu4OeO+Jph5jiV6AOj
+mUCK4OoDDowHSsbvd7xNPE5FuPPNWpF6V1CnjZrV4zeN9QwP2DSlFwdZNkaCynGy
+V70sxrj1d2alD+YIWctu1iBuG7OiFus0wDvfpsUX9ZH0JQ0KSmtnZjjepaaQ3x/+
+XydRjM18OgGL7t28J4qb4sH36j8p1sGc04NMQokLwnh0zuR6+6e+qBTOYqQFtW5d
+8svTp8j7fRHdAwth57vAqRZx+qvUZtKH6f/BXhOEBsYQqnmeQfAjb78Q3+2XNdEY
+3sD3Bp0r5CUxKc+t3UZHP50NlPB6lm8i2ihu3kEqIqV6x/R1ESGP8PdznrbnGiNF
+om2OMPnFwWfeuAbiKvhpQt+J78nc+y9r06E+39vS1Fs4LI9QdUc=
+=j7zL
+-----END PGP SIGNATURE-----
+
+--bikpymgkkwmtznnd--
