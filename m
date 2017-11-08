@@ -1,61 +1,66 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
-Date: Wed, 8 Nov 2017 11:55:23 +0100
-Message-ID: <CAK8P3a35EyYU+B8bDXDjveMx7U5pVWuYAqgkwzYgRwi7A0qxfw@mail.gmail.com>
-References: <20171107201857.5752-1-linus.walleij@linaro.org> <CAK8P3a0_kB8NBifbutqyvY_FYHnZTpwK-m0KZV3swpMa4fxjrA@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 09/12] PM / mfd: intel-lpss: Use DPM_FLAG_SMART_SUSPEND
+Date: Wed, 8 Nov 2017 11:08:13 +0000
+Message-ID: <20171108110813.abqehgxdyvyahrro@dell>
+References: <3806130.B2KCK0tvef@aspire.rjw.lan>
+ <5094729.JAaD38WncM@aspire.rjw.lan>
+ <20171031150933.oho2ffvuj3iagx4m@dell>
+ <CAJZ5v0ipSJv0PWPrD3P-yeyD0JWe6EqSJSuZXgjtnFTrMEvpfQ@mail.gmail.com>
+ <20171101092819.thhofiwwjxblef4a@dell>
+ <CAJZ5v0gbmPd=rrveH1LyOYhB2Uu8Tz54C1Y+TutYmdRJCv8G4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:52760 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750917AbdKHKzZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Nov 2017 05:55:25 -0500
-Received: by mail-ot0-f194.google.com with SMTP id 18so1918677oty.9
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Nov 2017 02:55:24 -0800 (PST)
-In-Reply-To: <CAK8P3a0_kB8NBifbutqyvY_FYHnZTpwK-m0KZV3swpMa4fxjrA@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0gbmPd=rrveH1LyOYhB2Uu8Tz54C1Y+TutYmdRJCv8G4g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Documentation <linux-doc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>
 
-On Wed, Nov 8, 2017 at 11:54 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Tue, Nov 7, 2017 at 9:18 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
->
->> diff --git a/arch/arm/mach-sa1100/simpad.c b/arch/arm/mach-sa1100/simpad.c
->> index 9db483a42826..7d4feb8a49ac 100644
->> --- a/arch/arm/mach-sa1100/simpad.c
->> +++ b/arch/arm/mach-sa1100/simpad.c
->> @@ -328,9 +328,9 @@ static struct platform_device simpad_gpio_leds = {
->>  static struct gpiod_lookup_table simpad_i2c_gpiod_table = {
->>         .dev_id = "i2c-gpio",
->>         .table = {
->> -               GPIO_LOOKUP_IDX("gpio", GPIO_GPIO21, NULL, 0,
->> +               GPIO_LOOKUP_IDX("gpio", 21, NULL, 0,
->>                                 GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
->> -               GPIO_LOOKUP_IDX("gpio", GPIO_GPIO25, NULL, 1,
->> +               GPIO_LOOKUP_IDX("gpio", 25, NULL, 1,
->>                                 GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
->>         },
->>  };
->
-> This looks like it's probably correct, but now I'm puzzled by another line in
-> the same file:
->
-> static struct gpio_keys_button simpad_button_table[] = {
->         { KEY_POWER, IRQ_GPIO_POWER_BUTTON, 1, "power button" },
-> };
->
-> Here we pass a gpio number as well, but we use the macro for the IRQ
-> number that is apparently 32 higher than the gpio number. This came from the
-> same commit that introduced the GPIO_GPIO21 reference, so it may well
-> be broken, too.
->
-> I'm fine with your version getting merged as it certainly can't make things
-> worse, it fixes the build warning, and it probably fixes one thing that is
-> wrong today
+On Wed, 01 Nov 2017, Rafael J. Wysocki wrote:
 
-I also meant to say
+> On Wed, Nov 1, 2017 at 10:28 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> > On Tue, 31 Oct 2017, Rafael J. Wysocki wrote:
+> >
+> >> On Tue, Oct 31, 2017 at 4:09 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> >> > On Mon, 16 Oct 2017, Rafael J. Wysocki wrote:
+> >> >
+> >> >> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >> >>
+> >> >> Make the intel-lpss driver set DPM_FLAG_SMART_SUSPEND for its
+> >> >> devices which will allow them to stay in runtime suspend during
+> >> >> system suspend unless they need to be reconfigured for some reason.
+> >> >>
+> >> >> Also make it avoid resuming its child devices if they have
+> >> >> DPM_FLAG_SMART_SUSPEND set to allow them to remain in runtime
+> >> >> suspend during system suspend.
+> >> >>
+> >> >> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >> >> ---
+> >> >>  drivers/mfd/intel-lpss.c |    6 +++++-
+> >> >>  1 file changed, 5 insertions(+), 1 deletion(-)
+> >> >
+> >> > Is this patch independent?
+> >>
+> >> It depends on the flag definition at least, but functionally it also
+> >> depends on the PCI support for the flag.
+> >
+> > No problem.  Which tree to you propose this goes through?
+> 
+> linux-pm.git if that's not a problem as the patches it depends on will
+> go through it too.
+> 
+> That said I'll resend it when the core patches it depends on are ready.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+It's fine by me.
 
-for this patch going through the i2c tree.
+Please check to see if there are any clashes with MFD.  If there are,
+I'll need a (small) pull-request from you.
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
