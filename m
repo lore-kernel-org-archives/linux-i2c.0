@@ -1,76 +1,93 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
-Date: Wed, 08 Nov 2017 11:29:14 +0200
-Message-ID: <1510133354.25007.97.camel@linux.intel.com>
-References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
- <1509984581.25007.47.camel@linux.intel.com>
- <a0265848-2496-d347-a40f-ce83e7dfd945@electromag.com.au>
- <2970055.FM06l9ul3d@dabox>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
+Date: Wed, 8 Nov 2017 10:29:59 +0100
+Message-ID: <20171108092959.a5niuh3z4ftgzj53@pengutronix.de>
+References: <20171031081604.18a9ca54@endymion>
+ <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
+ <20171108095752.300e95c6@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <2970055.FM06l9ul3d@dabox>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tim Sander <tim@krieglstein.org>, Phil Reid <preid@electromag.com.au>
-Cc: wsa@the-dreams.de, khilman@kernel.org, nsekhar@ti.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:50489 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750752AbdKHJaB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Nov 2017 04:30:01 -0500
+Content-Disposition: inline
+In-Reply-To: <20171108095752.300e95c6@endymion>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-On Wed, 2017-11-08 at 09:29 +0100, Tim Sander wrote:
+Hello Jean,
 
-> > > How do we switch pinctrl back to the native function? Is it
-> > > guaranteed
-> > > by pinctrl framework and all underneath drivers?
-> > That is a good question. I don't have an understanding of how the
-> > pinctrl
-> > framework works with respect to requesting gpios.
-> > My device (Intel / Altera Cyclone V SOC) doesn't have a pinctrl for
-> > the i2c
-> > / gpio mux as yet.
+On Wed, Nov 08, 2017 at 09:57:52AM +0100, Jean Delvare wrote:
+> > > --- a/tools/i2cbusses.c
+> > > +++ b/tools/i2cbusses.c
+> > > @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
+> > >  
+> > >  		/* this should work for kernels 2.6.5 or higher and */
+> > >  		/* is preferred because is unambiguous */
+> > > -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
+> > > +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);  
+> > 
+> > OK, now instead of running in a buffer overflow in sprintf you might
+> > call fopen with a partial (maybe unterminated?) filename. While this is
+> > definitively better, you should check the return value of snprintf to be
+> > completely safe here.
 > 
-> According to the documentation from Intel/Altera it is not allowed to
-> change 
-> the pinmux while running.
-
-The driver is used on many platforms and requesting GPIO function while
-running _is_ a pinmux change.
-
->  My guess is that they are using a shift chain, so 
-> the output values of all pins in the chain are not stable. I think
-> they have 
-> been lazy and just used the io config for fpgas with an jtag
-> controller and 
-> connected the shift chain for pinconfig to this controller. So
-> unfortunatly it 
-> is not possible to switch single pins on the run without interfering
-> with 
-> other pins.
-
-...for this certain SoC.
-
-> > It's all setup by the bootloader and they don't expect
-> > you to change it. I'm using two separate GPIO's "wired" to the i2c
-> > bus via
-> > the SOC FPGA for the recovery. Tim was doing the same.
+> To be honest, I never thought the buffer overflows could ever happen,
+> my motivation to fix them was to allow the code to build in OBS, where
+> FORTIFY_SOURCE is enabled. So I went for the most simple change that
+> made gcc happy.
 > 
-> Yes, i think thats the only way. But it is annoying that the i2c
-> controllers 
-> of 201x have no way to recover from such bus errors >:-(.
+> That being said, I have no problem additionally checking the value
+> returned by snprintf. Something like this?
+> 
+> From: Jean Delvare
+> Subject: i2cbusses: Check the return value of snprintf
+> 
+> It's very unlikely that these paths will ever be truncated, but
+> better safe than sorry.
+> ---
+>  tools/i2cbusses.c |   34 ++++++++++++++++++++++++++++------
+>  1 file changed, 28 insertions(+), 6 deletions(-)
+> 
+> --- i2c-tools.orig/tools/i2cbusses.c	2017-11-02 16:17:50.698383029 +0100
+> +++ i2c-tools/tools/i2cbusses.c	2017-11-08 09:49:40.365339644 +0100
+> @@ -137,7 +137,7 @@ struct i2c_adap *gather_i2c_busses(void)
+>  	FILE *f;
+>  	char fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
+>  	int foundsysfs = 0;
+> -	int count=0;
+> +	int len, count = 0;
+>  	struct i2c_adap *adapters;
+>  
+>  	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
+> @@ -220,18 +220,32 @@ struct i2c_adap *gather_i2c_busses(void)
+>  
+>  		/* this should work for kernels 2.6.5 or higher and */
+>  		/* is preferred because is unambiguous */
+> -		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
+> +		len = snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
+> +		if (len >= NAME_MAX) {
+> +			fprintf(stderr, "%s: path truncated\n", n);
+> +			continue;
+> +		}
 
-Yep, it's pity, and we need to cope somehow with it.
+According to C99 snprintf et al return "the number of characters which
+would have been written to the final string if enough space had been
+available". Up to glibc 2.0.6 -1 was returned though if the output was
+truncated. Does one still have to show consideration for a libc that
+old? Hmm, probably not.
 
-So, my understanding of the current case is that either this change goes in only for certain SoC(s), or waiting until there is a guarantee from pinctrl subsystem to return function to native back when recovery finished.
+Then your change looks fine.
 
-My personal vote is for latter.
+Best regards
+Uwe
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
