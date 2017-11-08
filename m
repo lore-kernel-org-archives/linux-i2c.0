@@ -1,49 +1,135 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFT] i2c: sh_mobile: let RuntimePM do the clock handling
-Date: Wed,  8 Nov 2017 09:50:37 +0100
-Message-ID: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
+Date: Wed, 8 Nov 2017 09:57:52 +0100
+Message-ID: <20171108095752.300e95c6@endymion>
+References: <20171031081604.18a9ca54@endymion>
+        <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:59902 "EHLO pokefinder.org"
+Received: from mx2.suse.de ([195.135.220.15]:54408 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750735AbdKHIur (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 8 Nov 2017 03:50:47 -0500
+        id S1751157AbdKHI5z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 8 Nov 2017 03:57:55 -0500
+In-Reply-To: <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Jacopo Mondi <jacopo@jmondi.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>
+To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-No need to do it manually.
+Hi Uwe,
 
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Thanks for the review, very appreciated.
+
+On Mon, 6 Nov 2017 13:04:26 +0100, Uwe Kleine-König wrote:
+> Hello Jean,
+> 
+> On Tue, Oct 31, 2017 at 08:16:04AM +0100, Jean Delvare wrote:
+> > sprintf isn't safe, use snprintf instead.
+> > ---
+> >  tools/i2cbusses.c |   10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> > 
+> > --- a/tools/i2cbusses.c
+> > +++ b/tools/i2cbusses.c
+> > @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
+> >  
+> >  		/* this should work for kernels 2.6.5 or higher and */
+> >  		/* is preferred because is unambiguous */
+> > -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
+> > +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);  
+> 
+> OK, now instead of running in a buffer overflow in sprintf you might
+> call fopen with a partial (maybe unterminated?) filename. While this is
+> definitively better, you should check the return value of snprintf to be
+> completely safe here.
+
+To be honest, I never thought the buffer overflows could ever happen,
+my motivation to fix them was to allow the code to build in OBS, where
+FORTIFY_SOURCE is enabled. So I went for the most simple change that
+made gcc happy.
+
+That being said, I have no problem additionally checking the value
+returned by snprintf. Something like this?
+
+From: Jean Delvare
+Subject: i2cbusses: Check the return value of snprintf
+
+It's very unlikely that these paths will ever be truncated, but
+better safe than sorry.
 ---
+ tools/i2cbusses.c |   34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-jacopo: can you test this on Migo-R, please, on top of the other I2C patches?
+--- i2c-tools.orig/tools/i2cbusses.c	2017-11-02 16:17:50.698383029 +0100
++++ i2c-tools/tools/i2cbusses.c	2017-11-08 09:49:40.365339644 +0100
+@@ -137,7 +137,7 @@ struct i2c_adap *gather_i2c_busses(void)
+ 	FILE *f;
+ 	char fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
+ 	int foundsysfs = 0;
+-	int count=0;
++	int len, count = 0;
+ 	struct i2c_adap *adapters;
+ 
+ 	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
+@@ -220,18 +220,32 @@ struct i2c_adap *gather_i2c_busses(void)
+ 
+ 		/* this should work for kernels 2.6.5 or higher and */
+ 		/* is preferred because is unambiguous */
+-		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
++		len = snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
++		if (len >= NAME_MAX) {
++			fprintf(stderr, "%s: path truncated\n", n);
++			continue;
++		}
+ 		f = fopen(n, "r");
+ 		/* this seems to work for ISA */
+ 		if(f == NULL) {
+-			snprintf(n, NAME_MAX, "%s/%s/device/name", sysfs, de->d_name);
++			len = snprintf(n, NAME_MAX, "%s/%s/device/name", sysfs,
++				       de->d_name);
++			if (len >= NAME_MAX) {
++				fprintf(stderr, "%s: path truncated\n", n);
++				continue;
++			}
+ 			f = fopen(n, "r");
+ 		}
+ 		/* non-ISA is much harder */
+ 		/* and this won't find the correct bus name if a driver
+ 		   has more than one bus */
+ 		if(f == NULL) {
+-			snprintf(n, NAME_MAX, "%s/%s/device", sysfs, de->d_name);
++			len = snprintf(n, NAME_MAX, "%s/%s/device", sysfs,
++				       de->d_name);
++			if (len >= NAME_MAX) {
++				fprintf(stderr, "%s: path truncated\n", n);
++				continue;
++			}
+ 			if(!(ddir = opendir(n)))
+ 				continue;
+ 			while ((dde = readdir(ddir)) != NULL) {
+@@ -240,8 +254,16 @@ struct i2c_adap *gather_i2c_busses(void)
+ 				if (!strcmp(dde->d_name, ".."))
+ 					continue;
+ 				if ((!strncmp(dde->d_name, "i2c-", 4))) {
+-					snprintf(n, NAME_MAX, "%s/%s/device/%s/name",
+-						 sysfs, de->d_name, dde->d_name);
++					len = snprintf(n, NAME_MAX,
++						       "%s/%s/device/%s/name",
++						       sysfs, de->d_name,
++						       dde->d_name);
++					if (len >= NAME_MAX) {
++						fprintf(stderr,
++							"%s: path truncated\n",
++							n);
++						continue;
++					}
+ 					if((f = fopen(n, "r")))
+ 						goto found;
+ 				}
 
-I tested it on a Lager and it worked there. Will try Gen3 later, too.
 
- drivers/i2c/busses/i2c-sh_mobile.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index ebd146ccb24465..80561ffbcf7b46 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -702,7 +702,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 
- 	/* Wake up device and enable clock */
- 	pm_runtime_get_sync(pd->dev);
--	clk_prepare_enable(pd->clk);
- 
- 	/* Process all messages */
- 	for (i = 0; i < num; i++) {
-@@ -743,7 +742,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 	iic_wr(pd, ICCR, 0);
- 
- 	/* Disable clock and mark device as idle */
--	clk_disable_unprepare(pd->clk);
- 	pm_runtime_put_sync(pd->dev);
- 
- 	return err ?: num;
 -- 
-2.11.0
+Jean Delvare
+SUSE L3 Support
