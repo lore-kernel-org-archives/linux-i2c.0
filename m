@@ -1,65 +1,49 @@
-From: jacopo mondi <jacopo@jmondi.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [RFT] i2c: sh_mobile: let RuntimePM do the clock handling
-Date: Wed, 8 Nov 2017 19:41:53 +0100
-Message-ID: <20171108184153.GC26922@w540>
+Date: Wed, 8 Nov 2017 22:07:10 +0100
+Message-ID: <20171108210710.altvkeftp5peldh3@ninjato>
 References: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
+ <20171108184153.GC26922@w540>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="5zkvkshqfroz2c3z"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20171108184153.GC26922@w540>
 Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>
+To: jacopo mondi <jacopo@jmondi.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Wed, Nov 08, 2017 at 09:50:37AM +0100, Wolfram Sang wrote:
-> No need to do it manually.
->
-> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->
-> jacopo: can you test this on Migo-R, please, on top of the other I2C patches?
+--5zkvkshqfroz2c3z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Done.
+> For this one as well:
+> Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-No appreciable differences with this patch applied, the image sensor
-is properly detected and I can grab an image.
+Thanks, Jacopo!
 
-For this one as well:
-Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-Thanks
-   j
->
-> I tested it on a Lager and it worked there. Will try Gen3 later, too.
->
->  drivers/i2c/busses/i2c-sh_mobile.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index ebd146ccb24465..80561ffbcf7b46 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -702,7 +702,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->
->  	/* Wake up device and enable clock */
->  	pm_runtime_get_sync(pd->dev);
-> -	clk_prepare_enable(pd->clk);
->
->  	/* Process all messages */
->  	for (i = 0; i < num; i++) {
-> @@ -743,7 +742,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->  	iic_wr(pd, ICCR, 0);
->
->  	/* Disable clock and mark device as idle */
-> -	clk_disable_unprepare(pd->clk);
->  	pm_runtime_put_sync(pd->dev);
->
->  	return err ?: num;
-> --
-> 2.11.0
->
+--5zkvkshqfroz2c3z
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloDcfsACgkQFA3kzBSg
+KbYq0g//ePzD33LQ3mT9aRpZwU9gfdeYVfgCPzxj5ZEue7Y1V8faboV6n07GFIxY
+EyRhyh3zfF+1oGyseQEQ9b6bKfLFONqbFbUlQwYxsIv/eb0Xjq+taQnV+vPmwv0Y
+aiAArXw/Lc1rnZYcQyd1lZgNArrvmdQcYasDJ5VApYGL3AuPZARxI7FYqnP7WiVS
+Wqc7GjCimAnso7g243fa4qXknqFzvZKCa9CFkN/7mlCudSVWxPMUj2bb4mtR8cxD
++H5MzFP0+6/lNXhcQkcF9BMIc6HXzrXd+7P0H/qn5Xnykz7c4JoqF7DzaYy3byqH
+cv70ngtYnI9KsTfGk59yeCIoELbHdGd6k2et6PRXQgyXxtVUBcJORiP7JPNyhdtN
+1Ajjq++xry8WxbxGv7rXFw3jzT1eG+NxTmHq57LG2ZV5No+nR1FppOdEHNqxX1dp
+uCZAR92UecCAMBNIcrptgzVxv/MAymV64RylX0aW3ak4FIKT4JNEHoQtjFfO6VkZ
+KJgoZdHnuH/NbE/QG+UCJN7GBgdCvWhAI43gURZew/ldT5fg5Q/YcAsBopPAcLXl
+HX6BYH6aaV0Y9ZA91aiEfqH1GqPnkBJx/mPLxsV4PoR7QI9VCwFp552UYd9AYCw1
+WX6ebT/0RBpTXhk6dfEuUs5IFhw0Nf+nANlV7M0Y1kr7Xr65a9Y=
+=tAfa
+-----END PGP SIGNATURE-----
+
+--5zkvkshqfroz2c3z--
