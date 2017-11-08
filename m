@@ -1,36 +1,65 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] ARM: sa1100: simpad: Correct I2C GPIO offsets
-Date: Wed, 8 Nov 2017 13:48:39 +0100
-Message-ID: <CACRpkdY4ei8_BQG7yVKCH3ZsQisSJxdMMi=VJ9kdKULuAwEsJg@mail.gmail.com>
-References: <20171107151703.3847-1-linus.walleij@linaro.org> <24888cd2-e3ef-2f34-4c0c-c7e620f5e3e0@scram.de>
+From: jacopo mondi <jacopo@jmondi.org>
+Subject: Re: [RFT] i2c: sh_mobile: let RuntimePM do the clock handling
+Date: Wed, 8 Nov 2017 19:41:53 +0100
+Message-ID: <20171108184153.GC26922@w540>
+References: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:56034 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752355AbdKHMsl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 8 Nov 2017 07:48:41 -0500
-Received: by mail-it0-f66.google.com with SMTP id l196so6308456itl.4
-        for <linux-i2c@vger.kernel.org>; Wed, 08 Nov 2017 04:48:41 -0800 (PST)
-In-Reply-To: <24888cd2-e3ef-2f34-4c0c-c7e620f5e3e0@scram.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>
 
-On Wed, Nov 8, 2017 at 9:40 AM, Jochen Friedrich <jochen@scram.de> wrote:
+Hi Wolfram,
 
->> Jochen: did this ever work? I suspect the patch was simply developed on
->> top of a different kernel.
+On Wed, Nov 08, 2017 at 09:50:37AM +0100, Wolfram Sang wrote:
+> No need to do it manually.
 >
-> This really was developed on top of a much older kernel. I didn't test this
-> for a while now as on my Simpad, the touch screen died a while ago (mainly
-> returning random position data), so the device is useless...
+> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>
+> jacopo: can you test this on Migo-R, please, on top of the other I2C patches?
 
-I wonder if anyone is booting simpad on the recent kernels. Maybe it
-should simply be decomissioned if there are no users.
+Done.
 
-Oh well, that is for later.
+No appreciable differences with this patch applied, the image sensor
+is properly detected and I can grab an image.
 
-Yours,
-Linus Walleij
+For this one as well:
+Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+
+Thanks
+   j
+>
+> I tested it on a Lager and it worked there. Will try Gen3 later, too.
+>
+>  drivers/i2c/busses/i2c-sh_mobile.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+> index ebd146ccb24465..80561ffbcf7b46 100644
+> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> @@ -702,7 +702,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+>
+>  	/* Wake up device and enable clock */
+>  	pm_runtime_get_sync(pd->dev);
+> -	clk_prepare_enable(pd->clk);
+>
+>  	/* Process all messages */
+>  	for (i = 0; i < num; i++) {
+> @@ -743,7 +742,6 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+>  	iic_wr(pd, ICCR, 0);
+>
+>  	/* Disable clock and mark device as idle */
+> -	clk_disable_unprepare(pd->clk);
+>  	pm_runtime_put_sync(pd->dev);
+>
+>  	return err ?: num;
+> --
+> 2.11.0
+>
