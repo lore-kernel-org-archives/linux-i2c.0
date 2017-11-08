@@ -1,49 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFT] i2c: sh_mobile: let RuntimePM do the clock handling
-Date: Wed, 8 Nov 2017 22:07:10 +0100
-Message-ID: <20171108210710.altvkeftp5peldh3@ninjato>
-References: <20171108085037.1318-1-wsa+renesas@sang-engineering.com>
- <20171108184153.GC26922@w540>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
+Date: Wed, 8 Nov 2017 22:14:20 +0100
+Message-ID: <20171108221420.29f38dca@endymion>
+References: <20171031081604.18a9ca54@endymion>
+        <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
+        <20171108095752.300e95c6@endymion>
+        <20171108092959.a5niuh3z4ftgzj53@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5zkvkshqfroz2c3z"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171108184153.GC26922@w540>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: jacopo mondi <jacopo@jmondi.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:50953 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753048AbdKHVOX (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 8 Nov 2017 16:14:23 -0500
+In-Reply-To: <20171108092959.a5niuh3z4ftgzj53@pengutronix.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
+On Wed, 8 Nov 2017 10:29:59 +0100, Uwe Kleine-König wrote:
+> Hello Jean,
+> 
+> On Wed, Nov 08, 2017 at 09:57:52AM +0100, Jean Delvare wrote:
+> > > > --- a/tools/i2cbusses.c
+> > > > +++ b/tools/i2cbusses.c
+> > > > @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
+> > > >  
+> > > >  		/* this should work for kernels 2.6.5 or higher and */
+> > > >  		/* is preferred because is unambiguous */
+> > > > -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
+> > > > +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);    
+> > > 
+> > > OK, now instead of running in a buffer overflow in sprintf you might
+> > > call fopen with a partial (maybe unterminated?) filename. While this is
+> > > definitively better, you should check the return value of snprintf to be
+> > > completely safe here.  
+> > 
+> > To be honest, I never thought the buffer overflows could ever happen,
+> > my motivation to fix them was to allow the code to build in OBS, where
+> > FORTIFY_SOURCE is enabled. So I went for the most simple change that
+> > made gcc happy.
+> > 
+> > That being said, I have no problem additionally checking the value
+> > returned by snprintf. Something like this?
+> > 
+> > From: Jean Delvare
+> > Subject: i2cbusses: Check the return value of snprintf
+> > 
+> > It's very unlikely that these paths will ever be truncated, but
+> > better safe than sorry.
+> > ---
+> >  tools/i2cbusses.c |   34 ++++++++++++++++++++++++++++------
+> >  1 file changed, 28 insertions(+), 6 deletions(-)
+> > 
+> > --- i2c-tools.orig/tools/i2cbusses.c	2017-11-02 16:17:50.698383029 +0100
+> > +++ i2c-tools/tools/i2cbusses.c	2017-11-08 09:49:40.365339644 +0100
+> > @@ -137,7 +137,7 @@ struct i2c_adap *gather_i2c_busses(void)
+> >  	FILE *f;
+> >  	char fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
+> >  	int foundsysfs = 0;
+> > -	int count=0;
+> > +	int len, count = 0;
+> >  	struct i2c_adap *adapters;
+> >  
+> >  	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
+> > @@ -220,18 +220,32 @@ struct i2c_adap *gather_i2c_busses(void)
+> >  
+> >  		/* this should work for kernels 2.6.5 or higher and */
+> >  		/* is preferred because is unambiguous */
+> > -		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
+> > +		len = snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
+> > +		if (len >= NAME_MAX) {
+> > +			fprintf(stderr, "%s: path truncated\n", n);
+> > +			continue;
+> > +		}  
+> 
+> According to C99 snprintf et al return "the number of characters which
+> would have been written to the final string if enough space had been
+> available". Up to glibc 2.0.6 -1 was returned though if the output was
+> truncated. Does one still have to show consideration for a libc that
+> old? Hmm, probably not.
 
---5zkvkshqfroz2c3z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think we don't care, especially when nothing terribly bad would
+happen then - simply back to the old behavior.
 
-> For this one as well:
-> Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+> Then your change looks fine.
 
-Thanks, Jacopo!
+Thanks for the review, I'll commit it.
 
-
---5zkvkshqfroz2c3z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloDcfsACgkQFA3kzBSg
-KbYq0g//ePzD33LQ3mT9aRpZwU9gfdeYVfgCPzxj5ZEue7Y1V8faboV6n07GFIxY
-EyRhyh3zfF+1oGyseQEQ9b6bKfLFONqbFbUlQwYxsIv/eb0Xjq+taQnV+vPmwv0Y
-aiAArXw/Lc1rnZYcQyd1lZgNArrvmdQcYasDJ5VApYGL3AuPZARxI7FYqnP7WiVS
-Wqc7GjCimAnso7g243fa4qXknqFzvZKCa9CFkN/7mlCudSVWxPMUj2bb4mtR8cxD
-+H5MzFP0+6/lNXhcQkcF9BMIc6HXzrXd+7P0H/qn5Xnykz7c4JoqF7DzaYy3byqH
-cv70ngtYnI9KsTfGk59yeCIoELbHdGd6k2et6PRXQgyXxtVUBcJORiP7JPNyhdtN
-1Ajjq++xry8WxbxGv7rXFw3jzT1eG+NxTmHq57LG2ZV5No+nR1FppOdEHNqxX1dp
-uCZAR92UecCAMBNIcrptgzVxv/MAymV64RylX0aW3ak4FIKT4JNEHoQtjFfO6VkZ
-KJgoZdHnuH/NbE/QG+UCJN7GBgdCvWhAI43gURZew/ldT5fg5Q/YcAsBopPAcLXl
-HX6BYH6aaV0Y9ZA91aiEfqH1GqPnkBJx/mPLxsV4PoR7QI9VCwFp552UYd9AYCw1
-WX6ebT/0RBpTXhk6dfEuUs5IFhw0Nf+nANlV7M0Y1kr7Xr65a9Y=
-=tAfa
------END PGP SIGNATURE-----
-
---5zkvkshqfroz2c3z--
+-- 
+Jean Delvare
+SUSE L3 Support
