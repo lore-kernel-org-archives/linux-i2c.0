@@ -1,135 +1,76 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: i2c-tools: i2cbusses: Avoid buffer overflows in sysfs paths
-Date: Wed, 8 Nov 2017 09:57:52 +0100
-Message-ID: <20171108095752.300e95c6@endymion>
-References: <20171031081604.18a9ca54@endymion>
-        <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
+Date: Wed, 08 Nov 2017 11:29:14 +0200
+Message-ID: <1510133354.25007.97.camel@linux.intel.com>
+References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
+ <1509984581.25007.47.camel@linux.intel.com>
+ <a0265848-2496-d347-a40f-ce83e7dfd945@electromag.com.au>
+ <2970055.FM06l9ul3d@dabox>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54408 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751157AbdKHI5z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 8 Nov 2017 03:57:55 -0500
-In-Reply-To: <20171106120426.lyo6azbrxxok4gan@pengutronix.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <2970055.FM06l9ul3d@dabox>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Tim Sander <tim@krieglstein.org>, Phil Reid <preid@electromag.com.au>
+Cc: wsa@the-dreams.de, khilman@kernel.org, nsekhar@ti.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
-To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-Hi Uwe,
+On Wed, 2017-11-08 at 09:29 +0100, Tim Sander wrote:
 
-Thanks for the review, very appreciated.
-
-On Mon, 6 Nov 2017 13:04:26 +0100, Uwe Kleine-König wrote:
-> Hello Jean,
+> > > How do we switch pinctrl back to the native function? Is it
+> > > guaranteed
+> > > by pinctrl framework and all underneath drivers?
+> > That is a good question. I don't have an understanding of how the
+> > pinctrl
+> > framework works with respect to requesting gpios.
+> > My device (Intel / Altera Cyclone V SOC) doesn't have a pinctrl for
+> > the i2c
+> > / gpio mux as yet.
 > 
-> On Tue, Oct 31, 2017 at 08:16:04AM +0100, Jean Delvare wrote:
-> > sprintf isn't safe, use snprintf instead.
-> > ---
-> >  tools/i2cbusses.c |   10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> > 
-> > --- a/tools/i2cbusses.c
-> > +++ b/tools/i2cbusses.c
-> > @@ -220,18 +220,18 @@ struct i2c_adap *gather_i2c_busses(void)
-> >  
-> >  		/* this should work for kernels 2.6.5 or higher and */
-> >  		/* is preferred because is unambiguous */
-> > -		sprintf(n, "%s/%s/name", sysfs, de->d_name);
-> > +		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);  
+> According to the documentation from Intel/Altera it is not allowed to
+> change 
+> the pinmux while running.
+
+The driver is used on many platforms and requesting GPIO function while
+running _is_ a pinmux change.
+
+>  My guess is that they are using a shift chain, so 
+> the output values of all pins in the chain are not stable. I think
+> they have 
+> been lazy and just used the io config for fpgas with an jtag
+> controller and 
+> connected the shift chain for pinconfig to this controller. So
+> unfortunatly it 
+> is not possible to switch single pins on the run without interfering
+> with 
+> other pins.
+
+...for this certain SoC.
+
+> > It's all setup by the bootloader and they don't expect
+> > you to change it. I'm using two separate GPIO's "wired" to the i2c
+> > bus via
+> > the SOC FPGA for the recovery. Tim was doing the same.
 > 
-> OK, now instead of running in a buffer overflow in sprintf you might
-> call fopen with a partial (maybe unterminated?) filename. While this is
-> definitively better, you should check the return value of snprintf to be
-> completely safe here.
+> Yes, i think thats the only way. But it is annoying that the i2c
+> controllers 
+> of 201x have no way to recover from such bus errors >:-(.
 
-To be honest, I never thought the buffer overflows could ever happen,
-my motivation to fix them was to allow the code to build in OBS, where
-FORTIFY_SOURCE is enabled. So I went for the most simple change that
-made gcc happy.
+Yep, it's pity, and we need to cope somehow with it.
 
-That being said, I have no problem additionally checking the value
-returned by snprintf. Something like this?
+So, my understanding of the current case is that either this change goes in only for certain SoC(s), or waiting until there is a guarantee from pinctrl subsystem to return function to native back when recovery finished.
 
-From: Jean Delvare
-Subject: i2cbusses: Check the return value of snprintf
-
-It's very unlikely that these paths will ever be truncated, but
-better safe than sorry.
----
- tools/i2cbusses.c |   34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
-
---- i2c-tools.orig/tools/i2cbusses.c	2017-11-02 16:17:50.698383029 +0100
-+++ i2c-tools/tools/i2cbusses.c	2017-11-08 09:49:40.365339644 +0100
-@@ -137,7 +137,7 @@ struct i2c_adap *gather_i2c_busses(void)
- 	FILE *f;
- 	char fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
- 	int foundsysfs = 0;
--	int count=0;
-+	int len, count = 0;
- 	struct i2c_adap *adapters;
- 
- 	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
-@@ -220,18 +220,32 @@ struct i2c_adap *gather_i2c_busses(void)
- 
- 		/* this should work for kernels 2.6.5 or higher and */
- 		/* is preferred because is unambiguous */
--		snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
-+		len = snprintf(n, NAME_MAX, "%s/%s/name", sysfs, de->d_name);
-+		if (len >= NAME_MAX) {
-+			fprintf(stderr, "%s: path truncated\n", n);
-+			continue;
-+		}
- 		f = fopen(n, "r");
- 		/* this seems to work for ISA */
- 		if(f == NULL) {
--			snprintf(n, NAME_MAX, "%s/%s/device/name", sysfs, de->d_name);
-+			len = snprintf(n, NAME_MAX, "%s/%s/device/name", sysfs,
-+				       de->d_name);
-+			if (len >= NAME_MAX) {
-+				fprintf(stderr, "%s: path truncated\n", n);
-+				continue;
-+			}
- 			f = fopen(n, "r");
- 		}
- 		/* non-ISA is much harder */
- 		/* and this won't find the correct bus name if a driver
- 		   has more than one bus */
- 		if(f == NULL) {
--			snprintf(n, NAME_MAX, "%s/%s/device", sysfs, de->d_name);
-+			len = snprintf(n, NAME_MAX, "%s/%s/device", sysfs,
-+				       de->d_name);
-+			if (len >= NAME_MAX) {
-+				fprintf(stderr, "%s: path truncated\n", n);
-+				continue;
-+			}
- 			if(!(ddir = opendir(n)))
- 				continue;
- 			while ((dde = readdir(ddir)) != NULL) {
-@@ -240,8 +254,16 @@ struct i2c_adap *gather_i2c_busses(void)
- 				if (!strcmp(dde->d_name, ".."))
- 					continue;
- 				if ((!strncmp(dde->d_name, "i2c-", 4))) {
--					snprintf(n, NAME_MAX, "%s/%s/device/%s/name",
--						 sysfs, de->d_name, dde->d_name);
-+					len = snprintf(n, NAME_MAX,
-+						       "%s/%s/device/%s/name",
-+						       sysfs, de->d_name,
-+						       dde->d_name);
-+					if (len >= NAME_MAX) {
-+						fprintf(stderr,
-+							"%s: path truncated\n",
-+							n);
-+						continue;
-+					}
- 					if((f = fopen(n, "r")))
- 						goto found;
- 				}
-
+My personal vote is for latter.
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
