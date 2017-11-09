@@ -1,104 +1,185 @@
 From: Juergen Fitschen <me@jue.yt>
-Subject: [PATCH v2 0/3] i2c: at91: slave mode support
-Date: Thu, 9 Nov 2017 18:21:24 +0100
-Message-ID: <cover.1510247114.git.me@jue.yt>
+Subject: [PATCH v2 1/3] i2c: at91: segregate master mode specific code from
+ probe and init func
+Date: Thu, 9 Nov 2017 18:21:49 +0100
+Message-ID: <ac822188f3c0f7c96eb280584df9e908e9c3de1f.1510247114.git.me@jue.yt>
+References: <cover.1510247114.git.me@jue.yt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <cover.1510247114.git.me@jue.yt>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ludovic Desroches <ludovic.desroches@microchip.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
-AT91 hardware and tried to fulfill the Linux I2C slave interface description
-[2] as good as possible. This enables aforementioned hardware to act as an I2C
-slave that can be accessed by a remote I2C master.
+In order to implement slave mode support for the at91 hardware we have to
+segregate all master mode specific function parts from the general parts.
+The upcoming slave mode patch will call its sepcific probe resp. init
+function instead of the master mode functions after the shared general
+code has been executed.
 
+This concept has been influenced by the i2c-designware driver.
 
-I have tested this patchset successfully on an ATSAMA5D27.
-
-                                 ^  3.3V   ^  3.3V
-    +-----------------------+    |         |         +-----------------------+
-    | Slave: ATSAMA5D27     |   +-+       +-+        | Master: ATSAMA5D35    |
-    | with i2c-slave-eeprom |   | | 100k  | | 100k   | with i2cset           |
-    +-------------------+-+-+   +-+       +-+        +-+-+-------------------+
-                        | |      |         |           | |
-                        | +------+---------|---(SDA)---+ |
-                        +------------------+---(SCL)-----+
-
-    Schematic: Connection of slave and master with 100kOhm pullup resistors.
-
-On the master the following BASH script has been used to stress the slave.
-
-    root@emblinux:~# cat ./stress.sh
-    #!/bin/bash
-    I=0
-    while true
-    do
-            if i2cset -y -r 1 0x64 0 $I w | grep mismatch
-            then
-                    echo "$(date): Error in transmission ${I}"
-            fi
-            ((I++))
-            if [ $I -eq 65536 ]
-            then
-                    I=0
-                    echo "$(date): Sent 65536 transmissions"
-            fi
-    done
-
-
-After running the script for some time I had the following output. To me this
-looks promising :)
-
-    root@emblinux:~# ./stress.sh
-    Thu Nov  9 13:58:45 CTE 2017: Sent 65536 transmissions
-    Thu Nov  9 14:35:20 CTE 2017: Sent 65536 transmissions
-    Thu Nov  9 15:12:11 CTE 2017: Sent 65536 transmissions
-    Thu Nov  9 15:49:04 CTE 2017: Sent 65536 transmissions
-    Thu Nov  9 16:26:00 CTE 2017: Sent 65536 transmissions
-    Thu Nov  9 17:03:07 UTC 2017: Sent 65536 transmissions
-    Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
-
-If you have some hardware with an at91-i2c interface included at hand, I really
-would appreciate if you can run the test script on your hardware and test this
-driver.
-
-
-Best regards
-  Juergen
-
-
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Juergen Fitschen <me@jue.yt>
+---
 Changes in v2:
- - Implemented all suggestions made by Ludovic. (Thank you!)
- - Reworked the IRQ handler completely. Have a look in patch 3 fort further
-   details.
+ - Readded lost lines inserted by 56a6cb8
+---
+ drivers/i2c/busses/i2c-at91.c | 92 +++++++++++++++++++++++++++----------------
+ 1 file changed, 57 insertions(+), 35 deletions(-)
 
-[1] https://marc.info/?t=150824004800001&r=1&w=1
-[2] https://www.kernel.org/doc/Documentation/i2c/slave-interface
-
-Juergen Fitschen (3):
-  i2c: at91: segregate master mode specific code from probe and init
-    func
-  i2c: at91: split driver into core and master file
-  i2c: at91: added slave mode support
-
- Documentation/devicetree/bindings/i2c/i2c-at91.txt |   14 +
- MAINTAINERS                                        |    3 +-
- drivers/i2c/busses/Kconfig                         |   10 +
- drivers/i2c/busses/Makefile                        |    4 +
- drivers/i2c/busses/i2c-at91-core.c                 |  390 ++++++
- drivers/i2c/busses/i2c-at91-master.c               |  806 +++++++++++++
- drivers/i2c/busses/i2c-at91-slave.c                |  216 ++++
- drivers/i2c/busses/i2c-at91.c                      | 1243 --------------------
- drivers/i2c/busses/i2c-at91.h                      |  191 +++
- 9 files changed, 1633 insertions(+), 1244 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-at91-core.c
- create mode 100644 drivers/i2c/busses/i2c-at91-master.c
- create mode 100644 drivers/i2c/busses/i2c-at91-slave.c
- delete mode 100644 drivers/i2c/busses/i2c-at91.c
- create mode 100644 drivers/i2c/busses/i2c-at91.h
-
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index bfd1fdf..af979b1 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -174,10 +174,8 @@ static void at91_twi_irq_restore(struct at91_twi_dev *dev)
+ 	at91_twi_write(dev, AT91_TWI_IER, dev->imr);
+ }
+ 
+-static void at91_init_twi_bus(struct at91_twi_dev *dev)
++static void at91_init_twi_bus_master(struct at91_twi_dev *dev)
+ {
+-	at91_disable_twi_interrupts(dev);
+-	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_SWRST);
+ 	/* FIFO should be enabled immediately after the software reset */
+ 	if (dev->fifo_size)
+ 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_FIFOEN);
+@@ -186,6 +184,14 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
+ 	at91_twi_write(dev, AT91_TWI_CWGR, dev->twi_cwgr_reg);
+ }
+ 
++static void at91_init_twi_bus(struct at91_twi_dev *dev)
++{
++	at91_disable_twi_interrupts(dev);
++	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_SWRST);
++
++	at91_init_twi_bus_master(dev);
++}
++
+ /*
+  * Calculate symmetric clock as stated in datasheet:
+  * twi_clk = F_MAIN / (2 * (cdiv * (1 << ckdiv) + offset))
+@@ -1038,18 +1044,58 @@ static struct at91_twi_pdata *at91_twi_get_driver_data(
+ 	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
+ }
+ 
++static int at91_twi_probe_master(struct platform_device *pdev,
++				 u32 phy_addr, struct at91_twi_dev *dev)
++{
++	int rc;
++	u32 bus_clk_rate;
++
++	init_completion(&dev->cmd_complete);
++
++	rc = devm_request_irq(&pdev->dev, dev->irq, atmel_twi_interrupt, 0,
++			      dev_name(dev->dev), dev);
++	if (rc) {
++		dev_err(dev->dev, "Cannot get irq %d: %d\n", dev->irq, rc);
++		return rc;
++	}
++
++	if (dev->dev->of_node) {
++		rc = at91_twi_configure_dma(dev, phy_addr);
++		if (rc == -EPROBE_DEFER) {
++			clk_disable_unprepare(dev->clk);
++			return rc;
++		}
++	}
++
++	if (!of_property_read_u32(pdev->dev.of_node, "atmel,fifo-size",
++				  &dev->fifo_size)) {
++		dev_info(dev->dev, "Using FIFO (%u data)\n", dev->fifo_size);
++	}
++
++	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
++				  &bus_clk_rate);
++	if (rc)
++		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
++
++	at91_calc_twi_clock(dev, bus_clk_rate);
++
++	dev->adapter.algo = &at91_twi_algorithm;
++	dev->adapter.quirks = &at91_twi_quirks;
++
++	return 0;
++}
++
+ static int at91_twi_probe(struct platform_device *pdev)
+ {
+ 	struct at91_twi_dev *dev;
+ 	struct resource *mem;
+ 	int rc;
+ 	u32 phy_addr;
+-	u32 bus_clk_rate;
+ 
+ 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+ 		return -ENOMEM;
+-	init_completion(&dev->cmd_complete);
++
+ 	dev->dev = &pdev->dev;
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -1069,13 +1115,6 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	if (dev->irq < 0)
+ 		return dev->irq;
+ 
+-	rc = devm_request_irq(&pdev->dev, dev->irq, atmel_twi_interrupt, 0,
+-			 dev_name(dev->dev), dev);
+-	if (rc) {
+-		dev_err(dev->dev, "Cannot get irq %d: %d\n", dev->irq, rc);
+-		return rc;
+-	}
+-
+ 	platform_set_drvdata(pdev, dev);
+ 
+ 	dev->clk = devm_clk_get(dev->dev, NULL);
+@@ -1087,38 +1126,21 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	if (rc)
+ 		return rc;
+ 
+-	if (dev->dev->of_node) {
+-		rc = at91_twi_configure_dma(dev, phy_addr);
+-		if (rc == -EPROBE_DEFER) {
+-			clk_disable_unprepare(dev->clk);
+-			return rc;
+-		}
+-	}
+-
+-	if (!of_property_read_u32(pdev->dev.of_node, "atmel,fifo-size",
+-				  &dev->fifo_size)) {
+-		dev_info(dev->dev, "Using FIFO (%u data)\n", dev->fifo_size);
+-	}
+-
+-	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
+-			&bus_clk_rate);
+-	if (rc)
+-		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
+-
+-	at91_calc_twi_clock(dev, bus_clk_rate);
+-	at91_init_twi_bus(dev);
+-
+ 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+ 	i2c_set_adapdata(&dev->adapter, dev);
+ 	dev->adapter.owner = THIS_MODULE;
+ 	dev->adapter.class = I2C_CLASS_DEPRECATED;
+-	dev->adapter.algo = &at91_twi_algorithm;
+-	dev->adapter.quirks = &at91_twi_quirks;
+ 	dev->adapter.dev.parent = dev->dev;
+ 	dev->adapter.nr = pdev->id;
+ 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
+ 	dev->adapter.dev.of_node = pdev->dev.of_node;
+ 
++	rc = at91_twi_probe_master(pdev, phy_addr, dev);
++	if (rc)
++		return rc;
++
++	at91_init_twi_bus(dev);
++
+ 	pm_runtime_set_autosuspend_delay(dev->dev, AUTOSUSPEND_TIMEOUT);
+ 	pm_runtime_use_autosuspend(dev->dev);
+ 	pm_runtime_set_active(dev->dev);
 -- 
 2.7.4
