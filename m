@@ -1,7 +1,7 @@
 From: Arseny Solokha <asolokha@kb.kras.ru>
-Subject: [PATCH 3/4] i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
-Date: Fri, 10 Nov 2017 14:50:14 +0700
-Message-ID: <20171110075015.23906-4-asolokha@kb.kras.ru>
+Subject: [PATCH 2/4] i2c: mpc: unify obtaining the MPC8533/44 I2C clock prescaler w/ MPC8xxx
+Date: Fri, 10 Nov 2017 14:50:13 +0700
+Message-ID: <20171110075015.23906-3-asolokha@kb.kras.ru>
 References: <20171110075015.23906-1-asolokha@kb.kras.ru>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171110075015.23906-1-asolokha@kb.kras.ru>
@@ -10,41 +10,59 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vg
 Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
 List-Id: linux-i2c@vger.kernel.org
 
-According to the reference manuals for the corresponding SoCs, SEC
-frequency ratio configuration is indicated by bit 26 of the POR Device
-Status Register 2. Consequently, SEC_CFG bit should be tested by mask 0x20,
-not 0x80. Testing the wrong bit leads to selection of wrong I2C clock
-prescaler on those SoCs.
+Commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
+introduced the common helper function for obtaining the actual clock
+prescaler value for MPC85xx. However, getting the prescaler for MPC8544
+which depends on the SEC frequency ratio on this platform, has been always
+performed separately based on the corresponding Device Tree configuration.
+
+Move special handling of MPC8544 into that common helper. Make it dependent
+on the SoC version and not on Device Tree compatible node, as is the case
+with all other SoCs. Handle MPC8533 the same way which is similar
+to MPC8544 in this regard, according to AN2919 "Determining the I2C
+Frequency Divider Ratio for SCL".
 
 Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
 ---
- drivers/i2c/busses/i2c-mpc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index f47916466b82..8d60db0080f6 100644
+index bf0c86d41f1a..f47916466b82 100644
 --- a/drivers/i2c/busses/i2c-mpc.c
 +++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -332,14 +332,18 @@ static u32 mpc_i2c_get_sec_cfg_8xxx(void)
- 		if (prop) {
- 			/*
- 			 * Map and check POR Device Status Register 2
--			 * (PORDEVSR2) at 0xE0014
-+			 * (PORDEVSR2) at 0xE0014. Note than while MPC8533
-+			 * and MPC8544 indicate SEC frequency ratio
-+			 * configuration as bit 26 in PORDEVSR2, other MPC8xxx
-+			 * parts may store it differently or may not have it
-+			 * at all.
- 			 */
- 			reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
- 			if (!reg)
- 				printk(KERN_ERR
- 				       "Error: couldn't map PORDEVSR2\n");
- 			else
--				val = in_be32(reg) & 0x00000080; /* sec-cfg */
-+				val = in_be32(reg) & 0x00000020; /* sec-cfg */
- 			iounmap(reg);
- 		}
- 	}
+@@ -350,7 +350,11 @@ static u32 mpc_i2c_get_sec_cfg_8xxx(void)
+ 
+ static u32 mpc_i2c_get_prescaler_8xxx(void)
+ {
+-	/* mpc83xx and mpc82xx all have prescaler 1 */
++	/*
++	 * According to the AN2919 all MPC824x have prescaler 1, while MPC83xx
++	 * may have prescaler 1, 2, or 3, depending on the power-on
++	 * configuration.
++	 */
+ 	u32 prescaler = 1;
+ 
+ 	/* mpc85xx */
+@@ -367,6 +371,10 @@ static u32 mpc_i2c_get_prescaler_8xxx(void)
+ 			|| (SVR_SOC_VER(svr) == SVR_8610))
+ 			/* the above 85xx SoCs have prescaler 1 */
+ 			prescaler = 1;
++		else if ((SVR_SOC_VER(svr) == SVR_8533)
++			|| (SVR_SOC_VER(svr) == SVR_8544))
++			/* the above 85xx SoCs have prescaler 3 or 2 */
++			prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+ 		else
+ 			/* all the other 85xx have prescaler 2 */
+ 			prescaler = 2;
+@@ -383,8 +391,6 @@ static int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
+ 	int i;
+ 
+ 	/* Determine proper divider value */
+-	if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
+-		prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+ 	if (!prescaler)
+ 		prescaler = mpc_i2c_get_prescaler_8xxx();
+ 
 -- 
 2.15.0
