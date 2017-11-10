@@ -1,47 +1,50 @@
 From: Arseny Solokha <asolokha@kb.kras.ru>
-Subject: [PATCH 0/4] i2c: mpc: Clean up clock selection
-Date: Fri, 10 Nov 2017 14:50:11 +0700
-Message-ID: <20171110075015.23906-1-asolokha@kb.kras.ru>
+Subject: [PATCH 3/4] i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
+Date: Fri, 10 Nov 2017 14:50:14 +0700
+Message-ID: <20171110075015.23906-4-asolokha@kb.kras.ru>
+References: <20171110075015.23906-1-asolokha@kb.kras.ru>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171110075015.23906-1-asolokha@kb.kras.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
 List-Id: linux-i2c@vger.kernel.org
 
-This series cleans up I2C clock selection for Freescale/NXP MPC SoCs during
-the controller initialization for cases when clock settings are not to be
-preserved from the bootloader.
+According to the reference manuals for the corresponding SoCs, SEC
+frequency ratio configuration is indicated by bit 26 of the POR Device
+Status Register 2. Consequently, SEC_CFG bit should be tested by mask 0x20,
+not 0x80. Testing the wrong bit leads to selection of wrong I2C clock
+prescaler on those SoCs.
 
-Patch 1/4 fixes division by zero which happens during controller
-initialization when (1) clock frequency is not specified in the Device
-Tree, (2) preservation of clock settings from the bootloader is not
-requested, and (3) the clock prescaler (which may actually depend
-on the POR configuration) is not explicitly specified. It simply moves
-obtaining the prescaler value before the clock computation.
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+---
+ drivers/i2c/busses/i2c-mpc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Patch 2/4 unifies obtaining the prescaler value for MPC8544 with other
-SoCs. It moves the relevant code to the helper function introduced
-in commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
-and also adds handling of MPC8533 is similar to MPC8544 in this regard.
-
-Patch 3/4 fixes checking the relevant bit in a controller's register used
-for selecting the prescaler value for MPC8533 and MPC8544.
-
-Patch 4/4 removes the facility for setting the clock prescaler value
-at compile time. This facility is not used in the majority of cases. Getting
-the prescaler value at run time currently covers more SoCs. Hardcoding it
-is also wrong for some SoCs as it can be configured on board during POR.
-
-Arseny Solokha (4):
-  i2c: mpc: get MPC8xxx I2C clock prescaler before using it in
-    calculations
-  i2c: mpc: unify obtaining the MPC8533/44 I2C clock prescaler w/
-    MPC8xxx
-  i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
-  i2c: mpc: always determine I2C clock prescaler at runtime
-
- drivers/i2c/busses/i2c-mpc.c | 72 ++++++++++++++++++--------------------------
- 1 file changed, 30 insertions(+), 42 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index f47916466b82..8d60db0080f6 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -332,14 +332,18 @@ static u32 mpc_i2c_get_sec_cfg_8xxx(void)
+ 		if (prop) {
+ 			/*
+ 			 * Map and check POR Device Status Register 2
+-			 * (PORDEVSR2) at 0xE0014
++			 * (PORDEVSR2) at 0xE0014. Note than while MPC8533
++			 * and MPC8544 indicate SEC frequency ratio
++			 * configuration as bit 26 in PORDEVSR2, other MPC8xxx
++			 * parts may store it differently or may not have it
++			 * at all.
+ 			 */
+ 			reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
+ 			if (!reg)
+ 				printk(KERN_ERR
+ 				       "Error: couldn't map PORDEVSR2\n");
+ 			else
+-				val = in_be32(reg) & 0x00000080; /* sec-cfg */
++				val = in_be32(reg) & 0x00000020; /* sec-cfg */
+ 			iounmap(reg);
+ 		}
+ 	}
 -- 
 2.15.0
