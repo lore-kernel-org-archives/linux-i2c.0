@@ -1,68 +1,42 @@
-From: Arseny Solokha <asolokha@kb.kras.ru>
-Subject: [PATCH 2/4] i2c: mpc: unify obtaining the MPC8533/44 I2C clock prescaler w/ MPC8xxx
-Date: Fri, 10 Nov 2017 14:50:13 +0700
-Message-ID: <20171110075015.23906-3-asolokha@kb.kras.ru>
-References: <20171110075015.23906-1-asolokha@kb.kras.ru>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171110075015.23906-1-asolokha@kb.kras.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Support of DDR4 EEPROMs
+Date: Fri, 10 Nov 2017 10:14:16 +0100
+Message-ID: <20171110101416.14410124@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:46490 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751983AbdKJJOU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Nov 2017 04:14:20 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>
 
-Commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
-introduced the common helper function for obtaining the actual clock
-prescaler value for MPC85xx. However, getting the prescaler for MPC8544
-which depends on the SEC frequency ratio on this platform, has been always
-performed separately based on the corresponding Device Tree configuration.
+Hi all,
 
-Move special handling of MPC8544 into that common helper. Make it dependent
-on the SoC version and not on Device Tree compatible node, as is the case
-with all other SoCs. Handle MPC8533 the same way which is similar
-to MPC8544 in this regard, according to AN2919 "Determining the I2C
-Frequency Divider Ratio for SCL".
+My topic for SUSE Hackweek 16 is to add support for DDR4 memory modules
+to decode-dimms:
+https://hackweek.suse.com/16/projects/add-support-for-ddr4-to-decode-dimms
 
-Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
----
- drivers/i2c/busses/i2c-mpc.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+I naively thought it would only be about modifying the perl script to
+decode new fields and new values from the SPD EEPROM, however it turns
+out that the EEPROM themselves are different. Instead of regular
+24C02-style 256-byte EEPROMs, DDR4 memory modules use 512-byte EEPROMs.
+The trick is that they still use only 1 I2C address each in the
+0x50-0x57 range. You have to tinker with special commands in the
+0x30-0x37 range to select one of 2 256-byte pages that will be
+reachable through the 0x50-0x57 I2C address. And as far as I can, it
+switched all EEPROMs at once, which won't be easy to implement.
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index bf0c86d41f1a..f47916466b82 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -350,7 +350,11 @@ static u32 mpc_i2c_get_sec_cfg_8xxx(void)
- 
- static u32 mpc_i2c_get_prescaler_8xxx(void)
- {
--	/* mpc83xx and mpc82xx all have prescaler 1 */
-+	/*
-+	 * According to the AN2919 all MPC824x have prescaler 1, while MPC83xx
-+	 * may have prescaler 1, 2, or 3, depending on the power-on
-+	 * configuration.
-+	 */
- 	u32 prescaler = 1;
- 
- 	/* mpc85xx */
-@@ -367,6 +371,10 @@ static u32 mpc_i2c_get_prescaler_8xxx(void)
- 			|| (SVR_SOC_VER(svr) == SVR_8610))
- 			/* the above 85xx SoCs have prescaler 1 */
- 			prescaler = 1;
-+		else if ((SVR_SOC_VER(svr) == SVR_8533)
-+			|| (SVR_SOC_VER(svr) == SVR_8544))
-+			/* the above 85xx SoCs have prescaler 3 or 2 */
-+			prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
- 		else
- 			/* all the other 85xx have prescaler 2 */
- 			prescaler = 2;
-@@ -383,8 +391,6 @@ static int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
- 	int i;
- 
- 	/* Determine proper divider value */
--	if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
--		prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
- 	if (!prescaler)
- 		prescaler = mpc_i2c_get_prescaler_8xxx();
- 
+The standard in question is JEDEC EE1004. I'm not sure if we should add
+support to the at24 driver, or write a separate driver for such
+EEPROMs. Before I start working on that, I would like to ask if anybody
+is already working on it?
+
+Thanks,
 -- 
-2.15.0
+Jean Delvare
+SUSE L3 Support
