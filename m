@@ -1,134 +1,140 @@
-From: Niklas =?iso-8859-1?Q?S=F6derlund?=
-        <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCH] i2c: sh_mobile: send STOP according to datasheet
-Date: Fri, 10 Nov 2017 14:29:24 +0100
-Message-ID: <20171110132924.GB5458@bigcity.dyn.berto.se>
-References: <20171110115210.21955-1-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
+Date: Fri, 10 Nov 2017 15:50:38 +0100
+Message-ID: <20171110145038.i4jnqsctdzkfmoe5@ninjato>
+References: <20171107201857.5752-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="juvuuhnqneeo2yem"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:42942 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752522AbdKJOuk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Nov 2017 09:50:40 -0500
 Content-Disposition: inline
-In-Reply-To: <20171110115210.21955-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Jacopo Mondi <jacopo@jmondi.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+In-Reply-To: <20171107201857.5752-1-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>
 
-Hi Wolfram,
 
-On 2017-11-10 12:52:10 +0100, Wolfram Sang wrote:
-> We initiate STOP (or REP_START) on the second last WAIT interrupt
-> currently. This works fine but is not according to the datasheet which
-> says to do it on the last WAIT interrupt. This also simplifies the code
-> quite a lot, so let's do it.
+--juvuuhnqneeo2yem
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I like this change and I checked the flow diagrams in chapter '56.4
-Operation' of the Gen2 datasheet rev 2.0 and chapter '58.3 Operation' of 
-the Gen3 datasheet rev 0.80, and it makes sens for both.
+On Tue, Nov 07, 2017 at 09:18:57PM +0100, Linus Walleij wrote:
+> Arnd reported the following build bug bug:
+>=20
+> In file included from arch/arm/mach-sa1100/simpad.c:20:0:
+> arch/arm/mach-sa1100/include/mach/SA-1100.h:1118:18: error: large
+> integer implicitly truncated to unsigned type [-Werror=3Doverflow]
+>                       (0x00000001 << (Nb))
+>                       ^
+> include/linux/gpio/machine.h:56:16: note: in definition of macro
+> 'GPIO_LOOKUP_IDX'
+> .chip_hwnum =3D _chip_hwnum,
+>               ^~~~~~~~~~~
+> arch/arm/mach-sa1100/include/mach/SA-1100.h:1140:21: note: in
+> expansion of macro 'GPIO_GPIO'
+>                     ^~~~~~~~~
+> arch/arm/mach-sa1100/simpad.c:331:27: note: in expansion of
+> macro 'GPIO_GPIO21'
+>   GPIO_LOOKUP_IDX("gpio", GPIO_GPIO21, NULL, 0,
+>=20
+> This is what happened:
+>=20
+> commit b2e63555592f81331c8da3afaa607d8cf83e8138
+> "i2c: gpio: Convert to use descriptors"
+> commit 4d0ce62c0a02e41a65cfdcfe277f5be430edc371
+> "i2c: gpio: Augment all boardfiles to use open drain"
+> together uncovered an old bug in the Simpad board
+> file: as theGPIO_LOOKUP_IDX() encodes GPIO offsets
+> on gpiochips in an u16 (see <linux/gpio/machine.h>)
+> these GPIO "numbers" does not fit, since in
+> arch/arm/mach-sa1100/include/mach/SA-1100.h it is
+> defined as:
+>=20
+>   #define GPIO_GPIO(Nb) (0x00000001 << (Nb))
+>   (...)
+>   #define GPIO_GPIO21 GPIO_GPIO(21) /* GPIO [21] */
+>=20
+> This is however provably wrong, since the i2c-gpio
+> driver uses proper GPIO numbers, albeit earlier from
+> the global number space, whereas this GPIO_GPIO21
+> is the local line offset in the GPIO register, which
+> is used in other code but certainly not in the
+> gpiolib GPIO driver in drivers/gpio/gpio-sa1100.c, which
+> has code like this:
+>=20
+> static void sa1100_gpio_set(struct gpio_chip *chip,
+>                             unsigned offset, int value)
+> {
+>     int reg =3D value ? R_GPSR : R_GPCR;
+>=20
+>     writel_relaxed(BIT(offset),
+>         sa1100_gpio_chip(chip)->membase + reg);
+> }
+>=20
+> So far everything however compiled fine as an unsigned
+> int was used to pass the GPIO numbers in
+> struct i2c_gpio_platform_data. We can trace the actual error
+> back to
+>=20
+> commit dbd406f9d0a1d33a1303eb75cbe3f9435513d339
+> "ARM: 7025/1: simpad: add GPIO based device definitions."
+> This added the i2c_gpio with the wrong offsets.
+>=20
+> This commit was before the SA1100 was converted to use
+> the gpiolib, but as can be seen from the contemporary
+> gpio.c in mach-sa1100, it was already using:
+>=20
+> static int sa1100_gpio_get(struct gpio_chip *chip,
+>                            unsigned offset)
+> {
+>         return GPLR & GPIO_GPIO(offset);
+> }
+>=20
+> And GPIO_GPIO() is essentially the BIT() macro.
+>=20
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Jochen Friedrich <jochen@scram.de>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Russell King <linux@arm.linux.org.uk>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Applied to for-next, thanks!
 
-For Gen2 and Gen3:
+This from checkpatch makes sense to me:
 
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+ERROR: Please use git commit description style 'commit <12+ chars of sha1> =
+("<title line>")' - ie: 'commit b2e63555592f ("i2c: gpio: Convert to use de=
+scriptors")'
+#21:=20
+commit b2e63555592f81331c8da3afaa607d8cf83e8138
 
-> ---
-> 
-> Jacopo: another one to test, pretty please.
-> 
->  drivers/i2c/busses/i2c-sh_mobile.c | 29 ++++++-----------------------
->  1 file changed, 6 insertions(+), 23 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index 40a66d466c3c49..c904be631db302 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -40,21 +40,21 @@
->  /* BUS:     S     A8     ACK   P(*)                                         */
->  /* IRQ:       DTE   WAIT                                                    */
->  /* ICIC:                                                                    */
-> -/* ICCR: 0x94 0x90                                                          */
-> +/* ICCR: 0x94       0x90                                                    */
->  /* ICDR:      A8                                                            */
->  /*                                                                          */
->  /* 1 byte transmit                                                          */
->  /* BUS:     S     A8     ACK   D8(1)   ACK   P(*)                           */
->  /* IRQ:       DTE   WAIT         WAIT                                       */
->  /* ICIC:      -DTE                                                          */
-> -/* ICCR: 0x94       0x90                                                    */
-> +/* ICCR: 0x94                    0x90                                       */
->  /* ICDR:      A8    D8(1)                                                   */
->  /*                                                                          */
->  /* 2 byte transmit                                                          */
->  /* BUS:     S     A8     ACK   D8(1)   ACK   D8(2)   ACK   P(*)             */
->  /* IRQ:       DTE   WAIT         WAIT          WAIT                         */
->  /* ICIC:      -DTE                                                          */
-> -/* ICCR: 0x94                    0x90                                       */
-> +/* ICCR: 0x94                                  0x90                         */
->  /* ICDR:      A8    D8(1)        D8(2)                                      */
->  /*                                                                          */
->  /* 3 bytes or more, +---------+ gets repeated                               */
-> @@ -113,7 +113,6 @@ enum sh_mobile_i2c_op {
->  	OP_TX_FIRST,
->  	OP_TX,
->  	OP_TX_STOP,
-> -	OP_TX_STOP_DATA,
->  	OP_TX_TO_RX,
->  	OP_RX,
->  	OP_RX_STOP,
-> @@ -319,10 +318,7 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
->  	case OP_TX: /* write data */
->  		iic_wr(pd, ICDR, data);
->  		break;
-> -	case OP_TX_STOP_DATA: /* write data and issue a stop afterwards */
-> -		iic_wr(pd, ICDR, data);
-> -		/* fallthrough */
-> -	case OP_TX_STOP: /* issue a stop */
-> +	case OP_TX_STOP: /* issue a stop (or rep_start) */
->  		iic_wr(pd, ICCR, pd->send_stop ? ICCR_ICE | ICCR_TRS
->  					       : ICCR_ICE | ICCR_TRS | ICCR_BBSY);
->  		break;
-> @@ -356,11 +352,6 @@ static bool sh_mobile_i2c_is_first_byte(struct sh_mobile_i2c_data *pd)
->  	return pd->pos == -1;
->  }
->  
-> -static bool sh_mobile_i2c_is_last_byte(struct sh_mobile_i2c_data *pd)
-> -{
-> -	return pd->pos == pd->msg->len - 1;
-> -}
-> -
->  static void sh_mobile_i2c_get_data(struct sh_mobile_i2c_data *pd,
->  				   unsigned char *buf)
->  {
-> @@ -378,20 +369,12 @@ static int sh_mobile_i2c_isr_tx(struct sh_mobile_i2c_data *pd)
->  	unsigned char data;
->  
->  	if (pd->pos == pd->msg->len) {
-> -		/* Send stop if we haven't yet (DMA case) */
-> -		if (pd->send_stop && pd->stop_after_dma)
-> -			i2c_op(pd, OP_TX_STOP, 0);
-> +		i2c_op(pd, OP_TX_STOP, 0);
->  		return 1;
->  	}
->  
->  	sh_mobile_i2c_get_data(pd, &data);
-> -
-> -	if (sh_mobile_i2c_is_last_byte(pd))
-> -		i2c_op(pd, OP_TX_STOP_DATA, data);
-> -	else if (sh_mobile_i2c_is_first_byte(pd))
-> -		i2c_op(pd, OP_TX_FIRST, data);
-> -	else
-> -		i2c_op(pd, OP_TX, data);
-> +	i2c_op(pd, sh_mobile_i2c_is_first_byte(pd) ? OP_TX_FIRST : OP_TX, data);
->  
->  	pd->pos++;
->  	return 0;
-> -- 
-> 2.11.0
-> 
 
--- 
-Regards,
-Niklas Söderlund
+--juvuuhnqneeo2yem
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloFvLoACgkQFA3kzBSg
+KbbyVw//QBsv11+BvXF+GmBpmbDj+sa0CZUbIBd1/7m0jN/P8KE2DanxxB+BPjPd
+6HZhIZof/R2AJH6D2cBNC7wmPcW3RzYrdT48jkTn0a0KFEFTq2rRtUJWIA/axgxH
+qhWx/3vfMVJPa1xoddsOu0S2lL/rwAsDeJG0uRsriJEfLJ+Bfg3rE8VUIYcC8Cyz
+xV4mIZSo4YXJSJ3wkO3lzUx8lg6JoAZepNTabU4RP5d8muUemqMxLFy1Q6mTL02d
+mJviPzOZtgJb9HUGnndBy00vvPHImqr0G4ingPZEzO85zYzauXb6hz27Ss7CNhnm
+mYMekdhHzltNH1oZFC5m6zTMeR37rxLC7nn4/W11RUEIiqXK4pqevuQCL6Ph2ehB
++zFb9fBfDl+oh8uia4X0VItbGSXRuKxPn4KrV51S5PdOxEgHInSOgOAd1DDXmCov
+U/flKjHik7THnf795CPB+MwQw4sq2lKTNTjoViSLtm4lk93GASoIffefZ0r2f9pJ
+L/EN8qTl0CyrHcnLOeJ3aLFJxb32Ri/oPY7KCEaaqGw6gE+Q/mV5U2EJfOiUp68k
+7HWILLZV/hRtcZ5u4qgp2h4CnrlJT69+cYo/q/EZmHz2QtFuGH45o5Gb0x1DmRX8
+cbr3etZHtraBcp+IRP2zvg6Y/3YdMfxtt/OR+zpGE4ymoB9pOZo=
+=2SCJ
+-----END PGP SIGNATURE-----
+
+--juvuuhnqneeo2yem--
