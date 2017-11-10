@@ -1,84 +1,63 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH v5 4/7] i2c: designware: add i2c gpio recovery option
-Date: Fri, 10 Nov 2017 14:55:22 +0800
-Message-ID: <7abe16b1-4bfd-4427-8783-b3733ed9f06c@electromag.com.au>
-References: <1509590430-11968-1-git-send-email-preid@electromag.com.au>
- <1509984581.25007.47.camel@linux.intel.com>
- <a0265848-2496-d347-a40f-ce83e7dfd945@electromag.com.au>
- <2970055.FM06l9ul3d@dabox> <1510133354.25007.97.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Arseny Solokha <asolokha@kb.kras.ru>
+Subject: [PATCH 1/4] i2c: mpc: get MPC8xxx I2C clock prescaler before using it in calculations
+Date: Fri, 10 Nov 2017 14:50:12 +0700
+Message-ID: <20171110075015.23906-2-asolokha@kb.kras.ru>
+References: <20171110075015.23906-1-asolokha@kb.kras.ru>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:52298 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751113AbdKJGze (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Nov 2017 01:55:34 -0500
-In-Reply-To: <1510133354.25007.97.camel@linux.intel.com>
-Content-Language: en-AU
+Received: from ispman.iskranet.ru ([62.213.33.10]:41399 "EHLO
+        ispman.iskranet.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755499AbdKJH6T (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Nov 2017 02:58:19 -0500
+In-Reply-To: <20171110075015.23906-1-asolokha@kb.kras.ru>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Tim Sander <tim@krieglstein.org>
-Cc: nsekhar@ti.com, khilman@kernel.org, wsa@the-dreams.de, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
 
-On 8/11/2017 17:29, Andy Shevchenko wrote:
-> On Wed, 2017-11-08 at 09:29 +0100, Tim Sander wrote:
-> 
->>>> How do we switch pinctrl back to the native function? Is it
->>>> guaranteed
->>>> by pinctrl framework and all underneath drivers?
->>> That is a good question. I don't have an understanding of how the
->>> pinctrl
->>> framework works with respect to requesting gpios.
->>> My device (Intel / Altera Cyclone V SOC) doesn't have a pinctrl for
->>> the i2c
->>> / gpio mux as yet.
->>
->> According to the documentation from Intel/Altera it is not allowed to
->> change
->> the pinmux while running.
-> 
-> The driver is used on many platforms and requesting GPIO function while
-> running _is_ a pinmux change. >
->>   My guess is that they are using a shift chain, so
->> the output values of all pins in the chain are not stable. I think
->> they have
->> been lazy and just used the io config for fpgas with an jtag
->> controller and
->> connected the shift chain for pinconfig to this controller. So
->> unfortunatly it
->> is not possible to switch single pins on the run without interfering
->> with
->> other pins.
-> 
-> ...for this certain SoC.
-> 
->>> It's all setup by the bootloader and they don't expect
->>> you to change it. I'm using two separate GPIO's "wired" to the i2c
->>> bus via
->>> the SOC FPGA for the recovery. Tim was doing the same.
->>
->> Yes, i think thats the only way. But it is annoying that the i2c
->> controllers
->> of 201x have no way to recover from such bus errors >:-(.
-> 
-> Yep, it's pity, and we need to cope somehow with it.
-> 
-> So, my understanding of the current case is that either this change goes in only for certain SoC(s), or waiting until there is a guarantee from pinctrl subsystem to return function to native back when recovery finished.
-> 
-> My personal vote is for latter.
-> 
+Obtaining the actual I2C clock prescaler value in mpc_i2c_setup_8xxx() only
+happens when the clock parameter is set to something other than
+MPC_I2C_CLOCK_LEGACY. When the clock parameter is exactly
+MPC_I2C_CLOCK_LEGACY, the prescaler parameter is used in arithmetic
+division as provided by the caller, resulting in a division by zero
+for the majority of processors supported by the module.
 
-I'm not sure my change set will affect anything..
-Current drivers using the gpio functions are requesting the gpio using the old interface.
-If releasing the gpio doesn't restore the original functionality than nothing changes with this series.
+Avoid division by zero by obtaining the actual I2C clock prescaler
+in mpc_i2c_setup_8xxx() unconditionally regardless of the passed clock
+value.
 
-For the designware driver, the recovery code wont be called unless the gpio's are specified via the device tree.
-So the pinmux config shouldn't get changed.
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+---
+ drivers/i2c/busses/i2c-mpc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-It'd be nice to have the code in mainline even if most soc's can't use it as yet.
-
-
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 96caf378b1dc..bf0c86d41f1a 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -382,18 +382,18 @@ static int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
+ 	u32 divider;
+ 	int i;
+ 
+-	if (clock == MPC_I2C_CLOCK_LEGACY) {
+-		/* see below - default fdr = 0x1031 -> div = 16 * 3072 */
+-		*real_clk = fsl_get_sys_freq() / prescaler / (16 * 3072);
+-		return -EINVAL;
+-	}
+-
+ 	/* Determine proper divider value */
+ 	if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
+ 		prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+ 	if (!prescaler)
+ 		prescaler = mpc_i2c_get_prescaler_8xxx();
+ 
++	if (clock == MPC_I2C_CLOCK_LEGACY) {
++		/* see below - default fdr = 0x1031 -> div = 16 * 3072 */
++		*real_clk = fsl_get_sys_freq() / prescaler / (16 * 3072);
++		return -EINVAL;
++	}
++
+ 	divider = fsl_get_sys_freq() / clock / prescaler;
+ 
+ 	pr_debug("I2C: src_clock=%d clock=%d divider=%d\n",
 -- 
-Regards
-Phil Reid
+2.15.0
