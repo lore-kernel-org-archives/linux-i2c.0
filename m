@@ -1,154 +1,78 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v6 6/9] i2c: smbus: use DMA safe buffers for emulated
- SMBus transactions
-Date: Sat, 11 Nov 2017 00:13:26 +0000
-Message-ID: <20171111001326.0000349b@huawei.com>
-References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
-        <20171104202009.3818-7-wsa+renesas@sang-engineering.com>
+From: Sebastian Reichel <sre@kernel.org>
+Subject: Re: [PATCH] power: supply: sbs-message: double left shift bug in
+ sbsm_select()
+Date: Mon, 13 Nov 2017 11:55:24 +0100
+Message-ID: <20171113105524.xdiusofmau36zdeu@earth>
+References: <20171107124322.mm3fqkrggw3zidrx@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:10516 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754967AbdKKANs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 10 Nov 2017 19:13:48 -0500
-In-Reply-To: <20171104202009.3818-7-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="65nbnsdmfj5tfvha"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171107124322.mm3fqkrggw3zidrx@mwanda>
+Sender: linux-pm-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, linux-pm@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mark Brown <broonie@kernel.org>
 
-On Sat, 4 Nov 2017 21:20:06 +0100
-Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-> For all block commands, try to allocate a DMA safe buffer and mark it
-> accordingly. Only use the stack, if the buffers cannot be allocated.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+--65nbnsdmfj5tfvha
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmm. Interesting balance here as this adds allocations to paths where the i2c
-master can't take advantage.  Not ideal, but perhaps not worth the hassle
-of working around it?
+Hi,
 
-It's only for the block calls I guess so not that major an issue.
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+On Tue, Nov 07, 2017 at 03:43:22PM +0300, Dan Carpenter wrote:
+> The original code does this: "1 << (1 << 11)" which is undefined in C.
+>=20
+> Fixes: dbc4deda03fe ("power: Adds support for Smart Battery System Manage=
+r")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 > ---
->  drivers/i2c/i2c-core-smbus.c | 45 ++++++++++++++++++++++++++++++++++++++------
->  1 file changed, 39 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> index 4bb9927afd0106..931c274fe26809 100644
-> --- a/drivers/i2c/i2c-core-smbus.c
-> +++ b/drivers/i2c/i2c-core-smbus.c
-> @@ -18,6 +18,7 @@
->  #include <linux/err.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-smbus.h>
-> +#include <linux/slab.h>
->  
->  #define CREATE_TRACE_POINTS
->  #include <trace/events/smbus.h>
-> @@ -291,6 +292,22 @@ s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client, u8 command,
->  }
->  EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
->  
-> +static void i2c_smbus_try_get_dmabuf(struct i2c_msg *msg, u8 init_val)
-> +{
-> +	bool is_read = msg->flags & I2C_M_RD;
-> +	unsigned char *dma_buf;
-> +
-> +	dma_buf = kzalloc(I2C_SMBUS_BLOCK_MAX + (is_read ? 2 : 3), GFP_KERNEL);
-> +	if (!dma_buf)
-> +		return;
-> +
-> +	msg->buf = dma_buf;
-> +	msg->flags |= I2C_M_DMA_SAFE;
-> +
-> +	if (init_val)
-> +		msg->buf[0] = init_val;
-> +
-> +}
->  /* Simulate a SMBus command using the i2c protocol
->     No checking of parameters is done!  */
->  static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
-> @@ -368,6 +385,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  			msg[1].flags |= I2C_M_RECV_LEN;
->  			msg[1].len = 1; /* block length will be added by
->  					   the underlying bus driver */
-> +			i2c_smbus_try_get_dmabuf(&msg[1], 0);
->  		} else {
->  			msg[0].len = data->block[0] + 2;
->  			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 2) {
-> @@ -376,8 +394,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  					data->block[0]);
->  				return -EINVAL;
->  			}
-> +
-> +			i2c_smbus_try_get_dmabuf(&msg[0], command);
->  			for (i = 1; i < msg[0].len; i++)
-> -				msgbuf0[i] = data->block[i-1];
-> +				msg[0].buf[i] = data->block[i-1];
->  		}
->  		break;
->  	case I2C_SMBUS_BLOCK_PROC_CALL:
-> @@ -389,16 +409,21 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  				data->block[0]);
->  			return -EINVAL;
->  		}
-> +
->  		msg[0].len = data->block[0] + 2;
-> +		i2c_smbus_try_get_dmabuf(&msg[0], command);
->  		for (i = 1; i < msg[0].len; i++)
-> -			msgbuf0[i] = data->block[i-1];
-> +			msg[0].buf[i] = data->block[i-1];
-> +
->  		msg[1].flags |= I2C_M_RECV_LEN;
->  		msg[1].len = 1; /* block length will be added by
->  				   the underlying bus driver */
-> +		i2c_smbus_try_get_dmabuf(&msg[1], 0);
->  		break;
->  	case I2C_SMBUS_I2C_BLOCK_DATA:
->  		if (read_write == I2C_SMBUS_READ) {
->  			msg[1].len = data->block[0];
-> +			i2c_smbus_try_get_dmabuf(&msg[1], 0);
->  		} else {
->  			msg[0].len = data->block[0] + 1;
->  			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 1) {
-> @@ -407,8 +432,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  					data->block[0]);
->  				return -EINVAL;
->  			}
-> +
-> +			i2c_smbus_try_get_dmabuf(&msg[0], command);
->  			for (i = 1; i <= data->block[0]; i++)
-> -				msgbuf0[i] = data->block[i];
-> +				msg[0].buf[i] = data->block[i];
->  		}
->  		break;
->  	default:
-> @@ -456,14 +483,20 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  			break;
->  		case I2C_SMBUS_I2C_BLOCK_DATA:
->  			for (i = 0; i < data->block[0]; i++)
-> -				data->block[i+1] = msgbuf1[i];
-> +				data->block[i+1] = msg[1].buf[i];
->  			break;
->  		case I2C_SMBUS_BLOCK_DATA:
->  		case I2C_SMBUS_BLOCK_PROC_CALL:
-> -			for (i = 0; i < msgbuf1[0] + 1; i++)
-> -				data->block[i] = msgbuf1[i];
-> +			for (i = 0; i < msg[1].buf[0] + 1; i++)
-> +				data->block[i] = msg[1].buf[i];
->  			break;
->  		}
-> +
-> +	if (msg[0].flags & I2C_M_DMA_SAFE)
-> +		kfree(msg[0].buf);
-> +	if (msg[1].flags & I2C_M_DMA_SAFE)
-> +		kfree(msg[1].buf);
-> +
->  	return 0;
->  }
->  
+> From static analysis.  Not tested.
+>=20
+> diff --git a/drivers/power/supply/sbs-manager.c b/drivers/power/supply/sb=
+s-manager.c
+> index ccb4217b9638..cb6e8f66c7a2 100644
+> --- a/drivers/power/supply/sbs-manager.c
+> +++ b/drivers/power/supply/sbs-manager.c
+> @@ -183,7 +183,7 @@ static int sbsm_select(struct i2c_mux_core *muxc, u32=
+ chan)
+>  		return ret;
+> =20
+>  	/* chan goes from 1 ... 4 */
+> -	reg =3D 1 << BIT(SBSM_SMB_BAT_OFFSET + chan);
+> +	reg =3D BIT(SBSM_SMB_BAT_OFFSET + chan);
+>  	ret =3D sbsm_write_word(data->client, SBSM_CMD_BATSYSSTATE, reg);
+>  	if (ret)
+>  		dev_err(dev, "Failed to select channel %i\n", chan);
+
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+
+sbs-manager has been added to linux-next through the i2c tree due to
+dependencies, so this one also needs to go through i2c.
+
+-- Sebastian
+
+--65nbnsdmfj5tfvha
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAloJehkACgkQ2O7X88g7
++poN+Q/+PWC/wbKnUw50qQkdlp4OPbbaZ4ktchc0U+R4ntpuNQag4OF8RQQeY0yH
+8PWlOZ5cbYOyU8t9DdKRwJ0XZfjabfRnH+zuE5E8beYf9HEcwgJPDVOAcFhXcrmv
+cZ5lQ1NJQQucHLydxsXj2vBH9+vINEvVjQbomOnjZ+5FKqcoguGiHulsxQiIGfv2
+ChxkMXDpHbEzeOQM9pXVcXbCdb7NgRswGPYut4c+hyowOoQU6QV3D+LyEchm3Z/4
+Yl0R1qclqLSLHr+tNRuhb+cC0ICUdCxFfgCbjhtxuoR41BoIesybekqKq0xGbBNP
+aFW9+faqL3YTlpT/baY8eBhVY79tsoeb2130ryaAHZPpZ/SItcrmOOyYudBRKu+N
+HzAYnBp2GuP1a4Qnuczqq1zAoXaQmTPEpA0TSxrklpw5XD+14MfL+vsVbnUVXiQl
+eCQTrhCrpxyOOALaCXyqV1Gp5yvPSB9i+fTTnUX7OqQ+nLs96GAXg53h1sqsQj+M
+Io9I0ZHH/o+MXVh+T0knKc5QT1gFZcqxoPYQGvpjKeMNED5K5pxFFB5FnMadY+KQ
+0R7NJmvNJBlAvOIpD59qYdYH/REYFl/wptI81qyv1OgQ1X1z2VbapHqmIyKj8N65
+dBNyaC7JoktkEJGvuXRZRUACnoZKdnYREu9F/UKdxGVLj3WPyII=
+=ipBr
+-----END PGP SIGNATURE-----
+
+--65nbnsdmfj5tfvha--
