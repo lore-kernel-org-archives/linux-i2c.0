@@ -1,7 +1,7 @@
 From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Subject: [PATCH 6/6] i2c: rcar: document R8A77970 bindings
-Date: Wed, 15 Nov 2017 16:25:26 +0100
-Message-ID: <1510759526-30346-7-git-send-email-ulrich.hecht+renesas@gmail.com>
+Subject: [PATCH 1/6] pinctrl: sh-pfc: r8a77995: add missing pins SCL0 and SDA0 to pinmux data
+Date: Wed, 15 Nov 2017 16:25:21 +0100
+Message-ID: <1510759526-30346-2-git-send-email-ulrich.hecht+renesas@gmail.com>
 References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 In-Reply-To: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
@@ -10,24 +10,25 @@ To: linux-renesas-soc@vger.kernel.org, horms@verge.net.au, wsa@the-dreams.de, ge
 Cc: magnus.damm@gmail.com, linux-i2c@vger.kernel.org, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-R-Car D3 (R8A77995) SoC has a R-Car Gen3-compatible I2C controller.
+Required for I2C0 operation.
 
 Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/sh-pfc/pfc-r8a77995.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index a777477..e91dbaf 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-@@ -14,6 +14,7 @@ Required properties:
- 	"renesas,i2c-r8a7795" if the device is a part of a R8A7795 SoC.
- 	"renesas,i2c-r8a7796" if the device is a part of a R8A7796 SoC.
- 	"renesas,i2c-r8a77970" if the device is a part of a R8A77970 SoC.
-+	"renesas,i2c-r8a77995" if the device is a part of a R8A77995 SoC.
- 	"renesas,rcar-gen1-i2c" for a generic R-Car Gen1 compatible device.
- 	"renesas,rcar-gen2-i2c" for a generic R-Car Gen2 or RZ/G1 compatible
- 				device.
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77995.c b/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
+index 89b7541..2c9a71a 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
+@@ -518,6 +518,8 @@ static const u16 pinmux_data[] = {
+ 	PINMUX_SINGLE(QSPI0_MISO_IO1),
+ 	PINMUX_SINGLE(QSPI0_MOSI_IO0),
+ 	PINMUX_SINGLE(QSPI0_SPCLK),
++	PINMUX_SINGLE(SCL0),
++	PINMUX_SINGLE(SDA0),
+ 
+ 	/* IPSR0 */
+ 	PINMUX_IPSR_MSEL(IP0_3_0,	IRQ0_A, SEL_IRQ_0_0),
 -- 
 2.7.4
