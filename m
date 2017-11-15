@@ -1,56 +1,62 @@
-From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Subject: [PATCH 4/6] arm64: renesas: draak: enable I2C controller 0 and EEPROM
-Date: Wed, 15 Nov 2017 16:25:24 +0100
-Message-ID: <1510759526-30346-5-git-send-email-ulrich.hecht+renesas@gmail.com>
-References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-renesas-soc@vger.kernel.org, horms@verge.net.au, wsa@the-dreams.de, geert@linux-m68k.org
-Cc: magnus.damm@gmail.com, linux-i2c@vger.kernel.org, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+From: Alban Browaeys <alban.browaeys@gmail.com>
+Subject: [PATCH] i2c: i801: Fix SMBus ENXIO on resume from suspend.
+Date: Wed, 15 Nov 2017 18:01:56 +0100
+Message-ID: <20171115170156.21532-1-alban.browaeys@gmail.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:39029 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932406AbdKORCR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Nov 2017 12:02:17 -0500
+Received: by mail-wm0-f65.google.com with SMTP id l8so4313145wmg.4
+        for <linux-i2c@vger.kernel.org>; Wed, 15 Nov 2017 09:02:16 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Alban Browaeys <alban.browaeys@gmail.com>
 
-Enables EEPROM on I2C0 on the Draak board.
+Disabling I2C_EN on resume as it was restored in
+suspend when we set pci config to its original value.
 
-Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+ENXIO landing in rmi_smb_get_version,  i2c-i802 debug
+pointing at i801_check_post and guesswork from reading
+probe which has this tweak.
+
+i801_smbus 0000:00:1f.3: No response
+rmi4_smbus 0-002c: failed to get SMBus version number!
+i801_smbus 0000:00:1f.3: No response
+rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read current IRQ mask.
+i801_smbus 0000:00:1f.3: No response
+rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -6.
+rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
+rmi4_physical rmi4-00: Failed to suspend functions: -6
+rmi4_smbus 0-002c: Failed to resume device: -6
+rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03 TX register (-6).
+i801_smbus 0000:00:1f.3: No response
+rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03 TX register (-6).
+
+Signed-off-by: Alban Browaeys <alban.browaeys@gmail.com>
 ---
- arch/arm64/boot/dts/renesas/r8a77995-draak.dts | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/i2c/busses/i2c-i801.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-index 09de73b..64a6339 100644
---- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-@@ -46,6 +46,11 @@
- 		};
- 	};
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 9e12a53ef7b8..b7b6c8ee2176 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1707,9 +1707,14 @@ static int i801_suspend(struct device *dev)
  
-+	i2c0_pins: i2c0 {
-+		groups = "i2c0";
-+		function = "i2c0";
-+	};
-+
- 	pwm0_pins: pwm0 {
- 		groups = "pwm0_c";
- 		function = "pwm0";
-@@ -67,6 +72,18 @@
- 	};
- };
+ static int i801_resume(struct device *dev)
+ {
++	unsigned char temp;
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct i801_priv *priv = pci_get_drvdata(pci_dev);
  
-+&i2c0 {
-+	pinctrl-0 = <&i2c0_pins>;
-+	pinctrl-names = "default";
-+	status = "okay";
++	pci_read_config_byte(pci_dev, SMBHSTCFG, &temp);
++	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
++	pci_write_config_byte(pci_dev, SMBHSTCFG, temp);
 +
-+	eeprom@50 {
-+		compatible = "atmel,24c01";
-+		reg = <0x50>;
-+		pagesize = <8>;
-+	};
-+};
-+
- &ehci0 {
- 	status = "okay";
- };
+ 	i801_enable_host_notify(&priv->adapter);
+ 
+ 	return 0;
 -- 
-2.7.4
+2.15.0
