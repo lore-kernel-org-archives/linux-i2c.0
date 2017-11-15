@@ -1,7 +1,7 @@
 From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Subject: [PATCH 1/6] pinctrl: sh-pfc: r8a77995: add missing pins SCL0 and SDA0 to pinmux data
-Date: Wed, 15 Nov 2017 16:25:21 +0100
-Message-ID: <1510759526-30346-2-git-send-email-ulrich.hecht+renesas@gmail.com>
+Subject: [PATCH 4/6] arm64: renesas: draak: enable I2C controller 0 and EEPROM
+Date: Wed, 15 Nov 2017 16:25:24 +0100
+Message-ID: <1510759526-30346-5-git-send-email-ulrich.hecht+renesas@gmail.com>
 References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 In-Reply-To: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
@@ -10,25 +10,47 @@ To: linux-renesas-soc@vger.kernel.org, horms@verge.net.au, wsa@the-dreams.de, ge
 Cc: magnus.damm@gmail.com, linux-i2c@vger.kernel.org, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Required for I2C0 operation.
+Enables EEPROM on I2C0 on the Draak board.
 
 Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a77995.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/renesas/r8a77995-draak.dts | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77995.c b/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
-index 89b7541..2c9a71a 100644
---- a/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a77995.c
-@@ -518,6 +518,8 @@ static const u16 pinmux_data[] = {
- 	PINMUX_SINGLE(QSPI0_MISO_IO1),
- 	PINMUX_SINGLE(QSPI0_MOSI_IO0),
- 	PINMUX_SINGLE(QSPI0_SPCLK),
-+	PINMUX_SINGLE(SCL0),
-+	PINMUX_SINGLE(SDA0),
+diff --git a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+index 09de73b..64a6339 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+@@ -46,6 +46,11 @@
+ 		};
+ 	};
  
- 	/* IPSR0 */
- 	PINMUX_IPSR_MSEL(IP0_3_0,	IRQ0_A, SEL_IRQ_0_0),
++	i2c0_pins: i2c0 {
++		groups = "i2c0";
++		function = "i2c0";
++	};
++
+ 	pwm0_pins: pwm0 {
+ 		groups = "pwm0_c";
+ 		function = "pwm0";
+@@ -67,6 +72,18 @@
+ 	};
+ };
+ 
++&i2c0 {
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	eeprom@50 {
++		compatible = "atmel,24c01";
++		reg = <0x50>;
++		pagesize = <8>;
++	};
++};
++
+ &ehci0 {
+ 	status = "okay";
+ };
 -- 
 2.7.4
