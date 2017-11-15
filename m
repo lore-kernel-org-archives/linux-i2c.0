@@ -1,75 +1,55 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH] power: supply: sbs-message: double left shift bug in
- sbsm_select()
-Date: Wed, 15 Nov 2017 11:05:16 +0100
-Message-ID: <20171115100516.andgvd6gvdcrv46y@earth>
-References: <20171107124322.mm3fqkrggw3zidrx@mwanda>
- <20171113105524.xdiusofmau36zdeu@earth>
- <20171113110231.ixxeszux3d7agojv@ninjato>
- <20171115074544.5mxmjb66nqkzwyqo@ninjato>
+From: " M,Shakour Rosarita" <hassanamira04@gmail.com>
+Subject: Hello Dear...
+Date: Wed, 15 Nov 2017 11:34:29 +0000
+Message-ID: <CADmkupg0xBAVBPJTQH6kqm2O55RzkF38J1GMSnoSxuHD5rDUDg__4228.4605246552$1510745735$gmane$org@mail.gmail.com>
+Reply-To: mshakourrosarita22@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="be6ipm5etwn2o756"
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171115074544.5mxmjb66nqkzwyqo@ninjato>
-Sender: linux-pm-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>, Karl-Heinz Schneider <karl-heinz@schneider-inet.de>, linux-pm@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:53800 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757856AbdKOLeb (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Nov 2017 06:34:31 -0500
+Received: by mail-qt0-f193.google.com with SMTP id n61so33511910qte.10
+        for <linux-i2c@vger.kernel.org>; Wed, 15 Nov 2017 03:34:31 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Dear...
 
---be6ipm5etwn2o756
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I know that this message will come to you as a surprise. I hoped that
+you will not expose or betray this trust and confident that I am about
+to repose on you, my name is M, Shakour Rosarita. I am 19 years old
+Girl, female, from Tartu Syria, (never married) 61 kg, white in
+complexion, and I am currently living in the refugee camp here in
+Abidjan Ivory Coast, My late beloved father M,Shakour Hassin was a
+renowned businessman and owner of Natour Petrol Station in Syria, he
+was killed in a stampede riot in Tartu, Syria.
+When I got the news about my parents. I fled to a nearby country
+Jordan before I joined a ferry to Africa and came to Abidjan capital
+city Ivory Coast West Africa find safety here.
+I came in 2015 to Abidjan and I now live in refugee camps here as
+refugees are allowed freely to enter here without, My late father
+deposited (US$6.200.000.00m) My late father kept the money at the bank
+of Africa, I want you to help me transfer the money to your hand so
+that you will help me bring me into your country for my continue
+education.
 
-Hi,
+I sent my pictures here for you to see. Who I am seriously looking for
+a good-person in my life, so I want to hear from you soon and learn
+more about you.
 
-On Wed, Nov 15, 2017 at 08:45:44AM +0100, Wolfram Sang wrote:
-> > > >  	/* chan goes from 1 ... 4 */
-> > > > -	reg =3D 1 << BIT(SBSM_SMB_BAT_OFFSET + chan);
-> > > > +	reg =3D BIT(SBSM_SMB_BAT_OFFSET + chan);
-> > > >  	ret =3D sbsm_write_word(data->client, SBSM_CMD_BATSYSSTATE, reg);
-> > > >  	if (ret)
-> > > >  		dev_err(dev, "Failed to select channel %i\n", chan);
-> > >=20
-> > > Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> > >=20
-> > > sbs-manager has been added to linux-next through the i2c tree due to
-> > > dependencies, so this one also needs to go through i2c.
-> >=20
-> > I want to send Linus my pull request early this time (like today or
-> > tomorrow). So, you either apply this patch then yourself afterwards on
-> > top of linus' tree. Or I send it to him, but then I'd need the original
-> > patch bounced or resent. Both fine with me.
->=20
-> The sbs-manager code is in linus' tree now. How would you like to
-> proceed?
-
-I plan to send my pull request today and will take it during the -rc phase
-through the power-supply tree. Thanks,
-
--- Sebastian
-
---be6ipm5etwn2o756
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAloMEVYACgkQ2O7X88g7
-+prdVA/5AUxAhdzkXvIsSD27XYpyVoiCOeTJi4Li9TmpWwtVUFZ56vtGU+Uk8gQv
-377t9YdNA/CAHuZBA31+yloQvh+HV9wWY5mVjtizyS28O/iv0I3PCjEcEaNMDTYL
-crPeeYK41CRNj5vN9ijfJC6eekZ5xS6oNWkkAoDOit8B9dBTGW9A71VYmNjTKnq0
-WjLZpy8qqAC1g/7Mk/JPts4bfokf5ZrnqK/3T0XYvzasACVBNocT8GvKwQolYt6E
-Vo6GClshhjaTjphNoxwjrn+nv01JDWXNQy0X5771ODXRomLMxuQQBgwXhEWsTb1s
-fn1i8qyFDRxECoyV7Axy9io7CILpycyAzVMJkyIRVbaT1sNqMbMjMtskTDB8QXoc
-RnovIBFG+VxJ47ng1QrkRF/lab+PMC0+PHMFhHnErPH1nDAJxGWmu23464o/9vvy
-QlYnZ98JqrkyVI5W5lSYi/LhxofvedtGCkalABfNbN6JETHmk0kDpR5KUN/wNGBr
-kugzZKwhBrDrsVjk5uMuVxG0FD1XbvFrAN9PkAcBTKeywG5egKCFlSIWbmB5ligl
-C1PrRzqw/E8KeHkkptINwXttt25+WBy/e72InVb8eF5QrAvgSdW0aC/Rcf/OhApU
-UHWPwHVEGCIYIaX5MlVL4YdH5waxPU7qqLoGSMHxkY/kj0EDVNU=
-=hJAU
------END PGP SIGNATURE-----
-
---be6ipm5etwn2o756--
+I am an open-minded and friendly girl to share a good time with you
+and have fun and enjoy on the go, bird watching, the rest of our
+lives. My Hobbies, tourism books, dance, music, soccer, tennis,
+swimming and cinema.
+I would just think about you, including your dose and doesn=E2=80=99t .I
+believe we will do well together, and live like one family.
+Thank you and God bless you, for you in your promise to help me here,
+looking forward to your reply by the grace of God and have a good day.
+I hope you send me your photos as well? I await your next reply in
+faith please reply through my private email at
+(mshakourrosarita22@gmail.com):
+Thanks.
+Ms Rosarita
