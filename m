@@ -1,55 +1,51 @@
-From: " M,Shakour Rosarita" <hassanamira04@gmail.com>
-Subject: Hello Dear...
-Date: Wed, 15 Nov 2017 11:34:29 +0000
-Message-ID: <CADmkupg0xBAVBPJTQH6kqm2O55RzkF38J1GMSnoSxuHD5rDUDg__4228.4605246552$1510745735$gmane$org@mail.gmail.com>
-Reply-To: mshakourrosarita22@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:53800 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757856AbdKOLeb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Nov 2017 06:34:31 -0500
-Received: by mail-qt0-f193.google.com with SMTP id n61so33511910qte.10
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Nov 2017 03:34:31 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RFT] i2c: sh_mobile: make sure to not accidently trigger STOP
+Date: Wed, 15 Nov 2017 15:32:21 +0100
+Message-ID: <20171115143221.30618-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jacopo Mondi <jacopo@jmondi.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Dear...
+The datasheet was a bit vague, but after consultation with HW designers,
+we came to the conclusion that we should set the SCP bit always when
+dealing only with the ICE bit. A set SCP bit is ignored, and thus fine,
+a cleared one may trigger STOP on the bus.
 
-I know that this message will come to you as a surprise. I hoped that
-you will not expose or betray this trust and confident that I am about
-to repose on you, my name is M, Shakour Rosarita. I am 19 years old
-Girl, female, from Tartu Syria, (never married) 61 kg, white in
-complexion, and I am currently living in the refugee camp here in
-Abidjan Ivory Coast, My late beloved father M,Shakour Hassin was a
-renowned businessman and owner of Natour Petrol Station in Syria, he
-was killed in a stampede riot in Tartu, Syria.
-When I got the news about my parents. I fled to a nearby country
-Jordan before I joined a ferry to Africa and came to Abidjan capital
-city Ivory Coast West Africa find safety here.
-I came in 2015 to Abidjan and I now live in refugee camps here as
-refugees are allowed freely to enter here without, My late father
-deposited (US$6.200.000.00m) My late father kept the money at the bank
-of Africa, I want you to help me transfer the money to your hand so
-that you will help me bring me into your country for my continue
-education.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-I sent my pictures here for you to see. Who I am seriously looking for
-a good-person in my life, so I want to hear from you soon and learn
-more about you.
+Jacopo: another to test, please. On top of all the other patches. Thank you!
 
-I am an open-minded and friendly girl to share a good time with you
-and have fun and enjoy on the go, bird watching, the rest of our
-lives. My Hobbies, tourism books, dance, music, soccer, tennis,
-swimming and cinema.
-I would just think about you, including your dose and doesn=E2=80=99t .I
-believe we will do well together, and live like one family.
-Thank you and God bless you, for you in your promise to help me here,
-looking forward to your reply by the grace of God and have a good day.
-I hope you send me your photos as well? I await your next reply in
-faith please reply through my private email at
-(mshakourrosarita22@gmail.com):
-Thanks.
-Ms Rosarita
+ drivers/i2c/busses/i2c-sh_mobile.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 9012d5f8fb38b8..c2841a4f5807c0 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -604,10 +604,10 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
+ 
+ 	if (do_init) {
+ 		/* Initialize channel registers */
+-		iic_wr(pd, ICCR, 0);
++		iic_wr(pd, ICCR, ICCR_SCP);
+ 
+ 		/* Enable channel and configure rx ack */
+-		iic_wr(pd, ICCR, ICCR_ICE);
++		iic_wr(pd, ICCR, ICCR_ICE | ICCR_SCP);
+ 
+ 		/* Set the clock */
+ 		iic_wr(pd, ICCL, pd->iccl & 0xff);
+@@ -723,7 +723,7 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+ 	}
+ 
+ 	/* Disable channel */
+-	iic_wr(pd, ICCR, 0);
++	iic_wr(pd, ICCR, ICCR_SCP);
+ 
+ 	/* Disable clock and mark device as idle */
+ 	pm_runtime_put_sync(pd->dev);
+-- 
+2.11.0
