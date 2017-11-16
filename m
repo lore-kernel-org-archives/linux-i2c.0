@@ -1,84 +1,34 @@
-From: Alban Browaeys <alban.browaeys@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Fix SMBus ENXIO on resume from suspend.
-Date: Wed, 15 Nov 2017 21:25:25 +0100
-Message-ID: <1510777525.21208.4.camel@gmail.com>
-References: <20171115170156.21532-1-alban.browaeys@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/6] pinctrl: sh-pfc: r8a77995: add missing pins SCL0 and
+ SDA0 to pinmux data
+Date: Thu, 16 Nov 2017 09:53:02 +0100
+Message-ID: <CAMuHMdUZPF5E64MExUN4UdPwyai4F4GmwfbW6oVF0vfiV8HYrg@mail.gmail.com>
+References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1510759526-30346-2-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:43253 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753292AbdKOUZ2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Nov 2017 15:25:28 -0500
-Received: by mail-wm0-f65.google.com with SMTP id g141so5430696wmg.2
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Nov 2017 12:25:28 -0800 (PST)
-In-Reply-To: <20171115170156.21532-1-alban.browaeys@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1510759526-30346-2-git-send-email-ulrich.hecht+renesas@gmail.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-My apologies.
+On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
+<ulrich.hecht+renesas@gmail.com> wrote:
+> Required for I2C0 operation.
+>
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 
-This fix is a partial one: it only fixes the issue once
-we unload then reload i2c-i801 .
-This as when we load a second time  orig_hstcfg is set to the value the
-first module load leftover.
-Thus I will investigate the initial orig_hstcfg at boot to further the
-fix.
-I bet this only a few missing bits like HST_EN.
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+i.e. will queue in sh-pfc-for-v4.16.
 
-Best regards
-Alban
+Gr{oetje,eeting}s,
 
+                        Geert
 
-Le mercredi 15 novembre 2017 à 18:01 +0100, Alban Browaeys a écrit :
-> Disabling I2C_EN on resume as it was restored in
-> suspend when we set pci config to its original value.
-> 
-> ENXIO landing in rmi_smb_get_version,  i2c-i802 debug
-> pointing at i801_check_post and guesswork from reading
-> probe which has this tweak.
-> 
-> i801_smbus 0000:00:1f.3: No response
-> rmi4_smbus 0-002c: failed to get SMBus version number!
-> i801_smbus 0000:00:1f.3: No response
-> rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read
-> current IRQ mask.
-> i801_smbus 0000:00:1f.3: No response
-> rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -6.
-> rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
-> rmi4_physical rmi4-00: Failed to suspend functions: -6
-> rmi4_smbus 0-002c: Failed to resume device: -6
-> rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03 TX
-> register (-6).
-> i801_smbus 0000:00:1f.3: No response
-> rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03 TX
-> register (-6).
-> 
-> Signed-off-by: Alban Browaeys <alban.browaeys@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-
-> i801.c
-> index 9e12a53ef7b8..b7b6c8ee2176 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1707,9 +1707,14 @@ static int i801_suspend(struct device *dev)
->  
->  static int i801_resume(struct device *dev)
->  {
-> +	unsigned char temp;
->  	struct pci_dev *pci_dev = to_pci_dev(dev);
->  	struct i801_priv *priv = pci_get_drvdata(pci_dev);
->  
-> +	pci_read_config_byte(pci_dev, SMBHSTCFG, &temp);
-> +	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
-> +	pci_write_config_byte(pci_dev, SMBHSTCFG, temp);
-> +
->  	i801_enable_host_notify(&priv->adapter);
->  
->  	return 0;
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
