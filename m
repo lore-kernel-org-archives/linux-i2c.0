@@ -1,180 +1,44 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v6 3/7] drivers/i2c: Add port structure to FSI algorithm
-Date: Thu, 16 Nov 2017 13:53:48 -0600
-Message-ID: <1510862032-12394-4-git-send-email-eajames@linux.vnet.ibm.com>
-References: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, joel@jms.id.au, eajames@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 0/7] eeprom: at24: switch driver to regmap_i2c
+Date: Thu, 16 Nov 2017 21:16:05 +0100
+Message-ID: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:37843 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932144AbdKPUQN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Nov 2017 15:16:13 -0500
+Received: by mail-wm0-f66.google.com with SMTP id v186so2543496wma.2
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 12:16:12 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-From: "Edward A. James" <eajames@us.ibm.com>
+Using regmap_i2c allows us to get rid of dealing with the low-level
+differences between I2C and SMBUS. As a result the code can be
+simplified a lot.
 
-Add and initialize I2C adapters for each port on the FSI-attached I2C
-master. Ports for each master are defined in the devicetree.
+This patchset was successfully tested with a 24C32 on a I2C adapter.
 
-Signed-off-by: Edward A. James <eajames@us.ibm.com>
----
- drivers/i2c/busses/i2c-fsi.c | 96 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 96 insertions(+)
+The patchset was submitted first in Aug 2017 and was sitting in
+the review queue until now. Resubmitted version is rebased due to
+recent changes to at24.
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 79475f8..4ad5d68 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -14,7 +14,9 @@
- #include <linux/fsi.h>
- #include <linux/i2c.h>
- #include <linux/kernel.h>
-+#include <linux/list.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- 
- #define FSI_ENGID_I2C		0x7
- 
-@@ -130,6 +132,14 @@
- struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
-+	struct list_head	ports;
-+};
-+
-+struct fsi_i2c_port {
-+	struct list_head	list;
-+	struct i2c_adapter	adapter;
-+	struct fsi_i2c_master	*master;
-+	u16			port;
- };
- 
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-@@ -186,9 +196,44 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- 	return rc;
- }
- 
-+static int fsi_i2c_set_port(struct fsi_i2c_port *port)
-+{
-+	int rc;
-+	struct fsi_device *fsi = port->master->fsi;
-+	u32 mode, dummy = 0;
-+	u16 old_port;
-+
-+	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	old_port = GETFIELD(I2C_MODE_PORT, mode);
-+
-+	if (old_port != port->port) {
-+		mode = SETFIELD(I2C_MODE_PORT, mode, port->port);
-+		rc = fsi_i2c_write_reg(fsi, I2C_FSI_MODE, &mode);
-+		if (rc)
-+			return rc;
-+
-+		/* reset engine when port is changed */
-+		rc = fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	return rc;
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
-+	int rc;
-+	struct fsi_i2c_port *port = adap->algo_data;
-+
-+	rc = fsi_i2c_set_port(port);
-+	if (rc)
-+		return rc;
-+
- 	return -EOPNOTSUPP;
- }
- 
-@@ -206,23 +251,73 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
- static int fsi_i2c_probe(struct device *dev)
- {
- 	struct fsi_i2c_master *i2c;
-+	struct fsi_i2c_port *port;
-+	struct device_node *np;
- 	int rc;
-+	u32 port_no;
- 
- 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
- 
- 	i2c->fsi = to_fsi_dev(dev);
-+	INIT_LIST_HEAD(&i2c->ports);
- 
- 	rc = fsi_i2c_dev_init(i2c);
- 	if (rc)
- 		return rc;
- 
-+	/* Add adapter for each i2c port of the master. */
-+	for_each_available_child_of_node(dev->of_node, np) {
-+		rc = of_property_read_u32(np, "reg", &port_no);
-+		if (rc || port_no > USHRT_MAX)
-+			continue;
-+
-+		port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
-+		if (!port)
-+			break;
-+
-+		port->master = i2c;
-+		port->port = port_no;
-+
-+		port->adapter.owner = THIS_MODULE;
-+		port->adapter.dev.of_node = np;
-+		port->adapter.dev.parent = dev;
-+		port->adapter.algo = &fsi_i2c_algorithm;
-+		port->adapter.algo_data = port;
-+
-+		snprintf(port->adapter.name, sizeof(port->adapter.name),
-+			 "i2c_bus-%u", port_no);
-+
-+		rc = i2c_add_adapter(&port->adapter);
-+		if (rc < 0) {
-+			dev_err(dev, "Failed to register adapter: %d\n", rc);
-+			devm_kfree(dev, port);
-+			continue;
-+		}
-+
-+		list_add(&port->list, &i2c->ports);
-+	}
-+
- 	dev_set_drvdata(dev, i2c);
- 
- 	return 0;
- }
- 
-+static int fsi_i2c_remove(struct device *dev)
-+{
-+	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
-+	struct fsi_i2c_port *port;
-+
-+	if (!list_empty(&i2c->ports)) {
-+		list_for_each_entry(port, &i2c->ports, list) {
-+			i2c_del_adapter(&port->adapter);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static const struct fsi_device_id fsi_i2c_ids[] = {
- 	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
- 	{ 0 }
-@@ -234,6 +329,7 @@ static int fsi_i2c_probe(struct device *dev)
- 		.name = "i2c-fsi",
- 		.bus = &fsi_bus_type,
- 		.probe = fsi_i2c_probe,
-+		.remove = fsi_i2c_remove,
- 	},
- };
- 
+Heiner Kallweit (7):
+  eeprom: at24: add basic regmap_i2c support
+  eeprom: at24: change at24_translate_offset return type
+  eeprom: at24: add regmap-based write function
+  eeprom: at24: remove old write functions
+  eeprom: at24: add regmap-based read functions
+  eeprom: at24: remove old read functions
+  eeprom: at24: remove now unneeded smbus-related code
+
+ drivers/misc/eeprom/Kconfig |   1 +
+ drivers/misc/eeprom/at24.c  | 385 +++++++++-----------------------------------
+ 2 files changed, 79 insertions(+), 307 deletions(-)
+
 -- 
-1.8.3.1
+2.15.0
