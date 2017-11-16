@@ -1,76 +1,79 @@
-From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v6 1/7] dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-Date: Thu, 16 Nov 2017 13:53:46 -0600
-Message-ID: <1510862032-12394-2-git-send-email-eajames@linux.vnet.ibm.com>
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v6 7/7] drivers/i2c: Add bus recovery for FSI algorithm
+Date: Thu, 16 Nov 2017 13:53:52 -0600
+Message-ID: <1510862032-12394-8-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1510862032-12394-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40972 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1758467AbdKPTy1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Nov 2017 14:54:27 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id vAGJsNiQ002687
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 14:54:26 -0500
+Received: from e35.co.us.ibm.com (e35.co.us.ibm.com [32.97.110.153])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2e9gwm8xvu-1
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 14:54:26 -0500
+Received: from localhost
+        by e35.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-i2c@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
+        Thu, 16 Nov 2017 12:54:24 -0700
+In-Reply-To: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, joel@jms.id.au, eajames@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 
-From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: "Edward A. James" <eajames@us.ibm.com>
 
-Document the bindings.
+Bus recovery should reset the engine and force clock the bus 9 times
+to recover most situations.
 
-Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Edward A. James <eajames@us.ibm.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ drivers/i2c/busses/i2c-fsi.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-new file mode 100644
-index 0000000..b1be2ce
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-@@ -0,0 +1,40 @@
-+Device-tree bindings for FSI-attached I2C master and busses
-+-----------------------------------------------------------
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index 1751c44..10f693f 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -671,6 +671,27 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+ 		| I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+ 
++static int fsi_i2c_recover_bus(struct i2c_adapter *adap)
++{
++	int rc;
++	struct fsi_i2c_port *port = adap->algo_data;
++	struct fsi_i2c_master *master = port->master;
 +
-+Required properties:
-+ - compatible = "ibm,i2c-fsi";
-+ - reg = < address size >;		: The FSI CFAM address and address
-+					  space size.
-+ - #address-cells = <1>;		: Number of address cells in child
-+					  nodes.
-+ - #size-cells = <0>;			: Number of size cells in child nodes.
-+ - child nodes				: Nodes to describe busses off the I2C
-+					  master.
++	rc = fsi_i2c_lock_master(master, adap->timeout);
++	if (rc)
++		return rc;
 +
-+Child node required properties:
-+ - reg = < port number >		: The port number on the I2C master.
++	rc = fsi_i2c_reset(master, port->port);
 +
-+Child node optional properties:
-+ - child nodes				: Nodes to describe devices on the I2C
-+					  bus.
++	fsi_i2c_unlock_master(master);
 +
-+Examples:
++	return rc;
++}
 +
-+    i2c@1800 {
-+        compatible = "ibm,i2c-fsi";
-+        reg = < 0x1800 0x400 >;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
++static struct i2c_bus_recovery_info fsi_i2c_bus_recovery_info = {
++	.recover_bus = fsi_i2c_recover_bus,
++};
 +
-+        i2c-bus@0 {
-+            reg = <0>;
-+        };
-+
-+        i2c-bus@1 {
-+            reg = <1>;
-+
-+            eeprom@50 {
-+                compatible = "vendor,dev-name";
-+            };
-+        };
-+    };
+ static const struct i2c_algorithm fsi_i2c_algorithm = {
+ 	.master_xfer = fsi_i2c_xfer,
+ 	.functionality = fsi_i2c_functionality,
+@@ -715,6 +736,7 @@ static int fsi_i2c_probe(struct device *dev)
+ 		port->adapter.dev.of_node = np;
+ 		port->adapter.dev.parent = dev;
+ 		port->adapter.algo = &fsi_i2c_algorithm;
++		port->adapter.bus_recovery_info = &fsi_i2c_bus_recovery_info;
+ 		port->adapter.algo_data = port;
+ 
+ 		snprintf(port->adapter.name, sizeof(port->adapter.name),
 -- 
 1.8.3.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
