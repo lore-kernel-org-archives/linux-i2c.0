@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v6 4/7] drivers/i2c: Add abort and hardware reset procedures
-Date: Thu, 16 Nov 2017 13:53:49 -0600
-Message-ID: <1510862032-12394-5-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v6 5/7] drivers/i2c: Add transfer implementation for FSI algorithm
+Date: Thu, 16 Nov 2017 13:53:50 -0600
+Message-ID: <1510862032-12394-6-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
@@ -12,243 +12,261 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "Edward A. James" <eajames@us.ibm.com>
 
-Add abort procedure for failed transfers. Add engine and bus reset
-procedures to recover from as many faults as possible.
+Execute I2C transfers from the FSI-attached I2C master. Use polling
+instead of interrupts as we have no hardware IRQ over FSI.
 
 Signed-off-by: Edward A. James <eajames@us.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 186 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 186 insertions(+)
+ drivers/i2c/busses/i2c-fsi.c | 214 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 212 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 4ad5d68..61609bce 100644
+index 61609bce..5c312ef 100644
 --- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -9,14 +9,18 @@
-  * 2 of the License, or (at your option) any later version.
-  */
- 
-+#include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/errno.h>
- #include <linux/fsi.h>
- #include <linux/i2c.h>
-+#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/sched.h>
-+#include <linux/spinlock.h>
- 
- #define FSI_ENGID_I2C		0x7
- 
-@@ -129,10 +133,18 @@
- #define I2C_ESTAT_SELF_BUSY	0x00000040
- #define I2C_ESTAT_VERSION	0x0000001f
- 
-+#define I2C_PORT_BUSY_RESET	0x80000000
-+
-+#define I2C_LOCAL_WAIT_TIMEOUT	2		/* jiffies */
-+
-+/* choose timeout length from legacy driver; it's well tested */
-+#define I2C_ABORT_TIMEOUT	msecs_to_jiffies(100)
-+
- struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
- 	struct list_head	ports;
-+	spinlock_t		reset_lock;
+@@ -152,6 +152,7 @@ struct fsi_i2c_port {
+ 	struct i2c_adapter	adapter;
+ 	struct fsi_i2c_master	*master;
+ 	u16			port;
++	u16			xfrd;
  };
  
- struct fsi_i2c_port {
-@@ -224,6 +236,179 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
+ static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
+@@ -236,6 +237,103 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
  	return rc;
  }
  
-+static int fsi_i2c_reset_bus(struct fsi_i2c_master *i2c)
++static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			 bool stop)
 +{
-+	int i, rc;
-+	u32 mode, stat, ext, dummy = 0;
++	int rc;
++	struct fsi_i2c_master *i2c = port->master;
++	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
 +
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
++	port->xfrd = 0;
 +
-+	mode |= I2C_MODE_DIAG;
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
++	if (msg->flags & I2C_M_RD)
++		cmd |= I2C_CMD_READ;
 +
-+	for (i = 0; i < 9; ++i) {
-+		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
++	if (stop || msg->flags & I2C_M_STOP)
++		cmd |= I2C_CMD_WITH_STOP;
++
++	cmd = SETFIELD(I2C_CMD_ADDR, cmd, msg->addr >> 1);
++	cmd = SETFIELD(I2C_CMD_LEN, cmd, msg->len);
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
++
++	return rc;
++}
++
++static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			      u8 fifo_count)
++{
++	int write;
++	int rc = 0;
++	struct fsi_i2c_master *i2c = port->master;
++	int bytes_to_write = i2c->fifo_size - fifo_count;
++	int bytes_remaining = msg->len - port->xfrd;
++
++	if (bytes_to_write > bytes_remaining)
++		bytes_to_write = bytes_remaining;
++
++	while (bytes_to_write > 0) {
++		write = bytes_to_write;
++		/* fsi limited to max 4 byte aligned ops */
++		if (bytes_to_write > 4)
++			write = 4;
++		else if (write == 3)
++			write = 2;
++
++		rc = fsi_device_write(i2c->fsi, I2C_FSI_FIFO,
++				      &msg->buf[port->xfrd], write);
 +		if (rc)
 +			return rc;
 +
-+		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
-+		if (rc)
-+			return rc;
++		port->xfrd += write;
++		bytes_to_write -= write;
 +	}
 +
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
-+	if (rc)
-+		return rc;
++	return rc;
++}
 +
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SDA, &dummy);
-+	if (rc)
-+		return rc;
++static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			     u8 fifo_count)
++{
++	int read;
++	int rc = 0;
++	struct fsi_i2c_master *i2c = port->master;
++	int xfr_remaining = msg->len - port->xfrd;
++	u32 dummy;
 +
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
-+	if (rc)
-+		return rc;
++	while (fifo_count) {
++		read = fifo_count;
++		/* fsi limited to max 4 byte aligned ops */
++		if (fifo_count > 4)
++			read = 4;
++		else if (read == 3)
++			read = 2;
 +
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SDA, &dummy);
-+	if (rc)
-+		return rc;
++		if (xfr_remaining) {
++			if (xfr_remaining < read)
++				read = xfr_remaining;
 +
-+	mode &= ~I2C_MODE_DIAG;
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
++			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
++					     &msg->buf[port->xfrd], read);
++			if (rc)
++				return rc;
 +
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
-+	if (rc)
-+		return rc;
++			port->xfrd += read;
++			xfr_remaining -= read;
++		} else {
++			/* no more buffer but data in fifo, need to clear it */
++			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
++					     read);
++			if (rc)
++				return rc;
++		}
 +
-+	/* check for hardware fault */
-+	if (!(stat & I2C_STAT_SCL_IN) || !(stat & I2C_STAT_SDA_IN)) {
-+		rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_ESTAT, &ext);
++		fifo_count -= read;
++	}
++
++	return rc;
++}
++
+ static int fsi_i2c_reset_bus(struct fsi_i2c_master *i2c)
+ {
+ 	int i, rc;
+@@ -409,17 +507,129 @@ static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
+ 	return -ETIME;
+ }
+ 
++static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
++				 struct i2c_msg *msg, u32 status)
++{
++	int rc;
++	u8 fifo_count;
++
++	if (status & I2C_STAT_ERR) {
++		rc = fsi_i2c_abort(port, status);
 +		if (rc)
 +			return rc;
 +
-+		dev_err(&i2c->fsi->dev, "bus stuck status[%08X] ext[%08X]\n",
-+			stat, ext);
++		if (status & I2C_STAT_INV_CMD)
++			return -EINVAL;
++
++		if (status & (I2C_STAT_PARITY | I2C_STAT_BE_OVERRUN |
++		    I2C_STAT_BE_ACCESS))
++			return -EPROTO;
++
++		if (status & I2C_STAT_NACK)
++			return -ENXIO;
++
++		if (status & I2C_STAT_LOST_ARB)
++			return -EAGAIN;
++
++		if (status & I2C_STAT_STOP_ERR)
++			return -EBADMSG;
++
++		return -EIO;
++	}
++
++	if (status & I2C_STAT_DAT_REQ) {
++		fifo_count = GETFIELD(I2C_STAT_FIFO_COUNT, status);
++
++		if (msg->flags & I2C_M_RD)
++			rc = fsi_i2c_read_fifo(port, msg, fifo_count);
++		else
++			rc = fsi_i2c_write_fifo(port, msg, fifo_count);
++
++		return rc;
++	}
++
++	if (status & I2C_STAT_CMD_COMP) {
++		if (port->xfrd < msg->len)
++			rc = -ENODATA;
++		else
++			rc = msg->len;
++
++		return rc;
 +	}
 +
 +	return 0;
 +}
 +
-+static int fsi_i2c_reset(struct fsi_i2c_master *i2c, u16 port)
++static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			unsigned long timeout)
 +{
-+	int rc;
-+	u32 mode, stat, dummy = 0;
-+	unsigned long flags;
-+
-+	/* disable pre-emption; bus won't get left in a bad state for long */
-+	spin_lock_irqsave(&i2c->reset_lock, flags);
-+
-+	/* reset engine */
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_I2C, &dummy);
-+	if (rc)
-+		goto done;
-+
-+	/* re-init engine */
-+	rc = fsi_i2c_dev_init(i2c);
-+	if (rc)
-+		goto done;
-+
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		goto done;
-+
-+	/* set port; default after reset is 0 */
-+	if (port) {
-+		mode = SETFIELD(I2C_MODE_PORT, mode, port);
-+		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+		if (rc)
-+			goto done;
-+	}
-+
-+	/* reset busy register; hw workaround */
-+	dummy = I2C_PORT_BUSY_RESET;
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_PORT_BUSY, &dummy);
-+	if (rc)
-+		goto done;
-+
-+	/* force bus reset */
-+	rc = fsi_i2c_reset_bus(i2c);
-+	if (rc)
-+		goto done;
-+
-+	/* reset errors */
-+	dummy = 0;
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_ERR, &dummy);
-+	if (rc)
-+		goto done;
-+
-+	/* wait for command complete; time from legacy driver */
-+	udelay(1000);
-+
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
-+	if (rc)
-+		goto done;
-+
-+	if (stat & I2C_STAT_CMD_COMP)
-+		goto done;
-+
-+	/* failed to get command complete; reset engine again */
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_I2C, &dummy);
-+	if (rc)
-+		goto done;
-+
-+	/* re-init engine again */
-+	rc = fsi_i2c_dev_init(i2c);
-+
-+done:
-+	spin_unlock_irqrestore(&i2c->reset_lock, flags);
-+	return rc;
-+}
-+
-+static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
-+{
-+	int rc;
-+	unsigned long start;
-+	u32 cmd = I2C_CMD_WITH_STOP;
-+	struct fsi_device *fsi = port->master->fsi;
-+
-+	rc = fsi_i2c_reset(port->master, port->port);
-+	if (rc)
-+		return rc;
-+
-+	/* skip final stop command for these errors */
-+	if (status & (I2C_STAT_PARITY | I2C_STAT_LOST_ARB | I2C_STAT_STOP_ERR))
-+		return 0;
-+
-+	/* write stop command */
-+	rc = fsi_i2c_write_reg(fsi, I2C_FSI_CMD, &cmd);
-+	if (rc)
-+		return rc;
-+
-+	/* wait until we see command complete in the master */
-+	start = jiffies;
++	u32 status = 0;
++	int rc, rc_abort;
++	unsigned long start = jiffies;
 +
 +	do {
-+		rc = fsi_i2c_read_reg(fsi, I2C_FSI_STAT, &status);
++		rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT,
++				      &status);
 +		if (rc)
 +			return rc;
 +
-+		if (status & I2C_STAT_CMD_COMP)
-+			return 0;
++		if (status & I2C_STAT_ANY_RESP) {
++			rc = fsi_i2c_handle_status(port, msg, status);
++			if (rc < 0)
++				return rc;
++
++			/* cmd complete and all data xfrd */
++			if (rc == msg->len)
++				return 0;
++
++			/* need to xfr more data, but maybe don't need wait */
++			continue;
++		}
 +
 +		set_current_state(TASK_INTERRUPTIBLE);
-+		if (schedule_timeout(I2C_LOCAL_WAIT_TIMEOUT) > 0)
-+			return -EINTR;
++		if (schedule_timeout(I2C_LOCAL_WAIT_TIMEOUT) > 0) {
++			rc = -EINTR;
++			goto abort;
++		}
++	} while (time_after(start + timeout, jiffies));
 +
-+	} while (time_after(start + I2C_ABORT_TIMEOUT, jiffies));
++	rc = -ETIME;
 +
-+	return -ETIME;
++abort:
++	rc_abort = fsi_i2c_abort(port, status);
++	if (rc_abort)
++		return rc_abort;
++
++	return rc;
 +}
 +
  static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
  			int num)
  {
-@@ -260,6 +445,7 @@ static int fsi_i2c_probe(struct device *dev)
- 	if (!i2c)
- 		return -ENOMEM;
+-	int rc;
++	int i, rc;
++	unsigned long start_time;
+ 	struct fsi_i2c_port *port = adap->algo_data;
++	struct i2c_msg *msg;
  
-+	spin_lock_init(&i2c->reset_lock);
- 	i2c->fsi = to_fsi_dev(dev);
- 	INIT_LIST_HEAD(&i2c->ports);
+ 	rc = fsi_i2c_set_port(port);
+ 	if (rc)
+ 		return rc;
  
+-	return -EOPNOTSUPP;
++	for (i = 0; i < num; ++i) {
++		msg = msgs + i;
++		start_time = jiffies;
++
++		rc = fsi_i2c_start(port, msg, i == num - 1);
++		if (rc)
++			return rc;
++
++		rc = fsi_i2c_wait(port, msg,
++				  adap->timeout - (jiffies - start_time));
++		if (rc)
++			return rc;
++	}
++
++	return 0;
+ }
+ 
+ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
 -- 
 1.8.3.1
