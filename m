@@ -1,12 +1,12 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 3/6] arm64: renesas: r8a77995: add I2C support
-Date: Thu, 16 Nov 2017 10:10:27 +0100
-Message-ID: <CAMuHMdV4pBYPTrnCCU8BU1Lr8t2ejcKwWpXWzp-PuBgT2DfVSg@mail.gmail.com>
-References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1510759526-30346-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+Subject: Re: [PATCH 4/6] arm64: renesas: draak: enable I2C controller 0 and EEPROM
+Date: Thu, 16 Nov 2017 10:27:56 +0100
+Message-ID: <CAMuHMdWmZEoNGRjsumOc+yPe3JTCBobVZd8arzUfcymjF0imDA@mail.gmail.com>
+References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com> <1510759526-30346-5-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <1510759526-30346-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+In-Reply-To: <1510759526-30346-5-git-send-email-ulrich.hecht+renesas@gmail.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
@@ -16,38 +16,33 @@ Hi Ulrich,
 
 On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
 <ulrich.hecht+renesas@gmail.com> wrote:
-> Defines R-Car D3 I2C controllers 0-3.
+> Enables EEPROM on I2C0 on the Draak board.
 >
 > Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 
 Thanks for your patch!
 
-> --- a/arch/arm64/boot/dts/renesas/r8a77995.dtsi
-> +++ b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
-> @@ -400,6 +400,70 @@
->                         status = "disabled";
->                 };
+> --- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+> +++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+
+> @@ -67,6 +72,18 @@
+>         };
+>  };
 >
-> +               i2c0: i2c@e6500000 {
-> +                       #address-cells = <1>;
-> +                       #size-cells = <0>;
-> +                       compatible = "renesas,i2c-r8a77995",
-> +                                    "renesas,rcar-gen3-i2c";
-> +                       reg = <0 0xe6500000 0 0x40>;
-> +                       interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
-> +                       clocks = <&cpg CPG_MOD 931>;
-> +                       power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
-> +                       resets = <&cpg 931>;
-> +                       dmas = <&dmac1 0x91>, <&dmac1 0x90>;
-> +                       dma-names = "tx", "rx";
+> +&i2c0 {
+> +       pinctrl-0 = <&i2c0_pins>;
+> +       pinctrl-names = "default";
+> +       status = "okay";
+> +
+> +       eeprom@50 {
+> +               compatible = "atmel,24c01";
 
-Missing set for dmac2? (for all four interfaces)
+This is actually a ROHM Semiconductor BR24T01FVM-W, so it should be
 
-> +                       i2c-scl-internal-delay-ns = <110>;
+        compatible = "rohm,br24t01", "atmel,24c01";
 
-According to Table 57.1, all i2c interfaces on R-Car D3 have LVTTL
-output buffers,
-so this should be <6> for all four interfaces.
+Please also submit a patch to add that compatible value to
+Documentation/devicetree/bindings/eeprom/eeprom.txt.
 
 With the above fixed:
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
