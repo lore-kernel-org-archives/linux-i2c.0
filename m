@@ -1,57 +1,76 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v6 0/7] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Thu, 16 Nov 2017 13:53:45 -0600
-Message-ID: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40008 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751935AbdKPTyC (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Nov 2017 14:54:02 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id vAGJox6w142694
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 14:54:01 -0500
-Received: from e33.co.us.ibm.com (e33.co.us.ibm.com [32.97.110.151])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2e9gqc1ep5-1
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 14:54:01 -0500
-Received: from localhost
-        by e33.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-i2c@vger.kernel.org> from <eajames@linux.vnet.ibm.com>;
-        Thu, 16 Nov 2017 12:54:01 -0700
-Sender: linux-i2c-owner@vger.kernel.org
+From: Eddie James <eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v6 1/7] dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+Date: Thu, 16 Nov 2017 13:53:46 -0600
+Message-ID: <1510862032-12394-2-git-send-email-eajames@linux.vnet.ibm.com>
+References: <1510862032-12394-1-git-send-email-eajames@linux.vnet.ibm.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1510862032-12394-1-git-send-email-eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, joel-U3u1mxZcP9KHXe+LvDLADg@public.gmane.org, eajames-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, joel@jms.id.au, eajames@linux.vnet.ibm.com, "Edward A. James" <eajames@us.ibm.com>
 
-From: "Edward A. James" <eajames@us.ibm.com>
+From: "Edward A. James" <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
-This series adds an algorithm for an I2C master physically located on an FSI
-slave device. The I2C master has multiple ports, each of which may be connected
-to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+Document the bindings.
 
-Due to the multi-port nature of the I2C master, the driver instantiates a new
-I2C adapter for each port connected to a slave. The connected ports should be
-defined in the device tree under the I2C master device.
-
-Changes since v5
- - Fix reset functionality and do a reset after every transfer failure
-
-Edward A. James (7):
-  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-  drivers/i2c: Add FSI-attached I2C master algorithm
-  drivers/i2c: Add port structure to FSI algorithm
-  drivers/i2c: Add abort and hardware reset procedures
-  drivers/i2c: Add transfer implementation for FSI algorithm
-  drivers/i2c: Add I2C master locking to FSI algorithm
-  drivers/i2c: Add bus recovery for FSI algorithm
-
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
- drivers/i2c/busses/Kconfig                        |  11 +
- drivers/i2c/busses/Makefile                       |   1 +
- drivers/i2c/busses/i2c-fsi.c                      | 793 ++++++++++++++++++++++
- 4 files changed, 845 insertions(+)
+Signed-off-by: Edward A. James <eajames-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
- create mode 100644 drivers/i2c/busses/i2c-fsi.c
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+new file mode 100644
+index 0000000..b1be2ce
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+@@ -0,0 +1,40 @@
++Device-tree bindings for FSI-attached I2C master and busses
++-----------------------------------------------------------
++
++Required properties:
++ - compatible = "ibm,i2c-fsi";
++ - reg = < address size >;		: The FSI CFAM address and address
++					  space size.
++ - #address-cells = <1>;		: Number of address cells in child
++					  nodes.
++ - #size-cells = <0>;			: Number of size cells in child nodes.
++ - child nodes				: Nodes to describe busses off the I2C
++					  master.
++
++Child node required properties:
++ - reg = < port number >		: The port number on the I2C master.
++
++Child node optional properties:
++ - child nodes				: Nodes to describe devices on the I2C
++					  bus.
++
++Examples:
++
++    i2c@1800 {
++        compatible = "ibm,i2c-fsi";
++        reg = < 0x1800 0x400 >;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-bus@0 {
++            reg = <0>;
++        };
++
++        i2c-bus@1 {
++            reg = <1>;
++
++            eeprom@50 {
++                compatible = "vendor,dev-name";
++            };
++        };
++    };
 -- 
 1.8.3.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
