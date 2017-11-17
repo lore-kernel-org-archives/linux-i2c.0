@@ -1,15 +1,15 @@
 From: Yixun Lan <yixun.lan@amlogic.com>
-Subject: [PATCH 2/5] i2c: meson: add configurable divider factors
-Date: Fri, 17 Nov 2017 16:02:33 +0800
-Message-ID: <20171117080236.32504-3-yixun.lan@amlogic.com>
+Subject: [PATCH 4/5] ARM64: dts: meson-axg: describe pin DT info for I2C controller
+Date: Fri, 17 Nov 2017 16:02:35 +0800
+Message-ID: <20171117080236.32504-5-yixun.lan@amlogic.com>
 References: <20171117080236.32504-1-yixun.lan@amlogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mail-sh2.amlogic.com ([58.32.228.45]:57064 "EHLO
         mail-sh2.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965046AbdKQIDM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 03:03:12 -0500
+        with ESMTP id S965059AbdKQIDQ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 03:03:16 -0500
 In-Reply-To: <20171117080236.32504-1-yixun.lan@amlogic.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -18,95 +18,89 @@ Cc: Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.co
 
 From: Jian Hu <jian.hu@amlogic.com>
 
-This patch try to add support for I2C controller in Meson-AXG SoC,
-Due to the IP changes between I2C controller, we need to introduce
-a compatible data to make the divider factor configurable.
+Describe all the pin mux for the I2C controller which found in
+Meson-AXG SoC.
 
 Signed-off-by: Jian Hu <jian.hu@amlogic.com>
 Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
 ---
- drivers/i2c/busses/i2c-meson.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 64 ++++++++++++++++++++++++++++++
+ 1 file changed, 64 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-index 88d15b92ec35..517f2cddeff3 100644
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/types.h>
- 
-@@ -57,6 +58,10 @@ enum {
- 	STATE_WRITE,
- };
- 
-+struct meson_i2c_data {
-+	unsigned char div_factor;
-+};
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+index 99e967aff439..edbfd6022078 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+@@ -304,6 +304,70 @@
+ 						function = "eth";
+ 					};
+ 				};
 +
- /**
-  * struct meson_i2c - Meson I2C device private data
-  *
-@@ -93,6 +98,8 @@ struct meson_i2c {
- 	struct completion	done;
- 	u32			tokens[2];
- 	int			num_tokens;
++				i2c_m0_pins: i2c_m0 {
++					mux {
++						groups = "i2c_sck_m0",
++							"i2c_sda_m0";
++						function = "i2c_m0";
++					};
++				};
 +
-+	struct meson_i2c_data *data;
- };
- 
- static void meson_i2c_set_mask(struct meson_i2c *i2c, int reg, u32 mask,
-@@ -128,7 +135,7 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
- 	unsigned long clk_rate = clk_get_rate(i2c->clk);
- 	unsigned int div;
- 
--	div = DIV_ROUND_UP(clk_rate, freq * 4);
-+	div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
- 
- 	/* clock divider has 12 bits */
- 	if (div >= (1 << 12)) {
-@@ -376,6 +383,9 @@ static int meson_i2c_probe(struct platform_device *pdev)
- 	spin_lock_init(&i2c->lock);
- 	init_completion(&i2c->done);
- 
-+	i2c->data = (struct meson_i2c_data *)
-+		of_device_get_match_data(&pdev->dev);
++				i2c_m1_z_pins: i2c_m1_z {
++					mux {
++						groups = "i2c_sck_m1_z",
++							"i2c_sda_m1_z";
++						function = "i2c_m1";
++					};
++				};
 +
- 	i2c->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(i2c->clk)) {
- 		dev_err(&pdev->dev, "can't get device clock\n");
-@@ -440,11 +450,25 @@ static int meson_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
++				i2c_m1_x_pins: i2c_m1_x {
++					mux {
++						groups = "i2c_sck_m1_x",
++							"i2c_sda_m1_x";
++						function = "i2c_m1";
++					};
++				};
++
++				i2c_m2_x_pins: i2c_m2_x {
++					mux {
++						groups = "i2c_sck_m2_x",
++							"i2c_sda_m2_x";
++						function = "i2c_m2";
++					};
++				};
++
++				i2c_m2_a_pins: i2c_m2_a {
++					mux {
++						groups = "i2c_sck_m2_a",
++							"i2c_sda_m2_a";
++						function = "i2c_m2";
++					};
++				};
++
++				i2c_m3_a6_pins: i2c_m3_a6 {
++					mux {
++						groups = "i2c_sda_m3_a6",
++							"i2c_sck_m3_a7";
++						function = "i2c_m3";
++					};
++				};
++
++				i2c_m3_a12_pins: i2c_m3_a12 {
++					mux {
++						groups = "i2c_sda_m3_a12",
++							"i2c_sck_m3_a13";
++						function = "i2c_m3";
++					};
++				};
++
++				i2c_m3_a19_pins: i2c_m3_a19 {
++					mux {
++						groups = "i2c_sda_m3_a19",
++							"i2c_sck_m3_a20";
++						function = "i2c_m3";
++					};
++				};
+ 			};
+ 		};
  
-+static const struct meson_i2c_data i2c_meson6_data = {
-+	.div_factor = 4,
-+};
-+
-+static const struct meson_i2c_data i2c_gxbb_data = {
-+	.div_factor = 4,
-+};
-+
-+static const struct meson_i2c_data i2c_axg_data = {
-+	.div_factor = 3,
-+};
-+
- static const struct of_device_id meson_i2c_match[] = {
--	{ .compatible = "amlogic,meson6-i2c" },
--	{ .compatible = "amlogic,meson-gxbb-i2c" },
--	{ },
-+	{ .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
-+	{ .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
-+	{ .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
-+	{},
- };
-+
- MODULE_DEVICE_TABLE(of, meson_i2c_match);
- 
- static struct platform_driver meson_i2c_driver = {
 -- 
 2.14.1
