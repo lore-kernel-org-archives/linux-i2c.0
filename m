@@ -1,52 +1,79 @@
 From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 5/6] arm64: renesas: draak: enable I2C controller 1
-Date: Fri, 17 Nov 2017 06:32:19 -0800
-Message-ID: <20171117143218.56gdhcdchdfjtbaq@verge.net.au>
+Subject: Re: [PATCH 4/6] arm64: renesas: draak: enable I2C controller 0 and
+ EEPROM
+Date: Fri, 17 Nov 2017 08:39:40 -0800
+Message-ID: <20171117163939.q7jlx6d56zc5fli3@verge.net.au>
 References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
- <1510759526-30346-6-git-send-email-ulrich.hecht+renesas@gmail.com>
- <CAMuHMdX1iitObng0nvhmP4r5yb1CnqBwbchu6qDQLtqjPLbDQg@mail.gmail.com>
+ <1510759526-30346-5-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <CAMuHMdWmZEoNGRjsumOc+yPe3JTCBobVZd8arzUfcymjF0imDA@mail.gmail.com>
+ <20171117143120.ayattgah6q54425c@verge.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdX1iitObng0nvhmP4r5yb1CnqBwbchu6qDQLtqjPLbDQg@mail.gmail.com>
+In-Reply-To: <20171117143120.ayattgah6q54425c@verge.net.au>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 16, 2017 at 10:31:31AM +0100, Geert Uytterhoeven wrote:
-> Hi Uli,
+On Fri, Nov 17, 2017 at 06:31:21AM -0800, Simon Horman wrote:
+> On Thu, Nov 16, 2017 at 10:27:56AM +0100, Geert Uytterhoeven wrote:
+> > Hi Ulrich,
+> > 
+> > On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
+> > <ulrich.hecht+renesas@gmail.com> wrote:
+> > > Enables EEPROM on I2C0 on the Draak board.
+> > >
+> > > Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+> > 
+> > Thanks for your patch!
+> > 
+> > > --- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+> > > +++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+> > 
+> > > @@ -67,6 +72,18 @@
+> > >         };
+> > >  };
+> > >
+> > > +&i2c0 {
+> > > +       pinctrl-0 = <&i2c0_pins>;
+> > > +       pinctrl-names = "default";
+> > > +       status = "okay";
+> > > +
+> > > +       eeprom@50 {
+> > > +               compatible = "atmel,24c01";
+> > 
+> > This is actually a ROHM Semiconductor BR24T01FVM-W, so it should be
+> > 
+> >         compatible = "rohm,br24t01", "atmel,24c01";
 > 
-> On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
-> <ulrich.hecht+renesas@gmail.com> wrote:
-> > No devices to add, I2C1 has an external connector only.
-> >
-> > Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-> 
-> Thanks for your patch!
-> 
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> but please see below.
+> Applied with the above change.
 
-Thanks, applied.
+Sorry, I was a bit hasty there as this patch
+depends on a patch earlier in the series which I have not applied.
 
-> > --- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-> > +++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-> 
-> > @@ -84,6 +89,12 @@
-> >         };
-> >  };
-> >
-> > +&i2c1 {
-> > +       pinctrl-0 = <&i2c1_pins>;
-> > +       pinctrl-names = "default";
-> > +       status = "okay";
-> 
-> If no devices are connected, perhaps it's wise to defer the status update
-> to e.g. an overlay that describes what's connected to CN23?
-> 
-> Or do you want it enabled to allow adding devices manually using
-> /sys/bus/i2c/devices/i2c-1/new_device?
+I've dropped this patch for now and will wait a bit longer for the review
+to unfold.
 
-Ulrich, please consider following up on this.
+> 
+> > Please also submit a patch to add that compatible value to
+> > Documentation/devicetree/bindings/eeprom/eeprom.txt.
+> 
+> Ulrich, please follow-up on this, thanks!
+> 
+> > With the above fixed:
+> > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > 
+> > Gr{oetje,eeting}s,
+> > 
+> >                         Geert
+> > 
+> > --
+> > Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> > 
+> > In personal conversations with technical people, I call myself a hacker. But
+> > when I'm talking to journalists I just say "programmer" or something like that.
+> >                                 -- Linus Torvalds
+> > 
+> 
