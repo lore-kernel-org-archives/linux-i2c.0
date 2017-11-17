@@ -1,21 +1,20 @@
 From: Neil Armstrong <narmstrong@baylibre.com>
-Subject: Re: [PATCH 1/5] dt-bindings: i2c: update documentation for the
- Meson-AXG
-Date: Fri, 17 Nov 2017 14:02:18 +0100
-Message-ID: <03c9ea24-5f8d-f5dd-6e96-f53f56db530c@baylibre.com>
+Subject: Re: [PATCH 2/5] i2c: meson: add configurable divider factors
+Date: Fri, 17 Nov 2017 14:02:46 +0100
+Message-ID: <4ad7bd82-7913-e064-71f4-285250942ab9@baylibre.com>
 References: <20171117080236.32504-1-yixun.lan@amlogic.com>
- <20171117080236.32504-2-yixun.lan@amlogic.com>
+ <20171117080236.32504-3-yixun.lan@amlogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:44289 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756157AbdKQNCW (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 08:02:22 -0500
-Received: by mail-wm0-f68.google.com with SMTP id r68so6348062wmr.3
-        for <linux-i2c@vger.kernel.org>; Fri, 17 Nov 2017 05:02:21 -0800 (PST)
-In-Reply-To: <20171117080236.32504-2-yixun.lan@amlogic.com>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:42062 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751804AbdKQNCt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 08:02:49 -0500
+Received: by mail-wr0-f194.google.com with SMTP id o14so2047452wrf.9
+        for <linux-i2c@vger.kernel.org>; Fri, 17 Nov 2017 05:02:48 -0800 (PST)
+In-Reply-To: <20171117080236.32504-3-yixun.lan@amlogic.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -25,35 +24,96 @@ Cc: Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian 
 On 17/11/2017 09:02, Yixun Lan wrote:
 > From: Jian Hu <jian.hu@amlogic.com>
 > 
-> Update the doc to explicitly add Meson-AXG to support list
+> This patch try to add support for I2C controller in Meson-AXG SoC,
+> Due to the IP changes between I2C controller, we need to introduce
+> a compatible data to make the divider factor configurable.
 > 
 > Signed-off-by: Jian Hu <jian.hu@amlogic.com>
 > Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-meson.txt | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/i2c/busses/i2c-meson.c | 32 ++++++++++++++++++++++++++++----
+>  1 file changed, 28 insertions(+), 4 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> index 611b934c7e10..3097d2b44dad 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> @@ -2,6 +2,7 @@ Amlogic Meson I2C controller
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index 88d15b92ec35..517f2cddeff3 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+> +#include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/types.h>
 >  
->  Required properties:
->   - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gxbb-i2c"
-> +						"amlogic,meson-axg-i2c"
-
-Hi Yixun, Jian,
-
-Maybe you should reformat by using :
-- compatible: must be :
-	"amlogic,meson6-i2c" for Meson8 and compatible SoCs
-	"amlogic,meson-gxbb-i2c" for GXBB and compatible SoCs
-	"amlogic,meson-axg-i2c"for AXG and compatible SoCs
-
-Neil
-
->   - reg: physical address and length of the device registers
->   - interrupts: a single interrupt specifier
->   - clocks: clock for the device
+> @@ -57,6 +58,10 @@ enum {
+>  	STATE_WRITE,
+>  };
+>  
+> +struct meson_i2c_data {
+> +	unsigned char div_factor;
+> +};
+> +
+>  /**
+>   * struct meson_i2c - Meson I2C device private data
+>   *
+> @@ -93,6 +98,8 @@ struct meson_i2c {
+>  	struct completion	done;
+>  	u32			tokens[2];
+>  	int			num_tokens;
+> +
+> +	struct meson_i2c_data *data;
+>  };
+>  
+>  static void meson_i2c_set_mask(struct meson_i2c *i2c, int reg, u32 mask,
+> @@ -128,7 +135,7 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
+>  	unsigned long clk_rate = clk_get_rate(i2c->clk);
+>  	unsigned int div;
+>  
+> -	div = DIV_ROUND_UP(clk_rate, freq * 4);
+> +	div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
+>  
+>  	/* clock divider has 12 bits */
+>  	if (div >= (1 << 12)) {
+> @@ -376,6 +383,9 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  	spin_lock_init(&i2c->lock);
+>  	init_completion(&i2c->done);
+>  
+> +	i2c->data = (struct meson_i2c_data *)
+> +		of_device_get_match_data(&pdev->dev);
+> +
+>  	i2c->clk = devm_clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(i2c->clk)) {
+>  		dev_err(&pdev->dev, "can't get device clock\n");
+> @@ -440,11 +450,25 @@ static int meson_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +static const struct meson_i2c_data i2c_meson6_data = {
+> +	.div_factor = 4,
+> +};
+> +
+> +static const struct meson_i2c_data i2c_gxbb_data = {
+> +	.div_factor = 4,
+> +};
+> +
+> +static const struct meson_i2c_data i2c_axg_data = {
+> +	.div_factor = 3,
+> +};
+> +
+>  static const struct of_device_id meson_i2c_match[] = {
+> -	{ .compatible = "amlogic,meson6-i2c" },
+> -	{ .compatible = "amlogic,meson-gxbb-i2c" },
+> -	{ },
+> +	{ .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
+> +	{ .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
+> +	{ .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
+> +	{},
+>  };
+> +
+>  MODULE_DEVICE_TABLE(of, meson_i2c_match);
+>  
+>  static struct platform_driver meson_i2c_driver = {
 > 
+
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
