@@ -1,52 +1,70 @@
-From: <ying.zhang22455@nxp.com>
-Subject: [PATCH 1/2] i2c: imx: add workaround for erratum ERR010027
-Date: Fri, 17 Nov 2017 16:21:03 +0800
-Message-ID: <20171117082104.18140-1-ying.zhang22455@nxp.com>
+From: jacopo mondi <jacopo@jmondi.org>
+Subject: Re: [PATCH RFT] i2c: sh_mobile: make sure to not accidently trigger
+ STOP
+Date: Fri, 17 Nov 2017 11:05:10 +0100
+Message-ID: <20171117100510.GF4668@w540>
+References: <20171115143221.30618-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-dm3nam03on0076.outbound.protection.outlook.com ([104.47.41.76]:18688
-        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S965444AbdKQIja (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 17 Nov 2017 03:39:30 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171115143221.30618-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Zhang Ying-22455 <ying.zhang22455@nxp.com>
 
-From: Zhang Ying-22455 <ying.zhang22455@nxp.com>
+Hi Wolfram,
 
-ERR010027: Attempting a start cycle while the bus is busy may
-generate a short clock pulse.
+On Wed, Nov 15, 2017 at 03:32:21PM +0100, Wolfram Sang wrote:
+> The datasheet was a bit vague, but after consultation with HW designers,
+> we came to the conclusion that we should set the SCP bit always when
+> dealing only with the ICE bit. A set SCP bit is ignored, and thus fine,
+> a cleared one may trigger STOP on the bus.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>
+> Jacopo: another to test, please. On top of all the other patches. Thank you!
 
-Software must ensure that the I2C BUS is idle by checking the
-bus busy before switching to master mode and attempting a Start
-cycle.
+and for this one as well, on Migo-R no visible regressions. I2c sensor
+probes properly, and I can capture images.
 
-Signed-off-by: Zhang Ying-22455 <ying.zhang22455@nxp.com>
----
- drivers/i2c/busses/i2c-imx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index f96830ffd9f1..5df381c5f70d 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -889,6 +889,14 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 
-+	/*
-+	 * workround for ERR010027: ensure that the I2C BUS is idle
-+	 * before switching to master mode and attempting a Start cycle
-+	 */
-+	result =  i2c_imx_bus_busy(i2c_imx, 0);
-+	if (result)
-+		goto out;
-+
- 	result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
- 	if (result < 0)
- 		goto out;
--- 
-2.14.1
+Thanks
+  j
+
+>
+>  drivers/i2c/busses/i2c-sh_mobile.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+> index 9012d5f8fb38b8..c2841a4f5807c0 100644
+> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> @@ -604,10 +604,10 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
+>
+>  	if (do_init) {
+>  		/* Initialize channel registers */
+> -		iic_wr(pd, ICCR, 0);
+> +		iic_wr(pd, ICCR, ICCR_SCP);
+>
+>  		/* Enable channel and configure rx ack */
+> -		iic_wr(pd, ICCR, ICCR_ICE);
+> +		iic_wr(pd, ICCR, ICCR_ICE | ICCR_SCP);
+>
+>  		/* Set the clock */
+>  		iic_wr(pd, ICCL, pd->iccl & 0xff);
+> @@ -723,7 +723,7 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+>  	}
+>
+>  	/* Disable channel */
+> -	iic_wr(pd, ICCR, 0);
+> +	iic_wr(pd, ICCR, ICCR_SCP);
+>
+>  	/* Disable clock and mark device as idle */
+>  	pm_runtime_put_sync(pd->dev);
+> --
+> 2.11.0
+>
