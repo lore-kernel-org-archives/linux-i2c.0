@@ -1,249 +1,34 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 6/7] eeprom: at24: eeprom: at24: remove old read functions
-Date: Thu, 16 Nov 2017 21:26:57 +0100
-Message-ID: <cd0b0800-0825-6970-d76f-7dfaa57d5424@gmail.com>
-References: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com>
+From: Yixun Lan <yixun.lan@amlogic.com>
+Subject: [PATCH 0/5] i2c: meson-axg: add I2C controller driver
+Date: Fri, 17 Nov 2017 16:02:31 +0800
+Message-ID: <20171117080236.32504-1-yixun.lan@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:37783 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759050AbdKPU1Z (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Nov 2017 15:27:25 -0500
-Received: by mail-wr0-f195.google.com with SMTP id k61so244942wrc.4
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Nov 2017 12:27:24 -0800 (PST)
-In-Reply-To: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com>
+Received: from mail-sh2.amlogic.com ([58.32.228.45]:57064 "EHLO
+        mail-sh2.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964975AbdKQIDK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 03:03:10 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Yixun Lan <yixun.lan@amlogic.com>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Remove the old and now unused read functions.
+This patch set try to add I2C controller driver for
+the Amlogic's Meson-AXG SoC.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- rebased
----
- drivers/misc/eeprom/at24.c | 177 ---------------------------------------------
- 1 file changed, 177 deletions(-)
+Jian Hu (5):
+  dt-bindings: i2c: update documentation for the Meson-AXG
+  i2c: meson: add configurable divider factors
+  ARM64: dts: meson-axg: add I2C DT info for Meson-AXG SoC
+  ARM64: dts: meson-axg: describe pin DT info for I2C controller
+  ARM64: dts: meson-axg: enable I2C Master-1 for the audio speaker
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 391e0d998..a4e157b6b 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -63,9 +63,6 @@ struct at24_client {
- 
- struct at24_data {
- 	struct at24_platform_data chip;
--	int use_smbus;
--
--	ssize_t (*read_func)(struct at24_data *, char *, unsigned int, size_t);
- 
- 	/*
- 	 * Lock protects against activities from other Linux tasks,
-@@ -279,37 +276,6 @@ static struct at24_client *at24_translate_offset(struct at24_data *at24,
- 	return &at24->client[i];
- }
- 
--static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
--				      unsigned int offset, size_t count)
--{
--	unsigned long timeout, read_time;
--	struct i2c_client *client;
--	int status;
--
--	client = at24_translate_offset(at24, &offset)->client;
--
--	if (count > io_limit)
--		count = io_limit;
--
--	/* Smaller eeproms can work given some SMBus extension calls */
--	if (count > I2C_SMBUS_BLOCK_MAX)
--		count = I2C_SMBUS_BLOCK_MAX;
--
--	loop_until_timeout(timeout, read_time) {
--		status = i2c_smbus_read_i2c_block_data_or_emulated(client,
--								   offset,
--								   count, buf);
--
--		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
--				count, offset, status, jiffies);
--
--		if (status == count)
--			return count;
--	}
--
--	return -ETIMEDOUT;
--}
--
- static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
- 				unsigned int offset, size_t count)
- {
-@@ -363,139 +329,6 @@ static ssize_t at24_regmap_read_serial(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
- }
- 
--static ssize_t at24_eeprom_read_i2c(struct at24_data *at24, char *buf,
--				    unsigned int offset, size_t count)
--{
--	unsigned long timeout, read_time;
--	struct i2c_client *client;
--	struct i2c_msg msg[2];
--	int status, i;
--	u8 msgbuf[2];
--
--	memset(msg, 0, sizeof(msg));
--	client = at24_translate_offset(at24, &offset)->client;
--
--	if (count > io_limit)
--		count = io_limit;
--
--	/*
--	 * When we have a better choice than SMBus calls, use a combined I2C
--	 * message. Write address; then read up to io_limit data bytes. Note
--	 * that read page rollover helps us here (unlike writes). msgbuf is
--	 * u8 and will cast to our needs.
--	 */
--	i = 0;
--	if (at24->chip.flags & AT24_FLAG_ADDR16)
--		msgbuf[i++] = offset >> 8;
--	msgbuf[i++] = offset;
--
--	msg[0].addr = client->addr;
--	msg[0].buf = msgbuf;
--	msg[0].len = i;
--
--	msg[1].addr = client->addr;
--	msg[1].flags = I2C_M_RD;
--	msg[1].buf = buf;
--	msg[1].len = count;
--
--	loop_until_timeout(timeout, read_time) {
--		status = i2c_transfer(client->adapter, msg, 2);
--		if (status == 2)
--			status = count;
--
--		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
--				count, offset, status, jiffies);
--
--		if (status == count)
--			return count;
--	}
--
--	return -ETIMEDOUT;
--}
--
--static ssize_t at24_eeprom_read_serial(struct at24_data *at24, char *buf,
--				       unsigned int offset, size_t count)
--{
--	unsigned long timeout, read_time;
--	struct i2c_client *client;
--	struct i2c_msg msg[2];
--	u8 addrbuf[2];
--	int status;
--
--	client = at24_translate_offset(at24, &offset)->client;
--
--	memset(msg, 0, sizeof(msg));
--	msg[0].addr = client->addr;
--	msg[0].buf = addrbuf;
--
--	/*
--	 * The address pointer of the device is shared between the regular
--	 * EEPROM array and the serial number block. The dummy write (part of
--	 * the sequential read protocol) ensures the address pointer is reset
--	 * to the desired position.
--	 */
--	if (at24->chip.flags & AT24_FLAG_ADDR16) {
--		/*
--		 * For 16 bit address pointers, the word address must contain
--		 * a '10' sequence in bits 11 and 10 regardless of the
--		 * intended position of the address pointer.
--		 */
--		addrbuf[0] = 0x08;
--		addrbuf[1] = offset;
--		msg[0].len = 2;
--	} else {
--		/*
--		 * Otherwise the word address must begin with a '10' sequence,
--		 * regardless of the intended address.
--		 */
--		addrbuf[0] = 0x80 + offset;
--		msg[0].len = 1;
--	}
--
--	msg[1].addr = client->addr;
--	msg[1].flags = I2C_M_RD;
--	msg[1].buf = buf;
--	msg[1].len = count;
--
--	loop_until_timeout(timeout, read_time) {
--		status = i2c_transfer(client->adapter, msg, 2);
--		if (status == 2)
--			return count;
--	}
--
--	return -ETIMEDOUT;
--}
--
--static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
--				    unsigned int offset, size_t count)
--{
--	unsigned long timeout, read_time;
--	struct i2c_client *client;
--	struct i2c_msg msg[2];
--	u8 addrbuf[2];
--	int status;
--
--	client = at24_translate_offset(at24, &offset)->client;
--
--	memset(msg, 0, sizeof(msg));
--	msg[0].addr = client->addr;
--	msg[0].buf = addrbuf;
--	addrbuf[0] = 0x90 + offset;
--	msg[0].len = 1;
--	msg[1].addr = client->addr;
--	msg[1].flags = I2C_M_RD;
--	msg[1].buf = buf;
--	msg[1].len = count;
--
--	loop_until_timeout(timeout, read_time) {
--		status = i2c_transfer(client->adapter, msg, 2);
--		if (status == 2)
--			return count;
--	}
--
--	return -ETIMEDOUT;
--}
--
- /*
-  * Note that if the hardware write-protect pin is pulled high, the whole
-  * chip is normally write protected. But there are plenty of product
-@@ -769,7 +602,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return -ENOMEM;
- 
- 	mutex_init(&at24->lock);
--	at24->use_smbus = use_smbus;
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
-@@ -784,15 +616,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return -EINVAL;
- 	}
- 
--	if (chip.flags & AT24_FLAG_SERIAL) {
--		at24->read_func = at24_eeprom_read_serial;
--	} else if (chip.flags & AT24_FLAG_MAC) {
--		at24->read_func = at24_eeprom_read_mac;
--	} else {
--		at24->read_func = at24->use_smbus ? at24_eeprom_read_smbus
--						  : at24_eeprom_read_i2c;
--	}
--
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
- 		if (!use_smbus || use_smbus_write) {
+ .../devicetree/bindings/i2c/i2c-meson.txt          |   1 +
+ arch/arm64/boot/dts/amlogic/meson-axg-s400.dts     |   6 +
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi         | 123 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-meson.c                     |  32 +++++-
+ 4 files changed, 158 insertions(+), 4 deletions(-)
+
 -- 
-2.15.0
+2.14.1
