@@ -1,61 +1,81 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 5/6] arm64: renesas: draak: enable I2C controller 1
-Date: Fri, 17 Nov 2017 08:40:08 -0800
-Message-ID: <20171117164008.qvsolbchongphi4i@verge.net.au>
-References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
- <1510759526-30346-6-git-send-email-ulrich.hecht+renesas@gmail.com>
- <CAMuHMdX1iitObng0nvhmP4r5yb1CnqBwbchu6qDQLtqjPLbDQg@mail.gmail.com>
- <20171117143218.56gdhcdchdfjtbaq@verge.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171117143218.56gdhcdchdfjtbaq@verge.net.au>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: [PATCH 2/3] i2c: add runtime PM handling to core
+Date: Fri, 17 Nov 2017 19:05:38 +0100
+Message-ID: <20171117180539.4984-3-l.stach@pengutronix.de>
+References: <20171117180539.4984-1-l.stach@pengutronix.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:53557 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1161078AbdKQSFl (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 13:05:41 -0500
+In-Reply-To: <20171117180539.4984-1-l.stach@pengutronix.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de, Lukas Rusak <lorusak@gmail.com>, Chris Healy <cphealy@gmail.com>
 
-On Fri, Nov 17, 2017 at 06:32:19AM -0800, Simon Horman wrote:
-> On Thu, Nov 16, 2017 at 10:31:31AM +0100, Geert Uytterhoeven wrote:
-> > Hi Uli,
-> > 
-> > On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
-> > <ulrich.hecht+renesas@gmail.com> wrote:
-> > > No devices to add, I2C1 has an external connector only.
-> > >
-> > > Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-> > 
-> > Thanks for your patch!
-> > 
-> > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > but please see below.
-> 
-> Thanks, applied.
+This allows to simplify the drivers if they opt to use the runtime PM
+provided by the core. Even more importantly it allows to move the
+runtime PM handling out of the i2c bus lock. As runtime PM may need to
+take other locks itself (i.e. when manipulating clocks), holding the
+bus lock may lead to deadlocks, due to different lock ordering.
 
-Sorry, I was a bit hasty there as this patch
-depends on a patch earlier in the series which I have not applied.
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/i2c/i2c-core-base.c | 18 ++++++++++++++++--
+ include/linux/i2c.h         |  1 +
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-I've dropped this patch for now and will wait a bit longer for the review
-to unfold.
-
-> > > --- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-> > > +++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-> > 
-> > > @@ -84,6 +89,12 @@
-> > >         };
-> > >  };
-> > >
-> > > +&i2c1 {
-> > > +       pinctrl-0 = <&i2c1_pins>;
-> > > +       pinctrl-names = "default";
-> > > +       status = "okay";
-> > 
-> > If no devices are connected, perhaps it's wise to defer the status update
-> > to e.g. an overlay that describes what's connected to CN23?
-> > 
-> > Or do you want it enabled to allow adding devices manually using
-> > /sys/bus/i2c/devices/i2c-1/new_device?
-> 
-> Ulrich, please consider following up on this.
-> 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 56e46581b84b..3c971711171c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1931,11 +1931,19 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		}
+ #endif
+ 
++		if (adap->auto_rpm) {
++			ret = pm_runtime_get_sync(adap->dev.parent);
++			if (ret < 0)
++				return ret;
++		}
++
+ 		if (in_atomic() || irqs_disabled()) {
+ 			ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT);
+-			if (!ret)
++			if (!ret) {
+ 				/* I2C activity is ongoing. */
+-				return -EAGAIN;
++				ret = -EAGAIN;
++				goto out_rpm;
++			}
+ 		} else {
+ 			i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
+ 		}
+@@ -1943,6 +1951,12 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		ret = __i2c_transfer(adap, msgs, num);
+ 		i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
+ 
++out_rpm:
++		if (adap->auto_rpm) {
++			pm_runtime_mark_last_busy(adap->dev.parent);
++			pm_runtime_put_autosuspend(adap->dev.parent);
++		}
++
+ 		return ret;
+ 	} else {
+ 		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index d501d3956f13..6bc3d1ed554e 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -585,6 +585,7 @@ struct i2c_adapter {
+ 	int nr;
+ 	char name[48];
+ 	struct completion dev_released;
++	bool auto_rpm;			/* runtime PM managed by core */
+ 
+ 	struct mutex userspace_clients_lock;
+ 	struct list_head userspace_clients;
+-- 
+2.11.0
