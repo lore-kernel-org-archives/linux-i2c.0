@@ -1,70 +1,49 @@
-From: jacopo mondi <jacopo@jmondi.org>
-Subject: Re: [PATCH RFT] i2c: sh_mobile: make sure to not accidently trigger
- STOP
-Date: Fri, 17 Nov 2017 11:05:10 +0100
-Message-ID: <20171117100510.GF4668@w540>
-References: <20171115143221.30618-1-wsa+renesas@sang-engineering.com>
+From: Phil Reid <preid-qgqNFa1JUf/o2iN0hyhwsIdd74u8MsAO@public.gmane.org>
+Subject: Re: [PATCH v11 02/10] i2c: i2c-smbus: Move i2c_setup_smbus_alert from
+ i2c-smbus to i2c-core-smbus
+Date: Fri, 17 Nov 2017 20:15:59 +0800
+Message-ID: <c5a9309b-a595-c663-1e39-f83ed08c8c07@electromag.com.au>
+References: <1503567070-115646-1-git-send-email-preid@electromag.com.au>
+ <1503567070-115646-3-git-send-email-preid@electromag.com.au>
+ <20171029154408.vmjkpj7ybqyrj3ke@ninjato>
+ <1397131b-c22d-9872-dbe0-9b691553cb9e@electromag.com.au>
+ <20171106213646.2h3zsitnlablblli@ninjato>
+ <2eaccb51-62cf-b764-d313-84008c6c8f87@electromag.com.au>
+ <20171107072254.s43mwpyplx3hdkyo@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171115143221.30618-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171107072254.s43mwpyplx3hdkyo@ninjato>
+Content-Language: en-AU
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jdelvare-IBi9RG/b67k@public.gmane.org, jglauber-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 7/11/2017 15:22, Wolfram Sang wrote:
+> 
+>> I was just thinking that all that's in the file now is smbus-alert code.
+>> The other smbus (host notify) code was moved to i2c-core
+>> So maybe i2c-core-smbus-alert and as you say use makefile to include it.
+> 
+> Aaaah, i2c-core-smbus-alert.c. Yes, that probably makes sense. I was
+> wondering about i2c-smbus-alert.c (without -core)...
+> 
+>> I've tried this and it seems to work for the various combinations.
+>> I'll wait a bit for Jean to offer an opinion.
+> 
+> Well, if you have code already, can you post it as RFC and CC Jean?
+> It usually is easier to talk over code, even if it is not perfect yet...
+> 
 
-On Wed, Nov 15, 2017 at 03:32:21PM +0100, Wolfram Sang wrote:
-> The datasheet was a bit vague, but after consultation with HW designers,
-> we came to the conclusion that we should set the SCP bit always when
-> dealing only with the ICE bit. A set SCP bit is ignored, and thus fine,
-> a cleared one may trigger STOP on the bus.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->
-> Jacopo: another to test, please. On top of all the other patches. Thank you!
+Yes will do. Was hoping to clean it up into some incremental patches and post this week.
+But it looks like next week now.
 
-and for this one as well, on Migo-R no visible regressions. I2c sensor
-probes properly, and I can capture images.
-
-Tested-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-
-Thanks
-  j
-
->
->  drivers/i2c/busses/i2c-sh_mobile.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index 9012d5f8fb38b8..c2841a4f5807c0 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -604,10 +604,10 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
->
->  	if (do_init) {
->  		/* Initialize channel registers */
-> -		iic_wr(pd, ICCR, 0);
-> +		iic_wr(pd, ICCR, ICCR_SCP);
->
->  		/* Enable channel and configure rx ack */
-> -		iic_wr(pd, ICCR, ICCR_ICE);
-> +		iic_wr(pd, ICCR, ICCR_ICE | ICCR_SCP);
->
->  		/* Set the clock */
->  		iic_wr(pd, ICCL, pd->iccl & 0xff);
-> @@ -723,7 +723,7 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->  	}
->
->  	/* Disable channel */
-> -	iic_wr(pd, ICCR, 0);
-> +	iic_wr(pd, ICCR, ICCR_SCP);
->
->  	/* Disable clock and mark device as idle */
->  	pm_runtime_put_sync(pd->dev);
-> --
-> 2.11.0
->
+-- 
+Regards
+Phil Reid
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
