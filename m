@@ -1,81 +1,61 @@
 From: Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 2/3] i2c: add runtime PM handling to core
-Date: Fri, 17 Nov 2017 19:05:38 +0100
-Message-ID: <20171117180539.4984-3-l.stach@pengutronix.de>
-References: <20171117180539.4984-1-l.stach@pengutronix.de>
+Subject: [PATCH 0/3] imx i2c vs clk framework deadlock fix
+Date: Fri, 17 Nov 2017 19:05:36 +0100
+Message-ID: <20171117180539.4984-1-l.stach@pengutronix.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:53557 "EHLO
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:32829 "EHLO
         metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1161078AbdKQSFl (ORCPT
+        by vger.kernel.org with ESMTP id S1753407AbdKQSFl (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 13:05:41 -0500
-In-Reply-To: <20171117180539.4984-1-l.stach@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, kernel@pengutronix.de, patchwork-lst@pengutronix.de, Lukas Rusak <lorusak@gmail.com>, Chris Healy <cphealy@gmail.com>
 
-This allows to simplify the drivers if they opt to use the runtime PM
-provided by the core. Even more importantly it allows to move the
-runtime PM handling out of the i2c bus lock. As runtime PM may need to
-take other locks itself (i.e. when manipulating clocks), holding the
-bus lock may lead to deadlocks, due to different lock ordering.
+Hi all,
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
----
- drivers/i2c/i2c-core-base.c | 18 ++++++++++++++++--
- include/linux/i2c.h         |  1 +
- 2 files changed, 17 insertions(+), 2 deletions(-)
+this series fixes a deadlock between the i2c and the clk framework as seen
+on some i.MX machines. The basic issue is that both the i2c and clk framework
+employ some big hammer locks (clk_prepare mutex and i2c bus mutex), which
+potentially span across several devices.
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 56e46581b84b..3c971711171c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1931,11 +1931,19 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		}
- #endif
- 
-+		if (adap->auto_rpm) {
-+			ret = pm_runtime_get_sync(adap->dev.parent);
-+			if (ret < 0)
-+				return ret;
-+		}
-+
- 		if (in_atomic() || irqs_disabled()) {
- 			ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT);
--			if (!ret)
-+			if (!ret) {
- 				/* I2C activity is ongoing. */
--				return -EAGAIN;
-+				ret = -EAGAIN;
-+				goto out_rpm;
-+			}
- 		} else {
- 			i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
- 		}
-@@ -1943,6 +1951,12 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		ret = __i2c_transfer(adap, msgs, num);
- 		i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
- 
-+out_rpm:
-+		if (adap->auto_rpm) {
-+			pm_runtime_mark_last_busy(adap->dev.parent);
-+			pm_runtime_put_autosuspend(adap->dev.parent);
-+		}
-+
- 		return ret;
- 	} else {
- 		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index d501d3956f13..6bc3d1ed554e 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -585,6 +585,7 @@ struct i2c_adapter {
- 	int nr;
- 	char name[48];
- 	struct completion dev_released;
-+	bool auto_rpm;			/* runtime PM managed by core */
- 
- 	struct mutex userspace_clients_lock;
- 	struct list_head userspace_clients;
+The imx i2c driver needs to take the clk prepare mutex in its runtime PM
+handlers, as it is switching the device clock on and off depending on the
+RPM state. With the i2c bus mutex being taken before calling into the driver
+xfer function and the xfer function handling the runtime PM state we get the
+usual lock ordering of bus_lock->clk_prepare.
+
+Now with an i2c attached clock source, clk framwork operations on this clock
+which require the clk_prepare mutex to be locked get a lock ordering of
+clk_prepare -> [i2c-transfer function] -> i2c bus_lock ->
+[driver xfer function being called invoking RPM] -> clk_prepare.
+
+The only reason that this isn't constantly deadlocking with i2c attached clk
+sources is that the imx-i2c driver uses RPM autosuspend, so the device clk
+is still running in a lot of cases rendering the RPM resume a no-op. Note
+that the cyclic lock dependency above is only the simple case, we can also
+run into a ABBA deadlock involving multiple device on the same i2c bus, so
+a simple nested mutex lock of the clk_prepare lock won't do.
+
+The simplest solution I came up with is to move runtime PM for i2c
+controllers into the i2c framework itself, allowing the RPM handling to be
+done outside of the i2c bus lock. It has the nice side-effect of simplifying
+the actual hardware driver, but as it involves changes to the framework I
+would really like to hear from i2c mainainers if this is looking fishy in
+any way.
+
+Regards,
+Lucas
+
+Lucas Stach (3):
+  i2c: imx: use clk notifier for rate changes
+  i2c: add runtime PM handling to core
+  i2c: imx: use runtime PM provided by core
+
+ drivers/i2c/busses/i2c-imx.c | 43 ++++++++++++++++++++++++++++---------------
+ drivers/i2c/i2c-core-base.c  | 18 ++++++++++++++++--
+ include/linux/i2c.h          |  1 +
+ 3 files changed, 45 insertions(+), 17 deletions(-)
+
 -- 
 2.11.0
