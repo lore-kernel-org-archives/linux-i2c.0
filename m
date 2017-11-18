@@ -1,121 +1,53 @@
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Subject: Re: [PATCH 2/5] i2c: meson: add configurable divider factors
-Date: Fri, 17 Nov 2017 21:32:21 +0100
-Message-ID: <CAFBinCAncL21zgCoYw_+n9HZkMUeY4s+Ok0kuigAiitF+UFHyg@mail.gmail.com>
-References: <20171117080236.32504-1-yixun.lan@amlogic.com> <20171117080236.32504-3-yixun.lan@amlogic.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] dt-bindings: i2c: eeprom: Add Renesas R1EX24128
+Date: Sat, 18 Nov 2017 08:38:44 +0100
+Message-ID: <20171118073844.frst3frcmitivh6m@tetsubishi>
+References: <1510839994-12473-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:46268 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1161939AbdKQUcn (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 17 Nov 2017 15:32:43 -0500
-In-Reply-To: <20171117080236.32504-3-yixun.lan@amlogic.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vwsfiqtmd42r5jfm"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1510839994-12473-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Bartosz Golaszewski <brgl@bgdev.pl>, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Yixun Lan <yixun.lan@amlogic.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, linux-kernel@vger.kernel.org, Jian Hu <jian.hu@amlogic.com>, Carlo Caione <carlo@caione.org>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Jerome Brunet <jbrunet@baylibre.com>
 
-On Fri, Nov 17, 2017 at 9:02 AM, Yixun Lan <yixun.lan@amlogic.com> wrote:
-> From: Jian Hu <jian.hu@amlogic.com>
->
-> This patch try to add support for I2C controller in Meson-AXG SoC,
-> Due to the IP changes between I2C controller, we need to introduce
-> a compatible data to make the divider factor configurable.
->
-> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
-> Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
-> ---
->  drivers/i2c/busses/i2c-meson.c | 32 ++++++++++++++++++++++++++++----
->  1 file changed, 28 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
-> index 88d15b92ec35..517f2cddeff3 100644
-> --- a/drivers/i2c/busses/i2c-meson.c
-> +++ b/drivers/i2c/busses/i2c-meson.c
-> @@ -16,6 +16,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
-> +#include <linux/of_device.h>
->  #include <linux/platform_device.h>
->  #include <linux/types.h>
->
-> @@ -57,6 +58,10 @@ enum {
->         STATE_WRITE,
->  };
->
-> +struct meson_i2c_data {
-> +       unsigned char div_factor;
-> +};
-> +
->  /**
->   * struct meson_i2c - Meson I2C device private data
->   *
-> @@ -93,6 +98,8 @@ struct meson_i2c {
->         struct completion       done;
->         u32                     tokens[2];
->         int                     num_tokens;
-> +
-> +       struct meson_i2c_data *data;
-shouldn't this be const (like the definitions below)?
 
->  };
->
->  static void meson_i2c_set_mask(struct meson_i2c *i2c, int reg, u32 mask,
-> @@ -128,7 +135,7 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
->         unsigned long clk_rate = clk_get_rate(i2c->clk);
->         unsigned int div;
->
-> -       div = DIV_ROUND_UP(clk_rate, freq * 4);
-> +       div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
->
->         /* clock divider has 12 bits */
->         if (div >= (1 << 12)) {
-> @@ -376,6 +383,9 @@ static int meson_i2c_probe(struct platform_device *pdev)
->         spin_lock_init(&i2c->lock);
->         init_completion(&i2c->done);
->
-> +       i2c->data = (struct meson_i2c_data *)
-> +               of_device_get_match_data(&pdev->dev);
-> +
->         i2c->clk = devm_clk_get(&pdev->dev, NULL);
->         if (IS_ERR(i2c->clk)) {
->                 dev_err(&pdev->dev, "can't get device clock\n");
-> @@ -440,11 +450,25 @@ static int meson_i2c_remove(struct platform_device *pdev)
->         return 0;
->  }
->
-> +static const struct meson_i2c_data i2c_meson6_data = {
-> +       .div_factor = 4,
-> +};
-> +
-> +static const struct meson_i2c_data i2c_gxbb_data = {
-> +       .div_factor = 4,
-> +};
-> +
-> +static const struct meson_i2c_data i2c_axg_data = {
-> +       .div_factor = 3,
-> +};
-> +
->  static const struct of_device_id meson_i2c_match[] = {
-> -       { .compatible = "amlogic,meson6-i2c" },
-> -       { .compatible = "amlogic,meson-gxbb-i2c" },
-> -       { },
-> +       { .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
-> +       { .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
-> +       { .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
-> +       {},
->  };
-> +
->  MODULE_DEVICE_TABLE(of, meson_i2c_match);
->
->  static struct platform_driver meson_i2c_driver = {
-> --
-> 2.14.1
->
->
-> _______________________________________________
-> linux-amlogic mailing list
-> linux-amlogic@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-amlogic
+--vwsfiqtmd42r5jfm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Nov 16, 2017 at 02:46:34PM +0100, Geert Uytterhoeven wrote:
+> Document the compatible value for the Renesas R1EX24128ASAS0A two-wire
+> serial interface EEPROM, so it can be used in DTS files without causing
+> checkpatch warnings.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+
+--vwsfiqtmd42r5jfm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloP43wACgkQFA3kzBSg
+KbY73RAAmG9kFv3lSEmoja0/49GNwSGJ4KaVXwOyqr0N2YmajdyflrcudsmHgYS0
+0iu1VArPwG9ZjTvCJ/MSA9JgVjMU6txZiOytMXRuzVrs+w2yf3VqPNFMvlboz8ot
+ZhROBh4wjO9WqKFes33mpSzSHvOdr4mYexeEcPtUj8wAUujun5pcQVJbKrsbTV4V
+0jVzYivQ8AkglpoYGPRTTy3na0PMd7yhEgpHBxkgIEkCfrnWu89LSiHzaE6oF9P0
+eNcVEXC7v+a3yB9y80l/RpzC1zUwcMeKO8+ve9GF97Sf1fKjncVwjTDqrZOG0LwV
+LBtC7i1nARM5x1DnCu+qYA57SUq2koczM14l8DagnjvkFwXq0P6F1t1gCFrlkGBW
+PQu/ATYNdSIRDR8uYXcDXxZ4sYlc2QY4fA4FdRgUI+5TfnjjboJiFPZi3GwQRiPp
+hnge5zPiZCQkFWIxXaatcKEI9t2Jx94K6YL2/rp/6mmxM0PzXqNdoSfABapr4P6R
+3G/+6PJu0j4/40pcc4m8GsaH82jdi6QTsfGMZrOzIsUXHdLFdbDdPihJ3QgmqK0o
+DmZImFpkFa/JS7X5j8Eg1kuSFlU0ePcOEqpSdYv8CiU12wHvhYdXRlrnGmYOrRh7
+HhcbmlXNuDM5ilVYBoNFHjZ0LG1VQi25KocFjyfKKXVksaL1WX4=
+=1Om5
+-----END PGP SIGNATURE-----
+
+--vwsfiqtmd42r5jfm--
