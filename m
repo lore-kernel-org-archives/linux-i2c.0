@@ -1,30 +1,136 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 0/6] decode-dimms: Add support for DDR4 SDRAM memory
-Date: Sun, 19 Nov 2017 13:33:09 +0100
-Message-ID: <20171119133309.67d4c596@endymion>
+Subject: [PATCH 1/6] decode-dimms: Add preliminary DDR4 support
+Date: Sun, 19 Nov 2017 13:33:52 +0100
+Message-ID: <20171119133352.732aacd6@endymion>
+References: <20171119133309.67d4c596@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48001 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:48120 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750822AbdKSMdL (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Nov 2017 07:33:11 -0500
+        id S1750941AbdKSMeE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 19 Nov 2017 07:34:04 -0500
 Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 8555AAAB9
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:33:10 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id C084DAAC7
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:34:02 +0000 (UTC)
+In-Reply-To: <20171119133309.67d4c596@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Linux I2C <linux-i2c@vger.kernel.org>
 
-This patch series adds support for DDR4 SDRAM memory modules:
+Recognize DDR4 memory as such, and print manufacturer information.
+---
+ eeprom/decode-dimms |   62 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 61 insertions(+), 1 deletion(-)
 
-[PATCH 1/6] decode-dimms: Add preliminary DDR4 support
-[PATCH 2/6] decode-dimms: Decode size and timings of DDR4
-[PATCH 3/6] decode-dimms: Decode misc parameters of DDR4
-[PATCH 4/6] decode-dimms: Decode physical characteristics of DDR4
-[PATCH 5/6] decode-dimms: Documentation update for DDR4
-[PATCH 6/6] decode-dimms: Verify the CRC of DDR4 data block 1
+--- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:21:42.644379702 +0100
++++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:21:44.196398606 +0100
+@@ -1702,6 +1702,17 @@ sub decode_ddr3_sdram($)
+ 
+ }
+ 
++# Parameter: EEPROM bytes 0-127 (using 1-1)
++sub decode_ddr4_sdram($)
++{
++	my $bytes = shift;
++
++# SPD revision
++	printl_cond($bytes->[1] != 0xff, "SPD Revision",
++		    ($bytes->[1] >> 4) . "." . ($bytes->[1] & 0xf));
++
++}
++
+ # Parameter: EEPROM bytes 0-127 (using 4-5)
+ sub decode_direct_rambus($)
+ {
+@@ -1747,6 +1758,10 @@ sub decode_rambus($)
+ 	"DDR SDRAM"	=> \&decode_ddr_sdram,
+ 	"DDR2 SDRAM"	=> \&decode_ddr2_sdram,
+ 	"DDR3 SDRAM"	=> \&decode_ddr3_sdram,
++	"DDR4 SDRAM"	=> \&decode_ddr4_sdram,
++	"DDR4E SDRAM"	=> \&decode_ddr4_sdram,
++	"LPDDR4 SDRAM"	=> \&decode_ddr4_sdram,
++	"LPDDR4X SDRAM"	=> \&decode_ddr4_sdram,
+ 	"Direct Rambus"	=> \&decode_direct_rambus,
+ 	"Rambus"	=> \&decode_rambus,
+ );
+@@ -1819,6 +1834,35 @@ sub decode_ddr3_mfg_data($)
+ 		    sprintf("0x%02X%02X", $bytes->[146], $bytes->[147]));
+ }
+ 
++# Parameter: EEPROM bytes 0-383 (using 320-351)
++sub decode_ddr4_mfg_data($)
++{
++	my $bytes = shift;
++
++	prints("Manufacturer Data");
++
++	printl("Module Manufacturer",
++	       manufacturer_ddr3($bytes->[320], $bytes->[321]));
++
++	printl_cond(spd_written(@{$bytes}[350..351]),
++		    "DRAM Manufacturer",
++		    manufacturer_ddr3($bytes->[350], $bytes->[351]));
++
++	printl_mfg_location_code($bytes->[322]);
++
++	printl_cond(spd_written(@{$bytes}[323..324]),
++		    "Manufacturing Date",
++		    manufacture_date($bytes->[323], $bytes->[324]));
++
++	printl_mfg_assembly_serial(@{$bytes}[325..328]);
++
++	printl("Part Number", part_number(@{$bytes}[329..348]));
++
++	printl_cond(spd_written(@{$bytes}[349]),
++		    "Revision Code",
++		    sprintf("0x%02X", $bytes->[349]));
++}
++
+ # Parameter: EEPROM bytes 0-127 (using 64-98)
+ sub decode_manufacturing_information($)
+ {
+@@ -1941,8 +1985,14 @@ sub read_hexdump($)
+ sub spd_sizes($)
+ {
+ 	my $bytes = shift;
++	my $type = $bytes->[2];
+ 
+-	if ($bytes->[2] >= 9) {
++	if ($type == 12 || $type == 14 || $type == 16 || $type == 17) {
++		# DDR4
++		my $spd_len = 256 * (($bytes->[0] >> 4) & 7);
++		my $used = 128 * ($bytes->[0] & 15);
++		return ($spd_len, $used);
++	} elsif ($type >= 9) {
+ 		# For FB-DIMM and newer, decode number of bytes written
+ 		my $spd_len = ($bytes->[0] >> 4) & 7;
+ 		my $size = 64 << ($bytes->[0] & 15);
+@@ -2285,6 +2335,9 @@ for $current (0 .. $#dimm) {
+ 			"DDR SGRAM", "DDR SDRAM",	# 6, 7
+ 			"DDR2 SDRAM", "FB-DIMM",	# 8, 9
+ 			"FB-DIMM Probe", "DDR3 SDRAM",	# 10, 11
++			"DDR4 SDRAM", "Reserved",	# 12, 13
++			"DDR4E SDRAM", "LPDDR3 SDRAM",	# 14, 15
++			"LPDDR4 SDRAM", "LPDDR4X SDRAM", # 16, 17
+ 		);
+ 		if ($bytes[2] < @type_list) {
+ 			$type = $type_list[$bytes[2]];
+@@ -2300,6 +2353,13 @@ for $current (0 .. $#dimm) {
+ 		# Decode DDR3-specific manufacturing data in bytes
+ 		# 117-149
+ 		decode_ddr3_mfg_data(\@bytes)
++	} elsif ($type eq "DDR4 SDRAM" ||
++		 $type eq "DDR4E SDRAM" ||
++		 $type eq "LPDDR4 SDRAM" ||
++		 $type eq "LPDDR4X SDRAM") {
++		# Decode DDR4-specific manufacturing data in bytes
++		# 320-383
++		decode_ddr4_mfg_data(\@bytes)
+ 	} else {
+ 		# Decode next 35 bytes (64-98, common to most
+ 		# memory types)
 
 -- 
 Jean Delvare
