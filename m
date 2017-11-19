@@ -1,95 +1,54 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 5/6] decode-dimms: Documentation update for DDR4
-Date: Sun, 19 Nov 2017 13:36:48 +0100
-Message-ID: <20171119133648.41e9e1f9@endymion>
-References: <20171119133309.67d4c596@endymion>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v1 13/15] iio: imu: inv_mpu6050: Remove duplicate NULL
+ check
+Date: Sun, 19 Nov 2017 16:04:37 +0000
+Message-ID: <20171119160437.6c2742d9@archlinux>
+References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
+        <20171031142149.32512-13-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49082 "EHLO mx2.suse.de"
+Received: from mail.kernel.org ([198.145.29.99]:38162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750807AbdKSMxl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Nov 2017 07:53:41 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 56AEFAAB9
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:36:49 +0000 (UTC)
-In-Reply-To: <20171119133309.67d4c596@endymion>
+        id S1751002AbdKSQEl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 19 Nov 2017 11:04:41 -0500
+In-Reply-To: <20171031142149.32512-13-andriy.shevchenko@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org
 
-The EEPROMs used to store SPD data on DDR4 SDRAM modules have their
-own kernel driver: ee1004.
----
- eeprom/decode-dimms   |   10 +++++++---
- eeprom/decode-dimms.1 |    7 ++++---
- 2 files changed, 11 insertions(+), 6 deletions(-)
+On Tue, 31 Oct 2017 16:21:47 +0200
+Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
 
---- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:27:11.401380668 +0100
-+++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:28:32.262363769 +0100
-@@ -5,7 +5,7 @@
- # Copyright 1998, 1999 Philip Edelbrock <phil@netroedge.com>
- # modified by Christian Zuckschwerdt <zany@triq.net>
- # modified by Burkart Lingner <burkart@bollchen.de>
--# Copyright (C) 2005-2013  Jean Delvare <jdelvare@suse.de>
-+# Copyright (C) 2005-2017  Jean Delvare <jdelvare@suse.de>
- #
- #    This program is free software; you can redistribute it and/or modify
- #    it under the terms of the GNU General Public License as published by
-@@ -2410,7 +2410,9 @@ sub get_dimm_list
- 	my (@dirs, $dir, $opened, $file, @files);
- 
- 	if ($use_sysfs) {
--		@dirs = ('/sys/bus/i2c/drivers/eeprom', '/sys/bus/i2c/drivers/at24');
-+		@dirs = ('/sys/bus/i2c/drivers/eeprom',
-+			 '/sys/bus/i2c/drivers/at24',
-+			 '/sys/bus/i2c/drivers/ee1004');	# DDR4
- 	} else {
- 		@dirs = ('/proc/sys/dev/sensors');
- 	}
-@@ -2428,7 +2430,9 @@ sub get_dimm_list
- 				# or spd (driver at24)
- 				my $attr = sysfs_device_attribute("$dir/$file", "name");
- 				next unless defined $attr &&
--					    ($attr eq "eeprom" || $attr eq "spd");
-+					    ($attr eq "eeprom" ||
-+					     $attr eq "spd" ||
-+					     $attr eq "ee1004");	# DDR4
- 			} else {
- 				next unless $file =~ /^eeprom-/;
- 			}
---- i2c-tools.orig/eeprom/decode-dimms.1	2017-11-17 11:21:42.505378009 +0100
-+++ i2c-tools/eeprom/decode-dimms.1	2017-11-17 11:28:32.262363769 +0100
-@@ -1,6 +1,7 @@
- .\"
- .\"  decode-dimms.1 - manpage for the i2c-tools/decode-dimms utility
- .\"  Copyright (C) 2013  Jaromir Capik
-+.\"  Copyright (C) 2017  Jean Delvare
- .\"
- .\"  This program is free software; you can redistribute it and/or modify
- .\"  it under the terms of the GNU General Public License as published by
-@@ -16,7 +17,7 @@
- .\"  with this program; if not, write to the Free Software Foundation, Inc.,
- .\"  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- .\"
--.TH decode-dimms 1 "Oct 2013" "i2c-tools" "User Commands"
-+.TH decode-dimms 1 "Nov 2017" "i2c-tools" "User Commands"
- .SH NAME
- decode-dimms \- decode the information found in memory module SPD EEPROMs
- .SH SYNOPSIS
-@@ -31,8 +32,8 @@ The purpose of the
- .B decode-dimms
- tool is to decode the information found in memory module SPD EEPROMs.
- The SPD data is read either from the running system or dump files.
--In the former case, the tool requires either the eeprom kernel module
--or the at24 kernel module to be loaded.
-+In the former case, the tool requires a kernel module to be loaded:
-+eeprom, at24 or ee1004 (for DDR4 SDRAM.)
- .SH PARAMETERS
- .TP
- .B \-f, --format
+> Since i2c_unregister_device() became NULL-aware we may remove duplicate
+> NULL check.
+> 
+> Cc: Jonathan Cameron <jic23@kernel.org>
+> Cc: Hartmut Knaack <knaack.h@gmx.de>
+> Cc: Lars-Peter Clausen <lars@metafoo.de>
+> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+> Cc: linux-iio@vger.kernel.org
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Applied to the togreg branch of iio.git.  Thanks,
 
--- 
-Jean Delvare
-SUSE L3 Support
+Jonathan
+> ---
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> index dd6fc6d21f9d..d78a10403bac 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> @@ -196,8 +196,7 @@ void inv_mpu_acpi_delete_mux_client(struct i2c_client *client)
+>  {
+>  	struct inv_mpu6050_state *st = iio_priv(dev_get_drvdata(&client->dev));
+>  
+> -	if (st->mux_client)
+> -		i2c_unregister_device(st->mux_client);
+> +	i2c_unregister_device(st->mux_client);
+>  }
+>  #else
+>  
