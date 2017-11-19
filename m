@@ -1,64 +1,72 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 3/6] decode-dimms: Decode misc parameters of DDR4
-Date: Sun, 19 Nov 2017 13:34:38 +0100
-Message-ID: <20171119133438.6bb65fc6@endymion>
+Subject: [PATCH 4/6] decode-dimms: Decode physical characteristics of DDR4
+Date: Sun, 19 Nov 2017 13:35:22 +0100
+Message-ID: <20171119133522.1f2046af@endymion>
 References: <20171119133309.67d4c596@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48189 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:48210 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750807AbdKSMel (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Nov 2017 07:34:41 -0500
-Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id C2E48AAB9
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:34:39 +0000 (UTC)
+        id S1750865AbdKSMfY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 19 Nov 2017 07:35:24 -0500
+Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 07216AAB9
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:35:23 +0000 (UTC)
 In-Reply-To: <20171119133309.67d4c596@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Linux I2C <linux-i2c@vger.kernel.org>
 
-Print some additional information for DDR4 SDRAM memory modules.
+Print the physical characteristics of unbuffered, registered and
+load-reduced DDR4 SDRAM modules.
 ---
- eeprom/decode-dimms |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ eeprom/decode-dimms |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:24:29.028405403 +0100
-+++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:25:15.453970328 +0100
-@@ -1886,6 +1886,35 @@ sub decode_ddr4_sdram($)
- 	printl_cond($twtr, "Minimum Write to Read Time (tWTR_S)", tns3($twtr));
- 	$twtr = ((($bytes->[43] & 0xf0) << 4) + $bytes->[45]) * $mtb / 1000;
- 	printl_cond($twtr, "Minimum Write to Read Time (tWTR_L)", tns3($twtr));
+--- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:25:15.453970328 +0100
++++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:27:11.401380668 +0100
+@@ -1404,6 +1404,7 @@ sub ddr3_mtb_ftb($$$$)
+ 	return $byte1 * $mtb + $byte2 * $ftb / 1000;
+ }
+ 
++# Also works for DDR4
+ sub ddr3_reference_card($$)
+ {
+ 	my ($rrc, $ext) = @_;
+@@ -1727,7 +1728,7 @@ use constant DDR4_UNBUFFERED	=> 1;
+ use constant DDR4_REGISTERED	=> 2;
+ use constant DDR4_LOAD_REDUCED	=> 4;
+ 
+-# Parameter: EEPROM bytes 0-383 (using 1-125)
++# Parameter: EEPROM bytes 0-383 (using 1-130)
+ sub decode_ddr4_sdram($)
+ {
+ 	my $bytes = shift;
+@@ -1915,6 +1916,25 @@ sub decode_ddr4_sdram($)
+ 
+ 	printl("Thermal Sensor",
+ 	       $bytes->[14] & 0x80 ? "TSE2004 compliant" : "No");
 +
-+# miscellaneous stuff
-+	prints("Other Information");
++# type-specific settings
++	if ($module_types[$bytes->[3] & 0x0f]->{family} == DDR4_UNBUFFERED ||
++	    $module_types[$bytes->[3] & 0x0f]->{family} == DDR4_REGISTERED ||
++	    $module_types[$bytes->[3] & 0x0f]->{family} == DDR4_LOAD_REDUCED) {
++		prints("Physical Characteristics");
 +
-+	my $package_type = ($bytes->[6] & 0x80) == 0x00 ? "Monolithic" :
-+			   $signal_loading == 0x01 ? "Multi-load stack" :
-+			   $signal_loading == 0x02 ? "3DS" : "Unknown";
-+	$package_type .= sprintf(" (%u dies)", $die_count) if $die_count >= 2;
-+	printl("Package Type", $package_type);
-+
-+	my @mac = ("Untested",
-+		   "700 K", "600 K", "500 K", "400 K", "300 K", "200 K",
-+		   undef, "Unlimited");
-+	my $mac = $bytes->[7] & 0x0f;
-+	printl_cond(defined $mac[$mac], "Maximum Activate Count", $mac[$mac]);
-+
-+	my $ppr = $bytes->[9] >> 6;
-+	printl("Post Package Repair",
-+	       $ppr == 0x00 ? "Not supported" :
-+	       $ppr == 0x01 ? "One row per bank group" : "Unknown");
-+	printl_cond($ppr != 0x00, "Soft PPR", $bytes->[9] & 0x20 ?
-+		    "Supported" : "Not Supported");
-+
-+	printl("Module Nominal Voltage",
-+	       $bytes->[11] & 0x01 ? "1.2 V" :
-+	       $bytes->[11] & 0x02 ? "Unknown (1.2 V endurant)" : "Unknown");
-+
-+	printl("Thermal Sensor",
-+	       $bytes->[14] & 0x80 ? "TSE2004 compliant" : "No");
++		my $height = $bytes->[128] & 0x1f;
++		printl("Module Height",
++		       $height == 0x00 ? "15 mm or less" :
++		       $height == 0x1f ? "more than 45 mm" :
++		       sprintf("%u mm", $height + 15));
++		printl("Module Thickness",
++		       sprintf("%d mm front, %d mm back",
++			       ($bytes->[129] & 0x0f) + 1,
++			       (($bytes->[129] >> 4) & 15) + 1));
++		printl("Module Reference Card",
++		       ddr3_reference_card($bytes->[130], $bytes->[128]));
++	}
  }
  
  # Parameter: EEPROM bytes 0-127 (using 4-5)
