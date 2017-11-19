@@ -1,103 +1,94 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 6/6] decode-dimms: Verify the CRC of DDR4 data block 1
-Date: Sun, 19 Nov 2017 13:37:46 +0100
-Message-ID: <20171119133746.4c9e518b@endymion>
+Subject: [PATCH 5/6] decode-dimms: Documentation update for DDR4
+Date: Sun, 19 Nov 2017 13:36:48 +0100
+Message-ID: <20171119133648.41e9e1f9@endymion>
 References: <20171119133309.67d4c596@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49081 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:49082 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750822AbdKSMxl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1750807AbdKSMxl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Sun, 19 Nov 2017 07:53:41 -0500
 Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id BA745AAC3
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:37:47 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 56AEFAAB9
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:36:49 +0000 (UTC)
 In-Reply-To: <20171119133309.67d4c596@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Linux I2C <linux-i2c@vger.kernel.org>
 
-On DDR4 modules there is a separate CRC for the second block of 128
-bytes. Check it.
+The EEPROMs used to store SPD data on DDR4 SDRAM modules have their
+own kernel driver: ee1004.
 ---
- eeprom/decode-dimms |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ eeprom/decode-dimms   |   10 +++++++---
+ eeprom/decode-dimms.1 |    7 ++++---
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
---- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:28:32.262363769 +0100
-+++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:29:23.760989692 +0100
-@@ -1728,7 +1728,7 @@ use constant DDR4_UNBUFFERED	=> 1;
- use constant DDR4_REGISTERED	=> 2;
- use constant DDR4_LOAD_REDUCED	=> 4;
+--- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:27:11.401380668 +0100
++++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:28:32.262363769 +0100
+@@ -5,7 +5,7 @@
+ # Copyright 1998, 1999 Philip Edelbrock <phil@netroedge.com>
+ # modified by Christian Zuckschwerdt <zany@triq.net>
+ # modified by Burkart Lingner <burkart@bollchen.de>
+-# Copyright (C) 2005-2013  Jean Delvare <jdelvare@suse.de>
++# Copyright (C) 2005-2017  Jean Delvare <jdelvare@suse.de>
+ #
+ #    This program is free software; you can redistribute it and/or modify
+ #    it under the terms of the GNU General Public License as published by
+@@ -2410,7 +2410,9 @@ sub get_dimm_list
+ 	my (@dirs, $dir, $opened, $file, @files);
  
--# Parameter: EEPROM bytes 0-383 (using 1-130)
-+# Parameter: EEPROM bytes 0-383 (using 1-255)
- sub decode_ddr4_sdram($)
- {
- 	my $bytes = shift;
-@@ -1761,6 +1761,15 @@ sub decode_ddr4_sdram($)
- 
- 	printl("Module Type", $module_types[$bytes->[3] & 0x0f]->{type});
- 
-+# CRC of block 1
-+	my $crc_calc = calculate_crc($bytes, 128, 126);
-+	my $crc_spd = ($bytes->[255] << 8) | $bytes->[254];
-+	my $crc_block_1_ok = $crc_calc == $crc_spd;
-+	printl("EEPROM CRC of bytes 128-253", $crc_block_1_ok ?
-+		sprintf("OK (0x\%04X)", $crc_calc) :
-+		sprintf("Bad\n(found 0x\%04X, calculated 0x\%04X)",
-+			$crc_spd, $crc_calc));
-+
- # time bases
- 	if (($bytes->[17] & 0x03) != 0x00 || ($bytes->[17] & 0xc0) != 0x00) {
- 		print STDERR "Unknown time base values, can't decode\n";
-@@ -1918,6 +1927,8 @@ sub decode_ddr4_sdram($)
- 	       $bytes->[14] & 0x80 ? "TSE2004 compliant" : "No");
- 
- # type-specific settings
-+	return unless $crc_block_1_ok || $opt_igncheck;
-+
- 	if ($module_types[$bytes->[3] & 0x0f]->{family} == DDR4_UNBUFFERED ||
- 	    $module_types[$bytes->[3] & 0x0f]->{family} == DDR4_REGISTERED ||
- 	    $module_types[$bytes->[3] & 0x0f]->{family} == DDR4_LOAD_REDUCED) {
-@@ -2288,15 +2299,14 @@ sub checksum($)
- }
- 
- # Calculate and verify CRC
--sub check_crc($)
-+sub calculate_crc($$$)
- {
--	my $bytes = shift;
-+	my ($bytes, $start, $len) = @_;
- 	my $crc = 0;
--	my $crc_cover = $bytes->[0] & 0x80 ? 116 : 125;
--	my $crc_ptr = 0;
-+	my $crc_ptr = $start;
- 	my $crc_bit;
- 
--	while ($crc_ptr <= $crc_cover) {
-+	while ($crc_ptr < $start + $len) {
- 		$crc = $crc ^ ($bytes->[$crc_ptr] << 8);
- 		for ($crc_bit = 0; $crc_bit < 8; $crc_bit++) {
- 			if ($crc & 0x8000) {
-@@ -2307,7 +2317,15 @@ sub check_crc($)
- 		}
- 		$crc_ptr++;
+ 	if ($use_sysfs) {
+-		@dirs = ('/sys/bus/i2c/drivers/eeprom', '/sys/bus/i2c/drivers/at24');
++		@dirs = ('/sys/bus/i2c/drivers/eeprom',
++			 '/sys/bus/i2c/drivers/at24',
++			 '/sys/bus/i2c/drivers/ee1004');	# DDR4
+ 	} else {
+ 		@dirs = ('/proc/sys/dev/sensors');
  	}
--	$crc &= 0xffff;
-+
-+	return $crc & 0xffff;
-+}
-+
-+sub check_crc($)
-+{
-+	my $bytes = shift;
-+	my $crc_cover = $bytes->[0] & 0x80 ? 116 : 125;
-+	my $crc = calculate_crc($bytes, 0, $crc_cover + 1);
- 
- 	my $dimm_crc = ($bytes->[127] << 8) | $bytes->[126];
- 	return ("EEPROM CRC of bytes 0-$crc_cover",
+@@ -2428,7 +2430,9 @@ sub get_dimm_list
+ 				# or spd (driver at24)
+ 				my $attr = sysfs_device_attribute("$dir/$file", "name");
+ 				next unless defined $attr &&
+-					    ($attr eq "eeprom" || $attr eq "spd");
++					    ($attr eq "eeprom" ||
++					     $attr eq "spd" ||
++					     $attr eq "ee1004");	# DDR4
+ 			} else {
+ 				next unless $file =~ /^eeprom-/;
+ 			}
+--- i2c-tools.orig/eeprom/decode-dimms.1	2017-11-17 11:21:42.505378009 +0100
++++ i2c-tools/eeprom/decode-dimms.1	2017-11-17 11:28:32.262363769 +0100
+@@ -1,6 +1,7 @@
+ .\"
+ .\"  decode-dimms.1 - manpage for the i2c-tools/decode-dimms utility
+ .\"  Copyright (C) 2013  Jaromir Capik
++.\"  Copyright (C) 2017  Jean Delvare
+ .\"
+ .\"  This program is free software; you can redistribute it and/or modify
+ .\"  it under the terms of the GNU General Public License as published by
+@@ -16,7 +17,7 @@
+ .\"  with this program; if not, write to the Free Software Foundation, Inc.,
+ .\"  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .\"
+-.TH decode-dimms 1 "Oct 2013" "i2c-tools" "User Commands"
++.TH decode-dimms 1 "Nov 2017" "i2c-tools" "User Commands"
+ .SH NAME
+ decode-dimms \- decode the information found in memory module SPD EEPROMs
+ .SH SYNOPSIS
+@@ -31,8 +32,8 @@ The purpose of the
+ .B decode-dimms
+ tool is to decode the information found in memory module SPD EEPROMs.
+ The SPD data is read either from the running system or dump files.
+-In the former case, the tool requires either the eeprom kernel module
+-or the at24 kernel module to be loaded.
++In the former case, the tool requires a kernel module to be loaded:
++eeprom, at24 or ee1004 (for DDR4 SDRAM.)
+ .SH PARAMETERS
+ .TP
+ .B \-f, --format
 
 -- 
 Jean Delvare
