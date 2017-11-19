@@ -1,220 +1,64 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 2/6] decode-dimms: Decode size and timings of DDR4
-Date: Sun, 19 Nov 2017 13:34:18 +0100
-Message-ID: <20171119133418.63d7e0a6@endymion>
+Subject: [PATCH 3/6] decode-dimms: Decode misc parameters of DDR4
+Date: Sun, 19 Nov 2017 13:34:38 +0100
+Message-ID: <20171119133438.6bb65fc6@endymion>
 References: <20171119133309.67d4c596@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48174 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:48189 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750938AbdKSMeV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Nov 2017 07:34:21 -0500
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id CCA33AC9D
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:34:19 +0000 (UTC)
+        id S1750807AbdKSMel (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 19 Nov 2017 07:34:41 -0500
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id C2E48AAB9
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Nov 2017 12:34:39 +0000 (UTC)
 In-Reply-To: <20171119133309.67d4c596@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Linux I2C <linux-i2c@vger.kernel.org>
 
-Decode the memory module size and timings of DDR4 memory.
+Print some additional information for DDR4 SDRAM memory modules.
 ---
- eeprom/decode-dimms |  177 +++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 176 insertions(+), 1 deletion(-)
+ eeprom/decode-dimms |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
---- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:21:44.196398606 +0100
-+++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:24:29.028405403 +0100
-@@ -1702,15 +1702,190 @@ sub decode_ddr3_sdram($)
- 
- }
- 
--# Parameter: EEPROM bytes 0-127 (using 1-1)
-+# Return combined time in ns
-+sub ddr4_mtb_ftb($$$$)
-+{
-+	my ($byte1, $byte2, $mtb, $ftb) = @_;
+--- i2c-tools.orig/eeprom/decode-dimms	2017-11-17 11:24:29.028405403 +0100
++++ i2c-tools/eeprom/decode-dimms	2017-11-17 11:25:15.453970328 +0100
+@@ -1886,6 +1886,35 @@ sub decode_ddr4_sdram($)
+ 	printl_cond($twtr, "Minimum Write to Read Time (tWTR_S)", tns3($twtr));
+ 	$twtr = ((($bytes->[43] & 0xf0) << 4) + $bytes->[45]) * $mtb / 1000;
+ 	printl_cond($twtr, "Minimum Write to Read Time (tWTR_L)", tns3($twtr));
 +
-+	# byte1 is unsigned in ps, but byte2 is signed in ps
-+	$byte2 -= 0x100 if $byte2 & 0x80;
++# miscellaneous stuff
++	prints("Other Information");
 +
-+	return ($byte1 * $mtb + $byte2 * $ftb) / 1000;
-+}
++	my $package_type = ($bytes->[6] & 0x80) == 0x00 ? "Monolithic" :
++			   $signal_loading == 0x01 ? "Multi-load stack" :
++			   $signal_loading == 0x02 ? "3DS" : "Unknown";
++	$package_type .= sprintf(" (%u dies)", $die_count) if $die_count >= 2;
++	printl("Package Type", $package_type);
 +
-+# Rounded per DDR4 specifications
-+sub ddr4_core_timings($$$$$)
-+{
-+	my ($cas, $ctime, $trcd, $trp, $tras) = @_;
++	my @mac = ("Untested",
++		   "700 K", "600 K", "500 K", "400 K", "300 K", "200 K",
++		   undef, "Unlimited");
++	my $mac = $bytes->[7] & 0x0f;
++	printl_cond(defined $mac[$mac], "Maximum Activate Count", $mac[$mac]);
 +
-+	return $cas . "-" . ceil($trcd/$ctime - 0.025) .
-+		      "-" . ceil($trp/$ctime - 0.025) .
-+		      "-" . ceil($tras/$ctime - 0.025);
-+}
++	my $ppr = $bytes->[9] >> 6;
++	printl("Post Package Repair",
++	       $ppr == 0x00 ? "Not supported" :
++	       $ppr == 0x01 ? "One row per bank group" : "Unknown");
++	printl_cond($ppr != 0x00, "Soft PPR", $bytes->[9] & 0x20 ?
++		    "Supported" : "Not Supported");
 +
-+use constant DDR4_UNBUFFERED	=> 1;
-+use constant DDR4_REGISTERED	=> 2;
-+use constant DDR4_LOAD_REDUCED	=> 4;
++	printl("Module Nominal Voltage",
++	       $bytes->[11] & 0x01 ? "1.2 V" :
++	       $bytes->[11] & 0x02 ? "Unknown (1.2 V endurant)" : "Unknown");
 +
-+# Parameter: EEPROM bytes 0-383 (using 1-125)
- sub decode_ddr4_sdram($)
- {
- 	my $bytes = shift;
-+	my ($ctime, $ctime_max);
-+	my ($ftb, $mtb);
-+	my $ii;
-+
-+	my @module_types = (
-+		{ type => "Extended type",	},
-+		{ type => "RDIMM",		family => DDR4_REGISTERED },
-+		{ type => "UDIMM",		family => DDR4_UNBUFFERED },
-+		{ type => "SO-DIMM",		family => DDR4_UNBUFFERED },
-+		{ type => "LRDIMM",		family => DDR4_LOAD_REDUCED },
-+		{ type => "Mini-RDIMM",		family => DDR4_REGISTERED },
-+		{ type => "Mini-UDIMM",		family => DDR4_UNBUFFERED },
-+		{ type => "Reserved (0x07)",	},
-+		{ type => "72b-SO-RDIMM",	family => DDR4_REGISTERED },
-+		{ type => "72b-SO-UDIMM",	family => DDR4_UNBUFFERED },
-+		{ type => "Reserved (0x0A)",	},
-+		{ type => "Reserved (0x0B)",	},
-+		{ type => "16b-SO-DIMM",	family => DDR4_UNBUFFERED },
-+		{ type => "32b-SO-DIMM",	family => DDR4_UNBUFFERED },
-+		{ type => "Reserved (0x0E)",	},
-+		{ type => "No base memory",	},
-+	);
- 
- # SPD revision
- 	printl_cond($bytes->[1] != 0xff, "SPD Revision",
- 		    ($bytes->[1] >> 4) . "." . ($bytes->[1] & 0xf));
- 
-+	printl("Module Type", $module_types[$bytes->[3] & 0x0f]->{type});
-+
-+# time bases
-+	if (($bytes->[17] & 0x03) != 0x00 || ($bytes->[17] & 0xc0) != 0x00) {
-+		print STDERR "Unknown time base values, can't decode\n";
-+		return;
-+	}
-+	$ftb = 1;	# ps
-+	$mtb = 125;	# ps
-+
-+# speed
-+	prints("Memory Characteristics");
-+
-+	$ctime = ddr4_mtb_ftb($bytes->[18], $bytes->[125], $mtb, $ftb);
-+	$ctime_max = ddr4_mtb_ftb($bytes->[19], $bytes->[124], $mtb, $ftb);
-+
-+	my $ddrclk = 2 * (1000 / $ctime);
-+	my $tbits = 8 << ($bytes->[13] & 7);
-+	my $pcclk = int ($ddrclk * $tbits / 8);
-+	# Round down to comply with Jedec
-+	$pcclk = $pcclk - ($pcclk % 100);
-+	$ddrclk = int ($ddrclk);
-+	printl("Maximum module speed", "$ddrclk MHz (PC4-${pcclk})");
-+
-+# Size computation
-+	my $sdram_width = 4 << ($bytes->[12] & 0x07);
-+	my $ranks = (($bytes->[12] >> 3) & 0x07) + 1;
-+	my $signal_loading = $bytes->[6] & 0x03;
-+	my $die_count = (($bytes->[6] >> 4) & 0x07) + 1;
-+	my $cap = (256 << ($bytes->[4] & 0x0f)) / 8;
-+	$cap *= (8 << ($bytes->[13] & 0x07)) / $sdram_width;
-+	$cap *= $ranks;
-+	$cap *= $die_count if $signal_loading == 0x02;		# 3DS
-+	printl("Size", $cap . " MB");
-+
-+	printl("Banks x Rows x Columns x Bits",
-+	       join(' x ', (1 << ($bytes->[4] >> 6)) * (4 << (($bytes->[4] >> 4) & 0x03)),
-+			   ((($bytes->[5] >> 3) & 7) + 12),
-+			   ( ($bytes->[5]       & 7) +  9),
-+			   (8 << ($bytes->[13] & 0x07))));
-+
-+	printl("SDRAM Device Width", "$sdram_width bits");
-+	printl("Ranks", $ranks);
-+	printl_cond($ranks > 1, "Rank Mix",
-+		    $bytes->[12] & 0x40 ? "Asymmetrical" : "Symmetrical");
-+	printl_cond($bytes->[13] & 0x18, "Bus Width Extension", ($bytes->[13] & 0x18)." bits");
-+
-+	my $taa;
-+	my $trcd;
-+	my $trp;
-+	my $tras;
-+
-+	$taa  = ddr4_mtb_ftb($bytes->[24], $bytes->[123], $mtb, $ftb);
-+	$trcd = ddr4_mtb_ftb($bytes->[25], $bytes->[122], $mtb, $ftb);
-+	$trp  = ddr4_mtb_ftb($bytes->[26], $bytes->[121], $mtb, $ftb);
-+	$tras = ((($bytes->[27] & 0x0f) << 8) + $bytes->[28]) * $mtb / 1000;
-+
-+	printl("AA-RCD-RP-RAS (cycles)",
-+	       ddr4_core_timings(ceil($taa/$ctime - 0.025), $ctime,
-+	                         $trcd, $trp, $tras));
-+
-+# latencies
-+	my %cas;
-+	my $cas_sup = ($bytes->[23] << 24) + ($bytes->[22] << 16) +
-+		      ($bytes->[21] << 8) + $bytes->[20];
-+	my $base_cas = $bytes->[23] & 0x80 ? 23 : 7;
-+
-+	for ($ii = 0; $ii < 30; $ii++) {
-+		if ($cas_sup & (1 << $ii)) {
-+			$cas{$base_cas + $ii}++;
-+		}
-+	}
-+	printl("Supported CAS Latencies", cas_latencies(keys %cas));
-+
-+# standard DDR4 speeds
-+	prints("Timings at Standard Speeds");
-+	foreach my $ctime_at_speed (15/24, 15/22, 15/20, 15/18, 15/16, 15/14, 15/12) {
-+		my $best_cas = 0;
-+
-+		# Find min CAS latency at this speed
-+		for ($ii = 29; $ii >= 0; $ii--) {
-+			next unless ($cas_sup & (1 << $ii));
-+			if (ceil($taa/$ctime_at_speed - 0.025) <= $base_cas + $ii) {
-+				$best_cas = $base_cas + $ii;
-+			}
-+		}
-+
-+		printl_cond($best_cas && $ctime_at_speed >= $ctime
-+				      && $ctime_at_speed <= $ctime_max,
-+			    "AA-RCD-RP-RAS (cycles)" . as_ddr(4, $ctime_at_speed),
-+			    ddr4_core_timings($best_cas, $ctime_at_speed,
-+					     $trcd, $trp, $tras));
-+	}
-+
-+# more timing information
-+	prints("Timing Parameters");
-+
-+	printl("Minimum Cycle Time (tCKmin)", tns3($ctime));
-+	printl("Maximum Cycle Time (tCKmax)", tns3($ctime_max));
-+	printl("Minimum CAS Latency Time (tAA)", tns3($taa));
-+	printl("Minimum RAS to CAS Delay (tRCD)", tns3($trcd));
-+	printl("Minimum Row Precharge Delay (tRP)", tns3($trp));
-+	printl("Minimum Active to Precharge Delay (tRAS)", tns3($tras));
-+	printl("Minimum Active to Auto-Refresh Delay (tRC)",
-+		tns3(ddr4_mtb_ftb((($bytes->[27] & 0xf0) << 4) + $bytes->[29],
-+				  $bytes->[120], $mtb, $ftb)));
-+	printl("Minimum Recovery Delay (tRFC1)",
-+		tns3((($bytes->[31] << 8) + $bytes->[30]) * $mtb / 1000));
-+	printl("Minimum Recovery Delay (tRFC2)",
-+		tns3((($bytes->[33] << 8) + $bytes->[32]) * $mtb / 1000));
-+	printl("Minimum Recovery Delay (tRFC4)",
-+		tns3((($bytes->[35] << 8) + $bytes->[34]) * $mtb / 1000));
-+	printl("Minimum Four Activate Window Delay (tFAW)",
-+		tns3(((($bytes->[36] & 0x0f) << 8) + $bytes->[37]) * $mtb / 1000));
-+	printl("Minimum Row Active to Row Active Delay (tRRD_S)",
-+		tns3(ddr4_mtb_ftb($bytes->[38], $bytes->[119], $mtb, $ftb)));
-+	printl("Minimum Row Active to Row Active Delay (tRRD_L)",
-+		tns3(ddr4_mtb_ftb($bytes->[39], $bytes->[118], $mtb, $ftb)));
-+	printl("Minimum CAS to CAS Delay (tCCD_L)",
-+		tns3(ddr4_mtb_ftb($bytes->[40], $bytes->[117], $mtb, $ftb)));
-+
-+	# Optional?
-+	my $twr = ((($bytes->[41] & 0x0f) << 8) + $bytes->[42]) * $mtb / 1000;
-+	printl_cond($twr, "Minimum Write Recovery Time (tWR)", tns3($twr));
-+	my $twtr = ((($bytes->[43] & 0x0f) << 8) + $bytes->[44]) * $mtb / 1000;
-+	printl_cond($twtr, "Minimum Write to Read Time (tWTR_S)", tns3($twtr));
-+	$twtr = ((($bytes->[43] & 0xf0) << 4) + $bytes->[45]) * $mtb / 1000;
-+	printl_cond($twtr, "Minimum Write to Read Time (tWTR_L)", tns3($twtr));
++	printl("Thermal Sensor",
++	       $bytes->[14] & 0x80 ? "TSE2004 compliant" : "No");
  }
  
  # Parameter: EEPROM bytes 0-127 (using 4-5)
