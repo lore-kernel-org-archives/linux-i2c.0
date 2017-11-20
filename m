@@ -1,104 +1,47 @@
 From: Yixun Lan <yixun.lan@amlogic.com>
-Subject: [PATCH v2 3/5] ARM64: dts: meson-axg: add I2C DT info for Meson-AXG SoC
-Date: Mon, 20 Nov 2017 22:54:13 +0800
-Message-ID: <20171120145415.6581-4-yixun.lan@amlogic.com>
+Subject: [PATCH v2 1/5] dt-bindings: i2c: update documentation for the Meson-AXG
+Date: Mon, 20 Nov 2017 22:54:11 +0800
+Message-ID: <20171120145415.6581-2-yixun.lan@amlogic.com>
 References: <20171120145415.6581-1-yixun.lan@amlogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-sh2.amlogic.com ([58.32.228.45]:47234 "EHLO
+        mail-sh2.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751181AbdKTOyy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Nov 2017 09:54:54 -0500
 In-Reply-To: <20171120145415.6581-1-yixun.lan@amlogic.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>
 Cc: Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Yixun Lan <yixun.lan@amlogic.com>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
 From: Jian Hu <jian.hu@amlogic.com>
 
-There are four I2C masters in EE domain, and one I2C Master in
-AO domain, the DT info here should describe them all.
+Update the doc to explicitly add Meson-AXG to support list
 
 Signed-off-by: Jian Hu <jian.hu@amlogic.com>
 Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 59 ++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-meson.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-index 57faaa9d8013..b8ddec6e2cbe 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-@@ -129,6 +129,54 @@
- 				#reset-cells = <1>;
- 			};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+index 611b934c7e10..13d410de077c 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+@@ -1,7 +1,11 @@
+ Amlogic Meson I2C controller
  
-+			i2c0: i2c@1f000 {
-+				compatible = "amlogic,meson-axg-i2c";
-+				status = "disabled";
-+				reg = <0x0 0x1f000 0x0 0x20>;
-+				interrupts = <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
-+					<GIC_SPI 47 IRQ_TYPE_EDGE_RISING>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clocks = <&clkc CLKID_I2C>;
-+				clock-names = "clk_i2c";
-+			};
+ Required properties:
+- - compatible: must be "amlogic,meson6-i2c" or "amlogic,meson-gxbb-i2c"
++ - compatible: must be:
++	"amlogic,meson6-i2c" for Meson8 and compatible SoCs
++	"amlogic,meson-gxbb-i2c" for GXBB and compatible SoCs
++	"amlogic,meson-axg-i2c"for AXG and compatible SoCs
 +
-+			i2c1: i2c@1e000 {
-+				compatible = "amlogic,meson-axg-i2c";
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				reg = <0x0 0x1e000 0x0 0x20>;
-+				status = "disabled";
-+				interrupts = <GIC_SPI 214 IRQ_TYPE_EDGE_RISING>,
-+					<GIC_SPI 48 IRQ_TYPE_EDGE_RISING>;
-+				clocks = <&clkc CLKID_I2C>;
-+				clock-names = "clk_i2c";
-+			};
-+
-+			i2c2: i2c@1d000 {
-+				compatible = "amlogic,meson-axg-i2c";
-+				status = "disabled";
-+				reg = <0x0 0x1d000 0x0 0x20>;
-+				interrupts = <GIC_SPI 215 IRQ_TYPE_EDGE_RISING>,
-+					<GIC_SPI 49 IRQ_TYPE_EDGE_RISING>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clocks = <&clkc CLKID_I2C>;
-+				clock-names = "clk_i2c";
-+			};
-+
-+			i2c3: i2c@1c000 {
-+				compatible = "amlogic,meson-axg-i2c";
-+				status = "disabled";
-+				reg = <0x0 0x1c000 0x0 0x20>;
-+				interrupts = <GIC_SPI 39 IRQ_TYPE_EDGE_RISING>,
-+					<GIC_SPI 50 IRQ_TYPE_EDGE_RISING>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clocks = <&clkc CLKID_I2C>;
-+				clock-names = "clk_i2c";
-+			};
-+
- 			uart_A: serial@24000 {
- 				compatible = "amlogic,meson-gx-uart", "amlogic,meson-uart";
- 				reg = <0x0 0x24000 0x0 0x14>;
-@@ -312,6 +360,17 @@
- 				};
- 			};
- 
-+			i2c_AO: i2c@5000 {
-+				compatible = "amlogic,meson-axg-i2c";
-+				status = "disabled";
-+				reg = <0x0 0x05000 0x0 0x20>;
-+				interrupts = <GIC_SPI 195 IRQ_TYPE_EDGE_RISING>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clocks = <&clkc CLKID_I2C>;
-+				clock-names = "clk_i2c";
-+			};
-+
- 			uart_AO: serial@3000 {
- 				compatible = "amlogic,meson-gx-uart", "amlogic,meson-ao-uart";
- 				reg = <0x0 0x3000 0x0 0x18>;
+  - reg: physical address and length of the device registers
+  - interrupts: a single interrupt specifier
+  - clocks: clock for the device
 -- 
 2.15.0
