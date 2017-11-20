@@ -1,41 +1,33 @@
-From: Yixun Lan <yixun.lan@amlogic.com>
-Subject: [PATCH v2 5/5] ARM64: dts: meson-axg: enable I2C Master-1 for the audio speaker
-Date: Mon, 20 Nov 2017 22:54:15 +0800
-Message-ID: <20171120145415.6581-6-yixun.lan@amlogic.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/5] dt-bindings: i2c: update documentation for the
+ Meson-AXG
+Date: Mon, 20 Nov 2017 15:33:03 -0600
+Message-ID: <20171120213303.7emjj2ranix45otc@rob-hp-laptop>
 References: <20171120145415.6581-1-yixun.lan@amlogic.com>
+ <20171120145415.6581-2-yixun.lan@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171120145415.6581-1-yixun.lan@amlogic.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Yixun Lan <yixun.lan@amlogic.com>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:38022 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752816AbdKTVdI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Nov 2017 16:33:08 -0500
+Content-Disposition: inline
+In-Reply-To: <20171120145415.6581-2-yixun.lan@amlogic.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Yixun Lan <yixun.lan@amlogic.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-From: Jian Hu <jian.hu@amlogic.com>
+On Mon, Nov 20, 2017 at 10:54:11PM +0800, Yixun Lan wrote:
+> From: Jian Hu <jian.hu@amlogic.com>
+> 
+> Update the doc to explicitly add Meson-AXG to support list
+> 
+> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
+> Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-meson.txt | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 
-In the S400 board, The I2C master-1 is connecting to
-the audio speaker daughter board.
-
-Signed-off-by: Jian Hu <jian.hu@amlogic.com>
-Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
----
- arch/arm64/boot/dts/amlogic/meson-axg-s400.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-index 7b39a9fe2b0f..0864d1ff2d9b 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg-s400.dts
-@@ -28,3 +28,9 @@
- 	pinctrl-0 = <&eth_rgmii_y_pins>;
- 	pinctrl-names = "default";
- };
-+
-+&i2c1 {
-+	status = "okay";
-+	pinctrl-0 = <&i2c1_z_pins>;
-+	pinctrl-names = "default";
-+};
--- 
-2.15.0
+Acked-by: Rob Herring <robh@kernel.org>
