@@ -1,54 +1,35 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v1 13/15] iio: imu: inv_mpu6050: Remove duplicate NULL
- check
-Date: Sun, 19 Nov 2017 16:04:37 +0000
-Message-ID: <20171119160437.6c2742d9@archlinux>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-        <20171031142149.32512-13-andriy.shevchenko@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: i801: Fix SMBus ENXIO on resume from suspend.
+Date: Mon, 20 Nov 2017 10:15:14 +0100
+Message-ID: <20171120101514.62239b4f@endymion>
+References: <20171115170156.21532-1-alban.browaeys@gmail.com>
+        <1510777525.21208.4.camel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:38162 "EHLO mail.kernel.org"
+Received: from mx2.suse.de ([195.135.220.15]:56720 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751002AbdKSQEl (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Nov 2017 11:04:41 -0500
-In-Reply-To: <20171031142149.32512-13-andriy.shevchenko@linux.intel.com>
+        id S1750932AbdKTJPR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 20 Nov 2017 04:15:17 -0500
+In-Reply-To: <1510777525.21208.4.camel@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org
+To: Alban Browaeys <alban.browaeys@gmail.com>, Volker =?UTF-8?B?UsO8bWVs?= =?UTF-8?B?aW4=?= <vr_qemu@t-online.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Tue, 31 Oct 2017 16:21:47 +0200
-Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+On Wed, 15 Nov 2017 21:25:25 +0100, Alban Browaeys wrote:
+> This fix is a partial one: it only fixes the issue once
+> we unload then reload i2c-i801 .
+> This as when we load a second time  orig_hstcfg is set to the value the
+> first module load leftover.
+> Thus I will investigate the initial orig_hstcfg at boot to further the
+> fix.
+> I bet this only a few missing bits like HST_EN.
 
-> Since i2c_unregister_device() became NULL-aware we may remove duplicate
-> NULL check.
-> 
-> Cc: Jonathan Cameron <jic23@kernel.org>
-> Cc: Hartmut Knaack <knaack.h@gmx.de>
-> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-> Cc: linux-iio@vger.kernel.org
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Applied to the togreg branch of iio.git.  Thanks,
+Volker, I think you had a fix for that one? But I can't find it in the
+list archive :-(
 
-Jonathan
-> ---
->  drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> index dd6fc6d21f9d..d78a10403bac 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-> @@ -196,8 +196,7 @@ void inv_mpu_acpi_delete_mux_client(struct i2c_client *client)
->  {
->  	struct inv_mpu6050_state *st = iio_priv(dev_get_drvdata(&client->dev));
->  
-> -	if (st->mux_client)
-> -		i2c_unregister_device(st->mux_client);
-> +	i2c_unregister_device(st->mux_client);
->  }
->  #else
->  
+-- 
+Jean Delvare
+SUSE L3 Support
