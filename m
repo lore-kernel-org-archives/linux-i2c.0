@@ -1,76 +1,69 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 2/7] eeprom: at24: change at24_translate_offset return type
-Date: Tue, 21 Nov 2017 11:00:10 +0100
-Message-ID: <CAMRc=MeCr9qVKDc=20HdCe1jbwmuZckE3HyXOLW71bHczHa3mQ@mail.gmail.com>
-References: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com> <9b0019a9-f272-e345-d814-fcb05f978554@gmail.com>
+Subject: Re: [PATCH v2 3/7] eeprom: at24: add regmap-based write function
+Date: Tue, 21 Nov 2017 11:07:26 +0100
+Message-ID: <CAMRc=MfJ2n57kH5nJrUxSBPPea2s2T1uDkCK5jFhFvkRW0d-JQ@mail.gmail.com>
+References: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com> <a4c705cc-69e8-35f8-2131-f7c610111d77@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:41832 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751343AbdKUKAM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Nov 2017 05:00:12 -0500
-Received: by mail-ot0-f195.google.com with SMTP id b54so10032381otd.8
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 02:00:12 -0800 (PST)
-In-Reply-To: <9b0019a9-f272-e345-d814-fcb05f978554@gmail.com>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:36324 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751907AbdKUKH1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Nov 2017 05:07:27 -0500
+Received: by mail-oi0-f68.google.com with SMTP id n16so8160542oig.3
+        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 02:07:27 -0800 (PST)
+In-Reply-To: <a4c705cc-69e8-35f8-2131-f7c610111d77@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Heiner Kallweit <hkallweit1@gmail.com>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 2017-11-16 21:26 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Change return type of at24_translate_offset to *at24_client to make
-> member regmap accessible for subsequent patches of this series.
+> Add a regmap-based write function.
 >
 > Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
 > v2:
 > - rebased
 > ---
->  drivers/misc/eeprom/at24.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
+>  drivers/misc/eeprom/at24.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
 >
 > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 911cce8ec..1411fa029 100644
+> index 1411fa029..c0c59575e 100644
 > --- a/drivers/misc/eeprom/at24.c
 > +++ b/drivers/misc/eeprom/at24.c
-> @@ -267,8 +267,8 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
->   * one "eeprom" file not four, but larger reads would fail when
->   * they crossed certain pages.
->   */
-> -static struct i2c_client *at24_translate_offset(struct at24_data *at24,
-> -                                               unsigned int *offset)
-> +static struct at24_client *at24_translate_offset(struct at24_data *at24,
-> +                                                unsigned int *offset)
->  {
->         unsigned i;
->
-> @@ -280,7 +280,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
->                 *offset &= 0xff;
->         }
->
-> -       return at24->client[i].client;
-> +       return &at24->client[i];
+> @@ -525,6 +525,22 @@ static ssize_t at24_eeprom_write_smbus_byte(struct at24_data *at24,
+>         return -ETIMEDOUT;
 >  }
 >
->  static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
-> @@ -290,7 +290,7 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
->         struct i2c_client *client;
->         int status;
->
-> -       client = at24_translate_offset(at24, &offset);
-> +       client = at24_translate_offset(at24, &offset)->client;
+> +static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
+> +                                unsigned int offset, size_t count)
+> +{
+> +       unsigned long timeout, write_time;
+> +       struct regmap *regmap;
+> +
+> +       regmap = at24_translate_offset(at24, &offset)->regmap;
+> +       count = at24_adjust_write_count(at24, offset, count);
+> +
+> +       loop_until_timeout(timeout, write_time)
+> +               if (!regmap_bulk_write(regmap, offset, buf, count))
+> +                       return count;
+> +
 
-Please do something like:
+Please do this:
 
-struct at24_client *at24;
-struct i2c_client *client;
+int rv;
 
-at24 = at24_translate_offset(at24, &offset);
-client = at24->client;
+rv = regmap_bulk_write(...);
+if (rv == 0)
+    return count;
 
-I find it more readable like that and we don't hide the type of the
-return value of at24_translate_offset().
+I'd like to stay as readable as possible and making the return value
+type visible is always good.
+
+Also: it would be nice if you could keep the dev_dbg() call from the
+original write function.
 
 Thanks,
 Bartosz
