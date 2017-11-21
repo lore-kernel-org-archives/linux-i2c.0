@@ -1,92 +1,76 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [RFC 1/3] i2c: smbus: move of_i2c_setup_smbus_alert declaration to i2c-core.h
-Date: Tue, 21 Nov 2017 12:04:56 +0800
-Message-ID: <1511237098-33250-2-git-send-email-preid@electromag.com.au>
-References: <1511237098-33250-1-git-send-email-preid@electromag.com.au>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 2/7] eeprom: at24: change at24_translate_offset return type
+Date: Tue, 21 Nov 2017 11:00:10 +0100
+Message-ID: <CAMRc=MeCr9qVKDc=20HdCe1jbwmuZckE3HyXOLW71bHczHa3mQ@mail.gmail.com>
+References: <f8f2ce63-f533-6529-1639-34e3500e5845@gmail.com> <9b0019a9-f272-e345-d814-fcb05f978554@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy3.45ru.net.au ([203.30.46.155]:47100 "EHLO
-        anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752709AbdKUEFK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Nov 2017 23:05:10 -0500
-In-Reply-To: <1511237098-33250-1-git-send-email-preid@electromag.com.au>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:41832 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751343AbdKUKAM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 21 Nov 2017 05:00:12 -0500
+Received: by mail-ot0-f195.google.com with SMTP id b54so10032381otd.8
+        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 02:00:12 -0800 (PST)
+In-Reply-To: <9b0019a9-f272-e345-d814-fcb05f978554@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: realmz6@gmail.com, wsa@the-dreams.de, sre@kernel.org, preid@electromag.com.au, benjamin.tissoires@redhat.com, adi-buildroot-devel@lists.sourceforge.net, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, jdelvare@suse.de
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-This declaration isn't used by anything outside of the i2c-core at
-present. In preparation for moving the smbus_alert code from it's
-own module into the i2c-core move to i2c-core.h
+2017-11-16 21:26 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Change return type of at24_translate_offset to *at24_client to make
+> member regmap accessible for subsequent patches of this series.
+>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+> v2:
+> - rebased
+> ---
+>  drivers/misc/eeprom/at24.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 911cce8ec..1411fa029 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -267,8 +267,8 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
+>   * one "eeprom" file not four, but larger reads would fail when
+>   * they crossed certain pages.
+>   */
+> -static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+> -                                               unsigned int *offset)
+> +static struct at24_client *at24_translate_offset(struct at24_data *at24,
+> +                                                unsigned int *offset)
+>  {
+>         unsigned i;
+>
+> @@ -280,7 +280,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+>                 *offset &= 0xff;
+>         }
+>
+> -       return at24->client[i].client;
+> +       return &at24->client[i];
+>  }
+>
+>  static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
+> @@ -290,7 +290,7 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
+>         struct i2c_client *client;
+>         int status;
+>
+> -       client = at24_translate_offset(at24, &offset);
+> +       client = at24_translate_offset(at24, &offset)->client;
 
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
- drivers/i2c/i2c-core.h    |  9 +++++++++
- drivers/i2c/i2c-smbus.c   |  3 ++-
- include/linux/i2c-smbus.h | 10 ----------
- 3 files changed, 11 insertions(+), 11 deletions(-)
+Please do something like:
 
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 3d3d9bf..8ef0402 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -60,3 +60,12 @@ static inline void i2c_acpi_remove_space_handler(struct i2c_adapter *adapter) {
- static inline void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif
- extern struct notifier_block i2c_of_notifier;
-+
-+#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
-+int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
-+#else
-+static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
-+{
-+	return 0;
-+}
-+#endif
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 5a1dd7f..c11a50e 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -25,6 +25,8 @@
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- 
-+#include "i2c-core.h"
-+
- struct i2c_smbus_alert {
- 	struct work_struct	alert;
- 	struct i2c_client	*ara;		/* Alert response address */
-@@ -123,7 +125,6 @@ static void smbalert_work(struct work_struct *work)
- 	alert = container_of(work, struct i2c_smbus_alert, alert);
- 
- 	smbus_alert(0, alert);
--
- }
- 
- /* Setup SMBALERT# infrastructure */
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index fb0e040..5f16a63 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -26,7 +26,6 @@
- #include <linux/spinlock.h>
- #include <linux/workqueue.h>
- 
--
- /**
-  * i2c_smbus_alert_setup - platform data for the smbus_alert i2c client
-  * @alert_edge_triggered: whether the alert interrupt is edge (1) or level (0)
-@@ -49,13 +48,4 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
- 					 struct i2c_smbus_alert_setup *setup);
- int i2c_handle_smbus_alert(struct i2c_client *ara);
- 
--#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
--int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
--#else
--static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
--{
--	return 0;
--}
--#endif
--
- #endif /* _LINUX_I2C_SMBUS_H */
--- 
-1.8.3.1
+struct at24_client *at24;
+struct i2c_client *client;
+
+at24 = at24_translate_offset(at24, &offset);
+client = at24->client;
+
+I find it more readable like that and we don't hide the type of the
+return value of at24_translate_offset().
+
+Thanks,
+Bartosz
