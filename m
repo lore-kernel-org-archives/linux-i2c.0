@@ -1,110 +1,121 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 5/7] eeprom: at24: add regmap-based read function
-Date: Wed, 22 Nov 2017 08:05:58 +0100
-Message-ID: <f9cc45de-ef6e-fd28-8851-512aba3bbfb2@gmail.com>
+Subject: [PATCH v3 7/7] eeprom: at24: remove now unneeded smbus-related code
+Date: Wed, 22 Nov 2017 08:06:09 +0100
+Message-ID: <e8b8b662-37f5-46c8-ba49-c74113216651@gmail.com>
 References: <bcf28969-c6a3-805f-7df9-670dfbd99631@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:46772 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751216AbdKVHGU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Nov 2017 02:06:20 -0500
-Received: by mail-wm0-f68.google.com with SMTP id u83so8054937wmb.5
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 23:06:20 -0800 (PST)
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:41981 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751371AbdKVHGX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Nov 2017 02:06:23 -0500
+Received: by mail-wm0-f65.google.com with SMTP id b189so8028171wmd.0
+        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 23:06:22 -0800 (PST)
 In-Reply-To: <bcf28969-c6a3-805f-7df9-670dfbd99631@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Bartosz Golaszewski <brgl@bgdev.pl>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Add regmap-based read function and instead of using three different
-read functions (standard, mac, serial) use just one and factor out the
-read offset adjustment for mac and serial to at24_adjust_read_offset.
+Remove remaining now unneeded code dealing with SMBUS details.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
 - rebased
 v3:
-- improve readability
-- re-introduce debug message
-- introduce at24_adjust_read_offset
+- rebased
 ---
- drivers/misc/eeprom/at24.c | 53 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ drivers/misc/eeprom/at24.c | 52 ++++------------------------------------------
+ 1 file changed, 4 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 493e2b646..589e6d855 100644
+index fa1dfd9c0..fc20e610c 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -312,6 +312,57 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
- 	return -ETIMEDOUT;
- }
+@@ -512,8 +512,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_platform_data chip;
+ 	kernel_ulong_t magic = 0;
+ 	bool writable;
+-	int use_smbus = 0;
+-	int use_smbus_write = 0;
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
+@@ -565,33 +563,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		dev_warn(&client->dev,
+ 			"page_size looks suspicious (no power of 2)!\n");
  
-+static void at24_adjust_read_offset(struct at24_data *at24,
-+				    unsigned int *offset)
-+{
-+	u8 flags = at24->chip.flags;
-+
-+	if (flags & AT24_FLAG_MAC)
-+		*offset += 0x90;
-+	else if (flags & AT24_FLAG_SERIAL && flags & AT24_FLAG_ADDR16)
-+		/*
-+		 * For 16 bit address pointers, the word address must contain
-+		 * a '10' sequence in bits 11 and 10 regardless of the
-+		 * intended position of the address pointer.
-+		 */
-+		*offset |= BIT(11);
-+	else if (flags & AT24_FLAG_SERIAL)
-+		/*
-+		 * Otherwise the word address must begin with a '10' sequence,
-+		 * regardless of the intended address.
-+		 */
-+		*offset |= BIT(7);
-+}
-+
-+static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
-+				unsigned int offset, size_t count)
-+{
-+	unsigned long timeout, read_time;
-+	struct at24_client *at24_client;
-+	struct i2c_client *client;
-+	struct regmap *regmap;
-+	int ret;
-+
-+	at24_client = at24_translate_offset(at24, &offset);
-+	regmap = at24_client->regmap;
-+	client = at24_client->client;
-+
-+	if (count > io_limit)
-+		count = io_limit;
-+
-+	at24_adjust_read_offset(at24, &offset);
-+
-+	loop_until_timeout(timeout, read_time) {
-+		ret = regmap_bulk_read(regmap, offset, buf, count);
-+		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
-+			count, offset, ret, jiffies);
-+		if (!ret)
-+			return count;
-+	}
-+
-+	return -ETIMEDOUT;
-+}
-+
- static ssize_t at24_eeprom_read_i2c(struct at24_data *at24, char *buf,
- 				    unsigned int offset, size_t count)
- {
-@@ -531,7 +582,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int	status;
+-	/* Use I2C operations unless we're stuck with SMBus extensions. */
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		if (chip.flags & AT24_FLAG_ADDR16)
+-			return -EPFNOSUPPORT;
+-
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		if (i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+-			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
+-		} else if (i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_READ_WORD_DATA)) {
+-			use_smbus = I2C_SMBUS_WORD_DATA;
+-		} else if (i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+-			use_smbus = I2C_SMBUS_BYTE_DATA;
+-		} else {
+-			return -EPFNOSUPPORT;
+-		}
+-
+-		if (i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+-			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
+-		} else if (i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
+-			use_smbus_write = I2C_SMBUS_BYTE_DATA;
++				I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+ 			chip.page_size = 1;
+-		}
+-	}
  
--		status = at24->read_func(at24, buf, off, count);
-+		status = at24_regmap_read(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(&client->dev);
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
+@@ -625,21 +600,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	}
+ 
+ 	writable = !(chip.flags & AT24_FLAG_READONLY);
+-	if (writable) {
+-		if (!use_smbus || use_smbus_write) {
+-
+-			unsigned write_max = chip.page_size;
+-
+-			if (write_max > io_limit)
+-				write_max = io_limit;
+-			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
+-				write_max = I2C_SMBUS_BLOCK_MAX;
+-			at24->write_max = write_max;
+-		} else {
+-			dev_warn(&client->dev,
+-				"cannot write due to controller restrictions.");
+-		}
+-	}
++	if (writable)
++		at24->write_max = min_t(unsigned int, chip.page_size, io_limit);
+ 
+ 	/* use dummy devices for multiple-address chips */
+ 	for (i = 1; i < num_addresses; i++) {
+@@ -700,12 +662,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	dev_info(&client->dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
+ 		chip.byte_len, client->name,
+ 		writable ? "writable" : "read-only", at24->write_max);
+-	if (use_smbus == I2C_SMBUS_WORD_DATA ||
+-	    use_smbus == I2C_SMBUS_BYTE_DATA) {
+-		dev_notice(&client->dev, "Falling back to %s reads, "
+-			   "performance will suffer\n", use_smbus ==
+-			   I2C_SMBUS_WORD_DATA ? "word" : "byte");
+-	}
+ 
+ 	/* export data to kernel code */
+ 	if (chip.setup)
 -- 
 2.15.0
