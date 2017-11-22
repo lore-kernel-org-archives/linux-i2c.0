@@ -1,120 +1,43 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 5/7] eeprom: at24: add regmap-based read function
-Date: Wed, 22 Nov 2017 12:20:34 +0100
-Message-ID: <CAMRc=MdZiePg1AH2NeNeFkGMH2uNn9D7r2TKhkUJs=T+feuB2Q@mail.gmail.com>
-References: <bcf28969-c6a3-805f-7df9-670dfbd99631@gmail.com> <f9cc45de-ef6e-fd28-8851-512aba3bbfb2@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] i2c: i801: Fix Failed to allocate irq -2147483648 error
+Date: Wed, 22 Nov 2017 12:28:17 +0100
+Message-ID: <20171122112817.9554-1-hdegoede@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:35737 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751556AbdKVLUf (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Nov 2017 06:20:35 -0500
-Received: by mail-ot0-f194.google.com with SMTP id b17so13262890oth.2
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Nov 2017 03:20:35 -0800 (PST)
-In-Reply-To: <f9cc45de-ef6e-fd28-8851-512aba3bbfb2@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:54318 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752011AbdKVL2U (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 22 Nov 2017 06:28:20 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
 
-2017-11-22 8:05 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Add regmap-based read function and instead of using three different
-> read functions (standard, mac, serial) use just one and factor out the
-> read offset adjustment for mac and serial to at24_adjust_read_offset.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
-> v2:
-> - rebased
-> v3:
-> - improve readability
-> - re-introduce debug message
-> - introduce at24_adjust_read_offset
-> ---
->  drivers/misc/eeprom/at24.c | 53 +++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 52 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 493e2b646..589e6d855 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -312,6 +312,57 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
->         return -ETIMEDOUT;
->  }
->
-> +static void at24_adjust_read_offset(struct at24_data *at24,
-> +                                   unsigned int *offset)
-> +{
-> +       u8 flags = at24->chip.flags;
-> +
-> +       if (flags & AT24_FLAG_MAC)
-> +               *offset += 0x90;
+On Apollo Lake devices the BIOS does not set up IRQ routing for the i801
+SMBUS controller IRQ, so we end up with dev->irq set to IRQ_NOTCONNECTED.
 
-Ok, so I missed this last time. On the other hand we could avoid this
-function and all these if elses if we added an unsigned int called for
-example: offset_adj to struct at24_data. It could be initialized in
-probe() to whatever value is needed according to the flags and then
-or'ed right before reading from the regmap in at24_regmap_read(). How
-about that?
+Detect this and do not try to use the irq in this case silencing:
+i801_smbus 0000:00:1f.1: Failed to allocate irq -2147483648: -107
 
-> +       else if (flags & AT24_FLAG_SERIAL && flags & AT24_FLAG_ADDR16)
-> +               /*
-> +                * For 16 bit address pointers, the word address must contain
-> +                * a '10' sequence in bits 11 and 10 regardless of the
-> +                * intended position of the address pointer.
-> +                */
-> +               *offset |= BIT(11);
-> +       else if (flags & AT24_FLAG_SERIAL)
-> +               /*
-> +                * Otherwise the word address must begin with a '10' sequence,
-> +                * regardless of the intended address.
-> +                */
-> +               *offset |= BIT(7);
-> +}
-> +
-> +static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
-> +                               unsigned int offset, size_t count)
-> +{
-> +       unsigned long timeout, read_time;
-> +       struct at24_client *at24_client;
-> +       struct i2c_client *client;
-> +       struct regmap *regmap;
-> +       int ret;
-> +
-> +       at24_client = at24_translate_offset(at24, &offset);
-> +       regmap = at24_client->regmap;
-> +       client = at24_client->client;
-> +
-> +       if (count > io_limit)
-> +               count = io_limit;
-> +
-> +       at24_adjust_read_offset(at24, &offset);
-> +
-> +       loop_until_timeout(timeout, read_time) {
-> +               ret = regmap_bulk_read(regmap, offset, buf, count);
-> +               dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
-> +                       count, offset, ret, jiffies);
-> +               if (!ret)
-> +                       return count;
-> +       }
-> +
-> +       return -ETIMEDOUT;
-> +}
-> +
->  static ssize_t at24_eeprom_read_i2c(struct at24_data *at24, char *buf,
->                                     unsigned int offset, size_t count)
->  {
-> @@ -531,7 +582,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
->         while (count) {
->                 int     status;
->
-> -               status = at24->read_func(at24, buf, off, count);
-> +               status = at24_regmap_read(at24, buf, off, count);
->                 if (status < 0) {
->                         mutex_unlock(&at24->lock);
->                         pm_runtime_put(&client->dev);
-> --
-> 2.15.0
->
->
+Cc: stable@vger.kernel.org
+BugLink: https://communities.intel.com/thread/114759
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 9e12a53ef7b8..8eac00efadc1 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1617,6 +1617,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	/* Default timeout in interrupt mode: 200 ms */
+ 	priv->adapter.timeout = HZ / 5;
+ 
++	if (dev->irq == IRQ_NOTCONNECTED)
++		priv->features &= ~FEATURE_IRQ;
++
+ 	if (priv->features & FEATURE_IRQ) {
+ 		u16 pcictl, pcists;
+ 
+-- 
+2.14.3
