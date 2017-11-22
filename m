@@ -1,81 +1,148 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 3/7] eeprom: at24: add regmap-based write function
-Date: Wed, 22 Nov 2017 08:02:59 +0100
-Message-ID: <bbe14d71-043b-38c3-6871-3347b3c08200@gmail.com>
-References: <bcf28969-c6a3-805f-7df9-670dfbd99631@gmail.com>
+From: Luis Oliveira <Luis.Oliveira@synopsys.com>
+Subject: Re: [PATCH] i2c: designware: Don't set SCL timings and speed mode
+ when in slave mode
+Date: Wed, 22 Nov 2017 11:15:53 +0000
+Message-ID: <345affbc-a4af-9396-8d2e-8f24e4f2a8f7@synopsys.com>
+References: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:37872 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751216AbdKVHGS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Nov 2017 02:06:18 -0500
-Received: by mail-wm0-f67.google.com with SMTP id v186so7936625wma.2
-        for <linux-i2c@vger.kernel.org>; Tue, 21 Nov 2017 23:06:17 -0800 (PST)
-In-Reply-To: <bcf28969-c6a3-805f-7df9-670dfbd99631@gmail.com>
+Received: from smtprelay.synopsys.com ([198.182.47.9]:48332 "EHLO
+        smtprelay.synopsys.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751556AbdKVLQK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 22 Nov 2017 06:16:10 -0500
+In-Reply-To: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Luis Oliveira <Luis.Oliveira@synopsys.com>, Joao Pinto <Joao.Pinto@synopsys.com>Wolfram Sang <wsa@the-dreams.de>
 
-Add a regmap-based write function.
+Hi Jarkko,
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- rebased
-v3:
-- improve readability
-- re-introduce debug message
----
- drivers/misc/eeprom/at24.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+Sorry for making you wait so long but finally I've got my setup back.
+I tested it and everything works fine.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index fe4393ad6..86a36482a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -537,6 +537,31 @@ static ssize_t at24_eeprom_write_smbus_byte(struct at24_data *at24,
- 	return -ETIMEDOUT;
- }
- 
-+static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
-+				 unsigned int offset, size_t count)
-+{
-+	unsigned long timeout, write_time;
-+	struct at24_client *at24_client;
-+	struct i2c_client *client;
-+	struct regmap *regmap;
-+	int ret;
-+
-+	at24_client = at24_translate_offset(at24, &offset);
-+	regmap = at24_client->regmap;
-+	client = at24_client->client;
-+	count = at24_adjust_write_count(at24, offset, count);
-+
-+	loop_until_timeout(timeout, write_time) {
-+		ret = regmap_bulk_write(regmap, offset, buf, count);
-+		dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
-+			count, offset, ret, jiffies);
-+		if (!ret)
-+			return count;
-+	}
-+
-+	return -ETIMEDOUT;
-+}
-+
- static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
- 				     unsigned int offset, size_t count)
- {
-@@ -654,7 +679,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	while (count) {
- 		int status;
- 
--		status = at24->write_func(at24, buf, off, count);
-+		status = at24_regmap_write(at24, buf, off, count);
- 		if (status < 0) {
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(&client->dev);
--- 
-2.15.0
+On 23-Aug-17 14:46, Jarkko Nikula wrote:
+> According to data sheet SCL timing parameters and DW_IC_CON SPEED mode
+> bits are not used when operating in slave mode.
+> 
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> I've done quick testing with i2c-slave-eeprom and i2cdump over together
+> hooked busses without issues. Would like to hear tested by or comment
+> from Luis though. Patch is not urgent so can wait after vacation etc.
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 11 -----
+>  drivers/i2c/busses/i2c-designware-slave.c   | 64 -----------------------------
+>  2 files changed, 75 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 56a17fdc2270..962c7ab25b93 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -201,17 +201,6 @@ static void i2c_dw_configure_slave(struct dw_i2c_dev *dev)
+>  			 DW_IC_CON_RESTART_EN | DW_IC_CON_STOP_DET_IFADDRESSED;
+>  
+>  	dev->mode = DW_IC_SLAVE;
+> -
+> -	switch (dev->clk_freq) {
+> -	case 100000:
+> -		dev->slave_cfg |= DW_IC_CON_SPEED_STD;
+> -		break;
+> -	case 3400000:
+> -		dev->slave_cfg |= DW_IC_CON_SPEED_HIGH;
+> -		break;
+> -	default:
+> -		dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
+> -	}
+>  }
+>  
+>  static int i2c_dw_plat_prepare_clk(struct dw_i2c_dev *i_dev, bool prepare)
+> diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+> index ea9578ab19a1..d42558d1b002 100644
+> --- a/drivers/i2c/busses/i2c-designware-slave.c
+> +++ b/drivers/i2c/busses/i2c-designware-slave.c
+> @@ -51,9 +51,7 @@ static void i2c_dw_configure_fifo_slave(struct dw_i2c_dev *dev)
+>   */
+>  static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+>  {
+> -	u32 sda_falling_time, scl_falling_time;
+>  	u32 reg, comp_param1;
+> -	u32 hcnt, lcnt;
+>  	int ret;
+>  
+>  	ret = i2c_dw_acquire_lock(dev);
+> @@ -79,68 +77,6 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+>  	/* Disable the adapter. */
+>  	__i2c_dw_enable_and_wait(dev, false);
+>  
+> -	/* Set standard and fast speed deviders for high/low periods. */
+> -	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
+> -	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
+> -
+> -	/* Set SCL timing parameters for standard-mode. */
+> -	if (dev->ss_hcnt && dev->ss_lcnt) {
+> -		hcnt = dev->ss_hcnt;
+> -		lcnt = dev->ss_lcnt;
+> -	} else {
+> -		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
+> -				       4000,	/* tHD;STA = tHIGH = 4.0 us */
+> -				       sda_falling_time,
+> -				       0,	/* 0: DW default, 1: Ideal */
+> -				       0);	/* No offset */
+> -		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
+> -				       4700,	/* tLOW = 4.7 us */
+> -				       scl_falling_time,
+> -				       0);	/* No offset */
+> -	}
+> -	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
+> -	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
+> -	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+> -
+> -	/* Set SCL timing parameters for fast-mode or fast-mode plus. */
+> -	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
+> -		hcnt = dev->fp_hcnt;
+> -		lcnt = dev->fp_lcnt;
+> -	} else if (dev->fs_hcnt && dev->fs_lcnt) {
+> -		hcnt = dev->fs_hcnt;
+> -		lcnt = dev->fs_lcnt;
+> -	} else {
+> -		hcnt = i2c_dw_scl_hcnt(i2c_dw_clk_rate(dev),
+> -				       600,	/* tHD;STA = tHIGH = 0.6 us */
+> -				       sda_falling_time,
+> -				       0,	/* 0: DW default, 1: Ideal */
+> -				       0);	/* No offset */
+> -		lcnt = i2c_dw_scl_lcnt(i2c_dw_clk_rate(dev),
+> -				       1300,	/* tLOW = 1.3 us */
+> -				       scl_falling_time,
+> -				       0);	/* No offset */
+> -	}
+> -	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
+> -	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+> -	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+> -
+> -	if ((dev->slave_cfg & DW_IC_CON_SPEED_MASK) ==
+> -		DW_IC_CON_SPEED_HIGH) {
+> -		if ((comp_param1 & DW_IC_COMP_PARAM_1_SPEED_MODE_MASK)
+> -			!= DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH) {
+> -			dev_err(dev->dev, "High Speed not supported!\n");
+> -			dev->slave_cfg &= ~DW_IC_CON_SPEED_MASK;
+> -			dev->slave_cfg |= DW_IC_CON_SPEED_FAST;
+> -		} else if (dev->hs_hcnt && dev->hs_lcnt) {
+> -			hcnt = dev->hs_hcnt;
+> -			lcnt = dev->hs_lcnt;
+> -			dw_writel(dev, hcnt, DW_IC_HS_SCL_HCNT);
+> -			dw_writel(dev, lcnt, DW_IC_HS_SCL_LCNT);
+> -			dev_dbg(dev->dev, "HighSpeed-mode HCNT:LCNT = %d:%d\n",
+> -				hcnt, lcnt);
+> -		}
+> -	}
+> -
+>  	/* Configure SDA Hold Time if required. */
+>  	reg = dw_readl(dev, DW_IC_COMP_VERSION);
+>  	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+> 
+
+Tested-by: Luis Oliveira <lolivei@synopsys.com>
