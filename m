@@ -1,35 +1,36 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Don't set SCL timings and speed mode
- when in slave mode
-Date: Wed, 22 Nov 2017 13:37:43 +0200
-Message-ID: <ed8fac14-12d1-b165-18a0-a7e65bd4c804@linux.intel.com>
-References: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
- <345affbc-a4af-9396-8d2e-8f24e4f2a8f7@synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH] i2c: fix ACPI_I2C_OPREGION dependency
+Date: Wed, 22 Nov 2017 18:05:57 +0100
+Message-ID: <1511370357-17184-1-git-send-email-eric.auger@redhat.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:5785 "EHLO mga07.intel.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50732 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752105AbdKVLq3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 22 Nov 2017 06:46:29 -0500
-In-Reply-To: <345affbc-a4af-9396-8d2e-8f24e4f2a8f7@synopsys.com>
-Content-Language: en-US
+        id S1751292AbdKVRGJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 22 Nov 2017 12:06:09 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Luis Oliveira <Luis.Oliveira@synopsys.com>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Joao Pinto <Joao.Pinto@synopsys.com>
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, okaya@codeaurora.org
 
-On 11/22/2017 01:15 PM, Luis Oliveira wrote:
-> Hi Jarkko,
-> 
-> Sorry for making you wait so long but finally I've got my setup back.
-> I tested it and everything works fine.
-> 
-Thanks for testing, no worries, cleanups like this are not so urgent :-)
+If CONFIG_I2C=m we fail getting ACPI_I2C_OPREGION set. Let's
+make ACPI_I2C_OPREGION depend on I2C.
 
-> Tested-by: Luis Oliveira <lolivei@synopsys.com>
-> 
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+---
+ drivers/i2c/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index efc3354..5951e9d 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -26,7 +26,7 @@ config I2C
+ 
+ config ACPI_I2C_OPREGION
+ 	bool "ACPI I2C Operation region support"
+-	depends on I2C=y && ACPI
++	depends on I2C && ACPI
+ 	default y
+ 	help
+ 	  Say Y here if you want to enable ACPI I2C operation region support.
 -- 
-Jarkko
+2.5.5
