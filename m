@@ -1,48 +1,41 @@
 From: Andrew Cooks <andrew.cooks@opengear.com>
-Subject: [PATCH 1/2] i2c: add ACPI support for i2c-piix4
-Date: Thu, 23 Nov 2017 13:09:37 +1000
-Message-ID: <a5c728e338b6d0622ae055948fc191da20e86193.1511391626.git.andrew.cooks@opengear.com>
+Subject: [PATCH 2/2] i2c: fix piix4 aux port number
+Date: Thu, 23 Nov 2017 13:09:38 +1000
+Message-ID: <5e47610fa40bb07b214d1409ae721a5d762eb888.1511391626.git.andrew.cooks@opengear.com>
 References: <cover.1511391626.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-sn1nam01on0047.outbound.protection.outlook.com ([104.47.32.47]:9649
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751967AbdKWDKD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 22 Nov 2017 22:10:03 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1511391626.git.andrew.cooks@opengear.com>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <jdelvare@suse.com>
 Cc: Andrew Cooks <andrew.cooks@opengear.com>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C/SMBUS CONTROLLER DRIVERS FOR
         PC" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
-This enables the i2c-piix4 SMBus controller driver to enumerate I2C
-slave devices using ACPI. It builds on the related I2C mux device work
-in commit 8eb5c87a92c0 ("i2c: add ACPI support for I2C mux ports")
+Let the aux port use port number one (not zero), to match the AMD
+documentation and enable mapping ACPI _ADR to port number.
+
+This fixes ACPI-based enumeration of I2C slave peripherals that are
+defined for the aux SMBus port.
 
 Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
 ---
- drivers/i2c/busses/i2c-piix4.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-piix4.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 174579d..9260cfa 100644
+index 9260cfa..f980f0b 100644
 --- a/drivers/i2c/busses/i2c-piix4.c
 +++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -837,6 +837,12 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	/* set up the sysfs linkage to our parent device */
- 	adap->dev.parent = &dev->dev;
- 
-+	if (has_acpi_companion(&dev->dev)) {
-+		acpi_preset_companion(&adap->dev,
-+				      ACPI_COMPANION(&dev->dev),
-+				      port);
-+	}
-+
- 	snprintf(adap->name, sizeof(adap->name),
- 		"SMBus PIIX4 adapter%s at %04x", name, smba);
- 
+@@ -975,7 +975,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if (retval > 0) {
+ 		/* Try to add the aux adapter if it exists,
+ 		 * piix4_add_adapter will clean up if this fails */
+-		piix4_add_adapter(dev, retval, false, 0, false,
++		piix4_add_adapter(dev, retval, false, 1, false,
+ 				  is_sb800 ? piix4_aux_port_name_sb800 : "",
+ 				  &piix4_aux_adapter);
+ 	}
 -- 
 2.7.4
