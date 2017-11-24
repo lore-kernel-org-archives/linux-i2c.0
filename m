@@ -1,53 +1,42 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] eeprom: at24: check at24_read/write arguments
-Date: Fri, 24 Nov 2017 07:47:50 +0100
-Message-ID: <a519bea7-9c68-caf1-7b1a-100c2562a2d7@gmail.com>
+From: =?UTF-8?q?Ond=C5=99ej=20Lyson=C4=9Bk?= <olysonek@redhat.com>
+Subject: [PATCH] py-smbus: Fix FSF address in smbusmodule.c
+Date: Fri, 24 Nov 2017 10:40:01 +0100
+Message-ID: <20171124094001.27858-1-olysonek@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34459 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751521AbdKXGr5 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Nov 2017 01:47:57 -0500
-Received: by mail-wm0-f65.google.com with SMTP id y82so19258486wmg.1
-        for <linux-i2c@vger.kernel.org>; Thu, 23 Nov 2017 22:47:56 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:54424 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752914AbdKXJkM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Nov 2017 04:40:12 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: jdelvare@suse.de, =?UTF-8?q?Ond=C5=99ej=20Lyson=C4=9Bk?= <olysonek@redhat.com>
 
-So far we completely rely on the caller to provide valid arguments.
-To be on the safe side perform an own sanity check.
+The Free Software Foundation address was outdated. Discovered by
+Fedora's rpmlint. The current address can be found at:
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC4
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Ondřej Lysoněk <olysonek@redhat.com>
 ---
- drivers/misc/eeprom/at24.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ py-smbus/smbusmodule.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 00d602be7..52cbaeb6f 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -569,6 +569,9 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 	if (unlikely(!count))
- 		return count;
+diff --git a/py-smbus/smbusmodule.c b/py-smbus/smbusmodule.c
+index 48a408b..b189106 100644
+--- a/py-smbus/smbusmodule.c
++++ b/py-smbus/smbusmodule.c
+@@ -13,7 +13,8 @@
+  * 
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
++ * MA 02110-1301, USA.
+  */
  
-+	if (off + count > at24->chip.byte_len)
-+		return -EINVAL;
-+
- 	client = at24_translate_offset(at24, &off);
- 
- 	ret = pm_runtime_get_sync(&client->dev);
-@@ -614,6 +617,9 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	if (unlikely(!count))
- 		return -EINVAL;
- 
-+	if (off + count > at24->chip.byte_len)
-+		return -EINVAL;
-+
- 	client = at24_translate_offset(at24, &off);
- 
- 	ret = pm_runtime_get_sync(&client->dev);
+ #include <Python.h>
 -- 
-2.15.0
+2.14.3
