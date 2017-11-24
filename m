@@ -1,93 +1,142 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
-Date: Fri, 24 Nov 2017 13:36:01 +0100
-Message-ID: <20171124123601.vyw6vejwa56xmun6@ninjato>
-References: <20171107201857.5752-1-linus.walleij@linaro.org>
- <20171110145038.i4jnqsctdzkfmoe5@ninjato>
- <CACRpkdangY192aFpSd1hVaie6A8kY+sASORhR_ncHLYLeUJMWw@mail.gmail.com>
- <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
+From: Jan Glauber <jan.glauber@caviumnetworks.com>
+Subject: Re: [Bug fix] octeon-i2c driver updates
+Date: Fri, 24 Nov 2017 14:10:26 +0100
+Message-ID: <20171124131026.GA30811@hc>
+References: <VI1PR0702MB3615DF756007C1F87BED50BB8E210@VI1PR0702MB3615.eurprd07.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="lymw4xjjmw4yrzeo"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:37057 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751665AbdKXMgD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 24 Nov 2017 07:36:03 -0500
+Received: from mail-sn1nam02on0088.outbound.protection.outlook.com ([104.47.36.88]:29216
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750825AbdKXNKj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Nov 2017 08:10:39 -0500
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
+In-Reply-To: <VI1PR0702MB3615DF756007C1F87BED50BB8E210@VI1PR0702MB3615.eurprd07.prod.outlook.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>
+To: "Zhang, Sean C. (NSB - CN/Hangzhou)" <sean.c.zhang@nokia-sbell.com>
+Cc: "david.daney@cavium.com" <david.daney@cavium.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+On Thu, Nov 23, 2017 at 11:42:36AM +0000, Zhang, Sean C. (NSB - CN/Hangzhou) wrote:
+> Dear Maintainer,
+> 
+> For octeon TWSI controller, I found below two cases, maybe can be improved.
 
---lymw4xjjmw4yrzeo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Sean,
 
-On Fri, Nov 10, 2017 at 04:17:26PM +0100, Arnd Bergmann wrote:
-> On Fri, Nov 10, 2017 at 4:01 PM, Linus Walleij <linus.walleij@linaro.org>=
- wrote:
-> > On Fri, Nov 10, 2017 at 3:50 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >
-> >> Applied to for-next, thanks!
-> >
-> > Thanks man.
-> >
-> >> This from checkpatch makes sense to me:
-> >>
-> >> ERROR: Please use git commit description style 'commit <12+ chars of s=
-ha1> ("<title line>")' - ie: 'commit b2e63555592f ("i2c: gpio: Convert to u=
-se descriptors")'
-> >> #21:
-> >> commit b2e63555592f81331c8da3afaa607d8cf83e8138
-> >
-> > I never understood that thingie, I thought the check was
-> > only there in order to stop Fixes: tags from running wild.
-> > But feel free to cut it if you want.
->=20
-> I have this in my ~/.gitconfig:
->=20
-> [core]
->         abbrev =3D 12
-> [alias]
->         fixes =3D show --format=3D'Fixes: %h (\"%s\")' -s
->=20
-> So 'git fixes b2e63555592f81331c8da3afaa607d8cf83e8138' produces
-> Fixes: b2e63555592f ("i2c: gpio: Convert to use descriptors")
->=20
-> which I then copy into a changelog as the last line, or use only the refe=
-rence.
+form the description below this looks like you're fixing a bug. Can you
+elaborate on when the I2C bus dead lock occurs. Is it always happening?
 
-Kinda similar, since I have a white background, I use:
+What I don't like about the patch is that you're removing
+octeon_i2c_init_lowlevel() from the probe and replacing it by _always_
+going through a full recovery. Why is this neccessary?
 
-[alias]
-lg =3D log --format=3D'%C(yellow)%h %Cgreen(\"%Creset%s%Cgreen\")'
+Regards,
+Jan
 
-which is easy on my eye when reading 'git lg' but already has the proper
-format when copy pasting its output around.
-
-
---lymw4xjjmw4yrzeo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloYEiwACgkQFA3kzBSg
-KbbkEg//Qgtlz1oyiMDwwOEma28mMM7x0w8kHsBp5+NPyb1jfRnBnBHtQJ08ksLA
-5pF1CvBMe+dOtMK/5ab3/NzzzSn1NNWifOZ1ebqDJp+jIpT/5MT51Ha/NFwfydOm
-GbspUudpCbwVwrDjGwGToAvlT7veKm1cQrhAmKtPk5cgiV697Ok8VSyLI4q67Vky
-VMQMS8ZTVgxU9Dhst8NrYMmOhX/SgnANbQ2+ZXz5yiAKsEsQUE6KxzF4j+ZKR1OG
-a3SApI25RmVYp6uwsWyuebRXlakfRpmoJQMW3IvZD+lATGPtqO/+QqQE7cO2LTiP
-4mMzQVyDU6zhM4NT/taLajzfVDZ/IAGmM+nz4ibpJT9FWViVejs1tXkgb1/cy1qa
-nmE74Hd1wqSnWz5MusHZ+gMqvnWKdVa+ckbfldkGJS7SAzizPwKUJybb1Kn7j3oH
-Sm/Twafk2pbS73pe0ZwdpbAtVVQiJsZ2womDVy0qZQdJtEjKFeRPATCiv9PnzoS9
-2dm9kToBCTJ2d5f4F+YC4CeNMypyIn2XaLoMM9DQJp0JwJGCSVPVuefWcE3atvlK
-esLIS8Zi6xsv98YzubpuQ6HaxkfGJINTriDhHmeclTOJFLyOOwDFL6Pm3Mf+CNfh
-ptHvC64qcdZlp9M+aPKVfDtb9svz4jOdTvcQYg6eipWLjtw0j2M=
-=G1UT
------END PGP SIGNATURE-----
-
---lymw4xjjmw4yrzeo--
+> 
+> >From 09d9f0ce658d7f6a50d1af352dde619c29bc8bcf Mon Sep 17 00:00:00 2001
+> From: hgt463 <sean.c.zhang@nokia.com>
+> Date: Thu, 23 Nov 2017 18:46:09 +0800
+> Subject: [PATCH] Driver updates:
+>  - In the case of I2C bus dead lock occurred during driver probing,
+>    it is better try to recovery it. so added bus recovery step in
+>    octeon_i2c_probe();
+>  - The purpose of function octeon_i2c_start() is to send START, so after
+>    bus recovery, also need try to send START again.
+> 
+> Signed-off-by: hgt463 <sean.c.zhang@nokia.com>
+> ---
+>  drivers/i2c/busses/i2c-octeon-core.c    |   31 ++++++++++++++++++++++++++++++-
+>  drivers/i2c/busses/i2c-octeon-platdrv.c |   15 +++++++++------
+>  2 files changed, 39 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+> index 1d87757..3ae1e03 100644
+> --- a/drivers/i2c/busses/i2c-octeon-core.c
+> +++ b/drivers/i2c/busses/i2c-octeon-core.c
+> @@ -255,6 +255,35 @@ static int octeon_i2c_recovery(struct octeon_i2c *i2c)
+>         return ret;
+>  }
+>  
+> +/*
+> + * octeon_i2c_start_retry - send START to the bus after bus recovery.
+> + * @i2c: The struct octeon_i2c
+> + *
+> + * Returns 0 on success, otherwise a negative errno.
+> + */
+> +static int octeon_i2c_start_retry(struct octeon_i2c *i2c)
+> +{
+> +       int ret;
+> +       u8 stat;
+> +
+> +       ret = octeon_i2c_recovery(i2c);
+> +       if (ret)
+> +               goto error;
+> +
+> +       octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB | TWSI_CTL_STA);
+> +       ret = octeon_i2c_wait(i2c);
+> +       if (ret)
+> +               goto error;
+> +
+> +       stat = octeon_i2c_stat_read(i2c);
+> +       if (stat == STAT_START || stat == STAT_REP_START)
+> +               /* START successful, bail out */
+> +               return 0;
+> +
+> +error:
+> +       return (ret) ? ret : -EAGAIN;
+> +}
+> +
+>  /**
+>   * octeon_i2c_start - send START to the bus
+>   * @i2c: The struct octeon_i2c
+> @@ -280,7 +309,7 @@ static int octeon_i2c_start(struct octeon_i2c *i2c)
+>  
+>  error:
+>         /* START failed, try to recover */
+> -       ret = octeon_i2c_recovery(i2c);
+> +       ret = octeon_i2c_start_retry(i2c);
+>         return (ret) ? ret : -EAGAIN;
+>  }
+>  
+> diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
+> index 64bda83..98063af 100644
+> --- a/drivers/i2c/busses/i2c-octeon-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
+> @@ -228,12 +228,6 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+>         if (OCTEON_IS_MODEL(OCTEON_CN38XX))
+>                 i2c->broken_irq_check = true;
+>  
+> -       result = octeon_i2c_init_lowlevel(i2c);
+> -       if (result) {
+> -               dev_err(i2c->dev, "init low level failed\n");
+> -               goto  out;
+> -       }
+> -
+>         octeon_i2c_set_clock(i2c);
+>  
+>         i2c->adap = octeon_i2c_ops;
+> @@ -245,6 +239,15 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+>         i2c_set_adapdata(&i2c->adap, i2c);
+>         platform_set_drvdata(pdev, i2c);
+>  
+> +       stat = octeon_i2c_stat_read(i2c);
+> +       if (stat != STAT_IDLE) {
+> +               result = octeon_i2c_recovery(i2c);
+> +               if (result) {
+> +                       dev_err(i2c->dev, "octeon i2c recovery failed\n");
+> +                       goto  out;
+> +               }
+> +       }
+> +
+>         result = i2c_add_adapter(&i2c->adap);
+>         if (result < 0)
+>                 goto out;
+> 
+> 
+> Attached patch for you review. Thanks in advance.
+> 
+> BR,
+> Sean Zhang
