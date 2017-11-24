@@ -1,42 +1,49 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
-Date: Fri, 24 Nov 2017 11:04:04 +0100
-Message-ID: <CACRpkdbrcUOExjRmv5zN1hOvBAT18GOfRw9=5+e3d+MhS3q9+w@mail.gmail.com>
-References: <20171107201857.5752-1-linus.walleij@linaro.org>
- <20171110145038.i4jnqsctdzkfmoe5@ninjato> <CACRpkdangY192aFpSd1hVaie6A8kY+sASORhR_ncHLYLeUJMWw@mail.gmail.com>
- <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] py-smbus: Fix FSF address in smbusmodule.c
+Date: Fri, 24 Nov 2017 11:44:32 +0100
+Message-ID: <20171124114432.2972ab95@endymion>
+References: <20171124094001.27858-1-olysonek@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f172.google.com ([209.85.223.172]:33785 "EHLO
-        mail-io0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752387AbdKXKEF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Nov 2017 05:04:05 -0500
-Received: by mail-io0-f172.google.com with SMTP id i184so21662370ioa.0
-        for <linux-i2c@vger.kernel.org>; Fri, 24 Nov 2017 02:04:05 -0800 (PST)
-In-Reply-To: <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:56381 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753100AbdKXKof (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Nov 2017 05:44:35 -0500
+In-Reply-To: <20171124094001.27858-1-olysonek@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>
+To: =?UTF-8?B?T25kxZllaiBMeXNvbsSbaw==?= <olysonek@redhat.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Fri, Nov 10, 2017 at 4:17 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+On Fri, 24 Nov 2017 10:40:01 +0100, Ondřej Lysoněk wrote:
+> The Free Software Foundation address was outdated. Discovered by
+> Fedora's rpmlint. The current address can be found at:
+> https://www.gnu.org/licenses/old-licenses/gpl-2.0.html#SEC4
+> 
+> Signed-off-by: Ondřej Lysoněk <olysonek@redhat.com>
+> ---
+>  py-smbus/smbusmodule.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/py-smbus/smbusmodule.c b/py-smbus/smbusmodule.c
+> index 48a408b..b189106 100644
+> --- a/py-smbus/smbusmodule.c
+> +++ b/py-smbus/smbusmodule.c
+> @@ -13,7 +13,8 @@
+>   * 
+>   * You should have received a copy of the GNU General Public License
+>   * along with this program; if not, write to the Free Software
+> - * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> + * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+> + * MA 02110-1301, USA.
+>   */
+>  
+>  #include <Python.h>
 
-> I have this in my ~/.gitconfig:
->
-> [core]
->         abbrev = 12
-> [alias]
->         fixes = show --format='Fixes: %h (\"%s\")' -s
->
-> So 'git fixes b2e63555592f81331c8da3afaa607d8cf83e8138' produces
-> Fixes: b2e63555592f ("i2c: gpio: Convert to use descriptors")
->
-> which I then copy into a changelog as the last line, or use only the reference.
+Applied, thanks.
 
-That's a neat trick.
-
-I stole it :)
-
-Yours,
-Linus Walleij
+-- 
+Jean Delvare
+SUSE L3 Support
