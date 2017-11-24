@@ -1,137 +1,93 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v4 5/7] eeprom: at24: add regmap-based read function
-Date: Fri, 24 Nov 2017 12:00:17 +0100
-Message-ID: <CAMRc=MetCoJBUnbTxnjjrxewoDZuKuLzosq5EVnjys2S=0J5Wg@mail.gmail.com>
-References: <0448eec2-7dfb-ca79-d03a-d5b7fcb5d76c@gmail.com>
- <011081f7-f2af-0e78-f21b-c40493d63a70@gmail.com> <CAMRc=McNp=NWeGxZZfz1Xq+sxx+-X1OAFsyoEPrFTn3vaH77mQ@mail.gmail.com>
- <245157a7-bd46-9788-86e9-7058cc4c667b@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] ARM: sa1100: simpad: Correct I2C GPIO offsets
+Date: Fri, 24 Nov 2017 13:36:01 +0100
+Message-ID: <20171124123601.vyw6vejwa56xmun6@ninjato>
+References: <20171107201857.5752-1-linus.walleij@linaro.org>
+ <20171110145038.i4jnqsctdzkfmoe5@ninjato>
+ <CACRpkdangY192aFpSd1hVaie6A8kY+sASORhR_ncHLYLeUJMWw@mail.gmail.com>
+ <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="lymw4xjjmw4yrzeo"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f193.google.com ([74.125.82.193]:41165 "EHLO
-        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753239AbdKXLAS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Nov 2017 06:00:18 -0500
-Received: by mail-ot0-f193.google.com with SMTP id b54so18469865otd.8
-        for <linux-i2c@vger.kernel.org>; Fri, 24 Nov 2017 03:00:18 -0800 (PST)
-In-Reply-To: <245157a7-bd46-9788-86e9-7058cc4c667b@gmail.com>
+Received: from sauhun.de ([88.99.104.3]:37057 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751665AbdKXMgD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 24 Nov 2017 07:36:03 -0500
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a3s-1mD+eVagHBr-YL-nAyr_QN2VZNo7qBn=FZCQfEEkg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Claudiu Beznea <claudiu.beznea@microchip.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, Jochen Friedrich <jochen@scram.de>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Russell King <linux@arm.linux.org.uk>
 
-2017-11-23 22:31 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Am 23.11.2017 um 17:40 schrieb Bartosz Golaszewski:
->> 2017-11-22 22:12 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
->>> Add regmap-based read function and instead of using three different
->>> read functions (standard, mac, serial) use just one and factor out the
->>> read offset adjustment for mac and serial to at24_adjust_read_offset.
->>>
->>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>> ---
->>> v2:
->>> - rebased
->>> v3:
->>> - improve readability
->>> - re-introduce debug message
->>> - introduce at24_adjust_read_offset
->>> v4:
->>> - move offset adjustment calculation to probe function
->>> ---
->>>  drivers/misc/eeprom/at24.c | 56 +++++++++++++++++++++++++++++++++++++++++++++-
->>>  1 file changed, 55 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->>> index 493e2b646..c16a9a495 100644
->>> --- a/drivers/misc/eeprom/at24.c
->>> +++ b/drivers/misc/eeprom/at24.c
->>> @@ -75,6 +75,7 @@ struct at24_data {
->>>
->>>         unsigned write_max;
->>>         unsigned num_addresses;
->>> +       unsigned int offset_adj;
->>>
->>>         struct nvmem_config nvmem_config;
->>>         struct nvmem_device *nvmem;
->>> @@ -312,6 +313,36 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
->>>         return -ETIMEDOUT;
->>>  }
->>>
->>
->> OK this looks better. The series is almost ready - just a couple more
->> nits I'd like to see fixed and we're done.
->>
->>> +static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
->>> +                               unsigned int offset, size_t count)
->>> +{
->>> +       unsigned long timeout, read_time;
->>> +       struct at24_client *at24_client;
->>> +       struct i2c_client *client;
->>> +       struct regmap *regmap;
->>> +       int ret;
->>> +
->>> +       at24_client = at24_translate_offset(at24, &offset);
->>> +       regmap = at24_client->regmap;
->>> +       client = at24_client->client;
->>> +
->>> +       if (count > io_limit)
->>> +               count = io_limit;
->>> +
->>> +       /* adjust offset for mac and serial read ops */
->>> +       offset += at24->offset_adj;
->>
->> Let's use '|=' here as it's safer (doesn't shift the bit if it's set
->> in both sides).
->>
-> To build an opinion on |= vs. += I checked the code in more detail plus
-> some datasheets, what lead to quite some question marks ..
->
-> Major issue is that offset and size in at24_read/write are not checked
-> currently. So we completely rely on the calling subsystem (nvmem).
-> The nvmem sysfs interface does such checking. However nvmem_device_read
-> does not. So maybe the nvmem core should be changed to do checking in
-> all cases. I add Srinivas as nvmem maintainer to the conversation
-> to hear his opinion.
->
-> If we have such checks then in general |= and += deliver the same result,
-> it's just a question of taste.
->
-> According to the at24mac602/at24mac402 datasheet the MAC is provided at:
-> 24mac402 / EUI-48 -> position 0x9a - 0x9f
-> 24mac602 / EUI-64 -> position 0x98 - 0x9f
->
-> Size of the 24mac402 is defined as 48 bit = 6 byte and the effective
-> offset in at24_eeprom_read_mac is 0x90 + offset provided by caller.
-> So the caller has to provide offset 0x08 to read the mac what is
-> greater than the chip size of 6 bytes.
-> So reading the mac via nvmem sysfs interface shouldn't be possible.
->
-> I saw that you submitted the 24macx02 code, did you test the driver
-> with one of these chips and I miss something?
->
 
-At the time when I submitted the support for at24cs (which I had
-tested both for 8- and 16-bit addresses), Wolfram suggested that I
-include support for at24mac too, but since I don't have such a chip, I
-could not really test it. Looking at the note on page 21 of the
-relevant datasheet, it's obvious it can't work. I must have missed
-that at the time of writing the code.
+--lymw4xjjmw4yrzeo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also: there's this patch[1] which looks like a workaround for this
-problem. I'm Cc'ing the author.
+On Fri, Nov 10, 2017 at 04:17:26PM +0100, Arnd Bergmann wrote:
+> On Fri, Nov 10, 2017 at 4:01 PM, Linus Walleij <linus.walleij@linaro.org>=
+ wrote:
+> > On Fri, Nov 10, 2017 at 3:50 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >
+> >> Applied to for-next, thanks!
+> >
+> > Thanks man.
+> >
+> >> This from checkpatch makes sense to me:
+> >>
+> >> ERROR: Please use git commit description style 'commit <12+ chars of s=
+ha1> ("<title line>")' - ie: 'commit b2e63555592f ("i2c: gpio: Convert to u=
+se descriptors")'
+> >> #21:
+> >> commit b2e63555592f81331c8da3afaa607d8cf83e8138
+> >
+> > I never understood that thingie, I thought the check was
+> > only there in order to stop Fixes: tags from running wild.
+> > But feel free to cut it if you want.
+>=20
+> I have this in my ~/.gitconfig:
+>=20
+> [core]
+>         abbrev =3D 12
+> [alias]
+>         fixes =3D show --format=3D'Fixes: %h (\"%s\")' -s
+>=20
+> So 'git fixes b2e63555592f81331c8da3afaa607d8cf83e8138' produces
+> Fixes: b2e63555592f ("i2c: gpio: Convert to use descriptors")
+>=20
+> which I then copy into a changelog as the last line, or use only the refe=
+rence.
 
-@Claudiu: is that the case or do you actually have an EEPROM chip with
-the MAC at a different offset? Could you by any chance test the
-patch[2] from Heiner?
+Kinda similar, since I have a white background, I use:
 
-> Most likely we would have to change the driver so that the caller can
-> read the mac from offset 0.
->
-> Rgds, Heiner
->
+[alias]
+lg =3D log --format=3D'%C(yellow)%h %Cgreen(\"%Creset%s%Cgreen\")'
 
-Best regards,
-Bartosz Golaszewski
+which is easy on my eye when reading 'git lg' but already has the proper
+format when copy pasting its output around.
 
-[1] http://patchwork.ozlabs.org/patch/785106/
-[2] http://patchwork.ozlabs.org/patch/840958/
+
+--lymw4xjjmw4yrzeo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloYEiwACgkQFA3kzBSg
+KbbkEg//Qgtlz1oyiMDwwOEma28mMM7x0w8kHsBp5+NPyb1jfRnBnBHtQJ08ksLA
+5pF1CvBMe+dOtMK/5ab3/NzzzSn1NNWifOZ1ebqDJp+jIpT/5MT51Ha/NFwfydOm
+GbspUudpCbwVwrDjGwGToAvlT7veKm1cQrhAmKtPk5cgiV697Ok8VSyLI4q67Vky
+VMQMS8ZTVgxU9Dhst8NrYMmOhX/SgnANbQ2+ZXz5yiAKsEsQUE6KxzF4j+ZKR1OG
+a3SApI25RmVYp6uwsWyuebRXlakfRpmoJQMW3IvZD+lATGPtqO/+QqQE7cO2LTiP
+4mMzQVyDU6zhM4NT/taLajzfVDZ/IAGmM+nz4ibpJT9FWViVejs1tXkgb1/cy1qa
+nmE74Hd1wqSnWz5MusHZ+gMqvnWKdVa+ckbfldkGJS7SAzizPwKUJybb1Kn7j3oH
+Sm/Twafk2pbS73pe0ZwdpbAtVVQiJsZ2womDVy0qZQdJtEjKFeRPATCiv9PnzoS9
+2dm9kToBCTJ2d5f4F+YC4CeNMypyIn2XaLoMM9DQJp0JwJGCSVPVuefWcE3atvlK
+esLIS8Zi6xsv98YzubpuQ6HaxkfGJINTriDhHmeclTOJFLyOOwDFL6Pm3Mf+CNfh
+ptHvC64qcdZlp9M+aPKVfDtb9svz4jOdTvcQYg6eipWLjtw0j2M=
+=G1UT
+-----END PGP SIGNATURE-----
+
+--lymw4xjjmw4yrzeo--
