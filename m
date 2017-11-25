@@ -1,73 +1,76 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i2c: i801: Fix Failed to allocate irq -2147483648 error
-Date: Sat, 25 Nov 2017 14:43:08 +0100
-Message-ID: <5ba5b26d-18d9-6f07-d9a9-52cde30ea5ee@redhat.com>
-References: <20171122112817.9554-1-hdegoede@redhat.com>
- <20171124144957.6a7323cc@endymion>
+From: Aurelien Jarno <aurelien@aurel32.net>
+Subject: i2c-tools: library licensing issues
+Date: Sat, 25 Nov 2017 17:47:17 +0100
+Message-ID: <20171125164717.kg5vv6zsuztr3vkn@aurel32.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20171124144957.6a7323cc@endymion>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="6k3ecbbufuefenog"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from hall.aurel32.net ([163.172.24.10]:56508 "EHLO hall.aurel32.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751591AbdKYRG7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 25 Nov 2017 12:06:59 -0500
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.de>
+
+
+--6k3ecbbufuefenog
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On 11/24/2017 02:49 PM, Jean Delvare wrote:
-> Hi Hans,
-> 
-> On Wed, 22 Nov 2017 12:28:17 +0100, Hans de Goede wrote:
->> On Apollo Lake devices the BIOS does not set up IRQ routing for the i801
->> SMBUS controller IRQ, so we end up with dev->irq set to IRQ_NOTCONNECTED.
->>
->> Detect this and do not try to use the irq in this case silencing:
->> i801_smbus 0000:00:1f.1: Failed to allocate irq -2147483648: -107
-> 
-> Isn't it a BIOS bug?
+I have been reviewing the i2c-tools licensing, and it seems there is a
+contradiction between README and lib/smbus.c about the library
+licensing:
 
-No, as mentioned in:
+=46rom README:
+| The library is released under the LGPL version 2.1 or later, while most
+| tools are released under the GPL version 2 or later, but there are a few
+| exceptions.
 
->> BugLink: https://communities.intel.com/thread/114759
+=46rom lib/smbus.c:
+| This program is free software; you can redistribute it and/or modify
+| it under the terms of the GNU General Public License as published by
+| the Free Software Foundation; either version 2 of the License, or
+| (at your option) any later version.
 
-The BIOS deliberately does not contain IRQ routing issues because some
-variants of the Windows driver for this falling over if their is
-any IRQ routing set, so this is a "feature" not a bug :|
+On the other hand, the license in lib/Module.mk matches the one from
+README.
 
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/i2c/busses/i2c-i801.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
->> index 9e12a53ef7b8..8eac00efadc1 100644
->> --- a/drivers/i2c/busses/i2c-i801.c
->> +++ b/drivers/i2c/busses/i2c-i801.c
->> @@ -1617,6 +1617,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->>   	/* Default timeout in interrupt mode: 200 ms */
->>   	priv->adapter.timeout = HZ / 5;
->>   
->> +	if (dev->irq == IRQ_NOTCONNECTED)
->> +		priv->features &= ~FEATURE_IRQ;
->> +
->>   	if (priv->features & FEATURE_IRQ) {
->>   		u16 pcictl, pcists;
-> 
-> Certainly better than returning a cryptic error message, so:
-> 
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+I guess one of README or lib/smbus.c has to be fixed. Can someone
+clarify that? In meantime I think the library as a whole should be
+considered as GPL v2 or later.
 
-Thanks.
+Thanks,
+Aurelien
 
-> However if this is considered a BIOS bug then a pr_err(FW_BUG...) would
-> be good to add IMHO.
+--=20
+Aurelien Jarno                          GPG: 4096R/1DDD8C9B
+aurelien@aurel32.net                 http://www.aurel32.net
 
-See above, that would just replace one error message with another on all
-Apollo Lake systems.
+--6k3ecbbufuefenog
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Regards,
+-----BEGIN PGP SIGNATURE-----
 
-Hans
+iQIzBAEBCgAdFiEEUryGlb40+QrX1Ay4E4jA+JnoM2sFAloZnpUACgkQE4jA+Jno
+M2sOGw//avKREM1O8MszLjON9HbTCEcfp4kXihnTt1eLRDciSkUBUSrXY4Squ7FQ
+xJm6HHBHUqbDTXv1M/NJhhEeja4l0LYr2UovME3DDAVQVuzimfy4l4AmA3fhLZwL
+Ss4WjvdJ9pIypp8aEc5LFcyzOz8nzopQkp8fhR4h82dAYic1VC7JScsztAJF7Er6
++GGpVouCZw9i1J/hhbZHB9fzq3pacdquFDVHLPmkb32238qW7jhVEzjo980DU3KO
+7754YaPMxxD5cF+1qTQPxBnCnx6GECbB4qSDRJn5DMihuXC3J5oxisT68ZgE8nKk
+FMUuTg4bF1Xp50lwi6hAtBq2MDIxKSjYHg4dIZrpLDUZh01QO0Ac2+Q2GohcyMYE
+conccYgDYcALzak7rMn3e1L9mpVxWKIcHWMXwO18jbWzfTGSWztb5D50FlU3utY0
+LG/gwn8NRbGMOpu8i25Di6vljJt8XQBxvd7fHkCC1+2qDsFfUrp2iZligcVhc87h
+AfgVvwzceItNgTDXKCnwi2f5d61UhtWsbQzUxpnQB6NgRtpjoPLC3vJHLXf6ZWTI
+vOlJ1nrCS6UQTavm6Qf8tgpmLmwTxMLWzTGCpCJS+4xo/u2XyNLEnmDdaLiFN0rF
+I7lbN53Fcf32EIIs09WDZ2XXad7ag0hKOoRsRpoYGUxyPDylfiU=
+=7uij
+-----END PGP SIGNATURE-----
+
+--6k3ecbbufuefenog--
