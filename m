@@ -1,205 +1,73 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: Re: [PATCH v4 5/7] eeprom: at24: add regmap-based read function
-Date: Fri, 24 Nov 2017 23:13:13 +0100
-Message-ID: <7d882bf9-8132-beb4-7a07-7544b421af02@gmail.com>
-References: <0448eec2-7dfb-ca79-d03a-d5b7fcb5d76c@gmail.com>
- <011081f7-f2af-0e78-f21b-c40493d63a70@gmail.com>
- <CAMRc=McNp=NWeGxZZfz1Xq+sxx+-X1OAFsyoEPrFTn3vaH77mQ@mail.gmail.com>
- <245157a7-bd46-9788-86e9-7058cc4c667b@gmail.com>
- <CAMRc=MetCoJBUnbTxnjjrxewoDZuKuLzosq5EVnjys2S=0J5Wg@mail.gmail.com>
- <3b01676a-bc35-28ee-b406-bea45e606fa5@microchip.com>
- <d3bba0a5-966d-b567-a233-3aec51a97ac3@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: i801: Fix Failed to allocate irq -2147483648 error
+Date: Sat, 25 Nov 2017 14:43:08 +0100
+Message-ID: <5ba5b26d-18d9-6f07-d9a9-52cde30ea5ee@redhat.com>
+References: <20171122112817.9554-1-hdegoede@redhat.com>
+ <20171124144957.6a7323cc@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:39222 "EHLO
-        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753730AbdKXWNU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 24 Nov 2017 17:13:20 -0500
-Received: by mail-wm0-f50.google.com with SMTP id x63so24873437wmf.4
-        for <linux-i2c@vger.kernel.org>; Fri, 24 Nov 2017 14:13:19 -0800 (PST)
-In-Reply-To: <d3bba0a5-966d-b567-a233-3aec51a97ac3@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20171124144957.6a7323cc@endymion>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Claudiu Beznea <Claudiu.Beznea@microchip.com>, Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Am 24.11.2017 um 22:17 schrieb Heiner Kallweit:
-> Am 24.11.2017 um 18:35 schrieb Claudiu Beznea:
->>
->>
->> On 24.11.2017 13:00, Bartosz Golaszewski wrote:
->>> 2017-11-23 22:31 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
->>>> Am 23.11.2017 um 17:40 schrieb Bartosz Golaszewski:
->>>>> 2017-11-22 22:12 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
->>>>>> Add regmap-based read function and instead of using three different
->>>>>> read functions (standard, mac, serial) use just one and factor out the
->>>>>> read offset adjustment for mac and serial to at24_adjust_read_offset.
->>>>>>
->>>>>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>>>>> ---
->>>>>> v2:
->>>>>> - rebased
->>>>>> v3:
->>>>>> - improve readability
->>>>>> - re-introduce debug message
->>>>>> - introduce at24_adjust_read_offset
->>>>>> v4:
->>>>>> - move offset adjustment calculation to probe function
->>>>>> ---
->>>>>>  drivers/misc/eeprom/at24.c | 56 +++++++++++++++++++++++++++++++++++++++++++++-
->>>>>>  1 file changed, 55 insertions(+), 1 deletion(-)
->>>>>>
->>>>>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->>>>>> index 493e2b646..c16a9a495 100644
->>>>>> --- a/drivers/misc/eeprom/at24.c
->>>>>> +++ b/drivers/misc/eeprom/at24.c
->>>>>> @@ -75,6 +75,7 @@ struct at24_data {
->>>>>>
->>>>>>         unsigned write_max;
->>>>>>         unsigned num_addresses;
->>>>>> +       unsigned int offset_adj;
->>>>>>
->>>>>>         struct nvmem_config nvmem_config;
->>>>>>         struct nvmem_device *nvmem;
->>>>>> @@ -312,6 +313,36 @@ static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
->>>>>>         return -ETIMEDOUT;
->>>>>>  }
->>>>>>
->>>>>
->>>>> OK this looks better. The series is almost ready - just a couple more
->>>>> nits I'd like to see fixed and we're done.
->>>>>
->>>>>> +static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
->>>>>> +                               unsigned int offset, size_t count)
->>>>>> +{
->>>>>> +       unsigned long timeout, read_time;
->>>>>> +       struct at24_client *at24_client;
->>>>>> +       struct i2c_client *client;
->>>>>> +       struct regmap *regmap;
->>>>>> +       int ret;
->>>>>> +
->>>>>> +       at24_client = at24_translate_offset(at24, &offset);
->>>>>> +       regmap = at24_client->regmap;
->>>>>> +       client = at24_client->client;
->>>>>> +
->>>>>> +       if (count > io_limit)
->>>>>> +               count = io_limit;
->>>>>> +
->>>>>> +       /* adjust offset for mac and serial read ops */
->>>>>> +       offset += at24->offset_adj;
->>>>>
->>>>> Let's use '|=' here as it's safer (doesn't shift the bit if it's set
->>>>> in both sides).
->>>>>
->>>> To build an opinion on |= vs. += I checked the code in more detail plus
->>>> some datasheets, what lead to quite some question marks ..
->>>>
->>>> Major issue is that offset and size in at24_read/write are not checked
->>>> currently. So we completely rely on the calling subsystem (nvmem).
->>>> The nvmem sysfs interface does such checking. However nvmem_device_read
->>>> does not. So maybe the nvmem core should be changed to do checking in
->>>> all cases. I add Srinivas as nvmem maintainer to the conversation
->>>> to hear his opinion.
->>>>
->>>> If we have such checks then in general |= and += deliver the same result,
->>>> it's just a question of taste.
->>>>
->>>> According to the at24mac602/at24mac402 datasheet the MAC is provided at:
->>>> 24mac402 / EUI-48 -> position 0x9a - 0x9f
->>>> 24mac602 / EUI-64 -> position 0x98 - 0x9f
->>>>
->>>> Size of the 24mac402 is defined as 48 bit = 6 byte and the effective
->>>> offset in at24_eeprom_read_mac is 0x90 + offset provided by caller.
->> Moreover, if I remember good, in the initialization of the 24mac402 the
->> size is truncated at something which is power of 2. I don't if this is
->> for some historical reasons or not so that you can only read 4 bytes
->> instead of 6 for the EUI-48.
->>
-> Very good point! Actually I don't see any real need for this check.
-> I thin we lose nothing if we simply remove it.
-> 
-Just see that this check only prints a warning, the actual issue comes
-from the ilog2 in AT24_DEVICE_MAGIC.
-When we need one more config parameter anyway (for the MAC start address),
-then IMO it would make sense to convert the magic to a proper struct.
-I'll spend a few thoughts on that.
+Hi,
 
->>>> So the caller has to provide offset 0x08 to read the mac what is
->>>> greater than the chip size of 6 bytes.
->>>> So reading the mac via nvmem sysfs interface shouldn't be possible.
->>>>
->>>> I saw that you submitted the 24macx02 code, did you test the driver
->>>> with one of these chips and I miss something?
->>>>
->>>
->>> At the time when I submitted the support for at24cs (which I had
->>> tested both for 8- and 16-bit addresses), Wolfram suggested that I
->>> include support for at24mac too, but since I don't have such a chip, I
->>> could not really test it. Looking at the note on page 21 of the
->>> relevant datasheet, it's obvious it can't work. I must have missed
->>> that at the time of writing the code.
->>>
->>> Also: there's this patch[1] which looks like a workaround for this
->>> problem. I'm Cc'ing the author.
->> I tried to make this driver work for chip at [3] which EUI-48 is located at 0xfa
->> and providing this offset via device tree was my first option in order
->> to not broke the initial functionality. Anyway, the device tree approach
->> as not accepted at that time, the usage of another DT binding was proposed
->> to me at that time but I didn't found that feasible, said about it on
->> mailing list but I didn't received any other inputs.
+On 11/24/2017 02:49 PM, Jean Delvare wrote:
+> Hi Hans,
+> 
+> On Wed, 22 Nov 2017 12:28:17 +0100, Hans de Goede wrote:
+>> On Apollo Lake devices the BIOS does not set up IRQ routing for the i801
+>> SMBUS controller IRQ, so we end up with dev->irq set to IRQ_NOTCONNECTED.
 >>
+>> Detect this and do not try to use the irq in this case silencing:
+>> i801_smbus 0000:00:1f.1: Failed to allocate irq -2147483648: -107
 > 
-> My patch works for the two MAC EEPROM's currently supported by the driver,
-> but not for others like the one mentioned by you (Microchip 24AA02E48 and
-> friends) because they have other start addresses for the MAC.
-> 
-> To deal with this situation we would have to add the MAC start address to
-> the chip config data. In addition the proposed DT parameter would helpful
-> in case chips are used which are not yet supported by the driver
-> (similar to the recently introduced "size" parameter).
-> 
-> 
-> Bartosz, can we first go with the additional sanity checking in
-> at24_read/write (if fine with you) and my i2c refactoring
-> (will resubmit with the last small change)?
-> Then the driver is somewhat smaller and simpler what makes further
-> improvements easier.
-> 
-> Kind regards,
-> Heiner
-> 
->>>
->>> @Claudiu: is that the case or do you actually have an EEPROM chip with
->>> the MAC at a different offset? Could you by any chance test the
->>> patch[2] from Heiner?
->> I have chip at [3] with MAC at 0xfa.
+> Isn't it a BIOS bug?
+
+No, as mentioned in:
+
+>> BugLink: https://communities.intel.com/thread/114759
+
+The BIOS deliberately does not contain IRQ routing issues because some
+variants of the Windows driver for this falling over if their is
+any IRQ routing set, so this is a "feature" not a bug :|
+
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/i2c/busses/i2c-i801.c | 3 +++
+>>   1 file changed, 3 insertions(+)
 >>
->> Regarding the testing of patch [2], at this moment I haven't a board
->> with at24mac602 EEPROM. I will come back later to this thread as soon as
->> I will have one. Regarding the changes, if I remember good, the
->> at24->chip.byte_len is truncated at something which is power of 2,
->> in case of 24mac402 will be 4 not 6 as expected, so it should return
->> only 4 LSB bytes of MAC. Other than this it looks OK from my point
->> of view.
->>
->> Thanks,
->> Claudiu
->>
->> [3] http://ww1.microchip.com/downloads/en/DeviceDoc/20002124G.pdf
->>>
->>>> Most likely we would have to change the driver so that the caller can
->>>> read the mac from offset 0.
->>>>
->>>> Rgds, Heiner
->>>>
->>>
->>> Best regards,
->>> Bartosz Golaszewski
->>>
->>> [1] http://patchwork.ozlabs.org/patch/785106/
->>> [2] http://patchwork.ozlabs.org/patch/840958/
->>>
->>
+>> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+>> index 9e12a53ef7b8..8eac00efadc1 100644
+>> --- a/drivers/i2c/busses/i2c-i801.c
+>> +++ b/drivers/i2c/busses/i2c-i801.c
+>> @@ -1617,6 +1617,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>>   	/* Default timeout in interrupt mode: 200 ms */
+>>   	priv->adapter.timeout = HZ / 5;
+>>   
+>> +	if (dev->irq == IRQ_NOTCONNECTED)
+>> +		priv->features &= ~FEATURE_IRQ;
+>> +
+>>   	if (priv->features & FEATURE_IRQ) {
+>>   		u16 pcictl, pcists;
 > 
+> Certainly better than returning a cryptic error message, so:
+> 
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+Thanks.
+
+> However if this is considered a BIOS bug then a pr_err(FW_BUG...) would
+> be good to add IMHO.
+
+See above, that would just replace one error message with another on all
+Apollo Lake systems.
+
+Regards,
+
+Hans
