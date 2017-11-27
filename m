@@ -1,126 +1,191 @@
-From: "Zhang, Sean C. (NSB - CN/Hangzhou)" <sean.c.zhang@nokia-sbell.com>
-Subject: RE: [Bug fix] octeon-i2c driver updates
-Date: Mon, 27 Nov 2017 08:37:46 +0000
-Message-ID: <VI1PR0702MB3615361B408E67F3B4A41E1A8E250@VI1PR0702MB3615.eurprd07.prod.outlook.com>
-References: <VI1PR0702MB3615DF756007C1F87BED50BB8E210@VI1PR0702MB3615.eurprd07.prod.outlook.com>
- <20171124131026.GA30811@hc>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v4 5/7] eeprom: at24: add regmap-based read function
+Date: Mon, 27 Nov 2017 10:09:10 +0100
+Message-ID: <CAMRc=Me4n3PDG4jQa1Jfr=skdMJ=BmqKF6irqFEbDXFCMBS6rA@mail.gmail.com>
+References: <0448eec2-7dfb-ca79-d03a-d5b7fcb5d76c@gmail.com>
+ <011081f7-f2af-0e78-f21b-c40493d63a70@gmail.com> <CAMRc=McNp=NWeGxZZfz1Xq+sxx+-X1OAFsyoEPrFTn3vaH77mQ@mail.gmail.com>
+ <245157a7-bd46-9788-86e9-7058cc4c667b@gmail.com> <CAMRc=MetCoJBUnbTxnjjrxewoDZuKuLzosq5EVnjys2S=0J5Wg@mail.gmail.com>
+ <3b01676a-bc35-28ee-b406-bea45e606fa5@microchip.com> <d3bba0a5-966d-b567-a233-3aec51a97ac3@gmail.com>
+ <7d882bf9-8132-beb4-7a07-7544b421af02@gmail.com> <CAMRc=McqRg9e9WySKBfBu9DR4Bif9vkOByhHVwj8yrPt0vJKtQ@mail.gmail.com>
+ <f9bb6ddd-0fa4-7051-898f-921ee9f34bc7@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171124131026.GA30811@hc>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jan.glauber@caviumnetworks.com>
-Cc: "david.daney@cavium.com" <david.daney@cavium.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ot0-f180.google.com ([74.125.82.180]:35895 "EHLO
+        mail-ot0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751141AbdK0JJL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Nov 2017 04:09:11 -0500
+Received: by mail-ot0-f180.google.com with SMTP id t79so23572436ota.3
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Nov 2017 01:09:11 -0800 (PST)
+In-Reply-To: <f9bb6ddd-0fa4-7051-898f-921ee9f34bc7@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Claudiu Beznea <Claudiu.Beznea@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-SGkgSmFuLA0KDQpUaGVyZSBhcmUgdHdvIHBvaW50cyBpbiB0aGlzIHBhdGNoLg0KDQpQb2ludCAx
-LiBBcyB5b3Ugc2VlLCByZXBsYWNlZCBvY3Rlb25faTJjX2luaXRfbG93bGV2ZWwoKSBieSByZWNv
-dmVyIGJ1cyBzdGF0dXMgaWYgVFdTSSBjb250cm9sbGVyIGlzIG5vdCBJRExFLg0KUGxlYXNlIHRh
-a2UgYSBzY2VuYXJpbyBsaWtlIHRoaXM6IHdoZW4gc3lzdGVtIHNvZnQgcmVzZXQgd2l0aG91dCBJ
-MkMgc2xhdmUgcmVzZXQsIG1heWJlIG1ha2UgdGhpcyBJMkMgYnVzDQpkZWFkIGxvY2sgb2NjdXJy
-ZWQgKEkyQyBzbGF2ZSBkZXZpY2Ugc3R1Y2sgbG93IFNDTCkgaW4gY2hhbmNlLiBUaGVuIGR1cmlu
-ZyBzeXN0ZW0gZ29lcyB1cCBhbmQgSTJDIHNsYXZlIA0KZGV2aWNlIGNyZWF0aW5nIHByb2Nlc3Ms
-IGlmIHRoaXMgSTJDIHNsYXZlIGRldmljZSBoYXMgYSByZWdpc3RlciB3aXRoIGxlc3MgdGhhbiA4
-IGJ5dGVzIHRvIHJlYWQsIGJ1dCBJMkMgYnVzIHdhcw0Kc3RpbGwgc3R1Y2sgbG93IFNDTCBieSBs
-YXN0IHN5c3RlbSByZXNldCwgdGhlbiB0aGUgcmVhZCB3aWxsIGZhaWxlZCBhbmQgdGhpcyBJMkMg
-c2xhdmUgZGV2aWNlIGNhbm5vdCBiZSBjcmVhdGVkLg0KSWYgYnVzIHJlY292ZXJlZCBiZWZvcmUg
-dGhlIHJlYWRpbmcgcHJvY2VzcywgdGhpcyBmYWlsdXJlIGNhbiBiZSBmaXhlZC4NCg0KRnVuY3Rp
-b24gZmxvdyBleHBsYW5hdGlvbiBzaG93biBhcyBiZWxvdzoNCg0KYS4gU3lzdGVtIHJlc2V0IHdp
-dGhvdXQgSTJDIHNsYXZlIGRldmljZSByZXNldA0KLS1tYWtlIFNDTCBzdHVjayBsb3cgYnkgSTJD
-IHNsYXZlIGRldmljZQ0KLi4uLi4uDQpiLiBvY3Rlb25faTJjX3Byb2Jlo6ijqQ0KLS0gb2N0ZW9u
-X2kyY19pbml0X2xvd2xldmVsICAvL3Jlc2V0IFRXU0kgY29yZSwgYnV0IFNDTCBzdGlsbCBzdHVj
-ayBsb3cgYnkuDQouLi4uLi4NCg0KYy4gQW5vdGhlciBJMkMgc2xhdmUgZGV2aWNlIGNyZWF0aW5n
-IHByb2Nlc3MNCm9jdGVvbl9pMmNfeGZlcigpDQotLSBvY3Rlb25faTJjX2hsY19jb21wX3JlYWQo
-KSAvL2ZhaWxlZCBkdWUgdG8gU0NMIHN0dWNrIGxvdy4NCg0KSWYgZnVsbCByZWNvdmVyeSBleGVj
-dXRlZCBpbiBvY3Rlb25faTJjX3Byb2Jlo6gpLCBhYm92ZSBmYWlsdXJlIGNhbiBiZSBhdm9pZGVk
-Lg0KDQoNClBvaW50IDIuIG9jdGVvbl9pMmNfcmVjb3ZlcnkoKSBpcyB1c2VkIGluIG9jdGVvbl9p
-MmNfc3RhcnQoKSBlcnJvciBicmFuY2gsIGluIHRoZSBjYXNlIG9mIG9jdGVvbl9pMmNfcmVjb3Zl
-cnkoKQ0Kc3VjY2Vzc2Z1bCwgb2N0ZW9uX2kyY19zdGFydCgpIHdpbGwgcmV0dXJuIC1FQUdBSU4s
-IGFuZCB0aGVuIG9jdGVvbl9pMmNfeGZlcigpIHJldHVybiB3aXRoIGVycm9yLiBJIHVuZGVyc3Rh
-bmQgdGhpcyBsaWtlDQp0aGlzOiBpZiBvY3Rlb25faTJjX3JlY292ZXJ5KCkgc3VjY2Vzc2Z1bCwg
-dGhlbiBpMmMgU1RBUlQgc2lnbmFsIGNhbiBiZSBzZW50IGFnYWluLCBhbmQgYWxsIGZvbGxvd2lu
-ZyBzdGVwIGNhbiBiZSBjb250aW51ZSwNCm9jdGVvbl9pMmNfeGZlcigpIHNob3VsZCBub3QgcmV0
-dXJuIGVycm9yIGZyb20gdGhpcyBjb25kaXRpb24uDQoNCkJSLA0KU2VhbiBaaGFuZw0KDQotLS0t
-LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogSmFuIEdsYXViZXIgW21haWx0bzpqYW4uZ2xh
-dWJlckBjYXZpdW1uZXR3b3Jrcy5jb21dIA0KU2VudDogRnJpZGF5LCBOb3ZlbWJlciAyNCwgMjAx
-NyA5OjEwIFBNDQpUbzogWmhhbmcsIFNlYW4gQy4gKE5TQiAtIENOL0hhbmd6aG91KSA8c2Vhbi5j
-LnpoYW5nQG5va2lhLXNiZWxsLmNvbT4NCkNjOiBkYXZpZC5kYW5leUBjYXZpdW0uY29tOyB3c2FA
-dGhlLWRyZWFtcy5kZTsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZn
-ZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtCdWcgZml4XSBvY3Rlb24taTJjIGRyaXZlciB1
-cGRhdGVzDQoNCk9uIFRodSwgTm92IDIzLCAyMDE3IGF0IDExOjQyOjM2QU0gKzAwMDAsIFpoYW5n
-LCBTZWFuIEMuIChOU0IgLSBDTi9IYW5nemhvdSkgd3JvdGU6DQo+IERlYXIgTWFpbnRhaW5lciwN
-Cj4gDQo+IEZvciBvY3Rlb24gVFdTSSBjb250cm9sbGVyLCBJIGZvdW5kIGJlbG93IHR3byBjYXNl
-cywgbWF5YmUgY2FuIGJlIGltcHJvdmVkLg0KDQpIaSBTZWFuLA0KDQpmb3JtIHRoZSBkZXNjcmlw
-dGlvbiBiZWxvdyB0aGlzIGxvb2tzIGxpa2UgeW91J3JlIGZpeGluZyBhIGJ1Zy4gQ2FuIHlvdQ0K
-ZWxhYm9yYXRlIG9uIHdoZW4gdGhlIEkyQyBidXMgZGVhZCBsb2NrIG9jY3Vycy4gSXMgaXQgYWx3
-YXlzIGhhcHBlbmluZz8NCg0KV2hhdCBJIGRvbid0IGxpa2UgYWJvdXQgdGhlIHBhdGNoIGlzIHRo
-YXQgeW91J3JlIHJlbW92aW5nDQpvY3Rlb25faTJjX2luaXRfbG93bGV2ZWwoKSBmcm9tIHRoZSBw
-cm9iZSBhbmQgcmVwbGFjaW5nIGl0IGJ5IF9hbHdheXNfDQpnb2luZyB0aHJvdWdoIGEgZnVsbCBy
-ZWNvdmVyeS4gV2h5IGlzIHRoaXMgbmVjY2Vzc2FyeT8NCg0KUmVnYXJkcywNCkphbg0KDQo+IA0K
-PiA+RnJvbSAwOWQ5ZjBjZTY1OGQ3ZjZhNTBkMWFmMzUyZGRlNjE5YzI5YmM4YmNmIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQ0KPiBGcm9tOiBoZ3Q0NjMgPHNlYW4uYy56aGFuZ0Bub2tpYS5jb20+
-DQo+IERhdGU6IFRodSwgMjMgTm92IDIwMTcgMTg6NDY6MDkgKzA4MDANCj4gU3ViamVjdDogW1BB
-VENIXSBEcml2ZXIgdXBkYXRlczoNCj4gIC0gSW4gdGhlIGNhc2Ugb2YgSTJDIGJ1cyBkZWFkIGxv
-Y2sgb2NjdXJyZWQgZHVyaW5nIGRyaXZlciBwcm9iaW5nLA0KPiAgICBpdCBpcyBiZXR0ZXIgdHJ5
-IHRvIHJlY292ZXJ5IGl0LiBzbyBhZGRlZCBidXMgcmVjb3Zlcnkgc3RlcCBpbg0KPiAgICBvY3Rl
-b25faTJjX3Byb2JlKCk7DQo+ICAtIFRoZSBwdXJwb3NlIG9mIGZ1bmN0aW9uIG9jdGVvbl9pMmNf
-c3RhcnQoKSBpcyB0byBzZW5kIFNUQVJULCBzbyBhZnRlcg0KPiAgICBidXMgcmVjb3ZlcnksIGFs
-c28gbmVlZCB0cnkgdG8gc2VuZCBTVEFSVCBhZ2Fpbi4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IGhn
-dDQ2MyA8c2Vhbi5jLnpoYW5nQG5va2lhLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLW9jdGVvbi1jb3JlLmMgICAgfCAgIDMxICsrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKy0NCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLXBsYXRkcnYuYyB8ICAgMTUg
-KysrKysrKysrLS0tLS0tDQo+ICAyIGZpbGVzIGNoYW5nZWQsIDM5IGluc2VydGlvbnMoKyksIDcg
-ZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1v
-Y3Rlb24tY29yZS5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24tY29yZS5jDQo+IGlu
-ZGV4IDFkODc3NTcuLjNhZTFlMDMgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtb2N0ZW9uLWNvcmUuYw0KPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi1j
-b3JlLmMNCj4gQEAgLTI1NSw2ICsyNTUsMzUgQEAgc3RhdGljIGludCBvY3Rlb25faTJjX3JlY292
-ZXJ5KHN0cnVjdCBvY3Rlb25faTJjICppMmMpDQo+ICAgICAgICAgcmV0dXJuIHJldDsNCj4gIH0N
-Cj4gIA0KPiArLyoNCj4gKyAqIG9jdGVvbl9pMmNfc3RhcnRfcmV0cnkgLSBzZW5kIFNUQVJUIHRv
-IHRoZSBidXMgYWZ0ZXIgYnVzIHJlY292ZXJ5Lg0KPiArICogQGkyYzogVGhlIHN0cnVjdCBvY3Rl
-b25faTJjDQo+ICsgKg0KPiArICogUmV0dXJucyAwIG9uIHN1Y2Nlc3MsIG90aGVyd2lzZSBhIG5l
-Z2F0aXZlIGVycm5vLg0KPiArICovDQo+ICtzdGF0aWMgaW50IG9jdGVvbl9pMmNfc3RhcnRfcmV0
-cnkoc3RydWN0IG9jdGVvbl9pMmMgKmkyYykNCj4gK3sNCj4gKyAgICAgICBpbnQgcmV0Ow0KPiAr
-ICAgICAgIHU4IHN0YXQ7DQo+ICsNCj4gKyAgICAgICByZXQgPSBvY3Rlb25faTJjX3JlY292ZXJ5
-KGkyYyk7DQo+ICsgICAgICAgaWYgKHJldCkNCj4gKyAgICAgICAgICAgICAgIGdvdG8gZXJyb3I7
-DQo+ICsNCj4gKyAgICAgICBvY3Rlb25faTJjX2N0bF93cml0ZShpMmMsIFRXU0lfQ1RMX0VOQUIg
-fCBUV1NJX0NUTF9TVEEpOw0KPiArICAgICAgIHJldCA9IG9jdGVvbl9pMmNfd2FpdChpMmMpOw0K
-PiArICAgICAgIGlmIChyZXQpDQo+ICsgICAgICAgICAgICAgICBnb3RvIGVycm9yOw0KPiArDQo+
-ICsgICAgICAgc3RhdCA9IG9jdGVvbl9pMmNfc3RhdF9yZWFkKGkyYyk7DQo+ICsgICAgICAgaWYg
-KHN0YXQgPT0gU1RBVF9TVEFSVCB8fCBzdGF0ID09IFNUQVRfUkVQX1NUQVJUKQ0KPiArICAgICAg
-ICAgICAgICAgLyogU1RBUlQgc3VjY2Vzc2Z1bCwgYmFpbCBvdXQgKi8NCj4gKyAgICAgICAgICAg
-ICAgIHJldHVybiAwOw0KPiArDQo+ICtlcnJvcjoNCj4gKyAgICAgICByZXR1cm4gKHJldCkgPyBy
-ZXQgOiAtRUFHQUlOOw0KPiArfQ0KPiArDQo+ICAvKioNCj4gICAqIG9jdGVvbl9pMmNfc3RhcnQg
-LSBzZW5kIFNUQVJUIHRvIHRoZSBidXMNCj4gICAqIEBpMmM6IFRoZSBzdHJ1Y3Qgb2N0ZW9uX2ky
-Yw0KPiBAQCAtMjgwLDcgKzMwOSw3IEBAIHN0YXRpYyBpbnQgb2N0ZW9uX2kyY19zdGFydChzdHJ1
-Y3Qgb2N0ZW9uX2kyYyAqaTJjKQ0KPiAgDQo+ICBlcnJvcjoNCj4gICAgICAgICAvKiBTVEFSVCBm
-YWlsZWQsIHRyeSB0byByZWNvdmVyICovDQo+IC0gICAgICAgcmV0ID0gb2N0ZW9uX2kyY19yZWNv
-dmVyeShpMmMpOw0KPiArICAgICAgIHJldCA9IG9jdGVvbl9pMmNfc3RhcnRfcmV0cnkoaTJjKTsN
-Cj4gICAgICAgICByZXR1cm4gKHJldCkgPyByZXQgOiAtRUFHQUlOOw0KPiAgfQ0KPiAgDQo+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi1wbGF0ZHJ2LmMgYi9kcml2
-ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi1wbGF0ZHJ2LmMNCj4gaW5kZXggNjRiZGE4My4uOTgw
-NjNhZiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24tcGxhdGRy
-di5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLXBsYXRkcnYuYw0KPiBA
-QCAtMjI4LDEyICsyMjgsNiBAQCBzdGF0aWMgaW50IG9jdGVvbl9pMmNfcHJvYmUoc3RydWN0IHBs
-YXRmb3JtX2RldmljZSAqcGRldikNCj4gICAgICAgICBpZiAoT0NURU9OX0lTX01PREVMKE9DVEVP
-Tl9DTjM4WFgpKQ0KPiAgICAgICAgICAgICAgICAgaTJjLT5icm9rZW5faXJxX2NoZWNrID0gdHJ1
-ZTsNCj4gIA0KPiAtICAgICAgIHJlc3VsdCA9IG9jdGVvbl9pMmNfaW5pdF9sb3dsZXZlbChpMmMp
-Ow0KPiAtICAgICAgIGlmIChyZXN1bHQpIHsNCj4gLSAgICAgICAgICAgICAgIGRldl9lcnIoaTJj
-LT5kZXYsICJpbml0IGxvdyBsZXZlbCBmYWlsZWRcbiIpOw0KPiAtICAgICAgICAgICAgICAgZ290
-byAgb3V0Ow0KPiAtICAgICAgIH0NCj4gLQ0KPiAgICAgICAgIG9jdGVvbl9pMmNfc2V0X2Nsb2Nr
-KGkyYyk7DQo+ICANCj4gICAgICAgICBpMmMtPmFkYXAgPSBvY3Rlb25faTJjX29wczsNCj4gQEAg
-LTI0NSw2ICsyMzksMTUgQEAgc3RhdGljIGludCBvY3Rlb25faTJjX3Byb2JlKHN0cnVjdCBwbGF0
-Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ICAgICAgICAgaTJjX3NldF9hZGFwZGF0YSgmaTJjLT5hZGFw
-LCBpMmMpOw0KPiAgICAgICAgIHBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYsIGkyYyk7DQo+ICAN
-Cj4gKyAgICAgICBzdGF0ID0gb2N0ZW9uX2kyY19zdGF0X3JlYWQoaTJjKTsNCj4gKyAgICAgICBp
-ZiAoc3RhdCAhPSBTVEFUX0lETEUpIHsNCj4gKyAgICAgICAgICAgICAgIHJlc3VsdCA9IG9jdGVv
-bl9pMmNfcmVjb3ZlcnkoaTJjKTsNCj4gKyAgICAgICAgICAgICAgIGlmIChyZXN1bHQpIHsNCj4g
-KyAgICAgICAgICAgICAgICAgICAgICAgZGV2X2VycihpMmMtPmRldiwgIm9jdGVvbiBpMmMgcmVj
-b3ZlcnkgZmFpbGVkXG4iKTsNCj4gKyAgICAgICAgICAgICAgICAgICAgICAgZ290byAgb3V0Ow0K
-PiArICAgICAgICAgICAgICAgfQ0KPiArICAgICAgIH0NCj4gKw0KPiAgICAgICAgIHJlc3VsdCA9
-IGkyY19hZGRfYWRhcHRlcigmaTJjLT5hZGFwKTsNCj4gICAgICAgICBpZiAocmVzdWx0IDwgMCkN
-Cj4gICAgICAgICAgICAgICAgIGdvdG8gb3V0Ow0KPiANCj4gDQo+IEF0dGFjaGVkIHBhdGNoIGZv
-ciB5b3UgcmV2aWV3LiBUaGFua3MgaW4gYWR2YW5jZS4NCj4gDQo+IEJSLA0KPiBTZWFuIFpoYW5n
-DQoNCg0K
+2017-11-27 7:24 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Am 26.11.2017 um 21:27 schrieb Bartosz Golaszewski:
+>> 2017-11-24 23:13 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+>>> Am 24.11.2017 um 22:17 schrieb Heiner Kallweit:
+>>>> Am 24.11.2017 um 18:35 schrieb Claudiu Beznea:
+>>>>>
+>>>>>
+>>>>> On 24.11.2017 13:00, Bartosz Golaszewski wrote:
+>>>>>> 2017-11-23 22:31 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+>>>>>>> Am 23.11.2017 um 17:40 schrieb Bartosz Golaszewski:
+>>>>>>>> Let's use '|=' here as it's safer (doesn't shift the bit if it's set
+>>>>>>>> in both sides).
+>>>>>>>>
+>>>>>>> To build an opinion on |= vs. += I checked the code in more detail plus
+>>>>>>> some datasheets, what lead to quite some question marks ..
+>>>>>>>
+>>>>>>> Major issue is that offset and size in at24_read/write are not checked
+>>>>>>> currently. So we completely rely on the calling subsystem (nvmem).
+>>>>>>> The nvmem sysfs interface does such checking. However nvmem_device_read
+>>>>>>> does not. So maybe the nvmem core should be changed to do checking in
+>>>>>>> all cases. I add Srinivas as nvmem maintainer to the conversation
+>>>>>>> to hear his opinion.
+>>>>>>>
+>>>>>>> If we have such checks then in general |= and += deliver the same result,
+>>>>>>> it's just a question of taste.
+>>>>>>>
+>>>>>>> According to the at24mac602/at24mac402 datasheet the MAC is provided at:
+>>>>>>> 24mac402 / EUI-48 -> position 0x9a - 0x9f
+>>>>>>> 24mac602 / EUI-64 -> position 0x98 - 0x9f
+>>>>>>>
+>>>>>>> Size of the 24mac402 is defined as 48 bit = 6 byte and the effective
+>>>>>>> offset in at24_eeprom_read_mac is 0x90 + offset provided by caller.
+>>>>> Moreover, if I remember good, in the initialization of the 24mac402 the
+>>>>> size is truncated at something which is power of 2. I don't if this is
+>>>>> for some historical reasons or not so that you can only read 4 bytes
+>>>>> instead of 6 for the EUI-48.
+>>>>>
+>>>> Very good point! Actually I don't see any real need for this check.
+>>>> I thin we lose nothing if we simply remove it.
+>>>>
+>>> Just see that this check only prints a warning, the actual issue comes
+>>> from the ilog2 in AT24_DEVICE_MAGIC.
+>>> When we need one more config parameter anyway (for the MAC start address),
+>>> then IMO it would make sense to convert the magic to a proper struct.
+>>> I'll spend a few thoughts on that.
+>>>
+>>
+>> One thing that bothers me is that we now have a feature in the kernel
+>> (reading the MAC address from at24mac402/at24mac604) which doesn't
+>> work and any patch fixing it, that at the same time significantly
+>> changes the code would likely not make its way into the stable
+>> branches.
+>>
+>> I see it like this: I would like to merge commit ("eeprom: at24: fix
+>> reading from 24MAC402/24MAC602") first: that would at least fix the
+>> at24mac402 case. For at24mac602 it would be ok to create the MAGIC
+>> manually without the call to ilog2(). Such changes would then be
+>> submitted for linux-stable.
+>>
+> I think it's opposite, 24MAC402 causes the trouble due to byte_len = 6.
+
+Indeed.
+
+> Approach is fine with me, are you going to prepare the fix for
+> replacing the magic for 24MAC402 ?
+>
+
+Yes, I'll post it later today.
+
+>> After these two patches, I will merge the regmap conversion patches
+>> and we would base any subsequent development (e.g. magic -> struct
+>> conversion) on top of that. How about that?
+>>
+> Also fine with me, then I will send the (hopefully) final series
+> tonight incl. the last small requested change.
+>
+
+Ok, I'll give it a last testing spin on top of 4.15-rc1 and hopefully
+we can have it in by Wednesday.
+
+Thanks,
+Bartosz
+
+>> Best regards,
+>> Bartosz Golaszewski
+>>
+>>>>>>> So the caller has to provide offset 0x08 to read the mac what is
+>>>>>>> greater than the chip size of 6 bytes.
+>>>>>>> So reading the mac via nvmem sysfs interface shouldn't be possible.
+>>>>>>>
+>>>>>>> I saw that you submitted the 24macx02 code, did you test the driver
+>>>>>>> with one of these chips and I miss something?
+>>>>>>>
+>>>>>>
+>>>>>> At the time when I submitted the support for at24cs (which I had
+>>>>>> tested both for 8- and 16-bit addresses), Wolfram suggested that I
+>>>>>> include support for at24mac too, but since I don't have such a chip, I
+>>>>>> could not really test it. Looking at the note on page 21 of the
+>>>>>> relevant datasheet, it's obvious it can't work. I must have missed
+>>>>>> that at the time of writing the code.
+>>>>>>
+>>>>>> Also: there's this patch[1] which looks like a workaround for this
+>>>>>> problem. I'm Cc'ing the author.
+>>>>> I tried to make this driver work for chip at [3] which EUI-48 is located at 0xfa
+>>>>> and providing this offset via device tree was my first option in order
+>>>>> to not broke the initial functionality. Anyway, the device tree approach
+>>>>> as not accepted at that time, the usage of another DT binding was proposed
+>>>>> to me at that time but I didn't found that feasible, said about it on
+>>>>> mailing list but I didn't received any other inputs.
+>>>>>
+>>>>
+>>>> My patch works for the two MAC EEPROM's currently supported by the driver,
+>>>> but not for others like the one mentioned by you (Microchip 24AA02E48 and
+>>>> friends) because they have other start addresses for the MAC.
+>>>>
+>>>> To deal with this situation we would have to add the MAC start address to
+>>>> the chip config data. In addition the proposed DT parameter would helpful
+>>>> in case chips are used which are not yet supported by the driver
+>>>> (similar to the recently introduced "size" parameter).
+>>>>
+>>>>
+>>>> Bartosz, can we first go with the additional sanity checking in
+>>>> at24_read/write (if fine with you) and my i2c refactoring
+>>>> (will resubmit with the last small change)?
+>>>> Then the driver is somewhat smaller and simpler what makes further
+>>>> improvements easier.
+>>>>
+>>>> Kind regards,
+>>>> Heiner
+>>>>
+>>>>>>
+>>>>>> @Claudiu: is that the case or do you actually have an EEPROM chip with
+>>>>>> the MAC at a different offset? Could you by any chance test the
+>>>>>> patch[2] from Heiner?
+>>>>> I have chip at [3] with MAC at 0xfa.
+>>>>>
+>>>>> Regarding the testing of patch [2], at this moment I haven't a board
+>>>>> with at24mac602 EEPROM. I will come back later to this thread as soon as
+>>>>> I will have one. Regarding the changes, if I remember good, the
+>>>>> at24->chip.byte_len is truncated at something which is power of 2,
+>>>>> in case of 24mac402 will be 4 not 6 as expected, so it should return
+>>>>> only 4 LSB bytes of MAC. Other than this it looks OK from my point
+>>>>> of view.
+>>>>>
+>>>>> Thanks,
+>>>>> Claudiu
+>>>>>
+>>>>> [3] http://ww1.microchip.com/downloads/en/DeviceDoc/20002124G.pdf
+>>>>>>
+>>>>>>> Most likely we would have to change the driver so that the caller can
+>>>>>>> read the mac from offset 0.
+>>>>>>>
+>>>>>>> Rgds, Heiner
+>>>>>>>
+>>>>>>
+>>>>>> Best regards,
+>>>>>> Bartosz Golaszewski
+>>>>>>
+>>>>>> [1] http://patchwork.ozlabs.org/patch/785106/
+>>>>>> [2] http://patchwork.ozlabs.org/patch/840958/
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
+>
