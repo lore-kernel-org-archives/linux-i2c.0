@@ -1,40 +1,60 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH] dt-bindings: i2c: eeprom: Add Renesas R1EX24128
-Date: Mon, 27 Nov 2017 19:18:14 +0100
-Message-ID: <CAMuHMdX7e8vkcmLBYk9who1pmLGe7Q98_5fo3hS+Q7vqtFo5iw@mail.gmail.com>
-References: <1510839994-12473-1-git-send-email-geert+renesas@glider.be> <20171127180528.rg5imhfthbso477s@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: core: decrease reference count of device node in
+ i2c_unregister_device
+Date: Mon, 27 Nov 2017 19:21:45 +0100
+Message-ID: <20171127182145.q4tju5ikw56nygki@ninjato>
+References: <1511766415-3732-1-git-send-email-alan.1.wang@nokia-sbell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171127180528.rg5imhfthbso477s@ninjato>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-Renesas <linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="oowcfhab7gakra5h"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:47953 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752430AbdK0SVr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 27 Nov 2017 13:21:47 -0500
+Content-Disposition: inline
+In-Reply-To: <1511766415-3732-1-git-send-email-alan.1.wang@nokia-sbell.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lixin Wang <alan.1.wang@nokia-sbell.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2017 at 7:05 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->>  Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 +-
->
-> I just noticed this file is missing in the AT24 entry in MAINTAINERS. I
-> wanted to prepare a patch for that but then I was wondering if the name
-> "eeprom.txt" is really suitable? I have doubts. Would "at24.txt" be a
-> better name maybe? Rob?
 
-Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+--oowcfhab7gakra5h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-;-)
+On Mon, Nov 27, 2017 at 03:06:55PM +0800, Lixin Wang wrote:
+> Reference count of device node was increased in of_i2c_register_device,
+> but without decreasing it in i2c_unregister_device.=20
 
-Gr{oetje,eeting}s,
+Huh, there is an of_node_put(bus) in of_i2c_register_device?
 
-                        Geert
+> Then the dynamically
+> added device node will never be released.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+Strange. Can you provide your test case, please?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--oowcfhab7gakra5h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlocV6gACgkQFA3kzBSg
+KbYzdQ//VjWtwBItISZqjr0FoAG4utxMTrA9d6sLjQgwP8HmKOohx3fkKZyw6LqC
+3LpnS/sVCgbKi6xiK6ValRN70VyLsZukBiC//312BFNRUpDkk2k4s+xRI1HvMiaX
+faoOVMSl1bFw+nN5fgowzlCcudQA5ic0TPq7H74cMnXQZFU1X4cjhdfisDiZcK9+
+lZlShFIvvM8EThvyp+Vg/EeyIki7MH+NHMJbVNfwxiQ9WT2+fuMxmCiCznqvqAgd
+MwaCajgK4m6EUAu3eg8PM6shW2ZjPxIjRfa303RJ6D7eh5TluRNg3vodO25Ut1cv
+eF4VCZXL4BTKouetUlfFpAWildiguGENaYU9uce3KxVIjDKpdKh796+PgmzqIixI
+bcUl73X1uYDDb2e8Vv3ooPkAOYIrxgLfct1ogolXuyw+Ns4PrvltINfckcZxCJp1
+2yRr6xEQzZZKrySo0UBfoQEz/Xb4StDbgZ0HkR2vgjoMh8KNdjUYhCZw8MOjgbKf
+0an/1a8gXTsERSbuqZpZ1Y+ETseQkdrmXzFcGvoK0E+jf2HIGZM8LZqqUKm2cuYW
+EmryXgKScCxAiY+A9OmbOWxpbIjF5/6McIiAxq5/OjiX6B3ntNeBrer7shYGMofE
+zOgf/m2yadPV19nawYA5c3V/1fUYD0fLNwWbZZs8bw0WN9E9XCs=
+=A+7S
+-----END PGP SIGNATURE-----
+
+--oowcfhab7gakra5h--
