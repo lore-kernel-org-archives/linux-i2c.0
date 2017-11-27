@@ -1,56 +1,63 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH] eeprom: at24: fix the magic value for at24mac402
-Date: Mon, 27 Nov 2017 13:28:08 +0100
-Message-ID: <20171127122808.21042-1-brgl@bgdev.pl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>, Claudiu Beznea <Claudiu.Beznea@microchip.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, stable@vger.kernel.org
+Subject: Re: [PATCH] eeprom: at24: check at24_read/write arguments
+Date: Mon, 27 Nov 2017 13:33:47 +0100
+Message-ID: <CAMRc=Me__y_vT0=-ZND=b4+H6gx+rX=h4eO9cb8Ugdx+dQEx_w@mail.gmail.com>
+References: <a519bea7-9c68-caf1-7b1a-100c2562a2d7@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ot0-f193.google.com ([74.125.82.193]:37726 "EHLO
+        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751590AbdK0Mds (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Nov 2017 07:33:48 -0500
+Received: by mail-ot0-f193.google.com with SMTP id s4so24014652ote.4
+        for <linux-i2c@vger.kernel.org>; Mon, 27 Nov 2017 04:33:48 -0800 (PST)
+In-Reply-To: <a519bea7-9c68-caf1-7b1a-100c2562a2d7@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-There's an ilog2() expansion in AT24_DEVICE_MAGIC() which rounds down
-the actual size of EUI-48 byte array in at24mac402 eeproms to 4 from 6,
-making it impossible to read it all.
+2017-11-24 7:47 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> So far we completely rely on the caller to provide valid arguments.
+> To be on the safe side perform an own sanity check.
+>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 00d602be7..52cbaeb6f 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -569,6 +569,9 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+>         if (unlikely(!count))
+>                 return count;
+>
+> +       if (off + count > at24->chip.byte_len)
+> +               return -EINVAL;
+> +
+>         client = at24_translate_offset(at24, &off);
+>
+>         ret = pm_runtime_get_sync(&client->dev);
+> @@ -614,6 +617,9 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+>         if (unlikely(!count))
+>                 return -EINVAL;
+>
+> +       if (off + count > at24->chip.byte_len)
+> +               return -EINVAL;
+> +
+>         client = at24_translate_offset(at24, &off);
+>
+>         ret = pm_runtime_get_sync(&client->dev);
+> --
+> 2.15.0
+>
+>
 
-Fix it by creating the magic value manually with the correct size.
+Out of curiosity: have you tried what happens currently if we try to
+read past the size of the nvmem device size?
 
-This patch contains a temporary fix that is suitable for stable
-branches. Eventually we'll probably remove the call to ilog2() while
-converting the magic values to actual structs.
-
-This fix will cause a warning message to be emitted by probe() for
-at24mac402 chips but theys should be initialized correctly anyway.
-
-Cc: stable@vger.kernel.org
-Fixes: 0b813658c115 ("eeprom: at24: add support for at24mac series")
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- drivers/misc/eeprom/at24.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index e0b4b36ef010..72adf34627f5 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -141,8 +141,17 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24c02",	AT24_DEVICE_MAGIC(2048 / 8,	0) },
- 	{ "24cs02",	AT24_DEVICE_MAGIC(16,
- 				AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
--	{ "24mac402",	AT24_DEVICE_MAGIC(48 / 8,
--				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
-+	/*
-+	 * REVISIT: the size of the EUI-48 byte array is 6 in at24mac402, while
-+	 * the call to ilog2() in AT24_DEVICE_MAGIC() rounds it down to 4. We
-+	 * might want to eventually remove it altogether or maybe even convert
-+	 * the magic values to real structs.
-+	 *
-+	 * For now just create the magic value manually with the right size.
-+	 */
-+	{ "24mac402",	((1 << AT24_SIZE_FLAGS |
-+			 (AT24_FLAG_MAC | AT24_FLAG_READONLY))
-+			 << AT24_SIZE_BYTELEN | (48 / 8)) },
- 	{ "24mac602",	AT24_DEVICE_MAGIC(64 / 8,
- 				AT24_FLAG_MAC | AT24_FLAG_READONLY) },
- 	/* spd is a 24c02 in memory DIMMs */
--- 
-2.15.0
+Thanks,
+Bartosz
