@@ -1,74 +1,92 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core-smbus: prevent stack corruption on read
- I2C_BLOCK_DATA
-Date: Mon, 27 Nov 2017 19:38:47 +0100
-Message-ID: <20171127183847.ddatx2r5dnmrs3rl@ninjato>
-References: <871skzpbby.fsf@jcompost-mobl.amr.corp.intel.com>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Mon, 27 Nov 2017 19:51:16 +0100
+Message-ID: <20171127185116.j2vmkhbik33vk4f7@ninjato>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+ <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tncblr4fa7y446we"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48002 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751360AbdK0Sis (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 27 Nov 2017 13:38:48 -0500
+        protocol="application/pgp-signature"; boundary="mn6nogm4h73ihrkm"
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <871skzpbby.fsf@jcompost-mobl.amr.corp.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
+Sender: linux-input-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Compostella, Jeremy" <jeremy.compostella@intel.com>
-Cc: linux-i2c@vger.kernel.org
 
 
---tncblr4fa7y446we
+--mn6nogm4h73ihrkm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 15, 2017 at 12:54:09PM -0700, Compostella, Jeremy wrote:
-> On a I2C_SMBUS_I2C_BLOCK_DATA read request, if data->block[0] is
-> greater than I2C_SMBUS_BLOCK_MAX + 1, the underlying I2C driver writes
-> data out of the msgbuf1 boundary.
+On Wed, Nov 08, 2017 at 10:50:37PM +0000, Mark Brown wrote:
+> On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
 >=20
-> It is possible from a user application to run into that issue by call
-> the I2C_SMBUS ioctl with data.block[0] greater than
-> I2C_SMBUS_BLOCK_MAX + 1.
+> > While previous versions until v3 tried to magically apply bounce buffer=
+s when
+> > needed, it became clear that detecting DMA safe buffers is too fragile.=
+ This
+> > approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. =
+The
+> > outcome so far is very convincing IMO. The core additions are simple an=
+d easy
+> > to understand. The driver changes for the Renesas IP cores became easy =
+to
+> > understand, too.
+>=20
+> It would really help a lot of things if there were a way to detect if a
+> given memory block is DMA safe, having to pass the information around
+> causes so much pain.
 
-=46rom Documentation/i2c/dev-interface:
+I so agree.
 
-ioctl(file, I2C_SMBUS, struct i2c_smbus_ioctl_data *args)
-  Not meant to be called  directly; instead, use the access functions
-  below.
+> > I am still not sure how we can teach regmap this new flag. regmap is a =
+heavy
+> > user of I2C, so broonie's opinion here would be great to have. The rest=
+ should
+> > mostly be updating individual drivers which can be done when needed.
+>=20
+> We pretty much assume everything is DMA safe already, the majority of
+> transfers go to/from kmalloc()ed scratch buffers so actually are DMA
+> safe but for bulk transfers we use the caller buffer and there might be
+> some problem users.
 
-Maybe we should add this info to the include file as well?
+So, pretty much the situation I2C was in before this patch set: we
+pretty much assume DMA safety but there might be problem users.
 
-But I guess we still shouldn't OOPS on this misuse...
+> I can't really think of a particularly good way of
+> handling it off the top of my head, obviously not setting the flag is
+> easy but doesn't get the benefit while always using a bounce buffer
+> would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
+> particularly appealing either but might be what we end up with.
 
-Will think about it...
+Okay. That sounds you are fine with the approach taken here, in general?
 
-Regards,
+Thanks,
 
    Wolfram
 
 
---tncblr4fa7y446we
+--mn6nogm4h73ihrkm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlocW7cACgkQFA3kzBSg
-KbYAVRAAgVhH96arsy8pnwFzOaQhAy281cEvjLmyB3/ciiVh2JcuTo/vUuxew90m
-04sCNE7JxWN1pWIscgKKD05TDvdFZCa8JlgbUNWa4atWsbsuLtpW0raLHEDizlLJ
-S1a8JE+/hAXu90SaLQom60O3Au7X24jTJCl8l9d53oTO16VYgDOR7M4P96dXIrrq
-/68zjo4JA8wmSAa/itUKpttfGCoYtJ7SIFtlkwEykoDmZm+KGr5KnSy6hZmqufs7
-GDszmvCMWj+K8gr97AekKYyT1TkcKr4wWYImaIKREnt8lF5JzKEYzqFhHS1msy3H
-goX8jwX4r7eNmtGQWsOZfIogBGi45Ka6kg/OaCE5tjEuDb4R2qh2GYHjLVhZQ+dF
-xfj3/SWEzbwIBH8o1ggA88ieU2ftvcZwSs4RfN0mQQabKeuqYeVp6JbJlO9iQ/1n
-faL08Le7DSaAW2qG+l1dbu9Qzwfm9PFd4+PBQVkLWHCvZ2omAcr+TjAxZdZ3A+AJ
-pVm9rx5Qa1ZRxZ2q/1OHaewFYSBWxKDv8tdMFOaWfoJmSOPrEtjS2lkO8sDRW+XD
-AAbcHeKSoS33uMZi2YmB4oPYz/GwYK1YOvhLjMf0sgC6icu3AyZRkEilMR+X+AUY
-grQGfK6tSYOAgpq+NnbmLwqHFi8KQyR/HIF7z3iL+cVbZjMlW3w=
-=9gHs
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlocXqMACgkQFA3kzBSg
+KbZHtxAArjFGCUHWEI0mb69aZ3Afheaj+Ng9703s+B3PW5cz951UVm1iOueCdVIB
+un5esGb+m9z1cP/tJ5BaFO8uveRdwioQ98J33odSQb420mjqrTmRFSecjEyNW7Vv
+6MAQhHXsRNqfACrlRcVsXfbwMvXBt1bE2dzZ6eBle/dG6RX5f9krXklQBzfRbZ54
+3NCZ2lnRJ8aijxWAnqiwMYqHRHP+5L3jxFWGkmdNC0cbogUg/edahv0r63DH+Jn9
+KmF2g/5ANZ1PlXDb+VdTLpmcmYWRniCwcxiVgEoFtb0DAUaExi44boKN6GiJc4Op
+2m2RsxHXjHuAZqbpbPX0zTCDaBnzZTUXJnBFKWEDxJGs+3sxUEsrxDvGCmyYxElE
+fbFMAbuOFdxOWebQPVUZbnWjFqZxD9qsuG36VAhe4qzA3PJrjrCTk+sIHm1a0VwK
+X1IpgUUmCj3Cff/hO8ZKUQgHwBFnp8qpaPrVBpiDX/MLrkt8ngfCj1Km3MCC4O2A
+7ks6G+DD++Bw7Vf1aHUp5aD6+wberxoHSPUKB3CpDXjPusVghKgRb/oz6Il+xFr8
+STcCrzmmAgeIl3RHA2pFKh7B8zMynwte+/2BdoKPN9RH7KGqi5BcC2cdXMXeN/yz
+icSgbMKoMnut/5l5RfMl/1RjAIPb0Mw8OkV/Ye/l3vCqpp06enc=
+=ux9A
 -----END PGP SIGNATURE-----
 
---tncblr4fa7y446we--
+--mn6nogm4h73ihrkm--
