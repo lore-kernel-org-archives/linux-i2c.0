@@ -1,63 +1,57 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i2c: i801: Fix Failed to allocate irq -2147483648 error
-Date: Mon, 27 Nov 2017 16:38:50 +0100
-Message-ID: <a733c418-9a88-fd40-96b7-40690c757db0@redhat.com>
-References: <20171122112817.9554-1-hdegoede@redhat.com>
- <20171124144957.6a7323cc@endymion>
- <5ba5b26d-18d9-6f07-d9a9-52cde30ea5ee@redhat.com>
- <20171127110427.624a8b3c@endymion>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: Don't set SCL timings and speed mode
+ when in slave mode
+Date: Mon, 27 Nov 2017 18:30:44 +0100
+Message-ID: <20171127173044.gblciprw56uqdkx7@ninjato>
+References: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qlbqivej7jo5dozz"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53876 "EHLO mx1.redhat.com"
+Received: from sauhun.de ([88.99.104.3]:47712 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752291AbdK0Pix (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 27 Nov 2017 10:38:53 -0500
-In-Reply-To: <20171127110427.624a8b3c@endymion>
-Content-Language: en-US
+        id S932166AbdK0Raq (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 27 Nov 2017 12:30:46 -0500
+Content-Disposition: inline
+In-Reply-To: <20170823134612.26117-1-jarkko.nikula@linux.intel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Luis Oliveira <Luis.Oliveira@synopsys.com>
 
-Hi,
 
-On 27-11-17 11:04, Jean Delvare wrote:
-> On Sat, 25 Nov 2017 14:43:08 +0100, Hans de Goede wrote:
->> On 11/24/2017 02:49 PM, Jean Delvare wrote:
->>> Isn't it a BIOS bug?
->>
->> No, as mentioned in:
->>
->>>> BugLink: https://communities.intel.com/thread/114759
->>
->> The BIOS deliberately does not contain IRQ routing issues because some
->> variants of the Windows driver for this falling over if their is
->> any IRQ routing set, so this is a "feature" not a bug :|
-> 
-> What I do not understand is how Apollo Lake systems are different from
-> any other Intel system, which already had a compatible SMBus controller
-> and apparently having an IRQ configured was never an issue?
+--qlbqivej7jo5dozz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've no answer there I'm afraid.
+On Wed, Aug 23, 2017 at 04:46:12PM +0300, Jarkko Nikula wrote:
+> According to data sheet SCL timing parameters and DW_IC_CON SPEED mode
+> bits are not used when operating in slave mode.
+>=20
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
->>> (...)
->>> However if this is considered a BIOS bug then a pr_err(FW_BUG...) would
->>> be good to add IMHO.
->>
->> See above, that would just replace one error message with another on all
->> Apollo Lake systems.
-> 
-> Turning a cryptic error message into a meaningful error message isn't
-> necessarily a bad thing.
+Applied to for-next, thanks!
 
-Given all the effort distros have done with splash-screens to give
-users a nice clean boot experience, we really want dmesg --level=err
-to not print anything unless there is a real problem with either the
-hardware or the kernel, printing an error message on all Apollo Lake
-systems is really not helpful IMHO.
 
-Regards,
+--qlbqivej7jo5dozz
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Hans
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlocS8QACgkQFA3kzBSg
+KbZumA//S1P7/mGLF0aLO2LFEy+n8T0Tny4aDx35EU7bmTSsxB172aKgshBBrxlu
+lrU1qVlKO7yK3SFldaz/UBhSm7DGreyPi7QJeR3tIoM1xF8biac91kL6T6d//FMi
+1+l4Q3mL81rSL+yyNiea2r84A42vSiLk+DG4fcJkP1dfENNyOappjAb3YU/WpiF3
+vyyxSf4yVB7HyqllbFxaB1/aFaC5ZIHAp18omoNIIPEjR7vnkhqpa4wlOL5gQ3yx
+3l5v1PofRcAMmMl+ExUqOmkOXfcCJNvtRn6EWzkvRpUcS3uvHbbwGYhHh6cKZSVz
+miboZQuNBcZhIwWG/aib53fCVXJm7ma+UDA8/YyptLRMLeuuJtzMVQ2AnnoUEhye
+PH+TZAiHRAlbOwD+sjpG6zSgODR8RgHt6FIjrPCaA5rKozuEc/bSGmiInFqebGou
+8o0UNTq90RbbpU+iEt64Mm6L0VTQWtLzQJw9izSxMwW+w6fYF2oGBfdcqmZkCnH2
+d6mdgHuQeJj+kWLmKfJ6xvQrvuk869AsBlPirr03qM9cMsdSr7j9SfX/asDcZJUq
+BDFsWf2fXNwxoHe0+f7zFxr+1DcrsdsaZXN7FuJIROo3UaRfiuimgM9R/fKUJvMC
+z2fiCB30SbT1sQdG63lekac5uimhuTD3O1hd0Jx6CFuMqeCeRQ4=
+=OIUA
+-----END PGP SIGNATURE-----
+
+--qlbqivej7jo5dozz--
