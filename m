@@ -1,33 +1,33 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v6 2/7] eeprom: at24: change at24_translate_offset return type
-Date: Tue, 28 Nov 2017 21:51:42 +0100
-Message-ID: <c81bcdb9-a645-ab70-f1ca-c3c8cb6de6e5@gmail.com>
+Subject: [PATCH v6 1/7] eeprom: at24: add basic regmap_i2c support
+Date: Tue, 28 Nov 2017 21:51:40 +0100
+Message-ID: <32b1d3e9-2865-ba48-5452-fc3889348db9@gmail.com>
 References: <328f770d-e79d-cbb5-1cd7-238862aa8e1c@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:41645 "EHLO
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:37082 "EHLO
         mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751822AbdK1UwE (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Nov 2017 15:52:04 -0500
-Received: by mail-wm0-f67.google.com with SMTP id g75so2207233wme.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2017 12:52:04 -0800 (PST)
+        with ESMTP id S1751822AbdK1UwD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Nov 2017 15:52:03 -0500
+Received: by mail-wm0-f67.google.com with SMTP id f140so2039479wmd.2
+        for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2017 12:52:02 -0800 (PST)
 In-Reply-To: <328f770d-e79d-cbb5-1cd7-238862aa8e1c@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Bartosz Golaszewski <brgl@bgdev.pl>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Change return type of at24_translate_offset to *at24_client to make
-member regmap accessible for subsequent patches of this series.
+This patch adds basic regmap support to be used by subsequent
+patches of this series.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
 - rebased
 v3:
-- improve readability
+- no changes
 v4:
 - no changes
 v5:
@@ -35,174 +35,163 @@ v5:
 v6:
 - no changes
 ---
- drivers/misc/eeprom/at24.c | 42 ++++++++++++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 12 deletions(-)
+ drivers/misc/eeprom/Kconfig |  1 +
+ drivers/misc/eeprom/at24.c  | 53 +++++++++++++++++++++++++++++++++++----------
+ 2 files changed, 43 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+index de5876209..68a1ac929 100644
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -4,6 +4,7 @@ config EEPROM_AT24
+ 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
+ 	depends on I2C && SYSFS
+ 	select NVMEM
++	select REGMAP_I2C
+ 	help
+ 	  Enable this driver to get read/write support to most I2C EEPROMs
+ 	  and compatible devices like FRAMs, SRAMs, ROMs etc. After you
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index ed930dfbb..a16e8ca12 100644
+index 305a7a464..ed930dfbb 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -267,8 +267,8 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
-  * one "eeprom" file not four, but larger reads would fail when
-  * they crossed certain pages.
-  */
--static struct i2c_client *at24_translate_offset(struct at24_data *at24,
--						unsigned int *offset)
-+static struct at24_client *at24_translate_offset(struct at24_data *at24,
-+						 unsigned int *offset)
- {
- 	unsigned i;
+@@ -24,6 +24,7 @@
+ #include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/nvmem-provider.h>
++#include <linux/regmap.h>
+ #include <linux/platform_data/at24.h>
+ #include <linux/pm_runtime.h>
  
-@@ -280,17 +280,19 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
+@@ -55,6 +56,11 @@
+  * which won't work on pure SMBus systems.
+  */
+ 
++struct at24_client {
++	struct i2c_client *client;
++	struct regmap *regmap;
++};
++
+ struct at24_data {
+ 	struct at24_platform_data chip;
+ 	int use_smbus;
+@@ -81,7 +87,7 @@ struct at24_data {
+ 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
+ 	 * them for us, and we'll use them with SMBus calls.
+ 	 */
+-	struct i2c_client *client[];
++	struct at24_client client[];
+ };
+ 
+ /*
+@@ -274,7 +280,7 @@ static struct i2c_client *at24_translate_offset(struct at24_data *at24,
  		*offset &= 0xff;
  	}
  
--	return at24->client[i].client;
-+	return &at24->client[i];
+-	return at24->client[i];
++	return at24->client[i].client;
  }
  
  static ssize_t at24_eeprom_read_smbus(struct at24_data *at24, char *buf,
- 				      unsigned int offset, size_t count)
+@@ -680,6 +686,16 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+ 	}
+ }
+ 
++static const struct regmap_config regmap_config_8 = {
++	.reg_bits = 8,
++	.val_bits = 8,
++};
++
++static const struct regmap_config regmap_config_16 = {
++	.reg_bits = 16,
++	.val_bits = 8,
++};
++
+ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  {
- 	unsigned long timeout, read_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	int status;
+ 	struct at24_platform_data chip;
+@@ -690,6 +706,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
++	const struct regmap_config *config;
+ 	u8 test_byte;
  
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
+ 	if (client->dev.platform_data) {
+@@ -781,8 +798,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
  
- 	if (count > io_limit)
- 		count = io_limit;
-@@ -318,13 +320,15 @@ static ssize_t at24_eeprom_read_i2c(struct at24_data *at24, char *buf,
- 				    unsigned int offset, size_t count)
- {
- 	unsigned long timeout, read_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	struct i2c_msg msg[2];
- 	int status, i;
- 	u8 msgbuf[2];
++	if (chip.flags & AT24_FLAG_ADDR16)
++		config = &regmap_config_16;
++	else
++		config = &regmap_config_8;
++
+ 	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
+-		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
++		num_addresses * sizeof(struct at24_client), GFP_KERNEL);
+ 	if (!at24)
+ 		return -ENOMEM;
  
- 	memset(msg, 0, sizeof(msg));
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
+@@ -792,6 +814,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->chip = chip;
+ 	at24->num_addresses = num_addresses;
  
- 	if (count > io_limit)
- 		count = io_limit;
-@@ -368,12 +372,14 @@ static ssize_t at24_eeprom_read_serial(struct at24_data *at24, char *buf,
- 				       unsigned int offset, size_t count)
- {
- 	unsigned long timeout, read_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	struct i2c_msg msg[2];
- 	u8 addrbuf[2];
- 	int status;
++	at24->client[0].client = client;
++	at24->client[0].regmap = devm_regmap_init_i2c(client, config);
++	if (IS_ERR(at24->client[0].regmap))
++		return PTR_ERR(at24->client[0].regmap);
++
+ 	if ((chip.flags & AT24_FLAG_SERIAL) && (chip.flags & AT24_FLAG_MAC)) {
+ 		dev_err(&client->dev,
+ 			"invalid device data - cannot have both AT24_FLAG_SERIAL & AT24_FLAG_MAC.");
+@@ -839,18 +866,22 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		}
+ 	}
  
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
+-	at24->client[0] = client;
+-
+ 	/* use dummy devices for multiple-address chips */
+ 	for (i = 1; i < num_addresses; i++) {
+-		at24->client[i] = i2c_new_dummy(client->adapter,
+-					client->addr + i);
+-		if (!at24->client[i]) {
++		at24->client[i].client = i2c_new_dummy(client->adapter,
++						       client->addr + i);
++		if (!at24->client[i].client) {
+ 			dev_err(&client->dev, "address 0x%02x unavailable\n",
+ 					client->addr + i);
+ 			err = -EADDRINUSE;
+ 			goto err_clients;
+ 		}
++		at24->client[i].regmap = devm_regmap_init_i2c(
++					at24->client[i].client, config);
++		if (IS_ERR(at24->client[i].regmap)) {
++			err = PTR_ERR(at24->client[i].regmap);
++			goto err_clients;
++		}
+ 	}
  
- 	memset(msg, 0, sizeof(msg));
- 	msg[0].addr = client->addr;
-@@ -421,12 +427,14 @@ static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
- 				    unsigned int offset, size_t count)
- {
- 	unsigned long timeout, read_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	struct i2c_msg msg[2];
- 	u8 addrbuf[2];
- 	int status;
+ 	i2c_set_clientdata(client, at24);
+@@ -909,8 +940,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
+ err_clients:
+ 	for (i = 1; i < num_addresses; i++)
+-		if (at24->client[i])
+-			i2c_unregister_device(at24->client[i]);
++		if (at24->client[i].client)
++			i2c_unregister_device(at24->client[i].client);
  
- 	memset(msg, 0, sizeof(msg));
- 	msg[0].addr = client->addr;
-@@ -479,10 +487,12 @@ static ssize_t at24_eeprom_write_smbus_block(struct at24_data *at24,
- 					     unsigned int offset, size_t count)
- {
- 	unsigned long timeout, write_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	ssize_t status = 0;
+ 	pm_runtime_disable(&client->dev);
  
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
- 	count = at24_adjust_write_count(at24, offset, count);
+@@ -927,7 +958,7 @@ static int at24_remove(struct i2c_client *client)
+ 	nvmem_unregister(at24->nvmem);
  
- 	loop_until_timeout(timeout, write_time) {
-@@ -506,10 +516,12 @@ static ssize_t at24_eeprom_write_smbus_byte(struct at24_data *at24,
- 					    unsigned int offset, size_t count)
- {
- 	unsigned long timeout, write_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	ssize_t status = 0;
+ 	for (i = 1; i < at24->num_addresses; i++)
+-		i2c_unregister_device(at24->client[i]);
++		i2c_unregister_device(at24->client[i].client);
  
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
- 
- 	loop_until_timeout(timeout, write_time) {
- 		status = i2c_smbus_write_byte_data(client, offset, buf[0]);
-@@ -530,12 +542,14 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
- 				     unsigned int offset, size_t count)
- {
- 	unsigned long timeout, write_time;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	struct i2c_msg msg;
- 	ssize_t status = 0;
- 	int i = 0;
- 
--	client = at24_translate_offset(at24, &offset);
-+	at24_client = at24_translate_offset(at24, &offset);
-+	client = at24_client->client;
- 	count = at24_adjust_write_count(at24, offset, count);
- 
- 	msg.addr = client->addr;
-@@ -568,6 +582,7 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
- static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	char *buf = val;
- 	int ret;
-@@ -578,7 +593,8 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- 	if (off + count > at24->chip.byte_len)
- 		return -EINVAL;
- 
--	client = at24_translate_offset(at24, &off);
-+	at24_client = at24_translate_offset(at24, &off);
-+	client = at24_client->client;
- 
- 	ret = pm_runtime_get_sync(&client->dev);
- 	if (ret < 0) {
-@@ -616,6 +632,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
- static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- {
- 	struct at24_data *at24 = priv;
-+	struct at24_client *at24_client;
- 	struct i2c_client *client;
- 	char *buf = val;
- 	int ret;
-@@ -626,7 +643,8 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	if (off + count > at24->chip.byte_len)
- 		return -EINVAL;
- 
--	client = at24_translate_offset(at24, &off);
-+	at24_client = at24_translate_offset(at24, &off);
-+	client = at24_client->client;
- 
- 	ret = pm_runtime_get_sync(&client->dev);
- 	if (ret < 0) {
+ 	pm_runtime_disable(&client->dev);
+ 	pm_runtime_set_suspended(&client->dev);
 -- 
 2.15.0
