@@ -1,41 +1,35 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] eeprom: at24: correctly set the size for at24mac402
-Date: Tue, 28 Nov 2017 12:25:12 +0200
-Message-ID: <CAHp75VfRhbfEKZJx8js-C+6r0h30SQs8duznT6AxCPiL4iMuaQ@mail.gmail.com>
-References: <20171127210613.9140-1-brgl@bgdev.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] i2c-cht-wc: constify platform_device_id
+Date: Tue, 28 Nov 2017 15:55:07 +0530
+Message-ID: <bbbfa0879a3b9b778b11879fb6eb8150f4cb6838.1511864617.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171127210613.9140-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>, Claudiu Beznea <Claudiu.Beznea@microchip.com>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+To: hdegoede@redhat.com, wsa@the-dreams.de
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 27, 2017 at 11:06 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> There's an ilog2() expansion in AT24_DEVICE_MAGIC() which rounds down
-> the actual size of EUI-48 byte array in at24mac402 eeproms to 4 from 6,
-> making it impossible to read it all.
->
-> Fix it by manually adjusting the value in probe().
->
-> This patch contains a temporary fix that is suitable for stable
-> branches. Eventually we'll probably remove the call to ilog2() while
-> converting the magic values to actual structs.
+platform_device_id are not supposed to change at runtime. All functions
+working with platform_device_id provided by <linux/platform_device.h>
+work with const platform_device_id. So mark the non-const structs as
+const.
 
-> +       /*
-> +        * REVISIT: the size of the EUI-48 byte array is 6 in at24mac402, while
-> +        * the call to ilog2() in AT24_DEVICE_MAGIC() rounds it down to 4.
-> +        *
-> +        * Eventually we'll get rid of the magic values altoghether in favor of
-> +        * real structs, but for now just manually set the right size.
-> +        */
-> +       if (chip.flags & AT24_FLAG_MAC && chip.byte_len == 4)
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/i2c/busses/i2c-cht-wc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I didn't check, but do we need to test for len == 4 at all?
-
-> +               chip.byte_len = 6;
-
+diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+index 190bbbc..db56759 100644
+--- a/drivers/i2c/busses/i2c-cht-wc.c
++++ b/drivers/i2c/busses/i2c-cht-wc.c
+@@ -342,7 +342,7 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct platform_device_id cht_wc_i2c_adap_id_table[] = {
++static const struct platform_device_id cht_wc_i2c_adap_id_table[] = {
+ 	{ .name = "cht_wcove_ext_chgr" },
+ 	{},
+ };
 -- 
-With Best Regards,
-Andy Shevchenko
+1.9.1
