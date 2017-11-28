@@ -1,57 +1,47 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] i2c-cht-wc: constify platform_device_id
-Date: Tue, 28 Nov 2017 14:25:29 +0100
-Message-ID: <6480ed7b-ae78-7a45-c9c9-fd19e0642546@redhat.com>
-References: <bbbfa0879a3b9b778b11879fb6eb8150f4cb6838.1511864617.git.arvind.yadav.cs@gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: i801: Fix Failed to allocate irq -2147483648 error
+Date: Tue, 28 Nov 2017 14:37:07 +0100
+Message-ID: <20171128143707.257a2fa1@endymion>
+References: <20171122112817.9554-1-hdegoede@redhat.com>
+        <20171124144957.6a7323cc@endymion>
+        <5ba5b26d-18d9-6f07-d9a9-52cde30ea5ee@redhat.com>
+        <20171127110427.624a8b3c@endymion>
+        <a733c418-9a88-fd40-96b7-40690c757db0@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42620 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:60673 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751565AbdK1NZb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Nov 2017 08:25:31 -0500
-In-Reply-To: <bbbfa0879a3b9b778b11879fb6eb8150f4cb6838.1511864617.git.arvind.yadav.cs@gmail.com>
-Content-Language: en-US
+        id S1750871AbdK1NhK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Nov 2017 08:37:10 -0500
+In-Reply-To: <a733c418-9a88-fd40-96b7-40690c757db0@redhat.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>, wsa@the-dreams.de
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
 
-Hi,
-
-On 28-11-17 11:25, Arvind Yadav wrote:
-> platform_device_id are not supposed to change at runtime. All functions
-> working with platform_device_id provided by <linux/platform_device.h>
-> work with const platform_device_id. So mark the non-const structs as
-> const.
+On Mon, 27 Nov 2017 16:38:50 +0100, Hans de Goede wrote:
+> On 27-11-17 11:04, Jean Delvare wrote:
+> > Turning a cryptic error message into a meaningful error message isn't
+> > necessarily a bad thing.  
 > 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> Given all the effort distros have done with splash-screens to give
+> users a nice clean boot experience, we really want dmesg --level=err
+> to not print anything unless there is a real problem with either the
+> hardware or the kernel,
 
-Looks good to me:
+I completely agree with that, same goal here.
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> printing an error message on all Apollo Lake
+> systems is really not helpful IMHO.
 
-Regards,
+It wouldn't have to be an error message, it could be a mere notice.
 
-Hans
+What I'm afraid of is that the missing IRQ is an overlook from the
+standard BIOS provided by Intel to integrators, and the error will keep
+spreading until BIOS developers are aware of the problem.
 
-
-> ---
->   drivers/i2c/busses/i2c-cht-wc.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-> index 190bbbc..db56759 100644
-> --- a/drivers/i2c/busses/i2c-cht-wc.c
-> +++ b/drivers/i2c/busses/i2c-cht-wc.c
-> @@ -342,7 +342,7 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
->   	return 0;
->   }
->   
-> -static struct platform_device_id cht_wc_i2c_adap_id_table[] = {
-> +static const struct platform_device_id cht_wc_i2c_adap_id_table[] = {
->   	{ .name = "cht_wcove_ext_chgr" },
->   	{},
->   };
-> 
+-- 
+Jean Delvare
+SUSE L3 Support
