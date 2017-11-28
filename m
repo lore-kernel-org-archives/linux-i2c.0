@@ -1,37 +1,56 @@
 From: Phil Reid <preid@electromag.com.au>
-Subject: [PATCH 0/2] i2c: fix compile failures
-Date: Tue, 28 Nov 2017 11:09:09 +0800
-Message-ID: <1511838551-4035-1-git-send-email-preid@electromag.com.au>
+Subject: [RFC v2 0/3]  i2c: core: move smbus_alert into i2c-core
+Date: Tue, 28 Nov 2017 11:38:26 +0800
+Message-ID: <1511840309-37964-1-git-send-email-preid@electromag.com.au>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from anchovy1.45ru.net.au ([203.30.46.145]:45920 "EHLO
+Received: from anchovy3.45ru.net.au ([203.30.46.155]:54637 "EHLO
         anchovy.45ru.net.au" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751623AbdK1DJX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Nov 2017 22:09:23 -0500
+        with ESMTP id S1753643AbdK1Dig (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 27 Nov 2017 22:38:36 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, preid@electromag.com.au, linux-i2c@vger.kernel.org, sfr@canb.auug.org.au
+To: realmz6@gmail.com, wsa@the-dreams.de, sre@kernel.org, preid@electromag.com.au, adi-buildroot-devel@lists.sourceforge.net, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, jdelvare@suse.de, benjamin.tissoires@redhat.com
 
-This fixes the 2 compile issues related to my series:
-"i2c: designware: add i2c gpio recovery option"
+A part of the review of previous accepted series 
+"Add sbs-manager with smbalert support" Wolfram suggested moving
+the smbus_alert driver module into the i2c-core.
 
-I'm not sure if you want patches on top of i2c/for-next or a 
-respin of the series. I'm sure you'll let me know.
+This is a proposed implementation of that move.
 
-I've got some particular combination of Kconfig flags that
-is pulling gpio/consumer.h into the i2c-core-base, but I can't
-see what it is.
+I've also rename Kconfig and file name to reflect that this only
+relates the smbus alert feature.
 
-And I didn't pick up that the designware driver was split into 
-two separate modules. oops.
+I think I've compile tested all the possible permutations of compiling 
+things as either builtin or module.
+eg:
+core Builtin, Driver Builin
+core Builtin, Driver Module
+core Module,  Driver Module
+
+Changes from v1:
+- Add guard around of_i2c_setup_smbus_alert for builds
+  that include smbus-alert but are not CONFIG_OF
 
 
-Phil Reid (2):
-  i2c: core: fix compile issue related to incorrect gpio header
-  i2c: designware: fix building driver as module
+Phil Reid (3):
+  i2c: smbus: move of_i2c_setup_smbus_alert declaration to i2c-core.h
+  i2c: Kconfig: rename variable I2C_SMBUS to I2C_SMBUS_ALERT
+  i2c: core: move smbus_alert module into i2c-core
 
- drivers/i2c/busses/i2c-designware-common.c | 1 +
- drivers/i2c/i2c-core-base.c                | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/blackfin/configs/BF527-TLL6527M_defconfig |   2 +-
+ drivers/i2c/Kconfig                            |  14 +-
+ drivers/i2c/Makefile                           |   2 +-
+ drivers/i2c/busses/Kconfig                     |   8 +-
+ drivers/i2c/i2c-core-base.c                    |   7 +
+ drivers/i2c/i2c-core-smbus-alert.c             | 243 +++++++++++++++++++++++++
+ drivers/i2c/i2c-core-smbus.c                   |  22 ---
+ drivers/i2c/i2c-core.h                         |  22 +++
+ drivers/i2c/i2c-smbus.c                        | 217 ----------------------
+ drivers/power/supply/Kconfig                   |   2 +-
+ include/linux/i2c-smbus.h                      |  10 -
+ 11 files changed, 284 insertions(+), 265 deletions(-)
+ create mode 100644 drivers/i2c/i2c-core-smbus-alert.c
+ delete mode 100644 drivers/i2c/i2c-smbus.c
 
 -- 
 1.8.3.1
