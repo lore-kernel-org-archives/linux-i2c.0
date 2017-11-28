@@ -1,73 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: core: fix compile issue related to incorrect
- gpio header
-Date: Tue, 28 Nov 2017 10:48:33 +0100
-Message-ID: <20171128094833.vwxplzbzzrnu6uch@ninjato>
+Subject: Re: [PATCH 2/2] i2c: designware: fix building driver as module
+Date: Tue, 28 Nov 2017 10:48:39 +0100
+Message-ID: <20171128094839.hdresfrxel2lobon@ninjato>
 References: <1511838551-4035-1-git-send-email-preid@electromag.com.au>
- <1511838551-4035-2-git-send-email-preid@electromag.com.au>
+ <1511838551-4035-3-git-send-email-preid@electromag.com.au>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wsd3qknvwox7pnmb"
+        protocol="application/pgp-signature"; boundary="sjh7um7h3uplgyro"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:50542 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:50555 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751355AbdK1Jse (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 28 Nov 2017 04:48:34 -0500
+        id S1751716AbdK1Jsk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Nov 2017 04:48:40 -0500
 Content-Disposition: inline
-In-Reply-To: <1511838551-4035-2-git-send-email-preid@electromag.com.au>
+In-Reply-To: <1511838551-4035-3-git-send-email-preid@electromag.com.au>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Phil Reid <preid@electromag.com.au>
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, sfr@canb.auug.org.au
 
 
---wsd3qknvwox7pnmb
+--sjh7um7h3uplgyro
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 28, 2017 at 11:09:10AM +0800, Phil Reid wrote:
-> The correct header to include for the gpiod interface is
-> <linux/gpio/consumer.h>.
+On Tue, Nov 28, 2017 at 11:09:11AM +0800, Phil Reid wrote:
+> The designware core and platform are built as separate modules.
+> Export i2c_dw_prepare_clk() so it can be used by the platform
+> driver.
 >=20
-> fixes commit 3991c5c80beaf7eb9 ("i2c: Switch to using gpiod interface
-> for gpio bus recovery")
-
-Thanks for the fixes tag, yet please use this format in the future:
-
-Fixes: <sha> ("desc")
-
-like
-
-Fixes: a34a0b6da22540d19e57 ("i2c: designware: move i2c_dw_plat_prepare_clk=
- to common")
-
-Fixed it myself for these two patches.
-
-
+> Fixes commit a34a0b6da22540d19e57
+> ("i2c: designware: move i2c_dw_plat_prepare_clk to common")
+>=20
 > Signed-off-by: Phil Reid <preid@electromag.com.au>
 
-Applied to for-next, thanks for the fast reaction!
+Applied to for-next, thanks!
 
 
---wsd3qknvwox7pnmb
+--sjh7um7h3uplgyro
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlodMO0ACgkQFA3kzBSg
-KbYdbQ/5ASFKS7sv2NmZrwUBo9QXorWBb2OBYTAI9xU8qGjjzmXPOqH/aqqioLOi
-Z6sn9n0+A7ycBmw5m7aFxWjIoK1yoCCCxJqwW+3UC2YrgSiQgmPxina3XM/Y552C
-YL92ZYaph9BYcWJahmYJdSZ8rM9wY3usjLzWUTMdcFJ4dMeFDaNAmITtO0qfsnrx
-p3Cp4BgzwYmnFJ2tmyyZ9D9VOyWJuevLc63E2552J+GumDLGzESCSUaKpF8nrxM/
-nqn0WIdwwtpa6qFKCsZs+hFpLwBfl4chJai5RWotsaP6efYv1lm1+/RfhwXDKqOx
-/MWSZL3jOmN6IhwwqasEgnS5WLWVeDLPlFT5mm8vzs2DeIh6JBjWZnR2mybMz/mq
-hhP05+rbs1PSZytKs8pd6qn8A7bHigekqdBr+NvwiHxFOH0qzqz0n8JlfFLPAu10
-Azh5U9FLzQieqeUDSAmW9JKXH11a+p6LCAZiDmplkeilDXTa8TsoMSzmY4RX1PF+
-OugaCkDdda8YnWFRjkyX+uuLpFgChI4GhRrFMYqXnQJwStXL2P43iorymtxkjrIW
-K9bLfVrvMmAiU3Jt1EnnzIOrDXbiGt9VtDkM33dLOxcfLeKpQssH+UjJa4uLQXNF
-CwHsLGi+gHuBgKw2BimnM8pYt49CbrRoNGpJijxpydfXQrmlThU=
-=XMlY
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlodMPcACgkQFA3kzBSg
+Kba0dhAArhppMqSsprhryOKTSdW6pz2FfqWD0j1cJPGZaFCqeogHfvAhdFiuwJYt
+WkU2It2BtBa88n9DjhoiKa7i6+Uepy4p4iy54S/CpC/RIduvGnOEXE6d8phSAKMi
+LC09eUfZYwjupxT+FtYlPoL2Fvbh/HcDCVr8ssDCH3ZVIa93wjOL4U8eiTLGPsGD
+rAUl2vYzYQJzHG89TTi7pMZKFZXcPYnbachgJRXjDw2Jo9WQOYvpRmyXZz/KubMf
+R7s8GRqtfp/EyJ1Cv18uCPGq/HvAhkeHijLwQj22zICF03W09kadLUPdoEUS3o8S
+PjzSze4wPXrL/UwAY6HIzIOUj2ZwsilBLla7RE8Jk40eH4QoIRET5K+EsxfZfBER
+uJ2uH4g4YhRql8BxjP/go3PKtK4tuJgi918aLq7k8Zt72VuS7dZkV9IWw5C84wlz
+lzw6J+A030FrnJoK6hlFDXMruEBkCclLlIpa+rTV7QYoiaXEPg/7/Q1ulxZ/n23d
+guMXmSUFCRGk+G/h1gSwnq9trnZoSB+jJ51l58u045+cq2Z5zj1xqgNKCMOXUhKF
+n7GhyiUa6JH/VCfSF8KEKI8I/HxOzKggKm8Don4lzQhbZ89gKhwH6hy1Sw1+Q0eT
+Oojvv0SI/LgZdJrK7zL5vIbbNV6rpRmFJDniICEIJsZeizukcDQ=
+=2qSL
 -----END PGP SIGNATURE-----
 
---wsd3qknvwox7pnmb--
+--sjh7um7h3uplgyro--
