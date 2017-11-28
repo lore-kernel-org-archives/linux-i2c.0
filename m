@@ -1,88 +1,44 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: [RFC v2 1/3] i2c: smbus: move of_i2c_setup_smbus_alert declaration to i2c-core.h
-Date: Tue, 28 Nov 2017 11:38:27 +0800
-Message-ID: <1511840309-37964-2-git-send-email-preid@electromag.com.au>
-References: <1511840309-37964-1-git-send-email-preid@electromag.com.au>
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <1511840309-37964-1-git-send-email-preid@electromag.com.au>
-Sender: linux-pm-owner@vger.kernel.org
-To: realmz6@gmail.com, wsa@the-dreams.de, sre@kernel.org, preid@electromag.com.au, adi-buildroot-devel@lists.sourceforge.net, linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org, jdelvare@suse.de, benjamin.tissoires@redhat.com
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 2/2] i2c: designware: fix building driver as module
+Date: Tue, 28 Nov 2017 10:58:28 +0200
+Message-ID: <a8423851-ab3d-7274-3c36-4043d368b36a@linux.intel.com>
+References: <1511838551-4035-1-git-send-email-preid@electromag.com.au>
+ <1511838551-4035-3-git-send-email-preid@electromag.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:52670 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751451AbdK1I6e (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 28 Nov 2017 03:58:34 -0500
+In-Reply-To: <1511838551-4035-3-git-send-email-preid@electromag.com.au>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, sfr@canb.auug.org.au
 
-This declaration isn't used by anything outside of the i2c-core at
-present. In preparation for moving the smbus_alert code from it's
-own module into the i2c-core move to i2c-core.h
-
-Signed-off-by: Phil Reid <preid@electromag.com.au>
----
- drivers/i2c/i2c-core.h    |  9 +++++++++
- drivers/i2c/i2c-smbus.c   |  3 ++-
- include/linux/i2c-smbus.h | 10 ----------
- 3 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 3d3d9bf..8ef0402 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -60,3 +60,12 @@ static inline void i2c_acpi_remove_space_handler(struct i2c_adapter *adapter) {
- static inline void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif
- extern struct notifier_block i2c_of_notifier;
-+
-+#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
-+int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
-+#else
-+static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
-+{
-+	return 0;
-+}
-+#endif
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 5a1dd7f..c11a50e 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -25,6 +25,8 @@
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- 
-+#include "i2c-core.h"
-+
- struct i2c_smbus_alert {
- 	struct work_struct	alert;
- 	struct i2c_client	*ara;		/* Alert response address */
-@@ -123,7 +125,6 @@ static void smbalert_work(struct work_struct *work)
- 	alert = container_of(work, struct i2c_smbus_alert, alert);
- 
- 	smbus_alert(0, alert);
--
- }
- 
- /* Setup SMBALERT# infrastructure */
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index fb0e040..5f16a63 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -26,7 +26,6 @@
- #include <linux/spinlock.h>
- #include <linux/workqueue.h>
- 
--
- /**
-  * i2c_smbus_alert_setup - platform data for the smbus_alert i2c client
-  * @alert_edge_triggered: whether the alert interrupt is edge (1) or level (0)
-@@ -49,13 +48,4 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
- 					 struct i2c_smbus_alert_setup *setup);
- int i2c_handle_smbus_alert(struct i2c_client *ara);
- 
--#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
--int of_i2c_setup_smbus_alert(struct i2c_adapter *adap);
--#else
--static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
--{
--	return 0;
--}
--#endif
--
- #endif /* _LINUX_I2C_SMBUS_H */
--- 
-1.8.3.1
+On 11/28/2017 05:09 AM, Phil Reid wrote:
+> The designware core and platform are built as separate modules.
+> Export i2c_dw_prepare_clk() so it can be used by the platform
+> driver.
+> 
+> Fixes commit a34a0b6da22540d19e57
+> ("i2c: designware: move i2c_dw_plat_prepare_clk to common")
+> 
+> Signed-off-by: Phil Reid <preid@electromag.com.au>
+> ---
+>   drivers/i2c/busses/i2c-designware-common.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+> index 6b82809..27ebd90 100644
+> --- a/drivers/i2c/busses/i2c-designware-common.c
+> +++ b/drivers/i2c/busses/i2c-designware-common.c
+> @@ -197,6 +197,7 @@ int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
+>   	clk_disable_unprepare(dev->clk);
+>   	return 0;
+>   }
+> +EXPORT_SYMBOL_GPL(i2c_dw_prepare_clk);
+>   
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
