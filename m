@@ -1,67 +1,71 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
-Date: Tue, 28 Nov 2017 15:34:46 +0000
-Message-ID: <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
-References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
- <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
- <20171127185116.j2vmkhbik33vk4f7@ninjato>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH] eeprom: at24: correctly set the size for at24mac402
+Date: Tue, 28 Nov 2017 20:39:31 +0100
+Message-ID: <d1246ed7-49d2-54a5-ba50-9451d475940b@gmail.com>
+References: <20171127210613.9140-1-brgl@bgdev.pl>
+ <CAHp75VdAXbSK07xYfuAqgO=TW+2rv25hD7hTLOhW+D5E-J4N2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="g4qm2fugrwbwjqft"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171127185116.j2vmkhbik33vk4f7@ninjato>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:39824 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752618AbdK1Tjk (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 28 Nov 2017 14:39:40 -0500
+In-Reply-To: <CAHp75VdAXbSK07xYfuAqgO=TW+2rv25hD7hTLOhW+D5E-J4N2Q@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Claudiu Beznea <Claudiu.Beznea@microchip.com>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 
+Am 28.11.2017 um 13:09 schrieb Andy Shevchenko:
+> On Mon, Nov 27, 2017 at 11:06 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>> There's an ilog2() expansion in AT24_DEVICE_MAGIC() which rounds down
+>> the actual size of EUI-48 byte array in at24mac402 eeproms to 4 from 6,
+>> making it impossible to read it all.
+>>
+>> Fix it by manually adjusting the value in probe().
+>>
+>> This patch contains a temporary fix that is suitable for stable
+>> branches. Eventually we'll probably remove the call to ilog2() while
+>> converting the magic values to actual structs.
+>>
+> 
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> 
+Looks good also to me.
 
---g4qm2fugrwbwjqft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Nov 27, 2017 at 07:51:16PM +0100, Wolfram Sang wrote:
-> On Wed, Nov 08, 2017 at 10:50:37PM +0000, Mark Brown wrote:
-
-> > We pretty much assume everything is DMA safe already, the majority of
-> > transfers go to/from kmalloc()ed scratch buffers so actually are DMA
-> > safe but for bulk transfers we use the caller buffer and there might be
-> > some problem users.
-
-> So, pretty much the situation I2C was in before this patch set: we
-> pretty much assume DMA safety but there might be problem users.
-
-It's a bit different in that it's much more likely that a SPI controller
-will actually do DMA than an I2C one since the speeds are higher and
-there's frequent applications that do large transfers so it's more
-likely that people will do the right thing as issues would tend to come
-up if they don't.
-
-> > I can't really think of a particularly good way of
-> > handling it off the top of my head, obviously not setting the flag is
-> > easy but doesn't get the benefit while always using a bounce buffer
-> > would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
-> > particularly appealing either but might be what we end up with.
-
-> Okay. That sounds you are fine with the approach taken here, in general?
-
-It's hard to summon enthusiasm but yes, without changes to the DMA stuff
-it's probably as good as we can do.
-
---g4qm2fugrwbwjqft
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlodghYACgkQJNaLcl1U
-h9DF7Qf/RFs7DXkOGZIsos7EWmLKM4MQxypTYejz8u46jh7yQ9XNHHZMhhr8at6D
-J4bSqVSfTI4wQHzUwWK9tfzM3v1BT1ZnEFU8zvTTLMwVyZO9tVIPqjunnGR3vHvf
-/N+bbI1NKK6zWlp5vaV8OaVL0Utzm0DEY+2mpWVn3I5Q9OI5JkJ0KlZV+xOE5kLk
-5alC3IStVFb+3TiaSXJY9WEiLe21Xau6/xA51iQOdenUgIHfeg2TnLuJiMyvPIRq
-6VH1Hm9AQoNx+SuF4fWIVfzsMtz41iU7GBuJRFtdM6Jp+OftlBCIaUaO19GyqipF
-EOuxWHDGqOCs0wINJJ9EhR07XVDQZA==
-=RZ/Y
------END PGP SIGNATURE-----
-
---g4qm2fugrwbwjqft--
+>> Cc: stable@vger.kernel.org
+>> Fixes: 0b813658c115 ("eeprom: at24: add support for at24mac series")
+>> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+>> ---
+>>  drivers/misc/eeprom/at24.c | 10 ++++++++++
+>>  1 file changed, 10 insertions(+)
+>>
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index e0b4b36ef010..783244b485cc 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -730,6 +730,16 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>                 dev_warn(&client->dev,
+>>                         "page_size looks suspicious (no power of 2)!\n");
+>>
+>> +       /*
+>> +        * REVISIT: the size of the EUI-48 byte array is 6 in at24mac402, while
+>> +        * the call to ilog2() in AT24_DEVICE_MAGIC() rounds it down to 4.
+>> +        *
+>> +        * Eventually we'll get rid of the magic values altoghether in favor of
+>> +        * real structs, but for now just manually set the right size.
+>> +        */
+>> +       if (chip.flags & AT24_FLAG_MAC && chip.byte_len == 4)
+>> +               chip.byte_len = 6;
+>> +
+>>         /* Use I2C operations unless we're stuck with SMBus extensions. */
+>>         if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+>>                 if (chip.flags & AT24_FLAG_ADDR16)
+>> --
+>> 2.15.0
+>>
+> 
+> 
+> 
