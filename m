@@ -1,40 +1,46 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 1/2] dt-bindings: eeprom: rename to at24.txt
-Date: Wed, 29 Nov 2017 10:11:29 +0100
-Message-ID: <CAMuHMdVgypQUG5ApL9hNPb8Vyesb4+u_iQtJVDH412ALFq0WNA@mail.gmail.com>
-References: <20171129090442.2865-1-wsa@the-dreams.de> <20171129090442.2865-2-wsa@the-dreams.de>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH 2/2] MAINTAINERS: add DT binding docs for AT24
+Date: Wed, 29 Nov 2017 10:27:22 +0100
+Message-ID: <CAMRc=Mduv+Ecu69Dkj5aB-+YHfu9q6A1=0k=1Va_i1CX=gPBng@mail.gmail.com>
+References: <20171129090442.2865-1-wsa@the-dreams.de> <20171129090442.2865-3-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:45785 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751668AbdK2JLa (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Nov 2017 04:11:30 -0500
-In-Reply-To: <20171129090442.2865-2-wsa@the-dreams.de>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:46930 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753838AbdK2J1X (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Nov 2017 04:27:23 -0500
+Received: by mail-oi0-f65.google.com with SMTP id t81so1928176oih.13
+        for <linux-i2c@vger.kernel.org>; Wed, 29 Nov 2017 01:27:23 -0800 (PST)
+In-Reply-To: <20171129090442.2865-3-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Geert Uytterhoeven <geert+renesas@glider.be>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>
 
-CC devicetree
-
-On Wed, Nov 29, 2017 at 10:04 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> This binding documentation is for the at24 driver, so the filename
-> should reflect it. This avoids confusion because we also have an
-> "eeprom" driver in Linux but it doesn't support DT even.
+2017-11-29 10:04 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
+> The driver gaines DT support recently, so we should add the binding docs
+> in the MAINTAINERS file.
 >
-> Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 > ---
->  Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} | 0
->  1 file changed, 0 insertions(+), 0 deletions(-)
->  rename Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} (100%)
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-> similarity index 100%
-> rename from Documentation/devicetree/bindings/eeprom/eeprom.txt
-> rename to Documentation/devicetree/bindings/eeprom/at24.txt
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index aa71ab52fd76d1..c870f329613d04 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2262,6 +2262,7 @@ AT24 EEPROM DRIVER
+>  M:     Bartosz Golaszewski <brgl@bgdev.pl>
+>  L:     linux-i2c@vger.kernel.org
+>  S:     Maintained
+> +F:     Documentation/devicetree/bindings/eeprom/at24.txt
+>  F:     drivers/misc/eeprom/at24.c
+>  F:     include/linux/platform_data/at24.h
+>
+> --
+> 2.11.0
+>
 
-Gr{oetje,eeting}s,
-
-                        Geert
+Acked-by: Bartosz Golaszewski <brgl@bgdev.pl>
