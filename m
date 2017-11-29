@@ -1,63 +1,53 @@
-From: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Subject: [PATCH] i2c: stm32: Fix copyrights
-Date: Wed, 29 Nov 2017 15:21:42 +0100
-Message-ID: <20171129142142.23183-1-benjamin.gaignard@st.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2] eeprom: at24: fix reading from 24MAC402/24MAC602
+Date: Wed, 29 Nov 2017 15:57:39 +0100
+Message-ID: <CAMRc=MfSGQbVyL+JOtKR_FvtwLNDENFL2g=Yjjhf6JOFwoWbDQ@mail.gmail.com>
+References: <32cfbfe3-fdff-5165-2753-186cbe2055a4@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:42971 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753943AbdK2OVr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Nov 2017 09:21:47 -0500
-Received: by mail-wm0-f68.google.com with SMTP id l141so6635090wmg.1
-        for <linux-i2c@vger.kernel.org>; Wed, 29 Nov 2017 06:21:46 -0800 (PST)
+Received: from mail-oi0-f44.google.com ([209.85.218.44]:38285 "EHLO
+        mail-oi0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751177AbdK2O5k (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Nov 2017 09:57:40 -0500
+Received: by mail-oi0-f44.google.com with SMTP id s9so2555801oie.5
+        for <linux-i2c@vger.kernel.org>; Wed, 29 Nov 2017 06:57:40 -0800 (PST)
+In-Reply-To: <32cfbfe3-fdff-5165-2753-186cbe2055a4@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Uniformize STMicroelectronics copyrights headers
+2017-11-27 20:46 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Chip datasheet mentions that word addresses other than the actual
+> start position of the MAC delivers undefined results. So fix this.
+> Current implementation doesn't work due to this wrong offset.
+>
+> Fixes: 0b813658c115 "eeprom: at24: add support for at24mac series"
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+> v2:
+> - extended commit message
+> ---
+>  drivers/misc/eeprom/at24.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index e0b4b36ef..00d602be7 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -425,7 +425,8 @@ static ssize_t at24_eeprom_read_mac(struct at24_data *at24, char *buf,
+>         memset(msg, 0, sizeof(msg));
+>         msg[0].addr = client->addr;
+>         msg[0].buf = addrbuf;
+> -       addrbuf[0] = 0x90 + offset;
+> +       /* EUI-48 starts from 0x9a, EUI-64 from 0x98 */
+> +       addrbuf[0] = 0xa0 - at24->chip.byte_len + offset;
+>         msg[0].len = 1;
+>         msg[1].addr = client->addr;
+>         msg[1].flags = I2C_M_RD;
+> --
+> 2.15.0
+>
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
----
- drivers/i2c/busses/i2c-stm32.h   | 1 +
- drivers/i2c/busses/i2c-stm32f4.c | 1 +
- drivers/i2c/busses/i2c-stm32f7.c | 1 +
- 3 files changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
-index dab51761f8c5..490f6e6bebc2 100644
---- a/drivers/i2c/busses/i2c-stm32.h
-+++ b/drivers/i2c/busses/i2c-stm32.h
-@@ -2,6 +2,7 @@
-  * i2c-stm32.h
-  *
-  * Copyright (C) M'boumba Cedric Madianga 2017
-+ * Copyright (C) STMicroelectronics SA 2017
-  * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-  *
-  * License terms:  GNU General Public License (GPL), version 2
-diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
-index 4ec108496f15..f399ef344d30 100644
---- a/drivers/i2c/busses/i2c-stm32f4.c
-+++ b/drivers/i2c/busses/i2c-stm32f4.c
-@@ -6,6 +6,7 @@
-  * http://www.st.com/resource/en/reference_manual/DM00031020.pdf
-  *
-  * Copyright (C) M'boumba Cedric Madianga 2016
-+ * Copyright (C) STMicroelectronics SA 2017
-  * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-  *
-  * This driver is based on i2c-st.c
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index d4a6e9c2e9aa..e85f4b7aedf6 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -7,6 +7,7 @@
-  * http://www.st.com/resource/en/reference_manual/dm00124865.pdf
-  *
-  * Copyright (C) M'boumba Cedric Madianga 2017
-+ * Copyright (C) STMicroelectronics SA 2017
-  * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-  *
-  * This driver is based on i2c-stm32f4.c
--- 
-2.15.0
+Applied to at24/fixes, thanks!
