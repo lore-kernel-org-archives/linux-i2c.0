@@ -1,60 +1,66 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v5 0/7] eeprom: at24: switch driver to regmap_i2c
-Date: Wed, 29 Nov 2017 15:58:44 +0100
-Message-ID: <CAMRc=McZ+94EMve0_3U=SwaZcEPfPMffjTW49wW-TdvQVf5KbQ@mail.gmail.com>
-References: <2c379f45-d5e3-71af-eb20-ca51e09d9257@gmail.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
+Subject: Re: [PATCH] i2c: stm32: Fix copyrights
+Date: Wed, 29 Nov 2017 16:06:16 +0100
+Message-ID: <7c5808a6-c85d-e668-91f4-af36f504575a@st.com>
+References: <20171129142142.23183-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f196.google.com ([74.125.82.196]:41416 "EHLO
-        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753396AbdK2O6p (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 29 Nov 2017 09:58:45 -0500
-Received: by mail-ot0-f196.google.com with SMTP id b54so3222851otd.8
-        for <linux-i2c@vger.kernel.org>; Wed, 29 Nov 2017 06:58:45 -0800 (PST)
-In-Reply-To: <2c379f45-d5e3-71af-eb20-ca51e09d9257@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171129142142.23183-1-benjamin.gaignard@st.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>, wsa@the-dreams.de, mcoquelin.stm32@gmail.com
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-2017-11-27 21:10 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Using regmap_i2c allows us to get rid of dealing with the low-level
-> differences between I2C and SMBUS. As a result the code can be
-> simplified a lot.
->
-> This patchset was successfully tested with a 24C32 on a I2C adapter.
->
-> The patchset was submitted first in Aug 2017 and was sitting in
-> the review queue until now. Resubmitted version is rebased due to
-> recent changes to at24.
->
-> Changes in v3:
-> - Small changes based on review comments
-> - Introduce at24_adjust_read_offset to avoid some overhead
-> Changes in v4:
-> - Small improvement in patch 5
-> Changes in v5:
-> - Small improvement in patch 5
->   I still add offset_adj in at24_regmap_read, because we may
->   have values like 0x9a for offset_adj, and the or-ing to offset
->   may be inappropriate.
->
-> Heiner Kallweit (7):
->   eeprom: at24: add basic regmap_i2c support
->   eeprom: at24: change at24_translate_offset return type
->   eeprom: at24: add regmap-based write function
->   eeprom: at24: remove old write functions
->   eeprom: at24: add regmap-based read functions
->   eeprom: at24: remove old read functions
->   eeprom: at24: remove now unneeded smbus-related code
->
->  drivers/misc/eeprom/Kconfig |   1 +
->  drivers/misc/eeprom/at24.c  | 428 +++++++++++---------------------------------
->  2 files changed, 106 insertions(+), 323 deletions(-)
->
-> --
-> 2.15.0
->
 
-Applied all to at24/devel, thanks for the patience!
+
+On 11/29/2017 03:21 PM, Benjamin Gaignard wrote:
+> Uniformize STMicroelectronics copyrights headers
+> 
+> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+> ---
+>   drivers/i2c/busses/i2c-stm32.h   | 1 +
+>   drivers/i2c/busses/i2c-stm32f4.c | 1 +
+>   drivers/i2c/busses/i2c-stm32f7.c | 1 +
+>   3 files changed, 3 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
+> index dab51761f8c5..490f6e6bebc2 100644
+> --- a/drivers/i2c/busses/i2c-stm32.h
+> +++ b/drivers/i2c/busses/i2c-stm32.h
+> @@ -2,6 +2,7 @@
+>    * i2c-stm32.h
+>    *
+>    * Copyright (C) M'boumba Cedric Madianga 2017
+> + * Copyright (C) STMicroelectronics SA 2017
+>    * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+>    *
+>    * License terms:  GNU General Public License (GPL), version 2
+> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+> index 4ec108496f15..f399ef344d30 100644
+> --- a/drivers/i2c/busses/i2c-stm32f4.c
+> +++ b/drivers/i2c/busses/i2c-stm32f4.c
+> @@ -6,6 +6,7 @@
+>    * http://www.st.com/resource/en/reference_manual/DM00031020.pdf
+>    *
+>    * Copyright (C) M'boumba Cedric Madianga 2016
+> + * Copyright (C) STMicroelectronics SA 2017
+>    * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+>    *
+>    * This driver is based on i2c-st.c
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index d4a6e9c2e9aa..e85f4b7aedf6 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -7,6 +7,7 @@
+>    * http://www.st.com/resource/en/reference_manual/dm00124865.pdf
+>    *
+>    * Copyright (C) M'boumba Cedric Madianga 2017
+> + * Copyright (C) STMicroelectronics SA 2017
+>    * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+>    *
+>    * This driver is based on i2c-stm32f4.c
+> 
+Acked-by: Alexandre TORGUE <alexandre.torgue@st.com>
