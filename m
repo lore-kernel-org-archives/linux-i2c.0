@@ -1,33 +1,33 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/2] dt-bindings: eeprom: rename to at24.txt
-Date: Wed, 29 Nov 2017 10:04:41 +0100
-Message-ID: <20171129090442.2865-2-wsa@the-dreams.de>
-References: <20171129090442.2865-1-wsa@the-dreams.de>
+Subject: [PATCH 0/2] eeprom: at24: rename binding docs
+Date: Wed, 29 Nov 2017 10:04:40 +0100
+Message-ID: <20171129090442.2865-1-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:54222 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:54217 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751457AbdK2JFH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        id S1752059AbdK2JFH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
         Wed, 29 Nov 2017 04:05:07 -0500
-In-Reply-To: <20171129090442.2865-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>, Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>
 
-This binding documentation is for the at24 driver, so the filename
-should reflect it. This avoids confusion because we also have an
-"eeprom" driver in Linux but it doesn't support DT even.
+As discussed previously (and pre-acked by Bartosz), here is a small series to
+rename the binding docs for at24 properly and add the new name to MAINTAINERS
+file. Hope I didn't miss something.
 
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
+Kind regards,
+
+   Wolfram
+
+Wolfram Sang (2):
+  dt-bindings: eeprom: rename to at24.txt
+  MAINTAINERS: add DT binding docs for AT24
+
  Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} | 0
- 1 file changed, 0 insertions(+), 0 deletions(-)
+ MAINTAINERS                                                       | 1 +
+ 2 files changed, 1 insertion(+)
  rename Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} (100%)
 
-diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/eeprom/eeprom.txt
-rename to Documentation/devicetree/bindings/eeprom/at24.txt
 -- 
 2.11.0
