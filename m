@@ -1,38 +1,62 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: [PATCH 0/3] i2c: exynos5: bus recovery implementation
-Date: Thu, 30 Nov 2017 15:30:04 +0100
-Message-ID: <20171130143007.30258-1-a.hajda@samsung.com>
-References: <CGME20171130143017eucas1p172b94622814eff172a27176c82f6e6fe@eucas1p1.samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andi Shyti <andi.shyti@samsung.com>
-Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS
-        ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 1/7] eeprom: at24: don't explicitely include header files
+ which are implicitely included
+Date: Thu, 30 Nov 2017 16:56:53 +0100
+Message-ID: <b058a205-8ea9-cc3c-9153-c428f31eee48@axentia.se>
+References: <c0855fe6-09b4-aed1-774d-5417c78faa8b@gmail.com>
+ <5fd1ad39-db94-e774-b77c-8081bfed7817@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0118.outbound.protection.outlook.com ([104.47.2.118]:58848
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751936AbdK3P5A (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 30 Nov 2017 10:57:00 -0500
+In-Reply-To: <5fd1ad39-db94-e774-b77c-8081bfed7817@gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>, Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi,
+On 2017-11-30 07:48, Heiner Kallweit wrote:
+> Don't explicitely include header files which are implicitely included.
 
-This patchset adds bus recovery functionality to Exynos HSI2C, it is used in
-case of transmission timeouts.
-Internal tests shows that it significantly improves I2C transmissions.
+That's backwards. It hinders future header rearrangement. Things that
+are used directly (e.g. the BIT macro) should have its respective
+include specified (bitops.h in that case).
 
-Andi, could you take a look at it/test, feedback welcome.
+It's not a competition for the shortest file, the goal is easy
+maintenance.
 
-Later, I will post also patches to MHL chip which uses this functionality.
-MHL chip has known bug of being in incorrect state after hard reset,
-I2C bus recovery cures it.
+Cheers,
+Peter
 
-Regards
-Andrzej
-
-
-Andrzej Hajda (3):
-  i2c: exynos5: change internal transmission timeout to 100ms
-  i2c: exynos5: implement bus recovery functionality
-  i2c: exynos5: do not check TRANS_STATUS in case of Exynos7 variant
-
- drivers/i2c/busses/i2c-exynos5.c | 52 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 44 insertions(+), 8 deletions(-)
-
--- 
-2.15.0
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 5 -----
+>  1 file changed, 5 deletions(-)
+> 
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index cd87f1b21..c75bb9b45 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -10,15 +10,10 @@
+>   * (at your option) any later version.
+>   */
+>  #include <linux/kernel.h>
+> -#include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/of_device.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+> -#include <linux/mutex.h>
+> -#include <linux/mod_devicetable.h>
+> -#include <linux/log2.h>
+> -#include <linux/bitops.h>
+>  #include <linux/jiffies.h>
+>  #include <linux/property.h>
+>  #include <linux/acpi.h>
+> 
