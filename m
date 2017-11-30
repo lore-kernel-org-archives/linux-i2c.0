@@ -1,56 +1,44 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2 1/4] ARM: dts: armadillo800eva: Convert to named i2c-gpio bindings
-Date: Thu, 30 Nov 2017 13:57:23 +0100
-Message-ID: <1512046646-15253-2-git-send-email-geert+renesas@glider.be>
-References: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: [PATCH 1/3] i2c: exynos5: change internal transmission timeout to
+ 100ms
+Date: Thu, 30 Nov 2017 15:30:05 +0100
+Message-ID: <20171130143007.30258-2-a.hajda@samsung.com>
+References: <20171130143007.30258-1-a.hajda@samsung.com>
+        <CGME20171130143017eucas1p2f68094c72e4559e1a16cf334c3200950@eucas1p2.samsung.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from baptiste.telenet-ops.be ([195.130.132.51]:47816 "EHLO
-        baptiste.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752860AbdK3M5b (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Nov 2017 07:57:31 -0500
-In-Reply-To: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
+Received: from mailout2.w1.samsung.com ([210.118.77.12]:36135 "EHLO
+        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751443AbdK3OaV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Nov 2017 09:30:21 -0500
+In-reply-to: <20171130143007.30258-1-a.hajda@samsung.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linus Walleij <linus.walleij@linaro.org>, linux-renesas-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+To: Wolfram Sang <wsa@the-dreams.de>, Andi Shyti <andi.shyti@samsung.com>
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS
+        ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 
-Commits 7d29f509d2cfd807 ("dt-bindings: i2c: i2c-gpio: Add support for
-named gpios") and 05c74778858d7d99 ("i2c: gpio: Add support for named
-gpios in DT") introduced named i2c-gpio DT bindings, and deprecated the
-more error-prone unnamed variant.
+Exynos-I2C uses default timeout of 1 second for the whole transaction,
+including re-transmissions due to arbitration lost errors (-EAGAIN).
+To allow re-transmissions driver's internal timeout should be significantly
+lower, 100ms seems to be good candidate.
 
-Switch to the new bindings, and add the missing GPIO_OPEN_DRAIN I/O
-flags, which were implicitly assumed before.
-
-The latter gets rid of the message:
-
-    gpio-208 (?): enforced open drain please flag it properly in DT/ACPI DSDT/board file
-    gpio-91 (?): enforced open drain please flag it properly in DT/ACPI DSDT/board file
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
 ---
-v2:
-  - Add GPIO_OPEN_DRAIN to the GPIO flags,
-  - Reword.
----
- arch/arm/boot/dts/r8a7740-armadillo800eva.dts | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-exynos5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/r8a7740-armadillo800eva.dts b/arch/arm/boot/dts/r8a7740-armadillo800eva.dts
-index 8c85d3ee5f5e7bfd..527c60bafbcface0 100644
---- a/arch/arm/boot/dts/r8a7740-armadillo800eva.dts
-+++ b/arch/arm/boot/dts/r8a7740-armadillo800eva.dts
-@@ -138,9 +138,8 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		compatible = "i2c-gpio";
--		gpios = <&pfc 208 GPIO_ACTIVE_HIGH /* sda */
--			 &pfc 91 GPIO_ACTIVE_HIGH /* scl */
--			>;
-+		sda-gpios = <&pfc 208 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		scl-gpios = <&pfc 91 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
- 		i2c-gpio,delay-us = <5>;
- 	};
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 3855e0b11877..b02428498f6d 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -170,7 +170,7 @@
+ #define HSI2C_HS_TX_CLOCK	1000000
+ #define HSI2C_FS_TX_CLOCK	100000
+ 
+-#define EXYNOS5_I2C_TIMEOUT (msecs_to_jiffies(1000))
++#define EXYNOS5_I2C_TIMEOUT (msecs_to_jiffies(100))
+ 
+ #define HSI2C_EXYNOS7	BIT(0)
  
 -- 
-2.7.4
+2.15.0
