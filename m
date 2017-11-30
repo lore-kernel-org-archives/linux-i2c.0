@@ -1,54 +1,46 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [GIT PULL] at24 fixes for 4.15
-Date: Thu, 30 Nov 2017 12:12:22 +0100
-Message-ID: <20171130111222.11887-1-brgl@bgdev.pl>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:42169 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750903AbdK3LMv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 30 Nov 2017 06:12:51 -0500
-Received: by mail-wm0-f67.google.com with SMTP id l141so12299288wmg.1
-        for <linux-i2c@vger.kernel.org>; Thu, 30 Nov 2017 03:12:50 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 4/4] ARM: dts: alt: Convert to named i2c-gpio bindings
+Date: Thu, 30 Nov 2017 13:57:26 +0100
+Message-ID: <1512046646-15253-5-git-send-email-geert+renesas@glider.be>
+References: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linus Walleij <linus.walleij@linaro.org>, linux-renesas-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 
-Wolfram,
+Commits 7d29f509d2cfd807 ("dt-bindings: i2c: i2c-gpio: Add support for
+named gpios") and 05c74778858d7d99 ("i2c: gpio: Add support for named
+gpios in DT") introduced named i2c-gpio DT bindings, and deprecated the
+more error-prone unnamed variant.
 
-please consider pulling the following fixes for v4.15. While it doesn't
-fix any regression introduced in the v4.15 merge window, we have a
-feature in at24 since linux v4.8 - reading the mac address block from
-at24mac series - which turned out to be not working.
+Switch to the new bindings, and add the missing GPIO_OPEN_DRAIN I/O
+flags, which were implicitly assumed before.
 
-This pull request contains changes that fix it together with a patch
-that hardens the read and write argument sanitization with
-out-of-bounds checks that were missing.
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+v2:
+  - New.
+---
+ arch/arm/boot/dts/r8a7794-alt.dts | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-----------------------------------------------------------------
-
-The following changes since commit 4fbd8d194f06c8a3fd2af1ce560ddb31f7ec8323:
-
-  Linux 4.15-rc1 (2017-11-26 16:01:47 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-4.15-fixes-for-wolfram
-
-for you to fetch changes up to d9bcd462daf34aebb8de9ad7f76de0198bb5a0f0:
-
-  eeprom: at24: check at24_read/write arguments (2017-11-29 16:05:37 +0100)
-
-----------------------------------------------------------------
-AT24 fixes for v4.15
-
-----------------------------------------------------------------
-Bartosz Golaszewski (1):
-      eeprom: at24: correctly set the size for at24mac402
-
-Heiner Kallweit (2):
-      eeprom: at24: fix reading from 24MAC402/24MAC602
-      eeprom: at24: check at24_read/write arguments
-
- drivers/misc/eeprom/at24.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+diff --git a/arch/arm/boot/dts/r8a7794-alt.dts b/arch/arm/boot/dts/r8a7794-alt.dts
+index bd98790d964e13a7..60c6515c499660eb 100644
+--- a/arch/arm/boot/dts/r8a7794-alt.dts
++++ b/arch/arm/boot/dts/r8a7794-alt.dts
+@@ -143,9 +143,8 @@
+ 		#size-cells = <0>;
+ 		compatible = "i2c-gpio";
+ 		status = "disabled";
+-		gpios = <&gpio4 9 GPIO_ACTIVE_HIGH /* sda */
+-			 &gpio4 8 GPIO_ACTIVE_HIGH /* scl */
+-			>;
++		sda-gpios = <&gpio4 9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++		scl-gpios = <&gpio4 8 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 		i2c-gpio,delay-us = <5>;
+ 	};
+ 
+-- 
+2.7.4
