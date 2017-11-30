@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2 4/4] ARM: dts: alt: Convert to named i2c-gpio bindings
-Date: Thu, 30 Nov 2017 13:57:26 +0100
-Message-ID: <1512046646-15253-5-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH v2 3/4] ARM: dts: koelsch: Convert to named i2c-gpio bindings
+Date: Thu, 30 Nov 2017 13:57:25 +0100
+Message-ID: <1512046646-15253-4-git-send-email-geert+renesas@glider.be>
 References: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 In-Reply-To: <1512046646-15253-1-git-send-email-geert+renesas@glider.be>
@@ -23,22 +23,22 @@ Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 v2:
   - New.
 ---
- arch/arm/boot/dts/r8a7794-alt.dts | 5 ++---
+ arch/arm/boot/dts/r8a7791-koelsch.dts | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7794-alt.dts b/arch/arm/boot/dts/r8a7794-alt.dts
-index bd98790d964e13a7..60c6515c499660eb 100644
---- a/arch/arm/boot/dts/r8a7794-alt.dts
-+++ b/arch/arm/boot/dts/r8a7794-alt.dts
-@@ -143,9 +143,8 @@
+diff --git a/arch/arm/boot/dts/r8a7791-koelsch.dts b/arch/arm/boot/dts/r8a7791-koelsch.dts
+index fac9cdea49650591..a50924d12b6f37d5 100644
+--- a/arch/arm/boot/dts/r8a7791-koelsch.dts
++++ b/arch/arm/boot/dts/r8a7791-koelsch.dts
+@@ -312,9 +312,8 @@
  		#size-cells = <0>;
  		compatible = "i2c-gpio";
  		status = "disabled";
--		gpios = <&gpio4 9 GPIO_ACTIVE_HIGH /* sda */
--			 &gpio4 8 GPIO_ACTIVE_HIGH /* scl */
+-		gpios = <&gpio7 16 GPIO_ACTIVE_HIGH /* sda */
+-			 &gpio7 15 GPIO_ACTIVE_HIGH /* scl */
 -			>;
-+		sda-gpios = <&gpio4 9 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		scl-gpios = <&gpio4 8 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++		sda-gpios = <&gpio7 16 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++		scl-gpios = <&gpio7 15 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
  		i2c-gpio,delay-us = <5>;
  	};
  
