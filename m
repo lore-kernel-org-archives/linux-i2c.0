@@ -1,27 +1,118 @@
-From: Sven Van Asbroeck <thesven73@gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=5BPATCH_1=2F1=5D_at24=3A_Fix_I=C2=B2C_device_selection_for_?=
-        =?UTF-8?Q?runtime_PM?=
-Date: Fri, 1 Dec 2017 12:59:40 -0500
-Message-ID: <CAGngYiXfLyf1GoRtivUc5Z2qxFCa-z_-ryy6spQ_3JJK8zt22w@mail.gmail.com>
-References: <1512068603-12378-1-git-send-email-svendev@arcx.com>
- <20171130223524.31716-1-sakari.ailus@linux.intel.com> <CAGngYiUktfXOU64Uo-O=01OWJrT8fQ7icxS6m4mQO+6UAkGUsA@mail.gmail.com>
- <20171201153538.fgwc4h4lbgnhabs3@paasikivi.fi.intel.com> <CAMRc=Me6b7aRWFg-DPtNq5TKNwwr_oRO8ip7Nn9LosivOZKjGA@mail.gmail.com>
+From: Sven Van Asbroeck <svendev@arcx.com>
+Subject: [PATCH] eeprom: at24: fix I2C device selection for runtime PM
+Date: Fri, 1 Dec 2017 13:04:41 -0500
+Message-ID: <1512151481-27483-1-git-send-email-svendev@arcx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:36320 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751104AbdLAR7l (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Dec 2017 12:59:41 -0500
-In-Reply-To: <CAMRc=Me6b7aRWFg-DPtNq5TKNwwr_oRO8ip7Nn9LosivOZKjGA@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: svendev@arcx.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: divagar.mohandass@intel.com, sakari.ailus@linux.intel.com, brgl@bgdev.pl
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, Sven Van Asbroeck <svendev@arcx.com>, linux-kernel@vger.kernel.org, divagar.mohandass@intel.com
 
-Bartosz wrote:
-> Could you take a look if my rebase didn't break anything?
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-Unfortunately the rebase broke multi-address eeprom support ;(
+The at24 driver creates dummy I2C devices to access offsets in the chip
+that are outside the area supported using a single I2C address. It is not
+meaningful to use runtime PM to such devices; the system firmware (ACPI)
+does not know about these devices nor runtime PM was enabled for them.
+Always use the real device instead of the dummy ones.
 
-I will post a corrected patch.
+Fixes: 98e8201039af ("eeprom: at24: enable runtime pm support")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Tested-by: Sven Van Asbroeck on a 24AA16/24LC16B <svendev@arcx.com>
+[Bartosz: rebased on top of previous fixes for 4.15, tweaked the
+          commit message]
+[Sven: fixed Bartosz's rebase]
+Signed-off-by: Sven Van Asbroeck <svendev@arcx.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+---
+ drivers/misc/eeprom/at24.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index e0b4b36..07b6b61 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -561,18 +561,16 @@ static ssize_t at24_eeprom_write_i2c(struct at24_data *at24, const char *buf,
+ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+ {
+ 	struct at24_data *at24 = priv;
+-	struct i2c_client *client;
++	struct device *dev = &at24->client[0]->dev;
+ 	char *buf = val;
+ 	int ret;
+ 
+ 	if (unlikely(!count))
+ 		return count;
+ 
+-	client = at24_translate_offset(at24, &off);
+-
+-	ret = pm_runtime_get_sync(&client->dev);
++	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+-		pm_runtime_put_noidle(&client->dev);
++		pm_runtime_put_noidle(dev);
+ 		return ret;
+ 	}
+ 
+@@ -588,7 +586,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+ 		status = at24->read_func(at24, buf, off, count);
+ 		if (status < 0) {
+ 			mutex_unlock(&at24->lock);
+-			pm_runtime_put(&client->dev);
++			pm_runtime_put(dev);
+ 			return status;
+ 		}
+ 		buf += status;
+@@ -598,7 +596,7 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+ 
+ 	mutex_unlock(&at24->lock);
+ 
+-	pm_runtime_put(&client->dev);
++	pm_runtime_put(dev);
+ 
+ 	return 0;
+ }
+@@ -606,18 +604,16 @@ static int at24_read(void *priv, unsigned int off, void *val, size_t count)
+ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ {
+ 	struct at24_data *at24 = priv;
+-	struct i2c_client *client;
++	struct device *dev = &at24->client[0]->dev;
+ 	char *buf = val;
+ 	int ret;
+ 
+ 	if (unlikely(!count))
+ 		return -EINVAL;
+ 
+-	client = at24_translate_offset(at24, &off);
+-
+-	ret = pm_runtime_get_sync(&client->dev);
++	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+-		pm_runtime_put_noidle(&client->dev);
++		pm_runtime_put_noidle(dev);
+ 		return ret;
+ 	}
+ 
+@@ -633,7 +629,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ 		status = at24->write_func(at24, buf, off, count);
+ 		if (status < 0) {
+ 			mutex_unlock(&at24->lock);
+-			pm_runtime_put(&client->dev);
++			pm_runtime_put(dev);
+ 			return status;
+ 		}
+ 		buf += status;
+@@ -643,7 +639,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ 
+ 	mutex_unlock(&at24->lock);
+ 
+-	pm_runtime_put(&client->dev);
++	pm_runtime_put(dev);
+ 
+ 	return 0;
+ }
+-- 
+1.9.1
