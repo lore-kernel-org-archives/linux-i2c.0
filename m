@@ -1,80 +1,105 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 1/7] eeprom: at24: don't explicitely include header files
- which are implicitely included
-Date: Fri, 1 Dec 2017 11:09:02 +0100
-Message-ID: <CAMRc=MeWBw40y0L+S8o9w5MBxc84+-eLOMprY785MZiFp8RT6A@mail.gmail.com>
-References: <c0855fe6-09b4-aed1-774d-5417c78faa8b@gmail.com>
- <5fd1ad39-db94-e774-b77c-8081bfed7817@gmail.com> <b058a205-8ea9-cc3c-9153-c428f31eee48@axentia.se>
- <172da7fb-40a5-ef36-cbc7-ee6aa5d62e5f@gmail.com>
+Subject: Re: [PATCH 2/7] eeprom: at24: consider that SERIAL and MAC flags
+ imply read-only
+Date: Fri, 1 Dec 2017 11:10:33 +0100
+Message-ID: <CAMRc=McGsXwd7eYn1j7LeAgYigW-1Da=+jCRXRuyiTicCbgwJg@mail.gmail.com>
+References: <c0855fe6-09b4-aed1-774d-5417c78faa8b@gmail.com> <a2ff2cad-0901-f0f7-353f-f9dbcd293ce1@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:46945 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751089AbdLAKJD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Dec 2017 05:09:03 -0500
-Received: by mail-oi0-f66.google.com with SMTP id t81so6796374oih.13
-        for <linux-i2c@vger.kernel.org>; Fri, 01 Dec 2017 02:09:02 -0800 (PST)
-In-Reply-To: <172da7fb-40a5-ef36-cbc7-ee6aa5d62e5f@gmail.com>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:36438 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751611AbdLAKKe (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 1 Dec 2017 05:10:34 -0500
+Received: by mail-oi0-f67.google.com with SMTP id j17so6829250oih.3
+        for <linux-i2c@vger.kernel.org>; Fri, 01 Dec 2017 02:10:33 -0800 (PST)
+In-Reply-To: <a2ff2cad-0901-f0f7-353f-f9dbcd293ce1@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-2017-11-30 20:32 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Am 30.11.2017 um 16:56 schrieb Peter Rosin:
->> On 2017-11-30 07:48, Heiner Kallweit wrote:
->>> Don't explicitely include header files which are implicitely included.
->>
->> That's backwards. It hinders future header rearrangement. Things that
->> are used directly (e.g. the BIT macro) should have its respective
->> include specified (bitops.h in that case).
->>
->> It's not a competition for the shortest file, the goal is easy
->> maintenance.
->>
-> Understood ..
+2017-11-30 7:49 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Flags AT24_FLAG_SERIAL and AT24_FLAG_MAC imply read-only.
+> Therefore handle this in the code instead of specifying
+> AT24_FLAG_READONLY in the config data in these cases.
 >
-> @Bartosz: then you can ignore this one.
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 31 +++++++++++++------------------
+>  1 file changed, 13 insertions(+), 18 deletions(-)
 >
-> Rgds, Heiner
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index c75bb9b45..90fefd1cf 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -131,38 +131,29 @@ static const struct i2c_device_id at24_ids[] = {
+>         { "24c00",      AT24_DEVICE_MAGIC(128 / 8,      AT24_FLAG_TAKE8ADDR) },
+>         /* old variants can't be handled with this generic entry! */
+>         { "24c01",      AT24_DEVICE_MAGIC(1024 / 8,     0) },
+> -       { "24cs01",     AT24_DEVICE_MAGIC(16,
+> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
+> +       { "24cs01",     AT24_DEVICE_MAGIC(16,           AT24_FLAG_SERIAL) },
+>         { "24c02",      AT24_DEVICE_MAGIC(2048 / 8,     0) },
+> -       { "24cs02",     AT24_DEVICE_MAGIC(16,
+> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
+> -       { "24mac402",   AT24_DEVICE_MAGIC(48 / 8,
+> -                               AT24_FLAG_MAC | AT24_FLAG_READONLY) },
+> -       { "24mac602",   AT24_DEVICE_MAGIC(64 / 8,
+> -                               AT24_FLAG_MAC | AT24_FLAG_READONLY) },
+> +       { "24cs02",     AT24_DEVICE_MAGIC(16,           AT24_FLAG_SERIAL) },
+> +       { "24mac402",   AT24_DEVICE_MAGIC(48 / 8,       AT24_FLAG_MAC) },
+> +       { "24mac602",   AT24_DEVICE_MAGIC(64 / 8,       AT24_FLAG_MAC) },
+>         /* spd is a 24c02 in memory DIMMs */
+>         { "spd",        AT24_DEVICE_MAGIC(2048 / 8,
+>                                 AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
+>         { "24c04",      AT24_DEVICE_MAGIC(4096 / 8,     0) },
+> -       { "24cs04",     AT24_DEVICE_MAGIC(16,
+> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
+> +       { "24cs04",     AT24_DEVICE_MAGIC(16,   AT24_FLAG_SERIAL) },
+>         /* 24rf08 quirk is handled at i2c-core */
+>         { "24c08",      AT24_DEVICE_MAGIC(8192 / 8,     0) },
+> -       { "24cs08",     AT24_DEVICE_MAGIC(16,
+> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
+> +       { "24cs08",     AT24_DEVICE_MAGIC(16,   AT24_FLAG_SERIAL) },
+>         { "24c16",      AT24_DEVICE_MAGIC(16384 / 8,    0) },
+> -       { "24cs16",     AT24_DEVICE_MAGIC(16,
+> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
+> +       { "24cs16",     AT24_DEVICE_MAGIC(16,           AT24_FLAG_SERIAL) },
+>         { "24c32",      AT24_DEVICE_MAGIC(32768 / 8,    AT24_FLAG_ADDR16) },
+>         { "24cs32",     AT24_DEVICE_MAGIC(16,
+>                                 AT24_FLAG_ADDR16 |
+> -                               AT24_FLAG_SERIAL |
+> -                               AT24_FLAG_READONLY) },
+> +                               AT24_FLAG_SERIAL) },
+>         { "24c64",      AT24_DEVICE_MAGIC(65536 / 8,    AT24_FLAG_ADDR16) },
+>         { "24cs64",     AT24_DEVICE_MAGIC(16,
+>                                 AT24_FLAG_ADDR16 |
+> -                               AT24_FLAG_SERIAL |
+> -                               AT24_FLAG_READONLY) },
+> +                               AT24_FLAG_SERIAL) },
+>         { "24c128",     AT24_DEVICE_MAGIC(131072 / 8,   AT24_FLAG_ADDR16) },
+>         { "24c256",     AT24_DEVICE_MAGIC(262144 / 8,   AT24_FLAG_ADDR16) },
+>         { "24c512",     AT24_DEVICE_MAGIC(524288 / 8,   AT24_FLAG_ADDR16) },
+> @@ -556,6 +547,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>                 chip.context = NULL;
+>         }
 >
+> +       /* both flags imply read-only */
+> +       if (chip.flags & AT24_FLAG_SERIAL || chip.flags & AT24_FLAG_MAC)
+> +               chip.flags |= AT24_FLAG_READONLY;
+> +
+>         if (!is_power_of_2(chip.byte_len))
+>                 dev_warn(&client->dev,
+>                         "byte_len looks suspicious (no power of 2)!\n");
+> --
+> 2.15.0
 >
->> Cheers,
->> Peter
->>
->>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
->>> ---
->>>  drivers/misc/eeprom/at24.c | 5 -----
->>>  1 file changed, 5 deletions(-)
->>>
->>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->>> index cd87f1b21..c75bb9b45 100644
->>> --- a/drivers/misc/eeprom/at24.c
->>> +++ b/drivers/misc/eeprom/at24.c
->>> @@ -10,15 +10,10 @@
->>>   * (at your option) any later version.
->>>   */
->>>  #include <linux/kernel.h>
->>> -#include <linux/init.h>
->>>  #include <linux/module.h>
->>>  #include <linux/of_device.h>
->>>  #include <linux/slab.h>
->>>  #include <linux/delay.h>
->>> -#include <linux/mutex.h>
->>> -#include <linux/mod_devicetable.h>
->>> -#include <linux/log2.h>
->>> -#include <linux/bitops.h>
->>>  #include <linux/jiffies.h>
->>>  #include <linux/property.h>
->>>  #include <linux/acpi.h>
->>>
->>
->>
 >
 
-Yep, whenever we use anything from some header, we want to have it
-included directly. Otherwise any rearrangement would cause us pain.
+Just as with the header patch: this doesn't save us any code other
+than visual. We want the definition to scream that this chip is
+read-only. Nacked.
 
 Thanks,
 Bartosz
