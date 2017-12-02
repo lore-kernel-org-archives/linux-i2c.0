@@ -1,12 +1,13 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 4/4] ARM: dts: alt: Convert to named i2c-gpio bindings
-Date: Sat, 2 Dec 2017 16:25:36 +0100
-Message-ID: <CACRpkdbRnjcE==krPo5U3wA9hwA0y_umB=-j9zn_wuJvoON3GQ@mail.gmail.com>
-References: <1512046646-15253-1-git-send-email-geert+renesas@glider.be> <1512046646-15253-5-git-send-email-geert+renesas@glider.be>
+Subject: Re: [PATCH v2 1/4] ARM: dts: armadillo800eva: Convert to named
+ i2c-gpio bindings
+Date: Sat, 2 Dec 2017 16:26:19 +0100
+Message-ID: <CACRpkdbY=zAw-8LrqmMcGGf7cHmAaC=YvpovxqTTPwcsXPUYAA@mail.gmail.com>
+References: <1512046646-15253-1-git-send-email-geert+renesas@glider.be> <1512046646-15253-2-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <1512046646-15253-5-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <1512046646-15253-2-git-send-email-geert+renesas@glider.be>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Geert Uytterhoeven <geert+renesas@glider.be>
 Cc: Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>
@@ -22,6 +23,11 @@ On Thu, Nov 30, 2017 at 1:57 PM, Geert Uytterhoeven
 >
 > Switch to the new bindings, and add the missing GPIO_OPEN_DRAIN I/O
 > flags, which were implicitly assumed before.
+>
+> The latter gets rid of the message:
+>
+>     gpio-208 (?): enforced open drain please flag it properly in DT/ACPI DSDT/board file
+>     gpio-91 (?): enforced open drain please flag it properly in DT/ACPI DSDT/board file
 >
 > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
