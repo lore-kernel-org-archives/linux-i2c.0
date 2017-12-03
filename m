@@ -1,92 +1,82 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.15
-Date: Sun, 3 Dec 2017 16:06:13 +0100
-Message-ID: <20171203150609.wlwagsltct4g3ylo@ninjato>
+From: =?UTF-8?Q?Volker_R=c3=bcmelin?= <volker.ruemelin@googlemail.com>
+Subject: [PATCH resend] i2c-i801: fix resume bug
+Date: Sun, 3 Dec 2017 16:42:42 +0100
+Message-ID: <a2fc5a6d-a3bf-eaf0-bb75-1521be346333@googlemail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="igg5hfmxzgazlflw"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40986 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752505AbdLCPGP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 3 Dec 2017 10:06:15 -0500
-Content-Disposition: inline
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:38434 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752320AbdLCPmp (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 3 Dec 2017 10:42:45 -0500
+Received: by mail-wr0-f196.google.com with SMTP id o2so14661257wro.5
+        for <linux-i2c@vger.kernel.org>; Sun, 03 Dec 2017 07:42:45 -0800 (PST)
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
+On suspend the original host configuration gets restored. The
+resume routine has to undo this, otherwise the SMBus master
+may be left in disabled state or in i2c mode.
 
---igg5hfmxzgazlflw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Volker Rümelin <vr_qemu@t-online.de>
+---
 
-Linus,
+I noticed this bug in a QEMU x86_64 q35 VM booted with OVMF. OVMF
+doesn't intitialize the SMBus master. After 1s of SMBus inactivity
+autosuspend disables the SMBus master. To reproduce please note QEMU's
+ICH9 SMBus emulation does not handle interrupts and it's necessary
+to pass the parameter disable_features=0x10 to the i2c_i801 driver.
 
-here are two bugfixes for I2C, fixing a memleak in the core and irq
-allocation for i801. Also, three bugfixes for the at24 eeprom driver
-which Bartosz collected while taking over maintainership for this
-driver. Good start, Bartosz!
+ drivers/i2c/busses/i2c-i801.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 4fbd8d194f06c8a3fd2af1ce560ddb31f7ec8323:
-
-  Linux 4.15-rc1 (2017-11-26 16:01:47 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to edef30980dc06bea547baefcfc8d910682b6e060:
-
-  Merge tag 'at24-4.15-fixes-for-wolfram' of git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux into i2c/for-current (2017-12-03 15:55:20 +0100)
-
-----------------------------------------------------------------
-Bartosz Golaszewski (1):
-      eeprom: at24: correctly set the size for at24mac402
-
-Colin Ian King (1):
-      i2c: i2c-boardinfo: fix memory leaks on devinfo
-
-Hans de Goede (1):
-      i2c: i801: Fix Failed to allocate irq -2147483648 error
-
-Heiner Kallweit (2):
-      eeprom: at24: fix reading from 24MAC402/24MAC602
-      eeprom: at24: check at24_read/write arguments
-
-Wolfram Sang (1):
-      Merge tag 'at24-4.15-fixes-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
-
- drivers/i2c/busses/i2c-i801.c |  3 +++
- drivers/i2c/i2c-boardinfo.c   |  2 ++
- drivers/misc/eeprom/at24.c    | 19 ++++++++++++++++++-
- 3 files changed, 23 insertions(+), 1 deletion(-)
-
---igg5hfmxzgazlflw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlokEt0ACgkQFA3kzBSg
-KbbHpQ/+OASLrY8lcPlt25z+E7IqXUq0fNZ4BCxXhKGHhz/WaTDGBNKRhrj7hfNo
-MGPEHkVflDBoBCk/ftIkHsRABc/PQ9l9zfFidN4NXPxJKlgC0fNbSuAF28TN+Jnq
-tiajJyt0F0VPyD2KefHkjT1TuAiYjgmmpIwP/zHd0Ud5ESVwodPWZfoGidczzLpX
-ZBxUWc7R+QRkEyQHZZPBMb268ofOuRAdKReVuNZWlrc4+XUAT5yjoS+JMeScG66X
-5JjRHGjnWbVFI14fjlBhbNDj6kOepKX5MZOS8Y6FNqsZVtl246B+bgQVOwMqwtp0
-y0/CoMoZJchZoAZUW4uytQh5paSpYVMsaaa37PhQlAchHlkcIPD8MW60FbJ3qH3q
-2yHwbYhq86pFPXxa1NVSnVAe8qK0+UE5Rn+wzXXyn1jhO3LClpgYP7iDUgXhUUpn
-CQnZCUWtRxjNXd75KpM0vMQrppOuRh6puQ9wGtSE8JwYQDFhs4HXDX2K4b4MCbS3
-dNUiny6kforEu7vMlRhm5oHbfJUb5dIntRkjgpF16KBjXYVrvAnRkj35b4jKlZV1
-FxZ9u4i7MbTrVfVsWSJnQ7GgdtRrO1CGk32+ZjKfyVv3jNTJq91aCGDsmxvQ/7Rh
-hKHF6xdSBm5jZHDUCjzfRkRdYIQuwF/Iwzt038KuQrpCCwkNyeo=
-=SnEj
------END PGP SIGNATURE-----
-
---igg5hfmxzgazlflw--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 9e12a53..ebd81bc 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1489,6 +1489,13 @@ static void i801_acpi_remove(struct i801_priv *priv)
+ static inline void i801_acpi_remove(struct i801_priv *priv) { }
+ #endif
+ 
++static unsigned char i801_setup_hstcfg(unsigned char hstcfg)
++{
++	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
++	hstcfg |= SMBHSTCFG_HST_EN;
++	return hstcfg;
++}
++
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+@@ -1592,13 +1599,10 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		return err;
+ 	}
+ 
+-	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &temp);
+-	priv->original_hstcfg = temp;
+-	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
+-	if (!(temp & SMBHSTCFG_HST_EN)) {
++	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &priv->original_hstcfg);
++	temp = i801_setup_hstcfg(priv->original_hstcfg);
++	if (~priv->original_hstcfg & temp & SMBHSTCFG_HST_EN)
+ 		dev_info(&dev->dev, "Enabling SMBus device\n");
+-		temp |= SMBHSTCFG_HST_EN;
+-	}
+ 	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, temp);
+ 
+ 	if (temp & SMBHSTCFG_SMB_SMI_EN) {
+@@ -1709,7 +1713,9 @@ static int i801_resume(struct device *dev)
+ {
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct i801_priv *priv = pci_get_drvdata(pci_dev);
++	unsigned char hstcfg = i801_setup_hstcfg(priv->original_hstcfg);
+ 
++	pci_write_config_byte(pci_dev, SMBHSTCFG, hstcfg);
+ 	i801_enable_host_notify(&priv->adapter);
+ 
+ 	return 0;
+-- 
+1.8.4.5
