@@ -1,54 +1,105 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: gpio: add fault injector
-Date: Mon, 4 Dec 2017 22:24:27 +0100
-Message-ID: <20171204212427.wfd3zn7xyefz55cg@ninjato>
-References: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Mon, 4 Dec 2017 22:25:13 +0100
+Message-ID: <20171204212512.6aml52cmzbul423v@ninjato>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="s2fxzo5umejgri52"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="tfawbpbm3ykihde2"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
+In-Reply-To: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mark Brown <broonie@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---s2fxzo5umejgri52
+--tfawbpbm3ykihde2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 25, 2017 at 05:39:18PM +0200, Wolfram Sang wrote:
-> Add fault injection capabilities to the i2c-gpio driver. When connected to
-> another I2C bus, it can create unusual states which the other I2C bus mas=
-ter
-> driver needs to handle. Only for debugging!
+On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
+> So, after revisiting old mail threads, taking part in a similar discussio=
+n on
+> the USB list, and implementing a not-convincing solution before, here is =
+what I
+> cooked up to document and ease DMA handling for I2C within Linux. Please =
+have a
+> look at the documentation introduced in patch 7 for details. And to make =
+it
+> clear again: The stuff below is opt-in. If host drivers are not updated, =
+they
+> will continue to work like before.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> While previous versions until v3 tried to magically apply bounce buffers =
+when
+> needed, it became clear that detecting DMA safe buffers is too fragile. T=
+his
+> approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+> outcome so far is very convincing IMO. The core additions are simple and =
+easy
+> to understand. The driver changes for the Renesas IP cores became easy to
+> understand, too.
+>=20
+> Of course, we must now whitelist DMA safe buffers. This series implements=
+ it
+> for core functionality:
+>=20
+> a) for the I2C_RDWR when messages come from userspace
+> b) for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+>    block transfers
+> c) i2c_master_{send|recv} have now a *_dmasafe variant
+>=20
+> I am still not sure how we can teach regmap this new flag. regmap is a he=
+avy
+> user of I2C, so broonie's opinion here would be great to have. The rest s=
+hould
+> mostly be updating individual drivers which can be done when needed.
+>=20
+> All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-=
+W) and
+> Renesas Lager board (r8a7790/H2). But more testing is really really welco=
+me.
+>=20
+> The branch can be found here:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic=
+/i2c-core-dma-v6
+>=20
+> It is planned to land upstream in v4.16 and I want to push it to linux-ne=
+xt
+> early after v4.15 to get lots of testing for the core changes.
+>=20
+> Big kudos to Renesas Electronics for funding this work, thank you very mu=
+ch!
+>=20
+> Regards,
+>=20
+>    Wolfram
 
-Applied to for-next, thanks!
+Applied to for-next after fixing some cosmetic checkpatch issues!
 
 
---s2fxzo5umejgri52
+--tfawbpbm3ykihde2
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlolvQcACgkQFA3kzBSg
-Kbai/A//frDmKGg5xPUyznJ/dmzrHnaxh0Djw9BBYf+ABsL/2RFQ9NUCLmYUxzuJ
-d3JUVmLUMqR9yDK8VttJALLwvCm5SEB8XioycWnUac4DaqyXpEP6dlqN41EzDlsf
-xQrKxZLa+IMvoQEVosbIALjf01HCgm/I7gdqTIHQWM3HOR14SPhARbs4IDtXrrzC
-34QlMGtMBJESuF8iJsLTx79tryJnQMpMkV+a2tib09BRy+2EIL+kDPNBcCUjHCz/
-OdpNz396c8wblrAJgHL/ohmjGgyMQ/jCAbOqSzzyuaNwWFWaCtI0NxYB2W/0csVT
-1JamaNsdHYOVyak9AwNAwmMbdRgAi/oKjxMLRCn8XzU31WTM8IdHS/p0RriXMBvK
-YaKDbPJAel5uESW3EnXDBmp68sgtQRQs7vFm6n8eGYcemHFZNMH6nsBqTb84Zt8k
-l3LIuUe4frMr79H9INprYf39Xe3mkG+NCerLGEC0pTbb9rmG0SQh3sW37oGv88BA
-Bw305LxLASWJjhT1cF5snAhvuDfAJ7yjQczVAD7jbC6osPQuaLoeLed+i9NUlPDP
-o7r/h2yoIa22Zrr1RoP/8Afs/Vzr+5vCYAYyKlvCWrZoMvze09B5HCjSW7YuM8nR
-mWyXA6ASjYtmsuMIiAs94mRUhtDI3zavI0rzMFhJn4IPIYLB0a0=
-=Mb0S
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlolvTgACgkQFA3kzBSg
+KbY1qg//T/ASuI1lCy+YMIjLfcTXYGW+lw9thHUN8OIzDxy02s8yv2pIQr2iCjeJ
+qHQh9uOwDi9HF69+XDrLDy5xOycvMXjbeJtk7iinK6i3rIRVEwwezUw335Vv4Hrk
+7I2P2xq/prU2U7aA+xhvG7ATBOKebFxT0T33/9gXEkOQcFsG9HbKja2WKopZU154
+vjeBP0NeAQVyznhwx/DQ/ASa8dCg44ReJaGzCAwhIFaD5GdS8LohCQkrl9GF3Mex
+/HNgWkDl/VBBZ/u9WjD8pF4kPyRCWncHHyeOTULV+13YyVCMP2p73HyObGu/Ji3O
+OgK8nBwgdx+f00K7rKSiE8OxUfF5ceuut3OUkFWy4wZvmU7JZMtFwKiFwS4lN1Dq
+NCuNeawc4h72Pc6Obt/Yg/vSaAvdKuzO2Uzc3tCJryMBPQkwZlE05qQ1uuevQVm5
+RLmPC9WF9hAz9OMH6FsNZac5FhOVcQ/xIyGVoW/vD2GyZ8CJBfme3qaP3vUhIlVg
+zYTfetzfSuwZ33tirdzvrV3BJa9oonTLSdFoULI2sFgn4DullYmWOmsxNKzQWMhD
+cHgTVA+YzFBjlvhBTwxgg33KqcaUZ7aaouoWKfWNe5qhUjPk9rlNuz0DlNl+FxEr
+UHJ1MVMo+Zee7lnsYsXs4kp8nuGOhU0j35opRhpE4yboQkfITMM=
+=xQCx
 -----END PGP SIGNATURE-----
 
---s2fxzo5umejgri52--
+--tfawbpbm3ykihde2--
