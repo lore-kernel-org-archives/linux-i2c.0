@@ -1,36 +1,47 @@
-From: David Lechner <david@lechnology.com>
-Subject: [PATCH] eeprom: at24: Change nvmem stride to 1
-Date: Sun,  3 Dec 2017 19:54:41 -0600
-Message-ID: <1512352481-13613-1-git-send-email-david@lechnology.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: David Lechner <david@lechnology.com>, Bartosz Golaszewski <brgl@bgdev.pl>, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: algo-bit: init the bus to a known state
+Date: Mon,  4 Dec 2017 09:16:18 +0100
+Message-ID: <20171204081618.5922-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43347 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750812AbdLDIQ1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Dec 2017 03:16:27 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-This changes the nvmem stride to 1.
+Ensure the bus is free when we register the adapter. Before the SCL/SDA
+wires were in an unknown state. It used to work because sending a byte
+has a retry mechanism which was triggered if the bus was initially in a
+not-free state. But the graceful way to do it is to initialize
+correctly, of course.
 
-I am trying to use the nvram consumer apis to read a MAC address from an
-eeprom that has an offset that is not a multiple of 4, which causes an
-error currently.
-
-Signed-off-by: David Lechner <david@lechnology.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/misc/eeprom/at24.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 305a7a4..f70d14c 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -880,7 +880,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->nvmem_config.reg_read = at24_read;
- 	at24->nvmem_config.reg_write = at24_write;
- 	at24->nvmem_config.priv = at24;
--	at24->nvmem_config.stride = 4;
-+	at24->nvmem_config.stride = 1;
- 	at24->nvmem_config.word_size = 1;
- 	at24->nvmem_config.size = chip.byte_len;
+Found while working with the I2C GPIO fault injector. SCL was initially low
+before, so it only worked on the second try.
+
+ drivers/i2c/algos/i2c-algo-bit.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index 1147bddb8b2c8a..3df0efd69ae336 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -649,6 +649,11 @@ static int __i2c_bit_add_bus(struct i2c_adapter *adap,
+ 	if (bit_adap->getscl == NULL)
+ 		adap->quirks = &i2c_bit_quirk_no_clk_stretch;
  
++	/* Bring bus to a known state. Looks like STOP if bus is not free yet */
++	setscl(bit_adap, 1);
++	udelay(bit_adap->udelay);
++	setsda(bit_adap, 1);
++
+ 	ret = add_adapter(adap);
+ 	if (ret < 0)
+ 		return ret;
 -- 
-2.7.4
+2.11.0
