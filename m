@@ -1,39 +1,70 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] i2c: imx: use proper GPIO directions for recovery
-Date: Mon,  4 Dec 2017 13:31:54 +0100
-Message-ID: <20171204123154.3233-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Clemens Gruber <clemens.gruber@pqgruber.com>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH] eeprom: at24: correctly set the size for at24mac402
+Date: Mon, 4 Dec 2017 14:36:43 +0200
+Message-ID: <cefc820d-5626-73ef-9b99-8c1d191e5ae7@microchip.com>
+References: <20171127210613.9140-1-brgl@bgdev.pl>
+ <CAHp75VfRhbfEKZJx8js-C+6r0h30SQs8duznT6AxCPiL4iMuaQ@mail.gmail.com>
+ <CAMRc=Me3JJDvc6eDg0CX4K=JBJ=BXzJYt8DxzY79etPrNd-hPQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from esa2.microchip.iphmx.com ([68.232.149.84]:64647 "EHLO
+        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751864AbdLDMgr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Dec 2017 07:36:47 -0500
+In-Reply-To: <CAMRc=Me3JJDvc6eDg0CX4K=JBJ=BXzJYt8DxzY79etPrNd-hPQ@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 
-When converting to GPIOD, the GPIO directions of SCL/SDA have been
-swapped. Fix it!
 
-Fixes: ad36a27959cabb ("i2c: imx: switch to using gpiod for bus recovery gpios")
-Cc: Clemens Gruber <clemens.gruber@pqgruber.com>
-Cc: Phil Reid <preid@electromag.com.au>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-imx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index c4cf26571b6612..6c0d59ddf5b6fd 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1006,8 +1006,8 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- 			PINCTRL_STATE_DEFAULT);
- 	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
- 			"gpio");
--	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_OUT_HIGH);
--	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_IN);
-+	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
-+	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH);
- 
- 	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
- 	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
--- 
-2.11.0
+On 28.11.2017 12:44, Bartosz Golaszewski wrote:
+> 2017-11-28 11:25 GMT+01:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+>> On Mon, Nov 27, 2017 at 11:06 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>>> There's an ilog2() expansion in AT24_DEVICE_MAGIC() which rounds down
+>>> the actual size of EUI-48 byte array in at24mac402 eeproms to 4 from 6,
+>>> making it impossible to read it all.
+>>>
+>>> Fix it by manually adjusting the value in probe().
+>>>
+>>> This patch contains a temporary fix that is suitable for stable
+>>> branches. Eventually we'll probably remove the call to ilog2() while
+>>> converting the magic values to actual structs.
+>>
+>>> +       /*
+>>> +        * REVISIT: the size of the EUI-48 byte array is 6 in at24mac402, while
+>>> +        * the call to ilog2() in AT24_DEVICE_MAGIC() rounds it down to 4.
+>>> +        *
+>>> +        * Eventually we'll get rid of the magic values altoghether in favor of
+>>> +        * real structs, but for now just manually set the right size.
+>>> +        */
+>>> +       if (chip.flags & AT24_FLAG_MAC && chip.byte_len == 4)
+>>
+>> I didn't check, but do we need to test for len == 4 at all?
+>>
+>>> +               chip.byte_len = 6;
+>>
+>> --
+>> With Best Regards,
+>> Andy Shevchenko
+> 
+> Yes, because the fix is only relevant for at24mac402 whose MAC byte
+> array is 6 bytes long, while the one in at24mac602 is 8 bytes and the
+> driver doesn't truncate the byte_len for it.
+>From my point of view, I think all chips in at24_ids[] array should be checked
+about restrictions regarding the size truncation (especially the ones from the
+initial commit: "2b7a5056a0a7ff17d5d2 i2c: New-style EEPROM driver using device IDs"
+which introduces AT24_DEVICE_MAGIC() macro)  and if none of them has such restrictions
+we should get rid of the ilog2() restrictions.
+
+Just my 2 cents...
+Claudiu
+
+> 
+> Thanks,
+> Bartosz
+> 
