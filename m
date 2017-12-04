@@ -1,50 +1,54 @@
-From: David Lechner <david@lechnology.com>
-Subject: Re: [PATCH] eeprom: at24: Change nvmem stride to 1
-Date: Mon, 4 Dec 2017 15:22:07 -0600
-Message-ID: <2917d26e-ad37-e118-585c-a479792fbac1@lechnology.com>
-References: <1512352481-13613-1-git-send-email-david@lechnology.com>
- <CAMRc=McoGNhQZwdNNwXwKYhjZvLPwUQbbVM4YjgnSnth7fOZTw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: gpio: add fault injector
+Date: Mon, 4 Dec 2017 22:24:27 +0100
+Message-ID: <20171204212427.wfd3zn7xyefz55cg@ninjato>
+References: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=McoGNhQZwdNNwXwKYhjZvLPwUQbbVM4YjgnSnth7fOZTw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="s2fxzo5umejgri52"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/04/2017 11:44 AM, Bartosz Golaszewski wrote:
-> I can't find any documentation on what the stride config option does
-> in nvmem, but looking at the code it's only used for alignment checks
-> in nvmem core, so this patch should be ok. Still: I'm wondering if it
-> shouldn't depend on the size of the eeprom or if we shouldn't make the
-> chip you're using a special case.
 
-I am just guessing on the usage too, but I assume it is for memory 
-alignment for other types of nvmem devices that only read words (2, 4 or 
-8 bytes) at a time. I don't see anything in the at24 code that says we 
-can't read any arbitrary starting I2C register, so I don't think we 
-should have any problems.
+--s2fxzo5umejgri52
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> @David: what is the chip you're using?
+On Fri, Aug 25, 2017 at 05:39:18PM +0200, Wolfram Sang wrote:
+> Add fault injection capabilities to the i2c-gpio driver. When connected to
+> another I2C bus, it can create unusual states which the other I2C bus mas=
+ter
+> driver needs to handle. Only for debugging!
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Microchip 24FC128
+Applied to for-next, thanks!
 
-> Is it an at24mac402 by any
-> chance? Were you affected by the read problem we fixed recently[1][2]
-> in at24?
 
-No and no.
+--s2fxzo5umejgri52
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> 
-> @Srinivas: any comments on that?
-> 
-> Thanks,
-> Bartosz
-> 
-> [1] http://patchwork.ozlabs.org/patch/841852/
-> [2] http://patchwork.ozlabs.org/patch/841876/
-> 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlolvQcACgkQFA3kzBSg
+Kbai/A//frDmKGg5xPUyznJ/dmzrHnaxh0Djw9BBYf+ABsL/2RFQ9NUCLmYUxzuJ
+d3JUVmLUMqR9yDK8VttJALLwvCm5SEB8XioycWnUac4DaqyXpEP6dlqN41EzDlsf
+xQrKxZLa+IMvoQEVosbIALjf01HCgm/I7gdqTIHQWM3HOR14SPhARbs4IDtXrrzC
+34QlMGtMBJESuF8iJsLTx79tryJnQMpMkV+a2tib09BRy+2EIL+kDPNBcCUjHCz/
+OdpNz396c8wblrAJgHL/ohmjGgyMQ/jCAbOqSzzyuaNwWFWaCtI0NxYB2W/0csVT
+1JamaNsdHYOVyak9AwNAwmMbdRgAi/oKjxMLRCn8XzU31WTM8IdHS/p0RriXMBvK
+YaKDbPJAel5uESW3EnXDBmp68sgtQRQs7vFm6n8eGYcemHFZNMH6nsBqTb84Zt8k
+l3LIuUe4frMr79H9INprYf39Xe3mkG+NCerLGEC0pTbb9rmG0SQh3sW37oGv88BA
+Bw305LxLASWJjhT1cF5snAhvuDfAJ7yjQczVAD7jbC6osPQuaLoeLed+i9NUlPDP
+o7r/h2yoIa22Zrr1RoP/8Afs/Vzr+5vCYAYyKlvCWrZoMvze09B5HCjSW7YuM8nR
+mWyXA6ASjYtmsuMIiAs94mRUhtDI3zavI0rzMFhJn4IPIYLB0a0=
+=Mb0S
+-----END PGP SIGNATURE-----
+
+--s2fxzo5umejgri52--
