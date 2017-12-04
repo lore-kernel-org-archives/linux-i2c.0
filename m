@@ -1,125 +1,52 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 6/6] i2c: rcar: implement bus recovery
-Date: Mon,  4 Dec 2017 13:36:40 +0100
-Message-ID: <20171204123640.3382-7-wsa+renesas@sang-engineering.com>
-References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
+From: Raphael Lisicki <rlisicki@radiodata.biz>
+Subject: Two nxp,pca9539 sharing IRQ
+Date: Mon, 4 Dec 2017 14:22:42 +0100
+Message-ID: <7594fad0-00c3-5dc6-c095-908e8a03c31a@radiodata.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:44221 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753327AbdLDMhj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 4 Dec 2017 07:37:39 -0500
-In-Reply-To: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
+Received: from smtp.radiodata.biz ([78.47.114.250]:48054 "EHLO
+        smtp.radiodata.biz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752716AbdLDNch (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 4 Dec 2017 08:32:37 -0500
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by smtp.radiodata.biz (Postfix) with ESMTP id 4A66560366
+        for <linux-i2c@vger.kernel.org>; Mon,  4 Dec 2017 14:22:55 +0100 (CET)
+Received: from smtp.radiodata.biz ([127.0.0.1])
+        by localhost (smtp.radiodata.biz [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id Q189ELdbJ3SX for <linux-i2c@vger.kernel.org>;
+        Mon,  4 Dec 2017 14:22:45 +0100 (CET)
+Received: from mail (mail.radiodata.biz [87.128.68.248])
+        by smtp.radiodata.biz (Postfix) with ESMTPSA id B4F0560169
+        for <linux-i2c@vger.kernel.org>; Mon,  4 Dec 2017 14:22:45 +0100 (CET)
+Received: from [192.168.3.180] (unknown [192.168.3.180])
+        by mail (Postfix) with ESMTPSA id 1B0DE3FEEA
+        for <linux-i2c@vger.kernel.org>; Mon,  4 Dec 2017 14:22:45 +0100 (CET)
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
 
-We can force levels of SCL and SDA, so we can use that for bus recovery.
-Note that we cannot read SDA back, because we will only get the internal
-state of the bus free detection.
+Hello everybody,
 
-Cc: Phil Reid <preid@electromag.com.au>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 54 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 52 insertions(+), 2 deletions(-)
+I am having trouble to use the NXP PCA9539 as an IRQ source on a board 
+where two of them share the same Interrupt line.
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 8a2ae3e6c561c4..d4b7b5380c2983 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -132,6 +132,7 @@ struct rcar_i2c_priv {
- 	int pos;
- 	u32 icccr;
- 	u32 flags;
-+	u8 recovery_icmcr;	/* protected by adapter lock */
- 	enum rcar_i2c_type devtype;
- 	struct i2c_client *slave;
- 
-@@ -158,6 +159,46 @@ static u32 rcar_i2c_read(struct rcar_i2c_priv *priv, int reg)
- 	return readl(priv->io + reg);
- }
- 
-+static int rcar_i2c_get_scl(struct i2c_adapter *adap)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	return !!(rcar_i2c_read(priv, ICMCR) & FSCL);
-+
-+};
-+
-+static void rcar_i2c_set_scl(struct i2c_adapter *adap, int val)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	if (val)
-+		priv->recovery_icmcr |= FSCL;
-+	else
-+		priv->recovery_icmcr &= ~FSCL;
-+
-+	rcar_i2c_write(priv, ICMCR, priv->recovery_icmcr);
-+};
-+
-+/* No get_sda, because the HW only reports its bus free logic, not SDA itself */
-+
-+static void rcar_i2c_set_sda(struct i2c_adapter *adap, int val)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
-+
-+	if (val)
-+		priv->recovery_icmcr |= FSDA;
-+	else
-+		priv->recovery_icmcr &= ~FSDA;
-+
-+	rcar_i2c_write(priv, ICMCR, priv->recovery_icmcr);
-+};
-+
-+static struct i2c_bus_recovery_info rcar_i2c_bri = {
-+	.get_scl = rcar_i2c_get_scl,
-+	.set_scl = rcar_i2c_set_scl,
-+	.set_sda = rcar_i2c_set_sda,
-+	.recover_bus = i2c_generic_scl_recovery,
-+};
- static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- {
- 	/* reset master mode */
-@@ -170,7 +211,7 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- 
- static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- {
--	int i;
-+	int i, ret;
- 
- 	for (i = 0; i < LOOP_TIMEOUT; i++) {
- 		/* make sure that bus is not busy */
-@@ -179,7 +220,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- 		udelay(1);
- 	}
- 
--	return -EBUSY;
-+	/* Waiting did not help, try to recover */
-+	priv->recovery_icmcr = MDBS | OBPC | FSDA | FSCL;
-+	ret = i2c_recover_bus(&priv->adap);
-+
-+	/* No failure when recovering, so check bus busy bit again */
-+	if (ret == 0)
-+		ret = (rcar_i2c_read(priv, ICMCR) & FSDA) ? -EBUSY : 0;
-+
-+	return ret;
- }
- 
- static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
-@@ -851,6 +900,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	adap->retries = 3;
- 	adap->dev.parent = dev;
- 	adap->dev.of_node = dev->of_node;
-+	adap->bus_recovery_info = &rcar_i2c_bri;
- 	i2c_set_adapdata(adap, priv);
- 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
- 
--- 
-2.11.0
+When the PCA9539 starts, interrupts are already enabled. There is also 
+no way to disable interrupts. This means that both chips pull down the 
+interrupt line. When the driver gets instantiated for the first chip, 
+the interrupt line is enabled and an interrupt caused. This causes the 
+interrupt handler for the first chip to be called, but this does not 
+reset the interrupt coming from the second chip. Its handler is not 
+being called as it is still not installed. This means that the interrupt 
+line will be considered stuck and disabled subsequently.
+
+I think I need to delay the activation of the interrupt source until 
+both interrupt handlers have been installed. Is it possible to describe 
+this behavior in the devicetree?
+
+
+Best regards
+
+Raphael Lisicki
