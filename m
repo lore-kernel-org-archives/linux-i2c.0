@@ -1,17 +1,22 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 5/6] i2c: send STOP after successful bus recovery
-Date: Mon,  4 Dec 2017 13:36:39 +0100
-Message-ID: <20171204123640.3382-6-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 6/6] i2c: rcar: implement bus recovery
+Date: Mon,  4 Dec 2017 13:36:40 +0100
+Message-ID: <20171204123640.3382-7-wsa+renesas@sang-engineering.com>
 References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:44221 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753327AbdLDMhj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Dec 2017 07:37:39 -0500
 In-Reply-To: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
-List-Id: linux-i2c@vger.kernel.org
 
-If we managed to get a client release SDA again, send a STOP afterwards
-to make sure we have a consistent state on the bus again.
+We can force levels of SCL and SDA, so we can use that for bus recovery.
+Note that we cannot read SDA back, because we will only get the internal
+state of the bus free detection.
 
 Cc: Phil Reid <preid@electromag.com.au>
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
@@ -20,31 +25,101 @@ Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
 Cc: Andrzej Hajda <a.hajda@samsung.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-base.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/i2c/busses/i2c-rcar.c | 54 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index dae7f4a783dbe4..29d6606d653229 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -200,6 +200,18 @@ int i2c_generic_scl_recovery(struct i2c_adapter *adap)
- 	if (bri->get_sda && !bri->get_sda(adap))
- 		ret = -EBUSY;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 8a2ae3e6c561c4..d4b7b5380c2983 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -132,6 +132,7 @@ struct rcar_i2c_priv {
+ 	int pos;
+ 	u32 icccr;
+ 	u32 flags;
++	u8 recovery_icmcr;	/* protected by adapter lock */
+ 	enum rcar_i2c_type devtype;
+ 	struct i2c_client *slave;
  
-+	/* If all went well, send STOP for a sane bus state. */
-+	if (ret == 0 && bri->set_sda) {
-+		bri->set_scl(adap, 0);
-+		ndelay(RECOVERY_NDELAY / 2);
-+		bri->set_sda(adap, 0);
-+		ndelay(RECOVERY_NDELAY / 2);
-+		bri->set_scl(adap, 1);
-+		ndelay(RECOVERY_NDELAY / 2);
-+		bri->set_sda(adap, 1);
-+		ndelay(RECOVERY_NDELAY / 2);
-+	}
+@@ -158,6 +159,46 @@ static u32 rcar_i2c_read(struct rcar_i2c_priv *priv, int reg)
+ 	return readl(priv->io + reg);
+ }
+ 
++static int rcar_i2c_get_scl(struct i2c_adapter *adap)
++{
++	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
 +
- 	if (bri->unprepare_recovery)
- 		bri->unprepare_recovery(adap);
++	return !!(rcar_i2c_read(priv, ICMCR) & FSCL);
++
++};
++
++static void rcar_i2c_set_scl(struct i2c_adapter *adap, int val)
++{
++	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	if (val)
++		priv->recovery_icmcr |= FSCL;
++	else
++		priv->recovery_icmcr &= ~FSCL;
++
++	rcar_i2c_write(priv, ICMCR, priv->recovery_icmcr);
++};
++
++/* No get_sda, because the HW only reports its bus free logic, not SDA itself */
++
++static void rcar_i2c_set_sda(struct i2c_adapter *adap, int val)
++{
++	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
++
++	if (val)
++		priv->recovery_icmcr |= FSDA;
++	else
++		priv->recovery_icmcr &= ~FSDA;
++
++	rcar_i2c_write(priv, ICMCR, priv->recovery_icmcr);
++};
++
++static struct i2c_bus_recovery_info rcar_i2c_bri = {
++	.get_scl = rcar_i2c_get_scl,
++	.set_scl = rcar_i2c_set_scl,
++	.set_sda = rcar_i2c_set_sda,
++	.recover_bus = i2c_generic_scl_recovery,
++};
+ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ {
+ 	/* reset master mode */
+@@ -170,7 +211,7 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ {
+-	int i;
++	int i, ret;
+ 
+ 	for (i = 0; i < LOOP_TIMEOUT; i++) {
+ 		/* make sure that bus is not busy */
+@@ -179,7 +220,15 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 		udelay(1);
+ 	}
+ 
+-	return -EBUSY;
++	/* Waiting did not help, try to recover */
++	priv->recovery_icmcr = MDBS | OBPC | FSDA | FSCL;
++	ret = i2c_recover_bus(&priv->adap);
++
++	/* No failure when recovering, so check bus busy bit again */
++	if (ret == 0)
++		ret = (rcar_i2c_read(priv, ICMCR) & FSDA) ? -EBUSY : 0;
++
++	return ret;
+ }
+ 
+ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv, struct i2c_timings *t)
+@@ -851,6 +900,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	adap->retries = 3;
+ 	adap->dev.parent = dev;
+ 	adap->dev.of_node = dev->of_node;
++	adap->bus_recovery_info = &rcar_i2c_bri;
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
  
 -- 
 2.11.0
