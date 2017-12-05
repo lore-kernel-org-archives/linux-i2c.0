@@ -1,89 +1,44 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] eeprom: at24: switch to device-managed version of i2c_new_dummy
-Date: Tue, 5 Dec 2017 09:18:26 +0100
-Message-ID: <CAMRc=MdNnDDoYMV+bkeRZNyc5_DR+ph9jOjRRKQgXY7peZibxg@mail.gmail.com>
-References: <cad1fbce-58b8-c99e-7b7c-b4978c8f8f92@gmail.com> <9221930c-a64d-0c7c-2a72-75b25b76de4a@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/6] i2c: add 'set_sda' to bus_recovery_info
+Date: Tue, 5 Dec 2017 09:39:48 +0100
+Message-ID: <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
+References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com> <20171204123640.3382-4-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:39965 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752557AbdLEIS1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Dec 2017 03:18:27 -0500
-Received: by mail-ot0-f195.google.com with SMTP id e74so17150843ote.7
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Dec 2017 00:18:27 -0800 (PST)
-In-Reply-To: <9221930c-a64d-0c7c-2a72-75b25b76de4a@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20171204123640.3382-4-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-2017-12-04 20:51 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Make use of recently introduced device-managed version of
-> i2c_new_dummy to simplify the code.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
->  drivers/misc/eeprom/at24.c | 15 ++++-----------
->  1 file changed, 4 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 625b00166..9e9fe69b4 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -621,9 +621,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->         /* use dummy devices for multiple-address chips */
->         for (i = 1; i < num_addresses; i++) {
-> -               at24->client[i].client = i2c_new_dummy(client->adapter,
-> -                                                      client->addr + i);
-> -               if (!at24->client[i].client) {
-> +               at24->client[i].client = devm_i2c_new_dummy(&client->dev,
-> +                                                           client->adapter,
-> +                                                           client->addr + i);
-> +               if (IS_ERR(at24->client[i].client)) {
->                         dev_err(&client->dev, "address 0x%02x unavailable\n",
->                                         client->addr + i);
->                         err = -EADDRINUSE;
-> @@ -686,10 +687,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         return 0;
->
->  err_clients:
-> -       for (i = 1; i < num_addresses; i++)
-> -               if (at24->client[i].client)
-> -                       i2c_unregister_device(at24->client[i].client);
-> -
->         pm_runtime_disable(&client->dev);
->
->         return err;
-> @@ -698,15 +695,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  static int at24_remove(struct i2c_client *client)
->  {
->         struct at24_data *at24;
-> -       int i;
->
->         at24 = i2c_get_clientdata(client);
->
->         nvmem_unregister(at24->nvmem);
->
-> -       for (i = 1; i < at24->num_addresses; i++)
-> -               i2c_unregister_device(at24->client[i].client);
-> -
->         pm_runtime_disable(&client->dev);
->         pm_runtime_set_suspended(&client->dev);
->
-> --
-> 2.15.1
->
->
+On Mon, Dec 4, 2017 at 1:36 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
 
-Hi Heiner,
+> This will be needed when we want to create STOP conditions, too, later.
+> Create the needed fields and populate them for the GPIO case if the GPIO
+> is set to output.
+>
+> Cc: Phil Reid <preid@electromag.com.au>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
+> Cc: Andrzej Hajda <a.hajda@samsung.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-I don't have the patch introducing the devres routine in my inbox.
-Could you resend the two patches as a series? Note: please Cc the
-linux-kernel mailing list too. Also: maybe you could create a device
-managed version of i2c_new_secondary_device() if you're at it? Could
-use the same release callback.
+(...)
+>  #include <linux/errno.h>
+> +#include <linux/gpio.h>
 
-Thanks,
-Bartosz
+Please no.
+
+> +                       if (gpiod_get_direction(bri->sda_gpiod) == GPIOF_DIR_OUT)
+> +                               bri->set_sda = set_sda_gpio_value;
+
+Just compare it to zero. if (!gpiod_get_direction())
+
+This flag is only for requesting GPIOs in the old API.
+We didn't add a define in the new API, it seemed overengineered.
+
+Yours,
+Linus Walleij
