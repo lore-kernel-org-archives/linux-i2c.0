@@ -1,262 +1,103 @@
-From: David Daney <ddaney@caviumnetworks.com>
-Subject: Re: [Bug fix] octeon-i2c driver updates
-Date: Tue, 5 Dec 2017 08:42:55 -0800
-Message-ID: <6f5215be-69c6-192d-7056-c0e6b29f3a33@caviumnetworks.com>
-References: <VI1PR0702MB3615DF756007C1F87BED50BB8E210@VI1PR0702MB3615.eurprd07.prod.outlook.com>
- <20171124131026.GA30811@hc>
- <VI1PR0702MB3615361B408E67F3B4A41E1A8E250@VI1PR0702MB3615.eurprd07.prod.outlook.com>
- <VI1PR0702MB3615B742A40741B68ED04BAF8E380@VI1PR0702MB3615.eurprd07.prod.outlook.com>
- <20171201100630.GA3632@hc>
- <VI1PR0702MB361536703A2A809D19DFFCB28E3D0@VI1PR0702MB3615.eurprd07.prod.outlook.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH] eeprom: at24: switch to device-managed version of
+ i2c_new_dummy
+Date: Tue, 5 Dec 2017 20:39:40 +0100
+Message-ID: <35bbda39-1238-e7af-1899-af80ba60ea54@gmail.com>
+References: <cad1fbce-58b8-c99e-7b7c-b4978c8f8f92@gmail.com>
+ <9221930c-a64d-0c7c-2a72-75b25b76de4a@gmail.com>
+ <CAMRc=MdNnDDoYMV+bkeRZNyc5_DR+ph9jOjRRKQgXY7peZibxg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <VI1PR0702MB361536703A2A809D19DFFCB28E3D0@VI1PR0702MB3615.eurprd07.prod.outlook.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Zhang, Sean C. (NSB - CN/Hangzhou)" <sean.c.zhang@nokia-sbell.com>, Jan Glauber <jan.glauber@caviumnetworks.com>, "david.daney@cavium.com" <david.daney@cavium.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:37782 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751156AbdLETjs (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Dec 2017 14:39:48 -0500
+Received: by mail-wm0-f67.google.com with SMTP id f140so3310885wmd.2
+        for <linux-i2c@vger.kernel.org>; Tue, 05 Dec 2017 11:39:47 -0800 (PST)
+In-Reply-To: <CAMRc=MdNnDDoYMV+bkeRZNyc5_DR+ph9jOjRRKQgXY7peZibxg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On 12/04/2017 10:44 PM, Zhang, Sean C. (NSB - CN/Hangzhou) wrote:
-> Hi Jan,
+Am 05.12.2017 um 09:18 schrieb Bartosz Golaszewski:
+> 2017-12-04 20:51 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+>> Make use of recently introduced device-managed version of
+>> i2c_new_dummy to simplify the code.
+>>
+>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+>> ---
+>>  drivers/misc/eeprom/at24.c | 15 ++++-----------
+>>  1 file changed, 4 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 625b00166..9e9fe69b4 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -621,9 +621,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>
+>>         /* use dummy devices for multiple-address chips */
+>>         for (i = 1; i < num_addresses; i++) {
+>> -               at24->client[i].client = i2c_new_dummy(client->adapter,
+>> -                                                      client->addr + i);
+>> -               if (!at24->client[i].client) {
+>> +               at24->client[i].client = devm_i2c_new_dummy(&client->dev,
+>> +                                                           client->adapter,
+>> +                                                           client->addr + i);
+>> +               if (IS_ERR(at24->client[i].client)) {
+>>                         dev_err(&client->dev, "address 0x%02x unavailable\n",
+>>                                         client->addr + i);
+>>                         err = -EADDRINUSE;
+>> @@ -686,10 +687,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>         return 0;
+>>
+>>  err_clients:
+>> -       for (i = 1; i < num_addresses; i++)
+>> -               if (at24->client[i].client)
+>> -                       i2c_unregister_device(at24->client[i].client);
+>> -
+>>         pm_runtime_disable(&client->dev);
+>>
+>>         return err;
+>> @@ -698,15 +695,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>  static int at24_remove(struct i2c_client *client)
+>>  {
+>>         struct at24_data *at24;
+>> -       int i;
+>>
+>>         at24 = i2c_get_clientdata(client);
+>>
+>>         nvmem_unregister(at24->nvmem);
+>>
+>> -       for (i = 1; i < at24->num_addresses; i++)
+>> -               i2c_unregister_device(at24->client[i].client);
+>> -
+>>         pm_runtime_disable(&client->dev);
+>>         pm_runtime_set_suspended(&client->dev);
+>>
+>> --
+>> 2.15.1
+>>
+>>
 > 
-> Thanks for your comments, I get your point for the second point (retry of START after recovery).
+> Hi Heiner,
 > 
-> Hi David,
-> For the issue as the first one, would you give your further comments? Thanks in advance.
+> I don't have the patch introducing the devres routine in my inbox.
+> Could you resend the two patches as a series? Note: please Cc the
+> linux-kernel mailing list too. Also: maybe you could create a device
+> managed version of i2c_new_secondary_device() if you're at it? Could
+> use the same release callback.
 > 
-> I have an environment with CN6780 (TWSI core has property: compatible = "cavium,octeon-3860-twsi"),
-> And encounter below problem:
-> During i2c-octeon driver probing, this TWSI core original status is 0x20 (this may induced by uboot),
-> And octeon_i2c_init_lowlevel() function in octeon_i2c_probe() is not enough to recover the I2C bus,
-> If go without full recovery of octeon_i2c_recovery(), the following octeon_i2c_hlc_write(),
-> octeon_i2c_hlc_read(), octeon_i2c_hlc_comp_read() and octeon_i2c_hlc_comp_write() will goes error,
-> because these functions has no bus recovery step.
-> While after replace octeon_i2c_init_lowlevel() with octeon_i2c_recovery() in octeon_i2c_probe(), the
-> problem has gone.
-> 
-> Once more, this octeon_i2c_recovery() can also recover dead lock (I2C slave device stuck low SCL) issue,
-> so I think use octeon_i2c_recovery() instead will be stronger.
+OK, will resubmit both patches as a series.
 
-I don't want to do a bus reset unconditionally, as it is currently 
-working well on many systems.
+Regarding i2c_new_secondary_device I checked and didn't find a single
+user of this function. Therefore I'm afraid maintainers would be
+reluctant to accept a device-managed version which would sit idle too.
 
-Perhaps you could add a module parameter to enable the recovery mode on 
-probe as an option.  Would that work or be acceptable?
+Rgds, Heiner
 
-Thanks,
-David Daney
-
-
-
+> Thanks,
+> Bartosz
 > 
-> BR,
-> Sean Zhang
-> 
-> 
-> -----Original Message-----
-> From: Jan Glauber [mailto:jan.glauber@caviumnetworks.com]
-> Sent: Friday, December 01, 2017 6:07 PM
-> To: Zhang, Sean C. (NSB - CN/Hangzhou) <sean.c.zhang@nokia-sbell.com>
-> Cc: david.daney@cavium.com; wsa@the-dreams.de; linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [Bug fix] octeon-i2c driver updates
-> 
-> Hi Sean,
-> 
-> as you try to solve two different issues I suggest that you create one
-> patch per issue.
-> 
-> For the second point (retry of START after recovery) I would still like
-> to hear Wolfram's opinion. I would assume that any i2c user should
-> be well aware of -EAGAIN, so I wonder if it is worth the additional
-> complexity of the retry logic.
-> 
-> Also, the first issue changes Octeon MIPS which I'm not able to test,
-> so David needs to be involved here.
-> 
-> thanks,
-> Jan
-> 
-> On Thu, Nov 30, 2017 at 01:56:09AM +0000, Zhang, Sean C. (NSB - CN/Hangzhou) wrote:
->> Hi Jan,
->>
->> Any other comments for this patch?
->>
->> BR,
->> Sean Zhang
->>
->> -----Original Message-----
->> From: Zhang, Sean C. (NSB - CN/Hangzhou)
->> Sent: Monday, November 27, 2017 4:38 PM
->> To: 'Jan Glauber' <jan.glauber@caviumnetworks.com>
->> Cc: david.daney@cavium.com; wsa@the-dreams.de; linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org
->> Subject: RE: [Bug fix] octeon-i2c driver updates
->>
->> Hi Jan,
->>
->> There are two points in this patch.
->>
->> Point 1. As you see, replaced octeon_i2c_init_lowlevel() by recover bus status if TWSI controller is not IDLE.
->> Please take a scenario like this: when system soft reset without I2C slave reset, maybe make this I2C bus
->> dead lock occurred (I2C slave device stuck low SCL) in chance. Then during system goes up and I2C slave
->> device creating process, if this I2C slave device has a register with less than 8 bytes to read, but I2C bus was
->> still stuck low SCL by last system reset, then the read will failed and this I2C slave device cannot be created.
->> If bus recovered before the reading process, this failure can be fixed.
->>
->> Function flow explanation shown as below:
->>
->> a. System reset without I2C slave device reset
->> --make SCL stuck low by I2C slave device
->> ......
->> b. octeon_i2c_probe（）
->> -- octeon_i2c_init_lowlevel  //reset TWSI core, but SCL still stuck low by.
->> ......
->>
->> c. Another I2C slave device creating process
->> octeon_i2c_xfer()
->> -- octeon_i2c_hlc_comp_read() //failed due to SCL stuck low.
->>
->> If full recovery executed in octeon_i2c_probe（), above failure can be avoided.
->>
->>
->> Point 2. octeon_i2c_recovery() is used in octeon_i2c_start() error branch, in the case of octeon_i2c_recovery()
->> successful, octeon_i2c_start() will return -EAGAIN, and then octeon_i2c_xfer() return with error. I understand this like
->> this: if octeon_i2c_recovery() successful, then i2c START signal can be sent again, and all following step can be continue,
->> octeon_i2c_xfer() should not return error from this condition.
->>
->> BR,
->> Sean Zhang
->>
->> -----Original Message-----
->> From: Jan Glauber [mailto:jan.glauber@caviumnetworks.com]
->> Sent: Friday, November 24, 2017 9:10 PM
->> To: Zhang, Sean C. (NSB - CN/Hangzhou) <sean.c.zhang@nokia-sbell.com>
->> Cc: david.daney@cavium.com; wsa@the-dreams.de; linux-i2c@vger.kernel.org; linux-kernel@vger.kernel.org
->> Subject: Re: [Bug fix] octeon-i2c driver updates
->>
->> On Thu, Nov 23, 2017 at 11:42:36AM +0000, Zhang, Sean C. (NSB - CN/Hangzhou) wrote:
->>> Dear Maintainer,
->>>
->>> For octeon TWSI controller, I found below two cases, maybe can be improved.
->>
->> Hi Sean,
->>
->> form the description below this looks like you're fixing a bug. Can you
->> elaborate on when the I2C bus dead lock occurs. Is it always happening?
->>
->> What I don't like about the patch is that you're removing
->> octeon_i2c_init_lowlevel() from the probe and replacing it by _always_
->> going through a full recovery. Why is this neccessary?
->>
->> Regards,
->> Jan
->>
->>>
->>> >From 09d9f0ce658d7f6a50d1af352dde619c29bc8bcf Mon Sep 17 00:00:00 2001
->>> From: hgt463 <sean.c.zhang@nokia.com>
->>> Date: Thu, 23 Nov 2017 18:46:09 +0800
->>> Subject: [PATCH] Driver updates:
->>>   - In the case of I2C bus dead lock occurred during driver probing,
->>>     it is better try to recovery it. so added bus recovery step in
->>>     octeon_i2c_probe();
->>>   - The purpose of function octeon_i2c_start() is to send START, so after
->>>     bus recovery, also need try to send START again.
->>>
->>> Signed-off-by: hgt463 <sean.c.zhang@nokia.com>
->>> ---
->>>   drivers/i2c/busses/i2c-octeon-core.c    |   31 ++++++++++++++++++++++++++++++-
->>>   drivers/i2c/busses/i2c-octeon-platdrv.c |   15 +++++++++------
->>>   2 files changed, 39 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
->>> index 1d87757..3ae1e03 100644
->>> --- a/drivers/i2c/busses/i2c-octeon-core.c
->>> +++ b/drivers/i2c/busses/i2c-octeon-core.c
->>> @@ -255,6 +255,35 @@ static int octeon_i2c_recovery(struct octeon_i2c *i2c)
->>>          return ret;
->>>   }
->>>   
->>> +/*
->>> + * octeon_i2c_start_retry - send START to the bus after bus recovery.
->>> + * @i2c: The struct octeon_i2c
->>> + *
->>> + * Returns 0 on success, otherwise a negative errno.
->>> + */
->>> +static int octeon_i2c_start_retry(struct octeon_i2c *i2c)
->>> +{
->>> +       int ret;
->>> +       u8 stat;
->>> +
->>> +       ret = octeon_i2c_recovery(i2c);
->>> +       if (ret)
->>> +               goto error;
->>> +
->>> +       octeon_i2c_ctl_write(i2c, TWSI_CTL_ENAB | TWSI_CTL_STA);
->>> +       ret = octeon_i2c_wait(i2c);
->>> +       if (ret)
->>> +               goto error;
->>> +
->>> +       stat = octeon_i2c_stat_read(i2c);
->>> +       if (stat == STAT_START || stat == STAT_REP_START)
->>> +               /* START successful, bail out */
->>> +               return 0;
->>> +
->>> +error:
->>> +       return (ret) ? ret : -EAGAIN;
->>> +}
->>> +
->>>   /**
->>>    * octeon_i2c_start - send START to the bus
->>>    * @i2c: The struct octeon_i2c
->>> @@ -280,7 +309,7 @@ static int octeon_i2c_start(struct octeon_i2c *i2c)
->>>   
->>>   error:
->>>          /* START failed, try to recover */
->>> -       ret = octeon_i2c_recovery(i2c);
->>> +       ret = octeon_i2c_start_retry(i2c);
->>>          return (ret) ? ret : -EAGAIN;
->>>   }
->>>   
->>> diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
->>> index 64bda83..98063af 100644
->>> --- a/drivers/i2c/busses/i2c-octeon-platdrv.c
->>> +++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
->>> @@ -228,12 +228,6 @@ static int octeon_i2c_probe(struct platform_device *pdev)
->>>          if (OCTEON_IS_MODEL(OCTEON_CN38XX))
->>>                  i2c->broken_irq_check = true;
->>>   
->>> -       result = octeon_i2c_init_lowlevel(i2c);
->>> -       if (result) {
->>> -               dev_err(i2c->dev, "init low level failed\n");
->>> -               goto  out;
->>> -       }
->>> -
->>>          octeon_i2c_set_clock(i2c);
->>>   
->>>          i2c->adap = octeon_i2c_ops;
->>> @@ -245,6 +239,15 @@ static int octeon_i2c_probe(struct platform_device *pdev)
->>>          i2c_set_adapdata(&i2c->adap, i2c);
->>>          platform_set_drvdata(pdev, i2c);
->>>   
->>> +       stat = octeon_i2c_stat_read(i2c);
->>> +       if (stat != STAT_IDLE) {
->>> +               result = octeon_i2c_recovery(i2c);
->>> +               if (result) {
->>> +                       dev_err(i2c->dev, "octeon i2c recovery failed\n");
->>> +                       goto  out;
->>> +               }
->>> +       }
->>> +
->>>          result = i2c_add_adapter(&i2c->adap);
->>>          if (result < 0)
->>>                  goto out;
->>>
->>>
->>> Attached patch for you review. Thanks in advance.
->>>
->>> BR,
->>> Sean Zhang
->>
->>
