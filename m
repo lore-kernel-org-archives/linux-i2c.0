@@ -1,45 +1,49 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH 0/6] i2c: send STOP after recovery; use it for i2c-rcar
-Date: Tue, 5 Dec 2017 09:13:33 +0800
-Message-ID: <89963af5-3378-f70c-79ba-0988cce4689d@electromag.com.au>
-References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
+From: Fengguang Wu <fengguang.wu@intel.com>
+Subject: Re: [wsa:renesas/sdhi-uniphier 2/22]
+ drivers/mmc/host/tmio_mmc.h:249:2: error: implicit declaration of function
+ 'readsw'
+Date: Tue, 5 Dec 2017 11:24:39 +0800
+Message-ID: <20171205032439.hn7wlhifnf4z47tu@wfg-t540p.sh.intel.com>
+References: <201712030902.U17suQaZ%fengguang.wu@intel.com>
+ <20171204160024.yv3ztu2ntn2l2l3j@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
-Content-Language: en-AU
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:2149 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750995AbdLEDYm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 4 Dec 2017 22:24:42 -0500
+Content-Disposition: inline
+In-Reply-To: <20171204160024.yv3ztu2ntn2l2l3j@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, kbuild-all@01.org, linux-i2c@vger.kernel.org
 
-On 4/12/2017 20:36, Wolfram Sang wrote:
-> When implementing bus recovery for the i2c-rcar driver, two problems were
-> encountered: 1) When reading the SDA bit, not the SDA status was returned but
-> the internal state of the "bus_is_busy" logic. 2) This logic needs a STOP to
-> consider the bus free again. SCL/SDA high is not enough, and there is no other
-> way known to reset the internal logic otherwise.
-> 
-> The obvious solution to just send STOP after recovery makes sense for the
-> generic case, too, IMO. If we made a device release SDA again, and are about
-> start a new transfer using START, then we should terminate the previous state
-> properly with STOP. This may help with some devices and shouldn't create any
-> drawback AFAICS.
-> 
-> For this, we need to introduce a 'set_sda' callback to the recovery
-> infrastructure. Because of this and some other minor recovery core changes, I
-> CCed a few people working on I2C bus recovery recently. The first five patches
-> may be interesting for you, so your input is greatly appreciated. Also, testing
-> the new features with GPIO based recovery would be awesome to have.
-> 
-> This was tested on a Renesas Lager board (r8a7790/R-Car H2). My test procedure
-> is documented here:
+Hi Wolfram,
 
-Patches 1-5.
-Tested-by: Phil Reid <preid@electromag.com.au>
+On Mon, Dec 04, 2017 at 05:00:27PM +0100, Wolfram Sang wrote:
+>Hey guys,
+>
+>> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/sdhi-uniphier
+>
+>buildbot is a really great and helpful service, so a lot of thanks for
+>that.
+>
+>But please, again, drop the i2c mailing list for my personal development
+>branches. *Only* include the i2c list, if there is an "i2c/" prefix in
+>the branch name. This branch, for example, is MMC related and has
+>nothing to do with I2C! Or, if this is not possible, drop the I2C list
+>from all my branches and just mail me and the author.
+>
+>The current state creates too much noise and it starts to get a little
+>annoying. Please let's find some fix for that. buildbot is so useful
+>otherwise.
 
+Sorry for the noise! We've added your tree to private reporting,
+however it looks the mail_cc option has higher priority. So I'll
+just remove the mail_cc. We don't support selectively CC mailing lists
+based on branch name, which looks a bit overkill for most people.
 
--- 
-Regards
-Phil Reid
+Thanks,
+Fengguang
