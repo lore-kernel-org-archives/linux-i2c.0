@@ -1,45 +1,52 @@
-From: Sven Van Asbroeck <svendev@arcx.com>
-Subject: [PATCH v4 0/2] at24: support eeproms that do not auto-rollover reads.
-Date: Tue, 5 Dec 2017 10:23:40 -0500
-Message-ID: <1512487422-6284-1-git-send-email-svendev@arcx.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/6] i2c: add 'set_sda' to bus_recovery_info
+Date: Tue, 5 Dec 2017 16:31:14 +0100
+Message-ID: <CACRpkdYuHit1w1_d4h++vOuSWosf+iBdgimtCUbmic3mkbm1Wg@mail.gmail.com>
+References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
+ <20171204123640.3382-4-wsa+renesas@sang-engineering.com> <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
+ <20171205133848.nzrhysiz2twvlamx@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.arcx.com ([184.94.50.18]:29802 "EHLO WEBMAIL.arcx.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752606AbdLEPXr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 5 Dec 2017 10:23:47 -0500
+Received: from mail-it0-f50.google.com ([209.85.214.50]:38450 "EHLO
+        mail-it0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752592AbdLEPbP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Dec 2017 10:31:15 -0500
+Received: by mail-it0-f50.google.com with SMTP id r6so2400841itr.3
+        for <linux-i2c@vger.kernel.org>; Tue, 05 Dec 2017 07:31:15 -0800 (PST)
+In-Reply-To: <20171205133848.nzrhysiz2twvlamx@ninjato>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: svendev@arcx.com, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, david@lechnology.com, javier@dowhile0.org, divagar.mohandass@intel.com
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
 
-v4:
-	renamed devicetree property:
-		no-read-rollover -> at24,no-read-rollover
-	dt-bindings update now a separate patch
+On Tue, Dec 5, 2017 at 2:38 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-v3:
-	rebased against at24 maintainer's devel staging branch:
-	git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git at24/devel
-	clarified some of the comments and wording
+>> Just compare it to zero. if (!gpiod_get_direction())
+>
+> So, this?
+>
+>         if (!gpiod_get_direction())
+>                 bri->set_sda = set_sda_gpio_value;
+>
+> That looks like "if i couldn't the direction, then...", or?
+>
+> Comparing to plain numbers feels like magic values?
 
-v2:
-	kbuild test robot feedback: correct
-		"warning: comparison of distinct pointer types lacks a cast"
-	build warning on some compilers / architectures.
+Hehe :)
 
-v1:
-	original patch
+> Maybe this should be named 'gpiod_is_direction_input()'?
 
-Sven Van Asbroeck (2):
-  at24: support eeproms that do not auto-rollover reads.
-  dt-bindings: add eeprom "at24,no-read-rollover" property
+Two statice inlines in <linux/gpio/consumer.h>
+named
 
- .../devicetree/bindings/eeprom/eeprom.txt          |  5 +++
- drivers/misc/eeprom/at24.c                         | 37 +++++++++++++++-------
- include/linux/platform_data/at24.h                 |  2 ++
- 3 files changed, 32 insertions(+), 12 deletions(-)
+int gpiod_is output()
+int gpiod_is_input()
 
--- 
-1.9.1
+should conform to Rusty Russell's API hierarchy.
+
+Interested in fixing it, or should I?
+I can almost ACK it before you write the patch.
+
+Yours,
+Linus Walleij
