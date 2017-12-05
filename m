@@ -1,68 +1,89 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 1/1] at24: support eeproms that do not auto-rollover reads.
-Date: Tue, 5 Dec 2017 09:14:22 +0100
-Message-ID: <CAMRc=MdeEcJ=hH42725S3u3ncVeNdyk-VBs2TvV1D8_kTR3nOw@mail.gmail.com>
-References: <1512401778-20366-1-git-send-email-svendev@arcx.com>
- <1512401778-20366-2-git-send-email-svendev@arcx.com> <20171204214023.ml2ujacezsop5ilb@kekkonen.localdomain>
- <CAGngYiXR83+0phkeAvJYYEm8HvmN-c9d0B9p1BRiPHyUz1ogAA@mail.gmail.com> <20171205074451.gpsidrxlwyfo2fu7@paasikivi.fi.intel.com>
+Subject: Re: [PATCH] eeprom: at24: switch to device-managed version of i2c_new_dummy
+Date: Tue, 5 Dec 2017 09:18:26 +0100
+Message-ID: <CAMRc=MdNnDDoYMV+bkeRZNyc5_DR+ph9jOjRRKQgXY7peZibxg@mail.gmail.com>
+References: <cad1fbce-58b8-c99e-7b7c-b4978c8f8f92@gmail.com> <9221930c-a64d-0c7c-2a72-75b25b76de4a@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f42.google.com ([209.85.218.42]:33538 "EHLO
-        mail-oi0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752531AbdLEIOX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Dec 2017 03:14:23 -0500
-Received: by mail-oi0-f42.google.com with SMTP id w131so13664064oiw.0
-        for <linux-i2c@vger.kernel.org>; Tue, 05 Dec 2017 00:14:23 -0800 (PST)
-In-Reply-To: <20171205074451.gpsidrxlwyfo2fu7@paasikivi.fi.intel.com>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:39965 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752557AbdLEIS1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Dec 2017 03:18:27 -0500
+Received: by mail-ot0-f195.google.com with SMTP id e74so17150843ote.7
+        for <linux-i2c@vger.kernel.org>; Tue, 05 Dec 2017 00:18:27 -0800 (PST)
+In-Reply-To: <9221930c-a64d-0c7c-2a72-75b25b76de4a@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Sven Van Asbroeck <thesven73@gmail.com>, Sven Van Asbroeck <svendev@arcx.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, nsekhar@ti.com, David Lechner <david@lechnology.com>, javier@dowhile0.org, divagar.mohandass@intel.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, Sven Van Asbroeck <svenv@arcx.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-2017-12-05 8:44 GMT+01:00 Sakari Ailus <sakari.ailus@linux.intel.com>:
-> On Mon, Dec 04, 2017 at 05:24:33PM -0500, Sven Van Asbroeck wrote:
->> > If this is truly specific to at24, then vendor prefix would be appropriate,
->> > plus it'd go to an at24 specific binding file. However if it isn't I'd just
->> > remove the above sentence. I guess the latter?
->>
->> Yes, no-read-rollover is truly specific to at24.c, because it applies only
->> to i2c multi-address chips. The at25 is spi based so cannot have multiple
->> addresses.
->>
->> So yes, "at24,no-read-rollover" would perhaps be a better name.
->>
->> Regarding an at24 specific binding file. You're saying I should create
->> Documentation/devicetree/bindings/eeprom/at24.txt ? Should I indicate
->> that at24.txt "inherits from" eeprom.txt? Note that at25.txt does not
->> currently do this.
+2017-12-04 20:51 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Make use of recently introduced device-managed version of
+> i2c_new_dummy to simplify the code.
 >
-> Hmm. I actually missed we didn't have one to begin with. at25.txt exists
-> and it documents a number of properties specific to at25, so if at24 will
-> have an at24-specific property, then I think it should go to a separate
-> file.
-
-The eeprom.txt file in the bindings directory actually describes the
-bindings for at24. There's a patch[1] from Wolfram waiting for Rob's
-ack that renames it to at24.txt. I hope that clears any confusion.
-
-@Sven: please split the patch into two: one for bindings and one for code.
-
-As for the name: I would change it to at24,no-read-rollover and remove
-the fragment saying it's only supported in at24 - as I said: this file
-only concerns at24 and will be renamed.
-
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+>  drivers/misc/eeprom/at24.c | 15 ++++-----------
+>  1 file changed, 4 insertions(+), 11 deletions(-)
 >
-> Aren't there really other chips which need this? It'd be (a little bit)
-> easier to just remove the sentence. :-)
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 625b00166..9e9fe69b4 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -621,9 +621,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>
+>         /* use dummy devices for multiple-address chips */
+>         for (i = 1; i < num_addresses; i++) {
+> -               at24->client[i].client = i2c_new_dummy(client->adapter,
+> -                                                      client->addr + i);
+> -               if (!at24->client[i].client) {
+> +               at24->client[i].client = devm_i2c_new_dummy(&client->dev,
+> +                                                           client->adapter,
+> +                                                           client->addr + i);
+> +               if (IS_ERR(at24->client[i].client)) {
+>                         dev_err(&client->dev, "address 0x%02x unavailable\n",
+>                                         client->addr + i);
+>                         err = -EADDRINUSE;
+> @@ -686,10 +687,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>         return 0;
+>
+>  err_clients:
+> -       for (i = 1; i < num_addresses; i++)
+> -               if (at24->client[i].client)
+> -                       i2c_unregister_device(at24->client[i].client);
+> -
+>         pm_runtime_disable(&client->dev);
+>
+>         return err;
+> @@ -698,15 +695,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  static int at24_remove(struct i2c_client *client)
+>  {
+>         struct at24_data *at24;
+> -       int i;
+>
+>         at24 = i2c_get_clientdata(client);
+>
+>         nvmem_unregister(at24->nvmem);
+>
+> -       for (i = 1; i < at24->num_addresses; i++)
+> -               i2c_unregister_device(at24->client[i].client);
+> -
+>         pm_runtime_disable(&client->dev);
+>         pm_runtime_set_suspended(&client->dev);
 >
 > --
-> Regards,
+> 2.15.1
 >
-> Sakari Ailus
-> sakari.ailus@linux.intel.com
+>
+
+Hi Heiner,
+
+I don't have the patch introducing the devres routine in my inbox.
+Could you resend the two patches as a series? Note: please Cc the
+linux-kernel mailing list too. Also: maybe you could create a device
+managed version of i2c_new_secondary_device() if you're at it? Could
+use the same release callback.
 
 Thanks,
 Bartosz
-
-[1] http://patchwork.ozlabs.org/patch/842500/
