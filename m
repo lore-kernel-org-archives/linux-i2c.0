@@ -1,37 +1,49 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/6] i2c: add 'set_sda' to bus_recovery_info
-Date: Tue, 5 Dec 2017 11:34:12 +0100
-Message-ID: <CACRpkdY1nuRpk5BRn2iWXqhfRycLRb2VtwEUA4pA9FM+7JrTog@mail.gmail.com>
-References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
- <20171204123640.3382-4-wsa+renesas@sang-engineering.com> <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
- <53d5696c-6f0d-1717-5c9e-4facf397f284@electromag.com.au>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for
+ it
+Date: Tue, 5 Dec 2017 11:00:05 +0000
+Message-ID: <20171205110005.00004d66@huawei.com>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+        <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
+        <20171127185116.j2vmkhbik33vk4f7@ninjato>
+        <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
+        <20171203194347.bbds47a72xbc4nvl@ninjato>
+        <20171204220541.GA11658@finisterre>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <53d5696c-6f0d-1717-5c9e-4facf397f284@electromag.com.au>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171204220541.GA11658@finisterre>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 5, 2017 at 10:57 AM, Phil Reid <preid@electromag.com.au> wrote:
-> On 5/12/2017 16:39, Linus Walleij wrote:
+On Mon, 4 Dec 2017 22:05:41 +0000
+Mark Brown <broonie@kernel.org> wrote:
 
->> Just compare it to zero. if (!gpiod_get_direction())
->>
->> This flag is only for requesting GPIOs in the old API.
->> We didn't add a define in the new API, it seemed overengineered.
->>
->
-> Perhaps the docs need updating?
-> as of 4.15-rc2 it says
->  * Return GPIOF_DIR_IN or GPIOF_DIR_OUT, or an error code in case of error.
->
-> I can submit something if you wish.
+> On Sun, Dec 03, 2017 at 08:43:47PM +0100, Wolfram Sang wrote:
+> 
+> > > It's a bit different in that it's much more likely that a SPI controller
+> > > will actually do DMA than an I2C one since the speeds are higher and
+> > > there's frequent applications that do large transfers so it's more
+> > > likely that people will do the right thing as issues would tend to come
+> > > up if they don't.  
+> 
+> > Yes, for SPI this is true. I was thinking more of regmap with its
+> > usage of different transport mechanisms. But I guess they should all be
+> > DMA safe because some of them need to be DMA safe?  
+> 
+> Possibly.  Hopefully.  I guess we'll find out.
+> 
 
-Hit me.
+Yeah, optimistic assumption. Plenty of drivers use regmap for the
+convenience of it's caching and field access etc rather than
+because they support multiple buses.
 
-Sorry for the incoherent information.
+I'll audit the IIO drivers and see where we have issues if we
+start assuming DMA safe for regmap (which makes sense to me).
 
-Yours,
-Linus Walleij
+Probably worth fixing them all up anyway and tends to be straightforward.
+
+Jonathan
