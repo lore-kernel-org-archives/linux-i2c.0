@@ -1,44 +1,149 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 2/2] eeprom: at24: use a common prefix for all symbols
- in at24.c
-Date: Wed, 6 Dec 2017 18:27:25 +0100
-Message-ID: <ea0eb0b0-89bd-77d2-c2db-8b87c266de92@axentia.se>
-References: <20171206130131.13438-1-brgl@bgdev.pl>
- <20171206130131.13438-3-brgl@bgdev.pl>
- <5cffa160-7371-c71a-d3b7-ba01edb408e3@axentia.se>
- <CAMRc=MfjGSo0bsmoLJGU_vFyp=E8b6-JJwmS5N5vorDpWhEB-Q@mail.gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: [PATCH resubmit 1/2] i2c: core: add device-managed version of
+ i2c_new_dummy
+Date: Wed, 6 Dec 2017 20:05:58 +0100
+Message-ID: <56f41f75-2589-e185-5076-1d062e5625c2@gmail.com>
+References: <e70df557-3f71-9de2-6b1a-de566b47eb33@gmail.com>
+ <19d37e48-0b64-b33c-993a-a1cae39efb54@gmail.com>
+ <CAMRc=McxO1AZy_bNyuzof2=s8zuzjJ=TO-rxvdKSNhT8R_aNgQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=MfjGSo0bsmoLJGU_vFyp=E8b6-JJwmS5N5vorDpWhEB-Q@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:38656 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752018AbdLFTGK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Dec 2017 14:06:10 -0500
+In-Reply-To: <CAMRc=McxO1AZy_bNyuzof2=s8zuzjJ=TO-rxvdKSNhT8R_aNgQ@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On 2017-12-06 15:29, Bartosz Golaszewski wrote:
-> 2017-12-06 14:40 GMT+01:00 Peter Rosin <peda@axentia.se>:
->> Hi!
+Am 06.12.2017 um 11:36 schrieb Bartosz Golaszewski:
+> 2017-12-05 20:44 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+>> i2c_new_dummy is typically called from the probe function of the
+>> driver for the primary i2c client. It requires calls to
+>> i2c_unregister_device in the error path of the probe function and
+>> in the remove function.
+>> This can be simplified by introducing a device-managed version.
 >>
->> Some nits...
+>> Note the changed error case return value type:
+>> i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
 >>
->> On 2017-12-06 14:01, Bartosz Golaszewski wrote:
->>> There are a couple symbols defined in the driver source file which are
->>> missing the at24_ prefix. This patch fixes that.
->>>
->>> For module params: use module_param_named() in order not to break the
->>> userspace.
+>> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+>> Reviewed-by: Peter Rosin <peda@axentia.se>
+>> ---
+>>  Documentation/driver-model/devres.txt |  3 +++
+>>  drivers/i2c/i2c-core-base.c           | 39 +++++++++++++++++++++++++++++++++++
+>>  include/linux/i2c.h                   |  3 +++
+>>  3 files changed, 45 insertions(+)
 >>
->> I'd write that as "...in order to not break userspace"
+>> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
+>> index c180045eb..6e2bccf85 100644
+>> --- a/Documentation/driver-model/devres.txt
+>> +++ b/Documentation/driver-model/devres.txt
+>> @@ -259,6 +259,9 @@ GPIO
+>>    devm_gpio_request_one()
+>>    devm_gpio_free()
+>>
+>> +I2C
+>> +  devm_i2c_new_dummy
+>> +
+>>  IIO
+>>    devm_iio_device_alloc()
+>>    devm_iio_device_free()
+>> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+>> index bf52cca87..c1db67f9a 100644
+>> --- a/drivers/i2c/i2c-core-base.c
+>> +++ b/drivers/i2c/i2c-core-base.c
+>> @@ -820,6 +820,45 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+>>  }
+>>  EXPORT_SYMBOL_GPL(i2c_new_dummy);
+>>
+>> +static void devm_i2c_release_dummy(struct device *dev, void *res)
+>> +{
+>> +       i2c_unregister_device(*(struct i2c_client **)res);
+>> +}
+>> +
+> 
+> Wolfram will have the last word here, but I would really prefer that
+> you wrap struct i2c_client in a separate devres (e.g. struct
+> i2c_dummy_devres) structure and avoid the cast. I find it a lot more
+> readable even if it only has a single member.
+> 
+This cast is a very common pattern in such release callbacks, see e.g.
+devm_spi_unregister.
+
+>> +/**
+>> + * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
+>> + * @dev: device the managed resource is bound to
+>> + * @adapter: the adapter managing the device
+>> + * @address: seven bit address to be used
+>> + * Context: can sleep
+>> + *
+>> + * This is the device-managed version of i2c_new_dummy.
+>> + * Note the changed return value type: It returns the new i2c client
+>> + * or an ERR_PTR in case of an error.
+>> + */
+>> +struct i2c_client *devm_i2c_new_dummy(struct device *dev,
+>> +                                     struct i2c_adapter *adapter,
+>> +                                     u16 address)
+>> +{
+>> +       struct i2c_client *ret, **dr;
+>> +
+>> +       dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
+>> +       if (!dr)
+>> +               return ERR_PTR(-ENOMEM);
+>> +
+>> +       ret = i2c_new_dummy(adapter, address);
+>> +       if (!ret) {
+>> +               devres_free(dr);
+>> +               return ERR_PTR(-EBUSY);
+> 
+> This is misleading as EBUSY is not necessarily the error that cased
+> i2c_new_device() to fail. Return NULL here and document that users
+> need to use IS_ERR_OR_NULL() to check for errors.
+> 
+Indeed returning a fixed error code -EBUSY may not be the best choice.
+I have another alternative in mind:
+i2c_new_device brings everything to return a detailed error code.
+I think of splitting this function into a main function returning
+a detailed error code and a compatibility wrapper which returns NULL
+in error case, thus keeping the API stable.
+I will submit a proposal.
+
+>> +       }
+>> +
+>> +       *dr = ret;
+>> +       devres_add(dev, dr);
+>> +
+>> +       return ret;
+>> +}
+>> +EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
+>> +
+>>  /**
+>>   * i2c_new_secondary_device - Helper to get the instantiated secondary address
+>>   * and create the associated device
+>> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+>> index a556db976..c27eac1e1 100644
+>> --- a/include/linux/i2c.h
+>> +++ b/include/linux/i2c.h
+>> @@ -383,6 +383,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+>>  extern struct i2c_client *
+>>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+>>
+>> +extern struct i2c_client *
+>> +devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
+>> +
+>>  extern struct i2c_client *
+>>  i2c_new_secondary_device(struct i2c_client *client,
+>>                                 const char *name,
+>> --
+>> 2.15.1
+>>
 >>
 > 
-> I would love to hear an English native speaker's opinion on that. :)
-
-"not to" or "to not" is a matter of style/taste. I mainly wanted to point
-out that the definite article of "userspace" should be removed, because
-you are not talking about one particular userspace.
-
-Cheers,
-peda
+> Thanks,
+> Bartosz
+> 
