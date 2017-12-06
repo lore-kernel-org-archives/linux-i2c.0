@@ -1,92 +1,74 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v2 3/3] eeprom: at24: switch to device-managed version of
- i2c_new_dummy
-Date: Wed, 6 Dec 2017 22:13:27 +0100
-Message-ID: <9c9d3b21-4ab7-8377-2f1c-a4cfc6def418@gmail.com>
-References: <c765d409-5d33-8d6f-c883-9be93f507e01@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 1/1] at24: support eeproms that do not auto-rollover
+ reads.
+Date: Wed, 6 Dec 2017 15:29:04 -0600
+Message-ID: <20171206212904.v5qvhw2ymttk6zxe@rob-hp-laptop>
+References: <1512401778-20366-1-git-send-email-svendev@arcx.com>
+ <1512401778-20366-2-git-send-email-svendev@arcx.com>
+ <20171204214023.ml2ujacezsop5ilb@kekkonen.localdomain>
+ <CAGngYiXR83+0phkeAvJYYEm8HvmN-c9d0B9p1BRiPHyUz1ogAA@mail.gmail.com>
+ <20171205074451.gpsidrxlwyfo2fu7@paasikivi.fi.intel.com>
+ <CAMRc=MdeEcJ=hH42725S3u3ncVeNdyk-VBs2TvV1D8_kTR3nOw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c765d409-5d33-8d6f-c883-9be93f507e01@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MdeEcJ=hH42725S3u3ncVeNdyk-VBs2TvV1D8_kTR3nOw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>, Sven Van Asbroeck <thesven73@gmail.com>, Sven Van Asbroeck <svendev@arcx.com>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, nsekhar@ti.com, David Lechner <david@lechnology.com>, javier@dowhile0.org, divagar.mohandass@intel.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, Sven Van Asbroeck <svenv@arcx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Make use of recently introduced device-managed version of
-i2c_new_dummy to simplify the code.
+On Tue, Dec 05, 2017 at 09:14:22AM +0100, Bartosz Golaszewski wrote:
+> 2017-12-05 8:44 GMT+01:00 Sakari Ailus <sakari.ailus@linux.intel.com>:
+> > On Mon, Dec 04, 2017 at 05:24:33PM -0500, Sven Van Asbroeck wrote:
+> >> > If this is truly specific to at24, then vendor prefix would be appropriate,
+> >> > plus it'd go to an at24 specific binding file. However if it isn't I'd just
+> >> > remove the above sentence. I guess the latter?
+> >>
+> >> Yes, no-read-rollover is truly specific to at24.c, because it applies only
+> >> to i2c multi-address chips. The at25 is spi based so cannot have multiple
+> >> addresses.
+> >>
+> >> So yes, "at24,no-read-rollover" would perhaps be a better name.
+> >>
+> >> Regarding an at24 specific binding file. You're saying I should create
+> >> Documentation/devicetree/bindings/eeprom/at24.txt ? Should I indicate
+> >> that at24.txt "inherits from" eeprom.txt? Note that at25.txt does not
+> >> currently do this.
+> >
+> > Hmm. I actually missed we didn't have one to begin with. at25.txt exists
+> > and it documents a number of properties specific to at25, so if at24 will
+> > have an at24-specific property, then I think it should go to a separate
+> > file.
+> 
+> The eeprom.txt file in the bindings directory actually describes the
+> bindings for at24. There's a patch[1] from Wolfram waiting for Rob's
+> ack that renames it to at24.txt. I hope that clears any confusion.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- small improvements regarding code readability
----
- drivers/misc/eeprom/at24.c | 31 +++++++++++--------------------
- 1 file changed, 11 insertions(+), 20 deletions(-)
+It's going to wait forever until it is sent to the DT list so 
+patchwork picks it up and is in my queue.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 625b00166..5f3a27a69 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -621,20 +621,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	/* use dummy devices for multiple-address chips */
- 	for (i = 1; i < num_addresses; i++) {
--		at24->client[i].client = i2c_new_dummy(client->adapter,
--						       client->addr + i);
--		if (!at24->client[i].client) {
-+		struct at24_client *cl;
-+
-+		cl = &at24->client[i];
-+		cl->client = devm_i2c_new_dummy(&client->dev, client->adapter,
-+						client->addr + i);
-+		if (IS_ERR(cl->client)) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
--			err = -EADDRINUSE;
--			goto err_clients;
--		}
--		at24->client[i].regmap = devm_regmap_init_i2c(
--					at24->client[i].client, config);
--		if (IS_ERR(at24->client[i].regmap)) {
--			err = PTR_ERR(at24->client[i].regmap);
--			goto err_clients;
-+				client->addr + i);
-+			return PTR_ERR(cl->client);
- 		}
-+		cl->regmap = devm_regmap_init_i2c(cl->client, config);
-+		if (IS_ERR(cl->regmap))
-+			return PTR_ERR(cl->regmap);
- 	}
- 
- 	i2c_set_clientdata(client, at24);
-@@ -686,10 +685,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return 0;
- 
- err_clients:
--	for (i = 1; i < num_addresses; i++)
--		if (at24->client[i].client)
--			i2c_unregister_device(at24->client[i].client);
--
- 	pm_runtime_disable(&client->dev);
- 
- 	return err;
-@@ -698,15 +693,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- static int at24_remove(struct i2c_client *client)
- {
- 	struct at24_data *at24;
--	int i;
- 
- 	at24 = i2c_get_clientdata(client);
- 
- 	nvmem_unregister(at24->nvmem);
- 
--	for (i = 1; i < at24->num_addresses; i++)
--		i2c_unregister_device(at24->client[i].client);
--
- 	pm_runtime_disable(&client->dev);
- 	pm_runtime_set_suspended(&client->dev);
- 
--- 
-2.15.1
+> @Sven: please split the patch into two: one for bindings and one for code.
+> 
+> As for the name: I would change it to at24,no-read-rollover and remove
+
+at24 is not a vendor.
+
+> the fragment saying it's only supported in at24 - as I said: this file
+> only concerns at24 and will be renamed.
+> 
+> >
+> > Aren't there really other chips which need this? It'd be (a little bit)
+> > easier to just remove the sentence. :-)
+> >
+> > --
+> > Regards,
+> >
+> > Sakari Ailus
+> > sakari.ailus@linux.intel.com
+> 
+> Thanks,
+> Bartosz
+> 
+> [1] http://patchwork.ozlabs.org/patch/842500/
