@@ -1,64 +1,66 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 2/2] eeprom: at24: use a common prefix for all symbols in at24.c
-Date: Wed, 6 Dec 2017 12:05:42 +0100
-Message-ID: <CAMRc=McAD78rOPjybObjxcabD3suhrcitDZJje9wmW3ykXfmEg@mail.gmail.com>
-References: <20171206101926.14995-1-brgl@bgdev.pl> <20171206101926.14995-3-brgl@bgdev.pl>
- <20171206110349.zjxadfdxgo5qcmex@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171206110349.zjxadfdxgo5qcmex@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Angelo Compagnucci <angelo@amarulasolutions.com>
+Subject: [PATCH 1/2] i2c-tools: Makefile: add flag to disable dynamic libraries
+Date: Wed,  6 Dec 2017 11:45:56 +0100
+Message-ID: <1512557157-17467-1-git-send-email-angelo@amarulasolutions.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35659 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754986AbdLFKqN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Dec 2017 05:46:13 -0500
+Received: by mail-wm0-f65.google.com with SMTP id f9so6338453wmh.0
+        for <linux-i2c@vger.kernel.org>; Wed, 06 Dec 2017 02:46:12 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: jdelvare@suse.de, Angelo Compagnucci <angelo@amarulasolutions.com>
 
-2017-12-06 12:03 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutron=
-ix.de>:
-> On Wed, Dec 06, 2017 at 11:19:26AM +0100, Bartosz Golaszewski wrote:
->> There are a couple symbols defined in the driver source file which are
->> missing the at24_ prefix. This patch fixes that.
->>
->> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
->> ---
->>  drivers/misc/eeprom/at24.c | 34 ++++++++++++++++++----------------
->>  1 file changed, 18 insertions(+), 16 deletions(-)
->>
->> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->> index 2426f2c111c7..4ead21d0dcc5 100644
->> --- a/drivers/misc/eeprom/at24.c
->> +++ b/drivers/misc/eeprom/at24.c
->> @@ -93,17 +93,17 @@ struct at24_data {
->>   *
->>   * This value is forced to be a power of two so that writes align on pa=
-ges.
->>   */
->> -static unsigned int io_limit =3D 128;
->> -module_param(io_limit, uint, 0000);
->> -MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
->> +static unsigned int at24_io_limit =3D 128;
->> +module_param(at24_io_limit, uint, 0000);
->> +MODULE_PARM_DESC(at24_io_limit, "Maximum bytes per I/O (default 128)");
->
-> You change the names of the module parameters here. I think this is not
-> a good idea as now you have to pass
->
->         at24.at24_io_limit=3D...
->
-> on the kernel command line. If you still want this change, I think there
-> is some documentation that needs adaption, too.
->
-> Best regards
-> Uwe
->
->
-> --
-> Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig       =
-     |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  =
-|
+In such cases where you need to disable entirely the dynamic
+library compilation, now you can use the BUILD_DYNAMIC_LIB=0
+flag.
 
-Ugh, right, this must stay as it was. Thanks!
+Signed-off-by: Angelo Compagnucci <angelo@amarulasolutions.com>
+---
+ Makefile      | 8 ++++++++
+ lib/Module.mk | 6 +++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-Bartosz
+diff --git a/Makefile b/Makefile
+index c85317c..a9ab4a2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -38,6 +38,14 @@ ifeq ($(USE_STATIC_LIB),1)
+ BUILD_STATIC_LIB := 1
+ endif
+ 
++BUILD_DYNAMIC_LIB ?= 1
++
++ifeq ($(BUILD_DYNAMIC_LIB),0)
++ifeq ($(BUILD_STATIC_LIB),0)
++$(error BUILD_DYNAMIC_LIB and BUILD_STATIC_LIB cannot be disabled at the same time)
++endif
++endif
++
+ KERNELVERSION	:= $(shell uname -r)
+ 
+ .PHONY: all strip clean install uninstall
+diff --git a/lib/Module.mk b/lib/Module.mk
+index 432a051..9dc2642 100644
+--- a/lib/Module.mk
++++ b/lib/Module.mk
+@@ -27,9 +27,13 @@ LIB_SHSONAME	:= $(LIB_SHBASENAME).$(LIB_MAINVER)
+ LIB_SHLIBNAME	:= $(LIB_SHBASENAME).$(LIB_VER)
+ LIB_STLIBNAME	:= libi2c.a
+ 
+-LIB_TARGETS	:= $(LIB_SHLIBNAME)
+ LIB_LINKS	:= $(LIB_SHSONAME) $(LIB_SHBASENAME)
+ LIB_OBJECTS	:= smbus.o
++
++LIB_TARGETS :=
++ifeq ($(BUILD_DYNAMIC_LIB),1)
++LIB_TARGETS	+= $(LIB_SHLIBNAME)
++endif
+ ifeq ($(BUILD_STATIC_LIB),1)
+ LIB_TARGETS	+= $(LIB_STLIBNAME)
+ LIB_OBJECTS	+= smbus.ao
+-- 
+2.7.4
