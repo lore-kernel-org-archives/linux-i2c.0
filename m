@@ -1,29 +1,95 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 0/2] eeprom: at24: coding style fixes
-Date: Wed,  6 Dec 2017 11:19:24 +0100
-Message-ID: <20171206101926.14995-1-brgl@bgdev.pl>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:35292 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754707AbdLFKTb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Dec 2017 05:19:31 -0500
-Received: by mail-wm0-f67.google.com with SMTP id f9so6206381wmh.0
-        for <linux-i2c@vger.kernel.org>; Wed, 06 Dec 2017 02:19:30 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Subject: [PATCH 1/2] eeprom: at24: fix coding style issues
+Date: Wed,  6 Dec 2017 11:19:25 +0100
+Message-ID: <20171206101926.14995-2-brgl@bgdev.pl>
+References: <20171206101926.14995-1-brgl@bgdev.pl>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171206101926.14995-1-brgl@bgdev.pl>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+List-Id: linux-i2c@vger.kernel.org
 
-Just two patches fixing minor coding style issues. The first one
-contains fixes for problems reported by checkpatch. The second adds
-a common prefix to all symbols in at24.c.
+Fix issues reported by checkpatch for at24.c.
 
-Bartosz Golaszewski (2):
-  eeprom: at24: fix coding style issues
-  eeprom: at24: use a common prefix for all symbols in at24.c
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+---
+ drivers/misc/eeprom/at24.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
- drivers/misc/eeprom/at24.c | 48 ++++++++++++++++++++++++----------------------
- 1 file changed, 25 insertions(+), 23 deletions(-)
-
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 625b00166117..2426f2c111c7 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -70,8 +70,8 @@ struct at24_data {
+ 	 */
+ 	struct mutex lock;
+ 
+-	unsigned write_max;
+-	unsigned num_addresses;
++	unsigned int write_max;
++	unsigned int num_addresses;
+ 	unsigned int offset_adj;
+ 
+ 	struct nvmem_config nvmem_config;
+@@ -93,16 +93,16 @@ struct at24_data {
+  *
+  * This value is forced to be a power of two so that writes align on pages.
+  */
+-static unsigned io_limit = 128;
+-module_param(io_limit, uint, 0);
++static unsigned int io_limit = 128;
++module_param(io_limit, uint, 0000);
+ MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
+ 
+ /*
+  * Specs often allow 5 msec for a page write, sometimes 20 msec;
+  * it's important to recover from write timeouts.
+  */
+-static unsigned write_timeout = 25;
+-module_param(write_timeout, uint, 0);
++static unsigned int write_timeout = 25;
++module_param(write_timeout, uint, 0000);
+ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+ #define AT24_SIZE_BYTELEN 5
+@@ -111,8 +111,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ #define AT24_BITMASK(x) (BIT(x) - 1)
+ 
+ /* create non-zero magic value for given eeprom parameters */
+-#define AT24_DEVICE_MAGIC(_len, _flags) 		\
+-	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
++#define AT24_DEVICE_MAGIC(_len, _flags)			\
++	((1 << AT24_SIZE_FLAGS | (_flags))		\
+ 	    << AT24_SIZE_BYTELEN | ilog2(_len))
+ 
+ /*
+@@ -264,7 +264,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
+ static struct at24_client *at24_translate_offset(struct at24_data *at24,
+ 						 unsigned int *offset)
+ {
+-	unsigned i;
++	unsigned int i;
+ 
+ 	if (at24->chip.flags & AT24_FLAG_ADDR16) {
+ 		i = *offset >> 16;
+@@ -319,7 +319,7 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
+ static size_t at24_adjust_write_count(struct at24_data *at24,
+ 				      unsigned int offset, size_t count)
+ {
+-	unsigned next_page;
++	unsigned int next_page;
+ 
+ 	/* write_max is at most a page */
+ 	if (count > at24->write_max)
+@@ -515,7 +515,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	bool writable;
+ 	struct at24_data *at24;
+ 	int err;
+-	unsigned i, num_addresses;
++	unsigned int i, num_addresses;
+ 	const struct regmap_config *config;
+ 	u8 test_byte;
+ 
 -- 
 2.15.1
