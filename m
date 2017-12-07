@@ -1,91 +1,57 @@
-From: Alban Browaeys <alban.browaeys@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Fix SMBus ENXIO on resume from suspend.
-Date: Thu, 07 Dec 2017 22:11:21 +0100
-Message-ID: <1512681081.25350.16.camel@gmail.com>
-References: <20171115170156.21532-1-alban.browaeys@gmail.com>
-         <1510777525.21208.4.camel@gmail.com> <20171120101514.62239b4f@endymion>
-         <1511187527.6389.46.camel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Subject: [PATCH] i2c: hix5hd2: Make sure clk is disabled in remove
+Date: Thu,  7 Dec 2017 22:27:55 +0100
+Message-ID: <1512682075-29755-1-git-send-email-khoroshilov@ispras.ru>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:33599 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752733AbdLGVLY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 16:11:24 -0500
-Received: by mail-wm0-f44.google.com with SMTP id g130so2209091wme.0
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 13:11:23 -0800 (PST)
-In-Reply-To: <1511187527.6389.46.camel@gmail.com>
+Received: from mail.ispras.ru ([83.149.199.45]:33670 "EHLO mail.ispras.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752379AbdLGV2P (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Dec 2017 16:28:15 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Volker =?ISO-8859-1?Q?R=FCmelin?= <vr_qemu@t-online.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 
-Thanks for Volker's patch.
-I applied it and it does not help on this Intel Haswell box (Lenovo
-Thinkpad Yoga S1). My initial patch did not helped either.
+pm_runtime_set_suspended() does not lead to call of suspend callback,
+so clk may be left undisabled in hix5hd2_i2c_remove().
 
-I was confused as the bug reproduce easely only if the i2c-i801,
-rmi_smbus and psmouse are loaded once then resume from suspend.
-Afterwards (even unload module) I sometimes get around the bug.
+By the way, the patch adds error handling for clk_prepare_enable().
 
-Could ACPI/EC OpRegion accesses happen without the kernel handler
-triggering (while suspending and / or resuming) ?
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Thanks
-Alban
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+---
+ drivers/i2c/busses/i2c-hix5hd2.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-
-
-Le lundi 20 novembre 2017 à 15:18 +0100, Alban Browaeys a écrit :
-> I am on one of those Intel Haswell with the ACPI OpRegion conflict,
-> the
-> acpi handler was added to cope with.
-> 
-> Could it be the embedded controller code mess with the smbus ?
-> When I print the OpRegion fields via acpi-call I get different values
-> after suspend/resume from S3 than at runtime at various points.
-> 
-> I already checked that the acpi SBUS methods are not called.
-> To do so I define a global name set to zero and set it to 1 in
-> SBUS.STRT (called by all SBUS method to verify the ready state).
-> 
-> Could it be the EC access the region directly ?
-> The acpi handler from i2c-i801 does not trigger. Is it in effect when
-> suspending or resuming ?
-> 
-> The reproducer seems hard to get right, I am still investigating.
-> It involves resume from suspend (S3) and a yet to define state.
-> Most of the time after an acpi reset (magic sysrq 'b').
-> And / or early load of i2x-i801, rmi_smbus and psmouse.
-> 
-> To call the acpi methods I echo to /proc/acpi/call from the acpi-call
-> module. 
-> 
-> I tried https://github.com/pali/i2c-acpi-sbus .
-> It fails early as acpi sbus methods check the inuse host status flag.
-> It is always on thus they bail out. i2c-i801 does not test inuse
-> (0x40).
-> 
-> 
-> Best regards
-> Alban
-> 
-> 
-> Le lundi 20 novembre 2017 à 10:15 +0100, Jean Delvare a écrit :
-> > On Wed, 15 Nov 2017 21:25:25 +0100, Alban Browaeys wrote:
-> > > This fix is a partial one: it only fixes the issue once
-> > > we unload then reload i2c-i801 .
-> > > This as when we load a second time  orig_hstcfg is set to the
-> > > value
-> > > the
-> > > first module load leftover.
-> > > Thus I will investigate the initial orig_hstcfg at boot to
-> > > further
-> > > the
-> > > fix.
-> > > I bet this only a few missing bits like HST_EN.
-> > 
-> > Volker, I think you had a fix for that one? But I can't find it in
-> > the
-> > list archive :-(
+diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
+index bb68957d3da5..8a921b5135ad 100644
+--- a/drivers/i2c/busses/i2c-hix5hd2.c
++++ b/drivers/i2c/busses/i2c-hix5hd2.c
+@@ -446,7 +446,11 @@ static int hix5hd2_i2c_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "cannot get clock\n");
+ 		return PTR_ERR(priv->clk);
+ 	}
+-	clk_prepare_enable(priv->clk);
++	ret = clk_prepare_enable(priv->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "cannot enable clock\n");
++		return ret;
++	}
+ 
+ 	strlcpy(priv->adap.name, "hix5hd2-i2c", sizeof(priv->adap.name));
+ 	priv->dev = &pdev->dev;
+@@ -496,8 +500,9 @@ static int hix5hd2_i2c_remove(struct platform_device *pdev)
+ 	struct hix5hd2_i2c_priv *priv = platform_get_drvdata(pdev);
+ 
+ 	i2c_del_adapter(&priv->adap);
+-	pm_runtime_disable(priv->dev);
+-	pm_runtime_set_suspended(priv->dev);
++
++	/* Make sure priv->clk is disabled */
++	pm_runtime_force_suspend(priv->dev);
+ 
+ 	return 0;
+ }
+-- 
+2.7.4
