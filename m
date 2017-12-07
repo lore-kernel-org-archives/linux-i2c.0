@@ -1,57 +1,42 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] i2c: hix5hd2: Make sure clk is disabled in remove
-Date: Thu,  7 Dec 2017 22:27:55 +0100
-Message-ID: <1512682075-29755-1-git-send-email-khoroshilov@ispras.ru>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v5 1/2] at24: support eeproms that do not auto-rollover reads.
+Date: Thu, 7 Dec 2017 22:33:51 +0100
+Message-ID: <CAMRc=MeEnDYjDTpE=XKuP3LricsnEnh0RHKMzxEPUcOS6E0tPQ@mail.gmail.com>
+References: <1512657378-5221-1-git-send-email-svendev@arcx.com>
+ <1512657378-5221-2-git-send-email-svendev@arcx.com> <CAMRc=MdhJRD+G18Xh5vfmaHHdJ+g9EnDTxUHVxhzDzVt-D0KMg@mail.gmail.com>
+ <20171207190230.ttq5xthgsuuy4swn@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.ispras.ru ([83.149.199.45]:33670 "EHLO mail.ispras.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752379AbdLGV2P (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 16:28:15 -0500
+Received: from mail-oi0-f50.google.com ([209.85.218.50]:34409 "EHLO
+        mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750980AbdLGVdw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 16:33:52 -0500
+Received: by mail-oi0-f50.google.com with SMTP id u193so5943518oie.1
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 13:33:51 -0800 (PST)
+In-Reply-To: <20171207190230.ttq5xthgsuuy4swn@pengutronix.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Sven Van Asbroeck <svendev@arcx.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, nsekhar@ti.com, Sakari Ailus <sakari.ailus@linux.intel.com>, David Lechner <david@lechnology.com>, Javier Martinez Canillas <javier@dowhile0.org>, Divagar Mohandass <divagar.mohandass@intel.com>, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 
-pm_runtime_set_suspended() does not lead to call of suspend callback,
-so clk may be left undisabled in hix5hd2_i2c_remove().
+2017-12-07 20:02 GMT+01:00 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutron=
+ix.de>:
+> Hello,
+>
+> On Thu, Dec 07, 2017 at 05:26:50PM +0100, Bartosz Golaszewski wrote:
+>> > +       if (at24->chip.flags & AT24_FLAG_NO_RDROL) {
+>> > +               bits =3D (at24->chip.flags & AT24_FLAG_ADDR16) ? 16 : =
+8;
+>>
+>> There's no need for braces around the ternary operator's condition.
+>
+> Even if not required, I'd keep them for clearity.
+>
 
-By the way, the patch adds error handling for clk_prepare_enable().
+I don't want to start bikeshedding, so I'll take it as it is, but I
+prefer to avoid braces wherever it's not necessary.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/i2c/busses/i2c-hix5hd2.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
-index bb68957d3da5..8a921b5135ad 100644
---- a/drivers/i2c/busses/i2c-hix5hd2.c
-+++ b/drivers/i2c/busses/i2c-hix5hd2.c
-@@ -446,7 +446,11 @@ static int hix5hd2_i2c_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "cannot get clock\n");
- 		return PTR_ERR(priv->clk);
- 	}
--	clk_prepare_enable(priv->clk);
-+	ret = clk_prepare_enable(priv->clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "cannot enable clock\n");
-+		return ret;
-+	}
- 
- 	strlcpy(priv->adap.name, "hix5hd2-i2c", sizeof(priv->adap.name));
- 	priv->dev = &pdev->dev;
-@@ -496,8 +500,9 @@ static int hix5hd2_i2c_remove(struct platform_device *pdev)
- 	struct hix5hd2_i2c_priv *priv = platform_get_drvdata(pdev);
- 
- 	i2c_del_adapter(&priv->adap);
--	pm_runtime_disable(priv->dev);
--	pm_runtime_set_suspended(priv->dev);
-+
-+	/* Make sure priv->clk is disabled */
-+	pm_runtime_force_suspend(priv->dev);
- 
- 	return 0;
- }
--- 
-2.7.4
+Thanks,
+Bartosz
