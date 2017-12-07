@@ -1,32 +1,38 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH RESEND 0/2] eeprom: at24: rename binding docs
-Date: Thu,  7 Dec 2017 11:38:27 +0100
-Message-ID: <20171207103829.3342-1-wsa@the-dreams.de>
+Subject: [PATCH RESEND 2/2] MAINTAINERS: add DT binding docs for AT24
+Date: Thu,  7 Dec 2017 11:38:29 +0100
+Message-ID: <20171207103829.3342-3-wsa@the-dreams.de>
+References: <20171207103829.3342-1-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55548 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:55557 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752357AbdLGKif (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 05:38:35 -0500
+        id S1752609AbdLGKig (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Dec 2017 05:38:36 -0500
+In-Reply-To: <20171207103829.3342-1-wsa@the-dreams.de>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: devicetree@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>
 
-As discussed previously (and pre-acked by Bartosz), here is a small series to
-rename the binding docs for at24 properly and add the new name to MAINTAINERS
-file.
+The driver gained DT support recently, so we should add the binding docs
+in the MAINTAINERS file.
 
-This is just a resend rebase on at24/for-next and with devicetree list properly
-CCed.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-Wolfram Sang (2):
-  dt-bindings: eeprom: rename to at24.txt
-  MAINTAINERS: add DT binding docs for AT24
-
- Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} | 0
- MAINTAINERS                                                       | 1 +
- 2 files changed, 1 insertion(+)
- rename Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} (100%)
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d4fdcb12616c7a..22b52125558c8a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2262,6 +2262,7 @@ AT24 EEPROM DRIVER
+ M:	Bartosz Golaszewski <brgl@bgdev.pl>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
++F:	Documentation/devicetree/bindings/eeprom/at24.txt
+ F:	drivers/misc/eeprom/at24.c
+ F:	include/linux/platform_data/at24.h
+ 
 -- 
 2.11.0
