@@ -1,42 +1,55 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C
- controller
-Date: Thu, 7 Dec 2017 14:23:52 +0100
-Message-ID: <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
-References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
- <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
- <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
- <2d892fec-0496-8a6f-51c9-439b933d9975@st.com>
- <CAFvLkMS9Q801biCBYp+fJeiOo22zr436Td43PH3GG8E6diSL3A@mail.gmail.com>
- <b24d9699-a88d-6a83-ceaf-140ea8b4db97@st.com>
- <CAFvLkMTsgxpjoGRgq7J0NFkT=YsOTYL6smkVhOPcfD=26Hzutg@mail.gmail.com>
- <20171207105229.jxxyfofsgub27nip@ninjato>
+From: Harini Katakam <harinikatakamlinux@gmail.com>
+Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
+Date: Thu, 7 Dec 2017 19:00:40 +0530
+Message-ID: <CAFcVECKVR5fmVipB1cN97COecULcHtJFrediTsriSuwrm_A_Nw@mail.gmail.com>
+References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
+ <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
+ <20171013184646.cy5gmpwrxbacje3m@ninjato> <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
+ <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
+ <CAFcVECK85xW_8oxVQGsHBGyZ4_5bcghpbonqDH-8tLp+Mwq=xQ@mail.gmail.com>
+ <CA+Y=x3kpy0LE-mqjKWS8QWy7qzS2pNdDMHpDqZXRGvdt-UbYcA@mail.gmail.com>
+ <CAFcVECLWwo+OxSGAGYJfMSesjNT51X+Cwk+E_-RQk7gsEXy2YQ@mail.gmail.com> <20171207104915.fdqkj35ga2yxeg3n@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171207105229.jxxyfofsgub27nip@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?Q?Rados=c5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f182.google.com ([209.85.216.182]:43230 "EHLO
+        mail-qt0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753108AbdLGNal (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 08:30:41 -0500
+Received: by mail-qt0-f182.google.com with SMTP id w10so17412343qtb.10
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 05:30:41 -0800 (PST)
+In-Reply-To: <20171207104915.fdqkj35ga2yxeg3n@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andrew Worsley <amworsley@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
+Hi Wolfram and Andrew,
 
-I do believe some investigation has to be done prior merging this patch.
-The impact is genuine and has to be tested thoroughly before granting an ack.
+On Thu, Dec 7, 2017 at 4:19 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> > I attach a patch of the changes to the i2c driver showing my debug in
+>> > this driver.
+>> > As I said I am happy to send more verbose bug output - I have about 36
+>> > odd runs with 9 occurences of the bug.
+>> > Once it happen twice in the one run
+>> >
+>> > I include the crashing line from the runs where the bug occured (I
+>> > added more diagnostics as the runs progressed):
+>>
+>> I'll check with out HW team as well and check your flow to
+>> see if we can reproduce it; will also check if the existing errata
+>> has larger scope.
+>> I'll let you know if we require further assistance with debug
+>> next week.
+>
+> Any news here?
 
-Thus I prefer having a better understanding of the issue.
-I will try to work on this later on.
+Sorry for the delay.
+I've checked the known errata and confirmed that it wont
+affect this use case. And we haven't been able to hit this
+issue on our HW (with eeprom slave devices).
+I will add my colleague looking into this further to debug.
 
-Regards
-
-
-On 12/07/2017 11:52 AM, Wolfram Sang wrote:
-> On Tue, Oct 24, 2017 at 01:45:43PM +0200, Radosław Pietrzyk wrote:
->> I'm afraid that didn't help and the problem still exists even with
->> those patches applied.
-> 
-> So, my reading is: There is an issue which needs to be investigated?
-> Does applying the patch make sense until the issue is fully understood?
-> 
+Regards,
+Harini
