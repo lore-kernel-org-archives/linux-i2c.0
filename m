@@ -1,68 +1,49 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 2/2] i2c: fix piix4 aux port number
-Date: Thu, 7 Dec 2017 15:29:58 +0100
-Message-ID: <20171207152958.61ca5ea0@endymion>
-References: <cover.1511391626.git.andrew.cooks@opengear.com>
-        <5e47610fa40bb07b214d1409ae721a5d762eb888.1511391626.git.andrew.cooks@opengear.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5e47610fa40bb07b214d1409ae721a5d762eb888.1511391626.git.andrew.cooks@opengear.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Cooks <andrew.cooks@opengear.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [GIT PULL REQUEST] at24 fixes for 4.15-rc3
+Date: Thu,  7 Dec 2017 15:32:36 +0100
+Message-ID: <20171207143236.3228-1-brgl@bgdev.pl>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:38553 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753784AbdLGOcm (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:32:42 -0500
+Received: by mail-wr0-f193.google.com with SMTP id o2so7708296wro.5
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 06:32:41 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 
-Hi Andrew,
+Hi Wolfram,
 
-On Thu, 23 Nov 2017 13:09:38 +1000, Andrew Cooks wrote:
-> Let the aux port use port number one (not zero), to match the AMD
-> documentation and enable mapping ACPI _ADR to port number.
-> 
-> This fixes ACPI-based enumeration of I2C slave peripherals that are
-> defined for the aux SMBus port.
-> 
-> Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 9260cfa..f980f0b 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -975,7 +975,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  	if (retval > 0) {
->  		/* Try to add the aux adapter if it exists,
->  		 * piix4_add_adapter will clean up if this fails */
-> -		piix4_add_adapter(dev, retval, false, 0, false,
-> +		piix4_add_adapter(dev, retval, false, 1, false,
->  				  is_sb800 ? piix4_aux_port_name_sb800 : "",
->  				  &piix4_aux_adapter);
->  	}
+the following pull request contains two fixes for 4.15-rc3. Sakari
+fixed a regression introduced during the 4.15 merge window and David
+submitted a fix for an issue that has existed in at24 since introducing
+nvmem.
 
-The port number has consequences. In piix4_adap_remove, port 0 is
-handled differently. We assume that for each controller (main or aux)
-exactly one adapter has port number 0. Your change above breaks this
-assumption.
+----------------------------------------------------------------
 
-Also, if the port numbers are supposed to match the documentation, and
-the aux controller is port 1, then I wonder how are the muxed ports of
-the main controller numbered? The driver numbers them from 1 to 3, but
-I guess the documentation numbers them from 2 to 4 to avoid colliding
-with the aux controller? I have vague memories of discussion this
-before... If it is important that aux port number matches the
-documentation then I guess the same holds for the muxed ports on the
-main controller.
+The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
 
-If we number muxed ports from 2 to 4 then the test in piix4_adap_remove
-could be simply changed to check for adapdata->port <= 1.
+  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
 
-Please note that I just sent a fix for this specific function, so any
-patch touching the same area should go on top of it. I'll bounce it to
-you.
+are available in the Git repository at:
 
--- 
-Jean Delvare
-SUSE L3 Support
+  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-4.15-rc3-fixes-for-wolfram
+
+for you to fetch changes up to 7f6d2ecd3d7acaf205ea7b3e96f9ffc55b92298b:
+
+  eeprom: at24: change nvmem stride to 1 (2017-12-06 11:22:04 +0100)
+
+----------------------------------------------------------------
+AT24 fixes for 4.15-rc3
+
+----------------------------------------------------------------
+David Lechner (1):
+      eeprom: at24: change nvmem stride to 1
+
+Sakari Ailus (1):
+      eeprom: at24: fix I2C device selection for runtime PM
+
+ drivers/misc/eeprom/at24.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
