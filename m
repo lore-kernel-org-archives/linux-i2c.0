@@ -1,25 +1,31 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v5 2/2] dt-bindings: add eeprom "no-read-rollover" property
-Date: Thu, 7 Dec 2017 09:40:34 -0600
-Message-ID: <CAL_JsqLpTt_dOW3caVH6JYdV_OCirB-O+nzXqf-+OZb630PX_g@mail.gmail.com>
-References: <1512657378-5221-1-git-send-email-svendev@arcx.com> <1512657378-5221-3-git-send-email-svendev@arcx.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/2] dt-bindings: eeprom: rename to at24.txt
+Date: Thu, 7 Dec 2017 09:41:18 -0600
+Message-ID: <CAL_JsqL_Qd5XYX0OthiqGYaQm=h0YCjV3=zqocQjzNYEoQn6PA@mail.gmail.com>
+References: <20171207103829.3342-1-wsa@the-dreams.de> <20171207103829.3342-2-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1512657378-5221-3-git-send-email-svendev@arcx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sven Van Asbroeck <svendev@arcx.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Bartosz Golaszewski <brgl@bgdev.pl>, Sekhar Nori <nsekhar@ti.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, David Lechner <david@lechnology.com>, Javier Martinez Canillas <javier@dowhile0.org>, Divagar Mohandass <divagar.mohandass@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171207103829.3342-2-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 7, 2017 at 8:36 AM, Sven Van Asbroeck <svendev@arcx.com> wrote:
-> Adds an optional property for at24 eeproms.
-> This parameterless property indicates that the multi-address eeprom
-> does not automatically roll over reads to the next slave address.
+On Thu, Dec 7, 2017 at 4:38 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> This binding documentation is for the at24 driver, so the filename
+> should reflect it. This avoids confusion because we also have an
+> "eeprom" driver in Linux but it doesn't support DT even.
 >
-> Signed-off-by: Sven Van Asbroeck <svendev@arcx.com>
+> Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 > ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt | 5 +++++
->  1 file changed, 5 insertions(+)
+>  Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} | 0
+>  1 file changed, 0 insertions(+), 0 deletions(-)
+>  rename Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} (100%)
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
