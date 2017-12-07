@@ -1,128 +1,91 @@
-From: Sven Van Asbroeck <svendev@arcx.com>
-Subject: [PATCH v6 1/2] at24: support eeproms that do not auto-rollover reads.
-Date: Thu, 7 Dec 2017 14:26:18 -0500
-Message-ID: <1512674779-10349-2-git-send-email-svendev@arcx.com>
-References: <1512674779-10349-1-git-send-email-svendev@arcx.com>
+From: Alban Browaeys <alban.browaeys@gmail.com>
+Subject: Re: [PATCH] i2c: i801: Fix SMBus ENXIO on resume from suspend.
+Date: Thu, 07 Dec 2017 22:11:21 +0100
+Message-ID: <1512681081.25350.16.camel@gmail.com>
+References: <20171115170156.21532-1-alban.browaeys@gmail.com>
+         <1510777525.21208.4.camel@gmail.com> <20171120101514.62239b4f@endymion>
+         <1511187527.6389.46.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.arcx.com ([184.94.50.18]:55211 "EHLO WEBMAIL.arcx.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750931AbdLGT00 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 14:26:26 -0500
-In-Reply-To: <1512674779-10349-1-git-send-email-svendev@arcx.com>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:33599 "EHLO
+        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752733AbdLGVLY (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 16:11:24 -0500
+Received: by mail-wm0-f44.google.com with SMTP id g130so2209091wme.0
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 13:11:23 -0800 (PST)
+In-Reply-To: <1511187527.6389.46.camel@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: svendev@arcx.com, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, david@lechnology.com, javier@dowhile0.org, divagar.mohandass@intel.com
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, Volker =?ISO-8859-1?Q?R=FCmelin?= <vr_qemu@t-online.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-Some multi-address eeproms in the at24 family may not automatically
-roll-over reads to the next slave address. On those eeproms, reads
-that straddle slave boundaries will not work correctly.
+Thanks for Volker's patch.
+I applied it and it does not help on this Intel Haswell box (Lenovo
+Thinkpad Yoga S1). My initial patch did not helped either.
 
-Solution:
-Mark such eeproms with a flag that prevents reads straddling
-slave boundaries. Add the AT24_FLAG_NO_RDROL flag to the eeprom
-entry in the device_id table, or add 'no-read-rollover' to the
-eeprom devicetree entry.
+I was confused as the bug reproduce easely only if the i2c-i801,
+rmi_smbus and psmouse are loaded once then resume from suspend.
+Afterwards (even unload module) I sometimes get around the bug.
 
-Note that I have not personally enountered an at24 chip that
-does not support read rollovers. They may or may not exist.
-However, my hardware requires this functionality because of
-a quirk.
+Could ACPI/EC OpRegion accesses happen without the kernel handler
+triggering (while suspending and / or resuming) ?
 
-It's up to the Linux community to decide if this patch is useful/
-general enough to warrant merging.
+Thanks
+Alban
 
-Signed-off-by: Sven Van Asbroeck <svendev@arcx.com>
----
- drivers/misc/eeprom/at24.c         | 39 ++++++++++++++++++++++++++------------
- include/linux/platform_data/at24.h |  2 ++
- 2 files changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 625b001..06ffa11 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -251,15 +251,6 @@ struct at24_data {
-  * Slave address and byte offset derive from the offset. Always
-  * set the byte address; on a multi-master board, another master
-  * may have changed the chip's "current" address pointer.
-- *
-- * REVISIT some multi-address chips don't rollover page reads to
-- * the next slave address, so we may need to truncate the count.
-- * Those chips might need another quirk flag.
-- *
-- * If the real hardware used four adjacent 24c02 chips and that
-- * were misconfigured as one 24c08, that would be a similar effect:
-- * one "eeprom" file not four, but larger reads would fail when
-- * they crossed certain pages.
-  */
- static struct at24_client *at24_translate_offset(struct at24_data *at24,
- 						 unsigned int *offset)
-@@ -277,6 +268,30 @@ static struct at24_client *at24_translate_offset(struct at24_data *at24,
- 	return &at24->client[i];
- }
- 
-+static size_t at24_adjust_read_count(struct at24_data *at24,
-+				      unsigned int offset, size_t count)
-+{
-+	unsigned int bits;
-+	size_t remainder;
-+
-+	/*
-+	 * In case of multi-address chips that don't rollover reads to
-+	 * the next slave address: truncate the count to the slave boundary,
-+	 * so that the read never straddles slaves.
-+	 */
-+	if (at24->chip.flags & AT24_FLAG_NO_RDROL) {
-+		bits = (at24->chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
-+		remainder = BIT(bits) - offset;
-+		if (count > remainder)
-+			count = remainder;
-+	}
-+
-+	if (count > io_limit)
-+		count = io_limit;
-+
-+	return count;
-+}
-+
- static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
- 				unsigned int offset, size_t count)
- {
-@@ -289,9 +304,7 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
- 	at24_client = at24_translate_offset(at24, &offset);
- 	regmap = at24_client->regmap;
- 	client = at24_client->client;
--
--	if (count > io_limit)
--		count = io_limit;
-+	count = at24_adjust_read_count(at24, offset, count);
- 
- 	/* adjust offset for mac and serial read ops */
- 	offset += at24->offset_adj;
-@@ -457,6 +470,8 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
- 
- 	if (device_property_present(dev, "read-only"))
- 		chip->flags |= AT24_FLAG_READONLY;
-+	if (device_property_present(dev, "no-read-rollover"))
-+		chip->flags |= AT24_FLAG_NO_RDROL;
- 
- 	err = device_property_read_u32(dev, "size", &val);
- 	if (!err)
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index 271a4e2..841bb28 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -50,6 +50,8 @@ struct at24_platform_data {
- #define AT24_FLAG_TAKE8ADDR	BIT(4)	/* take always 8 addresses (24c00) */
- #define AT24_FLAG_SERIAL	BIT(3)	/* factory-programmed serial number */
- #define AT24_FLAG_MAC		BIT(2)	/* factory-programmed mac address */
-+#define AT24_FLAG_NO_RDROL  BIT(1)	/* does not auto-rollover reads to */
-+					/* the next slave address */
- 
- 	void		(*setup)(struct nvmem_device *nvmem, void *context);
- 	void		*context;
--- 
-1.9.1
+
+Le lundi 20 novembre 2017 à 15:18 +0100, Alban Browaeys a écrit :
+> I am on one of those Intel Haswell with the ACPI OpRegion conflict,
+> the
+> acpi handler was added to cope with.
+> 
+> Could it be the embedded controller code mess with the smbus ?
+> When I print the OpRegion fields via acpi-call I get different values
+> after suspend/resume from S3 than at runtime at various points.
+> 
+> I already checked that the acpi SBUS methods are not called.
+> To do so I define a global name set to zero and set it to 1 in
+> SBUS.STRT (called by all SBUS method to verify the ready state).
+> 
+> Could it be the EC access the region directly ?
+> The acpi handler from i2c-i801 does not trigger. Is it in effect when
+> suspending or resuming ?
+> 
+> The reproducer seems hard to get right, I am still investigating.
+> It involves resume from suspend (S3) and a yet to define state.
+> Most of the time after an acpi reset (magic sysrq 'b').
+> And / or early load of i2x-i801, rmi_smbus and psmouse.
+> 
+> To call the acpi methods I echo to /proc/acpi/call from the acpi-call
+> module. 
+> 
+> I tried https://github.com/pali/i2c-acpi-sbus .
+> It fails early as acpi sbus methods check the inuse host status flag.
+> It is always on thus they bail out. i2c-i801 does not test inuse
+> (0x40).
+> 
+> 
+> Best regards
+> Alban
+> 
+> 
+> Le lundi 20 novembre 2017 à 10:15 +0100, Jean Delvare a écrit :
+> > On Wed, 15 Nov 2017 21:25:25 +0100, Alban Browaeys wrote:
+> > > This fix is a partial one: it only fixes the issue once
+> > > we unload then reload i2c-i801 .
+> > > This as when we load a second time  orig_hstcfg is set to the
+> > > value
+> > > the
+> > > first module load leftover.
+> > > Thus I will investigate the initial orig_hstcfg at boot to
+> > > further
+> > > the
+> > > fix.
+> > > I bet this only a few missing bits like HST_EN.
+> > 
+> > Volker, I think you had a fix for that one? But I can't find it in
+> > the
+> > list archive :-(
