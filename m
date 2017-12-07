@@ -1,55 +1,54 @@
-From: Harini Katakam <harinikatakamlinux@gmail.com>
-Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
-Date: Thu, 7 Dec 2017 19:00:40 +0530
-Message-ID: <CAFcVECKVR5fmVipB1cN97COecULcHtJFrediTsriSuwrm_A_Nw@mail.gmail.com>
-References: <20170916030252.10680-1-amworsley@gmail.com> <20171005120125.nnhomwg2e2twbaqm@ninjato>
- <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
- <20171013184646.cy5gmpwrxbacje3m@ninjato> <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
- <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
- <CAFcVECK85xW_8oxVQGsHBGyZ4_5bcghpbonqDH-8tLp+Mwq=xQ@mail.gmail.com>
- <CA+Y=x3kpy0LE-mqjKWS8QWy7qzS2pNdDMHpDqZXRGvdt-UbYcA@mail.gmail.com>
- <CAFcVECLWwo+OxSGAGYJfMSesjNT51X+Cwk+E_-RQk7gsEXy2YQ@mail.gmail.com> <20171207104915.fdqkj35ga2yxeg3n@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
+Date: Thu, 7 Dec 2017 14:31:15 +0100
+Message-ID: <20171207133114.yma62uhgk6apny3c@ninjato>
+References: <20171130084357.23327-1-benjamin.gaignard@st.com>
+ <20171207095437.bm4uiy7o2amzbtv3@ninjato>
+ <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-qt0-f182.google.com ([209.85.216.182]:43230 "EHLO
-        mail-qt0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753108AbdLGNal (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 08:30:41 -0500
-Received: by mail-qt0-f182.google.com with SMTP id w10so17412343qtb.10
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 05:30:41 -0800 (PST)
-In-Reply-To: <20171207104915.fdqkj35ga2yxeg3n@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ath6sjylaoxqgg2n"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andrew Worsley <amworsley@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Hi Wolfram and Andrew,
 
-On Thu, Dec 7, 2017 at 4:19 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> > I attach a patch of the changes to the i2c driver showing my debug in
->> > this driver.
->> > As I said I am happy to send more verbose bug output - I have about 36
->> > odd runs with 9 occurences of the bug.
->> > Once it happen twice in the one run
->> >
->> > I include the crashing line from the runs where the bug occured (I
->> > added more diagnostics as the runs progressed):
->>
->> I'll check with out HW team as well and check your flow to
->> see if we can reproduce it; will also check if the existing errata
->> has larger scope.
->> I'll let you know if we require further assistance with debug
->> next week.
->
-> Any news here?
+--ath6sjylaoxqgg2n
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry for the delay.
-I've checked the known errata and confirmed that it wont
-affect this use case. And we haven't been able to hit this
-issue on our HW (with eeprom slave devices).
-I will add my colleague looking into this further to debug.
 
-Regards,
-Harini
+> I take over ownership of this driver from now on.
+>=20
+> Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+
+Ok. Thanks! Can you create a MAINTAINERS entry so you will get
+automatically CCed on patches touching your driver?
+
+
+--ath6sjylaoxqgg2n
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlopQqIACgkQFA3kzBSg
+KbZLJg//Yxg2k2XGiUNLZyyKtGJKeOiXkUbeHdelPa6QgEQBxxjr2achQzNqTgHX
+S6Ss/m22pPa8JlEqwAq1/HdcKe1t7I2yv2epsS96RQ9KKV2pJlGs6VYCik9Qdih5
+Hv71FxBTGNPXbZZGXEU6cKt2dvSoVBqa5hXUOAFXeICF/F5groBMzBQ4kuvSvvFZ
+XLk2KV3mkDUwfa/0uqbV0LHsKn8xEYxpR9xcppxs3UO5DIXZw3eurhhy9GHv0mb4
+wcfNfL80nkBuUpeBD9eyxlIIIwCngBn2tIurtY4YqlFIQOiN8FUTSiGPFGyFZZvD
+wSqdTvLVzOs+rpSMjEvh4t+dXWPK6GW2j62sRmgKQxRTfw9wUxIUeEAfZLUu6OSF
+jYe4Soof8uNt2bLmSPG0KKG/RdFkbVCwCiF/M1W8OwnFD3VVJFbkFtiKBw5sivrz
+9ZyLK3T4oqYk+KXZoMx9vQXsWRBaDL2T2888DrJgDNdmF0TxiYeVRfodnHxWDAmr
+61vH3u89lLia/3xNk68rID7SAjHEu5bmUP+T43RCJE9kvoTgDWY9byDUm5IrdbCH
+AB4o+NT+BNUm9l7lN6t66vgsRDyU0NCQU2xFjXZi3lC0ZHEF8WW4NnYJ37rcbk3h
+ILG9wbs/naNfKSA8EP5lU3qVKnAg1vlKSttWwHggBq0ib4yn8mI=
+=SrHs
+-----END PGP SIGNATURE-----
+
+--ath6sjylaoxqgg2n--
