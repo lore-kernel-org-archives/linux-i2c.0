@@ -1,38 +1,34 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH RESEND 2/2] MAINTAINERS: add DT binding docs for AT24
-Date: Thu,  7 Dec 2017 11:38:29 +0100
-Message-ID: <20171207103829.3342-3-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH RESEND 1/2] dt-bindings: eeprom: rename to at24.txt
+Date: Thu,  7 Dec 2017 11:38:28 +0100
+Message-ID: <20171207103829.3342-2-wsa@the-dreams.de>
 References: <20171207103829.3342-1-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55557 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752609AbdLGKig (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 05:38:36 -0500
-In-Reply-To: <20171207103829.3342-1-wsa@the-dreams.de>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171207103829.3342-1-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>
 
-The driver gained DT support recently, so we should add the binding docs
-in the MAINTAINERS file.
+This binding documentation is for the at24 driver, so the filename
+should reflect it. This avoids confusion because we also have an
+"eeprom" driver in Linux but it doesn't support DT even.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename Documentation/devicetree/bindings/eeprom/{eeprom.txt => at24.txt} (100%)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d4fdcb12616c7a..22b52125558c8a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2262,6 +2262,7 @@ AT24 EEPROM DRIVER
- M:	Bartosz Golaszewski <brgl@bgdev.pl>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
-+F:	Documentation/devicetree/bindings/eeprom/at24.txt
- F:	drivers/misc/eeprom/at24.c
- F:	include/linux/platform_data/at24.h
- 
+diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
+similarity index 100%
+rename from Documentation/devicetree/bindings/eeprom/eeprom.txt
+rename to Documentation/devicetree/bindings/eeprom/at24.txt
 -- 
 2.11.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
