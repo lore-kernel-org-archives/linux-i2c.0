@@ -1,78 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 0/4] i2c: pca-platform: additional improvements
-Date: Thu, 7 Dec 2017 11:42:05 +0100
-Message-ID: <20171207104205.h5ejivdmtharmdln@ninjato>
-References: <20170705101358.17458-1-chris.packham@alliedtelesis.co.nz>
- <20171029172918.2xtz2srh2meq45io@ninjato>
+Subject: Re: [PATCH] Fix Bug for cadence i2c interrupt overrunning buffer
+Date: Thu, 7 Dec 2017 11:49:15 +0100
+Message-ID: <20171207104915.fdqkj35ga2yxeg3n@ninjato>
+References: <20170916030252.10680-1-amworsley@gmail.com>
+ <20171005120125.nnhomwg2e2twbaqm@ninjato>
+ <CA+Y=x3=Ab-tZt-32Ve1qTB=REuQAZnGbX72ZeNpyX3EX7cR0pg@mail.gmail.com>
+ <20171013184646.cy5gmpwrxbacje3m@ninjato>
+ <CAFcVECJTUu7Kwd-2hx=4=iGwKFnpTAebR3ffjJHQLHKDZ3T4aw@mail.gmail.com>
+ <CA+Y=x3nnQ0hQkBaGQ4+MDZsVgpdFCYqaMae9UrJ2vOOuAD9FdQ@mail.gmail.com>
+ <CAFcVECK85xW_8oxVQGsHBGyZ4_5bcghpbonqDH-8tLp+Mwq=xQ@mail.gmail.com>
+ <CA+Y=x3kpy0LE-mqjKWS8QWy7qzS2pNdDMHpDqZXRGvdt-UbYcA@mail.gmail.com>
+ <CAFcVECLWwo+OxSGAGYJfMSesjNT51X+Cwk+E_-RQk7gsEXy2YQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="thrxabcroshaxx7e"
+        protocol="application/pgp-signature"; boundary="4twrd6hgxtjb2646"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55574 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:55615 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750913AbdLGKmH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 05:42:07 -0500
+        id S1750913AbdLGKtR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Dec 2017 05:49:17 -0500
 Content-Disposition: inline
-In-Reply-To: <20171029172918.2xtz2srh2meq45io@ninjato>
+In-Reply-To: <CAFcVECLWwo+OxSGAGYJfMSesjNT51X+Cwk+E_-RQk7gsEXy2YQ@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>, Rich Felker <dalias@libc.org>
-Cc: ysato@users.sourceforge.jp, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Harini Katakam <harinikatakamlinux@gmail.com>
+Cc: Andrew Worsley <amworsley@gmail.com>, Michal Simek <michal.simek@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
 
---thrxabcroshaxx7e
+--4twrd6hgxtjb2646
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 29, 2017 at 06:29:18PM +0100, Wolfram Sang wrote:
-> On Wed, Jul 05, 2017 at 10:13:54PM +1200, Chris Packham wrote:
-> > This series addresses some of the points identified by Andy. The series=
- is
-> > based on top of i2c/for-next. 2 of the patches from v1 have already been
-> > applied so I've dropped them from this version.
-> >=20
-> > I have compile tested patch 1/1 but I don't have access to sh hardware
-> > to actually test the changes on.
-> >=20
-> > Chris Packham (4):
-> >   sh: sh7785lcr: add GPIO lookup table for i2c controller reset
-> >   i2c: pca-platform: unconditionally use devm_gpiod_get_optional
-> >   i2c: pca-platform: use device_property_read_u32
-> >   i2c: pca-platform: drop gpio from platform data
-> >=20
-> >  arch/blackfin/mach-bf561/boards/acvilon.c |  1 -
-> >  arch/sh/boards/board-sh7785lcr.c          | 11 +++++++++-
-> >  drivers/i2c/busses/i2c-pca-platform.c     | 34 +++++++++--------------=
---------
-> >  include/linux/i2c-pca-platform.h          |  3 ---
-> >  4 files changed, 20 insertions(+), 29 deletions(-)
+
+> > I attach a patch of the changes to the i2c driver showing my debug in
+> > this driver.
+> > As I said I am happy to send more verbose bug output - I have about 36
+> > odd runs with 9 occurences of the bug.
+> > Once it happen twice in the one run
+> >
+> > I include the crashing line from the runs where the bug occured (I
+> > added more diagnostics as the runs progressed):
 >=20
-> Series looks good to me, too. I'd need ACKs from the SH maintainers,
-> though. Technically, from Blackfin maintainers as well. But I haven't
-> heard from them in months, so I could go without that.
+> I'll check with out HW team as well and check your flow to
+> see if we can reproduce it; will also check if the existing errata
+> has larger scope.
+> I'll let you know if we require further assistance with debug
+> next week.
 
-Adding Rich Felker to CC...
+Any news here?
 
 
---thrxabcroshaxx7e
+--4twrd6hgxtjb2646
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlopGvkACgkQFA3kzBSg
-KbbVxRAAmNqOVKWSEiAx/PJ5TkFxRgrdBiEcSQLBpqitRpFtWgDJR7EJhUbwt4ux
-5UqzjTS/2QJtmO9GlHONO3ZbKZc/vT0gRJakCxsX8y3TsrA2Qg157muiZPc7JCuU
-q5CzqwU68l+UDgiYJcT3QkGa61T6NOZJ4bF6QOtvdgTOjikGN1PNyQcspnvE0sUV
-D4ash+ufb6PJ/Ensv2gSI9gQrqgizYz6hGTkr/Czh9fsIsJNymX7NQg2KkB5xeNi
-Fn0Z22t+WR4UpV3CiWz5vCpZCwzhkcnP4+b9afXkv/a5D5GZfqAMe4j8ZudVRmG1
-P/+dvnUeA7SVWd5pUHJIH/alsxMdtvCpq+AznrXZecvvP+IKtkYvz2wzsGcSSfMO
-JOkxKzO6WXIl5Z8SCkt8jyQR0NpKpwYvEqt7rx/jUj9KBtpzEKCWYXTHuFKZeZYq
-kLva0yraQdEF5KYGSUV92tuq27po62k0o4BRWI4x/NK4acXTo8XMYF8SvBmVh1US
-EP8ld4xGo+p9iP2BH6GKw24bEZPNT5aM5/alnQ8s1GLXzoVbcJpfoBdS2R8bZ1pI
-78Ghv+Usmm+bV4up+uIaBma6xHyxza3nv2MzUBCgbXkgjupEDgYxM9vXEqZVBFUa
-CNfAKoxm2l0cYiOBflV7oKEN2HmIy8a4eMd/9YX++rZcuqOwK/Q=
-=TFjj
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlopHKsACgkQFA3kzBSg
+KbZTUhAAmjygswHqDzxDsiVMw/C6gNbIaSK0xYkbgT1/pN5unpCEZH9eqMqRaZQB
+S1k6Z1ydTWDtQgTPItRWYSP5i3yFWXzx02FsVVHPPlGW/haFxNUxtSPRMgtS2hSi
+VUqBTrv0/CLBKhecvyYq7/fpyj6FBuhfZHzp/OylM9dVGIx9gBaFBOzFZcW2KMTd
+HJPrTquz1d7hbUK5kuirRUPp6fjpNh0O5Wv6Hh8zG5xEwyhk/RTeKOGP7HjK+0kJ
+PR71MQOfDTWVemJKHGX/cCSXjrM2k5dKWC/4iYEbFnxv3YirlMJFCQtmfKl2pKdo
+2GQjh8roqQpuMcGY7AXsRC2FwIX7Sb5Lv67oMwWbGZtwVuketb7QYkjcsPMNsc/f
+eLu09as6dFv9cVZGac1h19qFDeAFpJ2poDJhpkON+gOTuU/bFyUM/uQNH25d3IUS
+mDKZOEtfVJxlpl25c/ihHWgEOEUJcZEnq/IP8x08U6gf0Uvyp6NhONI7seYl/Rs/
+ixGUqPVTvn+Z0B0zLDHQoCZa5ulCpSfJ2fa07w3PSLT3UT2D1g4ctLhFLj5zsvFI
+Gnpi93jp2pR1ld05pv5ncV4kxAdz9P+kUxf72TOHkIYpuxGGXg/Od3WoT29j1+5j
+9zypV8RTLwm2VhPyLk8OvDivAoEoLTLVsGjzlVGan0NJk4QPnZQ=
+=EDor
 -----END PGP SIGNATURE-----
 
---thrxabcroshaxx7e--
+--4twrd6hgxtjb2646--
