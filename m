@@ -1,53 +1,60 @@
 From: Arseny Solokha <asolokha@kb.kras.ru>
-Subject: [PATCH RESEND 0/4] i2c: mpc: Clean up clock selection
-Date: Thu,  7 Dec 2017 17:19:59 +0700
-Message-ID: <20171207102003.23496-1-asolokha@kb.kras.ru>
+Subject: [PATCH RESEND 1/4] i2c: mpc: get MPC8xxx I2C clock prescaler before using it in calculations
+Date: Thu,  7 Dec 2017 17:20:00 +0700
+Message-ID: <20171207102003.23496-2-asolokha@kb.kras.ru>
 References: <20171110075015.23906-1-asolokha@kb.kras.ru>
+ <20171207102003.23496-1-asolokha@kb.kras.ru>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171110075015.23906-1-asolokha@kb.kras.ru>
+In-Reply-To: <20171207102003.23496-1-asolokha@kb.kras.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
 List-Id: linux-i2c@vger.kernel.org
 
-This series cleans up I2C clock selection for Freescale/NXP MPC SoCs during
-the controller initialization for cases when clock settings are not to be
-preserved from the bootloader.
+Obtaining the actual I2C clock prescaler value in mpc_i2c_setup_8xxx() only
+happens when the clock parameter is set to something other than
+MPC_I2C_CLOCK_LEGACY. When the clock parameter is exactly
+MPC_I2C_CLOCK_LEGACY, the prescaler parameter is used in arithmetic
+division as provided by the caller, resulting in a division by zero
+for the majority of processors supported by the module.
 
-Patch 1/4 fixes division by zero which happens during controller
-initialization when (1) clock frequency is not specified in the Device
-Tree, (2) preservation of clock settings from the bootloader is not
-requested, and (3) the clock prescaler (which may actually depend
-on the POR configuration) is not explicitly specified. It simply moves
-obtaining the prescaler value before the clock computation.
+Avoid division by zero by obtaining the actual I2C clock prescaler
+in mpc_i2c_setup_8xxx() unconditionally regardless of the passed clock
+value.
 
-Patch 2/4 unifies obtaining the prescaler value for MPC8544 with other
-SoCs. It moves the relevant code to the helper function introduced
-in commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
-and also adds handling of MPC8533 is similar to MPC8544 in this regard.
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+---
+ drivers/i2c/busses/i2c-mpc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Patch 3/4 fixes checking the relevant bit in a controller's register used
-for selecting the prescaler value for MPC8533 and MPC8544.
-
-Patch 4/4 removes the facility for setting the clock prescaler value
-at compile time. This facility is not used in the majority of cases. Getting
-the prescaler value at run time currently covers more SoCs. Hardcoding it
-is also wrong for some SoCs as it can be configured on board during POR.
-
-This series is an exact copy of [1] which has received no feedback so far.
-
-[1] https://marc.info/?l=linux-i2c&m=151030076114573&w=2
-
-Arseny Solokha (4):
-  i2c: mpc: get MPC8xxx I2C clock prescaler before using it in
-    calculations
-  i2c: mpc: unify obtaining the MPC8533/44 I2C clock prescaler w/
-    MPC8xxx
-  i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
-  i2c: mpc: always determine I2C clock prescaler at runtime
-
- drivers/i2c/busses/i2c-mpc.c | 72 ++++++++++++++++++--------------------------
- 1 file changed, 30 insertions(+), 42 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 950a9d74f54d..6ad87555f71e 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -382,18 +382,18 @@ static int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
+ 	u32 divider;
+ 	int i;
+ 
+-	if (clock == MPC_I2C_CLOCK_LEGACY) {
+-		/* see below - default fdr = 0x1031 -> div = 16 * 3072 */
+-		*real_clk = fsl_get_sys_freq() / prescaler / (16 * 3072);
+-		return -EINVAL;
+-	}
+-
+ 	/* Determine proper divider value */
+ 	if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
+ 		prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+ 	if (!prescaler)
+ 		prescaler = mpc_i2c_get_prescaler_8xxx();
+ 
++	if (clock == MPC_I2C_CLOCK_LEGACY) {
++		/* see below - default fdr = 0x1031 -> div = 16 * 3072 */
++		*real_clk = fsl_get_sys_freq() / prescaler / (16 * 3072);
++		return -EINVAL;
++	}
++
+ 	divider = fsl_get_sys_freq() / clock / prescaler;
+ 
+ 	pr_debug("I2C: src_clock=%d clock=%d divider=%d\n",
 -- 
 2.15.1
