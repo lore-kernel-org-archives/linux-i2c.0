@@ -1,40 +1,27 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
-Date: Thu, 7 Dec 2017 14:42:00 +0100
-Message-ID: <2bf29a80-e280-9596-78c8-36ee1937bd0d@st.com>
-References: <20171130084357.23327-1-benjamin.gaignard@st.com>
- <20171207095437.bm4uiy7o2amzbtv3@ninjato>
- <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
- <20171207133114.yma62uhgk6apny3c@ninjato>
+From: Sven Van Asbroeck <thesven73@gmail.com>
+Subject: Re: [PATCH v4 2/2] dt-bindings: add eeprom "at24,no-read-rollover" property
+Date: Thu, 7 Dec 2017 09:06:08 -0500
+Message-ID: <CAGngYiXLeVVSn-Fn9WGXd4zNmQ0SBZcuSAdrv-d2K=Wp0zHN0A@mail.gmail.com>
+References: <1512487422-6284-1-git-send-email-svendev@arcx.com>
+ <1512487422-6284-3-git-send-email-svendev@arcx.com> <20171206220404.oyqg6ckhdx7jtbxw@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20171207133114.yma62uhgk6apny3c@ninjato>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, linux-arm-kernel@lists.infradead.org, alexandre.torgue@st.com
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f50.google.com ([209.85.214.50]:37479 "EHLO
+        mail-it0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753991AbdLGOGJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:06:09 -0500
+In-Reply-To: <20171206220404.oyqg6ckhdx7jtbxw@rob-hp-laptop>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Sven Van Asbroeck <svendev@arcx.com>, mark.rutland@arm.com, wsa@the-dreams.de, Bartosz Golaszewski <brgl@bgdev.pl>, nsekhar@ti.com, Sakari Ailus <sakari.ailus@linux.intel.com>, David Lechner <david@lechnology.com>, javier@dowhile0.org, divagar.mohandass@intel.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>
 
-Ok. will do
+> at24 is not a vendor prefix. Either this is atmel specific and you want
+> atmel,no-read-rollover or it is for all vendors at24 compatible eeproms
+> and you want at24-no-read-rollover. Or just drop the at24 if this
+> binding is in fact for just at24 eeproms as none of the other properties
+> has at24 in them.
 
-~PYM~
-
-On 12/07/2017 02:31 PM, Wolfram Sang wrote:
-> 
->> I take over ownership of this driver from now on.
->>
->> Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-> 
-> Ok. Thanks! Can you create a MAINTAINERS entry so you will get
-> automatically CCed on patches touching your driver?
-> 
+Bartosz, shall I rename
+at24,no-read-rollover -> no-read-rollover ?
