@@ -1,57 +1,46 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 2/2] dt-bindings: add eeprom "at24,no-read-rollover"
- property
-Date: Wed, 6 Dec 2017 16:04:04 -0600
-Message-ID: <20171206220404.oyqg6ckhdx7jtbxw@rob-hp-laptop>
-References: <1512487422-6284-1-git-send-email-svendev@arcx.com>
- <1512487422-6284-3-git-send-email-svendev@arcx.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH 0/3] i2c: exynos5: bus recovery implementation
+Date: Thu, 07 Dec 2017 16:36:07 +0900
+Message-ID: <20171207073607.GB1355@gangnam.samsung>
+References: <CGME20171130143017eucas1p172b94622814eff172a27176c82f6e6fe@eucas1p1.samsung.com>
+        <20171130143007.30258-1-a.hajda@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:35053 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751598AbdLFWEG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 6 Dec 2017 17:04:06 -0500
-Content-Disposition: inline
-In-Reply-To: <1512487422-6284-3-git-send-email-svendev@arcx.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-disposition: inline
+In-reply-to: <20171130143007.30258-1-a.hajda@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Sven Van Asbroeck <svendev@arcx.com>
-Cc: mark.rutland@arm.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, david@lechnology.com, javier@dowhile0.org, divagar.mohandass@intel.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Tue, Dec 05, 2017 at 10:23:42AM -0500, Sven Van Asbroeck wrote:
-> Adds an optional property for at24 eeproms.
-> This parameterless property indicates that the multi-address eeprom
-> does not automatically roll over reads to the next slave address.
-> 
-> Signed-off-by: Sven Van Asbroeck <svendev@arcx.com>
-> ---
->  Documentation/devicetree/bindings/eeprom/eeprom.txt | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> index 27f2bc1..5bfc0ac 100644
-> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-> @@ -38,6 +38,11 @@ Optional properties:
->  
->    - size: total eeprom size in bytes
->  
-> +  - at24,no-read-rollover:
+Hi Andrzej,
 
-at24 is not a vendor prefix. Either this is atmel specific and you want 
-atmel,no-read-rollover or it is for all vendors at24 compatible eeproms 
-and you want at24-no-read-rollover. Or just drop the at24 if this 
-binding is in fact for just at24 eeproms as none of the other properties 
-has at24 in them.
-
-> +			This parameterless property indicates that the multi-address
-> +			eeprom does not automatically roll over reads to the next
-> +			slave address. Please consult the manual of your device.
-> +
->  Example:
->  
->  eeprom@52 {
-> -- 
-> 1.9.1
+> This patchset adds bus recovery functionality to Exynos HSI2C, it is used in
+> case of transmission timeouts.
+> Internal tests shows that it significantly improves I2C transmissions.
 > 
+> Andi, could you take a look at it/test, feedback welcome.
+> 
+> Later, I will post also patches to MHL chip which uses this functionality.
+> MHL chip has known bug of being in incorrect state after hard reset,
+> I2C bus recovery cures it.
+> 
+> Regards
+> Andrzej
+> 
+> 
+> Andrzej Hajda (3):
+>   i2c: exynos5: change internal transmission timeout to 100ms
+>   i2c: exynos5: implement bus recovery functionality
+>   i2c: exynos5: do not check TRANS_STATUS in case of Exynos7 variant
+
+Thanks for the patches, they look good and I tested them.
+
+You can add for all three
+
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Tested-by: Andi Shyti <andi.shyti@samsung.com>
+
+Thanks,
+Andi
