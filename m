@@ -1,49 +1,42 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH] i2c: piix4: Fix port number check on release
-Date: Thu, 7 Dec 2017 12:25:45 +0100
-Message-ID: <20171207122545.1b8e17c6@endymion>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
+Date: Thu, 7 Dec 2017 14:17:20 +0100
+Message-ID: <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
+References: <20171130084357.23327-1-benjamin.gaignard@st.com>
+ <20171207095437.bm4uiy7o2amzbtv3@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52365 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752491AbdLGLZs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 06:25:48 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20171207095437.bm4uiy7o2amzbtv3@ninjato>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, linux-arm-kernel@lists.infradead.org, alexandre.torgue@st.com
 List-Id: linux-i2c@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>
 
-The port number shift is still hard-coded to 1 while it now depends
-on the hardware.
+Wolfram,
 
-Thankfully 0 is always 0 no matter how you shift it, so this was a
-bug without consequences.
+I take over ownership of this driver from now on.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Fixes: 0fe16195f891 ("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>
----
-Sorry for missing this while reviewing the original patch.
+Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
- drivers/i2c/busses/i2c-piix4.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-4.14.orig/drivers/i2c/busses/i2c-piix4.c	2017-12-07 11:06:05.198260340 +0100
-+++ linux-4.14/drivers/i2c/busses/i2c-piix4.c	2017-12-07 12:18:56.405907856 +0100
-@@ -989,7 +989,7 @@ static void piix4_adap_remove(struct i2c
- 
- 	if (adapdata->smba) {
- 		i2c_del_adapter(adap);
--		if (adapdata->port == (0 << 1)) {
-+		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
- 			release_region(adapdata->smba, SMBIOSIZE);
- 			if (adapdata->sb800_main)
- 				release_region(SB800_PIIX4_SMB_IDX, 2);
-
-
--- 
-Jean Delvare
-SUSE L3 Support
+On 12/07/2017 10:54 AM, Wolfram Sang wrote:
+> On Thu, Nov 30, 2017 at 09:43:57AM +0100, Benjamin Gaignard wrote:
+>> Uniformize STMicroelectronics copyrights headers
+>> Add SPDX identifier
+>>
+>> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+>> Acked-by: Alexandre TORGUE <alexandre.torgue@st.com>
+>> CC: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> 
+> I'd need an ack from M'boumba Cedric Madianga for this one.
+> 
