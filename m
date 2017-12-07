@@ -1,49 +1,53 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [GIT PULL REQUEST] at24 fixes for 4.15-rc3
-Date: Thu,  7 Dec 2017 15:32:36 +0100
-Message-ID: <20171207143236.3228-1-brgl@bgdev.pl>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: piix4: Fix port number check on release
+Date: Thu, 7 Dec 2017 15:33:48 +0100
+Message-ID: <20171207143348.tvxvzehzf3b7cgmv@ninjato>
+References: <20171207122545.1b8e17c6@endymion>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="hiubdbrglfduforp"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:38553 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753784AbdLGOcm (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:32:42 -0500
-Received: by mail-wr0-f193.google.com with SMTP id o2so7708296wro.5
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 06:32:41 -0800 (PST)
+Received: from sauhun.de ([88.99.104.3]:56333 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753800AbdLGOdu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Dec 2017 09:33:50 -0500
+Content-Disposition: inline
+In-Reply-To: <20171207122545.1b8e17c6@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
 
-Hi Wolfram,
 
-the following pull request contains two fixes for 4.15-rc3. Sakari
-fixed a regression introduced during the 4.15 merge window and David
-submitted a fix for an issue that has existed in at24 since introducing
-nvmem.
+--hiubdbrglfduforp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-----------------------------------------------------------------
 
-The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
+> Thankfully 0 is always 0 no matter how you shift it, so this was a
+> bug without consequences.
 
-  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
+So, why do we shift at all?
 
-are available in the Git repository at:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-4.15-rc3-fixes-for-wolfram
+--hiubdbrglfduforp
+Content-Type: application/pgp-signature; name="signature.asc"
 
-for you to fetch changes up to 7f6d2ecd3d7acaf205ea7b3e96f9ffc55b92298b:
+-----BEGIN PGP SIGNATURE-----
 
-  eeprom: at24: change nvmem stride to 1 (2017-12-06 11:22:04 +0100)
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlopUUgACgkQFA3kzBSg
+KbaqFRAAguZVrcSPt9C5I6VCEGsmFWTfWiadTDxbCosEhvQru8WRGhUtUs1/v0Ry
+x1dAeOJb7BwRNQMDaBve9lzHmSDWQF7L2MQx3gfDrQXYZ1mKx1q7YJGcgExEb4fJ
+UMQngPeIbOzvl3aB5CvziA5h6uspphLyiAiBULjTW/JX7uGE5d4TlhNx4TiKbz5C
+Arqc1ubwpjoTkm3lndjXbkHB8RlVZKdCZv6FBf/yfjx7b0zg2p60HFP7L//B88dc
+eZfLdTz1414Mc5hW13GdIw5CN6bfSRUSaDRxTWbjQr+vixXVbRxQCSvk+xSOgVia
+WjGUrqq8FbB+zQoaskcqTCMi1P/8FGoBdqh3WvC//h4mPmSbp5C8yoMLOiIByR2i
+9fFdWAqMLZefcCiDGl7e5q9Fb7uS1ClSlydEnLU6tG0LFmQxKoaMHMnyXfWYpNh7
+EKfk7cGKRZxKdaKrBGwA6SJrQDvuBL+bRP4m47MamQNhtP5rUmHouB1AAgpEpSjn
+5PvfmvIlnrotuNaC7f8U9TWrQqC/8jU+JxxaZUr1Btj3yH7R4353fWJ1kj7Vk9Sg
+XdF7YcXYFaTJ4e3MBlpBFCn7JAHPA55333sB6MPmq5R4nnlfoPPDluV7yT11+6lI
+t3c9jFAkZAls1nA18H+NXZvc7saGdZIDlBGC9TMGSFG/6cu2t/w=
+=gomI
+-----END PGP SIGNATURE-----
 
-----------------------------------------------------------------
-AT24 fixes for 4.15-rc3
-
-----------------------------------------------------------------
-David Lechner (1):
-      eeprom: at24: change nvmem stride to 1
-
-Sakari Ailus (1):
-      eeprom: at24: fix I2C device selection for runtime PM
-
- drivers/misc/eeprom/at24.c | 26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+--hiubdbrglfduforp--
