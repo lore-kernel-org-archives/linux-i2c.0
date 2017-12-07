@@ -1,36 +1,57 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v4 2/2] dt-bindings: add eeprom "at24,no-read-rollover" property
-Date: Thu, 7 Dec 2017 15:21:54 +0100
-Message-ID: <CAMRc=Mc1MvDcZO=Lr-v33G-bFR1ds-uLs1ra2XO68g4vqSkafw@mail.gmail.com>
-References: <1512487422-6284-1-git-send-email-svendev@arcx.com>
- <1512487422-6284-3-git-send-email-svendev@arcx.com> <20171206220404.oyqg6ckhdx7jtbxw@rob-hp-laptop>
- <CAGngYiXLeVVSn-Fn9WGXd4zNmQ0SBZcuSAdrv-d2K=Wp0zHN0A@mail.gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] i2c: piix4: Fix port number check on release
+Date: Thu, 7 Dec 2017 06:23:06 -0800
+Message-ID: <17a4f7fe-18de-c7ce-07e3-3942b31e2b7a@roeck-us.net>
+References: <20171207122545.1b8e17c6@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f171.google.com ([74.125.82.171]:44941 "EHLO
-        mail-ot0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753589AbdLGOVz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:21:55 -0500
-Received: by mail-ot0-f171.google.com with SMTP id d27so6449241ote.11
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 06:21:54 -0800 (PST)
-In-Reply-To: <CAGngYiXLeVVSn-Fn9WGXd4zNmQ0SBZcuSAdrv-d2K=Wp0zHN0A@mail.gmail.com>
+Received: from mail-pg0-f50.google.com ([74.125.83.50]:38571 "EHLO
+        mail-pg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753331AbdLGOXJ (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:23:09 -0500
+Received: by mail-pg0-f50.google.com with SMTP id f12so4570568pgo.5
+        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 06:23:09 -0800 (PST)
+In-Reply-To: <20171207122545.1b8e17c6@endymion>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Sven Van Asbroeck <thesven73@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Sven Van Asbroeck <svendev@arcx.com>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, nsekhar@ti.com, Sakari Ailus <sakari.ailus@linux.intel.com>, David Lechner <david@lechnology.com>, Javier Martinez Canillas <javier@dowhile0.org>, Divagar Mohandass <divagar.mohandass@intel.com>, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 
-2017-12-07 15:06 GMT+01:00 Sven Van Asbroeck <thesven73@gmail.com>:
->> at24 is not a vendor prefix. Either this is atmel specific and you want
->> atmel,no-read-rollover or it is for all vendors at24 compatible eeproms
->> and you want at24-no-read-rollover. Or just drop the at24 if this
->> binding is in fact for just at24 eeproms as none of the other properties
->> has at24 in them.
->
-> Bartosz, shall I rename
-> at24,no-read-rollover -> no-read-rollover ?
+On 12/07/2017 03:25 AM, Jean Delvare wrote:
+> The port number shift is still hard-coded to 1 while it now depends
+> on the hardware.
+> 
+> Thankfully 0 is always 0 no matter how you shift it, so this was a
+> bug without consequences.
+> 
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Fixes: 0fe16195f891 ("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> Sorry for missing this while reviewing the original patch.
+> 
 
-Yes, please.
+Sorry for missing it.
 
-Thanks,
-Bartosz
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+
+>   drivers/i2c/busses/i2c-piix4.c |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-4.14.orig/drivers/i2c/busses/i2c-piix4.c	2017-12-07 11:06:05.198260340 +0100
+> +++ linux-4.14/drivers/i2c/busses/i2c-piix4.c	2017-12-07 12:18:56.405907856 +0100
+> @@ -989,7 +989,7 @@ static void piix4_adap_remove(struct i2c
+>   
+>   	if (adapdata->smba) {
+>   		i2c_del_adapter(adap);
+> -		if (adapdata->port == (0 << 1)) {
+> +		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
+>   			release_region(adapdata->smba, SMBIOSIZE);
+>   			if (adapdata->sb800_main)
+>   				release_region(SB800_PIIX4_SMB_IDX, 2);
+> 
+> 
