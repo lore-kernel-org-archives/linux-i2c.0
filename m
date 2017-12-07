@@ -1,42 +1,42 @@
 From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
-Date: Thu, 7 Dec 2017 14:17:20 +0100
-Message-ID: <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
-References: <20171130084357.23327-1-benjamin.gaignard@st.com>
- <20171207095437.bm4uiy7o2amzbtv3@ninjato>
+Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C
+ controller
+Date: Thu, 7 Dec 2017 14:23:52 +0100
+Message-ID: <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
+References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
+ <990c3275-35b3-68da-453c-d1a80e867df7@st.com>
+ <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
+ <2d892fec-0496-8a6f-51c9-439b933d9975@st.com>
+ <CAFvLkMS9Q801biCBYp+fJeiOo22zr436Td43PH3GG8E6diSL3A@mail.gmail.com>
+ <b24d9699-a88d-6a83-ceaf-140ea8b4db97@st.com>
+ <CAFvLkMTsgxpjoGRgq7J0NFkT=YsOTYL6smkVhOPcfD=26Hzutg@mail.gmail.com>
+ <20171207105229.jxxyfofsgub27nip@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20171207095437.bm4uiy7o2amzbtv3@ninjato>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171207105229.jxxyfofsgub27nip@ninjato>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, linux-arm-kernel@lists.infradead.org, alexandre.torgue@st.com
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?Q?Rados=c5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram,
 
-I take over ownership of this driver from now on.
+I do believe some investigation has to be done prior merging this patch.
+The impact is genuine and has to be tested thoroughly before granting an ack.
 
-Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Thus I prefer having a better understanding of the issue.
+I will try to work on this later on.
 
-On 12/07/2017 10:54 AM, Wolfram Sang wrote:
-> On Thu, Nov 30, 2017 at 09:43:57AM +0100, Benjamin Gaignard wrote:
->> Uniformize STMicroelectronics copyrights headers
->> Add SPDX identifier
->>
->> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
->> Acked-by: Alexandre TORGUE <alexandre.torgue@st.com>
->> CC: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+Regards
+
+
+On 12/07/2017 11:52 AM, Wolfram Sang wrote:
+> On Tue, Oct 24, 2017 at 01:45:43PM +0200, Radosław Pietrzyk wrote:
+>> I'm afraid that didn't help and the problem still exists even with
+>> those patches applied.
 > 
-> I'd need an ack from M'boumba Cedric Madianga for this one.
+> So, my reading is: There is an issue which needs to be investigated?
+> Does applying the patch make sense until the issue is fully understood?
 > 
