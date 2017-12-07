@@ -1,57 +1,68 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] i2c: piix4: Fix port number check on release
-Date: Thu, 7 Dec 2017 06:23:06 -0800
-Message-ID: <17a4f7fe-18de-c7ce-07e3-3942b31e2b7a@roeck-us.net>
-References: <20171207122545.1b8e17c6@endymion>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 2/2] i2c: fix piix4 aux port number
+Date: Thu, 7 Dec 2017 15:29:58 +0100
+Message-ID: <20171207152958.61ca5ea0@endymion>
+References: <cover.1511391626.git.andrew.cooks@opengear.com>
+        <5e47610fa40bb07b214d1409ae721a5d762eb888.1511391626.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pg0-f50.google.com ([74.125.83.50]:38571 "EHLO
-        mail-pg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753331AbdLGOXJ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 09:23:09 -0500
-Received: by mail-pg0-f50.google.com with SMTP id f12so4570568pgo.5
-        for <linux-i2c@vger.kernel.org>; Thu, 07 Dec 2017 06:23:09 -0800 (PST)
-In-Reply-To: <20171207122545.1b8e17c6@endymion>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5e47610fa40bb07b214d1409ae721a5d762eb888.1511391626.git.andrew.cooks@opengear.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Cooks <andrew.cooks@opengear.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
 
-On 12/07/2017 03:25 AM, Jean Delvare wrote:
-> The port number shift is still hard-coded to 1 while it now depends
-> on the hardware.
+Hi Andrew,
+
+On Thu, 23 Nov 2017 13:09:38 +1000, Andrew Cooks wrote:
+> Let the aux port use port number one (not zero), to match the AMD
+> documentation and enable mapping ACPI _ADR to port number.
 > 
-> Thankfully 0 is always 0 no matter how you shift it, so this was a
-> bug without consequences.
+> This fixes ACPI-based enumeration of I2C slave peripherals that are
+> defined for the aux SMBus port.
 > 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Fixes: 0fe16195f891 ("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
 > ---
-> Sorry for missing this while reviewing the original patch.
+>  drivers/i2c/busses/i2c-piix4.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 9260cfa..f980f0b 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -975,7 +975,7 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	if (retval > 0) {
+>  		/* Try to add the aux adapter if it exists,
+>  		 * piix4_add_adapter will clean up if this fails */
+> -		piix4_add_adapter(dev, retval, false, 0, false,
+> +		piix4_add_adapter(dev, retval, false, 1, false,
+>  				  is_sb800 ? piix4_aux_port_name_sb800 : "",
+>  				  &piix4_aux_adapter);
+>  	}
 
-Sorry for missing it.
+The port number has consequences. In piix4_adap_remove, port 0 is
+handled differently. We assume that for each controller (main or aux)
+exactly one adapter has port number 0. Your change above breaks this
+assumption.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Also, if the port numbers are supposed to match the documentation, and
+the aux controller is port 1, then I wonder how are the muxed ports of
+the main controller numbered? The driver numbers them from 1 to 3, but
+I guess the documentation numbers them from 2 to 4 to avoid colliding
+with the aux controller? I have vague memories of discussion this
+before... If it is important that aux port number matches the
+documentation then I guess the same holds for the muxed ports on the
+main controller.
 
->   drivers/i2c/busses/i2c-piix4.c |    2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-4.14.orig/drivers/i2c/busses/i2c-piix4.c	2017-12-07 11:06:05.198260340 +0100
-> +++ linux-4.14/drivers/i2c/busses/i2c-piix4.c	2017-12-07 12:18:56.405907856 +0100
-> @@ -989,7 +989,7 @@ static void piix4_adap_remove(struct i2c
->   
->   	if (adapdata->smba) {
->   		i2c_del_adapter(adap);
-> -		if (adapdata->port == (0 << 1)) {
-> +		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
->   			release_region(adapdata->smba, SMBIOSIZE);
->   			if (adapdata->sb800_main)
->   				release_region(SB800_PIIX4_SMB_IDX, 2);
-> 
-> 
+If we number muxed ports from 2 to 4 then the test in piix4_adap_remove
+could be simply changed to check for adapdata->port <= 1.
+
+Please note that I just sent a fix for this specific function, so any
+patch touching the same area should go on top of it. I'll bounce it to
+you.
+
+-- 
+Jean Delvare
+SUSE L3 Support
