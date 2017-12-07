@@ -1,40 +1,55 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] at24: support eeproms that do not auto-rollover
- reads.
-Date: Thu, 7 Dec 2017 20:02:30 +0100
-Message-ID: <20171207190230.ttq5xthgsuuy4swn@pengutronix.de>
-References: <1512657378-5221-1-git-send-email-svendev@arcx.com>
- <1512657378-5221-2-git-send-email-svendev@arcx.com>
- <CAMRc=MdhJRD+G18Xh5vfmaHHdJ+g9EnDTxUHVxhzDzVt-D0KMg@mail.gmail.com>
+From: Sven Van Asbroeck <svendev@arcx.com>
+Subject: [PATCH v6 0/2] at24: support eeproms that do not auto-rollover reads.
+Date: Thu, 7 Dec 2017 14:26:17 -0500
+Message-ID: <1512674779-10349-1-git-send-email-svendev@arcx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMRc=MdhJRD+G18Xh5vfmaHHdJ+g9EnDTxUHVxhzDzVt-D0KMg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Cc: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, nsekhar-l0cyMroinI0@public.gmane.org, Sakari Ailus <sakari.ailus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.arcx.com ([184.94.50.18]:55211 "EHLO WEBMAIL.arcx.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750828AbdLGT0Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 7 Dec 2017 14:26:25 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: svendev@arcx.com, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, david@lechnology.com, javier@dowhile0.org, divagar.mohandass@intel.com
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hello,
+v6:
+	added newlines, asked by Bartosz
+	no need for braces around ternary operator's condition:
+		bits = (at24->chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
+	but keep the braces anyway, as asked by Uwe Klein-Koenig
 
-On Thu, Dec 07, 2017 at 05:26:50PM +0100, Bartosz Golaszewski wrote:
-> > +       if (at24->chip.flags & AT24_FLAG_NO_RDROL) {
-> > +               bits = (at24->chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
-> 
-> There's no need for braces around the ternary operator's condition.
+v5:
+	at Rob Herring's request, renamed devicetree property:
+		at24,no-read-rollover -> no-read-rollover
 
-Even if not required, I'd keep them for clearity.
+v4:
+	renamed devicetree property:
+		no-read-rollover -> at24,no-read-rollover
+	dt-bindings update now a separate patch
 
-Best regards
-Uwe
+v3:
+	rebased against at24 maintainer's devel staging branch:
+	git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git at24/devel
+	clarified some of the comments and wording
+
+v2:
+	kbuild test robot feedback: correct
+		"warning: comparison of distinct pointer types lacks a cast"
+	build warning on some compilers / architectures.
+
+v1:
+	original patch
+
+Sven Van Asbroeck (2):
+  at24: support eeproms that do not auto-rollover reads.
+  dt-bindings: add eeprom "at24,no-read-rollover" property
+
+ .../devicetree/bindings/eeprom/eeprom.txt          |  5 +++
+ drivers/misc/eeprom/at24.c                         | 37 +++++++++++++++-------
+ include/linux/platform_data/at24.h                 |  2 ++
+ 3 files changed, 32 insertions(+), 12 deletions(-)
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.9.1
