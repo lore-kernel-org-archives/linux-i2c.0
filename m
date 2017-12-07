@@ -1,58 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
-Date: Thu, 7 Dec 2017 10:54:37 +0100
-Message-ID: <20171207095437.bm4uiy7o2amzbtv3@ninjato>
-References: <20171130084357.23327-1-benjamin.gaignard@st.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="lc5m4qftwnhetizq"
+From: Arseny Solokha <asolokha@kb.kras.ru>
+Subject: [PATCH RESEND 3/4] i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
+Date: Thu,  7 Dec 2017 17:20:02 +0700
+Message-ID: <20171207102003.23496-4-asolokha@kb.kras.ru>
+References: <20171110075015.23906-1-asolokha@kb.kras.ru>
+ <20171207102003.23496-1-asolokha@kb.kras.ru>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:55393 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752572AbdLGJyk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 7 Dec 2017 04:54:40 -0500
-Content-Disposition: inline
-In-Reply-To: <20171130084357.23327-1-benjamin.gaignard@st.com>
+Received: from ispman.iskranet.ru ([62.213.33.10]:58118 "EHLO
+        ispman.iskranet.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752279AbdLGKUX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Dec 2017 05:20:23 -0500
+In-Reply-To: <20171207102003.23496-1-asolokha@kb.kras.ru>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Valentin Longchamp <valentin.longchamp@keymile.com>, Arseny Solokha <asolokha@kb.kras.ru>
 
+According to the reference manuals for the corresponding SoCs, SEC
+frequency ratio configuration is indicated by bit 26 of the POR Device
+Status Register 2. Consequently, SEC_CFG bit should be tested by mask 0x20,
+not 0x80. Testing the wrong bit leads to selection of wrong I2C clock
+prescaler on those SoCs.
 
---lc5m4qftwnhetizq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+---
+ drivers/i2c/busses/i2c-mpc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-On Thu, Nov 30, 2017 at 09:43:57AM +0100, Benjamin Gaignard wrote:
-> Uniformize STMicroelectronics copyrights headers
-> Add SPDX identifier
->=20
-> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-> Acked-by: Alexandre TORGUE <alexandre.torgue@st.com>
-> CC: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-
-I'd need an ack from M'boumba Cedric Madianga for this one.
-
-
---lc5m4qftwnhetizq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlopD9kACgkQFA3kzBSg
-KbYpUA/8CNex1VOyXF1cFx9HJclXEo6InQFHkRN99HyxmWkrEpGRsbbXSC407BHH
-m3S4bprNpcC0dBRFQfuoU02N2MHjvoJxqu44brMqkn+Gd5cop/VvTzNQ6U7TgQb3
-iQgGDGcZM/RoNW06vRTnGgRm71K1iwszg33lVnPWvZc5yn1F15TPxO25RgJLSlPP
-5EcUbtoOmgLWGFugeSO8bBiunOqFvYlfpjMFC1Y1A8kdtmTV4tV+R+997SPJKklm
-16ikIL07BWavkOcuQ7N9bnFAdDoZ3Zt6tRYGQmW2tEz3Eq0myNLssmG9o/NYJba2
-4hQWMwIqbyWyC66py17IOcPAC1lC88ziWVvqDrBZnUsz6Jc/pQ0oVD7JacLMlYS/
-AY5oph0dO5gBbUh9UBKTXQCZxc2zUr5peWggFr3AkZ/fW2wddGbg03ojGJfg/AJF
-gxRo4U/q79wiWdgcF6XoFCKjk7kGRcxzr40xGmXjb5vP01Ku6AA8m9y7u7sG85nG
-EAI/rA+8aO35Col6kWQDFKVsRZwnJngMQ2mvKM4GrDAbnxed/0LresCpByF+rivZ
-d6Ek02XVtJuRg1KGp+TmxIMUGSgUYB8efnN/VhnPAPQY06v8Ccafsmbo5UD611o4
-JMXRAmEBPyscruqiEdcsQxvkjBusA70HTh1SIcRsdYsDutLrP4s=
-=lPXW
------END PGP SIGNATURE-----
-
---lc5m4qftwnhetizq--
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 648a5afded64..aac0ec6dc5fc 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -332,14 +332,18 @@ static u32 mpc_i2c_get_sec_cfg_8xxx(void)
+ 		if (prop) {
+ 			/*
+ 			 * Map and check POR Device Status Register 2
+-			 * (PORDEVSR2) at 0xE0014
++			 * (PORDEVSR2) at 0xE0014. Note than while MPC8533
++			 * and MPC8544 indicate SEC frequency ratio
++			 * configuration as bit 26 in PORDEVSR2, other MPC8xxx
++			 * parts may store it differently or may not have it
++			 * at all.
+ 			 */
+ 			reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
+ 			if (!reg)
+ 				printk(KERN_ERR
+ 				       "Error: couldn't map PORDEVSR2\n");
+ 			else
+-				val = in_be32(reg) & 0x00000080; /* sec-cfg */
++				val = in_be32(reg) & 0x00000020; /* sec-cfg */
+ 			iounmap(reg);
+ 		}
+ 	}
+-- 
+2.15.1
