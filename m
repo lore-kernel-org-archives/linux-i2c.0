@@ -1,95 +1,40 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 1/2] eeprom: at24: fix coding style issues
-Date: Thu,  7 Dec 2017 14:39:14 +0100
-Message-ID: <20171207133915.29448-2-brgl@bgdev.pl>
-References: <20171207133915.29448-1-brgl@bgdev.pl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171207133915.29448-1-brgl@bgdev.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v2] i2c: stm32: Fix copyrights
+Date: Thu, 7 Dec 2017 14:42:00 +0100
+Message-ID: <2bf29a80-e280-9596-78c8-36ee1937bd0d@st.com>
+References: <20171130084357.23327-1-benjamin.gaignard@st.com>
+ <20171207095437.bm4uiy7o2amzbtv3@ninjato>
+ <9fe6a754-b4fe-970b-c4dd-23b0687b9207@st.com>
+ <20171207133114.yma62uhgk6apny3c@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20171207133114.yma62uhgk6apny3c@ninjato>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, linux-arm-kernel@lists.infradead.org, alexandre.torgue@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-Fix issues reported by checkpatch for at24.c.
+Ok. will do
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- drivers/misc/eeprom/at24.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+~PYM~
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 625b00166117..2426f2c111c7 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -70,8 +70,8 @@ struct at24_data {
- 	 */
- 	struct mutex lock;
- 
--	unsigned write_max;
--	unsigned num_addresses;
-+	unsigned int write_max;
-+	unsigned int num_addresses;
- 	unsigned int offset_adj;
- 
- 	struct nvmem_config nvmem_config;
-@@ -93,16 +93,16 @@ struct at24_data {
-  *
-  * This value is forced to be a power of two so that writes align on pages.
-  */
--static unsigned io_limit = 128;
--module_param(io_limit, uint, 0);
-+static unsigned int io_limit = 128;
-+module_param(io_limit, uint, 0000);
- MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
- 
- /*
-  * Specs often allow 5 msec for a page write, sometimes 20 msec;
-  * it's important to recover from write timeouts.
-  */
--static unsigned write_timeout = 25;
--module_param(write_timeout, uint, 0);
-+static unsigned int write_timeout = 25;
-+module_param(write_timeout, uint, 0000);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- #define AT24_SIZE_BYTELEN 5
-@@ -111,8 +111,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
- /* create non-zero magic value for given eeprom parameters */
--#define AT24_DEVICE_MAGIC(_len, _flags) 		\
--	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
-+#define AT24_DEVICE_MAGIC(_len, _flags)			\
-+	((1 << AT24_SIZE_FLAGS | (_flags))		\
- 	    << AT24_SIZE_BYTELEN | ilog2(_len))
- 
- /*
-@@ -264,7 +264,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
- static struct at24_client *at24_translate_offset(struct at24_data *at24,
- 						 unsigned int *offset)
- {
--	unsigned i;
-+	unsigned int i;
- 
- 	if (at24->chip.flags & AT24_FLAG_ADDR16) {
- 		i = *offset >> 16;
-@@ -319,7 +319,7 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
- static size_t at24_adjust_write_count(struct at24_data *at24,
- 				      unsigned int offset, size_t count)
- {
--	unsigned next_page;
-+	unsigned int next_page;
- 
- 	/* write_max is at most a page */
- 	if (count > at24->write_max)
-@@ -515,7 +515,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	bool writable;
- 	struct at24_data *at24;
- 	int err;
--	unsigned i, num_addresses;
-+	unsigned int i, num_addresses;
- 	const struct regmap_config *config;
- 	u8 test_byte;
- 
--- 
-2.15.1
+On 12/07/2017 02:31 PM, Wolfram Sang wrote:
+> 
+>> I take over ownership of this driver from now on.
+>>
+>> Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> 
+> Ok. Thanks! Can you create a MAINTAINERS entry so you will get
+> automatically CCed on patches touching your driver?
+> 
