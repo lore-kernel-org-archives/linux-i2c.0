@@ -1,50 +1,54 @@
-From: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Subject: Re: [PATCH v1 1/2] eeprom: at24: convert magic numbers to structs.
-Date: Fri, 8 Dec 2017 16:32:33 +0100
-Message-ID: <CAMRc=Mc1tJO6EhNQ=SiA3uUPL6u3x-1otiCX4ohwZ5mX=g5qGQ@mail.gmail.com>
-References: <1512576272-25563-1-git-send-email-svendev@arcx.com>
- <1512576272-25563-2-git-send-email-svendev@arcx.com> <CAMRc=MeQUavcxejmTO5G7w2GBBY-7KKQ649qW_GhEZ9bV755nw@mail.gmail.com>
- <CAGngYiWdnE9Ztu3uGeqAS+Ksag6-W84AORJnWb1Xzc7EMBwZNg@mail.gmail.com>
- <CAMRc=Mf6e=O_M40Vaq4jygBwPHB8-X6wyDVG8Ee7qw+PjLTXUA@mail.gmail.com> <CAGngYiWmnBgjufeEUW5LYA8Ci7Rwt2m=FLCDX3RjrdWrxY97aw@mail.gmail.com>
+From: Sven Van Asbroeck <svendev@arcx.com>
+Subject: [PATCH RESEND v6 0/2] at24: support eeproms that do not auto-rollover reads.
+Date: Fri, 8 Dec 2017 10:37:23 -0500
+Message-ID: <1512747445-5817-1-git-send-email-svendev@arcx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGngYiWmnBgjufeEUW5LYA8Ci7Rwt2m=FLCDX3RjrdWrxY97aw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sven Van Asbroeck <thesven73-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, nsekhar-l0cyMroinI0@public.gmane.org, Sakari Ailus <sakari.ailus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: svendev@arcx.com, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, david@lechnology.com, javier@dowhile0.org, divagar.mohandass@intel.com
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2017-12-08 16:25 GMT+01:00 Sven Van Asbroeck <thesven73-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> Bartosz wrote:
->>
->> Just make it accept two parameters: the string and the data object
->> name. For example:
->>
->>
-> AT24_OF_DEVICE_ID("atmel,24c01", 24c01);
->>
->
-> I don't want to do too much bikeshedding,
-> but one last comment.
->
-> Is it a good idea to have duplicated information?
-> Do you think the risk of a typo mismatch is acceptable? E.g.
-> AT24_OF_DEVICE_ID("atmel,24c01", 24c0
-> 2
-> );
-> At least the original syntax is not susceptible to this problem,
-> but of course as you say, it hides the of_ compatible string:
-> AT24_OF_DEVICE_ID(atmel, 24c01);
-> /* hides 'atmel,24c01' */
->
-> Pros and cons. Pick one.
+v6 resend:
+	added Reviewed-by: Rob Herring <robh@kernel.org>
 
-Nah, there aren't like two thousand compatible chips so that a mistake
-would go unnoticed.
+v6:
+	added newlines, asked by Bartosz
+	no need for braces around ternary operator's condition:
+		bits = (at24->chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
+	but keep the braces anyway, as asked by Uwe Klein-Koenig
 
-Bartosz
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+v5:
+	at Rob Herring's request, renamed devicetree property:
+		at24,no-read-rollover -> no-read-rollover
+
+v4:
+	renamed devicetree property:
+		no-read-rollover -> at24,no-read-rollover
+	dt-bindings update now a separate patch
+
+v3:
+	rebased against at24 maintainer's devel staging branch:
+	git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git at24/devel
+	clarified some of the comments and wording
+
+v2:
+	kbuild test robot feedback: correct
+		"warning: comparison of distinct pointer types lacks a cast"
+	build warning on some compilers / architectures.
+
+v1:
+	original patch
+
+Sven Van Asbroeck (2):
+  at24: support eeproms that do not auto-rollover reads.
+  dt-bindings: add eeprom "at24,no-read-rollover" property
+
+ .../devicetree/bindings/eeprom/eeprom.txt          |  5 +++
+ drivers/misc/eeprom/at24.c                         | 37 +++++++++++++++-------
+ include/linux/platform_data/at24.h                 |  2 ++
+ 3 files changed, 32 insertions(+), 12 deletions(-)
+
+-- 
+1.9.1
