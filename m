@@ -1,51 +1,51 @@
-From: Sven Van Asbroeck <thesven73@gmail.com>
-Subject: Re: Questions rgd. patch "eeprom: at24: support eeproms that do not
- auto-rollover reads"
-Date: Fri, 8 Dec 2017 15:09:56 -0500
-Message-ID: <CAGngYiXh6AH1GaU1cJNayv213ki=Ui6BesV6qNat7nyiZRRPAw@mail.gmail.com>
-References: <c00c4e31-fee0-5666-d0a2-a3d53fd146c0@googlemail.com>
+From: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>
+Subject: [PATCH v2 2/2] eeprom: at24: remove temporary fix for at24mac402 size.
+Date: Fri, 8 Dec 2017 16:25:06 -0500
+Message-ID: <1512768306-14816-3-git-send-email-svendev@arcx.com>
+References: <1512768306-14816-1-git-send-email-svendev@arcx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-it0-f54.google.com ([209.85.214.54]:39430 "EHLO
-        mail-it0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751190AbdLHUJ6 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 8 Dec 2017 15:09:58 -0500
-Received: by mail-it0-f54.google.com with SMTP id 68so7064462ite.4
-        for <linux-i2c@vger.kernel.org>; Fri, 08 Dec 2017 12:09:58 -0800 (PST)
-In-Reply-To: <c00c4e31-fee0-5666-d0a2-a3d53fd146c0@googlemail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1512768306-14816-1-git-send-email-svendev-fuHqz3Nb1YI@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: svendev-fuHqz3Nb1YI@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, brgl-ARrdPY/1zhM@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, sakari.ailus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org, divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Sven Van Asbroeck <svendev@arcx.com>, Bartosz Golaszewski <brgl@bgdev.pl>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Fri, Dec 8, 2017 at 2:33 PM, Heiner Kallweit <hkallweit1@gmail.com> wrote:
-> In at24_adjust_read_count() there is the line
-> remainder = BIT(bits) - offset;
->
-> AFAICS we can have the case offset > BIT(bits). Imagine a 8 bit chip
-> with size 512 (2 addresses) and we try to read a few bytes from
-> offset 300. Then the line in question doesn't do what it's supposed
-> to do.
+The chip size passed via devicetree, i2c, or acpi device ids is
+now no longer limited to a power of two. So the temporary
+fix can be removed.
 
-I don't think offset can be > BIT(bits). In at24_regmap_read(), we have:
+Signed-off-by: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>
+---
+ drivers/misc/eeprom/at24.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-at24_client = at24_translate_offset(at24, &offset);
-regmap = at24_client->regmap;
-client = at24_client->client;
-count = at24_adjust_read_count(at24, offset, count);
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index c3759cb..e522350 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -569,16 +569,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		dev_warn(&client->dev,
+ 			"page_size looks suspicious (no power of 2)!\n");
+ 
+-	/*
+-	 * REVISIT: the size of the EUI-48 byte array is 6 in at24mac402, while
+-	 * the call to ilog2() in AT24_DEVICE_MAGIC() rounds it down to 4.
+-	 *
+-	 * Eventually we'll get rid of the magic values altoghether in favor of
+-	 * real structs, but for now just manually set the right size.
+-	 */
+-	if (chip.flags & AT24_FLAG_MAC && chip.byte_len == 4)
+-		chip.byte_len = 6;
+-
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
+ 	    !i2c_check_functionality(client->adapter,
+ 				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK))
+-- 
+1.9.1
 
-at24_translate_offset() will translate the general offset to an offset
-within a subchip. E.g. offset 300 will be translated to offset 44
-into the second subchip.
-
-> And a more general aspect: If the size is 512 but only 256 byte are
-> accessible then I doubt it's nice to create a nvmem provider with
-> size 512. Wouldn't it be better to adjust byte_len to reflect the
-> accessible size? Then we also wouldn't need the check in
-> at24_adjust_read_count.
-
-I'm not sure if I understand. Could you clarify a bit Heiner?
-If the size is 512 and it's a multi-address chip with 8-bit
-addresses, we simply have two 256-byte subchips.
-The size is 512. All 512 bytes are accessible.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
