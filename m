@@ -1,145 +1,399 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 1/3] i2c: core: improve return value handling of
- i2c_new_device and i2c_new_dummy
-Date: Mon, 11 Dec 2017 15:56:14 +0100
-Message-ID: <CAMRc=Mc+_rQ2YX_G1U+6To2-CJmLfL=or4k6KBsBPQNT0rAT6w@mail.gmail.com>
-References: <c765d409-5d33-8d6f-c883-9be93f507e01@gmail.com> <943fec1c-c51a-d6d1-2c03-0d69b0b0b643@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] i2c: Add support for NXP PCA984x family.
+Date: Mon, 11 Dec 2017 15:59:16 +0100
+Message-ID: <f1d0880d-dff1-ce07-5724-5de4e29fa421@axentia.se>
+References: <f2bd4153-871f-0f71-2825-6225f0ec19d5@enneenne.com>
+ <20171211142716.30340-1-adrian.fiergolski@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <943fec1c-c51a-d6d1-2c03-0d69b0b0b643@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0104.outbound.protection.outlook.com ([104.47.2.104]:36960
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752573AbdLKO7Z (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 11 Dec 2017 09:59:25 -0500
+In-Reply-To: <20171211142716.30340-1-adrian.fiergolski@cern.ch>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org
+Cc: giometti@enneenne.com, giometti@linux.it
 
-2017-12-06 22:13 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Currently i2c_new_device and i2c_new_dummy return just NULL in error
-> case although they have more error details internally. Therefore move
-> the functionality into new functions returning detailed errors and
-> add wrappers for compatibilty with the current API.
->
-> This allows to use these functions with detailed error codes within
-> the i2c core or for API extensions.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+On 2017-12-11 15:27, Adrian Fiergolski wrote:
+> This patch exetends the current i2c-mux-pca954x driver and adds suuport for
+> a newer PCA984x family of the I2C switches and multiplexers from NXP.
+> In probe function, the patch supports device ID function, introduced in the
+> new family, and checks it against configuration provided by the
+> devicetree. Moreover, it also performs software reset which is now
+> available for the new devices.
+> The reset of the code remains common with the legacy PCA954x devices.
+> 
+> Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
 > ---
->  drivers/i2c/i2c-core-base.c | 46 ++++++++++++++++++++++++++++++++-------------
->  1 file changed, 33 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index bb34a5d41..3faa9b1d3 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -656,7 +656,7 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
->  }
->
->  /**
-> - * i2c_new_device - instantiate an i2c device
-> + * _i2c_new_device - instantiate an i2c device
->   * @adap: the adapter managing the device
->   * @info: describes one I2C device; bus_num is ignored
->   * Context: can sleep
-> @@ -669,17 +669,17 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
->   * before any i2c_adapter could exist.
+
+Somewhere below this triple-dash and before the start of the diff is a good
+place to keep a list of changes for the patch.
+
+>  .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |   5 +-
+>  drivers/i2c/muxes/Kconfig                          |   2 +-
+>  drivers/i2c/muxes/i2c-mux-pca954x.c                | 164 ++++++++++++++++++++-
+>  3 files changed, 161 insertions(+), 10 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> index aa097045a10e..b428bc0d81b1 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> @@ -1,10 +1,13 @@
+>  * NXP PCA954x I2C bus switch
+>  
+> +The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
+> +
+>  Required Properties:
+>  
+>    - compatible: Must contain one of the following.
+>      "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+> -    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
+> +    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
+> +    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+>  
+>    - reg: The I2C address of the device.
+>  
+> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+> index 0f5c8fc36625..5da2e04585a9 100644
+> --- a/drivers/i2c/muxes/Kconfig
+> +++ b/drivers/i2c/muxes/Kconfig
+> @@ -68,7 +68,7 @@ config I2C_MUX_PCA954x
+>  	depends on GPIOLIB || COMPILE_TEST
+>  	help
+>  	  If you say yes here you get support for the Philips PCA954x
+> -	  I2C mux/switch devices.
+> +	  and PCA984x I2C mux/switch devices.
+>  
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-mux-pca954x.
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index 2ca068d8b92d..88de57ae5b7a 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -1,14 +1,16 @@
+>  /*
+>   * I2C multiplexer
 >   *
->   * This returns the new i2c client, which may be saved for later use with
-> - * i2c_unregister_device(); or NULL to indicate an error.
-> + * i2c_unregister_device(); or an ERR_PTR to indicate an error.
->   */
-> -struct i2c_client *
-> -i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> +static struct i2c_client *
-> +_i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->  {
->         struct i2c_client       *client;
->         int                     status;
->
->         client = kzalloc(sizeof *client, GFP_KERNEL);
->         if (!client)
-> -               return NULL;
-> +               return ERR_PTR(-ENOMEM);
->
->         client->adapter = adap;
->
-> @@ -746,7 +746,17 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->                 client->name, client->addr, status);
->  out_err_silent:
->         kfree(client);
-> -       return NULL;
-> +       return ERR_PTR(status);
-> +}
+> + * Copyright (c) 2017 Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+>   * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+>   * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
+>   *
+> - * This module supports the PCA954x series of I2C multiplexer/switch chips
+> - * made by Philips Semiconductors.
+> + * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
+> + * chips made by Philips Semiconductors.
+>   * This includes the:
+>   *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+>   *	 and PCA9548.
+> + *       PCA9846, PCA9847, PCA9848 and PCA9849
+
+This could be formatted in a nicer way.
+
+>   *
+>   * These chips are all controlled via the I2C bus itself, and all have a
+>   * single 8-bit register. The upstream "parent" bus fans out to two,
+> @@ -54,6 +56,12 @@
+>  
+>  #define PCA954X_IRQ_OFFSET 4
+>  
+> +//PCA984x family I2C other addresses
+> +#define GENERAL_CALL  0x00
+> +#define SOFTWARE_RESET 0x06
+> +#define DEVICE_ID_ADDRESS 0x7C
+> +#define NXP_ID 0x00
 > +
-> +/* wrapper to be compatible with the current API */
-> +struct i2c_client *
-> +i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> +{
-> +       struct i2c_client *ret;
+>  enum pca_type {
+>  	pca_9540,
+>  	pca_9542,
+> @@ -63,6 +71,11 @@ enum pca_type {
+>  	pca_9546,
+>  	pca_9547,
+>  	pca_9548,
+> +	pca_9846,
+> +	pca_9847,
+> +	pca_9848,
+> +	pca_9849,
 > +
-> +       ret = _i2c_new_device(adap, info);
-> +       return IS_ERR(ret) ? NULL : ret;
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_device);
->
-> @@ -793,7 +803,7 @@ static struct i2c_driver dummy_driver = {
+
+Drop this empty line.
+
 >  };
->
->  /**
-> - * i2c_new_dummy - return a new i2c device bound to a dummy driver
-> + * _i2c_new_dummy - return a new i2c device bound to a dummy driver
->   * @adapter: the adapter managing the device
->   * @address: seven bit address to be used
->   * Context: can sleep
-> @@ -808,15 +818,25 @@ static struct i2c_driver dummy_driver = {
->   * different driver.
->   *
->   * This returns the new i2c client, which should be saved for later use with
-> - * i2c_unregister_device(); or NULL to indicate an error.
-> + * i2c_unregister_device(); or an ERR_PTR to indicate an error.
->   */
-> -struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
-> +static struct i2c_client *
-> +_i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->  {
->         struct i2c_board_info info = {
->                 I2C_BOARD_INFO("dummy", address),
->         };
->
-> -       return i2c_new_device(adapter, &info);
-> +       return _i2c_new_device(adapter, &info);
+>  
+>  struct chip_desc {
+> @@ -73,6 +86,7 @@ struct chip_desc {
+>  		pca954x_ismux = 0,
+>  		pca954x_isswi
+>  	} muxtype;
+> +	u16 deviceID; //used by PCA984x family only
+
+Except it isn't used at all. Maybe just drop it?
+
+>  };
+>  
+>  struct pca954x {
+> @@ -89,6 +103,7 @@ struct pca954x {
+>  
+>  /* Provide specs for the PCA954x types we know about */
+>  static const struct chip_desc chips[] = {
+> +	//954x family
+
+This line adds nothing of interest.
+
+>  	[pca_9540] = {
+>  		.nchans = 2,
+>  		.enable = 0x4,
+> @@ -129,9 +144,36 @@ static const struct chip_desc chips[] = {
+>  		.nchans = 8,
+>  		.muxtype = pca954x_isswi,
+>  	},
+> +
+> +	//984x family
+
+Drop the empty line here as well as below between the other chip_descs.
+Also drop the family comment, I don't feel it adds anything relevant.
+
+> +	[pca_9846] = {
+> +		.nchans = 4,
+> +		.muxtype = pca954x_isswi,
+> +		.deviceID = 0x10B,
+> +	},
+> +
+> +	[pca_9847] = {
+> +		.nchans = 8,
+> +		.muxtype = pca954x_ismux,
+> +		.deviceID = 0x108,
+> +	},
+> +
+> +	[pca_9848] = {
+> +		.nchans = 8,
+> +		.muxtype = pca954x_isswi,
+> +		.deviceID = 0x10A,
+> +	},
+> +
+> +	[pca_9849] = {
+> +		.nchans = 4,
+> +		.muxtype = pca954x_ismux,
+> +		.deviceID = 0x109,
+> +	},
+> +
+>  };
+>  
+>  static const struct i2c_device_id pca954x_id[] = {
+> +	//954x family
+
+Drop this.
+
+>  	{ "pca9540", pca_9540 },
+>  	{ "pca9542", pca_9542 },
+>  	{ "pca9543", pca_9543 },
+> @@ -140,12 +182,20 @@ static const struct i2c_device_id pca954x_id[] = {
+>  	{ "pca9546", pca_9546 },
+>  	{ "pca9547", pca_9547 },
+>  	{ "pca9548", pca_9548 },
+> +
+> +	//984x family
+
+Drop the empty line and the comment.
+
+> +	{ "pca9846", pca_9846 },
+> +	{ "pca9847", pca_9847 },
+> +	{ "pca9848", pca_9848 },
+> +	{ "pca9849", pca_9849 },
+> +
+
+Drop the empty line.
+
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, pca954x_id);
+>  
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id pca954x_of_match[] = {
+> +	//954x family
+
+Dito.
+
+>  	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+>  	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
+>  	{ .compatible = "nxp,pca9543", .data = &chips[pca_9543] },
+> @@ -154,6 +204,14 @@ static const struct of_device_id pca954x_of_match[] = {
+>  	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+>  	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+>  	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
+> +
+> +
+> +	//984x family
+
+Dito.
+
+> +	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
+> +	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
+> +	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
+> +	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
+> +
+
+Dito.
+
+>  	{}
+>  };
+>  MODULE_DEVICE_TABLE(of, pca954x_of_match);
+> @@ -304,6 +362,78 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+>  	i2c_mux_del_adapters(muxc);
+>  }
+>  
+> +/*
+> + * Part of probe function specific for pca954x family
+> + */
+> +inline int _pca954x_probe(struct i2c_client *client,
+> +			 const struct i2c_device_id *id){
+
+The brace should be on a line by itself. No need to manually
+say inline, any decent compiler will inline whatever is
+appropriate, just use static instead. And lose the leading
+underscore.
+
+> +
+> +	/* Write the mux register at addr to verify
+> +	 * that the mux is in fact present. This also
+> +	 * initializes the mux to disconnected state.
+> +	 */
+> +	if (i2c_smbus_write_byte(client, 0) < 0)
+> +		return -ENODEV;
+> +
+> +	return 0;
 > +}
 > +
-> +/* wrapper to be compatible with the current API */
-> +struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
-> +{
-> +       struct i2c_client *ret;
+> +/*
+> + * Part of probe function specific for pca984x family
+> + */
+> +inline int _pca984x_probe(struct i2c_client *client,
+> +			 const struct i2c_device_id *id){
+
+Dito.
+
 > +
-> +       ret = _i2c_new_dummy(adapter, address);
-> +       return IS_ERR(ret) ? NULL : ret;
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->
-> @@ -939,9 +959,9 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
->                 info.flags |= I2C_CLIENT_SLAVE;
->         }
->
-> -       client = i2c_new_device(adap, &info);
-> -       if (!client)
-> -               return -EINVAL;
-> +       client = _i2c_new_device(adap, &info);
-> +       if (IS_ERR(client))
-> +               return PTR_ERR(client);
->
->         /* Keep track of the added device */
->         mutex_lock(&adap->userspace_clients_lock);
-> --
-> 2.15.1
->
->
+> +	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+> +	union i2c_smbus_data device_id_raw;
+> +	u16 manufacturer_id; //12 bits
+> +
+> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
+> +		dev_warn(&client->dev, "PCA9846 family: I2c adapter doesn't support I2C_FUNC_SMBUS_WRITE_BYTE_DATA");
+> +		return -ENODEV;
+> +	}
+> +
+> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> +		dev_warn(&client->dev, "PCA9846 family: I2c adapter doesn't support I2C_FUNC_SMBUS_READ_I2C_BLOCK");
+> +		return -ENODEV;
+> +	}
+> +
+> +	/*
+> +	 * Software reset
+> +	 */
 
-Looks good to me in general. I would just rename _i2c_new_device to
-__i2c_new_device (with two leading underscores) as it seems to be a
-consistent pattern for this kind of private functions in i2c core.
+This could be a single line comment.
 
-Thanks,
-Bartosz
+> +	if (i2c_smbus_xfer(client->adapter, GENERAL_CALL, client->flags,
+> +			   I2C_SMBUS_WRITE, SOFTWARE_RESET, I2C_SMBUS_BYTE, NULL)  < 0) {
+> +		dev_warn(&client->dev, "PCA9846 family: Sofrware reset failed\n");
+> +		return -ENODEV;
+> +	}
+
+This is extremely invasive, and not appropriate for this driver. Do you
+need it? Why?
+
+> +
+> +	/*
+> +	 * Get device ID
+> +	 */
+
+This could be a single line comment.
+
+> +	device_id_raw.block[0] = 3;  //read 3 bytes
+> +	if (i2c_smbus_xfer(client->adapter, DEVICE_ID_ADDRESS, client->flags,
+> +			   I2C_SMBUS_READ,  client->addr << 1,
+> +			   I2C_SMBUS_I2C_BLOCK_DATA, &device_id_raw)) {
+> +		dev_warn(&client->dev, "PCA9846 family: Get device ID failed\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	//Device ID contains only 3 bytes
+
+I don't much care for // comments, and the missing space after them is especially
+disturbing.
+
+> +	if (device_id_raw.block[0] != 3) {
+> +		dev_warn(&client->dev, "PCA9846 family: Get device ID failed\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	//Check manufacturer ID (12 bits)
+> +	manufacturer_id = ((u16) device_id_raw.block[1] << 4) | (device_id_raw.block[2] >> 4);
+
+This is just broken, and works by chance only because NXP_ID happens to be
+zero.
+
+I get the feeling that you don't need to go digging up the manufacturer. That
+way you could avoid the split of the probe for the two families. So, what do
+you gain by verifying the manufacturer?
+
+> +	if (manufacturer_id != NXP_ID) {
+> +		dev_warn(&client->dev, "PCA9846 family: Manufacturer ID does not match NXP\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  /*
+>   * I2C init/probing/exit functions
+>   */
+> @@ -339,11 +469,29 @@ static int pca954x_probe(struct i2c_client *client,
+>  	if (IS_ERR(gpio))
+>  		return PTR_ERR(gpio);
+>  
+> -	/* Write the mux register at addr to verify
+> -	 * that the mux is in fact present. This also
+> -	 * initializes the mux to disconnected state.
+> -	 */
+> -	if (i2c_smbus_write_byte(client, 0) < 0) {
+> +	switch (id->driver_data) {
+> +	case pca_9540:
+> +	case pca_9542:
+> +	case pca_9543:
+> +	case pca_9544:
+> +	case pca_9545:
+> +	case pca_9546:
+> +	case pca_9547:
+> +	case pca_9548:
+> +		ret = _pca954x_probe(client, id);
+> +		break;
+> +	case pca_9846:
+> +	case pca_9847:
+> +	case pca_9848:
+> +	case pca_9849:
+> +		ret = _pca984x_probe(client, id);
+> +		break;
+> +	default: //unknown device
+> +		ret = -ENODEV;
+> +		break;
+> +	}
+> +
+> +	if (ret < 0) {
+>  		dev_warn(&client->dev, "probe failed\n");
+>  		return -ENODEV;
+>  	}
+> @@ -443,6 +591,6 @@ static struct i2c_driver pca954x_driver = {
+>  
+>  module_i2c_driver(pca954x_driver);
+>  
+> -MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
+> +MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>, Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
+>  MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
+>  MODULE_LICENSE("GPL v2");
+> 
