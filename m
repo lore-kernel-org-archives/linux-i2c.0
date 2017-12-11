@@ -1,352 +1,327 @@
-From: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] eeprom: at24: convert magic numbers to structs.
-Date: Mon, 11 Dec 2017 14:55:40 +0100
-Message-ID: <CAMRc=Mfk5+_muBwY5ADPTiGV_YoJGhHrEx7+cX+AOK6srxus_Q@mail.gmail.com>
-References: <1512768306-14816-1-git-send-email-svendev@arcx.com> <1512768306-14816-2-git-send-email-svendev@arcx.com>
+From: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+Subject: [PATCH v2] i2c: Add support for NXP PCA984x family.
+Date: Mon, 11 Dec 2017 15:27:16 +0100
+Message-ID: <20171211142716.30340-1-adrian.fiergolski@cern.ch>
+References: <f2bd4153-871f-0f71-2825-6225f0ec19d5@enneenne.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1512768306-14816-2-git-send-email-svendev-fuHqz3Nb1YI@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, nsekhar-l0cyMroinI0@public.gmane.org, Sakari Ailus <sakari.ailus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-he1eur01on0064.outbound.protection.outlook.com ([104.47.0.64]:41221
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752277AbdLKO1u (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 11 Dec 2017 09:27:50 -0500
+In-Reply-To: <f2bd4153-871f-0f71-2825-6225f0ec19d5@enneenne.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: giometti@enneenne.com, peda@axentia.se, giometti@linux.it, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 
-2017-12-08 22:25 GMT+01:00 Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>:
-> Fundamental properties such as capacity and page size differ
-> among at24-type chips. But these chips do not have an id register,
-> so this can't be discovered at runtime.
->
-> Traditionally, at24-type eeprom properties were determined in two ways:
-> - by passing a 'struct at24_platform_data' via platform_data, or
-> - by naming the chip type in the devicetree, which passes a
->         'magic number' to probe(), which is then converted to
->         a 'struct at24_platform_data'.
->
-> Recently a bug was discovered because the magic number rounds down
+This patch exetends the current i2c-mux-pca954x driver and adds suuport for
+a newer PCA984x family of the I2C switches and multiplexers from NXP.
+In probe function, the patch supports device ID function, introduced in the
+new family, and checks it against configuration provided by the
+devicetree. Moreover, it also performs software reset which is now
+available for the new devices.
+The reset of the code remains common with the legacy PCA954x devices.
 
-Can you reference the commit here? Use the xxxxxxxxxxxx ("something
-something") format.
+Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+---
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |   5 +-
+ drivers/i2c/muxes/Kconfig                          |   2 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 164 ++++++++++++++++++++-
+ 3 files changed, 161 insertions(+), 10 deletions(-)
 
-> all chip sizes to the lowest power of two. This was addressed by
-> a work-around, with the wish that magic numbers should over time
-> be converted to structs.
->
-> This patch replaces the magic numbers with 'struct at24_chip_data'.
->
-> Signed-off-by: Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>
-> ---
->  drivers/misc/eeprom/at24.c | 230 ++++++++++++++++++++++-----------------------
->  1 file changed, 110 insertions(+), 120 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 06ffa11..c3759cb 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -105,16 +105,6 @@ struct at24_data {
->  module_param(write_timeout, uint, 0);
->  MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
->
-> -#define AT24_SIZE_BYTELEN 5
-> -#define AT24_SIZE_FLAGS 8
-> -
-> -#define AT24_BITMASK(x) (BIT(x) - 1)
-> -
-> -/* create non-zero magic value for given eeprom parameters */
-> -#define AT24_DEVICE_MAGIC(_len, _flags)                \
-> -       ((1 << AT24_SIZE_FLAGS | (_flags))              \
-> -           << AT24_SIZE_BYTELEN | ilog2(_len))
-> -
->  /*
->   * Both reads and writes fail if the previous write didn't complete yet. This
->   * macro loops a few times waiting at least long enough for one entire page
-> @@ -131,113 +121,119 @@ struct at24_data {
->              op_time ? time_before(op_time, tout) : true;               \
->              usleep_range(1000, 1500), op_time = jiffies)
->
-> +struct at24_chip_data {
-> +       /*
-> +        * these fields mirror their equivalents in
-> +        * struct at24_platform_data
-> +        */
-> +       u32 byte_len;
-> +       u8 flags;
-> +};
-> +
-> +#define AT24_CHIP_DATA(_name, _len, _flags) \
-
-Move the backslash to the end of the line as is done in other macros
-in this file. Same applies below.
-
-> +       static const struct at24_chip_data at24_data_##_name = { \
-> +               .byte_len = _len, .flags = _flags, \
-> +       }
-> +
-> +#define AT24_I2C_DEVICE_ID(_name) \
-> +       { #_name, (kernel_ulong_t)&at24_data_##_name }
-> +
-> +#define AT24_ACPI_DEVICE_ID(_name) \
-> +       { #_name, (kernel_ulong_t)&at24_data_##_name }
-> +
-> +#define AT24_OF_DEVICE_ID(_of_compat, _name) \
-> +       { .compatible = _of_compat, .data = &at24_data_##_name }
-> +
-> +/* needs 8 addresses as A0-A2 are ignored */
-> +AT24_CHIP_DATA(24c00, 128 / 8, AT24_FLAG_TAKE8ADDR);
-> +/* old variants can't be handled with this generic entry! */
-> +AT24_CHIP_DATA(24c01, 1024 / 8, 0);
-> +AT24_CHIP_DATA(24cs01, 16, AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-> +AT24_CHIP_DATA(24c02, 2048 / 8,        0);
-> +AT24_CHIP_DATA(24cs02, 16, AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-> +AT24_CHIP_DATA(24mac402, 48 / 8,
-> +       AT24_FLAG_MAC | AT24_FLAG_READONLY);
-
-Why are you breaking the line here if it fits fine within the 80
-characters limit?
-
-> +AT24_CHIP_DATA(24mac602, 64 / 8,
-> +       AT24_FLAG_MAC | AT24_FLAG_READONLY);
-> +/* spd is a 24c02 in memory DIMMs */
-> +AT24_CHIP_DATA(spd, 2048 / 8,
-> +       AT24_FLAG_READONLY | AT24_FLAG_IRUGO);
-> +AT24_CHIP_DATA(24c04, 4096 / 8,        0);
-> +AT24_CHIP_DATA(24cs04, 16,
-> +       AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-> +/* 24rf08 quirk is handled at i2c-core */
-> +AT24_CHIP_DATA(24c08, 8192 / 8,        0);
-> +AT24_CHIP_DATA(24cs08, 16,
-> +       AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-> +AT24_CHIP_DATA(24c16, 16384 / 8, 0);
-> +AT24_CHIP_DATA(24cs16, 16,
-> +       AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-> +AT24_CHIP_DATA(24c32, 32768 / 8,       AT24_FLAG_ADDR16);
-> +AT24_CHIP_DATA(24cs32, 16,
-> +       AT24_FLAG_ADDR16 |
-> +       AT24_FLAG_SERIAL |
-> +       AT24_FLAG_READONLY);
-
-All the flags fit nicely in a single line, so don't be to eager to break them.
-
-> +AT24_CHIP_DATA(24c64, 65536 / 8,       AT24_FLAG_ADDR16);
-> +AT24_CHIP_DATA(24cs64, 16,
-> +       AT24_FLAG_ADDR16 |
-> +       AT24_FLAG_SERIAL |
-> +       AT24_FLAG_READONLY);
-> +AT24_CHIP_DATA(24c128, 131072 / 8,     AT24_FLAG_ADDR16);
-> +AT24_CHIP_DATA(24c256, 262144 / 8,     AT24_FLAG_ADDR16);
-> +AT24_CHIP_DATA(24c512, 524288 / 8,     AT24_FLAG_ADDR16);
-> +AT24_CHIP_DATA(24c1024, 1048576 / 8,   AT24_FLAG_ADDR16);
-> +/* identical to 24c08 ? */
-> +AT24_CHIP_DATA(INT3499, 8192 / 8, 0);
-> +
->  static const struct i2c_device_id at24_ids[] = {
-> -       /* needs 8 addresses as A0-A2 are ignored */
-> -       { "24c00",      AT24_DEVICE_MAGIC(128 / 8,      AT24_FLAG_TAKE8ADDR) },
-> -       /* old variants can't be handled with this generic entry! */
-> -       { "24c01",      AT24_DEVICE_MAGIC(1024 / 8,     0) },
-> -       { "24cs01",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
-> -       { "24c02",      AT24_DEVICE_MAGIC(2048 / 8,     0) },
-> -       { "24cs02",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
-> -       { "24mac402",   AT24_DEVICE_MAGIC(48 / 8,
-> -                               AT24_FLAG_MAC | AT24_FLAG_READONLY) },
-> -       { "24mac602",   AT24_DEVICE_MAGIC(64 / 8,
-> -                               AT24_FLAG_MAC | AT24_FLAG_READONLY) },
-> -       /* spd is a 24c02 in memory DIMMs */
-> -       { "spd",        AT24_DEVICE_MAGIC(2048 / 8,
-> -                               AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
-> -       { "24c04",      AT24_DEVICE_MAGIC(4096 / 8,     0) },
-> -       { "24cs04",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
-> -       /* 24rf08 quirk is handled at i2c-core */
-> -       { "24c08",      AT24_DEVICE_MAGIC(8192 / 8,     0) },
-> -       { "24cs08",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
-> -       { "24c16",      AT24_DEVICE_MAGIC(16384 / 8,    0) },
-> -       { "24cs16",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
-> -       { "24c32",      AT24_DEVICE_MAGIC(32768 / 8,    AT24_FLAG_ADDR16) },
-> -       { "24cs32",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_ADDR16 |
-> -                               AT24_FLAG_SERIAL |
-> -                               AT24_FLAG_READONLY) },
-> -       { "24c64",      AT24_DEVICE_MAGIC(65536 / 8,    AT24_FLAG_ADDR16) },
-> -       { "24cs64",     AT24_DEVICE_MAGIC(16,
-> -                               AT24_FLAG_ADDR16 |
-> -                               AT24_FLAG_SERIAL |
-> -                               AT24_FLAG_READONLY) },
-> -       { "24c128",     AT24_DEVICE_MAGIC(131072 / 8,   AT24_FLAG_ADDR16) },
-> -       { "24c256",     AT24_DEVICE_MAGIC(262144 / 8,   AT24_FLAG_ADDR16) },
-> -       { "24c512",     AT24_DEVICE_MAGIC(524288 / 8,   AT24_FLAG_ADDR16) },
-> -       { "24c1024",    AT24_DEVICE_MAGIC(1048576 / 8,  AT24_FLAG_ADDR16) },
-> +       AT24_I2C_DEVICE_ID(24c00),
-> +       AT24_I2C_DEVICE_ID(24c01),
-> +       AT24_I2C_DEVICE_ID(24cs01),
-> +       AT24_I2C_DEVICE_ID(24c02),
-> +       AT24_I2C_DEVICE_ID(24cs02),
-> +       AT24_I2C_DEVICE_ID(24mac402),
-> +       AT24_I2C_DEVICE_ID(24mac602),
-> +       AT24_I2C_DEVICE_ID(spd),
-> +       AT24_I2C_DEVICE_ID(24c04),
-> +       AT24_I2C_DEVICE_ID(24cs04),
-> +       AT24_I2C_DEVICE_ID(24c08),
-> +       AT24_I2C_DEVICE_ID(24cs08),
-> +       AT24_I2C_DEVICE_ID(24c16),
-> +       AT24_I2C_DEVICE_ID(24cs16),
-> +       AT24_I2C_DEVICE_ID(24c32),
-> +       AT24_I2C_DEVICE_ID(24cs32),
-> +       AT24_I2C_DEVICE_ID(24c64),
-> +       AT24_I2C_DEVICE_ID(24cs64),
-> +       AT24_I2C_DEVICE_ID(24c128),
-> +       AT24_I2C_DEVICE_ID(24c256),
-> +       AT24_I2C_DEVICE_ID(24c512),
-> +       AT24_I2C_DEVICE_ID(24c1024),
-
-I missed that before, but we use strings which can be found in the
-device tree and sysfs here and we may want to grep for them too.
-Please make these macros similar to the of ones and have the names
-explicitly in the source code. The same applies for the single chip
-defined in the ACPI table.
-
->         { "at24", 0 },
->         { /* END OF LIST */ }
->  };
->  MODULE_DEVICE_TABLE(i2c, at24_ids);
->
->  static const struct of_device_id at24_of_match[] = {
-> -       {
-> -               .compatible = "atmel,24c00",
-> -               .data = (void *)AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c01",
-> -               .data = (void *)AT24_DEVICE_MAGIC(1024 / 8, 0)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c02",
-> -               .data = (void *)AT24_DEVICE_MAGIC(2048 / 8, 0)
-> -       },
-> -       {
-> -               .compatible = "atmel,spd",
-> -               .data = (void *)AT24_DEVICE_MAGIC(2048 / 8,
-> -                               AT24_FLAG_READONLY | AT24_FLAG_IRUGO)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c04",
-> -               .data = (void *)AT24_DEVICE_MAGIC(4096 / 8, 0)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c08",
-> -               .data = (void *)AT24_DEVICE_MAGIC(8192 / 8, 0)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c16",
-> -               .data = (void *)AT24_DEVICE_MAGIC(16384 / 8, 0)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c32",
-> -               .data = (void *)AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c64",
-> -               .data = (void *)AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c128",
-> -               .data = (void *)AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c256",
-> -               .data = (void *)AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c512",
-> -               .data = (void *)AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       {
-> -               .compatible = "atmel,24c1024",
-> -               .data = (void *)AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16)
-> -       },
-> -       { },
-> +       AT24_OF_DEVICE_ID("atmel,24c00", 24c00),
-> +       AT24_OF_DEVICE_ID("atmel,24c01", 24c01),
-> +       AT24_OF_DEVICE_ID("atmel,24c02", 24c02),
-> +       AT24_OF_DEVICE_ID("atmel,spd", spd),
-> +       AT24_OF_DEVICE_ID("atmel,24c04", 24c04),
-> +       AT24_OF_DEVICE_ID("atmel,24c08", 24c08),
-> +       AT24_OF_DEVICE_ID("atmel,24c16", 24c16),
-> +       AT24_OF_DEVICE_ID("atmel,24c32", 24c32),
-> +       AT24_OF_DEVICE_ID("atmel,24c64", 24c64),
-> +       AT24_OF_DEVICE_ID("atmel,24c128", 24c128),
-> +       AT24_OF_DEVICE_ID("atmel,24c256", 24c256),
-> +       AT24_OF_DEVICE_ID("atmel,24c512", 24c512),
-> +       AT24_OF_DEVICE_ID("atmel,24c1024", 24c1024),
-> +       { /* END OF LIST */ },
->  };
->  MODULE_DEVICE_TABLE(of, at24_of_match);
->
->  static const struct acpi_device_id at24_acpi_ids[] = {
-> -       { "INT3499", AT24_DEVICE_MAGIC(8192 / 8, 0) },
-> -       { }
-> +       AT24_ACPI_DEVICE_ID(INT3499),
-> +       { /* END OF LIST */ }
->  };
->  MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
->
-> @@ -525,8 +521,8 @@ static unsigned int at24_get_offset_adj(u8 flags, unsigned int byte_len)
->
->  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  {
-> -       struct at24_platform_data chip;
-> -       kernel_ulong_t magic = 0;
-> +       struct at24_platform_data chip = { 0 };
-> +       const struct at24_chip_data *cd = NULL;
->         bool writable;
->         struct at24_data *at24;
->         int err;
-> @@ -544,28 +540,22 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->                  */
->                 if (client->dev.of_node &&
->                     of_match_device(at24_of_match, &client->dev)) {
-> -                       magic = (kernel_ulong_t)
-> -                               of_device_get_match_data(&client->dev);
-> +                       cd = of_device_get_match_data(&client->dev);
->                 } else if (id) {
-> -                       magic = id->driver_data;
-> +                       cd = (void *)id->driver_data;
->                 } else {
->                         const struct acpi_device_id *aid;
->
->                         aid = acpi_match_device(at24_acpi_ids, &client->dev);
->                         if (aid)
-> -                               magic = aid->driver_data;
-> +                               cd = (void *)aid->driver_data;
->                 }
-> -               if (!magic)
-> +               if (!cd)
->                         return -ENODEV;
->
-> -               chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
-> -               magic >>= AT24_SIZE_BYTELEN;
-> -               chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
-> -
-> +               chip.byte_len = cd->byte_len;
-> +               chip.flags = cd->flags;
->                 at24_get_pdata(&client->dev, &chip);
-> -
-> -               chip.setup = NULL;
-> -               chip.context = NULL;
->         }
->
->         if (!is_power_of_2(chip.byte_len))
-> --
-> 1.9.1
->
-
-Thanks,
-Bartosz
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index aa097045a10e..b428bc0d81b1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -1,10 +1,13 @@
+ * NXP PCA954x I2C bus switch
+ 
++The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
++
+ Required Properties:
+ 
+   - compatible: Must contain one of the following.
+     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+-    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
++    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
++    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+ 
+   - reg: The I2C address of the device.
+ 
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 0f5c8fc36625..5da2e04585a9 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -68,7 +68,7 @@ config I2C_MUX_PCA954x
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	help
+ 	  If you say yes here you get support for the Philips PCA954x
+-	  I2C mux/switch devices.
++	  and PCA984x I2C mux/switch devices.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-pca954x.
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 2ca068d8b92d..88de57ae5b7a 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -1,14 +1,16 @@
+ /*
+  * I2C multiplexer
+  *
++ * Copyright (c) 2017 Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
+  *
+- * This module supports the PCA954x series of I2C multiplexer/switch chips
+- * made by Philips Semiconductors.
++ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
++ * chips made by Philips Semiconductors.
+  * This includes the:
+  *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+  *	 and PCA9548.
++ *       PCA9846, PCA9847, PCA9848 and PCA9849
+  *
+  * These chips are all controlled via the I2C bus itself, and all have a
+  * single 8-bit register. The upstream "parent" bus fans out to two,
+@@ -54,6 +56,12 @@
+ 
+ #define PCA954X_IRQ_OFFSET 4
+ 
++//PCA984x family I2C other addresses
++#define GENERAL_CALL  0x00
++#define SOFTWARE_RESET 0x06
++#define DEVICE_ID_ADDRESS 0x7C
++#define NXP_ID 0x00
++
+ enum pca_type {
+ 	pca_9540,
+ 	pca_9542,
+@@ -63,6 +71,11 @@ enum pca_type {
+ 	pca_9546,
+ 	pca_9547,
+ 	pca_9548,
++	pca_9846,
++	pca_9847,
++	pca_9848,
++	pca_9849,
++
+ };
+ 
+ struct chip_desc {
+@@ -73,6 +86,7 @@ struct chip_desc {
+ 		pca954x_ismux = 0,
+ 		pca954x_isswi
+ 	} muxtype;
++	u16 deviceID; //used by PCA984x family only
+ };
+ 
+ struct pca954x {
+@@ -89,6 +103,7 @@ struct pca954x {
+ 
+ /* Provide specs for the PCA954x types we know about */
+ static const struct chip_desc chips[] = {
++	//954x family
+ 	[pca_9540] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
+@@ -129,9 +144,36 @@ static const struct chip_desc chips[] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
+ 	},
++
++	//984x family
++	[pca_9846] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++		.deviceID = 0x10B,
++	},
++
++	[pca_9847] = {
++		.nchans = 8,
++		.muxtype = pca954x_ismux,
++		.deviceID = 0x108,
++	},
++
++	[pca_9848] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++		.deviceID = 0x10A,
++	},
++
++	[pca_9849] = {
++		.nchans = 4,
++		.muxtype = pca954x_ismux,
++		.deviceID = 0x109,
++	},
++
+ };
+ 
+ static const struct i2c_device_id pca954x_id[] = {
++	//954x family
+ 	{ "pca9540", pca_9540 },
+ 	{ "pca9542", pca_9542 },
+ 	{ "pca9543", pca_9543 },
+@@ -140,12 +182,20 @@ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9546", pca_9546 },
+ 	{ "pca9547", pca_9547 },
+ 	{ "pca9548", pca_9548 },
++
++	//984x family
++	{ "pca9846", pca_9846 },
++	{ "pca9847", pca_9847 },
++	{ "pca9848", pca_9848 },
++	{ "pca9849", pca_9849 },
++
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id pca954x_of_match[] = {
++	//954x family
+ 	{ .compatible = "nxp,pca9540", .data = &chips[pca_9540] },
+ 	{ .compatible = "nxp,pca9542", .data = &chips[pca_9542] },
+ 	{ .compatible = "nxp,pca9543", .data = &chips[pca_9543] },
+@@ -154,6 +204,14 @@ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+ 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+ 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
++
++
++	//984x family
++	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
++	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
++	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
++	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
++
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pca954x_of_match);
+@@ -304,6 +362,78 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+ 	i2c_mux_del_adapters(muxc);
+ }
+ 
++/*
++ * Part of probe function specific for pca954x family
++ */
++inline int _pca954x_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id){
++
++	/* Write the mux register at addr to verify
++	 * that the mux is in fact present. This also
++	 * initializes the mux to disconnected state.
++	 */
++	if (i2c_smbus_write_byte(client, 0) < 0)
++		return -ENODEV;
++
++	return 0;
++}
++
++/*
++ * Part of probe function specific for pca984x family
++ */
++inline int _pca984x_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id){
++
++	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
++	union i2c_smbus_data device_id_raw;
++	u16 manufacturer_id; //12 bits
++
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
++		dev_warn(&client->dev, "PCA9846 family: I2c adapter doesn't support I2C_FUNC_SMBUS_WRITE_BYTE_DATA");
++		return -ENODEV;
++	}
++
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
++		dev_warn(&client->dev, "PCA9846 family: I2c adapter doesn't support I2C_FUNC_SMBUS_READ_I2C_BLOCK");
++		return -ENODEV;
++	}
++
++	/*
++	 * Software reset
++	 */
++	if (i2c_smbus_xfer(client->adapter, GENERAL_CALL, client->flags,
++			   I2C_SMBUS_WRITE, SOFTWARE_RESET, I2C_SMBUS_BYTE, NULL)  < 0) {
++		dev_warn(&client->dev, "PCA9846 family: Sofrware reset failed\n");
++		return -ENODEV;
++	}
++
++	/*
++	 * Get device ID
++	 */
++	device_id_raw.block[0] = 3;  //read 3 bytes
++	if (i2c_smbus_xfer(client->adapter, DEVICE_ID_ADDRESS, client->flags,
++			   I2C_SMBUS_READ,  client->addr << 1,
++			   I2C_SMBUS_I2C_BLOCK_DATA, &device_id_raw)) {
++		dev_warn(&client->dev, "PCA9846 family: Get device ID failed\n");
++		return -ENODEV;
++	}
++
++	//Device ID contains only 3 bytes
++	if (device_id_raw.block[0] != 3) {
++		dev_warn(&client->dev, "PCA9846 family: Get device ID failed\n");
++		return -ENODEV;
++	}
++
++	//Check manufacturer ID (12 bits)
++	manufacturer_id = ((u16) device_id_raw.block[1] << 4) | (device_id_raw.block[2] >> 4);
++	if (manufacturer_id != NXP_ID) {
++		dev_warn(&client->dev, "PCA9846 family: Manufacturer ID does not match NXP\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
+ /*
+  * I2C init/probing/exit functions
+  */
+@@ -339,11 +469,29 @@ static int pca954x_probe(struct i2c_client *client,
+ 	if (IS_ERR(gpio))
+ 		return PTR_ERR(gpio);
+ 
+-	/* Write the mux register at addr to verify
+-	 * that the mux is in fact present. This also
+-	 * initializes the mux to disconnected state.
+-	 */
+-	if (i2c_smbus_write_byte(client, 0) < 0) {
++	switch (id->driver_data) {
++	case pca_9540:
++	case pca_9542:
++	case pca_9543:
++	case pca_9544:
++	case pca_9545:
++	case pca_9546:
++	case pca_9547:
++	case pca_9548:
++		ret = _pca954x_probe(client, id);
++		break;
++	case pca_9846:
++	case pca_9847:
++	case pca_9848:
++	case pca_9849:
++		ret = _pca984x_probe(client, id);
++		break;
++	default: //unknown device
++		ret = -ENODEV;
++		break;
++	}
++
++	if (ret < 0) {
+ 		dev_warn(&client->dev, "probe failed\n");
+ 		return -ENODEV;
+ 	}
+@@ -443,6 +591,6 @@ static struct i2c_driver pca954x_driver = {
+ 
+ module_i2c_driver(pca954x_driver);
+ 
+-MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
++MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>, Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
+ MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
+ MODULE_LICENSE("GPL v2");
+-- 
+2.14.1
