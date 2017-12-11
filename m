@@ -1,44 +1,31 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] eeprom: at24: code shrink
-Date: Mon, 11 Dec 2017 09:08:48 +0100
-Message-ID: <20171211080848.t34igariuresgsvf@pengutronix.de>
-References: <20171210192947.32211-1-brgl@bgdev.pl>
+From: Juergen Fitschen <me@jue.yt>
+Subject: Re: [PATCH v2 3/3] i2c: at91: added slave mode support
+Date: Mon, 11 Dec 2017 10:25:00 +0100
+Message-ID: <20171211092459.GA6350@jfi-dev>
+References: <cover.1510247114.git.me@jue.yt>
+ <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
+ <20171203180231.GA2843@rfolt0960.corp.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:55123 "EHLO
-        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752414AbdLKIIu (ORCPT
-        <rfc822;linux-i2c@vger.kernel.ORG>); Mon, 11 Dec 2017 03:08:50 -0500
+Received: from srv1.host37.de ([176.28.54.59]:38831 "EHLO srv1.host37.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751759AbdLKJZE (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 11 Dec 2017 04:25:04 -0500
 Content-Disposition: inline
-In-Reply-To: <20171210192947.32211-1-brgl@bgdev.pl>
+In-Reply-To: <20171203180231.GA2843@rfolt0960.corp.atmel.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello,
+Hi Ludovic,
 
-On Sun, Dec 10, 2017 at 08:29:47PM +0100, Bartosz Golaszewski wrote:
-> @@ -625,7 +610,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	at24->offset_adj = at24_get_offset_adj(chip.flags, chip.byte_len);
->  
->  	at24->client[0].client = client;
-> -	at24->client[0].regmap = devm_regmap_init_i2c(client, config);
-> +	at24->client[0].regmap = devm_regmap_init_i2c(client, &config);
->  	if (IS_ERR(at24->client[0].regmap))
->  		return PTR_ERR(at24->client[0].regmap);
->  
+thank you for your reply and sorry for the delayed response! I'm a little bit
+busy atm, as well. So I won't be able to reproduce that before the next week. I
+also want to try another I2C master: A wild Arduino Uno appeared on my desk ;)
 
-One side effect here that the lockdep name changes from (unhelpful)
-"config" to (unhelpful and ugly) "&config". Probably doesn't matter much
-...
+Thank you for your support for bringing this to mainline!
 
 Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+  Juergen
