@@ -1,55 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [GIT PULL REQUEST] at24 fixes for 4.15-rc3
-Date: Tue, 12 Dec 2017 23:09:43 +0100
-Message-ID: <20171212220943.ezqlpwniwfxmdhq3@ninjato>
-References: <20171207143236.3228-1-brgl@bgdev.pl>
+Subject: Re: [PATCH] i2c: piix4: Fix port number check on release
+Date: Tue, 12 Dec 2017 23:28:14 +0100
+Message-ID: <20171212222814.o2oqmsbiih2i6oqd@ninjato>
+References: <20171207122545.1b8e17c6@endymion>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jsifwe44wavwu6mj"
+        protocol="application/pgp-signature"; boundary="add6fezzlvdhltwo"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:45977 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:46027 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752320AbdLLWJo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 12 Dec 2017 17:09:44 -0500
+        id S1752320AbdLLW2Q (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 12 Dec 2017 17:28:16 -0500
 Content-Disposition: inline
-In-Reply-To: <20171207143236.3228-1-brgl@bgdev.pl>
+In-Reply-To: <20171207122545.1b8e17c6@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
 
 
---jsifwe44wavwu6mj
+--add6fezzlvdhltwo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Dec 07, 2017 at 12:25:45PM +0100, Jean Delvare wrote:
+> The port number shift is still hard-coded to 1 while it now depends
+> on the hardware.
+>=20
+> Thankfully 0 is always 0 no matter how you shift it, so this was a
+> bug without consequences.
+>=20
+> Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> Fixes: 0fe16195f891 ("i2c: piix4: Fix SMBus port selection for AMD Family=
+ 17h chips")
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+
+I still think it is weird, but applied to for-current nonetheless,
+thanks!
 
 
-> the following pull request contains two fixes for 4.15-rc3. Sakari
-> fixed a regression introduced during the 4.15 merge window and David
-> submitted a fix for an issue that has existed in at24 since introducing
-> nvmem.
-
-Thanks, pulled! Sorry, I couldn't make rc3 but it will be in rc4.
-
-
---jsifwe44wavwu6mj
+--add6fezzlvdhltwo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowU6cACgkQFA3kzBSg
-KbYEthAAqhWd9/YxONgUWKEDA1qNs1n4HRjE4T2wO9XrBSTfUU3GwJitNwx4Haja
-tSLilQAKclTiBYBNvtPY+y50HCmkX9YfIbqlE9FZaMxBhrMT3JhB8AOeQBY81/fR
-UE4UHy1GxM75MigvvX/C5OeW8EBtqroe8Am/YZE1o7DADyw2t+wzpKINoVsNGqjW
-OYk3fEMxbyX/y2m8BP0kjl/an7mhABp/HK+r5vHtaxcA1LpTueNU9/OpENnyBp/6
-jdP4LN/Rj02KC8Almz0+0pV9aZSxi1PijTmtbK6WBrmEYrVkScp0H9g3fdq6yTyD
-1ly6Rq3B11nvdIhLaeyZssGP3HyME77f10gmhhPMOIiPxFfHenQIp4aDa3GsBiNk
-+XqDWziOgcECglqaASrmVoX9cFDIrm/4522u7y3ZF4PCvzUNi08mwEnZNC4WKR0o
-MATgHK7vmBYvTPt++ydKLK22vNYWUHjWWGbsT7X+oxc7K0ZMNCHUhXcGHYSz5Otp
-TuxQXAnnOSjbdtYGgEkJAjGRZLeFET3RvGc1jATQlv2PkXQAnaVTx1QRoWGhp5Iq
-sShU01v0pXBtoaGX8ZjYgBKyYDsFmnbdGxJfn1U6qlKHg11KSI4cYR4d/XJOvaa+
-4jHig/teZ+I+ViJhT41oCcerGsmWERfTF4Rq/TlSN3E/P+U8WOc=
-=k6Nf
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowV/4ACgkQFA3kzBSg
+Kbaphg//fJmrasL++FhWPq+FRQ/4j0F7BtPqpU3CWu6NRIMDGrgwxBi4TZw1eovO
+n0Y8XQ4sWQB+vfXi6sy56XtqkFAkB6UI7VzDO6mVPBvkCSacHJsvjCiA7SSofw0K
+X5+1m8dYfpAEpsJ1PYtzd0UWVwDtGXSyDC/26vWzxS0taXeLHcKWe5xDra1HrdCr
+xWxmPUWAW2UeJZhH1WznGESH93/HK90vhuURLf1KBv+SaLbhW7zHd0CVus5GnzTv
+nTgBFwY0PXtUqstyI8AxQn3Ua+NxU0imo3w3VArZt9yzPEIqS5oamuDfOReYe6jh
+d98NYpkhbS24XBkqHmMQXT3TMKKgTCIcQqxvGX+zF8TP5GGEW3IaBuWKQud/bHnA
+noCmO4Jx2gwQ6UCo4XRHlWQ3T59inNLe0C4yAyL2DkNQYh+0h9ceGvY2ZFvEE5bO
+WRFFpnVcelZYLKiZw+qmikzgeGto8WVB1bpyr7/AOH95hynaWoBdyy0/qUIna7pj
+QedhsVi+7GePKXNClZB8N08quOd+/pzVLAntKV6DjgtqWo3NbHAVKQDOnon67CyU
+5/ISDhFNNANwSP0z6GMuCYXSvYoJJTnopjmU9535dHCSXYh34mvumdHuh9NHYfSi
+4y9JqQgX/MmiR8Wpn3wQLirpj8KFRXf0cLf6RnwyKP34TtOn3YE=
+=YJqA
 -----END PGP SIGNATURE-----
 
---jsifwe44wavwu6mj--
+--add6fezzlvdhltwo--
