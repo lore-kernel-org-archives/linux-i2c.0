@@ -1,64 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: piix4: Fix port number check on release
-Date: Tue, 12 Dec 2017 23:28:14 +0100
-Message-ID: <20171212222814.o2oqmsbiih2i6oqd@ninjato>
-References: <20171207122545.1b8e17c6@endymion>
+Subject: Re: [PATCH] i2c: imx: Include the right GPIO header
+Date: Tue, 12 Dec 2017 23:33:26 +0100
+Message-ID: <20171212223326.i3qnws7qmz7it5fp@ninjato>
+References: <20171208133535.17562-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="add6fezzlvdhltwo"
+        protocol="application/pgp-signature"; boundary="negkx7ewbp7hb67r"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:46027 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:46066 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752320AbdLLW2Q (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 12 Dec 2017 17:28:16 -0500
+        id S1752728AbdLLWd2 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 12 Dec 2017 17:33:28 -0500
 Content-Disposition: inline
-In-Reply-To: <20171207122545.1b8e17c6@endymion>
+In-Reply-To: <20171208133535.17562-1-linus.walleij@linaro.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>
 
 
---add6fezzlvdhltwo
+--negkx7ewbp7hb67r
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 07, 2017 at 12:25:45PM +0100, Jean Delvare wrote:
-> The port number shift is still hard-coded to 1 while it now depends
-> on the hardware.
+On Fri, Dec 08, 2017 at 02:35:35PM +0100, Linus Walleij wrote:
+> <linux/of_gpio.h> is not used in this file, by
+> <linux/gpio/consumer.h> is.
 >=20
-> Thankfully 0 is always 0 no matter how you shift it, so this was a
-> bug without consequences.
+> Someone is just lucky with their implicit includes.
 >=20
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Fixes: 0fe16195f891 ("i2c: piix4: Fix SMBus port selection for AMD Family=
- 17h chips")
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Shawn Guo <shawnguo@kernel.org>
+> Cc: Sascha Hauer <kernel@pengutronix.de>
+> Cc: Fabio Estevam <fabio.estevam@nxp.com>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 
-I still think it is weird, but applied to for-current nonetheless,
-thanks!
+Applied to for-next, thanks!
 
 
---add6fezzlvdhltwo
+--negkx7ewbp7hb67r
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowV/4ACgkQFA3kzBSg
-Kbaphg//fJmrasL++FhWPq+FRQ/4j0F7BtPqpU3CWu6NRIMDGrgwxBi4TZw1eovO
-n0Y8XQ4sWQB+vfXi6sy56XtqkFAkB6UI7VzDO6mVPBvkCSacHJsvjCiA7SSofw0K
-X5+1m8dYfpAEpsJ1PYtzd0UWVwDtGXSyDC/26vWzxS0taXeLHcKWe5xDra1HrdCr
-xWxmPUWAW2UeJZhH1WznGESH93/HK90vhuURLf1KBv+SaLbhW7zHd0CVus5GnzTv
-nTgBFwY0PXtUqstyI8AxQn3Ua+NxU0imo3w3VArZt9yzPEIqS5oamuDfOReYe6jh
-d98NYpkhbS24XBkqHmMQXT3TMKKgTCIcQqxvGX+zF8TP5GGEW3IaBuWKQud/bHnA
-noCmO4Jx2gwQ6UCo4XRHlWQ3T59inNLe0C4yAyL2DkNQYh+0h9ceGvY2ZFvEE5bO
-WRFFpnVcelZYLKiZw+qmikzgeGto8WVB1bpyr7/AOH95hynaWoBdyy0/qUIna7pj
-QedhsVi+7GePKXNClZB8N08quOd+/pzVLAntKV6DjgtqWo3NbHAVKQDOnon67CyU
-5/ISDhFNNANwSP0z6GMuCYXSvYoJJTnopjmU9535dHCSXYh34mvumdHuh9NHYfSi
-4y9JqQgX/MmiR8Wpn3wQLirpj8KFRXf0cLf6RnwyKP34TtOn3YE=
-=YJqA
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowWTYACgkQFA3kzBSg
+KbYutQ/+PZddQwcSxdgleAPbjUxoXnoqbqIW/NrTkn4c/uga3p6po8g9Kzs89lMs
+WruFmq0dSa8b9RRiSCD3OvlRrtXLvmsxxBA6cxrQ3RH4YG4LGC1s/HJ3FzhFFY2W
+rRc2rwi2SXsgKqh1O0p9vKAmEuQxOgzsLEgqVatUdPYQ5/gd1TYKDcmXiHgefVbk
+ch5AOP9Rp9qXk55M0Z4o54ZQgaaHH/Du6DPWqKcr/Ny6dGLOUa676RY0XM9ZlMpK
+YH28aYL9JCqdzj3rIgc4QN+BeCxFMjTQLtt8wnC6qdYr2B3m9c4Rp1YiORgn+NgB
+B0QMuZIWnudkIqq2wO6EhVt3Y8MaIh+f2NRrFEIpwQHLQsEgfI+Q5ZpNKRkJqln9
+eZdM2dvWTrWVGHlhmuH54cp7QPjfuUaKUeMlxBwLH1FJc/FbVPEwzWjtvq1lxzxJ
+S3gjpn2ve/pxzDrPjLn5cZ01w9y6RiAUqyijA94HIv6Gbqz01MVUek27BsHplWO6
+ELufCNXhb8YXT7j5SjcG/mluAR3vVkW+UHxMbONya/Sq2rLvj35L1sCnrR+oHLAt
+GCwtrb/XSR6DmUVYwt8T6M14GrTBN9UUuxWEX+GrQTFWLmDrbpK0/MlnRNPGj8ej
+0iZzh67FVjSLBJCIbGaPGHYWkwfCxKw/n/+s4bzojahroOUpAjg=
+=4vl/
 -----END PGP SIGNATURE-----
 
---add6fezzlvdhltwo--
+--negkx7ewbp7hb67r--
