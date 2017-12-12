@@ -1,61 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: Add support for NXP PCA984x family.
-Date: Tue, 12 Dec 2017 23:05:38 +0100
-Message-ID: <20171212220537.o4njv4lqp2ppmu7x@ninjato>
-References: <8a2f6d04-f156-a877-9e82-3f760488c932@enneenne.com>
- <20171211165811.5806-1-adrian.fiergolski@cern.ch>
- <f3883936-d621-cc48-444b-db08470d256f@axentia.se>
- <2acdb52a-c669-631d-2ef2-ab0da2899e00@cern.ch>
- <cb42475b-eacb-d059-2ee5-f2a57cf29159@axentia.se>
- <c7842a62-980d-b220-aa42-51cbb5398c5b@cern.ch>
- <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+Subject: Re: [GIT PULL REQUEST] at24 fixes for 4.15-rc3
+Date: Tue, 12 Dec 2017 23:09:43 +0100
+Message-ID: <20171212220943.ezqlpwniwfxmdhq3@ninjato>
+References: <20171207143236.3228-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="c7oraxwegfvpbzcf"
+        protocol="application/pgp-signature"; boundary="jsifwe44wavwu6mj"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:45957 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:45977 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752320AbdLLWFj (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 12 Dec 2017 17:05:39 -0500
+        id S1752320AbdLLWJo (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 12 Dec 2017 17:09:44 -0500
 Content-Disposition: inline
-In-Reply-To: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+In-Reply-To: <20171207143236.3228-1-brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Adrian Fiergolski <Adrian.Fiergolski@cern.ch>, linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org
 
 
---c7oraxwegfvpbzcf
+--jsifwe44wavwu6mj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> Wolfram, do you have an opinion on the device id check using the
-> 0x7c address?
+> the following pull request contains two fixes for 4.15-rc3. Sakari
+> fixed a regression introduced during the 4.15 merge window and David
+> submitted a fix for an issue that has existed in at24 since introducing
+> nvmem.
 
-I always thought there should be some core support for that feature, but
-IIRC I never knew of any device which had this implemented. But since it
-is described in the I2C Specification, it should be in core IMO.
+Thanks, pulled! Sorry, I couldn't make rc3 but it will be in rc4.
 
 
---c7oraxwegfvpbzcf
+--jsifwe44wavwu6mj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowUrEACgkQFA3kzBSg
-KbZRHhAAgmVqqq4oJjEnKCXFLaSDYJjwsVgWmxl3rNiOcDmjESdyDQPpYG34lpJy
-GFye/+DEFmLMm01riwbiKSrB/f7kFss1muxOLt/40IVDGd7O8k1G5EvE61waL13Y
-aJFPVQ9f/rq185MOrdTpRdTH8W/sUhZqYyM/JlsasRfb0h2kz5Jfng3LhXVTPEzp
-0t7r0rlxYTO63VBuaeVOJFOosXceYE2ODNg/REdodB6Geg8gD4tCvyZlcSHfTzfb
-3Zk5Dk7GTZAH8CW7qc6j8wPVSCogRP4kaGA8O+/PMzYCSHPpsgKSxrVgs8Xkld0Y
-IOW3B1lt3NZMNnfSJWFBb7qYGiQcBu5C/mdfLjrEXtKDpP9Zn1SCUOUxnkK0e+uC
-rKMRfQdug3l1vqk9RuPnipoo1yAQqruqHF4jkxsRW03btHL9fZWUWj+y266Btt4U
-rUWhskfXqh1F8j7axvMSmR5E9NutDgHvc1+NhQCi/casV8MpB3OMx89NeYPRU/fl
-8c4KLh/yArLfeYo4IZMEwutDusgcjDh868FvrX4bda5kgeRUMMjdxPSBYmxnSa3F
-qONQ+zc9yO0pv5HVjyWPFFjkRGDLDadrDMksFohWnhrHzbN8Aw0dxi7xYKuTbT0S
-QheidREnH4YzewqsBbt9KI07WBkWk8KW3jNlAQVns0NxBMS+z/o=
-=jvnS
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlowU6cACgkQFA3kzBSg
+KbYEthAAqhWd9/YxONgUWKEDA1qNs1n4HRjE4T2wO9XrBSTfUU3GwJitNwx4Haja
+tSLilQAKclTiBYBNvtPY+y50HCmkX9YfIbqlE9FZaMxBhrMT3JhB8AOeQBY81/fR
+UE4UHy1GxM75MigvvX/C5OeW8EBtqroe8Am/YZE1o7DADyw2t+wzpKINoVsNGqjW
+OYk3fEMxbyX/y2m8BP0kjl/an7mhABp/HK+r5vHtaxcA1LpTueNU9/OpENnyBp/6
+jdP4LN/Rj02KC8Almz0+0pV9aZSxi1PijTmtbK6WBrmEYrVkScp0H9g3fdq6yTyD
+1ly6Rq3B11nvdIhLaeyZssGP3HyME77f10gmhhPMOIiPxFfHenQIp4aDa3GsBiNk
++XqDWziOgcECglqaASrmVoX9cFDIrm/4522u7y3ZF4PCvzUNi08mwEnZNC4WKR0o
+MATgHK7vmBYvTPt++ydKLK22vNYWUHjWWGbsT7X+oxc7K0ZMNCHUhXcGHYSz5Otp
+TuxQXAnnOSjbdtYGgEkJAjGRZLeFET3RvGc1jATQlv2PkXQAnaVTx1QRoWGhp5Iq
+sShU01v0pXBtoaGX8ZjYgBKyYDsFmnbdGxJfn1U6qlKHg11KSI4cYR4d/XJOvaa+
+4jHig/teZ+I+ViJhT41oCcerGsmWERfTF4Rq/TlSN3E/P+U8WOc=
+=k6Nf
 -----END PGP SIGNATURE-----
 
---c7oraxwegfvpbzcf--
+--jsifwe44wavwu6mj--
