@@ -1,92 +1,31 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v4 1/2] eeprom: at24: fix coding style issues
-Date: Wed, 13 Dec 2017 11:56:23 +0100
-Message-ID: <20171213105624.27058-2-brgl@bgdev.pl>
-References: <20171213105624.27058-1-brgl@bgdev.pl>
+Subject: [PATCH] MAINTAINERS: add git URL for at24
+Date: Wed, 13 Dec 2017 12:30:31 +0100
+Message-ID: <20171213113031.8668-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171213105624.27058-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-Fix issues reported by checkpatch for at24.c.
+Add the link to my git tree to the at24 section.
 
 Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 ---
- drivers/misc/eeprom/at24.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 625b00166117..87b68ef07dfc 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -70,8 +70,8 @@ struct at24_data {
- 	 */
- 	struct mutex lock;
- 
--	unsigned write_max;
--	unsigned num_addresses;
-+	unsigned int write_max;
-+	unsigned int num_addresses;
- 	unsigned int offset_adj;
- 
- 	struct nvmem_config nvmem_config;
-@@ -93,7 +93,7 @@ struct at24_data {
-  *
-  * This value is forced to be a power of two so that writes align on pages.
-  */
--static unsigned io_limit = 128;
-+static unsigned int io_limit = 128;
- module_param(io_limit, uint, 0);
- MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
- 
-@@ -101,7 +101,7 @@ MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
-  * Specs often allow 5 msec for a page write, sometimes 20 msec;
-  * it's important to recover from write timeouts.
-  */
--static unsigned write_timeout = 25;
-+static unsigned int write_timeout = 25;
- module_param(write_timeout, uint, 0);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
-@@ -111,8 +111,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
- /* create non-zero magic value for given eeprom parameters */
--#define AT24_DEVICE_MAGIC(_len, _flags) 		\
--	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
-+#define AT24_DEVICE_MAGIC(_len, _flags)			\
-+	((1 << AT24_SIZE_FLAGS | (_flags))		\
- 	    << AT24_SIZE_BYTELEN | ilog2(_len))
- 
- /*
-@@ -264,7 +264,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
- static struct at24_client *at24_translate_offset(struct at24_data *at24,
- 						 unsigned int *offset)
- {
--	unsigned i;
-+	unsigned int i;
- 
- 	if (at24->chip.flags & AT24_FLAG_ADDR16) {
- 		i = *offset >> 16;
-@@ -319,7 +319,7 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
- static size_t at24_adjust_write_count(struct at24_data *at24,
- 				      unsigned int offset, size_t count)
- {
--	unsigned next_page;
-+	unsigned int next_page;
- 
- 	/* write_max is at most a page */
- 	if (count > at24->write_max)
-@@ -515,7 +515,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	bool writable;
- 	struct at24_data *at24;
- 	int err;
--	unsigned i, num_addresses;
-+	unsigned int i, num_addresses;
- 	const struct regmap_config *config;
- 	u8 test_byte;
- 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 55af54fa0837..edaf9802a11f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2262,6 +2262,7 @@ F:	include/linux/async_tx.h
+ AT24 EEPROM DRIVER
+ M:	Bartosz Golaszewski <brgl@bgdev.pl>
+ L:	linux-i2c@vger.kernel.org
++T:	git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/eeprom/at24.txt
+ F:	drivers/misc/eeprom/at24.c
 -- 
 2.15.1
