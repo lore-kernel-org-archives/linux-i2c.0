@@ -1,31 +1,130 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH] MAINTAINERS: add git URL for at24
-Date: Wed, 13 Dec 2017 12:30:31 +0100
-Message-ID: <20171213113031.8668-1-brgl@bgdev.pl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+From: Yixun Lan <yixun.lan@amlogic.com>
+Subject: Re: [PATCH v2 2/5] i2c: meson: add configurable divider factors
+Date: Wed, 13 Dec 2017 21:52:50 +0800
+Message-ID: <eb304da4-a9e7-154c-6198-c195c04849d5@amlogic.com>
+References: <20171120145415.6581-1-yixun.lan@amlogic.com>
+ <20171120145415.6581-3-yixun.lan@amlogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-sh2.amlogic.com ([58.32.228.45]:44228 "EHLO
+        mail-sh2.amlogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752749AbdLMNxS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Dec 2017 08:53:18 -0500
+In-Reply-To: <20171120145415.6581-3-yixun.lan@amlogic.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>
+Cc: yixun.lan@amlogic.com, Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-Add the link to my git tree to the at24 section.
+Hi Wolfram
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+On 11/20/2017 10:54 PM, Yixun Lan wrote:
+> From: Jian Hu <jian.hu@amlogic.com>
+> 
+> This patch try to add support for I2C controller in Meson-AXG SoC,
+> Due to the IP changes between I2C controller, we need to introduce
+> a compatible data to make the divider factor configurable.
+> 
+> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
+> Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
+> ---
+>  drivers/i2c/busses/i2c-meson.c | 32 ++++++++++++++++++++++++++++----
+>  1 file changed, 28 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index 88d15b92ec35..37c4aa76f37a 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+> +#include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/types.h>
+>  
+> @@ -57,6 +58,10 @@ enum {
+>  	STATE_WRITE,
+>  };
+>  
+> +struct meson_i2c_data {
+> +	unsigned char div_factor;
+> +};
+> +
+>  /**
+>   * struct meson_i2c - Meson I2C device private data
+>   *
+> @@ -93,6 +98,8 @@ struct meson_i2c {
+>  	struct completion	done;
+>  	u32			tokens[2];
+>  	int			num_tokens;
+> +
+> +	const struct meson_i2c_data *data;
+>  };
+>  
+>  static void meson_i2c_set_mask(struct meson_i2c *i2c, int reg, u32 mask,
+> @@ -128,7 +135,7 @@ static void meson_i2c_set_clk_div(struct meson_i2c *i2c, unsigned int freq)
+>  	unsigned long clk_rate = clk_get_rate(i2c->clk);
+>  	unsigned int div;
+>  
+> -	div = DIV_ROUND_UP(clk_rate, freq * 4);
+> +	div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
+>  
+>  	/* clock divider has 12 bits */
+>  	if (div >= (1 << 12)) {
+> @@ -376,6 +383,9 @@ static int meson_i2c_probe(struct platform_device *pdev)
+>  	spin_lock_init(&i2c->lock);
+>  	init_completion(&i2c->done);
+>  
+> +	i2c->data = (const struct meson_i2c_data *)
+> +		of_device_get_match_data(&pdev->dev);
+> +
+>  	i2c->clk = devm_clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(i2c->clk)) {
+>  		dev_err(&pdev->dev, "can't get device clock\n");
+> @@ -440,11 +450,25 @@ static int meson_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +static const struct meson_i2c_data i2c_meson6_data = {
+> +	.div_factor = 4,
+> +};
+> +
+> +static const struct meson_i2c_data i2c_gxbb_data = {
+> +	.div_factor = 4,
+> +};
+> +
+> +static const struct meson_i2c_data i2c_axg_data = {
+> +	.div_factor = 3,
+> +};
+> +
+>  static const struct of_device_id meson_i2c_match[] = {
+> -	{ .compatible = "amlogic,meson6-i2c" },
+> -	{ .compatible = "amlogic,meson-gxbb-i2c" },
+> -	{ },
+> +	{ .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
+> +	{ .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
+> +	{ .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
+> +	{},
+>  };
+> +
+>  MODULE_DEVICE_TABLE(of, meson_i2c_match);
+>  
+>  static struct platform_driver meson_i2c_driver = {
+> 
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 55af54fa0837..edaf9802a11f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2262,6 +2262,7 @@ F:	include/linux/async_tx.h
- AT24 EEPROM DRIVER
- M:	Bartosz Golaszewski <brgl@bgdev.pl>
- L:	linux-i2c@vger.kernel.org
-+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
- S:	Maintained
- F:	Documentation/devicetree/bindings/eeprom/at24.txt
- F:	drivers/misc/eeprom/at24.c
--- 
-2.15.1
+
+this is merely a ping, do you have any comment on this patch?
+or could you take this patch along with patch 1 [1](with Rob's Ack) if
+you think it's ready/good?
+
+thanks
+
+[1]
+http://lists.infradead.org/pipermail/linux-amlogic/2017-November/005405.html
+http://lists.infradead.org/pipermail/linux-amlogic/2017-November/005417.html
+
+Yixun
