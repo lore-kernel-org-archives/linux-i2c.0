@@ -1,8 +1,7 @@
 From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v3 3/3] eeprom: at24: switch to device-managed version of
- i2c_new_dummy
-Date: Wed, 13 Dec 2017 20:11:38 +0100
-Message-ID: <f34608f7-12e0-ef04-6913-24ac18a36437@gmail.com>
+Subject: [PATCH v3 2/3] i2c: core: add device-managed version of i2c_new_dummy
+Date: Wed, 13 Dec 2017 20:11:32 +0100
+Message-ID: <9fa02862-2908-b445-ef7f-a587fd6ac666@gmail.com>
 References: <69b03782-cb1a-2b31-c8aa-1827caa66dd5@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -14,81 +13,103 @@ To: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>, Peter
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make use of recently introduced device-managed version of
-i2c_new_dummy to simplify the code.
+i2c_new_dummy is typically called from the probe function of the
+driver for the primary i2c client. It requires calls to
+i2c_unregister_device in the error path of the probe function and
+in the remove function.
+This can be simplified by introducing a device-managed version.
+
+Note the changed error case return value type:
+i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
 v2:
-- small improvements regarding code readability
+- use new function _i2c_new_dummy with detailed error codes
 v3:
 - no changes
 ---
- drivers/misc/eeprom/at24.c | 31 +++++++++++--------------------
- 1 file changed, 11 insertions(+), 20 deletions(-)
+ Documentation/driver-model/devres.txt |  3 +++
+ drivers/i2c/i2c-core-base.c           | 38 +++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h                   |  3 +++
+ 3 files changed, 44 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 625b00166..5f3a27a69 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -621,20 +621,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
+index c180045eb..6e2bccf85 100644
+--- a/Documentation/driver-model/devres.txt
++++ b/Documentation/driver-model/devres.txt
+@@ -259,6 +259,9 @@ GPIO
+   devm_gpio_request_one()
+   devm_gpio_free()
  
- 	/* use dummy devices for multiple-address chips */
- 	for (i = 1; i < num_addresses; i++) {
--		at24->client[i].client = i2c_new_dummy(client->adapter,
--						       client->addr + i);
--		if (!at24->client[i].client) {
-+		struct at24_client *cl;
++I2C
++  devm_i2c_new_dummy
 +
-+		cl = &at24->client[i];
-+		cl->client = devm_i2c_new_dummy(&client->dev, client->adapter,
-+						client->addr + i);
-+		if (IS_ERR(cl->client)) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
--			err = -EADDRINUSE;
--			goto err_clients;
--		}
--		at24->client[i].regmap = devm_regmap_init_i2c(
--					at24->client[i].client, config);
--		if (IS_ERR(at24->client[i].regmap)) {
--			err = PTR_ERR(at24->client[i].regmap);
--			goto err_clients;
-+				client->addr + i);
-+			return PTR_ERR(cl->client);
- 		}
-+		cl->regmap = devm_regmap_init_i2c(cl->client, config);
-+		if (IS_ERR(cl->regmap))
-+			return PTR_ERR(cl->regmap);
- 	}
+ IIO
+   devm_iio_device_alloc()
+   devm_iio_device_free()
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 3faa9b1d3..7b3cd95be 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -840,6 +840,44 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_dummy);
  
- 	i2c_set_clientdata(client, at24);
-@@ -686,10 +685,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return 0;
++static void devm_i2c_release_dummy(struct device *dev, void *res)
++{
++	i2c_unregister_device(*(struct i2c_client **)res);
++}
++
++/**
++ * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
++ * @dev: device the managed resource is bound to
++ * @adapter: the adapter managing the device
++ * @address: seven bit address to be used
++ * Context: can sleep
++ *
++ * This is the device-managed version of i2c_new_dummy.
++ * Note the changed return value type: It returns the new i2c client
++ * or an ERR_PTR in case of an error.
++ */
++struct i2c_client *devm_i2c_new_dummy(struct device *dev,
++				      struct i2c_adapter *adapter,
++				      u16 address)
++{
++	struct i2c_client *ret, **dr;
++
++	dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
++	if (!dr)
++		return ERR_PTR(-ENOMEM);
++
++	ret = _i2c_new_dummy(adapter, address);
++	if (IS_ERR(ret)) {
++		devres_free(dr);
++	} else {
++		*dr = ret;
++		devres_add(dev, dr);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
++
+ /**
+  * i2c_new_secondary_device - Helper to get the instantiated secondary address
+  * and create the associated device
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 5d7f3c185..aca6ebbb8 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -441,6 +441,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+ extern struct i2c_client *
+ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
  
- err_clients:
--	for (i = 1; i < num_addresses; i++)
--		if (at24->client[i].client)
--			i2c_unregister_device(at24->client[i].client);
--
- 	pm_runtime_disable(&client->dev);
- 
- 	return err;
-@@ -698,15 +693,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- static int at24_remove(struct i2c_client *client)
- {
- 	struct at24_data *at24;
--	int i;
- 
- 	at24 = i2c_get_clientdata(client);
- 
- 	nvmem_unregister(at24->nvmem);
- 
--	for (i = 1; i < at24->num_addresses; i++)
--		i2c_unregister_device(at24->client[i].client);
--
- 	pm_runtime_disable(&client->dev);
- 	pm_runtime_set_suspended(&client->dev);
- 
++extern struct i2c_client *
++devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
++
+ extern struct i2c_client *
+ i2c_new_secondary_device(struct i2c_client *client,
+ 				const char *name,
 -- 
 2.15.1
