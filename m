@@ -1,169 +1,88 @@
-From: Adrian Fiergolski <adrian.fiergolski@cern.ch>
-Subject: [PATCH v4] i2c: Add support for NXP PCA984x family.
-Date: Wed, 13 Dec 2017 17:12:23 +0100
-Message-ID: <20171213161223.23832-1-adrian.fiergolski@cern.ch>
-References: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [RFC 2/5] i3c: Add core I3C infrastructure
+Date: Wed, 13 Dec 2017 17:20:43 +0100
+Message-ID: <20171213172043.24e4d4bc@bbrezillon>
+References: <1501518290-5723-1-git-send-email-boris.brezillon@free-electrons.com>
+        <1501518290-5723-3-git-send-email-boris.brezillon@free-electrons.com>
+        <20170801014021.GA20004@kroah.com>
+        <20170801124801.38bbc431@bbrezillon>
+        <20170801175133.GA30520@kroah.com>
+        <20170801233001.4b08834f@bbrezillon>
+        <20170802021327.GB23033@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0048.outbound.protection.outlook.com ([104.47.2.48]:3444
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750916AbdLMQMr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 13 Dec 2017 11:12:47 -0500
-In-Reply-To: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170802021327.GB23033-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Jan Kotas <jank-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak@co>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: peda@axentia.se, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 
-This patch exetends the current i2c-mux-pca954x driver and adds support for
-a newer PCA984x family of the I2C switches and multiplexers from NXP.
+Hi Greg,
 
-Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
----
-As suggested by Peter, for a moment the device_id checks have been removed
-and need to wait for a support in the I2C core.
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
- drivers/i2c/muxes/Kconfig                          |  6 ++--
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 41 +++++++++++++++++++---
- 3 files changed, 43 insertions(+), 9 deletions(-)
+On Tue, 1 Aug 2017 19:13:27 -0700
+Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org> wrote:
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index aa097045a10e..b428bc0d81b1 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -1,10 +1,13 @@
- * NXP PCA954x I2C bus switch
- 
-+The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
-+
- Required Properties:
- 
-   - compatible: Must contain one of the following.
-     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
--    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
-+    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
-+    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
- 
-   - reg: The I2C address of the device.
- 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 0f5c8fc36625..23cc41866a91 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
- 	  will be called i2c-mux-pca9541.
- 
- config I2C_MUX_PCA954x
--	tristate "Philips PCA954x I2C Mux/switches"
-+	tristate "NXP PCA954x I2C Mux/switches"
- 	depends on GPIOLIB || COMPILE_TEST
- 	help
--	  If you say yes here you get support for the Philips PCA954x
--	  I2C mux/switch devices.
-+	  If you say yes here you get support for the NXP PCA954x
-+	  and PCA984x I2C mux/switch devices.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-pca954x.
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 2ca068d8b92d..b4a41d013538 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -1,14 +1,15 @@
- /*
-  * I2C multiplexer
-  *
-+ * Copyright (c) 2017 Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
-  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
-  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
-  *
-- * This module supports the PCA954x series of I2C multiplexer/switch chips
-- * made by Philips Semiconductors.
-+ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
-+ * chips made by NXP Semiconductors.
-  * This includes the:
-- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
-- *	 and PCA9548.
-+ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
-+ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849
-  *
-  * These chips are all controlled via the I2C bus itself, and all have a
-  * single 8-bit register. The upstream "parent" bus fans out to two,
-@@ -63,6 +64,10 @@ enum pca_type {
- 	pca_9546,
- 	pca_9547,
- 	pca_9548,
-+	pca_9846,
-+	pca_9847,
-+	pca_9848,
-+	pca_9849,
- };
- 
- struct chip_desc {
-@@ -129,6 +134,22 @@ static const struct chip_desc chips[] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
- 	},
-+	[pca_9846] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9847] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9848] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9849] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_ismux,
-+	},
- };
- 
- static const struct i2c_device_id pca954x_id[] = {
-@@ -140,6 +161,10 @@ static const struct i2c_device_id pca954x_id[] = {
- 	{ "pca9546", pca_9546 },
- 	{ "pca9547", pca_9547 },
- 	{ "pca9548", pca_9548 },
-+	{ "pca9846", pca_9846 },
-+	{ "pca9847", pca_9847 },
-+	{ "pca9848", pca_9848 },
-+	{ "pca9849", pca_9849 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
-@@ -154,6 +179,10 @@ static const struct of_device_id pca954x_of_match[] = {
- 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
- 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
- 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
-+	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
-+	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
-+	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
-+	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, pca954x_of_match);
-@@ -339,7 +368,8 @@ static int pca954x_probe(struct i2c_client *client,
- 	if (IS_ERR(gpio))
- 		return PTR_ERR(gpio);
- 
--	/* Write the mux register at addr to verify
-+	/*
-+	 * Write the mux register at addr to verify
- 	 * that the mux is in fact present. This also
- 	 * initializes the mux to disconnected state.
- 	 */
-@@ -443,6 +473,7 @@ static struct i2c_driver pca954x_driver = {
- 
- module_i2c_driver(pca954x_driver);
- 
-+MODULE_AUTHOR("Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
- MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
- MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
- MODULE_LICENSE("GPL v2");
--- 
-2.14.1
+> > > > Unless you see a good reason to not use a R/W lock, I'd like to keep it
+> > > > this way because master IPs are likely to implement advanced queuing
+> > > > mechanism (allows one to queue new transfers even if the master is
+> > > > already busy processing other requests), and serializing things at the
+> > > > framework level will just prevent us from using this kind of
+> > > > optimization.    
+> > > 
+> > > Unless you can prove otherwise, using a rw lock is almost always worse
+> > > than just a mutex.  
+> > 
+> > Is it still true when it's taken in non-exclusive mode most of the
+> > time, and the time you spend in the critical section is non-negligible?
+> > 
+> > I won't pretend I know better than you do what is preferable, it's just
+> > that the RW lock seemed appropriate to me for the situation I tried to
+> > described here.  
+> 
+> Again, measure it.  If you can't measure it, then don't use it.  Use a
+> simple lock instead.  Seriously, don't make it more complex until you
+> really have to.  It sounds like you didn't measure it at all, which
+> isn't good, please do so.
+> 
+
+I'm resurrecting this thread because I finally had the time to implement
+message queuing in Cadence I3C master driver. So I did a test with 2
+I3C devices on the bus, and their drivers sending as much SDR messages
+as they can in 10s. Here are the results:
+
+          |    mutex    |    rwsem    |
+---------------------------------------
+dev1      |    19087    |    29532    |
+dev2      |    19341    |    29118    |
+=======================================
+total     |    38428    |    58650    |
+msg/sec	  |    ~3843    |    ~5865    |
+
+
+The results I'm obtaining here are not so surprising since all normal
+transfers are taking the lock in read mode, so there's no contention.
+I didn't measure the impact on performances when there's one
+maintenance operation taking the lock in write mode and several normal
+transfers waiting for this lock, but really, maintenance operations are
+infrequent, and that's not where performance matters in our use case.
+
+I also did the same test with only one device doing transfers on the
+bus, and this time the mutex wins, but there's not a huge difference.
+
+          |    mutex    |    rwsem    |
+---------------------------------------
+total     |    67116    |    66561    |
+msg/sec	  |    ~6712    |    ~6656    |
+
+Let me know if you want more information on the test procedure.
+
+Regards,
+
+Boris
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
