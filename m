@@ -1,45 +1,169 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 3/6] i2c: add 'set_sda' to bus_recovery_info
-Date: Wed, 13 Dec 2017 17:30:14 +0200
-Message-ID: <1513179014.7000.44.camel@linux.intel.com>
-References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
-         <20171204123640.3382-4-wsa+renesas@sang-engineering.com>
-         <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
-         <20171205133848.nzrhysiz2twvlamx@ninjato>
-         <CACRpkdYuHit1w1_d4h++vOuSWosf+iBdgimtCUbmic3mkbm1Wg@mail.gmail.com>
+From: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+Subject: [PATCH v4] i2c: Add support for NXP PCA984x family.
+Date: Wed, 13 Dec 2017 17:12:23 +0100
+Message-ID: <20171213161223.23832-1-adrian.fiergolski@cern.ch>
+References: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdYuHit1w1_d4h++vOuSWosf+iBdgimtCUbmic3mkbm1Wg@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Phil Reid <preid@electromag.com.au>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0048.outbound.protection.outlook.com ([104.47.2.48]:3444
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750916AbdLMQMr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 13 Dec 2017 11:12:47 -0500
+In-Reply-To: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: peda@axentia.se, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 
-On Tue, 2017-12-05 at 16:31 +0100, Linus Walleij wrote:
-> On Tue, Dec 5, 2017 at 2:38 PM, Wolfram Sang <wsa@the-dreams.de>
-> wrote:
-> 
+This patch exetends the current i2c-mux-pca954x driver and adds support for
+a newer PCA984x family of the I2C switches and multiplexers from NXP.
 
+Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+---
+As suggested by Peter, for a moment the device_id checks have been removed
+and need to wait for a support in the I2C core.
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
+ drivers/i2c/muxes/Kconfig                          |  6 ++--
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 41 +++++++++++++++++++---
+ 3 files changed, 43 insertions(+), 9 deletions(-)
 
-> Two statice inlines in <linux/gpio/consumer.h>
-> named
-> 
-> int gpiod_is output()
-> int gpiod_is_input()
-
-Ha, just proposed similar.
-
-> 
-> should conform to Rusty Russell's API hierarchy.
-> 
-> Interested in fixing it, or should I?
-> I can almost ACK it before you write the patch.
-
-I vote for this type of API, and agree with Wolfram !_get_direction() is
-confusing.
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index aa097045a10e..b428bc0d81b1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -1,10 +1,13 @@
+ * NXP PCA954x I2C bus switch
+ 
++The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
++
+ Required Properties:
+ 
+   - compatible: Must contain one of the following.
+     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+-    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
++    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
++    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+ 
+   - reg: The I2C address of the device.
+ 
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 0f5c8fc36625..23cc41866a91 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
+ 	  will be called i2c-mux-pca9541.
+ 
+ config I2C_MUX_PCA954x
+-	tristate "Philips PCA954x I2C Mux/switches"
++	tristate "NXP PCA954x I2C Mux/switches"
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	help
+-	  If you say yes here you get support for the Philips PCA954x
+-	  I2C mux/switch devices.
++	  If you say yes here you get support for the NXP PCA954x
++	  and PCA984x I2C mux/switch devices.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-pca954x.
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 2ca068d8b92d..b4a41d013538 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -1,14 +1,15 @@
+ /*
+  * I2C multiplexer
+  *
++ * Copyright (c) 2017 Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
+  *
+- * This module supports the PCA954x series of I2C multiplexer/switch chips
+- * made by Philips Semiconductors.
++ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
++ * chips made by NXP Semiconductors.
+  * This includes the:
+- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+- *	 and PCA9548.
++ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
++ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849
+  *
+  * These chips are all controlled via the I2C bus itself, and all have a
+  * single 8-bit register. The upstream "parent" bus fans out to two,
+@@ -63,6 +64,10 @@ enum pca_type {
+ 	pca_9546,
+ 	pca_9547,
+ 	pca_9548,
++	pca_9846,
++	pca_9847,
++	pca_9848,
++	pca_9849,
+ };
+ 
+ struct chip_desc {
+@@ -129,6 +134,22 @@ static const struct chip_desc chips[] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
+ 	},
++	[pca_9846] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9847] = {
++		.nchans = 8,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9848] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9849] = {
++		.nchans = 4,
++		.muxtype = pca954x_ismux,
++	},
+ };
+ 
+ static const struct i2c_device_id pca954x_id[] = {
+@@ -140,6 +161,10 @@ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9546", pca_9546 },
+ 	{ "pca9547", pca_9547 },
+ 	{ "pca9548", pca_9548 },
++	{ "pca9846", pca_9846 },
++	{ "pca9847", pca_9847 },
++	{ "pca9848", pca_9848 },
++	{ "pca9849", pca_9849 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+@@ -154,6 +179,10 @@ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+ 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+ 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
++	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
++	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
++	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
++	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pca954x_of_match);
+@@ -339,7 +368,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 	if (IS_ERR(gpio))
+ 		return PTR_ERR(gpio);
+ 
+-	/* Write the mux register at addr to verify
++	/*
++	 * Write the mux register at addr to verify
+ 	 * that the mux is in fact present. This also
+ 	 * initializes the mux to disconnected state.
+ 	 */
+@@ -443,6 +473,7 @@ static struct i2c_driver pca954x_driver = {
+ 
+ module_i2c_driver(pca954x_driver);
+ 
++MODULE_AUTHOR("Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
+ MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
+ MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
+ MODULE_LICENSE("GPL v2");
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.14.1
