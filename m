@@ -1,80 +1,41 @@
-From: Angelo Compagnucci <angelo@amarulasolutions.com>
-Subject: Re: [PATCH i2c-tools] tools/Module.mk: Add missing dependencies
-Date: Wed, 13 Dec 2017 11:36:31 +0100
-Message-ID: <CA+_SqVY_3mrB17KWFaJYJefb7wpeYi5MhRXpcMoyQfGi1eQ0fQ@mail.gmail.com>
-References: <20171212213355.5f25754e@endymion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH v4 0/2] eeprom: at24: coding style fixes
+Date: Wed, 13 Dec 2017 11:56:22 +0100
+Message-ID: <20171213105624.27058-1-brgl@bgdev.pl>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:46831 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751508AbdLMKhM (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Dec 2017 05:37:12 -0500
-Received: by mail-oi0-f67.google.com with SMTP id t81so1225048oih.13
-        for <linux-i2c@vger.kernel.org>; Wed, 13 Dec 2017 02:37:12 -0800 (PST)
-In-Reply-To: <20171212213355.5f25754e@endymion>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:39788 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752279AbdLMK4e (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 13 Dec 2017 05:56:34 -0500
+Received: by mail-wm0-f65.google.com with SMTP id i11so4168961wmf.4
+        for <linux-i2c@vger.kernel.org>; Wed, 13 Dec 2017 02:56:33 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
+To: Joe Perches <joe@perches.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 
-On Tue, Dec 12, 2017 at 9:33 PM, Jean Delvare <jdelvare@suse.de> wrote:
-> Better build the library before building the tools which link against
-> it, otherwise parallel builds could run into a race and break.
+Just two patches fixing minor coding style issues. The first one
+contains fixes for problems reported by checkpatch. The second adds
+a common prefix to all symbols in at24.c.
 
-Tested-by: Angelo Compagnucci <angelo@amarulasolutions.com>
-Acked-by: Angelo Compagnucci <angelo@amarulasolutions.com>
+v1 -> v2:
+- don't break the user space: use module_param_named() for module
+  parameters
 
-> ---
->  lib/Module.mk   |    7 +++++++
->  tools/Module.mk |   10 +++++-----
->  2 files changed, 12 insertions(+), 5 deletions(-)
->
-> --- a/lib/Module.mk
-> +++ b/lib/Module.mk
-> @@ -35,6 +35,13 @@ LIB_TARGETS  += $(LIB_STLIBNAME)
->  LIB_OBJECTS    += smbus.ao
->  endif
->
-> +# Library file to link against (static or dynamic)
-> +ifeq ($(USE_STATIC_LIB),1)
-> +LIB_DEPS       := $(LIB_DIR)/$(LIB_STLIBNAME)
-> +else
-> +LIB_DEPS       := $(LIB_DIR)/$(LIB_SHBASENAME)
-> +endif
-> +
->  #
->  # Libraries
->  #
-> --- a/tools/Module.mk
-> +++ b/tools/Module.mk
-> @@ -24,19 +24,19 @@ TOOLS_TARGETS       := i2cdetect i2cdump i2cse
->  # Programs
->  #
->
-> -$(TOOLS_DIR)/i2cdetect: $(TOOLS_DIR)/i2cdetect.o $(TOOLS_DIR)/i2cbusses.o
-> +$(TOOLS_DIR)/i2cdetect: $(TOOLS_DIR)/i2cdetect.o $(TOOLS_DIR)/i2cbusses.o $(LIB_DEPS)
->         $(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
->
-> -$(TOOLS_DIR)/i2cdump: $(TOOLS_DIR)/i2cdump.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> +$(TOOLS_DIR)/i2cdump: $(TOOLS_DIR)/i2cdump.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o $(LIB_DEPS)
->         $(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
->
-> -$(TOOLS_DIR)/i2cset: $(TOOLS_DIR)/i2cset.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> +$(TOOLS_DIR)/i2cset: $(TOOLS_DIR)/i2cset.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o $(LIB_DEPS)
->         $(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
->
-> -$(TOOLS_DIR)/i2cget: $(TOOLS_DIR)/i2cget.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> +$(TOOLS_DIR)/i2cget: $(TOOLS_DIR)/i2cget.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o $(LIB_DEPS)
->         $(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
->
-> -$(TOOLS_DIR)/i2ctransfer: $(TOOLS_DIR)/i2ctransfer.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> +$(TOOLS_DIR)/i2ctransfer: $(TOOLS_DIR)/i2ctransfer.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o $(LIB_DEPS)
->         $(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
->
->  #
->
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+v2 -> v3:
+- s/at24_tool_until/at24_loop_until/g
+- tweaked the commit message in patch 2/2
+
+v3 -> v4:
+- drop the octal permissions fix in module_param(): checkpatch.pl will
+  be modified to not raise this error for perms == 0
+
+Bartosz Golaszewski (2):
+  eeprom: at24: fix coding style issues
+  eeprom: at24: use a common prefix for all symbols in at24.c
+
+ drivers/misc/eeprom/at24.c | 48 ++++++++++++++++++++++++----------------------
+ 1 file changed, 25 insertions(+), 23 deletions(-)
+
+-- 
+2.15.1
