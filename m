@@ -1,102 +1,39 @@
 From: Andrew Cooks <andrew.cooks@opengear.com>
-Subject: [PATCH v2 2/3] i2c: piix4: fix number of SMBus ports on HUDSON2
-Date: Thu, 14 Dec 2017 13:11:45 +1000
-Message-ID: <10a5f5d056511d07c1946d744fc84f243a6097cc.1513215039.git.andrew.cooks@opengear.com>
-References: <cover.1513215039.git.andrew.cooks@opengear.com>
+Subject: [PATCH v2 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Thu, 14 Dec 2017 13:11:43 +1000
+Message-ID: <cover.1513215039.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1513215039.git.andrew.cooks@opengear.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jdelvare@suse.com, linux-i2c@vger.kernel.org
-Cc: platypus-sw@opengear.com, Andrew Cooks <andrew.cooks@opengear.com>, Wolfram Sang <wsa@the-dreams.de>, open list <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-by2nam01on0087.outbound.protection.outlook.com ([104.47.34.87]:64038
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751803AbdLNDMJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 13 Dec 2017 22:12:09 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, linux-i2c@vger.kernel.org
+Cc: platypus-sw@opengear.com, Andrew Cooks <andrew.cooks@opengear.com>
 
-This prevents bus timeouts and resets on Hudson2 (Family 16h Models
-30h), when probing reserved Port 4.
+These patches add ACPI-based enumeration to the i2c-piix4 driver.
 
-According to the AMD BIOS and Kernel Developer's Guides (BKDG), Port 3
-and Port 4 are reserved on the following devices:
- - Family 15h Model 60h-6Fh,
- - Family 15h Model 70h-7Fh,
- - Family 16h Models 30h-3Fh,
+Some I2C peripherals, eg. PCA953x IO expander, are not discovered by the
+probe or detect mechanisms when attached to an SMBus controller that uses
+the i2c-piix4 SMBus driver.
 
-Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
----
- drivers/i2c/busses/i2c-piix4.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ACPI provides a mechanism to define these peripherals and the controller
+port that they're attached to.
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index b92ea5d..cc38dc3 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -82,6 +82,13 @@
- /* Multi-port constants */
- #define PIIX4_MAX_ADAPTERS 4
- 
-+/*
-+ * Main adapter port count. At least one (Port 0) plus up to 3 additional
-+ * (Ports 2-4)
-+ */
-+#define SB800_MAIN_PORTS 4
-+#define HUDSON2_MAIN_PORTS 2 /* HUDSON2, reserves Port 3 and Port 4 */
-+
- /* SB800 constants */
- #define SB800_PIIX4_SMB_IDX		0xcd6
- 
-@@ -802,6 +809,7 @@ MODULE_DEVICE_TABLE (pci, piix4_ids);
- 
- static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
- static struct i2c_adapter *piix4_aux_adapter;
-+static int piix4_adapter_count;
- 
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 			     bool sb800_main, u8 port, bool notify_imc,
-@@ -858,10 +866,17 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
- 				    bool notify_imc)
- {
- 	struct i2c_piix4_adapdata *adapdata;
--	int port;
-+	int port, port_count;
- 	int retval;
- 
--	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-+	if (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
-+		port_count = HUDSON2_MAIN_PORTS;
-+	} else {
-+		port_count = SB800_MAIN_PORTS;
-+	}
-+
-+	for (port = 0; port < port_count; port++) {
- 		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
- 					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
-@@ -874,7 +889,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
- error:
- 	dev_err(&dev->dev,
- 		"Error setting up SB800 adapters. Unregistering!\n");
--	while (--port >= 0) {
-+	while (--piix4_adapter_count >= 0) {
- 		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
- 		if (adapdata->smba) {
- 			i2c_del_adapter(piix4_main_adapters[port]);
-@@ -995,12 +1010,10 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
- 
- static void piix4_remove(struct pci_dev *dev)
- {
--	int port = PIIX4_MAX_ADAPTERS;
--
--	while (--port >= 0) {
--		if (piix4_main_adapters[port]) {
--			piix4_adap_remove(piix4_main_adapters[port]);
--			piix4_main_adapters[port] = NULL;
-+	while (--piix4_adapter_count >= 0) {
-+		if (piix4_main_adapters[piix4_adapter_count]) {
-+			piix4_adap_remove(piix4_main_adapters[piix4_adapter_count]);
-+			piix4_main_adapters[piix4_adapter_count] = NULL;
- 		}
- 	}
- 
+v2:
+  count the adapters, instead of misusing port numbers
+
+Andrew Cooks (3):
+  i2c: piix4: Fix SMBus port selection for AMD Family 16h chips
+  i2c: piix4: fix number of SMBus ports on HUDSON2
+  i2c: add ACPI support for i2c-piix4
+
+ drivers/i2c/busses/i2c-piix4.c | 41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
+
 -- 
 2.7.4
