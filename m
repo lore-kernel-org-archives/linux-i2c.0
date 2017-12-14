@@ -1,93 +1,244 @@
-From: Angelo Compagnucci <angelo@amarulasolutions.com>
-Subject: Re: i2c-tools: lib/Module.mk: fixing LIB_LINKS dependency
-Date: Thu, 14 Dec 2017 10:43:33 +0100
-Message-ID: <CA+_SqVZ4dJBcL9+D3x42b0bJB2POasiu4Tz6gtTZHkmX=h56xg@mail.gmail.com>
-References: <1513011624-1555-1-git-send-email-angelo@amarulasolutions.com> <20171214093649.61e8f1df@endymion>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v4] i2c: Add support for NXP PCA984x family.
+Date: Thu, 14 Dec 2017 10:54:22 +0100
+Message-ID: <990e4a1f-a9ac-c899-0075-ae3211ff9475@axentia.se>
+References: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+ <20171213161223.23832-1-adrian.fiergolski@cern.ch>
+ <706ae942-a228-32d1-60d9-51c467d36188@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f47.google.com ([209.85.218.47]:34958 "EHLO
-        mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750737AbdLNJoO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Dec 2017 04:44:14 -0500
-Received: by mail-oi0-f47.google.com with SMTP id 184so3515498oii.2
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2017 01:44:14 -0800 (PST)
-In-Reply-To: <20171214093649.61e8f1df@endymion>
+Received: from mail-ve1eur01on0096.outbound.protection.outlook.com ([104.47.1.96]:9678
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751341AbdLNJyc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 14 Dec 2017 04:54:32 -0500
+In-Reply-To: <706ae942-a228-32d1-60d9-51c467d36188@axentia.se>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>
+To: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>
 
-DEar Jean,
+[Adding DT people]
 
-On Thu, Dec 14, 2017 at 9:36 AM, Jean Delvare <jdelvare@suse.de> wrote:
-> Hi Angelo,
->
-> On Mon, 11 Dec 2017 18:00:24 +0100, Angelo Compagnucci wrote:
->> LIB_LINKS should be added as a dependency only when
->> BUILD_DYNAMIC_LIB is enabled
+On 2017-12-13 19:26, Peter Rosin wrote:
+> On 2017-12-13 17:12, Adrian Fiergolski wrote:
+>> This patch exetends the current i2c-mux-pca954x driver and adds support for
+> 
+> extends
+> 
+>> a newer PCA984x family of the I2C switches and multiplexers from NXP.
 >>
->> Signed-off-by: Angelo Compagnucci <angelo@amarulasolutions.com>
+>> Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
 >> ---
->>  lib/Module.mk | 3 +--
->>  1 file changed, 1 insertion(+), 2 deletions(-)
+>> As suggested by Peter, for a moment the device_id checks have been removed
+>> and need to wait for a support in the I2C core.
+>>  .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
+>>  drivers/i2c/muxes/Kconfig                          |  6 ++--
+>>  drivers/i2c/muxes/i2c-mux-pca954x.c                | 41 +++++++++++++++++++---
+>>  3 files changed, 43 insertions(+), 9 deletions(-)
 >>
->> diff --git a/lib/Module.mk b/lib/Module.mk
->> index 8a58f5b..de189a2 100644
->> --- a/lib/Module.mk
->> +++ b/lib/Module.mk
->> @@ -27,10 +27,9 @@ LIB_SHSONAME       := $(LIB_SHBASENAME).$(LIB_MAINVER)
->>  LIB_SHLIBNAME        := $(LIB_SHBASENAME).$(LIB_VER)
->>  LIB_STLIBNAME        := libi2c.a
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>> index aa097045a10e..b428bc0d81b1 100644
+>> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>> @@ -1,10 +1,13 @@
+>>  * NXP PCA954x I2C bus switch
+>>  
+>> +The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
+>> +
+>>  Required Properties:
+>>  
+>>    - compatible: Must contain one of the following.
+>>      "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+>> -    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
+>> +    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
+>> +    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+
+Sorry for the incremental review, but I thought about a couple of
+more issues with this patch...
+
+First, I think that perhaps the new chips should have compatibles
+like:
+
+	compatible = "nxp,pca9846", "nxp,pca9546";
+	compatible = "nxp,pca9847", "nxp,pca9547";
+	compatible = "nxp,pca9848", "nxp,pca9548";
+
+since they are extremely similar to the older chips (the only
+difference is the device id support and other esoteric stuff that
+you don't need to use). That way the device-tree will work even
+with an older OS that only supports pca954x chips. And when you
+add the device id check, you can differentiate.
+
+(pca9849 isn't really compatible with any of the pca954x chips since
+it lacks interrupt handling)
+
+So, I'm adding the device-tree list to get input on how this is
+normally handled. You're going to need their ack anyway on this hunk.
+Hint, they also like it when the DT changes are in a separate patch.
+You can run get_maintainer.pl on patches to find out where you should
+send them.
+
+Second, totally unrelated issues below, ...
+
+>>  
+>>    - reg: The I2C address of the device.
+>>  
+>> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+>> index 0f5c8fc36625..23cc41866a91 100644
+>> --- a/drivers/i2c/muxes/Kconfig
+>> +++ b/drivers/i2c/muxes/Kconfig
+>> @@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
+>>  	  will be called i2c-mux-pca9541.
+>>  
+>>  config I2C_MUX_PCA954x
+>> -	tristate "Philips PCA954x I2C Mux/switches"
+>> +	tristate "NXP PCA954x I2C Mux/switches"
+> 
+> I think you should perhaps mention PCA984x here in the headline.
+> 
+>>  	depends on GPIOLIB || COMPILE_TEST
+>>  	help
+>> -	  If you say yes here you get support for the Philips PCA954x
+>> -	  I2C mux/switch devices.
+>> +	  If you say yes here you get support for the NXP PCA954x
+>> +	  and PCA984x I2C mux/switch devices.
+>>  
+>>  	  This driver can also be built as a module.  If so, the module
+>>  	  will be called i2c-mux-pca954x.
+>> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> index 2ca068d8b92d..b4a41d013538 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>> @@ -1,14 +1,15 @@
+>>  /*
+>>   * I2C multiplexer
+>>   *
+>> + * Copyright (c) 2017 Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+> 
+> This is a bit over the top when you only add data with questionable
+> copyright value.
+> 
+>>   * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+>>   * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
+>>   *
+>> - * This module supports the PCA954x series of I2C multiplexer/switch chips
+>> - * made by Philips Semiconductors.
+>> + * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
+>> + * chips made by NXP Semiconductors.
+>>   * This includes the:
+>> - *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+>> - *	 and PCA9548.
+>> + *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
+>> + *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849
+> 
+> The trailing . is missing.
+> 
+>>   *
+>>   * These chips are all controlled via the I2C bus itself, and all have a
+>>   * single 8-bit register. The upstream "parent" bus fans out to two,
+>> @@ -63,6 +64,10 @@ enum pca_type {
+>>  	pca_9546,
+>>  	pca_9547,
+>>  	pca_9548,
+>> +	pca_9846,
+>> +	pca_9847,
+>> +	pca_9848,
+>> +	pca_9849,
+>>  };
+>>  
+>>  struct chip_desc {
+>> @@ -129,6 +134,22 @@ static const struct chip_desc chips[] = {
+>>  		.nchans = 8,
+>>  		.muxtype = pca954x_isswi,
+>>  	},
+>> +	[pca_9846] = {
+>> +		.nchans = 4,
+>> +		.muxtype = pca954x_isswi,
+>> +	},
+>> +	[pca_9847] = {
+>> +		.nchans = 8,
+
+...you most likely need ".enable = 0x8," here.
+
+>> +		.muxtype = pca954x_ismux,
+>> +	},
+>> +	[pca_9848] = {
+>> +		.nchans = 8,
+>> +		.muxtype = pca954x_isswi,
+>> +	},
+>> +	[pca_9849] = {
+>> +		.nchans = 4,
+
+Likewise, you need ".enable = 0x4," here.
+
+Cheers,
+Peter
+
+>> +		.muxtype = pca954x_ismux,
+>> +	},
+>>  };
+>>  
+>>  static const struct i2c_device_id pca954x_id[] = {
+>> @@ -140,6 +161,10 @@ static const struct i2c_device_id pca954x_id[] = {
+>>  	{ "pca9546", pca_9546 },
+>>  	{ "pca9547", pca_9547 },
+>>  	{ "pca9548", pca_9548 },
+>> +	{ "pca9846", pca_9846 },
+>> +	{ "pca9847", pca_9847 },
+>> +	{ "pca9848", pca_9848 },
+>> +	{ "pca9849", pca_9849 },
+>>  	{ }
+>>  };
+>>  MODULE_DEVICE_TABLE(i2c, pca954x_id);
+>> @@ -154,6 +179,10 @@ static const struct of_device_id pca954x_of_match[] = {
+>>  	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+>>  	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+>>  	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
+>> +	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
+>> +	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
+>> +	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
+>> +	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
+>>  	{}
+>>  };
+>>  MODULE_DEVICE_TABLE(of, pca954x_of_match);
+>> @@ -339,7 +368,8 @@ static int pca954x_probe(struct i2c_client *client,
+>>  	if (IS_ERR(gpio))
+>>  		return PTR_ERR(gpio);
+>>  
+>> -	/* Write the mux register at addr to verify
+>> +	/*
+>> +	 * Write the mux register at addr to verify
+> 
+> This is now unrelated and belongs in a separate patch.
+> 
+>>  	 * that the mux is in fact present. This also
+>>  	 * initializes the mux to disconnected state.
+>>  	 */
+>> @@ -443,6 +473,7 @@ static struct i2c_driver pca954x_driver = {
+>>  
+>>  module_i2c_driver(pca954x_driver);
+>>  
+>> +MODULE_AUTHOR("Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
+> 
+> And, just as Wolfram said, this is not appropriate anymore. Next
+> time you should probably ask before adding authorship to an existing
+> file, that makes you look better. Unless you do some major addition
+> of course... But when you do add yourself, add yourself last so that
+> it doesn't look like you are the principal author. Unless you did
+> some really serious surgery of course...
+> 
+> Anyway, with those changes things are getting in shape.
+> 
+> Thanks for your patience!
+> 
+> Cheers,
+> Peter
+> 
+>>  MODULE_AUTHOR("Rodolfo Giometti <giometti@linux.it>");
+>>  MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
+>>  MODULE_LICENSE("GPL v2");
 >>
->> -LIB_LINKS    := $(LIB_SHSONAME) $(LIB_SHBASENAME)
->> -
->>  LIB_TARGETS  :=
->>  ifeq ($(BUILD_DYNAMIC_LIB),1)
->> +LIB_LINKS    := $(LIB_SHSONAME) $(LIB_SHBASENAME)
->>  LIB_TARGETS  += $(LIB_SHLIBNAME)
->>  endif
->>  ifeq ($(BUILD_STATIC_LIB),1)
->
-> This is correct, good catch. I'll commit it. In fact I thought about it
-> when reviewing your previous patch, but (wrongly) assumed it did not
-> matter. After adding all the missing dependencies, it clearly does.
->
-> I have noticed another problem. While "make BUILD_STATIC_LIB=0"
-> actually prevents the static flavor of the library from being built,
-> "make BUILD_DYNAMIC_LIB=0" does not prevent the dynamic flavor of the
-> library from being built. The reason is that USE_STATIC_LIB is not set,
-> so tools depend on the dynamic library, which in turn gets built as a
-> dependency.
->
-> I suppose that BUILD_DYNAMIC_LIB=0 should imply USE_STATIC_LIB=1.
-> Something like:
->
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -43,6 +43,8 @@ endif
->  ifeq ($(BUILD_DYNAMIC_LIB),0)
->  ifeq ($(BUILD_STATIC_LIB),0)
->  $(error BUILD_DYNAMIC_LIB and BUILD_STATIC_LIB cannot be disabled at the same time)
-> +else
-> +USE_STATIC_LIB := 1
->  endif
->  endif
->
-> What do you think?
-
-I think you are totally right. If BUILD_DYNAMIC_LIB is 0 the static
-variant should be built and used too.
-
-Could you realease a new version of i2c-tools with these patches? I'm
-in the phase of updating the package in buildroot and I do really
-prefer to have a new stable release than an old release with a bunch
-of patches on top.
-
-Thanks!
-
->
-> Thanks,
-> --
-> Jean Delvare
-> SUSE L3 Support
+> 
