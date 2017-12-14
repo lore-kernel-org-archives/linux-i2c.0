@@ -1,157 +1,53 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 1/3] i2c: core: improve return value handling of
- i2c_new_device and i2c_new_dummy
-Date: Thu, 14 Dec 2017 21:39:32 +0100
-Message-ID: <CAMRc=MceOCofK3r1Syn4K7nXBAzksANqTLjzdaxVpFdCnWsJzA@mail.gmail.com>
-References: <69b03782-cb1a-2b31-c8aa-1827caa66dd5@gmail.com> <e328d1d4-346a-1b34-dabc-fb805de13fed@gmail.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH v2 6/7] i3c: master: Add driver for Cadence IP
+Date: Thu, 14 Dec 2017 21:44:42 +0100
+Message-ID: <20171214214442.55902041@bbrezillon>
+References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
+        <20171214151610.19153-7-boris.brezillon@free-electrons.com>
+        <d0685c1d-a3ed-b3c1-7e3f-b69b02e8a7be@infradead.org>
+        <20171214211722.1c2f269d@bbrezillon>
+        <8245f2de-eb0a-319b-8f45-d8d5dac36239@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:43751 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752376AbdLNUjd (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Dec 2017 15:39:33 -0500
-Received: by mail-oi0-f67.google.com with SMTP id f69so4767055oig.10
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2017 12:39:33 -0800 (PST)
-In-Reply-To: <e328d1d4-346a-1b34-dabc-fb805de13fed@gmail.com>
+Received: from mail.free-electrons.com ([62.4.15.54]:46311 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752600AbdLNUoz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Dec 2017 15:44:55 -0500
+In-Reply-To: <8245f2de-eb0a-319b-8f45-d8d5dac36239@infradead.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@co>
 
-2017-12-13 20:11 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Currently i2c_new_device and i2c_new_dummy return just NULL in error
-> case although they have more error details internally. Therefore move
-> the functionality into new functions returning detailed errors and
-> add wrappers for compatibilty with the current API.
->
-> This allows to use these functions with detailed error codes within
-> the i2c core or for API extensions.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
-> v3:
-> - prefix i2c_new_device and i2c_new_dummy with two underscores
->   instead one
-> ---
->  drivers/i2c/i2c-core-base.c | 46 ++++++++++++++++++++++++++++++++-------------
->  1 file changed, 33 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index bb34a5d41..3faa9b1d3 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -656,7 +656,7 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
->  }
->
->  /**
-> - * i2c_new_device - instantiate an i2c device
-> + * __i2c_new_device - instantiate an i2c device
->   * @adap: the adapter managing the device
->   * @info: describes one I2C device; bus_num is ignored
->   * Context: can sleep
-> @@ -669,17 +669,17 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
->   * before any i2c_adapter could exist.
->   *
->   * This returns the new i2c client, which may be saved for later use with
-> - * i2c_unregister_device(); or NULL to indicate an error.
-> + * i2c_unregister_device(); or an ERR_PTR to indicate an error.
->   */
-> -struct i2c_client *
-> -i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> +static struct i2c_client *
-> +__i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->  {
->         struct i2c_client       *client;
->         int                     status;
->
->         client = kzalloc(sizeof *client, GFP_KERNEL);
->         if (!client)
-> -               return NULL;
-> +               return ERR_PTR(-ENOMEM);
->
->         client->adapter = adap;
->
-> @@ -746,7 +746,17 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->                 client->name, client->addr, status);
->  out_err_silent:
->         kfree(client);
-> -       return NULL;
-> +       return ERR_PTR(status);
-> +}
-> +
-> +/* wrapper to be compatible with the current API */
+On Thu, 14 Dec 2017 12:25:14 -0800
+Randy Dunlap <rdunlap@infradead.org> wrote:
 
-This function is part of the i2c API, so it still needs to be
-documented with a proper kernel doc.
+> On 12/14/2017 12:17 PM, Boris Brezillon wrote:
+> >>> +	events.events = I3C_CCC_EVENT_HJ | I3C_CCC_EVENT_MR;
+> >>> +	ret = i3c_master_enec_locked(m, I3C_BROADCAST_ADDR, &events);
+> >>> +	if (ret)
+> >>> +		pr_info("Failed to re-enable H-J");    
+> >> 		Not very good info...  
+> > What do you mean? Is it the H-J that bothers you (I can replace it by
+> > 'Hot-Join'), or is it something else?  
+> 
+> Who is the message for?  If it's for developers, you could use
+> pr_debug().  If it's for users, it needs more clarity.
 
-After fixing that:
+I think it's of interest to anyone including users. If we fail to
+re-enable Hot-Join that means hotplug is no longer working which is
+a bad news.
 
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> 
+> Does it print the source of the message? (module name e.g.)
 
-> +struct i2c_client *
-> +i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> +{
-> +       struct i2c_client *ret;
-> +
-> +       ret = __i2c_new_device(adap, info);
-> +       return IS_ERR(ret) ? NULL : ret;
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_device);
->
-> @@ -793,7 +803,7 @@ static struct i2c_driver dummy_driver = {
->  };
->
->  /**
-> - * i2c_new_dummy - return a new i2c device bound to a dummy driver
-> + * __i2c_new_dummy - return a new i2c device bound to a dummy driver
->   * @adapter: the adapter managing the device
->   * @address: seven bit address to be used
->   * Context: can sleep
-> @@ -808,15 +818,25 @@ static struct i2c_driver dummy_driver = {
->   * different driver.
->   *
->   * This returns the new i2c client, which should be saved for later use with
-> - * i2c_unregister_device(); or NULL to indicate an error.
-> + * i2c_unregister_device(); or an ERR_PTR to indicate an error.
->   */
-> -struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
-> +static struct i2c_client *
-> +__i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->  {
->         struct i2c_board_info info = {
->                 I2C_BOARD_INFO("dummy", address),
->         };
->
-> -       return i2c_new_device(adapter, &info);
-> +       return __i2c_new_device(adapter, &info);
-> +}
-> +
-> +/* wrapper to be compatible with the current API */
-> +struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
-> +{
-> +       struct i2c_client *ret;
-> +
-> +       ret = __i2c_new_dummy(adapter, address);
-> +       return IS_ERR(ret) ? NULL : ret;
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->
-> @@ -939,9 +959,9 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
->                 info.flags |= I2C_CLIENT_SLAVE;
->         }
->
-> -       client = i2c_new_device(adap, &info);
-> -       if (!client)
-> -               return -EINVAL;
-> +       client = __i2c_new_device(adap, &info);
-> +       if (IS_ERR(client))
-> +               return PTR_ERR(client);
->
->         /* Keep track of the added device */
->         mutex_lock(&adap->userspace_clients_lock);
-> --
-> 2.15.1
->
->
->
+I could replace it by
+
+	dev_err(m->parent, "Failed to re-enable Hot-Join");
+
+
+
+> and yes, Hot-Join would be better IMO.
+> 
