@@ -1,65 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: Add support for NXP PCA984x family.
-Date: Thu, 14 Dec 2017 01:30:16 +0100
-Message-ID: <20171214003016.rghfmyeowzjqssum@katana>
-References: <8a2f6d04-f156-a877-9e82-3f760488c932@enneenne.com>
- <20171211165811.5806-1-adrian.fiergolski@cern.ch>
- <f3883936-d621-cc48-444b-db08470d256f@axentia.se>
- <2acdb52a-c669-631d-2ef2-ab0da2899e00@cern.ch>
- <cb42475b-eacb-d059-2ee5-f2a57cf29159@axentia.se>
- <c7842a62-980d-b220-aa42-51cbb5398c5b@cern.ch>
- <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
- <20171212220537.o4njv4lqp2ppmu7x@ninjato>
- <854cba57-5640-5be1-dec2-fc7b8b7ea281@cern.ch>
+From: Andrew Cooks <andrew.cooks@opengear.com>
+Subject: [PATCH v2 1/3] i2c: piix4: Fix SMBus port selection for AMD Family 16h chips
+Date: Thu, 14 Dec 2017 13:11:44 +1000
+Message-ID: <3f87f37117e6662661f16ea8fdbbdffff5d2e414.1513215039.git.andrew.cooks@opengear.com>
+References: <cover.1513215039.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f6jlqjvnv3lvpsxv"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:51828 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751600AbdLNAg7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 13 Dec 2017 19:36:59 -0500
-Content-Disposition: inline
-In-Reply-To: <854cba57-5640-5be1-dec2-fc7b8b7ea281@cern.ch>
+Received: from mail-by2nam01on0044.outbound.protection.outlook.com ([104.47.34.44]:17872
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751914AbdLNDMN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 13 Dec 2017 22:12:13 -0500
+In-Reply-To: <cover.1513215039.git.andrew.cooks@opengear.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, linux-i2c@vger.kernel.org
+Cc: platypus-sw@opengear.com, Andrew Cooks <andrew.cooks@opengear.com>, Wolfram Sang <wsa@the-dreams.de>, open list <linux-kernel@vger.kernel.org>
 
+HUDSON2 SMBus controller has the same port selection register as
+described and fixed in commit 0fe16195f89173652cf111d7b384941b00c5aabd
+("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
 
---f6jlqjvnv3lvpsxv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The SMBus port selection register is common to multiple Families and
+models, as documented in AMD's publicly available BIOS and Kernel
+Developer Guides:
 
+ - 50742 -- Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ - 55072 -- Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ - 52740 -- Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
 
-> Do you have in mind sth like i2c_smbus_write_i2c_device_device_id function ?
+The following additional public AMD BKDG documents were checked and do
+not share the same port selection register:
 
-SMBus? It's I2C. And write? I'd call it:
+ - 42301 -- Family 15h Model 00h-0Fh doesn't mention any
+ - 42300 -- Family 15h Model 10h-1Fh doesn't mention any
+ - 49125 -- Family 15h Model 30h-3Fh doesn't mention any
 
-u32 i2c_get_device_id(struct client* client)
+ - 48751 -- Family 16h Model 00h-0Fh uses the previously supported
+   index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
 
-Instead of returning an u32, we could return a struct where the bits are
-already decoded, too.
+Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
+---
+ drivers/i2c/busses/i2c-piix4.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
---f6jlqjvnv3lvpsxv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAloxxhMACgkQFA3kzBSg
-KbZa2A/8CLxhr9lNHM93bFm1IQT0m1C1X571uXlDt/XzmDwXp5ERXPr/83ePo7bC
-J1LU4qusnYOPbyjGml+LcGJc3BGvm2XcAWRQg2p2x63IXAyYLZXP05mzdo9/ZbgW
-PDLabgpHFDPEeK21HbPM+EdlrflBPe55XvKHYKY243/3pOX8awfS0Ohrvfx0/e+4
-21wqq2Xw0Mdncd78LZW+OUqy/bLWGzVFh0CDpXPJw0bvTndCUB0+AyBeWVCIqw13
-JqYnLnswmyAaFeVPGdO8gteScxyDT3jQxy8YshiM/BQU8I6LCQln3bryOZvECgl2
-pPD+6j7K6D4AsWxS/ytLKtzN+n0GaWteKqMc2djUK/OP5FZ6NjXbK9vSeUbnhBCK
-7EPgYX57SVSnTRGkYssx3HN+o4dvJnyBwx2m6OjfYjkWjg3GG/LCVi8ySCdKhsqH
-7sK7r5kngOrZuw1e/utVbyEmFsdqV1/O9Tr1S0ZK4Yv3V4jQzFGj/ZEbSFaiYuAZ
-+MvICT5e6V6CTvBW56Sl2neW/OPjPl2/8RR0ARbcu5nQi6PJpBjkdEd8JczHiqF6
-bvNhhgqTsSo3aA+47RujP2Ye3UL/2YSMUewQ8uW9VONNzVAlE5HgLa//ySDEUiUR
-TBXh3EphtsqMexTHGQKquvVhb20TPhEEjY14+J3+EKci2YxdcAU=
-=I7sV
------END PGP SIGNATURE-----
-
---f6jlqjvnv3lvpsxv--
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 462948e..b92ea5d 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -99,7 +99,7 @@
+ #define SB800_PIIX4_PORT_IDX_MASK	0x06
+ #define SB800_PIIX4_PORT_IDX_SHIFT	1
+ 
+-/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
++/* On kerncz and Hudson2, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
+ #define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
+ #define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
+ #define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+@@ -360,12 +360,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	/* Find which register is used for port selection */
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+ 		switch (PIIX4_dev->device) {
++		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+ 		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+ 			break;
+-		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+ 		default:
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+-- 
+2.7.4
