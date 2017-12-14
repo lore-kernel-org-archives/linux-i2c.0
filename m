@@ -1,148 +1,62 @@
-From: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
-Subject: [PATCH v5] i2c: Add support for NXP PCA984x family.
-Date: Thu, 14 Dec 2017 12:20:03 +0100
-Message-ID: <20171214112003.13701-1-adrian.fiergolski@cern.ch>
-References: <990e4a1f-a9ac-c899-0075-ae3211ff9475@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: i2c-tools: lib/Module.mk: fixing LIB_LINKS dependency
+Date: Thu, 14 Dec 2017 13:42:48 +0100
+Message-ID: <20171214134248.6e908946@endymion>
+References: <1513011624-1555-1-git-send-email-angelo@amarulasolutions.com>
+        <20171214093649.61e8f1df@endymion>
+        <CA+_SqVZ4dJBcL9+D3x42b0bJB2POasiu4Tz6gtTZHkmX=h56xg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <990e4a1f-a9ac-c899-0075-ae3211ff9475-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:35288 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751839AbdLNMmw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 14 Dec 2017 07:42:52 -0500
+In-Reply-To: <CA+_SqVZ4dJBcL9+D3x42b0bJB2POasiu4Tz6gtTZHkmX=h56xg@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Angelo Compagnucci <angelo@amarulasolutions.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>
 
-This patch extends the current i2c-mux-pca954x driver and adds support for
-a newer PCA984x family of the I2C switches and multiplexers from NXP.
+On Thu, 14 Dec 2017 10:43:33 +0100, Angelo Compagnucci wrote:
+> On Thu, Dec 14, 2017 at 9:36 AM, Jean Delvare <jdelvare@suse.de> wrote:
+> > I suppose that BUILD_DYNAMIC_LIB=0 should imply USE_STATIC_LIB=1.
+> > Something like:
+> >
+> > --- a/Makefile
+> > +++ b/Makefile
+> > @@ -43,6 +43,8 @@ endif
+> >  ifeq ($(BUILD_DYNAMIC_LIB),0)
+> >  ifeq ($(BUILD_STATIC_LIB),0)
+> >  $(error BUILD_DYNAMIC_LIB and BUILD_STATIC_LIB cannot be disabled at the same time)
+> > +else
+> > +USE_STATIC_LIB := 1
+> >  endif
+> >  endif
+> >
+> > What do you think?  
+> 
+> I think you are totally right. If BUILD_DYNAMIC_LIB is 0 the static
+> variant should be built and used too.
 
-Signed-off-by: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
----
-I have applied recent Peter's comments.
-I am waiting for comments from device-tree folks regarding compatibles.
+Thanks. Both fixes committed.
 
-.../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
- drivers/i2c/muxes/Kconfig                          |  6 ++--
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 36 +++++++++++++++++++---
- 3 files changed, 39 insertions(+), 8 deletions(-)
+> Could you realease a new version of i2c-tools with these patches? I'm
+> in the phase of updating the package in buildroot and I do really
+> prefer to have a new stable release than an old release with a bunch
+> of patches on top.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index aa097045a10e..b428bc0d81b1 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -1,10 +1,13 @@
- * NXP PCA954x I2C bus switch
- 
-+The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
-+
- Required Properties:
- 
-   - compatible: Must contain one of the following.
-     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
--    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
-+    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
-+    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
- 
-   - reg: The I2C address of the device.
- 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 0f5c8fc36625..52a4a922e7e6 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
- 	  will be called i2c-mux-pca9541.
- 
- config I2C_MUX_PCA954x
--	tristate "Philips PCA954x I2C Mux/switches"
-+	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
- 	depends on GPIOLIB || COMPILE_TEST
- 	help
--	  If you say yes here you get support for the Philips PCA954x
--	  I2C mux/switch devices.
-+	  If you say yes here you get support for the NXP PCA954x
-+	  and PCA984x I2C mux/switch devices.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-pca954x.
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 2ca068d8b92d..9796bd7d61d5 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -4,11 +4,11 @@
-  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-  * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
-  *
-- * This module supports the PCA954x series of I2C multiplexer/switch chips
-- * made by Philips Semiconductors.
-+ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
-+ * chips made by NXP Semiconductors.
-  * This includes the:
-- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
-- *	 and PCA9548.
-+ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
-+ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
-  *
-  * These chips are all controlled via the I2C bus itself, and all have a
-  * single 8-bit register. The upstream "parent" bus fans out to two,
-@@ -63,6 +63,10 @@ enum pca_type {
- 	pca_9546,
- 	pca_9547,
- 	pca_9548,
-+	pca_9846,
-+	pca_9847,
-+	pca_9848,
-+	pca_9849,
- };
- 
- struct chip_desc {
-@@ -129,6 +133,22 @@ static const struct chip_desc chips[] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
- 	},
-+	[pca_9846] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9847] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9848] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9849] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_ismux,
-+	},
- };
- 
- static const struct i2c_device_id pca954x_id[] = {
-@@ -140,6 +160,10 @@ static const struct i2c_device_id pca954x_id[] = {
- 	{ "pca9546", pca_9546 },
- 	{ "pca9547", pca_9547 },
- 	{ "pca9548", pca_9548 },
-+	{ "pca9846", pca_9846 },
-+	{ "pca9847", pca_9847 },
-+	{ "pca9848", pca_9848 },
-+	{ "pca9849", pca_9849 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
-@@ -154,6 +178,10 @@ static const struct of_device_id pca954x_of_match[] = {
- 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
- 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
- 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
-+	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
-+	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
-+	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
-+	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, pca954x_of_match);
+I don't have such a plan, sorry. Version 4.0 is still relatively new, I
+expect more problems to be found and fixed in the next weeks, I don't
+think it makes sense to rush a new release. There are only 13 commits
+since 4.0, it's not that many.
+
+Backporting patches for distribution packages is the usual process, and
+6 patches is not a bunch. If the patch count really bothers you, you can
+always consolidate the fix-ups into the original patch and you'll be
+down to 4, that seems easily manageable. Quilt is your friend ;-)
+
 -- 
-2.14.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jean Delvare
+SUSE L3 Support
