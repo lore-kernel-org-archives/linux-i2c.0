@@ -1,36 +1,85 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH v2 6/7] i3c: master: Add driver for Cadence IP
-Date: Thu, 14 Dec 2017 12:25:14 -0800
-Message-ID: <8245f2de-eb0a-319b-8f45-d8d5dac36239@infradead.org>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
- <20171214151610.19153-7-boris.brezillon@free-electrons.com>
- <d0685c1d-a3ed-b3c1-7e3f-b69b02e8a7be@infradead.org>
- <20171214211722.1c2f269d@bbrezillon>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH] eeprom: at24: don't use the default regmap locking
+Date: Thu, 14 Dec 2017 21:27:31 +0100
+Message-ID: <CAMRc=MebBjSQ7NWTtypSCoPMNGVy90p9tfLNiFEiaUD+5x4uFA@mail.gmail.com>
+References: <20171203214743.15970-1-brgl@bgdev.pl> <CAMRc=Mcnnq-9=uZp5s5fjKJVTqMbdcmXNZtsZHTAqH5uk_Ha1g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20171214211722.1c2f269d@bbrezillon>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@co>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ot0-f194.google.com ([74.125.82.194]:37866 "EHLO
+        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753200AbdLNU1c (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 14 Dec 2017 15:27:32 -0500
+Received: by mail-ot0-f194.google.com with SMTP id s4so6031223ote.4
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2017 12:27:32 -0800 (PST)
+In-Reply-To: <CAMRc=Mcnnq-9=uZp5s5fjKJVTqMbdcmXNZtsZHTAqH5uk_Ha1g@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-On 12/14/2017 12:17 PM, Boris Brezillon wrote:
->>> +	events.events = I3C_CCC_EVENT_HJ | I3C_CCC_EVENT_MR;
->>> +	ret = i3c_master_enec_locked(m, I3C_BROADCAST_ADDR, &events);
->>> +	if (ret)
->>> +		pr_info("Failed to re-enable H-J");  
->> 		Not very good info...
-> What do you mean? Is it the H-J that bothers you (I can replace it by
-> 'Hot-Join'), or is it something else?
+2017-12-10 19:57 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
+> 2017-12-03 22:47 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
+>> We need to always wait for the last write to complete and we want the
+>> regmap to be protected from concurrent access during that wait. That
+>> makes using the regmap's default locking impossible and we're
+>> protecting it with an external mutex.
+>>
+>> Set an empty function as the callback for regmap's lock and unlock
+>> routines so that it doesn't allocate any internal resources for
+>> unnecessary locking.
+>>
+>> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+>> ---
+>> This is a temporary solution - I'm working on a patch extending the
+>> regmap framework with locking policy options, which will allow users
+>> to manually lock & unlock regmaps if needed or disable locking at all.
+>>
+>>  drivers/misc/eeprom/at24.c | 9 +++++++++
+>>  1 file changed, 9 insertions(+)
+>>
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 625b00166117..34bc394a9c14 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -498,14 +498,23 @@ static unsigned int at24_get_offset_adj(u8 flags, unsigned int byte_len)
+>>         }
+>>  }
+>>
+>> +static void at24_regmap_lock_unlock_none(void *map)
+>> +{
+>> +
+>> +}
+>> +
+>>  static const struct regmap_config regmap_config_8 = {
+>>         .reg_bits = 8,
+>>         .val_bits = 8,
+>> +       .lock = at24_regmap_lock_unlock_none,
+>> +       .unlock = at24_regmap_lock_unlock_none,
+>>  };
+>>
+>>  static const struct regmap_config regmap_config_16 = {
+>>         .reg_bits = 16,
+>>         .val_bits = 8,
+>> +       .lock = at24_regmap_lock_unlock_none,
+>> +       .unlock = at24_regmap_lock_unlock_none,
+>>  };
+>>
+>>  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>> --
+>> 2.15.1
+>>
+>
+> There were no comments. I applied this patch. These changes will be
+> removed in 4.17 when we'll enable the newly added disable_locking
+> variable in regmap config.
+>
+> Bartosz
 
-Who is the message for?  If it's for developers, you could use
-pr_debug().  If it's for users, it needs more clarity.
+It turned out that this may cause problem with user space initiating
+operations on the regmap over debugfs entries. This has been correctly
+implemented in regmap and will be available from 4.16. I backed this
+patch out.
 
-Does it print the source of the message? (module name e.g.)
-and yes, Hot-Join would be better IMO.
-
--- 
-~Randy
+Thanks,
+Bartosz
