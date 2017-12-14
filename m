@@ -1,64 +1,69 @@
-From: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: [PATCH v2 6/7] i3c: master: Add driver for Cadence IP
-Date: Thu, 14 Dec 2017 14:10:06 -0800
-Message-ID: <3ea7ec44-3cf7-9f2f-c6e2-161fad939aa3@infradead.org>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
- <20171214151610.19153-7-boris.brezillon@free-electrons.com>
- <d0685c1d-a3ed-b3c1-7e3f-b69b02e8a7be@infradead.org>
- <20171214211722.1c2f269d@bbrezillon>
- <8245f2de-eb0a-319b-8f45-d8d5dac36239@infradead.org>
- <20171214214442.55902041@bbrezillon>
+From: Andrew Cooks <andrew.cooks@opengear.com>
+Subject: Re: [PATCH v2 1/3] i2c: piix4: Fix SMBus port selection for AMD
+ Family 16h chips
+Date: Fri, 15 Dec 2017 09:58:44 +1000
+Message-ID: <ab3ac6e1-819b-6f91-a590-ca3aa87f8b23@opengear.com>
+References: <cover.1513215039.git.andrew.cooks@opengear.com>
+ <3f87f37117e6662661f16ea8fdbbdffff5d2e414.1513215039.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171214214442.55902041@bbrezillon>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-cys01nam02on0074.outbound.protection.outlook.com ([104.47.37.74]:64648
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754291AbdLNX7E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 14 Dec 2017 18:59:04 -0500
+In-Reply-To: <3f87f37117e6662661f16ea8fdbbdffff5d2e414.1513215039.git.andrew.cooks@opengear.com>
 Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Suresh Punnoose <sureshp-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak@co>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, linux-i2c@vger.kernel.org
+Cc: platypus-sw@opengear.com, Wolfram Sang <wsa@the-dreams.de>, open list <linux-kernel@vger.kernel.org>
 
-On 12/14/2017 12:44 PM, Boris Brezillon wrote:
-> On Thu, 14 Dec 2017 12:25:14 -0800
-> Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org> wrote:
-> 
->> On 12/14/2017 12:17 PM, Boris Brezillon wrote:
->>>>> +	events.events = I3C_CCC_EVENT_HJ | I3C_CCC_EVENT_MR;
->>>>> +	ret = i3c_master_enec_locked(m, I3C_BROADCAST_ADDR, &events);
->>>>> +	if (ret)
->>>>> +		pr_info("Failed to re-enable H-J");    
->>>> 		Not very good info...  
->>> What do you mean? Is it the H-J that bothers you (I can replace it by
->>> 'Hot-Join'), or is it something else?  
->>
->> Who is the message for?  If it's for developers, you could use
->> pr_debug().  If it's for users, it needs more clarity.
-> 
-> I think it's of interest to anyone including users. If we fail to
-> re-enable Hot-Join that means hotplug is no longer working which is
-> a bad news.
-> 
->>
->> Does it print the source of the message? (module name e.g.)
-> 
-> I could replace it by
-> 
-> 	dev_err(m->parent, "Failed to re-enable Hot-Join");
-> 
+Hi Jean
 
-Yes, that's a good plan.
-
-Thanks.
-
+On 14/12/17 13:11, Andrew Cooks wrote:
+> HUDSON2 SMBus controller has the same port selection register as
+> described and fixed in commit 0fe16195f89173652cf111d7b384941b00c5aabd
+> ("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
 > 
+> The SMBus port selection register is common to multiple Families and
+> models, as documented in AMD's publicly available BIOS and Kernel
+> Developer Guides:
 > 
->> and yes, Hot-Join would be better IMO.
+>  - 50742 -- Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+>  - 55072 -- Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+>  - 52740 -- Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
+> 
+> The following additional public AMD BKDG documents were checked and do
+> not share the same port selection register:
+> 
+>  - 42301 -- Family 15h Model 00h-0Fh doesn't mention any
+>  - 42300 -- Family 15h Model 10h-1Fh doesn't mention any
+>  - 49125 -- Family 15h Model 30h-3Fh doesn't mention any
+> 
+>  - 48751 -- Family 16h Model 00h-0Fh uses the previously supported
+>    index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
+
+I just noticed that commit 6befa3fde65fe437f588da490c07a114393ce229 ("i2c: piix4: Support alternative port selection register") also fixed the port selection for Hudson2, and this patch is incorrect. Unfortunately the AMD naming and PCI Device IDs aren't particularly helpful here.
+
+In both the 51192 Bolton Register Reference Guide[1] and 52740 BKDG for Family 16h Model 30h-3Fh[2], the PCI Device ID for the SMBus controller is 0x780b, but the location of the SmBus0Sel port selection bits are different.
+
+We might be able to distinguish between them using the Revision ID in PCI register 0x08 (in addition to the PCI Device ID, of course).
+
+  Bolton [1] is Revision 0x15
+  Family 16h Model 30h (Hudson2?)[2] is Revision 0x1F
+  Family 15h Model 70h [3] uses 0x4A
+  Family 15h Model 60h [4] uses 0x4A
+
+Thoughts?
 
 
--- 
-~Randy
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Andrew
+
+
+[1] http://support.amd.com/TechDocs/51192_Bolton_FCH_RRG.pdf
+[2] http://support.amd.com/TechDocs/52740_16h_Models_30h-3Fh_BKDG.pdf
+[3] http://support.amd.com/TechDocs/55072_AMD_Family_15h_Models_70h-7Fh_BKDG.pdf
+[4] http://support.amd.com/TechDocs/50742_15h_Models_60h-6Fh_BKDG.pdf
