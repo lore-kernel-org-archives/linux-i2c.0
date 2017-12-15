@@ -1,85 +1,44 @@
-From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
-Subject: Re: [PATCH v5] i2c: Add support for NXP PCA984x family.
-Date: Fri, 15 Dec 2017 11:40:52 +0100
-Message-ID: <034bb221-d96d-a380-6389-00ad283dbb23@axentia.se>
-References: <990e4a1f-a9ac-c899-0075-ae3211ff9475@axentia.se>
- <20171214112003.13701-1-adrian.fiergolski@cern.ch>
+From: Rodolfo Giometti <giometti@enneenne.com>
+Subject: Re: [PATCH v4] i2c: Add support for NXP PCA984x family.
+Date: Fri, 15 Dec 2017 10:46:11 +0100
+Message-ID: <11ce3c99-bf5b-b5be-5e55-ce412f26286e@enneenne.com>
+References: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
+ <20171213161223.23832-1-adrian.fiergolski@cern.ch>
+ <20171213165600.glc2aibv3zmilip5@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171214112003.13701-1-adrian.fiergolski-vJEk5272eHo@public.gmane.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtpcmd0986.aruba.it ([62.149.156.86]:52176 "EHLO
+        smtpcmd0986.aruba.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755413AbdLOJqP (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Dec 2017 04:46:15 -0500
+In-Reply-To: <20171213165600.glc2aibv3zmilip5@ninjato>
 Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org, peda@axentia.se
 
-[It occurred to me that the DT people might skip the v4 discussion now
-that there is a v5. So, in order to spare someone the effort of digging
-that up, I'm re-sending the comments]
-
-On 2017-12-14 12:20, Adrian Fiergolski wrote:
-> This patch extends the current i2c-mux-pca954x driver and adds support for
-> a newer PCA984x family of the I2C switches and multiplexers from NXP.
+On 13/12/17 17:56, Wolfram Sang wrote:
 > 
-> Signed-off-by: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
-> ---
-> I have applied recent Peter's comments.
-> I am waiting for comments from device-tree folks regarding compatibles.
+>> +MODULE_AUTHOR("Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
 > 
-> .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
->  drivers/i2c/muxes/Kconfig                          |  6 ++--
->  drivers/i2c/muxes/i2c-mux-pca954x.c                | 36 +++++++++++++++++++---
->  3 files changed, 39 insertions(+), 8 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> index aa097045a10e..b428bc0d81b1 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> @@ -1,10 +1,13 @@
->  * NXP PCA954x I2C bus switch
->  
-> +The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
-> +
->  Required Properties:
->  
->    - compatible: Must contain one of the following.
->      "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
-> -    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
-> +    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
-> +    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+> Authorship for this module because of adding IDs? I'll leave the final
+> decision to Rodolfo and Peter, but I'd think you are not there yet ;)
 
-I think that perhaps the new chips should have compatibles like:
+In this case I agree with Wolfram.
 
-	compatible = "nxp,pca9846", "nxp,pca9546";
-	compatible = "nxp,pca9847", "nxp,pca9547";
-	compatible = "nxp,pca9848", "nxp,pca9548";
+Ciao,
 
-since they are extremely similar to the older chips (the only
-difference is the device id support and other esoteric stuff that
-you don't need to use). That way the device-tree will work even
-with an older OS that only supports pca954x chips. And when you
-add the device id check for the pca984x family, you are set up
-to differentiate.
+Rodolfo
 
-(pca9849 isn't really compatible with any of the pca954x chips since
-it lacks interrupt handling)
+-- 
 
-So, what is best practice in this situation?
-
-Come to think of it, this is closely related to
-	https://lkml.org/lkml/2017/8/3/226
-which did not get a satisfactory answer IMHO.
-
->    - reg: The I2C address of the device.
->  
-
-*snip*
-
-Cheers,
-Peter
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+HCE Engineering                      e-mail: giometti@hce-engineering.it
+GNU/Linux Solutions                          giometti@enneenne.com
+Linux Device Driver                          giometti@linux.it
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
+Cosino Project - the quick prototyping embedded system - www.cosino.it
+Freelance ICT Italia - Consulente ICT Italia - www.consulenti-ict.it
