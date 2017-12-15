@@ -1,44 +1,51 @@
-From: Rodolfo Giometti <giometti@enneenne.com>
-Subject: Re: [PATCH v4] i2c: Add support for NXP PCA984x family.
-Date: Fri, 15 Dec 2017 10:46:11 +0100
-Message-ID: <11ce3c99-bf5b-b5be-5e55-ce412f26286e@enneenne.com>
-References: <5cbfd97a-146b-8851-c63a-f2f60da33f5b@axentia.se>
- <20171213161223.23832-1-adrian.fiergolski@cern.ch>
- <20171213165600.glc2aibv3zmilip5@ninjato>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH v4 0/3] i2c: introduce devm_i2c_new_dummy and use it in at24
+ driver
+Date: Fri, 15 Dec 2017 18:36:42 +0100
+Message-ID: <083569b1-489a-d84f-1a87-bca52fad53e1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtpcmd0986.aruba.it ([62.149.156.86]:52176 "EHLO
-        smtpcmd0986.aruba.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755413AbdLOJqP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Dec 2017 04:46:15 -0500
-In-Reply-To: <20171213165600.glc2aibv3zmilip5@ninjato>
-Content-Language: en-US
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35233 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755506AbdLORgw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 15 Dec 2017 12:36:52 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org, peda@axentia.se
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On 13/12/17 17:56, Wolfram Sang wrote:
-> 
->> +MODULE_AUTHOR("Adrian Fiergolski <Adrian.Fiergolski@cern.ch>");
-> 
-> Authorship for this module because of adding IDs? I'll leave the final
-> decision to Rodolfo and Peter, but I'd think you are not there yet ;)
+i2c_new_dummy is typically called from the probe function of the
+driver for the primary i2c client. It requires calls to
+i2c_unregister_device in the error path of the probe function and
+in the remove function.
+This can be simplified by introducing a device-managed version.
 
-In this case I agree with Wolfram.
+Make at24 driver the first user of the new function.
 
-Ciao,
+Changes in v2:
+- add change to i2c core to make a version of i2c_new_device
+  available which returns an ERR_PTR instead of NULL in error case
+- few minor improvements
 
-Rodolfo
+Changes in v3:
+- rename _i2c_new_device to __i2c_new_device
+
+Changes in v4:
+- add missing kernel doc comments
+- add Reviewed-by
+
+Heiner Kallweit (3):
+  i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy
+  i2c: core: add device-managed version of i2c_new_dummy
+  eeprom: at24: switch to device-managed version of i2c_new_dummy
+
+ Documentation/driver-model/devres.txt |   3 +
+ drivers/i2c/i2c-core-base.c           | 108 ++++++++++++++++++++++++++++++----
+ drivers/misc/eeprom/at24.c            |  31 ++++------
+ include/linux/i2c.h                   |   3 +
+ 4 files changed, 112 insertions(+), 33 deletions(-)
 
 -- 
-
-HCE Engineering                      e-mail: giometti@hce-engineering.it
-GNU/Linux Solutions                          giometti@enneenne.com
-Linux Device Driver                          giometti@linux.it
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-Cosino Project - the quick prototyping embedded system - www.cosino.it
-Freelance ICT Italia - Consulente ICT Italia - www.consulenti-ict.it
+2.15.1
