@@ -1,69 +1,85 @@
-From: Andrew Cooks <andrew.cooks@opengear.com>
-Subject: Re: [PATCH v2 1/3] i2c: piix4: Fix SMBus port selection for AMD
- Family 16h chips
-Date: Fri, 15 Dec 2017 09:58:44 +1000
-Message-ID: <ab3ac6e1-819b-6f91-a590-ca3aa87f8b23@opengear.com>
-References: <cover.1513215039.git.andrew.cooks@opengear.com>
- <3f87f37117e6662661f16ea8fdbbdffff5d2e414.1513215039.git.andrew.cooks@opengear.com>
+From: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
+Subject: Re: [PATCH v5] i2c: Add support for NXP PCA984x family.
+Date: Fri, 15 Dec 2017 11:40:52 +0100
+Message-ID: <034bb221-d96d-a380-6389-00ad283dbb23@axentia.se>
+References: <990e4a1f-a9ac-c899-0075-ae3211ff9475@axentia.se>
+ <20171214112003.13701-1-adrian.fiergolski@cern.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0074.outbound.protection.outlook.com ([104.47.37.74]:64648
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754291AbdLNX7E (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 14 Dec 2017 18:59:04 -0500
-In-Reply-To: <3f87f37117e6662661f16ea8fdbbdffff5d2e414.1513215039.git.andrew.cooks@opengear.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171214112003.13701-1-adrian.fiergolski-vJEk5272eHo@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: jdelvare@suse.com, linux-i2c@vger.kernel.org
-Cc: platypus-sw@opengear.com, Wolfram Sang <wsa@the-dreams.de>, open list <linux-kernel@vger.kernel.org>
 
-Hi Jean
+[It occurred to me that the DT people might skip the v4 discussion now
+that there is a v5. So, in order to spare someone the effort of digging
+that up, I'm re-sending the comments]
 
-On 14/12/17 13:11, Andrew Cooks wrote:
-> HUDSON2 SMBus controller has the same port selection register as
-> described and fixed in commit 0fe16195f89173652cf111d7b384941b00c5aabd
-> ("i2c: piix4: Fix SMBus port selection for AMD Family 17h chips")
+On 2017-12-14 12:20, Adrian Fiergolski wrote:
+> This patch extends the current i2c-mux-pca954x driver and adds support for
+> a newer PCA984x family of the I2C switches and multiplexers from NXP.
 > 
-> The SMBus port selection register is common to multiple Families and
-> models, as documented in AMD's publicly available BIOS and Kernel
-> Developer Guides:
+> Signed-off-by: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
+> ---
+> I have applied recent Peter's comments.
+> I am waiting for comments from device-tree folks regarding compatibles.
 > 
->  - 50742 -- Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
->  - 55072 -- Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
->  - 52740 -- Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
+> .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
+>  drivers/i2c/muxes/Kconfig                          |  6 ++--
+>  drivers/i2c/muxes/i2c-mux-pca954x.c                | 36 +++++++++++++++++++---
+>  3 files changed, 39 insertions(+), 8 deletions(-)
 > 
-> The following additional public AMD BKDG documents were checked and do
-> not share the same port selection register:
-> 
->  - 42301 -- Family 15h Model 00h-0Fh doesn't mention any
->  - 42300 -- Family 15h Model 10h-1Fh doesn't mention any
->  - 49125 -- Family 15h Model 30h-3Fh doesn't mention any
-> 
->  - 48751 -- Family 16h Model 00h-0Fh uses the previously supported
->    index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> index aa097045a10e..b428bc0d81b1 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> @@ -1,10 +1,13 @@
+>  * NXP PCA954x I2C bus switch
+>  
+> +The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
+> +
+>  Required Properties:
+>  
+>    - compatible: Must contain one of the following.
+>      "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+> -    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
+> +    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
+> +    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
 
-I just noticed that commit 6befa3fde65fe437f588da490c07a114393ce229 ("i2c: piix4: Support alternative port selection register") also fixed the port selection for Hudson2, and this patch is incorrect. Unfortunately the AMD naming and PCI Device IDs aren't particularly helpful here.
+I think that perhaps the new chips should have compatibles like:
 
-In both the 51192 Bolton Register Reference Guide[1] and 52740 BKDG for Family 16h Model 30h-3Fh[2], the PCI Device ID for the SMBus controller is 0x780b, but the location of the SmBus0Sel port selection bits are different.
+	compatible = "nxp,pca9846", "nxp,pca9546";
+	compatible = "nxp,pca9847", "nxp,pca9547";
+	compatible = "nxp,pca9848", "nxp,pca9548";
 
-We might be able to distinguish between them using the Revision ID in PCI register 0x08 (in addition to the PCI Device ID, of course).
+since they are extremely similar to the older chips (the only
+difference is the device id support and other esoteric stuff that
+you don't need to use). That way the device-tree will work even
+with an older OS that only supports pca954x chips. And when you
+add the device id check for the pca984x family, you are set up
+to differentiate.
 
-  Bolton [1] is Revision 0x15
-  Family 16h Model 30h (Hudson2?)[2] is Revision 0x1F
-  Family 15h Model 70h [3] uses 0x4A
-  Family 15h Model 60h [4] uses 0x4A
+(pca9849 isn't really compatible with any of the pca954x chips since
+it lacks interrupt handling)
 
-Thoughts?
+So, what is best practice in this situation?
 
+Come to think of it, this is closely related to
+	https://lkml.org/lkml/2017/8/3/226
+which did not get a satisfactory answer IMHO.
 
-Andrew
+>    - reg: The I2C address of the device.
+>  
 
+*snip*
 
-[1] http://support.amd.com/TechDocs/51192_Bolton_FCH_RRG.pdf
-[2] http://support.amd.com/TechDocs/52740_16h_Models_30h-3Fh_BKDG.pdf
-[3] http://support.amd.com/TechDocs/55072_AMD_Family_15h_Models_70h-7Fh_BKDG.pdf
-[4] http://support.amd.com/TechDocs/50742_15h_Models_60h-6Fh_BKDG.pdf
+Cheers,
+Peter
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
