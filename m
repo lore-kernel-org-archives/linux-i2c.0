@@ -1,95 +1,198 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.15
-Date: Sat, 16 Dec 2017 17:52:18 +0100
-Message-ID: <20171216165214.qrd75nivc2lz3qep@ninjato>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 5/7] dt-bindings: i3c: Document core bindings
+Date: Sat, 16 Dec 2017 11:20:40 -0600
+Message-ID: <20171216172040.jcaezouqkeb7zrqy@rob-hp-laptop>
+References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
+ <20171214151610.19153-6-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cdvdmgdzpjxmpcoh"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:60512 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752746AbdLPQwW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 16 Dec 2017 11:52:22 -0500
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
-
-
---cdvdmgdzpjxmpcoh
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20171214151610.19153-6-boris.brezillon@free-electrons.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-Linus,
+On Thu, Dec 14, 2017 at 04:16:08PM +0100, Boris Brezillon wrote:
+> A new I3C subsystem has been added and a generic description has been
+> created to represent the I3C bus and the devices connected on it.
+> 
+> Document this generic representation.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+> Changes in v2:
+> - Define how to describe I3C devices in the DT and when it should be
+>   used. Note that the parsing of I3C devices is not yet implemented in
+>   the framework. Will be added when someone really needs it.
+> ---
+>  Documentation/devicetree/bindings/i3c/i3c.txt | 128 ++++++++++++++++++++++++++
+>  1 file changed, 128 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
+> new file mode 100644
+> index 000000000000..79a214dee025
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
+> @@ -0,0 +1,128 @@
+> +Generic device tree bindings for I3C busses
+> +===========================================
+> +
+> +This document describes generic bindings that should be used to describe I3C
+> +busses in a device tree.
+> +
+> +Required properties
+> +-------------------
+> +
+> +- #address-cells  - should be <1>. Read more about addresses below.
+> +- #size-cells     - should be <0>.
+> +- compatible      - name of I3C bus controller following generic names
+> +		    recommended practice.
 
-here are two bugfixes for the AT24 I2C eeprom driver and some minor
-corrections for I2C bus drivers.
+generic names isn't anything recommended.
 
-Please pull.
+One problem we have with i2c buses is we can't identify them in the DT 
+other than with a list of all controller's compatible strings. We can 
+fix this by defining the controller node name. So please define the node 
+name to be "i3c-controller". That's more inline with other node names 
+than i3c-master that you used below.
 
-Thanks,
+> +
+> +For other required properties e.g. to describe register sets,
+> +clocks, etc. check the binding documentation of the specific driver.
+> +
+> +Optional properties
+> +-------------------
+> +
+> +These properties may not be supported by all I3C master drivers. Each I3C
+> +master bindings should specify which of them are supported.
+> +
+> +- i3c-scl-frequency: frequency (in Hz) of the SCL signal used for I3C
+> +		     transfers. When undefined the core set it to 12.5MHz.
+> +
+> +- i2c-scl-frequency: frequency (in Hz) of the SCL signal used for I2C
+> +		     transfers. When undefined, the core looks at LVR values
+> +		     of I2C devices described in the device tree to determine
+> +		     the maximum I2C frequency.
 
-   Wolfram
+Add '-hz' suffix. You could drop 'frequency' as that would be implied by 
+Hz.
 
+> +
+> +I2C devices
+> +===========
+> +
+> +Each I2C device connected to the bus should be described in a subnode with
+> +the following properties:
+> +
+> +All properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
+> +valid here.
+> +
+> +New required properties:
+> +------------------------
+> +- i3c-lvr: 32 bits integer property (only the lowest 8 bits are meaningful)
+> +	   describing device capabilities as described in the I3C
+> +	   specification.
+> +
+> +	   bit[31:8]: unused
+> +	   bit[7:5]: I2C device index. Possible values
+> +	    * 0: I2C device has a 50 ns spike filter
+> +	    * 1: I2C device does not have a 50 ns spike filter but supports high
+> +		 frequency on SCL
+> +	    * 2: I2C device does not have a 50 ns spike filter and is not
+> +		 tolerant to high frequencies
+> +	    * 3-7: reserved
+> +
+> +	   bit[4]: tell whether the device operates in FM or FM+ mode
+> +	    * 0: FM+ mode
+> +	    * 1: FM mode
+> +
+> +	   bit[3:0]: device type
+> +	    * 0-15: reserved
+> +
+> +I3C devices
+> +===========
+> +
+> +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
+> +are thus discoverable. So, by default, I3C devices do not have to be described
+> +in the device tree.
+> +This being said, one might want to attach extra resources to these devices,
+> +and those resources may have to be described in the device tree, which in turn
+> +means we have to describe I3C devices.
+> +
+> +Another use case for describing an I3C device in the device tree is when this
+> +I3C device has a static address and we want to assign it a specific dynamic
+> +address before the DAA takes place (so that other devices on the bus can't
+> +take this dynamic address).
+> +
+> +Required properties
+> +-------------------
+> +- i3c-pid: PID (Provisional ID). 64-bit property which is used to match a
+> +	   device discovered during DAA with its device tree definition. The
+> +	   PID is supposed to be unique on a given bus, which guarantees a 1:1
+> +	   match. This property becomes optional if a reg property is defined,
+> +	   meaning that the device has a static address.
 
-The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
+What determines this number?
 
-  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
+> +
+> +Optional properties
+> +-------------------
+> +- reg: static address. Only valid is the device has a static address.
+> +- i3c-dynamic-address: dynamic address to be assigned to this device. This
+> +		       property depends on the reg property.
 
-are available in the git repository at:
+Perhaps "assigned-address" property would be appropriate. I'm not all 
+that familiar with it though.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+> +
+> +Example:
+> +
+> +	i3c-master@0d040000 {
 
-for you to fetch changes up to 45fd4470ba86e9ca2837b666a52cc65dc69f0fa3:
+Drop leading 0.
 
-  i2c: piix4: Fix port number check on release (2017-12-12 23:27:04 +0100)
+> +		compatible = "cdns,i3c-master";
+> +		clocks = <&coreclock>, <&i3csysclock>;
+> +		clock-names = "pclk", "sysclk";
+> +		interrupts = <3 0>;
+> +		reg = <0x0d040000 0x1000>;
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		status = "okay";
+> +		i2c-scl-frequency = <100000>;
+> +
+> +		/* I2C device. */
+> +		nunchuk: nunchuk@52 {
+> +			compatible = "nintendo,nunchuk";
+> +			reg = <0x52>;
+> +			i3c-lvr = <0x10>;
+> +		};
+> +
+> +		/* I3C device with a static address. */
+> +		thermal_sensor: sensor@68 {
+> +			reg = <0x68>;
+> +			i3c-dynamic-address = <0xa>;
+> +		};
+> +
+> +		/*
+> +		 * I3C device without a static address but requiring resources
+> +		 * described in the DT.
+> +		 */
+> +		sensor2 {
 
-----------------------------------------------------------------
-Arvind Yadav (1):
-      i2c-cht-wc: constify platform_device_id
+It's not great that we can't follow using generic node names. Maybe the 
+PID can be used as the address? In USB for example, we use hub ports for 
+DT addresses rather than USB addresses since those are dynamic.
 
-Benjamin Gaignard (1):
-      i2c: stm32: Fix copyrights
-
-David Lechner (1):
-      eeprom: at24: change nvmem stride to 1
-
-Jean Delvare (1):
-      i2c: piix4: Fix port number check on release
-
-Sakari Ailus (1):
-      eeprom: at24: fix I2C device selection for runtime PM
-
-Wolfram Sang (1):
-      Merge tag 'at24-4.15-rc3-fixes-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
-
- drivers/i2c/busses/i2c-cht-wc.c  |  2 +-
- drivers/i2c/busses/i2c-piix4.c   |  2 +-
- drivers/i2c/busses/i2c-stm32.h   |  3 ++-
- drivers/i2c/busses/i2c-stm32f4.c |  3 ++-
- drivers/i2c/busses/i2c-stm32f7.c |  3 ++-
- drivers/misc/eeprom/at24.c       | 26 +++++++++++---------------
- 6 files changed, 19 insertions(+), 20 deletions(-)
-
---cdvdmgdzpjxmpcoh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlo1TzoACgkQFA3kzBSg
-KbaMKA//c2RKO2ksBJvOTZYrjGQFN4JBUfUZyVSAYsiM0uLUDOlrkNG/VFWdhvP1
-1A/mbsJNwpyNFCztPM8nR3X1Dvmm9bJ8hhFBqwqmL1kuPS+aIdyU67jqn+Rf+wyn
-eygcfYUINBezuuvPUshuwgp8Qci8hDZFxyMAwf5jOHODPUhjFEV1AQCu6mRiQS7L
-N9SUdr3R5+c4QXHhY3jxpZZp28ilnRaO8MIoF5UTeF7m7y2pcaThuAelrZr+9mUu
-NfnTGvtpTzPgLoCiajmHhyqRiRNn6Z01PgBJqwEuwUTRmwSs8Qsl4yeoDYDfyl6j
-6WXJHdYMv8yNm9zDz3hHZREZHQwoLsxdAflQ0J3KLHe+Ply2dreLV4fxQ4eBVTMi
-wcwsMHc6RH9C0uTqzv4Ga3nkUvhr8f8wkbesQGSXxF9d4y7k5pzI6qw/wxaHNzf3
-Rx7dw/aDdog9OoEeoGUdFP+b9DeCRLr0AZRqWf9w0asT72MUdKH/QYpCQH70niDw
-uw3j/MURAWabGv1LjOrPukRDZWDOS2yvF60dmVjoKw8OG2NYit9yGWLrfLHZIi+B
-8XgNQWNXGo3/5jGE3JXp8AOEFh+7zajlGquBYRa+4gSWR6P+bHWd0zIUHnkAwSln
-MiKNrd2W7LRf6JHJ9tHNc9+vHhZdWF8NdTokmZFv7+4OSwnIV20=
-=Z5KD
------END PGP SIGNATURE-----
-
---cdvdmgdzpjxmpcoh--
+> +			i3c-pid = /bits/ 64 <0x39200144004>;
+> +			clocks = <&clock_provider 0>;
+> +		};
+> +	};
+> +
+> -- 
+> 2.11.0
+> 
