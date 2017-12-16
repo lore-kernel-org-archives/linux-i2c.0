@@ -1,126 +1,95 @@
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH v5 2/3] i2c: core: add device-managed version of i2c_new_dummy
-Date: Sat, 16 Dec 2017 00:05:42 +0100
-Message-ID: <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com>
-References: <ee904c64-e1b3-7fa0-7df4-7e77530a974a@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.15
+Date: Sat, 16 Dec 2017 17:52:18 +0100
+Message-ID: <20171216165214.qrd75nivc2lz3qep@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ee904c64-e1b3-7fa0-7df4-7e77530a974a@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="cdvdmgdzpjxmpcoh"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:60512 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752746AbdLPQwW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 16 Dec 2017 11:52:22 -0500
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-i2c_new_dummy is typically called from the probe function of the
-driver for the primary i2c client. It requires calls to
-i2c_unregister_device in the error path of the probe function and
-in the remove function.
-This can be simplified by introducing a device-managed version.
 
-Note the changed error case return value type:
-i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
+--cdvdmgdzpjxmpcoh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
----
-v2:
-- use new function _i2c_new_dummy with detailed error codes
-v3:
-- no changes
-v4:
-- reflect renaming to __i2c_new_dummy
-v5:
-- improve readability by adding struct i2c_dummy_devres
----
- Documentation/driver-model/devres.txt |  3 +++
- drivers/i2c/i2c-core-base.c           | 45 +++++++++++++++++++++++++++++++++++
- include/linux/i2c.h                   |  3 +++
- 3 files changed, 51 insertions(+)
+Linus,
 
-diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-index c180045eb..6e2bccf85 100644
---- a/Documentation/driver-model/devres.txt
-+++ b/Documentation/driver-model/devres.txt
-@@ -259,6 +259,9 @@ GPIO
-   devm_gpio_request_one()
-   devm_gpio_free()
- 
-+I2C
-+  devm_i2c_new_dummy
-+
- IIO
-   devm_iio_device_alloc()
-   devm_iio_device_free()
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index cb3f29fb8..4b05abbfa 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -864,6 +864,51 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
- }
- EXPORT_SYMBOL_GPL(i2c_new_dummy);
- 
-+struct i2c_dummy_devres {
-+	struct i2c_client *client;
-+};
-+
-+static void devm_i2c_release_dummy(struct device *dev, void *res)
-+{
-+	struct i2c_dummy_devres *this = res;
-+
-+	i2c_unregister_device(this->client);
-+}
-+
-+/**
-+ * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
-+ * @dev: device the managed resource is bound to
-+ * @adapter: the adapter managing the device
-+ * @address: seven bit address to be used
-+ * Context: can sleep
-+ *
-+ * This is the device-managed version of i2c_new_dummy.
-+ * Note the changed return value type: It returns the new i2c client
-+ * or an ERR_PTR in case of an error.
-+ */
-+struct i2c_client *devm_i2c_new_dummy(struct device *dev,
-+				      struct i2c_adapter *adapter,
-+				      u16 address)
-+{
-+	struct i2c_dummy_devres *dr;
-+	struct i2c_client *client;
-+
-+	dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
-+	if (!dr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	client = __i2c_new_dummy(adapter, address);
-+	if (IS_ERR(client)) {
-+		devres_free(dr);
-+	} else {
-+		dr->client = client;
-+		devres_add(dev, dr);
-+	}
-+
-+	return client;
-+}
-+EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
-+
- /**
-  * i2c_new_secondary_device - Helper to get the instantiated secondary address
-  * and create the associated device
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 5d7f3c185..aca6ebbb8 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -441,6 +441,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
- extern struct i2c_client *
- i2c_new_dummy(struct i2c_adapter *adap, u16 address);
- 
-+extern struct i2c_client *
-+devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
-+
- extern struct i2c_client *
- i2c_new_secondary_device(struct i2c_client *client,
- 				const char *name,
--- 
-2.15.1
+here are two bugfixes for the AT24 I2C eeprom driver and some minor
+corrections for I2C bus drivers.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
+
+  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 45fd4470ba86e9ca2837b666a52cc65dc69f0fa3:
+
+  i2c: piix4: Fix port number check on release (2017-12-12 23:27:04 +0100)
+
+----------------------------------------------------------------
+Arvind Yadav (1):
+      i2c-cht-wc: constify platform_device_id
+
+Benjamin Gaignard (1):
+      i2c: stm32: Fix copyrights
+
+David Lechner (1):
+      eeprom: at24: change nvmem stride to 1
+
+Jean Delvare (1):
+      i2c: piix4: Fix port number check on release
+
+Sakari Ailus (1):
+      eeprom: at24: fix I2C device selection for runtime PM
+
+Wolfram Sang (1):
+      Merge tag 'at24-4.15-rc3-fixes-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
+
+ drivers/i2c/busses/i2c-cht-wc.c  |  2 +-
+ drivers/i2c/busses/i2c-piix4.c   |  2 +-
+ drivers/i2c/busses/i2c-stm32.h   |  3 ++-
+ drivers/i2c/busses/i2c-stm32f4.c |  3 ++-
+ drivers/i2c/busses/i2c-stm32f7.c |  3 ++-
+ drivers/misc/eeprom/at24.c       | 26 +++++++++++---------------
+ 6 files changed, 19 insertions(+), 20 deletions(-)
+
+--cdvdmgdzpjxmpcoh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlo1TzoACgkQFA3kzBSg
+KbaMKA//c2RKO2ksBJvOTZYrjGQFN4JBUfUZyVSAYsiM0uLUDOlrkNG/VFWdhvP1
+1A/mbsJNwpyNFCztPM8nR3X1Dvmm9bJ8hhFBqwqmL1kuPS+aIdyU67jqn+Rf+wyn
+eygcfYUINBezuuvPUshuwgp8Qci8hDZFxyMAwf5jOHODPUhjFEV1AQCu6mRiQS7L
+N9SUdr3R5+c4QXHhY3jxpZZp28ilnRaO8MIoF5UTeF7m7y2pcaThuAelrZr+9mUu
+NfnTGvtpTzPgLoCiajmHhyqRiRNn6Z01PgBJqwEuwUTRmwSs8Qsl4yeoDYDfyl6j
+6WXJHdYMv8yNm9zDz3hHZREZHQwoLsxdAflQ0J3KLHe+Ply2dreLV4fxQ4eBVTMi
+wcwsMHc6RH9C0uTqzv4Ga3nkUvhr8f8wkbesQGSXxF9d4y7k5pzI6qw/wxaHNzf3
+Rx7dw/aDdog9OoEeoGUdFP+b9DeCRLr0AZRqWf9w0asT72MUdKH/QYpCQH70niDw
+uw3j/MURAWabGv1LjOrPukRDZWDOS2yvF60dmVjoKw8OG2NYit9yGWLrfLHZIi+B
+8XgNQWNXGo3/5jGE3JXp8AOEFh+7zajlGquBYRa+4gSWR6P+bHWd0zIUHnkAwSln
+MiKNrd2W7LRf6JHJ9tHNc9+vHhZdWF8NdTokmZFv7+4OSwnIV20=
+=Z5KD
+-----END PGP SIGNATURE-----
+
+--cdvdmgdzpjxmpcoh--
