@@ -1,245 +1,366 @@
-From: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 5/7] dt-bindings: i3c: Document core bindings
-Date: Sat, 16 Dec 2017 19:35:37 +0100
-Message-ID: <20171216193537.0aef2e97@bbrezillon>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
+Date: Sun, 17 Dec 2017 14:32:04 -0800
+Message-ID: <63546906-2fab-300a-b952-a0a7e8eb8bb5@infradead.org>
 References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
-        <20171214151610.19153-6-boris.brezillon@free-electrons.com>
-        <20171216172040.jcaezouqkeb7zrqy@rob-hp-laptop>
+ <20171214151610.19153-3-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171216172040.jcaezouqkeb7zrqy@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Przemyslaw Sroka <psroka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Arkadiusz Golec <agolec-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alan Douglas <adouglas-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Bartosz Folta <bfolta-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Damian Kos <dkos-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Alicja Jurasik-Urbaniak <alicja-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Cyprian Wronka <cwronka-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Suresh Punnoose <sureshp-vna1KIf7WgpBDgjK7y7TUQ@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20171214151610.19153-3-boris.brezillon@free-electrons.com>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 16 Dec 2017 11:20:40 -0600
-Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-
-> On Thu, Dec 14, 2017 at 04:16:08PM +0100, Boris Brezillon wrote:
-> > A new I3C subsystem has been added and a generic description has been
-> > created to represent the I3C bus and the devices connected on it.
-> > 
-> > Document this generic representation.
-> > 
-> > Signed-off-by: Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > ---
-> > Changes in v2:
-> > - Define how to describe I3C devices in the DT and when it should be
-> >   used. Note that the parsing of I3C devices is not yet implemented in
-> >   the framework. Will be added when someone really needs it.
-> > ---
-> >  Documentation/devicetree/bindings/i3c/i3c.txt | 128 ++++++++++++++++++++++++++
-> >  1 file changed, 128 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
-> > new file mode 100644
-> > index 000000000000..79a214dee025
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
-> > @@ -0,0 +1,128 @@
-> > +Generic device tree bindings for I3C busses
-> > +===========================================
-> > +
-> > +This document describes generic bindings that should be used to describe I3C
-> > +busses in a device tree.
-> > +
-> > +Required properties
-> > +-------------------
-> > +
-> > +- #address-cells  - should be <1>. Read more about addresses below.
-> > +- #size-cells     - should be <0>.
-> > +- compatible      - name of I3C bus controller following generic names
-> > +		    recommended practice.  
+On 12/14/17 07:16, Boris Brezillon wrote:
+> Add core infrastructure to support I3C in Linux and document it.
 > 
-> generic names isn't anything recommended.
-
-Hm, I agree. Don't even know what I wanted to say (it's probably been
-copied from somewhere else).
-
+> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+> ---
+>  drivers/Kconfig                 |    2 +
+>  drivers/Makefile                |    2 +-
+>  drivers/i3c/Kconfig             |   24 +
+>  drivers/i3c/Makefile            |    4 +
+>  drivers/i3c/core.c              |  573 ++++++++++++++++
+>  drivers/i3c/device.c            |  344 ++++++++++
+>  drivers/i3c/internals.h         |   34 +
+>  drivers/i3c/master.c            | 1433 +++++++++++++++++++++++++++++++++++++++
+>  drivers/i3c/master/Kconfig      |    0
+>  drivers/i3c/master/Makefile     |    0
+>  include/linux/i3c/ccc.h         |  380 +++++++++++
+>  include/linux/i3c/device.h      |  321 +++++++++
+>  include/linux/i3c/master.h      |  564 +++++++++++++++
+>  include/linux/mod_devicetable.h |   17 +
+>  14 files changed, 3697 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/i3c/Kconfig
+>  create mode 100644 drivers/i3c/Makefile
+>  create mode 100644 drivers/i3c/core.c
+>  create mode 100644 drivers/i3c/device.c
+>  create mode 100644 drivers/i3c/internals.h
+>  create mode 100644 drivers/i3c/master.c
+>  create mode 100644 drivers/i3c/master/Kconfig
+>  create mode 100644 drivers/i3c/master/Makefile
+>  create mode 100644 include/linux/i3c/ccc.h
+>  create mode 100644 include/linux/i3c/device.h
+>  create mode 100644 include/linux/i3c/master.h
 > 
-> One problem we have with i2c buses is we can't identify them in the DT 
-> other than with a list of all controller's compatible strings. We can 
-> fix this by defining the controller node name.
+> diff --git a/drivers/i3c/Kconfig b/drivers/i3c/Kconfig
+> new file mode 100644
+> index 000000000000..cf3752412ae9
+> --- /dev/null
+> +++ b/drivers/i3c/Kconfig
+> @@ -0,0 +1,24 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +
+> +menuconfig I3C
+> +	tristate "I3C support"
+> +	select I2C
+> +	help
+> +	  I3C is a serial protocol standardized by the MIPI alliance.
+> +
+> +	  It's supposed to be backward compatible with I2C while providing
+> +	  support for high speed transfers and native interrupt support
+> +	  without the need for extra pins.
+> +
+> +	  The I3C protocol also standardizes the slave device types and is
+> +	  mainly design to communicate with sensors.
+> +
+> +	  If you want I3C support, you should say Y here and also to the
+> +	  specific driver for your bus adapter(s) below.
+> +
+> +	  This I3C support can also be built as a module.  If so, the module
+> +	  will be called i3c.
+> +
+> +if I3C
+> +source "drivers/i3c/master/Kconfig"
+> +endif # I3C
 
-I'm fine with that.
+> diff --git a/drivers/i3c/core.c b/drivers/i3c/core.c
+> new file mode 100644
+> index 000000000000..7eb8e84acd33
+> --- /dev/null
+> +++ b/drivers/i3c/core.c
+> @@ -0,0 +1,573 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+> +
+> +#include <linux/idr.h>
+> +#include <linux/module.h>
+> +#include <linux/of_device.h>
+> +#include <linux/slab.h>
 
-> So please define the node 
-> name to be "i3c-controller". That's more inline with other node names 
-> than i3c-master that you used below.
+#include <linux/device.h>
+#include <linux/init.h>
+#include <linux/list.h>
+#include <linux/mutex.h>
+#include <linux/rwsem.h>
 
-Hm, not sure i3c-controller is appropriate though, because you can have
-slave controllers. Maybe i3c-host, but I'd prefer to keep the term
-master since it's employed everywhere in the spec. I can also be
-i3c-master-controller if you prefer.
 
+> +#include "internals.h"
+> +
+> +static DEFINE_IDR(i3c_bus_idr);
+> +static DEFINE_MUTEX(i3c_core_lock);
+> +
+
+> +/**
+> + * i3c_bus_maintenance_lock - Release the bus lock after a maintenance
+
+                          unlock
+
+> + *			      operation
+> + * @bus: I3C bus to release the lock on
+> + *
+> + * Should be called when the bus maintenance operation is done. See
+> + * i3c_bus_maintenance_lock() for more details on what these maintenance
+> + * operations are.
+> + */
+> +void i3c_bus_maintenance_unlock(struct i3c_bus *bus)
+> +{
+> +	up_write(&bus->lock);
+> +}
+> +EXPORT_SYMBOL_GPL(i3c_bus_maintenance_unlock);
+> +
+
+> +/**
+> + * i3c_bus_normaluse_lock - Release the bus lock after a normal operation
+
+                        unlock
+
+> + * @bus: I3C bus to release the lock on
+> + *
+> + * Should be called when a normal operation is done. See
+> + * i3c_bus_normaluse_lock() for more details on what these normal operations
+> + * are.
+> + */
+> +void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
+> +{
+> +	up_read(&bus->lock);
+> +}
+> +EXPORT_SYMBOL_GPL(i3c_bus_normaluse_unlock);
+
+
+
+> +static int i3c_device_match(struct device *dev, struct device_driver *drv)
+
+bool?
+
+> +{
+> +	struct i3c_device *i3cdev;
+> +	struct i3c_driver *i3cdrv;
+> +
+> +	if (dev->type != &i3c_device_type)
+> +		return 0;
+> +
+> +	i3cdev = dev_to_i3cdev(dev);
+> +	i3cdrv = drv_to_i3cdrv(drv);
+> +	if (i3c_device_match_id(i3cdev, i3cdrv->id_table))
+> +		return 1;
+> +
+> +	return 0;
+> +}
+
+
+> diff --git a/drivers/i3c/device.c b/drivers/i3c/device.c
+> new file mode 100644
+> index 000000000000..dcf51150b7cb
+> --- /dev/null
+> +++ b/drivers/i3c/device.c
+> @@ -0,0 +1,344 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+> +
+> +#include <linux/slab.h>
+
+#include <linux/atomic.h>
+#include <linux/bug.h>
+#include <linux/completion.h>
+#include <linux/device.h>
+#include <linux/mutex.h>
+
+> +#include "internals.h"
+
+
+
+> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+> new file mode 100644
+> index 000000000000..1c85abac08d5
+> --- /dev/null
+> +++ b/drivers/i3c/master.c
+> @@ -0,0 +1,1433 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+
+#include <linux/atomic.h>
+#include <linux/device.h>
+#include <linux/err.h>
+#include <linux/export.h>
+#include <linux/kernel.h>
+#include <linux/list.h>
+#include <linux/of.h>
+
+> +#include <linux/slab.h>
+
+#include <linux/spinlock.h>
+#include <linux/workqueue.h>
+
+#include <asm-generic/bug.h>
+
+> +#include "internals.h"
+
+
+and I probably missed a few.
+
+
+
+
+> diff --git a/include/linux/i3c/ccc.h b/include/linux/i3c/ccc.h
+> new file mode 100644
+> index 000000000000..ff3e1a3e2c4c
+> --- /dev/null
+> +++ b/include/linux/i3c/ccc.h
+> @@ -0,0 +1,380 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+
+> +/**
+> + * struct i3c_ccc_dev_desc - I3C/I3C device descriptor used for DEFSLVS
+
+Is one of those I3C above supposed to be I2C?
+
+> + *
+> + * @dyn_addr: dynamic address assigned to the I3C slave or 0 if the entry is
+> + *	      describing an I2C slave.
+> + * @dcr: DCR value (not applicable to entries describing I2C devices)
+> + * @lvr: LVR value (not applicable to entries describing I3C devices)
+> + * @bcr: BCR value or 0 if this entry is describing an I2C slave
+> + * @static_addr: static address or 0 if the device does not have a static
+> + *		 address
+> + *
+> + * The DEFSLVS command should be passed an array of i3c_ccc_dev_desc
+> + * descriptors (one entry per I3C/I2C dev controlled by the master).
+> + */
+> +struct i3c_ccc_dev_desc {
+> +	u8 dyn_addr;
+> +	union {
+> +		u8 dcr;
+> +		u8 lvr;
+> +	};
+> +	u8 bcr;
+> +	u8 static_addr;
+> +} __packed;
+
+
+Needs bitops.h
+
+> diff --git a/include/linux/i3c/device.h b/include/linux/i3c/device.h
+> new file mode 100644
+> index 000000000000..83958d3a02e2
+> --- /dev/null
+> +++ b/include/linux/i3c/device.h
+> @@ -0,0 +1,321 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+> +
+> +#ifndef I3C_DEV_H
+> +#define I3C_DEV_H
+> +
+> +#include <linux/device.h>
+> +#include <linux/i2c.h>
+> +#include <linux/mod_devicetable.h>
+> +#include <linux/module.h>
+
+
+Needs bitops.h, kconfig.h.
+
+
+> diff --git a/include/linux/i3c/master.h b/include/linux/i3c/master.h
+> new file mode 100644
+> index 000000000000..7ec9a4821bac
+> --- /dev/null
+> +++ b/include/linux/i3c/master.h
+> @@ -0,0 +1,564 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+> + */
+> +
+> +#ifndef I3C_MASTER_H
+> +#define I3C_MASTER_H
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/i3c/ccc.h>
+> +#include <linux/i3c/device.h>
+> +#include <linux/spinlock.h>
+> +
+> +#define I3C_HOT_JOIN_ADDR		0x2
+> +#define I3C_BROADCAST_ADDR		0x7e
+> +#define I3C_MAX_ADDR			GENMASK(6, 0)
+> +
+
+Needs bitops.h, workqueue.h, rwsem.h
+
+
+Needs <asm-generic/bitsperlong.h>
+
+
+
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index abb6dc2ebbf8..e59da92d8ac9 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -442,6 +442,23 @@ struct pci_epf_device_id {
+>  	kernel_ulong_t driver_data;
+>  };
+>  
+> +/* i3c */
+> +
+> +#define I3C_MATCH_DCR			BIT(0)
+> +#define I3C_MATCH_MANUF			BIT(1)
+> +#define I3C_MATCH_PART			BIT(2)
+> +#define I3C_MATCH_EXTRA_INFO		BIT(3)
+
+Needs bitops.h.
+
+> +struct i3c_device_id {
+> +	__u8 match_flags;
+> +	__u8 dcr;
+> +	__u16 manuf_id;
+> +	__u16 part_id;
+> +	__u16 extra_info;
+> +
+> +	const void *data;
+> +};
+> +
+>  /* spi */
+>  
+>  #define SPI_NAME_SIZE	32
 > 
-> > +
-> > +For other required properties e.g. to describe register sets,
-> > +clocks, etc. check the binding documentation of the specific driver.
-> > +
-> > +Optional properties
-> > +-------------------
-> > +
-> > +These properties may not be supported by all I3C master drivers. Each I3C
-> > +master bindings should specify which of them are supported.
-> > +
-> > +- i3c-scl-frequency: frequency (in Hz) of the SCL signal used for I3C
-> > +		     transfers. When undefined the core set it to 12.5MHz.
-> > +
-> > +- i2c-scl-frequency: frequency (in Hz) of the SCL signal used for I2C
-> > +		     transfers. When undefined, the core looks at LVR values
-> > +		     of I2C devices described in the device tree to determine
-> > +		     the maximum I2C frequency.  
-> 
-> Add '-hz' suffix. You could drop 'frequency' as that would be implied by 
-> Hz.
 
-Okay.
 
-> 
-> > +
-> > +I2C devices
-> > +===========
-> > +
-> > +Each I2C device connected to the bus should be described in a subnode with
-> > +the following properties:
-> > +
-> > +All properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
-> > +valid here.
-> > +
-> > +New required properties:
-> > +------------------------
-> > +- i3c-lvr: 32 bits integer property (only the lowest 8 bits are meaningful)
-> > +	   describing device capabilities as described in the I3C
-> > +	   specification.
-> > +
-> > +	   bit[31:8]: unused
-> > +	   bit[7:5]: I2C device index. Possible values
-> > +	    * 0: I2C device has a 50 ns spike filter
-> > +	    * 1: I2C device does not have a 50 ns spike filter but supports high
-> > +		 frequency on SCL
-> > +	    * 2: I2C device does not have a 50 ns spike filter and is not
-> > +		 tolerant to high frequencies
-> > +	    * 3-7: reserved
-> > +
-> > +	   bit[4]: tell whether the device operates in FM or FM+ mode
-> > +	    * 0: FM+ mode
-> > +	    * 1: FM mode
-> > +
-> > +	   bit[3:0]: device type
-> > +	    * 0-15: reserved
-> > +
-> > +I3C devices
-> > +===========
-> > +
-> > +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
-> > +are thus discoverable. So, by default, I3C devices do not have to be described
-> > +in the device tree.
-> > +This being said, one might want to attach extra resources to these devices,
-> > +and those resources may have to be described in the device tree, which in turn
-> > +means we have to describe I3C devices.
-> > +
-> > +Another use case for describing an I3C device in the device tree is when this
-> > +I3C device has a static address and we want to assign it a specific dynamic
-> > +address before the DAA takes place (so that other devices on the bus can't
-> > +take this dynamic address).
-> > +
-> > +Required properties
-> > +-------------------
-> > +- i3c-pid: PID (Provisional ID). 64-bit property which is used to match a
-> > +	   device discovered during DAA with its device tree definition. The
-> > +	   PID is supposed to be unique on a given bus, which guarantees a 1:1
-> > +	   match. This property becomes optional if a reg property is defined,
-> > +	   meaning that the device has a static address.  
-> 
-> What determines this number?
-
-Part of it is fixed (manufacturer and part id) and the last few bits
-represent the device instance on the bus (so you can have several
-identical devices on the same bus). The manufacturer and part ids
-should be statically assigned during production, instance id is usually
-configurable through extra pins that you drive high or low at reset
-time.
-
-> 
-> > +
-> > +Optional properties
-> > +-------------------
-> > +- reg: static address. Only valid is the device has a static address.
-> > +- i3c-dynamic-address: dynamic address to be assigned to this device. This
-> > +		       property depends on the reg property.  
-> 
-> Perhaps "assigned-address" property would be appropriate. I'm not all 
-> that familiar with it though.
-
-Again, the spec use the term "dynamic address" everywhere, and I'd like
-to stay as close as possible to the spec.
-
-> 
-> > +
-> > +Example:
-> > +
-> > +	i3c-master@0d040000 {  
-> 
-> Drop leading 0.
-
-Yep, already mentioned by Peter, I'll fix that.
-
-> 
-> > +		compatible = "cdns,i3c-master";
-> > +		clocks = <&coreclock>, <&i3csysclock>;
-> > +		clock-names = "pclk", "sysclk";
-> > +		interrupts = <3 0>;
-> > +		reg = <0x0d040000 0x1000>;
-> > +		#address-cells = <1>;
-> > +		#size-cells = <0>;
-> > +
-> > +		status = "okay";
-> > +		i2c-scl-frequency = <100000>;
-> > +
-> > +		/* I2C device. */
-> > +		nunchuk: nunchuk@52 {
-> > +			compatible = "nintendo,nunchuk";
-> > +			reg = <0x52>;
-> > +			i3c-lvr = <0x10>;
-> > +		};
-> > +
-> > +		/* I3C device with a static address. */
-> > +		thermal_sensor: sensor@68 {
-> > +			reg = <0x68>;
-> > +			i3c-dynamic-address = <0xa>;
-> > +		};
-> > +
-> > +		/*
-> > +		 * I3C device without a static address but requiring resources
-> > +		 * described in the DT.
-> > +		 */
-> > +		sensor2 {  
-> 
-> It's not great that we can't follow using generic node names. Maybe the 
-> PID can be used as the address? In USB for example, we use hub ports for 
-> DT addresses rather than USB addresses since those are dynamic.
-
-Hm, the problem is, we may have 2 numbering schemes here: one where reg
-is used (reg representing the I2C/static address), and another one
-where the PID is used.
-If you're okay with mixing those 2 schemes, then I'm fine with that too.
-
-> 
-> > +			i3c-pid = /bits/ 64 <0x39200144004>;
-> > +			clocks = <&clock_provider 0>;
-> > +		};
-> > +	};
-> > +
-> > -- 
-> > 2.11.0
-> >   
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+~Randy
