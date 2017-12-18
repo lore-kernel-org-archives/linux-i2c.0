@@ -1,47 +1,45 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: [PATCH v2] i2c: mux: reg: don't log an error for probe deferral
-Date: Mon, 18 Dec 2017 17:18:39 +0100
-Message-ID: <20171218161839.14821-1-alexander.sverdlin@nokia.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH] MAINTAINERS: add git URL for at24
+Date: Mon, 18 Dec 2017 18:44:06 +0100
+Message-ID: <CAMRc=MfoVgNT6D+ad_xGtvabD95dAC9BQzeduyw8jiPxzhHj0g@mail.gmail.com>
+References: <20171213113031.8668-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0126.outbound.protection.outlook.com ([104.47.2.126]:10259
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S935642AbdLRQTG (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Dec 2017 11:19:06 -0500
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:34045 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934072AbdLRRoH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Dec 2017 12:44:07 -0500
+Received: by mail-oi0-f65.google.com with SMTP id u193so11120285oie.1
+        for <linux-i2c@vger.kernel.org>; Mon, 18 Dec 2017 09:44:07 -0800 (PST)
+In-Reply-To: <20171213113031.8668-1-brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Tomasz Bachorski <tomasz.bachorski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-From: Tomasz Bachorski <tomasz.bachorski@nokia.com>
+2017-12-13 12:30 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
+> Add the link to my git tree to the at24 section.
+>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> ---
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 55af54fa0837..edaf9802a11f 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2262,6 +2262,7 @@ F:        include/linux/async_tx.h
+>  AT24 EEPROM DRIVER
+>  M:     Bartosz Golaszewski <brgl@bgdev.pl>
+>  L:     linux-i2c@vger.kernel.org
+> +T:     git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
+>  S:     Maintained
+>  F:     Documentation/devicetree/bindings/eeprom/at24.txt
+>  F:     drivers/misc/eeprom/at24.c
+> --
+> 2.15.1
+>
 
-It's possible that i2c_mux_reg_probe_dt() could return -EPROBE_DEFER.
-In that case, driver will request a probe deferral and an error
-suggesting device tree parsing problem will be reported. This is
-a pretty confusing information. Let's change the error handling,
-so driver will be able to request probe deferral without logging
-not related errors.
-
-Signed-off-by: Tomasz Bachorski <tomasz.bachorski@nokia.com>
----
- drivers/i2c/muxes/i2c-mux-reg.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
-index f6c9c3dc6cad..c948e5a4cb04 100644
---- a/drivers/i2c/muxes/i2c-mux-reg.c
-+++ b/drivers/i2c/muxes/i2c-mux-reg.c
-@@ -177,6 +177,9 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
- 			sizeof(mux->data));
- 	} else {
- 		ret = i2c_mux_reg_probe_dt(mux, pdev);
-+		if (ret == -EPROBE_DEFER)
-+			return ret;
-+
- 		if (ret < 0) {
- 			dev_err(&pdev->dev, "Error parsing device tree");
- 			return ret;
--- 
-2.13.2
+Patch applied.
