@@ -1,96 +1,122 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v4 1/2] eeprom: at24: fix coding style issues
-Date: Mon, 18 Dec 2017 18:44:45 +0100
-Message-ID: <CAMRc=Mf__zx6EQvF55m7nKF5axOhGHYRMMBrFzzju-CwPUwwew@mail.gmail.com>
-References: <20171213105624.27058-1-brgl@bgdev.pl> <20171213105624.27058-2-brgl@bgdev.pl>
+Subject: Re: [PATCH v4 2/2] eeprom: at24: use a common prefix for all symbols
+ in at24.c
+Date: Mon, 18 Dec 2017 18:45:21 +0100
+Message-ID: <CAMRc=MfEd_+MV8+R+iKLakXdJuVJE6KLtjs3kuOz=e4KD9nAXA@mail.gmail.com>
+References: <20171213105624.27058-1-brgl@bgdev.pl> <20171213105624.27058-3-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171213105624.27058-2-brgl@bgdev.pl>
+In-Reply-To: <20171213105624.27058-3-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Joe Perches <joe@perches.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
 2017-12-13 11:56 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
-> Fix issues reported by checkpatch for at24.c.
+> There are a couple symbols defined in the driver source file which are
+> missing the at24_ prefix. This patch fixes that.
+>
+> For module params: use module_param_named() in order to not break
+> userspace.
 >
 > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 > ---
->  drivers/misc/eeprom/at24.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+>  drivers/misc/eeprom/at24.c | 34 ++++++++++++++++++----------------
+>  1 file changed, 18 insertions(+), 16 deletions(-)
 >
 > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 625b00166117..87b68ef07dfc 100644
+> index 87b68ef07dfc..c1d2f7e76f92 100644
 > --- a/drivers/misc/eeprom/at24.c
 > +++ b/drivers/misc/eeprom/at24.c
-> @@ -70,8 +70,8 @@ struct at24_data {
->          */
->         struct mutex lock;
->
-> -       unsigned write_max;
-> -       unsigned num_addresses;
-> +       unsigned int write_max;
-> +       unsigned int num_addresses;
->         unsigned int offset_adj;
->
->         struct nvmem_config nvmem_config;
-> @@ -93,7 +93,7 @@ struct at24_data {
+> @@ -93,17 +93,17 @@ struct at24_data {
 >   *
 >   * This value is forced to be a power of two so that writes align on pages.
 >   */
-> -static unsigned io_limit = 128;
-> +static unsigned int io_limit = 128;
->  module_param(io_limit, uint, 0);
->  MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
+> -static unsigned int io_limit = 128;
+> -module_param(io_limit, uint, 0);
+> -MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
+> +static unsigned int at24_io_limit = 128;
+> +module_param_named(io_limit, at24_io_limit, uint, 0);
+> +MODULE_PARM_DESC(at24_io_limit, "Maximum bytes per I/O (default 128)");
 >
-> @@ -101,7 +101,7 @@ MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
+>  /*
 >   * Specs often allow 5 msec for a page write, sometimes 20 msec;
 >   * it's important to recover from write timeouts.
 >   */
-> -static unsigned write_timeout = 25;
-> +static unsigned int write_timeout = 25;
->  module_param(write_timeout, uint, 0);
->  MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+> -static unsigned int write_timeout = 25;
+> -module_param(write_timeout, uint, 0);
+> -MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+> +static unsigned int at24_write_timeout = 25;
+> +module_param_named(write_timeout, at24_write_timeout, uint, 0);
+> +MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
 >
-> @@ -111,8 +111,8 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
->  #define AT24_BITMASK(x) (BIT(x) - 1)
+>  #define AT24_SIZE_BYTELEN 5
+>  #define AT24_SIZE_FLAGS 8
+> @@ -126,8 +126,9 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+>   * iteration of processing the request. Both should be unsigned integers
+>   * holding at least 32 bits.
+>   */
+> -#define loop_until_timeout(tout, op_time)                              \
+> -       for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
+> +#define at24_loop_until_timeout(tout, op_time)                         \
+> +       for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),     \
+> +            op_time = 0;                                               \
+>              op_time ? time_before(op_time, tout) : true;               \
+>              usleep_range(1000, 1500), op_time = jiffies)
 >
->  /* create non-zero magic value for given eeprom parameters */
-> -#define AT24_DEVICE_MAGIC(_len, _flags)                \
-> -       ((1 << AT24_SIZE_FLAGS | (_flags))              \
-> +#define AT24_DEVICE_MAGIC(_len, _flags)                        \
-> +       ((1 << AT24_SIZE_FLAGS | (_flags))              \
->             << AT24_SIZE_BYTELEN | ilog2(_len))
+> @@ -290,13 +291,13 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
+>         regmap = at24_client->regmap;
+>         client = at24_client->client;
 >
->  /*
-> @@ -264,7 +264,7 @@ MODULE_DEVICE_TABLE(acpi, at24_acpi_ids);
->  static struct at24_client *at24_translate_offset(struct at24_data *at24,
->                                                  unsigned int *offset)
+> -       if (count > io_limit)
+> -               count = io_limit;
+> +       if (count > at24_io_limit)
+> +               count = at24_io_limit;
+>
+>         /* adjust offset for mac and serial read ops */
+>         offset += at24->offset_adj;
+>
+> -       loop_until_timeout(timeout, read_time) {
+> +       at24_loop_until_timeout(timeout, read_time) {
+>                 ret = regmap_bulk_read(regmap, offset, buf, count);
+>                 dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+>                         count, offset, ret, jiffies);
+> @@ -347,7 +348,7 @@ static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
+>         client = at24_client->client;
+>         count = at24_adjust_write_count(at24, offset, count);
+>
+> -       loop_until_timeout(timeout, write_time) {
+> +       at24_loop_until_timeout(timeout, write_time) {
+>                 ret = regmap_bulk_write(regmap, offset, buf, count);
+>                 dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
+>                         count, offset, ret, jiffies);
+> @@ -613,7 +614,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>
+>         writable = !(chip.flags & AT24_FLAG_READONLY);
+>         if (writable) {
+> -               at24->write_max = min_t(unsigned int, chip.page_size, io_limit);
+> +               at24->write_max = min_t(unsigned int,
+> +                                       chip.page_size, at24_io_limit);
+>                 if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
+>                     at24->write_max > I2C_SMBUS_BLOCK_MAX)
+>                         at24->write_max = I2C_SMBUS_BLOCK_MAX;
+> @@ -728,12 +730,12 @@ static struct i2c_driver at24_driver = {
+>
+>  static int __init at24_init(void)
 >  {
-> -       unsigned i;
-> +       unsigned int i;
+> -       if (!io_limit) {
+> -               pr_err("at24: io_limit must not be 0!\n");
+> +       if (!at24_io_limit) {
+> +               pr_err("at24: at24_io_limit must not be 0!\n");
+>                 return -EINVAL;
+>         }
 >
->         if (at24->chip.flags & AT24_FLAG_ADDR16) {
->                 i = *offset >> 16;
-> @@ -319,7 +319,7 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
->  static size_t at24_adjust_write_count(struct at24_data *at24,
->                                       unsigned int offset, size_t count)
->  {
-> -       unsigned next_page;
-> +       unsigned int next_page;
->
->         /* write_max is at most a page */
->         if (count > at24->write_max)
-> @@ -515,7 +515,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         bool writable;
->         struct at24_data *at24;
->         int err;
-> -       unsigned i, num_addresses;
-> +       unsigned int i, num_addresses;
->         const struct regmap_config *config;
->         u8 test_byte;
->
+> -       io_limit = rounddown_pow_of_two(io_limit);
+> +       at24_io_limit = rounddown_pow_of_two(at24_io_limit);
+>         return i2c_add_driver(&at24_driver);
+>  }
+>  module_init(at24_init);
 > --
 > 2.15.1
 >
