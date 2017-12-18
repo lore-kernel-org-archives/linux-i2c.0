@@ -1,147 +1,111 @@
-From: Adrian Fiergolski <adrian.fiergolski@cern.ch>
-Subject: [PATCH v6] i2c: Add support for NXP PCA984x family.
-Date: Mon, 18 Dec 2017 18:45:06 +0100
-Message-ID: <20171218174506.20543-1-adrian.fiergolski@cern.ch>
-References: <07bf7aae-59ab-cb2b-dcb0-95ec2de66633@axentia.se>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH] eeprom: at24: code shrink
+Date: Mon, 18 Dec 2017 18:45:47 +0100
+Message-ID: <CAMRc=MdwfFwHyOFpkA+g0QNZJueiToKt+AODdVmYu2X1o6HFvg@mail.gmail.com>
+References: <20171210192947.32211-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0040.outbound.protection.outlook.com ([104.47.2.40]:35634
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934614AbdLRRpV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 18 Dec 2017 12:45:21 -0500
-In-Reply-To: <07bf7aae-59ab-cb2b-dcb0-95ec2de66633@axentia.se>
+Received: from mail-ot0-f194.google.com ([74.125.82.194]:37589 "EHLO
+        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S937597AbdLRRpt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Dec 2017 12:45:49 -0500
+Received: by mail-ot0-f194.google.com with SMTP id p31so7433924ota.4
+        for <linux-i2c@vger.kernel.org>; Mon, 18 Dec 2017 09:45:49 -0800 (PST)
+In-Reply-To: <20171210192947.32211-1-brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: peda@axentia.se, devicetree@vger.kernel.org, robh+dt@kernel.org, Adrian Fiergolski <adrian.fiergolski@cern.ch>
+To: linux-i2c <linux-i2c@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-This patch extends the current i2c-mux-pca954x driver and adds support for
-a newer PCA984x family of the I2C switches and multiplexers from NXP.
+2017-12-10 20:29 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
+> A regmap_config struct is pretty big and declaring two of them
+> statically just to tweak the reg_bits value adds unnecessary bloat.
+>
+> Declare the regmap config locally in at24_probe() instead.
+>
+> Bloat-o-meter output:
+>
+> add/remove: 0/2 grow/shrink: 1/0 up/down: 20/-272 (-252)
+> Function                                     old     new   delta
+> at24_probe                                  1564    1584     +20
+> regmap_config_8                              136       -    -136
+> regmap_config_16                             136       -    -136
+> Total: Before=7010, After=6758, chg -3.59%
+>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> ---
+>  drivers/misc/eeprom/at24.c | 27 ++++++---------------------
+>  1 file changed, 6 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index ded86474b3de..5ecddbc74732 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -518,20 +518,6 @@ static void at24_regmap_lock_unlock_none(void *map)
+>
+>  }
+>
+> -static const struct regmap_config regmap_config_8 = {
+> -       .reg_bits = 8,
+> -       .val_bits = 8,
+> -       .lock = at24_regmap_lock_unlock_none,
+> -       .unlock = at24_regmap_lock_unlock_none,
+> -};
+> -
+> -static const struct regmap_config regmap_config_16 = {
+> -       .reg_bits = 16,
+> -       .val_bits = 8,
+> -       .lock = at24_regmap_lock_unlock_none,
+> -       .unlock = at24_regmap_lock_unlock_none,
+> -};
+> -
+>  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  {
+>         struct at24_platform_data chip;
+> @@ -540,7 +526,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>         struct at24_data *at24;
+>         int err;
+>         unsigned i, num_addresses;
+> -       const struct regmap_config *config;
+> +       struct regmap_config config = { };
+>         u8 test_byte;
+>
+>         if (client->dev.platform_data) {
+> @@ -609,10 +595,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>                 num_addresses = DIV_ROUND_UP(chip.byte_len,
+>                         (chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
+>
+> -       if (chip.flags & AT24_FLAG_ADDR16)
+> -               config = &regmap_config_16;
+> -       else
+> -               config = &regmap_config_8;
+> +       config.val_bits = 8;
+> +       config.lock = config.unlock = at24_regmap_lock_unlock_none;
+> +       config.reg_bits = (chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
+>
+>         at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
+>                 num_addresses * sizeof(struct at24_client), GFP_KERNEL);
+> @@ -625,7 +610,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>         at24->offset_adj = at24_get_offset_adj(chip.flags, chip.byte_len);
+>
+>         at24->client[0].client = client;
+> -       at24->client[0].regmap = devm_regmap_init_i2c(client, config);
+> +       at24->client[0].regmap = devm_regmap_init_i2c(client, &config);
+>         if (IS_ERR(at24->client[0].regmap))
+>                 return PTR_ERR(at24->client[0].regmap);
+>
+> @@ -654,7 +639,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>                         goto err_clients;
+>                 }
+>                 at24->client[i].regmap = devm_regmap_init_i2c(
+> -                                       at24->client[i].client, config);
+> +                                       at24->client[i].client, &config);
+>                 if (IS_ERR(at24->client[i].regmap)) {
+>                         err = PTR_ERR(at24->client[i].regmap);
+>                         goto err_clients;
+> --
+> 2.15.1
+>
 
-Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
----
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
- drivers/i2c/muxes/Kconfig                          |  6 ++--
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 38 +++++++++++++++++++---
- 3 files changed, 41 insertions(+), 8 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index aa097045a10e..b428bc0d81b1 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -1,10 +1,13 @@
- * NXP PCA954x I2C bus switch
- 
-+The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
-+
- Required Properties:
- 
-   - compatible: Must contain one of the following.
-     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
--    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
-+    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
-+    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
- 
-   - reg: The I2C address of the device.
- 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 0f5c8fc36625..52a4a922e7e6 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
- 	  will be called i2c-mux-pca9541.
- 
- config I2C_MUX_PCA954x
--	tristate "Philips PCA954x I2C Mux/switches"
-+	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
- 	depends on GPIOLIB || COMPILE_TEST
- 	help
--	  If you say yes here you get support for the Philips PCA954x
--	  I2C mux/switch devices.
-+	  If you say yes here you get support for the NXP PCA954x
-+	  and PCA984x I2C mux/switch devices.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-pca954x.
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 2ca068d8b92d..fbb84c7ef282 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -4,11 +4,11 @@
-  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
-  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
-  *
-- * This module supports the PCA954x series of I2C multiplexer/switch chips
-- * made by Philips Semiconductors.
-+ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
-+ * chips made by NXP Semiconductors.
-  * This includes the:
-- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
-- *	 and PCA9548.
-+ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
-+ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
-  *
-  * These chips are all controlled via the I2C bus itself, and all have a
-  * single 8-bit register. The upstream "parent" bus fans out to two,
-@@ -63,6 +63,10 @@ enum pca_type {
- 	pca_9546,
- 	pca_9547,
- 	pca_9548,
-+	pca_9846,
-+	pca_9847,
-+	pca_9848,
-+	pca_9849,
- };
- 
- struct chip_desc {
-@@ -129,6 +133,24 @@ static const struct chip_desc chips[] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
- 	},
-+	[pca_9846] = {
-+		.nchans = 4,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9847] = {
-+		.nchans = 8,
-+		.enable = 0x8,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9848] = {
-+		.nchans = 8,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9849] = {
-+		.nchans = 4,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
- };
- 
- static const struct i2c_device_id pca954x_id[] = {
-@@ -140,6 +162,10 @@ static const struct i2c_device_id pca954x_id[] = {
- 	{ "pca9546", pca_9546 },
- 	{ "pca9547", pca_9547 },
- 	{ "pca9548", pca_9548 },
-+	{ "pca9846", pca_9846 },
-+	{ "pca9847", pca_9847 },
-+	{ "pca9848", pca_9848 },
-+	{ "pca9849", pca_9849 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, pca954x_id);
-@@ -154,6 +180,10 @@ static const struct of_device_id pca954x_of_match[] = {
- 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
- 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
- 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
-+	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
-+	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
-+	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
-+	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, pca954x_of_match);
--- 
-2.14.1
+There were no more comments, so patch applied.
