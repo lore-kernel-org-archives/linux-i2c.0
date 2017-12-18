@@ -1,111 +1,141 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] eeprom: at24: code shrink
-Date: Mon, 18 Dec 2017 18:45:47 +0100
-Message-ID: <CAMRc=MdwfFwHyOFpkA+g0QNZJueiToKt+AODdVmYu2X1o6HFvg@mail.gmail.com>
-References: <20171210192947.32211-1-brgl@bgdev.pl>
+Subject: Re: [PATCH v5 2/3] i2c: core: add device-managed version of i2c_new_dummy
+Date: Mon, 18 Dec 2017 18:50:41 +0100
+Message-ID: <CAMRc=MfWv0yZsLuF8wfqBK6cNoPkMoG6oNwa3ov9nRceJ1ykHw@mail.gmail.com>
+References: <ee904c64-e1b3-7fa0-7df4-7e77530a974a@gmail.com> <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:37589 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S937597AbdLRRpt (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 18 Dec 2017 12:45:49 -0500
-Received: by mail-ot0-f194.google.com with SMTP id p31so7433924ota.4
-        for <linux-i2c@vger.kernel.org>; Mon, 18 Dec 2017 09:45:49 -0800 (PST)
-In-Reply-To: <20171210192947.32211-1-brgl@bgdev.pl>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-2017-12-10 20:29 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
-> A regmap_config struct is pretty big and declaring two of them
-> statically just to tweak the reg_bits value adds unnecessary bloat.
+2017-12-16 0:05 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> i2c_new_dummy is typically called from the probe function of the
+> driver for the primary i2c client. It requires calls to
+> i2c_unregister_device in the error path of the probe function and
+> in the remove function.
+> This can be simplified by introducing a device-managed version.
 >
-> Declare the regmap config locally in at24_probe() instead.
+> Note the changed error case return value type:
+> i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
 >
-> Bloat-o-meter output:
->
-> add/remove: 0/2 grow/shrink: 1/0 up/down: 20/-272 (-252)
-> Function                                     old     new   delta
-> at24_probe                                  1564    1584     +20
-> regmap_config_8                              136       -    -136
-> regmap_config_16                             136       -    -136
-> Total: Before=7010, After=6758, chg -3.59%
->
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 > ---
->  drivers/misc/eeprom/at24.c | 27 ++++++---------------------
->  1 file changed, 6 insertions(+), 21 deletions(-)
+> v2:
+> - use new function _i2c_new_dummy with detailed error codes
+> v3:
+> - no changes
+> v4:
+> - reflect renaming to __i2c_new_dummy
+> v5:
+> - improve readability by adding struct i2c_dummy_devres
+> ---
+>  Documentation/driver-model/devres.txt |  3 +++
+>  drivers/i2c/i2c-core-base.c           | 45 +++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h                   |  3 +++
+>  3 files changed, 51 insertions(+)
 >
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index ded86474b3de..5ecddbc74732 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -518,20 +518,6 @@ static void at24_regmap_lock_unlock_none(void *map)
+> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
+> index c180045eb..6e2bccf85 100644
+> --- a/Documentation/driver-model/devres.txt
+> +++ b/Documentation/driver-model/devres.txt
+> @@ -259,6 +259,9 @@ GPIO
+>    devm_gpio_request_one()
+>    devm_gpio_free()
 >
+> +I2C
+> +  devm_i2c_new_dummy
+
+Please add braces here like everywhere else in this file.
+
+With that fixed:
+
+Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+
+@Wolfram: if you're ok with these changes, I think they should go
+through my tree. Let me know if you agree.
+
+Thanks,
+Bartosz
+
+> +
+>  IIO
+>    devm_iio_device_alloc()
+>    devm_iio_device_free()
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index cb3f29fb8..4b05abbfa 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -864,6 +864,51 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
 >  }
+>  EXPORT_SYMBOL_GPL(i2c_new_dummy);
 >
-> -static const struct regmap_config regmap_config_8 = {
-> -       .reg_bits = 8,
-> -       .val_bits = 8,
-> -       .lock = at24_regmap_lock_unlock_none,
-> -       .unlock = at24_regmap_lock_unlock_none,
-> -};
-> -
-> -static const struct regmap_config regmap_config_16 = {
-> -       .reg_bits = 16,
-> -       .val_bits = 8,
-> -       .lock = at24_regmap_lock_unlock_none,
-> -       .unlock = at24_regmap_lock_unlock_none,
-> -};
-> -
->  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  {
->         struct at24_platform_data chip;
-> @@ -540,7 +526,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         struct at24_data *at24;
->         int err;
->         unsigned i, num_addresses;
-> -       const struct regmap_config *config;
-> +       struct regmap_config config = { };
->         u8 test_byte;
+> +struct i2c_dummy_devres {
+> +       struct i2c_client *client;
+> +};
+> +
+> +static void devm_i2c_release_dummy(struct device *dev, void *res)
+> +{
+> +       struct i2c_dummy_devres *this = res;
+> +
+> +       i2c_unregister_device(this->client);
+> +}
+> +
+> +/**
+> + * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
+> + * @dev: device the managed resource is bound to
+> + * @adapter: the adapter managing the device
+> + * @address: seven bit address to be used
+> + * Context: can sleep
+> + *
+> + * This is the device-managed version of i2c_new_dummy.
+> + * Note the changed return value type: It returns the new i2c client
+> + * or an ERR_PTR in case of an error.
+> + */
+> +struct i2c_client *devm_i2c_new_dummy(struct device *dev,
+> +                                     struct i2c_adapter *adapter,
+> +                                     u16 address)
+> +{
+> +       struct i2c_dummy_devres *dr;
+> +       struct i2c_client *client;
+> +
+> +       dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
+> +       if (!dr)
+> +               return ERR_PTR(-ENOMEM);
+> +
+> +       client = __i2c_new_dummy(adapter, address);
+> +       if (IS_ERR(client)) {
+> +               devres_free(dr);
+> +       } else {
+> +               dr->client = client;
+> +               devres_add(dev, dr);
+> +       }
+> +
+> +       return client;
+> +}
+> +EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
+> +
+>  /**
+>   * i2c_new_secondary_device - Helper to get the instantiated secondary address
+>   * and create the associated device
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 5d7f3c185..aca6ebbb8 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -441,6 +441,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+>  extern struct i2c_client *
+>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
 >
->         if (client->dev.platform_data) {
-> @@ -609,10 +595,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->                 num_addresses = DIV_ROUND_UP(chip.byte_len,
->                         (chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
->
-> -       if (chip.flags & AT24_FLAG_ADDR16)
-> -               config = &regmap_config_16;
-> -       else
-> -               config = &regmap_config_8;
-> +       config.val_bits = 8;
-> +       config.lock = config.unlock = at24_regmap_lock_unlock_none;
-> +       config.reg_bits = (chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
->
->         at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
->                 num_addresses * sizeof(struct at24_client), GFP_KERNEL);
-> @@ -625,7 +610,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         at24->offset_adj = at24_get_offset_adj(chip.flags, chip.byte_len);
->
->         at24->client[0].client = client;
-> -       at24->client[0].regmap = devm_regmap_init_i2c(client, config);
-> +       at24->client[0].regmap = devm_regmap_init_i2c(client, &config);
->         if (IS_ERR(at24->client[0].regmap))
->                 return PTR_ERR(at24->client[0].regmap);
->
-> @@ -654,7 +639,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->                         goto err_clients;
->                 }
->                 at24->client[i].regmap = devm_regmap_init_i2c(
-> -                                       at24->client[i].client, config);
-> +                                       at24->client[i].client, &config);
->                 if (IS_ERR(at24->client[i].regmap)) {
->                         err = PTR_ERR(at24->client[i].regmap);
->                         goto err_clients;
+> +extern struct i2c_client *
+> +devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
+> +
+>  extern struct i2c_client *
+>  i2c_new_secondary_device(struct i2c_client *client,
+>                                 const char *name,
 > --
 > 2.15.1
 >
-
-There were no more comments, so patch applied.
+>
