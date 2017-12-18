@@ -1,124 +1,147 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v4 2/2] eeprom: at24: use a common prefix for all symbols
- in at24.c
-Date: Mon, 18 Dec 2017 18:45:21 +0100
-Message-ID: <CAMRc=MfEd_+MV8+R+iKLakXdJuVJE6KLtjs3kuOz=e4KD9nAXA@mail.gmail.com>
-References: <20171213105624.27058-1-brgl@bgdev.pl> <20171213105624.27058-3-brgl@bgdev.pl>
+From: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+Subject: [PATCH v6] i2c: Add support for NXP PCA984x family.
+Date: Mon, 18 Dec 2017 18:45:06 +0100
+Message-ID: <20171218174506.20543-1-adrian.fiergolski@cern.ch>
+References: <07bf7aae-59ab-cb2b-dcb0-95ec2de66633@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171213105624.27058-3-brgl@bgdev.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-db5eur01on0040.outbound.protection.outlook.com ([104.47.2.40]:35634
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S934614AbdLRRpV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 18 Dec 2017 12:45:21 -0500
+In-Reply-To: <07bf7aae-59ab-cb2b-dcb0-95ec2de66633@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: peda@axentia.se, devicetree@vger.kernel.org, robh+dt@kernel.org, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 
-2017-12-13 11:56 GMT+01:00 Bartosz Golaszewski <brgl@bgdev.pl>:
-> There are a couple symbols defined in the driver source file which are
-> missing the at24_ prefix. This patch fixes that.
->
-> For module params: use module_param_named() in order to not break
-> userspace.
->
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-> ---
->  drivers/misc/eeprom/at24.c | 34 ++++++++++++++++++----------------
->  1 file changed, 18 insertions(+), 16 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 87b68ef07dfc..c1d2f7e76f92 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -93,17 +93,17 @@ struct at24_data {
->   *
->   * This value is forced to be a power of two so that writes align on pages.
->   */
-> -static unsigned int io_limit = 128;
-> -module_param(io_limit, uint, 0);
-> -MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
-> +static unsigned int at24_io_limit = 128;
-> +module_param_named(io_limit, at24_io_limit, uint, 0);
-> +MODULE_PARM_DESC(at24_io_limit, "Maximum bytes per I/O (default 128)");
->
->  /*
->   * Specs often allow 5 msec for a page write, sometimes 20 msec;
->   * it's important to recover from write timeouts.
->   */
-> -static unsigned int write_timeout = 25;
-> -module_param(write_timeout, uint, 0);
-> -MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
-> +static unsigned int at24_write_timeout = 25;
-> +module_param_named(write_timeout, at24_write_timeout, uint, 0);
-> +MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
->
->  #define AT24_SIZE_BYTELEN 5
->  #define AT24_SIZE_FLAGS 8
-> @@ -126,8 +126,9 @@ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
->   * iteration of processing the request. Both should be unsigned integers
->   * holding at least 32 bits.
->   */
-> -#define loop_until_timeout(tout, op_time)                              \
-> -       for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
-> +#define at24_loop_until_timeout(tout, op_time)                         \
-> +       for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),     \
-> +            op_time = 0;                                               \
->              op_time ? time_before(op_time, tout) : true;               \
->              usleep_range(1000, 1500), op_time = jiffies)
->
-> @@ -290,13 +291,13 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
->         regmap = at24_client->regmap;
->         client = at24_client->client;
->
-> -       if (count > io_limit)
-> -               count = io_limit;
-> +       if (count > at24_io_limit)
-> +               count = at24_io_limit;
->
->         /* adjust offset for mac and serial read ops */
->         offset += at24->offset_adj;
->
-> -       loop_until_timeout(timeout, read_time) {
-> +       at24_loop_until_timeout(timeout, read_time) {
->                 ret = regmap_bulk_read(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
-> @@ -347,7 +348,7 @@ static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
->         client = at24_client->client;
->         count = at24_adjust_write_count(at24, offset, count);
->
-> -       loop_until_timeout(timeout, write_time) {
-> +       at24_loop_until_timeout(timeout, write_time) {
->                 ret = regmap_bulk_write(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
-> @@ -613,7 +614,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->         writable = !(chip.flags & AT24_FLAG_READONLY);
->         if (writable) {
-> -               at24->write_max = min_t(unsigned int, chip.page_size, io_limit);
-> +               at24->write_max = min_t(unsigned int,
-> +                                       chip.page_size, at24_io_limit);
->                 if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
->                     at24->write_max > I2C_SMBUS_BLOCK_MAX)
->                         at24->write_max = I2C_SMBUS_BLOCK_MAX;
-> @@ -728,12 +730,12 @@ static struct i2c_driver at24_driver = {
->
->  static int __init at24_init(void)
->  {
-> -       if (!io_limit) {
-> -               pr_err("at24: io_limit must not be 0!\n");
-> +       if (!at24_io_limit) {
-> +               pr_err("at24: at24_io_limit must not be 0!\n");
->                 return -EINVAL;
->         }
->
-> -       io_limit = rounddown_pow_of_two(io_limit);
-> +       at24_io_limit = rounddown_pow_of_two(at24_io_limit);
->         return i2c_add_driver(&at24_driver);
->  }
->  module_init(at24_init);
-> --
-> 2.15.1
->
+This patch extends the current i2c-mux-pca954x driver and adds support for
+a newer PCA984x family of the I2C switches and multiplexers from NXP.
 
-There were no more comments, so patch applied.
+Signed-off-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+---
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |  5 ++-
+ drivers/i2c/muxes/Kconfig                          |  6 ++--
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 38 +++++++++++++++++++---
+ 3 files changed, 41 insertions(+), 8 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index aa097045a10e..b428bc0d81b1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -1,10 +1,13 @@
+ * NXP PCA954x I2C bus switch
+ 
++The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
++
+ Required Properties:
+ 
+   - compatible: Must contain one of the following.
+     "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+-    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
++    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548",
++    "nxp,pca9846", "nxp,pca9847", "nxp,pca9848", "nxp,pca9849"
+ 
+   - reg: The I2C address of the device.
+ 
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 0f5c8fc36625..52a4a922e7e6 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
+ 	  will be called i2c-mux-pca9541.
+ 
+ config I2C_MUX_PCA954x
+-	tristate "Philips PCA954x I2C Mux/switches"
++	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	help
+-	  If you say yes here you get support for the Philips PCA954x
+-	  I2C mux/switch devices.
++	  If you say yes here you get support for the NXP PCA954x
++	  and PCA984x I2C mux/switch devices.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-pca954x.
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 2ca068d8b92d..fbb84c7ef282 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -4,11 +4,11 @@
+  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti@linux.it>
+  * Copyright (c) 2008-2009 Eurotech S.p.A. <info@eurotech.it>
+  *
+- * This module supports the PCA954x series of I2C multiplexer/switch chips
+- * made by Philips Semiconductors.
++ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
++ * chips made by NXP Semiconductors.
+  * This includes the:
+- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+- *	 and PCA9548.
++ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
++ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
+  *
+  * These chips are all controlled via the I2C bus itself, and all have a
+  * single 8-bit register. The upstream "parent" bus fans out to two,
+@@ -63,6 +63,10 @@ enum pca_type {
+ 	pca_9546,
+ 	pca_9547,
+ 	pca_9548,
++	pca_9846,
++	pca_9847,
++	pca_9848,
++	pca_9849,
+ };
+ 
+ struct chip_desc {
+@@ -129,6 +133,24 @@ static const struct chip_desc chips[] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
+ 	},
++	[pca_9846] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9847] = {
++		.nchans = 8,
++		.enable = 0x8,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9848] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9849] = {
++		.nchans = 4,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
+ };
+ 
+ static const struct i2c_device_id pca954x_id[] = {
+@@ -140,6 +162,10 @@ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9546", pca_9546 },
+ 	{ "pca9547", pca_9547 },
+ 	{ "pca9548", pca_9548 },
++	{ "pca9846", pca_9846 },
++	{ "pca9847", pca_9847 },
++	{ "pca9848", pca_9848 },
++	{ "pca9849", pca_9849 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+@@ -154,6 +180,10 @@ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+ 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+ 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
++	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
++	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
++	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
++	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pca954x_of_match);
+-- 
+2.14.1
