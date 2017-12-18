@@ -1,141 +1,125 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v5 2/3] i2c: core: add device-managed version of i2c_new_dummy
-Date: Mon, 18 Dec 2017 18:50:41 +0100
-Message-ID: <CAMRc=MfWv0yZsLuF8wfqBK6cNoPkMoG6oNwa3ov9nRceJ1ykHw@mail.gmail.com>
-References: <ee904c64-e1b3-7fa0-7df4-7e77530a974a@gmail.com> <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
+Date: Mon, 18 Dec 2017 10:22:26 -0800
+Message-ID: <0e0cc2f1-8459-fbcf-6c44-4e5648190e9d@infradead.org>
+References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
+ <20171214151610.19153-3-boris.brezillon@free-electrons.com>
+ <63546906-2fab-300a-b952-a0a7e8eb8bb5@infradead.org>
+ <20171218093740.52eed20d@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20171218093740.52eed20d@bbrezillon>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@co>
 List-Id: linux-i2c@vger.kernel.org
 
-2017-12-16 0:05 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> i2c_new_dummy is typically called from the probe function of the
-> driver for the primary i2c client. It requires calls to
-> i2c_unregister_device in the error path of the probe function and
-> in the remove function.
-> This can be simplified by introducing a device-managed version.
->
-> Note the changed error case return value type:
-> i2c_new_dummy returns NULL whilst devm_new_i2c_dummy returns an ERR_PTR.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> ---
-> v2:
-> - use new function _i2c_new_dummy with detailed error codes
-> v3:
-> - no changes
-> v4:
-> - reflect renaming to __i2c_new_dummy
-> v5:
-> - improve readability by adding struct i2c_dummy_devres
-> ---
->  Documentation/driver-model/devres.txt |  3 +++
->  drivers/i2c/i2c-core-base.c           | 45 +++++++++++++++++++++++++++++++++++
->  include/linux/i2c.h                   |  3 +++
->  3 files changed, 51 insertions(+)
->
-> diff --git a/Documentation/driver-model/devres.txt b/Documentation/driver-model/devres.txt
-> index c180045eb..6e2bccf85 100644
-> --- a/Documentation/driver-model/devres.txt
-> +++ b/Documentation/driver-model/devres.txt
-> @@ -259,6 +259,9 @@ GPIO
->    devm_gpio_request_one()
->    devm_gpio_free()
->
-> +I2C
-> +  devm_i2c_new_dummy
+On 12/18/2017 12:37 AM, Boris Brezillon wrote:
+> On Sun, 17 Dec 2017 14:32:04 -0800
+> Randy Dunlap <rdunlap@infradead.org> wrote:
+> 
+>> On 12/14/17 07:16, Boris Brezillon wrote:
+>>> Add core infrastructure to support I3C in Linux and document it.
+>>>
+>>> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+>>> ---
+>>>  drivers/Kconfig                 |    2 +
+>>>  drivers/Makefile                |    2 +-
+>>>  drivers/i3c/Kconfig             |   24 +
+>>>  drivers/i3c/Makefile            |    4 +
+>>>  drivers/i3c/core.c              |  573 ++++++++++++++++
+>>>  drivers/i3c/device.c            |  344 ++++++++++
+>>>  drivers/i3c/internals.h         |   34 +
+>>>  drivers/i3c/master.c            | 1433 +++++++++++++++++++++++++++++++++++++++
+>>>  drivers/i3c/master/Kconfig      |    0
+>>>  drivers/i3c/master/Makefile     |    0
+>>>  include/linux/i3c/ccc.h         |  380 +++++++++++
+>>>  include/linux/i3c/device.h      |  321 +++++++++
+>>>  include/linux/i3c/master.h      |  564 +++++++++++++++
+>>>  include/linux/mod_devicetable.h |   17 +
+>>>  14 files changed, 3697 insertions(+), 1 deletion(-)
+>>>  create mode 100644 drivers/i3c/Kconfig
+>>>  create mode 100644 drivers/i3c/Makefile
+>>>  create mode 100644 drivers/i3c/core.c
+>>>  create mode 100644 drivers/i3c/device.c
+>>>  create mode 100644 drivers/i3c/internals.h
+>>>  create mode 100644 drivers/i3c/master.c
+>>>  create mode 100644 drivers/i3c/master/Kconfig
+>>>  create mode 100644 drivers/i3c/master/Makefile
+>>>  create mode 100644 include/linux/i3c/ccc.h
+>>>  create mode 100644 include/linux/i3c/device.h
+>>>  create mode 100644 include/linux/i3c/master.h
 
-Please add braces here like everywhere else in this file.
 
-With that fixed:
+>>> diff --git a/drivers/i3c/core.c b/drivers/i3c/core.c
+>>> new file mode 100644
+>>> index 000000000000..7eb8e84acd33
+>>> --- /dev/null
+>>> +++ b/drivers/i3c/core.c
+>>> @@ -0,0 +1,573 @@
+>>> +// SPDX-License-Identifier: GPL-2.0
+>>> +/*
+>>> + * Copyright (C) 2017 Cadence Design Systems Inc.
+>>> + *
+>>> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+>>> + */
+>>> +
+>>> +#include <linux/idr.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/of_device.h>
+>>> +#include <linux/slab.h>  
+>>
+>> #include <linux/device.h>
+>> #include <linux/init.h>
+>> #include <linux/list.h>
+>> #include <linux/mutex.h>
+>> #include <linux/rwsem.h>
+> 
+> Do you have a tool to detect those missing inclusions?
 
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Nope, I've often wanted one, but for now it's just slow reading.
 
-@Wolfram: if you're ok with these changes, I think they should go
-through my tree. Let me know if you agree.
 
-Thanks,
-Bartosz
 
-> +
->  IIO
->    devm_iio_device_alloc()
->    devm_iio_device_free()
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index cb3f29fb8..4b05abbfa 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -864,6 +864,51 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
->  }
->  EXPORT_SYMBOL_GPL(i2c_new_dummy);
->
-> +struct i2c_dummy_devres {
-> +       struct i2c_client *client;
-> +};
-> +
-> +static void devm_i2c_release_dummy(struct device *dev, void *res)
-> +{
-> +       struct i2c_dummy_devres *this = res;
-> +
-> +       i2c_unregister_device(this->client);
-> +}
-> +
-> +/**
-> + * devm_i2c_new_dummy - return a new i2c device bound to a dummy driver
-> + * @dev: device the managed resource is bound to
-> + * @adapter: the adapter managing the device
-> + * @address: seven bit address to be used
-> + * Context: can sleep
-> + *
-> + * This is the device-managed version of i2c_new_dummy.
-> + * Note the changed return value type: It returns the new i2c client
-> + * or an ERR_PTR in case of an error.
-> + */
-> +struct i2c_client *devm_i2c_new_dummy(struct device *dev,
-> +                                     struct i2c_adapter *adapter,
-> +                                     u16 address)
-> +{
-> +       struct i2c_dummy_devres *dr;
-> +       struct i2c_client *client;
-> +
-> +       dr = devres_alloc(devm_i2c_release_dummy, sizeof(*dr), GFP_KERNEL);
-> +       if (!dr)
-> +               return ERR_PTR(-ENOMEM);
-> +
-> +       client = __i2c_new_dummy(adapter, address);
-> +       if (IS_ERR(client)) {
-> +               devres_free(dr);
-> +       } else {
-> +               dr->client = client;
-> +               devres_add(dev, dr);
-> +       }
-> +
-> +       return client;
-> +}
-> +EXPORT_SYMBOL_GPL(devm_i2c_new_dummy);
-> +
->  /**
->   * i2c_new_secondary_device - Helper to get the instantiated secondary address
->   * and create the associated device
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 5d7f3c185..aca6ebbb8 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -441,6 +441,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
->  extern struct i2c_client *
->  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
->
-> +extern struct i2c_client *
-> +devm_i2c_new_dummy(struct device *dev, struct i2c_adapter *adap, u16 address);
-> +
->  extern struct i2c_client *
->  i2c_new_secondary_device(struct i2c_client *client,
->                                 const char *name,
-> --
-> 2.15.1
->
->
+>>> diff --git a/include/linux/i3c/master.h b/include/linux/i3c/master.h
+>>> new file mode 100644
+>>> index 000000000000..7ec9a4821bac
+>>> --- /dev/null
+>>> +++ b/include/linux/i3c/master.h
+>>> @@ -0,0 +1,564 @@
+>>> +/* SPDX-License-Identifier: GPL-2.0 */
+>>> +/*
+>>> + * Copyright (C) 2017 Cadence Design Systems Inc.
+>>> + *
+>>> + * Author: Boris Brezillon <boris.brezillon@free-electrons.com>
+>>> + */
+>>> +
+>>> +#ifndef I3C_MASTER_H
+>>> +#define I3C_MASTER_H
+>>> +
+>>> +#include <linux/i2c.h>
+>>> +#include <linux/i3c/ccc.h>
+>>> +#include <linux/i3c/device.h>
+>>> +#include <linux/spinlock.h>
+>>> +
+>>> +#define I3C_HOT_JOIN_ADDR		0x2
+>>> +#define I3C_BROADCAST_ADDR		0x7e
+>>> +#define I3C_MAX_ADDR			GENMASK(6, 0)
+>>> +  
+>>
+>> Needs bitops.h, workqueue.h, rwsem.h
+>>
+>>
+>> Needs <asm-generic/bitsperlong.h>
+> 
+> Okay, that's really weird to directly include a header from the
+> asm-generic directory, are you sure this is the right thing to do here?
+
+Looks like it should be <asm/bitsperlong.h>, which will grab the correct one.
+
+
+-- 
+~Randy
