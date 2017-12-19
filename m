@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Subject: [PATCH 2/2] eeprom: at24: add support for the write-protect pin
-Date: Tue, 19 Dec 2017 17:14:32 +0100
-Message-ID: <20171219161432.29809-3-brgl@bgdev.pl>
+Subject: [PATCH 1/2] dt-bindings: at24: new optional property - write-protect-gpios
+Date: Tue, 19 Dec 2017 17:14:31 +0100
+Message-ID: <20171219161432.29809-2-brgl@bgdev.pl>
 References: <20171219161432.29809-1-brgl@bgdev.pl>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <20171219161432.29809-1-brgl-ARrdPY/1zhM@public.gmane.org>
@@ -21,71 +21,34 @@ writing. On linux this means that we either need to hog the line all
 the time, or set the GPIO value before writing from outside of the
 at24 driver.
 
-Make the driver check if the write-protect GPIO was defined in the
-device tree and pull it low whenever writing to the EEPROM.
+Add a new optional property to the device tree binding document, which
+allows to specify the GPIO line to which the write-protect pin is
+connected.
 
 Signed-off-by: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
 ---
- drivers/misc/eeprom/at24.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ Documentation/devicetree/bindings/eeprom/at24.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index b44a3d2b2b20..8cb0883dd297 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -27,6 +27,7 @@
- #include <linux/regmap.h>
- #include <linux/platform_data/at24.h>
- #include <linux/pm_runtime.h>
-+#include <linux/gpio/consumer.h>
+diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
+index a0415b8471bb..e489654c02ae 100644
+--- a/Documentation/devicetree/bindings/eeprom/at24.txt
++++ b/Documentation/devicetree/bindings/eeprom/at24.txt
+@@ -43,10 +43,14 @@ Optional properties:
+ 			eeprom does not automatically roll over reads to the next
+ 			slave address. Please consult the manual of your device.
  
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-@@ -77,6 +78,8 @@ struct at24_data {
- 	struct nvmem_config nvmem_config;
- 	struct nvmem_device *nvmem;
- 
-+	struct gpio_desc *wp_gpio;
++  - write-protect-gpios: GPIO to which the write-protect pin of the chip is
++                         is connected.
 +
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
-@@ -442,12 +445,14 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	 * from this host, but not from other I2C masters.
- 	 */
- 	mutex_lock(&at24->lock);
-+	gpiod_set_value_cansleep(at24->wp_gpio, 0);
+ Example:
  
- 	while (count) {
- 		int status;
- 
- 		status = at24_regmap_write(at24, buf, off, count);
- 		if (status < 0) {
-+			gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(dev);
- 			return status;
-@@ -457,6 +462,7 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 		count -= status;
- 	}
- 
-+	gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 	mutex_unlock(&at24->lock);
- 
- 	pm_runtime_put(dev);
-@@ -604,6 +610,12 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->num_addresses = num_addresses;
- 	at24->offset_adj = at24_get_offset_adj(chip.flags, chip.byte_len);
- 
-+	at24->wp_gpio = devm_gpiod_get_optional(&client->dev,
-+						"write-protect",
-+						GPIOD_OUT_HIGH);
-+	if (IS_ERR(at24->wp_gpio))
-+		return PTR_ERR(at24->wp_gpio);
-+
- 	at24->client[0].client = client;
- 	at24->client[0].regmap = devm_regmap_init_i2c(client, &regmap_config);
- 	if (IS_ERR(at24->client[0].regmap))
+ eeprom@52 {
+ 	compatible = "atmel,24c32";
+ 	reg = <0x52>;
+ 	pagesize = <32>;
++	write-protect-gpios = <&gpio1 3 0>;
+ };
 -- 
 2.15.1
 
