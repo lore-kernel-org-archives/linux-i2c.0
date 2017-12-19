@@ -1,49 +1,119 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c-tools: eeprog/Module.mk: Add missing dependency
-Date: Tue, 19 Dec 2017 13:53:24 +0100
-Message-ID: <20171219135324.20dd6e12@endymion>
-References: <1513606297-5072-1-git-send-email-maxin.john@gmail.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH] i2c/ARM: davinci: Deep refactoring of I2C recovery
+Date: Tue, 19 Dec 2017 19:56:01 +0530
+Message-ID: <63b45c19-8961-bf2d-c6bb-4cd4024b3cbf@ti.com>
+References: <20171208133132.17099-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36963 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755725AbdLSMx1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 19 Dec 2017 07:53:27 -0500
-In-Reply-To: <1513606297-5072-1-git-send-email-maxin.john@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20171208133132.17099-1-linus.walleij@linaro.org>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Keerthy <j-keerthy@ti.com>, arm@kernel.org, linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: maxin.john@gmail.com
-Cc: linux-i2c@vger.kernel.org, "Maxin B. John" <maxin.john@intel.com>
 
-On Mon, 18 Dec 2017 16:11:37 +0200, maxin.john@gmail.com wrote:
-> From: "Maxin B. John" <maxin.john@intel.com>
+On Friday 08 December 2017 07:01 PM, Linus Walleij wrote:
+> Alter the DaVinci GPIO recovery fetch to use descriptors
+> all the way down into the board files.
 > 
-> Absence of this dependency caused parallel build to run into a race
-> and break.
-> 
-> Signed-off-by: Maxin B. John <maxin.john@intel.com>
+> Cc: arm@kernel.org
+> Cc: Sekhar Nori <nsekhar@ti.com>
+> Cc: Kevin Hilman <khilman@kernel.org>
+> Cc: Keerthy <j-keerthy@ti.com>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  eeprog/Module.mk | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> It turns out someone else was busy doing the same thing I was
+> doing. Trying to carry over the useful part with this patch!
+> A Tested-by or ACK from a DaVinci maintainer would be
+> appreciated, also an ACK from and ARM SoC maintainer.
+> The patch can be easily tested by applying on top of
+> linux-next.
+
+This patch causes I2C probe failure on DM6446 EVM.
+
+> ---
+>  arch/arm/mach-davinci/board-dm355-evm.c   | 15 +++++++++++++--
+>  arch/arm/mach-davinci/board-dm644x-evm.c  | 15 +++++++++++++--
+>  drivers/i2c/busses/i2c-davinci.c          | 21 +++++++++++----------
+>  include/linux/platform_data/i2c-davinci.h |  5 ++---
+>  4 files changed, 39 insertions(+), 17 deletions(-)
 > 
-> diff --git a/eeprog/Module.mk b/eeprog/Module.mk
-> index 9d36869..d215855 100644
-> --- a/eeprog/Module.mk
-> +++ b/eeprog/Module.mk
-> @@ -20,7 +20,7 @@ EEPROG_TARGETS	:= eeprog
->  # Programs
->  #
+> diff --git a/arch/arm/mach-davinci/board-dm355-evm.c b/arch/arm/mach-davinci/board-dm355-evm.c
+> index 62e7bc3018f0..60aec5437276 100644
+> --- a/arch/arm/mach-davinci/board-dm355-evm.c
+> +++ b/arch/arm/mach-davinci/board-dm355-evm.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/mtd/rawnand.h>
+>  #include <linux/i2c.h>
+>  #include <linux/gpio.h>
+> +#include <linux/gpio/machine.h>
+>  #include <linux/clk.h>
+>  #include <linux/videodev2.h>
+>  #include <media/i2c/tvp514x.h>
+> @@ -108,11 +109,20 @@ static struct platform_device davinci_nand_device = {
+>  	},
+>  };
 >  
-> -$(EEPROG_DIR)/eeprog: $(EEPROG_DIR)/eeprog.o $(EEPROG_DIR)/24cXX.o
-> +$(EEPROG_DIR)/eeprog: $(EEPROG_DIR)/eeprog.o $(EEPROG_DIR)/24cXX.o $(LIB_DEPS)
->  	$(CC) $(LDFLAGS) -o $@ $^ $(EEPROG_LDFLAGS)
+> +static struct gpiod_lookup_table i2c_recovery_gpiod_table = {
+> +	.dev_id = "i2c_davinci",
+> +	.table = {
+> +		GPIO_LOOKUP("davinci_gpio.0", 15, "sda",
+
+This should just be "davinci_gpio"
+
+> +			    GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
+> +		GPIO_LOOKUP("davinci_gpio.0", 14, "scl",
+
+This too
+
+> diff --git a/arch/arm/mach-davinci/board-dm644x-evm.c b/arch/arm/mach-davinci/board-dm644x-evm.c
+> index b07c9b18d427..2efc6dbc5ac0 100644
+> --- a/arch/arm/mach-davinci/board-dm644x-evm.c
+> +++ b/arch/arm/mach-davinci/board-dm644x-evm.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/gpio.h>
+> +#include <linux/gpio/machine.h>
+>  #include <linux/i2c.h>
+>  #include <linux/platform_data/pcf857x.h>
+>  #include <linux/platform_data/at24.h>
+> @@ -595,18 +596,28 @@ static struct i2c_board_info __initdata i2c_info[] =  {
+>  	},
+>  };
 >  
->  #
+> +static struct gpiod_lookup_table i2c_recovery_gpiod_table = {
+> +	.dev_id = "i2c_davinci",
+> +	.table = {
+> +		GPIO_LOOKUP("davinci_gpio.0", 44, "sda",
+> +			    GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
+> +		GPIO_LOOKUP("davinci_gpio.0", 43, "scl",
+> +			    GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN),
+> +	},
+> +};
 
-Good catch, sorry for missing that one. Applied, thanks.
+And these too.
 
--- 
-Jean Delvare
-SUSE L3 Support
+With that fixed, please add:
+
+Acked-by: Sekhar Nori <nsekhar@ti.com>
+
+I could not test the recovery itself, but the probe succeeds.
+
+It would be nice if this can be split into platform and driver parts to
+avoid any conflicts, but that does not seem straightforward.
+
+FWIW, the patch does not clash with anything I have queued ATM.
+
+Thanks,
+Sekhar
