@@ -1,44 +1,76 @@
-From: =?UTF-8?Q?Rados=C5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
-Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C controller
-Date: Tue, 19 Dec 2017 09:37:08 +0100
-Message-ID: <CAFvLkMQ9UxDhNAcSm3Cy2KetrAf0+kbME=hkWgPUoXe28NaLFA@mail.gmail.com>
-References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
- <990c3275-35b3-68da-453c-d1a80e867df7@st.com> <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
- <2d892fec-0496-8a6f-51c9-439b933d9975@st.com> <CAFvLkMS9Q801biCBYp+fJeiOo22zr436Td43PH3GG8E6diSL3A@mail.gmail.com>
- <b24d9699-a88d-6a83-ceaf-140ea8b4db97@st.com> <CAFvLkMTsgxpjoGRgq7J0NFkT=YsOTYL6smkVhOPcfD=26Hzutg@mail.gmail.com>
- <20171207105229.jxxyfofsgub27nip@ninjato> <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
+Date: Tue, 19 Dec 2017 09:52:50 +0100
+Message-ID: <20171219085250.GC15010@kroah.com>
+References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
+ <20171214151610.19153-3-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
+Content-Disposition: inline
+In-Reply-To: <20171214151610.19153-3-boris.brezillon@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.orglinux-
 List-Id: linux-i2c@vger.kernel.org
 
-My understanding is that this driver is currently vulnerable to any
-IRQ delays that may happen in the system and this patch eliminates the
-problem but you may prove me wrong.
+On Thu, Dec 14, 2017 at 04:16:05PM +0100, Boris Brezillon wrote:
+> +/**
+> + * i3c_device_match_id() - Find the I3C device ID entry matching an I3C dev
+> + * @i3cdev: the I3C device we're searching a match for
+> + * @id_table: the I3C device ID table
+> + *
+> + * Return: a pointer to the first entry matching @i3cdev, or NULL if there's
+> + *	   no match.
+> + */
+> +const struct i3c_device_id *
+> +i3c_device_match_id(struct i3c_device *i3cdev,
+> +		    const struct i3c_device_id *id_table)
+> +{
+> +	const struct i3c_device_id *id;
+> +
+> +	/*
+> +	 * The lower 32bits of the provisional ID is just filled with a random
+> +	 * value, try to match using DCR info.
+> +	 */
+> +	if (!I3C_PID_RND_LOWER_32BITS(i3cdev->info.pid)) {
+> +		u16 manuf = I3C_PID_MANUF_ID(i3cdev->info.pid);
+> +		u16 part = I3C_PID_PART_ID(i3cdev->info.pid);
+> +		u16 ext_info = I3C_PID_EXTRA_INFO(i3cdev->info.pid);
+> +
+> +		/* First try to match by manufacturer/part ID. */
+> +		for (id = id_table; id->match_flags != 0; id++) {
+> +			if ((id->match_flags & I3C_MATCH_MANUF_AND_PART) !=
+> +			    I3C_MATCH_MANUF_AND_PART)
+> +				continue;
+> +
+> +			if (manuf != id->manuf_id || part != id->part_id)
+> +				continue;
+> +
+> +			if ((id->match_flags & I3C_MATCH_EXTRA_INFO) &&
+> +			    ext_info != id->extra_info)
+> +				continue;
+> +
+> +			return id;
+> +		}
+> +	}
+> +
+> +	/* Fallback to DCR match. */
+> +	for (id = id_table; id->match_flags != 0; id++) {
+> +		if ((id->match_flags & I3C_MATCH_DCR) &&
+> +		    id->dcr == i3cdev->info.dcr)
+> +			return id;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +EXPORT_SYMBOL_GPL(i3c_device_match_id);
 
-2017-12-07 14:23 GMT+01:00 Pierre Yves MORDRET <pierre-yves.mordret@st.com>=
-:
->
-> I do believe some investigation has to be done prior merging this patch.
-> The impact is genuine and has to be tested thoroughly before granting an =
-ack.
->
-> Thus I prefer having a better understanding of the issue.
-> I will try to work on this later on.
->
-> Regards
->
->
-> On 12/07/2017 11:52 AM, Wolfram Sang wrote:
->> On Tue, Oct 24, 2017 at 01:45:43PM +0200, Rados=C5=82aw Pietrzyk wrote:
->>> I'm afraid that didn't help and the problem still exists even with
->>> those patches applied.
->>
->> So, my reading is: There is an issue which needs to be investigated?
->> Does applying the patch make sense until the issue is fully understood?
->>
+I just picked one random export here, but it feels like you are
+exporting a bunch of symbols you don't need to.  Why would something
+outside of the i3c "core" need to call this function?  Have you looked
+to see if you really have callers for everything you are exporting?
+
+Other than that, the driver core interaction looks good now, nice job.
+
+greg k-h
