@@ -1,37 +1,44 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v5 2/3] i2c: core: add device-managed version of i2c_new_dummy
-Date: Tue, 19 Dec 2017 09:34:51 +0100
-Message-ID: <CAMRc=MdrMfpYXNOw8XBvwt2-VT12+KPWT=phHTL8KBZiZriYSQ@mail.gmail.com>
-References: <ee904c64-e1b3-7fa0-7df4-7e77530a974a@gmail.com>
- <ca47ea36-9b0a-c247-29f5-1c512f52e835@gmail.com> <CAMRc=MfWv0yZsLuF8wfqBK6cNoPkMoG6oNwa3ov9nRceJ1ykHw@mail.gmail.com>
- <20171218203042.y6u7uvlhdlvozbkv@ninjato> <CAMRc=MfFXKnQUiJS0j+RodXzXRDreAnWZqvOUK945fe8pkVHsA@mail.gmail.com>
- <20171219082827.wl4q46lpgv5zvivq@ninjato>
+From: =?UTF-8?Q?Rados=C5=82aw_Pietrzyk?= <radoslaw.pietrzyk@gmail.com>
+Subject: Re: [PATCH] i2c: stm32: Fixes multibyte transfer for STM32F4 I2C controller
+Date: Tue, 19 Dec 2017 09:37:08 +0100
+Message-ID: <CAFvLkMQ9UxDhNAcSm3Cy2KetrAf0+kbME=hkWgPUoXe28NaLFA@mail.gmail.com>
+References: <1507722788-31224-1-git-send-email-radoslaw.pietrzyk@gmail.com>
+ <990c3275-35b3-68da-453c-d1a80e867df7@st.com> <CAFvLkMS6+o3D88Rj23of56KtjonwFAVD_aEP3eWaA2H=U5WP4Q@mail.gmail.com>
+ <2d892fec-0496-8a6f-51c9-439b933d9975@st.com> <CAFvLkMS9Q801biCBYp+fJeiOo22zr436Td43PH3GG8E6diSL3A@mail.gmail.com>
+ <b24d9699-a88d-6a83-ceaf-140ea8b4db97@st.com> <CAFvLkMTsgxpjoGRgq7J0NFkT=YsOTYL6smkVhOPcfD=26Hzutg@mail.gmail.com>
+ <20171207105229.jxxyfofsgub27nip@ninjato> <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:45556 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759028AbdLSIew (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Dec 2017 03:34:52 -0500
-Received: by mail-oi0-f65.google.com with SMTP id x20so11873803oix.12
-        for <linux-i2c@vger.kernel.org>; Tue, 19 Dec 2017 00:34:52 -0800 (PST)
-In-Reply-To: <20171219082827.wl4q46lpgv5zvivq@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <dae4399e-4209-b052-a4c0-8a11c17ce032@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/STM32 ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-2017-12-19 9:28 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
->
->> Indeed, but in this case, if you pick up the whole series, you'll run
->> into a conflict with patch 3/3 since at24 in my tree diverged so much
->> from mainline.
->
-> I suggest then: if I apply the core patches, I'll send you a pull
-> request with an immutable branch to pull in. D'accord?
->
+My understanding is that this driver is currently vulnerable to any
+IRQ delays that may happen in the system and this patch eliminates the
+problem but you may prove me wrong.
 
-Sound good.
-
-Thanks,
-Bartosz
+2017-12-07 14:23 GMT+01:00 Pierre Yves MORDRET <pierre-yves.mordret@st.com>=
+:
+>
+> I do believe some investigation has to be done prior merging this patch.
+> The impact is genuine and has to be tested thoroughly before granting an =
+ack.
+>
+> Thus I prefer having a better understanding of the issue.
+> I will try to work on this later on.
+>
+> Regards
+>
+>
+> On 12/07/2017 11:52 AM, Wolfram Sang wrote:
+>> On Tue, Oct 24, 2017 at 01:45:43PM +0200, Rados=C5=82aw Pietrzyk wrote:
+>>> I'm afraid that didn't help and the problem still exists even with
+>>> those patches applied.
+>>
+>> So, my reading is: There is an issue which needs to be investigated?
+>> Does applying the patch make sense until the issue is fully understood?
+>>
