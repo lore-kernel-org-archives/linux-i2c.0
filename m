@@ -1,133 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/5 v3] Modify behaviour of request_*muxed_region()
-Date: Tue, 19 Dec 2017 08:58:43 -0800
-Message-ID: <20171219165843.GA19108@roeck-us.net>
-References: <20171218084841.9979-1-zboszor@pr.hu>
- <20171218084841.9979-2-zboszor@pr.hu>
- <20171218190741.GB6424@roeck-us.net>
- <cd1710e7-d317-ab69-27bb-17f645a83f91@pr.hu>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: at24: new optional property - write-protect-gpios
+Date: Wed, 20 Dec 2017 00:25:05 +0200
+Message-ID: <CAHp75Ve=2NG5egBFCgCXzaaqC7yzZmm=gTe9RZNZO9wVcA6xHw@mail.gmail.com>
+References: <20171219161432.29809-1-brgl@bgdev.pl> <20171219161432.29809-2-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cd1710e7-d317-ab69-27bb-17f645a83f91@pr.hu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Boszormenyi Zoltan <zboszor@pr.hu>
-Cc: linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, Paul Menzel <paulepanter@users.sourceforge.net>, Christian Fetzer <fetzer.ch@gmail.com>, Jean Delvare <jdelvare@suse.com>, Nehal Shah <nehal-bakulchandra.shah@amd.com>, Tim Small <tim@seoss.co.uk>, kernel@ekass.net, wim@iguana.be, jlayton@poochiereds.net, marc.2377@gmail.com, cshorler@googlemail.com, wsa@the-dreams.de, regressions@leemhuis.info, Alex Williamson <alex.williamson@redhat.com>, lyude@redhat.com, Linus Torvalds <torvalds@linux-foundation.org>, Bjorn Helgaas <bhelgaas@google.com>, Toshi Kani <toshi.kani@hpe.com>, Jiang Liu <jiang.liu@linux.intel.com>, Jakub Sitnicki <jsitnicki@gmail.com>, Thierry Reding <treding@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:36078 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751524AbdLSWZH (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 19 Dec 2017 17:25:07 -0500
+In-Reply-To: <20171219161432.29809-2-brgl@bgdev.pl>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Dec 19, 2017 at 07:11:11AM +0100, Boszormenyi Zoltan wrote:
-> 2017-12-18 20:07 keltezéssel, Guenter Roeck írta:
-> >On Mon, Dec 18, 2017 at 09:48:38AM +0100, Zoltan Boszormenyi wrote:
-> >>From: Böszörményi Zoltán <zboszor@pr.hu>
-> >>
-> >>In order to make request_*muxed_region() behave more like
-> >>mutex_lock(), a possible failure case needs to be eliminated.
-> >>When drivers do not properly share the same I/O region, e.g.
-> >>one is using request_region() and the other is using
-> >>request_muxed_region(), the kernel didn't warn the user about it.
-> >>This change modifies IORESOURCE_MUXED behaviour so it always
-> >>goes to sleep waiting for the resuorce to be freed and the
-> >
-> >resource
-> >
-> >>inconsistent resource flag usage is logged with KERN_ERR.
-> >>
-> >>v2: Fixed checkpatch.pl warnings and extended the comment
-> >>     about request_declared_muxed_region.
-> >>
-> >>v3: Rebased for 4.15-rc4
-> >>
-> >>Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
-> >>---
-> >>  kernel/resource.c | 6 +++++-
-> >>  1 file changed, 5 insertions(+), 1 deletion(-)
-> >>
-> >>diff --git a/kernel/resource.c b/kernel/resource.c
-> >>index 05db9c4e3992..0f26f887ac33 100644
-> >>--- a/kernel/resource.c
-> >>+++ b/kernel/resource.c
-> >>@@ -1143,6 +1143,7 @@ resource_size_t resource_alignment(struct resource *res)
-> >>   *
-> >>   * request_declared_muxed_region creates a new shared busy region
-> >>   * described in an existing resource descriptor.
-> >>+ * It only returns if it succeeded.
-> >>   *
-> >>   * release_region releases a matching busy region.
-> >>   * The region is only freed if it was allocated.
-> >>@@ -1209,7 +1210,10 @@ struct resource *__request_declared_region(struct resource *parent,
-> >>  				continue;
-> >>  			}
-> >>  		}
-> >>-		if (conflict->flags & flags & IORESOURCE_MUXED) {
-> >>+		if (flags & IORESOURCE_MUXED) {
-> >>+			if (!(conflict->flags & IORESOURCE_MUXED))
-> >>+				pr_err("Resource conflict between muxed \"%s\" and non-muxed \"%s\" I/O regions!\n",
-> >>+					res->name, conflict->name);
-> >
-> >With this, the muxed resource requestor will hang since the non-muxed
-> >requestor will not release the resource. I understand that you are trying
-> >to get rid of the error return, but is replacing it with a hang really
-> >better ?
-> 
-> I think it's a definite yes.
-> 
+On Tue, Dec 19, 2017 at 6:14 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+> AT24 EEPROMs have a write-protect pin, which - when pulled high -
+> inhibits writes to the upper quadrant of memory (although it has been
+> observed that on some chips it disables writing to the entire memory
+> range).
+>
+> On some boards, this pin is connected to a GPIO and pulled high by
+> default, which forces the user to manually change its state before
+> writing. On linux this means that we either need to hog the line all
+> the time, or set the GPIO value before writing from outside of the
+> at24 driver.
+>
+> Add a new optional property to the device tree binding document, which
+> allows to specify the GPIO line to which the write-protect pin is
+> connected.
+>
 
-I disagree. Some systems are configured to crash on stalls, which is
-always worse than failure to load a driver.
+> +  - write-protect-gpios: GPIO to which the write-protect pin of the chip is
 
-I think the real problem is that usb_amd_quirk_pll() does not return
-an error. It should, usb_amd_quirk_pll_disable() as well as
-usb_amd_quirk_pll_enable() should pass the error to the calling code,
-which should handle it. However, there is an even simpler solution -
-see below.
+The rule of thumb is to check what is de facto state of the properties
+like this, i.e.
 
-> Consider the case of the regression this series is trying to fix.
-> 
-> Two drivers were trying to access a shared resource, both thinking
-> that it's the only one, which was almost true[1] initially.
-> An improvement in the i2c-piix4 driver in 4.4-rc3 broke sp5100_tco.
-> sp5100_tco was loaded second and failed outright.
-> 
-> This didn't make anyone to fix the situation, despite the fact
-> that there are at least three bugtrackers (kernel, Debian and Red Hat)
-> that point out the same problem.
-> 
-> So, a failing driver initialization is not horrifying enough to get
-> something fixed. Maybe a hang is.
-> 
-> Maybe this behaviour is still too weak, instead of doing it for an
-> inconsistent muxed/non-muxed case, it (at least the logging) should
-> be done for every case, to detect drivers that try to lock the same
-> resource.
-> 
-> In the case of an inconsistent resource flags usage, the bug is
-> not the hang itself, it's the inconsistent resource flags.
-> 
-Separate problem from the one you are trying to solve. One could argue
-that the inconsistent resource use should dump a warning with traceback.
-Sure, that would also cause the systems I referred to above to crash,
-but it would do so with an actionable traceback, not with an obscure
-hang which requires detailed analysis.
+% git grep -n wp-gpio -- Documentation/ | wc -l
+14
+% git grep -n write-protect-gpio -- Documentation/ | wc -l
+0
 
-> [1] The USB PCI quirks were accessing the same I/O resource without
-> locking and I found that on a Kabini machine, we got rare
-> "disabled by hub (EMI?), re-enabling..." reports that doesn't occur
-> with the locking applied. It is possible that two kernel threads were
-> doing I/O at the same time without synchronization.
-> 
+I think it means something.
 
-The usb quirks code only accesses the registers in question to obtain
-another set of index registers. It _could_ do that in its initialization
-code instead and get the address through amd_chipset_info when needed.
-If done corectly, this could actually simplify the related code in
-usb_amd_quirk_pll(), since the operation on the address obtained
-is the same for all supported chipsets.
-
-Overall, I don't see a need for this API change. There are at least
-two other solutions available to handle the usb quirks issue, one of
-which is substantially less invasive. The problems in the other drivers
-can be solved by using request_muxed_region().
-
-Guenter
+-- 
+With Best Regards,
+Andy Shevchenko
