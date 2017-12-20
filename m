@@ -1,25 +1,41 @@
-From: Sven Van Asbroeck <thesven73-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 1/1] eeprom: at24: convert magic numbers to structs.
-Date: Wed, 20 Dec 2017 11:32:18 -0500
-Message-ID: <CAGngYiVJRVuMtLThnvsXbXMuL-_4ZN=2RkuCkRBzq3cf+W4sPg@mail.gmail.com>
-References: <1513621702-6565-1-git-send-email-svenv@arcx.com>
- <1513621702-6565-2-git-send-email-svenv@arcx.com> <CAMRc=Md0VwJ=OeE_-2uWi2sr4gJ8v9CnmexYgdDGR0pbyXYo_g@mail.gmail.com>
+From: Sven Van Asbroeck <svendev@arcx.com>
+Subject: [PATCH v4 0/1] eeprom: at24: convert magic numbers to structs.
+Date: Wed, 20 Dec 2017 11:36:53 -0500
+Message-ID: <1513787814-6245-1-git-send-email-svendev@arcx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMRc=Md0VwJ=OeE_-2uWi2sr4gJ8v9CnmexYgdDGR0pbyXYo_g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Cc: Sven Van Asbroeck <svenv-fuHqz3Nb1YI@public.gmane.org>, Sven Van Asbroeck <svendev-fuHqz3Nb1YI@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, nsekhar-l0cyMroinI0@public.gmane.org, Sakari Ailus <sakari.ailus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.arcx.com ([184.94.50.18]:56627 "EHLO WEBMAIL.arcx.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753452AbdLTQg7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 20 Dec 2017 11:36:59 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: svendev@arcx.com, wsa@the-dreams.de, brgl@bgdev.pl, nsekhar@ti.com, sakari.ailus@linux.intel.com, javier@dowhile0.org, divagar.mohandass@intel.com
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 
->> +       { .compatible = "atmel,24c00", .data = &at24_data_24c00 },
->
-> Add tabs here as well, seems like there's enough space in the line.
+v4:
+	applied formatting suggestions
 
-There's not enough space in the line to line up the 24c1024 entry with
-the others. I'll revert to the formatting style that was there before.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+v3:
+	rebase against maintainer's latest devel branch
+	removed macros from struct {i2c,of,acpi}_device_id for easy grepping
+	applied newline, formatting, tab suggestions
+
+v2:
+	use struct at24_chip_data instead of struct at24_platform_data
+		(which decreases code size)
+	explicitly write out of compatible nodes, e.g. "atmel,24c04"
+		(which allows grepping for of compatible nodes)
+
+v1:
+	first shot
+
+Sven Van Asbroeck (1):
+  eeprom: at24: convert magic numbers to structs.
+
+ drivers/misc/eeprom/at24.c | 182 +++++++++++++++++++++++++--------------------
+ 1 file changed, 100 insertions(+), 82 deletions(-)
+
+-- 
+1.9.1
