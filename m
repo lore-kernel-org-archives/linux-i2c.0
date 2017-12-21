@@ -1,51 +1,48 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2] i2c/ARM: davinci: Deep refactoring of I2C recovery
-Date: Thu, 21 Dec 2017 17:58:14 +0100
-Message-ID: <CAK8P3a1HmN+XP37pifVgpMZeehsfYFGGnjOCzqcLZ13TaqXnqA@mail.gmail.com>
-References: <20171220121749.12064-1-linus.walleij@linaro.org>
- <CAK8P3a2+oa+yzAcpmB+YMuCYMxtFdYknETUtKShZX56G6m76Gg@mail.gmail.com> <CACRpkdY73GCcT24RsL3AGpGJDrwScHni1dYzSGm8rphZ8x0nZw@mail.gmail.com>
+From: David Lechner <david@lechnology.com>
+Subject: Re: [PATCH v2 1/5] dt-bindings: at24: consistently document the
+ compatible property
+Date: Thu, 21 Dec 2017 11:24:22 -0600
+Message-ID: <f5d14ee3-1f80-6709-c5e5-36f65c1a9b84@lechnology.com>
+References: <20171221134842.31287-1-brgl@bgdev.pl>
+ <20171221134842.31287-2-brgl@bgdev.pl>
+ <0c2455ae-2f68-5342-14c6-14706d6f0e66@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f196.google.com ([74.125.82.196]:39308 "EHLO
-        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752153AbdLUQ6Q (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Dec 2017 11:58:16 -0500
-Received: by mail-ot0-f196.google.com with SMTP id v21so22982382oth.6
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Dec 2017 08:58:15 -0800 (PST)
-In-Reply-To: <CACRpkdY73GCcT24RsL3AGpGJDrwScHni1dYzSGm8rphZ8x0nZw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0c2455ae-2f68-5342-14c6-14706d6f0e66@axentia.se>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Peter Rosin <peda@axentia.se>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, Divagar Mohandass <divagar.mohandass@intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, arm-soc <arm@kernel.org>, Kevin Hilman <khilman@kernel.org>, Keerthy <j-keerthy@ti.com>, Sekhar Nori <nsekhar@ti.com>
 
-On Thu, Dec 21, 2017 at 5:48 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Thu, Dec 21, 2017 at 4:36 PM, Arnd Bergmann <arnd@arndb.de> wrote:
->> On Wed, Dec 20, 2017 at 1:17 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
->>> Alter the DaVinci GPIO recovery fetch to use descriptors
->>> all the way down into the board files.
->>>
->>> Cc: arm@kernel.org
->>> Cc: Kevin Hilman <khilman@kernel.org>
->>> Cc: Keerthy <j-keerthy@ti.com>
->>> Cc: Sekhar Nori <nsekhar@ti.com>
->>> Acked-by: Sekhar Nori <nsekhar@ti.com>
->>> Tested-by: Sekhar Nori <nsekhar@ti.com>
->>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
->>> ---
->>> ChangeLog v1->v2:
->>> - Change gpiochip name from gpio_davinci.0 to gpio_davinci, simply.
+On 12/21/2017 10:20 AM, Peter Rosin wrote:
+> On 2017-12-21 14:48, Bartosz Golaszewski wrote:
+>> Current description of the compatible property for at24 is quite vague.
 >>
->> This seems to clash with "i2c: davinci: Add PM Runtime Support", please
->> rebase on top of v4.15-rc and resend.
->
-> Since it is dependent on changes in the I2C tree and the
-> current patch is based on linux-next I guess something
-> got applied ahead of me, I guess I should just rebase
-> on Wolfram's tree.
+>> Specify an exact list of accepted compatibles and document the - now
+>> deprecated - strings which were previously used in device tree files.
+> 
+> Why is it suddenly deprecated to correctly specify what hardware you
+> have, e.g. "nxp,24c32". In this case the manufacturer is nxp, damnit.
+> Sure, it happens to be compatible with "atmel,24c32", but that is
+> supposed to be written with a fallback as
+> 
+> 	"nxp,24c32", "atmel,24c32"
+> 
+> if I understand correctly. So, why is that deprecated in this case?
+> 
+> What if (a few years down the line) it is discovered that some weird
+> quirk is needed that is only appropriate for nxp chips?
+> 
+> nxp is of course just an example, pick any manufacturer of eeproms
+> (supposedly) compatible with the atmel interface.
+> 
 
-If it helps, you could merge the patch through his tree with my
+So now I am supposed to change my device tree from "microchip,24c128" to 
+"atmel,24c128"?
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-
-      Arnd
+Also, at,24c08 is listed in 
+Documentation/devicetree/bindings/trivial-devices.txt. It should 
+probably be removed.
