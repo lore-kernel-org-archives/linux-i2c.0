@@ -1,52 +1,39 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 2/5] dt-bindings: at24: add a missing compatible
-Date: Thu, 21 Dec 2017 15:58:54 +0100
-Message-ID: <CAMRc=MfrcGrXpRcLE3tf=AnKwtZxNk9J5TpoiuLvy8Vt0Fd5Lw@mail.gmail.com>
-References: <20171221134842.31287-1-brgl@bgdev.pl> <20171221134842.31287-3-brgl@bgdev.pl>
- <CAHp75VeeLuoPUi=Q9=kSNQh9Dts3FC=SE464gFdcSizwSNdLPg@mail.gmail.com>
- <CAMRc=MdkF9tioOqDwWFKWCRU832BZPMD1GjK+BonDbhEH0CCnA@mail.gmail.com> <CAHp75Veg5h7v611PiLCOP6n4Ofhm-0+YY651tT_NZoJ-1aSMwA@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2] i2c/ARM: davinci: Deep refactoring of I2C recovery
+Date: Thu, 21 Dec 2017 16:36:22 +0100
+Message-ID: <CAK8P3a2+oa+yzAcpmB+YMuCYMxtFdYknETUtKShZX56G6m76Gg@mail.gmail.com>
+References: <20171220121749.12064-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Veg5h7v611PiLCOP6n4Ofhm-0+YY651tT_NZoJ-1aSMwA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-ot0-f194.google.com ([74.125.82.194]:38824 "EHLO
+        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751259AbdLUPgX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Dec 2017 10:36:23 -0500
+Received: by mail-ot0-f194.google.com with SMTP id a42so509980otj.5
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Dec 2017 07:36:23 -0800 (PST)
+In-Reply-To: <20171220121749.12064-1-linus.walleij@linaro.org>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, arm-soc <arm@kernel.org>, Kevin Hilman <khilman@kernel.org>, Keerthy <j-keerthy@ti.com>, Sekhar Nori <nsekhar@ti.com>
 
-2017-12-21 15:25 GMT+01:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
-> On Thu, Dec 21, 2017 at 4:18 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->> 2017-12-21 15:08 GMT+01:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
->>> On Thu, Dec 21, 2017 at 3:48 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->>>> "atmel,spd" is reported by checkpatch as undocumented in the device
->>>> tree bindings. Add it to the list of supported compatible strings.
->>>
->>>>          "atmel,24c00",
->>>>          "atmel,24c01",
->>>>          "atmel,24c02",
->>>> +        "atmel,spd",
->>>>          "atmel,24c04",
->>>>          "atmel,24c08",
->>>>          "atmel,24c16",
->>>
->>> Sounds alogical to me to make a split by this new record.
->>> Can you find better line to inject?
+On Wed, Dec 20, 2017 at 1:17 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+> Alter the DaVinci GPIO recovery fetch to use descriptors
+> all the way down into the board files.
 >
->> They are actually ordered by memory size. I want to keep it like this
->> in the driver and I prefer that the DT reflect it.
->
-> So, I just disagree on the above. Rationale I described at one of the comment.
->
-> At the end it's your call, but from my p.o.v. it makes life harder to
-> read and catch the chips which are (un)supported.
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+> Cc: arm@kernel.org
+> Cc: Kevin Hilman <khilman@kernel.org>
+> Cc: Keerthy <j-keerthy@ti.com>
+> Cc: Sekhar Nori <nsekhar@ti.com>
+> Acked-by: Sekhar Nori <nsekhar@ti.com>
+> Tested-by: Sekhar Nori <nsekhar@ti.com>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> ChangeLog v1->v2:
+> - Change gpiochip name from gpio_davinci.0 to gpio_davinci, simply.
 
-Yes, I prefer this version. Another reason to keep it like this is to
-group chip variants together. E.g: atmel,24cs02, atmel,spd,
-atmel,24mac402, atmel,24mac602 are all variants of atmel,24c02.
+This seems to clash with "i2c: davinci: Add PM Runtime Support", please
+rebase on top of v4.15-rc and resend.
 
-Thanks,
-Bartosz
+       Arnd
