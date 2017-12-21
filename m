@@ -1,78 +1,89 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v2 3/5] dt-bindings: at24: fix formatting and style
-Date: Thu, 21 Dec 2017 14:48:40 +0100
-Message-ID: <20171221134842.31287-4-brgl@bgdev.pl>
+From: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
+Subject: [PATCH v2 1/5] dt-bindings: at24: consistently document the compatible property
+Date: Thu, 21 Dec 2017 14:48:38 +0100
+Message-ID: <20171221134842.31287-2-brgl@bgdev.pl>
 References: <20171221134842.31287-1-brgl@bgdev.pl>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:39487 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750983AbdLUNs4 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Dec 2017 08:48:56 -0500
-Received: by mail-wm0-f66.google.com with SMTP id i11so15883671wmf.4
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Dec 2017 05:48:55 -0800 (PST)
-In-Reply-To: <20171221134842.31287-1-brgl@bgdev.pl>
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171221134842.31287-1-brgl-ARrdPY/1zhM@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 
-Make formatting and style consistent for the entire document.
+Current description of the compatible property for at24 is quite vague.
 
-This patch doesn't change the content of the binding.
+Specify an exact list of accepted compatibles and document the - now
+deprecated - strings which were previously used in device tree files.
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
+Reviewed-by: Javier Martinez Canillas <javierm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- Documentation/devicetree/bindings/eeprom/at24.txt | 24 +++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ Documentation/devicetree/bindings/eeprom/at24.txt | 48 ++++++++++++-----------
+ 1 file changed, 26 insertions(+), 22 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index 2702f2456971..1068b4309fed 100644
+index cbc80e194ac6..16b687458b14 100644
 --- a/Documentation/devicetree/bindings/eeprom/at24.txt
 +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -2,7 +2,7 @@ EEPROMs (I2C)
+@@ -2,28 +2,32 @@ EEPROMs (I2C)
  
  Required properties:
  
--  - compatible: must be one of the following:
-+  - compatible: Must be one of the following:
+-  - compatible : should be "<manufacturer>,<type>", like these:
+-
+-	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
+-	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
+-	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
+-
+-	"catalyst,24c32"
+-
+-	"microchip,24c128"
+-
+-	"ramtron,24c64"
+-
+-	"renesas,r1ex24002"
+-
+-	The following manufacturers values have been deprecated:
+-	"at", "at24"
+-
+-	 If there is no specific driver for <manufacturer>, a generic
+-	 device with <type> and manufacturer "atmel" should be used.
+-	 Possible types are:
+-	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
+-	 "24c128", "24c256", "24c512", "24c1024", "spd"
++  - compatible: must be one of the following:
++
++        "atmel,24c00",
++        "atmel,24c01",
++        "atmel,24c02",
++        "atmel,24c04",
++        "atmel,24c08",
++        "atmel,24c16",
++        "atmel,24c32",
++        "atmel,24c64",
++        "atmel,24c128",
++        "atmel,24c256",
++        "atmel,24c512",
++        "atmel,24c1024"
++
++  NOTE: old compatible strings, such as:
++
++        "catalyst,24c32",
++        "microchip,24c128",
++        "ramtron,24c64",
++        "renesas,r1ex24002",
++        "at,24c08",
++        "at24,24c08",
++        "24c32"
++
++  will still work, but are now deprecated.
  
-         "atmel,24c00",
-         "atmel,24c01",
-@@ -30,23 +30,23 @@ Required properties:
- 
-   will still work, but are now deprecated.
- 
--  - reg : the I2C address of the EEPROM
-+  - reg: The I2C address of the EEPROM.
- 
- Optional properties:
- 
--  - pagesize : the length of the pagesize for writing. Please consult the
--               manual of your device, that value varies a lot. A wrong value
--	       may result in data loss! If not specified, a safety value of
--	       '1' is used which will be very slow.
-+  - pagesize: The length of the pagesize for writing. Please consult the
-+              manual of your device, that value varies a lot. A wrong value
-+              may result in data loss! If not specified, a safety value of
-+              '1' is used which will be very slow.
- 
--  - read-only: this parameterless property disables writes to the eeprom
-+  - read-only: This parameterless property disables writes to the eeprom.
- 
--  - size: total eeprom size in bytes
-+  - size: Total eeprom size in bytes.
- 
--  - no-read-rollover:
--			This parameterless property indicates that the multi-address
--			eeprom does not automatically roll over reads to the next
--			slave address. Please consult the manual of your device.
-+  - no-read-rollover: This parameterless property indicates that the
-+                      multi-address eeprom does not automatically roll over
-+                      reads to the next slave address. Please consult the
-+                      manual of your device.
- 
-   - wp-gpios: GPIO to which the write-protect pin of the chip is connected.
+   - reg : the I2C address of the EEPROM
  
 -- 
 2.15.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
