@@ -1,31 +1,45 @@
-From: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/5] dt-bindings: at24: consistently document the
- compatible property
-Date: Thu, 21 Dec 2017 11:25:32 -0600
-Message-ID: <6b87d70c-d554-c5dd-05d4-aea78aa34a37@lechnology.com>
-References: <20171221134842.31287-1-brgl@bgdev.pl>
- <20171221134842.31287-2-brgl@bgdev.pl>
- <0c2455ae-2f68-5342-14c6-14706d6f0e66@axentia.se>
- <f5d14ee3-1f80-6709-c5e5-36f65c1a9b84@lechnology.com>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v2] i2c: update i2c-dev.h warning in documentation
+Date: Thu, 21 Dec 2017 12:38:09 -0700
+Message-ID: <20171221123809.40311490@lwn.net>
+References: <20171209231058.270ce75c@nostromo>
+        <20171211162004.2185a7ef@lwn.net>
+        <CANp8-fy-mOUpMgR6F3j6k53gpAHh+TxiKdSaXFfqimcAwe_y3g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <f5d14ee3-1f80-6709-c5e5-36f65c1a9b84-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <CANp8-fy-mOUpMgR6F3j6k53gpAHh+TxiKdSaXFfqimcAwe_y3g@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: "Cengiz C." <cengizc@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/21/2017 11:24 AM, David Lechner wrote:
-> Also, at,24c08 is listed in 
-> Documentation/devicetree/bindings/trivial-devices.txt. It should 
-> probably be removed.
+On Tue, 12 Dec 2017 19:43:09 +0300
+"Cengiz C." <cengizc@gmail.com> wrote:
 
-And st,24c256
+> `Documentation/i2c/dev-interface` gives examples for accessing i2c from
+> userspace.
+> 
+> There's a note that warns developers about the two `i2c-dev.h` header
+> files which were shipped with the kernel and i2c-tools separately.
+> 
+> However, following i2c-tools commits suggest that the header files are now
+> identical (in functionality) and `i2c_*` helper functions are now defined
+> in a separate header called `i2c/smbus.h`, which is distributed with
+> i2c-tools:
+> 
+> commit 652619121974 ("Minimize differences with kernel flavor")
+> commit 93caf007f4cb ("Move SMBus helper functions to include/i2c/smbus.h")
+> 
+> Thus, I've converted the warning paragraph into a historical note and
+> updated the suggested header files.
+> 
+> Signed-off-by: Cengiz Can <cengizc@gmail.com>
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied to the docs tree, thanks.  Note that the patch was wrapped by your
+mailer and I had to fix it up; that would be nice to avoid in the future.
+
+Thanks,
+
+jon
