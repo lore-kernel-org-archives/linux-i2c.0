@@ -1,33 +1,47 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v2] i2c: update i2c-dev.h warning in documentation
-Date: Thu, 21 Dec 2017 13:54:57 -0700
-Message-ID: <20171221135457.0bd71225@lwn.net>
-References: <20171209231058.270ce75c@nostromo>
-        <20171211162004.2185a7ef@lwn.net>
-        <CANp8-fy-mOUpMgR6F3j6k53gpAHh+TxiKdSaXFfqimcAwe_y3g@mail.gmail.com>
-        <20171221123809.40311490@lwn.net>
-        <CANp8-fz5qQpY4xJCexkLzAZE6jXEMhykKARNyY9C5t0cxbZjTQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2] i2c/ARM: davinci: Deep refactoring of I2C recovery
+Date: Thu, 21 Dec 2017 23:30:04 +0100
+Message-ID: <CACRpkdYhtrVKk36cza_RUysjp_ZYvT5D0nCGdG3K9=SGsdJNLA@mail.gmail.com>
+References: <20171220121749.12064-1-linus.walleij@linaro.org> <CAK8P3a2+oa+yzAcpmB+YMuCYMxtFdYknETUtKShZX56G6m76Gg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from ms.lwn.net ([45.79.88.28]:40616 "EHLO ms.lwn.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753163AbdLUUy7 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 21 Dec 2017 15:54:59 -0500
-In-Reply-To: <CANp8-fz5qQpY4xJCexkLzAZE6jXEMhykKARNyY9C5t0cxbZjTQ@mail.gmail.com>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:35223 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750920AbdLUWaF (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Dec 2017 17:30:05 -0500
+Received: by mail-io0-f196.google.com with SMTP id 14so16154760iou.2
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Dec 2017 14:30:05 -0800 (PST)
+In-Reply-To: <CAK8P3a2+oa+yzAcpmB+YMuCYMxtFdYknETUtKShZX56G6m76Gg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Cengiz Can <cengizc@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, arm-soc <arm@kernel.org>, Kevin Hilman <khilman@kernel.org>, Keerthy <j-keerthy@ti.com>, Sekhar Nori <nsekhar@ti.com>
 
-On Thu, 21 Dec 2017 23:49:16 +0300
-Cengiz Can <cengizc@gmail.com> wrote:
+On Thu, Dec 21, 2017 at 4:36 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wed, Dec 20, 2017 at 1:17 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+>> Alter the DaVinci GPIO recovery fetch to use descriptors
+>> all the way down into the board files.
+>>
+>> Cc: arm@kernel.org
+>> Cc: Kevin Hilman <khilman@kernel.org>
+>> Cc: Keerthy <j-keerthy@ti.com>
+>> Cc: Sekhar Nori <nsekhar@ti.com>
+>> Acked-by: Sekhar Nori <nsekhar@ti.com>
+>> Tested-by: Sekhar Nori <nsekhar@ti.com>
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+>> ---
+>> ChangeLog v1->v2:
+>> - Change gpiochip name from gpio_davinci.0 to gpio_davinci, simply.
+>
+> This seems to clash with "i2c: davinci: Add PM Runtime Support", please
+> rebase on top of v4.15-rc and resend.
 
-> I've ditched claws-mail and will use git send-mail instead.
+Strange, where do you see this problem?
 
-FWIW, I use claws for patch mailing and more.  It can be made to work, you
-just need to tweak the options a bit.  The trick is to send patches to
-yourself and keep at it until what you receive still applies.
+I just applied the patch on top of Wolfram's for-next
+branch and it worked like a charm. It has the PM Runtime patch
+underneath and all.
 
-jon
+Yours,
+Linus Walleij
