@@ -1,240 +1,157 @@
-From: Marc CAPDEVILLE <m.capdeville@no-log.org>
-Subject: [PATCH v6 3/4] iio : Add cm3218 smbus ara and acpi support
-Date: Mon, 25 Dec 2017 16:57:22 +0100
-Message-ID: <20171225155723.6338-3-m.capdeville@no-log.org>
-References: <20171225155723.6338-1-m.capdeville@no-log.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171225155723.6338-1-m.capdeville@no-log.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Tsai <ktsai@capellamicro.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Marc CAPDEVILLE <m.capdeville@no-log.org>
+From: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
+Subject: [PATCH v7] i2c: Add support for NXP PCA984x family.
+Date: Mon, 25 Dec 2017 22:26:46 +0100
+Message-ID: <20171225212646.8062-1-adrian.fiergolski@cern.ch>
+References: <20171220182745.lo6i27ucfhjekmjp@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171220182745.lo6i27ucfhjekmjp@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On asus T100, Capella cm3218 chip is implemented as ambiant light
-sensor. This chip expose an smbus ARA protocol device on standard
-address 0x0c. The chip is not functional before all alerts are
-acknowledged.
-On asus T100, this device is enumerated on ACPI bus and the description
-give two I2C connection. The first is the connection to the ARA device
-and the second gives the real address of the device.
+This patch extends the current i2c-mux-pca954x driver and adds support for
+a newer PCA984x family of the I2C switches and multiplexers from NXP.
 
-So, on device probe,If the i2c address is the ARA address and the
-device is enumerated via acpi, we change address of the device for
-the one in the second acpi serial bus connection.
-This free the ara address so we can register with the smbus_alert
-driver.
-
-If an interrupt resource is given, and a smbus_alert device was
-found on the adapter, we request a treaded interrupt to
-call i2c_smbus_alert_event to handle the alert.
-
-In somme case, the treaded interrupt is not schedule before the driver
-try to initialize chip registers. So if first registers access fail, we
-call i2c_smbus_alert_event() to acknowledge initial alert, then retry
-register access.
-
-Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
+Signed-off-by: Adrian Fiergolski <adrian.fiergolski-vJEk5272eHo@public.gmane.org>
 ---
- drivers/iio/light/cm32181.c | 120 ++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 115 insertions(+), 5 deletions(-)
+Following Rob's and Peter's remarks, bindings contain now one valid
+combination of compatibles per line.
 
-diff --git a/drivers/iio/light/cm32181.c b/drivers/iio/light/cm32181.c
-index aebf7dd071af..96c08755e6e3 100644
---- a/drivers/iio/light/cm32181.c
-+++ b/drivers/iio/light/cm32181.c
-@@ -18,6 +18,9 @@
- #include <linux/iio/sysfs.h>
- #include <linux/iio/events.h>
- #include <linux/init.h>
-+#include <linux/i2c-smbus.h>
-+#include <linux/acpi.h>
-+#include <linux/of_device.h>
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    | 13 ++++++--
+ drivers/i2c/muxes/Kconfig                          |  6 ++--
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 38 +++++++++++++++++++---
+ 3 files changed, 48 insertions(+), 9 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index aa097045a10e..34d91501342e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -1,10 +1,19 @@
+ * NXP PCA954x I2C bus switch
  
- /* Registers Address */
- #define CM32181_REG_ADDR_CMD		0x00
-@@ -47,6 +50,11 @@
- #define CM32181_CALIBSCALE_RESOLUTION	1000
- #define MLUX_PER_LUX			1000
++The driver supports NXP PCA954x and PCA984x I2C mux/switch devices.
++
+ Required Properties:
  
-+#define CM32181_ID			0x81
-+#define CM3218_ID			0x18
-+
-+#define SMBUS_ARA_ADDR			0x0c
-+
- static const u8 cm32181_reg[CM32181_CONF_REG_NUM] = {
- 	CM32181_REG_ADDR_CMD,
- };
-@@ -57,6 +65,7 @@ static const int als_it_value[] = {25000, 50000, 100000, 200000, 400000,
+   - compatible: Must contain one of the following.
+-    "nxp,pca9540", "nxp,pca9542", "nxp,pca9543", "nxp,pca9544",
+-    "nxp,pca9545", "nxp,pca9546", "nxp,pca9547", "nxp,pca9548"
++    "nxp,pca9540",
++    "nxp,pca9542",
++    "nxp,pca9543",
++    "nxp,pca9544",
++    "nxp,pca9545",
++    "nxp,pca9546", "nxp,pca9846",
++    "nxp,pca9547", "nxp,pca9847",
++    "nxp,pca9548", "nxp,pca9848",
++    "nxp,pca9849"
  
- struct cm32181_chip {
- 	struct i2c_client *client;
-+	int chip_id;
- 	struct mutex lock;
- 	u16 conf_regs[CM32181_CONF_REG_NUM];
- 	int calibscale;
-@@ -77,11 +86,22 @@ static int cm32181_reg_init(struct cm32181_chip *cm32181)
- 	s32 ret;
+   - reg: The I2C address of the device.
  
- 	ret = i2c_smbus_read_word_data(client, CM32181_REG_ADDR_ID);
--	if (ret < 0)
--		return ret;
-+	if (ret < 0) {
-+		if (cm32181->chip_id == CM3218_ID) {
-+			/*
-+			 * On cm3218, smbus alert trigger after probing,
-+			 * so poll for first alert here, then retry.
-+			 */
-+			i2c_smbus_alert_event(client);
-+			ret = i2c_smbus_read_word_data(client,
-+						       CM32181_REG_ADDR_ID);
-+		} else {
-+			return ret;
-+		}
-+	}
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 0f5c8fc36625..52a4a922e7e6 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -64,11 +64,11 @@ config I2C_MUX_PCA9541
+ 	  will be called i2c-mux-pca9541.
  
- 	/* check device ID */
--	if ((ret & 0xFF) != 0x81)
-+	if ((ret & 0xFF) != cm32181->chip_id)
- 		return -ENODEV;
+ config I2C_MUX_PCA954x
+-	tristate "Philips PCA954x I2C Mux/switches"
++	tristate "NXP PCA954x and PCA984x I2C Mux/switches"
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	help
+-	  If you say yes here you get support for the Philips PCA954x
+-	  I2C mux/switch devices.
++	  If you say yes here you get support for the NXP PCA954x
++	  and PCA984x I2C mux/switch devices.
  
- 	/* Default Values */
-@@ -297,12 +317,36 @@ static const struct iio_info cm32181_info = {
- 	.attrs			= &cm32181_attribute_group,
- };
- 
-+static void cm3218_alert(struct i2c_client *client,
-+			 enum i2c_alert_protocol type,
-+			 unsigned int data)
-+{
-+	/*
-+	 * nothing to do for now.
-+	 * This is just here to acknownledge the cm3218 alert.
-+	 */
-+}
-+
-+static irqreturn_t cm32181_irq(int irq, void *d)
-+{
-+	struct cm32181_chip *cm32181 = d;
-+
-+	if (cm32181->chip_id == CM3218_ID) {
-+		/* This is cm3218 chip irq, so handle the smbus alert */
-+		i2c_smbus_alert_event(cm32181->client);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
- static int cm32181_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
- {
- 	struct cm32181_chip *cm32181;
- 	struct iio_dev *indio_dev;
- 	int ret;
-+	const struct of_device_id *of_id;
-+	const struct acpi_device_id *acpi_id;
- 
- 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*cm32181));
- 	if (!indio_dev) {
-@@ -322,6 +366,61 @@ static int cm32181_probe(struct i2c_client *client,
- 	indio_dev->name = id->name;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 
-+	/* Lookup for chip ID from platform, acpi or of device table */
-+	if (id) {
-+		cm32181->chip_id = id->driver_data;
-+	} else if (ACPI_COMPANION(&client->dev)) {
-+		acpi_id = acpi_match_device(client->dev.driver->acpi_match_table,
-+					    &client->dev);
-+		if (!acpi_id)
-+			return -ENODEV;
-+
-+		cm32181->chip_id = (kernel_ulong_t)acpi_id->driver_data;
-+	} else if (client->dev.of_node) {
-+		of_id = of_match_device(client->dev.driver->of_match_table,
-+					&client->dev);
-+		if (!of_id)
-+			return -ENODEV;
-+
-+		cm32181->chip_id = (kernel_ulong_t)of_id->data;
-+	} else {
-+		return -ENODEV;
-+	}
-+
-+	if (cm32181->chip_id == CM3218_ID) {
-+		if (ACPI_COMPANION(&client->dev) &&
-+		    client->addr == SMBUS_ARA_ADDR) {
-+			/*
-+			 * In case this device as been enumerated by acpi
-+			 * with the reserved smbus ARA address (first acpi
-+			 * connection), request change of address to the second
-+			 * connection.
-+			 */
-+			ret = i2c_acpi_set_connection(client, 1);
-+			if (ret)
-+				return ret;
-+		}
-+
-+		/* cm3218 chip require an ara device on his adapter */
-+		ret = i2c_require_smbus_alert(client);
-+		if (ret < 0)
-+			return ret;
-+
-+		/*
-+		 * If irq is given, request a threaded irq handler to manage
-+		 * smbus alert.
-+		 */
-+		if (client->irq > 0) {
-+			ret = devm_request_threaded_irq(&client->dev,
-+							client->irq,
-+							NULL, cm32181_irq,
-+							IRQF_ONESHOT,
-+							"cm32181", cm32181);
-+			if (ret)
-+				return ret;
-+		}
-+	}
-+
- 	ret = cm32181_reg_init(cm32181);
- 	if (ret) {
- 		dev_err(&client->dev,
-@@ -342,25 +441,36 @@ static int cm32181_probe(struct i2c_client *client,
- }
- 
- static const struct i2c_device_id cm32181_id[] = {
--	{ "cm32181", 0 },
-+	{ "cm32181", CM32181_ID },
-+	{ "cm3218", CM3218_ID },
- 	{ }
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-pca954x.
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 2ca068d8b92d..fbb84c7ef282 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -4,11 +4,11 @@
+  * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+  * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
+  *
+- * This module supports the PCA954x series of I2C multiplexer/switch chips
+- * made by Philips Semiconductors.
++ * This module supports the PCA954x and PCA954x series of I2C multiplexer/switch
++ * chips made by NXP Semiconductors.
+  * This includes the:
+- *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
+- *	 and PCA9548.
++ *	 PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547,
++ *	 PCA9548, PCA9846, PCA9847, PCA9848 and PCA9849.
+  *
+  * These chips are all controlled via the I2C bus itself, and all have a
+  * single 8-bit register. The upstream "parent" bus fans out to two,
+@@ -63,6 +63,10 @@ enum pca_type {
+ 	pca_9546,
+ 	pca_9547,
+ 	pca_9548,
++	pca_9846,
++	pca_9847,
++	pca_9848,
++	pca_9849,
  };
  
- MODULE_DEVICE_TABLE(i2c, cm32181_id);
- 
- static const struct of_device_id cm32181_of_match[] = {
--	{ .compatible = "capella,cm32181" },
-+	{ .compatible = "capella,cm32181", (void *)CM32181_ID },
-+	{ .compatible = "capella,cm3218",  (void *)CM3218_ID },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, cm32181_of_match);
- 
-+static const struct acpi_device_id cm32181_acpi_match[] = {
-+	{ "CPLM3218", CM3218_ID },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(acpi, cm32181_acpi_match);
-+
- static struct i2c_driver cm32181_driver = {
- 	.driver = {
- 		.name	= "cm32181",
- 		.of_match_table = of_match_ptr(cm32181_of_match),
-+		.acpi_match_table = ACPI_PTR(cm32181_acpi_match),
+ struct chip_desc {
+@@ -129,6 +133,24 @@ static const struct chip_desc chips[] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
  	},
- 	.id_table       = cm32181_id,
- 	.probe		= cm32181_probe,
-+	.alert		= cm3218_alert,
++	[pca_9846] = {
++		.nchans = 4,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9847] = {
++		.nchans = 8,
++		.enable = 0x8,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9848] = {
++		.nchans = 8,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9849] = {
++		.nchans = 4,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
  };
  
- module_i2c_driver(cm32181_driver);
+ static const struct i2c_device_id pca954x_id[] = {
+@@ -140,6 +162,10 @@ static const struct i2c_device_id pca954x_id[] = {
+ 	{ "pca9546", pca_9546 },
+ 	{ "pca9547", pca_9547 },
+ 	{ "pca9548", pca_9548 },
++	{ "pca9846", pca_9846 },
++	{ "pca9847", pca_9847 },
++	{ "pca9848", pca_9848 },
++	{ "pca9849", pca_9849 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+@@ -154,6 +180,10 @@ static const struct of_device_id pca954x_of_match[] = {
+ 	{ .compatible = "nxp,pca9546", .data = &chips[pca_9546] },
+ 	{ .compatible = "nxp,pca9547", .data = &chips[pca_9547] },
+ 	{ .compatible = "nxp,pca9548", .data = &chips[pca_9548] },
++	{ .compatible = "nxp,pca9846", .data = &chips[pca_9846] },
++	{ .compatible = "nxp,pca9847", .data = &chips[pca_9847] },
++	{ .compatible = "nxp,pca9848", .data = &chips[pca_9848] },
++	{ .compatible = "nxp,pca9849", .data = &chips[pca_9849] },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pca954x_of_match);
 -- 
-2.11.0
+2.14.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
