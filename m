@@ -1,7 +1,7 @@
 From: Marc CAPDEVILLE <m.capdeville@no-log.org>
-Subject: [PATCH v6 2/4] i2c-smbus : Add client discovered ARA support
-Date: Mon, 25 Dec 2017 16:57:21 +0100
-Message-ID: <20171225155723.6338-2-m.capdeville@no-log.org>
+Subject: [PATCH v6 4/4] iio : cm32181 : cosmetic cleanup
+Date: Mon, 25 Dec 2017 16:57:23 +0100
+Message-ID: <20171225155723.6338-4-m.capdeville@no-log.org>
 References: <20171225155723.6338-1-m.capdeville@no-log.org>
 Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <20171225155723.6338-1-m.capdeville@no-log.org>
@@ -10,160 +10,109 @@ To: Kevin Tsai <ktsai@capellamicro.com>
 Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Marc CAPDEVILLE <m.capdeville@no-log.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is from rfc by Alan Cox : https://patchwork.ozlabs.org/patch/381773
+Somme cosmetic cleanup suggested by Peter Meerwald-Stadler.
 
-The idea is as follows (extract from above rfc) :
-- If an adapter knows about its ARA and smbus alerts then the adapter
-  creates its own interrupt handler as before
+Macro name :
+   MLUX_PER_LUX => CM32181_MLUX_PER_LUX
 
-- If a client knows it needs smbus alerts it calls
-  i2c_require_smbus_alert(). This ensures that there is an ARA handler
-  registered and tells the client whether the adapter is handling it
-  anyway or not.
+Constante name :
+   als_it_bits => cm32181_als_it_bits
+   als_it_value => cm32181_als_it_value
 
-- When the client learns that an ARA event has occurred it calls
-  i2c_smbus_alert_event() which uses the existing ARA mechanism to kick
-  things off.
+Comment :
+   Registers Address => Register Addresses
 
-Suggested-by: Alan Cox <alan@linux.intel.com>
+Suggested-by:  Peter Meerwald-Stadler <pmeerw@pmeerw.net>
 Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
 ---
- drivers/i2c/i2c-smbus.c   | 83 +++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-smbus.h | 15 +++++++++
- 2 files changed, 98 insertions(+)
+ drivers/iio/light/cm32181.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 5a1dd7f13bac..e97fbafd10ef 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -161,6 +161,9 @@ static int smbalert_probe(struct i2c_client *ara,
+diff --git a/drivers/iio/light/cm32181.c b/drivers/iio/light/cm32181.c
+index 96c08755e6e3..3e6b244d5cd1 100644
+--- a/drivers/iio/light/cm32181.c
++++ b/drivers/iio/light/cm32181.c
+@@ -22,7 +22,7 @@
+ #include <linux/acpi.h>
+ #include <linux/of_device.h>
+ 
+-/* Registers Address */
++/* Register Addresses */
+ #define CM32181_REG_ADDR_CMD		0x00
+ #define CM32181_REG_ADDR_ALS		0x04
+ #define CM32181_REG_ADDR_STATUS		0x06
+@@ -48,7 +48,7 @@
+ #define CM32181_MLUX_PER_BIT_BASE_IT	800000	/* Based on IT=800ms */
+ #define	CM32181_CALIBSCALE_DEFAULT	1000
+ #define CM32181_CALIBSCALE_RESOLUTION	1000
+-#define MLUX_PER_LUX			1000
++#define CM32181_MLUX_PER_LUX		1000
+ 
+ #define CM32181_ID			0x81
+ #define CM3218_ID			0x18
+@@ -59,8 +59,8 @@ static const u8 cm32181_reg[CM32181_CONF_REG_NUM] = {
+ 	CM32181_REG_ADDR_CMD,
+ };
+ 
+-static const int als_it_bits[] = {12, 8, 0, 1, 2, 3};
+-static const int als_it_value[] = {25000, 50000, 100000, 200000, 400000,
++static const int cm32181_als_it_bits[] = {12, 8, 0, 1, 2, 3};
++static const int cm32181_als_it_value[] = {25000, 50000, 100000, 200000, 400000,
+ 	800000};
+ 
+ struct cm32181_chip {
+@@ -137,9 +137,9 @@ static int cm32181_read_als_it(struct cm32181_chip *cm32181, int *val2)
+ 	als_it = cm32181->conf_regs[CM32181_REG_ADDR_CMD];
+ 	als_it &= CM32181_CMD_ALS_IT_MASK;
+ 	als_it >>= CM32181_CMD_ALS_IT_SHIFT;
+-	for (i = 0; i < ARRAY_SIZE(als_it_bits); i++) {
+-		if (als_it == als_it_bits[i]) {
+-			*val2 = als_it_value[i];
++	for (i = 0; i < ARRAY_SIZE(cm32181_als_it_bits); i++) {
++		if (als_it == cm32181_als_it_bits[i]) {
++			*val2 = cm32181_als_it_value[i];
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		}
  	}
+@@ -162,14 +162,14 @@ static int cm32181_write_als_it(struct cm32181_chip *cm32181, int val)
+ 	u16 als_it;
+ 	int ret, i, n;
  
- 	i2c_set_clientdata(ara, alert);
-+
-+	ara->adapter->smbus_ara = ara;
-+
- 	dev_info(&adapter->dev, "supports SMBALERT#\n");
+-	n = ARRAY_SIZE(als_it_value);
++	n = ARRAY_SIZE(cm32181_als_it_value);
+ 	for (i = 0; i < n; i++)
+-		if (val <= als_it_value[i])
++		if (val <= cm32181_als_it_value[i])
+ 			break;
+ 	if (i >= n)
+ 		i = n - 1;
  
- 	return 0;
-@@ -172,6 +175,9 @@ static int smbalert_remove(struct i2c_client *ara)
- 	struct i2c_smbus_alert *alert = i2c_get_clientdata(ara);
+-	als_it = als_it_bits[i];
++	als_it = cm32181_als_it_bits[i];
+ 	als_it <<= CM32181_CMD_ALS_IT_SHIFT;
  
- 	cancel_work_sync(&alert->alert);
-+
-+	ara->adapter->smbus_ara = NULL;
-+
- 	return 0;
+ 	mutex_lock(&cm32181->lock);
+@@ -215,7 +215,7 @@ static int cm32181_get_lux(struct cm32181_chip *cm32181)
+ 	lux *= ret;
+ 	lux *= cm32181->calibscale;
+ 	lux /= CM32181_CALIBSCALE_RESOLUTION;
+-	lux /= MLUX_PER_LUX;
++	lux /= CM32181_MLUX_PER_LUX;
+ 
+ 	if (lux > 0xFFFF)
+ 		lux = 0xFFFF;
+@@ -283,9 +283,9 @@ static ssize_t cm32181_get_it_available(struct device *dev,
+ {
+ 	int i, n, len;
+ 
+-	n = ARRAY_SIZE(als_it_value);
++	n = ARRAY_SIZE(cm32181_als_it_value);
+ 	for (i = 0, len = 0; i < n; i++)
+-		len += sprintf(buf + len, "0.%06u ", als_it_value[i]);
++		len += sprintf(buf + len, "0.%06u ", cm32181_als_it_value[i]);
+ 	return len + sprintf(buf + len, "\n");
  }
  
-@@ -210,6 +216,83 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
- }
- EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
- 
-+/*
-+ * i2c_require_smbus_alert - Client discovered SMBus alert
-+ * @c: client requiring ARA
-+ *
-+ * When a client needs an ARA it calls this method. If the bus adapter
-+ * supports ARA and already knows how to do so then it will already have
-+ * configured for ARA and this is a no-op. If not then we set up an ARA
-+ * on the adapter.
-+ *
-+ * We *cannot* simply register a new IRQ handler for this because we might
-+ * have multiple GPIO interrupts to devices all of which trigger an ARA.
-+ *
-+ * Return:
-+ *	0 if ara support already registered
-+ *	1 if call register a new smbus_alert device
-+ *	<0 on error
-+ */
-+int i2c_require_smbus_alert(struct i2c_client *client)
-+{
-+	struct i2c_adapter *adapter = client->adapter;
-+	struct i2c_smbus_alert_setup setup;
-+	struct i2c_client *ara;
-+
-+	/* ARA is already known and handled by the adapter (ideal case)
-+	 * or another client has specified ARA is needed
-+	 */
-+	if (adapter->smbus_ara)
-+		return 0;
-+
-+	/* Client driven, do not set up a new IRQ handler */
-+	setup.irq = 0;
-+
-+	ara = i2c_setup_smbus_alert(adapter, &setup);
-+	if (!ara)
-+		return -ENODEV;
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(i2c_require_smbus_alert);
-+
-+/*
-+ * i2c_smbus_alert_event
-+ * @client: the client who known of a probable ara event
-+ * Context: can't sleep
-+ *
-+ * Helper function to be called from an I2C device driver's interrupt
-+ * handler. It will schedule the alert work, in turn calling the
-+ * corresponding I2C device driver's alert function.
-+ *
-+ * It is assumed that client is an i2c client who previously call
-+ * i2c_require_smbus_alert().
-+ */
-+int i2c_smbus_alert_event(struct i2c_client *client)
-+{
-+	struct i2c_adapter *adapter;
-+	struct i2c_client *ara;
-+	struct i2c_smbus_alert *alert;
-+
-+	if (!client)
-+		return -EINVAL;
-+
-+	adapter = client->adapter;
-+	if (!adapter)
-+		return -EINVAL;
-+
-+	ara = adapter->smbus_ara;
-+	if (!ara)
-+		return -EINVAL;
-+
-+	alert = i2c_get_clientdata(ara);
-+	if (!alert)
-+		return -EINVAL;
-+
-+	return schedule_work(&alert->alert);
-+}
-+EXPORT_SYMBOL_GPL(i2c_smbus_alert_event);
-+
- module_i2c_driver(smbalert_driver);
- 
- MODULE_AUTHOR("Jean Delvare <jdelvare@suse.de>");
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index fb0e040b1abb..49f362fa6ac5 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -58,4 +58,19 @@ static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
- }
- #endif
- 
-+#if IS_ENABLED(CONFIG_I2C_SMBUS)
-+int i2c_require_smbus_alert(struct i2c_client *client);
-+int i2c_smbus_alert_event(struct i2c_client *client);
-+#else
-+static inline int i2c_require_smbus_alert(struct i2c_client *client)
-+{
-+	return NULL;
-+}
-+
-+static inline int i2c_smbus_alert_event(struct i2c_client *client)
-+{
-+	return NULL;
-+}
-+#endif
-+
- #endif /* _LINUX_I2C_SMBUS_H */
 -- 
 2.11.0
 
