@@ -1,143 +1,196 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 5/7] dt-bindings: i3c: Document core bindings
-Date: Tue, 26 Dec 2017 12:29:34 -0600
-Message-ID: <CAL_JsqLBTtaM=7qdbbyODs61hbGdLughuVtPC-BsfrU8KV79aA@mail.gmail.com>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
- <20171214151610.19153-6-boris.brezillon@free-electrons.com>
- <20171216172040.jcaezouqkeb7zrqy@rob-hp-laptop> <20171216193537.0aef2e97@bbrezillon>
- <20171220180645.pis34opfwawakmqc@rob-hp-laptop> <20171221114144.2610d49b@bbrezillon>
+Subject: Re: [PATCH v2 1/5] dt-bindings: at24: consistently document the
+ compatible property
+Date: Tue, 26 Dec 2017 15:32:26 -0600
+Message-ID: <20171226213226.iyw6tbdnhlrhxwdc@rob-hp-laptop>
+References: <20171221134842.31287-1-brgl@bgdev.pl>
+ <20171221134842.31287-2-brgl@bgdev.pl>
+ <0c2455ae-2f68-5342-14c6-14706d6f0e66@axentia.se>
+ <CABxcv=kZk+Yrt9uj9uV7UVC+Tca7NCECfyZXmKkqHdopm5EZTg@mail.gmail.com>
+ <a0cbee79-29dd-686c-5069-d95e1710bfc1@axentia.se>
+ <CABxcv=kkp_Ck_JdDGomAGmSsTiCg82X67j5hEsvRnnY3RDMMfg@mail.gmail.com>
+ <5adf70b0-51a2-f1b1-a5e9-2b9c4ef2ff1e@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20171221114144.2610d49b@bbrezillon>
-Sender: linux-doc-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, open list:OPEN FIR
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-pl0-f45.google.com ([209.85.160.45]:37630 "EHLO
+        mail-pl0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750822AbdLZVcd (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 26 Dec 2017 16:32:33 -0500
+Content-Disposition: inline
+In-Reply-To: <5adf70b0-51a2-f1b1-a5e9-2b9c4ef2ff1e@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy.shevchenko@gmail.com>, Mark Rutland <mark.rutland@arm.com>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
 
-On Thu, Dec 21, 2017 at 4:41 AM, Boris Brezillon
-<boris.brezillon@free-electrons.com> wrote:
-> On Wed, 20 Dec 2017 12:06:45 -0600
-> Rob Herring <robh@kernel.org> wrote:
->
->> On Sat, Dec 16, 2017 at 07:35:37PM +0100, Boris Brezillon wrote:
->> > On Sat, 16 Dec 2017 11:20:40 -0600
->> > Rob Herring <robh@kernel.org> wrote:
->> >
->> > > On Thu, Dec 14, 2017 at 04:16:08PM +0100, Boris Brezillon wrote:
->> > > > A new I3C subsystem has been added and a generic description has been
->> > > > created to represent the I3C bus and the devices connected on it.
->> > > >
->> > > > Document this generic representation.
->>
->> [...]
->>
->> > > So please define the node
->> > > name to be "i3c-controller". That's more inline with other node names
->> > > than i3c-master that you used below.
->> >
->> > Hm, not sure i3c-controller is appropriate though, because you can have
->> > slave controllers. Maybe i3c-host, but I'd prefer to keep the term
->> > master since it's employed everywhere in the spec. I can also be
->> > i3c-master-controller if you prefer.
->>
->> Okay, i3c-master is fine. Just make it explicit.
->
-> Okay.
->
->>
->> > > > +I3C devices
->> > > > +===========
->> > > > +
->> > > > +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
->> > > > +are thus discoverable. So, by default, I3C devices do not have to be described
->> > > > +in the device tree.
->> > > > +This being said, one might want to attach extra resources to these devices,
->> > > > +and those resources may have to be described in the device tree, which in turn
->> > > > +means we have to describe I3C devices.
->> > > > +
->> > > > +Another use case for describing an I3C device in the device tree is when this
->> > > > +I3C device has a static address and we want to assign it a specific dynamic
->> > > > +address before the DAA takes place (so that other devices on the bus can't
->> > > > +take this dynamic address).
->> > > > +
->> > > > +Required properties
->> > > > +-------------------
->> > > > +- i3c-pid: PID (Provisional ID). 64-bit property which is used to match a
->> > > > +          device discovered during DAA with its device tree definition. The
->> > > > +          PID is supposed to be unique on a given bus, which guarantees a 1:1
->> > > > +          match. This property becomes optional if a reg property is defined,
->> > > > +          meaning that the device has a static address.
->> > >
->> > > What determines this number?
->> >
->> > Part of it is fixed (manufacturer and part id) and the last few bits
->> > represent the device instance on the bus (so you can have several
->> > identical devices on the same bus). The manufacturer and part ids
->> > should be statically assigned during production, instance id is usually
->> > configurable through extra pins that you drive high or low at reset
->> > time.
->>
->> Sounds like an I2C address at least for the pin strapping part...
->
-> The address space of this instance-id is smaller (4bits) than the I2C
-> one (7bits), and more importantly, the instance-id is not required to
-> be unique, it's the aggregation of the vendor-id, part-id and
-> instance-id that has to be unique. So, if you were thinking about using
-> this id to uniquely identify the device on the bus it's not a good idea.
+On Fri, Dec 22, 2017 at 05:58:29PM +0100, Peter Rosin wrote:
+> On 2017-12-22 00:38, Javier Martinez Canillas wrote:
+> > Hello Peter,
+> > 
+> > On Fri, Dec 22, 2017 at 12:07 AM, Peter Rosin <peda@axentia.se> wrote:
+> >> On 2017-12-21 21:27, Javier Martinez Canillas wrote:
+> >>> Hello Peter,
+> >>>
+> >>> On Thu, Dec 21, 2017 at 5:20 PM, Peter Rosin <peda@axentia.se> wrote:
+> >>>> On 2017-12-21 14:48, Bartosz Golaszewski wrote:
+> >>>>> Current description of the compatible property for at24 is quite vague.
+> >>>>>
+> >>>>> Specify an exact list of accepted compatibles and document the - now
+> >>>>> deprecated - strings which were previously used in device tree files.
+> >>>>
+> >>>> Why is it suddenly deprecated to correctly specify what hardware you
+> >>>> have, e.g. "nxp,24c32". In this case the manufacturer is nxp, damnit.
+> >>>
+> >>> Sorry but I disagree.
+> >>>
+> >>> When you specify a compatible string, you are not specifying a
+> >>> particular hardware but a device programming model.
+> >>
+> >> That's not what it says in https://elinux.org/Device_Tree_Usage
+> > 
+> > I think the most up-to-date DT reference is at:
+> > 
+> > https://www.devicetree.org/
+> > 
+> >> in the "Understanding the compatible Property" section. I quote:
+> >>
+> >>         compatible is a list of strings. The first string in the
+> >>         list specifies the exact device that the node represents
+> >>         in the form "<manufacturer>,<model>". The following strings
+> >>         represent other devices that the device is compatible with.
+> >>
+> >> Pretty clearly talks about devices and not programming models. But
+> >> maybe I shouldn't trust that reference? What should I be reading
+> >> instead?
+> >>
+> > 
+> > For example the latest spec draft
+> > (https://github.com/devicetree-org/devicetree-specification/releases/download/v0.2-rc1/devicetree-specification-v0.2-rc1.pdf)
+> > says:
+> > 
+> > "The compatible property value consists of one or more strings that
+> > define the specific programming model for the device. This list of
+> > strings should be used by a client program for device driver
+> > selection. The property value consists of a concatenated list of null
+> > terminated strings, from most specific to most general. They allow a
+> > device to express its compatibility with a family of similar devices,
+> > potentially allowing a single device driver to match against several
+> > devices."
+> > 
+> > The recommended format is "manufacturer,model", where manufacturer is
+> > a string describing the name of the manufacturer (such as a stock
+> > ticker symbol), and model specifies the model number."
+> > 
+> > Example:
+> > 
+> > compatible = "fsl,mpc8641", "ns16550";
+> > 
+> > In this example, an operating system would first try to locate a
+> > device driver that supported fsl,mpc8641. If a driver was not found,
+> > it would then try to locate a driver that supported the more general
+> > ns16550 device type."
+> 
+> Yes, that's a bit different from the wording on the elinux site. Thanks
+> for the pointer! Google was not my friend on this occasion, since I
+> managed to miss that site in my searches. Maybe it has gotten a higher
+> rank now that 0.2 is out, because now I find it easily?
 
-No, no. I was just commenting how I2C devices typically do the same
-pin strapping to make addresses unique.
+The wording may be different, but both (and Peter) are correct.
 
+And ns16550 is a perfect example of why that string alone is not 
+sufficient. Just go count the number of variants and quirks in the 
+kernel 8250 driver.
 
->> > > > +Optional properties
->> > > > +-------------------
->> > > > +- reg: static address. Only valid is the device has a static address.
->> > > > +- i3c-dynamic-address: dynamic address to be assigned to this device. This
->> > > > +                      property depends on the reg property.
->> > >
->> > > Perhaps "assigned-address" property would be appropriate. I'm not all
->> > > that familiar with it though.
->> >
->> > Again, the spec use the term "dynamic address" everywhere, and I'd like
->> > to stay as close as possible to the spec.
->>
->> I looked at assigned-addresses a bit more and that won't really fit
->> because it should be the same format as reg. So I think reg should
->> always be the PID as that is fixed and always present. Then the DAA
->> address is separate and can be the i3c-dynamic-address property.
->>
->> However, there's still part I don't understand...
->>
->> > > > +               /* I3C device with a static address. */
->> > > > +               thermal_sensor: sensor@68 {
->> > > > +                       reg = <0x68>;
->> > > > +                       i3c-dynamic-address = <0xa>;
->>
->> I'm confused as to how/why you have both reg and dynamic address?
->
-> Some I3C devices have an I2C address (also called static or legacy
-> address in a few places). The static/I2C/legacy address is used until
-> the I3C device is assigned a dynamic address by the master. The whole
-> point of specifying both an I2C address (through the reg property) and
-> a dynamic address (through the i3c-dynamic-address) is to tell the
-> controller that a specific dynamic address should be assigned to this
-> device using the SETSADA (Set Dynamic Address from Static Address)
-> command before a DAA (Dynamic Address Assignment) procedure is started.
-> This way, the device will not participate to the DAA (because it
-> already has a valid DA) and the dynamic address can't be assigned to
-> a different device (which is one of the problem with the automatic DAA
-> procedure).
+> >>> It's very common to use a compatible string that doesn't match exactly
+> >>> the specific hardware used. That's why it's called _compatible_ BTW.
+> >>
+> >> That's not how I read the above.
+> >>
+> > 
+> > That's not how I read it nor my experience with DT, but of course I
+> > may be wrong on this.
+> 
+> Either way, it should not be wrong to specify the more specific binding
+> before the generic fallback, as is done in the at91-tse850-3.dts
+> example I gave below.
 
-Okay, think I got it now.
+Indeed. I don't think I've ever said anyone is being too specific.
 
-I think we should extend "reg" to have either I2C address, I3C PID, or
-both (in a defined order). I'm assuming you can always distinguish a
-static I2C address and an I3C PID just by upper bits all being 0s for
-I2C addresses. Maybe both is not needed? This means we'd have to allow
-64-bit I2C addresses (#address-cells=2), but that should be easily
-fixed if that causes problems in the kernel.
+> >>> For example when a DTS define a UART node with an ns16550 compatible,
+> >>> they don't really mean that have a UART IC manufactured by National
+> >>> Semiconductor.
+> >>
+> >> That just tells me that most people are a little bit lazy and ready
+> >> to cut a corner or two when they can get away with it. Or that there
+> >> is some form of misunderstanding at work...
+> >>
+> > 
+> > For example, I usually see that different SoC families from the same
+> > vendor use the same compatible string for integrated peripherals just
+> > because are the same from a programming model point of view.
+> > 
+> > TI am33xx SoCs use a lot of omap3 compatible strings on their nodes
+> > and its similar on Exynos SoCs which are the two ARM SoCs I'm most
+> > familiar with. Following your logic that's wrong and instead a new
+> > compatible string should be added for the GPIO or pinctrl drivers even
+> > when are the same because refer to different devices.
+> 
+> Considering the above quote from the actual DT spec, I wouldn't say wrong.
+> But I'd still say that it should be preferred to list the actual device
+> before the fallback to some generic programming model compatible or some
+> previous version of the hardware/IP-block. Just in case an unintended
+> difference is discovered late in the game...
 
-So i3c-pid would go away and i3c-dynamic-address stays.
+Let me clear, "generic" compatibles alone are wrong.
+
+> 
+> >>>> Sure, it happens to be compatible with "atmel,24c32", but that is
+> >>>> supposed to be written with a fallback as
+> >>>>
+> >>>>         "nxp,24c32", "atmel,24c32"
+> >>>
+> >>> This isn't a requirement really, systems integrators are free to use
+> >>> more than one <manufacturer,model> tuple in the compatible string if
+> >>> they want the DTB to be future proof, just in case there's a need for
+> >>> a more specific driver or if the programming model happened to not be
+> >>> the same at the end. This is usually done for the boards compatible
+> >>> string as an example, even when there isn't a struct machine_desc for
+> >>> the specific board compatible and only for the SoC family.
+> >>>
+> >>> So it's OK if you want to define the compatible as "nxp,24c32",
+> >>> "atmel,24c32", but that's a general OF concept and not something
+> >>> related to the at24 eeprom driver so I'm not sure if it should be
+> >>> mentioned in the at24 DT binding doc.
+> >>
+> >> One problem is that if "nxp,24c32" (or "nxp,24c02" as in the example
+> >> below) is not a valid compatible, the tooling will be correct to
+> >> complain about it. Currently, it is just a checkpatch deficiency that
+> >> it complains like this:
+> >>
+> >> $ scripts/checkpatch.pl -f arch/arm/boot/dts/at91-tse850-3.dts
+> >> WARNING: DT compatible string "nxp,24c02" appears un-documented -- check ./Documentation/devicetree/bindings/
+> >> #249: FILE: arch/arm/boot/dts/at91-tse850-3.dts:249:
+> >> +               compatible = "nxp,24c02", "atmel,24c02";
+> >>
+> > 
+> > But isn't that a bug in checkpatch? as long as there's a valid
+> > <manufacturer,model> tuple in the compatible string, it shouldn't
+> > complain.
+> 
+> Then there is a significant risk that speeling mistakes are not
+> caught. So, I don't think it will be considered a bug unless a DT
+> guru says so of course. I think the checkpatch intention is to catch
+> all undocumented compatibles. But I don't know of course...
+
+checkpatch.pl is just plain stupid. Who wrote that check anyway? Because 
+bindings are not machine parseable, compatible string checks are pretty 
+much just a grep for the string in all binding docs. So "The" or 
+"compatible" would be valid compatible strings for checkpatch.pl.
+
+If you want to quiet checkpatch.pl, I'd suggest documenting compatible 
+strings as "<vendor>,foo" and having checkpatch match any string for 
+<vendor>. We already handle vendor,<soc>-block type compatible 
+descriptions.
 
 Rob
