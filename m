@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 1/5] dt-bindings: at24: consistently document the compatible property
-Date: Wed, 27 Dec 2017 14:50:50 +0100
-Message-ID: <20171227135054.29690-2-brgl@bgdev.pl>
+Subject: [PATCH v3 2/5] dt-bindings: at24: add a missing compatible
+Date: Wed, 27 Dec 2017 14:50:51 +0100
+Message-ID: <20171227135054.29690-3-brgl@bgdev.pl>
 References: <20171227135054.29690-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171227135054.29690-1-brgl@bgdev.pl>
@@ -10,63 +10,26 @@ To: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-Current description of the compatible property for at24 is quite vague.
-
-State explicitly that any "<manufacturer>,<model>" pair is accepted as
-long as one of the listed strings is used as fallback.
+"atmel,spd" is reported by checkpatch as undocumented in the device
+tree bindings. Add it to the list of supported compatible fallbacks.
 
 Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- Documentation/devicetree/bindings/eeprom/at24.txt | 37 +++++++++--------------
- 1 file changed, 15 insertions(+), 22 deletions(-)
+ Documentation/devicetree/bindings/eeprom/at24.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index cbc80e194ac6..b5ce5a247554 100644
+index b5ce5a247554..487e1005036c 100644
 --- a/Documentation/devicetree/bindings/eeprom/at24.txt
 +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -2,28 +2,21 @@ EEPROMs (I2C)
- 
- Required properties:
- 
--  - compatible : should be "<manufacturer>,<type>", like these:
--
--	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
--	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
--	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
--
--	"catalyst,24c32"
--
--	"microchip,24c128"
--
--	"ramtron,24c64"
--
--	"renesas,r1ex24002"
--
--	The following manufacturers values have been deprecated:
--	"at", "at24"
--
--	 If there is no specific driver for <manufacturer>, a generic
--	 device with <type> and manufacturer "atmel" should be used.
--	 Possible types are:
--	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
--	 "24c128", "24c256", "24c512", "24c1024", "spd"
-+  - compatible: must be a "<manufacturer>,<model>" pair with one of the
-+                following values as fallback:
-+
-+                "atmel,24c00",
-+                "atmel,24c01",
-+                "atmel,24c02",
-+                "atmel,24c04",
-+                "atmel,24c08",
-+                "atmel,24c16",
-+                "atmel,24c32",
-+                "atmel,24c64",
-+                "atmel,24c128",
-+                "atmel,24c256",
-+                "atmel,24c512",
-+                "atmel,24c1024"
- 
-   - reg : the I2C address of the EEPROM
- 
+@@ -8,6 +8,7 @@ Required properties:
+                 "atmel,24c00",
+                 "atmel,24c01",
+                 "atmel,24c02",
++                "atmel,spd",
+                 "atmel,24c04",
+                 "atmel,24c08",
+                 "atmel,24c16",
 -- 
 2.15.1
