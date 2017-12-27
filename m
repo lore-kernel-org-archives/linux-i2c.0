@@ -1,35 +1,41 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 2/5] dt-bindings: at24: add a missing compatible
-Date: Wed, 27 Dec 2017 14:50:51 +0100
-Message-ID: <20171227135054.29690-3-brgl@bgdev.pl>
-References: <20171227135054.29690-1-brgl@bgdev.pl>
+Subject: [PATCH] eeprom: at24: check the return value of nvmem_unregister()
+Date: Wed, 27 Dec 2017 15:10:38 +0100
+Message-ID: <20171227141038.31646-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171227135054.29690-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-"atmel,spd" is reported by checkpatch as undocumented in the device
-tree bindings. Add it to the list of supported compatible fallbacks.
+This function can fail with -EBUSY, but we don't check its return
+value in at24_remove(). Bail-out of remove() if nvmem_unregister()
+doesn't succeed.
 
 Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- Documentation/devicetree/bindings/eeprom/at24.txt | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/eeprom/at24.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index b5ce5a247554..487e1005036c 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.txt
-+++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -8,6 +8,7 @@ Required properties:
-                 "atmel,24c00",
-                 "atmel,24c01",
-                 "atmel,24c02",
-+                "atmel,spd",
-                 "atmel,24c04",
-                 "atmel,24c08",
-                 "atmel,24c16",
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index e79833d62284..fb21e1c45115 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -684,11 +684,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ static int at24_remove(struct i2c_client *client)
+ {
+ 	struct at24_data *at24;
+-	int i;
++	int i, ret;
+ 
+ 	at24 = i2c_get_clientdata(client);
+ 
+-	nvmem_unregister(at24->nvmem);
++	ret = nvmem_unregister(at24->nvmem);
++	if (ret)
++		return ret;
+ 
+ 	for (i = 1; i < at24->num_addresses; i++)
+ 		i2c_unregister_device(at24->client[i].client);
 -- 
 2.15.1
