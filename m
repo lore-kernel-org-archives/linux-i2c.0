@@ -1,99 +1,63 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v4 1/4] dt-bindings: at24: consistently document the compatible property
-Date: Thu, 28 Dec 2017 11:49:10 +0100
-Message-ID: <20171228104913.29873-2-brgl@bgdev.pl>
-References: <20171228104913.29873-1-brgl@bgdev.pl>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH] eeprom: at24: check the return value of
+ nvmem_unregister()
+Date: Thu, 28 Dec 2017 12:28:45 +0100
+Message-ID: <20171228112845.GB3729@localhost>
+References: <20171227141038.31646-1-brgl@bgdev.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:38077 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753164AbdL1KtU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Dec 2017 05:49:20 -0500
-Received: by mail-wm0-f68.google.com with SMTP id 64so43142412wme.3
-        for <linux-i2c@vger.kernel.org>; Thu, 28 Dec 2017 02:49:19 -0800 (PST)
-In-Reply-To: <20171228104913.29873-1-brgl@bgdev.pl>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:33721 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751043AbdL1L2s (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Dec 2017 06:28:48 -0500
+Content-Disposition: inline
+In-Reply-To: <20171227141038.31646-1-brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Current description of the compatible property for at24 is quite vague.
+On Wed, Dec 27, 2017 at 03:10:38PM +0100, Bartosz Golaszewski wrote:
+> This function can fail with -EBUSY, but we don't check its return
+> value in at24_remove(). Bail-out of remove() if nvmem_unregister()
+> doesn't succeed.
+> 
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> ---
+>  drivers/misc/eeprom/at24.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index e79833d62284..fb21e1c45115 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -684,11 +684,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  static int at24_remove(struct i2c_client *client)
+>  {
+>  	struct at24_data *at24;
+> -	int i;
+> +	int i, ret;
+>  
+>  	at24 = i2c_get_clientdata(client);
+>  
+> -	nvmem_unregister(at24->nvmem);
+> +	ret = nvmem_unregister(at24->nvmem);
+> +	if (ret)
+> +		return ret;
 
-State explicitly that any "<manufacturer>,<model>" pair is accepted as
-long as a correct fallback is used for non-atmel chips.
+I don't this makes much sense as a driver cannot refuse an unbind by
+returning an errno from remove(). The return value is simply ignored,
+remove() will never be called again, and you'd leave everything in an
+inconsistent state.
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- Documentation/devicetree/bindings/eeprom/at24.txt | 58 ++++++++++++++---------
- 1 file changed, 36 insertions(+), 22 deletions(-)
+It looks like the nvmem code grabs a reference to the owning module
+in __nvmem_device_get() which would at least prevent a module unload
+while another driver is using the device. And the (sysfs) userspace
+interface should be fine as device removal is handled by the kernfs
+code.
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index cbc80e194ac6..0c8e1341908f 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.txt
-+++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -2,28 +2,42 @@ EEPROMs (I2C)
- 
- Required properties:
- 
--  - compatible : should be "<manufacturer>,<type>", like these:
--
--	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
--	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
--	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
--
--	"catalyst,24c32"
--
--	"microchip,24c128"
--
--	"ramtron,24c64"
--
--	"renesas,r1ex24002"
--
--	The following manufacturers values have been deprecated:
--	"at", "at24"
--
--	 If there is no specific driver for <manufacturer>, a generic
--	 device with <type> and manufacturer "atmel" should be used.
--	 Possible types are:
--	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
--	 "24c128", "24c256", "24c512", "24c1024", "spd"
-+  - compatible: Must be a "<manufacturer>,<model>" pair. The following <model>
-+                values are supported (assuming "atmel" as manufacturer):
-+
-+                "atmel,24c00",
-+                "atmel,24c01",
-+                "atmel,24c02",
-+                "atmel,spd",
-+                "atmel,24c04",
-+                "atmel,24c08",
-+                "atmel,24c16",
-+                "atmel,24c32",
-+                "atmel,24c64",
-+                "atmel,24c128",
-+                "atmel,24c256",
-+                "atmel,24c512",
-+                "atmel,24c1024",
-+
-+                If <manufacturer> is not "atmel", then a fallback must be used
-+                with the same <type> and "atmel" as manufacturer.
-+
-+                Example:
-+                        compatible = "microchip,24c128", "atmel,24c128";
-+
-+		Supported manufacturers are:
-+
-+                "catalyst",
-+                "microchip",
-+                "ramtron",
-+                "renesas",
-+                "nxp",
-+                "st",
-+
-+                Some vendors use different model names for chips which are just
-+                variants of the above. Known such exceptions are listed below:
-+
-+                "renesas,r1ex24002" - the fallback is "atmel,24c02"
- 
-   - reg : the I2C address of the EEPROM
- 
--- 
-2.15.1
+>  	for (i = 1; i < at24->num_addresses; i++)
+>  		i2c_unregister_device(at24->client[i].client);
+
+Johan
