@@ -1,91 +1,148 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v3 1/5] dt-bindings: at24: consistently document the
- compatible property
-Date: Wed, 27 Dec 2017 23:02:58 +0100
-Message-ID: <6dcb51bb-c5a1-06e4-68a2-16aa0d8b000d@axentia.se>
-References: <20171227135054.29690-1-brgl@bgdev.pl>
- <20171227135054.29690-2-brgl@bgdev.pl>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v6 1/4] i2c-core-acpi : Add i2c_acpi_set_connection
+Date: Thu, 28 Dec 2017 02:04:10 +0100
+Message-ID: <1676388.3jYexzovUo@aspire.rjw.lan>
+References: <20171225155723.6338-1-m.capdeville@no-log.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr20122.outbound.protection.outlook.com ([40.107.2.122]:49386
-        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751871AbdL0WDH (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 27 Dec 2017 17:03:07 -0500
-In-Reply-To: <20171227135054.29690-2-brgl@bgdev.pl>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20171225155723.6338-1-m.capdeville@no-log.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Marc CAPDEVILLE <m.capdeville@no-log.org>
+Cc: Kevin Tsai <ktsai@capellamicro.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2017-12-27 14:50, Bartosz Golaszewski wrote:
-> Current description of the compatible property for at24 is quite vague.
+On Monday, December 25, 2017 4:57:20 PM CET Marc CAPDEVILLE wrote:
+> Add a methode to allow clients to change their connection address on
+> same adapter.
 > 
-> State explicitly that any "<manufacturer>,<model>" pair is accepted as
-> long as one of the listed strings is used as fallback.
-> 
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> On ACPI enumerated device, when a device support smbus alert protocol,
+> there are two acpi serial bus connection description. The order in which
+> connection is given is not well defined and devices may be enumerated
+> with the wrong address (the first one). So let the driver detect the
+> unsupported address and request i2c acpi core to choose the second one
+> at probing time.
+
+By convention, the ordering of resources in _CRS is meaningful, but it is
+a contract between AML and an OS driver written to work with it.
+
+> Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
 > ---
->  Documentation/devicetree/bindings/eeprom/at24.txt | 37 +++++++++--------------
->  1 file changed, 15 insertions(+), 22 deletions(-)
+>  drivers/i2c/i2c-core-acpi.c | 50 +++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h         | 10 +++++++++
+>  2 files changed, 60 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-> index cbc80e194ac6..b5ce5a247554 100644
-> --- a/Documentation/devicetree/bindings/eeprom/at24.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-> @@ -2,28 +2,21 @@ EEPROMs (I2C)
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index a9126b3cda61..47bc0da12055 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -421,6 +421,56 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
 >  
->  Required properties:
->  
-> -  - compatible : should be "<manufacturer>,<type>", like these:
-> -
-> -	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
-> -	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
-> -	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
-> -
-> -	"catalyst,24c32"
-> -
-> -	"microchip,24c128"
-> -
-> -	"ramtron,24c64"
-> -
-> -	"renesas,r1ex24002"
-> -
-> -	The following manufacturers values have been deprecated:
-> -	"at", "at24"
-> -
-> -	 If there is no specific driver for <manufacturer>, a generic
-> -	 device with <type> and manufacturer "atmel" should be used.
-> -	 Possible types are:
-> -	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
-> -	 "24c128", "24c256", "24c512", "24c1024", "spd"
-> +  - compatible: must be a "<manufacturer>,<model>" pair with one of the
-> +                following values as fallback:
+
+Please add a kerneldoc description of this function.
+
+It is exported and needs to be documented properly.
+
+> +int i2c_acpi_set_connection(struct i2c_client *client, int index)
+> +{
+> +	struct i2c_acpi_lookup lookup;
+> +	struct i2c_adapter *adapter;
+> +	struct acpi_device *adev;
+> +	struct i2c_board_info info;
+> +	LIST_HEAD(resource_list);
+> +	int ret;
 > +
-> +                "atmel,24c00",
-> +                "atmel,24c01",
+> +	if (!client)
+> +		return -ENODEV;
+> +
+> +	adev = ACPI_COMPANION(&client->dev);
+> +	if (!adev)
+> +		return -ENODEV;
+> +
+> +	memset(&info,  0, sizeof(info));
+> +	memset(&lookup, 0, sizeof(lookup));
+> +	lookup.info = &info;
+> +	lookup.device_handle = acpi_device_handle(adev);
+> +	lookup.index = index;
+> +
+> +	ret = acpi_dev_get_resources(adev, &resource_list,
+> +				     i2c_acpi_fill_info, &lookup);
+> +	acpi_dev_free_resource_list(&resource_list);
+> +
+> +	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
+> +
+> +	if (ret < 0 || !info.addr)
+> +		return -EINVAL;
 
-I read the above as if it is no longer allowed to have a plain old atmel
-chip, since the atmel compatibles are now valid as fallbacks /only/. I don't
-think that's what you intended?
+Why do you make this check after calling i2c_acpi_find_adapter_by_handle()?
 
-Cheers,
-Peter
-
-> +                "atmel,24c02",
-> +                "atmel,24c04",
-> +                "atmel,24c08",
-> +                "atmel,24c16",
-> +                "atmel,24c32",
-> +                "atmel,24c64",
-> +                "atmel,24c128",
-> +                "atmel,24c256",
-> +                "atmel,24c512",
-> +                "atmel,24c1024"
+> +
+> +	/* Only accept connection on same adapter */
+> +	if (adapter != client->adapter)
+> +		return -EINVAL;
+> +
+> +	ret = i2c_check_addr_validity(info.addr, info.flags);
+> +	if (ret) {
+> +		dev_err(&client->dev, "Invalid %d-bit I2C address 0x%02hx\n",
+> +			info.flags & I2C_CLIENT_TEN ? 10 : 7, info.addr);
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* Set new address and flags */
+> +	client->addr = info.addr;
+> +	client->flags = info.flags;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_acpi_set_connection);
+> +
+>  #ifdef CONFIG_ACPI_I2C_OPREGION
+>  static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+>  		u8 cmd, u8 *data, u8 data_len)
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 0f774406fad0..618b453901da 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -595,6 +595,8 @@ struct i2c_adapter {
+>  	const struct i2c_adapter_quirks *quirks;
 >  
->    - reg : the I2C address of the EEPROM
+>  	struct irq_domain *host_notify_domain;
+> +
+> +	struct i2c_client *smbus_ara;	/* ARA for SMBUS if present */
+
+Not used in this patch and how is it related to the other changes here?
+
+>  };
+>  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
 >  
+> @@ -839,16 +841,24 @@ static inline const struct of_device_id
+>  u32 i2c_acpi_find_bus_speed(struct device *dev);
+>  struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+>  				       struct i2c_board_info *info);
+> +
+> +int i2c_acpi_set_connection(struct i2c_client *client, int index);
+>  #else
+>  static inline u32 i2c_acpi_find_bus_speed(struct device *dev)
+>  {
+>  	return 0;
+>  }
+> +
+>  static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
+>  					int index, struct i2c_board_info *info)
+>  {
+>  	return NULL;
+>  }
+> +
+> +static inline int i2c_acpi_set_connection(struct i2c_client *client, int index)
+> +{
+> +	return -EINVAL;
+> +}
+>  #endif /* CONFIG_ACPI */
+>  
+>  #endif /* _LINUX_I2C_H */
 > 
+
+
