@@ -1,37 +1,50 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 1/4] dt-bindings: at24: consistently document the
- compatible property
-Date: Thu, 28 Dec 2017 13:57:22 +0200
-Message-ID: <CAHp75VfSr2vMwywUxw4FdiDMK+9_J83TsfXmn0EDkL9xuqPG8w@mail.gmail.com>
-References: <20171228104913.29873-1-brgl@bgdev.pl> <20171228104913.29873-2-brgl@bgdev.pl>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1] i2c: ismt: Use %pad specifier for dma_addr_t
+ variables
+Date: Thu, 28 Dec 2017 17:21:51 +0200
+Message-ID: <1514474511.7000.422.camel@linux.intel.com>
+References: <20171110183358.86100-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171228104913.29873-2-brgl@bgdev.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:40561 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753394AbdL1PXZ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 28 Dec 2017 10:23:25 -0500
+In-Reply-To: <20171110183358.86100-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 
-On Thu, Dec 28, 2017 at 12:49 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> Current description of the compatible property for at24 is quite vague.
->
-> State explicitly that any "<manufacturer>,<model>" pair is accepted as
-> long as a correct fallback is used for non-atmel chips.
+On Fri, 2017-11-10 at 20:33 +0200, Andy Shevchenko wrote:
+> ...which takes care of proper format and size of the value.
 
-> -       "atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
-> -       "atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
-> -       "atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
+Wolfram, any comment on this?
 
-> +                "atmel,24c00",
-> +                "atmel,24c01",
-> +                "atmel,24c02",
-> +                "atmel,spd",
-> +                "atmel,24c04",
-
-Just to whom it may concern, I still don't like the ordering.
-By name is better to read and catch up the (un)supported chips.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-ismt.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-
+> ismt.c
+> index b51adffa4841..c0d0f34d34f3 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -572,8 +572,7 @@ static int ismt_access(struct i2c_adapter *adap,
+> u16 addr,
+>  			return -EIO;
+>  		}
+>  
+> -		dev_dbg(dev, " dma_addr = 0x%016llX\n",
+> -			(unsigned long long)dma_addr);
+> +		dev_dbg(dev, " dma_addr = %pad\n", &dma_addr);
+>  
+>  		desc->dptr_low = lower_32_bits(dma_addr);
+>  		desc->dptr_high = upper_32_bits(dma_addr);
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
