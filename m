@@ -1,63 +1,37 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH] eeprom: at24: check the return value of
- nvmem_unregister()
-Date: Thu, 28 Dec 2017 12:28:45 +0100
-Message-ID: <20171228112845.GB3729@localhost>
-References: <20171227141038.31646-1-brgl@bgdev.pl>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4 1/4] dt-bindings: at24: consistently document the
+ compatible property
+Date: Thu, 28 Dec 2017 13:57:22 +0200
+Message-ID: <CAHp75VfSr2vMwywUxw4FdiDMK+9_J83TsfXmn0EDkL9xuqPG8w@mail.gmail.com>
+References: <20171228104913.29873-1-brgl@bgdev.pl> <20171228104913.29873-2-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33721 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751043AbdL1L2s (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 28 Dec 2017 06:28:48 -0500
-Content-Disposition: inline
-In-Reply-To: <20171227141038.31646-1-brgl@bgdev.pl>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171228104913.29873-2-brgl@bgdev.pl>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Javier Martinez Canillas <javier@dowhile0.org>, David Lechner <david@lechnology.com>, Divagar Mohandass <divagar.mohandass@intel.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Dec 27, 2017 at 03:10:38PM +0100, Bartosz Golaszewski wrote:
-> This function can fail with -EBUSY, but we don't check its return
-> value in at24_remove(). Bail-out of remove() if nvmem_unregister()
-> doesn't succeed.
-> 
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-> ---
->  drivers/misc/eeprom/at24.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index e79833d62284..fb21e1c45115 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -684,11 +684,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  static int at24_remove(struct i2c_client *client)
->  {
->  	struct at24_data *at24;
-> -	int i;
-> +	int i, ret;
->  
->  	at24 = i2c_get_clientdata(client);
->  
-> -	nvmem_unregister(at24->nvmem);
-> +	ret = nvmem_unregister(at24->nvmem);
-> +	if (ret)
-> +		return ret;
+On Thu, Dec 28, 2017 at 12:49 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+> Current description of the compatible property for at24 is quite vague.
+>
+> State explicitly that any "<manufacturer>,<model>" pair is accepted as
+> long as a correct fallback is used for non-atmel chips.
 
-I don't this makes much sense as a driver cannot refuse an unbind by
-returning an errno from remove(). The return value is simply ignored,
-remove() will never be called again, and you'd leave everything in an
-inconsistent state.
+> -       "atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
+> -       "atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
+> -       "atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
 
-It looks like the nvmem code grabs a reference to the owning module
-in __nvmem_device_get() which would at least prevent a module unload
-while another driver is using the device. And the (sysfs) userspace
-interface should be fine as device removal is handled by the kernfs
-code.
+> +                "atmel,24c00",
+> +                "atmel,24c01",
+> +                "atmel,24c02",
+> +                "atmel,spd",
+> +                "atmel,24c04",
 
->  	for (i = 1; i < at24->num_addresses; i++)
->  		i2c_unregister_device(at24->client[i].client);
+Just to whom it may concern, I still don't like the ordering.
+By name is better to read and catch up the (un)supported chips.
 
-Johan
+-- 
+With Best Regards,
+Andy Shevchenko
