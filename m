@@ -1,43 +1,71 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 2/2] i2c: piix4: Use usleep_range()
-Date: Sat, 30 Dec 2017 08:50:58 -0800
-Message-ID: <1514652658-6228-2-git-send-email-linux@roeck-us.net>
-References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jean Delvare <jdelvare@suse.com>, =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND,3/4] i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
+Date: Sat, 30 Dec 2017 19:11:54 +0100
+Message-ID: <20171230181154.63yqw4fqodsxb7k2@ninjato>
+References: <20171207102003.23496-4-asolokha@kb.kras.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7cy43xojbyi52rhh"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:60200 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750993AbdL3SL5 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 30 Dec 2017 13:11:57 -0500
+Content-Disposition: inline
+In-Reply-To: <20171207102003.23496-4-asolokha@kb.kras.ru>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Arseny Solokha <asolokha@kb.kras.ru>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Valentin Longchamp <valentin.longchamp@keymile.com>
 
-The piix4 i2c driver is extremely slow. Replacing msleep()
-with usleep_range() increases its speed substantially.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/i2c/busses/i2c-piix4.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+--7cy43xojbyi52rhh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 78dd5951d6e7..52a8b1c5c110 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -467,13 +467,13 @@ static int piix4_transaction(struct i2c_adapter *piix4_adapter)
- 
- 	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
- 	if (srvrworks_csb5_delay) /* Extra delay for SERVERWORKS_CSB5 */
--		msleep(2);
-+		usleep_range(2000, 2000);
- 	else
--		msleep(1);
-+		usleep_range(500, 1000);
- 
- 	while ((++timeout < MAX_TIMEOUT) &&
- 	       ((temp = inb_p(SMBHSTSTS)) & 0x01))
--		msleep(1);
-+		usleep_range(200, 500);
- 
- 	/* If the SMBus is still busy, we give up */
- 	if (timeout == MAX_TIMEOUT) {
--- 
-2.7.4
+
+>  			/*
+>  			 * Map and check POR Device Status Register 2
+> -			 * (PORDEVSR2) at 0xE0014
+> +			 * (PORDEVSR2) at 0xE0014. Note than while MPC8533
+> +			 * and MPC8544 indicate SEC frequency ratio
+> +			 * configuration as bit 26 in PORDEVSR2, other MPC8xxx
+> +			 * parts may store it differently or may not have it
+> +			 * at all.
+
+So given this comment which you added...
+
+>  			 */
+>  			reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
+>  			if (!reg)
+>  				printk(KERN_ERR
+>  				       "Error: couldn't map PORDEVSR2\n");
+>  			else
+> -				val = in_be32(reg) & 0x00000080; /* sec-cfg */
+> +				val = in_be32(reg) & 0x00000020; /* sec-cfg */
+
+... are you really sure there is no ancient device which needs the
+0x00000080?
+
+
+--7cy43xojbyi52rhh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpH1uUACgkQFA3kzBSg
+KbaOvg//cTV2MXhzDz8OD6yACqlFaGcdcTHzhnCDpp2PAzB5QUz7ZFwz08WgEnun
++QRdwlqMk0EaztNXK2q832BpfhhhPqsenthbrHzOD6bxFWmc6PRDJ1oBT4lJAHE1
+Lt2P9kFUACHbgoYOI3LLxBmgLw3BP1mbXHtZv60SVCgorsd1jx8kfoQlbjuiIAsK
+Egmk1vJo/xJUyK8F0RvujzO/RL7B6rn1Zho259YZ9E6WCqQcHZQwhrXgL9686sHh
+Jw/VtUIMM4L79awPhXIU4QtbuN4rL8jy++IXjtqYHouTp9F2WJr3+/R8eKZXsq+i
+ZXPTlQiq7bVuZaRE7StmTTz6oi929utUdU6Ng9iopU6CXK9ssuRCwq4IdIPR8dk0
+zWZoGYjCO5iee7xeiMRDFhAlK6DBpVdUL0uXZGLM4VGaaO+GS+2qC29Xbm/2cXYk
+5qBCymtyNNG53gvErtrWwP5emTgncgtIuWuiUsFQAhV1HrY1hmQCQxXaSQnwQ/l/
+mshdb/O4cS1MPtEUTTD2JJ7vGsDb+3pjST/238FtQW9kZZ3h52J/voerJ0hl3Z9m
+XOxUtz8bfqcRysX7jZS2pXVg7UYhCWJ/0LH0Atvuyf++0RP8dLoUqMy3dH8k73M2
+1HxY6o2iSxCUa51n853RiOcjPeJjtbLpaXnf/r5RoP33R/s0C58=
+=nC+g
+-----END PGP SIGNATURE-----
+
+--7cy43xojbyi52rhh--
