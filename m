@@ -1,200 +1,27 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v6 2/4] i2c-smbus : Add client discovered ARA support
-Date: Fri, 29 Dec 2017 13:04:06 +0000
-Message-ID: <20171229130406.195d0f55@archlinux>
-References: <20171225155723.6338-1-m.capdeville@no-log.org>
-        <20171225155723.6338-2-m.capdeville@no-log.org>
+From: Loretta Robles <Loretta.Robles@hci.utah.edu>
+Subject: RE: ATTENTION!!!
+Date: Sat, 30 Dec 2017 00:28:56 +0000
+Message-ID: <35D4F79A8B8138489F38DE5CF6200454E572AB2F__8296.69564632258$1514594410$gmane$org@HCI-EX-MB2.hci.utah.edu>
+References: <35D4F79A8B8138489F38DE5CF6200454E570015C@HCI-EX-MB2.hci.utah.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171225155723.6338-2-m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
-Cc: Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from ipo7.cc.utah.edu ([155.97.144.42]:56546 "EHLO ipo7.cc.utah.edu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750709AbdL3AlD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 29 Dec 2017 19:41:03 -0500
+In-Reply-To: <35D4F79A8B8138489F38DE5CF6200454E570015C@HCI-EX-MB2.hci.utah.edu>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Loretta Robles <Loretta.Robles@hci.utah.edu>
 
-On Mon, 25 Dec 2017 16:57:21 +0100
-Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org> wrote:
 
-> This is from rfc by Alan Cox : https://patchwork.ozlabs.org/patch/381773
-> 
-> The idea is as follows (extract from above rfc) :
-> - If an adapter knows about its ARA and smbus alerts then the adapter
->   creates its own interrupt handler as before
-> 
-> - If a client knows it needs smbus alerts it calls
->   i2c_require_smbus_alert(). This ensures that there is an ARA handler
->   registered and tells the client whether the adapter is handling it
->   anyway or not.
-> 
-> - When the client learns that an ARA event has occurred it calls
->   i2c_smbus_alert_event() which uses the existing ARA mechanism to kick
->   things off.
+________________________________
+From: Loretta Robles
+Sent: Friday, December 29, 2017 1:01 PM
+To: Loretta Robles
+Subject: ATTENTION!!!
 
-A few minor things inline.  I'm not sure the balance between what is
-done in driver and what is in the core is quite right yet.
-
-Jonathan
-
-> 
-> Suggested-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/i2c-smbus.c   | 83 +++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c-smbus.h | 15 +++++++++
->  2 files changed, 98 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-> index 5a1dd7f13bac..e97fbafd10ef 100644
-> --- a/drivers/i2c/i2c-smbus.c
-> +++ b/drivers/i2c/i2c-smbus.c
-> @@ -161,6 +161,9 @@ static int smbalert_probe(struct i2c_client *ara,
->  	}
->  
->  	i2c_set_clientdata(ara, alert);
-> +
-> +	ara->adapter->smbus_ara = ara;
-> +
->  	dev_info(&adapter->dev, "supports SMBALERT#\n");
->  
->  	return 0;
-> @@ -172,6 +175,9 @@ static int smbalert_remove(struct i2c_client *ara)
->  	struct i2c_smbus_alert *alert = i2c_get_clientdata(ara);
->  
->  	cancel_work_sync(&alert->alert);
-> +
-> +	ara->adapter->smbus_ara = NULL;
-> +
->  	return 0;
->  }
->  
-> @@ -210,6 +216,83 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
->  }
->  EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
->  
-> +/*
-/** It looks like kernel doc to me.
-> + * i2c_require_smbus_alert - Client discovered SMBus alert
-> + * @c: client requiring ARA
-> + *
-> + * When a client needs an ARA it calls this method. If the bus adapter
-> + * supports ARA and already knows how to do so then it will already have
-> + * configured for ARA and this is a no-op. If not then we set up an ARA
-> + * on the adapter.
-> + *
-> + * We *cannot* simply register a new IRQ handler for this because we might
-> + * have multiple GPIO interrupts to devices all of which trigger an ARA.
-I'm a little confused by this comment.  Do you mean:
-
-1. Same gpio irq is provided as as shared irq to a number of devices?
-(In this case we are just aiming not to register the same IRQ multiple times
-as each driver may have already done it?)  If it is this case, I think we
-should be pushing the irq register and checking logic to the smbus core which
-can then verify if it is the same interrupt or not? (could be case 2 below
-in which case we need to register another handler).
-
-2. Different gpio irqs provided to a number of devices on same bus with
-   each acting as ARA interrupt?  (this is hideous so I hope not - but
-   I would be surprised if we never see a board doing this)
-
-> + *
-> + * Return:
-> + *	0 if ara support already registered
-> + *	1 if call register a new smbus_alert device
-> + *	<0 on error
-> + */
-> +int i2c_require_smbus_alert(struct i2c_client *client)
-> +{
-> +	struct i2c_adapter *adapter = client->adapter;
-> +	struct i2c_smbus_alert_setup setup;
-> +	struct i2c_client *ara;
-> +
-> +	/* ARA is already known and handled by the adapter (ideal case)
-
-/*
- * ARA
-
-> +	 * or another client has specified ARA is needed
-> +	 */
-> +	if (adapter->smbus_ara)
-> +		return 0;
-> +
-> +	/* Client driven, do not set up a new IRQ handler */
-> +	setup.irq = 0;
-> +
-> +	ara = i2c_setup_smbus_alert(adapter, &setup);
-> +	if (!ara)
-> +		return -ENODEV;
-> +
-> +	return 1;
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_require_smbus_alert);
-> +
-> +/*
-
-Fix this up (needs a short description) and make it kernel-doc /**
-
-> + * i2c_smbus_alert_event
-> + * @client: the client who known of a probable ara event
-> + * Context: can't sleep
-> + *
-> + * Helper function to be called from an I2C device driver's interrupt
-> + * handler. It will schedule the alert work, in turn calling the
-> + * corresponding I2C device driver's alert function.
-> + *
-> + * It is assumed that client is an i2c client who previously call
-> + * i2c_require_smbus_alert().
-> + */
-> +int i2c_smbus_alert_event(struct i2c_client *client)
-> +{
-> +	struct i2c_adapter *adapter;
-> +	struct i2c_client *ara;
-> +	struct i2c_smbus_alert *alert;
-> +
-> +	if (!client)
-> +		return -EINVAL;
-> +
-> +	adapter = client->adapter;
-> +	if (!adapter)
-> +		return -EINVAL;
-> +
-> +	ara = adapter->smbus_ara;
-> +	if (!ara)
-> +		return -EINVAL;
-> +
-> +	alert = i2c_get_clientdata(ara);
-> +	if (!alert)
-> +		return -EINVAL;
-> +
-> +	return schedule_work(&alert->alert);
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_smbus_alert_event);
-> +
->  module_i2c_driver(smbalert_driver);
->  
->  MODULE_AUTHOR("Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>");
-> diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-> index fb0e040b1abb..49f362fa6ac5 100644
-> --- a/include/linux/i2c-smbus.h
-> +++ b/include/linux/i2c-smbus.h
-> @@ -58,4 +58,19 @@ static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
->  }
->  #endif
->  
-> +#if IS_ENABLED(CONFIG_I2C_SMBUS)
-> +int i2c_require_smbus_alert(struct i2c_client *client);
-> +int i2c_smbus_alert_event(struct i2c_client *client);
-> +#else
-> +static inline int i2c_require_smbus_alert(struct i2c_client *client)
-> +{
-> +	return NULL;
-> +}
-> +
-> +static inline int i2c_smbus_alert_event(struct i2c_client *client)
-> +{
-> +	return NULL;
-> +}
-> +#endif
-> +
->  #endif /* _LINUX_I2C_SMBUS_H */
+You have been randomly selected for a donation. Contact soriz4040@gmail.com for claims.
