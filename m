@@ -1,64 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] i2c: ismt: Use %pad specifier for dma_addr_t variables
-Date: Sun, 31 Dec 2017 00:22:01 +0100
-Message-ID: <20171230232201.fzh6l4tqxvvagyi4@ninjato>
-References: <20171110183358.86100-1-andriy.shevchenko@linux.intel.com>
- <1514474511.7000.422.camel@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PULL REQUEST] i2c-mux for 4.16-rc1
+Date: Sun, 31 Dec 2017 08:58:54 +0100
+Message-ID: <4a49b5a6-266c-afb3-8c41-88b46a449609@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ozfgu5nw5i3lo24i"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:32878 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750854AbdL3XWD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 30 Dec 2017 18:22:03 -0500
-Content-Disposition: inline
-In-Reply-To: <1514474511.7000.422.camel@linux.intel.com>
+Received: from mail-eopbgr40126.outbound.protection.outlook.com ([40.107.4.126]:8655
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750724AbdLaH7C (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 31 Dec 2017 02:59:02 -0500
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+Hi Wolfram,
 
---ozfgu5nw5i3lo24i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A couple of patches this time. Just some more compatibles for the pca954x
+driver and an error handling tweak for the reg driver.
 
-On Thu, Dec 28, 2017 at 05:21:51PM +0200, Andy Shevchenko wrote:
-> On Fri, 2017-11-10 at 20:33 +0200, Andy Shevchenko wrote:
-> > ...which takes care of proper format and size of the value.
->=20
-> Wolfram, any comment on this?
+Please pull!
 
-I was leaving this for the driver maintainers, but well, this is an easy
-one, so...
+Cheers,
+Peter
 
->=20
-> >=20
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
 
-Applied to for-next, thanks!
+  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
 
+are available in the git repository at:
 
---ozfgu5nw5i3lo24i
-Content-Type: application/pgp-signature; name="signature.asc"
+  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
 
------BEGIN PGP SIGNATURE-----
+for you to fetch changes up to ac5b85de17cb96445c51bd1a1c53c3f675582f26:
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpIH5kACgkQFA3kzBSg
-KbYleQ/+Nl+gJzYyO9L/HCrUP2Veh/C7RUxoYkb0DfWsDK1gSstClUYVEfRe1pah
-Yk/LgcmaluxXNsEuhJ3GT0n2wfApLsoSfb5Pk3JxUY/G3mNp17RW2dNJVFTxVeq4
-hDGLwRS/2y1192F11zftfQ1daD7GgmnwYIGInjDpe13YwLPg4NPk57A0laHEnOMe
-jdHaBWmXAN9HS3PeQDkF63xq4H+8lbmeSZb6LN0NjDZBwVEpOia7w1yurSVQ+s4B
-dCM0Bbk3hd77dp00ZNgVwjLUqPdTahfdcOJ+5dld85ScUuKlp0U/jKxyzLV+kBvs
-GyepcuJOR13lBqWhg8+HsFTKhlTQqyc0zBNL/vfxanagPu3B92BhfakF5LgBpei8
-WYdzq7y8CuUq6fzlkbbF0dnOsA3ccudIKiHzhi7pJcCzd9DpWkeMQKkbajMtT/LK
-8z9vCrHaUtQW6QTTCW/M+lwv+reQIQdK5mmbi102waeoSw8kcz0qs2XqEJYyLXXL
-I4mAMpXGoSOojknNB03TskDbiiz/eX5E+3fyUzeuTf8aE54bgQST+minsF5937C9
-PiqwxfUzvMEfRYQNNtTiKWtwmZ9TNIJsCKd11sutPQ3QDZQscHb1fCBw1dG2jE1x
-0/r8nKmYF7F9qVQR5ajco9/Eq1CigCZXdSAj/lbHHXo0ziNFP5I=
-=E6fH
------END PGP SIGNATURE-----
+  i2c: mux: reg: don't log an error for probe deferral (2017-12-30 23:12:34 +0100)
 
---ozfgu5nw5i3lo24i--
+----------------------------------------------------------------
+Adrian Fiergolski (1):
+      i2c: mux: pca954x: add support for NXP PCA984x family
+
+Tomasz Bachorski (1):
+      i2c: mux: reg: don't log an error for probe deferral
+
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    | 13 ++++++--
+ drivers/i2c/muxes/Kconfig                          |  6 ++--
+ drivers/i2c/muxes/i2c-mux-pca954x.c                | 38 +++++++++++++++++++---
+ drivers/i2c/muxes/i2c-mux-reg.c                    |  3 ++
+ 4 files changed, 51 insertions(+), 9 deletions(-)
