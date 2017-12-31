@@ -1,53 +1,53 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PULL REQUEST] i2c-mux for 4.16-rc1
-Date: Sun, 31 Dec 2017 08:58:54 +0100
-Message-ID: <4a49b5a6-266c-afb3-8c41-88b46a449609@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PULL REQUEST] i2c-mux for 4.16-rc1
+Date: Sun, 31 Dec 2017 10:02:35 +0100
+Message-ID: <20171231090235.rtxidyqoeptk2uhw@ninjato>
+References: <4a49b5a6-266c-afb3-8c41-88b46a449609@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="oulpb5shnzbejmjk"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr40126.outbound.protection.outlook.com ([40.107.4.126]:8655
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750724AbdLaH7C (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 31 Dec 2017 02:59:02 -0500
-Content-Language: en-US
+Received: from sauhun.de ([88.99.104.3]:34171 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750724AbdLaJCh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 31 Dec 2017 04:02:37 -0500
+Content-Disposition: inline
+In-Reply-To: <4a49b5a6-266c-afb3-8c41-88b46a449609@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Peter Rosin <peda@axentia.se>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Wolfram,
 
-A couple of patches this time. Just some more compatibles for the pca954x
-driver and an error handling tweak for the reg driver.
+--oulpb5shnzbejmjk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Please pull!
 
-Cheers,
-Peter
+> A couple of patches this time. Just some more compatibles for the pca954x
+> driver and an error handling tweak for the reg driver.
 
-The following changes since commit ae64f9bd1d3621b5e60d7363bc20afb46aede215:
+Thanks, pulled!
 
-  Linux 4.15-rc2 (2017-12-03 11:01:47 -0500)
 
-are available in the git repository at:
+--oulpb5shnzbejmjk
+Content-Type: application/pgp-signature; name="signature.asc"
 
-  https://github.com/peda-r/i2c-mux.git i2c-mux/for-next
+-----BEGIN PGP SIGNATURE-----
 
-for you to fetch changes up to ac5b85de17cb96445c51bd1a1c53c3f675582f26:
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpIp6gACgkQFA3kzBSg
+Kbb8Ig//doKw/u+JuuOLBs13bFl6xU9ec4Xzy4+ZrOYfu2EQVfIiAowN9YSoj9qN
+EBVopbPDLB6SRkAFQdL1U1SoJvbgAqAOU32kQWE/q/Y08P28NNa0w+q3oBj3kO2L
+I54YYrsE18RNq1hS8Seb0xmXKlSmy+UAk+v3074cnJjfj3sSDltOHnSGNI/FN5Dz
+FzLfYO0eRrwB6DV0Y0ncC8ElOg0QdiAP02Lnvd9PKK2joCUBr14CdEa2zpwQKWYx
+6lcgoDuwl67AHqoaDVaSfoME80CEhJdoqLkE83NOEluiEMXxLnrRNh0K7E1ebs6t
+C4QjaeaQYjDFEQXMeZQp6h7YNVoQ796iBnTRt8qAuVfjBpkrrf6/Hc7Y1ecKhsHU
+UHTVlZz+tgLNXDMQp2RK6jE9VUE1eBzewFBAj2IVKl+PkXvvrhVzCvJ+Rq6tiG4I
++KvYDochX04AM2rOT74cspNFEzrPp9YG+Yze3qif9w0ONBh/MFgZ/3XVIlTQjpYa
+FHRQ+lsL3IyXgrWEeOOjSFN1uhwBxe3f5Mqcsv3AC7+UcD33MCZDVTIpbBx7QbBI
+9NPSxrBTb0uYeskeXMJ19dQsjAHvsbCNUvJCBhVV3sQU+tXtCJLRE8TbKQYkGtKl
+xWDVZrk9Fwy7Nc9j7x/3TeUS7NxXS/qbBoMUofaHXbT6Oe5fjkI=
+=EUDK
+-----END PGP SIGNATURE-----
 
-  i2c: mux: reg: don't log an error for probe deferral (2017-12-30 23:12:34 +0100)
-
-----------------------------------------------------------------
-Adrian Fiergolski (1):
-      i2c: mux: pca954x: add support for NXP PCA984x family
-
-Tomasz Bachorski (1):
-      i2c: mux: reg: don't log an error for probe deferral
-
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    | 13 ++++++--
- drivers/i2c/muxes/Kconfig                          |  6 ++--
- drivers/i2c/muxes/i2c-mux-pca954x.c                | 38 +++++++++++++++++++---
- drivers/i2c/muxes/i2c-mux-reg.c                    |  3 ++
- 4 files changed, 51 insertions(+), 9 deletions(-)
+--oulpb5shnzbejmjk--
