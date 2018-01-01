@@ -1,74 +1,105 @@
-From: Darren Stevens <darren@stevens-zone.net>
-Subject: [RESEND PATCH] i2c/busses/pasemi: Remove hardcoded bus numbers on
- smbus
-Date: Sun, 31 Dec 2017 20:53:55 +0000 (GMT)
-Message-ID: <4b3d0f2cad0.58555470@auth.smtp.1and1.co.uk>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: xps 15 9560 touchpad high interrupts
+Date: Mon, 1 Jan 2018 08:14:41 +0200
+Message-ID: <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
+References: <CAEOHGO=GYr4NCnwNXf=it6WFVRQ0d-eYTVKoZSiuhYhumnBK5A@mail.gmail.com>
+ <20171231062520.qlcijf32eoqhdksf@sapphire.tkos.co.il>
+ <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="--=_BOUNDARY.6c3689407220717c.e5"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.73]:57770 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750936AbdLaWQx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 31 Dec 2017 17:16:53 -0500
+Received: from guitar.tcltek.co.il ([192.115.133.116]:59213 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750748AbeAAGOp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 1 Jan 2018 01:14:45 -0500
+Content-Disposition: inline
+In-Reply-To: <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
+To: Javad Karabi <karabijavad@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Warning: This is a message in MIME format. Your mail reader does
-not support MIME. Some parts of this message will be readable as
-plain text. To see the rest, you will need to upgrade your mail
-reader. Following are some URLs where you can find MIME-capable
-mail programs for common platforms:
+Hi Javad Karabi,
 
-  AmigaOS...........: http://yam.ch/
-  Unix/MacOS/Windows: http://www.mozilla.com/thunderbird/
+Added linux-i2c to Cc.
 
-General information about MIME can be found at:
-http://en.wikipedia.org/wiki/MIME
+On Sun, Dec 31, 2017 at 03:58:57PM -0600, Javad Karabi wrote:
+> On Sun, Dec 31, 2017 at 12:25 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> > Added linux-input list to Cc.
+> >
+> > On Sat, Dec 30, 2017 at 05:10:06PM -0600, Javad Karabi wrote:
+> > > im trying to figure out why i get like 7000 interrupts a second simply by
+> > > resting my finger on the touchpad (not even moving it)
+> > > this is on a xps 15 9560
+> > > and the touchpad is at
+> > > DLL07BE:01 06CB:7A13 Touchpad as
+> > > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/
+> > i2c-DLL07BE:01/0018:06CB:7A13.0009/input/input58
+> > >
+> > > could you provide me with any advice as to where i should look to figure
+> > > this out?
+> > > i have already tried adding code to i2c-designware-platdrv.c
+> > > i added
+> > > dev->clk_freq = 100000;
+> > > in dw_i2c_plat_probe, but it still shoots off thousands of interrupts a
+> > > second (and they are apparently spurious interrupts, atleast accoding
+> > > to /proc/irq/17/spurious
+> > >
+> > > could you provide any guidance at all? would be much appreciated.. i
+> > > would love to fix this issue and get it upstreamed in the kernel if 
+> > > possible.
+> > > thank you
+> >
+> > i2c_designware is a I2C bus master driver. It allows the host to
+> > communicate with various devices. Your touchpad is apparently one such 
+> > device. But each device on the I2C bus needs its own driver. I have no 
+> > idea which driver handles your touchpad device. Maybe someone on the 
+> > linux-input list knows.
+> >
+> > Specifically, the interrupts handling has nothing to do with the I2C bus.
+> > Unlike PCIe, I2C provides no in-bus interrupt delivery facility. I2C
+> > devices usually use a separate dedicated interrupt line. So the spurious 
+> > interrupts that you see must be handled at the touchpad input driver 
+> > level.
+> >
+> > One thing that might help others help you is the version of the kernel you
+> > are running. Please provide the output of 'uname -rv' on your machine.
+> 
+> uname -rv
+> 4.15.0-rc5 #2 SMP Thu Dec 28 18:21:06 CST 2017
+> 
+> for what its worth, i think it might be hid_multitouch that is handling the
+> touchpad, since when i rmmod it, my touchpad is no longer active.
 
-----=_BOUNDARY.6c3689407220717c.e5
-Content-Type: text/plain
+The hid-multitouch driver handles USB devices, not I2C. The code at 
+drivers/hid/hid-multitouch.c shows a few supported USB_VENDOR_ID_SYNAPTICS 
+(0x06cb) devices, but the 0x7a13 device ID does not appear there as of 
+v4.15-rc6. Maybe your kernel is patched to add support for that device.
 
-The pasemi smbus controller uses PCI_FUNC(dev->devfn) to define which
-number bus to attach to, however this fails when something else is 
-probed first, for example an ATI Radeon graphics card will claim 9 or
-10 busses, including the ones the pasemi wants.
-Patch the driver to call i2c_add_adapter rather than
-i2c_add_numbered_adapter.
+I guess that i2c_designware appears on the device hierarchy because the 
+"smart" USB hub on your system is controlled over the I2C bus.
 
-Signed-off-by: Darren Stevens <darren@stevens-zone.net>
+> when you say that the touchpad driver handles the irq stuff... i am a
+> little confused because i2c-designware-platdrv.c contains this line:
+> irq = platform_get_irq(pdev, 0);
 
----
+Do you have an indication that irq 17 belongs to i2c-designware?
 
+The i2c-designware driver uses an interrupt to handle its hardware buffer, and 
+to receive transactions status. I2C is a slow protocol, so most controller 
+implementations are asynchronous. If this irq misbehaves, then there is most 
+likely a problem with the i2c-designware driver.
 
-----=_BOUNDARY.6c3689407220717c.e5
-Content-Type: text/plain;
-	name="i2c.patch"
-Content-Disposition: attachment;
-	filename="i2c.patch";
-	size=826
+> i would assume that hid_multitouch would contain irq related code if i am
+> understanding you correctly?
+> am i misunderstanding?
 
-diff --git a/drivers/i2c/busses/i2c-pasemi.c b/drivers/i2c/busses/i2c-pasemi.c
-index df1dbc9..05847fd 100644
---- a/drivers/i2c/busses/i2c-pasemi.c
-+++ b/drivers/i2c/busses/i2c-pasemi.c
-@@ -365,7 +365,6 @@ static int pasemi_smb_probe(struct pci_dev *dev,
- 	smbus->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	smbus->adapter.algo = &smbus_algorithm;
- 	smbus->adapter.algo_data = smbus;
--	smbus->adapter.nr = PCI_FUNC(dev->devfn);
- 
- 	/* set up the sysfs linkage to our parent device */
- 	smbus->adapter.dev.parent = &dev->dev;
-@@ -373,7 +372,7 @@ static int pasemi_smb_probe(struct pci_dev *dev,
- 	reg_write(smbus, REG_CTL, (CTL_MTR | CTL_MRR |
- 		  (CLK_100K_DIV & CTL_CLK_M)));
- 
--	error = i2c_add_numbered_adapter(&smbus->adapter);
-+	error = i2c_add_adapter(&smbus->adapter);
- 	if (error)
- 		goto out_release_region;
- 
+Since hid-multitouch is a USB driver, the irq handle itself is in the USB bus 
+driver.
 
-----=_BOUNDARY.6c3689407220717c.e5--
+baruch
+
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
