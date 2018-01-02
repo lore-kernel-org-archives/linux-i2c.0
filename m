@@ -1,117 +1,144 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: Re: [PATCH] eeprom: at24: check the return value of
- nvmem_unregister()
-Date: Tue, 2 Jan 2018 11:17:56 +0000
-Message-ID: <1dff0754-e5cb-bda3-4ffb-16182752ca62@linaro.org>
-References: <20171227141038.31646-1-brgl@bgdev.pl>
- <20171228112845.GB3729@localhost>
- <CAMRc=MfQvQ+PEcQZRcs8baHPgyrXQ_=m6YXCtbqDseYHMGOZtw@mail.gmail.com>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: xps 15 9560 touchpad high interrupts
+Date: Tue, 2 Jan 2018 15:46:05 +0200
+Message-ID: <20180102134605.km5plmeef7nqmpwg@tarshish>
+References: <CAEOHGO=GYr4NCnwNXf=it6WFVRQ0d-eYTVKoZSiuhYhumnBK5A@mail.gmail.com>
+ <20171231062520.qlcijf32eoqhdksf@sapphire.tkos.co.il>
+ <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
+ <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
+ <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:43408 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751286AbeABLR7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Jan 2018 06:17:59 -0500
-Received: by mail-wm0-f66.google.com with SMTP id n138so60556690wmg.2
-        for <linux-i2c@vger.kernel.org>; Tue, 02 Jan 2018 03:17:58 -0800 (PST)
-In-Reply-To: <CAMRc=MfQvQ+PEcQZRcs8baHPgyrXQ_=m6YXCtbqDseYHMGOZtw@mail.gmail.com>
-Content-Language: en-US
+Received: from guitar.tcltek.co.il ([192.115.133.116]:59314 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751551AbeABNqK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Jan 2018 08:46:10 -0500
+Content-Disposition: inline
+In-Reply-To: <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Johan Hovold <johan@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Javad Karabi <karabijavad@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Thanks Bartosz fo adding me in to the loop!!
+Hi Javad Karabi,
 
-On 28/12/17 21:42, Bartosz Golaszewski wrote:
-> 2017-12-28 12:28 GMT+01:00 Johan Hovold <johan@kernel.org>:
->> On Wed, Dec 27, 2017 at 03:10:38PM +0100, Bartosz Golaszewski wrote:
->>> This function can fail with -EBUSY, but we don't check its return
->>> value in at24_remove(). Bail-out of remove() if nvmem_unregister()
->>> doesn't succeed.
->>>
->>> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
->>> ---
->>>   drivers/misc/eeprom/at24.c | 6 ++++--
->>>   1 file changed, 4 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->>> index e79833d62284..fb21e1c45115 100644
->>> --- a/drivers/misc/eeprom/at24.c
->>> +++ b/drivers/misc/eeprom/at24.c
->>> @@ -684,11 +684,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>>   static int at24_remove(struct i2c_client *client)
->>>   {
->>>        struct at24_data *at24;
->>> -     int i;
->>> +     int i, ret;
->>>
->>>        at24 = i2c_get_clientdata(client);
->>>
->>> -     nvmem_unregister(at24->nvmem);
->>> +     ret = nvmem_unregister(at24->nvmem);
->>> +     if (ret)
->>> +             return ret;
->>
->> I don't this makes much sense as a driver cannot refuse an unbind by
->> returning an errno from remove(). The return value is simply ignored,
->> remove() will never be called again, and you'd leave everything in an
->> inconsistent state.
->>
+On Mon, Jan 01, 2018 at 05:18:00PM -0600, Javad Karabi wrote:
+> On Mon, Jan 1, 2018 at 12:14 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> > On Sun, Dec 31, 2017 at 03:58:57PM -0600, Javad Karabi wrote:
+> >> On Sun, Dec 31, 2017 at 12:25 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> >> > Added linux-input list to Cc.
+> >> >
+> >> > On Sat, Dec 30, 2017 at 05:10:06PM -0600, Javad Karabi wrote:
+> >> > > im trying to figure out why i get like 7000 interrupts a second simply by
+> >> > > resting my finger on the touchpad (not even moving it)
+> >> > > this is on a xps 15 9560
+> >> > > and the touchpad is at
+> >> > > DLL07BE:01 06CB:7A13 Touchpad as
+> >> > > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/
+> >> > i2c-DLL07BE:01/0018:06CB:7A13.0009/input/input58
+> >> > >
+> >> > > could you provide me with any advice as to where i should look to figure
+> >> > > this out?
+> >> > > i have already tried adding code to i2c-designware-platdrv.c
+> >> > > i added
+> >> > > dev->clk_freq = 100000;
+> >> > > in dw_i2c_plat_probe, but it still shoots off thousands of interrupts a
+> >> > > second (and they are apparently spurious interrupts, atleast accoding
+> >> > > to /proc/irq/17/spurious
+> >> > >
+> >> > > could you provide any guidance at all? would be much appreciated.. i
+> >> > > would love to fix this issue and get it upstreamed in the kernel if
+> >> > > possible.
+> >> > > thank you
+> >> >
+> >> > i2c_designware is a I2C bus master driver. It allows the host to
+> >> > communicate with various devices. Your touchpad is apparently one such
+> >> > device. But each device on the I2C bus needs its own driver. I have no
+> >> > idea which driver handles your touchpad device. Maybe someone on the
+> >> > linux-input list knows.
+> >> >
+> >> > Specifically, the interrupts handling has nothing to do with the I2C bus.
+> >> > Unlike PCIe, I2C provides no in-bus interrupt delivery facility. I2C
+> >> > devices usually use a separate dedicated interrupt line. So the spurious
+> >> > interrupts that you see must be handled at the touchpad input driver
+> >> > level.
+> >> >
+> >> > One thing that might help others help you is the version of the kernel you
+> >> > are running. Please provide the output of 'uname -rv' on your machine.
+> >>
+> >> uname -rv
+> >> 4.15.0-rc5 #2 SMP Thu Dec 28 18:21:06 CST 2017
+> >>
+> >> for what its worth, i think it might be hid_multitouch that is handling the
+> >> touchpad, since when i rmmod it, my touchpad is no longer active.
+> >
+> > The hid-multitouch driver handles USB devices, not I2C. The code at
+> > drivers/hid/hid-multitouch.c shows a few supported USB_VENDOR_ID_SYNAPTICS
+> > (0x06cb) devices, but the 0x7a13 device ID does not appear there as of
+> > v4.15-rc6. Maybe your kernel is patched to add support for that device.
+> >
+> > I guess that i2c_designware appears on the device hierarchy because the
+> > "smart" USB hub on your system is controlled over the I2C bus.
+> >
+> >> when you say that the touchpad driver handles the irq stuff... i am a
+> >> little confused because i2c-designware-platdrv.c contains this line:
+> >> irq = platform_get_irq(pdev, 0);
+> >
+> > Do you have an indication that irq 17 belongs to i2c-designware?
+> >
+> > The i2c-designware driver uses an interrupt to handle its hardware buffer, and
+> > to receive transactions status. I2C is a slow protocol, so most controller
+> > implementations are asynchronous. If this irq misbehaves, then there is most
+> > likely a problem with the i2c-designware driver.
+> >
+> >> i would assume that hid_multitouch would contain irq related code if i am
+> >> understanding you correctly?
+> >> am i misunderstanding?
+> >
+> > Since hid-multitouch is a USB driver, the irq handle itself is in the USB bus
+> > driver.
 > 
-> Cc: Srinivas
+> uname -rv:
+> 4.15.0-rc5-00248-gf39d7d78b70e #2 SMP Sun Dec 31 18:17:25 CST 2017
 > 
-> Hi Johan,
+> the git commit i am at is f39d7d78b70e0f39facb1e4fab77ad3df5c52a35
 > 
-> I blindly assumed that if there's a return value in remove() then
-> someone cares about it. In that case all users of nvmem_unregister()
-> that check the return value and bail-out of remove() on failure are
-> wrong and in the (very unlikely) event that this routine fails, we
-> leak all resources.
+> > Do you have an indication that irq 17 belongs to i2c-designware?
+> from /proc/interrupts:
+>   17:   47105193          0          0          0          0
+> 0          0          0  IR-IO-APIC   17-fasteoi   idma64.1,
+> i2c_designware.1
 > 
-
-Yes, you are correct, returning error from driver remove is issue, as 
-driver core ignores returns from remove().
-
-Just to make it clear on some assumptions made in 
-nvmem_register/unregister(). nvmem providers could be part of the other 
-drivers which can dynamically register and unregister nvmem providers, 
-so it's not totally necessary for it to be associated with its own 
-device driver.
-
-
->> It looks like the nvmem code grabs a reference to the owning module
->> in __nvmem_device_get() which would at least prevent a module unload
->> while another driver is using the device. And the (sysfs) userspace
->> interface should be fine as device removal is handled by the kernfs
->> code.
+> if i rmmod idma64, the behavior remains the same, so im assuming this
+> is all i2c_designware thats causing this problem.
 > 
-> Indeed. I believe we should remove the -EBUSY return case from
-> nvmem_register() and just do what gpiolib does - scream loud
+> > then there is most likely a problem with the i2c-designware driver.
+> do you have any idea what the problem might be? i know i should look
+> in the code for i2c-designware, but why would a touchpad be shooting
+> off interrupts like that with my finger simply resting on it?
 
-I think you meant nvmem_unregister().
+It is not the touchpad that shoots the interrupts. It is the i2c-designware 
+hardware module.
 
-I don't agree with removing -EBUSY from core, it should be rather 
-handled by the provider drivers which can do dev_crit or something 
-similar to shout loud!
+> i have a theory, could you tell me if this makes sense?
+> perhaps the touchpad hardware is configured with a very high
+> sensitivity. so in theory if the sensitivity was decreased, then
+> resting my finger would not trigger interrupts until i move it a
+> larger amount?
 
-> (dev_crit()) when someone forces a module unload or otherwise
-> unregisters the device if some cells are still requested. This would
-> also allow us to eventually add a devres variant for nvmem_register().
+I don't think that the touchpad sensitivity has anything to do with this 
+interrupts storm.
 
-There is already a patchset [1] from Andrey which seems to be what you need.
+There is another possibility. The USB hub controller driver might be shooting 
+i2c transactions at the USB hub. In this case the bug is not in the i2c master 
+driver.
 
+Can you identify the driver that initiates the i2c transactions?
 
-[1]: https://lkml.org/lkml/2018/1/1/522
+baruch
 
-Thanks,
-Srini
-
-> 
-> What do you think Srinivas?
-> 
-> Best regards,
-> Bartosz Golaszewski
-> 
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
