@@ -1,144 +1,113 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: xps 15 9560 touchpad high interrupts
-Date: Tue, 2 Jan 2018 15:46:05 +0200
-Message-ID: <20180102134605.km5plmeef7nqmpwg@tarshish>
-References: <CAEOHGO=GYr4NCnwNXf=it6WFVRQ0d-eYTVKoZSiuhYhumnBK5A@mail.gmail.com>
- <20171231062520.qlcijf32eoqhdksf@sapphire.tkos.co.il>
- <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
- <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
- <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from guitar.tcltek.co.il ([192.115.133.116]:59314 "EHLO
-        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751551AbeABNqK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Jan 2018 08:46:10 -0500
-Content-Disposition: inline
-In-Reply-To: <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 00/12] account for const type of of_device_id.data
+Date: Tue,  2 Jan 2018 14:27:56 +0100
+Message-ID: <1514899688-27844-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-iio@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Lars-Peter Clausen <lars@metafoo.de>, Hartmut Knaack <knaack.h@gmx.de>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-rockchip@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-pci@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Javad Karabi <karabijavad@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hi Javad Karabi,
+Maintain const annotations when putting values into the data field of
+an of_device_id structure, and afterwards when extracting them from
+the data field of such a structure.
 
-On Mon, Jan 01, 2018 at 05:18:00PM -0600, Javad Karabi wrote:
-> On Mon, Jan 1, 2018 at 12:14 AM, Baruch Siach <baruch@tkos.co.il> wrote:
-> > On Sun, Dec 31, 2017 at 03:58:57PM -0600, Javad Karabi wrote:
-> >> On Sun, Dec 31, 2017 at 12:25 AM, Baruch Siach <baruch@tkos.co.il> wrote:
-> >> > Added linux-input list to Cc.
-> >> >
-> >> > On Sat, Dec 30, 2017 at 05:10:06PM -0600, Javad Karabi wrote:
-> >> > > im trying to figure out why i get like 7000 interrupts a second simply by
-> >> > > resting my finger on the touchpad (not even moving it)
-> >> > > this is on a xps 15 9560
-> >> > > and the touchpad is at
-> >> > > DLL07BE:01 06CB:7A13 Touchpad as
-> >> > > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/
-> >> > i2c-DLL07BE:01/0018:06CB:7A13.0009/input/input58
-> >> > >
-> >> > > could you provide me with any advice as to where i should look to figure
-> >> > > this out?
-> >> > > i have already tried adding code to i2c-designware-platdrv.c
-> >> > > i added
-> >> > > dev->clk_freq = 100000;
-> >> > > in dw_i2c_plat_probe, but it still shoots off thousands of interrupts a
-> >> > > second (and they are apparently spurious interrupts, atleast accoding
-> >> > > to /proc/irq/17/spurious
-> >> > >
-> >> > > could you provide any guidance at all? would be much appreciated.. i
-> >> > > would love to fix this issue and get it upstreamed in the kernel if
-> >> > > possible.
-> >> > > thank you
-> >> >
-> >> > i2c_designware is a I2C bus master driver. It allows the host to
-> >> > communicate with various devices. Your touchpad is apparently one such
-> >> > device. But each device on the I2C bus needs its own driver. I have no
-> >> > idea which driver handles your touchpad device. Maybe someone on the
-> >> > linux-input list knows.
-> >> >
-> >> > Specifically, the interrupts handling has nothing to do with the I2C bus.
-> >> > Unlike PCIe, I2C provides no in-bus interrupt delivery facility. I2C
-> >> > devices usually use a separate dedicated interrupt line. So the spurious
-> >> > interrupts that you see must be handled at the touchpad input driver
-> >> > level.
-> >> >
-> >> > One thing that might help others help you is the version of the kernel you
-> >> > are running. Please provide the output of 'uname -rv' on your machine.
-> >>
-> >> uname -rv
-> >> 4.15.0-rc5 #2 SMP Thu Dec 28 18:21:06 CST 2017
-> >>
-> >> for what its worth, i think it might be hid_multitouch that is handling the
-> >> touchpad, since when i rmmod it, my touchpad is no longer active.
-> >
-> > The hid-multitouch driver handles USB devices, not I2C. The code at
-> > drivers/hid/hid-multitouch.c shows a few supported USB_VENDOR_ID_SYNAPTICS
-> > (0x06cb) devices, but the 0x7a13 device ID does not appear there as of
-> > v4.15-rc6. Maybe your kernel is patched to add support for that device.
-> >
-> > I guess that i2c_designware appears on the device hierarchy because the
-> > "smart" USB hub on your system is controlled over the I2C bus.
-> >
-> >> when you say that the touchpad driver handles the irq stuff... i am a
-> >> little confused because i2c-designware-platdrv.c contains this line:
-> >> irq = platform_get_irq(pdev, 0);
-> >
-> > Do you have an indication that irq 17 belongs to i2c-designware?
-> >
-> > The i2c-designware driver uses an interrupt to handle its hardware buffer, and
-> > to receive transactions status. I2C is a slow protocol, so most controller
-> > implementations are asynchronous. If this irq misbehaves, then there is most
-> > likely a problem with the i2c-designware driver.
-> >
-> >> i would assume that hid_multitouch would contain irq related code if i am
-> >> understanding you correctly?
-> >> am i misunderstanding?
-> >
-> > Since hid-multitouch is a USB driver, the irq handle itself is in the USB bus
-> > driver.
-> 
-> uname -rv:
-> 4.15.0-rc5-00248-gf39d7d78b70e #2 SMP Sun Dec 31 18:17:25 CST 2017
-> 
-> the git commit i am at is f39d7d78b70e0f39facb1e4fab77ad3df5c52a35
-> 
-> > Do you have an indication that irq 17 belongs to i2c-designware?
-> from /proc/interrupts:
->   17:   47105193          0          0          0          0
-> 0          0          0  IR-IO-APIC   17-fasteoi   idma64.1,
-> i2c_designware.1
-> 
-> if i rmmod idma64, the behavior remains the same, so im assuming this
-> is all i2c_designware thats causing this problem.
-> 
-> > then there is most likely a problem with the i2c-designware driver.
-> do you have any idea what the problem might be? i know i should look
-> in the code for i2c-designware, but why would a touchpad be shooting
-> off interrupts like that with my finger simply resting on it?
+This was done using the following semantic patch:
+(http://coccinelle.lip6.fr/)
 
-It is not the touchpad that shoots the interrupts. It is the i2c-designware 
-hardware module.
+// <smpl>
+@r@
+identifier i,j;
+const struct j *m;
+struct i *y;
+type T;
+expression x,e;
+position p;
+@@
 
-> i have a theory, could you tell me if this makes sense?
-> perhaps the touchpad hardware is configured with a very high
-> sensitivity. so in theory if the sensitivity was decreased, then
-> resting my finger would not trigger interrupts until i move it a
-> larger amount?
+(
+y =@p (T)(of_device_get_match_data(...));
+|
+x = of_match_node(...);
+... when != x = e
+(
+m = e;
+|
+y =@p (T)(x->data);
+)
+)
 
-I don't think that the touchpad sensitivity has anything to do with this 
-interrupts storm.
+@s@
+identifier r.i,j;
+@@
 
-There is another possibility. The USB hub controller driver might be shooting 
-i2c transactions at the USB hub. In this case the bug is not in the i2c master 
-driver.
+const struct i j = { ... };
 
-Can you identify the driver that initiates the i2c transactions?
+@t depends on s disable optional_qualifier@
+expression e;
+identifier r.i,x,j,n;
+struct j *m;
+struct i *e1;
+position any r.p;
+type T;
+@@
 
-baruch
+(
++const
+struct i *x;
+<+...
+(
+x =@p 
+-   (T)(e)
++   e
+|
+x =@p e
+)
+...+>
+|
+m->@e1 n =@p 
+-   (T)(e)
++   e
+|
+m->@e1 n =@p e
+)
 
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+@disable optional_qualifier@
+identifier t.j,t.n,r.i;
+@@
+
+struct j {
+  ...
++ const
+  struct i *n;
+  ...
+}
+
+@@
+identifier x,s.j;
+type T;
+@@
+
+struct of_device_id x[] = { ...,
+  { .data =
+-           (T)
+            &j, }, ...};
+
+// </smpl>
+
+---
+
+ drivers/i2c/busses/i2c-rk3x.c               |   16 ++++++++--------
+ drivers/iio/common/ssp_sensors/ssp.h        |    2 +-
+ drivers/iio/common/ssp_sensors/ssp_dev.c    |    2 +-
+ drivers/mtd/spi-nor/fsl-quadspi.c           |    8 ++++----
+ drivers/pci/dwc/pcie-qcom.c                 |    4 ++--
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c |    4 ++--
+ drivers/pinctrl/pinctrl-at91-pio4.c         |    4 ++--
+ drivers/pinctrl/pinctrl-axp209.c            |    2 +-
+ drivers/power/avs/rockchip-io-domain.c      |   24 ++++++++++++------------
+ drivers/power/reset/at91-sama5d2_shdwc.c    |    4 ++--
+ drivers/power/supply/axp20x_ac_power.c      |    8 ++++----
+ drivers/spi/spi-fsl-dspi.c                  |    7 +++----
+ drivers/spi/spi-sirf.c                      |    4 ++--
+ 13 files changed, 44 insertions(+), 44 deletions(-)
